@@ -19,7 +19,8 @@ class V8NodeFilterCondition : public NodeFilterCondition {
   explicit V8NodeFilterCondition(v8::Handle<v8::Value> filter);
   virtual ~V8NodeFilterCondition();
 
-  virtual short acceptNode(Node* node) const;
+  virtual short acceptNode(ExceptionContext* exception_context,
+                           Node* node) const;
 
  private:
   mutable v8::Persistent<v8::Value> m_filter;

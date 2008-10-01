@@ -12,9 +12,9 @@
 #include "FormData.h"
 #include "FormDataList.h"
 #include "FrameLoader.h"
+#include "HTMLFormControlElement.h"
 #include "HTMLFormElement.h"
 #include "HTMLOptionElement.h"
-#include "HTMLGenericFormElement.h"
 #include "HTMLInputElement.h"
 #include "HTMLNames.h"
 #include "HTMLOptionsCollection.h"
@@ -22,6 +22,7 @@
 #include "ResourceRequest.h"
 #include "String.h"
 #include "TextEncoding.h"
+#include <wtf/Vector.h>
 #pragma warning(pop)
 
 #undef LOG
@@ -38,47 +39,39 @@ using WebCore::HTMLOptionElement;
 
 namespace {
 
+// TODO(eseidel): appendString and appendEncodedString do *not* follow Google
+// style because they are copy/paste from WebKit and will go away as soon as the
+// WebKit functions are made public.
+static void appendString(Vector<char>& buffer, const char* string)
+{
+    buffer.append(string, strlen(string));
+}
+
 // TODO (sky): This comes straight out of HTMLFormElement, will work with 
 // WebKit folks to make public.
-WebCore::DeprecatedCString encodeCString(const WebCore::CString& cstr) {
-    WebCore::DeprecatedCString e = cstr.deprecatedCString();
+static void appendEncodedString(Vector<char>& buffer, const WebCore::CString& string)
+{
+    static const char hexDigits[17] = "0123456789ABCDEF";
 
     // http://www.w3.org/TR/html4/interact/forms.html#h-17.13.4.1
-    // same safe characters as Netscape for compatibility
-    static const char *safe = "-._*";
-    int elen = e.length();
-    WebCore::DeprecatedCString encoded((elen + e.contains('\n')) * 3 + 1);
-    int enclen = 0;
+    int length = string.length();
+    for (int i = 0; i < length; i++) {
+        unsigned char c = string.data()[i];
 
-    for (int pos = 0; pos < elen; pos++) {
-        unsigned char c = e[pos];
-
+        // Same safe characters as Netscape for compatibility.
+        static const char safe[] = "-._*";
         if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || strchr(safe, c))
-            encoded[enclen++] = c;
+            buffer.append(c);
         else if (c == ' ')
-            encoded[enclen++] = '+';
-        else if (c == '\n' || (c == '\r' && e[pos + 1] != '\n')) {
-            encoded[enclen++] = '%';
-            encoded[enclen++] = '0';
-            encoded[enclen++] = 'D';
-            encoded[enclen++] = '%';
-            encoded[enclen++] = '0';
-            encoded[enclen++] = 'A';
-        } else if (c != '\r') {
-            encoded[enclen++] = '%';
-            unsigned int h = c / 16;
-            h += (h > 9) ? ('A' - 10) : '0';
-            encoded[enclen++] = h;
-
-            unsigned int l = c % 16;
-            l += (l > 9) ? ('A' - 10) : '0';
-            encoded[enclen++] = l;
+            buffer.append('+');
+        else if (c == '\n' || (c == '\r' && (i + 1 >= length || string.data()[i + 1] != '\n')))
+            appendString(buffer, "%0D%0A");
+        else if (c != '\r') {
+            buffer.append('%');
+            buffer.append(hexDigits[c >> 4]);
+            buffer.append(hexDigits[c & 0xF]);
         }
     }
-    encoded[enclen++] = '\0';
-    encoded.truncate(enclen);
-
-    return encoded;
 }
 
 // Returns true if the form element has an 'onsubmit' attribute.
@@ -101,7 +94,8 @@ void GetFormEncoding(WebCore::HTMLFormElement* form,
   WebCore::String str = 
     form->getAttribute(WebCore::HTMLNames::accept_charsetAttr);
   str.replace(',', ' ');
-  Vector<WebCore::String> charsets = str.split(' ');
+  Vector<WebCore::String> charsets;
+  str.split(' ', charsets);
   Vector<WebCore::String>::const_iterator end = charsets.end();
   for (Vector<WebCore::String>::const_iterator it = charsets.begin(); it != end; 
        ++it) {
@@ -129,14 +123,14 @@ bool IsHTTPFormSubmit(WebCore::HTMLFormElement* form) {
 
 // If the form does not have an activated submit button, the first submit
 // button is returned.
-WebCore::HTMLGenericFormElement* GetButtonToActivate(
+WebCore::HTMLFormControlElement* GetButtonToActivate(
     WebCore::HTMLFormElement* form) {
-  WTF::Vector<WebCore::HTMLGenericFormElement*> form_elements = 
+  WTF::Vector<WebCore::HTMLFormControlElement*> form_elements = 
       form->formElements;
-  WebCore::HTMLGenericFormElement* first_submit_button = NULL;
+  WebCore::HTMLFormControlElement* first_submit_button = NULL;
 
   for (unsigned i = 0; i < form_elements.size(); ++i) {
-    WebCore::HTMLGenericFormElement* current = form_elements[i];
+    WebCore::HTMLFormControlElement* current = form_elements[i];
     if (current->isActivatedSubmit()) {
       // There's a button that is already activated for submit, return NULL.
       return NULL;
@@ -198,7 +192,7 @@ bool IsCheckBoxOrRadioInDefaultState(HTMLInputElement* element) {
 // The default state is the state of the form element on initial load of the
 // page, and varies depending upon the form element. For example, a checkbox is
 // in its default state if the checked state matches the defaultChecked state.
-bool IsInDefaultState(WebCore::HTMLGenericFormElement* form_element) {
+bool IsInDefaultState(WebCore::HTMLFormControlElement* form_element) {
   if (form_element->hasTagName(WebCore::HTMLNames::inputTag)) {
     HTMLInputElement* input_element =
         static_cast<HTMLInputElement*>(form_element);
@@ -219,7 +213,7 @@ bool IsInDefaultState(WebCore::HTMLGenericFormElement* form_element) {
 // encoding_name.
 WebCore::HTMLInputElement* GetTextElement(
     WebCore::HTMLFormElement* form,
-    WebCore::DeprecatedCString* enc_string,
+    Vector<char>* enc_string,
     std::string* encoding_name) {
   WebCore::TextEncoding encoding;
   GetFormEncoding(form, &encoding);
@@ -231,10 +225,10 @@ WebCore::HTMLInputElement* GetTextElement(
   }
   *encoding_name = encoding.name();
   WebCore::HTMLInputElement* text_element = NULL;
-  WTF::Vector<WebCore::HTMLGenericFormElement*> form_elements = 
+  WTF::Vector<WebCore::HTMLFormControlElement*> form_elements = 
       form->formElements;
   for (unsigned i = 0; i < form_elements.size(); ++i) {
-    WebCore::HTMLGenericFormElement* form_element = form_elements[i];
+    WebCore::HTMLFormControlElement* form_element = form_elements[i];
     if (!form_element->disabled() && !form_element->name().isNull()) {
       bool is_text_element = false;
       if (!IsInDefaultState(form_element)) {
@@ -279,19 +273,19 @@ WebCore::HTMLInputElement* GetTextElement(
           // but only if its the first entry
           if (enc_string->isEmpty() && item.m_data == "isindex") {
             if (form_element == text_element)
-              *enc_string += "{searchTerms}";
+              appendString(*enc_string, "{searchTerms}");
             else
-              *enc_string += encodeCString(lst.list()[j + 1].m_data);
+              appendEncodedString(*enc_string, (lst.list()[j + 1].m_data));
             ++j;
           } else {
             if (!enc_string->isEmpty())
-              *enc_string += '&';
-            *enc_string += encodeCString(item.m_data);
-            *enc_string += "=";
+              enc_string->append('&');
+            appendEncodedString(*enc_string, item.m_data);
+            enc_string->append('=');
             if (form_element == text_element)
-              *enc_string += "{searchTerms}";
+              appendString(*enc_string, "{searchTerms}");
             else
-              *enc_string += encodeCString(lst.list()[j + 1].m_data);
+              appendEncodedString(*enc_string, lst.list()[j + 1].m_data);
             ++j;
           }
         }
@@ -313,8 +307,8 @@ SearchableFormData* SearchableFormData::Create(WebCore::Element* element) {
   if (frame == NULL)
     return NULL;
 
-  WebCore::HTMLGenericFormElement* input_element = 
-    static_cast<WebCore::HTMLGenericFormElement*>(element);
+  WebCore::HTMLFormControlElement* input_element = 
+    static_cast<WebCore::HTMLFormControlElement*>(element);
 
   WebCore::HTMLFormElement* form = input_element->form();
   if (form == NULL)
@@ -334,8 +328,8 @@ SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
       !IsHTTPFormSubmit(form))
     return NULL;
 
-  WebCore::DeprecatedCString enc_string = "";
-  WebCore::HTMLGenericFormElement* first_submit_button = 
+  Vector<char> enc_string;
+  WebCore::HTMLFormControlElement* first_submit_button = 
     GetButtonToActivate(form);
 
   if (first_submit_button) {
@@ -359,12 +353,11 @@ SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
 
   // It's a valid form.
   // Generate the URL and create a new SearchableFormData.
-  RefPtr<WebCore::FormData> form_data = new WebCore::FormData;
-  form_data->appendData(enc_string.data(), enc_string.length());
+  RefPtr<WebCore::FormData> form_data = WebCore::FormData::create(enc_string);
   WebCore::String action = WebCore::parseURL(form->action());
   WebCore::FrameLoader* loader = frame->loader();
   WebCore::KURL url = loader->completeURL(action.isNull() ? "" : action);
-  url.setQuery(form_data->flattenToString().deprecatedString());
+  url.setQuery(form_data->flattenToString());
   std::wstring current_value = webkit_glue::StringToStdWString(
     static_cast<WebCore::HTMLInputElement*>(text_element)->value());
   std::wstring text_name = 

@@ -26,13 +26,15 @@
 #ifndef DOMWindow_h
 #define DOMWindow_h
 
+#include "KURL.h"
 #include "PlatformString.h"
+#include "SecurityOrigin.h"
+#include <wtf/Forward.h>
 #include <wtf/RefCounted.h>
 
-#if USE(V8_BINDING)
+#if USE(V8)
 #include <wtf/HashMap.h>
 #endif
-#include <wtf/Forward.h>
 #include <wtf/RefPtr.h>
 
 namespace WebCore {
@@ -48,28 +50,44 @@ namespace WebCore {
     class FloatRect;
     class Frame;
     class History;
+    class Location;
+    class Navigator;
+    class PostMessageTimer;
     class Screen;
     class String;
 
-#if USE(V8_BINDING)
-    class Location;
-    class Navigator;
+#if USE(V8)
     class ScheduledAction;
     class PausedTimeouts;
     class DOMWindowTimer;
+#endif
+
+#if ENABLE(DOM_STORAGE)
+    class SessionStorage;
+    class Storage;
+#endif
+
+#if ENABLE(OFFLINE_WEB_APPLICATIONS)
+    class DOMApplicationCache;
 #endif
 
     typedef int ExceptionCode;
 
     class DOMWindow : public RefCounted<DOMWindow> {
     public:
-        DOMWindow(Frame*);
+        static PassRefPtr<DOMWindow> create(Frame* frame) { return adoptRef(new DOMWindow(frame)); }
         virtual ~DOMWindow();
 
         Frame* frame() { return m_frame; }
         void disconnectFrame();
 
         void clear();
+
+        void setSecurityOrigin(SecurityOrigin* securityOrigin) { m_securityOrigin = securityOrigin; }
+        SecurityOrigin* securityOrigin() const { return m_securityOrigin.get(); }
+
+        void setURL(const KURL& url) { m_url = url; }
+        KURL url() const { return m_url; }
 
         static void adjustWindowRect(const FloatRect& screen, FloatRect& window, const FloatRect& pendingChanges);
 
@@ -82,6 +100,9 @@ namespace WebCore {
         BarInfo* scrollbars() const;
         BarInfo* statusbar() const;
         BarInfo* toolbar() const;
+        Navigator* navigator() const;
+        Navigator* clientInformation() const { return navigator(); }
+        Location* location() const;
 
         DOMSelection* getSelection();
 
@@ -153,11 +174,20 @@ namespace WebCore {
         PassRefPtr<Database> openDatabase(const String& name, const String& version, const String& displayName, unsigned long estimatedSize, ExceptionCode&);
 #endif
 
-        Console* console() const;
-        
-#if ENABLE(CROSS_DOCUMENT_MESSAGING)
-        void postMessage(const String& message, const String& domain, const String& uri, DOMWindow* source) const;
+#if ENABLE(DOM_STORAGE)
+        // HTML 5 key/value storage
+        Storage* sessionStorage() const;
+        Storage* localStorage() const;
 #endif
+
+        Console* console() const;
+
+#if ENABLE(OFFLINE_WEB_APPLICATIONS)
+        DOMApplicationCache* applicationCache() const;
+#endif
+
+        void postMessage(const String& message, const String& targetOrigin, DOMWindow* source, ExceptionCode&);
+        void postMessageTimerFired(PostMessageTimer*);
 
         void scrollBy(int x, int y) const;
         void scrollTo(int x, int y) const;
@@ -169,7 +199,34 @@ namespace WebCore {
         void resizeBy(float x, float y) const;
         void resizeTo(float width, float height) const;
 
+        // These methods are used for GC marking. See JSDOMWindow::mark() in
+        // JSDOMWindowCustom.cpp.
+        Screen* optionalScreen() const { return m_screen.get(); }
+        DOMSelection* optionalSelection() const { return m_selection.get(); }
+        History* optionalHistory() const { return m_history.get(); }
+        BarInfo* optionalLocationbar() const { return m_locationbar.get(); }
+        BarInfo* optionalMenubar() const { return m_menubar.get(); }
+        BarInfo* optionalPersonalbar() const { return m_personalbar.get(); }
+        BarInfo* optionalScrollbars() const { return m_scrollbars.get(); }
+        BarInfo* optionalStatusbar() const { return m_statusbar.get(); }
+        BarInfo* optionalToolbar() const { return m_toolbar.get(); }
+        Console* optionalConsole() const { return m_console.get(); }
+        Navigator* optionalNavigator() const { return m_navigator.get(); }
+        Location* optionalLocation() const { return m_location.get(); }
+#if ENABLE(DOM_STORAGE)
+        Storage* optionalSessionStorage() const { return m_sessionStorage.get(); }
+        Storage* optionalLocalStorage() const { return m_sessionStorage.get(); }
+#endif
+#if ENABLE(OFFLINE_WEB_APPLICATIONS)
+        DOMApplicationCache* optionalApplicationCache() const { return m_applicationCache.get(); }
+#endif
+
     private:
+        DOMWindow(Frame*);
+
+        RefPtr<SecurityOrigin> m_securityOrigin;
+        KURL m_url;
+
         Frame* m_frame;
         mutable RefPtr<Screen> m_screen;
         mutable RefPtr<DOMSelection> m_selection;
@@ -181,12 +238,21 @@ namespace WebCore {
         mutable RefPtr<BarInfo> m_statusbar;
         mutable RefPtr<BarInfo> m_toolbar;
         mutable RefPtr<Console> m_console;
+        mutable RefPtr<Navigator> m_navigator;
+        mutable RefPtr<Location> m_location;
+#if ENABLE(DOM_STORAGE)
+        mutable RefPtr<Storage> m_sessionStorage;
+        mutable RefPtr<Storage> m_localStorage;
+#endif
+#if ENABLE(OFFLINE_WEB_APPLICATIONS)
+        mutable RefPtr<DOMApplicationCache> m_applicationCache;
+#endif
 
     private:
         void updateLayout() const;
 
 
-#if USE(V8_BINDING)
+#if USE(V8)
     public:
         // DOM methods & attributes for Window.
 
@@ -224,13 +290,10 @@ namespace WebCore {
         void scheduleClose();
         void clearAllTimeouts();
 
-        PausedTimeouts* pauseTimeouts();
-        void resumeTimeouts(PausedTimeouts* timeouts);
+        void pauseTimeouts(OwnPtr<PausedTimeouts>&);
+        void resumeTimeouts(OwnPtr<PausedTimeouts>&);
 
     private:
-        mutable RefPtr<Location> m_location;
-        mutable RefPtr<Navigator> m_navigator;
-
         typedef HashMap<int, DOMWindowTimer*> TimeoutsMap;
         TimeoutsMap m_timeouts;
 #endif

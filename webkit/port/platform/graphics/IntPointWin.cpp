@@ -53,4 +53,4 @@ IntPoint::operator POINTS() const
     return p;
 }
 
-}
+} // namespace WebCore

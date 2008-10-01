@@ -29,6 +29,7 @@
 #include "config.h"
 #include "FontCache.h"
 #include "Font.h"
+#include "HashSet.h"
 #include "SimpleFontData.h"
 #include "StringHash.h"
 #include <algorithm>
@@ -555,6 +556,22 @@ FontPlatformData* FontCache::getLastResortFallbackFont(
     return getCachedFontPlatformData(description, fontStr);
 }
 
+static LONG toGDIFontWeight(FontWeight fontWeight)
+{
+    static LONG gdiFontWeights[] = {
+        FW_THIN,        // FontWeight100
+        FW_EXTRALIGHT,  // FontWeight200
+        FW_LIGHT,       // FontWeight300
+        FW_NORMAL,      // FontWeight400
+        FW_MEDIUM,      // FontWeight500
+        FW_SEMIBOLD,    // FontWeight600
+        FW_BOLD,        // FontWeight700
+        FW_EXTRABOLD,   // FontWeight800
+        FW_HEAVY        // FontWeight900
+    };
+    return gdiFontWeights[fontWeight];
+}
+
 // TODO(jungshik): This may not be the best place to put this function. See
 // TODO in pending/FontCache.h.
 AtomicString FontCache::getGenericFontForScript(UScriptCode script, const FontDescription& description)
@@ -584,16 +601,7 @@ static void FillLogFont(const FontDescription& fontDescription, LOGFONT* winfont
         : DEFAULT_QUALITY; // Honor user's desktop settings.
     winfont->lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
     winfont->lfItalic = fontDescription.italic();
-
-    // FIXME: Support weights for real.  Do our own enumeration of the available weights.
-    // We can't rely on Windows here, since we need to follow the CSS2 algorithm for how to fill in
-    // gaps in the weight list.
-    // fontExists() used to hardcod Lucida Grande. According to FIXME comment,
-    // that's because it uses different weights than typical Win32 fonts
-    // (500/600 instead of 400/700). However, createFontPlatformData
-    // didn't. Special-casing Lucida Grande in a refactored function
-    // led to massive webkit test failure. 
-    winfont->lfWeight = fontDescription.bold() ? 700 : 400;
+    winfont->lfWeight = toGDIFontWeight(fontDescription.weight());
 }
 
 bool FontCache::fontExists(const FontDescription& fontDescription, const AtomicString& family)
@@ -618,6 +626,55 @@ bool FontCache::fontExists(const FontDescription& fontDescription, const AtomicS
     return LookupAltName(family, altName) && equalIgnoringCase(altName, winName);
 }
 
+struct TraitsInFamilyProcData {
+    TraitsInFamilyProcData(const AtomicString& familyName)
+        : m_familyName(familyName)
+    {
+    }
+
+    const AtomicString& m_familyName;
+    HashSet<unsigned> m_traitsMasks;
+};
+
+static int CALLBACK traitsInFamilyEnumProc(CONST LOGFONT* logFont, CONST TEXTMETRIC* metrics, DWORD fontType, LPARAM lParam)
+{
+    TraitsInFamilyProcData* procData = reinterpret_cast<TraitsInFamilyProcData*>(lParam);
+
+    unsigned traitsMask = 0;
+    traitsMask |= logFont->lfItalic ? FontStyleItalicMask : FontStyleNormalMask;
+    traitsMask |= FontVariantNormalMask;
+    LONG weight = logFont->lfWeight;
+    traitsMask |= weight == FW_THIN ? FontWeight100Mask :
+        weight == FW_EXTRALIGHT ? FontWeight200Mask :
+        weight == FW_LIGHT ? FontWeight300Mask :
+        weight == FW_NORMAL ? FontWeight400Mask :
+        weight == FW_MEDIUM ? FontWeight500Mask :
+        weight == FW_SEMIBOLD ? FontWeight600Mask :
+        weight == FW_BOLD ? FontWeight700Mask :
+        weight == FW_EXTRABOLD ? FontWeight800Mask :
+                                 FontWeight900Mask;
+    procData->m_traitsMasks.add(traitsMask);
+    return 1;
+}
+
+void FontCache::getTraitsInFamily(const AtomicString& familyName, Vector<unsigned>& traitsMasks)
+{
+    HDC hdc = GetDC(0);
+
+    LOGFONT logFont;
+    logFont.lfCharSet = DEFAULT_CHARSET;
+    unsigned familyLength = min(familyName.length(), static_cast<unsigned>(LF_FACESIZE - 1));
+    memcpy(logFont.lfFaceName, familyName.characters(), familyLength * sizeof(UChar));
+    logFont.lfFaceName[familyLength] = 0;
+    logFont.lfPitchAndFamily = 0;
+
+    TraitsInFamilyProcData procData(familyName);
+    EnumFontFamiliesEx(hdc, &logFont, traitsInFamilyEnumProc, reinterpret_cast<LPARAM>(&procData), 0);
+    copyToVector(procData.m_traitsMasks, traitsMasks);
+
+    ReleaseDC(0, hdc);
+}
+
 FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontDescription, const AtomicString& family)
 {
     LOGFONT winfont = {0};
@@ -631,8 +688,8 @@ FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontD
     if (!hfont)
         return 0;
 
-	// TODO(pamg): Do we need to use predefined fonts "guaranteed" to exist
-	// when we're running in layout-test mode?
+    // TODO(pamg): Do we need to use predefined fonts "guaranteed" to exist
+    // when we're running in layout-test mode?
     if (!equalIgnoringCase(family, winName)) {
         // For CJK fonts with both English and native names, 
         // GetTextFace returns a native name under the font's "locale"

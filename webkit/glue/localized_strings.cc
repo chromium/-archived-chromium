@@ -32,8 +32,10 @@
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 #include "base/logging.h"
+#include "base/file_util.h"
 #include "base/string_util.h"
 #include "build/build_config.h"
+#include "webkit/glue/glue_util.h"
 
 #if defined(OS_WIN)
 #include "webkit_strings.h"
@@ -70,7 +72,6 @@ String WebCore::fileButtonNoFileSelectedLabel() {
   return GetLocalizedString(IDS_FORM_FILE_NO_FILE_LABEL);
 }
 
-// TODO(tc): Do we actually plan on implementing search menu items?
 String WebCore::searchMenuNoRecentSearchesText() {
   return GetLocalizedString(IDS_RECENT_SEARCHES_NONE);
 }
@@ -117,6 +118,19 @@ String WebCore::AXLinkActionVerb() {
   return GetLocalizedString(IDS_AX_LINK_ACTION_VERB);
 }
 
+// Used in FTPDirectoryDocument.cpp
+String WebCore::unknownFileSizeText() {
+  return String();
+}
+
+// These two are used in FileChooserWin.cpp.
+String WebCore::uploadFileText() {
+  return String();
+}
+String WebCore::allFilesText() {
+  return String();
+}
+
 // The following two functions are not declared in LocalizedStrings.h.
 // They are used by the menu for the HTML keygen tag.
 namespace WebCore {
@@ -126,6 +140,15 @@ String keygenMenuHighGradeKeySize() {
 String keygenMenuMediumGradeKeySize() {
   return GetLocalizedString(IDS_KEYGEN_MED_GRADE_KEY);
 }
+
+// Used in ImageDocument.cpp as the title for pages when that page is an image.
+String WebCore::imageTitle(const String& filename, const IntSize& size) {
+  // C3 97 is UTF-8 for U+00D7 (multiplication sign).
+  std::string size_str = StringPrintf(" (%d\xC3\x97%d)",
+                                      size.width(), size.height());
+  return filename + webkit_glue::StdStringToString(size_str);
+}
+
 } //namespace WebCore
 
 #if defined(OS_WIN)

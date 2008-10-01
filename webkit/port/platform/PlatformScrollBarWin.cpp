@@ -189,17 +189,16 @@ void PlatformScrollbar::DrawTickmarks(GraphicsContext* context) const
     // will not be serialized, i.e. composition is done in the renderer and
     // never in the browser.
     // Prepare the bitmap for drawing the tickmarks on the scroll bar.
-    gfx::PlatformCanvasWin* canvas = PlatformContextToPlatformContextSkia(
-        context->platformContext())->canvas();
+    gfx::PlatformCanvas* canvas = context->platformContext()->canvas();
 
     // Load the image for the tickmark.
-    static Image* dashImg = Image::loadPlatformResource("tickmarkDash");
+    static RefPtr<Image> dashImg = Image::loadPlatformResource("tickmarkDash");
     DCHECK(dashImg);
     if (dashImg->isNull()) {
         ASSERT_NOT_REACHED();
         return;
     }
-    const NativeImageSkia* dash = dashImg->getBitmap();
+    const NativeImageSkia* dash = dashImg->nativeImageForCurrentFrame();
 
     for (Vector<RefPtr<Range> >::const_iterator i =
             tickmarks.begin();
@@ -237,10 +236,9 @@ void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
 
     layout();
 
-    HDC hdc = gc->getWindowsContext();
+    HDC hdc = gc->getWindowsContext(damageRect);
     const bool horz = orientation() == HorizontalScrollbar;
-    const PlatformContextSkia* const skia =
-        PlatformContextToPlatformContextSkia(gc->platformContext());
+    const PlatformContextSkia* const skia = gc->platformContext();
     const gfx::NativeTheme* const nativeTheme = skia->nativeTheme();
     gfx::PlatformCanvasWin* const canvas = skia->canvas();
     
@@ -308,7 +306,7 @@ void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
                                          DFCS_SCROLLRIGHT : DFCS_SCROLLDOWN) |
                                          getClassicThemeState(Arrow2),
                                      &m_segmentRects[Arrow2]);
-    gc->releaseWindowsContext(hdc);
+    gc->releaseWindowsContext(hdc, damageRect);
 
     gc->restore();
 }

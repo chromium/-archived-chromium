@@ -81,7 +81,7 @@ static std::wstring GetMisspelledWord(WebCore::ContextMenu* default_menu,
   }
         
   if (selected_frame->shouldChangeSelection(selection))
-    selected_frame->selectionController()->setSelection(selection);
+    selected_frame->selection()->setSelection(selection);
        
   misspelled_word_string = CollapseWhitespace(
       webkit_glue::StringToStdWString(selected_frame->selectedText()),                  

@@ -10,7 +10,6 @@
 
 #pragma warning(push, 0)
 #include "CString.h"
-#include "DeprecatedString.h"
 #include "PlatformString.h"
 #pragma warning(pop)
 
@@ -66,43 +65,17 @@ WebCore::String StdStringToString(const std::string& str) {
   return WebCore::String(str.data(), static_cast<unsigned>(str.length()));
 }
 
-WebCore::DeprecatedString StdWStringToDeprecatedString(
-    const std::wstring& str) {
-#if defined(WCHAR_T_IS_UTF16)
-  return WebCore::DeprecatedString(
-      reinterpret_cast<const WebCore::DeprecatedChar*>(str.c_str()),
-      static_cast<int>(str.size()));
-#elif defined(WCHAR_T_IS_UTF32)
-  string16 str16 = WideToUTF16(str);
-  return WebCore::DeprecatedString(
-      reinterpret_cast<const WebCore::DeprecatedChar*>(str16.c_str()),
-      static_cast<int>(str16.size()));
-#endif
-}
-
-std::wstring DeprecatedStringToStdWString(
-    const WebCore::DeprecatedString& dep) {
-#if defined(WCHAR_T_IS_UTF16)
-  return std::wstring(reinterpret_cast<const wchar_t*>(dep.unicode()),
-                                                       dep.length());
-#elif defined(WCHAR_T_IS_UTF32)
-  string16 str16(reinterpret_cast<const char16*>(dep.unicode()),
-                                                       dep.length());
-  return UTF16ToWide(str16);
-#endif
-}
-
 // URL conversions -------------------------------------------------------------
 
 GURL KURLToGURL(const WebCore::KURL& url) {
 #ifdef USE_GOOGLE_URL_LIBRARY
   const WebCore::CString& spec = url.utf8String();
-  if (spec.isNull())
+  if (spec.isNull() || 0 == spec.length())
     return GURL();
   return GURL(spec.data(), spec.length(), url.parsed(), url.isValid());
 #else
-  const WebCore::DeprecatedString& spec = url.deprecatedString();
-  return GURL(WideToUTF8(DeprecatedStringToStdWString(spec))); 
+  const WebCore::String& spec = url.string();
+  return GURL(WideToUTF8(StringToStdWString(spec)));
 #endif
 }
 
@@ -113,7 +86,7 @@ WebCore::KURL GURLToKURL(const GURL& url) {
   return WebCore::KURL(spec.c_str(), static_cast<int>(spec.length()),
                        url.parsed_for_possibly_invalid_spec(), url.is_valid());
 #else
-  return WebCore::KURL(StdWStringToDeprecatedString(UTF8ToWide(spec)));
+  return WebCore::KURL(StdWStringToString(UTF8ToWide(spec)));
 #endif
 }
 

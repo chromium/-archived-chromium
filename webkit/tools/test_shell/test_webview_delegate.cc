@@ -336,6 +336,12 @@ void TestWebViewDelegate::DidFinishDocumentLoadForFrame(WebView* webview,
   if (shell_->ShouldDumpFrameLoadCallbacks()) {
     printf("%S - didFinishDocumentLoadForFrame\n",
            GetFrameDescription(frame).c_str());
+  } else {
+    unsigned pending_unload_events = frame->PendingFrameUnloadEventCount();
+    if (pending_unload_events) {
+      printf("%S - has %u onunload handler(s)\n",
+          GetFrameDescription(frame).c_str(), pending_unload_events);
+    }
   }
 }
 
@@ -652,12 +658,6 @@ void TestWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
   WebPreferences* prefs = shell_->GetWebPreferences();
   prefs->user_style_sheet_enabled = true;
   prefs->user_style_sheet_location = location;
-  shell_->webView()->SetPreferences(*prefs);
-}
-
-void TestWebViewDelegate::SetDashboardCompatibilityMode(bool use_mode) {
-  WebPreferences* prefs = shell_->GetWebPreferences();
-  prefs->dashboard_compatibility_mode = use_mode;
   shell_->webView()->SetPreferences(*prefs);
 }
 

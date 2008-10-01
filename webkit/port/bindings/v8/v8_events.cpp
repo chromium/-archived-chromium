@@ -223,6 +223,11 @@ v8::Local<v8::Object> V8EventListener::GetThisObject(Event* event,
         V8ClassIndex::XMLHTTPREQUEST, target->toXMLHttpRequest());
     return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
 
+  } else if (target->toXMLHttpRequestUpload()) {
+    v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
+        V8ClassIndex::XMLHTTPREQUESTUPLOAD, target->toXMLHttpRequestUpload());
+    return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
+
   } else {
     ASSERT(false);
     return v8::Local<v8::Object>();

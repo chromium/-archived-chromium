@@ -108,7 +108,10 @@ static const NPUTF8 *pluginPropertyIdentifierNames[NUM_PROPERTY_IDENTIFIERS] = {
 #define ID_TEST_PASS_TEST_OBJECT    14
 #define ID_TEST_CLONE_OBJECT        15
 #define ID_TEST_SCRIPT_OBJECT_INVOKE 16
-#define NUM_METHOD_IDENTIFIERS      17
+#define ID_TEST_IDENTIFIER_TO_STRING 17
+#define ID_TEST_IDENTIFIER_TO_INT   18
+#define ID_TEST_POSTURL_FILE        19
+#define NUM_METHOD_IDENTIFIERS      20
 
 static NPIdentifier pluginMethodIdentifiers[NUM_METHOD_IDENTIFIERS];
 static const NPUTF8 *pluginMethodIdentifierNames[NUM_METHOD_IDENTIFIERS] = {
@@ -129,6 +132,9 @@ static const NPUTF8 *pluginMethodIdentifierNames[NUM_METHOD_IDENTIFIERS] = {
     "testPassTestObject",    // Chrome bug 1093606
     "testCloneObject",
     "testScriptObjectInvoke", // Chrome bug 1175346
+    "testIdentifierToString",
+    "testIdentifierToInt",
+    "testPostURLFile",
 };
 
 static NPUTF8* createCStringFromNPVariant(const NPVariant *variant)
@@ -203,10 +209,10 @@ static bool pluginSetProperty(NPObject *obj, NPIdentifier name, const NPVariant 
     return false;
 }
 
-static void testDOMAccess(PluginObject *obj)
+static bool testDOMAccess(PluginObject* obj, const NPVariant*, uint32_t, NPVariant* result)
 {
     // Get plug-in's DOM element
-    NPObject *elementObject;
+    NPObject* elementObject;
     if (browser->getvalue(obj->npp, NPNVPluginElementNPObject, &elementObject) == NPERR_NO_ERROR) {
         // Get style
         NPVariant styleVariant;
@@ -219,188 +225,365 @@ static void testDOMAccess(PluginObject *obj)
             browser->setproperty(obj->npp, NPVARIANT_TO_OBJECT(styleVariant), borderIdentifier, &borderVariant);
             browser->releasevariantvalue(&styleVariant);
         }
-        
+
         browser->releaseobject(elementObject);
     }
+    VOID_TO_NPVARIANT(*result);
+    return true;
 }
 
-static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result)
+static NPIdentifier stringVariantToIdentifier(NPVariant variant)
 {
-    PluginObject *obj = (PluginObject *)header;
-    if (name == pluginMethodIdentifiers[ID_TEST_CALLBACK_METHOD]) {
-        // call whatever method name we're given
-        if (argCount > 0 && NPVARIANT_IS_STRING(args[0])) {
-            NPObject *windowScriptObject;
-            browser->getvalue(obj->npp, NPNVWindowNPObject, &windowScriptObject);
+    assert(NPVARIANT_IS_STRING(variant));
+    NPUTF8* utf8String = createCStringFromNPVariant(&variant);
+    NPIdentifier identifier = browser->getstringidentifier(utf8String);
+    free(utf8String);
+    return identifier;
+}
 
-            NPUTF8* callbackString = createCStringFromNPVariant(&args[0]);
-            NPIdentifier callbackIdentifier = browser->getstringidentifier(callbackString);
-            free(callbackString);
+static NPIdentifier int32VariantToIdentifier(NPVariant variant)
+{
+    assert(NPVARIANT_IS_INT32(variant));
+    int32 integer = NPVARIANT_TO_INT32(variant);
+    return browser->getintidentifier(integer);
+}
 
-            NPVariant browserResult;
-            browser->invoke(obj->npp, windowScriptObject, callbackIdentifier, 0, 0, &browserResult);
-            browser->releasevariantvalue(&browserResult);
+static NPIdentifier doubleVariantToIdentifier(NPVariant variant)
+{
+    assert(NPVARIANT_IS_DOUBLE(variant));
+    double value = NPVARIANT_TO_DOUBLE(variant);
+    // Sadly there is no "getdoubleidentifier"
+    int32 integer = static_cast<int32>(value);
+    return browser->getintidentifier(integer);
+}
 
-            VOID_TO_NPVARIANT(*result);
-            return true;
-        }
-    } else if (name == pluginMethodIdentifiers[ID_TEST_GETURL]) {
-        if (argCount == 2 && NPVARIANT_IS_STRING(args[0]) && NPVARIANT_IS_STRING(args[1])) {
-            NPUTF8* urlString = createCStringFromNPVariant(&args[0]);
-            NPUTF8* targetString = createCStringFromNPVariant(&args[1]);
-            browser->geturl(obj->npp, urlString, targetString);
-            free(urlString);
-            free(targetString);
+static NPIdentifier variantToIdentifier(NPVariant variant)
+{
+    if (NPVARIANT_IS_STRING(variant))
+        return stringVariantToIdentifier(variant);
+    else if (NPVARIANT_IS_INT32(variant))
+        return int32VariantToIdentifier(variant);
+    else if (NPVARIANT_IS_DOUBLE(variant))
+        return doubleVariantToIdentifier(variant);
+    return 0;
+}
 
-            VOID_TO_NPVARIANT(*result);
-            return true;
-        } else if (argCount == 1 && NPVARIANT_IS_STRING(args[0])) {
-            NPUTF8* urlString = createCStringFromNPVariant(&args[0]);
-            browser->geturl(obj->npp, urlString, 0);
-            free(urlString);
-
-            VOID_TO_NPVARIANT(*result);
-            return true;
-        }
-    } else if (name == pluginMethodIdentifiers[ID_REMOVE_DEFAULT_METHOD]) {
-        pluginClass.invokeDefault = 0;
-        VOID_TO_NPVARIANT(*result);
-        return true;
-    } else if (name == pluginMethodIdentifiers[ID_TEST_DOM_ACCESS]) {
-        testDOMAccess(obj);
-        VOID_TO_NPVARIANT(*result);
-        return true;
-    } else if (name == pluginMethodIdentifiers[ID_TEST_GET_URL_NOTIFY]) {
-        if (argCount == 3
-          && NPVARIANT_IS_STRING(args[0])
-          && (NPVARIANT_IS_STRING(args[1]) || NPVARIANT_IS_NULL(args[1]))
-          && NPVARIANT_IS_STRING(args[2])) {
-            NPUTF8* urlString = createCStringFromNPVariant(&args[0]);
-            NPUTF8* targetString = (NPVARIANT_IS_STRING(args[1]) ? createCStringFromNPVariant(&args[1]) : NULL);
-            NPUTF8* callbackString = createCStringFromNPVariant(&args[2]);
-            
-            NPIdentifier callbackIdentifier = browser->getstringidentifier(callbackString);
-            browser->geturlnotify(obj->npp, urlString, targetString, callbackIdentifier);
-
-            free(urlString);
-            free(targetString);
-            free(callbackString);
-            
-            VOID_TO_NPVARIANT(*result);
-            return true;
-        }
-    } else if (name == pluginMethodIdentifiers[ID_TEST_INVOKE_DEFAULT] && NPVARIANT_IS_OBJECT(args[0])) {
-        NPObject *callback = NPVARIANT_TO_OBJECT(args[0]);
-        
-        NPVariant args[1];
-        NPVariant browserResult;
-        
-        STRINGZ_TO_NPVARIANT("test", args[0]);
-        bool retval = browser->invokeDefault(obj->npp, callback, args, 1, &browserResult);
-        
-        if (retval)
-            browser->releasevariantvalue(&browserResult);
-        
-        BOOLEAN_TO_NPVARIANT(retval, *result);
-        return true;
-    } else if (name == pluginMethodIdentifiers[ID_TEST_ENUMERATE]) {
-        if (argCount == 2 && NPVARIANT_IS_OBJECT(args[0]) && NPVARIANT_IS_OBJECT(args[1])) {
-            uint32_t count;            
-            NPIdentifier* identifiers;
-
-            if (browser->enumerate(obj->npp, NPVARIANT_TO_OBJECT(args[0]), &identifiers, &count)) {
-                NPObject* outArray = NPVARIANT_TO_OBJECT(args[1]);
-                NPIdentifier pushIdentifier = browser->getstringidentifier("push");
-                
-                for (uint32_t i = 0; i < count; i++) {
-                    NPUTF8* string = browser->utf8fromidentifier(identifiers[i]);
-                    
-                    if (!string)
-                        continue;
-                                        
-                    NPVariant args[1];
-                    STRINGZ_TO_NPVARIANT(string, args[0]);
-                    NPVariant browserResult;
-                    browser->invoke(obj->npp, outArray, pushIdentifier, args, 1, &browserResult);
-                    browser->releasevariantvalue(&browserResult);
-                    browser->memfree(string);
-                }
-                
-                browser->memfree(identifiers);
-            }
-            
-            VOID_TO_NPVARIANT(*result);
-            return true;            
-        }
+static bool testIdentifierToString(PluginObject*, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount != 1)
         return false;
-    } else if (name == pluginMethodIdentifiers[ID_DESTROY_STREAM]) {
-        NPError npError = browser->destroystream(obj->npp, obj->stream, NPRES_USER_BREAK);
-        INT32_TO_NPVARIANT(npError, *result);
-        return true;        
-    } else if (name == pluginMethodIdentifiers[ID_TEST_GETINTIDENTIFIER]) {
-        if (argCount == 1 && NPVARIANT_IS_DOUBLE(args[0])) {
-            NPIdentifier identifier = browser->getintidentifier((int)NPVARIANT_TO_DOUBLE(args[0]));
-            INT32_TO_NPVARIANT((int32)identifier, *result);
-            return true;
-        }
-    } else if (name == pluginMethodIdentifiers[ID_TEST_EVALUATE] && 
-               argCount == 1 && NPVARIANT_IS_STRING(args[0])) {
+    NPIdentifier identifier = variantToIdentifier(args[0]);
+    if (!identifier)
+        return false;
+    NPUTF8* utf8String = browser->utf8fromidentifier(identifier);
+    if (!utf8String)
+        return false;
+    STRINGZ_TO_NPVARIANT(utf8String, *result);
+    return true;
+}
+
+static bool testIdentifierToInt(PluginObject*, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount != 1)
+        return false;
+    NPIdentifier identifier = variantToIdentifier(args[0]);
+    if (!identifier)
+        return false;
+    int32 integer = browser->intfromidentifier(identifier);
+    INT32_TO_NPVARIANT(integer, *result);
+    return true;
+}
+
+static bool testCallback(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    // call whatever method name we're given
+    if (argCount > 0 && NPVARIANT_IS_STRING(args[0])) {
         NPObject *windowScriptObject;
         browser->getvalue(obj->npp, NPNVWindowNPObject, &windowScriptObject);
 
-        NPString s = NPVARIANT_TO_STRING(args[0]);
-        
-        bool retval = browser->evaluate(obj->npp, windowScriptObject, &s, result);
-        browser->releaseobject(windowScriptObject);
-        return retval;
-    } else if (name == pluginMethodIdentifiers[ID_TEST_GET_PROPERTY] &&
-               argCount > 0) {
-        NPObject *object;
-        browser->getvalue(obj->npp, NPNVWindowNPObject, &object);
+        NPUTF8* callbackString = createCStringFromNPVariant(&args[0]);
+        NPIdentifier callbackIdentifier = browser->getstringidentifier(callbackString);
+        free(callbackString);
 
-        for (uint32_t i = 0; i < argCount; i++) {
-            assert(NPVARIANT_IS_STRING(args[i]));
-            NPUTF8* propertyString = createCStringFromNPVariant(&args[i]);
-            NPIdentifier propertyIdentifier = browser->getstringidentifier(propertyString);
-            free(propertyString);
+        NPVariant browserResult;
+        browser->invoke(obj->npp, windowScriptObject, callbackIdentifier, 0, 0, &browserResult);
+        browser->releasevariantvalue(&browserResult);
+
+        VOID_TO_NPVARIANT(*result);
+        return true;
+    }
+    return false;
+}
+
+static bool getURL(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount == 2 && NPVARIANT_IS_STRING(args[0]) && NPVARIANT_IS_STRING(args[1])) {
+        NPUTF8* urlString = createCStringFromNPVariant(&args[0]);
+        NPUTF8* targetString = createCStringFromNPVariant(&args[1]);
+        browser->geturl(obj->npp, urlString, targetString);
+        free(urlString);
+        free(targetString);
+
+        VOID_TO_NPVARIANT(*result);
+        return true;
+    } else if (argCount == 1 && NPVARIANT_IS_STRING(args[0])) {
+        NPUTF8* urlString = createCStringFromNPVariant(&args[0]);
+        browser->geturl(obj->npp, urlString, 0);
+        free(urlString);
+
+        VOID_TO_NPVARIANT(*result);
+        return true;
+    }
+    return false;
+}
+
+static bool removeDefaultMethod(PluginObject*, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    pluginClass.invokeDefault = 0;
+    VOID_TO_NPVARIANT(*result);
+    return true;
+}
+
+static bool getURLNotify(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount == 3
+      && NPVARIANT_IS_STRING(args[0])
+      && (NPVARIANT_IS_STRING(args[1]) || NPVARIANT_IS_NULL(args[1]))
+      && NPVARIANT_IS_STRING(args[2])) {
+        NPUTF8* urlString = createCStringFromNPVariant(&args[0]);
+        NPUTF8* targetString = (NPVARIANT_IS_STRING(args[1]) ? createCStringFromNPVariant(&args[1]) : NULL);
+        NPUTF8* callbackString = createCStringFromNPVariant(&args[2]);
+        
+        NPIdentifier callbackIdentifier = browser->getstringidentifier(callbackString);
+        browser->geturlnotify(obj->npp, urlString, targetString, callbackIdentifier);
+
+        free(urlString);
+        free(targetString);
+        free(callbackString);
+        
+        VOID_TO_NPVARIANT(*result);
+        return true;
+    }
+    return false;
+}
+
+static bool testInvokeDefault(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (!NPVARIANT_IS_OBJECT(args[0]))
+        return false;
+
+    NPObject *callback = NPVARIANT_TO_OBJECT(args[0]);
+
+    NPVariant invokeArgs[1];
+    NPVariant browserResult;
+
+    STRINGZ_TO_NPVARIANT("test", invokeArgs[0]);
+    bool retval = browser->invokeDefault(obj->npp, callback, invokeArgs, 1, &browserResult);
+
+    if (retval)
+        browser->releasevariantvalue(&browserResult);
+
+    BOOLEAN_TO_NPVARIANT(retval, *result);
+    return true;
+}
+
+static bool destroyStream(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    NPError npError = browser->destroystream(obj->npp, obj->stream, NPRES_USER_BREAK);
+    INT32_TO_NPVARIANT(npError, *result);
+    return true;        
+}
+
+static bool testEnumerate(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount == 2 && NPVARIANT_IS_OBJECT(args[0]) && NPVARIANT_IS_OBJECT(args[1])) {
+        uint32_t count;            
+        NPIdentifier* identifiers;
+
+        if (browser->enumerate(obj->npp, NPVARIANT_TO_OBJECT(args[0]), &identifiers, &count)) {
+            NPObject* outArray = NPVARIANT_TO_OBJECT(args[1]);
+            NPIdentifier pushIdentifier = browser->getstringidentifier("push");
             
-            NPVariant variant;
-            bool retval = browser->getproperty(obj->npp, object, propertyIdentifier, &variant);
-            browser->releaseobject(object);
-            
-            if (!retval)
-                break;
-            
-            if (i + 1 < argCount) {
-                assert(NPVARIANT_IS_OBJECT(variant));
-                object = NPVARIANT_TO_OBJECT(variant);
-            } else {                
-                *result = variant;
-                return true;
+            for (uint32_t i = 0; i < count; i++) {
+                NPUTF8* string = browser->utf8fromidentifier(identifiers[i]);
+                
+                if (!string)
+                    continue;
+                                    
+                NPVariant args[1];
+                STRINGZ_TO_NPVARIANT(string, args[0]);
+                NPVariant browserResult;
+                browser->invoke(obj->npp, outArray, pushIdentifier, args, 1, &browserResult);
+                browser->releasevariantvalue(&browserResult);
+                browser->memfree(string);
             }
+            
+            browser->memfree(identifiers);
         }
         
         VOID_TO_NPVARIANT(*result);
+        return true;            
+    }
+    return false;
+}
+
+static bool testGetIntIdentifier(PluginObject*, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount == 1 && NPVARIANT_IS_DOUBLE(args[0])) {
+        NPIdentifier identifier = browser->getintidentifier((int)NPVARIANT_TO_DOUBLE(args[0]));
+        INT32_TO_NPVARIANT((int32)identifier, *result);
+        return true;
+    }
+    return false;
+}
+
+static bool testGetProperty(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount == 0)
         return false;
-    } else if (name == pluginMethodIdentifiers[ID_TEST_GET_PROPERTY_RETURN_VALUE] &&
-        argCount == 2 && NPVARIANT_IS_OBJECT(args[0]) && NPVARIANT_IS_STRING(args[1])) {
-        NPUTF8* propertyString = createCStringFromNPVariant(&args[1]);
+
+    NPObject *object;
+    browser->getvalue(obj->npp, NPNVWindowNPObject, &object);
+
+    for (uint32_t i = 0; i < argCount; i++) {
+        assert(NPVARIANT_IS_STRING(args[i]));
+        NPUTF8* propertyString = createCStringFromNPVariant(&args[i]);
         NPIdentifier propertyIdentifier = browser->getstringidentifier(propertyString);
         free(propertyString);
 
         NPVariant variant;
-        bool retval = browser->getproperty(obj->npp, NPVARIANT_TO_OBJECT(args[0]), propertyIdentifier, &variant);
-        if (retval)
-            browser->releasevariantvalue(&variant);
+        bool retval = browser->getproperty(obj->npp, object, propertyIdentifier, &variant);
+        browser->releaseobject(object);
 
-        BOOLEAN_TO_NPVARIANT(retval, *result);
-        return true;
-    } else if (name == pluginMethodIdentifiers[ID_TEST_CALLBACK_METHOD_RET]) {
+        if (!retval)
+            break;
+
+        if (i + 1 < argCount) {
+            assert(NPVARIANT_IS_OBJECT(variant));
+            object = NPVARIANT_TO_OBJECT(variant);
+        } else {
+            *result = variant;
+            return true;
+        }
+    }
+
+    VOID_TO_NPVARIANT(*result);
+    return false;
+}
+
+static bool testEvaluate(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount != 1 || !NPVARIANT_IS_STRING(args[0]))
+        return false;
+    NPObject* windowScriptObject;
+    browser->getvalue(obj->npp, NPNVWindowNPObject, &windowScriptObject);
+
+    NPString s = NPVARIANT_TO_STRING(args[0]);
+
+    bool retval = browser->evaluate(obj->npp, windowScriptObject, &s, result);
+    browser->releaseobject(windowScriptObject);
+    return retval;
+}
+
+static bool testGetPropertyReturnValue(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount != 2 || !NPVARIANT_IS_OBJECT(args[0]) || !NPVARIANT_IS_STRING(args[1]))
+        return false;
+
+    NPUTF8* propertyString = createCStringFromNPVariant(&args[1]);
+    NPIdentifier propertyIdentifier = browser->getstringidentifier(propertyString);
+    free(propertyString);
+
+    NPVariant variant;
+    bool retval = browser->getproperty(obj->npp, NPVARIANT_TO_OBJECT(args[0]), propertyIdentifier, &variant);
+    if (retval)
+        browser->releasevariantvalue(&variant);
+
+    BOOLEAN_TO_NPVARIANT(retval, *result);
+    return true;
+}
+
+static char* toCString(const NPString& string)
+{
+    char* result = static_cast<char*>(malloc(string.UTF8Length + 1));
+    memcpy(result, string.UTF8Characters, string.UTF8Length);
+    result[string.UTF8Length] = '\0';
+
+    return result;
+}
+
+static bool testPostURLFile(PluginObject* obj, const NPVariant* args, uint32_t argCount, NPVariant* result)
+{
+    if (argCount != 4 || !NPVARIANT_IS_STRING(args[0]) || !NPVARIANT_IS_STRING(args[1]) || !NPVARIANT_IS_STRING(args[2]) || !NPVARIANT_IS_STRING(args[3]))
+        return false;
+
+    NPString urlString = NPVARIANT_TO_STRING(args[0]);
+    char* url = toCString(urlString);
+
+    NPString targetString = NPVARIANT_TO_STRING(args[1]);
+    char* target = toCString(targetString);
+
+    NPString pathString = NPVARIANT_TO_STRING(args[2]);
+    char* path = toCString(pathString);
+
+    NPString contentsString = NPVARIANT_TO_STRING(args[3]);
+
+    FILE* tempFile = fopen(path, "w");
+    if (!tempFile)
+        return false;
+
+    fwrite(contentsString.UTF8Characters, contentsString.UTF8Length, 1, tempFile);
+    fclose(tempFile);
+
+    NPError error = browser->posturl(obj->npp, url, target, pathString.UTF8Length, path, TRUE);
+
+    free(path);
+    free(target);
+    free(url);
+
+    BOOLEAN_TO_NPVARIANT(error == NPERR_NO_ERROR, *result);
+    return true;
+}
+
+static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result)
+{
+    PluginObject* plugin = reinterpret_cast<PluginObject*>(header);
+    if (name == pluginMethodIdentifiers[ID_TEST_CALLBACK_METHOD])
+        return testCallback(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_GETURL])
+        return getURL(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_REMOVE_DEFAULT_METHOD])
+        return removeDefaultMethod(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_DOM_ACCESS])
+        return testDOMAccess(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_GET_URL_NOTIFY])
+        return getURLNotify(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_INVOKE_DEFAULT])
+        return testInvokeDefault(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_ENUMERATE])
+        return testEnumerate(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_DESTROY_STREAM])
+        return destroyStream(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_GETINTIDENTIFIER])
+        return testGetIntIdentifier(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_EVALUATE])
+        return testEvaluate(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_GET_PROPERTY])
+        return testGetProperty(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_GET_PROPERTY_RETURN_VALUE])
+        return testGetPropertyReturnValue(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_IDENTIFIER_TO_STRING])
+        return testIdentifierToString(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_IDENTIFIER_TO_INT])
+        return testIdentifierToInt(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_POSTURL_FILE])
+        return testPostURLFile(plugin, args, argCount, result);
+    else if (name == pluginMethodIdentifiers[ID_TEST_CALLBACK_METHOD_RET]) {
         // call whatever method name we're given, and pass it the 'window' obj.
         // we expect the function to return its argument.
         if (argCount > 0 && NPVARIANT_IS_STRING(args[0])) {
             NPObject *windowScriptObject;
-            browser->getvalue(obj->npp, NPNVWindowNPObject, &windowScriptObject);
+            browser->getvalue(plugin->npp, NPNVWindowNPObject, &windowScriptObject);
 
             NPUTF8* callbackString = createCStringFromNPVariant(&args[0]);
             NPIdentifier callbackIdentifier = browser->getstringidentifier(callbackString);
@@ -410,7 +593,7 @@ static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *a
             OBJECT_TO_NPVARIANT(windowScriptObject, callbackArgs[0]);
 
             NPVariant browserResult;
-            browser->invoke(obj->npp, windowScriptObject, callbackIdentifier,
+            browser->invoke(plugin->npp, windowScriptObject, callbackIdentifier,
                             callbackArgs, 1, &browserResult);
 
             if (NPVARIANT_IS_OBJECT(browserResult)) {
@@ -429,7 +612,7 @@ static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *a
             return true;
         }
     } else if (name == pluginMethodIdentifiers[ID_TEST_CREATE_TEST_OBJECT]) {
-        NPObject *testObject = browser->createobject(obj->npp, getTestClass());
+        NPObject *testObject = browser->createobject(plugin->npp, getTestClass());
         assert(testObject->referenceCount == 1);
         OBJECT_TO_NPVARIANT(testObject, *result);
         return true;
@@ -438,14 +621,14 @@ static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *a
         // argument.
         if (argCount > 1 && NPVARIANT_IS_STRING(args[0])) {
             NPObject *windowScriptObject;
-            browser->getvalue(obj->npp, NPNVWindowNPObject, &windowScriptObject);
+            browser->getvalue(plugin->npp, NPNVWindowNPObject, &windowScriptObject);
 
             NPUTF8* callbackString = createCStringFromNPVariant(&args[0]);
             NPIdentifier callbackIdentifier = browser->getstringidentifier(callbackString);
             free(callbackString);
 
             NPVariant browserResult;
-            browser->invoke(obj->npp, windowScriptObject, callbackIdentifier, &args[1], 1, &browserResult);
+            browser->invoke(plugin->npp, windowScriptObject, callbackIdentifier, &args[1], 1, &browserResult);
             browser->releasevariantvalue(&browserResult);
 
             VOID_TO_NPVARIANT(*result);
@@ -453,7 +636,7 @@ static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *a
         }
     } else if (name == pluginMethodIdentifiers[ID_TEST_CLONE_OBJECT]) {
         // Create another instance of the same class
-        NPObject *new_object = browser->createobject(obj->npp, &pluginClass);
+        NPObject *new_object = browser->createobject(plugin->npp, &pluginClass);
         assert(new_object->referenceCount == 1);
         OBJECT_TO_NPVARIANT(new_object, *result);
         return true;
@@ -467,7 +650,7 @@ static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *a
             // arg2:  Name of the method to call on the script object returned 
             //        from the callback
             NPObject *windowScriptObject;
-            browser->getvalue(obj->npp, NPNVWindowNPObject, 
+            browser->getvalue(plugin->npp, NPNVWindowNPObject, 
                               &windowScriptObject);
 
             // Arg1 is the name of the callback
@@ -478,7 +661,7 @@ static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *a
 
             // Invoke a callback that returns a script object
             NPVariant object_result;
-            browser->invoke(obj->npp, windowScriptObject, callbackIdentifier, 
+            browser->invoke(plugin->npp, windowScriptObject, callbackIdentifier, 
                             &args[1], 1, &object_result);
 
             // Script object returned
@@ -491,13 +674,13 @@ static bool pluginInvoke(NPObject *header, NPIdentifier name, const NPVariant *a
             free(object_mehod_string);
 
             // Create a fresh NPObject to be passed as an argument
-            NPObject *object_arg = browser->createobject(obj->npp, &pluginClass);
+            NPObject *object_arg = browser->createobject(plugin->npp, &pluginClass);
             NPVariant invoke_args[1];
             OBJECT_TO_NPVARIANT(object_arg, invoke_args[0]);
 
             // Invoke the script method
             NPVariant object_method_result;
-            browser->invoke(obj->npp, script_object, object_method,
+            browser->invoke(plugin->npp, script_object, object_method,
                             invoke_args, 1, &object_method_result);
 
             browser->releasevariantvalue(&object_result);

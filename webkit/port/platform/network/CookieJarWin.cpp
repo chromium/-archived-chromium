@@ -30,7 +30,6 @@
 #include "KURL.h"
 #include "PlatformString.h"
 #include "CString.h"
-#include "DeprecatedString.h"
 #include "Vector.h"
 #pragma warning(pop)
 
@@ -44,7 +43,7 @@ void setCookies(Document* document, const KURL& url, const KURL& policyURL, cons
 {
     // We ignore the policyURL and compute it directly ourselves to ensure
     // consistency with the cookies() method below.
-    KURL policyBaseURL(document->policyBaseURL().deprecatedString());
+    KURL policyBaseURL = document->policyBaseURL();
     WebCore::CString utf8value = value.utf8();
     webkit_glue::SetCookie(
         webkit_glue::KURLToGURL(url),
@@ -54,7 +53,7 @@ void setCookies(Document* document, const KURL& url, const KURL& policyURL, cons
 
 String cookies(const Document* document, const KURL& url)
 {
-    KURL policyBaseURL(document->policyBaseURL().deprecatedString());
+    KURL policyBaseURL = document->policyBaseURL();
     std::string result = 
         webkit_glue::GetCookies(webkit_glue::KURLToGURL(url),
                                 webkit_glue::KURLToGURL(policyBaseURL));

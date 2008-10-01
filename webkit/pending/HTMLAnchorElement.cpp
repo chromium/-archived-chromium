@@ -2,7 +2,7 @@
  * Copyright (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
  *           (C) 2000 Simon Hausmann <hausmann@kde.org>
- * Copyright (C) 2003, 2006, 2007 Apple Inc. All rights reserved.
+ * Copyright (C) 2003, 2006, 2007, 2008 Apple Inc. All rights reserved.
  *           (C) 2006 Graham Dennis (graham.dennis@gmail.com)
  *
  * This library is free software; you can redistribute it and/or
@@ -25,12 +25,14 @@
 #include "HTMLAnchorElement.h"
 
 #include "CSSHelper.h"
+#include "DNS.h"
 #include "Document.h"
 #include "Event.h"
 #include "EventHandler.h"
 #include "EventNames.h"
 #include "Frame.h"
 #include "FrameLoader.h"
+#include "FrameLoaderClient.h"
 #include "HTMLImageElement.h"
 #include "HTMLNames.h"
 #include "KeyboardEvent.h"
@@ -70,7 +72,7 @@ bool HTMLAnchorElement::supportsFocus() const
 {
     if (isContentEditable())
         return HTMLElement::supportsFocus();
-    return isFocusable() || (m_isLink && document() && !document()->haveStylesheetsLoaded());
+    return isFocusable() || (isLink() && document() && !document()->haveStylesheetsLoaded());
 }
 
 bool HTMLAnchorElement::isFocusable() const
@@ -80,7 +82,26 @@ bool HTMLAnchorElement::isFocusable() const
 
     // FIXME: Even if we are not visible, we might have a child that is visible.
     // Dave wants to fix that some day with a "has visible content" flag or the like.
-    if (!(m_isLink && renderer() && renderer()->style()->visibility() == VISIBLE))
+    if (!(isLink() && renderer() && renderer()->style()->visibility() == VISIBLE))
+        return false;
+
+    return true;
+}
+
+bool HTMLAnchorElement::isMouseFocusable() const
+{
+    return false;
+}
+
+bool HTMLAnchorElement::isKeyboardFocusable(KeyboardEvent* event) const
+{
+    if (!isFocusable())
+        return false;
+    
+    if (!document()->frame())
+        return false;
+
+    if (!document()->frame()->eventHandler()->tabsToLinks(event))
         return false;
 
     // Before calling absoluteRects, check for the common case where the renderer
@@ -102,28 +123,12 @@ bool HTMLAnchorElement::isFocusable() const
     return false;
 }
 
-bool HTMLAnchorElement::isMouseFocusable() const
-{
-    return false;
-}
-
-bool HTMLAnchorElement::isKeyboardFocusable(KeyboardEvent* event) const
-{
-    if (!isFocusable())
-        return false;
-    
-    if (!document()->frame())
-        return false;
-
-    return document()->frame()->eventHandler()->tabsToLinks(event);
-}
-
 void HTMLAnchorElement::defaultEventHandler(Event* evt)
 {
     // React on clicks and on keypresses.
     // Don't make this KEYUP_EVENT again, it makes khtml follow links it shouldn't,
     // when pressing Enter in the combo.
-    if (m_isLink && (evt->type() == clickEvent || (evt->type() == keydownEvent && m_focused))) {
+    if (isLink() && (evt->type() == clickEvent || (evt->type() == keydownEvent && focused()))) {
         MouseEvent* e = 0;
         if (evt->type() == clickEvent && evt->isMouseEvent())
             e = static_cast<MouseEvent*>(evt);
@@ -197,9 +202,9 @@ void HTMLAnchorElement::defaultEventHandler(Event* evt)
                     int x = e->pageX() - absx;
                     int y = e->pageY() - absy;
                     url += "?";
-                    url += DeprecatedString::number(x);
+                    url += String::number(x);
                     url += ",";
-                    url += DeprecatedString::number(y);
+                    url += String::number(y);
                 } else {
                     evt->setDefaultHandled();
                     HTMLElement::defaultEventHandler(evt);
@@ -212,17 +217,17 @@ void HTMLAnchorElement::defaultEventHandler(Event* evt)
             document()->frame()->loader()->urlSelected(document()->completeURL(url), getAttribute(targetAttr), evt, false, true);
 
         evt->setDefaultHandled();
-    } else if (m_isLink && isContentEditable()) {
-    // This keeps track of the editable block that the selection was in (if it was in one) just before the link was clicked
-    // for the LiveWhenNotFocused editable link behavior
-        if (evt->type() == mousedownEvent && evt->isMouseEvent() && static_cast<MouseEvent*>(evt)->button() != RightButton && document()->frame() && document()->frame()->selectionController()) {
+    } else if (isLink() && isContentEditable()) {
+        // This keeps track of the editable block that the selection was in (if it was in one) just before the link was clicked
+        // for the LiveWhenNotFocused editable link behavior
+        if (evt->type() == mousedownEvent && evt->isMouseEvent() && static_cast<MouseEvent*>(evt)->button() != RightButton && document()->frame() && document()->frame()->selection()) {
             MouseEvent* e = static_cast<MouseEvent*>(evt);
 
-            m_rootEditableElementForSelectionOnMouseDown = document()->frame()->selectionController()->rootEditableElement();
+            m_rootEditableElementForSelectionOnMouseDown = document()->frame()->selection()->rootEditableElement();
             m_wasShiftKeyDownOnMouseDown = e && e->shiftKey();
         } else if (evt->type() == mouseoverEvent) {
-        // These are cleared on mouseover and not mouseout because their values are needed for drag events, but these happen
-        // after mouse out events.
+            // These are cleared on mouseover and not mouseout because their values are needed for drag events, but these happen
+            // after mouse out events.
             m_rootEditableElementForSelectionOnMouseDown = 0;
             m_wasShiftKeyDownOnMouseDown = false;
         }
@@ -250,8 +255,8 @@ void HTMLAnchorElement::setActive(bool down, bool pause)
             // Don't set the link to be active if the current selection is in the same editable block as
             // this link
             case EditableLinkLiveWhenNotFocused:
-                if (down && document()->frame() && document()->frame()->selectionController() &&
-                    document()->frame()->selectionController()->rootEditableElement() == rootEditableElement())
+                if (down && document()->frame() && document()->frame()->selection() &&
+                    document()->frame()->selection()->rootEditableElement() == rootEditableElement())
                     return;
                 break;
             
@@ -267,10 +272,15 @@ void HTMLAnchorElement::setActive(bool down, bool pause)
 void HTMLAnchorElement::parseMappedAttribute(MappedAttribute *attr)
 {
     if (attr->name() == hrefAttr) {
-        bool wasLink = m_isLink;
-        m_isLink = !attr->isNull();
-        if (wasLink != m_isLink)
+        bool wasLink = isLink();
+        setIsLink(!attr->isNull());
+        if (wasLink != isLink())
             setChanged();
+        if (isLink() && document()->isDNSPrefetchEnabled()) {
+            String value = attr->value();
+            if (protocolIs(value, "http") || protocolIs(value, "https") || value.startsWith("//"))
+                prefetchDNS(document()->completeURL(value).host());
+        }
     } else if (attr->name() == nameAttr ||
              attr->name() == titleAttr ||
              attr->name() == relAttr) {
@@ -328,7 +338,7 @@ void HTMLAnchorElement::setCoords(const String &value)
     setAttribute(coordsAttr, value);
 }
 
-String HTMLAnchorElement::href() const
+KURL HTMLAnchorElement::href() const
 {
     return document()->completeURL(getAttribute(hrefAttr));
 }
@@ -393,11 +403,6 @@ short HTMLAnchorElement::tabIndex() const
     return Element::tabIndex();
 }
 
-void HTMLAnchorElement::setTabIndex(int tabIndex)
-{
-    setAttribute(tabindexAttr, String::number(tabIndex));
-}
-
 String HTMLAnchorElement::target() const
 {
     return getAttribute(targetAttr);
@@ -420,41 +425,40 @@ void HTMLAnchorElement::setType(const String &value)
 
 String HTMLAnchorElement::hash() const
 {
-    return '#' + KURL(href().deprecatedString()).ref();
+    return "#" + href().ref();
 }
 
 String HTMLAnchorElement::host() const
 {
-    return KURL(href().deprecatedString()).host();
+    return href().host();
 }
 
 String HTMLAnchorElement::hostname() const
 {
-    KURL url(href().deprecatedString());
-    if (url.port()==0)
+    const KURL& url = href();
+    if (url.port() == 0)
         return url.host();
-    else
-        return url.host() + ":" + String::number(url.port());
+    return url.host() + ":" + String::number(url.port());
 }
 
 String HTMLAnchorElement::pathname() const
 {
-    return KURL(href().deprecatedString()).path();
+    return href().path();
 }
 
 String HTMLAnchorElement::port() const
 {
-    return DeprecatedString::number(KURL(href().deprecatedString()).port());
+    return String::number(href().port());
 }
 
 String HTMLAnchorElement::protocol() const
 {
-    return KURL(href().deprecatedString()).protocol() + ":";
+    return href().protocol() + ":";
 }
 
 String HTMLAnchorElement::search() const
 {
-    return KURL(href().deprecatedString()).query();
+    return href().query();
 }
 
 String HTMLAnchorElement::text() const
@@ -464,12 +468,12 @@ String HTMLAnchorElement::text() const
 
 String HTMLAnchorElement::toString() const
 {
-    return href();
+    return href().string();
 }
 
 bool HTMLAnchorElement::isLiveLink() const
 {
-    if (!m_isLink)
+    if (!isLink())
         return false;
     if (!isContentEditable())
         return true;

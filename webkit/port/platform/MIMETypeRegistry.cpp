@@ -43,11 +43,17 @@ namespace WebCore
 // (and will give linker error if used):
 //   HashSet<String> &MIMETypeRegistry::getSupportedImageMIMETypes()
 //   HashSet<String> &MIMETypeRegistry::getSupportedImageResourceMIMETypes()
-//   HashSet<String> &MIMETypeRegistry::getSupportedNonImageMIMETypes()
 // These methods are referenced by WebKit but not WebCore.
 // Therefore defering their implementation until necessary.
 // Since the returned HashSet is mutable, chrome would need to synchronize
-// the mime type registry between renderer/browser.
+// the mime type registry between renderer/browser. This one is called, but we
+// currently stub it out until this can be resolved.
+HashSet<String>& MIMETypeRegistry::getSupportedNonImageMIMETypes()
+{
+    static HashSet<String> supportedNonImageMIMETypes;
+    return supportedNonImageMIMETypes;
+}
+
 
 // Checks if any of the plugins handle this extension, and if so returns the
 // plugin's mime type for this extension.  Otherwise returns an empty string.
@@ -72,6 +78,12 @@ bool MIMETypeRegistry::isSupportedImageMIMEType(const String& mimeType)
 { 
     return !mimeType.isEmpty()
         && net::IsSupportedImageMimeType(mimeType.latin1().data()); 
+}
+
+bool MIMETypeRegistry::isSupportedImageMIMETypeForEncoding(const String& mimeType)
+{
+    // TODO(brettw) fill this out. See: http://trac.webkit.org/changeset/30888
+    return isSupportedImageMIMEType(mimeType);
 }
 
 bool MIMETypeRegistry::isSupportedJavaScriptMIMEType(const String& mimeType)

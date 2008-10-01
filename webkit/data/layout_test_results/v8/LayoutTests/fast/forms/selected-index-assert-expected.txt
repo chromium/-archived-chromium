@@ -1,3 +1,2 @@
-CONSOLE MESSAGE: line 11: Uncaught TypeError: Property 'selectedIndex' of object #<an HTMLSelectElement> is not a function
 This tests for a regression against http://bugzilla.opendarwin.org/show_bug.cgi?id=6942 Assertion failure in HTMLSelectElementImpl::selectedIndex (m_multiple)
 No assertion failure (on a debug build) means test PASS. 

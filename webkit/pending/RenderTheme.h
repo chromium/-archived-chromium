@@ -30,6 +30,7 @@ namespace WebCore {
 class Element;
 class PopupMenu;
 class RenderMenuList;
+class CSSStyleSheet;
 
 enum ControlState {
     HoverState,
@@ -37,7 +38,8 @@ enum ControlState {
     FocusState,
     EnabledState,
     CheckedState,
-    ReadOnlyState
+    ReadOnlyState,
+    DefaultState
 };
 
 class RenderTheme {
@@ -51,7 +53,11 @@ public:
     // selection of control size based off the font, the disabling of appearance when certain other properties like
     // "border" are set, or if the appearance is not supported by the theme.
     void adjustStyle(CSSStyleSelector*, RenderStyle*, Element*,  bool UAHasAppearance,
-                     const BorderData&, const BackgroundLayer&, const Color& backgroundColor);
+                     const BorderData&, const FillLayer&, const Color& backgroundColor);
+
+    // This method is called once, from CSSStyleSelector::loadDefaultStyle(), to let each platform adjust
+    // the default CSS rules in html4.css.
+    static void adjustDefaultStyleSheet(CSSStyleSheet*);
 
     // This method is called to paint the widget as a background of the RenderObject.  A widget's foreground, e.g., the
     // text of a button, is always rendered by the engine itself.  The boolean return value indicates
@@ -66,7 +72,7 @@ public:
     // A method to obtain the baseline position for a "leaf" control.  This will only be used if a baseline
     // position cannot be determined by examining child content. Checkboxes and radio buttons are examples of
     // controls that need to do this.
-    virtual short baselinePosition(const RenderObject*) const;
+    virtual int baselinePosition(const RenderObject*) const;
 
     // A method for asking if a control is a container or not.  Leaf controls have to have some special behavior (like
     // the baseline position API above).
@@ -76,7 +82,7 @@ public:
     virtual bool controlSupportsTints(const RenderObject*) const { return false; }
 
     // Whether or not the control has been styled enough by the author to disable the native appearance.
-    virtual bool isControlStyled(const RenderStyle*, const BorderData&, const BackgroundLayer&, const Color& backgroundColor) const;
+    virtual bool isControlStyled(const RenderStyle*, const BorderData&, const FillLayer&, const Color& backgroundColor) const;
 
     // A general method asking if any control tinting is supported at all.
     virtual bool supportsControlTints() const { return false; }
@@ -117,12 +123,13 @@ public:
     virtual Color inactiveListBoxSelectionBackgroundColor() const;
     virtual Color inactiveListBoxSelectionForegroundColor() const;
 
-    void platformColorsDidChange();
+    virtual void platformColorsDidChange();
 
     virtual double caretBlinkFrequency() const { return 0.5; }
 
-    // System fonts.
+    // System fonts and colors for CSS.
     virtual void systemFont(int cssValueId, Document*, FontDescription&) const = 0;
+    virtual Color systemColor(int cssValueId) const;
 
     virtual int minimumMenuListSize(RenderStyle*) const { return 0; }
 
@@ -138,7 +145,8 @@ public:
     bool isPressed(const RenderObject*) const;
     bool isHovered(const RenderObject*) const;
     bool isReadOnlyControl(const RenderObject*) const;
-    
+    bool isDefault(const RenderObject*) const;
+
     virtual int popupInternalPaddingLeft(RenderStyle*) const { return 0; }
     virtual int popupInternalPaddingRight(RenderStyle*) const { return 0; }
     virtual int popupInternalPaddingTop(RenderStyle*) const { return 0; }

@@ -32,17 +32,25 @@
 
 namespace WebCore {
 
-class CString;
-class DeprecatedCString;
 class Document;
 class KURL;
 class String;
 
-HGLOBAL createGlobalData(String str);
-HGLOBAL createGlobalData(CString str);
+HGLOBAL createGlobalData(const String&);
+HGLOBAL createGlobalData(const Vector<char>&);
 HGLOBAL createGlobalData(const KURL& url, const String& title);
 
-DeprecatedCString markupToCF_HTML(const String& markup, const String& srcURL);
+FORMATETC* urlWFormat();
+FORMATETC* urlFormat();
+FORMATETC* plainTextWFormat();
+FORMATETC* plainTextFormat();
+FORMATETC* filenameWFormat();
+FORMATETC* filenameFormat();
+FORMATETC* htmlFormat();
+FORMATETC* cfHDropFormat();
+FORMATETC* smartPasteFormat();
+
+void markupToCF_HTML(const String& markup, const String& srcURL, Vector<char>& result);
 String urlToMarkup(const KURL& url, const String& title);
 String urlToImageMarkup(const KURL& url, const String& altStr);
 

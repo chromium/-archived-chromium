@@ -12,6 +12,7 @@
 #include "HitTestResult.h"
 #include "IntRect.h"
 #include "Page.h"
+#include "ScriptController.h"
 #include "WindowFeatures.h"
 #pragma warning(pop)
 #undef LOG
@@ -145,7 +146,7 @@ WebCore::Page* ChromeClientImpl::createWindow(
   if (!d)
     return NULL;
 
-  bool userGesture = frame->scriptBridge()->wasRunByUserGesture();
+  bool userGesture = frame->script()->processingUserGesture();
   WebViewImpl* new_view = static_cast<WebViewImpl*>(
       d->CreateWebView(webview_, userGesture));
   if (!new_view)

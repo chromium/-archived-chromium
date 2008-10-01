@@ -24,6 +24,8 @@
 #define RenderButton_h
 
 #include "RenderFlexibleBox.h"
+#include "Timer.h"
+#include <wtf/OwnPtr.h>
 
 namespace WebCore {
 
@@ -59,8 +61,13 @@ public:
 protected:
     virtual bool hasLineIfEmpty() const { return true; }
 
+    void timerFired(Timer<RenderButton>*);
+
     RenderTextFragment* m_buttonText;
     RenderBlock* m_inner;
+
+    OwnPtr<Timer<RenderButton> > m_timer;
+    bool m_default;
 };
 
 } // namespace WebCore

@@ -153,8 +153,9 @@ SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
 
   // If not found load and store the image
   if (found == skia_images_.end()) {
-    // Load the image
-    bitmap = LoadBitmap(theme_dll_, resource_id);
+    // Try to load the bitmap from the theme dll.
+    if (theme_dll_)
+      bitmap = LoadBitmap(theme_dll_, resource_id);
     // We did not find the bitmap in the theme DLL, try the current one.
     if (!bitmap)
       bitmap = LoadBitmap(_AtlBaseModule.GetModuleInstance(), resource_id);

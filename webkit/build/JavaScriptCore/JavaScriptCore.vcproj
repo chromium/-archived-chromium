@@ -153,11 +153,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\kjs\collector.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\collector.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\kjs\collector.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\collector.h"
 				>
 			</File>
 			<File

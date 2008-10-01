@@ -13,9 +13,9 @@
 #include "webkit/glue/glue_util.h"
 
 using std::wstring;
-using webkit_glue::StdWStringToDeprecatedString;
-using WebCore::DeprecatedString;
+using webkit_glue::StdWStringToString;
 using WebCore::RegularExpression;
+using WebCore::String;
 
 namespace {
 
@@ -32,14 +32,14 @@ struct Match {
 
 TEST(RegexTest, Basic) {
   // Just make sure we're not completely broken.
-  const DeprecatedString pattern("the quick brown fox");
+  const String pattern("the quick brown fox");
   RegularExpression regex(pattern, /* case sensitive */ true);
-  EXPECT_EQ(0, regex.match(DeprecatedString("the quick brown fox")));
-  EXPECT_EQ(1, regex.match(DeprecatedString(" the quick brown fox")));
-  EXPECT_EQ(3, regex.match(DeprecatedString("foothe quick brown foxbar")));
+  EXPECT_EQ(0, regex.match("the quick brown fox"));
+  EXPECT_EQ(1, regex.match(" the quick brown fox"));
+  EXPECT_EQ(3, regex.match("foothe quick brown foxbar"));
 
-  EXPECT_EQ(-1, regex.match(DeprecatedString("The quick brown FOX")));
-  EXPECT_EQ(-1, regex.match(DeprecatedString("the quick brown fo")));
+  EXPECT_EQ(-1, regex.match("The quick brown FOX"));
+  EXPECT_EQ(-1, regex.match("the quick brown fo"));
 }
 
 TEST(RegexTest, Unicode) {
@@ -47,20 +47,20 @@ TEST(RegexTest, Unicode) {
 
   // Test 1
   wstring wstr_pattern(L"\x6240\x6709\x7f51\x9875");
-  DeprecatedString pattern = StdWStringToDeprecatedString(wstr_pattern);
+  String pattern = StdWStringToString(wstr_pattern);
   RegularExpression regex(pattern, /* case sensitive */ false);
 
-  EXPECT_EQ(0, regex.match(StdWStringToDeprecatedString(wstr_pattern)));
-  EXPECT_EQ(1, regex.match(StdWStringToDeprecatedString(
+  EXPECT_EQ(0, regex.match(StdWStringToString(wstr_pattern)));
+  EXPECT_EQ(1, regex.match(StdWStringToString(
       wstring(L" ") + wstr_pattern)));
-  EXPECT_EQ(3, regex.match(StdWStringToDeprecatedString(
+  EXPECT_EQ(3, regex.match(StdWStringToString(
       wstring(L"foo") + wstr_pattern + wstring(L"bar"))));
-  EXPECT_EQ(4, regex.match(StdWStringToDeprecatedString(
+  EXPECT_EQ(4, regex.match(StdWStringToString(
       wstring(L"\x4e2d\x6587\x7f51\x9875") + wstr_pattern)));
 
   // Test 2, mixed length
   wstr_pattern = L":[ \x2000]+:";
-  pattern = StdWStringToDeprecatedString(wstr_pattern);
+  pattern = StdWStringToString(wstr_pattern);
   regex = RegularExpression(pattern, /* case sensitive */ false);
   
   const Match matches[] = {
@@ -72,21 +72,21 @@ TEST(RegexTest, Unicode) {
     { L"::", -1, -1 },
   };
   for (size_t i = 0; i < arraysize(matches); ++i) {
-    EXPECT_EQ(matches[i].position, regex.match(StdWStringToDeprecatedString(
+    EXPECT_EQ(matches[i].position, regex.match(StdWStringToString(
         wstring(matches[i].text))));
     EXPECT_EQ(matches[i].length, regex.matchedLength());
   }
 
   // Test 3, empty match
   wstr_pattern = L"|x";
-  pattern = StdWStringToDeprecatedString(wstr_pattern);
+  pattern = StdWStringToString(wstr_pattern);
   regex = RegularExpression(pattern, /* case sensitive */ false);
   
   const Match matches2[] = {
     { L"", 0, 0 },
   };
   for (size_t i = 0; i < arraysize(matches2); ++i) {
-    EXPECT_EQ(matches2[i].position, regex.match(StdWStringToDeprecatedString(
+    EXPECT_EQ(matches2[i].position, regex.match(StdWStringToString(
         wstring(matches2[i].text))));
     EXPECT_EQ(matches2[i].length, regex.matchedLength());
   }

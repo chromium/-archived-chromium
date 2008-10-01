@@ -16,8 +16,16 @@
 
 IDR_BROKENIMAGE            BINDATA "webkit\\glue\\resources\\broken-image.gif"
 IDR_TICKMARK_DASH          BINDATA "webkit\\glue\\resources\\dash.png"
-
 IDR_FEED_PREVIEW           BINDATA "webkit\\glue\\resources\\feed.html"
+IDC_PAN_MIDDLE             BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panIcon.png"
+IDC_PAN_NORTH              BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panNorthCursor.png"
+IDC_PAN_NORTH_EAST         BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panNorthEastCursor.png"
+IDC_PAN_EAST               BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panEastCursor.png"
+IDC_PAN_SOUTH_EAST         BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panSouthEastCursor.png"
+IDC_PAN_SOUTH              BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panSouthCursor.png"
+IDC_PAN_SOUTH_WEST         BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panSouthWestCursor.png"
+IDC_PAN_WEST               BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panWestCursor.png"
+IDC_PAN_NORTH_WEST         BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panNorthWestCursor.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //

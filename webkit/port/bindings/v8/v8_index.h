@@ -211,6 +211,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(BARINFO, BarInfo)                                                   \
   V(CANVASGRADIENT, CanvasGradient)                                     \
   V(CANVASPATTERN, CanvasPattern)                                       \
+  V(CANVASPIXELARRAY, CanvasPixelArray)                                 \
   V(CANVASRENDERINGCONTEXT2D, CanvasRenderingContext2D)                 \
   V(CLIPBOARD, Clipboard)                                               \
   V(CONSOLE, Console)                                                   \
@@ -235,10 +236,13 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(DOMWINDOW, DOMWindow)                                               \
   V(EVENT, Event)                                                       \
   V(EVENTEXCEPTION, EventException)                                     \
+  V(FILE, File)                                                         \
+  V(FILELIST, FileList)                                                 \
   V(HISTORY, History)                                                   \
   V(UNDETECTABLEHTMLCOLLECTION, UndetectableHTMLCollection)             \
   V(HTMLCOLLECTION, HTMLCollection)                                     \
   V(HTMLOPTIONSCOLLECTION, HTMLOptionsCollection)                       \
+  V(IMAGEDATA, ImageData)                                               \
   V(INSPECTORCONTROLLER, InspectorController)                           \
   V(KEYBOARDEVENT, KeyboardEvent)                                       \
   V(LOCATION, Location)                                                 \
@@ -253,6 +257,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(NODEFILTER, NodeFilter)                                             \
   V(NODEITERATOR, NodeIterator)                                         \
   V(NODELIST, NodeList)                                                 \
+  V(NSRESOLVER, NSResolver)                                             \
   V(OVERFLOWEVENT, OverflowEvent)                                       \
   V(PLUGIN, Plugin)                                                     \
   V(PLUGINARRAY, PluginArray)                                           \
@@ -265,10 +270,12 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(STYLESHEET, StyleSheet)                                             \
   V(STYLESHEETLIST, StyleSheetList)                                     \
   V(TEXTEVENT, TextEvent)                                               \
+  V(TEXTMETRICS, TextMetrics)                                           \
   V(TREEWALKER, TreeWalker)                                             \
   V(UIEVENT, UIEvent)                                                   \
   V(WHEELEVENT, WheelEvent)                                             \
   V(XMLHTTPREQUEST, XMLHttpRequest)                                     \
+  V(XMLHTTPREQUESTUPLOAD, XMLHttpRequestUpload)                         \
   V(XMLHTTPREQUESTEXCEPTION, XMLHttpRequestException)                   \
   V(XMLSERIALIZER, XMLSerializer)                                       \
   V(XPATHEVALUATOR, XPathEvaluator)                                     \

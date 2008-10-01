@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004, 2006 Apple Computer, Inc.  All rights reserved.
+ * Copyright (C) 2004, 2006, 2008 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,11 +27,14 @@
 #define Cursor_h
 
 #include <wtf/Platform.h>
-#include "webkit/glue/webcursor.h"
 
 #if PLATFORM(WIN)
+#include "webkit/glue/webcursor.h"
 typedef struct HICON__* HICON;
 typedef HICON HCURSOR;
+#include <wtf/PassRefPtr.h>
+#include <wtf/RefCounted.h>
+#include <wtf/RefPtr.h>
 #elif PLATFORM(GTK)
 #include <gdk/gdk.h>
 #elif PLATFORM(QT)
@@ -44,6 +47,10 @@ typedef HICON HCURSOR;
 #else
 class NSCursor;
 #endif
+#endif
+
+#if PLATFORM(WX)
+class wxCursor;
 #endif
 
 namespace WebCore {
@@ -59,6 +66,8 @@ namespace WebCore {
     typedef GdkCursor* PlatformCursor;
 #elif PLATFORM(QT) && !defined(QT_NO_CURSOR)
     typedef QCursor PlatformCursor;
+#elif PLATFORM(WX)
+    typedef wxCursor* PlatformCursor;
 #else
     typedef void* PlatformCursor;
 #endif
@@ -66,14 +75,10 @@ namespace WebCore {
     class Cursor {
     public:
         Cursor()
-#if !PLATFORM(QT)
-          : m_impl(WebCursor::ARROW)
-#endif
         { }
 
         Cursor(Image*, const IntPoint& hotspot);
         Cursor(const Cursor&);
-      
         ~Cursor();
         Cursor& operator=(const Cursor&);
 
@@ -81,7 +86,7 @@ namespace WebCore {
         PlatformCursor impl() const { return m_impl; }
 
      private:
-        WebCursor m_impl;
+        PlatformCursor m_impl;
     };
 
     const Cursor& pointerCursor();
@@ -105,6 +110,15 @@ namespace WebCore {
     const Cursor& northWestSouthEastResizeCursor();
     const Cursor& columnResizeCursor();
     const Cursor& rowResizeCursor();
+    const Cursor& middlePanningCursor();
+    const Cursor& eastPanningCursor();
+    const Cursor& northPanningCursor();
+    const Cursor& northEastPanningCursor();
+    const Cursor& northWestPanningCursor();
+    const Cursor& southPanningCursor();
+    const Cursor& southEastPanningCursor();
+    const Cursor& southWestPanningCursor();
+    const Cursor& westPanningCursor();
     const Cursor& verticalTextCursor();
     const Cursor& cellCursor();
     const Cursor& contextMenuCursor();

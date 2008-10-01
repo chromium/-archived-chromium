@@ -20,5 +20,5 @@ layer at (0,0) size 800x600
         RenderText {#text} at (0,0) size 210x19
           text run at (0,0) width 210: "The following line should not wrap."
       RenderBlock {DIV} at (0,92) size 150x20 [bgcolor=#D3D3D3]
-        RenderText {#text} at (0,0) size 150x19
-          text run at (0,0) width 150: "abcdefghijklmnopqrstuvwxyz"
+        RenderText {#text} at (0,0) size 175x19
+          text run at (0,0) width 175: "abcdefghijklmnopqrstuvwxyz"

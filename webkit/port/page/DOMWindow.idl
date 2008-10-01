@@ -121,6 +121,10 @@ module window {
 
                  attribute [Replaceable] Console console;
 
+        // cross-document messaging
+        [DoNotCheckDomainSecurity, Custom] void postMessage(in DOMString message, in DOMString targetOrigin)
+            raises(DOMException);
+
 #if defined(V8_BINDING)
         [Custom] DOMWindow open(in DOMString url,
                                 in DOMString name,

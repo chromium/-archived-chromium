@@ -64,6 +64,10 @@ V8 | KJS # LayoutTests/fast/dom/Window/window-properties.html = FAIL | TIMEOUT
 // private browsing mode.
 V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-private-browsing.html = FAIL
 
+// We don't care about dashboard compatibility mode.
+V8 | KJS # LayoutTests/http/tests/xmlhttprequest/default-content-type-dashboard.html = FAIL
+V8 | KJS # LayoutTests/http/tests/xmlhttprequest/svg-created-by-xhr-disallowed-in-dashboard.html = FAIL
+
 // Chrome uses different keyboard accelerators from those used by Safari, so
 // these tests will always fail.
 // TODO(ericroman): can the following 2 tests be removed from this list, since they pass?
@@ -72,9 +76,10 @@ V8 | KJS # LayoutTests/fast/events/option-tab.html = FAIL
 
 // Chrome does not support WebArchives (just like Safari for Windows).
 // See bug 761653.
-V8 | KJS # LayoutTests/webarchive = FAIL
-V8 | KJS # LayoutTests/svg/webarchive = FAIL
-V8 | KJS # LayoutTests/svg/custom/image-with-prefix-in-webarchive.svg = FAIL
+V8 | KJS # SKIP : LayoutTests/webarchive/loading = FAIL | TIMEOUT
+V8 | KJS # LayoutTests/webarchive = PASS
+V8 | KJS # LayoutTests/svg/webarchive = FAIL | PASS
+V8 | KJS # LayoutTests/svg/custom/image-with-prefix-in-webarchive.svg = FAIL | PASS
 
 // Bug 932737
 V8 | KJS # LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
@@ -143,6 +148,9 @@ V8 # LayoutTests/fast/js/function-names.html = FAIL | PASS
 // We will pass the new one after we merge
 KJS | V8 # LayoutTests/http/tests/incremental/slow-utf8-css.pl = FAIL
 
+// This test relies on the x-mac-cyrillic encoding which we don't ship.
+V8 # LayoutTests/fast/encoding/frame-default-enc.html = FAIL
+
 // -----------------------------------------------------------------
 // CHROME REWRITTEN TESTS
 // -----------------------------------------------------------------
@@ -175,3 +183,6 @@ KJS | V8 # SKIP : chrome/http/tests/plugins/get-file-url.html = FAIL | PASS | TI
 // See Bug 1205552
 KJS # SKIP : chrome/fast/dom/set-document-body-no-crash.html = FAIL
 KJS # SKIP : chrome/fast/dom/set-table-head-no-crash.html = FAIL
+
+// Dashboard-related test
+KJS | V8 # SKIP : LayoutTests/fast/css/dashboard-region-parser.html = FAIL

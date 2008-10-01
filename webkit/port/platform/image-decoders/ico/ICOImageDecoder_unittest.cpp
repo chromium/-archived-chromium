@@ -69,7 +69,7 @@ TEST_F(ICOImageDecoderTest, FaviconSize) {
   // Decode, preferring the favicon size.
   scoped_ptr<WebCore::ImageDecoder> decoder(new WebCore::ICOImageDecoder(
       WebCore::IntSize(kFavIconSize, kFavIconSize)));
-  RefPtr<WebCore::SharedBuffer> shared_contents(new WebCore::SharedBuffer);
+  RefPtr<WebCore::SharedBuffer> shared_contents(WebCore::SharedBuffer::create());
   shared_contents->append(image_contents.data(),
                           static_cast<int>(image_contents.size()));
   decoder->setData(shared_contents.get(), true);

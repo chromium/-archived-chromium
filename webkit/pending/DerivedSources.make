@@ -46,7 +46,8 @@ all : \
     CharsetData.cpp
 endif
 
-# we don't want to generate objC bindings \
+# We don't want to generate objC bindings. Comment out everything in
+# this block \
     DOMAbstractView.h \
     DOMAttr.h \
     DOMCDATASection.h \
@@ -615,14 +616,14 @@ ifeq ($(findstring ENABLE_SVG,$(FEATURE_DEFINES)), ENABLE_SVG)
 CSSPropertyNames.h : css/CSSPropertyNames.in css/SVGCSSPropertyNames.in
 	if sort $< $(WebCore)/css/SVGCSSPropertyNames.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
 	cat $< $(WebCore)/css/SVGCSSPropertyNames.in > CSSPropertyNames.in
-	perl "$(WebCore)/../../../webkit/pending/makeprop.pl"
+	perl "$(WebCore)/css/makeprop.pl"
 
 CSSValueKeywords.h : css/CSSValueKeywords.in css/SVGCSSValueKeywords.in
 	# Lower case all the values, as CSS values are case-insensitive
 	perl -ne 'print lc' $(WebCore)/css/SVGCSSValueKeywords.in > SVGCSSValueKeywords.in
 	if sort $< SVGCSSValueKeywords.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
 	cat $< SVGCSSValueKeywords.in > CSSValueKeywords.in
-	perl "$(WebCore)/../../../webkit/pending/makevalues.pl"
+	perl "$(WebCore)/css/makevalues.pl"
 
 else
 

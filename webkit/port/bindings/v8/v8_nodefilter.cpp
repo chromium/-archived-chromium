@@ -31,6 +31,7 @@
 
 #include "v8_nodefilter.h"
 #include "v8_proxy.h"
+#include "ExceptionContext.h"
 #include "NodeFilter.h"
 #include "Node.h"
 
@@ -51,15 +52,17 @@ V8NodeFilterCondition::~V8NodeFilterCondition() {
   m_filter.Clear();
 }
 
-short V8NodeFilterCondition::acceptNode(Node* node) const {
+short V8NodeFilterCondition::acceptNode(ExceptionContext* exception_context,
+                                        Node* node) const {
   ASSERT(v8::Context::InContext());
 
   if (!m_filter->IsFunction()) return NodeFilter::FILTER_ACCEPT;
 
-  v8::TryCatch exception_catcher;
+  ExceptionCatcher exception_catcher(exception_context);
 
   v8::Handle<v8::Object> this_obj = v8::Context::GetCurrent()->Global();
-  v8::Handle<v8::Function> callback = v8::Handle<v8::Function>::Cast(m_filter);
+  v8::Handle<v8::Function> callback =
+      v8::Handle<v8::Function>::Cast(m_filter);
   v8::Handle<v8::Value>* args = new v8::Handle<v8::Value>[1];
   args[0] = V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
 
@@ -70,9 +73,7 @@ short V8NodeFilterCondition::acceptNode(Node* node) const {
       proxy->CallFunction(callback, this_obj, 1, args);
   delete[] args;
 
-  // TODO(fqian): this code can be removed when issue 1042294 is fixed.
-  // See also 1068243.
-  if (exception_catcher.HasCaught()) {
+  if (exception_context->hadException()) {
     return NodeFilter::FILTER_REJECT;
   }
 

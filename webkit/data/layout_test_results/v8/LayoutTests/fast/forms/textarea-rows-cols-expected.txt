@@ -57,8 +57,7 @@ layer at (8,217) size 159x32 clip at (9,218) size 157x30
   RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (3,3) size 138x28
       RenderText {#text} at (0,0) size 138x28
-        text run at (0,0) width 133: "rows = 0; should be"
-        text run at (133,0) width 5: " "
+        text run at (0,0) width 138: "rows = 0; should be "
         text run at (0,14) width 98: "default height"
 layer at (8,251) size 159x32 clip at (9,252) size 157x30
   RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
@@ -70,8 +69,7 @@ layer at (8,285) size 159x32 clip at (9,286) size 157x30
   RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (3,3) size 138x28
       RenderText {#text} at (0,0) size 138x28
-        text run at (0,0) width 133: "rows = x; should be"
-        text run at (133,0) width 5: " "
+        text run at (0,0) width 138: "rows = x; should be "
         text run at (0,14) width 98: "default height"
 layer at (8,337) size 159x32 clip at (9,338) size 157x30
   RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
@@ -81,13 +79,13 @@ layer at (8,337) size 159x32 clip at (9,338) size 157x30
 layer at (8,371) size 26x32 clip at (9,372) size 9x30 scrollHeight 86
   RenderTextControl {TEXTAREA} at (0,1) size 26x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (3,3) size 5x84
-      RenderText {#text} at (0,0) size 5x84
-        text run at (0,0) width 5: "c"
-        text run at (0,14) width 5: "o"
-        text run at (0,28) width 5: "l"
-        text run at (0,42) width 5: "s"
-        text run at (0,56) width 5: "="
-        text run at (0,70) width 5: "1"
+      RenderText {#text} at (0,0) size 7x84
+        text run at (0,0) width 7: "c"
+        text run at (0,14) width 7: "o"
+        text run at (0,28) width 7: "l"
+        text run at (0,42) width 7: "s"
+        text run at (0,56) width 7: "="
+        text run at (0,70) width 7: "1"
 layer at (8,405) size 159x32 clip at (9,406) size 157x30
   RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (3,3) size 138x28
@@ -109,8 +107,7 @@ layer at (8,507) size 159x32 clip at (9,508) size 157x30
   RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (3,3) size 138x28
       RenderText {#text} at (0,0) size 138x28
-        text run at (0,0) width 133: "cols = 0; should be"
-        text run at (133,0) width 5: " "
+        text run at (0,0) width 138: "cols = 0; should be "
         text run at (0,14) width 91: "default width"
 layer at (8,541) size 159x32 clip at (9,542) size 157x30
   RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
@@ -122,6 +119,5 @@ layer at (8,575) size 159x32 clip at (9,576) size 157x30
   RenderTextControl {TEXTAREA} at (0,1) size 159x32 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (3,3) size 138x28
       RenderText {#text} at (0,0) size 138x28
-        text run at (0,0) width 133: "cols = x; should be"
-        text run at (133,0) width 5: " "
+        text run at (0,0) width 138: "cols = x; should be "
         text run at (0,14) width 91: "default width"

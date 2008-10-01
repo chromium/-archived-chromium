@@ -17,6 +17,9 @@ dependents = [
   'OLEAUT32.dll',
   'OLEACC.dll',
   'secur32.dll',
+# IPHLPAPI.dll was added as part of the Sept 2008 WebKit merge
+# We probably don't need it, but we're adding it for now.
+  'iphlpapi.dll',
 ]
 
 delay_loaded = [
@@ -31,3 +34,4 @@ delay_loaded = [
   'COMDLG32.dll',
   'urlmon.dll',
 ]
+

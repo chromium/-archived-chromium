@@ -10,9 +10,9 @@ layer at (0,0) size 800x600
       RenderPartObject {IFRAME} at (0,40) size 304x154 [border: (2px inset #000000)]
         layer at (0,0) size 300x150
           RenderView at (0,0) size 300x150
-        layer at (0,0) size 300x71
-          RenderBlock {HTML} at (0,0) size 300x71
-            RenderBody {BODY} at (8,8) size 284x55
+        layer at (0,0) size 300x150
+          RenderBlock {HTML} at (0,0) size 300x150
+            RenderBody {BODY} at (8,8) size 284x134
               RenderImage {IMG} at (0,0) size 250x50
       RenderText {#text} at (304,179) size 4x19
         text run at (304,179) width 4: " "

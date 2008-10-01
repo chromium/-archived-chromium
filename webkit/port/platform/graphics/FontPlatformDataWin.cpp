@@ -55,4 +55,11 @@ FontPlatformData::RefCountedHFONT::~RefCountedHFONT()
         DeleteObject(m_hfont);
 }
 
+FontPlatformData::RefCountedHFONT* FontPlatformData::hashTableDeletedFontValue()
+{
+    static RefPtr<RefCountedHFONT> deletedValue =
+        RefCountedHFONT::create(reinterpret_cast<HFONT>(-1));
+    return deletedValue.get();
+}
+
 }

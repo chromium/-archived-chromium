@@ -129,6 +129,10 @@ void WebInspectorClient::detachWindow() {
   // TODO(jackson): Implement this
 }
 
+void WebInspectorClient::setAttachedWindowHeight(unsigned int height) {
+  // TODO(dglazkov): Implement this
+}
+
 static void invalidateNodeBoundingRect(WebViewImpl* web_view) {
   // TODO(ojan): http://b/1143996 Is it important to just invalidate the rect
   // of the node region given that this is not on a critical codepath?

@@ -1,9 +1,7 @@
 /*
- * This file is part of the DOM implementation for KDE.
- *
  * Copyright (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 1999 Antti Koivisto (koivisto@kde.org)
- * Copyright (C) 2003 Apple Computer, Inc.
+ * Copyright (C) 2003, 2008 Apple Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -21,19 +19,20 @@
  * Boston, MA 02110-1301, USA.
  *
  */
+
 #ifndef HTMLLinkElement_h
 #define HTMLLinkElement_h
 
-#include "HTMLElement.h"
-#include "CachedResourceClient.h"
 #include "CSSStyleSheet.h"
+#include "CachedResourceClient.h"
+#include "HTMLElement.h"
 
 namespace WebCore {
 
 class CachedCSSStyleSheet;
+class KURL;
 
-class HTMLLinkElement : public HTMLElement, public CachedResourceClient
-{
+class HTMLLinkElement : public HTMLElement, public CachedResourceClient {
 public:
     HTMLLinkElement(Document*);
     ~HTMLLinkElement();
@@ -47,7 +46,7 @@ public:
     String charset() const;
     void setCharset(const String&);
 
-    String href() const;
+    KURL href() const;
     void setHref(const String&);
 
     String hreflang() const;
@@ -79,7 +78,7 @@ public:
     virtual void removedFromDocument();
 
     // from CachedResourceClient
-    virtual void setCSSStyleSheet(const String &url, const String& charset, const String &sheet);
+    virtual void setCSSStyleSheet(const String &url, const String& charset, const CachedCSSStyleSheet* sheet);
     bool isLoading() const;
     virtual bool sheetLoaded();
 
@@ -87,13 +86,18 @@ public:
     bool isDisabled() const { return m_disabledState == 2; }
     bool isEnabledViaScript() const { return m_disabledState == 1; }
     bool isIcon() const { return m_isIcon; }
-
+    
     int disabledState() { return m_disabledState; }
     void setDisabledState(bool _disabled);
 
     virtual bool isURLAttribute(Attribute*) const;
     
-    void tokenizeRelAttribute(const AtomicString& rel);
+    static void tokenizeRelAttribute(const AtomicString& value, bool& stylesheet, bool& alternate, bool& icon);
+
+    virtual void getSubresourceAttributeStrings(Vector<String>&) const;
+
+    void setCreatedByParser(bool createdByParser) { m_createdByParser = createdByParser; }
+    virtual void finishParsingChildren();
 
 protected:
     CachedCSSStyleSheet* m_cachedSheet;
@@ -102,12 +106,12 @@ protected:
     String m_type;
     String m_media;
     int m_disabledState; // 0=unset(default), 1=enabled via script, 2=disabled
-    bool m_loading : 1;
-    bool m_alternate : 1;
-    bool m_isStyleSheet : 1;
-    bool m_isIcon : 1;
-    bool m_isPrefetch : 1;  // Not implemented fully.
-    bool m_isDnsPrefetch : 1;
+    bool m_loading;
+    bool m_alternate;
+    bool m_isStyleSheet;
+    bool m_isIcon;
+    bool m_isDNSPrefetch;
+    bool m_createdByParser;
 };
 
 } //namespace

@@ -4,6 +4,15 @@
 #define IDR_BROKENIMAGE                 2000
 #define IDR_TICKMARK_DASH               2001
 #define IDR_FEED_PREVIEW                2002
+#define IDC_PAN_MIDDLE                  2003
+#define IDC_PAN_NORTH                   2004
+#define IDC_PAN_NORTH_EAST              2005
+#define IDC_PAN_EAST                    2006
+#define IDC_PAN_SOUTH_EAST              2007
+#define IDC_PAN_SOUTH                   2008
+#define IDC_PAN_SOUTH_WEST              2009
+#define IDC_PAN_WEST                    2010
+#define IDC_PAN_NORTH_WEST              2011
 
 #define IDC_ALIAS                       2100
 #define IDC_CELL                        2101

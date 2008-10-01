@@ -85,6 +85,9 @@ class WebDataSource {
   // script to do the actuall submission.
   virtual bool IsFormSubmit() const = 0;
 
+  // Returns the page title.
+  virtual std::wstring GetPageTitle() const = 0;
+
   /*
   These functions are not implemented yet, and we are not yet sure whether or not
   we need them, so we have commented them out both here and in the 
@@ -127,12 +130,6 @@ class WebDataSource {
   //  @discussion Returns YES if there are any pending loads.
   //  - (BOOL)isLoading;
   virtual bool IsLoading() = 0;
-
-  //
-  //  @method pageTitle
-  //  @result Returns nil or the page title.
-  //  - (NSString *)pageTitle;
-  virtual void GetPageTitle(std::wstring* title) = 0;
 
   //
   //  @method webArchive

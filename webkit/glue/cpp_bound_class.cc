@@ -22,7 +22,7 @@
 #pragma warning(disable:4067)
 #include "npruntime_priv.h"
 
-#if USE(JAVASCRIPTCORE_BINDINGS)
+#if USE(JSC)
 #pragma warning(push, 0)
 #include "JSLock.h"
 #pragma warning(pop)
@@ -146,7 +146,7 @@ CppBoundClass::~CppBoundClass() {
   // Unregister objects we created and bound to a frame.
   for (BoundObjectList::iterator i = bound_objects_.begin(); 
       i != bound_objects_.end(); ++i) {
-#if USE(V8_BINDING)
+#if USE(V8)
     _NPN_UnregisterObject(*i);
 #endif
     NPN_ReleaseObject(*i);
@@ -236,7 +236,7 @@ bool CppBoundClass::IsMethodRegistered(std::string name) {
 
 void CppBoundClass::BindToJavascript(WebFrame* frame,
                                      const std::wstring& classname) {
-#if USE(JAVASCRIPTCORE_BINDINGS)
+#if USE(JSC)
   KJS::JSLock lock;
 #endif
 

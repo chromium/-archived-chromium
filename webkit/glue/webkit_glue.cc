@@ -27,12 +27,10 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Page.h"
 #include "PlatformString.h"
 #include "RenderTreeAsText.h"
+#include "RenderView.h"
+#include "ScriptController.h"
 #include "SharedBuffer.h"
 MSVC_POP_WARNING();
-
-#if USE(V8_BINDING) || USE(JAVASCRIPTCORE_BINDINGS)
-#include "JSBridge.h"  // for set flags
-#endif
 
 #undef LOG
 #undef notImplemented
@@ -53,15 +51,15 @@ MSVC_POP_WARNING();
 namespace webkit_glue {
 
 void SetJavaScriptFlags(const std::wstring& str) {
-#if USE(V8_BINDING) || USE(JAVASCRIPTCORE_BINDINGS)
+#if USE(V8) || USE(JSC)
   std::string utf8_str = WideToUTF8(str);
-  WebCore::JSBridge::setFlags(utf8_str.data(), static_cast<int>(utf8_str.size()));
+  WebCore::ScriptController::setFlags(utf8_str.data(), static_cast<int>(utf8_str.size()));
 #endif
 }
 
 void SetRecordPlaybackMode(bool value) {
-#if USE(V8_BINDING) || USE(JAVASCRIPTCORE_BINDINGS)
-  WebCore::JSBridge::setRecordPlaybackMode(value);
+#if USE(V8) || USE(JSC)
+  WebCore::ScriptController::setRecordPlaybackMode(value);
 #endif
 }
 
@@ -127,7 +125,11 @@ std::wstring DumpDocumentText(WebFrame* web_frame) {
 
   // We use the document element's text instead of the body text here because
   // not all documents have a body, such as XML documents.
-  return StringToStdWString(frame->document()->documentElement()->innerText());
+  WebCore::Element* documentElement = frame->document()->documentElement();
+  if (!documentElement) {
+    return std::wstring();
+  }
+  return StringToStdWString(documentElement->innerText());
 }
 
 std::wstring DumpFramesAsText(WebFrame* web_frame, bool recursive) {
@@ -159,8 +161,9 @@ std::wstring DumpRenderer(WebFrame* web_frame) {
   WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(web_frame);
   WebCore::Frame* frame = webFrameImpl->frame();
 
-  // This implicitly converts from a DeprecatedString.
-  return StringToStdWString(WebCore::externalRepresentation(frame->renderer()));
+  WebCore::String frameText =
+      WebCore::externalRepresentation(frame->contentRenderer());
+  return StringToStdWString(frameText);
 }
 
 std::wstring DumpFrameScrollPosition(WebFrame* web_frame, bool recursive) {
@@ -268,8 +271,8 @@ void ResetBeforeTestRun(WebView* view) {
 
   // This is papering over b/850700.  But it passes a few more tests, so we'll
   // keep it for now.
-  if (frame && frame->scriptBridge())
-    frame->scriptBridge()->setEventHandlerLineno(0);
+  if (frame && frame->script())
+    frame->script()->setEventHandlerLineno(0);
 
   // Reset the last click information so the clicks generated from previous
   // test aren't inherited (otherwise can mistake single/double/triple clicks)
@@ -296,8 +299,8 @@ void CheckForLeaks() {
 bool DecodeImage(const std::string& image_data, SkBitmap* image) {
 #if defined(OS_WIN)  // TODO(port): unnecessary after the webkit merge lands.
    RefPtr<WebCore::SharedBuffer> buffer(
-       new WebCore::SharedBuffer(image_data.data(),
-                                 static_cast<int>(image_data.length())));
+       WebCore::SharedBuffer::create(image_data.data(),
+                                     static_cast<int>(image_data.length())));
   WebCore::ImageSource image_source;
   image_source.setData(buffer.get(), true);
 

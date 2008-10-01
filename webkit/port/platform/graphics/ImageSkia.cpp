@@ -77,42 +77,6 @@ void TransformDimensions(const SkMatrix& matrix,
     *dest_height = SkScalarToFloat((dest_points[2] - dest_points[0]).length());
 }
 
-// Constructs a BMP V4 bitmap from an SkBitmap.
-PassRefPtr<SharedBuffer> SerializeBitmap(const SkBitmap& bitmap)
-{
-    int width = bitmap.width();
-    int height = bitmap.height();
-
-    // Create a BMP v4 header that we can serialize.
-    BITMAPV4HEADER v4Header;
-    gfx::CreateBitmapV4Header(width, height, &v4Header);
-    v4Header.bV4SizeImage = width * sizeof(uint32_t) * height;
-
-    // Serialize the bitmap.
-    BITMAPFILEHEADER fileHeader;
-    fileHeader.bfType = 0x4d42;  // "BM" header
-    fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + v4Header.bV4Size;
-    fileHeader.bfSize = fileHeader.bfOffBits + v4Header.bV4SizeImage;
-    fileHeader.bfReserved1 = fileHeader.bfReserved2 = 0;
-
-    // Write BITMAPFILEHEADER
-    RefPtr<SharedBuffer> buffer(new SharedBuffer(
-        reinterpret_cast<const char*>(&fileHeader),
-        sizeof(BITMAPFILEHEADER)));
-
-    // Write BITMAPINFOHEADER
-    buffer->append(reinterpret_cast<const char*>(&v4Header),
-                   sizeof(BITMAPV4HEADER));
-
-    // Write the image body.
-    SkAutoLockPixels bitmap_lock(bitmap);
-    buffer->append(reinterpret_cast<const char*>(bitmap.getAddr32(0, 0)),
-                   v4Header.bV4SizeImage);
-
-    return buffer;
-}
-
-
 // Creates an Image for the text area resize corner. We do this by drawing the
 // theme native control into a memory buffer then converting the memory buffer
 // into a BMP byte stream, then feeding it into the Image object.  We have to
@@ -120,9 +84,9 @@ PassRefPtr<SharedBuffer> SerializeBitmap(const SkBitmap& bitmap)
 // us to directly manipulate the image data. We don't bother caching this
 // image because the caller holds onto a static copy (see
 // WebCore/rendering/RenderLayer.cpp).
-void GetTextAreaResizeCorner(Image* image)
+static PassRefPtr<Image> GetTextAreaResizeCorner()
 {
-    ASSERT(image);
+    RefPtr<Image> image = BitmapImage::create();
 
     // Get the size of the resizer.
     const int width = PlatformScrollbar::verticalScrollbarWidth();
@@ -139,12 +103,8 @@ void GetTextAreaResizeCorner(Image* image)
     gfx::NativeTheme::instance()->PaintStatusGripper(hdc, SP_GRIPPER, 0, 0,
                                                      &widgetRect);
     device.postProcessGDI(0, 0, width, height);
-    image->setData(SerializeBitmap(device.accessBitmap(false)), true);
-}
-
-// Convert from what WebKit thinks the type is, to what it is for our port
-inline NativeImageSkia* ToSkiaFrame(NativeImagePtr native) {
-  return reinterpret_cast<NativeImageSkia*>(native);
+    image->setData(SerializeSkBitmap(device.accessBitmap(false)), true);
+    return image.release();
 }
 
 }  // namespace
@@ -157,91 +117,83 @@ void FrameData::clear()
     m_hasAlpha = true;
 }
 
-// static
-Image* Image::loadPlatformResource(const char *name)
+static inline PassRefPtr<Image> loadImageWithResourceId(int resourceId)
 {
-    Image* image = new BitmapImage;
-
-    // Figure out which resource ID the caller wanted.
-    int resource_id;
-    if (!strcmp(name, "missingImage")) {
-        resource_id = IDR_BROKENIMAGE;
-    } else if (!strcmp(name, "tickmarkDash")) {
-        resource_id = IDR_TICKMARK_DASH;
-    } else if (!strcmp(name, "textAreaResizeCorner")) {
-        GetTextAreaResizeCorner(image);
-        return image;
-    } else if (!strcmp(name, "deleteButton") ||
-               !strcmp(name, "deleteButtonPressed")) {
-        LOG(NotYetImplemented, "Image resource %s does not yet exist\n", name);
-        return image;
-    } else {
-        LOG(NotYetImplemented, "Unknown image resource %s requested\n", name);
-        return image;
-    }
-
+    RefPtr<Image> image = BitmapImage::create();
     // Load the desired resource.
-    std::string data(webkit_glue::GetDataResource(resource_id));
-    RefPtr<SharedBuffer> buffer(new SharedBuffer(data.data(), data.length()));
+    std::string data(webkit_glue::GetDataResource(resourceId));
+    RefPtr<SharedBuffer> buffer(SharedBuffer::create(data.data(), data.length()));
     image->setData(buffer, true);
-    return image;
+    return image.release();
 }
 
-static bool subsetBitmap(SkBitmap* dst, const SkBitmap& src, const FloatRect& r)
+// static
+PassRefPtr<Image> Image::loadPlatformResource(const char *name)
 {
-    SkIRect bounds, clip;
-    bounds.set(0, 0, src.width(), src.height());
-    WebCoreRectToSkiaRect(r, &clip);
-    
-    SkAutoLockPixels src_lock(src);
-    if (bounds.intersect(clip))
-    {
-        void* addr;
-        switch (src.getConfig()) {
-        case SkBitmap::kIndex8_Config:
-        case SkBitmap::kA8_Config:
-            addr = (void*)src.getAddr8(bounds.fLeft, bounds.fTop);
-            break;
-        case SkBitmap::kRGB_565_Config:
-            addr = (void*)src.getAddr16(bounds.fLeft, bounds.fTop);
-            break;
-        case SkBitmap::kARGB_8888_Config:
-            addr = (void*)src.getAddr32(bounds.fLeft, bounds.fTop);
-            break;
-        default:
-            SkDEBUGF(("subset_bitmap: can't subset this bitmap config %d\n", src.getConfig()));
-            return false;
-        }
-        dst->setConfig(src.getConfig(), bounds.width(), bounds.height(), src.rowBytes());
-        dst->setPixels(addr);
+    if (!strcmp(name, "missingImage"))
+        return loadImageWithResourceId(IDR_BROKENIMAGE);
+    if (!strcmp(name, "tickmarkDash"))
+        return loadImageWithResourceId(IDR_TICKMARK_DASH);
+    if (!strcmp(name, "textAreaResizeCorner"))
+        return GetTextAreaResizeCorner();
+    if (!strcmp(name, "deleteButton") || !strcmp(name, "deleteButtonPressed")) {
+        LOG(NotYetImplemented, "Image resource %s does not yet exist\n", name);
+        return Image::nullImage();
     }
+
+    LOG(NotYetImplemented, "Unknown image resource %s requested\n", name);
+    return Image::nullImage();
+}
+
+static bool subsetBitmap(SkBitmap* dst, const SkBitmap& src, const FloatRect& clip)
+{
+    FloatRect floatBounds(0, 0, src.width(), src.height());
+    if (!floatBounds.intersects(clip))
+        return false;
+
+    SkAutoLockPixels src_lock(src);
+    IntRect bounds(floatBounds);
+    void* addr;
+    switch (src.getConfig()) {
+    case SkBitmap::kIndex8_Config:
+    case SkBitmap::kA8_Config:
+        addr = (void*)src.getAddr8(bounds.x(), bounds.y());
+        break;
+    case SkBitmap::kRGB_565_Config:
+        addr = (void*)src.getAddr16(bounds.x(), bounds.y());
+        break;
+    case SkBitmap::kARGB_8888_Config:
+        addr = (void*)src.getAddr32(bounds.x(), bounds.y());
+        break;
+    default:
+        SkDEBUGF(("subset_bitmap: can't subset this bitmap config %d\n", src.getConfig()));
+        return false;
+    }
+    dst->setConfig(src.getConfig(), bounds.width(), bounds.height(), src.rowBytes());
+    dst->setPixels(addr);
     return false;
 }
 
 void Image::drawPattern(GraphicsContext* context,
-                        const FloatRect& srcRect,
+                        const FloatRect& floatSrcRect,
                         const AffineTransform& patternTransform,
                         const FloatPoint& phase,
                         CompositeOperator compositeOp,
                         const FloatRect& destRect)
 {
-    if (destRect.isEmpty() || srcRect.isEmpty())
+    if (destRect.isEmpty() || floatSrcRect.isEmpty())
         return;  // nothing to draw
 
-    NativeImageSkia* bitmap = ToSkiaFrame(nativeImageForCurrentFrame());
+    NativeImageSkia* bitmap = nativeImageForCurrentFrame();
     if (!bitmap)
         return;
-
-    PlatformContextSkia* skia = PlatformContextToPlatformContextSkia(
-        context->platformContext());
 
     // This is a very inexpensive operation. It will generate a new bitmap but
     // it will internally reference the old bitmap's pixels, adjusting the row
     // stride so the extra pixels appear as padding to the subsetted bitmap.
-    SkIRect srcSkIRect;
-    WebCoreRectToSkiaRect(srcRect, &srcSkIRect);
     SkBitmap src_subset;
-    bitmap->extractSubset(&src_subset, srcSkIRect);
+    SkIRect srcRect = enclosingIntRect(floatSrcRect);
+    bitmap->extractSubset(&src_subset, srcRect);
 
     SkBitmap resampled;
     SkShader* shader;
@@ -255,9 +207,9 @@ void Image::drawPattern(GraphicsContext* context,
 
     // Compute the resampling mode.
     PlatformContextSkia::ResamplingMode resampling;
-    if (context->platformContext()->IsPrinting()) {
+    if (context->platformContext()->IsPrinting())
       resampling = PlatformContextSkia::RESAMPLE_LINEAR;
-    } else {
+    else {
       resampling = PlatformContextSkia::computeResamplingMode(
           *bitmap,
           srcRect.width(), srcRect.height(),
@@ -299,9 +251,7 @@ void Image::drawPattern(GraphicsContext* context,
     paint.setPorterDuffXfermode(WebCoreCompositeToSkiaComposite(compositeOp));
     paint.setFilterBitmap(resampling == PlatformContextSkia::RESAMPLE_LINEAR);
 
-    SkRect dstR;
-    WebCoreRectToSkiaRect(destRect, &dstR);
-    skia->paintSkPaint(dstR, paint);
+    context->platformContext()->paintSkPaint(destRect, paint);
 }
 
 // ================================================
@@ -327,7 +277,7 @@ void BitmapImage::checkForSolidColor()
 
 bool BitmapImage::getHBITMAP(HBITMAP bmp)
 {
-    NativeImageSkia* bm = getBitmap();
+    NativeImageSkia* bm = nativeImageForCurrentFrame();
     if (!bm)
       return false;
 
@@ -347,11 +297,6 @@ bool BitmapImage::getHBITMAPOfSize(HBITMAP bmp, LPSIZE size)
     return false;
 }
 
-NativeImageSkia* BitmapImage::getBitmap()
-{
-    return ToSkiaFrame(nativeImageForCurrentFrame());
-}
-
 void BitmapImage::drawFrameMatchingSourceSize(GraphicsContext*,
                                               const FloatRect& dstRect,
                                               const IntSize& srcSize,
@@ -366,23 +311,17 @@ void BitmapImage::draw(GraphicsContext* ctxt, const FloatRect& dstRect,
     if (!m_source.initialized())
         return;
     
-    const NativeImageSkia* bm = getBitmap();
+    const NativeImageSkia* bm = nativeImageForCurrentFrame();
     if (!bm)
         return;  // It's too early and we don't have an image yet.
 
-    SkIRect source_rect;
-    WebCoreRectToSkiaRect(srcRect, &source_rect);
-    SkRect dest_rect;
-    WebCoreRectToSkiaRect(dstRect, &dest_rect);
-    if (source_rect.isEmpty() || dest_rect.isEmpty())
+    if (srcRect.isEmpty() || dstRect.isEmpty())
         return;  // Nothing to draw.
 
-    PlatformContextSkia* skia = PlatformContextToPlatformContextSkia(
-        ctxt->platformContext());
-    skia->paintSkBitmap(*bm, source_rect, dest_rect,
-                        WebCoreCompositeToSkiaComposite(compositeOp));
+    ctxt->platformContext()->paintSkBitmap(*bm, enclosingIntRect(srcRect),
+        enclosingIntRect(dstRect), WebCoreCompositeToSkiaComposite(compositeOp));
 
     startAnimation();
 }
 
-}
+} // namespace WebCore

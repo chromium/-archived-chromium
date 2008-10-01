@@ -39,7 +39,6 @@
 #include "v8_custom.h"
 #include "v8_collection.h"
 #include "v8_nodefilter.h"
-#include "V8Bridge.h"
 
 #include "RefCounted.h"  // for Peerable
 
@@ -65,6 +64,7 @@
 #include "Notation.h"
 #include "Text.h"
 #include "ProcessingInstruction.h"
+#include "Console.h"
 #include "CharacterData.h"
 #include "DocumentType.h"
 #include "DocumentFragment.h"
@@ -82,6 +82,7 @@
 #include "FrameLoader.h"
 #include "FrameTree.h"
 #include "RangeException.h"
+#include "ScriptController.h"
 #include "NodeFilter.h"
 #include "SecurityOrigin.h"
 #include "XMLHttpRequestException.h"
@@ -97,8 +98,10 @@
 #include "XPathEvaluator.h"
 #endif
 
+#undef LOG
 #include "base/stats_table.h"
 #include "base/trace_event.h"
+#include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -154,9 +157,10 @@ namespace WebCore {
 //
 typedef HashMap<v8::Value*, GlobalHandleInfo*> GlobalHandleMap;
 
-static GlobalHandleMap& global_handle_map() {
-  static GlobalHandleMap static_global_handle_map;
-  return static_global_handle_map;
+static GlobalHandleMap& global_handle_map()
+{
+    static GlobalHandleMap static_global_handle_map;
+    return static_global_handle_map;
 }
 
 
@@ -178,12 +182,12 @@ void V8Proxy::RegisterGlobalHandle(GlobalHandleType type, void* host,
 }
 
 
-void V8Proxy::UnregisterGlobalHandle(void* host,
-                                     v8::Persistent<v8::Value> handle) {
-  ASSERT(global_handle_map().contains(*handle));
-  GlobalHandleInfo* info = global_handle_map().take(*handle);
-  ASSERT(info->host_ == host);
-  delete info;
+void V8Proxy::UnregisterGlobalHandle(void* host, v8::Persistent<v8::Value> handle)
+{
+    ASSERT(global_handle_map().contains(*handle));
+    GlobalHandleInfo* info = global_handle_map().take(*handle);
+    ASSERT(info->host_ == host);
+    delete info;
 }
 #endif  // ifndef NDEBUG
 
@@ -293,13 +297,12 @@ static void WeakSVGElementInstanceCallback(v8::Persistent<v8::Object> obj,
 
 v8::Handle<v8::Value> V8Proxy::SVGElementInstanceToV8Object(
     SVGElementInstance* instance) {
-  if (!instance) return v8::Null();
+  if (!instance)
+    return v8::Null();
 
-  v8::Handle<v8::Object> existing_instance =
-      dom_svg_element_instance_map().get(instance);
-  if (!existing_instance.IsEmpty()) {
+  v8::Handle<v8::Object> existing_instance = dom_svg_element_instance_map().get(instance);
+  if (!existing_instance.IsEmpty())
     return existing_instance;
-  }
 
   instance->ref();
 
@@ -317,31 +320,34 @@ v8::Handle<v8::Value> V8Proxy::SVGElementInstanceToV8Object(
 }
 
 // SVG non-node elements may have a reference to a context node which
-// should be notified when the element is changed
+// should be notified when the element is change
 static void WeakSVGObjectWithContext(v8::Persistent<v8::Object> obj,
                                      void* param);
 
 // Map of SVG objects with contexts to V8 objects
-static DOMWrapperMap<Peerable>& dom_svg_object_with_context_map() {
-  static DOMPeerableWrapperMap<Peerable>
-    static_dom_svg_object_with_context_map(&WeakSVGObjectWithContext);
-  return static_dom_svg_object_with_context_map;
+static DOMWrapperMap<Peerable>& dom_svg_object_with_context_map()
+{
+    static DOMPeerableWrapperMap<Peerable>
+        static_dom_svg_object_with_context_map(&WeakSVGObjectWithContext);
+    return static_dom_svg_object_with_context_map;
 }
 
 // Map of SVG objects with contexts to their contexts
-static HashMap<void*, SVGElement*>& svg_object_to_context_map() {
-  static HashMap<void*, SVGElement*> static_svg_object_to_context_map;
-  return static_svg_object_to_context_map;
+static HashMap<void*, SVGElement*>& svg_object_to_context_map()
+{
+    static HashMap<void*, SVGElement*> static_svg_object_to_context_map;
+    return static_svg_object_to_context_map;
 }
 
 v8::Handle<v8::Value> V8Proxy::SVGObjectWithContextToV8Object(
-  Peerable* object, V8ClassIndex::V8WrapperType type) {
-  if (!object) return v8::Null();
+  Peerable* object, V8ClassIndex::V8WrapperType type)
+{
+  if (!object)
+    return v8::Null();
 
   // Special case: SVGPathSegs need to be downcast to their real type
-  if (type == V8ClassIndex::SVGPATHSEG) {
+  if (type == V8ClassIndex::SVGPATHSEG)
     type = V8Custom::DowncastSVGPathSeg(object);
-  }
 
   v8::Persistent<v8::Object> result =
     dom_svg_object_with_context_map().get(object);
@@ -372,26 +378,25 @@ static void WeakSVGObjectWithContext(v8::Persistent<v8::Object> obj,
   dom_svg_object_with_context_map().forget(dom_obj);
 }
 
-void V8Proxy::SetSVGContext(void* obj, SVGElement* context) {
+void V8Proxy::SetSVGContext(void* obj, SVGElement* context)
+{
   SVGElement* old_context = svg_object_to_context_map().get(obj);
 
-  if (old_context == context) {
+  if (old_context == context)
     return;
-  }
 
-  if (old_context) {
+  if (old_context)
     old_context->deref();
-  }
 
-  if (context) {
+  if (context)
     context->ref();
-  }
 
   svg_object_to_context_map().set(obj, context);
 }
 
-SVGElement* V8Proxy::GetSVGContext(void* obj) {
-  return svg_object_to_context_map().get(obj);
+SVGElement* V8Proxy::GetSVGContext(void* obj)
+{
+    return svg_object_to_context_map().get(obj);
 }
 
 #endif
@@ -409,17 +414,17 @@ static void WeakPeerableCallback(v8::Persistent<v8::Object> obj, void* para) {
   dom_object_map().forget(dom_obj);
 }
 
-
-static void WeakNodeCallback(v8::Persistent<v8::Object> obj, void* param) {
+static void WeakNodeCallback(v8::Persistent<v8::Object> obj, void* param)
+{
   Node* node = static_cast<Node*>(param);
   ASSERT(dom_node_map().contains(node));
 
   dom_node_map().forget(node);
 }
 
-
 // Create object groups for DOM tree nodes.
-static void GCPrologue() {
+static void GCPrologue()
+{
 #ifndef NDEBUG
   // Check that all references in the map are weak.
   PeerableMap peer_map = dom_object_map().impl();
@@ -448,9 +453,8 @@ static void GCPrologue() {
          !static_cast<HTMLImageElement*>(node)->haveFiredLoadEvent()) ) {
       Document* doc = node->document();
       v8::Persistent<v8::Object> wrapper = dom_node_map().get(node);
-      if (!wrapper.IsEmpty()) {
+      if (!wrapper.IsEmpty())
         v8::V8::AddObjectToGroup(doc, wrapper);
-      }
     }
   }
 }
@@ -477,20 +481,23 @@ static void GCEpilogue() {
 #endif
 }
 
-
 // A map from a peerable node to its JS wrapper, the wrapper
 // is kept as a strong reference to survive GCs.
-static PeerableMap& gc_protected_map() {
-  static PeerableMap static_gc_protected_map;
-  return static_gc_protected_map;
+static PeerableMap& gc_protected_map()
+{
+    static PeerableMap static_gc_protected_map;
+    return static_gc_protected_map;
 }
 
-
 // static
-void V8Proxy::GCProtect(Peerable* dom_object) {
-  if (!dom_object) return;
-  if (gc_protected_map().contains(dom_object)) return;
-  if (!dom_object->peer()) return;
+void V8Proxy::GCProtect(Peerable* dom_object)
+{
+  if (!dom_object)
+      return;
+  if (gc_protected_map().contains(dom_object))
+      return;
+  if (!dom_object->peer())
+      return;
 
   // Create a new (strong) persistent handle for the peer.
   v8::Persistent<v8::Object>
@@ -502,8 +509,10 @@ void V8Proxy::GCProtect(Peerable* dom_object) {
 
 // static
 void V8Proxy::GCUnprotect(Peerable* dom_object) {
-  if (!dom_object) return;
-  if (!gc_protected_map().contains(dom_object)) return;
+  if (!dom_object)
+      return;
+  if (!gc_protected_map().contains(dom_object))
+      return;
 
   // Dispose the strong reference.
   v8::Persistent<v8::Object> wrapper(gc_protected_map().take(dom_object));
@@ -535,16 +544,12 @@ class JavaScriptConsoleMessage {
   const unsigned m_lineNumber;
 };
 
-
-void JavaScriptConsoleMessage::AddToPage(Page* page) const {
-  ASSERT(page);
-  Chrome* chrome = page->chrome();
-  // Only messages with ErrorMessageLevel are logged when
-  // calling Chrome::addMessageToConsole().
-  chrome->addMessageToConsole(JSMessageSource, ErrorMessageLevel,
-                              m_string, m_lineNumber, m_sourceID);
+void JavaScriptConsoleMessage::AddToPage(Page* page) const
+{
+    ASSERT(page);
+    Console* console = page->mainFrame()->domWindow()->console();
+    console->addMessage(JSMessageSource, ErrorMessageLevel, m_string, m_lineNumber, m_sourceID);
 }
-
 
 // The ConsoleMessageManager handles all console messages that stem
 // from JavaScript. It keeps a list of messages that have been delayed but
@@ -590,21 +595,22 @@ void ConsoleMessageManager::AddMessage(
 }
 
 
-void ConsoleMessageManager::AddDelayedMessage(
-    const JavaScriptConsoleMessage& message) {
-  if (!m_delayed) {
-    // Allocate a vector for the delayed messages. Will be
-    // deallocated when the delayed messages are processed
-    // in ProcessDelayedMessages().
-    m_delayed = new Vector<JavaScriptConsoleMessage>();
-  }
-  m_delayed->append(message);
+void ConsoleMessageManager::AddDelayedMessage(const JavaScriptConsoleMessage& message)
+{
+    if (!m_delayed)
+        // Allocate a vector for the delayed messages. Will be
+        // deallocated when the delayed messages are processed
+        // in ProcessDelayedMessages().
+        m_delayed = new Vector<JavaScriptConsoleMessage>();
+    m_delayed->append(message);
 }
 
 
-void ConsoleMessageManager::ProcessDelayedMessages() {
+void ConsoleMessageManager::ProcessDelayedMessages()
+{
   // If we have a delayed vector it cannot be empty.
-  if (!m_delayed) return;
+  if (!m_delayed)
+      return;
   ASSERT(!m_delayed->isEmpty());
 
   // Add the delayed messages to the page of the active
@@ -613,8 +619,10 @@ void ConsoleMessageManager::ProcessDelayedMessages() {
   // posting messages. We still deallocate the vector.
   Frame* frame = V8Proxy::retrieveActiveFrame();
   Page* page = NULL;
-  if (frame) page = frame->page();
-  if (!page) m_delayed->clear();
+  if (frame)
+      page = frame->page();
+  if (!page)
+      m_delayed->clear();
 
   // Iterate through all the delayed messages and add them
   // to the console.
@@ -637,23 +645,25 @@ class ConsoleMessageScope {
   ~ConsoleMessageScope() { ConsoleMessageManager::ProcessDelayedMessages(); }
 };
 
-
-void log_info(Frame* frame, const String& msg, const String& url) {
-  Page* page = frame->page();
-  if (!page) return;
-  JavaScriptConsoleMessage message(msg, url, 0);
-  ConsoleMessageManager::AddMessage(page, message);
+void log_info(Frame* frame, const String& msg, const String& url)
+{
+    Page* page = frame->page();
+    if (!page)
+        return;
+    JavaScriptConsoleMessage message(msg, url, 0);
+    ConsoleMessageManager::AddMessage(page, message);
 }
-
 
 static void HandleConsoleMessage(v8::Handle<v8::Message> message,
                                  v8::Handle<v8::Value> data) {
   // Use the frame where JavaScript is called from.
   Frame* frame = V8Proxy::retrieveActiveFrame();
-  if (!frame) return;
+  if (!frame)
+      return;
 
   Page* page = frame->page();
-  if (!page) return;
+  if (!page)
+      return;
 
   v8::Handle<v8::String> errorMessageString = message->Get();
   ASSERT(!errorMessageString.IsEmpty());
@@ -679,7 +689,8 @@ enum DelayReporting {
 static void ReportUnsafeAccessTo(Frame* target, DelayReporting delay) {
   ASSERT(target);
   Document* targetDocument = target->document();
-  if (!targetDocument) return;
+  if (!targetDocument)
+      return;
 
   Frame* source = V8Proxy::retrieveActiveFrame();
   Document* sourceDocument = source->document();
@@ -690,8 +701,8 @@ static void ReportUnsafeAccessTo(Frame* target, DelayReporting delay) {
   String str = String::format("Unsafe JavaScript attempt to access frame "
       "with URL %s from frame with URL %s. Domains, protocols and ports must "
       "match.\n",
-      targetDocument->url().utf8().data(),
-      sourceDocument->url().utf8().data());
+      targetDocument->url().string().utf8().data(),
+      sourceDocument->url().string().utf8().data());
 
   // Build a console message with fake source ID and line number.
   const String kSourceID = "";
@@ -713,72 +724,72 @@ static void ReportUnsafeAccessTo(Frame* target, DelayReporting delay) {
   }
 }
 
-
 static void ReportUnsafeJavaScriptAccess(v8::Local<v8::Object> host,
                                          v8::AccessType type,
                                          v8::Local<v8::Value> data) {
-  // Do not report error if the access type is HAS.
-  if (type == v8::ACCESS_HAS) return;
+    // Do not report error if the access type is HAS.
+    if (type == v8::ACCESS_HAS)
+        return;
 
-  Frame* target = V8Custom::GetTargetFrame(host, data);
-  if (target)
-    ReportUnsafeAccessTo(target, REPORT_LATER);
+    Frame* target = V8Custom::GetTargetFrame(host, data);
+    if (target)
+        ReportUnsafeAccessTo(target, REPORT_LATER);
+}
+
+static void ReportFatalErrorInV8(const char* location, const char* message)
+{
+    // V8 is shutdown, we cannot use V8 api.
+    // The only thing we can do is to disable JavaScript.
+    // TODO: clean up V8Proxy and disable JavaScript.
+    printf("V8 error: %s (%s)\n", message, location);
+}
+
+static void HandleFatalErrorInV8()
+{
+    // TODO: We temporarily deal with V8 internal error situations
+    // such as out-of-memory by crashing the renderer.
+    CRASH();
 }
 
 
-static void ReportFatalErrorInV8(const char* location, const char* message) {
-  // V8 is shutdown, we cannot use V8 api.
-  // The only thing we can do is to disable JavaScript.
-  // TODO: clean up V8Proxy and disable JavaScript.
-  printf("V8 error: %s (%s)\n", message, location);
+V8Proxy::~V8Proxy()
+{
+    clear();
+    DestroyGlobal();
 }
 
-
-static void HandleFatalErrorInV8() {
-  // TODO: We temporarily deal with V8 internal error situations
-  // such as out-of-memory by crashing the renderer.
-  CRASH();
-}
-
-
-V8Proxy::~V8Proxy() {
-  clear();
-  DestroyGlobal();
-}
-
-
-void V8Proxy::DestroyGlobal() {
-  if (!m_global.IsEmpty()) {
+void V8Proxy::DestroyGlobal()
+{
+    if (!m_global.IsEmpty()) {
 #ifndef NDEBUG
-    UnregisterGlobalHandle(this, m_global);
+        UnregisterGlobalHandle(this, m_global);
 #endif
-    m_global.Dispose();
-    m_global.Clear();
-  }
+        m_global.Dispose();
+        m_global.Clear();
+    }
 }
 
-
-void V8Proxy::SetJSWrapperForDOMObject(Peerable* obj,
-                                       v8::Persistent<v8::Object> wrapper) {
-  dom_object_map().set(obj, wrapper);
+void V8Proxy::SetJSWrapperForDOMObject(Peerable* obj, v8::Persistent<v8::Object> wrapper)
+{
+    dom_object_map().set(obj, wrapper);
 }
 
-
-void V8Proxy::SetJSWrapperForDOMNode(Node* node,
-                                     v8::Persistent<v8::Object> wrapper) {
-  dom_node_map().set(node, wrapper);
+void V8Proxy::SetJSWrapperForDOMNode(Node* node, v8::Persistent<v8::Object> wrapper)
+{
+    dom_node_map().set(node, wrapper);
 }
-
 
 EventListener* V8Proxy::createHTMLEventHandler(const String& functionName,
-                                               const String& code, Node* node) {
-  return new V8LazyEventListener(m_frame, code, functionName);
+                                               const String& code, Node* node)
+{
+    return new V8LazyEventListener(m_frame, code, functionName);
 }
 
 #if ENABLE(SVG)
 EventListener* V8Proxy::createSVGEventHandler(const String& functionName,
-                                              const String& code, Node* node) {
-  return new V8LazyEventListener(m_frame, code, functionName);
+                                              const String& code, Node* node)
+{
+    return new V8LazyEventListener(m_frame, code, functionName);
 }
 #endif
 
@@ -790,7 +801,8 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
                                                 bool html) {
   ASSERT(v8::Context::InContext());
 
-  if (!listener->IsObject()) return 0;
+  if (!listener->IsObject())
+      return 0;
 
   V8EventListenerList::iterator p = list.begin();
   while (p != list.end()) {
@@ -802,31 +814,31 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
     // check using the == operator on the handles. This is much,
     // much faster than calling StrictEquals through the API in 
     // the negative case.
-    if (el->isHTMLEventListener() == html && listener == wrapper) {
-      return el;
-    }
+    if (el->isHTMLEventListener() == html && listener == wrapper)
+        return el;
     ++p;
   }
   return 0;
 }
 
-
 // Find an existing wrapper for a JS event listener in the map.
 V8EventListener* V8Proxy::FindV8EventListener(v8::Local<v8::Value> listener,
-                                              bool html) {
-  return FindEventListenerInList(m_event_listeners, listener, html);
+                                              bool html)
+{
+    return FindEventListenerInList(m_event_listeners, listener, html);
 }
 
-
-V8EventListener* V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::Value> obj,
-                                                      bool html) {
+V8EventListener* V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::Value> obj, bool html)
+{
   ASSERT(v8::Context::InContext());
 
-  if (!obj->IsObject()) return 0;
+  if (!obj->IsObject())
+      return 0;
 
   V8EventListener* wrapper =
       FindEventListenerInList(m_event_listeners, obj, html);
-  if (wrapper) return wrapper;
+  if (wrapper)
+      return wrapper;
 
   // Create a new one, and add to cache.
   V8EventListener* new_listener =
@@ -921,62 +933,62 @@ void V8Proxy::DisconnectEventListeners() {
 
 v8::Handle<v8::Script> V8Proxy::CompileScript(v8::Handle<v8::String> code,
                                               const String& fileName,
-                                              int baseLine) {
-  const uint16_t* fileNameString = FromWebCoreString(fileName);
-  v8::Handle<v8::String> name =
+                                              int baseLine)
+{
+    const uint16_t* fileNameString = FromWebCoreString(fileName);
+    v8::Handle<v8::String> name =
       v8::String::New(fileNameString, fileName.length());
-  v8::Handle<v8::Integer> line = v8::Integer::New(baseLine);
-  v8::ScriptOrigin origin(name, line);
-  v8::Handle<v8::Script> script = v8::Script::Compile(code, &origin);
-  return script;
+    v8::Handle<v8::Integer> line = v8::Integer::New(baseLine);
+    v8::ScriptOrigin origin(name, line);
+    v8::Handle<v8::Script> script = v8::Script::Compile(code, &origin);
+    return script;
 }
 
+bool V8Proxy::HandleOutOfMemory()
+{
+    v8::Local<v8::Context> context = v8::Context::GetCurrent();
 
-bool V8Proxy::HandleOutOfMemory() {
-  v8::Local<v8::Context> context = v8::Context::GetCurrent();
+    if (!context->HasOutOfMemoryException())
+        return false;
 
-  if (!context->HasOutOfMemoryException())
-    return false;
+    // Warning, error, disable JS for this frame?
+    Frame* frame = V8Proxy::retrieveFrame(context);
 
-  // Warning, error, disable JS for this frame?
-  Frame* frame = V8Proxy::retrieveFrame(context);
+    V8Proxy* proxy = V8Proxy::retrieve(frame);
+    // Clean m_context, m_document, and event handlers.
+    proxy->clear();
+    // Destroy the global object.
+    proxy->DestroyGlobal();
 
-  V8Proxy* proxy = V8Proxy::retrieve(frame);
-  // Clean m_context, m_document, and event handlers.
-  proxy->clear();
-  // Destroy the global object.
-  proxy->DestroyGlobal();
+    webkit_glue::NotifyJSOutOfMemory(frame);
 
-  webkit_glue::NotifyJSOutOfMemory(frame);
+    // Disable JS.
+    Settings* settings = frame->settings();
+    ASSERT(settings);
+    settings->setJavaScriptEnabled(false);
 
-  // Disable JS.
-  Settings* settings = frame->settings();
-  ASSERT(settings);
-  settings->setJavaScriptEnabled(false);
-
-  return true;
+    return true;
 }
-
 
 v8::Local<v8::Value> V8Proxy::Evaluate(const String& fileName, int baseLine,
-                                       const String& str, Node* n) {
-  ASSERT(v8::Context::InContext());
+                                       const String& str, Node* n)
+{
+    ASSERT(v8::Context::InContext());
 
-  // Compile the script.
-  v8::Local<v8::String> code = v8ExternalString(str);
-  TRACE_EVENT_BEGIN("v8.compile", n, "");
-  v8::Handle<v8::Script> script = CompileScript(code, fileName, baseLine);
-  TRACE_EVENT_END("v8.compile", n, "");
+    // Compile the script.
+    v8::Local<v8::String> code = v8ExternalString(str);
+    TRACE_EVENT_BEGIN("v8.compile", n, "");
+    v8::Handle<v8::Script> script = CompileScript(code, fileName, baseLine);
+    TRACE_EVENT_END("v8.compile", n, "");
 
-  // Set inlineCode to true for <a href="javascript:doSomething()">
-  // and false for <script>doSomething</script>. For some reason, fileName
-  // gives us this information.
-  TRACE_EVENT_BEGIN("v8.run", n, "");
-  v8::Local<v8::Value> result = RunScript(script, fileName.isNull());
-  TRACE_EVENT_END("v8.run", n, "");
-  return result;
+    // Set inlineCode to true for <a href="javascript:doSomething()">
+    // and false for <script>doSomething</script>. For some reason, fileName
+    // gives us this information.
+    TRACE_EVENT_BEGIN("v8.run", n, "");
+    v8::Local<v8::Value> result = RunScript(script, fileName.isNull());
+    TRACE_EVENT_END("v8.run", n, "");
+    return result;
 }
-
 
 v8::Local<v8::Value> V8Proxy::RunScript(v8::Handle<v8::Script> script,
                                         bool inline_code) {
@@ -1293,6 +1305,14 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       desc->SetCallHandler(USE_CALLBACK(XMLHttpRequestConstructor));
       break;
     }
+    case V8ClassIndex::XMLHTTPREQUESTUPLOAD: {
+      // Reserve one more internal field for keeping event listeners.
+      v8::Local<v8::ObjectTemplate> instance_template =
+          desc->InstanceTemplate();
+      instance_template->SetInternalFieldCount(
+          V8Custom::kXMLHttpRequestInternalFieldCount);
+      break;
+    }
     case V8ClassIndex::XPATHEVALUATOR:
       desc->SetCallHandler(USE_CALLBACK(XPathEvaluatorConstructor));
       break;
@@ -1307,141 +1327,144 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
   return desc;
 }
 
-
-bool V8Proxy::ContextInitialized() {
-  return !m_context.IsEmpty();
+bool V8Proxy::ContextInitialized()
+{
+    return !m_context.IsEmpty();
 }
 
-
-DOMWindow* V8Proxy::retrieveWindow() {
-  // TODO: This seems very fragile. How do we know that the global object
-  // from the current context is something sensible? Do we need to use the
-  // last entered here? Who calls this?
-  v8::Handle<v8::Object> global = v8::Context::GetCurrent()->Global();
-  if (global.IsEmpty()) return 0;
-  v8::Handle<v8::Value> window = global->GetPrototype();
-  return ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, window);
+DOMWindow* V8Proxy::retrieveWindow()
+{
+    // TODO: This seems very fragile. How do we know that the global object
+    // from the current context is something sensible? Do we need to use the
+    // last entered here? Who calls this?
+    v8::Handle<v8::Object> global = v8::Context::GetCurrent()->Global();
+    if (global.IsEmpty())
+        return 0;
+    v8::Handle<v8::Value> window = global->GetPrototype();
+    return ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, window);
 }
 
-
-Frame* V8Proxy::retrieveFrame(v8::Handle<v8::Context> context) {
-  v8::Handle<v8::Object> global = context->Global();
-  v8::Handle<v8::Value> window_peer = global->GetPrototype();
-  DOMWindow* window =
-      ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, window_peer);
-  return window->frame();
+Frame* V8Proxy::retrieveFrame(v8::Handle<v8::Context> context)
+{
+    v8::Handle<v8::Object> global = context->Global();
+    v8::Handle<v8::Value> window_peer = global->GetPrototype();
+    DOMWindow* window = ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, window_peer);
+    return window->frame();
 }
 
-
-Frame* V8Proxy::retrieveActiveFrame() {
-  v8::Handle<v8::Context> context = v8::Context::GetEntered();
-  if (context.IsEmpty()) 
-    return 0;
-  return retrieveFrame(context);
+Frame* V8Proxy::retrieveActiveFrame()
+{
+    v8::Handle<v8::Context> context = v8::Context::GetEntered();
+    if (context.IsEmpty()) 
+        return 0;
+    return retrieveFrame(context);
 }
 
-
-Frame* V8Proxy::retrieveFrame() {
-  DOMWindow* window = retrieveWindow();
-  return window ? window->frame() : 0;
+Frame* V8Proxy::retrieveFrame()
+{
+    DOMWindow* window = retrieveWindow();
+    return window ? window->frame() : 0;
 }
 
-
-V8Proxy* V8Proxy::retrieve() {
-  DOMWindow* window = retrieveWindow();
-  ASSERT(window);
-  return retrieve(window->frame());
+V8Proxy* V8Proxy::retrieve()
+{
+    DOMWindow* window = retrieveWindow();
+    ASSERT(window);
+    return retrieve(window->frame());
 }
 
-
-V8Proxy* V8Proxy::retrieve(Frame* frame) {
-  if (!frame) return 0;
-  V8Bridge* bridge = static_cast<V8Bridge*>(frame->scriptBridge());
-  return bridge->isEnabled() ? bridge->proxy() : 0;
+V8Proxy* V8Proxy::retrieve(Frame* frame)
+{
+    if (!frame)
+        return 0;
+    return frame->script()->isEnabled() ? frame->script()->proxy() : 0;
 }
 
+void V8Proxy::disconnectFrame()
+{
+    // disconnect all event listeners
+    DisconnectEventListeners();
 
-void V8Proxy::disconnectFrame() {
-  // disconnect all event listeners
-  DisconnectEventListeners();
-
-  // clear all timeouts.
-  if (m_frame->domWindow())
-    m_frame->domWindow()->clearAllTimeouts();
+    // clear all timeouts.
+    if (m_frame->domWindow())
+        m_frame->domWindow()->clearAllTimeouts();
 }
 
-bool V8Proxy::isEnabled() {
-  Settings* settings = m_frame->settings();
-  if (!settings)
-    return false;
-  
-  // In the common case, JavaScript is enabled and we're done.
-  if (settings->isJavaScriptEnabled())
-    return true;
+bool V8Proxy::isEnabled()
+{
+    Settings* settings = m_frame->settings();
+    if (!settings)
+        return false;
 
-  // If JavaScript has been disabled, we need to look at the frame to tell
-  // whether this script came from the web or the embedder. Scripts from the 
-  // embedder are safe to run, but scripts from the other sources are 
-  // disallowed.
-  Document* document = m_frame->document();
-  if (!document)
-    return false;
+    // In the common case, JavaScript is enabled and we're done.
+    if (settings->isJavaScriptEnabled())
+        return true;
 
-  SecurityOrigin* origin = document->securityOrigin();
-  if (origin->protocol().isEmpty())
-    return false;  // Uninitialized document
+    // If JavaScript has been disabled, we need to look at the frame to tell
+    // whether this script came from the web or the embedder. Scripts from the 
+    // embedder are safe to run, but scripts from the other sources are 
+    // disallowed.
+    Document* document = m_frame->document();
+    if (!document)
+        return false;
 
-  if (origin->protocol() == "http" || origin->protocol() == "https")
-    return false;  // Web site
+    SecurityOrigin* origin = document->securityOrigin();
+    if (origin->protocol().isEmpty())
+        return false;  // Uninitialized document
 
-  if (origin->protocol() == 
-      webkit_glue::StdStringToString(webkit_glue::GetUIResourceProtocol()))
-    return true;   // Embedder's scripts are ok to run
+    if (origin->protocol() == "http" || origin->protocol() == "https")
+        return false;  // Web site
 
-  // If the scheme is ftp: or file:, an empty file name indicates a directory
-  // listing, which requires JavaScript to function properly.
-  const char* kDirProtocols[] = { "ftp", "file" };
-  GURL url(document->url().utf8().data());
-  for (size_t i = 0; i < arraysize(kDirProtocols); ++i) {
-    if (origin->protocol() == kDirProtocols[i]) {
-      ASSERT(url.SchemeIs(kDirProtocols[i]));
-      return url.ExtractFileName().empty();
+    if (origin->protocol() == webkit_glue::StdStringToString(webkit_glue::GetUIResourceProtocol()))
+        return true;   // Embedder's scripts are ok to run
+
+    // If the scheme is ftp: or file:, an empty file name indicates a directory
+    // listing, which requires JavaScript to function properly.
+    const char* kDirProtocols[] = { "ftp", "file" };
+    GURL url = webkit_glue::KURLToGURL(document->url());
+    for (size_t i = 0; i < arraysize(kDirProtocols); ++i) {
+        if (origin->protocol() == kDirProtocols[i]) {
+            ASSERT(url.SchemeIs(kDirProtocols[i]));
+            return url.ExtractFileName().empty();
+        }
     }
-  }
 
-  return false;  // Other protocols fall through to here
+    return false;  // Other protocols fall through to here
 }
 
+void V8Proxy::clearDocumentWrapper()
+{
+    v8::HandleScope handle_scope;
+    v8::Local<v8::Context> context = GetContext();
+    if (context.IsEmpty())
+        return;  // not initialize yet
 
-void V8Proxy::clearDocumentWrapper() {
-  v8::HandleScope handle_scope;
-  v8::Local<v8::Context> context = GetContext();
-  if (context.IsEmpty()) return;  // not initialize yet
-
-  if (!m_document.IsEmpty()) {
+    if (!m_document.IsEmpty()) {
 #ifndef NDEBUG
-    UnregisterGlobalHandle(this, m_document);
+        UnregisterGlobalHandle(this, m_document);
 #endif
-    m_document.Dispose();
-    m_document.Clear();
-  }
+        m_document.Dispose();
+        m_document.Clear();
+    }
 }
-
 
 // static
-void V8Proxy::DomainChanged(Frame* frame) {
-  V8Proxy* proxy = retrieve(frame);
-  proxy->ClearSecurityToken();
+void V8Proxy::DomainChanged(Frame* frame)
+{
+    V8Proxy* proxy = retrieve(frame);
+    proxy->ClearSecurityToken();
 }
 
-
-void V8Proxy::ClearSecurityToken() {
-  m_context->SetSecurityToken(m_global);
+void V8Proxy::ClearSecurityToken()
+{
+    m_context->SetSecurityToken(m_global);
 }
 
+void V8Proxy::clear()
+{
+    if (m_context.IsEmpty())
+        return;
 
-void V8Proxy::clear() {
-  if (!m_context.IsEmpty()) {
     ClearSecurityToken();
 
     if (m_frame->domWindow())
@@ -1452,67 +1475,54 @@ void V8Proxy::clear() {
     // Corresponds to the context creation in initContextIfNeeded().
     m_context.Dispose();
     m_context.Clear();
-  }
 }
-
 
 // Check if two frames are from the same origin.
 // This function is equivalent to
 // KJS::Window::allowsAccessFrom(const JSGlobalObject*,
 //      SecurityOrigin::Reason&, String& message) const.
-static bool SameOrigin(Frame* source, Frame* target,
-                       SecurityOrigin::Reason& reason, String& message) {
-  if (!source) {
-    reason = SecurityOrigin::GenericMismatch;
+static bool SameOrigin(Frame* source, Frame* target, String& message)
+{
+    if (!source || !target)
+        return false;
+
+    // Allow access if the frames the windows represent are the same.
+    if (source == target)
+        return true;
+
+    Document* target_document = target->document();
+
+    // JS may be attempting to access the "window" object, which should be valid,
+    // even if the document hasn't been constructed yet.  If the document doesn't
+    // exist yet allow JS to access the window object.
+    if (!target_document)
+        return true;
+
+    Document* act_document = source->document();
+
+    const SecurityOrigin* active_security_origin = act_document->securityOrigin();
+    const SecurityOrigin* target_security_origin = target_document->securityOrigin();
+
+    String ui_resource_protocol = webkit_glue::StdStringToString(webkit_glue::GetUIResourceProtocol());
+    if (active_security_origin->protocol() == ui_resource_protocol) {
+        KURL inspector_url = webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
+        ASSERT(inspector_url.protocol() == ui_resource_protocol);
+        ASSERT(inspector_url.protocol().endsWith("-resource"));
+
+        // The Inspector can access anything.
+        if (active_security_origin->host() == inspector_url.host())
+            return true;
+
+        // To mitigate XSS vulnerabilities on the browser itself, UI resources
+        // besides the Inspector can't access other documents.
+        return false;
+    }
+
+    if (active_security_origin->canAccess(target_security_origin))
+        return true;
+
     return false;
-  }
-
-  if (!target) {
-    reason = SecurityOrigin::GenericMismatch;
-    return false;
-  }
-
-  // Allow access if the frames the windows represent are the same.
-  if (source == target)
-    return true;
-
-  Document* target_document = target->document();
-
-  // JS may be attempting to access the "window" object, which should be valid,
-  // even if the document hasn't been constructed yet.  If the document doesn't
-  // exist yet allow JS to access the window object.
-  if (!target_document)
-    return true;
-
-  Document* act_document = source->document();
-
-  const SecurityOrigin* active_security_origin = act_document->securityOrigin();
-  const SecurityOrigin* target_security_origin = 
-      target_document->securityOrigin();
-
-  String ui_resource_protocol = 
-      webkit_glue::StdStringToString(webkit_glue::GetUIResourceProtocol());
-  if (active_security_origin->protocol() == ui_resource_protocol) {
-    KURL inspector_url = 
-        webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
-    ASSERT(inspector_url.protocol() == ui_resource_protocol);
-    ASSERT(inspector_url.protocol().endsWith("-resource"));
-
-    // The Inspector can access anything.
-    if (active_security_origin->host() == inspector_url.host())
-      return true;
-
-    // To mitigate XSS vulnerabilities on the browser itself, UI resources
-    // besides the Inspector can't access other documents.
-    return false;
-  }
-
-  if (active_security_origin->canAccess(target_security_origin, reason))
-    return true;
-
-  return false;
 }
-
 
 // Check if the current execution context can access a target frame.
 // First it checks same domain policy using the security context
@@ -1521,53 +1531,48 @@ static bool SameOrigin(Frame* source, Frame* target,
 // to check domain policy.
 //
 // This is equivalent to KJS::Window::allowsAccessFrom(ExecState*, String&).
-bool V8Proxy::CanAccess(Frame* target) {
-  SecurityOrigin::Reason reason;
-  String message;
+bool V8Proxy::CanAccess(Frame* target)
+{
+    String message;
 
-  // Check dynamic (security) context first.
-  Frame* source = 
-      V8Proxy::retrieveFrame(v8::Context::GetCurrentSecurityContext());
-  if (SameOrigin(source, target, reason, message)) {
-    return true;
-  }
+    // Check dynamic (security) context first.
+    Frame* source = V8Proxy::retrieveFrame(v8::Context::GetCurrentSecurityContext());
+    if (SameOrigin(source, target, message))
+        return true;
 
-  // Check lexical orgin if the reason is DomainSetInDOM mismatch.
-  if (reason == SecurityOrigin::DomainSetInDOMMismatch) {
     source = V8Proxy::retrieveFrame(v8::Context::GetCurrent());
-    if (SameOrigin(source, target, reason, message)) {
-      return true;
+    if (SameOrigin(source, target, message))
+        return true;
+
+    return false;
+}
+
+bool V8Proxy::IsFromSameOrigin(Frame* target, bool report_error)
+{
+    // The subject is detached from a frame, deny accesses.
+    if (!target)
+        return false;
+
+    if (!CanAccess(target)) {
+        if (report_error)
+            ReportUnsafeAccessTo(target, REPORT_NOW);
+        return false;
     }
-  }
-
-  return false;
+    return true;
 }
 
+bool V8Proxy::CheckNodeSecurity(Node* node)
+{
+    if (!node)
+        return false;
 
-bool V8Proxy::IsFromSameOrigin(Frame* target, bool report_error) {
-  // The subject is detached from a frame, deny accesses.
-  if (!target) return false;
+    Frame* target = node->document()->frame();
 
-  if (!CanAccess(target)) {
-    if (report_error) ReportUnsafeAccessTo(target, REPORT_NOW);
-    return false;
-  }
-  return true;
+    if (!target)
+        return false;
+
+    return IsFromSameOrigin(target, true);
 }
-
-
-bool V8Proxy::CheckNodeSecurity(Node* node) {
-  if (!node)
-    return false;
-
-  Frame* target = node->document()->frame();
-
-  if (!target)
-    return false;
-
-  return IsFromSameOrigin(target, true);
-}
-
 
 // Create a new environment and setup the global object.
 //
@@ -1582,9 +1587,11 @@ bool V8Proxy::CheckNodeSecurity(Node* node) {
 // from javascript.  The javascript object that corresponds to a
 // DOMWindow instance is the shadow object.  When mapping a DOMWindow
 // instance to a V8 object, we return the shadow object.
-void V8Proxy::initContextIfNeeded() {
+void V8Proxy::initContextIfNeeded()
+{
   // Bail out if the context has already been initialized.
-  if (!m_context.IsEmpty()) return;
+  if (!m_context.IsEmpty())
+      return;
 
   // Install counters handler with V8.
   static bool v8_counters_initialized = false;
@@ -1619,7 +1626,8 @@ void V8Proxy::initContextIfNeeded() {
     return;
 
   // Install a security handler with V8.
-  { v8::Local<v8::External> external =
+  {
+      v8::Local<v8::External> external =
         v8::External::New(reinterpret_cast<void*>(V8ClassIndex::DOMWINDOW));
     if (external.IsEmpty())
       return;
@@ -1674,7 +1682,7 @@ void V8Proxy::initContextIfNeeded() {
 
   V8Proxy::retrieveFrame(context)->loader()->dispatchWindowObjectAvailable();
 
-  if (JSBridge::RecordPlaybackMode()) {
+  if (ScriptController::RecordPlaybackMode()) {
     // Inject code which overrides a few common JS functions for implementing
     // randomness.  In order to implement effective record & playback of
     // websites, it is important that the URLs not change.  Many popular web
@@ -1721,13 +1729,10 @@ v8::Handle<v8::Value> V8Proxy::GenerateSecurityToken(
 }
 
 
-void V8Proxy::SetDOMException(int exception_code) {
-  if (exception_code <= 0) return;
-
-  if (exception_code == XMLHttpRequestException::PERMISSION_DENIED) {
-    ThrowError(GENERAL_ERROR, "Permission denied");
-    return;
-  }
+void V8Proxy::SetDOMException(int exception_code)
+{
+  if (exception_code <= 0)
+      return;
 
   ExceptionCodeDescription description;
   getExceptionCodeDescription(exception_code, description);
@@ -1736,30 +1741,30 @@ void V8Proxy::SetDOMException(int exception_code) {
   switch (description.type) {
     case DOMExceptionType:
       exception = ToV8Object(V8ClassIndex::DOMCOREEXCEPTION,
-                             new DOMCoreException(description));
+                             DOMCoreException::create(description));
       break;
     case RangeExceptionType:
       exception = ToV8Object(V8ClassIndex::RANGEEXCEPTION,
-                             new RangeException(description));
+                             RangeException::create(description));
       break;
     case EventExceptionType:
       exception = ToV8Object(V8ClassIndex::EVENTEXCEPTION,
-                             new EventException(description));
+                             EventException::create(description));
       break;
     case XMLHttpRequestExceptionType:
       exception = ToV8Object(V8ClassIndex::XMLHTTPREQUESTEXCEPTION,
-                             new XMLHttpRequestException(description));
+                             XMLHttpRequestException::create(description));
       break;
 #if ENABLE(SVG)
     case SVGExceptionType:
       exception = ToV8Object(V8ClassIndex::SVGEXCEPTION,
-                             new SVGException(description));
+                             SVGException::create(description));
       break;
 #endif
 #if ENABLE(XPATH)
     case XPathExceptionType:
       exception = ToV8Object(V8ClassIndex::XPATHEXCEPTION,
-                             new XPathException(description));
+                             XPathException::create(description));
       break;
 #endif
   }
@@ -1768,8 +1773,8 @@ void V8Proxy::SetDOMException(int exception_code) {
   v8::ThrowException(exception);
 }
 
-
-v8::Handle<v8::Value> V8Proxy::ThrowError(ErrorType type, const char* message) {
+v8::Handle<v8::Value> V8Proxy::ThrowError(ErrorType type, const char* message)
+{
   switch (type) {
     case RANGE_ERROR:
       return v8::ThrowException(v8::Exception::RangeError(v8String(message)));
@@ -1788,24 +1793,23 @@ v8::Handle<v8::Value> V8Proxy::ThrowError(ErrorType type, const char* message) {
   }
 }
 
+v8::Local<v8::Context> V8Proxy::GetContext(Frame* frame)
+{
+    V8Proxy* proxy = retrieve(frame);
+    if (!proxy)
+        return v8::Local<v8::Context>();
 
-v8::Local<v8::Context> V8Proxy::GetContext(Frame* frame) {
-  V8Proxy* proxy = retrieve(frame);
-  if (!proxy)
-    return v8::Local<v8::Context>();
-
-  proxy->initContextIfNeeded();
-  return proxy->GetContext();
+    proxy->initContextIfNeeded();
+    return proxy->GetContext();
 }
 
-
-v8::Local<v8::Context> V8Proxy::GetCurrentContext() {
-  return v8::Context::GetCurrent();
+v8::Local<v8::Context> V8Proxy::GetCurrentContext()
+{
+    return v8::Context::GetCurrent();
 }
 
-
-v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type,
-                                          void* imp) {
+v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type, void* imp)
+{
   ASSERT(type != V8ClassIndex::EVENTLISTENER);
   ASSERT(type != V8ClassIndex::EVENTTARGET);
   ASSERT(type != V8ClassIndex::EVENT);
@@ -1830,13 +1834,9 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type,
       return WindowToV8Object(static_cast<DOMWindow*>(imp));
 #if ENABLE(SVG)
     SVGNONNODE_WRAPPER_TYPES(MAKE_CASE)
-      if (type == V8ClassIndex::SVGELEMENTINSTANCE) {
-        return SVGElementInstanceToV8Object(
-            static_cast<SVGElementInstance*>(imp));
-      } else {
-        return SVGObjectWithContextToV8Object(static_cast<Peerable*>(imp),
-                                              type);
-      }
+      if (type == V8ClassIndex::SVGELEMENTINSTANCE)
+        return SVGElementInstanceToV8Object(static_cast<SVGElementInstance*>(imp));
+      return SVGObjectWithContextToV8Object(static_cast<Peerable*>(imp), type);
 #endif
     default:
       break;
@@ -1876,29 +1876,28 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type,
 void V8Proxy::SetHiddenWindowReference(Frame* frame,
                                        const int internal_index,
                                        v8::Handle<v8::Object> jsobj) {
-  // Get DOMWindow
-  if (!frame) return;  // Object might be detached from window
-  v8::Handle<v8::Context> context = GetContext(frame);
-  if (context.IsEmpty()) return;
+    // Get DOMWindow
+    if (!frame) return;  // Object might be detached from window
+    v8::Handle<v8::Context> context = GetContext(frame);
+    if (context.IsEmpty()) return;
 
-  ASSERT(internal_index < V8Custom::kDOMWindowInternalFieldCount);
+    ASSERT(internal_index < V8Custom::kDOMWindowInternalFieldCount);
 
-  v8::Handle<v8::Object> global = context->Global();
-  ASSERT(!global.IsEmpty());
-  // Look for real DOM wrapper.
-  global = LookupDOMWrapper(V8ClassIndex::DOMWINDOW, global);
-  ASSERT(global->GetInternalField(internal_index)->IsUndefined());
-  global->SetInternalField(internal_index, jsobj);
+    v8::Handle<v8::Object> global = context->Global();
+    ASSERT(!global.IsEmpty());
+    // Look for real DOM wrapper.
+    global = LookupDOMWrapper(V8ClassIndex::DOMWINDOW, global);
+    ASSERT(global->GetInternalField(internal_index)->IsUndefined());
+    global->SetInternalField(internal_index, jsobj);
 }
 
 
-V8ClassIndex::V8WrapperType V8Proxy::GetDOMWrapperType(
-    v8::Handle<v8::Object> object) {
+V8ClassIndex::V8WrapperType V8Proxy::GetDOMWrapperType(v8::Handle<v8::Object> object)
+{
   ASSERT(MaybeDOMWrapper(object));
-
   v8::Handle<v8::Value> type =
       object->GetInternalField(V8Custom::kDOMWrapperTypeIndex);
-  return V8ClassIndex::FromInt(type->Int32Value());
+    return V8ClassIndex::FromInt(type->Int32Value());
 }
 
 
@@ -1935,36 +1934,39 @@ void* V8Proxy::ToNativeObjectImpl(V8ClassIndex::V8WrapperType type,
   return DOMWrapperToNative<Peerable>(object);
 }
 
-
 v8::Handle<v8::Object> V8Proxy::LookupDOMWrapper(
-    V8ClassIndex::V8WrapperType type, v8::Handle<v8::Value> value) {
-  if (value.IsEmpty()) return v8::Handle<v8::Object>();
+    V8ClassIndex::V8WrapperType type, v8::Handle<v8::Value> value)
+{
+    if (value.IsEmpty())
+        return v8::Handle<v8::Object>();
 
-  v8::Handle<v8::FunctionTemplate> desc = V8Proxy::GetTemplate(type);
-  while (value->IsObject()) {
-    v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(value);
-    if (desc->HasInstance(object))
-      return object;
+    v8::Handle<v8::FunctionTemplate> desc = V8Proxy::GetTemplate(type);
+    while (value->IsObject()) {
+        v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(value);
+        if (desc->HasInstance(object))
+            return object;
 
-    value = object->GetPrototype();
-  }
-  return v8::Handle<v8::Object>();
+        value = object->GetPrototype();
+    }
+    return v8::Handle<v8::Object>();
 }
 
 
-NodeFilter* V8Proxy::ToNativeNodeFilter(v8::Handle<v8::Value> filter) {
-  // A NodeFilter is used when walking through a DOM tree or iterating tree
-  // nodes.
-  // TODO: we may want to cache NodeFilterCondition and NodeFilter
-  // object, but it is minor.
-  // NodeFilter is passed to NodeIterator that has a ref counted pointer
-  // to NodeFilter. NodeFilter has a ref counted pointer to NodeFilterCondition.
-  // In NodeFilterCondition, filter object is persisted in its constructor,
-  // and disposed in its destructor. No need to use peer field in this case.
-  if (!filter->IsFunction()) return 0;
+PassRefPtr<NodeFilter> V8Proxy::ToNativeNodeFilter(v8::Handle<v8::Value> filter)
+{
+    // A NodeFilter is used when walking through a DOM tree or iterating tree
+    // nodes.
+    // TODO: we may want to cache NodeFilterCondition and NodeFilter
+    // object, but it is minor.
+    // NodeFilter is passed to NodeIterator that has a ref counted pointer
+    // to NodeFilter. NodeFilter has a ref counted pointer to NodeFilterCondition.
+    // In NodeFilterCondition, filter object is persisted in its constructor,
+    // and disposed in its destructor. No need to use peer field in this case.
+    if (!filter->IsFunction())
+        return 0;
 
-  NodeFilterCondition* cond = new V8NodeFilterCondition(filter);
-  return new NodeFilter(cond);
+    NodeFilterCondition* cond = new V8NodeFilterCondition(filter);
+    return NodeFilter::create(cond);
 }
 
 
@@ -1981,9 +1983,8 @@ v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
   // Special case for HTMLInputElements that support selection.
   if (desc_type == V8ClassIndex::HTMLINPUTELEMENT) {
     HTMLInputElement* element = static_cast<HTMLInputElement*>(imp);
-    if (element->canHaveSelection()) {
+    if (element->canHaveSelection())
       desc_type = V8ClassIndex::HTMLSELECTIONINPUTELEMENT;
-    }
   }
 
   v8::Persistent<v8::FunctionTemplate> desc = GetTemplate(desc_type);
@@ -1996,14 +1997,13 @@ v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
   return instance;
 }
 
-v8::Handle<v8::Value> V8Proxy::CheckNewLegal(const v8::Arguments& args) {
-  if (!AllowAllocation::m_current) {
-    return ThrowError(TYPE_ERROR, "Illegal constructor");
-  } else {
-    return args.This();
-  }
-}
+v8::Handle<v8::Value> V8Proxy::CheckNewLegal(const v8::Arguments& args)
+{
+    if (!AllowAllocation::m_current)
+        return ThrowError(TYPE_ERROR, "Illegal constructor");
 
+    return args.This();
+}
 
 void V8Proxy::SetDOMWrapper(v8::Handle<v8::Object> obj, int type, void* cptr) {
   ASSERT(obj->InternalFieldCount() >= 2);
@@ -2144,7 +2144,8 @@ FOR_EACH_TAG(ADD_TO_HASH_MAP)
   }
 
   V8ClassIndex::V8WrapperType t = map.get(element->localName().impl());
-  if (t == 0) return V8ClassIndex::HTMLELEMENT;
+  if (t == 0)
+      return V8ClassIndex::HTMLELEMENT;
   return t;
 }
 #undef FOR_EACH_TAG
@@ -2274,13 +2275,14 @@ FOR_EACH_TAG(ADD_TO_HASH_MAP)
 #endif  // ENABLE(SVG)
 
 
-v8::Handle<v8::Value> V8Proxy::EventToV8Object(Event* event) {
-  if (!event) return v8::Null();
+v8::Handle<v8::Value> V8Proxy::EventToV8Object(Event* event)
+{
+  if (!event)
+      return v8::Null();
 
   v8::Handle<v8::Object> peer = dom_object_map().get(event);
-  if (!peer.IsEmpty()) {
+  if (!peer.IsEmpty())
     return peer;
-  }
 
   V8ClassIndex::V8WrapperType type = V8ClassIndex::EVENT;
 
@@ -2324,24 +2326,22 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node) {
   if (!node) return v8::Null();
 
   v8::Handle<v8::Object> peer = dom_node_map().get(node);
-  if (!peer.IsEmpty()) {
+  if (!peer.IsEmpty())
     return peer;
-  }
 
   bool is_document = false;  // document type node has special handling
   V8ClassIndex::V8WrapperType type;
 
   switch (node->nodeType()) {
     case Node::ELEMENT_NODE:
-      if (node->isHTMLElement()) {
+      if (node->isHTMLElement())
         type = GetHTMLElementType(static_cast<HTMLElement*>(node));
 #if ENABLE(SVG)
-      } else if (node->isSVGElement()) {
+      else if (node->isSVGElement())
         type = GetSVGElementType(static_cast<SVGElement*>(node));
 #endif
-      } else {
+      else
         type = V8ClassIndex::ELEMENT;
-      }
       break;
     case Node::ATTRIBUTE_NODE:
       type = V8ClassIndex::ATTR;
@@ -2364,15 +2364,14 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node) {
     case Node::DOCUMENT_NODE: {
       is_document = true;
       Document* doc = static_cast<Document*>(node);
-      if (doc->isHTMLDocument()) {
+      if (doc->isHTMLDocument())
         type = V8ClassIndex::HTMLDOCUMENT;
 #if ENABLE(SVG)
-      } else if (doc->isSVGDocument()) {
+      else if (doc->isSVGDocument())
         type = V8ClassIndex::SVGDOCUMENT;
 #endif
-      } else {
+      else
         type = V8ClassIndex::DOCUMENT;
-      }
       break;
     }
     case Node::DOCUMENT_TYPE_NODE:
@@ -2408,9 +2407,8 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node) {
   if (is_document) {
     Document* doc = static_cast<Document*>(node);
     V8Proxy* proxy = V8Proxy::retrieve(doc->frame());
-    if (proxy) {
+    if (proxy)
       proxy->UpdateDocumentHandle(result);
-    }
 
     if (type == V8ClassIndex::HTMLDOCUMENT) {
       // Create marker object and insert it in two internal fields.
@@ -2447,16 +2445,20 @@ void V8Proxy::UpdateDocumentHandle(v8::Local<v8::Object> handle) {
 
 // A JS object of type EventTarget can only be two possible types:
 // 1) EventTargetNode; 2) XMLHttpRequest;
-v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target) {
-  if (!target) return v8::Null();
+v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
+{
+  if (!target)
+      return v8::Null();
 
 #if ENABLE(SVG)
   SVGElementInstance* instance = target->toSVGElementInstance();
-  if (instance) return ToV8Object(V8ClassIndex::SVGELEMENTINSTANCE, instance);
+  if (instance)
+      return ToV8Object(V8ClassIndex::SVGELEMENTINSTANCE, instance);
 #endif
 
   Node* node = target->toNode();
-  if (node) return NodeToV8Object(node);
+  if (node)
+      return NodeToV8Object(node);
 
   // XMLHttpRequest is created within its JS counterpart.
   XMLHttpRequest* xhr = target->toXMLHttpRequest();
@@ -2501,12 +2503,12 @@ v8::Handle<v8::Value> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet) {
   if (!sheet) return v8::Null();
 
   v8::Handle<v8::Object> peer = dom_object_map().get(sheet);
-  if (!peer.IsEmpty()) {
+  if (!peer.IsEmpty())
     return peer;
-  }
 
   V8ClassIndex::V8WrapperType type = V8ClassIndex::STYLESHEET;
-  if (sheet->isCSSStyleSheet()) type = V8ClassIndex::CSSSTYLESHEET;
+  if (sheet->isCSSStyleSheet())
+    type = V8ClassIndex::CSSSTYLESHEET;
 
   v8::Handle<v8::Object> result =
       InstantiateV8Object(type, V8ClassIndex::STYLESHEET, sheet);
@@ -2519,7 +2521,7 @@ v8::Handle<v8::Value> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet) {
   Node* owner_node = sheet->ownerNode();
   if (owner_node) {
     v8::Handle<v8::Object> owner =
-      v8::Handle<v8::Object>::Cast(NodeToV8Object(owner_node));
+        v8::Handle<v8::Object>::Cast(NodeToV8Object(owner_node));
     result->SetInternalField(V8Custom::kStyleSheetOwnerNodeIndex, owner);
   }
 
@@ -2531,9 +2533,8 @@ v8::Handle<v8::Value> V8Proxy::CSSValueToV8Object(CSSValue* value) {
   if (!value) return v8::Null();
 
   v8::Handle<v8::Object> peer = dom_object_map().get(value);
-  if (!peer.IsEmpty()) {
+  if (!peer.IsEmpty())
     return peer;
-  }
 
   V8ClassIndex::V8WrapperType type;
 
@@ -2552,95 +2553,93 @@ v8::Handle<v8::Value> V8Proxy::CSSValueToV8Object(CSSValue* value) {
 
   v8::Handle<v8::Object> result =
       InstantiateV8Object(type, V8ClassIndex::CSSVALUE, value);
-  if (!result.IsEmpty()) {
+  if (!result.IsEmpty())
     // Only update the DOM object map if the result is non-empty.
     dom_object_map().set(value, v8::Persistent<v8::Object>::New(result));
-  }
   return result;
 }
 
 
 v8::Handle<v8::Value> V8Proxy::CSSRuleToV8Object(CSSRule* rule) {
-  if (!rule) return v8::Null();
+    if (!rule) return v8::Null();
 
-  v8::Handle<v8::Object> peer = dom_object_map().get(rule);
-  if (!peer.IsEmpty()) {
-    return peer;
-  }
+    v8::Handle<v8::Object> peer = dom_object_map().get(rule);
+    if (!peer.IsEmpty())
+        return peer;
 
-  V8ClassIndex::V8WrapperType type;
+    V8ClassIndex::V8WrapperType type;
 
-  switch (rule->type()) {
-  case CSSRule::STYLE_RULE:
-    type = V8ClassIndex::CSSSTYLERULE;
-    break;
-  case CSSRule::CHARSET_RULE:
-    type = V8ClassIndex::CSSCHARSETRULE;
-    break;
-  case CSSRule::IMPORT_RULE:
-    type = V8ClassIndex::CSSIMPORTRULE;
-    break;
-  case CSSRule::MEDIA_RULE:
-    type = V8ClassIndex::CSSMEDIARULE;
-    break;
-  case CSSRule::FONT_FACE_RULE:
-    type = V8ClassIndex::CSSFONTFACERULE;
-    break;
-  case CSSRule::PAGE_RULE:
-    type = V8ClassIndex::CSSPAGERULE;
-    break;
-  default:  // CSSRule::UNKNOWN_RULE
-    type = V8ClassIndex::CSSRULE;
-  }
+    switch (rule->type()) {
+    case CSSRule::STYLE_RULE:
+        type = V8ClassIndex::CSSSTYLERULE;
+        break;
+    case CSSRule::CHARSET_RULE:
+        type = V8ClassIndex::CSSCHARSETRULE;
+        break;
+    case CSSRule::IMPORT_RULE:
+        type = V8ClassIndex::CSSIMPORTRULE;
+        break;
+    case CSSRule::MEDIA_RULE:
+        type = V8ClassIndex::CSSMEDIARULE;
+        break;
+    case CSSRule::FONT_FACE_RULE:
+        type = V8ClassIndex::CSSFONTFACERULE;
+        break;
+    case CSSRule::PAGE_RULE:
+        type = V8ClassIndex::CSSPAGERULE;
+        break;
+    default:  // CSSRule::UNKNOWN_RULE
+        type = V8ClassIndex::CSSRULE;
+    }
 
-  // Set the peer object for future access.
-  v8::Handle<v8::Object> result =
-      InstantiateV8Object(type, V8ClassIndex::CSSRULE, rule);
-  if (!result.IsEmpty()) {
-    // Only update the DOM object map if the result is non-empty.
-    dom_object_map().set(rule, v8::Persistent<v8::Object>::New(result));
-  }
-  return result;
+    // Set the peer object for future access.
+    v8::Handle<v8::Object> result =
+        InstantiateV8Object(type, V8ClassIndex::CSSRULE, rule);
+    if (!result.IsEmpty())
+        // Only update the DOM object map if the result is non-empty.
+        dom_object_map().set(rule, v8::Persistent<v8::Object>::New(result));
+    return result;
 }
 
 v8::Handle<v8::Value> V8Proxy::WindowToV8Object(DOMWindow* window) {
-  if (!window) return v8::Null();
+    if (!window) return v8::Null();
+    // Initializes environment of a frame, and return the global object
+    // of the frame.
+    Frame* frame = window->frame();
+    if (!frame)
+        return v8::Handle<v8::Object>();
 
-  // Initializes environment of a frame, and return the global object
-  // of the frame.
-  Frame* frame = window->frame();
-  if (!frame) return v8::Handle<v8::Object>();
+    v8::Handle<v8::Context> context = GetContext(frame);
+    if (context.IsEmpty())
+        return v8::Handle<v8::Object>();
 
-  v8::Handle<v8::Context> context = GetContext(frame);
-  if (context.IsEmpty()) return v8::Handle<v8::Object>();
-
-  v8::Handle<v8::Object> global = context->Global();
-  ASSERT(!global.IsEmpty());
-  return global;
+    v8::Handle<v8::Object> global = context->Global();
+    ASSERT(!global.IsEmpty());
+    return global;
 }
-
 
 void V8Proxy::BindJSObjectToWindow(Frame* frame,
                                    const char* name,
                                    int type,
                                    v8::Handle<v8::FunctionTemplate> desc,
-                                   void* imp) {
-  // Get environment.
-  v8::Handle<v8::Context> context = V8Proxy::GetContext(frame);
-  if (context.IsEmpty()) return;  // JS not enabled.
+                                   void* imp)
+{
+    // Get environment.
+    v8::Handle<v8::Context> context = V8Proxy::GetContext(frame);
+    if (context.IsEmpty())
+        return;  // JS not enabled.
 
-  v8::Context::Scope scope(context);
-  v8::Handle<v8::Object> instance = desc->GetFunction();
-  SetDOMWrapper(instance, type, imp);
+    v8::Context::Scope scope(context);
+    v8::Handle<v8::Object> instance = desc->GetFunction();
+    SetDOMWrapper(instance, type, imp);
 
-  v8::Handle<v8::Object> global = context->Global();
-  global->Set(v8::String::New(name), instance);
+    v8::Handle<v8::Object> global = context->Global();
+    global->Set(v8::String::New(name), instance);
 }
 
-
-void V8Proxy::ProcessConsoleMessages() {
-  ConsoleMessageManager::ProcessDelayedMessages();
+void V8Proxy::ProcessConsoleMessages()
+{
+    ConsoleMessageManager::ProcessDelayedMessages();
 }
-
 
 }  // namespace WebCore

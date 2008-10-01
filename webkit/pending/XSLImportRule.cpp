@@ -1,7 +1,7 @@
-/**
+/*
  * This file is part of the XSL implementation.
  *
- * Copyright (C) 2004, 2005, 2006 Apple Computer, Inc.
+ * Copyright (C) 2004, 2005, 2006, 2008 Apple Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -30,7 +30,7 @@
 
 namespace WebCore {
 
-XSLImportRule::XSLImportRule(StyleBase* parent, const String& href)
+XSLImportRule::XSLImportRule(XSLStyleSheet* parent, const String& href)
     : StyleBase(parent)
     , m_strHref(href)
     , m_cachedSheet(0)
@@ -44,7 +44,7 @@ XSLImportRule::~XSLImportRule()
         m_styleSheet->setParent(0);
     
     if (m_cachedSheet)
-        m_cachedSheet->deref(this);
+        m_cachedSheet->removeClient(this);
 }
 
 XSLStyleSheet* XSLImportRule::parentStyleSheet() const
@@ -57,7 +57,7 @@ void XSLImportRule::setXSLStyleSheet(const String& url, const String& sheet)
     if (m_styleSheet)
         m_styleSheet->setParent(0);
     
-    m_styleSheet = new XSLStyleSheet(this, url);
+    m_styleSheet = XSLStyleSheet::create(this, url);
     
     XSLStyleSheet* parent = parentStyleSheet();
     if (parent)
@@ -66,7 +66,8 @@ void XSLImportRule::setXSLStyleSheet(const String& url, const String& sheet)
     m_styleSheet->parseString(sheet);
     m_loading = false;
     
-    checkLoaded();
+    if (parent)
+        parent->checkLoaded();
 }
 
 bool XSLImportRule::isLoading()
@@ -88,19 +89,19 @@ void XSLImportRule::loadSheet()
     XSLStyleSheet* parentSheet = parentStyleSheet();
     if (!parentSheet->href().isNull())
         // use parent styleheet's URL as the base URL
-        absHref = KURL(parentSheet->href().deprecatedString(), m_strHref.deprecatedString()).string();
+        absHref = KURL(KURL(parentSheet->href()), m_strHref).string();
     
     // Check for a cycle in our import chain.  If we encounter a stylesheet
     // in our parent chain with the same URL, then just bail.
-    for (parent = static_cast<StyleBase*>(this)->parent(); parent; parent = parent->parent()) {
-        if (absHref == parent->baseURL())
+    for (parent = this->parent(); parent; parent = parent->parent()) {
+        if (parent->isXSLStyleSheet() && absHref == static_cast<XSLStyleSheet*>(parent)->href())
             return;
     }
     
     m_cachedSheet = docLoader->requestXSLStyleSheet(absHref);
     
     if (m_cachedSheet) {
-        m_cachedSheet->ref(this);
+        m_cachedSheet->addClient(this);
         
         // If the imported sheet is in the cache, then setXSLStyleSheet gets called,
         // and the sheet even gets parsed (via parseString).  In this case we have

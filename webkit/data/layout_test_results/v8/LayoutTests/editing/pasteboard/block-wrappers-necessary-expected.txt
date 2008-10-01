@@ -44,17 +44,18 @@ layer at (0,0) size 800x600
           RenderBlock {CENTER} at (2,20) size 780x144
             RenderBlock {P} at (0,0) size 780x144
               RenderBlock {P} at (0,0) size 780x105
-                RenderText {#text} at (5,0) size 70x20
-                  text run at (5,0) width 70: "This is an"
-                RenderText {#text} at (75,0) size 5x20
-                  text run at (75,0) width 5: " "
+                RenderText {#text} at (7,0) size 70x20
+                  text run at (7,0) width 70: "This is an"
+                RenderText {#text} at (77,0) size 5x20
+                  text run at (77,0) width 5: " "
                 RenderInline {B} at (0,0) size 81x20
-                  RenderText {#text} at (80,0) size 81x20
-                    text run at (80,0) width 81: "interactive"
-                RenderText {#text} at (161,0) size 5x20
-                  text run at (161,0) width 5: " "
-                RenderText {#text} at (166,0) size 609x41
-                  text run at (166,0) width 609: "documentation site, so please help out by posting any useful information that you've "
+                  RenderText {#text} at (82,0) size 81x20
+                    text run at (82,0) width 81: "interactive"
+                RenderText {#text} at (163,0) size 5x20
+                  text run at (163,0) width 5: " "
+                RenderText {#text} at (168,0) size 609x41
+                  text run at (168,0) width 604: "documentation site, so please help out by posting any useful information that you've"
+                  text run at (772,0) width 5: " "
                   text run at (325,21) width 129: "had to search out."
                 RenderBR {BR} at (454,37) size 0x0
                 RenderText {#text} at (27,42) size 106x20

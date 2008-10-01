@@ -8,8 +8,8 @@
 #include "Language.h"
 #include "CookieJar.h"
 #include "Frame.h"
-#include "Document.h"
 #include "FrameLoader.h"
+#include "Document.h"
 #include "Settings.h"
 #include "PluginInfoStore.h"
 #include <wtf/RefCounted.h>
@@ -177,7 +177,10 @@ class PluginArray : public ArrayOf<Plugin>, public RefCounted<PluginArray> {
 
 class Navigator : public RefCounted<Navigator> {
  public:
-  explicit Navigator(Frame* frame);
+   static PassRefPtr<Navigator> create(Frame* frame)
+   {
+        return adoptRef(new Navigator(frame));
+   }
   ~Navigator();
   String appCodeName() const { return "Mozilla"; }
   String appName() const { return "Netscape"; }
@@ -248,6 +251,8 @@ class Navigator : public RefCounted<Navigator> {
   void disconnectFrame() { m_frame = NULL; }
 
  private:
+  Navigator(Frame* frame);
+
   Frame* m_frame;
   RefPtr<MimeTypeArray> m_mimetypes;
   RefPtr<PluginArray> m_plugins;

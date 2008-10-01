@@ -59,8 +59,10 @@ namespace WebCore {
 
 class PlatformScrollbar : public Widget, public Scrollbar {
 public:
-    PlatformScrollbar(ScrollbarClient*, ScrollbarOrientation, ScrollbarControlSize);
-
+    static PassRefPtr<PlatformScrollbar> create(ScrollbarClient* client, ScrollbarOrientation orientation, ScrollbarControlSize size)
+    {
+        return adoptRef(new PlatformScrollbar(client, orientation, size));
+    }
     virtual ~PlatformScrollbar();
 
     virtual bool isWidget() const { return true; }
@@ -105,6 +107,8 @@ protected:
     virtual void updateThumbProportion();
 
 private:
+    PlatformScrollbar(ScrollbarClient*, ScrollbarOrientation, ScrollbarControlSize);
+
     // Scroll bar segment identifiers
     enum Segment {
         Arrow1 = 0,

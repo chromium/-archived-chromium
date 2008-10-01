@@ -14,6 +14,6 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(IntDir)&quot;;&quot;$(IntDir)\DerivedSources&quot;;../../../third_party/WebKit/JavaScriptCore;&quot;../../../third_party/WebKit/JavaScriptCore/os-win32&quot;;../../../third_party/WebKit/JavaScriptCore/pcre;../../../third_party/WebKit/JavaScriptCore/kjs;../../../third_party/WebKit/JavaScriptCore/wtf;../../../third_party/WebKit/JavaScriptCore/API;../../../third_party/WebKit/JavaScriptCore/bindings;../../../third_party/WebKit/JavaScriptCore/bindings/c;../../../third_party/WebKit/JavaScriptCore/bindings/jni;../../pending;../../pending/kjs;../../pending/wtf"
-		PreprocessorDefinitions="HAVE_CONFIG_H;__STD_C"
+		PreprocessorDefinitions="__STD_C"
 	/>
 </VisualStudioPropertySheet>

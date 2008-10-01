@@ -59,8 +59,6 @@ String MIMETypeRegistry::getPreferredExtensionForMIMEType(const String& type)
     return webkit_glue::StdWStringToString(ext);
 }
 
-// NOTE: This does not work in the sandbox because the renderer doesn't have
-// access to the Windows Registry.
 String MIMETypeRegistry::getMIMETypeForExtension(const String &ext)
 {
     if (ext.isEmpty())

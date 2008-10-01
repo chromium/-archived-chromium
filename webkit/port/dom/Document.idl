@@ -227,9 +227,9 @@ module core {
         NodeList getElementsByClassName(in DOMString tagname);
 
         // DocumentSelector - Selector API
-        Element querySelector(in [ConvertUndefinedOrNullToNullString] DOMString selectors)
+        [Custom] Element querySelector(in [ConvertUndefinedOrNullToNullString] DOMString selectors, in NSResolver resolver)
             raises(DOMException);
-        NodeList querySelectorAll(in [ConvertUndefinedOrNullToNullString] DOMString selectors)
+        [Custom] NodeList querySelectorAll(in [ConvertUndefinedOrNullToNullString] DOMString selectors, in NSResolver resolver)
             raises(DOMException);
     };
 

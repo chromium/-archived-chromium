@@ -28,6 +28,7 @@
 #include "ResourceHandle.h"
 #include "ResourceHandleClient.h"
 #include "ResourceResponse.h"
+#include "ScriptController.h"
 #include "ScrollView.h"
 #include "Widget.h"
 #pragma warning(pop)
@@ -313,7 +314,6 @@ bool WebPluginImpl::ExecuteScript(const std::string& url,
   // For KJS, keeping a pointer to the JSBridge is enough, but for V8
   // we also need to addref the frame.
   WTF::RefPtr<WebCore::Frame> cur_frame(frame());
-  WebCore::JSBridge* bridge = cur_frame->scriptBridge();
 
   bool succ = false;
   WebCore::String result_str = frame()->loader()->executeScript(script_str,
@@ -357,11 +357,11 @@ bool WebPluginImpl::SetPostData(WebCore::ResourceRequest* request,
     request->addHTTPHeaderField(webkit_glue::StdStringToString(names[i]),
                                 webkit_glue::StdStringToString(values[i]));
 
-  WebCore::FormData *data = new WebCore::FormData();
+  RefPtr<WebCore::FormData> data = WebCore::FormData::create();
   if (body.size())
     data->appendData(&body.front(), body.size());
 
-  request->setHTTPBody(data);  // request refcounts FormData
+  request->setHTTPBody(data.release());
 
   return rv;
 }
@@ -381,7 +381,7 @@ RoutingStatus WebPluginImpl::RouteToFrame(const char *method,
     return NOT_ROUTED;
 
   // Take special action for javascript URLs
-  WebCore::DeprecatedString str_target = target;
+  WebCore::String str_target = target;
   if (is_javascript_url) {
     WebCore::Frame *frameTarget = frame()->tree()->find(str_target);
     // For security reasons, do not allow javascript on frames
@@ -402,17 +402,16 @@ RoutingStatus WebPluginImpl::RouteToFrame(const char *method,
   WebCore::String complete_url_str = frame()->document()->completeURL(
       WebCore::String(url));
 
-  WebCore::KURL complete_url_kurl(complete_url_str.deprecatedString());
+  WebCore::KURL complete_url_kurl(complete_url_str);
 
   if (strcmp(method, "GET") != 0) {
-    const WebCore::DeprecatedString& protocol_scheme =
+    const WebCore::String& protocol_scheme =
           complete_url_kurl.protocol();
     // We're only going to route HTTP/HTTPS requests
     if ((protocol_scheme != "http") && (protocol_scheme != "https"))
       return INVALID_URL;
   }
 
-  // url.deprecatedString());
   *completeURL = webkit_glue::KURLToGURL(complete_url_kurl);
   WebCore::ResourceRequest request(complete_url_kurl);
   request.setHTTPMethod(method);
@@ -436,12 +435,12 @@ RoutingStatus WebPluginImpl::RouteToFrame(const char *method,
   WebCore::FrameLoader *loader = frame()->loader();
   // we actually don't know whether usergesture is true or false,
   // passing true since all we can do is assume it is okay.
-  loader->load(load_request,
-               false,  // lock history
-               true,   // user gesture
-               0,      // event
-               0,      // form element
-               HashMap<WebCore::String, WebCore::String>());
+  loader->loadFrameRequestWithFormAndValues(
+      load_request,
+      false,  // lock history
+      0,      // event
+      0,      // form element
+      HashMap<WebCore::String, WebCore::String>());
 
   // load() can cause the frame to go away.
   if (webframe_) {
@@ -464,7 +463,7 @@ NPObject* WebPluginImpl::GetWindowScriptNPObject() {
     return 0;
   }
 
-  return frame()->windowScriptNPObject();
+  return frame()->script()->windowScriptNPObject();
 }
 
 NPObject* WebPluginImpl::GetPluginElement() {
@@ -635,7 +634,7 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
                 static_cast<float>(origin.y()));
 
   // HDC is only used when in windowless mode.
-  HDC hdc = gc->getWindowsContext();
+  HDC hdc = gc->getWindowsContext(damage_rect); // Is this the right rect?
 
   WebCore::IntRect window_rect =
       WebCore::IntRect(view->contentsToWindow(damage_rect.location()),
@@ -643,7 +642,7 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
 
   delegate_->Paint(hdc, gfx::Rect(window_rect));
 
-  gc->releaseWindowsContext(hdc);
+  gc->releaseWindowsContext(hdc, damage_rect);
   gc->restore();
 }
 
@@ -655,9 +654,11 @@ void WebPluginImpl::print(WebCore::GraphicsContext* gc) {
     return;
 
   gc->save();
-  HDC hdc = gc->getWindowsContext();
+  // Our implementation of getWindowsContext doesn't care about any of the
+  // parameters, so just pass some random ones in.
+  HDC hdc = gc->getWindowsContext(WebCore::IntRect(), true, true);
   delegate_->Print(hdc);
-  gc->releaseWindowsContext(hdc);
+  gc->releaseWindowsContext(hdc, WebCore::IntRect(), true, true);
   gc->restore();
 }
 
@@ -884,8 +885,7 @@ void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
   // fate of the HTTP requests issued via NPN_GetURLNotify. Webkit and FF
   // destroy the stream and invoke the NPP_DestroyStream function on the
   // plugin if the HTTP request fails.
-  const WebCore::DeprecatedString& protocol_scheme =
-      response.url().protocol();
+  const WebCore::String& protocol_scheme = response.url().protocol();
   if ((protocol_scheme == "http") || (protocol_scheme == "https")) {
     if (response.httpStatusCode() < 100 || response.httpStatusCode() >= 400) {
       // The plugin instance could be in the process of deletion here.
@@ -960,7 +960,7 @@ void WebPluginImpl::SetContainer(WebPluginContainer* container) {
     // of those sub JSObjects.
     if (frame()) {
       ASSERT(widget_ != NULL);
-      frame()->cleanupScriptObjectsForPlugin(widget_);
+      frame()->script()->cleanupScriptObjectsForPlugin(widget_);
     }
 
     // Call PluginDestroyed() first to prevent the plugin from calling us back
@@ -1039,12 +1039,12 @@ void WebPluginImpl::HandleURLRequest(const char *method,
     // Convert the javascript: URL to javascript by unescaping. WebCore uses
     // decode_string for this, so we do, too.
     std::string escaped_script = original_url.substr(strlen("javascript:"));
-    WebCore::DeprecatedString script = WebCore::KURL::decode_string(
-        WebCore::DeprecatedString(escaped_script.data(),
+    WebCore::String script = WebCore::decodeURLEscapeSequences(
+        WebCore::String(escaped_script.data(),
                                   static_cast<int>(escaped_script.length())));
 
     ExecuteScript(original_url,
-                  webkit_glue::DeprecatedStringToStdWString(script), notify,
+                  webkit_glue::StringToStdWString(script), notify,
                   reinterpret_cast<int>(notify_data), popups_allowed);
   } else {
     std::string complete_url_string;
@@ -1077,18 +1077,20 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
                                         WebPluginResourceClient* client,
                                         const char* method, const char* buf,
                                         int buf_len,
-                                        const GURL& complete_url_string,
+                                        const GURL& url,
                                         const char* range_info) {
   if (!client) {
     NOTREACHED();
     return false;
   }
 
+  WebCore::KURL kurl = webkit_glue::GURLToKURL(url);
+
   ClientInfo info;
   info.id = resource_id;
   info.client = client;
   info.request.setFrame(frame());
-  info.request.setURL(webkit_glue::GURLToKURL(complete_url_string));
+  info.request.setURL(kurl);
   info.request.setOriginPid(delegate_->GetProcessId());
   info.request.setResourceType(ResourceType::OBJECT);
   info.request.setHTTPMethod(method);
@@ -1105,10 +1107,8 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
     referrer = webkit_glue::StdStringToString(plugin_url_.spec());
   }
 
-  if (!WebCore::FrameLoader::shouldHideReferrer(
-          complete_url_string.spec().c_str(), referrer)) {
+  if (!WebCore::FrameLoader::shouldHideReferrer(kurl, referrer))
     info.request.setHTTPReferrer(referrer);
-  }
 
   if (lstrcmpA(method, "POST") == 0) {
     // Adds headers or form data to a request.  This must be called before

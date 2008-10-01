@@ -45,7 +45,7 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) {
 #elif defined(OS_MACOSX)
   WebCore::ImageSource source;
 #endif
-  WTF::RefPtr<WebCore::SharedBuffer> buffer(new WebCore::SharedBuffer(
+  WTF::RefPtr<WebCore::SharedBuffer> buffer(WebCore::SharedBuffer::create(
       data, static_cast<int>(size)));
 #if defined(OS_WIN)
   source.setData(buffer.get(), true,

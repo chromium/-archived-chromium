@@ -1,10 +1,8 @@
-/**
- * This file is part of the KDE project.
- *
+/*
  * Copyright (C) 1999 Lars Knoll (knoll@kde.org)
  *           (C) 2000 Simon Hausmann <hausmann@kde.org>
  *           (C) 2000 Stefan Schimanski (1Stein@gmx.de)
- * Copyright (C) 2004, 2005, 2006 Apple Computer, Inc.
+ * Copyright (C) 2004, 2005, 2006, 2008 Apple Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -22,11 +20,10 @@
  * Boston, MA 02110-1301, USA.
  *
  */
+
 #include "config.h"
 #include "RenderPartObject.h"
 
-#include "Document.h"
-#include "EventHandler.h"
 #include "Frame.h"
 #include "FrameLoader.h"
 #include "FrameLoaderClient.h"
@@ -37,10 +34,8 @@
 #include "HTMLNames.h"
 #include "HTMLObjectElement.h"
 #include "HTMLParamElement.h"
-#include "KURL.h"
 #include "MIMETypeRegistry.h"
 #include "Page.h"
-#include "RenderView.h"
 #include "Text.h"
 
 namespace WebCore {
@@ -61,21 +56,17 @@ RenderPartObject::~RenderPartObject()
         m_view->removeWidgetToUpdate(this);
 }
 
-static bool isURLAllowed(Document *doc, const String &url)
+static bool isURLAllowed(Document* doc, const String& url)
 {
-    KURL newURL(doc->completeURL(url.deprecatedString()));
-    newURL.setRef(DeprecatedString::null);
-    
     if (doc->frame()->page()->frameCount() >= 200)
         return false;
 
     // We allow one level of self-reference because some sites depend on that.
     // But we don't allow more than one.
+    KURL completeURL = doc->completeURL(url);
     bool foundSelfReference = false;
-    for (Frame *frame = doc->frame(); frame; frame = frame->tree()->parent()) {
-        KURL frameURL = frame->loader()->url();
-        frameURL.setRef(DeprecatedString::null);
-        if (frameURL == newURL) {
+    for (Frame* frame = doc->frame(); frame; frame = frame->tree()->parent()) {
+        if (equalIgnoringRef(frame->loader()->url(), completeURL)) {
             if (foundSelfReference)
                 return false;
             foundSelfReference = true;
@@ -144,7 +135,7 @@ static bool ShouldUseEmbedForObject(HTMLObjectElement* o)
     if (attributes) {
         for (unsigned i = 0; i < attributes->length(); ++i) {
             Attribute* it = attributes->attributeItem(i);
-            if (it->name().localName().domString().foldCase() == "classid") {
+            if (it->name().localName().string().foldCase() == "classid") {
                 // If it's windows media player type.
                 if (it->value().contains("6BF52A52-394A-11d3-B153-00C04F79FAA6", false) ||
                     it->value().contains("22D6F312-B0F6-11D0-94AB-0080C74C7E95", false))
@@ -187,16 +178,16 @@ void RenderPartObject::updateWidget(bool onlyCreateNonNetscapePlugins)
       HTMLElement *embedOrObject;
       if (embed) {
           embedOrObject = (HTMLElement *)embed;
-          url = embed->url;
-          serviceType = embed->m_serviceType;
+          url = embed->url();
+          serviceType = embed->serviceType();
       } else
           embedOrObject = (HTMLElement *)o;
       
       // If there was no URL or type defined in EMBED, try the OBJECT tag.
       if (url.isEmpty())
-          url = o->m_url;
+          url = o->url();
       if (serviceType.isEmpty())
-          serviceType = o->m_serviceType;
+          serviceType = o->serviceType();
       
       HashSet<StringImpl*, CaseFoldingHash> uniqueParamNames;
       
@@ -207,17 +198,17 @@ void RenderPartObject::updateWidget(bool onlyCreateNonNetscapePlugins)
       while (child && (url.isEmpty() || serviceType.isEmpty() || !embed)) {
           if (child->hasTagName(paramTag)) {
               HTMLParamElement* p = static_cast<HTMLParamElement*>(child);
-              String name = p->name().lower();
-              if (url.isEmpty() && (name == "src" || name == "movie" || name == "code" || name == "url"))
+              String name = p->name();
+              if (url.isEmpty() && (equalIgnoringCase(name, "src") || equalIgnoringCase(name, "movie") || equalIgnoringCase(name, "code") || equalIgnoringCase(name, "url")))
                   url = p->value();
-              if (serviceType.isEmpty() && name == "type") {
+              if (serviceType.isEmpty() && equalIgnoringCase(name, "type")) {
                   serviceType = p->value();
                   int pos = serviceType.find(";");
                   if (pos != -1)
                       serviceType = serviceType.left(pos);
               }
               if (!embed && !name.isEmpty()) {
-                  uniqueParamNames.add(p->name().impl());
+                  uniqueParamNames.add(name.impl());
                   paramNames.append(p->name());
                   paramValues.append(p->value());
               }
@@ -243,8 +234,8 @@ void RenderPartObject::updateWidget(bool onlyCreateNonNetscapePlugins)
               Attribute* it = attributes->attributeItem(i);
               const AtomicString& name = it->name().localName();
               if (embed || !uniqueParamNames.contains(name.impl())) {
-                  paramNames.append(name.domString());
-                  paramValues.append(it->value().domString());
+                  paramNames.append(name.string());
+                  paramValues.append(it->value().string());
               }
           }
       }
@@ -253,8 +244,8 @@ void RenderPartObject::updateWidget(bool onlyCreateNonNetscapePlugins)
       // However, if we have the embed tag we shouldn't do so because the outer object
       // may be converted to application/x-oleobject, while we are not getting the paramaters
       // including classid etc for the outer object.
-      if (serviceType.isEmpty() && !o->m_classId.isEmpty() && !embed)
-          mapClassIdToServiceType(o->m_classId, serviceType);
+      if (serviceType.isEmpty() && !o->classId().isEmpty() && !embed)
+          mapClassIdToServiceType(o->classId(), serviceType);
       
       if (!isURLAllowed(document(), url))
           return;
@@ -282,8 +273,8 @@ void RenderPartObject::updateWidget(bool onlyCreateNonNetscapePlugins)
   } else if (element()->hasTagName(embedTag)) {
       HTMLEmbedElement *o = static_cast<HTMLEmbedElement*>(element());
       o->setNeedWidgetUpdate(false);
-      url = o->url;
-      serviceType = o->m_serviceType;
+      url = o->url();
+      serviceType = o->serviceType();
 
       if (url.isEmpty() && serviceType.isEmpty())
           return;
@@ -295,8 +286,8 @@ void RenderPartObject::updateWidget(bool onlyCreateNonNetscapePlugins)
       if (a) {
           for (unsigned i = 0; i < a->length(); ++i) {
               Attribute* it = a->attributeItem(i);
-              paramNames.append(it->name().localName().domString());
-              paramValues.append(it->value().domString());
+              paramNames.append(it->name().localName().string());
+              paramValues.append(it->value().string());
           }
       }
       

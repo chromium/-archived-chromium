@@ -47,9 +47,13 @@ struct CGContext;
 #endif
 
 #if PLATFORM(WIN)
+typedef struct tagSIZE SIZE;
+typedef SIZE* LPSIZE;
+typedef struct HBITMAP__ *HBITMAP;
+#endif
+
+#if PLATFORM(SKIA)
 class NativeImageSkia;
-typedef struct HBITMAP__* HBITMAP;
-typedef struct tagSIZE* LPSIZE;
 #endif
 
 #if PLATFORM(QT)
@@ -71,15 +75,23 @@ class String;
 // This class gets notified when an image creates or destroys decoded frames and when it advances animation frames.
 class ImageObserver;
 
-class Image : Noncopyable {
+class Image : public RefCounted<Image> {
+    friend class GeneratedImage;
     friend class GraphicsContext;
 public:
-    Image(ImageObserver* = 0);
     virtual ~Image();
     
-    static Image* loadPlatformResource(const char* name);
+    static PassRefPtr<Image> create(ImageObserver* = 0);
+    static PassRefPtr<Image> loadPlatformResource(const char* name);
     static bool supportsType(const String&); 
 
+    virtual bool isBitmapImage() const { return false; }
+
+    // Derived classes should override this if they can assure that 
+    // the image contains only resources from its own security origin.
+    virtual bool hasSingleSecurityOrigin() const { return false; }
+
+    static Image* nullImage();
     bool isNull() const;
 
     // These are only used for SVGImage right now
@@ -95,11 +107,9 @@ public:
 
     bool setData(PassRefPtr<SharedBuffer> data, bool allDataReceived);
     virtual bool dataChanged(bool allDataReceived) { return false; }
-    
-    // FIXME: PDF/SVG will be underreporting decoded sizes and will be unable to prune because these functions are not
-    // implemented yet for those image types.
-    virtual void destroyDecodedData(bool incremental = false) {};
-    virtual unsigned decodedSize() const { return 0; }
+
+    virtual void destroyDecodedData(bool incremental = false) = 0;
+    virtual unsigned decodedSize() const = 0;
 
     SharedBuffer* data() { return m_data.get(); }
 
@@ -126,20 +136,16 @@ public:
     virtual CGImageRef getCGImageRef() { return 0; }
 #endif
 
-#if PLATFORM(QT)
-    virtual QPixmap* getPixmap() const { return 0; }
-#endif
-
 #if PLATFORM(WIN)
     virtual bool getHBITMAP(HBITMAP) { return false; }
     virtual bool getHBITMAPOfSize(HBITMAP, LPSIZE) { return false; }
-    virtual NativeImageSkia* getBitmap() { return NULL; }
 #endif
 
 protected:
+    Image(ImageObserver* = 0);
+
     static void fillWithSolidColor(GraphicsContext* ctxt, const FloatRect& dstRect, const Color& color, CompositeOperator op);
 
-private:
 #if PLATFORM(WIN)
     virtual void drawFrameMatchingSourceSize(GraphicsContext*, const FloatRect& dstRect, const IntSize& srcSize, CompositeOperator) { }
 #endif

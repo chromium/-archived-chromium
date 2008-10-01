@@ -37,6 +37,7 @@
 #include "Markup.h"
 #include "WCDataObject.h"
 
+#undef LOG
 #include "base/file_util.h"
 #include "base/string_util.h"
 #include "net/base/base64.h"
@@ -62,16 +63,16 @@ WebDropData* dropData(DragDataRef dragData) {
 
 namespace WebCore {
 
-Clipboard* DragData::createClipboard(ClipboardAccessPolicy policy) const
+PassRefPtr<Clipboard> DragData::createClipboard(ClipboardAccessPolicy policy) const
 {
     WCDataObject* data;
     WCDataObject::createInstance(&data);
-    ClipboardWin* clipboard = new ClipboardWin(true, data, policy);
+    RefPtr<ClipboardWin> clipboard = ClipboardWin::create(true, data, policy);
     // The clipboard keeps a reference to the WCDataObject, so we can release
     // our reference to it.
     data->Release();
 
-    return clipboard;
+    return clipboard.release();
 }
 
 bool DragData::containsURL() const

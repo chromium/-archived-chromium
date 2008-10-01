@@ -126,7 +126,8 @@ WebView* WebView::Create(WebViewDelegate* delegate,
   instance->delegate_ = delegate;
   // Restrict the access to the local file system
   // (see WebView.mm WebView::_commonInitializationWithFrameName).
-  FrameLoader::setRestrictAccessToLocal(true);
+  FrameLoader::setLocalLoadPolicy(
+      FrameLoader::AllowLocalLoadsForLocalOnly);
   return instance;
 }
 
@@ -143,6 +144,11 @@ WebViewImpl::WebViewImpl()
       suppress_next_keypress_event_(false),
       window_open_disposition_(IGNORE_ACTION),
       ime_accept_events_(true) {
+  // WebKit/win/WebView.cpp does the same thing, except they call teh
+  // KJS specific wrapper around this method. We need to have threading
+  // initialized because icu requires it.
+  WTF::initializeThreading();
+
   // set to impossible point so we always get the first mouse pos
   last_mouse_position_.SetPoint(-1, -1);
 
@@ -377,12 +383,16 @@ bool WebViewImpl::CharEvent(const WebKeyboardEvent& event) {
 * webkit\webkit\win\WebView.cpp. The only significant change in this
 * function is the code to convert from a Keyboard event to the Right
 * Mouse button up event.
+* 
+* This function is an ugly copy/paste and should be cleaned up when the
+* WebKitWin version is cleaned: https://bugs.webkit.org/show_bug.cgi?id=20438
 */
 #if defined(OS_WIN)
 // TODO(pinkerton): implement on non-windows
 bool WebViewImpl::SendContextMenuEvent(const WebKeyboardEvent& event) {
   static const int kContextMenuMargin = 1;
-  FrameView* view = page()->mainFrame()->view();
+  Frame* main_frame = page()->mainFrame();
+  FrameView* view = main_frame->view();
   if (!view)
     return false;
 
@@ -392,9 +402,8 @@ bool WebViewImpl::SendContextMenuEvent(const WebKeyboardEvent& event) {
 
   // The context menu event was generated from the keyboard, so show the
   // context menu by the current selection.
-  Position start =
-      page()->mainFrame()->selectionController()->selection().start();
-  Position end = page()->mainFrame()->selectionController()->selection().end();
+  Position start = main_frame->selection()->selection().start();
+  Position end = main_frame->selection()->selection().end();
 
   if (!start.node() || !end.node()) {
     location =
@@ -404,26 +413,12 @@ bool WebViewImpl::SendContextMenuEvent(const WebKeyboardEvent& event) {
     RenderObject* renderer = start.node()->renderer();
     if (!renderer)
       return false;
-    // Calculate the rect of the first line of the selection (cribbed from
-    // -[WebCoreFrameBridge firstRectForDOMRange:]).
-    int extra_width_to_EOL = 0;
-    IntRect start_caret_rect = renderer->caretRect(start.offset(), DOWNSTREAM,
-                                                   &extra_width_to_EOL);
-    IntRect end_caret_rect = renderer->caretRect(end.offset(), UPSTREAM);
-    IntRect first_rect;
-    if (start_caret_rect.y() == end_caret_rect.y()) {
-      first_rect = IntRect(std::min(start_caret_rect.x(), end_caret_rect.x()),
-                           start_caret_rect.y(),
-                           abs(end_caret_rect.x() - start_caret_rect.x()),
-                           max(start_caret_rect.height(),
-                               end_caret_rect.height()));
-    } else {
-      first_rect = IntRect(start_caret_rect.x(), start_caret_rect.y(),
-                           start_caret_rect.width() + extra_width_to_EOL,
-                           start_caret_rect.height());
-    }
-    location = IntPoint(right_aligned ? first_rect.right() :
-                            first_rect.x(), first_rect.bottom());
+
+    RefPtr<Range> selection = main_frame->selection()->toRange();
+    IntRect first_rect = main_frame->firstRectForRange(selection.get());
+
+    int x = right_aligned ? first_rect.right() : first_rect.x();
+    location = IntPoint(x, first_rect.bottom());
   }
 
   location = view->contentsToWindow(location);
@@ -636,7 +631,7 @@ void WebViewImpl::SetFocusedFrame(WebFrame* frame) {
     // Clears the focused frame if any.
     Frame* frame = GetFocusedWebCoreFrame();
     if (frame)
-      frame->selectionController()->setFocused(false);
+      frame->selection()->setFocused(false);
     return;
   }
   WebFrameImpl* frame_impl = static_cast<WebFrameImpl*>(frame);
@@ -788,14 +783,14 @@ void WebViewImpl::SetFocus(bool enable) {
     GetFocusedFrame();
     if (main_frame_ && main_frame_->frame()) {
       Frame* frame = main_frame_->frame();
-      if (!frame->selectionController()->isFocusedAndActive()) {
+      if (!frame->selection()->isFocusedAndActive()) {
         // No one has focus yet, try to restore focus.
         RestoreFocus();
         frame->page()->focusController()->setActive(true);
       }
       Frame* focused_frame =
           frame->page()->focusController()->focusedOrMainFrame();
-      frame->selectionController()->setFocused(frame == focused_frame);
+      frame->selection()->setFocused(frame == focused_frame);
     }
     ime_accept_events_ = true;
   } else {
@@ -838,7 +833,7 @@ void WebViewImpl::SetFocus(bool enable) {
     }
     // Make sure the main frame doesn't think it has focus.
     if (frame != focused.get())
-      frame->selectionController()->setFocused(false);
+      frame->selection()->setFocused(false);
   }
 }
 
@@ -971,7 +966,7 @@ bool WebViewImpl::ImeUpdateStatus(bool* enable_ime, const void **id,
   const Editor* editor = focused->editor();
   if (!editor || !editor->canEdit())
     return false;
-  const SelectionController* controller = focused->selectionController();
+  const SelectionController* controller = focused->selection();
   if (!controller)
     return false;
   const Node* node = controller->start().node();
@@ -1022,11 +1017,11 @@ void WebViewImpl::SetInitialFocus(bool reverse) {
     // We have to set the key type explicitly to avoid an assert in the
     // KeyboardEvent constructor.
     platform_event.SetKeyType(PlatformKeyboardEvent::RawKeyDown);
-    KeyboardEvent webkit_event(platform_event, NULL);
+    RefPtr<KeyboardEvent> webkit_event = KeyboardEvent::create(platform_event, NULL);
     page()->focusController()->setInitialFocus(
         reverse ? WebCore::FocusDirectionBackward :
                   WebCore::FocusDirectionForward,
-        &webkit_event);
+        webkit_event.get());
   }
 }
 
@@ -1122,8 +1117,6 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
   // change this, since it would break existing rich text editors.
   settings->setEditableLinkBehavior(WebCore::EditableLinkNeverLive);
 
-  settings->setUsesDashboardBackwardCompatibilityMode(
-      preferences.dashboard_compatibility_mode);
   settings->setFontRenderingMode(NormalRenderingMode);
   settings->setJavaEnabled(preferences.java_enabled);
 
@@ -1132,13 +1125,6 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
   // draw some form controls.  We let it know each time the size changes.
   WebCore::RenderThemeWin::setDefaultFontSize(preferences.default_font_size);
 #endif
-
-  // Used to make sure if the frameview needs layout, layout is triggered
-  // during Document::updateLayout().  TODO(tc): See bug 1199269 for more
-  // details.
-  FrameView* frameview = main_frame()->frameview();
-  if (frameview && frameview->needsLayout())
-    frameview->setNeedsLayout();
 }
 
 const WebPreferences& WebViewImpl::GetPreferences() {
@@ -1173,10 +1159,10 @@ void WebViewImpl::MakeTextLarger() {
   double multiplier = std::min(std::pow(kTextSizeMultiplierRatio,
                                         text_zoom_level_ + 1),
                                kMaxTextSizeMultiplier);
-  int zoom_factor = static_cast<int>(100.0 * multiplier);
+  float zoom_factor = static_cast<float>(multiplier);
   if (zoom_factor != frame->zoomFactor()) {
     ++text_zoom_level_;
-    frame->setZoomFactor(zoom_factor);
+    frame->setZoomFactor(zoom_factor, true);
   }
 }
 
@@ -1185,16 +1171,16 @@ void WebViewImpl::MakeTextSmaller() {
   double multiplier = std::max(std::pow(kTextSizeMultiplierRatio,
                                         text_zoom_level_ - 1),
                                kMinTextSizeMultiplier);
-  int zoom_factor = static_cast<int>(100.0 * multiplier);
+  float zoom_factor = static_cast<float>(multiplier);
   if (zoom_factor != frame->zoomFactor()) {
     --text_zoom_level_;
-    frame->setZoomFactor(zoom_factor);
+    frame->setZoomFactor(zoom_factor, true);
   }
 }
 
 void WebViewImpl::MakeTextStandardSize() {
   text_zoom_level_ = 0;
-  main_frame()->frame()->setZoomFactor(100);
+  main_frame()->frame()->setZoomFactor(1.0f, true);
 }
 
 void WebViewImpl::CopyImageAt(int x, int y) {

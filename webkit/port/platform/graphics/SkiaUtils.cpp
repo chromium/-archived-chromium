@@ -31,15 +31,13 @@
 
 #include "SkiaUtils.h"
 
+#include "SharedBuffer.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkMatrix.h"
 #include "SkRegion.h"
 
-void WebCorePointToSkiaPoint(const WebCore::IntPoint& src, SkPoint* dst)
-{
-    dst->set(SkIntToScalar(src.x()), SkIntToScalar(src.y()));
-}
+#include "base/gfx/bitmap_header.h"
 
 void WebCorePointToSkiaPoint(const WebCore::FloatPoint& src, SkPoint* dst)
 {
@@ -112,15 +110,6 @@ SkPorterDuff::Mode WebCoreCompositeToSkiaComposite(WebCore::CompositeOperator op
     return SkPorterDuff::kSrcOver_Mode; // fall-back
 }
 
-SkShader::TileMode WebCoreTileToSkiaTile(WebCore::Image::TileRule rule)
-{
-    // StretchTile, RoundTile, RepeatTile
-    // hack!!!! what does stretch and round mean???
-
-    return SkShader::kRepeat_TileMode;
-}
-
-
 static U8CPU InvScaleByte(U8CPU component, uint32_t scale)
 {
     SkASSERT(component == (uint8_t)component);
@@ -144,9 +133,7 @@ static SkColor SkPMColorToColor(SkPMColor pm)
 
 WebCore::Color SkPMColorToWebCoreColor(SkPMColor pm)
 {
-    SkColor c = SkPMColorToColor(pm);
-    
-    return WebCore::Color(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c), SkColorGetA(c));
+    return SkPMColorToColor(pm);
 }
 
 void IntersectRectAndRegion(const SkRegion& region, const SkRect& src_rect,
@@ -238,4 +225,38 @@ bool SkPathContainsPoint(SkPath* orig_path, WebCore::FloatPoint point, SkPath::F
 
     orig_path->setFillType(orig_ft);    // restore
     return contains;
+}
+
+PassRefPtr<WebCore::SharedBuffer> SerializeSkBitmap(const SkBitmap& bitmap)
+{
+    int width = bitmap.width();
+    int height = bitmap.height();
+
+    // Create a BMP v4 header that we can serialize.
+    BITMAPV4HEADER v4Header;
+    gfx::CreateBitmapV4Header(width, height, &v4Header);
+    v4Header.bV4SizeImage = width * sizeof(uint32_t) * height;
+
+    // Serialize the bitmap.
+    BITMAPFILEHEADER fileHeader;
+    fileHeader.bfType = 0x4d42;  // "BM" header
+    fileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + v4Header.bV4Size;
+    fileHeader.bfSize = fileHeader.bfOffBits + v4Header.bV4SizeImage;
+    fileHeader.bfReserved1 = fileHeader.bfReserved2 = 0;
+
+    // Write BITMAPFILEHEADER
+    RefPtr<WebCore::SharedBuffer> buffer(WebCore::SharedBuffer::create(
+        reinterpret_cast<const char*>(&fileHeader),
+        sizeof(BITMAPFILEHEADER)));
+
+    // Write BITMAPINFOHEADER
+    buffer->append(reinterpret_cast<const char*>(&v4Header),
+                   sizeof(BITMAPV4HEADER));
+
+    // Write the image body.
+    SkAutoLockPixels bitmap_lock(bitmap);
+    buffer->append(reinterpret_cast<const char*>(bitmap.getAddr32(0, 0)),
+                   v4Header.bV4SizeImage);
+
+    return buffer;
 }

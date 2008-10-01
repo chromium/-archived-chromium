@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
+ * Copyright (C) 2006, 2007, 2008 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,23 +30,31 @@
 #include "CSSComputedStyleDeclaration.h"
 #include "CSSRuleList.h"
 #include "CSSStyleSelector.h"
+#include "CString.h"
 #include "Chrome.h"
 #include "Console.h"
 #include "DOMSelection.h"
 #include "Document.h"
 #include "Element.h"
+#include "ExceptionCode.h"
 #include "FloatRect.h"
 #include "Frame.h"
 #include "FrameLoader.h"
 #include "FrameTree.h"
 #include "FrameView.h"
+#include "HTMLFrameOwnerElement.h"
 #include "History.h"
+#include "Location.h"
 #include "MessageEvent.h"
+#include "Navigator.h"
 #include "Page.h"
+#include "PageGroup.h"
 #include "PlatformScreen.h"
 #include "PlatformString.h"
 #include "Screen.h"
+#include "SecurityOrigin.h"
 #include "Settings.h"
+#include "ScriptController.h"
 #include <algorithm>
 #include <wtf/MathExtras.h>
 
@@ -54,10 +62,21 @@
 #include "Database.h"
 #endif
 
+#if ENABLE(DOM_STORAGE)
+#include "LocalStorage.h"
+#include "SessionStorage.h"
+#include "Storage.h"
+#include "StorageArea.h"
+#endif
+
+#if ENABLE(OFFLINE_WEB_APPLICATIONS)
+#include "DOMApplicationCache.h"
+#endif
+
 using std::min;
 using std::max;
 
-#if USE(V8_BINDING)
+#if USE(V8)
 #include "Location.h"
 #include "Navigator.h"
 #include "CString.h"
@@ -76,12 +95,34 @@ using std::max;
 #include <windows.h>
 #endif // WIN
 
-#include "JSBridge.h"
 #include "CSSHelper.h"  // parseURL
-#endif // V8_BINDING
+#endif // V8
 
 
 namespace WebCore {
+
+class PostMessageTimer : public TimerBase {
+public:
+    PostMessageTimer(DOMWindow* window, PassRefPtr<MessageEvent> event, SecurityOrigin* targetOrigin)
+        : m_window(window)
+        , m_event(event)
+        , m_targetOrigin(targetOrigin)
+    {
+    }
+
+    MessageEvent* event() const { return m_event.get(); }
+    SecurityOrigin* targetOrigin() const { return m_targetOrigin.get(); }
+
+private:
+    virtual void fired()
+    {
+        m_window->postMessageTimerFired(this);
+    }
+
+    RefPtr<DOMWindow> m_window;
+    RefPtr<MessageEvent> m_event;
+    RefPtr<SecurityOrigin> m_targetOrigin;
+};
 
 // This function:
 // 1) Validates the pending changes are not changing to NaN
@@ -123,7 +164,7 @@ void DOMWindow::adjustWindowRect(const FloatRect& screen, FloatRect& window, con
     window.setY(max(screen.y(), min(window.y(), screen.bottom() - window.height())));
 }
 
-#if USE(V8_BINDING)
+#if USE(V8)
 
 static int lastUsedTimeoutId;
 static int timerNestingLevel = 0;
@@ -162,7 +203,7 @@ void DOMWindowTimer::fired() {
     timerNestingLevel = 0;
 }
 
-#endif  // V8_BINDING
+#endif  // V8
 
 
 DOMWindow::DOMWindow(Frame* frame)
@@ -172,6 +213,8 @@ DOMWindow::DOMWindow(Frame* frame)
 
 DOMWindow::~DOMWindow()
 {
+    if (m_frame)
+        m_frame->clearFormerDOMWindow(this);
 }
 
 void DOMWindow::disconnectFrame()
@@ -222,92 +265,207 @@ void DOMWindow::clear()
         m_console->disconnectFrame();
     m_console = 0;
 
-#if USE(V8_BINDING)
-    if (m_location)
-        m_location->disconnectFrame();
-    m_location = 0;
-
     if (m_navigator)
         m_navigator->disconnectFrame();
     m_navigator = 0;
+
+    if (m_location)
+        m_location->disconnectFrame();
+    m_location = 0;
+    
+#if ENABLE(DOM_STORAGE)
+    if (m_sessionStorage)
+        m_sessionStorage->disconnectFrame();
+    m_sessionStorage = 0;
+
+    if (m_localStorage)
+        m_localStorage->disconnectFrame();
+    m_localStorage = 0;
+#endif
+
+#if ENABLE(OFFLINE_WEB_APPLICATIONS)
+    if (m_applicationCache)
+        m_applicationCache->disconnectFrame();
+    m_applicationCache = 0;
 #endif
 }
 
 Screen* DOMWindow::screen() const
 {
     if (!m_screen)
-        m_screen = new Screen(m_frame);
+        m_screen = Screen::create(m_frame);
     return m_screen.get();
 }
 
 History* DOMWindow::history() const
 {
     if (!m_history)
-        m_history = new History(m_frame);
+        m_history = History::create(m_frame);
     return m_history.get();
 }
 
 BarInfo* DOMWindow::locationbar() const
 {
     if (!m_locationbar)
-        m_locationbar = new BarInfo(m_frame, BarInfo::Locationbar);
+        m_locationbar = BarInfo::create(m_frame, BarInfo::Locationbar);
     return m_locationbar.get();
 }
 
 BarInfo* DOMWindow::menubar() const
 {
     if (!m_menubar)
-        m_menubar = new BarInfo(m_frame, BarInfo::Menubar);
+        m_menubar = BarInfo::create(m_frame, BarInfo::Menubar);
     return m_menubar.get();
 }
 
 BarInfo* DOMWindow::personalbar() const
 {
     if (!m_personalbar)
-        m_personalbar = new BarInfo(m_frame, BarInfo::Personalbar);
+        m_personalbar = BarInfo::create(m_frame, BarInfo::Personalbar);
     return m_personalbar.get();
 }
 
 BarInfo* DOMWindow::scrollbars() const
 {
     if (!m_scrollbars)
-        m_scrollbars = new BarInfo(m_frame, BarInfo::Scrollbars);
+        m_scrollbars = BarInfo::create(m_frame, BarInfo::Scrollbars);
     return m_scrollbars.get();
 }
 
 BarInfo* DOMWindow::statusbar() const
 {
     if (!m_statusbar)
-        m_statusbar = new BarInfo(m_frame, BarInfo::Statusbar);
+        m_statusbar = BarInfo::create(m_frame, BarInfo::Statusbar);
     return m_statusbar.get();
 }
 
 BarInfo* DOMWindow::toolbar() const
 {
     if (!m_toolbar)
-        m_toolbar = new BarInfo(m_frame, BarInfo::Toolbar);
+        m_toolbar = BarInfo::create(m_frame, BarInfo::Toolbar);
     return m_toolbar.get();
 }
 
 Console* DOMWindow::console() const
 {
     if (!m_console)
-        m_console = new Console(m_frame);
+        m_console = Console::create(m_frame);
     return m_console.get();
 }
 
-#if ENABLE(CROSS_DOCUMENT_MESSAGING)
-void DOMWindow::postMessage(const String& message, const String& domain, const String& uri, DOMWindow* source) const
+#if ENABLE(OFFLINE_WEB_APPLICATIONS)
+DOMApplicationCache* DOMWindow::applicationCache() const
 {
-   ExceptionCode ec;
-   document()->dispatchEvent(new MessageEvent(message, domain, uri, source), ec, true);
+    if (!m_applicationCache)
+        m_applicationCache = DOMApplicationCache::create(m_frame);
+    return m_applicationCache.get();
 }
 #endif
+
+Navigator* DOMWindow::navigator() const
+{
+    if (!m_navigator)
+        m_navigator = Navigator::create(m_frame);
+    return m_navigator.get();
+}
+
+Location* DOMWindow::location() const
+{
+    if (!m_location)
+        m_location = Location::create(m_frame);
+    return m_location.get();
+}
+
+#if ENABLE(DOM_STORAGE)
+Storage* DOMWindow::sessionStorage() const
+{
+    if (m_sessionStorage)
+        return m_sessionStorage.get();
+        
+    Page* page = m_frame->page();
+    if (!page)
+        return 0;
+
+    Document* document = m_frame->document();
+    if (!document)
+        return 0;
+
+    RefPtr<StorageArea> storageArea = page->sessionStorage()->storageArea(document->securityOrigin());
+    m_sessionStorage = Storage::create(m_frame, storageArea.release());
+    return m_sessionStorage.get();
+}
+
+Storage* DOMWindow::localStorage() const
+{
+    Document* document = this->document();
+    if (!document)
+        return 0;
+        
+    Page* page = document->page();
+    if (!page)
+        return 0;
+    
+    LocalStorage* localStorage = page->group().localStorage();
+    RefPtr<StorageArea> storageArea = localStorage ? localStorage->storageArea(m_frame, document->securityOrigin()) : 0; 
+    if (storageArea)
+        m_localStorage = Storage::create(m_frame, storageArea.release());
+
+    return m_localStorage.get();
+}
+#endif
+
+void DOMWindow::postMessage(const String& message, const String& targetOrigin, DOMWindow* source, ExceptionCode& ec)
+{
+    if (!m_frame)
+        return;
+
+    // Compute the target origin.  We need to do this synchronously in order
+    // to generate the SYNTAX_ERR exception correctly.
+    RefPtr<SecurityOrigin> target;
+    if (targetOrigin != "*") {
+        target = SecurityOrigin::create(KURL(targetOrigin));
+        if (target->isEmpty()) {
+            ec = SYNTAX_ERR;
+            return;
+        }
+    }
+
+    // Capture the source of the message.  We need to do this synchronously
+    // in order to capture the source of the message correctly.
+    Document* sourceDocument = source->document();
+    if (!sourceDocument)
+        return;
+    String sourceOrigin = sourceDocument->securityOrigin()->toString();
+
+    // Schedule the message.
+    PostMessageTimer* timer = new PostMessageTimer(this, MessageEvent::create(message, sourceOrigin, "", source), target.get());
+    timer->startOneShot(0);
+}
+
+void DOMWindow::postMessageTimerFired(PostMessageTimer* t)
+{
+    OwnPtr<PostMessageTimer> timer(t);
+
+    if (!document())
+        return;
+
+    if (timer->targetOrigin()) {
+        // Check target origin now since the target document may have changed since the simer was scheduled.
+        if (!timer->targetOrigin()->isSameSchemeHostPort(document()->securityOrigin())) {
+            String message = String::format("Unable to post message to %s. Recipient has origin %s.\n", 
+                timer->targetOrigin()->toString().utf8().data(), document()->securityOrigin()->toString().utf8().data());
+            console()->addMessage(JSMessageSource, ErrorMessageLevel, message, 0, String());
+            return;
+        }
+    }
+
+    document()->dispatchWindowEvent(timer->event());
+}
 
 DOMSelection* DOMWindow::getSelection()
 {
     if (!m_selection)
-        m_selection = new DOMSelection(m_frame);
+        m_selection = DOMSelection::create(m_frame);
     return m_selection.get();
 }
 
@@ -316,13 +474,7 @@ Element* DOMWindow::frameElement() const
     if (!m_frame)
         return 0;
 
-    Document* doc = m_frame->document();
-    ASSERT(doc);
-    if (!doc)
-        return 0;
-
-    // FIXME: could this use m_frame->ownerElement() instead of going through the Document.
-    return doc->ownerElement();
+    return m_frame->ownerElement();
 }
 
 void DOMWindow::focus()
@@ -385,7 +537,7 @@ void DOMWindow::stop()
 
 void DOMWindow::alert(const String& message)
 {
-#if USE(V8_BINDING)
+#if USE(V8)
     // Before showing the JavaScript dialog, we give
     // the proxy implementation a chance to process any
     // pending console messages.
@@ -409,7 +561,7 @@ void DOMWindow::alert(const String& message)
 
 bool DOMWindow::confirm(const String& message)
 {
-#if USE(V8_BINDING)
+#if USE(V8)
     // Before showing the JavaScript dialog, we give
     // the proxy implementation a chance to process any
     // pending console messages.
@@ -433,7 +585,7 @@ bool DOMWindow::confirm(const String& message)
 
 String DOMWindow::prompt(const String& message, const String& defaultValue)
 {
-#if USE(V8_BINDING)
+#if USE(V8)
     // Before showing the JavaScript dialog, we give
     // the proxy implementation a chance to process any
     // pending console messages.
@@ -505,8 +657,8 @@ int DOMWindow::innerHeight() const
     FrameView* view = m_frame->view();
     if (!view)
         return 0;
-
-    return view->height();
+    
+    return static_cast<int>(view->height() / m_frame->pageZoomFactor());
 }
 
 int DOMWindow::innerWidth() const
@@ -518,7 +670,7 @@ int DOMWindow::innerWidth() const
     if (!view)
         return 0;
 
-    return view->width();
+    return static_cast<int>(view->width() / m_frame->pageZoomFactor());
 }
 
 int DOMWindow::screenX() const
@@ -559,7 +711,7 @@ int DOMWindow::scrollX() const
     if (doc)
         doc->updateLayoutIgnorePendingStylesheets();
 
-    return view->contentsX();
+    return static_cast<int>(view->contentsX() / m_frame->pageZoomFactor());
 }
 
 int DOMWindow::scrollY() const
@@ -576,7 +728,7 @@ int DOMWindow::scrollY() const
     if (doc)
         doc->updateLayoutIgnorePendingStylesheets();
 
-    return view->contentsY();
+    return static_cast<int>(view->contentsY() / m_frame->pageZoomFactor());
 }
 
 bool DOMWindow::closed() const
@@ -665,7 +817,7 @@ DOMWindow* DOMWindow::parent() const
     if (!m_frame)
         return 0;
 
-    Frame* parent = m_frame->tree()->parent();
+    Frame* parent = m_frame->tree()->parent(true);
     if (parent)
         return parent->domWindow();
 
@@ -681,7 +833,7 @@ DOMWindow* DOMWindow::top() const
     if (!page)
         return 0;
 
-    return page->mainFrame()->domWindow();
+    return m_frame->tree()->top(true)->domWindow();
 }
 
 Document* DOMWindow::document() const
@@ -698,8 +850,8 @@ PassRefPtr<CSSStyleDeclaration> DOMWindow::getComputedStyle(Element* elt, const 
     if (!elt)
         return 0;
 
-    // FIXME: This needs to work with pseudo elements.
-    return new CSSComputedStyleDeclaration(elt);
+    // FIXME: This needs take pseudo elements into account.
+    return computedStyle(elt);
 }
 
 PassRefPtr<CSSRuleList> DOMWindow::getMatchedCSSRules(Element* elt, const String& pseudoElt, bool authorOnly) const
@@ -713,7 +865,7 @@ PassRefPtr<CSSRuleList> DOMWindow::getMatchedCSSRules(Element* elt, const String
         return 0;
 
     if (!pseudoElt.isEmpty())
-        return doc->styleSelector()->pseudoStyleRulesForElement(elt, pseudoElt.impl(), authorOnly);
+        return doc->styleSelector()->pseudoStyleRulesForElement(elt, pseudoElt, authorOnly);
     return doc->styleSelector()->styleRulesForElement(elt, authorOnly);
 }
 
@@ -729,7 +881,7 @@ double DOMWindow::devicePixelRatio() const
     return page->chrome()->scaleFactor();
 }
 
-#if USE(V8_BINDING)
+#if USE(V8)
 
 static void setWindowFeature(const String& keyString, const String& valueString, WindowFeatures& windowFeatures) {
   int value;
@@ -769,26 +921,30 @@ static void setWindowFeature(const String& keyString, const String& valueString,
 }
 
 
-void DOMWindow::back() {
-    if (m_history) m_history->back();
+void DOMWindow::back()
+{
+    if (m_history)
+        m_history->back();
 }
 
-void DOMWindow::forward() {
-    if (m_history) m_history->forward();
+void DOMWindow::forward()
+{
+    if (m_history)
+        m_history->forward();
 }
 
-Location* DOMWindow::location() {
-  if (!m_location) {
-    m_location = new Location(m_frame);
-  }
-  return m_location.get();
+Location* DOMWindow::location()
+{
+    if (!m_location)
+        m_location = Location::create(m_frame);
+    return m_location.get();
 }
 
 void DOMWindow::setLocation(const String& v) {
   if (!m_frame)
     return;
 
-  Frame* active_frame = JSBridge::retrieveActiveFrame();
+  Frame* active_frame = ScriptController::retrieveActiveFrame();
   if (!active_frame)
     return;
 
@@ -796,37 +952,43 @@ void DOMWindow::setLocation(const String& v) {
     return;
 
   if (!parseURL(v).startsWith("javascript:", false) ||
-    JSBridge::isSafeScript(m_frame)) {
+    ScriptController::isSafeScript(m_frame)) {
     String completed_url = active_frame->loader()->completeURL(v).string();
 
     m_frame->loader()->scheduleLocationChange(completed_url,
         active_frame->loader()->outgoingReferrer(), false,
-        active_frame->scriptBridge()->wasRunByUserGesture());
+        active_frame->script()->processingUserGesture());
   }
 }
 
-Navigator* DOMWindow::navigator() {
-  if (!m_navigator) {
-    m_navigator = new Navigator(m_frame);
-  }
-  return m_navigator.get();
+Navigator* DOMWindow::navigator()
+{
+    if (!m_navigator)
+        m_navigator = Navigator::create(m_frame);
+
+    return m_navigator.get();
 }
 
-void DOMWindow::dump(const String& msg) {
-  if (!m_frame || !m_frame->page()) return;
+void DOMWindow::dump(const String& msg)
+{
+    if (!m_frame)
+        return;
 
-  m_frame->page()->chrome()->addMessageToConsole(JSMessageSource,
-    ErrorMessageLevel, msg, 0, m_frame->document()->url());
+    m_frame->domWindow()->console()->addMessage(JSMessageSource,
+        ErrorMessageLevel, msg, 0, m_frame->document()->url());
 }
 
-void DOMWindow::scheduleClose() {
-  if (!m_frame) return;
+void DOMWindow::scheduleClose()
+{
+    if (!m_frame)
+        return;
 
-  m_frame->scheduleClose();
+    m_frame->scheduleClose();
 }
 
 void DOMWindow::timerFired(DOMWindowTimer* timer) {
-  if (!m_frame) return;
+  if (!m_frame)
+      return;
 
   // Simple case for non-one-shot timers.
   if (timer->isActive()) {
@@ -845,11 +1007,11 @@ void DOMWindow::timerFired(DOMWindowTimer* timer) {
 }
 
 
-void DOMWindow::clearAllTimeouts() {
-  deleteAllValues(m_timeouts);
-  m_timeouts.clear();
+void DOMWindow::clearAllTimeouts()
+{
+    deleteAllValues(m_timeouts);
+    m_timeouts.clear();
 }
-
 
 int DOMWindow::installTimeout(ScheduledAction* a, int t, bool singleShot) {
   if (!m_frame)
@@ -875,19 +1037,24 @@ int DOMWindow::installTimeout(ScheduledAction* a, int t, bool singleShot) {
   return timeoutId;
 }
 
-void DOMWindow::clearTimeout(int timeoutId) {
-  // timeout IDs have to be positive, and 0 and -1 are unsafe to
-  // even look up since they are the empty and deleted value
-  // respectively
-  if (timeoutId <= 0)
-    return;
+void DOMWindow::clearTimeout(int timeoutId)
+{
+    // timeout IDs have to be positive, and 0 and -1 are unsafe to
+    // even look up since they are the empty and deleted value
+    // respectively
+    if (timeoutId <= 0)
+        return;
 
-  delete m_timeouts.take(timeoutId);
+    delete m_timeouts.take(timeoutId);
 }
 
-PausedTimeouts* DOMWindow::pauseTimeouts() {
+void DOMWindow::pauseTimeouts(OwnPtr<PausedTimeouts>& pausedTimeouts)
+{
     size_t count = m_timeouts.size();
-    if (count == 0) return 0;
+    if (count == 0) {
+        pausedTimeouts.clear();
+        return;
+    }
 
     PausedTimeout* t = new PausedTimeout[count];
     PausedTimeouts* result = new PausedTimeouts(t, count);
@@ -907,11 +1074,12 @@ PausedTimeouts* DOMWindow::pauseTimeouts() {
     deleteAllValues(m_timeouts);
     m_timeouts.clear();
 
-    return result;
+    pausedTimeouts.set(result);
 }
 
-void DOMWindow::resumeTimeouts(PausedTimeouts* timeouts) {
-    if (!timeouts) return;
+void DOMWindow::resumeTimeouts(OwnPtr<PausedTimeouts>& timeouts) {
+    if (!timeouts)
+        return;
     size_t count = timeouts->numTimeouts();
     PausedTimeout* array = timeouts->takeTimeouts();
     for (size_t i = 0; i != count; ++i) {
@@ -923,9 +1091,10 @@ void DOMWindow::resumeTimeouts(PausedTimeouts* timeouts) {
         timer->start(array[i].nextFireInterval, array[i].repeatInterval);
     }
     delete[] array;
+    timeouts.clear();
 }
 
-#endif  // V8_BINDING
+#endif  // V8
 
 void DOMWindow::updateLayout() const {
   WebCore::Document* docimpl = m_frame->document();
@@ -983,7 +1152,11 @@ void DOMWindow::resizeBy(float x, float y) const {
  
 
 void DOMWindow::scrollTo(int x, int y) const {
-  if (!m_frame || !m_frame->view()) return;
+  if (!m_frame || !m_frame->view())
+        return;
+
+    if (m_frame->isDisconnected())
+        return;
 
   updateLayout();
   m_frame->view()->setContentsPos(x, y);
@@ -1001,6 +1174,10 @@ PassRefPtr<Database> DOMWindow::openDatabase(const String& name, const String& v
 {
     if (!m_frame)
         return 0;
+        return;
+
+    if (m_frame->isDisconnected())
+        return;
 
     Document* doc = m_frame->document();
     ASSERT(doc);

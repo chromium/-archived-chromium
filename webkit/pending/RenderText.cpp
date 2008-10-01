@@ -42,14 +42,10 @@ using namespace Unicode;
 
 namespace WebCore {
 
+// FIXME: Move to StringImpl.h eventually.
 static inline bool charactersAreAllASCII(StringImpl* text)
 {
-    const UChar* chars = text->characters();
-    unsigned length = text->length();
-    UChar ored = 0;
-    for (unsigned i = 0; i < length; ++i)
-        ored |= chars[i];
-    return !(ored & 0xFF80);
+    return charactersAreAllASCII(text->characters(), text->length());
 }
 
 RenderText::RenderText(Node* node, PassRefPtr<StringImpl> str)
@@ -319,7 +315,7 @@ VisiblePosition RenderText::positionForCoordinates(int x, int y)
                     // box is last on line
                     // and the x coordinate is to the right of the last text box right edge
                     // generate VisiblePosition, use UPSTREAM affinity if possible
-                    return VisiblePosition(element(), offset + box->m_start, VP_UPSTREAM_IF_POSSIBLE);
+                    return VisiblePosition(element(), offset + box->m_start, offset > 0 ? VP_UPSTREAM_IF_POSSIBLE : DOWNSTREAM);
             }
             lastBoxAbove = box;
         }
@@ -328,72 +324,21 @@ VisiblePosition RenderText::positionForCoordinates(int x, int y)
     return VisiblePosition(element(), lastBoxAbove ? lastBoxAbove->m_start + lastBoxAbove->m_len : 0, DOWNSTREAM);
 }
 
-static RenderObject* lastRendererOnPrevLine(InlineBox* box)
+IntRect RenderText::caretRect(InlineBox* inlineBox, int caretOffset, int* extraWidthToEndOfLine)
 {
-    if (!box)
-        return 0;
-
-    RootInlineBox* root = box->root();
-    if (!root)
-        return 0;
-
-    if (root->endsWithBreak())
-        return 0;
-
-    RootInlineBox* prevRoot = root->prevRootBox();
-    if (!prevRoot)
-        return 0;
-
-    InlineBox* lastChild = prevRoot->lastChild();
-    if (!lastChild)
-        return 0;
-
-    return lastChild->object();
-}
-
-static inline bool atLineWrap(InlineTextBox* box, int offset)
-{
-    return box->nextTextBox() && !box->nextOnLine() && offset == box->m_start + box->m_len;
-}
-
-IntRect RenderText::caretRect(int offset, EAffinity affinity, int* extraWidthToEndOfLine)
-{
-    if (!firstTextBox() || !textLength())
+    if (!inlineBox)
         return IntRect();
 
-    // Find the text box for the given offset
-    InlineTextBox* box = 0;
-    for (box = firstTextBox(); box; box = box->nextTextBox()) {
-        if (box->containsCaretOffset(offset)) {
-            // Check if downstream affinity would make us move to the next line.
-            if (atLineWrap(box, offset) && affinity == DOWNSTREAM) {
-                // Use the next text box
-                box = box->nextTextBox();
-                offset = box->m_start;
-            } else {
-                InlineTextBox* prevBox = box->prevTextBox();
-                if (offset == box->m_start && affinity == UPSTREAM && prevBox && !box->prevOnLine()) {
-                    if (prevBox) {
-                        box = prevBox;
-                        offset = box->m_start + box->m_len;
-                    } else {
-                        RenderObject *object = lastRendererOnPrevLine(box);
-                        if (object)
-                            return object->caretRect(0, affinity);
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    if (!box)
+    ASSERT(inlineBox->isInlineTextBox());
+    if (!inlineBox->isInlineTextBox())
         return IntRect();
+
+    InlineTextBox* box = static_cast<InlineTextBox*>(inlineBox);
 
     int height = box->root()->bottomOverflow() - box->root()->topOverflow();
     int top = box->root()->topOverflow();
 
-    int left = box->positionForOffset(offset);
+    int left = box->positionForOffset(caretOffset);
 
     int rootLeft = box->root()->xPos();
     // FIXME: should we use the width of the root inline box or the
@@ -409,7 +354,7 @@ IntRect RenderText::caretRect(int offset, EAffinity affinity, int* extraWidthToE
     RenderBlock* cb = containingBlock();
     if (style()->autoWrap()) {
         int availableWidth = cb->lineWidth(top);
-        if (!box->m_reversed)
+        if (box->direction() == LTR)
             left = min(left, absx + rootLeft + availableWidth - 1);
         else
             left = max(left, absx + rootLeft);
@@ -421,24 +366,29 @@ IntRect RenderText::caretRect(int offset, EAffinity affinity, int* extraWidthToE
 ALWAYS_INLINE int RenderText::widthFromCache(const Font& f, int start, int len, int xPos) const
 {
     if (f.isFixedPitch() && !f.isSmallCaps() && m_isAllASCII) {
-        // FIXME: This code should be simplfied; it's only run when m_text is known to be all 0000-007F,
-        // but is uses the general purpose Unicode direction function.
         int monospaceCharacterWidth = f.spaceWidth();
         int tabWidth = allowTabs() ? monospaceCharacterWidth * 8 : 0;
         int w = 0;
-        char previousChar = ' '; // FIXME: Preserves historical behavior, but seems wrong for start > 0.
+        bool isSpace;
+        bool previousCharWasSpace = true; // FIXME: Preserves historical behavior, but seems wrong for start > 0.
         for (int i = start; i < start + len; i++) {
             char c = (*m_text)[i];
-            Direction dir = direction(c);
-            if (dir != NonSpacingMark && dir != BoundaryNeutral) {
-                if (c == '\t' && tabWidth)
-                    w += tabWidth - ((xPos + w) % tabWidth);
-                else
+            if (c <= ' ') {
+                if (c == ' ' || c == '\n') {
                     w += monospaceCharacterWidth;
-                if (isASCIISpace(c) && !isASCIISpace(previousChar))
-                    w += f.wordSpacing();
+                    isSpace = true;
+                } else if (c == '\t') {
+                    w += tabWidth ? tabWidth - ((xPos + w) % tabWidth) : monospaceCharacterWidth;
+                    isSpace = true;
+                } else
+                    isSpace = false;
+            } else {
+                w += monospaceCharacterWidth;
+                isSpace = false;
             }
-            previousChar = c;
+            if (isSpace && !previousCharWasSpace)
+                w += f.wordSpacing();
+            previousCharWasSpace = isSpace;
         }
         return w;
     }
@@ -460,8 +410,17 @@ void RenderText::trimmedPrefWidths(int leadWidth,
     if (m_hasTab || prefWidthsDirty())
         calcPrefWidths(leadWidth);
 
+    beginWS = !stripFrontSpaces && m_hasBeginWS;
+    endWS = m_hasEndWS;
+
     int len = textLength();
+
     if (!len || (stripFrontSpaces && m_text->containsOnlyWhitespace())) {
+        beginMinW = 0;
+        endMinW = 0;
+        beginMaxW = 0;
+        endMaxW = 0;
+        minW = 0;
         maxW = 0;
         hasBreak = false;
         return;
@@ -469,8 +428,6 @@ void RenderText::trimmedPrefWidths(int leadWidth,
 
     minW = m_minWidth;
     maxW = m_maxWidth;
-    beginWS = !stripFrontSpaces && m_hasBeginWS;
-    endWS = m_hasEndWS;
 
     beginMinW = m_beginMinWidth;
     endMinW = m_endMinWidth;
@@ -855,6 +812,12 @@ void RenderText::setTextWithOffset(PassRefPtr<StringImpl> text, unsigned offset,
             curr->setLineBreakPos(curr->lineBreakPos() + delta);
     }
 
+    // If the text node is empty, dirty the line where new text will be inserted.
+    if (!firstTextBox() && parent()) {
+        parent()->dirtyLinesFromChangedChild(this);
+        dirtiedLines = true;
+    }
+
     m_linesDirty = dirtiedLines;
     setText(text, force);
 }
@@ -978,7 +941,7 @@ int RenderText::height() const
     return retval;
 }
 
-short RenderText::lineHeight(bool firstLine, bool) const
+int RenderText::lineHeight(bool firstLine, bool) const
 {
     // Always use the interior line height of the parent (e.g., if our parent is an inline block).
     return parent()->lineHeight(firstLine, true);
@@ -1027,7 +990,7 @@ void RenderText::position(InlineBox* box)
         return;
     }
 
-    m_containsReversedText |= s->m_reversed;
+    m_containsReversedText |= s->direction() == RTL;
 }
 
 unsigned int RenderText::width(unsigned int from, unsigned int len, int xPos, bool firstLine) const
@@ -1128,7 +1091,7 @@ IntRect RenderText::selectionRect(bool clipToVisibleContent)
     return rect;
 }
 
-short RenderText::verticalPositionHint(bool firstLine) const
+int RenderText::verticalPositionHint(bool firstLine) const
 {
     if (parent()->isReplaced())
         return 0; // Treat inline blocks just like blocks.  There can't be any vertical position hint.
@@ -1191,24 +1154,6 @@ int RenderText::nextOffset(int current) const
         result = current + 1;
 
     return result;
-}
-
-InlineBox* RenderText::inlineBox(int offset, EAffinity affinity)
-{
-    for (InlineTextBox* box = firstTextBox(); box; box = box->nextTextBox()) {
-        if (box->containsCaretOffset(offset)) {
-            if (atLineWrap(box, offset) && affinity == DOWNSTREAM)
-                return box->nextTextBox();
-            return box;
-        }
-        if (offset < box->m_start)
-            // The offset we're looking for is before this node
-            // this means the offset must be in content that is
-            // not rendered.
-            return box->prevTextBox() ? box->prevTextBox() : firstTextBox();
-    }
-
-    return 0;
 }
 
 #ifndef NDEBUG

@@ -25,7 +25,9 @@
  * include this file instead of the actual npapi.h or npruntime.h
  */
 
+#include "npapi.h"
 #include "npruntime.h"
+#include "npfunctions.h"
 
 #ifdef XP_UNIX
     #include <X11/Xresource.h>

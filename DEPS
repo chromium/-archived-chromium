@@ -12,7 +12,7 @@ deps = {
     "http://googletest.googlecode.com/svn/trunk@63",
 
   "src/third_party/WebKit":
-    "/trunk/third_party/WebKit@19",
+    "/trunk/deps/third_party/WebKit@2719",
 
   "src/third_party/cygwin":
     "/trunk/deps/third_party/cygwin@1788",
@@ -30,7 +30,7 @@ deps = {
     "http://v8.googlecode.com/svn/trunk@373",
 
   "src/webkit/data/layout_tests/LayoutTests":
-    "http://svn.webkit.org/repository/webkit/branches/Safari-3-1-branch/LayoutTests@31256",
+    "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@36102",
 }
 
 include_rules = [

@@ -23,7 +23,7 @@ xcopy /y /d "%JAVASCRIPTCORE_DIR%\bindings\npruntime_impl.h" %DIR%
 xcopy /y /d "%JAVASCRIPTCORE_DIR%\bindings\runtime_object.h" %DIR%
 xcopy /y /d "%JAVASCRIPTCORE_DIR%\bindings\runtime_root.h" %DIR%
 xcopy /y /d "%JAVASCRIPTCORE_DIR%\kjs\JSLock.h" %DIR%
-xcopy /y /d "..\..\pending\kjs\collector.h" %DIR%
+xcopy /y /d "%JAVASCRIPTCORE_DIR%\kjs\collector.h" %DIR%
 xcopy /y /d "%JAVASCRIPTCORE_DIR%\kjs\interpreter.h" %DIR%
 xcopy /y /d "%JAVASCRIPTCORE_DIR%\wtf\HashCountedSet.h" %DIR%
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Don Gibson <dgibson77@gmail.com>
+ * Copyright (C) 2006, 2007, 2008 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,12 +27,14 @@
 #include "EventHandler.h"
 
 #include "ClipboardWin.h"
+#include "Cursor.h"
+#include "FloatPoint.h"
 #include "FocusController.h"
-#include "Frame.h"
 #include "FrameView.h"
-#include "KeyboardEvent.h"
+#include "Frame.h"
+#include "HitTestRequest.h"
+#include "HitTestResult.h"
 #include "MouseEventWithHitTestResults.h"
-#include "NotImplemented.h"
 #include "Page.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformScrollBar.h"
@@ -40,14 +42,13 @@
 #include "RenderWidget.h"
 #include "SelectionController.h"
 #include "WCDataObject.h"
+#include "NotImplemented.h"
 
 namespace WebCore {
 
-// On Windows, clicking and moving the mouse on selected text should always
-// initiate a drag.
-const double EventHandler::TextDragDelay = 0.0;
-
 unsigned EventHandler::s_accessKeyModifiers = PlatformKeyboardEvent::AltKey;
+
+const double EventHandler::TextDragDelay = 0.0;
 
 bool EventHandler::passMousePressEventToSubframe(MouseEventWithHitTestResults& mev, Frame* subframe)
 {
@@ -56,12 +57,12 @@ bool EventHandler::passMousePressEventToSubframe(MouseEventWithHitTestResults& m
     // really strange (having the whole frame be greyed out), so we deselect the
     // selection.
     IntPoint p = m_frame->view()->windowToContents(mev.event().pos());
-    if (m_frame->selectionController()->contains(p)) {
+    if (m_frame->selection()->contains(p)) {
         VisiblePosition visiblePos(
             mev.targetNode()->renderer()->positionForPoint(mev.localPoint()));
         Selection newSelection(visiblePos);
         if (m_frame->shouldChangeSelection(newSelection))
-            m_frame->selectionController()->setSelection(newSelection);
+            m_frame->selection()->setSelection(newSelection);
     }
 
     subframe->eventHandler()->handleMousePressEvent(mev.event());
@@ -99,8 +100,7 @@ bool EventHandler::passWheelEventToWidget(PlatformWheelEvent& wheelEvent, Widget
     return static_cast<FrameView*>(widget)->frame()->eventHandler()->handleWheelEvent(wheelEvent);
 }
 
-bool EventHandler::passMousePressEventToScrollbar(MouseEventWithHitTestResults& mev,
-                                                  PlatformScrollbar* scrollbar)
+bool EventHandler::passMousePressEventToScrollbar(MouseEventWithHitTestResults& mev, PlatformScrollbar* scrollbar)
 {
     if (!scrollbar || !scrollbar->isEnabled())
         return false;
@@ -116,11 +116,6 @@ bool EventHandler::passWidgetMouseDownEventToWidget(const MouseEventWithHitTestR
     return passMouseDownEventToWidget(static_cast<RenderWidget*>(event.targetNode()->renderer())->widget());
 }
 
-bool EventHandler::passWidgetMouseDownEventToWidget(RenderWidget* renderWidget)
-{
-    return passMouseDownEventToWidget(renderWidget->widget());
-}
-
 bool EventHandler::passMouseDownEventToWidget(Widget* widget)
 {
     notImplemented();
@@ -132,18 +127,18 @@ bool EventHandler::tabsToAllControls(KeyboardEvent*) const
     return true;
 }
 
-bool EventHandler::eventActivatedView(const PlatformMouseEvent&) const
+bool EventHandler::eventActivatedView(const PlatformMouseEvent& event) const
 {
     // TODO(darin): Apple's EventHandlerWin.cpp does the following:
     // return event.activatedWebView();
     return false;
 }
 
-Clipboard* EventHandler::createDraggingClipboard() const
+PassRefPtr<Clipboard> EventHandler::createDraggingClipboard() const
 {
     COMPtr<WCDataObject> dataObject;
     WCDataObject::createInstance(&dataObject);
-    return new ClipboardWin(true, dataObject.get(), ClipboardWritable);
+    return ClipboardWin::create(true, dataObject.get(), ClipboardWritable);
 }
 
 void EventHandler::focusDocumentView()
@@ -152,6 +147,11 @@ void EventHandler::focusDocumentView()
     if (!page)
         return;
     page->focusController()->setFocusedFrame(m_frame);
+}
+
+bool EventHandler::passWidgetMouseDownEventToWidget(RenderWidget* renderWidget)
+{
+    return passMouseDownEventToWidget(renderWidget->widget());
 }
 
 }

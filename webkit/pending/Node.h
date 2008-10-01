@@ -24,7 +24,6 @@
 #ifndef Node_h
 #define Node_h
 
-#include "DeprecatedString.h"
 #include "DocPtr.h"
 #include "PlatformString.h"
 #include "TreeShared.h"
@@ -43,7 +42,9 @@ class Element;
 class Event;
 class EventListener;
 class IntRect;
+class KURL;
 class KeyboardEvent;
+class NSResolver;
 class NamedAttrMap;
 class NodeList;
 class PlatformKeyboardEvent;
@@ -54,12 +55,22 @@ class RegisteredEventListener;
 class RenderArena;
 class RenderObject;
 class RenderStyle;
-class TextStream;
+class StringBuilder;
+class ExceptionContext;
+
 struct NodeListsNodeData;
 
 typedef int ExceptionCode;
 
-enum StyleChangeType { NoStyleChange, InlineStyleChange, FullStyleChange };
+enum StyleChangeType { NoStyleChange, InlineStyleChange, FullStyleChange, AnimationStyleChange };
+
+const unsigned short DOCUMENT_POSITION_EQUIVALENT = 0x00;
+const unsigned short DOCUMENT_POSITION_DISCONNECTED = 0x01;
+const unsigned short DOCUMENT_POSITION_PRECEDING = 0x02;
+const unsigned short DOCUMENT_POSITION_FOLLOWING = 0x04;
+const unsigned short DOCUMENT_POSITION_CONTAINS = 0x08;
+const unsigned short DOCUMENT_POSITION_CONTAINED_BY = 0x10;
+const unsigned short DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = 0x20;
 
 // this class implements nodes, which can have a parent but no children:
 class Node : public TreeShared<Node> {
@@ -80,13 +91,16 @@ public:
         NOTATION_NODE = 12,
         XPATH_NAMESPACE_NODE = 13
     };
-
+    
     static bool isSupported(const String& feature, const String& version);
 
     static void startIgnoringLeaks();
     static void stopIgnoringLeaks();
 
-    Node(Document*);
+    enum StyleChange { NoChange, NoInherit, Inherit, Detach, Force };    
+    static StyleChange diff(RenderStyle*, RenderStyle*);
+
+    Node(Document*, bool isElement = false);
     virtual ~Node();
 
     // DOM methods & attributes for Node
@@ -106,18 +120,20 @@ public:
     virtual bool hasAttributes() const;
     virtual NamedAttrMap* attributes() const;
 
-    virtual String baseURI() const;
+    virtual KURL baseURI() const;
+    
+    void getSubresourceURLs(Vector<KURL>&) const;
 
     // These should all actually return a node, but this is only important for language bindings,
     // which will already know and hold a ref on the right node to return. Returning bool allows
     // these methods to be more efficient since they don't need to return a ref
-    virtual bool insertBefore(PassRefPtr<Node> newChild, Node* refChild, ExceptionCode&);
-    virtual bool replaceChild(PassRefPtr<Node> newChild, Node* oldChild, ExceptionCode&);
+    virtual bool insertBefore(PassRefPtr<Node> newChild, Node* refChild, ExceptionCode&, bool shouldLazyAttach = false);
+    virtual bool replaceChild(PassRefPtr<Node> newChild, Node* oldChild, ExceptionCode&, bool shouldLazyAttach = false);
     virtual bool removeChild(Node* child, ExceptionCode&);
-    virtual bool appendChild(PassRefPtr<Node> newChild, ExceptionCode&);
+    virtual bool appendChild(PassRefPtr<Node> newChild, ExceptionCode&, bool shouldLazyAttach = false);
 
     virtual void remove(ExceptionCode&);
-    virtual bool hasChildNodes() const;
+    bool hasChildNodes() const { return firstChild(); }
     virtual PassRefPtr<Node> cloneNode(bool deep) = 0;
     virtual const AtomicString& localName() const;
     virtual const AtomicString& namespaceURI() const;
@@ -140,7 +156,7 @@ public:
     
     // Other methods (not part of DOM)
 
-    virtual bool isElementNode() const { return false; }
+    bool isElementNode() const { return m_isElement; }
     virtual bool isHTMLElement() const { return false; }
 
 #if ENABLE(SVG)
@@ -159,6 +175,8 @@ public:
     virtual bool isShadowNode() const { return false; }
     virtual Node* shadowParentNode() { return 0; }
     Node* shadowAncestorNode();
+    Node* shadowTreeRootNode();
+    bool isInShadowTree();
 
     // The node's parent for the purpose of event capture and bubbling.
     virtual Node* eventParentNode() { return parentNode(); }
@@ -196,8 +214,10 @@ public:
     Node* previousLeafNode() const;
 
     bool isEditableBlock() const;
+    
+    // enclosingBlockFlowElement() is deprecated.  Use enclosingBlock instead.
     Element* enclosingBlockFlowElement() const;
-    Element* enclosingBlockFlowOrTableElement() const;
+    
     Element* enclosingInlineElement() const;
     Element* rootEditableElement() const;
     
@@ -244,12 +264,19 @@ public:
     void setInDocument(bool b = true) { m_inDocument = b; }
     void setInActiveChain(bool b = true) { m_inActiveChain = b; }
     void setChanged(StyleChangeType changeType = FullStyleChange);
+    void setIsLink(bool b = true) { m_isLink = b; }
+
+    bool inSubtreeMark() const { return m_inSubtreeMark; }
+    void setInSubtreeMark(bool b = true) { m_inSubtreeMark = b; }
+
+    void lazyAttach();
+    virtual bool canLazyAttach();
 
     virtual void setFocus(bool b = true) { m_focused = b; }
     virtual void setActive(bool b = true, bool pause=false) { m_active = b; }
     virtual void setHovered(bool b = true) { m_hovered = b; }
 
-    virtual short tabIndex() const { return m_tabIndex; } 
+    virtual short tabIndex() const { return m_tabIndex; }
 
     /**
      * Whether this node can receive the keyboard focus.
@@ -264,15 +291,14 @@ public:
     virtual bool isChecked() const { return false; }
     virtual bool isIndeterminate() const { return false; }
     virtual bool isReadOnlyControl() const { return false; }
+    virtual bool isTextControl() const { return false; }
 
     virtual bool isContentEditable() const;
     virtual bool isContentRichlyEditable() const;
     virtual bool shouldUseInputMethod() const;
     virtual IntRect getRect() const;
 
-    enum StyleChange { NoChange, NoInherit, Inherit, Detach, Force };
     virtual void recalcStyle(StyleChange = NoChange) { }
-    StyleChange diff(RenderStyle*, RenderStyle*) const;
 
     unsigned nodeIndex() const;
 
@@ -298,7 +324,7 @@ public:
       return m_inDocument; 
     }
     
-    virtual bool isReadOnlyNode();
+    bool isReadOnlyNode() const { return nodeType() == ENTITY_REFERENCE_NODE; }
     virtual bool childTypeAllowed(NodeType) { return false; }
     virtual unsigned childNodeCount() const;
     virtual Node* childNode(unsigned index) const;
@@ -316,7 +342,7 @@ public:
      */
     Node* traverseNextNode(const Node* stayWithin = 0) const;
     
-    /* Like traverseNextNode, but skips children and starts with the next sibling. */
+    // Like traverseNextNode, but skips children and starts with the next sibling.
     Node* traverseNextSibling(const Node* stayWithin = 0) const;
 
     /**
@@ -326,15 +352,18 @@ public:
      */
     Node* traversePreviousNode(const Node * stayWithin = 0) const;
 
-    /* Like traversePreviousNode, but visits nodes before their children. */
+    // Like traverseNextNode, but visits parents after their children.
+    Node* traverseNextNodePostOrder() const;
+
+    // Like traversePreviousNode, but visits parents before their children.
     Node* traversePreviousNodePostOrder(const Node *stayWithin = 0) const;
+    Node* traversePreviousSiblingPostOrder(const Node *stayWithin = 0) const;
 
     /**
      * Finds previous or next editable leaf node.
      */
     Node* previousEditable() const;
     Node* nextEditable() const;
-    Node* nextEditable(int offset) const;
 
     RenderObject* renderer() const { return m_renderer; }
     RenderObject* nextRenderer();
@@ -365,10 +394,6 @@ public:
 
     // Whether or not a selection can be started in this object
     virtual bool canStartSelection() const;
-
-#ifndef NDEBUG
-    virtual void dump(TextStream*, DeprecatedString indent = "") const;
-#endif
 
     // -----------------------------------------------------------------------------
     // Integration with rendering tree
@@ -434,9 +459,7 @@ public:
      * Notifies the node that it's list of children have changed (either by adding or removing child nodes), or a child
      * node that is of the type CDATA_SECTION_NODE, TEXT_NODE or COMMENT_NODE has changed its value.
      */
-    virtual void childrenChanged(bool changedByParser = false) {};
-
-    virtual String toString() const = 0;
+    virtual void childrenChanged(bool changedByParser = false, Node* beforeChange = 0, Node* afterChange = 0, int childCountDelta = 0) {};
 
 #ifndef NDEBUG
     virtual void formatForDebugger(char* buffer, unsigned length) const;
@@ -458,55 +481,58 @@ public:
     PassRefPtr<NodeList> getElementsByName(const String& elementName);
     PassRefPtr<NodeList> getElementsByClassName(const String& classNames);
 
+    PassRefPtr<Element> querySelector(const String& selectors, NSResolver*, ExceptionCode&, ExceptionContext*);
+    PassRefPtr<NodeList> querySelectorAll(const String& selectors, NSResolver*, ExceptionCode&, ExceptionContext*);
+    // For non-JS bindings. Silently ignores the JavaScript exception if any.
+    // FIXME: We should support the NSResolver interface for non-JS bindings.
     PassRefPtr<Element> querySelector(const String& selectors, ExceptionCode&);
     PassRefPtr<NodeList> querySelectorAll(const String& selectors, ExceptionCode&);
 
-private: // members
-    DocPtr<Document> m_document;
-    Node* m_previous;
-    Node* m_next;
-    RenderObject* m_renderer;
-    short m_tabIndex; 
+    unsigned short compareDocumentPosition(Node*);
 
 protected:
     virtual void willMoveToNewOwnerDocument() { }
     virtual void didMoveToNewOwnerDocument() { }
     
-    void setTabIndexExplicitly(short i) 
-    {  
-        m_tabIndex = i;  
-        m_tabIndexSetExplicitly = true; 
-    } 
+    virtual void getSubresourceAttributeStrings(Vector<String>&) const { }
+    void setTabIndexExplicitly(short i)
+    { 
+        m_tabIndex = i; 
+        m_tabIndexSetExplicitly = true;
+    }
+
+private:
+    DocPtr<Document> m_document;
+    Node* m_previous;
+    Node* m_next;
+    RenderObject* m_renderer;
 
     OwnPtr<NodeListsNodeData> m_nodeLists;
 
+    short m_tabIndex;
+
     // make sure we don't use more than 16 bits here -- adding more would increase the size of all Nodes
 
+    unsigned m_styleChange : 2;
     bool m_hasId : 1;
     bool m_hasClass : 1;
     bool m_attached : 1;
-    unsigned m_styleChange : 2;
     bool m_hasChangedChild : 1;
     bool m_inDocument : 1;
-
     bool m_isLink : 1;
-    bool m_attrWasSpecifiedOrElementHasRareData : 1; // used in Attr for one thing and Element for another
     bool m_focused : 1;
     bool m_active : 1;
     bool m_hovered : 1;
     bool m_inActiveChain : 1;
-
     bool m_inDetach : 1;
-    bool m_dispatchingSimulatedEvent : 1;
-
-public:
     bool m_inSubtreeMark : 1;
-
-private:
-    bool m_tabIndexSetExplicitly : 1; 
-    // no bits left 
+    bool m_tabIndexSetExplicitly : 1;
+    const bool m_isElement : 1;
+    // no bits left
 
     Element* ancestorElement() const;
+
+    void appendTextContent(bool convertBRsToNewlines, StringBuilder&) const;
 
     virtual Node* virtualFirstChild() const;
     virtual Node* virtualLastChild() const;

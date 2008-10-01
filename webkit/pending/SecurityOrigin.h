@@ -31,39 +31,80 @@
 
 #include <wtf/RefCounted.h>
 #include <wtf/PassRefPtr.h>
+#include <wtf/Threading.h>
 
 #include "PlatformString.h"
-#include "Threading.h"
 
 namespace WebCore {
 
-    class Frame;
     class KURL;
     
     class SecurityOrigin : public ThreadSafeShared<SecurityOrigin> {
     public:
-        static PassRefPtr<SecurityOrigin> createForFrame(Frame*);
-        static PassRefPtr<SecurityOrigin> createFromIdentifier(const String&);
-        static PassRefPtr<SecurityOrigin> create(const String& protocol, const String& host, unsigned short port, SecurityOrigin* ownerFrameOrigin);
+        static PassRefPtr<SecurityOrigin> createFromDatabaseIdentifier(const String&);
+        static PassRefPtr<SecurityOrigin> createFromString(const String&);
+        static PassRefPtr<SecurityOrigin> create(const KURL&);
+        static PassRefPtr<SecurityOrigin> createEmpty();
 
+        // Create a deep copy of this SecurityOrigin.  This method is useful
+        // when marshalling a SecurityOrigin to another thread.
         PassRefPtr<SecurityOrigin> copy();
 
+        // Set the domain property of this security origin to newDomain.  This
+        // function does not check whether newDomain is a suffix of the current
+        // domain.  The caller is responsible for validating newDomain.
         void setDomainFromDOM(const String& newDomain);
-        String host() const { return m_host; }
+
         String protocol() const { return m_protocol; }
+        String host() const { return m_host; }
+        String domain() const { return m_domain; }
         unsigned short port() const { return m_port; }
-        
-        enum Reason  {
-            GenericMismatch,
-            DomainSetInDOMMismatch
-        };
-        bool canAccess(const SecurityOrigin*, Reason&) const;
+
+        // Returns true if this SecurityOrigin can script objects in the given
+        // SecurityOrigin.  For example, call this function before allowing
+        // script from one security origin to read or write objects from
+        // another SecurityOrigin.
+        bool canAccess(const SecurityOrigin*) const;
+
+        // Returns true if this SecurityOrigin can read content retrieved from
+        // the given URL.  For example, call this function before issuing
+        // XMLHttpRequests.
+        bool canRequest(const KURL&) const;
+
+        // Returns true if this SecurityOrigin can load local resources, such
+        // as images, iframes, and style sheets, and can link to local URLs.
+        // For example, call this function before creating an iframe to a
+        // file:// URL.
+        //
+        // Note: A SecurityOrigin might be allowed to load local resources
+        //       without being able to issue an XMLHttpRequest for a local URL.
+        //       To determine whether the SecurityOrigin can issue an
+        //       XMLHttpRequest for a URL, call canRequest(url).
+        bool canLoadLocalResources() const { return m_canLoadLocalResources; }
+
+        // Explicitly grant the ability to load local resources to this
+        // SecurityOrigin.
+        //
+        // Note: This method exists only to support backwards compatibility
+        //       with older versions of WebKit.
+        void grantLoadLocalResources();
+
         bool isSecureTransitionTo(const KURL&) const;
 
+        // The local SecurityOrigin is the most privileged SecurityOrigin.
+        // The local SecurityOrigin can script any document, navigate to local
+        // resources, and can set arbitrary headers on XMLHttpRequests.
+        bool isLocal() const;
+
+        // The empty SecurityOrigin is the least privileged SecurityOrigin.
         bool isEmpty() const;
+
+        // Convert this SecurityOrigin into a string.  The string
+        // representation of a SecurityOrigin is similar to a URL, except it
+        // lacks a path component.  The string representation does not encode
+        // the value of the SecurityOrigin's domain property.  The empty
+        // SecurityOrigin is represented with the null string.
         String toString() const;
-        
-        String stringIdentifier() const;
 
         // Non-empty security tokens can be used for fast access checks.  If the
         // return value is a non-empty string, it can be used to compare with
@@ -84,18 +125,33 @@ namespace WebCore {
         //
         String securityToken() const;
 
-        // do not use this for access checks, it's there only for using this as a hashtable key
-        bool equal(SecurityOrigin* other) const { return m_protocol == other->m_protocol && m_host == other->m_host && m_port == other->m_port; }
-        
+        // Serialize the security origin for storage in the database. This format is
+        // deprecated and should be used only for compatibility with old databases;
+        // use toString() and createFromString() instead.
+        String databaseIdentifier() const;
+
+        // This method checks for equality between SecurityOrigins, not whether
+        // one origin can access another.  It is used for hash table keys.
+        // For access checks, use canAccess().
+        // FIXME: If this method is really only useful for hash table keys, it
+        // should be refactored into SecurityOriginHash.
+        bool equal(const SecurityOrigin*) const;
+
+        // This method checks for equality, ignoring the value of document.domain
+        // (and whether it was set) but considering the host. It is used for postMessage.
+        bool isSameSchemeHostPort(const SecurityOrigin*) const;
+
     private:
-        SecurityOrigin(const String& protocol, const String& host, unsigned short port);
+        explicit SecurityOrigin(const KURL&);
+        explicit SecurityOrigin(const SecurityOrigin*);
 
         String m_protocol;
         String m_host;
+        String m_domain;
         unsigned short m_port;
-        bool m_portSet;
         bool m_noAccess;
         bool m_domainWasSetInDOM;
+        bool m_canLoadLocalResources;
     };
 
 } // namespace WebCore

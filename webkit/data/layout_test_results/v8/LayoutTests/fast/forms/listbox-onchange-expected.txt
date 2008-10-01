@@ -36,3 +36,6 @@ Incorrect selection: "2,3" instead of "3"
 16) Make sure onChange doesn't fire when clicking on the option that remains selected
 onChange fired
 Incorrect selection: "2" instead of "3"
+17) Make sure onChange fires when typing the name of an option
+onChange fired
+18) Make sure onChange doesn't fire when leaving the select

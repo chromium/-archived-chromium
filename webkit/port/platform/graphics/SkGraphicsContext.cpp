@@ -27,6 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "config.h"
 #include "SkGraphicsContext.h"
 
 #include <vssym32.h>
@@ -35,7 +36,7 @@
 #include "base/gfx/native_theme.h"
 #include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/skia_utils.h"
-#include "GraphicsContextPrivate.h"
+#include "GraphicsContextPlatformPrivate.h"
 #include "NativeImageSkia.h"
 #include "SkBitmap.h"
 

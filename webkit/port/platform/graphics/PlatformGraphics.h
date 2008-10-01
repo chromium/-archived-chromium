@@ -5,8 +5,8 @@
 #ifndef PlatformGraphics_d
 #define PlatformGraphics_d
 
-typedef class SkShader PlatformGradient;
-typedef class SkShader PlatformPattern;
+typedef class SkShader* PlatformGradient;
+typedef class SkShader* PlatformPattern;
 
 #endif
 

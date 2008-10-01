@@ -509,4 +509,3 @@ void JPEGImageDecoder::jpegComplete()
 }
 
 }
-

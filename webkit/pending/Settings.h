@@ -28,8 +28,8 @@
 #define Settings_h
 
 #include "AtomicString.h"
-#include "KURL.h"
 #include "FontDescription.h"
+#include "KURL.h"
 
 namespace WebCore {
 
@@ -43,8 +43,7 @@ namespace WebCore {
         EditableLinkNeverLive
     };
 
-    class Settings 
-    {
+    class Settings {
     public:
         Settings(Page*);
 
@@ -111,8 +110,10 @@ namespace WebCore {
         void setEditableLinkBehavior(EditableLinkBehavior);
         EditableLinkBehavior editableLinkBehavior() const { return m_editableLinkBehavior; }
         
+#if ENABLE(DASHBOARD_SUPPORT)
         void setUsesDashboardBackwardCompatibilityMode(bool);
         bool usesDashboardBackwardCompatibilityMode() const { return m_usesDashboardBackwardCompatibilityMode; }
+#endif
         
         void setNeedsAdobeFrameReloadingQuirk(bool);
         bool needsAcrobatFrameReloadingQuirk() const { return m_needsAdobeFrameReloadingQuirk; }
@@ -152,7 +153,31 @@ namespace WebCore {
 
         void setNeedsSiteSpecificQuirks(bool);
         bool needsSiteSpecificQuirks() const { return m_needsSiteSpecificQuirks; }
+        
+        void setWebArchiveDebugModeEnabled(bool);
+        bool webArchiveDebugModeEnabled() const { return m_webArchiveDebugModeEnabled; }
 
+        void setLocalStorageDatabasePath(const String&);
+        const String& localStorageDatabasePath() const { return m_localStorageDatabasePath; }
+        
+        void disableRangeMutationForOldAppleMail(bool);
+        bool rangeMutationDisabledForOldAppleMail() const { return m_rangeMutationDisabledForOldAppleMail; }
+
+        void setApplicationChromeMode(bool);
+        bool inApplicationChromeMode() const { return m_inApplicationChromeMode; }
+
+        void setOfflineWebApplicationCacheEnabled(bool);
+        bool offlineWebApplicationCacheEnabled() const { return m_offlineWebApplicationCacheEnabled; }
+
+        void setShouldPaintCustomScrollbars(bool);
+        bool shouldPaintCustomScrollbars() const { return m_shouldPaintCustomScrollbars; }
+        
+        void setZoomsTextOnly(bool);
+        bool zoomsTextOnly() const { return m_zoomsTextOnly; }
+        
+        void setEnforceCSSMIMETypeInStrictMode(bool);
+        bool enforceCSSMIMETypeInStrictMode() { return m_enforceCSSMIMETypeInStrictMode; }
+        
         void setAllowScriptsToCloseWindows(bool);
         bool allowScriptsToCloseWindows() const { return m_allow_scripts_to_close_windows; }
 
@@ -161,6 +186,7 @@ namespace WebCore {
         
         String m_defaultTextEncodingName;
         String m_ftpDirectoryTemplatePath;
+        String m_localStorageDatabasePath;
         KURL m_userStyleSheetLocation;
         AtomicString m_standardFontFamily;
         AtomicString m_fixedFontFamily;
@@ -181,7 +207,9 @@ namespace WebCore {
         bool m_javaScriptCanOpenWindowsAutomatically : 1;
         bool m_shouldPrintBackgrounds : 1;
         bool m_textAreasAreResizable : 1;
+#if ENABLE(DASHBOARD_SUPPORT)
         bool m_usesDashboardBackwardCompatibilityMode : 1;
+#endif
         bool m_needsAdobeFrameReloadingQuirk : 1;
         bool m_needsKeyboardEventDisambiguationQuirks : 1;
         bool m_isDOMPasteAllowed : 1;
@@ -193,7 +221,14 @@ namespace WebCore {
         bool m_authorAndUserStylesEnabled : 1;
         bool m_needsSiteSpecificQuirks : 1;
         unsigned m_fontRenderingMode : 1;
-        bool m_usesEncodingDetector : 1;
+        bool m_webArchiveDebugModeEnabled : 1;
+        bool m_inApplicationChromeMode : 1;
+        bool m_offlineWebApplicationCacheEnabled : 1;
+        bool m_rangeMutationDisabledForOldAppleMail : 1;
+        bool m_shouldPaintCustomScrollbars : 1;
+        bool m_zoomsTextOnly : 1;
+        bool m_enforceCSSMIMETypeInStrictMode : 1;
+		bool m_usesEncodingDetector : 1;
         bool m_allow_scripts_to_close_windows : 1;
     };
 

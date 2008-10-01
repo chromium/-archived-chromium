@@ -31,19 +31,19 @@
 
 namespace WebCore {
 
-CSSPrimitiveValue* RGBColor::red() {
+PassRefPtr<CSSPrimitiveValue> RGBColor::red() {
   unsigned int value = (m_rgbcolor >> 16) & 0xFF;
-  return new CSSPrimitiveValue(value, CSSPrimitiveValue::CSS_NUMBER);
+  return CSSPrimitiveValue::create(value, CSSPrimitiveValue::CSS_NUMBER);
 }
 
-CSSPrimitiveValue* RGBColor::green() {
+PassRefPtr<CSSPrimitiveValue> RGBColor::green() {
   unsigned int value = (m_rgbcolor >> 8) & 0xFF;
-  return new CSSPrimitiveValue(value, CSSPrimitiveValue::CSS_NUMBER);
+  return CSSPrimitiveValue::create(value, CSSPrimitiveValue::CSS_NUMBER);
 }
 
-CSSPrimitiveValue* RGBColor::blue() {
+PassRefPtr<CSSPrimitiveValue> RGBColor::blue() {
   unsigned int value = m_rgbcolor & 0xFF;
-  return new CSSPrimitiveValue(value, CSSPrimitiveValue::CSS_NUMBER);
+  return CSSPrimitiveValue::create(value, CSSPrimitiveValue::CSS_NUMBER);
 }
 
 }  // namespace WebCore

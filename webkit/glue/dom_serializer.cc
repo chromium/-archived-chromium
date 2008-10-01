@@ -62,6 +62,7 @@
 #include "HTMLMetaElement.h"
 #include "HTMLNames.h"
 #include "KURL.h"
+#include "markup.h"
 #include "PlatformString.h"
 #include "TextEncoding.h"
 #pragma warning(pop)
@@ -202,9 +203,7 @@ WebCore::String DomSerializer::PreActionBeforeSerializeOpenTag(
       // First we add doc type declaration if original doc has it.
       if (!param->has_doctype) {
         param->has_doctype = true;
-        WebCore::DocumentType* doc_type = param->doc->doctype();
-        if (doc_type)
-          result += doc_type->toString();
+        result += createMarkup(param->doc->doctype());
       }
 
       // Add MOTW declaration before html tag.
@@ -236,9 +235,7 @@ WebCore::String DomSerializer::PreActionBeforeSerializeOpenTag(
     // Add doc type declaration if original doc has it.
     if (!param->has_doctype) {
       param->has_doctype = true;
-      WebCore::DocumentType* doc_type = param->doc->doctype();
-      if (doc_type)
-        result += doc_type->toString();
+      result += createMarkup(param->doc->doctype());
     }
   }
 
@@ -323,12 +320,8 @@ void DomSerializer::SaveHtmlContentToBuffer(const WebCore::String& result,
   if (!result.length())
     return;
   // Convert the unicode content to target encoding
-  const UChar* ucode = result.characters();
-  // If the text encoding can not convert some unicode character to
-  // corresponding code, we allow using entity notation to replace
-  // the unicode character.
-  WebCore::CString encoding_result = param->text_encoding.encode(ucode,
-      result.length(), true);
+  WebCore::CString encoding_result = param->text_encoding.encode(
+      result.characters(), result.length(), WebCore::EntitiesForUnencodables);
 
   // if the data buffer will be full, then send it out first.
   if (encoding_result.length() + data_buffer_.size() >
@@ -461,22 +454,7 @@ void DomSerializer::BuildContentForNode(const WebCore::Node* node,
       break;
     }
     case WebCore::Node::TEXT_NODE: {
-      WebCore::String result;
-      WebCore::String s = node->toString();
-      if (param->is_html_document) {
-        // For html document, do not convert entity notation in code
-        // block of style tag and script tag.
-        if (param->is_in_script_or_style_tag)
-          result += s;
-        else
-          ConvertCorrespondingSymbolToEntity(&result, s,
-              param->is_html_document);
-      } else {
-        ConvertCorrespondingSymbolToEntity(&result, s,
-            param->is_html_document);
-      }
-
-      SaveHtmlContentToBuffer(result, param);
+      SaveHtmlContentToBuffer(createMarkup(node), param);
       break;
     }
     case WebCore::Node::ATTRIBUTE_NODE:
@@ -491,7 +469,7 @@ void DomSerializer::BuildContentForNode(const WebCore::Node* node,
       param->has_doctype = true;
     default: {
       // For other type node, call default action.
-      SaveHtmlContentToBuffer(node->toString(), param);
+      SaveHtmlContentToBuffer(createMarkup(node), param);
       break;
     }
   }

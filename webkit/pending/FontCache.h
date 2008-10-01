@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
+ * Copyright (C) 2006, 2008 Apple Computer, Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,6 +29,8 @@
 #ifndef FontCache_h
 #define FontCache_h
 
+#include <limits.h>
+#include <wtf/Vector.h>
 #include <unicode/uscript.h>
 #include <wtf/unicode/Unicode.h>
 
@@ -51,8 +53,10 @@ class SimpleFontData;
 class FontCache {
 public:
     static const FontData* getFontData(const Font&, int& familyIndex, FontSelector*);
+    static void releaseFontData(const SimpleFontData*);
     
     // This method is implemented by the platform.
+    // FIXME: Font data returned by this method never go inactive because callers don't track and release them.
     static const SimpleFontData* getFontDataForCharacters(const Font&, const UChar* characters, int length);
     
     // Also implemented by the platform.
@@ -62,11 +66,13 @@ public:
     static IMLangFontLink2* getFontLinkInterface();
 #endif
 
-    static bool fontExists(const FontDescription&, const AtomicString& family);
+    static void getTraitsInFamily(const AtomicString&, Vector<unsigned>&);
 
     static FontPlatformData* getCachedFontPlatformData(const FontDescription&, const AtomicString& family, bool checkingAlternateName = false);
     static SimpleFontData* getCachedFontData(const FontPlatformData*);
     static FontPlatformData* getLastResortFallbackFont(const FontDescription&);
+
+    bool fontExists(const FontDescription&, const AtomicString& family);
 
     // TODO(jungshik): Is this the best place to put this function? It may
     // or may not be. Font.h is another place we can cosider.
@@ -75,7 +81,16 @@ public:
     // script and genericFamily in FontDescription. A caller should check
     // the emptyness before using it.
     static AtomicString getGenericFontForScript(UScriptCode script, const FontDescription&);
-    
+    static void addClient(FontSelector*);
+    static void removeClient(FontSelector*);
+
+    static unsigned generation();
+    static void invalidate();
+
+    static size_t fontDataCount();
+    static size_t inactiveFontDataCount();
+    static void purgeInactiveFontData(int count = INT_MAX);
+
 private:
     // These methods are implemented by each platform.
     static FontPlatformData* getSimilarFontPlatformData(const Font&);

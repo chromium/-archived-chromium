@@ -13,6 +13,7 @@
 #include "NodeFilter.h"
 #include "PlatformString.h"  // for WebCore::String
 #include <wtf/HashMap.h>   // for HashMap
+#include <wtf/PassRefPtr.h> // so generated bindings don't have to
 #include <wtf/Assertions.h>
 
 #include <iterator>
@@ -331,6 +332,11 @@ class V8Proxy {
     return static_cast<C*>(ExtractCPointer<Node>(wrapper));
   }
 
+  template<typename T>
+  static v8::Handle<v8::Value> ToV8Object(V8ClassIndex::V8WrapperType type, PassRefPtr<T> imp)
+  {
+    return ToV8Object(type, imp.get());
+  }
   static v8::Handle<v8::Value> ToV8Object(V8ClassIndex::V8WrapperType type,
                                           void* imp);
   // Fast-path for Node objects.
@@ -378,7 +384,7 @@ class V8Proxy {
       DOMImplementation* impl);
 
   // Wrap JS node filter in C++
-  static NodeFilter* ToNativeNodeFilter(v8::Handle<v8::Value> filter);
+  static PassRefPtr<NodeFilter> ToNativeNodeFilter(v8::Handle<v8::Value> filter);
 
   static v8::Persistent<v8::FunctionTemplate> GetTemplate(
       V8ClassIndex::V8WrapperType type);
@@ -518,10 +524,14 @@ v8::Handle<v8::Value> V8Proxy::ConstructDOMObject(const v8::Arguments& args) {
         "DOM object constructor cannot be called as a function.");
     return v8::Undefined();
   }
-  T* obj = new T();
-  V8Proxy::SetDOMWrapper(args.Holder(), tag, obj);
+
+
+  // Note: it's OK to let this RefPtr go out of scope because we also call
+  // SetDOMWrapper(), which effectively holds a reference to obj.
+  RefPtr<T> obj = T::create();
+  V8Proxy::SetDOMWrapper(args.Holder(), tag, obj.get());
   V8Proxy::SetJSWrapperForDOMObject(
-      obj, v8::Persistent<v8::Object>::New(args.Holder()));
+      obj.get(), v8::Persistent<v8::Object>::New(args.Holder()));
   return args.Holder();
 }
 

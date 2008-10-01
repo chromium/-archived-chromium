@@ -35,6 +35,7 @@
 #include "SVGPaintServerRadialGradient.h"
 
 #include "GraphicsContext.h"
+#include "Path.h"
 #include "RenderObject.h"
 #include "RenderPath.h"
 #include "RenderStyle.h"
@@ -156,17 +157,15 @@ bool SVGPaintServerGradient::setup(GraphicsContext*& context,
     SkMatrix matrix;
 
     // Calculate a matrix to transform a gradient to fit the bounding box
-    if(boundingBoxMode()) {
+    if (boundingBoxMode()) {
         matrix.reset();
-        SkRect rc;
-        context->currentPath()->computeBounds(&rc, SkPath::kExact_BoundsType);
+        SkRect rc = context->getBoundingBoxForCurrentPath(true);
 
         matrix.preTranslate(rc.fLeft, rc.fTop);
         matrix.preScale(rc.width(), rc.height());
         matrix.preConcat(gradientTransform());
-    } else {
+    } else
         matrix = gradientTransform();
-    }
 
     if (this->type() == LinearGradientPaintServer) {
         const SVGPaintServerLinearGradient* linear = 

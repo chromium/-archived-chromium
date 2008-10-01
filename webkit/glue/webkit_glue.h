@@ -115,20 +115,9 @@ bool DecodeImage(const std::string& image_data, SkBitmap* image);
 //-----------------------------------------------------------------------------
 // Functions implemented by the embedder, called by WebKit:
 
-// This function is called to check if the given URL string exists in the
-// user's browsing history db.  The given URL may NOT be in canonical form and
-// it will NOT be null-terminated; use the length instead.  This function also
-// causes the hostnames' DNS record to be prefetched if is_dns_prefetch_enabled
-// is true or document_host matches the URL being checked. The hostname will
-// likewise not be null-terminated; use document_host_length instead.
-bool HistoryContains(const char16* url, int url_length, 
-                     const char* document_host, int document_host_length,
-                     bool is_dns_prefetch_enabled);
-
 // This function is called to request a prefetch of the DNS resolution for the
-// embedded URL's hostname.  The given URL may NOT be in canonical form and
-// it will NOT be null-terminated; use the length instead.
-void DnsPrefetchUrl(const char16* url, int url_length);
+// provided hostname.
+void PrefetchDns(const std::string& hostname);
 
 // This function is called to request a prefetch of the entire URL, loading it
 // into our cache for (expected) future needs.  The given URL may NOT be in 
@@ -181,6 +170,10 @@ std::wstring GetLocalizedString(int message_id);
 // Returns the raw data for a resource.  This resource must have been
 // specified as BINDATA in the relevant .rc file.
 std::string GetDataResource(int resource_id);
+
+// Returns an SkBitmap for a resource.  This resource must have been
+// specified as BINDATA in the relevant .rc file.
+SkBitmap* GetBitmapResource(int resource_id);
 
 #ifdef _WIN32
 // Loads and returns a cursor.

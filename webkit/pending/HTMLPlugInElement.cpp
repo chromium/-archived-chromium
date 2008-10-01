@@ -34,6 +34,18 @@
 #include "RenderWidget.h"
 #include "Settings.h"
 #include "Widget.h"
+#include "ScriptController.h"
+
+#if USE(JSC)
+#include "runtime.h"
+#endif
+
+#if ENABLE(NETSCAPE_PLUGIN_API) && USE(JSC)
+#include "JSNode.h"
+#include "NP_jsobject.h"
+#include "npruntime_impl.h"
+#include "runtime_root.h"
+#endif
 
 namespace WebCore {
 
@@ -41,7 +53,7 @@ using namespace HTMLNames;
 
 HTMLPlugInElement::HTMLPlugInElement(const QualifiedName& tagName, Document* doc)
     : HTMLFrameOwnerElement(tagName, doc)
-#if USE(NPOBJECT)
+#if ENABLE(NETSCAPE_PLUGIN_API)
     , m_NPObject(0)
 #endif
 {
@@ -49,20 +61,43 @@ HTMLPlugInElement::HTMLPlugInElement(const QualifiedName& tagName, Document* doc
 
 HTMLPlugInElement::~HTMLPlugInElement()
 {
-#if USE(JAVASCRIPTCORE_BINDINGS) | USE(V8_BINDING)
-    // Should be cleaned up in detach.
-    ASSERT(m_instance.IsEmpty());
+#if USE(JSC)
+    ASSERT(!m_instance); // cleared in detach()
 #endif
 
-#if USE(NPOBJECT)
+#if ENABLE(NETSCAPE_PLUGIN_API)
     if (m_NPObject) {
         // NOTE: mbelshe - can the frame be inaccessible here?  If so,
         // do we leak objects?
         if (document() && document()->frame()) 
-            document()->frame()->scriptBridge()->functions()->releaseObject(m_NPObject);
+            document()->frame()->script()->functions()->releaseObject(m_NPObject);
         m_NPObject = 0;
     }
 #endif
+}
+
+JSInstance HTMLPlugInElement::getInstance() const
+{
+    Frame* frame = document()->frame();
+    if (!frame)
+        return JSInstanceHolder::EmptyInstance();
+
+    // If the host dynamically turns off JavaScript (or Java) we will still return
+    // the cached allocated Bindings::Instance.  Not supporting this edge-case is OK.
+    if (!m_instance.IsEmpty())
+        return m_instance.Get();
+
+    RenderWidget* renderWidget = renderWidgetForJSBindings();
+    if (renderWidget && renderWidget->widget())
+        m_instance = frame->script()->createScriptInstanceForWidget(renderWidget->widget());
+
+    return m_instance.Get();
+}
+
+void HTMLPlugInElement::detach()
+{
+    m_instance.Clear();
+    HTMLFrameOwnerElement::detach();
 }
 
 String HTMLPlugInElement::align() const
@@ -126,20 +161,20 @@ bool HTMLPlugInElement::mapToEntry(const QualifiedName& attrName, MappedAttribut
 void HTMLPlugInElement::parseMappedAttribute(MappedAttribute* attr)
 {
     if (attr->name() == widthAttr)
-        addCSSLength(attr, CSS_PROP_WIDTH, attr->value());
+        addCSSLength(attr, CSSPropertyWidth, attr->value());
     else if (attr->name() == heightAttr)
-        addCSSLength(attr, CSS_PROP_HEIGHT, attr->value());
+        addCSSLength(attr, CSSPropertyHeight, attr->value());
     else if (attr->name() == vspaceAttr) {
-        addCSSLength(attr, CSS_PROP_MARGIN_TOP, attr->value());
-        addCSSLength(attr, CSS_PROP_MARGIN_BOTTOM, attr->value());
+        addCSSLength(attr, CSSPropertyMarginTop, attr->value());
+        addCSSLength(attr, CSSPropertyMarginBottom, attr->value());
     } else if (attr->name() == hspaceAttr) {
-        addCSSLength(attr, CSS_PROP_MARGIN_LEFT, attr->value());
-        addCSSLength(attr, CSS_PROP_MARGIN_RIGHT, attr->value());
+        addCSSLength(attr, CSSPropertyMarginLeft, attr->value());
+        addCSSLength(attr, CSSPropertyMarginRight, attr->value());
     } else if (attr->name() == alignAttr)
         addHTMLAlignment(attr);
     else
         HTMLFrameOwnerElement::parseMappedAttribute(attr);
-}    
+}
 
 bool HTMLPlugInElement::checkDTD(const Node* newChild)
 {
@@ -156,48 +191,17 @@ void HTMLPlugInElement::defaultEventHandler(Event* event)
         widget->handleEvent(event);
 }
 
-#if USE(NPOBJECT)
-
-NPObject* HTMLPlugInElement::createNPObject()
-{
-    Frame* frame = document()->frame();
-    if (!frame) {
-        // This shouldn't ever happen, but might as well check anyway.
-        ASSERT_NOT_REACHED();
-        return frame->scriptBridge()->CreateNoScriptObject();
-    }
-
-    Settings* settings = frame->settings();
-    if (!settings) {
-        // This shouldn't ever happen, but might as well check anyway.
-        ASSERT_NOT_REACHED();
-      return frame->scriptBridge()->CreateNoScriptObject();
-    }
-
-    // Can't create NPObjects when JavaScript is disabled
-    if (!frame->scriptBridge()->isEnabled())
-        return frame->scriptBridge()->CreateNoScriptObject();
-    
-    // Create a JSObject bound to this element
-    return frame->scriptBridge()->CreateScriptObject(frame, this);
-}
+#if ENABLE(NETSCAPE_PLUGIN_API)
 
 NPObject* HTMLPlugInElement::getNPObject()
 {
+    ASSERT(document()->frame());
     if (!m_NPObject)
-        m_NPObject = createNPObject();
+        m_NPObject = document()->frame()->script()->createScriptObjectForPluginElement(this);
     return m_NPObject;
 }
 
-#endif /* USE(NPOBJECT) */
-
-void HTMLPlugInElement::detach()
-{
-#if USE(JAVASCRIPTCORE_BINDINGS) | USE(V8_BINDING)
-    m_instance.Clear();
-#endif
-    HTMLFrameOwnerElement::detach();
-}
+#endif /* ENABLE(NETSCAPE_PLUGIN_API) */
 
 void HTMLPlugInElement::updateWidgetCallback(Node* n)
 {

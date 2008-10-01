@@ -7,24 +7,31 @@
 #include "webkit/glue/webkit_resources.h"
 
 WebCursor::WebCursor()
-  : type_(ARROW),
-    hotspot_x_(0),
-    hotspot_y_(0) {
+    : type_(ARROW),
+      hotspot_x_(0),
+      hotspot_y_(0) {
   memset(&bitmap_, 0, sizeof(bitmap_));
 }
 
 WebCursor::WebCursor(Type cursor_type)
-  : type_(cursor_type),
-    hotspot_x_(0),
-    hotspot_y_(0) {
+    : type_(cursor_type),
+      hotspot_x_(0),
+      hotspot_y_(0) {
   memset(&bitmap_, 0, sizeof(bitmap_));
 }
 
 WebCursor::WebCursor(const SkBitmap* bitmap, int hotspot_x, int hotspot_y)
-  : type_(CUSTOM) {
-  hotspot_x_ = hotspot_x;
-  hotspot_y_ = hotspot_y;
-  bitmap_ = *bitmap;
+    : type_(ARROW),
+      hotspot_x_(0),
+      hotspot_y_(0) {
+  if (bitmap) {
+    type_ = CUSTOM;
+    hotspot_x_ = hotspot_x;
+    hotspot_y_ = hotspot_y;
+    bitmap_ = *bitmap;
+  } else {
+    memset(&bitmap_, 0, sizeof(bitmap_));
+  }
 }
 
 WebCursor::~WebCursor() {

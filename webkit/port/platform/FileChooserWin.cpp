@@ -39,17 +39,6 @@
 
 namespace WebCore {
 
-FileChooser::FileChooser(FileChooserClient* client, const String& filename)
-    : m_client(client)
-    , m_filename(filename)
-    , m_icon(chooseIcon(filename))
-{
-}
-
-FileChooser::~FileChooser()
-{
-}
-
 void FileChooser::openFileChooser(Document* document)
 {
     Frame* frame = document->frame();

@@ -2,7 +2,7 @@ layer at (0,0) size 800x600
   RenderView at (0,0) size 800x600
 layer at (0,0) size 800x600
   RenderBlock {HTML} at (0,0) size 800x600
-    RenderBody {BODY} at (8,8) size 784x576
+    RenderBody {BODY} at (8,8) size 784x584
       RenderBlock {P} at (0,0) size 784x20
         RenderText {#text} at (0,0) size 305x19
           text run at (0,0) width 305: "The black outline box should stretch from the right "
@@ -16,7 +16,7 @@ layer at (0,0) size 800x600
             text run at (443,0) width 41: "orange"
         RenderText {#text} at (484,0) size 49x19
           text run at (484,0) width 49: " border."
-      RenderBlock {P} at (0,36) size 600x20
+      RenderBlock {DIV} at (0,36) size 600x20
         RenderText {#text} at (422,0) size 178x19
           text run at (422,0) width 178 RTL override: "ILorem ipsum dolor sit amet, "
         RenderText {#text} at (29,0) size 165x19

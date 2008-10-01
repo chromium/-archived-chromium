@@ -108,7 +108,7 @@ layer at (0,0) size 450x500
           RenderSVGInlineText {#text} at (0,-15) size 88x19
             chunk 1 (middle anchor) text run 1 at (-44.00,15.00) startOffset 0 endOffset 14 width 88.00: "fill=\"DarkRed\""
       RenderSVGContainer {g} at (24,343) size 153x46 [transform={m=((1.00,0.00)(0.00,1.00)) t=(100.00,370.00)}]
-        RenderSVGContainer {g} at (59,343) size 82x34 [filter=#gaussianBlur]
+        RenderSVGContainer {g} at (59,343) size 82x34 [filter=gaussianBlur]
           RenderSVGContainer {use} at (59,343) size 82x34
             RenderSVGContainer {g} at (59,343) size 82x34
               RenderSVGText {text} at (-41,0) size 82x34 contains 1 chunk(s)
@@ -135,7 +135,7 @@ layer at (0,0) size 450x500
           RenderSVGGradientStop {stop} at (0,0) size 0x0
           RenderSVGGradientStop {stop} at (0,0) size 0x0
       RenderSVGContainer {g} at (300,345) size 100x50 [transform={m=((1.00,0.00)(0.00,1.00)) t=(350.00,370.00)}]
-        RenderPath {rect} at (300,345) size 100x50 [fill={[type=LINEAR-GRADIENT] [stops=[(0.00,#0000FF), (1.00,#008000)]] [bounding box mode=0] [start=(-50,-25)] [end=(50,25)]}] [clip path="#textClip"] [data="M-50.00,-25.00L50.00,-25.00L50.00,25.00L-50.00,25.00"]
+        RenderPath {rect} at (300,345) size 100x50 [fill={[type=LINEAR-GRADIENT] [stops=[(0.00,#0000FF), (1.00,#008000)]] [bounding box mode=0] [start=(-50,-25)] [end=(50,25)]}] [clip path="textClip"] [data="M-50.00,-25.00L50.00,-25.00L50.00,25.00L-50.00,25.00"]
         RenderSVGText {text} at (-48,15) size 96x19 contains 1 chunk(s)
           RenderSVGInlineText {#text} at (0,-15) size 96x19
             chunk 1 (middle anchor) text run 1 at (-48.00,15.00) startOffset 0 endOffset 17 width 96.00: "text as clip-path"

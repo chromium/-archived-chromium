@@ -217,8 +217,8 @@ void ICOImageDecoder::decodePNG(SharedBuffer* data)
     // offset the perceived start of |data| by |m_dirEntry.dwImageOffset| when
     // passing it to setData()...
     RefPtr<SharedBuffer> pngData(
-        new SharedBuffer(&data->data()[m_dirEntry.dwImageOffset],
-                         data->size() - m_dirEntry.dwImageOffset));
+        SharedBuffer::create(&data->data()[m_dirEntry.dwImageOffset],
+                             data->size() - m_dirEntry.dwImageOffset));
     m_pngDecoder.setData(pngData.get(), true);
 
     // Decode PNG as a side effect of asking for the frame.  Strangely, it's

@@ -1445,7 +1445,8 @@ bool View::IsVisibleInRootView() const {
 }
 
 bool View::HitTest(const CPoint& l) const {
-  if (l.x >= 0 && l.x < width() && l.y >= 0 && l.y < height()) {
+  if (l.x >= 0 && l.x < static_cast<int>(width()) &&
+      l.y >= 0 && l.y < static_cast<int>(height())) {
     if (HasHitTestMask()) {
       gfx::Path mask;
       GetHitTestMask(&mask);

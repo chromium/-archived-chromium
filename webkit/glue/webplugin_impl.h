@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBPLUGIN_IMPL_H__
-#define WEBKIT_GLUE_WEBPLUGIN_IMPL_H__
+#ifndef WEBKIT_GLUE_WEBPLUGIN_IMPL_H_
+#define WEBKIT_GLUE_WEBPLUGIN_IMPL_H_
 
 #include <string>
 #include <map>
@@ -29,7 +29,6 @@ class WebPluginImpl;
 class MultipartResponseDelegate;
 
 namespace WebCore {
-  class DeprecatedString;
   class Element;
   class Event;
   class Frame;
@@ -151,7 +150,7 @@ class WebPluginImpl : public WebPlugin,
   // Returns true on success.
   bool InitiateHTTPRequest(int resource_id, WebPluginResourceClient* client,
                            const char* method, const char* buf, int buf_len,
-                           const GURL& complete_url_string,
+                           const GURL& url,
                            const char* range_info);
 
   gfx::Rect GetWindowClipRect(const gfx::Rect& rect);
@@ -287,8 +286,7 @@ class WebPluginImpl : public WebPlugin,
   // The plugin source URL.
   GURL plugin_url_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WebPluginImpl);
+  DISALLOW_COPY_AND_ASSIGN(WebPluginImpl);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBPLUGIN_IMPL_H__
-
+#endif  // #ifndef WEBKIT_GLUE_WEBPLUGIN_IMPL_H_

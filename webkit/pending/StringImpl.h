@@ -22,7 +22,6 @@
 #ifndef StringImpl_h
 #define StringImpl_h
 
-#include <kjs/identifier.h>
 #include <limits.h>
 #include <wtf/ASCIICType.h>
 #include <wtf/Forward.h>
@@ -44,11 +43,16 @@ class AtomicString;
 class StringBuffer;
 
 struct CStringTranslator;
+struct HashAndCharactersTranslator;
 struct Length;
 struct StringHash;
 struct UCharBufferTranslator;
 
 class StringImpl : public RefCounted<StringImpl> {
+    friend class AtomicString;
+    friend struct CStringTranslator;
+    friend struct HashAndCharactersTranslator;
+    friend struct UCharBufferTranslator;
 private:
     StringImpl();
     StringImpl(const UChar*, unsigned length);
@@ -99,9 +103,16 @@ public:
 
     bool containsOnlyWhitespace();
 
-    int toInt(bool* ok = 0); // ignores trailing garbage, unlike DeprecatedString
-    int64_t toInt64(bool* ok = 0); // ignores trailing garbage, unlike DeprecatedString
-    uint64_t toUInt64(bool* ok = 0); // ignores trailing garbage, unlike DeprecatedString
+    int toIntStrict(bool* ok = 0, int base = 10);
+    unsigned toUIntStrict(bool* ok = 0, int base = 10);
+    int64_t toInt64Strict(bool* ok = 0, int base = 10);
+    uint64_t toUInt64Strict(bool* ok = 0, int base = 10);
+
+    int toInt(bool* ok = 0); // ignores trailing garbage
+    unsigned toUInt(bool* ok = 0); // ignores trailing garbage
+    int64_t toInt64(bool* ok = 0); // ignores trailing garbage
+    uint64_t toUInt64(bool* ok = 0); // ignores trailing garbage
+
     double toDouble(bool* ok = 0);
     float toFloat(bool* ok = 0);
 
@@ -146,10 +157,6 @@ public:
 #endif
 
 private:
-    friend class AtomicString;
-    friend struct UCharBufferTranslator;
-    friend struct CStringTranslator;
-
     unsigned m_length;
     const UChar* m_data;
     mutable unsigned m_hash;

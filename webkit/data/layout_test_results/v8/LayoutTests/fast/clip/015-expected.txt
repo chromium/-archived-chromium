@@ -7,5 +7,5 @@ layer at (0,0) size 800x136
         RenderText {#text} at (0,0) size 700x19
           text run at (0,0) width 293: "You should see a 100x100 green square below. "
           text run at (293,0) width 407: "This test makes sure overflow uses containing blocks when clipping."
-layer at (8,28) size 100x100 scrollWidth 200 scrollHeight 200
+layer at (8,28) size 100x100 scrollWidth 300 scrollHeight 300
   RenderBlock {DIV} at (0,20) size 100x100 [bgcolor=#008000]

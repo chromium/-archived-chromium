@@ -28,7 +28,6 @@
 
 #include "ClipboardUtilitiesWin.h"
 #include "CString.h"
-#include "DeprecatedString.h"
 #include "DocumentFragment.h"
 #include "Document.h"
 #include "Element.h"
@@ -82,7 +81,7 @@ void Pasteboard::writeSelection(Range* selectedRange, bool canSmartCopyOrDelete,
     webkit_glue::ClipboardWriteHTML(
         webkit_glue::StringToStdWString(
             createMarkup(selectedRange, 0, AnnotateForInterchange)),
-        GURL(webkit_glue::DeprecatedStringToStdWString(
+        GURL(webkit_glue::StringToStdWString(
             selectedRange->startContainer(ec)->document()->url())));
     
     // Put plain string on the pasteboard. CF_UNICODETEXT covers CF_TEXT as well
@@ -117,7 +116,7 @@ void Pasteboard::writeURL(const KURL& url, const String& titleStr, Frame* frame)
     webkit_glue::ClipboardWriteHTML(link, GURL());
 
     // bare-bones CF_UNICODETEXT support
-    std::wstring spec(webkit_glue::DeprecatedStringToStdWString(url.deprecatedString()));
+    std::wstring spec(webkit_glue::StringToStdWString(url));
     webkit_glue::ClipboardWriteText(spec);
 }
 
@@ -131,7 +130,7 @@ void Pasteboard::writeImage(Node* node, const KURL& url, const String& title)
     ASSERT(image);
 
     clear();
-    NativeImageSkia* bitmap = image->getBitmap();
+    NativeImageSkia* bitmap = image->nativeImageForCurrentFrame();
     if (bitmap)
       webkit_glue::ClipboardWriteBitmap(*bitmap);
     if (!url.isEmpty()) {
@@ -146,7 +145,7 @@ void Pasteboard::writeImage(Node* node, const KURL& url, const String& title)
         webkit_glue::ClipboardWriteHTML(markup, GURL());
 
         // bare-bones CF_UNICODETEXT support
-        std::wstring spec(webkit_glue::DeprecatedStringToStdWString(url.deprecatedString()));
+        std::wstring spec(webkit_glue::StringToStdWString(url.string()));
         webkit_glue::ClipboardWriteText(spec);
     }
 }

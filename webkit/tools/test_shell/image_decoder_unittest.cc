@@ -119,7 +119,7 @@ void ImageDecoderTest::TestDecoding() const {
     ReadFileToVector(*i, &image_contents);
 
     scoped_ptr<WebCore::ImageDecoder> decoder(CreateDecoder());
-    RefPtr<WebCore::SharedBuffer> shared_contents(new WebCore::SharedBuffer);
+    RefPtr<WebCore::SharedBuffer> shared_contents(WebCore::SharedBuffer::create());
     shared_contents->append(image_contents.data(),
                             static_cast<int>(image_contents.size()));
     decoder->setData(shared_contents.get(), true);
@@ -164,7 +164,7 @@ void ImageDecoderTest::TestChunkedDecoding() const {
     ReadFileToVector(*i, &image_contents);
     const int partial_size = static_cast<int>(
       (static_cast<double>(rand()) / RAND_MAX) * image_contents.size());
-    RefPtr<WebCore::SharedBuffer> partial_contents(new WebCore::SharedBuffer);
+    RefPtr<WebCore::SharedBuffer> partial_contents(WebCore::SharedBuffer::create());
     partial_contents->append(image_contents.data(), partial_size);
 
     // Make sure the image decoder doesn't fail when we ask for the frame buffer

@@ -33,6 +33,7 @@
 #include "GraphicsContext.h"
 #include "ImageBuffer.h"
 #include "RenderObject.h"
+#include "Pattern.h"
 #include "SVGPatternElement.h"
 #include "SVGPaintServerPattern.h"
 #include "SkiaSupport.h"
@@ -59,20 +60,19 @@ bool SVGPaintServerPattern::setup(GraphicsContext*& context, const RenderObject*
     if (!tile())
         return false;
 
-    SkShader* shader = SkShader::CreateBitmapShader(*tile()->image(), SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
+    AffineTransform transform = patternTransform();
+    transform.translate(patternBoundaries().x(), patternBoundaries().y());
 
-    SkMatrix matrix = patternTransform();
-    matrix.preTranslate(patternBoundaries().x(), patternBoundaries().y());
-
-    shader->setLocalMatrix(matrix);
-    context->platformContext()->setPattern(shader);
+    RefPtr<Pattern> pattern(Pattern::create(tile()->image(), true, true));
 
     if ((type & ApplyToFillTargetType) && style->svgStyle()->hasFill()) {
+        context->setFillPattern(pattern);
         if (isPaintingText) 
             context->setTextDrawingMode(cTextFill);
     }
 
     if ((type & ApplyToStrokeTargetType) && style->svgStyle()->hasStroke()) {
+        context->setStrokePattern(pattern);
         applyStrokeStyleToContext(context, style, object);
         if (isPaintingText) 
             context->setTextDrawingMode(cTextStroke);

@@ -1,10 +1,10 @@
-layer at (0,0) size 785x1828
+layer at (0,0) size 785x1516
   RenderView at (0,0) size 785x600
-layer at (8,8) size 769x1812
-  RenderBlock {HTML} at (8,8) size 769x1812 [bgcolor=#008000] [border: (16px solid #00FF00)]
-    RenderTable at (16,16) size 737x1780
-      RenderTableSection (anonymous) at (0,0) size 737x1780
-        RenderTableRow (anonymous) at (0,0) size 737x1780
+layer at (8,8) size 769x1500
+  RenderBlock {HTML} at (8,8) size 769x1500 [bgcolor=#008000] [border: (16px solid #00FF00)]
+    RenderTable at (16,16) size 737x1468
+      RenderTableSection (anonymous) at (0,0) size 737x1468
+        RenderTableRow (anonymous) at (0,0) size 737x1468
           RenderTableCell {HEAD} at (0,0) size 280x426 [color=#FFFFFF] [bgcolor=#FF0000] [border: (5px solid #FFFFFF)] [r=0 c=0 rs=1 cs=1]
             RenderBlock {META} at (21,37) size 238x2 [border: (1px dotted #FFFFFF)]
             RenderBlock {META} at (21,55) size 238x2 [border: (1px dotted #FFFFFF)]
@@ -33,7 +33,7 @@ layer at (8,8) size 769x1812
                 text run at (1,181) width 119: "background: red; } "
                 text run at (120,181) width 93: "BODY { color:"
                 text run at (1,201) width 163: "yellow; background: teal; }"
-          RenderTableCell {BODY} at (280,354) size 457x1426 [color=#FFFF00] [bgcolor=#008080] [border: (5px solid #FFFF00)] [r=0 c=1 rs=1 cs=1]
+          RenderTableCell {BODY} at (280,42) size 457x1426 [color=#FFFF00] [bgcolor=#008080] [border: (5px solid #FFFF00)] [r=0 c=1 rs=1 cs=1]
             RenderBlock {H1} at (21,53) size 415x76 [border: (1px dotted #FFFF00)]
               RenderText {#text} at (1,1) size 152x36
                 text run at (1,1) width 152: "Rendering "
@@ -172,5 +172,5 @@ layer at (8,8) size 769x1812
             RenderBlock {P} at (21,1367) size 415x22 [border: (1px dotted #FFFF00)]
               RenderText {#text} at (1,1) size 164x19
                 text run at (1,1) width 164: "Last updated in June 1999."
-layer at (394,1601) size 106x14
+layer at (394,1289) size 106x14
   RenderBlock {DIV} at (2,3) size 106x14

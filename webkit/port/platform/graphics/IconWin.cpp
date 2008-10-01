@@ -31,11 +31,6 @@
 
 namespace WebCore {
 
-Icon::Icon()
-    : m_hIcon(0)
-{
-}
-
 Icon::Icon(HICON icon)
     : m_hIcon(icon)
 {
@@ -56,9 +51,7 @@ PassRefPtr<Icon> Icon::newIconForFile(const String& filename)
     if (!SHGetFileInfo(tmpFilename.charactersWithNullTermination(), 0, &sfi, sizeof(sfi), SHGFI_ICON | SHGFI_SHELLICONSIZE | SHGFI_SMALLICON))
         return 0;
 
-    Icon* icon = new Icon();  
-    icon->m_hIcon = sfi.hIcon;
-    return icon;
+    return adoptRef(new Icon(sfi.hIcon));
 }
 
 void Icon::paint(GraphicsContext* context, const IntRect& r)
@@ -66,9 +59,7 @@ void Icon::paint(GraphicsContext* context, const IntRect& r)
     if (context->paintingDisabled())
         return;
 
-    SkIRect rect;
-    WebCoreRectToSkiaRect(r, &rect);
-    PlatformContextToPlatformContextSkia(context->platformContext())->paintIcon(m_hIcon, rect);
+    context->platformContext()->paintIcon(m_hIcon, r);
 }
 
-}
+} // namespace WebCore

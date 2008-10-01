@@ -1367,6 +1367,9 @@ void RenderView::DidChangeLocationWithinPageForFrame(WebView* webview,
                                                      WebFrame* frame,
                                                      bool is_new_navigation) {
   DidCommitLoadForFrame(webview, frame, is_new_navigation);
+  const std::wstring& title =
+      webview->GetMainFrame()->GetDataSource()->GetPageTitle();
+  UpdateTitle(frame, title);
 }
 
 void RenderView::DidReceiveIconForFrame(WebView* webview,

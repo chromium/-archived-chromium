@@ -184,11 +184,19 @@
 			Name="page"
 			>
 			<File
+				RelativePath="..\..\port\page\AccessibilityObjectWin.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\port\page\AccessibilityObjectWrapperWin.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\port\page\AXObjectCacheWin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\page\Console.cpp"
 				>
 			</File>
 			<File
@@ -855,6 +863,18 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\graphics\ColorSkia.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\FloatPointSkia.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\FloatRectSkia.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\graphics\FontCacheWin.cpp"
 					>
 				</File>
@@ -883,11 +903,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\GraphicsContextPrivate.cpp"
+					RelativePath="..\..\port\platform\graphics\GradientSkia.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\GraphicsContextPrivate.h"
+					RelativePath="..\..\port\platform\graphics\GraphicsContextPlatformPrivate.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\GraphicsContextPlatformPrivate.h"
 					>
 				</File>
 				<File
@@ -915,7 +939,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\graphics\IntPointSkia.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\graphics\IntPointWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\IntRectSkia.cpp"
 					>
 				</File>
 				<File
@@ -936,6 +968,10 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\graphics\PathSkia.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\PatternSkia.cpp"
 					>
 				</File>
 				<File
@@ -1119,7 +1155,27 @@
 				Name="network"
 				>
 				<File
+					RelativePath="..\..\port\platform\network\AuthenticationChallenge.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\network\AuthenticationChallenge.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\network\CookieJarWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\network\DNS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\network\NetworkStateNotifierWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\network\ResourceError.h"
 					>
 				</File>
 				<File
@@ -1127,6 +1183,14 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="plugins"
+			>
+			<File
+				RelativePath="..\..\port\plugins\PluginDataChromium.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="rendering"
@@ -1144,15 +1208,11 @@
 			Name="bridge"
 			>
 			<File
+				RelativePath="..\..\pending\ExceptionContext.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\port\bridge\FrameWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\bridge\HistoryWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\bridge\JSBridge.h"
 				>
 			</File>
 			<File
@@ -1161,6 +1221,10 @@
 			</File>
 			<File
 				RelativePath="..\..\port\bridge\PluginsWin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pending\ScriptController.h"
 				>
 			</File>
 		</Filter>

@@ -247,7 +247,6 @@ void TestShell::ResetWebPreferences() {
         web_prefs_->shrinks_standalone_images_to_fit = false;
         web_prefs_->uses_universal_detector = false;
         web_prefs_->text_areas_are_resizable = false;
-        web_prefs_->dashboard_compatibility_mode = false;
         web_prefs_->java_enabled = true;
         web_prefs_->allow_scripts_to_close_windows = false;
     }
@@ -987,13 +986,7 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 
 namespace webkit_glue {
 
-bool HistoryContains(const char16* url, int url_len, 
-                     const char* document_host, int document_host_len,
-                     bool is_dns_prefetch_enabled) {
-  return false;
-}
-
-void DnsPrefetchUrl(const char16* url, int url_length) {}
+void PrefetchDns(const std::string& hostname) {}
 
 void PrecacheUrl(const char16* url, int url_length) {}
 
@@ -1060,6 +1053,10 @@ std::string GetDataResource(int resource_id) {
 }
 
 HCURSOR LoadCursor(int cursor_id) {
+  return NULL;
+}
+
+SkBitmap* GetBitmapResource(int resource_id) {
   return NULL;
 }
 

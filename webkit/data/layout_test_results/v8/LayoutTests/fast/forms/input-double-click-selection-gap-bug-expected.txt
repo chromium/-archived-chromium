@@ -27,5 +27,5 @@ layer at (32,411) size 106x14
   RenderBlock {DIV} at (2,3) size 106x14
     RenderText {#text} at (1,0) size 33x14
       text run at (1,0) width 33: "foo bar"
-selection start: position 0 of child 0 {#text} of child 0 {DIV} of child 1 {INPUT} of child 1 {TD} of child 0 {TR} of child 1 {TBODY} of child 3 {TABLE} of child 1 {BODY} of child 0 {HTML} of document
-selection end:   position 7 of child 0 {#text} of child 0 {DIV} of child 1 {INPUT} of child 1 {TD} of child 0 {TR} of child 1 {TBODY} of child 3 {TABLE} of child 1 {BODY} of child 0 {HTML} of document
+selection start: position 0 of child 0 {#text} of child 0 {DIV} of child 1 {INPUT} of child 1 {TD} of child 0 {TR} of child 1 {TBODY} of child 3 {TABLE} of child 1 {BODY} of child 1 {HTML} of document
+selection end:   position 7 of child 0 {#text} of child 0 {DIV} of child 1 {INPUT} of child 1 {TD} of child 0 {TR} of child 1 {TBODY} of child 3 {TABLE} of child 1 {BODY} of child 1 {HTML} of document

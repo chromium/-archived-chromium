@@ -119,11 +119,6 @@ bool WebFrameLoaderClient::hasFrameView() const {
   return webframe_->webview_impl() != NULL;
 }
 
-bool WebFrameLoaderClient::privateBrowsingEnabled() const {
-  // FIXME
-  return false;
-}
-
 void WebFrameLoaderClient::makeDocumentView() {
   webframe_->CreateFrameView();
 }
@@ -132,9 +127,6 @@ void WebFrameLoaderClient::makeRepresentation(DocumentLoader*) {
   has_representation_ = true;
 }
 
-void WebFrameLoaderClient::setDocumentViewFromCachedPage(CachedPage*) {
-  // FIXME
-}
 void WebFrameLoaderClient::forceLayout() {
   // FIXME
 }
@@ -157,10 +149,6 @@ void WebFrameLoaderClient::detachedFromParent4() {
   // Called during the last part of frame detaching, to indicate that we should
   // destroy various objects (including the FrameWin).
   webframe_->Closing();
-}
-
-void WebFrameLoaderClient::loadedFromCachedPage() {
-  // FIXME
 }
 
 // This function is responsible for associating the |identifier| with a given
@@ -402,6 +390,11 @@ bool WebFrameLoaderClient::dispatchDidLoadResourceFromMemoryCache(
 
 void WebFrameLoaderClient::dispatchDidHandleOnloadEvents() {
   WebViewImpl* webview = webframe_->webview_impl();
+  // During the onload event of a subframe, the subframe can be removed.  In
+  // that case, we have no webview.  This is covered by
+  // LayoutTests/fast/dom/replaceChild.html
+  if (!webview)
+    return;
   WebViewDelegate* d = webview->delegate();
 
   if (d)
@@ -856,6 +849,7 @@ void WebFrameLoaderClient::dispatchDecidePolicyForNewWindowAction(
     WebCore::FramePolicyFunction function,
     const WebCore::NavigationAction& action,
     const WebCore::ResourceRequest& request,
+    PassRefPtr<WebCore::FormState> form_state,
     const WebCore::String& frame_name) {
   WindowOpenDisposition disposition;
   if (!ActionSpecifiesDisposition(action, &disposition))
@@ -899,7 +893,8 @@ static WebNavigationType NavigationTypeToWebNavigationType(
 void WebFrameLoaderClient::dispatchDecidePolicyForNavigationAction(
     WebCore::FramePolicyFunction function,
     const WebCore::NavigationAction& action,
-    const WebCore::ResourceRequest& request) {
+    const WebCore::ResourceRequest& request,
+    PassRefPtr<WebCore::FormState> form_state) {
   PolicyAction policy_action = PolicyUse;
 
   WebViewImpl* wv = webframe_->webview_impl();
@@ -991,10 +986,6 @@ void WebFrameLoaderClient::setMainDocumentError(DocumentLoader*,
   }
 }
 
-void WebFrameLoaderClient::clearUnarchivingState(DocumentLoader*) {
-  // FIXME
-}
-
 void WebFrameLoaderClient::postProgressStartedNotification() {
   if (hasWebView()) {
     WebViewDelegate* d = webframe_->webview_impl()->delegate();
@@ -1081,15 +1072,7 @@ void WebFrameLoaderClient::finishedLoading(DocumentLoader* dl) {
   }
 }
 
-void WebFrameLoaderClient::finalSetupForReplace(DocumentLoader*) {
-  // FIXME
-}
-
-void WebFrameLoaderClient::updateGlobalHistoryForStandardLoad(const KURL& kurl) {
-}
-
-void WebFrameLoaderClient::updateGlobalHistoryForReload(const KURL&) {
-  // FIXME: this is for updating the visit time.
+void WebFrameLoaderClient::updateGlobalHistory(const KURL& kurl) {
 }
 
 bool WebFrameLoaderClient::shouldGoToHistoryItem(HistoryItem*) const {
@@ -1121,7 +1104,13 @@ ResourceError WebFrameLoaderClient::cannotShowMIMETypeError(const ResourceRespon
   // FIXME
   return ResourceError();
 }
+
 ResourceError WebFrameLoaderClient::fileDoesNotExistError(const ResourceResponse&) {
+  // FIXME
+  return ResourceError();
+}
+
+ResourceError WebFrameLoaderClient::pluginWillHandleLoadError(const WebCore::ResourceResponse&) {
   // FIXME
   return ResourceError();
 }
@@ -1134,25 +1123,6 @@ bool WebFrameLoaderClient::shouldFallBack(const ResourceError& error) {
   // request.
   // Note: The mac version also has a case for "WebKitErrorPluginWillHandleLoad"
   return error.errorCode() != net::ERR_ABORTED;
-}
-
-void WebFrameLoaderClient::setDefersLoading(bool) {
-  // FIXME
-}
-
-bool WebFrameLoaderClient::willUseArchive(ResourceLoader*, const ResourceRequest&, const KURL& originalURL) const {
-  // FIXME
-  return false;
-}
-bool WebFrameLoaderClient::isArchiveLoadPending(ResourceLoader*) const {
-  // FIXME
-  return false;
-}
-void WebFrameLoaderClient::cancelPendingArchiveLoad(ResourceLoader*) {
-  // FIXME
-}
-void WebFrameLoaderClient::clearArchivedResources() {
-  // FIXME
 }
 
 bool WebFrameLoaderClient::canHandleRequest(const ResourceRequest&) const {

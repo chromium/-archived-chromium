@@ -68,4 +68,8 @@ layer at (0,0) size 800x600
         RenderText {#text} at (87,70) size 73x27
           text run at (87,70) width 73: "of men."
       RenderBlock (anonymous) at (0,112) size 784x0
+        RenderText {#text} at (0,0) size 0x0
+        RenderText {#text} at (0,0) size 0x0
+        RenderText {#text} at (0,0) size 0x0
+        RenderText {#text} at (0,0) size 0x0
 caret: position 7 of child 4 {#text} of child 1 {DIV} of child 1 {BODY} of child 0 {HTML} of document

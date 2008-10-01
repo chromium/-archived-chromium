@@ -55,12 +55,11 @@ void applyStrokeStyleToContext(GraphicsContext* context, const RenderStyle* styl
     context->setLineCap(svgStyle->capStyle());
     context->setLineJoin(svgStyle->joinStyle());
 
-    if(svgStyle->joinStyle() == MiterJoin) {
+    if (svgStyle->joinStyle() == MiterJoin)
         context->setMiterLimit(svgStyle->strokeMiterLimit());
-    }
 
-    const DashArray& dashes = WebCore::dashArrayFromRenderingStyle(style);
-    double dashOffset = SVGRenderStyle::cssPrimitiveToLength(object, style->svgStyle()->strokeDashOffset(), 0.0);
+    const DashArray& dashes = dashArrayFromRenderingStyle(style);
+    float dashOffset = SVGRenderStyle::cssPrimitiveToLength(object, style->svgStyle()->strokeDashOffset(), 0.0);
 
     unsigned int dashLength = !dashes.isEmpty() ? dashes.size() : 0;
     if(dashLength) {
@@ -79,9 +78,8 @@ void applyStrokeStyleToContext(GraphicsContext* context, const RenderStyle* styl
 GraphicsContext* scratchContext()
 {
     static GraphicsContext* scratch = NULL;
-    if (!scratch) {
+    if (!scratch)
         scratch = GraphicsContext::createOffscreenContext(1, 1);
-     }
     return scratch;
 }
 
@@ -90,8 +88,10 @@ FloatRect strokeBoundingBox(const Path& path, RenderStyle* style, const RenderOb
      GraphicsContext* scratch = scratchContext();
 
      scratch->save();
+     scratch->beginPath();
+     scratch->addPath(path);
      applyStrokeStyleToContext(scratch, style, object);
-     FloatRect bbox = scratch->getPathBoundingBox(path);
+     FloatRect bbox = scratch->getBoundingBoxForCurrentPath(true);
      scratch->restore();
 
      return bbox;

@@ -421,4 +421,3 @@ void GIFImageDecoder::gifComplete()
 }
 
 }
-

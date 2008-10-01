@@ -160,7 +160,7 @@ bool EditorClientImpl::shouldInsertNode(WebCore::Node* node,
   return true;
 }
 
-bool EditorClientImpl::shouldInsertText(WebCore::String text,
+bool EditorClientImpl::shouldInsertText(const WebCore::String& text,
                                         WebCore::Range* range,
                                         WebCore::EditorInsertAction action) {
   if (use_editor_delegate_) {
@@ -506,7 +506,7 @@ const char* EditorClientImpl::interpretKeyEvent(
 
   if (evt->type() == WebCore::EventNames::keydownEvent) {
     int mapKey = modifiers << 16 | evt->keyCode();
-      return mapKey ? keyDownCommandsMap->get(mapKey) : 0;
+    return mapKey ? keyDownCommandsMap->get(mapKey) : 0;
   }
 
   int mapKey = modifiers << 16 | evt->charCode();

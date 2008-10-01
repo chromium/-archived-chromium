@@ -230,7 +230,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   // Methods for modifying WebPreferences
   void SetUserStyleSheetEnabled(bool is_enabled);
   void SetUserStyleSheetLocation(const GURL& location);
-  void SetDashboardCompatibilityMode(bool use_mode);
 
   // Sets the webview as a drop target.
   void RegisterDragDrop();

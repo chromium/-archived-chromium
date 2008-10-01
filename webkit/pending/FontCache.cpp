@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
+ * Copyright (C) 2006, 2008 Apple Inc. All rights reserved.
+ * Copyright (C) 2007 Nicholas Shanks <webkit@nickshanks.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,34 +36,43 @@
 #include "FontSelector.h"
 #include "StringHash.h"
 #include <wtf/HashMap.h>
+#include <wtf/ListHashSet.h>
+
+using namespace WTF;
 
 namespace WebCore {
 
 struct FontPlatformDataCacheKey {
-    FontPlatformDataCacheKey(const AtomicString& family = AtomicString(), unsigned size = 0, bool bold = false, bool italic = false,
+    FontPlatformDataCacheKey(const AtomicString& family = AtomicString(), unsigned size = 0, unsigned weight = 0, bool italic = false,
                              bool isPrinterFont = false, FontRenderingMode renderingMode = NormalRenderingMode)
         : m_family(family)
         , m_size(size)
-        , m_bold(bold)
+        , m_weight(weight)
         , m_italic(italic)
         , m_printerFont(isPrinterFont)
         , m_renderingMode(renderingMode)
     {
     }
 
+    FontPlatformDataCacheKey(HashTableDeletedValueType) : m_size(hashTableDeletedSize()) { }
+    bool isHashTableDeletedValue() const { return m_size == hashTableDeletedSize(); }
+
     bool operator==(const FontPlatformDataCacheKey& other) const
     {
         return equalIgnoringCase(m_family, other.m_family) && m_size == other.m_size && 
-               m_bold == other.m_bold && m_italic == other.m_italic && m_printerFont == other.m_printerFont &&
+               m_weight == other.m_weight && m_italic == other.m_italic && m_printerFont == other.m_printerFont &&
                m_renderingMode == other.m_renderingMode;
     }
-    
+
     AtomicString m_family;
     unsigned m_size;
-    bool m_bold;
+    unsigned m_weight;
     bool m_italic;
     bool m_printerFont;
     FontRenderingMode m_renderingMode;
+
+private:
+    static unsigned hashTableDeletedSize() { return 0xFFFFFFFFU; }
 };
 
 inline unsigned computeHash(const FontPlatformDataCacheKey& fontKey)
@@ -70,10 +80,10 @@ inline unsigned computeHash(const FontPlatformDataCacheKey& fontKey)
     unsigned hashCodes[4] = {
         CaseFoldingHash::hash(fontKey.m_family),
         fontKey.m_size,
-        static_cast<unsigned>(fontKey.m_bold) << 3 | static_cast<unsigned>(fontKey.m_italic) << 2 | static_cast<unsigned>(fontKey.m_printerFont) << 1 |
-        static_cast<unsigned>(fontKey.m_renderingMode)
+        fontKey.m_weight,
+        static_cast<unsigned>(fontKey.m_italic) << 2 | static_cast<unsigned>(fontKey.m_printerFont) << 1 | static_cast<unsigned>(fontKey.m_renderingMode)
     };
-    return StringImpl::computeHash(reinterpret_cast<UChar*>(hashCodes), 4 * sizeof(unsigned) / sizeof(UChar));
+    return StringImpl::computeHash(reinterpret_cast<UChar*>(hashCodes), sizeof(hashCodes) / sizeof(UChar));
 }
 
 struct FontPlatformDataCacheKeyHash {
@@ -92,16 +102,18 @@ struct FontPlatformDataCacheKeyHash {
 
 struct FontPlatformDataCacheKeyTraits : WTF::GenericHashTraits<FontPlatformDataCacheKey> {
     static const bool emptyValueIsZero = true;
-    static const bool needsDestruction = false;
-    static const FontPlatformDataCacheKey& deletedValue()
-    {
-        static FontPlatformDataCacheKey key(nullAtom, 0xFFFFFFFFU, false, false);
-        return key;
-    }
     static const FontPlatformDataCacheKey& emptyValue()
     {
-        static FontPlatformDataCacheKey key(nullAtom, 0, false, false);
+        static FontPlatformDataCacheKey key(nullAtom);
         return key;
+    }
+    static void constructDeletedValue(FontPlatformDataCacheKey& slot)
+    {
+        new (&slot) FontPlatformDataCacheKey(HashTableDeletedValue);
+    }
+    static bool isDeletedValue(const FontPlatformDataCacheKey& value)
+    {
+        return value.isHashTableDeletedValue();
     }
 };
 
@@ -118,7 +130,7 @@ FontPlatformData* FontCache::getCachedFontPlatformData(const FontDescription& fo
         platformInit();
     }
 
-    FontPlatformDataCacheKey key(familyName, fontDescription.computedPixelSize(), fontDescription.bold(), fontDescription.italic(),
+    FontPlatformDataCacheKey key(familyName, fontDescription.computedPixelSize(), fontDescription.weight(), fontDescription.italic(),
                                  fontDescription.usePrinterFont(), fontDescription.renderingMode());
     FontPlatformData* result = 0;
     bool foundResult;
@@ -161,38 +173,123 @@ struct FontDataCacheKeyHash {
 
 struct FontDataCacheKeyTraits : WTF::GenericHashTraits<FontPlatformData> {
     static const bool emptyValueIsZero = true;
-    static const bool needsDestruction = false;
-    static const FontPlatformData& deletedValue()
-    {
-        static FontPlatformData key = FontPlatformData::Deleted();
-        return key;
-    }
+    static const bool needsDestruction = true;
     static const FontPlatformData& emptyValue()
     {
         static FontPlatformData key;
         return key;
     }
+    static void constructDeletedValue(FontPlatformData& slot)
+    {
+        new (&slot) FontPlatformData(HashTableDeletedValue);
+    }
+    static bool isDeletedValue(const FontPlatformData& value)
+    {
+        return value.isHashTableDeletedValue();
+    }
 };
 
-typedef HashMap<FontPlatformData, SimpleFontData*, FontDataCacheKeyHash, FontDataCacheKeyTraits> FontDataCache;
+typedef HashMap<FontPlatformData, pair<SimpleFontData*, unsigned>, FontDataCacheKeyHash, FontDataCacheKeyTraits> FontDataCache;
 
 static FontDataCache* gFontDataCache = 0;
+
+const int cMaxInactiveFontData = 120;  // Pretty Low Threshold
+const float cTargetInactiveFontData = 100;
+static ListHashSet<const SimpleFontData*>* gInactiveFontData = 0;
 
 SimpleFontData* FontCache::getCachedFontData(const FontPlatformData* platformData)
 {
     if (!platformData)
         return 0;
 
-    if (!gFontDataCache)
+    if (!gFontDataCache) {
         gFontDataCache = new FontDataCache;
-    
-    SimpleFontData* result = gFontDataCache->get(*platformData);
-    if (!result) {
-        result = new SimpleFontData(*platformData);
-        gFontDataCache->set(*platformData, result);
+        gInactiveFontData = new ListHashSet<const SimpleFontData*>;
     }
-        
-    return result;
+    
+    FontDataCache::iterator result = gFontDataCache->find(*platformData);
+    if (result == gFontDataCache->end()) {
+        pair<SimpleFontData*, unsigned> newValue(new SimpleFontData(*platformData), 1);
+        gFontDataCache->set(*platformData, newValue);
+        return newValue.first;
+    }
+    if (!result.get()->second.second++) {
+        ASSERT(gInactiveFontData->contains(result.get()->second.first));
+        gInactiveFontData->remove(result.get()->second.first);
+    }
+
+    return result.get()->second.first;
+}
+
+void FontCache::releaseFontData(const SimpleFontData* fontData)
+{
+    ASSERT(gFontDataCache);
+    ASSERT(!fontData->isCustomFont());
+
+    FontDataCache::iterator it = gFontDataCache->find(fontData->platformData());
+    ASSERT(it != gFontDataCache->end());
+
+    if (!--it->second.second) {
+        gInactiveFontData->add(fontData);
+        if (gInactiveFontData->size() > cMaxInactiveFontData)
+            purgeInactiveFontData(gInactiveFontData->size() - cTargetInactiveFontData);
+    }
+}
+
+void FontCache::purgeInactiveFontData(int count)
+{
+    if (!gInactiveFontData)
+        return;
+
+    static bool isPurging;  // Guard against reentry when e.g. a deleted FontData releases its small caps FontData.
+    if (isPurging)
+        return;
+
+    isPurging = true;
+
+    ListHashSet<const SimpleFontData*>::iterator end = gInactiveFontData->end();
+    ListHashSet<const SimpleFontData*>::iterator it = gInactiveFontData->begin();
+    for (int i = 0; i < count && it != end; ++it, ++i) {
+        const SimpleFontData* fontData = *it.get();
+        gFontDataCache->remove(fontData->platformData());
+        delete fontData;
+    }
+
+    if (it == end) {
+        // Removed everything
+        gInactiveFontData->clear();
+    } else {
+        for (int i = 0; i < count; ++i)
+            gInactiveFontData->remove(gInactiveFontData->begin());
+    }
+
+    Vector<FontPlatformDataCacheKey> keysToRemove;
+    keysToRemove.reserveCapacity(gFontPlatformDataCache->size());
+    FontPlatformDataCache::iterator platformDataEnd = gFontPlatformDataCache->end();
+    for (FontPlatformDataCache::iterator platformData = gFontPlatformDataCache->begin(); platformData != platformDataEnd; ++platformData) {
+        if (platformData->second && !gFontDataCache->contains(*platformData->second))
+            keysToRemove.append(platformData->first);
+    }
+
+    size_t keysToRemoveCount = keysToRemove.size();
+    for (size_t i = 0; i < keysToRemoveCount; ++i)
+        delete gFontPlatformDataCache->take(keysToRemove[i]);
+
+    isPurging = false;
+}
+
+size_t FontCache::fontDataCount()
+{
+    if (gFontDataCache)
+        return gFontDataCache->size();
+    return 0;
+}
+
+size_t FontCache::inactiveFontDataCount()
+{
+    if (gInactiveFontData)
+        return gInactiveFontData->size();
+    return 0;
 }
 
 const FontData* FontCache::getFontData(const Font& font, int& familyIndex, FontSelector* fontSelector)
@@ -242,6 +339,61 @@ const FontData* FontCache::getFontData(const Font& font, int& familyIndex, FontS
 
     // Now that we have a result, we need to go from FontPlatformData -> FontData.
     return getCachedFontData(result);
+}
+
+static HashSet<FontSelector*>* gClients;
+
+void FontCache::addClient(FontSelector* client)
+{
+    if (!gClients)
+        gClients = new HashSet<FontSelector*>;
+
+    ASSERT(!gClients->contains(client));
+    gClients->add(client);
+}
+
+void FontCache::removeClient(FontSelector* client)
+{
+    ASSERT(gClients);
+    ASSERT(gClients->contains(client));
+
+    gClients->remove(client);
+}
+
+static unsigned gGeneration = 0;
+
+unsigned FontCache::generation()
+{
+    return gGeneration;
+}
+
+void FontCache::invalidate()
+{
+    if (!gClients) {
+        ASSERT(!gFontPlatformDataCache);
+        return;
+    }
+
+    if (gFontPlatformDataCache) {
+        deleteAllValues(*gFontPlatformDataCache);
+        delete gFontPlatformDataCache;
+        gFontPlatformDataCache = new FontPlatformDataCache;
+    }
+
+    gGeneration++;
+
+    Vector<RefPtr<FontSelector> > clients;
+    size_t numClients = gClients->size();
+    clients.reserveCapacity(numClients);
+    HashSet<FontSelector*>::iterator end = gClients->end();
+    for (HashSet<FontSelector*>::iterator it = gClients->begin(); it != end; ++it)
+        clients.append(*it);
+
+    ASSERT(numClients == clients.size());
+    for (size_t i = 0; i < numClients; ++i)
+        clients[i]->fontCacheInvalidated();
+
+    purgeInactiveFontData();
 }
 
 } // namespace WebCore

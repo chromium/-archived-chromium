@@ -53,44 +53,44 @@ layer at (0,0) size 800x600
               RenderTableCell (anonymous) at (0,0) size 114x20 [r=0 c=0 rs=1 cs=1]
                 RenderText {#text} at (0,0) size 114x19
                   text run at (0,0) width 114: "display: inline-table"
-      RenderBlock {DIV} at (0,344) size 784x15
-        RenderTable at (0,0) size 149x15
-          RenderTableSection {FORM} at (0,0) size 149x15
-            RenderTableRow (anonymous) at (0,0) size 149x15
+      RenderBlock {DIV} at (0,344) size 784x0
+        RenderTable at (0,0) size 149x0
+          RenderTableSection {FORM} at (0,0) size 149x0
+            RenderTableRow (anonymous) at (0,0) size 149x0
               RenderTableCell (anonymous) at (0,0) size 149x0 [r=0 c=0 rs=1 cs=1]
                 RenderText {#text} at (0,0) size 0x0
-      RenderBlock {DIV} at (0,359) size 784x15
-        RenderTable at (0,0) size 166x15
-          RenderTableSection {FORM} at (0,0) size 166x15
-            RenderTableRow (anonymous) at (0,0) size 166x15
+      RenderBlock {DIV} at (0,344) size 784x0
+        RenderTable at (0,0) size 166x0
+          RenderTableSection {FORM} at (0,0) size 166x0
+            RenderTableRow (anonymous) at (0,0) size 166x0
               RenderTableCell (anonymous) at (0,0) size 166x0 [r=0 c=0 rs=1 cs=1]
                 RenderText {#text} at (0,0) size 0x0
-      RenderBlock {DIV} at (0,374) size 784x15
-        RenderTable at (0,0) size 161x15
-          RenderTableSection {FORM} at (0,0) size 161x15
-            RenderTableRow (anonymous) at (0,0) size 161x15
+      RenderBlock {DIV} at (0,344) size 784x0
+        RenderTable at (0,0) size 161x0
+          RenderTableSection {FORM} at (0,0) size 161x0
+            RenderTableRow (anonymous) at (0,0) size 161x0
               RenderTableCell (anonymous) at (0,0) size 161x0 [r=0 c=0 rs=1 cs=1]
                 RenderText {#text} at (0,0) size 0x0
-      RenderBlock {DIV} at (0,389) size 784x20
+      RenderBlock {DIV} at (0,344) size 784x20
         RenderTable at (0,0) size 108x20
           RenderTableSection (anonymous) at (0,0) size 108x20
             RenderTableRow {FORM} at (0,0) size 108x20
               RenderTableCell (anonymous) at (0,0) size 108x20 [r=0 c=0 rs=1 cs=1]
                 RenderText {#text} at (0,0) size 108x19
                   text run at (0,0) width 108: "display: table-row"
-      RenderBlock {DIV} at (0,409) size 784x0
+      RenderBlock {DIV} at (0,364) size 784x0
         RenderTable at (0,0) size 0x0
           RenderTableCol {FORM} at (0,0) size 0x0
-      RenderBlock {DIV} at (0,409) size 784x0
+      RenderBlock {DIV} at (0,364) size 784x0
         RenderTableCol {FORM} at (0,0) size 0x0
-      RenderBlock {DIV} at (0,425) size 784x20
+      RenderBlock {DIV} at (0,380) size 784x20
         RenderTable at (0,0) size 104x20
           RenderTableSection (anonymous) at (0,0) size 104x20
             RenderTableRow (anonymous) at (0,0) size 104x20
               RenderTableCell {FORM} at (0,0) size 104x20 [r=0 c=0 rs=1 cs=1]
                 RenderText {#text} at (0,0) size 104x19
                   text run at (0,0) width 104: "display: table-cell"
-      RenderBlock {DIV} at (0,445) size 784x0
+      RenderBlock {DIV} at (0,400) size 784x0
         RenderTable at (0,0) size 45x0
           RenderBlock {FORM} at (0,0) size 0x0
             RenderText {#text} at (0,0) size 0x0

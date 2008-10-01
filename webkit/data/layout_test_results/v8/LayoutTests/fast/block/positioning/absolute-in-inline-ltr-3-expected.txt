@@ -2,7 +2,7 @@ layer at (0,0) size 800x600
   RenderView at (0,0) size 800x600
 layer at (0,0) size 800x600
   RenderBlock {HTML} at (0,0) size 800x600
-    RenderBody {BODY} at (8,8) size 784x576
+    RenderBody {BODY} at (8,8) size 784x584
       RenderBlock {P} at (0,0) size 784x20
         RenderText {#text} at (0,0) size 595x19
           text run at (0,0) width 595: "The black outline box should be a 50px by 50px square with its top left corner anchored to the left "
@@ -11,7 +11,7 @@ layer at (0,0) size 800x600
             text run at (595,0) width 25: "blue"
         RenderText {#text} at (620,0) size 140x19
           text run at (620,0) width 140: " border on the first line."
-      RenderBlock {P} at (0,36) size 600x80
+      RenderBlock {DIV} at (0,36) size 600x80
         RenderText {#text} at (0,0) size 178x19
           text run at (0,0) width 178: "ILorem ipsum dolor sit amet, "
         RenderText {#text} at (425,40) size 559x39

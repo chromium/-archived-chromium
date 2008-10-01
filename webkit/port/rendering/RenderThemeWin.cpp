@@ -250,7 +250,7 @@ static wchar_t* defaultGUIFont(Document* document)
   if (dominantScript != USCRIPT_LATIN && dominantScript != USCRIPT_CYRILLIC &&
       dominantScript != USCRIPT_GREEK && dominantScript != USCRIPT_INVALID_CODE) {
       family = gfx::GetFontFamilyForScript(dominantScript,
-          gfx::GenericFamilyType::GENERIC_FAMILY_NONE);
+          gfx::GENERIC_FAMILY_NONE);
       if (family)
           return const_cast<wchar_t*>(family);
   } 
@@ -293,7 +293,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
     wchar_t* faceName = 0;
     float fontSize = 0;
     switch (propId) {
-        case CSS_VAL_SMALL_CAPTION:
+        case CSSValueSmallCaption:
             cachedDesc = &SmallSystemFont;
             if (!SmallSystemFont.isAbsoluteSize()) {
                 if (webkit_glue::IsLayoutTestMode()) {
@@ -306,7 +306,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
                 }
             }
             break;
-        case CSS_VAL_MENU:
+        case CSSValueMenu:
             cachedDesc = &MenuFont;
             if (!MenuFont.isAbsoluteSize()) {
                 if (webkit_glue::IsLayoutTestMode()) {
@@ -319,7 +319,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
                 }
             }
             break;
-        case CSS_VAL_STATUS_BAR:
+        case CSSValueStatusBar:
             cachedDesc = &LabelFont;
             if (!LabelFont.isAbsoluteSize()) {
                 if (webkit_glue::IsLayoutTestMode()) {
@@ -332,7 +332,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
                 }
             }
             break;
-        case CSS_VAL__WEBKIT_MINI_CONTROL:
+        case CSSValueWebkitMiniControl:
             if (webkit_glue::IsLayoutTestMode()) {
                 fontSize = systemFontSizeForControlSize(MiniControlSize);
             } else {
@@ -342,7 +342,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
                 fontSize = DefaultFontSize - pointsToPixels(2);
             }
             break;
-        case CSS_VAL__WEBKIT_SMALL_CONTROL:
+        case CSSValueWebkitSmallControl:
               if (webkit_glue::IsLayoutTestMode()) {
                   fontSize = systemFontSizeForControlSize(SmallControlSize);
               } else {
@@ -350,7 +350,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
                   fontSize = DefaultFontSize - pointsToPixels(2);
               }
             break;
-        case CSS_VAL__WEBKIT_CONTROL:
+        case CSSValueWebkitControl:
             if (webkit_glue::IsLayoutTestMode()) {
                 fontSize = systemFontSizeForControlSize(RegularControlSize);
             } else {
@@ -381,7 +381,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
         cachedDesc->setIsAbsoluteSize(true);
         cachedDesc->setGenericFamily(FontDescription::NoFamily);
         cachedDesc->setSpecifiedSize(fontSize);
-        cachedDesc->setBold(false);
+        cachedDesc->setWeight(FontWeightNormal);
         cachedDesc->setItalic(false);
     }
     fontDescription = *cachedDesc;
@@ -477,10 +477,7 @@ ThemeData RenderThemeWin::getThemeData(RenderObject* o)
 bool RenderThemeWin::paintButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r)
 {
     // Get the correct theme data for a button and paint the button.
-    PlatformContextSkia* skia = PlatformContextToPlatformContextSkia(i.context->platformContext());
-    SkIRect rect;
-    WebCoreRectToSkiaRect(r, &rect);
-    skia->paintButton(rect, getThemeData(o));
+    i.context->platformContext()->paintButton(r, getThemeData(o));
     return false;
 }
 
@@ -554,10 +551,7 @@ bool RenderThemeWin::paintTextFieldInternal(RenderObject* o, const RenderObject:
       return false;
 
     // Get the correct theme data for a textfield and paint the text field.
-    PlatformContextSkia* skia = PlatformContextToPlatformContextSkia(i.context->platformContext());
-    SkIRect rect;
-    WebCoreRectToSkiaRect(r, &rect);
-    skia->paintTextField(rect, getThemeData(o), o->style()->backgroundColor().rgb(), drawEdges);
+    i.context->platformContext()->paintTextField(r, getThemeData(o), o->style()->backgroundColor().rgb(), drawEdges);
     return false;
 }
 
@@ -634,10 +628,7 @@ bool RenderThemeWin::paintMenuList(RenderObject* o, const RenderObject::PaintInf
                        r.height() - (spacingTop + spacingBottom));
 
     // Get the correct theme data for a textfield and paint the menu.
-    PlatformContextSkia* skia = PlatformContextToPlatformContextSkia(i.context->platformContext());
-    SkIRect rect;
-    WebCoreRectToSkiaRect(buttonRect, &rect);
-    skia->paintMenuListArrowButton(rect, determineState(o), determineClassicState(o));
+    i.context->platformContext()->paintMenuListArrowButton(buttonRect, determineState(o), determineClassicState(o));
     return false;
 }
 

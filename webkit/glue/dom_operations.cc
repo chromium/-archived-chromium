@@ -87,8 +87,7 @@ void GetSavableResourceLinkForElement(WebCore::Element* element,
   if (!value)
     return;
   // Get absolute URL.
-  GURL u(webkit_glue::KURLToGURL(current_doc->completeURL((*value).
-                                 deprecatedString())));
+  GURL u(webkit_glue::KURLToGURL(current_doc->completeURL((*value).string())));
   // ignore invalid URL
   if (!u.is_valid())
     return;
@@ -104,8 +103,7 @@ void GetSavableResourceLinkForElement(WebCore::Element* element,
   // Insert referrer for above new resource link.
   if (current_doc->frame()) {
     GURL u(webkit_glue::KURLToGURL(
-        current_doc->frame()->loader()->outgoingReferrer().
-        deprecatedString()));
+        WebCore::KURL(current_doc->frame()->loader()->outgoingReferrer())));
     result->referrers_list->push_back(u);
   } else {
     // Insert blank referrer.
@@ -505,7 +503,7 @@ const WebCore::AtomicString* GetSubResourceLinkFromElement(
   // If value has content and not start with "javascript:" then return it,
   // otherwise return NULL.
   if (value && !value->isEmpty() &&
-      !value->domString().startsWith("javascript:", false))
+      !value->startsWith("javascript:", false))
     return value;
 
   return NULL;

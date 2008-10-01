@@ -7,45 +7,22 @@
 #ifndef SkiaUtils_h
 #define SkiaUtils_h
 
+#include <wtf/PassRefPtr.h>
 #include "base/float_util.h"
 #include "GraphicsContext.h"
 #include "SkPath.h"
 #include "SkShader.h"
 #include "PlatformContextSkia.h"
 
+class WebCore::SharedBuffer;
 class SkRegion;
-
-// Converts the given WebCore point to a Skia point.
-void WebCorePointToSkiaPoint(const WebCore::IntPoint& src, SkPoint* dst);
-void WebCorePointToSkiaPoint(const WebCore::FloatPoint& src, SkPoint* dst);
-
-// Converts from various types of WebCore rectangles to the corresponding
-// Skia rectangle types.
-void WebCoreRectToSkiaRect(const WebCore::IntRect& src, SkRect* dst);
-void WebCoreRectToSkiaRect(const WebCore::FloatRect& src, SkRect* dst);
-void WebCoreRectToSkiaRect(const WebCore::IntRect& src, SkIRect* dst);
-void WebCoreRectToSkiaRect(const WebCore::FloatRect& src, SkIRect* dst);
-
-// Converts a WebCore |Path| to an SkPath.
-inline SkPath* PathToSkPath(const WebCore::Path& path) {
-  return reinterpret_cast<SkPath*>(path.platformPath());
-}
 
 // Converts a WebCore composit operation (WebCore::Composite*) to the
 // corresponding Skia type.
 SkPorterDuff::Mode WebCoreCompositeToSkiaComposite(WebCore::CompositeOperator);
 
-// Converts a WebCore tiling rule to the corresponding Skia tiling mode.
-SkShader::TileMode WebCoreTileToSkiaTile(WebCore::Image::TileRule);
-
 // Converts Android colors to WebKit ones.
 WebCore::Color SkPMColorToWebCoreColor(SkPMColor pm);
-
-// A platform graphics context is actually a PlatformContextSkia.
-inline PlatformContextSkia* PlatformContextToPlatformContextSkia(
-    PlatformGraphicsContext* context) {
-  return reinterpret_cast<PlatformContextSkia*>(context);
-}
 
 // Skia has problems when passed infinite, etc floats, filter them to 0.
 inline SkScalar WebCoreFloatToSkScalar(const float& f) {
@@ -74,5 +51,7 @@ void ClipRectToCanvas(const SkCanvas& canvas, const SkRect& src_rect,
 // Determine if a given WebKit point is contained in a path
 bool SkPathContainsPoint(SkPath* orig_path, WebCore::FloatPoint point, SkPath::FillType ft);
 
-#endif  // SkiaUtils_h
+// Constructs a BMP V4 bitmap from an SkBitmap.
+PassRefPtr<WebCore::SharedBuffer> SerializeSkBitmap(const SkBitmap&);
 
+#endif  // SkiaUtils_h

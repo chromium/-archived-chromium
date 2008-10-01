@@ -34,6 +34,7 @@ namespace WebCore {
 
 class Cache;
 class CachedResourceClient;
+class CacheHandleBase;
 class DocLoader;
 class Request;
 
@@ -65,8 +66,11 @@ public:
         Cached        // regular case
     };
 
-    CachedResource(const String& url, Type, bool forCache = true, bool sendResourceLoadCallbacks = false);
+    CachedResource(const String& url, Type);
     virtual ~CachedResource();
+    
+    virtual void load(DocLoader* docLoader)  { load(docLoader, false, false, true); }
+    void load(DocLoader*, bool incremental, bool skipCanLoadCheck, bool sendResourceLoadCallbacks);
 
     virtual void setEncoding(const String&) { }
     virtual String encoding() const { return String(); }
@@ -76,10 +80,20 @@ public:
     const String &url() const { return m_url; }
     Type type() const { return m_type; }
 
-    virtual void ref(CachedResourceClient*);
-    void deref(CachedResourceClient*);
-    bool referenced() const { return !m_clients.isEmpty(); }
-    virtual void allReferencesRemoved() {};
+    virtual void addClient(CachedResourceClient*);
+    void removeClient(CachedResourceClient*);
+    bool hasClients() const { return !m_clients.isEmpty(); }
+
+    enum PreloadResult {
+        PreloadNotReferenced,
+        PreloadReferenced,
+        PreloadReferencedWhileLoading,
+        PreloadReferencedWhileComplete
+    };
+    PreloadResult preloadResult() const { return m_preloadResult; }
+    void setRequestedFromNetworkingLayer() { m_requestedFromNetworkingLayer = true; }
+        
+    virtual void allClientsRemoved() { };
 
     unsigned count() const { return m_clients.size(); }
 
@@ -115,7 +129,7 @@ public:
     void setResponse(const ResourceResponse& response) { m_response = response; }
     const ResourceResponse& response() const { return m_response; }
     
-    bool canDelete() const { return !referenced() && !m_request; }
+    bool canDelete() const { return !hasClients() && !m_request && !m_preloadCount; }
 
     bool isExpired() const;
 
@@ -127,7 +141,6 @@ public:
     void setAccept(const String& accept) { m_accept = accept; }
 
     bool errorOccurred() const { return m_errorOccurred; }
-    bool treatAsLocal() const { return m_shouldTreatAsLocal; }
     bool sendResourceLoadCallbacks() const { return m_sendResourceLoadCallbacks; }
     
     virtual void destroyDecodedData() {};
@@ -137,6 +150,10 @@ public:
 #if PLATFORM(MAC)
     SharedBuffer* data() const { return m_data.get(); }
 #endif
+    
+    bool isPreloaded() const { return m_preloadCount; }
+    void increasePreloadCount() { ++m_preloadCount; }
+    void decreasePreloadCount() { ASSERT(m_preloadCount); --m_preloadCount; }
     
 protected:
     void setEncodedSize(unsigned);
@@ -165,6 +182,11 @@ private:
     double m_lastDecodedAccessTime; // Used as a "thrash guard" in the cache
     
     bool m_sendResourceLoadCallbacks;
+    
+    unsigned m_preloadCount;
+    PreloadResult m_preloadResult;
+    bool m_requestedFromNetworkingLayer;
+
 protected:
     bool m_inCache;
     bool m_loading;
@@ -180,8 +202,6 @@ private:
     
     CachedResource* m_nextInLiveResourcesList;
     CachedResource* m_prevInLiveResourcesList;
-
-    bool m_shouldTreatAsLocal;
 
     DocLoader* m_docLoader; // only non-0 for resources that are not in the cache
 };

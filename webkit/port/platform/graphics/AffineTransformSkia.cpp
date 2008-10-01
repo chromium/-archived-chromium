@@ -78,26 +78,18 @@ void AffineTransform::map(double x, double y, double *x2, double *y2) const
     *y2 = SkScalarToDouble(dst.fY);
 }
 
-IntRect AffineTransform::mapRect(const IntRect &rect) const
+IntRect AffineTransform::mapRect(const IntRect& src) const
 {
-    SkRect      src, dst;
-    SkIRect    ir;
-
-    WebCoreRectToSkiaRect(rect, &src);
+    SkRect  dst;
     m_transform.mapRect(&dst, src);
-    dst.round(&ir);
-
-    return IntRect(ir.fLeft, ir.fTop, ir.width(), ir.height());
+    return enclosingIntRect(dst);
 }
 
-FloatRect AffineTransform::mapRect(const FloatRect &rect) const
+FloatRect AffineTransform::mapRect(const FloatRect& src) const
 {
-    SkRect      src, dst;
-    
-    WebCoreRectToSkiaRect(rect, &src);
+    SkRect dst;
     m_transform.mapRect(&dst, src);
-
-    return FloatRect(dst.fLeft, dst.fTop, dst.width(), dst.height());
+    return dst;
 }
 
 bool AffineTransform::isIdentity() const
@@ -152,18 +144,18 @@ AffineTransform::operator SkMatrix() const
     return m_transform;
 }
 
-bool AffineTransform::operator==(const AffineTransform &m2) const
+bool AffineTransform::operator==(const AffineTransform& m2) const
 {
     return m_transform == m2.m_transform;
 }
 
-AffineTransform &AffineTransform::operator*= (const AffineTransform &m2)
+AffineTransform &AffineTransform::operator*=(const AffineTransform& m2)
 {
     m_transform.setConcat(m2.m_transform, m_transform);
     return *this;
 }
 
-AffineTransform AffineTransform::operator* (const AffineTransform &m2)
+AffineTransform AffineTransform::operator*(const AffineTransform& m2)
 {
     AffineTransform cat;
     
@@ -171,46 +163,58 @@ AffineTransform AffineTransform::operator* (const AffineTransform &m2)
     return cat;
 }
 
-double AffineTransform::a() const {
+double AffineTransform::a() const
+{
     return SkScalarToDouble(m_transform.getScaleX());
 }
-void AffineTransform::setA(double a) {
+void AffineTransform::setA(double a)
+{
     m_transform.setScaleX(WebCoreDoubleToSkScalar(a));
 }
 
-double AffineTransform::b() const {
+double AffineTransform::b() const
+{
     return SkScalarToDouble(m_transform.getSkewY());
 }
-void AffineTransform::setB(double b) {
+void AffineTransform::setB(double b)
+{
     m_transform.setSkewY(WebCoreDoubleToSkScalar(b));
 }
 
-double AffineTransform::c() const {
+double AffineTransform::c() const
+{
     return SkScalarToDouble(m_transform.getSkewX());
 }
-void AffineTransform::setC(double c) {
+void AffineTransform::setC(double c)
+{
     m_transform.setSkewX(WebCoreDoubleToSkScalar(c));
 }
 
-double AffineTransform::d() const {
+double AffineTransform::d() const
+{
     return SkScalarToDouble(m_transform.getScaleY());
 }
-void AffineTransform::setD(double d) {
+void AffineTransform::setD(double d)
+{
     m_transform.setScaleY(WebCoreDoubleToSkScalar(d));
 }
 
-double AffineTransform::e() const {
+double AffineTransform::e() const
+{
     return SkScalarToDouble(m_transform.getTranslateX());
 }
-void AffineTransform::setE(double e) {
+void AffineTransform::setE(double e)
+{
     m_transform.setTranslateX(WebCoreDoubleToSkScalar(e));
 }
 
-double AffineTransform::f() const {
+double AffineTransform::f() const
+{
     return SkScalarToDouble(m_transform.getTranslateY());
 }
-void AffineTransform::setF(double f) {
+void AffineTransform::setF(double f)
+{
     m_transform.setTranslateY(WebCoreDoubleToSkScalar(f));
 }
 
-}
+} // namespace WebCore

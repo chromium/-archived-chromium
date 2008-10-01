@@ -41,4 +41,4 @@ IntSize::operator SIZE() const
     return s;
 }
 
-}
+} // namespace WebCore

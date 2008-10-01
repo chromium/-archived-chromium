@@ -2,7 +2,8 @@
  * Copyright (C) 2000 Lars Knoll (knoll@kde.org)
  *           (C) 2000 Antti Koivisto (koivisto@kde.org)
  *           (C) 2000 Dirk Mueller (mueller@kde.org)
- * Copyright (C) 2003-6 Apple Computer, Inc.
+ * Copyright (C) 2003, 2004, 2005, 2006, 2007, 2008 Apple Inc. All rights reserved.
+ * Copyright (C) 2007 Nicholas Shanks <webkit@nickshanks.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -25,16 +26,25 @@
 #define FontDescription_h
 
 #include "FontFamily.h"
+#include "FontRenderingMode.h"
+#include "FontTraitsMask.h"
 #include <unicode/uscript.h>
 
 namespace WebCore {
 
-const unsigned cNormalWeight = 50;
-const unsigned cBoldWeight = 63;
-
-// This setting is used to provide ways of switching between multiple rendering modes that may have different
-// metrics.  It is used to switch between CG and GDI text on Windows.
-enum FontRenderingMode { NormalRenderingMode, AlternateRenderingMode };
+enum FontWeight {
+    FontWeight100,
+    FontWeight200,
+    FontWeight300,
+    FontWeight400,
+    FontWeight500,
+    FontWeight600,
+    FontWeight700,
+    FontWeight800,
+    FontWeight900,
+    FontWeightNormal = FontWeight400,
+    FontWeightBold = FontWeight700
+};
 
 class FontDescription {
 public:
@@ -42,12 +52,20 @@ public:
                              MonospaceFamily, CursiveFamily, FantasyFamily };
 
     FontDescription()
-        : m_specifiedSize(0), m_computedSize(0), 
-          m_italic(false), m_smallCaps(false), m_isAbsoluteSize(false), m_weight(cNormalWeight), 
-          m_genericFamily(NoFamily), m_usePrinterFont(false), m_renderingMode(NormalRenderingMode), m_keywordSize(0),
-          m_dominantScript(USCRIPT_INVALID_CODE)
-          {}
-    
+        : m_specifiedSize(0)
+        , m_computedSize(0)
+        , m_italic(false)
+        , m_smallCaps(false)
+        , m_isAbsoluteSize(false)
+        , m_weight(FontWeightNormal)
+        , m_genericFamily(NoFamily)
+        , m_usePrinterFont(false)
+        , m_renderingMode(NormalRenderingMode)
+        , m_keywordSize(0)
+        , m_dominantScript(USCRIPT_INVALID_CODE)
+    {
+    }
+
     bool operator==(const FontDescription&) const;
     bool operator!=(const FontDescription& other) const { return !(*this == other); }
     
@@ -56,25 +74,27 @@ public:
     float specifiedSize() const { return m_specifiedSize; }
     float computedSize() const { return m_computedSize; }
     bool italic() const { return m_italic; }
-    bool bold() const { return weight() == cBoldWeight; }
     int computedPixelSize() const { return int(m_computedSize + 0.5f); }
     bool smallCaps() const { return m_smallCaps; }
     bool isAbsoluteSize() const { return m_isAbsoluteSize; }
-    unsigned weight() const { return m_weight; }
+    FontWeight weight() const { return static_cast<FontWeight>(m_weight); }
+    FontWeight lighterWeight() const;
+    FontWeight bolderWeight() const;
     GenericFamilyType genericFamily() const { return static_cast<GenericFamilyType>(m_genericFamily); }
     bool usePrinterFont() const { return m_usePrinterFont; }
     FontRenderingMode renderingMode() const { return static_cast<FontRenderingMode>(m_renderingMode); }
     int keywordSize() const { return m_keywordSize; }
     UScriptCode dominantScript() const { return m_dominantScript; }
 
+    FontTraitsMask traitsMask() const;
+
     void setFamily(const FontFamily& family) { m_familyList = family; }
     void setComputedSize(float s) { m_computedSize = s; }
     void setSpecifiedSize(float s) { m_specifiedSize = s; }
     void setItalic(bool i) { m_italic = i; }
-    void setBold(bool b) { m_weight = (b ? cBoldWeight : cNormalWeight); }
     void setSmallCaps(bool c) { m_smallCaps = c; }
     void setIsAbsoluteSize(bool s) { m_isAbsoluteSize = s; }
-    void setWeight(unsigned w) { m_weight = w; }
+    void setWeight(FontWeight w) { m_weight = w; }
     void setGenericFamily(GenericFamilyType genericFamily) { m_genericFamily = genericFamily; }
     void setUsePrinterFont(bool p) { m_usePrinterFont = p; }
     void setRenderingMode(FontRenderingMode mode) { m_renderingMode = mode; }
@@ -92,7 +112,7 @@ private:
     bool m_smallCaps : 1;
     bool m_isAbsoluteSize : 1;   // Whether or not CSS specified an explicit size
                                  // (logical sizes like "medium" don't count).
-    unsigned m_weight : 8;
+    unsigned m_weight : 8; // FontWeight
     unsigned m_genericFamily : 3; // GenericFamilyType
     bool m_usePrinterFont : 1;
 

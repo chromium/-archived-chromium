@@ -85,10 +85,13 @@
 #pragma warning(push, 0)
 #include "HTMLFormElement.h"  // need this before Document.h
 #include "Chrome.h"
+#include "Console.h"
 #include "Document.h"
 #include "DocumentFragment.h"  // Only needed for ReplaceSelectionCommand.h :(
 #include "DocumentLoader.h"
+#include "DOMWindow.h"
 #include "Editor.h"
+#include "EventHandler.h"
 #include "Frame.h"
 #include "FrameLoader.h"
 #include "FrameLoadRequest.h"
@@ -111,6 +114,7 @@
 #include "ResourceHandleWin.h"
 #endif
 #include "ResourceRequest.h"
+#include "ScriptController.h"
 #include "SelectionController.h"
 #include "Settings.h"
 #include "SkiaUtils.h"
@@ -145,8 +149,8 @@
 
 using WebCore::ChromeClientWin;
 using WebCore::Color;
-using WebCore::DeprecatedString;
 using WebCore::Document;
+using WebCore::DocumentFragment;
 using WebCore::DocumentLoader;
 using WebCore::ExceptionCode;
 using WebCore::GraphicsContext;
@@ -300,13 +304,11 @@ WebFrameImpl::~WebFrameImpl() {
 void WebFrameImpl::InitMainFrame(WebViewImpl* webview_impl) {
   webview_impl_ = webview_impl;  // owning ref
 
-  Frame* frame = new Frame(webview_impl_->page(), 0, &frame_loader_client_);
+  frame_ = Frame::create(webview_impl_->page(), 0, &frame_loader_client_);
 
   // Add reference on behalf of FrameLoader.  See comments in
   // WebFrameLoaderClient::frameLoaderDestroyed for more info.
   AddRef();
-
-  frame_ = frame;
 
   // We must call init() after frame_ is assigned because it is referenced
   // during init().
@@ -343,11 +345,10 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
 
     // TODO(darin): Is this the best API to use here?  It works and seems good,
     // but will it change out from under us?
-    DeprecatedString script =
-        KURL::decode_string(kurl.deprecatedString().mid(sizeof("javascript:")-1));
+    String script =
+        decodeURLEscapeSequences(kurl.string().substring(sizeof("javascript:")-1));
     bool succ = false;
-    WebCore::String value =
-        frame_->loader()->executeScript(script, &succ, true);
+    String value = frame_->loader()->executeScript(script, &succ, true);
     if (succ && !frame_->loader()->isScheduledLocationChangePending()) {
       // TODO(darin): We need to figure out how to represent this in session
       // history.  Hint: don't re-eval script when the user or script navigates
@@ -388,7 +389,7 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
     // WebKit hoarks. This is probably the wrong thing to do, but it seems to
     // work.
     if (!current_item) {
-      current_item = new HistoryItem(KURL("about:blank"), "");
+      current_item = HistoryItem::create();
       frame_->loader()->setCurrentHistoryItem(current_item);
       frame_->page()->backForwardList()->setCurrentItem(current_item.get());
 
@@ -419,7 +420,7 @@ void WebFrameImpl::LoadAlternateHTMLString(const WebRequest* request,
                                            const GURL& display_url,
                                            bool replace) {
   int len = static_cast<int>(html_text.size());
-  RefPtr<SharedBuffer> buf(new SharedBuffer(html_text.data(), len));
+  RefPtr<SharedBuffer> buf = SharedBuffer::create(html_text.data(), len);
 
   SubstituteData subst_data(
       buf, String("text/html"), String("UTF-8"),
@@ -464,7 +465,7 @@ GURL WebFrameImpl::GetOSDDURL() const {
                 child, WebCore::HTMLNames::linkTag);
         if (link_element && link_element->type() == kOSDType &&
             link_element->rel() == kOSDRel && !link_element->href().isEmpty()) {
-          return GURL(link_element->href().charactersWithNullTermination());
+          return webkit_glue::KURLToGURL(link_element->href());
         }
       }
     }
@@ -693,22 +694,23 @@ WebView* WebFrameImpl::GetView() const {
 
 void WebFrameImpl::BindToWindowObject(const std::wstring& name,
                                       NPObject* object) {
-    assert(frame_);
-    if (!frame_ || !frame_->scriptBridge()->isEnabled())
-      return;
+  assert(frame_);
+  if (!frame_ || !frame_->script()->isEnabled())
+    return;
 
-    String key = webkit_glue::StdWStringToString(name);
-    frame_->scriptBridge()->BindToWindowObject(frame_.get(), key, object);
+  String key = webkit_glue::StdWStringToString(name);
+  frame_->script()->BindToWindowObject(frame_.get(), key, object);
 }
 
 
 // Call JavaScript garbage collection.
 void WebFrameImpl::CallJSGC() {
-    if (!frame_) return;
-    if (!frame_->settings()->isJavaScriptEnabled()) return;
-    frame_->scriptBridge()->CollectGarbage();
+  if (!frame_)
+    return;
+  if (!frame_->settings()->isJavaScriptEnabled())
+    return;
+  frame_->script()->collectGarbage();
 }
-
 
 void WebFrameImpl::GetContentAsPlainText(int max_chars,
                                          std::wstring* text) const {
@@ -802,10 +804,10 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
   // If the user has selected something since the last Find operation we want
   // to start from there. Otherwise, we start searching from where the last Find
   // operation left off (either a Find or a FindNext operation).
-  Selection selection(frame()->selectionController()->selection());
+  Selection selection(frame()->selection()->selection());
   if (selection.isNone() && last_active_range_) {
     selection = Selection(last_active_range_.get());
-    frame()->selectionController()->setSelection(selection);
+    frame()->selection()->setSelection(selection);
   }
 
   DCHECK(frame() && frame()->view());
@@ -823,7 +825,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
     main_frame_impl->active_tickmark_frame_ = this;
 
     // We found something, so we can now query the selection for its position.
-    Selection new_selection(frame()->selectionController()->selection());
+    Selection new_selection(frame()->selection()->selection());
 
     // If we thought we found something, but it couldn't be selected (perhaps
     // because it was marked -webkit-user-select: none), we can't set it to
@@ -942,7 +944,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   }
 
   Selection selection(tickmarks_[active_tickmark_].get());
-  frame()->selectionController()->setSelection(selection);
+  frame()->selection()->setSelection(selection);
   frame()->revealSelection();  // Scroll the selection into view if necessary.
   // Make sure we save where the selection was after the operation so that
   // we can set the selection to it for the next Find operation (if needed).
@@ -1088,7 +1090,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
     // This is a continuation of a scoping operation that timed out and didn't
     // complete last time around, so we should start from where we left off.
     RefPtr<Range> start_range = tickmarks_.last();
-    searchRange->setStart(start_range->startNode(),
+    searchRange->setStart(start_range->startContainer(),
                           start_range->startOffset(ec2) + 1, ec);
     if (ec != 0 || ec2 != 0) {
       NOTREACHED();
@@ -1234,7 +1236,7 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
     RefPtr<Range> range = tickmarks_[active_tickmark_];
 
     // Set the selection to what the active match is.
-    frame()->selectionController()->setSelectedRange(
+    frame()->selection()->setSelectedRange(
         range.get(), WebCore::DOWNSTREAM, false);
 
     // We will be setting focus ourselves, so we want the view to forget its
@@ -1243,7 +1245,7 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
 
     // Try to find the first focusable node up the chain, which will, for
     // example, focus links if we have found text within the link.
-    Node* node = range->startNode();
+    Node* node = range->firstNode();
     while (node && !node->isFocusable() && node != frame()->document())
       node = node->parent();
 
@@ -1254,8 +1256,8 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
       // Iterate over all the nodes in the range until we find a focusable node.
       // This, for example, sets focus to the first link if you search for
       // text and text that is within one or more links.
-      node = range->startNode();
-      while (node && node != range->pastEndNode()) {
+      node = range->firstNode();
+      while (node && node != range->pastLastNode()) {
         if (node->isFocusable()) {
           frame()->document()->setFocusedNode(node);
           break;
@@ -1277,7 +1279,7 @@ void WebFrameImpl::StopFinding(bool clear_selection) {
 }
 
 void WebFrameImpl::SelectAll() {
-  frame()->selectionController()->selectAll();
+  frame()->selection()->selectAll();
 
   WebViewDelegate* d = GetView()->GetDelegate();
   if (d)
@@ -1354,7 +1356,10 @@ void WebFrameImpl::Paste() {
 
 void WebFrameImpl::Replace(const std::wstring& wtext) {
   String text = webkit_glue::StdWStringToString(wtext);
-  frame()->editor()->replaceSelectionWithText(text, false, true);
+  RefPtr<DocumentFragment> fragment =
+      createFragmentFromText(frame()->selection()->toRange().get(), text);
+  WebCore::applyCommand(WebCore::ReplaceSelectionCommand::create(
+      frame()->document(), fragment.get(), false, true, true));
 }
 
 void WebFrameImpl::Delete() {
@@ -1382,7 +1387,7 @@ void WebFrameImpl::Redo() {
 }
 
 void WebFrameImpl::ClearSelection() {
-  frame()->selectionController()->clear();
+  frame()->selection()->clear();
 }
 
 void WebFrameImpl::CreateFrameView() {
@@ -1453,12 +1458,9 @@ WebFrameImpl* WebFrameImpl::FromFrame(WebCore::Frame* frame) {
 
 void WebFrameImpl::Layout() {
   // layout this frame
-  if (frame_->document())
-    frame_->document()->updateLayout();
-  // layout child frames
-  Frame* child = frame_->tree()->firstChild();
-  for (; child; child = child->tree()->nextSibling())
-    FromFrame(child)->Layout();
+  FrameView* view = frame_->view();
+  if (view)
+    view->layout();
 }
 
 void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
@@ -1629,18 +1631,16 @@ void WebFrameImpl::CreateChildFrame(const FrameLoadRequest& r,
   webframe->margin_height_ = margin_height;
 
   webframe->frame_ =
-    new Frame(frame_->page(), owner_element, &webframe->frame_loader_client_);
+    Frame::create(frame_->page(), owner_element, &webframe->frame_loader_client_);
   webframe->frame_->tree()->setName(r.frameName());
 
   webframe->webview_impl_ = webview_impl_;  // owning ref
 
-
-  // Note that Frames already start out with a refcount of 1.
   // We wait until loader()->load() returns before deref-ing the Frame.
   // Otherwise the danger is that the onload handler can cause
   // the Frame to be dealloc-ed, and subsequently trash memory.
   // (b:1055700)
-  WTF::RefPtr<Frame> protector(WTF::adoptRef(webframe->frame_.get()));
+  WTF::RefPtr<Frame> protector(webframe->frame_.get());
 
   frame_->tree()->appendChild(webframe->frame_);
 
@@ -1678,7 +1678,7 @@ void WebFrameImpl::CreateChildFrame(const FrameLoadRequest& r,
       // onLoad handlers, of any redirects that happened. An example of where
       // this is needed is Radar 3213556.
       new_url = KURL(KURL(""),
-                     childItem->originalURLString().deprecatedString());
+                     childItem->originalURLString());
 
       // These behaviors implied by these loadTypes should apply to the child
       // frames
@@ -1696,10 +1696,9 @@ void WebFrameImpl::CreateChildFrame(const FrameLoadRequest& r,
     }
   }
 
-  webframe->frame_->loader()->load(new_url,
-                                   r.resourceRequest().httpReferrer(),
-                                   childLoadType,
-                                   String(), NULL, NULL);
+  webframe->frame_->loader()->loadURLIntoChildFrame(new_url,
+        r.resourceRequest().httpReferrer(),
+        webframe->frame_.get());
 
   // A synchronous navigation (about:blank) would have already processed
   // onload, so it is possible for the frame to have already been destroyed by
@@ -1737,7 +1736,7 @@ void WebFrameImpl::AddMessageToConsole(const std::wstring& msg,
       return;
   }
 
-  frame()->page()->chrome()->addMessageToConsole(
+  frame()->domWindow()->console()->addMessage(
       WebCore::OtherMessageSource, webcore_message_level,
       webkit_glue::StdWStringToString(msg), 1, String());
 }
@@ -1861,4 +1860,8 @@ bool WebFrameImpl::IsReloadAllowingStaleData() const {
            loader->policyLoadType();
   }
   return false;
+}
+
+int WebFrameImpl::PendingFrameUnloadEventCount() const {
+  return frame()->eventHandler()->pendingFrameUnloadEventCount();
 }

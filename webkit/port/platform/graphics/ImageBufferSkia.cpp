@@ -30,13 +30,12 @@
 #include "config.h"
 #include "ImageBuffer.h"
 
+#include "BitmapImage.h"
 #include "GraphicsContext.h"
-#include "PlatformContextSkia.h"
-#include <cairo.h>
-
-#include "SkBitmap.h"
-
+#include "ImageData.h"
 #include "NotImplemented.h"
+#include "PlatformContextSkia.h"
+#include "SkiaUtils.h"
 
 using namespace std;
 
@@ -44,18 +43,7 @@ namespace WebCore {
 
 auto_ptr<ImageBuffer> ImageBuffer::create(const IntSize& size, bool)
 {
-  return auto_ptr<ImageBuffer>(new ImageBuffer(size));
-}
-
-const SkBitmap* ImageBuffer::image() const
-{
-    return m_context.get()->platformContext()->bitmap();
-}
-
-cairo_surface_t* ImageBuffer::surface() const
-{
-    notImplemented();
-    return NULL;
+    return auto_ptr<ImageBuffer>(new ImageBuffer(size));
 }
 
 GraphicsContext* ImageBuffer::context() const
@@ -63,7 +51,42 @@ GraphicsContext* ImageBuffer::context() const
     return m_context.get();
 }
 
+Image* ImageBuffer::image() const
+{
+    if (!m_image) {
+      // It's assumed that if image() is called, the actual rendering to
+      // the GraphicsContext must be done.
+      ASSERT(context());
+      const SkBitmap* bitmap = context()->platformContext()->bitmap();
+      m_image = BitmapImage::create();
+      // TODO(tc): This is inefficient because we serialize then re-interpret
+      // the image.  If this matters for performance, we should add another
+      // BitmapImage::create method that takes a SkBitmap (similar to what
+      // CoreGraphics does).
+      m_image->setData(SerializeSkBitmap(*bitmap), true);
+    }
+    return m_image.get();
+}
+
+PassRefPtr<ImageData> ImageBuffer::getImageData(const IntRect&) const
+{
+    notImplemented();
+    return 0;
+}
+
+void ImageBuffer::putImageData(ImageData*, const IntRect&, const IntPoint&)
+{
+    notImplemented();
+}
+
+String ImageBuffer::toDataURL(const String&) const
+{
+    notImplemented();
+    return String();
+}
+
 ImageBuffer::ImageBuffer(const IntSize& size) :
+    m_data(0),
     m_size(size),
     m_context(GraphicsContext::createOffscreenContext(size.width(), size.height()))
 {

@@ -40,7 +40,7 @@ namespace WebCore {
     class ResourceRequest : public ResourceRequestBase {
     public:
         ResourceRequest(const String& url) 
-            : ResourceRequestBase(KURL(url.deprecatedString()), UseProtocolCachePolicy)
+            : ResourceRequestBase(KURL(url), UseProtocolCachePolicy)
             , m_frame(0)
             , m_originPid(0)
             , m_resourceType(ResourceType::SUB_RESOURCE)

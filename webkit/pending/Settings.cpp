@@ -59,7 +59,9 @@ Settings::Settings(Page* page)
     , m_javaScriptCanOpenWindowsAutomatically(false)
     , m_shouldPrintBackgrounds(false)
     , m_textAreasAreResizable(false)
+#if ENABLE(DASHBOARD_SUPPORT)
     , m_usesDashboardBackwardCompatibilityMode(false)
+#endif
     , m_needsAdobeFrameReloadingQuirk(false)
     , m_needsKeyboardEventDisambiguationQuirks(false)
     , m_isDOMPasteAllowed(false)
@@ -71,7 +73,14 @@ Settings::Settings(Page* page)
     , m_authorAndUserStylesEnabled(true)
     , m_needsSiteSpecificQuirks(false)
     , m_fontRenderingMode(0)
-    , m_usesEncodingDetector(false)
+    , m_webArchiveDebugModeEnabled(false)
+    , m_inApplicationChromeMode(false)
+    , m_offlineWebApplicationCacheEnabled(false)
+    , m_rangeMutationDisabledForOldAppleMail(false)
+    , m_shouldPaintCustomScrollbars(false)
+    , m_zoomsTextOnly(false)
+    , m_enforceCSSMIMETypeInStrictMode(true)
+	, m_usesEncodingDetector(false)
     , m_allow_scripts_to_close_windows(false)
 {
     // A Frame may not have been created yet, so we initialize the AtomicString 
@@ -234,10 +243,12 @@ void Settings::setEditableLinkBehavior(EditableLinkBehavior editableLinkBehavior
     m_editableLinkBehavior = editableLinkBehavior;
 }
 
+#if ENABLE(DASHBOARD_SUPPORT)
 void Settings::setUsesDashboardBackwardCompatibilityMode(bool usesDashboardBackwardCompatibilityMode)
 {
     m_usesDashboardBackwardCompatibilityMode = usesDashboardBackwardCompatibilityMode;
 }
+#endif
 
 // FIXME: This quirk is needed because of Radar 4674537 and 5211271. We need to phase it out once Adobe
 // can fix the bug from their end.
@@ -323,6 +334,50 @@ FontRenderingMode Settings::fontRenderingMode() const
 void Settings::setNeedsSiteSpecificQuirks(bool needsQuirks)
 {
     m_needsSiteSpecificQuirks = needsQuirks;
+}
+
+void Settings::setWebArchiveDebugModeEnabled(bool enabled)
+{
+    m_webArchiveDebugModeEnabled = enabled;
+}
+
+void Settings::setLocalStorageDatabasePath(const String& path)
+{
+    m_localStorageDatabasePath = path;
+}
+
+void Settings::disableRangeMutationForOldAppleMail(bool disable)
+{
+    m_rangeMutationDisabledForOldAppleMail = disable;
+}
+
+void Settings::setApplicationChromeMode(bool mode)
+{
+    m_inApplicationChromeMode = mode;
+}
+
+void Settings::setOfflineWebApplicationCacheEnabled(bool enabled)
+{
+    m_offlineWebApplicationCacheEnabled = enabled;
+}
+
+void Settings::setShouldPaintCustomScrollbars(bool shouldPaintCustomScrollbars)
+{
+    m_shouldPaintCustomScrollbars = shouldPaintCustomScrollbars;
+}
+
+void Settings::setZoomsTextOnly(bool zoomsTextOnly)
+{
+    if (zoomsTextOnly == m_zoomsTextOnly)
+        return;
+    
+    m_zoomsTextOnly = zoomsTextOnly;
+    setNeedsReapplyStylesInAllFrames(m_page);
+}
+
+void Settings::setEnforceCSSMIMETypeInStrictMode(bool enforceCSSMIMETypeInStrictMode)
+{
+    m_enforceCSSMIMETypeInStrictMode = enforceCSSMIMETypeInStrictMode;
 }
 
 void Settings::setUsesUniversalDetector(bool usesEncodingDetector)

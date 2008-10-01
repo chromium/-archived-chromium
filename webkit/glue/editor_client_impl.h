@@ -42,7 +42,7 @@ class EditorClientImpl : public WebCore::EditorClient {
   virtual bool shouldEndEditing(WebCore::Range* range);
   virtual bool shouldInsertNode(WebCore::Node* node, WebCore::Range* range,
                                 WebCore::EditorInsertAction action);
-  virtual bool shouldInsertText(WebCore::String text, WebCore::Range* range,
+  virtual bool shouldInsertText(const WebCore::String& text, WebCore::Range* range,
                                 WebCore::EditorInsertAction action);
   virtual bool shouldDeleteRange(WebCore::Range* range);
   virtual bool shouldChangeSelectedRange(WebCore::Range* fromRange, 

@@ -409,4 +409,3 @@ void PNGImageDecoder::pngComplete()
 }
 
 }
-

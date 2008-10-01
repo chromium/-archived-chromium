@@ -1,9 +1,8 @@
-CONSOLE MESSAGE: line 37: Uncaught TypeError: Object #<an HTMLDocument> has no method 'getElementsById'
-layer at (0,0) size 785x1227
+layer at (0,0) size 785x1178
   RenderView at (0,0) size 785x600
-layer at (0,0) size 785x1227
-  RenderBlock {HTML} at (0,0) size 785x1227
-    RenderBody {BODY} at (8,8) size 769x1211
+layer at (0,0) size 785x1178
+  RenderBlock {HTML} at (0,0) size 785x1178
+    RenderBody {BODY} at (8,8) size 769x1162
       RenderBlock {CENTER} at (0,0) size 769x20
         RenderText {#text} at (323,0) size 122x19
           text run at (323,0) width 122: "bottom caption tests"
@@ -181,11 +180,7 @@ layer at (0,0) size 785x1227
       RenderBlock (anonymous) at (0,1062) size 769x20
         RenderText {#text} at (0,0) size 148x19
           text run at (0,0) width 148: "table 8 - remove caption"
-      RenderTable {TABLE} at (5,1092) size 88x119 [border: (10px solid #008000)]
-        RenderBlock {CAPTION} at (10,70) size 58x47 [border: (3px solid #800080)]
-          RenderText {#text} at (7,3) size 44x19
-            text run at (7,3) width 44: "caption"
-          RenderBlock {INPUT} at (24,26) size 12x13
+      RenderTable {TABLE} at (5,1092) size 88x70 [border: (10px solid #008000)]
         RenderTableSection {TBODY} at (10,10) size 68x50
           RenderTableRow {TR} at (0,2) size 68x22
             RenderTableCell {TD} at (2,2) size 31x22 [r=0 c=0 rs=1 cs=1]

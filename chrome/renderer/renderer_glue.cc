@@ -68,53 +68,16 @@ class ResizableStackArray {
 
 namespace webkit_glue {
 
-bool HistoryContains(const wchar_t* url, int url_length,
-                     const char* document_host, int document_host_length,
-                     bool is_dns_prefetch_enabled) {
-  if (url_length == 0)
-    return false;  // Empty URLs are not visited.
-
-  // Use big stack buffer to avoid allocation when possible.
-  url_parse::Parsed parsed;
-  url_canon::RawCanonOutput<2048> canon;
-
-  if (!url_util::Canonicalize(url, url_length, NULL, &canon, &parsed))
-    return false;  // Invalid URLs are not visited.
-
-  char* parsed_host = canon.data() + parsed.host.begin;
-
-  // If the hostnames match or is_dns_prefetch_enabled is true, do the prefetch.
-  if (parsed.host.is_nonempty()) {
-    if (is_dns_prefetch_enabled ||
-        (document_host_length > 0 && parsed.host.len == document_host_length &&
-         strncmp(parsed_host, document_host, parsed.host.len) == 0))
-      DnsPrefetchCString(parsed_host, parsed.host.len);
-  }
-
-  return RenderThread::current()->visited_link_slave()->
-      IsVisited(canon.data(), canon.length());
-}
-
-void DnsPrefetchUrl(const wchar_t* url, int url_length) {
-  if (url_length == 0)
-    return;  // Empty URLs have no hostnames.
-
-  // Use big stack buffer to avoid allocation when possible.
-  url_parse::Parsed parsed;
-  url_canon::RawCanonOutput<2048> canon;
-
-  if (!url_util::Canonicalize(url, url_length, NULL, &canon, &parsed))
-    return;  // Invalid URLs don't have hostnames.
-
-  // Call for prefetching without creating a std::string().
-  if (parsed.host.is_nonempty())
-    DnsPrefetchCString(canon.data() + parsed.host.begin, parsed.host.len);
+void PrefetchDns(const std::string& hostname) {
+  if (!hostname.empty())
+    DnsPrefetchCString(hostname.c_str(), hostname.length());
 }
 
 void PrecacheUrl(const wchar_t* url, int url_length) {
   // TBD: jar: Need implementation that loads the targetted URL into our cache.
   // For now, at least prefetch DNS lookup
-  DnsPrefetchUrl(url, url_length);
+  GURL parsed_url(std::wstring(url, url_length));
+  PrefetchDns(parsed_url.host());
 }
 
 void webkit_glue::AppendToLog(const char* file, int line, const char* msg) {
@@ -166,6 +129,10 @@ IMLangFontLink2* webkit_glue::GetLangFontLink() {
 
 std::string webkit_glue::GetDataResource(int resource_id) {
   return ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
+}
+
+SkBitmap* webkit_glue::GetBitmapResource(int resource_id) {
+  return ResourceBundle::GetSharedInstance().GetBitmapNamed(resource_id);
 }
 
 HCURSOR webkit_glue::LoadCursor(int cursor_id) {

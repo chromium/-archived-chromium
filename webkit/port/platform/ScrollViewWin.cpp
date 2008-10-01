@@ -69,6 +69,8 @@ public:
         , m_hScrollbarMode(ScrollbarAuto)
         , m_visible(false)
         , m_attachedToWindow(false)
+        , m_panScrollIconPoint(0,0)
+        , m_drawPanScrollIcon(false)
     {
     }
 
@@ -126,13 +128,17 @@ public:
     HashSet<Widget*> m_children;
     bool m_visible;
     bool m_attachedToWindow;
+    IntPoint m_panScrollIconPoint;
+    bool m_drawPanScrollIcon;
 };
+
+const int panIconSizeLength = 20;
 
 void ScrollView::ScrollViewPrivate::setHasHorizontalScrollbar(bool hasBar)
 {
     if (Scrollbar::hasPlatformScrollbars()) {
         if (hasBar && !m_hBar) {
-            m_hBar = new PlatformScrollbar(this, HorizontalScrollbar, RegularScrollbar);
+            m_hBar = PlatformScrollbar::create(this, HorizontalScrollbar, RegularScrollbar);
             m_view->addChild(m_hBar.get());
         } else if (!hasBar && m_hBar) {
             m_view->removeChild(m_hBar.get());
@@ -145,7 +151,7 @@ void ScrollView::ScrollViewPrivate::setHasVerticalScrollbar(bool hasBar)
 {
     if (Scrollbar::hasPlatformScrollbars()) {
         if (hasBar && !m_vBar) {
-            m_vBar = new PlatformScrollbar(this, VerticalScrollbar, RegularScrollbar);
+            m_vBar = PlatformScrollbar::create(this, VerticalScrollbar, RegularScrollbar);
             m_view->addChild(m_vBar.get());
         } else if (!hasBar && m_vBar) {
             m_view->removeChild(m_vBar.get());
@@ -314,8 +320,7 @@ void ScrollView::ScrollViewPrivate::highlightMatches(
     // will not be serialized, i.e. composition is done in the renderer and
     // never in the browser.
     // Prepare for drawing the arrows along the scroll bar.
-    gfx::PlatformCanvasWin* canvas = PlatformContextToPlatformContextSkia(
-        context->platformContext())->canvas();
+    gfx::PlatformCanvas* canvas = context->platformContext()->canvas();
 
     int horz_start = 0;
     int horz_end   = m_view->width();
@@ -338,7 +343,8 @@ void ScrollView::ScrollViewPrivate::highlightMatches(
         vert_end   -= PlatformScrollbar::horizontalScrollbarHeight() + 1;
     }
 
-    HDC hdc = context->getWindowsContext();
+    IntRect view_rect(IntPoint(), m_view->size());
+    HDC hdc = context->getWindowsContext(view_rect);
 
     // We create a memory DC, copy the bits we want to highlight to the DC and
     // then MERGE_COPY pieces of it back with a yellow brush selected (which
@@ -391,7 +397,7 @@ void ScrollView::ScrollViewPrivate::highlightMatches(
 
     DeleteDC(mem_dc);
 
-    context->releaseWindowsContext(hdc);
+    context->releaseWindowsContext(hdc, view_rect);
     context->restore();
 }
 
@@ -421,12 +427,7 @@ void ScrollView::ScrollViewPrivate::highlightInspectedNode(
 
     // TODO(ojan): http://b/1143975 Draw the padding/border/margin boxes in
     // different colors.
-    SkRect destRect;
-    WebCoreRectToSkiaRect(inspected_node->getRect(), &destRect);
-
-    PlatformContextSkia* skia = PlatformContextToPlatformContextSkia(
-        context->platformContext());
-    skia->paintSkPaint(destRect, paint);
+    context->platformContext()->paintSkPaint(inspected_node->getRect(), paint);
 }
 
 void ScrollView::ScrollViewPrivate::highlightRange(HDC hdc, HDC mem_dc,
@@ -531,8 +532,15 @@ void ScrollView::updateContents(const IntRect& rect, bool now)
     if (containingWindowRect.y() < 0)
         containingWindowRect.setY(0);
 
+    updateWindowRect(containingWindowRect, now);
+}
+
+void ScrollView::updateWindowRect(const IntRect& rect, bool now)
+{
+    // TODO(dglazkov): make sure this is actually the right way to do this
+
     // Cache the dirty spot.
-    addToDirtyRegion(containingWindowRect);
+    addToDirtyRegion(rect);
 
     // since painting always happens asynchronously, we don't have a way to
     // honor the "now" parameter.  it is unclear if it matters.
@@ -1194,6 +1202,26 @@ void ScrollView::setAllowsScrolling(bool flag)
 bool ScrollView::allowsScrolling() const
 {
   return m_data->allowsScrolling();
+}
+
+void ScrollView::printPanScrollIcon(const IntPoint& iconPosition)
+{
+    m_data->m_drawPanScrollIcon = true;    
+    m_data->m_panScrollIconPoint = IntPoint(iconPosition.x() - panIconSizeLength / 2 , iconPosition.y() - panIconSizeLength / 2) ;
+
+    updateWindowRect(IntRect(m_data->m_panScrollIconPoint, IntSize(panIconSizeLength,panIconSizeLength)), true);    
+}
+
+void ScrollView::removePanScrollIcon()
+{
+    m_data->m_drawPanScrollIcon = false; 
+
+    updateWindowRect(IntRect(m_data->m_panScrollIconPoint, IntSize(panIconSizeLength, panIconSizeLength)), true);
+}
+
+bool ScrollView::isScrollable() 
+{ 
+    return m_data->m_vBar != 0 || m_data->m_hBar != 0;
 }
 
 } // namespace WebCore

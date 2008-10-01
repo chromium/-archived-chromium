@@ -30,6 +30,8 @@
 using webkit_glue::AutocompleteInputListener;
 using webkit_glue::AutocompleteEditDelegate;
 
+using WebCore::Event;
+
 class TestAutocompleteEditDelegate : public AutocompleteEditDelegate {
  public:
   TestAutocompleteEditDelegate() : caret_at_end_(false) {
@@ -106,8 +108,9 @@ class DomAutocompleteTests : public testing::Test {
   }
 
   void FireAndHandleInputEvent(AutocompleteInputListener* listener) {
-    WebCore::Event event(WebCore::EventNames::inputEvent, false, false);
-    listener->handleEvent(&event, false);
+    RefPtr<Event> event(Event::create(WebCore::EventNames::inputEvent,
+                                      false, false));
+    listener->handleEvent(event.get(), false);
   }
 
   void SimulateTypedInput(TestAutocompleteEditDelegate* delegate,
@@ -124,8 +127,9 @@ TEST_F(DomAutocompleteTests, OnBlur) {
   // Simulate a blur event and ensure it is properly dispatched.
   // Listener takes ownership of its delegate.
   TestAutocompleteInputListener listener(new TestAutocompleteEditDelegate());
-  WebCore::Event event(WebCore::EventNames::DOMFocusOutEvent, false, false);
-  listener.handleEvent(&event, false);
+  RefPtr<Event> event(Event::create(WebCore::EventNames::DOMFocusOutEvent,
+                                    false, false));
+  listener.handleEvent(event.get(), false);
   EXPECT_TRUE(listener.blurred());
 }
 

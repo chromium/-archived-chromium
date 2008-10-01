@@ -22,18 +22,25 @@
 #include "PlatformString.h"
 
 #include "CString.h"
-#include "DeprecatedString.h"
+#include "FloatConversion.h"
 #include "StringBuffer.h"
 #include "TextEncoding.h"
-#include <kjs/identifier.h>
+#include <kjs/dtoa.h>
+#include <limits>
+#include <stdarg.h>
+#include <wtf/ASCIICType.h>
 #include <wtf/StringExtras.h>
 #include <wtf/Vector.h>
-#include <stdarg.h>
+#include <wtf/unicode/Unicode.h>
+#include <wtf/unicode/UTF8.h>
 
-#if USE(JAVASCRIPTCORE_BINDINGS)
+#if USE(JSC)
 using KJS::Identifier;
 using KJS::UString;
 #endif
+
+using namespace WTF;
+using namespace WTF::Unicode;
 
 namespace WebCore {
 
@@ -54,13 +61,6 @@ String::String(const UChar* str)
         len++;
     
     m_impl = StringImpl::create(str, len);
-}
-
-String::String(const DeprecatedString& str)
-{
-    if (str.isNull())
-        return;
-    m_impl = StringImpl::create(reinterpret_cast<const UChar*>(str.unicode()), str.length());
 }
 
 String::String(const char* str)
@@ -291,7 +291,7 @@ bool String::percentage(int& result) const
     if ((*m_impl)[m_impl->length() - 1] != '%')
        return false;
 
-    result = DeprecatedConstString(reinterpret_cast<const DeprecatedChar*>(m_impl->characters()), m_impl->length() - 1).string().toInt();
+    result = charactersToIntStrict(m_impl->characters(), m_impl->length() - 1);
     return true;
 }
 
@@ -312,17 +312,21 @@ const UChar* String::charactersWithNullTermination()
     return m_impl->characters();
 }
 
-DeprecatedString String::deprecatedString() const
-{
-    if (!m_impl)
-        return DeprecatedString::null;
-    if (!m_impl->characters())
-        return DeprecatedString("", 0);
-    return DeprecatedString(reinterpret_cast<const DeprecatedChar*>(m_impl->characters()), m_impl->length());
-}
-
 String String::format(const char *format, ...)
 {
+#if PLATFORM(QT)
+    // Use QString::vsprintf to avoid the locale dependent formatting of vsnprintf.
+    // https://bugs.webkit.org/show_bug.cgi?id=18994
+    va_list args;
+    va_start(args, format);
+
+    QString buffer;
+    buffer.vsprintf(format, args);
+
+    va_end(args);
+
+    return buffer;
+#else
     va_list args;
     va_start(args, format);
 
@@ -357,6 +361,7 @@ String String::format(const char *format, ...)
     va_end(args);
     
     return StringImpl::create(buffer.data(), len);
+#endif
 }
 
 String String::number(int n)
@@ -402,6 +407,46 @@ String String::number(double n)
     return String::format("%.6lg", n);
 }
 
+int String::toIntStrict(bool* ok, int base) const
+{
+    if (!m_impl) {
+        if (ok)
+            *ok = false;
+        return 0;
+    }
+    return m_impl->toIntStrict(ok, base);
+}
+
+unsigned String::toUIntStrict(bool* ok, int base) const
+{
+    if (!m_impl) {
+        if (ok)
+            *ok = false;
+        return 0;
+    }
+    return m_impl->toUIntStrict(ok, base);
+}
+
+int64_t String::toInt64Strict(bool* ok, int base) const
+{
+    if (!m_impl) {
+        if (ok)
+            *ok = false;
+        return 0;
+    }
+    return m_impl->toInt64Strict(ok, base);
+}
+
+uint64_t String::toUInt64Strict(bool* ok, int base) const
+{
+    if (!m_impl) {
+        if (ok)
+            *ok = false;
+        return 0;
+    }
+    return m_impl->toUInt64Strict(ok, base);
+}
+
 int String::toInt(bool* ok) const
 {
     if (!m_impl) {
@@ -410,6 +455,16 @@ int String::toInt(bool* ok) const
         return 0;
     }
     return m_impl->toInt(ok);
+}
+
+unsigned String::toUInt(bool* ok) const
+{
+    if (!m_impl) {
+        if (ok)
+            *ok = false;
+        return 0;
+    }
+    return m_impl->toUInt(ok);
 }
 
 int64_t String::toInt64(bool* ok) const
@@ -437,7 +492,7 @@ double String::toDouble(bool* ok) const
     if (!m_impl) {
         if (ok)
             *ok = false;
-        return 0;
+        return 0.0;
     }
     return m_impl->toDouble(ok);
 }
@@ -474,10 +529,10 @@ Length* String::toLengthArray(int& len) const
     return m_impl ? m_impl->toLengthArray(len) : 0;
 }
 
-Vector<String> String::split(const String& separator, bool allowEmptyEntries) const
+void String::split(const String& separator, bool allowEmptyEntries, Vector<String>& result) const
 {
-    Vector<String> result;
-    
+    result.clear();
+
     int startPos = 0;
     int endPos;
     while ((endPos = find(separator, startPos)) != -1) {
@@ -485,17 +540,33 @@ Vector<String> String::split(const String& separator, bool allowEmptyEntries) co
             result.append(substring(startPos, endPos - startPos));
         startPos = endPos + separator.length();
     }
-    if (allowEmptyEntries || startPos != (int)length())
+    if (allowEmptyEntries || startPos != static_cast<int>(length()))
         result.append(substring(startPos));
-    
-    return result;
 }
 
-Vector<String> String::split(UChar separator, bool allowEmptyEntries) const
+void String::split(const String& separator, Vector<String>& result) const
 {
-    Vector<String> result;
-  
-    return split(String(&separator, 1), allowEmptyEntries);
+    return split(separator, false, result);
+}
+
+void String::split(UChar separator, bool allowEmptyEntries, Vector<String>& result) const
+{
+    result.clear();
+
+    int startPos = 0;
+    int endPos;
+    while ((endPos = find(separator, startPos)) != -1) {
+        if (allowEmptyEntries || startPos != endPos)
+            result.append(substring(startPos, endPos - startPos));
+        startPos = endPos + 1;
+    }
+    if (allowEmptyEntries || startPos != static_cast<int>(length()))
+        result.append(substring(startPos));
+}
+
+void String::split(UChar separator, Vector<String>& result) const
+{
+    return split(String(&separator, 1), false, result);
 }
 
 #ifndef NDEBUG
@@ -516,64 +587,252 @@ Vector<char> String::ascii() const
 
 CString String::latin1() const
 {
-    return Latin1Encoding().encode(characters(), length());
+    return Latin1Encoding().encode(characters(), length(), QuestionMarksForUnencodables);
 }
     
 CString String::utf8() const
 {
-    return UTF8Encoding().encode(characters(), length());
+    return UTF8Encoding().encode(characters(), length(), QuestionMarksForUnencodables);
 }
 
 String String::fromUTF8(const char* string, size_t size)
 {
+    if (!string)
+        return String();
     return UTF8Encoding().decode(string, size);
 }
 
 String String::fromUTF8(const char* string)
 {
+    if (!string)
+        return String();
     return UTF8Encoding().decode(string, strlen(string));
 }
 
-
-bool operator==(const String& a, const DeprecatedString& b)
-{
-    unsigned l = a.length();
-    if (l != b.length())
-        return false;
-    if (!memcmp(a.characters(), b.unicode(), l * sizeof(UChar)))
-        return true;
-    return false;
-}
-
-#if USE(JAVASCRIPTCORE_BINDINGS)
+#if USE(JSC)
 String::String(const Identifier& str)
 {
     if (str.isNull())
         return;
-    m_impl = StringImpl::create(reinterpret_cast<const UChar*>(str.data()), str.size());
+    m_impl = StringImpl::create(str.data(), str.size());
 }
 
 String::String(const UString& str)
 {
     if (str.isNull())
         return;
-    m_impl = StringImpl::create(reinterpret_cast<const UChar*>(str.data()), str.size());
-}
-
-String::operator Identifier() const
-{
-    if (!m_impl)
-        return Identifier();
-    return Identifier(reinterpret_cast<const KJS::UChar*>(m_impl->characters()), m_impl->length());
+    m_impl = StringImpl::create(str.data(), str.size());
 }
 
 String::operator UString() const
 {
     if (!m_impl)
         return UString();
-    return UString(reinterpret_cast<const KJS::UChar*>(m_impl->characters()), m_impl->length());
+    return UString(m_impl->characters(), m_impl->length());
 }
 #endif
+
+// String Operations
+
+static bool isCharacterAllowedInBase(UChar c, int base)
+{
+    if (c > 0x7F)
+        return false;
+    if (isASCIIDigit(c))
+        return c - '0' < base;
+    if (isASCIIAlpha(c)) {
+        if (base > 36)
+            base = 36;
+        return (c >= 'a' && c < 'a' + base - 10)
+            || (c >= 'A' && c < 'A' + base - 10);
+    }
+    return false;
+}
+
+template <typename IntegralType>
+static inline IntegralType toIntegralType(const UChar* data, size_t length, bool* ok, int base)
+{
+    static const IntegralType integralMax = std::numeric_limits<IntegralType>::max();
+    static const bool isSigned = std::numeric_limits<IntegralType>::is_signed;
+    const IntegralType maxMultiplier = integralMax / base;
+
+    IntegralType value = 0;
+    bool isOk = false;
+    bool isNegative = false;
+
+    if (!data)
+        goto bye;
+
+    // skip leading whitespace
+    while (length && isSpaceOrNewline(*data)) {
+        length--;
+        data++;
+    }
+
+    if (isSigned && length && *data == '-') {
+        length--;
+        data++;
+        isNegative = true;
+    } else if (length && *data == '+') {
+        length--;
+        data++;
+    }
+
+    if (!length || !isCharacterAllowedInBase(*data, base))
+        goto bye;
+
+    while (length && isCharacterAllowedInBase(*data, base)) {
+        length--;
+        IntegralType digitValue;
+        UChar c = *data;
+        if (isASCIIDigit(c))
+            digitValue = c - '0';
+        else if (c >= 'a')
+            digitValue = c - 'a' + 10;
+        else
+            digitValue = c - 'A' + 10;
+
+        if (value > maxMultiplier || (value == maxMultiplier && digitValue > (integralMax % base) + isNegative))
+            goto bye;
+
+        value = base * value + digitValue;
+        data++;
+    }
+
+#if COMPILER(MSVC)
+#pragma warning(push, 0)
+#pragma warning(disable:4146)
+#endif
+
+    if (isNegative)
+        value = -value;
+
+#if COMPILER(MSVC)
+#pragma warning(pop)
+#endif
+
+    // skip trailing space
+    while (length && isSpaceOrNewline(*data)) {
+        length--;
+        data++;
+    }
+
+    if (!length)
+        isOk = true;
+bye:
+    if (ok)
+        *ok = isOk;
+    return isOk ? value : 0;
+}
+
+static unsigned lengthOfCharactersAsInteger(const UChar* data, size_t length)
+{
+    size_t i = 0;
+
+    // Allow leading spaces.
+    for (; i != length; ++i) {
+        if (!isSpaceOrNewline(data[i]))
+            break;
+    }
+    
+    // Allow sign.
+    if (i != length && (data[i] == '+' || data[i] == '-'))
+        ++i;
+    
+    // Allow digits.
+    for (; i != length; ++i) {
+        if (!Unicode::isDigit(data[i]))
+            break;
+    }
+
+    return i;
+}
+
+int charactersToIntStrict(const UChar* data, size_t length, bool* ok, int base)
+{
+    return toIntegralType<int>(data, length, ok, base);
+}
+
+unsigned charactersToUIntStrict(const UChar* data, size_t length, bool* ok, int base)
+{
+    return toIntegralType<unsigned>(data, length, ok, base);
+}
+
+int64_t charactersToInt64Strict(const UChar* data, size_t length, bool* ok, int base)
+{
+    return toIntegralType<int64_t>(data, length, ok, base);
+}
+
+uint64_t charactersToUInt64Strict(const UChar* data, size_t length, bool* ok, int base)
+{
+    return toIntegralType<uint64_t>(data, length, ok, base);
+}
+
+int charactersToInt(const UChar* data, size_t length, bool* ok)
+{
+    return toIntegralType<int>(data, lengthOfCharactersAsInteger(data, length), ok, 10);
+}
+
+unsigned charactersToUInt(const UChar* data, size_t length, bool* ok)
+{
+    return toIntegralType<unsigned>(data, lengthOfCharactersAsInteger(data, length), ok, 10);
+}
+
+int64_t charactersToInt64(const UChar* data, size_t length, bool* ok)
+{
+    return toIntegralType<int64_t>(data, lengthOfCharactersAsInteger(data, length), ok, 10);
+}
+
+uint64_t charactersToUInt64(const UChar* data, size_t length, bool* ok)
+{
+    return toIntegralType<uint64_t>(data, lengthOfCharactersAsInteger(data, length), ok, 10);
+}
+
+double charactersToDouble(const UChar* data, size_t length, bool* ok)
+{
+    if (!length) {
+        if (ok)
+            *ok = false;
+        return 0.0;
+    }
+
+    Vector<char, 256> bytes(length + 1);
+    for (unsigned i = 0; i < length; ++i)
+        bytes[i] = data[i] < 0x7F ? data[i] : '?';
+    bytes[length] = '\0';
+    char* end;
+#if USE(JSC)
+    double val = KJS::strtod(bytes.data(), &end);
+#elif USE(V8)
+    double val = strtod(bytes.data(), &end);
+#endif
+    if (ok)
+        *ok = (end == 0 || *end == '\0');
+    return val;
+}
+
+float charactersToFloat(const UChar* data, size_t length, bool* ok)
+{
+    // FIXME: This will return ok even when the string fits into a double but not a float.
+    return narrowPrecisionToFloat(charactersToDouble(data, length, ok));
+}
+
+PassRefPtr<SharedBuffer> utf8Buffer(const String& string)
+{
+    // Allocate a buffer big enough to hold all the characters.
+    const int length = string.length();
+    Vector<char> buffer(length * 3);
+
+    // Convert to runs of 8-bit characters.
+    char* p = buffer.data();
+    const UChar* d = string.characters();
+    ConversionResult result = convertUTF16ToUTF8(&d, d + length, &p, p + buffer.size(), true);
+    if (result != conversionOK)
+        return 0;
+
+    buffer.shrink(p - buffer.data());
+    return SharedBuffer::adoptVector(buffer);
+}
 
 } // namespace WebCore
 

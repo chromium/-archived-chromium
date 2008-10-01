@@ -27,7 +27,6 @@
 #include "config.h"
 #include "CachedCSSStyleSheet.h"
 
-#include "Cache.h"
 #include "CachedResourceClient.h"
 #include "CachedResourceClientWalker.h"
 #include "TextResourceDecoder.h"
@@ -36,27 +35,25 @@
 
 namespace WebCore {
 
-CachedCSSStyleSheet::CachedCSSStyleSheet(DocLoader* dl, const String& url, const String& charset, bool skipCanLoadCheck, bool sendResourceLoadCallbacks)
-    : CachedResource(url, CSSStyleSheet, true, sendResourceLoadCallbacks)
-    , m_decoder(new TextResourceDecoder("text/css", charset))
+CachedCSSStyleSheet::CachedCSSStyleSheet(const String& url, const String& charset)
+    : CachedResource(url, CSSStyleSheet)
+    , m_decoder(TextResourceDecoder::create("text/css", charset))
 {
     // Prefer text/css but accept any type (dell.com serves a stylesheet
     // as text/html; see <http://bugs.webkit.org/show_bug.cgi?id=11451>).
     setAccept("text/css,*/*;q=0.1");
-    cache()->loader()->load(dl, this, false, skipCanLoadCheck, sendResourceLoadCallbacks);
-    m_loading = true;
 }
 
 CachedCSSStyleSheet::~CachedCSSStyleSheet()
 {
 }
 
-void CachedCSSStyleSheet::ref(CachedResourceClient *c)
+void CachedCSSStyleSheet::addClient(CachedResourceClient *c)
 {
-    CachedResource::ref(c);
+    CachedResource::addClient(c);
 
     if (!m_loading)
-        c->setCSSStyleSheet(m_url, m_decoder->encoding().name(), errorOccurred() ? "" : m_sheet);
+        c->setCSSStyleSheet(m_url, m_decoder->encoding().name(), this);
 }
 
 void CachedCSSStyleSheet::setEncoding(const String& chs)
@@ -92,7 +89,7 @@ void CachedCSSStyleSheet::checkNotify()
 
     CachedResourceClientWalker w(m_clients);
     while (CachedResourceClient *c = w.next())
-        c->setCSSStyleSheet(m_response.url().string(), m_decoder->encoding().name(), m_sheet);
+        c->setCSSStyleSheet(m_response.url().string(), m_decoder->encoding().name(), this);
 
 #if USE(LOW_BANDWIDTH_DISPLAY)        
     // if checkNotify() is called from error(), client's setCSSStyleSheet(...)
@@ -111,4 +108,17 @@ void CachedCSSStyleSheet::error()
     checkNotify();
 }
 
+bool CachedCSSStyleSheet::canUseSheet(bool enforceMIMEType) const
+{
+    if (errorOccurred())
+        return false;
+        
+    if (!enforceMIMEType)
+        return true;
+
+    // This check exactly matches Firefox.
+    String mimeType = response().mimeType();
+    return mimeType.isEmpty() || equalIgnoringCase(mimeType, "text/css") || equalIgnoringCase(mimeType, "application/x-unknown-content-type");
+}
+ 
 }

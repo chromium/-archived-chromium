@@ -47,8 +47,6 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
                       const FloatPoint& point) const
 {
     PlatformGraphicsContext* context = graphicsContext->platformContext();
-    SkPoint origin;
-    WebCorePointToSkiaPoint(point, &origin);
 
     // Max buffer length passed to the underlying windows API.
     const int kMaxBufferLength = 1024;
@@ -84,7 +82,7 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
 
       // the 'point' represents the baseline, so we need to move it up to the
       // top of the bounding square by subtracting the ascent
-      SkPoint origin2 = origin;
+      SkPoint origin2 = point;
       origin2.fY -= font->ascent();
       origin2.fX += chunk_x;
 
@@ -135,10 +133,7 @@ void Font::drawComplexText(GraphicsContext* context,
                            int to) const
 {
     UniscribeStateTextRun state(run, *this);
-    PlatformContextSkia* skia = PlatformContextToPlatformContextSkia(context->platformContext());
-    SkPoint p;
-    WebCorePointToSkiaPoint(point, &p);
-    skia->paintComplexText(state, p, from, to, ascent());
+    context->platformContext()->paintComplexText(state, point, from, to, ascent());
 }
 
 float Font::floatWidthForComplexText(const TextRun& run) const
@@ -161,4 +156,4 @@ int Font::offsetForPositionForComplexText(const TextRun& run, int x, bool includ
     return char_index;
 }
 
-}
+} // namespace WebCore

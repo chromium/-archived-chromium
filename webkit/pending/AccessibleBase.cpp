@@ -112,7 +112,7 @@ HRESULT STDMETHODCALLTYPE AccessibleBase::get_accParent(IDispatch** parent)
 		if (!procPtr)
 		    return E_FAIL;
 
-		return procPtr(m_object->topRenderer()->view()->frameView()->containingWindow(), OBJID_WINDOW, __uuidof(IAccessible), reinterpret_cast<void**>(parent));
+		return procPtr(m_object->topDocumentFrameView()->containingWindow(), OBJID_WINDOW, __uuidof(IAccessible), reinterpret_cast<void**>(parent));
 }
 
 HRESULT STDMETHODCALLTYPE AccessibleBase::get_accChildCount(long* count)

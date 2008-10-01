@@ -23,9 +23,7 @@
 #include "config.h"
 #include "TextResourceDecoder.h"
 
-#include "CString.h"
 #include "DOMImplementation.h"
-#include "DeprecatedCString.h"
 #include "HTMLNames.h"
 #include "TextCodec.h"
 #include <wtf/ASCIICType.h>
@@ -38,6 +36,60 @@ using namespace WTF;
 namespace WebCore {
 
 using namespace HTMLNames;
+
+// You might think we should put these find functions elsewhere, perhaps with the
+// similar functions that operate on UChar, but arguably only the decoder has
+// a reason to process strings of char rather than UChar.
+
+static int find(const char* subject, size_t subjectLength, const char* target)
+{
+    size_t targetLength = strlen(target);
+    if (targetLength > subjectLength)
+        return -1;
+    for (size_t i = 0; i <= subjectLength - targetLength; ++i) {
+        bool match = true;
+        for (size_t j = 0; j < targetLength; ++j) {
+            if (subject[i + j] != target[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match)
+            return i;
+    }
+    return -1;
+}
+
+static int findIgnoringCase(const char* subject, size_t subjectLength, const char* target)
+{
+    size_t targetLength = strlen(target);
+    if (targetLength > subjectLength)
+        return -1;
+#ifndef NDEBUG
+    for (size_t i = 0; i < targetLength; ++i)
+        ASSERT(isASCIILower(target[i]));
+#endif
+    for (size_t i = 0; i <= subjectLength - targetLength; ++i) {
+        bool match = true;
+        for (size_t j = 0; j < targetLength; ++j) {
+            if (toASCIILower(subject[i + j]) != target[j]) {
+                match = false;
+                break;
+            }
+        }
+        if (match)
+            return i;
+    }
+    return -1;
+}
+
+static TextEncoding findTextEncoding(const char* encodingName, int length)
+{
+    Vector<char, 64> buffer(length + 1);
+    memcpy(buffer.data(), encodingName, length);
+    buffer[length] = '\0';
+    return buffer.data();
+}
 
 class KanjiCode {
 public:
@@ -278,6 +330,7 @@ TextResourceDecoder::TextResourceDecoder(const String& mimeType, const TextEncod
     , m_checkedForBOM(false)
     , m_checkedForCSSCharset(false)
     , m_checkedForHeadCharset(false)
+    , m_sawError(false)
     , m_usesEncodingDetector(usesEncodingDetector)
 {
 }
@@ -301,11 +354,9 @@ void TextResourceDecoder::setEncoding(const TextEncoding& encoding, EncodingSour
 }
 
 // Returns the position of the encoding string.
-static int findXMLEncoding(const DeprecatedCString &str, int &encodingLength)
+static int findXMLEncoding(const char* str, int len, int& encodingLength)
 {
-    int len = str.length();
-
-    int pos = str.find("encoding");
+    int pos = find(str, len, "encoding");
     if (pos == -1)
         return -1;
     pos += 8;
@@ -338,7 +389,6 @@ static int findXMLEncoding(const DeprecatedCString &str, int &encodingLength)
 
     if (end >= len)
         return -1;
-    
     encodingLength = end - pos;
     return pos;
 }
@@ -428,14 +478,14 @@ bool TextResourceDecoder::checkForCSSCharset(const char* data, size_t len, bool&
                 if (pos == dataEnd)
                     return false;
 
-                CString encodingName(dataStart, pos - dataStart + 1);
+                int encodingNameLength = pos - dataStart + 1;
                 
                 ++pos;
                 if (!skipWhitespace(pos, dataEnd))
                     return false;
 
                 if (*pos == ';')
-                    setEncoding(TextEncoding(encodingName.data()), EncodingFromCSSCharset);
+                    setEncoding(findTextEncoding(dataStart, encodingNameLength), EncodingFromCSSCharset);
             }
         }
         m_checkedForCSSCharset = true;
@@ -472,6 +522,8 @@ static inline void skipComment(const char*& ptr, const char* pEnd)
     ptr = p;
 }
 
+const int bytesToCheckUnconditionally = 1024; // That many input bytes will be checked for meta charset even if <head> section is over.
+
 bool TextResourceDecoder::checkForHeadCharset(const char* data, size_t len, bool& movedDataToBuffer)
 {
     if (m_source != DefaultEncoding && m_source != EncodingFromParentFrame) {
@@ -503,11 +555,11 @@ bool TextResourceDecoder::checkForHeadCharset(const char* data, size_t len, bool
             ++xmlDeclarationEnd;
         if (xmlDeclarationEnd == pEnd)
             return false;
-        DeprecatedCString str(ptr, xmlDeclarationEnd - ptr); // No need for +1, because we have an extra "?" to lose at the end of XML declaration.
-        int len = 0;
-        int pos = findXMLEncoding(str, len);
+        // No need for +1, because we have an extra "?" to lose at the end of XML declaration.
+        int len;
+        int pos = findXMLEncoding(ptr, xmlDeclarationEnd - ptr, len);
         if (pos != -1)
-            setEncoding(TextEncoding(str.mid(pos, len)), EncodingFromXMLHeader);
+            setEncoding(findTextEncoding(ptr + pos, len), EncodingFromXMLHeader);
         // continue looking for a charset - it may be specified in an HTTP-Equiv meta
     } else if (ptr[0] == '<' && ptr[1] == 0 && ptr[2] == '?' && ptr[3] == 0 && ptr[4] == 'x' && ptr[5] == 0) {
         setEncoding(UTF16LittleEndianEncoding(), AutoDetectedEncoding);
@@ -537,6 +589,7 @@ bool TextResourceDecoder::checkForHeadCharset(const char* data, size_t len, bool
     // and <http://bugs.webkit.org/show_bug.cgi?id=12389>.
 
     // Since many sites have charset declarations after <body> or other tags that are disallowed in <head>,
+    // we don't bail out until we've checked at least bytesToCheckUnconditionally bytes of input.
     // we don't bail out until we've checked at least 2048 bytes of input.
     // TODO(jungshik): Webkit upstream uses 512 bytes, but that seems to be
     // a way too short. IE and Firefox go well beyond that. There might be
@@ -545,6 +598,11 @@ bool TextResourceDecoder::checkForHeadCharset(const char* data, size_t len, bool
     // does not hurt the performance. 
 
     AtomicStringImpl* enclosingTagName = 0;
+    bool inHeadSection = true; // Becomes false when </head> or any tag not allowed in head is encountered.
+
+    // the HTTP-EQUIV meta has no effect on XHTML
+    if (m_contentType == XML)
+        return true;
 
     while (ptr + 3 < pEnd) { // +3 guarantees that "<!--" fits in the buffer - and certainly we aren't going to lose any "charset" that way.
         if (*ptr == '<') {
@@ -555,12 +613,15 @@ bool TextResourceDecoder::checkForHeadCharset(const char* data, size_t len, bool
             if (ptr[0] == '!' && ptr[1] == '-' && ptr[2] == '-') {
                 ptr += 3;
                 skipComment(ptr, pEnd);
+                if (ptr - m_buffer.data() >= bytesToCheckUnconditionally && !inHeadSection) {
+                    // Some pages that test bandwidth from within the browser do it by having
+                    // huge comments and measuring the time they take to load. Repeatedly scanning
+                    // these comments can take a lot of CPU time.
+                    m_checkedForHeadCharset = true;
+                    return true;
+                }
                 continue;
             }
-
-            // the HTTP-EQUIV meta has no effect on XHTML
-            if (m_contentType == XML)
-                return true;
 
             if (*ptr == '/') {
                 ++ptr;
@@ -625,52 +686,56 @@ bool TextResourceDecoder::checkForHeadCharset(const char* data, size_t len, bool
             }
             
             if (!end && tag == metaTag && !sawNamespace) {
-                DeprecatedCString str(tagContentStart, ptr - tagContentStart);
-                str = str.lower();
+                const char* str = tagContentStart;
+                int length = ptr - tagContentStart;
                 int pos = 0;
-                while (pos < (int)str.length()) {
-                    if ((pos = str.find("charset", pos, false)) == -1)
+                while (pos < length) {
+                    int charsetPos = findIgnoringCase(str + pos, length - pos, "charset");
+                    if (charsetPos == -1)
                         break;
-                    pos += 7;
+                    pos += charsetPos + 7;
                     // skip whitespace
-                    while (pos < (int)str.length() && str[pos] <= ' ')
+                    while (pos < length && str[pos] <= ' ')
                         pos++;
-                    if (pos == (int)str.length())
+                    if (pos == length)
                         break;
                     if (str[pos++] != '=')
                         continue;
-                    while (pos < (int)str.length() &&
+                    while (pos < length &&
                             (str[pos] <= ' ') || str[pos] == '=' || str[pos] == '"' || str[pos] == '\'')
                         pos++;
 
                     // end ?
-                    if (pos == (int)str.length())
+                    if (pos == length)
                         break;
-                    unsigned endpos = pos;
-                    while (endpos < str.length() &&
-                           str[endpos] != ' ' && str[endpos] != '"' && str[endpos] != '\'' &&
-                           str[endpos] != ';' && str[endpos] != '>')
-                        endpos++;
-                    setEncoding(TextEncoding(str.mid(pos, endpos - pos)), EncodingFromMetaTag);
+                    int end = pos;
+                    while (end < length &&
+                           str[end] != ' ' && str[end] != '"' && str[end] != '\'' &&
+                           str[end] != ';' && str[end] != '>')
+                        end++;
+                    setEncoding(findTextEncoding(str + pos, end - pos), EncodingFromMetaTag);
                     if (m_source == EncodingFromMetaTag)
                         return true;
 
-                    if (endpos >= str.length() || str[endpos] == '/' || str[endpos] == '>')
+                    if (end >= length || str[end] == '/' || str[end] == '>')
                         break;
 
-                    pos = endpos + 1;
+                    pos = end + 1;
                 }
-            } else if (ptr - m_buffer.data() >= 2048 && tag != scriptTag && tag != noscriptTag && tag != styleTag &&
-                       tag != linkTag && tag != metaTag && tag != objectTag &&
-                       tag != titleTag && tag != baseTag && 
-                       (end || tag != htmlTag) && !enclosingTagName &&
-                       (tag != headTag) && isASCIIAlpha(tagBuffer[0])) {
-                m_checkedForHeadCharset = true;
-                return true;
+            } else {
+                if (!enclosingTagName && tag != scriptTag && tag != noscriptTag && tag != styleTag
+                    && tag != linkTag && tag != metaTag && tag != objectTag && tag != titleTag && tag != baseTag
+                    && (end || tag != htmlTag) && (end || tag != headTag) && isASCIIAlpha(tagBuffer[0])) {
+                    inHeadSection = false;
+                }
+
+                if (ptr - m_buffer.data() >= bytesToCheckUnconditionally && !inHeadSection) {
+                    m_checkedForHeadCharset = true;
+                    return true;
+                }
             }
-        }
-        else
-            ptr++;
+        } else
+            ++ptr;
     }
     return false;
 }
@@ -796,7 +861,7 @@ String TextResourceDecoder::decode(const char* data, size_t len)
     ASSERT(encoding().isValid());
 
     if (m_buffer.isEmpty())
-        return m_decoder.decode(data, len);
+        return m_decoder.decode(data, len, false, m_contentType == XML, m_sawError);
 
     if (!movedDataToBuffer) {
         size_t oldSize = m_buffer.size();
@@ -804,7 +869,7 @@ String TextResourceDecoder::decode(const char* data, size_t len)
         memcpy(m_buffer.data() + oldSize, data, len);
     }
 
-    String result = m_decoder.decode(m_buffer.data(), m_buffer.size());
+    String result = m_decoder.decode(m_buffer.data(), m_buffer.size(), false, m_contentType == XML, m_sawError);
     m_buffer.clear();
     return result;
 }
@@ -821,7 +886,7 @@ String TextResourceDecoder::flush()
           m_hintDecoder->source() == AutoDetectedEncoding)))
         detectEncoding(m_buffer.data(), m_buffer.size());
 
-    String result = m_decoder.decode(m_buffer.data(), m_buffer.size(), true);
+    String result = m_decoder.decode(m_buffer.data(), m_buffer.size(), true, m_contentType == XML, m_sawError);
     m_buffer.clear();
     return result;
 }

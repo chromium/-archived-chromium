@@ -126,6 +126,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\ASCIICType.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Assertions.cpp"
 			>
 		</File>
@@ -138,7 +142,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\pending\wtf\FastMalloc.h"
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\FastMalloc.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\FastMalloc.h"
 			>
 		</File>
 		<File
@@ -182,6 +190,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\MainThread.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\MainThread.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\pending\wtf\MathExtras.h"
 			>
 		</File>
@@ -202,7 +218,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\pending\wtf\Platform.h"
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Platform.h"
 			>
 		</File>
 		<File
@@ -230,7 +246,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RefCounted.h"
+			RelativePath="..\..\pending\wtf\RefCounted.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RefCountedLeakCounter.cpp"
 			>
 		</File>
 		<File
@@ -238,7 +258,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RefPtrHashMap.h"
+			RelativePath="..\..\pending\wtf\RefPtrHashMap.h"
 			>
 		</File>
 		<File
@@ -266,7 +286,23 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Threading.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\pending\wtf\ThreadingWin.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\Collator.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\Unicode.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\icu\CollatorICU.cpp"
 			>
 		</File>
 		<File
@@ -291,6 +327,10 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\VectorTraits.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\win\MainThreadWin.cpp"
 			>
 		</File>
 	</Files>
