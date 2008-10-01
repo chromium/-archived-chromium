@@ -16,24 +16,32 @@ env.Prepend(
         '$SKIA_DIR/platform',
         '#/..',
     ],
-    CCFLAGS = [
-        '/TP',
-    ],
 )
 
 input_files = [
-    'chrome_plugin_host.cc',
-    'npobject_proxy.cc',
-    'npobject_stub.cc',
-    'npobject_util.cc',
-    'plugin_channel.cc',
-    'plugin_channel_base.cc',
-    'plugin_main.cc',
-    'plugin_process.cc',
-    'plugin_thread.cc',
-    'webplugin_delegate_stub.cc',
-    'webplugin_proxy.cc',
 ]
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+      ],
+  )
+
+  # TODO(port)
+  input_files.extend([
+      'chrome_plugin_host.cc',
+      'npobject_proxy.cc',
+      'npobject_stub.cc',
+      'npobject_util.cc',
+      'plugin_channel.cc',
+      'plugin_channel_base.cc',
+      'plugin_main.cc',
+      'plugin_process.cc',
+      'plugin_thread.cc',
+      'webplugin_delegate_stub.cc',
+      'webplugin_proxy.cc',
+  ])
 
 env.ChromeStaticLibrary('plugin', input_files)
 
