@@ -18,9 +18,14 @@
 #include "chrome/views/view_container.h"
 #include "chrome/views/window.h"
 
+#include "chromium_strings.h"
 #include "generated_resources.h"
 
 namespace {
+
+// Number of bookmarks we'll open before prompting the user to see if they
+// really want to open all.
+const int kNumURLsBeforePrompting = 15;
 
 // Returns true if the specified node is of type URL, or has a descendant
 // of type URL.
@@ -35,47 +40,65 @@ bool NodeHasURLs(BookmarkNode* node) {
   return false;
 }
 
-// Opens a tab/window for node and recursively opens all descendants.
-// If open_first_in_new_window is true, the first opened node is opened
-// in a new window. navigator indicates the PageNavigator to use for
-// new tabs. It is reset if open_first_in_new_window is true.
-// opened_url is set to true the first time a new tab is opened.
-void OpenAll(BookmarkNode* node,
-             bool open_first_in_new_window,
-             PageNavigator** navigator,
-             bool* opened_url) {
+// Implementation of OpenAll. Opens all nodes of type URL and recurses for
+// groups.
+void OpenAllImpl(BookmarkNode* node,
+                 WindowOpenDisposition initial_disposition,
+                 PageNavigator** navigator,
+                 bool* opened_url) {
   if (node->GetType() == history::StarredEntry::URL) {
     WindowOpenDisposition disposition;
     if (*opened_url)
       disposition = NEW_BACKGROUND_TAB;
-    else if (open_first_in_new_window)
-      disposition = NEW_WINDOW;
-    else  // Open in current window.
-      disposition = CURRENT_TAB;
+    else
+      disposition = initial_disposition;
     (*navigator)->OpenURL(node->GetURL(), disposition,
                           PageTransition::AUTO_BOOKMARK);
     if (!*opened_url) {
       *opened_url = true;
-      if (open_first_in_new_window || disposition == CURRENT_TAB) {
-        // We opened the tab in a new window or in the current tab which
-        // likely reset the navigator. Need to reset the page navigator
-        // appropriately.
-        Browser* new_browser = BrowserList::GetLastActive();
-        if (new_browser) {
-          TabContents* current_tab = new_browser->GetSelectedTabContents();
-          DCHECK(new_browser && current_tab);
-          if (new_browser && current_tab)
-            *navigator = current_tab;
-        }  // else, new_browser == NULL, which happens during testing.
-      }
+      // We opened the first URL which may have opened a new window or clobbered
+      // the current page, reset the navigator just to be sure.
+      Browser* new_browser = BrowserList::GetLastActive();
+      if (new_browser) {
+        TabContents* current_tab = new_browser->GetSelectedTabContents();
+        DCHECK(new_browser && current_tab);
+        if (new_browser && current_tab)
+          *navigator = current_tab;
+      }  // else, new_browser == NULL, which happens during testing.
     }
   } else {
     // Group, recurse through children.
     for (int i = 0; i < node->GetChildCount(); ++i) {
-      OpenAll(node->GetChild(i), open_first_in_new_window, navigator,
-              opened_url);
+      OpenAllImpl(node->GetChild(i), initial_disposition, navigator,
+                  opened_url);
     }
   }
+}
+
+// Returns the number of descendants of node that are of type url.
+int DescendantURLCount(BookmarkNode* node) {
+  int result = 0;
+  for (int i = 0; i < node->GetChildCount(); ++i) {
+    BookmarkNode* child = node->GetChild(i);
+    if (child->is_url())
+      result++;
+    else
+      result += DescendantURLCount(child);
+  }
+  return result;
+}
+
+bool ShouldOpenAll(HWND parent, BookmarkNode* node) {
+  int descendant_count = DescendantURLCount(node);
+  if (descendant_count < kNumURLsBeforePrompting)
+    return true;
+
+  std::wstring message =
+      l10n_util::GetStringF(IDS_BOOKMARK_BAR_SHOULD_OPEN_ALL,
+                            IntToWString(descendant_count));
+  return (MessageBox(parent, message.c_str(),
+                     l10n_util::GetString(IDS_PRODUCT_NAME).c_str(),
+                     MB_YESNO | MB_ICONWARNING | MB_TOPMOST) == IDYES);
 }
 
 // EditFolderController -------------------------------------------------------
@@ -181,6 +204,20 @@ const int BookmarkBarContextMenuController::delete_bookmark_id = 8;
 const int BookmarkBarContextMenuController::add_bookmark_id = 9;
 const int BookmarkBarContextMenuController::new_folder_id = 10;
 
+// static
+void BookmarkBarContextMenuController::OpenAll(
+    HWND parent,
+    PageNavigator* navigator,
+    BookmarkNode* node,
+    WindowOpenDisposition initial_disposition) {
+  if (!ShouldOpenAll(parent, node))
+    return;
+
+  PageNavigator* nav = navigator;
+  bool opened_url = false;
+  OpenAllImpl(node, initial_disposition, &nav, &opened_url);
+}
+
 BookmarkBarContextMenuController::BookmarkBarContextMenuController(
     BookmarkBarView* view,
     BookmarkNode* node)
@@ -284,11 +321,18 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
             L"BookmarkBar_ContextMenu_OpenAllInNewWindow", profile);
       }
 
-      BookmarkNode* node = node_;
-      PageNavigator* navigator = view_->GetPageNavigator();
-      bool opened_url = false;
-      OpenAll(node, (id == open_all_bookmarks_in_new_window_id), &navigator,
-              &opened_url);
+      WindowOpenDisposition initial_disposition;
+      if (id == open_all_bookmarks_in_new_window_id)
+        initial_disposition = NEW_WINDOW;
+      else
+        initial_disposition = CURRENT_TAB;
+
+      // GetViewContainer is NULL during testing.
+      HWND parent_hwnd = view_->GetViewContainer() ?
+          view_->GetViewContainer()->GetHWND() : 0;
+
+      OpenAll(parent_hwnd, view_->GetPageNavigator(), node_,
+              initial_disposition);
       break;
     }
 

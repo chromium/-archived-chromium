@@ -45,7 +45,7 @@ struct BookmarkDragData {
   // Returns the node represented by this DragData. If this DragData was created
   // from the same profile then the node from the model is returned. If the
   // node can't be found (may have been deleted), NULL is returned.
-  BookmarkNode* BookmarkDragData::GetNode(Profile* profile) const;
+  BookmarkNode* GetNode(Profile* profile) const;
 
   // If true, this entry represents a StarredEntry of type URL.
   bool is_url;

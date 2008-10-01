@@ -7,6 +7,7 @@
 
 #include "chrome/views/chrome_menu.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
+#include "webkit/glue/window_open_disposition.h"
 
 class BookmarkNode;
 class PageNavigator;
@@ -17,6 +18,14 @@ class PageNavigator;
 class BookmarkBarContextMenuController : public ChromeViews::MenuDelegate,
     public BookmarkBarView::ModelChangedListener {
  public:
+  // Recursively opens all bookmarks of |node|. |initial_disposition| dictates
+  // how the first URL is opened, all subsequent URLs are opened as background
+  // tabs.
+  static void OpenAll(HWND parent,
+                      PageNavigator* navigator,
+                      BookmarkNode* node,
+                      WindowOpenDisposition initial_disposition);
+
   BookmarkBarContextMenuController(BookmarkBarView* view,
                                    BookmarkNode* node);
 
