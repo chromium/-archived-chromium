@@ -9,6 +9,7 @@
 #include <fnmatch.h>
 #include <fts.h>
 #include <libgen.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/errno.h>
 #include <sys/stat.h>
@@ -307,6 +308,14 @@ bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
   results->is_directory = S_ISDIR(file_info.st_mode);
   results->size = file_info.st_size;
   return true;
+}
+
+FILE* OpenFile(const std::string& filename, const char* mode) {
+  return fopen(filename.c_str(), mode);
+}
+
+FILE* OpenFile(const std::wstring& filename, const char* mode) {
+  return fopen(WideToUTF8(filename).c_str(), mode);
 }
 
 int ReadFile(const std::wstring& filename, char* data, int size) {

@@ -6,6 +6,7 @@
 
 #include <mmsystem.h>
 
+#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/time.h"
 
@@ -48,7 +49,8 @@ bool EventRecorder::StartRecording(const std::wstring& filename) {
 
   // Open the recording file.
   DCHECK(file_ == NULL);
-  if (_wfopen_s(&file_, filename.c_str(), L"wb+") != 0) {
+  file_ = file_util::OpenFile(filename, "wb+");
+  if (!file_) {
     DLOG(ERROR) << "EventRecorder could not open log file";
     return false;
   }
@@ -61,7 +63,7 @@ bool EventRecorder::StartRecording(const std::wstring& filename) {
                                      GetModuleHandle(NULL), 0);
   if (!journal_hook_) {
     DLOG(ERROR) << "EventRecorder Record Hook failed";
-    fclose(file_);
+    file_util::CloseFile(file_);
     return false;
   }
 
@@ -82,7 +84,7 @@ void EventRecorder::StopRecording() {
     ::timeEndPeriod(1);
 
     DCHECK(file_ != NULL);
-    fclose(file_);
+    file_util::CloseFile(file_);
     file_ = NULL;
 
     journal_hook_ = NULL;
@@ -98,14 +100,15 @@ bool EventRecorder::StartPlayback(const std::wstring& filename) {
 
   // Open the recording file.
   DCHECK(file_ == NULL);
-  if (_wfopen_s(&file_, filename.c_str(), L"rb") != 0) {
+  file_ = file_util::OpenFile(filename, "rb");
+  if (!file_) {
     DLOG(ERROR) << "EventRecorder Playback could not open log file";
     return false;
   }
   // Read the first event from the record.
   if (fread(&playback_msg_, sizeof(EVENTMSG), 1, file_) != 1) {
     DLOG(ERROR) << "EventRecorder Playback has no records!";
-    fclose(file_);
+    file_util::CloseFile(file_);
     return false;
   }
 
@@ -147,7 +150,7 @@ void EventRecorder::StopPlayback() {
     }
 
     DCHECK(file_ != NULL);
-    fclose(file_);
+    file_util::CloseFile(file_);
     file_ = NULL;
 
     ::timeEndPeriod(1);

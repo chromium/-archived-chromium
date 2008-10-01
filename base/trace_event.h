@@ -73,12 +73,6 @@
 #define TRACE_EVENT_INSTANT(name, id, extra)
 #endif
 
-#if defined(OS_WIN)
-typedef HANDLE FileHandle;
-#else
-typedef FILE* FileHandle;
-#endif
-
 namespace process_util {
 class ProcessMetrics;
 }
@@ -129,7 +123,7 @@ class TraceLog {
   void Log(const std::string& msg);
 
   bool enabled_;
-  FileHandle log_file_;
+  FILE* log_file_;
   Lock file_lock_;
   TimeTicks trace_start_time_;
   scoped_ptr<process_util::ProcessMetrics> process_metrics_;

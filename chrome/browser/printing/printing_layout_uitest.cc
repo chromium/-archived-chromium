@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
+#include "base/file_util.h"
 #include "base/gfx/bitmap_header.h"
 #include "base/gfx/platform_device_win.h"
 #include "base/gfx/png_decoder.h"
@@ -58,11 +59,9 @@ class Image {
                                    true,
                                    &compressed));
     ASSERT_TRUE(compressed.size());
-    FILE* f;
-    ASSERT_EQ(_wfopen_s(&f, filename.c_str(), L"wbS"), 0);
-    ASSERT_EQ(fwrite(&*compressed.begin(), 1, compressed.size(), f),
-              compressed.size());
-    fclose(f);
+    ASSERT_EQ(compressed.size(), file_util::WriteFile(
+        filename,
+        reinterpret_cast<char*>(&*compressed.begin()), compressed.size()));
   }
 
   double PercentageDifferent(const Image& rhs) const {

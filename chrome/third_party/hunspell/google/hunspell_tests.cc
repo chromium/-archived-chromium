@@ -104,9 +104,8 @@ void HunspellTest::RunTest(const char* test_base_name) const {
                     serialized.size());
 #else
   // Use "regular" Hunspell.
-  FILE *aff_file, *dic_file;
-  fopen_s(&aff_file, aff_name.c_str(), "r");
-  fopen_s(&dic_file, dic_name.c_str(), "r");
+  FILE* aff_file = file_util::OpenFile(aff_name, "r");
+  FILE* dic_file = file_util::OpenFile(dic_name, "r");
   EXPECT_TRUE(aff_file && dic_file);
   
   Hunspell hunspell(aff_file, dic_file);

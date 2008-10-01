@@ -4,6 +4,8 @@
 
 #include "base/file_util.h"
 
+#include <stdio.h>
+
 #include <fstream>
 
 #include "base/logging.h"
@@ -269,23 +271,17 @@ bool ContentsEqual(const std::wstring& filename1,
 }
 
 bool ReadFileToString(const std::wstring& path, std::string* contents) {
-#if defined(OS_WIN)
-  FILE* file;
-  errno_t err = _wfopen_s(&file, path.c_str(), L"rbS");
-  if (err != 0)
+  FILE* file = OpenFile(path, "rb");
+  if (!file) {
     return false;
-#elif defined(OS_POSIX)
-  FILE* file = fopen(WideToUTF8(path).c_str(), "r");
-  if (!file)
-    return false;
-#endif
+  }
 
   char buf[1 << 16];
   size_t len;
   while ((len = fread(buf, 1, sizeof(buf), file)) > 0) {
     contents->append(buf, len);
   }
-  fclose(file);
+  CloseFile(file);
 
   return true;
 }
@@ -296,6 +292,10 @@ bool GetFileSize(const std::wstring& file_path, int64* file_size) {
     return false;
   *file_size = info.size;
   return true;
+}
+
+bool CloseFile(FILE* file) {
+  return fclose(file) == 0;
 }
 
 }  // namespace

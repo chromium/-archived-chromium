@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <set>
 
+#include "base/file_util.h"
 #include "base/string_util.h"
 #include "chrome/tools/convert_dict/aff_reader.h"
 #include "chrome/tools/convert_dict/hunspell_reader.h"
@@ -45,12 +46,12 @@ void SplitDicLine(const std::string& line, std::vector<std::string>* output) {
 }  // namespace
 
 DicReader::DicReader(const std::string& filename) {
-  fopen_s(&file_, filename.c_str(), "r");
+  file_ = file_util::OpenFile(filename, "r");
 }
 
 DicReader::~DicReader() {
   if (file_)
-    fclose(file_);
+    file_util::CloseFile(file_);
 }
 
 bool DicReader::Read(AffReader* aff_reader) {

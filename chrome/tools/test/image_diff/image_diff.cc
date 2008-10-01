@@ -13,6 +13,7 @@
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/file_util.h"
 #include "base/gfx/png_decoder.h"
 #include "base/logging.h"
 #include "base/process_util.h"
@@ -65,8 +66,8 @@ class Image {
   // Creates the image from the given filename on disk, and returns true on
   // success.
   bool CreateFromFilename(const char* filename) {
-    FILE* f;
-    if (fopen_s(&f, filename, "rb") != 0)
+    FILE* f = file_util::OpenFile(std::string(filename), "rb");
+    if (!f)
       return false;
 
     std::vector<unsigned char> compressed;
@@ -77,7 +78,7 @@ class Image {
       std::copy(buf, &buf[num_read], std::back_inserter(compressed));
     }
 
-    fclose(f);
+    file_util::CloseFile(f);
 
     if (!PNGDecoder::Decode(&compressed[0], compressed.size(),
                           PNGDecoder::FORMAT_RGBA, &data_, &w_, &h_)) {

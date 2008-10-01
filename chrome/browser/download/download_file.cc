@@ -67,7 +67,7 @@ DownloadFile::~DownloadFile() {
 
 bool DownloadFile::Initialize() {
   if (file_util::CreateTemporaryFileName(&full_path_))
-    return Open(L"wb");
+    return Open("wb");
   return false;
 }
 
@@ -107,22 +107,22 @@ bool DownloadFile::Rename(const std::wstring& new_path) {
   if (!in_progress_)
     return true;
 
-  if (!Open(L"a+b"))
+  if (!Open("a+b"))
     return false;
   return true;
 }
 
 void DownloadFile::Close() {
   if (file_) {
-    fclose(file_);
+    file_util::CloseFile(file_);
     file_ = NULL;
   }
 }
 
-bool DownloadFile::Open(const wchar_t* open_mode) {
+bool DownloadFile::Open(const char* open_mode) {
   DCHECK(!full_path_.empty());
-  if (_wfopen_s(&file_, full_path_.c_str(), open_mode)) {
-    file_ = NULL;
+  file_ = file_util::OpenFile(full_path_, open_mode);
+  if (!file_) {
     return false;
   }
   // Sets the Zone to tell Windows that this file comes from the internet.

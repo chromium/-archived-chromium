@@ -78,11 +78,7 @@ void TraceLog::Heartbeat() {
 
 void TraceLog::CloseLogFile() {
   if (log_file_) {
-#if defined(OS_WIN)
-    ::CloseHandle(log_file_);
-#elif defined(OS_POSIX)
-    fclose(log_file_);
-#endif
+    file_util::CloseFile(log_file_);
   }
 }
 
@@ -92,26 +88,14 @@ bool TraceLog::OpenLogFile() {
   std::wstring log_file_name;
   PathService::Get(base::DIR_EXE, &log_file_name);
   file_util::AppendToPath(&log_file_name, pid_filename);
-#if defined(OS_WIN)
-  log_file_ = ::CreateFile(log_file_name.c_str(), GENERIC_WRITE,
-                           FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                           OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-  if (log_file_ == INVALID_HANDLE_VALUE || log_file_ == NULL) {
+  log_file_ = file_util::OpenFile(log_file_name, "a");
+  if (!log_file_) {
     // try the current directory
-    log_file_ = ::CreateFile(pid_filename.c_str(), GENERIC_WRITE,
-                             FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                             OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (log_file_ == INVALID_HANDLE_VALUE || log_file_ == NULL) {
-      log_file_ = NULL;
+    log_file_ = file_util::OpenFile(pid_filename, "a");
+    if (!log_file_) {
       return false;
     }
   }
-  ::SetFilePointer(log_file_, 0, 0, FILE_END);
-#elif defined(OS_POSIX)
-  log_file_ = fopen(WideToUTF8(log_file_name).c_str(), "a");
-  if (log_file_ == NULL)
-    return false;
-#endif
   return true;
 }
 
@@ -162,13 +146,7 @@ void TraceLog::Trace(const std::string& name,
 void TraceLog::Log(const std::string& msg) {
   AutoLock lock(file_lock_);
 
-#if defined (OS_WIN)
-  SetFilePointer(log_file_, 0, 0, SEEK_END);
-  DWORD num;
-  WriteFile(log_file_, (void*)msg.c_str(), (DWORD)msg.length(), &num, NULL);
-#elif defined (OS_POSIX)
   fprintf(log_file_, "%s", msg.c_str());
-#endif
 }
 
 } // namespace base

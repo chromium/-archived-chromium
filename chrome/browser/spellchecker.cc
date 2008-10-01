@@ -471,10 +471,9 @@ class AddWordToCustomDictionaryTask : public Task {
     // faster, compared to verifying everytime whether to append a new line
     // or not.
     word_ += "\n";
-    const char* file_name_char = file_name_.c_str();
-    FILE* f = fopen(file_name_char, "a+");
+    FILE* f = file_util::OpenFile(file_name_, "a+");
     fputs(word_.c_str(), f);
-    fclose(f);
+    file_util::CloseFile(f);
   }
 
   std::string file_name_;

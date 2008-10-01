@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "base/file_util.h"
 #include "base/string_util.h"
 #include "chrome/tools/convert_dict/hunspell_reader.h"
 
@@ -44,7 +45,7 @@ void CollapseDuplicateSpaces(std::string* str) {
 }  // namespace
 
 AffReader::AffReader(const std::string& filename) {
-  fopen_s(&file_, filename.c_str(), "r");
+  file_ = file_util::OpenFile(filename, "r");
 
   // Default to Latin1 in case the file doesn't specify it.
   encoding_ = "ISO8859-1";
@@ -52,7 +53,7 @@ AffReader::AffReader(const std::string& filename) {
 
 AffReader::~AffReader() {
   if (file_)
-    fclose(file_);
+    file_util::CloseFile(file_);
 }
 
 bool AffReader::Read() {

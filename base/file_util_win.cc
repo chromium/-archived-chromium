@@ -447,6 +447,23 @@ bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
   return true;
 }
 
+FILE* OpenFile(const std::string& filename, const char* mode) {
+  FILE* file;
+  if (fopen_s(&file, filename.c_str(), mode) != 0) {
+    return NULL;
+  }
+  return file;
+}
+
+FILE* OpenFile(const std::wstring& filename, const char* mode) {
+  std::wstring w_mode = ASCIIToWide(std::string(mode));
+  FILE* file;
+  if (_wfopen_s(&file, filename.c_str(), w_mode.c_str()) != 0) {
+    return NULL;
+  }
+  return file;
+}
+
 int ReadFile(const std::wstring& filename, char* data, int size) {
   ScopedHandle file(CreateFile(filename.c_str(),
                                GENERIC_READ,

@@ -184,11 +184,11 @@ class Image {
                                    true,
                                    &compressed));
     ASSERT_TRUE(compressed.size());
-    FILE* f;
-    ASSERT_EQ(_wfopen_s(&f, filename.c_str(), L"wbS"), 0);
+    FILE* f = file_util::OpenFile(filename, "wb");
+    ASSERT_TRUE(f);
     ASSERT_EQ(fwrite(&*compressed.begin(), 1, compressed.size(), f),
               compressed.size());
-    fclose(f);
+    file_util::CloseFile(f);
   }
 
   // Returns the percentage of the image that is different from the other,

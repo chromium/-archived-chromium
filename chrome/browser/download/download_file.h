@@ -111,7 +111,7 @@ class DownloadFile {
   // based on creation information passed to it, and automatically closed in
   // the destructor.
   void Close();
-  bool Open(const wchar_t* open_mode);
+  bool Open(const char* open_mode);
 
   // OS file handle for writing
   FILE* file_;

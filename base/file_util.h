@@ -16,6 +16,8 @@
 #include <fts.h>
 #endif
 
+#include <stdio.h>
+
 #include <stack>
 #include <string>
 #include <vector>
@@ -245,6 +247,13 @@ struct FileInfo {
 
 // Returns information about the given file path.
 bool GetFileInfo(const std::wstring& file_path, FileInfo* info);
+
+// Wrapper for fopen-like calls. Returns non-NULL FILE* on success.
+FILE* OpenFile(const std::string& filename, const char* mode);
+FILE* OpenFile(const std::wstring& filename, const char* mode);
+
+// Closes file opened by OpenFile. Returns true on success.
+bool CloseFile(FILE* file);
 
 // Reads the given number of bytes from the file into the buffer.  Returns
 // the number of read bytes, or -1 on error.

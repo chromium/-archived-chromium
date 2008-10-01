@@ -4,6 +4,7 @@
 
 #include "chrome/browser/history/thumbnail_database.h"
 
+#include "base/file_util.h"
 #include "base/time.h"
 #include "base/string_util.h"
 #include "chrome/browser/history/url_database.h"
@@ -104,11 +105,10 @@ InitStatus ThumbnailDatabase::Init(const std::wstring& db_name) {
 
     char filename[256];
     sprintf(filename, "<<< YOUR PATH HERE >>>\\%d.jpeg", idx);
-    FILE* f;
-    if (fopen_s(&f, filename, "wb") == 0) {
-      if (!data.empty())
-        fwrite(&data[0], 1, data.size(), f);
-      fclose(f);
+    if (!data.empty()) {
+      file_util::WriteFile(ASCIIToWide(std::string(filename)),
+                           reinterpret_cast<char*>(data.data()),
+                           data.size());
     }
   }
 #endif
