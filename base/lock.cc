@@ -15,8 +15,8 @@
 #include "base/logging.h"
 
 Lock::Lock()
-    : lock_()
-    , recursion_count_shadow_(0) {
+    : lock_(),
+      recursion_count_shadow_(0) {
 #ifndef NDEBUG
   recursion_used_ = false;
   acquisition_count_ = 0;

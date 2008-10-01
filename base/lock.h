@@ -55,7 +55,7 @@ class Lock {
 // A helper class that acquires the given Lock while the AutoLock is in scope.
 class AutoLock {
  public:
-  AutoLock(Lock& lock) : lock_(lock) {
+  explicit AutoLock(Lock& lock) : lock_(lock) {
     lock_.Acquire();
   }
 
