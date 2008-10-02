@@ -2390,10 +2390,28 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node) {
       type = V8ClassIndex::NODE;
   }
 
+  // Find the context to which the node belongs and create the wrapper
+  // in that context.  If the node is not in a document, the current
+  // context is used.
+  v8::Local<v8::Context> context;
+  Document* doc = node->document();
+  if (doc) {
+    context = V8Proxy::GetContext(doc->frame());
+  }
+  if (!context.IsEmpty()) {
+    context->Enter();
+  }
+
   // Set the peer object for future access.
   // InstantiateV8Object automatically casts node to Peerable*.
   v8::Local<v8::Object> result =
       InstantiateV8Object(type, V8ClassIndex::NODE, node);
+
+  // Exit the node's context if it was entered.
+  if (!context.IsEmpty()) {
+    context->Exit();
+  }
+
   if (result.IsEmpty()) {
     // If instantiation failed it's important not to add the result
     // to the DOM node map. Instead we return an empty handle, which
