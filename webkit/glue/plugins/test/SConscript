@@ -10,6 +10,7 @@ env_res = env_res.Clone()
 input_files = [
     'npapi_constants.cc',
     'npapi_test.cc',
+    'plugin_arguments_test.cc',
     'plugin_delete_plugin_in_stream_test.cc',
     'plugin_get_javascript_url_test.cc',
     'plugin_new_fails_test.cc',
@@ -20,7 +21,6 @@ input_files = [
 if env['PLATFORM'] == 'win32':
   # TODO(port): Port these.
   input_files.extend([
-      'plugin_arguments_test.cc',
       'plugin_execute_script_delete_test.cc',
       'plugin_geturl_test.cc',
       'plugin_client.cc',                 # Includes not ported headers.
