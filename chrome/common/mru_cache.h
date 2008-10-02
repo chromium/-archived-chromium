@@ -70,7 +70,7 @@ class MRUCacheBase {
   // will take ownership of the pointer.
   iterator Put(const KeyType& key, const PayloadType& payload) {
     // Remove any existing payload with that key.
-    KeyIndex::iterator index_iter = index_.find(key);
+    typename KeyIndex::iterator index_iter = index_.find(key);
     if (index_iter != index_.end()) {
       // Erase the reference to it. This will call the deletor on the removed
       // element. The index reference will be replaced in the code below.
@@ -92,10 +92,10 @@ class MRUCacheBase {
   //
   // TODO(brettw) We may want a const version of this function in the future.
   iterator Get(const KeyType& key) {
-    KeyIndex::iterator index_iter = index_.find(key);
+    typename KeyIndex::iterator index_iter = index_.find(key);
     if (index_iter == index_.end())
       return end();
-    PayloadList::iterator iter = index_iter->second;
+    typename PayloadList::iterator iter = index_iter->second;
 
     // Move the touched item to the front of the recency ordering.
     ordering_.splice(ordering_.begin(), ordering_, iter);
@@ -107,7 +107,7 @@ class MRUCacheBase {
   //
   // TODO(brettw) We may want a const version of this function in the future.
   iterator Peek(const KeyType& key) {
-    KeyIndex::const_iterator index_iter = index_.find(key);
+    typename KeyIndex::const_iterator index_iter = index_.find(key);
     if (index_iter == index_.end())
       return end();
     return index_iter->second;
@@ -190,15 +190,20 @@ template <class KeyType, class PayloadType>
 class MRUCache : public MRUCacheBase<KeyType,
                                      PayloadType,
                                      MRUCacheNullDeletor<PayloadType> > {
+ private:
+  typedef MRUCacheBase<KeyType, PayloadType,
+      MRUCacheNullDeletor<PayloadType> > ParentType;
+
  public:
   // See MRUCacheBase, noting the possibility of using NO_AUTO_EVICT.
-  MRUCache(size_type max_size) : MRUCacheBase(max_size) {
+  MRUCache(typename ParentType::size_type max_size)
+      : ParentType(max_size) {
   }
   virtual ~MRUCache() {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(MRUCache);
+  DISALLOW_COPY_AND_ASSIGN(MRUCache);
 };
 
 // OwningMRUCache --------------------------------------------------------------
@@ -219,15 +224,20 @@ class OwningMRUCache
     : public MRUCacheBase<KeyType,
                           PayloadType,
                           MRUCachePointerDeletor<PayloadType> > {
+ private:
+  typedef MRUCacheBase<KeyType, PayloadType,
+      MRUCachePointerDeletor<PayloadType> > ParentType;
+
  public:
   // See MRUCacheBase, noting the possibility of using NO_AUTO_EVICT.
-  OwningMRUCache(size_type max_size) : MRUCacheBase(max_size) {
+  OwningMRUCache(typename ParentType::size_type max_size)
+      : ParentType(max_size) {
   }
   virtual ~OwningMRUCache() {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(OwningMRUCache);
+  DISALLOW_COPY_AND_ASSIGN(OwningMRUCache);
 };
 
 #endif  // CHROME_COMMON_MRU_CACHE_H__

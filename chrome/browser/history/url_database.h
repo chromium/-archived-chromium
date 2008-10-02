@@ -230,7 +230,7 @@ class URLDatabase {
   bool MigrateFromVersion11ToVersion12();
 
  protected:
-  friend VisitDatabase;
+  friend class VisitDatabase;
 
   // See HISTORY_URL_ROW_FIELDS below.
   static const char kURLRowFields[];

@@ -16,6 +16,7 @@
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/template_url.h"
 #include "chrome/browser/template_url_prepopulate_data.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"

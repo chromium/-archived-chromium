@@ -10,6 +10,7 @@
 #include "chrome/browser/views/download_started_animation.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/native_scroll_bar.h"

@@ -11,6 +11,7 @@
 #include "chrome/browser/download/download_util.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/root_view.h"

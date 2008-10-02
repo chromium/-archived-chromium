@@ -24,7 +24,7 @@ class SaveFile {
   ~SaveFile();
 
   // Write a new chunk of data to the file. Returns true on success.
-  bool AppendDataToFile(const char* data, int data_len);
+  bool AppendDataToFile(const char* data, size_t data_len);
 
   // Abort the saving job and automatically close the file.
   void Cancel();
@@ -53,7 +53,7 @@ class SaveFile {
   // based on creation information passed to it, and automatically closed in
   // the destructor.
   void Close();
-  bool Open(const wchar_t* open_mode);
+  bool Open(const char* open_mode);
 
   scoped_ptr<const SaveFileCreateInfo> info_;
 

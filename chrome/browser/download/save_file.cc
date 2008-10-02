@@ -4,12 +4,16 @@
 
 #include "chrome/browser/download/save_file.h"
 
+#include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/string_util.h"
 #include "chrome/browser/download/save_types.h"
+#if defined(OS_WIN)
 #include "chrome/common/win_util.h"
 #include "chrome/common/win_safe_util.h"
+#endif
 
 SaveFile::SaveFile(const SaveFileCreateInfo* info)
     : info_(info),
@@ -20,7 +24,7 @@ SaveFile::SaveFile(const SaveFileCreateInfo* info)
   DCHECK(info);
   DCHECK(info->path.empty());
   if (file_util::CreateTemporaryFileName(&full_path_))
-    Open(L"wb");
+    Open("wb");
 }
 
 SaveFile::~SaveFile() {
@@ -30,7 +34,7 @@ SaveFile::~SaveFile() {
 // Return false indicate that we got disk error, save file manager will tell
 // SavePackage this error, then SavePackage will call its Cancel() method to
 // cancel whole save job.
-bool SaveFile::AppendDataToFile(const char* data, int data_len) {
+bool SaveFile::AppendDataToFile(const char* data, size_t data_len) {
   if (file_) {
     if (data_len == fwrite(data, 1, data_len, file_)) {
       bytes_so_far_ += data_len;
@@ -49,7 +53,7 @@ void SaveFile::Cancel() {
   // If this job has been canceled, and it has created file,
   // We need to delete this created file.
   if (!full_path_.empty()) {
-    DeleteFile(full_path_.c_str());
+    file_util::Delete(full_path_, false);
   }
 }
 
@@ -60,19 +64,17 @@ bool SaveFile::Rename(const std::wstring& new_path) {
   DCHECK(!path_renamed());
   // We cannot rename because rename will keep the same security descriptor
   // on the destination file. We want to recreate the security descriptor
-  // with the security that makes sense in the new path. If the last parameter
-  // is FALSE and the new file already exists, the function overwrites the
-  // existing file and succeeds.
-  if (!CopyFile(full_path_.c_str(), new_path.c_str(), FALSE))
+  // with the security that makes sense in the new path.
+  if (!file_util::CopyFile(full_path_, new_path))
     return false;
 
-  DeleteFile(full_path_.c_str());
+  file_util::Delete(full_path_, false);
 
   full_path_ = new_path;
   path_renamed_ = true;
 
   // Still in saving process, reopen the file.
-  if (in_progress_ && !Open(L"a+b"))
+  if (in_progress_ && !Open("a+b"))
     return false;
   return true;
 }
@@ -84,20 +86,23 @@ void SaveFile::Finish() {
 
 void SaveFile::Close() {
   if (file_) {
-    fclose(file_);
+    file_util::CloseFile(file_);
     file_ = NULL;
   }
 }
 
-bool SaveFile::Open(const wchar_t* open_mode) {
+bool SaveFile::Open(const char* open_mode) {
   DCHECK(!full_path_.empty());
-  if (_wfopen_s(&file_, full_path_.c_str(), open_mode)) {
-    file_ = NULL;
+  file_ = file_util::OpenFile(full_path_, open_mode);
+  if (!file_) {
     return false;
   }
+#if defined(OS_WIN)
   // Sets the zone to tell Windows that this file comes from the Internet.
   // We ignore the return value because a failure is not fatal.
+  // TODO(port): Similarly mark on Mac.
   win_util::SetInternetZoneIdentifier(full_path_);
+#endif
   return true;
 }
 

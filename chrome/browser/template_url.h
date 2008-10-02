@@ -9,7 +9,6 @@
 
 #include "base/basictypes.h"
 #include "base/time.h"
-#include "chrome/common/l10n_util.h"
 #include "googleurl/src/gurl.h"
 
 class TemplateURL;
@@ -307,12 +306,7 @@ class TemplateURL {
   const GURL& originating_url() const { return originating_url_; }
 
   // The shortcut for this template url. May be empty.
-  void set_keyword(const std::wstring& keyword) {
-    // Case sensitive keyword matching is confusing. As such, we force all
-    // keywords to be lower case.
-    keyword_ = l10n_util::ToLower(keyword);
-    autogenerate_keyword_ = false;
-  }
+  void set_keyword(const std::wstring& keyword);
   const std::wstring& keyword() const;
 
   // Whether to autogenerate a keyword from the url() in GetKeyword().  Most

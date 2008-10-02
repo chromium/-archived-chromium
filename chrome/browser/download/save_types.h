@@ -35,11 +35,11 @@ struct SaveFileCreateInfo {
       : path(path),
         url(url),
         save_id(save_id),
-        save_source(save_source),
         render_process_id(-1),
         render_view_id(-1),
         request_id(-1),
-        total_bytes(0) {
+        total_bytes(0),
+        save_source(save_source) {
   }
 
   SaveFileCreateInfo() : save_id(-1) {}

@@ -75,13 +75,13 @@ TEST(HistoryQueryResult, DeleteRange) {
   // order.
   size_t match_count;
   const size_t* matches = results.MatchesForURL(url1, &match_count);
-  ASSERT_EQ(2, match_count);
+  ASSERT_EQ(2U, match_count);
   EXPECT_TRUE((matches[0] == 0 && matches[1] == 1) ||
               (matches[0] == 1 && matches[1] == 0));
 
   // Check the second one.
   matches = results.MatchesForURL(url2, &match_count);
-  ASSERT_EQ(1, match_count);
+  ASSERT_EQ(1U, match_count);
   EXPECT_TRUE(matches[0] == 2);
 
   // Delete the first instance of the first URL.
@@ -90,15 +90,15 @@ TEST(HistoryQueryResult, DeleteRange) {
 
   // Check the two URLs.
   matches = results.MatchesForURL(url1, &match_count);
-  ASSERT_EQ(1, match_count);
+  ASSERT_EQ(1U, match_count);
   EXPECT_TRUE(matches[0] == 0);
   matches = results.MatchesForURL(url2, &match_count);
-  ASSERT_EQ(1, match_count);
+  ASSERT_EQ(1U, match_count);
   EXPECT_TRUE(matches[0] == 1);
 
   // Now delete everything and make sure it's deleted.
   results.DeleteRange(0, 1);
-  EXPECT_EQ(0, results.size());
+  EXPECT_EQ(0U, results.size());
   EXPECT_FALSE(results.MatchesForURL(url1, NULL));
   EXPECT_FALSE(results.MatchesForURL(url2, NULL));
 }
@@ -113,18 +113,18 @@ TEST(HistoryQueryResult, ResultDeleteURL) {
   // Delete the first URL.
   results.DeleteURL(url1);
   CheckHistoryResultConsistency(results);
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
 
   // The first one should be gone, and the second one should be at [0].
   size_t match_count;
   EXPECT_FALSE(results.MatchesForURL(url1, NULL));
   const size_t* matches = results.MatchesForURL(url2, &match_count);
-  ASSERT_EQ(1, match_count);
+  ASSERT_EQ(1U, match_count);
   EXPECT_TRUE(matches[0] == 0);
 
   // Delete the second URL, there should be nothing left.
   results.DeleteURL(url2);
-  EXPECT_EQ(0, results.size());
+  EXPECT_EQ(0U, results.size());
   EXPECT_FALSE(results.MatchesForURL(url2, NULL));
 }
 
@@ -146,23 +146,23 @@ TEST(HistoryQueryResult, AppendResults) {
 
   // There should be 3 results, the second one of the appendee should be
   // deleted because it was already in the first one and we said remove dupes.
-  ASSERT_EQ(4, results.size());
+  ASSERT_EQ(4U, results.size());
 
   // The first URL should be unchanged in the first two spots.
   size_t match_count;
   const size_t* matches = results.MatchesForURL(url1, &match_count);
-  ASSERT_EQ(2, match_count);
+  ASSERT_EQ(2U, match_count);
   EXPECT_TRUE((matches[0] == 0 && matches[1] == 1) ||
               (matches[0] == 1 && matches[1] == 0));
 
   // The second URL should be there once after that
   matches = results.MatchesForURL(url2, &match_count);
-  ASSERT_EQ(1, match_count);
+  ASSERT_EQ(1U, match_count);
   EXPECT_TRUE(matches[0] == 2);
 
   // The third one should be after that.
   matches = results.MatchesForURL(url3, &match_count);
-  ASSERT_EQ(1, match_count);
+  ASSERT_EQ(1U, match_count);
   EXPECT_TRUE(matches[0] == 3);
 }
 

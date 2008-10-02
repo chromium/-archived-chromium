@@ -8,6 +8,7 @@
 #include "chrome/browser/bookmarks/bookmark_storage.h"
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/scoped_vector.h"
 
 #include "generated_resources.h"

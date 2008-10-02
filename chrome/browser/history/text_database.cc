@@ -115,15 +115,17 @@ TextDatabase::DBIdent TextDatabase::FileNameToID(const std::wstring& file_path){
   // We don't actually check the prefix here. Since the file system could
   // be case insensitive in ways we can't predict (NTFS), checking could
   // potentially be the wrong thing to do. Instead, we just look for a suffix.
-  static const int kIDStringLength = 7;  // Room for "xxxx-xx".
+  static const size_t kIDStringLength = 7;  // Room for "xxxx-xx".
   if (file_name.length() < kIDStringLength)
     return 0;
-  const wchar_t* number_begin =
-      &file_name[file_name.length() - kIDStringLength];
+  const std::wstring suffix(&file_name[file_name.length() - kIDStringLength]);
 
-  int year, month;
-  if (swscanf_s(number_begin, L"%d-%d", &year, &month) != 2)
-    return 0;  // Unable to get both numbers.
+  if (suffix.length() != kIDStringLength || suffix[4] != L'-') {
+    return 0;
+  }
+
+  int year = StringToInt(suffix.substr(0, 4));
+  int month = StringToInt(suffix.substr(5, 2));
 
   return year * 100 + month;
 }
@@ -348,7 +350,7 @@ void TextDatabase::GetTextMatches(const std::string& query,
     Match& match = results->at(results->size() - 1);
     match.url.Swap(&url);
 
-    match.title = statement->column_string16(1);
+    match.title = UTF8ToWide(statement->column_string(1));
     match.time = Time::FromInternalValue(statement->column_int64(2));
 
     // Extract any matches in the title.

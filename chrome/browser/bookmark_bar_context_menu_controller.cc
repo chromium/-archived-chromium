@@ -13,6 +13,7 @@
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/input_window.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/view_container.h"

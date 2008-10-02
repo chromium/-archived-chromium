@@ -8,6 +8,7 @@
 #include "chrome/views/view_container.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/chrome_menu.h"
 #include "chrome/views/tooltip_manager.h"

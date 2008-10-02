@@ -11,6 +11,7 @@
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/common/gfx/favicon_size.h"
+#include "chrome/common/l10n_util.h"
 #include "net/base/escape.h"
 
 // The TemplateURLRef has any number of terms that need to be replaced. Each of
@@ -501,6 +502,13 @@ void TemplateURL::SetURL(const std::wstring& url,
                          int index_offset,
                          int page_offset) {
   url_.Set(url, index_offset, page_offset);
+}
+
+void TemplateURL::set_keyword(const std::wstring& keyword) {
+  // Case sensitive keyword matching is confusing. As such, we force all
+  // keywords to be lower case.
+  keyword_ = l10n_util::ToLower(keyword);
+  autogenerate_keyword_ = false;
 }
 
 const std::wstring& TemplateURL::keyword() const {

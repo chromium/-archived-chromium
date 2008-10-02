@@ -4,6 +4,7 @@
 
 #include "chrome/browser/history/text_database_manager.h"
 
+#include "base/compiler_specific.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/logging.h"
@@ -70,8 +71,7 @@ TextDatabaseManager::TextDatabaseManager(const std::wstring& dir,
       transaction_nesting_(0),
       db_cache_(DBCache::NO_AUTO_EVICT),
       present_databases_loaded_(false),
-#pragma warning(suppress: 4355)  // Okay to pass "this" here.
-      factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
 }
 
 TextDatabaseManager::~TextDatabaseManager() {

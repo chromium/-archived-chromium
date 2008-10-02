@@ -8,6 +8,7 @@
 #ifndef CHROME_BROWSER_HISTORY_SNIPPET_H__
 #define CHROME_BROWSER_HISTORY_SNIPPET_H__
 
+#include <string>
 #include <vector>
 
 class Snippet {

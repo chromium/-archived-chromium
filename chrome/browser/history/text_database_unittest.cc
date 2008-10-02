@@ -202,7 +202,7 @@ TEST_F(TextDatabaseTest, Query) {
   EXPECT_TRUE(unique_urls.empty()) << "Didn't ask for unique URLs";
 
   // All 3 sites should be returned in order.
-  ASSERT_EQ(3, results.size());
+  ASSERT_EQ(3U, results.size());
   EXPECT_EQ(GURL(kURL1), results[2].url);
   EXPECT_EQ(GURL(kURL2), results[1].url);
   EXPECT_EQ(GURL(kURL3), results[0].url);
@@ -217,9 +217,9 @@ TEST_F(TextDatabaseTest, Query) {
   EXPECT_EQ(UTF8ToWide(std::string(kTitle3)), results[0].title);
 
   // Should have no matches in the title.
-  EXPECT_EQ(0, results[0].title_match_positions.size());
-  EXPECT_EQ(0, results[1].title_match_positions.size());
-  EXPECT_EQ(0, results[2].title_match_positions.size());
+  EXPECT_EQ(0U, results[0].title_match_positions.size());
+  EXPECT_EQ(0U, results[1].title_match_positions.size());
+  EXPECT_EQ(0U, results[2].title_match_positions.size());
 
   // We don't want to be dependent on the exact snippet algorithm, but we know
   // since we searched for "COUNTTAG" which occurs at the beginning of each
@@ -253,7 +253,7 @@ TEST_F(TextDatabaseTest, TimeRange) {
   EXPECT_TRUE(unique_urls.empty()) << "Didn't ask for unique URLs";
 
   // The first and second should have been returned.
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_TRUE(ResultsHaveURL(results, kURL1));
   EXPECT_TRUE(ResultsHaveURL(results, kURL2));
   EXPECT_FALSE(ResultsHaveURL(results, kURL3));
@@ -273,7 +273,7 @@ TEST_F(TextDatabaseTest, TimeRange) {
             first_time_searched.ToInternalValue());
 
   // Should have two results, the second and third.
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_FALSE(ResultsHaveURL(results, kURL1));
   EXPECT_TRUE(ResultsHaveURL(results, kURL2));
   EXPECT_TRUE(ResultsHaveURL(results, kURL3));
@@ -311,7 +311,7 @@ TEST_F(TextDatabaseTest, MaxCount) {
   EXPECT_TRUE(unique_urls.empty()) << "Didn't ask for unique URLs";
 
   // There should be one result, the most recent one.
-  EXPECT_EQ(1, results.size());
+  EXPECT_EQ(1U, results.size());
   EXPECT_TRUE(ResultsHaveURL(results, kURL2));
 
   // The max time considered should be the date of the returned item.

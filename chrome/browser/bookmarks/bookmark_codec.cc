@@ -7,6 +7,7 @@
 #include "base/string_util.h"
 #include "base/values.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/common/l10n_util.h"
 #include "googleurl/src/gurl.h"
 
 #include "generated_resources.h"

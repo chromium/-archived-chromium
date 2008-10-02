@@ -125,8 +125,8 @@ class URLRow {
  private:
   // This class writes directly into this structure and clears our dirty bits
   // when reading out of the DB.
-  friend URLDatabase;
-  friend HistoryBackend;
+  friend class URLDatabase;
+  friend class HistoryBackend;
 
   // Initializes all values that need initialization to their defaults.
   // This excludes objects which autoinitialize such as strings.

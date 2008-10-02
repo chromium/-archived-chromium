@@ -153,7 +153,6 @@ class ProfileManager {
 
   // We keep a simple vector of profiles rather than something fancier
   // because we expect there to be a small number of profiles active.
-  typedef std::vector<Profile*> ProfileVector;
   ProfileVector profiles_;
 
   AvailableProfileVector available_profiles_;

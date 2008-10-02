@@ -10,6 +10,7 @@
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 

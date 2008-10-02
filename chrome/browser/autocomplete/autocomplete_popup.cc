@@ -17,6 +17,7 @@
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
 

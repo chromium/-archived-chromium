@@ -5,7 +5,6 @@
 #include "chrome/browser/history/in_memory_history_backend.h"
 
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/history/history_database.h"
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/browser/history/in_memory_database.h"
 #include "chrome/browser/profile.h"
