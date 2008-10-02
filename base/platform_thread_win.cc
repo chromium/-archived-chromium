@@ -48,6 +48,11 @@ void PlatformThread::Sleep(int duration_ms) {
 
 // static
 void PlatformThread::SetName(const char* name) {
+  // The debugger needs to be around to catch the name in the exception.  If
+  // there isn't a debugger, we are just needlessly throwing an exception.
+  if (!::IsDebuggerPresent())
+    return;
+
   THREADNAME_INFO info;
   info.dwType = 0x1000;
   info.szName = name;
