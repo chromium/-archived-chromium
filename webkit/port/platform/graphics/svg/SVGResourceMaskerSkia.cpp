@@ -34,7 +34,7 @@
 #include "ImageBuffer.h"
 #include "GraphicsContext.h"
 
-#include "notimplemented.h"
+#include "NotImplemented.h"
 
 namespace WebCore {
 

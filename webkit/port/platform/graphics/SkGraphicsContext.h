@@ -37,7 +37,7 @@ typedef CTFontRef FontHandle;
 // compile. When the corresponding implementation to this file gets written,
 // these void pointers need to be replaced with whatever we end up using.
 typedef void* IconHandle;
-typedef void* IconHandle;
+typedef void* FontHandle;
 #endif
 
 class SkGraphicsContext {

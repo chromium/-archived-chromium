@@ -24,7 +24,6 @@
  */
 
 #include "config.h"
-#include <windows.h>
 #include "Language.h"
 
 #include "CString.h"

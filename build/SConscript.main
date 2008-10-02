@@ -323,7 +323,7 @@ elif env['PLATFORM'] == 'posix':
     # TODO: Clean up uses of ext/hash_map and remove this.
     # (see unordered_map and base/hash_tables.h)
     '-Wno-deprecated',  # Needed for using ext/hash_map on GCC 4.3
-    '-Wno-unknown-pragmas' # In wtf's ref counting system
+    '-Wno-unknown-pragmas',  # In wtf's ref counting system
   ]
   env.Replace(
       CCFLAGS = ['-m32', '-g', '-pthread'],

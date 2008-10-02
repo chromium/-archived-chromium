@@ -100,7 +100,12 @@ env.Prepend(
     ],
 )
 
+webkit_excluded_warnings = [
+  '-Wno-multichar',
+]
+
 env.Append(
+    CXXFLAGS = webkit_excluded_warnings,
     WEBCORE_DIR = "$THIRD_PARTY_WEBKIT_DIR/WebCore",
     PENDING_DIR = "$WEBKIT_DIR/pending",
     PORT_DIR = "$WEBKIT_DIR/port",

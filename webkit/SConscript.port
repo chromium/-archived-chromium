@@ -17,39 +17,42 @@ if env['PLATFORM'] == 'win32':
       '/wd4521',
       '/wd4800',
       ],)
+elif env['PLATFORM'] == 'posix':
+  env.Append(
+    # For the image readers and decoders:
+    CXXFLAGS = "-Wno-sign-compare",
+  )
 
 input_files = [
   '$PORT_DIR/css/RGBColor.cpp',
+  '$PORT_DIR/history/BackForwardList.cpp',
   '$PORT_DIR/history/CachedPage.cpp',
+  '$PORT_DIR/loader/IconLoader.cpp',
+  '$PORT_DIR/platform/Language.cpp',
   '$PORT_DIR/platform/TemporaryLinkStubs.cpp',
+  '$PORT_DIR/platform/graphics/AffineTransformSkia.cpp',
+  '$PORT_DIR/platform/graphics/ImageSourceSkia.cpp',
+  '$PORT_DIR/platform/graphics/NativeImageSkia.cpp',
+  '$PORT_DIR/platform/graphics/PathSkia.cpp',
+  '$PORT_DIR/platform/graphics/SkPaintContext.cpp',
+  '$PORT_DIR/platform/graphics/svg/RenderPathSkia.cpp',
+  '$PORT_DIR/platform/graphics/svg/SVGPaintServerGradientSkia.cpp',
+  '$PORT_DIR/platform/graphics/svg/SVGPaintServerPatternSkia.cpp',
+  '$PORT_DIR/platform/graphics/svg/SVGPaintServerSkia.cpp',
+  '$PORT_DIR/platform/graphics/svg/SVGPaintServerSolidSkia.cpp',
+  '$PORT_DIR/platform/graphics/svg/SVGResourceClipperSkia.cpp',
+  '$PORT_DIR/platform/graphics/svg/SVGResourceFilterSkia.cpp',
+  '$PORT_DIR/platform/graphics/svg/SVGResourceMaskerSkia.cpp',
+  '$PORT_DIR/platform/graphics/svg/SkiaSupport.cpp',
+  '$PORT_DIR/platform/image-decoders/bmp/BMPImageDecoder.cpp',
+  '$PORT_DIR/platform/image-decoders/bmp/BMPImageReader.cpp',
+  '$PORT_DIR/platform/image-decoders/gif/GIFImageDecoder.cpp',
+  '$PORT_DIR/platform/image-decoders/gif/GIFImageReader.cpp',
+  '$PORT_DIR/platform/image-decoders/ico/ICOImageDecoder.cpp',
+  '$PORT_DIR/platform/image-decoders/jpeg/JPEGImageDecoder.cpp',
+  '$PORT_DIR/platform/image-decoders/png/PNGImageDecoder.cpp',
+  '$PORT_DIR/platform/image-decoders/xbm/XBMImageDecoder.cpp',
 ]
-
-if env['PLATFORM'] == 'win32':
-  # TODO(erg): Temporarily disabling these until the big webkit merge is
-  # complete; we're just out of date here.
-  input_files.extend([
-    '$PORT_DIR/platform/graphics/AffineTransformSkia.cpp',
-    '$PORT_DIR/platform/graphics/ImageSourceSkia.cpp',
-    '$PORT_DIR/platform/graphics/NativeImageSkia.cpp',
-    '$PORT_DIR/platform/graphics/PathSkia.cpp',
-    '$PORT_DIR/platform/graphics/SkiaUtils.cpp',
-    '$PORT_DIR/platform/graphics/svg/SkiaSupport.cpp',
-    '$PORT_DIR/platform/graphics/svg/RenderPathSkia.cpp',
-    '$PORT_DIR/platform/graphics/svg/SVGPaintServerGradientSkia.cpp',
-    '$PORT_DIR/platform/graphics/svg/SVGPaintServerPatternSkia.cpp',
-    '$PORT_DIR/platform/graphics/svg/SVGPaintServerSkia.cpp',
-    '$PORT_DIR/platform/graphics/svg/SVGPaintServerSolidSkia.cpp',
-    '$PORT_DIR/platform/graphics/svg/SVGResourceClipperSkia.cpp',
-    '$PORT_DIR/platform/graphics/svg/SVGResourceFilterSkia.cpp',
-    '$PORT_DIR/platform/image-decoders/bmp/BMPImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/bmp/BMPImageReader.cpp',
-    '$PORT_DIR/platform/image-decoders/gif/GIFImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/gif/GIFImageReader.cpp',
-    '$PORT_DIR/platform/image-decoders/ico/ICOImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/jpeg/JPEGImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/png/PNGImageDecoder.cpp',
-    '$PORT_DIR/platform/image-decoders/xbm/XBMImageDecoder.cpp',
-  ])
 
 if env['PLATFORM'] == 'win32':
   # These files aren't win32-specific, they're just files that haven't yet been
@@ -59,9 +62,7 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/bridge/HistoryWin.cpp',
     '$PORT_DIR/bridge/PageWin.cpp',
     '$PORT_DIR/bridge/PluginsWin.cpp',
-    '$PORT_DIR/history/BackForwardList.cpp',
     '$PORT_DIR/loader/IconDatabaseNone.cpp',
-    '$PORT_DIR/loader/IconLoader.cpp',
     '$PORT_DIR/page/AXObjectCacheWin.cpp',
     '$PORT_DIR/page/DragControllerWin.cpp',
     '$PORT_DIR/page/EventHandlerWin.cpp',
@@ -78,7 +79,6 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/FramelessScrollView.cpp',
     '$PORT_DIR/platform/GKURL.cpp',
     '$PORT_DIR/platform/KeyEventWin.cpp',
-    '$PORT_DIR/platform/Language.cpp',
     '$PORT_DIR/platform/LogWin.cpp',
     '$PORT_DIR/platform/MimeTypeRegistryWin.cpp',
     '$PORT_DIR/platform/PasteboardWin.cpp',
@@ -110,9 +110,8 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
     '$PORT_DIR/platform/graphics/PlatformContextSkia.cpp',
     '$PORT_DIR/platform/graphics/SimpleFontDataWin.cpp',
+    '$PORT_DIR/platform/graphics/SkiaUtils.cpp',
     '$PORT_DIR/platform/graphics/SkGraphicsContext.cpp',
-    '$PORT_DIR/platform/graphics/SkPaintContext.cpp',
-    '$PORT_DIR/platform/graphics/svg/SVGResourceMaskerSkia.cpp',
     '$PORT_DIR/platform/network/CookieJarWin.cpp',
     '$PORT_DIR/rendering/RenderThemeWin.cpp',
   ])

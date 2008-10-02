@@ -34,7 +34,7 @@
 #include "config.h"
 #include "InspectorController.h"
 
-#include "notimplemented.h"
+#include "NotImplemented.h"
 
 #include "CString.h"
 #include "CachedCSSStyleSheet.h"
