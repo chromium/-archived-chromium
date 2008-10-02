@@ -17,7 +17,7 @@
 #include "FrameTree.h"
 #include "FrameView.h"
 #include "GraphicsContext.h"
-#include "HTMLPluginElement.h"
+#include "HTMLPlugInElement.h"
 #include "IntRect.h"
 #include "KURL.h"
 #include "KeyboardEvent.h"
@@ -48,7 +48,7 @@
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
-#include "webkit/port/platform/cursor.h"
+#include "webkit/port/platform/Cursor.h"
 
 // This class handles invididual multipart responses. It is instantiated when
 // we receive HTTP status code 206 in the HTTP response. This indicates
