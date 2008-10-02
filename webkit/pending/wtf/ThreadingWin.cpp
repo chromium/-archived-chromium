@@ -121,11 +121,13 @@ void initializeThreading()
 {
     if (!atomicallyInitializedStaticMutex) {
         atomicallyInitializedStaticMutex = new Mutex;
-        threadMapMutex();
-        wtf_random_init();
-        initializeMainThread();
-        mainThreadIdentifier = currentThread();
-        setThreadName(mainThreadIdentifier, "Main Thread");
+        // Test to see if this impacts startup.  Remove and refactor if it
+        // matters.
+        //threadMapMutex();
+        //wtf_random_init();
+        //initializeMainThread();
+        //mainThreadIdentifier = currentThread();
+        //setThreadName(mainThreadIdentifier, "Main Thread");
     }
 }
 
