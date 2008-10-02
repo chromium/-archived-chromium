@@ -1336,7 +1336,15 @@ V8 | KJS # pending/dom/html/level2/html/HTMLFrameElement09.html = PASS | CRASH
 V8 | KJS # pending/dom/html/level2/html/HTMLIFrameElement11.html = PASS | CRASH
 V8 | KJS # LayoutTests/editing/execCommand/outdent-selection.html = PASS | FAIL
 
+// This test seems to fail on the builders but not locally.
+V8 | KJS # LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
+
 // Post-merge Timeouts: Definitely need to be fixed one day
 V8 | KJS # LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/frame-loading-via-document-write.html = TIMEOUT
+ 
+// Post-merge Debug only Crashes
+V8 | KJS # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
+V8 | KJS # LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH
