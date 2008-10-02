@@ -38,6 +38,7 @@ void NetworkStateNotifier::updateState()
 {
     // Assume that we're online until proven otherwise.
     m_isOnLine = true;
+    return;
     
     Vector<char> buffer;
     DWORD size = 0;
