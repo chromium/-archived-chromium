@@ -127,6 +127,10 @@
 #undef WTF_PLATFORM_CG
 #undef WTF_PLATFORM_CF
 #undef WTF_USE_CFNETWORK
+// Upstream Platform.h's #ifdef check for other graphics libraries doesn't
+// check SKIA, so it falls back on defining CAIRO.  Undo that here.
+// TODO(evanm): clean this up.
+#undef WTF_PLATFORM_CAIRO
 #endif
 
 #if !defined(WTF_USE_V8)

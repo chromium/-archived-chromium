@@ -26,6 +26,9 @@
 #ifndef CachedPage_h
 #define CachedPage_h
 
+// DocumentLoder.h includes IconDatabase.h, which needs HashMap.
+// TODO(evanm): fix upstream.
+#include <wtf/HashMap.h>
 #include "DocumentLoader.h"
 #include <wtf/RefCounted.h>
 #include <wtf/Forward.h>
