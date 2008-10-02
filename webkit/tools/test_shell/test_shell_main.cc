@@ -196,8 +196,8 @@ int main(int argc, char* argv[]) {
   bool interactive = !layout_test_mode;
   TestShell::InitializeTestShell(interactive);
 
-    if (parsed_command_line.HasSwitch(test_shell::kAllowScriptsToCloseWindows))
-      TestShell::SetAllowScriptsToCloseWindows();
+  if (parsed_command_line.HasSwitch(test_shell::kAllowScriptsToCloseWindows))
+    TestShell::SetAllowScriptsToCloseWindows();
 
   // Disable user themes for layout tests so pixel tests are consistent.
   if (!interactive)
