@@ -12,11 +12,6 @@
 // sense of testing that isn't really happening.  Furthermore, since they
 // appear to pass if we do try to run them, we can't even list them as
 // permanently expected to fail.
-V8 | KJS # SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
-V8 | KJS # SKIP : LayoutTests/fast/xpath/nsresolver-bad-object.xhtml = PASS
-V8 | KJS # SKIP : LayoutTests/fast/xpath/nsresolver-exception.xhtml = PASS
-V8 | KJS # SKIP : LayoutTests/fast/xpath/nsresolver-function.xhtml = PASS
-V8 | KJS # SKIP : LayoutTests/fast/xpath/nsresolver-object.xhtml = PASS
 V8 | KJS # SKIP : LayoutTests/dom/xhtml = PASS
 
 // Fails due to different window.close() rules.  See bug 753420.  We need

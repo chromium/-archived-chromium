@@ -915,6 +915,10 @@ V8 | KJS # LayoutTests/fast/css/variables/alternate-syntax/remove-variable-test.
 V8 | KJS # LayoutTests/fast/css/variables/alternate-syntax/set-variable-test.html = FAIL
 V8 | KJS # LayoutTests/fast/css/variables/color-hex-test.html = FAIL
 
+# Many of the failures here are because V8 stringifies objects differently than
+# JSC. However, the missing position and totalSize properties seems genuine.
+V8 | KJS # SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
