@@ -34,7 +34,7 @@ void Clipboard::Clear() {
 
 void Clipboard::WriteText(const std::wstring& text) {
   NSPasteboard* pb = [NSPasteboard generalPasteboard];
-  [pb declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
+  [pb addTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
   [pb setString:nsStringForWString(text) forType:NSStringPboardType];
 }
 
@@ -42,7 +42,7 @@ void Clipboard::WriteHTML(const std::wstring& markup,
                           const std::string& src_url) {
   // TODO(avi): src_url?
   NSPasteboard* pb = [NSPasteboard generalPasteboard];
-  [pb declareTypes:[NSArray arrayWithObject:NSHTMLPboardType] owner:nil];
+  [pb addTypes:[NSArray arrayWithObject:NSHTMLPboardType] owner:nil];
   [pb setString:nsStringForWString(markup) forType:NSHTMLPboardType];
 }
 
@@ -53,13 +53,17 @@ void Clipboard::WriteBookmark(const std::wstring& title,
 
 void Clipboard::WriteHyperlink(const std::wstring& title,
                                const std::string& url) {
+  // TODO(playmobil): In the Windows version of this function, an HTML
+  // representation of the bookmark is also added to the clipboard, to support
+  // drag and drop of web shortcuts.  I don't think we need to do this on the
+  // Mac, but we should double check later on.
   NSURL* nsurl = [NSURL URLWithString:
                   [NSString stringWithUTF8String:url.c_str()]];
   NSString* nstitle = nsStringForWString(title);
 
   NSPasteboard* pb = [NSPasteboard generalPasteboard];
   // passing UTIs into the pasteboard methods is valid >= 10.5
-  [pb declareTypes:[NSArray arrayWithObjects:NSURLPboardType,
+  [pb addTypes:[NSArray arrayWithObjects:NSURLPboardType,
                     kUTTypeURLName, nil]
              owner:nil];
   [nsurl writeToPasteboard:pb];
@@ -79,7 +83,7 @@ void Clipboard::WriteFiles(const std::vector<std::wstring>& files) {
   }
 
   NSPasteboard* pb = [NSPasteboard generalPasteboard];
-  [pb declareTypes:[NSArray arrayWithObject:NSFilenamesPboardType] owner:nil];
+  [pb addTypes:[NSArray arrayWithObject:NSFilenamesPboardType] owner:nil];
   [pb setPropertyList:fileList forType:NSFilenamesPboardType];
 }
 
@@ -111,8 +115,11 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
     markup->clear();
 
     NSPasteboard* pb = [NSPasteboard generalPasteboard];
-    NSString* contents = [pb stringForType:NSStringPboardType];
-
+    NSArray *supportedTypes = [NSArray arrayWithObjects:NSHTMLPboardType,
+                                                        NSStringPboardType,
+                                                        nil];
+    NSString *bestType = [pb availableTypeFromArray:supportedTypes];
+    NSString* contents = [pb stringForType:bestType];
     UTF8ToWide([contents UTF8String],
                [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding],
                markup);
@@ -173,4 +180,39 @@ void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
     std::wstring file = UTF8ToWide([[fileList objectAtIndex:i] UTF8String]);
     files->push_back(file);
   }
+}
+
+// static
+Clipboard::FormatType Clipboard::GetUrlFormatType() {
+  return NSURLPboardType;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetUrlWFormatType() {
+  return NSURLPboardType;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetPlainTextFormatType() {
+  return NSStringPboardType;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetPlainTextWFormatType() {
+  return NSStringPboardType;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetFilenameFormatType() {
+  return NSFilenamesPboardType;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetFilenameWFormatType() {
+  return NSFilenamesPboardType;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetHtmlFormatType() {
+  return NSHTMLPboardType;
 }

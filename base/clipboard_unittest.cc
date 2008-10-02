@@ -6,7 +6,6 @@
 
 #include "base/basictypes.h"
 #include "base/clipboard.h"
-#include "base/clipboard_util.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -19,9 +18,10 @@ TEST(ClipboardTest, ClearTest) {
   Clipboard clipboard;
 
   clipboard.Clear();
-  EXPECT_EQ(false, clipboard.IsFormatAvailable(CF_TEXT));
   EXPECT_EQ(false, clipboard.IsFormatAvailable(
-      ClipboardUtil::GetHtmlFormat()->cfFormat));
+      Clipboard::GetPlainTextFormatType()));
+  EXPECT_EQ(false, clipboard.IsFormatAvailable(
+      Clipboard::GetHtmlFormatType()));
 }
 
 TEST(ClipboardTest, TextTest) {
@@ -32,8 +32,10 @@ TEST(ClipboardTest, TextTest) {
 
   clipboard.Clear();
   clipboard.WriteText(text);
-  EXPECT_EQ(true, clipboard.IsFormatAvailable(CF_UNICODETEXT));
-  EXPECT_EQ(true, clipboard.IsFormatAvailable(CF_TEXT));
+  EXPECT_EQ(true, clipboard.IsFormatAvailable(
+      Clipboard::GetPlainTextWFormatType()));
+  EXPECT_EQ(true, clipboard.IsFormatAvailable(
+      Clipboard::GetPlainTextFormatType()));
   clipboard.ReadText(&text_result);
   EXPECT_EQ(text, text_result);
   clipboard.ReadAsciiText(&ascii_text);
@@ -49,10 +51,15 @@ TEST(ClipboardTest, HTMLTest) {
   clipboard.Clear();
   clipboard.WriteHTML(markup, url);
   EXPECT_EQ(true, clipboard.IsFormatAvailable(
-      ClipboardUtil::GetHtmlFormat()->cfFormat));
+      Clipboard::GetHtmlFormatType()));
   clipboard.ReadHTML(&markup_result, &url_result);
   EXPECT_EQ(markup, markup_result);
+#if defined(OS_MACOSX)
+  // TODO(playmobil): It's not clear that the OS X clipboard needs to support
+  // this.
+#else  
   EXPECT_EQ(url, url_result);
+#endif
 }
 
 TEST(ClipboardTest, TrickyHTMLTest) {
@@ -64,10 +71,16 @@ TEST(ClipboardTest, TrickyHTMLTest) {
   clipboard.Clear();
   clipboard.WriteHTML(markup, url);
   EXPECT_EQ(true, clipboard.IsFormatAvailable(
-      ClipboardUtil::GetHtmlFormat()->cfFormat));
+      Clipboard::GetHtmlFormatType()));
   clipboard.ReadHTML(&markup_result, &url_result);
   EXPECT_EQ(markup, markup_result);
+
+#if defined(OS_MACOSX)
+  // TODO(playmobil): It's not clear that the OS X clipboard needs to support
+  // this.
+#else  
   EXPECT_EQ(url, url_result);
+#endif
 }
 
 TEST(ClipboardTest, BookmarkTest) {
@@ -79,32 +92,10 @@ TEST(ClipboardTest, BookmarkTest) {
   clipboard.Clear();
   clipboard.WriteBookmark(title, url);
   EXPECT_EQ(true,
-      clipboard.IsFormatAvailable(ClipboardUtil::GetUrlWFormat()->cfFormat));
+      clipboard.IsFormatAvailable(Clipboard::GetUrlWFormatType()));
   clipboard.ReadBookmark(&title_result, &url_result);
   EXPECT_EQ(title, title_result);
   EXPECT_EQ(url, url_result);
-}
-
-TEST(ClipboardTest, HyperlinkTest) {
-  Clipboard clipboard;
-
-  std::wstring title(L"The Example Company"), title_result;
-  std::string url("http://www.example.com/"), url_result;
-  std::wstring html(L"<a href=\"http://www.example.com/\">"
-                    L"The Example Company</a>"), html_result;
-
-  clipboard.Clear();
-  clipboard.WriteHyperlink(title, url);
-  EXPECT_EQ(true,
-      clipboard.IsFormatAvailable(ClipboardUtil::GetUrlWFormat()->cfFormat));
-  EXPECT_EQ(true,
-      clipboard.IsFormatAvailable(ClipboardUtil::GetHtmlFormat()->cfFormat));
-  clipboard.ReadBookmark(&title_result, &url_result);
-  EXPECT_EQ(title, title_result);
-  EXPECT_EQ(url, url_result);
-  clipboard.ReadHTML(&html_result, &url_result);
-  EXPECT_EQ(html, html_result);
-  //XXX EXPECT_FALSE(url_result.is_valid());
 }
 
 TEST(ClipboardTest, MultiFormatTest) {
@@ -119,16 +110,93 @@ TEST(ClipboardTest, MultiFormatTest) {
   clipboard.WriteHTML(markup, url);
   clipboard.WriteText(text);
   EXPECT_EQ(true,
-      clipboard.IsFormatAvailable(ClipboardUtil::GetHtmlFormat()->cfFormat));
-  EXPECT_EQ(true, clipboard.IsFormatAvailable(CF_UNICODETEXT));
-  EXPECT_EQ(true, clipboard.IsFormatAvailable(CF_TEXT));
+      clipboard.IsFormatAvailable(Clipboard::GetHtmlFormatType()));
+  EXPECT_EQ(true, clipboard.IsFormatAvailable(
+      Clipboard::GetPlainTextWFormatType()));
+  EXPECT_EQ(true, clipboard.IsFormatAvailable(
+      Clipboard::GetPlainTextFormatType()));
   clipboard.ReadHTML(&markup_result, &url_result);
   EXPECT_EQ(markup, markup_result);
+#if defined(OS_MACOSX)
+  // TODO(playmobil): It's not clear that the OS X clipboard needs to support
+  // this.
+#else  
   EXPECT_EQ(url, url_result);
+#endif
   clipboard.ReadText(&text_result);
   EXPECT_EQ(text, text_result);
   clipboard.ReadAsciiText(&ascii_text);
   EXPECT_EQ(WideToUTF8(text), ascii_text);
+}
+
+// Files for this test don't actually need to exist on the file system, just
+// don't try to use a non-existent file you've retrieved from the clipboard.
+TEST(ClipboardTest, FileTest) {
+  Clipboard clipboard;
+  clipboard.Clear();
+#if defined(OS_WIN)
+  std::wstring file = L"C:\\Downloads\\My Downloads\\A Special File.txt";
+#else
+  // OS X will print a warning message if we stick a non-existant file on the
+  // clipboard.
+  std::wstring file = L"/usr/bin/make";
+#endif
+  clipboard.WriteFile(file);
+  std::wstring out_file;
+  clipboard.ReadFile(&out_file);
+  EXPECT_EQ(file, out_file);
+}
+
+TEST(ClipboardTest, MultipleFilesTest) {
+  Clipboard clipboard;
+  clipboard.Clear();
+  
+#if defined(OS_WIN)
+  std::wstring file1 = L"C:\\Downloads\\My Downloads\\File 1.exe";
+  std::wstring file2 = L"C:\\Downloads\\My Downloads\\File 2.pdf";
+  std::wstring file3 = L"C:\\Downloads\\My Downloads\\File 3.doc";
+#elif defined(OS_MACOSX)
+  // OS X will print a warning message if we stick a non-existant file on the
+  // clipboard.
+  std::wstring file1 = L"/usr/bin/make";
+  std::wstring file2 = L"/usr/bin/man";
+  std::wstring file3 = L"/usr/bin/perl";
+#endif
+  std::vector<std::wstring> files;
+  files.push_back(file1);
+  files.push_back(file2);
+  files.push_back(file3);
+  clipboard.WriteFiles(files);
+
+  std::vector<std::wstring> out_files;
+  clipboard.ReadFiles(&out_files);
+
+  EXPECT_EQ(files.size(), out_files.size());
+  for (size_t i = 0; i < out_files.size(); ++i)
+    EXPECT_EQ(files[i], out_files[i]);
+}
+
+#if defined(OS_WIN)  // Windows only tests.
+TEST(ClipboardTest, HyperlinkTest) {
+  Clipboard clipboard;
+  
+  std::wstring title(L"The Example Company"), title_result;
+  std::string url("http://www.example.com/"), url_result;
+  std::wstring html(L"<a href=\"http://www.example.com/\">"
+                    L"The Example Company</a>"), html_result;
+  
+  clipboard.Clear();
+  clipboard.WriteHyperlink(title, url);
+  EXPECT_EQ(true,
+            clipboard.IsFormatAvailable(Clipboard::GetUrlWFormatType()));
+  EXPECT_EQ(true,
+            clipboard.IsFormatAvailable(Clipboard::GetHtmlFormatType()));
+  clipboard.ReadBookmark(&title_result, &url_result);
+  EXPECT_EQ(title, title_result);
+  EXPECT_EQ(url, url_result);
+  clipboard.ReadHTML(&html_result, &url_result);
+  EXPECT_EQ(html, html_result);
+  //XXX EXPECT_FALSE(url_result.is_valid());
 }
 
 TEST(ClipboardTest, WebSmartPasteTest) {
@@ -137,7 +205,7 @@ TEST(ClipboardTest, WebSmartPasteTest) {
   clipboard.Clear();
   clipboard.WriteWebSmartPaste();
   EXPECT_EQ(true, clipboard.IsFormatAvailable(
-      ClipboardUtil::GetWebKitSmartPasteFormat()->cfFormat));
+      Clipboard::GetWebKitSmartPasteFormatType()));
 }
 
 TEST(ClipboardTest, BitmapTest) {
@@ -151,37 +219,7 @@ TEST(ClipboardTest, BitmapTest) {
 
   clipboard.Clear();
   clipboard.WriteBitmap(fake_bitmap, gfx::Size(3, 4));
-  EXPECT_EQ(true, clipboard.IsFormatAvailable(CF_BITMAP));
+  EXPECT_EQ(true, clipboard.IsFormatAvailable(
+                      Clipboard::GetBitmapFormatType()));
 }
-
-// Files for this test don't actually need to exist on the file system, just
-// don't try to use a non-existent file you've retrieved from the clipboard.
-TEST(ClipboardTest, FileTest) {
-  Clipboard clipboard;
-  clipboard.Clear();
-
-  std::wstring file = L"C:\\Downloads\\My Downloads\\A Special File.txt";
-  clipboard.WriteFile(file);
-  std::wstring out_file;
-  clipboard.ReadFile(&out_file);
-  EXPECT_EQ(file, out_file);
-}
-
-TEST(ClipboardTest, MultipleFilesTest) {
-  Clipboard clipboard;
-  clipboard.Clear();
-
-  std::vector<std::wstring> files;
-  files.push_back(L"C:\\Downloads\\My Downloads\\File 1.exe");
-  files.push_back(L"C:\\Downloads\\My Downloads\\File 2.pdf");
-  files.push_back(L"C:\\Downloads\\My Downloads\\File 3.doc");
-  clipboard.WriteFiles(files);
-
-  std::vector<std::wstring> out_files;
-  clipboard.ReadFiles(&out_files);
-
-  EXPECT_EQ(files.size(), out_files.size());
-  for (size_t i = 0; i < out_files.size(); ++i)
-    EXPECT_EQ(files[i], out_files[i]);
-}
-
+#endif

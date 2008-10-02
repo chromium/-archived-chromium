@@ -178,8 +178,7 @@ void Clipboard::WriteHTML(const std::wstring& markup,
   std::string html_fragment;
   MarkupToHTMLClipboardFormat(markup, url, &html_fragment);
   HGLOBAL glob = CreateGlobalData(html_fragment);
-  if (glob && !::SetClipboardData(ClipboardUtil::GetHtmlFormat()->cfFormat,
-                                  glob)) {
+  if (glob && !::SetClipboardData(GetHtmlFormatType(), glob)) {
     ::GlobalFree(glob);
   }
 }
@@ -195,8 +194,7 @@ void Clipboard::WriteBookmark(const std::wstring& title,
   bookmark.append(1, L'\n');
   bookmark.append(UTF8ToWide(url));
   HGLOBAL glob = CreateGlobalData(bookmark);
-  if (glob && !::SetClipboardData(ClipboardUtil::GetUrlWFormat()->cfFormat,
-                                  glob)) {
+  if (glob && !::SetClipboardData(GetUrlWFormatType(), glob)) {
     ::GlobalFree(glob);
   }
 }
@@ -223,7 +221,7 @@ void Clipboard::WriteWebSmartPaste() {
   if (!lock.Acquire(clipboard_owner_))
     return;
 
-  SetClipboardData(ClipboardUtil::GetWebKitSmartPasteFormat()->cfFormat, NULL);
+  SetClipboardData(GetWebKitSmartPasteFormatType(), NULL);
 }
 
 void Clipboard::WriteBitmap(const void* pixels, const gfx::Size& size) {
@@ -437,7 +435,7 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
   if (!lock.Acquire(clipboard_owner_))
     return;
 
-  HANDLE data = ::GetClipboardData(ClipboardUtil::GetHtmlFormat()->cfFormat);
+  HANDLE data = ::GetClipboardData(GetHtmlFormatType());
   if (!data)
     return;
 
@@ -459,7 +457,7 @@ void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
   if (!lock.Acquire(clipboard_owner_))
     return;
 
-  HANDLE data = ::GetClipboardData(ClipboardUtil::GetUrlWFormat()->cfFormat);
+  HANDLE data = ::GetClipboardData(GetUrlWFormatType());
   if (!data)
     return;
 
@@ -630,5 +628,77 @@ void Clipboard::ParseBookmarkClipboardFormat(const std::wstring& bookmark,
     if (url_start != std::wstring::npos)
       *url = WideToUTF8(bookmark.substr(url_start, std::wstring::npos));
   }
+}
+
+// static
+Clipboard::FormatType Clipboard::GetUrlFormatType() {
+  return ClipboardUtil::GetUrlFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetUrlWFormatType() {
+  return ClipboardUtil::GetUrlWFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetMozUrlFormatType() {
+  return ClipboardUtil::GetMozUrlFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetPlainTextFormatType() {
+  return ClipboardUtil::GetPlainTextFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetPlainTextWFormatType() {
+  return ClipboardUtil::GetPlainTextWFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetFilenameFormatType() {
+  return ClipboardUtil::GetFilenameFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetFilenameWFormatType() {
+  return ClipboardUtil::GetFilenameWFormat()->cfFormat;
+}
+
+// MS HTML Format
+// static
+Clipboard::FormatType Clipboard::GetHtmlFormatType() {
+  return ClipboardUtil::GetHtmlFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetBitmapFormatType() {
+  return CF_BITMAP;
+}
+
+// Firefox text/html
+// static
+Clipboard::FormatType Clipboard::GetTextHtmlFormatType() {
+  return ClipboardUtil::GetTextHtmlFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetCFHDropFormatType() {
+  return ClipboardUtil::GetCFHDropFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetFileDescriptorFormatType() {
+  return ClipboardUtil::GetFileDescriptorFormat()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetFileContentFormatZeroType() {
+  return ClipboardUtil::GetFileContentFormatZero()->cfFormat;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetWebKitSmartPasteFormatType() {
+  return ClipboardUtil::GetWebKitSmartPasteFormat()->cfFormat;
 }
 
