@@ -809,7 +809,6 @@ V8 # LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
 V8 # LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 V8 # LayoutTests/fast/js/static-scope-object.html = FAIL
 V8 # LayoutTests/fast/js/delete-getters-setters.html = FAIL
-V8 # LayoutTests/fast/js/function-toString-object-literals.html = FAIL
 
 # Console output won't have line numbers until V8 gives us a way to get that
 # information. <http://crbug.com/2960>
