@@ -17,7 +17,6 @@ V8 | KJS # SKIP : LayoutTests/fast/xpath/nsresolver-bad-object.xhtml = PASS
 V8 | KJS # SKIP : LayoutTests/fast/xpath/nsresolver-exception.xhtml = PASS
 V8 | KJS # SKIP : LayoutTests/fast/xpath/nsresolver-function.xhtml = PASS
 V8 | KJS # SKIP : LayoutTests/fast/xpath/nsresolver-object.xhtml = PASS
-V8 | KJS # SKIP : LayoutTests/dom/xhtml = PASS
 
 // Fails due to different window.close() rules.  See bug 753420.  We need
 // to decide whether we ever expect to pass this.  Now also timing out.
