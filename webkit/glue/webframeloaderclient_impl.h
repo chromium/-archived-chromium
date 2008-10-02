@@ -187,7 +187,10 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   virtual void unloadListenerChanged();
 
-#if defined(__APPLE__) && !defined(BUILDING_CHROMIUM__)
+#if defined(OS_MACOSX)
+// The above should have && !defined(BUILDING_CHROMIUM__) at the end but can't
+// for now, since we need to add that extra define all the way down to the
+// WebCore core. TODO(avi): Get that define into WebCore.
   virtual NSCachedURLResponse* willCacheResponse(WebCore::DocumentLoader*,
                                                  unsigned long identifier,
                                                  NSCachedURLResponse*) const;
