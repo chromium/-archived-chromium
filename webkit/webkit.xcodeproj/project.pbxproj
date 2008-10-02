@@ -648,10 +648,7 @@
 		E45624B50E268E87005E4685 /* FileSystemCF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F830D7F3CC1001ECF42 /* FileSystemCF.cpp */; };
 		E45624B60E268E87005E4685 /* KURLCFNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F840D7F3CC1001ECF42 /* KURLCFNet.cpp */; };
 		E45624B70E268E87005E4685 /* ContextMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F860D7F3CC1001ECF42 /* ContextMenu.cpp */; };
-		E45624B80E268E87005E4685 /* DeprecatedCString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F8D0D7F3CC1001ECF42 /* DeprecatedCString.cpp */; };
 		E45624B90E268E87005E4685 /* DeprecatedPtrListImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F900D7F3CC1001ECF42 /* DeprecatedPtrListImpl.cpp */; };
-		E45624BA0E268E87005E4685 /* DeprecatedString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F930D7F3CC1001ECF42 /* DeprecatedString.cpp */; };
-		E45624BB0E268E87005E4685 /* DeprecatedStringList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F950D7F3CC1001ECF42 /* DeprecatedStringList.cpp */; };
 		E45624BC0E268E87005E4685 /* DeprecatedValueListImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F980D7F3CC1001ECF42 /* DeprecatedValueListImpl.cpp */; };
 		E45624BD0E268E87005E4685 /* DragData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F9A0D7F3CC1001ECF42 /* DragData.cpp */; };
 		E45624BE0E268E87005E4685 /* DragImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F9C0D7F3CC1001ECF42 /* DragImage.cpp */; };
@@ -1858,8 +1855,8 @@
 		7B5E85B70D7F28F5001ECF42 /* Assertions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Assertions.h; sourceTree = "<group>"; };
 		7B5E85B80D7F28F5001ECF42 /* Deque.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Deque.h; sourceTree = "<group>"; };
 		7B5E85B90D7F28F5001ECF42 /* DisallowCType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DisallowCType.h; sourceTree = "<group>"; };
-		7B5E85BA0D7F28F5001ECF42 /* FastMalloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FastMalloc.cpp; path = ../../../../webkit/pending/wtf/FastMalloc.cpp; sourceTree = "<group>"; };
-		7B5E85BB0D7F28F5001ECF42 /* FastMalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FastMalloc.h; path = ../../../../webkit/pending/wtf/FastMalloc.h; sourceTree = "<group>"; };
+		7B5E85BA0D7F28F5001ECF42 /* FastMalloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FastMalloc.cpp; sourceTree = "<group>"; };
+		7B5E85BB0D7F28F5001ECF42 /* FastMalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FastMalloc.h; sourceTree = "<group>"; };
 		7B5E85BC0D7F28F5001ECF42 /* Forward.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Forward.h; sourceTree = "<group>"; };
 		7B5E85BD0D7F28F5001ECF42 /* GetPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GetPtr.h; sourceTree = "<group>"; };
 		7B5E85BE0D7F28F5001ECF42 /* HashCountedSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashCountedSet.h; sourceTree = "<group>"; };
@@ -1878,10 +1875,10 @@
 		7B5E85CB0D7F28F5001ECF42 /* OwnArrayPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OwnArrayPtr.h; sourceTree = "<group>"; };
 		7B5E85CC0D7F28F5001ECF42 /* OwnPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OwnPtr.h; sourceTree = "<group>"; };
 		7B5E85CE0D7F28F5001ECF42 /* PassRefPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PassRefPtr.h; sourceTree = "<group>"; };
-		7B5E85CF0D7F28F5001ECF42 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Platform.h; path = ../../../../webkit/pending/wtf/Platform.h; sourceTree = "<group>"; };
+		7B5E85CF0D7F28F5001ECF42 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Platform.h; sourceTree = "<group>"; };
 		7B5E85D00D7F28F5001ECF42 /* RefCounted.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RefCounted.h; path = ../../../../webkit/pending/wtf/RefCounted.h; sourceTree = "<group>"; };
 		7B5E85D10D7F28F5001ECF42 /* RefPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefPtr.h; sourceTree = "<group>"; };
-		7B5E85D20D7F28F5001ECF42 /* RefPtrHashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefPtrHashMap.h; sourceTree = "<group>"; };
+		7B5E85D20D7F28F5001ECF42 /* RefPtrHashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RefPtrHashMap.h; path = ../../../../webkit/pending/wtf/RefPtrHashMap.h; sourceTree = "<group>"; };
 		7B5E85D30D7F28F5001ECF42 /* RetainPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RetainPtr.h; sourceTree = "<group>"; };
 		7B5E85D40D7F28F5001ECF42 /* StringExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringExtras.h; sourceTree = "<group>"; };
 		7B5E85D50D7F28F5001ECF42 /* TCPackedCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPackedCache.h; sourceTree = "<group>"; };
@@ -2551,18 +2548,11 @@
 		7B5E8F870D7F3CC1001ECF42 /* ContextMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContextMenu.h; sourceTree = "<group>"; };
 		7B5E8F880D7F3CC1001ECF42 /* ContextMenuItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContextMenuItem.h; sourceTree = "<group>"; };
 		7B5E8F890D7F3CC1001ECF42 /* CookieJar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CookieJar.h; sourceTree = "<group>"; };
-		7B5E8F8A0D7F3CC1001ECF42 /* Cursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cursor.h; sourceTree = "<group>"; };
-		7B5E8F8C0D7F3CC1001ECF42 /* DeprecatedArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedArray.h; sourceTree = "<group>"; };
-		7B5E8F8D0D7F3CC1001ECF42 /* DeprecatedCString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeprecatedCString.cpp; sourceTree = "<group>"; };
-		7B5E8F8E0D7F3CC1001ECF42 /* DeprecatedCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedCString.h; sourceTree = "<group>"; };
+		7B5E8F8A0D7F3CC1001ECF42 /* Cursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Cursor.h; path = ../../../../webkit/port/platform/Cursor.h; sourceTree = "<group>"; };
 		7B5E8F8F0D7F3CC1001ECF42 /* DeprecatedPtrList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedPtrList.h; sourceTree = "<group>"; };
 		7B5E8F900D7F3CC1001ECF42 /* DeprecatedPtrListImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeprecatedPtrListImpl.cpp; sourceTree = "<group>"; };
 		7B5E8F910D7F3CC1001ECF42 /* DeprecatedPtrListImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedPtrListImpl.h; sourceTree = "<group>"; };
 		7B5E8F920D7F3CC1001ECF42 /* DeprecatedPtrQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedPtrQueue.h; sourceTree = "<group>"; };
-		7B5E8F930D7F3CC1001ECF42 /* DeprecatedString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DeprecatedString.cpp; path = ../../../../webkit/pending/DeprecatedString.cpp; sourceTree = "<group>"; };
-		7B5E8F940D7F3CC1001ECF42 /* DeprecatedString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedString.h; sourceTree = "<group>"; };
-		7B5E8F950D7F3CC1001ECF42 /* DeprecatedStringList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeprecatedStringList.cpp; sourceTree = "<group>"; };
-		7B5E8F960D7F3CC1001ECF42 /* DeprecatedStringList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedStringList.h; sourceTree = "<group>"; };
 		7B5E8F970D7F3CC1001ECF42 /* DeprecatedValueList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedValueList.h; sourceTree = "<group>"; };
 		7B5E8F980D7F3CC1001ECF42 /* DeprecatedValueListImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeprecatedValueListImpl.cpp; sourceTree = "<group>"; };
 		7B5E8F990D7F3CC1001ECF42 /* DeprecatedValueListImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeprecatedValueListImpl.h; sourceTree = "<group>"; };
@@ -2572,8 +2562,8 @@
 		7B5E8F9D0D7F3CC1001ECF42 /* DragImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragImage.h; sourceTree = "<group>"; };
 		7B5E8F9E0D7F3CC1001ECF42 /* FileChooser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileChooser.cpp; sourceTree = "<group>"; };
 		7B5E8F9F0D7F3CC1001ECF42 /* FileChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileChooser.h; sourceTree = "<group>"; };
-		7B5E8FA00D7F3CC1001ECF42 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
-		7B5E8FA10D7F3CC1001ECF42 /* FloatConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FloatConversion.h; path = ../../../../webkit/pending/FloatConversion.h; sourceTree = "<group>"; };
+		7B5E8FA00D7F3CC1001ECF42 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileSystem.h; path = ../../../../webkit/pending/FileSystem.h; sourceTree = "<group>"; };
+		7B5E8FA10D7F3CC1001ECF42 /* FloatConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatConversion.h; sourceTree = "<group>"; };
 		7B5E8FA30D7F3CC1001ECF42 /* AffineTransform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AffineTransform.cpp; sourceTree = "<group>"; };
 		7B5E8FA40D7F3CC1001ECF42 /* AffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AffineTransform.h; sourceTree = "<group>"; };
 		7B5E8FA50D7F3CC1001ECF42 /* BitmapImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BitmapImage.cpp; sourceTree = "<group>"; };
@@ -2675,7 +2665,6 @@
 		7B5E90CD0D7F3CC2001ECF42 /* KURL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KURL.h; path = ../../../../webkit/pending/KURL.h; sourceTree = "<group>"; };
 		7B5E90CF0D7F3CC2001ECF42 /* Language.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Language.h; sourceTree = "<group>"; };
 		7B5E90D00D7F3CC2001ECF42 /* LocalizedStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalizedStrings.h; sourceTree = "<group>"; };
-		7B5E90D10D7F3CC2001ECF42 /* Locker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Locker.h; sourceTree = "<group>"; };
 		7B5E90D20D7F3CC2001ECF42 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
 		7B5E90D30D7F3CC2001ECF42 /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		7B5E90D50D7F3CC2001ECF42 /* AutodrainedPool.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AutodrainedPool.mm; sourceTree = "<group>"; };
@@ -2731,7 +2720,6 @@
 		7B5E910E0D7F3CC2001ECF42 /* WebFontCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebFontCache.mm; sourceTree = "<group>"; };
 		7B5E910F0D7F3CC2001ECF42 /* WheelEventMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WheelEventMac.mm; sourceTree = "<group>"; };
 		7B5E91100D7F3CC2001ECF42 /* WidgetMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WidgetMac.mm; sourceTree = "<group>"; };
-		7B5E91110D7F3CC2001ECF42 /* MessageQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageQueue.h; sourceTree = "<group>"; };
 		7B5E91120D7F3CC2001ECF42 /* MIMETypeRegistry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIMETypeRegistry.cpp; sourceTree = "<group>"; };
 		7B5E91130D7F3CC2001ECF42 /* MIMETypeRegistry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIMETypeRegistry.h; sourceTree = "<group>"; };
 		7B5E91150D7F3CC2001ECF42 /* AuthenticationChallenge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuthenticationChallenge.cpp; path = ../../../../../webkit/port/platform/network/AuthenticationChallenge.cpp; sourceTree = "<group>"; };
@@ -2844,8 +2832,6 @@
 		7B5E91F30D7F3CC3001ECF42 /* UnicodeRange.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnicodeRange.cpp; sourceTree = "<group>"; };
 		7B5E91F40D7F3CC3001ECF42 /* UnicodeRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnicodeRange.h; sourceTree = "<group>"; };
 		7B5E91F90D7F3CC3001ECF42 /* ThreadCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadCheck.h; sourceTree = "<group>"; };
-		7B5E91FA0D7F3CC3001ECF42 /* Threading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Threading.h; sourceTree = "<group>"; };
-		7B5E91FB0D7F3CC3001ECF42 /* ThreadingNone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadingNone.cpp; sourceTree = "<group>"; };
 		7B5E91FC0D7F3CC3001ECF42 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		7B5E91FD0D7F3CC3001ECF42 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
 		7B5E91FE0D7F3CC3001ECF42 /* TreeShared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreeShared.h; path = ../../../../webkit/pending/TreeShared.h; sourceTree = "<group>"; };
@@ -3451,7 +3437,7 @@
 		7B5E9AD70D7F402E001ECF42 /* XSLStyleSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XSLStyleSheet.h; path = ../../../../webkit/pending/XSLStyleSheet.h; sourceTree = "<group>"; };
 		7B5E9AD80D7F402E001ECF42 /* XSLTExtensions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XSLTExtensions.cpp; sourceTree = "<group>"; };
 		7B5E9AD90D7F402E001ECF42 /* XSLTExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XSLTExtensions.h; sourceTree = "<group>"; };
-		7B5E9ADA0D7F402E001ECF42 /* XSLTProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = XSLTProcessor.cpp; path = ../../../../webkit/pending/XSLTProcessor.cpp; sourceTree = "<group>"; };
+		7B5E9ADA0D7F402E001ECF42 /* XSLTProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XSLTProcessor.cpp; sourceTree = "<group>"; };
 		7B5E9ADB0D7F402E001ECF42 /* XSLTProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XSLTProcessor.h; sourceTree = "<group>"; };
 		7B5E9ADC0D7F402E001ECF42 /* XSLTUnicodeSort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XSLTUnicodeSort.cpp; sourceTree = "<group>"; };
 		7B5E9ADD0D7F402E001ECF42 /* XSLTUnicodeSort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XSLTUnicodeSort.h; sourceTree = "<group>"; };
@@ -4753,17 +4739,10 @@
 				7B5E8F880D7F3CC1001ECF42 /* ContextMenuItem.h */,
 				7B5E8F890D7F3CC1001ECF42 /* CookieJar.h */,
 				7B5E8F8A0D7F3CC1001ECF42 /* Cursor.h */,
-				7B5E8F8C0D7F3CC1001ECF42 /* DeprecatedArray.h */,
-				7B5E8F8D0D7F3CC1001ECF42 /* DeprecatedCString.cpp */,
-				7B5E8F8E0D7F3CC1001ECF42 /* DeprecatedCString.h */,
 				7B5E8F8F0D7F3CC1001ECF42 /* DeprecatedPtrList.h */,
 				7B5E8F900D7F3CC1001ECF42 /* DeprecatedPtrListImpl.cpp */,
 				7B5E8F910D7F3CC1001ECF42 /* DeprecatedPtrListImpl.h */,
 				7B5E8F920D7F3CC1001ECF42 /* DeprecatedPtrQueue.h */,
-				7B5E8F930D7F3CC1001ECF42 /* DeprecatedString.cpp */,
-				7B5E8F940D7F3CC1001ECF42 /* DeprecatedString.h */,
-				7B5E8F950D7F3CC1001ECF42 /* DeprecatedStringList.cpp */,
-				7B5E8F960D7F3CC1001ECF42 /* DeprecatedStringList.h */,
 				7B5E8F970D7F3CC1001ECF42 /* DeprecatedValueList.h */,
 				7B5E8F980D7F3CC1001ECF42 /* DeprecatedValueListImpl.cpp */,
 				7B5E8F990D7F3CC1001ECF42 /* DeprecatedValueListImpl.h */,
@@ -4779,10 +4758,8 @@
 				7B5E90CD0D7F3CC2001ECF42 /* KURL.h */,
 				7B5E90CF0D7F3CC2001ECF42 /* Language.h */,
 				7B5E90D00D7F3CC2001ECF42 /* LocalizedStrings.h */,
-				7B5E90D10D7F3CC2001ECF42 /* Locker.h */,
 				7B5E90D20D7F3CC2001ECF42 /* Logging.cpp */,
 				7B5E90D30D7F3CC2001ECF42 /* Logging.h */,
-				7B5E91110D7F3CC2001ECF42 /* MessageQueue.h */,
 				7B5E91120D7F3CC2001ECF42 /* MIMETypeRegistry.cpp */,
 				7B5E91130D7F3CC2001ECF42 /* MIMETypeRegistry.h */,
 				7B5E91530D7F3CC2001ECF42 /* NotImplemented.h */,
@@ -4810,8 +4787,6 @@
 				7B5E91A00D7F3CC2001ECF42 /* StaticConstructors.h */,
 				7B5E91A80D7F3CC2001ECF42 /* SystemTime.h */,
 				7B5E91F90D7F3CC3001ECF42 /* ThreadCheck.h */,
-				7B5E91FA0D7F3CC3001ECF42 /* Threading.h */,
-				7B5E91FB0D7F3CC3001ECF42 /* ThreadingNone.cpp */,
 				7B5E91FC0D7F3CC3001ECF42 /* Timer.cpp */,
 				7B5E91FD0D7F3CC3001ECF42 /* Timer.h */,
 				7B5E91FE0D7F3CC3001ECF42 /* TreeShared.h */,
@@ -7360,10 +7335,7 @@
 				E45623F20E268E87005E4685 /* DeleteButtonController.cpp in Sources */,
 				E45623F30E268E87005E4685 /* DeleteFromTextNodeCommand.cpp in Sources */,
 				E45623F40E268E87005E4685 /* DeleteSelectionCommand.cpp in Sources */,
-				E45624B80E268E87005E4685 /* DeprecatedCString.cpp in Sources */,
 				E45624B90E268E87005E4685 /* DeprecatedPtrListImpl.cpp in Sources */,
-				E45624BA0E268E87005E4685 /* DeprecatedString.cpp in Sources */,
-				E45624BB0E268E87005E4685 /* DeprecatedStringList.cpp in Sources */,
 				E45624BC0E268E87005E4685 /* DeprecatedValueListImpl.cpp in Sources */,
 				E45624840E268E87005E4685 /* DocLoader.cpp in Sources */,
 				E45623BA0E268E87005E4685 /* Document.cpp in Sources */,
