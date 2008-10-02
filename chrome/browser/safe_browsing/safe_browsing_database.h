@@ -79,6 +79,8 @@ class SafeBrowsingDatabase {
   // Called when the user's machine has resumed from a lower power state.
   virtual void HandleResume() = 0;
 
+  virtual void UpdateFinished() { }
+
  protected:
   static std::wstring BloomFilterFilename(const std::wstring& db_filename);
 
@@ -93,10 +95,9 @@ class SafeBrowsingDatabase {
 
   // Implementation specific bloom filter building.
   virtual void BuildBloomFilter() = 0;
-  virtual void AddHostToBloomFilter(int host_key) = 0;
 
   // Measuring false positive rate. Call this each time we look in the filter.
-  virtual void IncrementBloomFilterReadCount() = 0;
+  virtual void IncrementBloomFilterReadCount() {};
 
   std::wstring bloom_filter_filename_;
   scoped_ptr<BloomFilter> bloom_filter_;

@@ -122,6 +122,7 @@ class SafeBrowsingService
   void HandleChunk(const std::string& list, std::deque<SBChunk>* chunks);
   void HandleChunkDelete(std::vector<SBChunkDelete>* chunk_deletes);
   void GetAllChunks();
+  void UpdateFinished();
 
   // The blocking page on the UI thread has completed.
   void OnBlockingPageDone(SafeBrowsingBlockingPage* page,
@@ -187,6 +188,8 @@ class SafeBrowsingService
   static UrlCheckResult GetResultFromListname(const std::string& list_name);
 
   void NotifyClientBlockingComplete(Client* client, bool proceed);
+
+  void DatabaseUpdateFinished();
 
   void Start();
   void Stop();

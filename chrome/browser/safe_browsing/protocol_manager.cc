@@ -526,6 +526,7 @@ void SafeBrowsingProtocolManager::OnChunkInserted() {
 
   if (chunk_request_urls_.empty()) {
     UMA_HISTOGRAM_LONG_TIMES(L"SB.Update", Time::Now() - last_update_);
+    sb_service_->UpdateFinished();
   } else {
     IssueChunkRequest();
   }

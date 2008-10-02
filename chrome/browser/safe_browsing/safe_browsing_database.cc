@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/sha2.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database_impl.h"
+#include "chrome/browser/safe_browsing/safe_browsing_database_bloom.h"
 #include "googleurl/src/gurl.h"
 
 // Filename suffix for the bloom filter.
@@ -90,3 +91,4 @@ void SafeBrowsingDatabase::WriteBloomFilter() {
   SB_DLOG(INFO) << "SafeBrowsingDatabase wrote bloom filter in " <<
       (Time::Now() - before).InMilliseconds() << " ms";
 }
+

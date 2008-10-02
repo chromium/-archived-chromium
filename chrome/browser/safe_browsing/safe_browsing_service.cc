@@ -373,6 +373,19 @@ void SafeBrowsingService::GetAllChunks() {
       this, &SafeBrowsingService::GetAllChunksFromDatabase));
 }
 
+void SafeBrowsingService::UpdateFinished() {
+  DCHECK(MessageLoop::current() == io_loop_);
+  DCHECK(enabled_);
+  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &SafeBrowsingService::DatabaseUpdateFinished));
+}
+
+void SafeBrowsingService::DatabaseUpdateFinished() {
+  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  if (GetDatabase())
+    GetDatabase()->UpdateFinished();
+}
+
 void SafeBrowsingService::OnBlockingPageDone(SafeBrowsingBlockingPage* page,
                                              Client* client,
                                              bool proceed) {

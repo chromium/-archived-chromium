@@ -249,6 +249,7 @@ if env['PLATFORM'] == 'win32':
       'safe_browsing/protocol_manager.cc',
       'safe_browsing/safe_browsing_blocking_page.cc',
       'safe_browsing/safe_browsing_database.cc',
+      'safe_browsing/safe_browsing_database_bloom.cc',
       'safe_browsing/safe_browsing_database_impl.cc',
       'safe_browsing/safe_browsing_service.cc',
       'sandbox_policy.cc',

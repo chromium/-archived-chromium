@@ -114,6 +114,7 @@ TEST(SafeBrowsingDatabase, Database) {
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
   database->InsertChunks("goog-malware", chunks);
+  database->UpdateFinished();
 
 
   // Make sure they were added correctly.
@@ -182,6 +183,7 @@ TEST(SafeBrowsingDatabase, Database) {
   chunks->push_back(chunk);
 
   database->InsertChunks("goog-malware", chunks);
+  database->UpdateFinished();
 
   EXPECT_TRUE(database->ContainsUrl(GURL("http://www.evil.com/phishing.html"),
                                     &matching_list, &prefix_hits,
@@ -228,6 +230,7 @@ TEST(SafeBrowsingDatabase, Database) {
   database->GetListsInfo(&lists);
   EXPECT_EQ(lists.size(), 1);
   EXPECT_EQ(lists[0].name, "goog-malware");
+  EXPECT_EQ(lists[0].adds, "1,3");
   EXPECT_EQ(lists[0].subs, "4");
 
   // The adddel command exposed a bug in the transaction code where any
@@ -255,6 +258,7 @@ TEST(SafeBrowsingDatabase, Database) {
   database->GetListsInfo(&lists);
   EXPECT_EQ(lists.size(), 1);
   EXPECT_EQ(lists[0].name, "goog-malware");
+  EXPECT_EQ(lists[0].adds, "1,3");
   EXPECT_EQ(lists[0].subs, "");
 
   // Test a sub command coming in before the add.
@@ -287,6 +291,7 @@ TEST(SafeBrowsingDatabase, Database) {
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
   database->InsertChunks("goog-malware", chunks);
+  database->UpdateFinished();
 
   EXPECT_FALSE(database->ContainsUrl(
       GURL("http://www.notevilanymore.com/index.html"),
@@ -351,6 +356,8 @@ void PeformUpdate(const std::wstring& initial_db,
 
   for (size_t i = 0; i < chunks.size(); ++i)
     database->InsertChunks(chunks[i].listname, chunks[i].chunks);
+
+  database->UpdateFinished();
 
   CHECK(metric->GetIOCounters(&after));
 

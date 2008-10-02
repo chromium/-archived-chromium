@@ -1934,6 +1934,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\safe_browsing\safe_browsing_database_bloom.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\safe_browsing\safe_browsing_database_bloom.h"
+				>
+			</File>
+			<File
 				RelativePath=".\safe_browsing\safe_browsing_database_impl.cc"
 				>
 			</File>
