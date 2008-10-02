@@ -1345,5 +1345,5 @@ V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOU
 V8 | KJS # LayoutTests/http/tests/security/frame-loading-via-document-write.html = TIMEOUT
  
 // Post-merge Debug only Crashes
-V8 | KJS # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH
-V8 | KJS # LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH
+V8 | KJS # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
+V8 | KJS # LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
