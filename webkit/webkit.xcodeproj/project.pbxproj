@@ -37,6 +37,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		4D11C1970E9687B500EF7617 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D11C1960E9687B500EF7617 /* Console.cpp */; };
 		7B0091350DAFEFBE00F72082 /* CSSGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */; };
 		7B0091370DAFEFBE00F72082 /* HTMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */; };
 		7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912F0DAFEFBE00F72082 /* SVGElementFactory.cpp */; };
@@ -626,7 +627,6 @@
 		E45624990E268E87005E4685 /* TextResourceDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8DE00D7F3C01001ECF42 /* TextResourceDecoder.cpp */; };
 		E456249B0E268E87005E4685 /* BarInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E370D7F3C48001ECF42 /* BarInfo.cpp */; };
 		E456249C0E268E87005E4685 /* Chrome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E3A0D7F3C48001ECF42 /* Chrome.cpp */; };
-		E456249D0E268E87005E4685 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E3D0D7F3C48001ECF42 /* Console.cpp */; };
 		E456249E0E268E87005E4685 /* ContextMenuController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E410D7F3C48001ECF42 /* ContextMenuController.cpp */; };
 		E456249F0E268E87005E4685 /* DOMSelection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E430D7F3C48001ECF42 /* DOMSelection.cpp */; };
 		E45624A00E268E87005E4685 /* DOMWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E460D7F3C48001ECF42 /* DOMWindow.cpp */; };
@@ -1256,6 +1256,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4D11C1960E9687B500EF7617 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
 		7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLNames.cpp; sourceTree = "<group>"; };
@@ -6625,6 +6626,7 @@
 			children = (
 				E4E4CA900E803BB9009A687C /* AXObjectCacheMac.cpp */,
 				E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */,
+				4D11C1960E9687B500EF7617 /* Console.cpp */,
 				E4E4CD170E84018A009A687C /* WebCoreFrameBridge.mm */,
 			);
 			path = page;
@@ -7221,7 +7223,6 @@
 				E45624D20E268E87005E4685 /* ColorMac.mm in Sources */,
 				E45623B70E268E87005E4685 /* Comment.cpp in Sources */,
 				E45623EF0E268E87005E4685 /* CompositeEditCommand.cpp in Sources */,
-				E456249D0E268E87005E4685 /* Console.cpp in Sources */,
 				E45623B80E268E87005E4685 /* ContainerNode.cpp in Sources */,
 				E45624B70E268E87005E4685 /* ContextMenu.cpp in Sources */,
 				E456249E0E268E87005E4685 /* ContextMenuController.cpp in Sources */,
@@ -7972,6 +7973,7 @@
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
 				E45627EE0E2694B8005E4685 /* CachedPage.cpp in Sources */,
+				4D11C1970E9687B500EF7617 /* Console.cpp in Sources */,
 				7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */,
 				7B2B0A610E3143EC00D4C6B7 /* GIFImageReader.cpp in Sources */,
 				E4CD5A720E3E44CC00A70177 /* HistoryWin.cpp in Sources */,
@@ -8512,6 +8514,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
 			buildSettings = {
+				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					"$(DIR_PORT)/platform",
@@ -8531,6 +8534,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
 			buildSettings = {
+				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
 					"$(DIR_PORT)/platform",
