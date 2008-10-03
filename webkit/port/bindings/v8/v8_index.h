@@ -229,6 +229,8 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(CSSSTYLESHEET, CSSStyleSheet)                                       \
   V(CSSVALUE, CSSValue)                                                 \
   V(CSSVALUELIST, CSSValueList)                                         \
+  V(CSSVARIABLESDECLARATION, CSSVariablesDeclaration)                   \
+  V(CSSVARIABLESRULE, CSSVariablesRule)                                 \
   V(DOMCOREEXCEPTION, DOMCoreException)                                 \
   V(DOMIMPLEMENTATION, DOMImplementation)                               \
   V(DOMPARSER, DOMParser)                                               \

@@ -649,6 +649,8 @@ all : \
     V8Console.h \
     V8Counter.h \
     V8CSSStyleDeclaration.h \
+    V8CSSVariablesDeclaration.h \
+    V8CSSVariablesRule.h \
     V8DOMCoreException.h \
     V8DOMImplementation.h \
     V8DOMParser.h \

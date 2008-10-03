@@ -2588,6 +2588,9 @@ v8::Handle<v8::Value> V8Proxy::CSSRuleToV8Object(CSSRule* rule) {
     case CSSRule::PAGE_RULE:
         type = V8ClassIndex::CSSPAGERULE;
         break;
+    case CSSRule::VARIABLES_RULE:
+        type = V8ClassIndex::CSSVARIABLESRULE;
+        break;
     default:  // CSSRule::UNKNOWN_RULE
         type = V8ClassIndex::CSSRULE;
     }

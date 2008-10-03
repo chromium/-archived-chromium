@@ -58,6 +58,8 @@
 #include "V8CSSValue.h"
 #include "V8CSSValueList.h"
 #include "V8CSSStyleSheet.h"
+#include "V8CSSVariablesDeclaration.h"
+#include "V8CSSVariablesRule.h"
 #include "V8Document.h"
 #include "V8DocumentFragment.h"
 #include "V8DocumentType.h"

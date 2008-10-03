@@ -907,13 +907,10 @@ V8 | KJS # LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL
 V8 | KJS # LayoutTests/fast/images/embed-image.html = FAIL
 V8 | KJS # LayoutTests/fast/images/object-image.html = FAIL
 
-# Displays messages of the form
-# "CONSOLE MESSAGE: line 27: Uncaught TypeError: Cannot ... of undefined".
-# http://code.google.com/p/chromium/issues/detail?id=3010
-V8 | KJS # LayoutTests/fast/css/variables/alternate-syntax/color-hex-test.html = FAIL
-V8 | KJS # LayoutTests/fast/css/variables/alternate-syntax/remove-variable-test.html = FAIL
-V8 | KJS # LayoutTests/fast/css/variables/alternate-syntax/set-variable-test.html = FAIL
-V8 | KJS # LayoutTests/fast/css/variables/color-hex-test.html = FAIL
+# This test is failing because we don't support the CSS selector
+# @-webkit-variables.
+# http://code.google.com/p/chromium/issues/detail?id=3085
+V8 | KJS # LayoutTests/fast/css/variables/alternate-syntax/variable-iteration-test.html = FAIL
 
 # Many of the failures here are because V8 stringifies objects differently than
 # JSC. However, the missing position and totalSize properties seems genuine.

@@ -368,6 +368,22 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8CSSVariablesDeclaration.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8CSSVariablesDeclaration.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8CSSVariablesRule.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8CSSVariablesRule.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8Document.cpp"
 				>
 			</File>
