@@ -209,7 +209,11 @@ public:
     operator NSURL*() const;
 #endif
 #ifdef __OBJC__
+#ifdef USE_GOOGLE_URL_LIBRARY
     operator NSString*() const { return string(); }
+#else  // USE_GOOGLE_URL_LIBRARY
+    operator NSString*() const { return m_string; }
+#endif  // USE_GOOGLE_URL_LIBRARY
 #endif
 
 #if PLATFORM(QT)
