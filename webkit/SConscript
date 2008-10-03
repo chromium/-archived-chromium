@@ -100,12 +100,7 @@ env.Prepend(
     ],
 )
 
-webkit_excluded_warnings = [
-  '-Wno-multichar',
-]
-
 env.Append(
-    CXXFLAGS = webkit_excluded_warnings,
     WEBCORE_DIR = "$THIRD_PARTY_WEBKIT_DIR/WebCore",
     PENDING_DIR = "$WEBKIT_DIR/pending",
     PORT_DIR = "$WEBKIT_DIR/port",
@@ -202,7 +197,10 @@ if env['PLATFORM'] == 'win32':
       '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/os-win32',
     ])
 else:
-  env.Prepend(CPPPATH = ['$WEBKIT_DIR/build/JSConfig/WebCore/v8'])
+  env.Prepend(
+      CPPPATH = ['$WEBKIT_DIR/build/JSConfig/WebCore/v8'],
+      CXXFLAGS = ['-Wno-multichar'],
+  )
 
 env.SConscript(sconscript_dirs, exports=['env', 'env_res'])
 
