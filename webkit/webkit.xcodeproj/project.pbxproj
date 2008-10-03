@@ -2776,7 +2776,7 @@
 		7B5E91C20D7F3CC2001ECF42 /* StringMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringMac.mm; sourceTree = "<group>"; };
 		7B5E91C30D7F3CC2001ECF42 /* TextBoundaries.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextBoundaries.mm; sourceTree = "<group>"; };
 		7B5E91C40D7F3CC2001ECF42 /* TextBreakIteratorInternalICUMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextBreakIteratorInternalICUMac.mm; sourceTree = "<group>"; };
-		7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextCodecMac.cpp; path = ../../../../../../webkit/pending/TextCodecMac.cpp; sourceTree = "<group>"; };
+		7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextCodecMac.cpp; sourceTree = "<group>"; };
 		7B5E91C60D7F3CC2001ECF42 /* TextCodecMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextCodecMac.h; sourceTree = "<group>"; };
 		7B5E91C70D7F3CC2001ECF42 /* PlatformString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformString.h; sourceTree = "<group>"; };
 		7B5E91CE0D7F3CC3001ECF42 /* RegularExpression.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RegularExpression.cpp; sourceTree = "<group>"; };
