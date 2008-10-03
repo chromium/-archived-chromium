@@ -199,6 +199,8 @@ if env['PLATFORM'] == 'win32':
 else:
   env.Prepend(
       CPPPATH = ['$WEBKIT_DIR/build/JSConfig/WebCore/v8'],
+  )
+  env.Append(
       CXXFLAGS = ['-Wno-multichar'],
   )
 
