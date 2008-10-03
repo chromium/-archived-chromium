@@ -54,12 +54,14 @@ public:
     void deref()
     {
         ASSERT(!m_deletionHasBegun);
-        if (--m_refCount <= 0 && !m_peer) {
+        ASSERT(m_refCount > 0);
+        if (m_refCount == 1 && !m_peer) {
 #ifndef NDEBUG
             m_deletionHasBegun = true;
 #endif
             delete static_cast<T*>(this);
-        }
+        } else
+            --m_refCount;
     }
 
     void setPeer(void* peer)
@@ -76,7 +78,7 @@ public:
     
     void* peer() const { return m_peer; }
 
-    bool hasOneRef()
+    bool hasOneRef() const
     {
         ASSERT(!m_deletionHasBegun);
         if (m_peer)
@@ -105,7 +107,7 @@ private:
 
 template<class T> class RefCounted : Noncopyable {
 public:
-    RefCounted(int initialRefCount = 0)
+    RefCounted(int initialRefCount = 1)
         : m_refCount(initialRefCount)
 #ifndef NDEBUG
         , m_deletionHasBegun(false)
@@ -122,15 +124,17 @@ public:
     void deref()
     {
         ASSERT(!m_deletionHasBegun);
-        if (--m_refCount <= 0) {
+        ASSERT(m_refCount > 0);
+        if (m_refCount == 1) {
 #ifndef NDEBUG
             m_deletionHasBegun = true;
-#endif 
-            delete static_cast<T*>(this); 
-        }
+#endif
+            delete static_cast<T*>(this);
+        } else 
+            --m_refCount;
     }
 
-    bool hasOneRef()
+    bool hasOneRef() const
     {
         ASSERT(!m_deletionHasBegun);
         return m_refCount == 1;

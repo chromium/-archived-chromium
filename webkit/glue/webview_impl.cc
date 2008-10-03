@@ -144,9 +144,9 @@ WebViewImpl::WebViewImpl()
       suppress_next_keypress_event_(false),
       window_open_disposition_(IGNORE_ACTION),
       ime_accept_events_(true) {
-  // WebKit/win/WebView.cpp does the same thing, except they call teh
+  // WebKit/win/WebView.cpp does the same thing, except they call the
   // KJS specific wrapper around this method. We need to have threading
-  // initialized because icu requires it.
+  // initialized because CollatorICU requires it.
   WTF::initializeThreading();
 
   // set to impossible point so we always get the first mouse pos

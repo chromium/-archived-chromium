@@ -37,6 +37,11 @@ using WebCore::DocumentLoader;
 using WebCore::ResourceRequest;
 using WebCore::SubstituteData;
 
+PassRefPtr<WebDocumentLoaderImpl> WebDocumentLoaderImpl::create(
+    const ResourceRequest& request, const SubstituteData& data) {
+  return adoptRef(new WebDocumentLoaderImpl(request, data));
+}
+
 WebDocumentLoaderImpl::WebDocumentLoaderImpl(const ResourceRequest& request,
                                              const SubstituteData& data)
     : DocumentLoader(request, data),

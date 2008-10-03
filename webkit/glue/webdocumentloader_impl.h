@@ -41,10 +41,10 @@
 
 class WebDataSource;
 
-class WebDocumentLoaderImpl : public WebCore::DocumentLoader
-{
+class WebDocumentLoaderImpl : public WebCore::DocumentLoader {
  public:
-  WebDocumentLoaderImpl(const WebCore::ResourceRequest&, const WebCore::SubstituteData&);
+  static PassRefPtr<WebDocumentLoaderImpl> create(
+      const WebCore::ResourceRequest&, const WebCore::SubstituteData&);
 
   void SetDataSource(WebDataSource*);
   WebDataSource* GetDataSource() const;
@@ -86,6 +86,9 @@ class WebDocumentLoaderImpl : public WebCore::DocumentLoader
   }
 
  private:
+  WebDocumentLoaderImpl(const WebCore::ResourceRequest&,
+                        const WebCore::SubstituteData&);
+
   scoped_ptr<WebDataSource> datasource_;
   scoped_ptr<WebDataSource> detached_datasource_;
   scoped_ptr<const SearchableFormData> searchable_form_data_;

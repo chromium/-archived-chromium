@@ -1201,16 +1201,17 @@ void WebFrameLoaderClient::prepareForDataSourceReplacement() {
 PassRefPtr<DocumentLoader> WebFrameLoaderClient::createDocumentLoader(
     const ResourceRequest& request,
     const SubstituteData& data) {
-  WebDocumentLoaderImpl* loader = new WebDocumentLoaderImpl(request, data);
+  RefPtr<WebDocumentLoaderImpl> loader = WebDocumentLoaderImpl::create(request,
+                                                                       data);
 
   // Attach a datasource to the loader as a way of accessing requests.
   WebDataSourceImpl* datasource =
-      WebDataSourceImpl::CreateInstance(webframe_, loader);
+      WebDataSourceImpl::CreateInstance(webframe_, loader.get());
   loader->SetDataSource(datasource);
 
   webframe_->CacheCurrentRequestInfo(datasource);
 
-  return loader;
+  return loader.release();
 }
 
 void WebFrameLoaderClient::setTitle(const String& title, const KURL& url) {
