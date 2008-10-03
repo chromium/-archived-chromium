@@ -6,15 +6,13 @@
 
 #include "base/basictypes.h"
 #include "base/clipboard.h"
+#include "base/platform_test.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace {
-  class ClipboardTest : public testing::Test {
-  };
-}
+typedef PlatformTest ClipboardTest;
 
-TEST(ClipboardTest, ClearTest) {
+TEST_F(ClipboardTest, ClearTest) {
   Clipboard clipboard;
 
   clipboard.Clear();
@@ -24,7 +22,7 @@ TEST(ClipboardTest, ClearTest) {
       Clipboard::GetHtmlFormatType()));
 }
 
-TEST(ClipboardTest, TextTest) {
+TEST_F(ClipboardTest, TextTest) {
   Clipboard clipboard;
 
   std::wstring text(L"This is a wstring!#$"), text_result;
@@ -42,7 +40,7 @@ TEST(ClipboardTest, TextTest) {
   EXPECT_EQ(WideToUTF8(text), ascii_text);
 }
 
-TEST(ClipboardTest, HTMLTest) {
+TEST_F(ClipboardTest, HTMLTest) {
   Clipboard clipboard;
 
   std::wstring markup(L"<strong>Hi!</string>"), markup_result;
@@ -62,7 +60,7 @@ TEST(ClipboardTest, HTMLTest) {
 #endif
 }
 
-TEST(ClipboardTest, TrickyHTMLTest) {
+TEST_F(ClipboardTest, TrickyHTMLTest) {
   Clipboard clipboard;
 
   std::wstring markup(L"<em>Bye!<!--EndFragment --></em>"), markup_result;
@@ -83,7 +81,7 @@ TEST(ClipboardTest, TrickyHTMLTest) {
 #endif
 }
 
-TEST(ClipboardTest, BookmarkTest) {
+TEST_F(ClipboardTest, BookmarkTest) {
   Clipboard clipboard;
 
   std::wstring title(L"The Example Company"), title_result;
@@ -98,7 +96,7 @@ TEST(ClipboardTest, BookmarkTest) {
   EXPECT_EQ(url, url_result);
 }
 
-TEST(ClipboardTest, MultiFormatTest) {
+TEST_F(ClipboardTest, MultiFormatTest) {
   Clipboard clipboard;
 
   std::wstring text(L"Hi!"), text_result;
@@ -131,7 +129,7 @@ TEST(ClipboardTest, MultiFormatTest) {
 
 // Files for this test don't actually need to exist on the file system, just
 // don't try to use a non-existent file you've retrieved from the clipboard.
-TEST(ClipboardTest, FileTest) {
+TEST_F(ClipboardTest, FileTest) {
   Clipboard clipboard;
   clipboard.Clear();
 #if defined(OS_WIN)
@@ -147,7 +145,7 @@ TEST(ClipboardTest, FileTest) {
   EXPECT_EQ(file, out_file);
 }
 
-TEST(ClipboardTest, MultipleFilesTest) {
+TEST_F(ClipboardTest, MultipleFilesTest) {
   Clipboard clipboard;
   clipboard.Clear();
   
@@ -177,7 +175,7 @@ TEST(ClipboardTest, MultipleFilesTest) {
 }
 
 #if defined(OS_WIN)  // Windows only tests.
-TEST(ClipboardTest, HyperlinkTest) {
+TEST_F(ClipboardTest, HyperlinkTest) {
   Clipboard clipboard;
   
   std::wstring title(L"The Example Company"), title_result;
@@ -199,7 +197,7 @@ TEST(ClipboardTest, HyperlinkTest) {
   //XXX EXPECT_FALSE(url_result.is_valid());
 }
 
-TEST(ClipboardTest, WebSmartPasteTest) {
+TEST_F(ClipboardTest, WebSmartPasteTest) {
   Clipboard clipboard;
 
   clipboard.Clear();
@@ -208,7 +206,7 @@ TEST(ClipboardTest, WebSmartPasteTest) {
       Clipboard::GetWebKitSmartPasteFormatType()));
 }
 
-TEST(ClipboardTest, BitmapTest) {
+TEST_F(ClipboardTest, BitmapTest) {
   unsigned int fake_bitmap[] = {
     0x46155189, 0xF6A55C8D, 0x79845674, 0xFA57BD89,
     0x78FD46AE, 0x87C64F5A, 0x36EDC5AF, 0x4378F568,
