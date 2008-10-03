@@ -97,9 +97,9 @@ Color DragData::asColor() const
                     (int)([color blueComponent] * 255.0 + 0.5), (int)([color alphaComponent] * 255.0 + 0.5));
 }
 
-Clipboard* DragData::createClipboard(ClipboardAccessPolicy policy) const
+PassRefPtr<Clipboard> DragData::createClipboard(ClipboardAccessPolicy policy) const
 {
-    return new ClipboardMac(true, [m_platformDragData draggingPasteboard], policy);
+    return ClipboardMac::create(true, [m_platformDragData draggingPasteboard], policy, 0);
 }
 
 bool DragData::containsCompatibleContent() const
