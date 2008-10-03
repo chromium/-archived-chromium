@@ -19,6 +19,9 @@
 #if defined(OS_POSIX)
 #include "base/message_pump_libevent.h"
 #endif
+#if defined(OS_LINUX)
+#include "base/message_pump_glib.h"
+#endif
 
 // A lazily created thread local storage for quick access to a thread's message
 // loop, if one exists.  This should be safe and free of static constructors.
@@ -89,18 +92,17 @@ MessageLoop::MessageLoop(Type type)
     pump_ = new base::MessagePumpForUI();
   }
 #elif defined(OS_POSIX)
-#if defined(OS_MACOSX)
   if (type_ == TYPE_UI) {
+#if defined(OS_MACOSX)
     pump_ = base::MessagePumpMac::Create();
-  } else
-#endif  // OS_MACOSX
-  if (type_ == TYPE_IO) {
+#elif defined(OS_LINUX)
+    pump_ = new base::MessagePumpForUI();
+#endif  // OS_LINUX
+  } else if (type_ == TYPE_IO) {
     pump_ = new base::MessagePumpLibevent();
   } else {
     pump_ = new base::MessagePumpDefault();
   }
-#else  // OS_POSIX
-  pump_ = new base::MessagePumpDefault();
 #endif  // OS_POSIX
 }
 

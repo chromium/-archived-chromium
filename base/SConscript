@@ -168,6 +168,7 @@ if env['PLATFORM'] == 'posix':
       'base_paths_linux.cc',
       'file_util_linux.cc',
       'hmac_nss.cc',
+      'message_pump_glib.cc',
       'nss_init.cc',
       'sys_string_conversions_linux.cc',
       'worker_pool.cc',
@@ -351,4 +352,3 @@ env_tests.StaticObject('perftimer.cc')
 
 # Since run_all_perftests supplies a main, we cannot have it in base.lib
 env_tests.StaticObject('run_all_perftests.cc')
-
