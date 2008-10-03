@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#ifdef AVOID_STATIC_CONSTRUCTORS
+#ifdef SKIP_STATIC_CONSTRUCTORS_ON_GCC
 #define ATOMICSTRING_HIDE_GLOBALS 1
 #endif
 
@@ -273,6 +273,7 @@ AtomicString::operator UString() const
     return m_string;
 }
 #endif
+
 DEFINE_GLOBAL(AtomicString, nullAtom)
 DEFINE_GLOBAL(AtomicString, emptyAtom, "")
 DEFINE_GLOBAL(AtomicString, textAtom, "#text")
