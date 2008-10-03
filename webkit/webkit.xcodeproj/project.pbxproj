@@ -328,6 +328,7 @@
 		AB0240650E9565F7006D59C8 /* DocumentLoaderMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB0240640E9565F7006D59C8 /* DocumentLoaderMac.cpp */; };
 		AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
 		AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB332F4B0E95497E0020F882 /* AnimationController.cpp */; };
+		B50F5BE00E96D3F800AD71A6 /* WebCoreObjCExtras.mm in Sources */ = {isa = PBXBuildFile; fileRef = B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */; };
 		B5599D0F0E95929900E2A85A /* SVGFEColorMatrixElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D0E0E95929900E2A85A /* SVGFEColorMatrixElement.cpp */; };
 		B5599D130E95942900E2A85A /* SVGDocumentExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D120E95942900E2A85A /* SVGDocumentExtensions.cpp */; };
 		B5599D160E9594E800E2A85A /* SVGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D140E9594E800E2A85A /* SVGImage.cpp */; };
@@ -730,7 +731,6 @@
 		E456250B0E268E87005E4685 /* SystemTimeMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90FC0D7F3CC2001ECF42 /* SystemTimeMac.cpp */; };
 		E456250F0E268E87005E4685 /* WebCoreKeyGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91020D7F3CC2001ECF42 /* WebCoreKeyGenerator.m */; };
 		E45625100E268E87005E4685 /* WebCoreNSStringExtras.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91040D7F3CC2001ECF42 /* WebCoreNSStringExtras.mm */; };
-		E45625110E268E87005E4685 /* WebCoreObjCExtras.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91050D7F3CC2001ECF42 /* WebCoreObjCExtras.c */; };
 		E45625120E268E87005E4685 /* WebCoreSystemInterface.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91080D7F3CC2001ECF42 /* WebCoreSystemInterface.mm */; };
 		E45625130E268E87005E4685 /* WebCoreTextRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E910A0D7F3CC2001ECF42 /* WebCoreTextRenderer.mm */; };
 		E45625140E268E87005E4685 /* WebCoreView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E910C0D7F3CC2001ECF42 /* WebCoreView.m */; };
@@ -2687,7 +2687,6 @@
 		7B5E91020D7F3CC2001ECF42 /* WebCoreKeyGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebCoreKeyGenerator.m; sourceTree = "<group>"; };
 		7B5E91030D7F3CC2001ECF42 /* WebCoreNSStringExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreNSStringExtras.h; sourceTree = "<group>"; };
 		7B5E91040D7F3CC2001ECF42 /* WebCoreNSStringExtras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreNSStringExtras.mm; sourceTree = "<group>"; };
-		7B5E91050D7F3CC2001ECF42 /* WebCoreObjCExtras.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = WebCoreObjCExtras.c; sourceTree = "<group>"; };
 		7B5E91060D7F3CC2001ECF42 /* WebCoreObjCExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreObjCExtras.h; sourceTree = "<group>"; };
 		7B5E91070D7F3CC2001ECF42 /* WebCoreSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreSystemInterface.h; sourceTree = "<group>"; };
 		7B5E91080D7F3CC2001ECF42 /* WebCoreSystemInterface.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreSystemInterface.mm; sourceTree = "<group>"; };
@@ -3562,6 +3561,7 @@
 		AB0240640E9565F7006D59C8 /* DocumentLoaderMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DocumentLoaderMac.cpp; sourceTree = "<group>"; };
 		AB332F4B0E95497E0020F882 /* AnimationController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationController.cpp; path = animation/AnimationController.cpp; sourceTree = "<group>"; };
 		AB332F4C0E95497E0020F882 /* AnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimationController.h; path = animation/AnimationController.h; sourceTree = "<group>"; };
+		B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WebCoreObjCExtras.mm; path = pending/WebCoreObjCExtras.mm; sourceTree = SOURCE_ROOT; };
 		B5599D0D0E95929900E2A85A /* SVGFEColorMatrixElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SVGFEColorMatrixElement.h; path = ../third_party/WebKit/WebCore/svg/SVGFEColorMatrixElement.h; sourceTree = SOURCE_ROOT; };
 		B5599D0E0E95929900E2A85A /* SVGFEColorMatrixElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SVGFEColorMatrixElement.cpp; path = ../third_party/WebKit/WebCore/svg/SVGFEColorMatrixElement.cpp; sourceTree = SOURCE_ROOT; };
 		B5599D110E95942900E2A85A /* SVGDocumentExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGDocumentExtensions.h; sourceTree = "<group>"; };
@@ -4923,7 +4923,7 @@
 				7B5E91020D7F3CC2001ECF42 /* WebCoreKeyGenerator.m */,
 				7B5E91030D7F3CC2001ECF42 /* WebCoreNSStringExtras.h */,
 				7B5E91040D7F3CC2001ECF42 /* WebCoreNSStringExtras.mm */,
-				7B5E91050D7F3CC2001ECF42 /* WebCoreObjCExtras.c */,
+				B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */,
 				7B5E91060D7F3CC2001ECF42 /* WebCoreObjCExtras.h */,
 				7B5E91070D7F3CC2001ECF42 /* WebCoreSystemInterface.h */,
 				7B5E91080D7F3CC2001ECF42 /* WebCoreSystemInterface.mm */,
@@ -7847,7 +7847,7 @@
 				E456241C0E268E87005E4685 /* VisiblePosition.cpp in Sources */,
 				E456250F0E268E87005E4685 /* WebCoreKeyGenerator.m in Sources */,
 				E45625100E268E87005E4685 /* WebCoreNSStringExtras.mm in Sources */,
-				E45625110E268E87005E4685 /* WebCoreObjCExtras.c in Sources */,
+				B50F5BE00E96D3F800AD71A6 /* WebCoreObjCExtras.mm in Sources */,
 				E45625120E268E87005E4685 /* WebCoreSystemInterface.mm in Sources */,
 				E45625130E268E87005E4685 /* WebCoreTextRenderer.mm in Sources */,
 				E456268E0E268E87005E4685 /* WebCoreURLResponse.mm in Sources */,
