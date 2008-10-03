@@ -209,7 +209,7 @@ public:
     operator NSURL*() const;
 #endif
 #ifdef __OBJC__
-    operator NSString*() const { return m_string; }
+    operator NSString*() const { return string(); }
 #endif
 
 #if PLATFORM(QT)
