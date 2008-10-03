@@ -8417,6 +8417,7 @@
 					"$(HEADER_SEARCH_PATHS)",
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8",
+					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/dom",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/editing",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/loader",
@@ -8424,7 +8425,6 @@
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/page_mac",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/svg",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
-					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/JavaScriptHeaders/v8",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
 				);
 				PRODUCT_NAME = webcore;
@@ -8440,6 +8440,7 @@
 					"$(HEADER_SEARCH_PATHS)",
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8",
+					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/dom",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/editing",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/loader",
@@ -8447,7 +8448,6 @@
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/page_mac",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/ForwardingHeaders/svg",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
-					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/JavaScriptHeaders/v8",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
 				);
 				PRODUCT_NAME = webcore;
