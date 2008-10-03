@@ -124,14 +124,18 @@
 #if PLATFORM(CHROMIUM)
 #define WTF_USE_V8 1
 #define WTF_PLATFORM_SKIA 1
+
+#if !PLATFORM(MAC)
 #undef WTF_PLATFORM_CG
 #undef WTF_PLATFORM_CF
+#endif
+
 #undef WTF_USE_CFNETWORK
 // Upstream Platform.h's #ifdef check for other graphics libraries doesn't
 // check SKIA, so it falls back on defining CAIRO.  Undo that here.
 // TODO(evanm): clean this up.
 #undef WTF_PLATFORM_CAIRO
-#endif
+#endif // if PLATFORM(CHROMIUM)
 
 #if !defined(WTF_USE_V8)
 #define WTF_USE_V8 0
