@@ -346,7 +346,6 @@
 		E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
 		E45063BA0E4104700025A81A /* localized_strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051A0D92E3DA0006B936 /* localized_strings.cc */; };
 		E45623790E268E87005E4685 /* AXObjectCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88AF0D7F39E1001ECF42 /* AXObjectCache.cpp */; };
-		E456237A0E268E87005E4685 /* GlobalHistoryMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88B00D7F39E1001ECF42 /* GlobalHistoryMac.mm */; };
 		E456237D0E268E87005E4685 /* CSSBorderImageValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88CE0D7F3A08001ECF42 /* CSSBorderImageValue.cpp */; };
 		E456237E0E268E87005E4685 /* CSSCharsetRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88D00D7F3A08001ECF42 /* CSSCharsetRule.cpp */; };
 		E456237F0E268E87005E4685 /* CSSComputedStyleDeclaration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E88D30D7F3A08001ECF42 /* CSSComputedStyleDeclaration.cpp */; };
@@ -1114,7 +1113,6 @@
 		E49E50DF0E65E33200AD47F7 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
 		E4A134090E37C47E00110AA2 /* v8_proxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */; };
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
-		E4CD5A720E3E44CC00A70177 /* HistoryWin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */; };
 		E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */; };
 		E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */; };
 		E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */; };
@@ -1879,9 +1877,7 @@
 		7B5E85E40D7F28F5001ECF42 /* VectorTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorTraits.h; sourceTree = "<group>"; };
 		7B5E88AB0D7F39E1001ECF42 /* AXObjectCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AXObjectCache.h; sourceTree = "<group>"; };
 		7B5E88AC0D7F39E1001ECF42 /* EditorClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorClient.h; sourceTree = "<group>"; };
-		7B5E88AD0D7F39E1001ECF42 /* GlobalHistory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobalHistory.h; path = ../../../../webkit/pending/GlobalHistory.h; sourceTree = "<group>"; };
 		7B5E88AF0D7F39E1001ECF42 /* AXObjectCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AXObjectCache.cpp; sourceTree = "<group>"; };
-		7B5E88B00D7F39E1001ECF42 /* GlobalHistoryMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobalHistoryMac.mm; sourceTree = "<group>"; };
 		7B5E88B10D7F39E1001ECF42 /* WebCoreAXObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreAXObject.h; sourceTree = "<group>"; };
 		7B5E88B20D7F39E1001ECF42 /* WebCoreAXObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreAXObject.mm; sourceTree = "<group>"; };
 		7B5E88B30D7F39E1001ECF42 /* WebCoreScriptDebugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreScriptDebugger.h; sourceTree = "<group>"; };
@@ -3611,7 +3607,6 @@
 		E4A970720E36128B00E8EF3B /* FrameWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FrameWin.h; path = port/bridge/FrameWin.h; sourceTree = SOURCE_ROOT; };
 		E4A970730E36128B00E8EF3B /* FrameWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FrameWin.cpp; path = port/bridge/FrameWin.cpp; sourceTree = SOURCE_ROOT; };
 		E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromeClientWin.h; sourceTree = "<group>"; };
-		E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HistoryWin.cpp; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
 		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
 		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
@@ -3940,7 +3935,6 @@
 				7B5E88AC0D7F39E1001ECF42 /* EditorClient.h */,
 				E4A970730E36128B00E8EF3B /* FrameWin.cpp */,
 				E4A970720E36128B00E8EF3B /* FrameWin.h */,
-				7B5E88AD0D7F39E1001ECF42 /* GlobalHistory.h */,
 			);
 			path = bridge;
 			sourceTree = "<group>";
@@ -3948,7 +3942,6 @@
 		7B5E88AE0D7F39E1001ECF42 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				7B5E88B00D7F39E1001ECF42 /* GlobalHistoryMac.mm */,
 				7B5E88B10D7F39E1001ECF42 /* WebCoreAXObject.h */,
 				7B5E88B20D7F39E1001ECF42 /* WebCoreAXObject.mm */,
 				7B5E88B30D7F39E1001ECF42 /* WebCoreScriptDebugger.h */,
@@ -5764,7 +5757,6 @@
 				7B93759D0D91902F008B9587 /* KJSBridge.h */,
 				7B42A3660DE209B700659DE0 /* V8Bridge.cpp */,
 				7B42A3670DE209B700659DE0 /* V8Bridge.h */,
-				E4CD5A710E3E44CC00A70177 /* HistoryWin.cpp */,
 			);
 			path = bridge;
 			sourceTree = "<group>";
@@ -7347,7 +7339,6 @@
 				E45624A60E268E87005E4685 /* FrameView.cpp in Sources */,
 				E45624880E268E87005E4685 /* FTPDirectoryDocument.cpp in Sources */,
 				E45624890E268E87005E4685 /* FTPDirectoryParser.cpp in Sources */,
-				E456237A0E268E87005E4685 /* GlobalHistoryMac.mm in Sources */,
 				E45624CC0E268E87005E4685 /* GlyphPageTreeNode.cpp in Sources */,
 				E45624DA0E268E87005E4685 /* GlyphPageTreeNodeMac.cpp in Sources */,
 				E45624CD0E268E87005E4685 /* GlyphWidthMap.cpp in Sources */,
@@ -7976,7 +7967,6 @@
 				4D11C1970E9687B500EF7617 /* Console.cpp in Sources */,
 				7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */,
 				7B2B0A610E3143EC00D4C6B7 /* GIFImageReader.cpp in Sources */,
-				E4CD5A720E3E44CC00A70177 /* HistoryWin.cpp in Sources */,
 				E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
