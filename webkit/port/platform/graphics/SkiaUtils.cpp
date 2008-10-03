@@ -37,7 +37,10 @@
 #include "SkMatrix.h"
 #include "SkRegion.h"
 
+#include "base/basictypes.h"
+#if defined(OS_WIN)
 #include "base/gfx/bitmap_header.h"
+#endif
 
 void WebCorePointToSkiaPoint(const WebCore::FloatPoint& src, SkPoint* dst)
 {
@@ -227,6 +230,15 @@ bool SkPathContainsPoint(SkPath* orig_path, WebCore::FloatPoint point, SkPath::F
     return contains;
 }
 
+#if defined(OS_MACOSX)
+PassRefPtr<WebCore::SharedBuffer> SerializeSkBitmap(const SkBitmap& bitmap)
+{
+  // TODO(playmobil): implement.
+  ASSERT_NOT_REACHED();
+  RefPtr<WebCore::SharedBuffer> buffer(NULL);
+  return buffer;
+}
+#elif defined(OS_WIN)
 PassRefPtr<WebCore::SharedBuffer> SerializeSkBitmap(const SkBitmap& bitmap)
 {
     int width = bitmap.width();
@@ -260,3 +272,4 @@ PassRefPtr<WebCore::SharedBuffer> SerializeSkBitmap(const SkBitmap& bitmap)
 
     return buffer;
 }
+#endif
