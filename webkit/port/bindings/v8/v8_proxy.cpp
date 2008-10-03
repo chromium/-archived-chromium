@@ -779,17 +779,17 @@ void V8Proxy::SetJSWrapperForDOMNode(Node* node, v8::Persistent<v8::Object> wrap
     dom_node_map().set(node, wrapper);
 }
 
-EventListener* V8Proxy::createHTMLEventHandler(const String& functionName,
+PassRefPtr<EventListener> V8Proxy::createHTMLEventHandler(const String& functionName,
                                                const String& code, Node* node)
 {
-    return new V8LazyEventListener(m_frame, code, functionName);
+    return adoptRef(new V8LazyEventListener(m_frame, code, functionName));
 }
 
 #if ENABLE(SVG)
-EventListener* V8Proxy::createSVGEventHandler(const String& functionName,
+PassRefPtr<EventListener> V8Proxy::createSVGEventHandler(const String& functionName,
                                               const String& code, Node* node)
 {
-    return new V8LazyEventListener(m_frame, code, functionName);
+    return adoptRef(new V8LazyEventListener(m_frame, code, functionName));
 }
 #endif
 

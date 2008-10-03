@@ -182,9 +182,9 @@ public:
     void disposeJSResult(JSResult result);
     void collectGarbage();
 
-    EventListener* createHTMLEventHandler(const String& functionName, const String& code, Node*);
+    PassRefPtr<EventListener> createHTMLEventHandler(const String& functionName, const String& code, Node*);
 #if ENABLE(SVG)
-    EventListener* createSVGEventHandler(const String& functionName, const String& code, Node*);
+    PassRefPtr<EventListener> createSVGEventHandler(const String& functionName, const String& code, Node*);
 #endif
 
     // Get the Root object

@@ -34,6 +34,7 @@
 #include "Document.h"
 #include "DOMWindow.h"
 #include "Event.h"
+#include "EventListener.h"
 #include "EventNames.h"
 #include "Frame.h"
 #include "Node.h"
@@ -297,14 +298,14 @@ void ScriptController::disposeJSResult(v8::Persistent<v8::Value> result)
     result.Clear();
 }
 
-EventListener* ScriptController::createHTMLEventHandler(
+PassRefPtr<EventListener> ScriptController::createHTMLEventHandler(
     const String& functionName, const String& code, Node* node)
 {
     return m_proxy->createHTMLEventHandler(functionName, code, node);
 }
 
 #if ENABLE(SVG)
-EventListener* ScriptController::createSVGEventHandler(
+PassRefPtr<EventListener> ScriptController::createSVGEventHandler(
     const String& functionName, const String& code, Node* node)
 {
     return m_proxy->createSVGEventHandler(functionName, code, node);
