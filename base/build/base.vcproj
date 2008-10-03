@@ -278,6 +278,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\file_path.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\file_path.h"
+			>
+		</File>
+		<File
 			RelativePath="..\file_util.cc"
 			>
 		</File>
