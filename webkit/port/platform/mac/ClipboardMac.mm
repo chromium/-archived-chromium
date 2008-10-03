@@ -41,7 +41,6 @@
 #import "Pasteboard.h"
 #import "Range.h"
 #import "RenderImage.h"
-#import "WebCoreFrameBridge.h"
 #import "WebCoreSystemInterface.h"
 
 @class WebArchive;

@@ -57,7 +57,6 @@
 #import "GraphicsContext.h"
 #import "HTMLDocument.h"
 #import "HTMLFormElement.h"
-#import "HTMLGenericFormElement.h"
 #import "HTMLInputElement.h"
 #import "HTMLNames.h"
 #import "HTMLTableCellElement.h"
@@ -70,7 +69,6 @@
 #import "PlatformKeyboardEvent.h"
 #import "PlatformScrollBar.h"
 #import "PlatformWheelEvent.h"
-#import "Plugin.h"
 #import "RegularExpression.h"
 #import "RenderImage.h"
 #import "RenderListItem.h"
@@ -84,7 +82,6 @@
 #import "SystemTime.h"
 #import "TextResourceDecoder.h"
 #import "UserStyleSheetLoader.h"
-#import "WebCoreFrameBridge.h"
 #import "WebCoreSystemInterface.h"
 #import "WebCoreViewFactory.h"
 #import "WebDashboardRegion.h"
@@ -124,27 +121,6 @@ namespace WebCore {
 using namespace EventNames;
 using namespace HTMLNames;
 
-void Frame::setBridge(WebCoreFrameBridge* bridge)
-{ 
-    if (d->m_bridge == bridge)
-        return;
-
-    if (!bridge) {
-        [d->m_bridge clearFrame];
-        HardRelease(d->m_bridge);
-        d->m_bridge = nil;
-        return;
-    }
-    HardRetain(bridge);
-    HardRelease(d->m_bridge);
-    d->m_bridge = bridge;
-}
-
-WebCoreFrameBridge* Frame::bridge() const
-{
-    return d->m_bridge;
-}
-
 // Either get cached regexp or build one that matches any of the labels.
 // The regexp we build is of the form:  (STR1|STR2|STRN)
 RegularExpression* regExpForLabels(NSArray* labels)
@@ -167,17 +143,17 @@ RegularExpression* regExpForLabels(NSArray* labels)
     if (cacheHit != NSNotFound)
         result = regExps.at(cacheHit);
     else {
-        DeprecatedString pattern("(");
+        String pattern("(");
         unsigned int numLabels = [labels count];
         unsigned int i;
         for (i = 0; i < numLabels; i++) {
-            DeprecatedString label = DeprecatedString::fromNSString((NSString*)[labels objectAtIndex:i]);
+            String label = [labels objectAtIndex:i];
 
             bool startsWithWordChar = false;
             bool endsWithWordChar = false;
             if (label.length() != 0) {
-                startsWithWordChar = wordRegExp.search(label.at(0)) >= 0;
-                endsWithWordChar = wordRegExp.search(label.at(label.length() - 1)) >= 0;
+                startsWithWordChar = wordRegExp.search(label.substring(0, 1)) >= 0;
+                endsWithWordChar = wordRegExp.search(label.substring(label.length() - 1, 1)) >= 0;
             }
             
             if (i != 0)
@@ -234,10 +210,10 @@ NSString* Frame::searchForNSLabelsAboveCell(RegularExpression* regExp, HTMLTable
                 for (Node* n = aboveCell->firstChild(); n; n = n->traverseNextNode(aboveCell)) {
                     if (n->isTextNode() && n->renderer() && n->renderer()->style()->visibility() == VISIBLE) {
                         // For each text chunk, run the regexp
-                        DeprecatedString nodeString = n->nodeValue().deprecatedString();
+                        String nodeString = n->nodeValue();
                         int pos = regExp->searchRev(nodeString);
                         if (pos >= 0)
-                            return nodeString.mid(pos, regExp->matchedLength()).getNSString();
+                            return nodeString.substring(pos, regExp->matchedLength());
                     }
                 }
             }
@@ -281,13 +257,13 @@ NSString* Frame::searchForLabelsBeforeElement(NSArray* labels, Element* element)
             searchedCellAbove = true;
         } else if (n->isTextNode() && n->renderer() && n->renderer()->style()->visibility() == VISIBLE) {
             // For each text chunk, run the regexp
-            DeprecatedString nodeString = n->nodeValue().deprecatedString();
+            String nodeString = n->nodeValue();
             // add 100 for slop, to make it more likely that we'll search whole nodes
             if (lengthSearched + nodeString.length() > maxCharsSearched)
                 nodeString = nodeString.right(charsSearchedThreshold - lengthSearched);
             int pos = regExp->searchRev(nodeString);
             if (pos >= 0)
-                return nodeString.mid(pos, regExp->matchedLength()).getNSString();
+                return nodeString.substring(pos, regExp->matchedLength());
 
             lengthSearched += nodeString.length();
         }
@@ -306,9 +282,12 @@ NSString* Frame::searchForLabelsBeforeElement(NSArray* labels, Element* element)
 
 NSString* Frame::matchLabelsAgainstElement(NSArray* labels, Element* element)
 {
-    DeprecatedString name = element->getAttribute(nameAttr).deprecatedString();
+    String name = element->getAttribute(nameAttr);
+    if (name.isEmpty())
+        return nil;
+
     // Make numbers and _'s in field names behave like word boundaries, e.g., "address2"
-    name.replace(RegularExpression("\\d"), " ");
+    replace(name, RegularExpression("\\d"), " ");
     name.replace('_', ' ');
     
     RegularExpression* regExp = regExpForLabels(labels);
@@ -331,7 +310,7 @@ NSString* Frame::matchLabelsAgainstElement(NSArray* labels, Element* element)
     } while (pos != -1);
 
     if (bestPos != -1)
-        return name.mid(bestPos, bestLength).getNSString();
+        return name.substring(bestPos, bestLength);
     return nil;
 }
 
@@ -483,7 +462,7 @@ NSWritingDirection Frame::baseWritingDirectionForSelectionStart() const
 {
     NSWritingDirection result = NSWritingDirectionLeftToRight;
 
-    Position pos = selectionController()->selection().visibleStart().deepEquivalent();
+    Position pos = selection()->selection().visibleStart().deepEquivalent();
     Node* node = pos.node();
     if (!node || !node->renderer() || !node->renderer()->containingBlock())
         return result;
@@ -501,11 +480,6 @@ NSWritingDirection Frame::baseWritingDirectionForSelectionStart() const
     }
 
     return result;
-}
-
-void Frame::issuePasteCommand()
-{
-    [d->m_bridge issuePasteCommand];
 }
 
 const short enableRomanKeyboardsOnly = -23;
@@ -532,6 +506,7 @@ void Frame::setUseSecureKeyboardEntry(bool enable)
     }
 }
 
+#if ENABLE(DASHBOARD_SUPPORT)
 NSMutableDictionary* Frame::dashboardRegionsDictionary()
 {
     Document* doc = document();
@@ -569,143 +544,14 @@ NSMutableDictionary* Frame::dashboardRegionsDictionary()
     
     return webRegions;
 }
-
-void Frame::dashboardRegionsChanged()
-{
-    NSMutableDictionary *webRegions = dashboardRegionsDictionary();
-    [d->m_bridge dashboardRegionsChanged:webRegions];
-}
-
-void Frame::willPopupMenu(NSMenu * menu)
-{
-    [d->m_bridge willPopupMenu:menu];
-}
-
-FloatRect Frame::customHighlightLineRect(const AtomicString& type, const FloatRect& lineRect, Node* node)
-{
-    return [d->m_bridge customHighlightRect:type forLine:lineRect representedNode:node];
-}
-
-void Frame::paintCustomHighlight(const AtomicString& type, const FloatRect& boxRect, const FloatRect& lineRect, bool text, bool line, Node* node)
-{
-    [d->m_bridge paintCustomHighlight:type forBox:boxRect onLine:lineRect behindText:text entireLine:line representedNode:node];
-}
+#endif
 
 DragImageRef Frame::dragImageForSelection() 
 {
-    if (!selectionController()->isRange())
+    if (!selection()->isRange())
         return nil;
     return selectionImage();
 }
-
-#if USE(JAVASCRIPTCORE_BINDINGS)
-KJS::Bindings::Instance* Frame::createScriptInstanceForWidget(WebCore::Widget* widget)
-{
-    NSView* aView = widget->getView();
-    if (!aView)
-        return 0;
-
-    void* nativeHandle = aView;
-    CreateRootObjectFunction createRootObject = RootObject::createRootObject();
-    RefPtr<RootObject> rootObject = createRootObject(nativeHandle);
-
-    if ([aView respondsToSelector:@selector(objectForWebScript)]) {
-        id objectForWebScript = [aView objectForWebScript];
-        if (objectForWebScript)
-            return Instance::createBindingForLanguageInstance(Instance::ObjectiveCLanguage, objectForWebScript, rootObject.release());
-        return 0;
-    } else if ([aView respondsToSelector:@selector(createPluginScriptableObject)]) {
-#if USE(NPOBJECT)
-        NPObject* npObject = [aView createPluginScriptableObject];
-        if (npObject) {
-            Instance* instance = Instance::createBindingForLanguageInstance(Instance::CLanguage, npObject, rootObject.release());
-
-            // -createPluginScriptableObject returns a retained NPObject.  The caller is expected to release it.
-            _NPN_ReleaseObject(npObject);
-            return instance;
-        }
-#endif
-        return 0;
-    }
-
-    jobject applet;
-    
-    // Get a pointer to the actual Java applet instance.
-    if ([d->m_bridge respondsToSelector:@selector(getAppletInView:)])
-        applet = [d->m_bridge getAppletInView:aView];
-    else
-        applet = [d->m_bridge pollForAppletInView:aView];
-    
-    if (applet) {
-        // Wrap the Java instance in a language neutral binding and hand
-        // off ownership to the APPLET element.
-        Instance* instance = Instance::createBindingForLanguageInstance(Instance::JavaLanguage, applet, rootObject.release());
-        return instance;
-    }
-    
-    return 0;
-}
-
-WebScriptObject* Frame::windowScriptObject()
-{
-    if (!scriptProxy()->isEnabled())
-        return 0;
-
-    if (!d->m_windowScriptObject) {
-        KJS::JSLock lock;
-        KJS::JSObject* win = KJS::Window::retrieveWindow(this);
-        KJS::Bindings::RootObject *root = bindingRootObject();
-        d->m_windowScriptObject = [WebScriptObject scriptObjectForJSObject:toRef(win) originRootObject:root rootObject:root];
-    }
-
-    return d->m_windowScriptObject.get();
-}
-
-void Frame::clearPlatformScriptObjects()
-{
-    if (d->m_windowScriptObject) {
-        KJS::Bindings::RootObject* root = bindingRootObject();
-        [d->m_windowScriptObject.get() _setOriginRootObject:root andRootObject:root];
-    }
-}
-
-#else
-
-#warning Untested V8 code!
-
-JSInstance Frame::createScriptInstanceForWidget(Widget* widget)
-{
-    // As in FrameWin.cpp, without the kjs branch.  This should be shared!
-
-    ASSERT(widget != 0);
-
-    if (widget->isFrameView())
-        return JSInstanceHolder::EmptyInstance();
-
-    // Note:  We have to trust that the widget passed to us here
-    // is a WebPluginImpl.  There isn't a way to dynamically verify
-    // it, since the derived class (Widget) has no identifier.
-    WebPluginContainer* container = static_cast<WebPluginContainer*>(widget);
-    if (!container)
-        return JSInstanceHolder::EmptyInstance();
-
-    NPObject *npObject = container->GetPluginScriptableObject();
-    if (!npObject)
-        return JSInstanceHolder::EmptyInstance();
-
-    JSInstance instance = CreateV8ObjectForNPObject(npObject, nil);
-    // GetPluginScriptableObject returns a retained NPObject.  
-    // The caller is expected to release it.
-    NPN_ReleaseObject(npObject);
-    return instance;
-}
-
-void Frame::clearPlatformScriptObjects()
-{
-    // no-op as in FrameWin.cpp
-}
-
-#endif
 
 void Frame::setUserStyleSheetLocation(const KURL& url)
 {
