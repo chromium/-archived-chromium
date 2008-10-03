@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "config.h"
 #include "SkGraphicsContext.h"
 
 #include "base/gfx/platform_canvas_mac.h"
 #include "base/gfx/image_operations.h"
 #include "base/gfx/skia_utils_mac.h"
 #include "base/logging.h"
-#include "GraphicsContextPrivate.h"
+#include "GraphicsContextPlatformPrivate.h"
 #include "SkBitmap.h"
 #include "NativeImageSkia.h"
 #include "SkiaUtils.h"
