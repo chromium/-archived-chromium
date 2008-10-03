@@ -19,7 +19,7 @@ class HashMgr
 #ifdef HUNSPELL_CHROME_CLIENT
   // Not owned by this class, owned by the Hunspell object.
   hunspell::BDictReader* bdict_reader;
-  std::map<StringPiece, struct hentry *> custom_word_to_hentry_map_;
+  std::map<StringPiece, int> custom_word_to_affix_id_map_;
   std::vector<std::string*> pointer_to_strings_;
 #endif
   int             tablesize;

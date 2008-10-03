@@ -119,7 +119,6 @@ HashMgr::~HashMgr()
 
 #ifdef HUNSPELL_CHROME_CLIENT
   EmptyHentryCache();
-  STLDeleteValues(&custom_word_to_hentry_map_);
   for (std::vector<std::string*>::iterator it = pointer_to_strings_.begin(); 
        it != pointer_to_strings_.end(); ++it) {
     delete *it;
@@ -152,12 +151,12 @@ struct hentry * HashMgr::lookup(const char *word) const
   int affix_ids[hunspell::BDict::MAX_AFFIXES_PER_WORD];
   int affix_count = bdict_reader->FindWord(word, affix_ids);
   if (affix_count == 0) { // look for custom added word
-    std::map<StringPiece, struct hentry *>::const_iterator iter = 
-      custom_word_to_hentry_map_.find(word);
-    if (iter != custom_word_to_hentry_map_.end())
-      return iter->second;
-    else
-      return NULL;
+    std::map<StringPiece, int>::const_iterator iter = 
+      custom_word_to_affix_id_map_.find(word);
+    if (iter != custom_word_to_affix_id_map_.end()) {
+      affix_count = 1;
+      affix_ids[0] = iter->second;
+    }
   }
 
   static const int kMaxWordLen = 128;
@@ -243,20 +242,13 @@ int HashMgr::add_word(const char * word, int wl, unsigned short * aff, int al, c
        dp->next = hp;
     }
 #endif  // HUNSPELL_CHROME_CLIENT
-    std::map<StringPiece, struct hentry *>::iterator iter = 
-        custom_word_to_hentry_map_.find(word);
-    if(iter == custom_word_to_hentry_map_.end()) {  // word needs to be added
-      // Make a custom hentry.
-      struct hentry* he = new hentry;
-      he->word = (char *)word;
-      he->wlen = wl;
-      he->next = NULL;
-      he->next_homonym = NULL;
-
+    std::map<StringPiece, int>::iterator iter = 
+        custom_word_to_affix_id_map_.find(word);
+    if(iter == custom_word_to_affix_id_map_.end()) {  // word needs to be added
       std::string* new_string_word = new std::string(word);
       pointer_to_strings_.push_back(new_string_word);
       StringPiece sp(*(new_string_word));
-      custom_word_to_hentry_map_[sp] = he;
+      custom_word_to_affix_id_map_[sp] = 0; // no affixes for custom words
       return 1;
     }
 
