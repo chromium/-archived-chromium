@@ -1338,3 +1338,7 @@ V8 | KJS # LayoutTests/http/tests/security/frame-loading-via-document-write.html
 // Post-merge Debug only Crashes
 V8 | KJS # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
 V8 | KJS # LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
+
+// Post-merge flakey on debug builds (passes consistently on release)
+V8 | KJS # LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
+V8 | KJS # LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
