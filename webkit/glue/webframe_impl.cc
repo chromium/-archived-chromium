@@ -1461,6 +1461,11 @@ void WebFrameImpl::Layout() {
   FrameView* view = frame_->view();
   if (view)
     view->layout();
+
+  // recursively layout child frames
+  Frame* child = frame_->tree()->firstChild();
+  for (; child; child = child->tree()->nextSibling())
+    FromFrame(child)->Layout();
 }
 
 void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
