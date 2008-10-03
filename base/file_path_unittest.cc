@@ -5,7 +5,7 @@
 #include "base/file_path.h"
 
 #include "base/basictypes.h"
-#include "gtest/gtest.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
 // This macro helps avoid wrapped lines in the test structs.
 #define FPL(x) FILE_PATH_LITERAL(x)
