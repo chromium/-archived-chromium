@@ -349,7 +349,7 @@ input_files = [
     '$WEBCORE_DIR/platform/Logging.cpp',
     '$PORT_DIR/platform/MIMETypeRegistry.cpp',
     '$WEBCORE_DIR/platform/ScrollBar.cpp',
-    '$PENDING_DIR/SecurityOrigin.cpp',
+    '$WEBCORE_DIR/platform/SecurityOrigin.cpp',
     '$WEBCORE_DIR/platform/SharedBuffer.cpp',
     '$WEBCORE_DIR/platform/Timer.cpp',
     '$WEBCORE_DIR/platform/Widget.cpp',
