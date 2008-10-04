@@ -6,7 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE"
-		DisableSpecificWarnings="WTF_USE_V8=0;4244; 4291; 4521; 4099;"
+		PreprocessorDefinitions="WTF_USE_V8=0;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE"
+		DisableSpecificWarnings="4244; 4291; 4521; 4099;"
 	/>
 </VisualStudioPropertySheet>
