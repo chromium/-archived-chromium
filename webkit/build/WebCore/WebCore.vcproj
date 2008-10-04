@@ -136,6 +136,22 @@
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\AccessibilityImageMapLink.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\AccessibilityImageMapLink.h"
@@ -4188,6 +4204,14 @@
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLDivElement.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLDivElement.h"

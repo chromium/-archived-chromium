@@ -420,7 +420,6 @@ all : \
     JSHTMLVideoElement.h \
     JSHistory.h \
     JSKeyboardEvent.h \
-    JSLocation.lut.h \
     JSMediaError.h \
     JSMediaList.h \
     JSMessageEvent.h \
@@ -585,7 +584,6 @@ all : \
     JSUIEvent.h \
     JSVoidCallback.h \
     JSWheelEvent.h \
-    JSXMLHttpRequest.lut.h \
     JSXMLHttpRequestException.h \
     JSXMLSerializer.h \
     JSXPathEvaluator.h \
@@ -593,7 +591,6 @@ all : \
     JSXPathExpression.h \
     JSXPathNSResolver.h \
     JSXPathResult.h \
-    JSXSLTProcessor.lut.h \
     SVGElementFactory.cpp \
     SVGNames.cpp \
     HTMLNames.cpp \
@@ -601,10 +598,6 @@ all : \
     XLinkNames.cpp \
     XMLNames.cpp \
     XPathGrammar.cpp \
-    kjs_css.lut.h \
-    kjs_events.lut.h \
-    kjs_navigator.lut.h \
-    kjs_window.lut.h \
     tokenizer.cpp \
     WebCore.exp \
 #

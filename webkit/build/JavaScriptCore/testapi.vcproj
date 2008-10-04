@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="testkjs"
-	ProjectGUID="{5FDEEC10-DC87-4830-9DC6-FC8D2F373E80}"
-	RootNamespace="testkjs"
+	Name="testapi"
+	ProjectGUID="{BF27B0A0-08B1-44EB-B0A2-E58C187FB087}"
+	RootNamespace="testapi"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\bug_1124849_debug.vsprops;.\testkjs.vsprops"
+			InheritedPropertySheets=".\bug_1124849_debug.vsprops;.\testapi.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -78,7 +78,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets=".\bug_1124849_release.vsprops;.\testkjs.vsprops"
+			InheritedPropertySheets=".\bug_1124849_release.vsprops;.\testapi.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -140,7 +140,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\testkjs.cpp"
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\API\tests\testapi.js"
 			>
 		</File>
 	</Files>

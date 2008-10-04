@@ -164,9 +164,11 @@ public:
     ScriptController(Frame*);
     ~ScriptController();
 
+#if USE(V8)
     // TODO(eseidel): V8Proxy should either be folded into ScriptController
     // or this accessor should be made JSProxy*
     V8Proxy* proxy() { return m_proxy.get(); }
+#endif
 
     // Evaluate a script file in the environment of this proxy.
     // If succeeded, 'succ' is set to true and result is returned

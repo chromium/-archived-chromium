@@ -84,17 +84,7 @@ then
   $CP $JavaScriptCoreSrcDir/API/JSObjectRef.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/API/JSContextRef.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/API/JSStringRef.h $JSHeadersDir/JavaScriptCore
-
-  $CP $WebCoreSrcDir/bridge/npapi.h $JSHeadersDir
-  $CP $WebCoreSrcDir/bridge/npruntime.h $JSHeadersDir
-  $CP $WebCoreSrcDir/bridge/npruntime_internal.h $JSHeadersDir
-  $CP $WebCoreSrcDir/bridge/npruntime_impl.h $JSHeadersDir
-  $CP $WebCoreSrcDir/bridge/npruntime_priv.h $JSHeadersDir
-
-  $CP $WebCoreSrcDir/bridge/runtime.h $JSHeadersDir/JavaScriptCore
-  $CP $WebCoreSrcDir/bridge/np_jsobject.h $JSHeadersDir/JavaScriptCore
-  $CP $WebCoreSrcDir/bridge/runtime_object.h $JSHeadersDir/JavaScriptCore
-  $CP $WebCoreSrcDir/bridge/runtime_root.h $JSHeadersDir/JavaScriptCore
+  $CP $JavaScriptCoreSrcDir/API/WebKitAvailability.h $JSHeadersDir/JavaScriptCore
 
   $CP $JavaScriptCoreSrcDir/kjs/JSImmediate.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/kjs/JSLock.h $JSHeadersDir/JavaScriptCore
@@ -103,7 +93,7 @@ then
   $CP $JavaScriptCoreSrcDir/kjs/interpreter.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/kjs/protect.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/kjs/ustring.h $JSHeadersDir/JavaScriptCore
-  $CP $JavaScriptCoreSrcDir/kjs/value.h $JSHeadersDir/JavaScriptCore
+  $CP $JavaScriptCoreSrcDir/kjs/JSValue.h $JSHeadersDir/JavaScriptCore
 
   $CP $JavaScriptCoreSrcDir/wtf/HashCountedSet.h $JSHeadersDir/JavaScriptCore
 else 

@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="testkjs"
+	Name="testapi"
 	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\external_code.vsprops"
 	>
 	<Tool
