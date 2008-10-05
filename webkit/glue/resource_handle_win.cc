@@ -686,6 +686,8 @@ PassRefPtr<SharedBuffer> ResourceHandle::bufferedData() {
 
   ResourceLoaderBridge::SyncLoadResponse sync_load_response;
   if (!handle->d->Start(&sync_load_response)) {
+    response =
+        ResourceResponse(request.url(), String(), 0, String(), String());
     // TODO(darin): what should the error code really be?
     error = ResourceError(net::kErrorDomain,
                           net::ERR_FAILED,
@@ -696,12 +698,12 @@ PassRefPtr<SharedBuffer> ResourceHandle::bufferedData() {
 
   KURL kurl = webkit_glue::GURLToKURL(sync_load_response.url);
 
-  // TODO(tc): If there's an error during the load, we don't set the response.
-  // For file loads, we may want to include a more descriptive status code or
-  // status text.
+  // TODO(tc): For file loads, we may want to include a more descriptive
+  // status code or status text.
   const URLRequestStatus::Status& status = sync_load_response.status.status();
   if (status != URLRequestStatus::SUCCESS &&
       status != URLRequestStatus::HANDLED_EXTERNALLY) {
+    response = ResourceResponse(kurl, String(), 0, String(), String());
     error = ResourceError(net::kErrorDomain,
                           sync_load_response.status.os_error(),
                           kurl.string(),
