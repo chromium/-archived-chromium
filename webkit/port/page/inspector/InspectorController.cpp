@@ -1121,7 +1121,15 @@ static JSValueRef debuggerAttached(JSContextRef ctx, JSObjectRef /*function*/, J
 #pragma mark InspectorController Class
 
 InspectorController::InspectorController(Page* page, InspectorClient* client)
-    : m_bug1228513_inspectorState(bug1228513::VALID)
+    :
+#if USE(V8)
+      // The V8 version of InspectorController is RefCounted while the JSC
+      // version uses an OwnPtr (http://b/904340).  However, since we're not
+      // using a create method to initialize the InspectorController, we need
+      // to start the RefCount at 0.
+      RefCounted(0),
+#endif
+      m_bug1228513_inspectorState(bug1228513::VALID)
     , m_inspectedPage(page)
     , m_client(client)
     , m_page(0)
