@@ -49,7 +49,7 @@
 
 //TODO(eseidel): We should remove this glue dependency
 #undef LOG // glue defines its own LOG macro
-#include "glue/webplugin_impl.h"
+#include "webkit/glue/webplugin_impl.h"
 
 NPRuntimeFunctions npruntime_functions = {
     NPN_GetStringIdentifier,
