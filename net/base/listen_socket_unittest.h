@@ -75,7 +75,7 @@ class ListenSocketTester :
     InitializeCriticalSection(&lock_);
     semaphore_ = CreateSemaphore(NULL, 0, MAX_QUEUE_SIZE, NULL);
     server_ = NULL;
-    net::WinsockInit::Init();
+    net::EnsureWinsockInit();
 
     thread_.reset(new base::Thread("socketio_test"));
     thread_->Start();
@@ -124,7 +124,6 @@ class ListenSocketTester :
     }
     thread_.reset();
     loop_ = NULL;
-    net::WinsockInit::Cleanup();
   }
 
   void ReportAction(const ListenSocketTestAction& action) {

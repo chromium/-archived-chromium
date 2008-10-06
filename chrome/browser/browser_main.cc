@@ -423,7 +423,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   PrepareRestartOnCrashEnviroment(parsed_command_line);
 
   // Initialize Winsock.
-  net::WinsockInit init;
+  net::EnsureWinsockInit();
 
   // Initialize the DNS prefetch system
   chrome_browser_net::DnsPrefetcherInit dns_prefetch_init(user_prefs);

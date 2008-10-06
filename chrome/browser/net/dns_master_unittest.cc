@@ -140,7 +140,7 @@ TimeDelta BlockingDnsLookup(const std::string& hostname) {
 // of DNS prefetching.
 TEST(DnsMasterTest, OsCachesLookupsTest) {
   SetupNetworkInfrastructure();
-  net::WinsockInit ws_init;
+  net::EnsureWinsockInit();
 
   for (int i = 0; i < 5; i++) {
     std::string badname;
@@ -160,7 +160,7 @@ TEST(DnsMasterTest, StartupShutdownTest) {
 
 TEST(DnsMasterTest, BenefitLookupTest) {
   SetupNetworkInfrastructure();
-  net::WinsockInit ws_init;
+  net::EnsureWinsockInit();
   DnsPrefetcherInit dns_init(NULL);  // Creates global service .
   DnsMaster testing_master(TimeDelta::FromMilliseconds(5000));
 
@@ -237,7 +237,7 @@ TEST(DnsMasterTest, BenefitLookupTest) {
 
 TEST(DnsMasterTest, DISABLED_SingleSlaveLookupTest) {
   SetupNetworkInfrastructure();
-  net::WinsockInit ws_init;
+  net::EnsureWinsockInit();
   DnsPrefetcherInit dns_init(NULL);  // Creates global service.
   DnsMaster testing_master(TimeDelta::FromMilliseconds(5000));
 
@@ -289,7 +289,7 @@ TEST(DnsMasterTest, DISABLED_SingleSlaveLookupTest) {
 
 TEST(DnsMasterTest, DISABLED_MultiThreadedLookupTest) {
   SetupNetworkInfrastructure();
-  net::WinsockInit ws_init;
+  net::EnsureWinsockInit();
   DnsMaster testing_master(TimeDelta::FromSeconds(30));
   DnsPrefetcherInit dns_init(NULL);
 
@@ -336,7 +336,7 @@ TEST(DnsMasterTest, DISABLED_MultiThreadedLookupTest) {
 
 TEST(DnsMasterTest, DISABLED_MultiThreadedSpeedupTest) {
   SetupNetworkInfrastructure();
-  net::WinsockInit ws_init;
+  net::EnsureWinsockInit();
   DnsMaster testing_master(TimeDelta::FromSeconds(30));
   DnsPrefetcherInit dns_init(NULL);
 
