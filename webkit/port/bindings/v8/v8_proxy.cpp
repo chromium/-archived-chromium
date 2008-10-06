@@ -79,6 +79,7 @@
 #include "CSSRule.h"
 #include "CSSRuleList.h"
 #include "CSSValueList.h"
+#include "CSSVariablesDeclaration.h"
 #include "FrameLoader.h"
 #include "FrameTree.h"
 #include "RangeException.h"
@@ -1103,6 +1104,9 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     case V8ClassIndex::CSSVALUELIST:
       SetCollectionIndexedGetter<CSSValueList>(desc, V8ClassIndex::CSSVALUE);
+      break;
+    case V8ClassIndex::CSSVARIABLESDECLARATION:
+      SetCollectionStringOrNullIndexedGetter<CSSVariablesDeclaration>(desc);
       break;
     case V8ClassIndex::UNDETECTABLEHTMLCOLLECTION:
       desc->InstanceTemplate()->MarkAsUndetectable();  // fall through
