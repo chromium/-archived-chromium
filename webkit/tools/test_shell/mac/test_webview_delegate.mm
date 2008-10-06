@@ -616,12 +616,6 @@ void TestWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
   shell_->webView()->SetPreferences(*prefs);
 }
 
-void TestWebViewDelegate::SetDashboardCompatibilityMode(bool use_mode) {
-  WebPreferences* prefs = shell_->GetWebPreferences();
-  prefs->dashboard_compatibility_mode = use_mode;
-  shell_->webView()->SetPreferences(*prefs);
-}
-
 // WebWidgetDelegate ---------------------------------------------------------
 
 gfx::ViewHandle TestWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {

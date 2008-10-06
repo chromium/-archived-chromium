@@ -669,7 +669,7 @@
 			isa = PBXGroup;
 			children = (
 				7B8200940E76FD84008F45CF /* Configuration */,
-				AB1E8EFA0DB7B95C00742926 /* test_shell */,
+				AB1E8EFA0DB7B95C00742926 /* Source */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				7B8200D20E76FE73008F45CF /* Projects */,
@@ -942,7 +942,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		AB1E8EFA0DB7B95C00742926 /* test_shell */ = {
+		AB1E8EFA0DB7B95C00742926 /* Source */ = {
 			isa = PBXGroup;
 			children = (
 				7BFDF4FD0E37AB4200F1D7D8 /* mac */,
@@ -972,7 +972,7 @@
 				ABD16F390DC6A73B0013D3AA /* webwidget_host.h */,
 				ABD16F380DC6A73B0013D3AA /* webwidget_host.mm */,
 			);
-			name = test_shell;
+			name = Source;
 			path = ..;
 			sourceTree = "<group>";
 		};
@@ -1596,6 +1596,7 @@
 					../../../../testing/gtest/include,
 					../../../../third_party/icu38/public/common,
 					../../../../third_party/icu38/public/i18n,
+					../../../../third_party/npapi,
 					../../../pending,
 					../../../../third_party/WebKit/WebCore,
 					../../../../third_party/WebKit/JavaScriptCore,
@@ -1629,6 +1630,7 @@
 					../../../../testing/gtest/include,
 					../../../../third_party/icu38/public/common,
 					../../../../third_party/icu38/public/i18n,
+					../../../../third_party/npapi,
 					../../../pending,
 					../../../../third_party/WebKit/WebCore,
 					../../../../third_party/WebKit/JavaScriptCore,
