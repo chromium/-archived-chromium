@@ -115,6 +115,13 @@ namespace WebCore {
           m_securityInfo = value;
         }
 
+#if PLATFORM(MAC)
+        // WebCore/loader/FrameLoader.cpp calls this on PLATFORM_MAC.
+        // TODO(mmentovai): Remove this when Chromium on the Mac no longer
+        // uses PLATFORM_MAC.
+        void applyWebArchiveHackForMail() {}
+#endif
+
     private:
         friend class ResourceRequestBase;
 
