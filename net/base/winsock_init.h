@@ -2,35 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Winsock initialization must happen before any Winsock calls are made.  This
-// class provides a wrapper for WSAStartup and WSACleanup. There are 3 ways to
-// use it: either allocate a new WinsockInit object at startup and delete when
-// shutting down, manually call Init and Cleanup, or use the EnsureWinsockInit
-// method, which may be called multiple times.  In the second case, Cleanup
-// should only be called if Init was successful.
+// Winsock initialization must happen before any Winsock calls are made.  The
+// EnsureWinsockInit method will make sure that WSAStartup has been called.  If
+// the call to WSAStartup caused Winsock to initialize, WSACleanup will be
+// called automatically on program shutdown.
 
 #ifndef NET_BASE_WINSOCK_INIT_H_
 #define NET_BASE_WINSOCK_INIT_H_
 
 namespace net {
 
-class WinsockInit {
- public:
-  WinsockInit();
-  ~WinsockInit();
-
-  static bool Init();
-  static void Cleanup();
-
- private:
-  bool did_init_;
-};
-
-// Force there to be a global WinsockInit object that gets created once and
-// destroyed at application exit.  This may be called multiple times.
+// Make sure that Winsock is initialized, calling WSAStartup if needed.
 void EnsureWinsockInit();
 
 }  // namespace net
 
 #endif  // NET_BASE_WINSOCK_INIT_H_
-
