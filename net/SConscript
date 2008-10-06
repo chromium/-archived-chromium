@@ -230,6 +230,7 @@ unittest_files = [
     'base/cookie_policy_unittest.cc',
     'base/data_url_unittest.cc',
     'base/escape_unittest.cc',
+    'base/file_input_stream_unittest.cc',
     'base/gzip_filter_unittest.cc',
     'base/host_resolver_unittest.cc',
     'base/mime_sniffer_unittest.cc',
@@ -258,7 +259,6 @@ unittest_files = [
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
       'base/directory_lister_unittest.cc',
-      'base/file_input_stream_unittest.cc',
       'base/sdch_filter_unitest.cc',
       'base/ssl_config_service_unittest.cc',
       'base/ssl_client_socket_unittest.cc',

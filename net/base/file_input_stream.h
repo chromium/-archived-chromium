@@ -17,10 +17,11 @@ typedef void* HANDLE;
 namespace net {
 
 // TODO(darin): Move this to a more generic location.
+// This explicit mapping matches both FILE_ on Windows and SEEK_ on Linux.
 enum Whence {
-  FROM_BEGIN,
-  FROM_CURRENT,
-  FROM_END
+  FROM_BEGIN   = 0,
+  FROM_CURRENT = 1,
+  FROM_END     = 2
 };
 
 class FileInputStream {
@@ -35,10 +36,7 @@ class FileInputStream {
   // Call this method to open the FileInputStream.  The remaining methods
   // cannot be used unless this method returns OK.  If the file cannot be
   // opened then an error code is returned.
-  //
-  // NOTE: The file input stream is opened with non-exclusive access to the
-  // underlying file.
-  //
+  // NOTE: The underlying file is opened with non-exclusive access.
   int Open(const std::wstring& path, bool asynchronous_mode);
 
   // Returns true if Open succeeded and Close has not been called.
@@ -82,6 +80,8 @@ class FileInputStream {
 
 #if defined(OS_WIN)
   HANDLE handle_;
+#elif defined(OS_POSIX)
+  int fd_;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(FileInputStream);
