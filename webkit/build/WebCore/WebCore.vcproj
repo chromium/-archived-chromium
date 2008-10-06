@@ -242,7 +242,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Console.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Console.h"
 				>
 			</File>
 			<File
@@ -266,11 +266,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\DOMWindow.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\DOMWindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\DOMWindow.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\DOMWindow.h"
 				>
 			</File>
 			<File
@@ -282,7 +282,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\DragController.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\DragController.cpp"
 				>
 			</File>
 			<File
@@ -290,7 +290,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\EventHandler.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\EventHandler.cpp"
 				>
 			</File>
 			<File
@@ -310,7 +310,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Frame.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Frame.cpp"
 				>
 			</File>
 			<File
@@ -433,7 +433,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\pending\CompositeAnimation.h"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\page\animation\CompositeAnimation.h"
 					>
 				</File>
 				<File
@@ -466,7 +466,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\CachedCSSStyleSheet.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\CachedCSSStyleSheet.cpp"
 				>
 			</File>
 			<File
@@ -494,7 +494,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\CachedResource.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\CachedResource.h"
 				>
 			</File>
 			<File
@@ -510,7 +510,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\CachedScript.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\CachedScript.cpp"
 				>
 			</File>
 			<File
@@ -554,7 +554,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\EmptyClients.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\EmptyClients.h"
 				>
 			</File>
 			<File
@@ -566,15 +566,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\FrameLoader.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\FrameLoader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\FrameLoader.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\FrameLoader.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\FrameLoaderClient.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\FrameLoaderClient.h"
 				>
 			</File>
 			<File
@@ -830,7 +830,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\FileSystem.h"
+				RelativePath="...\..\..\third_party\WebKit\WebCore\platform\FileSystem.h"
 				>
 			</File>
 			<File
@@ -838,7 +838,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Font.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\Font.cpp"
 				>
 			</File>
 			<File
@@ -846,11 +846,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\FontCache.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FontCache.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\FontCache.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FontCache.h"
 				>
 			</File>
 			<File
@@ -858,7 +858,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\FontDescription.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FontDescription.h"
 				>
 			</File>
 			<File
@@ -1357,7 +1357,7 @@
 				Name="win"
 				>
 				<File
-					RelativePath="..\..\pending\FileSystemWin.cpp"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\win\FileSystemWin.cpp"
 					>
 				</File>
 			</Filter>
@@ -1365,11 +1365,11 @@
 				Name="text"
 				>
 				<File
-					RelativePath="..\..\pending\AtomicString.cpp"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\AtomicString.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\pending\AtomicString.h"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\AtomicString.h"
 					>
 				</File>
 				<File
@@ -1846,7 +1846,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\CSSStyleSelector.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\css\CSSStyleSelector.cpp"
 				>
 			</File>
 			<File
@@ -3158,11 +3158,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Document.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Document.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Document.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Document.h"
 				>
 			</File>
 			<File
@@ -3678,7 +3678,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\DeleteButtonController.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\DeleteButtonController.cpp"
 				>
 			</File>
 			<File
@@ -4042,11 +4042,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\CanvasRenderingContext2D.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\html\CanvasRenderingContext2D.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\CanvasRenderingContext2D.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\html\CanvasRenderingContext2D.h"
 				>
 			</File>
 			<File
