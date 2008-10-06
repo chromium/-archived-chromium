@@ -623,9 +623,9 @@ PassRefPtr<ResourceHandle> ResourceHandle::create(const ResourceRequest& request
                                                   bool defersLoading,
                                                   bool shouldContentSniff,
                                                   bool mightDownloadFromHandle) {
-  RefPtr<ResourceHandle> newHandle(
-      new ResourceHandle(request, client, defersLoading, shouldContentSniff,
-                         mightDownloadFromHandle));
+  RefPtr<ResourceHandle> newHandle =
+      adoptRef(new ResourceHandle(request, client, defersLoading,
+                         shouldContentSniff, mightDownloadFromHandle));
 
   if (newHandle->start(NULL))
     return newHandle.release();
