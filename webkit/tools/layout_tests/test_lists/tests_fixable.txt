@@ -707,10 +707,6 @@ V8 # LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL | PASS
 // installed to run.
 V8 | KJS # chrome/fast/dom/java-applet-calls.html = FAIL
 
-// These tests don't work if office is not installed. See bug # 2303
-V8 # LayoutTests/css1/font_properties/font_family.html = FAIL | PASS
-V8 # chrome/fonts/papyrus.html = FAIL | PASS
-
 // These tests don't work on the open source buildbot because the font for
 // the "->" char is different. See Bug # 2304
 V8 # LayoutTests/css2.1/t0805-c5518-brdr-t-01-e.html = FAIL | PASS
