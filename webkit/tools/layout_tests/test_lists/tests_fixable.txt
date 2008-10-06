@@ -884,12 +884,6 @@ V8 | KJS # LayoutTests/fast/forms/autofocus-opera-008.html = FAIL
 # http://code.google.com/p/chromium/issues/detail?id=3005
 V8 | KJS # LayoutTests/fast/events/tabindex-focus-blur-all.html = TIMEOUT
 
-# These tests have different mouse click messages that expected. This could
-# be a bug or an expected platform difference.
-# http://code.google.com/p/chromium/issues/detail?id=3007
-V8 | KJS # LayoutTests/fast/events/mouse-click-events.html = FAIL
-V8 | KJS # LayoutTests/fast/events/mouseup-from-button2.html = FAIL
-
 # Regression from the webkit merge submitting forms to reference fragments.
 # http://code.google.com/p/chromium/issues/detail?id=3008
 V8 | KJS # LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL

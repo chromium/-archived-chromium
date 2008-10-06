@@ -71,9 +71,12 @@ class EventSendingController : public CppBoundClass {
   static void DoMouseUp(const WebMouseEvent& e);
   static void ReplaySavedEvents();
 
-  // Helper to extract the optional arg from mouseDown() and mouseUp()
-  static WebMouseEvent::Button GetButtonTypeFromSingleArg(
-      const CppArgumentList& args);
+  // Helper to return the button type given a button code
+  static WebMouseEvent::Button GetButtonTypeFromButtonNumber(int button_code);
+
+  // Helper to extract the button number from the optional argument in
+  // mouseDown and mouseUp
+  static int GetButtonNumberFromSingleArg(const CppArgumentList& args);
 
   // Returns true if the key_code passed in needs a shift key modifier to
   // be passed into the generated event.
@@ -87,6 +90,11 @@ class EventSendingController : public CppBoundClass {
 
   // Currently pressed mouse button (Left/Right/Middle or None)
   static WebMouseEvent::Button pressed_button_;
+
+  // The last button number passed to mouseDown and mouseUp.
+  // Used to determine whether the click count continues to
+  // increment or not.
+  static int last_button_number_;
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_EVENT_SENDING_CONTROLLER_H_
