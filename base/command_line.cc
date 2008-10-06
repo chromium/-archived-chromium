@@ -29,6 +29,7 @@ const wchar_t* const CommandLine::kSwitchPrefixes[] = {L"--", L"-"};
 #endif
 
 const wchar_t CommandLine::kSwitchValueSeparator[] = L"=";
+const wchar_t CommandLine::kSwitchTerminator[] = L"--";
 
 // Needed to avoid a typecast on the tolower() function pointer in Lowercase().
 // MSVC accepts it as-is but GCC requires the typecast.
@@ -88,9 +89,20 @@ class CommandLine::Data {
     // Populate program_ with the trimmed version of the first arg.
     TrimWhitespace(args[0], TRIM_ALL, &program_);
 
+    bool parse_switches = true;
     for (int i = 1; i < num_args; ++i) {
       wstring arg;
       TrimWhitespace(args[i], TRIM_ALL, &arg);
+
+      if (!parse_switches) {
+        loose_values_.push_back(arg);
+        continue;
+      }
+
+      if (arg == kSwitchTerminator) {
+        parse_switches = false;
+        continue;
+      }
 
       wstring switch_string;
       wstring switch_value;
@@ -113,10 +125,21 @@ class CommandLine::Data {
     program_ = base::SysNativeMBToWide(argv[0]);
     command_line_string_ = program_;
 
+    bool parse_switches = true;
     for (int i = 1; i < argc; ++i) {
       std::wstring arg = base::SysNativeMBToWide(argv[i]);
       command_line_string_.append(L" ");
       command_line_string_.append(arg);
+
+      if (!parse_switches) {
+        loose_values_.push_back(arg);
+        continue;
+      }
+
+      if (arg == kSwitchTerminator) {
+        parse_switches = false;
+        continue;
+      }
 
       wstring switch_string;
       wstring switch_value;

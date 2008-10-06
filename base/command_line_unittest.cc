@@ -21,6 +21,7 @@ TEST(CommandLineTest, CommandLineConstructor) {
                  L"--other-switches=\"--dog=canine --cat=feline\" "
                  L"-spaetzle=Crepe   -=loosevalue  flan "
                  L"--input-translation=\"45\"--output-rotation "
+                 L"-- -- --not-a-switch "
                  L"\"in the time of submarines...\"");
 #elif defined(OS_POSIX)
   const char* argv[] = {"program", "--foo=", "-bAr", 
@@ -28,6 +29,7 @@ TEST(CommandLineTest, CommandLineConstructor) {
                         "--other-switches=--dog=canine --cat=feline",
                         "-spaetzle=Crepe", "-=loosevalue", "flan",
                         "--input-translation=45--output-rotation",
+                        "--", "--", "--not-a-switch",
                         "in the time of submarines..."};
   CommandLine cl(arraysize(argv), argv);
 #endif
@@ -38,6 +40,8 @@ TEST(CommandLineTest, CommandLineConstructor) {
   EXPECT_FALSE(cl.HasSwitch(L"dog"));
   EXPECT_FALSE(cl.HasSwitch(L"cat"));
   EXPECT_FALSE(cl.HasSwitch(L"output-rotation"));
+  EXPECT_FALSE(cl.HasSwitch(L"not-a-switch"));
+  EXPECT_FALSE(cl.HasSwitch(L"--"));
 
   EXPECT_EQ(L"program", cl.program());
 
@@ -56,12 +60,16 @@ TEST(CommandLineTest, CommandLineConstructor) {
   EXPECT_EQ(L"--dog=canine --cat=feline", cl.GetSwitchValue(L"other-switches"));
   EXPECT_EQ(L"45--output-rotation", cl.GetSwitchValue(L"input-translation"));
 
-  EXPECT_EQ(3U, cl.GetLooseValueCount());
+  EXPECT_EQ(5U, cl.GetLooseValueCount());
 
   CommandLine::LooseValueIterator iter = cl.GetLooseValuesBegin();
   EXPECT_EQ(L"flim", *iter);
   ++iter;
   EXPECT_EQ(L"flan", *iter);
+  ++iter;
+  EXPECT_EQ(L"--", *iter);
+  ++iter;
+  EXPECT_EQ(L"--not-a-switch", *iter);
   ++iter;
   EXPECT_EQ(L"in the time of submarines...", *iter);
   ++iter;
@@ -116,4 +124,3 @@ TEST(CommandLineTest, AppendSwitches) {
   EXPECT_EQ(value4.substr(1, value4.length() - 2), cl.GetSwitchValue(switch4));
 }
 #endif
-
