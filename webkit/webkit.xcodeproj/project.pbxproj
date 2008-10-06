@@ -650,7 +650,6 @@
 		E45624B20E268E87005E4685 /* WindowFeatures.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F1C0D7F3C49001ECF42 /* WindowFeatures.cpp */; };
 		E45624B30E268E87005E4685 /* Arena.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F7D0D7F3CC1001ECF42 /* Arena.cpp */; };
 		E45624B50E268E87005E4685 /* FileSystemCF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F830D7F3CC1001ECF42 /* FileSystemCF.cpp */; };
-		E45624B60E268E87005E4685 /* KURLCFNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F840D7F3CC1001ECF42 /* KURLCFNet.cpp */; };
 		E45624B70E268E87005E4685 /* ContextMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F860D7F3CC1001ECF42 /* ContextMenu.cpp */; };
 		E45624B90E268E87005E4685 /* DeprecatedPtrListImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F900D7F3CC1001ECF42 /* DeprecatedPtrListImpl.cpp */; };
 		E45624BC0E268E87005E4685 /* DeprecatedValueListImpl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F980D7F3CC1001ECF42 /* DeprecatedValueListImpl.cpp */; };
@@ -712,7 +711,6 @@
 		E45624F70E268E87005E4685 /* FileChooserMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E20D7F3CC2001ECF42 /* FileChooserMac.mm */; };
 		E45624F80E268E87005E4685 /* FileSystemMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E30D7F3CC2001ECF42 /* FileSystemMac.mm */; };
 		E45624F90E268E87005E4685 /* KeyEventMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E50D7F3CC2001ECF42 /* KeyEventMac.mm */; };
-		E45624FA0E268E87005E4685 /* KURLMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E60D7F3CC2001ECF42 /* KURLMac.mm */; };
 		E45624FB0E268E87005E4685 /* Language.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E70D7F3CC2001ECF42 /* Language.mm */; };
 		E45624FC0E268E87005E4685 /* LocalCurrentGraphicsContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E90D7F3CC2001ECF42 /* LocalCurrentGraphicsContext.mm */; };
 		E45624FD0E268E87005E4685 /* LocalizedStringsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90EA0D7F3CC2001ECF42 /* LocalizedStringsMac.mm */; };
@@ -7460,8 +7458,6 @@
 				E45623C90E268E87005E4685 /* KeyboardEvent.cpp in Sources */,
 				E45624F90E268E87005E4685 /* KeyEventMac.mm in Sources */,
 				E45624EA0E268E87005E4685 /* KURL.cpp in Sources */,
-				E45624B60E268E87005E4685 /* KURLCFNet.cpp in Sources */,
-				E45624FA0E268E87005E4685 /* KURLMac.mm in Sources */,
 				E45624FB0E268E87005E4685 /* Language.mm in Sources */,
 				E45625540E268E87005E4685 /* LayoutState.cpp in Sources */,
 				E45625550E268E87005E4685 /* ListMarkerBox.cpp in Sources */,
