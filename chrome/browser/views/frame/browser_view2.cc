@@ -335,7 +335,8 @@ void BrowserView2::SelectedTabToolbarSizeChanged(bool is_animating) {
 
 void BrowserView2::UpdateTitleBar() {
   frame_->GetWindow()->UpdateWindowTitle();
-  frame_->GetWindow()->UpdateWindowIcon();
+  if (ShouldShowWindowIcon())
+    frame_->GetWindow()->UpdateWindowIcon();
 }
 
 void BrowserView2::Activate() {
@@ -396,7 +397,8 @@ void BrowserView2::SetAcceleratorTable(
 }
 
 void BrowserView2::ValidateThrobber() {
-  frame_->GetWindow()->UpdateWindowIcon();
+  if (ShouldShowWindowIcon())
+    frame_->GetWindow()->UpdateWindowIcon();
 }
 
 gfx::Rect BrowserView2::GetNormalBounds() {
