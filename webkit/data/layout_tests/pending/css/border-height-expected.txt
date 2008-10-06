@@ -1,1 +1,9 @@
-FAIL: We need to fix this bug first and then generate the correct expected results
+layer at (0,0) size 785x4156
+  RenderView at (0,0) size 785x600
+layer at (0,0) size 785x4156
+  RenderBlock {HTML} at (0,0) size 785x4156
+    RenderBody {BODY} at (8,16) size 769x4132
+      RenderBlock {P} at (0,0) size 769x20
+        RenderText {#text} at (0,0) size 516x19
+          text run at (0,0) width 516: "border-right should be honored irrespective of the elements height. See bug#1059184"
+      RenderBlock {DIV} at (0,36) size 505x4096 [border: (1px dotted #000000) (4px solid #8394B2)]

@@ -207,9 +207,6 @@ V8 | KJS # pending/fast/forms/image-border.html = FAIL
 // Bug 1055396.  Vertical scrollbar created when there is no overflow.
 V8 | KJS # pending/fast/forms/textarea-scrollbar-height.html = FAIL
 
-// Bug 1059184.  Dashed border-right isn't drawn on tall elements.
-V8 | KJS # pending/css/border-height.html = FAIL
-
 // -----------------------------------------------------------------
 // Other
 // -----------------------------------------------------------------
