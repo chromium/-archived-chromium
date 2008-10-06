@@ -135,7 +135,8 @@ ACCESSOR_SETTER(XMLHttpRequestOnabort) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnAbortListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -148,7 +149,7 @@ ACCESSOR_GETTER(XMLHttpRequestOnerror) {
   XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, info.Holder());
   if (imp->onErrorListener()) {
-    V8XHREventListener* listener =
+    RefPtr<V8XHREventListener> listener =
         static_cast<V8XHREventListener*>(imp->onErrorListener());
     v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
     return v8_listener;
@@ -175,7 +176,8 @@ ACCESSOR_SETTER(XMLHttpRequestOnerror) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnErrorListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -215,9 +217,10 @@ ACCESSOR_SETTER(XMLHttpRequestOnload)
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
-      imp->setOnload(listener);
+      imp->setOnload(listener.get());
       CreateHiddenXHRDependency(info.Holder(), value);
     }
   }
@@ -255,7 +258,8 @@ ACCESSOR_SETTER(XMLHttpRequestOnloadstart) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnLoadStartListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -295,7 +299,8 @@ ACCESSOR_SETTER(XMLHttpRequestOnprogress) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnProgressListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -336,9 +341,10 @@ ACCESSOR_SETTER(XMLHttpRequestOnreadystatechange)
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
-      imp->setOnreadystatechange(listener);
+      imp->setOnreadystatechange(listener.get());
       CreateHiddenXHRDependency(info.Holder(), value);
     }
   }
@@ -354,7 +360,8 @@ CALLBACK_FUNC_DECL(XMLHttpRequestAddEventListener)
   if (!proxy)
     return v8::Undefined();
 
-  EventListener* listener = proxy->FindOrCreateXHREventListener(args[1], false);
+  RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(args[1], false);
   if (listener) {
     String type = ToWebCoreString(args[0]);
     bool useCapture = args[2]->BooleanValue();
@@ -374,13 +381,13 @@ CALLBACK_FUNC_DECL(XMLHttpRequestRemoveEventListener) {
   if (!proxy)
     return v8::Undefined();  // probably leaked
 
-  EventListener* listener =
+  RefPtr<EventListener> listener =
     proxy->FindXHREventListener(args[1], false);
 
   if (listener) {
     String type = ToWebCoreString(args[0]);
     bool useCapture = args[2]->BooleanValue();
-    imp->removeEventListener(type, listener, useCapture);
+    imp->removeEventListener(type, listener.get(), useCapture);
 
     RemoveHiddenXHRDependency(args.Holder(), args[1]);
   }
@@ -566,7 +573,8 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnabort) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnAbortListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -607,7 +615,8 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnerror) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnErrorListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -648,7 +657,8 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnload) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnLoadListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -689,7 +699,8 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnloadstart) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnLoadStartListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -730,7 +741,8 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnprogress) {
     if (!proxy)
       return;
 
-    EventListener* listener = proxy->FindOrCreateXHREventListener(value, false);
+    RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(value, false);
     if (listener) {
       imp->setOnProgressListener(listener);
       CreateHiddenXHRDependency(info.Holder(), value);
@@ -748,7 +760,8 @@ CALLBACK_FUNC_DECL(XMLHttpRequestUploadAddEventListener) {
   if (!proxy)
     return v8::Undefined();
 
-  EventListener* listener = proxy->FindOrCreateXHREventListener(args[1], false);
+  RefPtr<EventListener> listener =
+      proxy->FindOrCreateXHREventListener(args[1], false);
   if (listener) {
     String type = ToWebCoreString(args[0]);
     bool useCapture = args[2]->BooleanValue();
@@ -769,13 +782,13 @@ CALLBACK_FUNC_DECL(XMLHttpRequestUploadRemoveEventListener) {
   if (!proxy)
     return v8::Undefined();  // probably leaked
 
-  EventListener* listener =
+  RefPtr<EventListener> listener =
     proxy->FindXHREventListener(args[1], false);
 
   if (listener) {
     String type = ToWebCoreString(args[0]);
     bool useCapture = args[2]->BooleanValue();
-    imp->removeEventListener(type, listener, useCapture);
+    imp->removeEventListener(type, listener.get(), useCapture);
 
     RemoveHiddenXHRDependency(args.Holder(), args[1]);
   }

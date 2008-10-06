@@ -779,17 +779,18 @@ void V8Proxy::SetJSWrapperForDOMNode(Node* node, v8::Persistent<v8::Object> wrap
     dom_node_map().set(node, wrapper);
 }
 
-PassRefPtr<EventListener> V8Proxy::createHTMLEventHandler(const String& functionName,
+PassRefPtr<EventListener> V8Proxy::createHTMLEventHandler(
+                                               const String& functionName,
                                                const String& code, Node* node)
 {
-    return adoptRef(new V8LazyEventListener(m_frame, code, functionName));
+    return V8LazyEventListener::create(m_frame, code, functionName);
 }
 
 #if ENABLE(SVG)
 PassRefPtr<EventListener> V8Proxy::createSVGEventHandler(const String& functionName,
                                               const String& code, Node* node)
 {
-    return adoptRef(new V8LazyEventListener(m_frame, code, functionName));
+    return V8LazyEventListener::create(m_frame, code, functionName);
 }
 #endif
 
@@ -822,13 +823,13 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
 }
 
 // Find an existing wrapper for a JS event listener in the map.
-V8EventListener* V8Proxy::FindV8EventListener(v8::Local<v8::Value> listener,
+PassRefPtr<V8EventListener> V8Proxy::FindV8EventListener(v8::Local<v8::Value> listener,
                                               bool html)
 {
     return FindEventListenerInList(m_event_listeners, listener, html);
 }
 
-V8EventListener* V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::Value> obj, bool html)
+PassRefPtr<V8EventListener> V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::Value> obj, bool html)
 {
   ASSERT(v8::Context::InContext());
 
@@ -841,9 +842,9 @@ V8EventListener* V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::Value> obj, 
       return wrapper;
 
   // Create a new one, and add to cache.
-  V8EventListener* new_listener =
-    new V8EventListener(m_frame, v8::Local<v8::Object>::Cast(obj), html);
-  m_event_listeners.push_back(new_listener);
+  RefPtr<V8EventListener> new_listener =
+    V8EventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), html);
+  m_event_listeners.push_back(new_listener.get());
 
   return new_listener;
 }
@@ -866,13 +867,13 @@ V8EventListener* V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::Value> obj, 
 // The persistent reference is made weak in the constructor
 // of V8XHREventListener.
 
-V8EventListener* V8Proxy::FindXHREventListener(v8::Local<v8::Value> listener,
+PassRefPtr<V8EventListener> V8Proxy::FindXHREventListener(v8::Local<v8::Value> listener,
                                                bool html) {
   return FindEventListenerInList(m_xhr_listeners, listener, html);
 }
 
 
-V8EventListener*
+PassRefPtr<V8EventListener>
 V8Proxy::FindOrCreateXHREventListener(v8::Local<v8::Value> obj,
                                       bool html) {
   ASSERT(v8::Context::InContext());
@@ -884,11 +885,11 @@ V8Proxy::FindOrCreateXHREventListener(v8::Local<v8::Value> obj,
   if (wrapper) return wrapper;
 
   // Create a new one, and add to cache.
-  V8EventListener* new_listener =
-    new V8XHREventListener(m_frame, v8::Local<v8::Object>::Cast(obj), html);
-  m_xhr_listeners.push_back(new_listener);
+  RefPtr<V8EventListener> new_listener =
+    V8XHREventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), html);
+  m_xhr_listeners.push_back(new_listener.get());
 
-  return new_listener;
+  return new_listener.release();
 }
 
 

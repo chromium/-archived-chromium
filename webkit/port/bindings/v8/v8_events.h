@@ -81,6 +81,11 @@ class V8AbstractEventListener : public EventListener {
 // that can handle the event.
 class V8EventListener : public V8AbstractEventListener {
  public:
+  static PassRefPtr<V8EventListener> create(Frame* frame, 
+      v8::Local<v8::Object> listener, bool html) {
+    return adoptRef(new V8EventListener(frame, listener, html));
+  }
+
   V8EventListener(Frame* frame, v8::Local<v8::Object> listener, bool html);
   virtual ~V8EventListener();
   virtual bool isHTMLEventListener() const { return m_html; }
@@ -101,6 +106,10 @@ class V8EventListener : public V8AbstractEventListener {
 // It keeps JS listener week.
 class V8XHREventListener : public V8EventListener {
  public:
+  static PassRefPtr<V8XHREventListener> create(Frame* frame, 
+      v8::Local<v8::Object> listener, bool html) {
+    return adoptRef(new V8XHREventListener(frame, listener, html));
+  }
   V8XHREventListener(Frame* frame, v8::Local<v8::Object> listener, bool html);
   virtual ~V8XHREventListener();
 };
@@ -111,6 +120,10 @@ class V8XHREventListener : public V8EventListener {
 // A V8LazyEventListener is always a HTML event handler.
 class V8LazyEventListener : public V8AbstractEventListener {
  public:
+  static PassRefPtr<V8LazyEventListener> create(Frame* frame, 
+      const String& code, const String& func_name) {
+    return adoptRef(new V8LazyEventListener(frame, code, func_name));
+  }
   V8LazyEventListener(Frame *frame, const String& code,
                       const String& func_name);
   virtual ~V8LazyEventListener();

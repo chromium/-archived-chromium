@@ -776,7 +776,7 @@ CALLBACK_FUNC_DECL(DOMWindowAddEventListener) {
   if (!proxy)
     return v8::Undefined();
 
-  EventListener* listener =
+  RefPtr<EventListener> listener =
     proxy->FindOrCreateV8EventListener(args[1], false);
 
   if (listener) {
@@ -811,13 +811,13 @@ CALLBACK_FUNC_DECL(DOMWindowRemoveEventListener) {
   if (!proxy)
     return v8::Undefined();
 
-  EventListener* listener =
+  RefPtr<EventListener> listener =
     proxy->FindV8EventListener(args[1], false);
 
   if (listener) {
     String event_type = ToWebCoreString(args[0]);
     bool useCapture = args[2]->BooleanValue();
-    doc->removeWindowEventListener(event_type, listener, useCapture);
+    doc->removeWindowEventListener(event_type, listener.get(), useCapture);
   }
 
   return v8::Undefined();
@@ -2938,7 +2938,7 @@ CALLBACK_FUNC_DECL(EventTargetNodeAddEventListener) {
   if (!proxy)
     return v8::Undefined();
 
-  EventListener* listener =
+  RefPtr<EventListener> listener =
     proxy->FindOrCreateV8EventListener(args[1], false);
   if (listener) {
     String type = ToWebCoreString(args[0]);
@@ -2960,12 +2960,12 @@ CALLBACK_FUNC_DECL(EventTargetNodeRemoveEventListener) {
   if (!proxy)
     return v8::Undefined();
 
-  EventListener* listener =
+  RefPtr<EventListener> listener =
     proxy->FindV8EventListener(args[1], false);
   if (listener) {
     String type = ToWebCoreString(args[0]);
     bool useCapture = args[2]->BooleanValue();
-    node->removeEventListener(type, listener, useCapture);
+    node->removeEventListener(type, listener.get(), useCapture);
   }
 
   return v8::Undefined();
@@ -3160,7 +3160,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
     if (!proxy)
       return;
 
-    EventListener* listener =
+    RefPtr<EventListener> listener =
       proxy->FindOrCreateV8EventListener(value, true);
     if (listener) {
       doc->setHTMLWindowEventListener(event_type, listener);
@@ -3214,7 +3214,7 @@ ACCESSOR_SETTER(ElementEventHandler) {
     if (!proxy)
       return;
 
-    EventListener* listener =
+    RefPtr<EventListener> listener =
       proxy->FindOrCreateV8EventListener(value, true);
     if (listener) {
       node->setHTMLEventListener(event_type, listener);

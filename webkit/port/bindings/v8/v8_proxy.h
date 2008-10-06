@@ -189,14 +189,14 @@ class V8Proxy {
   void clearDocumentWrapper();
 
   // Find/Create/Remove event listener wrappers.
-  V8EventListener* FindV8EventListener(v8::Local<v8::Value> listener,
+  PassRefPtr<V8EventListener> FindV8EventListener(v8::Local<v8::Value> listener,
                                        bool html);
-  V8EventListener* FindOrCreateV8EventListener(v8::Local<v8::Value> listener,
+  PassRefPtr<V8EventListener> FindOrCreateV8EventListener(v8::Local<v8::Value> listener,
                                                bool html);
 
-  V8EventListener* FindXHREventListener(v8::Local<v8::Value> listener,
+  PassRefPtr<V8EventListener> FindXHREventListener(v8::Local<v8::Value> listener,
                                         bool html);
-  V8EventListener* FindOrCreateXHREventListener(v8::Local<v8::Value> listener,
+  PassRefPtr<V8EventListener> FindOrCreateXHREventListener(v8::Local<v8::Value> listener,
                                                 bool html);
 
   void RemoveV8EventListener(V8EventListener* listener);
