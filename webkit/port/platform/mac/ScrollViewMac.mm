@@ -205,7 +205,7 @@ bool ScrollView::scroll(ScrollDirection direction, ScrollGranularity granularity
   return true;
 }
 
-NSView* ScrollView::getDocumentView() const {
+NSView* ScrollView::documentView() const {
   // TODO(pinkerton): we really gotta figure out how we're doing scrolling
   return nil;
 }
