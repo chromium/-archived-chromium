@@ -1,4 +1,4 @@
-# Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
+# Copyright (C) 2006, 2007, 2008 Apple Inc. All rights reserved.
 # Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com> 
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,609 +26,415 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 VPATH = \
-    $(PORTROOT)/../pending \
     $(WebCore) \
     $(WebCore)/bindings/js \
     $(WebCore)/bindings/objc \
     $(WebCore)/css \
     $(WebCore)/dom \
     $(WebCore)/html \
+    $(WebCore)/loader/appcache \
     $(WebCore)/page \
+    $(WebCore)/plugins \
     $(WebCore)/storage \
     $(WebCore)/xml \
-    $(WebCore)/svg
+    $(WebCore)/svg \
+#
+ 
+DOM_CLASSES = \
+    AbstractView \
+    Attr \
+    BarInfo \
+    CDATASection \
+    CSSCharsetRule \
+    CSSFontFaceRule \
+    CSSImportRule \
+    CSSMediaRule \
+    CSSPageRule \
+    CSSPrimitiveValue \
+    CSSRule \
+    CSSRuleList \
+    CSSStyleDeclaration \
+    CSSStyleRule \
+    CSSStyleSheet \
+    CSSUnknownRule \
+    CSSValue \
+    CSSValueList \
+    CSSVariablesRule \
+    CSSVariablesDeclaration \
+    CanvasGradient \
+    CanvasPattern \
+    CanvasPixelArray \
+    CanvasRenderingContext2D \
+    CharacterData \
+    Clipboard \
+    Comment \
+    Console \
+    Counter \
+    DOMApplicationCache \
+    DOMCoreException \
+    DOMImplementation \
+    DOMParser \
+    DOMSelection \
+    DOMWindow \
+    Database \
+    Document \
+    DocumentFragment \
+    DocumentType \
+    Element \
+    ElementTimeControl \
+    Entity \
+    EntityReference \
+    Event \
+    EventException \
+    EventListener \
+    EventTarget \
+    File \
+    FileList \
+    HTMLAnchorElement \
+    HTMLAppletElement \
+    HTMLAreaElement \
+    HTMLAudioElement \
+    HTMLBRElement \
+    HTMLBaseElement \
+    HTMLBaseFontElement \
+    HTMLBlockquoteElement \
+    HTMLBodyElement \
+    HTMLButtonElement \
+    HTMLCanvasElement \
+    HTMLCollection \
+    HTMLDListElement \
+    HTMLDirectoryElement \
+    HTMLDivElement \
+    HTMLDocument \
+    HTMLElement \
+    HTMLEmbedElement \
+    HTMLFieldSetElement \
+    HTMLFontElement \
+    HTMLFormElement \
+    HTMLFrameElement \
+    HTMLFrameSetElement \
+    HTMLHRElement \
+    HTMLHeadElement \
+    HTMLHeadingElement \
+    HTMLHtmlElement \
+    HTMLIFrameElement \
+    HTMLImageElement \
+    HTMLInputElement \
+    HTMLIsIndexElement \
+    HTMLLIElement \
+    HTMLLabelElement \
+    HTMLLegendElement \
+    HTMLLinkElement \
+    HTMLMapElement \
+    HTMLMarqueeElement \
+    HTMLMediaElement \
+    HTMLMenuElement \
+    HTMLMetaElement \
+    HTMLModElement \
+    HTMLOListElement \
+    HTMLObjectElement \
+    HTMLOptGroupElement \
+    HTMLOptionElement \
+    HTMLOptionsCollection \
+    HTMLParagraphElement \
+    HTMLParamElement \
+    HTMLPreElement \
+    HTMLQuoteElement \
+    HTMLScriptElement \
+    HTMLSelectElement \
+    HTMLSourceElement \
+    HTMLStyleElement \
+    HTMLTableCaptionElement \
+    HTMLTableCellElement \
+    HTMLTableColElement \
+    HTMLTableElement \
+    HTMLTableRowElement \
+    HTMLTableSectionElement \
+    HTMLTextAreaElement \
+    HTMLTitleElement \
+    HTMLUListElement \
+    HTMLVideoElement \
+    History \
+    ImageData \
+    KeyboardEvent \
+    Location \
+    MediaError \
+    MediaList \
+    MessageEvent \
+    MimeType \
+    MimeTypeArray \
+    MouseEvent \
+    MutationEvent \
+    NamedNodeMap \
+    Navigator \
+    Node \
+    NodeFilter \
+    NodeIterator \
+    NodeList \
+    Notation \
+    OverflowEvent \
+    Plugin \
+    PluginArray \
+    ProcessingInstruction \
+    ProgressEvent \
+    RGBColor \
+    Range \
+    RangeException \
+    Rect \
+    SQLError \
+    SQLResultSet \
+    SQLResultSetRowList \
+    SQLTransaction \
+    Storage \
+    StorageEvent \
+    SVGAElement \
+    SVGAltGlyphElement \
+    SVGAngle \
+    SVGAnimateColorElement \
+    SVGAnimateElement \
+    SVGAnimateTransformElement \
+    SVGAnimatedAngle \
+    SVGAnimatedBoolean \
+    SVGAnimatedEnumeration \
+    SVGAnimatedInteger \
+    SVGAnimatedLength \
+    SVGAnimatedLengthList \
+    SVGAnimatedNumber \
+    SVGAnimatedNumberList \
+    SVGAnimatedPathData \
+    SVGAnimatedPoints \
+    SVGAnimatedPreserveAspectRatio \
+    SVGAnimatedRect \
+    SVGAnimatedString \
+    SVGAnimatedTransformList \
+    SVGAnimationElement \
+    SVGCircleElement \
+    SVGClipPathElement \
+    SVGColor \
+    SVGComponentTransferFunctionElement \
+    SVGCursorElement \
+    SVGDefinitionSrcElement \
+    SVGDefsElement \
+    SVGDescElement \
+    SVGDocument \
+    SVGElement \
+    SVGElementInstance \
+    SVGElementInstanceList \
+    SVGEllipseElement \
+    SVGException \
+    SVGExternalResourcesRequired \
+    SVGFEBlendElement \
+    SVGFEColorMatrixElement \
+    SVGFEComponentTransferElement \
+    SVGFECompositeElement \
+    SVGFEDiffuseLightingElement \
+    SVGFEDisplacementMapElement \
+    SVGFEDistantLightElement \
+    SVGFEFloodElement \
+    SVGFEFuncAElement \
+    SVGFEFuncBElement \
+    SVGFEFuncGElement \
+    SVGFEFuncRElement \
+    SVGFEGaussianBlurElement \
+    SVGFEImageElement \
+    SVGFEMergeElement \
+    SVGFEMergeNodeElement \
+    SVGFEOffsetElement \
+    SVGFEPointLightElement \
+    SVGFESpecularLightingElement \
+    SVGFESpotLightElement \
+    SVGFETileElement \
+    SVGFETurbulenceElement \
+    SVGFilterElement \
+    SVGFilterPrimitiveStandardAttributes \
+    SVGFitToViewBox \
+    SVGFontElement \
+    SVGFontFaceElement \
+    SVGFontFaceFormatElement \
+    SVGFontFaceNameElement \
+    SVGFontFaceSrcElement \
+    SVGFontFaceUriElement \
+    SVGForeignObjectElement \
+    SVGGElement \
+    SVGGlyphElement \
+    SVGGradientElement \
+    SVGHKernElement \
+    SVGImageElement \
+    SVGLangSpace \
+    SVGLength \
+    SVGLengthList \
+    SVGLineElement \
+    SVGLinearGradientElement \
+    SVGLocatable \
+    SVGMarkerElement \
+    SVGMaskElement \
+    SVGMatrix \
+    SVGMetadataElement \
+    SVGMissingGlyphElement \
+    SVGNumber \
+    SVGNumberList \
+    SVGPaint \
+    SVGPathElement \
+    SVGPathSeg \
+    SVGPathSegArcAbs \
+    SVGPathSegArcRel \
+    SVGPathSegClosePath \
+    SVGPathSegCurvetoCubicAbs \
+    SVGPathSegCurvetoCubicRel \
+    SVGPathSegCurvetoCubicSmoothAbs \
+    SVGPathSegCurvetoCubicSmoothRel \
+    SVGPathSegCurvetoQuadraticAbs \
+    SVGPathSegCurvetoQuadraticRel \
+    SVGPathSegCurvetoQuadraticSmoothAbs \
+    SVGPathSegCurvetoQuadraticSmoothRel \
+    SVGPathSegLinetoAbs \
+    SVGPathSegLinetoHorizontalAbs \
+    SVGPathSegLinetoHorizontalRel \
+    SVGPathSegLinetoRel \
+    SVGPathSegLinetoVerticalAbs \
+    SVGPathSegLinetoVerticalRel \
+    SVGPathSegList \
+    SVGPathSegMovetoAbs \
+    SVGPathSegMovetoRel \
+    SVGPatternElement \
+    SVGPoint \
+    SVGPointList \
+    SVGPolygonElement \
+    SVGPolylineElement \
+    SVGPreserveAspectRatio \
+    SVGRadialGradientElement \
+    SVGRect \
+    SVGRectElement \
+    SVGRenderingIntent \
+    SVGSVGElement \
+    SVGScriptElement \
+    SVGSetElement \
+    SVGStopElement \
+    SVGStringList \
+    SVGStylable \
+    SVGStyleElement \
+    SVGSwitchElement \
+    SVGSymbolElement \
+    SVGTRefElement \
+    SVGTSpanElement \
+    SVGTests \
+    SVGTextContentElement \
+    SVGTextElement \
+    SVGTextPathElement \
+    SVGTextPositioningElement \
+    SVGTitleElement \
+    SVGTransform \
+    SVGTransformList \
+    SVGTransformable \
+    SVGURIReference \
+    SVGUnitTypes \
+    SVGUseElement \
+    SVGViewElement \
+    SVGZoomAndPan \
+    SVGZoomEvent \
+    Screen \
+    StyleSheet \
+    StyleSheetList \
+    Text \
+    TextEvent \
+    TextMetrics \
+    TimeRanges \
+    TreeWalker \
+    UIEvent \
+    VoidCallback \
+    WebKitAnimationEvent \
+    WebKitCSSKeyframeRule \
+    WebKitCSSKeyframesRule \
+    WebKitCSSTransformValue \
+    WebKitTransitionEvent \
+    WheelEvent \
+    XMLHttpRequest \
+    XMLHttpRequestException \
+    XMLHttpRequestProgressEvent \
+    XMLHttpRequestUpload \
+    XMLSerializer \
+    XPathEvaluator \
+    XPathException \
+    XPathExpression \
+    XPathNSResolver \
+    XPathResult \
+    XSLTProcessor \
 #
 
 .PHONY : all
 
-ifeq ($(OS),MACOS)
 all : \
-    CharsetData.cpp
-endif
-
-# We don't want to generate objC bindings. Comment out everything in
-# this block \
-    DOMAbstractView.h \
-    DOMAttr.h \
-    DOMCDATASection.h \
-    DOMCSSCharsetRule.h \
-    DOMCSSFontFaceRule.h \
-    DOMCSSImportRule.h \
-    DOMCSSMediaRule.h \
-    DOMCSSPageRule.h \
-    DOMCSSPrimitiveValue.h \
-    DOMCSSRule.h \
-    DOMCSSRuleList.h \
-    DOMCSSStyleDeclaration.h \
-    DOMCSSStyleRule.h \
-    DOMCSSStyleSheet.h \
-    DOMCSSUnknownRule.h \
-    DOMCSSValue.h \
-    DOMCSSValueList.h \
-    DOMCharacterData.h \
-    DOMComment.h \
-    DOMCounter.h \
-    DOMDOMImplementation.h \
-    DOMDocument.h \
-    DOMDocumentFragment.h \
-    DOMDocumentType.h \
-    DOMElement.h \
-    DOMEntity.h \
-    DOMEntityReference.h \
-    DOMEvent.h \
-    DOMEventListener.h \
-    DOMEventTarget.h \
-    DOMHTMLAnchorElement.h \
-    DOMHTMLAppletElement.h \
-    DOMHTMLAreaElement.h \
-    DOMHTMLBRElement.h \
-    DOMHTMLBaseElement.h \
-    DOMHTMLBaseFontElement.h \
-    DOMHTMLBodyElement.h \
-    DOMHTMLButtonElement.h \
-    DOMHTMLCanvasElement.h \
-    DOMHTMLCollection.h \
-    DOMHTMLDListElement.h \
-    DOMHTMLDirectoryElement.h \
-    DOMHTMLDivElement.h \
-    DOMHTMLDocument.h \
-    DOMHTMLElement.h \
-    DOMHTMLEmbedElement.h \
-    DOMHTMLFieldSetElement.h \
-    DOMHTMLFontElement.h \
-    DOMHTMLFormElement.h \
-    DOMHTMLFrameElement.h \
-    DOMHTMLFrameSetElement.h \
-    DOMHTMLHRElement.h \
-    DOMHTMLHeadElement.h \
-    DOMHTMLHeadingElement.h \
-    DOMHTMLHtmlElement.h \
-    DOMHTMLIFrameElement.h \
-    DOMHTMLImageElement.h \
-    DOMHTMLInputElement.h \
-    DOMHTMLIsIndexElement.h \
-    DOMHTMLLIElement.h \
-    DOMHTMLLabelElement.h \
-    DOMHTMLLegendElement.h \
-    DOMHTMLLinkElement.h \
-    DOMHTMLMapElement.h \
-    DOMHTMLMarqueeElement.h \
-    DOMHTMLMenuElement.h \
-    DOMHTMLMetaElement.h \
-    DOMHTMLModElement.h \
-    DOMHTMLOListElement.h \
-    DOMHTMLObjectElement.h \
-    DOMHTMLOptGroupElement.h \
-    DOMHTMLOptionElement.h \
-    DOMHTMLOptionsCollection.h \
-    DOMHTMLParagraphElement.h \
-    DOMHTMLParamElement.h \
-    DOMHTMLPreElement.h \
-    DOMHTMLQuoteElement.h \
-    DOMHTMLScriptElement.h \
-    DOMHTMLSelectElement.h \
-    DOMHTMLStyleElement.h \
-    DOMHTMLTableCaptionElement.h \
-    DOMHTMLTableCellElement.h \
-    DOMHTMLTableColElement.h \
-    DOMHTMLTableElement.h \
-    DOMHTMLTableRowElement.h \
-    DOMHTMLTableSectionElement.h \
-    DOMHTMLTextAreaElement.h \
-    DOMHTMLTitleElement.h \
-    DOMHTMLUListElement.h \
-    DOMKeyboardEvent.h \
-    DOMMessageEvent.h \
-    DOMMediaList.h \
-    DOMMouseEvent.h \
-    DOMMutationEvent.h \
-    DOMNamedNodeMap.h \
-    DOMNode.h \
-    DOMNodeFilter.h \
-    DOMNodeIterator.h \
-    DOMNodeList.h \
-    DOMNotation.h \
-    DOMOverflowEvent.h \
-    DOMProcessingInstruction.h \
-    DOMRGBColor.h \
-    DOMRange.h \
-    DOMRect.h \
-    DOMSVGAElement.h \
-    DOMSVGAngle.h \
-    DOMSVGAnimateColorElement.h \
-    DOMSVGAnimateElement.h \
-    DOMSVGAnimateTransformElement.h \
-    DOMSVGAnimatedAngle.h \
-    DOMSVGAnimatedBoolean.h \
-    DOMSVGAnimatedEnumeration.h \
-    DOMSVGAnimatedInteger.h \
-    DOMSVGAnimatedLength.h \
-    DOMSVGAnimatedLengthList.h \
-    DOMSVGAnimatedNumber.h \
-    DOMSVGAnimatedNumberList.h \
-    DOMSVGAnimatedPathData.h \
-    DOMSVGAnimatedPoints.h \
-    DOMSVGAnimatedPreserveAspectRatio.h \
-    DOMSVGAnimatedRect.h \
-    DOMSVGAnimatedString.h \
-    DOMSVGAnimatedTransformList.h \
-    DOMSVGAnimationElement.h \
-    DOMSVGCircleElement.h \
-    DOMSVGClipPathElement.h \
-    DOMSVGColor.h \
-    DOMSVGComponentTransferFunctionElement.h \
-    DOMSVGCursorElement.h \
-    DOMSVGDefinitionSrcElement.h \
-    DOMSVGDefsElement.h \
-    DOMSVGDescElement.h \
-    DOMSVGDocument.h \
-    DOMSVGElement.h \
-    DOMSVGElementInstance.h \
-    DOMSVGElementInstanceList.h \
-    DOMSVGEllipseElement.h \
-    DOMSVGExternalResourcesRequired.h \
-    DOMSVGFEBlendElement.h \
-    DOMSVGFEColorMatrixElement.h \
-    DOMSVGFEComponentTransferElement.h \
-    DOMSVGFECompositeElement.h \
-    DOMSVGFEDiffuseLightingElement.h \
-    DOMSVGFEDisplacementMapElement.h \
-    DOMSVGFEDistantLightElement.h \
-    DOMSVGFEFloodElement.h \
-    DOMSVGFEFuncAElement.h \
-    DOMSVGFEFuncBElement.h \
-    DOMSVGFEFuncGElement.h \
-    DOMSVGFEFuncRElement.h \
-    DOMSVGFEGaussianBlurElement.h \
-    DOMSVGFEImageElement.h \
-    DOMSVGFEMergeElement.h \
-    DOMSVGFEMergeNodeElement.h \
-    DOMSVGFEOffsetElement.h \
-    DOMSVGFEPointLightElement.h \
-    DOMSVGFESpecularLightingElement.h \
-    DOMSVGFESpotLightElement.h \
-    DOMSVGFETileElement.h \
-    DOMSVGFETurbulenceElement.h \
-    DOMSVGFontElement.h \
-    DOMSVGFontFaceElement.h \
-    DOMSVGFontFaceFormatElement.h \
-    DOMSVGFontFaceNameElement.h \
-    DOMSVGFontFaceSrcElement.h \
-    DOMSVGFontFaceUriElement.h \
-    DOMSVGFilterElement.h \
-    DOMSVGFilterPrimitiveStandardAttributes.h \
-    DOMSVGFitToViewBox.h \
-    DOMSVGForeignObjectElement.h \
-    DOMSVGGElement.h \
-    DOMSVGGlyphElement.h \
-    DOMSVGGradientElement.h \
-    DOMSVGImageElement.h \
-    DOMSVGLangSpace.h \
-    DOMSVGLength.h \
-    DOMSVGLengthList.h \
-    DOMSVGLineElement.h \
-    DOMSVGLinearGradientElement.h \
-    DOMSVGLocatable.h \
-    DOMSVGMarkerElement.h \
-    DOMSVGMaskElement.h \
-    DOMSVGMatrix.h \
-    DOMSVGMetadataElement.h \
-    DOMSVGMissingGlyphElement.h \
-    DOMSVGNumber.h \
-    DOMSVGNumberList.h \
-    DOMSVGPaint.h \
-    DOMSVGPathElement.h \
-    DOMSVGPathSeg.h \
-    DOMSVGPathSegArcAbs.h \
-    DOMSVGPathSegArcRel.h \
-    DOMSVGPathSegClosePath.h \
-    DOMSVGPathSegCurvetoCubicAbs.h \
-    DOMSVGPathSegCurvetoCubicRel.h \
-    DOMSVGPathSegCurvetoCubicSmoothAbs.h \
-    DOMSVGPathSegCurvetoCubicSmoothRel.h \
-    DOMSVGPathSegCurvetoQuadraticAbs.h \
-    DOMSVGPathSegCurvetoQuadraticRel.h \
-    DOMSVGPathSegCurvetoQuadraticSmoothAbs.h \
-    DOMSVGPathSegCurvetoQuadraticSmoothRel.h \
-    DOMSVGPathSegLinetoAbs.h \
-    DOMSVGPathSegLinetoHorizontalAbs.h \
-    DOMSVGPathSegLinetoHorizontalRel.h \
-    DOMSVGPathSegLinetoRel.h \
-    DOMSVGPathSegLinetoVerticalAbs.h \
-    DOMSVGPathSegLinetoVerticalRel.h \
-    DOMSVGPathSegList.h \
-    DOMSVGPathSegMovetoAbs.h \
-    DOMSVGPathSegMovetoRel.h \
-    DOMSVGPatternElement.h \
-    DOMSVGPoint.h \
-    DOMSVGPointList.h \
-    DOMSVGPolygonElement.h \
-    DOMSVGPolylineElement.h \
-    DOMSVGPreserveAspectRatio.h \
-    DOMSVGRadialGradientElement.h \
-    DOMSVGRect.h \
-    DOMSVGRectElement.h \
-    DOMSVGRenderingIntent.h \
-    DOMSVGSVGElement.h \
-    DOMSVGScriptElement.h \
-    DOMSVGSetElement.h \
-    DOMSVGStopElement.h \
-    DOMSVGStringList.h \
-    DOMSVGStylable.h \
-    DOMSVGStyleElement.h \
-    DOMSVGSwitchElement.h \
-    DOMSVGSymbolElement.h \
-    DOMSVGTRefElement.h \
-    DOMSVGTSpanElement.h \
-    DOMSVGTests.h \
-    DOMSVGTextContentElement.h \
-    DOMSVGTextElement.h \
-    DOMSVGTextPathElement.h \
-    DOMSVGTextPositioningElement.h \
-    DOMSVGTitleElement.h \
-    DOMSVGTransform.h \
-    DOMSVGTransformList.h \
-    DOMSVGTransformable.h \
-    DOMSVGURIReference.h \
-    DOMSVGUnitTypes.h \
-    DOMSVGUseElement.h \
-    DOMSVGViewElement.h \
-    DOMSVGZoomAndPan.h \
-    DOMSVGZoomEvent.h \
-    DOMStyleSheet.h \
-    DOMStyleSheetList.h \
-    DOMText.h \
-    DOMTextEvent.h \
-    DOMTreeWalker.h \
-    DOMUIEvent.h \
-    DOMWheelEvent.h \
-    DOMXPathExpression.h \
-    DOMXPathNSResolver.h \
-    DOMXPathResult.h \
-endif
-
-all : \
+    $(filter-out JSEventListener.h JSRGBColor.h,$(DOM_CLASSES:%=JS%.h)) \
+    \
+    JSDOMWindowBase.lut.h \
+    JSEventTargetBase.lut.h \
+    JSRGBColor.lut.h \
+    \
+    JSJavaScriptCallFrame.h \
+    \
+    JSHTMLInputElementBaseTable.cpp \
+    \
     CSSGrammar.cpp \
     CSSPropertyNames.h \
     CSSValueKeywords.h \
     ColorData.c \
     DocTypeStrings.cpp \
     HTMLEntityNames.c \
-    HTMLEntityCodes.c \
-    JSAttr.h \
-    JSBarInfo.h \
-    JSCDATASection.h \
-    JSCSSCharsetRule.h \
-    JSCSSFontFaceRule.h \
-    JSCSSImportRule.h \
-    JSCSSMediaRule.h \
-    JSCSSPageRule.h \
-    JSCSSPrimitiveValue.h \
-    JSCSSRule.h \
-    JSCSSRuleList.h \
-    JSCSSStyleRule.h \
-    JSCSSStyleSheet.h \
-    JSCSSValue.h \
-    JSCSSValueList.h \
-    JSCanvasGradient.h \
-    JSCanvasPattern.h \
-    JSCanvasRenderingContext2D.h \
-    JSCharacterData.h \
-    JSComment.h \
-    JSConsole.h \
-    JSCounter.h \
-    JSCSSStyleDeclaration.h \
-    JSDOMCoreException.h \
-    JSDOMImplementation.h \
-    JSDOMParser.h \
-    JSDOMSelection.h \
-    JSDOMWindow.h \
-    JSDatabase.h \
-    JSDocument.h \
-    JSDocumentFragment.h \
-    JSDocumentType.h \
-    JSElement.h \
-    JSEntity.h \
-    JSEntityReference.h \
-    JSEvent.h \
-    JSEventException.h \
-    JSEventTargetBase.lut.h \
-    JSHTMLAnchorElement.h \
-    JSHTMLAppletElement.h \
-    JSHTMLAreaElement.h \
-    JSHTMLAudioElement.h \
-    JSHTMLBaseElement.h \
-    JSHTMLBaseFontElement.h \
-    JSHTMLBlockquoteElement.h \
-    JSHTMLBodyElement.h \
-    JSHTMLBRElement.h \
-    JSHTMLButtonElement.h \
-    JSHTMLCanvasElement.h \
-    JSHTMLCollection.h \
-    JSHTMLDListElement.h \
-    JSHTMLDirectoryElement.h \
-    JSHTMLDivElement.h \
-    JSHTMLDocument.h \
-    JSHTMLElement.h \
-    JSHTMLEmbedElement.h \
-    JSHTMLFieldSetElement.h \
-    JSHTMLFontElement.h \
-    JSHTMLFormElement.h \
-    JSHTMLFrameElement.h \
-    JSHTMLFrameSetElement.h \
-    JSHTMLHRElement.h \
-    JSHTMLHeadElement.h \
-    JSHTMLHeadingElement.h \
-    JSHTMLHtmlElement.h \
-    JSHTMLIFrameElement.h \
-    JSHTMLImageElement.h \
-    JSHTMLInputElement.h \
-    JSHTMLInputElementBaseTable.cpp \
-    JSHTMLIsIndexElement.h \
-    JSHTMLLIElement.h \
-    JSHTMLLabelElement.h \
-    JSHTMLLegendElement.h \
-    JSHTMLLinkElement.h \
-    JSHTMLMapElement.h \
-    JSHTMLMarqueeElement.h \
-    JSHTMLMediaElement.h \
-    JSHTMLMenuElement.h \
-    JSHTMLMetaElement.h \
-    JSHTMLModElement.h \
-    JSHTMLOListElement.h \
-    JSHTMLOptGroupElement.h \
-    JSHTMLObjectElement.h \
-    JSHTMLOptionElement.h \
-    JSHTMLOptionsCollection.h \
-    JSHTMLParagraphElement.h \
-    JSHTMLParamElement.h \
-    JSHTMLPreElement.h \
-    JSHTMLQuoteElement.h \
-    JSHTMLScriptElement.h \
-    JSHTMLSelectElement.h \
-    JSHTMLSourceElement.h \
-    JSHTMLStyleElement.h \
-    JSHTMLTableCaptionElement.h \
-    JSHTMLTableCellElement.h \
-    JSHTMLTableColElement.h \
-    JSHTMLTableElement.h \
-    JSHTMLTableRowElement.h \
-    JSHTMLTableSectionElement.h \
-    JSHTMLTextAreaElement.h \
-    JSHTMLTitleElement.h \
-    JSHTMLUListElement.h \
-    JSHTMLVideoElement.h \
-    JSHistory.h \
-    JSKeyboardEvent.h \
-    JSMediaError.h \
-    JSMediaList.h \
-    JSMessageEvent.h \
-    JSMouseEvent.h \
-    JSMutationEvent.h \
-    JSNamedNodeMap.h \
-    JSNode.h \
-    JSNodeFilter.h \
-    JSNodeIterator.h \
-    JSNodeList.h \
-    JSNotation.h \
-    JSOverflowEvent.h \
-    JSProcessingInstruction.h \
-    JSProgressEvent.h \
-    JSRange.h \
-    JSRangeException.h \
-    JSRect.h \
-    JSSQLError.h \
-    JSSQLResultSet.h \
-    JSSQLResultSetRowList.h \
-    JSSQLTransaction.h \
-    JSSVGAElement.h \
-    JSSVGAngle.h \
-    JSSVGAnimatedAngle.h \
-    JSSVGAnimateColorElement.h \
-    JSSVGAnimateElement.h \
-    JSSVGAnimateTransformElement.h \
-    JSSVGAnimatedBoolean.h \
-    JSSVGAnimatedEnumeration.h \
-    JSSVGAnimatedInteger.h \
-    JSSVGAnimatedLength.h \
-    JSSVGAnimatedLengthList.h \
-    JSSVGAnimatedNumber.h \
-    JSSVGAnimatedNumberList.h \
-    JSSVGAnimatedPreserveAspectRatio.h \
-    JSSVGAnimatedRect.h \
-    JSSVGAnimatedString.h \
-    JSSVGAnimatedTransformList.h \
-    JSSVGAnimationElement.h \
-    JSSVGColor.h \
-    JSSVGCircleElement.h \
-    JSSVGClipPathElement.h \
-    JSSVGComponentTransferFunctionElement.h \
-    JSSVGCursorElement.h \
-    JSSVGDefsElement.h \
-    JSSVGDefinitionSrcElement.h \
-    JSSVGDescElement.h \
-    JSSVGDocument.h \
-    JSSVGException.h \
-    JSSVGLength.h \
-    JSSVGMatrix.h \
-    JSSVGMetadataElement.h \
-    JSSVGPathElement.h \
-    JSSVGPathSeg.h \
-    JSSVGPathSegArcAbs.h \
-    JSSVGPathSegArcRel.h \
-    JSSVGPathSegClosePath.h \
-    JSSVGPathSegCurvetoCubicAbs.h \
-    JSSVGPathSegCurvetoCubicRel.h \
-    JSSVGPathSegCurvetoCubicSmoothAbs.h \
-    JSSVGPathSegCurvetoCubicSmoothRel.h \
-    JSSVGPathSegCurvetoQuadraticAbs.h \
-    JSSVGPathSegCurvetoQuadraticRel.h \
-    JSSVGPathSegCurvetoQuadraticSmoothAbs.h \
-    JSSVGPathSegCurvetoQuadraticSmoothRel.h \
-    JSSVGPathSegLinetoAbs.h \
-    JSSVGPathSegLinetoHorizontalAbs.h \
-    JSSVGPathSegLinetoHorizontalRel.h \
-    JSSVGPathSegLinetoRel.h \
-    JSSVGPathSegLinetoVerticalAbs.h \
-    JSSVGPathSegLinetoVerticalRel.h \
-    JSSVGPathSegMovetoAbs.h \
-    JSSVGPathSegMovetoRel.h \
-    JSSVGNumber.h \
-    JSSVGNumberList.h \
-    JSSVGPaint.h \
-    JSSVGPathSegList.h \
-    JSSVGPatternElement.h \
-    JSSVGPoint.h \
-    JSSVGPointList.h \
-    JSSVGPolygonElement.h \
-    JSSVGPolylineElement.h \
-    JSSVGRadialGradientElement.h \
-    JSSVGRect.h \
-    JSSVGRectElement.h \
-    JSSVGRenderingIntent.h \
-    JSSVGSetElement.h \
-    JSSVGScriptElement.h \
-    JSSVGStyleElement.h \
-    JSSVGSwitchElement.h \
-    JSSVGStopElement.h \
-    JSSVGStringList.h \
-    JSSVGSymbolElement.h \
-    JSSVGTRefElement.h \
-    JSSVGTSpanElement.h \
-    JSSVGTextElement.h \
-    JSSVGTextContentElement.h \
-    JSSVGTextPathElement.h \
-    JSSVGTextPositioningElement.h \
-    JSSVGTitleElement.h \
-    JSSVGTransform.h \
-    JSSVGTransformList.h \
-    JSSVGUnitTypes.h \
-    JSSVGUseElement.h \
-    JSSVGViewElement.h \
-    JSSVGPreserveAspectRatio.h \
-    JSSVGElement.h \
-    JSSVGElementInstance.h \
-    JSSVGElementInstanceList.h \
-    JSSVGSVGElement.h \
-    JSSVGEllipseElement.h \
-    JSSVGFEBlendElement.h \
-    JSSVGFEColorMatrixElement.h \
-    JSSVGFEComponentTransferElement.h \
-    JSSVGFECompositeElement.h \
-    JSSVGFEDiffuseLightingElement.h \
-    JSSVGFEDisplacementMapElement.h \
-    JSSVGFEDistantLightElement.h \
-    JSSVGFEFloodElement.h \
-    JSSVGFEFuncAElement.h \
-    JSSVGFEFuncBElement.h \
-    JSSVGFEFuncGElement.h \
-    JSSVGFEFuncRElement.h \
-    JSSVGFEGaussianBlurElement.h \
-    JSSVGFEImageElement.h \
-    JSSVGFEMergeElement.h \
-    JSSVGFEMergeNodeElement.h \
-    JSSVGFEOffsetElement.h \
-    JSSVGFEPointLightElement.h \
-    JSSVGFESpecularLightingElement.h \
-    JSSVGFESpotLightElement.h \
-    JSSVGFETileElement.h \
-    JSSVGFETurbulenceElement.h \
-    JSSVGFilterElement.h \
-    JSSVGFontElement.h \
-    JSSVGFontFaceElement.h \
-    JSSVGFontFaceFormatElement.h \
-    JSSVGFontFaceNameElement.h \
-    JSSVGFontFaceSrcElement.h \
-    JSSVGFontFaceUriElement.h \
-    JSSVGForeignObjectElement.h \
-    JSSVGGElement.h \
-    JSSVGGlyphElement.h \
-    JSSVGGradientElement.h \
-    JSSVGImageElement.h \
-    JSSVGLength.h \
-    JSSVGLengthList.h \
-    JSSVGLineElement.h \
-    JSSVGLinearGradientElement.h \
-    JSSVGMaskElement.h \
-    JSSVGMarkerElement.h \
-    JSSVGMissingGlyphElement.h \
-    JSSVGTransform.h \
-    JSSVGZoomEvent.h \
-    JSScreen.h \
-    JSStyleSheet.h \
-    JSStyleSheetList.h \
-    JSText.h \
-    JSTextEvent.h \
-    JSTimeRanges.h \
-    JSTreeWalker.h \
-    JSUIEvent.h \
-    JSVoidCallback.h \
-    JSWheelEvent.h \
-    JSXMLHttpRequestException.h \
-    JSXMLSerializer.h \
-    JSXPathEvaluator.h \
-    JSXPathException.h \
-    JSXPathExpression.h \
-    JSXPathNSResolver.h \
-    JSXPathResult.h \
+    HTMLNames.cpp \
+    JSSVGElementWrapperFactory.cpp \
     SVGElementFactory.cpp \
     SVGNames.cpp \
-    HTMLNames.cpp \
     UserAgentStyleSheets.h \
     XLinkNames.cpp \
     XMLNames.cpp \
     XPathGrammar.cpp \
     tokenizer.cpp \
-    WebCore.exp \
 #
+
+# --------
+ 
+ifeq ($(OS),MACOS)
+ 
+FRAMEWORK_FLAGS = $(shell echo $(FRAMEWORK_SEARCH_PATHS) | perl -e 'print "-F " . join(" -F ", split(" ", <>));')
+ 
+ifeq ($(shell gcc -E -P -dM -F $(BUILT_PRODUCTS_DIR) $(FRAMEWORK_FLAGS) WebCore/ForwardingHeaders/wtf/Platform.h | grep ENABLE_DASHBOARD_SUPPORT | cut -d' ' -f3), 1)
+    ENABLE_DASHBOARD_SUPPORT = 1
+else
+    ENABLE_DASHBOARD_SUPPORT = 0
+endif
+ 
+else
+ 
+ENABLE_DASHBOARD_SUPPORT = 0
+
+endif
 
 # CSS property names and value keywords
 
+WEBCORE_CSS_PROPERTY_NAMES := $(WebCore)/css/CSSPropertyNames.in
+WEBCORE_CSS_VALUE_KEYWORDS := $(WebCore)/css/CSSValueKeywords.in
+
 ifeq ($(findstring ENABLE_SVG,$(FEATURE_DEFINES)), ENABLE_SVG)
+    WEBCORE_CSS_PROPERTY_NAMES := $(WEBCORE_CSS_PROPERTY_NAMES) $(WebCore)/css/SVGCSSPropertyNames.in
+    WEBCORE_CSS_VALUE_KEYWORDS := $(WEBCORE_CSS_VALUE_KEYWORDS) $(WebCore)/css/SVGCSSValueKeywords.in
+endif
 
-CSSPropertyNames.h : css/CSSPropertyNames.in css/SVGCSSPropertyNames.in
-	if sort $< $(WebCore)/css/SVGCSSPropertyNames.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
-	cat $< $(WebCore)/css/SVGCSSPropertyNames.in > CSSPropertyNames.in
+ifeq ($(ENABLE_DASHBOARD_SUPPORT), 1)
+    WEBCORE_CSS_PROPERTY_NAMES := $(WEBCORE_CSS_PROPERTY_NAMES) $(WebCore)/css/DashboardSupportCSSPropertyNames.in
+endif
+
+CSSPropertyNames.h : $(WEBCORE_CSS_PROPERTY_NAMES) css/makeprop.pl
+	if sort $(WEBCORE_CSS_PROPERTY_NAMES) | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
+	cat $(WEBCORE_CSS_PROPERTY_NAMES) > CSSPropertyNames.in
 	perl "$(WebCore)/css/makeprop.pl"
-
-CSSValueKeywords.h : css/CSSValueKeywords.in css/SVGCSSValueKeywords.in
+ 
+CSSValueKeywords.h : $(WEBCORE_CSS_VALUE_KEYWORDS) css/makevalues.pl
 	# Lower case all the values, as CSS values are case-insensitive
-	perl -ne 'print lc' $(WebCore)/css/SVGCSSValueKeywords.in > SVGCSSValueKeywords.in
-	if sort $< SVGCSSValueKeywords.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
-	cat $< SVGCSSValueKeywords.in > CSSValueKeywords.in
+	perl -ne 'print lc' $(WEBCORE_CSS_VALUE_KEYWORDS) > CSSValueKeywords.in
+	if sort CSSValueKeywords.in | uniq -d | grep -E '^[^#]'; then echo 'Duplicate value!'; exit 1; fi
 	perl "$(WebCore)/css/makevalues.pl"
 
-else
-
-CSSPropertyNames.h : css/CSSPropertyNames.in css/makeprop.pl
-	cp $< CSSPropertyNames.in
-	perl "$(WebCore)/css/makeprop.pl"
-
-CSSValueKeywords.h : css/CSSValueKeywords.in css/makevalues.pl
-	cp $< CSSValueKeywords.in
-	perl "$(WebCore)/css/makevalues.pl"
-
-endif 
+# --------
 
 
 # DOCTYPE strings
@@ -640,9 +446,6 @@ DocTypeStrings.cpp : html/DocTypeStrings.gperf
 
 HTMLEntityNames.c : html/HTMLEntityNames.gperf
 	gperf -a -L ANSI-C -C -G -c -o -t -k '*' -N findEntity -D -s 2 $< > $@
-
-HTMLEntityCodes.c : html/HTMLEntityNames.gperf
-	perl $(WebCore)/../../../webkit/build/WebCore/generate_entitycodes.pl $< > $@
 
 # color names
 
@@ -683,7 +486,7 @@ XPathGrammar.cpp : xml/XPathGrammar.y $(PROJECT_FILE)
 # user agent style sheets
 
 USER_AGENT_STYLE_SHEETS = $(WebCore)/css/view-source.css $(WebCore)/css/svg.css 
-UserAgentStyleSheets.h : css/make-css-file-arrays.pl $(USER_AGENT_STYLE_SHEETS) $(WebCore)/css/html4.css $(PORTROOT)/css/html4-overrides.css $(PORTROOT)/css/quirks-overrides.css
+UserAgentStyleSheets.h : css/make-css-file-arrays.pl $(USER_AGENT_STYLE_SHEETS) $(WebCore)/css/html4.css $(WebCore)/css/quirks.css $(PORTROOT)/css/html4-overrides.css $(PORTROOT)/css/quirks-overrides.css
 	cat $(WebCore)/css/html4.css $(PORTROOT)/css/html4-overrides.css > $(DerivedSourcesDir)/html4.css
 	cat $(WebCore)/css/quirks.css $(PORTROOT)/css/quirks-overrides.css > $(DerivedSourcesDir)/quirks.css
 	perl $< $@ UserAgentStyleSheetsData.cpp $(DerivedSourcesDir)/html4.css $(DerivedSourcesDir)/quirks.css $(USER_AGENT_STYLE_SHEETS)
@@ -702,17 +505,28 @@ CharsetData.cpp : platform/text/mac/make-charset-table.pl platform/text/mac/char
 
 # HTML tag and attribute names
 
+ifeq ($(findstring ENABLE_VIDEO,$(FEATURE_DEFINES)), ENABLE_VIDEO)
+    HTML_FLAGS := $(HTML_FLAGS) ENABLE_VIDEO=1
+endif
+
+ifdef HTML_FLAGS
+
 HTMLNames.cpp : dom/make_names.pl html/HTMLTagNames.in html/HTMLAttributeNames.in
-	perl $< --tags $(WebCore)/html/HTMLTagNames.in --attrs $(WebCore)/html/HTMLAttributeNames.in \
-            --namespace HTML --namespacePrefix xhtml --cppNamespace WebCore --namespaceURI "http://www.w3.org/1999/xhtml" --attrsNullNamespace --output .
+	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/html/HTMLTagNames.in --attrs $(WebCore)/html/HTMLAttributeNames.in --extraDefines "$(HTML_FLAGS)"
+ 
+else
+
+HTMLNames.cpp : dom/make_names.pl html/HTMLTagNames.in html/HTMLAttributeNames.in
+	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/html/HTMLTagNames.in --attrs $(WebCore)/html/HTMLAttributeNames.in
+
+endif
 
 XMLNames.cpp : dom/make_names.pl xml/xmlattrs.in
-	perl $< --attrs $(WebCore)/xml/xmlattrs.in \
-            --namespace XML --cppNamespace WebCore --namespaceURI "http://www.w3.org/XML/1998/namespace" --output .
+	perl -I $(WebCore)/bindings/scripts $< --attrs $(WebCore)/xml/xmlattrs.in
 
 ifeq ($(findstring ENABLE_SVG,$(FEATURE_DEFINES)), ENABLE_SVG)
 
-WEBCORE_EXPORT_DEPENDENCIES := WebCore.SVG.exp
+WEBCORE_EXPORT_DEPENDENCIES := $(WEBCORE_EXPORT_DEPENDENCIES) WebCore.SVG.exp
 
 ifeq ($(findstring ENABLE_SVG_USE,$(FEATURE_DEFINES)), ENABLE_SVG_USE)
     SVG_FLAGS := $(SVG_FLAGS) ENABLE_SVG_USE=1
@@ -737,29 +551,24 @@ ifeq ($(findstring ENABLE_SVG_ANIMATION,$(FEATURE_DEFINES)), ENABLE_SVG_ANIMATIO
 endif
 
 ifeq ($(findstring ENABLE_SVG_FOREIGN_OBJECT,$(FEATURE_DEFINES)), ENABLE_SVG_FOREIGN_OBJECT)
-	SVG_FLAGS := $(SVG_FLAGS) ENABLE_SVG_FOREIGN_OBJECT=1
-	WEBCORE_EXPORT_DEPENDENCIES := $(WEBCORE_EXPORT_DEPENDENCIES) WebCore.SVG.ForeignObject.exp
+    SVG_FLAGS := $(SVG_FLAGS) ENABLE_SVG_FOREIGN_OBJECT=1
+    WEBCORE_EXPORT_DEPENDENCIES := $(WEBCORE_EXPORT_DEPENDENCIES) WebCore.SVG.ForeignObject.exp
 endif
 
 # SVG tag and attribute names (need to pass an extra flag if svg experimental features are enabled)
 ifdef SVG_FLAGS
 SVGElementFactory.cpp SVGNames.cpp : dom/make_names.pl svg/svgtags.in svg/svgattrs.in
-	perl $< --tags $(WebCore)/svg/svgtags.in --attrs $(WebCore)/svg/svgattrs.in --extraDefines "$(SVG_FLAGS)" \
-            --namespace SVG --cppNamespace WebCore --namespaceURI "http://www.w3.org/2000/svg" --factory --attrsNullNamespace --output .
+	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/svg/svgtags.in --attrs $(WebCore)/svg/svgattrs.in --extraDefines "$(SVG_FLAGS)"
 else
 SVGElementFactory.cpp SVGNames.cpp : dom/make_names.pl svg/svgtags.in svg/svgattrs.in
-	perl $< --tags $(WebCore)/svg/svgtags.in --attrs $(WebCore)/svg/svgattrs.in \
-            --namespace SVG --cppNamespace WebCore --namespaceURI "http://www.w3.org/2000/svg" --factory --attrsNullNamespace --output .
+	perl -I $(WebCore)/bindings/scripts $< --tags $(WebCore)/svg/svgtags.in --attrs $(WebCore)/svg/svgattrs.in
 
 endif
 
-XLinkNames.cpp : dom/make_names.pl svg/xlinkattrs.in
-	perl $< --attrs $(WebCore)/svg/xlinkattrs.in \
-            --namespace XLink --cppNamespace WebCore --namespaceURI "http://www.w3.org/1999/xlink" --output .
+JSSVGElementWrapperFactory.cpp : SVGNames.cpp
 
-# Add SVG Symbols to the WebCore exported symbols file
-WebCore.exp : WebCore.base.exp $(WEBCORE_EXPORT_DEPENDENCIES)
-	cat $^ > $@
+XLinkNames.cpp : dom/make_names.pl svg/xlinkattrs.in
+	perl -I $(WebCore)/bindings/scripts $< --attrs $(WebCore)/svg/xlinkattrs.in
 
 else
 
@@ -772,33 +581,78 @@ SVGNames.cpp :
 XLinkNames.cpp :
 	echo > $@
 
-WebCore.exp : WebCore.base.exp
-	cat $^ > $@
+# This file is autogenerated by make_names.pl when SVG is enabled.
+ 
+JSSVGElementWrapperFactory.cpp :
+	echo > $@
 
 endif
 
-# new-style Objective-C bindings
+# JavaScript bindings
 
-OBJC_BINDINGS_SCRIPTS = \
-    bindings/scripts/CodeGenerator.pm \
-    bindings/scripts/CodeGeneratorObjC.pm \
-    bindings/scripts/IDLParser.pm \
-    bindings/scripts/IDLStructure.pm \
-    bindings/scripts/generate-bindings.pl \
+GENERATE_BINDINGS = perl -I $(WebCore)/bindings/scripts $(WebCore)/bindings/scripts/generate-bindings.pl \
+    --include dom --include html --include css --include page --include xml --include svg --outputDir .
+
+GENERATE_BINDINGS_SCRIPTS = \
+     bindings/scripts/CodeGenerator.pm \
+     bindings/scripts/IDLParser.pm \
+     bindings/scripts/IDLStructure.pm \
+     bindings/scripts/generate-bindings.pl \
 #
+ 
+JS%.h : %.idl $(GENERATE_BINDINGS_SCRIPTS) bindings/scripts/CodeGeneratorJS.pm
+	$(GENERATE_BINDINGS) --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator JS $<
+ 
+# ------------------------
+ 
+# Mac-specific rules
+ 
+ifeq ($(OS),MACOS)
 
-DOM%.h : %.idl $(OBJC_BINDINGS_SCRIPTS) bindings/objc/PublicDOMInterfaces.h
-	perl -I $(WebCore)/bindings/scripts $(WebCore)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_OBJECTIVE_C" --generator ObjC --include dom --include html --include css --include page --include xml --include svg --outputdir . $<
+all : $(filter-out DOMDOMWindow.h DOMMimeType.h DOMPlugin.h,$(DOM_CLASSES:%=DOM%.h))
 
-# new-style JavaScript bindings
+all : CharsetData.cpp WebCore.exp
 
-JS_BINDINGS_SCRIPTS = \
-    bindings/scripts/CodeGenerator.pm \
-    bindings/scripts/CodeGeneratorJS.pm \
-    bindings/scripts/IDLParser.pm \
-    bindings/scripts/IDLStructure.pm \
-    bindings/scripts/generate-bindings.pl \
-#
+# --------
 
-JS%.h : %.idl $(JS_BINDINGS_SCRIPTS)
-	perl -I $(WebCore)/bindings/scripts $(WebCore)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator JS --include dom --include html --include css --include page --include xml --include svg --outputdir . $<
+# character set name table
+
+CharsetData.cpp : platform/text/mac/make-charset-table.pl platform/text/mac/character-sets.txt platform/text/mac/mac-encodings.txt
+	perl $^ kTextEncoding > $@
+
+# --------
+
+# export file
+
+ifeq ($(shell gcc -E -P -dM -F $(BUILT_PRODUCTS_DIR) $(FRAMEWORK_FLAGS) WebCore/ForwardingHeaders/wtf/Platform.h | grep ENABLE_MAC_JAVA_BRIDGE | cut -d' ' -f3), 1)
+    WEBCORE_EXPORT_DEPENDENCIES := $(WEBCORE_EXPORT_DEPENDENCIES) WebCore.JNI.exp
+endif
+
+# See also "Generate 64-bit Export File" build phase script in WebCore.xcodeproj/project.pbxproj
+ifeq ($(shell gcc -E -P -dM -F $(BUILT_PRODUCTS_DIR) $(FRAMEWORK_FLAGS) WebCore/ForwardingHeaders/wtf/Platform.h | grep ENABLE_NETSCAPE_PLUGIN_API | cut -d' ' -f3), 1)
+    WEBCORE_EXPORT_DEPENDENCIES := $(WEBCORE_EXPORT_DEPENDENCIES) WebCore.NPAPI.exp
+endif
+
+ifeq ($(ENABLE_DASHBOARD_SUPPORT), 1)
+    WEBCORE_EXPORT_DEPENDENCIES := $(WEBCORE_EXPORT_DEPENDENCIES) WebCore.DashboardSupport.exp
+endif
+
+ifeq ($(findstring 10.4,$(MACOSX_DEPLOYMENT_TARGET)), 10.4)
+    WEBCORE_EXPORT_DEPENDENCIES := $(WEBCORE_EXPORT_DEPENDENCIES) WebCore.Tiger.exp
+endif
+
+WebCore.exp : WebCore.base.exp $(WEBCORE_EXPORT_DEPENDENCIES)
+	cat $^ > $@
+
+# --------
+
+# Objective-C bindings
+
+DOM%.h : %.idl $(GENERATE_BINDINGS_SCRIPTS) bindings/scripts/CodeGeneratorObjC.pm bindings/objc/PublicDOMInterfaces.h
+	$(GENERATE_BINDINGS) --defines "$(FEATURE_DEFINES) LANGUAGE_OBJECTIVE_C" --generator ObjC $<
+
+# --------
+
+endif
+
+# ------------------------
