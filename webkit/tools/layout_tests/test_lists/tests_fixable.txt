@@ -897,11 +897,6 @@ V8 | KJS # LayoutTests/fast/events/mouseup-from-button2.html = FAIL
 # http://code.google.com/p/chromium/issues/detail?id=3008
 V8 | KJS # LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL
 
-# These tests display "RenderPartObject" instead of "RenderImage".
-# http://code.google.com/p/chromium/issues/detail?id=3009
-V8 | KJS # LayoutTests/fast/images/embed-image.html = FAIL
-V8 | KJS # LayoutTests/fast/images/object-image.html = FAIL
-
 # Many of the failures here are because V8 stringifies objects differently than
 # JSC. However, the missing position and totalSize properties seems genuine.
 V8 | KJS # SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS

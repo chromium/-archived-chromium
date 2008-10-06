@@ -146,6 +146,10 @@ KJS | V8 # LayoutTests/http/tests/incremental/slow-utf8-css.pl = FAIL
 // This test relies on the x-mac-cyrillic encoding which we don't ship.
 V8 # LayoutTests/fast/encoding/frame-default-enc.html = FAIL
 
+// These tests expect a tiff decoder, which we don't have.
+KJS | V8 # LayoutTests/fast/images/embed-image.html = FAIL
+KJS | V8 # LayoutTests/fast/images/object-image.html = FAIL
+
 // -----------------------------------------------------------------
 // CHROME REWRITTEN TESTS
 // -----------------------------------------------------------------
