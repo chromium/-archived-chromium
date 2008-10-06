@@ -802,7 +802,6 @@ V8 # LayoutTests/fast/js/exception-expression-offset.html = FAIL
 V8 # LayoutTests/fast/js/exception-sequencing-binops2.html = FAIL
 V8 # LayoutTests/fast/js/exception-try-finally-scope-error.html = FAIL
 V8 # LayoutTests/fast/js/function-dot-arguments-and-caller.html = FAIL
-V8 # LayoutTests/fast/js/function-name.html = FAIL
 V8 # LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
 V8 # LayoutTests/fast/js/invalid-syntax-for-function.html = FAIL
 V8 # LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL

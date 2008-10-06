@@ -20,5 +20,5 @@ Frame: '<!--framePath //<!--frame0-->-->'
 PASS: window.location.assign should be 'function () { [native code] }' and is.
 PASS: window.location.replace should be 'function () { [native code] }' and is.
 PASS: window.location.reload should be 'function () { [native code] }' and is.
-PASS: window.location.toString should be 'function () { [native code] }' and is.
+PASS: window.location.toString should be 'function toString() { [native code] }' and is.
 PASS: window.location.customAttribute should be 'customAttribute' and is.
