@@ -10,7 +10,6 @@
 		7B779D510E83001A00C2971E /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B779D500E82FFAC00C2971E /* libevent.a */; };
 		7BA363BD0E8C40C30023C8B9 /* libsdch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA363BA0E8C409A0023C8B9 /* libsdch.a */; };
 		82F372150E82AE0500DF5AFE /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F372140E82AE0500DF5AFE /* Security.framework */; };
-		82F399480E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F399470E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a */; };
 		82F399B70E7EF75800785E15 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205260E770291008F45CF /* libbase.a */; };
 		82F399B80E7EF75A00785E15 /* libbase_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205280E770291008F45CF /* libbase_gfx.a */; };
 		82F399F90E7EF7C000785E15 /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205370E770291008F45CF /* libgoogleurl.a */; };
@@ -21,7 +20,6 @@
 		82F39A220E7EF85F00785E15 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F39A210E7EF85C00785E15 /* libgtest.a */; };
 		82F39CF40E7EF90F00785E15 /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205B90E770291008F45CF /* libzlib.a */; };
 		82F39CF90E7EF92500785E15 /* libbzip2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82052F0E770291008F45CF /* libbzip2.a */; };
-		82F39CFD0E7EF93600785E15 /* WebSystemInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 820A5E760DE35E2E00871E2D /* WebSystemInterface.m */; };
 		82F39D050E7EF95D00785E15 /* libmodp_b64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F39D040E7EF95A00785E15 /* libmodp_b64.a */; };
 		82F39D080E7EF97000785E15 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82055E0E770291008F45CF /* libpng.a */; };
 		82F39D0E0E7EFA5500785E15 /* libglue.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B8205AA0E770291008F45CF /* libglue.a */; };
@@ -535,9 +533,6 @@
 		7B8203F10E76FED8008F45CF /* libxml.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxml.xcodeproj; path = third_party/libxml/libxml.xcodeproj; sourceTree = "<group>"; };
 		7BA363B50E8C409A0023C8B9 /* sdch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sdch.xcodeproj; path = sdch/sdch.xcodeproj; sourceTree = "<group>"; };
 		7BFDF6620E37AE2100F1D7D8 /* libjpeg.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libjpeg.xcodeproj; path = third_party/libjpeg/libjpeg.xcodeproj; sourceTree = "<group>"; };
-		820A5E750DE35E2E00871E2D /* WebSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebSystemInterface.h; path = temp/WebSystemInterface.h; sourceTree = "<group>"; };
-		820A5E760DE35E2E00871E2D /* WebSystemInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WebSystemInterface.m; path = temp/WebSystemInterface.m; sourceTree = "<group>"; };
-		820A5E850DE35FC600871E2D /* WebKitSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebKitSystemInterface.h; path = temp/WebKitSystemInterface.h; sourceTree = "<group>"; };
 		820A61B80DE7623F00871E2D /* missingImage.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = missingImage.tiff; sourceTree = "<group>"; };
 		824CB6100DAFEF14000C5DDE /* test_shell */ = {isa = PBXFileReference; lastKnownFileType = folder; name = test_shell; path = ../../../data/test_shell; sourceTree = SOURCE_ROOT; };
 		8287BDFA0E0AA28000CC8F2F /* aliasCursor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = aliasCursor.png; sourceTree = "<group>"; };
@@ -575,7 +570,6 @@
 		829E35590DC0D37B00819EBF /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = "<group>"; };
 		829E355C0DC0D47400819EBF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = "<group>"; };
 		82F372140E82AE0500DF5AFE /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = "<group>"; };
-		82F399470E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = temp/libWebKitSystemInterfaceLeopard.a; sourceTree = "<group>"; };
 		82F39A1C0E7EF85C00785E15 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = testing/gtest.xcodeproj; sourceTree = "<group>"; };
 		82F39CFF0E7EF95A00785E15 /* modp_b64.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = modp_b64.xcodeproj; path = third_party/modp_b64/modp_b64.xcodeproj; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -645,7 +639,6 @@
 				82F39D2B0E7EFC2600785E15 /* libskia.a in Frameworks */,
 				82F39D4A0E7EFDAA00785E15 /* libv8.a in Frameworks */,
 				82F39D110E7EFA5A00785E15 /* libwebcore.a in Frameworks */,
-				82F399480E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a in Frameworks */,
 				82F39D100E7EFA5800785E15 /* libwtf.a in Frameworks */,
 				82F39D400E7EFD9300785E15 /* libxml.a in Frameworks */,
 				82F39CF40E7EF90F00785E15 /* libzlib.a in Frameworks */,
@@ -877,14 +870,10 @@
 		7BFDF4FD0E37AB4200F1D7D8 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				82F399470E7EE4D500785E15 /* libWebKitSystemInterfaceLeopard.a */,
 				29B97316FDCFA39411CA2CEA /* main.mm */,
 				ABA65EFD0DD50BFF003A4FC8 /* test_shell_webview.h */,
 				ABA65EFE0DD50BFF003A4FC8 /* test_shell_webview.mm */,
 				32CA4F630368D1EE00C91783 /* TestShell_Prefix.pch */,
-				820A5E850DE35FC600871E2D /* WebKitSystemInterface.h */,
-				820A5E750DE35E2E00871E2D /* WebSystemInterface.h */,
-				820A5E760DE35E2E00871E2D /* WebSystemInterface.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -1425,7 +1414,6 @@
 				E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */,
 				E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */,
 				E456291D0E26B4FE005E4685 /* text_input_controller.cc in Sources */,
-				82F39CFD0E7EF93600785E15 /* WebSystemInterface.m in Sources */,
 				E456290F0E26B4FE005E4685 /* webview_host.mm in Sources */,
 				E45629100E26B4FE005E4685 /* webwidget_host.mm in Sources */,
 			);

@@ -54,13 +54,4 @@ void AXObjectCache::handleFocusedUIElementChanged()
 {
 }
 
-AXID AXObjectCache::getAXID(AccessibilityObject*)
-{
-  return AXID();
-}
-
-void AXObjectCache::removeAXID(AccessibilityObject*)
-{
-}
-
 } // namespace WebCore
