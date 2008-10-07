@@ -11,6 +11,7 @@ namespace mini_installer_constants {
 
 extern const wchar_t kAppDir[];
 extern const wchar_t kChromeSetupExecutable[];
+extern const wchar_t kIEExecutable[];
 extern const wchar_t kChromeMiniInstallerExecutable[];
 extern const wchar_t kChromeInstallerType[];
 
@@ -20,7 +21,6 @@ extern const wchar_t kBrowserTabName[];
 extern const wchar_t kConfirmDialog[];
 extern const wchar_t kInstallerWindow[];
 extern const wchar_t kFirstChromeUI[];
-extern const wchar_t kChromeUninstallIETitle[];
 
 // Chrome meta installer location.
 extern const wchar_t kChromeSetupDevExeLocation[];

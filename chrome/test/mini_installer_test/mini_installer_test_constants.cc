@@ -8,6 +8,7 @@ namespace mini_installer_constants {
 
 const wchar_t kAppDir[] = L"Google\\Chrome\\Application\\";
 const wchar_t kChromeSetupExecutable[] = L"setup.exe";
+const wchar_t kIEExecutable[] = L"iexplore.exe";
 const wchar_t kChromeMiniInstallerExecutable[] = L"mini_installer.exe";
 const wchar_t kChromeInstallerType[] = L"dev";
 
@@ -15,13 +16,10 @@ const wchar_t kBrowserAppName[] = L"Google - Google Chrome";
 const wchar_t kBrowserTabName[] = L"New Tab - Google Chrome";
 const wchar_t kConfirmDialog[] = L"Google Chrome";
 const wchar_t kInstallerWindow[] = L"Google App Installer";
-const wchar_t kFirstChromeUI[] = L"Welcome to Chrome";
-
-const wchar_t kChromeUninstallIETitle[] =
-    L"Google Chrome - Windows Internet Explorer";
+const wchar_t kFirstChromeUI[] = L"Welcome to Google Chrome";
 
 // Chrome meta installer location.
 const wchar_t kChromeSetupDevExeLocation[] =
-    L"\\\\172.23.44.61\\shared\\chrome_autotest\\DevTest\\ChromeSetup_en.exe";
+    L"\\\\172.23.44.61\\shared\\chrome_autotest\\DevTest\\ChromeSetup.exe";
 }
 

@@ -43,8 +43,8 @@ class ChromeMiniInstaller {
   // Closes Chrome browser.
   void CloseChromeBrowser(LPCWSTR window_name);
 
-  // Closes all running Chrome processes.
-  void CloseChromeProcesses();
+  // Closes specified process.
+  void CloseProcesses(const std::wstring& executable_name);
 
   // Checks for registry key.
   bool CheckRegistryKey(std::wstring key_path);

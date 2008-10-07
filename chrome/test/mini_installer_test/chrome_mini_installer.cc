@@ -86,6 +86,7 @@ void ChromeMiniInstaller::OverInstall() {
 // Waits until setup.exe ends.
 // Checks if registry key exist even after uninstall.
 // Deletes App dir.
+// Closes feedback form.
 void ChromeMiniInstaller::UnInstall() {
   printf("Verifying if Chrome is installed...\n");
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
@@ -95,7 +96,7 @@ void ChromeMiniInstaller::UnInstall() {
   }
 
   printf("\nClosing Chrome processes, if any...\n");
-  CloseChromeProcesses();
+  CloseProcesses(installer_util::kChromeExe);
 
   std::wstring uninstall_path = GetUninstallPath();
   ASSERT_TRUE(file_util::PathExists(uninstall_path));
@@ -111,11 +112,9 @@ void ChromeMiniInstaller::UnInstall() {
   ASSERT_FALSE(CheckRegistryKey(dist->GetVersionKey()));
   DeleteAppFolder();
   FindChromeShortcut();
-  if (false == CloseWindow(mini_installer_constants::kChromeUninstallIETitle,
-                           WM_CLOSE)) {
-    printf("\nFailed to close window \"%s\".",
-           mini_installer_constants::kChromeUninstallIETitle);
-  }
+  CloseProcesses(mini_installer_constants::kIEExecutable);
+  ASSERT_EQ(0, process_util::GetProcessCount(
+                             mini_installer_constants::kIEExecutable, NULL));
 }
 
 // Takes care of Chrome uninstall dialog.
@@ -141,16 +140,16 @@ void ChromeMiniInstaller::CloseChromeBrowser(LPCWSTR window_name) {
   ASSERT_TRUE(CloseWindow(window_name, WM_CLOSE));
 }
 
-// Checks for all running Chrome processes and kills them.
-void ChromeMiniInstaller::CloseChromeProcesses() {
+// Checks for all requested running processes and kills them.
+void ChromeMiniInstaller::CloseProcesses(const std::wstring& executable_name) {
   int timer = 0;
-  while ((process_util::GetProcessCount(installer_util::kChromeExe, NULL) > 0) &&
+  while ((process_util::GetProcessCount(executable_name, NULL) > 0) &&
          (timer < 20000)) {
-    process_util::KillProcesses(installer_util::kChromeExe, 1, NULL);
+    process_util::KillProcesses(executable_name, 1, NULL);
     Sleep(200);
     timer = timer + 200;
   }
-  ASSERT_EQ(0, process_util::GetProcessCount(installer_util::kChromeExe, NULL));
+  ASSERT_EQ(0, process_util::GetProcessCount(executable_name, NULL));
 }
 
 // Checks for Chrome registry keys.
