@@ -3374,11 +3374,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Node.cpp"
+				RelativePath="..\..\pending\Node.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Node.h"
+				RelativePath="..\..\pending\Node.h"
 				>
 			</File>
 			<File
@@ -4546,11 +4546,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLPlugInElement.cpp"
+				RelativePath="..\..\pending\HTMLPlugInElement.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLPlugInElement.h"
+				RelativePath="..\..\pending\HTMLPlugInElement.h"
 				>
 			</File>
 			<File
