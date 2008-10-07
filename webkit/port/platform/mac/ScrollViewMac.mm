@@ -49,6 +49,12 @@
 
 namespace WebCore {
 
+ScrollView::ScrollView() {
+}
+
+ScrollView::~ScrollView() {
+}
+
 int ScrollView::visibleWidth() const {
   return frameGeometry().width();
 }
