@@ -1225,7 +1225,7 @@ void WebViewImpl::InspectElement(int x, int y) {
 }
 
 void WebViewImpl::ShowJavaScriptConsole() {
-  page_->inspectorController()->showConsole();
+  page_->inspectorController()->showPanel(InspectorController::ConsolePanel);
 }
 
 void WebViewImpl::DragSourceEndedAt(

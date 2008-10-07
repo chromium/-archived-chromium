@@ -2406,7 +2406,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\page\inspector\InspectorControllerKJS.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\page\InspectorController.cpp"
 			>
 		</File>
 		<File
