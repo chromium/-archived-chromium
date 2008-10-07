@@ -413,6 +413,7 @@
 		B5C180AB0E958F28006EAF87 /* RenderWordBreak.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180AA0E958F28006EAF87 /* RenderWordBreak.cpp */; };
 		B5C180AD0E958F3D006EAF87 /* SVGRootInlineBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180AC0E958F3D006EAF87 /* SVGRootInlineBox.cpp */; };
 		E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */; };
+		E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */; };
 		E43CE13C0E68621500D8C5B9 /* PausedTimeouts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */; };
 		E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
 		E45063BA0E4104700025A81A /* localized_strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051A0D92E3DA0006B936 /* localized_strings.cc */; };
@@ -3784,6 +3785,8 @@
 		B5C180AA0E958F28006EAF87 /* RenderWordBreak.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderWordBreak.cpp; sourceTree = "<group>"; };
 		B5C180AC0E958F3D006EAF87 /* SVGRootInlineBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGRootInlineBox.cpp; sourceTree = "<group>"; };
 		E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RefCountedLeakCounter.cpp; sourceTree = "<group>"; };
+		E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollatorICU.cpp; sourceTree = "<group>"; };
+		E40054B30E9BCC720055B38E /* Collator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Collator.h; path = ../third_party/WebKit/JavaScriptCore/wtf/unicode/Collator.h; sourceTree = SOURCE_ROOT; };
 		E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PausedTimeouts.h; path = ../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.h; sourceTree = SOURCE_ROOT; };
 		E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PausedTimeouts.cpp; path = ../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.cpp; sourceTree = SOURCE_ROOT; };
 		E45062DF0E40B5420025A81A /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkiaUtils.cpp; sourceTree = "<group>"; };
@@ -4114,6 +4117,8 @@
 		7B5E85DB0D7F28F5001ECF42 /* icu */ = {
 			isa = PBXGroup;
 			children = (
+				E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */,
+				E40054B30E9BCC720055B38E /* Collator.h */,
 			);
 			path = icu;
 			sourceTree = "<group>";
@@ -7217,6 +7222,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7B5E85E70D7F28F5001ECF42 /* Assertions.cpp in Sources */,
+				E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */,
 				7B5E862C0D7F2B56001ECF42 /* FastMalloc.cpp in Sources */,
 				7B5E85F40D7F28F5001ECF42 /* HashTable.cpp in Sources */,
 				E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */,
@@ -8618,6 +8624,7 @@
 					"$(DIR_WEBCORE)/xml",
 					"$(DIR_WEBKIT)/JavaScriptCore",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf",
+					"$(DIR_WEBKIT)/JavaScriptCore/wtf/unicode",
 					"$(DIR_V8)/include",
 					"$(DIR_SKIA)/include",
 					"$(DIR_SKIA)/include/corecg",
@@ -8735,6 +8742,7 @@
 					"$(DIR_WEBCORE)/xml",
 					"$(DIR_WEBKIT)/JavaScriptCore",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf",
+					"$(DIR_WEBKIT)/JavaScriptCore/wtf/unicode",
 					"$(DIR_V8)/include",
 					"$(DIR_SKIA)/include",
 					"$(DIR_SKIA)/include/corecg",
