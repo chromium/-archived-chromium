@@ -399,6 +399,9 @@
 		B51C76C00E9BC7A400D9DFC4 /* GradientCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76BF0E9BC7A400D9DFC4 /* GradientCG.cpp */; };
 		B51C76CF0E9BC8D100D9DFC4 /* RenderMarquee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76CE0E9BC8D100D9DFC4 /* RenderMarquee.cpp */; };
 		B51C76DB0E9BC9F400D9DFC4 /* NinePieceImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76DA0E9BC9F400D9DFC4 /* NinePieceImage.cpp */; };
+		B53CCC5F0E9BCFF100D51C9A /* SVGAltGlyphElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53CCC5E0E9BCFF100D51C9A /* SVGAltGlyphElement.cpp */; };
+		B53CCC720E9BD0B300D51C9A /* LegacyWebArchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53CCC700E9BD0B300D51C9A /* LegacyWebArchive.cpp */; };
+		B53CCC830E9BD1C700D51C9A /* SVGHKernElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53CCC820E9BD1C700D51C9A /* SVGHKernElement.cpp */; };
 		B5599D130E95942900E2A85A /* SVGDocumentExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D120E95942900E2A85A /* SVGDocumentExtensions.cpp */; };
 		B5599D160E9594E800E2A85A /* SVGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D140E9594E800E2A85A /* SVGImage.cpp */; };
 		B57635F80E96C13D008A7ABC /* ResourceResponseBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B57635F70E96C13D008A7ABC /* ResourceResponseBase.cpp */; };
@@ -3760,6 +3763,12 @@
 		B51C76CE0E9BC8D100D9DFC4 /* RenderMarquee.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderMarquee.cpp; sourceTree = "<group>"; };
 		B51C76D90E9BC9F400D9DFC4 /* NinePieceImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NinePieceImage.h; path = style/NinePieceImage.h; sourceTree = "<group>"; };
 		B51C76DA0E9BC9F400D9DFC4 /* NinePieceImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NinePieceImage.cpp; path = style/NinePieceImage.cpp; sourceTree = "<group>"; };
+		B53CCC5D0E9BCFF100D51C9A /* SVGAltGlyphElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGAltGlyphElement.h; sourceTree = "<group>"; };
+		B53CCC5E0E9BCFF100D51C9A /* SVGAltGlyphElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGAltGlyphElement.cpp; sourceTree = "<group>"; };
+		B53CCC6F0E9BD0B300D51C9A /* LegacyWebArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LegacyWebArchive.h; path = cf/LegacyWebArchive.h; sourceTree = "<group>"; };
+		B53CCC700E9BD0B300D51C9A /* LegacyWebArchive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LegacyWebArchive.cpp; path = cf/LegacyWebArchive.cpp; sourceTree = "<group>"; };
+		B53CCC810E9BD1C700D51C9A /* SVGHKernElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGHKernElement.h; sourceTree = "<group>"; };
+		B53CCC820E9BD1C700D51C9A /* SVGHKernElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGHKernElement.cpp; sourceTree = "<group>"; };
 		B5599D0D0E95929900E2A85A /* SVGFEColorMatrixElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SVGFEColorMatrixElement.h; path = ../third_party/WebKit/WebCore/svg/SVGFEColorMatrixElement.h; sourceTree = SOURCE_ROOT; };
 		B5599D110E95942900E2A85A /* SVGDocumentExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGDocumentExtensions.h; sourceTree = "<group>"; };
 		B5599D120E95942900E2A85A /* SVGDocumentExtensions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGDocumentExtensions.cpp; sourceTree = "<group>"; };
@@ -3863,6 +3872,7 @@
 		4DB7F10F0E9BABEE00C66CE0 /* archive */ = {
 			isa = PBXGroup;
 			children = (
+				B53CCC6B0E9BD0A700D51C9A /* cf */,
 				4DB7F1140E9BAC1500C66CE0 /* Archive.h */,
 				4DB7F1150E9BAC1500C66CE0 /* ArchiveFactory.cpp */,
 				4DB7F1160E9BAC1500C66CE0 /* ArchiveFactory.h */,
@@ -5572,8 +5582,12 @@
 			children = (
 				4DB7F1D40E9BAD2F00C66CE0 /* animation */,
 				7B5E96C30D7F3EDA001ECF42 /* graphics */,
+				B53CCC5D0E9BCFF100D51C9A /* SVGAltGlyphElement.h */,
+				B53CCC5E0E9BCFF100D51C9A /* SVGAltGlyphElement.cpp */,
 				B5599D110E95942900E2A85A /* SVGDocumentExtensions.h */,
 				B5599D120E95942900E2A85A /* SVGDocumentExtensions.cpp */,
+				B53CCC810E9BD1C700D51C9A /* SVGHKernElement.h */,
+				B53CCC820E9BD1C700D51C9A /* SVGHKernElement.cpp */,
 			);
 			path = svg;
 			sourceTree = "<group>";
@@ -6930,6 +6944,15 @@
 			name = animation;
 			sourceTree = "<group>";
 		};
+		B53CCC6B0E9BD0A700D51C9A /* cf */ = {
+			isa = PBXGroup;
+			children = (
+				B53CCC6F0E9BD0B300D51C9A /* LegacyWebArchive.h */,
+				B53CCC700E9BD0B300D51C9A /* LegacyWebArchive.cpp */,
+			);
+			name = cf;
+			sourceTree = "<group>";
+		};
 		B5C180A00E958E85006EAF87 /* style */ = {
 			isa = PBXGroup;
 			children = (
@@ -7863,6 +7886,7 @@
 				E45624EA0E268E87005E4685 /* KURL.cpp in Sources */,
 				E45624FB0E268E87005E4685 /* Language.mm in Sources */,
 				E45625540E268E87005E4685 /* LayoutState.cpp in Sources */,
+				B53CCC720E9BD0B300D51C9A /* LegacyWebArchive.cpp in Sources */,
 				E45625550E268E87005E4685 /* ListMarkerBox.cpp in Sources */,
 				E456248B0E268E87005E4685 /* loader.cpp in Sources */,
 				E456248D0E268E87005E4685 /* LoaderNSURLExtras.mm in Sources */,
@@ -8055,6 +8079,7 @@
 				E45623A80E268E87005E4685 /* StyleSheetList.cpp in Sources */,
 				E45624970E268E87005E4685 /* SubresourceLoader.cpp in Sources */,
 				E45625D80E268E87005E4685 /* SVGAElement.cpp in Sources */,
+				B53CCC5F0E9BCFF100D51C9A /* SVGAltGlyphElement.cpp in Sources */,
 				E45625D90E268E87005E4685 /* SVGAngle.cpp in Sources */,
 				E45625DA0E268E87005E4685 /* SVGAnimateColorElement.cpp in Sources */,
 				E45625DB0E268E87005E4685 /* SVGAnimatedPathData.cpp in Sources */,
@@ -8134,6 +8159,7 @@
 				E45626130E268E87005E4685 /* SVGGElement.cpp in Sources */,
 				E45626140E268E87005E4685 /* SVGGlyphElement.cpp in Sources */,
 				E45626150E268E87005E4685 /* SVGGradientElement.cpp in Sources */,
+				B53CCC830E9BD1C700D51C9A /* SVGHKernElement.cpp in Sources */,
 				B5599D160E9594E800E2A85A /* SVGImage.cpp in Sources */,
 				E45626160E268E87005E4685 /* SVGImageElement.cpp in Sources */,
 				E45626170E268E87005E4685 /* SVGImageLoader.cpp in Sources */,
