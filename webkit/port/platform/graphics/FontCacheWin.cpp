@@ -474,7 +474,8 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
         if (langFontLink->MapFont(hdc, actualCodePages, characters[0], &result) == S_OK) {
             // This font will have to be deleted using the IMLangFontLink2
             // rather than the normal way.
-            fontData = new SimpleFontData(FontPlatformData(result, 0, true));
+            FontPlatformData platformData(result, 0, true);
+            fontData = getCachedFontData(&platformData);
         }
     }
 
