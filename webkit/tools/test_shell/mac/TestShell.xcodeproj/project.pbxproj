@@ -1587,6 +1587,7 @@
 					../../../../third_party/npapi,
 					../../../pending,
 					../../../../third_party/WebKit/WebCore,
+					../../../../third_party/WebKit/WebKit/mac/WebCoreSupport,
 					../../../../third_party/WebKit/JavaScriptCore,
 					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/WebCore/v8",
 				);
@@ -1621,6 +1622,7 @@
 					../../../../third_party/npapi,
 					../../../pending,
 					../../../../third_party/WebKit/WebCore,
+					../../../../third_party/WebKit/WebKit/mac/WebCoreSupport,
 					../../../../third_party/WebKit/JavaScriptCore,
 					"$(SYMROOT)/webkit.build/$(CONFIGURATION)/generated/WebCore/v8",
 				);

@@ -22,7 +22,7 @@
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
-#include "webkit/tools/test_shell/mac/temp/WebSystemInterface.h"
+#include "WebSystemInterface.h"
 
 static char g_currentTestName[PATH_MAX];
 
