@@ -86,7 +86,7 @@ class Lighttpd:
              '               ".pl"   => "/usr/bin/env",\n'
              '               ".asis" => "/usr/bin/cat",\n'
              '               ".php"  => "%s" )\n\n') %
-            PathFromBase('third_party', 'lighttpd', 'php5', 'php-cgi.exe'))
+            PathFromBase('third_party', 'lighttpd', 'win', 'php5', 'php-cgi.exe'))
 
     # Setup log files
     f.write(('server.errorlog = "%s"\n'
@@ -105,11 +105,11 @@ class Lighttpd:
                '}\n\n') % (mapping['port'], mapping['docroot']))
     f.close()
 
-    start_cmd = [ PathFromBase('third_party', 'lighttpd', 'LightTPD.exe'),
+    start_cmd = [ PathFromBase('third_party', 'lighttpd', 'win', 'LightTPD.exe'),
                   # Newly written config file
                   '-f', PathFromBase(self._output_dir, 'lighttpd.conf'),
-                  # Where it can find it's module dynamic libraries
-                  '-m', PathFromBase('third_party', 'lighttpd', 'lib'),
+                  # Where it can find its module dynamic libraries
+                  '-m', PathFromBase('third_party', 'lighttpd', 'win', 'lib'),
                   # Don't background
                   '-D' ]
 
