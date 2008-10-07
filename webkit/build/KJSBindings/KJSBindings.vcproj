@@ -2422,7 +2422,19 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCanvasPixelArrayCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCanvasRenderingContext2DCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSClipboardCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSConsoleCustom.cpp"
 			>
 		</File>
 		<File
@@ -2431,10 +2443,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCSSStyleDeclarationCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCSSValueCustom.cpp"
 			>
 		</File>
 		<File
@@ -2498,7 +2506,43 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDocumentFragmentCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMApplicationCacheCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMBinding.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMBinding.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMWindowBase.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMWindowBase.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMWindowCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMWindowCustom.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMWindowShell.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMWindowShell.h"
 			>
 		</File>
 		<File
@@ -2507,6 +2551,14 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventListener.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventListener.h"
 			>
 		</File>
 		<File
@@ -2547,14 +2599,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLElementCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLElementWrapperFactory.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLElementWrapperFactory.h"
 			>
 		</File>
 		<File
@@ -2610,11 +2654,39 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSLocation.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSImageConstructor.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSLocation.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSImageConstructor.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSInspectedObjectWrapper.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSInspectedObjectWrapper.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSInspectorCallbackWrapper.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSInspectorCallbackWrapper.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSJavaScriptCallFrameCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSLocationCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSMimeTypeArrayCustom.cpp"
 			>
 		</File>
 		<File
@@ -2627,6 +2699,10 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSNamedNodesCollection.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSNavigatorCustom.cpp"
 			>
 		</File>
 		<File
@@ -2654,11 +2730,55 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSNSResolver.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSNSResolver.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSPluginArrayCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSPluginCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSPluginElementFunctions.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSPluginElementFunctions.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSQuarantinedObjectWrapper.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSQuarantinedObjectWrapper.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSRGBColor.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSRGBColor.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSQLResultSetRowListCustom.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSQLTransactionCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSStorageCustom.cpp"
 			>
 		</File>
 		<File
@@ -2670,19 +2790,15 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGElementWrapperFactory.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGElementWrapperFactory.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\pending\JSSVGLazyEventListener.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGLazyEventListener.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGLazyEventListener.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGLengthCustom.cpp"
 			>
 		</File>
 		<File
@@ -2710,23 +2826,39 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSTextCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSTreeWalkerCustom.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXMLHttpRequest.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXMLHttpRequestConstructor.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXMLHttpRequest.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXMLHttpRequestConstructor.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXSLTProcessor.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXMLHttpRequestCustom.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXSLTProcessor.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXMLHttpRequestUploadCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXSLTProcessorConstructor.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXSLTProcessorConstructor.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSXSLTProcessorCustom.cpp"
 			>
 		</File>
 		<File
@@ -2807,6 +2939,30 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\PausedTimeouts.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScheduledAction.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScheduledAction.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptController.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptController.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptControllerWin.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\StringSourceProvider.h"
 			>
 		</File>
 		<File
