@@ -29,6 +29,7 @@
 				7BF892040E73143E000BAF8A /* PBXTargetDependency */,
 				E4E4C9600E797883009A687C /* PBXTargetDependency */,
 				E45627C50E26921D005E4685 /* PBXTargetDependency */,
+				4DB7FE730E9BF6B600C66CE0 /* PBXTargetDependency */,
 				E45627BC0E2691D0005E4685 /* PBXTargetDependency */,
 			);
 			name = All;
@@ -121,6 +122,7 @@
 		4DB7FA460E9BF0CA00C66CE0 /* StyleCachedImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FA410E9BF0CA00C66CE0 /* StyleCachedImage.cpp */; };
 		4DB7FA470E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FA430E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp */; };
 		4DB7FA670E9BF24600C66CE0 /* NetworkStateNotifierMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F9EE0E9BECEC00C66CE0 /* NetworkStateNotifierMac.cpp */; };
+		4DB7FE770E9BF6D800C66CE0 /* WebSystemInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */; };
 		7B0091350DAFEFBE00F72082 /* CSSGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */; };
 		7B0091370DAFEFBE00F72082 /* HTMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */; };
 		7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912F0DAFEFBE00F72082 /* SVGElementFactory.cpp */; };
@@ -1213,6 +1215,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4DB7FE720E9BF6B600C66CE0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4DB7FE6E0E9BF6AC00C66CE0;
+			remoteInfo = webcoresysteminterface;
+		};
 		7B25FF880E78A766007855DA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B5E77560D7F22D8001ECF42 /* Project object */;
@@ -1516,6 +1525,9 @@
 		4DB7FA430E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StyleGeneratedImage.cpp; path = style/StyleGeneratedImage.cpp; sourceTree = "<group>"; };
 		4DB7FA440E9BF0CA00C66CE0 /* StyleGeneratedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StyleGeneratedImage.h; path = style/StyleGeneratedImage.h; sourceTree = "<group>"; };
 		4DB7FA450E9BF0CA00C66CE0 /* StyleImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StyleImage.h; path = style/StyleImage.h; sourceTree = "<group>"; };
+		4DB7FE690E9BF69A00C66CE0 /* WebSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebSystemInterface.h; sourceTree = "<group>"; };
+		4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebSystemInterface.m; sourceTree = "<group>"; };
+		4DB7FE6F0E9BF6AC00C66CE0 /* libwebcoresysteminterface.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebcoresysteminterface.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
 		7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLNames.cpp; sourceTree = "<group>"; };
@@ -3891,6 +3903,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4DB7FE6D0E9BF6AC00C66CE0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7B27489B0E43815F009BCE03 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -3970,6 +3989,16 @@
 				4DB7F5410E9BD50600C66CE0 /* MainThreadMac.mm */,
 			);
 			path = mac;
+			sourceTree = "<group>";
+		};
+		4DB7FE680E9BF67000C66CE0 /* webcoresysteminterface */ = {
+			isa = PBXGroup;
+			children = (
+				4DB7FE690E9BF69A00C66CE0 /* WebSystemInterface.h */,
+				4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */,
+			);
+			name = webcoresysteminterface;
+			path = ../third_party/WebKit/WebKit/mac/WebCoreSupport;
 			sourceTree = "<group>";
 		};
 		7B0091290DAFEF0E00F72082 /* jsbindings */ = {
@@ -4121,6 +4150,7 @@
 				7BF891DD0E73118C000BAF8A /* pcre */,
 				7B9375960D919010008B9587 /* port */,
 				7B5E87820D7F394A001ECF42 /* webcore */,
+				4DB7FE680E9BF67000C66CE0 /* webcoresysteminterface */,
 				7B5E85B30D7F28F5001ECF42 /* wtf */,
 				7B964AAB0E7EE4A0006D1A11 /* Projects */,
 				7B5E776F0D7F2350001ECF42 /* Products */,
@@ -4136,6 +4166,7 @@
 				E45627F40E2694B8005E4685 /* libport.a */,
 				E45626950E268E87005E4685 /* libwebcore.a */,
 				7B5E85AE0D7F28CD001ECF42 /* libwtf.a */,
+				4DB7FE6F0E9BF6AC00C66CE0 /* libwebcoresysteminterface.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -7111,6 +7142,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4DB7FE6E0E9BF6AC00C66CE0 /* webcoresysteminterface */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DB7FE850E9BF6EB00C66CE0 /* Build configuration list for PBXNativeTarget "webcoresysteminterface" */;
+			buildPhases = (
+				4DB7FE8B0E9BF74700C66CE0 /* Pre-Build */,
+				4DB7FE6C0E9BF6AC00C66CE0 /* Sources */,
+				4DB7FE6D0E9BF6AC00C66CE0 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = webcoresysteminterface;
+			productName = webcoresysteminterface;
+			productReference = 4DB7FE6F0E9BF6AC00C66CE0 /* libwebcoresysteminterface.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		7B27489C0E43815F009BCE03 /* pcre */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7B2748AF0E438199009BCE03 /* Build configuration list for PBXNativeTarget "pcre" */;
@@ -7245,6 +7293,7 @@
 				7B27489C0E43815F009BCE03 /* pcre */,
 				E45627CF0E2694B8005E4685 /* port */,
 				E45620380E268E87005E4685 /* webcore */,
+				4DB7FE6E0E9BF6AC00C66CE0 /* webcoresysteminterface */,
 				7B5E85AD0D7F28CD001ECF42 /* wtf */,
 			);
 		};
@@ -7275,6 +7324,21 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4DB7FE8B0E9BF74700C66CE0 /* Pre-Build */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Pre-Build";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -ex\nexec \"${PROJECT_FILE_PATH}/${PRODUCT_NAME}_prebuild.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		7B2748D60E43834E009BCE03 /* Pre-Build */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -7340,6 +7404,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4DB7FE6C0E9BF6AC00C66CE0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DB7FE770E9BF6D800C66CE0 /* WebSystemInterface.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7B27489A0E43815F009BCE03 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -8558,6 +8630,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4DB7FE730E9BF6B600C66CE0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4DB7FE6E0E9BF6AC00C66CE0 /* webcoresysteminterface */;
+			targetProxy = 4DB7FE720E9BF6B600C66CE0 /* PBXContainerItemProxy */;
+		};
 		7B25FF890E78A766007855DA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7B58F7A60DAFC59B006F0EB5 /* jsconfig */;
@@ -8636,6 +8713,34 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		4DB7FE700E9BF6AD00C66CE0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
+			buildSettings = {
+				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					"$(DIR_WEBKIT)/WebKitLibraries",
+					"$(CONFIGURATION_TEMP_DIR)/generated/webcoresysteminterface",
+				);
+				PRODUCT_NAME = webcoresysteminterface;
+			};
+			name = Debug;
+		};
+		4DB7FE710E9BF6AD00C66CE0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
+			buildSettings = {
+				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS)",
+					"$(DIR_WEBKIT)/WebKitLibraries",
+					"$(CONFIGURATION_TEMP_DIR)/generated/webcoresysteminterface",
+				);
+				PRODUCT_NAME = webcoresysteminterface;
+			};
+			name = Release;
+		};
 		7B27489E0E438160009BCE03 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
@@ -9125,6 +9230,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4DB7FE850E9BF6EB00C66CE0 /* Build configuration list for PBXNativeTarget "webcoresysteminterface" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4DB7FE700E9BF6AD00C66CE0 /* Debug */,
+				4DB7FE710E9BF6AD00C66CE0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		7B2748AF0E438199009BCE03 /* Build configuration list for PBXNativeTarget "pcre" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
