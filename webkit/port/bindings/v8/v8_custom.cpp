@@ -2654,18 +2654,6 @@ CALLBACK_FUNC_DECL(HTMLDocumentOpen) {
   return v8::Undefined();
 }
 
-CALLBACK_FUNC_DECL(HTMLDocumentClear) {
-  INC_STATS(L"DOM.HTMLDocument.clear()");
-  // Do nothing (unimplemented)
-
-  // KJS's bindings do do the same thing in JSHTMLDocument::clear().
-  // Invoking HTMLDocument::clear() can cause a crash, since it
-  // deletes the document's tokenizer while it may still be in use.
-  // See b:1055485 for details.
-  return v8::Undefined();
-}
-
-
 // Document --------------------------------------------------------------------
 
 CALLBACK_FUNC_DECL(DocumentEvaluate) {

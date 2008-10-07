@@ -195,7 +195,6 @@ DECLARE_CALLBACK(HTMLOptionsCollectionAdd)
 DECLARE_CALLBACK(HTMLDocumentWrite)
 DECLARE_CALLBACK(HTMLDocumentWriteln)
 DECLARE_CALLBACK(HTMLDocumentOpen)
-DECLARE_CALLBACK(HTMLDocumentClear)
 
 // Document customized functions
 DECLARE_CALLBACK(DocumentEvaluate)

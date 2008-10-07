@@ -43,8 +43,9 @@ module html {
 
         readonly attribute HTMLCollection all;
 
-        [Custom] void clear();
 #endif
+
+        void clear();
 
         void captureEvents();
         void releaseEvents();
@@ -54,6 +55,9 @@ module html {
                  attribute [ConvertNullToNullString] DOMString dir;
                  attribute [ConvertNullToNullString] DOMString designMode;
         readonly attribute DOMString compatMode;
+
+        readonly attribute Element activeElement;
+        boolean hasFocus();
 
         // Deprecated attributes
                  attribute [ConvertNullToNullString] DOMString bgColor;
