@@ -732,13 +732,7 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 
 namespace webkit_glue {
 
-bool HistoryContains(const char16* url, int url_length, 
-                     const char* document_host, int document_host_length,
-                     bool is_dns_prefetch_enabled) {
-  return false;
-}
-
-void DnsPrefetchUrl(const char16* url, int url_length) {}
+void PrefetchDns(const std::string& hostname) {}
 
 void PrecacheUrl(const char16* url, int url_length) {}
 
