@@ -123,6 +123,7 @@
 		4DB7FA470E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FA430E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp */; };
 		4DB7FA670E9BF24600C66CE0 /* NetworkStateNotifierMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F9EE0E9BECEC00C66CE0 /* NetworkStateNotifierMac.cpp */; };
 		4DB7FE770E9BF6D800C66CE0 /* WebSystemInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */; };
+		4DFF09850E9C1261003CF5B4 /* AccessibilityObjectWin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DFF09840E9C1261003CF5B4 /* AccessibilityObjectWin.cpp */; };
 		7B0091350DAFEFBE00F72082 /* CSSGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */; };
 		7B0091370DAFEFBE00F72082 /* HTMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */; };
 		7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912F0DAFEFBE00F72082 /* SVGElementFactory.cpp */; };
@@ -1531,6 +1532,7 @@
 		4DB7FE690E9BF69A00C66CE0 /* WebSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebSystemInterface.h; sourceTree = "<group>"; };
 		4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebSystemInterface.m; sourceTree = "<group>"; };
 		4DB7FE6F0E9BF6AC00C66CE0 /* libwebcoresysteminterface.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebcoresysteminterface.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DFF09840E9C1261003CF5B4 /* AccessibilityObjectWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObjectWin.cpp; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
 		7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLNames.cpp; sourceTree = "<group>"; };
@@ -7136,6 +7138,7 @@
 		E4A970880E3614F200E8EF3B /* page */ = {
 			isa = PBXGroup;
 			children = (
+				4DFF09840E9C1261003CF5B4 /* AccessibilityObjectWin.cpp */,
 				E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */,
 				4D11C1960E9687B500EF7617 /* Console.cpp */,
 				7B5E8EFF0D7F3C48001ECF42 /* EventHandlerMac.mm */,
@@ -8608,6 +8611,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DFF09850E9C1261003CF5B4 /* AccessibilityObjectWin.cpp in Sources */,
 				E45627EF0E2694B8005E4685 /* BackForwardList.cpp in Sources */,
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
