@@ -433,7 +433,7 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
                                          AtomicString(family, wcslen(family)));
     }
     if (i < numFonts) // we found the font that covers this character !
-       return new SimpleFontData(*data);
+       return getCachedFontData(data);
 
     // IMLangFontLink can break up a string into regions that can be rendered
     // using one particular font.
