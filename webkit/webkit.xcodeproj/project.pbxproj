@@ -3836,8 +3836,8 @@
 		E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RefCountedLeakCounter.cpp; sourceTree = "<group>"; };
 		E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollatorICU.cpp; sourceTree = "<group>"; };
 		E40054B30E9BCC720055B38E /* Collator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Collator.h; sourceTree = "<group>"; };
-		E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PausedTimeouts.h; path = ../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.h; sourceTree = SOURCE_ROOT; };
-		E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PausedTimeouts.cpp; path = ../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.cpp; sourceTree = SOURCE_ROOT; };
+		E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PausedTimeouts.h; path = WebCore/bindings/js/PausedTimeouts.h; sourceTree = "<group>"; };
+		E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PausedTimeouts.cpp; path = WebCore/bindings/js/PausedTimeouts.cpp; sourceTree = "<group>"; };
 		E45062DF0E40B5420025A81A /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkiaUtils.cpp; sourceTree = "<group>"; };
 		E45062E00E40B5420025A81A /* SkiaUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkiaUtils.h; sourceTree = "<group>"; };
 		E45626950E268E87005E4685 /* libwebcore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebcore.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3959,12 +3959,12 @@
 		7B00912A0DAFEF2000F72082 /* bindings */ = {
 			isa = PBXGroup;
 			children = (
-				E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */,
 				E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */,
+				E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */,
 			);
 			name = bindings;
-			path = DerivedSources/v8/bindings;
-			sourceTree = BUILT_PRODUCTS_DIR;
+			path = generated/bindings/v8;
+			sourceTree = CONFIGURATION_TEMP_DIR;
 		};
 		7B0095D00DAFF0DC00F72082 /* v8 */ = {
 			isa = PBXGroup;
