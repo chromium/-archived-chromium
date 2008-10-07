@@ -1075,7 +1075,6 @@ V8 | KJS # LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
 V8 | KJS # LayoutTests/fast/images/svg-as-background.html = FAIL
 V8 | KJS # LayoutTests/fast/images/svg-as-tiled-background.html = FAIL
 V8 | KJS # LayoutTests/fast/js/cyclic-proto.html = FAIL
-V8 | KJS # LayoutTests/fast/js/function-decompilation-operators.html = FAIL
 V8 | KJS # LayoutTests/fast/loader/data-url-encoding-html.html = FAIL
 V8 | KJS # LayoutTests/fast/loader/data-url-encoding-svg.html = FAIL
 V8 | KJS # LayoutTests/fast/loader/url-parse-1.html = FAIL
