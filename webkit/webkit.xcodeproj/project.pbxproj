@@ -42,6 +42,40 @@
 		4D11C4E20E9ABEAB00EF7617 /* ScriptControllerV8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D11C4DB0E9ABE9200EF7617 /* ScriptControllerV8.cpp */; };
 		4D11C52F0E9AC1C700EF7617 /* EventHandlerMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8EFF0D7F3C48001ECF42 /* EventHandlerMac.mm */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
+		4DB7EF7B0E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF770E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.cpp */; };
+		4DB7EF7C0E9B9F0200C66CE0 /* V8CSSVariablesRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF790E9B9F0200C66CE0 /* V8CSSVariablesRule.cpp */; };
+		4DB7EF920E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF800E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp */; };
+		4DB7EF930E9B9F6300C66CE0 /* V8File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF820E9B9F6300C66CE0 /* V8File.cpp */; };
+		4DB7EF940E9B9F6300C66CE0 /* V8FileList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF840E9B9F6300C66CE0 /* V8FileList.cpp */; };
+		4DB7EF950E9B9F6300C66CE0 /* V8ImageData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF860E9B9F6300C66CE0 /* V8ImageData.cpp */; };
+		4DB7EF960E9B9F6300C66CE0 /* V8NSResolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF880E9B9F6300C66CE0 /* V8NSResolver.cpp */; };
+		4DB7EF970E9B9F6300C66CE0 /* V8SVGAnimateColorElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF8A0E9B9F6300C66CE0 /* V8SVGAnimateColorElement.cpp */; };
+		4DB7EF980E9B9F6300C66CE0 /* V8SVGAnimateElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF8C0E9B9F6300C66CE0 /* V8SVGAnimateElement.cpp */; };
+		4DB7EF990E9B9F6300C66CE0 /* V8SVGAnimateTransformElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF8E0E9B9F6300C66CE0 /* V8SVGAnimateTransformElement.cpp */; };
+		4DB7EF9A0E9B9F6300C66CE0 /* V8SVGAnimationElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF900E9B9F6300C66CE0 /* V8SVGAnimationElement.cpp */; };
+		4DB7EFA10E9B9FBE00C66CE0 /* V8SVGSetElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF9B0E9B9FBE00C66CE0 /* V8SVGSetElement.cpp */; };
+		4DB7EFA20E9B9FBE00C66CE0 /* V8TextMetrics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF9D0E9B9FBE00C66CE0 /* V8TextMetrics.cpp */; };
+		4DB7EFA30E9B9FBE00C66CE0 /* V8XMLHttpRequestUpload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EF9F0E9B9FBE00C66CE0 /* V8XMLHttpRequestUpload.cpp */; };
+		4DB7EFBD0E9BA0F300C66CE0 /* CSSFunctionValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFA60E9BA0F300C66CE0 /* CSSFunctionValue.cpp */; };
+		4DB7EFBE0E9BA0F300C66CE0 /* CSSGradientValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFA80E9BA0F300C66CE0 /* CSSGradientValue.cpp */; };
+		4DB7EFBF0E9BA0F300C66CE0 /* CSSImageGeneratorValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFAA0E9BA0F300C66CE0 /* CSSImageGeneratorValue.cpp */; };
+		4DB7EFC00E9BA0F300C66CE0 /* CSSParserValues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFAC0E9BA0F300C66CE0 /* CSSParserValues.cpp */; };
+		4DB7EFC10E9BA0F300C66CE0 /* CSSReflectValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFAF0E9BA0F300C66CE0 /* CSSReflectValue.cpp */; };
+		4DB7EFC20E9BA0F300C66CE0 /* CSSVariableDependentValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFB10E9BA0F300C66CE0 /* CSSVariableDependentValue.cpp */; };
+		4DB7EFC30E9BA0F300C66CE0 /* CSSVariablesDeclaration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFB30E9BA0F300C66CE0 /* CSSVariablesDeclaration.cpp */; };
+		4DB7EFC40E9BA0F300C66CE0 /* CSSVariablesRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFB50E9BA0F300C66CE0 /* CSSVariablesRule.cpp */; };
+		4DB7EFC50E9BA0F300C66CE0 /* WebKitCSSKeyframeRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFB70E9BA0F300C66CE0 /* WebKitCSSKeyframeRule.cpp */; };
+		4DB7EFC60E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFB90E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.cpp */; };
+		4DB7EFC70E9BA0F300C66CE0 /* WebKitCSSTransformValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFBB0E9BA0F300C66CE0 /* WebKitCSSTransformValue.cpp */; };
+		4DB7EFE50E9BA1E400C66CE0 /* AnimationBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFDD0E9BA1E400C66CE0 /* AnimationBase.cpp */; };
+		4DB7EFE60E9BA1E400C66CE0 /* CompositeAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFDF0E9BA1E400C66CE0 /* CompositeAnimation.cpp */; };
+		4DB7EFE70E9BA1E400C66CE0 /* ImplicitAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFE10E9BA1E400C66CE0 /* ImplicitAnimation.cpp */; };
+		4DB7EFE80E9BA1E400C66CE0 /* KeyframeAnimation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFE30E9BA1E400C66CE0 /* KeyframeAnimation.cpp */; };
+		4DB7EFF50E9BA2C700C66CE0 /* XMLHttpRequestUpload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFF30E9BA2C700C66CE0 /* XMLHttpRequestUpload.cpp */; };
+		4DB7F0080E9BA3A100C66CE0 /* FontDescription.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFFB0E9BA3A100C66CE0 /* FontDescription.cpp */; };
+		4DB7F0090E9BA3A100C66CE0 /* GeneratedImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7EFFE0E9BA3A100C66CE0 /* GeneratedImage.cpp */; };
+		4DB7F00A0E9BA3A100C66CE0 /* Gradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F0010E9BA3A100C66CE0 /* Gradient.cpp */; };
+		4DB7F00B0E9BA3A100C66CE0 /* Pattern.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F0040E9BA3A100C66CE0 /* Pattern.cpp */; };
 		7B0091350DAFEFBE00F72082 /* CSSGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */; };
 		7B0091370DAFEFBE00F72082 /* HTMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */; };
 		7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912F0DAFEFBE00F72082 /* SVGElementFactory.cpp */; };
@@ -746,7 +780,6 @@
 		E456251E0E268E87005E4685 /* FormDataStreamMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91350D7F3CC2001ECF42 /* FormDataStreamMac.mm */; };
 		E456251F0E268E87005E4685 /* ResourceErrorMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91360D7F3CC2001ECF42 /* ResourceErrorMac.mm */; };
 		E45625230E268E87005E4685 /* ProtectionSpace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E913C0D7F3CC2001ECF42 /* ProtectionSpace.cpp */; };
-		E45625240E268E87005E4685 /* ResourceErrorMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91450D7F3CC2001ECF42 /* ResourceErrorMac.mm */; };
 		E45625250E268E87005E4685 /* ResourceHandle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91470D7F3CC2001ECF42 /* ResourceHandle.cpp */; };
 		E45625260E268E87005E4685 /* ResourceRequestBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E914B0D7F3CC2001ECF42 /* ResourceRequestBase.cpp */; };
 		E45625280E268E87005E4685 /* FileSystemPOSIX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E915D0D7F3CC2001ECF42 /* FileSystemPOSIX.cpp */; };
@@ -919,7 +952,6 @@
 		E45625EE0E268E87005E4685 /* SVGEllipseElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97B40D7F3EDB001ECF42 /* SVGEllipseElement.cpp */; };
 		E45625EF0E268E87005E4685 /* SVGExternalResourcesRequired.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97B90D7F3EDB001ECF42 /* SVGExternalResourcesRequired.cpp */; };
 		E45625F00E268E87005E4685 /* SVGFEBlendElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97BC0D7F3EDB001ECF42 /* SVGFEBlendElement.cpp */; };
-		E45625F10E268E87005E4685 /* SVGFEColorMatrixElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97BF0D7F3EDB001ECF42 /* SVGFEColorMatrixElement.cpp */; };
 		E45625F20E268E87005E4685 /* SVGFEComponentTransferElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97C20D7F3EDB001ECF42 /* SVGFEComponentTransferElement.cpp */; };
 		E45625F30E268E87005E4685 /* SVGFECompositeElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97C50D7F3EDB001ECF42 /* SVGFECompositeElement.cpp */; };
 		E45625F40E268E87005E4685 /* SVGFEDiffuseLightingElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E97C80D7F3EDB001ECF42 /* SVGFEDiffuseLightingElement.cpp */; };
@@ -1257,6 +1289,81 @@
 		4D11C4D90E9ABE9200EF7617 /* ExceptionContextV8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionContextV8.cpp; sourceTree = "<group>"; };
 		4D11C4DA0E9ABE9200EF7617 /* ScriptControllerKJS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptControllerKJS.cpp; sourceTree = "<group>"; };
 		4D11C4DB0E9ABE9200EF7617 /* ScriptControllerV8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptControllerV8.cpp; sourceTree = "<group>"; };
+		4DB7EF770E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CSSVariablesDeclaration.cpp; sourceTree = "<group>"; };
+		4DB7EF780E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CSSVariablesDeclaration.h; sourceTree = "<group>"; };
+		4DB7EF790E9B9F0200C66CE0 /* V8CSSVariablesRule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CSSVariablesRule.cpp; sourceTree = "<group>"; };
+		4DB7EF7A0E9B9F0200C66CE0 /* V8CSSVariablesRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CSSVariablesRule.h; sourceTree = "<group>"; };
+		4DB7EF800E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8CanvasPixelArray.cpp; sourceTree = "<group>"; };
+		4DB7EF810E9B9F6300C66CE0 /* V8CanvasPixelArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8CanvasPixelArray.h; sourceTree = "<group>"; };
+		4DB7EF820E9B9F6300C66CE0 /* V8File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8File.cpp; sourceTree = "<group>"; };
+		4DB7EF830E9B9F6300C66CE0 /* V8File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8File.h; sourceTree = "<group>"; };
+		4DB7EF840E9B9F6300C66CE0 /* V8FileList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8FileList.cpp; sourceTree = "<group>"; };
+		4DB7EF850E9B9F6300C66CE0 /* V8FileList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8FileList.h; sourceTree = "<group>"; };
+		4DB7EF860E9B9F6300C66CE0 /* V8ImageData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8ImageData.cpp; sourceTree = "<group>"; };
+		4DB7EF870E9B9F6300C66CE0 /* V8ImageData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8ImageData.h; sourceTree = "<group>"; };
+		4DB7EF880E9B9F6300C66CE0 /* V8NSResolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8NSResolver.cpp; sourceTree = "<group>"; };
+		4DB7EF890E9B9F6300C66CE0 /* V8NSResolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8NSResolver.h; sourceTree = "<group>"; };
+		4DB7EF8A0E9B9F6300C66CE0 /* V8SVGAnimateColorElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGAnimateColorElement.cpp; sourceTree = "<group>"; };
+		4DB7EF8B0E9B9F6300C66CE0 /* V8SVGAnimateColorElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGAnimateColorElement.h; sourceTree = "<group>"; };
+		4DB7EF8C0E9B9F6300C66CE0 /* V8SVGAnimateElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGAnimateElement.cpp; sourceTree = "<group>"; };
+		4DB7EF8D0E9B9F6300C66CE0 /* V8SVGAnimateElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGAnimateElement.h; sourceTree = "<group>"; };
+		4DB7EF8E0E9B9F6300C66CE0 /* V8SVGAnimateTransformElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGAnimateTransformElement.cpp; sourceTree = "<group>"; };
+		4DB7EF8F0E9B9F6300C66CE0 /* V8SVGAnimateTransformElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGAnimateTransformElement.h; sourceTree = "<group>"; };
+		4DB7EF900E9B9F6300C66CE0 /* V8SVGAnimationElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGAnimationElement.cpp; sourceTree = "<group>"; };
+		4DB7EF910E9B9F6300C66CE0 /* V8SVGAnimationElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGAnimationElement.h; sourceTree = "<group>"; };
+		4DB7EF9B0E9B9FBE00C66CE0 /* V8SVGSetElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGSetElement.cpp; sourceTree = "<group>"; };
+		4DB7EF9C0E9B9FBE00C66CE0 /* V8SVGSetElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGSetElement.h; sourceTree = "<group>"; };
+		4DB7EF9D0E9B9FBE00C66CE0 /* V8TextMetrics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8TextMetrics.cpp; sourceTree = "<group>"; };
+		4DB7EF9E0E9B9FBE00C66CE0 /* V8TextMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8TextMetrics.h; sourceTree = "<group>"; };
+		4DB7EF9F0E9B9FBE00C66CE0 /* V8XMLHttpRequestUpload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8XMLHttpRequestUpload.cpp; sourceTree = "<group>"; };
+		4DB7EFA00E9B9FBE00C66CE0 /* V8XMLHttpRequestUpload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8XMLHttpRequestUpload.h; sourceTree = "<group>"; };
+		4DB7EFA60E9BA0F300C66CE0 /* CSSFunctionValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSFunctionValue.cpp; sourceTree = "<group>"; };
+		4DB7EFA70E9BA0F300C66CE0 /* CSSFunctionValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSFunctionValue.h; sourceTree = "<group>"; };
+		4DB7EFA80E9BA0F300C66CE0 /* CSSGradientValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGradientValue.cpp; sourceTree = "<group>"; };
+		4DB7EFA90E9BA0F300C66CE0 /* CSSGradientValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGradientValue.h; sourceTree = "<group>"; };
+		4DB7EFAA0E9BA0F300C66CE0 /* CSSImageGeneratorValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSImageGeneratorValue.cpp; sourceTree = "<group>"; };
+		4DB7EFAB0E9BA0F300C66CE0 /* CSSImageGeneratorValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSImageGeneratorValue.h; sourceTree = "<group>"; };
+		4DB7EFAC0E9BA0F300C66CE0 /* CSSParserValues.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSParserValues.cpp; sourceTree = "<group>"; };
+		4DB7EFAD0E9BA0F300C66CE0 /* CSSParserValues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSParserValues.h; sourceTree = "<group>"; };
+		4DB7EFAE0E9BA0F300C66CE0 /* CSSReflectionDirection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSReflectionDirection.h; sourceTree = "<group>"; };
+		4DB7EFAF0E9BA0F300C66CE0 /* CSSReflectValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSReflectValue.cpp; sourceTree = "<group>"; };
+		4DB7EFB00E9BA0F300C66CE0 /* CSSReflectValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSReflectValue.h; sourceTree = "<group>"; };
+		4DB7EFB10E9BA0F300C66CE0 /* CSSVariableDependentValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSVariableDependentValue.cpp; sourceTree = "<group>"; };
+		4DB7EFB20E9BA0F300C66CE0 /* CSSVariableDependentValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSVariableDependentValue.h; sourceTree = "<group>"; };
+		4DB7EFB30E9BA0F300C66CE0 /* CSSVariablesDeclaration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSVariablesDeclaration.cpp; sourceTree = "<group>"; };
+		4DB7EFB40E9BA0F300C66CE0 /* CSSVariablesDeclaration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSVariablesDeclaration.h; sourceTree = "<group>"; };
+		4DB7EFB50E9BA0F300C66CE0 /* CSSVariablesRule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSVariablesRule.cpp; sourceTree = "<group>"; };
+		4DB7EFB60E9BA0F300C66CE0 /* CSSVariablesRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSVariablesRule.h; sourceTree = "<group>"; };
+		4DB7EFB70E9BA0F300C66CE0 /* WebKitCSSKeyframeRule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebKitCSSKeyframeRule.cpp; sourceTree = "<group>"; };
+		4DB7EFB80E9BA0F300C66CE0 /* WebKitCSSKeyframeRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitCSSKeyframeRule.h; sourceTree = "<group>"; };
+		4DB7EFB90E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebKitCSSKeyframesRule.cpp; sourceTree = "<group>"; };
+		4DB7EFBA0E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitCSSKeyframesRule.h; sourceTree = "<group>"; };
+		4DB7EFBB0E9BA0F300C66CE0 /* WebKitCSSTransformValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebKitCSSTransformValue.cpp; sourceTree = "<group>"; };
+		4DB7EFBC0E9BA0F300C66CE0 /* WebKitCSSTransformValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitCSSTransformValue.h; sourceTree = "<group>"; };
+		4DB7EFDD0E9BA1E400C66CE0 /* AnimationBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationBase.cpp; path = animation/AnimationBase.cpp; sourceTree = "<group>"; };
+		4DB7EFDE0E9BA1E400C66CE0 /* AnimationBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimationBase.h; path = animation/AnimationBase.h; sourceTree = "<group>"; };
+		4DB7EFDF0E9BA1E400C66CE0 /* CompositeAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CompositeAnimation.cpp; path = animation/CompositeAnimation.cpp; sourceTree = "<group>"; };
+		4DB7EFE00E9BA1E400C66CE0 /* CompositeAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CompositeAnimation.h; path = animation/CompositeAnimation.h; sourceTree = "<group>"; };
+		4DB7EFE10E9BA1E400C66CE0 /* ImplicitAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ImplicitAnimation.cpp; path = animation/ImplicitAnimation.cpp; sourceTree = "<group>"; };
+		4DB7EFE20E9BA1E400C66CE0 /* ImplicitAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ImplicitAnimation.h; path = animation/ImplicitAnimation.h; sourceTree = "<group>"; };
+		4DB7EFE30E9BA1E400C66CE0 /* KeyframeAnimation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KeyframeAnimation.cpp; path = animation/KeyframeAnimation.cpp; sourceTree = "<group>"; };
+		4DB7EFE40E9BA1E400C66CE0 /* KeyframeAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeyframeAnimation.h; path = animation/KeyframeAnimation.h; sourceTree = "<group>"; };
+		4DB7EFF20E9BA2C700C66CE0 /* XMLHttpRequestProgressEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLHttpRequestProgressEvent.h; sourceTree = "<group>"; };
+		4DB7EFF30E9BA2C700C66CE0 /* XMLHttpRequestUpload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XMLHttpRequestUpload.cpp; sourceTree = "<group>"; };
+		4DB7EFF40E9BA2C700C66CE0 /* XMLHttpRequestUpload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLHttpRequestUpload.h; sourceTree = "<group>"; };
+		4DB7EFFB0E9BA3A100C66CE0 /* FontDescription.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontDescription.cpp; sourceTree = "<group>"; };
+		4DB7EFFC0E9BA3A100C66CE0 /* FontRenderingMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontRenderingMode.h; sourceTree = "<group>"; };
+		4DB7EFFD0E9BA3A100C66CE0 /* FontTraitsMask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTraitsMask.h; sourceTree = "<group>"; };
+		4DB7EFFE0E9BA3A100C66CE0 /* GeneratedImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeneratedImage.cpp; sourceTree = "<group>"; };
+		4DB7EFFF0E9BA3A100C66CE0 /* GeneratedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeneratedImage.h; sourceTree = "<group>"; };
+		4DB7F0000E9BA3A100C66CE0 /* Generator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Generator.h; sourceTree = "<group>"; };
+		4DB7F0010E9BA3A100C66CE0 /* Gradient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gradient.cpp; sourceTree = "<group>"; };
+		4DB7F0020E9BA3A100C66CE0 /* Gradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gradient.h; sourceTree = "<group>"; };
+		4DB7F0030E9BA3A100C66CE0 /* GraphicsContextPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphicsContextPrivate.h; sourceTree = "<group>"; };
+		4DB7F0040E9BA3A100C66CE0 /* Pattern.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pattern.cpp; sourceTree = "<group>"; };
+		4DB7F0050E9BA3A100C66CE0 /* Pattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pattern.h; sourceTree = "<group>"; };
+		4DB7F0060E9BA3A100C66CE0 /* TextRun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextRun.h; sourceTree = "<group>"; };
+		4DB7F0070E9BA3A100C66CE0 /* UnitBezier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnitBezier.h; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
 		7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLNames.cpp; sourceTree = "<group>"; };
@@ -3962,8 +4069,14 @@
 				7B5E88E00D7F3A08001ECF42 /* CSSFontFaceSrcValue.h */,
 				7B5E88E20D7F3A08001ECF42 /* CSSFontSelector.cpp */,
 				7BC951D40D89D36E005C2F36 /* CSSFontSelector.h */,
+				4DB7EFA60E9BA0F300C66CE0 /* CSSFunctionValue.cpp */,
+				4DB7EFA70E9BA0F300C66CE0 /* CSSFunctionValue.h */,
+				4DB7EFA80E9BA0F300C66CE0 /* CSSGradientValue.cpp */,
+				4DB7EFA90E9BA0F300C66CE0 /* CSSGradientValue.h */,
 				7B5E88E40D7F3A08001ECF42 /* CSSHelper.cpp */,
 				7B5E88E50D7F3A08001ECF42 /* CSSHelper.h */,
+				4DB7EFAA0E9BA0F300C66CE0 /* CSSImageGeneratorValue.cpp */,
+				4DB7EFAB0E9BA0F300C66CE0 /* CSSImageGeneratorValue.h */,
 				7B5E88E60D7F3A08001ECF42 /* CSSImageValue.cpp */,
 				7B5E88E70D7F3A08001ECF42 /* CSSImageValue.h */,
 				7B5E88E80D7F3A08001ECF42 /* CSSImportRule.cpp */,
@@ -3981,12 +4094,17 @@
 				7B5E88F60D7F3A08001ECF42 /* CSSPageRule.h */,
 				7B5E88F90D7F3A08001ECF42 /* CSSParser.cpp */,
 				7B5E88FA0D7F3A08001ECF42 /* CSSParser.h */,
+				4DB7EFAC0E9BA0F300C66CE0 /* CSSParserValues.cpp */,
+				4DB7EFAD0E9BA0F300C66CE0 /* CSSParserValues.h */,
 				7B5E88FB0D7F3A08001ECF42 /* CSSPrimitiveValue.cpp */,
 				7B5E88FC0D7F3A08001ECF42 /* CSSPrimitiveValue.h */,
 				7B5E88FE0D7F3A08001ECF42 /* CSSPrimitiveValueMappings.h */,
 				7B5E88FF0D7F3A08001ECF42 /* CSSProperty.cpp */,
 				7B5E89000D7F3A08001ECF42 /* CSSProperty.h */,
 				7B5E89020D7F3A08001ECF42 /* CSSQuirkPrimitiveValue.h */,
+				4DB7EFAE0E9BA0F300C66CE0 /* CSSReflectionDirection.h */,
+				4DB7EFAF0E9BA0F300C66CE0 /* CSSReflectValue.cpp */,
+				4DB7EFB00E9BA0F300C66CE0 /* CSSReflectValue.h */,
 				7B5E89030D7F3A08001ECF42 /* CSSRule.cpp */,
 				7B5E89040D7F3A08001ECF42 /* CSSRule.h */,
 				7B5E89060D7F3A08001ECF42 /* CSSRuleList.cpp */,
@@ -4011,6 +4129,12 @@
 				7B5E89210D7F3A08001ECF42 /* CSSValue.h */,
 				7B5E89240D7F3A08001ECF42 /* CSSValueList.cpp */,
 				7B5E89250D7F3A08001ECF42 /* CSSValueList.h */,
+				4DB7EFB10E9BA0F300C66CE0 /* CSSVariableDependentValue.cpp */,
+				4DB7EFB20E9BA0F300C66CE0 /* CSSVariableDependentValue.h */,
+				4DB7EFB30E9BA0F300C66CE0 /* CSSVariablesDeclaration.cpp */,
+				4DB7EFB40E9BA0F300C66CE0 /* CSSVariablesDeclaration.h */,
+				4DB7EFB50E9BA0F300C66CE0 /* CSSVariablesRule.cpp */,
+				4DB7EFB60E9BA0F300C66CE0 /* CSSVariablesRule.h */,
 				7B5E89270D7F3A08001ECF42 /* DashboardRegion.h */,
 				7B5E89280D7F3A08001ECF42 /* FontFamilyValue.cpp */,
 				7B5E89290D7F3A08001ECF42 /* FontFamilyValue.h */,
@@ -4041,6 +4165,12 @@
 				7B5E894F0D7F3A08001ECF42 /* SVGCSSComputedStyleDeclaration.cpp */,
 				7B5E89500D7F3A08001ECF42 /* SVGCSSParser.cpp */,
 				7B5E89520D7F3A08001ECF42 /* SVGCSSStyleSelector.cpp */,
+				4DB7EFB70E9BA0F300C66CE0 /* WebKitCSSKeyframeRule.cpp */,
+				4DB7EFB80E9BA0F300C66CE0 /* WebKitCSSKeyframeRule.h */,
+				4DB7EFB90E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.cpp */,
+				4DB7EFBA0E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.h */,
+				4DB7EFBB0E9BA0F300C66CE0 /* WebKitCSSTransformValue.cpp */,
+				4DB7EFBC0E9BA0F300C66CE0 /* WebKitCSSTransformValue.h */,
 			);
 			path = css;
 			sourceTree = "<group>";
@@ -4773,19 +4903,28 @@
 				7B5E8FD10D7F3CC1001ECF42 /* FontCache.h */,
 				7B5E8FD20D7F3CC1001ECF42 /* FontData.cpp */,
 				7B5E8FD30D7F3CC1001ECF42 /* FontData.h */,
+				4DB7EFFB0E9BA3A100C66CE0 /* FontDescription.cpp */,
 				7B5E8FD40D7F3CC1001ECF42 /* FontDescription.h */,
 				7B5E8FD50D7F3CC1001ECF42 /* FontFallbackList.cpp */,
 				7B5E8FD60D7F3CC1001ECF42 /* FontFallbackList.h */,
 				7B5E8FD70D7F3CC1001ECF42 /* FontFamily.cpp */,
 				7B5E8FD80D7F3CC1001ECF42 /* FontFamily.h */,
+				4DB7EFFC0E9BA3A100C66CE0 /* FontRenderingMode.h */,
 				7B5E8FD90D7F3CC1001ECF42 /* FontSelector.h */,
+				4DB7EFFD0E9BA3A100C66CE0 /* FontTraitsMask.h */,
+				4DB7EFFE0E9BA3A100C66CE0 /* GeneratedImage.cpp */,
+				4DB7EFFF0E9BA3A100C66CE0 /* GeneratedImage.h */,
+				4DB7F0000E9BA3A100C66CE0 /* Generator.h */,
 				7B5E8FDA0D7F3CC1001ECF42 /* GlyphBuffer.h */,
 				7B5E8FDB0D7F3CC1001ECF42 /* GlyphPageTreeNode.cpp */,
 				7B5E8FDC0D7F3CC1001ECF42 /* GlyphPageTreeNode.h */,
 				7B5E8FDD0D7F3CC1001ECF42 /* GlyphWidthMap.cpp */,
 				7B5E8FDE0D7F3CC1001ECF42 /* GlyphWidthMap.h */,
+				4DB7F0010E9BA3A100C66CE0 /* Gradient.cpp */,
+				4DB7F0020E9BA3A100C66CE0 /* Gradient.h */,
 				7B5E8FDF0D7F3CC1001ECF42 /* GraphicsContext.cpp */,
 				7B5E8FE00D7F3CC1001ECF42 /* GraphicsContext.h */,
+				4DB7F0030E9BA3A100C66CE0 /* GraphicsContextPrivate.h */,
 				7B5E8FE20D7F3CC1001ECF42 /* GraphicsTypes.cpp */,
 				7B5E8FE30D7F3CC1001ECF42 /* GraphicsTypes.h */,
 				7B5E8FF60D7F3CC1001ECF42 /* Icon.h */,
@@ -4805,6 +4944,8 @@
 				7B5E901C0D7F3CC1001ECF42 /* Path.h */,
 				7B5E901E0D7F3CC2001ECF42 /* PathTraversalState.cpp */,
 				7B5E901F0D7F3CC2001ECF42 /* PathTraversalState.h */,
+				4DB7F0040E9BA3A100C66CE0 /* Pattern.cpp */,
+				4DB7F0050E9BA3A100C66CE0 /* Pattern.h */,
 				7B5E90200D7F3CC2001ECF42 /* Pen.cpp */,
 				7B5E90210D7F3CC2001ECF42 /* Pen.h */,
 				7B5E90390D7F3CC2001ECF42 /* SegmentedFontData.cpp */,
@@ -4813,6 +4954,8 @@
 				7B5E903C0D7F3CC2001ECF42 /* SimpleFontData.h */,
 				7B5E903D0D7F3CC2001ECF42 /* StringTruncator.cpp */,
 				7B5E903E0D7F3CC2001ECF42 /* StringTruncator.h */,
+				4DB7F0060E9BA3A100C66CE0 /* TextRun.h */,
+				4DB7F0070E9BA3A100C66CE0 /* UnitBezier.h */,
 			);
 			path = graphics;
 			sourceTree = "<group>";
@@ -5679,6 +5822,9 @@
 				7B5E9AA70D7F402E001ECF42 /* XMLHttpRequest.cpp */,
 				7B5E9AA80D7F402E001ECF42 /* XMLHttpRequest.h */,
 				7B5E9AAA0D7F402E001ECF42 /* XMLHttpRequestException.h */,
+				4DB7EFF20E9BA2C700C66CE0 /* XMLHttpRequestProgressEvent.h */,
+				4DB7EFF30E9BA2C700C66CE0 /* XMLHttpRequestUpload.cpp */,
+				4DB7EFF40E9BA2C700C66CE0 /* XMLHttpRequestUpload.h */,
 				7B5E9AAC0D7F402E001ECF42 /* XMLSerializer.cpp */,
 				7B5E9AAD0D7F402E001ECF42 /* XMLSerializer.h */,
 				7B5E9AAF0D7F402E001ECF42 /* XPathEvaluator.cpp */,
@@ -5823,6 +5969,8 @@
 				7B0091440DAFEFE200F72082 /* V8CanvasGradient.h */,
 				7B0091450DAFEFE300F72082 /* V8CanvasPattern.cpp */,
 				7B0091460DAFEFE300F72082 /* V8CanvasPattern.h */,
+				4DB7EF800E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp */,
+				4DB7EF810E9B9F6300C66CE0 /* V8CanvasPixelArray.h */,
 				7B0091470DAFEFE300F72082 /* V8CanvasRenderingContext2D.cpp */,
 				7B0091480DAFEFE300F72082 /* V8CanvasRenderingContext2D.h */,
 				7B0091490DAFEFE300F72082 /* V8CDATASection.cpp */,
@@ -5863,6 +6011,10 @@
 				7B00916C0DAFEFE300F72082 /* V8CSSValue.h */,
 				7B00916D0DAFEFE300F72082 /* V8CSSValueList.cpp */,
 				7B00916E0DAFEFE300F72082 /* V8CSSValueList.h */,
+				4DB7EF770E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.cpp */,
+				4DB7EF780E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.h */,
+				4DB7EF790E9B9F0200C66CE0 /* V8CSSVariablesRule.cpp */,
+				4DB7EF7A0E9B9F0200C66CE0 /* V8CSSVariablesRule.h */,
 				7B0091710DAFEFE300F72082 /* V8Document.cpp */,
 				7B0091720DAFEFE300F72082 /* V8Document.h */,
 				7B0091730DAFEFE300F72082 /* V8DocumentFragment.cpp */,
@@ -5891,6 +6043,10 @@
 				7B00918A0DAFEFE300F72082 /* V8EventException.h */,
 				7B00918B0DAFEFE300F72082 /* V8EventTargetNode.cpp */,
 				7B00918C0DAFEFE300F72082 /* V8EventTargetNode.h */,
+				4DB7EF820E9B9F6300C66CE0 /* V8File.cpp */,
+				4DB7EF830E9B9F6300C66CE0 /* V8File.h */,
+				4DB7EF840E9B9F6300C66CE0 /* V8FileList.cpp */,
+				4DB7EF850E9B9F6300C66CE0 /* V8FileList.h */,
 				7B00918D0DAFEFE300F72082 /* V8History.cpp */,
 				7B00918E0DAFEFE300F72082 /* V8History.h */,
 				7B00918F0DAFEFE300F72082 /* V8HTMLAnchorElement.cpp */,
@@ -6015,6 +6171,8 @@
 				7B00920C0DAFEFE300F72082 /* V8HTMLTitleElement.h */,
 				7B00920D0DAFEFE300F72082 /* V8HTMLUListElement.cpp */,
 				7B00920E0DAFEFE300F72082 /* V8HTMLUListElement.h */,
+				4DB7EF860E9B9F6300C66CE0 /* V8ImageData.cpp */,
+				4DB7EF870E9B9F6300C66CE0 /* V8ImageData.h */,
 				7B0092110DAFEFE300F72082 /* V8InspectorController.cpp */,
 				7B0092120DAFEFE300F72082 /* V8InspectorController.h */,
 				7B0092130DAFEFE400F72082 /* V8KeyboardEvent.cpp */,
@@ -6047,6 +6205,8 @@
 				7B0092300DAFEFE400F72082 /* V8NodeList.h */,
 				7B0092310DAFEFE400F72082 /* V8Notation.cpp */,
 				7B0092320DAFEFE400F72082 /* V8Notation.h */,
+				4DB7EF880E9B9F6300C66CE0 /* V8NSResolver.cpp */,
+				4DB7EF890E9B9F6300C66CE0 /* V8NSResolver.h */,
 				7B0092330DAFEFE400F72082 /* V8OverflowEvent.cpp */,
 				7B0092340DAFEFE400F72082 /* V8OverflowEvent.h */,
 				7B0092350DAFEFE400F72082 /* V8Plugin.cpp */,
@@ -6075,6 +6235,8 @@
 				7B0092540DAFEFE400F72082 /* V8SVGAElement.h */,
 				7B0092550DAFEFE400F72082 /* V8SVGAngle.cpp */,
 				7B0092560DAFEFE400F72082 /* V8SVGAngle.h */,
+				4DB7EF8A0E9B9F6300C66CE0 /* V8SVGAnimateColorElement.cpp */,
+				4DB7EF8B0E9B9F6300C66CE0 /* V8SVGAnimateColorElement.h */,
 				7B0092590DAFEFE400F72082 /* V8SVGAnimatedAngle.cpp */,
 				7B00925A0DAFEFE400F72082 /* V8SVGAnimatedAngle.h */,
 				7B00925B0DAFEFE400F72082 /* V8SVGAnimatedBoolean.cpp */,
@@ -6101,6 +6263,12 @@
 				7B0092700DAFEFE400F72082 /* V8SVGAnimatedString.h */,
 				7B0092710DAFEFE400F72082 /* V8SVGAnimatedTransformList.cpp */,
 				7B0092720DAFEFE400F72082 /* V8SVGAnimatedTransformList.h */,
+				4DB7EF8C0E9B9F6300C66CE0 /* V8SVGAnimateElement.cpp */,
+				4DB7EF8D0E9B9F6300C66CE0 /* V8SVGAnimateElement.h */,
+				4DB7EF8E0E9B9F6300C66CE0 /* V8SVGAnimateTransformElement.cpp */,
+				4DB7EF8F0E9B9F6300C66CE0 /* V8SVGAnimateTransformElement.h */,
+				4DB7EF900E9B9F6300C66CE0 /* V8SVGAnimationElement.cpp */,
+				4DB7EF910E9B9F6300C66CE0 /* V8SVGAnimationElement.h */,
 				7B0092790DAFEFE400F72082 /* V8SVGCircleElement.cpp */,
 				7B00927A0DAFEFE400F72082 /* V8SVGCircleElement.h */,
 				7B00927B0DAFEFE400F72082 /* V8SVGClipPathElement.cpp */,
@@ -6239,6 +6407,8 @@
 				7B0093300DAFEFE500F72082 /* V8SVGRenderingIntent.h */,
 				7B0093310DAFEFE500F72082 /* V8SVGScriptElement.cpp */,
 				7B0093320DAFEFE500F72082 /* V8SVGScriptElement.h */,
+				4DB7EF9B0E9B9FBE00C66CE0 /* V8SVGSetElement.cpp */,
+				4DB7EF9C0E9B9FBE00C66CE0 /* V8SVGSetElement.h */,
 				7B0093350DAFEFE500F72082 /* V8SVGStopElement.cpp */,
 				7B0093360DAFEFE500F72082 /* V8SVGStopElement.h */,
 				7B0093370DAFEFE500F72082 /* V8SVGStringList.cpp */,
@@ -6283,6 +6453,8 @@
 				7B00935E0DAFEFE500F72082 /* V8Text.h */,
 				7B00935F0DAFEFE500F72082 /* V8TextEvent.cpp */,
 				7B0093600DAFEFE500F72082 /* V8TextEvent.h */,
+				4DB7EF9D0E9B9FBE00C66CE0 /* V8TextMetrics.cpp */,
+				4DB7EF9E0E9B9FBE00C66CE0 /* V8TextMetrics.h */,
 				7B0093630DAFEFE500F72082 /* V8TreeWalker.cpp */,
 				7B0093640DAFEFE500F72082 /* V8TreeWalker.h */,
 				7B0093650DAFEFE500F72082 /* V8UIEvent.cpp */,
@@ -6295,6 +6467,8 @@
 				7B0093700DAFEFE500F72082 /* V8XMLHttpRequest.h */,
 				7B0093710DAFEFE500F72082 /* V8XMLHttpRequestException.cpp */,
 				7B0093720DAFEFE500F72082 /* V8XMLHttpRequestException.h */,
+				4DB7EF9F0E9B9FBE00C66CE0 /* V8XMLHttpRequestUpload.cpp */,
+				4DB7EFA00E9B9FBE00C66CE0 /* V8XMLHttpRequestUpload.h */,
 				7B0093730DAFEFE500F72082 /* V8XMLSerializer.cpp */,
 				7B0093740DAFEFE500F72082 /* V8XMLSerializer.h */,
 				7B0093750DAFEFE500F72082 /* V8XPathEvaluator.cpp */,
@@ -6570,8 +6744,16 @@
 		AB332F440E9549650020F882 /* animation */ = {
 			isa = PBXGroup;
 			children = (
+				4DB7EFDD0E9BA1E400C66CE0 /* AnimationBase.cpp */,
+				4DB7EFDE0E9BA1E400C66CE0 /* AnimationBase.h */,
 				AB332F4B0E95497E0020F882 /* AnimationController.cpp */,
 				AB332F4C0E95497E0020F882 /* AnimationController.h */,
+				4DB7EFDF0E9BA1E400C66CE0 /* CompositeAnimation.cpp */,
+				4DB7EFE00E9BA1E400C66CE0 /* CompositeAnimation.h */,
+				4DB7EFE10E9BA1E400C66CE0 /* ImplicitAnimation.cpp */,
+				4DB7EFE20E9BA1E400C66CE0 /* ImplicitAnimation.h */,
+				4DB7EFE30E9BA1E400C66CE0 /* KeyframeAnimation.cpp */,
+				4DB7EFE40E9BA1E400C66CE0 /* KeyframeAnimation.h */,
 			);
 			name = animation;
 			sourceTree = "<group>";
@@ -6903,6 +7085,7 @@
 				7B0093830DAFEFE600F72082 /* V8BarInfo.cpp in Sources */,
 				7B0093850DAFEFE600F72082 /* V8CanvasGradient.cpp in Sources */,
 				7B0093870DAFEFE600F72082 /* V8CanvasPattern.cpp in Sources */,
+				4DB7EF920E9B9F6300C66CE0 /* V8CanvasPixelArray.cpp in Sources */,
 				7B0093890DAFEFE600F72082 /* V8CanvasRenderingContext2D.cpp in Sources */,
 				7B00938B0DAFEFE600F72082 /* V8CDATASection.cpp in Sources */,
 				7B00938D0DAFEFE600F72082 /* V8CharacterData.cpp in Sources */,
@@ -6923,6 +7106,8 @@
 				7B0093AB0DAFEFE600F72082 /* V8CSSStyleSheet.cpp in Sources */,
 				7B0093AD0DAFEFE600F72082 /* V8CSSValue.cpp in Sources */,
 				7B0093AF0DAFEFE600F72082 /* V8CSSValueList.cpp in Sources */,
+				4DB7EF7B0E9B9F0200C66CE0 /* V8CSSVariablesDeclaration.cpp in Sources */,
+				4DB7EF7C0E9B9F0200C66CE0 /* V8CSSVariablesRule.cpp in Sources */,
 				7B0093B30DAFEFE600F72082 /* V8Document.cpp in Sources */,
 				7B0093B50DAFEFE600F72082 /* V8DocumentFragment.cpp in Sources */,
 				7B0093B70DAFEFE600F72082 /* V8DocumentType.cpp in Sources */,
@@ -6937,6 +7122,8 @@
 				7B0093C90DAFEFE600F72082 /* V8Event.cpp in Sources */,
 				7B0093CB0DAFEFE600F72082 /* V8EventException.cpp in Sources */,
 				7B0093CD0DAFEFE600F72082 /* V8EventTargetNode.cpp in Sources */,
+				4DB7EF930E9B9F6300C66CE0 /* V8File.cpp in Sources */,
+				4DB7EF940E9B9F6300C66CE0 /* V8FileList.cpp in Sources */,
 				7B0093CF0DAFEFE600F72082 /* V8History.cpp in Sources */,
 				7B0093D10DAFEFE600F72082 /* V8HTMLAnchorElement.cpp in Sources */,
 				7B0093D30DAFEFE600F72082 /* V8HTMLAppletElement.cpp in Sources */,
@@ -6999,6 +7186,7 @@
 				7B00944B0DAFEFE600F72082 /* V8HTMLTextAreaElement.cpp in Sources */,
 				7B00944D0DAFEFE600F72082 /* V8HTMLTitleElement.cpp in Sources */,
 				7B00944F0DAFEFE600F72082 /* V8HTMLUListElement.cpp in Sources */,
+				4DB7EF950E9B9F6300C66CE0 /* V8ImageData.cpp in Sources */,
 				7B0094530DAFEFE600F72082 /* V8InspectorController.cpp in Sources */,
 				7B0094550DAFEFE600F72082 /* V8KeyboardEvent.cpp in Sources */,
 				7B0094570DAFEFE600F72082 /* V8Location.cpp in Sources */,
@@ -7015,6 +7203,7 @@
 				7B00946F0DAFEFE600F72082 /* V8NodeIterator.cpp in Sources */,
 				7B0094710DAFEFE600F72082 /* V8NodeList.cpp in Sources */,
 				7B0094730DAFEFE600F72082 /* V8Notation.cpp in Sources */,
+				4DB7EF960E9B9F6300C66CE0 /* V8NSResolver.cpp in Sources */,
 				7B0094750DAFEFE600F72082 /* V8OverflowEvent.cpp in Sources */,
 				7B0094770DAFEFE600F72082 /* V8Plugin.cpp in Sources */,
 				7B0094790DAFEFE600F72082 /* V8PluginArray.cpp in Sources */,
@@ -7029,6 +7218,7 @@
 				7B0094930DAFEFE600F72082 /* V8StyleSheetList.cpp in Sources */,
 				7B0094950DAFEFE600F72082 /* V8SVGAElement.cpp in Sources */,
 				7B0094970DAFEFE600F72082 /* V8SVGAngle.cpp in Sources */,
+				4DB7EF970E9B9F6300C66CE0 /* V8SVGAnimateColorElement.cpp in Sources */,
 				7B00949B0DAFEFE600F72082 /* V8SVGAnimatedAngle.cpp in Sources */,
 				7B00949D0DAFEFE600F72082 /* V8SVGAnimatedBoolean.cpp in Sources */,
 				7B00949F0DAFEFE600F72082 /* V8SVGAnimatedEnumeration.cpp in Sources */,
@@ -7042,6 +7232,9 @@
 				7B0094AF0DAFEFE600F72082 /* V8SVGAnimatedRect.cpp in Sources */,
 				7B0094B10DAFEFE600F72082 /* V8SVGAnimatedString.cpp in Sources */,
 				7B0094B30DAFEFE600F72082 /* V8SVGAnimatedTransformList.cpp in Sources */,
+				4DB7EF980E9B9F6300C66CE0 /* V8SVGAnimateElement.cpp in Sources */,
+				4DB7EF990E9B9F6300C66CE0 /* V8SVGAnimateTransformElement.cpp in Sources */,
+				4DB7EF9A0E9B9F6300C66CE0 /* V8SVGAnimationElement.cpp in Sources */,
 				7B0094BB0DAFEFE600F72082 /* V8SVGCircleElement.cpp in Sources */,
 				7B0094BD0DAFEFE600F72082 /* V8SVGClipPathElement.cpp in Sources */,
 				7B0094BF0DAFEFE600F72082 /* V8SVGColor.cpp in Sources */,
@@ -7111,6 +7304,7 @@
 				7B00956F0DAFEFE600F72082 /* V8SVGRectElement.cpp in Sources */,
 				7B0095710DAFEFE600F72082 /* V8SVGRenderingIntent.cpp in Sources */,
 				7B0095730DAFEFE600F72082 /* V8SVGScriptElement.cpp in Sources */,
+				4DB7EFA10E9B9FBE00C66CE0 /* V8SVGSetElement.cpp in Sources */,
 				7B0095770DAFEFE600F72082 /* V8SVGStopElement.cpp in Sources */,
 				7B0095790DAFEFE600F72082 /* V8SVGStringList.cpp in Sources */,
 				7B00957B0DAFEFE600F72082 /* V8SVGStyleElement.cpp in Sources */,
@@ -7133,12 +7327,14 @@
 				7B00959D0DAFEFE600F72082 /* V8SVGZoomEvent.cpp in Sources */,
 				7B00959F0DAFEFE600F72082 /* V8Text.cpp in Sources */,
 				7B0095A10DAFEFE600F72082 /* V8TextEvent.cpp in Sources */,
+				4DB7EFA20E9B9FBE00C66CE0 /* V8TextMetrics.cpp in Sources */,
 				7B0095A50DAFEFE600F72082 /* V8TreeWalker.cpp in Sources */,
 				7B0095A70DAFEFE600F72082 /* V8UIEvent.cpp in Sources */,
 				7B0095A90DAFEFE600F72082 /* V8UndetectableHTMLCollection.cpp in Sources */,
 				7B0095AD0DAFEFE600F72082 /* V8WheelEvent.cpp in Sources */,
 				7B0095B10DAFEFE600F72082 /* V8XMLHttpRequest.cpp in Sources */,
 				7B0095B30DAFEFE600F72082 /* V8XMLHttpRequestException.cpp in Sources */,
+				4DB7EFA30E9B9FBE00C66CE0 /* V8XMLHttpRequestUpload.cpp in Sources */,
 				7B0095B50DAFEFE600F72082 /* V8XMLSerializer.cpp in Sources */,
 				7B0095B70DAFEFE600F72082 /* V8XPathEvaluator.cpp in Sources */,
 				7B0095B90DAFEFE600F72082 /* V8XPathException.cpp in Sources */,
@@ -7159,6 +7355,7 @@
 				AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */,
 				E45624C00E268E87005E4685 /* AffineTransform.cpp in Sources */,
 				E45626810E268E87005E4685 /* AffineTransformCG.cpp in Sources */,
+				4DB7EFE50E9BA1E400C66CE0 /* AnimationBase.cpp in Sources */,
 				AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */,
 				E45623EC0E268E87005E4685 /* AppendNodeCommand.cpp in Sources */,
 				E45623ED0E268E87005E4685 /* ApplyStyleCommand.cpp in Sources */,
@@ -7174,6 +7371,7 @@
 				E456252E0E268E87005E4685 /* Base64.cpp in Sources */,
 				E45623AE0E268E87005E4685 /* BeforeTextInsertedEvent.cpp in Sources */,
 				E45623AF0E268E87005E4685 /* BeforeUnloadEvent.cpp in Sources */,
+				B5C180960E958D23006EAF87 /* bidi.cpp in Sources */,
 				E456252F0E268E87005E4685 /* BidiContext.cpp in Sources */,
 				E45624C10E268E87005E4685 /* BitmapImage.cpp in Sources */,
 				E45624ED0E268E87005E4685 /* BlockExceptions.mm in Sources */,
@@ -7208,6 +7406,7 @@
 				E456259C0E268E87005E4685 /* ColorDistance.cpp in Sources */,
 				E45624D20E268E87005E4685 /* ColorMac.mm in Sources */,
 				E45623B70E268E87005E4685 /* Comment.cpp in Sources */,
+				4DB7EFE60E9BA1E400C66CE0 /* CompositeAnimation.cpp in Sources */,
 				E45623EF0E268E87005E4685 /* CompositeEditCommand.cpp in Sources */,
 				E45623B80E268E87005E4685 /* ContainerNode.cpp in Sources */,
 				E45624B70E268E87005E4685 /* ContextMenu.cpp in Sources */,
@@ -7227,7 +7426,10 @@
 				E45623830E268E87005E4685 /* CSSFontFaceSource.cpp in Sources */,
 				E45623840E268E87005E4685 /* CSSFontFaceSrcValue.cpp in Sources */,
 				E45623850E268E87005E4685 /* CSSFontSelector.cpp in Sources */,
+				4DB7EFBD0E9BA0F300C66CE0 /* CSSFunctionValue.cpp in Sources */,
+				4DB7EFBE0E9BA0F300C66CE0 /* CSSGradientValue.cpp in Sources */,
 				E45623860E268E87005E4685 /* CSSHelper.cpp in Sources */,
+				4DB7EFBF0E9BA0F300C66CE0 /* CSSImageGeneratorValue.cpp in Sources */,
 				E45623870E268E87005E4685 /* CSSImageValue.cpp in Sources */,
 				E45623880E268E87005E4685 /* CSSImportRule.cpp in Sources */,
 				E45623890E268E87005E4685 /* CSSInheritedValue.cpp in Sources */,
@@ -7237,8 +7439,10 @@
 				E456238C0E268E87005E4685 /* CSSMutableStyleDeclaration.cpp in Sources */,
 				E456238D0E268E87005E4685 /* CSSPageRule.cpp in Sources */,
 				E456238E0E268E87005E4685 /* CSSParser.cpp in Sources */,
+				4DB7EFC00E9BA0F300C66CE0 /* CSSParserValues.cpp in Sources */,
 				E456238F0E268E87005E4685 /* CSSPrimitiveValue.cpp in Sources */,
 				E45623900E268E87005E4685 /* CSSProperty.cpp in Sources */,
+				4DB7EFC10E9BA0F300C66CE0 /* CSSReflectValue.cpp in Sources */,
 				E45623910E268E87005E4685 /* CSSRule.cpp in Sources */,
 				E45623920E268E87005E4685 /* CSSRuleList.cpp in Sources */,
 				E45623930E268E87005E4685 /* CSSSegmentedFontFace.cpp in Sources */,
@@ -7250,6 +7454,9 @@
 				E45623990E268E87005E4685 /* CSSTimingFunctionValue.cpp in Sources */,
 				E456239B0E268E87005E4685 /* CSSUnicodeRangeValue.cpp in Sources */,
 				E456239C0E268E87005E4685 /* CSSValueList.cpp in Sources */,
+				4DB7EFC20E9BA0F300C66CE0 /* CSSVariableDependentValue.cpp in Sources */,
+				4DB7EFC30E9BA0F300C66CE0 /* CSSVariablesDeclaration.cpp in Sources */,
+				4DB7EFC40E9BA0F300C66CE0 /* CSSVariablesRule.cpp in Sources */,
 				E45625320E268E87005E4685 /* CString.cpp in Sources */,
 				E45624F20E268E87005E4685 /* CursorMac.mm in Sources */,
 				E45623F10E268E87005E4685 /* DeleteButton.cpp in Sources */,
@@ -7314,6 +7521,7 @@
 				E4E4CA470E8027ED009A687C /* FontCacheMacPending.cpp in Sources */,
 				E45624D70E268E87005E4685 /* FontCustomPlatformData.cpp in Sources */,
 				E45624C90E268E87005E4685 /* FontData.cpp in Sources */,
+				4DB7F0080E9BA3A100C66CE0 /* FontDescription.cpp in Sources */,
 				E45624CA0E268E87005E4685 /* FontFallbackList.cpp in Sources */,
 				E45624CB0E268E87005E4685 /* FontFamily.cpp in Sources */,
 				E456239D0E268E87005E4685 /* FontFamilyValue.cpp in Sources */,
@@ -7332,9 +7540,11 @@
 				E45624A60E268E87005E4685 /* FrameView.cpp in Sources */,
 				E45624880E268E87005E4685 /* FTPDirectoryDocument.cpp in Sources */,
 				E45624890E268E87005E4685 /* FTPDirectoryParser.cpp in Sources */,
+				4DB7F0090E9BA3A100C66CE0 /* GeneratedImage.cpp in Sources */,
 				E45624CC0E268E87005E4685 /* GlyphPageTreeNode.cpp in Sources */,
 				E45624DA0E268E87005E4685 /* GlyphPageTreeNodeMac.cpp in Sources */,
 				E45624CD0E268E87005E4685 /* GlyphWidthMap.cpp in Sources */,
+				4DB7F00A0E9BA3A100C66CE0 /* Gradient.cpp in Sources */,
 				E45624CE0E268E87005E4685 /* GraphicsContext.cpp in Sources */,
 				E45626860E268E87005E4685 /* GraphicsContextCG.cpp in Sources */,
 				E45624DB0E268E87005E4685 /* GraphicsContextMac.mm in Sources */,
@@ -7432,6 +7642,7 @@
 				E45626880E268E87005E4685 /* ImageCG.cpp in Sources */,
 				E456248A0E268E87005E4685 /* ImageDocument.cpp in Sources */,
 				E45624DD0E268E87005E4685 /* ImageMac.mm in Sources */,
+				4DB7EFE70E9BA1E400C66CE0 /* ImplicitAnimation.cpp in Sources */,
 				E45623FB0E268E87005E4685 /* IndentOutdentCommand.cpp in Sources */,
 				E45625510E268E87005E4685 /* InlineBox.cpp in Sources */,
 				E45625520E268E87005E4685 /* InlineFlowBox.cpp in Sources */,
@@ -7452,6 +7663,7 @@
 				E45624020E268E87005E4685 /* JoinTextNodesCommand.cpp in Sources */,
 				E45623C90E268E87005E4685 /* KeyboardEvent.cpp in Sources */,
 				E45624F90E268E87005E4685 /* KeyEventMac.mm in Sources */,
+				4DB7EFE80E9BA1E400C66CE0 /* KeyframeAnimation.cpp in Sources */,
 				E45624EA0E268E87005E4685 /* KURL.cpp in Sources */,
 				E45624FB0E268E87005E4685 /* Language.mm in Sources */,
 				E45625540E268E87005E4685 /* LayoutState.cpp in Sources */,
@@ -7502,6 +7714,7 @@
 				E45624E40E268E87005E4685 /* Path.cpp in Sources */,
 				E456268C0E268E87005E4685 /* PathCG.cpp in Sources */,
 				E45624E50E268E87005E4685 /* PathTraversalState.cpp in Sources */,
+				4DB7F00B0E9BA3A100C66CE0 /* Pattern.cpp in Sources */,
 				E43CE13C0E68621500D8C5B9 /* PausedTimeouts.cpp in Sources */,
 				E456268D0E268E87005E4685 /* PDFDocumentImage.cpp in Sources */,
 				E45624E60E268E87005E4685 /* Pen.cpp in Sources */,
@@ -7528,6 +7741,7 @@
 				E456240D0E268E87005E4685 /* RemoveNodePreservingChildrenCommand.cpp in Sources */,
 				E45625580E268E87005E4685 /* RenderApplet.cpp in Sources */,
 				E45625590E268E87005E4685 /* RenderArena.cpp in Sources */,
+				B5C180980E958D44006EAF87 /* RenderBlock.cpp in Sources */,
 				E456255B0E268E87005E4685 /* RenderBox.cpp in Sources */,
 				E456255C0E268E87005E4685 /* RenderBR.cpp in Sources */,
 				E456255D0E268E87005E4685 /* RenderButton.cpp in Sources */,
@@ -7550,12 +7764,14 @@
 				E456256E0E268E87005E4685 /* RenderListMarker.cpp in Sources */,
 				E456256F0E268E87005E4685 /* RenderMedia.cpp in Sources */,
 				E45625700E268E87005E4685 /* RenderMenuList.cpp in Sources */,
+				B5C1809C0E958D81006EAF87 /* RenderObject.cpp in Sources */,
 				E45625720E268E87005E4685 /* RenderPart.cpp in Sources */,
 				E45625730E268E87005E4685 /* RenderPartObject.cpp in Sources */,
 				E45625740E268E87005E4685 /* RenderPath.cpp in Sources */,
 				E45626780E268E87005E4685 /* RenderPathCg.cpp in Sources */,
 				E45625750E268E87005E4685 /* RenderReplaced.cpp in Sources */,
 				E45625760E268E87005E4685 /* RenderSlider.cpp in Sources */,
+				B5C180A40E958EAA006EAF87 /* RenderStyle.cpp in Sources */,
 				E45625780E268E87005E4685 /* RenderSVGBlock.cpp in Sources */,
 				E45625790E268E87005E4685 /* RenderSVGContainer.cpp in Sources */,
 				E456257A0E268E87005E4685 /* RenderSVGGradientStop.cpp in Sources */,
@@ -7569,6 +7785,7 @@
 				E45625820E268E87005E4685 /* RenderSVGTransformableContainer.cpp in Sources */,
 				E45625830E268E87005E4685 /* RenderSVGTSpan.cpp in Sources */,
 				E45625840E268E87005E4685 /* RenderSVGViewportContainer.cpp in Sources */,
+				B5C180A70E958EFD006EAF87 /* RenderTable.cpp in Sources */,
 				E45625860E268E87005E4685 /* RenderTableCell.cpp in Sources */,
 				E45625870E268E87005E4685 /* RenderTableCol.cpp in Sources */,
 				E45625880E268E87005E4685 /* RenderTableRow.cpp in Sources */,
@@ -7581,9 +7798,9 @@
 				E456258F0E268E87005E4685 /* RenderVideo.cpp in Sources */,
 				E45625900E268E87005E4685 /* RenderView.cpp in Sources */,
 				E45625910E268E87005E4685 /* RenderWidget.cpp in Sources */,
+				B5C180AB0E958F28006EAF87 /* RenderWordBreak.cpp in Sources */,
 				E456240E0E268E87005E4685 /* ReplaceSelectionCommand.cpp in Sources */,
 				E45624950E268E87005E4685 /* Request.cpp in Sources */,
-				E45625240E268E87005E4685 /* ResourceErrorMac.mm in Sources */,
 				E456251F0E268E87005E4685 /* ResourceErrorMac.mm in Sources */,
 				E45625250E268E87005E4685 /* ResourceHandle.cpp in Sources */,
 				E45624960E268E87005E4685 /* ResourceLoader.cpp in Sources */,
@@ -7656,13 +7873,14 @@
 				E45625E70E268E87005E4685 /* SVGDefsElement.cpp in Sources */,
 				E45625E80E268E87005E4685 /* SVGDescElement.cpp in Sources */,
 				E45625E90E268E87005E4685 /* SVGDocument.cpp in Sources */,
+				B5599D130E95942900E2A85A /* SVGDocumentExtensions.cpp in Sources */,
 				E45625EB0E268E87005E4685 /* SVGElement.cpp in Sources */,
 				E45625EC0E268E87005E4685 /* SVGElementInstance.cpp in Sources */,
 				E45625ED0E268E87005E4685 /* SVGElementInstanceList.cpp in Sources */,
 				E45625EE0E268E87005E4685 /* SVGEllipseElement.cpp in Sources */,
 				E45625EF0E268E87005E4685 /* SVGExternalResourcesRequired.cpp in Sources */,
 				E45625F00E268E87005E4685 /* SVGFEBlendElement.cpp in Sources */,
-				E45625F10E268E87005E4685 /* SVGFEColorMatrixElement.cpp in Sources */,
+				B5599D0F0E95929900E2A85A /* SVGFEColorMatrixElement.cpp in Sources */,
 				E45625F20E268E87005E4685 /* SVGFEComponentTransferElement.cpp in Sources */,
 				E45625F30E268E87005E4685 /* SVGFECompositeElement.cpp in Sources */,
 				E45625BE0E268E87005E4685 /* SVGFEConvolveMatrix.cpp in Sources */,
@@ -7713,6 +7931,7 @@
 				E45626130E268E87005E4685 /* SVGGElement.cpp in Sources */,
 				E45626140E268E87005E4685 /* SVGGlyphElement.cpp in Sources */,
 				E45626150E268E87005E4685 /* SVGGradientElement.cpp in Sources */,
+				B5599D160E9594E800E2A85A /* SVGImage.cpp in Sources */,
 				E45626160E268E87005E4685 /* SVGImageElement.cpp in Sources */,
 				E45626170E268E87005E4685 /* SVGImageLoader.cpp in Sources */,
 				E45625950E268E87005E4685 /* SVGInlineFlowBox.cpp in Sources */,
@@ -7776,6 +7995,7 @@
 				E45625D60E268E87005E4685 /* SVGResourceMarker.cpp in Sources */,
 				E45625D70E268E87005E4685 /* SVGResourceMasker.cpp in Sources */,
 				E45626800E268E87005E4685 /* SVGResourceMaskerCg.mm in Sources */,
+				B5C180AD0E958F3D006EAF87 /* SVGRootInlineBox.cpp in Sources */,
 				E456263A0E268E87005E4685 /* SVGScriptElement.cpp in Sources */,
 				E456263B0E268E87005E4685 /* SVGSetElement.cpp in Sources */,
 				E456263C0E268E87005E4685 /* SVGStopElement.cpp in Sources */,
@@ -7812,10 +8032,13 @@
 				E45625360E268E87005E4685 /* TextBoundaries.mm in Sources */,
 				E456253D0E268E87005E4685 /* TextBreakIteratorICU.cpp in Sources */,
 				E45625370E268E87005E4685 /* TextBreakIteratorInternalICUMac.mm in Sources */,
+				B5C180770E9581B6006EAF87 /* TextCodec.cpp in Sources */,
 				E456253F0E268E87005E4685 /* TextCodecICU.cpp in Sources */,
 				E45625400E268E87005E4685 /* TextCodecLatin1.cpp in Sources */,
 				82761E970E3FA26F0030D324 /* TextCodecMac.cpp in Sources */,
 				E45625410E268E87005E4685 /* TextCodecUserDefined.cpp in Sources */,
+				B5C180790E9581CB006EAF87 /* TextCodecUTF16.cpp in Sources */,
+				B5C1807B0E9581DE006EAF87 /* TextDecoder.cpp in Sources */,
 				E45624980E268E87005E4685 /* TextDocument.cpp in Sources */,
 				E45625440E268E87005E4685 /* TextEncoding.cpp in Sources */,
 				E45625450E268E87005E4685 /* TextEncodingRegistry.cpp in Sources */,
@@ -7845,6 +8068,9 @@
 				E45624AC0E268E87005E4685 /* WebCoreViewFactory.m in Sources */,
 				E45624AD0E268E87005E4685 /* WebDashboardRegion.m in Sources */,
 				E45625150E268E87005E4685 /* WebFontCache.mm in Sources */,
+				4DB7EFC50E9BA0F300C66CE0 /* WebKitCSSKeyframeRule.cpp in Sources */,
+				4DB7EFC60E9BA0F300C66CE0 /* WebKitCSSKeyframesRule.cpp in Sources */,
+				4DB7EFC70E9BA0F300C66CE0 /* WebKitCSSTransformValue.cpp in Sources */,
 				E45623EA0E268E87005E4685 /* WheelEvent.cpp in Sources */,
 				E45625160E268E87005E4685 /* WheelEventMac.mm in Sources */,
 				E45625490E268E87005E4685 /* Widget.cpp in Sources */,
@@ -7866,6 +8092,7 @@
 				E45625B90E268E87005E4685 /* WKTableTransferFilter.m in Sources */,
 				E456241D0E268E87005E4685 /* WrapContentsInDummySpanCommand.cpp in Sources */,
 				E456265C0E268E87005E4685 /* XMLHttpRequest.cpp in Sources */,
+				4DB7EFF50E9BA2C700C66CE0 /* XMLHttpRequestUpload.cpp in Sources */,
 				E456265D0E268E87005E4685 /* XMLSerializer.cpp in Sources */,
 				E45623EB0E268E87005E4685 /* XMLTokenizer.cpp in Sources */,
 				E456265E0E268E87005E4685 /* XPathEvaluator.cpp in Sources */,
@@ -7888,19 +8115,8 @@
 				E456266F0E268E87005E4685 /* XSLTExtensions.cpp in Sources */,
 				E45626700E268E87005E4685 /* XSLTProcessor.cpp in Sources */,
 				E45626710E268E87005E4685 /* XSLTUnicodeSort.cpp in Sources */,
-				B5C180770E9581B6006EAF87 /* TextCodec.cpp in Sources */,
-				B5C180790E9581CB006EAF87 /* TextCodecUTF16.cpp in Sources */,
-				B5C1807B0E9581DE006EAF87 /* TextDecoder.cpp in Sources */,
-				B5C180960E958D23006EAF87 /* bidi.cpp in Sources */,
-				B5C180980E958D44006EAF87 /* RenderBlock.cpp in Sources */,
-				B5C1809C0E958D81006EAF87 /* RenderObject.cpp in Sources */,
-				B5C180A40E958EAA006EAF87 /* RenderStyle.cpp in Sources */,
-				B5C180A70E958EFD006EAF87 /* RenderTable.cpp in Sources */,
-				B5C180AB0E958F28006EAF87 /* RenderWordBreak.cpp in Sources */,
-				B5C180AD0E958F3D006EAF87 /* SVGRootInlineBox.cpp in Sources */,
+				E456251F0E268E87005E4685 /* ResourceErrorMac.mm in Sources */,
 				B5599D0F0E95929900E2A85A /* SVGFEColorMatrixElement.cpp in Sources */,
-				B5599D130E95942900E2A85A /* SVGDocumentExtensions.cpp in Sources */,
-				B5599D160E9594E800E2A85A /* SVGImage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
