@@ -4546,11 +4546,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\HTMLPlugInElement.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLPlugInElement.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\HTMLPlugInElement.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLPlugInElement.h"
 				>
 			</File>
 			<File
