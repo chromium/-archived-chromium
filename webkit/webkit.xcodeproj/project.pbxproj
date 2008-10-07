@@ -105,6 +105,13 @@
 		4DB7F2050E9BAE2900C66CE0 /* AccessibilityTableRow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F1F80E9BAE2900C66CE0 /* AccessibilityTableRow.cpp */; };
 		4DB7F2060E9BAE2900C66CE0 /* PageGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F1FB0E9BAE2900C66CE0 /* PageGroup.cpp */; };
 		4DB7F2130E9BAF2300C66CE0 /* CSSCanvasValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F2110E9BAF2300C66CE0 /* CSSCanvasValue.cpp */; };
+		4DB7F5290E9BD3FB00C66CE0 /* MainThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F5210E9BD3FB00C66CE0 /* MainThread.cpp */; };
+		4DB7F52A0E9BD3FB00C66CE0 /* ThreadingPthreads.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F5270E9BD3FB00C66CE0 /* ThreadingPthreads.cpp */; };
+		4DB7F5420E9BD50600C66CE0 /* MainThreadMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F5410E9BD50600C66CE0 /* MainThreadMac.mm */; };
+		4DB7F55C0E9BD66300C66CE0 /* JSNSResolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F5570E9BD66300C66CE0 /* JSNSResolver.cpp */; };
+		4DB7F55D0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F55B0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp */; };
+		4DB7F5620E9BD69A00C66CE0 /* JSNSResolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F5570E9BD66300C66CE0 /* JSNSResolver.cpp */; };
+		4DB7F5630E9BD69A00C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F55B0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp */; };
 		7B0091350DAFEFBE00F72082 /* CSSGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */; };
 		7B0091370DAFEFBE00F72082 /* HTMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */; };
 		7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912F0DAFEFBE00F72082 /* SVGElementFactory.cpp */; };
@@ -1462,6 +1469,22 @@
 		4DB7F1FC0E9BAE2900C66CE0 /* PageGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageGroup.h; sourceTree = "<group>"; };
 		4DB7F2110E9BAF2300C66CE0 /* CSSCanvasValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSCanvasValue.cpp; sourceTree = "<group>"; };
 		4DB7F2120E9BAF2300C66CE0 /* CSSCanvasValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSCanvasValue.h; sourceTree = "<group>"; };
+		4DB7F51F0E9BD3FB00C66CE0 /* AVLTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVLTree.h; sourceTree = "<group>"; };
+		4DB7F5200E9BD3FB00C66CE0 /* Locker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Locker.h; sourceTree = "<group>"; };
+		4DB7F5210E9BD3FB00C66CE0 /* MainThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainThread.cpp; sourceTree = "<group>"; };
+		4DB7F5220E9BD3FB00C66CE0 /* MainThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainThread.h; sourceTree = "<group>"; };
+		4DB7F5230E9BD3FB00C66CE0 /* MessageQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageQueue.h; sourceTree = "<group>"; };
+		4DB7F5240E9BD3FB00C66CE0 /* NotFound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotFound.h; sourceTree = "<group>"; };
+		4DB7F5250E9BD3FB00C66CE0 /* RefCountedLeakCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefCountedLeakCounter.h; sourceTree = "<group>"; };
+		4DB7F5260E9BD3FB00C66CE0 /* Threading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Threading.h; sourceTree = "<group>"; };
+		4DB7F5270E9BD3FB00C66CE0 /* ThreadingPthreads.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadingPthreads.cpp; sourceTree = "<group>"; };
+		4DB7F5280E9BD3FB00C66CE0 /* ThreadSpecific.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadSpecific.h; sourceTree = "<group>"; };
+		4DB7F5410E9BD50600C66CE0 /* MainThreadMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MainThreadMac.mm; sourceTree = "<group>"; };
+		4DB7F5570E9BD66300C66CE0 /* JSNSResolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSNSResolver.cpp; sourceTree = "<group>"; };
+		4DB7F5580E9BD66300C66CE0 /* JSNSResolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSNSResolver.h; sourceTree = "<group>"; };
+		4DB7F5590E9BD66300C66CE0 /* v8_collection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_collection.h; sourceTree = "<group>"; };
+		4DB7F55A0E9BD66300C66CE0 /* V8SVGPODTypeWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGPODTypeWrapper.h; sourceTree = "<group>"; };
+		4DB7F55B0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8XMLHttpRequestCustom.cpp; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
 		7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLNames.cpp; sourceTree = "<group>"; };
@@ -2072,11 +2095,10 @@
 		7B5E85D70D7F28F5001ECF42 /* TCSpinLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCSpinLock.h; sourceTree = "<group>"; };
 		7B5E85D80D7F28F5001ECF42 /* TCSystemAlloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCSystemAlloc.cpp; sourceTree = "<group>"; };
 		7B5E85D90D7F28F5001ECF42 /* TCSystemAlloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCSystemAlloc.h; sourceTree = "<group>"; };
-		7B5E85DC0D7F28F5001ECF42 /* UnicodeIcu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UnicodeIcu.h; path = unicode/icu/UnicodeIcu.h; sourceTree = "<group>"; };
-		7B5E85DE0D7F28F5001ECF42 /* UnicodeQt4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UnicodeQt4.h; path = unicode/qt4/UnicodeQt4.h; sourceTree = "<group>"; };
-		7B5E85DF0D7F28F5001ECF42 /* Unicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Unicode.h; path = unicode/Unicode.h; sourceTree = "<group>"; };
-		7B5E85E00D7F28F5001ECF42 /* UTF8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UTF8.cpp; path = unicode/UTF8.cpp; sourceTree = "<group>"; };
-		7B5E85E10D7F28F5001ECF42 /* UTF8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UTF8.h; path = unicode/UTF8.h; sourceTree = "<group>"; };
+		7B5E85DC0D7F28F5001ECF42 /* UnicodeIcu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnicodeIcu.h; sourceTree = "<group>"; };
+		7B5E85DF0D7F28F5001ECF42 /* Unicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Unicode.h; sourceTree = "<group>"; };
+		7B5E85E00D7F28F5001ECF42 /* UTF8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UTF8.cpp; sourceTree = "<group>"; };
+		7B5E85E10D7F28F5001ECF42 /* UTF8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UTF8.h; sourceTree = "<group>"; };
 		7B5E85E20D7F28F5001ECF42 /* UnusedParam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnusedParam.h; sourceTree = "<group>"; };
 		7B5E85E30D7F28F5001ECF42 /* Vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector.h; sourceTree = "<group>"; };
 		7B5E85E40D7F28F5001ECF42 /* VectorTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorTraits.h; sourceTree = "<group>"; };
@@ -3806,7 +3828,7 @@
 		B5C180AC0E958F3D006EAF87 /* SVGRootInlineBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGRootInlineBox.cpp; sourceTree = "<group>"; };
 		E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RefCountedLeakCounter.cpp; sourceTree = "<group>"; };
 		E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CollatorICU.cpp; sourceTree = "<group>"; };
-		E40054B30E9BCC720055B38E /* Collator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Collator.h; path = ../third_party/WebKit/JavaScriptCore/wtf/unicode/Collator.h; sourceTree = SOURCE_ROOT; };
+		E40054B30E9BCC720055B38E /* Collator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Collator.h; sourceTree = "<group>"; };
 		E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PausedTimeouts.h; path = ../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.h; sourceTree = SOURCE_ROOT; };
 		E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PausedTimeouts.cpp; path = ../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.cpp; sourceTree = SOURCE_ROOT; };
 		E45062DF0E40B5420025A81A /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkiaUtils.cpp; sourceTree = "<group>"; };
@@ -3908,6 +3930,14 @@
 			path = animation;
 			sourceTree = "<group>";
 		};
+		4DB7F5400E9BD4ED00C66CE0 /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				4DB7F5410E9BD50600C66CE0 /* MainThreadMac.mm */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
 		7B0091290DAFEF0E00F72082 /* jsbindings */ = {
 			isa = PBXGroup;
 			children = (
@@ -3933,6 +3963,8 @@
 			isa = PBXGroup;
 			children = (
 				7B0095D20DAFF0DC00F72082 /* dom_wrapper_map.h */,
+				4DB7F5570E9BD66300C66CE0 /* JSNSResolver.cpp */,
+				4DB7F5580E9BD66300C66CE0 /* JSNSResolver.h */,
 				7B0095D30DAFF0DC00F72082 /* JSXPathNSResolver.cpp */,
 				7B0095D40DAFF0DC00F72082 /* JSXPathNSResolver.h */,
 				7B0095D50DAFF0DC00F72082 /* np_v8object.cpp */,
@@ -3942,6 +3974,7 @@
 				7B0095D90DAFF0DC00F72082 /* npruntime_internal.h */,
 				7B0095DA0DAFF0DC00F72082 /* npruntime_priv.h */,
 				7B0095DB0DAFF0DC00F72082 /* v8_binding.h */,
+				4DB7F5590E9BD66300C66CE0 /* v8_collection.h */,
 				7B0095DC0DAFF0DC00F72082 /* v8_custom.cpp */,
 				7B0095DD0DAFF0DC00F72082 /* v8_custom.h */,
 				7B0095DE0DAFF0DC00F72082 /* v8_events.cpp */,
@@ -3962,7 +3995,9 @@
 				7B0095EC0DAFF0DD00F72082 /* v8_utility.h */,
 				7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */,
 				7B0095EE0DAFF0DD00F72082 /* v8_vectornodelist.h */,
+				4DB7F55A0E9BD66300C66CE0 /* V8SVGPODTypeWrapper.h */,
 				7B0095EF0DAFF0DD00F72082 /* V8SVGTearoffWrapper.h */,
+				4DB7F55B0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp */,
 			);
 			name = v8;
 			path = port/bindings/v8;
@@ -4074,10 +4109,13 @@
 		7B5E85B30D7F28F5001ECF42 /* wtf */ = {
 			isa = PBXGroup;
 			children = (
+				4DB7F5400E9BD4ED00C66CE0 /* mac */,
+				7B5E85DA0D7F28F5001ECF42 /* unicode */,
 				7B5E85B40D7F28F5001ECF42 /* AlwaysInline.h */,
 				7B5E85B50D7F28F5001ECF42 /* ASCIICType.h */,
 				7B5E85B60D7F28F5001ECF42 /* Assertions.cpp */,
 				7B5E85B70D7F28F5001ECF42 /* Assertions.h */,
+				4DB7F51F0E9BD3FB00C66CE0 /* AVLTree.h */,
 				7B5E85B80D7F28F5001ECF42 /* Deque.h */,
 				7B5E85B90D7F28F5001ECF42 /* DisallowCType.h */,
 				7B5E85BA0D7F28F5001ECF42 /* FastMalloc.cpp */,
@@ -4094,15 +4132,21 @@
 				7B5E85C50D7F28F5001ECF42 /* HashTraits.h */,
 				7B5E85C60D7F28F5001ECF42 /* ListHashSet.h */,
 				7B5E85C70D7F28F5001ECF42 /* ListRefPtr.h */,
+				4DB7F5200E9BD3FB00C66CE0 /* Locker.h */,
+				4DB7F5210E9BD3FB00C66CE0 /* MainThread.cpp */,
+				4DB7F5220E9BD3FB00C66CE0 /* MainThread.h */,
 				7B5E85C80D7F28F5001ECF42 /* MallocZoneSupport.h */,
 				7B5E85C90D7F28F5001ECF42 /* MathExtras.h */,
+				4DB7F5230E9BD3FB00C66CE0 /* MessageQueue.h */,
 				7B5E85CA0D7F28F5001ECF42 /* Noncopyable.h */,
+				4DB7F5240E9BD3FB00C66CE0 /* NotFound.h */,
 				7B5E85CB0D7F28F5001ECF42 /* OwnArrayPtr.h */,
 				7B5E85CC0D7F28F5001ECF42 /* OwnPtr.h */,
 				7B5E85CE0D7F28F5001ECF42 /* PassRefPtr.h */,
 				7B5E85CF0D7F28F5001ECF42 /* Platform.h */,
 				7B5E85D00D7F28F5001ECF42 /* RefCounted.h */,
 				E40054A60E9BC4C20055B38E /* RefCountedLeakCounter.cpp */,
+				4DB7F5250E9BD3FB00C66CE0 /* RefCountedLeakCounter.h */,
 				7B5E85D10D7F28F5001ECF42 /* RefPtr.h */,
 				7B5E85D20D7F28F5001ECF42 /* RefPtrHashMap.h */,
 				7B5E85D30D7F28F5001ECF42 /* RetainPtr.h */,
@@ -4112,15 +4156,12 @@
 				7B5E85D70D7F28F5001ECF42 /* TCSpinLock.h */,
 				7B5E85D80D7F28F5001ECF42 /* TCSystemAlloc.cpp */,
 				7B5E85D90D7F28F5001ECF42 /* TCSystemAlloc.h */,
-				7B5E85DF0D7F28F5001ECF42 /* Unicode.h */,
-				7B5E85DC0D7F28F5001ECF42 /* UnicodeIcu.h */,
-				7B5E85DE0D7F28F5001ECF42 /* UnicodeQt4.h */,
+				4DB7F5260E9BD3FB00C66CE0 /* Threading.h */,
+				4DB7F5270E9BD3FB00C66CE0 /* ThreadingPthreads.cpp */,
+				4DB7F5280E9BD3FB00C66CE0 /* ThreadSpecific.h */,
 				7B5E85E20D7F28F5001ECF42 /* UnusedParam.h */,
-				7B5E85E00D7F28F5001ECF42 /* UTF8.cpp */,
-				7B5E85E10D7F28F5001ECF42 /* UTF8.h */,
 				7B5E85E30D7F28F5001ECF42 /* Vector.h */,
 				7B5E85E40D7F28F5001ECF42 /* VectorTraits.h */,
-				7B5E85DA0D7F28F5001ECF42 /* unicode */,
 			);
 			name = wtf;
 			path = ../third_party/WebKit/JavaScriptCore/wtf;
@@ -4130,7 +4171,10 @@
 			isa = PBXGroup;
 			children = (
 				7B5E85DB0D7F28F5001ECF42 /* icu */,
-				7B5E85DD0D7F28F5001ECF42 /* qt4 */,
+				E40054B30E9BCC720055B38E /* Collator.h */,
+				7B5E85DF0D7F28F5001ECF42 /* Unicode.h */,
+				7B5E85E00D7F28F5001ECF42 /* UTF8.cpp */,
+				7B5E85E10D7F28F5001ECF42 /* UTF8.h */,
 			);
 			path = unicode;
 			sourceTree = "<group>";
@@ -4139,16 +4183,9 @@
 			isa = PBXGroup;
 			children = (
 				E40054B00E9BCC5C0055B38E /* CollatorICU.cpp */,
-				E40054B30E9BCC720055B38E /* Collator.h */,
+				7B5E85DC0D7F28F5001ECF42 /* UnicodeIcu.h */,
 			);
 			path = icu;
-			sourceTree = "<group>";
-		};
-		7B5E85DD0D7F28F5001ECF42 /* qt4 */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = qt4;
 			sourceTree = "<group>";
 		};
 		7B5E87820D7F394A001ECF42 /* webcore */ = {
@@ -7266,8 +7303,11 @@
 				E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */,
 				7B5E862C0D7F2B56001ECF42 /* FastMalloc.cpp in Sources */,
 				7B5E85F40D7F28F5001ECF42 /* HashTable.cpp in Sources */,
+				4DB7F5290E9BD3FB00C66CE0 /* MainThread.cpp in Sources */,
+				4DB7F5420E9BD50600C66CE0 /* MainThreadMac.mm in Sources */,
 				E40054A70E9BC4C20055B38E /* RefCountedLeakCounter.cpp in Sources */,
 				7B5E86090D7F28F5001ECF42 /* TCSystemAlloc.cpp in Sources */,
+				4DB7F52A0E9BD3FB00C66CE0 /* ThreadingPthreads.cpp in Sources */,
 				7B5E860E0D7F28F5001ECF42 /* UTF8.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7281,6 +7321,7 @@
 				4D11C52F0E9AC1C700EF7617 /* EventHandlerMac.mm in Sources */,
 				7B0091370DAFEFBE00F72082 /* HTMLNames.cpp in Sources */,
 				7B00962A0DAFF1D000F72082 /* InspectorController.cpp in Sources */,
+				4DB7F5620E9BD69A00C66CE0 /* JSNSResolver.cpp in Sources */,
 				7B0095F10DAFF0DD00F72082 /* JSXPathNSResolver.cpp in Sources */,
 				7B0096220DAFF19C00F72082 /* Location.cpp in Sources */,
 				7B0096240DAFF19C00F72082 /* Navigator.cpp in Sources */,
@@ -7550,6 +7591,7 @@
 				7B0095A90DAFEFE600F72082 /* V8UndetectableHTMLCollection.cpp in Sources */,
 				7B0095AD0DAFEFE600F72082 /* V8WheelEvent.cpp in Sources */,
 				7B0095B10DAFEFE600F72082 /* V8XMLHttpRequest.cpp in Sources */,
+				4DB7F5630E9BD69A00C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */,
 				7B0095B30DAFEFE600F72082 /* V8XMLHttpRequestException.cpp in Sources */,
 				4DB7EFA30E9B9FBE00C66CE0 /* V8XMLHttpRequestUpload.cpp in Sources */,
 				7B0095B50DAFEFE600F72082 /* V8XMLSerializer.cpp in Sources */,
@@ -8429,6 +8471,7 @@
 				E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
+				4DB7F55C0E9BD66300C66CE0 /* JSNSResolver.cpp in Sources */,
 				E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */,
 				E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */,
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
@@ -8438,6 +8481,7 @@
 				E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */,
 				E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */,
 				E45627E70E2694B8005E4685 /* SkPaintContext.cpp in Sources */,
+				4DB7F55D0E9BD66300C66CE0 /* V8XMLHttpRequestCustom.cpp in Sources */,
 				E4E4CD180E84018A009A687C /* WebCoreFrameBridge.mm in Sources */,
 				E45627EC0E2694B8005E4685 /* XBMImageDecoder.cpp in Sources */,
 			);
