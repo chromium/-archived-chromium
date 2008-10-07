@@ -463,7 +463,7 @@ void KURL::setPort(unsigned short i)
     if (i > 0) {
         portStr = String::number(static_cast<int>(i));
         replacements.SetPort(
-            reinterpret_cast<const wchar_t*>(portStr.characters()),
+            reinterpret_cast<const UTF16Char*>(portStr.characters()),
             url_parse::Component(0, portStr.length()));
 
     } else {
@@ -661,7 +661,7 @@ String decodeURLEscapeSequences(const String& str, const TextEncoding& encoding)
 
     // Convert that 8-bit to UTF-16. It's not clear IE does this at all to
     // JavaScript URLs, but Firefox and Safari do.
-    url_canon::RawCanonOutputT<wchar_t> utf16;
+    url_canon::RawCanonOutputT<UTF16Char> utf16;
     for (int i = 0; i < unescaped.length(); i++) {
         unsigned char uch = static_cast<unsigned char>(unescaped.at(i));
         if (uch < 0x80) {

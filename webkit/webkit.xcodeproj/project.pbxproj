@@ -395,6 +395,7 @@
 		AB0240650E9565F7006D59C8 /* DocumentLoaderMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB0240640E9565F7006D59C8 /* DocumentLoaderMac.cpp */; };
 		AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
 		AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB332F4B0E95497E0020F882 /* AnimationController.cpp */; };
+		AB8FE8A50E9BCD3E0051E7B4 /* GKURL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */; };
 		B50F5BE00E96D3F800AD71A6 /* WebCoreObjCExtras.mm in Sources */ = {isa = PBXBuildFile; fileRef = B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */; };
 		B51C76C00E9BC7A400D9DFC4 /* GradientCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76BF0E9BC7A400D9DFC4 /* GradientCG.cpp */; };
 		B51C76CF0E9BC8D100D9DFC4 /* RenderMarquee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76CE0E9BC8D100D9DFC4 /* RenderMarquee.cpp */; };
@@ -3757,6 +3758,7 @@
 		AB332F4B0E95497E0020F882 /* AnimationController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationController.cpp; path = animation/AnimationController.cpp; sourceTree = "<group>"; };
 		AB332F4C0E95497E0020F882 /* AnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimationController.h; path = animation/AnimationController.h; sourceTree = "<group>"; };
 		AB50EA1C0E9AB12B00FDD61B /* EmptyClients.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyClients.h; sourceTree = "<group>"; };
+		AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GKURL.cpp; sourceTree = "<group>"; };
 		B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WebCoreObjCExtras.mm; path = pending/WebCoreObjCExtras.mm; sourceTree = SOURCE_ROOT; };
 		B51C76BF0E9BC7A400D9DFC4 /* GradientCG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GradientCG.cpp; sourceTree = "<group>"; };
 		B51C76CD0E9BC8D100D9DFC4 /* RenderMarquee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderMarquee.h; sourceTree = "<group>"; };
@@ -6711,6 +6713,7 @@
 				82C260620DCB9FFE005CFE91 /* image-decoders */,
 				822B1BE70DC77910005C9A96 /* graphics */,
 				E45628270E269688005E4685 /* network */,
+				AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */,
 			);
 			path = platform;
 			sourceTree = "<group>";
@@ -8404,6 +8407,7 @@
 				4D11C4E10E9ABEA900EF7617 /* ExceptionContextV8.cpp in Sources */,
 				7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */,
 				7B2B0A610E3143EC00D4C6B7 /* GIFImageReader.cpp in Sources */,
+				AB8FE8A50E9BCD3E0051E7B4 /* GKURL.cpp in Sources */,
 				E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,

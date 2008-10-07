@@ -257,7 +257,7 @@ private:
 
     // Replaces the given components, modifying the current URL. The current
     // URL must be valid.
-    typedef url_canon::Replacements<wchar_t> Replacements;
+    typedef url_canon::Replacements<UTF16Char> Replacements;
     void replaceComponents(const Replacements& replacements);
 
     // Returns true if the scheme matches the given lowercase ASCII scheme.
