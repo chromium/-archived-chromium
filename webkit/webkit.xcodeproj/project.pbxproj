@@ -396,6 +396,9 @@
 		AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
 		AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB332F4B0E95497E0020F882 /* AnimationController.cpp */; };
 		B50F5BE00E96D3F800AD71A6 /* WebCoreObjCExtras.mm in Sources */ = {isa = PBXBuildFile; fileRef = B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */; };
+		B51C76C00E9BC7A400D9DFC4 /* GradientCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76BF0E9BC7A400D9DFC4 /* GradientCG.cpp */; };
+		B51C76CF0E9BC8D100D9DFC4 /* RenderMarquee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76CE0E9BC8D100D9DFC4 /* RenderMarquee.cpp */; };
+		B51C76DB0E9BC9F400D9DFC4 /* NinePieceImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76DA0E9BC9F400D9DFC4 /* NinePieceImage.cpp */; };
 		B5599D130E95942900E2A85A /* SVGDocumentExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D120E95942900E2A85A /* SVGDocumentExtensions.cpp */; };
 		B5599D160E9594E800E2A85A /* SVGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D140E9594E800E2A85A /* SVGImage.cpp */; };
 		B57635F80E96C13D008A7ABC /* ResourceResponseBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B57635F70E96C13D008A7ABC /* ResourceResponseBase.cpp */; };
@@ -3751,6 +3754,11 @@
 		AB332F4C0E95497E0020F882 /* AnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimationController.h; path = animation/AnimationController.h; sourceTree = "<group>"; };
 		AB50EA1C0E9AB12B00FDD61B /* EmptyClients.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyClients.h; sourceTree = "<group>"; };
 		B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WebCoreObjCExtras.mm; path = pending/WebCoreObjCExtras.mm; sourceTree = SOURCE_ROOT; };
+		B51C76BF0E9BC7A400D9DFC4 /* GradientCG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GradientCG.cpp; sourceTree = "<group>"; };
+		B51C76CD0E9BC8D100D9DFC4 /* RenderMarquee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderMarquee.h; sourceTree = "<group>"; };
+		B51C76CE0E9BC8D100D9DFC4 /* RenderMarquee.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderMarquee.cpp; sourceTree = "<group>"; };
+		B51C76D90E9BC9F400D9DFC4 /* NinePieceImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NinePieceImage.h; path = style/NinePieceImage.h; sourceTree = "<group>"; };
+		B51C76DA0E9BC9F400D9DFC4 /* NinePieceImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NinePieceImage.cpp; path = style/NinePieceImage.cpp; sourceTree = "<group>"; };
 		B5599D0D0E95929900E2A85A /* SVGFEColorMatrixElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SVGFEColorMatrixElement.h; path = ../third_party/WebKit/WebCore/svg/SVGFEColorMatrixElement.h; sourceTree = SOURCE_ROOT; };
 		B5599D110E95942900E2A85A /* SVGDocumentExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGDocumentExtensions.h; sourceTree = "<group>"; };
 		B5599D120E95942900E2A85A /* SVGDocumentExtensions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGDocumentExtensions.cpp; sourceTree = "<group>"; };
@@ -5125,6 +5133,7 @@
 				7B5E8FB60D7F3CC1001ECF42 /* FloatPointCG.cpp */,
 				7B5E8FB70D7F3CC1001ECF42 /* FloatRectCG.cpp */,
 				7B5E8FB80D7F3CC1001ECF42 /* FloatSizeCG.cpp */,
+				B51C76BF0E9BC7A400D9DFC4 /* GradientCG.cpp */,
 				7B5E8FB90D7F3CC1001ECF42 /* GraphicsContextCG.cpp */,
 				7B5E8FBA0D7F3CC1001ECF42 /* GraphicsContextPlatformPrivateCG.h */,
 				7B5E8FBB0D7F3CC1001ECF42 /* ImageBufferCG.cpp */,
@@ -5456,6 +5465,8 @@
 				7B5E95620D7F3E94001ECF42 /* RenderListItem.h */,
 				7B5E95630D7F3E94001ECF42 /* RenderListMarker.cpp */,
 				7B5E95640D7F3E95001ECF42 /* RenderListMarker.h */,
+				B51C76CE0E9BC8D100D9DFC4 /* RenderMarquee.cpp */,
+				B51C76CD0E9BC8D100D9DFC4 /* RenderMarquee.h */,
 				7B5E95650D7F3E95001ECF42 /* RenderMedia.cpp */,
 				7B5E95660D7F3E95001ECF42 /* RenderMedia.h */,
 				7B5E95670D7F3E95001ECF42 /* RenderMenuList.cpp */,
@@ -6917,6 +6928,8 @@
 		B5C180A00E958E85006EAF87 /* style */ = {
 			isa = PBXGroup;
 			children = (
+				B51C76D90E9BC9F400D9DFC4 /* NinePieceImage.h */,
+				B51C76DA0E9BC9F400D9DFC4 /* NinePieceImage.cpp */,
 				B5C180A30E958EAA006EAF87 /* RenderStyle.cpp */,
 			);
 			name = style;
@@ -7718,6 +7731,7 @@
 				E45624DA0E268E87005E4685 /* GlyphPageTreeNodeMac.cpp in Sources */,
 				E45624CD0E268E87005E4685 /* GlyphWidthMap.cpp in Sources */,
 				4DB7F00A0E9BA3A100C66CE0 /* Gradient.cpp in Sources */,
+				B51C76C00E9BC7A400D9DFC4 /* GradientCG.cpp in Sources */,
 				E45624CE0E268E87005E4685 /* GraphicsContext.cpp in Sources */,
 				E45626860E268E87005E4685 /* GraphicsContextCG.cpp in Sources */,
 				E45624DB0E268E87005E4685 /* GraphicsContextMac.mm in Sources */,
@@ -7877,6 +7891,7 @@
 				E456265B0E268E87005E4685 /* NativeXPathNSResolver.cpp in Sources */,
 				E45624910E268E87005E4685 /* NavigationAction.cpp in Sources */,
 				E45624920E268E87005E4685 /* NetscapePlugInStreamLoader.cpp in Sources */,
+				B51C76DB0E9BC9F400D9DFC4 /* NinePieceImage.cpp in Sources */,
 				E45623D20E268E87005E4685 /* Node.cpp in Sources */,
 				E45623D30E268E87005E4685 /* NodeFilter.cpp in Sources */,
 				E45623D40E268E87005E4685 /* NodeFilterCondition.cpp in Sources */,
@@ -7940,6 +7955,7 @@
 				E456256C0E268E87005E4685 /* RenderListBox.cpp in Sources */,
 				E456256D0E268E87005E4685 /* RenderListItem.cpp in Sources */,
 				E456256E0E268E87005E4685 /* RenderListMarker.cpp in Sources */,
+				B51C76CF0E9BC8D100D9DFC4 /* RenderMarquee.cpp in Sources */,
 				E456256F0E268E87005E4685 /* RenderMedia.cpp in Sources */,
 				E45625700E268E87005E4685 /* RenderMenuList.cpp in Sources */,
 				B5C1809C0E958D81006EAF87 /* RenderObject.cpp in Sources */,
