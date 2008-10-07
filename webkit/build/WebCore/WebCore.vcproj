@@ -3414,7 +3414,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\NSResolver.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\NSResolver.h"
 				>
 			</File>
 			<File
