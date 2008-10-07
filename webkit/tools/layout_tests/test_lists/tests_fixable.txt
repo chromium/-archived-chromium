@@ -1068,9 +1068,6 @@ V8 | KJS # LayoutTests/fast/events/onload-after-document-close-with-subresource.
 V8 | KJS # LayoutTests/fast/forms/form-hides-table.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/legend-access-key.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/select-accesskey.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/textAreaLineHeight.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
 V8 | KJS # LayoutTests/fast/images/svg-as-background.html = FAIL
 V8 | KJS # LayoutTests/fast/images/svg-as-tiled-background.html = FAIL
 V8 | KJS # LayoutTests/fast/loader/url-parse-1.html = FAIL
