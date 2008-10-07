@@ -22,14 +22,10 @@ layer at (0,0) size 785x3172
       RenderBlock {P} at (0,3128) size 769x20
         RenderText {#text} at (0,0) size 387x19
           text run at (0,0) width 387: "If the bug does not occur, you'll be left down here at the bottom."
-layer at (10,3103) size 106x14 scrollWidth 218
+layer at (10,3103) size 106x14 scrollWidth 110
   RenderBlock {DIV} at (2,3) size 106x14
-    RenderText {#text} at (1,0) size 89x14
-      text run at (1,0) width 89: "select some of this "
-    RenderText {#text} at (90,0) size 108x14
-      text run at (90,0) width 108: "select some of this text"
-    RenderText {#text} at (198,0) size 19x14
-      text run at (198,0) width 19: "text"
-selection start: position 0 of child 1 {#text} of child 0 {DIV} of child 7 {INPUT} of child 1 {BODY} of child 0 {HTML} of document
-selection end:   position 24 of child 1 {#text} of child 0 {DIV} of child 7 {INPUT} of child 1 {BODY} of child 0 {HTML} of document
+    RenderText {#text} at (1,0) size 108x14
+      text run at (1,0) width 108: "select some of this text"
+selection start: position 2 of child 0 {#text} of child 0 {DIV} of child 7 {INPUT} of child 1 {BODY} of child 0 {HTML} of document
+selection end:   position 20 of child 0 {#text} of child 0 {DIV} of child 7 {INPUT} of child 1 {BODY} of child 0 {HTML} of document
 scrolled to 0,2572
