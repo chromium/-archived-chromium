@@ -1208,7 +1208,6 @@
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
 		E4E4CA470E8027ED009A687C /* FontCacheMacPending.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */; };
 		E4E4CA710E803415009A687C /* DragDataMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E00D7F3CC2001ECF42 /* DragDataMac.mm */; };
-		E4E4CA910E803BB9009A687C /* AXObjectCacheMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA900E803BB9009A687C /* AXObjectCacheMac.cpp */; };
 		E4E4CCF50E83F328009A687C /* FrameMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8F000D7F3C48001ECF42 /* FrameMac.mm */; };
 		E4E4CD180E84018A009A687C /* WebCoreFrameBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CD170E84018A009A687C /* WebCoreFrameBridge.mm */; };
 /* End PBXBuildFile section */
@@ -3887,7 +3886,6 @@
 		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
 		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
 		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontCacheMacPending.cpp; path = mac/FontCacheMacPending.cpp; sourceTree = "<group>"; };
-		E4E4CA900E803BB9009A687C /* AXObjectCacheMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AXObjectCacheMac.cpp; sourceTree = "<group>"; };
 		E4E4CAE60E805325009A687C /* webkit_staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = webkit_staticlib.xcconfig; path = build/webkit_staticlib.xcconfig; sourceTree = SOURCE_ROOT; };
 		E4E4CD170E84018A009A687C /* WebCoreFrameBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreFrameBridge.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -7098,7 +7096,6 @@
 		E4A970880E3614F200E8EF3B /* page */ = {
 			isa = PBXGroup;
 			children = (
-				E4E4CA900E803BB9009A687C /* AXObjectCacheMac.cpp */,
 				E4A9708A0E36150500E8EF3B /* ChromeClientWin.h */,
 				4D11C1960E9687B500EF7617 /* Console.cpp */,
 				7B5E8EFF0D7F3C48001ECF42 /* EventHandlerMac.mm */,
@@ -8529,7 +8526,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4E4CA910E803BB9009A687C /* AXObjectCacheMac.cpp in Sources */,
 				E45627EF0E2694B8005E4685 /* BackForwardList.cpp in Sources */,
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
@@ -8694,7 +8690,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY=1";
+				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY=1 HAVE_ACCESSIBILITY=0";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",
@@ -8812,7 +8808,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY=1";
+				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY=1 HAVE_ACCESSIBILITY=0";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",

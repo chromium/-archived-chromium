@@ -210,4 +210,9 @@ NSView* ScrollView::documentView() const {
   return nil;
 }
 
+bool ScrollView::isScrollable() {
+  // placeholder until we pull new ScrollView implementation from WebKit
+  return false;
+}
+
 }
