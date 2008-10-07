@@ -414,6 +414,8 @@
 		AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
 		AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB332F4B0E95497E0020F882 /* AnimationController.cpp */; };
 		AB8FE8A50E9BCD3E0051E7B4 /* GKURL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */; };
+		B507F51C0E9BE98B00D16D77 /* PluginStubsMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B507F51B0E9BE98B00D16D77 /* PluginStubsMac.cpp */; };
+		B507F54E0E9BECC300D16D77 /* HTMLPlugInImageElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B507F54D0E9BECC300D16D77 /* HTMLPlugInImageElement.cpp */; };
 		B50F5BE00E96D3F800AD71A6 /* WebCoreObjCExtras.mm in Sources */ = {isa = PBXBuildFile; fileRef = B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */; };
 		B51C76C00E9BC7A400D9DFC4 /* GradientCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76BF0E9BC7A400D9DFC4 /* GradientCG.cpp */; };
 		B51C76CF0E9BC8D100D9DFC4 /* RenderMarquee.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B51C76CE0E9BC8D100D9DFC4 /* RenderMarquee.cpp */; };
@@ -3827,6 +3829,8 @@
 		AB332F4C0E95497E0020F882 /* AnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimationController.h; path = animation/AnimationController.h; sourceTree = "<group>"; };
 		AB50EA1C0E9AB12B00FDD61B /* EmptyClients.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyClients.h; sourceTree = "<group>"; };
 		AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GKURL.cpp; sourceTree = "<group>"; };
+		B507F51B0E9BE98B00D16D77 /* PluginStubsMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginStubsMac.cpp; sourceTree = "<group>"; };
+		B507F54D0E9BECC300D16D77 /* HTMLPlugInImageElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLPlugInImageElement.cpp; sourceTree = "<group>"; };
 		B50F5BDF0E96D3F800AD71A6 /* WebCoreObjCExtras.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WebCoreObjCExtras.mm; path = pending/WebCoreObjCExtras.mm; sourceTree = SOURCE_ROOT; };
 		B51C76BF0E9BC7A400D9DFC4 /* GradientCG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GradientCG.cpp; sourceTree = "<group>"; };
 		B51C76CD0E9BC8D100D9DFC4 /* RenderMarquee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderMarquee.h; sourceTree = "<group>"; };
@@ -4852,6 +4856,7 @@
 				7B5E8C9C0D7F3B63001ECF42 /* HTMLParserErrorCodes.h */,
 				7B5E8C9D0D7F3B63001ECF42 /* HTMLPlugInElement.cpp */,
 				7B5E8C9E0D7F3B63001ECF42 /* HTMLPlugInElement.h */,
+				B507F54D0E9BECC300D16D77 /* HTMLPlugInImageElement.cpp */,
 				7B5E8CA00D7F3B63001ECF42 /* HTMLPreElement.cpp */,
 				7B5E8CA10D7F3B63001ECF42 /* HTMLPreElement.h */,
 				7B5E8CA30D7F3B63001ECF42 /* HTMLQuoteElement.cpp */,
@@ -6846,6 +6851,7 @@
 				822B1BE70DC77910005C9A96 /* graphics */,
 				E45628270E269688005E4685 /* network */,
 				AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */,
+				B507F51B0E9BE98B00D16D77 /* PluginStubsMac.cpp */,
 			);
 			path = platform;
 			sourceTree = "<group>";
@@ -8023,6 +8029,7 @@
 				E456245E0E268E87005E4685 /* HTMLParser.cpp in Sources */,
 				E456245F0E268E87005E4685 /* HTMLParserErrorCodes.cpp in Sources */,
 				E45624600E268E87005E4685 /* HTMLPlugInElement.cpp in Sources */,
+				B507F54E0E9BECC300D16D77 /* HTMLPlugInImageElement.cpp in Sources */,
 				E45624610E268E87005E4685 /* HTMLPreElement.cpp in Sources */,
 				E45624620E268E87005E4685 /* HTMLQuoteElement.cpp in Sources */,
 				E45624630E268E87005E4685 /* HTMLScriptElement.cpp in Sources */,
@@ -8614,6 +8621,7 @@
 				4DB7F55C0E9BD66300C66CE0 /* JSNSResolver.cpp in Sources */,
 				E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */,
 				E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */,
+				B507F51C0E9BE98B00D16D77 /* PluginStubsMac.cpp in Sources */,
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
 				4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */,
 				E45627ED0E2694B8005E4685 /* RGBColor.cpp in Sources */,
