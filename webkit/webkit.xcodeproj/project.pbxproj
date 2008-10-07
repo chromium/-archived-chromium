@@ -406,6 +406,9 @@
 		B5599D130E95942900E2A85A /* SVGDocumentExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D120E95942900E2A85A /* SVGDocumentExtensions.cpp */; };
 		B5599D160E9594E800E2A85A /* SVGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D140E9594E800E2A85A /* SVGImage.cpp */; };
 		B57635F80E96C13D008A7ABC /* ResourceResponseBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B57635F70E96C13D008A7ABC /* ResourceResponseBase.cpp */; };
+		B58831090E9BD5B000CEC344 /* RenderReplica.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831070E9BD5B000CEC344 /* RenderReplica.cpp */; };
+		B58831140E9BD61F00CEC344 /* TextControlInnerElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831130E9BD61F00CEC344 /* TextControlInnerElements.cpp */; };
+		B588312A0E9BD6D800CEC344 /* StringBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831290E9BD6D800CEC344 /* StringBuilder.cpp */; };
 		B5C180770E9581B6006EAF87 /* TextCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180750E9581B6006EAF87 /* TextCodec.cpp */; };
 		B5C180790E9581CB006EAF87 /* TextCodecUTF16.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180780E9581CB006EAF87 /* TextCodecUTF16.cpp */; };
 		B5C1807B0E9581DE006EAF87 /* TextDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C1807A0E9581DE006EAF87 /* TextDecoder.cpp */; };
@@ -3777,6 +3780,12 @@
 		B5599D140E9594E800E2A85A /* SVGImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGImage.cpp; sourceTree = "<group>"; };
 		B5599D150E9594E800E2A85A /* SVGImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGImage.h; sourceTree = "<group>"; };
 		B57635F70E96C13D008A7ABC /* ResourceResponseBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceResponseBase.cpp; sourceTree = "<group>"; };
+		B58831070E9BD5B000CEC344 /* RenderReplica.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderReplica.cpp; sourceTree = "<group>"; };
+		B58831080E9BD5B000CEC344 /* RenderReplica.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderReplica.h; sourceTree = "<group>"; };
+		B58831120E9BD61F00CEC344 /* TextControlInnerElements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextControlInnerElements.h; sourceTree = "<group>"; };
+		B58831130E9BD61F00CEC344 /* TextControlInnerElements.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextControlInnerElements.cpp; sourceTree = "<group>"; };
+		B58831280E9BD6D800CEC344 /* StringBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringBuilder.h; sourceTree = "<group>"; };
+		B58831290E9BD6D800CEC344 /* StringBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringBuilder.cpp; sourceTree = "<group>"; };
 		B5C180740E95816D006EAF87 /* StringHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringHash.h; sourceTree = "<group>"; };
 		B5C180750E9581B6006EAF87 /* TextCodec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextCodec.cpp; sourceTree = "<group>"; };
 		B5C180760E9581B6006EAF87 /* TextCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextCodec.h; sourceTree = "<group>"; };
@@ -5332,6 +5341,8 @@
 				7B5E91D00D7F3CC3001ECF42 /* SegmentedString.cpp */,
 				7B5E91D10D7F3CC3001ECF42 /* SegmentedString.h */,
 				7B5E91D20D7F3CC3001ECF42 /* String.cpp */,
+				B58831280E9BD6D800CEC344 /* StringBuilder.h */,
+				B58831290E9BD6D800CEC344 /* StringBuilder.cpp */,
 				7B5E91D30D7F3CC3001ECF42 /* StringBuffer.h */,
 				B5C180740E95816D006EAF87 /* StringHash.h */,
 				7B5E91D50D7F3CC3001ECF42 /* StringImpl.cpp */,
@@ -5498,6 +5509,8 @@
 				7B5E95700D7F3E95001ECF42 /* RenderPath.h */,
 				7B5E95710D7F3E95001ECF42 /* RenderReplaced.cpp */,
 				7B5E95720D7F3E95001ECF42 /* RenderReplaced.h */,
+				B58831070E9BD5B000CEC344 /* RenderReplica.cpp */,
+				B58831080E9BD5B000CEC344 /* RenderReplica.h */,
 				7B5E95730D7F3E95001ECF42 /* RenderSlider.cpp */,
 				7B5E95740D7F3E95001ECF42 /* RenderSlider.h */,
 				B5C1809E0E958E3D006EAF87 /* RenderStyle.h */,
@@ -5575,6 +5588,8 @@
 				B5C180AC0E958F3D006EAF87 /* SVGRootInlineBox.cpp */,
 				7B5E95C50D7F3E95001ECF42 /* SVGRootInlineBox.h */,
 				7B5E95C60D7F3E95001ECF42 /* TableLayout.h */,
+				B58831130E9BD61F00CEC344 /* TextControlInnerElements.cpp */,
+				B58831120E9BD61F00CEC344 /* TextControlInnerElements.h */,
 			);
 			path = rendering;
 			sourceTree = "<group>";
@@ -7997,6 +8012,7 @@
 				E45625740E268E87005E4685 /* RenderPath.cpp in Sources */,
 				E45626780E268E87005E4685 /* RenderPathCg.cpp in Sources */,
 				E45625750E268E87005E4685 /* RenderReplaced.cpp in Sources */,
+				B58831090E9BD5B000CEC344 /* RenderReplica.cpp in Sources */,
 				E45625760E268E87005E4685 /* RenderSlider.cpp in Sources */,
 				B5C180A40E958EAA006EAF87 /* RenderStyle.cpp in Sources */,
 				E45625780E268E87005E4685 /* RenderSVGBlock.cpp in Sources */,
@@ -8068,6 +8084,7 @@
 				E456250A0E268E87005E4685 /* SSLKeyGeneratorMac.mm in Sources */,
 				E45623E00E268E87005E4685 /* StaticNodeList.cpp in Sources */,
 				E456253B0E268E87005E4685 /* String.cpp in Sources */,
+				B588312A0E9BD6D800CEC344 /* StringBuilder.cpp in Sources */,
 				E45625300E268E87005E4685 /* StringCF.cpp in Sources */,
 				E456253C0E268E87005E4685 /* StringImpl.cpp in Sources */,
 				E45625310E268E87005E4685 /* StringImplCF.cpp in Sources */,
@@ -8271,6 +8288,7 @@
 				82761E970E3FA26F0030D324 /* TextCodecMac.cpp in Sources */,
 				E45625410E268E87005E4685 /* TextCodecUserDefined.cpp in Sources */,
 				B5C180790E9581CB006EAF87 /* TextCodecUTF16.cpp in Sources */,
+				B58831140E9BD61F00CEC344 /* TextControlInnerElements.cpp in Sources */,
 				B5C1807B0E9581DE006EAF87 /* TextDecoder.cpp in Sources */,
 				E45624980E268E87005E4685 /* TextDocument.cpp in Sources */,
 				E45625440E268E87005E4685 /* TextEncoding.cpp in Sources */,
