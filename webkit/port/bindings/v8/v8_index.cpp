@@ -155,6 +155,8 @@
 #include "V8EventTargetNode.h"
 #include "V8KeyboardEvent.h"
 #include "V8MouseEvent.h"
+#include "V8WebKitCSSKeyframeRule.h"
+#include "V8WebKitCSSKeyframesRule.h"
 #include "V8WheelEvent.h"
 #include "V8UIEvent.h"
 #include "V8MutationEvent.h"

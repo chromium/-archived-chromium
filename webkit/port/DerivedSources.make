@@ -890,6 +890,8 @@ all : \
     V8TreeWalker.h \
     V8UIEvent.h \
     V8VoidCallback.h \
+    V8WebKitCSSKeyframeRule.h \
+    V8WebKitCSSKeyframesRule.h \
     V8WheelEvent.h \
     V8XMLHttpRequest.h \
     V8XMLHttpRequestUpload.h \

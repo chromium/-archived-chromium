@@ -896,6 +896,10 @@ V8 | KJS # LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL
 # JSC. However, the missing position and totalSize properties seems genuine.
 V8 | KJS # SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
 
+# This fails because the CSSParser cannot handle the keyframe rule.
+# Picking up a new parser from webkit should fix the rest.
+V8 | KJS # LayoutTests/css3/keyframes-rule.html = FAIL
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
@@ -904,7 +908,6 @@ V8 | KJS # SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
 // ----------------------------------------------------------------------------
 
 V8 | KJS # LayoutTests/accessibility = FAIL
-V8 | KJS # LayoutTests/css3/keyframes-rule.html = FAIL
 V8 | KJS # LayoutTests/css3/transform-value-types.html = FAIL
 V8 | KJS # LayoutTests/dom/html/level2/html/HTMLFormElement10.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/editing/execCommand/16049.html = FAIL

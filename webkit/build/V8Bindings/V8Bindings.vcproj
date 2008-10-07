@@ -2144,6 +2144,22 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSKeyframeRule.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSKeyframeRule.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSKeyframesRule.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSKeyframesRule.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8WheelEvent.cpp"
 				>
 			</File>
