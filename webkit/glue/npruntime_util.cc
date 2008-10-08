@@ -52,7 +52,7 @@ bool DeserializeNPIdentifier(const Pickle& pickle, void** pickle_iter,
     int data_len;
     if (!pickle.ReadData(pickle_iter, &data, &data_len))
       return false;
-    DCHECK_EQ(data_len, strlen(data) + 1);
+    DCHECK_EQ((static_cast<size_t>(data_len)), strlen(data) + 1);
     *identifier = NPN_GetStringIdentifier(data);
   } else {
     int number;
