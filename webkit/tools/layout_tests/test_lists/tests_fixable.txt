@@ -1267,7 +1267,6 @@ V8 | KJS # chrome/fast/dom/Window/window-lookup-precedence.html = FAIL
 V8 | KJS # chrome/fast/dom/domListEnumeration.html = FAIL
 V8 | KJS # chrome/fast/forms/basic-textareas-quirks.html = FAIL
 V8 | KJS # pending/fast/canvas/fillrect_gradient.html = FAIL
-V8 | KJS # pending/fast/dom/StyleSheet/ownerNode-lifetime-expected-2.html = FAIL
 V8 | KJS # pending/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 V8 | KJS # pending/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
 V8 | KJS # pending/svg/carto.net/window.svg = FAIL
