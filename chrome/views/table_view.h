@@ -8,6 +8,8 @@
 #include <windows.h>
 
 #include <map>
+#include <unicode/coll.h>
+#include <unicode/uchar.h>
 #include <vector>
 
 #include "base/logging.h"
@@ -147,6 +149,10 @@ class TableModel {
   // This implementation does a case insensitive locale specific string
   // comparison.
   virtual int CompareValues(int row1, int row2, int column_id);
+
+ protected:
+  // Returns the collator used by CompareValues.
+  Collator* GetCollator();
 };
 
 // TableColumn specifies the title, alignment and size of a particular column.

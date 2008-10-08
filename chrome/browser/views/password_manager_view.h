@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "chrome/browser/webdata/web_data_service.h"
+#include "chrome/common/gfx/url_elider.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/label.h"
 #include "chrome/views/native_button.h"
@@ -20,12 +21,13 @@ struct PasswordForm;
 class PasswordManagerTableModel : public ChromeViews::TableModel,
                                   public WebDataServiceConsumer {
  public:
-  explicit PasswordManagerTableModel(WebDataService* profile_web_data_service);
+  explicit PasswordManagerTableModel(Profile* profile);
   virtual ~PasswordManagerTableModel();
 
   // TableModel methods.
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column);
+  virtual int CompareValues(int row1, int row2, int column_id);
   virtual void SetObserver(ChromeViews::TableModelObserver* observer);
 
   // Delete the PasswordForm at specified row from the database (and remove
@@ -46,8 +48,25 @@ class PasswordManagerTableModel : public ChromeViews::TableModel,
   PasswordForm* GetPasswordFormAt(int row);
 
  private:
+  // Wraps the PasswordForm from the database and caches the display URL for
+  // quick sorting.
+  struct PasswordRow {
+    ~PasswordRow();
+
+    // Contains the URL that is displayed along with the 
+    gfx::SortedDisplayURL display_url;
+
+    // The underlying PasswordForm. We own this.
+    PasswordForm* form;
+  };
+
   // Cancel any pending login query involving a callback.
   void CancelLoginsQuery();
+
+  // The web data service associated with the currently active profile.
+  WebDataService* web_data_service() {
+    return profile_->GetWebDataService(Profile::EXPLICIT_ACCESS);
+  }
 
   // The TableView observing this model.
   ChromeViews::TableModelObserver* observer_;
@@ -55,15 +74,11 @@ class PasswordManagerTableModel : public ChromeViews::TableModel,
   // Handle to any pending WebDataService::GetLogins query.
   WebDataService::Handle pending_login_query_;
 
-  // PasswordForms returned by the web data service query.
-  typedef std::vector<PasswordForm*> PasswordForms;
-  PasswordForms saved_signons_;
+  // The set of passwords we're showing.
+  typedef std::vector<PasswordRow> PasswordRows;
+  PasswordRows saved_signons_;
 
-  // Deleter for saved_logins_.
-  STLElementDeleter<PasswordForms> saved_signons_deleter_;
-
-  // The web data service associated with the currently active profile.
-  WebDataService* web_data_service_;
+  Profile* profile_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerTableModel);
 };

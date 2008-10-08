@@ -7,6 +7,8 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/password_manager_view.h"
 #include "chrome/browser/views/standard_layout.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/views/background.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/native_button.h"
@@ -52,14 +54,18 @@ void MultiLabelButtons::GetPreferredSize(CSize *out) {
 }
 
 ////////////////////////////////////////////////////////////////////
+// PasswordManagerTableModel::PasswordRow
+PasswordManagerTableModel::PasswordRow::~PasswordRow() {
+  delete form;
+}
+
+////////////////////////////////////////////////////////////////////
 // PasswordManagerTableModel
-PasswordManagerTableModel::PasswordManagerTableModel(
-    WebDataService* profile_web_data_service)
-    : saved_signons_deleter_(&saved_signons_),
-      observer_(NULL),
+PasswordManagerTableModel::PasswordManagerTableModel(Profile* profile)
+    : observer_(NULL),
       pending_login_query_(NULL),
-      web_data_service_(profile_web_data_service) {
-  DCHECK(web_data_service_);
+      profile_(profile) {
+  DCHECK(profile && profile->GetWebDataService(Profile::EXPLICIT_ACCESS));
 }
 
 PasswordManagerTableModel::~PasswordManagerTableModel() {
@@ -72,17 +78,24 @@ int PasswordManagerTableModel::RowCount() {
 
 std::wstring PasswordManagerTableModel::GetText(int row,
                                                 int col_id) {
-  PasswordForm* signon = GetPasswordFormAt(row);
-  DCHECK(signon);
   switch (col_id) {
     case IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN:  // Site.
-      return UTF8ToWide(signon->origin.spec());
+      return saved_signons_[row].display_url.display_url();
     case IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN:  // Username.
-      return signon->username_value;
+      return GetPasswordFormAt(row)->username_value;
     default:
       NOTREACHED() << "Invalid column.";
       return std::wstring();
   }
+}
+
+int PasswordManagerTableModel::CompareValues(int row1, int row2,
+                                             int column_id) {
+  if (column_id == IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN) {
+    return saved_signons_[row1].display_url.Compare(
+        saved_signons_[row2].display_url, GetCollator());
+  }
+  return TableModel::CompareValues(row1, row2, column_id);
 }
 
 void PasswordManagerTableModel::SetObserver(
@@ -92,7 +105,7 @@ void PasswordManagerTableModel::SetObserver(
 
 void PasswordManagerTableModel::GetAllSavedLoginsForProfile() {
   DCHECK(!pending_login_query_);
-  pending_login_query_ = web_data_service_->GetAllAutofillableLogins(this);
+  pending_login_query_ = web_data_service()->GetAllAutofillableLogins(this);
 }
 
 void PasswordManagerTableModel::OnWebDataServiceRequestDone(
@@ -109,41 +122,46 @@ void PasswordManagerTableModel::OnWebDataServiceRequestDone(
   // Get the result from the database into a useable form.
   const WDResult<std::vector<PasswordForm*> >* r =
       static_cast<const WDResult<std::vector<PasswordForm*> >*>(result);
-  // Copy vector of *pointers* to saved_logins_, thus taking ownership of the
-  // PasswordForm's in the result.
-  saved_signons_ = r->GetValue();
+  std::vector<PasswordForm*> rows = r->GetValue();
+  saved_signons_.clear();
+  saved_signons_.resize(rows.size());
+  std::wstring languages =
+      profile_->GetPrefs()->GetString(prefs::kAcceptLanguages);
+  for (size_t i = 0; i < rows.size(); ++i) {
+    saved_signons_[i].form = rows[i];
+    saved_signons_[i].display_url =
+        gfx::SortedDisplayURL(rows[i]->origin, languages);
+  }
   if (observer_)
     observer_->OnModelChanged();
 }
 
 void PasswordManagerTableModel::CancelLoginsQuery() {
   if (pending_login_query_) {
-    web_data_service_->CancelRequest(pending_login_query_);
+    web_data_service()->CancelRequest(pending_login_query_);
     pending_login_query_ = NULL;
   }
 }
 
 PasswordForm* PasswordManagerTableModel::GetPasswordFormAt(int row) {
   DCHECK(row >= 0 && row < RowCount());
-  return saved_signons_[row];
+  return saved_signons_[row].form;
 }
 
 void PasswordManagerTableModel::ForgetAndRemoveSignon(int row) {
   DCHECK(row >= 0 && row < RowCount());
-  PasswordForms::iterator target_iter = saved_signons_.begin() + row;
+  PasswordRows::iterator target_iter = saved_signons_.begin() + row;
   // Remove from DB, memory, and vector.
-  web_data_service_->RemoveLogin(**target_iter);
-  delete *target_iter;
+  web_data_service()->RemoveLogin(*(target_iter->form));
   saved_signons_.erase(target_iter);
   if (observer_)
     observer_->OnItemsRemoved(row, 1);
 }
 
 void PasswordManagerTableModel::ForgetAndRemoveAllSignons() {
-  PasswordForms::iterator iter = saved_signons_.begin();
+  PasswordRows::iterator iter = saved_signons_.begin();
   while (iter != saved_signons_.end()) {
-    web_data_service_->RemoveLogin(**iter);
-    delete *iter;
+    web_data_service()->RemoveLogin(*(iter->form));
     iter = saved_signons_.erase(iter);
   }
   if (observer_)
@@ -177,7 +195,7 @@ PasswordManagerView::PasswordManagerView(Profile* profile)
           IDS_PASSWORD_MANAGER_VIEW_REMOVE_BUTTON)),
       remove_all_button_(l10n_util::GetString(
           IDS_PASSWORD_MANAGER_VIEW_REMOVE_ALL_BUTTON)),
-      table_model_(profile->GetWebDataService(Profile::EXPLICIT_ACCESS)) {
+      table_model_(profile) {
   Init();
 }
 
@@ -189,14 +207,22 @@ void PasswordManagerView::SetupTable() {
       ChromeViews::TableColumn(
           IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN,
           ChromeViews::TableColumn::LEFT, -1, 0.55f));
+  columns.back().sortable = true;
   columns.push_back(
       ChromeViews::TableColumn(
           IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN,
           ChromeViews::TableColumn::RIGHT, -1, 0.37f));
+  columns.back().sortable = true;
   table_view_ = new ChromeViews::TableView(&table_model_,
                                            columns,
                                            ChromeViews::TEXT_ONLY,
                                            true, true, true);
+  // Make the table initially sorted by host.
+  ChromeViews::TableView::SortDescriptors sort;
+  sort.push_back(
+      ChromeViews::TableView::SortDescriptor(
+          IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN, true));
+  table_view_->SetSortDescriptors(sort);
   table_view_->SetObserver(this);
 }
 
@@ -373,4 +399,3 @@ void PasswordManagerView::WindowClosing() {
 ChromeViews::View* PasswordManagerView::GetContentsView() {
   return this;
 }
-

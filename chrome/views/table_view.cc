@@ -19,8 +19,6 @@
 #include "chrome/views/view_container.h"
 #include "SkBitmap.h"
 #include "SkColorFilter.h"
-#include "unicode/coll.h"
-#include "unicode/uchar.h"
 
 namespace ChromeViews {
 
@@ -45,16 +43,8 @@ int TableModel::CompareValues(int row1, int row2, int column_id) {
          row2 >= 0 && row2 < RowCount());
   std::wstring value1 = GetText(row1, column_id);
   std::wstring value2 = GetText(row2, column_id);
+  Collator* collator = GetCollator();
 
-  if (!collator) {
-    UErrorCode create_status = U_ZERO_ERROR;
-    collator = Collator::createInstance(create_status);
-    if (!U_SUCCESS(create_status)) {
-      collator = NULL;
-      NOTREACHED();
-    }
-  }
-  
   if (collator) {
     UErrorCode compare_status = U_ZERO_ERROR;
     UCollationResult compare_result = collator->compare(
@@ -68,6 +58,18 @@ int TableModel::CompareValues(int row1, int row2, int column_id) {
   }
   NOTREACHED();
   return 0;
+}
+
+Collator* TableModel::GetCollator() {
+  if (!collator) {
+    UErrorCode create_status = U_ZERO_ERROR;
+    collator = Collator::createInstance(create_status);
+    if (!U_SUCCESS(create_status)) {
+      collator = NULL;
+      NOTREACHED();
+    }
+  }
+  return collator;
 }
 
 // TableView ------------------------------------------------------------------

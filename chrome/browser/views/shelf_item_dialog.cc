@@ -77,7 +77,17 @@ class PossibleURLModel : public ChromeViews::TableModel {
 
   void OnHistoryQueryComplete(HistoryService::Handle h,
                               history::QueryResults* result) {
-    results_.Swap(result);
+    results_.resize(result->size());
+    std::wstring languages = profile_
+        ? profile_->GetPrefs()->GetString(prefs::kAcceptLanguages)
+        : std::wstring();
+    for (size_t i = 0; i < result->size(); ++i) {
+      results_[i].url = (*result)[i].url();
+      results_[i].index = i;
+      results_[i].display_url =
+          gfx::SortedDisplayURL((*result)[i].url(), languages);
+      results_[i].title = (*result)[i].title();
+    }
 
     // The old version of this code would filter out all but the most recent
     // visit to each host, plus all typed URLs and AUTO_BOOKMARK transitions. I
@@ -102,7 +112,7 @@ class PossibleURLModel : public ChromeViews::TableModel {
       NOTREACHED();
       return GURL::EmptyGURL();
     }
-    return results_[row].url();
+    return results_[row].url;
   }
 
   const std::wstring& GetTitle(int row) {
@@ -110,7 +120,7 @@ class PossibleURLModel : public ChromeViews::TableModel {
       NOTREACHED();
       return EmptyWString();
     }
-    return results_[row].title();
+    return results_[row].title;
   }
 
   virtual std::wstring GetText(int row, int col_id) {
@@ -124,9 +134,7 @@ class PossibleURLModel : public ChromeViews::TableModel {
 
     // TODO(brettw): this should probably pass the GURL up so the URL elider
     // can be used at a higher level when we know the width.
-    return gfx::ElideUrl(GetURL(row), ChromeFont(), 0, profile_ ?
-        profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) :
-        std::wstring());
+    return results_[row].display_url.display_url();
   }
 
   virtual SkBitmap GetIcon(int row) {
@@ -135,9 +143,10 @@ class PossibleURLModel : public ChromeViews::TableModel {
       return *default_fav_icon;
     }
 
-    const history::URLResult& result = results_[row];
-    FavIconMap::iterator i = fav_icon_map_.find(result.id());
+    Result& result = results_[row];
+    FavIconMap::iterator i = fav_icon_map_.find(result.index);
     if (i != fav_icon_map_.end()) {
+      // We already requested the favicon, return it.
       if (!i->second.isNull())
         return i->second;
     } else if (profile_) {
@@ -146,12 +155,23 @@ class PossibleURLModel : public ChromeViews::TableModel {
       if (hs) {
         CancelableRequestProvider::Handle h =
             hs->GetFavIconForURL(
-                result.url(), &consumer_,
+                result.url, &consumer_,
                 NewCallback(this, &PossibleURLModel::OnFavIconAvailable));
-        consumer_.SetClientData(hs, h, result.id());
+        consumer_.SetClientData(hs, h, result.index);
+        // Add an entry to the map so that we don't attempt to request the
+        // favicon again.
+        fav_icon_map_[result.index] = SkBitmap();
       }
     }
     return *default_fav_icon;
+  }
+
+  virtual int CompareValues(int row1, int row2, int column_id) {
+    if (column_id == IDS_ASI_URL_COLUMN) {
+      return results_[row1].display_url.Compare(
+          results_[row2].display_url, GetCollator());
+    }
+    return TableModel::CompareValues(row1, row2, column_id);
   }
 
   virtual void OnFavIconAvailable(
@@ -163,23 +183,14 @@ class PossibleURLModel : public ChromeViews::TableModel {
     if (profile_) {
       HistoryService* hs =
           profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
-      history::URLID pid = consumer_.GetClientData(hs, h);
-      if (pid) {
-        SkBitmap bm;
-        if (fav_icon_available) {
-          // The decoder will leave our bitmap empty on error.
-          PNGDecoder::Decode(&data->data, &bm);
-        }
+      size_t index = consumer_.GetClientData(hs, h);
+      if (fav_icon_available) {
+        // The decoder will leave our bitmap empty on error.
+        PNGDecoder::Decode(&data->data, &(fav_icon_map_[index]));
 
-        // Store the bitmap. We store it even if it is empty to make sure we
-        // don't query it again.
-        fav_icon_map_[pid] = bm;
-        if (!bm.isNull() && observer_) {
-          for (size_t i = 0; i < results_.size(); ++i) {
-            if (results_[i].id() == pid)
-              observer_->OnItemsChanged(static_cast<int>(i), 1);
-          }
-        }
+        // Notify the observer.
+        if (!fav_icon_map_[index].isNull() && observer_)
+          observer_->OnItemsChanged(static_cast<int>(index), 1);
       }
     }
   }
@@ -189,6 +200,19 @@ class PossibleURLModel : public ChromeViews::TableModel {
   }
 
  private:
+  // Contains the data needed to show a result.
+  struct Result {
+    Result() : index(0) {}
+
+    GURL url;
+    // Index of this Result in results_. This is used as the key into
+    // fav_icon_map_ to lookup the favicon for the url, as well as the index
+    // into results_ when the favicon is received.
+    size_t index;
+    gfx::SortedDisplayURL display_url;
+    std::wstring title;
+  };
+
   // The current profile.
   Profile* profile_;
 
@@ -196,14 +220,13 @@ class PossibleURLModel : public ChromeViews::TableModel {
   ChromeViews::TableModelObserver* observer_;
 
   // Our consumer for favicon requests.
-  CancelableRequestConsumerT<history::URLID, NULL> consumer_;
+  CancelableRequestConsumerT<size_t, NULL> consumer_;
 
-  // The results provided by the history service.
-  history::QueryResults results_;
+  // The results we're showing.
+  std::vector<Result> results_;
 
-  // Map URLID -> Favicon. If we queried for a favicon and there is none, that
-  // URL will have an entry, and the bitmap will be empty.
-  typedef std::map<history::URLID, SkBitmap> FavIconMap;
+  // Map Result::index -> Favicon.
+  typedef std::map<size_t, SkBitmap> FavIconMap;
   FavIconMap fav_icon_map_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PossibleURLModel);
@@ -229,9 +252,11 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
   ChromeViews::TableColumn col1(IDS_ASI_PAGE_COLUMN,
                                 ChromeViews::TableColumn::LEFT, -1,
                                 50);
+  col1.sortable = true;
   ChromeViews::TableColumn col2(IDS_ASI_URL_COLUMN,
                                 ChromeViews::TableColumn::LEFT, -1,
                                 50);
+  col2.sortable = true;
   std::vector<ChromeViews::TableColumn> cols;
   cols.push_back(col1);
   cols.push_back(col2);
