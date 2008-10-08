@@ -259,7 +259,7 @@ const wchar_t* GetFallbackFamily(const wchar_t *characters,
         family = L"simsun-extb";
         break;
       default:
-        family = L"arial unicode ms";
+        family = L"lucida sans unicode";
     }
   }
 

@@ -396,10 +396,10 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
     const static wchar_t* const commonFonts[] = {
         L"tahoma",
         L"arial unicode ms",
-        L"microsoft sans serif",
         L"lucida sans unicode",
+        L"microsoft sans serif",
         L"palatino linotype",
-        // Four fonts below (code2000 at the end) are not from MS, but
+        // Four fonts below (and code2000 at the end) are not from MS, but
         // once installed, cover a very wide range of characters.
         L"freeserif",
         L"freesans",
