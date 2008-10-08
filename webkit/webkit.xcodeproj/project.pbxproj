@@ -2150,6 +2150,7 @@
 		7B5E85E30D7F28F5001ECF42 /* Vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vector.h; sourceTree = "<group>"; };
 		7B5E85E40D7F28F5001ECF42 /* VectorTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorTraits.h; sourceTree = "<group>"; };
 		7B5E88AB0D7F39E1001ECF42 /* AXObjectCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AXObjectCache.h; sourceTree = "<group>"; };
+		7B5E88AC0D7F39E1001ECF42 /* EditorClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorClient.h; sourceTree = "<group>"; };
 		7B5E88AF0D7F39E1001ECF42 /* AXObjectCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AXObjectCache.cpp; sourceTree = "<group>"; };
 		7B5E88B10D7F39E1001ECF42 /* WebCoreAXObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreAXObject.h; sourceTree = "<group>"; };
 		7B5E88B20D7F39E1001ECF42 /* WebCoreAXObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreAXObject.mm; sourceTree = "<group>"; };
@@ -2401,7 +2402,7 @@
 		7B5E8B030D7F3AFA001ECF42 /* CreateLinkCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateLinkCommand.h; sourceTree = "<group>"; };
 		7B5E8B040D7F3AFA001ECF42 /* DeleteButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeleteButton.cpp; sourceTree = "<group>"; };
 		7B5E8B050D7F3AFA001ECF42 /* DeleteButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteButton.h; sourceTree = "<group>"; };
-		7B5E8B060D7F3AFA001ECF42 /* DeleteButtonController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeleteButtonController.cpp; sourceTree = "<group>"; };
+		7B5E8B060D7F3AFA001ECF42 /* DeleteButtonController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DeleteButtonController.cpp; path = ../../../../webkit/pending/DeleteButtonController.cpp; sourceTree = "<group>"; };
 		7B5E8B070D7F3AFA001ECF42 /* DeleteButtonController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteButtonController.h; sourceTree = "<group>"; };
 		7B5E8B080D7F3AFA001ECF42 /* DeleteFromTextNodeCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeleteFromTextNodeCommand.cpp; sourceTree = "<group>"; };
 		7B5E8B090D7F3AFA001ECF42 /* DeleteFromTextNodeCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteFromTextNodeCommand.h; sourceTree = "<group>"; };
@@ -2507,7 +2508,7 @@
 		7B5E8BEE0D7F3B62001ECF42 /* CanvasStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CanvasStyle.h; sourceTree = "<group>"; };
 		7B5E8BF10D7F3B62001ECF42 /* FormDataList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FormDataList.cpp; sourceTree = "<group>"; };
 		7B5E8BF20D7F3B62001ECF42 /* FormDataList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormDataList.h; sourceTree = "<group>"; };
-		7B5E8BF30D7F3B62001ECF42 /* HTMLAnchorElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLAnchorElement.cpp; sourceTree = "<group>"; };
+		7B5E8BF30D7F3B62001ECF42 /* HTMLAnchorElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTMLAnchorElement.cpp; path = ../../../../webkit/pending/HTMLAnchorElement.cpp; sourceTree = "<group>"; };
 		7B5E8BF40D7F3B62001ECF42 /* HTMLAnchorElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLAnchorElement.h; sourceTree = "<group>"; };
 		7B5E8BF60D7F3B62001ECF42 /* HTMLAppletElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLAppletElement.cpp; sourceTree = "<group>"; };
 		7B5E8BF70D7F3B62001ECF42 /* HTMLAppletElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLAppletElement.h; sourceTree = "<group>"; };
@@ -2587,8 +2588,8 @@
 		7B5E8C670D7F3B62001ECF42 /* HTMLLegendElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLLegendElement.h; sourceTree = "<group>"; };
 		7B5E8C690D7F3B62001ECF42 /* HTMLLIElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLLIElement.cpp; sourceTree = "<group>"; };
 		7B5E8C6A0D7F3B62001ECF42 /* HTMLLIElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLLIElement.h; sourceTree = "<group>"; };
-		7B5E8C6C0D7F3B62001ECF42 /* HTMLLinkElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLLinkElement.cpp; sourceTree = "<group>"; };
-		7B5E8C6D0D7F3B62001ECF42 /* HTMLLinkElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLLinkElement.h; sourceTree = "<group>"; };
+		7B5E8C6C0D7F3B62001ECF42 /* HTMLLinkElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTMLLinkElement.cpp; path = ../../../../webkit/pending/HTMLLinkElement.cpp; sourceTree = "<group>"; };
+		7B5E8C6D0D7F3B62001ECF42 /* HTMLLinkElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTMLLinkElement.h; path = ../../../../webkit/pending/HTMLLinkElement.h; sourceTree = "<group>"; };
 		7B5E8C6F0D7F3B62001ECF42 /* HTMLMapElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLMapElement.cpp; sourceTree = "<group>"; };
 		7B5E8C700D7F3B62001ECF42 /* HTMLMapElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLMapElement.h; sourceTree = "<group>"; };
 		7B5E8C720D7F3B62001ECF42 /* HTMLMarqueeElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLMarqueeElement.cpp; sourceTree = "<group>"; };
@@ -3048,10 +3049,10 @@
 		7B5E91CF0D7F3CC3001ECF42 /* RegularExpression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegularExpression.h; sourceTree = "<group>"; };
 		7B5E91D00D7F3CC3001ECF42 /* SegmentedString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SegmentedString.cpp; sourceTree = "<group>"; };
 		7B5E91D10D7F3CC3001ECF42 /* SegmentedString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SegmentedString.h; sourceTree = "<group>"; };
-		7B5E91D20D7F3CC3001ECF42 /* String.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = String.cpp; sourceTree = "<group>"; };
+		7B5E91D20D7F3CC3001ECF42 /* String.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = String.cpp; path = ../../../../../webkit/pending/String.cpp; sourceTree = "<group>"; };
 		7B5E91D30D7F3CC3001ECF42 /* StringBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringBuffer.h; sourceTree = "<group>"; };
-		7B5E91D50D7F3CC3001ECF42 /* StringImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringImpl.cpp; sourceTree = "<group>"; };
-		7B5E91D60D7F3CC3001ECF42 /* StringImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringImpl.h; sourceTree = "<group>"; };
+		7B5E91D50D7F3CC3001ECF42 /* StringImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StringImpl.cpp; path = ../../../../../webkit/pending/StringImpl.cpp; sourceTree = "<group>"; };
+		7B5E91D60D7F3CC3001ECF42 /* StringImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringImpl.h; path = ../../../../../webkit/pending/StringImpl.h; sourceTree = "<group>"; };
 		7B5E91DB0D7F3CC3001ECF42 /* TextBoundaries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextBoundaries.h; sourceTree = "<group>"; };
 		7B5E91DC0D7F3CC3001ECF42 /* TextBoundariesICU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextBoundariesICU.cpp; sourceTree = "<group>"; };
 		7B5E91DD0D7F3CC3001ECF42 /* TextBreakIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextBreakIterator.h; sourceTree = "<group>"; };
@@ -4282,6 +4283,7 @@
 			isa = PBXGroup;
 			children = (
 				7B5E88AE0D7F39E1001ECF42 /* mac */,
+				7B5E88AC0D7F39E1001ECF42 /* EditorClient.h */,
 			);
 			path = bridge;
 			sourceTree = "<group>";
@@ -8801,7 +8803,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY=1";
+				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY=1 HAVE_ACCESSIBILITY=0";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",
@@ -8919,7 +8921,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY=1";
+				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY=1 HAVE_ACCESSIBILITY=0";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",

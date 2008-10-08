@@ -1145,11 +1145,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\GraphicsContext.cpp"
+					RelativePath="..\..\pending\GraphicsContext.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\GraphicsContext.h"
+					RelativePath="..\..\pending\GraphicsContext.h"
 					>
 				</File>
 				<File
@@ -1173,7 +1173,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\Image.h"
+					RelativePath="..\..\pending\Image.h"
 					>
 				</File>
 				<File
@@ -1429,7 +1429,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\String.cpp"
+					RelativePath="..\..\pending\String.cpp"
 					>
 				</File>
 				<File
@@ -1445,11 +1445,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\StringImpl.cpp"
+					RelativePath="..\..\pending\StringImpl.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\StringImpl.h"
+					RelativePath="..\..\pending\StringImpl.h"
 					>
 				</File>
 				<File
@@ -4082,7 +4082,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLAnchorElement.cpp"
+				RelativePath="..\..\pending\HTMLAnchorElement.cpp"
 				>
 			</File>
 			<File
@@ -4410,11 +4410,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLLinkElement.cpp"
+				RelativePath="..\..\pending\HTMLLinkElement.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\html\HTMLLinkElement.h"
+				RelativePath="..\..\pending\HTMLLinkElement.h"
 				>
 			</File>
 			<File
