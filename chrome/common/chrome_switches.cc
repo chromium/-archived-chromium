@@ -330,6 +330,9 @@ const wchar_t kEnableP13n[] = L"enable-p13n";
 // SDCH is currently only supported server-side for searches on google.com.
 const wchar_t kSdchFilter[] = L"enable-sdch";
 
+// Causes the browser to launch directly in incognito mode.
+const wchar_t kIncognito[] = L"incognito";
+
 // Turn on an experimental implementation of SafeBrowsing which improves
 // performance during updates by avoiding the enormous IO from SQLite
 // operations.

@@ -668,6 +668,10 @@ bool BrowserInit::LaunchBrowser(const CommandLine& parsed_command_line,
                                 bool process_startup, int* return_code) {
   DCHECK(profile);
 
+  // Continue with the off-the-record profile from here on if --incognito
+  if (parsed_command_line.HasSwitch(switches::kIncognito))
+    profile = profile->GetOffTheRecordProfile();
+
   // Are we starting an application?
   std::wstring app_url = parsed_command_line.GetSwitchValue(switches::kApp);
   if (!app_url.empty()) {
