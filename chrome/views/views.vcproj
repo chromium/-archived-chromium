@@ -629,6 +629,10 @@
 			RelativePath=".\window_delegate.h"
 			>
 		</File>
+		<File
+			RelativePath=".\window_resources.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

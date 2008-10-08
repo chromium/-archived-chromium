@@ -7,13 +7,13 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/views/frame/browser_view2.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
-#include "chrome/browser/views/window_resources.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/window_delegate.h"
+#include "chrome/views/window_resources.h"
 
 // An enumeration of bitmap resources used by this window.
 enum {

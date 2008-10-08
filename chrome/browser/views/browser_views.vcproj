@@ -825,10 +825,6 @@
 			RelativePath=".\user_data_dir_dialog.h"
 			>
 		</File>
-		<File
-			RelativePath=".\window_resources.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
