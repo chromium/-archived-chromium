@@ -18,16 +18,25 @@
 # Should we flatten the output directory into
 # Hammer/gears/platform/browser/*.obj like Gears does now?  If so, how?
 
+# Notes to self:
+# - os.path.abspath('.') (the CWD) is variant_dir if it exists, else it's the
+# toplevel_dir (which contains the SConstruct).
+# - env.Entry('.') is the entry representing the variant_dir.
+# - env.Entry('#') is the entry representing the toplevel_dir.
+# - str(entry) gives the path relative to variant_dir, or abspath if the entry
+# is outside the variant_dir.
+# - entry.path gives the path relative to toplevel_dir.
+# - entry.abspath gives the absolute path.
+
 import os
 
 Import('env')
 
 env = env.Clone(
-    GEARS_DIR = ".",
-    OPEN_DIR = "$GEARS_DIR/googleclient/gears/opensource/gears",
-    THIRD_PARTY_DIR = "$GEARS_DIR/googleclient/gears/opensource/third_party",
-    GENFILES_DIR = "$GEARS_DIR/genfiles",
-    PRIVATE_THIRD_PARTY_DIR = "$GEARS_DIR/googleclient/third_party",
+    OPEN_DIR = "googleclient/gears/opensource/gears",
+    THIRD_PARTY_DIR = "googleclient/gears/opensource/third_party",
+    GENFILES_DIR = "genfiles",
+    PRIVATE_THIRD_PARTY_DIR = "googleclient/third_party",
 )
 
 # Argument switches
@@ -39,20 +48,34 @@ if os_guess == 'posix':
 elif os_guess == 'darwin':
   os_guess = 'osx'
 
+# Map of OS -> valid browser targets for that OS.
+os_browsers_map = {
+    'win32': ['IE', 'FF2', 'FF3', 'NPAPI'],
+    'wince': ['IE'],
+    'linux': ['FF2', 'FF3'],
+    'osx': ['SF'],
+    'android': ['NPAPI'],
+}
+
 vars = Variables(None, ARGUMENTS)
 vars.AddVariables(
-  EnumVariable('OS',
-      'Which OS is the target',
-      os_guess, ['win32', 'wince', 'linux', 'osx', 'android']),
-  EnumVariable('BROWSER',
-      'Which browser we want to build the plugin for',
-      'NPAPI', ['IE', 'FF2', 'FF3', 'SF', 'NPAPI']),
-  EnumVariable('MODE',
-      'Type of binary to generate',
-      'dbg', ['dbg', 'opt']),
-  BoolVariable('OFFICIAL_BUILD',
-      'Create a binary suitable for public release', 0)
+    EnumVariable('OS',
+        'Which OS is the target', os_guess, os_browsers_map.keys()),
+    EnumVariable('MODE',
+        'Type of binary to generate', 'dbg', ['dbg', 'opt']),
+    BoolVariable('OFFICIAL_BUILD',
+        'Create a binary suitable for public release', 0)
 )
+vars.Update(env)
+
+env['VALID_BROWSERS'] = os_browsers_map[env['OS']]
+
+# Add BROWSER last, since its valid inputs depend on $OS.
+vars.Add(
+    EnumVariable('BROWSER',
+        'Which browser we want to build the plugin for.  "all" builds all '
+        'browsers for this OS.',
+        'all', env['VALID_BROWSERS'] + ['all']))
 vars.Update(env)
 
 env.Replace(
@@ -74,11 +97,22 @@ env.Replace(
 # Platform
 env.Replace(ARCH = 'i386')
 
-# Add GNU tools to the PATH.  Note we have to strip off the build dir.
+# Output dirs
+env.Replace(
+    BASE_OUTDIR = env.subst('$MODE').lower(),
+    COMMON_OUTDIR = '$BASE_OUTDIR/common',
+    IE_OUTDIR = '$BASE_OUTDIR/ie',
+    FF2_OUTDIR = '$BASE_OUTDIR/ff2',
+    FF3_OUTDIR = '$BASE_OUTDIR/ff3',
+    NPAPI_OUTDIR = '$BASE_OUTDIR/npapi',
+    SF_OUTDIR = '$BASE_OUTDIR/sf',
+)
+
+# Add GNU tools to the PATH.
 env.PrependENVPath('PATH',
-    env.Dir('../../$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath)
+    env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath)
 env.PrependENVPath('PATH',
-    env.Dir('../../$PRIVATE_THIRD_PARTY_DIR/python_24').abspath)
+    env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath)
 
 env.Tool('m4')
 
@@ -97,7 +131,7 @@ env.Replace(
         '$THIRD_PARTY_DIR/npapi',
         '$THIRD_PARTY_DIR/zlib',
         '$THIRD_PARTY_DIR/v8/bindings_local',
-        '$GEARS_DIR',
+        '.',
     ],
     LIBPATH = [
         '$LIBS_DIR',
@@ -328,10 +362,25 @@ sconscripts = [
 for each in sconscripts:
   env.SConscript(each,
                  exports=['env'],
-                 variant_dir=env.subst('$MODE/common').lower(),
+                 variant_dir='$COMMON_OUTDIR',
                  duplicate=0)
 
-env.SConscript('SConscript.dll',
+browsers = [env['BROWSER']]
+if browsers[0] == 'all':
+  browsers = env['VALID_BROWSERS']
+print 'Building:', browsers
+
+for each in browsers:
+  env.Replace(
+      BROWSER = each,
+      BROWSER_OUTDIR = env.subst('$MODE/' + each).lower(),
+  )
+  env.SConscript('SConscript.dll',
+                 exports=['env'],
+                 variant_dir='$BROWSER_OUTDIR',
+                 duplicate=0)
+
+env.SConscript('SConscript.installers',
                exports=['env'],
-               variant_dir=env.subst('$MODE/$BROWSER').lower(),
+               variant_dir='$BASE_OUTDIR',
                duplicate=0)

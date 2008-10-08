@@ -120,6 +120,8 @@ input_files = [
     '$SQLITE_DIR/src/mutex_w32.c',
     '$SQLITE_DIR/preprocessed/opcodes.c',
     '$SQLITE_DIR/src/os.c',
+    '$SQLITE_DIR/src/os_os2.c',
+    '$SQLITE_DIR/src/os_unix.c',
     '$SQLITE_DIR/src/os_win.c',
     '$SQLITE_DIR/src/pager.c',
     '$SQLITE_DIR/preprocessed/parse.c',

@@ -1,0 +1,137 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import os
+
+Import('env')
+
+env = env.Clone(
+    INSTALLER_BASEDIR = 'installers',
+    INSTALLER_BASENAME = 'gears-${OS}-${MODE}-${VERSION}',
+    FF_INSTALLER = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.xpi',
+
+    # Qualify our OUTDIRs relative to the SConscript files.  This is for use
+    # with Copy(), which runs from that dir.
+    BASE_OUTDIR = env.Entry('$GEARS_DIR/$BASE_OUTDIR').path,
+)
+
+ff3_resources = [
+    '$FF3_OUTDIR/$GENFILES_DIR/browser-overlay.js',
+    '$FF3_OUTDIR/$GENFILES_DIR/browser-overlay.xul',
+    '$FF3_OUTDIR/$GENFILES_DIR/permissions_dialog.html',
+    '$FF3_OUTDIR/$GENFILES_DIR/settings_dialog.html',
+    '$FF3_OUTDIR/$GENFILES_DIR/shortcuts_dialog.html',
+]
+
+common_resources = [
+    '$OPEN_DIR/ui/common/blank.gif',
+    '$OPEN_DIR/ui/common/button_bg.gif',
+    '$OPEN_DIR/ui/common/button_corner_black.gif',
+    '$OPEN_DIR/ui/common/button_corner_blue.gif',
+    '$OPEN_DIR/ui/common/button_corner_grey.gif',
+    '$OPEN_DIR/ui/common/icon_32x32.png',
+    '$OPEN_DIR/ui/common/local_data.png',
+    '$OPEN_DIR/ui/common/location_data.png',
+]
+
+def IsDir(path):
+  """Test if path (relative to the toplevel dir) is a directory."""
+  path = env.Entry("#/" + path).abspath
+  return os.path.isdir(path)
+
+def StripOutdir(paths):
+  """Strips the Hammer/gears/$MODE/ part from the paths, if its there."""
+  def StripOne(path):
+    path = os.path.normpath(env.subst(path))
+    is_dir = IsDir(path)
+    pattern = env.subst('$BASE_OUTDIR')
+    if path.startswith(pattern): path = path[len(pattern)+1:]
+    if is_dir:
+      # Workaround: SCons doesn't like directories in a source list.
+      return env.Glob(path + "/*")
+    return path
+  return [StripOne(path) for path in paths]
+
+def SafeMkdir(dir):
+  """Like the builtin Mkdir, but doesn't fail if the dir exists."""
+  def Func(target, source, env):
+    dir_subst = env.subst(dir, target=target)
+    if not os.path.exists(dir_subst):
+      os.makedirs(dir_subst)
+    return 0
+  return Action(Func, 'SafeMkdir(' + dir + ')')
+
+def FirefoxInstaller(env):
+  # This step is a little hackish.
+  # Why: We want to copy files from both the build and source dirs.  We have
+  # to be explicit about which tree to pull from, because otherwise scons gets
+  # confused - specifically, when copying a directory from the source dir,
+  # scons uses the build dir's version instead. 
+  # How: We specify "*_OUTDIR" for outputs to pull from the build dir.
+  # However, this won't work as an input to a builder, so we strip that off
+  # when passing to Command().  The Copy action, however, receives the full
+  # qualified path, since it knows nothing about variant build dirs.
+  #
+  # Note: as shorthand, if the target ends with a '/', then the sources will
+  # be placed into that dir.  Otherwise, source is renamed into the target.
+  copysrcs = [
+      ('/', ['$FF3_OUTDIR/$GENFILES_DIR/install.rdf',
+             '$FF3_OUTDIR/$GENFILES_DIR/chrome.manifest']),
+      ('lib/', ['$OPEN_DIR/base/firefox/static_files/lib/updater.js']),
+      ('chrome/chromeFiles/content/', ff3_resources + common_resources),
+      ('chrome/chromeFiles/locale', ['$FF3_OUTDIR/$GENFILES_DIR/i18n']),
+      ('components/',
+          ['$FF3_OUTDIR/gears.xpt',
+           '$OPEN_DIR/base/firefox/static_files/components/bootstrap.js']),
+      ('components/${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}',
+          ['$FF2_OUTDIR/${SHLIBPREFIX}gears${SHLIBSUFFIX}']),
+      ('components/${SHLIBPREFIX}gears${SHLIBSUFFIX}',
+          ['$FF3_OUTDIR/${SHLIBPREFIX}gears${SHLIBSUFFIX}']),
+  ]
+
+  if env['OS'] != 'win32':
+    # TODO(playmobil): Inspector should be located in extensions dir on win32.
+    copysrcs += [
+        ('resources/inspector', ['$OPEN_DIR/inspector']),
+        ('resources/inspector/common/', ['$OPEN_DIR/sdk/gears_init.js',
+                                         '$OPEN_DIR/sdk/samples/sample.js']),
+    ]
+  # TODO: notifier, ipc_test, pdb, os x
+
+  srcs = []
+  actions = [Delete('${TARGET.base}')]
+  for target, sources in copysrcs:
+    srcs += StripOutdir(sources)
+
+    is_dir = target.endswith('/')
+    if is_dir:
+      actions.append(SafeMkdir('${TARGET.base}/' + target))
+    else:
+      actions.append(SafeMkdir('${TARGET.base}/' + os.path.dirname(target)))
+    for source in sources:
+      if is_dir:
+        actions.append(
+            Copy('${TARGET.base}/' + target + os.path.basename(source),
+                 source))
+      else:
+        actions.append(Copy('${TARGET.base}/' + target, source))
+ 
+  actions += [
+      # Mark files writeable to allow .xpi rebuilds
+      'chmod -R 777 ${TARGET.base}',
+      '(cd ${TARGET.base} && zip -r ../${TARGET.file} .)'
+  ]
+
+  return env.Command('$FF_INSTALLER', srcs, actions)
+
+def Win32Installer(env):
+  env.Command('$WIN32_INSTALLER', [],
+      'light.exe -out $TARGET $SOURCE')
+
+
+env.AddMethod(FirefoxInstaller, 'FirefoxInstaller')
+
+if 'FF3' in env['VALID_BROWSERS']:
+  installer = env.FirefoxInstaller()
+  env.Alias('gears-installers', installer)
