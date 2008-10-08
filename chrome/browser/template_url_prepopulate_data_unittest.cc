@@ -5,6 +5,7 @@
 #include "chrome/browser/template_url.h"
 #include "chrome/browser/template_url_prepopulate_data.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/scoped_vector.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -44,10 +45,10 @@ TEST_F(TemplateURLPrepopulateDataTest, UniqueIDs) {
   TestingProfile profile;
   for (size_t i = 0; i < arraysize(ids); ++i) {
     profile.GetPrefs()->SetInteger(prefs::kGeoIDAtInstall, ids[i]);
-    std::vector<TemplateURL*> urls;
+    ScopedVector<TemplateURL> urls;
     size_t url_count;
     TemplateURLPrepopulateData::GetPrepopulatedEngines(
-        profile.GetPrefs(), &urls, &url_count);
+        profile.GetPrefs(), &(urls.get()), &url_count);
     std::set<int> unique_ids;
     for (size_t turl_i = 0; turl_i < urls.size(); ++turl_i) {
       ASSERT_TRUE(unique_ids.find(urls[turl_i]->prepopulate_id()) ==
