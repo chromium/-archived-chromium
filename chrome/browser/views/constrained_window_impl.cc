@@ -1183,15 +1183,24 @@ void ConstrainedWindowImpl::Detach() {
   CRect bounds;
   ::GetWindowRect(constrained_contents_->GetContainerHWND(), &bounds);
 
-  // ... but overwrite its screen position with the screen position of its
-  // containing ConstrainedWindowImpl. We do this because the code called by
-  // |DetachContents| assumes the bounds contains position and size information
-  // similar to what is sent when a popup is not suppressed and must be opened,
-  // i.e. the position is the screen position of the top left of the detached
-  // popup window, and the size is the size of the content area.
-  bounds.SetRect(constrained_window_bounds.left, constrained_window_bounds.top,
-                 constrained_window_bounds.left + bounds.Width(),
-                 constrained_window_bounds.top + bounds.Height());
+  // This block of code was added by Ben, and is simply false in any world with
+  // magic_browzr turned off. Eventually, the if block here should go away once
+  // we get rid of the old pre-magic_browzr window implementation, but for now
+  // (and at least the next beta release), it's here to stay and magic_browzr
+  // is off by default.
+  if (g_browser_process->IsUsingNewFrames()) {
+    // ... but overwrite its screen position with the screen position of its
+    // containing ConstrainedWindowImpl. We do this because the code called by
+    // |DetachContents| assumes the bounds contains position and size
+    // information similar to what is sent when a popup is not suppressed and
+    // must be opened, i.e. the position is the screen position of the top left
+    // of the detached popup window, and the size is the size of the content
+    // area.
+    bounds.SetRect(constrained_window_bounds.left,
+                   constrained_window_bounds.top,
+                   constrained_window_bounds.left + bounds.Width(),
+                   constrained_window_bounds.top + bounds.Height());
+  }
 
   // Save the cursor position so that we know where to send a mouse message
   // when the new detached window is created.
