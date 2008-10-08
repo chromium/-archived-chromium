@@ -37,7 +37,7 @@
 // unbounded memory.  This is the maximum number of distinct undoable
 // actions -- unbroken stretches of typed characters are coalesced
 // into a single action.
-static const int kMaximumUndoStackDepth = 1000;
+static const size_t kMaximumUndoStackDepth = 1000;
 
 namespace {
 
@@ -336,17 +336,6 @@ void EditorClientImpl::redo() {
     // reapply will call us back to push this command onto the undo stack.
     in_redo_ = false;
   }
-}
-
-// Get the distance we should go (in pixels) when doing a pageup/pagedown.
-static int GetVerticalPageDistance(WebCore::KeyboardEvent* event) {
-  if (event->target()) {
-    WebCore::Node* node = event->target()->toNode();
-    if (node && node->renderer())
-      return node->renderer()->contentHeight();
-  }
-
-  return 0;
 }
 
 // The below code was adapted from the WebKit file webview.cpp
