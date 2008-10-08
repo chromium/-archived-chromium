@@ -144,15 +144,25 @@ static const MagicNumber kMagicNumbers[] = {
   MAGIC_NUMBER("image/jpeg", "\xFF\xD8\xFF")
   MAGIC_NUMBER("image/bmp", "BM")
   // Source: Mozilla
-  MAGIC_NUMBER("text/plain", "#!")  // Script 
-  MAGIC_NUMBER("text/plain", "%!")  // Script, similar to PS 
-  MAGIC_NUMBER("text/plain", "From")  
+  MAGIC_NUMBER("application/postscript", "%! PS-Adobe-")
+  // Mozilla uses "\x4a47????00" for image/x-jg, but we use stronger pattern
+  MAGIC_NUMBER("image/x-icon", "\x00\x00\x10\x00")
+  MAGIC_NUMBER("image/x-icon", "\x00\x00\x20\x00")
+  MAGIC_NUMBER("image/x-xbitmap", "#define ")
+  MAGIC_NUMBER("text/plain", "#!")  // Script
+  MAGIC_NUMBER("text/plain", "%!")  // Script, similar to PS
+  MAGIC_NUMBER("text/plain", "From")
   MAGIC_NUMBER("text/plain", ">From")
   // Chrome specific
+  MAGIC_NUMBER("image/x-rgb", "\x01\xDA\x01\x01\x00\x03")
   MAGIC_NUMBER("application/x-gzip", "\x1F\x8B\x08")
+  MAGIC_NUMBER("application/x-compress", "\x1F\x9D\x90")  // tar.Z
   MAGIC_NUMBER("audio/x-pn-realaudio", "\x2E\x52\x4D\x46")
   MAGIC_NUMBER("video/x-ms-asf",
       "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C")
+  MAGIC_NUMBER("application/winhlp", "?_\x03")
+  MAGIC_NUMBER("application/winhlp", "LN\x02\x00")
+  MAGIC_NUMBER("application/x-bzip2", "BZ")
   MAGIC_NUMBER("image/tiff", "I I")
   MAGIC_NUMBER("image/tiff", "II*")
   MAGIC_NUMBER("image/tiff", "MM\x00*")
@@ -161,9 +171,18 @@ static const MagicNumber kMagicNumbers[] = {
   // MAGIC_NUMBER("video/mpeg", "\x00\x00\x01\xB")
   // MAGIC_NUMBER("audio/mpeg", "\xFF\xE")
   // MAGIC_NUMBER("audio/mpeg", "\xFF\xF")
+  MAGIC_NUMBER("image/x-jg", "\x4A\x47\x03\x0E\x00\x00\x00")
+  MAGIC_NUMBER("image/x-jg", "\x4A\x47\x04\x0E\x00\x00\x00")
+  MAGIC_NUMBER("image/x-portable-graymap", "P4\x0A")
   MAGIC_NUMBER("application/zip", "PK\x03\x04")
   MAGIC_NUMBER("application/x-rar-compressed", "Rar!\x1A\x07\x00")
+  MAGIC_NUMBER("application/rtf", "{\\rtf1")
+  MAGIC_NUMBER("application/postscript", "\xC5\xD0\xD3\xC6")
   MAGIC_NUMBER("application/x-msmetafile", "\xD7\xCD\xC6\x9A")
+  MAGIC_NUMBER("application/octet-stream", "\x7F" "ELF")  // ELF
+  MAGIC_NUMBER("application/octet-stream", "\xE8")  // COM, SYS
+  MAGIC_NUMBER("application/octet-stream", "\xE9")  // COM, SYS
+  MAGIC_NUMBER("application/octet-stream", "\xEB")  // COM, SYS
   MAGIC_NUMBER("application/octet-stream", "MZ")  // EXE
   // Sniffing for Flash:
   //
@@ -199,23 +218,53 @@ static const MagicNumber kSniffableTags[] = {
   MAGIC_NUMBER("text/xml", "<?xml")  // Mozilla
   // DOCTYPEs
   MAGIC_HTML_TAG("!DOCTYPE html")  // HTML5 spec
-  // Sniffable tags, ordered by how often they occur in sniffable documents.
-  MAGIC_HTML_TAG("script")  // HTML5 spec, Mozilla
+  // Sniffable tags, ordered by how often they occur in web documents with a
+  // sniffable mime type (as measured in 2007).
   MAGIC_HTML_TAG("html")  // HTML5 spec, Mozilla
-  MAGIC_HTML_TAG("!--")
   MAGIC_HTML_TAG("head")  // HTML5 spec, Mozilla
-  MAGIC_HTML_TAG("iframe")  // Mozilla
-  MAGIC_HTML_TAG("h1")  // Mozilla
-  MAGIC_HTML_TAG("div")  // Mozilla
-  MAGIC_HTML_TAG("font")  // Mozilla
+  MAGIC_HTML_TAG("script")  // HTML5 spec, Mozilla
+  MAGIC_HTML_TAG("tr")
+  MAGIC_HTML_TAG("link")  // Mozilla
+  MAGIC_HTML_TAG("meta")  // Mozilla
+  MAGIC_HTML_TAG("title")  // Mozilla
+  MAGIC_HTML_TAG("pre")  // Mozilla
   MAGIC_HTML_TAG("table")  // Mozilla
+  MAGIC_HTML_TAG("basefont")
+  // Not HTML: "xml"
+  MAGIC_HTML_TAG("p")  // Mozilla
+  MAGIC_HTML_TAG("div")  // Mozilla
+  MAGIC_HTML_TAG("base")  // Mozilla
+  // Not HTML: "metadata"
+  MAGIC_HTML_TAG("body")  // Mozilla
+  // Not HTML: "asx"
+  MAGIC_HTML_TAG("frameset")  // Mozilla
+  // Not HTML: "sami"
   MAGIC_HTML_TAG("a")  // Mozilla
   MAGIC_HTML_TAG("style")  // Mozilla
-  MAGIC_HTML_TAG("title")  // Mozilla
-  MAGIC_HTML_TAG("b")  // Mozilla
-  MAGIC_HTML_TAG("body")  // Mozilla
+  // Not HTML: "rss"
   MAGIC_HTML_TAG("br")
-  MAGIC_HTML_TAG("p")  // Mozilla
+  MAGIC_HTML_TAG("center")  // Mozilla
+  MAGIC_HTML_TAG("b")  // Mozilla
+  MAGIC_HTML_TAG("iframe")  // Mozilla
+  MAGIC_HTML_TAG("img")  // Mozilla
+  MAGIC_HTML_TAG("h1")  // Mozilla
+  MAGIC_HTML_TAG("td")
+  // Not HTML: "printer"
+  MAGIC_HTML_TAG("font")  // Mozilla
+  // Not HTML: "htlm"
+  MAGIC_HTML_TAG("form")  // Mozilla
+  // Not HTML: "master"
+  MAGIC_HTML_TAG("h3")  // Mozilla
+  MAGIC_HTML_TAG("h2")  // Mozilla
+  // Plus a long tail, but we need to stop somewhere.
+  //
+  // We also include all the other tags that Mozilla sniffs:
+  MAGIC_HTML_TAG("!--")
+  MAGIC_HTML_TAG("applet")
+  MAGIC_HTML_TAG("isindex")
+  MAGIC_HTML_TAG("h4")
+  MAGIC_HTML_TAG("h5")
+  MAGIC_HTML_TAG("h6")
 };
 
 static bool MatchMagicNumber(const char* content, size_t size,
@@ -273,7 +322,7 @@ static bool SniffForHTML(const char* content, size_t size,
     if (!IsAsciiWhitespace(*pos))
       break;
   }
-  static SnifferHistogram counter(L"mime_sniffer.kSniffableTags2",
+  static SnifferHistogram counter(L"mime_sniffer.kSniffableTags",
                                   arraysize(kSniffableTags));
   // |pos| now points to first non-whitespace character (or at end).
   return CheckForMagicNumbers(pos, end - pos,
@@ -284,7 +333,7 @@ static bool SniffForHTML(const char* content, size_t size,
 static bool SniffForMagicNumbers(const char* content, size_t size,
                                  std::string* result) {
   // Check our big table of Magic Numbers
-  static SnifferHistogram counter(L"mime_sniffer.kMagicNumbers2",
+  static SnifferHistogram counter(L"mime_sniffer.kMagicNumbers",
                                   arraysize(kMagicNumbers));
   return CheckForMagicNumbers(content, size,
                               kMagicNumbers, arraysize(kMagicNumbers),
@@ -320,7 +369,7 @@ static bool SniffXML(const char* content, size_t size, std::string* result) {
   // We want to skip XML processing instructions (of the form "<?xml ...")
   // and stop at the first "plain" tag, then make a decision on the mime-type
   // based on the name (or possibly attributes) of that tag.
-  static SnifferHistogram counter(L"mime_sniffer.kMagicXML2",
+  static SnifferHistogram counter(L"mime_sniffer.kMagicXML",
                                   arraysize(kMagicXML));
   const int kMaxTagIterations = 5;
   for (int i = 0; i < kMaxTagIterations && pos < end; ++i) {
@@ -362,12 +411,13 @@ static const MagicNumber kByteOrderMark[] = {
   MAGIC_NUMBER("text/plain", "\xFE\xFF")  // UTF-16BE
   MAGIC_NUMBER("text/plain", "\xFF\xFE")  // UTF-16LE
   MAGIC_NUMBER("text/plain", "\xEF\xBB\xBF")  // UTF-8
+  MAGIC_NUMBER("text/plain", "\x00\x00\xFE\xFF")  // UCS-4BE
 };
 
 // Whether a given byte looks like it might be part of binary content.
 // Source: HTML5 spec
 static char kByteLooksBinary[] = {
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1,  // 0x00 - 0x0F
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1,  // 0x00 - 0x0F
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,  // 0x10 - 0x1F
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 0x20 - 0x2F
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 0x30 - 0x3F
@@ -387,7 +437,7 @@ static char kByteLooksBinary[] = {
 
 static bool LooksBinary(const char* content, size_t size) {
   // First, we look for a BOM.
-  static SnifferHistogram counter(L"mime_sniffer.kByteOrderMark2",
+  static SnifferHistogram counter(L"mime_sniffer.kByteOrderMark",
                                   arraysize(kByteOrderMark));
   std::string unused;
   if (CheckForMagicNumbers(content, size,
@@ -410,7 +460,6 @@ static bool LooksBinary(const char* content, size_t size) {
 
 static bool IsUnknownMimeType(const std::string& mime_type) {
   // TODO(tc): Maybe reuse some code in net/http/http_response_headers.* here.
-  // If we do, please be careful not to alter the semantics at all.
   static const char* kUnknownMimeTypes[] = {
     // Empty mime types are as unknown as they get.
     "",
@@ -421,7 +470,7 @@ static bool IsUnknownMimeType(const std::string& mime_type) {
     // Firefox rejects a mime type if it is exactly */*
     "*/*",
   };
-  static SnifferHistogram counter(L"mime_sniffer.kUnknownMimeTypes2",
+  static SnifferHistogram counter(L"mime_sniffer.kUnknownMimeTypes",
                                   arraysize(kUnknownMimeTypes) + 1);
   for (size_t i = 0; i < arraysize(kUnknownMimeTypes); ++i) {
     if (mime_type == kUnknownMimeTypes[i]) {
@@ -438,17 +487,13 @@ static bool IsUnknownMimeType(const std::string& mime_type) {
 }
 
 bool ShouldSniffMimeType(const GURL& url, const std::string& mime_type) {
-  static SnifferHistogram should_sniff_counter(
-      L"mime_sniffer.ShouldSniffMimeType2", 2);
   // We are willing to sniff the mime type for HTTP, HTTPS, and FTP
   bool sniffable_scheme = url.is_empty() ||
                           url.SchemeIs("http") ||
                           url.SchemeIs("https") ||
                           url.SchemeIs("ftp");
-  if (!sniffable_scheme) {
-    should_sniff_counter.Add(0);
+  if (!sniffable_scheme)
     return false;
-  }
 
   static const char* kSniffableTypes[] = {
     // Many web servers are misconfigured to send text/plain for many
@@ -463,12 +508,11 @@ bool ShouldSniffMimeType(const GURL& url, const std::string& mime_type) {
     "text/xml",
     "application/xml",
   };
-  static SnifferHistogram counter(L"mime_sniffer.kSniffableTypes2",
+  static SnifferHistogram counter(L"mime_sniffer.kSniffableTypes",
                                   arraysize(kSniffableTypes) + 1);
   for (size_t i = 0; i < arraysize(kSniffableTypes); ++i) {
     if (mime_type == kSniffableTypes[i]) {
       counter.Add(i);
-      should_sniff_counter.Add(1);
       return true;
     }
   }
@@ -476,10 +520,8 @@ bool ShouldSniffMimeType(const GURL& url, const std::string& mime_type) {
     // The web server didn't specify a content type or specified a mime
     // type that we ignore.
     counter.Add(arraysize(kSniffableTypes));
-    should_sniff_counter.Add(1);
     return true;
   }
-  should_sniff_counter.Add(0);
   return false;
 }
 
