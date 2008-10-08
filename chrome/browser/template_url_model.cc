@@ -602,9 +602,18 @@ void TemplateURLModel::OnWebDataServiceRequestDone(
 
   // Compiler won't convert std::vector<TemplateURL*> to
   // std::vector<const TemplateURL*>.
-  SetTemplateURLs(
+  std::vector<const TemplateURL*> template_urls =
       *reinterpret_cast<std::vector<const TemplateURL*>* >(
-          &keyword_result.keywords));
+          &keyword_result.keywords);
+  const int resource_keyword_version =
+      TemplateURLPrepopulateData::GetDataVersion();
+  if (keyword_result.builtin_keyword_version != resource_keyword_version) {
+    // There should never be duplicate TemplateURLs. We had a bug such that
+    // duplicate TemplateURLs existed for one locale. As such we invoke
+    // RemoveDuplicatePrepopulateIDs to nuke the duplicates.
+    RemoveDuplicatePrepopulateIDs(&template_urls);
+  }
+  SetTemplateURLs(template_urls);
 
   if (keyword_result.default_search_provider_id) {
     // See if we can find the default search provider.
@@ -617,8 +626,6 @@ void TemplateURLModel::OnWebDataServiceRequestDone(
     }
   }
 
-  const int resource_keyword_version =
-      TemplateURLPrepopulateData::GetDataVersion();
   if (keyword_result.builtin_keyword_version != resource_keyword_version) {
     MergeEnginesFromPrepopulateData();
     service_->SetBuiltinKeywordVersion(resource_keyword_version);
@@ -647,6 +654,28 @@ void TemplateURLModel::OnWebDataServiceRequestDone(
                     OnTemplateURLModelChanged());
 
   NotifyLoaded();
+}
+
+void TemplateURLModel::RemoveDuplicatePrepopulateIDs(
+    std::vector<const TemplateURL*>* urls) {
+  std::set<int> ids;
+  for (std::vector<const TemplateURL*>::iterator i = urls->begin();
+       i != urls->end(); ) {
+    int prepopulate_id = (*i)->prepopulate_id();
+    if (prepopulate_id) {
+      if (ids.find(prepopulate_id) != ids.end()) {
+        if (service_.get())
+          service_->RemoveKeyword(**i);
+        delete *i;
+        i = urls->erase(i);
+      } else {
+        ids.insert(prepopulate_id);
+        ++i;
+      }
+    } else {
+      ++i;
+    }
+  }
 }
 
 void TemplateURLModel::Observe(NotificationType type,
@@ -721,6 +750,7 @@ void TemplateURLModel::MergeEnginesFromPrepopulateData() {
         loaded_urls[i]->set_short_name(existing_url->short_name());
       }
       Replace(existing_url, loaded_urls[i]);
+      id_to_turl[t_url->prepopulate_id()] = loaded_urls[i];
     } else {
       Add(loaded_urls[i]);
     }

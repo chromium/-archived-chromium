@@ -535,6 +535,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestTemplateURLPrepopulateData"
+			>
+			<File
+				RelativePath="..\..\browser\template_url_prepopulate_data_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestTemplateURL"
 			>
 			<File

@@ -45,7 +45,7 @@ struct PrepopulatedEngine {
   // to appear for one country (e.g. Live Search U.S. English and Spanish), we
   // must use two different unique IDs (and different keywords).
   //
-  // The following unique IDs are available: 6, 92, 93, 103+
+  // The following unique IDs are available: 92, 93, 103+
   // NOTE: CHANGE THE ABOVE NUMBERS IF YOU ADD A NEW ENGINE; ID conflicts = bad!
   const int id;
 };
@@ -1394,7 +1394,7 @@ const PrepopulatedEngine ok = {
   L"http://ok.hu/katalogus?q={searchTerms}",
   "ISO-8859-2",
   NULL,
-  58,
+  6,
 };
 
 const PrepopulatedEngine onet = {
@@ -2665,6 +2665,8 @@ void GetPrepopulationSetFromGeoID(PrefService* prefs,
                                   size_t* num_engines) {
   // NOTE: This function should ALWAYS set its outparams.
 
+  // If you add a new geo id make sure and update the unit test for coverage.
+
   // GeoIDs are from http://msdn.microsoft.com/en-us/library/ms776390.aspx .
   // Country codes and names are from http://www.geonames.org/countries/ .
   switch (GetGeoIDFromPrefs(prefs)) {
@@ -3004,8 +3006,8 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 15;  // Increment this if you change the above data in ways that mean
-             // users with existing data should get a new version.
+  return 16;  // Increment this if you change the above data in ways that mean
+              // users with existing data should get a new version.
 }
 
 void GetPrepopulatedEngines(PrefService* prefs,

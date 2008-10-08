@@ -180,6 +180,12 @@ class TemplateURLModel : public WebDataServiceConsumer,
   virtual void OnWebDataServiceRequestDone(WebDataService::Handle h,
                                            const WDTypedResult* result);
 
+  // Removes (and deletes) TemplateURLs from |urls| that have duplicate
+  // prepopulate ids. Duplicate prepopulate ids are not allowed, but due to a
+  // bug it was possible get dups. This step is only called when the version
+  // number changes.
+  void RemoveDuplicatePrepopulateIDs(std::vector<const TemplateURL*>* urls);
+
   // NotificationObserver method. TemplateURLModel listens for three
   // notification types:
   // . NOTIFY_HISTORY_URL_VISITED: adds keyword search terms if the visit
