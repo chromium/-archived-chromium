@@ -1035,7 +1035,8 @@ V8 | KJS # LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/fillrect_gradient.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/image-object-in-canvas.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/patternfill-repeat.html = FAIL
+// Flaky
+V8 | KJS # LayoutTests/fast/canvas/patternfill-repeat.html = FAIL | CRASH
 V8 | KJS # LayoutTests/fast/css-generated-content/table-row-group-to-inline.html = FAIL
 V8 | KJS # LayoutTests/fast/css-generated-content/table-row-group-with-before.html = FAIL
 V8 | KJS # LayoutTests/fast/css-generated-content/table-row-with-before.html = FAIL
