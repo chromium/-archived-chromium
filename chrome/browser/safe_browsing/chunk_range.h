@@ -60,5 +60,7 @@ void RangesToString(const std::vector<ChunkRange>& ranges,
 bool StringToRanges(const std::string& input,
                     std::vector<ChunkRange>* ranges);
 
+// Tests if a chunk number is contained a sorted vector of ChunkRanges.
+bool IsChunkInRange(int chunk_number, const std::vector<ChunkRange>& ranges);
 
 #endif  // CHROME_BROWSER_SAFE_BROWSING_CHUNK_RANGE_H_

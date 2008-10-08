@@ -94,3 +94,29 @@ bool StringToRanges(const std::string& input,
 
   return true;
 }
+
+// Binary search over a series of ChunkRanges.
+bool IsChunkInRange(int chunk_number, const std::vector<ChunkRange>& ranges) {
+  if (ranges.empty())
+    return false;
+
+  int low = 0;
+  int high = ranges.size() - 1;
+
+  while (low <= high) {
+    // http://googleresearch.blogspot.com/2006/06/extra-extra-read-all-about-it-nearly.html
+    int mid = ((unsigned int)low + (unsigned int)high) >> 1;
+    const ChunkRange& chunk = ranges[mid];
+    if ((chunk.stop() >= chunk_number) && (chunk.start() <= chunk_number))
+      return true;  // chunk_number is in range.
+
+    // Adjust our mid point.
+    if (chunk.stop() < chunk_number)
+      low = mid + 1;
+    else
+      high = mid - 1;
+  }
+
+  return false;
+}
+
