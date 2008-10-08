@@ -117,8 +117,11 @@ env.Append(
     CPPDEFINES = [
         '__STD_C',
         'U_STATIC_IMPLEMENTATION',
-        ]
-    )
+    ],
+    CPPPATH = [
+        '$WTF_DIR/unicode',
+    ],
+)
 
 if env['PLATFORM'] == 'win32':
     env.Append(
@@ -136,7 +139,6 @@ if env['PLATFORM'] == 'win32':
         CCFLAGS = [
                 '/TP',
 
-                '/WX',
                 '/Wp64',
 
                 '/wd4127',
@@ -150,10 +152,19 @@ if env['PLATFORM'] == 'win32':
 
 wtf_inputs = [
     '$WTF_DIR/Assertions.cpp',
-    '$WTF_DIR/unicode/UTF8.cpp',
-    '$WTF_DIR/TCSystemAlloc.cpp',
+    '$WTF_DIR/FastMalloc.cpp',
     '$WTF_DIR/HashTable.cpp',
+    '$WTF_DIR/MainThread.cpp',
+    '$WTF_DIR/RefCountedLeakCounter.cpp',
+    '$WTF_DIR/TCSystemAlloc.cpp',
+    '$WTF_DIR/unicode/UTF8.cpp',
+    '$WTF_DIR/unicode/icu/CollatorICU.cpp',
 ]
 
-env.ChromeStaticLibrary('WTF', wtf_inputs)
+if env['PLATFORM'] == 'win32':
+  wtf_inputs.extend([
+      '$WTF_DIR/win/MainThreadWin.cpp',
+      '$PENDING_DIR/wtf/ThreadingWin.cpp',
+  ])
 
+env.ChromeStaticLibrary('WTF', wtf_inputs)

@@ -36,7 +36,6 @@ env.Prepend(
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/18n',
         '$ZLIB_DIR',
-        'scons',
         'scons/include',
         'include',
     ],

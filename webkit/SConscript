@@ -10,12 +10,35 @@ env = env.Clone()
 env_res = env.Clone()
 
 
-port_dir = env.Dir('#/$BUILD_TYPE/webkit/port')
+# We use the SCons addRepository() call (an internal API that will
+# at some point be made public) to "back" the build directory
+# hierarchy with the source directory hierarchies in which we want to
+# find the source .cpp and .h files.  Think of this kind of like
+# Make's VPATH, but applied to entire directory hierarchies.  The
+# upshot is that when searching for any file (source or target),
+# SCons will search the subdirectory hierarchies under the following
+# paths:
+#
+#   webkit/Hammer/port/
+#   webkit/port/
+#   third_party/WebKit/WebCore
+#
+# SCons will replicate the compiler and linker -I and -L options so
+# that the tools will find the right .h and library files.  This comes
+# at the cost of tripling the number of -I or -L options on a command
+# line, but with the benefit that the build should "just work"
+# regardless of which tree the file lives in, and regardless of whether
+# or not the file involved is a generated file or checked-in source.
 
+port_dir = env.Dir('$WEBKIT_DIR/port')
 port_dir.addRepository(env.Dir('#/../webkit/port'))
 port_dir.addRepository(env.Dir('#/../third_party/WebKit/WebCore'))
 
-if env['PLATFORM'] == 'posix':
+if env['PLATFORM'] == 'win32':
+  env['WEBKIT_PLATFORM_DIR'] = 'win'
+elif env['PLATFORM'] == 'darwin':
+  env['WEBKIT_PLATFORM_DIR'] = 'mac'
+elif env['PLATFORM'] == 'posix':
   env.Append(
       CCFLAGS = [
           '-Wno-parentheses',
@@ -29,14 +52,27 @@ env.Prepend(
     CPPPATH = [
         '$WEBKIT_DIR/build/localized_strings',
         '$WEBKIT_DIR/build/JSConfig/WebCore',
+        '$WEBKIT_DIR/build/JavaScriptCore',
         '$WEBKIT_DIR/build/WebCore',
+
+        '$WEBKIT_DIR/port/platform/image-decoders',
+        '$WEBKIT_DIR/port/platform/image-decoders/bmp',
+        '$WEBKIT_DIR/port/platform/image-decoders/gif',
+        '$WEBKIT_DIR/port/platform/image-decoders/ico',
+        '$WEBKIT_DIR/port/platform/image-decoders/jpeg',
+        '$WEBKIT_DIR/port/platform/image-decoders/png',
+        '$WEBKIT_DIR/port/platform/image-decoders/xbm',
+        '$ZLIB_DIR',
+        '$LIBPNG_DIR',
+        '$LIBJPEG_DIR',
+        '$LIBXSLT_DIR',
+        '$LIBXML_DIR/include',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
         '$SKIA_DIR/include',
         '$SKIA_DIR/include/corecg',
         '$SKIA_DIR/platform',
         '$NPAPI_DIR',
-        '$V8_DIR/src/api',
         '$V8_DIR/include',
         '$WEBKIT_DIR/V8Bindings/DerivedSources',
         '$WEBKIT_DIR/V8Bindings/SharedSources',
@@ -54,48 +90,39 @@ env.Prepend(
         '$WEBKIT_DIR/port/history',
         '$WEBKIT_DIR/port/html',
         '$WEBKIT_DIR/port/loader',
+        '$WEBKIT_DIR/port/loader/appcache',
+        '$WEBKIT_DIR/port/loader/archive',
         '$WEBKIT_DIR/port/loader/icon',
         '$WEBKIT_DIR/port/page',
+        '$WEBKIT_DIR/port/page/animation',
         '$WEBKIT_DIR/port/platform',
+        '$WEBKIT_DIR/port/platform/graphics',
+        '$WEBKIT_DIR/port/platform/$WEBKIT_PLATFORM_DIR',
+        '$WEBKIT_DIR/port/svg/graphics',
         '$WEBKIT_DIR/port/platform/network',
+        '$WEBKIT_DIR/port/platform/network/win',
+        '$WEBKIT_DIR/port/platform/sql',
         '$WEBKIT_DIR/port/platform/text',
         '$WEBKIT_DIR/port/plugins',
         '$WEBKIT_DIR/port/rendering',
-        '$WEBKIT_DIR',
-
-        '$WEBKIT_DIR/port/platform/image-decoders',
-        '$WEBKIT_DIR/port/platform/image-decoders/bmp',
-        '$WEBKIT_DIR/port/platform/image-decoders/gif',
-        '$WEBKIT_DIR/port/platform/image-decoders/ico',
-        '$WEBKIT_DIR/port/platform/image-decoders/jpeg',
-        '$WEBKIT_DIR/port/platform/image-decoders/png',
-        '$WEBKIT_DIR/port/platform/image-decoders/xbm',
-        '$WEBKIT_DIR/port/platform/image-decoders/zlib',
-
-        '$WEBKIT_DIR/port/platform/graphics',
-
-        '$WEBKIT_DIR/port/svg/graphics',
-        '$WEBKIT_DIR/port/platform/network',
-        '$WEBKIT_DIR/port/platform/sql',
-        '$WEBKIT_DIR/port/platform/network/win',
-        '$WEBKIT_DIR/port/rendering',
+        '$WEBKIT_DIR/port/rendering/style',
         '$WEBKIT_DIR/port/storage',
+        '$WEBKIT_DIR/port/style',
         '$WEBKIT_DIR/port/xml',
-        '$WEBKIT_DIR/port',
-        '$WEBKIT_DIR/port/wtf',
-        '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore',
-        '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/wtf',
+        '$WEBKIT_DIR',
+        '$WEBKIT_DIR/build/port',
+
+        '$JAVASCRIPTCORE_DIR',
+        '$JAVASCRIPTCORE_DIR/wtf',
+        '$JAVASCRIPTCORE_DIR/os-win32',
+
+        '$WEBKIT_DIR/build',
+
+        '$WEBKIT_DIR/port/DerivedSources',
         '$WEBKIT_DIR/port/svg',
+        '$WEBKIT_DIR/port/svg/animation',
         '$WEBKIT_DIR/port/svg/graphics/filters',
-        '$WEBKIT_DIR/port/plugins',
-        '$LIBXSLT_DIR/scons',
-        '$LIBXSLT_DIR',
-        '$LIBXML_DIR/scons/include',
-        '$LIBXML_DIR/include',
-        '$LIBPNG_DIR',
-        '$ZLIB_DIR',
-        '$LIBJPEG_DIR',
-        '$WEBKIT_DIR/DerivedSources',
+
         '#/..',
     ],
 )
@@ -127,22 +154,23 @@ env.Append(
       'U_STATIC_IMPLEMENTATION',
       '_SCL_SECURE_NO_DEPRECATE',
       '_SCL_SECURE_NO_WARNINGS',
-      ['ENABLE_CROSS_DOCUMENT_MESSAGING', '1'],
+      ['ENABLE_DATABASE', '0'],
+      ['ENABLE_DASHBOARD_SUPPORT', '0'],
+      ['ENABLE_JSC_MULTIPLE_THREADS', '0'],
+      ['ENABLE_ICONDATABASE', '0'],
       ['ENABLE_XSLT', '1'],
       ['ENABLE_XPATH', '1'],
       ['ENABLE_SVG', '1'],
+      ['ENABLE_SVG_ANIMATION', '1'],
       ['ENABLE_SVG_AS_IMAGE', '1'],
       ['ENABLE_SVG_USE', '1'],
       ['ENABLE_SVG_FOREIGN_OBJECT', '1'],
       ['ENABLE_SVG_FONTS', '1'],
-      ['ANDROID_CANVAS_IMPL', '1'],
       ['WEBCORE_NAVIGATOR_PLATFORM', '"\\"Win32\\""'],
       'USE_GOOGLE_URL_LIBRARY',
-      'BUILDING_CHROMIUM__',
+      ['BUILDING_CHROMIUM__', '1'],
       'CHROMIUM_BUILD',
-      'WTF_USE_ICU_UNICODE',
       '_SECURE_ATL',
-      'QNAME_DEFAULT_CONSTRUCTOR',
 
       'LIBXSLT_STATIC',
       'LIBXML_STATIC',
@@ -152,6 +180,7 @@ env.Append(
       'DISABLE_ACTIVEX_TYPE_CONVERSION_MPLAYER2',
 
       '__STD_C',
+      ['USE_SYSTEM_MALLOC', '1'],
     ],
 )
 

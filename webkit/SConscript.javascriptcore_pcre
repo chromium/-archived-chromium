@@ -39,7 +39,9 @@ input_files = [
      '$PCRE_DIR/pcre_xclass.cpp',
      '$PCRE_DIR/pcre_ucp_searchfuncs.cpp',
      '$PCRE_DIR/pcre_tables.cpp',
-     '$PCRE_DIR/pcre_exec.cpp',
+     # Uncomment and replace following line when the $PENDING_DIR file unforks.
+     #'$PCRE_DIR/pcre_exec.cpp',
+     '$PENDING_DIR/pcre_exec.cpp',
 ]
 
 env.ChromeStaticLibrary('JavaScriptCore_pcre', input_files)
