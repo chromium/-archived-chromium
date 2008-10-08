@@ -150,8 +150,10 @@ bool BookmarkBubbleView::AcceleratorPressed(
     const ChromeViews::Accelerator& accelerator) {
   if (accelerator.GetKeyCode() != VK_RETURN)
     return false;
-
-  Close();
+  if (edit_button_->HasFocus())
+    ButtonPressed(edit_button_);
+  else
+    ButtonPressed(close_button_);
   return true;
 }
 
@@ -183,7 +185,7 @@ void BookmarkBubbleView::Init() {
       l10n_util::GetString(IDS_BOOMARK_BUBBLE_OPTIONS));
   edit_button_->SetListener(this);
 
-  close_button_ = new NativeButton(l10n_util::GetString(IDS_CLOSE));
+  close_button_ = new NativeButton(l10n_util::GetString(IDS_CLOSE), true);
   close_button_->SetListener(this);
 
   parent_combobox_ = new ComboBox(&parent_model_);
