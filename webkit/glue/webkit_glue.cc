@@ -373,9 +373,9 @@ void SetUserAgentToDefault() {
   // maximally compatible with Safari, we hope!!
   std::string product;
 
-  FileVersionInfo* version_info =
-      FileVersionInfo::CreateFileVersionInfoForCurrentModule();
-  if (version_info)
+  scoped_ptr<FileVersionInfo> version_info(
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+  if (version_info.get())
     product = "Chrome/" + WideToASCII(version_info->product_version());
 
   if (product.empty())
