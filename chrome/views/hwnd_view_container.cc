@@ -120,7 +120,7 @@ static RegisteredClasses* registered_classes = NULL;
 // HWNDViewContainer, public
 
 HWNDViewContainer::HWNDViewContainer()
-    : tracking_mouse_events_(false),
+    : active_mouse_tracking_flags_(0),
       has_capture_(false),
       current_action_(FA_NONE),
       toplevel_(false),
@@ -536,7 +536,7 @@ LRESULT HWNDViewContainer::OnMouseActivate(HWND window,
 }
 
 void HWNDViewContainer::OnMouseMove(UINT flags, const CPoint& point) {
-  ProcessMouseMoved(point, flags);
+  ProcessMouseMoved(point, flags, false);
 }
 
 void HWNDViewContainer::OnMouseLeave() {
@@ -573,8 +573,22 @@ void HWNDViewContainer::OnNCLButtonUp(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
+LRESULT HWNDViewContainer::OnNCMouseLeave(UINT uMsg,
+                                          WPARAM w_param,
+                                          LPARAM l_param) {
+  ProcessMouseExited();
+  return 0;
+}
+
 LRESULT HWNDViewContainer::OnNCMouseMove(UINT flags, const CPoint& point) {
-  SetMsgHandled(FALSE);
+  // NC points are in screen coordinates.
+  CPoint temp = point;
+  MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
+  ProcessMouseMoved(temp, 0, true);
+
+  // We need to process this message to stop Windows from drawing the window
+  // controls as the mouse moves over the title bar area when the window is
+  // maximized.
   return 0;
 }
 
@@ -652,17 +666,27 @@ void HWNDViewContainer::OnFinalMessage(HWND window) {
 ///////////////////////////////////////////////////////////////////////////////
 // HWNDViewContainer, protected
 
-void HWNDViewContainer::TrackMouseEvents() {
+void HWNDViewContainer::TrackMouseEvents(DWORD mouse_tracking_flags) {
   // Begin tracking mouse events for this HWND so that we get WM_MOUSELEAVE
   // when the user moves the mouse outside this HWND's bounds.
-  if (!tracking_mouse_events_) {
+  if (active_mouse_tracking_flags_ == 0 || mouse_tracking_flags & TME_CANCEL) {
+    if (mouse_tracking_flags & TME_CANCEL) {
+      // We're about to cancel active mouse tracking, so empty out the stored
+      // state.
+      active_mouse_tracking_flags_ = 0;
+    } else {
+      active_mouse_tracking_flags_ = mouse_tracking_flags;
+    }
+
     TRACKMOUSEEVENT tme;
     tme.cbSize = sizeof(tme);
-    tme.dwFlags = TME_LEAVE;
+    tme.dwFlags = mouse_tracking_flags;
     tme.hwndTrack = GetHWND();
     tme.dwHoverTime = 0;
     TrackMouseEvent(&tme);
-    tracking_mouse_events_ = true;
+  } else if (mouse_tracking_flags != active_mouse_tracking_flags_) {
+    TrackMouseEvents(active_mouse_tracking_flags_ | TME_CANCEL);
+    TrackMouseEvents(mouse_tracking_flags);
   }
 }
 
@@ -713,12 +737,13 @@ void HWNDViewContainer::ProcessMouseReleased(const CPoint& point, UINT flags) {
   root_view_->OnMouseReleased(mouse_up, false);
 }
 
-void HWNDViewContainer::ProcessMouseMoved(const CPoint &point, UINT flags) {
+void HWNDViewContainer::ProcessMouseMoved(const CPoint &point, UINT flags,
+                                          bool is_nonclient) {
   // Windows only fires WM_MOUSELEAVE events if the application begins
   // "tracking" mouse events for a given HWND during WM_MOUSEMOVE events.
   // We need to call |TrackMouseEvents| to listen for WM_MOUSELEAVE.
   if (!has_capture_)
-    TrackMouseEvents();
+    TrackMouseEvents(is_nonclient ? TME_NONCLIENT | TME_LEAVE : TME_LEAVE);
   if (has_capture_ && is_mouse_down_) {
     ProcessMouseDragged(point, flags);
   } else {
@@ -745,7 +770,7 @@ void HWNDViewContainer::ProcessMouseExited() {
   root_view_->ProcessOnMouseExited();
   // Reset our tracking flag so that future mouse movement over this
   // HWNDViewContainer results in a new tracking session.
-  tracking_mouse_events_ = false;
+  active_mouse_tracking_flags_ = 0;
 }
 
 void HWNDViewContainer::AdjustWindowToFitScreenSize() {

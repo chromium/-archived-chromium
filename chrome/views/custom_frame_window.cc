@@ -944,18 +944,6 @@ LRESULT CustomFrameWindow::OnNCHitTest(const CPoint& point) {
   return non_client_view_->NonClientHitTest(gfx::Point(temp.x, temp.y));
 }
 
-LRESULT CustomFrameWindow::OnNCMouseMove(UINT flags, const CPoint& point) {
-  // NC points are in screen coordinates.
-  CPoint temp = point;
-  MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
-  ProcessMouseMoved(temp, 0);
-
-  // We need to process this message to stop Windows from drawing the window
-  // controls as the mouse moves over the title bar area when the window is
-  // maximized.
-  return 0;
-}
-
 struct ClipState {
   // The window being painted.
   HWND parent;
@@ -1134,6 +1122,33 @@ LRESULT CustomFrameWindow::OnSetCursor(HWND window, UINT hittest_code,
   }
   SetCursor(resize_cursors_[index]);
   return 0;
+}
+
+LRESULT CustomFrameWindow::OnSetText(const wchar_t* text) {
+  // Sadly, the default implementation of WM_SETTEXT actually paints the native
+  // title bar of the application. That's right, it just paints it. It doesn't
+  // go through WM_NCPAINT or anything like that. What this means is that we
+  // end up with occasional flicker of the title bar whenever we change the
+  // title text. The solution is to handle WM_SETTEXT ourselves and remove the
+  // window's WS_VISIBLE style before calling DefWindowProc directly.
+  // Afterwards we add it back. Sigh.
+  LONG window_style = GetWindowLong(GetHWND(), GWL_STYLE);
+  bool was_visible = !!(window_style & WS_VISIBLE);
+  if (was_visible) {
+    window_style &= ~WS_VISIBLE;
+    SetWindowLong(GetHWND(), GWL_STYLE, window_style);
+  }
+
+  LRESULT result = DefWindowProc(GetHWND(), WM_SETTEXT, NULL,
+                                 reinterpret_cast<LPARAM>(text));
+
+  // Add the WS_VISIBLE style back if needed and re-set the window style.
+  if (was_visible) {
+    window_style |= WS_VISIBLE;
+    SetWindowLong(GetHWND(), GWL_STYLE, window_style);
+  }
+
+  return result;
 }
 
 void CustomFrameWindow::OnSize(UINT param, const CSize& size) {

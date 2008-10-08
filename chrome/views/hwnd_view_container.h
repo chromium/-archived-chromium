@@ -174,9 +174,11 @@ class HWNDViewContainer : public ViewContainer,
     // CustomFrameWindow hacks
     MESSAGE_HANDLER_EX(WM_NCUAHDRAWCAPTION, OnNCUAHDrawCaption)
     MESSAGE_HANDLER_EX(WM_NCUAHDRAWFRAME, OnNCUAHDrawFrame)
+
     
     // Non-atlcrack.h handlers
     MESSAGE_HANDLER_EX(WM_GETOBJECT, OnGetObject)
+    MESSAGE_HANDLER_EX(WM_NCMOUSELEAVE, OnNCMouseLeave)
 
     // This list is in _ALPHABETICAL_ order! OR I WILL HURT YOU.
     MSG_WM_ACTIVATE(OnActivate)
@@ -227,6 +229,7 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_RBUTTONUP(OnRButtonUp)
     MSG_WM_SETCURSOR(OnSetCursor)
     MSG_WM_SETFOCUS(OnSetFocus)
+    MSG_WM_SETTEXT(OnSetText)
     MSG_WM_SIZE(OnSize)
     MSG_WM_SYSCOMMAND(OnSysCommand)
     MSG_WM_THEMECHANGED(OnThemeChanged)
@@ -387,6 +390,7 @@ class HWNDViewContainer : public ViewContainer,
   virtual void OnNCLButtonDblClk(UINT flags, const CPoint& point);
   virtual void OnNCLButtonDown(UINT flags, const CPoint& point);
   virtual void OnNCLButtonUp(UINT flags, const CPoint& point);
+  virtual LRESULT OnNCMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCMouseMove(UINT flags, const CPoint& point);
   virtual void OnNCPaint(HRGN rgn) { SetMsgHandled(FALSE); }
   virtual void OnNCRButtonDblClk(UINT flags, const CPoint& point);
@@ -422,6 +426,10 @@ class HWNDViewContainer : public ViewContainer,
   virtual void OnSetFocus(HWND focused_window) {
     SetMsgHandled(FALSE);
   }
+  virtual LRESULT OnSetText(const wchar_t* text) {
+    SetMsgHandled(FALSE);
+    return 0;
+  }
   virtual LRESULT OnSettingChange(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual void OnSize(UINT param, const CSize& size);
   virtual void OnSysCommand(UINT notification_code, CPoint click) { }
@@ -438,8 +446,9 @@ class HWNDViewContainer : public ViewContainer,
   virtual void OnFinalMessage(HWND window);
 
   // Start tracking all mouse events so that this window gets sent mouse leave
-  // messages too.
-  void TrackMouseEvents();
+  // messages too. |is_nonclient| is true when we should track WM_NCMOUSELEAVE
+  // messages instead of WM_MOUSELEAVE ones.
+  void TrackMouseEvents(DWORD mouse_tracking_flags);
 
   // Actually handle mouse events. These functions are called by subclasses who
   // override the message handlers above to do the actual real work of handling
@@ -447,7 +456,7 @@ class HWNDViewContainer : public ViewContainer,
   bool ProcessMousePressed(const CPoint& point, UINT flags, bool dbl_click);
   void ProcessMouseDragged(const CPoint& point, UINT flags);
   void ProcessMouseReleased(const CPoint& point, UINT flags);
-  void ProcessMouseMoved(const CPoint& point, UINT flags);
+  void ProcessMouseMoved(const CPoint& point, UINT flags, bool is_nonclient);
   void ProcessMouseExited();
 
   // Makes sure the window still fits on screen after a settings change message
@@ -512,9 +521,10 @@ class HWNDViewContainer : public ViewContainer,
   // instance.
   ScopedRunnableMethodFactory<HWNDViewContainer> close_container_factory_;
 
-  // Whether or not we are currently tracking mouse events for this HWND
-  // using |::TrackMouseEvent|
-  bool tracking_mouse_events_;
+  // The flags currently being used with TrackMouseEvent to track mouse
+  // messages. 0 if there is no active tracking. The value of this member is
+  // used when tracking is canceled.
+  DWORD active_mouse_tracking_flags_;
 
   // Whether or not this is a top level window.
   bool toplevel_;

@@ -53,12 +53,12 @@ class CustomFrameWindow : public Window {
   virtual LRESULT OnNCActivate(BOOL active);
   virtual LRESULT OnNCCalcSize(BOOL mode, LPARAM l_param);
   virtual LRESULT OnNCHitTest(const CPoint& point);
-  virtual LRESULT OnNCMouseMove(UINT flags, const CPoint& point);
   virtual void OnNCPaint(HRGN rgn);
   virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
   virtual LRESULT OnNCUAHDrawCaption(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
+  virtual LRESULT OnSetText(const wchar_t* text);
   virtual void OnSize(UINT param, const CSize& size);
 
  private:
