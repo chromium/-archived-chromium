@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', setDirectionSensitiveImages);
 <table width="100%" cellspacing="0" cellpadding="0">
   <td class="cell" valign="middle" align="center">
     <div class="box">
-      <div class="icon"><img src="ssl_roadblock_icon.png" alt="SSL Error Icon" /></div>
+      <div class="icon"><img src="ssl_roadblock_icon.png" alt="SSL Error Icon" onmousedown="return false;"/></div>
       <div class="title" jscontent="headLine"></div>
       <div class="main" jseval="this.innerHTML = $this.description;"></div>
       <div class="main">
@@ -121,10 +121,10 @@ document.addEventListener('DOMContentLoaded', setDirectionSensitiveImages);
        // the inlined version will just end up with that path string rather
        // than the inlined image.
       -->
-        <a href="#" onclick="toggleMoreInfo(false); return false;"><img id="twisty_closed" src="twisty_closed.png" border="0" style="display:none"/><img id="twisty_closed_rtl" src="twisty_closed_rtl.png" border="0" style="display:none"/><span jscontent="moreInfoTitle" class="moreinfotitle"></span></a>
+        <a href="#" onclick="toggleMoreInfo(false); return false;" onmousedown="return false;"><img id="twisty_closed" src="twisty_closed.png" border="0" style="display:none"/><img id="twisty_closed_rtl" src="twisty_closed_rtl.png" border="0" style="display:none"/><span jscontent="moreInfoTitle" class="moreinfotitle"></span></a>
       </div>
       <div class="example" id="more_info_long" style="display:none;">
-        <a href="#" onclick="toggleMoreInfo(true); return false;"><img src="twisty_open.png" border="0" /><span jscontent="moreInfoTitle" class="moreinfotitle"></span></a>
+        <a href="#" onclick="toggleMoreInfo(true); return false;" onmousedown="return false;"><img src="twisty_open.png" border="0" /><span jscontent="moreInfoTitle" class="moreinfotitle"></span></a>
         <p jseval="this.innerHTML = $this.moreInfo1;"></p>
         <p jseval="this.innerHTML = $this.moreInfo2;"></p>
         <p jseval="this.innerHTML = $this.moreInfo3;"></p>
