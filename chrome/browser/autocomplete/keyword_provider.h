@@ -83,11 +83,12 @@ class KeywordProvider : public AutocompleteProvider {
       AutocompleteMatch* match);
 
   // Determines the relevance for some input, given its type, whether the user
-  // typed the complete keyword, and whether the keyword is a bookmark keyword
-  // (i.e. one that does not support replacement).
+  // typed the complete keyword, and whether the keyword needs query text (true
+  // if the keyword supports replacement and the user isn't in "prefer keyword
+  // matches" mode).
   static int CalculateRelevance(AutocompleteInput::Type type,
                                 bool complete,
-                                bool is_bookmark_keyword);
+                                bool no_query_text_needed);
 
   // Creates a fully marked-up AutocompleteMatch from the user's input.
   AutocompleteMatch CreateAutocompleteMatch(
