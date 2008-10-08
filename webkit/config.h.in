@@ -89,6 +89,10 @@
 #include <wtf/DisallowCType.h>
 #endif
 
+#if PLATFORM(CHROMIUM) && !PLATFORM(DARWIN) && !PLATFORM(WIN_OS)
+#define WTF_USE_ICU_UNICODE 1
+#endif
+
 #if COMPILER(MSVC)
 #define SKIP_STATIC_CONSTRUCTORS_ON_MSVC 1
 #else
