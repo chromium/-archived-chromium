@@ -201,6 +201,10 @@ NET_ERROR(INVALID_CHUNKED_ENCODING, -321)
 // The server did not support the request method.
 NET_ERROR(METHOD_NOT_SUPPORTED, -322)
 
+// The response was 407 (Proxy Authentication Required), yet we did not send
+// the request to a proxy.
+NET_ERROR(UNEXPECTED_PROXY_AUTH, -323)
+
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 

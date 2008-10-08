@@ -10,17 +10,18 @@
 #include "net/http/http_network_session.h"
 #include "net/http/http_network_transaction.h"
 #include "net/http/http_transaction_unittest.h"
+#include "net/proxy/proxy_resolver_fixed.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 //-----------------------------------------------------------------------------
 
 
 struct MockConnect {
-  bool async;
-  int result;
-
   // Asynchronous connection success.
   MockConnect() : async(true), result(net::OK) { }
+
+  bool async;
+  int result;
 };
 
 struct MockRead {
@@ -46,11 +47,18 @@ struct MockRead {
   int data_len;
 };
 
+// MockWrite uses the same member fields as MockRead, but with different
+// meanings. The expected input to MockTCPClientSocket::Write() is given
+// by {data, data_len}, and the return value of Write() is controlled by
+// {async, result}.
+typedef MockRead MockWrite;
+
 struct MockSocket {
-  MockSocket() : reads(NULL) { }
+  MockSocket() : reads(NULL), writes(NULL) { }
 
   MockConnect connect;
   MockRead* reads;
+  MockWrite* writes;
 };
 
 // Holds an array of MockSocket elements.  As MockTCPClientSocket objects get
@@ -72,6 +80,7 @@ class MockTCPClientSocket : public net::ClientSocket {
         callback_(NULL),
         read_index_(0),
         read_offset_(0),
+        write_index_(0),
         connected_(false) {
     DCHECK(data_) << "overran mock_sockets array";
   }
@@ -102,7 +111,7 @@ class MockTCPClientSocket : public net::ClientSocket {
   virtual int Read(char* buf, int buf_len, net::CompletionCallback* callback) {
     DCHECK(!callback_);
     MockRead& r = data_->reads[read_index_];
-    int result;
+    int result = r.result;
     if (r.data) {
       if (r.data_len - read_offset_ > 0) {
         result = std::min(buf_len, r.data_len - read_offset_);
@@ -115,8 +124,6 @@ class MockTCPClientSocket : public net::ClientSocket {
       } else {
         result = 0;  // EOF
       }
-    } else {
-      result = r.result;
     }
     if (r.async) {
       RunCallbackAsync(callback, result);
@@ -127,7 +134,28 @@ class MockTCPClientSocket : public net::ClientSocket {
   virtual int Write(const char* buf, int buf_len,
                     net::CompletionCallback* callback) {
     DCHECK(!callback_);
-    return buf_len;  // OK, we wrote it.
+    // Not using mock writes; succeed synchronously.
+    if (!data_->writes)
+      return buf_len;
+    
+    // Check that what we are writing matches the expectation.
+    // Then give the mocked return value.
+    MockWrite& w = data_->writes[write_index_];
+    int result = w.result;
+    if (w.data) {
+      std::string expected_data(w.data, w.data_len);
+      std::string actual_data(buf, buf_len);
+      EXPECT_EQ(expected_data, actual_data);
+      if (expected_data != actual_data)
+        return net::ERR_UNEXPECTED;
+      if (result == net::OK)
+        result = w.data_len;
+    }
+    if (w.async) {
+      RunCallbackAsync(callback, result);
+      return net::ERR_IO_PENDING;
+    }
+    return result;
   }
  private:
   void RunCallbackAsync(net::CompletionCallback* callback, int result) {
@@ -147,6 +175,7 @@ class MockTCPClientSocket : public net::ClientSocket {
   net::CompletionCallback* callback_;
   int read_index_;
   int read_offset_;
+  int write_index_;
   bool connected_;
 };
 
@@ -178,8 +207,12 @@ class NullProxyResolver : public net::ProxyResolver {
   }
 };
 
-net::HttpNetworkSession* CreateSession() {
-  return new net::HttpNetworkSession(new NullProxyResolver());
+// TODO(eroman): google style disallows default arguments...
+net::HttpNetworkSession* CreateSession(
+    net::ProxyResolver* proxy_resolver = NULL) {
+  if (!proxy_resolver)
+    proxy_resolver = new NullProxyResolver();
+  return new net::HttpNetworkSession(proxy_resolver);
 }
 
 class HttpNetworkTransactionTest : public PlatformTest {
@@ -573,4 +606,228 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("", out.response_data);
+}
+
+// Test the request-challenge-retry sequence for basic auth.
+// (basic auth is the easiest to mock, because it has no randomness).
+TEST_F(HttpNetworkTransactionTest, BasicAuth) {
+  net::HttpTransaction* trans = new net::HttpNetworkTransaction(
+      CreateSession(), &mock_socket_factory);
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.load_flags = 0;
+
+  MockRead data_reads1[] = {
+    MockRead("HTTP/1.0 401 Unauthorized\r\n"),
+    // Give a couple authenticate options (only the middle one is actually
+    // supported).
+    MockRead("WWW-Authenticate: Basic\r\n"), // Malformed
+    MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+    MockRead("WWW-Authenticate: UNSUPPORTED realm=\"FOO\"\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    // Large content-length -- won't matter, as connection will be reset.
+    MockRead("Content-Length: 10000\r\n\r\n"),
+    MockRead(false, net::ERR_FAILED),
+  };
+
+  // After calling trans->RestartWithAuth(), this is the request we should
+  // be issuing -- the final header line contains the credentials.
+  MockWrite data_writes2[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Authorization: Basic Zm9vOmJhcg==\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads2[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, net::OK),
+  };
+
+  MockSocket data1;
+  data1.reads = data_reads1;
+  MockSocket data2;
+  data2.reads = data_reads2;
+  data2.writes = data_writes2;
+  mock_sockets[0] = &data1;
+  mock_sockets[1] = &data2;
+  mock_sockets[2] = NULL;
+
+  TestCompletionCallback callback1;
+
+  int rv = trans->Start(&request, &callback1);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback1.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+
+  // The password prompt info should have been set in response->auth_challenge.
+  EXPECT_FALSE(response->auth_challenge.get() == NULL);
+
+  // TODO(eroman): this should really include the effective port (80)
+  EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+  EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
+  EXPECT_EQ(L"basic", response->auth_challenge->scheme);
+
+  TestCompletionCallback callback2;
+
+  rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback2.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+  EXPECT_TRUE(response->auth_challenge.get() == NULL);
+  EXPECT_EQ(100, response->headers->GetContentLength());
+
+  trans->Destroy();
+
+  // Empty the current queue.
+  MessageLoop::current()->RunAllPending();
+}
+
+// Test the flow when both the proxy server AND origin server require
+// authentication. Again, this uses basic auth for both since that is
+// the simplest to mock.
+TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
+  net::ProxyInfo proxy_info;
+  proxy_info.UseNamedProxy("myproxy:70");
+
+  // Configure against proxy server "myproxy:70".
+  net::HttpTransaction* trans = new net::HttpNetworkTransaction(
+      CreateSession(new net::ProxyResolverFixed(proxy_info)),
+      &mock_socket_factory);
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.load_flags = 0;
+
+  MockRead data_reads1[] = {
+    MockRead("HTTP/1.0 407 Unauthorized\r\n"),
+    // Give a couple authenticate options (only the middle one is actually
+    // supported).
+    MockRead("Proxy-Authenticate: Basic\r\n"), // Malformed
+    MockRead("Proxy-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+    MockRead("Proxy-Authenticate: UNSUPPORTED realm=\"FOO\"\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    // Large content-length -- won't matter, as connection will be reset.
+    MockRead("Content-Length: 10000\r\n\r\n"),
+    MockRead(false, net::ERR_FAILED),
+  };
+
+  // After calling trans->RestartWithAuth() the first time, this is the
+  // request we should be issuing -- the final header line contains the
+  // proxy's credentials.
+  MockWrite data_writes2[] = {
+    MockWrite("GET http://www.google.com/ HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n"
+              "Proxy-Authorization: Basic Zm9vOmJhcg==\r\n\r\n"),
+  };
+
+  // Now the proxy server lets the request pass through to origin server.
+  // The origin server responds with a 401.
+  MockRead data_reads2[] = {
+    MockRead("HTTP/1.0 401 Unauthorized\r\n"),
+    // Note: We are using the same realm-name as the proxy server. This is
+    // completely valid, as realms are unique across hosts.
+    MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 2000\r\n\r\n"),
+    MockRead(false, net::ERR_FAILED), // Won't be reached.
+  };
+
+  // After calling trans->RestartWithAuth() the second time, we should send
+  // the credentials for both the proxy and origin server.
+  MockWrite data_writes3[] = {
+    MockWrite("GET http://www.google.com/ HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n"
+              "Proxy-Authorization: Basic Zm9vOmJhcg==\r\n"
+              "Authorization: Basic Zm9vMjpiYXIy\r\n\r\n"),
+  };
+
+  // Lastly we get the desired content.
+  MockRead data_reads3[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, net::OK),
+  };
+
+  MockSocket data1;
+  data1.reads = data_reads1;
+  MockSocket data2;
+  data2.reads = data_reads2;
+  data2.writes = data_writes2;
+  MockSocket data3;
+  data3.reads = data_reads3;
+  data3.writes = data_writes3;
+  mock_sockets[0] = &data1;
+  mock_sockets[1] = &data2;
+  mock_sockets[2] = &data3;
+  mock_sockets[3] = NULL;
+
+  TestCompletionCallback callback1;
+
+  int rv = trans->Start(&request, &callback1);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback1.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+
+  // The password prompt info should have been set in response->auth_challenge.
+  EXPECT_FALSE(response->auth_challenge.get() == NULL);
+
+  EXPECT_EQ(L"myproxy:70", response->auth_challenge->host);
+  EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
+  EXPECT_EQ(L"basic", response->auth_challenge->scheme);
+
+  TestCompletionCallback callback2;
+
+  rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback2.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+  EXPECT_FALSE(response->auth_challenge.get() == NULL);
+
+  // TODO(eroman): this should really include the effective port (80)
+  EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+  EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
+  EXPECT_EQ(L"basic", response->auth_challenge->scheme);
+
+  TestCompletionCallback callback3;
+
+  rv = trans->RestartWithAuth(L"foo2", L"bar2", &callback3);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback3.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  response = trans->GetResponseInfo();
+  EXPECT_TRUE(response->auth_challenge.get() == NULL);
+  EXPECT_EQ(100, response->headers->GetContentLength());
+
+  trans->Destroy();
+
+  // Empty the current queue.
+  MessageLoop::current()->RunAllPending();
 }

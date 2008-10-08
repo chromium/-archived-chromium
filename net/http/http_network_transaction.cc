@@ -926,6 +926,9 @@ void HttpNetworkTransaction::ResetStateForRestart() {
   request_headers_.clear();
   request_headers_bytes_sent_ = 0;
   chunked_decoder_.reset();
+  // Reset the scoped_refptr
+  response_.headers = NULL;
+  response_.auth_challenge = NULL;
 }
 
 bool HttpNetworkTransaction::ShouldResendRequest() {
@@ -1030,10 +1033,8 @@ int HttpNetworkTransaction::PopulateAuthChallenge() {
   HttpAuth::Target target = status == 407 ?
       HttpAuth::AUTH_PROXY : HttpAuth::AUTH_SERVER;
 
-  if (target == HttpAuth::AUTH_PROXY && proxy_info_.is_direct()) {
-    // TODO(eroman): Add a unique error code.
-    return ERR_INVALID_RESPONSE;
-  }
+  if (target == HttpAuth::AUTH_PROXY && proxy_info_.is_direct())
+    return ERR_UNEXPECTED_PROXY_AUTH;
 
   // Find the best authentication challenge that we support.
   scoped_ptr<HttpAuthHandler> auth_handler(
