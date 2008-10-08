@@ -54,7 +54,7 @@ void Browser::InitCommandState() {
                                    GetType() == BrowserType::TABBED_BROWSER);
   controller_.UpdateCommandEnabled(IDC_GO, true);
   controller_.UpdateCommandEnabled(IDC_NEWTAB, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSETAB, !IsApplication());
+  controller_.UpdateCommandEnabled(IDC_CLOSETAB, true);
   controller_.UpdateCommandEnabled(IDC_NEWWINDOW, true);
   controller_.UpdateCommandEnabled(IDC_CLOSEWINDOW, true);
   controller_.UpdateCommandEnabled(IDC_FOCUS_LOCATION, true);
@@ -231,9 +231,6 @@ bool Browser::IsCommandEnabled(int id) const {
     case IDC_STOP: {
       TabContents* current_tab = GetSelectedTabContents();
       return (current_tab && current_tab->is_loading());
-    }
-    case IDC_CLOSETAB: {
-      return !IsApplication();
     }
     default:
       return controller_.IsCommandEnabled(id);
