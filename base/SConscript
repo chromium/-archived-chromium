@@ -159,7 +159,7 @@ if env['PLATFORM'] == 'darwin':
       'message_pump_mac.mm',
       'platform_thread_mac.mm',
       'scoped_nsautorelease_pool.mm',
-      'sys_string_conversions_mac.cc',
+      'sys_string_conversions_mac.mm',
       'worker_pool_mac.mm',
   ])
 

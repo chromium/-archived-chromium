@@ -4,8 +4,11 @@
 
 #include "base/sys_string_conversions.h"
 
+#import <Foundation/Foundation.h>
+
 #include <vector>
 
+#include "base/foundation_utils_mac.h"
 #include "base/scoped_cftyperef.h"
 #include "base/string_piece.h"
 
@@ -155,6 +158,14 @@ CFStringRef SysWideToCFStringRef(const std::wstring& wide) {
   return STLStringToCFStringWithEncodingsT(wide, kWideStringEncoding);
 }
 
+NSString* SysUTF8ToNSString(const std::string& utf8) {
+  return CFTypeRefToNSObjectAutorelease(SysUTF8ToCFStringRef(utf8));
+}
+
+NSString* SysWideToNSString(const std::wstring& wide) {
+  return CFTypeRefToNSObjectAutorelease(SysWideToCFStringRef(wide));
+}
+
 std::string SysCFStringRefToUTF8(CFStringRef ref) {
   return CFStringToSTLStringWithEncodingT<std::string>(ref,
                                                        kNarrowStringEncoding);
@@ -165,5 +176,12 @@ std::wstring SysCFStringRefToWide(CFStringRef ref) {
                                                         kWideStringEncoding);
 }
 
-}  // namespace base
+std::string SysNSStringToUTF8(NSString* nsstring) {
+  return SysCFStringRefToUTF8(reinterpret_cast<CFStringRef>(nsstring));
+}
 
+std::wstring SysNSStringToWide(NSString* nsstring) {
+  return SysCFStringRefToWide(reinterpret_cast<CFStringRef>(nsstring));
+}
+
+}  // namespace base

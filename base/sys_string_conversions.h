@@ -14,7 +14,12 @@
 
 #if defined(OS_MACOSX)
 #include <CoreFoundation/CoreFoundation.h>
+#ifdef __OBJC__
+@class NSString;
+#else
+class NSString;
 #endif
+#endif  // OS_MACOSX
 
 class StringPiece;
 
@@ -47,20 +52,27 @@ std::string SysWideToMultiByte(const std::wstring& wide, uint32 code_page);
   
 #if defined(OS_MACOSX)
   
-// Converts between STL strings and CFStringRefs.
+// Converts between STL strings and CFStringRefs/NSStrings.
 
 // Creates a string, and returns it with a refcount of 1. You are responsible
 // for releasing it. Returns NULL on failure.
 CFStringRef SysUTF8ToCFStringRef(const std::string& utf8);
 CFStringRef SysWideToCFStringRef(const std::wstring& wide);
 
+// Same, but returns an autoreleased NSString.
+NSString* SysUTF8ToNSString(const std::string& utf8);
+NSString* SysWideToNSString(const std::wstring& wide);
+
 // Converts a CFStringRef to an STL string. Returns an empty string on failure.
 std::string SysCFStringRefToUTF8(CFStringRef ref);
 std::wstring SysCFStringRefToWide(CFStringRef ref);
+
+// Same, but accepts NSString input.
+std::string SysNSStringToUTF8(NSString* ref);
+std::wstring SysNSStringToWide(NSString* ref);
 
 #endif  // defined(OS_MACOSX)
   
 }  // namespace base
 
 #endif  // BASE_SYS_STRING_CONVERSIONS_H_
-
