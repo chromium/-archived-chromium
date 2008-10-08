@@ -247,7 +247,7 @@ class ConstrainedWindowNonClientView
 
   SkColor GetTitleColor() const {
     if (container_->owner()->profile()->IsOffTheRecord() ||
-        win_util::ShouldUseVistaFrame()) {
+        !win_util::ShouldUseVistaFrame()) {
       return SK_ColorWHITE;
     }
     return SK_ColorBLACK;
