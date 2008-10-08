@@ -1356,10 +1356,10 @@ int HttpTransactionWinHttp::DidReceiveError(DWORD error,
   }
   if (rv == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
     // TODO(wtc): Bug 1230409: We don't support SSL client authentication yet.
-    // For now we set a null client certificate, which works on Vista and
-    // later.  On XP, this fails with ERROR_INVALID_PARAMETER (87).  This
-    // allows us to access servers that request but do not require client
-    // certificates.
+    // For now we set a null client certificate, which works on XP SP3, Vista
+    // and later.  On XP SP2 and below, this fails with ERROR_INVALID_PARAMETER
+    // (87).  This allows us to access servers that request but do not require
+    // client certificates.
     if (WinHttpSetOption(request_handle_,
                          WINHTTP_OPTION_CLIENT_CERT_CONTEXT,
                          WINHTTP_NO_CLIENT_CERT_CONTEXT, 0)) {
