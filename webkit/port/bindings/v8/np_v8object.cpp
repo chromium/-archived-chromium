@@ -41,6 +41,7 @@
 #include "v8_np_utils.h"
 #include "v8_proxy.h"
 #include "DOMWindow.h"
+#include "glue/plugins/plugin_instance.h"
 
 using WebCore::V8ClassIndex;
 using WebCore::V8Proxy;
@@ -242,6 +243,20 @@ bool NPN_InvokeDefault(NPP npp, NPObject *npobj, const NPVariant *args,
 
 bool NPN_Evaluate(NPP npp, NPObject *npobj, NPString *npscript,
                   NPVariant *result) {
+  bool popups_allowed = false;
+
+  if (npp) {
+    NPAPI::PluginInstance* plugin_instance =
+        reinterpret_cast<NPAPI::PluginInstance*>(npp->ndata);
+    if (plugin_instance)
+      popups_allowed = plugin_instance->popups_allowed();
+  }
+
+  return NPN_EvaluateHelper(npp, popups_allowed, npobj, npscript, result);
+}
+
+bool NPN_EvaluateHelper(NPP npp, bool popups_allowed, NPObject *npobj,
+                        NPString *npscript, NPVariant *result) {
   VOID_TO_NPVARIANT(*result);
   if (npobj == NULL)
     return false;
@@ -257,7 +272,13 @@ bool NPN_Evaluate(NPP npp, NPObject *npobj, NPString *npscript,
 
     v8::Context::Scope scope(context);
 
-    WebCore::String filename("npscript");
+    // Passing in a NULL filename is the trick used in V8 to indicate
+    // user gesture. See the inline_code/setInlineCode functions in V8Proxy
+    // for more information.
+    WebCore::String filename;
+    if (!popups_allowed)
+      filename = "npscript";
+
     // Convert UTF-8 stream to WebCore::String.
     WebCore::String script = WebCore::String::fromUTF8(
         npscript->UTF8Characters, npscript->UTF8Length);
