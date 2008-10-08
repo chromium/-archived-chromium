@@ -379,6 +379,7 @@ V8 | KJS # LayoutTests/http/tests/media/remove-while-loading.html = FAIL
 
 // We don't support the storage APIs.  Some of the them hang.
 V8 | KJS # SKIP : LayoutTests/storage = PASS
+V8 | KJS # SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
 
 // Fails due to storage APIs not implemented.  See bug 1124568. Might be worth
 // re-baselining temporarily so the rest of the conditions are still tested.
@@ -995,12 +996,6 @@ V8 | KJS # LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destro
 V8 | KJS # LayoutTests/printing = FAIL
 V8 | KJS # LayoutTests/security/autocomplete-cleared-on-back.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
-V8 | KJS # LayoutTests/storage/domstorage = FAIL
-V8 | KJS # LayoutTests/storage/multiple-databases-garbage-collection.html = FAIL
-V8 | KJS # LayoutTests/storage/multiple-transactions.html = FAIL
-V8 | KJS # LayoutTests/storage/quota-tracking.html = FAIL
-V8 | KJS # LayoutTests/storage/sql-data-types.html = FAIL
-V8 | KJS # LayoutTests/storage/success-callback.html = FAIL
 V8 | KJS # LayoutTests/svg/custom/getSubStringLength.html = FAIL
 V8 | KJS # LayoutTests/svg/custom/immutable-properties.html = FAIL
 V8 | KJS # LayoutTests/svg/custom/svg-modify-currentTranslate.html = FAIL
@@ -1283,7 +1278,6 @@ V8 | KJS # LayoutTests/editing/execCommand/outdent-selection.html = PASS | FAIL
 V8 | KJS # LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
 
 // Post-merge Timeouts: Definitely need to be fixed one day
-V8 | KJS # LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
  
 // Post-merge Debug only Crashes
