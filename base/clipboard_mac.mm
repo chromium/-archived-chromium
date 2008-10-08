@@ -34,8 +34,13 @@ void Clipboard::Clear() {
 
 void Clipboard::WriteText(const std::wstring& text) {
   NSPasteboard* pb = [NSPasteboard generalPasteboard];
+NSLog(@"pasteboard: %@", pb);
   [pb addTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
+NSString* f = nsStringForWString(text);
+NSLog(@"%@", f);
   [pb setString:nsStringForWString(text) forType:NSStringPboardType];
+NSArray* types = [pb types];
+NSLog(@"%@", [types description]);
 }
 
 void Clipboard::WriteHTML(const std::wstring& markup,
