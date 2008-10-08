@@ -20,7 +20,7 @@ namespace net {
 
 #if defined(OS_WIN)
 // static
-bool HttpNetworkLayer::use_winhttp_ = true;
+bool HttpNetworkLayer::use_winhttp_ = false;
 #endif
 
 // static

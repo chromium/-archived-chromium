@@ -146,10 +146,13 @@ int main(int argc, char* argv[]) {
   if (parsed_command_line.HasSwitch(test_shell::kEnableTracing))
     base::TraceLog::StartTracing();
 
+#if defined(OS_WIN)
   // Make the selection of network stacks early on before any consumers try to
   // issue HTTP requests.
+  net::HttpNetworkLayer::UseWinHttp(true);
   if (parsed_command_line.HasSwitch(test_shell::kUseNewHttp))
     net::HttpNetworkLayer::UseWinHttp(false);
+#endif
 
   bool layout_test_mode =
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);

@@ -257,10 +257,13 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   main_message_loop.set_thread_name(thread_name);
   bool already_running = CreateUniqueChromeEvent();
 
+#if defined(OS_WIN)
   // Make the selection of network stacks early on before any consumers try to
   // issue HTTP requests.
+  net::HttpNetworkLayer::UseWinHttp(true);
   if (parsed_command_line.HasSwitch(switches::kUseNewHttp))
     net::HttpNetworkLayer::UseWinHttp(false);
+#endif
 
   std::wstring user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);

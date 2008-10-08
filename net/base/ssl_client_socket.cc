@@ -32,6 +32,8 @@ static int MapSecurityError(SECURITY_STATUS err) {
     case SEC_E_CERT_EXPIRED:  // Schannel
     case CERT_E_EXPIRED:  // CryptoAPI
       return ERR_CERT_DATE_INVALID;
+    case CRYPT_E_NO_REVOCATION_CHECK:
+      return ERR_CERT_NO_REVOCATION_MECHANISM;
     case CRYPT_E_REVOKED:  // Schannel and CryptoAPI
       return ERR_CERT_REVOKED;
     case SEC_E_CERT_UNKNOWN:
