@@ -9,6 +9,7 @@
 #include "base/string_util.h"
 
 #pragma warning(push, 0)
+#undef LOG
 #include "CString.h"
 #include "PlatformString.h"
 #pragma warning(pop)
