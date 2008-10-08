@@ -879,16 +879,6 @@ V8 | KJS # LayoutTests/transitions/transition-end-event-nested.html = FAIL
 V8 | KJS # LayoutTests/transitions/transition-end-event-transform.html = FAIL
 V8 | KJS # LayoutTests/transitions/transition-end-event-window.html = FAIL
 
-# These form tests look correct, but aren't detected as such and spit out FAIL.
-# http://code.google.com/p/chromium/issues/detail?id=2998
-V8 | KJS # LayoutTests/fast/forms/autofocus-opera-001.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/autofocus-opera-002.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/autofocus-opera-003.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/autofocus-opera-004.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/autofocus-opera-005.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/autofocus-opera-006.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/autofocus-opera-008.html = FAIL
-
 # This test times out for an unknown reason
 # http://code.google.com/p/chromium/issues/detail?id=3005
 V8 | KJS # LayoutTests/fast/events/tabindex-focus-blur-all.html = TIMEOUT
