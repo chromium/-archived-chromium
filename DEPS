@@ -15,7 +15,7 @@ deps = {
     "/trunk/deps/third_party/WebKit@2977",
 
   "src/third_party/cygwin":
-    "/trunk/deps/third_party/cygwin@1788",
+    "/trunk/deps/third_party/cygwin@3028",
 
   "src/third_party/icu38":
     "/trunk/deps/third_party/icu38@2676",

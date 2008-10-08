@@ -237,6 +237,9 @@ class TestRunner:
         shell_args.append("--pixel-tests=" + png_path)
         test_args.png_path = png_path
 
+      if self._options.wdiff:
+        test_args.wdiff = True
+
       if self._options.new_baseline:
         test_args.new_baseline = self._options.new_baseline
         if not self._options.pixel_tests:
@@ -553,6 +556,9 @@ if '__main__' == __name__:
   option_parser.add_option("", "--pixel-tests", action="store_true",
                            default=False,
                            help="enable pixel-to-pixel PNG comparisons")
+  option_parser.add_option("", "--wdiff", action="store_true",
+                           default=False,
+                           help="enable word-by-word diffing")
   option_parser.add_option("", "--results-directory",
                            default="layout-test-results",
                            help="Output results directory source dir,"

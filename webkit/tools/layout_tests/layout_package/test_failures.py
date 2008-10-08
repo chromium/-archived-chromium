@@ -65,7 +65,8 @@ class FailureWithType(TestFailure):
     Args:
       filename: the test filename, used to construct the result file names
       out_names: list of filename suffixes for the files. If three or more
-          suffixes are in the list, they should be [actual, expected, diff].
+          suffixes are in the list, they should be [actual, expected, diff,
+          wdiff].
           Two suffixes should be [actual, expected], and a single item is the
           [actual] filename suffix.  If out_names is empty, returns the empty
           string.
@@ -79,6 +80,8 @@ class FailureWithType(TestFailure):
       links.append("<a href='%s'>actual</a>" % uris[0])
     if len(uris) > 2:
       links.append("<a href='%s'>diff</a>" % uris[2])
+    if len(uris) > 3:
+      links.append("<a href='%s'>wdiff</a>" % uris[3])
     return ' '.join(links)
 
   def ResultHtmlOutput(self, filename):
@@ -129,7 +132,8 @@ class FailureMissingResult(FailureWithType):
 class FailureTextMismatch(FailureWithType):
   """Text diff output failed."""
   # Filename suffixes used by ResultHtmlOutput.
-  OUT_FILENAMES = ["-actual-win.txt", "-expected.txt", "-diff-win.txt"]
+  OUT_FILENAMES = ["-actual-win.txt", "-expected.txt",
+                   "-diff-win.txt", "-wdiff-win.html"]
 
   @staticmethod
   def Message():

@@ -7,8 +7,10 @@
 Also defines the TestArguments "struct" to pass them additional arguments.
 """
 
+import cgi
 import difflib
 import os.path
+import subprocess
 
 
 import google.path_utils
@@ -37,6 +39,7 @@ class TestTypeBase(object):
   FILENAME_SUFFIX_ACTUAL = "-actual-win"
   FILENAME_SUFFIX_EXPECTED = "-expected"
   FILENAME_SUFFIX_DIFF = "-diff-win"
+  FILENAME_SUFFIX_WDIFF = "-wdiff-win.html"
 
   def __init__(self, custom_result_id, root_output_dir):
     """Initialize a TestTypeBase object.
@@ -127,7 +130,7 @@ class TestTypeBase(object):
     raise NotImplemented
 
   def WriteOutputFiles(self, filename, test_type, file_type, output, expected,
-                       diff=True):
+                       diff=True, wdiff=False):
     """Writes the test output, the expected output and optionally the diff
     between the two to files in the results directory.
 
@@ -138,12 +141,13 @@ class TestTypeBase(object):
 
     Args:
       filename: The test filename
-      prefix: A string appended to the test filename, e.g. "-simp".  May be "".
-      suffix: A string describing the test output file type, e.g. ".txt"
+      test_type: A string describing the test type, e.g. "simp"
+      file_type: A string describing the test output file type, e.g. ".txt"
       output: A string containing the test output
       expected: A string containing the expected test output
       diff: if True, write a file containing the diffs too. This should be
-          False for results that are not text.
+          False for results that are not text
+      wdiff: if True, write an HTML file containing word-by-word diffs
     """
     self._MakeOutputDirectory(filename)
     actual_filename = self.OutputFilename(filename,
@@ -163,3 +167,24 @@ class TestTypeBase(object):
                            test_type + self.FILENAME_SUFFIX_DIFF + file_type)
       open(diff_filename, "wb").write(''.join(diff))
 
+    if wdiff:
+      # Shell out to wdiff to get colored inline diffs.
+      # TODO(evanm): make this work on other platforms.
+      cmd = [google.path_utils.FindUpward(path_utils.WebKitRoot(),
+                                          'third_party', 'cygwin', 'bin',
+                                          'wdiff.exe'),
+             '--start-delete=##WDIFF_DEL##', '--end-delete=##WDIFF_END##',
+             '--start-insert=##WDIFF_ADD##', '--end-insert=##WDIFF_END##',
+             actual_filename, expected_win_filename]
+      filename = self.OutputFilename(filename,
+                      test_type + self.FILENAME_SUFFIX_WDIFF)
+      wdiff = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+      wdiff = cgi.escape(wdiff)
+      wdiff = wdiff.replace('##WDIFF_DEL##', '<span class=del>')
+      wdiff = wdiff.replace('##WDIFF_ADD##', '<span class=add>')
+      wdiff = wdiff.replace('##WDIFF_END##', '</span>')
+      out = open(filename, 'wb')
+      out.write('<head><style>.del { background: #faa; } ')
+      out.write('.add { background: #afa; }</style></head>')
+      out.write('<pre>' + wdiff + '</pre>')
+      out.close()
