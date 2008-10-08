@@ -13,7 +13,7 @@ env.Prepend(
         '$ZLIB_DIR',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
-        '$SDCH_DIR/open_vcdiff/depot/opensource/open-vcdiff/src',
+        '$SDCH_DIR/open-vcdiff/src',
         '..',
     ],
 )
