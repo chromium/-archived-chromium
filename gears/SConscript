@@ -86,7 +86,7 @@ env.Replace(
 env.Replace(
     MAJOR = '0',
     MINOR = '4',
-    BUILD = '22',
+    BUILD = '23',
     PATCH = '0',
     VERSION = '${MAJOR}.${MINOR}.${BUILD}.${PATCH}',
 
@@ -108,11 +108,14 @@ env.Replace(
     SF_OUTDIR = '$BASE_OUTDIR/sf',
 )
 
-# Add GNU tools to the PATH.
+# Add our tools to the PATH.
 env.PrependENVPath('PATH',
     env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath)
 env.PrependENVPath('PATH',
     env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath)
+if env['OS'] in ['win32', 'wince']:
+  env.PrependENVPath('PATH',
+      env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath)
 
 env.Tool('m4')
 
@@ -175,6 +178,64 @@ env.Append(
         'NO_GZCOMPRESS',
     ]
 )
+
+# Languages
+
+env['I18N_LANGS'] = [
+    'en-US',
+    'ar',
+    'bg',
+    'ca',
+    'cs',
+    'da',
+    'de',
+    'el',
+    'en-GB',
+    'es',
+    'et',
+    'fa',
+    'fi',
+    'fil',
+    'fr',
+    'he',
+    'hi',
+    'hr',
+    'hu',
+    'id',
+    'is',
+    'it',
+    'ja',
+    'ko',
+    'lt',
+    'lv',
+    'ms',
+    'nl',
+    'no',
+    'pl',
+    'pt-BR',
+    'pt-PT',
+    'ro',
+    'ru',
+    'sk',
+    'sl',
+    'sr',
+    'sv',
+    'th',
+    'tr',
+    'uk',
+    'ur',
+    'vi',
+    'zh-CN',
+    'zh-TW',
+    'ml',
+    'te',
+    'gu',
+    'kn',
+    'or',
+    'bn',
+    'ta',
+    'mr',
+]
 
 # Platform-specific flags follow.
 

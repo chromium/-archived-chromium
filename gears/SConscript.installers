@@ -3,13 +3,19 @@
 # found in the LICENSE file.
 
 import os
+import re
+import subprocess
 
 Import('env')
 
 env = env.Clone(
     INSTALLER_BASEDIR = 'installers',
     INSTALLER_BASENAME = 'gears-${OS}-${MODE}-${VERSION}',
-    FF_INSTALLER = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.xpi',
+    FF_XPI = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.xpi',
+    WIN32_INSTALLER_MSI = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.msi',
+
+    FF2_MODULE = '${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}',
+    MODULE = '${SHLIBPREFIX}gears${SHLIBSUFFIX}',
 
     # Qualify our OUTDIRs relative to the SConscript files.  This is for use
     # with Copy(), which runs from that dir.
@@ -34,6 +40,89 @@ common_resources = [
     '$OPEN_DIR/ui/common/local_data.png',
     '$OPEN_DIR/ui/common/location_data.png',
 ]
+
+def Shell(cmd):
+  """Execute a shell command and return the output."""
+  cmd[0] = env.Entry(cmd[0]).abspath
+  cmd = env.subst(cmd)
+  return subprocess.Popen(
+      cmd, shell=True, stdout=subprocess.PIPE).communicate()[0]
+
+if env['OS'] == 'win32':
+  def GGUIDGen(value):
+    """Generate a GGUID for the given value."""
+    return Shell(['$GGUIDGEN', '$NAMESPACE_GUID', value + '-$VERSION'])
+  env.Replace(
+      GGUIDGEN = '#/$OPEN_DIR/tools/gguidgen.exe',
+      NAMESPACE_GUID = '36F65206-5D4E-4752-9D52-27708E10DA79',
+# MSI version numbers must have the form <major>.<minor>.<build>. To meet this,
+# we combine our build and patch version numbers like so:
+# MSI_VERSION = <major>.<minor>.<BUILD * 100 + PATCH>.
+# Note: This assumes that the BUILD and PATCH variables adhere to the range
+# requirements in version.mk. See comments in version.mk for more details.
+      MSI_BUILD = eval(env.subst('$BUILD * 100 + $PATCH')),
+      MSI_VERSION = '${MAJOR}.${MINOR}.${MSI_BUILD}',
+  )
+
+  # You can change the names of PRODUCT_ID vars, but NEVER change their values!
+
+  # Building wxiobjs with candle
+  env.Replace(
+      CANDLEDEFPREFIX = '-d',
+      CANDLEDEFSUFFIX = '',
+      _CANDLEDEFFLAGS = ('${_defines(CANDLEDEFPREFIX, CANDLEDEFINES, '
+                         'CANDLEDEFSUFFIX, __env__)}'),
+      CANDLECOM = 'candle.exe -out $TARGET $SOURCE ${_CANDLEDEFFLAGS}',
+  )
+  env.Append(
+# Note: Since light.exe is run from $OPEN_DIR, candle.exe must generate
+# output with paths relative to that dir.
+      SCONS_DIR = '../../../..',  # the scons dir relative to OPEN_DIR
+      CANDLEDEFINES = [
+          ('OurWin32ProductId',
+            GGUIDGen('OUR_PRODUCT_ID')),
+          ('OurComponentGUID_FFComponentsDirFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_COMPONENTS_DIR_FILES')),
+          ('OurComponentGUID_FFContentDirFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_CONTENT_DIR_FILES')),
+          ('OurComponentGUID_FFDirFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_DIR_FILES')),
+          ('OurComponentGUID_FFLibDirFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_LIB_DIR_FILES')),
+          ('OurComponentGUID_FFRegistry',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_REGISTRY')),
+          ('OurComponentGUID_IEFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_IE_FILES')),
+          ('OurComponentGUID_IERegistry',
+            GGUIDGen('OUR_COMPONENT_GUID_IE_REGISTRY')),
+          ('OurComponentGUID_SharedFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_SHARED_FILES')),
+          ('OurComponentGUID_SharedVersionedFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_SHARED_VERSIONED_FILES')),
+          ('OurComponentGUID_SharedRegistry',
+            GGUIDGen('OUR_COMPONENT_GUID_SHARED_REGISTRY')),
+          ('OurNpapiProductId',
+            GGUIDGen('OUR_2ND_PRODUCT_ID')),
+          ('OurComponentGUID_NpapiFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_NPAPI_FILES')),
+          ('OurComponentGUID_NpapiRegistry',
+            GGUIDGen('OUR_COMPONENT_GUID_NPAPI_REGISTRY')),
+          ('OurMsiVersion', '$MSI_VERSION'),
+          ('OurCommonPath', '$SCONS_DIR/$COMMON_OUTDIR'),
+          ('OurIEPath', '$SCONS_DIR/$IE_OUTDIR'),
+          ('OurIpcTestPath', '$SCONS_DIR/$BASE_OUTDIR/ipc_test'),  # TODO
+          ('OurFFPath',
+            '$SCONS_DIR/$BASE_OUTDIR/$INSTALLER_BASEDIR/$INSTALLER_BASENAME'),
+          ('OurNpapiPath', '$SCONS_DIR/$NPAPI_OUTDIR'),
+      ]
+  )
+  wix_langs = [re.sub('-', '_', lang) for lang in env['I18N_LANGS']]
+  env.Append(
+      CANDLEDEFINES =
+        [('OurComponentGUID_FFLang' + lang + 'DirFiles',
+           GGUIDGen('OUR_COMPONENT_GUID_FF_' + lang + '_DIR_FILES'))
+         for lang in wix_langs],
+  )
 
 def IsDir(path):
   """Test if path (relative to the toplevel dir) is a directory."""
@@ -84,10 +173,8 @@ def FirefoxInstaller(env):
       ('components/',
           ['$FF3_OUTDIR/gears.xpt',
            '$OPEN_DIR/base/firefox/static_files/components/bootstrap.js']),
-      ('components/${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}',
-          ['$FF2_OUTDIR/${SHLIBPREFIX}gears${SHLIBSUFFIX}']),
-      ('components/${SHLIBPREFIX}gears${SHLIBSUFFIX}',
-          ['$FF3_OUTDIR/${SHLIBPREFIX}gears${SHLIBSUFFIX}']),
+      ('components/$FF2_MODULE', ['$FF2_OUTDIR/$MODULE']),
+      ('components/$MODULE', ['$FF3_OUTDIR/$MODULE']),
   ]
 
   if env['OS'] != 'win32':
@@ -123,15 +210,26 @@ def FirefoxInstaller(env):
       '(cd ${TARGET.base} && zip -r ../${TARGET.file} .)'
   ]
 
-  return env.Command('$FF_INSTALLER', srcs, actions)
-
-def Win32Installer(env):
-  env.Command('$WIN32_INSTALLER', [],
-      'light.exe -out $TARGET $SOURCE')
-
-
+  return env.Command('$FF_XPI', srcs, actions)
 env.AddMethod(FirefoxInstaller, 'FirefoxInstaller')
 
+def Win32Installer(env):
+  wxiobj = env.Command(
+      StripOutdir(['$IE_OUTDIR/$GENFILES_DIR/win32_msi.wxiobj']),
+      StripOutdir(['$IE_OUTDIR/$GENFILES_DIR/win32_msi.wxs']),
+      '$CANDLECOM')
+  # light.exe must be run from $OPEN_DIR
+  msi = env.Command('$WIN32_INSTALLER_MSI', wxiobj,
+      'cd $OPEN_DIR && light.exe -out ${TARGET.abspath} ${SOURCE.abspath}')
+  env.Depends(msi, '$FF_XPI')
+  env.Depends(msi, StripOutdir(['$IE_OUTDIR/$MODULE']))
+  return msi
+env.AddMethod(Win32Installer, 'Win32Installer')
+
+installers = []
 if 'FF3' in env['VALID_BROWSERS']:
-  installer = env.FirefoxInstaller()
-  env.Alias('gears-installers', installer)
+  installers += env.FirefoxInstaller()
+if env['OS'] in 'win32':
+  installers += env.Win32Installer()
+
+env.Alias('gears-installers', installers)

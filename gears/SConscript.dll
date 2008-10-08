@@ -12,62 +12,6 @@ env = env.Clone()
 # TODO: move all these builders out to site_scons or somesuch.
 # Building M4 files
 
-i18n_langs = [
-    'en-US',
-    'ar',
-    'bg',
-    'ca',
-    'cs',
-    'da',
-    'de',
-    'el',
-    'en-GB',
-    'es',
-    'et',
-    'fa',
-    'fi',
-    'fil',
-    'fr',
-    'he',
-    'hi',
-    'hr',
-    'hu',
-    'id',
-    'is',
-    'it',
-    'ja',
-    'ko',
-    'lt',
-    'lv',
-    'ms',
-    'nl',
-    'no',
-    'pl',
-    'pt-BR',
-    'pt-PT',
-    'ro',
-    'ru',
-    'sk',
-    'sl',
-    'sr',
-    'sv',
-    'th',
-    'tr',
-    'uk',
-    'ur',
-    'vi',
-    'zh-CN',
-    'zh-TW',
-    'ml',
-    'te',
-    'gu',
-    'kn',
-    'or',
-    'bn',
-    'ta',
-    'mr',
-]
-
 env.Append(
     M4ARCH = (env['ARCH'] == 'i386' and 'x86' or '$ARCH'),
     M4FLAGS = [
@@ -83,7 +27,7 @@ env.Append(
         '-DPRODUCT_MAINTAINER="google"',
         '-DPRODUCT_FRIENDLY_NAME_UQ="$FRIENDLY_NAME"',
         '-DPRODUCT_SHORT_NAME_UQ="$SHORT_NAME"',
-        '-DI18N_LANGUAGES="(' + ','.join(i18n_langs) + ')"',
+        '-DI18N_LANGUAGES="(${",".join(I18N_LANGS)})"',
     ],
     M4PATH = [
         '$OPEN_DIR',
@@ -100,6 +44,7 @@ env.Replace(
     M4COM = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET',
 )
 
+print env.backtick('echo hi')
 # TODO: Dependency scanner for m4 files - doesn't work.  It can't detect files
 # that don't exist!
 #m4_include_re = re.compile(r'm4_include\((.*)\)', re.M)
@@ -228,6 +173,10 @@ if env['BROWSER'] in ['FF2', 'FF3']:
 
 env_common = env.Clone()
 env_common.Prepend(
+    CPPDEFINES = [
+# Common items, like notifier, is not related to any browser.
+        'BROWSER_NONE=1',
+    ]
 )
 
 env_browser = env.Clone()
@@ -803,6 +752,8 @@ srcs['IE'] += [
 
 m4srcs['common'] += [
     '$OPEN_DIR/installer/npapi_msi.wxs.m4',
+    '$OPEN_DIR/installer/win32_msi.wxs.m4',
+    '$OPEN_DIR/installer/wince_cab.inf.m4',
 ]
 
 #-----------------------------------------------------------------------------
@@ -834,7 +785,7 @@ html_m4srcs['all'] += [
 
 i18n_m4srcs['FF3'] += [
     '$OPEN_DIR/ui/generated/' + lang + '/i18n.dtd.m4'
-    for lang in i18n_langs
+    for lang in env['I18N_LANGS']
 ]
 
 #TODO: $(IE_OUTDIR)/string_table.res
