@@ -1,6 +1,0 @@
-Mon, 16 Jun 2008 15:15:51 -0700  Google Inc. <opensource@google.com>
-
-  * open-vcdiff: initial release:
-  The open-vcdiff package provides an encoder and decoder for the VCDIFF format
-  described in RFC 3284 (http://www.ietf.org/rfc/rfc3284.txt).
-
