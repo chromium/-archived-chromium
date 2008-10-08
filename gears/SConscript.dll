@@ -44,7 +44,6 @@ env.Replace(
     M4COM = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET',
 )
 
-print env.backtick('echo hi')
 # TODO: Dependency scanner for m4 files - doesn't work.  It can't detect files
 # that don't exist!
 #m4_include_re = re.compile(r'm4_include\((.*)\)', re.M)

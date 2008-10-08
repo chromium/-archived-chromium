@@ -28,6 +28,7 @@
 # - entry.path gives the path relative to toplevel_dir.
 # - entry.abspath gives the absolute path.
 
+import sys
 import os
 
 Import('env')
@@ -38,6 +39,10 @@ env = env.Clone(
     GENFILES_DIR = "genfiles",
     PRIVATE_THIRD_PARTY_DIR = "googleclient/third_party",
 )
+
+if not os.path.exists(env.Dir('#/$OPEN_DIR').abspath):
+  print 'Skipping Gears build: no perforce tree checked out.'
+  Return()
 
 # Argument switches
 
