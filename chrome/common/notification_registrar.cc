@@ -15,7 +15,7 @@ NotificationRegistrar::~NotificationRegistrar() {
 
 void NotificationRegistrar::Add(NotificationObserver* observer,
                                 NotificationType type,
-                                NotificationSource source) {
+                                const NotificationSource& source) {
   Record record = { observer, type, source };
   DCHECK(std::find(registered_.begin(), registered_.end(), record) ==
          registered_.end()) << "Duplicate registration.";
@@ -26,7 +26,7 @@ void NotificationRegistrar::Add(NotificationObserver* observer,
 
 void NotificationRegistrar::Remove(NotificationObserver* observer,
                                    NotificationType type,
-                                   NotificationSource source) {
+                                   const NotificationSource& source) {
   Record record = { observer, type, source };
   RecordVector::iterator found = std::find(
       registered_.begin(), registered_.end(), record);

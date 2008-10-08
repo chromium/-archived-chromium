@@ -27,10 +27,10 @@ class NotificationRegistrar {
   // Wrappers around NotificationService::[Add|Remove]Observer.
   void Add(NotificationObserver* observer,
            NotificationType type,
-           NotificationSource source);
+           const NotificationSource& source);
   void Remove(NotificationObserver* observer,
               NotificationType type,
-              NotificationSource source);
+              const NotificationSource& source);
 
   // Unregisters all notifications.
   void RemoveAll();
