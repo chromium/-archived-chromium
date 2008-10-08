@@ -167,12 +167,9 @@ class RegionsUnderInfo {
                          tmp,
                          RGN_AND) != NULLREGION) {
           // Remove that intersection to exclude any window below
-          int status = ::CombineRgn(rui->hwnd_rgn_,
-                                    rui->hwnd_rgn_,
-                                    tmp,
-                                    RGN_DIFF);
+          status = ::CombineRgn(rui->hwnd_rgn_, rui->hwnd_rgn_, tmp, RGN_DIFF);
 
-          // We have an interesction, add it with the region in hwnd
+          // We have an intersection, add it with the region in hwnd
           // coordinate system
           ::OffsetRgn(tmp, -r.left, -r.top);
           rui->windows_.push_back(hwnd);
