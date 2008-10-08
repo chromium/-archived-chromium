@@ -168,15 +168,28 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // flag.  This method should be called periodically inside of busy disk loops.
   void WaitAfterResume();
 
-  //
   void AddEntry(SBPrefix host, SBEntry* entry);
   void AddPrefix(SBPrefix prefix, int encoded_chunk);
   void AddSub(int chunk, SBPrefix host, SBEntry* entry);
   void AddSubPrefix(SBPrefix prefix, int encoded_chunk, int encoded_add_chunk);
   void ProcessPendingSubs();
-  int EncodedChunkId(int chunk, int list_id);
-  void DecodeChunkId(int encoded, int* chunk, int* list_id);
   void CreateChunkCaches();
+  int GetAddPrefixCount();
+
+  // Encode the list id in the lower bit of the chunk.
+  static inline int EncodeChunkId(int chunk, int list_id) {
+    list_id--;
+    DCHECK(list_id == 0 || list_id == 1);
+    chunk = chunk << 1;
+    chunk |= list_id;
+    return chunk;
+  }
+
+  // Split an encoded chunk id and return the original chunk id and list id.
+  static inline void DecodeChunkId(int encoded, int* chunk, int* list_id) {
+    *list_id = 1 + (encoded & 0x1);
+    *chunk = encoded >> 1;
+  }
 
   // The database connection.
   sqlite3* db_;

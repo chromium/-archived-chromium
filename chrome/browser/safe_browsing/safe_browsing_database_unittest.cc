@@ -82,7 +82,7 @@ TEST(SafeBrowsingDatabase, Database) {
   // Add another chunk with two different hostkeys.
   host.host = Sha256Prefix("www.evil.com/");
   host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 2);
-  host.entry->set_chunk_id(1);
+  host.entry->set_chunk_id(2);
   host.entry->SetPrefixAt(0, Sha256Prefix("www.evil.com/notevil1.html"));
   host.entry->SetPrefixAt(1, Sha256Prefix("www.evil.com/notevil2.html"));
 
@@ -215,6 +215,8 @@ TEST(SafeBrowsingDatabase, Database) {
 
   // Test removing all the prefixes from an add chunk.
   AddDelChunk(database, "goog-malware", 2);
+  database->UpdateFinished();
+
   EXPECT_FALSE(database->ContainsUrl(GURL("http://www.evil.com/notevil2.html"),
                                      &matching_list, &prefix_hits,
                                      &full_hashes, now));
@@ -235,7 +237,7 @@ TEST(SafeBrowsingDatabase, Database) {
 
   // The adddel command exposed a bug in the transaction code where any
   // transaction after it would fail.  Add a dummy entry and remove it to
-  // make sure the transcation work fine.
+  // make sure the transcation works fine.
   host.host = Sha256Prefix("www.redherring.com/");
   host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 1);
   host.entry->set_chunk_id(1);
@@ -255,6 +257,8 @@ TEST(SafeBrowsingDatabase, Database) {
 
   // Test the subdel command.
   SubDelChunk(database, "goog-malware", 4);
+  database->UpdateFinished();
+
   database->GetListsInfo(&lists);
   EXPECT_EQ(lists.size(), 1);
   EXPECT_EQ(lists[0].name, "goog-malware");
@@ -263,8 +267,12 @@ TEST(SafeBrowsingDatabase, Database) {
 
   // Test a sub command coming in before the add.
   host.host = Sha256Prefix("www.notevilanymore.com/");
-  host.entry = SBEntry::Create(SBEntry::SUB_PREFIX, 0);
+  host.entry = SBEntry::Create(SBEntry::SUB_PREFIX, 2);
   host.entry->set_chunk_id(10);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.notevilanymore.com/index.html"));
+  host.entry->SetChunkIdAtPrefix(0, 10);
+  host.entry->SetPrefixAt(1, Sha256Prefix("www.notevilanymore.com/good.html"));
+  host.entry->SetChunkIdAtPrefix(1, 10);
 
   chunk.chunk_number = 5;
   chunk.hosts.clear();
@@ -273,6 +281,7 @@ TEST(SafeBrowsingDatabase, Database) {
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
   database->InsertChunks("goog-malware", chunks);
+  database->UpdateFinished();
 
   EXPECT_FALSE(database->ContainsUrl(
       GURL("http://www.notevilanymore.com/index.html"),

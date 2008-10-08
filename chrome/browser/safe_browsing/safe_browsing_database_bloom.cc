@@ -74,6 +74,8 @@ bool SafeBrowsingDatabaseBloom::Init(const std::wstring& filename,
     load_filter = true;
   }
 
+  CreateChunkCaches();
+
   bloom_filter_filename_ = BloomFilterFilename(filename_);
 
   if (load_filter) {
@@ -97,8 +99,6 @@ bool SafeBrowsingDatabaseBloom::Open() {
   sqlite3_exec(db_, "PRAGMA locking_mode=EXCLUSIVE", NULL, NULL, NULL);
 
   statement_cache_.reset(new SqliteStatementCache(db_));
-
-  CreateChunkCaches();
 
   return true;
 }
@@ -199,6 +199,8 @@ bool SafeBrowsingDatabaseBloom::CreateTables() {
 // The SafeBrowsing service assumes this operation is synchronous.
 bool SafeBrowsingDatabaseBloom::ResetDatabase() {
   hash_cache_.clear();
+  add_chunk_cache_.clear();
+  sub_chunk_cache_.clear();
   prefix_miss_cache_.clear();
 
   bool rv = Close();
@@ -241,13 +243,18 @@ bool SafeBrowsingDatabaseBloom::ContainsUrl(
     std::vector<SBFullHashResult>* full_hits,
     Time last_update) {
 
+  // Clear the results first.
+  matching_list->clear();
+  prefix_hits->clear();
+  full_hits->clear();
+
   std::vector<std::string> hosts;
   if (url.HostIsIPAddress()) {
     hosts.push_back(url.host());
   } else {
     safe_browsing_util::GenerateHostsToCheck(url, &hosts);
     if (hosts.size() == 0)
-      return false; // things like about:blank
+      return false;  // things like about:blank
   }
   std::vector<std::string> paths;
   safe_browsing_util::GeneratePathsToCheck(url, &paths);
@@ -260,7 +267,7 @@ bool SafeBrowsingDatabaseBloom::ContainsUrl(
       SBFullHash full_hash;
       // TODO(erikkay): maybe we should only do the first 32 bits initially,
       // and then fall back to the full hash if there's a hit.
-      base::SHA256HashString(hosts[i] + paths[j], &full_hash, 
+      base::SHA256HashString(hosts[i] + paths[j], &full_hash,
                              sizeof(SBFullHash));
       SBPrefix prefix;
       memcpy(&prefix, &full_hash, sizeof(SBPrefix));
@@ -297,7 +304,7 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
   // database lookups, we need a reasonably current bloom filter at startup.
   // I think we need some way to indicate that the bloom filter is out of date
   // and needs to be rebuilt, but we shouldn't delete it.
-  //DeleteBloomFilter();
+  // DeleteBloomFilter();
 
   int list_id = GetListID(list_name);
   std::deque<SBChunk>::iterator i = chunks->begin();
@@ -362,7 +369,7 @@ void SafeBrowsingDatabaseBloom::ProcessAddChunks(std::deque<SBChunk>* chunks) {
         entry->Destroy();
         chunk.hosts.pop_front();
       }
-      int encoded = EncodedChunkId(chunk_id, list_id);
+      int encoded = EncodeChunkId(chunk_id, list_id);
       add_chunk_cache_.insert(encoded);
     }
 
@@ -376,7 +383,7 @@ void SafeBrowsingDatabaseBloom::AddEntry(SBPrefix host, SBEntry* entry) {
     // TODO(erikkay)
     return;
   }
-  int encoded = EncodedChunkId(entry->chunk_id(), entry->list_id());
+  int encoded = EncodeChunkId(entry->chunk_id(), entry->list_id());
   int count = entry->prefix_count();
   if (count == 0) {
     AddPrefix(host, encoded);
@@ -417,8 +424,8 @@ void SafeBrowsingDatabaseBloom::AddSub(
     return;
   }
 
-  int encoded = EncodedChunkId(chunk_id, entry->list_id());
-  int encoded_add = EncodedChunkId(entry->chunk_id(), entry->list_id());
+  int encoded = EncodeChunkId(chunk_id, entry->list_id());
+  int encoded_add = EncodeChunkId(entry->chunk_id(), entry->list_id());
   int count = entry->prefix_count();
   if (count == 0) {
     AddSubPrefix(host, encoded, encoded_add);
@@ -430,11 +437,11 @@ void SafeBrowsingDatabaseBloom::AddSub(
   }
 }
 
-void SafeBrowsingDatabaseBloom::AddSubPrefix(SBPrefix prefix, 
+void SafeBrowsingDatabaseBloom::AddSubPrefix(SBPrefix prefix,
                                              int encoded_chunk,
                                              int encoded_add_chunk) {
   STATS_COUNTER(L"SB.PrefixSub", 1);
-  std::string sql = 
+  std::string sql =
     "INSERT INTO sub_prefix (chunk, add_chunk, prefix) VALUES (?,?,?)";
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_, sql.c_str());
   if (!statement.is_valid()) {
@@ -453,19 +460,22 @@ void SafeBrowsingDatabaseBloom::AddSubPrefix(SBPrefix prefix,
   }
 }
 
-// Encode the list id in the lower bit of the chunk.
-static inline int EncodeChunkId(int chunk, int list_id) {
-  list_id--;
-  DCHECK(list_id == 0 || list_id == 1);
-  chunk = chunk << 1;
-  chunk |= list_id;
-  return chunk;
-}
+// TODO(paulg): Look for a less expensive way to maintain add_count_.
+int SafeBrowsingDatabaseBloom::GetAddPrefixCount() {
+  SQLITE_UNIQUE_STATEMENT(count, *statement_cache_,
+      "SELECT count(*) FROM add_prefix");
+  if (!count.is_valid()) {
+    NOTREACHED();
+    return 0;
+  }
+  int rv = count->step();
+  int add_count = 0;
+  if (rv == SQLITE_ROW)
+    add_count = count->column_int(0);
+  else if (rv == SQLITE_CORRUPT)
+    HandleCorruptDatabase();
 
-// Split an encoded chunk id and return the original chunk id and list id.
-static inline void DecodeChunkId(int encoded, int* chunk, int* list_id) {
-  *list_id = 1 + (encoded & 0x1);
-  *chunk = encoded >> 1;
+  return add_count;
 }
 
 // TODO(erikkay) - this is too slow
@@ -495,17 +505,7 @@ void SafeBrowsingDatabaseBloom::CreateChunkCaches() {
     rv = subs->step();
   }
 
-  SQLITE_UNIQUE_STATEMENT(count, *statement_cache_,
-      "SELECT count(*) FROM add_prefix");
-  if (!count.is_valid()) {
-    NOTREACHED();
-    return;
-  }
-  rv = count->step();
-  if (rv == SQLITE_ROW)
-    add_count_ = count->column_int(0);
-  else if (rv == SQLITE_CORRUPT)
-    HandleCorruptDatabase();
+  add_count_ = GetAddPrefixCount();
 }
 
 void SafeBrowsingDatabaseBloom::ProcessSubChunks(std::deque<SBChunk>* chunks) {
@@ -527,7 +527,7 @@ void SafeBrowsingDatabaseBloom::ProcessSubChunks(std::deque<SBChunk>* chunks) {
         chunk.hosts.pop_front();
       }
 
-      int encoded = EncodedChunkId(chunk_id, list_id);
+      int encoded = EncodeChunkId(chunk_id, list_id);
       sub_chunk_cache_.insert(encoded);
     }
 
@@ -578,7 +578,7 @@ void SafeBrowsingDatabaseBloom::AddDel(int list_id,
     return;
   }
 
-  int encoded = EncodedChunkId(add_chunk_id, list_id);
+  int encoded = EncodeChunkId(add_chunk_id, list_id);
   statement->bind_int(0, encoded);
   int rv = statement->step();
   if (rv == SQLITE_CORRUPT) {
@@ -606,7 +606,7 @@ void SafeBrowsingDatabaseBloom::SubDel(int list_id,
     return;
   }
 
-  int encoded = EncodedChunkId(sub_chunk_id, list_id);
+  int encoded = EncodeChunkId(sub_chunk_id, list_id);
   statement->bind_int(0, encoded);
   int rv = statement->step();
   if (rv == SQLITE_CORRUPT) {
@@ -633,7 +633,7 @@ bool SafeBrowsingDatabaseBloom::ChunkExists(int list_id,
                                             ChunkType type,
                                             int chunk_id) {
   STATS_COUNTER(L"SB.ChunkSelect", 1);
-  int encoded = EncodedChunkId(chunk_id, list_id);
+  int encoded = EncodeChunkId(chunk_id, list_id);
   bool ret;
   if (type == ADD_CHUNK)
     ret = add_chunk_cache_.count(encoded) > 0;
@@ -789,6 +789,7 @@ static int pair_compare(const void* arg1, const void* arg2) {
 void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
   Time before = Time::Now();
 
+  add_count_ = GetAddPrefixCount();
   scoped_array<SBPair> adds_array(new SBPair[add_count_]);
   SBPair* adds = adds_array.get();
 
@@ -872,8 +873,8 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
   while (add - adds < add_count_) {
     if (add->chunk_id != 0) {
       filter->Insert(add->prefix);
-      insert->bind_int(0, add->prefix);
-      insert->bind_int(1, add->chunk_id);
+      insert->bind_int(0, add->chunk_id);
+      insert->bind_int(1, add->prefix);
       rv = insert->step();
       if (rv == SQLITE_CORRUPT) {
         HandleCorruptDatabase();
