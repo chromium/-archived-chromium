@@ -267,8 +267,18 @@ PassRefPtr<WebCore::SharedBuffer> SerializeSkBitmap(const SkBitmap& bitmap)
 
     // Write the image body.
     SkAutoLockPixels bitmap_lock(bitmap);
-    buffer->append(reinterpret_cast<const char*>(bitmap.getAddr32(0, 0)),
+    unsigned header_size = buffer->size();
+    const uint32_t* src_image_data = bitmap.getAddr32(0, 0);
+    buffer->append(reinterpret_cast<const char*>(src_image_data),
                    v4Header.bV4SizeImage);
+    uint32_t* dest_image_data =
+        reinterpret_cast<uint32_t*>(const_cast<char*>(buffer->data()) +
+                                    header_size);
+
+    // Skia stores colors pre-multiplied, BMP doesn't. Need to convert the
+    // colors.
+    for (int i = width * height - 1; i >= 0; --i)
+      dest_image_data[i] = SkPMColorToColor(src_image_data[i]);
 
     return buffer;
 }

@@ -845,10 +845,6 @@ V8 | KJS # LayoutTests/fast/canvas/canvas-longlived-context.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-path-with-inf-nan-dimensions.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-save-restore-with-path.html = FAIL
 
-# Incorrect rendering - the pattern does not appear (unknown why).
-# http://code.google.com/p/chromium/issues/detail?id=2973
-V8 | KJS # LayoutTests/fast/canvas/canvas-bg.html = FAIL
-
 # We don't implement toDataURL.
 # http://code.google.com/p/chromium/issues/detail?id=2972
 V8 | KJS # LayoutTests/fast/canvas/toDataURL-noData.html = FAIL
