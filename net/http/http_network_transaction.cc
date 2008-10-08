@@ -58,6 +58,12 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       read_buf_(NULL),
       read_buf_len_(0),
       next_state_(STATE_NONE) {
+#if defined(OS_WIN)
+  // TODO(wtc): Use SSL settings (bug 3003).
+  ssl_version_mask_ = SSLClientSocket::SSL3 | SSLClientSocket::TLS1;
+#else
+  ssl_version_mask_ = 0;  // A dummy value so that the code compiles.
+#endif
 }
 
 void HttpNetworkTransaction::Destroy() {
@@ -483,7 +489,8 @@ int HttpNetworkTransaction::DoConnect() {
   // If we are using a direct SSL connection, then go ahead and create the SSL
   // wrapper socket now.  Otherwise, we need to first issue a CONNECT request.
   if (using_ssl_ && !using_tunnel_)
-    s = socket_factory_->CreateSSLClientSocket(s, request_->url.host());
+    s = socket_factory_->CreateSSLClientSocket(s, request_->url.host(),
+                                               ssl_version_mask_);
 
   connection_.set_socket(s);
   return connection_.socket()->Connect(&io_callback_);
@@ -497,6 +504,8 @@ int HttpNetworkTransaction::DoConnectComplete(int result) {
     next_state_ = STATE_WRITE_HEADERS;
     if (using_tunnel_)
       establishing_tunnel_ = true;
+  } else if (result == ERR_SSL_PROTOCOL_ERROR) {
+    result = HandleSSLHandshakeError(result);
   } else {
     result = ReconsiderProxyAfterError(result);
   }
@@ -508,7 +517,8 @@ int HttpNetworkTransaction::DoSSLConnectOverTunnel() {
 
   // Add a SSL socket on top of our existing transport socket.
   ClientSocket* s = connection_.release_socket();
-  s = socket_factory_->CreateSSLClientSocket(s, request_->url.host());
+  s = socket_factory_->CreateSSLClientSocket(s, request_->url.host(),
+                                             ssl_version_mask_);
   connection_.set_socket(s);
   return connection_.socket()->Connect(&io_callback_);
 }
@@ -517,8 +527,11 @@ int HttpNetworkTransaction::DoSSLConnectOverTunnelComplete(int result) {
   if (IsCertificateError(result))
     result = HandleCertificateError(result);
 
-  if (result == OK)
+  if (result == OK) {
     next_state_ = STATE_WRITE_HEADERS;
+  } else if (result == ERR_SSL_PROTOCOL_ERROR) {
+    result = HandleSSLHandshakeError(result);
+  }
   return result;
 }
 
@@ -869,6 +882,20 @@ int HttpNetworkTransaction::HandleCertificateError(int error) {
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
+  }
+#endif
+  return error;
+}
+
+int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
+#if defined(OS_WIN)
+  if (ssl_version_mask_ & SSLClientSocket::TLS1) {
+    // This could be a TLS-intolerant server.  Turn off TLS 1.0 and retry.
+    ssl_version_mask_ &= ~SSLClientSocket::TLS1;
+    connection_.set_socket(NULL);
+    connection_.Reset();
+    next_state_ = STATE_INIT_CONNECTION;
+    error = OK;
   }
 #endif
   return error;

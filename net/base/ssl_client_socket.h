@@ -30,10 +30,20 @@ class SSLInfo;
 //
 class SSLClientSocket : public ClientSocket {
  public:
+  enum {
+    SSL2 = 1 << 0,
+    SSL3 = 1 << 1,
+    TLS1 = 1 << 2
+  };
+
   // Takes ownership of the transport_socket, which may already be connected.
   // The given hostname will be compared with the name(s) in the server's
-  // certificate during the SSL handshake.
-  SSLClientSocket(ClientSocket* transport_socket, const std::string& hostname);
+  // certificate during the SSL handshake.  protocol_version_mask is a bitwise
+  // OR of SSL2, SSL3, and TLS1 that specifies which versions of the SSL
+  // protocol should be enabled.
+  SSLClientSocket(ClientSocket* transport_socket,
+                  const std::string& hostname,
+                  int protocol_version_mask);
   ~SSLClientSocket();
 
   // ClientSocket methods:
@@ -72,6 +82,7 @@ class SSLClientSocket : public ClientSocket {
   CompletionCallbackImpl<SSLClientSocket> io_callback_;
   scoped_ptr<ClientSocket> transport_;
   std::string hostname_;
+  int protocol_version_mask_;
 
   CompletionCallback* user_callback_;
 

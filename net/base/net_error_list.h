@@ -77,6 +77,9 @@ NET_ERROR(SSL_CLIENT_AUTH_CERT_NEEDED, -110)
 // A tunnel connection through the proxy could not be established.
 NET_ERROR(TUNNEL_CONNECTION_FAILED, -111)
 
+// No SSL protocol versions are enabled.
+NET_ERROR(NO_SSL_VERSIONS_ENABLED, -112)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.

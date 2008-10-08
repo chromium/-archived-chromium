@@ -158,7 +158,8 @@ class MockClientSocketFactory : public net::ClientSocketFactory {
   }
   virtual net::ClientSocket* CreateSSLClientSocket(
       net::ClientSocket* transport_socket,
-      const std::string& hostname) {
+      const std::string& hostname,
+      int protocol_version_mask) {
     return NULL;
   }
 };

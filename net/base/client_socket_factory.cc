@@ -22,9 +22,11 @@ class DefaultClientSocketFactory : public ClientSocketFactory {
 
   virtual ClientSocket* CreateSSLClientSocket(
       ClientSocket* transport_socket,
-      const std::string& hostname) {
+      const std::string& hostname,
+      int protocol_version_mask) {
 #if defined(OS_WIN)
-    return new SSLClientSocket(transport_socket, hostname);
+    return new SSLClientSocket(transport_socket, hostname,
+                               protocol_version_mask);
 #else
     // TODO(pinkerton): turn on when we port SSL socket from win32
     NOTIMPLEMENTED();

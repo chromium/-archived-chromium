@@ -84,6 +84,11 @@ class HttpNetworkTransaction : public HttpTransaction {
   // returns the same error code.
   int HandleCertificateError(int error);
 
+  // Called to possibly recover from an SSL handshake error.  Sets next_state_
+  // and returns OK if recovering from the error.  Otherwise, the same error
+  // code is returned.
+  int HandleSSLHandshakeError(int error);
+
   // Called to possibly recover from the given error.  Sets next_state_ and
   // returns OK if recovering from the error.  Otherwise, the same error code
   // is returned.
@@ -180,6 +185,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   // STATE_READ_HEADERS_COMPLETE states and allows us to tell them apart from
   // the real request/response of the transaction.
   bool establishing_tunnel_;
+
+  int ssl_version_mask_;
 
   std::string request_headers_;
   size_t request_headers_bytes_sent_;

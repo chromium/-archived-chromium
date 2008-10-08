@@ -14,6 +14,9 @@
 
 namespace {
 
+const unsigned int kDefaultSSLVersionMask = net::SSLClientSocket::SSL3 |
+                                            net::SSLClientSocket::TLS1;
+
 class SSLClientSocketTest : public testing::Test {
 };
 
@@ -31,7 +34,8 @@ TEST_F(SSLClientSocketTest, DISABLED_Connect) {
   int rv = resolver.Resolve(hostname, 443, &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
-  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname);
+  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname,
+                            kDefaultSSLVersionMask);
 
   EXPECT_FALSE(sock.IsConnected());
 
@@ -62,7 +66,8 @@ TEST_F(SSLClientSocketTest, DISABLED_Read) {
   rv = callback.WaitForResult();
   EXPECT_EQ(rv, net::OK);
 
-  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname);
+  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname,
+                            kDefaultSSLVersionMask);
 
   rv = sock.Connect(&callback);
   if (rv != net::OK) {
@@ -105,7 +110,8 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_SmallChunks) {
   int rv = resolver.Resolve(hostname, 443, &addr, NULL);
   EXPECT_EQ(rv, net::OK);
 
-  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname);
+  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname,
+                            kDefaultSSLVersionMask);
 
   rv = sock.Connect(&callback);
   if (rv != net::OK) {
@@ -148,7 +154,8 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_Interrupted) {
   int rv = resolver.Resolve(hostname, 443, &addr, NULL);
   EXPECT_EQ(rv, net::OK);
 
-  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname);
+  net::SSLClientSocket sock(new net::TCPClientSocket(addr), hostname,
+                            kDefaultSSLVersionMask);
 
   rv = sock.Connect(&callback);
   if (rv != net::OK) {

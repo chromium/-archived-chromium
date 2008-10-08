@@ -21,9 +21,13 @@ class ClientSocketFactory {
   virtual ClientSocket* CreateTCPClientSocket(
       const AddressList& addresses) = 0;
 
+  // protocol_version_mask is a bitmask that specifies which versions of the
+  // SSL protocol (SSL 2.0, SSL 3.0, and TLS 1.0) should be enabled.  The bit
+  // flags are defined in net/base/ssl_client_socket.h.
   virtual ClientSocket* CreateSSLClientSocket(
       ClientSocket* transport_socket,
-      const std::string& hostname) = 0;
+      const std::string& hostname,
+      int protocol_version_mask) = 0;
 
   // Returns the default ClientSocketFactory.
   static ClientSocketFactory* GetDefaultFactory();

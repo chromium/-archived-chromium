@@ -87,11 +87,13 @@ static int MapNetErrorToCertStatus(int error) {
 static const int kRecvBufferSize = (5 + 16*1024 + 64);
 
 SSLClientSocket::SSLClientSocket(ClientSocket* transport_socket,
-                                 const std::string& hostname)
+                                 const std::string& hostname,
+                                 int protocol_version_mask)
 #pragma warning(suppress: 4355)
     : io_callback_(this, &SSLClientSocket::OnIOComplete),
       transport_(transport_socket),
       hostname_(hostname),
+      protocol_version_mask_(protocol_version_mask),
       user_callback_(NULL),
       user_buf_(NULL),
       user_buf_len_(0),
@@ -327,10 +329,19 @@ int SSLClientSocket::DoConnectComplete(int result) {
   SCHANNEL_CRED schannel_cred = {0};
   schannel_cred.dwVersion = SCHANNEL_CRED_VERSION;
 
-  // TODO(wtc): This should be configurable.  Hardcoded to do SSL 3.0 and
-  // TLS 1.0 for now.  The default (0) means Schannel selects the protocol.
-  // The global system registry settings take precedence over this value.
-  schannel_cred.grbitEnabledProtocols = SP_PROT_SSL3TLS1;
+  // The global system registry settings take precedence over the value of
+  // schannel_cred.grbitEnabledProtocols.
+  schannel_cred.grbitEnabledProtocols = 0;
+  if (protocol_version_mask_ & SSL2)
+    schannel_cred.grbitEnabledProtocols |= SP_PROT_SSL2;
+  if (protocol_version_mask_ & SSL3)
+    schannel_cred.grbitEnabledProtocols |= SP_PROT_SSL3;
+  if (protocol_version_mask_ & TLS1)
+    schannel_cred.grbitEnabledProtocols |= SP_PROT_TLS1;
+  // The default (0) means Schannel selects the protocol, rather than no
+  // protocols are selected.  So we have to fail here.
+  if (schannel_cred.grbitEnabledProtocols == 0)
+    return ERR_NO_SSL_VERSIONS_ENABLED;
 
   // The default session lifetime is 36000000 milliseconds (ten hours).  Set
   // schannel_cred.dwSessionLifespan to change the number of milliseconds that
@@ -818,7 +829,8 @@ int SSLClientSocket::VerifyServerCert() {
   chain_para.RequestedUsage.Usage.cUsageIdentifier = 0;
   chain_para.RequestedUsage.Usage.rgpszUsageIdentifier = NULL;  // LPSTR*
   PCCERT_CHAIN_CONTEXT chain_context;
-  // TODO(wtc): for now, always check revocation.
+  // TODO(wtc): for now, always check revocation.  If we don't want to check
+  // revocation, use the CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY flag.
   if (!CertGetCertificateChain(
            NULL,  // default chain engine, HCCE_CURRENT_USER
            server_cert_,
