@@ -195,7 +195,8 @@ int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
         point.x() < client_view_right) {
       if (point.y() < kWindowSizingBorderSize)
         return HTTOP;
-      return HTCAPTION;
+      if (point.y() < (y() + height()))
+        return HTCAPTION;
     }
   }
 
