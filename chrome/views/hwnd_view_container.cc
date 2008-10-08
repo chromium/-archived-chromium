@@ -7,6 +7,7 @@
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/aero_tooltip_manager.h"
@@ -73,20 +74,15 @@ const wchar_t* const HWNDViewContainer::kBaseClassName =
 // Window class information used for registering unique windows.
 struct ClassInfo {
   UINT style;
-  HICON icon;
-  HICON small_icon;
   HBRUSH background;
 
   explicit ClassInfo(int style)
       : style(style),
-        icon(NULL),
-        small_icon(NULL),
         background(NULL) {}
 
   // Compares two ClassInfos. Returns true if all members match.
   bool Equals(const ClassInfo& other) {
-    return (other.style == style && other.icon == icon &&
-            other.small_icon == icon && other.background == background);
+    return (other.style == style && other.background == background);
   }
 };
 
@@ -884,12 +880,13 @@ std::wstring HWNDViewContainer::GetWindowClassName() {
   class_ex.cbClsExtra = 0;
   class_ex.cbWndExtra = 0;
   class_ex.hInstance = NULL;
-  class_ex.hIcon = class_info.icon;
+  class_ex.hIcon = LoadIcon(GetModuleHandle(L"chrome.dll"),
+                            MAKEINTRESOURCE(IDR_MAINFRAME));
   class_ex.hCursor = LoadCursor(NULL, IDC_ARROW);
   class_ex.hbrBackground = reinterpret_cast<HBRUSH>(class_info.background + 1);
   class_ex.lpszMenuName = NULL;
   class_ex.lpszClassName = name.c_str();
-  class_ex.hIconSm = class_info.small_icon;
+  class_ex.hIconSm = class_ex.hIcon;
   ATOM atom = RegisterClassEx(&class_ex);
   DCHECK(atom);
   RegisteredClass registered_class(class_info, name, atom);
