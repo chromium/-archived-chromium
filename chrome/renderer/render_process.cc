@@ -12,8 +12,10 @@
 #include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/histogram.h"
+#include "base/path_service.h"
 #include "chrome/browser/net/dns_global.h"  // TODO(jar): DNS calls should be renderer specific, not including browser.
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/render_messages.h"
@@ -84,6 +86,14 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
 
   if (command_line.HasSwitch(switches::kDumpHistogramsOnExit)) {
     StatisticsRecorder::set_dump_on_exit(true);
+  }
+
+  if (command_line.HasSwitch(switches::kGearsInRenderer)) {
+    // Load gears.dll on startup so we can access it before the sandbox
+    // blocks us.
+    std::wstring path;
+    if (PathService::Get(chrome::FILE_GEARS_PLUGIN, &path))
+      LoadLibrary(path.c_str());
   }
 
   ChildProcessFactory<RenderProcess> factory;

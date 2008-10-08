@@ -372,6 +372,14 @@ bool RenderProcessHost::Init() {
           return false;
         }
 
+        CommandLine command_line;
+        if (command_line.HasSwitch(switches::kGearsInRenderer)) {
+          if (!AddPolicyForGearsInRenderer(policy)) {
+            NOTREACHED();
+            return false;
+          }
+        }
+
         if (!AddDllEvictionPolicy(policy)) {
           NOTREACHED();
           return false;          
