@@ -899,6 +899,13 @@ V8 | KJS # LayoutTests/css3/keyframes-rule.html = FAIL
 # http://code.google.com/p/chromium/issues/detail?id=3229
 V8 | KJS # LayoutTests/fast/reflections/reflection-masks.html = FAIL
 
+# These two are fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.
+# The WebKit only mentions svg/custom/invalid-fill-hex.svg but the changes to
+# the CSS grammar also fixes editing/execCommand/16049.html. They should
+# therefore be fixed with the next merge.
+V8 | KJS # LayoutTests/editing/execCommand/16049.html = FAIL
+V8 | KJS # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
@@ -909,7 +916,6 @@ V8 | KJS # LayoutTests/fast/reflections/reflection-masks.html = FAIL
 V8 | KJS # LayoutTests/accessibility = FAIL
 V8 | KJS # LayoutTests/css3/transform-value-types.html = FAIL
 V8 | KJS # LayoutTests/dom/html/level2/html/HTMLFormElement10.html = FAIL | TIMEOUT
-V8 | KJS # LayoutTests/editing/execCommand/16049.html = FAIL
 V8 | KJS # LayoutTests/editing/pasteboard/5780697-2.html = FAIL
 V8 | KJS # LayoutTests/editing/selection/5714333.html = FAIL
 V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
@@ -1217,7 +1223,6 @@ V8 | KJS # LayoutTests/svg/custom/group-opacity.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 V8 | KJS # LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
-V8 | KJS # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/js-late-marker-and-object-creation.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/js-update-bounce.svg = FAIL
