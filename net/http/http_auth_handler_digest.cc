@@ -117,7 +117,7 @@ void HttpAuthHandlerDigest::GetRequestMethodAndPath(
 
   if (target_ == HttpAuth::AUTH_PROXY && url.SchemeIs("https")) {
     *method = "CONNECT";
-    *path = url.host() + ":" + IntToString(url.EffectiveIntPort());
+    *path = url.host() + ":" + GetImplicitPort(url);
   } else {
     *method = request->method;
     *path = HttpUtil::PathForRequest(url);

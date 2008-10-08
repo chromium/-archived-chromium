@@ -698,6 +698,34 @@ TEST(NetUtilTest, GetSuggestedFilename) {
   }
 }
 
+TEST(NetUtilTest, GetImplicitPort) {
+  {
+    GURL url("http://foo.bar/baz");
+    EXPECT_STREQ("80", net::GetImplicitPort(url).c_str());
+  }
+  {
+    GURL url("http://foo.bar:443/baz");
+    EXPECT_STREQ("443", net::GetImplicitPort(url).c_str());
+  }
+  {
+    GURL url("https://foo.bar/baz");
+    EXPECT_STREQ("443", net::GetImplicitPort(url).c_str());
+  }
+  {
+    GURL url("https://foo.bar:80/baz");
+    EXPECT_STREQ("80", net::GetImplicitPort(url).c_str());
+  }
+  {
+    // Invalid input.
+    GURL url("file://foobar/baz");
+    EXPECT_STREQ("", net::GetImplicitPort(url).c_str());
+  }
+  {
+    GURL url("ftp://google.com");
+    EXPECT_STREQ("21", net::GetImplicitPort(url).c_str());
+  }
+}
+
 // This is currently a windows specific function.
 #if defined(OS_WIN)
 namespace {

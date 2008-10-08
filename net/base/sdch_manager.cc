@@ -214,6 +214,18 @@ void SdchManager::UrlSafeBase64Encode(const std::string& input,
 // Security functions restricting loads and use of dictionaries.
 
 // static
+int SdchManager::Dictionary::GetPortIncludingDefault(const GURL& url) {
+  std::string port(url.port());
+  if (port.length())
+    return StringToInt(port);
+  if (url.scheme() == "http")
+    return 80;  // Default port value.
+  // TODO(jar): If sdch supports other schemes, then write a general function
+  // or surface functionality hidden in url_cannon_stdurl.cc into url_canon.h.
+  return -1;
+}
+
+// static
 bool SdchManager::Dictionary::CanSet(const std::string& domain,
                                      const std::string& path,
                                      const std::set<int> ports,
@@ -244,7 +256,7 @@ bool SdchManager::Dictionary::CanSet(const std::string& domain,
   // TODO(jar): Enforce item 4 above.
 
   if (!ports.empty()
-      && 0 == ports.count(dictionary_url.EffectiveIntPort()))
+      && 0 == ports.count(GetPortIncludingDefault(dictionary_url)))
     return false;
   return true;
 }
@@ -264,7 +276,7 @@ bool SdchManager::Dictionary::CanUse(const GURL referring_url) {
   if (!DomainMatch(referring_url, domain_))
     return false;
   if (!ports_.empty()
-      && 0 == ports_.count(referring_url.EffectiveIntPort()))
+      && 0 == ports_.count(GetPortIncludingDefault(referring_url)))
     return false;
   if (path_.size() && !PathMatch(referring_url.path(), path_))
     return false;
@@ -290,7 +302,7 @@ bool SdchManager::Dictionary::CanAdvertise(const GURL& target_url) {
     */
   if (!DomainMatch(target_url, domain_))
     return false;
-  if (!ports_.empty() && 0 == ports_.count(target_url.EffectiveIntPort()))
+  if (!ports_.empty() && 0 == ports_.count(GetPortIncludingDefault(target_url)))
     return false;
   if (path_.size() && !PathMatch(target_url.path(), path_))
     return false;
