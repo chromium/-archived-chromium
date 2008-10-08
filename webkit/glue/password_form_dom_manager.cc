@@ -5,7 +5,6 @@
 #include "config.h"
 
 #pragma warning(push, 0)
-#include "csshelper.h"
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "Frame.h"
@@ -25,7 +24,7 @@
 
 // Maximum number of password fields we will observe before throwing our
 // hands in the air and giving up with a given form.
-static const int kMaxPasswords = 3;
+static const size_t kMaxPasswords = 3;
 
 PasswordForm* PasswordFormDomManager::CreatePasswordForm(
     WebCore::HTMLFormElement* form) {

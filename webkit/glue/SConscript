@@ -22,6 +22,7 @@ input_files = [
   'glue_util.cc',
   'image_decoder.cc',
   'npruntime_util.cc',
+  'password_form_dom_manager.cc',
   'webkit_glue.cc',
   'weburlrequest_impl.cc',
 ]
@@ -55,7 +56,6 @@ if env['PLATFORM'] == 'win32':
     'localized_strings.cc',
     'multipart_response_delegate.cc',
     'password_autocomplete_listener.cc',
-    'password_form_dom_manager.cc',
     'plugins/mozilla_extensions.cc',
     'plugins/plugin_host.cc',
     'plugins/plugin_instance.cc',
