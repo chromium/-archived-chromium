@@ -26,10 +26,10 @@
 // diagnostic page.
 #if defined(GOOGLE_CHROME_BUILD)
 static const char* const kSbDiagnosticUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%ls&client=googlechrome";
+    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%s&client=googlechrome";
 #else
 static const char* const kSbDiagnosticUrl =
-    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%ls&client=chromium";
+    "http://safebrowsing.clients.google.com/safebrowsing/diagnostic?site=%s&client=chromium";
 #endif
 
 static const char* const kSbReportPhishingUrl =
