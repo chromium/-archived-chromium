@@ -12,6 +12,7 @@
 #include "base/logging.h"
 #include "base/registry.h"
 #include "base/string_util.h"
+#include "base/win_util.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"
 
@@ -33,3 +34,18 @@ installer::Version* InstallUtil::GetChromeVersion(bool system_install) {
   return installer::Version::GetVersionFromString(version_str);
 }
 
+bool InstallUtil::IsOSSupported() {
+  int major, minor;
+  win_util::WinVersion version = win_util::GetWinVersion();
+  win_util::GetServicePackLevel(&major, &minor);
+
+  // We do not support Win2K or older, or XP without service pack 1.
+  LOG(INFO) << "Windows Version: " << version
+            << ", Service Pack: " << major << "." << minor;
+  if ((version == win_util::WINVERSION_VISTA) ||
+      (version == win_util::WINVERSION_SERVER_2003) ||
+      (version == win_util::WINVERSION_XP && major >= 1)) {
+    return true;
+  }
+  return false;
+}

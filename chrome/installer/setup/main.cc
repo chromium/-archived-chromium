@@ -30,32 +30,6 @@
 
 namespace {
 
-// Checks if the current system is running Windows XP or later. We are not
-// supporting Windows 2K for beta release.
-bool IsWindowsXPorLater() {
-  OSVERSIONINFOEX osvi;
-  ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-  GetVersionEx((OSVERSIONINFO *) &osvi);
-
-  // Windows versioning scheme doesn't seem very clear but here is what
-  // the code is checking as the minimum version required for Chrome:
-  // * Major > 5 is Vista or later so no further checks for Service Pack
-  // * Major = 5 && Minor > 1 is Windows Server 2003 so again no SP checks
-  // * Major = 5 && Minor = 1 is WinXP so check for SP1 or later
-  LOG(INFO) << "Windows Version: Major - " << osvi.dwMajorVersion
-            << " Minor - " << osvi.dwMinorVersion
-            << " Service Pack Major - " << osvi.wServicePackMajor
-            << " Service Pack Minor - " << osvi.wServicePackMinor;
-  if ((osvi.dwMajorVersion > 5) || // Vista or later
-      ((osvi.dwMajorVersion == 5) && (osvi.dwMinorVersion > 1)) || // Win 2003
-      ((osvi.dwMajorVersion == 5) && (osvi.dwMinorVersion == 1) &&
-       (osvi.wServicePackMajor >= 1))) { // WinXP with SP1
-    return true;
-  }
-  return false;
-}
-
 // Applies a binary patch to existing Chrome installer archive on the system.
 // Uses bspatch library.
 int PatchArchiveFile(bool system_install, const std::wstring& archive_path,
@@ -304,7 +278,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 
   // Check to make sure current system is WinXP or later. If not, log
   // error message and get out.
-  if (!IsWindowsXPorLater()) {
+  if (!InstallUtil::IsOSSupported()) {
     LOG(ERROR) << "Chrome only supports Windows XP or later.";
     return installer_util::OS_NOT_SUPPORTED;
   }

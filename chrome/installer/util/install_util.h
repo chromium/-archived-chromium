@@ -26,6 +26,9 @@ class InstallUtil {
   // system_install: if true, looks for version number under the HKLM root,
   //                 otherwise looks under the HKCU.
   static installer::Version * GetChromeVersion(bool system_install);
+
+  // This function checks if the current OS is supported for Chromium.
+  static bool IsOSSupported();
  private:
   DISALLOW_EVIL_CONSTRUCTORS(InstallUtil);
 };

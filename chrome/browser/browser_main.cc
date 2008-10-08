@@ -175,18 +175,13 @@ int DoUninstallTasks() {
 // functionality so we just ask the users if they want to uninstall Chrome.
 int HandleIconsCommands(const CommandLine &parsed_command_line) {
   if (parsed_command_line.HasSwitch(switches::kHideIcons)) {
-    OSVERSIONINFO version = {0};
-    version.dwOSVersionInfoSize = sizeof(version);
-    if (!GetVersionEx(&version))
-      return ResultCodes::UNSUPPORTED_PARAM;
-
     std::wstring cp_applet;
-    if (version.dwMajorVersion >= 6) {
+    if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
       cp_applet.assign(L"Programs and Features");  // Windows Vista and later.
-    } else if (version.dwMajorVersion == 5 && version.dwMinorVersion >= 1) {
+    } else if (win_util::GetWinVersion() == win_util::WINVERSION_XP) {
       cp_applet.assign(L"Add/Remove Programs");  // Windows XP.
     } else {
-      return ResultCodes::UNSUPPORTED_PARAM;  // Not supported on Win2K?
+      return ResultCodes::UNSUPPORTED_PARAM;  // Not supported
     }
 
     const std::wstring msg = l10n_util::GetStringF(IDS_HIDE_ICONS_NOT_SUPPORTED,
