@@ -2118,13 +2118,59 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DCreatePattern) {
 
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DFillText) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.fillText()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
+
+  CanvasRenderingContext2D* context =
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
+          V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
+
+  // Two forms:
+  // * fillText(text, x, y)
+  // * fillText(text, x, y, maxWidth)
+  if (args.Length() < 3 || args.Length() > 4) {
+    V8Proxy::SetDOMException(SYNTAX_ERR);
+    return v8::Handle<v8::Value>();
+  }
+
+  String text = ToWebCoreString(args[0]);
+  float x = static_cast<float>(args[1]->NumberValue());
+  float y = static_cast<float>(args[2]->NumberValue());
+
+  if (args.Length() == 4) {
+    float maxWidth = static_cast<float>(args[3]->NumberValue());
+    context->fillText(text, x, y, maxWidth);
+  } else {
+    context->fillText(text, x, y);
+  }
+
   return v8::Undefined();
 }
 
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DStrokeText) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.strokeText()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
+
+  CanvasRenderingContext2D* context =
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
+          V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
+
+  // Two forms:
+  // * strokeText(text, x, y)
+  // * strokeText(text, x, y, maxWidth)
+  if (args.Length() < 3 || args.Length() > 4) {
+    V8Proxy::SetDOMException(SYNTAX_ERR);
+    return v8::Handle<v8::Value>();
+  }
+
+  String text = ToWebCoreString(args[0]);
+  float x = static_cast<float>(args[1]->NumberValue());
+  float y = static_cast<float>(args[2]->NumberValue());
+
+  if (args.Length() == 4) {
+    float maxWidth = static_cast<float>(args[3]->NumberValue());
+    context->strokeText(text, x, y, maxWidth);
+  } else {
+    context->strokeText(text, x, y);
+  }
+
   return v8::Undefined();
 }
 
