@@ -5,8 +5,21 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 #include "base/ref_counted.h"
+#include "chrome/common/child_process.h"
 #include "chrome/renderer/render_widget.h"
 #include "chrome/renderer/render_thread.h"
+
+// This class is a trivial mock of the child process singleton. It is necessary
+// so we don't trip DCHECKs in ChildProcess::ReleaseProcess() when destroying
+// a render widget instance. 
+class MockProcess : public ChildProcess {
+ public:
+  explicit MockProcess(const std::wstring& channel_name) {}
+  static void GlobalInit() {
+    ChildProcessFactory<MockProcess> factory;
+    ChildProcess::GlobalInit(L"dummy", &factory);
+  }
+};
 
 // This class is very simple mock of RenderThread. It simulates an IPC channel
 // which supports only two messages:
@@ -49,6 +62,7 @@ class MockRenderThread : public RenderThreadBase {
     if (msg->is_reply()) {
       if (reply_deserializer_)
         reply_deserializer_->SerializeOutputParameters(*msg);
+        delete reply_deserializer_;
         reply_deserializer_ = NULL;
     } else {
       if (msg->is_sync()) {
@@ -116,14 +130,16 @@ class MockRenderThread : public RenderThreadBase {
   IPC::MessageReplyDeserializer* reply_deserializer_;
 };
 
-TEST(RenderWidgetTest, DISABLED_CreateAndCloseWidget) {
+TEST(RenderWidgetTest, CreateAndCloseWidget) {
   MessageLoop msg_loop;
   MockRenderThread render_thread;
+  MockProcess::GlobalInit();
 
   const int32 kRouteId = 5;
   const int32 kOpenerId = 7;
-
   render_thread.set_routing_id(kRouteId);
+
+  {
   scoped_refptr<RenderWidget> rw =
       RenderWidget::Create(kOpenerId, &render_thread);
   ASSERT_TRUE(rw != NULL);
@@ -136,5 +152,14 @@ TEST(RenderWidgetTest, DISABLED_CreateAndCloseWidget) {
   // Now simulate a close of the Widget.
   render_thread.SendCloseMessage();
   EXPECT_FALSE(render_thread.has_widget());  
+
+    // Run the loop so the release task from the renderwidget executes.
+    msg_loop.PostTask(FROM_HERE, new MessageLoop::QuitTask());
+    msg_loop.Run();
 }
 
+  // There is a delayed task that the child process posts to terminate the
+  // message loop so we need to spin the message loop to delete the task.
+  MockProcess::GlobalCleanup();
+  msg_loop.Run();
+}
