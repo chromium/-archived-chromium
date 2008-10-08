@@ -330,5 +330,10 @@ const wchar_t kEnableP13n[] = L"enable-p13n";
 // SDCH is currently only supported server-side for searches on google.com.
 const wchar_t kSdchFilter[] = L"enable-sdch";
 
+// Turn on an experimental implementation of SafeBrowsing which improves
+// performance during updates by avoiding the enormous IO from SQLite
+// operations.
+const wchar_t kUseNewSafeBrowsing[] = L"new-safe-browsing";
+
 }  // namespace switches
 

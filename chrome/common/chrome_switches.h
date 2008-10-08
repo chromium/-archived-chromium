@@ -128,6 +128,8 @@ extern const wchar_t kEnableP13n[];
 
 extern const wchar_t kSdchFilter[];
 
+extern const wchar_t kUseNewSafeBrowsing[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__
