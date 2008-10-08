@@ -55,6 +55,12 @@ static const int kSeparationLineHeight = 1;
 static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
 // The distance between tiled windows.
 static const int kWindowTilePixels = 10;
+// The distance between the top edge of the window and the TabStrip when there
+// is no title-bar showing, and the window is restored.
+static const int kNoTitleTopSpacing = 15;
+// The distance between the top edge of the window and the TabStrip when there
+// is no title-bar showing, and the window is maximized.
+static const int kNoTitleZoomedTopSpacing = 1;
 
 static const struct { bool separator; int command; int label; } kMenuLayout[] = {
   { true, 0, 0 },
@@ -781,8 +787,6 @@ void BrowserView2::Layout() {
                                                    toolbar_, 0);
   }
 #endif
-
-
   SchedulePaint();
 }
 
@@ -888,13 +892,12 @@ ChromeViews::DropTargetEvent* BrowserView2::MapEventToTabStrip(
 }
 
 int BrowserView2::LayoutTabStrip() {
+  gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
   if (IsTabStripVisible()) {
-    gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
     tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
                          tabstrip_bounds.width(), tabstrip_bounds.height());
-    return tabstrip_bounds.bottom();
   }
-  return 0;
+  return tabstrip_bounds.bottom();
 }
 
 int BrowserView2::LayoutToolbar(int top) {
