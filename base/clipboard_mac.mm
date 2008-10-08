@@ -8,15 +8,20 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 
 namespace {
 
 // Would be nice if this were in UTCoreTypes.h, but it isn't
 const NSString* kUTTypeURLName = @"public.url-name";
 
-NSString* nsStringForWString(const std::wstring& string) {
-  string16 text16 = WideToUTF16(string);
-  return [NSString stringWithCharacters:text16.c_str() length:text16.length()];
+NSPasteboard* GetPasteboard() {
+  // The pasteboard should not be nil in a UI session, but this handy DCHECK
+  // can help track down problems if someone tries using clipboard code outside
+  // of a UI session.
+  NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+  DCHECK(pasteboard);
+  return pasteboard;
 }
 
 }  // namespace
@@ -28,22 +33,22 @@ Clipboard::~Clipboard() {
 }
 
 void Clipboard::Clear() {
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   [pb declareTypes:[NSArray array] owner:nil];
 }
 
 void Clipboard::WriteText(const std::wstring& text) {
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   [pb addTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
-  [pb setString:nsStringForWString(text) forType:NSStringPboardType];
+  [pb setString:base::SysWideToNSString(text) forType:NSStringPboardType];
 }
 
 void Clipboard::WriteHTML(const std::wstring& markup,
                           const std::string& src_url) {
   // TODO(avi): src_url?
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   [pb addTypes:[NSArray arrayWithObject:NSHTMLPboardType] owner:nil];
-  [pb setString:nsStringForWString(markup) forType:NSHTMLPboardType];
+  [pb setString:base::SysWideToNSString(markup) forType:NSHTMLPboardType];
 }
 
 void Clipboard::WriteBookmark(const std::wstring& title,
@@ -59,13 +64,14 @@ void Clipboard::WriteHyperlink(const std::wstring& title,
   // Mac, but we should double check later on.
   NSURL* nsurl = [NSURL URLWithString:
                   [NSString stringWithUTF8String:url.c_str()]];
-  NSString* nstitle = nsStringForWString(title);
+  NSString* nstitle = base::SysWideToNSString(title);
 
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   // passing UTIs into the pasteboard methods is valid >= 10.5
   [pb addTypes:[NSArray arrayWithObjects:NSURLPboardType,
-                    kUTTypeURLName, nil]
-             owner:nil];
+                                         kUTTypeURLName,
+                                         nil]
+         owner:nil];
   [nsurl writeToPasteboard:pb];
   [pb setString:nstitle forType:kUTTypeURLName];
 }
@@ -78,24 +84,24 @@ void Clipboard::WriteFile(const std::wstring& file) {
 
 void Clipboard::WriteFiles(const std::vector<std::wstring>& files) {
   NSMutableArray* fileList = [NSMutableArray arrayWithCapacity:files.size()];
-  for (unsigned int i = 0; i < files.size(); ++i) {
-    [fileList addObject:nsStringForWString(files[i])];
+  for (size_t i = 0; i < files.size(); ++i) {
+    [fileList addObject:base::SysWideToNSString(files[i])];
   }
 
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   [pb addTypes:[NSArray arrayWithObject:NSFilenamesPboardType] owner:nil];
   [pb setPropertyList:fileList forType:NSFilenamesPboardType];
 }
 
 bool Clipboard::IsFormatAvailable(NSString* format) const {
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   NSArray* types = [pb types];
 
   return [types containsObject:format];
 }
 
 void Clipboard::ReadText(std::wstring* result) const {
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   NSString* contents = [pb stringForType:NSStringPboardType];
 
   UTF8ToWide([contents UTF8String],
@@ -104,17 +110,18 @@ void Clipboard::ReadText(std::wstring* result) const {
 }
 
 void Clipboard::ReadAsciiText(std::string* result) const {
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   NSString* contents = [pb stringForType:NSStringPboardType];
 
-  *result = std::string([contents UTF8String]);
+  if (!contents)
+    result->clear();
+  else
+    result->assign([contents UTF8String]);
 }
 
 void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
   if (markup) {
-    markup->clear();
-
-    NSPasteboard* pb = [NSPasteboard generalPasteboard];
+    NSPasteboard* pb = GetPasteboard();
     NSArray *supportedTypes = [NSArray arrayWithObjects:NSHTMLPboardType,
                                                         NSStringPboardType,
                                                         nil];
@@ -131,11 +138,9 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
 }
 
 void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
 
   if (title) {
-    title->clear();
-
     NSString* contents = [pb stringForType:kUTTypeURLName];
     UTF8ToWide([contents UTF8String],
                [contents lengthOfBytesUsingEncoding:NSUTF8StringEncoding],
@@ -143,10 +148,11 @@ void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
   }
 
   if (url) {
-    url->clear();
-
-    NSURL* nsurl = [NSURL URLFromPasteboard:pb];
-    *url = std::string([[nsurl absoluteString] UTF8String]);
+    NSString* url_string = [[NSURL URLFromPasteboard:pb] absoluteString];
+    if (!url_string)
+      url->clear();
+    else
+      url->assign([url_string UTF8String]);
   }
 }
 
@@ -173,7 +179,7 @@ void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
 
   files->clear();
 
-  NSPasteboard* pb = [NSPasteboard generalPasteboard];
+  NSPasteboard* pb = GetPasteboard();
   NSArray* fileList = [pb propertyListForType:NSFilenamesPboardType];
 
   for (unsigned int i = 0; i < [fileList count]; ++i) {
