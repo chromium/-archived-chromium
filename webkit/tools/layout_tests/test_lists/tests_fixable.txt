@@ -975,14 +975,8 @@ V8 | KJS # LayoutTests/http/tests/misc/acid3.html = FAIL
 V8 | KJS # LayoutTests/http/tests/misc/frame-default-enc-same-domain.html = FAIL
 V8 | KJS # LayoutTests/http/tests/navigation/reload-subframe-frame.html = FAIL
 V8 | KJS # LayoutTests/http/tests/navigation/reload-subframe-iframe.html = FAIL
-V8 | KJS # LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren-alias.html = FAIL
-V8 | KJS # LayoutTests/http/tests/security/aboutBlank/security-context-grandchildren.html = FAIL
-V8 | KJS # LayoutTests/http/tests/security/aboutBlank/security-context.html = FAIL
-V8 | KJS # LayoutTests/http/tests/security/aboutBlank/security-context-window-open.html = FAIL
-V8 | KJS # LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/canvas-remote-read-remote-image.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
-V8 | KJS # LayoutTests/http/tests/security/cookies/document-open.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-object-prototype.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/cross-origin-xsl-BLOCKED.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
@@ -1291,7 +1285,6 @@ V8 | KJS # LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
 // Post-merge Timeouts: Definitely need to be fixed one day
 V8 | KJS # LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/frame-loading-via-document-write.html = TIMEOUT
  
 // Post-merge Debug only Crashes
 V8 | KJS # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS

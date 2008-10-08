@@ -2648,7 +2648,8 @@ CALLBACK_FUNC_DECL(HTMLDocumentOpen) {
     }
   }
 
-  imp->open();
+  Frame* frame = V8Proxy::retrieveActiveFrame();
+  imp->open(frame->document());
   return v8::Undefined();
 }
 
