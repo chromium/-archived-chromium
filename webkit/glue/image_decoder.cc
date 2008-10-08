@@ -6,7 +6,7 @@
 #include "webkit/glue/image_decoder.h"
 
 #pragma warning(push, 0)
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 #include "ImageSourceSkia.h"
 #elif defined(OS_MACOSX)
 #include "ImageSource.h"
@@ -40,7 +40,7 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) {
   // but in the future we will need to replumb to get CGImageRefs (or whatever
   // the native type is) everywhere, directly.
   
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   WebCore::ImageSourceSkia source;
 #elif defined(OS_MACOSX)
   WebCore::ImageSource source;
@@ -62,7 +62,7 @@ SkBitmap ImageDecoder::Decode(const unsigned char* data, size_t size) {
   if (!frame0)
     return SkBitmap();
   
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   return *reinterpret_cast<SkBitmap*>(frame0);
 #elif defined(OS_MACOSX)
   // BitmapImage releases automatically, but we're bypassing it so we'll need

@@ -20,6 +20,7 @@ if env['PLATFORM'] == 'win32':
 input_files = [
   'webkit_glue.cc',
   'weburlrequest_impl.cc',
+  'image_decoder.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -48,7 +49,6 @@ if env['PLATFORM'] == 'win32':
     'glue_accessibility.cc',
     'glue_serialize.cc',
     'glue_util.cc',
-    'image_decoder.cc',
     'image_resource_fetcher.cc',
     'inspector_client_impl.cc',
     'localized_strings.cc',
