@@ -247,13 +247,12 @@ void HttpNetworkTransaction::BuildRequestHeaders() {
 // in draft-luotonen-web-proxy-tunneling-01.txt and RFC 2817, Sections 5.2 and
 // 5.3.
 void HttpNetworkTransaction::BuildTunnelRequest() {
-  std::string port = GetImplicitPort(request_->url);
-
   // RFC 2616 Section 9 says the Host request-header field MUST accompany all
   // HTTP/1.1 requests.
-  request_headers_ = "CONNECT " + request_->url.host() + ":" + port +
-      " HTTP/1.1\r\nHost: " + request_->url.host();
-  if (request_->url.IntPort() != -1)
+  request_headers_ = StringPrintf("CONNECT %s:%d HTTP/1.1\r\n",
+      request_->url.host().c_str(), request_->url.EffectiveIntPort());
+  request_headers_ += "Host: " + request_->url.host();
+  if (request_->url.has_port())
     request_headers_ += ":" + request_->url.port();
   request_headers_ += "\r\n";
 
@@ -453,18 +452,11 @@ int HttpNetworkTransaction::DoResolveHost() {
     t.GetNext();
     host = t.token();
     t.GetNext();
-    port = static_cast<int>(StringToInt64(t.token()));
+    port = StringToInt(t.token());
   } else {
     // Direct connection
     host = request_->url.host();
-    port = request_->url.IntPort();
-    if (port == url_parse::PORT_UNSPECIFIED) {
-      if (using_ssl_) {
-        port = 443;  // Default HTTPS port
-      } else {
-        port = 80;   // Default HTTP port
-      }
-    }
+    port = request_->url.EffectiveIntPort();
   }
 
   return resolver_.Resolve(host, port, &addresses_, &io_callback_);

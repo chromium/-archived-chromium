@@ -72,9 +72,6 @@ class SdchManager {
     const GURL& url() const { return url_; }
     const std::string& client_hash() const { return client_hash_; }
 
-    // For a given URL, get the actual or default port.
-    static int GetPortIncludingDefault(const GURL& url);
-
     // Security method to check if we can advertise this dictionary for use
     // if the |target_url| returns SDCH compressed data.
     bool CanAdvertise(const GURL& target_url);
