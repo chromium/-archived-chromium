@@ -1291,3 +1291,10 @@ V8 | KJS # LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.ht
 // Post-merge flakey on debug builds (passes consistently on release)
 V8 | KJS # LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
 V8 | KJS # LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
+
+// This one fails consistently after http://codereview.chromium.org/6272.
+V8 # pending/plugins/destroy-stream-twice.html = FAIL
+// This one is flakey and might be related.
+V8 # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
+
+
