@@ -196,7 +196,9 @@ module core {
         Element            elementFromPoint(in long x, in long y);
 
         // Mozilla extensions
-
+#if defined(LANGUAGE_JAVASCRIPT)
+        DOMSelection       getSelection();
+#endif
         readonly attribute [ConvertNullStringTo=Null] DOMString characterSet;
 
         // WebKit extensions
