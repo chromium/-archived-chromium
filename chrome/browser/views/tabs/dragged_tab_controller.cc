@@ -343,15 +343,12 @@ void DraggedTabController::ContinueDragging() {
   // dragging within it.
   TabStrip* target_tabstrip = GetTabStripForPoint(screen_point);
   if (target_tabstrip != attached_tabstrip_) {
-    if (target_tabstrip) {
-      // We may receive this event before we're fully detached from the source,
-      // we check for that and force a detach now.
-      if (attached_tabstrip_)
-        Detach();
-      Attach(target_tabstrip, screen_point);
-    } else {
+    // Make sure we're fully detached from whatever TabStrip we're attached to
+    // (if any).
+    if (attached_tabstrip_)
       Detach();
-    }
+    if (target_tabstrip)
+      Attach(target_tabstrip, screen_point);
   }
   MoveTab(screen_point);
 }
