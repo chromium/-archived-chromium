@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SANDBOX_SRC_WIN2K_THREADPOOL_H__
-#define SANDBOX_SRC_WIN2K_THREADPOOL_H__
+#ifndef SANDBOX_SRC_WIN2K_THREADPOOL_H_
+#define SANDBOX_SRC_WIN2K_THREADPOOL_H_
 
 #include <list>
 #include <algorithm>
@@ -27,7 +27,7 @@ class Win2kThreadPool : public  ThreadProvider {
   Win2kThreadPool() {
     ::InitializeCriticalSection(&lock_);
   }
-  ~Win2kThreadPool();
+  virtual ~Win2kThreadPool();
 
   virtual bool RegisterWait(const void* client, HANDLE waitable_object,
                             CrossCallIPCCallback callback,
@@ -50,10 +50,10 @@ class Win2kThreadPool : public  ThreadProvider {
   PoolObjects pool_objects_;
   // This lock protects the list of pool wait objects.
   CRITICAL_SECTION lock_;
-  DISALLOW_EVIL_CONSTRUCTORS(Win2kThreadPool);
+  DISALLOW_COPY_AND_ASSIGN(Win2kThreadPool);
 };
 
 }  // namespace sandbox
 
-#endif  // SANDBOX_SRC_WIN2K_THREADPOOL_H__
+#endif  // SANDBOX_SRC_WIN2K_THREADPOOL_H_
 
