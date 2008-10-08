@@ -901,25 +901,26 @@ int BrowserView2::LayoutTabStrip() {
 }
 
 int BrowserView2::LayoutToolbar(int top) {
-  if (IsToolbarVisible()) {
-    CSize ps;
-    toolbar_->GetPreferredSize(&ps);
-    int toolbar_y =
-        top - (IsTabStripVisible() ? kToolbarTabStripVerticalOverlap : 0);
-    // With detached popup windows with the aero glass frame, we need to offset
-    // by a pixel to make things look good.
-    if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())
-      ps.cy -= 1;
-    int browser_view_width = width();
+  CSize ps;
+  toolbar_->GetPreferredSize(&ps);
+  int toolbar_y =
+      top - (IsTabStripVisible() ? kToolbarTabStripVerticalOverlap : 0);
+  // With detached popup windows with the aero glass frame, we need to offset
+  // by a pixel to make things look good.
+  if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())
+    ps.cy -= 1;
+  int browser_view_width = width();
 #ifdef CHROME_PERSONALIZATION
-    if (IsPersonalizationEnabled())
-      Personalization::AdjustBrowserView(personalization_, &browser_view_width);
+  if (IsPersonalizationEnabled())
+    Personalization::AdjustBrowserView(personalization_, &browser_view_width);
 #endif
-    toolbar_->SetBounds(0, toolbar_y, browser_view_width, ps.cy);
-    return toolbar_y + ps.cy;
-  }
-  toolbar_->SetVisible(false);
-  return top;
+  // Note that we always size the toolbar, regardless of whether or not it's
+  // visible. It's used to position other elements.
+  int toolbar_height = IsToolbarVisible() ? ps.cy : 0;
+  toolbar_->SetBounds(0, toolbar_y, browser_view_width, toolbar_height);
+  if (!IsToolbarVisible())
+    toolbar_->SetVisible(false);
+  return toolbar_->y() + toolbar_->height();
 }
 
 int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
