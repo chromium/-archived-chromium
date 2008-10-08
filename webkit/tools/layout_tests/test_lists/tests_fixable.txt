@@ -900,6 +900,11 @@ V8 | KJS # LayoutTests/css3/keyframes-rule.html = FAIL
 # http://code.google.com/p/chromium/issues/detail?id=3229
 V8 | KJS # LayoutTests/fast/reflections/reflection-masks.html = FAIL
 
+# http://crbug.com/3244 : SVG masks aren't quite working yet.
+V8 | KJS # LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
+
 # These two are fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.
 # The WebKit only mentions svg/custom/invalid-fill-hex.svg but the changes to
 # the CSS grammar also fixes editing/execCommand/16049.html. They should
@@ -925,7 +930,6 @@ V8 | KJS # LayoutTests/fast/backgrounds/background-position-1.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/background-position-rounding.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/mask-composite.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 V8 | KJS # LayoutTests/fast/block/basic/adding-near-anonymous-block.html = FAIL
 V8 | KJS # LayoutTests/fast/block/basic/min-pref-width-nowrap-floats.html = FAIL
 V8 | KJS # LayoutTests/fast/block/float/br-with-clear-2.html = FAIL
@@ -1048,7 +1052,6 @@ V8 | KJS # LayoutTests/fast/events/event-instanceof.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/form-hides-table.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/legend-access-key.html = FAIL
-V8 | KJS # LayoutTests/fast/images/svg-as-background.html = FAIL
 V8 | KJS # LayoutTests/fast/images/svg-as-tiled-background.html = FAIL
 V8 | KJS # LayoutTests/fast/loader/url-parse-1.html = FAIL
 V8 | KJS # LayoutTests/fast/parser/entity-comment-in-style.html = FAIL
@@ -1123,7 +1126,6 @@ V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/linking-a-04-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/linking-a-05-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/linking-a-07-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/linking-uri-03-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/painting-fill-01-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/painting-fill-02-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/painting-fill-03-t.svg = FAIL
@@ -1175,7 +1177,6 @@ V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-text-05-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 V8 | KJS # LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
 V8 | KJS # LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL
 V8 | KJS # LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL | CRASH
