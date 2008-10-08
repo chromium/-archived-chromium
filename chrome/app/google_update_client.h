@@ -9,8 +9,8 @@
 //   autoupdates
 
 
-#ifndef CHROME_APP_GOOGLE_UPDATE_CLIENT_H__
-#define CHROME_APP_GOOGLE_UPDATE_CLIENT_H__
+#ifndef CHROME_APP_GOOGLE_UPDATE_CLIENT_H_
+#define CHROME_APP_GOOGLE_UPDATE_CLIENT_H_
 
 #include <windows.h>
 #include <tchar.h>
@@ -78,5 +78,5 @@ class GoogleUpdateClient {
 
 }  // namespace google_update
 
-#endif  // CHROME_APP_GOOGLE_UPDATE_CLIENT_H__
+#endif  // CHROME_APP_GOOGLE_UPDATE_CLIENT_H_
 
