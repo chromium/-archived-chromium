@@ -57,6 +57,49 @@ void DeleteChromeShortcut(bool system_uninstall) {
   }
 }
 
+// Deletes all installed files of Chromium and Folders. Before deleting it
+// needs to move setup.exe in a temp folder because the current process
+// is using that file. It returns false when it can not get the path to
+// installation folder, in all other cases it returns true even in case
+// of error (only logs the error).
+bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
+    const installer::Version& installed_version) {
+  std::wstring install_path(installer::GetChromeInstallPath(system_uninstall));
+  if (install_path.empty()) {
+    LOG(ERROR) << "Could not get installation destination path.";
+    return false; // Nothing else we can do for uninstall, so we return.
+  } else {
+    LOG(INFO) << "install destination path: " << install_path;
+  }
+
+  std::wstring setup_exe(installer::GetInstallerPathUnderChrome(
+      install_path, installed_version.GetString()));
+  file_util::AppendToPath(&setup_exe, file_util::GetFilenameFromPath(exe_path));
+
+  std::wstring temp_file;
+  file_util::CreateTemporaryFileName(&temp_file);
+  file_util::Move(setup_exe, temp_file);
+
+  LOG(INFO) << "Deleting install path " << install_path;
+  if (!file_util::Delete(install_path, true))
+    LOG(ERROR) << "Failed to delete folder: " << install_path;
+
+  // Now check and delete if the parent directories are empty
+  // For example Google\Chrome or Chromium
+  std::wstring parent_dir = file_util::GetDirectoryFromPath(install_path);
+  if (!parent_dir.empty() && file_util::IsDirectoryEmpty(parent_dir)) {
+    if (!file_util::Delete(parent_dir, true))
+      LOG(ERROR) << "Failed to delete folder: " << parent_dir;
+    parent_dir = file_util::GetDirectoryFromPath(parent_dir);
+    if (!parent_dir.empty() &&
+        file_util::IsDirectoryEmpty(parent_dir)) {
+      if (!file_util::Delete(parent_dir, true))
+        LOG(ERROR) << "Failed to delete folder: " << parent_dir;
+    }
+  }
+  return true;
+}
+
 // This method tries to delete a registry key and logs an error message
 // in case of failure. It returns true if deletion is successful,
 // otherwise false.
@@ -126,8 +169,6 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   if (status != installer_util::UNINSTALL_CONFIRMED)
     return status;
 
-  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
-  dist->DoPreUninstallOperations();
 #if defined(GOOGLE_CHROME_BUILD)
   // TODO(rahulk): This should be done by DoPreUninstallOperations call above
   wchar_t product[39];  // GUID + '\0'
@@ -151,6 +192,7 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   // Delete the registry keys (Uninstall key and Version key).
   HKEY reg_root = system_uninstall ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   RegKey key(reg_root, L"", KEY_ALL_ACCESS);
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   DeleteRegistryKey(key, dist->GetUninstallRegPath());
   DeleteRegistryKey(key, dist->GetVersionKey());
 
@@ -188,26 +230,8 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
 
   // Finally delete all the files from Chrome folder after moving setup.exe
   // to a temp location.
-  std::wstring install_path(installer::GetChromeInstallPath(system_uninstall));
-  if (install_path.empty()) {
-    LOG(ERROR) << "Could not get installation destination path.";
-    // Nothing else we could do for uninstall, so we return.
+  if (!DeleteFilesAndFolders(exe_path, system_uninstall, installed_version))
     return installer_util::UNINSTALL_FAILED;
-  } else {
-    LOG(INFO) << "install destination path: " << install_path;
-  }
-
-  std::wstring setup_exe(installer::GetInstallerPathUnderChrome(
-      install_path, installed_version.GetString()));
-  file_util::AppendToPath(&setup_exe, file_util::GetFilenameFromPath(exe_path));
-
-  std::wstring temp_file;
-  file_util::CreateTemporaryFileName(&temp_file);
-  file_util::Move(setup_exe, temp_file);
-
-  LOG(INFO) << "Deleting install path " << install_path;
-  if (!file_util::Delete(install_path, true))
-    LOG(ERROR) << "Failed to delete folder: " << install_path;
 
   LOG(INFO) << "Uninstallation complete. Launching Uninstall survey.";
   dist->DoPostUninstallOperations(installed_version);

@@ -19,8 +19,6 @@ class BrowserDistribution {
 
   virtual void DoPostUninstallOperations(const installer::Version& version);
 
-  virtual void DoPreUninstallOperations();
-
   virtual std::wstring GetApplicationName();
 
   virtual std::wstring GetInstallSubDir();

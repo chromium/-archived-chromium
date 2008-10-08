@@ -50,6 +50,10 @@ void AddUninstallShortcutWorkItems(HKEY reg_root,
                           file_util::GetFilenameFromPath(exe_path));
   uninstall_cmd.append(L"\" --");
   uninstall_cmd.append(installer_util::switches::kUninstall);
+  if (reg_root == HKEY_LOCAL_MACHINE) {
+    uninstall_cmd.append(L" --");
+    uninstall_cmd.append(installer_util::switches::kSystemInstall);
+  }
 
   // Create DisplayName, UninstallString and InstallLocation keys
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();

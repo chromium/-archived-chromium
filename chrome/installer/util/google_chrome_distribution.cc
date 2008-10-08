@@ -73,25 +73,6 @@ void GoogleChromeDistribution::DoPostUninstallOperations(
   WMIProcessUtil::Launch(command, &pid);
 }
 
-// Uninstall Chrome specific Gears. First we find Gears MSI ProductId (that
-// changes with every new version of Gears) using Gears MSI UpgradeCode (that
-// does not change) and then uninstall Gears using API.
-void GoogleChromeDistribution::DoPreUninstallOperations() {
-  /* TODO(rahulk) this comment is commented for now because it is causing extra
-  dependencies for the renderer. Need to remove ifdef from uninstall.cc and
-  uncomment this function.
-  wchar_t product[39];  // GUID + '\0'
-  MsiSetInternalUI(INSTALLUILEVEL_NONE, NULL);  // Don't show any UI to user.
-  for (int i = 0; MsiEnumRelatedProducts(google_update::kGearsUpgradeCode, 0, i,
-                                         product) != ERROR_NO_MORE_ITEMS; ++i) {
-    LOG(INFO) << "Uninstalling Gears - " << product;
-    unsigned int ret = MsiConfigureProduct(product, INSTALLLEVEL_MAXIMUM,
-                                           INSTALLSTATE_ABSENT);
-    if (ret != ERROR_SUCCESS)
-      LOG(ERROR) << "Failed to uninstall Gears " << product << ": " << ret;
-  }*/
-}
-
 std::wstring GoogleChromeDistribution::GetApplicationName() {
   const std::wstring& product_name =
       installer_util::GetLocalizedString(IDS_PRODUCT_NAME_BASE);

@@ -365,6 +365,13 @@ bool UpdateShortcutLink(const wchar_t *source, const wchar_t *destination,
   return SUCCEEDED(result);
 }
 
+bool IsDirectoryEmpty(const std::wstring& dir_path) {
+  FileEnumerator files(dir_path, false, FileEnumerator::FILES_AND_DIRECTORIES);
+  if (files.Next().empty())
+    return true;
+  return false;
+}
+
 bool GetTempDir(std::wstring* path) {
   wchar_t temp_path[MAX_PATH + 1];
   DWORD path_len = ::GetTempPath(MAX_PATH, temp_path);

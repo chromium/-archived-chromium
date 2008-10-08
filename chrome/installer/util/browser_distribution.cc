@@ -26,9 +26,6 @@ void BrowserDistribution::DoPostUninstallOperations(
     const installer::Version& version) {
 }
 
-void BrowserDistribution::DoPreUninstallOperations() {
-}
-
 std::wstring BrowserDistribution::GetApplicationName() {
   return L"Chromium";
 }

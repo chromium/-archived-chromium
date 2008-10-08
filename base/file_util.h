@@ -208,6 +208,10 @@ bool UpdateShortcutLink(const wchar_t *source, const wchar_t *destination,
                         const wchar_t *working_dir, const wchar_t *arguments,
                         const wchar_t *description, const wchar_t *icon,
                         int icon_index);
+
+// Return true if the given directory is empty
+bool IsDirectoryEmpty(const std::wstring& dir_path);
+
 #endif
 
   

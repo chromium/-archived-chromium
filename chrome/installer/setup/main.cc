@@ -272,7 +272,7 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
 
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   dist->UpdateDiffInstallStatus(system_install, incremental_install,
-                                 install_status);
+                                install_status);
   return install_status;
 }
 
