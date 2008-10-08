@@ -26,8 +26,10 @@ class Clipboard {
   typedef unsigned int FormatType;
 #elif defined(OS_MACOSX)
   typedef NSString *FormatType;
+#else
+  typedef unsigned int FormatType;
 #endif
-  
+
   Clipboard();
   ~Clipboard();
 

@@ -18,47 +18,49 @@ namespace webkit_glue {
 
 Clipboard clipboard;
 
-void webkit_glue::ClipboardClear() {
+void ClipboardClear() {
   clipboard.Clear();
 }
 
-void webkit_glue::ClipboardWriteText(const std::wstring& text) {
+void ClipboardWriteText(const std::wstring& text) {
   clipboard.WriteText(text);
 }
 
-void webkit_glue::ClipboardWriteHTML(const std::wstring& html,
+void ClipboardWriteHTML(const std::wstring& html,
                                      const GURL& url) {
   clipboard.WriteHTML(html, url.spec());
 }
 
-void webkit_glue::ClipboardWriteBookmark(const std::wstring& title,
+void ClipboardWriteBookmark(const std::wstring& title,
                                          const GURL& url) {
   clipboard.WriteBookmark(title, url.spec());
 }
 
-void webkit_glue::ClipboardWriteBitmap(const SkBitmap& bitmap) {
+#if defined(OS_WIN)
+void ClipboardWriteBitmap(const SkBitmap& bitmap) {
   SkAutoLockPixels bitmap_lock(bitmap); 
   clipboard.WriteBitmap(bitmap.getPixels(),
                         gfx::Size(bitmap.width(), bitmap.height()));
 }
 
-void webkit_glue::ClipboardWriteWebSmartPaste() {
+void ClipboardWriteWebSmartPaste() {
   clipboard.WriteWebSmartPaste();
 }
+#endif
 
-bool webkit_glue::ClipboardIsFormatAvailable(unsigned int format) {
+bool ClipboardIsFormatAvailable(unsigned int format) {
   return clipboard.IsFormatAvailable(format);
 }
 
-void webkit_glue::ClipboardReadText(std::wstring* result) {
+void ClipboardReadText(std::wstring* result) {
   clipboard.ReadText(result);
 }
 
-void webkit_glue::ClipboardReadAsciiText(std::string* result) {
+void ClipboardReadAsciiText(std::string* result) {
   clipboard.ReadAsciiText(result);
 }
 
-void webkit_glue::ClipboardReadHTML(std::wstring* markup, GURL* url) {
+void ClipboardReadHTML(std::wstring* markup, GURL* url) {
   std::string url_str;
   clipboard.ReadHTML(markup, url ? &url_str : NULL);
   if (url)
