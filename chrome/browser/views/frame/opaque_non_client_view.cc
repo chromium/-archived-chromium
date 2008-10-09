@@ -965,11 +965,8 @@ void OpaqueNonClientView::LayoutOTRAvatar() {
 }
 
 void OpaqueNonClientView::LayoutDistributorLogo() {
-  if (distributor_logo_.empty())
-    return;
-
-  int logo_w = distributor_logo_.width();
-  int logo_h = distributor_logo_.height();
+  int logo_w = distributor_logo_.empty() ? 0 : distributor_logo_.width();
+  int logo_h = distributor_logo_.empty() ? 0 : distributor_logo_.height();
 
   int logo_x = 0;
   if (UILayoutIsRightToLeft()) {
