@@ -237,7 +237,7 @@ bool CppBoundClass::IsMethodRegistered(std::string name) {
 void CppBoundClass::BindToJavascript(WebFrame* frame,
                                      const std::wstring& classname) {
 #if USE(JSC)
-  KJS::JSLock lock;
+  KJS::JSLock lock(false);
 #endif
 
   // Create an NPObject using our static NPClass.  The first argument (a
