@@ -805,10 +805,6 @@ V8 # LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 V8 # LayoutTests/fast/js/static-scope-object.html = FAIL
 V8 # LayoutTests/fast/js/delete-getters-setters.html = FAIL
 
-// V8-binding: WebKit expects window["location"] to give precedence to the built-in
-// location property over same-named iframe.
-V8 | KJS # LayoutTests/fast/dom/Window/window-special-properties.html = FAIL
-
 // Exception message capitalizes "Cyclic", expected to be lower case. (trivial)
 V8 | KJS # LayoutTests/fast/js/cyclic-proto.html = FAIL
 
@@ -1044,7 +1040,6 @@ V8 | KJS # LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 V8 | KJS # LayoutTests/fast/css/variables/alternate-syntax/font-test.html = FAIL
 V8 | KJS # LayoutTests/fast/css/variables/font-test.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
-V8 | KJS # LayoutTests/fast/events/event-instanceof.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/form-hides-table.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/legend-access-key.html = FAIL
