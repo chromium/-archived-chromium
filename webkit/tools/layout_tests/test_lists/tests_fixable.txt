@@ -913,6 +913,10 @@ V8 | KJS # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL
 # http://bugs.webkit.org/show_bug.cgi?id=21491
 V8 | KJS # SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 
+# Issue 3273: TextInputController::firstRectForCharacterRange not implemented
+# http://code.google.com/p/chromium/issues/detail?id=3273
+V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
@@ -924,7 +928,6 @@ V8 | KJS # LayoutTests/accessibility = FAIL
 V8 | KJS # LayoutTests/css3/transform-value-types.html = FAIL
 V8 | KJS # LayoutTests/dom/html/level2/html/HTMLFormElement10.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/editing/pasteboard/5780697-2.html = FAIL
-V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
 V8 | KJS # LayoutTests/editing/selection/move-past-trailing-space.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/background-origin-root-element.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/background-position-1.html = FAIL
