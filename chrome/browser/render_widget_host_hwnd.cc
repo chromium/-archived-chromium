@@ -773,8 +773,9 @@ LRESULT RenderWidgetHostHWND::OnGetObject(UINT message, WPARAM wparam,
       accessibility->set_iaccessible_id(0);
 
       // Set the unique member variables of this particular process.
-      accessibility->set_instance_id(BrowserAccessibilityManager::Instance()->
-          SetMembers(accessibility, m_hWnd, render_widget_host_));
+      accessibility->set_instance_id(
+          BrowserAccessibilityManager::GetInstance()->
+              SetMembers(accessibility, m_hWnd, render_widget_host_));
 
       // All is well, assign the temp instance to the class smart pointer.
       browser_accessibility_root_.Attach(accessibility_comptr.Detach());

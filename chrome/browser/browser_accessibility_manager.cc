@@ -13,7 +13,7 @@
 static const int kAccessibilityMessageTimeOut = 500;
 
 // static
-BrowserAccessibilityManager* BrowserAccessibilityManager::Instance() {
+BrowserAccessibilityManager* BrowserAccessibilityManager::GetInstance() {
   return Singleton<BrowserAccessibilityManager>::get();
 }
 
@@ -28,8 +28,8 @@ BrowserAccessibilityManager::~BrowserAccessibilityManager() {
   instance_map_.clear();
   render_process_host_map_.clear();
 
-  NotificationService::current()->RemoveObserver(this,
-      NOTIFY_RENDERER_PROCESS_TERMINATED, NotificationService::AllSources());
+  // We don't remove ourselves as an observer because we are a Singleton object,
+  // and NotifcationService is likely gone by this point.
 }
 
 STDMETHODIMP BrowserAccessibilityManager::CreateAccessibilityInstance(

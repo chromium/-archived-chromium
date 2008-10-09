@@ -533,23 +533,24 @@ STDMETHODIMP BrowserAccessibility::put_accValue(VARIANT var_id, BSTR put_val) {
 STDMETHODIMP BrowserAccessibility::CreateInstance(REFIID iid,
                                                   int iaccessible_id,
                                                   void** interface_ptr) {
-  return BrowserAccessibilityManager::Instance()->CreateAccessibilityInstance(
-      iid, iaccessible_id, instance_id(), interface_ptr);
+  return BrowserAccessibilityManager::GetInstance()->
+      CreateAccessibilityInstance(iid, iaccessible_id, instance_id(),
+                                  interface_ptr);
 }
 
 bool BrowserAccessibility::RequestAccessibilityInfo(int iaccessible_func_id,
                                                     VARIANT var_id, LONG input1,
                                                     LONG input2) {
-  return BrowserAccessibilityManager::Instance()->RequestAccessibilityInfo(
+  return BrowserAccessibilityManager::GetInstance()->RequestAccessibilityInfo(
       iaccessible_id(), instance_id(), iaccessible_func_id, var_id, input1,
       input2);
 }
 
 ViewHostMsg_Accessibility_Out_Params BrowserAccessibility::response() {
-  return BrowserAccessibilityManager::Instance()->response();
+  return BrowserAccessibilityManager::GetInstance()->response();
 }
 
 HWND BrowserAccessibility::parent_hwnd() {
-  return BrowserAccessibilityManager::Instance()->parent_hwnd(instance_id());
+  return BrowserAccessibilityManager::GetInstance()->parent_hwnd(instance_id());
 }
 

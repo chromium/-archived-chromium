@@ -47,7 +47,7 @@ class BrowserAccessibilityManager : public NotificationObserver {
   // Gets the singleton BrowserAccessibilityManager object. The first time this
   // method is called, a CacheManagerHost object is constructed and returned.
   // Subsequent calls will return the same object.
-  static BrowserAccessibilityManager* Instance();
+  static BrowserAccessibilityManager* GetInstance();
 
   // Creates an instance of BrowserAccessibility, initializes it and sets the
   // iaccessible_id and parent_id.
@@ -86,7 +86,7 @@ class BrowserAccessibilityManager : public NotificationObserver {
  protected:
   // This class is a singleton.  Do not instantiate directly.
   BrowserAccessibilityManager();
-  friend DefaultSingletonTraits<BrowserAccessibilityManager>;
+  friend struct DefaultSingletonTraits<BrowserAccessibilityManager>;
 
   ~BrowserAccessibilityManager();
 
