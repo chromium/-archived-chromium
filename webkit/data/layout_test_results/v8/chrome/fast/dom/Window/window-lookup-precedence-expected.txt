@@ -158,7 +158,7 @@ window.history IS [object History]
 window.innerHeight IS Number
 window.innerWidth IS Number
 window.length IS Number
-window.location IS [object global]
+window.location IS Location
 window.locationbar IS [object BarInfo]
 window.menubar IS [object BarInfo]
 window.moveBy IS [object global]
@@ -166,33 +166,33 @@ window.moveTo IS [object global]
 window.name IS 
 window.navigator IS [object Navigator]
 window.offscreenBuffering IS true
-window.onabort IS [object global]
-window.onbeforeunload IS [object global]
-window.onblur IS [object global]
-window.onchange IS [object global]
-window.onclick IS [object global]
-window.ondblclick IS [object global]
-window.ondragdrop IS [object global]
-window.onerror IS [object global]
-window.onfocus IS [object global]
-window.onkeydown IS [object global]
-window.onkeypress IS [object global]
-window.onkeyup IS [object global]
-window.onload IS [object global]
-window.onmousedown IS [object global]
-window.onmousemove IS [object global]
-window.onmouseout IS [object global]
-window.onmouseover IS [object global]
-window.onmouseup IS [object global]
-window.onmousewheel IS [object global]
-window.onmove IS [object global]
-window.onreset IS [object global]
-window.onresize IS [object global]
-window.onscroll IS [object global]
-window.onsearch IS [object global]
-window.onselect IS [object global]
-window.onsubmit IS [object global]
-window.onunload IS [object global]
+window.onabort IS null
+window.onbeforeunload IS null
+window.onblur IS null
+window.onchange IS null
+window.onclick IS null
+window.ondblclick IS null
+window.ondragdrop IS null
+window.onerror IS null
+window.onfocus IS null
+window.onkeydown IS null
+window.onkeypress IS null
+window.onkeyup IS null
+window.onload IS function onload(evt) { with (this.ownerDocument ? this.ownerDocument : {}) { with (this.form ? this.form : {}) { with (this) { return (function(evt){runTest()}).call(this, evt); } } } }
+window.onmousedown IS null
+window.onmousemove IS null
+window.onmouseout IS null
+window.onmouseover IS null
+window.onmouseup IS null
+window.onmousewheel IS null
+window.onmove IS null
+window.onreset IS null
+window.onresize IS null
+window.onscroll IS null
+window.onsearch IS null
+window.onselect IS null
+window.onsubmit IS null
+window.onunload IS null
 window.open IS [object global]
 window.opener IS null
 window.outerHeight IS Number

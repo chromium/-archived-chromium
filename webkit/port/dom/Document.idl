@@ -23,7 +23,9 @@ module core {
     interface [
         GenerateConstructor,
         GenerateToJS,
+        GenerateNativeConverter,
         CustomMarkFunction,
+        InlineGetOwnPropertySlot,
         InterfaceUUID=48BB95FC-2D08-4c54-BE65-7558736A4CAE,
         ImplementationUUID=FF5CBE81-F817-429c-A6C2-0CCCD2328062
     ] Document : EventTargetNode {
@@ -33,32 +35,32 @@ module core {
         readonly attribute [Custom] DOMImplementation implementation;
         readonly attribute Element documentElement;
 
-        Element            createElement(in [ConvertNullToNullString] DOMString tagName)
+        [ReturnsNew] Element createElement(in [ConvertNullToNullString] DOMString tagName)
             raises (DOMException);
         DocumentFragment   createDocumentFragment();
-        Text               createTextNode(in DOMString data);
-        Comment            createComment(in DOMString data);
-        CDATASection       createCDATASection(in DOMString data)
+        [ReturnsNew] Text createTextNode(in DOMString data);
+        [ReturnsNew] Comment createComment(in DOMString data);
+        [ReturnsNew] CDATASection createCDATASection(in DOMString data)
             raises(DOMException);
-        [OldStyleObjC] ProcessingInstruction createProcessingInstruction(in DOMString target,
-                                                                         in DOMString data)
+        [OldStyleObjC, ReturnsNew] ProcessingInstruction createProcessingInstruction(in DOMString target,
+                                                                                     in DOMString data)
             raises (DOMException);
-        Attr               createAttribute(in DOMString name)
+        [ReturnsNew] Attr createAttribute(in DOMString name)
             raises (DOMException);
-        EntityReference    createEntityReference(in DOMString name)
+        [ReturnsNew] EntityReference createEntityReference(in DOMString name)
             raises(DOMException);
         NodeList           getElementsByTagName(in DOMString tagname);
 
         // Introduced in DOM Level 2:
 
-        [OldStyleObjC] Node importNode(in Node importedNode,
-                                       in boolean deep)
+        [OldStyleObjC, ReturnsNew] Node importNode(in Node importedNode,
+                                                   in boolean deep)
             raises (DOMException);
-        [OldStyleObjC] Element createElementNS(in [ConvertNullToNullString] DOMString namespaceURI,
-                                               in [ConvertNullToNullString] DOMString qualifiedName)
+        [OldStyleObjC, ReturnsNew] Element createElementNS(in [ConvertNullToNullString] DOMString namespaceURI,
+                                                           in [ConvertNullToNullString] DOMString qualifiedName)
             raises (DOMException);
-        [OldStyleObjC] Attr createAttributeNS(in [ConvertNullToNullString] DOMString namespaceURI,
-                                              in [ConvertNullToNullString] DOMString qualifiedName)
+        [OldStyleObjC, ReturnsNew] Attr createAttributeNS(in [ConvertNullToNullString] DOMString namespaceURI,
+                                                          in [ConvertNullToNullString] DOMString qualifiedName)
             raises (DOMException);
         [OldStyleObjC] NodeList getElementsByTagNameNS(in [ConvertNullToNullString] DOMString namespaceURI,
                                                        in DOMString localName);
@@ -125,11 +127,11 @@ module core {
 
         // NOTE: Parameter resolver can also be a JS function or JS object with
         // the function lookupNamespaceURI.
-        [Custom] XPathResult evaluate(in DOMString expression,
-                                            in Node contextNode,
-                                            in XPathNSResolver resolver,
-                                            in unsigned short type,
-                                            in XPathResult inResult)
+        [OldStyleObjC, Custom] XPathResult evaluate(in DOMString expression,
+                                                    in Node contextNode,
+                                                    in XPathNSResolver resolver,
+                                                    in unsigned short type,
+                                                    in XPathResult inResult)
             raises(DOMException);
 #endif // ENABLE_XPATH
 #endif // !defined(LANGUAGE_COM)
@@ -230,14 +232,24 @@ module core {
         CanvasRenderingContext2D getCSSCanvasContext(in DOMString contextId, in DOMString name, in long width, in long height);
 #endif
 #endif
+
         // HTML 5
         NodeList getElementsByClassName(in DOMString tagname);
 
-        // DocumentSelector - Selector API
+        // NodeSelector - Selector API
+#if defined(LANGUAGE_JAVASCRIPT)
         [Custom] Element querySelector(in [ConvertUndefinedOrNullToNullString] DOMString selectors, in NSResolver resolver)
             raises(DOMException);
         [Custom] NodeList querySelectorAll(in [ConvertUndefinedOrNullToNullString] DOMString selectors, in NSResolver resolver)
             raises(DOMException);
+#else
+        // FIXME: add support for NSResolver in languages other than JS
+        Element querySelector(in [ConvertUndefinedOrNullToNullString] DOMString selectors)
+            raises(DOMException);
+        NodeList querySelectorAll(in [ConvertUndefinedOrNullToNullString] DOMString selectors)
+            raises(DOMException);
+#endif
+
     };
 
 }

@@ -18,8 +18,11 @@ function check(name) {
   subframe.name = name;
   var out = doc.getElementById("console");
   var v = win[name];
-  if (typeof v == 'number')
+  if (typeof v == 'number') {
     v = 'Number';  // cannonicalize numbers.
+  } else if (/window-lookup-precedence.html/.test(v)) {
+    v = 'Location';  // cannonicalize current location.
+  }
   out.innerHTML = out.innerHTML + "window."+name + " IS " + v + "<br>";
    
 }

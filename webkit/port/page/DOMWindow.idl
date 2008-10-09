@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
+ * Copyright (C) 2006, 2007, 2008 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,7 +25,22 @@
 
 module window {
     // DOMWindow object has CheckDomainSecurity on the front object.
-    interface [LegacyParent=KJS::Window, DoNotCache, GenerateNativeConverter, CustomGetOwnPropertySlot, CustomPutFunction] DOMWindow {
+    interface [
+        CustomDefineGetter,
+        CustomDefineSetter,
+        CustomDeleteProperty,
+        CustomGetOwnPropertySlot,
+        CustomGetPropertyAttributes,
+        CustomGetPropertyNames,
+        CustomLookupGetter,
+        CustomLookupSetter,
+        CustomMarkFunction,
+        CustomNativeConverter,
+        CustomPutFunction,
+        DoNotCache,
+        GenerateNativeConverter,
+        LegacyParent=JSDOMWindowBase
+    ] DOMWindow {
         // DOM Level 0
         readonly attribute Screen screen;
         readonly attribute [DoNotCheckDomainSecurity] History history;
@@ -35,6 +50,9 @@ module window {
         attribute [Replaceable] BarInfo scrollbars;
         attribute [Replaceable] BarInfo statusbar;
         attribute [Replaceable] BarInfo toolbar;
+        attribute [Replaceable] Navigator navigator;
+        attribute [Replaceable, v8referenceattr=navigator] Navigator clientInformation;
+        attribute [DoNotCheckDomainSecurity, CustomSetter] Location location;
 
         DOMSelection getSelection();
 
@@ -75,17 +93,25 @@ module window {
         readonly attribute long pageXOffset;
         readonly attribute long pageYOffset;
 
+        [RequiresAllArguments] void scrollBy(in long x, in long y);
+        [RequiresAllArguments] void scrollTo(in long x, in long y);
+        [RequiresAllArguments] void scroll(in long x, in long y);
+        [RequiresAllArguments] void moveBy(in float x, in float y); // FIXME: this should take longs not floats.
+        [RequiresAllArguments] void moveTo(in float x, in float y); // FIXME: this should take longs not floats.
+        [RequiresAllArguments] void resizeBy(in float x, in float y); // FIXME: this should take longs not floats.
+        [RequiresAllArguments] void resizeTo(in float width, in float height); // FIXME: this should take longs not floats.
+
         readonly attribute [DoNotCheckDomainSecurity] boolean closed;
 
-        attribute [Replaceable, DoNotCheckDomainSecurity] unsigned long length;
+        attribute [Replaceable, DoNotCheckDomainSecurityOnGet] unsigned long length;
 
         attribute DOMString name;
 
-        attribute [Replaceable] DOMString status;
-        attribute [Replaceable] DOMString defaultStatus;
+        attribute DOMString status;
+        attribute DOMString defaultStatus;
 #if defined(LANGUAGE_JAVASCRIPT)
         // This attribute is an alias of defaultStatus and is necessary for legacy uses.
-        attribute [Replaceable] DOMString defaultstatus;
+        attribute DOMString defaultstatus;
 #endif
 
         // Self referential attributes
@@ -114,9 +140,16 @@ module window {
                                        in [Optional] boolean authorOnly);
         attribute [Replaceable] double devicePixelRatio;
 
-#if ENABLE_DATABASE
+#if defined(ENABLE_OFFLINE_WEB_APPLICATIONS)
+        readonly attribute DOMApplicationCache applicationCache;
+#endif    
+#if defined(ENABLE_DATABASE)
         Database openDatabase(in DOMString name, in DOMString version, in DOMString displayName, in unsigned long estimatedSize)
             raises(DOMException);
+#endif
+#if defined(ENABLE_DOM_STORAGE)
+        readonly attribute Storage sessionStorage;
+        readonly attribute Storage localStorage;
 #endif
 
                  attribute [Replaceable] Console console;
@@ -124,19 +157,6 @@ module window {
         // cross-document messaging
         [DoNotCheckDomainSecurity, Custom] void postMessage(in DOMString message, in DOMString targetOrigin)
             raises(DOMException);
-
-#if defined(V8_BINDING)
-        [Custom] DOMWindow open(in DOMString url,
-                                in DOMString name,
-                                in [Optional] DOMString options);
-
-        [Custom] DOMObject showModalDialog(in DOMString url, 
-                                           in [Optional] DOMObject dialogArgs,
-                                           in [Optional] DOMString featureArgs);
-
-        void  back();
-        void  forward();
-#endif
 
 #if defined(LANGUAGE_JAVASCRIPT)
         // Global constructors
@@ -154,6 +174,9 @@ module window {
         attribute CSSMediaRuleConstructor CSSMediaRule;
         attribute CSSPageRuleConstructor CSSPageRule;
         attribute CSSStyleRuleConstructor CSSStyleRule;
+
+        attribute CSSVariablesRuleConstructor CSSVariablesRule;
+        attribute CSSVariablesDeclarationConstructor CSSVariablesDeclaration;
 
         attribute CSSStyleDeclarationConstructor CSSStyleDeclaration;
         attribute MediaListConstructor MediaList;
@@ -252,6 +275,11 @@ module window {
         attribute HTMLTitleElementConstructor HTMLTitleElement;
         attribute HTMLUListElementConstructor HTMLUListElement;
 
+        attribute HTMLCollectionConstructor HTMLCollection;
+
+        attribute CanvasRenderingContext2DConstructor CanvasRenderingContext2D;
+        attribute TextMetricsConstructor TextMetrics;
+
         attribute EventConstructor Event;
         attribute KeyboardEventConstructor KeyboardEvent;
         attribute MouseEventConstructor MouseEvent;
@@ -261,7 +289,13 @@ module window {
         attribute TextEventConstructor TextEvent;
         attribute UIEventConstructor UIEvent;
         attribute WheelEventConstructor WheelEvent;
+        attribute MessageEventConstructor MessageEvent;
         attribute EventExceptionConstructor EventException;
+
+        attribute ClipboardConstructor Clipboard;
+
+        attribute FileConstructor File;
+        attribute FileListConstructor FileList;
 
         attribute NodeFilterConstructor NodeFilter;
         attribute RangeConstructor Range;
@@ -274,6 +308,7 @@ module window {
         attribute DOMParserConstructor DOMParser;
         attribute XMLSerializerConstructor XMLSerializer;
 
+        attribute XMLHttpRequestUploadConstructor XMLHttpRequestUpload;
         attribute XMLHttpRequestExceptionConstructor XMLHttpRequestException;
 #if defined(V8_BINDING)
 	// KJS adds these to the window object in kjs_window.cpp.
@@ -281,9 +316,10 @@ module window {
 	attribute XSLTProcessorConstructor XSLTProcessor;
 #endif
 
-#if defined(ENABLE_CROSS_DOCUMENT_MESSAGING)
-        attribute MessageEventConstructor MessageEvent;
-#endif	
+#if defined(ENABLE_DOM_STORAGE)
+        attribute StorageConstructor Storage;
+        attribute StorageEventConstructor StorageEvent;
+#endif
 
 #if defined(ENABLE_VIDEO)
         attribute HTMLAudioElementConstructor HTMLAudioElement;
@@ -317,7 +353,7 @@ module window {
 //      attribute SVGZoomAndPanConstructor SVGZoomAndPan;
 #endif
 
-#if defined(ENABLE_SVG_EXPERIMENTAL_FEATURES)
+#if defined(ENABLED_SVG_FILTERS)
         attribute SVGComponentTransferFunctionElementConstructor SVGComponentTransferFunctionElement;
         attribute SVGFEBlendElementConstructor SVGFEBlendElement;
         attribute SVGFEColorMatrixElementConstructor SVGFEColorMatrixElement;
@@ -333,22 +369,20 @@ module window {
 #if defined(V8_BINDING)
     // These were implemented in KJS::Window and not moved to IDL yet.
 
-    attribute [Replaceable] Navigator navigator;
-    attribute [Replaceable, v8referenceattr=navigator] Navigator clientInformation;
-    // Getter returns a Location object, setter assigns a string.    
-    attribute [DoNotCheckDomainSecurity, CustomSetter, v8OnProto] Location location;
+    [Custom] DOMWindow open(in DOMString url,
+                            in DOMString name,
+                            in [Optional] DOMString options);
+
+    [Custom] DOMObject showModalDialog(in DOMString url, 
+                                       in [Optional] DOMObject dialogArgs,
+                                       in [Optional] DOMString featureArgs);
+
+    void  back();
+    void  forward();
 
 // Not supported by Safari
 //    void  home();
 //    void  dump();
-
-    [RequiresAllArguments] void scrollBy(in long xScrollDif, in long yScrollDif);
-    [RequiresAllArguments] void scrollTo(in long xScroll, in long yScroll);
-    [RequiresAllArguments] void scroll(in long xScroll, in long yScroll);
-    [RequiresAllArguments] void moveBy(in float x, in float y); // FIXME: this should take longs not floats.
-    [RequiresAllArguments] void moveTo(in float x, in float y); // FIXME: this should take longs not floats.
-    [RequiresAllArguments] void resizeBy(in float x, in float y); // FIXME: this should take longs not floats.
-    [RequiresAllArguments] void resizeTo(in float width, in float height); // FIXME: this should take longs not floats.
 
 // Not supported in Safari.
 //    void  sizeToContent();
@@ -384,33 +418,33 @@ module window {
 //    DOMString unescape(in DOMString str); 
 
     // attributes that are v8 specific, type is not important.
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onabort;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onblur;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onchange;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onclick;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString ondblclick;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString ondragdrop;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onerror;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onfocus;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onkeydown;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onkeypress;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onkeyup;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onload;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmousedown;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmousemove;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmouseout;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmouseover;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmouseup;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmousewheel;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onmove;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onreset;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onresize;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onscroll;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onsearch;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onselect;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onsubmit;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onunload;
-    attribute [Custom=DOMWindowEventHandler, v8OnProto] DOMString onbeforeunload;
+    attribute [Custom=DOMWindowEventHandler] DOMString onabort;
+    attribute [Custom=DOMWindowEventHandler] DOMString onblur;
+    attribute [Custom=DOMWindowEventHandler] DOMString onchange;
+    attribute [Custom=DOMWindowEventHandler] DOMString onclick;
+    attribute [Custom=DOMWindowEventHandler] DOMString ondblclick;
+    attribute [Custom=DOMWindowEventHandler] DOMString ondragdrop;
+    attribute [Custom=DOMWindowEventHandler] DOMString onerror;
+    attribute [Custom=DOMWindowEventHandler] DOMString onfocus;
+    attribute [Custom=DOMWindowEventHandler] DOMString onkeydown;
+    attribute [Custom=DOMWindowEventHandler] DOMString onkeypress;
+    attribute [Custom=DOMWindowEventHandler] DOMString onkeyup;
+    attribute [Custom=DOMWindowEventHandler] DOMString onload;
+    attribute [Custom=DOMWindowEventHandler] DOMString onmousedown;
+    attribute [Custom=DOMWindowEventHandler] DOMString onmousemove;
+    attribute [Custom=DOMWindowEventHandler] DOMString onmouseout;
+    attribute [Custom=DOMWindowEventHandler] DOMString onmouseover;
+    attribute [Custom=DOMWindowEventHandler] DOMString onmouseup;
+    attribute [Custom=DOMWindowEventHandler] DOMString onmousewheel;
+    attribute [Custom=DOMWindowEventHandler] DOMString onmove;
+    attribute [Custom=DOMWindowEventHandler] DOMString onreset;
+    attribute [Custom=DOMWindowEventHandler] DOMString onresize;
+    attribute [Custom=DOMWindowEventHandler] DOMString onscroll;
+    attribute [Custom=DOMWindowEventHandler] DOMString onsearch;
+    attribute [Custom=DOMWindowEventHandler] DOMString onselect;
+    attribute [Custom=DOMWindowEventHandler] DOMString onsubmit;
+    attribute [Custom=DOMWindowEventHandler] DOMString onunload;
+    attribute [Custom=DOMWindowEventHandler] DOMString onbeforeunload;
 #endif // defined(V8_BINDING)
   };
 }

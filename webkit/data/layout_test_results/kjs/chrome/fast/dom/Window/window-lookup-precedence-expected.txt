@@ -137,7 +137,7 @@ window.btoa IS [object DOMWindow]
 window.captureEvents IS [object DOMWindow]
 window.clearInterval IS [object DOMWindow]
 window.clearTimeout IS [object DOMWindow]
-window.clientInformation IS [object DOMWindow]
+window.clientInformation IS [object Navigator]
 window.close IS [object DOMWindow]
 window.closed IS false
 window.confirm IS [object DOMWindow]
@@ -158,41 +158,41 @@ window.history IS [object History]
 window.innerHeight IS Number
 window.innerWidth IS Number
 window.length IS Number
-window.location IS [object DOMWindow]
+window.location IS Location
 window.locationbar IS [object BarInfo]
 window.menubar IS [object BarInfo]
 window.moveBy IS [object DOMWindow]
 window.moveTo IS [object DOMWindow]
 window.name IS 
-window.navigator IS [object DOMWindow]
+window.navigator IS [object Navigator]
 window.offscreenBuffering IS true
-window.onabort IS [object DOMWindow]
-window.onbeforeunload IS [object DOMWindow]
-window.onblur IS [object DOMWindow]
-window.onchange IS [object DOMWindow]
-window.onclick IS [object DOMWindow]
-window.ondblclick IS [object DOMWindow]
+window.onabort IS null
+window.onbeforeunload IS null
+window.onblur IS null
+window.onchange IS null
+window.onclick IS null
+window.ondblclick IS null
 window.ondragdrop IS [object DOMWindow]
-window.onerror IS [object DOMWindow]
-window.onfocus IS [object DOMWindow]
-window.onkeydown IS [object DOMWindow]
-window.onkeypress IS [object DOMWindow]
-window.onkeyup IS [object DOMWindow]
-window.onload IS [object DOMWindow]
-window.onmousedown IS [object DOMWindow]
-window.onmousemove IS [object DOMWindow]
-window.onmouseout IS [object DOMWindow]
-window.onmouseover IS [object DOMWindow]
-window.onmouseup IS [object DOMWindow]
-window.onmousewheel IS [object DOMWindow]
+window.onerror IS null
+window.onfocus IS null
+window.onkeydown IS null
+window.onkeypress IS null
+window.onkeyup IS null
+window.onload IS function onload(event) {runTest()}
+window.onmousedown IS null
+window.onmousemove IS null
+window.onmouseout IS null
+window.onmouseover IS null
+window.onmouseup IS null
+window.onmousewheel IS null
 window.onmove IS [object DOMWindow]
-window.onreset IS [object DOMWindow]
-window.onresize IS [object DOMWindow]
-window.onscroll IS [object DOMWindow]
-window.onsearch IS [object DOMWindow]
-window.onselect IS [object DOMWindow]
-window.onsubmit IS [object DOMWindow]
-window.onunload IS [object DOMWindow]
+window.onreset IS null
+window.onresize IS null
+window.onscroll IS null
+window.onsearch IS null
+window.onselect IS null
+window.onsubmit IS null
+window.onunload IS null
 window.open IS [object DOMWindow]
 window.opener IS null
 window.outerHeight IS Number
