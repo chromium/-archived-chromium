@@ -82,7 +82,6 @@ void WebTextInputImpl::SetMarkedText(const std::string& text,
 
   editor->confirmComposition(str);
 
-  WebCore::Frame* frame = GetFrame();
   WTF::Vector<WebCore::CompositionUnderline> decorations;
 
   editor->setComposition(str, decorations, location, length);

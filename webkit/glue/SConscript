@@ -29,6 +29,7 @@ input_files = [
   'simple_clipboard_impl.cc',
   'webcursor.cc',
   'webkit_glue.cc',
+  'webtextinput_impl.cc',
   'weburlrequest_impl.cc',
 ]
 
@@ -79,7 +80,6 @@ if env['PLATFORM'] == 'win32':
     'webhistoryitem_impl.cc',
     'webinputevent_win.cc',
     'webplugin_impl.cc',
-    'webtextinput_impl.cc',
     'webview_impl.cc',
     'webwidget_impl.cc',
   ])
