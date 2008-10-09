@@ -31,6 +31,7 @@
 // --timeout=millisecond: time out as specified in millisecond during each
 //                        page load.
 // --nopagedown: won't simulate page down key presses after page load.
+// --savedebuglog: save Chrome and v8 debug log for each page loaded.
 
 #include <fstream>
 #include <iostream>
@@ -42,6 +43,8 @@
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_switches.h"
+#include "chrome/common/logging_chrome.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/test/automation/automation_messages.h"
@@ -70,11 +73,17 @@ const wchar_t kEndURLSwitch[] = L"endurl";
 const wchar_t kLogFileSwitch[] = L"logfile";
 const wchar_t kTimeoutSwitch[] = L"timeout";
 const wchar_t kNoPageDownSwitch[] = L"nopagedown";
+const wchar_t kSaveDebugLogSwitch[] = L"savedebuglog";
 
 std::wstring server_url = L"http://urllist.com";
 const wchar_t test_url_1[] = L"http://www.google.com";
 const wchar_t test_url_2[] = L"about:crash";
 const wchar_t test_url_3[] = L"http://www.youtube.com";
+
+// These are copied from v8 definitions as we cannot include them.
+const wchar_t kV8LogFileSwitch[] = L"logfile";
+const wchar_t kV8LogFileDefaultName[] = L"v8.log";
+
 bool append_page_id = false;
 int32 start_page;
 int32 end_page;
@@ -89,6 +98,9 @@ bool page_down = true;
 std::wstring end_url;
 std::wstring log_file_path;
 uint32 timeout_ms = INFINITE;
+bool save_debug_log = false;
+std::wstring chrome_log_path;
+std::wstring v8_log_path;
 
 int kWaitForActionMsec = 4000;
 
@@ -170,7 +182,8 @@ class PageLoadTest : public UITest {
     // Get navigation result and metrics, and optionally write to the log file
     // provided.  The log format is:
     // <url> <navigation_result> <browser_crash_count> <renderer_crash_count>
-    // <plugin_crash_count> <crash_dump_count> crash_dump=<path>
+    // <plugin_crash_count> <crash_dump_count> [chrome_log=<path>
+    // v8_log=<path>] crash_dump=<path>
     if (is_timeout) {
       metrics.result = NAVIGATION_TIME_OUT;
       // After timeout, the test automation is in the transition state since
@@ -230,6 +243,9 @@ class PageLoadTest : public UITest {
                << " " << metrics.plugin_crash_count \
                << " " << metrics.crash_dump_count;
     }
+
+    if (log_file.is_open() && save_debug_log && !continuous_load)
+      SaveDebugLogs(log_file);
 
     // Get crash dumps.
     LogOrDeleteNewCrashDumps(log_file, &metrics);
@@ -375,6 +391,34 @@ class PageLoadTest : public UITest {
       }
       FindClose(find_handle);
     }
+  }
+
+  std::wstring ConstructSavedDebugLogPath(const std::wstring& debug_log_path,
+                                          int index) {
+    std::wstring saved_debug_log_path(debug_log_path);
+    std::wstring suffix(L"_");
+    suffix.append(IntToWString(index));
+    file_util::InsertBeforeExtension(&saved_debug_log_path, suffix);
+    return saved_debug_log_path;
+  }
+
+  // Rename the chrome and v8 debug log files if existing, and save the file
+  // paths in the log_file provided.
+  void SaveDebugLogs(std::ofstream& log_file) {
+    static int url_count = 1;
+    std::wstring saved_chrome_log_path =
+        ConstructSavedDebugLogPath(chrome_log_path, url_count);
+    if (file_util::Move(chrome_log_path, saved_chrome_log_path)) {
+      log_file << " chrome_log=" << saved_chrome_log_path;
+    }
+    if (!v8_log_path.empty()) {
+      std::wstring saved_v8_log_path =
+        ConstructSavedDebugLogPath(v8_log_path, url_count);
+      if (file_util::Move(v8_log_path, saved_v8_log_path)) {
+        log_file << " v8_log=" << saved_v8_log_path;
+      }
+    }
+    url_count++;
   }
 
   // If a log_file is provided, log the crash dump with the given path;
@@ -572,5 +616,25 @@ void SetPageRange(const CommandLine& parsed_command_line) {
 
   if (parsed_command_line.HasSwitch(kNoPageDownSwitch))
     page_down = false;
-}
 
+  if (parsed_command_line.HasSwitch(kSaveDebugLogSwitch)) {
+    save_debug_log = true;
+    chrome_log_path = logging::GetLogFileName();
+    // We won't get v8 log unless --no-sandbox is specified.
+    if (parsed_command_line.HasSwitch(switches::kNoSandbox)) {
+      PathService::Get(base::DIR_CURRENT, &v8_log_path);
+      file_util::AppendToPath(&v8_log_path, kV8LogFileDefaultName);
+      // The command line switch may override the default v8 log path.
+      if (parsed_command_line.HasSwitch(switches::kJavaScriptFlags)) {
+        CommandLine v8_command_line(
+            parsed_command_line.GetSwitchValue(switches::kJavaScriptFlags));
+        if (v8_command_line.HasSwitch(kV8LogFileSwitch)) {
+          v8_log_path = v8_command_line.GetSwitchValue(kV8LogFileSwitch);
+          if (!file_util::AbsolutePath(&v8_log_path)) {
+            v8_log_path.clear();
+          }
+        }
+      }
+    }
+  }
+}
