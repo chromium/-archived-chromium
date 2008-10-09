@@ -458,14 +458,12 @@ gfx::Rect OpaqueNonClientView::GetWindowBoundsForClientBounds(
 }
 
 gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
+  int tabstrip_height = tabstrip->GetPreferredHeight();
   int tabstrip_x = otr_avatar_bounds_.right();
-  int tabstrip_y = CalculateNonClientTopHeight();
-  int tabstrip_height =
-      browser_view_->IsTabStripVisible() ? tabstrip->GetPreferredHeight() : 0;
   int tabstrip_width = minimize_button_->x() - tabstrip_x;
   if (frame_->IsMaximized())
     tabstrip_width -= kNewTabIconWindowControlsSpacing;
-  return gfx::Rect(tabstrip_x, tabstrip_y, tabstrip_width, tabstrip_height);
+  return gfx::Rect(tabstrip_x, 0, tabstrip_width, tabstrip_height);
 }
 
 void OpaqueNonClientView::UpdateWindowIcon() {
@@ -504,9 +502,10 @@ void OpaqueNonClientView::ButtonPressed(ChromeViews::BaseButton* sender) {
 
 gfx::Rect OpaqueNonClientView::CalculateClientAreaBounds(int width,
                                                          int height) const {
-  return gfx::Rect(kWindowHorizontalBorderSize, 0,
+  int top_margin = CalculateNonClientTopHeight();
+  return gfx::Rect(kWindowHorizontalBorderSize, top_margin,
       std::max(0, width - (2 * kWindowHorizontalBorderSize)),
-      std::max(0, height - kWindowVerticalBorderBottomSize));
+      std::max(0, height - top_margin - kWindowVerticalBorderBottomSize));
 }
 
 gfx::Size OpaqueNonClientView::CalculateWindowSizeForClientSize(

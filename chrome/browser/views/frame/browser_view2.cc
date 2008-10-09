@@ -55,12 +55,6 @@ static const int kSeparationLineHeight = 1;
 static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
 // The distance between tiled windows.
 static const int kWindowTilePixels = 10;
-// The distance between the top edge of the window and the TabStrip when there
-// is no title-bar showing, and the window is restored.
-static const int kNoTitleTopSpacing = 15;
-// The distance between the top edge of the window and the TabStrip when there
-// is no title-bar showing, and the window is maximized.
-static const int kNoTitleZoomedTopSpacing = 1;
 
 static const struct { bool separator; int command; int label; } kMenuLayout[] = {
   { true, 0, 0 },
@@ -787,6 +781,8 @@ void BrowserView2::Layout() {
                                                    toolbar_, 0);
   }
 #endif
+
+
   SchedulePaint();
 }
 
@@ -892,35 +888,35 @@ ChromeViews::DropTargetEvent* BrowserView2::MapEventToTabStrip(
 }
 
 int BrowserView2::LayoutTabStrip() {
-  gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
   if (IsTabStripVisible()) {
+    gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
     tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
                          tabstrip_bounds.width(), tabstrip_bounds.height());
+    return tabstrip_bounds.bottom();
   }
-  return tabstrip_bounds.bottom();
+  return 0;
 }
 
 int BrowserView2::LayoutToolbar(int top) {
-  CSize ps;
-  toolbar_->GetPreferredSize(&ps);
-  int toolbar_y =
-      top - (IsTabStripVisible() ? kToolbarTabStripVerticalOverlap : 0);
-  // With detached popup windows with the aero glass frame, we need to offset
-  // by a pixel to make things look good.
-  if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())
-    ps.cy -= 1;
-  int browser_view_width = width();
+  if (IsToolbarVisible()) {
+    CSize ps;
+    toolbar_->GetPreferredSize(&ps);
+    int toolbar_y =
+        top - (IsTabStripVisible() ? kToolbarTabStripVerticalOverlap : 0);
+    // With detached popup windows with the aero glass frame, we need to offset
+    // by a pixel to make things look good.
+    if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())
+      ps.cy -= 1;
+    int browser_view_width = width();
 #ifdef CHROME_PERSONALIZATION
-  if (IsPersonalizationEnabled())
-    Personalization::AdjustBrowserView(personalization_, &browser_view_width);
+    if (IsPersonalizationEnabled())
+      Personalization::AdjustBrowserView(personalization_, &browser_view_width);
 #endif
-  // Note that we always size the toolbar, regardless of whether or not it's
-  // visible. It's used to position other elements.
-  int toolbar_height = IsToolbarVisible() ? ps.cy : 0;
-  toolbar_->SetBounds(0, toolbar_y, browser_view_width, toolbar_height);
-  if (!IsToolbarVisible())
-    toolbar_->SetVisible(false);
-  return toolbar_->y() + toolbar_->height();
+    toolbar_->SetBounds(0, toolbar_y, browser_view_width, ps.cy);
+    return toolbar_y + ps.cy;
+  }
+  toolbar_->SetVisible(false);
+  return top;
 }
 
 int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
