@@ -324,22 +324,12 @@ bool NPObjectProxy::NPNEvaluate(NPP npp,
     return false;
   }
 
-  bool popups_allowed = false;
-
-  if (npp) {
-    NPAPI::PluginInstance* plugin_instance =
-        reinterpret_cast<NPAPI::PluginInstance*>(npp->ndata);
-    if (plugin_instance)
-      popups_allowed = plugin_instance->popups_allowed();
-  }
-
   NPVariant_Param result_param;
   std::string script_str = std::string(
       script->UTF8Characters, script->UTF8Length);
 
   NPObjectMsg_Evaluate* msg = new NPObjectMsg_Evaluate(proxy->route_id(),
                                                        script_str,
-                                                       popups_allowed,
                                                        &result_param,
                                                        &result);
 

@@ -260,7 +260,6 @@ void NPObjectStub::OnEnumeration(std::vector<NPIdentifier_Param>* value,
 }
 
 void NPObjectStub::OnEvaluate(const std::string& script,
-                              bool popups_allowed,
                               IPC::Message* reply_msg) {
   if (IsPluginProcess()) {
     NOTREACHED() << "Should only be called on NPObjects in the renderer";
@@ -278,8 +277,7 @@ void NPObjectStub::OnEvaluate(const std::string& script,
   script_string.UTF8Characters = script.c_str();
   script_string.UTF8Length = static_cast<unsigned int>(script.length());
 
-  bool return_value = NPN_EvaluateHelper(0, popups_allowed, npobject_,
-                                         &script_string, &result_var);
+  bool return_value = NPN_Evaluate(0, npobject_, &script_string, &result_var);
 
   NPVariant_Param result_param;
   CreateNPVariantParam(result_var, local_channel, &result_param, true);

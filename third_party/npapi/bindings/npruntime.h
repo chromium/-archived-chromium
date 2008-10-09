@@ -352,22 +352,6 @@ bool NPN_HasProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName);
 bool NPN_HasMethod(NPP npp, NPObject *npobj, NPIdentifier methodName);
 bool NPN_Enumerate(NPP npp, NPObject *npobj, NPIdentifier **identifier, uint32_t *count);
 
-// Helper function for evaluating a script in the scope of the NPObject passed in.
-// Parameters
-// npp
-//  The plugin's opaque instance handle (Can be NULL)
-// popups_allowed
-//  Indicates if popups created in the context of the script being executed are
-//  blocked or not.
-// npobj
-//  The NPObject.
-// npscript
-//  The script being executed.
-// result
-//  On return contains the value returned by the script.
-// Returns true on success.
-bool NPN_EvaluateHelper(NPP npp, bool popups_allowed, NPObject *npobj, NPString *npscript, NPVariant *result);
-
 // BEGIN GOOGLE MODIFICATIONS
 
 void* NPP_GetJavaClass(void);
