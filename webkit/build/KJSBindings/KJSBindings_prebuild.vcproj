@@ -25,7 +25,7 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				CommandLine="prebuild.bat $(OutDir) $(OutDir)\obj\KJSBindings"
-				AdditionalDependencies="$(ProjectDir)\build-generated-files.sh;..\..\pending\DerivedSources.make"
+				AdditionalDependencies="$(ProjectDir)\build-generated-files.sh;..\..\..\third_party\WebKit\WebCore\DerivedSources.make"
 				Outputs="$(OutDir)\obj\KJSBindings\DerivedSources\HTMLNames.cpp"
 			/>
 			<Tool
@@ -88,7 +88,7 @@
 			<Tool
 				Name="VCCustomBuildTool"
 				CommandLine="prebuild.bat $(OutDir) $(OutDir)\obj\KJSBindings"
-				AdditionalDependencies="$(ProjectDir)\build-generated-files.sh;..\..\pending\DerivedSources.make"
+				AdditionalDependencies="$(ProjectDir)\build-generated-files.sh;..\..\third_party\WebKit\WebCore\DerivedSources.make"
 				Outputs="$(OutDir)\obj\KJSBindings\DerivedSources\HTMLNames.cpp"
 			/>
 			<Tool

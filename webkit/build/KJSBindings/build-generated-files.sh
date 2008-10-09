@@ -37,4 +37,4 @@ export ENCODINGS_PREFIX=""
 # webkit/third_party/WebCore/Configurations/WebCore.xcconfig
 export FEATURE_DEFINES="ENABLE_SVG ENABLE_SVG_ANIMATION ENABLE_SVG_AS_IMAGE ENABLE_SVG_FONTS ENABLE_SVG_FOREIGN_OBJECT ENABLE_SVG_USE ENABLE_XPATH ENABLE_XSLT"
 
-make -f "$WebCore/../../../webkit/pending/DerivedSources.make" -j 2 || exit 1
+make -f "$WebCore/DerivedSources.make" -j 2 || exit 1
