@@ -481,6 +481,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\stacking_order_iterator.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\stacking_order_iterator.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\webcursor.cc"
 				>
 			</File>

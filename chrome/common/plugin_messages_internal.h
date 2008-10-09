@@ -124,9 +124,10 @@ IPC_BEGIN_MESSAGES(Plugin, 5)
   // contains a buffer that the plugin draws into.  background_buffer is used
   // for transparent windowless plugins, and holds the background of the plugin
   // rectangle.
-  IPC_MESSAGE_ROUTED5(PluginMsg_UpdateGeometry,
+  IPC_MESSAGE_ROUTED6(PluginMsg_UpdateGeometry,
                       gfx::Rect /* window_rect */,
                       gfx::Rect /* clip_rect */,
+                      std::vector<gfx::Rect> /* cutout_rects */,
                       bool /* visible */,
                       SharedMemoryHandle /* windowless_buffer */,
                       SharedMemoryHandle /* background_buffer */)

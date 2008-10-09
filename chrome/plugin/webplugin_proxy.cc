@@ -4,7 +4,7 @@
 
 #include "chrome/plugin/webplugin_proxy.h"
 
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/platform_device_win.h"
 #include "base/scoped_handle.h"
 #include "base/shared_memory.h"
@@ -277,13 +277,14 @@ void WebPluginProxy::Paint(const gfx::Rect& rect) {
 void WebPluginProxy::UpdateGeometry(
     const gfx::Rect& window_rect,
     const gfx::Rect& clip_rect,
+    const std::vector<gfx::Rect>& cutout_rects,
     bool visible,
     const SharedMemoryHandle& windowless_buffer,
     const SharedMemoryHandle& background_buffer) {
       gfx::Rect old = delegate_->rect();
   bool moved = delegate_->rect().x() != window_rect.x() ||
                delegate_->rect().y() != window_rect.y();
-  delegate_->UpdateGeometry(window_rect, clip_rect, visible);
+  delegate_->UpdateGeometry(window_rect, clip_rect, cutout_rects, visible);
   if (windowless_buffer) {
     // The plugin's rect changed, so now we have a new buffer to draw into.
     SetWindowlessBuffer(windowless_buffer, background_buffer);

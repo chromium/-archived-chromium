@@ -558,8 +558,6 @@
 		8254038E0D92D2CF0006B936 /* word_iterator.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = word_iterator.cc; sourceTree = "<group>"; };
 		8254038F0D92D2CF0006B936 /* word_iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = word_iterator.h; sourceTree = "<group>"; };
 		825403B10D92D2E50006B936 /* libbase_gfx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libbase_gfx.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		825403C00D92D31D0006B936 /* bitmap_header.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmap_header.cc; sourceTree = "<group>"; };
-		825403C10D92D31D0006B936 /* bitmap_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitmap_header.h; sourceTree = "<group>"; };
 		825403C40D92D31D0006B936 /* font_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = font_utils.cc; sourceTree = "<group>"; };
 		825403C50D92D31D0006B936 /* font_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = font_utils.h; sourceTree = "<group>"; };
 		825403C80D92D31D0006B936 /* native_theme.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native_theme.cc; sourceTree = "<group>"; };
@@ -1058,8 +1056,6 @@
 		825403B40D92D2EC0006B936 /* gfx */ = {
 			isa = PBXGroup;
 			children = (
-				825403C00D92D31D0006B936 /* bitmap_header.cc */,
-				825403C10D92D31D0006B936 /* bitmap_header.h */,
 				AB6BC1ED0E54E836006436D5 /* bitmap_platform_device.h */,
 				829E2F940DBFD74B00819EBF /* bitmap_platform_device_mac.cc */,
 				829E2F950DBFD74B00819EBF /* bitmap_platform_device_mac.h */,

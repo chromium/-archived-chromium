@@ -237,11 +237,13 @@ void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
 void WebPluginDelegateStub::OnUpdateGeometry(
     const gfx::Rect& window_rect,
     const gfx::Rect& clip_rect,
+    const std::vector<gfx::Rect>& cutout_rects,
     bool visible,
     const SharedMemoryHandle& windowless_buffer,
     const SharedMemoryHandle& background_buffer) {
   webplugin_->UpdateGeometry(
-      window_rect, clip_rect, visible, windowless_buffer, background_buffer);
+      window_rect, clip_rect, cutout_rects, visible, windowless_buffer, 
+      background_buffer);
 }
 
 void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,

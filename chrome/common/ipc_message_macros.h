@@ -56,6 +56,7 @@
 #undef IPC_MESSAGE_ROUTED3
 #undef IPC_MESSAGE_ROUTED4
 #undef IPC_MESSAGE_ROUTED5
+#undef IPC_MESSAGE_ROUTED6
 #undef IPC_MESSAGE_EMPTY
 #undef IPC_SYNC_MESSAGE_CONTROL0_0
 #undef IPC_SYNC_MESSAGE_CONTROL0_1
@@ -144,6 +145,9 @@
   msg_class##__ID,
 
 #define IPC_MESSAGE_ROUTED5(msg_class, type1, type2, type3, type4, type5) \
+  msg_class##__ID,
+
+#define IPC_MESSAGE_ROUTED6(msg_class, type1, type2, type3, type4, type5, type6) \
   msg_class##__ID,
 
 #define IPC_MESSAGE_EMPTY(msg_class) \
@@ -392,6 +396,9 @@ void class_name::OnMessageReceived(const IPC::Message& msg) \
 #define IPC_MESSAGE_ROUTED5(msg_class, type1, type2, type3, type4, type5) \
   IPC_MESSAGE_LOG(msg_class)
 
+#define IPC_MESSAGE_ROUTED6(msg_class, type1, type2, type3, type4, type5, type6) \
+  IPC_MESSAGE_LOG(msg_class)
+
 #define IPC_MESSAGE_EMPTY(msg_class) \
   IPC_MESSAGE_LOG(msg_class)
 
@@ -631,6 +638,21 @@ void class_name::OnMessageReceived(const IPC::Message& msg) \
               const type3& arg3, const type4& arg4, const type5& arg5) \
         : IPC::MessageWithTuple< Tuple5<type1, type2, type3, type4, type5> >( \
             routing_id, ID, MakeTuple(arg1, arg2, arg3, arg4, arg5)) {} \
+  };
+
+#define IPC_MESSAGE_ROUTED6(msg_class, type1, type2, type3, type4, type5, \
+                            type6)                                      \
+  class msg_class :                                                     \
+      public IPC::MessageWithTuple< Tuple6<type1, type2, type3, type4, type5, \
+                                           type6> > {                   \
+ public:                                                                \
+    enum { ID = msg_class##__ID };                                      \
+    msg_class(int32 routing_id, const type1& arg1, const type2& arg2,   \
+              const type3& arg3, const type4& arg4, const type5& arg5,  \
+              const type6& arg6)                                        \
+      : IPC::MessageWithTuple< Tuple6<type1, type2, type3, type4, type5, \
+      type6> >(                                                         \
+          routing_id, ID, MakeTuple(arg1, arg2, arg3, arg4, arg5, arg6)) {} \
   };
 
 // Dummy class for now, just to give us the ID field.

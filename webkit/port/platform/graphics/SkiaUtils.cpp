@@ -39,7 +39,7 @@
 
 #include "base/basictypes.h"
 #if defined(OS_WIN)
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #endif
 
 void WebCorePointToSkiaPoint(const WebCore::FloatPoint& src, SkPoint* dst)

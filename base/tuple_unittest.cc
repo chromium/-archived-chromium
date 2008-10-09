@@ -18,6 +18,13 @@ struct Addy {
   }
 };
 
+struct Addz {
+  Addz() { }
+  void DoAdd(int a, int b, int c, int d, int e, int* res) {
+    *res = a + b + c + d + e;
+  }
+};
+
 }  // namespace
 
 TEST(TupleTest, Basic) {
@@ -27,6 +34,7 @@ TEST(TupleTest, Basic) {
   Tuple3<int, int, int> t3(1, 2, 3);
   Tuple4<int, int, int, int*> t4(1, 2, 3, &t1.a);
   Tuple5<int, int, int, int, int*> t5(1, 2, 3, 4, &t4.a);
+  Tuple6<int, int, int, int, int, int*> t6(1, 2, 3, 4, 5, &t4.a);
 
   EXPECT_EQ(1, t1.a);
   EXPECT_EQ(1, t2.a);
@@ -40,7 +48,11 @@ TEST(TupleTest, Basic) {
   EXPECT_EQ(2, t5.b);
   EXPECT_EQ(3, t5.c);
   EXPECT_EQ(4, t5.d);
-
+  EXPECT_EQ(1, t6.a);
+  EXPECT_EQ(2, t6.b);
+  EXPECT_EQ(3, t6.c);
+  EXPECT_EQ(4, t6.d);
+  EXPECT_EQ(5, t6.e);
 
   EXPECT_EQ(1, t1.a);
   DispatchToFunction(&DoAdd, t4);
@@ -54,6 +66,11 @@ TEST(TupleTest, Basic) {
   EXPECT_EQ(1, t4.a);
   DispatchToMethod(&addy, &Addy::DoAdd, t5);
   EXPECT_EQ(10, t4.a);
+
+  Addz addz;
+  EXPECT_EQ(10, t4.a);
+  DispatchToMethod(&addz, &Addz::DoAdd, t6);
+  EXPECT_EQ(15, t4.a);
 }
 
 namespace {

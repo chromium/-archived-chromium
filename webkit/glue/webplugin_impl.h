@@ -15,6 +15,7 @@
 #include "ResourceHandleClient.h"
 #include "ResourceRequest.h"
 #include "Widget.h"
+#include "Vector.h"
 #pragma warning(pop)
 
 #include "base/basictypes.h"
@@ -64,6 +65,13 @@ class WebPluginContainer : public WebCore::Widget {
   virtual void attachToWindow();
   virtual void detachFromWindow();
 
+  // Returns window-relative rectangles that should clip this widget.
+  // Use this to implement iframe shim behavior.
+  //
+  // TODO(tulrich): add this method to WebCore/platform/Widget.h so it
+  // can be used by any platform.
+  void windowCutoutRects(WTF::Vector<WebCore::IntRect>* cutouts) const;
+  
   // These methods are invoked from webkit when it has data to be sent to the 
   // plugin. The plugin in this case does not initiate a download for the data.
   void didReceiveResponse(const WebCore::ResourceResponse& response);
@@ -176,6 +184,13 @@ class WebPluginImpl : public WebPlugin,
   virtual WebCore::IntRect windowClipRect() const;
   virtual void geometryChanged() const;
 
+  // Returns window-relative rectangles that should clip this widget.
+  // Use this to implement iframe shim behavior.
+  //
+  // TODO(tulrich): windowCutoutRects() is not in WebCore::Widgets
+  // yet; need to add it.
+  void windowCutoutRects(WTF::Vector<WebCore::IntRect>* rects) const;
+
   // Override for when our window changes size or position.
   // Used to notify the plugin when the size or position changes.
   virtual void setFrameGeometry(const WebCore::IntRect& rect);
@@ -235,7 +250,8 @@ class WebPluginImpl : public WebPlugin,
   // Calculates the bounds of the plugin widget based on the frame rect passed in.
   void CalculateBounds(const WebCore::IntRect& frame_rect,
                        WebCore::IntRect* window_rect,
-                       WebCore::IntRect* clip_rect);
+                       WebCore::IntRect* clip_rect,
+                       std::vector<gfx::Rect>* cutout_rects);
 
   void HandleURLRequest(const char *method, 
                         bool is_javascript_url,

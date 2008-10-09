@@ -4,7 +4,7 @@
 
 #include "chrome/browser/render_widget_host.h"
 
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/render_process_host.h"
@@ -451,6 +451,7 @@ void RenderWidgetHost::MovePluginWindows(
                                 move.clip_rect.y(),
                                 move.clip_rect.right(),
                                 move.clip_rect.bottom());
+    gfx::SubtractRectanglesFromRegion(hrgn, move.cutout_rects);
 
     // Note: System will own the hrgn after we call SetWindowRgn,
     // so we don't need to call DeleteObject(hrgn)

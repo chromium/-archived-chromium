@@ -12,7 +12,7 @@
 #include <shlobj.h>
 
 #include "base/file_util.h"
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/png_encoder.h"
 #include "base/logging.h"
 #include "base/registry.h"

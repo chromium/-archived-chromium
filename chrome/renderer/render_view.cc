@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "base/command_line.h"
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/bitmap_platform_device_win.h"
 #include "base/gfx/image_operations.h"
 #include "base/gfx/native_theme.h"

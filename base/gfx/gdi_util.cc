@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 
 namespace gfx {
 
@@ -58,6 +58,22 @@ void CreateMonochromeBitmapHeader(int width,
   hdr->biYPelsPerMeter = 1;
   hdr->biClrUsed = 0;
   hdr->biClrImportant = 0;
+}
+
+void SubtractRectanglesFromRegion(HRGN hrgn,
+                                  const std::vector<gfx::Rect>& cutouts) {
+  if (cutouts.size()) {
+    HRGN cutout = ::CreateRectRgn(0, 0, 0, 0);
+    for (size_t i = 0; i < cutouts.size(); i++) {
+      ::SetRectRgn(cutout,
+                   cutouts[i].x(),
+                   cutouts[i].y(),
+                   cutouts[i].right(),
+                   cutouts[i].bottom());
+      ::CombineRgn(hrgn, hrgn, cutout, RGN_DIFF);
+    }
+    ::DeleteObject(cutout);
+  }
 }
 
 }  // namespace gfx

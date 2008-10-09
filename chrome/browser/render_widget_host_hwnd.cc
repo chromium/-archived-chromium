@@ -5,7 +5,7 @@
 #include "chrome/browser/render_widget_host_hwnd.h"
 
 #include "base/command_line.h"
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/rect.h"
 #include "base/histogram.h"
 #include "base/win_util.h"

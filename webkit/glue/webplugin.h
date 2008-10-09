@@ -56,7 +56,10 @@ struct WebPluginInfo {
 struct WebPluginGeometry {
   HWND window;
   gfx::Rect window_rect;
+  // Clip rect (include) and cutouts (excludes), relative to
+  // window_rect origin.
   gfx::Rect clip_rect;
+  std::vector<gfx::Rect> cutout_rects;
   bool visible;
 };
 

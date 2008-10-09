@@ -81,6 +81,7 @@ class WebPluginProxy : public WebPlugin {
 
   void UpdateGeometry(const gfx::Rect& window_rect,
                       const gfx::Rect& clip_rect,
+                      const std::vector<gfx::Rect>& cutout_rects,
                       bool visible,
                       const SharedMemoryHandle& windowless_buffer,
                       const SharedMemoryHandle& background_buffer);

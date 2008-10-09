@@ -64,7 +64,9 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
   void OnPrint(PluginMsg_PrintResponse_Params* params);
 
   void OnUpdateGeometry(const gfx::Rect& window_rect,
-                        const gfx::Rect& clip_rect, bool visible,
+                        const gfx::Rect& clip_rect,
+                        const std::vector<gfx::Rect>& cutout_rects,
+                        bool visible,
                         const SharedMemoryHandle& windowless_buffer,
                         const SharedMemoryHandle& background_buffer);
   void OnGetPluginScriptableObject(int* route_id, void** npobject_ptr);

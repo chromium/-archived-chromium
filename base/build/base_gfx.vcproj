@@ -122,14 +122,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\gfx\bitmap_header.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\bitmap_header.h"
-			>
-		</File>
-		<File
 			RelativePath="..\gfx\bitmap_platform_device_win.cc"
 			>
 		</File>
@@ -151,6 +143,14 @@
 		</File>
 		<File
 			RelativePath="..\gfx\font_utils.h"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\gdi_util.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\gfx\gdi_util.h"
 			>
 		</File>
 		<File

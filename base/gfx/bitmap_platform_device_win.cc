@@ -4,7 +4,7 @@
 
 #include "base/gfx/bitmap_platform_device_win.h"
 
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/logging.h"
 #include "base/process_util.h"
 #include "SkMatrix.h"

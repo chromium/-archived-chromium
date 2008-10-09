@@ -943,6 +943,40 @@ struct ParamTraits< Tuple5<A, B, C, D, E> > {
   }
 };
 
+template <class A, class B, class C, class D, class E, class F>
+struct ParamTraits< Tuple6<A, B, C, D, E, F> > {
+  typedef Tuple6<A, B, C, D, E, F> param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.a);
+    WriteParam(m, p.b);
+    WriteParam(m, p.c);
+    WriteParam(m, p.d);
+    WriteParam(m, p.e);
+    WriteParam(m, p.f);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    return (ReadParam(m, iter, &r->a) &&
+            ReadParam(m, iter, &r->b) &&
+            ReadParam(m, iter, &r->c) &&
+            ReadParam(m, iter, &r->d) &&
+            ReadParam(m, iter, &r->e) &&
+            ReadParam(m, iter, &r->f));
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    LogParam(p.a, l);
+    l->append(L", ");
+    LogParam(p.b, l);
+    l->append(L", ");
+    LogParam(p.c, l);
+    l->append(L", ");
+    LogParam(p.d, l);
+    l->append(L", ");
+    LogParam(p.e, l);
+    l->append(L", ");
+    LogParam(p.f, l);
+  }
+};
+
 template <>
 struct ParamTraits<webkit_glue::WebApplicationInfo> {
   typedef webkit_glue::WebApplicationInfo param_type;

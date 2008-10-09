@@ -9,7 +9,7 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/skia_utils.h"
 #include "base/gfx/rect.h"

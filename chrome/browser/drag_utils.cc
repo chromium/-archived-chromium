@@ -9,7 +9,7 @@
 #include <shobjidl.h>
 
 #include "base/file_util.h"
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
 #include "base/string_util.h"
 #include "chrome/app/theme/theme_resources.h"

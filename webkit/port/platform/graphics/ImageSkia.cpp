@@ -44,7 +44,7 @@
 #include "SkiaUtils.h"
 #include "SkShader.h"
 
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/image_operations.h"
 #include "base/gfx/native_theme.h"
 #include "base/gfx/platform_canvas_win.h"

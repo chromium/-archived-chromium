@@ -4,7 +4,7 @@
 
 #include "base/gfx/vector_device.h"
 
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #include "base/gfx/skia_utils.h"
 #include "base/logging.h"
 #include "base/scoped_handle.h"

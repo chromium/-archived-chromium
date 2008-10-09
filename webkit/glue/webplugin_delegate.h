@@ -6,6 +6,7 @@
 #define WEBKIT_GLUE_WEBPLUGIN_DELEGATE_H__
 
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/gfx/native_widget_types.h"
@@ -42,12 +43,17 @@ class WebPluginDelegate {
   // methods on the WebPlugin again.
   virtual void PluginDestroyed() = 0;
 
-  // Update the geometry of the plugin.  This is a request to move the plugin,
-  // relative to its containing window, to the coords given by window_rect.
-  // Its contents should be clipped to the coords given by clip_rect, which are
-  // relative to the origin of the plugin window.
+  // Update the geometry of the plugin.  This is a request to move the
+  // plugin, relative to its containing window, to the coords given by
+  // window_rect.  Its contents should be clipped to the coords given
+  // by clip_rect, which are relative to the origin of the plugin
+  // window.  It's contents should also not overlap the given cutout
+  // rects.  The clip_rect and cutout_rects are in plugin-relative
+  // coordinates.
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
-                              const gfx::Rect& clip_rect, bool visible) = 0;
+                              const gfx::Rect& clip_rect,
+                              const std::vector<gfx::Rect>& cutout_rects,
+                              bool visible) = 0;
 
   // Tells the plugin to paint the damaged rect.  The HDC is only used for
   // windowless plugins.
