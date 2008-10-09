@@ -5,6 +5,7 @@
 #import <Cocoa/Cocoa.h>
 #include <sys/syslimits.h>
 #include <unistd.h>
+#import <mach/task.h>
 
 #include <string>
 
@@ -44,7 +45,7 @@ void SetCurrentTestName(char* path) {
 
 int main(const int argc, const char *argv[]) {
   InitWebCoreSystemInterface();
-  
+
   // Some tests may use base::Singleton<>, thus we need to instantiate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  
@@ -211,6 +212,16 @@ int main(const int argc, const char *argv[]) {
     }
     
     if (layout_test_mode) {
+      // If we die during tests, we don't want to be spamming the user's crash
+      // reporter. Set our exception port to null.
+      if (task_set_exception_ports(mach_task_self(),
+                                   EXC_MASK_ALL,
+                                   MACH_PORT_NULL,
+                                   EXCEPTION_DEFAULT,
+                                   THREAD_STATE_NONE) != KERN_SUCCESS) {
+        return -1;
+      }
+      
       // Cocoa housekeeping
       [NSApp finishLaunching];
       webkit_glue::SetLayoutTestMode(true);
