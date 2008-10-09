@@ -1275,7 +1275,12 @@ V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOU
  
 // Post-merge Debug only Crashes
 V8 | KJS # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
+// One of these svg tests sometimes crash in debug mode.  It seems to only
+// happen when all the dynamic-updates tests are run together.
 V8 | KJS # LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
+V8 | KJS # LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-rx-attr.html = CRASH | PASS
+V8 | KJS # LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-cy-attr.html = CRASH | PASS
+V8 | KJS # LayoutTests/fast/dom/gc-1.html = CRASH | PASS
 
 // Post-merge flakey on debug builds (passes consistently on release)
 V8 | KJS # LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
