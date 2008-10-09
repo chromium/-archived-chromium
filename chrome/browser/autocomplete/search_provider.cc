@@ -22,8 +22,7 @@
 const int SearchProvider::kQueryDelayMs = 200;
 
 void SearchProvider::Start(const AutocompleteInput& input,
-                           bool minimal_changes,
-                           bool synchronous_only) {
+                           bool minimal_changes) {
   matches_.clear();
 
   // Can't return search/suggest results for bogus input or if there is no
@@ -75,8 +74,8 @@ void SearchProvider::Start(const AutocompleteInput& input,
 
   input_ = input;
 
-  StartOrStopHistoryQuery(minimal_changes, synchronous_only);
-  StartOrStopSuggestQuery(minimal_changes, synchronous_only);
+  StartOrStopHistoryQuery(minimal_changes);
+  StartOrStopSuggestQuery(minimal_changes);
   ConvertResultsToAutocompleteMatches();
 }
 
@@ -137,20 +136,19 @@ void SearchProvider::OnURLFetchComplete(const URLFetcher* source,
   listener_->OnProviderUpdate(!suggest_results_.empty());
 }
 
-void SearchProvider::StartOrStopHistoryQuery(bool minimal_changes,
-                                             bool synchronous_only) {
+void SearchProvider::StartOrStopHistoryQuery(bool minimal_changes) {
   // For the minimal_changes case, if we finished the previous query and still
   // have its results, or are allowed to keep running it, just do that, rather
   // than starting a new query.
   if (minimal_changes &&
-      (have_history_results_ || (!done_ && !synchronous_only)))
+      (have_history_results_ || (!done_ && !input_.synchronous_only())))
     return;
 
   // We can't keep running any previous query, so halt it.
   StopHistory();
 
   // We can't start a new query if we're only allowed synchronous results.
-  if (synchronous_only)
+  if (input_.synchronous_only())
     return;
 
   // Start the history query.
@@ -163,8 +161,7 @@ void SearchProvider::StartOrStopHistoryQuery(bool minimal_changes,
   history_request_pending_ = true;
 }
 
-void SearchProvider::StartOrStopSuggestQuery(bool minimal_changes,
-                                             bool synchronous_only) {
+void SearchProvider::StartOrStopSuggestQuery(bool minimal_changes) {
   if (!IsQuerySuitableForSuggest()) {
     StopSuggest();
     return;
@@ -174,14 +171,14 @@ void SearchProvider::StartOrStopSuggestQuery(bool minimal_changes,
   // have its results, or are allowed to keep running it, just do that, rather
   // than starting a new query.
   if (minimal_changes &&
-      (have_suggest_results_ || (!done_ && !synchronous_only)))
+      (have_suggest_results_ || (!done_ && !input_.synchronous_only())))
     return;
 
   // We can't keep running any previous query, so halt it.
   StopSuggest();
 
   // We can't start a new query if we're only allowed synchronous results.
-  if (synchronous_only)
+  if (input_.synchronous_only())
     return;
 
   // Kick off a timer that will start the URL fetch if it completes before

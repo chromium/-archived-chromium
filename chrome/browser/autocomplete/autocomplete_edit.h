@@ -227,10 +227,10 @@ class AutocompleteEditModel {
   // AutomationProvider::AutocompleteEditIsQueryInProgress.
   bool query_in_progress() const;
 
-  // Returns the lastest autocomplete results.  This logic should in the future
+  // Returns the current autocomplete result.  This logic should in the future
   // live in AutocompleteController but resides here for now.  This method is
   // used by AutomationProvider::AutocompleteEditGetMatches.
-  const AutocompleteResult* latest_result() const;
+  const AutocompleteResult& result() const;
 
   // Called when the view is gaining focus.  |control_down| is whether the
   // control key is down (at the time we're gaining focus).

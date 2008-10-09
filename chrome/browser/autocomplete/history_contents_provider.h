@@ -21,14 +21,12 @@ class HistoryContentsProvider : public AutocompleteProvider {
   HistoryContentsProvider(ACProviderListener* listener, Profile* profile)
       : AutocompleteProvider(listener, profile, "HistoryContents"),
         have_results_(false) {
-    DCHECK(profile);
   }
 
   // As necessary asks the history service for the relevant results. When
   // done SetResults is invoked.
   virtual void Start(const AutocompleteInput& input,
-                     bool minimal_changes,
-                     bool synchronous_only);
+                     bool minimal_changes);
 
   virtual void Stop();
 

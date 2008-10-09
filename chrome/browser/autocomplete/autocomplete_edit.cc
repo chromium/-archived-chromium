@@ -69,10 +69,9 @@ AutocompleteEditModel::AutocompleteEditModel(
       show_search_hint_(true),
       profile_(profile) {
   if (++paste_and_go_controller_refcount == 1) {
-    // We don't have a controller yet, so create one.  No listener is needed
-    // since we'll only be doing synchronous calls, and no profile is set since
+    // We don't have a controller yet, so create one.  No profile is set since
     // we'll set this before each call to the controller.
-    paste_and_go_controller = new AutocompleteController(NULL, NULL);
+    paste_and_go_controller = new AutocompleteController(NULL);
   }
 }
 
@@ -209,21 +208,15 @@ bool AutocompleteEditModel::CanPasteAndGo(const std::wstring& text) const {
   paste_and_go_transition_ = PageTransition::TYPED;
   paste_and_go_alternate_nav_url_.clear();
 
-  // See if the clipboard text can be parsed.
-  const AutocompleteInput input(text, std::wstring(), true, false);
-  if (input.type() == AutocompleteInput::INVALID)
-    return false;
-
   // Ask the controller what do do with this input.
   paste_and_go_controller->SetProfile(profile_);
                               // This is cheap, and since there's one
                               // paste_and_go_controller for many tabs which
                               // may all have different profiles, it ensures
                               // we're always using the right one.
-  const bool done = paste_and_go_controller->Start(input, false, true);
-  DCHECK(done);
-  AutocompleteResult result;
-  paste_and_go_controller->GetResult(&result);
+  paste_and_go_controller->Start(text, std::wstring(), true, false, true);
+  DCHECK(paste_and_go_controller->done());
+  const AutocompleteResult& result = paste_and_go_controller->result();
   if (result.empty())
     return false;
 
@@ -232,7 +225,8 @@ bool AutocompleteEditModel::CanPasteAndGo(const std::wstring& text) const {
   DCHECK(match != result.end());
   paste_and_go_url_ = match->destination_url;
   paste_and_go_transition_ = match->transition;
-  paste_and_go_alternate_nav_url_ = result.GetAlternateNavURL(input, match);
+  paste_and_go_alternate_nav_url_ =
+      result.GetAlternateNavURL(paste_and_go_controller->input(), match);
 
   return !paste_and_go_url_.empty();
 }
@@ -335,11 +329,11 @@ void AutocompleteEditModel::ClearKeyword(const std::wstring& visible_text) {
 }
 
 bool AutocompleteEditModel::query_in_progress() const {
-  return popup_->query_in_progress();
+  return !popup_->autocomplete_controller()->done();
 }
 
-const AutocompleteResult* AutocompleteEditModel::latest_result() const {
-  return popup_->latest_result();
+const AutocompleteResult& AutocompleteEditModel::result() const {
+  return popup_->autocomplete_controller()->result();
 }
 
 void AutocompleteEditModel::OnSetFocus(bool control_down) {
@@ -402,16 +396,21 @@ void AutocompleteEditModel::OnUpOrDownKeyPressed(int count) {
   // NOTE: This purposefully don't trigger any code that resets paste_state_.
 
   if (!popup_->is_open()) {
-    if (!popup_->query_in_progress()) {
+    if (popup_->autocomplete_controller()->done()) {
       // The popup is neither open nor working on a query already.  So, start an
       // autocomplete query for the current text.  This also sets
       // user_input_in_progress_ to true, which we want: if the user has started
       // to interact with the popup, changing the permanent_text_ shouldn't
       // change the displayed text.
       // Note: This does not force the popup to open immediately.
+      // TODO(pkasting): We should, in fact, force this particular query to open
+      // the popup immediately.
       if (!user_input_in_progress_)
         InternalSetUserText(permanent_text_);
       view_->UpdatePopup();
+    } else {
+      // TODO(pkasting): The popup is working on a query but is not open.  We
+      // should force it to open immediately.
     }
   } else {
     // The popup is open, so the user should be able to interact with it
@@ -561,7 +560,7 @@ std::wstring AutocompleteEditModel::GetURLForCurrentText(
     PageTransition::Type* transition,
     bool* is_history_what_you_typed_match,
     std::wstring* alternate_nav_url) {
-  return (popup_->is_open() || popup_->query_in_progress()) ?
+  return (popup_->is_open() || !popup_->autocomplete_controller()->done()) ?
       popup_->URLsForCurrentSelection(transition,
                                       is_history_what_you_typed_match,
                                       alternate_nav_url) :

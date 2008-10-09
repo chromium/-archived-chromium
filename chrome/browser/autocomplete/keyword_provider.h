@@ -62,8 +62,7 @@ class KeywordProvider : public AutocompleteProvider {
 
   // AutocompleteProvider
   virtual void Start(const AutocompleteInput& input,
-                     bool minimal_changes,
-                     bool synchronous_only);
+                     bool minimal_changes);
 
  private:
   // Helper functor for Start(), for sorting keyword matches by quality.

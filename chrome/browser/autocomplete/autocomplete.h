@@ -10,20 +10,20 @@
 #include <vector>
 #include "base/logging.h"
 #include "base/ref_counted.h"
+#include "base/timer.h"
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/url_parse.h"
 
 // The AutocompleteController is the center of the autocomplete system.  A
-// class implementing AutocompleteController::Listener creates an instance of
-// the controller, which in turn creates a set of AutocompleteProviders to
-// serve it.  The listener can ask the controller to Start() a query; the
-// controller in turn passes this call down to the providers, each of which
-// keeps track of its own results and whether it has finished processing the
-// query.  When a provider gets more results or finishes processing, it
-// notifies the controller, which merges the combined results together and
-// returns them to the listener.
+// class creates an instance of the controller, which in turn creates a set of
+// AutocompleteProviders to serve it.  The owning class can ask the controller
+// to Start() a query; the controller in turn passes this call down to the
+// providers, each of which keeps track of its own results and whether it has
+// finished processing the query.  When a provider gets more results or finishes
+// processing, it notifies the controller, which merges the combined results
+// together and makes them available to interested observers.
 //
-// The listener may also cancel the current query by calling Stop(), which the
+// The owner may also cancel the current query by calling Stop(), which the
 // controller will in turn communicate to all the providers.  No callbacks will
 // happen after a request has been stopped.
 //
@@ -152,13 +152,15 @@ class AutocompleteInput {
   AutocompleteInput()
       : type_(INVALID),
         prevent_inline_autocomplete_(false),
-        prefer_keyword_(false) {
+        prefer_keyword_(false),
+        synchronous_only_(false) {
   }
   
   AutocompleteInput(const std::wstring& text,
                     const std::wstring& desired_tld,
                     bool prevent_inline_autocomplete,
-                    bool prefer_keyword);
+                    bool prefer_keyword,
+                    bool synchronous_only);
 
   // Parses |text| and returns the type of input this will be interpreted as.
   // The components of the input are stored in the output parameter |parts|.
@@ -197,6 +199,12 @@ class AutocompleteInput {
   // keyword, we should score it like a non-substituting keyword.
   const bool prefer_keyword() const { return prefer_keyword_; }
 
+  // Returns whether providers should avoid scheduling asynchronous work.  If
+  // this is true, providers should stop after returning all the
+  // synchronously-available results.  This also means any in-progress
+  // asynchronous work should be canceled, so no later callbacks are fired.
+  const bool synchronous_only() const { return synchronous_only_; }
+
   // operator==() by another name.
   bool Equals(const AutocompleteInput& other) const;
 
@@ -214,6 +222,7 @@ class AutocompleteInput {
   std::wstring desired_tld_;
   bool prevent_inline_autocomplete_;
   bool prefer_keyword_;
+  bool synchronous_only_;
 };
 
 // AutocompleteMatch ----------------------------------------------------------
@@ -459,15 +468,8 @@ class AutocompleteProvider
   // |minimal_changes| is an optimization that lets the provider do less work
   // when the |input|'s text hasn't changed.  See the body of
   // AutocompletePopupModel::StartAutocomplete().
-  //
-  // If |synchronous_only| is true, no asynchronous work should be scheduled;
-  // the provider should stop after it has returned all the
-  // synchronously-available results.  This also means any in-progress
-  // asynchronous work should be canceled, so the provider does not call back at
-  // a later time.
   virtual void Start(const AutocompleteInput& input,
-                     bool minimal_changes,
-                     bool synchronous_only) = 0;
+                     bool minimal_changes) = 0;
 
   // Called when a provider must not make any more callbacks for the current
   // query.
@@ -648,23 +650,9 @@ class AutocompleteResult {
 // AutocompleteController -----------------------------------------------------
 
 // The coordinator for autocomplete queries, responsible for combining the
-// results from a series of providers into one AutocompleteResult and
-// interacting with the Listener that owns it.
+// results from a series of providers into one AutocompleteResult.
 class AutocompleteController : public ACProviderListener {
  public:
-  class ACControllerListener {
-   public:
-    // Called by the controller when new results are available and/or the query
-    // is complete.  The listener can then call GetResult() and provide an
-    // AutocompleteResult* to be filled in.
-    //
-    // Note that this function is never called for synchronous_only queries
-    // (see Start()).  If you're only using those, you can create the controller
-    // with a NULL listener.
-    virtual void OnAutocompleteUpdate(bool updated_result,
-                                      bool query_complete) = 0;
-  };
-
   // Used to indicate an index that is not selected in a call to Update()
   // and for merging results.
   static const int kNoItemSelected;
@@ -673,16 +661,13 @@ class AutocompleteController : public ACProviderListener {
   // second to set the providers to some known testing providers.  The default
   // providers will be overridden and the controller will take ownership of the
   // providers, Release()ing them on destruction.
-  //
-  // It is safe to pass NULL for |listener| iff you only ever use synchronous
-  // queries.
-  AutocompleteController(ACControllerListener* listener, Profile* profile);
+  explicit AutocompleteController(Profile* profile);
 #ifdef UNIT_TEST
-  AutocompleteController(ACControllerListener* listener,
-                         const ACProviders& providers)
-      : listener_(listener),
-        providers_(providers),
-        history_contents_provider_(NULL) {
+  explicit AutocompleteController(const ACProviders& providers)
+      : providers_(providers),
+        history_contents_provider_(NULL),
+        update_pending_(false),
+        done_(true) {
   }
 #endif
   ~AutocompleteController();
@@ -695,51 +680,71 @@ class AutocompleteController : public ACProviderListener {
   // done or the query is Stop()ed.  It is safe to Start() a new query without
   // Stop()ing the previous one.
   //
-  // If |minimal_changes| is true, |input| is the same as in the previous
-  // query, except for a different desired_tld_ and possibly type_.  Most
-  // providers should just be able to recalculate priorities in this case and
-  // return synchronously, or at least faster than otherwise.
+  // |prevent_inline_autocomplete| is true if the generated result set should
+  // not require inline autocomplete for the default match.  This is difficult
+  // to explain in the abstract; the practical use case is that after the user
+  // deletes text in the edit, the HistoryURLProvider should make sure not to
+  // promote a match requiring inline autocomplete too highly.
+  //
+  // |prefer_keyword| should be true when the keyword UI is onscreen; this will
+  // bias the autocomplete results toward the keyword provider when the input
+  // string is a bare keyword.
   //
   // If |synchronous_only| is true, the controller asks the providers to only
   // return results which are synchronously available, which should mean that
   // all providers will be done immediately.
   //
-  // The controller does not notify the listener about any results available
-  // immediately; the caller should call GetResult() manually if it wants
-  // these.  The return value is whether the query is complete; if it is
-  // false, then the controller will call OnAutocompleteUpdate() with future
-  // result updates (unless the query is Stop()ed).
-  bool Start(const AutocompleteInput& input,
-             bool minimal_changes,
+  // The controller will fire
+  // NOTIFY_AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_RESULTS_AVAILABLE from inside
+  // this call, and unless the query is stopped, will fire at least one (and
+  // prehaps more) NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULTS_UPDATED later as more
+  // results come in (even if the query completes synchronously).
+  void Start(const std::wstring& text,
+             const std::wstring& desired_tld,
+             bool prevent_inline_autocomplete,
+             bool prefer_keyword,
              bool synchronous_only);
 
-  // Cancels the current query, ensuring there will be no future callbacks to
-  // OnAutocompleteUpdate() (until Start() is called again).
-  void Stop() const;
+  // Cancels the current query, ensuring there will be no future notifications
+  // fired.  If new matches have come in since the most recent notification was
+  // fired, they will be discarded.
+  //
+  // If |clear_result| is true, the controller will also erase the result set.
+  // TODO(pkasting): This is temporary.  Instead, we should keep a separate
+  // result set that tracks the displayed matches.
+  void Stop(bool clear_result);
 
-  // Called by the listener to get the current results of the query.
-  void GetResult(AutocompleteResult* result);
+  // Asks the relevant provider to delete |match|, and ensures observers are
+  // notified of resulting changes immediately.
+  void DeleteMatch(const AutocompleteMatch& match);
+
+  // Getters
+  const AutocompleteInput& input() const { return input_; }
+  const AutocompleteResult& result() const { return result_; }
+  const bool done() const { return done_; }
 
   // From AutocompleteProvider::Listener
   virtual void OnProviderUpdate(bool updated_matches);
 
  private:
-  // Returns true if all providers have finished processing the query.
-  bool QueryComplete() const;
+  // Updates |latest_result_| and |done_| to reflect the current provider state.
+  // Resets timers and fires notifications as necessary.  |is_synchronous_pass|
+  // is true only when Start() is calling this to get the synchronous results.
+  void UpdateLatestResult(bool is_synchronous_pass);
+
+  // Copies |latest_result_| to |result_| and notifies observers of updates.
+  void CommitResult();
 
   // Returns the number of matches from provider whose destination urls are
-  // not in result. first_match is set to the first match whose destination url
-  // is NOT in result.
-  size_t CountMatchesNotInResult(const AutocompleteProvider* provider,
-                                 const AutocompleteResult* result,
-                                 AutocompleteMatch* first_match);
+  // not in |latest_result_|. first_match is set to the first match whose
+  // destination url is NOT in the results.
+  size_t CountMatchesNotInLatestResult(const AutocompleteProvider* provider,
+                                       AutocompleteMatch* first_match) const;
 
   // If the HistoryContentsAutocomplete provider is done and there are more
   // matches in the database than currently shown, an entry is added to
-  // result to show all history matches.
-  void AddHistoryContentsShortcut(AutocompleteResult* result);
-
-  ACControllerListener* listener_;  // May be NULL.
+  // |latest_result_| to show all history matches.
+  void AddHistoryContentsShortcut();
 
   // A list of all providers.
   ACProviders providers_;
@@ -749,10 +754,35 @@ class AutocompleteController : public ACProviderListener {
   // Input passed to Start.
   AutocompleteInput input_;
 
+  // Data from the autocomplete query.
+  AutocompleteResult result_;
+
+  // The latest result available from the autocomplete providers.  This may be
+  // different than result_ if we've gotten results from our providers that we
+  // haven't yet shown the user.  If more matches may be coming, we'll wait to
+  // display these in hopes of minimizing flicker in GUI observers; see
+  // |coalesce_timer_|.
+  AutocompleteResult latest_result_;
+
+  // True when there are newer results in |latest_result_| than in |result_| and
+  // observers have not been notified about them.
+  bool update_pending_;
+
+  // True if a query is not currently running.
+  bool done_;
+
+  // Timer that tracks how long it's been since the last provider update we
+  // received.  Instead of notifying about each update immediately, we batch
+  // updates into groups.
+  base::OneShotTimer<AutocompleteController> coalesce_timer_;
+
+  // Timer that tracks how long it's been since the last time we updated the
+  // onscreen results.  This is used to ensure that observers update somewhat
+  // responsively even when the user types continuously.
+  base::RepeatingTimer<AutocompleteController> max_delay_timer_;
+
   DISALLOW_EVIL_CONSTRUCTORS(AutocompleteController);
 };
-
-typedef AutocompleteController::ACControllerListener ACControllerListener;
 
 // AutocompleteLog ------------------------------------------------------------
 

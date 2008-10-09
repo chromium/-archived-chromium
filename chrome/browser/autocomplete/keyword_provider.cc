@@ -60,8 +60,7 @@ class KeywordProvider::CompareQuality {
 };
 
 void KeywordProvider::Start(const AutocompleteInput& input,
-                            bool minimal_changes,
-                            bool synchronous_only) {
+                            bool minimal_changes) {
   matches_.clear();
 
   if ((input.type() == AutocompleteInput::INVALID) ||

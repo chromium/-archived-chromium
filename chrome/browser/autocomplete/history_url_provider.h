@@ -150,8 +150,7 @@ class HistoryURLProvider : public AutocompleteProvider {
 
   // AutocompleteProvider
   virtual void Start(const AutocompleteInput& input,
-                     bool minimal_changes,
-                     bool synchronous_only);
+                     bool minimal_changes);
   virtual void Stop();
   virtual void DeleteMatch(const AutocompleteMatch& match);
 
@@ -313,8 +312,7 @@ class HistoryURLProvider : public AutocompleteProvider {
 
   // Helper function that actually launches the two autocomplete passes.
   void RunAutocompletePasses(const AutocompleteInput& input,
-                             bool fixup_input_and_run_pass_1,
-                             bool run_pass_2);
+                             bool fixup_input_and_run_pass_1);
 
   // Returns the best prefix that begins |text|.  "Best" means "greatest number
   // of components".  This may return NULL if no prefix begins |text|.

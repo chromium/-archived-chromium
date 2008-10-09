@@ -37,8 +37,7 @@ HistoryURLProviderParams::HistoryURLProviderParams(
 }
 
 void HistoryURLProvider::Start(const AutocompleteInput& input,
-                               bool minimal_changes,
-                               bool synchronous_only) {
+                               bool minimal_changes) {
   // NOTE: We could try hard to do less work in the |minimal_changes| case
   // here; some clever caching would let us reuse the raw matches from the
   // history DB without re-querying.  However, we'd still have to go back to
@@ -51,7 +50,7 @@ void HistoryURLProvider::Start(const AutocompleteInput& input,
   // Cancel any in-progress query.
   Stop();
 
-  RunAutocompletePasses(input, true, !synchronous_only);
+  RunAutocompletePasses(input, true);
 }
 
 void HistoryURLProvider::Stop() {
@@ -99,7 +98,7 @@ void HistoryURLProvider::DeleteMatch(const AutocompleteMatch& match) {
     // out from under us on the other thread after we set params_->cancel here.
     AutocompleteInput input(params_->input);
     params_->cancel = true;
-    RunAutocompletePasses(input, false, true);
+    RunAutocompletePasses(input, false);
   }
 }
 
@@ -577,8 +576,7 @@ void HistoryURLProvider::EnsureMatchPresent(
 }
 
 void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
-                                               bool fixup_input_and_run_pass_1,
-                                               bool run_pass_2) {
+                                               bool fixup_input_and_run_pass_1) {
   matches_.clear();
 
   if ((input.type() != AutocompleteInput::UNKNOWN) &&
@@ -650,7 +648,7 @@ void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
 
   // Pass 2: Ask the history service to call us back on the history thread,
   // where we can read the full on-disk DB.
-  if (run_pass_2) {
+  if (!input.synchronous_only()) {
     done_ = false;
     params_ = params.release();  // This object will be destroyed in
                                  // QueryComplete() once we're done with it.

@@ -59,8 +59,8 @@ void KeywordProviderTest::RunTest(
   ACMatches matches;
   for (int i = 0; i < num_cases; ++i) {
     AutocompleteInput input(keyword_cases[i].input, std::wstring(), true,
-                            false);
-    kw_provider_->Start(input, false, false);
+                            false, false);
+    kw_provider_->Start(input, false);
     EXPECT_TRUE(kw_provider_->done());
     matches = kw_provider_->matches();
     EXPECT_EQ(keyword_cases[i].num_results, matches.size()) <<

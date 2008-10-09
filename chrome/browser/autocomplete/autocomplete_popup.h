@@ -10,11 +10,10 @@
 #include <atlcrack.h>
 #include <atlmisc.h>
 
-#include "base/task.h"
-#include "base/timer.h"
 #include "base/win_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/views/view.h"
 
 class AutocompleteEditModel;
@@ -61,8 +60,8 @@ class AutocompletePopupView
   // Invalidates one line of the autocomplete popup.
   void InvalidateLine(size_t line);
 
-  // Redraws the popup window to match any changes in result_; this may mean
-  // opening or closing the window.
+  // Redraws the popup window to match any changes in the result set; this may
+  // mean opening or closing the window.
   void UpdatePopupAppearance();
 
   // Called by the model when hover is enabled or disabled.
@@ -203,7 +202,7 @@ class AutocompletePopupView
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupView);
 };
 
-class AutocompletePopupModel : public ACControllerListener, public Task {
+class AutocompletePopupModel : public NotificationObserver {
  public:
   AutocompletePopupModel(const ChromeFont& font,
                          AutocompleteEditView* edit_view,
@@ -214,19 +213,8 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // Invoked when the profile has changed.
   void SetProfile(Profile* profile);
 
-  // Gets autocomplete results for the given text. If there are results, opens
-  // the popup if necessary and fills it with the new data. Otherwise, closes
-  // the popup if necessary.
-  //
-  // |prevent_inline_autocomplete| is true if the generated result set should
-  // not require inline autocomplete for the default match.  This is difficult
-  // to explain in the abstract; the practical use case is that after the user
-  // deletes text in the edit, the HistoryURLProvider should make sure not to
-  // promote a match requiring inline autocomplete too highly.
-  //
-  // |prefer_keyword| should be true when the keyword UI is onscreen; this will
-  // bias the autocomplete results toward the keyword provider when the input
-  // string is a bare keyword.
+  // Starts a new query running.  These parameters are passed through to the
+  // autocomplete controller; see comments there.
   void StartAutocomplete(const std::wstring& text,
                          const std::wstring& desired_tld,
                          bool prevent_inline_autocomplete,
@@ -243,15 +231,8 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
     return controller_.get();
   }
 
-  // Returns true if no autocomplete query is currently running.
-  bool query_in_progress() const { return query_in_progress_; }
-
-  const AutocompleteResult* result() const {
-    return &result_;
-  }
-
-  const AutocompleteResult* latest_result() const {
-    return &latest_result_;
+  const AutocompleteResult& result() const {
+    return controller_->result();
   }
 
   size_t hovered_line() const {
@@ -278,13 +259,11 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
 
   // Called when the user hits escape after arrowing around the popup.  This
   // will change the selected line back to the default match and redraw.
-  void ResetToDefaultMatch() {
-    SetSelectedLine(result_.default_match() - result_.begin(), true);
-  }
+  void ResetToDefaultMatch();
 
   // Returns the URL for the selected match.  If an update is in progress,
-  // "selected" means "default in the latest results".  If there are no
-  // results, returns the empty string.
+  // "selected" means "default in the latest matches".  If there are no
+  // matches, returns the empty string.
   //
   // If |transition_type| is non-NULL, it will be set to the appropriate
   // transition type for the selected entry (TYPED or GENERATED).
@@ -302,9 +281,9 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
 
   // This is sort of a hybrid between StartAutocomplete() and
   // URLForCurrentSelection().  When the popup isn't open and the user hits
-  // enter, we want to get the default result for the user's input immediately,
+  // enter, we want to get the default match for the user's input immediately,
   // and not open the popup, continue running autocomplete, etc.  Therefore,
-  // this does a query for only the synchronously available results for the
+  // this does a query for only the synchronously available matches for the
   // provided input parameters, sets |transition|,
   // |is_history_what_you_typed_match|, and |alternate_nav_url| (if applicable)
   // based on the default match, and returns its url. |transition|,
@@ -325,7 +304,7 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // possibly to the empty string], and you cannot have both a selected keyword
   // and a keyword hint simultaneously.)
   bool GetKeywordForMatch(const AutocompleteMatch& match,
-                          std::wstring* keyword);
+                          std::wstring* keyword) const;
 
   // Returns a pointer to a heap-allocated AutocompleteLog containing the
   // current input text, selected match, and result set.  The caller is
@@ -343,70 +322,25 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
   // can be removed from history, and if so, remove it and update the popup.
   void TryDeletingCurrentItem();
 
-  // ACControllerListener - called when more autocomplete data is available or
-  // when the query is complete.
-  //
-  // When the input for the current query has a provider affinity, we try to
-  // keep the current result set's default match as the new default match.
-  virtual void OnAutocompleteUpdate(bool updated_result, bool query_complete);
-
-  // Task - called when either timer fires.  Calls CommitLatestResults().
-  virtual void Run();
-
   // The token value for selected_line_, hover_line_ and functions dealing with
   // a "line number" that indicates "no line".
   static const size_t kNoMatch = -1;
 
  private:
-   // Stops an existing query but doesn't close the popup.
-   void StopQuery();
-
-  // Sets the correct default match in latest_result_, then updates the popup
-  // appearance to match.  If |immediately| is true this update happens
-  // synchronously; otherwise, it's deferred until the next scheduled update.
-  void SetDefaultMatchAndUpdate(bool immediately);
-
-  // If an update is pending or |force| is true, immediately updates result_ to
-  // match latest_result_, and calls UpdatePopupAppearance() to reflect those
-  // changes back to the user.
-  void CommitLatestResults(bool force);
+  // NotificationObserver
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
 
   scoped_ptr<AutocompletePopupView> view_;
 
   AutocompleteEditModel* edit_model_;
   scoped_ptr<AutocompleteController> controller_;
 
+  NotificationRegistrar registrar_;
+
   // Profile for current tab.
   Profile* profile_;
-
-  // The input for the current query.
-  AutocompleteInput input_;
-
-  // Data from the autocomplete query.
-  AutocompleteResult result_;
-
-  // True if an autocomplete query is currently running.
-  bool query_in_progress_;
-
-  // The latest result available from the autocomplete service.  This may be
-  // different than result_ if we've gotten results from our providers that we
-  // haven't yet shown the user.  If more results may be coming, we'll wait to
-  // display these in hopes of minimizing flicker; see coalesce_timer_.
-  AutocompleteResult latest_result_;
-
-  // True when there are newer results in latest_result_ than in result_ and
-  // the popup has not been updated to show them.
-  bool update_pending_;
-
-  // Timer that tracks how long it's been since the last provider update we
-  // received.  Instead of displaying each update immediately, we batch updates
-  // into groups, which reduces flicker.
-  base::OneShotTimer<AutocompletePopupModel> coalesce_timer_;
-
-  // Timer that tracks how long it's been since the last time we updated the
-  // onscreen results.  This is used to ensure that the popup is somewhat
-  // responsive even when the user types continuously.
-  base::RepeatingTimer<AutocompletePopupModel> max_delay_timer_;
 
   // The line that's currently hovered.  If we're not drawing a hover rect,
   // this will be kNoMatch, even if the cursor is over the popup contents.
@@ -418,6 +352,10 @@ class AutocompletePopupModel : public ACControllerListener, public Task {
 
   // The match the user has manually chosen, if any.
   AutocompleteResult::Selection manually_selected_match_;
+
+  // A hack for URLsForDefaultMatch() that makes the code in Observe() do
+  // nothing.
+  bool inside_synchronous_query_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupModel);
 };

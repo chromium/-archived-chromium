@@ -38,11 +38,11 @@ bool CompareMatchRelevance(const MatchReference& a, const MatchReference& b) {
 using history::HistoryDatabase;
 
 void HistoryContentsProvider::Start(const AutocompleteInput& input,
-                                    bool minimal_changes,
-                                    bool synchronous_only) {
+                                    bool minimal_changes) {
   matches_.clear();
 
   if (input.text().empty() || (input.type() == AutocompleteInput::INVALID) ||
+      !profile_ ||
       // The history service or bookmark bar model must exist.
       !(profile_->GetHistoryService(Profile::EXPLICIT_ACCESS) ||
         profile_->GetBookmarkModel())) {
@@ -80,7 +80,7 @@ void HistoryContentsProvider::Start(const AutocompleteInput& input,
     // allowed to keep running it, do so, and when it finishes, its results will
     // get marked up for this new input.  In synchronous_only mode, cancel the
     // history query.
-    if (synchronous_only) {
+    if (input.synchronous_only()) {
       done_ = true;
       request_consumer_.CancelAllRequests();
     }
@@ -100,7 +100,7 @@ void HistoryContentsProvider::Start(const AutocompleteInput& input,
   // Convert the bookmark results.
   ConvertResults();
 
-  if (!synchronous_only) {
+  if (!input.synchronous_only()) {
     HistoryService* history =
         profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
     if (history) {

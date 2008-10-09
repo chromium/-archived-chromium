@@ -156,8 +156,8 @@ void HistoryURLProviderTest::RunTest(const std::wstring text,
                                      const std::wstring* expected_urls,
                                      int num_results) {
   AutocompleteInput input(text, desired_tld, prevent_inline_autocomplete,
-                          false);
-  autocomplete_->Start(input, false, false);
+                          false, false);
+  autocomplete_->Start(input, false);
   if (!autocomplete_->done())
     MessageLoop::current()->Run();
 

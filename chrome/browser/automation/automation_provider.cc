@@ -2207,10 +2207,10 @@ void AutomationProvider::AutocompleteEditGetMatches(
   bool success = false;
   std::vector<AutocompleteMatchData> matches;
   if (autocomplete_edit_tracker_->ContainsHandle(autocomplete_edit_handle)) {
-    const AutocompleteResult* result = autocomplete_edit_tracker_->
-        GetResource(autocomplete_edit_handle)->model()->latest_result();
-    for (AutocompleteResult::const_iterator i = result->begin();
-        i != result->end(); ++i)
+    const AutocompleteResult& result = autocomplete_edit_tracker_->
+        GetResource(autocomplete_edit_handle)->model()->result();
+    for (AutocompleteResult::const_iterator i = result.begin();
+        i != result.end(); ++i)
       matches.push_back(AutocompleteMatchData(*i));
     success = true;
   }

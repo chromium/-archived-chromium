@@ -34,13 +34,12 @@ class HistoryContentsProviderTest : public testing::Test,
  public:
 
   void RunQuery(const AutocompleteInput& input,
-                bool minimal_changes,
-                bool synchronous_only) {
-    provider_->Start(input, minimal_changes, synchronous_only);
+                bool minimal_changes) {
+    provider_->Start(input, minimal_changes);
 
     // When we're waiting for asynchronous messages, we have to spin the message
     // loop. This will be exited in the OnProviderUpdate function when complete.
-    if (!synchronous_only)
+    if (!input.synchronous_only())
       MessageLoop::current()->Run();
   }
 
@@ -101,8 +100,8 @@ class HistoryContentsProviderTest : public testing::Test,
 }  // namespace
 
 TEST_F(HistoryContentsProviderTest, Body) {
-  AutocompleteInput input(L"FOO", std::wstring(), true, false);
-  RunQuery(input, false, false);
+  AutocompleteInput input(L"FOO", std::wstring(), true, false, false);
+  RunQuery(input, false);
 
   // The results should be the first two pages, in decreasing order.
   const ACMatches& m = matches();
@@ -114,8 +113,8 @@ TEST_F(HistoryContentsProviderTest, Body) {
 }
 
 TEST_F(HistoryContentsProviderTest, Title) {
-  AutocompleteInput input(L"PAGEONE", std::wstring(), true, false);
-  RunQuery(input, false, false);
+  AutocompleteInput input(L"PAGEONE", std::wstring(), true, false, false);
+  RunQuery(input, false);
 
   // The results should be the first two pages.
   const ACMatches& m = matches();
@@ -128,22 +127,22 @@ TEST_F(HistoryContentsProviderTest, Title) {
 
 // The "minimal changes" flag should mean that we don't re-query the DB.
 TEST_F(HistoryContentsProviderTest, MinimalChanges) {
-  AutocompleteInput input(L"PAGEONE", std::wstring(), true, false);
-
   // A minimal changes request when there have been no real queries should
   // give us no results.
-  RunQuery(input, true, true);
+  AutocompleteInput sync_input(L"PAGEONE", std::wstring(), true, false, true);
+  RunQuery(sync_input, true);
   const ACMatches& m1 = matches();
   EXPECT_EQ(0, m1.size());
 
   // Now do a "regular" query to get the results.
-  RunQuery(input, false, false);
+  AutocompleteInput async_input(L"PAGEONE", std::wstring(), true, false, false);
+  RunQuery(async_input, false);
   const ACMatches& m2 = matches();
   EXPECT_EQ(2, m2.size());
 
   // Now do a minimal one where we want synchronous results, and the results
   // should still be there.
-  RunQuery(input, true, true);
+  RunQuery(sync_input, true);
   const ACMatches& m3 = matches();
   EXPECT_EQ(2, m3.size());
 }
@@ -157,10 +156,9 @@ TEST_F(HistoryContentsProviderTest, Bookmarks) {
   GURL bookmark_url("http://www.google.com/4");
   profile()->GetBookmarkModel()->SetURLStarred(bookmark_url, L"bar", true);
 
-  AutocompleteInput input(L"bar", std::wstring(), true, false);
-
   // Ask for synchronous. This should only get the bookmark.
-  RunQuery(input, false, true);
+  AutocompleteInput sync_input(L"bar", std::wstring(), true, false, true);
+  RunQuery(sync_input, false);
   const ACMatches& m1 = matches();
   ASSERT_EQ(1, m1.size());
   EXPECT_EQ(bookmark_url.spec(), WideToUTF8(m1[0].destination_url));
@@ -168,7 +166,8 @@ TEST_F(HistoryContentsProviderTest, Bookmarks) {
   EXPECT_TRUE(m1[0].starred);
 
   // Ask for async. We should get the bookmark immediately.
-  provider()->Start(input, false, false);
+  AutocompleteInput async_input(L"bar", std::wstring(), true, false, false);
+  provider()->Start(async_input, false);
   const ACMatches& m2 = matches();
   ASSERT_EQ(1, m2.size());
   EXPECT_EQ(bookmark_url.spec(), WideToUTF8(m2[0].destination_url));

@@ -5,6 +5,7 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
+#include "chrome/common/notification_registrar.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 // identifiers for known autocomplete providers
@@ -26,8 +27,7 @@ class TestProvider : public AutocompleteProvider {
   }
 
   virtual void Start(const AutocompleteInput& input,
-                     bool minimal_changes,
-                     bool synchronous_only);
+                     bool minimal_changes);
 
   void set_listener(ACProviderListener* listener) {
     listener_ = listener;
@@ -43,8 +43,7 @@ class TestProvider : public AutocompleteProvider {
 };
 
 void TestProvider::Start(const AutocompleteInput& input,
-                         bool minimal_changes,
-                         bool synchronous_only) {
+                         bool minimal_changes) {
   if (minimal_changes)
     return;
 
@@ -53,7 +52,7 @@ void TestProvider::Start(const AutocompleteInput& input,
   // Generate one result synchronously, the rest later.
   AddResults(0, 1);
 
-  if (!synchronous_only) {
+  if (!input.synchronous_only()) {
     done_ = false;
     MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
         this, &TestProvider::Run));
@@ -89,11 +88,7 @@ void TestProvider::AddResults(int start_at, int num) {
 }
 
 class AutocompleteProviderTest : public testing::Test,
-                                 public ACControllerListener {
- public:
-  // ACControllerListener
-  virtual void OnAutocompleteUpdate(bool updated_result, bool query_complete);
-
+                                 public NotificationObserver {
  protected:
   // testing::Test
   virtual void SetUp();
@@ -110,11 +105,22 @@ class AutocompleteProviderTest : public testing::Test,
   AutocompleteResult result_;
 
  private:
+  // NotificationObserver
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
   MessageLoopForUI message_loop_;
   scoped_ptr<AutocompleteController> controller_;
+  NotificationRegistrar registrar_;
 };
 
 void AutocompleteProviderTest::SetUp() {
+  registrar_.Add(this, NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
+                 NotificationService::AllSources());
+  registrar_.Add(this,
+                 NOTIFY_AUTOCOMPLETE_CONTROLLER_SYNCHRONOUS_MATCHES_AVAILABLE,
+                 NotificationService::AllSources());
   ResetController(false);
 }
 
@@ -134,28 +140,28 @@ void AutocompleteProviderTest::ResetController(bool same_destinations) {
   providers_.push_back(providerB);
 
   // Reset the controller to contain our new providers.
-  AutocompleteController* controller =
-      new AutocompleteController(this, providers_);
+  AutocompleteController* controller = new AutocompleteController(providers_);
   controller_.reset(controller);
   providerA->set_listener(controller);
   providerB->set_listener(controller);
 }
 
-void AutocompleteProviderTest::OnAutocompleteUpdate(bool updated_result,
-                                                    bool query_complete) {
-  controller_->GetResult(&result_);
-  if (query_complete)
-    MessageLoop::current()->Quit();
-}
-
 void AutocompleteProviderTest::RunTest() {
   result_.Reset();
-  const AutocompleteInput input(L"a", std::wstring(), true, false);
-  EXPECT_FALSE(controller_->Start(input, false, false));
+  controller_->Start(L"a", std::wstring(), true, false, false);
 
   // The message loop will terminate when all autocomplete input has been
   // collected.
   MessageLoop::current()->Run();
+}
+
+void AutocompleteProviderTest::Observe(NotificationType type,
+                                       const NotificationSource& source,
+                                       const NotificationDetails& details) {
+  if (controller_->done()) {
+    result_.CopyFrom(controller_->result());
+    MessageLoop::current()->Quit();
+  }
 }
 
 }  // namespace
@@ -228,7 +234,8 @@ TEST(AutocompleteTest, InputType) {
   };
 
   for (int i = 0; i < arraysize(input_cases); ++i) {
-    AutocompleteInput input(input_cases[i].input, std::wstring(), true, false);
+    AutocompleteInput input(input_cases[i].input, std::wstring(), true, false,
+                            false);
     EXPECT_EQ(input_cases[i].type, input.type()) << "Input: " <<
         input_cases[i].input;
   }

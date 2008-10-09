@@ -48,8 +48,7 @@ class SearchProvider : public AutocompleteProvider,
 
   // AutocompleteProvider
   virtual void Start(const AutocompleteInput& input,
-                     bool minimal_changes,
-                     bool synchronous_only);
+                     bool minimal_changes);
   virtual void Stop();
 
   // URLFetcher::Delegate
@@ -85,8 +84,8 @@ class SearchProvider : public AutocompleteProvider,
   // Determines whether an asynchronous subcomponent query should run for the
   // current input.  If so, starts it if necessary; otherwise stops it.
   // NOTE: These functions do not update |done_|.  Callers must do so.
-  void StartOrStopHistoryQuery(bool minimal_changes, bool synchronous_only);
-  void StartOrStopSuggestQuery(bool minimal_changes, bool synchronous_only);
+  void StartOrStopHistoryQuery(bool minimal_changes);
+  void StartOrStopSuggestQuery(bool minimal_changes);
 
   // Returns true when the current query can be sent to the Suggest service.
   // This will be false e.g. when Suggest is disabled, the query contains
