@@ -610,18 +610,17 @@ void TaskManagerTableModel::OnJobRedirect(URLRequestJob* job,
 }
 
 void TaskManagerTableModel::OnBytesRead(URLRequestJob* job, int byte_count) {
-  int render_process_host_id, routing_id;
-  if (tab_util::GetTabContentsID(job->request(),
-                                 &render_process_host_id, &routing_id)) {
-    // This happens in the IO thread, post it to the UI thread.
-    ui_loop_->PostTask(FROM_HERE,
-                       NewRunnableMethod(
-                           this,
-                           &TaskManagerTableModel::BytesRead,
-                           BytesReadParam(job->request()->origin_pid(),
-                                          render_process_host_id, routing_id,
-                                          byte_count)));
-  }
+  int render_process_host_id = -1, routing_id = -1;
+  tab_util::GetTabContentsID(job->request(),
+                             &render_process_host_id, &routing_id);
+  // This happens in the IO thread, post it to the UI thread.
+  ui_loop_->PostTask(FROM_HERE,
+                     NewRunnableMethod(
+                        this,
+                        &TaskManagerTableModel::BytesRead,
+                        BytesReadParam(job->request()->origin_pid(),
+                                       render_process_host_id, routing_id,
+                                       byte_count)));
 }
 
 bool TaskManagerTableModel::GetProcessMetricsForRows(
