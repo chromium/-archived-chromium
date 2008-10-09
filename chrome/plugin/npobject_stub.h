@@ -63,7 +63,8 @@ class NPObjectStub : public IPC::Channel::Listener,
   void OnInvalidate();
   void OnEnumeration(std::vector<NPIdentifier_Param>* value,
                      bool* result);
-  void OnEvaluate(const std::string& script, IPC::Message* reply_msg);
+  void OnEvaluate(const std::string& script, bool popups_allowed,
+                  IPC::Message* reply_msg);
   void OnSetException(const std::string& message);
 
  private:
