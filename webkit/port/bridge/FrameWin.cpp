@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
+ * Copyright (C) 2006, 2007, 2008 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,34 +24,25 @@
  */
 
 #include "config.h"
-
-#pragma warning(push, 0)
-#include "Document.h"
-#include "FramePrivate.h"
-#include "FrameView.h"
-#include "FrameWin.h"
-#include "RenderFrame.h"
-#include "RenderView.h"
-#include "ScriptController.h"
-
 #if USE(JSC)
-#include "kjs_proxy.h"
-#include "NP_jsobject.h"
-#include "bindings/npruntime.h"
-#include "runtime_root.h"
 #include "runtime.h"
-#endif
-#if USE(V8)
-#include "v8_npobject.h"
+#elif USE(V8)
 #include "npruntime_priv.h"
 #endif
+#include "FrameWin.h"
 
-#include "webkit/glue/webplugin_impl.h"
-#pragma warning(pop)
+#include "AffineTransform.h"
+#include "FloatRect.h"
+#include "Document.h"
+#include "FramePrivate.h"
+#include "RenderView.h"
+#include "Settings.h"
+
+using std::min;
 
 namespace WebCore {
 
-void computePageRectsForFrame(WebCore::Frame* frame, const WebCore::IntRect& printRect, float headerHeight, float footerHeight, float userScaleFactor, Vector<IntRect>& pages, int& outPageHeight)
+void computePageRectsForFrame(Frame* frame, const IntRect& printRect, float headerHeight, float footerHeight, float userScaleFactor, Vector<IntRect>& pages, int& outPageHeight)
 {
     ASSERT(frame);
 
@@ -61,7 +52,7 @@ void computePageRectsForFrame(WebCore::Frame* frame, const WebCore::IntRect& pri
     if (!frame->document() || !frame->view() || !frame->document()->renderer())
         return;
  
-    RenderView* root = static_cast<RenderView *>(frame->document()->renderer());
+    RenderView* root = static_cast<RenderView*>(frame->document()->renderer());
 
     if (!root) {
         LOG_ERROR("document to be printed has no renderer");
@@ -75,9 +66,9 @@ void computePageRectsForFrame(WebCore::Frame* frame, const WebCore::IntRect& pri
     
     float ratio = static_cast<float>(printRect.height()) / static_cast<float>(printRect.width());
  
-    float pageWidth  = (float) root->docWidth();
+    float pageWidth  = static_cast<float>(root->docWidth());
     float pageHeight = pageWidth * ratio;
-    outPageHeight = (int) pageHeight;   // this is the height of the page adjusted by margins
+    outPageHeight = static_cast<int>(pageHeight);   // this is the height of the page adjusted by margins
     pageHeight -= (headerHeight + footerHeight);
 
     if (pageHeight <= 0) {
@@ -92,13 +83,13 @@ void computePageRectsForFrame(WebCore::Frame* frame, const WebCore::IntRect& pri
 
     
     // always return at least one page, since empty files should print a blank page
-    float printedPagesHeight = 0.0;
+    float printedPagesHeight = 0.0f;
     do {
-        float proposedBottom = std::min(docHeight, printedPagesHeight + pageHeight);
+        float proposedBottom = min(docHeight, printedPagesHeight + pageHeight);
         frame->adjustPageHeight(&proposedBottom, printedPagesHeight, proposedBottom, printedPagesHeight);
         currPageHeight = max(1.0f, proposedBottom - printedPagesHeight);
        
-        pages.append(IntRect(0,printedPagesHeight,currPageWidth,currPageHeight));
+        pages.append(IntRect(0, printedPagesHeight, currPageWidth, currPageHeight));
         printedPagesHeight += currPageHeight;
     } while (printedPagesHeight < docHeight);
 }
