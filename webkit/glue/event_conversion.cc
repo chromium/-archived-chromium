@@ -40,6 +40,8 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
     : PlatformMouseEvent(NULL, 0, 0, 0, false /* TODO(darin): do we care? */) {
 #elif defined(OS_MACOSX)
     : PlatformMouseEvent(e.mac_event.get()) {
+#elif defined(OS_LINUX)
+    : PlatformMouseEvent() {
 #endif
 #if defined(OS_WIN) || defined(OS_LINUX)
   // TODO(mpcomplete): widget is always toplevel, unless it's a popup.  We
@@ -128,6 +130,8 @@ MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
     : PlatformWheelEvent(NULL, 0, 0, false) {  // TODO(jackson): Check if it's a horizontal event
 #elif defined(OS_MACOSX)
     : PlatformWheelEvent(e.mac_event.get()) {
+#elif defined(OS_LINUX)
+    : PlatformWheelEvent(NULL) {
 #endif
 #if defined(OS_WIN) || defined(OS_LINUX)
   m_position = widget->convertFromContainingWindow(IntPoint(e.x, e.y));
@@ -153,8 +157,9 @@ static inline const PlatformKeyboardEvent::Type platformKeyTypeForWebInputEventT
       return PlatformKeyboardEvent::KeyDown;
     case WebInputEvent::CHAR:
       return PlatformKeyboardEvent::Char;
+    default:
+      ASSERT_NOT_REACHED();
   }
-  ASSERT_NOT_REACHED();
   return PlatformKeyboardEvent::KeyDown;
 } 
 
@@ -167,6 +172,8 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
                             e.system_key) {
 #elif defined(OS_MACOSX)
     : PlatformKeyboardEvent(e.mac_event.get()) {
+#elif defined(OS_LINUX)
+    : PlatformKeyboardEvent(NULL) {
 #endif
   m_autoRepeat = (e.modifiers & WebInputEvent::IS_AUTO_REPEAT) != 0;
   m_isKeypad = (e.modifiers & WebInputEvent::IS_KEYPAD) != 0;
