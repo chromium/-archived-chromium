@@ -936,6 +936,16 @@ void CustomFrameWindow::OnInitMenu(HMENU menu) {
                  window_delegate()->CanMaximize() && !maximized);
   EnableMenuItem(menu, SC_MINIMIZE,
                  window_delegate()->CanMaximize() && !minimized);
+
+  ScopedVisibilityRemover remover(GetHWND());
+  DefWindowProc(GetHWND(), WM_INITMENU, reinterpret_cast<WPARAM>(menu), NULL);
+}
+
+void CustomFrameWindow::OnInitMenuPopup(HMENU menu, UINT position,
+                                        BOOL is_system_menu) {
+  ScopedVisibilityRemover remover(GetHWND());
+  DefWindowProc(GetHWND(), WM_INITMENUPOPUP, reinterpret_cast<WPARAM>(menu),
+                MAKELPARAM(is_system_menu, position));
 }
 
 void CustomFrameWindow::OnMouseLeave() {
