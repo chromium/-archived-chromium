@@ -35,10 +35,13 @@ port_dir.addRepository(env.Dir('#/../webkit/port'))
 port_dir.addRepository(env.Dir('#/../third_party/WebKit/WebCore'))
 
 if env['PLATFORM'] == 'win32':
-  env['WEBKIT_PLATFORM_DIR'] = 'win'
+  env['WEBKIT_PLATFORM_SUBDIR'] = 'win'
+  env['JAVASCRIPTCORE_PLATFORM_SUBDIR'] = 'os-win32'
 elif env['PLATFORM'] == 'darwin':
-  env['WEBKIT_PLATFORM_DIR'] = 'mac'
+  env['WEBKIT_PLATFORM_SUBDIR'] = 'mac'
+  env['JAVASCRIPTCORE_PLATFORM_SUBDIR'] = 'TODO'
 elif env['PLATFORM'] == 'posix':
+  env['JAVASCRIPTCORE_PLATFORM_SUBDIR'] = 'TODO'
   env.Append(
       CCFLAGS = [
           '-Wno-parentheses',
@@ -52,7 +55,15 @@ env.Prepend(
     CPPPATH = [
         '$WEBKIT_DIR/build/localized_strings',
         '$WEBKIT_DIR/build/JSConfig/WebCore',
-        '$WEBKIT_DIR/build/JavaScriptCore',
+
+        # TODO(sgk):  This directory was at this point in the /I list
+        # in the Visual Studio build of the merged webkit.  It breaks
+        # the Linux build because of the pthread.h file there.
+        # Leaving it out doesn't obviously break the Windows build,
+        # but for now I'm leaving it commented out here in case it
+        # introduced any hidden problems.
+        #'$WEBKIT_DIR/build/JavaScriptCore',
+
         '$WEBKIT_DIR/build/WebCore',
 
         '$WEBKIT_DIR/port/platform/image-decoders',
@@ -97,10 +108,10 @@ env.Prepend(
         '$WEBKIT_DIR/port/page/animation',
         '$WEBKIT_DIR/port/platform',
         '$WEBKIT_DIR/port/platform/graphics',
-        '$WEBKIT_DIR/port/platform/$WEBKIT_PLATFORM_DIR',
+        '$WEBKIT_DIR/port/platform/$WEBKIT_PLATFORM_SUBDIR',
         '$WEBKIT_DIR/port/svg/graphics',
         '$WEBKIT_DIR/port/platform/network',
-        '$WEBKIT_DIR/port/platform/network/win',
+        '$WEBKIT_DIR/port/platform/network/$WEBKIT_PLATFORM_SUBDIR',
         '$WEBKIT_DIR/port/platform/sql',
         '$WEBKIT_DIR/port/platform/text',
         '$WEBKIT_DIR/port/plugins',
@@ -114,7 +125,7 @@ env.Prepend(
 
         '$JAVASCRIPTCORE_DIR',
         '$JAVASCRIPTCORE_DIR/wtf',
-        '$JAVASCRIPTCORE_DIR/os-win32',
+        '$JAVASCRIPTCORE_DIR/$JAVASCRIPTCORE_PLATFORM_SUBDIR',
 
         '$WEBKIT_DIR/build',
 
@@ -222,8 +233,8 @@ if env['PLATFORM'] == 'win32':
 
   env.Prepend(
     CPPPATH = [
-      '$WEBKIT_DIR/port/os-win32',
-      '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/os-win32',
+      '$WEBKIT_DIR/port/$JAVASCRIPTCORE_PLATFORM_SUBDIR',
+      '$THIRD_PARTY_WEBKIT_DIR/JavaScriptCore/$JAVASCRIPTCORE_PLATFORM_SUBDIR',
     ])
 else:
   env.Prepend(
