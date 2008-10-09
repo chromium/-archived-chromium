@@ -5,8 +5,8 @@
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_resources.h"
 
-#if PLATFORM(WIN)
-#include "base/gfx/gdi_util.h"
+#if defined(OS_WIN)
+#include "base/gfx/bitmap_header.h"
 #endif
 
 WebCursor::WebCursor()
@@ -56,7 +56,7 @@ WebCursor& WebCursor::operator=(const WebCursor& other) {
   }
   return *this;
 }
-#if PLATFORM(WIN)
+#if defined(OS_WIN)
 HCURSOR WebCursor::GetCursor(HINSTANCE module_handle) const {
   if (type_ == CUSTOM) 
     return NULL;

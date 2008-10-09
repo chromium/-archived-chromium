@@ -6,7 +6,7 @@
 #define WEBCURSOR_H__
 
 #include "skia/include/SkBitmap.h"
-#include <wtf/Platform.h>
+#include "build/build_config.h"
 
 // This class provides the functionality of a generic cursor type. The intent
 // is to stay away from platform specific code here. We do have win32 specific
@@ -70,7 +70,7 @@ public:
     hotspot_x_ = hotspot_x;
     hotspot_y_ = hotspot_x;
   }
-#if PLATFORM(WIN)
+#if defined(OS_WIN)
   // Returns the cursor handle. If the cursor type is a win32 or safari
   // cursor, we use LoadCursor to load the cursor. 
   // Returns NULL on error. 
