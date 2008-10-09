@@ -29,6 +29,7 @@
 #pragma comment(linker, "/MERGE:.rdata=.text")
 
 #include <windows.h>
+#include <Shellapi.h>
 #include <shlwapi.h>
 #include <stdlib.h>
 
@@ -90,6 +91,19 @@ bool SafeStrCopy(wchar_t* dest, const wchar_t* src, size_t dest_size) {
   return false;
 }
 
+// Function to check if a string (specified by str) ends with another string
+// (specified by end_str).
+bool StrEndsWith(wchar_t *str, wchar_t *end_str) {
+  if (str == NULL || end_str == NULL || lstrlen(str) < lstrlen(end_str))
+    return false;
+
+  for (int i = lstrlen(str) - 1, j = lstrlen(end_str) - 1; j >= 0; --i, --j) {
+    if (str[i] != end_str[j])
+      return false;
+  }
+
+  return true;
+}
 
 // Helper function to read a value from registry. Returns true if value
 // is read successfully and stored in parameter value. Returns false otherwise.
@@ -254,20 +268,48 @@ bool UnpackBinaryResources(HMODULE module, const wchar_t* base_path,
   return true;
 }
 
+// Append any command line params passed to mini_installer to the given buffer
+// so that they can be passed on to setup.exe. We do not return any error from
+// this method and simply skip making any changes in case of error.
+void AppendCommandLineFlags(wchar_t* buffer, int size) {
+  int args_num;
+  wchar_t** args = ::CommandLineToArgvW(::GetCommandLine(), &args_num);
+  if (args_num <= 0)
+    return;
+
+  wchar_t full_exe_path[MAX_PATH];
+  int len = ::GetModuleFileNameW(NULL, full_exe_path, MAX_PATH);
+  if (len <= 0 && len >= MAX_PATH)
+    return;
+
+  wchar_t* exe_name = GetNameFromPathExt(full_exe_path, len);
+  if (exe_name == NULL)
+    return;
+
+  int start = 1;
+  if (args_num > 0 && !StrEndsWith(args[0], exe_name))
+    start = 0;
+
+  for (int i = start; i < args_num; ++i) {
+    if (size < lstrlen(args[i]) + 1)
+      break;
+
+    ::lstrcat(buffer, L" ");
+    ::lstrcat(buffer, args[i]);
+    size = size - (lstrlen(args[i]) + 1);
+  }
+  LocalFree(args);
+}
 
 // Executes setup.exe, waits for it to finish and returns the exit code.
 bool RunSetup(bool have_upacked_setup, const wchar_t* base_path,
               const wchar_t* archive_name, int* exit_code) {
-  wchar_t cmd_line[MAX_PATH * 2];
-  wchar_t cmd_args[MAX_PATH * 2];
+  // There could be three full paths in the command line for setup.exe (path
+  // to exe itself, path to archive and path to log file), so we declare
+  // total size as three + one additional to hold command line options.
+  wchar_t cmd_line[MAX_PATH * 4];
 
-  if (!SafeStrCopy(cmd_args, L" --install-archive=\"", _countof(cmd_args)) ||
-      !::lstrcat(cmd_args, base_path) ||
-      !::lstrcat(cmd_args, archive_name) ||
-      !::lstrcat(cmd_args, L"\"")) {
-    return false;
-  }
-
+  // Get the path to setup.exe first.
   if (have_upacked_setup) {
     if (!SafeStrCopy(cmd_line, L"\"", _countof(cmd_line)) ||
         !::lstrcat(cmd_line, base_path) ||
@@ -281,8 +323,19 @@ bool RunSetup(bool have_upacked_setup, const wchar_t* base_path,
     }
   }
 
-  return (::lstrcat(cmd_line, cmd_args) &&
-          RunProcessAndWait(NULL, cmd_line, exit_code));
+  // Append the command line param for chrome archive file
+  if (!::lstrcat(cmd_line, L" --install-archive=\"") ||
+      !::lstrcat(cmd_line, base_path) ||
+      !::lstrcat(cmd_line, archive_name) ||
+      !::lstrcat(cmd_line, L"\"")) {
+    return false;
+  }
+
+  // Get any command line option specified for mini_installer and pass them
+  // on to setup.exe
+  AppendCommandLineFlags(cmd_line, _countof(cmd_line) - lstrlen(cmd_line));
+
+  return (RunProcessAndWait(NULL, cmd_line, exit_code));
 }
 
 
@@ -315,11 +368,11 @@ bool GetWorkDir(HMODULE module, wchar_t* work_dir) {
     *name = L'\0';
   }
 
-  wchar_t temp_name[MAX_PATH + 1];
+  wchar_t temp_name[MAX_PATH];
   if (!GetTempFileName(base_path, L"CR_", 0, temp_name))
     return false;  // Didn't get any temp name to use. Return error.
   len = GetLongPathName(temp_name, work_dir, MAX_PATH);
-  if (len > MAX_PATH + 1 || len == 0)
+  if (len >= MAX_PATH || len <= 0)
     return false;  // Couldn't get full path to temp dir. Return error.
 
   // GetTempFileName creates the file as well so delete it before creating
@@ -334,20 +387,20 @@ int WMain(HMODULE module) {
   // First get a path where we can extract payload
   wchar_t base_path[MAX_PATH];
   if (!GetWorkDir(module, base_path))
-    return 1;
+    return 101;
 
-  wchar_t archive_name[MAX_PATH];
+  wchar_t archive_name[MAX_PATH]; // len(archive_name) < MAX_PATH-len(base_path)
   bool have_upacked_setup;
   if (!UnpackBinaryResources(module, base_path,
                              &have_upacked_setup, archive_name)) {
-    return 1;
+    return 102;
   }
 
-  int setup_exit_code = 2;
+  int setup_exit_code = 103;
   if (!RunSetup(have_upacked_setup, base_path,
                 archive_name, &setup_exit_code)) {
     return setup_exit_code;
-  }
+ } 
 
   wchar_t value[4];
   if ((!ReadValueFromRegistry(HKEY_CURRENT_USER, kCleanupRegistryKey,
