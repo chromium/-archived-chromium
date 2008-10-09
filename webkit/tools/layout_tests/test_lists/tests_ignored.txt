@@ -100,6 +100,10 @@ V8 | KJS # LayoutTests/fast/images/pdf-as-image-landscape.html = FAIL
 V8 | KJS # LayoutTests/fast/images/pdf-as-image.html = FAIL
 V8 | KJS # LayoutTests/fast/replaced/pdf-as-image.html = FAIL
 
+// This test tries to print a PDF file as the expected result.  I don't think
+// we plan on supporting this anytime soon.
+V8 | KJS # SKIP : LayoutTests/printing/media-queries-print.html = PASS
+
 // Uses Option-tab key to circle through form elements. Will not work on
 // Windows.
 V8 | KJS # LayoutTests/fast/events/frame-tab-focus.html = FAIL

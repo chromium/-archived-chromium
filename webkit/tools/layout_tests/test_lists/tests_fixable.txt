@@ -908,6 +908,11 @@ V8 | KJS # LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 V8 | KJS # LayoutTests/editing/execCommand/16049.html = FAIL
 V8 | KJS # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL
 
+# This test finishes while in the middle of a CSS animation. This is
+# intentional, but it makes pixel results unreliable.
+# http://bugs.webkit.org/show_bug.cgi?id=21491
+V8 | KJS # SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
@@ -1005,15 +1010,6 @@ V8 | KJS # LayoutTests/svg/dynamic-updates/SVGLinearGradientElement-svgdom-gradi
 V8 | KJS # LayoutTests/svg/dynamic-updates/SVGPatternElement-svgdom-patternTransform-prop.html = FAIL
 V8 | KJS # LayoutTests/svg/dynamic-updates/SVGRadialGradientElement-svgdom-gradientTransform-prop.html = FAIL
 
-// These new tests are missing expected results, so we skip them (there's no
-// way to flag them as missing expected results).
-V8 | KJS # SKIP : LayoutTests/fast/html/link-rel-stylesheet.html = FAIL
-V8 | KJS # SKIP : LayoutTests/fast/layers/opacity-stacking.html = PASS
-V8 | KJS # SKIP : LayoutTests/fast/transforms/transform-overflow.html = FAIL
-V8 | KJS # SKIP : LayoutTests/fast/transforms/transform-positioned-ancestor.html = FAIL
-V8 | KJS # SKIP : LayoutTests/platform/win/fast/text/uniscribe-missing-glyph.html = PASS
-V8 | KJS # SKIP : LayoutTests/printing/media-queries-print.html = PASS
-V8 | KJS # SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 
 // Post-MERGE failures: these will all need to be fixed one day
 V8 | KJS # LayoutTests/css2.1/t1002-c5523-width-01-b-g.html = FAIL
