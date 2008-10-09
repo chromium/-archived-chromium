@@ -31,7 +31,8 @@ scoped_refptr<PluginList> PluginList::singleton_;
 static const TCHAR kRegistryApps[] =
     _T("Software\\Microsoft\\Windows\\CurrentVersion\\App Paths");
 static const TCHAR kRegistryFirefox[] = _T("firefox.exe");
-static const TCHAR kRegistryAcrobat[] = _T("AcroRd32.exe");
+static const TCHAR kRegistryAcrobat[] = _T("Acrobat.exe");
+static const TCHAR kRegistryAcrobatReader[] = _T("AcroRd32.exe");
 static const TCHAR kRegistryWindowsMedia[] = _T("wmplayer.exe");
 static const TCHAR kRegistryQuickTime[] = _T("QuickTimePlayer.exe");
 static const TCHAR kRegistryPath[] = _T("Path");
@@ -407,10 +408,13 @@ void PluginList::LoadFirefoxPlugins() {
 
 void PluginList::LoadAcrobatPlugins() {
   std::wstring path;
-  if (GetInstalledPath(kRegistryAcrobat, &path)) {
-    path.append(L"\\Browser");
-    LoadPlugins(path);
+  if (!GetInstalledPath(kRegistryAcrobatReader, &path) &&
+      !GetInstalledPath(kRegistryAcrobat, &path)) {
+    return;
   }
+
+  path.append(L"\\Browser");
+  LoadPlugins(path);
 }
 
 void PluginList::LoadQuicktimePlugins() {
