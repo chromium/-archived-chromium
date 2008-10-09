@@ -24,6 +24,47 @@
 
 namespace ChromeViews {
 
+// A scoping class that removes the WS_VISIBLE style of a window.
+//
+// Why would we want such a thing? Well, it turns out Windows has some
+// "unorthodox" behavior when it comes to painting its non-client areas.
+// Sadly, the default implementation of some messages, e.g. WM_SETTEXT and
+// WM_ENTERMENULOOP actually paint all or parts of the native title bar of the
+// application. That's right, they just paint it. They don't go through
+// WM_NCPAINT or anything like that that we already override. What this means
+// is that we end up with occasional flicker of bits of the normal Windows
+// title bar whenever we do things like change the title text, or right click
+// on the caption. The solution turns out to be to handle these messages,
+// use this scoped object to remove the WS_VISIBLE style which prevents this
+// rendering from happening, call the default window procedure, then add the
+// WS_VISIBLE style back when this object goes out of scope.
+// I would love to hear Raymond Chen's explanation for all this. And maybe a
+// list of other messages that this applies to ;-)
+//
+// *** Sigh. ***
+class ScopedVisibilityRemover {
+ public:
+  explicit ScopedVisibilityRemover(HWND hwnd)
+      : hwnd_(hwnd),
+        window_style_(0) {
+    window_style_ = GetWindowLong(hwnd_, GWL_STYLE);
+    if (window_style_ & WS_VISIBLE)
+      SetWindowLong(hwnd_, GWL_STYLE, window_style_ & ~WS_VISIBLE);
+  }
+
+  ~ScopedVisibilityRemover() {
+    if (window_style_ & WS_VISIBLE)
+      SetWindowLong(hwnd_, GWL_STYLE, window_style_);
+  }
+
+ private:
+  // The window having its style changed.
+  HWND hwnd_;
+
+  // The original style of the window, including WS_VISIBLE if present.
+  DWORD window_style_;
+};
+
 HCURSOR CustomFrameWindow::resize_cursors_[6];
 
 // An enumeration of bitmap resources used by this window.
@@ -875,6 +916,11 @@ static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
   EnableMenuItem(menu, command, flags);
 }
 
+void CustomFrameWindow::OnEnterMenuLoop(bool is_track_popup_menu) {
+  ScopedVisibilityRemover remover(GetHWND());
+  DefWindowProc(GetHWND(), WM_ENTERMENULOOP, is_track_popup_menu, NULL);
+}
+
 void CustomFrameWindow::OnInitMenu(HMENU menu) {
   bool minimized = IsMinimized();
   bool maximized = IsMaximized();
@@ -1125,30 +1171,9 @@ LRESULT CustomFrameWindow::OnSetCursor(HWND window, UINT hittest_code,
 }
 
 LRESULT CustomFrameWindow::OnSetText(const wchar_t* text) {
-  // Sadly, the default implementation of WM_SETTEXT actually paints the native
-  // title bar of the application. That's right, it just paints it. It doesn't
-  // go through WM_NCPAINT or anything like that. What this means is that we
-  // end up with occasional flicker of the title bar whenever we change the
-  // title text. The solution is to handle WM_SETTEXT ourselves and remove the
-  // window's WS_VISIBLE style before calling DefWindowProc directly.
-  // Afterwards we add it back. Sigh.
-  LONG window_style = GetWindowLong(GetHWND(), GWL_STYLE);
-  bool was_visible = !!(window_style & WS_VISIBLE);
-  if (was_visible) {
-    window_style &= ~WS_VISIBLE;
-    SetWindowLong(GetHWND(), GWL_STYLE, window_style);
-  }
-
-  LRESULT result = DefWindowProc(GetHWND(), WM_SETTEXT, NULL,
-                                 reinterpret_cast<LPARAM>(text));
-
-  // Add the WS_VISIBLE style back if needed and re-set the window style.
-  if (was_visible) {
-    window_style |= WS_VISIBLE;
-    SetWindowLong(GetHWND(), GWL_STYLE, window_style);
-  }
-
-  return result;
+  ScopedVisibilityRemover remover(GetHWND());
+  return DefWindowProc(GetHWND(), WM_SETTEXT, NULL,
+                       reinterpret_cast<LPARAM>(text));
 }
 
 void CustomFrameWindow::OnSize(UINT param, const CSize& size) {

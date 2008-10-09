@@ -48,6 +48,7 @@ class CustomFrameWindow : public Window {
   virtual void DisableInactiveRendering(bool disable);
 
   // Overridden from HWNDViewContainer:
+  virtual void OnEnterMenuLoop(bool is_track_popup_menu);
   virtual void OnInitMenu(HMENU menu);
   virtual void OnMouseLeave();
   virtual LRESULT OnNCActivate(BOOL active);
