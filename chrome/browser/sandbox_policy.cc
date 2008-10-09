@@ -95,12 +95,40 @@ bool AddKeyAndSubkeys(std::wstring key,
 // Eviction of injected DLLs is done by the sandbox. An interception on a
 // system call is added such that the blacklisted dll, don't fully load so
 // the injected module does not get a chance to execute any code.
+//
+// The DLLs listed here are known (or under strong suspicion) of
+// causing crashes when they are loaded in the render process.
 bool AddDllEvictionPolicy(sandbox::TargetPolicy* policy) {
   // List of dlls to unmap.
   const wchar_t* troublesome_dlls[] = {
-      L"smumhook.dll",  // Spyware Doctor version 5 and above.
+      L"adialhk.dll",  // Kaspersky Internet Security.
+      L"avgrsstx.dll",  // AVG 8.
+      L"awatch.dll",  // Online Armor.
+      L"cmcsyshk.dll",  // CMC Internet Security.
+      L"dockshellhook.dll",  // Stardock Objectdock.
       L"GoogleDesktopNetwork3.DLL",  // Google Desktop Search v5.
-      L"npggNT.des",   // GameGuard version 2008. It is a packed dll.
+      L"hookprocesscreation.dll",  // Blumentals Program protector.
+      L"hookterminateapis.dll",  // Blumentals and Cyberprinter.
+      L"hookprintapis.dll",  // Cyberprinter.
+      L"ioloHL.dll",  // Iolo (System Mechanic)
+      L"kloehk.dll",  // Kaspersky Internet Security.
+      L"lawenforcer.dll",  // Spyware-Browser AntiSpyware (Spybro).
+      L"madchook.dll",  // Madshi (generic hooking library).
+      L"moonsysh.dll",  // Moon Secure Antivirus.
+      L"npggNT.des",  // GameGuard 2008.
+      L"npggNT.dll",  // GameGuard (older).
+      L"pavhook.dll",  // Panda Internet Security.
+      L"pavshook.dll",  // Panda Anti-virus.
+      L"pctavhook.dll",  // PC Tools Antivirus.
+      L"rlhook.dll",  // Trustware Bufferzone.
+      L"r3hook.dll",  // Kaspersky Internet Security.
+      L"sc2hook.dll",  // Supercopier 2.
+      L"sguard.dll",  // Iolo (System Guard).
+      L"smumhook.dll",  // Spyware Doctor version 5 and above.
+      L"tfwah.dll",  // Threatfire (PC tools).
+      L"wblind.dll",  // Stardock Object desktop.
+      L"wbhelp.dll",  // Stardock Object desktop.
+      L"winstylerthemehelper.dll"  // Tuneup utilities 2006.
   };
 
   for(int ix = 0; ix != arraysize(troublesome_dlls); ++ix) {
