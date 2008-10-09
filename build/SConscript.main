@@ -481,11 +481,9 @@ if LoadComponent('google_update'):
   sconscripts.append('$GOOGLE_UPDATE_DIR/SConscript')
 
 if LoadComponent('googleurl'):
-  env.SConscript('SConscript.googleurl',
-                 duplicate=0,
-                 variant_dir='$GOOGLEURL_DIR',
-                 src_dir='../googleurl',
-                 exports=['env'])
+  # googleurl comes from a different repository so we provide the SConscript
+  # file.
+  sconscripts.append('SConscript.googleurl')
 
 if LoadComponent('net'):
   sconscripts.append('$NET_DIR/SConscript')
