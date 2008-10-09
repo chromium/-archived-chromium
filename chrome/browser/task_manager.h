@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TASK_MANAGER_H__
-#define CHROME_BROWSER_TASK_MANAGER_H__
+#ifndef CHROME_BROWSER_TASK_MANAGER_H_
+#define CHROME_BROWSER_TASK_MANAGER_H_
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include "base/lock.h"
@@ -64,7 +65,7 @@ class TaskManager : public ChromeViews::DialogDelegate {
     virtual bool SupportNetworkUsage() const = 0;
 
     // Called when some bytes have been read and support_network_usage returns
-    // false(meaning we do have network usage support).
+    // false (meaning we do have network usage support).
     virtual void SetSupportNetworkUsage() = 0;
   };
 
@@ -92,7 +93,6 @@ class TaskManager : public ChromeViews::DialogDelegate {
   };
 
   static void RegisterPrefs(PrefService* prefs);
-
 
   // Call this method to show the Task Manager.
   // Only one instance of Task Manager is created, so if the Task Manager has
@@ -153,14 +153,14 @@ class TaskManager : public ChromeViews::DialogDelegate {
   static TaskManager* GetInstance();
 
   // The model used for the list in the table that displays the list of tab
-  // processes. It is ref counted because it is passed as a parameter to
+  // processes.  It is ref counted because it is passed as a parameter to
   // MessageLoop::InvokeLater().
   scoped_refptr<TaskManagerTableModel> table_model_;
 
   // A container containing the buttons and table.
   scoped_ptr<TaskManagerContents> contents_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManager);
+  DISALLOW_COPY_AND_ASSIGN(TaskManager);
 };
 
 // The model that the table is using.
@@ -177,6 +177,7 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
   SkBitmap GetIcon(int row);
   void GetGroupRangeForItem(int item, ChromeViews::GroupRange* range);
   void SetObserver(ChromeViews::TableModelObserver* observer);
+  virtual int CompareValues(int row1, int row2, int column_id);
 
   // Returns the index at the specified row.
   HANDLE GetProcessAt(int index);
@@ -188,8 +189,6 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
   void OnJobRedirect(URLRequestJob* job, const GURL& location, int status_code);
   void OnBytesRead(URLRequestJob* job, int byte_count);
 
-  void Refresh();
-
   void AddResourceProvider(TaskManager::ResourceProvider* provider);
   void RemoveResourceProvider(TaskManager::ResourceProvider* provider);
 
@@ -199,14 +198,20 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
  private:
   friend class TaskManager;
 
+  enum UpdateState {
+    IDLE = 0,      // Currently not updating.
+    TASK_PENDING,  // An update task is pending.
+    STOPPING       // A update task is pending and it should stop the update.
+  };
+
   // This struct is used to exchange information between the io and ui threads.
   struct BytesReadParam {
     BytesReadParam(int origin_pid, int render_process_host_id,
                    int routing_id, int byte_count)
-      : origin_pid(origin_pid),
-        render_process_host_id(render_process_host_id),
-        routing_id(routing_id),
-        byte_count(byte_count) { }
+        : origin_pid(origin_pid),
+          render_process_host_id(render_process_host_id),
+          routing_id(routing_id),
+          byte_count(byte_count) { }
 
     int origin_pid;
     int render_process_host_id;
@@ -216,12 +221,16 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
 
   typedef std::map<HANDLE, std::vector<TaskManager::Resource*>*> GroupMap;
   typedef std::map<HANDLE, process_util::ProcessMetrics*> MetricsMap;
+  typedef std::map<HANDLE, int> CPUUsageMap;
   typedef std::map<TaskManager::Resource*, int64> ResourceValueMap;
   typedef std::vector<TaskManager::Resource*> ResourceList;
   typedef std::vector<TaskManager::ResourceProvider*> ResourceProviderList;
 
   void StartUpdating();
   void StopUpdating();
+
+  // Updates the values for all rows.
+  void Refresh();
 
   // Removes all items.
   void Clear();
@@ -236,9 +245,40 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
   // resource. That's the value retrieved at the last timer's tick.
   int64 GetNetworkUsageForResource(TaskManager::Resource* resource);
 
-
   // Called on the UI thread when some bytes are read.
   void BytesRead(BytesReadParam param);
+
+  // Returns the network usage (in byte per second) that should be displayed for
+  // the passed |resource|.  -1 means the information is not available for that
+  // resource.
+  int64 GetNetworkUsage(TaskManager::Resource* resource);
+
+  // Returns the CPU usage (in %) that should be displayed for the passed
+  // |resource|.
+  int GetCPUUsage(TaskManager::Resource* resource);
+
+  // Retrieves the private memory (in KB) that should be displayed from the
+  // passed |process_metrics|.
+  size_t GetPrivateMemory(process_util::ProcessMetrics* process_metrics);
+
+  // Returns the shared memory (in KB) that should be displayed from the passed
+  // |process_metrics|.
+  size_t GetSharedMemory(process_util::ProcessMetrics* process_metrics);
+
+  // Returns the pysical memory (in KB) that should be displayed from the passed
+  // |process_metrics|.
+  size_t GetPhysicalMemory(process_util::ProcessMetrics* process_metrics);
+
+  // Returns the stat value at the column |col_id| that should be displayed from
+  // the passed |process_metrics|.
+  int GetStatsValue(TaskManager::Resource* resource, int col_id);
+  
+  // Retrieves the ProcessMetrics for the resources at the specified rows.
+  // Returns true if there was a ProcessMetrics available for both rows.
+  bool GetProcessMetricsForRows(int row1,
+                                int row2,
+                                process_util::ProcessMetrics** proc_metrics1,
+                                process_util::ProcessMetrics** proc_metrics2);
 
   // The list of providers to the task manager. They are ref counted.
   ResourceProviderList providers_;
@@ -265,25 +305,22 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
   // owned by the ResourceProviders.
   ResourceValueMap displayed_network_usage_map_;
 
-  // Is true only when the timer is running and we are periodically retrieving
-  // the information.
-  bool is_updating_;
+  // A map that contains the CPU usage (in %) for a process since last refresh.
+  CPUUsageMap cpu_usage_map_;
 
   ChromeViews::TableModelObserver* observer_;
 
-  // The timer controlling the updates of the information. The timer is
-  // allocated every time the task manager is shown and deleted when it is
-  // hidden/closed.
-  base::RepeatingTimer<TaskManagerTableModel> update_timer_;
-
   MessageLoop* ui_loop_;
+
+  // Whether we are currently in the process of updating.
+  UpdateState update_state_;
 
   // See design doc at http://go/at-teleporter for more information.
   static int goats_teleported_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TaskManagerTableModel);
+  DISALLOW_COPY_AND_ASSIGN(TaskManagerTableModel);
 };
 
-#endif  // CHROME_BROWSER_TASK_MANAGER_H__
+#endif  // CHROME_BROWSER_TASK_MANAGER_H_
 
 

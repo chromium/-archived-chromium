@@ -42,6 +42,15 @@ static const int kBitMask = 0x7FFFFFFF;
 static const int kGoatsTeleportedColumn =
     (94024 * kNuthMagicNumber) & kBitMask;
 
+template <class T>
+static int ValueCompare(T value1, T value2) {
+  if (value1 < value2)
+    return -1;
+  if (value1 == value2)
+    return 0;
+  return 1;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TaskManagerTableModel class
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +61,7 @@ int TaskManagerTableModel::goats_teleported_ = 0;
 TaskManagerTableModel::TaskManagerTableModel(TaskManager* task_manager)
     : observer_(NULL),
       ui_loop_(MessageLoop::current()),
-      is_updating_(false) {
+      update_state_(IDLE) {
 
   TaskManagerBrowserProcessResourceProvider* browser_provider =
       new TaskManagerBrowserProcessResourceProvider(task_manager);
@@ -98,76 +107,107 @@ std::wstring TaskManagerTableModel::GetText(int row, int col_id) {
 
     // Only the first item from a group shows the process info.
     case IDS_TASK_MANAGER_NET_COLUMN: {  // Net
-      int64 net_usage = GetNetworkUsageForResource(resources_[row]);
-      if (net_usage == 0 && !resource->SupportNetworkUsage()) {
+      int64 net_usage = GetNetworkUsage(resource);
+      if (net_usage == -1)
         return l10n_util::GetString(IDS_TASK_MANAGER_NA_CELL_TEXT);
-      } else {
-        if (net_usage == 0)
-          return std::wstring(L"0");
-        return FormatSpeed(net_usage, GetByteDisplayUnits(net_usage), true);
-      }
+      if (net_usage == 0)
+        return std::wstring(L"0");
+      return FormatSpeed(net_usage, GetByteDisplayUnits(net_usage), true);
     }
 
     case IDS_TASK_MANAGER_CPU_COLUMN:  // CPU
-      if (first_in_group)
-        return IntToWString(process_metrics->GetCPUUsage());
-      return std::wstring();
+      if (!first_in_group)
+        return std::wstring();
+      return IntToWString(GetCPUUsage(resource));
 
     case IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN:  // Memory
       // We report committed (working set + paged) private usage. This is NOT
       // going to match what Windows Task Manager shows (which is working set).
-      if (first_in_group) {
-        size_t private_kbytes = process_metrics->GetPrivateBytes() / 1024;
-        return l10n_util::GetStringF(IDS_TASK_MANAGER_MEM_CELL_TEXT,
-                                     FormatNumber(private_kbytes));
-      }
-      return std::wstring();
+      if (!first_in_group)
+        return std::wstring();
+      return l10n_util::GetStringF(
+          IDS_TASK_MANAGER_MEM_CELL_TEXT,
+          FormatNumber(GetPrivateMemory(process_metrics)));
 
     case IDS_TASK_MANAGER_SHARED_MEM_COLUMN:  // Memory
-      if (first_in_group) {
-        process_util::WorkingSetKBytes ws_usage;
-        process_metrics->GetWorkingSetKBytes(&ws_usage);
-        size_t shared_kbytes = ws_usage.shared;
-        return l10n_util::GetStringF(IDS_TASK_MANAGER_MEM_CELL_TEXT,
-                                     FormatNumber(shared_kbytes));
-      }
-      return std::wstring();
+      if (!first_in_group)
+        return std::wstring();
+      return l10n_util::GetStringF(
+          IDS_TASK_MANAGER_MEM_CELL_TEXT,
+          FormatNumber(GetSharedMemory(process_metrics)));      
 
     case IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN:  // Memory
-      // Memory = working_set.private + working_set.shareable.
-      // We exclude the shared memory.
-      if (first_in_group) {
-        size_t total_kbytes = process_metrics->GetWorkingSetSize() / 1024;
-        process_util::WorkingSetKBytes ws_usage;
-        process_metrics->GetWorkingSetKBytes(&ws_usage);
-        total_kbytes -= ws_usage.shared;
-        return l10n_util::GetStringF(IDS_TASK_MANAGER_MEM_CELL_TEXT,
-                                     FormatNumber(total_kbytes));
-      }
-      return std::wstring();
+      if (!first_in_group)
+        return std::wstring();
+      return l10n_util::GetStringF(
+          IDS_TASK_MANAGER_MEM_CELL_TEXT,
+          FormatNumber(GetPhysicalMemory(process_metrics)));
 
     case IDS_TASK_MANAGER_PROCESS_ID_COLUMN:
-      if (first_in_group)
-        return IntToWString(process_util::GetProcId(resource->GetProcess()));
-      return std::wstring();
+      if (!first_in_group)
+        return std::wstring();
+      return IntToWString(process_util::GetProcId(resource->GetProcess()));
+      
     case kGoatsTeleportedColumn:  // Goats Teleported.
       goats_teleported_ += rand();
       return FormatNumber(goats_teleported_);
 
     default:
-      StatsTable* table = StatsTable::current();
-      if (table != NULL) {
-        const wchar_t* counter = table->GetRowName(col_id);
-        if (counter != NULL && counter[0] != '\0') {
-          int val = table->GetCounterValue(counter,
-              process_util::GetProcId(resource->GetProcess()));
-          return IntToWString(val);
-        } else {
-          NOTREACHED() << "Invalid column.";
-        }
-      }
-      return std::wstring(L"0");
+      return IntToWString(GetStatsValue(resource, col_id));
   }
+}
+
+int64 TaskManagerTableModel::GetNetworkUsage(TaskManager::Resource* resource) {
+  int64 net_usage = GetNetworkUsageForResource(resource);
+  if (net_usage == 0 && !resource->SupportNetworkUsage())
+    return -1;
+  return net_usage;
+}
+
+int TaskManagerTableModel::GetCPUUsage(TaskManager::Resource* resource) {
+  CPUUsageMap::const_iterator iter =
+      cpu_usage_map_.find(resource->GetProcess());
+   if (iter == cpu_usage_map_.end())
+     return 0;
+   return iter->second;
+}
+
+size_t TaskManagerTableModel::GetPrivateMemory(
+    process_util::ProcessMetrics* process_metrics) {
+  return process_metrics->GetPrivateBytes() / 1024;
+}
+
+size_t TaskManagerTableModel::GetSharedMemory(
+    process_util::ProcessMetrics* process_metrics) {
+  process_util::WorkingSetKBytes ws_usage;
+  process_metrics->GetWorkingSetKBytes(&ws_usage);
+  return ws_usage.shared;
+}
+
+size_t TaskManagerTableModel::GetPhysicalMemory(
+    process_util::ProcessMetrics* process_metrics) {
+  // Memory = working_set.private + working_set.shareable.
+  // We exclude the shared memory.
+  size_t total_kbytes = process_metrics->GetWorkingSetSize() / 1024;
+  process_util::WorkingSetKBytes ws_usage;
+  process_metrics->GetWorkingSetKBytes(&ws_usage);
+  total_kbytes -= ws_usage.shared;
+  return total_kbytes;
+}
+
+int TaskManagerTableModel::GetStatsValue(TaskManager::Resource* resource,
+                                         int col_id) {
+  StatsTable* table = StatsTable::current();
+  if (table != NULL) {
+    const wchar_t* counter = table->GetRowName(col_id);
+    if (counter != NULL && counter[0] != '\0') {
+      return table->GetCounterValue(counter,
+          process_util::GetProcId(resource->GetProcess()));
+     } else {
+        NOTREACHED() << "Invalid column.";
+     }
+  }
+  return 0;
 }
 
 SkBitmap TaskManagerTableModel::GetIcon(int row) {
@@ -203,10 +243,16 @@ HANDLE TaskManagerTableModel::GetProcessAt(int index) {
 }
 
 void TaskManagerTableModel::StartUpdating() {
-  DCHECK(!is_updating_);
-  is_updating_ = true;
-  update_timer_.Start(TimeDelta::FromMilliseconds(kUpdateTimeMs), this,
-                      &TaskManagerTableModel::Refresh);
+  DCHECK_NE(TASK_PENDING, update_state_);
+ 
+  // If update_state_ is STOPPING, it means a task is still pending.  Setting
+  // it to TASK_PENDING ensures the tasks keep being posted (by Refresh()).
+  if (update_state_ == IDLE) {
+      MessageLoop::current()->PostDelayedTask(FROM_HERE,
+          NewRunnableMethod(this, &TaskManagerTableModel::Refresh),
+          kUpdateTimeMs);
+  }
+  update_state_ = TASK_PENDING;
 
   // Register jobs notifications so we can compute network usage (it must be
   // done from the IO thread).
@@ -223,9 +269,8 @@ void TaskManagerTableModel::StartUpdating() {
 }
 
 void TaskManagerTableModel::StopUpdating() {
-  DCHECK(is_updating_);
-  is_updating_ = false;
-  update_timer_.Stop();
+  DCHECK_EQ(TASK_PENDING, update_state_);
+  update_state_ = STOPPING;
 
   // Notify resource providers that we are done updating.
   for (ResourceProviderList::const_iterator iter = providers_.begin();
@@ -327,6 +372,10 @@ void TaskManagerTableModel::RemoveResource(TaskManager::Resource* resource) {
       delete pm_iter->second;
       metrics_map_.erase(process);
     }
+    // And we don't need the CPU usage anymore either.
+    CPUUsageMap::iterator cpu_iter = cpu_usage_map_.find(process);
+    if (cpu_iter != cpu_usage_map_.end())
+      cpu_usage_map_.erase(cpu_iter);
   }
 
   // Remove the entry from the model list.
@@ -360,12 +409,13 @@ void TaskManagerTableModel::Clear() {
     }
     group_map_.clear();
 
-    // Clear the process metrics.
+    // Clear the process related info.
     for (MetricsMap::iterator iter = metrics_map_.begin();
          iter != metrics_map_.end(); ++iter) {
       delete iter->second;
     }
     metrics_map_.clear();
+    cpu_usage_map_.clear();
 
     // Clear the network maps.
     current_byte_count_map_.clear();
@@ -375,13 +425,37 @@ void TaskManagerTableModel::Clear() {
   }
 }
 
-// Called by the timer when we need to refresh the row contents.
 void TaskManagerTableModel::Refresh() {
+  DCHECK_NE(IDLE, update_state_);
+
+  if (update_state_ == STOPPING) {
+    // We have been asked to stop.
+    update_state_ = IDLE;
+    return;
+  }
+
+  // Compute the CPU usage values.
+  // Note that we compute the CPU usage for all resources (instead of doing it
+  // lazily) as process_util::GetCPUUsage() returns the CPU usage since the last
+  // time it was called, and not calling it everytime would skew the value the
+  // next time it is retrieved (as it would be for more than 1 cycle).
+  cpu_usage_map_.clear();
+  for (ResourceList::iterator iter = resources_.begin();
+       iter != resources_.end(); ++iter) {
+    HANDLE process = (*iter)->GetProcess();
+    CPUUsageMap::iterator cpu_iter = cpu_usage_map_.find(process);
+    if (cpu_iter != cpu_usage_map_.end())
+      continue;  // Already computed.
+
+    MetricsMap::iterator metrics_iter = metrics_map_.find(process);
+    DCHECK(metrics_iter != metrics_map_.end());
+    cpu_usage_map_[process] = metrics_iter->second->GetCPUUsage();
+  }
+
   // Compute the new network usage values.
   displayed_network_usage_map_.clear();
   for (ResourceValueMap::iterator iter = current_byte_count_map_.begin();
-       iter != current_byte_count_map_.end();
-       ++iter) {
+       iter != current_byte_count_map_.end(); ++iter) {
     if (kUpdateTimeMs > 1000) {
       int divider = (kUpdateTimeMs / 1000);
       displayed_network_usage_map_[iter->first] = iter->second / divider;
@@ -393,8 +467,13 @@ void TaskManagerTableModel::Refresh() {
     // Then we reset the current byte count.
     iter->second = 0;
   }
-  if (resources_.size() > 0)
+  if (!resources_.empty())
     observer_->OnItemsChanged(0, RowCount());
+
+  // Schedule the next update.
+  MessageLoop::current()->PostDelayedTask(FROM_HERE,
+      NewRunnableMethod(this, &TaskManagerTableModel::Refresh),
+      kUpdateTimeMs);
 }
 
 void TaskManagerTableModel::SetObserver(
@@ -402,16 +481,73 @@ void TaskManagerTableModel::SetObserver(
   observer_ = observer;
 }
 
+int TaskManagerTableModel::CompareValues(int row1, int row2, int column_id) {
+  switch (column_id) {
+    case IDS_TASK_MANAGER_PAGE_COLUMN:
+      // Let's do the default, string compare on the resource title.
+      return TableModel::CompareValues(row1, row2, column_id);
+
+    case IDS_TASK_MANAGER_NET_COLUMN:
+      return ValueCompare<int64>(GetNetworkUsage(resources_[row1]),
+                                 GetNetworkUsage(resources_[row2]));
+
+    case IDS_TASK_MANAGER_CPU_COLUMN:
+      return ValueCompare<int>(GetCPUUsage(resources_[row1]),
+                               GetCPUUsage(resources_[row2]));
+
+    case IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN: {
+      process_util::ProcessMetrics* pm1;
+      process_util::ProcessMetrics* pm2;
+      if (!GetProcessMetricsForRows(row1, row2, &pm1, &pm2))
+        return 0;
+      return ValueCompare<size_t>(GetPrivateMemory(pm1),
+                                  GetPrivateMemory(pm2));
+    }
+
+    case IDS_TASK_MANAGER_SHARED_MEM_COLUMN: {
+      process_util::ProcessMetrics* pm1;
+      process_util::ProcessMetrics* pm2;
+      if (!GetProcessMetricsForRows(row1, row2, &pm1, &pm2))
+        return 0;
+      return ValueCompare<size_t>(GetSharedMemory(pm1),
+                                  GetSharedMemory(pm2));
+    }
+
+    case IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN: {
+      process_util::ProcessMetrics* pm1;
+      process_util::ProcessMetrics* pm2;
+      if (!GetProcessMetricsForRows(row1, row2, &pm1, &pm2))
+        return 0;
+      return ValueCompare<size_t>(GetPhysicalMemory(pm1),
+                                  GetPhysicalMemory(pm2));
+    }
+
+    case IDS_TASK_MANAGER_PROCESS_ID_COLUMN: {
+      int proc1_id = process_util::GetProcId(resources_[row1]->GetProcess());
+      int proc2_id = process_util::GetProcId(resources_[row2]->GetProcess());
+      return ValueCompare<int>(proc1_id, proc2_id);
+    }
+      
+    case kGoatsTeleportedColumn:
+      return 0;  // Don't bother, numbers are random.
+
+    default:
+      return ValueCompare<int>(GetStatsValue(resources_[row1], column_id),
+                               GetStatsValue(resources_[row2], column_id));
+  }
+}
+
 int64 TaskManagerTableModel::GetNetworkUsageForResource(
     TaskManager::Resource* resource) {
-  ResourceValueMap::iterator iter = displayed_network_usage_map_.find(resource);
+  ResourceValueMap::iterator iter =
+      displayed_network_usage_map_.find(resource);
   if (iter == displayed_network_usage_map_.end())
     return 0;
   return iter->second;
 }
 
 void TaskManagerTableModel::BytesRead(BytesReadParam param) {
-  if (!is_updating_) {
+  if (update_state_ != TASK_PENDING) {
     // A notification sneaked in while we were stopping the updating, just
     // ignore it.
     return;
@@ -478,12 +614,37 @@ void TaskManagerTableModel::OnBytesRead(URLRequestJob* job, int byte_count) {
   if (tab_util::GetTabContentsID(job->request(),
                                  &render_process_host_id, &routing_id)) {
     // This happens in the IO thread, post it to the UI thread.
-    ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &TaskManagerTableModel::BytesRead,
-        BytesReadParam(job->request()->origin_pid(),
-                       render_process_host_id, routing_id,
-                       byte_count)));
+    ui_loop_->PostTask(FROM_HERE,
+                       NewRunnableMethod(
+                           this,
+                           &TaskManagerTableModel::BytesRead,
+                           BytesReadParam(job->request()->origin_pid(),
+                                          render_process_host_id, routing_id,
+                                          byte_count)));
   }
+}
+
+bool TaskManagerTableModel::GetProcessMetricsForRows(
+    int row1, int row2,
+    process_util::ProcessMetrics** proc_metrics1,
+    process_util::ProcessMetrics** proc_metrics2) {
+
+  DCHECK(row1 < static_cast<int>(resources_.size()) &&
+         row2 < static_cast<int>(resources_.size()));
+  *proc_metrics1 = NULL;
+  *proc_metrics2 = NULL;
+
+  MetricsMap::iterator iter = metrics_map_.find(resources_[row1]->GetProcess());
+  if (iter == metrics_map_.end())
+    return false;
+  *proc_metrics1 = iter->second;
+
+  iter = metrics_map_.find(resources_[row2]->GetProcess());
+  if (iter == metrics_map_.end())
+    return false;
+  *proc_metrics2 = iter->second;
+
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -563,30 +724,37 @@ void TaskManagerContents::Init(TaskManagerTableModel* table_model) {
       ChromeViews::TableColumn(
           IDS_TASK_MANAGER_PAGE_COLUMN,
           ChromeViews::TableColumn::LEFT, -1, 1));
+  columns_.back().sortable = true;
   columns_.push_back(
       ChromeViews::TableColumn(
           IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN,
           ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.back().sortable = true;
   columns_.push_back(
       ChromeViews::TableColumn(
           IDS_TASK_MANAGER_SHARED_MEM_COLUMN,
           ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.back().sortable = true;
   columns_.push_back(
       ChromeViews::TableColumn(
           IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN,
           ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.back().sortable = true;
   columns_.push_back(
       ChromeViews::TableColumn(
           IDS_TASK_MANAGER_CPU_COLUMN,
           ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.back().sortable = true;
   columns_.push_back(
       ChromeViews::TableColumn(
           IDS_TASK_MANAGER_NET_COLUMN,
           ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.back().sortable = true;
   columns_.push_back(
       ChromeViews::TableColumn(
           IDS_TASK_MANAGER_PROCESS_ID_COLUMN,
           ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.back().sortable = true;
 
   tab_table_ = new ChromeViews::GroupTableView(table_model,
                                                columns_,
@@ -601,6 +769,7 @@ void TaskManagerContents::Init(TaskManagerTableModel* table_model) {
   UpdateStatsCounters();
   ChromeViews::TableColumn col(kGoatsTeleportedColumn, L"Goats Teleported",
                                ChromeViews::TableColumn::RIGHT, -1, 0);
+  col.sortable = true;
   columns_.push_back(col);
   tab_table_->AddColumn(col);
   tab_table_->SetObserver(this);
@@ -633,6 +802,7 @@ void TaskManagerContents::UpdateStatsCounters() {
         // names are clipped.
         ChromeViews::TableColumn col(i, row, ChromeViews::TableColumn::RIGHT,
                                      90, 0);
+        col.sortable = true;
         columns_.push_back(col);
         tab_table_->AddColumn(col);
       }
