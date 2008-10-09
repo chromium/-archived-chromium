@@ -154,4 +154,3 @@ elif env['PLATFORM'] == 'posix':
   for cf in config_files:
     result = env.Command('scons/' + cf, 'linux/' + cf,
                          Copy('$TARGET', '$SOURCE'))
-

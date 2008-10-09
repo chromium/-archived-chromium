@@ -31,13 +31,6 @@ else:
       '$LIBXML_DIR/include',
       ])
 
-  if env['PLATFORM'] == 'posix':
-    env.Append(
-        CPPPATH = [
-            '$LIBXML_DIR/linux/include',
-        ],
-    )
-
 if env['PLATFORM'] == 'posix':
   env.Append(
       CCFLAGS = [
@@ -330,9 +323,11 @@ inputs = [
     '$PORT_DIR/bindings/v8/v8_vectornodelist.cpp',
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
     '$PORT_DIR/page/inspector/InspectorController.cpp',
-
-    'precompiled_v8bindings.cpp',
 ]
+
+if env['PLATFORM'] == 'win32':
+  inputs.append('precompiled_v8bindings.cpp')
+
 
 # TODO(erg): These are temporarily disabled during the merge of code back to
 # WebKit. As soon as we're back on TOT, these go back into the working files
@@ -363,8 +358,6 @@ if env['PLATFORM'] in ('darwin', 'posix'):
     '$DERIVED_DIR/V8Navigator.cpp',
     '$DERIVED_DIR/V8Plugin.cpp',
     '$DERIVED_DIR/V8PluginArray.cpp',
-
-    'precompiled_v8bindings.cpp',
   ]
   for remove in remove_files:
     inputs.remove(remove)

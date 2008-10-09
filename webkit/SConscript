@@ -48,6 +48,9 @@ elif env['PLATFORM'] == 'posix':
       ],
       CPPDEFINES = [
         'BUILDING_GTK__',
+        # In Platform.h, this doesn't get defined when BUILDING_GTK__ is
+        # defined.
+        'WTF_USE_ICU_UNICODE',
       ],
   )
 
@@ -78,6 +81,7 @@ env.Prepend(
         '$LIBJPEG_DIR',
         '$LIBXSLT_DIR',
         '$LIBXML_DIR/include',
+        '$LIBXML_DIR/scons/include',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
         '$SKIA_DIR/include',

@@ -123,13 +123,6 @@ env.Append(
     ],
 )
 
-if env['PLATFORM'] == 'posix':
-    env.Append(
-        CPPDEFINES = [
-            'WTF_USE_ICU_UNICODE',
-        ],
-    )
-
 if env['PLATFORM'] == 'win32':
     env.Append(
         CPPPATH = [
