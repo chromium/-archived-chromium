@@ -5,6 +5,8 @@
 #ifndef WEBKIT_PORT_PLUGINS_TEST_PLUGIN_GETURL_TEST_H__
 #define WEBKIT_PORT_PLUGINS_TEST_PLUGIN_GETURL_TEST_H__
 
+#include <stdio.h>
+
 #include "webkit/glue/plugins/test/plugin_test.h"
 
 namespace NPAPIClient {
@@ -37,7 +39,7 @@ class PluginGetURLTest : public PluginTest {
   bool tests_started_;
   int tests_in_progress_;
   std::string self_url_;
-  HANDLE test_file_handle_;
+  FILE* test_file_;
 };
 
 } // namespace NPAPIClient

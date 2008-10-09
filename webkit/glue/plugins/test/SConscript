@@ -13,6 +13,7 @@ input_files = [
     'plugin_arguments_test.cc',
     'plugin_delete_plugin_in_stream_test.cc',
     'plugin_get_javascript_url_test.cc',
+    'plugin_geturl_test.cc',
     'plugin_new_fails_test.cc',
     'plugin_npobject_proxy_test.cc',
     'plugin_test.cc'

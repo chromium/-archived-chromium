@@ -4,6 +4,11 @@
 
 #include "webkit/glue/plugins/test/plugin_geturl_test.h"
 
+#include <stdio.h>
+
+#include "base/basictypes.h"
+#include "base/file_util.h"
+
 // url for "self".  The %22%22 is to make a statement for javascript to
 // evaluate and return.
 #define SELF_URL "javascript:window.location+\"\""
@@ -29,7 +34,7 @@ PluginGetURLTest::PluginGetURLTest(NPP id, NPNetscapeFuncs *host_functions)
   : PluginTest(id, host_functions),
     tests_started_(false),
     tests_in_progress_(0),
-    test_file_handle_(INVALID_HANDLE_VALUE) {
+    test_file_(NULL) {
 }
 
 NPError PluginGetURLTest::SetWindow(NPWindow* pNPWindow) {
@@ -55,7 +60,10 @@ NPError PluginGetURLTest::NewStream(NPMIMEType type, NPStream* stream,
   if (stream == NULL)
     SetError("NewStream got null stream");
 
-  unsigned long stream_id = PtrToUlong(stream->notifyData);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(stream->notifyData),
+                 cast_validity_check);
+  unsigned long stream_id = reinterpret_cast<unsigned long>(
+      stream->notifyData);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       break;
@@ -69,15 +77,10 @@ NPError PluginGetURLTest::NewStream(NPMIMEType type, NPStream* stream,
 
         filename = filename.substr(8);  // remove "file:///"
 
-        test_file_handle_ = CreateFileA(filename.c_str(),
-                                       GENERIC_READ,
-                                       FILE_SHARE_READ,
-                                       NULL,
-                                       OPEN_EXISTING,
-                                       0,
-                                       NULL);
-        if (test_file_handle_ == INVALID_HANDLE_VALUE)
+        test_file_ = file_util::OpenFile(filename, "r");
+        if (!test_file_) {
           SetError("Could not open source file");
+        }
       }
       break;
     case BOGUS_URL_STREAM_ID:
@@ -91,7 +94,10 @@ NPError PluginGetURLTest::NewStream(NPMIMEType type, NPStream* stream,
 }
 
 int32 PluginGetURLTest::WriteReady(NPStream *stream) {
-  unsigned long stream_id = PtrToUlong(stream->notifyData);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(stream->notifyData),
+                 cast_validity_check);
+  unsigned long stream_id = reinterpret_cast<unsigned long>(
+      stream->notifyData);
   if (stream_id == BOGUS_URL_STREAM_ID)
     SetError("Received WriteReady for BOGUS_URL");
 
@@ -105,7 +111,10 @@ int32 PluginGetURLTest::Write(NPStream *stream, int32 offset, int32 len,
   if (len < 0 || len > STREAM_CHUNK)
     SetError("Write got bogus stream chunk size");
 
-  unsigned long stream_id = PtrToUlong(stream->notifyData);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(stream->notifyData),
+                 cast_validity_check);
+  unsigned long stream_id = reinterpret_cast<unsigned long>(
+      stream->notifyData);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       self_url_.append(static_cast<char*>(buffer), len);
@@ -113,11 +122,8 @@ int32 PluginGetURLTest::Write(NPStream *stream, int32 offset, int32 len,
     case FETCHED_URL_STREAM_ID:
       {
         char read_buffer[STREAM_CHUNK];
-        DWORD bytes = 0;
-        if (!ReadFile(test_file_handle_, read_buffer, len,
-                      &bytes, NULL))
-          SetError("Could not read data from source file");
-        // Technically, readfile could return fewer than len
+        int32 bytes = fread(read_buffer, 1, len, test_file_);
+        // Technically, fread could return fewer than len
         // bytes.  But this is not likely.
         if (bytes != len)
           SetError("Did not read correct bytelength from source file");
@@ -141,7 +147,10 @@ NPError PluginGetURLTest::DestroyStream(NPStream *stream, NPError reason) {
   if (stream == NULL)
     SetError("NewStream got null stream");
 
-  unsigned long stream_id = PtrToUlong(stream->notifyData);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(stream->notifyData),
+                 cast_validity_check);
+  unsigned long stream_id =
+      reinterpret_cast<unsigned long>(stream->notifyData);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       // don't care
@@ -149,13 +158,10 @@ NPError PluginGetURLTest::DestroyStream(NPStream *stream, NPError reason) {
     case FETCHED_URL_STREAM_ID:
       {
         char read_buffer[STREAM_CHUNK];
-        DWORD bytes = 0;
-        if (!ReadFile(test_file_handle_, read_buffer, sizeof(read_buffer),
-                      &bytes, NULL))
-          SetError("Could not read data from source file");
+        size_t bytes = fread(read_buffer, 1, sizeof(read_buffer), test_file_);
         if (bytes != 0)
           SetError("Data and source mismatch on length");
-        CloseHandle(test_file_handle_);
+        file_util::CloseFile(test_file_);
       }
       break;
     default:
@@ -169,7 +175,10 @@ void PluginGetURLTest::StreamAsFile(NPStream* stream, const char* fname) {
   if (stream == NULL)
     SetError("NewStream got null stream");
 
-  unsigned long stream_id = PtrToUlong(stream->notifyData);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(stream->notifyData),
+                 cast_validity_check);
+  unsigned long stream_id =
+      reinterpret_cast<unsigned long>(stream->notifyData);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       // don't care
@@ -191,7 +200,8 @@ void PluginGetURLTest::URLNotify(const char* url, NPReason reason, void* data) {
     return;
   }
 
-  unsigned long stream_id = PtrToUlong(data);
+  COMPILE_ASSERT(sizeof(unsigned long) <= sizeof(data), cast_validity_check);
+  unsigned long stream_id = reinterpret_cast<unsigned long>(data);
   switch (stream_id) {
     case SELF_URL_STREAM_ID:
       if (strcmp(url, SELF_URL) != 0)
@@ -209,9 +219,7 @@ void PluginGetURLTest::URLNotify(const char* url, NPReason reason, void* data) {
     case BOGUS_URL_STREAM_ID:
       if (reason != NPRES_NETWORK_ERR) {
         std::string err = "BOGUS_URL received unexpected URLNotify status: ";
-        char buf[10];
-        _itoa_s(reason, buf, 10, 10);
-        err.append(buf);
+        err.append(IntToString(reason));
         SetError(err);
       }
       tests_in_progress_--;
