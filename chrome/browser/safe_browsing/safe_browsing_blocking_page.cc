@@ -36,7 +36,7 @@ static const char* const kSbReportPhishingUrl =
     "http://www.google.com/safebrowsing/report_error/";
 
 static const wchar_t* const kSbDiagnosticHtml =
-    L"<a href=\"\" onClick=\"sendCommand(4); return false;\">%ls</a>";
+    L"<a href=\"\" onClick=\"sendCommand(4); return false;\" onMouseDown=\"return false;\">%ls</a>";
 
 // Created on the io_thread.
 SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
