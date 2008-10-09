@@ -39,7 +39,6 @@ if env['PLATFORM'] == 'posix':
 
 inputs = [
     '$SHARED_DIR/PausedTimeouts.cpp',
-
     '$DERIVED_DIR/XPathGrammar.cpp',
     '$DERIVED_DIR/CSSGrammar.cpp',
     '$DERIVED_DIR/XMLNames.cpp',
@@ -51,14 +50,12 @@ inputs = [
     '$DERIVED_DIR/V8XPathException.cpp',
     '$DERIVED_DIR/V8XPathEvaluator.cpp',
     '$DERIVED_DIR/V8XMLSerializer.cpp',
-    '$DERIVED_DIR/V8XMLHttpRequestUpload.cpp',
     '$DERIVED_DIR/V8XMLHttpRequestException.cpp',
     '$DERIVED_DIR/V8XMLHttpRequest.cpp',
     '$DERIVED_DIR/V8WheelEvent.cpp',
     '$DERIVED_DIR/V8UndetectableHTMLCollection.cpp',
     '$DERIVED_DIR/V8UIEvent.cpp',
     '$DERIVED_DIR/V8TreeWalker.cpp',
-    '$DERIVED_DIR/V8TextMetrics.cpp',
     '$DERIVED_DIR/V8TextEvent.cpp',
     '$DERIVED_DIR/V8Text.cpp',
     '$DERIVED_DIR/V8SVGZoomEvent.cpp',
@@ -81,7 +78,6 @@ inputs = [
     '$DERIVED_DIR/V8SVGStyleElement.cpp',
     '$DERIVED_DIR/V8SVGStringList.cpp',
     '$DERIVED_DIR/V8SVGStopElement.cpp',
-    '$DERIVED_DIR/V8SVGSetElement.cpp',
     '$DERIVED_DIR/V8SVGScriptElement.cpp',
     '$DERIVED_DIR/V8SVGRenderingIntent.cpp',
     '$DERIVED_DIR/V8SVGRectElement.cpp',
@@ -120,7 +116,6 @@ inputs = [
     '$DERIVED_DIR/V8SVGNumber.cpp',
     '$DERIVED_DIR/V8SVGMetadataElement.cpp',
     '$DERIVED_DIR/V8SVGMatrix.cpp',
-    '$DERIVED_DIR/V8SVGMaskElement.cpp',
     '$DERIVED_DIR/V8SVGMarkerElement.cpp',
     '$DERIVED_DIR/V8SVGLineElement.cpp',
     '$DERIVED_DIR/V8SVGLinearGradientElement.cpp',
@@ -144,13 +139,9 @@ inputs = [
     '$DERIVED_DIR/V8SVGDescElement.cpp',
     '$DERIVED_DIR/V8SVGDefsElement.cpp',
     '$DERIVED_DIR/V8SVGDefinitionSrcElement.cpp',
-    '$DERIVED_DIR/V8SVGCursorElement.cpp',
     '$DERIVED_DIR/V8SVGColor.cpp',
     '$DERIVED_DIR/V8SVGClipPathElement.cpp',
     '$DERIVED_DIR/V8SVGCircleElement.cpp',
-    '$DERIVED_DIR/V8SVGAnimationElement.cpp',
-    '$DERIVED_DIR/V8SVGAnimateTransformElement.cpp',
-    '$DERIVED_DIR/V8SVGAnimateElement.cpp',
     '$DERIVED_DIR/V8SVGAnimatedTransformList.cpp',
     '$DERIVED_DIR/V8SVGAnimatedString.cpp',
     '$DERIVED_DIR/V8SVGAnimatedRect.cpp',
@@ -164,7 +155,6 @@ inputs = [
     '$DERIVED_DIR/V8SVGAnimatedEnumeration.cpp',
     '$DERIVED_DIR/V8SVGAnimatedBoolean.cpp',
     '$DERIVED_DIR/V8SVGAnimatedAngle.cpp',
-    '$DERIVED_DIR/V8SVGAnimateColorElement.cpp',
     '$DERIVED_DIR/V8SVGAngle.cpp',
     '$DERIVED_DIR/V8SVGAElement.cpp',
     '$DERIVED_DIR/V8StyleSheetList.cpp',
@@ -176,27 +166,17 @@ inputs = [
     '$DERIVED_DIR/V8Range.cpp',
     '$DERIVED_DIR/V8ProgressEvent.cpp',
     '$DERIVED_DIR/V8ProcessingInstruction.cpp',
-    '$DERIVED_DIR/V8PluginArray.cpp',
-    '$DERIVED_DIR/V8Plugin.cpp',
     '$DERIVED_DIR/V8OverflowEvent.cpp',
-    '$DERIVED_DIR/V8NSResolver.cpp',
     '$DERIVED_DIR/V8Notation.cpp',
     '$DERIVED_DIR/V8NodeList.cpp',
     '$DERIVED_DIR/V8NodeIterator.cpp',
     '$DERIVED_DIR/V8NodeFilter.cpp',
     '$DERIVED_DIR/V8Node.cpp',
-    '$DERIVED_DIR/V8Navigator.cpp',
     '$DERIVED_DIR/V8NamedNodeMap.cpp',
     '$DERIVED_DIR/V8MutationEvent.cpp',
-    '$DERIVED_DIR/V8MouseEvent.cpp',
-    '$DERIVED_DIR/V8MimeTypeArray.cpp',
-    '$DERIVED_DIR/V8MimeType.cpp',
     '$DERIVED_DIR/V8MessageEvent.cpp',
     '$DERIVED_DIR/V8MediaList.cpp',
-    '$DERIVED_DIR/V8Location.cpp',
     '$DERIVED_DIR/V8KeyboardEvent.cpp',
-    '$DERIVED_DIR/V8InspectorController.cpp',
-    '$DERIVED_DIR/V8ImageData.cpp',
     '$DERIVED_DIR/V8HTMLUListElement.cpp',
     '$DERIVED_DIR/V8HTMLTitleElement.cpp',
     '$DERIVED_DIR/V8HTMLTextAreaElement.cpp',
@@ -207,7 +187,6 @@ inputs = [
     '$DERIVED_DIR/V8HTMLTableCellElement.cpp',
     '$DERIVED_DIR/V8HTMLTableCaptionElement.cpp',
     '$DERIVED_DIR/V8HTMLStyleElement.cpp',
-    '$DERIVED_DIR/V8HTMLSelectionInputElement.cpp',
     '$DERIVED_DIR/V8HTMLSelectElement.cpp',
     '$DERIVED_DIR/V8HTMLScriptElement.cpp',
     '$DERIVED_DIR/V8HTMLQuoteElement.cpp',
@@ -228,8 +207,6 @@ inputs = [
     '$DERIVED_DIR/V8HTMLLIElement.cpp',
     '$DERIVED_DIR/V8HTMLLegendElement.cpp',
     '$DERIVED_DIR/V8HTMLLabelElement.cpp',
-    '$DERIVED_DIR/V8HTMLIsIndexElement.cpp',
-    '$DERIVED_DIR/V8HTMLInputElement.cpp',
     '$DERIVED_DIR/V8HTMLImageElement.cpp',
     '$DERIVED_DIR/V8HTMLIFrameElement.cpp',
     '$DERIVED_DIR/V8HTMLHtmlElement.cpp',
@@ -259,15 +236,12 @@ inputs = [
     '$DERIVED_DIR/V8HTMLAppletElement.cpp',
     '$DERIVED_DIR/V8HTMLAnchorElement.cpp',
     '$DERIVED_DIR/V8History.cpp',
-    '$DERIVED_DIR/V8FileList.cpp',
-    '$DERIVED_DIR/V8File.cpp',
     '$DERIVED_DIR/V8EventTargetNode.cpp',
     '$DERIVED_DIR/V8EventException.cpp',
     '$DERIVED_DIR/V8Event.cpp',
     '$DERIVED_DIR/V8EntityReference.cpp',
     '$DERIVED_DIR/V8Entity.cpp',
     '$DERIVED_DIR/V8Element.cpp',
-    '$DERIVED_DIR/V8DOMWindow.cpp',
     '$DERIVED_DIR/V8DOMSelection.cpp',
     '$DERIVED_DIR/V8DOMParser.cpp',
     '$DERIVED_DIR/V8DOMImplementation.cpp',
@@ -275,8 +249,6 @@ inputs = [
     '$DERIVED_DIR/V8DocumentType.cpp',
     '$DERIVED_DIR/V8DocumentFragment.cpp',
     '$DERIVED_DIR/V8Document.cpp',
-    '$DERIVED_DIR/V8CSSVariablesRule.cpp',
-    '$DERIVED_DIR/V8CSSVariablesDeclaration.cpp',
     '$DERIVED_DIR/V8CSSValueList.cpp',
     '$DERIVED_DIR/V8CSSValue.cpp',
     '$DERIVED_DIR/V8CSSStyleSheet.cpp',
@@ -293,55 +265,32 @@ inputs = [
     '$DERIVED_DIR/V8Counter.cpp',
     '$DERIVED_DIR/V8Console.cpp',
     '$DERIVED_DIR/V8Comment.cpp',
-    '$DERIVED_DIR/V8Clipboard.cpp',
     '$DERIVED_DIR/V8CharacterData.cpp',
     '$DERIVED_DIR/V8CDATASection.cpp',
     '$DERIVED_DIR/V8CanvasRenderingContext2D.cpp',
-    '$DERIVED_DIR/V8CanvasPixelArray.cpp',
     '$DERIVED_DIR/V8CanvasPattern.cpp',
     '$DERIVED_DIR/V8CanvasGradient.cpp',
     '$DERIVED_DIR/V8BarInfo.cpp',
     '$DERIVED_DIR/V8Attr.cpp',
     '$DERIVED_DIR/UserAgentStyleSheetsData.cpp',
     '$DERIVED_DIR/SVGNames.cpp',
-    '$DERIVED_DIR/SVGElementFactory.cpp',
     '$DERIVED_DIR/HTMLNames.cpp',
-
-    '$PORT_DIR/bindings/v8/JSNSResolver.cpp',
-    '$PORT_DIR/bindings/v8/JSXPathNSResolver.cpp',
-    '$PORT_DIR/bindings/v8/np_v8object.cpp',
-    '$PORT_DIR/bindings/v8/npruntime.cpp',
-    '$PORT_DIR/bindings/v8/v8_custom.cpp',
-    '$PORT_DIR/bindings/v8/v8_events.cpp',
-    '$PORT_DIR/bindings/v8/v8_helpers.cpp',
-    '$PORT_DIR/bindings/v8/v8_index.cpp',
-    '$PORT_DIR/bindings/v8/v8_nodefilter.cpp',
-    '$PORT_DIR/bindings/v8/v8_np_utils.cpp',
-    '$PORT_DIR/bindings/v8/v8_npobject.cpp',
-    '$PORT_DIR/bindings/v8/v8_proxy.cpp',
-    '$PORT_DIR/bindings/v8/v8_vectornodelist.cpp',
-    '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
-    '$PORT_DIR/page/inspector/InspectorController.cpp',
-
-    'precompiled_v8bindings.cpp',
-]
+    ]
 
 # TODO(erg): These are temporarily disabled during the merge of code back to
 # WebKit. As soon as we're back on TOT, these go back into the working files
 # section.
-if env['PLATFORM'] in ('darwin', 'posix'):
-  remove_files = [
+if env['PLATFORM'] == 'win32':
+  inputs += [
     '$DERIVED_DIR/SVGElementFactory.cpp',
     '$DERIVED_DIR/V8SVGCursorElement.cpp',
     '$DERIVED_DIR/V8SVGMaskElement.cpp',
   ]
-  for remove in remove_files:
-    inputs.remove(remove)
 
 # TODO(erg): Get Frame.h ported and half of this should compile. Get whatever
 #            String.h is referenced below and the other half should compile
-if env['PLATFORM'] in ('darwin', 'posix'):
-  remove_files = [
+if env['PLATFORM'] == 'win32':
+  inputs += [
     '$DERIVED_DIR/V8Clipboard.cpp',
     '$DERIVED_DIR/V8DOMWindow.cpp',
     '$DERIVED_DIR/V8HTMLInputElement.cpp',
@@ -355,8 +304,22 @@ if env['PLATFORM'] in ('darwin', 'posix'):
     '$DERIVED_DIR/V8Navigator.cpp',
     '$DERIVED_DIR/V8Plugin.cpp',
     '$DERIVED_DIR/V8PluginArray.cpp',
-  ]
-  for remove in remove_files:
-    inputs.remove(remove)
+    '$PORT_DIR/bindings/v8/JSXPathNSResolver.cpp',
+    '$PORT_DIR/bindings/v8/np_v8object.cpp',
+    '$PORT_DIR/bindings/v8/npruntime.cpp',
+    '$PORT_DIR/bindings/v8/v8_custom.cpp',
+    '$PORT_DIR/bindings/v8/v8_events.cpp',
+    '$PORT_DIR/bindings/v8/v8_helpers.cpp',
+    '$PORT_DIR/bindings/v8/v8_index.cpp',
+    '$PORT_DIR/bindings/v8/v8_nodefilter.cpp',
+    '$PORT_DIR/bindings/v8/v8_np_utils.cpp',
+    '$PORT_DIR/bindings/v8/v8_npobject.cpp',
+    '$PORT_DIR/bindings/v8/v8_proxy.cpp',
+    '$PORT_DIR/bindings/v8/v8_vectornodelist.cpp',
+    '$PORT_DIR/bridge/V8Bridge.cpp',
+    '$PORT_DIR/page/Location.cpp',
+    '$PORT_DIR/page/Navigator.cpp',
+    '$PORT_DIR/page/inspector/InspectorController.cpp',
+    ]
 
 env.ChromeStaticLibrary('V8Bindings', inputs)
