@@ -255,9 +255,13 @@ V8 | KJS # LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 V8 | KJS # LayoutTests/fast/encoding/idn-security.html = FAIL
 
 // Bug 852346
-// Tests link coloring and needs a history dataLayoutTests.
+// These layout tests to see if link colors change after visiting a page. They
+// does this by using layoutTestController.keepWebHistory() to turn on a
+// temporary web history. layoutTestController.keepWebHistory() is not
+// implemented in test shell.
 // This is a test tool problem, not a Chrome problem.
 V8 | KJS # LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
+V8 | KJS # LayoutTests/fast/history/subframe-is-visited.html = FAIL
 
 // Bug 1027226
 // Bug 945322: test shell should dump text when
@@ -964,7 +968,6 @@ V8 | KJS # LayoutTests/fast/gradients/border-image-gradient.html = FAIL
 V8 | KJS # LayoutTests/fast/gradients/generated-gradients.html = FAIL
 V8 | KJS # LayoutTests/fast/gradients/list-item-gradient.html = FAIL
 V8 | KJS # LayoutTests/fast/gradients/simple-gradients.html = FAIL
-V8 | KJS # LayoutTests/fast/history/subframe-is-visited.html = FAIL
 V8 | KJS # LayoutTests/fast/html/marquee-scroll.html = FAIL
 V8 | KJS # LayoutTests/fast/media/implicit-media-all.html = FAIL
 V8 | KJS # LayoutTests/fast/media/monochrome.html = FAIL
