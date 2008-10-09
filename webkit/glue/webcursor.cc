@@ -6,7 +6,7 @@
 #include "webkit/glue/webkit_resources.h"
 
 #if defined(OS_WIN)
-#include "base/gfx/bitmap_header.h"
+#include "base/gfx/gdi_util.h"
 #endif
 
 WebCursor::WebCursor()
