@@ -4,11 +4,13 @@
 
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/sha2.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database_impl.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database_bloom.h"
+#include "chrome/common/chrome_switches.h"
 #include "googleurl/src/gurl.h"
 
 // Filename suffix for the bloom filter.
@@ -16,6 +18,8 @@ static const wchar_t kBloomFilterFile[] = L" Filter";
 
 // Factory method.
 SafeBrowsingDatabase* SafeBrowsingDatabase::Create() {
+  if (CommandLine().HasSwitch(switches::kUseNewSafeBrowsing))
+    return new SafeBrowsingDatabaseBloom;
   return new SafeBrowsingDatabaseImpl;
 }
 
