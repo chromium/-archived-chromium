@@ -779,6 +779,10 @@ void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
     EnableWindow(*i, TRUE);
 }
 
+bool TestWebViewDelegate::IsHidden() {
+  return false;
+}
+
 void TestWebViewDelegate::RegisterDragDrop() {
   DCHECK(!drop_delegate_);
   drop_delegate_ = new TestDropDelegate(shell_->webViewWnd(),

@@ -207,6 +207,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual void GetRootWindowRect(WebWidget *,gfx::Rect *);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget);
+  virtual bool IsHidden();
   virtual void AddRef() {
     base::RefCounted<TestWebViewDelegate>::AddRef();
   }
