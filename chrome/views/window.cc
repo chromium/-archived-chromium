@@ -504,21 +504,10 @@ void Window::SetInitialFocus() {
   if (!focus_on_creation_)
     return;
 
-  bool focus_set = false;
   ChromeViews::View* v = window_delegate_->GetInitiallyFocusedView();
   if (v) {
-    focus_set = true;
-    // In order to make that view the initially focused one, we make it the
-    // focused view on the focus manager and we store the focused view.
-    // When the window is activated, the focus manager will restore the
-    // stored focused view.
-    FocusManager* focus_manager = FocusManager::GetFocusManager(GetHWND());
-    DCHECK(focus_manager);
-    focus_manager->SetFocusedView(v);
-    focus_manager->StoreFocusedView();
-  }
-
-  if (!focus_set && focus_on_creation_) {
+    v->RequestFocus();
+  } else {
     // The window does not get keyboard messages unless we focus it, not sure
     // why.
     SetFocus(GetHWND());
