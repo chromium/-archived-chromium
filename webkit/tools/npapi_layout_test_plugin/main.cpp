@@ -178,25 +178,12 @@ NPError NPP_NewStream(NPP instance, NPMIMEType type, NPStream *stream, NPBool se
     obj->stream = stream;
     *stype = NP_ASFILEONLY;
 
-    if (obj->onStreamLoad)
-        executeScript(obj, obj->onStreamLoad);
-
     if (browser->version >= NPVERS_HAS_RESPONSE_HEADERS)
         notifyStream(obj, stream->url, stream->headers);
 
-    if (obj->onStreamLoad) {
-        NPObject *windowScriptObject;
-        browser->getvalue(obj->npp, NPNVWindowNPObject, &windowScriptObject);
-                
-        NPString script;
-        script.UTF8Characters = obj->onStreamLoad;
-        script.UTF8Length = strlen(obj->onStreamLoad);
-        
-        NPVariant browserResult;
-        browser->evaluate(obj->npp, windowScriptObject, &script, &browserResult);
-        browser->releasevariantvalue(&browserResult);
-    }
-    
+    if (obj->onStreamLoad)
+        executeScript(obj, obj->onStreamLoad);
+
     return NPERR_NO_ERROR;
 }
 
