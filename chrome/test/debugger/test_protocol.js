@@ -241,7 +241,7 @@ DebuggerTest.expectedOutput = [
   "a = 2",
   "$ frame 1",
   "< response:frame",
-  "#1 g, foo.html",
+  "#01 g, foo.html",
   "61:   f(1);",
   "$ stepout",
   "< response:continue",

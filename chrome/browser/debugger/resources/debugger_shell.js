@@ -183,7 +183,7 @@ DebugCommand.getSourceLocation = function(script, source, line, func) {
   // TODO(erikkay): take column into account as well
   if (source)
     source = "" + line + ": " + source;
-  var location;
+  var location = '';
   if (func) {
     location = func + ", ";
   }
@@ -533,7 +533,7 @@ DebugCommand.responseFrame_ = function(msg) {
   body = msg.body;
   loc = DebugCommand.getSourceLocation(body.func.script, 
       body.sourceLineText, body.line, body.func.name);
-  print("#" + body.index + " " + loc[0]);
+  print("#" + (body.index <= 9 ? '0' : '') + body.index + " " + loc[0]);
   print(loc[1]);
   shell_.current_frame = body.index;
   shell_.current_line = loc[2];
