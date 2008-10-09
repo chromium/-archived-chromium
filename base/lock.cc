@@ -43,8 +43,7 @@ void Lock::Acquire() {
   acquisition_count_++;
   if (2 == recursion_count_shadow_ && !recursion_used_) {
     recursion_used_ = true;
-    // TODO(sky): Uncomment this DCHECK after fixing test cases.
-    // DCHECK(false);  // Catch accidental redundant lock acquisition.
+    DCHECK(false);  // Catch accidental redundant lock acquisition.
   }
 #endif  // NDEBUG
 }

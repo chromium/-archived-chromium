@@ -302,9 +302,7 @@ void BookmarkModel::GetBookmarks(std::vector<GURL>* urls) {
 
 bool BookmarkModel::IsBookmarked(const GURL& url) {
   AutoLock url_lock(url_lock_);
-  BookmarkNode tmp_node(this, url);
-  return (nodes_ordered_by_url_set_.find(&tmp_node) !=
-          nodes_ordered_by_url_set_.end());
+  return IsBookmarkedNoLock(url);
 }
 
 BookmarkNode* BookmarkModel::GetNodeByID(int id) {
@@ -387,6 +385,12 @@ void BookmarkModel::SetURLStarred(const GURL& url,
 
 void BookmarkModel::ResetDateGroupModified(BookmarkNode* node) {
   SetDateGroupModified(node, Time());
+}
+
+bool BookmarkModel::IsBookmarkedNoLock(const GURL& url) {
+  BookmarkNode tmp_node(this, url);
+  return (nodes_ordered_by_url_set_.find(&tmp_node) !=
+          nodes_ordered_by_url_set_.end());
 }
 
 void BookmarkModel::FavIconLoaded(BookmarkNode* node) {
@@ -520,7 +524,7 @@ void BookmarkModel::RemoveAndDeleteNode(BookmarkNode* delete_me) {
     // allow duplicates we need to remove any entries that are still bookmarked.
     for (std::set<GURL>::iterator i = details.changed_urls.begin();
          i != details.changed_urls.end(); ){
-      if (IsBookmarked(*i))
+      if (IsBookmarkedNoLock(*i))
         i = details.changed_urls.erase(i);
       else
         ++i;
