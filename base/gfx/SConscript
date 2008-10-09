@@ -51,8 +51,8 @@ if env['PLATFORM'] == 'win32':
   # Some of these aren't really Windows-specific, they're just here until
   # we have the port versions working.
   input_files.extend([
-    'bitmap_header.cc',
     'font_utils.cc',
+    'gdi_util.cc',
     'native_theme.cc',
     'skia_utils.cc',
     'uniscribe.cc',
