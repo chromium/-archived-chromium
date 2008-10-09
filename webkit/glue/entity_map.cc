@@ -7,11 +7,10 @@
 #include "HTMLEntityCodes.c"
 
 #include "base/hash_tables.h"
-#include "base/string_util.h"
 
 namespace webkit_glue {
 
-typedef base::hash_map<wchar_t, const char*> EntityMapType;
+typedef base::hash_map<char16, const char*> EntityMapType;
 
 class EntityMapData {
  public:
@@ -72,7 +71,7 @@ static EntityMapData xml_entity_map_singleton(xml_built_in_entity_codes,
                                               xml_entity_codes_length,
                                               false);
 
-const char* EntityMap::GetEntityNameByCode(wchar_t code, bool is_html) {
+const char* EntityMap::GetEntityNameByCode(char16 code, bool is_html) {
   const EntityMapType* entity_map;
   if (is_html)
     entity_map = html_entity_map_singleton.GetEntityMapData();

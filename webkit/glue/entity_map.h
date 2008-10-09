@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/string_util.h"
 
 namespace webkit_glue {
 
@@ -17,7 +18,7 @@ class EntityMap {
   // entity name. If yes, return the entity notation, if not then return NULL.
   // Parameter is_html indicates check the code in html entity map or in xml
   // entity map. THIS FUNCTION IS NOT THREADSAFE.
-  static const char* GetEntityNameByCode(wchar_t code, bool is_html);
+  static const char* GetEntityNameByCode(char16 code, bool is_html);
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(EntityMap);
