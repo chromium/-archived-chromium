@@ -208,11 +208,10 @@ WebCore::String DomSerializer::PreActionBeforeSerializeOpenTag(
 
       // Add MOTW declaration before html tag.
       // See http://msdn2.microsoft.com/en-us/library/ms537628(VS.85).aspx.
-      result += GenerateMarkOfTheWebDeclaration(param->current_frame_wurl).
-                c_str();
+      result += StdWStringToString(GenerateMarkOfTheWebDeclaration(param->current_frame_wurl));
     } else if (element->hasTagName(WebCore::HTMLNames::baseTag)) {
       // Comment the BASE tag when serializing dom.
-      result += kStartCommentNotation;
+      result += StdWStringToString(kStartCommentNotation);
     }
   } else {
     // Write XML declaration.
@@ -230,7 +229,7 @@ WebCore::String DomSerializer::PreActionBeforeSerializeOpenTag(
                        xml_encoding.charactersWithNullTermination(),
                        param->doc->xmlStandalone() ? L" standalone=\"yes\"" :
                                                      L"");
-      result += str_xml_declaration.c_str();
+      result += StdWStringToString(str_xml_declaration);
     }
     // Add doc type declaration if original doc has it.
     if (!param->has_doctype) {
@@ -262,7 +261,7 @@ WebCore::String DomSerializer::PostActionAfterSerializeOpenTag(
     std::wstring str_meta =
         StringPrintf(kDefaultMetaContent,
                      ASCIIToWide(param->text_encoding.name()).c_str());
-    result += str_meta.c_str();
+    result += StdWStringToString(str_meta);
 
     // Will search each META which has charset declaration, and skip them all
     // in PreActionBeforeSerializeOpenTag.
@@ -306,10 +305,10 @@ WebCore::String DomSerializer::PostActionAfterSerializeEndTag(
     return result;
   // Comment the BASE tag when serializing DOM.
   if (element->hasTagName(WebCore::HTMLNames::baseTag)) {
-    result += kEndCommentNotation;
+    result += StdWStringToString(kEndCommentNotation);
     // Append a new base tag declaration.
-    result += GenerateBaseTagDeclaration(
-        webkit_glue::StringToStdWString(param->doc->baseTarget())).c_str();
+    result += StdWStringToString(GenerateBaseTagDeclaration(
+        webkit_glue::StringToStdWString(param->doc->baseTarget())));
   }
 
   return result;
@@ -372,13 +371,13 @@ void DomSerializer::OpenTagToString(const WebCore::Element* element,
             result += attr_value;
           } else {
             WebCore::String str_value = param->doc->completeURL(attr_value);
-            std::wstring value(str_value.charactersWithNullTermination());
+            std::wstring value(StringToStdWString(str_value));
             // Check whether we local files for those link.
             LinkLocalPathMap::const_iterator it = local_links_.find(value);
             if (it != local_links_.end()) {
               // Replace the link when we have local files.
-              result += param->directory_name.c_str();
-              result += (it->second).c_str();
+              result += StdWStringToString(param->directory_name);
+              result += StdWStringToString(it->second);
             } else {
               // If not found local path, replace it with absolute link.
               result += str_value;
@@ -481,10 +480,10 @@ DomSerializer::DomSerializer(WebFrame* webframe,
                              const std::vector<std::wstring>& links,
                              const std::vector<std::wstring>& local_paths,
                              const std::wstring& local_directory_name)
-    : recursive_serialization_(recursive_serialization),
-      delegate_(delegate),
-      local_directory_name_(local_directory_name),
-      frames_collected_(false) {
+    : delegate_(delegate),
+      recursive_serialization_(recursive_serialization),
+      frames_collected_(false),
+      local_directory_name_(local_directory_name) {
   // Must specify available webframe.
   DCHECK(webframe);
   specified_webframeimpl_ = static_cast<WebFrameImpl*>(webframe);
