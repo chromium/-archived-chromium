@@ -18,6 +18,7 @@ if env['PLATFORM'] == 'win32':
   )
 
 input_files = [
+  'dom_operations.cc',
   'editor_client_impl.cc',
   'glue_util.cc',
   'image_decoder.cc',
@@ -44,7 +45,6 @@ if env['PLATFORM'] == 'win32':
     'cpp_bound_class.cc',
     'cpp_variant.cc',
     'debugger.cc',
-    'dom_operations.cc',
     'dom_serializer.cc',
     'dragclient_impl.cc',
     'entity_map.cc',

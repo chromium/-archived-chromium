@@ -314,7 +314,6 @@ static bool FindFormInputElements(WebCore::HTMLFormElement* fe,
                                   const FormData& data,
                                   FormElements* result) {
   Vector<RefPtr<WebCore::Node> > temp_elements;
-  bool found_elements = true;
   // Loop through the list of elements we need to find on the form in
   // order to autofill it. If we don't find any one of them, abort 
   // processing this form; it can't be the right one.
@@ -362,7 +361,7 @@ static void FindFormElements(WebView* view,
     if (!doc->isHTMLDocument()) 
       continue;
 
-    GURL full_origin(StringToStdWString(doc->documentURI()));
+    GURL full_origin(StringToStdString(doc->documentURI()));
     if (data.origin != full_origin.ReplaceComponents(rep))
       continue;
 
@@ -654,7 +653,10 @@ static int ParseSingleIconSize(const std::wstring& text) {
     if (!(text[i] >= L'0' && text[i] <= L'9'))
       return 0;
   }
-  return _wtoi(text.c_str());
+  int output;
+  if (!StringToInt(text, &output))
+    return 0;
+  return output;
 }
 
 // Parses an icon size. An icon size must match the following regex:
@@ -699,7 +701,7 @@ static void AddInstallIcon(WebCore::HTMLLinkElement* link,
   if (href.isEmpty() || href.isNull())
     return;
 
-  GURL url(webkit_glue::StringToStdWString(href));
+  GURL url(webkit_glue::StringToStdString(href));
   if (!url.is_valid())
     return;
 
@@ -752,7 +754,7 @@ void GetApplicationInfo(WebView* view, WebApplicationInfo* app_info) {
           app_info->description =
               webkit_glue::StringToStdWString(meta->content());
         } else if (meta->name() == String("application-url")) {
-          std::wstring url = webkit_glue::StringToStdWString(meta->content());
+          std::string url = webkit_glue::StringToStdString(meta->content());
           GURL main_url = main_frame->GetURL();
           app_info->app_url = main_url.is_valid() ?
               main_url.Resolve(url) : GURL(url);
