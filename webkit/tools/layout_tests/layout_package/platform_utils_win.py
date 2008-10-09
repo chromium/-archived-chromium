@@ -21,6 +21,11 @@ import google.platform_utils_win
 
 import layout_package.path_utils
 
+# This will be a native path to the directory this file resides in.
+# It can either be relative or absolute depending how it's executed.
+THISDIR = os.path.dirname(os.path.abspath(__file__))
+def PathFromBase(*pathies):
+  return google.path_utils.FindUpward(THISDIR, *pathies)
 
 class PlatformUtility(google.platform_utils_win.PlatformUtility):
   """Overrides base PlatformUtility methods as needed for layout tests."""
@@ -142,3 +147,37 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
                                                      mime_types_path,
                                                      apache2=apache2)
 
+  def LigHTTPdExecutablePath(self):
+    """Returns the executable path to start LigHTTPd"""
+    return PathFromBase('third_party', 'lighttpd', 'win', 'LightTPD.exe')
+
+  def LigHTTPdModulePath(self):
+    """Returns the library module path for LigHTTPd"""
+    return PathFromBase('third_party', 'lighttpd', 'win', 'lib')
+
+  def LigHTTPdPHPPath(self):
+    """Returns the PHP executable path for LigHTTPd"""
+    return PathFromBase('third_party', 'lighttpd', 'win', 'php5', 'php-cgi.exe')
+
+  def ShutDownHTTPServer(self, server_process):
+    """Shut down the lighttpd web server. Blocks until it's fully shut down.
+
+    Args:
+      server_process: The subprocess object representing the running server.
+          Unused in this implementation of the method.
+    """
+    subprocess.Popen(('taskkill.exe', '/f', '/im', 'LightTPD.exe'),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE).wait()
+
+  def TestShellBinary(self):
+    """The name of the binary for TestShell."""
+    return 'test_shell.exe'
+
+  def TestShellBinaryPath(self, target):
+    """Return the platform-specific binary path for our TestShell.
+
+    Args:
+      target: Build target mode (debug or release)
+    """
+    return PathFromBase('chrome', target, self.TestShellBinary())

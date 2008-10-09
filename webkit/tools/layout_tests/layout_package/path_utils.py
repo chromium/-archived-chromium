@@ -7,6 +7,7 @@
 
 import errno
 import os
+import platform_utils
 import subprocess
 import sys
 
@@ -128,20 +129,17 @@ def ExpectedFilename(filename, suffix, custom_result_id):
   # Failed to find the results anywhere, return default path anyway
   return os.path.join(results_dirs[0], results_filename)
 
-def TestShellBinary():
-  """Returns the name of the test_shell executable."""
-  return 'test_shell.exe'
-
 def TestShellBinaryPath(target):
   """Gets the full path to the test_shell binary for the target build
   configuration. Raises PathNotFound if the file doesn't exist"""
-  full_path = os.path.join(WebKitRoot(), target, TestShellBinary())
+  platform_util = platform_utils.PlatformUtility('')
+  full_path = os.path.join(WebKitRoot(), target, 
+                           platform_util.TestShellBinary())
   if not os.path.exists(full_path):
-    # try chrome's output directory in case test_shell was built by chrome.sln
-    full_path = google.path_utils.FindUpward(WebKitRoot(), 'chrome', target,
-                                             TestShellBinary())
-    if not os.path.exists(full_path):
-      raise PathNotFound('unable to find test_shell at %s' % full_path)
+    # try output directory from either Xcode or chrome.sln
+    full_path = platform_util.TestShellBinaryPath(target)
+  if not os.path.exists(full_path):
+    raise PathNotFound('unable to find test_shell at %s' % full_path)
   return full_path
 
 def RelativeTestFilename(filename):

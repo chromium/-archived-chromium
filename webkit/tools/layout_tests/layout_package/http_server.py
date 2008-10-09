@@ -9,6 +9,7 @@
 import logging
 import optparse
 import os
+import platform_utils
 import subprocess
 import sys
 import time
@@ -82,11 +83,12 @@ class Lighttpd:
     # Write out our cgi handlers.  Run perl through env so that it processes
     # the #! line and runs perl with the proper command line arguments.
     # Emulate apache's mod_asis with a cat cgi handler.
+    platform_util = platform_utils.PlatformUtility('')
     f.write(('cgi.assign = ( ".cgi"  => "/usr/bin/env",\n'
              '               ".pl"   => "/usr/bin/env",\n'
              '               ".asis" => "/usr/bin/cat",\n'
              '               ".php"  => "%s" )\n\n') %
-            PathFromBase('third_party', 'lighttpd', 'win', 'php5', 'php-cgi.exe'))
+                                 platform_util.LigHTTPdPHPPath())
 
     # Setup log files
     f.write(('server.errorlog = "%s"\n'
@@ -105,11 +107,13 @@ class Lighttpd:
                '}\n\n') % (mapping['port'], mapping['docroot']))
     f.close()
 
-    start_cmd = [ PathFromBase('third_party', 'lighttpd', 'win', 'LightTPD.exe'),
+    executable = platform_util.LigHTTPdExecutablePath()
+    module_path = platform_util.LigHTTPdModulePath()
+    start_cmd = [ executable,
                   # Newly written config file
                   '-f', PathFromBase(self._output_dir, 'lighttpd.conf'),
                   # Where it can find its module dynamic libraries
-                  '-m', PathFromBase('third_party', 'lighttpd', 'win', 'lib'),
+                  '-m', module_path,
                   # Don't background
                   '-D' ]
 
@@ -164,10 +168,8 @@ class Lighttpd:
       return
 
     logging.info('Shutting down http server')
-
-    subprocess.Popen(('taskkill.exe', '/f', '/im', 'LightTPD.exe'),
-                     stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE).wait()
+    platform_util = platform_utils.PlatformUtility('')
+    platform_util.ShutDownHTTPServer(self._process)
 
     if self._process:
       self._process.wait()

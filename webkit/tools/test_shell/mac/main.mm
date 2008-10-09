@@ -110,16 +110,19 @@ int main(const int argc, const char *argv[]) {
 
   std::wstring javascript_flags =
       parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
+  // Test shell always exposes the GC.
+  CommandLine::AppendSwitch(&javascript_flags, L"expose-gc");
+  webkit_glue::SetJavaScriptFlags(javascript_flags);
 
+#if NOT_YET
   //TODO: record/playback modes
-  /*
   bool playback_mode = 
     parsed_command_line.HasSwitch(test_shell::kPlaybackMode);
   bool record_mode = 
     parsed_command_line.HasSwitch(test_shell::kRecordMode);
 
   bool no_events = parsed_command_line.HasSwitch(test_shell::kNoEvents);
-  */
+#endif
 
   bool dump_stats_table =
       parsed_command_line.HasSwitch(test_shell::kDumpStatsTable);
@@ -148,13 +151,11 @@ int main(const int argc, const char *argv[]) {
   // Config the network module so it has access to a limited set of resources.
   // NetModule::SetResourceProvider(NetResourceProvider);
   
-  // if we have loose arguments, interpret the next one as a URL
+  // Treat the first loose value as the initial URL to open.
   std::wstring uri;
-  if (parsed_command_line.GetLooseValueCount() > 0) {
-    CommandLine::LooseValueIterator iter =
-        parsed_command_line.GetLooseValuesBegin();
-    uri = *iter;
-  } else {
+
+  // Default to a homepage if we're interactive
+  if (interactive) {
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     NSString *testShellPath =
         [resourcePath stringByAppendingPathComponent:@"test_shell/index.html"];
@@ -165,6 +166,12 @@ int main(const int argc, const char *argv[]) {
     uri = UTF8ToWide([testShellURL UTF8String]);
   }
 
+  if (parsed_command_line.GetLooseValueCount() > 0) {
+    CommandLine::LooseValueIterator iter =
+        parsed_command_line.GetLooseValuesBegin();
+    uri = *iter;
+  } 
+  
   TestShell* shell;
   if (TestShell::CreateNewWindow(uri, &shell)) {
 #ifdef NOTYET
@@ -221,7 +228,6 @@ int main(const int argc, const char *argv[]) {
       }
       if (no_tree)
         params.dump_tree = false;
-      
       if (uri.length() == 0) {
         // Watch stdin for URLs.
         char filenameBuffer[2048];

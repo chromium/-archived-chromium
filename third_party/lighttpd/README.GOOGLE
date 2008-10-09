@@ -10,3 +10,32 @@ Modifications to the base install:
 
 LightTPD is licensed under the "revised BSD license" (see COPYING.LIGHTTPD)
 PHP is licensed under the PHP license (http://www.php.net/license/)
+
+******
+
+The Mac version of LigHTTPd is built on intel from LightTPD 1.4.20 with the 
+following configure options defined:
+  --with-open-ssl
+  --prefix=/tmp/lighttpd so a "make install" bundles it
+     correctly
+  
+We then use install_name_tool to fix up the hardcoded library defined that
+wants to look in /usr/local/lib
+
+  $ install_name_tool -change /usr/local/lib/liblightcomp.dylib @executable_path/../lib/liblightcomp.dylib /tmp/lighttpd/sbin/lighttpd
+  
+This also needs to be done for many of the mac/lib/mod_* libraries.
+
+The Mac version of php-cgi is built from PHP 5.2.6 with the following
+configure options:
+
+  --prefix=/tmp/php
+  --enable-fastcgi
+  --enable-sockets
+  --enable-libxml
+  --enable-force-cgi-redirect
+
+The resulting libraries and executables are then copied into the third_party
+dir in the source tree to mirror where the windows executables live. It's 
+unfortunate that we can't build this all from source as part of the build
+process, but the source isn't checked in for windows, so....
