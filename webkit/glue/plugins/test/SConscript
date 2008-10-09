@@ -32,6 +32,7 @@ if env['PLATFORM'] == 'win32':
 env.Append(
     LIBS = [
          'base',
+         'icu',
     ],
 )
 

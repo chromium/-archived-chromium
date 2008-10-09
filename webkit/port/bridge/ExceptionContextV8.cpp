@@ -35,8 +35,8 @@
 namespace WebCore {
 
 ExceptionContext::ExceptionContext()
-    : m_exceptionCatcher(0)
-    , m_exception()
+    : m_exception()
+    , m_exceptionCatcher(0)
 {
 }
 
@@ -75,8 +75,8 @@ JSException ExceptionContext::NoException()
 }
 
 ExceptionCatcher::ExceptionCatcher(ExceptionContext* exceptionContext)
-    : m_catcher()
-    , m_context(exceptionContext)
+    : m_context(exceptionContext)
+    , m_catcher()
 {
     exceptionContext->setExceptionCatcher(this);
 }

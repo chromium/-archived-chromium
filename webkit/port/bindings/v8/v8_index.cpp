@@ -45,7 +45,7 @@
 #include "V8Comment.h"
 #include "V8Console.h"
 #include "V8Counter.h"
-#include "V8CSSSTyleDeclaration.h"
+#include "V8CSSStyleDeclaration.h"
 #include "V8CSSRule.h"
 #include "V8CSSStyleRule.h"
 #include "V8CSSCharsetRule.h"

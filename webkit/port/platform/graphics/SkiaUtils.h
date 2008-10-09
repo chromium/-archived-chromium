@@ -14,7 +14,6 @@
 #include "SkShader.h"
 #include "PlatformContextSkia.h"
 
-class WebCore::SharedBuffer;
 class SkRegion;
 
 // Converts a WebCore composit operation (WebCore::Composite*) to the
