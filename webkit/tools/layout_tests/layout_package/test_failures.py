@@ -132,8 +132,14 @@ class FailureMissingResult(FailureWithType):
 class FailureTextMismatch(FailureWithType):
   """Text diff output failed."""
   # Filename suffixes used by ResultHtmlOutput.
-  OUT_FILENAMES = ["-actual-win.txt", "-expected.txt",
-                   "-diff-win.txt", "-wdiff-win.html"]
+  OUT_FILENAMES = ["-actual-win.txt", "-expected.txt", "-diff-win.txt"]
+  OUT_FILENAMES_WDIFF = ["-actual-win.txt", "-expected.txt", "-diff-win.txt",
+                         "-wdiff-win.html"]
+
+  def __init__(self, test_type, has_wdiff):
+    FailureWithType.__init__(self, test_type)
+    if has_wdiff:
+      self.OUT_FILENAMES = self.OUT_FILENAMES_WDIFF
 
   @staticmethod
   def Message():
@@ -150,6 +156,9 @@ class FailureSimplifiedTextMismatch(FailureTextMismatch):
 
   OUT_FILENAMES = ["-simp-actual-win.txt", "-simp-expected.txt",
                    "-simp-diff-win.txt"]
+  def __init__(self, test_type):
+    # Don't run wdiff on simplified text diffs.
+    FailureTextMismatch.__init__(self, test_type, False)
 
   @staticmethod
   def Message():

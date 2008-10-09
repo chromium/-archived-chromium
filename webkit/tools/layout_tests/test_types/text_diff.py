@@ -66,7 +66,8 @@ class TestTextDiff(test_type_base.TestTypeBase):
       if expected == '':
         failures.append(test_failures.FailureMissingResult(self))
       else:
-        failures.append(test_failures.FailureTextMismatch(self))
+        failures.append(test_failures.FailureTextMismatch(self,
+                                                          test_args.wdiff))
 
     return failures
 
