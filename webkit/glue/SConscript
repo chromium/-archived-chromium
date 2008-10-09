@@ -26,6 +26,7 @@ input_files = [
   'npruntime_util.cc',
   'password_form_dom_manager.cc',
   'simple_clipboard_impl.cc',
+  'webcursor.cc',
   'webkit_glue.cc',
   'weburlrequest_impl.cc',
 ]
@@ -69,7 +70,6 @@ if env['PLATFORM'] == 'win32':
     'resource_fetcher.cc',
     'resource_handle_win.cc',
     'searchable_form_data.cc',
-    'webcursor.cc',
     'webdatasource_impl.cc',
     'webdocumentloader_impl.cc',
     'webdropdata.cc',

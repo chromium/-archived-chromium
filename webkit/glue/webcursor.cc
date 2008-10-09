@@ -2,9 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/bitmap_header.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_resources.h"
+
+#if PLATFORM(WIN)
+#include "base/gfx/bitmap_header.h"
+#endif
 
 WebCursor::WebCursor()
     : type_(ARROW),
@@ -53,7 +56,7 @@ WebCursor& WebCursor::operator=(const WebCursor& other) {
   }
   return *this;
 }
-
+#if PLATFORM(WIN)
 HCURSOR WebCursor::GetCursor(HINSTANCE module_handle) const {
   if (type_ == CUSTOM) 
     return NULL;
@@ -132,7 +135,7 @@ HCURSOR WebCursor::GetCustomCursor() const {
   ::ReleaseDC(0, dc);
   return cursor_handle;
 }
-
+#endif
 bool WebCursor::IsSameBitmap(const SkBitmap& bitmap) const {
   SkAutoLockPixels new_bitmap_lock(bitmap);
   SkAutoLockPixels bitmap_lock(bitmap_); 

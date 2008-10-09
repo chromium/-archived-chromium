@@ -6,6 +6,7 @@
 #define WEBCURSOR_H__
 
 #include "skia/include/SkBitmap.h"
+#include <wtf/Platform.h>
 
 // This class provides the functionality of a generic cursor type. The intent
 // is to stay away from platform specific code here. We do have win32 specific
@@ -69,7 +70,7 @@ public:
     hotspot_x_ = hotspot_x;
     hotspot_y_ = hotspot_x;
   }
-
+#if PLATFORM(WIN)
   // Returns the cursor handle. If the cursor type is a win32 or safari
   // cursor, we use LoadCursor to load the cursor. 
   // Returns NULL on error. 
@@ -79,6 +80,7 @@ public:
   // freeing the cursor handle lies with the caller.
   // Returns NULL on error.
   HCURSOR GetCustomCursor() const;
+#endif
   // Returns true if the passed in SkBitmap is the same as the the 
   // current SkBitmap. We use memcmp to compare the two bitmaps.
   bool IsSameBitmap(const SkBitmap& bitmap) const;
