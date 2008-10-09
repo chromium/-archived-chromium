@@ -90,7 +90,10 @@ void Window::Show() {
 }
 
 void Window::Activate() {
+  if (IsMinimized())
+    ::ShowWindow(GetHWND(), SW_RESTORE);
   ::SetWindowPos(GetHWND(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+  SetForegroundWindow(GetHWND());
 }
 
 void Window::SetBounds(const gfx::Rect& bounds) {
