@@ -48,7 +48,6 @@ class CustomFrameWindow : public Window {
   virtual void DisableInactiveRendering(bool disable);
 
   // Overridden from HWNDViewContainer:
-  virtual void OnEnterIdle(UINT reason, HWND window);
   virtual void OnInitMenu(HMENU menu);
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual void OnMouseLeave();

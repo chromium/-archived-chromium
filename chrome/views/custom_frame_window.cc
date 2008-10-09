@@ -911,12 +911,6 @@ void CustomFrameWindow::SizeWindowToDefault() {
 ///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, HWNDViewContainer overrides:
 
-void CustomFrameWindow::OnEnterIdle(UINT reason, HWND window) {
-  ScopedVisibilityRemover remover(GetHWND());
-  DefWindowProc(GetHWND(), WM_ENTERIDLE, reason,
-                reinterpret_cast<LPARAM>(window));
-}
-
 static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
   UINT flags = MF_BYCOMMAND | (enabled ? MF_ENABLED : MF_DISABLED | MF_GRAYED);
   EnableMenuItem(menu, command, flags);
