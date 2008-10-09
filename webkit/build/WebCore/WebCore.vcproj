@@ -366,11 +366,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Page.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Page.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Page.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Page.h"
 				>
 			</File>
 			<File
@@ -394,11 +394,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Settings.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Settings.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Settings.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Settings.h"
 				>
 			</File>
 			<File
@@ -694,11 +694,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\TextResourceDecoder.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\TextResourceDecoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\TextResourceDecoder.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\loader\TextResourceDecoder.h"
 				>
 			</File>
 			<Filter
@@ -894,11 +894,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\KURL.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\KURL.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\KURL.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\KURL.h"
 				>
 			</File>
 			<File
@@ -1249,11 +1249,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\pending\SimpleFontData.cpp"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\SimpleFontData.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\pending\SimpleFontData.h"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\SimpleFontData.h"
 					>
 				</File>
 			</Filter>
@@ -1489,7 +1489,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\pending\TextCodecICU.cpp"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextCodecICU.cpp"
 					>
 				</File>
 				<File
@@ -2258,11 +2258,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\RenderButton.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderButton.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\RenderButton.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderButton.h"
 				>
 			</File>
 			<File
@@ -2418,11 +2418,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\RenderMenuList.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderMenuList.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\RenderMenuList.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderMenuList.h"
 				>
 			</File>
 			<File
@@ -2442,7 +2442,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\RenderPartObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderPartObject.cpp"
 				>
 			</File>
 			<File
@@ -2622,7 +2622,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\RenderText.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderText.cpp"
 				>
 			</File>
 			<File
@@ -2630,7 +2630,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\RenderTextControl.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderTextControl.cpp"
 				>
 			</File>
 			<File
@@ -2838,11 +2838,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\XMLHttpRequest.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\xml\XMLHttpRequest.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\XMLHttpRequest.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\xml\XMLHttpRequest.h"
 				>
 			</File>
 			<File
@@ -2990,7 +2990,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\XSLImportRule.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\xml\XSLImportRule.cpp"
 				>
 			</File>
 			<File
@@ -2998,11 +2998,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\XSLStyleSheet.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\xml\XSLStyleSheet.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\XSLStyleSheet.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\xml\XSLStyleSheet.h"
 				>
 			</File>
 			<File
@@ -3382,27 +3382,27 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\NodeFilter.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\NodeFilter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\NodeFilter.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\NodeFilter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\NodeFilterCondition.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\NodeFilterCondition.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\NodeFilterCondition.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\NodeFilterCondition.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\NodeIterator.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\NodeIterator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\NodeIterator.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\NodeIterator.h"
 				>
 			</File>
 			<File
@@ -3554,19 +3554,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Traversal.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Traversal.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Traversal.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\Traversal.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\TreeWalker.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\TreeWalker.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\TreeWalker.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\TreeWalker.h"
 				>
 			</File>
 			<File
@@ -3902,7 +3902,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\Selection.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\editing\Selection.cpp"
 				>
 			</File>
 			<File

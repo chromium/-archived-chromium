@@ -290,7 +290,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\pending\wtf\ThreadingWin.cpp"
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\ThreadingWin.cpp"
 			>
 		</File>
 		<File
