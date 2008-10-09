@@ -717,6 +717,10 @@ void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
   // TODO(pinkerton): implement me
 }
 
+bool TestWebViewDelegate::IsHidden() {
+  return false;
+}
+
 // Private methods -----------------------------------------------------------
 
 void TestWebViewDelegate::UpdateAddressBar(WebView* webView) {
