@@ -129,7 +129,7 @@ class DailyPingTask : public Task {
     std::wstring brand;
     GoogleUpdateSettings::GetBrand(&brand);
     if (brand.empty())
-      brand = L"GGLD";
+      brand = L"GGCM";
     if (RLZTracker::SendFinancialPing(RLZTracker::CHROME, L"chrome",
                                       brand.c_str(), NULL, lang.c_str())) {
       access_values_state = ACCESS_VALUES_STALE;
