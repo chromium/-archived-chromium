@@ -551,6 +551,106 @@ TEST(SafeBrowsingProtocolParsingTest, TestReset) {
   EXPECT_TRUE(reset);
 }
 
+// The SafeBrowsing service will occasionally send zero length chunks so that
+// client requests will have longer contiguous chunk number ranges, and thus
+// reduce the request size.
+TEST(SafeBrowsingProtocolParsingTest, TestZeroSizeAddChunk) {
+  std::string add_chunk("a:1:4:0\n");
+  SafeBrowsingProtocolParser parser;
+  bool re_key = false;
+  std::deque<SBChunk> chunks;
+
+  bool result = parser.ParseChunk(add_chunk.data(),
+                                  static_cast<int>(add_chunk.length()),
+                                  "", "", &re_key, &chunks);
+  EXPECT_TRUE(result);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(1));
+  EXPECT_EQ(chunks[0].chunk_number, 1);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(0));
+
+  safe_browsing_util::FreeChunks(&chunks);
+
+  // Now test a zero size chunk in between normal chunks.
+  chunks.clear();
+  std::string add_chunks("a:1:4:18\n1234\001abcd5678\001wxyz"
+                         "a:2:4:0\n"
+                         "a:3:4:9\ncafe\001beef");
+  result = parser.ParseChunk(add_chunks.data(),
+                             static_cast<int>(add_chunks.length()),
+                             "", "", &re_key, &chunks);
+  EXPECT_TRUE(result);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(3));
+
+  // See that each chunk has the right content.
+  EXPECT_EQ(chunks[0].chunk_number, 1);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(2));
+  EXPECT_EQ(chunks[0].hosts[0].host, 0x34333231);
+  EXPECT_EQ(chunks[0].hosts[0].entry->PrefixAt(0), 0x64636261);
+  EXPECT_EQ(chunks[0].hosts[1].host, 0x38373635);
+  EXPECT_EQ(chunks[0].hosts[1].entry->PrefixAt(0), 0x7a797877);
+
+  EXPECT_EQ(chunks[1].chunk_number, 2);
+  EXPECT_EQ(chunks[1].hosts.size(), static_cast<size_t>(0));
+  
+  EXPECT_EQ(chunks[2].chunk_number, 3);
+  EXPECT_EQ(chunks[2].hosts.size(), static_cast<size_t>(1));
+  EXPECT_EQ(chunks[2].hosts[0].host, 0x65666163);
+  EXPECT_EQ(chunks[2].hosts[0].entry->PrefixAt(0), 0x66656562);
+
+  safe_browsing_util::FreeChunks(&chunks);
+}
+
+// Test parsing a zero sized sub chunk.
+TEST(SafeBrowsingProtocolParsingTest, TestZeroSizeSubChunk) {
+  std::string sub_chunk("s:9:4:0\n");
+  SafeBrowsingProtocolParser parser;
+  bool re_key = false;
+  std::deque<SBChunk> chunks;
+
+  bool result = parser.ParseChunk(sub_chunk.data(),
+                                  static_cast<int>(sub_chunk.length()),
+                                  "", "", &re_key, &chunks);
+  EXPECT_TRUE(result);
+  EXPECT_EQ(chunks.size(), static_cast<size_t>(1));
+  EXPECT_EQ(chunks[0].chunk_number, 9);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(0));
+
+  safe_browsing_util::FreeChunks(&chunks);
+  chunks.clear();
+
+  // Test parsing a zero sized sub chunk mixed in with content carrying chunks.
+  std::string sub_chunks("s:1:4:9\nabcdxwxyz"
+                         "s:2:4:0\n"
+                         "s:3:4:26\nefgh\0011234pqrscafe\0015678lmno");
+  sub_chunks[12] = '\0';
+
+  result = parser.ParseChunk(sub_chunks.data(),
+                             static_cast<int>(sub_chunks.length()),
+                             "", "", &re_key, &chunks);
+  EXPECT_TRUE(result);
+
+  EXPECT_EQ(chunks[0].chunk_number, 1);
+  EXPECT_EQ(chunks[0].hosts.size(), static_cast<size_t>(1));
+  EXPECT_EQ(chunks[0].hosts[0].host, 0x64636261);
+  EXPECT_EQ(chunks[0].hosts[0].entry->prefix_count(), 0);
+
+  EXPECT_EQ(chunks[1].chunk_number, 2);
+  EXPECT_EQ(chunks[1].hosts.size(), static_cast<size_t>(0));
+
+  EXPECT_EQ(chunks[2].chunk_number, 3);
+  EXPECT_EQ(chunks[2].hosts.size(), static_cast<size_t>(2));
+  EXPECT_EQ(chunks[2].hosts[0].host, 0x68676665);
+  EXPECT_EQ(chunks[2].hosts[0].entry->prefix_count(), 1);
+  EXPECT_EQ(chunks[2].hosts[0].entry->PrefixAt(0), 0x73727170);
+  EXPECT_EQ(chunks[2].hosts[0].entry->ChunkIdAtPrefix(0), 0x31323334);
+  EXPECT_EQ(chunks[2].hosts[1].host, 0x65666163);
+  EXPECT_EQ(chunks[2].hosts[1].entry->prefix_count(), 1);
+  EXPECT_EQ(chunks[2].hosts[1].entry->PrefixAt(0), 0x6f6e6d6c);
+  EXPECT_EQ(chunks[2].hosts[1].entry->ChunkIdAtPrefix(0), 0x35363738);
+
+  safe_browsing_util::FreeChunks(&chunks);
+}
+
 TEST(SafeBrowsingProtocolParsingTest, TestVerifyUpdateMac) {
   SafeBrowsingProtocolParser parser;
 

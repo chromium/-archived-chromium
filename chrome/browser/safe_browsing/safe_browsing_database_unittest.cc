@@ -17,51 +17,71 @@
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+static const wchar_t kSafeBrowsingTestDatabase[] = L"SafeBrowsingTestDatabase";
+
 namespace {
   SBPrefix Sha256Prefix(const std::string& str) {
     SBPrefix hash;
     base::SHA256HashString(str, &hash, sizeof(hash));
     return hash;
   }
-}
 
-// Helper function to do an AddDel or SubDel command.
-void DelChunk(SafeBrowsingDatabase* db,
-              const std::string& list,
-              int chunk_id,
-              bool is_sub_del) {
-  std::vector<SBChunkDelete>* deletes = new std::vector<SBChunkDelete>;
-  SBChunkDelete chunk_delete;
-  chunk_delete.list_name = list;
-  chunk_delete.is_sub_del = is_sub_del;
-  chunk_delete.chunk_del.push_back(ChunkRange(chunk_id));
-  deletes->push_back(chunk_delete);
-  db->DeleteChunks(deletes);
-}
+  // Helper function to do an AddDel or SubDel command.
+  void DelChunk(SafeBrowsingDatabase* db,
+                const std::string& list,
+                int chunk_id,
+                bool is_sub_del) {
+    std::vector<SBChunkDelete>* deletes = new std::vector<SBChunkDelete>;
+    SBChunkDelete chunk_delete;
+    chunk_delete.list_name = list;
+    chunk_delete.is_sub_del = is_sub_del;
+    chunk_delete.chunk_del.push_back(ChunkRange(chunk_id));
+    deletes->push_back(chunk_delete);
+    db->DeleteChunks(deletes);
+  }
 
-void AddDelChunk(SafeBrowsingDatabase* db,
-                 const std::string& list,
-                 int chunk_id) {
-  DelChunk(db, list, chunk_id, false);
-}
+  void AddDelChunk(SafeBrowsingDatabase* db,
+                   const std::string& list,
+                   int chunk_id) {
+    DelChunk(db, list, chunk_id, false);
+  }
 
-void SubDelChunk(SafeBrowsingDatabase* db,
-                 const std::string& list,
-                 int chunk_id) {
-  DelChunk(db, list, chunk_id, true);
-}
+  void SubDelChunk(SafeBrowsingDatabase* db,
+                   const std::string& list,
+                   int chunk_id) {
+    DelChunk(db, list, chunk_id, true);
+  }
+
+  // Common database test set up code.
+  std::wstring GetTestDatabaseName() {
+    std::wstring filename;
+    PathService::Get(base::DIR_TEMP, &filename);
+    filename.push_back(file_util::kPathSeparator);
+    filename.append(kSafeBrowsingTestDatabase);
+    return filename;
+  }
+
+  SafeBrowsingDatabase* SetupTestDatabase() {
+    std::wstring filename = GetTestDatabaseName();
+    DeleteFile(filename.c_str());  // In case it existed from a previous run.
+
+    SafeBrowsingDatabase* database = SafeBrowsingDatabase::Create();
+    database->SetSynchronous();
+    EXPECT_TRUE(database->Init(filename, NULL));
+
+    return database;
+  }
+
+  void TearDownTestDatabase(SafeBrowsingDatabase* database) {
+    DeleteFile(GetTestDatabaseName().c_str());
+    delete database;
+  }
+
+}  // namespace
 
 // Checks database reading and writing.
 TEST(SafeBrowsingDatabase, Database) {
-  std::wstring filename;
-  PathService::Get(base::DIR_TEMP, &filename);
-  filename.push_back(file_util::kPathSeparator);
-  filename.append(L"SafeBrowsingTestDatabase");
-  DeleteFile(filename.c_str());  // In case it existed from a previous run.
-
-  SafeBrowsingDatabase* database = SafeBrowsingDatabase::Create();
-  database->SetSynchronous();
-  EXPECT_TRUE(database->Init(filename, NULL));
+  SafeBrowsingDatabase* database = SetupTestDatabase();
 
   // Add a simple chunk with one hostkey.
   SBChunkHost host;
@@ -175,6 +195,7 @@ TEST(SafeBrowsingDatabase, Database) {
   host.entry->SetChunkIdAtPrefix(0, 2);
   host.entry->SetPrefixAt(0, Sha256Prefix("www.evil.com/notevil1.html"));
 
+  chunk.is_add = false;
   chunk.chunk_number = 4;
   chunk.hosts.clear();
   chunk.hosts.push_back(host);
@@ -243,6 +264,7 @@ TEST(SafeBrowsingDatabase, Database) {
   host.entry->set_chunk_id(1);
   host.entry->SetPrefixAt(0, Sha256Prefix("www.redherring.com/index.html"));
 
+  chunk.is_add = true;
   chunk.chunk_number = 44;
   chunk.hosts.clear();
   chunk.hosts.push_back(host);
@@ -274,6 +296,7 @@ TEST(SafeBrowsingDatabase, Database) {
   host.entry->SetPrefixAt(1, Sha256Prefix("www.notevilanymore.com/good.html"));
   host.entry->SetChunkIdAtPrefix(1, 10);
 
+  chunk.is_add = false;
   chunk.chunk_number = 5;
   chunk.hosts.clear();
   chunk.hosts.push_back(host);
@@ -293,6 +316,7 @@ TEST(SafeBrowsingDatabase, Database) {
   host.entry->SetPrefixAt(0, Sha256Prefix("www.notevilanymore.com/index.html"));
   host.entry->SetPrefixAt(1, Sha256Prefix("www.notevilanymore.com/good.html"));
 
+  chunk.is_add = true;
   chunk.chunk_number = 10;
   chunk.hosts.clear();
   chunk.hosts.push_back(host);
@@ -310,9 +334,124 @@ TEST(SafeBrowsingDatabase, Database) {
       GURL("http://www.notevilanymore.com/good.html"),
       &matching_list, &prefix_hits, &full_hashes, now));
 
-  DeleteFile(filename.c_str());  // Clean up.
+  TearDownTestDatabase(database);
+}
 
-  delete database;
+
+// Test adding zero length chunks to the database.
+TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
+  SafeBrowsingDatabase* database = SetupTestDatabase();
+
+  // Populate with a couple of normal chunks.
+  SBChunkHost host;
+  host.host = Sha256Prefix("www.test.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 2);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.test.com/test1.html"));
+  host.entry->SetPrefixAt(1, Sha256Prefix("www.test.com/test2.html"));
+  host.entry->set_chunk_id(1);
+
+  SBChunk chunk;
+  chunk.is_add = true;
+  chunk.chunk_number = 1;
+  chunk.hosts.push_back(host);
+
+  std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+
+  host.host = Sha256Prefix("www.random.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 2);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.random.com/random1.html"));
+  host.entry->SetPrefixAt(1, Sha256Prefix("www.random.com/random2.html"));
+  host.entry->set_chunk_id(10);
+  chunk.chunk_number = 10;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks->push_back(chunk);
+
+  database->InsertChunks("goog-malware", chunks);
+
+  // Add an empty ADD and SUB chunk.
+  std::vector<SBListChunkRanges> list_chunks_empty;
+  database->GetListsInfo(&list_chunks_empty);
+  EXPECT_EQ(list_chunks_empty[0].adds, "1,10");
+
+  SBChunk empty_chunk;
+  empty_chunk.chunk_number = 19;
+  empty_chunk.is_add = true;
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(empty_chunk);
+  database->InsertChunks("goog-malware", chunks);
+  chunks = new std::deque<SBChunk>;
+  empty_chunk.chunk_number = 7;
+  empty_chunk.is_add = false;
+  chunks->push_back(empty_chunk);
+  database->InsertChunks("goog-malware", chunks);
+
+  list_chunks_empty.clear();
+  database->GetListsInfo(&list_chunks_empty);
+  EXPECT_EQ(list_chunks_empty[0].adds, "1,10,19");
+  EXPECT_EQ(list_chunks_empty[0].subs, "7");
+
+  // Add an empty chunk along with a couple that contain data. This should
+  // result in the chunk range being reduced in size.
+  host.host = Sha256Prefix("www.notempty.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 1);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.notempty.com/full1.html"));
+  host.entry->set_chunk_id(20);
+  empty_chunk.chunk_number = 20;
+  empty_chunk.is_add = true;
+  empty_chunk.hosts.clear();
+  empty_chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(empty_chunk);
+
+  empty_chunk.chunk_number = 21;
+  empty_chunk.is_add = true;
+  empty_chunk.hosts.clear();
+  chunks->push_back(empty_chunk);
+
+  host.host = Sha256Prefix("www.notempty.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 1);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.notempty.com/full2.html"));
+  host.entry->set_chunk_id(22);
+  empty_chunk.hosts.clear();
+  empty_chunk.hosts.push_back(host);
+  empty_chunk.chunk_number = 22;
+  empty_chunk.is_add = true;
+  chunks->push_back(empty_chunk);
+
+  database->InsertChunks("goog-malware", chunks);
+
+  const Time now = Time::Now();
+  std::vector<SBFullHashResult> full_hashes;
+  std::vector<SBPrefix> prefix_hits;
+  std::string matching_list;
+  EXPECT_TRUE(database->ContainsUrl(GURL("http://www.notempty.com/full1.html"),
+                                    &matching_list, &prefix_hits,
+                                    &full_hashes, now));
+  EXPECT_TRUE(database->ContainsUrl(GURL("http://www.notempty.com/full2.html"),
+                                    &matching_list, &prefix_hits,
+                                    &full_hashes, now));
+
+  list_chunks_empty.clear();
+  database->GetListsInfo(&list_chunks_empty);
+  EXPECT_EQ(list_chunks_empty[0].adds, "1,10,19-22");
+  EXPECT_EQ(list_chunks_empty[0].subs, "7");
+
+  // Handle AddDel and SubDel commands for empty chunks.
+  AddDelChunk(database, "goog-malware", 21);
+  list_chunks_empty.clear();
+  database->GetListsInfo(&list_chunks_empty);
+  EXPECT_EQ(list_chunks_empty[0].adds, "1,10,19-20,22");
+  EXPECT_EQ(list_chunks_empty[0].subs, "7");
+
+  SubDelChunk(database, "goog-malware", 7);
+  list_chunks_empty.clear();
+  database->GetListsInfo(&list_chunks_empty);
+  EXPECT_EQ(list_chunks_empty[0].adds, "1,10,19-20,22");
+  EXPECT_EQ(list_chunks_empty[0].subs, "");
+
+  TearDownTestDatabase(database);
 }
 
 void PrintStat(const wchar_t* name) {

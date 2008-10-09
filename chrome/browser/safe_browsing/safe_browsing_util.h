@@ -57,6 +57,8 @@ struct SBChunkHost {
 // Container for an add/sub chunk.
 struct SBChunk {
   int chunk_number;
+  int list_id;
+  bool is_add;
   std::deque<SBChunkHost> hosts;
 };
 

@@ -286,9 +286,11 @@ bool SafeBrowsingProtocolParser::ParseChunk(const char* data,
     chunks->back().chunk_number = chunk_number;
 
     if (cmd_parts[0] == "a") {
+      chunks->back().is_add = true;
       if (!ParseAddChunk(chunk_data, chunk_len, hash_len, &chunks->back().hosts))
         return false;  // Parse error.
     } else if (cmd_parts[0] == "s") {
+      chunks->back().is_add = false;
       if (!ParseSubChunk(chunk_data, chunk_len, hash_len, &chunks->back().hosts))
         return false;  // Parse error.
     } else {
