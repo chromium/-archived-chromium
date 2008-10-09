@@ -65,6 +65,9 @@ public:
     // tickmark resides in another frame) this function returns kNoTickmark.
     static const size_t kNoTickmark = -1;
     virtual size_t getActiveTickmarkIndex(WebCore::Frame* frame) = 0;
+
+    // Returns true if this widget is hidden because it's in a background tab.
+    virtual bool isHidden() = 0;
 };
 
 } // namespace WebCore

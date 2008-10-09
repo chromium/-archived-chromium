@@ -203,6 +203,7 @@ class WebViewImpl : public WebView,
   virtual const WTF::Vector<RefPtr<WebCore::Range> >* getTickmarks(
       WebCore::Frame* frame);
   virtual size_t getActiveTickmarkIndex(WebCore::Frame* frame);
+  virtual bool isHidden();
 
   // WebCore::BackForwardListClient
   virtual void didAddHistoryItem(WebCore::HistoryItem* item);

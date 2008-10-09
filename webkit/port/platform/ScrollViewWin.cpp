@@ -1128,9 +1128,11 @@ void ScrollView::updateBackingStore()
 
 bool ScrollView::inWindow() const
 {
-    // Needed for back/forward cache.
-    notImplemented();
-    return true;
+    WidgetClientWin* c = static_cast<WidgetClientWin*>(client());
+    if (!c)
+      return false;
+
+    return !c->isHidden();
 }
 
 void ScrollView::attachToWindow()

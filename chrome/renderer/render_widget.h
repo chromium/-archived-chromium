@@ -76,6 +76,7 @@ class RenderWidget : public IPC::Channel::Listener,
   virtual void GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget) {}
+  virtual bool IsHidden() { return is_hidden_; }
 
   // Close the underlying WebWidget.
   void Close();

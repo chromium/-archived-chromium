@@ -252,3 +252,9 @@ void WebWidgetImpl::setFocus() {
   delegate_->Focus(this);
 }
 
+bool WebWidgetImpl::isHidden() {
+  if (!delegate_)
+    return true;
+
+  return delegate_->IsHidden();
+}

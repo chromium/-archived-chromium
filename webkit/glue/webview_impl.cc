@@ -1469,6 +1469,13 @@ size_t WebViewImpl::getActiveTickmarkIndex(WebCore::Frame* frame) {
   return webframe_impl->active_tickmark_index();
 }
 
+bool WebViewImpl::isHidden() {
+  if (!delegate_)
+    return true;
+
+  return delegate_->IsHidden();
+}
+
 //-----------------------------------------------------------------------------
 // WebCore::BackForwardListClient
 

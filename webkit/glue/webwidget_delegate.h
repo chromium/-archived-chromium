@@ -79,6 +79,9 @@ class WebWidgetDelegate {
   virtual void AddRef() = 0;
   virtual void Release() = 0;
 
+  // Returns true if the widget is in a background tab.
+  virtual bool IsHidden() = 0;
+
   WebWidgetDelegate() { }
   virtual ~WebWidgetDelegate() { }
 
