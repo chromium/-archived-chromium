@@ -84,8 +84,10 @@ void WebPluginProxy::Invalidate() {
 }
 
 void WebPluginProxy::InvalidateRect(const gfx::Rect& rect) {
-  // Ignore NPN_InvalidateRect calls with empty rects.
-  if (rect.IsEmpty())
+  // Ignore NPN_InvalidateRect calls with empty rects.  Also don't send an
+  // invalidate if it's outside the clipping region, since if we did it won't
+  // lead to a paint and we'll be stuck waiting forever for a DidPaint response.
+  if (rect.IsEmpty() || !delegate_->clip_rect().Intersects(rect))
     return;
 
   damaged_rect_ = damaged_rect_.Union(rect);

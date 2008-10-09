@@ -78,6 +78,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
                                 void* notify_data);
   bool windowless() const { return windowless_ ; }
   gfx::Rect rect() const { return window_rect_; }
+  gfx::Rect clip_rect() const { return clip_rect_; }
 
   enum PluginQuirks {
     PLUGIN_QUIRK_SETWINDOW_TWICE = 1,
