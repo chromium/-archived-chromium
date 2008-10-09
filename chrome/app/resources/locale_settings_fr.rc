@@ -60,7 +60,6 @@ BEGIN
   IDS_WELCOME_PAGE_URL "http://tools.google.com/chrome/intl/fr/welcome.html"
   IDS_LEARN_MORE_INCOGNITO_URL "http://www.google.com/support/chrome/bin/answer.py?answer=95464&hl=fr"
   IDS_LEARN_MORE_HELPMAKECHROMEBETTER_URL "http://www.google.com/support/chrome/bin/answer.py?answer=96817&hl=fr"
-  IDS_ABOUT_VERSION_LICENSE_URL "http://www.google.com/support/chrome/bin/answer.py?answer=100336"
 END
 
 #if defined(GOOGLE_CHROME_BUILD)

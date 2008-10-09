@@ -1506,9 +1506,6 @@ each locale. -->
       <message name="IDS_ABOUT_VERSION_UNOFFICIAL" desc="unofficial build on the about:version page">
         Developer Build
       </message>
-      <message name="IDS_ABOUT_VERSION_LICENSE" desc="The line that shows the license text (what appears in front of the URL)">
-        Portions of this software were licensed from third parties as described at:
-      </message>
 
       <!-- Javascript Dialog Box strings -->
       <message name="IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE" desc="Title for Javascript alert, prompt, and confirm if there is no hostname to display">
