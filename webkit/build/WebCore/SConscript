@@ -135,15 +135,9 @@ input_files = [
     '$WEBCORE_DIR/dom/NamedMappedAttrMap.cpp',
     '$WEBCORE_DIR/dom/NameNodeList.cpp',
     '$WEBCORE_DIR/dom/Node.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/dom/NodeFilter.cpp',
-    '$PENDING_DIR/NodeFilter.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/dom/NodeFilterCondition.cpp',
-    '$PENDING_DIR/NodeFilterCondition.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/dom/NodeIterator.cpp',
-    '$PENDING_DIR/NodeIterator.cpp',
+    '$WEBCORE_DIR/dom/NodeFilter.cpp',
+    '$WEBCORE_DIR/dom/NodeFilterCondition.cpp',
+    '$WEBCORE_DIR/dom/NodeIterator.cpp',
     '$WEBCORE_DIR/dom/Notation.cpp',
     '$WEBCORE_DIR/dom/OverflowEvent.cpp',
     '$WEBCORE_DIR/dom/Position.cpp',
@@ -161,12 +155,8 @@ input_files = [
     '$WEBCORE_DIR/dom/TagNodeList.cpp',
     '$WEBCORE_DIR/dom/Text.cpp',
     '$WEBCORE_DIR/dom/TextEvent.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/dom/Traversal.cpp',
-    '$PENDING_DIR/Traversal.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/dom/TreeWalker.cpp',
-    '$PENDING_DIR/TreeWalker.cpp',
+    '$WEBCORE_DIR/dom/Traversal.cpp',
+    '$WEBCORE_DIR/dom/TreeWalker.cpp',
     '$WEBCORE_DIR/dom/UIEvent.cpp',
     '$WEBCORE_DIR/dom/UIEventWithKeyState.cpp',
     '$WEBCORE_DIR/dom/WebKitAnimationEvent.cpp',
@@ -209,9 +199,7 @@ input_files = [
     '$WEBCORE_DIR/editing/RemoveNodeCommand.cpp',
     '$WEBCORE_DIR/editing/RemoveNodePreservingChildrenCommand.cpp',
     '$WEBCORE_DIR/editing/ReplaceSelectionCommand.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/editing/Selection.cpp',
-    '$PENDING_DIR/Selection.cpp',
+    '$WEBCORE_DIR/editing/Selection.cpp',
     '$WEBCORE_DIR/editing/SelectionController.cpp',
     '$WEBCORE_DIR/editing/SetNodeAttributeCommand.cpp',
     #'$WEBCORE_DIR/editing/SmartReplace.cpp',
@@ -350,9 +338,7 @@ input_files = [
     '$WEBCORE_DIR/loader/ResourceLoader.cpp',
     '$WEBCORE_DIR/loader/SubresourceLoader.cpp',
     '$WEBCORE_DIR/loader/TextDocument.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/loader/TextResourceDecoder.cpp',
-    '$PENDING_DIR/TextResourceDecoder.cpp',
+    '$WEBCORE_DIR/loader/TextResourceDecoder.cpp',
 
     '$WEBCORE_DIR/loader/archive/ArchiveFactory.cpp',
     '$WEBCORE_DIR/loader/archive/ArchiveResource.cpp',
@@ -382,14 +368,10 @@ input_files = [
     '$WEBCORE_DIR/page/FrameView.cpp',
     '$WEBCORE_DIR/page/History.cpp',
     '$WEBCORE_DIR/page/MouseEventWithHitTestResults.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/page/Page.cpp',
-    '$PENDING_DIR/Page.cpp',
+    '$WEBCORE_DIR/page/Page.cpp',
     '$WEBCORE_DIR/page/PageGroup.cpp',
     '$WEBCORE_DIR/page/Screen.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/page/Settings.cpp',
-    '$PENDING_DIR/Settings.cpp',
+    '$WEBCORE_DIR/page/Settings.cpp',
     '$WEBCORE_DIR/page/WindowFeatures.cpp',
 
     '$WEBCORE_DIR/page/animation/AnimationBase.cpp',
@@ -405,8 +387,7 @@ input_files = [
     '$WEBCORE_DIR/platform/DragData.cpp',
     '$WEBCORE_DIR/platform/DragImage.cpp',
     '$WEBCORE_DIR/platform/FileChooser.cpp',
-    '$PENDING_DIR/KURL.cpp',
-    '$WEBCORE_DIR/platform/Logging.cpp',
+    '$WEBCORE_DIR/platform/KURL.cpp',
     '$PORT_DIR/platform/MIMETypeRegistry.cpp',
     '$WEBCORE_DIR/platform/ScrollBar.cpp',
     '$WEBCORE_DIR/platform/SecurityOrigin.cpp',
@@ -441,9 +422,7 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/Pattern.cpp',
     '$WEBCORE_DIR/platform/graphics/Pen.cpp',
     '$WEBCORE_DIR/platform/graphics/SegmentedFontData.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/platform/graphics/SimpleFontData.cpp',
-    '$PENDING_DIR/SimpleFontData.cpp',
+    '$WEBCORE_DIR/platform/graphics/SimpleFontData.cpp',
     '$WEBCORE_DIR/platform/graphics/StringTruncator.cpp',
 
     '$WEBCORE_DIR/platform/network/AuthenticationChallengeBase.cpp',
@@ -473,9 +452,7 @@ input_files = [
     '$WEBCORE_DIR/platform/text/TextBoundariesICU.cpp',
     '$WEBCORE_DIR/platform/text/TextBreakIteratorICU.cpp',
     '$WEBCORE_DIR/platform/text/TextCodec.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/platform/text/TextCodecICU.cpp',
-    '$PENDING_DIR/TextCodecICU.cpp',
+    '$WEBCORE_DIR/platform/text/TextCodecICU.cpp',
     '$WEBCORE_DIR/platform/text/TextCodecLatin1.cpp',
     '$WEBCORE_DIR/platform/text/TextCodecUserDefined.cpp',
     '$WEBCORE_DIR/platform/text/TextCodecUTF16.cpp',
@@ -506,9 +483,7 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderBlock.cpp',
     '$WEBCORE_DIR/rendering/RenderBox.cpp',
     '$WEBCORE_DIR/rendering/RenderBR.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/rendering/RenderButton.cpp',
-    '$PENDING_DIR/RenderButton.cpp',
+    '$WEBCORE_DIR/rendering/RenderButton.cpp',
     '$WEBCORE_DIR/rendering/RenderContainer.cpp',
     '$WEBCORE_DIR/rendering/RenderCounter.cpp',
     '$WEBCORE_DIR/rendering/RenderFieldset.cpp',
@@ -528,14 +503,10 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderListItem.cpp',
     '$WEBCORE_DIR/rendering/RenderListMarker.cpp',
     '$WEBCORE_DIR/rendering/RenderMarquee.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/rendering/RenderMenuList.cpp',
-    '$PENDING_DIR/RenderMenuList.cpp',
+    '$WEBCORE_DIR/rendering/RenderMenuList.cpp',
     '$WEBCORE_DIR/rendering/RenderObject.cpp',
     '$WEBCORE_DIR/rendering/RenderPart.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/rendering/RenderPartObject.cpp',
-    '$PENDING_DIR/RenderPartObject.cpp',
+    '$WEBCORE_DIR/rendering/RenderPartObject.cpp',
     '$WEBCORE_DIR/rendering/RenderPath.cpp',
     '$WEBCORE_DIR/rendering/RenderReplaced.cpp',
     '$WEBCORE_DIR/rendering/RenderReplica.cpp',
@@ -558,12 +529,8 @@ input_files = [
     '$WEBCORE_DIR/rendering/RenderTableCol.cpp',
     '$WEBCORE_DIR/rendering/RenderTableRow.cpp',
     '$WEBCORE_DIR/rendering/RenderTableSection.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/rendering/RenderText.cpp',
-    '$PENDING_DIR/RenderText.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/rendering/RenderTextControl.cpp',
-    '$PENDING_DIR/RenderTextControl.cpp',
+    '$WEBCORE_DIR/rendering/RenderText.cpp',
+    '$WEBCORE_DIR/rendering/RenderTextControl.cpp',
     '$WEBCORE_DIR/rendering/RenderTextFragment.cpp',
     '$WEBCORE_DIR/rendering/RenderTheme.cpp',
     '$WEBCORE_DIR/rendering/RenderTreeAsText.cpp',
@@ -740,9 +707,7 @@ input_files = [
 
     '$WEBCORE_DIR/xml/DOMParser.cpp',
     '$WEBCORE_DIR/xml/NativeXPathNSResolver.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/xml/XMLHttpRequest.cpp',
-    '$PENDING_DIR/XMLHttpRequest.cpp',
+    '$WEBCORE_DIR/xml/XMLHttpRequest.cpp',
     '$WEBCORE_DIR/xml/XMLHttpRequestUpload.cpp',
     '$WEBCORE_DIR/xml/XMLSerializer.cpp',
     '$WEBCORE_DIR/xml/XPathEvaluator.cpp',
@@ -760,12 +725,8 @@ input_files = [
     '$WEBCORE_DIR/xml/XPathUtil.cpp',
     '$WEBCORE_DIR/xml/XPathValue.cpp',
     '$WEBCORE_DIR/xml/XPathVariableReference.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/xml/XSLImportRule.cpp',
-    '$PENDING_DIR/XSLImportRule.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/xml/XSLStyleSheet.cpp',
-    '$PENDING_DIR/XSLStyleSheet.cpp',
+    '$WEBCORE_DIR/xml/XSLImportRule.cpp',
+    '$WEBCORE_DIR/xml/XSLStyleSheet.cpp',
     '$WEBCORE_DIR/xml/XSLTExtensions.cpp',
     '$WEBCORE_DIR/xml/XSLTProcessor.cpp',
     '$WEBCORE_DIR/xml/XSLTUnicodeSort.cpp',

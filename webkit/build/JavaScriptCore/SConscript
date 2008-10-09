@@ -171,7 +171,7 @@ wtf_inputs = [
 if env['PLATFORM'] == 'win32':
   wtf_inputs.extend([
       '$WTF_DIR/win/MainThreadWin.cpp',
-      '$PENDING_DIR/wtf/ThreadingWin.cpp',
+      '$WTF_DIR/wtf/ThreadingWin.cpp',
   ])
 
 env.ChromeStaticLibrary('WTF', wtf_inputs)
