@@ -584,6 +584,15 @@ void MessageLoopForIO::WatchObject(HANDLE object, Watcher* watcher) {
   pump_io()->WatchObject(object, watcher);
 }
 
+void MessageLoopForIO::RegisterIOHandler(HANDLE file, IOHandler* handler) {
+  pump_io()->RegisterIOHandler(file, handler);
+}
+
+void MessageLoopForIO::RegisterIOContext(OVERLAPPED* context,
+                                         IOHandler* handler) {
+  pump_io()->RegisterIOContext(context, handler);
+}
+
 #elif defined(OS_POSIX)
 
 void MessageLoopForIO::WatchSocket(int socket, short interest_mask, 

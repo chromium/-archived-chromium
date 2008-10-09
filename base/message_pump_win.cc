@@ -9,6 +9,41 @@
 #include "base/histogram.h"
 #include "base/win_util.h"
 
+namespace {
+
+class HandlerData : public base::MessagePumpForIO::Watcher {
+ public:
+  typedef base::MessagePumpForIO::IOHandler IOHandler;
+  HandlerData(OVERLAPPED* context, IOHandler* handler)
+      : context_(context), handler_(handler) {}
+  ~HandlerData() {}
+
+  virtual void OnObjectSignaled(HANDLE object);
+
+ private:
+  OVERLAPPED* context_;
+  IOHandler* handler_;
+  
+  DISALLOW_COPY_AND_ASSIGN(HandlerData);
+};
+
+void HandlerData::OnObjectSignaled(HANDLE object) {
+  DCHECK(object == context_->hEvent);
+  DWORD transfered;
+  DWORD error = ERROR_SUCCESS;
+  BOOL ret = GetOverlappedResult(NULL, context_, &transfered, FALSE);
+  if (!ret) {
+    error = GetLastError();
+    DCHECK(ERROR_HANDLE_EOF == error || ERROR_BROKEN_PIPE == error);
+    transfered = 0;
+  }
+
+  ResetEvent(context_->hEvent);
+  handler_->OnIOCompleted(context_, transfered, error);
+}
+
+}  // namespace
+
 namespace base {
 
 static const wchar_t kWndClass[] = L"Chrome_MessagePumpWindow";
@@ -426,6 +461,40 @@ void MessagePumpForIO::WatchObject(HANDLE object, Watcher* watcher) {
   }
 }
 
+void MessagePumpForIO::RegisterIOHandler(HANDLE file_handle,
+                                         IOHandler* handler) {
+#if 0
+  // TODO(rvargas): This is just to give an idea of what this code will look
+  // like when we actually move to completion ports. Of course, we cannot
+  // do this without calling GetQueuedCompletionStatus().
+  ULONG_PTR key = reinterpret_cast<ULONG_PTR>(handler);
+  HANDLE port = CreateIoCompletionPort(file_handle, port_, key, 1);
+  if (!port_.IsValid())
+    port_.Set(port);
+#endif
+}
+
+void MessagePumpForIO::RegisterIOContext(OVERLAPPED* context,
+                                         IOHandler* handler) {
+  DCHECK(context->hEvent);
+  if (handler) {
+    HandlerData* watcher = new HandlerData(context, handler);
+    WatchObject(context->hEvent, watcher);
+  } else {
+    std::vector<HANDLE>::iterator it =
+      find(objects_.begin(), objects_.end(), context->hEvent);
+
+    if (it == objects_.end()) {
+      NOTREACHED();
+      return;
+    }
+
+    std::vector<HANDLE>::difference_type index = it - objects_.begin();
+    objects_.erase(it);
+    delete watchers_[index];
+    watchers_.erase(watchers_.begin() + index);
+  }
+}
 
 //-----------------------------------------------------------------------------
 // MessagePumpForIO private:

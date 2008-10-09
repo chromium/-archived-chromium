@@ -12,6 +12,7 @@
 #include "base/lock.h"
 #include "base/message_pump.h"
 #include "base/observer_list.h"
+#include "base/scoped_handle.h"
 #include "base/time.h"
 
 namespace base {
@@ -193,12 +194,42 @@ class MessagePumpForIO : public MessagePumpWin {
     virtual void OnObjectSignaled(HANDLE object) = 0;
   };
 
+  // Clients interested in receiving OS notifications when asynchronous IO
+  // operations complete should implement this interface and register themselves
+  // with the message pump.
+  class IOHandler {
+   public:
+    virtual ~IOHandler() {}
+    // This will be called once the pending IO operation associated with
+    // |context| completes. |error| is the Win32 error code of the IO operation
+    // (ERROR_SUCCESS if there was no error). |bytes_transfered| will be zero
+    // on error.
+    virtual void OnIOCompleted(OVERLAPPED* context, DWORD bytes_transfered,
+                               DWORD error) = 0;
+  };
+
   MessagePumpForIO() {}
   virtual ~MessagePumpForIO() {}
 
   // Have the current thread's message loop watch for a signaled object.
   // Pass a null watcher to stop watching the object.
   void WatchObject(HANDLE, Watcher*);
+
+  // Register the handler to be used when asynchronous IO for the given file
+  // completes. The registration persists as long as |file_handle| is valid, so
+  // |handler| must be valid as long as there is pending IO for the given file.
+  void RegisterIOHandler(HANDLE file_handle, IOHandler* handler);
+
+  // This is just a throw away function to ease transition to completion ports.
+  // Pass NULL for handler to stop tracking this request. WARNING: cancellation
+  // correctness is the responsibility of the caller. |context| must contain a
+  // valid manual reset event, but the caller should not interact directly with
+  // it. The registration can live across a single IO operation, or it can live
+  // across multiple IO operations without having to reset it after each IO
+  // completion callback. Internally, there will be a WatchObject registration
+  // alive as long as this context registration is in effect. It is an error
+  // to unregister a context that has not been registered before.
+  void RegisterIOContext(OVERLAPPED* context, IOHandler* handler);
 
  private:
   virtual void DoRunLoop();
@@ -210,6 +241,9 @@ class MessagePumpForIO : public MessagePumpWin {
   // serviced by this message pump.
   std::vector<HANDLE> objects_;
   std::vector<Watcher*> watchers_;
+
+  // The completion port associated with this thread.
+  ScopedHandle port_;
 };
 
 }  // namespace base

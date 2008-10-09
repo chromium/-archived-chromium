@@ -240,7 +240,8 @@ void RunTest_PostDelayedTask_InPostOrder(MessageLoop::Type message_loop_type) {
   EXPECT_TRUE(run_time1 < run_time2);
 }
 
-void RunTest_PostDelayedTask_InPostOrder_2(MessageLoop::Type message_loop_type) {
+void RunTest_PostDelayedTask_InPostOrder_2(
+    MessageLoop::Type message_loop_type) {
   MessageLoop loop(message_loop_type);
 
   // Test that a delayed task still runs after a normal tasks even if the
@@ -265,7 +266,8 @@ void RunTest_PostDelayedTask_InPostOrder_2(MessageLoop::Type message_loop_type) 
   EXPECT_LT(kPauseMS, (time_after_run - time_before_run).InMilliseconds());
 }
 
-void RunTest_PostDelayedTask_InPostOrder_3(MessageLoop::Type message_loop_type) {
+void RunTest_PostDelayedTask_InPostOrder_3(
+    MessageLoop::Type message_loop_type) {
   MessageLoop loop(message_loop_type);
 
   // Test that a delayed task still runs after a pile of normal tasks.  The key
@@ -314,7 +316,7 @@ void RunTest_PostDelayedTask_SharedTimer(MessageLoop::Type message_loop_type) {
   // Ensure that we ran in far less time than the slower timer.
   TimeDelta total_time = Time::Now() - start_time;
   EXPECT_GT(5000, total_time.InMilliseconds());
-  
+
   // In case both timers somehow run at nearly the same time, sleep a little
   // and then run all pending to force them both to have run.  This is just
   // encouraging flakiness if there is any.
@@ -332,7 +334,7 @@ class SubPumpTask : public Task {
   virtual void Run() {
     MessageLoop::current()->SetNestableTasksAllowed(true);
     MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) { 
+    while (GetMessage(&msg, NULL, 0, 0)) {
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
@@ -550,7 +552,7 @@ void RunTest_Crasher(MessageLoop::Type message_loop_type) {
 
 void RunTest_CrasherNasty(MessageLoop::Type message_loop_type) {
   MessageLoop loop(message_loop_type);
-  
+
   if (::IsDebuggerPresent())
     return;
 
@@ -856,7 +858,7 @@ void RunTest_RecursiveDenial1(MessageLoop::Type message_loop_type) {
 
 void RunTest_RecursiveSupport1(MessageLoop::Type message_loop_type) {
   MessageLoop loop(message_loop_type);
-  
+
   TaskList order;
   MessageLoop::current()->PostTask(FROM_HERE,
                                    new RecursiveTask(2, &order, 1, true));
@@ -1054,7 +1056,7 @@ void RunTest_NonNestableInNestedLoop(MessageLoop::Type message_loop_type) {
 
 class AutoresetWatcher : public MessageLoopForIO::Watcher {
  public:
-  AutoresetWatcher(HANDLE signal) : signal_(signal) {
+  explicit AutoresetWatcher(HANDLE signal) : signal_(signal) {
   }
   virtual void OnObjectSignaled(HANDLE object);
  private:
@@ -1142,6 +1144,101 @@ void RunTest_Dispatcher(MessageLoop::Type message_loop_type) {
   DispatcherImpl dispatcher;
   MessageLoopForUI::current()->Run(&dispatcher);
   ASSERT_EQ(2, dispatcher.dispatch_count_);
+}
+
+class TestIOHandler : public MessageLoopForIO::IOHandler {
+ public:
+  TestIOHandler(const wchar_t* name, HANDLE signal);
+
+  virtual void OnIOCompleted(OVERLAPPED* context, DWORD bytes_transfered,
+                             DWORD error);
+
+  HANDLE file() { return file_.Get(); }
+  void* buffer() { return buffer_; }
+  OVERLAPPED* context() { return &context_; }
+  DWORD size() { return sizeof(buffer_); }
+
+ private:
+  char buffer_[48];
+  OVERLAPPED context_;
+  HANDLE signal_;
+  ScopedHandle file_;
+  ScopedHandle event_;
+};
+
+TestIOHandler::TestIOHandler(const wchar_t* name, HANDLE signal)
+    : signal_(signal) {
+  memset(buffer_, 0, sizeof(buffer_));
+  memset(&context_, 0, sizeof(context_));
+
+  event_.Set(CreateEvent(NULL, TRUE, FALSE, NULL));
+  EXPECT_TRUE(event_.IsValid());
+  context_.hEvent =  event_.Get();
+
+  file_.Set(CreateFile(name, GENERIC_READ, 0, NULL, OPEN_EXISTING,
+                       FILE_FLAG_OVERLAPPED, NULL));
+  EXPECT_TRUE(file_.IsValid());
+}
+
+void TestIOHandler::OnIOCompleted(OVERLAPPED* context, DWORD bytes_transfered,
+                                  DWORD error) {
+  ASSERT_TRUE(context == &context_);
+  MessageLoopForIO::current()->RegisterIOContext(context, NULL);
+  ASSERT_TRUE(SetEvent(signal_));
+}
+
+class IOHandlerTask : public Task {
+ public:
+  explicit IOHandlerTask(TestIOHandler* handler) : handler_(handler) {}
+  virtual void Run();
+
+ private:
+  TestIOHandler* handler_;
+};
+
+void IOHandlerTask::Run() {
+  MessageLoopForIO::current()->RegisterIOHandler(handler_->file(), handler_);
+  MessageLoopForIO::current()->RegisterIOContext(handler_->context(), handler_);
+
+  DWORD read;
+  EXPECT_FALSE(ReadFile(handler_->file(), handler_->buffer(), handler_->size(),
+               &read, handler_->context()));
+  EXPECT_EQ(ERROR_IO_PENDING, GetLastError());
+}
+
+void RunTest_IOHandler() {
+  // This test requires an IO loop.
+  MessageLoop loop(MessageLoop::TYPE_IO);
+
+  ScopedHandle callback_called(CreateEvent(NULL, TRUE, FALSE, NULL));
+  ASSERT_TRUE(callback_called.IsValid());
+
+  const wchar_t* kPipeName = L"\\\\.\\pipe\\iohandler_pipe";
+  ScopedHandle server(CreateNamedPipe(kPipeName, PIPE_ACCESS_OUTBOUND, 0, 1,
+                                      0, 0, 0, NULL));
+  ASSERT_TRUE(server.IsValid());
+
+  Thread thread("IOHandler test");
+  Thread::Options options;
+  options.message_loop_type = MessageLoop::TYPE_IO;
+  ASSERT_TRUE(thread.StartWithOptions(options));
+
+  MessageLoop* thread_loop = thread.message_loop();
+  ASSERT_TRUE(NULL != thread_loop);
+
+  TestIOHandler handler(kPipeName, callback_called);
+  IOHandlerTask* task = new IOHandlerTask(&handler);
+  thread_loop->PostTask(FROM_HERE, task);
+  Sleep(100);  // Make sure the thread runs and sleeps for lack of work.
+
+  const char buffer[] = "Hello there!";
+  DWORD written;
+  EXPECT_TRUE(WriteFile(server, buffer, sizeof(buffer), &written, NULL));
+
+  DWORD result = WaitForSingleObject(callback_called, 1000);
+  EXPECT_EQ(WAIT_OBJECT_0, result);
+
+  thread.Stop();
 }
 
 #endif  // defined(OS_WIN)
@@ -1288,5 +1385,9 @@ TEST(MessageLoopTest, AutoresetEvents) {
 TEST(MessageLoopTest, Dispatcher) {
   // This test requires a UI loop
   RunTest_Dispatcher(MessageLoop::TYPE_UI);
+}
+
+TEST(MessageLoopTest, IOHandler) {
+  RunTest_IOHandler();
 }
 #endif  // defined(OS_WIN)

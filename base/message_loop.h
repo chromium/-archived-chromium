@@ -459,9 +459,12 @@ class MessageLoopForIO : public MessageLoop {
 
 #if defined(OS_WIN)
   typedef base::MessagePumpForIO::Watcher Watcher;
+  typedef base::MessagePumpForIO::IOHandler IOHandler;
 
   // Please see MessagePumpWin for definitions of these methods.
   void WatchObject(HANDLE object, Watcher* watcher);
+  void RegisterIOHandler(HANDLE file_handle, IOHandler* handler);
+  void RegisterIOContext(OVERLAPPED* context, IOHandler* handler);
 
  protected:
   // TODO(rvargas): Make this platform independent.
