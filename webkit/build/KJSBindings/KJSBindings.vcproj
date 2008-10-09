@@ -125,27 +125,11 @@
 			Name="DerivedSources"
 			>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\ColorData.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\CSSGrammar.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\CSSGrammar.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\HTMLEntityNames.c"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\DerivedSources.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -165,15 +149,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSAttr.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSAttr.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSBarInfo.cpp"
 				>
 			</File>
 			<File
@@ -181,15 +157,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCanvasGradient.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCanvasGradient.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCanvasPattern.cpp"
 				>
 			</File>
 			<File
@@ -197,7 +165,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCanvasRenderingContext2D.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSCanvasPixelArray.h"
 				>
 			</File>
 			<File
@@ -205,15 +173,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCDATASection.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCDATASection.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCharacterData.cpp"
 				>
 			</File>
 			<File
@@ -221,7 +181,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSComment.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSClipboard.h"
 				>
 			</File>
 			<File
@@ -229,15 +189,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSConsole.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSConsole.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCounter.cpp"
 				>
 			</File>
 			<File
@@ -245,15 +197,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSCharsetRule.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCSSCharsetRule.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSFontFaceRule.cpp"
 				>
 			</File>
 			<File
@@ -261,15 +205,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSImportRule.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCSSImportRule.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSMediaRule.cpp"
 				>
 			</File>
 			<File
@@ -277,15 +213,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSPageRule.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCSSPageRule.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSPrimitiveValue.cpp"
 				>
 			</File>
 			<File
@@ -293,15 +221,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSRule.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCSSRule.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSRuleList.cpp"
 				>
 			</File>
 			<File
@@ -309,15 +229,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSStyleDeclaration.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCSSStyleDeclaration.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSStyleRule.cpp"
 				>
 			</File>
 			<File
@@ -325,15 +237,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSStyleSheet.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCSSStyleSheet.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSValue.cpp"
 				>
 			</File>
 			<File
@@ -341,15 +245,19 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSCSSValueList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSCSSValueList.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSDocument.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSCSSVariablesDeclaration.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSCSSVariablesRule.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSDatabase.h"
 				>
 			</File>
 			<File
@@ -357,15 +265,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSDocumentFragment.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSDocumentFragment.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSDocumentType.cpp"
 				>
 			</File>
 			<File
@@ -373,7 +273,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSDOMCoreException.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSDOMApplicationCache.h"
 				>
 			</File>
 			<File
@@ -381,15 +281,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSDOMImplementation.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSDOMImplementation.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSDOMParser.cpp"
 				>
 			</File>
 			<File
@@ -397,15 +289,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSDOMSelection.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSDOMSelection.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSDOMWindow.cpp"
 				>
 			</File>
 			<File
@@ -413,7 +297,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSElement.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSDOMWindowBase.lut.h"
 				>
 			</File>
 			<File
@@ -421,15 +305,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSEntity.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSEntity.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSEntityReference.cpp"
 				>
 			</File>
 			<File
@@ -437,15 +313,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSEvent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSEvent.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSEventException.cpp"
 				>
 			</File>
 			<File
@@ -457,7 +325,11 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHistory.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSFile.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSFileList.h"
 				>
 			</File>
 			<File
@@ -465,15 +337,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLAnchorElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLAnchorElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLAppletElement.cpp"
 				>
 			</File>
 			<File
@@ -481,15 +345,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLAreaElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLAreaElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLAudioElement.cpp"
 				>
 			</File>
 			<File
@@ -497,15 +353,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLBaseElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLBaseElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLBaseFontElement.cpp"
 				>
 			</File>
 			<File
@@ -513,15 +361,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLBlockquoteElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLBlockquoteElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLBodyElement.cpp"
 				>
 			</File>
 			<File
@@ -529,15 +369,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLBRElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLBRElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLButtonElement.cpp"
 				>
 			</File>
 			<File
@@ -545,15 +377,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLCanvasElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLCanvasElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLCollection.cpp"
 				>
 			</File>
 			<File
@@ -561,15 +385,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLDirectoryElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLDirectoryElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLDivElement.cpp"
 				>
 			</File>
 			<File
@@ -577,15 +393,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLDListElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLDListElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLDocument.cpp"
 				>
 			</File>
 			<File
@@ -593,15 +401,11 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLElement.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLEmbedElement.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSHTMLElementWrapperFactory.h"
 				>
 			</File>
 			<File
@@ -609,19 +413,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLFieldSetElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLFieldSetElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLFontElement.cpp"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLFormElement.cpp"
 				>
 			</File>
 			<File
@@ -629,15 +421,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLFrameElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLFrameElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLFrameSetElement.cpp"
 				>
 			</File>
 			<File
@@ -645,15 +429,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLHeadElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLHeadElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLHeadingElement.cpp"
 				>
 			</File>
 			<File
@@ -661,15 +437,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLHRElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLHRElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLHtmlElement.cpp"
 				>
 			</File>
 			<File
@@ -677,15 +445,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLIFrameElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLIFrameElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLImageElement.cpp"
 				>
 			</File>
 			<File
@@ -693,15 +453,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLInputElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLInputElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLIsIndexElement.cpp"
 				>
 			</File>
 			<File
@@ -709,15 +461,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLLabelElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLLabelElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLLegendElement.cpp"
 				>
 			</File>
 			<File
@@ -725,15 +469,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLLIElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLLIElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLLinkElement.cpp"
 				>
 			</File>
 			<File
@@ -741,15 +477,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLMapElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLMapElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLMarqueeElement.cpp"
 				>
 			</File>
 			<File
@@ -757,15 +485,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLMediaElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLMediaElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLMenuElement.cpp"
 				>
 			</File>
 			<File
@@ -773,15 +493,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLMetaElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLMetaElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLModElement.cpp"
 				>
 			</File>
 			<File
@@ -789,15 +501,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLObjectElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLObjectElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLOListElement.cpp"
 				>
 			</File>
 			<File
@@ -805,15 +509,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLOptGroupElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLOptGroupElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLOptionElement.cpp"
 				>
 			</File>
 			<File
@@ -821,15 +517,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLOptionsCollection.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLOptionsCollection.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLParagraphElement.cpp"
 				>
 			</File>
 			<File
@@ -837,15 +525,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLParamElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLParamElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLPreElement.cpp"
 				>
 			</File>
 			<File
@@ -853,15 +533,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLQuoteElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLQuoteElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLScriptElement.cpp"
 				>
 			</File>
 			<File
@@ -869,15 +541,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLSelectElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLSelectElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLSourceElement.cpp"
 				>
 			</File>
 			<File
@@ -885,15 +549,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLStyleElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLStyleElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableCaptionElement.cpp"
 				>
 			</File>
 			<File
@@ -901,15 +557,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableCellElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableCellElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableColElement.cpp"
 				>
 			</File>
 			<File
@@ -917,15 +565,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableRowElement.cpp"
 				>
 			</File>
 			<File
@@ -933,15 +573,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableSectionElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLTableSectionElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLTextAreaElement.cpp"
 				>
 			</File>
 			<File
@@ -949,15 +581,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLTitleElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLTitleElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLUListElement.cpp"
 				>
 			</File>
 			<File
@@ -965,15 +589,15 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSHTMLVideoElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHTMLVideoElement.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSKeyboardEvent.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSImageData.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSJavaScriptCallFrame.h"
 				>
 			</File>
 			<File
@@ -981,11 +605,11 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSLocation.lut.h"
+				RelativePath="$(IntDir)\DerivedSources\JSLocation.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSMediaList.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSMediaError.h"
 				>
 			</File>
 			<File
@@ -993,15 +617,15 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSMessageEvent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSMessageEvent.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSMouseEvent.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSMimeType.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSMimeTypeArray.h"
 				>
 			</File>
 			<File
@@ -1009,15 +633,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSMutationEvent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSMutationEvent.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSNamedNodeMap.cpp"
 				>
 			</File>
 			<File
@@ -1025,7 +641,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSNode.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSNavigator.h"
 				>
 			</File>
 			<File
@@ -1033,15 +649,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSNodeFilter.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSNodeFilter.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSNodeIterator.cpp"
 				>
 			</File>
 			<File
@@ -1049,15 +657,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSNodeList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSNodeList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSNotation.cpp"
 				>
 			</File>
 			<File
@@ -1065,15 +665,15 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSOverflowEvent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSOverflowEvent.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSProcessingInstruction.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSPlugin.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSPluginArray.h"
 				>
 			</File>
 			<File
@@ -1081,15 +681,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSProgressEvent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSProgressEvent.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSRange.cpp"
 				>
 			</File>
 			<File
@@ -1097,15 +689,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSRangeException.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSRangeException.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSRect.cpp"
 				>
 			</File>
 			<File
@@ -1113,7 +697,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSScreen.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSRGBColor.lut.h"
 				>
 			</File>
 			<File
@@ -1121,15 +705,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSQLError.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSQLError.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSQLResultSet.cpp"
 				>
 			</File>
 			<File
@@ -1137,15 +713,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSQLResultSetRowList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSQLResultSetRowList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSQLTransaction.cpp"
 				>
 			</File>
 			<File
@@ -1153,7 +721,11 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSStyleSheet.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSStorage.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSStorageEvent.h"
 				>
 			</File>
 			<File
@@ -1161,15 +733,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSStyleSheetList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSStyleSheetList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAElement.cpp"
 				>
 			</File>
 			<File
@@ -1177,7 +741,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAngle.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSSVGAltGlyphElement.h"
 				>
 			</File>
 			<File
@@ -1185,15 +749,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimateColorElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimateColorElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedAngle.cpp"
 				>
 			</File>
 			<File
@@ -1201,15 +757,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedBoolean.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedBoolean.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedEnumeration.cpp"
 				>
 			</File>
 			<File
@@ -1217,15 +765,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedInteger.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedInteger.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedLength.cpp"
 				>
 			</File>
 			<File
@@ -1233,15 +773,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedLengthList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedLengthList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedNumber.cpp"
 				>
 			</File>
 			<File
@@ -1249,15 +781,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedNumberList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedNumberList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedPreserveAspectRatio.cpp"
 				>
 			</File>
 			<File
@@ -1265,15 +789,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedRect.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedRect.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedString.cpp"
 				>
 			</File>
 			<File
@@ -1281,15 +797,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedTransformList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimatedTransformList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimateElement.cpp"
 				>
 			</File>
 			<File
@@ -1297,15 +805,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimateTransformElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimateTransformElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGAnimationElement.cpp"
 				>
 			</File>
 			<File
@@ -1313,15 +813,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGCircleElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGCircleElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGClipPathElement.cpp"
 				>
 			</File>
 			<File
@@ -1329,15 +821,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGColor.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGColor.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGComponentTransferFunctionElement.cpp"
 				>
 			</File>
 			<File
@@ -1345,15 +829,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGCursorElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGCursorElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGDefinitionSrcElement.cpp"
 				>
 			</File>
 			<File
@@ -1361,15 +837,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGDefsElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGDefsElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGDescElement.cpp"
 				>
 			</File>
 			<File
@@ -1377,15 +845,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGDocument.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGDocument.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGElement.cpp"
 				>
 			</File>
 			<File
@@ -1393,15 +853,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGElementInstance.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGElementInstance.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGElementInstanceList.cpp"
 				>
 			</File>
 			<File
@@ -1409,7 +861,11 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGEllipseElement.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSSVGElementWrapperFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSVGElementWrapperFactory.h"
 				>
 			</File>
 			<File
@@ -1417,15 +873,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGException.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGException.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEBlendElement.cpp"
 				>
 			</File>
 			<File
@@ -1433,15 +881,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEColorMatrixElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFEColorMatrixElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEComponentTransferElement.cpp"
 				>
 			</File>
 			<File
@@ -1449,15 +889,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFECompositeElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFECompositeElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEDiffuseLightingElement.cpp"
 				>
 			</File>
 			<File
@@ -1465,15 +897,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEDisplacementMapElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFEDisplacementMapElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEDistantLightElement.cpp"
 				>
 			</File>
 			<File
@@ -1481,15 +905,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEFloodElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFEFloodElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEFuncAElement.cpp"
 				>
 			</File>
 			<File
@@ -1497,15 +913,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEFuncBElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFEFuncBElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEFuncGElement.cpp"
 				>
 			</File>
 			<File
@@ -1513,15 +921,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEFuncRElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFEFuncRElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEGaussianBlurElement.cpp"
 				>
 			</File>
 			<File
@@ -1529,15 +929,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEImageElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFEImageElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEMergeElement.cpp"
 				>
 			</File>
 			<File
@@ -1545,15 +937,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEMergeNodeElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFEMergeNodeElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEOffsetElement.cpp"
 				>
 			</File>
 			<File
@@ -1561,15 +945,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFEPointLightElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFEPointLightElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFESpecularLightingElement.cpp"
 				>
 			</File>
 			<File
@@ -1577,15 +953,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFESpotLightElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFESpotLightElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFETileElement.cpp"
 				>
 			</File>
 			<File
@@ -1593,15 +961,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFETurbulenceElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFETurbulenceElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFilterElement.cpp"
 				>
 			</File>
 			<File
@@ -1609,15 +969,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFontElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFontElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFontFaceElement.cpp"
 				>
 			</File>
 			<File
@@ -1625,15 +977,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFontFaceFormatElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFontFaceFormatElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFontFaceNameElement.cpp"
 				>
 			</File>
 			<File
@@ -1641,15 +985,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFontFaceSrcElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGFontFaceSrcElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGFontFaceUriElement.cpp"
 				>
 			</File>
 			<File
@@ -1657,15 +993,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGForeignObjectElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGForeignObjectElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGGElement.cpp"
 				>
 			</File>
 			<File
@@ -1673,15 +1001,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGGlyphElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGGlyphElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGGradientElement.cpp"
 				>
 			</File>
 			<File
@@ -1689,15 +1009,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGImageElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGImageElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGLength.cpp"
 				>
 			</File>
 			<File
@@ -1705,15 +1017,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGLengthList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGLengthList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGLinearGradientElement.cpp"
 				>
 			</File>
 			<File
@@ -1721,15 +1025,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGLineElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGLineElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGMarkerElement.cpp"
 				>
 			</File>
 			<File
@@ -1737,15 +1033,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGMaskElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGMaskElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGMatrix.cpp"
 				>
 			</File>
 			<File
@@ -1753,15 +1041,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGMetadataElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGMetadataElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGMissingGlyphElement.cpp"
 				>
 			</File>
 			<File
@@ -1769,15 +1049,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGNumber.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGNumber.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGNumberList.cpp"
 				>
 			</File>
 			<File
@@ -1785,15 +1057,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPaint.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPaint.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathElement.cpp"
 				>
 			</File>
 			<File
@@ -1801,15 +1065,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSeg.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSeg.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegArcAbs.cpp"
 				>
 			</File>
 			<File
@@ -1817,15 +1073,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegArcRel.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegArcRel.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegClosePath.cpp"
 				>
 			</File>
 			<File
@@ -1833,15 +1081,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoCubicAbs.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoCubicAbs.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoCubicRel.cpp"
 				>
 			</File>
 			<File
@@ -1849,15 +1089,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoCubicSmoothAbs.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoCubicSmoothAbs.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoCubicSmoothRel.cpp"
 				>
 			</File>
 			<File
@@ -1865,15 +1097,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoQuadraticAbs.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoQuadraticAbs.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoQuadraticRel.cpp"
 				>
 			</File>
 			<File
@@ -1881,15 +1105,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoQuadraticSmoothAbs.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoQuadraticSmoothAbs.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegCurvetoQuadraticSmoothRel.cpp"
 				>
 			</File>
 			<File
@@ -1897,15 +1113,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoAbs.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoAbs.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoHorizontalAbs.cpp"
 				>
 			</File>
 			<File
@@ -1913,15 +1121,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoHorizontalRel.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoHorizontalRel.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoRel.cpp"
 				>
 			</File>
 			<File
@@ -1929,15 +1129,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoVerticalAbs.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoVerticalAbs.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegLinetoVerticalRel.cpp"
 				>
 			</File>
 			<File
@@ -1945,15 +1137,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegMovetoAbs.cpp"
 				>
 			</File>
 			<File
@@ -1961,15 +1145,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegMovetoRel.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPathSegMovetoRel.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPatternElement.cpp"
 				>
 			</File>
 			<File
@@ -1977,15 +1153,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPoint.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPoint.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPointList.cpp"
 				>
 			</File>
 			<File
@@ -1993,15 +1161,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPolygonElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPolygonElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPolylineElement.cpp"
 				>
 			</File>
 			<File
@@ -2009,15 +1169,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGPreserveAspectRatio.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGPreserveAspectRatio.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGRadialGradientElement.cpp"
 				>
 			</File>
 			<File
@@ -2025,15 +1177,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGRect.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGRect.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGRectElement.cpp"
 				>
 			</File>
 			<File
@@ -2041,15 +1185,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGRenderingIntent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGRenderingIntent.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGScriptElement.cpp"
 				>
 			</File>
 			<File
@@ -2057,15 +1193,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGSetElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGSetElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGStopElement.cpp"
 				>
 			</File>
 			<File
@@ -2073,15 +1201,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGStringList.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGStringList.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGStyleElement.cpp"
 				>
 			</File>
 			<File
@@ -2089,15 +1209,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGSVGElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGSVGElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGSwitchElement.cpp"
 				>
 			</File>
 			<File
@@ -2105,15 +1217,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGSymbolElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGSymbolElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTextContentElement.cpp"
 				>
 			</File>
 			<File
@@ -2121,15 +1225,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTextElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGTextElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTextPathElement.cpp"
 				>
 			</File>
 			<File
@@ -2137,15 +1233,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTextPositioningElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGTextPositioningElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTitleElement.cpp"
 				>
 			</File>
 			<File
@@ -2153,15 +1241,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTransform.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGTransform.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTransformList.cpp"
 				>
 			</File>
 			<File
@@ -2169,15 +1249,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTRefElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGTRefElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGTSpanElement.cpp"
 				>
 			</File>
 			<File
@@ -2185,15 +1257,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGUnitTypes.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGUnitTypes.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGUseElement.cpp"
 				>
 			</File>
 			<File
@@ -2201,15 +1265,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGViewElement.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSSVGViewElement.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSSVGZoomEvent.cpp"
 				>
 			</File>
 			<File
@@ -2217,15 +1273,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSText.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSText.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSTextEvent.cpp"
 				>
 			</File>
 			<File
@@ -2233,7 +1281,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSTimeRanges.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSTextMetrics.h"
 				>
 			</File>
 			<File
@@ -2241,15 +1289,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSTreeWalker.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSTreeWalker.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSUIEvent.cpp"
 				>
 			</File>
 			<File
@@ -2257,15 +1297,43 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSVoidCallback.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSVoidCallback.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSWheelEvent.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitAnimationEvent.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitAnimationEvent.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitCSSKeyframeRule.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitCSSKeyframeRule.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitCSSKeyframesRule.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitCSSKeyframesRule.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitCSSTransformValue.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitTransitionEvent.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSWebKitTransitionEvent.h"
 				>
 			</File>
 			<File
@@ -2273,7 +1341,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSXMLHttpRequestException.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSXMLHttpRequest.h"
 				>
 			</File>
 			<File
@@ -2281,7 +1349,11 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSXMLSerializer.cpp"
+				RelativePath="$(IntDir)\DerivedSources\JSXMLHttpRequestProgressEvent.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSXMLHttpRequestUpload.h"
 				>
 			</File>
 			<File
@@ -2289,15 +1361,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSXPathEvaluator.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSXPathEvaluator.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSXPathException.cpp"
 				>
 			</File>
 			<File
@@ -2305,15 +1369,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSXPathExpression.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSXPathExpression.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\JSXPathNSResolver.cpp"
 				>
 			</File>
 			<File
@@ -2321,39 +1377,15 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSXPathResult.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSXPathResult.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSXSLTProcessor.lut.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\kjs_css.lut.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\kjs_events.lut.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\kjs_html.lut.h"
+				RelativePath="$(IntDir)\DerivedSources\JSXSLTProcessor.h"
 				>
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\kjs_navigator.lut.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\kjs_window.lut.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\SVGElementFactory.cpp"
 				>
 			</File>
 			<File
@@ -2373,10 +1405,6 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\UserAgentStyleSheetsData.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\XLinkNames.cpp"
 				>
 			</File>
@@ -2391,6 +1419,14 @@
 			<File
 				RelativePath="$(IntDir)\DerivedSources\XPathGrammar.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\XPathGrammar.h"
@@ -2862,78 +1898,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_binding.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_binding.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_css.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_css.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_dom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_dom.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_events.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_events.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_html.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_html.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_navigator.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_navigator.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_proxy.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_proxy.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_window.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\kjs_window.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bridge\KJSBridge.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bridge\KJSBridge.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\PausedTimeouts.cpp"
 			>
 		</File>
@@ -2987,14 +1951,6 @@
 		</File>
 		<File
 			RelativePath="..\precompiled_webkit.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScheduledAction.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScheduledAction.h"
 			>
 		</File>
 	</Files>
