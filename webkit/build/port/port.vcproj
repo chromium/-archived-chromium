@@ -1208,6 +1208,10 @@
 			Name="bridge"
 			>
 			<File
+				RelativePath="..\..\pending\ExceptionContext.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\port\bridge\FrameWin.cpp"
 				>
 			</File>
