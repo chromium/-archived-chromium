@@ -1508,8 +1508,24 @@ gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
   device.fixupAlphaBeforeCompositing();
   return device;
 }
+#elif defined(OS_MACOSX)
+gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
+  // Must layout before painting.
+  Layout();
+
+  gfx::PlatformCanvasMac canvas(frameview()->width(),
+                                frameview()->height(), true);
+  CGContextRef context = canvas.beginPlatformPaint();
+  GraphicsContext gc(context);
+  frameview()->paint(&gc, IntRect(0, 0, frameview()->width(),
+                                        frameview()->height()));
+  canvas.endPlatformPaint();
+
+  gfx::BitmapPlatformDevice& device =
+      static_cast<gfx::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
+  return device;
+}
 #else
-// TODO(pinkerton): waiting on bitmap re-factor from awalker
 gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
   NOTIMPLEMENTED();
 }
