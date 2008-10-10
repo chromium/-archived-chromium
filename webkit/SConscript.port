@@ -96,12 +96,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   # Remove from the list files that haven't yet been made portable
   # to Mac and Linux.
   remove_files = [
-    '$PORT_DIR/page/Console.cpp',
-    '$PORT_DIR/page/Location.cpp',
-    '$PORT_DIR/page/Navigator.cpp',
     '$PORT_DIR/platform/BString.cpp',
-    '$PORT_DIR/platform/FramelessScrollView.cpp',
-    '$PORT_DIR/platform/GKURL.cpp',
     '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
     '$PORT_DIR/platform/WCDataObject.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
@@ -111,8 +106,6 @@ if env['PLATFORM'] in ('posix', 'darwin'):
     '$PORT_DIR/platform/graphics/PlatformContextSkia.cpp',
     '$PORT_DIR/platform/graphics/SkiaUtils.cpp',
     '$PORT_DIR/platform/graphics/SkGraphicsContext.cpp',
-    '$PORT_DIR/platform/network/AuthenticationChallenge.cpp',
-    '$PORT_DIR/platform/network/DNS.cpp',
     '$PORT_DIR/plugins/PluginDataChromium.cpp',
   ]
   for remove in remove_files:
