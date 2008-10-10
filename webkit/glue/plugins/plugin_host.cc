@@ -4,8 +4,13 @@
 
 #include "webkit/glue/plugins/plugin_host.h"
 
+#include "base/file_util.h"
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
+#include "net/base/net_util.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
@@ -394,46 +399,89 @@ static NPError PostURLNotify(NPP id,
   if (!url)
     return NPERR_INVALID_URL;
 
-  if (file) {
-    // Unfortunately, our WebKit requests can support files which
-    // contain *only* data.  But the files from NPAPI contain
-    // headers + data!  So, we need to read the file, extract 
-    // the headers, write the data back to a new file, and then
-    // finally we can post the file.  TODO: Implement me!
-    // TODO: implement me
+  scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
+  if (!plugin.get()) {
     NOTREACHED();
     return NPERR_GENERIC_ERROR;
   }
 
+  std::string post_file_contents;
+
+  if (file) {
+    // Post data to be uploaded from a file. This can be handled in two
+    // ways.
+    // 1. Read entire file and send the contents as if it was a post data
+    //    specified in the argument
+    // 2. Send just the file details and read them in the browser at the
+    //    time of sending the request.
+    // Approach 2 is more efficient but complicated. Approach 1 has a major
+    // drawback of sending potentially large data over two IPC hops.  In a way
+    // 'large data over IPC' problem exists as it is in case of plugin giving
+    // the data directly instead of in a file.
+    // Currently we are going with the approach 1 to get the feature working.
+    // We can optimize this later with approach 2.
+
+    // TODO(joshia): Design a scheme to send a file descriptor instead of
+    // entire file contents across.
+
+    // Security alert:
+    // ---------------
+    // Here we are blindly uploading whatever file requested by a plugin.
+    // This is risky as someone could exploit a plugin to send private
+    // data in arbitrary locations.
+    // A malicious (non-sandboxed) plugin has unfeterred access to OS
+    // resources and can do this anyway without using browser's HTTP stack.
+    // FWIW, Firefox and Safari don't perform any security checks.
+
+    if (!buf)
+      return NPERR_FILE_NOT_FOUND;
+
+    std::string file_path_ascii(buf);
+    std::wstring file_path;
+    static const char kFileUrlPrefix[] = "file:";
+    if (StartsWithASCII(file_path_ascii, kFileUrlPrefix, false)) {
+      GURL file_url(file_path_ascii);
+      DCHECK(file_url.SchemeIsFile());
+      net::FileURLToFilePath(file_url, &file_path);
+    } else {
+      std::wstring file_path = base::SysNativeMBToWide(file_path_ascii);
+    }
+
+    file_util::FileInfo post_file_info = {0};
+    if (!file_util::GetFileInfo(file_path.c_str(), &post_file_info) ||
+        post_file_info.is_directory)
+      return NPERR_FILE_NOT_FOUND;
+
+    if (!file_util::ReadFileToString(file_path, &post_file_contents))
+      return NPERR_FILE_NOT_FOUND;
+
+    buf = post_file_contents.c_str();
+    len = post_file_contents.size();
+  }
+
   bool is_javascript_url = IsJavaScriptUrl(url);
 
-  scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
-  if (plugin.get()) {
-    // The post data sent by a plugin contains both headers
-    // and post data.  Example:
-    //      Content-type: text/html
-    //      Content-length: 200
-    //
-    //      <200 bytes of content here>
-    //
-    // Unfortunately, our stream needs these broken apart, 
-    // so we need to parse the data and set headers and data
-    // separately.
-    plugin->webplugin()->HandleURLRequest("POST", 
-                                          is_javascript_url, 
-                                          target, 
-                                          len, 
-                                          buf, 
-                                          file ? true : false, 
-                                          notify, 
-                                          url, 
-                                          notify_data,
-                                          plugin->popups_allowed());
-    return NPERR_NO_ERROR;
-  } else {
-    NOTREACHED();
-  }
-  return NPERR_GENERIC_ERROR;
+  // The post data sent by a plugin contains both headers
+  // and post data.  Example:
+  //      Content-type: text/html
+  //      Content-length: 200
+  //
+  //      <200 bytes of content here>
+  //
+  // Unfortunately, our stream needs these broken apart,
+  // so we need to parse the data and set headers and data
+  // separately.
+  plugin->webplugin()->HandleURLRequest("POST",
+                                        is_javascript_url,
+                                        target,
+                                        len,
+                                        buf,
+                                        false,
+                                        notify,
+                                        url,
+                                        notify_data,
+                                        plugin->popups_allowed());
+  return NPERR_NO_ERROR;
 }
 
 NPError  NPN_PostURLNotify(NPP id,
