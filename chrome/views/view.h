@@ -331,7 +331,7 @@ class View : public AcceleratorTarget {
   // UI mirroring is transparent to most View subclasses and therefore there is
   // no need to call this routine from anywhere within your subclass
   // implementation.
-  int View::MirroredX() const;
+  int MirroredX() const;
 
   // Given a rectangle specified in this View's coordinate system, the function
   // computes the 'left' value for the mirrored rectangle within this View. If

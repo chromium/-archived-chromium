@@ -282,6 +282,7 @@ bool View::UILayoutIsRightToLeft() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 inline int View::MirroredX() const {
+  // TODO(beng): reimplement in terms of MirroredLeftPointForRect.
   View* parent = GetParent();
   if (parent && parent->UILayoutIsRightToLeft()) {
     return parent->width() - bounds_.left - width();

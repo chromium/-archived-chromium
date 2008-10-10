@@ -753,10 +753,10 @@ void ConstrainedWindowNonClientView::PaintThrobber(ChromeCanvas* canvas) {
 }
 
 void ConstrainedWindowNonClientView::PaintWindowTitle(ChromeCanvas* canvas) {
+  int title_x = MirroredLeftPointForRect(title_bounds_);
   canvas->DrawStringInt(container_->GetWindowTitle(), title_font_,
-                        GetTitleColor(), title_bounds_.x(),
-                        title_bounds_.y(), title_bounds_.width(),
-                        title_bounds_.height());
+                        GetTitleColor(), title_x, title_bounds_.y(),
+                        title_bounds_.width(), title_bounds_.height());
 }
 
 // static

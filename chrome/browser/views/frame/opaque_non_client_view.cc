@@ -766,8 +766,9 @@ void OpaqueNonClientView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
 
 void OpaqueNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
   if (browser_view_->ShouldShowOffTheRecordAvatar()) {
-    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(),
-                          otr_avatar_bounds_.x(), otr_avatar_bounds_.y());
+    int icon_x = MirroredLeftPointForRect(otr_avatar_bounds_);
+    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(), icon_x,
+                          otr_avatar_bounds_.y());
   }
 }
 
@@ -776,8 +777,8 @@ void OpaqueNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // when we actually have a logo.
   if (!frame_->IsMaximized() && !frame_->IsMinimized() && 
       !distributor_logo_.empty()) {
-    canvas->DrawBitmapInt(distributor_logo_, logo_bounds_.x(),
-                          logo_bounds_.y());
+    int logo_x = MirroredLeftPointForRect(logo_bounds_);
+    canvas->DrawBitmapInt(distributor_logo_, logo_x, logo_bounds_.y());
   }
 }
 
@@ -785,8 +786,9 @@ void OpaqueNonClientView::PaintTitleBar(ChromeCanvas* canvas) {
   // The window icon is painted by the TabIconView.
   ChromeViews::WindowDelegate* d = frame_->window_delegate();
   if (d->ShouldShowWindowTitle()) {
+    int title_x = MirroredLeftPointForRect(title_bounds_);
     canvas->DrawStringInt(d->GetWindowTitle(), title_font_, SK_ColorWHITE,
-                          title_bounds_.x(), title_bounds_.y(),
+                          title_x, title_bounds_.y(),
                           title_bounds_.width(), title_bounds_.height());
   }
 }
@@ -968,16 +970,8 @@ void OpaqueNonClientView::LayoutDistributorLogo() {
   int logo_w = distributor_logo_.empty() ? 0 : distributor_logo_.width();
   int logo_h = distributor_logo_.empty() ? 0 : distributor_logo_.height();
 
-  int logo_x = 0;
-  if (UILayoutIsRightToLeft()) {
-    CRect minimize_bounds;
-    minimize_button_->GetBounds(&minimize_bounds,
-                                APPLY_MIRRORING_TRANSFORMATION);
-    logo_x = minimize_bounds.right + kDistributorLogoHorizontalOffset;
-  } else {
-    logo_x = minimize_button_->x() - logo_w -
-        kDistributorLogoHorizontalOffset;
-  }
+  int logo_x =
+      minimize_button_->x() - logo_w - kDistributorLogoHorizontalOffset;
   logo_bounds_.SetRect(logo_x, kDistributorLogoVerticalOffset, logo_w, logo_h);
 }
 
