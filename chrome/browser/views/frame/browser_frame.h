@@ -37,6 +37,9 @@ class BrowserFrame {
   // TabStrip. The coordinate system is that of the window's client area.
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;
 
+  // Updates the current frame of the Throbber animation, if applicable.
+  virtual void UpdateThrobber() = 0;
+
   // Returns the ChromeViews::Window associated with this frame.
   virtual ChromeViews::Window* GetWindow() = 0;
 

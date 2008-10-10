@@ -35,10 +35,8 @@ class AeroGlassFrame : public BrowserFrame,
       const gfx::Rect& client_bounds);
   virtual void SizeToContents(const gfx::Rect& contents_bounds) {}
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
+  virtual void UpdateThrobber();
   virtual ChromeViews::Window* GetWindow();
-
-  // Overridden from ChromeViews::Window:
-  virtual void UpdateWindowIcon();
 
   // Overridden from ChromeViews::HWNDViewContainer:
   virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);

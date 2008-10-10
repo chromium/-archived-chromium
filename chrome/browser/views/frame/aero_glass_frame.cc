@@ -67,15 +67,14 @@ gfx::Rect AeroGlassFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
   return GetAeroGlassNonClientView()->GetBoundsForTabStrip(tabstrip);
 }
 
-ChromeViews::Window* AeroGlassFrame::GetWindow() {
-  return this;
+void AeroGlassFrame::UpdateThrobber() {
+  // On Vista, for now, we just update the window icon. Figure out something
+  // better here to fix http://crbug.com/3296
+  UpdateWindowIcon();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// AeroGlassFrame, ChromeViews::Window overrides:
-
-void AeroGlassFrame::UpdateWindowIcon() {
-  Window::UpdateWindowIcon();
+ChromeViews::Window* AeroGlassFrame::GetWindow() {
+  return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

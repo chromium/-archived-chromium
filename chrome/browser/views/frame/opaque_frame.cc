@@ -42,6 +42,12 @@ gfx::Rect OpaqueFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
   return GetOpaqueNonClientView()->GetBoundsForTabStrip(tabstrip);
 }
 
+void OpaqueFrame::UpdateThrobber() {
+  // The throbber doesn't run in the Windows TaskBar, so we just update the
+  // non-client view. Updating the taskbar is muy expensivo.
+  GetOpaqueNonClientView()->UpdateWindowIcon();
+}
+
 ChromeViews::Window* OpaqueFrame::GetWindow() {
   return this;
 }

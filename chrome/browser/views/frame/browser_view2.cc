@@ -398,7 +398,7 @@ void BrowserView2::SetAcceleratorTable(
 
 void BrowserView2::ValidateThrobber() {
   if (ShouldShowWindowIcon())
-    frame_->GetWindow()->UpdateWindowIcon();
+    frame_->UpdateThrobber();
 }
 
 gfx::Rect BrowserView2::GetNormalBounds() {
