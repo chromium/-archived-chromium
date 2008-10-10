@@ -32,6 +32,11 @@
 #include "CString.h"
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_parse.h"
+// TODO(brettw): Crazy hack.  Because these headers pull in base/basictypes.h,
+// which redefines COMPILE_ASSERT, restore it here to the definition in
+// wtf/Assertions.h.
+#undef COMPILE_ASSERT
+#define COMPILE_ASSERT(exp, name) typedef int dummy##name [(exp) ? 1 : -1];
 #endif
 
 #if PLATFORM(CF)
