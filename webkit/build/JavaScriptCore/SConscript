@@ -106,6 +106,7 @@ env = env.Clone(
         '$JAVASCRIPTCORE_DIR/bindings/jni',
         '$WEBKIT_DIR/pending',
         '$WEBKIT_DIR/pending/wtf',
+        '$JAVASCRIPTCORE_DIR/wtf',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
         '$WEBKIT_DIR',
@@ -164,7 +165,7 @@ wtf_inputs = [
 if env['PLATFORM'] == 'win32':
   wtf_inputs.extend([
       '$WTF_DIR/win/MainThreadWin.cpp',
-      '$WTF_DIR/wtf/ThreadingWin.cpp',
+      '$WTF_DIR/ThreadingWin.cpp',
   ])
 
 env.ChromeStaticLibrary('WTF', wtf_inputs)
