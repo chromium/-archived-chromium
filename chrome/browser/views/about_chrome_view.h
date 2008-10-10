@@ -149,6 +149,8 @@ class AboutChromeView : public ChromeViews::View,
   std::wstring main_label_chunk3_;
   std::wstring main_label_chunk4_;
   std::wstring main_label_chunk5_;
+  // Determines the order of the two links we draw in the main label.
+  bool chromium_url_appears_first_;
 
   // The class that communicates with Google Update to find out if an update is
   // available and asks it to start an upgrade.
