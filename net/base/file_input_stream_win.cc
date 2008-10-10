@@ -47,7 +47,7 @@ static int MapErrorCode(DWORD err) {
 
 // FileInputStream::AsyncContext ----------------------------------------------
 
-class FileInputStream::AsyncContext : public MessageLoopForIO::Watcher {
+class FileInputStream::AsyncContext : public MessageLoopForIO::IOHandler {
  public:
   AsyncContext(FileInputStream* owner)
       : owner_(owner), overlapped_(), callback_(NULL) {
@@ -56,7 +56,7 @@ class FileInputStream::AsyncContext : public MessageLoopForIO::Watcher {
 
   ~AsyncContext() {
     if (callback_)
-      MessageLoopForIO::current()->WatchObject(overlapped_.hEvent, NULL);
+      MessageLoopForIO::current()->RegisterIOContext(&overlapped_, NULL);
     CloseHandle(overlapped_.hEvent);
   }
 
@@ -66,8 +66,9 @@ class FileInputStream::AsyncContext : public MessageLoopForIO::Watcher {
   CompletionCallback* callback() const { return callback_; }
 
  private:
-  // MessageLoopForIO::Watcher implementation:
-  virtual void OnObjectSignaled(HANDLE object);
+  // MessageLoopForIO::IOHandler implementation:
+  virtual void OnIOCompleted(OVERLAPPED* context, DWORD bytes_read,
+                             DWORD error);
 
   FileInputStream* owner_;
   OVERLAPPED overlapped_;
@@ -79,31 +80,25 @@ void FileInputStream::AsyncContext::IOCompletionIsPending(
   DCHECK(!callback_);
   callback_ = callback;
 
-  MessageLoopForIO::current()->WatchObject(overlapped_.hEvent, this);
+  MessageLoopForIO::current()->RegisterIOContext(&overlapped_, this);
 }
 
-void FileInputStream::AsyncContext::OnObjectSignaled(HANDLE object) {
-  DCHECK(overlapped_.hEvent == object);
+void FileInputStream::AsyncContext::OnIOCompleted(OVERLAPPED* context,
+                                                  DWORD bytes_read,
+                                                  DWORD error) {
+  DCHECK(&overlapped_ == context);
   DCHECK(callback_);
 
-  MessageLoopForIO::current()->WatchObject(overlapped_.hEvent, NULL);
+  MessageLoopForIO::current()->RegisterIOContext(&overlapped_, NULL);
 
   HANDLE handle = owner_->handle_;
 
-  int result;
-
-  DWORD bytes_read;
-  if (!GetOverlappedResult(handle, &overlapped_, &bytes_read, FALSE)) {
-    DWORD err = GetLastError();
-    if (err == ERROR_HANDLE_EOF) {
-      result = OK;  // Successfully read all data.
-    } else {
-      result = MapErrorCode(err);
-    }
-  } else {
+  int result = static_cast<int>(bytes_read);
+  if (error && error != ERROR_HANDLE_EOF)
+    result = MapErrorCode(error);
+  
+  if (bytes_read)
     IncrementOffset(&overlapped_, bytes_read);
-    result = static_cast<int>(bytes_read);
-  }
 
   CompletionCallback* temp = NULL;
   std::swap(temp, callback_);
@@ -150,8 +145,11 @@ int FileInputStream::Open(const std::wstring& path, bool asynchronous_mode) {
     return MapErrorCode(error);
   }
 
-  if (asynchronous_mode)
+  if (asynchronous_mode) {
     async_context_.reset(new AsyncContext(this));
+    MessageLoopForIO::current()->RegisterIOHandler(handle_,
+                                                   async_context_.get());
+  }
 
   return OK;
 }
