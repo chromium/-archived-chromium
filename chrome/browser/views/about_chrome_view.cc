@@ -55,6 +55,7 @@ AboutChromeView::AboutChromeView(Profile* profile)
       terms_of_service_url_(NULL),
       chromium_url_(NULL),
       open_source_url_(NULL),
+      chromium_url_appears_first_(true),
       check_button_status_(CHECKBUTTON_HIDDEN) {
   DCHECK(profile);
   Init();
@@ -147,12 +148,13 @@ void AboutChromeView::Init() {
                                             std::wstring(),
                                             std::wstring(),
                                             &url_offsets);
+  chromium_url_appears_first_ = url_offsets[0] < url_offsets[1];
+  int link1 = std::min(url_offsets[0], url_offsets[1]);
+  int link2 = std::max(url_offsets[0], url_offsets[1]);
 
-  DCHECK(url_offsets[0] < url_offsets[1]);
-  main_label_chunk1_ = text.substr(0, url_offsets[0]);
-  main_label_chunk2_ = text.substr(url_offsets[0],
-                                   url_offsets[1] - url_offsets[0]);
-  main_label_chunk3_ = text.substr(url_offsets[1]);
+  main_label_chunk1_ = text.substr(0, link1);
+  main_label_chunk2_ = text.substr(link1, link2 - link1);
+  main_label_chunk3_ = text.substr(link2);
 
   url_offsets.clear();
   text = l10n_util::GetStringF(IDS_ABOUT_TERMS_OF_SERVICE,
@@ -308,16 +310,25 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
   CRect bounds;
   main_text_label_->GetBounds(&bounds);
 
+  ChromeViews::Link* link1 =
+      chromium_url_appears_first_ ? chromium_url_ : open_source_url_;
+  ChromeViews::Link* link2 = 
+      chromium_url_appears_first_ ? open_source_url_ : chromium_url_;
+  gfx::Rect* rect1 = chromium_url_appears_first_ ?
+      &chromium_url_rect_ : &open_source_url_rect_;
+  gfx::Rect* rect2 = chromium_url_appears_first_ ?
+      &open_source_url_rect_ : &chromium_url_rect_;
+
   // This struct keeps track of where to write the next word (which x,y
   // pixel coordinate). This struct is updated after drawing text and checking
   // if we need to wrap.
   CSize position;
   // Draw the first text chunk and position the Chromium url.
-  DrawTextAndPositionUrl(canvas, main_label_chunk1_, chromium_url_,
-                         &chromium_url_rect_, &position, bounds, font);
+  DrawTextAndPositionUrl(canvas, main_label_chunk1_, link1,
+                         rect1, &position, bounds, font);
   // Draw the second text chunk and position the Open Source url.
-  DrawTextAndPositionUrl(canvas, main_label_chunk2_, open_source_url_,
-                         &open_source_url_rect_, &position, bounds, font);
+  DrawTextAndPositionUrl(canvas, main_label_chunk2_, link2,
+                         rect2, &position, bounds, font);
   // Draw the third text chunk.
   DrawTextStartingFrom(canvas, main_label_chunk3_, &position, bounds, font);
 
