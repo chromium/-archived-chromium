@@ -76,10 +76,6 @@ class TestRunner:
     # a set of test files
     self._test_files = set()
 
-    if options.nosvg:
-      TestRunner._supported_file_extensions.remove('.svg')
-      TestRunner._skipped_directories.add('svg')
-
     self._GatherTestFiles(paths)
 
   def __del__(self):
@@ -124,12 +120,6 @@ class TestRunner:
             filename = os.path.join(root, filename)
             filename = os.path.normpath(filename)
             self._test_files.add(filename)
-
-    # Filter out http tests if we're not running them.
-    if self._options.nohttp:
-      for path in list(self._test_files):
-        if path.find(self.HTTP_SUBDIR) >= 0:
-          self._test_files.remove(path)
 
     # Filter and sort out files from the skipped, ignored, and fixable file
     # lists.
@@ -530,6 +520,11 @@ def main(options, args):
   if os.path.exists(cachedir):
     shutil.rmtree(cachedir)
 
+  # This was an experimental feature where we would run more than one
+  # test_shell in parallel.  For some reason, this would result in different
+  # layout test results, so just use 1 test_shell for now.
+  options.num_test_shells = 1
+
   # Include all tests if none are specified.
   paths = []
   if args:
@@ -549,10 +544,6 @@ def main(options, args):
 
 if '__main__' == __name__:
   option_parser = optparse.OptionParser()
-  option_parser.add_option("", "--nohttp", action="store_true", default=False,
-                           help="disable http tests")
-  option_parser.add_option("", "--nosvg", action="store_true", default=False,
-                           help="disable svg tests")
   option_parser.add_option("", "--pixel-tests", action="store_true",
                            default=False,
                            help="enable pixel-to-pixel PNG comparisons")
@@ -575,14 +566,6 @@ if '__main__' == __name__:
   option_parser.add_option("", "--full-results-html", action="store_true",
                            default=False, help="show all failures in"
                            "results.html, rather than only regressions")
-  option_parser.add_option("", "--num-test-shells",
-                           default=1,
-                           help="The number of test shells to run in"
-                                " parallel. EXPERIMENTAL.")
-  option_parser.add_option("", "--save-failures", action="store_true",
-                           default=False,
-                           help="Save lists of expected failures and crashes "
-                                "and use them in computing regressions.")
   option_parser.add_option("", "--nocompare-failures", action="store_true",
                            default=False,
                            help="Disable comparison to the last test run. "
@@ -613,4 +596,3 @@ if '__main__' == __name__:
                            metavar="FILE")
   options, args = option_parser.parse_args()
   main(options, args)
-
