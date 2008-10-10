@@ -28,7 +28,9 @@
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request.h"
+#if defined(OS_WIN)
 #include "net/url_request/url_request_file_dir_job.h"
+#endif
 
 #if defined(OS_WIN)
 class URLRequestFileJob::AsyncResolver :
@@ -74,8 +76,10 @@ URLRequestJob* URLRequestFileJob::Factory(
   std::wstring file_path;
   if (net::FileURLToFilePath(request->url(), &file_path)) {
     if (file_path[file_path.size() - 1] == file_util::kPathSeparator) {
+#if defined(OS_WIN)
       // Only directories have trailing slashes.
       return new URLRequestFileDirJob(request, file_path);
+#endif
     }
   }
 
@@ -100,20 +104,22 @@ URLRequestFileJob::~URLRequestFileJob() {
 }
 
 void URLRequestFileJob::Start() {
+#if defined(OS_WIN)
   // Resolve UNC paths on a background thread.
   if (!file_path_.compare(0, 2, L"\\\\")) {
     DCHECK(!async_resolver_);
     async_resolver_ = new AsyncResolver(this);
     WorkerPool::PostTask(FROM_HERE, NewRunnableMethod(
         async_resolver_.get(), &AsyncResolver::Resolve, file_path_), true);
-  } else {
-    file_util::FileInfo file_info;
-    bool exists = file_util::GetFileInfo(file_path_, &file_info);
-
-    // Continue asynchronously.
-    MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &URLRequestFileJob::DidResolve, exists, file_info));
+    return;
   }
+#endif
+  file_util::FileInfo file_info;
+  bool exists = file_util::GetFileInfo(file_path_, &file_info);
+
+  // Continue asynchronously.
+  MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &URLRequestFileJob::DidResolve, exists, file_info));
 }
 
 void URLRequestFileJob::Kill() {

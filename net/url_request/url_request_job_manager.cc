@@ -11,8 +11,8 @@
 #include "net/base/load_flags.h"
 #include "net/url_request/url_request_about_job.h"
 #include "net/url_request/url_request_error_job.h"
-#if defined(OS_WIN)
 #include "net/url_request/url_request_file_job.h"
+#if defined(OS_WIN)
 #include "net/url_request/url_request_ftp_job.h"
 #else
 // TODO(playmobil): Implement on non-windows platforms.
@@ -33,8 +33,8 @@ struct SchemeToFactory {
 static const SchemeToFactory kBuiltinFactories[] = {
   { "http", URLRequestHttpJob::Factory },
   { "https", URLRequestHttpJob::Factory },
-#if defined(OS_WIN)
   { "file", URLRequestFileJob::Factory },
+#if defined(OS_WIN)
   { "ftp", URLRequestFtpJob::Factory },
 #else
 // TODO(playmobil): Implement on non-windows platforms.

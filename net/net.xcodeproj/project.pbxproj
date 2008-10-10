@@ -149,6 +149,7 @@
 		B5F622260E805FC40076681A /* url_request_job_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A30E5A198600A747DB /* url_request_job_manager.cc */; };
 		BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329F0E5A181C00A747DB /* net_util_unittest.cc */; };
 		DFEE18270E882E3600666107 /* stats_histogram.cc in Sources */ = {isa = PBXBuildFile; fileRef = DFEE18250E882E3600666107 /* stats_histogram.cc */; };
+		E4005E3A0E9FA63B0055B38E /* url_request_file_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33B00E5A198600A747DB /* url_request_file_job.cc */; };
 		E47E933F0E8924DC00CA613E /* tcp_client_socket_libevent.cc in Sources */ = {isa = PBXBuildFile; fileRef = E47E933E0E8924DC00CA613E /* tcp_client_socket_libevent.cc */; };
 		E47E93430E8924EE00CA613E /* tcp_client_socket_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED328E0E5A181C00A747DB /* tcp_client_socket_unittest.cc */; };
 		E49DD2EA0E892F8C003C7A87 /* sdch_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49DD2E80E892F8C003C7A87 /* sdch_manager.cc */; };
@@ -1473,6 +1474,7 @@
 				821F23710E5E0F15003C7E38 /* url_request.cc in Sources */,
 				821F23C30E5E105E003C7E38 /* url_request_about_job.cc in Sources */,
 				7B85044A0E5B2E9600730B43 /* url_request_error_job.cc in Sources */,
+				E4005E3A0E9FA63B0055B38E /* url_request_file_job.cc in Sources */,
 				821F236C0E5E0EF8003C7E38 /* url_request_http_job.cc in Sources */,
 				821F23CA0E5E106B003C7E38 /* url_request_job.cc in Sources */,
 				B5F622260E805FC40076681A /* url_request_job_manager.cc in Sources */,
