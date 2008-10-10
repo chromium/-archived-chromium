@@ -15,16 +15,16 @@ deps = {
     "/trunk/deps/third_party/WebKit@3170",
 
   "src/third_party/cygwin":
-    "/trunk/deps/third_party/cygwin@3028",
+    "/trunk/deps/third_party/cygwin@3248",
 
   "src/third_party/icu38":
     "/trunk/deps/third_party/icu38@2676",
 
   "src/third_party/python_24":
-    "/trunk/deps/third_party/python_24@1790",
+    "/trunk/deps/third_party/python_24@3247",
 
   "src/third_party/svn":
-    "/trunk/deps/third_party/svn@1791",
+    "/trunk/deps/third_party/svn@3230",
 
   "src/v8":
     "http://v8.googlecode.com/svn/trunk@459",
