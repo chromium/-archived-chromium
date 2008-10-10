@@ -31,85 +31,71 @@
 #include "Frame.h"
 #include "EventListener.h"
 #include "HTMLPlugInElement.h"
+#include "JSDOMBinding.h"
 #include "Node.h"
-#include "kjs_dom.h"
 #include "kjs/JSLock.h"
-#include "kjs/object.h"
-#include "KJSBridge.h"
-#include "kjs_window.h"
+#include "kjs/protect.h"
 
 #include "bindings/npruntime.h"
 #include "npruntime_impl.h"
 #include "npruntime_priv.h"
 
-#include "bindings/runtime.h"
-#include "bindings/runtime_root.h"
 #include "NP_jsobject.h"
 
 namespace WebCore {
 
-bool JSBridge::m_recordPlaybackMode = false;
+bool ScriptController::m_recordPlaybackMode = false;
 
 // static
-void JSBridge::setFlags(const char*, int) {
+void ScriptController::setFlags(const char*, int) {
   // empty 
 }
 
 // static
-void JSBridge::setDomain(Frame*, const String&) {
+void ScriptController::setDomain(Frame*, const String&) {
   // empty
 }
 
 // static
-Frame* JSBridge::retrieveActiveFrame() {
+Frame* ScriptController::retrieveActiveFrame() {
   // Not implemented.
   ASSERT(false);
   return 0;
 }
 
 // static
-bool JSBridge::isSafeScript(Frame* target) {
+bool ScriptController::isSafeScript(Frame* target) {
   // Not implemented.
   ASSERT(false);
   return false;
 }
 
 // static
-void JSBridge::gcProtectJSWrapper(void* dom_object) {
-  KJS::JSLock lock;
-  KJS::gcProtectNullTolerant(KJS::ScriptInterpreter::getDOMObject(dom_object));
+void ScriptController::gcProtectJSWrapper(void* dom_object) {
+  KJS::JSLock lock(false);
+  KJS::gcProtectNullTolerant(ScriptInterpreter::getDOMObject(dom_object));
 }
 
 // static
-void JSBridge::gcUnprotectJSWrapper(void* dom_object) {
-  KJS::JSLock lock;
-  KJS::gcUnprotectNullTolerant(KJS::ScriptInterpreter::getDOMObject(dom_object));
+void ScriptController::gcUnprotectJSWrapper(void* dom_object) {
+  KJS::JSLock lock(false);
+  KJS::gcUnprotectNullTolerant(ScriptInterpreter::getDOMObject(dom_object));
+}
+
+// static	
+PausedTimeouts* ScriptController::pauseTimeouts(Frame* frame) {	
+  if (!frame) 	
+    return NULL;	
+  	
+  KJS::Window* window = KJS::Window::retrieveWindow(frame);	
+  if (!window)	
+    return NULL;	
+	
+  return window->pauseTimeouts();	
 }
 
 // static
-JSException JSBridge::NoException() {
-  return 0;
-}
-
-// static
-bool JSBridge::IsException(JSException exception) {
-  return exception != 0;
-}
-
-// static
-PausedTimeouts* JSBridge::pauseTimeouts(Frame* frame) {
-  if (!frame) 
-    return NULL;
-  
-  KJS::Window* window = KJS::Window::retrieveWindow(frame);
-  if (!window)
-    return NULL;
-
-  return window->pauseTimeouts();
-}
-
-// static
-void JSBridge::resumeTimeouts(Frame* frame, PausedTimeouts* timeouts) {
+void ScriptController::resumeTimeouts(Frame* frame, PausedTimeouts* timeouts) {
   if (!frame)
     return;
 
@@ -140,7 +126,7 @@ String KJSBridge::evaluate(const String& filename, int baseLine,
   if (!value || value->isUndefined())
     return String();
 
-  KJS::JSLock lock;
+  KJS::JSLock lock(false);
   KJS::ExecState* exec = m_proxy->globalObject()->globalExec();
   KJS::UString ustring = value->toString(exec);
   exec->clearException();
@@ -223,7 +209,7 @@ JSInstanceHolder& JSInstanceHolder::operator=(JSInstance instance) {
 
 /*
 JSRootObject* KJSBridge::getRootObject() {
-  KJS::JSLock lock;
+  KJS::JSLock lock(false);
   PassRefPtr<KJS::Bindings::RootObject> object = 
       KJS::Bindings::RootObject::create(0, m_proxy->interpreter());
   return ToWebCoreJSRootObject(object.releaseRef());
@@ -285,7 +271,7 @@ NPObject *KJSBridge::CreateScriptObject(Frame* frame)
 NPObject *KJSBridge::CreateScriptObject(Frame* frame, 
                                         HTMLPlugInElement *element)
 {
-  KJS::JSLock lock;
+  KJS::JSLock lock(false);
   KJS::ExecState *exec = frame->scriptProxy()->globalObject()->globalExec();
   //KJS::JSObject* wrappedObject = static_cast<KJS::JSObject*>(object);
   //PassRefPtr<KJS::JSObject> wrappedObject = static_cast<KJS::JSObject*>(object);
