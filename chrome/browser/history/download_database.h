@@ -27,6 +27,9 @@ class DownloadDatabase {
   // Update the state of one download. Returns true if successful.
   bool UpdateDownload(int64 received_bytes, int32 state, DownloadID db_handle);
 
+  // Update the path of one download. Returns true if successful.
+  bool UpdateDownloadPath(const std::wstring& path, DownloadID db_handle);
+
   // Create a new database entry for one download and return its primary db id.
   int64 CreateDownload(const DownloadCreateInfo& info);
 

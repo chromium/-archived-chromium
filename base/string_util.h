@@ -508,6 +508,14 @@ std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
                                        const std::wstring& d,
                                        std::vector<size_t>* offsets);
 
+// If the size of |input| is more than |max_len|, this function returns true and
+// |input| is shortened into |output| by removing chars in the middle (they are
+// replaced with up to 3 dots, as size permits).
+// Ex: ElideString(L"Hello", 10, &str) puts Hello in str and returns false.
+// ElideString(L"Hello my name is Tom", 10, &str) puts "Hell...Tom" in str and
+// returns true.
+bool ElideString(const std::wstring& input, int max_len, std::wstring* output);
+
 // Returns true if the string passed in matches the pattern. The pattern
 // string can contain wildcards like * and ?
 // TODO(iyengar) This function may not work correctly for CJK strings as

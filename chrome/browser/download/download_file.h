@@ -210,6 +210,9 @@ class DownloadFileManager
   // download directory exists.
   void CreateDirectory(const std::wstring& directory);
 
+  // Called by the donwload manager to delete non validated dangerous downloads.
+  void DeleteFile(const std::wstring& path);
+
  private:
   // Timer helpers for updating the UI about the current progress of a download.
   void StartUpdateTimer();

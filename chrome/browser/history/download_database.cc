@@ -93,6 +93,20 @@ bool DownloadDatabase::UpdateDownload(int64 received_bytes,
   return statement->step() == SQLITE_DONE;
 }
 
+bool DownloadDatabase::UpdateDownloadPath(const std::wstring& path,
+                                          DownloadID db_handle) {
+  DCHECK(db_handle > 0);
+  SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
+      "UPDATE downloads "
+      "SET full_path=? WHERE id=?");
+  if (!statement.is_valid())
+    return false;
+
+  statement->bind_wstring(0, path);
+  statement->bind_int64(1, db_handle);
+  return statement->step() == SQLITE_DONE;
+}
+
 int64 DownloadDatabase::CreateDownload(const DownloadCreateInfo& info) {
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
       "INSERT INTO downloads "

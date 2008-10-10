@@ -421,6 +421,10 @@ class HistoryService : public CancelableRequestProvider,
   // the database with no need for a callback.
   void UpdateDownload(int64 received_bytes, int32 state, int64 db_handle);
 
+  // Called to update the history service about the path of a download.
+  // This is a 'fire and forget' query.
+  void UpdateDownloadPath(const std::wstring& path, int64 db_handle);
+
   // Permanently remove a download from the history system. This is a 'fire and
   // forget' operation.
   void RemoveDownload(int64 db_handle);

@@ -193,6 +193,7 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
 
   void QueryDownloads(scoped_refptr<DownloadQueryRequest> request);
   void UpdateDownload(int64 received_bytes, int32 state, int64 db_handle);
+  void UpdateDownloadPath(const std::wstring& path, int64 db_handle);
   void CreateDownload(scoped_refptr<DownloadCreateRequest> request,
                       const DownloadCreateInfo& info);
   void RemoveDownload(int64 db_handle);

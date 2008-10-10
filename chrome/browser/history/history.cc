@@ -469,6 +469,12 @@ void HistoryService::UpdateDownload(int64 received_bytes,
                     received_bytes, state, db_handle);
 }
 
+void HistoryService::UpdateDownloadPath(const std::wstring& path,
+                                        int64 db_handle) {
+  ScheduleAndForget(PRIORITY_NORMAL, &HistoryBackend::UpdateDownloadPath,
+                    path, db_handle);
+}
+
 void HistoryService::RemoveDownload(int64 db_handle) {
   ScheduleAndForget(PRIORITY_NORMAL,
                     &HistoryBackend::RemoveDownload, db_handle);

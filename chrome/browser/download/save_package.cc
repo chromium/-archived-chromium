@@ -126,7 +126,7 @@ SavePackage::~SavePackage() {
     // We call this to remove the view from the shelf. It will invoke
     // DownloadManager::RemoveDownload, but since the fake DownloadItem is not
     // owned by DownloadManager, it will do nothing to our fake item.
-    download_->Remove();
+    download_->Remove(false);
     delete download_;
     download_ = NULL;
   }
@@ -174,8 +174,8 @@ bool SavePackage::Init() {
   }
 
   // Create the fake DownloadItem and display the view.
-  download_ = new DownloadItem(1, saved_main_file_path_,
-                               page_url_, Time::Now(), 0, -1, -1);
+  download_ = new DownloadItem(1, saved_main_file_path_, page_url_,
+                               std::wstring(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(web_contents_->profile()->GetDownloadManager());
   DownloadShelfView* shelf = web_contents_->GetDownloadShelfView();
   shelf->AddDownloadView(new DownloadItemView(

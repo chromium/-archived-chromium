@@ -80,6 +80,12 @@ class DownloadItem {
     REMOVING
   };
 
+  enum SafetyState {
+    SAFE = 0,
+    DANGEROUS,
+    DANGEROUS_BUT_VALIDATED  // Dangerous but the user confirmed the download.
+  };
+
   // Interface that observers of a particular download must implement in order
   // to receive updates to the download's status.
   class Observer {
@@ -94,10 +100,12 @@ class DownloadItem {
   DownloadItem(int32 download_id,
                const std::wstring& path,
                const std::wstring& url,
+               const std::wstring& original_name,
                const Time start_time,
                int64 download_size,
                int render_process_id,
-               int request_id);
+               int request_id,
+               bool is_dangerous);
 
   ~DownloadItem();
 
@@ -125,12 +133,12 @@ class DownloadItem {
   // when resuming a download (assuming the server supports byte ranges).
   void Cancel(bool update_history);
 
-  // Download operation completed
+  // Download operation completed.
   void Finished(int64 size);
 
-  // The user wants to remove the download from the views and history. This
-  // operation does not delete the file on the disk.
-  void Remove();
+  // The user wants to remove the download from the views and history. If
+  // |delete_file| is true, the file is deleted on the disk.
+  void Remove(bool delete_file);
 
   // Start/stop sending periodic updates to our observers
   void StartProgressTimer();
@@ -158,8 +166,10 @@ class DownloadItem {
 
   // Accessors
   DownloadState state() const { return state_; }
-  std::wstring full_path() const { return full_path_; }
   std::wstring file_name() const { return file_name_; }
+  void set_file_name(const std::wstring& name) { file_name_ = name; }
+  std::wstring full_path() const { return full_path_; }
+  void set_full_path(const std::wstring& path) { full_path_ = path; }
   std::wstring url() const { return url_; }
   int64 total_bytes() const { return total_bytes_; }
   void set_total_bytes(int64 total_bytes) { total_bytes_ = total_bytes; }
@@ -176,6 +186,16 @@ class DownloadItem {
   void set_open_when_complete(bool open) { open_when_complete_ = open; }
   int render_process_id() const { return render_process_id_; }
   int request_id() const { return request_id_; }
+  SafetyState safety_state() const { return safety_state_; }
+  void set_safety_state(SafetyState safety_state) {
+    safety_state_ = safety_state;
+  }
+  std::wstring original_name() const { return original_name_; }
+  void set_original_name(const std::wstring& name) { original_name_ = name; }
+
+  // Returns the file-name that should be reported to the user, which is
+  // file_name_ for safe downloads and original_name_ for dangerous ones.
+  std::wstring GetFileName() const;
 
  private:
   // Internal helper for maintaining consistent received and total sizes.
@@ -225,6 +245,14 @@ class DownloadItem {
 
   // A flag for indicating if the download should be opened at completion.
   bool open_when_complete_;
+
+  // Whether the download is considered potentially safe or dangerous
+  // (executable files are typically considered dangerous).
+  SafetyState safety_state_;
+
+  // Dangerous download are given temporary names until the user approves them.
+  // This stores their original name.
+  std::wstring original_name_;
 
   // For canceling or pausing requests.
   int render_process_id_;
@@ -354,6 +382,12 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   virtual void FileSelected(const std::wstring& path, void* params);
   virtual void FileSelectionCanceled(void* params);
 
+  // Deletes the specified path on the file thread.
+  void DeleteDownload(const std::wstring& path);
+
+  // Called when the user has validated the donwload of a dangerous file.
+  void DangerousDownloadValidated(DownloadItem* download);
+
  private:
   // Shutdown the download manager.  This call is needed only after Init.
   void Shutdown();
@@ -405,6 +439,32 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
                                      int request_id,
                                      bool pause);
 
+  // Performs the last steps required when a download has been completed.
+  // It is necessary to break down the flow when a download is finished as
+  // dangerous downloads are downloaded to temporary files that need to be
+  // renamed on the file thread first.
+  // Invoked on the UI thread.
+  void ContinueDownloadFinished(DownloadItem* download);
+
+  // Renames a finished dangerous download from its temporary file name to its
+  // real file name.
+  // Invoked on the file thread.
+  void ProceedWithFinishedDangerousDownload(int64 download_handle, 
+                                            const std::wstring& path,
+                                            const std::wstring& original_name);
+
+  // Invoked on the UI thread when a dangerous downloaded file has been renamed.
+  void DangerousDownloadRenamed(int64 download_handle,
+                                bool success,
+                                const std::wstring& new_path);
+
+  // Checks whether a file represents a risk if downloaded.
+  bool IsDangerous(const std::wstring& file_name);
+
+  // Changes the paths and file name of the specified |download|, propagating
+  // the change to the history system.
+  void RenameDownload(DownloadItem* download, const std::wstring& new_path);
+
   // 'downloads_' is map of all downloads in this profile. The key is the handle
   // returned by the history system, which is unique across sessions. This map
   // owns all the DownloadItems once they have been created in the history
@@ -415,6 +475,12 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // ResourceDispatcherHost, which is unique for the current session. This map
   // does not own the DownloadItems.
   //
+  // 'dangerous_finished_' is a map of dangerous download that have finished
+  // but were not yet approved by the user.  Similarly to in_progress_, the key
+  // is the ID assigned by the ResourceDispatcherHost and the map does not own
+  // the DownloadItems.  It is used on shutdown to delete completed downloads
+  // that have not been approved.
+  // 
   // When a download is created through a user action, the corresponding
   // DownloadItem* is placed in 'in_progress_' and remains there until it has
   // received a valid handle from the history system. Once it has a valid
@@ -426,6 +492,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   typedef base::hash_map<int64, DownloadItem*> DownloadMap;
   DownloadMap downloads_;
   DownloadMap in_progress_;
+  DownloadMap dangerous_finished_;
 
   // True if the download manager has been initialized and requires a shutdown.
   bool shutdown_needed_;

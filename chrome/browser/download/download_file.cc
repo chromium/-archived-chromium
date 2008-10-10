@@ -578,3 +578,9 @@ void DownloadFileManager::CreateDirectory(const std::wstring& directory) {
   if (!file_util::PathExists(directory))
     file_util::CreateDirectory(directory);
 }
+
+void DownloadFileManager::DeleteFile(const std::wstring& path) {
+  // Make sure we only delete files.
+  if (file_util::PathExists(path) && !file_util::DirectoryExists(path))
+    file_util::Delete(path, false);
+}

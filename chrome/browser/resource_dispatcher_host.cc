@@ -302,6 +302,7 @@ class ResourceDispatcherHost::DownloadEventHandler
     info->content_disposition = content_disposition_;
     info->mime_type = response->response_head.mime_type;
     info->save_as = save_as_;
+    info->is_dangerous = false;
     download_manager_->file_loop()->PostTask(FROM_HERE,
         NewRunnableMethod(download_manager_,
                           &DownloadFileManager::StartDownload,

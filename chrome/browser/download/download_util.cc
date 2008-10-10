@@ -133,7 +133,7 @@ void BaseContextMenu::ExecuteCommand(int id) {
       break;
     }
     case REMOVE_ITEM:
-      download_->Remove();
+      download_->Remove(false);
       break;
     case CANCEL:
       download_->Cancel(true);

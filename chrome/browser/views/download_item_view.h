@@ -26,13 +26,17 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/views/event.h"
+#include "chrome/views/native_button.h"
 #include "chrome/views/view.h"
-#include "chrome/views/label.h"
 
+namespace ChromeViews {
+  class Label;
+}
 class DownloadShelfView;
 class SkBitmap;
 
-class DownloadItemView : public ChromeViews::View,
+class DownloadItemView : public ChromeViews::NativeButton::Listener,
+                         public ChromeViews::View,
                          public DownloadItem::Observer,
                          public AnimationDelegate {
  public:
@@ -56,6 +60,7 @@ class DownloadItemView : public ChromeViews::View,
   virtual void OnDownloadUpdated(DownloadItem* download);
 
   // View overrides
+  virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
   virtual void GetPreferredSize(CSize *out);
   virtual void OnMouseExited(const ChromeViews::MouseEvent& event);
@@ -64,6 +69,10 @@ class DownloadItemView : public ChromeViews::View,
   virtual void OnMouseReleased(const ChromeViews::MouseEvent& event,
                                bool canceled);
   virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
+  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+
+  // NativeButton::Listener implementation.
+  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
 
   // AnimationDelegate implementation.
   virtual void AnimationProgressed(const Animation* animation);
@@ -81,6 +90,7 @@ class DownloadItemView : public ChromeViews::View,
     NORMAL = 0,
     HOT,
     PUSHED,
+    DANGEROUS
   };
 
   // The image set associated with the part containing the icon and text.
@@ -121,13 +131,32 @@ class DownloadItemView : public ChromeViews::View,
   // Sets the state and triggers a repaint.
   void SetState(State body_state, State drop_down_state);
 
+  // Whether we are in the dangerous mode.
+  bool IsDangerousMode() { return body_state_ == DANGEROUS; }
+
+  // Reverts from dangerous mode to normal download mode.
+  void ClearDangerousMode();
+
+  // Sets |size| with the size of the Save and Discard buttons (they have the
+  // same size).
+  void GetButtonSize(CSize* size);
+
+  // Sizes the dangerous download label to a minimum width available using 2
+  // lines.  The size is computed only the first time this method is invoked
+  // and simply returned on subsequent calls.
+  void SizeLabelToMinWidth();
+
   // The different images used for the background.
   BodyImageSet normal_body_image_set_;
   BodyImageSet hot_body_image_set_;
   BodyImageSet pushed_body_image_set_;
+  BodyImageSet dangerous_mode_body_image_set_;
   DropDownImageSet normal_drop_down_image_set_;
   DropDownImageSet hot_drop_down_image_set_;
   DropDownImageSet pushed_drop_down_image_set_;
+
+  // The warning icon showns for dangerous downloads.
+  SkBitmap* warning_icon_;
 
   // The model we query for display information
   DownloadItem* download_;
@@ -136,7 +165,6 @@ class DownloadItemView : public ChromeViews::View,
   DownloadShelfView* parent_;
 
   // Elements of our particular download
-  std::wstring file_name_;
   std::wstring status_text_;
   bool show_status_text_;
 
@@ -188,6 +216,19 @@ class DownloadItemView : public ChromeViews::View,
 
   // Progress animation
   base::RepeatingTimer<DownloadItemView> progress_timer_;
+
+  // Dangerous mode buttons.
+  ChromeViews::NativeButton* save_button_;
+  ChromeViews::NativeButton* discard_button_;
+
+  // Dangerous mode label.
+  ChromeViews::Label* dangerous_download_label_;
+
+  // Whether the dangerous mode label has been sized yet.
+  bool dangerous_download_label_sized_;
+
+  // The size of the buttons.  Cached so animation works when hidden.
+  CSize cached_button_size_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DownloadItemView);
 };

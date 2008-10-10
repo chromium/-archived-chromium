@@ -5,17 +5,20 @@
 #include "chrome/views/native_button.h"
 
 #include "base/logging.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 
 namespace ChromeViews {
 
-NativeButton::NativeButton(const std::wstring& label) {
+NativeButton::NativeButton(const std::wstring& label) 
+    : enforce_dlu_min_size_(true) {
   Init(label, false);
 }
 
-NativeButton::NativeButton(const std::wstring& label, bool is_default) {
+NativeButton::NativeButton(const std::wstring& label, bool is_default)
+    : enforce_dlu_min_size_(true) {
   Init(label, is_default);
 }
 
@@ -41,13 +44,16 @@ void NativeButton::GetPreferredSize(CSize *out) {
     sz.cx += 2 * padding_.cx;
     sz.cy += 2 * padding_.cy;
 
-    if (min_dlu_size_.width())
-      sz.cx = std::max(static_cast<int>(sz.cx),
-                       font_.horizontal_dlus_to_pixels(min_dlu_size_.width()));
-    if (min_dlu_size_.height())
-      sz.cy = std::max(static_cast<int>(sz.cy),
-                       font_.vertical_dlus_to_pixels(min_dlu_size_.height()));
-
+    if (enforce_dlu_min_size_) {
+      if (min_dlu_size_.width()) {
+        sz.cx =
+            std::max(static_cast<int>(sz.cx),
+                     font_.horizontal_dlus_to_pixels(min_dlu_size_.width()));
+      }
+      if (min_dlu_size_.height())
+        sz.cy = std::max(static_cast<int>(sz.cy),
+                         font_.vertical_dlus_to_pixels(min_dlu_size_.height()));
+    }
     *out = sz;
   }
 }
@@ -186,4 +192,3 @@ bool NativeButton::OnKeyDown(int virtual_key_code) {
 }
 
 }
-

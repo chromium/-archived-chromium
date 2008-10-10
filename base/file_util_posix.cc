@@ -267,6 +267,13 @@ bool CreateTemporaryFileName(std::wstring* temp_file) {
   return true;
 }
 
+bool CreateTemporaryFileNameInDir(const std::wstring& dir,
+                                  std::wstring* temp_file) {
+  // Not implemented yet.
+  NOTREACHED();
+  return false;
+}
+
 bool CreateNewTempDirectory(const std::wstring& prefix,
                             std::wstring* new_temp_path) {
   std::wstring tmpdir;

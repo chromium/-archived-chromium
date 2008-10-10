@@ -934,6 +934,13 @@ void HistoryBackend::UpdateDownload(int64 received_bytes,
     db_->UpdateDownload(received_bytes, state, db_handle);
 }
 
+// Update the path of a particular download entry.
+void HistoryBackend::UpdateDownloadPath(const std::wstring& path,
+                                        int64 db_handle) {
+  if (db_.get())
+    db_->UpdateDownloadPath(path, db_handle);
+}
+
 // Create a new download entry and pass back the db_handle to it.
 void HistoryBackend::CreateDownload(
     scoped_refptr<DownloadCreateRequest> request,

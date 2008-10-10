@@ -37,7 +37,8 @@ struct DownloadCreateInfo {
         render_view_id(-1),
         request_id(-1),
         db_handle(0),
-        save_as(false) {
+        save_as(false),
+        is_dangerous(false) {
   }
 
   DownloadCreateInfo() : download_id(-1) {}
@@ -59,6 +60,10 @@ struct DownloadCreateInfo {
   std::string content_disposition;
   std::string mime_type;
   bool save_as;
+  // Whether this download is potentially dangerous (ex: exe, dll, ...).
+  bool is_dangerous;
+  // The original name for a dangerous download.
+  std::wstring original_name;
 };
 
 #endif  // CHROME_BROWSER_DOWNLOAD_TYPES_H__

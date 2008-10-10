@@ -1380,3 +1380,29 @@ TEST(StringUtilTest, WprintfFormatPortabilityTest) {
   }
 }
 
+TEST(StringUtilTest, ElideString) {
+  struct TestData {
+    const wchar_t* input;
+    int max_len;
+    bool result;
+    const wchar_t* output;
+  } cases[] = {
+    { L"Hello", 0, true, L"" },
+    { L"", 0, false, L"" },
+    { L"Hello, my name is Tom", 1, true, L"H" },
+    { L"Hello, my name is Tom", 2, true, L"He" },
+    { L"Hello, my name is Tom", 3, true, L"H.m" },
+    { L"Hello, my name is Tom", 4, true, L"H..m" },
+    { L"Hello, my name is Tom", 5, true, L"H...m" },
+    { L"Hello, my name is Tom", 6, true, L"He...m" },
+    { L"Hello, my name is Tom", 7, true, L"He...om" },
+    { L"Hello, my name is Tom", 10, true, L"Hell...Tom" },
+    { L"Hello, my name is Tom", 100, false, L"Hello, my name is Tom" }
+  };
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
+    std::wstring output;
+    EXPECT_EQ(cases[i].result,
+              ElideString(cases[i].input, cases[i].max_len, &output));
+    EXPECT_TRUE(output == cases[i].output);
+  }
+}

@@ -224,6 +224,10 @@ bool GetTempDir(std::wstring* path);
 // TODO(erikkay): rename this function and track down all of the callers.
 bool CreateTemporaryFileName(std::wstring* temp_file);
 
+// Same as CreateTemporaryFileName but the file is created in |dir|.
+bool CreateTemporaryFileNameInDir(const std::wstring& dir,
+                                  std::wstring* temp_file);
+
 // Create a new directory under TempPath. If prefix is provided, the new
 // directory name is in the format of prefixyyyy.
 // If success, return true and output the full path of the directory created.

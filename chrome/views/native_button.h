@@ -80,6 +80,10 @@ class NativeButton : public NativeControl {
   // Assigns an accessible string name.
   void SetAccessibleName(const std::wstring& name);
 
+  // Sets whether the min size of this button should follow the Windows
+  // guidelines.  Default is true.  Set this to false if you want slim buttons.
+  void set_enforce_dlu_min_size(bool value) { enforce_dlu_min_size_ = value; }
+
  protected:
 
   virtual HWND CreateNativeControl(HWND parent_container);
@@ -105,6 +109,10 @@ class NativeButton : public NativeControl {
   void Init(const std::wstring& label, bool is_default);
 
   void Clicked();
+
+  // Whether the button preferred size should follow the Microsoft layout
+  // guidelines.  Default is true.  
+  bool enforce_dlu_min_size_;
 
   std::wstring label_;
   ChromeFont font_;

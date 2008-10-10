@@ -1145,6 +1145,19 @@ each locale. -->
         Cancel
       </message>
 
+      <message name="IDS_PROMPT_DANGEROUS_DOWNLOAD"
+               desc="Message shown to the user to validate the download of a dangerous file.">
+        This type of file can harm your computer. Are you sure you want to download <ph name="FILE_NAME">$1<ex>malware.exe</ex></ph>?
+      </message>
+      <message name="IDS_SAVE_DOWNLOAD"
+               desc="Text for the button used to validate the downloading of a dangerous download.">
+        Save
+      </message>
+      <message name="IDS_DISCARD_DOWNLOAD"
+               desc="Text for the button used to stop a dangerous download.">
+        Discard
+      </message>      
+
       <!-- Download Tab Items -->
       <message name="IDS_DOWNLOAD_LINK_PAUSE"
                desc="In the download view, 'Pause' link text">

@@ -383,13 +383,19 @@ bool GetTempDir(std::wstring* path) {
 }
 
 bool CreateTemporaryFileName(std::wstring* temp_file) {
-  wchar_t temp_name[MAX_PATH + 1];
   std::wstring temp_path;
 
   if (!GetTempDir(&temp_path))
     return false;
 
-  if (!GetTempFileName(temp_path.c_str(), L"", 0, temp_name))
+  return CreateTemporaryFileNameInDir(temp_path, temp_file);
+}
+
+bool CreateTemporaryFileNameInDir(const std::wstring& dir,
+                                  std::wstring* temp_file) {
+  wchar_t temp_name[MAX_PATH + 1];
+
+  if (!GetTempFileName(dir.c_str(), L"", 0, temp_name))
     return false;  // fail!
 
   DWORD path_len = GetLongPathName(temp_name, temp_name, MAX_PATH);

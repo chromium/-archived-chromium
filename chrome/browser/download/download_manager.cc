@@ -15,6 +15,7 @@
 #include "base/task.h"
 #include "base/thread.h"
 #include "base/timer.h"
+#include "base/rand_util.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -97,6 +98,7 @@ static bool DownloadPathIsDangerous(const std::wstring& download_path) {
 DownloadItem::DownloadItem(const DownloadCreateInfo& info)
     : id_(-1),
       full_path_(info.path),
+      original_name_(info.original_name),
       url_(info.url),
       total_bytes_(info.total_bytes),
       received_bytes_(info.received_bytes),
@@ -105,6 +107,7 @@ DownloadItem::DownloadItem(const DownloadCreateInfo& info)
       start_time_(info.start_time),
       db_handle_(info.db_handle),
       manager_(NULL),
+      safety_state_(SAFE),
       is_paused_(false),
       open_when_complete_(false),
       render_process_id_(-1),
@@ -118,13 +121,16 @@ DownloadItem::DownloadItem(const DownloadCreateInfo& info)
 DownloadItem::DownloadItem(int32 download_id,
                            const std::wstring& path,
                            const std::wstring& url,
+                           const std::wstring& original_name,
                            const Time start_time,
                            int64 download_size,
                            int render_process_id,
-                           int request_id)
+                           int request_id,
+                           bool is_dangerous)
     : id_(download_id),
       full_path_(path),
       url_(url),
+      original_name_(original_name),
       total_bytes_(download_size),
       received_bytes_(0),
       start_tick_(GetTickCount()),
@@ -132,6 +138,7 @@ DownloadItem::DownloadItem(int32 download_id,
       start_time_(start_time),
       db_handle_(kUninitializedHandle),
       manager_(NULL),
+      safety_state_(is_dangerous ? DANGEROUS : SAFE),
       is_paused_(false),
       open_when_complete_(false),
       render_process_id_(render_process_id),
@@ -198,14 +205,16 @@ void DownloadItem::Cancel(bool update_history) {
 void DownloadItem::Finished(int64 size) {
   state_ = COMPLETE;
   UpdateSize(size);
-  UpdateObservers();
   StopProgressTimer();
 }
 
-void DownloadItem::Remove() {
+void DownloadItem::Remove(bool delete_on_disk) {
   Cancel(true);
   state_ = REMOVING;
+  if (delete_on_disk)
+    manager_->DeleteDownload(full_path_);
   manager_->RemoveDownload(db_handle_);
+  // We are now deleted.
 }
 
 void DownloadItem::StartProgressTimer() {
@@ -253,6 +262,12 @@ void DownloadItem::TogglePause() {
   manager_->PauseDownload(id_, !is_paused_);
   is_paused_ = !is_paused_;
   UpdateObservers();
+}
+
+std::wstring DownloadItem::GetFileName() const {
+  if (safety_state_ == DownloadItem::SAFE)
+    return file_name_;
+  return original_name_;
 }
 
 // DownloadManager implementation ----------------------------------------------
@@ -313,12 +328,19 @@ void DownloadManager::Shutdown() {
   // 'in_progress_' may contain DownloadItems that have not finished the start
   // complete (from the history service) and thus aren't in downloads_.
   DownloadMap::iterator it = in_progress_.begin();
+  std::set<DownloadItem*> to_remove;
   for (; it != in_progress_.end(); ++it) {
     DownloadItem* download = it->second;
-    if (download->state() == DownloadItem::IN_PROGRESS) {
-      download->Cancel(false);
-      UpdateHistoryForDownload(download);
+    if (download->safety_state() == DownloadItem::DANGEROUS) {
+      // Forget about any download that the user did not approve.
+      // Note that we cannot call download->Remove() this would invalidate our
+      // iterator.
+      to_remove.insert(download);
+      continue;
     }
+    DCHECK_EQ(DownloadItem::IN_PROGRESS, download->state());
+    download->Cancel(false);
+    UpdateHistoryForDownload(download);
     if (download->db_handle() == kUninitializedHandle) {
       // An invalid handle means that 'download' does not yet exist in
       // 'downloads_', so we have to delete it here.
@@ -326,7 +348,25 @@ void DownloadManager::Shutdown() {
     }
   }
 
+  // 'dangerous_finished_' contains all complete downloads that have not been
+  // approved.  They should be removed.
+  it = dangerous_finished_.begin();
+  for (; it != dangerous_finished_.end(); ++it)
+    to_remove.insert(it->second);
+
+  // Remove the dangerous download that are not approved.
+  for (std::set<DownloadItem*>::const_iterator rm_it = to_remove.begin();
+       rm_it != to_remove.end(); ++rm_it) {
+    DownloadItem* download = *rm_it;
+    download->Remove(true);
+    // Same as above, delete the download if it is not in 'downloads_'.
+    if (download->db_handle() == kUninitializedHandle)
+      delete download;
+  }
+  to_remove.clear();
+
   in_progress_.clear();
+  dangerous_finished_.clear();
   STLDeleteValues(&downloads_);
 
   file_manager_ = NULL;
@@ -486,16 +526,35 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
 
   // Check writability of the suggested path. If we can't write to it, default
   // to the user's "My Documents" directory. We'll prompt them in this case.
-  std::wstring path = file_util::GetDirectoryFromPath(info->suggested_path);
-  if (!file_util::PathIsWritable(path)) {
+  std::wstring dir = file_util::GetDirectoryFromPath(info->suggested_path);
+  const std::wstring filename =
+      file_util::GetFilenameFromPath(info->suggested_path);
+  if (!file_util::PathIsWritable(dir)) {
     info->save_as = true;
-    const std::wstring filename =
-        file_util::GetFilenameFromPath(info->suggested_path);
     PathService::Get(chrome::DIR_USER_DOCUMENTS, &info->suggested_path);
     file_util::AppendToPath(&info->suggested_path, filename);
   }
 
   info->suggested_path_exists = !UniquifyPath(&info->suggested_path);
+
+  // If the download is deemmed dangerous, we'll use a temporary name for it.
+  if (!info->save_as && IsDangerous(filename)) {
+    info->original_name = file_util::GetFilenameFromPath(info->suggested_path);
+    // Create a temporary file to hold the file until the user approves its
+    // download.
+    std::wstring file_name;
+    std::wstring path;
+    while (path.empty()) {
+      SStringPrintf(&file_name, L"dangerous_download_%d.download",
+                    base::RandInt(0, 100000));
+       path = dir;
+       file_util::AppendToPath(&path, file_name);
+       if (file_util::PathExists(path))
+         path.clear();
+    }
+    info->suggested_path = path;
+    info->is_dangerous = true;
+  }
 
   // Now we return to the UI thread.
   ui_loop_->PostTask(FROM_HERE,
@@ -537,10 +596,12 @@ void DownloadManager::ContinueStartDownload(DownloadCreateInfo* info,
     download = new DownloadItem(info->download_id,
                                 info->path,
                                 info->url,
+                                info->original_name,
                                 info->start_time,
                                 info->total_bytes,
                                 info->render_process_id,
-                                info->request_id);
+                                info->request_id,
+                                info->is_dangerous);
     download->set_manager(this);
     in_progress_[info->download_id] = download;
   } else {
@@ -628,30 +689,7 @@ void DownloadManager::UpdateDownload(int32 download_id, int64 size) {
 
 void DownloadManager::DownloadFinished(int32 download_id, int64 size) {
   DownloadMap::iterator it = in_progress_.find(download_id);
-  if (it != in_progress_.end()) {
-    // Remove the id from the list of pending ids.
-    PendingFinishedMap::iterator erase_it =
-        pending_finished_downloads_.find(download_id);
-    if (erase_it != pending_finished_downloads_.end())
-      pending_finished_downloads_.erase(erase_it);
-
-    DownloadItem* download = it->second;
-    download->Finished(size);
-
-    // Open the download if the user or user prefs indicate it should be.
-    const std::wstring extension =
-        file_util::GetFileExtensionFromPath(download->full_path());
-    if (download->open_when_complete() || ShouldOpenFileExtension(extension))
-      OpenDownloadInShell(download, NULL);
-
-    // Clean up will happen when the history system create callback runs if we
-    // don't have a valid db_handle yet.
-    if (download->db_handle() != kUninitializedHandle) {
-      in_progress_.erase(it);
-      NotifyAboutDownloadStop();
-      UpdateHistoryForDownload(download);
-    }
-  } else {
+  if (it == in_progress_.end()) {
     // The download is done, but the user hasn't selected a final location for
     // it yet (the Save As dialog box is probably still showing), so just keep
     // track of the fact that this download id is complete, when the
@@ -660,7 +698,102 @@ void DownloadManager::DownloadFinished(int32 download_id, int64 size) {
         pending_finished_downloads_.find(download_id);
     DCHECK(erase_it == pending_finished_downloads_.end());
     pending_finished_downloads_[download_id] = size;
+    return;
   }
+
+  // Remove the id from the list of pending ids.
+  PendingFinishedMap::iterator erase_it =
+      pending_finished_downloads_.find(download_id);
+  if (erase_it != pending_finished_downloads_.end())
+    pending_finished_downloads_.erase(erase_it);
+
+  DownloadItem* download = it->second;
+  download->Finished(size);
+
+  // Clean up will happen when the history system create callback runs if we
+  // don't have a valid db_handle yet.
+  if (download->db_handle() != kUninitializedHandle) {
+    in_progress_.erase(it);
+    NotifyAboutDownloadStop();
+    UpdateHistoryForDownload(download);
+  }
+
+  // If this a dangerous download not yet validated by the user, don't do
+  // anything. When the user notifies us, it will trigger a call to
+  // ProceedWithFinishedDangerousDownload.
+  if (download->safety_state() == DownloadItem::DANGEROUS) {
+    dangerous_finished_[download_id] = download;
+    return;
+  }
+
+  if (download->safety_state() == DownloadItem::DANGEROUS_BUT_VALIDATED) {
+    // We first need to rename the donwloaded file from its temporary name to
+    // its final name before we can continue.
+    file_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(
+            this, &DownloadManager::ProceedWithFinishedDangerousDownload,
+            download->db_handle(),
+            download->full_path(), download->original_name()));
+    return;
+  }
+  ContinueDownloadFinished(download);
+}
+
+void DownloadManager::ContinueDownloadFinished(DownloadItem* download) {
+  // If this was a dangerous download, it has now been approved and must be
+  // removed from dangerous_finished_ so it does not get deleted on shutdown.
+  DownloadMap::iterator it = dangerous_finished_.find(download->id());
+  if (it != dangerous_finished_.end())
+    dangerous_finished_.erase(it);
+
+  // Notify our observers that we are complete (the call to Finished() set the
+  // state to complete but did not notify).
+  download->UpdateObservers();
+
+  // Open the download if the user or user prefs indicate it should be.
+  const std::wstring extension =
+      file_util::GetFileExtensionFromPath(download->full_path());
+  if (download->open_when_complete() || ShouldOpenFileExtension(extension))
+    OpenDownloadInShell(download, NULL);
+}
+
+// Called on the file thread.  Renames the downloaded file to its original name.
+void DownloadManager::ProceedWithFinishedDangerousDownload(
+    int64 download_handle,
+    const std::wstring& path,
+    const std::wstring& original_name) {
+  bool success = false;
+  std::wstring new_path = path;
+  if (file_util::PathExists(path)) {
+    new_path = file_util::GetDirectoryFromPath(new_path);
+    file_util::AppendToPath(&new_path, original_name);
+    success = file_util::Move(path, new_path);
+  } else {
+    NOTREACHED();
+  }
+  
+  ui_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &DownloadManager::DangerousDownloadRenamed,
+                        download_handle, success, new_path));
+}
+
+// Call from the file thread when the finished dangerous download was renamed.
+void DownloadManager::DangerousDownloadRenamed(int64 download_handle,
+                                               bool success,
+                                               const std::wstring& new_path) {
+  DownloadMap::iterator it = downloads_.find(download_handle);
+  if (it == downloads_.end()) {
+    NOTREACHED();
+    return;
+  }
+
+  DownloadItem* download = it->second;
+  // If we failed to rename the file, we'll just keep the name as is.
+  if (success)
+    RenameDownload(download, new_path);
+
+  // Continue the download finished sequence.
+  ContinueDownloadFinished(download);
 }
 
 // static
@@ -741,6 +874,27 @@ void DownloadManager::OnPauseDownloadRequest(ResourceDispatcherHost* rdh,
   rdh->PauseRequest(render_process_id, request_id, pause);
 }
 
+bool DownloadManager::IsDangerous(const std::wstring& file_name) {
+  // TODO(jcampan): Improve me.
+  return IsExecutable(file_util::GetFileExtensionFromPath(file_name));
+}
+
+void DownloadManager::RenameDownload(DownloadItem* download,
+                                     const std::wstring& new_path) {
+  download->Rename(new_path);
+
+  // Update the history.
+
+  // No update necessary if the download was initiated while in incognito mode.
+  if (download->db_handle() <= kUninitializedHandle)
+    return;
+
+  // FIXME(acw|paulg) see bug 958058. EXPLICIT_ACCESS below is wrong.
+  HistoryService* hs = profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
+  if (hs)
+    hs->UpdateDownloadPath(new_path, download->db_handle());
+}
+
 void DownloadManager::RemoveDownload(int64 download_handle) {
   DownloadMap::iterator it = downloads_.find(download_handle);
   if (it == downloads_.end())
@@ -752,6 +906,9 @@ void DownloadManager::RemoveDownload(int64 download_handle) {
 
   // Remove from our tables and delete.
   downloads_.erase(it);
+  it = dangerous_finished_.find(download->id());
+  if (it != dangerous_finished_.end())
+    dangerous_finished_.erase(it);
   delete download;
 
   // Tell observers to refresh their views.
@@ -1012,6 +1169,29 @@ void DownloadManager::FileSelectionCanceled(void* params) {
   file_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(file_manager_, &DownloadFileManager::CancelDownload,
                         info->download_id));
+}
+
+void DownloadManager::DeleteDownload(const std::wstring& path) {
+  file_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      file_manager_, &DownloadFileManager::DeleteFile, path));
+}
+
+
+void DownloadManager::DangerousDownloadValidated(DownloadItem* download) {
+  DCHECK_EQ(DownloadItem::DANGEROUS, download->safety_state());
+  download->set_safety_state(DownloadItem::DANGEROUS_BUT_VALIDATED);
+  download->UpdateObservers();
+
+  // If the download is not complete, nothing to do.  The required
+  // post-processing will be performed when it does complete.
+  if (download->state() != DownloadItem::COMPLETE)
+    return;
+
+  file_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this,
+                        &DownloadManager::ProceedWithFinishedDangerousDownload,
+                        download->db_handle(), download->full_path(),
+                        download->original_name()));
 }
 
 // Operations posted to us from the history service ----------------------------

@@ -25,7 +25,8 @@ class Timer;
 }
 
 class DownloadItemTabView : public ChromeViews::View,
-                            public ChromeViews::LinkController {
+                            public ChromeViews::LinkController,
+                            public ChromeViews::NativeButton::Listener {
  public:
   DownloadItemTabView();
   virtual ~DownloadItemTabView();
@@ -44,9 +45,13 @@ class DownloadItemTabView : public ChromeViews::View,
   void LayoutComplete();
   void LayoutCancelled();
   void LayoutInProgress();
+  void LayoutPromptDangerousDownload();
 
   // LinkController overrides
   virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+
+  // NativeButton Listener overrides.
+  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
 
   // Used to set our model temporarily during layout and paint operations
   void SetModel(DownloadItem* model, DownloadTabView* parent);
@@ -57,6 +62,9 @@ private:
 
   // Containing view.
   DownloadTabView* parent_;
+
+  // Whether we are the renderer for floating views.
+  bool is_floating_view_renderer_;
 
   // Time display.
   ChromeViews::Label* since_;
@@ -72,10 +80,18 @@ private:
   ChromeViews::Label* time_remaining_;
   ChromeViews::Label* download_progress_;
 
+  // The message warning of a dangerous download.
+  ChromeViews::Label* dangerous_download_warning_;
+
   // Actions that can be initiated.
   ChromeViews::Link* pause_;
   ChromeViews::Link* cancel_;
   ChromeViews::Link* show_;
+
+  // The buttons used to prompt the user when a dangerous download has been
+  // initiated.
+  ChromeViews::NativeButton* save_button_;
+  ChromeViews::NativeButton* discard_button_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DownloadItemTabView);
 };
@@ -154,9 +170,13 @@ class DownloadTabView : public ChromeViews::View,
   // Initiates an asynchronous icon extraction.
   void LoadIcon(DownloadItem* download);
 
-  // Clears the list of "in progress" downloads and removes the this
-  // DownloadTabView from their observer list.
+  // Clears the list of "in progress" downloads and removes this DownloadTabView
+  // from their observer list.
   void ClearDownloadInProgress();
+
+  // Clears the list of dangerous downloads and removes this DownloadTabView
+  // from their observer list.
+  void ClearDangerousDownloads();
 
   // Our model
   DownloadManager* model_;
@@ -177,6 +197,10 @@ class DownloadTabView : public ChromeViews::View,
   // views, we need to track the current in progress downloads. This container
   // does not own the DownloadItems.
   base::hash_set<DownloadItem*> in_progress_;
+
+  // Keeps track of the downloads we are an observer for as a consequence of
+  // being a dangerous download.
+  base::hash_set<DownloadItem*> dangerous_downloads_;
 
   // Provide a start position for downloads with no known size.
   int start_angle_;
