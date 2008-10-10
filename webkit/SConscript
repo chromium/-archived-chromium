@@ -81,7 +81,7 @@ env.Prepend(
         '$LIBJPEG_DIR',
         '$LIBXSLT_DIR',
         '$LIBXML_DIR/include',
-        '$LIBXML_DIR/scons/include',
+        '$LIBXML_DIR/DerivedSources/include',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
         '$SKIA_DIR/include',

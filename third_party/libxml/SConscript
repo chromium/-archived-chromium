@@ -36,8 +36,8 @@ env.Prepend(
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/18n',
         '$ZLIB_DIR',
-        'scons',
-        'scons/include',
+        'DerivedSources',
+        'DerivedSources/include',
         'include',
     ],
 )
@@ -138,10 +138,11 @@ if env['PLATFORM'] == 'win32':
 
   copied_files = []
   for cf in config_files:
-    result = env.Command('scons/' + cf, cf, Copy('$TARGET', '$SOURCE'))
+    result = env.Command('DerivedSources/' + cf, cf, Copy('$TARGET', '$SOURCE'))
     copied_files.extend(result)
 
-  env.Command(['scons/config.h', 'scons/include/libxml/xmlversion.h'],
+  env.Command(['DerivedSources/config.h',
+               'DerivedSources/include/libxml/xmlversion.h'],
               copied_files,
               'cd ${SOURCE.dir} && $CSCRIPT ${SOURCE.file} $CONFIG_OPTIONS',
               CONFIG_OPTIONS='compiler=msvc iconv=no icu=yes')
@@ -152,5 +153,5 @@ elif env['PLATFORM'] == 'posix':
       'xml2-config',
   ]
   for cf in config_files:
-    result = env.Command('scons/' + cf, 'linux/' + cf,
+    result = env.Command('DerivedSources/' + cf, 'linux/' + cf,
                          Copy('$TARGET', '$SOURCE'))
