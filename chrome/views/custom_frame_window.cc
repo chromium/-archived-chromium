@@ -912,9 +912,9 @@ void CustomFrameWindow::SizeWindowToDefault() {
 // CustomFrameWindow, HWNDViewContainer overrides:
 
 void CustomFrameWindow::OnEnterIdle(UINT reason, HWND window) {
-  ScopedVisibilityRemover remover(GetHWND());
-  DefWindowProc(GetHWND(), WM_ENTERIDLE, reason,
-                reinterpret_cast<LPARAM>(window));
+  CRect wr;
+  ::GetWindowRect(GetHWND(), &wr);
+  PaintNow(wr);
 }
 
 static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
@@ -936,16 +936,16 @@ void CustomFrameWindow::OnInitMenu(HMENU menu) {
                  window_delegate()->CanMaximize() && !maximized);
   EnableMenuItem(menu, SC_MINIMIZE,
                  window_delegate()->CanMaximize() && !minimized);
-
-  ScopedVisibilityRemover remover(GetHWND());
-  DefWindowProc(GetHWND(), WM_INITMENU, reinterpret_cast<WPARAM>(menu), NULL);
+  CRect wr;
+  ::GetWindowRect(GetHWND(), &wr);
+  PaintNow(wr);
 }
 
 void CustomFrameWindow::OnInitMenuPopup(HMENU menu, UINT position,
                                         BOOL is_system_menu) {
-  ScopedVisibilityRemover remover(GetHWND());
-  DefWindowProc(GetHWND(), WM_INITMENUPOPUP, reinterpret_cast<WPARAM>(menu),
-                MAKELPARAM(is_system_menu, position));
+  CRect wr;
+  ::GetWindowRect(GetHWND(), &wr);
+  PaintNow(wr);
 }
 
 void CustomFrameWindow::OnMouseLeave() {
