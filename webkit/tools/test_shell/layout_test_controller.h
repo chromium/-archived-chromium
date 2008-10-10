@@ -111,7 +111,10 @@ class LayoutTestController : public CppBoundClass {
   void addFileToPasteboardOnDrag(const CppArgumentList& args, CppVariant* result);
 
   // Executes an internal command (superset of document.execCommand() commands)
-  void execCommand(const CppArgumentList& args, CppVariant* result);;
+  void execCommand(const CppArgumentList& args, CppVariant* result);
+
+  // Set the WebPreference that controls webkit's popup blocking.
+  void setPopupBlockingEnabled(const CppArgumentList& args, CppVariant* result);
 
   // The following are only stubs.  TODO(pamg): Implement any of these that
   // are needed to pass the layout tests.

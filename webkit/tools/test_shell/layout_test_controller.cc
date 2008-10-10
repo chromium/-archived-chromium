@@ -91,6 +91,7 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("pathToLocalResource", &LayoutTestController::pathToLocalResource);
   BindMethod("addFileToPasteboardOnDrag", &LayoutTestController::addFileToPasteboardOnDrag);
   BindMethod("execCommand", &LayoutTestController::execCommand);
+  BindMethod("setPopupBlockingEnabled", &LayoutTestController::setPopupBlockingEnabled);
 
   // The following are stubs.
   BindMethod("dumpAsWebArchive", &LayoutTestController::dumpAsWebArchive);
@@ -450,6 +451,18 @@ void LayoutTestController::execCommand(
     // Note: webkit's version does not return the boolean, so neither do we.
     shell_->webView()->GetFocusedFrame()->ExecuteCoreCommandByName(command,
                                                                    value);
+  }
+  result->SetNull();
+}
+
+void LayoutTestController::setPopupBlockingEnabled(
+    const CppArgumentList& args, CppVariant* result) {
+  if (args.size() > 0 && args[0].isBool()) {
+    bool block_popups = args[0].ToBoolean();
+    WebPreferences* prefs = shell_->GetWebPreferences();
+    prefs->javascript_can_open_windows_automatically = !block_popups;
+
+    shell_->webView()->SetPreferences(*prefs);
   }
   result->SetNull();
 }

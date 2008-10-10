@@ -319,10 +319,6 @@ KJS # LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
 // We don't support support window.resizeTo (nor is it planned for Beta)
 V8 | KJS # LayoutTests/fast/dom/Window/window-resize-and-move-arguments.html = FAIL
 
-// layoutTestController.setPopupBlockingEnabled() does not exist.
-// Not critical for Beta.
-V8 | KJS # LayoutTests/fast/events/open-window-from-another-frame.html = FAIL
-
 // Test expects that when focus is in an iframe and page-up is hit, the parent
 // document is also scrolled
 // IE and FF also "fail" this test.
