@@ -38,7 +38,7 @@ const int kVersionFieldWidth = 195;
 
 // The URLs that you navigate to when clicking the links in the About dialog.
 const wchar_t* const kChromiumUrl = L"http://www.chromium.org";
-const wchar_t* const kAcknowledgements = L"about:licenses";
+const wchar_t* const kAcknowledgements = L"about:credits";
 const wchar_t* const kTOS = L"about:terms";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,6 +156,18 @@ void AboutChromeView::Init() {
   main_label_chunk2_ = text.substr(link1, link2 - link1);
   main_label_chunk3_ = text.substr(link2);
 
+  // The Chromium link within the main text of the dialog.
+  chromium_url_ = new ChromeViews::Link(l10n_util::GetString(IDS_PRODUCT_NAME));
+  AddChildView(chromium_url_);
+  chromium_url_->SetController(this);
+
+  // The Open Source link within the main text of the dialog.
+  open_source_url_ = new ChromeViews::Link(
+      l10n_util::GetString(IDS_ABOUT_OPEN_SOURCE_SOFTWARE));
+  AddChildView(open_source_url_);
+  open_source_url_->SetController(this);
+
+#if defined(GOOGLE_CHROME_BUILD)
   url_offsets.clear();
   text = l10n_util::GetStringF(IDS_ABOUT_TERMS_OF_SERVICE,
                                std::wstring(),
@@ -165,22 +177,12 @@ void AboutChromeView::Init() {
   main_label_chunk4_ = text.substr(0, url_offsets[0]);
   main_label_chunk5_ = text.substr(url_offsets[0]);
 
-  // The Chromium link within the main text of the dialog.
-  chromium_url_ = new ChromeViews::Link(l10n_util::GetString(IDS_PRODUCT_NAME));
-  AddChildView(chromium_url_);
-  chromium_url_->SetController(this);
-
-  // The Open Source link within the main text of the dialog.
-  open_source_url_ = new ChromeViews::Link(
-     l10n_util::GetString(IDS_ABOUT_OPEN_SOURCE_SOFTWARE));
-  AddChildView(open_source_url_);
-  open_source_url_->SetController(this);
-
   // The Terms of Service URL at the bottom.
   terms_of_service_url_ =
       new ChromeViews::Link(l10n_util::GetString(IDS_TERMS_OF_SERVICE));
   AddChildView(terms_of_service_url_);
   terms_of_service_url_->SetController(this);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -255,11 +257,13 @@ void AboutChromeView::Layout() {
                               open_source_url_rect_.y(),
                               open_source_url_rect_.width(),
                               open_source_url_rect_.height());
+#if defined(GOOGLE_CHROME_BUILD)
   // Then position the TOS URL within the main label.
   terms_of_service_url_->SetBounds(terms_of_service_url_rect_.x(),
                                    terms_of_service_url_rect_.y(),
                                    terms_of_service_url_rect_.width(),
                                    terms_of_service_url_rect_.height());
+#endif
 
   // Get the y-coordinate of our parent so we can position the text left of the
   // buttons at the bottom.
@@ -312,7 +316,7 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
 
   ChromeViews::Link* link1 =
       chromium_url_appears_first_ ? chromium_url_ : open_source_url_;
-  ChromeViews::Link* link2 = 
+  ChromeViews::Link* link2 =
       chromium_url_appears_first_ ? open_source_url_ : chromium_url_;
   gfx::Rect* rect1 = chromium_url_appears_first_ ?
       &chromium_url_rect_ : &open_source_url_rect_;
@@ -332,6 +336,7 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
   // Draw the third text chunk.
   DrawTextStartingFrom(canvas, main_label_chunk3_, &position, bounds, font);
 
+#if defined(GOOGLE_CHROME_BUILD)
   // Insert a line break and some whitespace.
   position.cx = 0;
   position.cy += font.height() + kRelatedControlVerticalSpacing;
@@ -341,6 +346,7 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
                          &terms_of_service_url_rect_, &position, bounds, font);
   // The last text chunk doesn't have a URL associated with it.
   DrawTextStartingFrom(canvas, main_label_chunk5_, &position, bounds, font);
+#endif
 
   // Save the height so we can set the bounds correctly.
   main_text_label_height_ = position.cy + font.height();
@@ -680,4 +686,3 @@ void AboutChromeView::UpdateStatus(GoogleUpdateUpgradeResult result,
   if (window())
     GetDialogClientView()->UpdateDialogButtons();
 }
-

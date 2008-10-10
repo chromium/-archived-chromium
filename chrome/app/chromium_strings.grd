@@ -98,12 +98,6 @@ be available for now. -->
       <message name="IDS_ABOUT_OPEN_SOURCE_SOFTWARE" desc="The link text on the About box that links to open source software. Used in IDS_ABOUT_VERSION_LICENSE.">
         open source
       </message>
-      <message name="IDS_ABOUT_TERMS_OF_SERVICE" desc="The terms of service label in the About box.">
-        Chromium <ph name="TERMS_OF_SERVICE_LINK">$1<ex>Terms of Service</ex></ph>.
-      </message>
-      <message name="IDS_TERMS_OF_SERVICE" desc="The Terms of Service link text in the About box. Used in IDS_ABOUT_TERMS_OF_SERVICE.">
-        Terms of Service
-      </message>
       <message name="IDS_ACCNAME_APP" desc="The accessible name for the app menu.">
         Chromium
       </message>
