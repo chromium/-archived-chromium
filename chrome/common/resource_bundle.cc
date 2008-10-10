@@ -217,12 +217,20 @@ std::string ResourceBundle::GetDataResource(int resource_id) {
 StringPiece ResourceBundle::GetRawDataResource(int resource_id) {
   void* data_ptr;
   size_t data_size;
-  if (base::GetDataResourceFromModule(
-        _AtlBaseModule.GetModuleInstance(), resource_id, &data_ptr, &data_size))
+  if (base::GetDataResourceFromModule(_AtlBaseModule.GetModuleInstance(), 
+                                      resource_id, 
+                                      &data_ptr, 
+                                      &data_size)) {
     return StringPiece(static_cast<const char*>(data_ptr), data_size);
+  } else if (locale_resources_dll_ && 
+             base::GetDataResourceFromModule(locale_resources_dll_, 
+                                             resource_id, 
+                                             &data_ptr, 
+                                             &data_size)) {
+    return StringPiece(static_cast<const char*>(data_ptr), data_size);
+  }
   return StringPiece();
 }
-
 // Loads and returns the global accelerators from the current module.
 HACCEL ResourceBundle::GetGlobalAccelerators() {
   return ::LoadAccelerators(_AtlBaseModule.GetModuleInstance(),

@@ -1082,6 +1082,53 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "browser_views", "browser\vi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sdch", "..\sdch\sdch.vcproj", "{F54ABC59-5C00-414A-A9BA-BAF26D1699F0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "terms", "terms", "{B1531263-E9F9-4DFC-8149-E7E1AA03963E}"
+	ProjectSection(SolutionItems) = preProject
+		app\resources\terms\terms_ar.html = app\resources\terms\terms_ar.html
+		app\resources\terms\terms_bg.html = app\resources\terms\terms_bg.html
+		app\resources\terms\terms_ca.html = app\resources\terms\terms_ca.html
+		app\resources\terms\terms_chromium.html = app\resources\terms\terms_chromium.html
+		app\resources\terms\terms_cs.html = app\resources\terms\terms_cs.html
+		app\resources\terms\terms_da.html = app\resources\terms\terms_da.html
+		app\resources\terms\terms_de.html = app\resources\terms\terms_de.html
+		app\resources\terms\terms_el.html = app\resources\terms\terms_el.html
+		app\resources\terms\terms_en-GB.html = app\resources\terms\terms_en-GB.html
+		app\resources\terms\terms_en.html = app\resources\terms\terms_en.html
+		app\resources\terms\terms_es-419.html = app\resources\terms\terms_es-419.html
+		app\resources\terms\terms_es.html = app\resources\terms\terms_es.html
+		app\resources\terms\terms_et.html = app\resources\terms\terms_et.html
+		app\resources\terms\terms_fi.html = app\resources\terms\terms_fi.html
+		app\resources\terms\terms_fil.html = app\resources\terms\terms_fil.html
+		app\resources\terms\terms_fr.html = app\resources\terms\terms_fr.html
+		app\resources\terms\terms_he.html = app\resources\terms\terms_he.html
+		app\resources\terms\terms_hi.html = app\resources\terms\terms_hi.html
+		app\resources\terms\terms_hr.html = app\resources\terms\terms_hr.html
+		app\resources\terms\terms_hu.html = app\resources\terms\terms_hu.html
+		app\resources\terms\terms_id.html = app\resources\terms\terms_id.html
+		app\resources\terms\terms_it.html = app\resources\terms\terms_it.html
+		app\resources\terms\terms_ja.html = app\resources\terms\terms_ja.html
+		app\resources\terms\terms_ko.html = app\resources\terms\terms_ko.html
+		app\resources\terms\terms_lt.html = app\resources\terms\terms_lt.html
+		app\resources\terms\terms_lv.html = app\resources\terms\terms_lv.html
+		app\resources\terms\terms_nb.html = app\resources\terms\terms_nb.html
+		app\resources\terms\terms_nl.html = app\resources\terms\terms_nl.html
+		app\resources\terms\terms_pl.html = app\resources\terms\terms_pl.html
+		app\resources\terms\terms_pt-BR.html = app\resources\terms\terms_pt-BR.html
+		app\resources\terms\terms_pt-PT.html = app\resources\terms\terms_pt-PT.html
+		app\resources\terms\terms_ro.html = app\resources\terms\terms_ro.html
+		app\resources\terms\terms_ru.html = app\resources\terms\terms_ru.html
+		app\resources\terms\terms_sk.html = app\resources\terms\terms_sk.html
+		app\resources\terms\terms_sl.html = app\resources\terms\terms_sl.html
+		app\resources\terms\terms_sr.html = app\resources\terms\terms_sr.html
+		app\resources\terms\terms_sv.html = app\resources\terms\terms_sv.html
+		app\resources\terms\terms_th.html = app\resources\terms\terms_th.html
+		app\resources\terms\terms_tr.html = app\resources\terms\terms_tr.html
+		app\resources\terms\terms_uk.html = app\resources\terms\terms_uk.html
+		app\resources\terms\terms_vi.html = app\resources\terms\terms_vi.html
+		app\resources\terms\terms_zh-CN.html = app\resources\terms\terms_zh-CN.html
+		app\resources\terms\terms_zh-TW.html = app\resources\terms\terms_zh-TW.html
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -2504,6 +2551,7 @@ Global
 		{AAC78796-B9A2-4CD9-BF89-09B03E92BF73} = {1174D37F-6ABB-45DA-81B3-C631281273B7}
 		{AFF332BF-AF3D-4D35-86FC-42A727F01D36} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
 		{B0D5BD91-6153-4CA6-BC2F-4E3BD43E5DB7} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
+		{B1531263-E9F9-4DFC-8149-E7E1AA03963E} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
 		{B2D715CE-4CBB-415A-A032-E700C90ADF91} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
 		{B30B0E1F-1CE9-4DEF-A752-7498FD709C1F} = {2325D8C4-8EF5-42AC-8900-492225750DE4}
 		{B55CA863-B374-4BAF-95AC-539E4FA4C90C} = {873D095E-150E-4262-8C41-2D8ED02F0F57}

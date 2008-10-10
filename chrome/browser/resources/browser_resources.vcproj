@@ -64,6 +64,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\about_credits.html"
+			>
+		</File>
+		<File
 			RelativePath=".\about_memory.html"
 			>
 		</File>

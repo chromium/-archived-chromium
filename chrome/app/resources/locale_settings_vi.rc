@@ -64,6 +64,8 @@ END
 
 #if defined(GOOGLE_CHROME_BUILD)
 #include "google_chrome_strings_vi.rc"
+IDR_TERMS_HTML  BINDATA   "terms\\terms_vi.html"
 #else
 #include "chromium_strings_vi.rc"
+IDR_TERMS_HTML  BINDATA   "terms\\terms_chromium.html"
 #endif

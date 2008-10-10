@@ -15,6 +15,7 @@
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/tracked_objects.h"
+#include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -56,6 +57,8 @@ static const char kMemoryPath[] = "memory";
 static const char kPluginsPath[] = "plugins";
 static const char kStatsPath[] = "stats";
 static const char kVersionPath[] = "version";
+static const char kCreditsPath[] = "credits";
+static const char kTermsPath[] = "terms";
 
 class AboutSource : public ChromeURLDataManager::DataSource {
  public:
@@ -128,6 +131,10 @@ void AboutSource::StartDataRequest(const std::string& path_raw,
     response = BrowserAboutHandler::AboutStats();
   } else if (path == kVersionPath || path.empty()) {
     response = BrowserAboutHandler::AboutVersion();
+  } else if (path == kCreditsPath) {
+    response = BrowserAboutHandler::AboutCredits();
+  } else if (path == kTermsPath) {
+    response = BrowserAboutHandler::AboutTerms();
   }
   FinishDataRequest(response, request_id);
 }
@@ -271,6 +278,24 @@ std::string BrowserAboutHandler::AboutVersion() {
 
   return jstemplate_builder::GetTemplateHtml(
       version_html, &localized_strings, "t" /* template root node id */);
+}
+
+// static
+std::string BrowserAboutHandler::AboutCredits() {
+  static const std::string credits_html = 
+      ResourceBundle::GetSharedInstance().GetDataResource(
+          IDR_CREDITS_HTML);
+
+  return credits_html;
+}
+
+// static
+std::string BrowserAboutHandler::AboutTerms() {
+  static const std::string terms_html = 
+      ResourceBundle::GetSharedInstance().GetDataResource(
+          IDR_TERMS_HTML);
+
+  return terms_html;
 }
 
 // static

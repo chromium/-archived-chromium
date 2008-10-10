@@ -62,6 +62,14 @@ class BrowserAboutHandler : public WebContents {
   // Renders a special page for about:stats.
   static std::string AboutStats();
 
+  // Renders a special page for "about:credits" which displays our
+  // acknowledgements and legal information for code we depend on.
+  static std::string AboutCredits();
+
+  // Renders a special page for "about:terms" which displays our
+  // terms and conditions.
+  static std::string AboutTerms();
+
   // Renders a special page for about:memory which displays
   // information about current state.
   static void AboutMemory(AboutSource*, int request_id);

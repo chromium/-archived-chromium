@@ -163,3 +163,5 @@
 // The URL for more info on how we are affected by 3rd party licenses.
 #define IDS_ABOUT_VERSION_LICENSE_URL 1060
 
+// The HTML for the about:terms page
+#define IDR_TERMS_HTML 1061
