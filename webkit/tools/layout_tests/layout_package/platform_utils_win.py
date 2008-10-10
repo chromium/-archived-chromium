@@ -12,14 +12,13 @@ to fall back to the base functions.
 """
 
 import os
+import path_utils
 import re
 import subprocess
 
 import google.httpd_utils
 import google.path_utils
 import google.platform_utils_win
-
-import layout_package.path_utils
 
 # This will be a native path to the directory this file resides in.
 # It can either be relative or absolute depending how it's executed.
@@ -34,7 +33,7 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
   PENDING_HTTP_DIR    = "pending/http/tests/"
 
   def FilenameToUri(self, full_path):
-    relative_path = layout_package.path_utils.RelativeTestFilename(full_path)
+    relative_path = path_utils.RelativeTestFilename(full_path)
     port = None
     use_ssl = False
 
@@ -69,7 +68,7 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
   def KillAllTestShells(self):
     """Kills all instances of the test_shell binary currently running."""
     subprocess.Popen(('taskkill.exe', '/f', '/im',
-                      layout_package.path_utils.TestShellBinary()),
+                      path_utils.TestShellBinary()),
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE).wait()
 
@@ -107,7 +106,7 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
                command for Apache 2.x instead of Apache 1.3.x
     """
     layout_dir = google.platform_utils_win.GetCygwinPath(
-        layout_package.path_utils.LayoutDataDir())
+        path_utils.LayoutDataDir())
     main_document_root = os.path.join(layout_dir, "LayoutTests",
                                       "http", "tests")
     pending_document_root = os.path.join(layout_dir, "pending",
