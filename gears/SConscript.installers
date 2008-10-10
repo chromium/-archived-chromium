@@ -17,17 +17,16 @@ env = env.Clone(
     FF2_MODULE = '${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}',
     MODULE = '${SHLIBPREFIX}gears${SHLIBSUFFIX}',
 
-    # Qualify our OUTDIRs relative to the SConscript files.  This is for use
-    # with Copy(), which runs from that dir.
-    BASE_OUTDIR = env.Entry('$GEARS_DIR/$BASE_OUTDIR').path,
+    # Clean up the '#' in *_OUTDIR.
+    BASE_OUTDIR = env.Entry('$BASE_OUTDIR').path,
 )
 
 ff3_resources = [
-    '$FF3_OUTDIR/$GENFILES_DIR/browser-overlay.js',
-    '$FF3_OUTDIR/$GENFILES_DIR/browser-overlay.xul',
-    '$FF3_OUTDIR/$GENFILES_DIR/permissions_dialog.html',
-    '$FF3_OUTDIR/$GENFILES_DIR/settings_dialog.html',
-    '$FF3_OUTDIR/$GENFILES_DIR/shortcuts_dialog.html',
+    '$FF3_OUTDIR/genfiles/browser-overlay.js',
+    '$FF3_OUTDIR/genfiles/browser-overlay.xul',
+    '$FF3_OUTDIR/genfiles/permissions_dialog.html',
+    '$FF3_OUTDIR/genfiles/settings_dialog.html',
+    '$FF3_OUTDIR/genfiles/shortcuts_dialog.html',
 ]
 
 common_resources = [
@@ -165,13 +164,14 @@ def FirefoxInstaller(env):
   # Note: as shorthand, if the target ends with a '/', then the sources will
   # be placed into that dir.  Otherwise, source is renamed into the target.
   copysrcs = [
-      ('/', ['$FF3_OUTDIR/$GENFILES_DIR/install.rdf',
-             '$FF3_OUTDIR/$GENFILES_DIR/chrome.manifest']),
+      ('/', ['$FF3_OUTDIR/genfiles/install.rdf',
+             '$FF3_OUTDIR/genfiles/chrome.manifest']),
       ('lib/', ['$OPEN_DIR/base/firefox/static_files/lib/updater.js']),
       ('chrome/chromeFiles/content/', ff3_resources + common_resources),
-      ('chrome/chromeFiles/locale', ['$FF3_OUTDIR/$GENFILES_DIR/i18n']),
+      ('chrome/chromeFiles/locale', ['$FF3_OUTDIR/genfiles/i18n']),
       ('components/',
           ['$FF3_OUTDIR/gears.xpt',
+           '$COMMON_OUTDIR/ipc_test${PROGSUFFIX}',
            '$OPEN_DIR/base/firefox/static_files/components/bootstrap.js']),
       ('components/$FF2_MODULE', ['$FF2_OUTDIR/$MODULE']),
       ('components/$MODULE', ['$FF3_OUTDIR/$MODULE']),
@@ -215,8 +215,8 @@ env.AddMethod(FirefoxInstaller, 'FirefoxInstaller')
 
 def Win32Installer(env):
   wxiobj = env.Command(
-      StripOutdir(['$IE_OUTDIR/$GENFILES_DIR/win32_msi.wxiobj']),
-      StripOutdir(['$IE_OUTDIR/$GENFILES_DIR/win32_msi.wxs']),
+      StripOutdir(['$COMMON_GENFILES_DIR/win32_msi.wxiobj']),
+      StripOutdir(['$COMMON_GENFILES_DIR/win32_msi.wxs']),
       '$CANDLECOM')
   # light.exe must be run from $OPEN_DIR
   msi = env.Command('$WIN32_INSTALLER_MSI', wxiobj,

@@ -3,65 +3,13 @@
 # found in the LICENSE file.
 
 import os
-import re
+import utils
 
 Import('env')
 
 env = env.Clone()
 
 # TODO: move all these builders out to site_scons or somesuch.
-# Building M4 files
-
-env.Append(
-    M4ARCH = (env['ARCH'] == 'i386' and 'x86' or '$ARCH'),
-    M4FLAGS = [
-        '--prefix-builtins',
-        '-DPRODUCT_VERSION=$VERSION',
-        '-DPRODUCT_VERSION_MAJOR=$MAJOR',
-        '-DPRODUCT_VERSION_MINOR=$MINOR',
-        '-DPRODUCT_VERSION_BUILD=$BUILD',
-        '-DPRODUCT_VERSION_PATCH=$PATCH',
-        '-DPRODUCT_OS=$OS',
-        '-DPRODUCT_ARCH="$M4ARCH"',
-        '-DPRODUCT_GCC_VERSION="gcc3"',
-        '-DPRODUCT_MAINTAINER="google"',
-        '-DPRODUCT_FRIENDLY_NAME_UQ="$FRIENDLY_NAME"',
-        '-DPRODUCT_SHORT_NAME_UQ="$SHORT_NAME"',
-        '-DI18N_LANGUAGES="(${",".join(I18N_LANGS)})"',
-    ],
-    M4PATH = [
-        '$OPEN_DIR',
-        '.',
-    ],
-)
-
-# SCons magic to make M4PATH work.
-env.Replace(
-    M4INCPREFIX = '-I',
-    M4INCSUFFIX = '',
-    _M4INCFLAGS = ('${_concat(M4INCPREFIX, M4PATH, M4INCSUFFIX, '
-                 '__env__, RDirs, TARGET, SOURCE)}'),
-    M4COM = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET',
-)
-
-# TODO: Dependency scanner for m4 files - doesn't work.  It can't detect files
-# that don't exist!
-#m4_include_re = re.compile(r'm4_include\((.*)\)', re.M)
-#def m4_scan(node, env, path):
-#  contents = node.get_contents()
-#  includes = m4_include_re.findall(contents)
-#  ret_includes = []
-#  for include in includes:
-#    for dir in path:
-#      file = os.path.join(dir, include)
-#      if os.path.exists(file):
-#        ret_includes.append(file)
-#        break
-#  return ret_includes
-#
-#m4_scanner = Scanner(function = m4_scan, skeys = ['.m4', '.html_m4'])
-#env.Append(SCANNERS = m4_scanner)
-
 
 # Building .stab files, using M4FLAGS.
 
@@ -73,21 +21,6 @@ env.Replace(
 )
 stab_builder = Builder(action = '$STABCOM', src_suffix = '.stab')
 env.Append(BUILDERS = {'Stab': stab_builder})
-
-
-# Building .from_bin.cc files.
-
-# Must be run from within the gears dir.  More hoops to jump through to fix up
-# path names and arguments.
-env.Replace(
-# len() + 1 to include trailing '/'
-# TODO: is there a better way to strip off $OPEN_DIR from $SOURCE?
-    LEN_OPEN_DIR = len(os.path.normpath(env.subst('$OPEN_DIR'))) + 1,
-    BIN2CPP = 'cd $OPEN_DIR && python tools/bin2cpp.py',
-    BIN2CPPCOM = '$BIN2CPP ${str(SOURCE)[LEN_OPEN_DIR:]} > ${TARGET.abspath}',
-)
-bin2cpp_builder = Builder(action = '$BIN2CPPCOM')
-env.Append(BUILDERS = {'Bin2cpp': bin2cpp_builder})
 
 
 # Building .idl files.
@@ -170,16 +103,7 @@ if env['BROWSER'] in ['FF2', 'FF3']:
 
 # C++ defines
 
-env_common = env.Clone()
-env_common.Prepend(
-    CPPDEFINES = [
-# Common items, like notifier, is not related to any browser.
-        'BROWSER_NONE=1',
-    ]
-)
-
-env_browser = env.Clone()
-env_browser.Prepend(
+env.Prepend(
     CPPDEFINES = [
         'BROWSER_${BROWSER}=1',
 # SpiderMonkey (the Firefox JS engine)'s JS_GET_CLASS macro in jsapi.h needs
@@ -191,7 +115,7 @@ env_browser.Prepend(
 )
 
 if env['BROWSER'] in ['FF2', 'FF3']:
-  env_browser.Prepend(
+  env.Prepend(
       CPPDEFINES = [
 # TODO(cprince): Update source files so we don't need this compatibility define?
         'BROWSER_FF=1',
@@ -208,13 +132,13 @@ if env['BROWSER'] in ['FF2', 'FF3']:
       ],
   )
 elif env['BROWSER'] == 'NPAPI' and env['OS'] == 'win32':
-  env_browser.Prepend(
+  env.Prepend(
       CPPDEFINES = [
         'BROWSER_CHROME=1',
       ],
   )
 
-env_browser.Append(
+env.Append(
     CPPPATH = [
 #        '$LIBPNG_DIR',
 #        '$SKIA_DIR/include',
@@ -225,7 +149,7 @@ env_browser.Append(
 #        'base',
         'gd',
         'googleurl-gears',
-#        env_browser['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
+#        env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'jpeg-gears',
 #        'modp_b64',
         'png-gears',
@@ -237,7 +161,7 @@ env_browser.Append(
 )
 
 if env['BROWSER'] == 'IE':
-  env_browser.Append(
+  env.Append(
       LIBS = [
           'kernel32.lib',
           'user32.lib',
@@ -253,7 +177,7 @@ if env['BROWSER'] == 'IE':
       ],
   )
 elif env['BROWSER'] in ['FF2', 'FF3']:
-  env_browser.Append(
+  env.Append(
       LIBPATH = '$GECKO_LIB',
       LIBS = [
           'xpcom',
@@ -261,7 +185,7 @@ elif env['BROWSER'] in ['FF2', 'FF3']:
       ],
   )
   if env['OS'] == 'win32':
-    env_browser.Append(
+    env.Append(
         LIBS = [
             'nspr4.lib',
             'js3250.lib',
@@ -278,9 +202,9 @@ elif env['BROWSER'] in ['FF2', 'FF3']:
     # Although the 1.9 SDK contains libnspr4, it is better to link against
     # libxul, which in turn depends on libnspr4. In Ubuntu 8.04, libnspr4 was
     # not listed in /usr/lib, only libxul was.
-    env_browser.Append(LIBS = (env['BROWSER'] == 'FF2' and 'nspr4' or 'xul'))
+    env.Append(LIBS = (env['BROWSER'] == 'FF2' and 'nspr4' or 'xul'))
 elif env['BROWSER'] == 'NPAPI':
-  env_browser.Append(
+  env.Append(
       LIBS = [
           'delayimp.lib',
           'comdlg32.lib',
@@ -292,7 +216,7 @@ elif env['BROWSER'] == 'NPAPI':
 
 
 # Building resources.
-env_res = env_browser.Clone()
+env_res = env.Clone()
 env_res.Replace(
     CPPDEFINES = [
         '_UNICODE',
@@ -300,6 +224,7 @@ env_res.Replace(
         'BROWSER_${BROWSER}=1',
     ],
     CPPPATH = [
+        '$COMMON_GENFILES_DIR/..',
         '$GENFILES_DIR/..',
         '$OPEN_DIR',
         '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
@@ -315,7 +240,7 @@ if env['OS'] == 'win32':
   env_res.Append(RCFLAGS = ['/l', '0x409'])
 
 if env['OS'] == 'win32':
-  env_browser.Append(
+  env.Append(
       CPPFLAGS = [
         '/wd4018'  # TODO: move to breakpad
       ],
@@ -327,12 +252,10 @@ def NewInputs():
   """Returns a new dictionary of input file lists.
 
   Browser-specific inputs are referenced by the browser name.  All browsers
-  include inputs from the 'all' list.  'common' inputs are built using
-  env_common."""
+  include inputs from the 'all' list."""
 
   return {
       'all': [],
-      'common': [],
       'IE': [],
       'FF2': [],
       'FF3': [],
@@ -346,7 +269,6 @@ html_m4srcs = NewInputs()
 i18n_m4srcs = NewInputs()
 stabsrcs = NewInputs()
 idlsrcs = NewInputs()
-binsrcs = NewInputs()
 
 #-----------------------------------------------------------------------------
 # third_party/breakpad
@@ -404,10 +326,6 @@ srcs['all'] += [
 
 #-----------------------------------------------------------------------------
 # base/common
-
-m4srcs['common'] = [
-    '$OPEN_DIR/base/common/product_constants.h.m4',
-]
 
 m4srcs['all'] = [
     '$OPEN_DIR/base/common/product_version.rc.m4'
@@ -474,6 +392,8 @@ srcs['all'] += [
     '$OPEN_DIR/base/common/timed_call_test.cc',
     '$OPEN_DIR/base/common/url_utils.cc',
     '$OPEN_DIR/base/common/url_utils_test.cc',
+    '$OPEN_DIR/base/common/user_config.cc',
+    '$OPEN_DIR/base/common/vista_utils.cc',
 ]
 
 #-----------------------------------------------------------------------------
@@ -536,7 +456,6 @@ srcs['IE'] += [
     '$OPEN_DIR/base/ie/module_wrapper.cc',
     '$OPEN_DIR/base/common/paths_ie.cc',
     '$OPEN_DIR/base/common/time_utils_win32.cc',
-    '$OPEN_DIR/base/common/vista_utils.cc',
 ]
 
 if env['OS'] == 'win32':
@@ -744,15 +663,6 @@ srcs['IE'] += [
     '$OPEN_DIR/localserver/ie/progress_input_stream.cc',
     '$OPEN_DIR/localserver/ie/update_task_ie.cc',
     '$OPEN_DIR/localserver/ie/urlmon_utils.cc',
-]
-
-#-----------------------------------------------------------------------------
-# installer
-
-m4srcs['common'] += [
-    '$OPEN_DIR/installer/npapi_msi.wxs.m4',
-    '$OPEN_DIR/installer/win32_msi.wxs.m4',
-    '$OPEN_DIR/installer/wince_cab.inf.m4',
 ]
 
 #-----------------------------------------------------------------------------
@@ -967,27 +877,6 @@ if not env['OFFICIAL_BUILD']:
       '$OPEN_DIR/inspector/inspector_resources.cc',
   ]
 
-  binsrcs['common'] += [
-    '$OPEN_DIR/inspector/console.html',
-    '$OPEN_DIR/inspector/database.html',
-    '$OPEN_DIR/inspector/index.html',
-    '$OPEN_DIR/inspector/localserver.html',
-    '$OPEN_DIR/inspector/common/alert-35.png',
-    '$OPEN_DIR/inspector/common/database.gif',
-    '$OPEN_DIR/inspector/common/error-35.png',
-    '$OPEN_DIR/inspector/common/ie6hacks.css',
-    '$OPEN_DIR/inspector/common/inspector_links.js',
-    '$OPEN_DIR/inspector/common/lightbulb-35.png',
-    '$OPEN_DIR/inspector/common/localserver.gif',
-    '$OPEN_DIR/inspector/common/question-35.png',
-    '$OPEN_DIR/inspector/common/styles.css',
-    '$OPEN_DIR/inspector/common/workerpool.gif',
-    '$OPEN_DIR/sdk/gears_init.js',
-    '$OPEN_DIR/ui/common/base.js',
-    '$OPEN_DIR/ui/common/dom.js',
-    '$OPEN_DIR/ui/common/icon_32x32.png',
-  ]
-
 #-----------------------------------------------------------------------------
 # image
 
@@ -1034,6 +923,8 @@ srcs['IE'] += [
 # geolocation
 
 srcs['all'] += [
+    '$OPEN_DIR/geolocation/access_token_manager.cc',
+    '$OPEN_DIR/geolocation/backoff_manager.cc',
     '$OPEN_DIR/geolocation/empty_device_data_provider.cc',
     '$OPEN_DIR/geolocation/geolocation.cc',
     '$OPEN_DIR/geolocation/geolocation_db.cc',
@@ -1045,6 +936,7 @@ srcs['all'] += [
     '$OPEN_DIR/geolocation/network_location_provider.cc',
     '$OPEN_DIR/geolocation/network_location_request.cc',
     '$OPEN_DIR/geolocation/radio_data_provider_wince.cc',
+    '$OPEN_DIR/geolocation/reverse_geocoder.cc',
     '$OPEN_DIR/geolocation/timed_callback.cc',
     '$OPEN_DIR/geolocation/wifi_data_provider_android.cc',
     '$OPEN_DIR/geolocation/wifi_data_provider_common.cc',
@@ -1122,10 +1014,10 @@ elif env['BROWSER'] == 'IE':
 # TODO: other targets
 # - installer
 # - notifier
-# - ipc_tests
 
 
 # Now build the dependency tree.
+def PatternRule(t, s): return utils.PatternRule(t, s, env)
 
 # Add any hard-coded "FF3_" sources to the FF2_ sources.
 srcs['FF2'] += srcs['FF3']
@@ -1134,7 +1026,6 @@ html_m4srcs['FF2'] += html_m4srcs['FF3']
 i18n_m4srcs['FF2'] += i18n_m4srcs['FF3']
 stabsrcs['FF2'] += stabsrcs['FF3']
 idlsrcs['FF2'] += idlsrcs['FF3']
-binsrcs['FF2'] += binsrcs['FF3']
 
 # Add the target browser's inputs to the list files to build.
 srcs['all'] += srcs[env['BROWSER']]
@@ -1143,23 +1034,16 @@ html_m4srcs['all'] += html_m4srcs[env['BROWSER']]
 i18n_m4srcs['all'] += i18n_m4srcs[env['BROWSER']]
 stabsrcs['all'] += stabsrcs[env['BROWSER']]
 idlsrcs['all'] += idlsrcs[env['BROWSER']]
-binsrcs['all'] += binsrcs[env['BROWSER']]
 
-def PatternRule(target, source, env=env):
-  """Apply env substitution to a target with $SOURCE included.  Returns a list
-  containing the new target and source to pass to a builder."""
-  target_sub = env.subst(target, source=env.File(source))
-  return [target_sub, source]
+# Include the common targets generated by SConscript.common.
+Import('common_targets')
 
 # genfiles/%: %.m4
-m4s = []
-m4s = [env_common.M4(*PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
-       for src in m4srcs['common']]
-m4s += [env_browser.M4(*PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
+m4s = [env.M4(*PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
         for src in m4srcs['all']]
 
 # genfiles/%.html: %.html_m4
-html_m4s = [env_browser.M4(
+html_m4s = [env.M4(
                 *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.html', src))
             for src in html_m4srcs['all']]
 
@@ -1172,41 +1056,40 @@ def PathEnd(path, n):
   return os.sep.join(split_path[-n:])
 env['PathEnd'] = PathEnd
 tmp_pattern = '$GENFILES_DIR/i18n/${PathEnd(str(SOURCE.base), 2)}'
-i18n_m4s = [env_browser.M4(*PatternRule(tmp_pattern, src))
+i18n_m4s = [env.M4(*PatternRule(tmp_pattern, src))
             for src in i18n_m4srcs['all']]
 
 # genfiles/%.js: %.js.stab
-stabs = [env_browser.Stab(
+stabs = [env.Stab(
              *PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
          for src in stabsrcs['all']]
 
 # genfiles/%.html: %.js
 for stab in stabs:
-  env_browser.Depends(*PatternRule('${SOURCE.base}.html', stab))
-
-# genfiles/%.from_bin.cc: %
-bins = [env_common.Bin2cpp(
-            *PatternRule('$GENFILES_DIR/${SOURCE.file}.from_bin.cc', src))
-        for src in binsrcs['common']]
-srcs['all'] += bins
+  env.Depends(*PatternRule('${SOURCE.base}.html', stab))
 
 # genfiles/%.tlb: %.idl
 xptsrcs = []
 for src in idlsrcs['all']:
-  idl = env_browser.TypeLibrary(
+  idl = env.TypeLibrary(
             *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.tlb', src))
   srcs['all'] += [x for x in idl if str(x).endswith('_i.c')]
   if env['BROWSER'] in ['FF2', 'FF3']:
     xptsrcs += [x for x in idl if str(x).endswith('.xpt')]
 
 if env['BROWSER'] in ['FF2', 'FF3']:
-  env_browser.XptLink('gears.xpt', xptsrcs)
+  env.XptLink('gears.xpt', xptsrcs)
+
+# Add common sources.
+srcs['all'] += common_targets['src']
 
 # TODO: figure out why the .rc scanner doesn't notice these dependencies.
 if env['OS'] == 'win32':
-  env_browser.Depends(ui_res, html_m4s)
-  env_browser.Depends(module_res, m4s)
+  env.Depends(ui_res, html_m4s)
+  env.Depends(module_res, m4s)
 
-module = env_browser.ChromeSharedLibrary('gears',
+Export('m4srcs')
+
+module = env.ChromeSharedLibrary('gears',
     srcs['all'] + libs + dll_resources)
 env.Alias('gears', module)

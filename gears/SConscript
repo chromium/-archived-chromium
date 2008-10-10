@@ -28,7 +28,6 @@
 # - entry.path gives the path relative to toplevel_dir.
 # - entry.abspath gives the absolute path.
 
-import sys
 import os
 
 Import('env')
@@ -36,7 +35,6 @@ Import('env')
 env = env.Clone(
     OPEN_DIR = "googleclient/gears/opensource/gears",
     THIRD_PARTY_DIR = "googleclient/gears/opensource/third_party",
-    GENFILES_DIR = "genfiles",
     PRIVATE_THIRD_PARTY_DIR = "googleclient/third_party",
 )
 
@@ -104,13 +102,17 @@ env.Replace(ARCH = 'i386')
 
 # Output dirs
 env.Replace(
-    BASE_OUTDIR = env.subst('$MODE').lower(),
+    BASE_OUTDIR = '$GEARS_DIR/$MODE',
     COMMON_OUTDIR = '$BASE_OUTDIR/common',
+    BROWSER_OUTDIR = '$BASE_OUTDIR/${BROWSER.lower()}',
     IE_OUTDIR = '$BASE_OUTDIR/ie',
     FF2_OUTDIR = '$BASE_OUTDIR/ff2',
     FF3_OUTDIR = '$BASE_OUTDIR/ff3',
     NPAPI_OUTDIR = '$BASE_OUTDIR/npapi',
     SF_OUTDIR = '$BASE_OUTDIR/sf',
+
+    GENFILES_DIR = "$BROWSER_OUTDIR/genfiles",
+    COMMON_GENFILES_DIR = "$COMMON_OUTDIR/genfiles",
 )
 
 # Add our tools to the PATH.
@@ -122,7 +124,59 @@ if env['OS'] in ['win32', 'wince']:
   env.PrependENVPath('PATH',
       env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath)
 
+# Building M4 files
 env.Tool('m4')
+
+env.Append(
+    M4ARCH = (env['ARCH'] == 'i386' and 'x86' or '$ARCH'),
+    M4FLAGS = [
+        '--prefix-builtins',
+        '-DPRODUCT_VERSION=$VERSION',
+        '-DPRODUCT_VERSION_MAJOR=$MAJOR',
+        '-DPRODUCT_VERSION_MINOR=$MINOR',
+        '-DPRODUCT_VERSION_BUILD=$BUILD',
+        '-DPRODUCT_VERSION_PATCH=$PATCH',
+        '-DPRODUCT_OS=$OS',
+        '-DPRODUCT_ARCH="$M4ARCH"',
+        '-DPRODUCT_GCC_VERSION="gcc3"',
+        '-DPRODUCT_MAINTAINER="google"',
+        '-DPRODUCT_FRIENDLY_NAME_UQ="$FRIENDLY_NAME"',
+        '-DPRODUCT_SHORT_NAME_UQ="$SHORT_NAME"',
+        '-DI18N_LANGUAGES="(${",".join(I18N_LANGS)})"',
+    ],
+    M4PATH = [
+        '$OPEN_DIR',
+        '.',
+    ],
+)
+
+# SCons magic to make M4PATH work.
+env.Replace(
+    M4INCPREFIX = '-I',
+    M4INCSUFFIX = '',
+    _M4INCFLAGS = ('${_concat(M4INCPREFIX, M4PATH, M4INCSUFFIX, '
+                 '__env__, RDirs, TARGET, SOURCE)}'),
+    M4COM = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET',
+)
+
+# TODO: Dependency scanner for m4 files - doesn't work.  It can't detect files
+# that don't exist!
+#m4_include_re = re.compile(r'm4_include\((.*)\)', re.M)
+#def m4_scan(node, env, path):
+#  contents = node.get_contents()
+#  includes = m4_include_re.findall(contents)
+#  ret_includes = []
+#  for include in includes:
+#    for dir in path:
+#      file = os.path.join(dir, include)
+#      if os.path.exists(file):
+#        ret_includes.append(file)
+#        break
+#  return ret_includes
+#
+#m4_scanner = Scanner(function = m4_scan, skeys = ['.m4', '.html_m4'])
+#env.Append(SCANNERS = m4_scanner)
+
 
 # C++ build flags.
 
@@ -140,6 +194,7 @@ env.Replace(
         '$THIRD_PARTY_DIR/zlib',
         '$THIRD_PARTY_DIR/v8/bindings_local',
         '.',
+        '$COMMON_OUTDIR',
     ],
     LIBPATH = [
         '$LIBS_DIR',
@@ -431,16 +486,20 @@ for each in sconscripts:
                  variant_dir='$COMMON_OUTDIR',
                  duplicate=0)
 
+# Must come before SConscript.dll because it Imports targets from this
+# SConscript.
+env.SConscript('SConscript.common',
+             exports=['env'],
+             variant_dir='$COMMON_OUTDIR',
+             duplicate=0)
+
 browsers = [env['BROWSER']]
 if browsers[0] == 'all':
   browsers = env['VALID_BROWSERS']
 print 'Building:', browsers
 
 for each in browsers:
-  env.Replace(
-      BROWSER = each,
-      BROWSER_OUTDIR = env.subst('$MODE/' + each).lower(),
-  )
+  env.Replace(BROWSER = each)
   env.SConscript('SConscript.dll',
                  exports=['env'],
                  variant_dir='$BROWSER_OUTDIR',

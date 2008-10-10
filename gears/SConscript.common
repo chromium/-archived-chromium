@@ -1,0 +1,137 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import os
+
+import utils
+
+Import('env')
+
+env = env.Clone() 
+
+
+# Building .from_bin.cc files.
+
+# Must be run from within the gears dir.  More hoops to jump through to fix up
+# path names and arguments.
+env.Replace(
+# len() + 1 to include trailing '/'
+# TODO: is there a better way to strip off $OPEN_DIR from $SOURCE?
+    LEN_OPEN_DIR = len(os.path.normpath(env.subst('$OPEN_DIR'))) + 1,
+    BIN2CPP = 'cd $OPEN_DIR && python tools/bin2cpp.py',
+    BIN2CPPCOM = '$BIN2CPP ${str(SOURCE)[LEN_OPEN_DIR:]} > ${TARGET.abspath}',
+)
+bin2cpp_builder = Builder(action = '$BIN2CPPCOM')
+env.Append(BUILDERS = {'Bin2cpp': bin2cpp_builder})
+
+
+# C++ flags.
+
+env.Prepend(
+    CPPDEFINES = [
+# Common items, like notifier, is not related to any browser.
+        'BROWSER_NONE=1',
+    ]
+)
+
+m4srcs = []
+binsrcs = []
+ipc_test_srcs = []
+
+#-----------------------------------------------------------------------------
+# ipc_test
+
+m4srcs += [
+    '$OPEN_DIR/base/common/product_constants.h.m4',
+]
+
+ipc_test_srcs += [
+    '$OPEN_DIR/base/common/event.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
+    '$OPEN_DIR/base/common/mutex.cc',
+    '$OPEN_DIR/base/common/mutex_posix.cc',
+    '$OPEN_DIR/base/common/mutex_win32.cc',
+    '$OPEN_DIR/base/common/serialization.cc',
+    '$OPEN_DIR/base/common/stopwatch.cc',
+    '$OPEN_DIR/base/common/stopwatch_posix.cc',
+    '$OPEN_DIR/base/common/stopwatch_win32.cc',
+    '$OPEN_DIR/base/common/string16.cc',
+    '$OPEN_DIR/base/common/string_utils.cc',
+    '$OPEN_DIR/base/common/string_utils_osx.cc',
+    '$OPEN_DIR/base/common/thread.cc',
+    '$OPEN_DIR/base/common/thread_posix.cc',
+    '$OPEN_DIR/base/common/thread_win32.cc',
+    '$OPEN_DIR/base/common/time_utils_win32.cc',
+]
+
+if env['OS'] == 'osx':
+  ipc_test_srcs += [
+    '$OPEN_DIR/base/common/common_osx.mm',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_osx.mm',
+  ]
+
+ipc_test_srcs += [
+    '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
+]
+
+#-----------------------------------------------------------------------------
+# inspector
+
+if not env['OFFICIAL_BUILD']:
+  binsrcs += [
+    '$OPEN_DIR/inspector/console.html',
+    '$OPEN_DIR/inspector/database.html',
+    '$OPEN_DIR/inspector/index.html',
+    '$OPEN_DIR/inspector/localserver.html',
+    '$OPEN_DIR/inspector/common/alert-35.png',
+    '$OPEN_DIR/inspector/common/database.gif',
+    '$OPEN_DIR/inspector/common/error-35.png',
+    '$OPEN_DIR/inspector/common/ie6hacks.css',
+    '$OPEN_DIR/inspector/common/inspector_links.js',
+    '$OPEN_DIR/inspector/common/lightbulb-35.png',
+    '$OPEN_DIR/inspector/common/localserver.gif',
+    '$OPEN_DIR/inspector/common/question-35.png',
+    '$OPEN_DIR/inspector/common/styles.css',
+    '$OPEN_DIR/inspector/common/workerpool.gif',
+    '$OPEN_DIR/sdk/gears_init.js',
+    '$OPEN_DIR/ui/common/base.js',
+    '$OPEN_DIR/ui/common/dom.js',
+    '$OPEN_DIR/ui/common/icon_32x32.png',
+  ]
+
+#-----------------------------------------------------------------------------
+# installer
+
+m4srcs += [
+    '$OPEN_DIR/installer/npapi_msi.wxs.m4',
+    '$OPEN_DIR/installer/win32_msi.wxs.m4',
+    '$OPEN_DIR/installer/wince_cab.inf.m4',
+]
+
+#-----------------------------------------------------------------------------
+# Generate the dependency tree.
+
+common_targets = {}
+
+def PatternRule(t, s): return utils.PatternRule(t, s, env)
+
+# genfiles/%: %.m4
+common_targets['m4'] = \
+    [env.M4(*PatternRule('$COMMON_GENFILES_DIR/${SOURCE.filebase}', src))
+     for src in m4srcs]
+
+# genfiles/%.from_bin.cc: %
+bins = [env.Bin2cpp(*PatternRule(
+            '$COMMON_GENFILES_DIR/${SOURCE.file}.from_bin.cc', src))
+     for src in binsrcs]
+common_targets['src'] = [env.SharedObject(bin) for bin in bins]
+
+Export('common_targets')
+
+env.Program('ipc_test', ipc_test_srcs)
