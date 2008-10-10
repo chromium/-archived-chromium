@@ -9,13 +9,13 @@ layer at (0,0) size 800x600
         RenderText {#text} at (0,0) size 0x0
       RenderBlock {DIV} at (0,36) size 784x26
         RenderBlock {BLOCKQUOTE} at (40,0) size 744x26
-          RenderTable {TABLE} at (0,0) size 105x26
-            RenderTableSection {TBODY} at (0,0) size 105x26
-              RenderTableRow {TR} at (0,2) size 105x22
-                RenderTableCell {TD} at (2,2) size 13x22 [r=0 c=0 rs=1 cs=1]
-                  RenderText {#text} at (1,1) size 11x19
-                    text run at (1,1) width 11: "\x{21D2}"
-                RenderTableCell {TD} at (17,2) size 86x22 [bgcolor=#FF8811] [r=0 c=1 rs=1 cs=1]
+          RenderTable {TABLE} at (0,0) size 109x26
+            RenderTableSection {TBODY} at (0,0) size 109x26
+              RenderTableRow {TR} at (0,2) size 109x22
+                RenderTableCell {TD} at (2,2) size 17x22 [r=0 c=0 rs=1 cs=1]
+                  RenderText {#text} at (1,1) size 15x19
+                    text run at (1,1) width 15: "\x{21D2}"
+                RenderTableCell {TD} at (21,2) size 86x22 [bgcolor=#FF8811] [r=0 c=1 rs=1 cs=1]
                   RenderText {#text} at (1,1) size 84x19
                     text run at (1,1) width 84: "ToDo content"
           RenderBlock (anonymous) at (0,26) size 744x0
