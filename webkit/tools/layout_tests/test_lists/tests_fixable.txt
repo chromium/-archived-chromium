@@ -981,7 +981,6 @@ V8 | KJS # LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
 V8 | KJS # LayoutTests/fast/table/vertical-align-baseline.html = FAIL
 V8 | KJS # LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
 V8 | KJS # LayoutTests/fast/transforms/shadows.html = FAIL
-V8 | KJS # LayoutTests/http/tests/loading/location-hash-reload-cycle.html = FAIL
 V8 | KJS # LayoutTests/http/tests/misc/acid3.html = FAIL
 V8 | KJS # LayoutTests/http/tests/misc/frame-default-enc-same-domain.html = FAIL
 V8 | KJS # LayoutTests/http/tests/navigation/reload-subframe-frame.html = FAIL

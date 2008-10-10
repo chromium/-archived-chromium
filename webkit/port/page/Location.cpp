@@ -84,11 +84,12 @@ void Location::setHash(const String& hash) {
     return;
 
   KURL url = m_frame->loader()->url();
+  String old_ref = url.ref();
   String str = hash;
 
   if (str.startsWith("#"))
     str = str.substring(1);
-  if (url.ref() == str)
+  if (old_ref == str || (old_ref.isNull() && str.isEmpty()))
     return;
   url.setRef(str);
 
