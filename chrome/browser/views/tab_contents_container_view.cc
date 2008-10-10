@@ -13,6 +13,7 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/root_view.h"
 
 using ChromeViews::FocusTraversable;

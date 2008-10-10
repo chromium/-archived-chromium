@@ -34,21 +34,18 @@
 #include "chrome/browser/render_widget_host_hwnd.h"
 #include "chrome/browser/template_url_fetcher.h"
 #include "chrome/browser/template_url_model.h"
-#include "chrome/browser/views/hung_renderer_view.h"
-#include "chrome/browser/views/sad_tab_view.h"
-#include "chrome/browser/web_drag_source.h"
-#include "chrome/browser/web_drop_target.h"
+#include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
+#include "chrome/browser/views/sad_tab_view.h"  // FIXME(brettw) delete me.
+#include "chrome/browser/web_contents_view.h"
+#include "chrome/browser/web_contents_view_win.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "net/base/mime_util.h"
 #include "net/base/registry_controlled_domain.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 
 #include "generated_resources.h"
 
@@ -177,11 +174,11 @@ WebContents::WebContents(Profile* profile,
                          int routing_id,
                          HANDLE modal_dialog_event)
     : TabContents(TAB_CONTENTS_WEB),
+      view_(new WebContentsViewWin(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           render_manager_(render_view_factory, this, this)),
       render_view_factory_(render_view_factory),
       has_page_title_(false),
-      info_bar_visible_(false),
       is_starred_(false),
       printing_(*this),
       notify_disconnection_(false),
@@ -311,7 +308,7 @@ void WebContents::Destroy() {
 
   // Detach plugin windows so that they are not destroyed automatically.
   // They will be cleaned up properly in plugin process.
-  DetachPluginWindows();
+  view_->DetachPluginWindows();
 
   NotifyDisconnected();
   HungRendererWarning::HideForWebContents(this);
@@ -486,37 +483,6 @@ void WebContents::SizeContents(const gfx::Size& size) {
   RepositionSupressedPopupsToFit(size);
 }
 
-HWND WebContents::GetContentHWND() {
-  if (!view())
-    return NULL;
-  return view()->GetPluginHWND();
-}
-
-void WebContents::CreateView(HWND parent_hwnd,
-                             const gfx::Rect& initial_bounds) {
-  set_delete_on_destroy(false);
-  HWNDViewContainer::Init(parent_hwnd, initial_bounds, false);
-
-  // Remove the root view drop target so we can register our own.
-  RevokeDragDrop(GetHWND());
-  drop_target_ = new WebDropTarget(GetHWND(), this);
-}
-
-void WebContents::GetContainerBounds(gfx::Rect *out) const {
-  CRect r;
-  GetBounds(&r, false);
-  *out = r;
-}
-
-InfoBarView* WebContents::GetInfoBarView() {
-  if (info_bar_view_.get() == NULL) {
-    info_bar_view_.reset(new InfoBarView(this));
-    // The WebContents owns the info-bar.
-    info_bar_view_->SetParentOwned(false);
-  }
-  return info_bar_view_.get();
-}
-
 void WebContents::SetDownloadShelfVisible(bool visible) {
   TabContents::SetDownloadShelfVisible(visible);
   if (visible) {
@@ -524,6 +490,27 @@ void WebContents::SetDownloadShelfVisible(bool visible) {
     // was made visible (even if it was already visible).
     last_download_shelf_show_ = TimeTicks::Now();
   }
+}
+
+// Stupid view pass-throughs
+void WebContents::CreateView(HWND parent_hwnd,
+                             const gfx::Rect& initial_bounds) {
+  view_->CreateView(parent_hwnd, initial_bounds);
+}
+HWND WebContents::GetContainerHWND() const {
+  return view_->GetContainerHWND();
+}
+HWND WebContents::GetContentHWND() {
+  return view_->GetContentHWND();
+}
+bool WebContents::IsInfoBarVisible() {
+  return view_->IsInfoBarVisible();
+}
+InfoBarView* WebContents::GetInfoBarView() {
+  return view_->GetInfoBarView();
+}
+void WebContents::GetContainerBounds(gfx::Rect *out) const {
+  view_->GetContainerBounds(out);
 }
 
 void WebContents::OpenFindInPageWindow(const Browser& browser) {
@@ -637,14 +624,7 @@ void WebContents::OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
 }
 
 void WebContents::SetInfoBarVisible(bool visible) {
-  if (info_bar_visible_ != visible) {
-    info_bar_visible_ = visible;
-    if (info_bar_visible_) {
-      // Invoke GetInfoBarView to force the info bar to be created.
-      GetInfoBarView();
-    }
-    ToolbarSizeChanged(false);
-  }
+  view_->SetInfoBarVisible(visible);
 }
 
 void WebContents::OnSavePage() {
@@ -747,6 +727,7 @@ Profile* WebContents::GetProfile() const {
 }
 
 void WebContents::CreateView(int route_id, HANDLE modal_dialog_event) {
+  // TODO(brettw) move this to the view.
   WebContents* new_view = new WebContents(profile(),
                                           GetSiteInstance(),
                                           render_view_factory_,
@@ -758,11 +739,11 @@ void WebContents::CreateView(int route_id, HANDLE modal_dialog_event) {
   // be parented to NULL. However doing that causes the corresponding view
   // container windows to show up as overlapped windows, which causes
   // other issues. We should fix this.
-  HWND new_view_parent_window = ::GetAncestor(GetHWND(), GA_ROOT);
+  HWND new_view_parent_window = ::GetAncestor(GetContainerHWND(), GA_ROOT);
   new_view->CreateView(new_view_parent_window, gfx::Rect());
   // TODO(brettw) it seems bogus that we have to call this function on the
   // newly created object and give it one of its own member variables.
-  new_view->CreatePageView(new_view->render_view_host());
+  new_view->view_->CreatePageView(new_view->render_view_host());
 
   // Don't show the view until we get enough context in ShowView.
   pending_views_[route_id] = new_view;
@@ -826,7 +807,12 @@ void WebContents::ShowWidget(int route_id, const gfx::Rect& initial_pos) {
     // The view has gone away or the renderer crashed. Nothing to do.
     return;
   }
-  widget_view->Create(GetHWND(), NULL, NULL, WS_POPUP, WS_EX_TOOLWINDOW);
+
+  // This logic should be implemented by RenderWidgetHostHWND (as mentioned
+  // above) in the ::Init function, which should take a parent and some initial
+  // bounds.
+  widget_view->Create(view_->GetContainerHWND(), NULL, NULL,
+                      WS_POPUP, WS_EX_TOOLWINDOW);
   widget_view->MoveWindow(initial_pos.x(), initial_pos.y(), initial_pos.width(),
                           initial_pos.height(), TRUE);
   widget_view->ShowWindow(SW_SHOW);
@@ -860,11 +846,13 @@ void WebContents::RendererGone(RenderViewHost* rvh) {
     return;
   }
 
+  // TODO(brettw) move the platform-specific view stuff here to the view.
+
   // Force an invalidation here to render sad tab.  however, it is possible for
   // our window to have already gone away (since we may be in the process of
   // closing this render view).
-  if (::IsWindow(GetHWND()))
-    InvalidateRect(GetHWND(), NULL, FALSE);
+  if (::IsWindow(view_->GetContainerHWND()))
+    InvalidateRect(view_->GetContainerHWND(), NULL, FALSE);
 
   SetIsLoading(false, NULL);
 
@@ -872,7 +860,7 @@ void WebContents::RendererGone(RenderViewHost* rvh) {
   // a renderer crashed while showing a modal dialog.  We're assuming that the
   // browser code will never show a modal dialog, so we could only be disabled
   // by something the renderer (or some plug-in) did.
-  HWND root_window = ::GetAncestor(GetHWND(), GA_ROOT);
+  HWND root_window = ::GetAncestor(view_->GetContainerHWND(), GA_ROOT);
   if (!::IsWindowEnabled(root_window))
     ::EnableWindow(root_window, TRUE);
 
@@ -988,9 +976,10 @@ void WebContents::UpdateState(RenderViewHost* rvh,
         hs->SetPageTitle(entry->display_url(), final_title);
     }
   }
-  if (GetHWND()) {
+  // TODO(brettw) move this to the view.
+  if (view_->GetContainerHWND()) {
     // It's possible to get this after the hwnd has been destroyed.
-    ::SetWindowText(GetHWND(), title.c_str());
+    ::SetWindowText(view_->GetContainerHWND(), title.c_str());
     ::SetWindowText(view()->GetPluginHWND(), title.c_str());
   }
 
@@ -1234,16 +1223,17 @@ void WebContents::DidDownloadImage(
 
 void WebContents::ShowContextMenu(
     const ViewHostMsg_ContextMenu_Params& params) {
+  // TODO(brettw) move this to the view.
   RenderViewContextMenuController menu_controller(this, params);
   RenderViewContextMenu menu(&menu_controller,
-                             GetHWND(),
+                             view_->GetContainerHWND(),
                              params.type,
                              params.misspelled_word,
                              params.dictionary_suggestions,
                              profile());
 
   POINT screen_pt = { params.x, params.y };
-  MapWindowPoints(GetHWND(), HWND_DESKTOP, &screen_pt, 1);
+  MapWindowPoints(view_->GetContainerHWND(), HWND_DESKTOP, &screen_pt, 1);
 
   // Enable recursive tasks on the message loop so we can get updates while
   // the context menu is being displayed.
@@ -1254,42 +1244,11 @@ void WebContents::ShowContextMenu(
 }
 
 void WebContents::StartDragging(const WebDropData& drop_data) {
-  scoped_refptr<OSExchangeData> data(new OSExchangeData);
-
-  // TODO(tc): Generate an appropriate drag image.
-
-  // We set the file contents before the URL because the URL also sets file
-  // contents (to a .URL shortcut).  We want to prefer file content data over a
-  // shortcut.
-  if (!drop_data.file_contents.empty()) {
-    data->SetFileContents(drop_data.file_description_filename,
-                          drop_data.file_contents);
-  }
-  if (!drop_data.cf_html.empty())
-    data->SetCFHtml(drop_data.cf_html);
-  if (drop_data.url.is_valid())
-    data->SetURL(drop_data.url, drop_data.url_title);
-  if (!drop_data.plain_text.empty())
-    data->SetString(drop_data.plain_text);
-
-  scoped_refptr<WebDragSource> drag_source(
-      new WebDragSource(GetHWND(), render_view_host()));
-
-  DWORD effects;
-
-  // We need to enable recursive tasks on the message loop so we can get
-  // updates while in the system DoDragDrop loop.
-  bool old_state = MessageLoop::current()->NestableTasksAllowed();
-  MessageLoop::current()->SetNestableTasksAllowed(true);
-  DoDragDrop(data, drag_source, DROPEFFECT_COPY | DROPEFFECT_LINK, &effects);
-  MessageLoop::current()->SetNestableTasksAllowed(old_state);
-
-  if (render_view_host())
-    render_view_host()->DragSourceSystemDragEnded();
+  view_->StartDragging(drop_data);
 }
 
 void WebContents::UpdateDragCursor(bool is_drop_target) {
-  drop_target_->set_is_drop_target(is_drop_target);
+  view_->UpdateDragCursor(is_drop_target);
 }
 
 void WebContents::RequestOpenURL(const GURL& url,
@@ -1395,8 +1354,9 @@ void WebContents::PasswordFormsSeen(
 }
 
 void WebContents::TakeFocus(bool reverse) {
+  // TODO(brettw) move this to the view.
   ChromeViews::FocusManager* focus_manager =
-      ChromeViews::FocusManager::GetFocusManager(GetHWND());
+      ChromeViews::FocusManager::GetFocusManager(view_->GetContainerHWND());
 
   // We may not have a focus manager if the tab has been switched before this
   // message arrived.
@@ -1470,7 +1430,7 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
       keyword,
       url,
       base_entry->favicon().url(),
-      GetAncestor(GetHWND(), GA_ROOT),
+      GetAncestor(view_->GetContainerHWND(), GA_ROOT),
       autodetected);
 }
 
@@ -1492,11 +1452,13 @@ void WebContents::DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params) {
 
 // The renderer sends back to the browser the key events it did not process.
 void WebContents::HandleKeyboardEvent(const WebKeyboardEvent& event) {
+  // TODO(brettw) move this to the view.
+
   // The renderer returned a keyboard event it did not process. This may be
   // a keyboard shortcut that we have to process.
   if (event.type == WebInputEvent::KEY_DOWN) {
     ChromeViews::FocusManager* focus_manager =
-        ChromeViews::FocusManager::GetFocusManager(GetHWND());
+        ChromeViews::FocusManager::GetFocusManager(view_->GetContainerHWND());
     // We may not have a focus_manager at this point (if the tab has been
     // switched by the time this message returned).
     if (focus_manager) {
@@ -1707,21 +1669,19 @@ void WebContents::BeforeUnloadFiredFromRenderManager(
 
 void WebContents::UpdateRenderViewSizeForRenderManager() {
   // Using same technique as OnPaint, which sets size of SadTab.
-  CRect cr;
-  GetClientRect(&cr);
-  gfx::Size new_size(cr.Width(), cr.Height());
-  SizeContents(new_size);
+  SizeContents(view_->GetContainerSize());
 }
 
 bool WebContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
-  RenderWidgetHostHWND* view = CreatePageView(render_view_host);
+  // TODO(brettw) move this to the view. Probably the RenderWidgetHostHWNDs
+  // should be created by a factory somewhere that just returns a
+  // RenderWidgetHostView*.
+  RenderWidgetHostHWND* rvh_view = view_->CreatePageView(render_view_host);
 
   bool ok = render_view_host->CreateRenderView();
   if (ok) {
-    CRect client_rect;
-    ::GetClientRect(GetHWND(), &client_rect);
-    view->SetSize(gfx::Size(client_rect.Width(), client_rect.Height()));
+    rvh_view->SetSize(view_->GetContainerSize());
     UpdateMaxPageIDIfNecessary(render_view_host->site_instance(),
                                render_view_host);
   }
@@ -1761,210 +1721,6 @@ void WebContents::Observe(NotificationType type,
       NOTREACHED();
       break;
     }
-  }
-}
-
-void WebContents::OnDestroy() {
-  if (drop_target_.get()) {
-    RevokeDragDrop(GetHWND());
-    drop_target_ = NULL;
-  }
-}
-
-void WebContents::OnHScroll(int scroll_type, short position, HWND scrollbar) {
-  ScrollCommon(WM_HSCROLL, scroll_type, position, scrollbar);
-}
-
-void WebContents::OnMouseLeave() {
-  // Let our delegate know that the mouse moved (useful for resetting status
-  // bubble state).
-  if (delegate())
-    delegate()->ContentsMouseEvent(this, WM_MOUSELEAVE);
-  SetMsgHandled(FALSE);
-}
-
-LRESULT WebContents::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
-  switch (msg) {
-    case WM_LBUTTONDOWN:
-    case WM_MBUTTONDOWN:
-    case WM_RBUTTONDOWN:
-      // Make sure this TabContents is activated when it is clicked on.
-      if (delegate())
-        delegate()->ActivateContents(this);
-      break;
-    case WM_MOUSEMOVE:
-      // Let our delegate know that the mouse moved (useful for resetting status
-      // bubble state).
-      if (delegate())
-        delegate()->ContentsMouseEvent(this, WM_MOUSEMOVE);
-      break;
-    default:
-      break;
-  }
-
-  return 0;
-}
-
-void WebContents::OnPaint(HDC junk_dc) {
-  if (render_view_host() && !render_view_host()->IsRenderViewLive()) {
-    if (!sad_tab_.get())
-      sad_tab_.reset(new SadTabView);
-    CRect cr;
-    GetClientRect(&cr);
-    sad_tab_->SetBounds(cr);
-    ChromeCanvasPaint canvas(GetHWND(), true);
-    sad_tab_->ProcessPaint(&canvas);
-    return;
-  }
-
-  // We need to do this to validate the dirty area so we don't end up in a
-  // WM_PAINTstorm that causes other mysterious bugs (such as WM_TIMERs not
-  // firing etc). It doesn't matter that we don't have any non-clipped area.
-  CPaintDC dc(GetHWND());
-  SetMsgHandled(FALSE);
-}
-
-// A message is reflected here from view().
-// Return non-zero to indicate that it is handled here.
-// Return 0 to allow view() to further process it.
-LRESULT WebContents::OnReflectedMessage(UINT msg, WPARAM w_param,
-                                        LPARAM l_param) {
-  MSG* message = reinterpret_cast<MSG*>(l_param);
-  switch (message->message) {
-    case WM_MOUSEWHEEL:
-      // This message is reflected from the view() to this window.
-      if (GET_KEYSTATE_WPARAM(message->wParam) & MK_CONTROL) {
-        WheelZoom(GET_WHEEL_DELTA_WPARAM(message->wParam));
-        return 1;
-      }
-      break;
-    case WM_HSCROLL:
-    case WM_VSCROLL:
-      if (ScrollZoom(LOWORD(message->wParam)))
-        return 1;
-    default:
-      break;
-  }
-
-  return 0;
-}
-
-void WebContents::OnSetFocus(HWND window) {
-  // TODO(jcampan): figure out why removing this prevents tabs opened in the
-  //                background from properly taking focus.
-  // We NULL-check the render_view_host_ here because Windows can send us
-  // messages during the destruction process after it has been destroyed.
-  if (view()) {
-    HWND inner_hwnd = view()->GetPluginHWND();
-    if (::IsWindow(inner_hwnd))
-      ::SetFocus(inner_hwnd);
-  }
-}
-
-void WebContents::OnVScroll(int scroll_type, short position, HWND scrollbar) {
-  ScrollCommon(WM_VSCROLL, scroll_type, position, scrollbar);
-}
-
-void WebContents::OnWindowPosChanged(WINDOWPOS* window_pos) {
-  if (window_pos->flags & SWP_HIDEWINDOW) {
-    HideContents();
-  } else {
-    // The WebContents was shown by a means other than the user selecting a
-    // Tab, e.g. the window was minimized then restored.
-    if (window_pos->flags & SWP_SHOWWINDOW)
-      ShowContents();
-    // Unless we were specifically told not to size, cause the renderer to be
-    // sized to the new bounds, which forces a repaint. Not required for the
-    // simple minimize-restore case described above, for example, since the
-    // size hasn't changed.
-    if (!(window_pos->flags & SWP_NOSIZE)) {
-      gfx::Size size(window_pos->cx, window_pos->cy);
-      SizeContents(size);
-    }
-
-    // If we have a FindInPage dialog, notify it that the window changed.
-    if (find_in_page_controller_.get() && find_in_page_controller_->IsVisible())
-      find_in_page_controller_->MoveWindowIfNecessary(gfx::Rect());
-  }
-}
-
-void WebContents::OnSize(UINT param, const CSize& size) {
-  HWNDViewContainer::OnSize(param, size);
-
-  // Hack for thinkpad touchpad driver.
-  // Set fake scrollbars so that we can get scroll messages,
-  SCROLLINFO si = {0};
-  si.cbSize = sizeof(si);
-  si.fMask = SIF_ALL;
-
-  si.nMin = 1;
-  si.nMax = 100;
-  si.nPage = 10;
-  si.nTrackPos = 50;
-
-  ::SetScrollInfo(GetHWND(), SB_HORZ, &si, FALSE);
-  ::SetScrollInfo(GetHWND(), SB_VERT, &si, FALSE);
-}
-
-LRESULT WebContents::OnNCCalcSize(BOOL w_param, LPARAM l_param) {
-  // Hack for thinkpad mouse wheel driver. We have set the fake scroll bars
-  // to receive scroll messages from thinkpad touchpad driver. Suppress
-  // painting of scrollbars by returning 0 size for them.
-  return 0;
-}
-
-void WebContents::OnNCPaint(HRGN rgn) {
-  // Suppress default WM_NCPAINT handling. We don't need to do anything
-  // here since the view will draw everything correctly.
-}
-
-void WebContents::ScrollCommon(UINT message, int scroll_type, short position,
-                               HWND scrollbar) {
-  // This window can receive scroll events as a result of the ThinkPad's
-  // Trackpad scroll wheel emulation.
-  if (!ScrollZoom(scroll_type)) {
-    // Reflect scroll message to the view() to give it a chance
-    // to process scrolling.
-    SendMessage(GetContentHWND(), message, MAKELONG(scroll_type, position),
-                (LPARAM) scrollbar);
-  }
-}
-
-bool WebContents::ScrollZoom(int scroll_type) {
-  // If ctrl is held, zoom the UI.  There are three issues with this:
-  // 1) Should the event be eaten or forwarded to content?  We eat the event,
-  //    which is like Firefox and unlike IE.
-  // 2) Should wheel up zoom in or out?  We zoom in (increase font size), which
-  //    is like IE and Google maps, but unlike Firefox.
-  // 3) Should the mouse have to be over the content area?  We zoom as long as
-  //    content has focus, although FF and IE require that the mouse is over
-  //    content.  This is because all events get forwarded when content has
-  //    focus.
-  if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {
-    int distance = 0;
-    switch (scroll_type) {
-      case SB_LINEUP:
-        distance = WHEEL_DELTA;
-        break;
-      case SB_LINEDOWN:
-        distance = -WHEEL_DELTA;
-        break;
-        // TODO(joshia): Handle SB_PAGEUP, SB_PAGEDOWN, SB_THUMBPOSITION,
-        // and SB_THUMBTRACK for completeness
-      default:
-        break;
-    }
-
-    WheelZoom(distance);
-    return true;
-  }
-  return false;
-}
-
-void WebContents::WheelZoom(int distance) {
-  if (delegate()) {
-    bool zoom_in = distance > 0;
-    delegate()->ContentsZoomChange(zoom_in);
   }
 }
 
@@ -2186,30 +1942,6 @@ void WebContents::UpdateHistoryForNavigation(const GURL& display_url,
                   params.transition, params.redirects);
     }
   }
-}
-
-RenderWidgetHostHWND* WebContents::CreatePageView(
-    RenderViewHost* render_view_host) {
-  // Create the View as well. Its lifetime matches the child process'.
-  DCHECK(!render_view_host->view());
-  RenderWidgetHostHWND* view = new RenderWidgetHostHWND(render_view_host);
-  render_view_host->set_view(view);
-  view->Create(GetHWND());
-  view->ShowWindow(SW_SHOW);
-  return view;
-}
-
-void WebContents::DetachPluginWindows() {
-  EnumChildWindows(GetHWND(), WebContents::EnumPluginWindowsCallback, NULL);
-}
-
-BOOL WebContents::EnumPluginWindowsCallback(HWND window, LPARAM) {
-  if (WebPluginDelegateImpl::IsPluginDelegateWindow(window)) {
-    ::ShowWindow(window, SW_HIDE);
-    SetParent(window, NULL);
-  }
-
-  return TRUE;
 }
 
 void WebContents::NotifySwapped() {

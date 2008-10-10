@@ -819,7 +819,7 @@ void NewTabUIContents::SetInitialFocus() {
   if (browser)
     browser->FocusLocationBar();
   else
-    ::SetFocus(GetHWND());
+    ::SetFocus(GetContainerHWND());
 }
 
 bool NewTabUIContents::SupportsURL(GURL* url) {

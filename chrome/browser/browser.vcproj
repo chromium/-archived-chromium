@@ -893,6 +893,18 @@
 				RelativePath=".\web_contents.h"
 				>
 			</File>
+			<File
+				RelativePath=".\web_contents_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\web_contents_view_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\web_contents_view_win.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Browser Window"

@@ -13,6 +13,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
@@ -349,6 +350,7 @@ void TabContents::StoreFocus() {
 
     // If the focus was on the page, explicitly clear the focus so that we
     // don't end up with the focused HWND not part of the window hierarchy.
+    // TODO(brettw) this should move to the view somehow.
     HWND container_hwnd = GetContainerHWND();
     if (container_hwnd) {
       ChromeViews::View* focused_view = focus_manager->GetFocusedView();

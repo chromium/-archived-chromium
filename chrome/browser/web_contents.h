@@ -14,7 +14,6 @@
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/web_app.h"
-#include "chrome/views/hwnd_view_container.h"
 
 class FindInPageController;
 class InterstitialPageDelegate;
@@ -25,15 +24,13 @@ class RenderViewHostFactory;
 class RenderWidgetHost;
 class RenderWidgetHostHWND;
 class SadTabView;
-struct WebDropData;
-class WebDropTarget;
+class WebContentsView;
 
 // WebContents represents the contents of a tab that shows web pages. It embeds
 // a RenderViewHost (via RenderViewHostManager) to actually display the page.
 class WebContents : public TabContents,
                     public RenderViewHostDelegate,
                     public RenderViewHostManager::Delegate,
-                    public ChromeViews::HWNDViewContainer,
                     public SelectFileDialog::Listener,
                     public NotificationObserver,
                     public WebApp::Observer {
@@ -73,6 +70,8 @@ class WebContents : public TabContents,
   RenderViewHost* render_view_host() const {
     return render_manager_.current_host();
   }
+  // TODO(brettw) rename this to render_widget_host_view soon, and make this go
+  // away entirely in the long run.
   RenderWidgetHostView* view() const {
     return render_manager_.current_view();
   }
@@ -102,15 +101,17 @@ class WebContents : public TabContents,
   virtual void ShowContents();
   virtual void HideContents();
   virtual void SizeContents(const gfx::Size& size);
-  virtual HWND GetContentHWND();
-  virtual void CreateView(HWND parent_hwnd, const gfx::Rect& initial_bounds);
-  virtual HWND GetContainerHWND() const { return GetHWND(); }
-  virtual void GetContainerBounds(gfx::Rect *out) const;
-  // Create the InfoBarView and returns it if none has been created.
-  // Just returns existing InfoBarView if it is already created.
-  virtual InfoBarView* GetInfoBarView();
-  virtual bool IsInfoBarVisible() { return info_bar_visible_; }
   virtual void SetDownloadShelfVisible(bool visible);
+
+  // Retarded pass-throughs to the view. See also below under misc state.
+  // TODO(brettw) fix this, tab contents shouldn't have these methods, probably
+  // it should be killed altogether.
+  virtual void CreateView(HWND parent_hwnd, const gfx::Rect& initial_bounds);
+  virtual HWND GetContainerHWND() const;
+  virtual HWND GetContentHWND();
+  virtual bool IsInfoBarVisible();
+  virtual InfoBarView* GetInfoBarView();
+  virtual void GetContainerBounds(gfx::Rect *out) const;
 
   // Find in page --------------------------------------------------------------
 
@@ -175,6 +176,9 @@ class WebContents : public TabContents,
 
   // Misc state & callbacks ----------------------------------------------------
 
+  // More retarded pass-throughs (see also above under TabContents overrides).
+  void SetInfoBarVisible(bool visible);
+
   // Set whether the contents should block javascript message boxes or not.
   // Default is not to block any message boxes.
   void set_suppress_javascript_messages(
@@ -186,11 +190,6 @@ class WebContents : public TabContents,
   void OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                     bool success,
                                     const std::wstring& prompt);
-
-  // Whether or not the info bar is visible. This delegates to
-  // the ChromeFrame method InfoBarVisibilityChanged. See also IsInfoBarVisible
-  // (a TabContents override).
-  void SetInfoBarVisible(bool visible);
 
   // Prepare for saving page.
   void OnSavePage();
@@ -384,6 +383,9 @@ class WebContents : public TabContents,
   FRIEND_TEST(WebContentsTest, UpdateTitle);
   friend class TestWebContents;
 
+  // Temporary until the view/contents separation is complete.
+  friend class WebContentsViewWin;
+
   // When CreateShortcut is invoked RenderViewHost::GetApplicationInfo is
   // invoked. CreateShortcut caches the state of the page needed to create the
   // shortcut in PendingInstall. When OnDidGetApplicationInfo is invoked, it
@@ -405,30 +407,6 @@ class WebContents : public TabContents,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
-
-  // Windows events ------------------------------------------------------------
-
-  virtual void OnDestroy();
-  virtual void OnHScroll(int scroll_type, short position, HWND scrollbar);
-  virtual void OnMouseLeave();
-  virtual LRESULT OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param);
-  virtual void OnPaint(HDC junk_dc);
-  virtual LRESULT OnReflectedMessage(UINT msg, WPARAM w_param, LPARAM l_param);
-  virtual void OnSetFocus(HWND window);
-  virtual void OnVScroll(int scroll_type, short position, HWND scrollbar);
-  virtual void OnWindowPosChanged(WINDOWPOS* window_pos);
-  virtual void OnSize(UINT param, const CSize& size);
-  virtual LRESULT OnNCCalcSize(BOOL w_param, LPARAM l_param);
-  virtual void OnNCPaint(HRGN rgn);
-
-  // Backend for all scroll messages, the |message| parameter indicates which
-  // one it is.
-  void ScrollCommon(UINT message, int scroll_type, short position,
-                    HWND scrollbar);
-
-  // TODO(brettw) comment these. They're confusing. 
-  bool ScrollZoom(int scroll_type);
-  void WheelZoom(int distance);
 
   // Navigation helpers --------------------------------------------------------
   //
@@ -488,17 +466,6 @@ class WebContents : public TabContents,
   virtual void UpdateHistoryForNavigation(const GURL& display_url,
       const ViewHostMsg_FrameNavigate_Params& params);
 
-  // Misc view stuff -----------------------------------------------------------
-
-  // Sets up the View that holds the rendered web page, receives messages for
-  // it and contains page plugins.
-  RenderWidgetHostHWND* CreatePageView(RenderViewHost* render_view_host);
-
-  // Enumerate and 'un-parent' any plugin windows that are children
-  // of this web contents.
-  void DetachPluginWindows();
-  static BOOL CALLBACK EnumPluginWindowsCallback(HWND window, LPARAM param);
-
   // Misc non-view stuff -------------------------------------------------------
 
   // Helper functions for sending notifications.
@@ -511,6 +478,9 @@ class WebContents : public TabContents,
       const ViewHostMsg_FrameNavigate_Params& params);
 
   // Data ----------------------------------------------------------------------
+
+  // The corresponding view.
+  scoped_ptr<WebContentsView> view_;
 
   // Manages creation and swapping of render views.
   RenderViewHostManager render_manager_;
@@ -545,12 +515,6 @@ class WebContents : public TabContents,
   // SavePackage, lazily created.
   scoped_refptr<SavePackage> save_package_;
 
-  // InfoBarView, lazily created.
-  scoped_ptr<InfoBarView> info_bar_view_;
-
-  // Whether the info bar view is visible.
-  bool info_bar_visible_;
-
   // Handles communication with the FindInPage popup.
   scoped_ptr<FindInPageController> find_in_page_controller_;
 
@@ -573,10 +537,8 @@ class WebContents : public TabContents,
   // PluginInstaller, lazily created.
   scoped_ptr<PluginInstaller> plugin_installer_;
 
-  // A drop target object that handles drags over this WebContents.
-  scoped_refptr<WebDropTarget> drop_target_;
-
   // The SadTab renderer.
+  // TODO(brettw) move into WebContentsView*.
   scoped_ptr<SadTabView> sad_tab_;
 
   // Handles downloading favicons.
