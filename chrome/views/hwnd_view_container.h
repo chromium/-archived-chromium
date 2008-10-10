@@ -191,7 +191,6 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_DESTROY(OnDestroy)
     MSG_WM_ERASEBKGND(OnEraseBkgnd)
     MSG_WM_ENDSESSION(OnEndSession)
-    MSG_WM_ENTERIDLE(OnEnterIdle)
     MSG_WM_EXITMENULOOP(OnExitMenuLoop)
     MSG_WM_GETMINMAXINFO(OnGetMinMaxInfo)
     MSG_WM_HSCROLL(OnHScroll)
@@ -359,9 +358,6 @@ class HWNDViewContainer : public ViewContainer,
   // leak a few things.
   virtual void OnDestroy();
   virtual void OnEndSession(BOOL ending, UINT logoff) { SetMsgHandled(FALSE); }
-  virtual void OnEnterIdle(UINT reason, HWND window) {
-    SetMsgHandled(FALSE);
-  }
   virtual void OnExitMenuLoop(BOOL is_track_popup_menu) { SetMsgHandled(FALSE); }
   virtual LRESULT OnEraseBkgnd(HDC dc);
   virtual void OnGetMinMaxInfo(LPMINMAXINFO mm_info) { }

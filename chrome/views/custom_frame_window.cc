@@ -911,12 +911,6 @@ void CustomFrameWindow::SizeWindowToDefault() {
 ///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, HWNDViewContainer overrides:
 
-void CustomFrameWindow::OnEnterIdle(UINT reason, HWND window) {
-  CRect wr;
-  ::GetWindowRect(GetHWND(), &wr);
-  PaintNow(wr);
-}
-
 static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
   UINT flags = MF_BYCOMMAND | (enabled ? MF_ENABLED : MF_DISABLED | MF_GRAYED);
   EnableMenuItem(menu, command, flags);
@@ -936,16 +930,6 @@ void CustomFrameWindow::OnInitMenu(HMENU menu) {
                  window_delegate()->CanMaximize() && !maximized);
   EnableMenuItem(menu, SC_MINIMIZE,
                  window_delegate()->CanMaximize() && !minimized);
-  CRect wr;
-  ::GetWindowRect(GetHWND(), &wr);
-  PaintNow(wr);
-}
-
-void CustomFrameWindow::OnInitMenuPopup(HMENU menu, UINT position,
-                                        BOOL is_system_menu) {
-  CRect wr;
-  ::GetWindowRect(GetHWND(), &wr);
-  PaintNow(wr);
 }
 
 void CustomFrameWindow::OnMouseLeave() {
