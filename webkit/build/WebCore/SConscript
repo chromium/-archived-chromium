@@ -225,9 +225,7 @@ input_files = [
     '$WEBCORE_DIR/html/File.cpp',
     '$WEBCORE_DIR/html/FileList.cpp',
     '$WEBCORE_DIR/html/FormDataList.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/html/HTMLAnchorElement.cpp',
-    '$PENDING_DIR/HTMLAnchorElement.cpp',
+    '$WEBCORE_DIR/html/HTMLAnchorElement.cpp',
     '$WEBCORE_DIR/html/HTMLAppletElement.cpp',
     '$WEBCORE_DIR/html/HTMLAreaElement.cpp',
     '$WEBCORE_DIR/html/HTMLAudioElement.cpp',
@@ -268,9 +266,7 @@ input_files = [
     '$WEBCORE_DIR/html/HTMLLabelElement.cpp',
     '$WEBCORE_DIR/html/HTMLLegendElement.cpp',
     '$WEBCORE_DIR/html/HTMLLIElement.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/html/HTMLLinkElement.cpp',
-    '$PENDING_DIR/HTMLLinkElement.cpp',
+    '$WEBCORE_DIR/html/HTMLLinkElement.cpp',
     '$WEBCORE_DIR/html/HTMLMapElement.cpp',
     '$WEBCORE_DIR/html/HTMLMarqueeElement.cpp',
     '$WEBCORE_DIR/html/HTMLMediaElement.cpp',
@@ -388,6 +384,7 @@ input_files = [
     '$WEBCORE_DIR/platform/DragImage.cpp',
     '$WEBCORE_DIR/platform/FileChooser.cpp',
     '$WEBCORE_DIR/platform/KURL.cpp',
+    '$WEBCORE_DIR/platform/Logging.cpp',
     '$PORT_DIR/platform/MIMETypeRegistry.cpp',
     '$WEBCORE_DIR/platform/ScrollBar.cpp',
     '$WEBCORE_DIR/platform/SecurityOrigin.cpp',
@@ -442,13 +439,9 @@ input_files = [
     '$WEBCORE_DIR/platform/text/CString.cpp',
     '$WEBCORE_DIR/platform/text/RegularExpression.cpp',
     '$WEBCORE_DIR/platform/text/SegmentedString.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/platform/text/String.cpp',
-    '$PENDING_DIR/String.cpp',
+    '$WEBCORE_DIR/platform/text/String.cpp',
     '$WEBCORE_DIR/platform/text/StringBuilder.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/platform/text/StringImpl.cpp',
-    '$PENDING_DIR/StringImpl.cpp',
+    '$WEBCORE_DIR/platform/text/StringImpl.cpp',
     '$WEBCORE_DIR/platform/text/TextBoundariesICU.cpp',
     '$WEBCORE_DIR/platform/text/TextBreakIteratorICU.cpp',
     '$WEBCORE_DIR/platform/text/TextCodec.cpp',
@@ -750,16 +743,12 @@ if env['PLATFORM'] in ('darwin', 'posix'):
     '$WEBCORE_DIR/platform/ContextMenu.cpp',
     '$WEBCORE_DIR/platform/FileChooser.cpp',
     '$WEBCORE_DIR/rendering/RenderFileUploadControl.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/rendering/RenderMenuList.cpp',
-    '$PENDING_DIR/RenderMenuList.cpp',
+    '$WEBCORE_DIR/rendering/RenderMenuList.cpp',
     '$WEBCORE_DIR/rendering/HitTestResult.cpp',
     '$WEBCORE_DIR/rendering/RenderListBox.cpp',
     '$WEBCORE_DIR/rendering/RenderLayer.cpp',
     '$WEBCORE_DIR/rendering/RenderTheme.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/rendering/RenderTextControl.cpp',
-    '$PENDING_DIR/RenderTextControl.cpp',
+    '$WEBCORE_DIR/rendering/RenderTextControl.cpp',
   ]
   for remove in remove_files:
     input_files.remove(remove)
