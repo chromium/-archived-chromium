@@ -1914,7 +1914,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptController.cpp"
+			RelativePath="..\..\port\bridge\ScriptControllerKJS.cpp"
 			>
 		</File>
 		<File

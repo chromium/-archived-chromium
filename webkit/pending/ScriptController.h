@@ -147,6 +147,7 @@ class Widget;
 typedef HashMap<void*, RefPtr<KJS::Bindings::RootObject> > RootObjectMap;
 typedef KJS::UString JSString;
 typedef KJS::Bindings::Instance* JSInstance;
+typedef PassRefPtr<KJS::Bindings::Instance> JSInstanceReturnValue;
 typedef KJS::Bindings::Instance* JSPersistentInstance;
 typedef KJS::JSValue* JSException;
 typedef KJS::JSValue* JSResult;
@@ -155,6 +156,7 @@ typedef KJS::JSValue* JSResult;
 #if USE(V8)
 typedef String JSString;
 typedef v8::Local<v8::Object> JSInstance;
+typedef v8::Local<v8::Object> JSInstanceReturnValue;
 typedef v8::Persistent<v8::Object> JSPersistentInstance;
 typedef v8::Local<v8::Value> JSException;
 typedef v8::Persistent<v8::Value> JSResult;
@@ -197,7 +199,7 @@ public:
 
     NPRuntimeFunctions* functions();
 
-    JSInstance createScriptInstanceForWidget(Widget*);
+    JSInstanceReturnValue createScriptInstanceForWidget(Widget*);
 
     void clearPluginObjects();
     void clearDocumentWrapper();
