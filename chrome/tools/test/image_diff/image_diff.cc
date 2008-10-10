@@ -10,6 +10,8 @@
 
 #include <algorithm>
 #include <vector>
+#include <string>
+#include <iostream>
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
@@ -18,6 +20,7 @@
 #include "base/logging.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 
 // Causes the app to remain open, waiting for pairs of filenames on stdin.
 // The caller is then responsible for terminating this app.
@@ -47,8 +50,8 @@ class Image {
 
   // Creates the image from stdin with the given data length. On success, it
   // will return true. On failure, no other methods should be accessed.
-  bool CreateFromStdin(int byte_length) {
-    if (byte_length <= 0)
+  bool CreateFromStdin(size_t byte_length) {
+    if (byte_length == 0)
       return false;
 
     scoped_array<unsigned char> source(new unsigned char[byte_length]);
@@ -234,26 +237,24 @@ int main(int argc, const char* argv[]) {
   CommandLine parsed_command_line;
   if (parsed_command_line.HasSwitch(kOptionPollStdin)) {
     // Watch stdin for filenames.
-    char stdin_buffer[2048];
-    char filename1_buffer[2048];
+    std::string stdin_buffer;
+    std::string filename1_buffer;
     bool have_filename1 = false;
-    while (fgets(stdin_buffer, sizeof(stdin_buffer), stdin)) {
-      char *newLine = strchr(stdin_buffer, '\n');
-      if (newLine)
-        *newLine = '\0';
-      if (!*stdin_buffer)
+    while (std::getline(std::cin, stdin_buffer)) {
+      if (stdin_buffer.empty())
         continue;
 
       if (have_filename1) {
         // CompareImages writes results to stdout unless an error occurred.
-        if (CompareImages(filename1_buffer, stdin_buffer) == kStatusError)
+        if (CompareImages(filename1_buffer.c_str(), stdin_buffer.c_str()) ==
+            kStatusError)
           printf("error\n");
         fflush(stdout);
         have_filename1 = false;
       } else {
         // Save the first filename in another buffer and wait for the second
         // filename to arrive via stdin.
-        strcpy_s(filename1_buffer, sizeof(filename1_buffer), stdin_buffer);
+        filename1_buffer = stdin_buffer;
         have_filename1 = true;
       }
     }
@@ -267,4 +268,3 @@ int main(int argc, const char* argv[]) {
   PrintHelp();
   return kStatusError;
 }
-
