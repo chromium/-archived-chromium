@@ -259,10 +259,12 @@ DECLARE_CALLBACK(ConsoleProfileEnd)
 DECLARE_CALLBACK(ConsoleTimeEnd)
 DECLARE_CALLBACK(ConsoleWarn)
 
-// Implementation of Clipboard methods.
+// Implementation of Clipboard attributes and methods.
+DECLARE_PROPERTY_ACCESSOR_GETTER(ClipboardTypes)
 DECLARE_CALLBACK(ClipboardClearData)
 DECLARE_CALLBACK(ClipboardGetData)
 DECLARE_CALLBACK(ClipboardSetData)
+DECLARE_CALLBACK(ClipboardSetDragImage);
 
 // Implementation of Element methods.
 DECLARE_CALLBACK(ElementQuerySelector)

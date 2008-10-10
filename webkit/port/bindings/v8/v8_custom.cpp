@@ -2270,16 +2270,47 @@ CALLBACK_FUNC_DECL(ConsoleWarn) {
 
 // Clipboard -------------------------------------------------------------------
 
+
+ACCESSOR_GETTER(ClipboardTypes) {
+  INC_STATS(L"DOM.Clipboard.types()");
+  Clipboard* imp =
+    V8Proxy::ToNativeObject<Clipboard>(V8ClassIndex::CLIPBOARD,
+                                       info.Holder());
+
+  HashSet<String> types = imp->types();
+  if (types.isEmpty())
+    return v8::Null();
+
+  v8::Local<v8::Array> result = v8::Array::New(types.size());
+  HashSet<String>::const_iterator end = types.end();
+  int index = 0;
+  for (HashSet<String>::const_iterator it = types.begin();
+       it != end;
+       ++it, ++index) {
+    result->Set(v8::Integer::New(index), v8String(*it));
+  }
+  return result;
+}
+
+
 CALLBACK_FUNC_DECL(ClipboardClearData) {
   INC_STATS(L"DOM.Clipboard.clearData()");
   Clipboard* imp = V8Proxy::ToNativeObject<Clipboard>(
       V8ClassIndex::CLIPBOARD, args.Holder());
+
   if (args.Length() == 0) {
     imp->clearAllData();
-  } else {
+    return v8::Undefined();
+  } 
+
+  if (args.Length() == 1) {
     String v = ToWebCoreString(args[0]);
     imp->clearData(v);
+    return v8::Undefined();
   }
+  
+  V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR,
+                      "clearData: Invalid number of arguments");
   return v8::Undefined();
 }
 
@@ -2288,17 +2319,17 @@ CALLBACK_FUNC_DECL(ClipboardGetData) {
   INC_STATS(L"DOM.Clipboard.getData()");
   Clipboard* imp = V8Proxy::ToNativeObject<Clipboard>(
       V8ClassIndex::CLIPBOARD, args.Holder());
-  if (args.Length() == 1) {
-    bool success;
-    String v = ToWebCoreString(args[0]);
-    String result = imp->getData(v, success);
-    if (success) return v8String(result);
+  
+  if (args.Length() != 1) {
+    V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR,
+                        "getData: Invalid number of arguments");
     return v8::Undefined();
   }
 
-  V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR,
-                     "getData: Invalid number of arguments");
-
+  bool success;
+  String v = ToWebCoreString(args[0]);
+  String result = imp->getData(v, success);
+  if (success) return v8String(result);
   return v8::Undefined();
 }
 
@@ -2306,15 +2337,58 @@ CALLBACK_FUNC_DECL(ClipboardSetData) {
   INC_STATS(L"DOM.Clipboard.setData()");
   Clipboard* imp = V8Proxy::ToNativeObject<Clipboard>(
       V8ClassIndex::CLIPBOARD, args.Holder());
-  if (args.Length() == 2) {
-    String type = ToWebCoreString(args[0]);
-    String data = ToWebCoreString(args[1]);
-    bool result = imp->setData(type, data);
-    return result?v8::True():v8::False();
+
+  if (args.Length() != 2) {
+    V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR,
+                        "setData: Invalid number of arguments");
+    return v8::Undefined();
   }
 
-  V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR,
-                     "setData: Invalid number of arguments");
+  String type = ToWebCoreString(args[0]);
+  String data = ToWebCoreString(args[1]);
+  bool result = imp->setData(type, data);
+  return result ? v8::True() : v8::False();
+}
+
+
+CALLBACK_FUNC_DECL(ClipboardSetDragImage) {
+  INC_STATS(L"DOM.Clipboard.setDragImage()");
+  Clipboard* imp = V8Proxy::ToNativeObject<Clipboard>(
+      V8ClassIndex::CLIPBOARD, args.Holder());
+  
+  if (!imp->isForDragging())
+    return v8::Undefined();
+
+  if (args.Length() != 3) {
+    V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR,
+                        "setDragImage: Invalid number of arguments");
+    return v8::Undefined();
+  }
+
+  int x = ToInt32(args[1]);
+  int y = ToInt32(args[2]);
+
+  Node* node = 0;
+  if (V8Node::HasInstance(args[0]))
+    node = V8Proxy::DOMWrapperToNode<Node>(args[0]);
+  if (!node) {
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+                        "setDragImageFromElement: Invalid first argument");
+    return v8::Undefined();
+  }
+
+  if (!node->isElementNode()) {
+    V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR,
+                        "setDragImageFromElement: Invalid first argument");
+    return v8::Undefined();
+  }
+   
+  if (static_cast<Element*>(node)->hasLocalName(HTMLNames::imgTag) &&
+      !node->inDocument())
+    imp->setDragImage(static_cast<HTMLImageElement*>(node)->cachedImage(),
+                      IntPoint(x, y));
+  else
+    imp->setDragImageElement(node, IntPoint(x, y));
 
   return v8::Undefined();
 }
