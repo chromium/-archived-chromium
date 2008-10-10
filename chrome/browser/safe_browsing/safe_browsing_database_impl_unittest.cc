@@ -59,6 +59,7 @@ void PopulateDatabaseForCacheTest(SafeBrowsingDatabase* database) {
 
   SBChunk chunk;
   chunk.chunk_number = 1;
+  chunk.is_add = true;
   chunk.hosts.push_back(host);
 
   std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
@@ -138,6 +139,7 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
 
   SBChunk chunk;
   chunk.chunk_number = 2;
+  chunk.is_add = false;
   chunk.hosts.clear();
   chunk.hosts.push_back(host);
   std::deque<SBChunk>* chunks = new std::deque<SBChunk>;

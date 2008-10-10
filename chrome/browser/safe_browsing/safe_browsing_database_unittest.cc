@@ -93,6 +93,7 @@ TEST(SafeBrowsingDatabase, Database) {
 
   SBChunk chunk;
   chunk.chunk_number = 1;
+  chunk.is_add = true;
   chunk.hosts.push_back(host);
 
   std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
