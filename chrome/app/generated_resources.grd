@@ -2088,7 +2088,7 @@ each locale. -->
       <message name="IDS_APP_MENU_RELOAD" desc="The reload menu in application windows">
         Reload
       </message>
-      <message name="IDS_APP_MENU_DUPLICATE" desc="The duplicate / start new instance menu">
+      <message name="IDS_APP_MENU_DUPLICATE" meaning="Duplicate application window" desc="The duplicate / start new instance menu">
         Duplicate
       </message>
       <message name="IDS_APP_MENU_COPY_URL" desc="The copy url menu in application windows">
