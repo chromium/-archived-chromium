@@ -19,7 +19,7 @@ env_test.Prepend(
         'third_party/wtl/include',
         '$LIBXSLT_DIR',
         '$LIBXML_DIR/include',
-        '$LIBXML_DIR/scons/include',
+        '$LIBXML_DIR/DerivedSources/include',
         'tools/build/win',
     ],
     CPPDEFINES = [

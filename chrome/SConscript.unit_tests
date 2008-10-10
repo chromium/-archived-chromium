@@ -18,7 +18,7 @@ env_test.Prepend(
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
         '$LIBXML_DIR/include',
-        '$LIBXML_DIR/scons/include',
+        '$LIBXML_DIR/DerivedSources/include',
         '$SKIA_DIR/include',
         '$SKIA_DIR/include/corecg',
         '$SKIA_DIR/platform',

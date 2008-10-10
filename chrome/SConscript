@@ -93,6 +93,7 @@ env_dll.Append(
         '$SKIA_DIR/include/corecg',
         '$SKIA_DIR/platform',
         '$LIBXSL_DIR',
+        '$LIBXML_DIR/DerivedSources/include',
         '$LIBXML_DIR/include',
         '$BREAKPAD_DIR/src',
     ],

@@ -28,7 +28,7 @@ env.Append(
     CPPPATH = [
         'third_party/wtl/include',
         '$NPAPI_DIR',
-        '$LIBXML_DIR/scons/include',
+        '$LIBXML_DIR/DerivedSources/include',
         '$LIBXML_DIR/include',
 
         'app',

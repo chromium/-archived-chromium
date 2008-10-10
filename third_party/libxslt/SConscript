@@ -33,7 +33,7 @@ env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
-        '$LIBXML_DIR/scons/include',
+        '$LIBXML_DIR/DerivedSources/include',
         '$LIBXML_DIR/include',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/18n',
