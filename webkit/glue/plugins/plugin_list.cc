@@ -217,6 +217,10 @@ void PluginList::LoadInternalPlugins() {
     scoped_refptr<PluginLib> new_plugin = PluginLib::CreatePluginLib(
         kActiveXShimFileName);
     plugins_.push_back(new_plugin);
+    
+    new_plugin = PluginLib::CreatePluginLib(
+        kActivexShimFileNameForMediaPlayer);
+    plugins_.push_back(new_plugin);
   }
 }
 

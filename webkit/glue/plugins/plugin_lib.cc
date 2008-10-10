@@ -45,13 +45,26 @@ PluginLib* PluginLib::CreatePluginLib(const std::wstring& filename) {
   if (iter != loaded_libs_->end())
     return iter->second;
 
-  static const InternalPluginInfo activex_shim_info = {
+  static const InternalPluginInfo activex_shim_info_generic = {
     {kActiveXShimFileName,
      L"ActiveX Plug-in",
      L"ActiveX Plug-in provides a shim to support ActiveX controls",
      L"1, 0, 0, 1",
-     L"application/x-oleobject|application/oleobject|"
-         L"application/x-ms-wmp|application/asx|video/x-ms-asf-plugin|"
+     L"application/x-oleobject|application/oleobject",
+     L"*|*",
+     L""
+    },
+    activex_shim::ActiveX_Shim_NP_GetEntryPoints,
+    activex_shim::ActiveX_Shim_NP_Initialize,
+    activex_shim::ActiveX_Shim_NP_Shutdown
+  };
+
+  static const InternalPluginInfo activex_shim_windows_media_player = {
+    {kActivexShimFileNameForMediaPlayer,
+     kActivexShimFileNameForMediaPlayer,
+     L"Windows Media Player",
+     L"1, 0, 0, 1",
+     L"application/x-ms-wmp|application/asx|video/x-ms-asf-plugin|"
          L"application/x-mplayer2|video/x-ms-asf|video/x-ms-wm|audio/x-ms-wma|"
          L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx",
      L"*|*|*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
@@ -78,9 +91,13 @@ PluginLib* PluginLib::CreatePluginLib(const std::wstring& filename) {
 
   WebPluginInfo* info = NULL;
   const InternalPluginInfo* internal_plugin_info = NULL;
-  if (filename == activex_shim_info.version_info.file_name) {
-    info = CreateWebPluginInfo(activex_shim_info.version_info);
-    internal_plugin_info = &activex_shim_info;
+  if (filename == activex_shim_info_generic.version_info.file_name) {
+    info = CreateWebPluginInfo(activex_shim_info_generic.version_info);
+    internal_plugin_info = &activex_shim_info_generic;
+  } else if (filename ==
+             activex_shim_windows_media_player.version_info.file_name) {
+    info = CreateWebPluginInfo(activex_shim_windows_media_player.version_info);
+    internal_plugin_info = &activex_shim_windows_media_player;
   } else if (filename == default_null_plugin_info.version_info.file_name) {
     info = CreateWebPluginInfo(default_null_plugin_info.version_info);
     internal_plugin_info = &default_null_plugin_info;
