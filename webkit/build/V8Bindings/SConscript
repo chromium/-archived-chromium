@@ -31,13 +31,6 @@ else:
       '$LIBXML_DIR/include',
       ])
 
-if env['PLATFORM'] == 'posix':
-  env.Append(
-      CCFLAGS = [
-          '-Wno-error'
-      ]
-  )
-
 inputs = [
     '$SHARED_DIR/PausedTimeouts.cpp',
 

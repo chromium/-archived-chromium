@@ -429,10 +429,6 @@ v8::Local<v8::Function> V8LazyEventListener::GetWrappedListenerFunction() {
     // TODO(fqian): cache the wrapper function.
     String code = "(function (evt) {\n";
 
-    // This variable records how many lines the code has been offset within the
-    // source code to be evaluated
-    int codeOffset = 2;
-
     // Nodes other than the document object, when executing inline event
     // handlers push document, form, and the target node on the scope chain.
     // We do this by using 'with' statement.

@@ -163,8 +163,8 @@ class V8ScheduledAction : public ScheduledAction {
  public:
   V8ScheduledAction(v8::Handle<v8::Function> func, int argc,
                     v8::Handle<v8::Value> argv[]);
-  explicit V8ScheduledAction(const WebCore::String& code) : m_code(code),
-      m_argc(0), m_argv(NULL) { }
+  explicit V8ScheduledAction(const WebCore::String& code) : m_argc(0),
+      m_argv(0), m_code(code) { }
   virtual ~V8ScheduledAction();
   virtual void execute(DOMWindow* window);
 
@@ -1893,7 +1893,6 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DStrokeRect) {
   CanvasRenderingContext2D* context =
       V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
           V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
-  double x = 0, y = 0, width = 0, height = 0, line_width = 0;
   if (args.Length() == 5) {
     context->strokeRect(TO_FLOAT(args[0]),
                         TO_FLOAT(args[1]),
@@ -3544,6 +3543,8 @@ Frame* V8Custom::GetTargetFrame(v8::Local<v8::Object> host,
       target = imp->frame();
       break;
     }
+    default:
+      break;
   }
   return target;
 }

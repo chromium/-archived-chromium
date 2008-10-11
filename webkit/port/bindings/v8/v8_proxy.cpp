@@ -165,16 +165,23 @@ static GlobalHandleMap& global_handle_map()
 }
 
 
+// The USE_VAR(x) template is used to silence C++ compiler warnings
+// issued for unused variables (typically parameters or values that
+// we want to watch in the debugger).
+template <typename T>
+static inline void USE_VAR(T) { }
+
 // The function is the place to set the break point to inspect
 // live global handles. Leaks are often come from leaked global handles.
 static void EnumerateGlobalHandles() {
   for (GlobalHandleMap::iterator it = global_handle_map().begin(),
     end = global_handle_map().end(); it != end; ++it) {
     GlobalHandleInfo* info = it->second;
+    USE_VAR(info);
     v8::Value* handle = it->first;
+    USE_VAR(handle);
   }
 }
-
 
 void V8Proxy::RegisterGlobalHandle(GlobalHandleType type, void* host,
                                    v8::Persistent<v8::Value> handle) {
@@ -433,6 +440,7 @@ static void GCPrologue()
     it != end; ++it) {
     Peerable* obj = it->first;
     ASSERT(v8::Persistent<v8::Object>(it->second).IsWeak());
+    USE_VAR(obj);
   }
 #endif
 
@@ -468,6 +476,7 @@ static void GCEpilogue() {
   for (PeerableMap::iterator it = peer_map.begin(), end = peer_map.end();
     it != end; ++it) {
     Peerable* obj = it->first;
+    USE_VAR(obj);
     ASSERT(v8::Persistent<v8::Object>(it->second).IsWeak());
   }
 
@@ -475,10 +484,13 @@ static void GCEpilogue() {
   for (NodeMap::iterator it = node_map.begin(), end = node_map.end();
     it != end; ++it) {
     Node* node = it->first;
+    USE_VAR(node);
     ASSERT(v8::Persistent<v8::Object>(it->second).IsWeak());
   }
 
   EnumerateGlobalHandles();
+
+#undef USE_VAR
 #endif
 }
 

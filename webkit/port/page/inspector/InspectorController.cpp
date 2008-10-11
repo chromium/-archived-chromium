@@ -82,7 +82,7 @@
 namespace WebCore {
 
 // Maximum size of the console message cache.
-static const int MAX_CONSOLE_MESSAGES = 250;
+static const size_t MAX_CONSOLE_MESSAGES = 250;
 
 namespace bug1228513 {
   // TODO(ericroman): Temporary hacks to help diagnose http://b/1228513
@@ -277,6 +277,8 @@ struct InspectorResource : public RefCounted<InspectorResource> {
                     }
                     break;
 #endif
+                default:
+                    break;
             }
         }
 
@@ -576,6 +578,7 @@ InspectorController::InspectorController(Page* page, InspectorClient* client)
       // to start the RefCount at 0.
       RefCounted<InspectorController>(0)
     , m_bug1228513_inspectorState(bug1228513::VALID)
+    , m_trackResources(false)
     , m_inspectedPage(page)
     , m_client(client)
     , m_page(0)
@@ -585,7 +588,6 @@ InspectorController::InspectorController(Page* page, InspectorClient* client)
     , m_recordingUserInitiatedProfile(false)
     , m_showAfterVisible(ElementsPanel)
     , m_nextIdentifier(-2)
-    , m_trackResources(false)
     , m_groupLevel(0)
 {
     ASSERT_ARG(page, page);
@@ -639,17 +641,6 @@ String InspectorController::localizedStringsURL()
     if (!enabled())
         return String();
     return m_client->localizedStringsURL();
-}
-
-// Trying to inspect something in a frame with JavaScript disabled would later lead to
-// crashes trying to create JavaScript wrappers. Some day we could fix this issue, but
-// for now prevent crashes here by never targeting a node in such a frame.
-static bool canPassNodeToJavaScript(Node* node)
-{
-    if (!node)
-        return false;
-    Frame* frame = node->document()->frame();
-    return frame && frame->script()->isEnabled();
 }
 
 void InspectorController::inspect(Node* node)

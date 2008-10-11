@@ -432,8 +432,6 @@ bool NPN_HasMethod(NPP npp, NPObject *npobj, NPIdentifier methodName) {
 
 void NPN_SetException(NPObject *npobj, const NPUTF8 *message) {
   if (npobj->_class == NPScriptObjectClass) {
-    V8NPObject *object = reinterpret_cast<V8NPObject*>(npobj);
-
     v8::HandleScope handle_scope;
     v8::Handle<v8::Context> context = GetV8Context(NULL, npobj);
     if (context.IsEmpty()) return;
