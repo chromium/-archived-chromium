@@ -367,28 +367,38 @@ env_flat = env.Clone(
     FLATTEN_HTML_COM = '$PYTHON $HTML_INLINE $SOURCE $TARGET',
 )
 
+def FlatHtmlEmitter(target, source, env):
+    # When we get the target, it will have the "_flat.html" suffix,
+    # but will be next to the sourcefile.  Replace it with a
+    # string that puts it in the $BROWSER_RESOURCES directory.
+    target = [env.File('$BROWSER_RESOURCES/' + target[0].name)]
+    return target, source
+
+env_flat['BUILDERS']['FlatHtml'] = Builder(action='$FLATTEN_HTML_COM',
+                                           suffix='_flat.html',
+                                           source_suffix='.html',
+                                           emitter=FlatHtmlEmitter)
+
 flats = [
-    'about_memory',
-    'about_version',
-    'incognito_tab',
-    'new_tab',
-    'safe_browsing_malware_block',
-    'safe_browsing_phishing_block',
-    'ssl_error',
+    'browser/resources/about_credits.html',
+    'browser/resources/about_memory.html',
+    'browser/resources/about_version.html',
+    'browser/resources/incognito_tab.html',
+    'browser/resources/new_tab.html',
+    'browser/resources/safe_browsing_malware_block.html',
+    'browser/resources/safe_browsing_phishing_block.html',
+    'browser/security/resources/ssl_error.html',
+    'browser/security/resources/ssl_roadblock.html',
 ]
 
 # TODO(port)
 if env_flat['PLATFORM'] == 'win32':
   flats_out = []
   for i in flats:
-    flats_out += env_flat.Command(
-        '$BROWSER_RESOURCES/' + i + '_flat.html',
-        'browser/resources/' + i + '.html', '$FLATTEN_HTML_COM')
+    flats_out.extend(env_flat.FlatHtml(i))
 
-  flats_out += env_flat.Command(
-      '$BROWSER_RESOURCES/ssl_roadblock_flat.html',
-      'browser/security/resources/ssl_roadblock.html', '$FLATTEN_HTML_COM')
-
+  # TODO(sgk):  Remove when we upgrade to SCons 1.1.0, which
+  # determines implicit dependencies from .rc files.
   env_flat.Depends(browser_res, flats_out)
 
 
