@@ -269,7 +269,7 @@ void AeroGlassNonClientView::ViewHierarchyChanged(bool is_add,
 
 int AeroGlassNonClientView::CalculateNonClientTopHeight() const {
   if (frame_->window_delegate()->ShouldShowWindowTitle())
-    return browser_view_->IsToolbarVisible() ? 0 : 0;
+    return browser_view_->IsToolbarVisible() ? -1 : 0;
   return kNoTitleTopSpacing;
 }
 
