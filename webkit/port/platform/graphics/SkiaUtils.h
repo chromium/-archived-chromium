@@ -50,7 +50,4 @@ void ClipRectToCanvas(const SkCanvas& canvas, const SkRect& src_rect,
 // Determine if a given WebKit point is contained in a path
 bool SkPathContainsPoint(SkPath* orig_path, WebCore::FloatPoint point, SkPath::FillType ft);
 
-// Constructs a BMP V4 bitmap from an SkBitmap.
-PassRefPtr<WebCore::SharedBuffer> SerializeSkBitmap(const SkBitmap&);
-
 #endif  // SkiaUtils_h

@@ -991,15 +991,11 @@ V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL
 V8 | KJS # LayoutTests/fast/block/float/float-avoidance.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/svg-as-border-image.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-composite.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-resize-reset.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-transform-skewed.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/drawImage.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/fillrect_gradient.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/image-object-in-canvas.html = FAIL
 // Flaky
 V8 | KJS # LayoutTests/fast/canvas/patternfill-repeat.html = FAIL | CRASH
 V8 | KJS # LayoutTests/fast/css-generated-content/table-row-group-to-inline.html = FAIL

@@ -33,6 +33,7 @@
 #include <vssym32.h>
 #include "AffineTransform.h"
 #include "BitmapImage.h"
+#include "BitmapImageSingleFrameSkia.h"
 #include "FloatRect.h"
 #include "GraphicsContext.h"
 #include "Logging.h"
@@ -86,8 +87,6 @@ void TransformDimensions(const SkMatrix& matrix,
 // WebCore/rendering/RenderLayer.cpp).
 static PassRefPtr<Image> GetTextAreaResizeCorner()
 {
-    RefPtr<Image> image = BitmapImage::create();
-
     // Get the size of the resizer.
     const int width = PlatformScrollbar::verticalScrollbarWidth();
     const int height = PlatformScrollbar::horizontalScrollbarHeight();
@@ -103,8 +102,7 @@ static PassRefPtr<Image> GetTextAreaResizeCorner()
     gfx::NativeTheme::instance()->PaintStatusGripper(hdc, SP_GRIPPER, 0, 0,
                                                      &widgetRect);
     device.postProcessGDI(0, 0, width, height);
-    image->setData(SerializeSkBitmap(device.accessBitmap(false)), true);
-    return image.release();
+    return BitmapImageSingleFrameSkia::create(device.accessBitmap(false));
 }
 
 }  // namespace
@@ -322,6 +320,30 @@ void BitmapImage::draw(GraphicsContext* ctxt, const FloatRect& dstRect,
         enclosingIntRect(dstRect), WebCoreCompositeToSkiaComposite(compositeOp));
 
     startAnimation();
+}
+
+void BitmapImageSingleFrameSkia::draw(GraphicsContext* ctxt,
+                                      const FloatRect& dstRect,
+                                      const FloatRect& srcRect,
+                                      CompositeOperator compositeOp)
+{
+    if (srcRect.isEmpty() || dstRect.isEmpty())
+        return;  // Nothing to draw.
+
+    ctxt->platformContext()->paintSkBitmap(
+        m_nativeImage,
+        enclosingIntRect(srcRect),
+        enclosingIntRect(dstRect),
+        WebCoreCompositeToSkiaComposite(compositeOp));
+}
+
+PassRefPtr<BitmapImageSingleFrameSkia> BitmapImageSingleFrameSkia::create(
+    const SkBitmap& bitmap)
+{
+    RefPtr<BitmapImageSingleFrameSkia> image(new BitmapImageSingleFrameSkia());
+    if (!bitmap.copyTo(&image->m_nativeImage, bitmap.config()))
+        return 0;
+    return image.release();
 }
 
 } // namespace WebCore

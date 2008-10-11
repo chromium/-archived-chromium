@@ -31,6 +31,7 @@
 #include "ImageBuffer.h"
 
 #include "BitmapImage.h"
+#include "BitmapImageSingleFrameSkia.h"
 #include "GraphicsContext.h"
 #include "ImageData.h"
 #include "NotImplemented.h"
@@ -58,12 +59,7 @@ Image* ImageBuffer::image() const
       // the GraphicsContext must be done.
       ASSERT(context());
       const SkBitmap* bitmap = context()->platformContext()->bitmap();
-      m_image = BitmapImage::create();
-      // TODO(tc): This is inefficient because we serialize then re-interpret
-      // the image.  If this matters for performance, we should add another
-      // BitmapImage::create method that takes a SkBitmap (similar to what
-      // CoreGraphics does).
-      m_image->setData(SerializeSkBitmap(*bitmap), true);
+      m_image = BitmapImageSingleFrameSkia::create(*bitmap);
     }
     return m_image.get();
 }
