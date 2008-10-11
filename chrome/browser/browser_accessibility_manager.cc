@@ -103,10 +103,14 @@ bool BrowserAccessibilityManager::RequestAccessibilityInfo(
       new ViewMsg_GetAccessibilityInfo(
           members->render_widget_host_->routing_id(), in_params, &out_params_);
 
-  // Necessary for the send to keep the UI responsive.
-  msg->EnableMessagePumping();
-  bool success = members->render_widget_host_->process()->channel()->
-      SendWithTimeout(msg, kAccessibilityMessageTimeOut);
+  bool success = false;
+  if (members->render_widget_host_->process() &&
+      members->render_widget_host_->process()->channel()) {
+    // Necessary for the send to keep the UI responsive.
+    msg->EnableMessagePumping();
+    success = members->render_widget_host_->process()->channel()->
+        SendWithTimeout(msg, kAccessibilityMessageTimeOut);
+  }
 
   return success;
 }
@@ -157,11 +161,13 @@ void BrowserAccessibilityManager::Observe(NotificationType type,
 
   // Set BrowserAccessibility instance to inactive state.
   it->second->set_instance_active(false);
-  render_process_host_map_.erase(it);
 
   // Delete entry also from InstanceMap.
   InstanceMap::iterator it2 = instance_map_.find(it->second->instance_id());
 
   if (it2 != instance_map_.end())
     instance_map_.erase(it2);
+
+  // Only delete the first entry once it is no longer in use.
+  render_process_host_map_.erase(it);
 }
