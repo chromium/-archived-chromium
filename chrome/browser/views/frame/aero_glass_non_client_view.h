@@ -45,16 +45,21 @@ class AeroGlassNonClientView : public ChromeViews::NonClientView {
   int CalculateNonClientTopHeight() const;
 
   // Paint various sub-components of this view.
+  void PaintOTRAvatar(ChromeCanvas* canvas);
   void PaintDistributorLogo(ChromeCanvas* canvas);
   void PaintToolbarBackground(ChromeCanvas* canvas);
   void PaintClientEdge(ChromeCanvas* canvas);
 
   // Layout various sub-components of this view.
+  void LayoutOTRAvatar();
   void LayoutDistributorLogo();
   void LayoutClientView();
  
   // The layout rect of the distributor logo, if visible.
   gfx::Rect logo_bounds_;
+
+  // The layout rect of the OTR avatar.
+  gfx::Rect otr_avatar_bounds_;
 
   // The frame that hosts this view.
   AeroGlassFrame* frame_;

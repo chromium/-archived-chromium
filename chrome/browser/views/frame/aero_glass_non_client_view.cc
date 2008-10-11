@@ -110,6 +110,17 @@ static const int kPixel = 1;
 static const int kWindowSizingBorderSize = 8;
 // The size (width/height) of the window icon.
 static const int kWindowIconSize = 16;
+// The distance from the left of the window of the OTR avatar icon.
+static const int kOTRAvatarIconMargin = 9;
+// The distance from the right edge of the OTR avatar icon to the left edge of
+// the TabStrip.
+static const int kOTRAvatarIconTabStripSpacing = 6;
+// The distance from the top of the window of the OTR avatar icon when the
+// window is maximized.
+static const int kNoTitleOTRTopSpacing = 23;
+// The distance from the top of the window of the OTR avatar icon when the
+// window is maximized.
+static const int kNoTitleOTRZoomedTopSpacing = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassNonClientView, public:
@@ -127,7 +138,8 @@ AeroGlassNonClientView::~AeroGlassNonClientView() {
 gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   // If we are maximized, the tab strip will be in line with the window
   // controls, so we need to make sure they don't overlap.
-  int tabstrip_width = browser_view_->width();
+  int tabstrip_width = browser_view_->width() - otr_avatar_bounds_.width() -
+      kOTRAvatarIconTabStripSpacing;
   if(frame_->IsMaximized()) {
     TITLEBARINFOEX titlebar_info;
     titlebar_info.cbSize = sizeof(TITLEBARINFOEX);
@@ -138,8 +150,9 @@ gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
     tabstrip_width -= (tabstrip_width - titlebar_info.rgrect[2].left);
   }
   int tabstrip_height = tabstrip->GetPreferredHeight();
+  int tabstrip_x = otr_avatar_bounds_.width() + kOTRAvatarIconTabStripSpacing;
   int tabstrip_y = frame_->IsMaximized() ? 0 : kTabStripY;
-  return gfx::Rect(0, tabstrip_y, tabstrip_width, tabstrip_height);
+  return gfx::Rect(tabstrip_x, tabstrip_y, tabstrip_width, tabstrip_height);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -215,6 +228,7 @@ void AeroGlassNonClientView::EnableClose(bool enable) {
 // AeroGlassNonClientView, ChromeViews::View overrides:
 
 void AeroGlassNonClientView::Paint(ChromeCanvas* canvas) {
+  PaintOTRAvatar(canvas);
   PaintDistributorLogo(canvas);
   if (browser_view_->IsToolbarVisible()) {
     PaintToolbarBackground(canvas);
@@ -223,6 +237,7 @@ void AeroGlassNonClientView::Paint(ChromeCanvas* canvas) {
 }
 
 void AeroGlassNonClientView::Layout() {
+  LayoutOTRAvatar();
   LayoutDistributorLogo();
   LayoutClientView();
 }
@@ -254,8 +269,16 @@ void AeroGlassNonClientView::ViewHierarchyChanged(bool is_add,
 
 int AeroGlassNonClientView::CalculateNonClientTopHeight() const {
   if (frame_->window_delegate()->ShouldShowWindowTitle())
-    return browser_view_->IsToolbarVisible() ? 2 : 0;
+    return browser_view_->IsToolbarVisible() ? 0 : 0;
   return kNoTitleTopSpacing;
+}
+
+void AeroGlassNonClientView::PaintOTRAvatar(ChromeCanvas* canvas) {
+  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
+    int icon_x = MirroredLeftPointForRect(otr_avatar_bounds_);
+    canvas->DrawBitmapInt(browser_view_->GetOTRAvatarIcon(), icon_x,
+                          otr_avatar_bounds_.y());
+  }
 }
 
 void AeroGlassNonClientView::PaintDistributorLogo(ChromeCanvas* canvas) {
@@ -354,6 +377,23 @@ void AeroGlassNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
                        client_area_bounds.y() + fudge, left->width(),
                        client_area_bounds.height() - bottom_left->height() +
                            kPixel - fudge);
+}
+
+void AeroGlassNonClientView::LayoutOTRAvatar() {
+  int otr_x = 0;
+  int top_spacing = frame_->IsMaximized() ? kNoTitleOTRZoomedTopSpacing
+                                          : kNoTitleOTRTopSpacing;
+  int otr_y = browser_view_->GetTabStripHeight() + top_spacing;
+  int otr_width = 0;
+  int otr_height = 0;
+  if (browser_view_->ShouldShowOffTheRecordAvatar()) {
+    SkBitmap otr_avatar_icon = browser_view_->GetOTRAvatarIcon();
+    otr_width = otr_avatar_icon.width();
+    otr_height = otr_avatar_icon.height();
+    otr_x = kOTRAvatarIconMargin;
+    otr_y -= otr_avatar_icon.height() + 2;
+  }
+  otr_avatar_bounds_.SetRect(otr_x, otr_y, otr_width, otr_height);
 }
 
 void AeroGlassNonClientView::LayoutDistributorLogo() {
