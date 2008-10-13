@@ -10,6 +10,7 @@
 #include "Frame.h"
 #include "FrameLoader.h"
 #include "Document.h"
+#include "NetworkStateNotifier.h"
 #include "Settings.h"
 #include "PluginInfoStore.h"
 #include <wtf/RefCounted.h>
@@ -244,6 +245,10 @@ class Navigator : public RefCounted<Navigator> {
       return false;
 
     return m_frame->settings()->isJavaEnabled();
+  }
+
+  bool onLine() const {
+    return networkStateNotifier().onLine();
   }
 
   Frame* frame() { return m_frame; }

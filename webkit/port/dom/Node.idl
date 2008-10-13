@@ -25,6 +25,7 @@ module core {
         GenerateConstructor,
         GenerateNativeConverter,
         GenerateToJS,
+        InlineGetOwnPropertySlot,
         ObjCCustomInternalImpl,
         InterfaceUUID=84BA0D7A-7E3E-4a7b-B6FB-7653E8FB54ED,
         ImplementationUUID=81B47FDB-94B0-40fd-8E0C-FB2A6E53CC04
@@ -100,7 +101,6 @@ module core {
         boolean            isDefaultNamespace(in [ConvertNullToNullString] DOMString namespaceURI);
         [ConvertNullStringTo=Null] DOMString          lookupNamespaceURI(in [ConvertNullToNullString] DOMString prefix);
 
-#if 0
         // DocumentPosition
         const unsigned short      DOCUMENT_POSITION_DISCONNECTED = 0x01;
         const unsigned short      DOCUMENT_POSITION_PRECEDING    = 0x02;
@@ -109,9 +109,9 @@ module core {
         const unsigned short      DOCUMENT_POSITION_CONTAINED_BY = 0x10;
         const unsigned short      DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC = 0x20;
 
-        unsigned short     compareDocumentPosition(in Node other)
-            raises(DOMException);
+        unsigned short     compareDocumentPosition(in Node other);
 
+#if 0
         DOMObject          getFeature(in DOMString feature, 
                                       in DOMString version);
         DOMUserData        setUserData(in DOMString key, 

@@ -165,15 +165,6 @@ V8 # LayoutTests/fast/js/date-proto-generic-invocation.html = FAIL
 V8 # LayoutTests/fast/js/kde/function.html = FAIL
 V8 # LayoutTests/fast/js/kde/inbuilt_function_tostring.html = FAIL
 
-// This test has been rewritten, with the original being ignored,
-// because it depends on a specific enumeration order of properties
-// on dom objects.  
-//
-// The rewritten test chrome/fast/dom/domListEnumeration.html tests
-// the exact same thing, but sorts the elements explicitly before
-// comparing.
-V8 # LayoutTests/fast/dom/domListEnumeration.html = FAIL
-
 // Bug 849085: we're taking a different approach on this test than 
 // Webkit does.
 KJS | V8 # SKIP : LayoutTests/plugins/get-url-with-blank-target.html = FAIL
