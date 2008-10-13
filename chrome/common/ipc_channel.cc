@@ -52,8 +52,15 @@ Channel::Channel(const wstring& channel_id, Mode mode, Listener* listener)
 void Channel::Close() {
   // make sure we are no longer watching the pipe events
   MessageLoopForIO* loop = MessageLoopForIO::current();
-  loop->WatchObject(input_state_.overlapped.hEvent, NULL);
-  loop->WatchObject(output_state_.overlapped.hEvent, NULL);
+  if (input_state_.is_pending) {
+    input_state_.is_pending = false;
+    loop->RegisterIOContext(&input_state_.overlapped, NULL);
+  }
+
+  if (output_state_.is_pending) {
+    output_state_.is_pending = false;
+    loop->RegisterIOContext(&output_state_.overlapped, NULL);
+  }
 
   if (pipe_ != INVALID_HANDLE_VALUE) {
     CloseHandle(pipe_);
