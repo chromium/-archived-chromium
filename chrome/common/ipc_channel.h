@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_IPC_CHANNEL_H__
-#define CHROME_COMMON_IPC_CHANNEL_H__
+#ifndef CHROME_COMMON_IPC_CHANNEL_H_
+#define CHROME_COMMON_IPC_CHANNEL_H_
 
 #include <queue>
 
@@ -14,7 +14,7 @@ namespace IPC {
 
 //------------------------------------------------------------------------------
 
-class Channel : public MessageLoopForIO::Watcher,
+class Channel : public MessageLoopForIO::IOHandler,
                 public Message::Sender {
   // Security tests need access to the pipe handle.
   friend class ChannelTest;
@@ -50,16 +50,13 @@ class Channel : public MessageLoopForIO::Watcher,
 
   // Initialize a Channel.
   //
-  // @param channel_id
-  //   Identifies the communication Channel.
-  // @param mode
-  //   Specifies whether this Channel is to operate in server mode or client
-  //   mode.  In server mode, the Channel is responsible for setting up the
-  //   IPC object, whereas in client mode, the Channel merely connects
-  //   to the already established IPC object.
-  // @param listener
-  //   Receives a callback on the current thread for each newly received
-  //   message.
+  // |channel_id| identifies the communication Channel.
+  // |mode| specifies whether this Channel is to operate in server mode or
+  // client mode.  In server mode, the Channel is responsible for setting up the
+  // IPC object, whereas in client mode, the Channel merely connects to the
+  // already established IPC object.
+  // |listener| receives a callback on the current thread for each newly
+  // received message.
   //
   Channel(const std::wstring& channel_id, Mode mode, Listener* listener);
 
@@ -80,9 +77,8 @@ class Channel : public MessageLoopForIO::Watcher,
 
   // Send a message over the Channel to the listener on the other end.
   //
-  // @param message
-  //   The Message to send, which must be allocated using operator new.  This
-  //   object will be deleted once the contents of the Message have been sent.
+  // |message| must be allocated using operator new.  This object will be
+  // deleted once the contents of the Message have been sent.
   //
   //  FIXME bug 551500: the channel does not notice failures, so if the
   //    renderer crashes, it will silently succeed, leaking the parameter.
@@ -103,11 +99,12 @@ class Channel : public MessageLoopForIO::Watcher,
   const std::wstring PipeName(const std::wstring& channel_id) const;
   bool CreatePipe(const std::wstring& channel_id, Mode mode);
   bool ProcessConnection();
-  bool ProcessIncomingMessages();
-  bool ProcessOutgoingMessages();
+  bool ProcessIncomingMessages(OVERLAPPED* context, DWORD bytes_read);
+  bool ProcessOutgoingMessages(OVERLAPPED* context, DWORD bytes_written);
 
-  // MessageLoop::Watcher implementation
-  virtual void OnObjectSignaled(HANDLE object);
+  // MessageLoop::IOHandler implementation.
+  virtual void OnIOCompleted(OVERLAPPED* context, DWORD bytes_transfered,
+                             DWORD error);
 
  private:
   enum {
@@ -147,6 +144,8 @@ class Channel : public MessageLoopForIO::Watcher,
   // problems.  TODO(darin): make this unnecessary
   bool processing_incoming_;
 
+  ScopedRunnableMethodFactory<Channel> factory_;
+
   // The Hello message is internal to the Channel class.  It is sent
   // by the peer when the channel is connected.  The message contains
   // just the process id (pid).  The message has a special routing_id
@@ -161,5 +160,5 @@ class Channel : public MessageLoopForIO::Watcher,
 
 }
 
-#endif  // CHROME_COMMON_IPC_CHANNEL_H__
+#endif  // CHROME_COMMON_IPC_CHANNEL_H_
 

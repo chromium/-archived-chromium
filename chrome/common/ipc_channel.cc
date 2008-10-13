@@ -2,14 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/common/ipc_channel.h"
+
 #include <windows.h>
 #include <sstream>
 
-#include "chrome/common/chrome_counters.h"
-#include "chrome/common/ipc_channel.h"
-
+#include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/win_util.h"
+#include "chrome/common/chrome_counters.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/ipc_message_utils.h"
 
@@ -39,7 +40,8 @@ Channel::Channel(const wstring& channel_id, Mode mode, Listener* listener)
     : pipe_(INVALID_HANDLE_VALUE),
       listener_(listener),
       waiting_connect_(mode == MODE_SERVER),
-      processing_incoming_(false) {
+      processing_incoming_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
   if (!CreatePipe(channel_id, mode)) {
     // The pipe may have been closed already.
     LOG(WARNING) << "Unable to create pipe named \"" << channel_id <<
@@ -81,11 +83,8 @@ bool Channel::Send(Message* message) {
   // ensure waiting to write
   if (!waiting_connect_) {
     if (!output_state_.is_pending) {
-      if (!ProcessOutgoingMessages())
+      if (!ProcessOutgoingMessages(NULL, 0))
         return false;
-    } else if (WaitForSingleObject(output_state_.overlapped.hEvent, 0) ==
-               WAIT_OBJECT_0) {
-      OnObjectSignaled(output_state_.overlapped.hEvent);
     }
   }
 
@@ -158,30 +157,31 @@ bool Channel::Connect() {
   if (pipe_ == INVALID_HANDLE_VALUE)
     return false;
 
+  MessageLoopForIO::current()->RegisterIOHandler(pipe_, this);
+
   // Check to see if there is a client connected to our pipe...
   if (waiting_connect_)
     ProcessConnection();
 
   if (!input_state_.is_pending) {
-    // complete setup asynchronously.  to do that, we force the input state
-    // to be signaled, which will cause us to be called back from the event
-    // queue.  by not setting input_state_.is_pending to true, we indicate
-    // to OnObjectSignaled that this is the special initialization signal.
-
-    SetEvent(input_state_.overlapped.hEvent);
-    MessageLoopForIO::current()->WatchObject(
-        input_state_.overlapped.hEvent, this);
+    // Complete setup asynchronously. By not setting input_state_.is_pending
+    // to true, we indicate to OnIOCompleted that this is the special
+    // initialization signal.
+    MessageLoopForIO::current()->PostTask(FROM_HERE, factory_.NewRunnableMethod(
+        &Channel::OnIOCompleted, &input_state_.overlapped, 0, 0));
   }
 
   if (!waiting_connect_)
-    ProcessOutgoingMessages();
+    ProcessOutgoingMessages(NULL, 0);
   return true;
 }
 
 bool Channel::ProcessConnection() {
-  input_state_.is_pending = false;
-  MessageLoopForIO::current()->WatchObject(
-      input_state_.overlapped.hEvent, NULL);
+  if (input_state_.is_pending) {
+    input_state_.is_pending = false;
+    MessageLoopForIO::current()->RegisterIOContext(&input_state_.overlapped,
+                                                   NULL);
+  }
 
   // Do we have a client connected to our pipe?
   DCHECK(pipe_ != INVALID_HANDLE_VALUE);
@@ -198,8 +198,8 @@ bool Channel::ProcessConnection() {
   switch (err) {
   case ERROR_IO_PENDING:
     input_state_.is_pending = true;
-    MessageLoopForIO::current()->WatchObject(
-        input_state_.overlapped.hEvent, this);
+    MessageLoopForIO::current()->RegisterIOContext(&input_state_.overlapped,
+                                                   this);
     break;
   case ERROR_PIPE_CONNECTED:
     waiting_connect_ = false;
@@ -212,34 +212,24 @@ bool Channel::ProcessConnection() {
   return true;
 }
 
-bool Channel::ProcessIncomingMessages() {
-  DWORD bytes_read = 0;
-
-  MessageLoopForIO::current()->WatchObject(
-      input_state_.overlapped.hEvent, NULL);
-
+bool Channel::ProcessIncomingMessages(OVERLAPPED* context,
+                                      DWORD bytes_read) {
   if (input_state_.is_pending) {
     input_state_.is_pending = false;
+    DCHECK(context);
+    MessageLoopForIO::current()->RegisterIOContext(&input_state_.overlapped,
+                                                   NULL);
 
-    BOOL ok = GetOverlappedResult(pipe_,
-                                  &input_state_.overlapped,
-                                  &bytes_read,
-                                  FALSE);
-    if (!ok || bytes_read == 0) {
-      DWORD err = GetLastError();
-      // TODO(pkasting): http://b/119851 We can get ERR_BROKEN_PIPE here if the
-      // renderer crashes.  We should handle this cleanly.
-      LOG(ERROR) << "pipe error: " << err;
+    if (!context || !bytes_read)
       return false;
-    }
   } else {
-    // this happens at channel initialization
-    ResetEvent(input_state_.overlapped.hEvent);
+    // This happens at channel initialization.
+    DCHECK(!bytes_read && context == &input_state_.overlapped);
   }
 
   for (;;) {
     if (bytes_read == 0) {
-      // read from pipe...
+      // Read from pipe...
       BOOL ok = ReadFile(pipe_,
                          input_buf_,
                          BUF_SIZE,
@@ -248,8 +238,8 @@ bool Channel::ProcessIncomingMessages() {
       if (!ok) {
         DWORD err = GetLastError();
         if (err == ERROR_IO_PENDING) {
-          MessageLoopForIO::current()->WatchObject(
-              input_state_.overlapped.hEvent, this);
+          MessageLoopForIO::current()->RegisterIOContext(
+              &input_state_.overlapped, this);
           input_state_.is_pending = true;
           return true;
         }
@@ -259,7 +249,7 @@ bool Channel::ProcessIncomingMessages() {
     }
     DCHECK(bytes_read);
 
-    // process messages from input buffer
+    // Process messages from input buffer.
 
     const char* p, *end;
     if (input_overflow_buf_.empty()) {
@@ -282,8 +272,8 @@ bool Channel::ProcessIncomingMessages() {
         int len = static_cast<int>(message_tail - p);
         const Message m(p, len);
 #ifdef IPC_MESSAGE_DEBUG_EXTRA
-        DLOG(INFO) << "received message on channel @" << this << " with type " <<
-             m.type();
+        DLOG(INFO) << "received message on channel @" << this <<
+                      " with type " << m.type();
 #endif
         if (m.routing_id() == MSG_ROUTING_NONE &&
             m.type() == HELLO_MESSAGE_TYPE) {
@@ -294,37 +284,34 @@ bool Channel::ProcessIncomingMessages() {
         }
         p = message_tail;
       } else {
-        // last message is partial
+        // Last message is partial.
         break;
       }
     }
     input_overflow_buf_.assign(p, end - p);
 
-    bytes_read = 0;  // get more data
+    bytes_read = 0;  // Get more data.
   }
 
   return true;
 }
 
-bool Channel::ProcessOutgoingMessages() {
+bool Channel::ProcessOutgoingMessages(OVERLAPPED* context,
+                                      DWORD bytes_written) {
   DCHECK(!waiting_connect_);  // Why are we trying to send messages if there's
                               // no connection?
-  DWORD bytes_written;
 
   if (output_state_.is_pending) {
-    MessageLoopForIO::current()->WatchObject(
-        output_state_.overlapped.hEvent, NULL);
+    DCHECK(context);
+    MessageLoopForIO::current()->RegisterIOContext(&output_state_.overlapped,
+                                                   NULL);
     output_state_.is_pending = false;
-    BOOL ok = GetOverlappedResult(pipe_,
-                                  &output_state_.overlapped,
-                                  &bytes_written,
-                                  FALSE);
-    if (!ok || bytes_written == 0) {
+    if (!context || bytes_written == 0) {
       DWORD err = GetLastError();
       LOG(ERROR) << "pipe error: " << err;
       return false;
     }
-    // message was sent
+    // Message was sent.
     DCHECK(!output_queue_.empty());
     Message* m = output_queue_.front();
     output_queue_.pop();
@@ -332,7 +319,7 @@ bool Channel::ProcessOutgoingMessages() {
   }
 
   while (!output_queue_.empty()) {
-    // write to pipe...
+    // Write to pipe...
     Message* m = output_queue_.front();
     BOOL ok = WriteFile(pipe_,
                         m->data(),
@@ -342,13 +329,13 @@ bool Channel::ProcessOutgoingMessages() {
     if (!ok) {
       DWORD err = GetLastError();
       if (err == ERROR_IO_PENDING) {
-        MessageLoopForIO::current()->WatchObject(
-            output_state_.overlapped.hEvent, this);
+        MessageLoopForIO::current()->RegisterIOContext(
+            &output_state_.overlapped, this);
         output_state_.is_pending = true;
 
 #ifdef IPC_MESSAGE_DEBUG_EXTRA
-        DLOG(INFO) << "sent pending message @" << m << " on channel @" << this <<
-                      " with type " << m->type();
+        DLOG(INFO) << "sent pending message @" << m << " on channel @" <<
+                      this << " with type " << m->type();
 #endif
 
         return true;
@@ -406,14 +393,15 @@ bool Channel::ProcessPendingMessages(DWORD max_wait_msec) {
 #endif
 }
 
-void Channel::OnObjectSignaled(HANDLE object) {
+void Channel::OnIOCompleted(OVERLAPPED* context, DWORD bytes_transfered,
+                            DWORD error) {
   bool ok;
-  if (object == input_state_.overlapped.hEvent) {
+  if (context == &input_state_.overlapped) {
     if (waiting_connect_) {
       ProcessConnection();
       // We may have some messages queued up to send...
       if (!output_queue_.empty() && !output_state_.is_pending)
-        ProcessOutgoingMessages();
+        ProcessOutgoingMessages(NULL, 0);
       if (input_state_.is_pending)
         return;
       // else, fall-through and look for incoming messages...
@@ -421,11 +409,11 @@ void Channel::OnObjectSignaled(HANDLE object) {
     // we don't support recursion through OnMessageReceived yet!
     DCHECK(!processing_incoming_);
     processing_incoming_ = true;
-    ok = ProcessIncomingMessages();
+    ok = ProcessIncomingMessages(context, bytes_transfered);
     processing_incoming_ = false;
   } else {
-    DCHECK(object == output_state_.overlapped.hEvent);
-    ok = ProcessOutgoingMessages();
+    DCHECK(context == &output_state_.overlapped);
+    ok = ProcessOutgoingMessages(context, bytes_transfered);
   }
   if (!ok) {
     Close();
@@ -433,7 +421,4 @@ void Channel::OnObjectSignaled(HANDLE object) {
   }
 }
 
-//------------------------------------------------------------------------------
-
 }
-
