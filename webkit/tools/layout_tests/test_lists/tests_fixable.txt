@@ -961,7 +961,6 @@ V8 | KJS # LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destro
 V8 | KJS # LayoutTests/printing = FAIL
 V8 | KJS # LayoutTests/security/autocomplete-cleared-on-back.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
-V8 | KJS # LayoutTests/svg/custom/getSubStringLength.html = FAIL
 V8 | KJS # LayoutTests/svg/custom/immutable-properties.html = FAIL
 V8 | KJS # LayoutTests/svg/custom/svg-modify-currentTranslate.html = FAIL
 V8 | KJS # LayoutTests/svg/custom/tearoffs-with-tearoffs.html = FAIL
@@ -988,8 +987,6 @@ V8 | KJS # LayoutTests/fast/css-generated-content/table-row-group-with-before.ht
 V8 | KJS # LayoutTests/fast/css-generated-content/table-row-with-before.html = FAIL
 V8 | KJS # LayoutTests/fast/css-generated-content/table-with-before.html = FAIL
 V8 | KJS # LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
-V8 | KJS # LayoutTests/fast/css/variables/alternate-syntax/font-test.html = FAIL
-V8 | KJS # LayoutTests/fast/css/variables/font-test.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/form-hides-table.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
