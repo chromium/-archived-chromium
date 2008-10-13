@@ -282,6 +282,22 @@ net_unittests = env_tests.ChromeTestProgram('net_unittests', unittest_files)
 
 install_targets = net_unittests[:]
 
+if env['PLATFORM'] in ('posix', 'win32'):
+
+  net_perftests = env_tests.ChromeTestProgram(
+      'net_perftests',
+      ['disk_cache/disk_cache_test_util.cc',
+       'disk_cache/disk_cache_perftest.cc',
+       'base/cookie_monster_perftest.cc',
+       # TODO(sgk): avoid using .cc from base directly
+       '$BASE_DIR/run_all_perftests$OBJSUFFIX',
+       '$BASE_DIR/perftimer$OBJSUFFIX']
+  )
+
+  install_targets.extend([
+      net_perftests
+  ])
+
 if env['PLATFORM'] == 'win32':
   stress_cache = env_tests.ChromeTestProgram(
       'stress_cache',
@@ -295,20 +311,9 @@ if env['PLATFORM'] == 'win32':
        'disk_cache/disk_cache_test_util.cc']
   )
 
-  net_perftests = env_tests.ChromeTestProgram(
-      'net_perftests',
-      ['disk_cache/disk_cache_test_util.cc',
-       'disk_cache/disk_cache_perftest.cc',
-       'base/cookie_monster_perftest.cc',
-       # TODO(sgk): avoid using .cc from base directly
-       '$BASE_DIR/run_all_perftests$OBJSUFFIX',
-       '$BASE_DIR/perftimer$OBJSUFFIX']
-  )
-
   install_targets.extend([
       stress_cache,
       crash_cache,
-      net_perftests,
   ])
 
 

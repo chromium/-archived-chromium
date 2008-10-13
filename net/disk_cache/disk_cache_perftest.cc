@@ -2,9 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <fcntl.h>
+
+#include <string>
+
+#include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/perftimer.h"
+#if defined(OS_WIN)
 #include "base/scoped_handle.h"
+#endif
+#include "base/string_util.h"
 #include "base/timer.h"
 #include "net/base/net_errors.h"
 #include "net/disk_cache/block_files.h"
@@ -21,6 +29,7 @@ extern volatile bool g_cache_tests_error;
 namespace {
 
 bool EvictFileFromSystemCache(const wchar_t* name) {
+#if defined(OS_WIN)
   // Overwrite it with no buffering.
   ScopedHandle file(CreateFile(name, GENERIC_READ | GENERIC_WRITE,
                                FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
@@ -58,6 +67,21 @@ bool EvictFileFromSystemCache(const wchar_t* name) {
     }
   }
   return true;
+#elif defined(OS_LINUX)
+  int fd = open(WideToUTF8(std::wstring(name)).c_str(), O_RDONLY);
+  if (fd < 0)
+    return false;
+  if (fdatasync(fd) != 0)
+    return false;
+  if (posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED) != 0)
+    return false;
+  close(fd);
+  return true;
+#else
+  // TODO(port): Mac has its own way to do this.
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 struct TestEntry {
@@ -178,7 +202,7 @@ TEST_F(DiskCacheTest, Hash) {
   PerfTimeLogger timer("Hash disk cache keys");
   for (int i = 0; i < 300000; i++) {
     std::string key = GenerateKey(true);
-    uint32 hash = disk_cache::Hash(key);
+    disk_cache::Hash(key);
   }
   timer.Done();
 }
