@@ -1930,14 +1930,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ExceptionContext.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\pending\ExceptionContext.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptControllerWin.cpp"
 			>
 		</File>
