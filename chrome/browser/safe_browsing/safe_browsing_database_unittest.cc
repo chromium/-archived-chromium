@@ -370,6 +370,7 @@ TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
   chunks->push_back(chunk);
 
   database->InsertChunks("goog-malware", chunks);
+  database->UpdateFinished();
 
   // Add an empty ADD and SUB chunk.
   std::vector<SBListChunkRanges> list_chunks_empty;
@@ -387,6 +388,7 @@ TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
   empty_chunk.is_add = false;
   chunks->push_back(empty_chunk);
   database->InsertChunks("goog-malware", chunks);
+  database->UpdateFinished();
 
   list_chunks_empty.clear();
   database->GetListsInfo(&list_chunks_empty);
@@ -422,6 +424,7 @@ TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
   chunks->push_back(empty_chunk);
 
   database->InsertChunks("goog-malware", chunks);
+  database->UpdateFinished();
 
   const Time now = Time::Now();
   std::vector<SBFullHashResult> full_hashes;
@@ -441,12 +444,14 @@ TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
 
   // Handle AddDel and SubDel commands for empty chunks.
   AddDelChunk(database, "goog-malware", 21);
+  database->UpdateFinished();
   list_chunks_empty.clear();
   database->GetListsInfo(&list_chunks_empty);
   EXPECT_EQ(list_chunks_empty[0].adds, "1,10,19-20,22");
   EXPECT_EQ(list_chunks_empty[0].subs, "7");
 
   SubDelChunk(database, "goog-malware", 7);
+  database->UpdateFinished();
   list_chunks_empty.clear();
   database->GetListsInfo(&list_chunks_empty);
   EXPECT_EQ(list_chunks_empty[0].adds, "1,10,19-20,22");

@@ -310,6 +310,7 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
   std::deque<SBChunk>::iterator i = chunks->begin();
   for (; i != chunks->end(); ++i) {
     SBChunk& chunk = (*i);
+    chunk.list_id = list_id;
     std::deque<SBChunkHost>::iterator j = chunk.hosts.begin();
     for (; j != chunk.hosts.end(); ++j) {
       j->entry->set_list_id(list_id);
@@ -333,8 +334,7 @@ void SafeBrowsingDatabaseBloom::ProcessChunks() {
 
   while (!pending_chunks_.empty()) {
     std::deque<SBChunk>* chunks = pending_chunks_.front();
-    // The entries in one chunk are all either adds or subs.
-    if (chunks->front().hosts.front().entry->IsAdd()) {
+    if (chunks->front().is_add) {
       ProcessAddChunks(chunks);
     } else {
       ProcessSubChunks(chunks);
@@ -351,7 +351,7 @@ void SafeBrowsingDatabaseBloom::ProcessChunks() {
 void SafeBrowsingDatabaseBloom::ProcessAddChunks(std::deque<SBChunk>* chunks) {
   while (!chunks->empty()) {
     SBChunk& chunk = chunks->front();
-    int list_id = chunk.hosts.front().entry->list_id();
+    int list_id = chunk.list_id;
     int chunk_id = chunk.chunk_number;
 
     // The server can give us a chunk that we already have because it's part of
@@ -511,7 +511,7 @@ void SafeBrowsingDatabaseBloom::CreateChunkCaches() {
 void SafeBrowsingDatabaseBloom::ProcessSubChunks(std::deque<SBChunk>* chunks) {
   while (!chunks->empty()) {
     SBChunk& chunk = chunks->front();
-    int list_id = chunk.hosts.front().entry->list_id();
+    int list_id = chunk.list_id;
     int chunk_id = chunk.chunk_number;
 
     if (!ChunkExists(list_id, SUB_CHUNK, chunk_id)) {
