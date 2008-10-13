@@ -52,6 +52,18 @@ class SafeBrowsingService
     virtual void OnBlockingPageComplete(bool proceed) = 0;
   };
 
+  // Structure used to pass parameters between the IO and UI thread when
+  // interacting with the blocking page.
+  struct BlockingPageParam {
+    GURL url;
+    bool proceed;
+    UrlCheckResult result;
+	  Client* client;
+	  int render_process_host_id;
+	  int render_view_id;
+    ResourceType::Type resource_type;
+  };
+
   // Creates the safe browsing service.  Need to initialize before using.
   SafeBrowsingService();
   ~SafeBrowsingService();
@@ -125,9 +137,7 @@ class SafeBrowsingService
   void UpdateFinished();
 
   // The blocking page on the UI thread has completed.
-  void OnBlockingPageDone(SafeBrowsingBlockingPage* page,
-                          Client* client,
-                          bool proceed);
+  void OnBlockingPageDone(const BlockingPageParam& param);
 
   // Called when the SafeBrowsingProtocolManager has received updated MAC keys.
   void OnNewMacKeys(const std::string& client_key,
@@ -215,6 +225,9 @@ class SafeBrowsingService
   // Runs on the database thread to inform the database we've resumed from a low
   // power state.
   void HandleResume();
+
+  // Invoked on the UI thread to show the blocking page.
+  void DoDisplayBlockingPage(const BlockingPageParam& param);
 
   MessageLoop* io_loop_;
 

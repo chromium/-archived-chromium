@@ -18,7 +18,7 @@
 #include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/views/download_tab_view.h"
 #include "chrome/browser/history_tab_ui.h"
-#include "chrome/browser/interstitial_page_delegate.h"
+#include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/tab_restore_service.h"
@@ -732,35 +732,10 @@ void Browser::GoBack() {
   TabContents* current_tab = GetSelectedTabContents();
   if (current_tab) {
     WebContents* web_contents = current_tab->AsWebContents();
-    // If we are showing an interstitial page, we don't need to navigate back
-    // to the previous page as it is already available in a render view host
-    // of the WebContents.  This makes the back more snappy and avoids potential
-    // reloading of POST pages.
     if (web_contents && web_contents->showing_interstitial_page()) {
-      // Let the delegate decide (if any) if it wants to handle the back
-      // navigation (it may have extra things to do).
-     if (web_contents->interstitial_page_delegate() &&
-         web_contents->interstitial_page_delegate()->GoBack()) {
-       return;
-     }
-     // TODO(jcampan): #1283764 once we refactored and only use the
-     //                interstitial delegate, the code below should go away.
-      NavigationEntry* prev_nav_entry = web_contents->controller()->
-          GetEntryAtOffset(-1);
-      DCHECK(prev_nav_entry);
-      // We do a normal back if:
-      // - the page is not a WebContents, its TabContents might have to be
-      //   recreated.
-      // - we have not yet visited that navigation entry (typically session
-      //   restore), in which case the page is not already available.
-      if (prev_nav_entry->tab_type() == TAB_CONTENTS_WEB &&
-          !prev_nav_entry->restored()) {
-        // It is the job of the code that shows the interstitial to listen for
-        // notifications of the interstitial getting hidden and appropriately
-        // dealing with the navigation entries.
-        web_contents->HideInterstitialPage(false, false);
-        return;
-      }
+      // Pressing back on an interstitial page means "don't proceed".
+      web_contents->interstitial_page()->DontProceed();
+      return;
     }
   }
   NavigationController* nc = GetSelectedNavigationController();

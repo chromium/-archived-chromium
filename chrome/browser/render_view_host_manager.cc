@@ -6,7 +6,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
-#include "chrome/browser/interstitial_page_delegate.h"
+#include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/render_widget_host_view.h"
@@ -37,7 +37,7 @@ RenderViewHostManager::RenderViewHostManager(
       original_render_view_host_(NULL),
       interstitial_render_view_host_(NULL),
       pending_render_view_host_(NULL),
-      interstitial_delegate_(NULL),
+      interstitial_page_(NULL),
       showing_repost_interstitial_(false) {
 }
 
@@ -381,8 +381,7 @@ void RenderViewHostManager::ShouldClosePage(bool proceed) {
 }
 
 void RenderViewHostManager::ShowInterstitialPage(
-    const std::string& html_text,
-    InterstitialPageDelegate* delegate) {
+    InterstitialPage* interstitial_page) {
   // Note that it is important that the interstitial page render view host is
   // in the same process as the normal render view host for the tab, so they
   // use page ids from the same pool.  If they came from different processes,
@@ -477,7 +476,7 @@ void RenderViewHostManager::ShowInterstitialPage(
   // Create a pending renderer and move to ENTERING_INTERSTITIAL.
   interstitial_render_view_host_ =
       CreateRenderViewHost(interstitial_instance, MSG_ROUTING_NONE, NULL);
-  interstitial_delegate_ = delegate;
+  interstitial_page_ = interstitial_page;
   bool success = delegate_->CreateRenderViewForRenderManager(
       interstitial_render_view_host_);
   if (!success) {
@@ -495,9 +494,10 @@ void RenderViewHostManager::ShowInterstitialPage(
   // We allow the DOM bindings as a way to get the page to talk back to us.
   interstitial_render_view_host_->AllowDomAutomationBindings();
 
-  interstitial_render_view_host_->LoadAlternateHTMLString(html_text, false,
-                                                          GURL::EmptyGURL(),
-                                                          std::string());
+  interstitial_render_view_host_->LoadAlternateHTMLString(
+      interstitial_page->GetHTMLContents(), false,
+      GURL::EmptyGURL(),
+      std::string());
 }
 
 void RenderViewHostManager::HideInterstitialPage(bool wait_for_navigation,
@@ -919,14 +919,9 @@ void RenderViewHostManager::DisableInterstitialProceed(bool stop_request) {
 
 void RenderViewHostManager::InterstitialPageGone() {
   DCHECK(!showing_interstitial_page());
-
-  NotificationService::current()->Notify(
-      NOTIFY_INTERSTITIAL_PAGE_CLOSED,
-      Source<NavigationController>(delegate_->GetControllerForRenderManager()),
-      NotificationService::NoDetails());
-  if (interstitial_delegate_) {
-    interstitial_delegate_->InterstitialClosed();
-    interstitial_delegate_ = NULL;
+  if (interstitial_page_) {
+    interstitial_page_->InterstitialClosed();
+    interstitial_page_ = NULL;
   }
 }
 

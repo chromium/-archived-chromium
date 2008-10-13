@@ -2143,7 +2143,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\interstitial_page_delegate.h"
+			RelativePath=".\interstitial_page.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\interstitial_page.h"
 			>
 		</File>
 		<File

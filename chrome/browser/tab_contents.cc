@@ -127,11 +127,17 @@ const GURL& TabContents::GetURL() const {
 }
 
 const std::wstring& TabContents::GetTitle() const {
-  // We always want to use the title for the last committed entry rather than
-  // a pending navigation entry. For example, when the user types in a URL, we
-  // want to keep the old page's title until the new load has committed and we
-  // get a new title.
-  NavigationEntry* entry = controller_->GetLastCommittedEntry();
+  // We use the title for the last committed entry rather than a pending
+  // navigation entry. For example, when the user types in a URL, we want to
+  // keep the old page's title until the new load has committed and we get a new
+  // title.
+  // The exception is with transient pages, for which we really want to use
+  // their title, as they are not committed.
+  NavigationEntry* entry = controller_->GetTransientEntry();
+  if (entry && !entry->title().empty())
+    return entry->title();
+  
+  entry = controller_->GetLastCommittedEntry();
   if (entry)
     return entry->title();
   else if (controller_->LoadingURLLazily())
@@ -166,7 +172,11 @@ const std::wstring TabContents::GetDefaultTitle() const {
 SkBitmap TabContents::GetFavIcon() const {
   // Like GetTitle(), we also want to use the favicon for the last committed
   // entry rather than a pending navigation entry.
-  NavigationEntry* entry = controller_->GetLastCommittedEntry();
+  NavigationEntry* entry = controller_->GetTransientEntry();
+  if (entry)
+    return entry->favicon().bitmap();
+
+  entry = controller_->GetLastCommittedEntry();
   if (entry)
     return entry->favicon().bitmap();
   else if (controller_->LoadingURLLazily())

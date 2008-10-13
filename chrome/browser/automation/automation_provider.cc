@@ -572,6 +572,23 @@ class DocumentPrintedNotificationObserver : public NotificationObserver {
   bool success_;
 };
 
+class AutomationInterstitialPage : public InterstitialPage {
+ public:
+  AutomationInterstitialPage(TabContents* tab,
+                             const GURL& url,
+                             const std::string& contents)
+      : InterstitialPage(tab, true, url),
+        contents_(contents) {
+  }
+
+  virtual std::string GetHTMLContents() { return contents_; }
+
+ private:
+  std::string contents_;
+  
+  DISALLOW_COPY_AND_ASSIGN(AutomationInterstitialPage);
+};
+
 AutomationProvider::AutomationProvider(Profile* profile)
     : redirect_query_(0),
       profile_(profile) {
@@ -1906,7 +1923,11 @@ void AutomationProvider::ShowInterstitialPage(const IPC::Message& message,
                                                          true),
           NULL);
       WebContents* web_contents = tab_contents->AsWebContents();
-      web_contents->ShowInterstitialPage(html_text, NULL);
+      AutomationInterstitialPage* interstitial =
+          new AutomationInterstitialPage(web_contents,
+                                         GURL("about:interstitial"),
+                                         html_text);
+      web_contents->ShowInterstitialPage(interstitial);
       return;
     }
   }
@@ -2076,8 +2097,8 @@ void AutomationProvider::ActionOnSSLBlockingPage(const IPC::Message& message,
     NavigationEntry* entry = tab->GetActiveEntry();
     if (entry->page_type() == NavigationEntry::INTERSTITIAL_PAGE) {
       TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
-      SSLBlockingPage* ssl_blocking_page =
-          SSLBlockingPage::GetSSLBlockingPage(tab_contents);
+      InterstitialPage* ssl_blocking_page =
+          InterstitialPage::GetInterstitialPage(tab_contents);
       if (ssl_blocking_page) {
         if (proceed) {
           AddNavigationStatusListener(tab,

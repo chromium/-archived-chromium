@@ -12,7 +12,7 @@
 #include "base/basictypes.h"
 #include "chrome/browser/render_view_host.h"
 
-class InterstitialPageDelegate;
+class InterstitialPage;
 class NavigationController;
 class NavigationEntry;
 class Profile;
@@ -123,13 +123,12 @@ class RenderViewHostManager {
   // WebContents.
   void ShouldClosePage(bool proceed);
 
-  // Displays the specified html in the current page. This method can be used to
-  // show temporary pages (such as security error pages).  It can be hidden by
-  // calling HideInterstitialPage, in which case the original page is restored.
-  // An optional delegate may be passed, it is owned by the caller and must
-  // remain valid while the interstitial does.
-  void ShowInterstitialPage(const std::string& html_text,
-                            InterstitialPageDelegate* delegate);
+  // Displays an interstitial page in the current page. This method can be used
+  // to show temporary pages (such as security error pages).  It can be hidden
+  // by calling HideInterstitialPage, in which case the original page is
+  // restored.  The passed InterstitialPage is owned by the caller and must
+  // remain valid while the interstitial page is shown.
+  void ShowInterstitialPage(InterstitialPage* interstitial_page);
 
   // Reverts from the interstitial page to the original page.
   // If |wait_for_navigation| is true, the interstitial page is removed when
@@ -166,13 +165,9 @@ class RenderViewHostManager {
         (renderer_state_ == LEAVING_INTERSTITIAL);
   }
 
-  // Accessors to the the interstitial delegate, that is optionaly set when
-  // an interstitial page is shown.
-  InterstitialPageDelegate* interstitial_delegate() const {
-    return interstitial_delegate_;
-  }
-  void set_interstitial_delegate(InterstitialPageDelegate* delegate) {
-    interstitial_delegate_ = delegate;
+  // Accessors to the the interstitial page.
+  InterstitialPage* interstitial_page() const {
+    return interstitial_page_;
   }
 
  private:
@@ -258,10 +253,8 @@ class RenderViewHostManager {
   // immediately, because we are navigating away.
   void DisableInterstitialProceed(bool stop_request);
 
-  // Cleans up after an interstitial page is hidden, including removing the
-  // interstitial's NavigationEntry.
+  // Cleans up after an interstitial page is hidden.
   void InterstitialPageGone();
-
 
   // Our delegate, not owned by us. Guaranteed non-NULL.
   Delegate* delegate_;
@@ -296,7 +289,9 @@ class RenderViewHostManager {
   // exist if an interstitial page is shown.
   RenderViewHost* pending_render_view_host_;
 
-  InterstitialPageDelegate* interstitial_delegate_;
+  // The intersitial page currently shown if any, not own by this class
+  // (the InterstitialPage is self-owned, it deletes itself when hidden).
+  InterstitialPage* interstitial_page_;
 
   // See comment above showing_repost_interstitial().
   bool showing_repost_interstitial_;

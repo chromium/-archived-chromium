@@ -134,15 +134,6 @@ enum NotificationType {
   NOTIFY_DOWNLOAD_START,
   NOTIFY_DOWNLOAD_STOP,
 
-  // This is sent when an interstitial page showing in a WebContents is closed
-  // (as the result of a navigation to another page).  The source is the
-  // WebContents the interstitial page is in.
-  // Note that you should not initiate a navigation as part of the processing of
-  // this notification, since this notification may be triggered as part of the
-  // destruction of the tab contents (the navigation controller would reuse
-  // the tab contents right before it would be destroyed).
-  NOTIFY_INTERSTITIAL_PAGE_CLOSED,
-
   // Views ---------------------------------------------------------------------
 
   // Notification that a view was removed from a view hierarchy.  The source is

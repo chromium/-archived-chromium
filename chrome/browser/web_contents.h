@@ -145,22 +145,12 @@ class WebContents : public TabContents,
     return render_manager_.showing_repost_interstitial();
   }
 
-  // The rest of the system wants to interact with the delegate our render view
-  // host manager has. See those setters for more.
-  InterstitialPageDelegate* interstitial_page_delegate() const {
-    return render_manager_.interstitial_delegate();
-  }
-  void set_interstitial_delegate(InterstitialPageDelegate* delegate) {
-    render_manager_.set_interstitial_delegate(delegate);
-  }
-
-  // Displays the specified html in the current page. This method can be used to
-  // show temporary pages (such as security error pages).  It can be hidden by
+  // Displays the specified interstitial page. This method can be used to show
+  // temporary pages (such as security error pages).  It can be hidden by
   // calling HideInterstitialPage, in which case the original page is restored.
-  // An optional delegate may be passed, it is not owned by the WebContents.
-  void ShowInterstitialPage(const std::string& html_text,
-                            InterstitialPageDelegate* delegate) {
-    render_manager_.ShowInterstitialPage(html_text, delegate);
+  // |interstitial_page| is not owned by the WebContents.
+  void ShowInterstitialPage(InterstitialPage* interstitial_page) {
+    render_manager_.ShowInterstitialPage(interstitial_page);
   }
 
   // Reverts from the interstitial page to the original page.
@@ -172,6 +162,11 @@ class WebContents : public TabContents,
   // to complete.  If not, it will revert to the last shown page.
   void HideInterstitialPage(bool wait_for_navigation, bool proceed) {
     render_manager_.HideInterstitialPage(wait_for_navigation, proceed);
+  }
+
+  // Returns the interstitial page currently shown if any, NULL otherwise.
+  InterstitialPage* interstitial_page() const {
+    return render_manager_.interstitial_page();
   }
 
   // Misc state & callbacks ----------------------------------------------------

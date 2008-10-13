@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
+#include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/render_view_host.h"
@@ -357,7 +358,11 @@ TEST_F(WebContentsTest, ShowInterstitialDontProceed) {
   EXPECT_TRUE(orig_rvh->is_loading);
 
   // Show interstitial
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   EXPECT_TRUE(contents->state_is_entering_interstitial());
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
   EXPECT_TRUE(orig_rvh->is_loading);  // Still loading in the background
@@ -392,7 +397,11 @@ TEST_F(WebContentsTest, ShowInterstitialProceed) {
   contents->controller()->LoadURL(url, PageTransition::TYPED);
 
   // Show interstitial
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
 
   // DidNavigate from the interstitial
@@ -434,7 +443,11 @@ TEST_F(WebContentsTest, ShowInterstitialThenNavigate) {
   contents->controller()->LoadURL(url, PageTransition::TYPED);
 
   // Show interstitial
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
 
   // DidNavigate from the interstitial
@@ -481,7 +494,11 @@ TEST_F(WebContentsTest, ShowInterstitialIFrameNavigate) {
 
   // Show interstitial (in real world would probably be triggered by a resource
   // in the page).
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   EXPECT_TRUE(contents->state_is_entering_interstitial());
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
   EXPECT_TRUE(interstitial_rvh->is_loading);
@@ -518,7 +535,11 @@ TEST_F(WebContentsTest, VisitInterstitialURLTwice) {
   // Now navigate to an interstitial-inducing URL
   const GURL url2("https://www.google.com");
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   EXPECT_TRUE(contents->state_is_entering_interstitial());
   int interstitial_delete_counter = 0;
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
@@ -537,7 +558,8 @@ TEST_F(WebContentsTest, VisitInterstitialURLTwice) {
   EXPECT_EQ(interstitial_rvh, contents->render_view_host());
 
   // Interstitial shown a second time in a different RenderViewHost.
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  interstitial = new InterstitialPage(contents, true, interstitial_url);
+  interstitial->Show();
   EXPECT_TRUE(contents->state_is_entering_interstitial());
   // We expect the original interstitial has been deleted.
   EXPECT_EQ(interstitial_delete_counter, 1);
@@ -704,7 +726,11 @@ TEST_F(WebContentsTest, CrossSiteInterstitialDontProceed) {
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
 
   // Show an interstitial
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   EXPECT_TRUE(contents->state_is_entering_interstitial());
   EXPECT_EQ(orig_rvh, contents->render_view_host());
   EXPECT_EQ(pending_rvh, contents->pending_rvh());
@@ -753,7 +779,11 @@ TEST_F(WebContentsTest, CrossSiteInterstitialProceed) {
   pending_rvh->set_delete_counter(&pending_rvh_delete_count);
 
   // Show an interstitial
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
 
   // DidNavigate from the interstitial
@@ -819,7 +849,11 @@ TEST_F(WebContentsTest, CrossSiteInterstitialThenNavigate) {
   contents->TestDidNavigate(orig_rvh, params1);
 
   // Show an interstitial
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        false,
+                                                        interstitial_url);
+  interstitial->Show();
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
 
   // DidNavigate from the interstitial
@@ -875,7 +909,11 @@ TEST_F(WebContentsTest, CrossSiteInterstitialCrashThenNavigate) {
   pending_rvh->set_delete_counter(&pending_rvh_delete_count);
 
   // Show an interstitial
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
 
   // DidNavigate from the interstitial
@@ -938,7 +976,11 @@ TEST_F(WebContentsTest, CrossSiteInterstitialCrashesThenNavigate) {
   pending_rvh->set_delete_counter(&pending_rvh_delete_count);
 
   // Show an interstitial
-  contents->ShowInterstitialPage(std::string("Blocked"), NULL);
+  const GURL interstitial_url("http://interstitial");
+  InterstitialPage* interstitial = new InterstitialPage(contents,
+                                                        true,
+                                                        interstitial_url);
+  interstitial->Show();
   TestRenderViewHost* interstitial_rvh = contents->interstitial_rvh();
 
   // DidNavigate from the interstitial

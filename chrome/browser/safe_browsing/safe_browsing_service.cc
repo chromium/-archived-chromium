@@ -190,12 +190,25 @@ void SafeBrowsingService::DisplayBlockingPage(const GURL& url,
     }
   }
 
-  SafeBrowsingBlockingPage* blocking_page = new SafeBrowsingBlockingPage(
-      this, client, render_process_host_id, render_view_id, url, resource_type,
-      result);
-  blocking_page->AddRef();
-  ui_loop->PostTask(FROM_HERE, NewRunnableMethod(
-      blocking_page, &SafeBrowsingBlockingPage::DisplayBlockingPage));
+  BlockingPageParam param;
+  param.url = url;
+  param.resource_type = resource_type;
+  param.result = result;
+  param.client = client;
+  param.render_process_host_id = render_process_host_id;
+  param.render_view_id = render_view_id;
+  // The blocking page must be created from the UI thread.
+  ui_loop->PostTask(FROM_HERE, NewRunnableMethod(this,
+      &SafeBrowsingService::DoDisplayBlockingPage,
+      param));
+}
+
+// Invoked on the UI thread.
+void SafeBrowsingService::DoDisplayBlockingPage(
+    const BlockingPageParam& param) {
+  SafeBrowsingBlockingPage* blocking_page = new SafeBrowsingBlockingPage(this,
+                                                                         param);
+  blocking_page->Show();
 }
 
 void SafeBrowsingService::CancelCheck(Client* client) {
@@ -386,23 +399,19 @@ void SafeBrowsingService::DatabaseUpdateFinished() {
     GetDatabase()->UpdateFinished();
 }
 
-void SafeBrowsingService::OnBlockingPageDone(SafeBrowsingBlockingPage* page,
-                                             Client* client,
-                                             bool proceed) {
-  NotifyClientBlockingComplete(client, proceed);
+void SafeBrowsingService::OnBlockingPageDone(const BlockingPageParam& param) {
+  NotifyClientBlockingComplete(param.client, param.proceed);
 
-  if (proceed) {
+  if (param.proceed) {
     // Whitelist this domain and warning type for the given tab.
     WhiteListedEntry entry;
-    entry.render_process_host_id = page->render_process_host_id();
-    entry.render_view_id = page->render_view_id();
-    entry.domain = net::RegistryControlledDomainService::GetDomainAndRegistry(
-        page->url());
-    entry.result = page->result();
+    entry.render_process_host_id = param.render_process_host_id;
+    entry.render_view_id = param.render_view_id;
+    entry.domain =
+        net::RegistryControlledDomainService::GetDomainAndRegistry(param.url);
+    entry.result = param.result;
     white_listed_entries_.push_back(entry);
   }
-
-  page->Release();
 }
 
 void SafeBrowsingService::NotifyClientBlockingComplete(Client* client,

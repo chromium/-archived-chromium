@@ -17,7 +17,7 @@
 #include "chrome/browser/find_in_page_controller.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/google_util.h"
-#include "chrome/browser/interstitial_page_delegate.h"
+#include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/js_before_unload_handler.h"
 #include "chrome/browser/jsmessage_box_handler.h"
 #include "chrome/browser/load_from_memory_cache_details.h"
@@ -1007,9 +1007,9 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
       (rvh == render_view_host())) {
     // We are showing an interstitial page in a different RenderViewHost, so
     // the page_id is not sufficient to find the entry from the controller.
-    // (both RenderViewHost page_ids overlap).  We know it is the last entry,
+    // (both RenderViewHost page_ids overlap).  We know it is the active entry,
     // so just use that.
-    entry = controller()->GetLastCommittedEntry();
+    entry = controller()->GetActiveEntry();
   } else {
     entry = controller()->GetEntryWithPageID(type(), GetSiteInstance(),
                                              page_id);
@@ -1176,7 +1176,7 @@ void WebContents::DidFailProvisionalLoadWithError(
     // before the page loaded so that the discard would discard the wrong entry.
     NavigationEntry* pending_entry = controller()->GetPendingEntry();
     if (pending_entry && pending_entry->url() == url)
-      controller()->DiscardPendingEntry();
+      controller()->DiscardNonCommittedEntries();
 
     render_manager_.RendererAbortedProvisionalLoad(render_view_host);
   }

@@ -2,18 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SSL_BLOCKING_PAGE_H__
-#define CHROME_BROWSER_SSL_BLOCKING_PAGE_H__
+#ifndef CHROME_BROWSER_SSL_BLOCKING_PAGE_H_
+#define CHROME_BROWSER_SSL_BLOCKING_PAGE_H_
 
 #include <string>
 
+#include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/ssl_manager.h"
 #include "chrome/views/decision.h"
 
 // This class is responsible for showing/hiding the interstitial page that is
 // shown when a certificate error happens.
 // It deletes itself when the interstitial page is closed.
-class SSLBlockingPage : public NotificationObserver {
+class SSLBlockingPage : public InterstitialPage {
  public:
   // An interface that classes that want to interact with the SSLBlockingPage
   // should implement.
@@ -30,27 +31,8 @@ class SSLBlockingPage : public NotificationObserver {
     virtual void OnAllowCertificate(SSLManager::CertError* error) = 0;
   };
 
-  SSLBlockingPage(SSLManager::CertError* error,
-                  Delegate* delegate);
+  SSLBlockingPage(SSLManager::CertError* error, Delegate* delegate);
   virtual ~SSLBlockingPage();
-
-  void Show();
-
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
-  // Invoked when the user clicks on proceed.
-  // Warning: 'this' has been deleted when this method returns.
-  void Proceed();
-
-  // Invoked when the user clicks on "take me out of here".
-  // Warning: 'this' has been deleted when this method returns.
-  void DontProceed();
-
-  // Retrieves the SSLBlockingPage if any associated with the specified
-  // |tab_contents| (used by ui tests).
-  static SSLBlockingPage* GetSSLBlockingPage(TabContents* tab_contents);
 
   // A method that sets strings in the specified dictionary from the passed
   // vector so that they can be used to resource the ssl_roadblock.html/
@@ -58,16 +40,18 @@ class SSLBlockingPage : public NotificationObserver {
   // Note: there can be up to 5 strings in |extra_info|.
   static void SetExtraInfo(DictionaryValue* strings,
                            const std::vector<std::wstring>& extra_info);
+
+ protected:
+  // InterstitialPage implementation.
+  virtual std::string GetHTMLContents();
+  virtual void CommandReceived(const std::string& command);
+  virtual void UpdateEntry(NavigationEntry* entry);
+  virtual void Proceed();
+  virtual void DontProceed();
+
  private:
-   typedef std::map<TabContents*,SSLBlockingPage*> SSLBlockingPageMap;
-
    void NotifyDenyCertificate();
-
    void NotifyAllowCertificate();
-
-  // Initializes tab_to_blocking_page_ in a thread-safe manner.  Should be
-  // called before accessing tab_to_blocking_page_.
-  static void InitSSLBlockingPageMap();
 
   // The error we represent.  We will either call CancelRequest() or
   // ContinueRequest() on this object.
@@ -80,23 +64,8 @@ class SSLBlockingPage : public NotificationObserver {
   // A flag to indicate if we've notified |delegate_| of the user's decision.
   bool delegate_has_been_notified_;
 
-  // A flag used to know whether we should remove the last navigation entry from
-  // the navigation controller.
-  bool remove_last_entry_;
 
-  // The tab in which we are displayed.
-  TabContents* tab_;
-
-  // Whether we created a fake navigation entry as part of showing the
-  // interstitial page.
-  bool created_nav_entry_;
-
-  // We keep a map of the various blocking pages shown as the UI tests need to
-  // be able to retrieve them.
-  static SSLBlockingPageMap* tab_to_blocking_page_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(SSLBlockingPage);
+  DISALLOW_COPY_AND_ASSIGN(SSLBlockingPage);
 };
 
-
-#endif  // #ifndef CHROME_BROWSER_SSL_BLOCKING_PAGE_H__
+#endif  // #ifndef CHROME_BROWSER_SSL_BLOCKING_PAGE_H_

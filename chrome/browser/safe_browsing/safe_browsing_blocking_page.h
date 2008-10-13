@@ -9,7 +9,7 @@
 // page with some options (go back, continue) to give the user a chance to avoid
 // the harmful page.
 //
-// The SafeBrowsingBlockingPage is created by the SafeBrowsingService on the IO
+// The SafeBrowsingBlockingPage is created by the SafeBrowsingService on the UI
 // thread when we've determined that a page is malicious. The operation of the
 // blocking page occurs on the UI thread, where it waits for the user to make a
 // decision about what to do: either go back or continue on.
@@ -22,53 +22,31 @@
 #define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H_
 
 #include "base/logging.h"
-#include "chrome/browser/interstitial_page_delegate.h"
+#include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
-#include "chrome/common/notification_service.h"
 #include "googleurl/src/gurl.h"
 
 class MessageLoop;
 class TabContents;
 class NavigationController;
 
-class SafeBrowsingBlockingPage
-    : public InterstitialPageDelegate,
-      public base::RefCountedThreadSafe<SafeBrowsingBlockingPage>,
-      public NotificationObserver {
+class SafeBrowsingBlockingPage : public InterstitialPage {
  public:
-  // Created and destroyed on the IO thread, operates on the UI thread.
   SafeBrowsingBlockingPage(SafeBrowsingService* service,
-                           SafeBrowsingService::Client* client,
-                           int render_process_host_id,
-                           int render_view_id,
-                           const GURL& url,
-                           ResourceType::Type resource_type,
-                           SafeBrowsingService::UrlCheckResult result);
-  ~SafeBrowsingBlockingPage();
+                           const SafeBrowsingService::BlockingPageParam& param);
+  virtual ~SafeBrowsingBlockingPage();
 
-  // Display the page to the user. This method runs on the UI thread.
-  void DisplayBlockingPage();
-
-  // NotificationObserver interface, runs on the UI thread.
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
-  const GURL& url() { return url_; }
-  int render_process_host_id() { return render_process_host_id_; }
-  int render_view_id() { return render_view_id_; }
-  SafeBrowsingService::UrlCheckResult result() { return result_; }
-
-  // InterstitialPageDelegate methods:
+  // InterstitialPage method:
+  virtual std::string GetHTMLContents();
   virtual void InterstitialClosed();
-  virtual bool GoBack();
+
+ protected:
+  // InterstitialPage method:
+  virtual void CommandReceived(const std::string& command);
 
  private:
-  // Handle user action for blocking page navigation choices.
-  void Continue(const std::string& user_action);
-
-  // Tell the SafeBrowsingService that the handling of the current page is done.
-  void HandleClose();
+  // Tells the SafeBrowsingService that the handling of the current page is
+  // done.
   void NotifyDone();
 
  private:
@@ -76,35 +54,30 @@ class SafeBrowsingBlockingPage
   SafeBrowsingService* sb_service_;
   SafeBrowsingService::Client* client_;
   MessageLoop* report_loop_;
+  SafeBrowsingService::UrlCheckResult result_;
 
-  // For determining which tab to block.
+  // For determining which tab to block (note that we need this even though we
+  // have access to the tab as when the interstitial is showing, retrieving the
+  // tab RPH and RV id would return the ones of the interstitial, not the ones
+  // for the page containing the malware).
+  // TODO(jcampan): when we refactor the interstitial to run as a separate view
+  //                that does not interact with the WebContents as much, we can
+  //                get rid of these.
   int render_process_host_id_;
   int render_view_id_;
-
-  GURL url_;
-  SafeBrowsingService::UrlCheckResult result_;
 
   // Inform the SafeBrowsingService whether we are continuing with this page
   // load or going back to the previous page.
   bool proceed_;
 
-  // Stored for use in the notification service, and are only used for their
-  // pointer value, but not for calling methods on. This is done to allow us to
-  // unregister as observers after the tab has gone (is NULL).
-  TabContents* tab_;
-  NavigationController* controller_;
-
-  // Used for cleaning up after ourself.
-  bool delete_pending_;
+  // Whether we have notify the SafeBrowsingService yet that a decision had been
+  // made whether to proceed or block the unsafe resource.
+  bool did_notify_;
 
   // Whether the flagged resource is the main page (or a sub-resource is false).
   bool is_main_frame_;
 
-  // Whether we have created a temporary navigation entry as part of showing
-  // the blocking page.
-  bool created_temporary_entry_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(SafeBrowsingBlockingPage);
+  DISALLOW_COPY_AND_ASSIGN(SafeBrowsingBlockingPage);
 };
 
 #endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H_

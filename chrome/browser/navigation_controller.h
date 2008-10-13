@@ -151,10 +151,11 @@ class NavigationController {
 
   // Active entry --------------------------------------------------------------
 
-  // Returns the active entry, which is the pending entry if a navigation is in
-  // progress or the last committed entry otherwise.  NOTE: This can be NULL!!
+  // Returns the active entry, which is the transient entry if any, the pending
+  // entry if a navigation is in progress or the last committed entry otherwise.
+  // NOTE: This can be NULL!!
   //
-  // If you are trying to get the current state of the NavigationControllerBase,
+  // If you are trying to get the current state of the NavigationController,
   // this is the method you will typically want to call.
   //
   NavigationEntry* GetActiveEntry() const;
@@ -175,8 +176,9 @@ class NavigationController {
 
   // Navigation list -----------------------------------------------------------
 
-  // Returns the number of entries in the NavigationControllerBase, excluding
-  // the pending entry if there is one.
+  // Returns the number of entries in the NavigationController, excluding
+  // the pending entry if there is one, but including the transient entry if
+  // any.
   int GetEntryCount() const {
     return static_cast<int>(entries_.size());
   }
@@ -190,7 +192,7 @@ class NavigationController {
   NavigationEntry* GetEntryAtOffset(int offset) const;
 
   // Returns the index of the specified entry, or -1 if entry is not contained
-  // in this NavigationControllerBase.
+  // in this NavigationController.
   int GetIndexOfEntry(const NavigationEntry* entry) const;
 
   // Return the index of the entry with the corresponding type, instance, and
@@ -219,9 +221,10 @@ class NavigationController {
   // new page ID for you and update the TabContents with that ID.
   void CommitPendingEntry();
 
-  // Calling this may cause the active tab contents to switch if the current
-  // entry corresponds to a different tab contents type.
-  void DiscardPendingEntry();
+  // Discards the pending and transient entries if any.  Calling this may cause
+  // the active tab contents to switch if the current entry corresponds to a
+  // different tab contents type.
+  void DiscardNonCommittedEntries();
 
   // Returns the pending entry corresponding to the navigation that is
   // currently in progress, or null if there is none.
@@ -234,6 +237,21 @@ class NavigationController {
   int GetPendingEntryIndex() const {
     return pending_entry_index_;
   }
+
+  // Transient entry -----------------------------------------------------------
+
+  // Adds an entry that is returned by GetActiveEntry().  The entry is
+  // transient: any navigation causes it to be removed and discarded.
+  // The NavigationController becomes the owner of |entry| and deletes it when
+  // it discards it.  This is useful with interstitial page that need to be
+  // represented as an entry, but should go away when the user navigates away
+  // from them.
+  // Note that adding a transient entry does not change the active contents.
+  void AddTransientEntry(NavigationEntry* entry);
+
+  // Returns the transient entry if any.  Note that the returned entry is owned
+  // by the navigation controller and may be deleted at any time.
+  NavigationEntry* GetTransientEntry() const;
 
   // New navigations -----------------------------------------------------------
 
@@ -270,6 +288,14 @@ class NavigationController {
   // Same as Reload, but doesn't check if current entry has POST data.
   void ReloadDontCheckForRepost();
 
+  // Removing of entries -------------------------------------------------------
+
+  // Removes the entry at the specified |index|.  This call dicards any pending
+  // and transient entries.  |default_url| is the URL that the navigation
+  // controller navigates to if there are no more entries after the removal.
+  // If |default_url| is empty, we default to "about:blank".
+  void RemoveEntryAtIndex(int index, const GURL& default_url);
+
   // TabContents ---------------------------------------------------------------
 
   // Notifies the controller that a TabContents that it owns has been destroyed.
@@ -302,17 +328,6 @@ class NavigationController {
   bool RendererDidNavigate(const ViewHostMsg_FrameNavigate_Params& params,
                            bool is_interstitial,
                            LoadCommittedDetails* details);
-
-  // Inserts a new entry by making a copy of the given navigation entry. This is
-  // used by interstitials to create dummy entries that they will be in charge
-  // of removing later.
-  void AddDummyEntryForInterstitial(const NavigationEntry& clone_me);
-
-  // Removes the last entry in the list. This is used by the interstitial code
-  // to delete the dummy entry created by AddDummyEntryForInterstitial. If the
-  // last entry is the currently committed one, a ENTRY_COMMITTED notification
-  // will be broadcast.
-  void RemoveLastEntryForInterstitial();
 
   // Notifies us that we just became active. This is used by the TabContents
   // so that we know to load URLs that were pending as "lazy" loads.
@@ -426,10 +441,6 @@ class NavigationController {
   // and deleted by this navigation controller
   void RegisterTabContents(TabContents* some_contents);
 
-  // Removes the entry at the specified index.  Note that you should not remove
-  // the pending entry or the last committed entry.
-  void RemoveEntryAtIndex(int index);
-
   // Sets the max restored page ID this NavigationController has seen, if it
   // was restored from a previous session.
   void set_max_restored_page_id(int max_id) { max_restored_page_id_ = max_id; }
@@ -458,8 +469,12 @@ class NavigationController {
   // The new entry will become the active one.
   void InsertEntry(NavigationEntry* entry);
 
-  // Discards the pending entry without updating active_contents_
-  void DiscardPendingEntryInternal();
+  // Discards the pending and transient entries without updating
+  // active_contents_.
+  void DiscardNonCommittedEntriesInternal();
+
+  // Discards the transient entry without updating active_contents_.
+  void DiscardTransientEntry();
 
   // ---------------------------------------------------------------------------
 
@@ -485,6 +500,13 @@ class NavigationController {
   // index of pending entry if it is in entries_, or -1 if pending_entry_ is a
   // new entry (created by LoadURL).
   int pending_entry_index_;
+
+  // The index for the entry that is shown until a navigation occurs.  This is
+  // used for interstitial pages. -1 if there are no such entry.
+  // Note that this entry really appears in the list of entries, but only
+  // temporarily (until the next navigation).  Any index poiting to an entry
+  // after the transient entry will become invalid if you navigate forward.
+  int transient_entry_index_;
 
   // Tab contents. One entry per type used. The tab controller owns
   // every tab contents used.
