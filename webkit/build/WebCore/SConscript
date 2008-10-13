@@ -31,10 +31,10 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY',
     ]
   )
-  if '-Wall' in env['CCFLAGS']:
+  if '-Wall' in env['CXXFLAGS'] and '-Werror' in env['CXXFLAGS']:
     # It'd be nice to fix these warnings upstream, but we're not going to
     # block on it.
-    env['CCFLAGS'].remove('-Werror')
+    env['CXXFLAGS'].remove('-Werror')
 
 input_files = [
     '$WEBCORE_DIR/css/CSSBorderImageValue.cpp',

@@ -207,6 +207,7 @@ sconscript_dirs = [
   'build/JavaScriptCore/SConscript',
   'build/port/SConscript',
   'build/V8Bindings/SConscript',
+  'build/WebCore/SConscript',
   'default_plugin/SConscript',
   'glue/SConscript',
   'glue/plugins/test/SConscript',
@@ -220,9 +221,6 @@ if env['PLATFORM'] == 'win32':
     'activex_shim/SConscript',
     'activex_shim_dll/SConscript',
     'build/localized_strings/SConscript',
-    'build/WebCore/SConscript',  # This almost works on linux.  It requires
-                                 # some changes to WebKit that we'll get
-                                 # in the merge.
   ])
 
   env.Append(
