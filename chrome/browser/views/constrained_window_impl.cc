@@ -603,6 +603,12 @@ void ConstrainedWindowNonClientView::Layout() {
       int title_left = icon_bounds_.right() + spacing;
       title_bounds_.SetRect(title_left, kTitleTopOffset,
                             title_right - title_left, title_font_.height());
+
+      // Center the icon within the vertical bounds of the title if the title
+      // is taller.
+      int delta_y = title_bounds_.height() - icon_bounds_.height();
+      if (delta_y > 0)
+        icon_bounds_.set_y(title_bounds_.y() + static_cast<int>(delta_y / 2));
     }
   }
 
@@ -769,6 +775,8 @@ void ConstrainedWindowNonClientView::InitClass() {
     DCHECK(throbber_frames_.width() % throbber_frames_.height() == 0);
     throbber_frame_count_ =
         throbber_frames_.width() / throbber_frames_.height();
+
+    title_font_ = win_util::GetWindowTitleFont();
 
     initialized = true;
   }

@@ -805,5 +805,12 @@ int MessageBox(HWND hwnd,
   return ::MessageBox(hwnd, text_ptr, caption_ptr, actual_flags);
 }
 
+ChromeFont GetWindowTitleFont() {
+  NONCLIENTMETRICS ncm;
+  win_util::GetNonClientMetrics(&ncm);
+  ScopedHFONT caption_font(CreateFontIndirect(&(ncm.lfCaptionFont)));
+  return ChromeFont::CreateFont(caption_font);
+}
+
 }  // namespace win_util
 

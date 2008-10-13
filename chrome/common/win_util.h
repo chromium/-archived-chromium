@@ -13,6 +13,7 @@
 #include "base/fix_wp64.h"
 #include "base/gfx/rect.h"
 #include "base/scoped_handle.h"
+#include "chrome/common/gfx/chrome_font.h"
 
 namespace win_util {
 
@@ -227,6 +228,9 @@ int MessageBox(HWND hwnd,
                const std::wstring& text,
                const std::wstring& caption,
                UINT flags);
+
+// Returns the system set window title font.
+ChromeFont GetWindowTitleFont();
 
 }  // namespace win_util
 

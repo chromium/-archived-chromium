@@ -802,6 +802,15 @@ void DefaultNonClientView::LayoutTitleBar() {
     // DefaultNonClientView subclass to use a ChromeView::Label as a child View
     // instead of drawing the title's text directly on the canvas).
     title_bounds_.set_x(MirroredLeftPointForRect(title_bounds_));
+
+    // Center the icon within the height of the title if the title is taller.
+    int delta_y = title_bounds_.height() - system_menu_button_->height();
+    if (delta_y > 0) {
+      int new_y = title_bounds_.y() + static_cast<int>(delta_y / 2);
+      system_menu_button_->SetBounds(system_menu_button_->x(), new_y,
+                                     system_menu_button_->width(),
+                                     system_menu_button_->height());
+    }
   }
 }
 
@@ -817,8 +826,7 @@ void DefaultNonClientView::InitClass() {
   if (!initialized) {
     active_resources_ = new ActiveWindowResources;
     inactive_resources_ = new InactiveWindowResources;
-    title_font_ = ResourceBundle::GetSharedInstance().GetFont(
-        ResourceBundle::BaseFont).DeriveFont(1, ChromeFont::BOLD);
+    title_font_ = win_util::GetWindowTitleFont();
     initialized = true;
   }
 }
