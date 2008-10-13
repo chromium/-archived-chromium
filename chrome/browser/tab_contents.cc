@@ -266,13 +266,13 @@ void TabContents::AddNewContents(TabContents* new_contents,
   if (!delegate_)
     return;
 
-  if ((disposition == NEW_POPUP) && !delegate_->IsPopup(this)) {
-    if (user_gesture) {
-      delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
-                                user_gesture);
-    } else {
-      AddConstrainedPopup(new_contents, initial_pos);
-    }
+  if ((disposition == NEW_POPUP) && !user_gesture) {
+    // Unrequested popups from normal pages are constrained.
+    TabContents* popup_owner = this;
+    TabContents* our_owner = delegate_->GetConstrainingContents(this);
+    if (our_owner)
+      popup_owner = our_owner;
+    popup_owner->AddConstrainedPopup(new_contents, initial_pos);
   } else {
     delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
                               user_gesture);
