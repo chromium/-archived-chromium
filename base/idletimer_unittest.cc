@@ -10,20 +10,15 @@ using base::IdleTimer;
 
 namespace {
 
-class IdleTimerTest : public testing::Test {
- private:
-  // IdleTimer requires a UI message loop on the current thread.
-  MessageLoopForUI message_loop_;
-};
-
 // We Mock the GetLastInputInfo function to return
 // the time stored here.
-static DWORD mock_idle_time = GetTickCount();
+static Time mock_timer_started;
 
-BOOL __stdcall MockGetLastInputInfoFunction(PLASTINPUTINFO plii) {
-  DCHECK(plii->cbSize == sizeof(LASTINPUTINFO));
-  plii->dwTime = mock_idle_time;
-  return TRUE;
+bool MockIdleTimeSource(int32 *milliseconds_interval_since_last_event) {
+  TimeDelta delta = Time::Now() - mock_timer_started;
+  *milliseconds_interval_since_last_event = 
+      static_cast<int32>(delta.InMilliseconds());
+  return true;
 }
 
 // TestIdle task fires after 100ms of idle time.
@@ -32,7 +27,7 @@ class TestIdleTask : public IdleTimer {
   TestIdleTask(bool repeat)
       : IdleTimer(TimeDelta::FromMilliseconds(100), repeat),
         idle_counter_(0) {
-        set_last_input_info_fn(MockGetLastInputInfoFunction);
+        set_idle_time_source(MockIdleTimeSource);
   }
 
   int get_idle_counter() { return idle_counter_; }
@@ -59,11 +54,15 @@ class ResetIdleTask {
  public:
   ResetIdleTask() {}
   void Run() {
-    mock_idle_time = GetTickCount();
+    mock_timer_started = Time::Now();
   }
 };
 
-}  // namespace
+class IdleTimerTest : public testing::Test {
+ private:
+  // IdleTimer requires a UI message loop on the current thread.
+  MessageLoopForUI message_loop_;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // NoRepeat tests:
@@ -75,7 +74,7 @@ TEST_F(IdleTimerTest, NoRepeatIdle) {
   // Create a Quit timer which will fire after 1s.
   // Verify that we fired exactly once.
 
-  mock_idle_time = GetTickCount();
+  mock_timer_started = Time::Now();
   TestIdleTask test_task(false);
 
   TestFinishedTask finish_task;
@@ -94,7 +93,7 @@ TEST_F(IdleTimerTest, NoRepeatFlipIdleOnce) {
   // Create a timer to reset once, idle after 500ms.
   // Verify that we fired exactly twice.
 
-  mock_idle_time = GetTickCount();
+  mock_timer_started = Time::Now();
   TestIdleTask test_task(false);
 
   TestFinishedTask finish_task;
@@ -120,7 +119,7 @@ TEST_F(IdleTimerTest, NoRepeatNotIdle) {
   // Create a timer to reset idle every 50ms.
   // Verify that we never fired.
 
-  mock_idle_time = GetTickCount();
+  mock_timer_started = Time::Now();
   TestIdleTask test_task(false);
 
   TestFinishedTask finish_task;
@@ -153,7 +152,7 @@ TEST_F(IdleTimerTest, Repeat) {
   // Create an IdleTimer, which should fire repeatedly after 100ms.
   // Create a Quit timer which will fire after 1.05s.
   // Verify that we fired 10 times.
-  mock_idle_time = GetTickCount();
+  mock_timer_started = Time::Now();
   TestIdleTask test_task(true);
 
   TestFinishedTask finish_task;
@@ -177,7 +176,7 @@ TEST_F(IdleTimerTest, RepeatIdleReset) {
   // Create a Quit timer which will fire after 1s.
   // Create a reset timer, which fires after 550ms
   // Verify that we fired 9 times.
-  mock_idle_time = GetTickCount();
+  mock_timer_started = Time::Now();
   TestIdleTask test_task(true);
 
   ResetIdleTask reset_task;
@@ -207,7 +206,7 @@ TEST_F(IdleTimerTest, RepeatNotIdle) {
   // Create a timer to reset idle every 50ms.
   // Verify that we never fired.
 
-  mock_idle_time = GetTickCount();
+  mock_timer_started = Time::Now();
   TestIdleTask test_task(true);
 
   TestFinishedTask finish_task;
@@ -229,3 +228,4 @@ TEST_F(IdleTimerTest, RepeatNotIdle) {
   EXPECT_EQ(test_task.get_idle_counter(), 0);
 }
 
+}  // namespace
