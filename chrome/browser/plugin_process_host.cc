@@ -440,8 +440,12 @@ bool PluginProcessHost::Init(const std::wstring& dll,
 
   watcher_.StartWatching(process_.handle(), this);
 
-  // Give all plugins "background" priority.  See http://b/issue?id=1280317.
-  process_.SetProcessBackgrounded(true);
+  std::wstring gears_path;
+  if (PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_path) &&
+      dll == gears_path) {
+    // Give Gears plugins "background" priority.  See http://b/issue?id=1280317.
+    process_.SetProcessBackgrounded(true);
+  }
 
   opening_channel_ = true;
 
