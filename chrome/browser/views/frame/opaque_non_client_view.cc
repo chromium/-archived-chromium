@@ -888,7 +888,7 @@ void OpaqueNonClientView::LayoutWindowControls() {
   if (frame_->IsMaximized()) {
     close_button_->GetPreferredSize(&ps);
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                     ChromeViews::Button::ALIGN_BOTTOM);
+                                     ChromeViews::Button::ALIGN_TOP);
     close_button_->SetBounds(
         width() - ps.cx - kWindowControlsRightZoomedOffset,
         0, ps.cx + kWindowControlsRightZoomedOffset,
@@ -896,13 +896,13 @@ void OpaqueNonClientView::LayoutWindowControls() {
 
     restore_button_->GetPreferredSize(&ps);
     restore_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                       ChromeViews::Button::ALIGN_BOTTOM);
+                                       ChromeViews::Button::ALIGN_TOP);
     restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
                                ps.cy + kWindowControlsTopZoomedOffset);
 
     minimize_button_->GetPreferredSize(&ps);
     minimize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                        ChromeViews::Button::ALIGN_BOTTOM);
+                                        ChromeViews::Button::ALIGN_TOP);
     minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
                                 ps.cy + kWindowControlsTopZoomedOffset);
   } else if (frame_->IsMinimized()) {

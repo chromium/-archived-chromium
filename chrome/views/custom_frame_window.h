@@ -48,6 +48,7 @@ class CustomFrameWindow : public Window {
   virtual void DisableInactiveRendering(bool disable);
 
   // Overridden from HWNDViewContainer:
+  virtual void OnGetMinMaxInfo(MINMAXINFO* minmax_info);
   virtual void OnInitMenu(HMENU menu);
   virtual void OnMouseLeave();
   virtual LRESULT OnNCActivate(BOOL active);
@@ -58,6 +59,7 @@ class CustomFrameWindow : public Window {
   virtual LRESULT OnNCUAHDrawCaption(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
+  virtual LRESULT OnSetIcon(UINT size_type, HICON new_icon);
   virtual LRESULT OnSetText(const wchar_t* text);
   virtual void OnSize(UINT param, const CSize& size);
 

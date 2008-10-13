@@ -6,6 +6,7 @@
 
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
+#include "base/win_util.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -29,7 +30,7 @@ namespace ChromeViews {
 // Why would we want such a thing? Well, it turns out Windows has some
 // "unorthodox" behavior when it comes to painting its non-client areas.
 // Sadly, the default implementation of some messages, e.g. WM_SETTEXT and
-// WM_ENTERMENULOOP actually paint all or parts of the native title bar of the
+// WM_SETICON actually paint all or parts of the native title bar of the
 // application. That's right, they just paint it. They don't go through
 // WM_NCPAINT or anything like that that we already override. What this means
 // is that we end up with occasional flicker of bits of the normal Windows
@@ -823,6 +824,46 @@ void DefaultNonClientView::InitClass() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// NonClientViewLayout
+
+class NonClientViewLayout : public ChromeViews::LayoutManager {
+ public:
+  // The size of the default window border and padding used by Windows Vista
+  // with DWM disabled when clipping the window for maximized display.
+  // TODO(beng): figure out how to get this programmatically, since it varies
+  //             with adjustments to the Windows Border/Padding setting.
+  static const int kBorderAndPadding = 8;
+
+  NonClientViewLayout(ChromeViews::View* child,
+                      ChromeViews::Window* window)
+      : child_(child),
+        window_(window) {
+  }
+  virtual ~NonClientViewLayout() {}
+
+  // Overridden from ChromeViews::LayoutManager:
+  virtual void Layout(ChromeViews::View* host) {
+    int horizontal_border_width =
+        window_->IsMaximized() ? kBorderAndPadding : 0;
+    int vertical_border_height =
+        window_->IsMaximized() ? kBorderAndPadding : 0;
+
+    child_->SetBounds(horizontal_border_width, vertical_border_height,
+                      host->width() - (2 * horizontal_border_width),
+                      host->height() - (2 * vertical_border_height));
+  }
+  virtual void GetPreferredSize(ChromeViews::View* host, CSize* out) {
+    child_->GetPreferredSize(out);
+  }
+
+ private:
+  ChromeViews::View* child_;
+  ChromeViews::Window* window_;
+
+  DISALLOW_COPY_AND_ASSIGN(NonClientViewLayout);
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, public:
 
 CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate)
@@ -852,6 +893,14 @@ void CustomFrameWindow::Init(HWND parent, const gfx::Rect& bounds) {
   if (!non_client_view_)
     non_client_view_ = new DefaultNonClientView(this);
   Window::Init(parent, bounds);
+
+  // Windows Vista non-Aero-glass does wacky things with maximized windows that
+  // require a special layout manager to compensate for.
+  if (win_util::GetWinVersion() >= win_util::WINVERSION_VISTA) {
+    GetRootView()->SetLayoutManager(
+        new NonClientViewLayout(non_client_view_, this));
+  }
+
   ResetWindowRegion();
 }
 
@@ -911,6 +960,42 @@ void CustomFrameWindow::SizeWindowToDefault() {
 ///////////////////////////////////////////////////////////////////////////////
 // CustomFrameWindow, HWNDViewContainer overrides:
 
+void CustomFrameWindow::OnGetMinMaxInfo(MINMAXINFO* minmax_info) {
+  // We handle this message so that we can make sure we interact nicely with
+  // the taskbar on different edges of the screen and auto-hide taskbars.
+
+  HMONITOR primary_monitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+  MONITORINFO primary_info;
+  primary_info.cbSize = sizeof(primary_info);
+  GetMonitorInfo(primary_monitor, &primary_info);
+
+  minmax_info->ptMaxSize.x =
+      primary_info.rcWork.right - primary_info.rcWork.left;
+  minmax_info->ptMaxSize.y =
+      primary_info.rcWork.bottom - primary_info.rcWork.top;
+
+  HMONITOR target_monitor =
+      MonitorFromWindow(GetHWND(), MONITOR_DEFAULTTONEAREST);
+  MONITORINFO target_info;
+  target_info.cbSize = sizeof(target_info);
+  GetMonitorInfo(target_monitor, &target_info);
+
+  minmax_info->ptMaxPosition.x =
+      abs(target_info.rcWork.left - target_info.rcMonitor.left);
+  minmax_info->ptMaxPosition.y =
+      abs(target_info.rcWork.top - target_info.rcMonitor.top);
+
+  // Work around task bar auto-hiding. By default the window is sized over the
+  // top of the un-hide strip, so we adjust the size by a single pixel to make
+  // it work. Because of the way Windows adjusts the target size rect for non
+  // primary screens (it's quite daft), we only do this for the primary screen,
+  // which I think should cover at least 95% of use cases.
+  if ((target_monitor == primary_monitor) &&
+      EqualRect(&target_info.rcWork, &target_info.rcMonitor)) {
+    --minmax_info->ptMaxSize.y;
+  }
+}
+
 static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
   UINT flags = MF_BYCOMMAND | (enabled ? MF_ENABLED : MF_DISABLED | MF_GRAYED);
   EnableMenuItem(menu, command, flags);
@@ -963,17 +1048,11 @@ LRESULT CustomFrameWindow::OnNCActivate(BOOL active) {
     // painting operations while the move is in progress.
     PaintNow(root_view_->GetScheduledPaintRect());
   }
+
   return TRUE;
 }
 
 LRESULT CustomFrameWindow::OnNCCalcSize(BOOL mode, LPARAM l_param) {
-  CRect client_bounds;
-  if (!mode) {
-    RECT* rect = reinterpret_cast<RECT*>(l_param);
-    *rect = non_client_view_->CalculateClientAreaBounds(
-        rect->right - rect->left, rect->bottom - rect->top).ToRECT();
-    return 0;
-  }
   // We need to repaint all when the window bounds change.
   return WVR_REDRAW;
 }
@@ -1163,6 +1242,12 @@ LRESULT CustomFrameWindow::OnSetCursor(HWND window, UINT hittest_code,
   }
   SetCursor(resize_cursors_[index]);
   return 0;
+}
+
+LRESULT CustomFrameWindow::OnSetIcon(UINT size_type, HICON new_icon) {
+  ScopedVisibilityRemover remover(GetHWND());
+  return DefWindowProc(GetHWND(), WM_SETICON, size_type,
+                       reinterpret_cast<LPARAM>(new_icon));
 }
 
 LRESULT CustomFrameWindow::OnSetText(const wchar_t* text) {
