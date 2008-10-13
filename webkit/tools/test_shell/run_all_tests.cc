@@ -5,8 +5,10 @@
 // Run all of our test shell tests.  This is just an entry point
 // to kick off gTest's RUN_ALL_TESTS().
 
+#if defined(OS_WIN)
 #include <windows.h>
 #include <commctrl.h>
+#endif
 
 #include "base/at_exit.h"
 #include "base/icu_util.h"
@@ -32,6 +34,7 @@ int main(int argc, char* argv[]) {
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  
 
+#if defined(OS_WIN)
   TestShell::InitLogging(true);  // suppress error dialogs
 
   // Initialize test shell in non-interactive mode, which will let us load one
@@ -43,6 +46,7 @@ int main(int argc, char* argv[]) {
   // so just set it to be a really large number.  This is necessary because
   // when running under Purify, we were hitting those timeouts.
   TestShell::SetFileTestTimeout(USER_TIMER_MAXIMUM);
+#endif
 
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.
@@ -51,18 +55,23 @@ int main(int argc, char* argv[]) {
   // Load ICU data tables
   icu_util::Initialize();
 
+#if defined(OS_WIN)
   INITCOMMONCONTROLSEX InitCtrlEx;
 
   InitCtrlEx.dwSize = sizeof(INITCOMMONCONTROLSEX);
   InitCtrlEx.dwICC  = ICC_STANDARD_CLASSES;
   InitCommonControlsEx(&InitCtrlEx);
+#endif
 
   // Run the actual tests
   testing::InitGoogleTest(&argc, argv);
   int result = RUN_ALL_TESTS();
 
+#if defined(OS_WIN)
   TestShell::ShutdownTestShell();
   TestShell::CleanupLogging();
+#endif
+
   return result;
 }
 
