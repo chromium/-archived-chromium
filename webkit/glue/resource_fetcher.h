@@ -26,7 +26,6 @@
 #pragma warning(pop)
 
 class GURL;
-class WebCore::ResourceHandle;
 
 class ResourceFetcher : public WebCore::ResourceHandleClient {
  public:

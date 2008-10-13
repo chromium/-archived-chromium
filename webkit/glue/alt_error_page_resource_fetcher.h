@@ -17,7 +17,6 @@
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/weburlrequest.h"
 
-class WebCore::ResourceResponse;
 class WebFrameImpl;
 class WebView;
 
