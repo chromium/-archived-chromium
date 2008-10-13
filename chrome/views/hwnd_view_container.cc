@@ -535,8 +535,10 @@ void HWNDViewContainer::OnMouseMove(UINT flags, const CPoint& point) {
   ProcessMouseMoved(point, flags, false);
 }
 
-void HWNDViewContainer::OnMouseLeave() {
+LRESULT HWNDViewContainer::OnMouseLeave(UINT uMsg, WPARAM w_param,
+                                        LPARAM l_param) {
   ProcessMouseExited();
+  return 0;
 }
 
 LRESULT HWNDViewContainer::OnMouseWheel(UINT flags,

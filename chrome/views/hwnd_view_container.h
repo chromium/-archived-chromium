@@ -175,10 +175,10 @@ class HWNDViewContainer : public ViewContainer,
     MESSAGE_HANDLER_EX(WM_NCUAHDRAWCAPTION, OnNCUAHDrawCaption)
     MESSAGE_HANDLER_EX(WM_NCUAHDRAWFRAME, OnNCUAHDrawFrame)
 
-    
     // Non-atlcrack.h handlers
     MESSAGE_HANDLER_EX(WM_GETOBJECT, OnGetObject)
     MESSAGE_HANDLER_EX(WM_NCMOUSELEAVE, OnNCMouseLeave)
+    MESSAGE_HANDLER_EX(WM_MOUSELEAVE, OnMouseLeave)
 
     // This list is in _ALPHABETICAL_ order! OR I WILL HURT YOU.
     MSG_WM_ACTIVATE(OnActivate)
@@ -205,7 +205,6 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_MBUTTONUP(OnMButtonUp)
     MSG_WM_MBUTTONDBLCLK(OnMButtonDblClk)
     MSG_WM_MOUSEACTIVATE(OnMouseActivate)
-    MSG_WM_MOUSELEAVE(OnMouseLeave)
     MSG_WM_MOUSEMOVE(OnMouseMove)
     MSG_WM_MOUSEWHEEL(OnMouseWheel)
     MSG_WM_MOVE(OnMove)
@@ -379,7 +378,7 @@ class HWNDViewContainer : public ViewContainer,
   virtual void OnMButtonUp(UINT flags, const CPoint& point);
   virtual LRESULT OnMouseActivate(HWND window, UINT hittest_code, UINT message);
   virtual void OnMouseMove(UINT flags, const CPoint& point);
-  virtual void OnMouseLeave();
+  virtual LRESULT OnMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param);
   virtual void OnMove(const CPoint& point) { SetMsgHandled(FALSE); }
   virtual void OnMoving(UINT param, const LPRECT new_bounds) { }
   virtual LRESULT OnMouseWheel(UINT flags, short distance, const CPoint& point);
