@@ -133,60 +133,49 @@ class ScopedHDC {
   DISALLOW_EVIL_CONSTRUCTORS(ScopedHDC);
 };
 
-// Like ScopedHandle but for HBITMAP.
-class ScopedBitmap {
+// Like ScopedHandle but for GDI objects.
+template<class T>
+class ScopedGDIObject {
  public:
-  ScopedBitmap() : hbitmap_(NULL) { }
-  explicit ScopedBitmap(HBITMAP h) : hbitmap_(h) { }
+  ScopedGDIObject() : object_(NULL) {}
+  explicit ScopedGDIObject(T object) : object_(object) {}
 
-  ~ScopedBitmap() {
+  ~ScopedGDIObject() {
     Close();
   }
 
-  HBITMAP Get() {
-    return hbitmap_;
+  T Get() {
+    return object_;
   }
 
-  void Set(HBITMAP h) {
-    Close();
-    hbitmap_ = h;
+  void Set(T object) {
+    if (object_ && object != object_)
+      Close();
+    object_ = object;
   }
 
-  operator HBITMAP() { return hbitmap_; }
-
- private:
-  void Close() {
-    if (hbitmap_)
-      DeleteObject(hbitmap_);
-  }
-
-  HBITMAP hbitmap_;
-  DISALLOW_EVIL_CONSTRUCTORS(ScopedBitmap);
-};
-
-// Like ScopedHandle but for HRGN.
-class ScopedHRGN {
- public:
-  explicit ScopedHRGN(HRGN h) : hrgn_(h) { }
-
-  ~ScopedHRGN() {
-    if (hrgn_)
-      DeleteObject(hrgn_);
-  }
-
-  operator HRGN() { return hrgn_; }
-
-  ScopedHRGN& operator=(HRGN hrgn) {
-    if (hrgn_ && hrgn != hrgn_)
-      DeleteObject(hrgn_);
-    hrgn_ = hrgn;
+  ScopedGDIObject& operator=(T object) {
+    Set(object);
     return *this;
   }
 
+  operator T() { return object_; }
+
  private:
-  HRGN hrgn_;
-  DISALLOW_EVIL_CONSTRUCTORS(ScopedHRGN);
+  void Close() {
+    if (object_)
+      DeleteObject(object_);
+  }
+
+  T object_;
+  DISALLOW_COPY_AND_ASSIGN(ScopedGDIObject);
 };
+
+// Typedefs for some common use cases.
+typedef ScopedGDIObject<HBITMAP> ScopedBitmap;
+typedef ScopedGDIObject<HRGN> ScopedHRGN;
+typedef ScopedGDIObject<HFONT> ScopedHFONT;
+
 
 // Like ScopedHandle except for HGLOBAL.
 template<class T>
