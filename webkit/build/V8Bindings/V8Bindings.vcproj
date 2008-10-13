@@ -2397,10 +2397,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\pending\ExceptionContext.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\port\bridge\ExceptionContextV8.cpp"
 			>
 		</File>
