@@ -5,6 +5,8 @@
 // Run all of our test shell tests.  This is just an entry point
 // to kick off gTest's RUN_ALL_TESTS().
 
+#include "base/basictypes.h"
+
 #if defined(OS_WIN)
 #include <windows.h>
 #include <commctrl.h>
@@ -74,4 +76,3 @@ int main(int argc, char* argv[]) {
 
   return result;
 }
-
