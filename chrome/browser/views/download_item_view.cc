@@ -478,6 +478,7 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
                                              download_->PercentComplete(),
                                              download_util::SMALL);
       } else if (download_->state() == DownloadItem::COMPLETE &&
+                 complete_animation_.get() &&
                  complete_animation_->IsAnimating()) {
         download_util::PaintDownloadComplete(canvas, this, 0, 0,
             complete_animation_->GetCurrentValue(),
