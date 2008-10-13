@@ -67,7 +67,7 @@ PluginLib* PluginLib::CreatePluginLib(const std::wstring& filename) {
      L"application/x-ms-wmp|application/asx|video/x-ms-asf-plugin|"
          L"application/x-mplayer2|video/x-ms-asf|video/x-ms-wm|audio/x-ms-wma|"
          L"audio/x-ms-wax|video/x-ms-wmv|video/x-ms-wvx",
-     L"*|*|*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
+     L"*|*|*|*|asf,asx,*|wm,*|wma,*|wax,*|wmv,*|wvx,*",
      L""
     },
     activex_shim::ActiveX_Shim_NP_GetEntryPoints,
