@@ -347,9 +347,9 @@ elif env['PLATFORM'] == 'posix':
     env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
     env.Append(LINKFLAGS=['-fprofile-arcs'])
 
-  # Build with system-provided NSS and GLib
+  # Build with system-provided NSS and GTK.
   env.ParseConfig('pkg-config --cflags --libs nss')
-  env.ParseConfig('pkg-config --cflags --libs glib-2.0')
+  env.ParseConfig('pkg-config --cflags --libs gtk+-2.0')
 
 elif env['PLATFORM'] == 'darwin':
 

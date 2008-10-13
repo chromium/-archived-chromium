@@ -19,7 +19,9 @@ class NSView;
 class NSWindow;
 class NSTextField;
 #endif  // __OBJC__
-#endif  // MACOSX
+#elif defined(OS_LINUX)
+typedef struct _GtkWidget GtkWidget;
+#endif
 
 namespace gfx {
 
@@ -31,6 +33,10 @@ typedef HWND EditViewHandle;
 typedef NSView *ViewHandle;
 typedef NSWindow *WindowHandle;
 typedef NSTextField *EditViewHandle;
+#elif defined(OS_LINUX)
+typedef GtkWidget* ViewHandle;
+typedef GtkWidget* WindowHandle;
+typedef GtkWidget* EditViewHandle;
 #else  // null port.
 typedef void* ViewHandle;
 typedef void* WindowHandle;

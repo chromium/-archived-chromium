@@ -34,13 +34,16 @@ void TestNavigationEntry::SetContentState(const std::string& state) {
 }
 
 WebHistoryItem* TestNavigationEntry::GetHistoryItem() const {
+  // TODO(port): temporary hack to get a basic test shell executable going.
+#if !defined(OS_LINUX)
   if (!cached_history_item_) {
-    TestShellExtraRequestData* extra_data = 
+    TestShellExtraRequestData* extra_data =
         new TestShellExtraRequestData(GetPageID());
     cached_history_item_ =
         WebHistoryItem::Create(GetURL(), GetTitle(), GetContentState(),
                                extra_data);
   }
+#endif
   return cached_history_item_;
 }
 
@@ -244,4 +247,3 @@ void TestNavigationController::UpdateMaxPageID() {
   if (entry)
     max_page_id_ = std::max(max_page_id_, entry->GetPageID());
 }
-
