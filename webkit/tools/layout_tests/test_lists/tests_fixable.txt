@@ -777,9 +777,6 @@ V8 # LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 V8 # LayoutTests/fast/js/static-scope-object.html = FAIL
 V8 # LayoutTests/fast/js/delete-getters-setters.html = FAIL
 
-// Exception message capitalizes "Cyclic", expected to be lower case. (trivial)
-V8 | KJS # LayoutTests/fast/js/cyclic-proto.html = FAIL
-
 # Console output won't have line numbers until V8 gives us a way to get that
 # information. <http://crbug.com/2960>
 V8 # LayoutTests/fast/dom/Window/console-functions.html = FAIL
@@ -1008,8 +1005,6 @@ V8 | KJS # LayoutTests/fast/forms/form-hides-table.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/legend-access-key.html = FAIL
 V8 | KJS # LayoutTests/fast/loader/url-parse-1.html = FAIL
-V8 | KJS # LayoutTests/fast/parser/entity-comment-in-style.html = FAIL
-V8 | KJS # LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 V8 | KJS # LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 V8 | KJS # LayoutTests/fast/table/text-field-baseline.html = FAIL
 V8 | KJS # LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS
@@ -1221,7 +1216,6 @@ V8 | KJS # pending/http/tests/security/cross-frame-access-parent-explicit-domain
 V8 | KJS # pending/svg/carto.net/window.svg = FAIL
 V8 | KJS # pending/dom/html/level2/html/HTMLFrameElement09.html = PASS | CRASH
 V8 | KJS # pending/dom/html/level2/html/HTMLIFrameElement11.html = PASS | CRASH
-V8 | KJS # LayoutTests/editing/execCommand/outdent-selection.html = PASS | FAIL
 
 // This test seems to fail on the builders but not locally.
 V8 | KJS # LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
