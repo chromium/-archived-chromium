@@ -35,7 +35,7 @@ class AeroGlassFrame : public BrowserFrame,
       const gfx::Rect& client_bounds);
   virtual void SizeToContents(const gfx::Rect& contents_bounds) {}
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
-  virtual void UpdateThrobber();
+  virtual void UpdateThrobber(bool running);
   virtual ChromeViews::Window* GetWindow();
 
   // Overridden from ChromeViews::HWNDViewContainer:
@@ -64,10 +64,27 @@ class AeroGlassFrame : public BrowserFrame,
   // Return a pointer to the concrete type of our non-client view.
   AeroGlassNonClientView* GetAeroGlassNonClientView() const;
 
+  // Starts/Stops the window throbber running.
+  void StartThrobber();
+  void StopThrobber();
+
+  // Displays the next throbber frame.
+  void DisplayNextThrobberFrame();
+
   // The BrowserView2 is our ClientView. This is a pointer to it.
   BrowserView2* browser_view_;
 
   bool frame_initialized_;
+
+  // Whether or not the window throbber is currently animating.
+  bool throbber_running_;
+
+  // The index of the current frame of the throbber animation.
+  int throbber_frame_;
+
+  static const int kThrobberIconCount = 24;
+  static HICON throbber_icons_[kThrobberIconCount];
+  static void InitThrobberIcons();
 
   DISALLOW_EVIL_CONSTRUCTORS(AeroGlassFrame);
 };

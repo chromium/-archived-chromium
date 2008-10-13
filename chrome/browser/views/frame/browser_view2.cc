@@ -398,7 +398,7 @@ void BrowserView2::SetAcceleratorTable(
 
 void BrowserView2::ValidateThrobber() {
   if (ShouldShowWindowIcon())
-    frame_->UpdateThrobber();
+    frame_->UpdateThrobber(browser_->GetSelectedTabContents()->is_loading());
 }
 
 gfx::Rect BrowserView2::GetNormalBounds() {

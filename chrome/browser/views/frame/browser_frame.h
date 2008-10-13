@@ -38,7 +38,8 @@ class BrowserFrame {
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const = 0;
 
   // Updates the current frame of the Throbber animation, if applicable.
-  virtual void UpdateThrobber() = 0;
+  // |running| is whether or not the throbber should be running.
+  virtual void UpdateThrobber(bool running) = 0;
 
   // Returns the ChromeViews::Window associated with this frame.
   virtual ChromeViews::Window* GetWindow() = 0;

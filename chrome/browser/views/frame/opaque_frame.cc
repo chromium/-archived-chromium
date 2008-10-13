@@ -42,7 +42,9 @@ gfx::Rect OpaqueFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
   return GetOpaqueNonClientView()->GetBoundsForTabStrip(tabstrip);
 }
 
-void OpaqueFrame::UpdateThrobber() {
+void OpaqueFrame::UpdateThrobber(bool running) {
+  // TODO(beng): pass |running| through rather than letting
+  //             OpaqueNonClientView's TabIconView try and figure it out.
   // The throbber doesn't run in the Windows TaskBar, so we just update the
   // non-client view. Updating the taskbar is muy expensivo.
   GetOpaqueNonClientView()->UpdateWindowIcon();

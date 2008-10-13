@@ -24,15 +24,22 @@ static const int kToolbarOverlapVertOffset = 5;
 // remove it.
 static const int kWindowsDWMBevelSize = 2;
 
+HICON AeroGlassFrame::throbber_icons_[AeroGlassFrame::kThrobberIconCount];
+
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, public:
 
 AeroGlassFrame::AeroGlassFrame(BrowserView2* browser_view)
     : Window(browser_view),
       browser_view_(browser_view),
-      frame_initialized_(false) {
+      frame_initialized_(false),
+      throbber_running_(false),
+      throbber_frame_(0) {
   non_client_view_ = new AeroGlassNonClientView(this, browser_view);
   browser_view_->set_frame(this);
+
+  if (window_delegate()->ShouldShowWindowIcon())
+    InitThrobberIcons();
 }
 
 AeroGlassFrame::~AeroGlassFrame() {
@@ -67,10 +74,16 @@ gfx::Rect AeroGlassFrame::GetBoundsForTabStrip(TabStrip* tabstrip) const {
   return GetAeroGlassNonClientView()->GetBoundsForTabStrip(tabstrip);
 }
 
-void AeroGlassFrame::UpdateThrobber() {
-  // On Vista, for now, we just update the window icon. Figure out something
-  // better here to fix http://crbug.com/3296
-  UpdateWindowIcon();
+void AeroGlassFrame::UpdateThrobber(bool running) {
+  if (throbber_running_) {
+    if (running) {
+      DisplayNextThrobberFrame();
+    } else {
+      StopThrobber();
+    }
+  } else if (running) {
+    StartThrobber();
+  }
 }
 
 ChromeViews::Window* AeroGlassFrame::GetWindow() {
@@ -224,3 +237,36 @@ AeroGlassNonClientView* AeroGlassFrame::GetAeroGlassNonClientView() const {
   return static_cast<AeroGlassNonClientView*>(non_client_view_);
 }
 
+void AeroGlassFrame::StartThrobber() {
+  if (!throbber_running_) {
+    throbber_running_ = true;
+    throbber_frame_ = 0;
+    InitThrobberIcons();
+    ::SendMessage(GetHWND(), WM_SETICON, static_cast<WPARAM>(ICON_SMALL),
+                  reinterpret_cast<LPARAM>(throbber_icons_[throbber_frame_]));
+  }
+}
+
+void AeroGlassFrame::StopThrobber() {
+  if (throbber_running_)
+    throbber_running_ = false;
+}
+
+void AeroGlassFrame::DisplayNextThrobberFrame() {
+  throbber_frame_ = (throbber_frame_ + 1) % kThrobberIconCount;
+  ::SendMessage(GetHWND(), WM_SETICON, static_cast<WPARAM>(ICON_SMALL),
+                reinterpret_cast<LPARAM>(throbber_icons_[throbber_frame_]));
+}
+
+// static
+void AeroGlassFrame::InitThrobberIcons() {
+  static bool initialized = false;
+  if (!initialized) {
+    ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+    for (int i = 0; i < kThrobberIconCount; ++i) {
+      throbber_icons_[i] = rb.LoadThemeIcon(IDR_THROBBER_01 + i);
+      DCHECK(throbber_icons_[i]);
+    }
+    initialized = true;
+  }
+}
