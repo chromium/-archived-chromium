@@ -296,6 +296,11 @@ if env['PLATFORM'] == 'win32':
       'window_sizer.cc',
   ])
 
+  input_files.extend([
+      'web_contents_view_win.cc',
+  ])
+
+
 if env['PLATFORM'] in ('posix', 'win32'):
   # TODO: This should work for all platforms.
   env.ChromeStaticLibrary('browser', input_files)
