@@ -7,11 +7,11 @@ layer at (0,0) size 800x97
         RenderText {#text} at (0,0) size 260x19
           text run at (0,0) width 260: "There should be a green vertical bar below:"
       RenderBlock {DIV} at (15,36) size 120x30 [color=#FFFFFF] [bgcolor=#FF0000]
-        RenderBlock {P} at (0,0) size 105x15 [bgcolor=#FFFFFF]
-          RenderText {#text} at (0,-1) size 11x17
-            text run at (0,-1) width 11: "x "
-          RenderInline {SPAN} at (0,0) size 67x17
-            RenderText {#text} at (71,-1) size 7x17
-              text run at (71,-1) width 7: "x"
-          RenderText {#text} at (78,-1) size 7x17
-            text run at (78,-1) width 7: "x"
+        RenderBlock {P} at (0,0) size 105x30 [bgcolor=#FFFFFF]
+          RenderText {#text} at (0,0) size 15x15
+            text run at (0,0) width 15: "x"
+          RenderInline {SPAN} at (0,0) size 75x15
+            RenderText {#text} at (60,15) size 15x15
+              text run at (60,15) width 15: "x"
+          RenderText {#text} at (75,15) size 15x15
+            text run at (75,15) width 15: "x"

@@ -28,6 +28,9 @@ LANGUAGE 9, 1
 IDI_TESTSHELL           ICON         "test_shell.ico"
 IDI_SMALL               ICON         "small.ico"
 
+IDR_AHEM_FONT           BINDATA      "AHEM____.TTF"
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
@@ -79,7 +82,6 @@ BEGIN
     LTEXT           "Copyright (C) 2006",IDC_STATIC,49,20,119,8
     DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
 END
-
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

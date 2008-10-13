@@ -7,21 +7,19 @@ layer at (0,0) size 800x186
         RenderText {#text} at (0,0) size 260x19
           text run at (0,0) width 260: "There should be a green box to the right. \x{2798}"
       RenderBlock {DIV} at (0,20) size 784x150 [bgcolor=#FFFFFF]
-        RenderBlock (floating) {P} at (458,10) size 316x61 [color=#008000] [border: (3px solid #008000)]
-          RenderText {#text} at (8,7) size 284x47
-            text run at (8,7) width 126: "x x xxxx xx xxxx x x "
-            text run at (134,7) width 126: "x xx xx xxxx xx xx x "
-            text run at (260,7) width 32: "x xxx"
-            text run at (8,22) width 90: "xx xx xx xxx x "
-            text run at (98,22) width 126: "x xx xx xxxx xx xx x "
-            text run at (224,22) width 68: "x x xxxx xx"
-            text run at (8,37) width 50: "xxxx x x"
+        RenderBlock (floating) {P} at (458,10) size 316x91 [color=#008000] [border: (3px solid #008000)]
+          RenderText {#text} at (8,8) size 300x75
+            text run at (8,8) width 300: "x x xxxx xx xxxx x x"
+            text run at (8,23) width 300: "x xx xx xxxx xx xx x"
+            text run at (8,38) width 300: "x xxx xx xx xx xxx x"
+            text run at (8,53) width 300: "x xx xx xxxx xx xx x"
+            text run at (8,68) width 300: "x x xxxx xx xxxx x x"
         RenderBlock {P} at (0,0) size 784x45 [color=#FFFFFF]
-          RenderText {#text} at (441,-1) size 7x17
-            text run at (441,-1) width 7: "x"
-          RenderBR {BR} at (448,-1) size 0x17
-          RenderText {#text} at (441,14) size 7x17
-            text run at (441,14) width 7: "x"
-          RenderBR {BR} at (448,14) size 0x17
-          RenderText {#text} at (441,29) size 7x17
-            text run at (441,29) width 7: "x"
+          RenderText {#text} at (433,0) size 15x15
+            text run at (433,0) width 15: "x"
+          RenderBR {BR} at (448,0) size 0x15
+          RenderText {#text} at (433,15) size 15x15
+            text run at (433,15) width 15: "x"
+          RenderBR {BR} at (448,15) size 0x15
+          RenderText {#text} at (433,30) size 15x15
+            text run at (433,30) width 15: "x"

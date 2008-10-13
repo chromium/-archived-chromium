@@ -196,6 +196,16 @@ int main(int argc, char* argv[]) {
   InitCtrlEx.dwICC  = ICC_STANDARD_CLASSES;
   InitCommonControlsEx(&InitCtrlEx);
 
+  // Register the Ahem font used by layout tests.
+  DWORD num_fonts = 1;
+  void* font_ptr;
+  size_t font_size;
+  if (base::GetDataResourceFromModule(::GetModuleHandle(NULL), IDR_AHEM_FONT, 
+                                      &font_ptr, &font_size)) {
+    HANDLE rc = AddFontMemResourceEx(font_ptr, font_size, 0, &num_fonts);
+    DCHECK(rc != 0);
+  }
+
   bool interactive = !layout_test_mode;
   TestShell::InitializeTestShell(interactive);
 

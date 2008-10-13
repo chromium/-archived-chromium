@@ -901,12 +901,6 @@ V8 | KJS # LayoutTests/fast/backgrounds/mask-composite.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
 V8 | KJS # LayoutTests/fast/block/basic/adding-near-anonymous-block.html = FAIL
 V8 | KJS # LayoutTests/fast/block/basic/min-pref-width-nowrap-floats.html = FAIL
-V8 | KJS # LayoutTests/fast/block/float/br-with-clear-2.html = FAIL
-V8 | KJS # LayoutTests/fast/block/float/br-with-clear.html = FAIL
-V8 | KJS # LayoutTests/fast/block/float/clamped-right-float.html = FAIL
-V8 | KJS # LayoutTests/fast/block/float/editable-text-overlapping-float.html = FAIL
-V8 | KJS # LayoutTests/fast/block/float/float-on-zero-height-line.html = FAIL
-V8 | KJS # LayoutTests/fast/block/float/narrow-after-wide.html = FAIL
 V8 | KJS # LayoutTests/fast/block/positioning/move-with-auto-width.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/border-color-inherit.html = FAIL
@@ -978,10 +972,6 @@ V8 | KJS # LayoutTests/svg/dynamic-updates/SVGRadialGradientElement-svgdom-gradi
 
 
 // Post-MERGE failures: these will all need to be fixed one day
-V8 | KJS # LayoutTests/css2.1/t1002-c5523-width-01-b-g.html = FAIL
-V8 | KJS # LayoutTests/css2.1/t140201-c536-bgpos-00-b-ag.html = FAIL
-V8 | KJS # LayoutTests/css2.1/t140201-c536-bgpos-01-b-ag.html = FAIL
-V8 | KJS # LayoutTests/css2.1/t1602-c43-center-00-d-ag.html = FAIL
 V8 | KJS # LayoutTests/editing/execCommand/outdent-selection.gchtml = FAIL
 V8 | KJS # LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL

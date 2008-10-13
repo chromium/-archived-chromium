@@ -7,11 +7,12 @@ layer at (0,0) size 800x112
         RenderText {#text} at (0,0) size 213x19
           text run at (0,0) width 213: "There should be a green bar below:"
       RenderBlock {DIV} at (15,36) size 195x45 [bgcolor=#008000]
-        RenderBlock {P} at (0,0) size 195x15 [color=#FFFFFF] [bgcolor=#FFFFFF]
-          RenderText {#text} at (0,-1) size 11x17
-            text run at (0,-1) width 11: "x "
-          RenderInline {SPAN} at (0,0) size 134x17
-            RenderText {#text} at (11,-1) size 74x17
-              text run at (11,-1) width 74: "xxxxx xxxxx"
-          RenderText {#text} at (145,-1) size 11x17
-            text run at (145,-1) width 11: " x"
+        RenderBlock {P} at (0,0) size 195x30 [color=#FFFFFF] [bgcolor=#FFFFFF]
+          RenderText {#text} at (0,0) size 30x15
+            text run at (0,0) width 30: "x "
+          RenderInline {SPAN} at (0,0) size 135x30
+            RenderText {#text} at (30,0) size 105x30
+              text run at (30,0) width 75: "xxxxx"
+              text run at (0,15) width 75: "xxxxx"
+          RenderText {#text} at (135,15) size 30x15
+            text run at (135,15) width 30: " x"
