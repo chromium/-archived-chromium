@@ -496,10 +496,10 @@ int HttpNetworkTransaction::DoConnectComplete(int result) {
     next_state_ = STATE_WRITE_HEADERS;
     if (using_tunnel_)
       establishing_tunnel_ = true;
-  } else if (result == ERR_SSL_PROTOCOL_ERROR) {
-    result = HandleSSLHandshakeError(result);
   } else {
-    result = ReconsiderProxyAfterError(result);
+    result = HandleSSLHandshakeError(result);
+    if (result != OK)
+      result = ReconsiderProxyAfterError(result);
   }
   return result;
 }
@@ -521,7 +521,7 @@ int HttpNetworkTransaction::DoSSLConnectOverTunnelComplete(int result) {
 
   if (result == OK) {
     next_state_ = STATE_WRITE_HEADERS;
-  } else if (result == ERR_SSL_PROTOCOL_ERROR) {
+  } else {
     result = HandleSSLHandshakeError(result);
   }
   return result;
@@ -881,13 +881,19 @@ int HttpNetworkTransaction::HandleCertificateError(int error) {
 
 int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
 #if defined(OS_WIN)
-  if (ssl_version_mask_ & SSLClientSocket::TLS1) {
-    // This could be a TLS-intolerant server.  Turn off TLS 1.0 and retry.
-    ssl_version_mask_ &= ~SSLClientSocket::TLS1;
-    connection_.set_socket(NULL);
-    connection_.Reset();
-    next_state_ = STATE_INIT_CONNECTION;
-    error = OK;
+  switch (error) {
+    case ERR_SSL_PROTOCOL_ERROR:
+    case ERR_SSL_VERSION_OR_CIPHER_MISMATCH:
+      if (ssl_version_mask_ & SSLClientSocket::TLS1) {
+        // This could be a TLS-intolerant server or an SSL 3.0 server that
+        // chose a TLS-only cipher suite.  Turn off TLS 1.0 and retry.
+        ssl_version_mask_ &= ~SSLClientSocket::TLS1;
+        connection_.set_socket(NULL);
+        connection_.Reset();
+        next_state_ = STATE_INIT_CONNECTION;
+        error = OK;
+      }
+      break;
   }
 #endif
   return error;

@@ -42,6 +42,8 @@ static int MapSecurityError(SECURITY_STATUS err) {
     // from the server.
     case SEC_E_ILLEGAL_MESSAGE:
       return ERR_SSL_PROTOCOL_ERROR;
+    case SEC_E_ALGORITHM_MISMATCH:
+      return ERR_SSL_VERSION_OR_CIPHER_MISMATCH;
     case SEC_E_OK:
       return OK;
     default:

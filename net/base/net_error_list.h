@@ -80,6 +80,10 @@ NET_ERROR(TUNNEL_CONNECTION_FAILED, -111)
 // No SSL protocol versions are enabled.
 NET_ERROR(NO_SSL_VERSIONS_ENABLED, -112)
 
+// The client and server don't support a common SSL protocol version or
+// cipher suite.
+NET_ERROR(SSL_VERSION_OR_CIPHER_MISMATCH, -113)
+
 // Certificate error codes
 //
 // The values of certificate error codes must be consecutive.
