@@ -42,8 +42,6 @@ input_files = [
     '$PORT_DIR/platform/GKURL.cpp',
     '$PORT_DIR/platform/Language.cpp',
     '$PORT_DIR/platform/TemporaryLinkStubs.cpp',
-    '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
-    '$PORT_DIR/platform/WCDataObject.cpp',
 
     '$PORT_DIR/platform/graphics/AffineTransformSkia.cpp',
     '$PORT_DIR/platform/graphics/ColorSkia.cpp',
@@ -97,16 +95,11 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   # to Mac and Linux.
   remove_files = [
     '$PORT_DIR/platform/BString.cpp',
-    '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
-    '$PORT_DIR/platform/WCDataObject.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/GraphicsContextSkia.cpp',
-    '$PORT_DIR/platform/graphics/ImageBufferSkia.cpp',
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
     '$PORT_DIR/platform/graphics/PlatformContextSkia.cpp',
-    '$PORT_DIR/platform/graphics/SkiaUtils.cpp',
     '$PORT_DIR/platform/graphics/SkGraphicsContext.cpp',
-    '$PORT_DIR/plugins/PluginDataChromium.cpp',
   ]
   for remove in remove_files:
     input_files.remove(remove)
@@ -146,6 +139,8 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/SystemTimeWin.cpp',
     '$PORT_DIR/platform/TextBoundariesWin.cpp',
     '$PORT_DIR/platform/TextBreakIteratorInternalICUWin.cpp',
+    '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
+    '$PORT_DIR/platform/WCDataObject.cpp',
     '$PORT_DIR/platform/WheelEventWin.cpp',
     '$PORT_DIR/platform/WidgetWin.cpp',
     '$PORT_DIR/platform/graphics/FontCacheWin.cpp',
