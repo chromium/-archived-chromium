@@ -93,10 +93,16 @@ be available for now. -->
         Copyright © 2006-2008 The Chromium Authors. All Rights Reserved.
       </message>
       <message name="IDS_ABOUT_VERSION_LICENSE" desc="The label below the copyright message, containing the URLs.">
-        Chromium is made possible by the <ph name="PROJECT_LINK">$1<ex>Chromium</ex></ph> open source project and other <ph name="OPEN_SOURCE_LINK">$2<ex>open source</ex> software</ph>.
+        Chromium is made possible by the <ph name="PROJECT_LINK">$1<ex>Chromium</ex></ph> open source project and other <ph name="OPEN_SOURCE_LINK">$2<ex>open source software</ex></ph>.
       </message>
       <message name="IDS_ABOUT_OPEN_SOURCE_SOFTWARE" desc="The link text on the About box that links to open source software. Used in IDS_ABOUT_VERSION_LICENSE.">
-        open source
+        open source software
+      </message>
+      <message name="IDS_ABOUT_TERMS_OF_SERVICE" desc="The terms of service label in the About box.">
+        Not used in Chromium. Placeholder to keep resource maps in synch.
+      </message>
+      <message name="IDS_TERMS_OF_SERVICE" desc="The Terms of Service link text in the About box. Used in IDS_ABOUT_TERMS_OF_SERVICE.">
+        Not used in Chromium. Placeholder to keep resource maps in synch.
       </message>
       <message name="IDS_ACCNAME_APP" desc="The accessible name for the app menu.">
         Chromium

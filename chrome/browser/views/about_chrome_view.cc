@@ -157,7 +157,8 @@ void AboutChromeView::Init() {
   main_label_chunk3_ = text.substr(link2);
 
   // The Chromium link within the main text of the dialog.
-  chromium_url_ = new ChromeViews::Link(l10n_util::GetString(IDS_PRODUCT_NAME));
+  chromium_url_ = new ChromeViews::Link(
+      l10n_util::GetString(IDS_OPEN_SOURCE_PROJECT_NAME));
   AddChildView(chromium_url_);
   chromium_url_->SetController(this);
 
