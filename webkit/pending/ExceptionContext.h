@@ -35,6 +35,13 @@
 #include <wtf/Noncopyable.h>
 #include "ScriptController.h"
 
+#if USE(JSC)
+namespace KJS {
+class ExecState;
+}
+#endif
+
+
 namespace WebCore {
 
 class Node;
@@ -47,26 +54,30 @@ class ExceptionCatcher;
 // by the ExceptionCatcher.
 class ExceptionContext : Noncopyable {
 public:
+    ExceptionContext(Node*);
+#if USE(V8)
     ExceptionContext();
-    ~ExceptionContext();
+#elif USE(JSC)
+    ExceptionContext(KJS::ExecState* exec) : m_exec(exec) {}
+    KJS::ExecState* exec() const { return m_exec; }
+#endif
+    ~ExceptionContext() {}
 
     bool hadException();
-    JSException exception() const { return m_exception; }
-
-    static ExceptionContext* createFromNode(Node*);
+    JSException exception() const;
 
     // Returns a non-exception code object.
-    static JSException NoException();
+    static JSException noException();
 
 private:
-    void setException(JSException exception) { m_exception = exception; }
-
-    JSException m_exception;
-
 #if USE(V8)
     friend class ExceptionCatcher;
+    void setException(JSException exception) { m_exception = exception; }
     void setExceptionCatcher(ExceptionCatcher*);
+    JSException m_exception;
     ExceptionCatcher* m_exceptionCatcher;
+#elif USE(JSC)
+    KJS::ExecState* m_exec;
 #endif
 };
 

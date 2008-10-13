@@ -226,12 +226,14 @@ void NodeIterator::updateForNodeRemoval(Node* removedNode, NodePointer& referenc
 
 PassRefPtr<Node> NodeIterator::nextNode(ExceptionCode& ec)
 {
-    return nextNode(ExceptionContext::createFromNode(referenceNode()), ec);
+    ExceptionContext context(referenceNode());
+    return nextNode(&context, ec);
 }
 
 PassRefPtr<Node> NodeIterator::previousNode(ExceptionCode& ec)
 {
-    return previousNode(ExceptionContext::createFromNode(referenceNode()), ec);
+    ExceptionContext context(referenceNode());
+    return previousNode(&context, ec);
 }
 
 } // namespace WebCore

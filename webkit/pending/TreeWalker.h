@@ -54,13 +54,13 @@ namespace WebCore {
         Node* nextNode(ExceptionContext*);
 
         // For non-JS bindings. Silently ignores the JavaScript exception if any.
-        Node* parentNode() { return parentNode(ExceptionContext::createFromNode(m_current.get())); }
-        Node* firstChild() { return firstChild(ExceptionContext::createFromNode(m_current.get())); }
-        Node* lastChild() { return lastChild(ExceptionContext::createFromNode(m_current.get())); }
-        Node* previousSibling() { return previousSibling(ExceptionContext::createFromNode(m_current.get())); }
-        Node* nextSibling() { return nextSibling(ExceptionContext::createFromNode(m_current.get())); }
-        Node* previousNode() { return previousNode(ExceptionContext::createFromNode(m_current.get())); }
-        Node* nextNode() { return nextNode(ExceptionContext::createFromNode(m_current.get())); }
+        Node* parentNode();
+        Node* firstChild();
+        Node* lastChild();
+        Node* previousSibling();
+        Node* nextSibling();
+        Node* previousNode();
+        Node* nextNode();
 
     private:
         TreeWalker(PassRefPtr<Node>, unsigned whatToShow, PassRefPtr<NodeFilter>, bool expandEntityReferences);

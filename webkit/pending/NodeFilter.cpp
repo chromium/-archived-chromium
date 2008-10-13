@@ -38,7 +38,8 @@ short NodeFilter::acceptNode(ExceptionContext* exec, Node* node) const
 
 short NodeFilter::acceptNode(Node* node) const
 {
-    return acceptNode(ExceptionContext::createFromNode(node), node);
+    ExceptionContext context(node);
+    return acceptNode(&context, node);
 }
 
 } // namespace WebCore

@@ -274,4 +274,46 @@ Children:
     return 0;
 }
 
+Node* TreeWalker::parentNode()
+{
+    ExceptionContext context(m_current.get());
+    return parentNode(&context);
+}
+
+Node* TreeWalker::firstChild()
+{
+    ExceptionContext context(m_current.get());
+    return firstChild(&context);
+}
+
+Node* TreeWalker::lastChild()
+{
+    ExceptionContext context(m_current.get());
+    return lastChild(&context);
+}
+
+Node* TreeWalker::previousSibling()
+{
+    ExceptionContext context(m_current.get());
+    return previousSibling(&context);
+}
+
+Node* TreeWalker::nextSibling()
+{
+    ExceptionContext context(m_current.get());
+    return nextSibling(&context);
+}
+
+Node* TreeWalker::previousNode()
+{
+    ExceptionContext context(m_current.get());
+    return previousNode(&context);
+}
+
+Node* TreeWalker::nextNode()
+{
+    ExceptionContext context(m_current.get());
+    return nextNode(&context);
+}
+
 } // namespace WebCore
