@@ -452,13 +452,6 @@ sub GenerateNormalAttrGetter
     $attrIsPodType = 0;
   }
   
-  my $creatorType = "";
-  if ($attrIsPodType) {  
-    if ($codeGenerator->IsSVGAnimatedType($implClassName)) {
-      $creatorType = $implClassName;
-    }
-  }
-
   my $getterStringUsesImp = $implClassName ne "double";
 
   # Getter
@@ -538,7 +531,30 @@ END
   my $wrapper;
   
   if ($attrIsPodType) {
-    $wrapper = GeneratePodTypeWrapper($attribute->signature, $getterString, $creatorType);
+    $implIncludes{"V8SVGPODTypeWrapper.h"} = 1;
+
+    my $getter = $getterString;
+    $getter =~ s/imp->//;
+    $getter =~ s/\(\)//;
+    my $setter = "set" . WK_ucfirst($getter);
+
+    my $implClassIsAnimatedType = $codeGenerator->IsSVGAnimatedType($implClassName);
+    if (not $implClassIsAnimatedType
+        and $codeGenerator->IsPodTypeWithWriteableProperties($attrType)
+        and not defined $attribute->signature->extendedAttributes->{"Immutable"}) {
+      if ($codeGenerator->IsPodType($implClassName)) {
+        $wrapper = "new V8SVGStaticPODTypeWrapperWithPODTypeParent<$nativeType, $implClassName>($getterString, imp_wrapper)";
+      } else {
+        $wrapper = "new V8SVGStaticPODTypeWrapperWithParent<$nativeType, $implClassName>(imp, &${implClassName}::$getter, &${implClassName}::$setter)";
+      }
+    } else {
+      if ($implClassIsAnimatedType) {
+        $wrapper = "V8SVGDynamicPODTypeWrapperCache<$nativeType, $implClassName>::lookupOrCreateWrapper(imp, &${implClassName}::$getter, &${implClassName}::$setter)";
+      } else {
+        $wrapper = GenerateSVGStaticPodTypeWrapper($returnType, $getterString);
+      }
+    }
+
     push(@implContentDecls, "    Peerable* wrapper = $wrapper;\n");
   } elsif ($nativeType ne "RGBColor") {
     push(@implContentDecls, "    $nativeType v = ");
@@ -1315,7 +1331,7 @@ sub GenerateFunctionCallString()
     $return = "wrapper";
   } elsif ($returnsPodType) {
     $result .= $indent . "V8SVGPODTypeWrapper<" . $nativeReturnType . ">* wrapper = ";
-    $result .= GenerateReadOnlyPodTypeWrapper($returnType, $return) . ";\n";
+    $result .= GenerateSVGStaticPodTypeWrapper($returnType, $return) . ";\n";
     $return = "wrapper";
   }
   
@@ -1737,9 +1753,7 @@ sub NativeToJSValue
 {
     my $signature = shift;
     my $value = shift;
-
-    my $signatureType = $signature->type;
-    my $type = $codeGenerator->StripModule($signatureType);
+    my $type = $codeGenerator->StripModule($signature->type);
     my $className= "V8$type";
     
     return "v8::Date::New(static_cast<double>($value))" if $type eq "DOMTimeStamp";
@@ -1800,41 +1814,14 @@ sub NativeToJSValue
       my $classIndex = uc($type);
       
       if ($codeGenerator->IsPodType($type)) {
-        $value = GenerateReadOnlyPodTypeWrapper($type, $value);
+        $value = GenerateSVGStaticPodTypeWrapper($type, $value);
       }
 
       return "V8Proxy::ToV8Object(V8ClassIndex::$classIndex, $value)";
     }
 }
 
-sub GeneratePodTypeWrapper {
-  my $signature = shift;
-  my $value = shift;
-  my $creatorType = shift;
-
-  my $signatureType = $signature->type;
-  my $type = $codeGenerator->StripModule($signatureType);
-  
-  my $classIndex = uc($type);
-  my $nativeType = GetNativeType($type);
-  $implIncludes{"V8$type.h"}=1;
-  $implIncludes{"V8SVGPODTypeWrapper.h"} = 1;
-  
-  if ($creatorType ne "") {
-    my $getter = $value;
-    $getter =~ s/imp->//;
-    $getter =~ s/\(\)//;
-    my $setter = "set" . WK_ucfirst($getter); 
-    $value = "V8SVGPODTypeWrapperCache<$nativeType, $creatorType>::lookupOrCreateWrapper(imp, &${creatorType}::$getter, &${creatorType}::$setter)";
-  } else {
-    $value = GenerateReadOnlyPodTypeWrapper($type, $value);
-  }
-  AddIncludesForType($type);
-  
-  return $value;
-}
-
-sub GenerateReadOnlyPodTypeWrapper {
+sub GenerateSVGStaticPodTypeWrapper {
   my $type = shift;
   my $value = shift;
   
@@ -1842,7 +1829,7 @@ sub GenerateReadOnlyPodTypeWrapper {
   $implIncludes{"V8SVGPODTypeWrapper.h"} = 1;
 
   my $nativeType = GetNativeType($type);
-  return "new V8SVGPODTypeWrapperCreatorReadOnly<$nativeType>($value)";
+  return "new V8SVGStaticPODTypeWrapper<$nativeType>($value)";
 }
 
 # Internal helper

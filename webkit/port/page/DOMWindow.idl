@@ -445,6 +445,10 @@ module window {
     attribute [Custom=DOMWindowEventHandler] DOMString onsubmit;
     attribute [Custom=DOMWindowEventHandler] DOMString onunload;
     attribute [Custom=DOMWindowEventHandler] DOMString onbeforeunload;
+    attribute [Custom=DOMWindowEventHandler] DOMString onwebkitanimationstart;
+    attribute [Custom=DOMWindowEventHandler] DOMString onwebkitanimationiteration;
+    attribute [Custom=DOMWindowEventHandler] DOMString onwebkitanimationend;
+    attribute [Custom=DOMWindowEventHandler] DOMString onwebkittransitionend;
 #endif // defined(V8_BINDING)
   };
 }

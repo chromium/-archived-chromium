@@ -293,11 +293,15 @@ inputs = [
     '$DERIVED_DIR/V8TreeWalker.cpp',
     '$DERIVED_DIR/V8UIEvent.cpp',
     '$DERIVED_DIR/V8UndetectableHTMLCollection.cpp',
-    '$DERIVED_DIR/V8WebkitCSSKeyframeRule.cpp',
-    '$DERIVED_DIR/V8WebkitCSSKeyframesRule.cpp',
+    '$DERIVED_DIR/V8WebKitAnimationEvent.cpp',
+    '$DERIVED_DIR/V8WebKitCSSKeyframeRule.cpp',
+    '$DERIVED_DIR/V8WebKitCSSKeyframesRule.cpp',
+    '$DERIVED_DIR/V8WebKitCSSTransformValue.cpp',
+    '$DERIVED_DIR/V8WebKitTransitionEvent.cpp',
     '$DERIVED_DIR/V8WheelEvent.cpp',
     '$DERIVED_DIR/V8XMLHttpRequest.cpp',
     '$DERIVED_DIR/V8XMLHttpRequestException.cpp',
+    '$DERIVED_DIR/V8XMLHttpRequestProgressEvent.cpp',
     '$DERIVED_DIR/V8XMLHttpRequestUpload.cpp',
     '$DERIVED_DIR/V8XMLSerializer.cpp',
     '$DERIVED_DIR/V8XPathEvaluator.cpp',
@@ -336,8 +340,6 @@ if env['PLATFORM'] in ('darwin', 'posix'):
     '$DERIVED_DIR/SVGElementFactory.cpp',
     '$DERIVED_DIR/V8SVGCursorElement.cpp',
     '$DERIVED_DIR/V8SVGMaskElement.cpp',
-    '$DERIVED_DIR/V8WebkitCSSKeyframeRule.cpp',
-    '$DERIVED_DIR/V8WebkitCSSKeyframesRule.cpp',
   ]
   for remove in remove_files:
     inputs.remove(remove)

@@ -86,6 +86,7 @@
 #include "ScriptController.h"
 #include "NodeFilter.h"
 #include "SecurityOrigin.h"
+#include "WebKitCSSTransformValue.h"
 #include "XMLHttpRequestException.h"
 #include "XPathException.h"
 
@@ -93,6 +94,7 @@
 #include "SVGElement.h"
 #include "SVGElementInstance.h"
 #include "SVGException.h"
+#include "SVGZoomEvent.h"
 #endif
 
 #if ENABLE(XPATH)
@@ -2312,24 +2314,37 @@ v8::Handle<v8::Value> V8Proxy::EventToV8Object(Event* event)
 
   V8ClassIndex::V8WrapperType type = V8ClassIndex::EVENT;
 
-  if (event->isKeyboardEvent())
-    type = V8ClassIndex::KEYBOARDEVENT;
-  else if (event->isMouseEvent())
-    type = V8ClassIndex::MOUSEEVENT;
-  else if (event->isMessageEvent())
-    type = V8ClassIndex::MESSAGEEVENT;
-  else if (event->isWheelEvent())
-    type = V8ClassIndex::WHEELEVENT;
-  else if (event->isTextEvent())
-    type = V8ClassIndex::TEXTEVENT;
-  else if (event->isUIEvent())
-    type = V8ClassIndex::UIEVENT;
-  else if (event->isMutationEvent())
+  if (event->isUIEvent()) {
+    if (event->isKeyboardEvent())
+      type = V8ClassIndex::KEYBOARDEVENT;
+    else if (event->isTextEvent())
+      type = V8ClassIndex::TEXTEVENT;
+    else if (event->isMouseEvent())
+      type = V8ClassIndex::MOUSEEVENT;
+    else if (event->isWheelEvent())
+      type = V8ClassIndex::WHEELEVENT;
+#if ENABLE(SVG)
+    else if (event->isSVGZoomEvent())
+      type = V8ClassIndex::SVGZOOMEVENT;
+#endif
+    else
+      type = V8ClassIndex::UIEVENT;
+  } else if (event->isMutationEvent())
     type = V8ClassIndex::MUTATIONEVENT;
   else if (event->isOverflowEvent())
     type = V8ClassIndex::OVERFLOWEVENT;
-  else if (event->isProgressEvent())
-    type = V8ClassIndex::PROGRESSEVENT;
+  else if (event->isMessageEvent())
+    type = V8ClassIndex::MESSAGEEVENT;
+  else if (event->isProgressEvent()) {
+    if (event->isXMLHttpRequestProgressEvent()) 
+      type = V8ClassIndex::XMLHTTPREQUESTPROGRESSEVENT;
+    else 
+      type = V8ClassIndex::PROGRESSEVENT;
+  } else if (event->isWebKitAnimationEvent()) 
+    type = V8ClassIndex::WEBKITANIMATIONEVENT;
+  else if (event->isWebKitTransitionEvent())
+    type = V8ClassIndex::WEBKITTRANSITIONEVENT;
+
 
   // Set the peer object for future access.
   v8::Handle<v8::Object> result =
@@ -2582,7 +2597,9 @@ v8::Handle<v8::Value> V8Proxy::CSSValueToV8Object(CSSValue* value) {
 
   V8ClassIndex::V8WrapperType type;
 
-  if (value->isValueList())
+  if (value->isWebKitCSSTransformValue()) 
+    type = V8ClassIndex::WEBKITCSSTRANSFORMVALUE;
+  else if (value->isValueList())
     type = V8ClassIndex::CSSVALUELIST;
   else if (value->isPrimitiveValue())
     type = V8ClassIndex::CSSPRIMITIVEVALUE;

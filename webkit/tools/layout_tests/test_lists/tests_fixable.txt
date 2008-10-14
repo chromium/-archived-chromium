@@ -827,20 +827,6 @@ V8 | KJS # LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAI
 V8 | KJS # LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
 V8 | KJS # LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
 
-# Transition tests fail.
-# http://code.google.com/p/chromium/issues/detail?id=2996
-V8 | KJS # LayoutTests/transitions/transition-end-event-all-properties.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-attributes.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-container.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-left.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-multiple-01.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-multiple-02.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-multiple-04.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-nested.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-transform.html = FAIL
-V8 | KJS # LayoutTests/transitions/transition-end-event-window.html = FAIL
-
 # This test times out for an unknown reason
 # http://code.google.com/p/chromium/issues/detail?id=3005
 V8 | KJS # LayoutTests/fast/events/tabindex-focus-blur-all.html = TIMEOUT
@@ -960,14 +946,7 @@ V8 | KJS # LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destro
 V8 | KJS # LayoutTests/printing = FAIL
 V8 | KJS # LayoutTests/security/autocomplete-cleared-on-back.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
-V8 | KJS # LayoutTests/svg/custom/immutable-properties.html = FAIL
-V8 | KJS # LayoutTests/svg/custom/svg-modify-currentTranslate.html = FAIL
-V8 | KJS # LayoutTests/svg/custom/tearoffs-with-tearoffs.html = FAIL
 V8 | KJS # LayoutTests/svg/dom/altGlyph-dom.xhtml = FAIL
-V8 | KJS # LayoutTests/svg/dynamic-updates/SVGLinearGradientElement-svgdom-gradientTransform-prop.html = FAIL
-V8 | KJS # LayoutTests/svg/dynamic-updates/SVGPatternElement-svgdom-patternTransform-prop.html = FAIL
-V8 | KJS # LayoutTests/svg/dynamic-updates/SVGRadialGradientElement-svgdom-gradientTransform-prop.html = FAIL
-
 
 // Post-MERGE failures: these will all need to be fixed one day
 V8 | KJS # LayoutTests/editing/execCommand/outdent-selection.gchtml = FAIL

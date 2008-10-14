@@ -3238,6 +3238,33 @@ CALLBACK_FUNC_DECL(NSResolverLookupNamespaceURI) {
   return v8::Undefined();
 }
 
+
+static String EventNameFromAttributeName(const String& name) {
+  ASSERT(name.startsWith("on"));
+  String event_type = name.substring(2);
+
+  if (event_type.startsWith("w")) {
+    switch(event_type[event_type.length() - 1]) {
+      case 't':
+        event_type = "webkitAnimationStart";
+        break;
+      case 'n':
+        event_type = "webkitAnimationIteration";
+        break;
+      case 'd':
+        ASSERT(event_type.length() > 7);
+        if (event_type[7] == 'a') 
+          event_type = "webkitAnimationEnd";
+        else 
+          event_type = "webkitTransitionEnd";
+        break;
+    }
+  }
+
+  return event_type;
+}
+
+
 ACCESSOR_SETTER(DOMWindowEventHandler) {
   v8::Handle<v8::Object> holder = V8Proxy::LookupDOMWrapper(
       V8ClassIndex::DOMWINDOW, info.This());
@@ -3253,11 +3280,9 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
   if (!doc)
     return;
 
-  // Name starts with 'on', remove them.
   String key = ToWebCoreString(name);
-  ASSERT(key.startsWith("on"));
-  String event_type = key.substring(2);
-
+  String event_type = EventNameFromAttributeName(key);
+ 
   if (value->IsNull()) {
     // Clear the event listener
     doc->removeHTMLWindowEventListener(event_type);
@@ -3290,10 +3315,8 @@ ACCESSOR_GETTER(DOMWindowEventHandler) {
   if (!doc)
     return v8::Undefined();
 
-  // Name starts with 'on', remove them.
   String key = ToWebCoreString(name);
-  ASSERT(key.startsWith("on"));
-  String event_type = key.substring(2);
+  String event_type = EventNameFromAttributeName(key);
 
   EventListener* listener = doc->getHTMLWindowEventListener(event_type);
   return V8Proxy::EventListenerToV8Object(listener);
@@ -3370,14 +3393,17 @@ ACCESSOR_SETTER(HTMLOptionsCollectionLength) {
 ACCESSOR_GETTER(SVGLengthValue) {
   INC_STATS(L"DOM.SVGLength.value");
   V8SVGPODTypeWrapper<SVGLength>* wrapper = V8Proxy::ToNativeObject<V8SVGPODTypeWrapper<SVGLength> >(V8ClassIndex::SVGLENGTH, info.Holder());
-  SVGLength imp_instance = *wrapper;
-  SVGLength* imp = &imp_instance;
-  return v8::Number::New(imp->value(V8Proxy::GetSVGContext(wrapper)));
+  SVGLength imp = *wrapper;
+  return v8::Number::New(imp.value(V8Proxy::GetSVGContext(wrapper)));
 }
 
 CALLBACK_FUNC_DECL(SVGLengthConvertToSpecifiedUnits) {
   INC_STATS(L"DOM.SVGLength.convertToSpecifiedUnits");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
+  V8SVGPODTypeWrapper<SVGLength>* wrapper = V8Proxy::ToNativeObject<V8SVGPODTypeWrapper<SVGLength> >(V8ClassIndex::SVGLENGTH, args.Holder());
+  SVGLength imp = *wrapper;
+  SVGElement* context = V8Proxy::GetSVGContext(wrapper);
+  imp.convertToSpecifiedUnits(ToInt32(args[0]), context);
+  wrapper->commitChange(imp, context);
   return v8::Undefined();
 }
 
@@ -3397,7 +3423,7 @@ CALLBACK_FUNC_DECL(SVGMatrixInverse) {
   }
 
   Peerable* peer = static_cast<Peerable*>(
-      new V8SVGPODTypeWrapperCreatorReadOnly<AffineTransform>(result));
+      new V8SVGStaticPODTypeWrapper<AffineTransform>(result));
   return V8Proxy::ToV8Object(V8ClassIndex::SVGMATRIX, peer);
 }
 
@@ -3420,7 +3446,7 @@ CALLBACK_FUNC_DECL(SVGMatrixRotateFromVector) {
   }
 
   Peerable* peer = static_cast<Peerable*>(
-      new V8SVGPODTypeWrapperCreatorReadOnly<AffineTransform>(result));
+      new V8SVGStaticPODTypeWrapper<AffineTransform>(result));
   return V8Proxy::ToV8Object(V8ClassIndex::SVGMATRIX, peer);
 }
 

@@ -2144,6 +2144,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitAnimationEvent.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitAnimationEvent.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSKeyframeRule.cpp"
 				>
 			</File>
@@ -2157,6 +2165,22 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSKeyframesRule.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSTransformValue.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitCSSTransformValue.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitTransitionEvent.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8WebKitTransitionEvent.h"
 				>
 			</File>
 			<File
@@ -2189,6 +2213,14 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8XMLHttpRequestException.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8XMLHttpRequestProgressEvent.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8XMLHttpRequestProgressEvent.h"
 				>
 			</File>
 			<File

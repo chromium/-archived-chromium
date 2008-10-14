@@ -275,12 +275,16 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(TEXTMETRICS, TextMetrics)                                           \
   V(TREEWALKER, TreeWalker)                                             \
   V(UIEVENT, UIEvent)                                                   \
+  V(WEBKITANIMATIONEVENT, WebKitAnimationEvent)                         \
   V(WEBKITCSSKEYFRAMERULE, WebKitCSSKeyframeRule)                       \
   V(WEBKITCSSKEYFRAMESRULE, WebKitCSSKeyframesRule)                     \
+  V(WEBKITCSSTRANSFORMVALUE, WebKitCSSTransformValue)                   \
+  V(WEBKITTRANSITIONEVENT, WebKitTransitionEvent)                       \
   V(WHEELEVENT, WheelEvent)                                             \
   V(XMLHTTPREQUEST, XMLHttpRequest)                                     \
   V(XMLHTTPREQUESTUPLOAD, XMLHttpRequestUpload)                         \
   V(XMLHTTPREQUESTEXCEPTION, XMLHttpRequestException)                   \
+  V(XMLHTTPREQUESTPROGRESSEVENT, XMLHttpRequestProgressEvent)           \
   V(XMLSERIALIZER, XMLSerializer)                                       \
   V(XPATHEVALUATOR, XPathEvaluator)                                     \
   V(XPATHEXCEPTION, XPathException)                                     \
