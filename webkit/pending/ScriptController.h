@@ -37,6 +37,7 @@
 
 #include "bindings/npruntime.h"
 #if USE(JSC)
+#include "JSDOMWindowShell.h"
 #include <kjs/ustring.h>
 #endif
 
@@ -167,6 +168,21 @@ public:
     ScriptController(Frame*);
     ~ScriptController();
 
+#if USE(JSC)
+    bool haveWindowShell() const { return m_windowShell; }
+    JSDOMWindowShell* windowShell()
+    {
+        initScriptIfNeeded();
+        return m_windowShell;
+    }
+
+    JSDOMWindow* globalObject()
+    {
+        initScriptIfNeeded();
+        return m_windowShell->window();
+    }
+#endif
+
 #if USE(V8)
     // TODO(eseidel): V8Proxy should either be folded into ScriptController
     // or this accessor should be made JSProxy*
@@ -192,8 +208,6 @@ public:
     PassRefPtr<EventListener> createSVGEventHandler(const String& functionName, const String& code, Node*);
 #endif
 
-    // Get the Root object
-    //  JSRootObject* getRootObject();
     // Creates a property of the global object of a frame.
     void BindToWindowObject(Frame*, const String& key, NPObject*);
 
@@ -210,7 +224,7 @@ public:
 
     bool isEnabled() const;
 
-    // TODO(eseide): void* is a compile hack
+    // TODO(eseidel): void* is a compile hack
     void attachDebugger(void*);
 
     // Create a NPObject wrapper for a JSObject
@@ -271,12 +285,32 @@ public:
     void clearScriptObjects();
     void cleanupScriptObjectsForPlugin(void*);
 
+#if USE(JSC)
+    KJS::Bindings::RootObject* bindingRootObject();
+#endif
+
 #if ENABLE(NETSCAPE_PLUGIN_API)
     NPObject* createScriptObjectForPluginElement(HTMLPlugInElement*);
     NPObject* windowScriptNPObject();
 #endif
 
 private:
+#if USE(JSC)
+    void initScriptIfNeeded()
+    {
+        if (!m_windowShell)
+            initScript();
+    }
+    void initScript();
+
+    void clearPlatformScriptObjects();
+    void disconnectPlatformScriptObjects();
+
+    KJS::ProtectedPtr<JSDOMWindowShell> m_windowShell;
+    HashSet<JSDOMWindow*> m_liveFormerWindows;
+    int m_handlerLineno;
+#endif
+
     static bool m_recordPlaybackMode;
 
     Frame* m_frame;
