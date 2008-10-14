@@ -199,6 +199,17 @@ env.Append(
     ],
 )
 
+# For now, use the upstream platform/gtk directory while we get things
+# compiling.  We need to do this because some of the header files in our port
+# assume windows (e.g., PlatformScrollBar.h).  Eventually, we may need to fork
+# this or make modifications to the header files.
+if env['PLATFORM'] == 'posix':
+  env.Prepend(
+      CPPPATH = [
+          '$WEBCORE_DIR/platform/gtk'
+      ]
+  )
+
 # This list is the SConscripts that work on Windows and Linux.
 sconscript_dirs = [
   'SConscript.port',
