@@ -228,6 +228,7 @@ class HWNDViewContainer : public ViewContainer,
     MSG_WM_RBUTTONUP(OnRButtonUp)
     MSG_WM_SETCURSOR(OnSetCursor)
     MSG_WM_SETFOCUS(OnSetFocus)
+    MSG_WM_SETICON(OnSetIcon)
     MSG_WM_SETTEXT(OnSetText)
     MSG_WM_SIZE(OnSize)
     MSG_WM_SYSCOMMAND(OnSysCommand)
@@ -424,6 +425,10 @@ class HWNDViewContainer : public ViewContainer,
   }
   virtual void OnSetFocus(HWND focused_window) {
     SetMsgHandled(FALSE);
+  }
+  virtual LRESULT OnSetIcon(UINT size_type, HICON new_icon) {
+    SetMsgHandled(FALSE);
+    return 0;
   }
   virtual LRESULT OnSetText(const wchar_t* text) {
     SetMsgHandled(FALSE);
