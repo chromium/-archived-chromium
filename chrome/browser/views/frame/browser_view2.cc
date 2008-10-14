@@ -720,7 +720,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
     // See if the mouse pointer is within the bounds of the TabStrip.
     gfx::Point point_in_tabstrip_coords(point);
     View::ConvertPointToView(GetParent(), tabstrip_, &point_in_tabstrip_coords);
-    if (tabstrip_->HitTest(point_in_tabstrip_coords.ToPOINT())) {
+    if (tabstrip_->HitTest(point_in_tabstrip_coords)) {
       if (tabstrip_->PointIsWithinWindowCaption(point_in_tabstrip_coords))
         return HTCAPTION;
       return HTCLIENT;
@@ -872,8 +872,7 @@ bool BrowserView2::ShouldForwardToTabStrip(
   // Mouse isn't over the tab strip. Only forward if the mouse isn't over
   // another view on the tab strip or is over a view we were told the user can
   // drop on.
-  ChromeViews::View* view_over_mouse =
-      GetViewForPoint(CPoint(event.x(), event.y()));
+  ChromeViews::View* view_over_mouse = GetViewForPoint(event.location());
   return (view_over_mouse == this || view_over_mouse == tabstrip_ ||
           dropable_views_.find(view_over_mouse) != dropable_views_.end());
 }

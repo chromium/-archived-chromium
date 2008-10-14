@@ -124,7 +124,7 @@ void TitleBarMenuButton::Paint(ChromeCanvas* canvas) {
 
 bool TitleBarMenuButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
   if (e.GetFlags() & ChromeViews::MouseEvent::EF_IS_DOUBLE_CLICK) {
-    if (!HitTest(WTL::CPoint(e.x(), e.y())))
+    if (!HitTest(e.location()))
       return true;
     title_bar_->CloseWindow();
     return true;
@@ -221,8 +221,8 @@ bool SimpleXPFrameTitleBar::WillHandleMouseEvent(int x, int y) {
   // If the locale is RTL, we must query for the bounds of the menu button in
   // a way that returns the mirrored position and not the position set using
   // SetX()/SetBounds().
-  CPoint p(x - menu_button_->GetX(APPLY_MIRRORING_TRANSFORMATION),
-           y - menu_button_->y());
+  gfx::Point p(x - menu_button_->GetX(APPLY_MIRRORING_TRANSFORMATION),
+               y - menu_button_->y());
   return menu_button_->HitTest(p);
 }
 

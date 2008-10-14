@@ -111,8 +111,8 @@ class TabStrip : public ChromeViews::View,
   virtual bool GetAccessibleRole(VARIANT* role);
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
-  virtual ChromeViews::View* GetViewForPoint(const CPoint& point);
-  virtual ChromeViews::View* GetViewForPoint(const CPoint& point,
+  virtual ChromeViews::View* GetViewForPoint(const gfx::Point& point);
+  virtual ChromeViews::View* GetViewForPoint(const gfx::Point& point,
                                              bool can_create_floating);
 
  protected:
@@ -277,7 +277,7 @@ class TabStrip : public ChromeViews::View,
 
   // Returns true if the specified point in TabStrip coords is within the
   // hit-test region of the specified Tab.
-  bool IsPointInTab(Tab* tab, const CPoint& point_in_tabstrip_coords);
+  bool IsPointInTab(Tab* tab, const gfx::Point& point_in_tabstrip_coords);
 
   // -- Member Variables ------------------------------------------------------
 

@@ -529,7 +529,7 @@ void View::SetContextMenuController(ContextMenuController* menu_controller) {
 bool View::ProcessMousePressed(const MouseEvent& e, DragInfo* drag_info) {
   const bool enabled = enabled_;
   int drag_operations;
-  if (enabled && e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y())))
+  if (enabled && e.IsOnlyLeftMouseButton() && HitTest(e.location()))
     drag_operations = GetDragOperations(e.x(), e.y());
   else
     drag_operations = 0;
@@ -754,7 +754,7 @@ void View::PropagateVisibilityNotifications(View* start, bool is_visible) {
 void View::VisibilityChanged(View* starting_from, bool is_visible) {
 }
 
-View* View::GetViewForPoint(const CPoint& point) {
+View* View::GetViewForPoint(const gfx::Point& point) {
   return GetViewForPoint(point, true);
 }
 
@@ -775,7 +775,8 @@ bool View::GetNotifyWhenVisibleBoundsInRootChanges() {
   return notify_when_visible_bounds_in_root_changes_;
 }
 
-View* View::GetViewForPoint(const CPoint& point, bool can_create_floating) {
+View* View::GetViewForPoint(const gfx::Point& point,
+                            bool can_create_floating) {
   // Walk the child Views recursively looking for the View that most
   // tightly encloses the specified point.
   for (int i = GetChildViewCount() - 1 ; i >= 0 ; --i) {
@@ -785,8 +786,8 @@ View* View::GetViewForPoint(const CPoint& point, bool can_create_floating) {
 
     gfx::Point point_in_child_coords(point);
     View::ConvertPointToView(this, child, &point_in_child_coords);
-    if (child->HitTest(point_in_child_coords.ToPOINT()))
-      return child->GetViewForPoint(point_in_child_coords.ToPOINT(), true);
+    if (child->HitTest(point_in_child_coords))
+      return child->GetViewForPoint(point_in_child_coords, true);
   }
 
   // We haven't found a view for the point. Try to create floating views
@@ -795,7 +796,8 @@ View* View::GetViewForPoint(const CPoint& point, bool can_create_floating) {
   // GetFloatingViewIDForPoint lies or if RetrieveFloatingViewForID creates a
   // view which doesn't contain the provided point
   int id;
-  if (can_create_floating && GetFloatingViewIDForPoint(point.x, point.y, &id)) {
+  if (can_create_floating &&
+      GetFloatingViewIDForPoint(point.x(), point.y(), &id)) {
     RetrieveFloatingViewForID(id);  // This creates the floating view.
     return GetViewForPoint(point, false);
   }
@@ -1425,14 +1427,14 @@ bool View::IsVisibleInRootView() const {
     return false;
 }
 
-bool View::HitTest(const CPoint& l) const {
-  if (l.x >= 0 && l.x < static_cast<int>(width()) &&
-      l.y >= 0 && l.y < static_cast<int>(height())) {
+bool View::HitTest(const gfx::Point& l) const {
+  if (l.x() >= 0 && l.x() < static_cast<int>(width()) &&
+      l.y() >= 0 && l.y() < static_cast<int>(height())) {
     if (HasHitTestMask()) {
       gfx::Path mask;
       GetHitTestMask(&mask);
       ScopedHRGN rgn(mask.CreateHRGN());
-      return !!PtInRegion(rgn, l.x, l.y);
+      return !!PtInRegion(rgn, l.x(), l.y());
     }
     // No mask, but inside our bounds.
     return true;

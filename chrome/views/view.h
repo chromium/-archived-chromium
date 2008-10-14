@@ -427,7 +427,7 @@ class View : public AcceleratorTarget {
   int GetChildViewCount() const;
 
   // Get the child View at the specified point.
-  virtual View* GetViewForPoint(const CPoint& point);
+  virtual View* GetViewForPoint(const gfx::Point& point);
 
   // Get the containing ViewContainer
   virtual ViewContainer* GetViewContainer() const;
@@ -893,7 +893,7 @@ class View : public AcceleratorTarget {
   virtual HCURSOR GetCursorForPoint(Event::EventType event_type, int x, int y);
 
   // Convenience to test whether a point is within this view's bounds
-  virtual bool HitTest(const CPoint &l) const;
+  virtual bool HitTest(const gfx::Point& l) const;
 
   // Gets the tooltip for this View. If the View does not have a tooltip,
   // return false. If the View does have a tooltip, copy the tooltip into
@@ -1022,7 +1022,8 @@ class View : public AcceleratorTarget {
   void TooltipTextChanged();
 
   // Actual implementation of GetViewForPoint.
-  virtual View* GetViewForPoint(const CPoint& point, bool can_create_floating);
+  virtual View* GetViewForPoint(const gfx::Point& point,
+                                bool can_create_floating);
 
   // Sets whether this view wants notification when its visible bounds relative
   // to the root view changes. If true, this view is notified any time the

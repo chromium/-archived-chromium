@@ -86,8 +86,7 @@ bool FrameView::ShouldForwardToTabStrip(
   // Mouse isn't over the tab strip. Only forward if the mouse isn't over
   // another view on the tab strip or is over a view we were told the user can
   // drop on.
-  ChromeViews::View* view_over_mouse =
-      GetViewForPoint(CPoint(event.x(), event.y()));
+  ChromeViews::View* view_over_mouse = GetViewForPoint(event.location());
   return (view_over_mouse == this ||
           view_over_mouse == window_->GetTabStrip() ||
           dropable_views_.find(view_over_mouse) != dropable_views_.end());

@@ -634,7 +634,7 @@ void OpaqueNonClientView::GetPreferredSize(CSize* out) {
 }
 
 ChromeViews::View* OpaqueNonClientView::GetViewForPoint(
-    const CPoint& point,
+    const gfx::Point& point,
     bool can_create_floating) {
   // We override this function because the ClientView can overlap the non -
   // client view, making it impossible to click on the window controls. We need
@@ -644,7 +644,7 @@ ChromeViews::View* OpaqueNonClientView::GetViewForPoint(
   for (int i = 0; i < arraysize(views); ++i) {
     if (!views[i]->IsVisible())
       continue;
-    if (views[i]->bounds().Contains(gfx::Point(point)))
+    if (views[i]->bounds().Contains(point))
       return views[i];
   }
   return View::GetViewForPoint(point, can_create_floating);

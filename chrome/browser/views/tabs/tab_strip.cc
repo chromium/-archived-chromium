@@ -528,7 +528,7 @@ bool TabStrip::CanProcessInputEvents() const {
 }
 
 bool TabStrip::PointIsWithinWindowCaption(const gfx::Point& point) {
-  ChromeViews::View* v = GetViewForPoint(point.ToPOINT());
+  ChromeViews::View* v = GetViewForPoint(point);
 
   // If there is no control at this location, claim the hit was in the title
   // bar to get a move action.
@@ -546,7 +546,7 @@ bool TabStrip::PointIsWithinWindowCaption(const gfx::Point& point) {
   gfx::Point point_in_newtab_coords(point);
   View::ConvertPointToView(this, newtab_button_, &point_in_newtab_coords);
   if (newtab_button_->bounds().Contains(point) &&
-      !newtab_button_->HitTest(point_in_newtab_coords.ToPOINT())) {
+      !newtab_button_->HitTest(point_in_newtab_coords)) {
     return true;
   }
 
@@ -750,11 +750,11 @@ void TabStrip::SetAccessibleName(const std::wstring& name) {
   accessible_name_.assign(name);
 }
 
-ChromeViews::View* TabStrip::GetViewForPoint(const CPoint& point) {
+ChromeViews::View* TabStrip::GetViewForPoint(const gfx::Point& point) {
   return GetViewForPoint(point, false);
 }
 
-ChromeViews::View* TabStrip::GetViewForPoint(const CPoint& point,
+ChromeViews::View* TabStrip::GetViewForPoint(const gfx::Point& point,
                                              bool can_create_floating) {
   // Return any view that isn't a Tab or this TabStrip immediately. We don't
   // want to interfere.
@@ -1566,9 +1566,10 @@ int TabStrip::GetAvailableWidthForTabs(Tab* last_tab) const {
   return last_tab->x() + last_tab->width();
 }
 
-bool TabStrip::IsPointInTab(Tab* tab, const CPoint& point_in_tabstrip_coords) {
+bool TabStrip::IsPointInTab(Tab* tab,
+                            const gfx::Point& point_in_tabstrip_coords) {
   gfx::Point point_in_tab_coords(point_in_tabstrip_coords);
   View::ConvertPointToView(this, tab, &point_in_tab_coords);
-  return tab->HitTest(point_in_tab_coords.ToPOINT());
+  return tab->HitTest(point_in_tab_coords);
 }
 

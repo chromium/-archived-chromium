@@ -2148,7 +2148,7 @@ void MenuController::CloseAllNestedMenus() {
 }
 
 MenuItemView* MenuController::GetMenuItemAt(View* source, int x, int y) {
-  View* child_under_mouse = source->GetViewForPoint(CPoint(x, y));
+  View* child_under_mouse = source->GetViewForPoint(gfx::Point(x, y));
   if (child_under_mouse && child_under_mouse->IsEnabled() &&
       child_under_mouse->GetID() == MenuItemView::kMenuItemViewID) {
     return static_cast<MenuItemView*>(child_under_mouse);
@@ -2157,7 +2157,7 @@ MenuItemView* MenuController::GetMenuItemAt(View* source, int x, int y) {
 }
 
 MenuItemView* MenuController::GetEmptyMenuItemAt(View* source, int x, int y) {
-  View* child_under_mouse = source->GetViewForPoint(CPoint(x, y));
+  View* child_under_mouse = source->GetViewForPoint(gfx::Point(x, y));
   if (child_under_mouse &&
       child_under_mouse->GetID() == EmptyMenuMenuItem::kEmptyMenuItemViewID) {
     return static_cast<MenuItemView*>(child_under_mouse);
@@ -2170,7 +2170,7 @@ bool MenuController::IsScrollButtonAt(SubmenuView* source,
                                       int y,
                                       MenuPart::Type* part) {
   MenuScrollViewContainer* scroll_view = source->GetScrollViewContainer();
-  View* child_under_mouse = scroll_view->GetViewForPoint(CPoint(x, y));
+  View* child_under_mouse = scroll_view->GetViewForPoint(gfx::Point(x, y));
   if (child_under_mouse && child_under_mouse->IsEnabled()) {
     if (child_under_mouse == scroll_view->scroll_up_button()) {
       *part = MenuPart::SCROLL_UP;

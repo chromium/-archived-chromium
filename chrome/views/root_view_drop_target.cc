@@ -100,7 +100,7 @@ DWORD RootViewDropTarget::OnDrop(IDataObject* data_object,
 View* RootViewDropTarget::CalculateTargetView(
     const gfx::Point& root_view_location,
     const OSExchangeData& data) {
-  View* view = root_view_->GetViewForPoint(root_view_location.ToPOINT());
+  View* view = root_view_->GetViewForPoint(root_view_location);
   if (view == deepest_view_) {
     // The view the mouse is over hasn't changed; reuse the target.
     return target_view_;

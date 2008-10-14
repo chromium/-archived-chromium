@@ -278,7 +278,7 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
 
   bool hit_disabled_view = false;
   // Walk up the tree until we find a view that wants the mouse event.
-  for (mouse_pressed_handler_ = GetViewForPoint(WTL::CPoint(e.x(), e.y()));
+  for (mouse_pressed_handler_ = GetViewForPoint(e.location());
        mouse_pressed_handler_ && (mouse_pressed_handler_ != this);
        mouse_pressed_handler_ = mouse_pressed_handler_->GetParent()) {
     if (!mouse_pressed_handler_->IsEnabled()) {
@@ -387,7 +387,7 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 void RootView::UpdateCursor(const MouseEvent& e) {
-  View *v = GetViewForPoint(e.location().ToPOINT());
+  View *v = GetViewForPoint(e.location());
 
   if (v && v != this) {
     gfx::Point l(e.location());
@@ -404,7 +404,7 @@ void RootView::UpdateCursor(const MouseEvent& e) {
 }
 
 void RootView::OnMouseMoved(const MouseEvent& e) {
-  View *v = GetViewForPoint(WTL::CPoint(e.x(), e.y()));
+  View *v = GetViewForPoint(e.location());
   // Find the first enabled view.
   while (v && !v->IsEnabled())
     v = v->GetParent();

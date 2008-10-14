@@ -538,10 +538,10 @@ class HitTestView : public ChromeViews::View {
   DISALLOW_COPY_AND_ASSIGN(HitTestView);
 };
 
-POINT ConvertPointToView(ChromeViews::View* view, const POINT& p) {
+gfx::Point ConvertPointToView(ChromeViews::View* view, const gfx::Point& p) {
   gfx::Point tmp(p);
   ChromeViews::View::ConvertPointToView(view->GetRootView(), view, &tmp);
-  return tmp.ToPOINT();
+  return tmp;
 }
 }
 
@@ -560,10 +560,10 @@ TEST_F(ViewTest, HitTestMasks) {
   v2->SetBounds(v2_bounds.ToRECT());
   root_view->AddChildView(v2);
 
-  POINT v1_centerpoint = v1_bounds.CenterPoint().ToPOINT();
-  POINT v2_centerpoint = v2_bounds.CenterPoint().ToPOINT();
-  POINT v1_origin = v1_bounds.origin().ToPOINT();
-  POINT v2_origin = v2_bounds.origin().ToPOINT();
+  gfx::Point v1_centerpoint = v1_bounds.CenterPoint();
+  gfx::Point v2_centerpoint = v2_bounds.CenterPoint();
+  gfx::Point v1_origin = v1_bounds.origin();
+  gfx::Point v2_origin = v2_bounds.origin();
 
   // Test HitTest
   EXPECT_EQ(true, v1->HitTest(ConvertPointToView(v1, v1_centerpoint)));

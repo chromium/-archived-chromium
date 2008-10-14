@@ -40,7 +40,7 @@ ButtonDropDown::~ButtonDropDown() {
 ////////////////////////////////////////////////////////////////////////////////
 
 bool ButtonDropDown::OnMousePressed(const ChromeViews::MouseEvent& e) {
-  if (IsEnabled() && e.IsLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y()))) {
+  if (IsEnabled() && e.IsLeftMouseButton() && HitTest(e.location())) {
     // Store the y pos of the mouse coordinates so we can use them later to
     // determine if the user dragged the mouse down (which should pop up the
     // drag down menu immediately, instead of waiting for the timer)
@@ -66,7 +66,7 @@ void ButtonDropDown::OnMouseReleased(const ChromeViews::MouseEvent& e,
   if (e.IsLeftMouseButton())
     show_menu_factory_.RevokeAll();
 
-  if (IsEnabled() && e.IsRightMouseButton() && HitTest(WTL::CPoint(e.x(), e.y()))) {
+  if (IsEnabled() && e.IsRightMouseButton() && HitTest(e.location())) {
     show_menu_factory_.RevokeAll();
     // Make the button look depressed while the menu is open.
     // NOTE: SetState() schedules a paint, but it won't occur until after the

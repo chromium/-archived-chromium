@@ -183,7 +183,7 @@ bool MenuButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
   if (GetState() != BS_DISABLED) {
     // If we're draggable (GetDragOperations returns a non-zero value), then
     // don't pop on press, instead wait for release.
-    if (e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y())) &&
+    if (e.IsOnlyLeftMouseButton() && HitTest(e.location()) &&
         GetDragOperations(e.x(), e.y()) == DragDropTypes::DRAG_NONE) {
       TimeDelta delta = Time::Now() - menu_closed_time_;
       int64 delta_in_milliseconds = delta.InMilliseconds();
@@ -199,7 +199,7 @@ void MenuButton::OnMouseReleased(const ChromeViews::MouseEvent& e,
                                  bool canceled) {
   if (GetDragOperations(e.x(), e.y()) != DragDropTypes::DRAG_NONE &&
       GetState() != BS_DISABLED && !canceled && !InDrag() &&
-      e.IsOnlyLeftMouseButton() && HitTest(WTL::CPoint(e.x(), e.y()))) {
+      e.IsOnlyLeftMouseButton() && HitTest(e.location())) {
     Activate();
   } else {
     TextButton::OnMouseReleased(e, canceled);

@@ -979,7 +979,7 @@ LRESULT VistaFrame::OnNCHitTest(const CPoint& pt) {
   if (tab_pt.x() > 0 && tab_pt.y() >= kTabShadowSize &&
       tab_pt.x() < tabstrip_->width() &&
       tab_pt.y() < tabstrip_->height()) {
-    ChromeViews::View* v = tabstrip_->GetViewForPoint(tab_pt.ToPOINT());
+    ChromeViews::View* v = tabstrip_->GetViewForPoint(tab_pt);
     if (v == tabstrip_)
       return HTCAPTION;
 

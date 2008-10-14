@@ -1374,16 +1374,15 @@ void XPFrame::OnCaptureChanged(HWND hwnd) {
 }
 
 LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
-  CPoint p(pt);
+  gfx::Point p(pt);
   CRect r;
   GetWindowRect(&r);
 
   // Convert from screen to window coordinates
-  p.x -= r.left;
-  p.y -= r.top;
+  p.Offset(-r.left, -r.top);
 
   if (!IsTabStripVisible() &&
-      ComputeResizeMode(p.x, p.y, r.Width(), r.Height()) == RM_UNDEFINED &&
+      ComputeResizeMode(p.x(), p.y(), r.Width(), r.Height()) == RM_UNDEFINED &&
       root_view_.GetViewForPoint(p) == frame_view_) {
     return HTCAPTION;
   }
@@ -1393,14 +1392,14 @@ LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
 
   // If the mouse is over the tabstrip. Check if we should move the window or
   // capture the mouse.
-  if (tabstrip_->CanProcessInputEvents() && tabstrip_->HitTest(tsp.ToPOINT())) {
+  if (tabstrip_->CanProcessInputEvents() && tabstrip_->HitTest(tsp)) {
     // The top few pixels of a tab strip are a dropshadow - as we're pretty
     // starved of draggable area, let's give it to window dragging (this
     // also makes sense visually.
     if (!IsZoomed() && tsp.y() < kTabShadowSize)
       return HTCAPTION;
 
-    ChromeViews::View* v = tabstrip_->GetViewForPoint(tsp.ToPOINT());
+    ChromeViews::View* v = tabstrip_->GetViewForPoint(tsp);
     // If there is not tab at this location, claim the hit was in the title
     // bar to get a move action.
     if (v == tabstrip_)
@@ -1414,7 +1413,7 @@ LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
   } else {
     // The mouse is not above the tab strip. If there is no control under it,
     // let's move the window.
-    if (ComputeResizeMode(p.x, p.y, r.Width(), r.Height()) == RM_UNDEFINED) {
+    if (ComputeResizeMode(p.x(), p.y(), r.Width(), r.Height()) == RM_UNDEFINED) {
       ChromeViews::View* v = root_view_.GetViewForPoint(p);
       if (v == frame_view_ || v == off_the_record_image_ || 
           v == distributor_logo_) {

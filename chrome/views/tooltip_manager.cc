@@ -148,7 +148,8 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
         if (last_view_out_of_sync_) {
           // View under the mouse is out of sync, determine it now.
           RootView* root_view = view_container_->GetRootView();
-          last_tooltip_view_ = root_view->GetViewForPoint(CPoint(last_mouse_x_, last_mouse_y_));
+          last_tooltip_view_ = root_view->GetViewForPoint(
+              gfx::Point(last_mouse_x_, last_mouse_y_));
           last_view_out_of_sync_ = false;
         }
         // Tooltip control is asking for the tooltip to display.
@@ -319,7 +320,7 @@ void TooltipManager::TrimTooltipToFit(std::wstring* text,
 
 void TooltipManager::UpdateTooltip(int x, int y) {
   RootView* root_view = view_container_->GetRootView();
-  View* view = root_view->GetViewForPoint(CPoint(x, y));
+  View* view = root_view->GetViewForPoint(gfx::Point(x, y));
   if (view != last_tooltip_view_) {
     // NOTE: This *must* be sent regardless of the visibility of the tooltip.
     // It triggers Windows to ask for the tooltip again.
