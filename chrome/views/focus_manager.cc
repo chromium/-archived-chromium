@@ -6,7 +6,7 @@
 
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "chrome/browser/render_widget_host_hwnd.h"
+#include "chrome/browser/render_widget_host_view_win.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/views/accelerator.h"
 #include "chrome/views/focus_manager.h"

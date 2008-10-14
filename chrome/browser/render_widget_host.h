@@ -51,17 +51,17 @@ struct WebPluginGeometry;
 // - WebContents - the TabContents itself, and its associated HWND.
 // - RenderViewHost - representing the communication conduit with the child
 //   process.
-// - RenderWidgetHostHWND - the view of the web page content, message handler,
+// - RenderWidgetHostView - the view of the web page content, message handler,
 //   and plugin root.
 //
-// Normally, the WebContents contains a child RenderWidgetHostHWND that renders
+// Normally, the WebContents contains a child RenderWidgetHostView that renders
 // the contents of the loaded page. It has a WS_CLIPCHILDREN style so that it
 // does no painting of its own.
 //
-// The lifetime of the RenderWidgetHostHWND is tied to the render process. If
-// the render process dies, the RenderWidgetHostHWND goes away and all
+// The lifetime of the RenderWidgetHostView is tied to the render process. If
+// the render process dies, the RenderWidgetHostView goes away and all
 // references to it must become NULL. If the WebContents finds itself without a
-// RenderWidgetHostHWND, it paints Sad Tab instead.
+// RenderWidgetHostView, it paints Sad Tab instead.
 //
 // RenderViewHost (a RenderWidgetHost subclass) is the conduit used to
 // communicate with the RenderView and is owned by the WebContents. If the
@@ -81,7 +81,7 @@ struct WebPluginGeometry;
 // shut down the render process and die.
 //
 // When the render process is destroyed it destroys the View: the
-// RenderWidgetHostHWND, which destroys its HWND and deletes that object.
+// RenderWidgetHostView, which destroys its HWND and deletes that object.
 //
 // For select popups, the situation is a little different. The RenderWidgetHost
 // associated with the select popup owns the view and itself (is responsible
@@ -98,7 +98,7 @@ struct WebPluginGeometry;
 // It should be noted that the RenderViewHost, not the RenderWidgetHost,
 // handles IPC messages relating to the render process going away, since the
 // way a RenderViewHost (WebContents) handles the process dying is different to
-// the way a select popup does. As such the RenderWidgetHostHWND handles these
+// the way a select popup does. As such the RenderWidgetHostView handles these
 // messages for select popups. This placement is more out of convenience than
 // anything else. When the view is live, these messages are forwarded to it by
 // the RenderWidgetHost's IPC message map.
@@ -227,9 +227,9 @@ class RenderWidgetHost : public IPC::Channel::Listener {
       const std::vector<WebPluginGeometry>& plugin_window_moves);
 
   // TODO(beng): (Cleanup) remove this friendship once we expose a clean API to
-  // RenderWidgetHost Views. This exists only to give RenderWidgetHostHWND
+  // RenderWidgetHost Views. This exists only to give RenderWidgetHostView
   // access to Forward*Event.
-  friend class RenderWidgetHostHWND;
+  friend class RenderWidgetHostViewWin;
 
   void ForwardMouseEvent(const WebMouseEvent& mouse_event);
   void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);

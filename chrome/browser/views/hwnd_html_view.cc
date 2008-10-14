@@ -25,7 +25,7 @@ void HWNDHtmlView::Init(HWND parent_hwnd) {
     delegate_, MSG_ROUTING_NONE, NULL);
   render_view_host_ = rvh;
 
-  RenderWidgetHostHWND* view = new RenderWidgetHostViewWin(rvh);
+  RenderWidgetHostViewWin* view = new RenderWidgetHostViewWin(rvh);
   rvh->set_view(view);
 
   // Create the HWND. Note:
