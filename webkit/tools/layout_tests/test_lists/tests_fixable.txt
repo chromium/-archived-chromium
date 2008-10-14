@@ -910,7 +910,6 @@ V8 | KJS # LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/documenturi-assigned-junk-implies-relative-urls-do-not-resolve.html = FAIL
-V8 | KJS # LayoutTests/fast/dom/gc-acid3.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
 V8 | KJS # LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
 V8 | KJS # LayoutTests/fast/text/align-center-rtl-spill.html = FAIL

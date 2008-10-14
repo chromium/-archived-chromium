@@ -457,14 +457,23 @@ static void GCPrologue()
     // it is not in a document. However, if the load event has not
     // been fired (still onloading), it is treated as in the document.
     //
+    // Otherwise, the node is put in an object group identified by the root
+    // elment of the tree to which it belongs.
+    void* group_id;
     if (node->inDocument() ||
         (node->hasTagName(HTMLNames::imgTag) &&
          !static_cast<HTMLImageElement*>(node)->haveFiredLoadEvent()) ) {
-      Document* doc = node->document();
-      v8::Persistent<v8::Object> wrapper = dom_node_map().get(node);
-      if (!wrapper.IsEmpty())
-        v8::V8::AddObjectToGroup(doc, wrapper);
+      group_id = node->document();
+    } else {
+      Node* root = node;
+      while (root->parent()) {
+        root = root->parent();
+      }
+      group_id = root;
     }
+    v8::Persistent<v8::Object> wrapper = dom_node_map().get(node);
+    if (!wrapper.IsEmpty())
+      v8::V8::AddObjectToGroup(group_id, wrapper);
   }
 }
 
