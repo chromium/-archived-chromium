@@ -63,7 +63,8 @@ WebCore::String StdWStringToString(const std::wstring& str) {
 }
 
 WebCore::String StdStringToString(const std::string& str) {
-  return WebCore::String(str.data(), static_cast<unsigned>(str.length()));
+  return WebCore::String::fromUTF8(str.data(),
+                                   static_cast<unsigned>(str.length()));
 }
 
 // URL conversions -------------------------------------------------------------

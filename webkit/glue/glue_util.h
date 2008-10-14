@@ -11,20 +11,30 @@
 #include "googleurl/src/gurl.h"
 
 namespace WebCore {
-  class CString;
-  class KURL;
-  class String;
+class CString;
+class KURL;
+class String;
 }
 
 namespace webkit_glue {
 
+// WebCore::CString <-> std::string. All characters are 8-bit and are preserved
+// unchanged.
 std::string CStringToStdString(const WebCore::CString& str);
 WebCore::CString StdStringToCString(const std::string& str);
-std::wstring StringToStdWString(const WebCore::String& str);
-string16 StringToString16(const WebCore::String& str);
-std::string StringToStdString(const WebCore::String& str);
 
+// WebCore::String <-> std::wstring. We assume that the WebCore::String is in
+// UTF-16, and will either copy to a UTF-16 std::wstring (on Windows) or convert
+// to a UTF-32 one on Linux and Mac.
+std::wstring StringToStdWString(const WebCore::String& str);
 WebCore::String StdWStringToString(const std::wstring& str);
+
+// WebCore::String -> string16. This is a direct copy of UTF-16 characters.
+string16 StringToString16(const WebCore::String& str);
+
+// WebCore::String <-> std::string. We assume the WebCore::String is UTF-16 and
+// the std::string is UTF-8, and convert as necessary.
+std::string StringToStdString(const WebCore::String& str);
 WebCore::String StdStringToString(const std::string& str);
 
 GURL KURLToGURL(const WebCore::KURL& url);
