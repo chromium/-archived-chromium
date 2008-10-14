@@ -326,8 +326,8 @@ void RenderViewHost::StopFinding(bool clear_selection) {
   Send(new ViewMsg_StopFinding(routing_id_, clear_selection));
 }
 
-void RenderViewHost::AlterTextSize(text_zoom::TextSize size) {
-  Send(new ViewMsg_AlterTextSize(routing_id_, size));
+void RenderViewHost::Zoom(PageZoom::Function function) {
+  Send(new ViewMsg_Zoom(routing_id_, function));
 }
 
 void RenderViewHost::SetPageEncoding(const std::wstring& encoding_name) {

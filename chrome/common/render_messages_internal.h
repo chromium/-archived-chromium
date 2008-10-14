@@ -229,9 +229,9 @@ IPC_BEGIN_MESSAGES(View, 1)
   IPC_MESSAGE_ROUTED1(ViewMsg_DebugCommand,
                       std::wstring  /* cmd */)
 
-  // Change the text size in the renderer.
-  IPC_MESSAGE_ROUTED1(ViewMsg_AlterTextSize,
-                      int /* enum text_zoom::TextSize from text_zoom.h */)
+  // Change the zoom level in the renderer.
+  IPC_MESSAGE_ROUTED1(ViewMsg_Zoom,
+                      int /* One of PageZoom::Function */)
 
   // Change encoding of page in the renderer.
   IPC_MESSAGE_ROUTED1(ViewMsg_SetPageEncoding,

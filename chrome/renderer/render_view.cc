@@ -24,8 +24,8 @@
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/page_zoom.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/common/text_zoom.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/renderer/about_handler.h"
@@ -289,7 +289,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_SelectAll, OnSelectAll)
     IPC_MESSAGE_HANDLER(ViewMsg_CopyImageAt, OnCopyImageAt)
     IPC_MESSAGE_HANDLER(ViewMsg_Find, OnFind)
-    IPC_MESSAGE_HANDLER(ViewMsg_AlterTextSize, OnAlterTextSize)
+    IPC_MESSAGE_HANDLER(ViewMsg_Zoom, OnZoom)
     IPC_MESSAGE_HANDLER(ViewMsg_SetPageEncoding, OnSetPageEncoding)
     IPC_MESSAGE_HANDLER(ViewMsg_InspectElement, OnInspectElement)
     IPC_MESSAGE_HANDLER(ViewMsg_ShowJavaScriptConsole, OnShowJavaScriptConsole)
@@ -2159,16 +2159,17 @@ void RenderView::DnsPrefetch(const std::vector<std::string>& host_names) {
   Send(new ViewHostMsg_DnsPrefetch(host_names));
 }
 
-void RenderView::OnAlterTextSize(int size) {
-  switch (size) {
-    case text_zoom::TEXT_SMALLER:
-      webview()->MakeTextSmaller();
+void RenderView::OnZoom(int function) {
+  static const bool kZoomIsTextOnly = false;
+  switch (function) {
+    case PageZoom::SMALLER:
+      webview()->ZoomOut(kZoomIsTextOnly);
       break;
-    case text_zoom::TEXT_STANDARD:
-      webview()->MakeTextStandardSize();
+    case PageZoom::STANDARD:
+      webview()->ResetZoom();
       break;
-    case text_zoom::TEXT_LARGER:
-      webview()->MakeTextLarger();
+    case PageZoom::LARGER:
+      webview()->ZoomIn(kZoomIsTextOnly);
       break;
     default:
       NOTREACHED();

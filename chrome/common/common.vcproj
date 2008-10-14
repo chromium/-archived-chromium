@@ -542,6 +542,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\page_zoom.h"
+			>
+		</File>
+		<File
 			RelativePath="..\tools\build\win\precompiled.cc"
 			>
 			<FileConfiguration
@@ -655,10 +659,6 @@
 		</File>
 		<File
 			RelativePath=".\task_queue.h"
-			>
-		</File>
-		<File
-			RelativePath=".\text_zoom.h"
 			>
 		</File>
 		<File

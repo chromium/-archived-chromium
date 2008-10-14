@@ -149,10 +149,18 @@ class WebView : public WebWidget {
   // Return the canonical encoding name of current main webframe in webview.
   virtual std::wstring GetMainFrameEncodingName() = 0;
 
-  // Change the text zoom level. Text size is made 20% larger or smaller.
-  virtual void MakeTextLarger() = 0;
-  virtual void MakeTextSmaller() = 0;
-  virtual void MakeTextStandardSize() = 0;
+  // Change the text zoom level. It will make the zoom level 20% larger or
+  // smaller. If text_only is set, the text size will be changed. When unset,
+  // the entire page's zoom factor will be changed.
+  //
+  // You can only have either text zoom or full page zoom at one time. Changing
+  // the mode will change things in weird ways. Generally the app should only
+  // support text zoom or full page zoom, and not both.
+  //
+  // ResetZoom will reset both full page and text zoom.
+  virtual void ZoomIn(bool text_only) = 0;
+  virtual void ZoomOut(bool text_only) = 0;
+  virtual void ResetZoom() = 0;
 
   // Copy to the clipboard the image located at a particular point in the
   // WebView (if there is such an image)

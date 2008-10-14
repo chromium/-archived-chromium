@@ -11,6 +11,7 @@
 #include "base/scoped_handle.h"
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/browser/render_widget_host.h"
+#include "chrome/common/page_zoom.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -37,10 +38,6 @@ class Point;
 
 namespace net {
 enum LoadState;
-}
-
-namespace text_zoom {
-enum TextSize;
 }
 
 namespace webkit_glue {
@@ -188,8 +185,8 @@ class RenderViewHost : public RenderWidgetHost {
   // clear the selection on the focused frame.
   void StopFinding(bool clear_selection);
 
-  // Change the text size of the page.
-  void AlterTextSize(text_zoom::TextSize size);
+  // Change the zoom level of a page.
+  void Zoom(PageZoom::Function function);
 
   // Change the encoding of the page.
   void SetPageEncoding(const std::wstring& encoding_name);

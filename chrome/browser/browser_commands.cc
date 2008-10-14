@@ -512,8 +512,8 @@ void Browser::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"ZoomPlus", profile_);
       TabContents* current_tab = GetSelectedTabContents();
       if (current_tab->AsWebContents()) {
-        current_tab->AsWebContents()->render_view_host()->AlterTextSize(
-          text_zoom::TEXT_LARGER);
+        current_tab->AsWebContents()->render_view_host()->Zoom(
+            PageZoom::LARGER);
       }
       break;
     }
@@ -522,8 +522,8 @@ void Browser::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"ZoomMinus", profile_);
       TabContents* current_tab = GetSelectedTabContents();
       if (current_tab->AsWebContents()) {
-        current_tab->AsWebContents()->render_view_host()->AlterTextSize(
-          text_zoom::TEXT_SMALLER);
+        current_tab->AsWebContents()->render_view_host()->Zoom(
+            PageZoom::SMALLER);
       }
       break;
     }
@@ -532,8 +532,8 @@ void Browser::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"ZoomNormal", profile_);
       TabContents* current_tab = GetSelectedTabContents();
       if (current_tab->AsWebContents()) {
-        current_tab->AsWebContents()->render_view_host()->AlterTextSize(
-          text_zoom::TEXT_STANDARD);
+        current_tab->AsWebContents()->render_view_host()->Zoom(
+            PageZoom::STANDARD);
       }
       break;
     }

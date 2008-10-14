@@ -14,7 +14,6 @@
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/tab_contents_type.h"
 #include "chrome/common/navigation_types.h"
-#include "chrome/common/text_zoom.h"
 
 namespace gfx {
 class Rect;

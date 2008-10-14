@@ -140,7 +140,7 @@ WebViewImpl::WebViewImpl()
 #ifndef NDEBUG
       new_navigation_loader_(NULL),
 #endif
-      text_zoom_level_(0),
+      zoom_level_(0),
       context_menu_allowed_(false),
       doing_drag_and_drop_(false),
       suppress_next_keypress_event_(false),
@@ -1158,33 +1158,37 @@ std::wstring WebViewImpl::GetMainFrameEncodingName() {
   return webkit_glue::StringToStdWString(encoding_name);
 }
 
-void WebViewImpl::MakeTextLarger() {
+void WebViewImpl::ZoomIn(bool text_only) {
   Frame* frame = main_frame()->frame();
   double multiplier = std::min(std::pow(kTextSizeMultiplierRatio,
-                                        text_zoom_level_ + 1),
+                                        zoom_level_ + 1),
                                kMaxTextSizeMultiplier);
   float zoom_factor = static_cast<float>(multiplier);
   if (zoom_factor != frame->zoomFactor()) {
-    ++text_zoom_level_;
-    frame->setZoomFactor(zoom_factor, false);
+    ++zoom_level_;
+    frame->setZoomFactor(zoom_factor, text_only);
   }
 }
 
-void WebViewImpl::MakeTextSmaller() {
+void WebViewImpl::ZoomOut(bool text_only) {
   Frame* frame = main_frame()->frame();
   double multiplier = std::max(std::pow(kTextSizeMultiplierRatio,
-                                        text_zoom_level_ - 1),
+                                        zoom_level_ - 1),
                                kMinTextSizeMultiplier);
   float zoom_factor = static_cast<float>(multiplier);
   if (zoom_factor != frame->zoomFactor()) {
-    --text_zoom_level_;
-    frame->setZoomFactor(zoom_factor, false);
+    --zoom_level_;
+    frame->setZoomFactor(zoom_factor, text_only);
   }
 }
 
-void WebViewImpl::MakeTextStandardSize() {
-  text_zoom_level_ = 0;
-  main_frame()->frame()->setZoomFactor(1.0f, false);
+void WebViewImpl::ResetZoom() {
+  // We don't change the zoom mode (text only vs. full page) here. We just want
+  // to reset whatever is already set.
+  zoom_level_ = 0;
+  main_frame()->frame()->setZoomFactor(
+      1.0f,
+      main_frame()->frame()->isZoomFactorTextOnly());
 }
 
 void WebViewImpl::CopyImageAt(int x, int y) {

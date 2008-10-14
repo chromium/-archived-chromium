@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_RENDERER_RENDER_VIEW_H__
-#define CHROME_RENDERER_RENDER_VIEW_H__
+#ifndef CHROME_RENDERER_RENDER_VIEW_H_
+#define CHROME_RENDERER_RENDER_VIEW_H_
 
 #include <string>
 #include <vector>
@@ -14,6 +14,7 @@
 #include "base/gfx/rect.h"
 #include "base/timer.h"
 #include "base/values.h"
+#include "chrome/common/page_zoom.h"
 #include "chrome/common/resource_dispatcher.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
@@ -372,7 +373,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   void OnShowJavaScriptConsole();
   void OnCancelDownload(int32 download_id);
   void OnFind(const FindInPageRequest& request);
-  void OnAlterTextSize(int size);
+  void OnZoom(int function);
   void OnSetPageEncoding(const std::wstring& encoding_name);
   void OnGetAllSavableResourceLinksForCurrentPage(const GURL& page_url);
   void OnGetSerializedHtmlDataForCurrentPageWithLocalLinks(
@@ -620,7 +621,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // maintains the cache and other features of the accessibility tree.
   scoped_ptr<GlueAccessibility> glue_accessibility_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderView);
+  DISALLOW_COPY_AND_ASSIGN(RenderView);
 };
 
-#endif  // CHROME_RENDERER_RENDER_VIEW_H__
+#endif  // CHROME_RENDERER_RENDER_VIEW_H_

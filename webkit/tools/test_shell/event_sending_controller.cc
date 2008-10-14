@@ -496,13 +496,13 @@ int EventSendingController::GetButtonNumberFromSingleArg(
 // WebKit/WebView/WebView.mm)
  void EventSendingController::textZoomIn(
     const CppArgumentList& args, CppVariant* result) {
-  webview()->MakeTextLarger();
+  webview()->ZoomIn(true);
   result->SetNull();
 }
 
  void EventSendingController::textZoomOut(
     const CppArgumentList& args, CppVariant* result) {
-  webview()->MakeTextSmaller();
+  webview()->ZoomOut(true);
   result->SetNull();
 }
 

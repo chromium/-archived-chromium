@@ -23,13 +23,13 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 namespace WebCore {
-  class Frame;
-  class HistoryItem;
-  class KeyboardEvent;
-  class Page;
-  class PlatformKeyboardEvent;
-  class Range;
-  class Widget;
+class Frame;
+class HistoryItem;
+class KeyboardEvent;
+class Page;
+class PlatformKeyboardEvent;
+class Range;
+class Widget;
 }
 
 class ImageResourceFetcher;
@@ -81,9 +81,9 @@ class WebViewImpl : public WebView,
   virtual const WebPreferences& GetPreferences();
   virtual void SetPageEncoding(const std::wstring& encoding_name);
   virtual std::wstring GetMainFrameEncodingName();
-  virtual void MakeTextLarger();
-  virtual void MakeTextSmaller();
-  virtual void MakeTextStandardSize();
+  virtual void ZoomIn(bool text_only);
+  virtual void ZoomOut(bool text_only);
+  virtual void ResetZoom();
   virtual void CopyImageAt(int x, int y);
   virtual void InspectElement(int x, int y);
   virtual void ShowJavaScriptConsole();
@@ -275,8 +275,8 @@ class WebViewImpl : public WebView,
   gfx::Point last_mouse_down_point_;
 
   // Keeps track of the current text zoom level.  0 means no zoom, positive
-  // values mean larger text, negative numbers mean smaller text.
-  int text_zoom_level_;
+  // values mean larger text, negative numbers mean smaller.
+  int zoom_level_;
 
   bool context_menu_allowed_;
 
