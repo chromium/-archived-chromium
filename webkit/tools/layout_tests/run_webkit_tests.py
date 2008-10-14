@@ -498,11 +498,19 @@ def main(options, args):
     options.results_directory = path_utils.GetAbsolutePath(
         os.path.join(basedir, options.results_directory))
 
+  try:
+    test_shell_binary_path = path_utils.TestShellBinaryPath(options.target)
+  except:
+    print "\nERROR: test_shell is not found. Be sure that you have built it and"
+    print "that you are using the correct build. This script will run the"
+    print "release one by default. Use --debug to use the debug build.\n"
+    sys.exit(1)
+
   logging.info("Using expected results from %s" %
                 path_utils.CustomExpectedResultsDir(options.build_type))
   logging.info("Placing test results in %s" % options.results_directory)
-  logging.info("Using %s build at %s" % (options.target,
-      path_utils.TestShellBinaryPath(options.target)))
+  logging.info("Using %s build at %s" %
+               (options.target, test_shell_binary_path))
   if options.pixel_tests:
     logging.info("Running pixel tests")
 
@@ -515,7 +523,7 @@ def main(options, args):
     sys.exit(1)
 
   # Delete the disk cache if any to ensure a clean test run.
-  cachedir = os.path.split(path_utils.TestShellBinaryPath(options.target))[0]
+  cachedir = os.path.split(test_shell_binary_path)[0]
   cachedir = os.path.join(cachedir, "cache")
   if os.path.exists(cachedir):
     shutil.rmtree(cachedir)
