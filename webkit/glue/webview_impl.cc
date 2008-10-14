@@ -31,9 +31,12 @@
 */
 
 #include "config.h"
+#include "build/build_config.h"
 
 #pragma warning(push, 0)
+#if defined(OS_WIN)
 #include "Cursor.h"
+#endif
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "DragController.h"
@@ -53,7 +56,6 @@
 #include "KeyboardEvent.h"
 #include "MIMETypeRegistry.h"
 #include "Page.h"
-#include "Pasteboard.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformWheelEvent.h"
@@ -134,10 +136,10 @@ WebView* WebView::Create(WebViewDelegate* delegate,
 WebViewImpl::WebViewImpl()
     : delegate_(NULL),
       pending_history_item_(NULL),
+      observed_new_navigation_(false),
 #ifndef NDEBUG
       new_navigation_loader_(NULL),
 #endif
-      observed_new_navigation_(false),
       text_zoom_level_(0),
       context_menu_allowed_(false),
       doing_drag_and_drop_(false),
@@ -248,7 +250,9 @@ void WebViewImpl::MouseContextMenu(const WebMouseEvent& event) {
   else
       target_frame = page_->focusController()->focusedOrMainFrame();
 
+#if defined(OS_WIN)
   target_frame->view()->setCursor(pointerCursor());
+#endif
 
   context_menu_allowed_ = true;
   target_frame->eventHandler()->sendContextMenuEvent(pme);
@@ -1262,7 +1266,7 @@ bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
   *drop_data_copy = drop_data;
   current_drop_data_.reset(drop_data_copy);
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
       IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
       kDropTargetOperation);
@@ -1278,7 +1282,7 @@ bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
 bool WebViewImpl::DragTargetDragOver(
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(current_drop_data_.get());
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
       IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
       kDropTargetOperation);
@@ -1293,7 +1297,7 @@ bool WebViewImpl::DragTargetDragOver(
 
 void WebViewImpl::DragTargetDragLeave() {
   DCHECK(current_drop_data_.get());
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
       IntPoint(), IntPoint(), DragOperationNone);
 #elif defined(OS_MACOSX)
@@ -1307,7 +1311,7 @@ void WebViewImpl::DragTargetDragLeave() {
 void WebViewImpl::DragTargetDrop(
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(current_drop_data_.get());
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
       IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
       kDropTargetOperation);
