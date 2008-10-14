@@ -166,6 +166,9 @@ bool WebWidgetImpl::HandleInputEvent(const WebInputEvent* input_event) {
     case WebInputEvent::KEY_DOWN:
     case WebInputEvent::KEY_UP:
       return KeyEvent(*static_cast<const WebKeyboardEvent*>(input_event));
+
+    default:
+      break;
   }
   return false;
 }

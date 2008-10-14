@@ -29,6 +29,7 @@ input_files = [
   'cpp_variant.cc',
   'debugger.cc',
   'dom_operations.cc',
+  'dragclient_impl.cc',
   'editor_client_impl.cc',
   'entity_map.cc',
   'event_conversion.cc',
@@ -39,6 +40,7 @@ input_files = [
   'image_resource_fetcher.cc',
   'inspector_client_impl.cc',
   'localized_strings.cc',
+  'multipart_response_delegate.cc',
   'npruntime_util.cc',
   'password_autocomplete_listener.cc',
   'password_form_dom_manager.cc',
@@ -50,9 +52,12 @@ input_files = [
   'webdatasource_impl.cc',
   'webdocumentloader_impl.cc',
   'weberror_impl.cc',
+  'webframeloaderclient_impl.cc',
+  'webhistoryitem_impl.cc',
   'webkit_glue.cc',
   'webtextinput_impl.cc',
   'weburlrequest_impl.cc',
+  'webwidget_impl.cc',
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -62,9 +67,7 @@ if env['PLATFORM'] == 'win32':
     '$PENDING_DIR/AccessibleBase.cpp',
     '$PENDING_DIR/AccessibleDocument.cpp',
     'dom_serializer.cc',
-    'dragclient_impl.cc',
     'glue_accessibility.cc',
-    'multipart_response_delegate.cc',
     'plugins/mozilla_extensions.cc',
     'plugins/plugin_host.cc',
     'plugins/plugin_instance.cc',
@@ -77,12 +80,9 @@ if env['PLATFORM'] == 'win32':
     'resource_handle_win.cc',
     'webdropdata.cc',
     'webframe_impl.cc',
-    'webframeloaderclient_impl.cc',
-    'webhistoryitem_impl.cc',
     'webinputevent_win.cc',
     'webplugin_impl.cc',
     'webview_impl.cc',
-    'webwidget_impl.cc',
   ])
 
 env.ChromeStaticLibrary('glue', input_files)
