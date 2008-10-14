@@ -8,6 +8,7 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/views/info_bar_alternate_nav_url_view.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 
 AlternateNavURLFetcher::AlternateNavURLFetcher(
     const std::wstring& alternate_nav_url)
@@ -99,8 +100,8 @@ void AlternateNavURLFetcher::ShowInfobarIfPossible() {
   WebContents* web_contents = tab_contents->AsWebContents();
   // The infobar will auto-expire this view on the next user-initiated
   // navigation, so we don't need to keep track of it.
-  web_contents->GetInfoBarView()->AddChildView(new InfoBarAlternateNavURLView(
-      alternate_nav_url_));
+  web_contents->view()->GetInfoBarView()->AddChildView(
+      new InfoBarAlternateNavURLView(alternate_nav_url_));
 
   // Now we're no longer referencing the navigation controller or the url fetch,
   // so our job is done.

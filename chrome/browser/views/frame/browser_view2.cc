@@ -20,6 +20,8 @@
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/views/toolbar_view.h"
+#include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
@@ -999,8 +1001,9 @@ bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
 
 bool BrowserView2::MaybeShowInfoBar(TabContents* contents) {
   ChromeViews::View* new_info_bar = NULL;
-  if (contents && contents->IsInfoBarVisible())
-    new_info_bar = contents->GetInfoBarView();
+  if (contents && contents->AsWebContents() &&
+      contents->AsWebContents()->view()->IsInfoBarVisible())
+    new_info_bar = contents->AsWebContents()->view()->GetInfoBarView();
   return UpdateChildViewAndLayout(new_info_bar, &active_info_bar_);
 }
 

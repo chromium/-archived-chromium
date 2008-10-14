@@ -7,9 +7,13 @@
 #include <windows.h>
 
 #include "chrome/browser/find_in_page_controller.h"
+#include "chrome/browser/render_view_context_menu.h"
+#include "chrome/browser/render_view_context_menu_controller.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/render_widget_host_hwnd.h"
 #include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/browser/views/info_bar_message_view.h"
+#include "chrome/browser/views/info_bar_view.h"
 #include "chrome/browser/views/sad_tab_view.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/web_drag_source.h"
@@ -33,6 +37,7 @@ BOOL CALLBACK EnumPluginWindowsCallback(HWND window, LPARAM param) {
 
 WebContentsViewWin::WebContentsViewWin(WebContents* web_contents)
     : web_contents_(web_contents),
+      error_info_bar_message_(NULL),
       info_bar_visible_(false) {
 }
 
@@ -65,9 +70,9 @@ HWND WebContentsViewWin::GetContainerHWND() const {
 }
 
 HWND WebContentsViewWin::GetContentHWND() const {
-  if (!web_contents_->view())
+  if (!web_contents_->render_widget_host_view())
     return NULL;
-  return web_contents_->view()->GetPluginHWND();
+  return web_contents_->render_widget_host_view()->GetPluginHWND();
 }
 
 void WebContentsViewWin::GetContainerBounds(gfx::Rect *out) const {
@@ -115,6 +120,16 @@ void WebContentsViewWin::DetachPluginWindows() {
   EnumChildWindows(GetHWND(), EnumPluginWindowsCallback, NULL);
 }
 
+void WebContentsViewWin::DisplayErrorInInfoBar(const std::wstring& text) {
+  InfoBarView* view = GetInfoBarView();
+  if (-1 == view->GetChildIndex(error_info_bar_message_)) {
+    error_info_bar_message_ = new InfoBarMessageView(text);
+    view->AddChildView(error_info_bar_message_);
+  } else {
+    error_info_bar_message_->SetMessageText(text);
+  }
+}
+
 void WebContentsViewWin::OnDestroy() {
   if (drop_target_.get()) {
     RevokeDragDrop(GetHWND());
@@ -139,8 +154,10 @@ bool WebContentsViewWin::IsInfoBarVisible() const {
 
 InfoBarView* WebContentsViewWin::GetInfoBarView() {
   if (info_bar_view_.get() == NULL) {
+    // TODO(brettw) currently the InfoBar thinks its owned by the WebContents,
+    // but it should instead think it's owned by us.
     info_bar_view_.reset(new InfoBarView(web_contents_));
-    // The WebContents owns the info-bar.
+    // We own the info-bar.
     info_bar_view_->SetParentOwned(false);
   }
   return info_bar_view_.get();
@@ -150,7 +167,58 @@ void WebContentsViewWin::UpdateDragCursor(bool is_drop_target) {
   drop_target_->set_is_drop_target(is_drop_target);
 }
 
-void WebContentsViewWin::OnHScroll(int scroll_type, short position, HWND scrollbar) {
+void WebContentsViewWin::ShowContextMenu(
+    const ViewHostMsg_ContextMenu_Params& params) {
+  RenderViewContextMenuController menu_controller(web_contents_, params);
+  RenderViewContextMenu menu(&menu_controller,
+                             GetHWND(),
+                             params.type,
+                             params.misspelled_word,
+                             params.dictionary_suggestions,
+                             web_contents_->profile());
+
+  POINT screen_pt = { params.x, params.y };
+  MapWindowPoints(GetHWND(), HWND_DESKTOP, &screen_pt, 1);
+
+  // Enable recursive tasks on the message loop so we can get updates while
+  // the context menu is being displayed.
+  bool old_state = MessageLoop::current()->NestableTasksAllowed();
+  MessageLoop::current()->SetNestableTasksAllowed(true);
+  menu.RunMenuAt(screen_pt.x, screen_pt.y);
+  MessageLoop::current()->SetNestableTasksAllowed(old_state);
+}
+
+void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
+  // The renderer returned a keyboard event it did not process. This may be
+  // a keyboard shortcut that we have to process.
+  if (event.type == WebInputEvent::KEY_DOWN) {
+    ChromeViews::FocusManager* focus_manager =
+        ChromeViews::FocusManager::GetFocusManager(GetHWND());
+    // We may not have a focus_manager at this point (if the tab has been
+    // switched by the time this message returned).
+    if (focus_manager) {
+      ChromeViews::Accelerator accelerator(event.key_code,
+          (event.modifiers & WebInputEvent::SHIFT_KEY) ==
+              WebInputEvent::SHIFT_KEY,
+          (event.modifiers & WebInputEvent::CTRL_KEY) ==
+              WebInputEvent::CTRL_KEY,
+          (event.modifiers & WebInputEvent::ALT_KEY) ==
+              WebInputEvent::ALT_KEY);
+      if (focus_manager->ProcessAccelerator(accelerator, false))
+        return;
+    }
+  }
+
+  // Any unhandled keyboard/character messages should be defproced.
+  // This allows stuff like Alt+F4, etc to work correctly.
+  DefWindowProc(event.actual_message.hwnd,
+                event.actual_message.message,
+                event.actual_message.wParam,
+                event.actual_message.lParam);
+}
+
+void WebContentsViewWin::OnHScroll(int scroll_type, short position,
+                                   HWND scrollbar) {
   ScrollCommon(WM_HSCROLL, scroll_type, position, scrollbar);
 }
 
@@ -162,7 +230,8 @@ void WebContentsViewWin::OnMouseLeave() {
   SetMsgHandled(FALSE);
 }
 
-LRESULT WebContentsViewWin::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
+LRESULT WebContentsViewWin::OnMouseRange(UINT msg,
+                                         WPARAM w_param, LPARAM l_param) {
   switch (msg) {
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
@@ -174,8 +243,10 @@ LRESULT WebContentsViewWin::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_para
     case WM_MOUSEMOVE:
       // Let our delegate know that the mouse moved (useful for resetting status
       // bubble state).
-      if (web_contents_->delegate())
-        web_contents_->delegate()->ContentsMouseEvent(web_contents_, WM_MOUSEMOVE);
+      if (web_contents_->delegate()) {
+        web_contents_->delegate()->ContentsMouseEvent(web_contents_,
+                                                      WM_MOUSEMOVE);
+      }
       break;
     default:
       break;
@@ -234,14 +305,15 @@ void WebContentsViewWin::OnSetFocus(HWND window) {
   //                background from properly taking focus.
   // We NULL-check the render_view_host_ here because Windows can send us
   // messages during the destruction process after it has been destroyed.
-  if (web_contents_->view()) {
-    HWND inner_hwnd = web_contents_->view()->GetPluginHWND();
+  if (web_contents_->render_widget_host_view()) {
+    HWND inner_hwnd = web_contents_->render_widget_host_view()->GetPluginHWND();
     if (::IsWindow(inner_hwnd))
       ::SetFocus(inner_hwnd);
   }
 }
 
-void WebContentsViewWin::OnVScroll(int scroll_type, short position, HWND scrollbar) {
+void WebContentsViewWin::OnVScroll(int scroll_type, short position,
+                                   HWND scrollbar) {
   ScrollCommon(WM_VSCROLL, scroll_type, position, scrollbar);
 }
 
@@ -264,8 +336,10 @@ void WebContentsViewWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
 
     // If we have a FindInPage dialog, notify it that the window changed.
     if (web_contents_->find_in_page_controller_.get() &&
-        web_contents_->find_in_page_controller_->IsVisible())
-      web_contents_->find_in_page_controller_->MoveWindowIfNecessary(gfx::Rect());
+        web_contents_->find_in_page_controller_->IsVisible()) {
+      web_contents_->find_in_page_controller_->MoveWindowIfNecessary(
+          gfx::Rect());
+    }
   }
 }
 
@@ -299,8 +373,8 @@ void WebContentsViewWin::OnNCPaint(HRGN rgn) {
   // here since the view will draw everything correctly.
 }
 
-void WebContentsViewWin::ScrollCommon(UINT message, int scroll_type, short position,
-                               HWND scrollbar) {
+void WebContentsViewWin::ScrollCommon(UINT message, int scroll_type,
+                                      short position, HWND scrollbar) {
   // This window can receive scroll events as a result of the ThinkPad's
   // Trackpad scroll wheel emulation.
   if (!ScrollZoom(scroll_type)) {

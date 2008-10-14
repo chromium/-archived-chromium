@@ -23,6 +23,8 @@
 #include "chrome/browser/views/old_frames/point_buffer.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
+#include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -2494,8 +2496,9 @@ void XPFrame::ShelfVisibilityChangedImpl(TabContents* current_tab) {
   changed |= UpdateChildViewAndLayout(new_shelf, &shelf_view_);
 
   ChromeViews::View* new_info_bar = NULL;
-  if (current_tab && current_tab->IsInfoBarVisible())
-    new_info_bar = current_tab->GetInfoBarView();
+  WebContents* web_contents = current_tab ? current_tab->AsWebContents() : NULL;
+  if (web_contents && web_contents->view()->IsInfoBarVisible())
+    new_info_bar = web_contents->view()->GetInfoBarView();
   changed |= UpdateChildViewAndLayout(new_info_bar, &info_bar_view_);
 
   ChromeViews::View* new_bookmark_bar_view = NULL;

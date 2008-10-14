@@ -59,21 +59,18 @@ class WebContents : public TabContents,
   // Returns the SavePackage which manages the page saving job. May be NULL.
   SavePackage* save_package() const { return save_package_.get(); }
 
-  // Return the currently active RenderProcessHost, RenderViewHost, and
-  // SiteInstance, respectively.  Each of these may change over time.  Callers
-  // should be aware that the SiteInstance could be deleted if its ref count
-  // drops to zero (i.e., if all RenderViewHosts and NavigationEntries that
-  // use it are deleted).
+  // Return the currently active RenderProcessHost and RenderViewHost. Each of
+  // these may change over time.
   RenderProcessHost* process() const {
     return render_manager_.current_host()->process();
   }
   RenderViewHost* render_view_host() const {
     return render_manager_.current_host();
   }
-  // TODO(brettw) rename this to render_widget_host_view soon, and make this go
-  // away entirely in the long run.
-  RenderWidgetHostView* view() const {
-    return render_manager_.current_view();
+
+  // The WebContentsView will never change and is guaranteed non-NULL.
+  WebContentsView* view() const {
+    return view_.get();
   }
 
   bool is_starred() const { return is_starred_; }
@@ -103,14 +100,12 @@ class WebContents : public TabContents,
   virtual void SizeContents(const gfx::Size& size);
   virtual void SetDownloadShelfVisible(bool visible);
 
-  // Retarded pass-throughs to the view. See also below under misc state.
+  // Retarded pass-throughs to the view.
   // TODO(brettw) fix this, tab contents shouldn't have these methods, probably
   // it should be killed altogether.
   virtual void CreateView(HWND parent_hwnd, const gfx::Rect& initial_bounds);
   virtual HWND GetContainerHWND() const;
   virtual HWND GetContentHWND();
-  virtual bool IsInfoBarVisible();
-  virtual InfoBarView* GetInfoBarView();
   virtual void GetContainerBounds(gfx::Rect *out) const;
 
   // Find in page --------------------------------------------------------------
@@ -171,13 +166,9 @@ class WebContents : public TabContents,
 
   // Misc state & callbacks ----------------------------------------------------
 
-  // More retarded pass-throughs (see also above under TabContents overrides).
-  void SetInfoBarVisible(bool visible);
-
   // Set whether the contents should block javascript message boxes or not.
   // Default is not to block any message boxes.
-  void set_suppress_javascript_messages(
-      bool suppress_javascript_messages) {
+  void set_suppress_javascript_messages(bool suppress_javascript_messages) {
     suppress_javascript_messages_ = suppress_javascript_messages;
   }
 
@@ -219,6 +210,10 @@ class WebContents : public TabContents,
  protected:
   // Should be deleted via CloseContents.
   virtual ~WebContents();
+
+  RenderWidgetHostView* render_widget_host_view() const {
+    return render_manager_.current_view();
+  }
 
   // TabContents (private overrides) -------------------------------------------
 
@@ -309,7 +304,6 @@ class WebContents : public TabContents,
   virtual void InspectElementReply(int num_resources);
   virtual void DidGetPrintedPagesCount(int cookie, int number_pages);
   virtual void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
-  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
   virtual GURL GetAlternateErrorPageURL() const;
   virtual WebPreferences GetWebkitPrefs();
   virtual void OnMissingPluginStatus(int status);
@@ -333,6 +327,9 @@ class WebContents : public TabContents,
   virtual void OnDidGetApplicationInfo(
       int32 page_id,
       const webkit_glue::WebApplicationInfo& info);
+
+  // Stupid render view host view pass-throughs.
+  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
 
   // SelectFileDialog::Listener ------------------------------------------------
 
@@ -541,11 +538,6 @@ class WebContents : public TabContents,
 
   // Dialog box used for choosing files to upload from file form fields.
   scoped_refptr<SelectFileDialog> select_file_dialog_;
-
-  // Info bar for crashed plugin message.
-  // IMPORTANT: This instance is owned by the InfoBarView. It is valid
-  // only if InfoBarView::GetChildIndex for this view is valid.
-  InfoBarMessageView* crashed_plugin_info_bar_;
 
   // The time that the last javascript message was dismissed.
   TimeTicks last_javascript_message_dismissal_;

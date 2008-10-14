@@ -19,9 +19,10 @@
 #include "chrome/browser/ssl_policy.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_util.h"
-#include "chrome/browser/web_contents.h"
 #include "chrome/browser/views/info_bar_view.h"
 #include "chrome/browser/views/standard_layout.h"
+#include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -148,27 +149,30 @@ void SSLManager::ShowMessageWithLink(const std::wstring& msg,
   if (entry->ssl().security_style() <= SECURITY_STYLE_UNAUTHENTICATED)
     return;
 
-  InfoBarView* info_bar_view =
-      controller_->active_contents()->GetInfoBarView();
-  DCHECK(info_bar_view);
+  // TODO(brettw) have a more general way to deal with info bars.
+  if (controller_->active_contents()->AsWebContents()) {
+    InfoBarView* info_bar_view = controller_->active_contents()->
+        AsWebContents()->view()->GetInfoBarView();
+    DCHECK(info_bar_view);
 
-  if (!info_bar_view)
-    return;
-
-  // Check if we are already displaying this message.
-  ObserverList<SSLInfoBar>::Iterator it(visible_info_bars_);
-  SSLInfoBar* info_bar;
-  while (info_bar = it.GetNext()) {
-    if (info_bar->GetMessageText() == msg)
+    if (!info_bar_view)
       return;
+
+    // Check if we are already displaying this message.
+    ObserverList<SSLInfoBar>::Iterator it(visible_info_bars_);
+    SSLInfoBar* info_bar;
+    while (info_bar = it.GetNext()) {
+      if (info_bar->GetMessageText() == msg)
+        return;
+    }
+
+    // Show the message.
+    info_bar = new SSLInfoBar(this, msg, link_text, task);
+    visible_info_bars_.AddObserver(info_bar);
+
+    // false indicates info_bar is not automatically removed.
+    info_bar_view->AppendInfoBarItem(info_bar, false);
   }
-
-  // Show the message.
-  info_bar = new SSLInfoBar(this, msg, link_text, task);
-  visible_info_bars_.AddObserver(info_bar);
-
-  // false indicates info_bar is not automatically removed.
-  info_bar_view->AppendInfoBarItem(info_bar, false);
 }
 
 // Delegate API method.

@@ -411,14 +411,6 @@ class TabContents : public PageNavigator,
   // Returns whether the bookmark bar should be visible.
   virtual bool IsBookmarkBarAlwaysVisible() { return false; }
 
-  // Returns the View to display at the top of the tab.
-  virtual InfoBarView* GetInfoBarView() { return NULL; }
-
-  // Returns whether the info bar is visible.
-  // If the visibility dynamically changes, invoke ToolbarSizeChanged
-  // on the delegate. Which forces the frame to layout if size has changed.
-  virtual bool IsInfoBarVisible() { return false; }
-
   // Whether or not the shelf view is visible.
   virtual void SetDownloadShelfVisible(bool visible);
   bool IsDownloadShelfVisible() { return shelf_visible_; }

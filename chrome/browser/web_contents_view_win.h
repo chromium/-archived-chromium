@@ -8,6 +8,8 @@
 #include "chrome/browser/web_contents_view.h"
 #include "chrome/views/hwnd_view_container.h"
 
+class InfoBarView;
+class InfoBarMessageView;
 struct WebDropData;
 class WebDropTarget;
 
@@ -35,10 +37,14 @@ class WebContentsViewWin : public WebContentsView,
   virtual void GetContainerBounds(gfx::Rect* out) const;
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void DetachPluginWindows();
+  virtual void DisplayErrorInInfoBar(const std::wstring& text);
   virtual void SetInfoBarVisible(bool visible);
   virtual bool IsInfoBarVisible() const;
   virtual InfoBarView* GetInfoBarView();
   virtual void UpdateDragCursor(bool is_drop_target);
+  virtual void ShowContextMenu(
+      const ViewHostMsg_ContextMenu_Params& params);
+  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
 
  private:
   // Windows events ------------------------------------------------------------
@@ -76,6 +82,11 @@ class WebContentsViewWin : public WebContentsView,
 
   // InfoBarView, lazily created.
   scoped_ptr<InfoBarView> info_bar_view_;
+
+  // Info bar for crashed plugin message.
+  // IMPORTANT: This instance is owned by the InfoBarView. It is valid
+  // only if InfoBarView::GetChildIndex for this view is valid.
+  InfoBarMessageView* error_info_bar_message_;
 
   // Whether the info bar view is visible.
   bool info_bar_visible_;

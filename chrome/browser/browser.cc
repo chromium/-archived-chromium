@@ -40,6 +40,7 @@
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/views/toolbar_star_toggle.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
@@ -1538,9 +1539,12 @@ void Browser::RemoveShelvesForTabContents(TabContents* contents) {
   if (shelf && shelf->GetParent() != NULL)
     shelf->GetParent()->RemoveChildView(shelf);
 
-  ChromeViews::View* info_bar = contents->GetInfoBarView();
-  if (info_bar && info_bar->GetParent() != NULL)
-    info_bar->GetParent()->RemoveChildView(info_bar);
+  if (contents->AsWebContents()) {
+    ChromeViews::View* info_bar =
+        contents->AsWebContents()->view()->GetInfoBarView();
+    if (info_bar && info_bar->GetParent() != NULL)
+      info_bar->GetParent()->RemoveChildView(info_bar);
+  }
 }
 
 BrowserType::Type Browser::GetType() const {

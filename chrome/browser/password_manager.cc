@@ -8,6 +8,7 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -188,8 +189,9 @@ void PasswordManager::CloseBars() {
 }
 
 void PasswordManager::ReplaceInfoBar(InfoBarItemView* bar) {
+  // TODO(brettw) The password manager should not have to know about info bars.
   CloseBars();
-  InfoBarView* view = web_contents_->GetInfoBarView();
+  InfoBarView* view = web_contents_->view()->GetInfoBarView();
   view->AddChildView(bar);
   current_bar_ = bar;
 }

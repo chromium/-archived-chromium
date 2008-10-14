@@ -28,8 +28,6 @@
 #include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job.h"
-#include "chrome/browser/render_view_context_menu.h"
-#include "chrome/browser/render_view_context_menu_controller.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/render_widget_host_hwnd.h"
 #include "chrome/browser/template_url_fetcher.h"
@@ -184,7 +182,6 @@ WebContents::WebContents(Profile* profile,
       notify_disconnection_(false),
       message_box_active_(CreateEvent(NULL, TRUE, FALSE, NULL)),
       ALLOW_THIS_IN_INITIALIZER_LIST(fav_icon_helper_(this)),
-      crashed_plugin_info_bar_(NULL),
       suppress_javascript_messages_(false),
       load_state_(net::LOAD_STATE_IDLE) {
   InitWebContentsClass();
@@ -418,8 +415,8 @@ void WebContents::Paste() {
 void WebContents::DidBecomeSelected() {
   TabContents::DidBecomeSelected();
 
-  if (view())
-    view()->DidBecomeSelected();
+  if (render_widget_host_view())
+    render_widget_host_view()->DidBecomeSelected();
 
   CacheManagerHost::GetInstance()->ObserveActivity(process()->host_id());
 }
@@ -431,8 +428,8 @@ void WebContents::WasHidden() {
     // is because closing the tab calls WebContents::Destroy(), which removes
     // the |render_view_host()|; then when we actually destroy the window,
     // OnWindowPosChanged() notices and calls HideContents() (which calls us).
-    if (view())
-      view()->WasHidden();
+    if (render_widget_host_view())
+      render_widget_host_view()->WasHidden();
 
     // Loop through children and send WasHidden to them, too.
     int count = static_cast<int>(child_windows_.size());
@@ -450,8 +447,8 @@ void WebContents::WasHidden() {
 }
 
 void WebContents::ShowContents() {
-  if (view())
-    view()->DidBecomeSelected();
+  if (render_widget_host_view())
+    render_widget_host_view()->DidBecomeSelected();
 
   // Loop through children and send DidBecomeSelected to them, too.
   int count = static_cast<int>(child_windows_.size());
@@ -476,8 +473,8 @@ void WebContents::HideContents() {
 }
 
 void WebContents::SizeContents(const gfx::Size& size) {
-  if (view())
-    view()->SetSize(size);
+  if (render_widget_host_view())
+    render_widget_host_view()->SetSize(size);
   if (find_in_page_controller_.get())
     find_in_page_controller_->RespondToResize(size);
   RepositionSupressedPopupsToFit(size);
@@ -502,12 +499,6 @@ HWND WebContents::GetContainerHWND() const {
 }
 HWND WebContents::GetContentHWND() {
   return view_->GetContentHWND();
-}
-bool WebContents::IsInfoBarVisible() {
-  return view_->IsInfoBarVisible();
-}
-InfoBarView* WebContents::GetInfoBarView() {
-  return view_->GetInfoBarView();
 }
 void WebContents::GetContainerBounds(gfx::Rect *out) const {
   view_->GetContainerBounds(out);
@@ -621,10 +612,6 @@ void WebContents::OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                                const std::wstring& prompt) {
   last_javascript_message_dismissal_ = TimeTicks::Now();
   render_manager_.OnJavaScriptMessageBoxClosed(reply_msg, success, prompt);
-}
-
-void WebContents::SetInfoBarVisible(bool visible) {
-  view_->SetInfoBarVisible(visible);
 }
 
 void WebContents::OnSavePage() {
@@ -756,7 +743,7 @@ void WebContents::CreateWidget(int route_id) {
   // We set the parent HWDN explicitly as pop-up HWNDs are parented and owned by
   // the first non-child HWND of the HWND that was specified to the CreateWindow
   // call.
-  widget_view->set_parent_hwnd(view()->GetPluginHWND());
+  widget_view->set_parent_hwnd(render_widget_host_view()->GetPluginHWND());
   widget_view->set_close_on_deactivate(true);
 
   // Don't show the widget until we get its position in ShowWidget.
@@ -773,18 +760,18 @@ void WebContents::ShowView(int route_id,
     return;
   }
 
-  WebContents* new_view = iter->second;
+  WebContents* new_web_contents = iter->second;
   pending_views_.erase(route_id);
 
-  if (!new_view->view() ||
-      !new_view->process()->channel()) {
+  if (!new_web_contents->render_widget_host_view() ||
+      !new_web_contents->process()->channel()) {
     // The view has gone away or the renderer crashed. Nothing to do.
     return;
   }
 
   // TODO(brettw) this seems bogus to reach into here and initialize the host.
-  new_view->render_view_host()->Init();
-  AddNewContents(new_view, disposition, initial_pos, user_gesture);
+  new_web_contents->render_view_host()->Init();
+  AddNewContents(new_web_contents, disposition, initial_pos, user_gesture);
 }
 
 void WebContents::ShowWidget(int route_id, const gfx::Rect& initial_pos) {
@@ -980,7 +967,7 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   if (view_->GetContainerHWND()) {
     // It's possible to get this after the hwnd has been destroyed.
     ::SetWindowText(view_->GetContainerHWND(), title.c_str());
-    ::SetWindowText(view()->GetPluginHWND(), title.c_str());
+    ::SetWindowText(render_widget_host_view()->GetPluginHWND(), title.c_str());
   }
 
   // Update the state (forms, etc.).
@@ -1223,24 +1210,7 @@ void WebContents::DidDownloadImage(
 
 void WebContents::ShowContextMenu(
     const ViewHostMsg_ContextMenu_Params& params) {
-  // TODO(brettw) move this to the view.
-  RenderViewContextMenuController menu_controller(this, params);
-  RenderViewContextMenu menu(&menu_controller,
-                             view_->GetContainerHWND(),
-                             params.type,
-                             params.misspelled_word,
-                             params.dictionary_suggestions,
-                             profile());
-
-  POINT screen_pt = { params.x, params.y };
-  MapWindowPoints(view_->GetContainerHWND(), HWND_DESKTOP, &screen_pt, 1);
-
-  // Enable recursive tasks on the message loop so we can get updates while
-  // the context menu is being displayed.
-  bool old_state = MessageLoop::current()->NestableTasksAllowed();
-  MessageLoop::current()->SetNestableTasksAllowed(true);
-  menu.RunMenuAt(screen_pt.x, screen_pt.y);
-  MessageLoop::current()->SetNestableTasksAllowed(old_state);
+  view_->ShowContextMenu(params);
 }
 
 void WebContents::StartDragging(const WebDropData& drop_data) {
@@ -1450,38 +1420,6 @@ void WebContents::DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params) {
   printing_.DidPrintPage(params);
 }
 
-// The renderer sends back to the browser the key events it did not process.
-void WebContents::HandleKeyboardEvent(const WebKeyboardEvent& event) {
-  // TODO(brettw) move this to the view.
-
-  // The renderer returned a keyboard event it did not process. This may be
-  // a keyboard shortcut that we have to process.
-  if (event.type == WebInputEvent::KEY_DOWN) {
-    ChromeViews::FocusManager* focus_manager =
-        ChromeViews::FocusManager::GetFocusManager(view_->GetContainerHWND());
-    // We may not have a focus_manager at this point (if the tab has been
-    // switched by the time this message returned).
-    if (focus_manager) {
-      ChromeViews::Accelerator accelerator(event.key_code,
-          (event.modifiers & WebInputEvent::SHIFT_KEY) ==
-              WebInputEvent::SHIFT_KEY,
-          (event.modifiers & WebInputEvent::CTRL_KEY) ==
-              WebInputEvent::CTRL_KEY,
-          (event.modifiers & WebInputEvent::ALT_KEY) ==
-              WebInputEvent::ALT_KEY);
-      if (focus_manager->ProcessAccelerator(accelerator, false))
-        return;
-    }
-  }
-
-  // Any unhandled keyboard/character messages should be defproced.
-  // This allows stuff like Alt+F4, etc to work correctly.
-  DefWindowProc(event.actual_message.hwnd,
-                event.actual_message.message,
-                event.actual_message.wParam,
-                event.actual_message.lParam);
-}
-
 GURL WebContents::GetAlternateErrorPageURL() const {
   GURL url;
   PrefService* prefs = profile()->GetPrefs();
@@ -1588,30 +1526,13 @@ void WebContents::OnCrashedPlugin(const std::wstring& plugin_path) {
     if (!product_name.empty())
       plugin_name = product_name;
   }
-
-  std::wstring info_bar_message =
-      l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name);
-
-  InfoBarView* view = GetInfoBarView();
-  if (-1 == view->GetChildIndex(crashed_plugin_info_bar_)) {
-    crashed_plugin_info_bar_ = new InfoBarMessageView(info_bar_message);
-    view->AddChildView(crashed_plugin_info_bar_);
-  } else {
-    crashed_plugin_info_bar_->SetMessageText(info_bar_message);
-  }
+  view_->DisplayErrorInInfoBar(
+      l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name));
 }
 
 void WebContents::OnJSOutOfMemory() {
-  std::wstring info_bar_message =
-      l10n_util::GetString(IDS_JS_OUT_OF_MEMORY_PROMPT);
-
-  InfoBarView* view = GetInfoBarView();
-  if (-1 == view->GetChildIndex(crashed_plugin_info_bar_)) {
-    crashed_plugin_info_bar_ = new InfoBarMessageView(info_bar_message);
-    view->AddChildView(crashed_plugin_info_bar_);
-  } else {
-    crashed_plugin_info_bar_->SetMessageText(info_bar_message);
-  }
+  view_->DisplayErrorInInfoBar(
+      l10n_util::GetString(IDS_JS_OUT_OF_MEMORY_PROMPT));
 }
 
 bool WebContents::CanBlur() const {
@@ -1649,6 +1570,11 @@ void WebContents::OnDidGetApplicationInfo(
       info, pending_install_.title, pending_install_.url, pending_install_.icon,
       NewCallback(pending_install_.callback_functor,
                   &GearsCreateShortcutCallbackFunctor::Run));
+}
+
+// Stupid pass-through for RenderViewHostDelegate.
+void WebContents::HandleKeyboardEvent(const WebKeyboardEvent& event) {
+  view_->HandleKeyboardEvent(event);
 }
 
 void WebContents::FileSelected(const std::wstring& path, void* params) {

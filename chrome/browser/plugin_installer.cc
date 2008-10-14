@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/plugin_installer.h"
+
+#include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/web_contents_view.h"
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
@@ -28,7 +30,9 @@ void PluginInstaller::OnMissingPluginStatus(int status) {
       if (current_bar_)
         return;
 
-      InfoBarView* view = web_contents_->GetInfoBarView();
+      // TODO(brettw) have a more general way to add to the info bar rather
+      // than mucking with it directly.
+      InfoBarView* view = web_contents_->view()->GetInfoBarView();
       current_bar_ = new PluginInstallerBar(this);
       view->AddChildView(current_bar_);
       break;

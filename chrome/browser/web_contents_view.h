@@ -14,8 +14,10 @@
 class InfoBarView;
 class RenderViewHost;
 class RenderWidgetHostHWND;
+struct ViewHostMsg_ContextMenu_Params;
 class WebContents;
 struct WebDropData;
+class WebKeyboardEvent;
 
 // The WebContentsView is an interface that is implemented by the platform-
 // dependent web contents views. The WebContents uses this interface to talk to
@@ -61,6 +63,15 @@ class WebContentsView {
   // Enumerate and 'un-parent' any plugin windows that are children of us.
   virtual void DetachPluginWindows() = 0;
 
+  // Displays the given error in the info bar. A new info bar will be shown if
+  // one is not shown already. The new error text will replace any existing
+  // text shown by this same function.
+  //
+  // Note: this replacement behavior is historical; crashed plugin and out of
+  // JS memory used the same message. This seems reasonable, but it may not be
+  // the best thing for all error messages.
+  virtual void DisplayErrorInInfoBar(const std::wstring& text) = 0;
+
   // Set/get whether or not the info bar is visible. See also the ChromeFrame
   // method InfoBarVisibilityChanged and TabContents::IsInfoBarVisible.
   virtual void SetInfoBarVisible(bool visible) = 0;
@@ -68,11 +79,22 @@ class WebContentsView {
 
   // Create the InfoBarView and returns it if none has been created.
   // Just returns existing InfoBarView if it is already created.
+  // TODO(brettw) this probably shouldn't be here. There should be methods to
+  // tell us what we need to display instead.
   virtual InfoBarView* GetInfoBarView() = 0;
 
   // The page wants to update the mouse cursor during a drag & drop operation.
   // |is_drop_target| is true if the mouse is over a valid drop target.
   virtual void UpdateDragCursor(bool is_drop_target) = 0;
+
+  // Runs a context menu with the given parameters from the renderer.
+  virtual void ShowContextMenu(
+      const ViewHostMsg_ContextMenu_Params& params) = 0;
+
+  // Posts the given keyboard message and handles it in the native way. This
+  // is called when the renderer reflects a keyboard message back up to us for
+  // default handling.
+  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event) = 0;
 
  protected:
   WebContentsView() {}  // Abstract interface.
