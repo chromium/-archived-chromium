@@ -142,6 +142,9 @@ class SSLClientSocket : public ClientSocket {
   // We have to pass a 'result' of OK to the DoLoop method, and don't want it
   // to be interpreted as EOF.
   bool ignore_ok_result_;
+
+  // True if the user has no client certificate.
+  bool no_client_cert_;
 };
 
 }  // namespace net

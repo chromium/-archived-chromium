@@ -111,7 +111,8 @@ SSLClientSocket::SSLClientSocket(ClientSocket* transport_socket,
       received_ptr_(NULL),
       bytes_received_(0),
       completed_handshake_(false),
-      ignore_ok_result_(false) {
+      ignore_ok_result_(false),
+      no_client_cert_(false) {
   memset(&stream_sizes_, 0, sizeof(stream_sizes_));
   memset(&send_buffer_, 0, sizeof(send_buffer_));
   memset(&creds_, 0, sizeof(creds_));
@@ -467,6 +468,16 @@ int SSLClientSocket::DoHandshakeReadComplete(int result) {
                 ISC_REQ_ALLOCATE_MEMORY |
                 ISC_REQ_STREAM;
 
+  // When InitializeSecurityContext returns SEC_I_INCOMPLETE_CREDENTIALS,
+  // John Banes (a Microsoft security developer) said we need to pass in the
+  // ISC_REQ_USE_SUPPLIED_CREDS flag if we skip finding a client certificate
+  // and just call InitializeSecurityContext again.  (See
+  // (http://www.derkeiler.com/Newsgroups/microsoft.public.platformsdk.security/2004-08/0187.html.)
+  // My testing on XP SP2 and Vista SP1 shows that it still works without
+  // passing in this flag, but I pass it in to be safe.
+  if (no_client_cert_)
+    flags |= ISC_REQ_USE_SUPPLIED_CREDS;
+
   SecBufferDesc in_buffer_desc, out_buffer_desc;
   SecBuffer in_buffers[2];
 
@@ -539,6 +550,15 @@ int SSLClientSocket::DoHandshakeReadComplete(int result) {
 
   if (FAILED(status))
     return MapSecurityError(status);
+
+  if (status == SEC_I_INCOMPLETE_CREDENTIALS) {
+    // We don't support SSL client authentication yet.  For now we just set
+    // no_client_cert_ to true and call InitializeSecurityContext again.
+    no_client_cert_ = true;
+    next_state_ = STATE_HANDSHAKE_READ_COMPLETE;
+    ignore_ok_result_ = true;  // OK doesn't mean EOF.
+    return OK;
+  }
 
   DCHECK(status == SEC_I_CONTINUE_NEEDED);
   if (in_buffers[1].BufferType == SECBUFFER_EXTRA) {
