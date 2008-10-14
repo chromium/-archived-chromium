@@ -147,35 +147,64 @@ env.Append(
     ],
     LIBS = [
 #        'base',
-        'gd',
         'googleurl-gears',
 #        env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
-        'jpeg-gears',
 #        'modp_b64',
         'png-gears',
-        'portaudio',
         'sqlite-gears',
 #        'skia',
         'zlib-gears',
     ],
 )
 
+# Add in libraries for in-development APIs for non-official builds.
+if not env['OFFICIAL_BUILD']:
+  if env['OS'] != 'wince':
+    env.Append(LIBS = [
+      'gd',
+      'jpeg-gears'
+    ])
+  env.Append(LIBS = 'portaudio')
+
 if env['BROWSER'] == 'IE':
-  env.Append(
-      LIBS = [
-          'kernel32.lib',
-          'user32.lib',
-          'gdi32.lib',
-          'uuid.lib',
-          'sensapi.lib',
-          'shlwapi.lib',
-          'shell32.lib',
-          'advapi32.lib',
-          'wininet.lib',
-          'comdlg32.lib',
-          'user32.lib',
-      ],
-  )
+  if env['OS'] == 'win32':
+    env.Append(
+        LIBS = [
+            'kernel32.lib',
+            'user32.lib',
+            'gdi32.lib',
+            'uuid.lib',
+            'sensapi.lib',
+            'shlwapi.lib',
+            'shell32.lib',
+            'advapi32.lib',
+            'wininet.lib',
+            'comdlg32.lib',
+            'user32.lib',
+        ],
+    )
+  else:  # OS=wince
+    env.Append(
+        LIBS = [
+            'wininet.lib',
+            'ceshell.lib',
+            'coredll.lib',
+            'corelibc.lib',
+            'ole32.lib',
+            'oleaut32.lib',
+            'uuid.lib',
+            'commctrl.lib',
+            'atlosapis.lib',
+            'piedocvw.lib',
+            'cellcore.lib',
+            'htmlview.lib',
+            'imaging.lib',
+            'toolhelp.lib',
+            'aygshell.lib',
+            'iphlpapi.lib',
+            'gpsapi.lib',
+        ],
+    )
 elif env['BROWSER'] in ['FF2', 'FF3']:
   env.Append(
       LIBPATH = '$GECKO_LIB',
@@ -227,7 +256,7 @@ env_res.Replace(
         '$COMMON_GENFILES_DIR/..',
         '$GENFILES_DIR/..',
         '$OPEN_DIR',
-        '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
+        '$VC80_CPPPATH',
     ],
 )
 
@@ -236,15 +265,33 @@ if env['MODE'] == 'dbg':
 else:
   env_res.Append(CPPDEFINES = 'NDEBUG=1')
 
+env_res.Append(RCFLAGS = [('/l', '0x409')])
 if env['OS'] == 'win32':
-  env_res.Append(RCFLAGS = ['/l', '0x409'])
-
-if env['OS'] == 'win32':
-  env.Append(
-      CPPFLAGS = [
-        '/wd4018'  # TODO: move to breakpad
+  env_res.Append(
+      CPPPATH = [
+          '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
       ],
   )
+elif env['OS'] == 'wince':
+  env_res.Append(
+      CPPDEFINES = [
+          'WINCE',
+          '_WIN32',
+          '_WIN32_WCE',
+          'UNDER_CE',
+      ],
+      CPPPATH = [
+          '$OPEN_DIR/..',
+          '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80ce/files/include',
+      ],
+      RCFLAGS = [
+          '-N',
+      ]
+  )
+
+if env['OS'] == 'win32':
+  # TODO: move to breakpad
+  env.Append(CPPFLAGS = ['/wd4018'])
 
 # Input file lists
 
@@ -468,6 +515,7 @@ elif env['OS'] == 'wince':
   srcs['IE'] += [
       '$OPEN_DIR/base/common/common_ie.cc',
       '$OPEN_DIR/base/common/file_wince.cc',
+      '$OPEN_DIR/base/common/html_event_monitor_iemobile.cc',
       '$OPEN_DIR/base/common/wince_compatibility.cc',
   ]
 
@@ -878,6 +926,18 @@ if not env['OFFICIAL_BUILD']:
   ]
 
 #-----------------------------------------------------------------------------
+# installer/wince
+
+if env['OS'] == 'wince':
+  srcs['IE'] += [
+      '$OPEN_DIR/installer/iemobile/cab_updater.cc',
+  ]
+
+  m4srcs['IE'] += [
+      '$OPEN_DIR/installer/iemobile/setup.rc.m4',
+  ]
+
+#-----------------------------------------------------------------------------
 # image
 
 # The Image API is not yet enabled in official builds.
@@ -969,18 +1029,21 @@ if not env['OFFICIAL_BUILD']:
 
 dll_resources = []
 
-if env['OS'] == 'win32':
+if env['OS'] in ['win32', 'wince']:
   ui_res =  env_res.RES('$GENFILES_DIR/ui_resources.rc'),
+  dll_resources += [ui_res]
 
   module_res = None
   if env['BROWSER'] == 'NPAPI':
     module_res = env_res.RES('$OPEN_DIR/base/npapi/module.rc')
+    dll_resources += [module_res]
   elif env['BROWSER'] == 'IE':
     module_res = env_res.RES('$OPEN_DIR/base/ie/module.rc')
+    string_res = env_res.RES('$GENFILES_DIR/string_table.rc')
+    dll_resources += [module_res, string_res]
 
-  dll_resources += [ui_res]
-  if module_res:
-    dll_resources += [module_res]
+    if env['OS'] == 'wince':
+      dll_resources += [env_res.RES('$GENFILES_DIR/setup.rc')]
 
 #-----------------------------------------------------------------------------
 # libs
@@ -1012,9 +1075,7 @@ elif env['BROWSER'] == 'IE':
 # - libtremor
 # - vista broker  
 # TODO: other targets
-# - installer
-# - notifier
-
+# - installer (safari, android, iemobile ...)
 
 # Now build the dependency tree.
 def PatternRule(t, s): return utils.PatternRule(t, s, env)
@@ -1084,11 +1145,9 @@ if env['BROWSER'] in ['FF2', 'FF3']:
 srcs['all'] += common_targets['src']
 
 # TODO: figure out why the .rc scanner doesn't notice these dependencies.
-if env['OS'] == 'win32':
+if env['OS'] in ['win32', 'wince']:
   env.Depends(ui_res, html_m4s)
   env.Depends(module_res, m4s)
-
-Export('m4srcs')
 
 module = env.ChromeSharedLibrary('gears',
     srcs['all'] + libs + dll_resources)

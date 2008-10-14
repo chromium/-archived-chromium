@@ -16,6 +16,7 @@ env.Replace(
         '$THIRD_PARTY_DIR/libjpeg',
         '$THIRD_PARTY_DIR/libpng',
         '$THIRD_PARTY_DIR/zlib',
+        '$VC80_CPPPATH',
     ],
 )
 

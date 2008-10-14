@@ -12,9 +12,9 @@ env.Replace(
     CPPPATH = [
         '$GURL_DIR',
         '$GURL_DIR/..',
-#        '#/..',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
+        '$VC80_CPPPATH',
     ],
 )
 

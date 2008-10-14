@@ -12,6 +12,7 @@ env.Replace(
     CPPPATH = [
         '$PA_DIR/include',
         '$PA_DIR/src/common',
+        '$VC80_CPPPATH',
     ],
 )
 
@@ -22,7 +23,7 @@ env.Append(
     ],
 )
 
-if env['OS'] == 'win32':
+if env['OS'] in ['win32', 'wince']:
   env.Append(
       CPPPATH = [
           '$PA_DIR/src/os/win',
@@ -64,7 +65,7 @@ input_files = [
 ]
 
 # Platform-specific inputs
-if env['OS'] == 'win32':
+if env['OS'] in ['win32', 'wince']:
   input_files += [
     '$PA_DIR/src/hostapi/wmme/pa_win_wmme.c',
     '$PA_DIR/src/os/win/pa_win_hostapis.c',

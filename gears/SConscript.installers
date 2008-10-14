@@ -171,12 +171,15 @@ def FirefoxInstaller(env):
       ('chrome/chromeFiles/locale', ['$FF3_OUTDIR/genfiles/i18n']),
       ('components/',
           ['$FF3_OUTDIR/gears.xpt',
-           '$COMMON_OUTDIR/ipc_test${PROGSUFFIX}',
            '$OPEN_DIR/base/firefox/static_files/components/bootstrap.js']),
       ('components/$FF2_MODULE', ['$FF2_OUTDIR/$MODULE']),
       ('components/$MODULE', ['$FF3_OUTDIR/$MODULE']),
   ]
 
+  if env['USING_CCTESTS']:
+    copysrcs += [
+        ('components/', ['$COMMON_OUTDIR/ipc_test${PROGSUFFIX}']),
+    ]
   if env['OS'] != 'win32':
     # TODO(playmobil): Inspector should be located in extensions dir on win32.
     copysrcs += [
@@ -184,7 +187,12 @@ def FirefoxInstaller(env):
         ('resources/inspector/common/', ['$OPEN_DIR/sdk/gears_init.js',
                                          '$OPEN_DIR/sdk/samples/sample.js']),
     ]
-  # TODO: notifier, ipc_test, pdb, os x
+  if env['MODE'] == 'dbg' and env['OS'] in ['win32', 'wince']:
+    copysrcs += [
+        ('components/gears_ff2.pdb', ['$FF2_OUTDIR/gears.pdb']),
+        ('components/gears.pdb', ['$FF3_OUTDIR/gears.pdb']),
+    ]
+  # TODO: notifier, os x
 
   srcs = []
   actions = [Delete('${TARGET.base}')]

@@ -98,11 +98,19 @@ env.Replace(
 )
 
 # Platform
-env.Replace(ARCH = 'i386')
+# TODO: OSX and Symbian builds will override this value.
+# For other platforms we set just one value.
+if env['OS'] in ['wince', 'android']:
+  env.Replace(ARCH = 'arm')
+elif env['OS'] == 'osx':
+  # On OSX we build a fat binary.
+  env.Replace(ARCH = 'i386+ppc')
+else:
+  env.Replace(ARCH = 'i386')
 
 # Output dirs
 env.Replace(
-    BASE_OUTDIR = '$GEARS_DIR/$MODE',
+    BASE_OUTDIR = '$GEARS_DIR/$OS-$ARCH-$MODE',
     COMMON_OUTDIR = '$BASE_OUTDIR/common',
     BROWSER_OUTDIR = '$BASE_OUTDIR/${BROWSER.lower()}',
     IE_OUTDIR = '$BASE_OUTDIR/ie',
@@ -116,13 +124,45 @@ env.Replace(
 )
 
 # Add our tools to the PATH.
-env.PrependENVPath('PATH',
-    env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath)
-env.PrependENVPath('PATH',
-    env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath)
+paths = []
 if env['OS'] in ['win32', 'wince']:
-  env.PrependENVPath('PATH',
-      env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath)
+  # Clear out our environment so we don't accidentally use the system's libs.
+  env['ENV']['PATH'] = ''
+  env['ENV']['LIB'] = ''
+  env['ENV']['INCLUDE'] = ''
+
+  # Keep system32 for 'xcopy'.
+  paths += [env.subst('${ENV["SYSTEMROOT"]}/system32')]
+  if env['OS'] == 'win32':
+    env.Append(
+        VC80 = env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/vc_80/files').abspath)
+    paths += [
+        env.subst('$VC80/common7/ide'),
+        env.subst('$VC80/vc/bin'),
+        env.subst('$VC80/common7/tools'),
+        env.subst('$VC80/common7/tools/bin'),
+        env.subst('$VC80/team_tools/performance_tools'),
+    ]
+  else:  # wince
+    env.Append(
+        VC80 = env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/vc_80ce/files').abspath)
+    paths += [
+        env.subst('$VC80/bin/x86_arm'),
+        env.subst('$VC80/common7/ide'),
+        env.subst('$VC80/common7/tools'),
+        env.subst('$VC80/common7/tools/bin'),
+        env.subst('$VC80/vc/bin'),
+        env.subst('$VC80/smartdevices/sdktools'),
+    ]
+
+  paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath]
+
+paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath]
+paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath]
+
+# Prepend them so our tools come first.
+for each in reversed(paths):
+  env.PrependENVPath('PATH', each)
 
 # Building M4 files
 env.Tool('m4')
@@ -238,6 +278,8 @@ env.Append(
         'NO_GZCOMPRESS',
     ]
 )
+if env['OS'] == 'wince':
+  env.Append(CPPDEFINES = 'NO_ERRNO_H')
 
 # Languages
 
@@ -299,7 +341,7 @@ env['I18N_LANGS'] = [
 
 # Platform-specific flags follow.
 
-if env['OS'] == 'win32':
+if env['OS'] in ['win32', 'wince']:
   env.Append(
       CPPDEFINES = [
           'STRICT',
@@ -310,25 +352,6 @@ if env['OS'] == 'win32':
           '_WINDLL',
           '_CRT_SECURE_NO_DEPRECATE',
           'NOMINMAX',
-
-# We require APPVER=5.0 for things like HWND_MESSAGE.
-# When APPVER=5.0, win32.mak in the Platform SDK sets:
-#   C defines:  WINVER=0x0500
-#               _WIN32_WINNT=0x0500
-#               _WIN32_IE=0x0500
-#               _RICHEDIT_VER=0x0010
-#   RC defines: WINVER=0x0500
-#   MIDL flags: /target NT50
-# Note: _WIN32_WINDOWS was replaced by _WIN32_WINNT for post-Win95 builds.
-# Note: XP_WIN is only used by Firefox headers
-          '_WINDOWS',
-          'WINVER=0x0500',
-          '_WIN32_WINNT=0x0500',
-          '_WIN32_IE=0x0500',
-          '_RICHEDIT_VER=0x0010',
-          '_MERGE_PROXYSTUB',
-	  'BREAKPAD_AVOID_STREAMS',
-          'XP_WIN',
 
 # In VC8, the way to disable exceptions is to remove all /EH* flags, and to
 # define _HAS_EXCEPTIONS=0 (for C++ headers) and _ATL_NO_EXCEPTIONS (for ATL).
@@ -342,48 +365,115 @@ if env['OS'] == 'win32':
           '/DEBUG',
           '/RELEASE',
 
-          # win32-specific
-          '/MACHINE:X86',
-          '/NODEFAULTLIB:msvcrt',
-# Flags for security hardening (only available for win32, not wince).
-          '/DYNAMICBASE',
-          '/SAFESEH',
-# We only use /SUBSYSTEM on DLLs. For EXEs we omit the flag, and
-# the presence of main() or WinMain() determines the subsystem.
-          '/SUBSYSTEM:WINDOWS',
-
+          '/PDB:${TARGET.base}.pdb',
 # Set the preferred base address.  This value was chosen because (a) it's near
 # the top of the valid address range, and (b) it doesn't conflict with other
 # DLLs loaded by Chrome in either the browser or plugin process.
           '/BASE:0x65000000',
       ],
       CPPFLAGS = [
-        '/nologo',
-        '/Zi',  # TODO: Chrome defines /Z7, no idea what these are.
-        '/Zc:wchar_t-',
-        '/c',
-        '/W3',
-        '/WX',
-        '/GR-',
+          '/nologo',
+          '/Zi',  # TODO: Chrome defines /Z7, no idea what these are.
+          '/Zc:wchar_t-',
+          '/c',
+          '/W3',
+          '/WX',
+          '/GR-',
       ],
       CXXFLAGS = [
-        '/TP',
-        '/J',
+          '/TP',
+          '/J',
       ],
       CPPPATH = [
+          '$VC80_CPPPATH',
+      ],
+      LIBPATH = [
+          '$VC80_LIBPATH',
+      ],
+  )
+  if env['OS'] == 'win32':
+    env.Append(
+        CPPDEFINES = [
+# We require APPVER=5.0 for things like HWND_MESSAGE.
+# When APPVER=5.0, win32.mak in the Platform SDK sets:
+#   C defines:  WINVER=0x0500
+#               _WIN32_WINNT=0x0500
+#               _WIN32_IE=0x0500
+#               _RICHEDIT_VER=0x0010
+#   RC defines: WINVER=0x0500
+#   MIDL flags: /target NT50
+# Note: _WIN32_WINDOWS was replaced by _WIN32_WINNT for post-Win95 builds.
+# Note: XP_WIN is only used by Firefox headers
+            '_WINDOWS',
+            'WINVER=0x0500',
+            '_WIN32_WINNT=0x0500',
+            '_WIN32_IE=0x0500',
+            '_RICHEDIT_VER=0x0010',
+            '_MERGE_PROXYSTUB',
+            'BREAKPAD_AVOID_STREAMS',
+            'XP_WIN',
+        ],
+        LINKFLAGS = [
+            '/MACHINE:X86',
+            '/NODEFAULTLIB:msvcrt',
+# Flags for security hardening (only available for win32, not wince).
+            '/DYNAMICBASE',
+            '/SAFESEH',
+
+# We only use /SUBSYSTEM on DLLs. For EXEs we omit the flag, and
+# the presence of main() or WinMain() determines the subsystem.
+            '/SUBSYSTEM:WINDOWS',
+        ],
+        VC80_CPPPATH = [
 # TODO: switch over to Chrome's SDK.
 # Note: these must come after $THIRD_PARTY_DIR/npapi because we want our own
 # npapi.h to take precedence.
-          '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
-          '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/include',
-          '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/include',
-      ],
-      LIBPATH = [
-          '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/lib',
-          '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/lib',
-          '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/vc/lib',
-      ],
-  )
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
+            '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/include',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/include',
+        ],
+        VC80_LIBPATH = [
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/lib',
+            '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/lib',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/vc/lib',
+        ],
+    )
+  else:  # OS=wince
+    env.Append(
+        CPPDEFINES = [
+# For Windows Mobile we need:
+#   C defines:  _WIN32_WCE=0x0501
+#               _UNDER_CE=0x0501
+            '_WIN32_WCE=0x501',
+            'WINVER=_WIN32_WCE',
+            'UNDER_CE=0x501',
+            'WINCE',
+            'WIN32_PLATFORM_PSPC',
+            'ARM',
+            '_ARM_',
+            'POCKETPC2003_UI_MODEL',
+            '_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA',
+            '_CE_CRT_ALLOW_WIN_MINMAX',
+        ],
+        LINKFLAGS = [
+            '/MACHINE:THUMB',
+            '/NODEFAULTLIB:secchk.lib',
+            '/NODEFAULTLIB:oldnames.lib',
+            '/SUBSYSTEM:WINDOWSCE,5.01',
+        ],
+        VC80_CPPPATH = [
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80ce/files/include',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80ce/files/include',
+# Visual Studio must be setup before the PocketPC SDK.
+            '$PRIVATE_THIRD_PARTY_DIR/pocketpc_sdk_ce_50/files/include/armv4i',
+        ],
+        VC80_LIBPATH = [
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80ce/files/lib/armv4i',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80ce/files/lib/armv4i',
+            '$PRIVATE_THIRD_PARTY_DIR/pocketpc_sdk_ce_50/files/lib/armv4i',
+        ],
+    )
+
   if env['MODE'] == 'dbg':
     env.Append(
         CPPFLAGS = [
@@ -467,7 +557,6 @@ elif env['OS'] == 'linux':
       ],
     )
 
-
 # Load all the components
 
 sconscripts = [
@@ -479,6 +568,7 @@ sconscripts = [
     'SConscript.sqlite',
     'SConscript.zlib',
 ]
+
 
 for each in sconscripts:
   env.SConscript(each,
