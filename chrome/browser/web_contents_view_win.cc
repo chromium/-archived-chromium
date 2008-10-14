@@ -10,7 +10,7 @@
 #include "chrome/browser/render_view_context_menu.h"
 #include "chrome/browser/render_view_context_menu_controller.h"
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/render_widget_host_hwnd.h"
+#include "chrome/browser/render_widget_host_view_win.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/views/info_bar_message_view.h"
 #include "chrome/browser/views/info_bar_view.h"
@@ -54,11 +54,11 @@ void WebContentsViewWin::CreateView(HWND parent_hwnd,
   drop_target_ = new WebDropTarget(GetHWND(), web_contents_);
 }
 
-RenderWidgetHostHWND* WebContentsViewWin::CreatePageView(
+RenderWidgetHostViewWin* WebContentsViewWin::CreatePageView(
     RenderViewHost* render_view_host) {
   // Create the View as well. Its lifetime matches the child process'.
   DCHECK(!render_view_host->view());
-  RenderWidgetHostHWND* view = new RenderWidgetHostHWND(render_view_host);
+  RenderWidgetHostViewWin* view = new RenderWidgetHostViewWin(render_view_host);
   render_view_host->set_view(view);
   view->Create(GetHWND());
   view->ShowWindow(SW_SHOW);

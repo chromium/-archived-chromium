@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_CONTAINER_H__
-#define CHROME_BROWSER_RENDER_WIDGET_HOST_CONTAINER_H__
+#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_WIN_H_
+#define CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_WIN_H_
 
 #include <atlbase.h>
 #include <atlapp.h>
@@ -40,8 +40,10 @@ static const wchar_t* const kRenderWidgetHostHWNDClass =
 // RenderWidgetHostHWND
 //
 //  An object representing the "View" of a rendered web page. This object is
-//  responsible for displaying the content of the web page, receiving messages
-//  and containing plugins HWNDs.
+//  responsible for displaying the content of the web page, receiving windows
+//  messages, and containing plugins HWNDs. It is the implementation of the
+//  RenderWidgetHostView that the cross-platform RenderWidgetHost object uses
+//  to display the data.
 //
 //  Comment excerpted from render_widget_host.h:
 //
@@ -49,14 +51,14 @@ static const wchar_t* const kRenderWidgetHostHWNDClass =
 //     If the render process dies, the RenderWidgetHostHWND goes away and all
 //     references to it must become NULL."
 //
-class RenderWidgetHostHWND :
-  public CWindowImpl<RenderWidgetHostHWND,
+class RenderWidgetHostViewWin :
+  public CWindowImpl<RenderWidgetHostViewWin,
                      CWindow,
                      RenderWidgetHostHWNDTraits>,
   public RenderWidgetHostView {
  public:
-  RenderWidgetHostHWND(RenderWidgetHost* render_widget_host);
-  virtual ~RenderWidgetHostHWND();
+  explicit RenderWidgetHostViewWin(RenderWidgetHost* render_widget_host);
+  virtual ~RenderWidgetHostViewWin();
 
   void set_close_on_deactivate(bool close_on_deactivate) {
     close_on_deactivate_ = close_on_deactivate;
@@ -110,7 +112,7 @@ class RenderWidgetHostHWND :
     MESSAGE_HANDLER(WM_GETOBJECT, OnGetObject)
   END_MSG_MAP()
 
-  // Overridden from RenderWidgetHostView:
+  // Implementation of RenderWidgetHostView:
   virtual void DidBecomeSelected();
   virtual void WasHidden();
   virtual void SetSize(const gfx::Size& size);
@@ -194,10 +196,6 @@ class RenderWidgetHostHWND :
   LRESULT SynthesizeMouseWheel(bool is_vertical, int scroll_code,
                                short scroll_position);
 
-  // A callback function for EnumThreadWindows to enumerate and dismiss
-  // any owned popop windows
-  static BOOL CALLBACK DismissOwnedPopups(HWND window, LPARAM arg);
-
   // Shuts down the render_widget_host_.  This is a separate function so we can
   // invoke it from the message loop.
   void ShutdownHost();
@@ -243,7 +241,7 @@ class RenderWidgetHostHWND :
   bool tooltip_showing_;
 
   // Factory used to safely scope delayed calls to ShutdownHost().
-  ScopedRunnableMethodFactory<RenderWidgetHostHWND> shutdown_factory_;
+  ScopedRunnableMethodFactory<RenderWidgetHostViewWin> shutdown_factory_;
 
   // Our parent HWND.  We keep a reference to it as we SetParent(NULL) when
   // hidden to prevent getting messages (Paint, Resize...), and we reattach
@@ -259,8 +257,8 @@ class RenderWidgetHostHWND :
   // value returns true for is_null() if we are not recording whiteout times.
   TimeTicks whiteout_start_time_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderWidgetHostHWND);
+  DISALLOW_EVIL_CONSTRUCTORS(RenderWidgetHostViewWin);
 };
 
-#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_CONTAINER_H__
+#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_WIN_H_
 

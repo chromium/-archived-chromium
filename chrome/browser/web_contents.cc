@@ -29,7 +29,7 @@
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/render_widget_host_hwnd.h"
+#include "chrome/browser/render_widget_host_view_win.h"  // TODO(brettw) delete me.
 #include "chrome/browser/template_url_fetcher.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
@@ -738,7 +738,11 @@ void WebContents::CreateView(int route_id, HANDLE modal_dialog_event) {
 
 void WebContents::CreateWidget(int route_id) {
   RenderWidgetHost* widget_host = new RenderWidgetHost(process(), route_id);
-  RenderWidgetHostHWND* widget_view = new RenderWidgetHostHWND(widget_host);
+  // TODO(brettw) createe the view in some cross-platform way (probably move
+  // to the WebContentsView). CreatePageView seems to do this already? This
+  // is confusing.
+  RenderWidgetHostViewWin* widget_view =
+      new RenderWidgetHostViewWin(widget_host);
   widget_host->set_view(widget_view);
   // We set the parent HWDN explicitly as pop-up HWNDs are parented and owned by
   // the first non-child HWND of the HWND that was specified to the CreateWindow
@@ -785,17 +789,17 @@ void WebContents::ShowWidget(int route_id, const gfx::Rect& initial_pos) {
   pending_widgets_.erase(route_id);
 
   // TODO(beng): (Cleanup) move all this windows-specific creation and showing
-  //             code into RenderWidgetHostHWND behind some API that a
+  //             code into RenderWidgetHostViewWin behind some API that a
   //             ChromeView can also reasonably implement.
-  RenderWidgetHostHWND* widget_view =
-      static_cast<RenderWidgetHostHWND*>(widget_host->view());
+  RenderWidgetHostViewWin* widget_view =
+      static_cast<RenderWidgetHostViewWin*>(widget_host->view());
 
   if (!widget_view || !widget_host->process()->channel()) {
     // The view has gone away or the renderer crashed. Nothing to do.
     return;
   }
 
-  // This logic should be implemented by RenderWidgetHostHWND (as mentioned
+  // This logic should be implemented by RenderWidgetHostViewWin (as mentioned
   // above) in the ::Init function, which should take a parent and some initial
   // bounds.
   widget_view->Create(view_->GetContainerHWND(), NULL, NULL,
@@ -1600,10 +1604,10 @@ void WebContents::UpdateRenderViewSizeForRenderManager() {
 
 bool WebContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
-  // TODO(brettw) move this to the view. Probably the RenderWidgetHostHWNDs
+  // TODO(brettw) move this to the view. Probably the RenderWidgetHostViewWins
   // should be created by a factory somewhere that just returns a
   // RenderWidgetHostView*.
-  RenderWidgetHostHWND* rvh_view = view_->CreatePageView(render_view_host);
+  RenderWidgetHostViewWin* rvh_view = view_->CreatePageView(render_view_host);
 
   bool ok = render_view_host->CreateRenderView();
   if (ok) {

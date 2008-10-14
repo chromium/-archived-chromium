@@ -530,15 +530,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\render_widget_host_hwnd.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\render_widget_host_hwnd.h"
-				>
-			</File>
-			<File
 				RelativePath=".\render_widget_host_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\render_widget_host_view_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\render_widget_host_view_win.h"
 				>
 			</File>
 			<File

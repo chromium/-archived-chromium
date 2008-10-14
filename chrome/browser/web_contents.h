@@ -22,7 +22,6 @@ class PluginInstaller;
 class RenderViewHost;
 class RenderViewHostFactory;
 class RenderWidgetHost;
-class RenderWidgetHostHWND;
 class SadTabView;
 class WebContentsView;
 

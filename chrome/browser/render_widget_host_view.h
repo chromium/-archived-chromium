@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H__
-#define CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H__
+#ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H_
+#define CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H_
 
 #include <windows.h>
 
@@ -97,7 +97,14 @@ class RenderWidgetHostView {
   // Tells the View that the tooltip text for the current mouse position over
   // the page has changed.
   virtual void SetTooltipText(const std::wstring& tooltip_text) = 0;
+
+ protected:
+  // Interface class only, do not construct.
+  RenderWidgetHostView() {}
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H__
+#endif  // #ifndef CHROME_BROWSER_RENDER_WIDGET_HOST_VIEW_H_
 

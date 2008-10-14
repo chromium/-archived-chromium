@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/render_widget_host_hwnd.h"
+#include "chrome/browser/render_widget_host_view_win.h"
 
 #include "base/command_line.h"
 #include "base/gfx/gdi_util.h"
@@ -24,16 +24,35 @@
 #include "chrome/views/hwnd_view_container.h"
 #include "webkit/glue/webcursor.h"
 
+namespace {
+
 // Tooltips will wrap after this width. Yes, wrap. Imagine that!
-static const int kTooltipMaxWidthPixels = 300;
+const int kTooltipMaxWidthPixels = 300;
 
 // Maximum number of characters we allow in a tooltip.
-static const int kMaxTooltipLength = 1024;
+const int kMaxTooltipLength = 1024;
+
+// A callback function for EnumThreadWindows to enumerate and dismiss
+// any owned popop windows
+BOOL CALLBACK DismissOwnedPopups(HWND window, LPARAM arg) {
+  const HWND toplevel_hwnd = reinterpret_cast<HWND>(arg);
+
+  if (::IsWindowVisible(window)) {
+    const HWND owner = ::GetWindow(window, GW_OWNER);
+    if (toplevel_hwnd == owner) {
+      ::PostMessage(window, WM_CANCELMODE, 0, 0);
+    }
+  }
+
+  return TRUE;
+}
+
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
-// RenderWidgetHostHWND, public:
+// RenderWidgetHostViewWin, public:
 
-RenderWidgetHostHWND::RenderWidgetHostHWND(
+RenderWidgetHostViewWin::RenderWidgetHostViewWin(
     RenderWidgetHost* render_widget_host)
     : RenderWidgetHostView(),
       render_widget_host_(render_widget_host),
@@ -50,16 +69,16 @@ RenderWidgetHostHWND::RenderWidgetHostHWND(
       is_loading_(false) {
 }
 
-RenderWidgetHostHWND::~RenderWidgetHostHWND() {
+RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {
   if (real_cursor_type_ == WebCursor::CUSTOM)
     DestroyIcon(real_cursor_);
   ResetTooltip();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// RenderWidgetHostHWND, RenderWidgetHostView implementation:
+// RenderWidgetHostViewWin, RenderWidgetHostView implementation:
 
-void RenderWidgetHostHWND::DidBecomeSelected() {
+void RenderWidgetHostViewWin::DidBecomeSelected() {
   if (!is_hidden_)
     return;
 
@@ -68,7 +87,7 @@ void RenderWidgetHostHWND::DidBecomeSelected() {
   render_widget_host_->WasRestored();
 }
 
-void RenderWidgetHostHWND::WasHidden() {
+void RenderWidgetHostViewWin::WasHidden() {
   if (is_hidden_)
     return;
 
@@ -89,7 +108,7 @@ void RenderWidgetHostHWND::WasHidden() {
   // Windows messages.
 }
 
-void RenderWidgetHostHWND::SetSize(const gfx::Size& size) {
+void RenderWidgetHostViewWin::SetSize(const gfx::Size& size) {
   if (is_hidden_)
     return;
 
@@ -101,13 +120,13 @@ void RenderWidgetHostHWND::SetSize(const gfx::Size& size) {
   EnsureTooltip();
 }
 
-HWND RenderWidgetHostHWND::GetPluginHWND() {
+HWND RenderWidgetHostViewWin::GetPluginHWND() {
   return m_hWnd;
 }
 
-void RenderWidgetHostHWND::ForwardMouseEventToRenderer(UINT message,
-                                                       WPARAM wparam,
-                                                       LPARAM lparam) {
+void RenderWidgetHostViewWin::ForwardMouseEventToRenderer(UINT message,
+                                                         WPARAM wparam,
+                                                         LPARAM lparam) {
   WebMouseEvent event(m_hWnd, message, wparam, lparam);
   switch (event.type) {
     case WebInputEvent::MOUSE_MOVE:
@@ -136,12 +155,12 @@ void RenderWidgetHostHWND::ForwardMouseEventToRenderer(UINT message,
   }
 }
 
-void RenderWidgetHostHWND::Focus() {
+void RenderWidgetHostViewWin::Focus() {
   if (IsWindow())
     SetFocus();
 }
 
-void RenderWidgetHostHWND::Blur() {
+void RenderWidgetHostViewWin::Blur() {
   ChromeViews::FocusManager* focus_manager =
     ChromeViews::FocusManager::GetFocusManager(GetParent());
   // We don't have a FocusManager if we are hidden.
@@ -149,11 +168,11 @@ void RenderWidgetHostHWND::Blur() {
     focus_manager->ClearFocus();
 }
 
-bool RenderWidgetHostHWND::HasFocus() {
+bool RenderWidgetHostViewWin::HasFocus() {
   return ::GetFocus() == m_hWnd;
 }
 
-void RenderWidgetHostHWND::Show() {
+void RenderWidgetHostViewWin::Show() {
   DCHECK(parent_hwnd_);
   SetParent(parent_hwnd_);
   ShowWindow(SW_SHOW);
@@ -161,7 +180,7 @@ void RenderWidgetHostHWND::Show() {
   DidBecomeSelected();
 }
 
-void RenderWidgetHostHWND::Hide() {
+void RenderWidgetHostViewWin::Hide() {
   if (::GetFocus() == m_hWnd)
     ::SetFocus(NULL);
   ShowWindow(SW_HIDE);
@@ -172,13 +191,13 @@ void RenderWidgetHostHWND::Hide() {
   WasHidden();
 }
 
-gfx::Rect RenderWidgetHostHWND::GetViewBounds() const {
+gfx::Rect RenderWidgetHostViewWin::GetViewBounds() const {
   CRect window_rect;
   GetWindowRect(&window_rect);
   return gfx::Rect(window_rect);
 }
 
-void RenderWidgetHostHWND::UpdateCursor(const WebCursor& cursor) {
+void RenderWidgetHostViewWin::UpdateCursor(const WebCursor& cursor) {
   static HINSTANCE module_handle =
       GetModuleHandle(chrome::kBrowserResourcesDll);
 
@@ -201,7 +220,7 @@ void RenderWidgetHostHWND::UpdateCursor(const WebCursor& cursor) {
   UpdateCursorIfOverSelf();
 }
 
-void RenderWidgetHostHWND::UpdateCursorIfOverSelf() {
+void RenderWidgetHostViewWin::UpdateCursorIfOverSelf() {
   static HINSTANCE module_handle =
       GetModuleHandle(chrome::kBrowserResourcesDll);
 
@@ -221,13 +240,13 @@ void RenderWidgetHostHWND::UpdateCursorIfOverSelf() {
     SetCursor(display_cursor);
 }
 
-void RenderWidgetHostHWND::SetIsLoading(bool is_loading) {
+void RenderWidgetHostViewWin::SetIsLoading(bool is_loading) {
   is_loading_ = is_loading;
   UpdateCursorIfOverSelf();
 }
 
-void RenderWidgetHostHWND::IMEUpdateStatus(ViewHostMsg_ImeControl control,
-                                           int x, int y) {
+void RenderWidgetHostViewWin::IMEUpdateStatus(ViewHostMsg_ImeControl control,
+                                              int x, int y) {
   if (control == IME_DISABLE) {
     ime_input_.DisableIME(m_hWnd);
   } else {
@@ -235,7 +254,7 @@ void RenderWidgetHostHWND::IMEUpdateStatus(ViewHostMsg_ImeControl control,
   }
 }
 
-void RenderWidgetHostHWND::DidPaintRect(const gfx::Rect& rect) {
+void RenderWidgetHostViewWin::DidPaintRect(const gfx::Rect& rect) {
   if (is_hidden_)
     return;
 
@@ -246,14 +265,14 @@ void RenderWidgetHostHWND::DidPaintRect(const gfx::Rect& rect) {
   // rate-limiting of backing store updates.  This helps a lot on pages that
   // have animations or fairly expensive layout (e.g., google maps).
   //
-  // Please refer to the RenderWidgetHostHWND::DidScrollRect function for the
+  // Please refer to the RenderWidgetHostViewWin::DidScrollRect function for the
   // reasoning behind the combination of flags passed to RedrawWindow.
   //
   RedrawWindow(&invalid_rect, NULL,
       RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME);
 }
 
-void RenderWidgetHostHWND::DidScrollRect(
+void RenderWidgetHostViewWin::DidScrollRect(
     const gfx::Rect& rect, int dx, int dy) {
   if (is_hidden_)
     return;
@@ -273,7 +292,7 @@ void RenderWidgetHostHWND::DidScrollRect(
   // rate-limiting of backing store updates.  This helps a lot on pages that
   // have animations or fairly expensive layout (e.g., google maps).
   //
-  // Our RenderWidgetHostHWND does not have a non-client area, whereas the
+  // Our RenderWidgetHostViewWin does not have a non-client area, whereas the
   // children (plugin windows) may.  If we don't pass in RDW_FRAME then the
   // children don't receive WM_NCPAINT messages while scrolling, which causes
   // painting problems (http://b/issue?id=923945).  We need to pass
@@ -283,13 +302,13 @@ void RenderWidgetHostHWND::DidScrollRect(
       RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME);
 }
 
-void RenderWidgetHostHWND::RendererGone() {
+void RenderWidgetHostViewWin::RendererGone() {
   // TODO(darin): keep this around, and draw sad-tab into it.
   UpdateCursorIfOverSelf();
   DestroyWindow();
 }
 
-void RenderWidgetHostHWND::Destroy() {
+void RenderWidgetHostViewWin::Destroy() {
   // We've been told to destroy.
   // By clearing close_on_deactivate_, we prevent further deactivations
   // (caused by windows messages resulting from the DestroyWindow) from
@@ -299,7 +318,7 @@ void RenderWidgetHostHWND::Destroy() {
   DestroyWindow();
 }
 
-void RenderWidgetHostHWND::SetTooltipText(const std::wstring& tooltip_text) {
+void RenderWidgetHostViewWin::SetTooltipText(const std::wstring& tooltip_text) {
   if (tooltip_text != tooltip_text_) {
     tooltip_text_ = tooltip_text;
 
@@ -328,17 +347,17 @@ void RenderWidgetHostHWND::SetTooltipText(const std::wstring& tooltip_text) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// RenderWidgetHostHWND, private:
+// RenderWidgetHostViewWin, private:
 
-LRESULT RenderWidgetHostHWND::OnCreate(CREATESTRUCT* create_struct) {
+LRESULT RenderWidgetHostViewWin::OnCreate(CREATESTRUCT* create_struct) {
   // Call the WM_INPUTLANGCHANGE message handler to initialize the input locale
   // of a browser process.
   OnInputLangChange(0, 0);
   return 0;
 }
 
-void RenderWidgetHostHWND::OnActivate(UINT action, BOOL minimized,
-                                      HWND window) {
+void RenderWidgetHostViewWin::OnActivate(UINT action, BOOL minimized,
+                                         HWND window) {
   // If the container is a popup, clicking elsewhere on screen should close the
   // popup.
   if (close_on_deactivate_ && action == WA_INACTIVE) {
@@ -348,12 +367,12 @@ void RenderWidgetHostHWND::OnActivate(UINT action, BOOL minimized,
   }
 }
 
-void RenderWidgetHostHWND::OnDestroy() {
+void RenderWidgetHostViewWin::OnDestroy() {
   ResetTooltip();
   TrackMouseLeave(false);
 }
 
-void RenderWidgetHostHWND::OnPaint(HDC dc) {
+void RenderWidgetHostViewWin::OnPaint(HDC dc) {
   DCHECK(render_widget_host_->process()->channel());
 
   CPaintDC paint_dc(m_hWnd);
@@ -412,34 +431,34 @@ void RenderWidgetHostHWND::OnPaint(HDC dc) {
   }
 }
 
-void RenderWidgetHostHWND::OnNCPaint(HRGN update_region) {
+void RenderWidgetHostViewWin::OnNCPaint(HRGN update_region) {
   // Do nothing.  This suppresses the resize corner that Windows would
   // otherwise draw for us.
 }
 
-LRESULT RenderWidgetHostHWND::OnEraseBkgnd(HDC dc) {
+LRESULT RenderWidgetHostViewWin::OnEraseBkgnd(HDC dc) {
   return 1;
 }
 
-LRESULT RenderWidgetHostHWND::OnSetCursor(HWND window, UINT hittest_code,
-                                          UINT mouse_message_id) {
+LRESULT RenderWidgetHostViewWin::OnSetCursor(HWND window, UINT hittest_code,
+                                             UINT mouse_message_id) {
   UpdateCursorIfOverSelf();
   return 0;
 }
 
-void RenderWidgetHostHWND::OnSetFocus(HWND window) {
+void RenderWidgetHostViewWin::OnSetFocus(HWND window) {
   render_widget_host_->Focus();
 }
 
-void RenderWidgetHostHWND::OnKillFocus(HWND window) {
+void RenderWidgetHostViewWin::OnKillFocus(HWND window) {
   render_widget_host_->Blur();
 }
 
-void RenderWidgetHostHWND::OnCaptureChanged(HWND window) {
+void RenderWidgetHostViewWin::OnCaptureChanged(HWND window) {
   render_widget_host_->LostCapture();
 }
 
-void RenderWidgetHostHWND::OnCancelMode() {
+void RenderWidgetHostViewWin::OnCancelMode() {
   render_widget_host_->LostCapture();
 
   if (close_on_deactivate_ && shutdown_factory_.empty()) {
@@ -452,12 +471,12 @@ void RenderWidgetHostHWND::OnCancelMode() {
                  SWP_NOREPOSITION | SWP_NOSIZE | SWP_NOZORDER);
     MessageLoop::current()->PostTask(FROM_HERE,
         shutdown_factory_.NewRunnableMethod(
-            &RenderWidgetHostHWND::ShutdownHost));
+            &RenderWidgetHostViewWin::ShutdownHost));
   }
 }
 
-void RenderWidgetHostHWND::OnInputLangChange(DWORD character_set,
-                                             HKL input_language_id) {
+void RenderWidgetHostViewWin::OnInputLangChange(DWORD character_set,
+                                                HKL input_language_id) {
   // Send the given Locale ID to the ImeInput object and retrieves whether
   // or not the current input context has IMEs.
   // If the current input context has IMEs, a browser process has to send a
@@ -496,11 +515,11 @@ void RenderWidgetHostHWND::OnInputLangChange(DWORD character_set,
   }
 }
 
-void RenderWidgetHostHWND::OnThemeChanged() {
+void RenderWidgetHostViewWin::OnThemeChanged() {
   render_widget_host_->SystemThemeChanged();
 }
 
-LRESULT RenderWidgetHostHWND::OnNotify(int w_param, NMHDR* header) {
+LRESULT RenderWidgetHostViewWin::OnNotify(int w_param, NMHDR* header) {
   if (tooltip_hwnd_ == NULL)
     return 0;
 
@@ -526,7 +545,7 @@ LRESULT RenderWidgetHostHWND::OnNotify(int w_param, NMHDR* header) {
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnImeSetContext(
+LRESULT RenderWidgetHostViewWin::OnImeSetContext(
     UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled) {
   // We need status messages about the focused input control from a
   // renderer process when:
@@ -551,7 +570,7 @@ LRESULT RenderWidgetHostHWND::OnImeSetContext(
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnImeStartComposition(
+LRESULT RenderWidgetHostViewWin::OnImeStartComposition(
     UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled) {
   // Reset the composition status and create IME windows.
   ime_input_.CreateImeWindow(m_hWnd);
@@ -563,7 +582,7 @@ LRESULT RenderWidgetHostHWND::OnImeStartComposition(
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnImeComposition(
+LRESULT RenderWidgetHostViewWin::OnImeComposition(
     UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled) {
   // At first, update the position of the IME window.
   ime_input_.UpdateImeWindow(m_hWnd);
@@ -600,7 +619,7 @@ LRESULT RenderWidgetHostHWND::OnImeComposition(
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnImeEndComposition(
+LRESULT RenderWidgetHostViewWin::OnImeEndComposition(
     UINT message, WPARAM wparam, LPARAM lparam, BOOL& handled) {
   if (ime_input_.is_composing()) {
     // A composition has been ended while there is an ongoing composition,
@@ -618,8 +637,8 @@ LRESULT RenderWidgetHostHWND::OnImeEndComposition(
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnMouseEvent(UINT message, WPARAM wparam,
-                                           LPARAM lparam, BOOL& handled) {
+LRESULT RenderWidgetHostViewWin::OnMouseEvent(UINT message, WPARAM wparam,
+                                              LPARAM lparam, BOOL& handled) {
   handled = TRUE;
 
   if (::IsWindow(tooltip_hwnd_)) {
@@ -663,8 +682,8 @@ LRESULT RenderWidgetHostHWND::OnMouseEvent(UINT message, WPARAM wparam,
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnKeyEvent(UINT message, WPARAM wparam,
-                                         LPARAM lparam, BOOL& handled) {
+LRESULT RenderWidgetHostViewWin::OnKeyEvent(UINT message, WPARAM wparam,
+                                            LPARAM lparam, BOOL& handled) {
   handled = TRUE;
 
   // If we are a pop-up, forward tab related messages to our parent HWND, so
@@ -687,8 +706,8 @@ LRESULT RenderWidgetHostHWND::OnKeyEvent(UINT message, WPARAM wparam,
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnWheelEvent(UINT message, WPARAM wparam,
-                                           LPARAM lparam, BOOL& handled) {
+LRESULT RenderWidgetHostViewWin::OnWheelEvent(UINT message, WPARAM wparam,
+                                              LPARAM lparam, BOOL& handled) {
   // Workaround for Thinkpad mousewheel driver. We get mouse wheel/scroll
   // messages even if we are not in the foreground. So here we check if
   // we have any owned popup windows in the foreground and dismiss them.
@@ -726,8 +745,8 @@ LRESULT RenderWidgetHostHWND::OnWheelEvent(UINT message, WPARAM wparam,
   return 0;
 }
 
-LRESULT RenderWidgetHostHWND::OnMouseActivate(UINT, WPARAM, LPARAM,
-                                              BOOL& handled) {
+LRESULT RenderWidgetHostViewWin::OnMouseActivate(UINT, WPARAM, LPARAM,
+                                                 BOOL& handled) {
   // We handle WM_MOUSEACTIVATE to set focus to the underlying plugin
   // child window. This is to ensure that keyboard events are received
   // by the plugin. The correct way to fix this would be send over
@@ -749,8 +768,8 @@ LRESULT RenderWidgetHostHWND::OnMouseActivate(UINT, WPARAM, LPARAM,
   }
 }
 
-LRESULT RenderWidgetHostHWND::OnGetObject(UINT message, WPARAM wparam,
-                                          LPARAM lparam, BOOL& handled) {
+LRESULT RenderWidgetHostViewWin::OnGetObject(UINT message, WPARAM wparam,
+                                             LPARAM lparam, BOOL& handled) {
   LRESULT reference_result = static_cast<LRESULT>(0L);
 
   // Accessibility readers will send an OBJID_CLIENT message.
@@ -799,12 +818,12 @@ LRESULT RenderWidgetHostHWND::OnGetObject(UINT message, WPARAM wparam,
   return reference_result;
 }
 
-void RenderWidgetHostHWND::OnFinalMessage(HWND window) {
+void RenderWidgetHostViewWin::OnFinalMessage(HWND window) {
   render_widget_host_->ViewDestroyed();
   delete this;
 }
 
-void RenderWidgetHostHWND::TrackMouseLeave(bool track) {
+void RenderWidgetHostViewWin::TrackMouseLeave(bool track) {
   if (track == track_mouse_leave_)
     return;
   track_mouse_leave_ = track;
@@ -821,11 +840,11 @@ void RenderWidgetHostHWND::TrackMouseLeave(bool track) {
   TrackMouseEvent(&tme);
 }
 
-bool RenderWidgetHostHWND::Send(IPC::Message* message) {
+bool RenderWidgetHostViewWin::Send(IPC::Message* message) {
   return render_widget_host_->Send(message);
 }
 
-void RenderWidgetHostHWND::EnsureTooltip() {
+void RenderWidgetHostViewWin::EnsureTooltip() {
   UINT message = TTM_NEWTOOLRECT;
 
   TOOLINFO ti;
@@ -847,27 +866,13 @@ void RenderWidgetHostHWND::EnsureTooltip() {
   SendMessage(tooltip_hwnd_, message, NULL, reinterpret_cast<LPARAM>(&ti));
 }
 
-void RenderWidgetHostHWND::ResetTooltip() {
+void RenderWidgetHostViewWin::ResetTooltip() {
   if (::IsWindow(tooltip_hwnd_))
     ::DestroyWindow(tooltip_hwnd_);
   tooltip_hwnd_ = NULL;
 }
 
-BOOL CALLBACK RenderWidgetHostHWND::DismissOwnedPopups(HWND window,
-                                                       LPARAM arg) {
-  const HWND toplevel_hwnd = reinterpret_cast<HWND>(arg);
-
-  if (::IsWindowVisible(window)) {
-    const HWND owner = ::GetWindow(window, GW_OWNER);
-    if (toplevel_hwnd == owner) {
-      ::PostMessage(window, WM_CANCELMODE, 0, 0);
-    }
-  }
-
-  return TRUE;
-}
-
-void RenderWidgetHostHWND::ShutdownHost() {
+void RenderWidgetHostViewWin::ShutdownHost() {
   shutdown_factory_.RevokeAll();
   render_widget_host_->Shutdown();
   // Do not touch any members at this point, |this| has been deleted.

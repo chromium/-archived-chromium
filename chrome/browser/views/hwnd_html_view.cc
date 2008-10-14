@@ -5,7 +5,7 @@
 #include "chrome/browser/views/hwnd_html_view.h"
 
 #include "chrome/browser/render_view_host.h"
-#include "chrome/browser/render_widget_host_hwnd.h"
+#include "chrome/browser/render_widget_host_view_win.h"
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/browser/site_instance.h"
 #include "chrome/views/view_container.h"
@@ -25,7 +25,7 @@ void HWNDHtmlView::Init(HWND parent_hwnd) {
     delegate_, MSG_ROUTING_NONE, NULL);
   render_view_host_ = rvh;
 
-  RenderWidgetHostHWND* view = new RenderWidgetHostHWND(rvh);
+  RenderWidgetHostHWND* view = new RenderWidgetHostViewWin(rvh);
   rvh->set_view(view);
 
   // Create the HWND. Note:

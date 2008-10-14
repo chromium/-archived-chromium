@@ -15,7 +15,8 @@
 
 class InfoBarView;
 class RenderViewHost;
-class RenderWidgetHostHWND;
+class RenderWidgetHost;
+class RenderWidgetHostViewWin;
 struct ViewHostMsg_ContextMenu_Params;
 class WebContents;
 struct WebDropData;
@@ -33,7 +34,8 @@ class WebContentsView {
 
   // Sets up the View that holds the rendered web page, receives messages for
   // it and contains page plugins.
-  virtual RenderWidgetHostHWND* CreatePageView(
+  // TODO(brettw) this should be a RenderWidgetHostView instead.
+  virtual RenderWidgetHostViewWin* CreatePageView(
       RenderViewHost* render_view_host) = 0;
 
   // Returns the HWND that contains the contents of the tab.

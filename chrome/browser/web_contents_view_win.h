@@ -30,7 +30,7 @@ class WebContentsViewWin : public WebContentsView,
   // CreatePageView. Do we really need both?
   virtual void CreateView(HWND parent_hwnd,
                           const gfx::Rect& initial_bounds);
-  virtual RenderWidgetHostHWND* CreatePageView(
+  virtual RenderWidgetHostViewWin* CreatePageView(
       RenderViewHost* render_view_host);
   virtual HWND GetContainerHWND() const;
   virtual HWND GetContentHWND() const;
