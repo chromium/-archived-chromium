@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "base/basictypes.h"
+#include "base/sys_info.h"
 
 namespace process_util {
 
@@ -22,6 +23,19 @@ ProcessHandle GetCurrentProcessHandle() {
 int GetProcId(ProcessHandle process) {
   return process;
 }
+
+ProcessMetrics::ProcessMetrics(ProcessHandle process) : process_(process),
+                                                        last_time_(0),
+                                                        last_system_time_(0) {
+  processor_count_ = base::SysInfo::NumberOfProcessors();
+}
+
+// static
+ProcessMetrics* ProcessMetrics::CreateProcessMetrics(ProcessHandle process) {
+  return new ProcessMetrics(process);
+}
+
+ProcessMetrics::~ProcessMetrics() { }
 
 void EnableTerminationOnHeapCorruption() {
   // On POSIX, there nothing to do AFAIK.

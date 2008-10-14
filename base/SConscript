@@ -91,8 +91,6 @@ if env['PLATFORM'] == 'win32':
     'shared_event.cc',   # Is this used?
     'watchdog.cc',
 
-    'process.cc',
-
     'resource_util.cc',  # Uses HMODULE, but may be abstractable.
   ])
 
@@ -115,6 +113,7 @@ if env['PLATFORM'] == 'win32':
       'pe_image.cc',
       'platform_thread_win.cc',
       'process_util_win.cc',
+      'process_win.cc',
       'rand_util_win.cc',
       'registry.cc',
       'shared_memory_win.cc',
@@ -171,6 +170,8 @@ if env['PLATFORM'] == 'posix':
       'hmac_nss.cc',
       'message_pump_glib.cc',
       'nss_init.cc',
+      'process_posix.cc',
+      'process_util_linux.cc',
       'sys_string_conversions_linux.cc',
       'worker_pool.cc',
   ])

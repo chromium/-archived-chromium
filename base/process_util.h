@@ -24,7 +24,14 @@ typedef PROCESSENTRY32 ProcessEntry;
 typedef IO_COUNTERS IoCounters;
 #elif defined(OS_POSIX)
 typedef int ProcessEntry;
-typedef int IoCounters;  //TODO(awalker): replace with struct when available
+struct IoCounters {
+  unsigned long long ReadOperationCount;
+  unsigned long long WriteOperationCount;
+  unsigned long long OtherOperationCount;
+  unsigned long long ReadTransferCount;
+  unsigned long long WriteTransferCount;
+  unsigned long long OtherTransferCount;
+};
 #endif
 
 namespace process_util {

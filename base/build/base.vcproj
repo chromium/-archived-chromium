@@ -530,7 +530,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\process.cc"
+			RelativePath="..\process_win.cc"
 			>
 		</File>
 		<File
