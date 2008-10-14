@@ -1494,59 +1494,32 @@ void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
   }
 }
 
-// TODO(tc): Merge these as they are almost identical across platforms.
-#if defined(OS_WIN)
 gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
   // Must layout before painting.
   Layout();
 
-  gfx::PlatformCanvasWin canvas(frameview()->width(), frameview()->height(), true);
+  gfx::PlatformCanvas canvas(frameview()->width(), frameview()->height(), true);
+#if defined(OS_WIN) || defined(OS_LINUX)
   PlatformContextSkia context(&canvas);
-
   GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
-  frameview()->paint(&gc, IntRect(0, 0, frameview()->width(),
-                                  frameview()->height()));
-
-  gfx::BitmapPlatformDeviceWin& device =
-      static_cast<gfx::BitmapPlatformDeviceWin&>(canvas.getTopPlatformDevice());
-  device.fixupAlphaBeforeCompositing();
-  return device;
-}
 #elif defined(OS_MACOSX)
-gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
-  // Must layout before painting.
-  Layout();
-
-  gfx::PlatformCanvasMac canvas(frameview()->width(),
-                                frameview()->height(), true);
   CGContextRef context = canvas.beginPlatformPaint();
   GraphicsContext gc(context);
-  frameview()->paint(&gc, IntRect(0, 0, frameview()->width(),
-                                        frameview()->height()));
-  canvas.endPlatformPaint();
-
-  gfx::BitmapPlatformDevice& device =
-      static_cast<gfx::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
-  return device;
-}
-#else
-gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
-  // Must layout before painting.
-  Layout();
-
-  gfx::PlatformCanvasLinux canvas(frameview()->width(), frameview()->height(),
-                                  true);
-  PlatformContextSkia context(&canvas);
-
-  GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
+#endif
   frameview()->paint(&gc, IntRect(0, 0, frameview()->width(),
                                   frameview()->height()));
+#if defined(OS_MACOSX)
+  canvas.endPlatformPaint();
+#endif
 
   gfx::BitmapPlatformDevice& device =
       static_cast<gfx::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
+
+#if defined(OS_WIN)
+  device.fixupAlphaBeforeCompositing();
+#endif
   return device;
 }
-#endif
 
 bool WebFrameImpl::IsLoading() {
   // I'm assuming this does what we want.
