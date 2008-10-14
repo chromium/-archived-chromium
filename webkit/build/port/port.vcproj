@@ -919,6 +919,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\graphics\BitmapImageSingleFrameSkia.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\graphics\IconWin.cpp"
 					>
 				</File>

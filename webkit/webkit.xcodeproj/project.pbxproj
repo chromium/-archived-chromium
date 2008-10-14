@@ -1358,6 +1358,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		046192AA0EA5476500FB37B0 /* BitmapImageSingleFrameSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitmapImageSingleFrameSkia.h; sourceTree = "<group>"; };
 		4D11C1960E9687B500EF7617 /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Console.cpp; sourceTree = "<group>"; };
 		4D11C4D90E9ABE9200EF7617 /* ExceptionContextV8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionContextV8.cpp; sourceTree = "<group>"; };
 		4D11C4DA0E9ABE9200EF7617 /* ScriptControllerKJS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptControllerKJS.cpp; sourceTree = "<group>"; };
@@ -6877,6 +6878,7 @@
 		822B1BE70DC77910005C9A96 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
+				046192AA0EA5476500FB37B0 /* BitmapImageSingleFrameSkia.h */,
 				E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */,
 				4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */,
 				82C2604A0DCB9AC1005CFE91 /* ImageSourceSkia.cpp */,
