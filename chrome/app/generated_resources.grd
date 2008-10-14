@@ -369,7 +369,7 @@ each locale. -->
         &amp;Print...
       </message>
       <message name="IDS_ZOOM" desc="The text label of the Zoom submenu" >
-        Text &amp;zoom
+        &amp;Zoom
       </message>
       <message name="IDS_ZOOM_PLUS" desc="The text label of the Make Text Larger menu item" >
         &amp;Larger

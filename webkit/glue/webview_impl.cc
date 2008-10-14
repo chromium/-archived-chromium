@@ -1166,7 +1166,7 @@ void WebViewImpl::MakeTextLarger() {
   float zoom_factor = static_cast<float>(multiplier);
   if (zoom_factor != frame->zoomFactor()) {
     ++text_zoom_level_;
-    frame->setZoomFactor(zoom_factor, true);
+    frame->setZoomFactor(zoom_factor, false);
   }
 }
 
@@ -1178,13 +1178,13 @@ void WebViewImpl::MakeTextSmaller() {
   float zoom_factor = static_cast<float>(multiplier);
   if (zoom_factor != frame->zoomFactor()) {
     --text_zoom_level_;
-    frame->setZoomFactor(zoom_factor, true);
+    frame->setZoomFactor(zoom_factor, false);
   }
 }
 
 void WebViewImpl::MakeTextStandardSize() {
   text_zoom_level_ = 0;
-  main_frame()->frame()->setZoomFactor(1.0f, true);
+  main_frame()->frame()->setZoomFactor(1.0f, false);
 }
 
 void WebViewImpl::CopyImageAt(int x, int y) {
