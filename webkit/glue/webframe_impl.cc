@@ -147,6 +147,10 @@
 #include "webkit/port/page/ChromeClientWin.h"
 #include "webkit/port/platform/WidgetClientWin.h"
 
+#if defined(OS_LINUX)
+#include <gdk/gdk.h>
+#endif
+
 using WebCore::ChromeClientWin;
 using WebCore::Color;
 using WebCore::Document;
@@ -244,7 +248,6 @@ static void FrameContentAsPlainText(int max_chars, Frame* frame,
 
   // Recursively walk the children.
   FrameTree* frame_tree = frame->tree();
-  Frame* cur_child = frame_tree->firstChild();
   for (Frame* cur_child = frame_tree->firstChild(); cur_child;
        cur_child = cur_child->tree()->nextSibling()) {
     // Make sure the frame separator won't fill up the buffer, and give up if
@@ -277,13 +280,13 @@ MSVC_POP_WARNING()
     allows_scrolling_(true),
     margin_width_(-1),
     margin_height_(-1),
-    last_match_count_(-1),
-    total_matchcount_(-1),
     inspected_node_(NULL),
     active_tickmark_frame_(NULL),
     active_tickmark_(WidgetClientWin::kNoTickmark),
     locating_active_rect_(false),
     last_active_range_(NULL),
+    last_match_count_(-1),
+    total_matchcount_(-1),
     frames_scoping_count_(-1),
     scoping_complete_(false),
     next_invalidate_after_(0),
@@ -723,10 +726,10 @@ void WebFrameImpl::GetContentAsPlainText(int max_chars,
 
 void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
   ASSERT(frame() && frame()->view());
-  FrameView* view = frame()->view();
-
 #if defined(OS_WIN)
   // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
+  FrameView* view = frame()->view();
+
   if ((area & INVALIDATE_ALL) == INVALIDATE_ALL) {
     view->addToDirtyRegion(view->frameGeometry());
   } else {
@@ -752,10 +755,10 @@ void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
 
 void WebFrameImpl::InvalidateTickmark(RefPtr<WebCore::Range> tickmark) {
   ASSERT(frame() && frame()->view());
-  FrameView* view = frame()->view();
-
 #if defined(OS_WIN)
   // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
+  FrameView* view = frame()->view();
+
   IntRect pos = tickmark->boundingBox();
   pos.move(-view->contentsX(), -view->contentsY());
   view->addToDirtyRegion(pos);
@@ -1491,6 +1494,7 @@ void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
   }
 }
 
+// TODO(tc): Merge these as they are almost identical across platforms.
 #if defined(OS_WIN)
 gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
   // Must layout before painting.
@@ -1527,7 +1531,20 @@ gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
 }
 #else
 gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
-  NOTIMPLEMENTED();
+  // Must layout before painting.
+  Layout();
+
+  gfx::PlatformCanvasLinux canvas(frameview()->width(), frameview()->height(),
+                                  true);
+  PlatformContextSkia context(&canvas);
+
+  GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
+  frameview()->paint(&gc, IntRect(0, 0, frameview()->width(),
+                                  frameview()->height()));
+
+  gfx::BitmapPlatformDevice& device =
+      static_cast<gfx::BitmapPlatformDevice&>(canvas.getTopPlatformDevice());
+  return device;
 }
 #endif
 

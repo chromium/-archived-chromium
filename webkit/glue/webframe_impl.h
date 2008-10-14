@@ -299,6 +299,10 @@ class WebFrameImpl : public WebFrame {
 
   WebFrameLoaderClient frame_loader_client_;
 
+  // This is a factory for creating cancelable tasks for this frame that run
+  // asynchronously in order to scope string matches during a find operation.
+  ScopedRunnableMethodFactory<WebFrameImpl> scope_matches_factory_;
+
   // Holding a reference back to the WebViewImpl is necessary to ensure that
   // its HWND is not destroyed before all of the WebCore::Widgets, which refer
   // to the WebViewImpl's HWND as their containingWindow.  However, this ref
@@ -331,12 +335,16 @@ class WebFrameImpl : public WebFrame {
   // Handling requests from TextInputController on this frame.
   scoped_ptr<WebTextInputImpl> webtextinput_impl_;
 
+  // The node selected in the web inspector. Used for highlighting it on the page.
+  WebCore::Node* inspected_node_;
+
   // This vector maintains a list of Ranges representing locations for search
   // string matches that were found in the frame during a FindInPage operation.
   Vector<RefPtr<WebCore::Range> > tickmarks_;
 
-  // The node selected in the web inspector. Used for highlighting it on the page.
-  WebCore::Node* inspected_node_;
+  // A way for the main frame to keep track of which frame has an active
+  // tickmark. Should be NULL for all other frames.
+  WebFrameImpl* active_tickmark_frame_;
 
   // The index of the active tickmark for the current frame.
   size_t active_tickmark_;
@@ -381,10 +389,6 @@ class WebFrameImpl : public WebFrame {
   // (on the main frame only). It should be -1 for all other frames.
   int total_matchcount_;
 
-  // A way for the main frame to keep track of which frame has an active
-  // tickmark. Should be NULL for all other frames.
-  WebFrameImpl* active_tickmark_frame_;
-
   // This variable keeps a cumulative total of how many frames are currently
   // scoping, and is incremented/decremented on the main frame only.
   // It should be -1 for all other frames.
@@ -397,10 +401,6 @@ class WebFrameImpl : public WebFrame {
   // Keeps track of when the scoping effort should next invalidate the scrollbar
   // and the frame area.
   int next_invalidate_after_;
-
-  // This is a factory for creating cancelable tasks for this frame that run
-  // asynchronously in order to scope string matches during a find operation.
-  ScopedRunnableMethodFactory<WebFrameImpl> scope_matches_factory_;
 
  private:
   // A bit mask specifying area of the frame to invalidate.

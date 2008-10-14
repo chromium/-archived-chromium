@@ -17,6 +17,10 @@
 
 #if defined(OS_WIN)
 typedef struct tagRECT RECT;
+#elif defined(OS_LINUX)
+// It's wrong to hide GDK stuff behind OS_LINUX, but until we have a different
+// linux target, this is less complex.
+typedef struct _GdkRectangle GdkRectangle;
 #endif
 
 namespace gfx {
@@ -30,6 +34,8 @@ class Rect {
   explicit Rect(const RECT& r);
 #elif defined(OS_MACOSX)
   explicit Rect(const CGRect& r);
+#elif defined(OS_LINUX)
+  explicit Rect(const GdkRectangle& r);
 #endif
   Rect(const gfx::Point& origin, const gfx::Size& size);
 
@@ -39,6 +45,8 @@ class Rect {
   Rect& operator=(const RECT& r);
 #elif defined(OS_MACOSX)
   Rect& operator=(const CGRect& r);
+#elif defined(OS_LINUX)
+  Rect& operator=(const GdkRectangle& r);
 #endif
 
   int x() const { return origin_.x(); }

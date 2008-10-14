@@ -38,6 +38,12 @@ BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(const SkBitmap& bitmap)
     : PlatformDeviceLinux(bitmap) {
 }
 
+BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
+    const BitmapPlatformDeviceLinux& other)
+    : PlatformDeviceLinux(const_cast<BitmapPlatformDeviceLinux&>(
+                          other).accessBitmap(true)) {
+}
+
 BitmapPlatformDeviceLinux::~BitmapPlatformDeviceLinux() {
 }
 
