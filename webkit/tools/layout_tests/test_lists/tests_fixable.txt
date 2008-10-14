@@ -936,7 +936,6 @@ V8 | KJS # LayoutTests/http/tests/security/cross-origin-xsl-BLOCKED.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/xss-eval.html = FAIL
 V8 | KJS # LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
-V8 | KJS # LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-LSProgressEvent-ProgressEvent-should-match.html = FAIL
 V8 | KJS # LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
 V8 | KJS # LayoutTests/media/progress-event-total.html = FAIL
 V8 | KJS # LayoutTests/media/video-click-dlbclick-standalone.html = FAIL
