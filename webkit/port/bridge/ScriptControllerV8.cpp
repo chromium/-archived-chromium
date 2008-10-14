@@ -373,7 +373,7 @@ bool ScriptController::isEnabled() const
     return m_proxy->isEnabled();
 }
 
-JSInstance ScriptController::createScriptInstanceForWidget(Widget* widget)
+JSInstanceHandle ScriptController::createScriptInstanceForWidget(Widget* widget)
 {
     ASSERT(widget != 0);
 
@@ -533,7 +533,7 @@ JSInstanceHolder::JSInstanceHolder()
 {
 }
 
-JSInstanceHolder::JSInstanceHolder(JSInstance instance)
+JSInstanceHolder::JSInstanceHolder(JSInstanceHandle instance)
 {
     *this = instance;
 }
@@ -571,7 +571,7 @@ JSInstance JSInstanceHolder::EmptyInstance()
     return v8::Local<v8::Object>();
 }
 
-JSInstanceHolder& JSInstanceHolder::operator=(JSInstance instance)
+JSInstanceHolder& JSInstanceHolder::operator=(JSInstanceHandle instance)
 {
     Clear();
     if (instance.IsEmpty())

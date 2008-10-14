@@ -172,8 +172,8 @@ JSInstanceHolder::JSInstanceHolder() :
   m_instance(0) {
 }
 
-JSInstanceHolder::JSInstanceHolder(JSInstance instance) {
-  *this = instance;
+JSInstanceHolder::JSInstanceHolder(JSInstanceHandle instance) {
+  m_instance = instance;
 }
 
 JSInstanceHolder::~JSInstanceHolder() {
@@ -185,25 +185,19 @@ bool JSInstanceHolder::IsEmpty() {
 }
 
 void JSInstanceHolder::Clear() {
-  if (m_instance) {
-    m_instance->deref();
-    m_instance = 0;
-  }
+  m_instance = 0;
 }
 
 JSInstance JSInstanceHolder::Get() {
-  return m_instance;
+  return m_instance.get();
 }
 
 JSInstance JSInstanceHolder::EmptyInstance() {
   return 0;
 }
 
-JSInstanceHolder& JSInstanceHolder::operator=(JSInstance instance) {
-  Clear();
+JSInstanceHolder& JSInstanceHolder::operator=(JSInstanceHandle instance) {
   m_instance = instance;
-  if (m_instance)
-    m_instance->ref();
   return *this;
 }
 
