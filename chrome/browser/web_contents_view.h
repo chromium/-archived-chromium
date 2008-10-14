@@ -7,6 +7,8 @@
 
 #include <windows.h>
 
+#include <string>
+
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
