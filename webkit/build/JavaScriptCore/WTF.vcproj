@@ -246,7 +246,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\pending\wtf\RefCounted.h"
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RefCounted.h"
 			>
 		</File>
 		<File
@@ -258,7 +258,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\pending\wtf\RefPtrHashMap.h"
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RefPtrHashMap.h"
 			>
 		</File>
 		<File

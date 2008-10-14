@@ -354,7 +354,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\InspectorController.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\InspectorController.h"
 				>
 			</File>
 			<File
@@ -1038,7 +1038,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\TreeShared.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\TreeShared.h"
 				>
 			</File>
 			<File
@@ -1305,7 +1305,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\pending\NetworkStateNotifier.h"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\network\NetworkStateNotifier.h"
 					>
 				</File>
 				<File
@@ -2650,7 +2650,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\pending\RenderTheme.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\RenderTheme.h"
 				>
 			</File>
 			<File
@@ -2793,7 +2793,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\pending\RenderStyle.h"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\style\RenderStyle.h"
 					>
 				</File>
 				<File
@@ -5960,7 +5960,7 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\pending\SMILTimeContainer.h"
+						RelativePath="..\..\..\third_party\WebKit\WebCore\svg\animation\SMILTimeContainer.h"
 						>
 					</File>
 					<File
