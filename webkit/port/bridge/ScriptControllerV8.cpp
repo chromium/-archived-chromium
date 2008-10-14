@@ -41,6 +41,7 @@
 #include "NotImplemented.h"
 #include "npruntime_priv.h"
 #include "np_v8object.h"
+#include "PausedTimeouts.h"
 #include "Widget.h"
 
 #include "v8_proxy.h"
