@@ -169,8 +169,7 @@ void AutocompletePopupView::UpdatePopupAppearance() {
   // to its parent.
   // TODO(pkasting): http://b/1345937  All this use of editor accessors should
   // die once this class is a true ChromeView.
-  CRect rc;
-  edit_view_->parent_view()->GetBounds(&rc);
+  CRect rc = edit_view_->parent_view()->bounds().ToRECT();
   // Subtract the top left corner to make the coordinates relative to the
   // location bar view itself, and convert to screen coordinates.
   CPoint top_left(-rc.TopLeft());

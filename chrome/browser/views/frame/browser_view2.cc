@@ -120,16 +120,13 @@ void BrowserView2::WindowMoved() {
 }
 
 gfx::Rect BrowserView2::GetToolbarBounds() const {
-  CRect bounds;
-  toolbar_->GetBounds(&bounds);
-  return gfx::Rect(bounds);
+  return toolbar_->bounds();
 }
 
 gfx::Rect BrowserView2::GetClientAreaBounds() const {
-  CRect bounds;
-  contents_container_->GetBounds(&bounds);
-  bounds.OffsetRect(x(), y());
-  return gfx::Rect(bounds);
+  gfx::Rect container_bounds = contents_container_->bounds();
+  container_bounds.Offset(x(), y());
+  return container_bounds;
 }
 
 int BrowserView2::GetTabStripHeight() const {
@@ -742,10 +739,9 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   // If the point's y coordinate is below the top of the toolbar and otherwise
   // within the bounds of this view, the point is considered to be within the
   // client area.
-  CRect bounds;
-  GetBounds(&bounds);
-  bounds.top += toolbar_->y();
-  if (gfx::Rect(bounds).Contains(point.x(), point.y()))
+  gfx::Rect bv_bounds = bounds();
+  bv_bounds.Offset(0, toolbar_->y());
+  if (bv_bounds.Contains(point))
     return HTCLIENT;
 
   // If the point's y coordinate is above the top of the toolbar, but not in
@@ -758,9 +754,9 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   // window controls not to work. So we return HTNOWHERE so that the caller
   // will hit-test the window controls before finally falling back to
   // HTCAPTION.
-  GetBounds(&bounds);
-  bounds.bottom = y() + toolbar_->y();
-  if (gfx::Rect(bounds).Contains(point.x(), point.y()))
+  bv_bounds = bounds();
+  bv_bounds.set_height(toolbar_->y());
+  if (bv_bounds.Contains(point))
     return HTNOWHERE;
 
   // If the point is somewhere else, delegate to the default implementation.
@@ -1060,10 +1056,7 @@ bool BrowserView2::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   } else if (new_view && *old_view) {
     // The view changed, but the new view wants the same size, give it the
     // bounds of the last view and have it repaint.
-    CRect last_bounds;
-    (*old_view)->GetBounds(&last_bounds);
-    new_view->SetBounds(last_bounds.left, last_bounds.top,
-                        last_bounds.Width(), last_bounds.Height());
+    new_view->SetBounds((*old_view)->bounds().ToRECT());
     new_view->SchedulePaint();
   } else if (new_view) {
     DCHECK(new_height == 0);

@@ -2337,10 +2337,7 @@ bool XPFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   } else if (new_view && *view) {
     // The view changed, but the new view wants the same size, give it the
     // bounds of the last view and have it repaint.
-    CRect last_bounds;
-    (*view)->GetBounds(&last_bounds);
-    new_view->SetBounds(last_bounds.left, last_bounds.top,
-                        last_bounds.Width(), last_bounds.Height());
+    new_view->SetBounds((*view)->bounds().ToRECT());
     new_view->SchedulePaint();
   } else if (new_view) {
     DCHECK(new_height == 0);
@@ -2432,14 +2429,13 @@ void XPFrame::SizeToContents(const gfx::Rect& contents_bounds) {
 
   // Then we calculate the size of the window chrome, this is the stuff that
   // needs to be positioned around the edges of contents_bounds.
-  CRect bounds;
-  tab_contents_container_->GetBounds(&bounds);
+  gfx::Rect bounds = tab_contents_container_->bounds();
   CRect cr;
   GetClientRect(&cr);
-  int toolbar_height = bounds.top;
-  int left_edge_width = bounds.left;
-  int right_edge_width = cr.Width() - bounds.right;
-  int bottom_edge_height = cr.Height() - bounds.bottom;
+  int toolbar_height = bounds.y();
+  int left_edge_width = bounds.x();
+  int right_edge_width = cr.Width() - bounds.right();
+  int bottom_edge_height = cr.Height() - bounds.bottom();
 
   // Now resize the window. This will result in Layout() getting called again
   // and the contents getting sized to the value specified in |contents_bounds|

@@ -140,9 +140,8 @@ class View : public AcceleratorTarget {
   // This is the function subclasses should use whenever they need to obtain
   // the bounds of one of their child views (for example, when implementing
   // View::Layout()).
-  void GetBounds(CRect *out) const {
-    GetBounds(out, IGNORE_MIRRORING_TRANSFORMATION);
-  };
+  // TODO(beng): Convert |bounds_| to a gfx::Rect.
+  gfx::Rect bounds() const { return gfx::Rect(bounds_); }
 
   // Return the bounds of the View, relative to the parent. If
   // |settings| is IGNORE_MIRRORING_TRANSFORMATION, the function returns the
@@ -155,7 +154,7 @@ class View : public AcceleratorTarget {
   //       transparent to the View subclasses and therefore you should use the
   //       version of GetBounds() which does not take a transformation settings
   //       parameter.
-  void GetBounds(CRect *out, PositionMirroringSettings settings) const;
+  gfx::Rect GetBounds(PositionMirroringSettings settings) const;
 
   // Set the bounds in the parent's coordinate system.
   void SetBounds(const CRect& bounds);

@@ -114,15 +114,16 @@ View::~View() {
 //
 /////////////////////////////////////////////////////////////////////////////
 
-void View::GetBounds(CRect* out, PositionMirroringSettings settings) const {
-  *out = bounds_;
+gfx::Rect View::GetBounds(PositionMirroringSettings settings) const {
+  gfx::Rect bounds(bounds_);
 
   // If the parent uses an RTL UI layout and if we are asked to transform the
   // bounds to their mirrored position if necessary, then we should shift the
   // rectangle appropriately.
-  if (settings == APPLY_MIRRORING_TRANSFORMATION) {
-    out->MoveToX(MirroredX());
-  }
+  if (settings == APPLY_MIRRORING_TRANSFORMATION)
+    bounds.set_x(MirroredX());
+  
+  return bounds;
 }
 
 // y(), width() and height() are agnostic to the RTL UI layout of the

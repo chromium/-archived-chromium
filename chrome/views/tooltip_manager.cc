@@ -379,9 +379,8 @@ void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
   HideKeyboardTooltip();
   std::wstring tooltip_text;
   if (!focused_view->GetTooltipText(0, 0, &tooltip_text))
-    return ;
-  CRect bounds;
-  focused_view->GetBounds(&bounds);
+    return;
+  gfx::Rect focused_bounds = focused_view->bounds();
   CPoint screen_point;
   focused_view->ConvertPointToScreen(focused_view, &screen_point);
   CPoint relative_point_coordinates;
@@ -409,9 +408,9 @@ void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
               reinterpret_cast<LPARAM>(&keyboard_toolinfo));
   if (!tooltip_height_)
     tooltip_height_ = CalcTooltipHeight();
-  RECT rect_bounds = {screen_point.x, screen_point.y + bounds.Height(),
+  RECT rect_bounds = {screen_point.x, screen_point.y + focused_bounds.height(),
                       screen_point.x + tooltip_width,
-                      screen_point.y + bounds.Height() +
+                      screen_point.y + focused_bounds.height() +
                       line_count * tooltip_height_ };
   gfx::Rect monitor_bounds =
       win_util::GetMonitorBoundsForRect(gfx::Rect(rect_bounds));

@@ -96,7 +96,7 @@ class AboutChromeView : public ChromeViews::View,
                               ChromeViews::Link* link,
                               gfx::Rect* rect,
                               CSize* position,
-                              const CRect& bounds,
+                              const gfx::Rect& bounds,
                               const ChromeFont& font);
 
   // A helper function for DrawTextAndPositionUrl, which simply draws the text
@@ -105,7 +105,7 @@ class AboutChromeView : public ChromeViews::View,
   void DrawTextStartingFrom(ChromeCanvas* canvas,
                             const std::wstring& text,
                             CSize* position,
-                            const CRect& bounds,
+                            const gfx::Rect& bounds,
                             const ChromeFont& font);
 
   // A simply utility function that calculates whether a word of width
@@ -114,7 +114,7 @@ class AboutChromeView : public ChromeViews::View,
   void WrapIfWordDoesntFit(int word_width,
                            int font_height,
                            CSize* position,
-                           const CRect& bounds);
+                           const gfx::Rect& bounds);
 
   Profile* profile_;
 

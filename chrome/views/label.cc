@@ -346,18 +346,16 @@ void Label::SizeToFit(int max_width) {
   std::vector<std::wstring> lines;
   SplitString(text_, L'\n', &lines);
 
-  int width = 0;
+  int label_width = 0;
   for (std::vector<std::wstring>::const_iterator iter = lines.begin();
        iter != lines.end(); ++iter) {
-    width = std::max(width, font_.GetStringWidth(*iter));
+    label_width = std::max(label_width, font_.GetStringWidth(*iter));
   }
 
   if (max_width > 0)
-    width = std::min(width, max_width);
+    label_width = std::min(label_width, max_width);
 
-  CRect out;
-  GetBounds(&out);
-  SetBounds(out.left, out.top, width, 0);
+  SetBounds(x(), y(), width(), 0);
   SizeToPreferredSize();
 }
 

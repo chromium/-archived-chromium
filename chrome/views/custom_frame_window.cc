@@ -425,9 +425,6 @@ CPoint DefaultNonClientView::GetSystemMenuPoint() const {
 // why this function passes APPLY_MIRRORING_TRANSFORMATION as the |settings|
 // whenever it calls GetBounds().
 int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
-  CRect bounds;
-  CPoint test_point = point.ToPOINT();
-
   // First see if it's within the grow box area, since that overlaps the client
   // bounds.
   int component = container_->client_view()->NonClientHitTest(point);
@@ -435,20 +432,22 @@ int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
     return component;
 
   // Then see if the point is within any of the window controls.
-  close_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  gfx::Rect button_bounds =
+      close_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTCLOSE;
-  restore_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  button_bounds = restore_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTMAXBUTTON;
-  maximize_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  button_bounds = maximize_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTMAXBUTTON;
-  minimize_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  button_bounds = minimize_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTMINBUTTON;
-  system_menu_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  button_bounds =
+      system_menu_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTSYSMENU;
 
   component = GetHTComponentForFrame(
@@ -459,8 +458,7 @@ int DefaultNonClientView::NonClientHitTest(const gfx::Point& point) {
       container_->window_delegate()->CanResize());
   if (component == HTNOWHERE) {
     // Finally fall back to the caption.
-    GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-    if (bounds.PtInRect(test_point))
+    if (bounds().Contains(point))
       component = HTCAPTION;
     // Otherwise, the point is outside the window's bounds.
   }
@@ -633,32 +631,31 @@ void DefaultNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
       resources()->GetPartBitmap(FRAME_CLIENT_EDGE_BOTTOM_LEFT);
   SkBitmap* left = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_LEFT);
 
-  CRect client_area_bounds;
-  container_->client_view()->GetBounds(&client_area_bounds);
+  gfx::Rect client_area_bounds = container_->client_view()->bounds();
 
-  canvas->DrawBitmapInt(*top_left, client_area_bounds.left - top_left->width(),
-                        client_area_bounds.top - top->height());
-  canvas->TileImageInt(*top, client_area_bounds.left,
-                       client_area_bounds.top - top->height(),
-                       client_area_bounds.Width(), top->height());
-  canvas->DrawBitmapInt(*top_right, client_area_bounds.right,
-                        client_area_bounds.top - top->height());
-  canvas->TileImageInt(*right, client_area_bounds.right,
-                       client_area_bounds.top - top->height() +
+  canvas->DrawBitmapInt(*top_left, client_area_bounds.x() - top_left->width(),
+                        client_area_bounds.y() - top->height());
+  canvas->TileImageInt(*top, client_area_bounds.x(),
+                       client_area_bounds.y() - top->height(),
+                       client_area_bounds.width(), top->height());
+  canvas->DrawBitmapInt(*top_right, client_area_bounds.right(),
+                        client_area_bounds.y() - top->height());
+  canvas->TileImageInt(*right, client_area_bounds.right(),
+                       client_area_bounds.y() - top->height() +
                            top_right->height(),
-                       right->width(), client_area_bounds.Height());
-  canvas->DrawBitmapInt(*bottom_right, client_area_bounds.right,
-                        client_area_bounds.bottom);
-  canvas->TileImageInt(*bottom, client_area_bounds.left,
-                       client_area_bounds.bottom,
-                       client_area_bounds.Width(), bottom_right->height());
+                       right->width(), client_area_bounds.height());
+  canvas->DrawBitmapInt(*bottom_right, client_area_bounds.right(),
+                        client_area_bounds.bottom());
+  canvas->TileImageInt(*bottom, client_area_bounds.x(),
+                       client_area_bounds.bottom(),
+                       client_area_bounds.width(), bottom_right->height());
   canvas->DrawBitmapInt(*bottom_left,
-                        client_area_bounds.left - bottom_left->width(),
-                        client_area_bounds.bottom);
-  canvas->TileImageInt(*left, client_area_bounds.left - left->width(),
-                       client_area_bounds.top - top->height() +
+                        client_area_bounds.x() - bottom_left->width(),
+                        client_area_bounds.bottom());
+  canvas->TileImageInt(*left, client_area_bounds.x() - left->width(),
+                       client_area_bounds.y() - top->height() +
                            top_left->height(),
-                       left->width(), client_area_bounds.Height());
+                       left->width(), client_area_bounds.height());
 }
 
 void DefaultNonClientView::LayoutWindowControls() {
@@ -780,14 +777,13 @@ void DefaultNonClientView::LayoutTitleBar() {
 
   // Size the title, if visible.
   if (d->ShouldShowWindowTitle()) {
-    CRect system_menu_bounds;
-    system_menu_button_->GetBounds(&system_menu_bounds);
+    gfx::Rect system_menu_bounds = system_menu_button_->bounds();
     int spacing = d->ShouldShowWindowIcon() ? kWindowIconTitleSpacing : 0;
     int title_right = should_show_minmax_buttons_ ?
         minimize_button_->x() : close_button_->x();
-    int title_left = system_menu_bounds.right + spacing;
+    int title_left = system_menu_bounds.right() + spacing;
     title_bounds_.SetRect(title_left, kTitleTopOffset + top_offset,
-        std::max(0, static_cast<int>(title_right - system_menu_bounds.right)),
+        std::max(0, static_cast<int>(title_right - system_menu_bounds.right())),
         title_font_.height());
 
     // We draw the custom frame window's title directly rather than using a

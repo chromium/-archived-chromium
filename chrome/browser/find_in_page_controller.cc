@@ -478,19 +478,22 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
   *bounds = gfx::Rect(browser_client_rect);
 
   // Find the dimensions of the toolbar and the BookmarkBar.
-  CRect toolbar_bounds, bookmark_bar_bounds;
+  gfx::Rect toolbar_bounds, bookmark_bar_bounds;
   if (toolbar) {
     if (!g_browser_process->IsUsingNewFrames())
-      toolbar->GetBounds(&toolbar_bounds);
-    else
-      toolbar->GetLocalBounds(&toolbar_bounds, false);
+      toolbar_bounds = toolbar->bounds();
+    else {
+      CRect local_bounds;
+      toolbar->GetLocalBounds(&local_bounds, false);
+      toolbar_bounds = gfx::Rect(local_bounds);
+    }
     // Need to convert toolbar bounds into ViewContainer coords because the
     // toolbar is the child of another view that isn't the top level view.
     // This is required to ensure correct positioning relative to the top,left
     // of the window.
     CPoint topleft(0, 0);
     ChromeViews::View::ConvertPointToViewContainer(toolbar, &topleft);
-    toolbar_bounds.OffsetRect(topleft);
+    toolbar_bounds.Offset(topleft.x, topleft.y);
   }
 
   // If the bookmarks bar is available, we need to update our
@@ -509,7 +512,7 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
     // the bookmarks bar (this works even if the bar is hidden).
     if (!bookmark_bar->IsNewTabPage() ||
         bookmark_bar->IsAlwaysShown()) {
-      bookmark_bar->GetBounds(&bookmark_bar_bounds);
+      bookmark_bar_bounds = bookmark_bar->bounds();
     }
   } else {
     view_->SetToolbarBlend(true);
@@ -522,13 +525,13 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
   // window or a Chrome application so we want to draw at the top of the page
   // content (right beneath the title bar).
   int y_pos_offset = 0;
-  if (!toolbar_bounds.IsRectEmpty()) {
+  if (!toolbar_bounds.IsEmpty()) {
     // We have a toolbar (chrome), so overlap it by one pixel.
-    y_pos_offset = toolbar_bounds.BottomRight().y - 1;
+    y_pos_offset = toolbar_bounds.bottom() - 1;
     // If there is a bookmark bar attached to the toolbar we should appear
     // attached to it instead of the toolbar.
-    if (!bookmark_bar_bounds.IsRectEmpty())
-      y_pos_offset += bookmark_bar_bounds.Height() - 1;
+    if (!bookmark_bar_bounds.IsEmpty())
+      y_pos_offset += bookmark_bar_bounds.height() - 1;
   } else {
     // There is no toolbar, so this is probably a constrained window or a Chrome
     // Application. This means we draw the Find window at the top of the page

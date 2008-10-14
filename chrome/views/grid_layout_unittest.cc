@@ -89,7 +89,7 @@ class GridLayoutAlignmentTest : public testing::Test {
     EXPECT_TRUE(CSize(10, 20) == pref);
     host.SetBounds(0, 0, 100, 100);
     layout->Layout(&host);
-    v1.GetBounds(bounds);
+    *bounds = v1.bounds().ToRECT();
     RemoveAll();
   }
 

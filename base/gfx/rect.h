@@ -91,6 +91,11 @@ class Rect {
   // point (x + width, y + height) is not.
   bool Contains(int point_x, int point_y) const;
 
+  // Returns true if the specified point is contained by this rectangle.
+  bool Contains(const gfx::Point& point) const {
+    return Contains(point.x(), point.y());
+  }
+
   // Returns true if this rectangle contains the specified rectangle.
   bool Contains(const Rect& rect) const;
 

@@ -543,11 +543,9 @@ bool TabStrip::PointIsWithinWindowCaption(const CPoint& point) {
   // Check to see if the point is within the non-button parts of the new tab
   // button. The button has a non-rectangular shape, so if it's not in the
   // visual portions of the button we treat it as a click to the caption.
-  CRect bounds;
-  newtab_button_->GetBounds(&bounds);
   CPoint point_in_newtab_coords(point);
   View::ConvertPointToView(this, newtab_button_, &point_in_newtab_coords);
-  if (bounds.PtInRect(point) &&
+  if (newtab_button_->bounds().Contains(gfx::Point(point)) &&
       !newtab_button_->HitTest(point_in_newtab_coords)) {
     return true;
   }

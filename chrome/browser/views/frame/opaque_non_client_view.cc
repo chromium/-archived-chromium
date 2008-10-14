@@ -527,9 +527,6 @@ CPoint OpaqueNonClientView::GetSystemMenuPoint() const {
 }
 
 int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
-  CRect bounds;
-  CPoint test_point = point.ToPOINT();
-
   // First see if it's within the grow box area, since that overlaps the client
   // bounds.
   int component = frame_->client_view()->NonClientHitTest(point);
@@ -537,21 +534,22 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
     return component;
 
   // Then see if the point is within any of the window controls.
-  close_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  gfx::Rect button_bounds =
+      close_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTCLOSE;
-  restore_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  button_bounds = restore_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTMAXBUTTON;
-  maximize_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  button_bounds = maximize_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTMAXBUTTON;
-  minimize_button_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (bounds.PtInRect(test_point))
+  button_bounds = minimize_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTMINBUTTON;
   if (window_icon_) {
-    window_icon_->GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-    if (bounds.PtInRect(test_point))
+    button_bounds = window_icon_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+    if (button_bounds.Contains(point))
       return HTSYSMENU;
   }
 
@@ -563,8 +561,7 @@ int OpaqueNonClientView::NonClientHitTest(const gfx::Point& point) {
       frame_->window_delegate()->CanResize());
   if (component == HTNOWHERE) {
     // Finally fall back to the caption.
-    GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-    if (bounds.PtInRect(test_point))
+    if (bounds().Contains(point))
       component = HTCAPTION;
     // Otherwise, the point is outside the window's bounds.
   }
@@ -647,9 +644,7 @@ ChromeViews::View* OpaqueNonClientView::GetViewForPoint(
   for (int i = 0; i < arraysize(views); ++i) {
     if (!views[i]->IsVisible())
       continue;
-    CRect bounds;
-    views[i]->GetBounds(&bounds);
-    if (bounds.PtInRect(point))
+    if (views[i]->bounds().Contains(gfx::Point(point)))
       return views[i];
   }
   return View::GetViewForPoint(point, can_create_floating);

@@ -16,11 +16,7 @@ ClientView::ClientView(Window* window, View* contents_view)
 }
 
 int ClientView::NonClientHitTest(const gfx::Point& point) {
-  CRect bounds;
-  GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-  if (gfx::Rect(bounds).Contains(point.x(), point.y()))
-    return HTCLIENT;
-  return HTNOWHERE;
+  return bounds().Contains(point) ? HTCLIENT : HTNOWHERE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

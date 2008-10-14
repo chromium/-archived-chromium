@@ -108,11 +108,10 @@ void FirstRunViewBase::SetupControls() {
 }
 
 void FirstRunViewBase::AdjustDialogWidth(const ChromeViews::View* sub_view) {
-  CRect bounds;
-  sub_view->GetBounds(&bounds);
+  gfx::Rect sub_view_bounds = sub_view->bounds();
   preferred_width_ =
       std::max(preferred_width_,
-               static_cast<int>(bounds.right) + kPanelHorizMargin);
+               static_cast<int>(sub_view_bounds.right()) + kPanelHorizMargin);
 }
 
 void FirstRunViewBase::SetMinimumDialogWidth(int width) {

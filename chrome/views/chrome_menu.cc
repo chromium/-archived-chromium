@@ -1016,9 +1016,7 @@ gfx::Rect SubmenuView::CalculateDropIndicatorBounds(
     MenuItemView* item,
     MenuDelegate::DropPosition position) {
   DCHECK(position != MenuDelegate::DROP_NONE);
-  CRect item_bounds_c;
-  item->GetBounds(&item_bounds_c);
-  gfx::Rect item_bounds(item_bounds_c);
+  gfx::Rect item_bounds = item->bounds();
   switch (position) {
     case MenuDelegate::DROP_BEFORE:
       item_bounds.Offset(0, -kDropIndicatorHeight / 2);

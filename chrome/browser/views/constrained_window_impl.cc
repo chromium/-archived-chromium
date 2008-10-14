@@ -502,9 +502,6 @@ CPoint ConstrainedWindowNonClientView::GetSystemMenuPoint() const {
 }
 
 int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
-  CRect bounds;
-  CPoint test_point = point.ToPOINT();
-
   // First see if it's within the grow box area, since that overlaps the client
   // bounds.
   int component = container_->client_view()->NonClientHitTest(point);
@@ -512,11 +509,11 @@ int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
     return component;
 
   // Then see if the point is within any of the window controls.
-  close_button_->GetBounds(&bounds);
-  if (bounds.PtInRect(test_point))
+  gfx::Rect button_bounds =
+      close_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+  if (button_bounds.Contains(point))
     return HTCLOSE;
-  bounds = icon_bounds_.ToRECT();
-  if (bounds.PtInRect(test_point))
+  if (icon_bounds_.Contains(point))
     return HTSYSMENU;
 
   component = GetHTComponentForFrame(point, kResizeAreaSize,
@@ -525,8 +522,7 @@ int ConstrainedWindowNonClientView::NonClientHitTest(const gfx::Point& point) {
                                      window_delegate_->CanResize());
   if (component == HTNOWHERE) {
     // Finally fall back to the caption.
-    GetBounds(&bounds, APPLY_MIRRORING_TRANSFORMATION);
-    if (bounds.PtInRect(test_point))
+    if (bounds().Contains(point))
       component = HTCAPTION;
     // Otherwise, the point is outside the window's bounds.
   }

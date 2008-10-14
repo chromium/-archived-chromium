@@ -312,8 +312,7 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
   ChromeFont font =
     ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::BaseFont);
 
-  CRect bounds;
-  main_text_label_->GetBounds(&bounds);
+  const gfx::Rect label_bounds = main_text_label_->bounds();
 
   ChromeViews::Link* link1 =
       chromium_url_appears_first_ ? chromium_url_ : open_source_url_;
@@ -330,12 +329,13 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
   CSize position;
   // Draw the first text chunk and position the Chromium url.
   DrawTextAndPositionUrl(canvas, main_label_chunk1_, link1,
-                         rect1, &position, bounds, font);
+                         rect1, &position, label_bounds, font);
   // Draw the second text chunk and position the Open Source url.
   DrawTextAndPositionUrl(canvas, main_label_chunk2_, link2,
-                         rect2, &position, bounds, font);
+                         rect2, &position, label_bounds, font);
   // Draw the third text chunk.
-  DrawTextStartingFrom(canvas, main_label_chunk3_, &position, bounds, font);
+  DrawTextStartingFrom(canvas, main_label_chunk3_, &position, label_bounds,
+                       font);
 
 #if defined(GOOGLE_CHROME_BUILD)
   // Insert a line break and some whitespace.
@@ -344,9 +344,11 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
 
   // And now the Terms of Service and position the TOS url.
   DrawTextAndPositionUrl(canvas, main_label_chunk4_, terms_of_service_url_,
-                         &terms_of_service_url_rect_, &position, bounds, font);
+                         &terms_of_service_url_rect_, &position, label_bounds,
+                         font);
   // The last text chunk doesn't have a URL associated with it.
-  DrawTextStartingFrom(canvas, main_label_chunk5_, &position, bounds, font);
+  DrawTextStartingFrom(canvas, main_label_chunk5_, &position, label_bounds,
+                       font);
 #endif
 
   // Save the height so we can set the bounds correctly.
@@ -358,7 +360,7 @@ void AboutChromeView::DrawTextAndPositionUrl(ChromeCanvas* canvas,
                                              ChromeViews::Link* link,
                                              gfx::Rect* rect,
                                              CSize* position,
-                                             const CRect& bounds,
+                                             const gfx::Rect& bounds,
                                              const ChromeFont& font) {
   DCHECK(canvas && link && rect && position);
   // Draw the text chunk.
@@ -371,7 +373,7 @@ void AboutChromeView::DrawTextAndPositionUrl(ChromeCanvas* canvas,
   *rect = gfx::Rect(position->cx, position->cy, sz.cx, sz.cy);
 
   // Going from relative to absolute pixel coordinates again.
-  rect->Offset(bounds.TopLeft().x, bounds.TopLeft().y);
+  rect->Offset(bounds.x(), bounds.y());
   // And leave some space to draw the link in.
   position->cx += sz.cx;
 }
@@ -379,7 +381,7 @@ void AboutChromeView::DrawTextAndPositionUrl(ChromeCanvas* canvas,
 void AboutChromeView::DrawTextStartingFrom(ChromeCanvas* canvas,
                                            const std::wstring& text,
                                            CSize* position,
-                                           const CRect& bounds,
+                                           const gfx::Rect& bounds,
                                            const ChromeFont& font) {
   // Iterate through line breaking opportunities (which in English would be
   // spaces and such. This tells us where to wrap.
@@ -407,8 +409,8 @@ void AboutChromeView::DrawTextStartingFrom(ChromeCanvas* canvas,
     // Draw the word on the screen (mirrored if RTL locale).
     canvas->DrawStringInt(word, font, SK_ColorBLACK,
         main_text_label_->MirroredXCoordinateInsideView(
-            position->cx + bounds.TopLeft().x),
-            position->cy + bounds.TopLeft().y,
+            position->cx + bounds.x()),
+            position->cy + bounds.y(),
             w, h, flags);
 
     if (word.size() > 0 && word[word.size() - 1] == L'\x0a') {
@@ -425,8 +427,8 @@ void AboutChromeView::DrawTextStartingFrom(ChromeCanvas* canvas,
 void AboutChromeView::WrapIfWordDoesntFit(int word_width,
                                           int font_height,
                                           CSize* position,
-                                          const CRect& bounds) {
-  if (position->cx + word_width > bounds.right) {
+                                          const gfx::Rect& bounds) {
+  if (position->cx + word_width > bounds.right()) {
     position->cx = 0;
     position->cy += font_height;
   }

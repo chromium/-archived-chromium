@@ -165,9 +165,7 @@ TEST_F(ViewTest, DidChangeBounds) {
   EXPECT_EQ(v->previous_bounds_, prev_rect);
   EXPECT_EQ(v->new_bounds_, new_rect);
 
-  CRect r;
-  v->GetBounds(&r);
-  EXPECT_EQ(r, new_rect);
+  EXPECT_EQ(v->bounds(), gfx::Rect(new_rect));
   delete v;
 }
 

@@ -1479,10 +1479,7 @@ bool VistaFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   } else if (new_view && *view) {
     // The view changed, but the new view wants the same size, give it the
     // bounds of the last view and have it repaint.
-    CRect last_bounds;
-    (*view)->GetBounds(&last_bounds);
-    new_view->SetBounds(last_bounds.left, last_bounds.top,
-                        last_bounds.Width(), last_bounds.Height());
+    new_view->SetBounds((*view)->bounds().ToRECT());
     new_view->SchedulePaint();
   } else if (new_view) {
     DCHECK(new_height == 0);

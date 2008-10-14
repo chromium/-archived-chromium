@@ -446,7 +446,7 @@ STDMETHODIMP ViewAccessibility::accLocation(LONG* x_left, LONG* y_top,
     return E_INVALIDARG;
   }
 
-  CRect view_bounds(0, 0, 0, 0);
+  gfx::Rect view_bounds;
   // Retrieving the parent View to be used for converting from view-to-screen
   // coordinates.
   ChromeViews::View* parent = view_->GetParent();
@@ -458,25 +458,26 @@ STDMETHODIMP ViewAccessibility::accLocation(LONG* x_left, LONG* y_top,
 
   if (var_id.lVal == CHILDID_SELF) {
     // Retrieve active View's bounds.
-    view_->GetBounds(&view_bounds);
+    view_bounds = view_->bounds();
   } else {
     // Check to see if child is out-of-bounds.
     if (!IsValidChild((var_id.lVal - 1), view_)) {
       return E_INVALIDARG;
     }
     // Retrieve child bounds.
-    view_->GetChildViewAt(var_id.lVal - 1)->GetBounds(&view_bounds);
+    view_bounds = view_->GetChildViewAt(var_id.lVal - 1)->bounds();
     // Parent View is current View.
     parent = view_;
   }
 
-  if (!view_bounds.IsRectNull()) {
-    *width  = view_bounds.Width();
-    *height = view_bounds.Height();
+  if (!view_bounds.IsEmpty()) {
+    *width  = view_bounds.width();
+    *height = view_bounds.height();
 
-    ChromeViews::View::ConvertPointToScreen(parent, &view_bounds.TopLeft());
-    *x_left = view_bounds.left;
-    *y_top  = view_bounds.top;
+    CPoint topleft = view_bounds.origin().ToPOINT();
+    ChromeViews::View::ConvertPointToScreen(parent, &topleft);
+    *x_left = topleft.x;
+    *y_top  = topleft.y;
   } else {
     return E_FAIL;
   }

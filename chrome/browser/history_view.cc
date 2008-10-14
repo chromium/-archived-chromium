@@ -394,13 +394,10 @@ void HistoryItemRenderer::Paint(ChromeCanvas* canvas) {
   if (favicon) {
     // WARNING: if you change these values, update the code that determines
     // whether we should allow a drag (GetDragRegion).
-    CRect title_bounds;
-    title_link_->GetBounds(&title_bounds);
 
     // We need to tweak the favicon position if the UI layout is RTL.
     gfx::Rect favicon_bounds;
-    favicon_bounds.set_x(
-        title_bounds.left - kIconPadding - kFavIconSize);
+    favicon_bounds.set_x(title_link_->x() - kIconPadding - kFavIconSize);
     favicon_bounds.set_y(kEntryPadding);
     favicon_bounds.set_width(favicon->width());
     favicon_bounds.set_height(favicon->height());
@@ -602,14 +599,11 @@ HistoryItemRenderer::DragRegion HistoryItemRenderer::GetDragRegion(int x,
                                                                    int y) {
   // Is the location over the favicon?
   SkBitmap* favicon = model_->GetFavicon(model_index_);
-  CRect title_bounds;
-  title_link_->GetBounds(&title_bounds);
   if (favicon) {
     // If the UI layout is right-to-left, we must make sure we mirror the
     // favicon position before doing any hit testing.
     gfx::Rect favicon_bounds;
-    favicon_bounds.set_x(
-        title_bounds.left - kIconPadding - kFavIconSize);
+    favicon_bounds.set_x(title_link_->x() - kIconPadding - kFavIconSize);
     favicon_bounds.set_y(kEntryPadding);
     favicon_bounds.set_width(favicon->width());
     favicon_bounds.set_height(favicon->height());

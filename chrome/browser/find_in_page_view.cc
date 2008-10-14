@@ -284,28 +284,28 @@ void FindInPageView::Paint(ChromeCanvas* canvas) {
 
   // Then we draw the background image for the Find TextField. We start by
   // calculating the position of background images for the Find text box.
-  CRect find_text_rect;
-  CRect back_button_rect;
+  gfx::Rect find_text_rect;
+  gfx::Rect back_button_rect;
   int x = 0;   // x coordinate of the curved edge background image.
   int w = 0;   // width of the background image for the text field.
   if (UILayoutIsRightToLeft()) {
-    find_text_->GetBounds(&find_text_rect, APPLY_MIRRORING_TRANSFORMATION);
-    find_previous_button_->GetBounds(&back_button_rect,
-                                     APPLY_MIRRORING_TRANSFORMATION);
-    x = find_text_rect.right;
-    w = find_text_rect.right - back_button_rect.right;
+    find_text_rect = find_text_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+    back_button_rect =
+        find_previous_button_->GetBounds(APPLY_MIRRORING_TRANSFORMATION);
+    x = find_text_rect.right();
+    w = find_text_rect.right() - back_button_rect.right();
   } else {
-    find_text_->GetBounds(&find_text_rect);
-    find_previous_button_->GetBounds(&back_button_rect);
-    x = find_text_rect.left - kBackground_left->width();
-    w = back_button_rect.left - find_text_rect.left;
+    find_text_rect = find_text_->bounds();
+    back_button_rect = find_previous_button_->bounds();
+    x = find_text_rect.x() - kBackground_left->width();
+    w = back_button_rect.x() - find_text_rect.x();
   }
 
   // Draw the image to the left that creates a curved left edge for the box
   // (drawn on the right for RTL languages).
   canvas->TileImageInt(*kBackground_left,
                        x,
-                       back_button_rect.top,
+                       back_button_rect.y(),
                        kBackground_left->width(),
                        kBackground_left->height());
 
@@ -314,8 +314,8 @@ void FindInPageView::Paint(ChromeCanvas* canvas) {
   int background_height = kBackground->height();
   canvas->TileImageInt(*kBackground,
                        UILayoutIsRightToLeft() ?
-                           back_button_rect.right : find_text_rect.left,
-                       back_button_rect.top,
+                           back_button_rect.right() : find_text_rect.x(),
+                       back_button_rect.y(),
                        w,
                        background_height);
 

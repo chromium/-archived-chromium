@@ -90,46 +90,40 @@ class BitmapScrollBarThumb : public View {
     size = std::max(size,
                     static_cast<int>(scroll_bar_->IsHorizontal() ?
                         prefsize.cx : prefsize.cy));
-    CRect bounds;
-    GetBounds(&bounds);
+    gfx::Rect thumb_bounds = bounds();
     if (scroll_bar_->IsHorizontal()) {
-      bounds.right = bounds.left + size;
+      thumb_bounds.set_width(size);
     } else {
-      bounds.bottom = bounds.top + size;
+      thumb_bounds.set_height(size);
     }
-    SetBounds(bounds);
+    SetBounds(thumb_bounds.ToRECT());
   }
 
   // Retrieves the size (width or height) of the thumb.
   int GetSize() const {
-    CRect bounds;
-    GetBounds(&bounds);
     if (scroll_bar_->IsHorizontal())
-      return bounds.Width();
-    return bounds.Height();
+      return width();
+    return height();
   }
 
   // Sets the position of the thumb on the x or y axis.
   void SetPosition(int position) {
-    CRect bounds;
-    GetBounds(&bounds);
+    gfx::Rect thumb_bounds = bounds();
     gfx::Rect track_bounds = scroll_bar_->GetTrackBounds();
     if (scroll_bar_->IsHorizontal()) {
-      bounds.MoveToX(track_bounds.x() + position);
+      thumb_bounds.set_x(track_bounds.x() + position);
     } else {
-      bounds.MoveToY(track_bounds.y() + position);
+      thumb_bounds.set_x(track_bounds.y() + position);
     }
-    SetBounds(bounds);
+    SetBounds(thumb_bounds.ToRECT());
   }
 
   // Gets the position of the thumb on the x or y axis.
   int GetPosition() const {
-    CRect bounds;
-    GetBounds(&bounds);
     gfx::Rect track_bounds = scroll_bar_->GetTrackBounds();
     if (scroll_bar_->IsHorizontal())
-      return bounds.left - track_bounds.x();
-    return bounds.top - track_bounds.y();
+      return x() - track_bounds.x();
+    return y() - track_bounds.y();
   }
 
   // View overrides:
@@ -380,11 +374,8 @@ void BitmapScrollBar::ScrollByContentsOffset(int contents_offset) {
 }
 
 void BitmapScrollBar::TrackClicked() {
-  if (last_scroll_amount_ != SCROLL_NONE) {
-    CRect thumb_bounds;
-    thumb_->GetBounds(&thumb_bounds);
+  if (last_scroll_amount_ != SCROLL_NONE)
     ScrollByAmount(last_scroll_amount_);
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -436,14 +427,12 @@ void BitmapScrollBar::Layout() {
   // Preserve the height/width of the thumb (depending on orientation) as set
   // by the last call to |Update|, but coerce the width/height to be the
   // appropriate value for the bitmaps provided.
-  CRect bounds;
-  thumb_->GetBounds(&bounds);
   if (IsHorizontal()) {
-    thumb_->SetBounds(bounds.left, bounds.top, bounds.Width(),
+    thumb_->SetBounds(thumb_->x(), thumb_->y(), thumb_->width(),
                       thumb_prefsize.cy);
   } else {
-    thumb_->SetBounds(bounds.left, bounds.top, thumb_prefsize.cx,
-                      bounds.Height());
+    thumb_->SetBounds(thumb_->x(), thumb_->y(), thumb_prefsize.cx,
+                      thumb_->height());
   }
 
   // Hide the thumb if the track isn't tall enough to display even a tiny
@@ -465,18 +454,17 @@ void BitmapScrollBar::DidChangeBounds(const CRect& previous,
 bool BitmapScrollBar::OnMousePressed(const MouseEvent& event) {
   if (event.IsOnlyLeftMouseButton()) {
     SetThumbTrackState(BaseButton::BS_PUSHED);
-    CRect thumb_bounds;
-    thumb_->GetBounds(&thumb_bounds);
+    gfx::Rect thumb_bounds = thumb_->bounds();
     if (IsHorizontal()) {
-      if (event.x() < thumb_bounds.left) {
+      if (event.x() < thumb_bounds.x()) {
         last_scroll_amount_ = SCROLL_PREV_PAGE;
-      } else if (event.x() > thumb_bounds.right) {
+      } else if (event.x() > thumb_bounds.right()) {
         last_scroll_amount_ = SCROLL_NEXT_PAGE;
       }
     } else {
-      if (event.y() < thumb_bounds.top) {
+      if (event.y() < thumb_bounds.y()) {
         last_scroll_amount_ = SCROLL_PREV_PAGE;
-      } else if (event.y() > thumb_bounds.bottom) {
+      } else if (event.y() > thumb_bounds.bottom()) {
         last_scroll_amount_ = SCROLL_NEXT_PAGE;
       }
     }
