@@ -5,6 +5,8 @@
 #ifndef WEBKIT_GLUE_PLUGIN_PLUGIN_LIB_H__
 #define WEBKIT_GLUE_PLUGIN_PLUGIN_LIB_H__
 
+#include "build/build_config.h"
+
 #include <string>
 
 #include "base/basictypes.h"
@@ -83,10 +85,12 @@ class PluginLib : public base::RefCounted<PluginLib> {
   // NPAPI method to shutdown a Plugin.
   void NP_Shutdown(void);
 
+#if defined(OS_WIN)
   // Helper function to load a plugin.
   // Returns the module handle on success.
   static HMODULE LoadPluginHelper(const std::wstring plugin_file);
- 
+#endif
+
   int instance_count() const { return instance_count_; }
 
  private:
@@ -115,7 +119,9 @@ class PluginLib : public base::RefCounted<PluginLib> {
 
   bool             internal_;         // Whether this an internal plugin.
   scoped_ptr<WebPluginInfo> web_plugin_info_;  // supported mime types, description
+#if defineed(OS_WIN)
   HMODULE          module_;           // the opened DLL handle
+#endif
   NPPluginFuncs    plugin_funcs_;     // the struct of plugin side functions
   bool             initialized_;      // is the plugin initialized
   NPSavedData     *saved_data_;       // persisted plugin info for NPAPI
