@@ -170,9 +170,7 @@ input_files = [
     '$WEBCORE_DIR/editing/CompositeEditCommand.cpp',
     '$WEBCORE_DIR/editing/CreateLinkCommand.cpp',
     '$WEBCORE_DIR/editing/DeleteButton.cpp',
-    # Uncomment and replace following line when the $PENDING_DIR file unforks.
-    #'$WEBCORE_DIR/editing/DeleteButtonController.cpp',
-    '$PENDING_DIR/DeleteButtonController.cpp',
+    '$WEBCORE_DIR/editing/DeleteButtonController.cpp',
     '$WEBCORE_DIR/editing/DeleteFromTextNodeCommand.cpp',
     '$WEBCORE_DIR/editing/DeleteSelectionCommand.cpp',
     '$WEBCORE_DIR/editing/EditCommand.cpp',
