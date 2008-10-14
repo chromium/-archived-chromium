@@ -14,13 +14,16 @@
 
 #include "config.h"
 
+#include "base/compiler_specific.h"
+
 #include "webkit/glue/cpp_bound_class.h"
 #include "webkit/glue/webframe.h"
 
 // This is required for the KJS build due to an artifact of the
 // npruntime_priv.h file from JavaScriptCore/bindings.
-#pragma warning(disable:4067)
+MSVC_PUSH_DISABLE_WARNING(4067)
 #include "npruntime_priv.h"
+MSVC_POP_WARNING()
 
 #if USE(JSC)
 #pragma warning(push, 0)

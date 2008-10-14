@@ -256,7 +256,7 @@ ResourceHandleInternal::ResourceHandleInternal(ResourceHandle* job,
       pending_(false),
       expected_content_length_(-1),
       multipart_delegate_(NULL),
-#pragma warning(suppress: 4355)  // can use this
+MSVC_SUPPRESS_WARNING(4355)  // can use this
       data_url_factory_(this) {
 }
 
@@ -612,7 +612,7 @@ ResourceHandle::ResourceHandle(const ResourceRequest& request,
                                bool defersLoading,
                                bool shouldContentSniff,
                                bool mightDownloadFromHandle)
-#pragma warning(suppress: 4355)  // it's okay to pass |this| here!
+MSVC_SUPPRESS_WARNING(4355)  // it's okay to pass |this| here!
       : d(new ResourceHandleInternal(this, request, client)) {
   // TODO(darin): figure out what to do with the two bool params
 }

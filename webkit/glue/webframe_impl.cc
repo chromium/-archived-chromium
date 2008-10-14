@@ -268,10 +268,10 @@ int WebFrameImpl::live_object_count_ = 0;
 
 WebFrameImpl::WebFrameImpl()
 // Don't complain about using "this" in initializer list.
-#pragma warning(disable: 4355)
+MSVC_PUSH_DISABLE_WARNING(4355)
   : frame_loader_client_(this),
     scope_matches_factory_(this),
-#pragma warning(default: 4355)
+MSVC_POP_WARNING()
     currently_loading_request_(NULL),
     plugin_delegate_(NULL),
     allows_scrolling_(true),
