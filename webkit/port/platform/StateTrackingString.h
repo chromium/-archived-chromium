@@ -6,7 +6,7 @@
 #define StateTrackingString_h
 
 #include "config.h"
-#include "String.h"
+#include "PlatformString.h"
 
 #include "webkit/glue/webkit_glue.h"
 
