@@ -335,7 +335,7 @@ void LayoutTestController::objCIdentityIsEqual(
 
 void LayoutTestController::Reset() {
   if (shell_) {
-    shell_->webView()->MakeTextStandardSize();
+    shell_->webView()->ResetZoom();
     shell_->webView()->SetTabKeyCyclesThroughElements(true);
   }
   dump_as_text_ = false;
