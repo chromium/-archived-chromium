@@ -242,10 +242,10 @@ class BookmarkButton : public ChromeViews::TextButton {
   }
 
   bool GetTooltipText(int x, int y, std::wstring* tooltip) {
-    CPoint location(x, y);
+    gfx::Point location(x, y);
     ConvertPointToScreen(this, &location);
     *tooltip = CreateToolTipForURLAndTitle(
-        gfx::Point(location.x, location.y), url_, GetText(),
+        gfx::Point(location.x(), location.y()), url_, GetText(),
         profile_->GetPrefs()->GetString(prefs::kAcceptLanguages));
     return !tooltip->empty();
   }
@@ -1403,12 +1403,12 @@ void BookmarkBarView::RunMenu(ChromeViews::View* view,
     else
       anchor_point = MenuItemView::TOPLEFT;
   }
-  CPoint screen_loc(x, 0);
+  gfx::Point screen_loc(x, 0);
   View::ConvertPointToScreen(this, &screen_loc);
   menu_runner_.reset(new MenuRunner(this, node, start_index));
   HWND parent_hwnd = GetViewContainer()->GetHWND();
   menu_runner_->RunMenuAt(parent_hwnd,
-                          gfx::Rect(screen_loc.x, screen_loc.y,
+                          gfx::Rect(screen_loc.x(), screen_loc.y(),
                                     view->width(), bar_height),
                           anchor_point,
                           false);
@@ -1586,11 +1586,11 @@ void BookmarkBarView::ShowDropFolderForNode(BookmarkNode* node) {
 
   drop_info_->is_menu_showing = true;
   drop_menu_runner_.reset(new MenuRunner(this, node, start_index));
-  CPoint screen_loc(0, 0);
+  gfx::Point screen_loc;
   View::ConvertPointToScreen(view_to_position_menu_from, &screen_loc);
   drop_menu_runner_->RunMenuAt(
       GetViewContainer()->GetHWND(),
-      gfx::Rect(screen_loc.x, screen_loc.y,
+      gfx::Rect(screen_loc.x(), screen_loc.y(),
                 view_to_position_menu_from->width(),
                 view_to_position_menu_from->height()),
       anchor, true);

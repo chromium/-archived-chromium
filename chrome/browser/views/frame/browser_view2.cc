@@ -712,13 +712,13 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   // animating.
   if (IsTabStripVisible() && tabstrip_->CanProcessInputEvents()) {
     ChromeViews::Window* window = frame_->GetWindow();
-    CPoint point_in_view_coords(point.ToPOINT());
+    gfx::Point point_in_view_coords(point);
     View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
 
     // See if the mouse pointer is within the bounds of the TabStrip.
-    CPoint point_in_tabstrip_coords(point.ToPOINT());
+    gfx::Point point_in_tabstrip_coords(point);
     View::ConvertPointToView(GetParent(), tabstrip_, &point_in_tabstrip_coords);
-    if (tabstrip_->HitTest(point_in_tabstrip_coords)) {
+    if (tabstrip_->HitTest(point_in_tabstrip_coords.ToPOINT())) {
       if (tabstrip_->PointIsWithinWindowCaption(point_in_tabstrip_coords))
         return HTCAPTION;
       return HTCLIENT;
@@ -728,7 +728,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
     // starved of dragable area, let's give it to window dragging (this also
     // makes sense visually).
     if (!window->IsMaximized() && 
-        (point_in_view_coords.y < tabstrip_->y() + kTabShadowSize)) {
+        (point_in_view_coords.y() < tabstrip_->y() + kTabShadowSize)) {
       // We return HTNOWHERE as this is a signal to our containing
       // NonClientView that it should figure out what the correct hit-test
       // code is given the mouse position...

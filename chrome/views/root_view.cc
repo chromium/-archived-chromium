@@ -323,7 +323,8 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
   return hit_disabled_view;
 }
 
-bool RootView::ConvertPointToMouseHandler(const CPoint &l, CPoint *p) {
+bool RootView::ConvertPointToMouseHandler(const gfx::Point& l,
+                                          gfx::Point* p) {
   //
   // If the mouse_handler was set explicitly, we need to keep
   // sending events even if it was reparented in a different
@@ -354,9 +355,9 @@ bool RootView::OnMouseDragged(const MouseEvent& e) {
   if (mouse_pressed_handler_) {
     SetMouseLocationAndFlags(e);
 
-    CPoint p;
-    ConvertPointToMouseHandler(WTL::CPoint(e.x(), e.y()), &p);
-    MouseEvent mouse_event(e.GetType(), p.x, p.y, e.GetFlags());
+    gfx::Point p;
+    ConvertPointToMouseHandler(e.location(), &p);
+    MouseEvent mouse_event(e.GetType(), p.x(), p.y(), e.GetFlags());
     if (!mouse_pressed_handler_->ProcessMouseDragged(mouse_event,
                                                      &drag_info)) {
       mouse_pressed_handler_ = NULL;
@@ -372,9 +373,9 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
   UpdateCursor(e);
 
   if (mouse_pressed_handler_) {
-    CPoint p;
-    ConvertPointToMouseHandler(WTL::CPoint(e.x(), e.y()), &p);
-    MouseEvent mouse_released(e.GetType(), p.x, p.y, e.GetFlags());
+    gfx::Point p;
+    ConvertPointToMouseHandler(e.location(), &p);
+    MouseEvent mouse_released(e.GetType(), p.x(), p.y(), e.GetFlags());
     // We allow the view to delete us from ProcessMouseReleased. As such,
     // configure state such that we're done first, then call View.
     View* mouse_pressed_handler = mouse_pressed_handler_;
@@ -386,12 +387,12 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 void RootView::UpdateCursor(const MouseEvent& e) {
-  View *v = GetViewForPoint(WTL::CPoint(e.x(), e.y()));
+  View *v = GetViewForPoint(e.location().ToPOINT());
 
   if (v && v != this) {
-    CPoint l(e.x(), e.y());
+    gfx::Point l(e.location());
     View::ConvertPointToView(this, v, &l);
-    HCURSOR cursor = v->GetCursorForPoint(e.GetType(), l.x, l.y);
+    HCURSOR cursor = v->GetCursorForPoint(e.GetType(), l.x(), l.y());
     if (cursor) {
       ::SetCursor(cursor);
       return;

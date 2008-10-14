@@ -243,7 +243,7 @@ class BookmarkBarViewTest2 : public BookmarkBarViewEventTestBase {
     // NOTE: this code assume there is a left margin, which is currently
     // true. If that changes, this code will need to find another empty space
     // to press the mouse on.
-    CPoint mouse_loc(0, 0);
+    gfx::Point mouse_loc;
     ChromeViews::View::ConvertPointToScreen(bb_view_, &mouse_loc);
     ui_controls::SendMouseMove(0, 0);
     ui_controls::SendMouseEventsNotifyWhenDone(
@@ -428,24 +428,24 @@ class BookmarkBarViewTest5 : public BookmarkBarViewEventTestBase {
   void Step3() {
     ChromeViews::MenuItemView* target_menu =
         bb_view_->GetMenu()->GetSubmenu()->GetMenuItemAt(1);
-    CPoint loc(1, target_menu->height() - 1);
+    gfx::Point loc(1, target_menu->height() - 1);
     ChromeViews::View::ConvertPointToScreen(target_menu, &loc);
 
     // Start a drag.
-    ui_controls::SendMouseMoveNotifyWhenDone(loc.x + 10, loc.y,
+    ui_controls::SendMouseMoveNotifyWhenDone(loc.x() + 10, loc.y(),
         CreateEventTask(this, &BookmarkBarViewTest5::Step4));
 
     // See comment above this method as to why we do this.
-    ScheduleMouseMoveInBackground(loc.x, loc.y);
+    ScheduleMouseMoveInBackground(loc.x(), loc.y());
   }
 
   void Step4() {
     // Drop the item so that it's now the second item.
    ChromeViews::MenuItemView* target_menu =
         bb_view_->GetMenu()->GetSubmenu()->GetMenuItemAt(1);
-    CPoint loc(1, target_menu->height() - 1);
+   gfx::Point loc(1, target_menu->height() - 1);
     ChromeViews::View::ConvertPointToScreen(target_menu, &loc);
-    ui_controls::SendMouseMove(loc.x, loc.y);
+    ui_controls::SendMouseMove(loc.x(), loc.y());
 
     ui_controls::SendMouseEventsNotifyWhenDone(ui_controls::LEFT,
         ui_controls::UP,
@@ -537,15 +537,15 @@ class BookmarkBarViewTest7 : public BookmarkBarViewEventTestBase {
     // Drag over other button.
     ChromeViews::TextButton* other_button =
         bb_view_->other_bookmarked_button();
-    CPoint loc(other_button->width() / 2, other_button->height() / 2);
+    gfx::Point loc(other_button->width() / 2, other_button->height() / 2);
     ChromeViews::View::ConvertPointToScreen(other_button, &loc);
 
     // Start a drag.
-    ui_controls::SendMouseMoveNotifyWhenDone(loc.x + 10, loc.y,
+    ui_controls::SendMouseMoveNotifyWhenDone(loc.x() + 10, loc.y(),
         NewRunnableMethod(this, &BookmarkBarViewTest7::Step4));
 
     // See comment above this method as to why we do this.
-    ScheduleMouseMoveInBackground(loc.x, loc.y);
+    ScheduleMouseMoveInBackground(loc.x(), loc.y());
   }
 
   void Step4() {
@@ -555,9 +555,9 @@ class BookmarkBarViewTest7 : public BookmarkBarViewEventTestBase {
 
     ChromeViews::MenuItemView* target_menu =
         drop_menu->GetSubmenu()->GetMenuItemAt(0);
-    CPoint loc(1, 1);
+    gfx::Point loc(1, 1);
     ChromeViews::View::ConvertPointToScreen(target_menu, &loc);
-    ui_controls::SendMouseMove(loc.x, loc.y);
+    ui_controls::SendMouseMove(loc.x(), loc.y());
     ui_controls::SendMouseEventsNotifyWhenDone(
         ui_controls::LEFT, ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest7::Step5));
@@ -610,15 +610,15 @@ class BookmarkBarViewTest8 : public BookmarkBarViewEventTestBase {
     // Drag over other button.
     ChromeViews::TextButton* other_button =
         bb_view_->other_bookmarked_button();
-    CPoint loc(other_button->width() / 2, other_button->height() / 2);
+    gfx::Point loc(other_button->width() / 2, other_button->height() / 2);
     ChromeViews::View::ConvertPointToScreen(other_button, &loc);
 
     // Start a drag.
-    ui_controls::SendMouseMoveNotifyWhenDone(loc.x + 10, loc.y,
+    ui_controls::SendMouseMoveNotifyWhenDone(loc.x() + 10, loc.y(),
         NewRunnableMethod(this, &BookmarkBarViewTest8::Step4));
 
     // See comment above this method as to why we do this.
-    ScheduleMouseMoveInBackground(loc.x, loc.y);
+    ScheduleMouseMoveInBackground(loc.x(), loc.y());
   }
 
   void Step4() {
@@ -628,9 +628,9 @@ class BookmarkBarViewTest8 : public BookmarkBarViewEventTestBase {
 
     // Now drag back over first menu.
     ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
-    CPoint loc(button->width() / 2, button->height() / 2);
+    gfx::Point loc(button->width() / 2, button->height() / 2);
     ChromeViews::View::ConvertPointToScreen(button, &loc);
-    ui_controls::SendMouseMoveNotifyWhenDone(loc.x, loc.y,
+    ui_controls::SendMouseMoveNotifyWhenDone(loc.x(), loc.y(),
         NewRunnableMethod(this, &BookmarkBarViewTest8::Step5));
   }
 
@@ -682,9 +682,9 @@ class BookmarkBarViewTest9 : public BookmarkBarViewEventTestBase {
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
     first_menu_ = menu->GetSubmenu()->GetMenuItemAt(0);
-    CPoint menu_loc;
+    gfx::Point menu_loc;
     ChromeViews::View::ConvertPointToScreen(first_menu_, &menu_loc);
-    start_y_ = menu_loc.y;
+    start_y_ = menu_loc.y();
 
     // Move the mouse over the scroll button.
     ChromeViews::View* scroll_container = menu->GetSubmenu()->GetParent();
@@ -693,11 +693,11 @@ class BookmarkBarViewTest9 : public BookmarkBarViewEventTestBase {
     ASSERT_TRUE(scroll_container != NULL);
     ChromeViews::View* scroll_down_button = scroll_container->GetChildViewAt(1);
     ASSERT_TRUE(scroll_down_button);
-    CPoint loc(scroll_down_button->width() / 2,
-               scroll_down_button->height() / 2);
+    gfx::Point loc(scroll_down_button->width() / 2,
+                   scroll_down_button->height() / 2);
     ChromeViews::View::ConvertPointToScreen(scroll_down_button, &loc);
     ui_controls::SendMouseMoveNotifyWhenDone(
-        loc.x, loc.y, CreateEventTask(this, &BookmarkBarViewTest9::Step3));
+        loc.x(), loc.y(), CreateEventTask(this, &BookmarkBarViewTest9::Step3));
   }
 
   void Step3() {
@@ -706,9 +706,9 @@ class BookmarkBarViewTest9 : public BookmarkBarViewEventTestBase {
   }
 
   void Step4() {
-    CPoint menu_loc;
+    gfx::Point menu_loc;
     ChromeViews::View::ConvertPointToScreen(first_menu_, &menu_loc);
-    ASSERT_NE(start_y_, menu_loc.y);
+    ASSERT_NE(start_y_, menu_loc.y());
 
     // Hide menu.
     bb_view_->GetMenu()->GetMenuController()->Cancel(true);

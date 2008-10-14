@@ -71,9 +71,7 @@ void HWNDView::UpdateHWNDBounds() {
   // of the ViewContainer that hosts our View hierarchy) they need to be
   // positioned in the coordinate system of the ViewContainer, not the current
   // view.
-  CPoint top_left;
-
-  top_left.x = top_left.y = 0;
+  gfx::Point top_left;
   ConvertPointToViewContainer(this, &top_left);
 
   gfx::Rect vis_bounds = GetVisibleBounds();
@@ -114,7 +112,7 @@ void HWNDView::UpdateHWNDBounds() {
       // In a fast resize, we move the window and clip it with SetWindowRgn.
       CRect rect;
       GetWindowRect(hwnd_, &rect);
-      ::SetWindowPos(hwnd_, 0, top_left.x, top_left.y, rect.Width(),
+      ::SetWindowPos(hwnd_, 0, top_left.x(), top_left.y(), rect.Width(),
                      rect.Height(), swp_flags);
 
       HRGN clip_region = CreateRectRgn(0, 0,
@@ -123,7 +121,7 @@ void HWNDView::UpdateHWNDBounds() {
       SetWindowRgn(hwnd_, clip_region, FALSE);
       installed_clip_ = true;
     } else {
-      ::SetWindowPos(hwnd_, 0, top_left.x, top_left.y, bounds_.Width(),
+      ::SetWindowPos(hwnd_, 0, top_left.x(), top_left.y(), bounds_.Width(),
                      bounds_.Height(), swp_flags);
     }
   } else if (::IsWindowVisible(hwnd_)) {

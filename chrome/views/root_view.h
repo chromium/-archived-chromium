@@ -204,7 +204,7 @@ class RootView : public View,
   // Convert a point to our current mouse handler. Returns false if the
   // mouse handler is not connected to a ViewContainer. In that case, the
   // conversion cannot take place and *p is unchanged
-  bool ConvertPointToMouseHandler(const CPoint &l, CPoint *p);
+  bool ConvertPointToMouseHandler(const gfx::Point& l, gfx::Point *p);
 
   // Update the cursor given a mouse event. This is called by non mouse_move
   // event handlers to honor the cursor desired by views located under the

@@ -557,11 +557,11 @@ void HistoryItemRenderer::SetDisplayStyle(bool show_full) {
 
 void HistoryItemRenderer::StarStateChanged(bool state) {
   // Show the user a tip that can be used to edit the bookmark/star.
-  CPoint star_location(0, 0);
+  gfx::Point star_location;
   ChromeViews::View::ConvertPointToScreen(star_toggle_, &star_location);
   // Shift the location to make the bubble appear at a visually pleasing
   // location.
-  gfx::Rect star_bounds(star_location.x, star_location.y + 4,
+  gfx::Rect star_bounds(star_location.x(), star_location.y() + 4,
                         star_toggle_->width(),
                         star_toggle_->height());
   HWND parent = GetViewContainer()->GetHWND();

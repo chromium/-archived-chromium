@@ -569,11 +569,11 @@ void View::ProcessMouseReleased(const MouseEvent& e, bool canceled) {
   if (!canceled && context_menu_controller_ && e.IsOnlyRightMouseButton()) {
     // Assume that if there is a context menu controller we won't be deleted
     // from mouse released.
-    CPoint location(e.x(), e.y());
+    gfx::Point location(e.location());
     ConvertPointToScreen(this, &location);
     ContextMenuController* context_menu_controller = context_menu_controller_;
     OnMouseReleased(e, canceled);
-    context_menu_controller_->ShowContextMenu(this, location.x, location.y,
+    context_menu_controller_->ShowContextMenu(this, location.x(), location.y(),
                                               true);
   } else {
     OnMouseReleased(e, canceled);
@@ -783,10 +783,10 @@ View* View::GetViewForPoint(const CPoint& point, bool can_create_floating) {
     if (!child->IsVisible())
       continue;
 
-    CPoint point_in_child_coords(point);
+    gfx::Point point_in_child_coords(point);
     View::ConvertPointToView(this, child, &point_in_child_coords);
-    if (child->HitTest(point_in_child_coords))
-      return child->GetViewForPoint(point_in_child_coords, true);
+    if (child->HitTest(point_in_child_coords.ToPOINT()))
+      return child->GetViewForPoint(point_in_child_coords.ToPOINT(), true);
   }
 
   // We haven't found a view for the point. Try to create floating views
@@ -1284,26 +1284,12 @@ bool View::EnumerateFloatingViewsForInterval(int low_bound, int high_bound,
 }
 
 // static
-void View::ConvertPointToView(View* src,
-                              View* dst,
-                              gfx::Point* point) {
+void View::ConvertPointToView(View* src, View* dst, gfx::Point* point) {
   ConvertPointToView(src, dst, point, true);
 }
 
 // static
-void View::ConvertPointToView(View* src,
-                              View* dst,
-                              CPoint* point) {
-  gfx::Point tmp_point(point->x, point->y);
-  ConvertPointToView(src, dst, &tmp_point, true);
-  point->x = tmp_point.x();
-  point->y = tmp_point.y();
-}
-
-// static
-void View::ConvertPointToView(View* src,
-                              View* dst,
-                              gfx::Point* point,
+void View::ConvertPointToView(View* src, View* dst, gfx::Point* point,
                               bool try_other_direction) {
   // src can be NULL
   DCHECK(dst);
@@ -1343,45 +1329,38 @@ void View::ConvertPointToView(View* src,
 }
 
 // static
-void View::ConvertPointToViewContainer(View* src, CPoint* p) {
+void View::ConvertPointToViewContainer(View* src, gfx::Point* p) {
   DCHECK(src);
   DCHECK(p);
+
   View *v;
-  CPoint offset(0, 0);
-
+  gfx::Point offset;
   for (v = src; v; v = v->GetParent()) {
-    offset.x += v->GetX(APPLY_MIRRORING_TRANSFORMATION);
-    offset.y += v->y();
+    offset.set_x(offset.x() + v->GetX(APPLY_MIRRORING_TRANSFORMATION));
+    offset.set_y(offset.y() + v->y());
   }
-  p->x += offset.x;
-  p->y += offset.y;
+  p->SetPoint(p->x() + offset.x(), p->y() + offset.y());
 }
 
 // static
-void View::ConvertPointFromViewContainer(View *source, CPoint *p) {
-  CPoint t(0, 0);
+void View::ConvertPointFromViewContainer(View *source, gfx::Point* p) {
+  gfx::Point t;
   ConvertPointToViewContainer(source, &t);
-  p->x -= t.x;
-  p->y -= t.y;
+  p->SetPoint(p->x() - t.x(), p->y() - t.y());
 }
 
 // static
-void View::ConvertPointToScreen(View* src, CPoint* p) {
+void View::ConvertPointToScreen(View* src, gfx::Point* p) {
   DCHECK(src);
   DCHECK(p);
 
-  // If the view is not connected to a tree, do nothing
-  if (src->GetViewContainer() == NULL) {
-    return;
-  }
-
-  ConvertPointToViewContainer(src, p);
+  // If the view is not connected to a tree, there's nothing we can do.
   ViewContainer* vc = src->GetViewContainer();
   if (vc) {
+    ConvertPointToViewContainer(src, p);
     CRect r;
     vc->GetBounds(&r, false);
-    p->x += r.left;
-    p->y += r.top;
+    p->SetPoint(p->x() + r.left, p->y() + r.top);
   }
 }
 

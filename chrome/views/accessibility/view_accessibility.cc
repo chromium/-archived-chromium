@@ -474,10 +474,10 @@ STDMETHODIMP ViewAccessibility::accLocation(LONG* x_left, LONG* y_top,
     *width  = view_bounds.width();
     *height = view_bounds.height();
 
-    CPoint topleft = view_bounds.origin().ToPOINT();
+    gfx::Point topleft(view_bounds.origin());
     ChromeViews::View::ConvertPointToScreen(parent, &topleft);
-    *x_left = topleft.x;
-    *y_top  = topleft.y;
+    *x_left = topleft.x();
+    *y_top  = topleft.y();
   } else {
     return E_FAIL;
   }
@@ -492,10 +492,10 @@ STDMETHODIMP ViewAccessibility::accHitTest(LONG x_left, LONG y_top,
     return E_INVALIDARG;
   }
 
-  CPoint pt(x_left, y_top);
+  gfx::Point pt(x_left, y_top);
   ChromeViews::View::ConvertPointToView(NULL, view_, &pt);
 
-  if (!view_->HitTest(pt)) {
+  if (!view_->HitTest(pt.ToPOINT())) {
     // If containing parent is not hit, return with failure.
     child->vt = VT_EMPTY;
     return S_FALSE;
@@ -508,7 +508,7 @@ STDMETHODIMP ViewAccessibility::accHitTest(LONG x_left, LONG y_top,
     // Search for hit within any of the children.
     child_view = view_->GetChildViewAt(child_id);
     ChromeViews::View::ConvertPointToView(view_, child_view, &pt);
-    if (child_view->HitTest(pt)) {
+    if (child_view->HitTest(pt.ToPOINT())) {
       // Store child_id (adjusted with +1 to convert to MSAA indexing).
       child->lVal = child_id + 1;
       child_hit = true;

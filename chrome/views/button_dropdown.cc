@@ -112,7 +112,7 @@ void ButtonDropDown::ShowDropDownMenu(HWND window) {
 
     // Both the menu position and the menu anchor type change if the UI layout
     // is right-to-left.
-    CPoint menu_position = CPoint(lb.TopLeft());
+    gfx::Point menu_position(lb.TopLeft());
     menu_position.Offset(0, lb.Height() - 1);
     if (UILayoutIsRightToLeft())
       menu_position.Offset(lb.Width() - 1, 0);
@@ -139,7 +139,7 @@ void ButtonDropDown::ShowDropDownMenu(HWND window) {
       }
     }
 
-    menu.RunMenuAt(menu_position.x, menu_position.y);
+    menu.RunMenuAt(menu_position.x(), menu_position.y());
 
     // Need to explicitly clear mouse handler so that events get sent
     // properly after the menu finishes running. If we don't do this, then

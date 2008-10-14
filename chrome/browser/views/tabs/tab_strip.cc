@@ -527,8 +527,8 @@ bool TabStrip::CanProcessInputEvents() const {
   return IsAnimating() == NULL;
 }
 
-bool TabStrip::PointIsWithinWindowCaption(const CPoint& point) {
-  ChromeViews::View* v = GetViewForPoint(point);
+bool TabStrip::PointIsWithinWindowCaption(const gfx::Point& point) {
+  ChromeViews::View* v = GetViewForPoint(point.ToPOINT());
 
   // If there is no control at this location, claim the hit was in the title
   // bar to get a move action.
@@ -543,10 +543,10 @@ bool TabStrip::PointIsWithinWindowCaption(const CPoint& point) {
   // Check to see if the point is within the non-button parts of the new tab
   // button. The button has a non-rectangular shape, so if it's not in the
   // visual portions of the button we treat it as a click to the caption.
-  CPoint point_in_newtab_coords(point);
+  gfx::Point point_in_newtab_coords(point);
   View::ConvertPointToView(this, newtab_button_, &point_in_newtab_coords);
-  if (newtab_button_->bounds().Contains(gfx::Point(point)) &&
-      !newtab_button_->HitTest(point_in_newtab_coords)) {
+  if (newtab_button_->bounds().Contains(point) &&
+      !newtab_button_->HitTest(point_in_newtab_coords.ToPOINT())) {
     return true;
   }
 
@@ -1241,9 +1241,9 @@ void TabStrip::ResizeLayoutTabs() {
 bool TabStrip::IsCursorInTabStripZone() {
   CRect bounds;
   GetLocalBounds(&bounds, true);
-  CPoint tabstrip_topleft = bounds.TopLeft();
+  gfx::Point tabstrip_topleft(bounds.TopLeft());
   View::ConvertPointToScreen(this, &tabstrip_topleft);
-  bounds.MoveToXY(tabstrip_topleft);
+  bounds.MoveToXY(tabstrip_topleft.ToPOINT());
   bounds.bottom += kTabStripAnimationVSlop;
 
   CPoint cursor_point;
@@ -1309,9 +1309,10 @@ gfx::Rect TabStrip::GetDropBounds(int drop_index,
   center_x = MirroredXCoordinateInsideView(center_x);
 
   // Determine the screen bounds.
-  CPoint drop_loc(center_x - drop_indicator_width / 2, -drop_indicator_height);
+  gfx::Point drop_loc(center_x - drop_indicator_width / 2,
+                      -drop_indicator_height);
   ConvertPointToScreen(this, &drop_loc);
-  gfx::Rect drop_bounds(drop_loc.x, drop_loc.y, drop_indicator_width,
+  gfx::Rect drop_bounds(drop_loc.x(), drop_loc.y(), drop_indicator_width,
                         drop_indicator_height);
 
   // If the rect doesn't fit on the monitor, push the arrow to the bottom.
@@ -1566,8 +1567,8 @@ int TabStrip::GetAvailableWidthForTabs(Tab* last_tab) const {
 }
 
 bool TabStrip::IsPointInTab(Tab* tab, const CPoint& point_in_tabstrip_coords) {
-  CPoint point_in_tab_coords(point_in_tabstrip_coords);
+  gfx::Point point_in_tab_coords(point_in_tabstrip_coords);
   View::ConvertPointToView(this, tab, &point_in_tab_coords);
-  return tab->HitTest(point_in_tab_coords);
+  return tab->HitTest(point_in_tab_coords.ToPOINT());
 }
 

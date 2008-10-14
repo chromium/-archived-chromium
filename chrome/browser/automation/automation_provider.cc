@@ -1148,13 +1148,13 @@ void AutomationProvider::WindowGetViewBounds(const IPC::Message& message,
       ChromeViews::View* view = root_view->GetViewByID(view_id);
       if (view) {
         succeeded = true;
-        CPoint point(0, 0);
+        gfx::Point point;
         if (screen_coordinates)
           ChromeViews::View::ConvertPointToScreen(view, &point);
         else
           ChromeViews::View::ConvertPointToView(view, root_view, &point);
         view->GetLocalBounds(&bounds, false);
-        bounds.MoveToXY(point.x, point.y);
+        bounds.MoveToXY(point.x(), point.y());
       }
     }
   }
@@ -1182,9 +1182,9 @@ class MouseEventTask : public Task {
     // the drag code moved away from using mouse event locations was because
     // our conversion to screen location doesn't work well with multiple
     // monitors, so this only works reliably in a single monitor setup.
-    CPoint screen_location = CPoint(point_.x, point_.y);
+    gfx::Point screen_location(point_.x, point_.y);
     view_->ConvertPointToScreen(view_, &screen_location);
-    ::SetCursorPos(screen_location.x, screen_location.y);
+    ::SetCursorPos(screen_location.x(), screen_location.y());
     switch (type_) {
       case ChromeViews::Event::ET_MOUSE_PRESSED:
         view_->OnMousePressed(event);

@@ -757,13 +757,13 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   // true if the supplied SubmenuView contains the location in terms of the
   // screen. If it does, part is set appropriately and true is returned.
   bool GetMenuPartByScreenCoordinateImpl(SubmenuView* menu,
-                                         const CPoint& screen_loc,
+                                         const gfx::Point& screen_loc,
                                          MenuPart* part);
 
   // Returns true if the SubmenuView contains the specified location. This does
   // NOT included the scroll buttons, only the submenu view.
   bool DoesSubmenuContainLocation(SubmenuView* submenu,
-                                  const CPoint& screen_loc);
+                                  const gfx::Point& screen_loc);
 
   // Opens/Closes the necessary menus such that state_ matches that of
   // pending_state_. This is invoked if submenus are not opened immediately,

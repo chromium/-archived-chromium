@@ -697,24 +697,23 @@ void DownloadItemTabView::DidChangeBounds(const CRect& previous,
 }
 
 bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
-  CPoint point(event.x(), event.y());
+  gfx::Point point(event.location());
 
   // If the click is in the highlight region, then highlight this download.
   // Otherwise, remove the highlighting from any download.
-  CRect select_rect(kDownloadIconOffset - download_util::kBigProgressIconOffset,
-                    0,
-                    kDownloadIconOffset -
-                        download_util::kBigProgressIconOffset +
-                        download_util::kBigProgressIconSize + kInfoPadding +
-                        kFilenameSize,
-                    download_util::kBigProgressIconSize);
+  gfx::Rect select_rect(
+      kDownloadIconOffset - download_util::kBigProgressIconOffset,
+      0,
+      kDownloadIconOffset - download_util::kBigProgressIconOffset +
+          download_util::kBigProgressIconSize + kInfoPadding + kFilenameSize,
+      download_util::kBigProgressIconSize);
 
   // The position of the highlighted region does not take into account the
   // View's UI layout so we have to manually mirror the position if the View is
   // using a right-to-left UI layout.
   gfx::Rect mirrored_rect(select_rect);
-  select_rect.MoveToX(MirroredLeftPointForRect(mirrored_rect));
-  if (select_rect.PtInRect(point)) {
+  select_rect.set_x(MirroredLeftPointForRect(mirrored_rect));
+  if (select_rect.Contains(point)) {
     parent_->ItemBecameSelected(model_);
 
     // Don't show the right-click menu if we are prompting the user for a
@@ -724,7 +723,7 @@ bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
       ChromeViews::View::ConvertPointToScreen(this, &point);
 
       download_util::DownloadDestinationContextMenu menu(
-          model_, GetViewContainer()->GetHWND(), point);
+          model_, GetViewContainer()->GetHWND(), point.ToPOINT());
     }
   } else {
     parent_->ItemBecameSelected(NULL);

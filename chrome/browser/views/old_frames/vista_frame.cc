@@ -588,18 +588,18 @@ gfx::Rect VistaFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
     Layout();
   }
 
-  CPoint p(0, 0);
+  gfx::Point p;
   ChromeViews::View::ConvertPointToViewContainer(tab_contents_container_, &p);
   CRect bounds;
   GetBounds(&bounds, true);
 
   gfx::Rect r;
-  r.set_x(content_rect.x() - p.x);
-  r.set_y(content_rect.y() - p.y);
-  r.set_width(p.x + content_rect.width() +
-              (bounds.Width() - (p.x + tab_contents_container_->width())));
-  r.set_height(p.y + content_rect.height() +
-               (bounds.Height() - (p.y +
+  r.set_x(content_rect.x() - p.x());
+  r.set_y(content_rect.y() - p.y());
+  r.set_width(p.x() + content_rect.width() +
+              (bounds.Width() - (p.x() + tab_contents_container_->width())));
+  r.set_height(p.y() + content_rect.height() +
+               (bounds.Height() - (p.y() +
                                    tab_contents_container_->height())));
   return r;
 }
@@ -972,14 +972,14 @@ LRESULT VistaFrame::OnNCHitTest(const CPoint& pt) {
   CRect cr;
   GetBounds(&cr, false);
 
-  CPoint tab_pt(pt);
+  gfx::Point tab_pt(pt);
   ChromeViews::View::ConvertPointToView(NULL, tabstrip_, &tab_pt);
 
   // If we are over the tabstrip
-  if (tab_pt.x > 0 && tab_pt.y >= kTabShadowSize &&
-      tab_pt.x < tabstrip_->width() &&
-      tab_pt.y < tabstrip_->height()) {
-    ChromeViews::View* v = tabstrip_->GetViewForPoint(tab_pt);
+  if (tab_pt.x() > 0 && tab_pt.y() >= kTabShadowSize &&
+      tab_pt.x() < tabstrip_->width() &&
+      tab_pt.y() < tabstrip_->height()) {
+    ChromeViews::View* v = tabstrip_->GetViewForPoint(tab_pt.ToPOINT());
     if (v == tabstrip_)
       return HTCAPTION;
 
@@ -1363,10 +1363,10 @@ bool VistaFrame::VistaFrameView::ShouldForwardToTabStrip(
   if (min_x != std::numeric_limits<int>::max() &&
       max_x != std::numeric_limits<int>::min() &&
       max_y != std::numeric_limits<int>::min()) {
-    CPoint screen_drag_point(event.x(), event.y());
+    gfx::Point screen_drag_point(event.x(), event.y());
     ConvertPointToScreen(this, &screen_drag_point);
-    if (screen_drag_point.x >= min_x && screen_drag_point.x <= max_x &&
-        screen_drag_point.y <= max_y) {
+    if (screen_drag_point.x() >= min_x && screen_drag_point.x() <= max_x &&
+        screen_drag_point.y() <= max_y) {
       return false;
     }
   }

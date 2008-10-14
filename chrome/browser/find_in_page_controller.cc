@@ -491,9 +491,9 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
     // toolbar is the child of another view that isn't the top level view.
     // This is required to ensure correct positioning relative to the top,left
     // of the window.
-    CPoint topleft(0, 0);
+    gfx::Point topleft;
     ChromeViews::View::ConvertPointToViewContainer(toolbar, &topleft);
-    toolbar_bounds.Offset(topleft.x, topleft.y);
+    toolbar_bounds.Offset(topleft.x(), topleft.y());
   }
 
   // If the bookmarks bar is available, we need to update our

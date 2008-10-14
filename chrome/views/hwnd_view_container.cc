@@ -745,15 +745,15 @@ void HWNDViewContainer::ProcessMouseMoved(const CPoint &point, UINT flags,
   if (has_capture_ && is_mouse_down_) {
     ProcessMouseDragged(point, flags);
   } else {
-    CPoint screen_loc = point;
+    gfx::Point screen_loc(point);
     View::ConvertPointToScreen(root_view_.get(), &screen_loc);
-    if (last_mouse_event_was_move_ && last_mouse_move_x_ == screen_loc.x &&
-        last_mouse_move_y_ == screen_loc.y) {
+    if (last_mouse_event_was_move_ && last_mouse_move_x_ == screen_loc.x() &&
+        last_mouse_move_y_ == screen_loc.y()) {
       // Don't generate a mouse event for the same location as the last.
       return;
     }
-    last_mouse_move_x_ = screen_loc.x;
-    last_mouse_move_y_ = screen_loc.y;
+    last_mouse_move_x_ = screen_loc.x();
+    last_mouse_move_y_ = screen_loc.y();
     last_mouse_event_was_move_ = true;
     MouseEvent mouse_move(Event::ET_MOUSE_MOVED,
                           point.x,

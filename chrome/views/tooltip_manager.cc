@@ -163,10 +163,10 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
         if (last_tooltip_view_ != NULL) {
           tooltip_text_.clear();
           // Mouse is over a View, ask the View for it's tooltip.
-          CPoint view_loc(last_mouse_x_, last_mouse_y_);
+          gfx::Point view_loc(last_mouse_x_, last_mouse_y_);
           View::ConvertPointToView(view_container_->GetRootView(),
                                    last_tooltip_view_, &view_loc);
-          if (last_tooltip_view_->GetTooltipText(view_loc.x, view_loc.y,
+          if (last_tooltip_view_->GetTooltipText(view_loc.x(), view_loc.y(),
                                                  &tooltip_text_) &&
               !tooltip_text_.empty()) {
             // View has a valid tip, copy it into TOOLTIPINFO.
@@ -192,11 +192,11 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
         CPoint text_origin;
         if (tooltip_height_ == 0)
           tooltip_height_ = CalcTooltipHeight();
-        CPoint view_loc(last_mouse_x_, last_mouse_y_);
+        gfx::Point view_loc(last_mouse_x_, last_mouse_y_);
         View::ConvertPointToView(view_container_->GetRootView(),
                                  last_tooltip_view_, &view_loc);
         if (last_tooltip_view_->GetTooltipTextOrigin(
-              view_loc.x, view_loc.y, &text_origin) &&
+              view_loc.x(), view_loc.y(), &text_origin) &&
             SetTooltipPosition(text_origin.x, text_origin.y)) {
           // Return true, otherwise the rectangle we specified is ignored.
           return TRUE;
@@ -216,12 +216,12 @@ bool TooltipManager::SetTooltipPosition(int text_x, int text_y) {
   // is good enough for our usage.
 
   // Calculate the bounds the tooltip will get.
-  CPoint view_loc(0, 0);
+  gfx::Point view_loc;
   View::ConvertPointToScreen(last_tooltip_view_, &view_loc);
-  RECT bounds = { view_loc.x + text_x,
-                  view_loc.y + text_y,
-                  view_loc.x + text_x + tooltip_width_,
-                  view_loc.y + line_count_ * GetTooltipHeight() };
+  RECT bounds = { view_loc.x() + text_x,
+                  view_loc.y() + text_y,
+                  view_loc.x() + text_x + tooltip_width_,
+                  view_loc.y() + line_count_ * GetTooltipHeight() };
   SendMessage(tooltip_hwnd_, TTM_ADJUSTRECT, TRUE, (LPARAM)&bounds);
 
   // Make sure the rectangle completely fits on the current monitor. If it
@@ -282,10 +282,10 @@ void TooltipManager::TrimTooltipToFit(std::wstring* text,
     *text = text->substr(0, kMaxTooltipLength);
 
   // Determine the available width for the tooltip.
-  CPoint screen_loc(position_x, position_y);
+  gfx::Point screen_loc(position_x, position_y);
   View::ConvertPointToScreen(view_container_->GetRootView(), &screen_loc);
   gfx::Rect monitor_bounds =
-      win_util::GetMonitorBoundsForRect(gfx::Rect(screen_loc.x, screen_loc.y,
+      win_util::GetMonitorBoundsForRect(gfx::Rect(screen_loc.x(), screen_loc.y(),
                                                   0, 0));
   RECT tooltip_margin;
   SendMessage(window, TTM_GETMARGIN, 0, (LPARAM)&tooltip_margin);
@@ -328,10 +328,10 @@ void TooltipManager::UpdateTooltip(int x, int y) {
   } else if (last_tooltip_view_ != NULL) {
     // Tooltip is showing, and mouse is over the same view. See if the tooltip
     // text has changed.
-    CPoint view_point(x, y);
+    gfx::Point view_point(x, y);
     View::ConvertPointToView(root_view, last_tooltip_view_, &view_point);
     std::wstring new_tooltip_text;
-    if (last_tooltip_view_->GetTooltipText(view_point.x, view_point.y,
+    if (last_tooltip_view_->GetTooltipText(view_point.x(), view_point.y(),
                                            &new_tooltip_text) &&
         new_tooltip_text != tooltip_text_) {
       // The text has changed, hide the popup.
@@ -381,9 +381,9 @@ void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
   if (!focused_view->GetTooltipText(0, 0, &tooltip_text))
     return;
   gfx::Rect focused_bounds = focused_view->bounds();
-  CPoint screen_point;
+  gfx::Point screen_point;
   focused_view->ConvertPointToScreen(focused_view, &screen_point);
-  CPoint relative_point_coordinates;
+  gfx::Point relative_point_coordinates;
   focused_view->ConvertPointToViewContainer(focused_view,
                                             &relative_point_coordinates);
   keyboard_tooltip_hwnd_ = CreateWindowEx(
@@ -394,8 +394,8 @@ void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
   int tooltip_width;
   int line_count;
   TrimTooltipToFit(&tooltip_text, &tooltip_width, &line_count,
-                   relative_point_coordinates.x, relative_point_coordinates.y,
-                   keyboard_tooltip_hwnd_);
+                   relative_point_coordinates.x(),
+                   relative_point_coordinates.y(), keyboard_tooltip_hwnd_);
   TOOLINFO keyboard_toolinfo;
   memset(&keyboard_toolinfo, 0, sizeof(keyboard_toolinfo));
   keyboard_toolinfo.cbSize = sizeof(keyboard_toolinfo);
@@ -408,9 +408,10 @@ void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
               reinterpret_cast<LPARAM>(&keyboard_toolinfo));
   if (!tooltip_height_)
     tooltip_height_ = CalcTooltipHeight();
-  RECT rect_bounds = {screen_point.x, screen_point.y + focused_bounds.height(),
-                      screen_point.x + tooltip_width,
-                      screen_point.y + focused_bounds.height() +
+  RECT rect_bounds = {screen_point.x(),
+                      screen_point.y() + focused_bounds.height(),
+                      screen_point.x() + tooltip_width,
+                      screen_point.y() + focused_bounds.height() +
                       line_count * tooltip_height_ };
   gfx::Rect monitor_bounds =
       win_util::GetMonitorBoundsForRect(gfx::Rect(rect_bounds));

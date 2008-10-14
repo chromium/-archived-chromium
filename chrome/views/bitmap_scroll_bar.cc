@@ -542,9 +542,9 @@ void BitmapScrollBar::ShowContextMenu(View* source, int x, int y,
   ViewContainer* vc = GetViewContainer();
   CRect vc_bounds;
   vc->GetBounds(&vc_bounds, true);
-  CPoint temp_pt(x - vc_bounds.left, y - vc_bounds.top);
+  gfx::Point temp_pt(x - vc_bounds.left, y - vc_bounds.top);
   View::ConvertPointFromViewContainer(this, &temp_pt);
-  context_menu_mouse_position_ = IsHorizontal() ? temp_pt.x : temp_pt.y;
+  context_menu_mouse_position_ = IsHorizontal() ? temp_pt.x() : temp_pt.y();
 
   Menu menu(this, Menu::TOPLEFT, GetViewContainer()->GetHWND());
   menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollHere);

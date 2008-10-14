@@ -129,9 +129,9 @@ bool MenuButton::Activate() {
 
     // The position of the menu depends on whether or not the locale is
     // right-to-left.
-    CPoint menu_position = lb.BottomRight();
+    gfx::Point menu_position(lb.BottomRight());
     if (UILayoutIsRightToLeft())
-      menu_position.x = lb.left;
+      menu_position.set_x(lb.left);
 
     View::ConvertPointToScreen(this, &menu_position);
     if (UILayoutIsRightToLeft())
@@ -140,8 +140,8 @@ bool MenuButton::Activate() {
       menu_position.Offset(-2, -4);
 
     int max_x_coordinate = GetMaximumScreenXCoordinate();
-    if (max_x_coordinate && max_x_coordinate <= menu_position.x)
-      menu_position.x = max_x_coordinate - 1;
+    if (max_x_coordinate && max_x_coordinate <= menu_position.x())
+      menu_position.set_x(max_x_coordinate - 1);
 
     // We're about to show the menu from a mouse press. By showing from the
     // mouse press event we block RootView in mouse dispatching. This also
@@ -153,7 +153,8 @@ bool MenuButton::Activate() {
     GetRootView()->SetMouseHandler(NULL);
 
     menu_visible_ = true;
-    menu_delegate_->RunMenu(this, menu_position, GetViewContainer()->GetHWND());
+    menu_delegate_->RunMenu(this, menu_position.ToPOINT(),
+                            GetViewContainer()->GetHWND());
     menu_visible_ = false;
     menu_closed_time_ = Time::Now();
 

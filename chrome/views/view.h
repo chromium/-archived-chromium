@@ -672,24 +672,19 @@ class View : public AcceleratorTarget {
   static void ConvertPointToView(View* src,
                                  View* dst,
                                  gfx::Point* point);
-  // WARNING: DEPRECATED. Will be removed once everything is converted to
-  // gfx::Point. Don't add code that use this overload.
-  static void ConvertPointToView(View* src,
-                                 View* dst,
-                                 CPoint* point);
 
   // Convert a point from the coordinate system of a View to that of the
   // ViewContainer. This is useful for example when sizing HWND children
   // of the ViewContainer that don't know about the View hierarchy and need
   // to be placed relative to the ViewContainer that is their parent.
-  static void ConvertPointToViewContainer(View* src, CPoint* point);
+  static void ConvertPointToViewContainer(View* src, gfx::Point* point);
 
   // Convert a point from a view ViewContainer to a View dest
-  static void ConvertPointFromViewContainer(View *dest, CPoint *p);
+  static void ConvertPointFromViewContainer(View *dest, gfx::Point* p);
 
   // Convert a point from the coordinate system of a View to that of the
   // screen. This is useful for example when placing popup windows.
-  static void ConvertPointToScreen(View* src, CPoint* point);
+  static void ConvertPointToScreen(View* src, gfx::Point* point);
 
   // Event Handlers
 

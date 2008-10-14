@@ -195,13 +195,13 @@ void SimpleXPFrameTitleBar::RunMenu(ChromeViews::View* source,
   // when the UI layout is RTL and hence we use the mirroring transformation
   // flag. We also adjust the menu position because RTL menus use a different
   // anchor point.
-  CPoint p(menu_button_->GetX(APPLY_MIRRORING_TRANSFORMATION),
-           menu_button_->y() + menu_button_->height());
+  gfx::Point p(menu_button_->GetX(APPLY_MIRRORING_TRANSFORMATION),
+               menu_button_->y() + menu_button_->height());
 
   if (UILayoutIsRightToLeft())
-    p.x += menu_button_->width();
+    p.set_x(p.x() + menu_button_->width());
   View::ConvertPointToScreen(this, &p);
-  parent_->RunMenu(p, hwnd);
+  parent_->RunMenu(p.ToPOINT(), hwnd);
 }
 
 void SimpleXPFrameTitleBar::Layout() {
@@ -342,12 +342,12 @@ void SimpleXPFrame::Layout() {
 
 LRESULT SimpleXPFrame::OnNCHitTest(const CPoint& pt) {
   if (IsTitleBarVisible()) {
-    CPoint p(pt);
+    gfx::Point p(pt);
     ChromeViews::View::ConvertPointToView(NULL, title_bar_, &p);
-    if (!title_bar_->WillHandleMouseEvent(p.x, p.y) &&
-        p.x >= 0 && p.y >= kTopResizeBarHeight &&
-        p.x < title_bar_->width() &&
-        p.y < title_bar_->height()) {
+    if (!title_bar_->WillHandleMouseEvent(p.x(), p.y()) &&
+        p.x() >= 0 && p.y() >= kTopResizeBarHeight &&
+        p.x() < title_bar_->width() &&
+        p.y() < title_bar_->height()) {
       return HTCAPTION;
     }
   }

@@ -336,9 +336,9 @@ void MoveMouseToCenterAndPress(
     ChromeViews::View* view, MouseButton button, int state, Task* task) {
   DCHECK(view);
   DCHECK(view->GetViewContainer());
-  CPoint view_center(view->width() / 2, view->height() / 2);
+  gfx::Point view_center(view->width() / 2, view->height() / 2);
   ChromeViews::View::ConvertPointToScreen(view, &view_center);
-  SendMouseMove(view_center.x, view_center.y);
+  SendMouseMove(view_center.x(), view_center.y());
   SendMouseEventsNotifyWhenDone(button, state, task);
 }
 

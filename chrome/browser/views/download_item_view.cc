@@ -599,7 +599,7 @@ bool DownloadItemView::OnMousePressed(const ChromeViews::MouseEvent& event) {
     complete_animation_->End();
 
   if (event.IsOnlyLeftMouseButton()) {
-    WTL::CPoint point(event.x(), event.y());
+    gfx::Point point(event.location());
     if (event.x() < drop_down_x_) {
       SetState(PUSHED, NORMAL);
       return true;
@@ -624,18 +624,18 @@ bool DownloadItemView::OnMousePressed(const ChromeViews::MouseEvent& event) {
     //
     // TODO(idana): when bug# 1163334 is fixed the following check should be
     // replaced with UILayoutIsRightToLeft().
-    point.y = height();
+    point.set_y(height());
     if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-      point.x = width();
+      point.set_x(width());
     } else {
-      point.x = drop_down_x_;
+      point.set_x(drop_down_x_);
     }
 
     ChromeViews::View::ConvertPointToScreen(this, &point);
     download_util::DownloadShelfContextMenu menu(download_,
                                                  GetViewContainer()->GetHWND(),
                                                  model_.get(),
-                                                 point);
+                                                 point.ToPOINT());
     drop_down_pressed_ = false;
     // Showing the menu blocks. Here we revert the state.
     SetState(NORMAL, NORMAL);

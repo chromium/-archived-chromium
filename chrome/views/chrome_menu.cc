@@ -1735,10 +1735,10 @@ void MenuController::OnMouseDragged(SubmenuView* source,
       // Points are in the coordinates of the submenu, need to map to that of
       // the selected item. Additionally source may not be the parent of
       // the selected item, so need to map to screen first then to item.
-      CPoint press_loc(press_x_, press_y_);
+      gfx::Point press_loc(press_x_, press_y_);
       View::ConvertPointToScreen(source->GetScrollViewContainer(), &press_loc);
       View::ConvertPointToView(NULL, item, &press_loc);
-      CPoint drag_loc(event.x(), event.y());
+      gfx::Point drag_loc(event.location());
       View::ConvertPointToScreen(source->GetScrollViewContainer(), &drag_loc);
       View::ConvertPointToView(NULL, item, &drag_loc);
       in_drag_ = true;
@@ -1748,8 +1748,8 @@ void MenuController::OnMouseDragged(SubmenuView* source,
       scoped_refptr<OSExchangeData> data(new OSExchangeData);
       item->GetDelegate()->WriteDragData(item, data.get());
       drag_utils::SetDragImageOnDataObject(canvas, item->width(),
-                                           item->height(), press_loc.x,
-                                           press_loc.y, data);
+                                           item->height(), press_loc.x(),
+                                           press_loc.y(), data);
 
       scoped_refptr<BaseDragSource> drag_source(new BaseDragSource);
       int drag_ops = item->GetDelegate()->GetDragOperations(item);
@@ -1797,12 +1797,12 @@ void MenuController::OnMouseReleased(SubmenuView* source,
     bool open_submenu = (state_.item == pending_state_.item &&
                          state_.submenu_open);
     SetSelection(pending_state_.item, open_submenu, true);
-    CPoint loc(event.x(), event.y());
+    gfx::Point loc(event.location());
     View::ConvertPointToScreen(source->GetScrollViewContainer(), &loc);
 
     // If we open a context menu just return now
     if (part.menu->GetDelegate()->ShowContextMenu(
-        part.menu, part.menu->GetCommand(), loc.x, loc.y, true))
+        part.menu, part.menu->GetCommand(), loc.x(), loc.y(), true))
       return;
   }
 
@@ -1867,14 +1867,14 @@ int MenuController::OnDragUpdated(SubmenuView* source,
                                   const DropTargetEvent& event) {
   StopCancelAllTimer();
 
-  CPoint screen_loc(event.x(), event.y());
+  gfx::Point screen_loc(event.location());
   View::ConvertPointToScreen(source, &screen_loc);
-  if (valid_drop_coordinates_ && screen_loc.x == drop_x_ &&
-      screen_loc.y == drop_y_) {
+  if (valid_drop_coordinates_ && screen_loc.x() == drop_x_ &&
+      screen_loc.y() == drop_y_) {
     return last_drop_operation_;
   }
-  drop_x_ = screen_loc.x;
-  drop_y_ = screen_loc.y;
+  drop_x_ = screen_loc.x();
+  drop_y_ = screen_loc.y();
   valid_drop_coordinates_ = true;
 
   MenuItemView* menu_item = GetMenuItemAt(source, event.x(), event.y());
@@ -1888,17 +1888,17 @@ int MenuController::OnDragUpdated(SubmenuView* source,
   MenuDelegate::DropPosition drop_position = MenuDelegate::DROP_NONE;
   int drop_operation = DragDropTypes::DRAG_NONE;
   if (menu_item) {
-    CPoint menu_item_loc(event.x(), event.y());
+    gfx::Point menu_item_loc(event.location());
     View::ConvertPointToView(source, menu_item, &menu_item_loc);
     MenuItemView* query_menu_item;
     if (!over_empty_menu) {
       int menu_item_height = menu_item->height();
       if (menu_item->HasSubmenu() &&
-          (menu_item_loc.y > MenuItemView::kDropBetweenPixels &&
-           menu_item_loc.y < (menu_item_height -
-                              MenuItemView::kDropBetweenPixels))) {
+          (menu_item_loc.y() > MenuItemView::kDropBetweenPixels &&
+           menu_item_loc.y() < (menu_item_height -
+                                MenuItemView::kDropBetweenPixels))) {
         drop_position = MenuDelegate::DROP_ON;
-      } else if (menu_item_loc.y < menu_item_height / 2) {
+      } else if (menu_item_loc.y() < menu_item_height / 2) {
         drop_position = MenuDelegate::DROP_BEFORE;
       } else {
         drop_position = MenuDelegate::DROP_AFTER;
@@ -2190,7 +2190,7 @@ MenuController::MenuPart MenuController::GetMenuPartByScreenCoordinate(
     int source_y) {
   MenuPart part;
 
-  CPoint screen_loc(source_x, source_y);
+  gfx::Point screen_loc(source_x, source_y);
   View::ConvertPointToScreen(source->GetScrollViewContainer(), &screen_loc);
 
   MenuItemView* item = state_.item;
@@ -2208,20 +2208,20 @@ MenuController::MenuPart MenuController::GetMenuPartByScreenCoordinate(
 
 bool MenuController::GetMenuPartByScreenCoordinateImpl(
     SubmenuView* menu,
-    const CPoint& screen_loc,
+    const gfx::Point& screen_loc,
     MenuPart* part) {
   // Is the mouse over the scroll buttons?
-  CPoint scroll_view_loc = screen_loc;
+  gfx::Point scroll_view_loc = screen_loc;
   View* scroll_view_container = menu->GetScrollViewContainer();
   View::ConvertPointToView(NULL, scroll_view_container, &scroll_view_loc);
-  if (scroll_view_loc.x < 0 ||
-      scroll_view_loc.x >= scroll_view_container->width() ||
-      scroll_view_loc.y < 0 ||
-      scroll_view_loc.y >= scroll_view_container->height()) {
+  if (scroll_view_loc.x() < 0 ||
+      scroll_view_loc.x() >= scroll_view_container->width() ||
+      scroll_view_loc.y() < 0 ||
+      scroll_view_loc.y() >= scroll_view_container->height()) {
     // Point isn't contained in menu.
     return false;
   }
-  if (IsScrollButtonAt(menu, scroll_view_loc.x, scroll_view_loc.y,
+  if (IsScrollButtonAt(menu, scroll_view_loc.x(), scroll_view_loc.y(),
                        &(part->type))) {
     part->submenu = menu;
     return true;
@@ -2229,9 +2229,9 @@ bool MenuController::GetMenuPartByScreenCoordinateImpl(
 
   // Not over the scroll button. Check the actual menu.
   if (DoesSubmenuContainLocation(menu, screen_loc)) {
-    CPoint menu_loc = screen_loc;
+    gfx::Point menu_loc = screen_loc;
     View::ConvertPointToView(NULL, menu, &menu_loc);
-    part->menu = GetMenuItemAt(menu, menu_loc.x, menu_loc.y);
+    part->menu = GetMenuItemAt(menu, menu_loc.x(), menu_loc.y());
     part->type = MenuPart::MENU_ITEM;
     return true;
   }
@@ -2243,11 +2243,11 @@ bool MenuController::GetMenuPartByScreenCoordinateImpl(
 }
 
 bool MenuController::DoesSubmenuContainLocation(SubmenuView* submenu,
-                                                const CPoint& screen_loc) {
-  CPoint view_loc = screen_loc;
+                                                const gfx::Point& screen_loc) {
+  gfx::Point view_loc = screen_loc;
   View::ConvertPointToView(NULL, submenu, &view_loc);
   gfx::Rect vis_rect = submenu->GetVisibleBounds();
-  return vis_rect.Contains(view_loc.x, view_loc.y);
+  return vis_rect.Contains(view_loc.x(), view_loc.y());
 }
 
 void MenuController::CommitPendingSelection() {
@@ -2455,7 +2455,7 @@ gfx::Rect MenuController::CalculateMenuBounds(MenuItemView* item,
   } else {
     // Not the first menu; position it relative to the bounds of the menu
     // item.
-    CPoint item_loc(0, 0);
+    gfx::Point item_loc;
     View::ConvertPointToScreen(item, &item_loc);
 
     // We must make sure we take into account the UI layout. If the layout is
@@ -2466,26 +2466,26 @@ gfx::Rect MenuController::CalculateMenuBounds(MenuItemView* item,
                                (!prefer_leading && layout_is_rtl);
 
     if (create_on_the_right) {
-      x = item_loc.x + item->width() - kSubmenuHorizontalInset;
+      x = item_loc.x() + item->width() - kSubmenuHorizontalInset;
       if (state_.monitor_bounds.width() != 0 &&
           x + pref.cx > state_.monitor_bounds.right()) {
         if (layout_is_rtl)
           *is_leading = true;
         else
           *is_leading = false;
-        x = item_loc.x - pref.cx + kSubmenuHorizontalInset;
+        x = item_loc.x() - pref.cx + kSubmenuHorizontalInset;
       }
     } else {
-      x = item_loc.x - pref.cx + kSubmenuHorizontalInset;
+      x = item_loc.x() - pref.cx + kSubmenuHorizontalInset;
       if (state_.monitor_bounds.width() != 0 && x < state_.monitor_bounds.x()) {
         if (layout_is_rtl)
           *is_leading = false;
         else
           *is_leading = true;
-        x = item_loc.x + item->width() - kSubmenuHorizontalInset;
+        x = item_loc.x() + item->width() - kSubmenuHorizontalInset;
       }
     }
-    y = item_loc.y - kSubmenuBorderSize;
+    y = item_loc.y() - kSubmenuBorderSize;
     if (state_.monitor_bounds.width() != 0) {
       pref.cy = std::min(pref.cy,
                          static_cast<LONG>(state_.monitor_bounds.height()));
@@ -2636,9 +2636,9 @@ bool MenuController::SelectByChar(wchar_t character) {
 
 void MenuController::RepostEvent(SubmenuView* source,
                                  const MouseEvent& event) {
-  CPoint screen_loc(event.x(), event.y());
+  gfx::Point screen_loc(event.location());
   View::ConvertPointToScreen(source->GetScrollViewContainer(), &screen_loc);
-  HWND window = WindowFromPoint(screen_loc);
+  HWND window = WindowFromPoint(screen_loc.ToPOINT());
   if (window) {
 #ifdef DEBUG_MENU
     DLOG(INFO) << "RepostEvent on press";
@@ -2661,13 +2661,14 @@ void MenuController::RepostEvent(SubmenuView* source,
     // Convert the coordinates to the target window.
     RECT window_bounds;
     GetWindowRect(window, &window_bounds);
-    int window_x = screen_loc.x - window_bounds.left;
-    int window_y = screen_loc.y - window_bounds.top;
+    int window_x = screen_loc.x() - window_bounds.left;
+    int window_y = screen_loc.y() - window_bounds.top;
 
     // Determine whether the click was in the client area or not.
     // NOTE: WM_NCHITTEST coordinates are relative to the screen.
     LRESULT nc_hit_result = SendMessage(window, WM_NCHITTEST, 0,
-                                        MAKELPARAM(screen_loc.x, screen_loc.y));
+                                        MAKELPARAM(screen_loc.x(),
+                                                   screen_loc.y()));
     const bool in_client_area = (nc_hit_result == HTCLIENT);
 
     // TODO(sky): this isn't right. The event to generate should correspond

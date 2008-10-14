@@ -45,6 +45,11 @@ class Point {
   void set_x(int x) { x_ = x; }
   void set_y(int y) { y_ = y; }
 
+  void Offset(int delta_x, int delta_y) {
+    x_ += delta_x;
+    y_ += delta_y;
+  }
+
   bool operator==(const Point& rhs) const {
     return x_ == rhs.x_ && y_ == rhs.y_;
   }

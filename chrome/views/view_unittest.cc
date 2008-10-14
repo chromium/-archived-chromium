@@ -539,9 +539,9 @@ class HitTestView : public ChromeViews::View {
 };
 
 POINT ConvertPointToView(ChromeViews::View* view, const POINT& p) {
-  CPoint tmp = p;
+  gfx::Point tmp(p);
   ChromeViews::View::ConvertPointToView(view->GetRootView(), view, &tmp);
-  return tmp;
+  return tmp.ToPOINT();
 }
 }
 

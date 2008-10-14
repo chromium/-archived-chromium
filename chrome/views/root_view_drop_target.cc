@@ -4,6 +4,7 @@
 
 #include "chrome/views/root_view_drop_target.h"
 
+#include "base/gfx/point.h"
 #include "base/logging.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/views/root_view.h"
@@ -33,7 +34,7 @@ DWORD RootViewDropTarget::OnDragOver(IDataObject* data_object,
                                      POINT cursor_position,
                                      DWORD effect) {
   const OSExchangeData data(data_object);
-  CPoint root_view_location(cursor_position.x, cursor_position.y);
+  gfx::Point root_view_location(cursor_position.x, cursor_position.y);
   View::ConvertPointToView(NULL, root_view_, &root_view_location);
   View* view = CalculateTargetView(root_view_location, data);
 
@@ -43,22 +44,22 @@ DWORD RootViewDropTarget::OnDragOver(IDataObject* data_object,
       target_view_->OnDragExited();
     target_view_ = view;
     if (target_view_) {
-      CPoint target_view_location(root_view_location.x, root_view_location.y);
+      gfx::Point target_view_location(root_view_location);
       View::ConvertPointToView(root_view_, target_view_, &target_view_location);
       DropTargetEvent enter_event(data,
-          target_view_location.x,
-          target_view_location.y,
+          target_view_location.x(),
+          target_view_location.y(),
           DragDropTypes::DropEffectToDragOperation(effect));
       target_view_->OnDragEntered(enter_event);
     }
   }
 
   if (target_view_) {
-    CPoint target_view_location(root_view_location.x, root_view_location.y);
+    gfx::Point target_view_location(root_view_location);
     View::ConvertPointToView(root_view_, target_view_, &target_view_location);
     DropTargetEvent enter_event(data,
-        target_view_location.x,
-        target_view_location.y,
+        target_view_location.x(),
+        target_view_location.y(),
         DragDropTypes::DropEffectToDragOperation(effect));
     int result_operation = target_view_->OnDragUpdated(enter_event);
     return DragDropTypes::DragOperationToDropEffect(result_operation);
@@ -83,9 +84,9 @@ DWORD RootViewDropTarget::OnDrop(IDataObject* data_object,
   View* drop_view = target_view_;
   deepest_view_ = target_view_ = NULL;
   if (drop_effect != DROPEFFECT_NONE) {
-    CPoint view_location(cursor_position.x, cursor_position.y);
+    gfx::Point view_location(cursor_position.x, cursor_position.y);
     View::ConvertPointToView(NULL, drop_view, &view_location);
-    DropTargetEvent drop_event(data, view_location.x, view_location.y,
+    DropTargetEvent drop_event(data, view_location.x(), view_location.y(),
         DragDropTypes::DropEffectToDragOperation(effect));
     return DragDropTypes::DragOperationToDropEffect(
         drop_view->OnPerformDrop(drop_event));
@@ -97,9 +98,9 @@ DWORD RootViewDropTarget::OnDrop(IDataObject* data_object,
 }
 
 View* RootViewDropTarget::CalculateTargetView(
-    const CPoint& root_view_location,
+    const gfx::Point& root_view_location,
     const OSExchangeData& data) {
-  View* view = root_view_->GetViewForPoint(root_view_location);
+  View* view = root_view_->GetViewForPoint(root_view_location.ToPOINT());
   if (view == deepest_view_) {
     // The view the mouse is over hasn't changed; reuse the target.
     return target_view_;

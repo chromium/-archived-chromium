@@ -1388,19 +1388,19 @@ LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
     return HTCAPTION;
   }
 
-  CPoint tsp(p);
+  gfx::Point tsp(p);
   ChromeViews::View::ConvertPointToView(&root_view_, tabstrip_, &tsp);
 
   // If the mouse is over the tabstrip. Check if we should move the window or
   // capture the mouse.
-  if (tabstrip_->CanProcessInputEvents() && tabstrip_->HitTest(tsp)) {
+  if (tabstrip_->CanProcessInputEvents() && tabstrip_->HitTest(tsp.ToPOINT())) {
     // The top few pixels of a tab strip are a dropshadow - as we're pretty
     // starved of draggable area, let's give it to window dragging (this
     // also makes sense visually.
-    if (!IsZoomed() && tsp.y < kTabShadowSize)
+    if (!IsZoomed() && tsp.y() < kTabShadowSize)
       return HTCAPTION;
 
-    ChromeViews::View* v = tabstrip_->GetViewForPoint(tsp);
+    ChromeViews::View* v = tabstrip_->GetViewForPoint(tsp.ToPOINT());
     // If there is not tab at this location, claim the hit was in the title
     // bar to get a move action.
     if (v == tabstrip_)
@@ -1815,18 +1815,18 @@ gfx::Rect XPFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
     Layout();
   }
 
-  CPoint p(0, 0);
+  gfx::Point p;
   ChromeViews::View::ConvertPointToViewContainer(tab_contents_container_, &p);
   CRect bounds;
   GetBounds(&bounds, true);
 
   gfx::Rect r;
-  r.set_x(content_rect.x() - p.x);
-  r.set_y(content_rect.y() - p.y);
-  r.set_width(p.x + content_rect.width() +
-              (bounds.Width() - (p.x + tab_contents_container_->width())));
-  r.set_height(p.y + content_rect.height() +
-               (bounds.Height() - (p.y +
+  r.set_x(content_rect.x() - p.x());
+  r.set_y(content_rect.y() - p.y());
+  r.set_width(p.x() + content_rect.width() +
+              (bounds.Width() - (p.x() + tab_contents_container_->width())));
+  r.set_height(p.y() + content_rect.height() +
+               (bounds.Height() - (p.y() +
                                    tab_contents_container_->height())));
   return r;
 }

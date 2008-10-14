@@ -567,12 +567,12 @@ void StatusBubble::AvoidMouse() {
   GetCursorPos(&cursor_location);
 
   // Get the position of the frame.
-  CPoint top_left(0, 0);
+  gfx::Point top_left;
   ChromeViews::View::ConvertPointToScreen(frame_->GetRootView(), &top_left);
 
   // Get the cursor position relative to the popup.
-  cursor_location.x -= (top_left.x + position_.x);
-  cursor_location.y -= (top_left.y + position_.y);
+  cursor_location.x -= (top_left.x() + position_.x);
+  cursor_location.y -= (top_left.y() + position_.y);
 
   // If the mouse is in a position where we think it would move the
   // status bubble, figure out where and how the bubble should be moved.
@@ -605,15 +605,15 @@ void StatusBubble::AvoidMouse() {
     }
 
     offset_ = offset;
-    popup_->MoveWindow(top_left.x + position_.x,
-                       top_left.y + position_.y + offset_,
+    popup_->MoveWindow(top_left.x() + position_.x,
+                       top_left.y() + position_.y + offset_,
                        size_.cx,
                        size_.cy);
   } else if (offset_ != 0) {
     offset_ = 0;
     view_->SetStyle(StatusView::STYLE_STANDARD);
-    popup_->MoveWindow(top_left.x + position_.x,
-                       top_left.y + position_.y,
+    popup_->MoveWindow(top_left.x() + position_.x,
+                       top_left.y() + position_.y,
                        size_.cx,
                        size_.cy);
   }
@@ -621,11 +621,11 @@ void StatusBubble::AvoidMouse() {
 
 void StatusBubble::Reposition() {
   if (popup_) {
-    CPoint top_left(0, 0);
+    gfx::Point top_left;
     ChromeViews::View::ConvertPointToScreen(frame_->GetRootView(), &top_left);
 
-    popup_->MoveWindow(top_left.x + position_.x,
-                       top_left.y + position_.y,
+    popup_->MoveWindow(top_left.x() + position_.x,
+                       top_left.y() + position_.y,
                        size_.cx,
                        size_.cy);
   }

@@ -447,20 +447,20 @@ void TreeView::OnContextMenu(const CPoint& location) {
         x = width() / 2;
         y = height() / 2;
       }
-      CPoint screen_loc(x, y);
+      gfx::Point screen_loc(x, y);
       ConvertPointToScreen(this, &screen_loc);
-      GetContextMenuController()->ShowContextMenu(this, screen_loc.x,
-                                                  screen_loc.y, false);
+      GetContextMenuController()->ShowContextMenu(this, screen_loc.x(),
+                                                  screen_loc.y(), false);
     } else if (!show_context_menu_only_when_node_selected_) {
       GetContextMenuController()->ShowContextMenu(this, location.x, location.y,
                                                   true);
     } else if (GetSelectedNode()) {
       // Make sure the mouse is over the selected node.
       TVHITTESTINFO hit_info;
-      CPoint local_loc(location);
+      gfx::Point local_loc(location);
       ConvertPointToView(NULL, this, &local_loc);
-      hit_info.pt.x = local_loc.x;
-      hit_info.pt.y = local_loc.y;
+      hit_info.pt.x = local_loc.x();
+      hit_info.pt.y = local_loc.y();
       HTREEITEM hit_item = TreeView_HitTest(tree_view_, &hit_info);
       if (hit_item &&
           GetNodeDetails(GetSelectedNode())->tree_item == hit_item &&

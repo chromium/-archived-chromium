@@ -576,10 +576,10 @@ void LocationBarView::OnMouseEvent(const ChromeViews::MouseEvent& event,
   if (event.IsRightMouseButton())
     flags |= MK_RBUTTON;
 
-  CPoint screen_point(event.x(), event.y());
+  gfx::Point screen_point(event.location());
   ConvertPointToScreen(this, &screen_point);
 
-  location_entry_->HandleExternalMsg(msg, flags, screen_point);
+  location_entry_->HandleExternalMsg(msg, flags, screen_point.ToPOINT());
 }
 
 bool LocationBarView::GetAccessibleRole(VARIANT* role) {
@@ -874,23 +874,23 @@ void LocationBarView::ShowFirstRunBubbleInternal() {
     return;
   }
 
-  CPoint location(0, 0);
+  gfx::Point location;
 
   // If the UI layout is RTL, the coordinate system is not transformed and
   // therefore we need to adjust the X coordinate so that bubble appears on the
   // right hand side of the location bar.
   if (UILayoutIsRightToLeft())
-    location.x += width();
+    location.Offset(width(), 0);
   ChromeViews::View::ConvertPointToScreen(this, &location);
 
   // We try to guess that 20 pixels offset is a good place for the first
   // letter in the OmniBox.
-  gfx::Rect bounds(location.x, location.y, 20, height());
+  gfx::Rect bounds(location.x(), location.y(), 20, height());
 
   // Moving the bounds "backwards" so that it appears within the location bar
   // if the UI layout is RTL.
   if (UILayoutIsRightToLeft())
-    bounds.set_x(location.x - 20);
+    bounds.set_x(location.x() - 20);
 
   FirstRunBubble::Show(
       location_entry_view_->GetRootView()->GetViewContainer()->GetHWND(),
@@ -954,9 +954,9 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
   SkColor text_color;
   model_->GetIconHoverText(&text, &text_color);
 
-  CPoint location(0, 0);
+  gfx::Point location;
   ChromeViews::View::ConvertPointToScreen(this, &location);
-  gfx::Rect bounds(location.x, location.y, width(), height());
+  gfx::Rect bounds(location.x(), location.y(), width(), height());
 
   ChromeViews::Label* label = new ChromeViews::Label(text);
   label->SetMultiLine(true);
