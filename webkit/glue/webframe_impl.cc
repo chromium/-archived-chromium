@@ -99,7 +99,6 @@
 #include "FrameLoadRequest.h"
 #include "FrameTree.h"
 #include "FrameView.h"
-#include "FrameWin.h"
 #include "GraphicsContext.h"
 #include "HTMLHeadElement.h"
 #include "HTMLLinkElement.h"
