@@ -23,7 +23,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ImageSource.h"
 #endif
 #include "KURL.h"
-#include "LogWin.h"
 #include "Page.h"
 #include "PlatformString.h"
 #include "RenderTreeAsText.h"
@@ -33,7 +32,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 #undef LOG
-#undef notImplemented
 #include "webkit/glue/webkit_glue.h"
 
 #include "base/file_version_info.h"

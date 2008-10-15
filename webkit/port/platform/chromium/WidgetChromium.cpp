@@ -33,14 +33,14 @@
 #include "FrameView.h"
 #include "GraphicsContext.h"
 #include "IntRect.h"
-#include "WidgetClientWin.h"
+#include "WidgetClientChromium.h"
 
 namespace WebCore {
 
 class WidgetPrivate
 {
 public:
-    WidgetClientWin* client;
+    WidgetClientChromium* client;
     ScrollView* parent;
     IntRect frameRect;
     bool enabled;
@@ -77,7 +77,7 @@ HWND Widget::containingWindow() const
 
 void Widget::setClient(WidgetClient* c)
 {
-    data->client = static_cast<WidgetClientWin*>(c);
+    data->client = static_cast<WidgetClientChromium*>(c);
 }
 
 WidgetClient* Widget::client() const

@@ -39,7 +39,7 @@
 #include "PlatformScrollBar.h"
 #include "Range.h"
 #include "ScrollView.h"
-#include "WidgetClientWin.h"
+#include "WidgetClientChromium.h"
 
 #include "graphics/SkiaUtils.h"
 
@@ -141,8 +141,8 @@ void PlatformScrollbar::DrawTickmarks(GraphicsContext* context) const
     if (horz)
       return;
 
-    // We need to as the WidgetClientWin for the bitmap to use to draw.
-    WidgetClientWin* widget_client = static_cast<WidgetClientWin*>(
+    // We need to as the WidgetClientChromium for the bitmap to use to draw.
+    WidgetClientChromium* widget_client = static_cast<WidgetClientChromium*>(
         WebCore::Widget::client());
     if (!widget_client)
       return;  // Cannot draw without access to the bitmap.

@@ -184,29 +184,37 @@
 			Name="page"
 			>
 			<File
-				RelativePath="..\..\port\page\AccessibilityObjectWin.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\port\page\AccessibilityObjectWrapperWin.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\page\AXObjectCacheWin.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\port\page\Console.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\port\page\DragControllerWin.cpp"
+			<Filter
+				Name="chromium"
 				>
-			</File>
-			<File
-				RelativePath="..\..\port\page\EventHandlerWin.cpp"
-				>
-			</File>
+				<File
+					RelativePath="..\..\port\page\chromium\AccessibilityObjectChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\page\chromium\AXObjectCacheChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\page\chromium\DragControllerChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\page\chromium\EventHandlerChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\page\chromium\FrameChromium.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="inspector"
@@ -672,155 +680,11 @@
 			Name="platform"
 			>
 			<File
-				RelativePath="..\..\port\platform\BString.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\BString.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\ClipboardUtilitiesWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\ClipboardUtilitiesWin.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\ClipboardWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\ClipboardWin.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\COMPtr.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\ContextMenuItemWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\ContextMenuWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\CursorWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\DragDataWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\DragImageWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\EditorWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\FileChooserWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\FramelessScrollView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\FramelessScrollView.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\port\platform\GKURL.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\KeyEventWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\Language.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\LogWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\LogWin.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\MimeTypeRegistryWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\PasteboardWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\PlatformMouseEventWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\PlatformScrollBar.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\PlatformScrollBarWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\PopupMenuWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\ScreenWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\ScrollViewWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\SearchPopupMenuWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\SharedTimerWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\SoundWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\SSLKeyGeneratorWin.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\port\platform\StateTrackingString.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\SystemTimeWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\TemporaryLinkStubs.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\TextBoundariesWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\TextBreakIteratorInternalICUWin.cpp"
 				>
 			</File>
 			<File
@@ -835,31 +699,179 @@
 				RelativePath="..\..\port\platform\UniscribeStateTextRun.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\port\platform\WCDataObject.cpp"
+			<Filter
+				Name="win"
 				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\WCDataObject.h"
+				<File
+					RelativePath="..\..\port\platform\win\BString.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\BString.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\ClipboardUtilitiesWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\ClipboardUtilitiesWin.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\ClipboardWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\ClipboardWin.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\COMPtr.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\EditorWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\KeyEventWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\PasteboardWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\PlatformMouseEventWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\ScreenWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\SoundWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\WCDataObject.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\WCDataObject.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\win\WheelEventWin.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="chromium"
 				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\WheelEventWin.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\WidgetClientWin.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\WidgetWin.cpp"
-				>
-			</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ContextMenuChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ContextMenuItemChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\CursorChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\DragDataChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\DragImageChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\FileChooserChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\FramelessScrollView.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\FramelessScrollView.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\Language.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\MimeTypeRegistryChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\PlatformScrollBar.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\PlatformScrollBarChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\PopupMenuChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ScrollViewChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\SearchPopupMenuChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\SharedTimerChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\SSLKeyGeneratorChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\SystemTimeChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\TemporaryLinkStubs.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\TextBoundariesChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\TextBreakIteratorInternalICUChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\WidgetChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\WidgetClientChromium.h"
+					>
+				</File>
+			</Filter>
 			<Filter
 				Name="graphics"
 				>
 				<File
 					RelativePath="..\..\port\platform\graphics\AffineTransformSkia.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\BitmapImageSingleFrameSkia.h"
 					>
 				</File>
 				<File
@@ -916,10 +928,6 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\graphics\GraphicsContextSkia.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\BitmapImageSingleFrameSkia.h"
 					>
 				</File>
 				<File
@@ -1158,43 +1166,55 @@
 			<Filter
 				Name="network"
 				>
-				<File
-					RelativePath="..\..\port\platform\network\AuthenticationChallenge.cpp"
+				<Filter
+					Name="chromium"
 					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\network\AuthenticationChallenge.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\network\CookieJarWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\network\DNS.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\network\NetworkStateNotifierWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\network\ResourceError.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\network\ResourceRequest.h"
-					>
-				</File>
+					<File
+						RelativePath="..\..\port\platform\network\chromium\AuthenticationChallenge.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\network\chromium\AuthenticationChallengeChromium.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\network\chromium\CookieJarChromium.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\network\chromium\DNSChromium.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\network\chromium\NetworkStateNotifierChromium.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\network\chromium\ResourceError.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\network\chromium\ResourceRequest.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\port\platform\network\chromium\ResourceResponse.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
 			Name="plugins"
 			>
-			<File
-				RelativePath="..\..\port\plugins\PluginDataChromium.cpp"
+			<Filter
+				Name="chromium"
 				>
-			</File>
+				<File
+					RelativePath="..\..\port\plugins\chromium\PluginDataChromium.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="rendering"
@@ -1212,17 +1232,17 @@
 			Name="bridge"
 			>
 			<File
-				RelativePath="..\..\port\bridge\FrameWin.cpp"
+				RelativePath="..\..\pending\ScriptController.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\port\bridge\PageWin.cpp"
+			<Filter
+				Name="chromium"
 				>
-			</File>
-			<File
-				RelativePath="..\..\port\bridge\PluginsWin.cpp"
-				>
-			</File>
+				<File
+					RelativePath="..\..\port\bridge\chromium\PluginsChromium.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="history"

@@ -85,6 +85,7 @@
 #pragma warning(push, 0)
 #include "HTMLFormElement.h"  // need this before Document.h
 #include "Chrome.h"
+#include "ChromeClientChromium.h"
 #include "Console.h"
 #include "Document.h"
 #include "DocumentFragment.h"  // Only needed for ReplaceSelectionCommand.h :(
@@ -93,6 +94,7 @@
 #include "Editor.h"
 #include "EventHandler.h"
 #include "Frame.h"
+#include "FrameChromium.h"
 #include "FrameLoader.h"
 #include "FrameLoadRequest.h"
 #include "FrameTree.h"
@@ -110,9 +112,6 @@
 #include "RenderWidget.h"
 #include "ReplaceSelectionCommand.h"
 #include "ResourceHandle.h"
-#if defined(OS_WIN)
-#include "ResourceHandleWin.h"
-#endif
 #include "ResourceRequest.h"
 #include "ScriptController.h"
 #include "SelectionController.h"
@@ -121,6 +120,7 @@
 #include "SubstituteData.h"
 #include "TextIterator.h"
 #include "TextAffinity.h"
+#include "WidgetClientChromium.h"
 #include "XPathResult.h"
 
 #pragma warning(pop)
@@ -144,14 +144,12 @@
 #include "webkit/glue/webhistoryitem_impl.h"
 #include "webkit/glue/webtextinput_impl.h"
 #include "webkit/glue/webview_impl.h"
-#include "webkit/port/page/ChromeClientWin.h"
-#include "webkit/port/platform/WidgetClientWin.h"
 
 #if defined(OS_LINUX)
 #include <gdk/gdk.h>
 #endif
 
-using WebCore::ChromeClientWin;
+using WebCore::ChromeClientChromium;
 using WebCore::Color;
 using WebCore::Document;
 using WebCore::DocumentFragment;
@@ -183,7 +181,7 @@ using WebCore::String;
 using WebCore::SubstituteData;
 using WebCore::TextIterator;
 using WebCore::VisiblePosition;
-using WebCore::WidgetClientWin;
+using WebCore::WidgetClientChromium;
 using WebCore::XPathResult;
 
 static const wchar_t* const kWebFrameActiveCount = L"WebFrameActiveCount";
@@ -282,7 +280,7 @@ MSVC_POP_WARNING()
     margin_height_(-1),
     inspected_node_(NULL),
     active_tickmark_frame_(NULL),
-    active_tickmark_(WidgetClientWin::kNoTickmark),
+    active_tickmark_(WidgetClientChromium::kNoTickmark),
     locating_active_rect_(false),
     last_active_range_(NULL),
     last_match_count_(-1),
@@ -890,7 +888,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   WebFrameImpl* const active_frame = main_frame_impl->active_tickmark_frame_;
   RefPtr<WebCore::Range> old_tickmark = NULL;
   if (active_frame &&
-      (active_frame->active_tickmark_ != WidgetClientWin::kNoTickmark)) {
+      (active_frame->active_tickmark_ != WidgetClientChromium::kNoTickmark)) {
     // When we get a reference to |old_tickmark| we can be in a state where
     // the |active_tickmark_| points outside the tickmark vector, possibly
     // during teardown of the frame. This doesn't reproduce normally, so if you
@@ -906,7 +904,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   // See if we have another match to select, and select it.
   if (request.forward) {
     const bool at_end = (active_tickmark_ == (tickmarks_.size() - 1));
-    if ((active_tickmark_ == WidgetClientWin::kNoTickmark) ||
+    if ((active_tickmark_ == WidgetClientChromium::kNoTickmark) ||
         (at_end && wrap_within_frame)) {
       // Wrapping within a frame is only done for single frame pages. So when we
       // reach the end we go back to the beginning (or back to the end if
@@ -920,7 +918,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
     }
   } else {
     const bool at_end = (active_tickmark_ == 0);
-    if ((active_tickmark_ == WidgetClientWin::kNoTickmark) ||
+    if ((active_tickmark_ == WidgetClientChromium::kNoTickmark) ||
         (at_end && wrap_within_frame)) {
       // Wrapping within a frame is not done for multi-frame pages, but if no
       // tickmark is active we still need to set the index to the end so that
@@ -937,7 +935,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   if (active_frame != this) {
     // If we are jumping between frames, reset the active tickmark in the old
     // frame and invalidate the area.
-    active_frame->active_tickmark_ = WidgetClientWin::kNoTickmark;
+    active_frame->active_tickmark_ = WidgetClientChromium::kNoTickmark;
     active_frame->InvalidateArea(INVALIDATE_CONTENT_AREA);
     main_frame_impl->active_tickmark_frame_ = this;
   } else {
@@ -1227,7 +1225,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
 
 void WebFrameImpl::CancelPendingScopingEffort() {
   scope_matches_factory_.RevokeAll();
-  active_tickmark_ = WidgetClientWin::kNoTickmark;
+  active_tickmark_ = WidgetClientChromium::kNoTickmark;
 }
 
 void WebFrameImpl::SetFindEndstateFocusAndSelection() {
@@ -1235,7 +1233,7 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
       static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
 
   if (this == main_frame_impl->active_tickmark_frame() &&
-      active_tickmark_ != WidgetClientWin::kNoTickmark) {
+      active_tickmark_ != WidgetClientChromium::kNoTickmark) {
     RefPtr<Range> range = tickmarks_[active_tickmark_];
 
     // Set the selection to what the active match is.

@@ -15,7 +15,7 @@ namespace WebCore {
     class Frame;
     class String;
     
-    class ChromeClientWin : public ChromeClient {
+    class ChromeClientChromium : public ChromeClient {
     public:
         // Opens the file selection dialog.
         virtual void runFileChooser(const String& defaultFileName,

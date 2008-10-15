@@ -43,7 +43,7 @@
 #include "RenderTheme.h"
 #include "ScrollBar.h"
 #include "SkiaUtils.h"
-#include "WidgetClientWin.h"
+#include "WidgetClientChromium.h"
 #include <algorithm>
 #include <wtf/Assertions.h>
 #include <wtf/HashSet.h>
@@ -184,8 +184,8 @@ void ScrollView::ScrollViewPrivate::valueChanged(Scrollbar* bar)
         frame->sendScrollEvent();
 
         // Inform the delegate that the scroll position has changed.
-        WidgetClientWin* client =
-                static_cast<WidgetClientWin*>(m_view->client());
+        WidgetClientChromium* client =
+                static_cast<WidgetClientChromium*>(m_view->client());
         if (client)
             client->onScrollPositionChanged(m_view);
     }
@@ -273,7 +273,8 @@ const Vector<RefPtr<Range> >* ScrollView::ScrollViewPrivate::getTickmarks() cons
     if (!frame)
         return NULL;  // NOTE: Frame can be null for dropdown boxes.
 
-    WidgetClientWin* c = static_cast<WidgetClientWin*>(m_view->client());
+    WidgetClientChromium* c =
+        static_cast<WidgetClientChromium*>(m_view->client());
     ASSERT(c);
     return c->getTickmarks(view->frame());
 }
@@ -286,9 +287,10 @@ size_t ScrollView::ScrollViewPrivate::getActiveTickmarkIndex() const
 
   // NOTE: Frame can be null for dropdown boxes.
   if (!frame)
-    return WidgetClientWin::kNoTickmark;
+      return WidgetClientChromium::kNoTickmark;
 
-  WidgetClientWin* c = static_cast<WidgetClientWin*>(m_view->client());
+  WidgetClientChromium* c =
+      static_cast<WidgetClientChromium*>(m_view->client());
   ASSERT(c);
   return c->getActiveTickmarkIndex(view->frame());
 }
@@ -296,9 +298,10 @@ size_t ScrollView::ScrollViewPrivate::getActiveTickmarkIndex() const
 const SkBitmap* ScrollView::ScrollViewPrivate::GetPreloadedBitmapFromRenderer(
         int resource_id) const
 {
-    WidgetClientWin* c = static_cast<WidgetClientWin*>(m_view->client());
+    WidgetClientChromium* c =
+        static_cast<WidgetClientChromium*>(m_view->client());
     if (!c)
-      return NULL;
+        return NULL;
 
     return c->getPreloadedResourceBitmap(resource_id);
 }
@@ -904,7 +907,7 @@ void ScrollView::updateScrollbars(const IntSize& desiredOffset)
         m_data->scrollBackingStore(scrollDelta);
 
         // Inform the delegate that the scroll position has changed.
-        WidgetClientWin* c = static_cast<WidgetClientWin*>(client());
+        WidgetClientChromium* c = static_cast<WidgetClientChromium*>(client());
         if (c)
             c->onScrollPositionChanged(this);
     }
@@ -1095,7 +1098,7 @@ void ScrollView::setParent(ScrollView* parentView)
 
 void ScrollView::addToDirtyRegion(const IntRect& containingWindowRect)
 {
-    WidgetClientWin* c = static_cast<WidgetClientWin*>(client());
+    WidgetClientChromium* c = static_cast<WidgetClientChromium*>(client());
     if (c)
         c->invalidateRect(containingWindowRect);
 }
@@ -1110,7 +1113,7 @@ void ScrollView::scrollBackingStore(int dx, int dy, const IntRect& scrollViewRec
         return;
     }
 
-    WidgetClientWin* c = static_cast<WidgetClientWin*>(client());
+    WidgetClientChromium* c = static_cast<WidgetClientChromium*>(client());
     if (c) {
         // TODO(ericroman): would be better to pass both the scroll rect
         // and clip rect up to the client and let them decide how best to
@@ -1128,9 +1131,9 @@ void ScrollView::updateBackingStore()
 
 bool ScrollView::inWindow() const
 {
-    WidgetClientWin* c = static_cast<WidgetClientWin*>(client());
+    WidgetClientChromium* c = static_cast<WidgetClientChromium*>(client());
     if (!c)
-      return false;
+        return false;
 
     return !c->isHidden();
 }

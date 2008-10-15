@@ -29,13 +29,16 @@
 #include "config.h"
 #include "DragData.h"
 
+#if PLATFORM(WIN)
 #include "ClipboardWin.h"
 #include "ClipboardUtilitiesWin.h"
+#include "WCDataObject.h"
+#endif
+
 #include "DocumentFragment.h"
 #include "KURL.h"
 #include "PlatformString.h"
 #include "Markup.h"
-#include "WCDataObject.h"
 
 #undef LOG
 #include "base/file_util.h"
@@ -65,6 +68,8 @@ namespace WebCore {
 
 PassRefPtr<Clipboard> DragData::createClipboard(ClipboardAccessPolicy policy) const
 {
+// TODO(darin): Invent ClipboardChromium and use that instead.
+#if PLATFORM(WIN)
     WCDataObject* data;
     WCDataObject::createInstance(&data);
     RefPtr<ClipboardWin> clipboard = ClipboardWin::create(true, data, policy);
@@ -73,6 +78,9 @@ PassRefPtr<Clipboard> DragData::createClipboard(ClipboardAccessPolicy policy) co
     data->Release();
 
     return clipboard.release();
+#else
+    return PassRefPtr<Clipboard>(0);
+#endif
 }
 
 bool DragData::containsURL() const

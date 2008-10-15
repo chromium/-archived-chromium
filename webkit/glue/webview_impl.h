@@ -19,7 +19,7 @@
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "webkit/port/history/BackForwardList.h"
-#include "webkit/port/platform/WidgetClientWin.h"
+#include "webkit/port/platform/chromium/WidgetClientChromium.h"
 MSVC_POP_WARNING();
 
 namespace WebCore {
@@ -42,7 +42,7 @@ class WebMouseWheelEvent;
 class WebViewDelegate;
 
 class WebViewImpl : public WebView,
-                    public WebCore::WidgetClientWin,
+                    public WebCore::WidgetClientChromium,
                     public WebCore::BackForwardListClient {
  public:
   // WebView

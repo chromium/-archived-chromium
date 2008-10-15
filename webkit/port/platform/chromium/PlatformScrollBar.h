@@ -32,10 +32,6 @@
 #include "ScrollBar.h"
 #include "Timer.h"
 
-namespace gfx {
-class PlatformCanvasWin;
-}
-
 namespace WebCore {
 
 // IMPORTANT NOTES ABOUT SCROLLBARS

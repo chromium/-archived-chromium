@@ -29,7 +29,7 @@
 #elif USE(V8)
 #include "npruntime_priv.h"
 #endif
-#include "FrameWin.h"
+#include "FrameChromium.h"
 
 #include "AffineTransform.h"
 #include "FloatRect.h"

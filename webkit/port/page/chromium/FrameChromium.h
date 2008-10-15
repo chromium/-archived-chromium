@@ -23,86 +23,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "config.h"
-#include "ContextMenuItem.h"
+#ifndef FrameChromium_H
+#define FrameChromium_H
 
-#include "ContextMenu.h"
-
-#include "CString.h"
+#include "Frame.h"
 
 namespace WebCore {
 
-// This is a stub implementation of WebKit's ContextMenu class that does
-// nothing.
-
-ContextMenuItem::ContextMenuItem(LPMENUITEMINFO item)
-{
-}
-
-ContextMenuItem::ContextMenuItem(ContextMenu* subMenu)
-{
-}
-
-ContextMenuItem::ContextMenuItem(ContextMenuItemType type, ContextMenuAction action, const String& title, ContextMenu* subMenu)
-{
-}
-
-ContextMenuItem::~ContextMenuItem()
-{
-}
-
-LPMENUITEMINFO ContextMenuItem::releasePlatformDescription()
-{
-    return 0;
-}
-
-ContextMenuItemType ContextMenuItem::type() const
-{
-    return ContextMenuItemType();
-}
-
-ContextMenuAction ContextMenuItem::action() const
-{ 
-    return ContextMenuAction();
-}
-
-String ContextMenuItem::title() const 
-{
-    return String();
-}
-
-PlatformMenuDescription ContextMenuItem::platformSubMenu() const
-{
-    return PlatformMenuDescription();
-}
-
-void ContextMenuItem::setType(ContextMenuItemType type)
-{
-}
-
-void ContextMenuItem::setAction(ContextMenuAction action)
-{
-}
-
-void ContextMenuItem::setTitle(const String& title)
-{
-}
-
-void ContextMenuItem::setSubMenu(ContextMenu* subMenu)
-{
-}
-
-void ContextMenuItem::setChecked(bool checked)
-{
-}
-
-void ContextMenuItem::setEnabled(bool enabled)
-{
-}
-
-bool ContextMenuItem::enabled() const
-{
-    return false;
-}
+    // printRect is only used for the width/height ratio. Their absolute values aren't used.
+    void computePageRectsForFrame(Frame*, const IntRect& printRect, float headerHeight, float footerHeight, float userScaleFactor, Vector<IntRect>& pages, int& pageHeight);
 
 }
+
+#endif

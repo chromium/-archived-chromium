@@ -26,12 +26,6 @@
 #include "config.h"
 #include "ContextMenu.h"
 
-#include "CString.h"
-#include "Document.h"
-#include "Frame.h"
-#include "FrameView.h"
-#include "Node.h"
-
 namespace WebCore {
 
 // This is a stub implementation of WebKit's ContextMenu class that does
@@ -66,11 +60,6 @@ void ContextMenu::appendItem(ContextMenuItem& item)
 {
 }
 
-static ContextMenuItem* contextMenuItemByIdOrPosition(HMENU menu, unsigned id, BOOL byPosition)
-{
-    return 0;
-}
-
 ContextMenuItem* ContextMenu::itemWithAction(unsigned action)
 {
     return 0;
@@ -81,16 +70,16 @@ ContextMenuItem* ContextMenu::itemAtIndex(unsigned index, const PlatformMenuDesc
     return 0;
 }
 
-void ContextMenu::setPlatformDescription(HMENU menu)
+void ContextMenu::setPlatformDescription(PlatformMenuDescription menu)
 {
 }
 
-HMENU ContextMenu::platformDescription() const
+PlatformMenuDescription ContextMenu::platformDescription() const
 {
     return m_platformDescription;
 }
 
-HMENU ContextMenu::releasePlatformDescription()
+PlatformMenuDescription ContextMenu::releasePlatformDescription()
 {
     return 0;
 }

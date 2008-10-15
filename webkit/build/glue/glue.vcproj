@@ -461,7 +461,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\glue\resource_handle_win.cc"
+				RelativePath="..\..\glue\resource_handle_impl.cc"
 				>
 			</File>
 			<File

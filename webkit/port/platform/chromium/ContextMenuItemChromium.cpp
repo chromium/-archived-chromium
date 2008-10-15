@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Apple Inc.  All rights reserved.
+ * Copyright (C) 2006, 2007 Apple Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,53 +24,83 @@
  */
 
 #include "config.h"
-#include "DragImage.h"
+#include "ContextMenuItem.h"
 
-#include "CachedImage.h"
-#include "GraphicsContext.h"
-#include "Image.h"
-
-#include <windows.h>
+#include "ContextMenu.h"
 
 namespace WebCore {
 
-IntSize dragImageSize(DragImageRef image)
+// This is a stub implementation of WebKit's ContextMenu class that does
+// nothing.
+
+ContextMenuItem::ContextMenuItem(PlatformMenuItemDescription item)
 {
-    if (!image)
-        return IntSize();
-    BITMAP b;
-    GetObject(image, sizeof(BITMAP), &b);
-    return IntSize(b.bmWidth, b.bmHeight);
 }
 
-void deleteDragImage(DragImageRef image)
+ContextMenuItem::ContextMenuItem(ContextMenu* subMenu)
 {
-    if (image)
-        ::DeleteObject(image);
 }
 
-DragImageRef scaleDragImage(DragImageRef image, FloatSize scale)
+ContextMenuItem::ContextMenuItem(ContextMenuItemType type, ContextMenuAction action, const String& title, ContextMenu* subMenu)
 {
-    // FIXME
+}
+
+ContextMenuItem::~ContextMenuItem()
+{
+}
+
+PlatformMenuItemDescription ContextMenuItem::releasePlatformDescription()
+{
     return 0;
 }
-    
-DragImageRef dissolveDragImageToFraction(DragImageRef image, float)
+
+ContextMenuItemType ContextMenuItem::type() const
 {
-    //We don't do this on windows as the dragimage is blended by the OS
-    return image;
+    return ContextMenuItemType();
 }
-        
-DragImageRef createDragImageFromImage(Image* img)
-{    
-    // FIXME
-    return 0;
+
+ContextMenuAction ContextMenuItem::action() const
+{ 
+    return ContextMenuAction();
 }
-    
-DragImageRef createDragImageIconForCachedImage(CachedImage*)
+
+String ContextMenuItem::title() const 
 {
-    //FIXME: Provide icon for image type <rdar://problem/5015949>
-    return 0;     
+    return String();
 }
-    
+
+PlatformMenuDescription ContextMenuItem::platformSubMenu() const
+{
+    return PlatformMenuDescription();
+}
+
+void ContextMenuItem::setType(ContextMenuItemType type)
+{
+}
+
+void ContextMenuItem::setAction(ContextMenuAction action)
+{
+}
+
+void ContextMenuItem::setTitle(const String& title)
+{
+}
+
+void ContextMenuItem::setSubMenu(ContextMenu* subMenu)
+{
+}
+
+void ContextMenuItem::setChecked(bool checked)
+{
+}
+
+void ContextMenuItem::setEnabled(bool enabled)
+{
+}
+
+bool ContextMenuItem::enabled() const
+{
+    return false;
+}
+
 }

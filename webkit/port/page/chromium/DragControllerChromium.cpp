@@ -27,9 +27,12 @@
 #include "DragController.h"
 
 #include "DragData.h"
-#include "windows.h" 
 #include "SelectionController.h"
 #include <wtf/RefPtr.h>
+
+#if PLATFORM(WIN)
+#include <windows.h>
+#endif
 
 namespace WebCore {
 
@@ -51,7 +54,13 @@ DragOperation DragController::dragOperation(DragData* dragData)
 }
 
 bool DragController::isCopyKeyDown() {
+    // TODO(darin): This should not be OS specific.  Delegate to the embedder
+    // instead.
+#if PLATFORM(WIN)
     return ::GetAsyncKeyState(VK_CONTROL);
+#else
+    return false;
+#endif
 }
     
 const IntSize& DragController::maxDragImageSize()

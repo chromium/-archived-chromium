@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Apple Inc.  All rights reserved.
+ * Copyright (C) 2007 Apple Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,15 +24,62 @@
  */
 
 #include "config.h"
-#include "Page.h"
+#include "DragImage.h"
 
-#include "Frame.h"
-#include "FrameView.h"
-#include "FloatRect.h"
+#include "CachedImage.h"
+#include "GraphicsContext.h"
+#include "Image.h"
+
+#if PLATFORM(WIN)
 #include <windows.h>
+#endif
 
 namespace WebCore {
 
-HINSTANCE Page::s_instanceHandle = 0;
+IntSize dragImageSize(DragImageRef image)
+{
+// TODO(darin): DragImageRef should be changed to be a cross-platform
+// container.  However, it may still make sense for its contents to be
+// platform-dependent.
+#if PLATFORM(WIN)
+    if (!image)
+        return IntSize();
+    BITMAP b;
+    GetObject(image, sizeof(BITMAP), &b);
+    return IntSize(b.bmWidth, b.bmHeight);
+#else
+    return IntSize();
+#endif
+}
 
-} // namespace WebCore
+void deleteDragImage(DragImageRef image)
+{
+    if (image)
+        ::DeleteObject(image);
+}
+
+DragImageRef scaleDragImage(DragImageRef image, FloatSize scale)
+{
+    // FIXME
+    return 0;
+}
+    
+DragImageRef dissolveDragImageToFraction(DragImageRef image, float)
+{
+    //We don't do this on windows as the dragimage is blended by the OS
+    return image;
+}
+        
+DragImageRef createDragImageFromImage(Image* img)
+{    
+    // FIXME
+    return 0;
+}
+    
+DragImageRef createDragImageIconForCachedImage(CachedImage*)
+{
+    //FIXME: Provide icon for image type <rdar://problem/5015949>
+    return 0;     
+}
+    
+}

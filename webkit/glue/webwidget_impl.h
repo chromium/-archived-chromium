@@ -12,7 +12,7 @@
 #include "webkit/glue/webwidget.h"
 
 #pragma warning(push, 0)
-#include "WidgetClientWin.h"
+#include "WidgetClientChromium.h"
 #pragma warning(pop)
 
 namespace WebCore {
@@ -30,7 +30,7 @@ class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebWidgetDelegate;
 
-class WebWidgetImpl : public WebWidget, public WebCore::WidgetClientWin {
+class WebWidgetImpl : public WebWidget, public WebCore::WidgetClientChromium {
  public:
   // WebWidget
   virtual void Close();

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WidgetClientWin_H__
-#define WidgetClientWin_H__
+#ifndef WidgetClientChromium_H__
+#define WidgetClientChromium_H__
 
 #include "base/gfx/native_widget_types.h"
 #include "WidgetClient.h"
@@ -17,9 +17,9 @@ class IntRect;
 class Range;
 
 // Generic interface for features needed by the Widget.
-class WidgetClientWin : public WidgetClient {
+class WidgetClientChromium : public WidgetClient {
 public:
-    virtual ~WidgetClientWin() {}
+    virtual ~WidgetClientChromium() {}
 
     // Returns the containing window for the Widget.
     // TODO(pinkerton): this needs a better name, "window" is incorrect on other
@@ -72,4 +72,4 @@ public:
 
 } // namespace WebCore
 
-#endif  // WidgetClientWin_H__
+#endif  // WidgetClientChromium_H__

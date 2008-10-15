@@ -36,6 +36,8 @@ void NetworkStateNotifier::updateState()
 {
 }
 
+// TODO(darin): Kill this once we stop defining PLATFORM(WIN)
+#if PLATFORM(WIN)
 void NetworkStateNotifier::addressChanged()
 {
 }
@@ -51,6 +53,7 @@ void CALLBACK NetworkStateNotifier::addrChangeCallback(void* context, BOOLEAN ti
 void NetworkStateNotifier::registerForAddressChange()
 {
 }
+#endif
 
 NetworkStateNotifier::NetworkStateNotifier()
     : m_isOnLine(true)

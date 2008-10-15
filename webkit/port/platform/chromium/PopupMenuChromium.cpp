@@ -33,7 +33,7 @@
 #include "PopupMenu.h"
 
 #include "CharacterNames.h"
-#include "ChromeClientWin.h"
+#include "ChromeClientChromium.h"
 #include "Document.h"
 #include "Font.h"
 #include "Frame.h"
@@ -51,11 +51,8 @@
 #include "RenderBlock.h"
 #include "RenderTheme.h"
 #include "Widget.h"
-#include "WidgetClientWin.h"
+#include "WidgetClientChromium.h"
 #pragma warning(pop)
-
-//#define LOG_ENABLE
-#include "LogWin.h"
 
 using namespace WTF;
 using namespace Unicode;
@@ -358,10 +355,10 @@ void PopupContainer::showPopup(FrameView* view)
     // WidgetClient about it.  It should assign us a client.
     layout();
 
-    WidgetClientWin* widgetClient =
-        static_cast<WidgetClientWin*>(view->client());
-    ChromeClientWin* chromeClient =
-        static_cast<ChromeClientWin*>(view->frame()->page()->chrome()->client());
+    WidgetClientChromium* widgetClient = static_cast<WidgetClientChromium*>(
+        view->client());
+    ChromeClientChromium* chromeClient = static_cast<ChromeClientChromium*>(
+        view->frame()->page()->chrome()->client());
     if (widgetClient && chromeClient) {
         // If the popup would extend past the bottom of the screen, open upwards
         // instead.
@@ -393,7 +390,7 @@ void PopupContainer::hidePopup()
     removeChild(m_listBox.get());
 
     if (client())
-        static_cast<WidgetClientWin*>(client())->popupClosed(this);
+        static_cast<WidgetClientChromium*>(client())->popupClosed(this);
 }
 
 void PopupContainer::layout()
@@ -669,9 +666,6 @@ void PopupListBox::paint(GraphicsContext* gc, const IntRect& rect)
 
     r.move(-tx, -ty);
 
-    LOG(("PopupListBox::paint [%d,%d] [r: %d,%d,%d,%d]", tx, ty,
-        r.x(), r.y(), r.width(), r.height()));
-
     // set clip rect to match revised damage rect
     gc->save();
     gc->translate(static_cast<float>(tx), static_cast<float>(ty));
@@ -725,10 +719,6 @@ void PopupListBox::paintRow(GraphicsContext* gc, const IntRect& rect, int rowInd
 
     gc->fillRect(rowRect, backColor);
     gc->setFillColor(textColor);
-
-    LOG(("paintRow %d, [%d, %d, %d, %d] %x on %x", rowIndex,
-        rowRect.x(), rowRect.y(), rowRect.width(), rowRect.height(),
-        textColor.rgb(), backColor.rgb()));
 
     Font itemFont = getRowFont(rowIndex);
     gc->setFont(itemFont);
