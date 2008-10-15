@@ -433,11 +433,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\base\ssl_client_socket.cc"
+				RelativePath="..\base\ssl_client_socket.h"
 				>
 			</File>
 			<File
-				RelativePath="..\base\ssl_client_socket.h"
+				RelativePath="..\base\ssl_client_socket_win.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\ssl_client_socket_win.h"
 				>
 			</File>
 			<File

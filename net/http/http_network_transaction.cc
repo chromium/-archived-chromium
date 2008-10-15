@@ -13,9 +13,7 @@
 #include "net/base/host_resolver.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_util.h"
-#if defined(OS_WIN)
 #include "net/base/ssl_client_socket.h"
-#endif
 #include "net/base/upload_data_stream.h"
 #include "net/http/http_auth.h"
 #include "net/http/http_auth_handler.h"
@@ -58,12 +56,7 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       read_buf_(NULL),
       read_buf_len_(0),
       next_state_(STATE_NONE) {
-#if defined(OS_WIN)
-  // TODO(wtc): Use SSL settings (bug 3003).
-  ssl_version_mask_ = SSLClientSocket::SSL3 | SSLClientSocket::TLS1;
-#else
-  ssl_version_mask_ = 0;  // A dummy value so that the code compiles.
-#endif
+  // TODO(wtc): Initialize ssl_config_with SSL settings (bug 3003).
 }
 
 void HttpNetworkTransaction::Destroy() {
@@ -89,7 +82,7 @@ int HttpNetworkTransaction::RestartIgnoringLastError(
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
     user_callback_ = callback;
-  return rv; 
+  return rv;
 }
 
 int HttpNetworkTransaction::RestartWithAuth(
@@ -482,7 +475,7 @@ int HttpNetworkTransaction::DoConnect() {
   // wrapper socket now.  Otherwise, we need to first issue a CONNECT request.
   if (using_ssl_ && !using_tunnel_)
     s = socket_factory_->CreateSSLClientSocket(s, request_->url.host(),
-                                               ssl_version_mask_);
+                                               ssl_config_);
 
   connection_.set_socket(s);
   return connection_.socket()->Connect(&io_callback_);
@@ -510,7 +503,7 @@ int HttpNetworkTransaction::DoSSLConnectOverTunnel() {
   // Add a SSL socket on top of our existing transport socket.
   ClientSocket* s = connection_.release_socket();
   s = socket_factory_->CreateSSLClientSocket(s, request_->url.host(),
-                                             ssl_version_mask_);
+                                             ssl_config_);
   connection_.set_socket(s);
   return connection_.socket()->Connect(&io_callback_);
 }
@@ -834,13 +827,11 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     }
   }
 
-#if defined(OS_WIN)
   if (using_ssl_ && !establishing_tunnel_) {
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
   }
-#endif
 
   return OK;
 }
@@ -869,25 +860,22 @@ int HttpNetworkTransaction::HandleCertificateError(int error) {
     }
   }
 
-#if defined(OS_WIN)
   if (error != OK) {
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
   }
-#endif
   return error;
 }
 
 int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
-#if defined(OS_WIN)
   switch (error) {
     case ERR_SSL_PROTOCOL_ERROR:
     case ERR_SSL_VERSION_OR_CIPHER_MISMATCH:
-      if (ssl_version_mask_ & SSLClientSocket::TLS1) {
+      if (ssl_config_.tls1_enabled) {
         // This could be a TLS-intolerant server or an SSL 3.0 server that
         // chose a TLS-only cipher suite.  Turn off TLS 1.0 and retry.
-        ssl_version_mask_ &= ~SSLClientSocket::TLS1;
+        ssl_config_.tls1_enabled = false;
         connection_.set_socket(NULL);
         connection_.Reset();
         next_state_ = STATE_INIT_CONNECTION;
@@ -895,7 +883,6 @@ int HttpNetworkTransaction::HandleSSLHandshakeError(int error) {
       }
       break;
   }
-#endif
   return error;
 }
 
@@ -1001,7 +988,7 @@ void HttpNetworkTransaction::AddAuthorizationHeader(HttpAuth::Target target) {
 
   // Add auth data to cache
   session_->auth_cache()->Add(auth_cache_key_[target], auth_data_[target]);
-  
+
   // Add a Authorization/Proxy-Authorization header line.
   std::string credentials = auth_handler_[target]->GenerateCredentials(
       auth_data_[target]->username,

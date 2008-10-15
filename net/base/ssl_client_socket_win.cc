@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/ssl_client_socket.h"
+#include "net/base/ssl_client_socket_win.h"
 
 #include <schnlsp.h>
 
@@ -90,14 +90,14 @@ static int MapNetErrorToCertStatus(int error) {
 //   64: >= SSL record trailer (16 or 20 have been observed)
 static const int kRecvBufferSize = (5 + 16*1024 + 64);
 
-SSLClientSocket::SSLClientSocket(ClientSocket* transport_socket,
-                                 const std::string& hostname,
-                                 int protocol_version_mask)
+SSLClientSocketWin::SSLClientSocketWin(ClientSocket* transport_socket,
+                                       const std::string& hostname,
+                                       const SSLConfig& ssl_config)
 #pragma warning(suppress: 4355)
-    : io_callback_(this, &SSLClientSocket::OnIOComplete),
+    : io_callback_(this, &SSLClientSocketWin::OnIOComplete),
       transport_(transport_socket),
       hostname_(hostname),
-      protocol_version_mask_(protocol_version_mask),
+      ssl_config_(ssl_config),
       user_callback_(NULL),
       user_buf_(NULL),
       user_buf_len_(0),
@@ -119,11 +119,36 @@ SSLClientSocket::SSLClientSocket(ClientSocket* transport_socket,
   memset(&ctxt_, 0, sizeof(ctxt_));
 }
 
-SSLClientSocket::~SSLClientSocket() {
+SSLClientSocketWin::~SSLClientSocketWin() {
   Disconnect();
 }
 
-int SSLClientSocket::Connect(CompletionCallback* callback) {
+void SSLClientSocketWin::GetSSLInfo(SSLInfo* ssl_info) {
+  SECURITY_STATUS status = SEC_E_OK;
+  if (server_cert_ == NULL) {
+    status = QueryContextAttributes(&ctxt_,
+                                    SECPKG_ATTR_REMOTE_CERT_CONTEXT,
+                                    &server_cert_);
+  }
+  if (status == SEC_E_OK) {
+    DCHECK(server_cert_);
+    PCCERT_CONTEXT dup_cert = CertDuplicateCertificateContext(server_cert_);
+    ssl_info->cert = X509Certificate::CreateFromHandle(dup_cert);
+  }
+  SecPkgContext_ConnectionInfo connection_info;
+  status = QueryContextAttributes(&ctxt_,
+                                  SECPKG_ATTR_CONNECTION_INFO,
+                                  &connection_info);
+  if (status == SEC_E_OK) {
+    // TODO(wtc): compute the overall security strength, taking into account
+    // dwExchStrength and dwHashStrength.  dwExchStrength needs to be
+    // normalized.
+    ssl_info->security_bits = connection_info.dwCipherStrength;
+  }
+  ssl_info->cert_status = server_cert_status_;
+}
+
+int SSLClientSocketWin::Connect(CompletionCallback* callback) {
   DCHECK(transport_.get());
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
@@ -135,12 +160,13 @@ int SSLClientSocket::Connect(CompletionCallback* callback) {
   return rv;
 }
 
-int SSLClientSocket::ReconnectIgnoringLastError(CompletionCallback* callback) {
+int SSLClientSocketWin::ReconnectIgnoringLastError(
+    CompletionCallback* callback) {
   // TODO(darin): implement me!
   return ERR_FAILED;
 }
 
-void SSLClientSocket::Disconnect() {
+void SSLClientSocketWin::Disconnect() {
   // TODO(wtc): Send SSL close_notify alert.
   completed_handshake_ = false;
   transport_->Disconnect();
@@ -165,7 +191,7 @@ void SSLClientSocket::Disconnect() {
   bytes_received_ = 0;
 }
 
-bool SSLClientSocket::IsConnected() const {
+bool SSLClientSocketWin::IsConnected() const {
   // Ideally, we should also check if we have received the close_notify alert
   // message from the server, and return false in that case.  We're not doing
   // that, so this function may return a false positive.  Since the upper
@@ -175,8 +201,8 @@ bool SSLClientSocket::IsConnected() const {
   return completed_handshake_ && transport_->IsConnected();
 }
 
-int SSLClientSocket::Read(char* buf, int buf_len,
-                          CompletionCallback* callback) {
+int SSLClientSocketWin::Read(char* buf, int buf_len,
+                             CompletionCallback* callback) {
   DCHECK(completed_handshake_);
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
@@ -213,8 +239,8 @@ int SSLClientSocket::Read(char* buf, int buf_len,
   return rv;
 }
 
-int SSLClientSocket::Write(const char* buf, int buf_len,
-                           CompletionCallback* callback) {
+int SSLClientSocketWin::Write(const char* buf, int buf_len,
+                              CompletionCallback* callback) {
   DCHECK(completed_handshake_);
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
@@ -229,32 +255,7 @@ int SSLClientSocket::Write(const char* buf, int buf_len,
   return rv;
 }
 
-void SSLClientSocket::GetSSLInfo(SSLInfo* ssl_info) {
-  SECURITY_STATUS status = SEC_E_OK;
-  if (server_cert_ == NULL) {
-    status = QueryContextAttributes(&ctxt_,
-                                    SECPKG_ATTR_REMOTE_CERT_CONTEXT,
-                                    &server_cert_);
-  }
-  if (status == SEC_E_OK) {
-    DCHECK(server_cert_);
-    PCCERT_CONTEXT dup_cert = CertDuplicateCertificateContext(server_cert_);
-    ssl_info->cert = X509Certificate::CreateFromHandle(dup_cert);
-  }
-  SecPkgContext_ConnectionInfo connection_info;
-  status = QueryContextAttributes(&ctxt_,
-                                  SECPKG_ATTR_CONNECTION_INFO,
-                                  &connection_info);
-  if (status == SEC_E_OK) {
-    // TODO(wtc): compute the overall security strength, taking into account
-    // dwExchStrength and dwHashStrength.  dwExchStrength needs to be
-    // normalized.
-    ssl_info->security_bits = connection_info.dwCipherStrength;
-  }
-  ssl_info->cert_status = server_cert_status_;
-}
-
-void SSLClientSocket::DoCallback(int rv) {
+void SSLClientSocketWin::DoCallback(int rv) {
   DCHECK(rv != ERR_IO_PENDING);
   DCHECK(user_callback_);
 
@@ -264,13 +265,13 @@ void SSLClientSocket::DoCallback(int rv) {
   c->Run(rv);
 }
 
-void SSLClientSocket::OnIOComplete(int result) {
+void SSLClientSocketWin::OnIOComplete(int result) {
   int rv = DoLoop(result);
   if (rv != ERR_IO_PENDING)
     DoCallback(rv);
 }
 
-int SSLClientSocket::DoLoop(int last_io_result) {
+int SSLClientSocketWin::DoLoop(int last_io_result) {
   DCHECK(next_state_ != STATE_NONE);
   int rv = last_io_result;
   do {
@@ -319,12 +320,12 @@ int SSLClientSocket::DoLoop(int last_io_result) {
   return rv;
 }
 
-int SSLClientSocket::DoConnect() {
+int SSLClientSocketWin::DoConnect() {
   next_state_ = STATE_CONNECT_COMPLETE;
   return transport_->Connect(&io_callback_);
 }
 
-int SSLClientSocket::DoConnectComplete(int result) {
+int SSLClientSocketWin::DoConnectComplete(int result) {
   if (result < 0)
     return result;
 
@@ -337,11 +338,11 @@ int SSLClientSocket::DoConnectComplete(int result) {
   // The global system registry settings take precedence over the value of
   // schannel_cred.grbitEnabledProtocols.
   schannel_cred.grbitEnabledProtocols = 0;
-  if (protocol_version_mask_ & SSL2)
+  if (ssl_config_.ssl2_enabled)
     schannel_cred.grbitEnabledProtocols |= SP_PROT_SSL2;
-  if (protocol_version_mask_ & SSL3)
+  if (ssl_config_.ssl3_enabled)
     schannel_cred.grbitEnabledProtocols |= SP_PROT_SSL3;
-  if (protocol_version_mask_ & TLS1)
+  if (ssl_config_.tls1_enabled)
     schannel_cred.grbitEnabledProtocols |= SP_PROT_TLS1;
   // The default (0) means Schannel selects the protocol, rather than no
   // protocols are selected.  So we have to fail here.
@@ -429,7 +430,7 @@ int SSLClientSocket::DoConnectComplete(int result) {
   return OK;
 }
 
-int SSLClientSocket::DoHandshakeRead() {
+int SSLClientSocketWin::DoHandshakeRead() {
   next_state_ = STATE_HANDSHAKE_READ_COMPLETE;
 
   if (!recv_buffer_.get())
@@ -446,7 +447,7 @@ int SSLClientSocket::DoHandshakeRead() {
   return transport_->Read(buf, buf_len, &io_callback_);
 }
 
-int SSLClientSocket::DoHandshakeReadComplete(int result) {
+int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
   if (result < 0)
     return result;
   if (result == 0 && !ignore_ok_result_)
@@ -576,7 +577,7 @@ int SSLClientSocket::DoHandshakeReadComplete(int result) {
   return OK;
 }
 
-int SSLClientSocket::DoHandshakeWrite() {
+int SSLClientSocketWin::DoHandshakeWrite() {
   next_state_ = STATE_HANDSHAKE_WRITE_COMPLETE;
 
   // We should have something to send.
@@ -589,7 +590,7 @@ int SSLClientSocket::DoHandshakeWrite() {
   return transport_->Write(buf, buf_len, &io_callback_);
 }
 
-int SSLClientSocket::DoHandshakeWriteComplete(int result) {
+int SSLClientSocketWin::DoHandshakeWriteComplete(int result) {
   if (result < 0)
     return result;
 
@@ -615,7 +616,7 @@ int SSLClientSocket::DoHandshakeWriteComplete(int result) {
   return OK;
 }
 
-int SSLClientSocket::DoPayloadRead() {
+int SSLClientSocketWin::DoPayloadRead() {
   next_state_ = STATE_PAYLOAD_READ_COMPLETE;
 
   DCHECK(recv_buffer_.get());
@@ -631,7 +632,7 @@ int SSLClientSocket::DoPayloadRead() {
   return transport_->Read(buf, buf_len, &io_callback_);
 }
 
-int SSLClientSocket::DoPayloadReadComplete(int result) {
+int SSLClientSocketWin::DoPayloadReadComplete(int result) {
   if (result < 0)
     return result;
   if (result == 0 && !ignore_ok_result_) {
@@ -728,7 +729,7 @@ int SSLClientSocket::DoPayloadReadComplete(int result) {
   return len;
 }
 
-int SSLClientSocket::DoPayloadEncrypt() {
+int SSLClientSocketWin::DoPayloadEncrypt() {
   DCHECK(user_buf_);
   DCHECK(user_buf_len_ > 0);
 
@@ -777,7 +778,7 @@ int SSLClientSocket::DoPayloadEncrypt() {
   return OK;
 }
 
-int SSLClientSocket::DoPayloadWrite() {
+int SSLClientSocketWin::DoPayloadWrite() {
   next_state_ = STATE_PAYLOAD_WRITE_COMPLETE;
 
   // We should have something to send.
@@ -790,7 +791,7 @@ int SSLClientSocket::DoPayloadWrite() {
   return transport_->Write(buf, buf_len, &io_callback_);
 }
 
-int SSLClientSocket::DoPayloadWriteComplete(int result) {
+int SSLClientSocketWin::DoPayloadWriteComplete(int result) {
   if (result < 0)
     return result;
 
@@ -815,7 +816,7 @@ int SSLClientSocket::DoPayloadWriteComplete(int result) {
   return OK;
 }
 
-int SSLClientSocket::DidCompleteHandshake() {
+int SSLClientSocketWin::DidCompleteHandshake() {
   SECURITY_STATUS status = QueryContextAttributes(
       &ctxt_, SECPKG_ATTR_STREAM_SIZES, &stream_sizes_);
   if (status != SEC_E_OK) {
@@ -839,7 +840,7 @@ int SSLClientSocket::DidCompleteHandshake() {
   return rv;
 }
 
-int SSLClientSocket::VerifyServerCert() {
+int SSLClientSocketWin::VerifyServerCert() {
   DCHECK(server_cert_);
 
   // Build and validate certificate chain.

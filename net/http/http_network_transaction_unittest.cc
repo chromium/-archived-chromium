@@ -137,7 +137,7 @@ class MockTCPClientSocket : public net::ClientSocket {
     // Not using mock writes; succeed synchronously.
     if (!data_->writes)
       return buf_len;
-    
+
     // Check that what we are writing matches the expectation.
     // Then give the mocked return value.
     MockWrite& w = data_->writes[write_index_];
@@ -185,10 +185,10 @@ class MockClientSocketFactory : public net::ClientSocketFactory {
       const net::AddressList& addresses) {
     return new MockTCPClientSocket(addresses);
   }
-  virtual net::ClientSocket* CreateSSLClientSocket(
+  virtual net::SSLClientSocket* CreateSSLClientSocket(
       net::ClientSocket* transport_socket,
       const std::string& hostname,
-      int protocol_version_mask) {
+      const net::SSLConfig& ssl_config) {
     return NULL;
   }
 };
@@ -623,7 +623,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
     MockRead("HTTP/1.0 401 Unauthorized\r\n"),
     // Give a couple authenticate options (only the middle one is actually
     // supported).
-    MockRead("WWW-Authenticate: Basic\r\n"), // Malformed
+    MockRead("WWW-Authenticate: Basic\r\n"),  // Malformed
     MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
     MockRead("WWW-Authenticate: UNSUPPORTED realm=\"FOO\"\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
@@ -717,7 +717,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
     MockRead("HTTP/1.0 407 Unauthorized\r\n"),
     // Give a couple authenticate options (only the middle one is actually
     // supported).
-    MockRead("Proxy-Authenticate: Basic\r\n"), // Malformed
+    MockRead("Proxy-Authenticate: Basic\r\n"),  // Malformed
     MockRead("Proxy-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
     MockRead("Proxy-Authenticate: UNSUPPORTED realm=\"FOO\"\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
@@ -745,7 +745,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
     MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     MockRead("Content-Length: 2000\r\n\r\n"),
-    MockRead(false, net::ERR_FAILED), // Won't be reached.
+    MockRead(false, net::ERR_FAILED),  // Won't be reached.
   };
 
   // After calling trans->RestartWithAuth() the second time, we should send

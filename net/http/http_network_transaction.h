@@ -11,6 +11,7 @@
 #include "net/base/address_list.h"
 #include "net/base/client_socket_handle.h"
 #include "net/base/host_resolver.h"
+#include "net/base/ssl_config_service.h"
 #include "net/http/http_auth.h"
 #include "net/http/http_auth_handler.h"
 #include "net/http/http_response_info.h"
@@ -186,7 +187,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   // the real request/response of the transaction.
   bool establishing_tunnel_;
 
-  int ssl_version_mask_;
+  SSLConfig ssl_config_;
 
   std::string request_headers_;
   size_t request_headers_bytes_sent_;

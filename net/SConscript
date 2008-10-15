@@ -94,7 +94,7 @@ if env['PLATFORM'] == 'win32':
       'base/directory_lister.cc',
       'base/dns_resolution_observer.cc',
       'base/listen_socket.cc',
-      'base/ssl_client_socket.cc',
+      'base/ssl_client_socket_win.cc',
       'base/ssl_config_service.cc',
       'base/tcp_client_socket.cc',
       'base/telnet_server.cc',
