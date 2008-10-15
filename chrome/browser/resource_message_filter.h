@@ -9,6 +9,7 @@
 #include "base/ref_counted.h"
 #include "chrome/browser/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
+#include "chrome/common/notification_service.h"
 #include "webkit/glue/cache_manager.h"
 
 class ClipboardService;
@@ -29,12 +30,13 @@ class PrintJobManager;
 // will not interfere with browser UI.
 
 class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
-                              public ResourceDispatcherHost::Receiver {
+                              public ResourceDispatcherHost::Receiver,
+                              public NotificationObserver {
  public:
   // Create the filter.
   // Note:  because the lifecycle of the ResourceMessageFilter is not
   //        tied to the lifecycle of the object which created it, the
-  //        ResourceMessageFilter is 'given' ownership of the spellcker
+  //        ResourceMessageFilter is 'given' ownership of the spellchecker
   //        object and must clean it up on exit.
   ResourceMessageFilter(ResourceDispatcherHost* resource_dispatcher_host,
                         PluginService* plugin_service,
@@ -60,6 +62,11 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   int render_process_host_id() const { return render_process_host_id_;}
 
   HANDLE renderer_handle() const { return render_handle_;}
+  
+  // NotificationObserver implementation.
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
 
  private:
   void OnMsgCreateView(int opener_id, bool user_gesture, int* route_id,
@@ -175,6 +182,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   // Contextual information to be used for requests created here.
   scoped_refptr<URLRequestContext> request_context_;
+
+  // Save the profile pointer so that notification observer can be added.
+  Profile* profile_;
 
   scoped_refptr<RenderWidgetHelper> render_widget_helper_;
 };

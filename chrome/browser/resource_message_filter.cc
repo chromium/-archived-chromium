@@ -91,6 +91,7 @@ ResourceMessageFilter::ResourceMessageFilter(
       render_process_host_id_(render_process_host_id),
       render_handle_(NULL),
       request_context_(profile->GetRequestContext()),
+      profile_(profile),
       render_widget_helper_(render_widget_helper),
       spellchecker_(spellchecker) {
 
@@ -101,11 +102,23 @@ ResourceMessageFilter::ResourceMessageFilter(
 ResourceMessageFilter::~ResourceMessageFilter() {
   if (render_handle_)
     CloseHandle(render_handle_);
+
+  // This function should be called on the IO thread.
+  DCHECK(MessageLoop::current() ==
+         ChromeThread::GetMessageLoop(ChromeThread::IO));
+  NotificationService::current()->RemoveObserver(
+      this, NOTIFY_SPELLCHECKER_REINITIALIZED,
+      Source<Profile>(profile_));
 }
 
 // Called on the IPC thread:
 void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
   channel_ = channel;
+
+  // Add the observers to intercept 
+  NotificationService::current()->AddObserver(
+      this, NOTIFY_SPELLCHECKER_REINITIALIZED,
+      Source<Profile>(profile_));
 }
 
 // Called on the IPC thread:
@@ -736,6 +749,15 @@ void ResourceMessageFilter::OnSpellCheck(const std::wstring& word,
     // on their own.
     // We could send a reply, but it doesn't seem necessary.
   }
+}
+
+void ResourceMessageFilter::Observe(NotificationType type, 
+                                    const NotificationSource &source,
+                                    const NotificationDetails &details) {
+    if (type == NOTIFY_SPELLCHECKER_REINITIALIZED) {
+      spellchecker_ = Details<SpellcheckerReinitializedDetails>
+          (details).ptr()->spellchecker;
+    }
 }
 
 void ResourceMessageFilter::OnDnsPrefetch(

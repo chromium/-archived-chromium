@@ -397,6 +397,11 @@ enum NotificationType {
   // Profile, and the details aren't used.
   NOTIFY_BOOKMARK_MODEL_LOADED,
 
+  // Sent when the spellchecker object changes. Note that this is not sent the
+  // first time the spellchecker gets initialized. The source is the profile, 
+  // the details is SpellcheckerReinitializedDetails defined in profile.
+  NOTIFY_SPELLCHECKER_REINITIALIZED,
+
   // Sent when the bookmark bubble is shown for a particular URL. The source
   // is the profile, the details the URL.
   NOTIFY_BOOKMARK_BUBBLE_SHOWN,

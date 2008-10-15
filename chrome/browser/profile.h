@@ -194,6 +194,13 @@ class Profile {
 
   virtual void ResetTabRestoreService() = 0;
 
+  // Initializes the spellchecker. If the spellchecker already exsts, then
+  // it is released, and initialized again. This model makes sure that 
+  // spellchecker language can be changed without restarting the browser.
+  // NOTE: This is being currently called in the UI thread, which is OK as long
+  // as the spellchecker object is USED in the IO thread.
+  virtual void InitializeSpellChecker() = 0;
+
   // Returns the spell checker object for this profile. THIS OBJECT MUST ONLY
   // BE USED ON THE I/O THREAD! This pointer is retrieved from the profile and
   // sent to the I/O thread where it is actually used.
@@ -203,8 +210,7 @@ class Profile {
   //
   // NOTE: this is invoked internally on a normal shutdown, but is public so
   // that it can be invoked when the user logs out/powers down (WM_ENDSESSION).
-  virtual void MarkAsCleanShutdown() = 0;
-
+  virtual void MarkAsCleanShutdown() = 0;  
 #ifdef UNIT_TEST
   // Use with caution.  GetDefaultRequestContext may be called on any thread!
   static void set_default_request_context(URLRequestContext* c) {
@@ -250,6 +256,7 @@ class ProfileImpl : public Profile {
   virtual Time GetStartTime() const;
   virtual TabRestoreService* GetTabRestoreService();
   virtual void ResetTabRestoreService();
+  virtual void InitializeSpellChecker();
   virtual SpellChecker* GetSpellChecker();
   virtual void MarkAsCleanShutdown();
 #ifdef CHROME_PERSONALIZATION
@@ -314,6 +321,13 @@ class ProfileImpl : public Profile {
   bool shutdown_session_service_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ProfileImpl);
+};
+
+// This struct is used to pass the spellchecker object through the notification
+// NOTIFY_SPELLCHECKER_REINITIALIZED. This is used as the details for the
+// notification service.
+struct SpellcheckerReinitializedDetails {
+  scoped_refptr<SpellChecker> spellchecker;
 };
 
 #endif  // CHROME_BROWSER_PROFILE_H__

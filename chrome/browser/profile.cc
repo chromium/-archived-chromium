@@ -479,6 +479,10 @@ class OffTheRecordProfileImpl : public Profile,
     return NULL;
   }
 
+  virtual void InitializeSpellChecker() {
+    profile_->InitializeSpellChecker();
+  }
+
   virtual void ResetTabRestoreService() {
   }
 
@@ -837,24 +841,79 @@ void ProfileImpl::ResetTabRestoreService() {
   tab_restore_service_.reset(NULL);
 }
 
+// To be run in the IO thread to notify all resource message filters that the 
+// spellchecker has changed.
+class NotifySpellcheckerChangeTask : public Task {
+ public:
+  NotifySpellcheckerChangeTask(
+      Profile* profile, const SpellcheckerReinitializedDetails& spellchecker)
+      : profile_(profile),
+        spellchecker_(spellchecker) {
+  }
+
+ private:
+  void Run(void) {
+    NotificationService::current()->Notify(
+        NOTIFY_SPELLCHECKER_REINITIALIZED,
+        Source<Profile>(profile_),
+        Details<SpellcheckerReinitializedDetails>(&spellchecker_));
+  }
+
+  Profile* profile_;
+  SpellcheckerReinitializedDetails spellchecker_;
+};
+
+void ProfileImpl::InitializeSpellChecker() {
+  bool need_to_broadcast = false;
+
+  // The I/O thread may be NULL during testing.
+  base::Thread* io_thread = g_browser_process->io_thread();
+  if (spellchecker_) {
+    // The spellchecker must be deleted on the I/O thread.
+    // A dummy variable to aid in logical clarity.
+    SpellChecker* last_spellchecker = spellchecker_;
+
+    if (io_thread)
+      io_thread->message_loop()->ReleaseSoon(FROM_HERE, last_spellchecker);
+    else  //  during testing, we don't have an I/O thread
+      last_spellchecker->Release();
+
+    need_to_broadcast = true;
+  }
+
+  std::wstring dict_dir;
+  PathService::Get(chrome::DIR_APP_DICTIONARIES, &dict_dir);
+
+  // Retrieve the (perhaps updated recently) dictionary name from preferences.
+  PrefService* prefs = GetPrefs();
+  std::wstring language = prefs->GetString(prefs::kSpellCheckDictionary);
+
+  // Note that, as the object pointed to by previously by spellchecker_ 
+  // is being deleted in the io thread, the spellchecker_ can be made to point
+  // to a new object (RE-initialized) in parallel in this UI thread.
+  spellchecker_ = new SpellChecker(dict_dir, language, GetRequestContext(), 
+                                   L"");
+  spellchecker_->AddRef();  // Manual refcounting.
+
+  if (need_to_broadcast && io_thread) {  // Notify resource message filters.
+    SpellcheckerReinitializedDetails scoped_spellchecker;
+    scoped_spellchecker.spellchecker = spellchecker_;
+    io_thread->message_loop()->PostTask(
+        FROM_HERE, 
+        new NotifySpellcheckerChangeTask(this, scoped_spellchecker));
+  }
+}
+
 SpellChecker* ProfileImpl::GetSpellChecker() {
   if (!spellchecker_) {
-    // Don't check for an error here. In the extremely unlikely case that this
-    // fails, the spellchecker just won't find the file. This prevents callers
-    // from having to check for NULL return values from this function.
-    std::wstring dict_dir;
-    PathService::Get(chrome::DIR_APP_DICTIONARIES, &dict_dir);
-
-    // Retrieve the dictionary name from preferences or the language DLL.
-    // When we retrieve it from the language DLL.
-    PrefService* prefs = GetPrefs();
-    std::wstring dictionary_name = prefs->GetString(
-        prefs::kSpellCheckDictionary);
-
-    spellchecker_ = new SpellChecker(dict_dir, dictionary_name,
-                                     GetRequestContext(), L"");
-    spellchecker_->AddRef();  // Manual refcounting.
+    // This is where spellchecker gets initialized. Note that this is being
+    // initialized in the ui_thread. However, this is not a problem as long as
+    // it is *used* in the io thread.
+    // TODO (sidchat) One day, change everything so that spellchecker gets
+    // initialized in the IO thread itself.
+    InitializeSpellChecker();
   }
+
   return spellchecker_;
 }
 

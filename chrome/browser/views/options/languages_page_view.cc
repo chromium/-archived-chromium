@@ -681,6 +681,7 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
     int index = dictionary_language_model_->GetSelectedLanguageIndex(
         prefs::kSpellCheckDictionary);
     change_dictionary_language_combobox_->SetSelectedItem(index);
+    spellcheck_language_index_selected_ = -1;
   }
 }
 
@@ -693,11 +694,8 @@ void LanguagesPageView::ItemChanged(ChromeViews::ComboBox* sender,
     app_locale_.SetValue(ui_language_model_->GetLocaleFromIndex(new_index));
     RestartMessageBox::ShowMessageBox(GetRootWindow());
   } else if (sender == change_dictionary_language_combobox_) {
-    UserMetricsRecordAction(L"Options_DictionaryLanguage",
-                            profile()->GetPrefs());
-    dictionary_language_.SetValue(dictionary_language_model_->
-        GetLocaleFromIndex(new_index));
-    RestartMessageBox::ShowMessageBox(GetRootWindow());
+    if (new_index != prev_index)
+      spellcheck_language_index_selected_ = new_index;
   }
 }
 
@@ -750,5 +748,16 @@ void LanguagesPageView::OnMoveUpLanguage() {
 void LanguagesPageView::SaveChanges() {
   if (language_order_table_model_.get() && language_table_edited_)
     accept_languages_.SetValue(language_order_table_model_->GetLanguageList());
-}
 
+  if (spellcheck_language_index_selected_ != -1) {
+    UserMetricsRecordAction(L"Options_DictionaryLanguage",
+                            profile()->GetPrefs());
+    dictionary_language_.SetValue(dictionary_language_model_->
+        GetLocaleFromIndex(spellcheck_language_index_selected_));
+
+    // Initialize spellchecker. Keeping with the tradition, spellchecker is
+    // being initialized in this UI thread. However, it must be USED in the IO
+    // thread.
+    profile()->InitializeSpellChecker();
+  }
+}
