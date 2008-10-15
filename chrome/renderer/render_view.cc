@@ -1232,18 +1232,30 @@ void RenderView::DidFailProvisionalLoadWithError(WebView* webview,
       static_cast<RenderViewExtraRequestData*>(failed_request.GetExtraData());
   bool replace = extra_data && !extra_data->is_new_navigation();
 
-  const GURL& failed_url = error.GetFailedURL();
-  const GURL& error_page_url = GetAlternateErrorPageURL(failed_url,
-      WebViewDelegate::DNS_ERROR);
-  if (error.GetErrorCode() == net::ERR_NAME_NOT_RESOLVED &&
-      error_page_url.is_valid()) {
-    // Ask the WebFrame to fetch the alternate error page for us.
-    frame->LoadAlternateHTMLErrorPage(&failed_request, error, error_page_url,
-        replace, GURL(kUnreachableWebDataURL));
-  } else {
-    LoadNavigationErrorPage(frame, &failed_request, error, std::string(),
-                            replace);
+  // Use the alternate error page service if this is a DNS failure or
+  // connection failure.  ERR_CONNECTION_FAILED can be dropped once we no longer
+  // use winhttp.
+  int ec = error.GetErrorCode();
+  if (ec == net::ERR_NAME_NOT_RESOLVED ||
+      ec == net::ERR_CONNECTION_FAILED ||
+      ec == net::ERR_CONNECTION_REFUSED ||
+      ec == net::ERR_ADDRESS_UNREACHABLE ||
+      ec == net::ERR_TIMED_OUT) {
+    const GURL& failed_url = error.GetFailedURL();
+    const GURL& error_page_url = GetAlternateErrorPageURL(failed_url,
+        ec == net::ERR_NAME_NOT_RESOLVED ? WebViewDelegate::DNS_ERROR
+                                         : WebViewDelegate::CONNECTION_ERROR);
+    if (error_page_url.is_valid()) {
+      // Ask the WebFrame to fetch the alternate error page for us.
+      frame->LoadAlternateHTMLErrorPage(&failed_request, error, error_page_url,
+          replace, GURL(kUnreachableWebDataURL));
+      return;
+    }
   }
+
+  // Fallback to a local error page.  
+  LoadNavigationErrorPage(frame, &failed_request, error, std::string(),
+                          replace);
 }
 
 void RenderView::LoadNavigationErrorPage(WebFrame* frame,
@@ -1901,6 +1913,10 @@ GURL RenderView::GetAlternateErrorPageURL(const GURL& failedURL,
 
     case HTTP_404:
       params.append("http404");
+      break;
+
+    case CONNECTION_ERROR:
+      params.append("connectionerror");
       break;
 
     default:

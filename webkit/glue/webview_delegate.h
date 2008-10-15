@@ -640,7 +640,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   enum ErrorPageType {
     DNS_ERROR,
-    HTTP_404
+    HTTP_404,
+    CONNECTION_ERROR,
   };
   // If providing an alternate error page (like link doctor), returns the URL
   // to fetch instead.  If an invalid url is returned, just fall back on local
