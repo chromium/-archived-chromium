@@ -27,6 +27,8 @@ env.Append(
     ],
     LIBS = [
         'test_shell',
+        'glue',
+        'port',
         'base',
         'base_gfx',
         'breakpad_handler',
@@ -36,6 +38,9 @@ env.Append(
         'skia',
         'gtest',
         'bzip2',
+        'V8Bindings',
+        'WebCore',
+        'WTF',
         env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libjpeg',
         'libpng',
@@ -45,12 +50,7 @@ env.Append(
         'zlib',
         'v8',
         'JavaScriptCore_pcre',
-        'port',
-        'WebCore',
-        'WTF',
-        'V8Bindings',
         'default_plugin',
-        'glue',
     ],
 )
 

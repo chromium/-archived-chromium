@@ -50,7 +50,9 @@ elif env['PLATFORM'] == 'posix':
         'BUILDING_GTK__',
         # In Platform.h, this doesn't get defined when BUILDING_GTK__ is
         # defined.
-        'WTF_USE_ICU_UNICODE',
+        'WTF_USE_ICU_UNICODE=1',
+        # We want webkit to use pthreads rather than gthread.
+        'WTF_USE_PTHREADS=1',
       ],
   )
 

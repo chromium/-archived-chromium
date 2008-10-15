@@ -167,5 +167,15 @@ if env['PLATFORM'] == 'win32':
       '$WTF_DIR/win/MainThreadWin.cpp',
       '$WTF_DIR/ThreadingWin.cpp',
   ])
+elif env['PLATFORM'] == 'posix':
+  wtf_inputs.extend([
+      '$WTF_DIR/gtk/MainThreadGtk.cpp',
+      '$WTF_DIR/ThreadingPthreads.cpp',
+  ])
+
+  # Re-add the include path for glib.h because it got lost when cloning the
+  # environment.
+  env.ParseConfig('pkg-config --cflags --libs glib-2.0')
+
 
 env.ChromeStaticLibrary('WTF', wtf_inputs)
