@@ -259,7 +259,9 @@ void WebWidgetHost::ResetScrollRect() {
 }
 
 void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
+#ifndef NDEBUG
   DCHECK(!painting_);
+#endif
   DCHECK(canvas_.get());
 
   set_painting(true);
