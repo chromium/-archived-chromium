@@ -46,6 +46,7 @@ env.Append(
         'v8',
         'JavaScriptCore_pcre',
         'port',
+        'WebCore',
         'WTF',
         'V8Bindings',
         'default_plugin',
@@ -59,7 +60,6 @@ if env['PLATFORM'] == 'win32':
       LIBS = [
           'activex_shim',
           'breakpad_sender',
-          'WebCore',
       ]
   )
 
@@ -113,8 +113,9 @@ if env['PLATFORM'] == 'win32':
   ])
 elif env['PLATFORM'] == 'posix':
   input_files.extend([
-      'test_shell_gtk.cc',
-      'webwidget_host_gtk.cc',
+      'gtk/test_shell.cc',
+      'gtk/webwidget_host.cc',
+      'gtk/webview_host.cc'
   ])
 
 lib = env.ChromeStaticLibrary('test_shell', input_files)
