@@ -146,7 +146,7 @@ bool SafeBrowsingProtocolParser::ParseUpdate(
     if (cmd_parts.empty())
       return false;
     const std::string& command = cmd_parts[0];
-    if (cmd_parts.size() != 2 && !(cmd_parts.size() == 3 && command[0] == 'u'))
+    if (cmd_parts.size() != 2 && command[0] != 'u')
       return false;
 
     const int consumed = static_cast<int>(cmd_line.size()) + 1;
@@ -197,13 +197,13 @@ bool SafeBrowsingProtocolParser::ParseUpdate(
         break;
 
       case 'u': {
-        // The line providing a URL redirect to a chunk.
-        std::string redirect_url = cmd_parts[1];
-        if (cmd_parts.size() == 3) {
-          redirect_url += ':' + cmd_parts[2];
-        }
-
+        // The redirect command is of the form: u:<url>,<mac> where <url> can
+        // contain multiple colons, commas or any valid URL characters. We scan
+        // backwards in the string looking for the first ',' we encounter and
+        // assume that everything before that is the URL and everything after
+        // is the MAC (if the MAC was requested).
         std::string mac;
+        std::string redirect_url(cmd_line, 2);  // Skip the initial "u:".
         if (!key.empty()) {
           std::string::size_type mac_pos = redirect_url.rfind(',');
           if (mac_pos == std::string::npos)
@@ -211,6 +211,7 @@ bool SafeBrowsingProtocolParser::ParseUpdate(
           mac = redirect_url.substr(mac_pos + 1);
           redirect_url = redirect_url.substr(0, mac_pos);
         }
+
         ChunkUrl chunk_url;
         chunk_url.url = redirect_url;
         if (!key.empty())
@@ -226,8 +227,8 @@ bool SafeBrowsingProtocolParser::ParseUpdate(
         break;
 
       default:
-        // A command we don't understand.
-        return false;
+        // According to the spec, we ignore commands we don't understand.
+        break;
     }
   }
 

@@ -214,14 +214,12 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
       if (!parsed_ok) {
         SB_DLOG(INFO) << "SafeBrowsing request for: " << source->url()
                       << "failed parse.";
+        must_back_off = true;
+        chunk_request_urls_.clear();
       }
 
-      if (request_type_ == CHUNK_REQUEST) {
-        if (parsed_ok) {
-          chunk_request_urls_.pop_front();
-        } else {
-          chunk_request_urls_.clear();
-        }
+      if (request_type_ == CHUNK_REQUEST && parsed_ok) {
+        chunk_request_urls_.pop_front();
       } else if (request_type_ == GETKEY_REQUEST && initial_request_) {
         // This is the first request we've made this session. Now that we have
         // the keys, do the regular update request.
