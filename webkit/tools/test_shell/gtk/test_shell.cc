@@ -7,11 +7,17 @@
 #include <gtk/gtk.h>
 
 #include "base/string_util.h"
+#include "webkit/glue/webpreferences.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
+
+WebPreferences* TestShell::web_prefs_ = NULL;
 
 WindowList* TestShell::window_list_;
 
 TestShell::TestShell() {
+  // Uncomment this line to get a bunch of linker errors.  This is what we need
+  // to fix.
+  //m_webViewHost.reset(WebViewHost::Create(NULL, NULL, *TestShell::web_prefs_));
 }
 
 TestShell::~TestShell() {
@@ -20,6 +26,8 @@ TestShell::~TestShell() {
 // static
 void TestShell::InitializeTestShell(bool interactive) {
   window_list_ = new WindowList;
+
+  web_prefs_ = new WebPreferences;
 }
 
 // static
