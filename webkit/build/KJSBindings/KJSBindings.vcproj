@@ -1434,6 +1434,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ExceptionContext.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\pending\ExceptionContext.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\GCController.cpp"
 			>
 		</File>
@@ -1608,6 +1616,14 @@
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTargetNode.cpp"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					ShowIncludes="true"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTargetNode.h"
@@ -1906,38 +1922,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScheduledAction.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScheduledAction.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bridge\ScriptControllerKJS.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\pending\ScriptController.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ExceptionContext.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\pending\ExceptionContext.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptControllerWin.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\StringSourceProvider.h"
-			>
-		</File>
-		<File
 			RelativePath="..\precompiled_webkit.cc"
 			>
 			<FileConfiguration
@@ -1959,6 +1943,30 @@
 		</File>
 		<File
 			RelativePath="..\precompiled_webkit.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScheduledAction.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScheduledAction.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptController.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptController.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptControllerWin.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\StringSourceProvider.h"
 			>
 		</File>
 	</Files>

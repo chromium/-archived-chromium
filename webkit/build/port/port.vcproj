@@ -1223,10 +1223,6 @@
 				RelativePath="..\..\port\bridge\PluginsWin.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\pending\ScriptController.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="history"

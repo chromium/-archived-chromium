@@ -2437,7 +2437,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bridge\ScriptControllerV8.cpp"
+			RelativePath="..\..\port\bindings\v8\ScriptController.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\ScriptController.cpp"
 			>
 		</File>
 		<File

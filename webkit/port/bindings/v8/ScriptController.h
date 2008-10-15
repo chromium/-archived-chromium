@@ -36,17 +36,11 @@
 #include "HashMap.h"
 
 #include "bindings/npruntime.h"
-#if USE(JSC)
-#include "JSDOMWindowShell.h"
-#include <kjs/ustring.h>
-#endif
 
 #include <wtf/HashMap.h>
 
-#if USE(V8)
 #include "v8.h"
 #include "v8_proxy.h"
-#endif
 
 // JavaScript implementations which expose NPObject will need to implement
 // these methods.
@@ -122,15 +116,6 @@ typedef struct _NPRuntimeFunctions {
     NPN_SetExceptionProcPtr setException;
 } NPRuntimeFunctions;
 
-#if USE(JSC)
-namespace KJS {
-    namespace Bindings {
-        class Instance;
-        class RootObject;
-    } 
-}
-#endif
-
 namespace WebCore {
 class Document;
 class EventListener;
@@ -142,52 +127,20 @@ class PausedTimeouts;
 class String;
 class Widget;
 
-// JSString is the string class used for XMLHttpRequest's
-// m_responseText field.
-#if USE(JSC)
-typedef HashMap<void*, RefPtr<KJS::Bindings::RootObject> > RootObjectMap;
-typedef KJS::UString JSString;
-typedef KJS::Bindings::Instance* JSInstance;
-typedef PassRefPtr<KJS::Bindings::Instance> JSInstanceHandle;
-typedef RefPtr<KJS::Bindings::Instance> JSPersistentInstance;
-typedef KJS::JSValue* JSException;
-typedef KJS::JSValue* JSResult;
-#endif
-
-#if USE(V8)
-typedef String JSString;
 typedef v8::Local<v8::Object> JSInstance;
 typedef v8::Local<v8::Object> JSInstanceHandle;
 typedef v8::Persistent<v8::Object> JSPersistentInstance;
 typedef v8::Local<v8::Value> JSException;
 typedef v8::Persistent<v8::Value> JSResult;
-#endif
 
 class ScriptController {
 public:
     ScriptController(Frame*);
     ~ScriptController();
 
-#if USE(JSC)
-    bool haveWindowShell() const { return m_windowShell; }
-    JSDOMWindowShell* windowShell()
-    {
-        initScriptIfNeeded();
-        return m_windowShell;
-    }
-
-    JSDOMWindow* globalObject()
-    {
-        initScriptIfNeeded();
-        return m_windowShell->window();
-    }
-#endif
-
-#if USE(V8)
     // TODO(eseidel): V8Proxy should either be folded into ScriptController
     // or this accessor should be made JSProxy*
     V8Proxy* proxy() { return m_proxy.get(); }
-#endif
 
     // Evaluate a script file in the environment of this proxy.
     // If succeeded, 'succ' is set to true and result is returned
@@ -285,32 +238,12 @@ public:
     void clearScriptObjects();
     void cleanupScriptObjectsForPlugin(void*);
 
-#if USE(JSC)
-    KJS::Bindings::RootObject* bindingRootObject();
-#endif
-
 #if ENABLE(NETSCAPE_PLUGIN_API)
     NPObject* createScriptObjectForPluginElement(HTMLPlugInElement*);
     NPObject* windowScriptNPObject();
 #endif
 
 private:
-#if USE(JSC)
-    void initScriptIfNeeded()
-    {
-        if (!m_windowShell)
-            initScript();
-    }
-    void initScript();
-
-    void clearPlatformScriptObjects();
-    void disconnectPlatformScriptObjects();
-
-    KJS::ProtectedPtr<JSDOMWindowShell> m_windowShell;
-    HashSet<JSDOMWindow*> m_liveFormerWindows;
-    int m_handlerLineno;
-#endif
-
     static bool m_recordPlaybackMode;
 
     Frame* m_frame;
@@ -319,22 +252,14 @@ private:
     bool m_processingTimerCallback;
     bool m_paused;
 
-#if USE(V8)
     OwnPtr<V8Proxy> m_proxy;
     typedef HashMap<void*, NPObject*> PluginObjectMap;
-#endif
 
-#if USE(JSC)
-    // The root object used for objects bound outside the context of a plugin.
-    RefPtr<KJS::Bindings::RootObject> m_bindingRootObject; 
-    RootObjectMap m_rootObjects;
-#elif USE(V8)
     // A mapping between Widgets and their corresponding script object.
     // This list is used so that when the plugin dies, we can immediately
     // invalidate all sub-objects which are associated with that plugin.
     // The frame keeps a NPObject reference for each item on the list.
     PluginObjectMap m_pluginObjects;
-#endif
 #if ENABLE(NETSCAPE_PLUGIN_API)
     NPObject* m_windowScriptNPObject;
 #endif
