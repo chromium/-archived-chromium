@@ -835,6 +835,7 @@ struct ParamTraits<ViewHostMsg_FrameNavigate_Params> {
     WriteParam(m, p.gesture);
     WriteParam(m, p.contents_mime_type);
     WriteParam(m, p.is_post);
+    WriteParam(m, p.is_content_filtered);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
@@ -851,7 +852,8 @@ struct ParamTraits<ViewHostMsg_FrameNavigate_Params> {
       ReadParam(m, iter, &p->security_info) &&
       ReadParam(m, iter, &p->gesture) &&
       ReadParam(m, iter, &p->contents_mime_type) &&
-      ReadParam(m, iter, &p->is_post);
+      ReadParam(m, iter, &p->is_post) &&
+      ReadParam(m, iter, &p->is_content_filtered);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");
@@ -882,6 +884,8 @@ struct ParamTraits<ViewHostMsg_FrameNavigate_Params> {
     LogParam(p.contents_mime_type, l);
     l->append(L", ");
     LogParam(p.is_post, l);
+    l->append(L", ");
+    LogParam(p.is_content_filtered, l);
     l->append(L")");
   }
 };
