@@ -183,8 +183,10 @@ void SSLClientSocketWin::Disconnect() {
     DeleteSecurityContext(&ctxt_);
     memset(&ctxt_, 0, sizeof(ctxt_));
   }
-  if (server_cert_)
+  if (server_cert_) {
     CertFreeCertificateContext(server_cert_);
+    server_cert_ = NULL;
+  }
 
   // TODO(wtc): reset more members?
   bytes_decrypted_ = 0;
