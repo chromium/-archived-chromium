@@ -6,6 +6,8 @@
 
 #include <gtk/gtk.h>
 
+#include "base/file_util.h"
+#include "base/path_service.h"
 #include "base/string_util.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
@@ -74,6 +76,17 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
                      -1 /* append */);
 
   gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
+
+  // It's funny, ok?
+  std::wstring path;
+  PathService::Get(base::DIR_SOURCE_ROOT, &path);
+  file_util::AppendToPath(&path, L"webkit");
+  file_util::AppendToPath(&path, L"tools");
+  file_util::AppendToPath(&path, L"test_shell");
+  file_util::AppendToPath(&path, L"resources");
+  file_util::AppendToPath(&path, L"acid3.png");
+  GtkWidget* image = gtk_image_new_from_file(WideToUTF8(path).c_str());
+  gtk_box_pack_start(GTK_BOX(vbox), image, FALSE, FALSE, 0);
 
   gtk_container_add(GTK_CONTAINER(m_mainWnd), vbox);
   gtk_widget_show_all(m_mainWnd);
