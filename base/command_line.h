@@ -32,6 +32,7 @@ class CommandLine {
   CommandLine(const std::wstring& command_line);
 #elif defined(OS_POSIX)
   CommandLine(int argc, const char* const* argv);
+  CommandLine(const std::vector<std::string>& argv);
 #endif
 
   ~CommandLine();
@@ -67,6 +68,11 @@ class CommandLine {
   // Simply returns the original command line string.
   std::wstring command_line_string() const;
 
+#if defined(OS_POSIX)
+  // Returns the original command line string as a vector of strings.
+  const std::vector<std::string>& argv() const;
+#endif
+
   // Returns the program part of the command line string (the first item).
   std::wstring program() const;
 
@@ -79,6 +85,16 @@ class CommandLine {
 
   // Treat everything after this argument as loose parameters.
   static const wchar_t kSwitchTerminator[];
+
+  // Return a copy of the string prefixed with a switch prefix.
+  // Used internally.
+  static std::wstring PrefixedSwitchString(const std::wstring& switch_string);
+
+  // Return a copy of the string prefixed with a switch prefix,
+  // and appended with the given value. Used internally.
+  static std::wstring PrefixedSwitchStringWithValue(
+                        const std::wstring& switch_string,
+                        const std::wstring& value_string);
 
   // Appends the given switch string (preceded by a space and a switch
   // prefix) to the given string.

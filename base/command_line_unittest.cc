@@ -8,6 +8,7 @@
 #include "base/command_line.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -74,6 +75,13 @@ TEST(CommandLineTest, CommandLineConstructor) {
   EXPECT_EQ(L"in the time of submarines...", *iter);
   ++iter;
   EXPECT_TRUE(iter == cl.GetLooseValuesEnd());
+#if defined(OS_POSIX)
+  std::vector<std::string> argvec = cl.argv();
+
+  for (size_t i = 0; i < argvec.size(); i++) {
+    EXPECT_EQ(0, argvec[i].compare(argv[i]));
+  }
+#endif
 }
 
 // These test the command line used to invoke the unit test.
@@ -89,6 +97,7 @@ TEST(CommandLineTest, EmptyString) {
   CommandLine cl(L"");
 #elif defined(OS_POSIX)
   CommandLine cl(0, NULL);
+  EXPECT_TRUE(cl.argv().size() == 0);
 #endif
   EXPECT_TRUE(cl.command_line_string().empty());
   EXPECT_TRUE(cl.program().empty());
@@ -96,11 +105,7 @@ TEST(CommandLineTest, EmptyString) {
 }
 
 // Test static functions for appending switches to a command line.
-// TODO(pinkerton): non-windows platforms don't have the requisite ctor here, so
-// we need something that tests AppendSwitches in another way (if even desired).
-#if defined(OS_WIN)
 TEST(CommandLineTest, AppendSwitches) {
-  std::wstring cl_string = L"Program";
   std::wstring switch1 = L"switch1";
   std::wstring switch2 = L"switch2";
   std::wstring value = L"value";
@@ -109,11 +114,25 @@ TEST(CommandLineTest, AppendSwitches) {
   std::wstring switch4 = L"switch4";
   std::wstring value4 = L"\"a value with quotes\"";
 
+#if defined(OS_WIN)
+  std::wstring cl_string = L"Program";
   CommandLine::AppendSwitch(&cl_string, switch1);
   CommandLine::AppendSwitchWithValue(&cl_string, switch2, value);
   CommandLine::AppendSwitchWithValue(&cl_string, switch3, value3);
   CommandLine::AppendSwitchWithValue(&cl_string, switch4, value4);
   CommandLine cl(cl_string);
+#elif defined(OS_POSIX)
+  std::vector<std::string> argv;
+  argv.push_back(std::string("Program"));
+  argv.push_back(WideToUTF8(CommandLine::PrefixedSwitchString(switch1)));
+  argv.push_back(WideToUTF8(CommandLine::PrefixedSwitchStringWithValue(
+      switch2, value)));
+  argv.push_back(WideToUTF8(CommandLine::PrefixedSwitchStringWithValue(
+      switch3, value3)));
+  argv.push_back(WideToUTF8(CommandLine::PrefixedSwitchStringWithValue(
+      switch4, value4.substr(1, value4.length() - 2))));
+  CommandLine cl(argv);
+#endif
 
   EXPECT_TRUE(cl.HasSwitch(switch1));
   EXPECT_TRUE(cl.HasSwitch(switch2));
@@ -123,4 +142,4 @@ TEST(CommandLineTest, AppendSwitches) {
   EXPECT_TRUE(cl.HasSwitch(switch4));
   EXPECT_EQ(value4.substr(1, value4.length() - 2), cl.GetSwitchValue(switch4));
 }
-#endif
+

@@ -57,21 +57,19 @@ class CommandLine::Data {
   Data() { 
     Init(GetCommandLineW());
   }
-#elif defined(OS_POSIX)
-  Data() {
-    // Owner must call Init().
-  }
-#endif
 
-#if defined(OS_WIN)
   Data(const wstring& command_line) {
     Init(command_line);
   }
 #elif defined(OS_POSIX)
+  Data() {
+    // Owner must call Init().
+  }
+
   Data(int argc, const char* const* argv) {
     Init(argc, argv);
   }
-#endif
+#endif  // defined(OS_POSIX)
 
 #if defined(OS_WIN)
   // Does the actual parsing of the command line.
@@ -116,18 +114,19 @@ class CommandLine::Data {
     if (args)
       LocalFree(args);
   }
-
 #elif defined(OS_POSIX)
   // Does the actual parsing of the command line.
   void Init(int argc, const char* const* argv) {
     if (argc < 1)
       return;
     program_ = base::SysNativeMBToWide(argv[0]);
+    argv_.push_back(std::string(argv[0]));
     command_line_string_ = program_;
 
     bool parse_switches = true;
     for (int i = 1; i < argc; ++i) {
       std::wstring arg = base::SysNativeMBToWide(argv[i]);
+      argv_.push_back(argv[i]);
       command_line_string_.append(L" ");
       command_line_string_.append(arg);
 
@@ -168,6 +167,12 @@ class CommandLine::Data {
     return loose_values_;
   }
 
+#if defined(OS_POSIX)
+  const std::vector<std::string>& argv() const {
+    return argv_;
+  }
+#endif
+
  private:
   // Returns true if parameter_string represents a switch.  If true,
   // switch_string and switch_value are set.  (If false, both are
@@ -206,6 +211,7 @@ class CommandLine::Data {
   std::wstring program_;
   std::map<std::wstring, std::wstring> switches_;
   std::vector<std::wstring> loose_values_;
+  std::vector<std::string> argv_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Data);
 };
@@ -227,6 +233,15 @@ CommandLine::CommandLine(const wstring& command_line)
 CommandLine::CommandLine(const int argc, const char* const* argv)
     : we_own_data_(true),
       data_(new Data(argc, argv)) {
+}
+
+CommandLine::CommandLine(const std::vector<std::string>& argv)
+    : we_own_data_(true) {
+  const char* argv_copy[argv.size()];
+  for (size_t i = 0; i < argv.size(); i++) {
+    argv_copy[i] = argv[i].c_str();
+  }
+  data_ = new Data(argv.size(), argv_copy);
 }
 #endif
 
@@ -278,38 +293,68 @@ std::wstring CommandLine::command_line_string() const {
   return data_->command_line_string();
 }
 
+#if defined(OS_POSIX)
+const std::vector<std::string>& CommandLine::argv() const {
+  return data_->argv();
+}
+#endif
+
 std::wstring CommandLine::program() const {
   return data_->program();
+}
+
+// static
+wstring CommandLine::PrefixedSwitchString(const wstring& switch_string) {
+  return StringPrintf(L"%ls%ls",
+                      kSwitchPrefixes[0],
+                      switch_string.c_str());
+}
+
+// static
+wstring CommandLine::PrefixedSwitchStringWithValue(
+          const wstring& switch_string, const wstring& value_string) {
+  if (value_string.empty()) {
+    return PrefixedSwitchString(switch_string);
+  }
+
+  return StringPrintf(L"%ls%ls%ls%ls",
+                      kSwitchPrefixes[0],
+                      switch_string.c_str(),
+                      kSwitchValueSeparator,
+                      value_string.c_str());
 }
 
 // static
 void CommandLine::AppendSwitch(wstring* command_line_string,
                                const wstring& switch_string) {
   DCHECK(command_line_string);
+  wstring prefixed_switch_string = PrefixedSwitchString(switch_string);
   command_line_string->append(L" ");
-  command_line_string->append(kSwitchPrefixes[0]);
-  command_line_string->append(switch_string);
+  command_line_string->append(prefixed_switch_string);
 }
 
 // static
 void CommandLine::AppendSwitchWithValue(wstring* command_line_string,
                                         const wstring& switch_string,
                                         const wstring& value_string) {
-  AppendSwitch(command_line_string, switch_string);
+  wstring value_string_edit;
 
-  if (value_string.empty())
-    return;
-
-  command_line_string->append(kSwitchValueSeparator);
   // NOTE(jhughes): If the value contains a quotation mark at one
   //                end but not both, you may get unusable output.
-  if ((value_string.find(L" ") != std::wstring::npos) &&
+  if (!value_string.empty() &&
+      (value_string.find(L" ") != std::wstring::npos) &&
       (value_string[0] != L'"') &&
       (value_string[value_string.length() - 1] != L'"')) {
     // need to provide quotes
-    StringAppendF(command_line_string, L"\"%ls\"", value_string.c_str());
+    value_string_edit = StringPrintf(L"\"%ls\"", value_string.c_str());
   } else {
-    command_line_string->append(value_string);
+    value_string_edit = value_string;
   }
+
+  wstring combined_switch_string =
+    PrefixedSwitchStringWithValue(switch_string, value_string_edit);
+
+  command_line_string->append(L" ");
+  command_line_string->append(combined_switch_string);
 }
 
