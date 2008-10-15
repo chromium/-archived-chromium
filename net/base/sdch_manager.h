@@ -51,6 +51,50 @@ class SdchFetcher {
 
 class SdchManager {
  public:
+  // A list of errors that appeared and were either resolved, or used to turn
+  // off sdch encoding.
+  enum ProblemCodes {
+    MIN_PROBLEM_CODE,
+
+    // Content Decode problems.
+    ADDED_CONTENT_ENCODING,
+    FIXED_CONTENT_ENCODING,
+    FIXED_CONTENT_ENCODINGS,
+
+    // Content decoding errors.
+    DECODE_HEADER_ERROR,
+    DECODE_BODY_ERROR,
+
+    // Dictionary selection for use problems.
+    DICTIONARY_NOT_FOUND_FOR_HASH = 10,
+    DICTIONARY_FOUND_HAS_WRONG_DOMAIN,
+    DICTIONARY_FOUND_HAS_WRONG_PORT_LIST,
+    DICTIONARY_FOUND_HAS_WRONG_PATH,
+    DICTIONARY_FOUND_HAS_WRONG_SCHEME,
+    DICTIONARY_HASH_NOT_FOUND,
+    DICTIONARY_HASH_MALFORMED,
+
+    // Decode recovery methods.
+    META_REFRESH_RECOVERY,
+    PASSING_THROUGH_NON_SDCH,
+    UNRECOVERABLE_ERROR,
+
+    // Dictionary saving problems.
+    DICTIONARY_HAS_NO_HEADER = 20,
+    DICTIONARY_HEADER_LINE_MISSING_COLON,
+    DICTIONARY_MISSING_DOMAIN_SPECIFIER,
+    DICTIONARY_SPECIFIES_TOP_LEVEL_DOMAIN,
+    DICTIONARY_DOMAIN_NOT_MATCHING_SOURCE_URL,
+    DICTIONARY_PORT_NOT_MATCHING_SOURCE_URL,
+
+    // Dictionary loading problems.
+    DICTIONARY_LOAD_ATTEMPT_FROM_DIFFERENT_HOST = 30,
+    DICTIONARY_SELECTED_FOR_SSL,
+    DICTIONARY_ALREADY_LOADED,
+
+    MAX_PROBLEM_CODE  // Used to bound histogram
+  };
+
   // There is one instance of |Dictionary| for each memory-cached SDCH
   // dictionary.
   class Dictionary : public base::RefCounted<Dictionary> {
@@ -121,18 +165,31 @@ class SdchManager {
   // Provide access to the single instance of this class.
   static SdchManager* Global();
 
+  // Record stats on various errors.
+  static void SdchErrorRecovery(ProblemCodes problem);
+
   // Register a fetcher that this class can use to obtain dictionaries.
   void set_sdch_fetcher(SdchFetcher* fetcher) { fetcher_.reset(fetcher); }
 
   // If called with an empty string, advertise and support sdch on all domains.
   // If called with a specific string, advertise and support only the specified
-  // domain.
-  static void enable_sdch_support(const std::string& domain) {
-    // We presume that there is a SDCH manager instance.
-    global_->supported_domain_ = domain;
-    global_->sdch_enabled_ = true;
-  }
+  // domain.  Function assumes the existence of a global SdchManager instance.
+  void EnableSdchSupport(const std::string& domain);
 
+  static bool sdch_enabled() { return global_ && global_->sdch_enabled_; }
+
+  // Prevent further advertising of SDCH on this domain (if SDCH is enabled).
+  // Used when filter errors are found from a given domain, to prevent further
+  // use of SDCH on that domain.
+  static bool BlacklistDomain(const GURL& url);
+
+  // For testing only, tihs function resets enabling of sdch, and clears the
+  // blacklist.
+  static void ClearBlacklistings();
+
+  // Check to see if SDCH is enabled (globally), and the given URL is in a
+  // supported domain (i.e., not blacklisted, and either the specific supported
+  // domain, or all domains were assumed supported).
   const bool IsInSupportedDomain(const GURL& url) const;
 
   // Schedule the URL fetching to load a dictionary. This will generally return
@@ -177,7 +234,7 @@ class SdchManager {
   // The one global instance of that holds all the data.
   static SdchManager* global_;
 
-  // A simple implementatino of a RFC 3548 "URL safe" base64 encoder.
+  // A simple implementation of a RFC 3548 "URL safe" base64 encoder.
   static void UrlSafeBase64Encode(const std::string& input,
                                   std::string* output);
   DictionaryMap dictionaries_;
@@ -191,6 +248,9 @@ class SdchManager {
   // Empty string means all domains.  Non-empty means support only the given
   // domain is supported.
   std::string supported_domain_;
+
+  // List domains where decode failures have required disabling sdch.
+  std::set<std::string> blacklisted_domains_;
 
   DISALLOW_COPY_AND_ASSIGN(SdchManager);
 };

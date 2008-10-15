@@ -60,6 +60,10 @@ enum {
   // This load will not make any changes to cookies, including storing new
   // cookies or updating existing ones.
   LOAD_DO_NOT_SAVE_COOKIES = 1 << 13,
+
+  // An SDCH dictionary was advertised, and an SDCH encoded response is
+  // possible.
+  LOAD_SDCH_DICTIONARY_ADVERTISED = 1 << 14,
 };
 
 }  // namespace net

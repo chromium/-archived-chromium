@@ -42,6 +42,7 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual bool GetResponseCookies(std::vector<std::string>* cookies);
   virtual int GetResponseCode();
   virtual bool GetContentEncodings(std::vector<std::string>* encoding_type);
+  virtual bool IsSdchResponse() const;
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
   virtual bool IsSafeRedirect(const GURL& location);
   virtual bool NeedsAuth();

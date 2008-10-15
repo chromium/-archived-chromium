@@ -21,6 +21,20 @@ SdchManager* SdchManager::Global() {
   return global_;
 }
 
+// static
+void SdchManager::SdchErrorRecovery(ProblemCodes problem) {
+  static LinearHistogram histogram(L"Sdch.ProblemCodes", MIN_PROBLEM_CODE,
+                                   MAX_PROBLEM_CODE - 1, MAX_PROBLEM_CODE);
+  // TODO(jar): Set UMA flag for uploading.
+  histogram.Add(problem);
+}
+
+// static
+void SdchManager::ClearBlacklistings() {
+  Global()->blacklisted_domains_.clear();
+}
+
+
 //------------------------------------------------------------------------------
 SdchManager::SdchManager() : sdch_enabled_(false) {
   DCHECK(!global_);
@@ -37,10 +51,33 @@ SdchManager::~SdchManager() {
   global_ = NULL;
 }
 
+// static 
+bool SdchManager::BlacklistDomain(const GURL& url) {
+  if (!global_ )
+    return false;
+  std::string domain(url.host());
+  global_->blacklisted_domains_.insert(url.host());
+  return true;
+}
+
+void SdchManager::EnableSdchSupport(const std::string& domain) {
+  // We presume that there is a SDCH manager instance.
+  global_->supported_domain_ = domain;
+  global_->sdch_enabled_ = true;
+}
+
 const bool SdchManager::IsInSupportedDomain(const GURL& url) const {
-  return sdch_enabled_ &&
-      (supported_domain_.empty() ||
-       url.DomainIs(supported_domain_.data(), supported_domain_.size()));
+  if (!sdch_enabled_ )
+    return false;
+  if (!supported_domain_.empty() &&
+      !url.DomainIs(supported_domain_.data(), supported_domain_.size()))
+     return false;  // It is not the singular supported domain.
+
+  if (blacklisted_domains_.empty())
+    return true;
+
+  std::string domain = StringToLowerASCII(url.host());
+  return blacklisted_domains_.end() == blacklisted_domains_.find(domain);
 }
 
 void SdchManager::FetchDictionary(const GURL& referring_url,
@@ -56,10 +93,14 @@ void SdchManager::FetchDictionary(const GURL& referring_url,
    */
   // Item (1) above implies item (2).  Spec should be updated.
   // I take "host name match" to be "is identical to"
-  if (referring_url.host() != dictionary_url.host())
+  if (referring_url.host() != dictionary_url.host()) {
+    SdchErrorRecovery(DICTIONARY_LOAD_ATTEMPT_FROM_DIFFERENT_HOST);
     return;
-  if (referring_url.SchemeIs("https"))
+  }
+  if (referring_url.SchemeIs("https")) {
+    SdchErrorRecovery(DICTIONARY_SELECTED_FOR_SSL);
     return;
+  }
   if (fetcher_.get())
     fetcher_->Schedule(dictionary_url);
 }
@@ -69,16 +110,20 @@ bool SdchManager::AddSdchDictionary(const std::string& dictionary_text,
   std::string client_hash;
   std::string server_hash;
   GenerateHash(dictionary_text, &client_hash, &server_hash);
-  if (dictionaries_.find(server_hash) != dictionaries_.end())
+  if (dictionaries_.find(server_hash) != dictionaries_.end()) {
+    SdchErrorRecovery(DICTIONARY_ALREADY_LOADED);
     return false;  // Already loaded.
+  }
 
   std::string domain, path;
   std::set<int> ports;
   Time expiration;
 
   size_t header_end = dictionary_text.find("\n\n");
-  if (std::string::npos == header_end)
+  if (std::string::npos == header_end) {
+    SdchErrorRecovery(DICTIONARY_HAS_NO_HEADER);
     return false;  // Missing header.
+  }
   size_t line_start = 0;  // Start of line being parsed.
   while (1) {
     size_t line_end = dictionary_text.find('\n', line_start);
@@ -86,8 +131,10 @@ bool SdchManager::AddSdchDictionary(const std::string& dictionary_text,
     DCHECK(line_end <= header_end);
 
     size_t colon_index = dictionary_text.find(':', line_start);
-    if (std::string::npos == colon_index)
+    if (std::string::npos == colon_index) {
+      SdchErrorRecovery(DICTIONARY_HEADER_LINE_MISSING_COLON);
       return false;  // Illegal line missing a colon.
+    }
 
     if (colon_index > line_end)
       break;
@@ -124,7 +171,7 @@ bool SdchManager::AddSdchDictionary(const std::string& dictionary_text,
   if (!Dictionary::CanSet(domain, path, ports, dictionary_url))
     return false;
 
-  DHISTOGRAM_COUNTS(L"Sdch.Dictionary size loaded", dictionary_text.size());
+  HISTOGRAM_COUNTS(L"Sdch.Dictionary size loaded", dictionary_text.size());
   DLOG(INFO) << "Loaded dictionary with client hash " << client_hash <<
       " and server hash " << server_hash;
   Dictionary* dictionary =
@@ -139,8 +186,10 @@ void SdchManager::GetVcdiffDictionary(const std::string& server_hash,
     const GURL& referring_url, Dictionary** dictionary) {
   *dictionary = NULL;
   DictionaryMap::iterator it = dictionaries_.find(server_hash);
-  if (it == dictionaries_.end())
+  if (it == dictionaries_.end()) {
+    SdchErrorRecovery(DICTIONARY_NOT_FOUND_FOR_HASH);
     return;
+  }
   Dictionary* matching_dictionary = it->second;
   if (!matching_dictionary->CanUse(referring_url))
     return;
@@ -233,19 +282,27 @@ bool SdchManager::Dictionary::CanSet(const std::string& domain,
     5. If the dictionary has a Port attribute and the referer URL's port was not
       in the list.
   */
-  if (domain.empty())
+  if (domain.empty()) {
+    SdchErrorRecovery(DICTIONARY_MISSING_DOMAIN_SPECIFIER);
     return false;  // Domain is required.
-  if (0 ==
-      net::RegistryControlledDomainService::GetDomainAndRegistry(domain).size())
+  }
+  if (net::RegistryControlledDomainService::GetDomainAndRegistry(domain).size()
+      == 0) {
+    SdchErrorRecovery(DICTIONARY_SPECIFIES_TOP_LEVEL_DOMAIN);
     return false;  // domain was a TLD.
-  if (!Dictionary::DomainMatch(dictionary_url, domain))
+  }
+  if (!Dictionary::DomainMatch(dictionary_url, domain)) {
+    SdchErrorRecovery(DICTIONARY_DOMAIN_NOT_MATCHING_SOURCE_URL);
     return false;
+  }
 
   // TODO(jar): Enforce item 4 above.
 
   if (!ports.empty()
-      && 0 == ports.count(dictionary_url.EffectiveIntPort()))
+      && 0 == ports.count(dictionary_url.EffectiveIntPort())) {
+    SdchErrorRecovery(DICTIONARY_PORT_NOT_MATCHING_SOURCE_URL);
     return false;
+  }
   return true;
 }
 
@@ -261,15 +318,23 @@ bool SdchManager::Dictionary::CanUse(const GURL referring_url) {
     3. The request URL path-matches the path attribute of the dictionary.
     4. The request is not an HTTPS request.
 */
-  if (!DomainMatch(referring_url, domain_))
+  if (!DomainMatch(referring_url, domain_)) {
+    SdchErrorRecovery(DICTIONARY_FOUND_HAS_WRONG_DOMAIN);
     return false;
+  }
   if (!ports_.empty()
-      && 0 == ports_.count(referring_url.EffectiveIntPort()))
+      && 0 == ports_.count(referring_url.EffectiveIntPort())) {
+    SdchErrorRecovery(DICTIONARY_FOUND_HAS_WRONG_PORT_LIST);
     return false;
-  if (path_.size() && !PathMatch(referring_url.path(), path_))
+  }
+  if (path_.size() && !PathMatch(referring_url.path(), path_)) {
+    SdchErrorRecovery(DICTIONARY_FOUND_HAS_WRONG_PATH);
     return false;
-  if (referring_url.SchemeIsSecure())
+  }
+  if (referring_url.SchemeIsSecure()) {
+    SdchErrorRecovery(DICTIONARY_FOUND_HAS_WRONG_SCHEME);
     return false;
+  }
   return true;
 }
 

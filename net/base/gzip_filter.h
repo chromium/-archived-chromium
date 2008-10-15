@@ -127,6 +127,15 @@ class GZipFilter : public Filter {
   // DoInflate, with InsertZlibHeader being the exception as a workaround.
   scoped_ptr<z_stream> zlib_stream_;
 
+  // For robustness, when we see the solo sdch filter, we chain in a gzip filter
+  // in front of it, with this flag to indicate that the gzip decoding might not
+  // be needed.  This handles a strange case where "Content-Encoding: sdch,gzip"
+  // is reduced by an errant proxy to "Content-Encoding: sdch", while the
+  // content is indeed really gzipped result of sdch :-/.
+  // If this flag is set, then we will revert to being a pass through filter if
+  // we don't get a valid gzip header.
+  bool possible_sdch_pass_through_;
+
   DISALLOW_EVIL_CONSTRUCTORS(GZipFilter);
 };
 

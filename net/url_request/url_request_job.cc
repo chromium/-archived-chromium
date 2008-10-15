@@ -52,8 +52,10 @@ void URLRequestJob::SetupFilter() {
     std::string mime_type;
     GetMimeType(&mime_type);
     filter_.reset(Filter::Factory(encoding_types, mime_type, kFilterBufSize));
-    if (filter_.get())
+    if (filter_.get()) {
       filter_->SetURL(request_->url());
+      filter_->SetMimeType(mime_type);
+    }
   }
 }
 

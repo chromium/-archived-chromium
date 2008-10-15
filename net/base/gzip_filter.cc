@@ -13,7 +13,8 @@ GZipFilter::GZipFilter()
       decoding_mode_(DECODE_MODE_UNKNOWN),
       gzip_header_status_(GZIP_CHECK_HEADER_IN_PROGRESS),
       zlib_header_added_(false),
-      gzip_footer_bytes_(0) {
+      gzip_footer_bytes_(0),
+      possible_sdch_pass_through_(false) {
 }
 
 GZipFilter::~GZipFilter() {
@@ -40,6 +41,9 @@ bool GZipFilter::InitDecoding(Filter::FilterType filter_type) {
       decoding_mode_ = DECODE_MODE_DEFLATE;
       break;
     }
+    case Filter::FILTER_TYPE_GZIP_HELPING_SDCH:      
+      possible_sdch_pass_through_ =  true;  // Needed to optionally help sdch.
+      // Fall through to GZIP case.
     case Filter::FILTER_TYPE_GZIP: {
       gzip_header_.reset(new GZipHeader());
       if (!gzip_header_.get())
@@ -64,9 +68,10 @@ Filter::FilterStatus GZipFilter::ReadFilteredData(char* dest_buffer,
     return Filter::FILTER_ERROR;
 
   if (decoding_status_ == DECODING_DONE) {
+    if (GZIP_GET_INVALID_HEADER != gzip_header_status_)
+      SkipGZipFooter();
     // Some server might send extra data after the gzip footer. We just copy
     // them out. Mozilla does this too.
-    SkipGZipFooter();
     return CopyOut(dest_buffer, dest_len);
   }
 
@@ -85,6 +90,12 @@ Filter::FilterStatus GZipFilter::ReadFilteredData(char* dest_buffer,
         // We have consumed all input data, either getting a complete header or
         // a partial header. Return now to get more data.
         *dest_len = 0;
+        // Partial header means it can't be an SDCH header.
+        // Reason: SDCH *always* starts with 8 printable characters [a-zA-Z/_].
+        // Gzip always starts with two non-printable characters.  Hence even a
+        // single character (partial header) means that this can't be an SDCH
+        // encoded body masquerading as a GZIP body.
+        possible_sdch_pass_through_ = false;
         return status;
       }
       case Filter::FILTER_OK: {
@@ -94,6 +105,11 @@ Filter::FilterStatus GZipFilter::ReadFilteredData(char* dest_buffer,
         break;
       }
       case Filter::FILTER_ERROR: {
+        if (possible_sdch_pass_through_ && 
+            GZIP_GET_INVALID_HEADER == gzip_header_status_) {
+          decoding_status_ = DECODING_DONE;  // Become a pass through filter.
+          return CopyOut(dest_buffer, dest_len);
+        }
         decoding_status_ = DECODING_ERROR;
         return status;
       }

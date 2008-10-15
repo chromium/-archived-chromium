@@ -35,9 +35,28 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class Filter {
  public:
+  // Return values of function ReadFilteredData.
+  enum FilterStatus {
+    // Read filtered data successfully
+    FILTER_OK,
+    // Read filtered data successfully, and the data in the buffer has been
+    // consumed by the filter, but more data is needed in order to continue
+    // filtering.  At this point, the caller is free to reuse the filter
+    // buffer to provide more data.
+    FILTER_NEED_MORE_DATA,
+    // Read filtered data successfully, and filter reaches the end of the data
+    // stream.
+    FILTER_DONE,
+    // There is an error during filtering.
+    FILTER_ERROR
+  };
+
+  virtual ~Filter();
+
   // Creates a Filter object.
   // Parameters: Filter_types specifies the type of filter created; Buffer_size
   // specifies the size (in number of chars) of the buffer the filter should
@@ -55,24 +74,6 @@ class Filter {
   static Filter* Factory(const std::vector<std::string>& filter_types,
                          const std::string& mime_type,
                          int buffer_size);
-
-  virtual ~Filter();
-
-  // Return values of function ReadFilteredData.
-  enum FilterStatus {
-    // Read filtered data successfully
-    FILTER_OK,
-    // Read filtered data successfully, and the data in the buffer has been
-    // consumed by the filter, but more data is needed in order to continue
-    // filtering.  At this point, the caller is free to reuse the filter
-    // buffer to provide more data.
-    FILTER_NEED_MORE_DATA,
-    // Read filtered data successfully, and filter reaches the end of the data
-    // stream.
-    FILTER_DONE,
-    // There is an error during filtering.
-    FILTER_ERROR
-  };
 
   // External call to obtain data from this filter chain.  If ther is no
   // next_filter_, then it obtains data from this specific filter.
@@ -106,7 +107,23 @@ class Filter {
   void SetURL(const GURL& url);
   const GURL& url() const { return url_; }
 
+  void SetMimeType(std::string& mime_type);
+  const std::string& mime_type() const { return mime_type_; }
+
  protected:
+  // Specifies type of filters that can be created.
+  enum FilterType {
+    FILTER_TYPE_DEFLATE,
+    FILTER_TYPE_GZIP,
+    FILTER_TYPE_BZIP2,
+    FILTER_TYPE_GZIP_HELPING_SDCH,
+    FILTER_TYPE_SDCH,  // open-vcdiff compression relative to a dictionary.
+    FILTER_TYPE_UNSUPPORTED
+  };
+
+  Filter();
+
+  FRIEND_TEST(SdchFilterTest, ContentTypeId);
   // Filters the data stored in stream_buffer_ and writes the output into the
   // dest_buffer passed in.
   //
@@ -120,31 +137,26 @@ class Filter {
   // but not produce output yet.
   virtual FilterStatus ReadFilteredData(char* dest_buffer, int* dest_len);
 
-  Filter();
-
   // Copy pre-filter data directly to destination buffer without decoding.
   FilterStatus CopyOut(char* dest_buffer, int* dest_len);
-
-  // Specifies type of filters that can be created.
-  enum FilterType {
-    FILTER_TYPE_DEFLATE,
-    FILTER_TYPE_GZIP,
-    FILTER_TYPE_BZIP2,
-    FILTER_TYPE_SDCH,  // open-vcdiff compression relative to a dictionary.
-    FILTER_TYPE_UNSUPPORTED
-  };
 
   // Allocates and initializes stream_buffer_.
   // Buffer_size is the maximum size of stream_buffer_ in number of chars.
   bool InitBuffer(int buffer_size);
 
+  // Translate the text of a filter name (from Content-Encoding header) into a
+  // FilterType, in the context of a mime type.
+  static FilterType ConvertEncodingToType(const std::string& filter_type,
+                                          const std::string& mime_type);
+
   // A factory helper for creating filters for within a chain of potentially
   // multiple encodings.  If a chain of filters is created, then this may be
   // called multiple times during the filter creation process.  In most simple
-  // cases, this is only called once. 
-  static Filter* SingleFilter(const std::string& filter_type,
-                              const std::string& mime_type,
-                              int buffer_size);
+  // cases, this is only called once. Returns NULL and cleans up (deleting
+  // filter_list) if a new filter can't be constructed.
+  static Filter* PrependNewFilter(FilterType type_id, int buffer_size,
+                                  Filter* filter_list);
+
   FilterStatus last_status() const { return last_status_; }
 
   // Buffer to hold the data to be filtered.
@@ -163,6 +175,11 @@ class Filter {
   // This is used by SDCH filters which need to restrict use of a dictionary to
   // a specific URL or path.
   GURL url_;
+
+  // To facilitate error recovery in SDCH filters, allow filter to know if
+  // content is text/html by checking within this mime type (SDCH filter may
+  // do a meta-refresh via html).
+  std::string mime_type_;
 
   // An optional filter to process output from this filter.
   scoped_ptr<Filter> next_filter_;

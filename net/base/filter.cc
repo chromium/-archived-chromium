@@ -43,26 +43,24 @@ Filter* Filter::Factory(const std::vector<std::string>& filter_types,
 
   std::string safe_mime_type =  (filter_types.size() > 1) ? "" : mime_type;
   Filter* filter_list = NULL;  // Linked list of filters.
-  for (size_t i = 0; i < filter_types.size(); ++i) {
-    Filter* first_filter;
-    first_filter = SingleFilter(filter_types[i], safe_mime_type, buffer_size);
-    if (!first_filter) {
-      // Cleanup and exit, since we can't construct this filter list.
-      if (filter_list)
-        delete filter_list;
-      filter_list = NULL;
-      break;
-    }
-    first_filter->next_filter_.reset(filter_list);
-    filter_list = first_filter;
+  FilterType type_id = FILTER_TYPE_UNSUPPORTED;
+  for (size_t i = 0; i < filter_types.size(); i++) {
+    type_id = ConvertEncodingToType(filter_types[i], safe_mime_type);
+    filter_list = PrependNewFilter(type_id, buffer_size, filter_list);
+    if (!filter_list)
+      return NULL;
   }
+
+  // Handle proxy that changes content encoding "sdch,gzip" into "sdch".
+  if (1 == filter_types.size() && FILTER_TYPE_SDCH == type_id)
+    filter_list = PrependNewFilter(FILTER_TYPE_GZIP_HELPING_SDCH, buffer_size,
+                                   filter_list);
   return filter_list;
 }
 
 // static
-Filter* Filter::SingleFilter(const std::string& filter_type,
-                             const std::string& mime_type,
-                             int buffer_size) {
+Filter::FilterType Filter::ConvertEncodingToType(const std::string& filter_type,
+                                                 const std::string& mime_type) {
   FilterType type_id;
   if (LowerCaseEqualsASCII(filter_type, kDeflate)) {
     type_id = FILTER_TYPE_DEFLATE;
@@ -75,6 +73,8 @@ Filter* Filter::SingleFilter(const std::string& filter_type,
       // content encoding.  Sadly, Apache mistakenly sets these headers for all
       // .gz files.  We match Firefox's nsHttpChannel::ProcessNormal and ignore
       // the Content-Encoding here.
+      // TODO(jar): Move all this encoding type "fixup" into the
+      // GetContentEncoding() methods.  Combine this defaulting with SDCH fixup.
       type_id = FILTER_TYPE_UNSUPPORTED;
     } else {
       type_id = FILTER_TYPE_GZIP;
@@ -89,14 +89,21 @@ Filter* Filter::SingleFilter(const std::string& filter_type,
     // filter should be disabled in such cases.
     type_id = FILTER_TYPE_UNSUPPORTED;
   }
+  return type_id;
+}
 
+// static
+Filter* Filter::PrependNewFilter(FilterType type_id, int buffer_size,
+                                 Filter* filter_list) {
+  Filter* first_filter = NULL;  // Soon to be start of chain.
   switch (type_id) {
+    case FILTER_TYPE_GZIP_HELPING_SDCH:
     case FILTER_TYPE_DEFLATE:
     case FILTER_TYPE_GZIP: {
       scoped_ptr<GZipFilter> gz_filter(new GZipFilter());
       if (gz_filter->InitBuffer(buffer_size)) {
         if (gz_filter->InitDecoding(type_id)) {
-          return gz_filter.release();
+          first_filter = gz_filter.release();
         }
       }
       break;
@@ -105,7 +112,7 @@ Filter* Filter::SingleFilter(const std::string& filter_type,
       scoped_ptr<BZip2Filter> bzip2_filter(new BZip2Filter());
       if (bzip2_filter->InitBuffer(buffer_size)) {
         if (bzip2_filter->InitDecoding(false)) {
-          return bzip2_filter.release();
+          first_filter = bzip2_filter.release();
         }
       }
       break;
@@ -114,7 +121,7 @@ Filter* Filter::SingleFilter(const std::string& filter_type,
       scoped_ptr<SdchFilter> sdch_filter(new SdchFilter());
       if (sdch_filter->InitBuffer(buffer_size)) {
         if (sdch_filter->InitDecoding()) {
-          return sdch_filter.release();
+          first_filter = sdch_filter.release();
         }
       }
       break;
@@ -124,7 +131,14 @@ Filter* Filter::SingleFilter(const std::string& filter_type,
     }
   }
 
-  return NULL;
+  if (first_filter) {
+    first_filter->next_filter_.reset(filter_list);
+  } else {
+    // Cleanup and exit, since we can't construct this filter list.
+    delete filter_list;
+    filter_list = NULL;
+  }
+  return first_filter;
 }
 
 Filter::Filter()
@@ -132,6 +146,8 @@ Filter::Filter()
       stream_buffer_size_(0),
       next_stream_data_(NULL),
       stream_data_len_(0),
+      url_(),
+      mime_type_(),
       next_filter_(NULL),
       last_status_(FILTER_NEED_MORE_DATA) {
 }
@@ -230,3 +246,10 @@ void Filter::SetURL(const GURL& url) {
   if (next_filter_.get())
     next_filter_->SetURL(url);
 }
+
+void Filter::SetMimeType(std::string& mime_type) {
+  mime_type_ = mime_type;
+  if (next_filter_.get())
+    next_filter_->SetMimeType(mime_type);
+}
+

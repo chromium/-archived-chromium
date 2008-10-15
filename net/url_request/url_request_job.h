@@ -123,6 +123,10 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
     return false;
   }
 
+  // Find out if this is a response to a request that advertised an SDCH
+  // dictionary.  Only makes sense for some types of requests.
+  virtual bool IsSdchResponse() const { return false; }
+
   // Called to setup stream filter for this request. An example of filter is
   // content encoding/decoding.
   void SetupFilter();

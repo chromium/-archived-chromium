@@ -480,7 +480,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
     sdch_manager.set_sdch_fetcher(new SdchDictionaryFetcher);
     std::wstring switch_domain =
         parsed_command_line.GetSwitchValue(switches::kSdchFilter);
-    sdch_manager.enable_sdch_support(WideToASCII(switch_domain));
+    sdch_manager.EnableSdchSupport(WideToASCII(switch_domain));
   }
 
   MetricsService* metrics = NULL;

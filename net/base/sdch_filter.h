@@ -49,7 +49,9 @@ class SdchFilter : public Filter {
     DECODING_UNINITIALIZED,
     WAITING_FOR_DICTIONARY_SELECTION,
     DECODING_IN_PROGRESS,
-    DECODING_ERROR
+    DECODING_ERROR,
+    META_REFRESH_RECOVERY,  // Decoding error being handled by a meta-refresh.
+    PASS_THROUGH,  // Non-sdch content being passed without alteration.
   };
 
   // Identify the suggested dictionary, and initialize underlying decompressor.
@@ -70,8 +72,16 @@ class SdchFilter : public Filter {
   scoped_ptr<open_vcdiff::VCDiffStreamingDecoder> vcdiff_streaming_decoder_;
 
   // In case we need to assemble the hash piecemeal, we have a place to store
-  // a part of the hash until we "get all 8 bytes."
+  // a part of the hash until we "get all 8 bytes plus a null."
   std::string dictionary_hash_;
+
+  // After assembling an entire dictionary hash (the first 9 bytes of the
+  // sdch payload, we check to see if it is plausible, meaning it has a null
+  // termination, and has 8 characters that are possible in a net-safe base64
+  // encoding.  If the hash is not plausible, then the payload is probably not
+  // an SDCH encoded bundle, and various error recovery strategies can be
+  // attempted.
+  bool dictionary_hash_is_plausible_;
 
   // We hold an in-memory copy of the dictionary during the entire decoding.
   // The char* data is embedded in a RefCounted dictionary_.

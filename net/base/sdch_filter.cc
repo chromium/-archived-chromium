@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <ctype.h>
 #include <algorithm>
 
 #include "base/file_util.h"
@@ -15,6 +16,8 @@
 SdchFilter::SdchFilter()
     : decoding_status_(DECODING_UNINITIALIZED),
       vcdiff_streaming_decoder_(NULL),
+      dictionary_hash_(),
+      dictionary_hash_is_plausible_(false),
       dictionary_(NULL),
       dest_buffer_excess_(),
       dest_buffer_excess_index_(0),
@@ -23,20 +26,21 @@ SdchFilter::SdchFilter()
 }
 
 SdchFilter::~SdchFilter() {
+  static int filter_use_count = 0;
+  ++filter_use_count;
+  if (META_REFRESH_RECOVERY == decoding_status_) {
+    HISTOGRAM_COUNTS(L"Sdch.FilterUseBeforeDisabling", filter_use_count);
+  }
+
   if (vcdiff_streaming_decoder_.get()) {
     if (!vcdiff_streaming_decoder_->FinishDecoding())
       decoding_status_ = DECODING_ERROR;
   }
-  // TODO(jar): Use DHISTOGRAM when we turn sdch on by default.
-  if (decoding_status_ == DECODING_ERROR) {
-    HISTOGRAM_COUNTS(L"Sdch.Decoding Error bytes read", source_bytes_);
-    HISTOGRAM_COUNTS(L"Sdch.Decoding Error bytes output", output_bytes_);
-  } else  {
-    if (decoding_status_ == DECODING_IN_PROGRESS) {
-      HISTOGRAM_COUNTS(L"Sdch.Bytes read", source_bytes_);
-      HISTOGRAM_COUNTS(L"Sdch.Bytes output", output_bytes_);
-    }
-  }
+
+  // TODO(jar): Use UMA_HISTOGRAM when we turn sdch on by default.
+  HISTOGRAM_COUNTS(L"Sdch.Bytes read", source_bytes_);
+  HISTOGRAM_COUNTS(L"Sdch.Bytes output", output_bytes_);
+
   if (dictionary_)
     dictionary_->Release();
 }
@@ -50,6 +54,16 @@ bool SdchFilter::InitDecoding() {
   return true;
 }
 
+static const char* kDecompressionErrorHtml =
+  "<head><META HTTP-EQUIV=\"Refresh\" CONTENT=\"0\"></head>"
+  "<div style=\"position:fixed;top:0;left:0;width:100%;border-width:thin;"
+  "border-color:black;border-style:solid;text-align:left;font-family:arial;"
+  "font-size:10pt;foreground-color:black;background-color:white\">"
+  "An error occurred. This page will be reloaded shortly. "
+  "Or press the \"reload\" button now to reload it immediately."
+  "</div>";
+
+
 Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
                                                   int* dest_len) {
   int available_space = *dest_len;
@@ -58,19 +72,34 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   if (!dest_buffer || available_space <= 0)
     return FILTER_ERROR;
 
+
   if (WAITING_FOR_DICTIONARY_SELECTION == decoding_status_) {
     FilterStatus status = InitializeDictionary();
-    if (DECODING_IN_PROGRESS != decoding_status_) {
-      DCHECK(status == FILTER_ERROR || status == FILTER_NEED_MORE_DATA);
-      return status;
+    if (FILTER_NEED_MORE_DATA == status)
+      return FILTER_NEED_MORE_DATA;
+    if (FILTER_ERROR == status) {
+      DCHECK(DECODING_ERROR == decoding_status_);
+      DCHECK(0 == dest_buffer_excess_index_);
+      DCHECK(dest_buffer_excess_.empty());
+      if (!dictionary_hash_is_plausible_) {
+        SdchManager::SdchErrorRecovery(SdchManager::PASSING_THROUGH_NON_SDCH);
+        decoding_status_ = PASS_THROUGH;
+        dest_buffer_excess_ = dictionary_hash_;  // Send what we scanned.
+      } else {
+        SdchManager::BlacklistDomain(url());
+        if (std::string::npos == mime_type().find_first_of("text/html")) {
+          SdchManager::SdchErrorRecovery(SdchManager::UNRECOVERABLE_ERROR);
+          return FILTER_ERROR;
+        }
+        SdchManager::SdchErrorRecovery(SdchManager::META_REFRESH_RECOVERY);
+        decoding_status_ = META_REFRESH_RECOVERY;
+        // Issue a meta redirect with SDCH disabled.
+        dest_buffer_excess_ = kDecompressionErrorHtml;
+      }
+    } else {
+      DCHECK(DECODING_IN_PROGRESS == decoding_status_);
     }
   }
-
-  if (decoding_status_ != DECODING_IN_PROGRESS) {
-    decoding_status_ = DECODING_ERROR;
-    return FILTER_ERROR;
-  }
-
 
   int amount = OutputBufferExcess(dest_buffer, available_space);
   *dest_len += amount;
@@ -81,6 +110,23 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   if (available_space <= 0)
     return FILTER_OK;
   DCHECK(dest_buffer_excess_.empty());
+  DCHECK(0 == dest_buffer_excess_index_);
+
+  if (decoding_status_ != DECODING_IN_PROGRESS) {
+    if (META_REFRESH_RECOVERY == decoding_status_) {
+      // Absorb all input data.  We've already output page reload HTML.
+      next_stream_data_ = NULL;
+      stream_data_len_ = 0;
+      return FILTER_NEED_MORE_DATA;
+    }
+    if (PASS_THROUGH == decoding_status_) {
+      return CopyOut(dest_buffer, dest_len);
+    }
+    DCHECK(false);
+    decoding_status_ = DECODING_ERROR;
+    return FILTER_ERROR;
+  }
+
 
   if (!next_stream_data_ || stream_data_len_ <= 0)
     return FILTER_NEED_MORE_DATA;
@@ -95,6 +141,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   if (!ret) {
     vcdiff_streaming_decoder_.reset(NULL);  // Don't call it again.
     decoding_status_ = DECODING_ERROR;
+    SdchManager::SdchErrorRecovery(SdchManager::DECODE_BODY_ERROR);
     return FILTER_ERROR;
   }
 
@@ -127,17 +174,28 @@ Filter::FilterStatus SdchFilter::InitializeDictionary() {
   else
     next_stream_data_ = NULL;
 
-  if ('\0' != dictionary_hash_[kServerIdLength - 1] ||
-    (kServerIdLength - 1) != strlen(dictionary_hash_.data())) {
-    decoding_status_ = DECODING_ERROR;
-    return FILTER_ERROR;  // No dictionary hash.
-  }
-  dictionary_hash_.erase(kServerIdLength - 1);
-
   DCHECK(!dictionary_);
-  SdchManager::Global()->GetVcdiffDictionary(dictionary_hash_, url(),
-                                             &dictionary_);
+  dictionary_hash_is_plausible_ = true;  // Assume plausible, but check.
+  if ('\0' == dictionary_hash_[kServerIdLength - 1])
+    SdchManager::Global()->GetVcdiffDictionary(std::string(dictionary_hash_, 0,
+                                                           kServerIdLength - 1),
+                                               url(), &dictionary_);
+  else
+    dictionary_hash_is_plausible_ = false;
+
   if (!dictionary_) {
+    DCHECK(dictionary_hash_.size() == kServerIdLength);
+    for (size_t i = 0; i < kServerIdLength - 1; ++i) {
+      char base64_char = dictionary_hash_[i];
+      if (!isalnum(base64_char) && '-' != base64_char && '_' != base64_char) {
+        dictionary_hash_is_plausible_ = false;
+        break;
+      }
+    }
+    if (dictionary_hash_is_plausible_)
+      SdchManager::SdchErrorRecovery(SdchManager::DICTIONARY_HASH_NOT_FOUND);
+    else
+      SdchManager::SdchErrorRecovery(SdchManager::DICTIONARY_HASH_MALFORMED);
     decoding_status_ = DECODING_ERROR;
     return FILTER_ERROR;
   }
