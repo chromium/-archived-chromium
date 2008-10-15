@@ -7,7 +7,7 @@
 
 #include "install_util.h"
 
-#include <windows.h>
+#include <shellapi.h>
 
 #include "base/logging.h"
 #include "base/registry.h"
@@ -16,6 +16,28 @@
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"
 
+bool InstallUtil::ExecuteExeAsAdmin(const std::wstring& exe,
+                                    const std::wstring& params,
+                                    DWORD* exit_code) {
+  SHELLEXECUTEINFO info = {0};
+  info.cbSize = sizeof(SHELLEXECUTEINFO);
+  info.fMask = SEE_MASK_NOCLOSEPROCESS;
+  info.lpVerb = L"runas";
+  info.lpFile = exe.c_str();
+  info.lpParameters = params.c_str();
+  info.nShow = SW_SHOW;
+  if (::ShellExecuteEx(&info) == FALSE)
+    return false;
+
+  ::WaitForSingleObject(info.hProcess, INFINITE);
+  DWORD ret_val = 0;
+  if (!::GetExitCodeProcess(info.hProcess, &ret_val))
+    return false;
+
+  if (exit_code)
+    *exit_code = ret_val;
+  return true;
+}
 
 std::wstring InstallUtil::GetChromeUninstallCmd(bool system_install) {
   HKEY root = system_install ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;

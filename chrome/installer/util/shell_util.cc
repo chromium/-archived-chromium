@@ -24,6 +24,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/create_reg_key_work_item.h"
+#include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/set_reg_value_work_item.h"
 #include "chrome/installer/util/util_constants.h"
@@ -235,23 +236,13 @@ ShellUtil::RegisterStatus RegisterOnVista(const std::wstring& chrome_exe,
       TrimString(exe_path, L" \"", &exe_path);
     }
     if (file_util::PathExists(exe_path)) {
-      SHELLEXECUTEINFO info = {0};
-      info.cbSize = sizeof(SHELLEXECUTEINFO);
-      info.fMask = SEE_MASK_NOCLOSEPROCESS;
-      info.lpVerb = L"runas";
-      info.lpFile = exe_path.c_str();
       std::wstring params(L"--");
       params.append(installer_util::switches::kRegisterChromeBrowser);
       params.append(L"=\"" + chrome_exe + L"\"");
-      info.lpParameters = params.c_str();
-      info.nShow = SW_SHOW;
-      if (::ShellExecuteEx(&info)) {
-        ::WaitForSingleObject(info.hProcess, INFINITE);
-        DWORD ret_val = ShellUtil::SUCCESS;
-        if (::GetExitCodeProcess(info.hProcess, &ret_val) &&
-            (ret_val == ShellUtil::SUCCESS))
-          return ShellUtil::SUCCESS;
-      }
+      DWORD ret_val = ShellUtil::SUCCESS;
+      InstallUtil::ExecuteExeAsAdmin(exe_path, params, &ret_val);
+      if (ret_val == ShellUtil::SUCCESS)
+        return ShellUtil::SUCCESS;
     }
   }
   return ShellUtil::FAILURE;
