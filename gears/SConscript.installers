@@ -13,9 +13,11 @@ env = env.Clone(
     INSTALLER_BASENAME = 'gears-${OS}-${MODE}-${VERSION}',
     FF_XPI = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.xpi',
     WIN32_INSTALLER_MSI = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.msi',
+    WINCE_INSTALLER_CAB = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.cab',
 
     FF2_MODULE = '${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}',
     MODULE = '${SHLIBPREFIX}gears${SHLIBSUFFIX}',
+    WINCE_SETUP = '${SHLIBPREFIX}setup${SHLIBSUFFIX}',
 
     # Clean up the '#' in *_OUTDIR.
     BASE_OUTDIR = env.Entry('$BASE_OUTDIR').path,
@@ -63,8 +65,6 @@ if env['OS'] == 'win32':
       MSI_VERSION = '${MAJOR}.${MINOR}.${MSI_BUILD}',
   )
 
-  # You can change the names of PRODUCT_ID vars, but NEVER change their values!
-
   # Building wxiobjs with candle
   env.Replace(
       CANDLEDEFPREFIX = '-d',
@@ -77,6 +77,7 @@ if env['OS'] == 'win32':
 # Note: Since light.exe is run from $OPEN_DIR, candle.exe must generate
 # output with paths relative to that dir.
       SCONS_DIR = '../../../..',  # the scons dir relative to OPEN_DIR
+# You can change the names of ProductId vars, but NEVER change their values!
       CANDLEDEFINES = [
           ('OurWin32ProductId',
             GGUIDGen('OUR_PRODUCT_ID')),
@@ -149,6 +150,10 @@ def SafeMkdir(dir):
       os.makedirs(dir_subst)
     return 0
   return Action(Func, 'SafeMkdir(' + dir + ')')
+
+def ToUnixPath(path):
+  """Converts windows-style \ to unix-style /."""
+  return re.sub(r'\\', r'/', path)
 
 def FirefoxInstaller(env):
   # This step is a little hackish.
@@ -227,17 +232,36 @@ def Win32Installer(env):
       StripOutdir(['$COMMON_GENFILES_DIR/win32_msi.wxs']),
       '$CANDLECOM')
   # light.exe must be run from $OPEN_DIR
-  msi = env.Command('$WIN32_INSTALLER_MSI', wxiobj,
-      'cd $OPEN_DIR && light.exe -out ${TARGET.abspath} ${SOURCE.abspath}')
-  env.Depends(msi, '$FF_XPI')
-  env.Depends(msi, StripOutdir(['$IE_OUTDIR/$MODULE']))
+  msi = env.Command(
+      '$WIN32_INSTALLER_MSI',
+      [wxiobj, '$FF_XPI', StripOutdir(['$IE_OUTDIR/$MODULE'])],
+      'cd $OPEN_DIR && light.exe -out ${TARGET.abspath} ${SOURCES[0].abspath}')
   return msi
 env.AddMethod(Win32Installer, 'Win32Installer')
+
+def WinCEInstaller(env):
+  env['ToUnixPath'] = ToUnixPath
+  inf_outdir = ToUnixPath(env.subst('$IE_OUTDIR'))
+  inf = env.Command(
+      StripOutdir(['$COMMON_GENFILES_DIR/wince_cab_fixed.inf']),
+      StripOutdir(['$COMMON_GENFILES_DIR/wince_cab.inf']),
+      'sed -e "s#bin-....wince-arm.ie.#' + inf_outdir + '#g" $SOURCE > $TARGET')
+  cab = env.Command(
+      '$WINCE_INSTALLER_CAB',
+      [inf, StripOutdir(['$IE_OUTDIR/$MODULE']),
+       StripOutdir(['$IE_OUTDIR/$WINCE_SETUP'])],
+      ['cabwiz ${ToUnixPath(str(SOURCE))} /compress'
+       ' /err ${SOURCES[0].base}.log',
+       Copy('$TARGET', '${SOURCE.base}.CAB')])
+  return cab
+env.AddMethod(WinCEInstaller, 'WinCEInstaller')
 
 installers = []
 if 'FF3' in env['VALID_BROWSERS']:
   installers += env.FirefoxInstaller()
-if env['OS'] in 'win32':
+if env['OS'] == 'win32':
   installers += env.Win32Installer()
+if env['OS'] == 'wince':
+  installers += env.WinCEInstaller()
 
 env.Alias('gears-installers', installers)

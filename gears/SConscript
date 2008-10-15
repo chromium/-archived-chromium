@@ -89,7 +89,7 @@ env.Replace(
 env.Replace(
     MAJOR = '0',
     MINOR = '4',
-    BUILD = '23',
+    BUILD = '24',
     PATCH = '0',
     VERSION = '${MAJOR}.${MINOR}.${BUILD}.${PATCH}',
 
@@ -430,7 +430,7 @@ if env['OS'] in ['win32', 'wince']:
 # npapi.h to take precedence.
             '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
             '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/include',
-            '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/include',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/vc/include',
         ],
         VC80_LIBPATH = [
             '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/lib',

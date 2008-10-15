@@ -937,6 +937,12 @@ if env['OS'] == 'wince':
       '$OPEN_DIR/installer/iemobile/setup.rc.m4',
   ]
 
+  wince_setup_srcs = [
+      '$OPEN_DIR/installer/iemobile/process_restarter.cc',
+      '$OPEN_DIR/installer/iemobile/setup.cc',
+      env_res.RES('$GENFILES_DIR/setup.rc'),
+  ]
+
 #-----------------------------------------------------------------------------
 # image
 
@@ -1152,3 +1158,6 @@ if env['OS'] in ['win32', 'wince']:
 module = env.ChromeSharedLibrary('gears',
     srcs['all'] + libs + dll_resources)
 env.Alias('gears', module)
+
+if env['OS'] == 'wince':
+  wince_setup = env.ChromeSharedLibrary('setup', wince_setup_srcs)
