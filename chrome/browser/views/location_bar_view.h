@@ -67,7 +67,7 @@ class LocationBarView : public ChromeViews::View,
   Profile* profile() { return profile_; }
 
   // Sizing functions
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
   // Layout and Painting functions
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
@@ -153,8 +153,8 @@ class LocationBarView : public ChromeViews::View,
 
     virtual void Paint(ChromeCanvas* canvas);
 
-    virtual void GetPreferredSize(CSize* out);
-    virtual void GetMinimumSize(CSize* out);
+    virtual gfx::Size GetPreferredSize();
+    virtual gfx::Size GetMinimumSize();
     virtual void DidChangeBounds(const CRect& previous, const CRect& current);
     virtual void Layout();
 
@@ -208,9 +208,9 @@ class LocationBarView : public ChromeViews::View,
     std::wstring keyword() const { return keyword_; }
 
     virtual void Paint(ChromeCanvas* canvas);
-    virtual void GetPreferredSize(CSize* out);
+    virtual gfx::Size GetPreferredSize();
     // The minimum size is just big enough to show the tab.
-    virtual void GetMinimumSize(CSize* out);
+    virtual gfx::Size GetMinimumSize();
     virtual void Layout();
     void DidChangeBounds(const CRect& previous, const CRect& current);
 

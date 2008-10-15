@@ -426,11 +426,10 @@ void KeywordEditorView::DidChangeBounds(const CRect& previous,
   Layout();
 }
 
-void KeywordEditorView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size KeywordEditorView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_SEARCHENGINES_DIALOG_WIDTH_CHARS,
-      IDS_SEARCHENGINES_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_SEARCHENGINES_DIALOG_HEIGHT_LINES));
 }
 
 bool KeywordEditorView::CanResize() const {

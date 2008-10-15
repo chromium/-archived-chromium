@@ -151,11 +151,10 @@ void ImportingProgressView::ImportEnded() {
 ////////////////////////////////////////////////////////////////////////////////
 // ImportingProgressView, ChromeViews::View overrides:
 
-void ImportingProgressView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size ImportingProgressView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_IMPORTPROGRESS_DIALOG_WIDTH_CHARS,
-      IDS_IMPORTPROGRESS_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_IMPORTPROGRESS_DIALOG_HEIGHT_LINES));
 }
 
 void ImportingProgressView::ViewHierarchyChanged(bool is_add,
@@ -214,8 +213,7 @@ void ImportingProgressView::InitControlLayout() {
   GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);
 
-  CSize ps;
-  state_history_->GetPreferredSize(&ps);
+  gfx::Size ps = state_history_->GetPreferredSize();
 
   const int single_column_view_set_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(single_column_view_set_id);
@@ -225,7 +223,7 @@ void ImportingProgressView::InitControlLayout() {
   column_set = layout->AddColumnSet(double_column_view_set_id);
   column_set->AddPaddingColumn(0, kUnrelatedControlLargeHorizontalSpacing);
   column_set->AddColumn(GridLayout::CENTER, GridLayout::CENTER, 0,
-                        GridLayout::FIXED, ps.cx, 0);
+                        GridLayout::FIXED, ps.width(), 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   column_set->AddColumn(GridLayout::LEADING, GridLayout::CENTER, 1,
                         GridLayout::USE_PREF, 0, 0);

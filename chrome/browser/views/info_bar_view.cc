@@ -55,20 +55,19 @@ void InfoBarView::AppendInfoBarItem(ChromeViews::View* view, bool auto_expire) {
 
 // Preferred size is equal to the max of the childrens horizontal sizes
 // and the sum of their vertical sizes.
-void InfoBarView::GetPreferredSize(CSize *out) {
-  out->cx = 0;
-  out->cy = 0;
+gfx::Size InfoBarView::GetPreferredSize() {
+  gfx::Size prefsize;
 
   // We count backwards so the most recently added view is on the top.
   for (int i = GetChildViewCount() - 1; i >= 0; i--) {
     View* v = GetChildViewAt(i);
     if (v->IsVisible()) {
-      CSize view_size;
-      v->GetPreferredSize(&view_size);
-      out->cx = std::max(static_cast<int>(out->cx), v->width());
-      out->cy += static_cast<int>(view_size.cy) + kSeparatorHeight;
+      prefsize.set_width(std::max(prefsize.width(), v->width()));
+      prefsize.Enlarge(0, v->GetPreferredSize().height() + kSeparatorHeight);
     }
   }
+  
+  return prefsize;
 }
 
 void InfoBarView::Layout() {
@@ -81,14 +80,10 @@ void InfoBarView::Layout() {
     if (!v->IsVisible())
       continue;
 
-    CSize view_size;
-    v->GetPreferredSize(&view_size);
-    int view_width = std::max(static_cast<int>(view_size.cx), width());
-    y = y - view_size.cy - kSeparatorHeight;
-    v->SetBounds(x,
-                 y,
-                 view_width,
-                 view_size.cy);
+    gfx::Size view_size = v->GetPreferredSize();
+    int view_width = std::max(view_size.width(), width());
+    y = y - view_size.height() - kSeparatorHeight;
+    v->SetBounds(x, y, view_width, view_size.height());
   }
 }
 

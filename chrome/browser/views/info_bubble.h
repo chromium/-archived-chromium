@@ -107,7 +107,7 @@ class InfoBubble : public ChromeViews::HWNDViewContainer,
 
     // Returns the preferred size, which is the sum of the preferred size of
     // the content and the border/arrow.
-    virtual void GetPreferredSize(CSize* pref);
+    virtual gfx::Size GetPreferredSize();
 
     // Positions the content relative to the border.
     virtual void Layout();

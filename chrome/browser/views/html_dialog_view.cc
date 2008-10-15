@@ -28,8 +28,10 @@ HtmlDialogView::~HtmlDialogView() {
 ////////////////////////////////////////////////////////////////////////////////
 // HtmlDialogView, ChromeViews::View implementation:
 
-void HtmlDialogView::GetPreferredSize(CSize *out) {
-  delegate_->GetDialogSize(out);
+gfx::Size HtmlDialogView::GetPreferredSize() {
+  CSize out;
+  delegate_->GetDialogSize(&out);
+  return gfx::Size(out.cx, out.cy);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

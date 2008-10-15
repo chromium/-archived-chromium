@@ -63,12 +63,13 @@ void DownloadStartedAnimation::Reposition() {
 
   // Align the image with the bottom left of the web contents (so that it
   // points to the newly created download).
-  CSize size;
-  GetPreferredSize(&size);
-  popup_->MoveWindow(tab_contents_bounds_.x(),
-                     static_cast<int>(tab_contents_bounds_.bottom() - size.cy -
-                     size.cy * (1 - GetCurrentValue())),
-                     size.cx, size.cy);
+  gfx::Size size = GetPreferredSize();
+  popup_->MoveWindow(
+      tab_contents_bounds_.x(),
+      static_cast<int>(tab_contents_bounds_.bottom() -
+          size.height() - size.height() * (1 - GetCurrentValue())),
+      size.width(),
+      size.height());
 }
 
 void DownloadStartedAnimation::Close() {

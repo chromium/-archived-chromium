@@ -30,7 +30,7 @@ class InfoBarView : public ChromeViews::View,
   // add an infobar that should not expire.
   void AppendInfoBarItem(ChromeViews::View* view, bool auto_expire);
 
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
   virtual void Layout();
 

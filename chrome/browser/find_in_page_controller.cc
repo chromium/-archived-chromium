@@ -562,21 +562,20 @@ gfx::Rect FindInPageController::GetDialogPosition(
     return gfx::Rect();
 
   // Ask the view how large an area it needs to draw on.
-  CSize prefsize;
-  view_->GetPreferredSize(&prefsize);
+  gfx::Size prefsize = view_->GetPreferredSize();
 
   // Place the view in the top right corner of the dialog boundaries (top left
   // for RTL languages).
   gfx::Rect view_location;
   int x = view_->UILayoutIsRightToLeft() ?
-              dialog_bounds.x() : dialog_bounds.width() - prefsize.cx;
+              dialog_bounds.x() : dialog_bounds.width() - prefsize.width();
   int y = dialog_bounds.y();
-  view_location.SetRect(x, y, prefsize.cx, prefsize.cy);
+  view_location.SetRect(x, y, prefsize.width(), prefsize.height());
 
   // Make sure we don't go out of bounds to the left (right in RTL) if the
   // window is too small to fit our dialog.
   if (view_->UILayoutIsRightToLeft()) {
-    int boundary = dialog_bounds.width() - prefsize.cx;
+    int boundary = dialog_bounds.width() - prefsize.width();
     view_location.set_x(std::min(view_location.x(), boundary));
   } else {
     view_location.set_x(std::max(view_location.x(), dialog_bounds.x()));

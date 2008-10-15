@@ -63,15 +63,14 @@ class FirstRunBubbleView : public ChromeViews::View,
     label1_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
     AddChildView(label1_);
 
-    CSize ps;
-    GetPreferredSize(&ps);
+    gfx::Size ps = GetPreferredSize();
 
     label2_ =
         new ChromeViews::Label(l10n_util::GetString(IDS_FR_BUBBLE_SUBTEXT));
     label2_->SetMultiLine(true);
     label2_->SetFont(font);
     label2_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
-    label2_->SizeToFit(ps.cx - kBubblePadding * 2);
+    label2_->SizeToFit(ps.width() - kBubblePadding * 2);
     AddChildView(label2_);
 
     std::wstring question_str
@@ -81,7 +80,7 @@ class FirstRunBubbleView : public ChromeViews::View,
     label3_->SetMultiLine(true);
     label3_->SetFont(font);
     label3_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
-    label3_->SizeToFit(ps.cx - kBubblePadding * 2);
+    label3_->SizeToFit(ps.width() - kBubblePadding * 2);
     AddChildView(label3_);
 
     std::wstring keep_str = l10n_util::GetStringF(IDS_FR_BUBBLE_OK,
@@ -115,45 +114,44 @@ class FirstRunBubbleView : public ChromeViews::View,
 
   // Overridden from ChromeViews::View.
   virtual void Layout() {
-    CSize canvas;
-    GetPreferredSize(&canvas);
+    gfx::Size canvas = GetPreferredSize();
 
-    CSize pref_size;
     // The multiline business that follows is dirty hacks to get around
     // bug 1325257.
     label1_->SetMultiLine(false);
-    label1_->GetPreferredSize(&pref_size);
+    gfx::Size pref_size = label1_->GetPreferredSize();
     label1_->SetMultiLine(true);
-    label1_->SizeToFit(canvas.cx - kBubblePadding * 2);
+    label1_->SizeToFit(canvas.width() - kBubblePadding * 2);
     label1_->SetBounds(kBubblePadding, kBubblePadding, 
-                       canvas.cx - kBubblePadding * 2,
-                       pref_size.cy);
+                       canvas.width() - kBubblePadding * 2,
+                       pref_size.height());
 
-    int next_v_space = label1_->y() + pref_size.cy +
+    int next_v_space = label1_->y() + pref_size.height() +
                        kRelatedControlSmallVerticalSpacing;
 
-    label2_->GetPreferredSize(&pref_size);
+    pref_size = label2_->GetPreferredSize();
     label2_->SetBounds(kBubblePadding, next_v_space,
-                       canvas.cx - kBubblePadding * 2,
-                       pref_size.cy);
+                       canvas.width() - kBubblePadding * 2,
+                       pref_size.height());
 
     next_v_space = label2_->y() + label2_->height() +
                    kPanelSubVerticalSpacing;
 
-    label3_->GetPreferredSize(&pref_size);
+    pref_size = label3_->GetPreferredSize();
     label3_->SetBounds(kBubblePadding, next_v_space,
-                       canvas.cx - kBubblePadding * 2,
-                       pref_size.cy);
+                       canvas.width() - kBubblePadding * 2,
+                       pref_size.height());
 
-    change_button_->GetPreferredSize(&pref_size);
-    change_button_->SetBounds(canvas.cx - pref_size.cx - kBubblePadding,
-                              canvas.cy - pref_size.cy - kButtonVEdgeMargin,
-                              pref_size.cx, pref_size.cy);
+    pref_size = change_button_->GetPreferredSize();
+    change_button_->SetBounds(
+        canvas.width() - pref_size.width() - kBubblePadding,
+        canvas.height() - pref_size.height() - kButtonVEdgeMargin,
+        pref_size.width(), pref_size.height());
 
-    keep_button_->GetPreferredSize(&pref_size);
-    keep_button_->SetBounds(change_button_->x() - pref_size.cx -
+    pref_size = keep_button_->GetPreferredSize();
+    keep_button_->SetBounds(change_button_->x() - pref_size.width() -
                             kRelatedButtonHSpacing, change_button_->y(),
-                            pref_size.cx, pref_size.cy);
+                            pref_size.width(), pref_size.height());
   }
 
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child) {
@@ -162,11 +160,10 @@ class FirstRunBubbleView : public ChromeViews::View,
   }
 
   // Overridden from ChromeViews::View.
-  virtual void GetPreferredSize(CSize *out) {
-    DCHECK(out);
-    *out = ChromeViews::Window::GetLocalizedContentsSize(
+  virtual gfx::Size GetPreferredSize() {
+    return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
         IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS,
-        IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES).ToSIZE();
+        IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES));
   }
 
  private:

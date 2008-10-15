@@ -626,11 +626,12 @@ void OpaqueNonClientView::Layout() {
   LayoutClientView();
 }
 
-void OpaqueNonClientView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  frame_->client_view()->GetPreferredSize(out);
-  out->cx += 2 * kWindowHorizontalBorderSize;
-  out->cy += CalculateNonClientTopHeight() + kWindowVerticalBorderBottomSize;
+gfx::Size OpaqueNonClientView::GetPreferredSize() {
+  gfx::Size prefsize = frame_->client_view()->GetPreferredSize();
+  prefsize.Enlarge(2 * kWindowHorizontalBorderSize,
+                   CalculateNonClientTopHeight() +
+                       kWindowVerticalBorderBottomSize);
+  return prefsize;
 }
 
 ChromeViews::View* OpaqueNonClientView::GetViewForPoint(
@@ -875,73 +876,78 @@ void OpaqueNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
 }
 
 void OpaqueNonClientView::LayoutWindowControls() {
-  CSize ps;
+  gfx::Size ps;
   if (frame_->IsMaximized() || frame_->IsMinimized()) {
     maximize_button_->SetVisible(false);
     restore_button_->SetVisible(true);
   }
 
   if (frame_->IsMaximized()) {
-    close_button_->GetPreferredSize(&ps);
+    ps = close_button_->GetPreferredSize();
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                      ChromeViews::Button::ALIGN_TOP);
     close_button_->SetBounds(
-        width() - ps.cx - kWindowControlsRightZoomedOffset,
-        0, ps.cx + kWindowControlsRightZoomedOffset,
-        ps.cy + kWindowControlsTopZoomedOffset);
+        width() - ps.width() - kWindowControlsRightZoomedOffset,
+        0, ps.width() + kWindowControlsRightZoomedOffset,
+        ps.height() + kWindowControlsTopZoomedOffset);
 
-    restore_button_->GetPreferredSize(&ps);
+    ps = restore_button_->GetPreferredSize();
     restore_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                        ChromeViews::Button::ALIGN_TOP);
-    restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
-                               ps.cy + kWindowControlsTopZoomedOffset);
+    restore_button_->SetBounds(close_button_->x() - ps.width(), 0, ps.width(),
+                               ps.height() + kWindowControlsTopZoomedOffset);
 
-    minimize_button_->GetPreferredSize(&ps);
+    ps = minimize_button_->GetPreferredSize();
     minimize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                         ChromeViews::Button::ALIGN_TOP);
-    minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
-                                ps.cy + kWindowControlsTopZoomedOffset);
+    minimize_button_->SetBounds(restore_button_->x() - ps.width(), 0,
+                                ps.width(),
+                                ps.height() + kWindowControlsTopZoomedOffset);
   } else if (frame_->IsMinimized()) {
-    close_button_->GetPreferredSize(&ps);
+    ps = close_button_->GetPreferredSize();
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                      ChromeViews::Button::ALIGN_BOTTOM);
     close_button_->SetBounds(
-        width() - ps.cx - kWindowControlsRightZoomedOffset,
-        0, ps.cx + kWindowControlsRightZoomedOffset,
-        ps.cy + kWindowControlsTopZoomedOffset);
+        width() - ps.width() - kWindowControlsRightZoomedOffset,
+        0, ps.width() + kWindowControlsRightZoomedOffset,
+        ps.height() + kWindowControlsTopZoomedOffset);
 
-    restore_button_->GetPreferredSize(&ps);
+    ps = restore_button_->GetPreferredSize();
     restore_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                        ChromeViews::Button::ALIGN_BOTTOM);
-    restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
-                               ps.cy + kWindowControlsTopZoomedOffset);
+    restore_button_->SetBounds(close_button_->x() - ps.width(), 0, ps.width(),
+                               ps.height() + kWindowControlsTopZoomedOffset);
 
-    minimize_button_->GetPreferredSize(&ps);
+    ps = minimize_button_->GetPreferredSize();
     minimize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                         ChromeViews::Button::ALIGN_BOTTOM);
-    minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
-                                ps.cy + kWindowControlsTopZoomedOffset);
+    minimize_button_->SetBounds(restore_button_->x() - ps.width(), 0,
+                                ps.width(),
+                                ps.height() + kWindowControlsTopZoomedOffset);
   } else {
-    close_button_->GetPreferredSize(&ps);
+    ps = close_button_->GetPreferredSize();
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                      ChromeViews::Button::ALIGN_TOP);
-    close_button_->SetBounds(width() - kWindowControlsRightOffset - ps.cx,
-                             kWindowControlsTopOffset, ps.cx, ps.cy);
+    close_button_->SetBounds(width() - kWindowControlsRightOffset - ps.width(),
+                             kWindowControlsTopOffset, ps.width(),
+                             ps.height());
 
     restore_button_->SetVisible(false);
 
     maximize_button_->SetVisible(true);
-    maximize_button_->GetPreferredSize(&ps);
+    ps = maximize_button_->GetPreferredSize();
     maximize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                         ChromeViews::Button::ALIGN_TOP);
-    maximize_button_->SetBounds(close_button_->x() - ps.cx,
-                                kWindowControlsTopOffset, ps.cx, ps.cy);
+    maximize_button_->SetBounds(close_button_->x() - ps.width(),
+                                kWindowControlsTopOffset, ps.width(),
+                                ps.height());
 
-    minimize_button_->GetPreferredSize(&ps);
+    ps = minimize_button_->GetPreferredSize();
     minimize_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                         ChromeViews::Button::ALIGN_TOP);
-    minimize_button_->SetBounds(maximize_button_->x() - ps.cx,
-                                kWindowControlsTopOffset, ps.cx, ps.cy);
+    minimize_button_->SetBounds(maximize_button_->x() - ps.width(),
+                                kWindowControlsTopOffset, ps.width(),
+                                ps.height());
   }
 }
 

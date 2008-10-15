@@ -57,14 +57,10 @@ void Button::SetImageAlignment(HorizontalAlignment h_align,
   SchedulePaint();
 }
 
-void Button::GetPreferredSize(CSize *result) {
-  if (!images_[BS_NORMAL].isNull()) {
-    result->cx = images_[BS_NORMAL].width();
-    result->cy = images_[BS_NORMAL].height();
-  } else {
-    result->cx = kDefaultWidth;
-    result->cy = kDefaultHeight;
-  }
+gfx::Size Button::GetPreferredSize() {
+  if (!images_[BS_NORMAL].isNull())
+    return gfx::Size(images_[BS_NORMAL].width(), images_[BS_NORMAL].height());
+  return gfx::Size(kDefaultWidth, kDefaultHeight);
 }
 
 // Set the tooltip text for this button.

@@ -67,11 +67,10 @@ void FontsLanguagesWindowView::Layout() {
                    height() - (2 * kDialogPadding));
 }
 
-void FontsLanguagesWindowView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size FontsLanguagesWindowView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_FONTSLANG_DIALOG_WIDTH_CHARS,
-      IDS_FONTSLANG_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_FONTSLANG_DIALOG_HEIGHT_LINES));
 }
 
 void FontsLanguagesWindowView::ViewHierarchyChanged(

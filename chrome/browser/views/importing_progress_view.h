@@ -42,7 +42,7 @@ class ImportingProgressView : public ChromeViews::View,
   virtual ChromeViews::View* GetContentsView();
 
   // Overridden from ChromeViews::View:
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add,
                                     ChromeViews::View* parent,
                                     ChromeViews::View* child);

@@ -43,7 +43,7 @@ class ClearBrowsingDataView : public ChromeViews::View,
   void Init();
 
   // Overridden from ChromeViews::View:
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void Layout();
   void ViewHierarchyChanged(bool is_add,
                             ChromeViews::View* parent,

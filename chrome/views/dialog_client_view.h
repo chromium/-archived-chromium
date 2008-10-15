@@ -59,7 +59,7 @@ class DialogClientView : public ClientView,
   virtual void Layout();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
   virtual void DidChangeBounds(const CRect& prev, const CRect& next);
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
   virtual bool AcceleratorPressed(const Accelerator& accelerator);
 
   // NativeButton::Listener implementation:

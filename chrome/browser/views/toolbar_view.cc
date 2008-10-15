@@ -262,7 +262,7 @@ void BrowserToolbarView::CreateRightSideControls(Profile* profile) {
 }
 
 void BrowserToolbarView::Layout() {
-  CSize sz;
+  gfx::Size sz;
 
   // If we have not been initialized yet just do nothing.
   if (back_ == NULL)
@@ -275,49 +275,49 @@ void BrowserToolbarView::Layout() {
   // The width of all of the controls to the right of the location bar.
   int right_side_width = 0;
   if (IsDisplayModeNormal()) {
-    back_->GetPreferredSize(&sz);
-    back_->SetBounds(kControlIndent, kControlVertOffset, sz.cx, sz.cy);
+    sz = back_->GetPreferredSize();
+    back_->SetBounds(kControlIndent, kControlVertOffset, sz.width(),
+                     sz.height());
 
-    forward_->GetPreferredSize(&sz);
+    sz = forward_->GetPreferredSize();
     forward_->SetBounds(back_->x() + back_->width(), kControlVertOffset,
-                        sz.cx, sz.cy);
+                        sz.width(), sz.height());
 
-    reload_->GetPreferredSize(&sz);
+    sz = reload_->GetPreferredSize();
     reload_->SetBounds(forward_->x() + forward_->width() +
                            kControlHorizOffset,
-                       kControlVertOffset, sz.cx, sz.cy);
+                       kControlVertOffset, sz.width(), sz.height());
 
     int offset = 0;
     if (show_home_button_.GetValue()) {
-      home_->GetPreferredSize(&sz);
+      sz = home_->GetPreferredSize();
       offset = kControlHorizOffset;
       home_->SetVisible(true);
     } else {
-      sz = CSize(0, 0);
+      sz = gfx::Size();
       home_->SetVisible(false);
     }
     home_->SetBounds(reload_->x() + reload_->width() + offset,
-                     kControlVertOffset, sz.cx, sz.cy);
+                     kControlVertOffset, sz.width(), sz.height());
 
-    star_->GetPreferredSize(&sz);
+    sz = star_->GetPreferredSize();
     star_->SetBounds(home_->x() + home_->width() + kControlHorizOffset,
-                     kControlVertOffset, sz.cx, sz.cy);
+                     kControlVertOffset, sz.width(), sz.height());
 
-    page_menu_->GetPreferredSize(&sz);
-    right_side_width = sz.cx + kMenuButtonOffset;
+    sz = page_menu_->GetPreferredSize();
+    right_side_width = sz.width() + kMenuButtonOffset;
 
-    app_menu_->GetPreferredSize(&sz);
-    right_side_width += sz.cx + kPaddingRight;
+    sz = app_menu_->GetPreferredSize();
+    right_side_width += sz.width() + kPaddingRight;
 
-    go_->GetPreferredSize(&sz);
-    location_bar_height = sz.cy;
-    right_side_width += sz.cx;
+    sz = go_->GetPreferredSize();
+    location_bar_height = sz.height();
+    right_side_width += sz.width();
 
     left_side_width = star_->x() + star_->width();
   } else {
-    CSize temp;
-    location_bar_->GetPreferredSize(&temp);
-    location_bar_height = temp.cy;
+    gfx::Size temp = location_bar_->GetPreferredSize();
+    location_bar_height = temp.height();
     left_side_width = kToolbarHorizontalMargin;
     right_side_width = kToolbarHorizontalMargin;
     location_bar_y = kControlVertOffsetLocationOnly;
@@ -329,15 +329,16 @@ void BrowserToolbarView::Layout() {
 
   if (IsDisplayModeNormal()) {
     go_->SetBounds(location_bar_->x() + location_bar_->width(),
-                   kControlVertOffset, sz.cx, sz.cy);
+                   kControlVertOffset, sz.width(), sz.height());
 
     // Make sure the Page menu never overlaps the location bar.
     int page_x = go_->x() + go_->width() + kMenuButtonOffset;
-    page_menu_->GetPreferredSize(&sz);
-    page_menu_->SetBounds(page_x, kControlVertOffset, sz.cx, go_->height());
-    app_menu_->GetPreferredSize(&sz);
+    sz = page_menu_->GetPreferredSize();
+    page_menu_->SetBounds(page_x, kControlVertOffset, sz.width(), 
+                          go_->height());
+    sz = app_menu_->GetPreferredSize();
     app_menu_->SetBounds(page_menu_->x() + page_menu_->width(),
-                         page_menu_->y(), sz.cx, go_->height());
+                         page_menu_->y(), sz.width(), go_->height());
   }
 }
 
@@ -469,22 +470,18 @@ bool BrowserToolbarView::OnKeyReleased(const ChromeViews::KeyEvent& e) {
   return acc_focused_view_->OnKeyReleased(e);
 }
 
-void BrowserToolbarView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  out->cx = 0;
-
+gfx::Size BrowserToolbarView::GetPreferredSize() {
   if (IsDisplayModeNormal()) {
     static SkBitmap normal_background;
     if (normal_background.isNull()) {
       ResourceBundle& rb = ResourceBundle::GetSharedInstance();
       normal_background = *rb.GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
     }
-    out->cy = normal_background.height();
-  } else {
-    CSize ps;
-    location_bar_->GetPreferredSize(&ps);
-    out->cy = ps.cy + 2 * kControlVertOffsetLocationOnly;
+    return gfx::Size(0, normal_background.height());
   }
+
+  int locbar_height = location_bar_->GetPreferredSize().height();
+  return gfx::Size(0, locbar_height + 2 * kControlVertOffsetLocationOnly);
 }
 
 void BrowserToolbarView::RunPageMenu(const CPoint& pt, HWND hwnd) {

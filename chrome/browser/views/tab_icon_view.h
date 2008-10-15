@@ -39,7 +39,7 @@ class TabIconView : public ChromeViews::View {
 
   // Overriden from View
   virtual void Paint(ChromeCanvas* canvas);
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
  private:
   void PaintThrobber(ChromeCanvas* canvas);

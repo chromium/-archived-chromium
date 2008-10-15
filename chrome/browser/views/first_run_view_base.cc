@@ -121,27 +121,27 @@ void FirstRunViewBase::SetMinimumDialogWidth(int width) {
 void FirstRunViewBase::Layout() {
   const int kVertSpacing = 8;
 
-  CSize canvas;
-  GetPreferredSize(&canvas);
+  gfx::Size canvas = GetPreferredSize();
 
-  CSize pref_size;
-  background_image_->GetPreferredSize(&pref_size);
-  background_image_->SetBounds(0, 0, canvas.cx, pref_size.cy);
+  gfx::Size pref_size = background_image_->GetPreferredSize();
+  background_image_->SetBounds(0, 0, canvas.width(), pref_size.height());
 
   int next_v_space = background_image_->y() +
                      background_image_->height() - 2;
 
-  separator_1_->GetPreferredSize(&pref_size);
-  separator_1_->SetBounds(0 , next_v_space, canvas.cx + 1, pref_size.cy);
+  pref_size = separator_1_->GetPreferredSize();
+  separator_1_->SetBounds(0, next_v_space, canvas.width() + 1,
+                          pref_size.height());
 
-  next_v_space = canvas.cy - kPanelSubVerticalSpacing - 2 * kVertSpacing;
-  separator_2_->GetPreferredSize(&pref_size);
+  next_v_space = canvas.height() - kPanelSubVerticalSpacing - 2 * kVertSpacing;
+  pref_size = separator_2_->GetPreferredSize();
   separator_2_->SetBounds(kPanelHorizMargin , next_v_space,
-                          canvas.cx - 2 * kPanelHorizMargin, pref_size.cy);
+                          canvas.width() - 2 * kPanelHorizMargin,
+                          pref_size.height());
 
   next_v_space = separator_2_->y() + separator_2_->height() + kVertSpacing;
 
-  int width = canvas.cx - 2 * kPanelHorizMargin;
+  int width = canvas.width() - 2 * kPanelHorizMargin;
   int height = default_browser_->GetHeightForWidth(width);
   default_browser_->SetBounds(kPanelHorizMargin, next_v_space, width, height);
   AdjustDialogWidth(default_browser_);

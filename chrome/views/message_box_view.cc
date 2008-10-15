@@ -119,9 +119,9 @@ void MessageBoxView::ResetLayoutManager() {
   GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);
 
-  CSize icon_size;
+  gfx::Size icon_size;
   if (icon_)
-    icon_->GetPreferredSize(&icon_size);
+    icon_size = icon_->GetPreferredSize();
 
   // Add the column set for the message displayed at the top of the dialog box.
   // And an icon, if one has been set.
@@ -129,7 +129,8 @@ void MessageBoxView::ResetLayoutManager() {
   ColumnSet* column_set = layout->AddColumnSet(message_column_view_set_id);
   if (icon_) {
     column_set->AddColumn(GridLayout::LEADING, GridLayout::LEADING, 0,
-                          GridLayout::FIXED, icon_size.cx, icon_size.cy);
+                          GridLayout::FIXED, icon_size.width(),
+                          icon_size.height());
     column_set->AddPaddingColumn(0, kUnrelatedControlHorizontalSpacing);
   }
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
@@ -141,7 +142,7 @@ void MessageBoxView::ResetLayoutManager() {
     column_set = layout->AddColumnSet(textfield_column_view_set_id);
     if (icon_) {
       column_set->AddPaddingColumn(0,
-          icon_size.cx + kUnrelatedControlHorizontalSpacing);
+          icon_size.width() + kUnrelatedControlHorizontalSpacing);
     }
     column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
                           GridLayout::USE_PREF, 0, 0);
@@ -153,7 +154,7 @@ void MessageBoxView::ResetLayoutManager() {
     column_set = layout->AddColumnSet(checkbox_column_view_set_id);
     if (icon_) {
       column_set->AddPaddingColumn(0,
-          icon_size.cx + kUnrelatedControlHorizontalSpacing);
+          icon_size.width() + kUnrelatedControlHorizontalSpacing);
     }
     column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
                           GridLayout::USE_PREF, 0, 0);

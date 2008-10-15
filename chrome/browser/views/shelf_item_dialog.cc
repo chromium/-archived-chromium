@@ -446,11 +446,10 @@ void ShelfItemDialog::PerformModelChange() {
   delegate_->AddBookmark(this, title, url);
 }
 
-void ShelfItemDialog::GetPreferredSize(CSize *out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size ShelfItemDialog::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_SHELFITEM_DIALOG_WIDTH_CHARS,
-      IDS_SHELFITEM_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_SHELFITEM_DIALOG_HEIGHT_LINES));
 }
 
 bool ShelfItemDialog::AcceleratorPressed(

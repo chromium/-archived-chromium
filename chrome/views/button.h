@@ -43,7 +43,7 @@ class Button : public BaseButton {
 
   //
   // Computes the minimum size given the current theme and graphics
-  void GetPreferredSize(CSize *result);
+  gfx::Size GetPreferredSize();
 
   // Returns the MSAA default action of the current view. The string returned
   // describes the default action that will occur when executing

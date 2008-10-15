@@ -236,14 +236,15 @@ gfx::Rect InfoBubble::ContentView::CalculateWindowBounds(
   return CalculateWindowBounds(position_relative_to);
 }
 
-void InfoBubble::ContentView::GetPreferredSize(CSize* pref) {
+gfx::Size InfoBubble::ContentView::GetPreferredSize() {
   DCHECK(GetChildViewCount() == 1);
   View* content = GetChildViewAt(0);
-  content->GetPreferredSize(pref);
-  pref->cx += kBorderSize + kBorderSize + kInfoBubbleViewLeftMargin +
-              kInfoBubbleViewRightMargin;
-  pref->cy += kBorderSize + kBorderSize + kArrowSize +
-              kInfoBubbleViewTopMargin + kInfoBubbleViewBottomMargin;
+  gfx::Size pref = content->GetPreferredSize();
+  pref.Enlarge(kBorderSize + kBorderSize + kInfoBubbleViewLeftMargin +
+                   kInfoBubbleViewRightMargin,
+               kBorderSize + kBorderSize + kArrowSize +
+                   kInfoBubbleViewTopMargin + kInfoBubbleViewBottomMargin);
+  return pref;
 }
 
 void InfoBubble::ContentView::Layout() {
@@ -405,19 +406,18 @@ void InfoBubble::ContentView::Paint(ChromeCanvas* canvas) {
 
 gfx::Rect InfoBubble::ContentView::CalculateWindowBounds(
     const gfx::Rect& position_relative_to) {
-  CSize pref;
-  GetPreferredSize(&pref);
+  gfx::Size pref = GetPreferredSize();
   int x = position_relative_to.x() + position_relative_to.width() / 2;
   int y;
   if (IsLeft())
     x -= kArrowXOffset;
   else
-    x = x + kArrowXOffset - pref.cx;
+    x = x + kArrowXOffset - pref.width();
   if (IsTop()) {
     y = position_relative_to.bottom() + kArrowToContentPadding;
   } else {
-    y = position_relative_to.y() - kArrowToContentPadding - pref.cy;
+    y = position_relative_to.y() - kArrowToContentPadding - pref.height();
   }
-  return gfx::Rect(x, y, pref.cx, pref.cy);
+  return gfx::Rect(x, y, pref.width(), pref.height());
 }
 

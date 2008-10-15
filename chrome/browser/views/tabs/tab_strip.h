@@ -101,7 +101,7 @@ class TabStrip : public ChromeViews::View,
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual ChromeViews::View* GetViewByID(int id) const;
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* preferred_size);
+  virtual gfx::Size GetPreferredSize();
   // NOTE: the drag and drop methods are invoked from FrameView. This is done to
   // allow for a drop region that extends outside the bounds of the TabStrip.
   virtual void OnDragEntered(const ChromeViews::DropTargetEvent& event);

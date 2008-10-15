@@ -593,23 +593,21 @@ ChromeViews::View* SearchableUIContainer::GetContents() {
 void SearchableUIContainer::Layout() {
   View::Layout();
 
-  CSize search_button_size;
-  search_button_->GetPreferredSize(&search_button_size);
-
-  CSize product_logo_size;
-  product_logo_->GetPreferredSize(&product_logo_size);
+  gfx::Size search_button_size = search_button_->GetPreferredSize();
+  gfx::Size product_logo_size = product_logo_->GetPreferredSize();
 
   int field_width = kDestinationSearchOffset + 
     kDestinationSearchWidth +
     kDestinationSmallerMargin +
-    static_cast<int>(search_button_size.cx) +
+    static_cast<int>(search_button_size.width()) +
     kDestinationSmallerMargin;
 
   product_logo_->SetBounds(std::max(width() - kProductLogo->width() - 
                                kProductLogoPadding,
                                field_width), 
                            kProductLogoPadding, 
-                           product_logo_size.cx, product_logo_size.cy);
+                           product_logo_size.width(),
+                           product_logo_size.height());
 }
 
 void SearchableUIContainer::Paint(ChromeCanvas* canvas) {

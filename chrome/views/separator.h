@@ -22,7 +22,7 @@ class Separator : public NativeControl {
   virtual LRESULT OnNotify(int w_param, LPNMHDR l_param);
 
   // View overrides:
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
  private:
 

@@ -88,11 +88,10 @@ void ImporterView::SetupControl() {
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 }
 
-void ImporterView::GetPreferredSize(CSize *out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size ImporterView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_IMPORT_DIALOG_WIDTH_CHARS,
-      IDS_IMPORT_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_IMPORT_DIALOG_HEIGHT_LINES));
 }
 
 void ImporterView::Layout() {

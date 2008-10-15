@@ -850,11 +850,12 @@ void TextField::DidChangeBounds(const CRect& previous, const CRect& current) {
   Layout();
 }
 
-void TextField::GetPreferredSize(CSize *out) {
+gfx::Size TextField::GetPreferredSize() {
   gfx::Insets insets;
   CalculateInsets(&insets);
-  out->cx = default_width_in_chars_ * font_.ave_char_width() + insets.width();
-  out->cy = num_lines_ * font_.height() + insets.height();
+  return gfx::Size(default_width_in_chars_ * font_.ave_char_width() +
+                       insets.width(),
+                   num_lines_ * font_.height() + insets.height());
 }
 
 std::wstring TextField::GetText() const {

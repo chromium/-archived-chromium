@@ -203,12 +203,11 @@ void SimpleVistaFrame::Layout() {
 
   if (browser_->ShouldDisplayURLField()) {
     TabContentsContainerView* container = GetTabContentsContainer();
-    CSize s;
-    location_bar_->GetPreferredSize(&s);
+    gfx::Size s = location_bar_->GetPreferredSize();
     location_bar_->SetBounds(container->x() - kLocationBarOutdent,
                              container->y() - kLocationBarOutdent,
                              container->width() + kLocationBarOutdent * 2,
-                             s.cy);
+                             s.height());
     container->SetBounds(container->x(),
                          location_bar_->y() + location_bar_->height() -
                          kLocationBarSpacing, container->width(),

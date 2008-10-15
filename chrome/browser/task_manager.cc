@@ -666,7 +666,7 @@ class TaskManagerContents : public ChromeViews::View,
 
   void Init(TaskManagerTableModel* table_model);
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
                                     ChromeViews::View* child);
@@ -844,10 +844,9 @@ void TaskManagerContents::Layout() {
   int x = bounds.left;
   int y = bounds.top;
 
-  CSize size;
-  kill_button_->GetPreferredSize(&size);
-  int prefered_width = size.cx;
-  int prefered_height = size.cy;
+  gfx::Size size = kill_button_->GetPreferredSize();
+  int prefered_width = size.width();
+  int prefered_height = size.height();
 
   tab_table_->SetBounds(
       x + kPanelHorizMargin,
@@ -866,9 +865,9 @@ void TaskManagerContents::Layout() {
       prefered_width,
       prefered_height);
 
-  about_memory_link_->GetPreferredSize(&size);
-  int link_prefered_width = size.cx;
-  int link_prefered_height = size.cy;
+  size = about_memory_link_->GetPreferredSize();
+  int link_prefered_width = size.width();
+  int link_prefered_height = size.height();
   // center between the two buttons horizontally, and line up with
   // bottom of buttons vertically.
   int link_y_offset = std::max(0, prefered_height - link_prefered_height) / 2;
@@ -879,9 +878,8 @@ void TaskManagerContents::Layout() {
       link_prefered_height);
 }
 
-void TaskManagerContents::GetPreferredSize(CSize* out) {
-  out->cx = kDefaultWidth;
-  out->cy = kDefaultHeight;
+gfx::Size TaskManagerContents::GetPreferredSize() {
+  return gfx::Size(kDefaultWidth, kDefaultHeight);
 }
 
 void TaskManagerContents::GetSelection(std::vector<int>* selection) {

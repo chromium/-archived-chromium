@@ -244,7 +244,7 @@ class DefaultNonClientView : public NonClientView,
   // View overrides:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 
   // BaseButton::ButtonListener implementation:
@@ -515,11 +515,11 @@ void DefaultNonClientView::Layout() {
   SchedulePaint();
 }
 
-void DefaultNonClientView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  container_->client_view()->GetPreferredSize(out);
-  out->cx += 2 * kWindowHorizontalBorderSize;
-  out->cy += CalculateContentsTop() + kWindowVerticalBorderSize;
+gfx::Size DefaultNonClientView::GetPreferredSize() {
+  gfx::Size prefsize = container_->client_view()->GetPreferredSize();
+  prefsize.Enlarge(2 * kWindowHorizontalBorderSize,
+                   CalculateContentsTop() + kWindowVerticalBorderSize);
+  return prefsize;
 }
 
 void DefaultNonClientView::ViewHierarchyChanged(bool is_add,
@@ -659,59 +659,65 @@ void DefaultNonClientView::PaintClientEdge(ChromeCanvas* canvas) {
 }
 
 void DefaultNonClientView::LayoutWindowControls() {
-  CSize ps;
+  gfx::Size ps;
   if (container_->IsMaximized() || container_->IsMinimized()) {
     maximize_button_->SetVisible(false);
     restore_button_->SetVisible(true);
   }
 
   if (container_->IsMaximized()) {
-    close_button_->GetPreferredSize(&ps);
+    ps = close_button_->GetPreferredSize();
     close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
     close_button_->SetBounds(
-        width() - ps.cx - kWindowControlsRightZoomedOffset,
-        0, ps.cx + kWindowControlsRightZoomedOffset,
-        ps.cy + kWindowControlsTopZoomedOffset);
+        width() - ps.width() - kWindowControlsRightZoomedOffset,
+        0, ps.width() + kWindowControlsRightZoomedOffset,
+        ps.height() + kWindowControlsTopZoomedOffset);
 
     if (should_show_minmax_buttons_) {
-      restore_button_->GetPreferredSize(&ps);
+      ps = restore_button_->GetPreferredSize();
       restore_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                          Button::ALIGN_BOTTOM);
-      restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
-                                 ps.cy + kWindowControlsTopZoomedOffset);
+      restore_button_->SetBounds(close_button_->x() - ps.width(), 0,
+                                 ps.width(),
+                                 ps.height() + kWindowControlsTopZoomedOffset);
 
-      minimize_button_->GetPreferredSize(&ps);
+      ps = minimize_button_->GetPreferredSize();
       minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                           Button::ALIGN_BOTTOM);
-      minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
-                                  ps.cy + kWindowControlsTopZoomedOffset);
+      minimize_button_->SetBounds(restore_button_->x() - ps.width(), 0,
+                                  ps.width(),
+                                  ps.height() + kWindowControlsTopZoomedOffset);
     }
   } else if (container_->IsMinimized()) {
-    close_button_->GetPreferredSize(&ps);
+    ps = close_button_->GetPreferredSize();
     close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
     close_button_->SetBounds(
-        width() - ps.cx - kWindowControlsRightZoomedOffset,
-        0, ps.cx + kWindowControlsRightZoomedOffset,
-        ps.cy + kWindowControlsTopZoomedOffset);
+        width() - ps.width() - kWindowControlsRightZoomedOffset,
+        0, ps.width() + kWindowControlsRightZoomedOffset,
+        ps.height() + kWindowControlsTopZoomedOffset);
 
     if (should_show_minmax_buttons_) {
-      restore_button_->GetPreferredSize(&ps);
+      ps = restore_button_->GetPreferredSize();
       restore_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                          Button::ALIGN_BOTTOM);
-      restore_button_->SetBounds(close_button_->x() - ps.cx, 0, ps.cx,
-                                 ps.cy + kWindowControlsTopZoomedOffset);
+      restore_button_->SetBounds(close_button_->x() - ps.width(), 0,
+                                 ps.width(),
+                                 ps.height() + kWindowControlsTopZoomedOffset);
 
-      minimize_button_->GetPreferredSize(&ps);
+      ps = minimize_button_->GetPreferredSize();
       minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                           Button::ALIGN_BOTTOM);
-      minimize_button_->SetBounds(restore_button_->x() - ps.cx, 0, ps.cx,
-                                  ps.cy + kWindowControlsTopZoomedOffset);
+      minimize_button_->SetBounds(restore_button_->x() - ps.width(), 0,
+                                  ps.width(),
+                                  ps.height() +
+                                      kWindowControlsTopZoomedOffset);
     }
   } else {
-    close_button_->GetPreferredSize(&ps);
+    ps = close_button_->GetPreferredSize();
     close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_TOP);
-    close_button_->SetBounds(width() - kWindowControlsRightOffset - ps.cx,
-                             kWindowControlsTopOffset, ps.cx, ps.cy);
+    close_button_->SetBounds(width() - kWindowControlsRightOffset - ps.width(),
+                             kWindowControlsTopOffset, ps.width(),
+                             ps.height());
 
     if (should_show_minmax_buttons_) {
       close_button_->SetImage(
@@ -727,17 +733,19 @@ void DefaultNonClientView::LayoutWindowControls() {
       restore_button_->SetVisible(false);
 
       maximize_button_->SetVisible(true);
-      maximize_button_->GetPreferredSize(&ps);
+      ps = maximize_button_->GetPreferredSize();
       maximize_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                           Button::ALIGN_TOP);
-      maximize_button_->SetBounds(close_button_->x() - ps.cx,
-                                  kWindowControlsTopOffset, ps.cx, ps.cy);
+      maximize_button_->SetBounds(close_button_->x() - ps.width(),
+                                  kWindowControlsTopOffset, ps.width(),
+                                  ps.height());
 
-      minimize_button_->GetPreferredSize(&ps);
+      ps = minimize_button_->GetPreferredSize();
       minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
                                           Button::ALIGN_TOP);
-      minimize_button_->SetBounds(maximize_button_->x() - ps.cx,
-                                  kWindowControlsTopOffset, ps.cx, ps.cy);
+      minimize_button_->SetBounds(maximize_button_->x() - ps.width(),
+                                  kWindowControlsTopOffset, ps.width(),
+                                  ps.height());
     }
   }
   if (!should_show_minmax_buttons_) {
@@ -764,10 +772,10 @@ void DefaultNonClientView::LayoutTitleBar() {
   // Size the window icon, if visible.
   if (d->ShouldShowWindowIcon()) {
     system_menu_button_->SetVisible(true);
-    CSize ps;
-    system_menu_button_->GetPreferredSize(&ps);
+    gfx::Size ps = system_menu_button_->GetPreferredSize();
     system_menu_button_->SetBounds(
-        kWindowIconLeftOffset, kWindowIconTopOffset + top_offset, ps.cx, ps.cy);
+        kWindowIconLeftOffset, kWindowIconTopOffset + top_offset, ps.width(),
+        ps.height());
   } else {
     // Put the menu in the right place at least even if it is hidden so we
     // can size the title based on its position.
@@ -856,8 +864,8 @@ class NonClientViewLayout : public ChromeViews::LayoutManager {
                       host->width() - (2 * horizontal_border_width),
                       host->height() - (2 * vertical_border_height));
   }
-  virtual void GetPreferredSize(ChromeViews::View* host, CSize* out) {
-    child_->GetPreferredSize(out);
+  virtual gfx::Size GetPreferredSize(ChromeViews::View* host) {
+    return child_->GetPreferredSize();
   }
 
  private:
@@ -952,11 +960,11 @@ void CustomFrameWindow::DisableInactiveRendering(bool disable) {
 }
 
 void CustomFrameWindow::SizeWindowToDefault() {
-  CSize pref(0, 0);
-  client_view()->GetPreferredSize(&pref);
-  DCHECK(pref.cx > 0 && pref.cy > 0);
+  gfx::Size pref = client_view()->GetPreferredSize();
+  DCHECK(pref.width() > 0 && pref.height() > 0);
   gfx::Size window_size =
-      non_client_view_->CalculateWindowSizeForClientSize(pref.cx, pref.cy);
+      non_client_view_->CalculateWindowSizeForClientSize(pref.width(),
+                                                         pref.height());
   win_util::CenterAndSizeWindow(owning_window(), GetHWND(),
                                 window_size.ToSIZE(), false);
 }

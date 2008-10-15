@@ -17,7 +17,6 @@ static const char kViewClassName[] = "chrome/views/HWNDView";
 
 HWNDView::HWNDView() :
     hwnd_(0),
-    preferred_size_(0, 0),
     installed_clip_(false),
     fast_resize_(false),
     focus_view_(NULL) {
@@ -145,13 +144,8 @@ void HWNDView::VisibilityChanged(View* starting_from, bool is_visible) {
     ::ShowWindow(hwnd_, SW_HIDE);
 }
 
-void HWNDView::GetPreferredSize(CSize *out) {
-  out->cx = preferred_size_.cx;
-  out->cy = preferred_size_.cy;
-}
-
-void HWNDView::SetPreferredSize(const CSize& size) {
-  preferred_size_ = size;
+gfx::Size HWNDView::GetPreferredSize() {
+  return preferred_size_;
 }
 
 void HWNDView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {

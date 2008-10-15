@@ -165,7 +165,7 @@ class GridLayout : public LayoutManager {
   virtual void Layout(View* host);
 
   // Returns the preferred size for the GridLayout.
-  virtual void GetPreferredSize(View* host, CSize* out);
+  virtual gfx::Size GetPreferredSize(View* host);
 
   virtual int GetPreferredHeightForWidth(View* host, int width);
 

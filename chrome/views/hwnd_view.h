@@ -26,9 +26,9 @@ class HWNDView : public View {
   HWNDView();
   virtual ~HWNDView();
 
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
-  void SetPreferredSize(const CSize& size);
+  void set_preferred_size(const gfx::Size& size) { preferred_size_ = size; }
 
   // Attach a window handle to this View, making the window it represents
   // subject to sizing according to this View's parent container's Layout
@@ -74,7 +74,7 @@ class HWNDView : public View {
   HWND hwnd_;
 
   // The preferred size of this View
-  CSize preferred_size_;
+  gfx::Size preferred_size_;
 
   // Have we installed a region on the HWND used to clip to only the visible
   // portion of the HWND?

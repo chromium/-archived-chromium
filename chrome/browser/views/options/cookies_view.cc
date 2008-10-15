@@ -641,28 +641,28 @@ ChromeViews::View* CookiesView::GetContentsView() {
 
 void CookiesView::Layout() {
   // Lay out the Remove/Remove All buttons in the parent view.
-  CSize ps;
-  remove_button_->GetPreferredSize(&ps);
+  gfx::Size ps = remove_button_->GetPreferredSize();
   CRect parent_bounds;
   GetParent()->GetLocalBounds(&parent_bounds, false);
-  int y_buttons = parent_bounds.bottom - ps.cy - kButtonVEdgeMargin;
+  int y_buttons = parent_bounds.bottom - ps.height() - kButtonVEdgeMargin;
 
-  remove_button_->SetBounds(kPanelHorizMargin, y_buttons, ps.cx, ps.cy);
+  remove_button_->SetBounds(kPanelHorizMargin, y_buttons, ps.width(),
+                            ps.height());
 
-  remove_all_button_->GetPreferredSize(&ps);
+  ps = remove_all_button_->GetPreferredSize();
   int remove_all_x = remove_button_->x() + remove_button_->width() +
       kRelatedControlHorizontalSpacing;
-  remove_all_button_->SetBounds(remove_all_x, y_buttons, ps.cx, ps.cy);
+  remove_all_button_->SetBounds(remove_all_x, y_buttons, ps.width(),
+                                ps.height());
 
   // Lay out this View
   View::Layout();
 }
 
-void CookiesView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size CookiesView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_COOKIES_DIALOG_WIDTH_CHARS,
-      IDS_COOKIES_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_COOKIES_DIALOG_HEIGHT_LINES));
 }
 
 void CookiesView::ViewHierarchyChanged(bool is_add,

@@ -38,7 +38,7 @@ class MenuButton : public TextButton {
   virtual bool Activate();
 
   // Overridden to take into account the potential use of a drop marker.
-  void GetPreferredSize(CSize* result);
+  virtual gfx::Size GetPreferredSize();
   virtual void Paint(ChromeCanvas* canvas, bool for_drag);
 
   // These methods are overriden to implement a simple push button

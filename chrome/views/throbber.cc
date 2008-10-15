@@ -62,10 +62,8 @@ void Throbber::Run() {
   SchedulePaint();
 }
 
-void Throbber::GetPreferredSize(CSize *out) {
-  DCHECK(out);
-
-  out->SetSize(frames_->height(), frames_->height());
+gfx::Size Throbber::GetPreferredSize() {
+  return gfx::Size(frames_->height(), frames_->height());
 }
 
 void Throbber::Paint(ChromeCanvas* canvas) {

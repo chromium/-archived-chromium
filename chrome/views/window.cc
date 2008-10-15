@@ -325,16 +325,17 @@ void Window::SetClientView(ClientView* client_view) {
 }
 
 void Window::SizeWindowToDefault() {
-  CSize pref(0, 0);
+  gfx::Size pref;
   if (non_client_view_) {
-    non_client_view_->GetPreferredSize(&pref);
+    pref = non_client_view_->GetPreferredSize();
   } else {
-    client_view_->GetPreferredSize(&pref);
+    pref = client_view_->GetPreferredSize();
   }
-  DCHECK(pref.cx > 0 && pref.cy > 0);
+  DCHECK(pref.width() > 0 && pref.height() > 0);
   // CenterAndSizeWindow adjusts the window size to accommodate the non-client
   // area.
-  win_util::CenterAndSizeWindow(owning_window(), GetHWND(), pref, true);
+  win_util::CenterAndSizeWindow(owning_window(), GetHWND(), pref.ToSIZE(),
+                                true);
 }
 
 void Window::RunSystemMenu(const CPoint& point) {

@@ -80,50 +80,47 @@ void Decision::Layout() {
   int width = lb.Width();
 
   CPoint position(lb.TopLeft());
-  CSize size;
-  title_label_->GetPreferredSize(&size);
-  title_label_->SetBounds(position.x, position.y, width, size.cy);
-  position.y += size.cy + kSpacingInfoBottom;
+  gfx::Size size = title_label_->GetPreferredSize();
+  title_label_->SetBounds(position.x, position.y, width, size.height());
+  position.y += size.height() + kSpacingInfoBottom;
 
-  size.cy = details_label_->GetHeightForWidth(width);
-  details_label_->SetBounds(position.x, position.y, width, size.cy);
-  position.y += size.cy + kSpacingInfoBottom;
+  size.set_height(details_label_->GetHeightForWidth(width));
+  details_label_->SetBounds(position.x, position.y, width, size.height());
+  position.y += size.height() + kSpacingInfoBottom;
 
   for (std::vector<Option*>::const_iterator iter = options_.begin();
        iter != options_.end(); ++iter) {
     Option* option = *iter;
-    option->GetPreferredSize(&size);
-    option->SetBounds(position.x, position.y, width, size.cy);
+    size = option->GetPreferredSize();
+    option->SetBounds(position.x, position.y, width, size.height());
     option->Layout();
-    position.y += size.cy + kSpacingInfoBottom;
+    position.y += size.height() + kSpacingInfoBottom;
   }
 }
 
-void Decision::GetPreferredSize(CSize *out) {
+gfx::Size Decision::GetPreferredSize() {
   int width = 0;
   int height = 0;
 
   // We need to find the largest width from the title and the options, as the
   // details label is multi-line and we need to known its width in order to
   // compute its height.
-  CSize size;
-  title_label_->GetPreferredSize(&size);
-  width = size.cx;
-  height = size.cy + kSpacingInfoBottom;
+  gfx::Size size = title_label_->GetPreferredSize();
+  width = size.width();
+  height = size.height() + kSpacingInfoBottom;
 
   for (std::vector<Option*>::const_iterator iter = options_.begin();
        iter != options_.end(); ++iter) {
-    (*iter)->GetPreferredSize(&size);
-    if (size.cx > width)
-      width = size.cx;
-    height += size.cy + kSpacingInfoBottom;
+    size = (*iter)->GetPreferredSize();
+    if (size.width() > width)
+      width = size.width();
+    height += size.height() + kSpacingInfoBottom;
   }
 
   // Now we can compute the details label height.
   height += details_label_->GetHeightForWidth(width) + kSpacingInfoBottom;
 
-  out->cx = width + 2 * kPaddingEdge;
-  out->cy = height + 2 * kPaddingEdge;
+  return gfx::Size(width + 2 * kPaddingEdge, height + 2 * kPaddingEdge);
 }
 
 Option::Option(int command_id,

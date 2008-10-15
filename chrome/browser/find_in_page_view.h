@@ -70,7 +70,7 @@ class FindInPageView : public ChromeViews::View,
   virtual void Layout();
   virtual void DidChangeBounds(const CRect& old_bounds,
                                const CRect& new_bounds);
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 
   // Overridden from ChromeViews::ButtonListener::ButtonPressed:

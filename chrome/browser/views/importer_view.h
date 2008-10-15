@@ -34,7 +34,7 @@ class ImporterView : public ChromeViews::View,
   virtual ~ImporterView();
 
   // Overridden from ChromeViews::View.
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void Layout();
 
   // Overridden from ChromeViews::DialogDelegate:

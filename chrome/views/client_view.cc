@@ -22,12 +22,12 @@ int ClientView::NonClientHitTest(const gfx::Point& point) {
 ///////////////////////////////////////////////////////////////////////////////
 // ClientView, View overrides:
 
-void ClientView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
+gfx::Size ClientView::GetPreferredSize() {
   // |contents_view_| is allowed to be NULL up until the point where this view
   // is attached to a ViewContainer.
   if (contents_view_)
-    contents_view_->GetPreferredSize(out);
+    return contents_view_->GetPreferredSize();
+  return gfx::Size();
 }
 
 void ClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {

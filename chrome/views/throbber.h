@@ -29,7 +29,7 @@ class Throbber : public ChromeViews::View {
   virtual void Stop();
 
   // overridden from View
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void Paint(ChromeCanvas* canvas);
 
  protected:

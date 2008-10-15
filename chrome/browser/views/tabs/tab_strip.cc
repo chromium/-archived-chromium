@@ -197,7 +197,7 @@ class TabStrip::TabAnimation : public AnimationDelegate {
     if (start_tab_count < end_tab_count &&
         start_unselected_width_ < standard_tab_width) {
       double minimum_tab_width =
-          static_cast<double>(TabRenderer::GetMinimumSize().width());
+          static_cast<double>(TabRenderer::GetMinimumUnselectedSize().width());
       start_unselected_width_ -= minimum_tab_width / start_tab_count;
     }
     tabstrip_->GenerateIdealBounds();
@@ -247,7 +247,7 @@ class InsertTabAnimation : public TabStrip::TabAnimation {
       double target_width =
           is_selected ? end_unselected_width_ : end_selected_width_;
       double start_width = is_selected ? Tab::GetMinimumSelectedSize().width() :
-          Tab::GetMinimumSize().width();
+          Tab::GetMinimumUnselectedSize().width();
       double delta = target_width - start_width;
       if (delta > 0)
         return start_width + (delta * animation_.GetCurrentValue());
@@ -294,7 +294,8 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
       // of the animation.
       // Removed animated Tabs are never selected.
       double start_width = start_unselected_width_;
-      double target_width = Tab::GetMinimumSize().width() + kTabHOffset;
+      double target_width =
+          Tab::GetMinimumUnselectedSize().width() + kTabHOffset;
       double delta = start_width - target_width;
       return start_width - (delta * animation_.GetCurrentValue());
     }
@@ -508,9 +509,7 @@ TabStrip::~TabStrip() {
 }
 
 int TabStrip::GetPreferredHeight() {
-  CSize preferred_size;
-  GetPreferredSize(&preferred_size);
-  return preferred_size.cy;
+  return GetPreferredSize().height();
 }
 
 bool TabStrip::HasAvailableDragActions() const {
@@ -676,10 +675,8 @@ void TabStrip::Layout() {
   SchedulePaint();
 }
 
-void TabStrip::GetPreferredSize(CSize* preferred_size) {
-  DCHECK(preferred_size);
-  preferred_size->cx = 0;
-  preferred_size->cy = Tab::GetMinimumSize().height();
+gfx::Size TabStrip::GetPreferredSize() {
+  return gfx::Size(0, Tab::GetMinimumUnselectedSize().height());
 }
 
 void TabStrip::OnDragEntered(const DropTargetEvent& event) {
@@ -1157,7 +1154,7 @@ void TabStrip::GetCurrentTabWidths(double* unselected_width,
 void TabStrip::GetDesiredTabWidths(int tab_count,
                                    double* unselected_width,
                                    double* selected_width) const {
-  const double min_unselected_width = Tab::GetMinimumSize().width();
+  const double min_unselected_width = Tab::GetMinimumUnselectedSize().width();
   const double min_selected_width = Tab::GetMinimumSelectedSize().width();
   if (tab_count == 0) {
     // Return immediately to avoid divide-by-zero below.

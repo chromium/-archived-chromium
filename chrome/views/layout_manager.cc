@@ -9,9 +9,7 @@
 namespace ChromeViews {
 
 int LayoutManager::GetPreferredHeightForWidth(View* host, int width) {
-  CSize pref;
-  GetPreferredSize(host, &pref);
-  return pref.cy;
+  return GetPreferredSize(host).height();
 }
 
 }  // namespace

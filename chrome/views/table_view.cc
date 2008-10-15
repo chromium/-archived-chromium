@@ -1096,13 +1096,8 @@ void TableView::ResetColumnSizes() {
   }
 }
 
-void TableView::SetPreferredSize(const CSize& preferred_size) {
-  preferred_size_  = preferred_size;
-}
-
-void TableView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  *out = preferred_size_;
+gfx::Size TableView::GetPreferredSize() {
+  return preferred_size_;
 }
 
 void TableView::UpdateListViewCache0(int start, int length, bool add) {

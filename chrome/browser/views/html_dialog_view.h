@@ -38,7 +38,7 @@ class HtmlDialogView
   void InitDialog();
 
   // Overridden from ChromeViews::View:
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
   // Overridden from ChromeViews::WindowDelegate:
   virtual bool CanResize() const;

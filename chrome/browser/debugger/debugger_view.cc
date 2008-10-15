@@ -38,9 +38,8 @@ DebuggerView::DebuggerView() : output_ready_(false) {
 DebuggerView::~DebuggerView() {
 }
 
-void DebuggerView::GetPreferredSize(CSize* out) {
-  out->cx = 700;
-  out->cy = 400;
+gfx::Size DebuggerView::GetPreferredSize() {
+  return gfx::Size(700, 400);
 }
 
 void DebuggerView::Layout() {

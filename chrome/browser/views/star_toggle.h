@@ -41,7 +41,7 @@ class StarToggle : public ChromeViews::View {
 
   // Overriden from view.
   void Paint(ChromeCanvas* canvas);
-  void GetPreferredSize(CSize* out);
+  gfx::Size GetPreferredSize();
   virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
   virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
   virtual void OnMouseReleased(const ChromeViews::MouseEvent& e, bool canceled);

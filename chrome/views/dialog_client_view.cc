@@ -238,9 +238,8 @@ void DialogClientView::DidChangeBounds(const CRect& prev, const CRect& next) {
   Layout();
 }
 
-void DialogClientView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  contents_view()->GetPreferredSize(out);
+gfx::Size DialogClientView::GetPreferredSize() {
+  gfx::Size prefsize = contents_view()->GetPreferredSize();
   int button_height = 0;
   if (has_dialog_buttons()) {
     if (cancel_button_)
@@ -250,7 +249,8 @@ void DialogClientView::GetPreferredSize(CSize* out) {
     // Account for padding above and below the button.
     button_height += kDialogButtonContentSpacing + kButtonVEdgeMargin;
   }
-  out->cy += button_height;
+  prefsize.Enlarge(0, button_height);
+  return prefsize;
 }
 
 bool DialogClientView::AcceleratorPressed(const Accelerator& accelerator) {
@@ -320,24 +320,22 @@ int DialogClientView::GetButtonsHeight() const {
 void DialogClientView::LayoutDialogButtons() {
   CRect extra_bounds;
   if (cancel_button_) {
-    CSize ps;
-    cancel_button_->GetPreferredSize(&ps);
+    gfx::Size ps = cancel_button_->GetPreferredSize();
     CRect lb;
     GetLocalBounds(&lb, false);
     int button_width = GetButtonWidth(DialogDelegate::DIALOGBUTTON_CANCEL);
     CRect bounds;
     bounds.left = lb.right - button_width - kButtonHEdgeMargin;
-    bounds.top = lb.bottom - ps.cy - kButtonVEdgeMargin;
+    bounds.top = lb.bottom - ps.height() - kButtonVEdgeMargin;
     bounds.right = bounds.left + button_width;
-    bounds.bottom = bounds.top + ps.cy;
+    bounds.bottom = bounds.top + ps.height();
     cancel_button_->SetBounds(bounds);
     // The extra view bounds are dependent on this button.
     extra_bounds.right = bounds.left;
     extra_bounds.top = bounds.top;
   }
   if (ok_button_) {
-    CSize ps;
-    ok_button_->GetPreferredSize(&ps);
+    gfx::Size ps = ok_button_->GetPreferredSize();
     CRect lb;
     GetLocalBounds(&lb, false);
     int button_width = GetButtonWidth(DialogDelegate::DIALOGBUTTON_OK);
@@ -346,21 +344,20 @@ void DialogClientView::LayoutDialogButtons() {
       ok_button_right = cancel_button_->x() - kRelatedButtonHSpacing;
     CRect bounds;
     bounds.left = ok_button_right - button_width;
-    bounds.top = lb.bottom - ps.cy - kButtonVEdgeMargin;
+    bounds.top = lb.bottom - ps.height() - kButtonVEdgeMargin;
     bounds.right = ok_button_right;
-    bounds.bottom = bounds.top + ps.cy;
+    bounds.bottom = bounds.top + ps.height();
     ok_button_->SetBounds(bounds);
     // The extra view bounds are dependent on this button.
     extra_bounds.right = bounds.left;
     extra_bounds.top = bounds.top;
   }
   if (extra_view_) {
-    CSize ps;
-    extra_view_->GetPreferredSize(&ps);
+    gfx::Size ps = extra_view_->GetPreferredSize();
     CRect lb;
     GetLocalBounds(&lb, false);
     extra_bounds.left = lb.left + kButtonHEdgeMargin;
-    extra_bounds.bottom = extra_bounds.top + ps.cy;
+    extra_bounds.bottom = extra_bounds.top + ps.height();
     extra_view_->SetBounds(extra_bounds);
   }
 }

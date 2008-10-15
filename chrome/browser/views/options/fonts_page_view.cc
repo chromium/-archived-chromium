@@ -97,7 +97,7 @@ class FontDisplayView : public ChromeViews::View {
   // ChromeViews::View overrides:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
  private:
   ChromeViews::Label* font_text_label_;
@@ -169,13 +169,12 @@ void FontDisplayView::Layout() {
   font_text_label_->SetBounds(0, 0, width(), height());
 }
 
-void FontDisplayView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
+gfx::Size FontDisplayView::GetPreferredSize() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
-  out->cx = font.ave_char_width() * kFontDisplayMaxWidthChars;
-  out->cy = font.height() * kFontDisplayMaxHeightChars
-      + 2 * kFontDisplayLabelPadding;
+  return gfx::Size(font.ave_char_width() * kFontDisplayMaxWidthChars,
+                   font.height() * kFontDisplayMaxHeightChars
+                       + 2 * kFontDisplayLabelPadding);
 }
 
 void EmbellishTitle(ChromeViews::Label* title_label) {

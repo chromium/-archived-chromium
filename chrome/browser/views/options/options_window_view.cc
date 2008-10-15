@@ -53,7 +53,7 @@ class OptionsWindowView : public ChromeViews::View,
 
   // ChromeViews::View overrides:
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
  protected:
   // ChromeViews::View overrides:
@@ -163,11 +163,10 @@ void OptionsWindowView::Layout() {
                    height() - (2 * kDialogPadding));
 }
 
-void OptionsWindowView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size OptionsWindowView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_OPTIONS_DIALOG_WIDTH_CHARS,
-      IDS_OPTIONS_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_OPTIONS_DIALOG_HEIGHT_LINES));
 }
 
 void OptionsWindowView::ViewHierarchyChanged(bool is_add,

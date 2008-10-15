@@ -181,24 +181,23 @@ void VistaFrame::Layout() {
     int tabstrip_x = g_bitmaps[CT_LEFT_SIDE]->width();
     if (is_off_the_record_) {
       off_the_record_image_->SetVisible(true);
-      CSize otr_image_size;
-      off_the_record_image_->GetPreferredSize(&otr_image_size);
-      tabstrip_x += otr_image_size.cx + (2 * kOTRImageHorizMargin);
+      gfx::Size otr_image_size = off_the_record_image_->GetPreferredSize();
+      tabstrip_x += otr_image_size.width() + (2 * kOTRImageHorizMargin);
       gfx::Rect off_the_record_bounds;
       if (IsZoomed()) {
         off_the_record_bounds.SetRect(g_bitmaps[CT_LEFT_SIDE]->width(),
                                       kResizeBorder,
-                                      otr_image_size.cx,
+                                      otr_image_size.width(),
                                       tabstrip_->GetPreferredHeight() -
                                       kToolbarOverlapVertOffset + 1);
       } else {
         off_the_record_bounds.SetRect(g_bitmaps[CT_LEFT_SIDE]->width(),
                                       kResizeBorder + kTitlebarHeight +
                                       tabstrip_->GetPreferredHeight() -
-                                      otr_image_size.cy -
+                                      otr_image_size.height() -
                                       kToolbarOverlapVertOffset + 1,
-                                      otr_image_size.cx,
-                                      otr_image_size.cy);
+                                      otr_image_size.width(),
+                                      otr_image_size.height());
       }
 
       if (frame_view_->UILayoutIsRightToLeft())
@@ -233,22 +232,22 @@ void VistaFrame::Layout() {
         // Hide the distributor logo if we're zoomed.
         distributor_logo_->SetVisible(false);
       } else {
-        CSize distributor_logo_size;
-        distributor_logo_->GetPreferredSize(&distributor_logo_size);
+        gfx::Size distributor_logo_size =
+            distributor_logo_->GetPreferredSize();
 
         int logo_x;
         // Because of Bug 1128173, our Window controls aren't actually flipped 
         // on Vista, yet all our math and layout presumes that they are.
         if (frame_view_->UILayoutIsRightToLeft())
-          logo_x = width - distributor_logo_size.cx;
+          logo_x = width - distributor_logo_size.width();
         else
-          logo_x = width - min_offset - distributor_logo_size.cx;
+          logo_x = width - min_offset - distributor_logo_size.width();
 
         distributor_logo_->SetVisible(true);
         distributor_logo_->SetBounds(logo_x,
             kDistributorLogoVerticalOffset,
-            distributor_logo_size.cx,
-            distributor_logo_size.cy);
+            distributor_logo_size.width(),
+            distributor_logo_size.height());
       }
     }
 
@@ -309,25 +308,25 @@ void VistaFrame::Layout() {
     browser_h = height;
   }
 
-  CSize preferred_size;
+  gfx::Size preferred_size;
   if (shelf_view_) {
-    shelf_view_->GetPreferredSize(&preferred_size);
+    preferred_size = shelf_view_->GetPreferredSize();
     shelf_view_->SetBounds(browser_x,
                            height - g_bitmaps[CT_BOTTOM_CENTER]->height() -
-                           preferred_size.cy,
+                           preferred_size.height(),
                            browser_w,
-                           preferred_size.cy);
-    browser_h -= preferred_size.cy;
+                           preferred_size.height());
+    browser_h -= preferred_size.height();
   }
 
-  CSize bookmark_bar_size;
-  CSize info_bar_size;
+  gfx::Size bookmark_bar_size;
+  gfx::Size info_bar_size;
 
   if (bookmark_bar_view_.get())
-    bookmark_bar_view_->GetPreferredSize(&bookmark_bar_size);
+    bookmark_bar_size = bookmark_bar_view_->GetPreferredSize();
 
   if (info_bar_view_)
-    info_bar_view_->GetPreferredSize(&info_bar_size);
+    info_bar_size = info_bar_view_->GetPreferredSize();
 
   // If we're showing a bookmarks bar in the new tab page style and we
   // have an infobar showing, we need to flip them.
@@ -338,17 +337,17 @@ void VistaFrame::Layout() {
     info_bar_view_->SetBounds(browser_x,
                               browser_y,
                               browser_w,
-                              info_bar_size.cy);
-    browser_h -= info_bar_size.cy;
+                              info_bar_size.height());
+    browser_h -= info_bar_size.height();
 
-    browser_y += info_bar_size.cy - kSeparationLineHeight;
+    browser_y += info_bar_size.height() - kSeparationLineHeight;
 
     bookmark_bar_view_->SetBounds(browser_x,
                                   browser_y,
                                   browser_w,
-                                  bookmark_bar_size.cy);
-    browser_h -= bookmark_bar_size.cy - kSeparationLineHeight;
-    browser_y += bookmark_bar_size.cy;
+                                  bookmark_bar_size.height());
+    browser_h -= bookmark_bar_size.height() - kSeparationLineHeight;
+    browser_y += bookmark_bar_size.height();
   } else {
     if (bookmark_bar_view_.get()) {
       // We want our bookmarks bar to be responsible for drawing its own
@@ -358,18 +357,18 @@ void VistaFrame::Layout() {
       bookmark_bar_view_->SetBounds(browser_x,
                                     browser_y,
                                     browser_w,
-                                    bookmark_bar_size.cy);
-      browser_h -= bookmark_bar_size.cy - kSeparationLineHeight;
-      browser_y += bookmark_bar_size.cy;
+                                    bookmark_bar_size.height());
+      browser_h -= bookmark_bar_size.height() - kSeparationLineHeight;
+      browser_y += bookmark_bar_size.height();
     }
 
     if (info_bar_view_) {
       info_bar_view_->SetBounds(browser_x,
                                 browser_y,
                                 browser_w,
-                                info_bar_size.cy);
-      browser_h -= info_bar_size.cy;
-      browser_y += info_bar_size.cy;
+                                info_bar_size.height());
+      browser_h -= info_bar_size.height();
+      browser_y += info_bar_size.height();
     }
   }
 
@@ -657,10 +656,8 @@ bool VistaFrame::IsBookmarkBarVisible() const {
   if (bookmark_bar_view_->IsNewTabPage() || bookmark_bar_view_->IsAnimating())
     return true;
 
-  CSize sz;
-  bookmark_bar_view_->GetPreferredSize(&sz);
   // 1 is the minimum in GetPreferredSize for the bookmark bar.
-  return sz.cy > 1;
+  return bookmark_bar_view_->GetPreferredSize().height() > 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1446,9 +1443,7 @@ bool VistaFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   if (*view == new_view) {
     // The views haven't changed, if the views pref changed schedule a layout.
     if (new_view) {
-      CSize pref_size;
-      new_view->GetPreferredSize(&pref_size);
-      if (pref_size.cy != new_view->height())
+      if (new_view->GetPreferredSize().height() != new_view->height())
         return true;
     }
     return false;
@@ -1467,9 +1462,7 @@ bool VistaFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
 
   int new_height = 0;
   if (new_view) {
-    CSize preferred_size;
-    new_view->GetPreferredSize(&preferred_size);
-    new_height = preferred_size.cy;
+    new_height = new_view->GetPreferredSize().height();
     root_view_.AddChildView(new_view);
   }
 

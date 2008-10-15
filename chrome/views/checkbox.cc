@@ -71,14 +71,13 @@ void CheckBox::Layout() {
 }
 
 void CheckBox::ComputeTextRect(gfx::Rect* out) {
-  CSize s;
-  label_->GetPreferredSize(&s);
+  gfx::Size s = label_->GetPreferredSize();
   out->set_x(GetTextIndent());
   out->set_y(kFocusPaddingVertical);
   int new_width = std::min(width() - (kCheckBoxWidth + kCheckBoxToLabel),
-                           static_cast<int>(s.cx));
+                           s.width());
   out->set_width(std::max(0, new_width));
-  out->set_height(s.cy);
+  out->set_height(s.height());
 }
 
 void CheckBox::Paint(ChromeCanvas* canvas) {
@@ -119,11 +118,12 @@ void CheckBox::ConfigureNativeButton(HWND hwnd) {
   label_->SetText(GetLabel());
 }
 
-void CheckBox::GetPreferredSize(CSize *out) {
-  label_->GetPreferredSize(out);
-  out->cy = std::max(static_cast<int>(out->cy + kFocusPaddingVertical * 2),
-                     kCheckBoxHeight);
-  out->cx += GetTextIndent() * 2;
+gfx::Size CheckBox::GetPreferredSize() {
+  gfx::Size prefsize = label_->GetPreferredSize();
+  prefsize.set_height(std::max(prefsize.height() + kFocusPaddingVertical * 2,
+                               kCheckBoxHeight));
+  prefsize.Enlarge(GetTextIndent() * 2, 0);
+  return prefsize;
 }
 
 LRESULT CheckBox::OnCommand(UINT code, int id, HWND source) {

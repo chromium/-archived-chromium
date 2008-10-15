@@ -35,12 +35,12 @@ const SkBitmap& ImageView::GetImage() {
   return image_;
 }
 
-void ImageView::SetImageSize(const CSize& image_size) {
+void ImageView::SetImageSize(const gfx::Size& image_size) {
   image_size_set_ = true;
   image_size_ = image_size;
 }
 
-bool ImageView::GetImageSize(CSize* image_size) {
+bool ImageView::GetImageSize(gfx::Size* image_size) {
   DCHECK(image_size);
   if (image_size_set_)
     *image_size = image_size_;
@@ -51,14 +51,13 @@ void ImageView::ResetImageSize() {
   image_size_set_ = false;
 }
 
-void ImageView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
+gfx::Size ImageView::GetPreferredSize() {
   if (image_size_set_) {
-    GetImageSize(out);
-  } else {
-    out->cx = image_.width();
-    out->cy = image_.height();
+    gfx::Size image_size;
+    GetImageSize(&image_size);
+    return image_size;
   }
+  return gfx::Size(image_.width(), image_.height());
 }
 
 void ImageView::ComputeImageOrigin(int image_width, int image_height,
@@ -114,12 +113,13 @@ void ImageView::Paint(ChromeCanvas* canvas) {
 
   int x, y;
   if (image_size_set_ &&
-      (image_size_.cx != image_width || image_size_.cy != image_height)) {
+      (image_size_.width() != image_width ||
+       image_size_.width() != image_height)) {
     // Resize case
     image_.buildMipMap(false);
-    ComputeImageOrigin(image_size_.cx, image_size_.cy, &x, &y);
+    ComputeImageOrigin(image_size_.width(), image_size_.height(), &x, &y);
     canvas->DrawBitmapInt(image_, 0, 0, image_width, image_height,
-                          x, y, image_size_.cx, image_size_.cy,
+                          x, y, image_size_.width(), image_size_.height(),
                           true);
   } else {
     ComputeImageOrigin(image_width, image_height, &x, &y);

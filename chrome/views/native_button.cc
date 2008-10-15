@@ -33,7 +33,7 @@ void NativeButton::SetPadding(CSize size) {
   padding_ = size;
 }
 
-void NativeButton::GetPreferredSize(CSize *out) {
+gfx::Size NativeButton::GetPreferredSize() {
   HWND hwnd = GetNativeControlHWND();
   if (hwnd) {
     SIZE sz = {0, 0};
@@ -54,8 +54,9 @@ void NativeButton::GetPreferredSize(CSize *out) {
         sz.cy = std::max(static_cast<int>(sz.cy),
                          font_.vertical_dlus_to_pixels(min_dlu_size_.height()));
     }
-    *out = sz;
+    return gfx::Size(sz.cx, sz.cy);
   }
+  return gfx::Size();
 }
 
 void NativeButton::SetLabel(const std::wstring& l) {

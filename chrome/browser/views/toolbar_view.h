@@ -52,7 +52,7 @@ class BrowserToolbarView : public ChromeViews::View,
   virtual void WillLoseFocus();
   virtual bool OnKeyPressed(const ChromeViews::KeyEvent& e);
   virtual bool OnKeyReleased(const ChromeViews::KeyEvent& e);
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
   // Overridden from EncodingMenuControllerDelegate:
   virtual bool IsItemChecked(int id) const;

@@ -1106,9 +1106,7 @@ void AdvancedContentsView::Layout() {
     const int height = GetHeightForWidth(width);
     SetBounds(0, 0, width, height);
   } else {
-    CSize pref;
-    GetPreferredSize(&pref);
-    SetBounds(0, 0, pref.cx, pref.cy);
+    SetBounds(gfx::Point(), GetPreferredSize());
   }
   View::Layout();
 }

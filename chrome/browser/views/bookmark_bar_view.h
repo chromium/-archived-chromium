@@ -86,7 +86,7 @@ class BookmarkBarView : public ChromeViews::View,
   void SetPageNavigator(PageNavigator* navigator);
 
   // View methods:
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void Layout();
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);

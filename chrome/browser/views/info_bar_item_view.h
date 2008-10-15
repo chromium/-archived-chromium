@@ -43,7 +43,7 @@ class InfoBarItemView : public ChromeViews::View,
 
   // The preferred height is equal to the maximum height of all views
   // in the info bar. Preferred width is equal to the parents width.
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
   // Lays out all child views of the info bar from trailing to leading.
   virtual void Layout();

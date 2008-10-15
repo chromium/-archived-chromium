@@ -35,7 +35,7 @@ class DownloadItemTabView : public ChromeViews::View,
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
   void PaintBackground(ChromeCanvas* canvas);
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
   virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);

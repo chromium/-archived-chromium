@@ -336,56 +336,56 @@ void FindInPageView::Paint(ChromeCanvas* canvas) {
 }
 
 void FindInPageView::Layout() {
-  CSize panel_size, sz;
-  GetPreferredSize(&panel_size);
+  gfx::Size panel_size = GetPreferredSize();
 
   // First we draw the close button on the far right.
-  close_button_->GetPreferredSize(&sz);
-  close_button_->SetBounds(panel_size.cx - sz.cx - kMarginRightOfCloseButton,
-                           (height() - sz.cy) / 2,
-                           sz.cx,
-                           sz.cy);
+  gfx::Size sz = close_button_->GetPreferredSize();
+  close_button_->SetBounds(panel_size.width() - sz.width() -
+                               kMarginRightOfCloseButton,
+                           (height() - sz.height()) / 2,
+                           sz.width(),
+                           sz.height());
   close_button_->SetListener(this, CLOSE_TAG);
 
   // Next, the FindNext button to the left the close button.
-  find_next_button_->GetPreferredSize(&sz);
+  sz = find_next_button_->GetPreferredSize();
   find_next_button_->SetBounds(close_button_->x() -
                                    find_next_button_->width() -
                                    kMarginLeftOfCloseButton,
-                               (height() - sz.cy) / 2,
-                                sz.cx,
-                                sz.cy);
+                               (height() - sz.height()) / 2,
+                                sz.width(),
+                                sz.height());
   find_next_button_->SetListener(this, FIND_NEXT_TAG);
 
   // Then, the FindPrevious button to the left the FindNext button.
-  find_previous_button_->GetPreferredSize(&sz);
+  sz = find_previous_button_->GetPreferredSize();
   find_previous_button_->SetBounds(find_next_button_->x() -
                                        find_previous_button_->width(),
-                                   (height() - sz.cy) / 2,
-                                   sz.cx,
-                                   sz.cy);
+                                   (height() - sz.height()) / 2,
+                                   sz.width(),
+                                   sz.height());
   find_previous_button_->SetListener(this, FIND_PREVIOUS_TAG);
 
   // Then the label showing the match count number.
-  match_count_text_->GetPreferredSize(&sz);
+  sz = match_count_text_->GetPreferredSize();
   // We extend the label bounds a bit to give the background highlighting a bit
   // of breathing room (margins around the text).
-  sz.cx += kMatchCountExtraWidth;
-  sz.cx = std::max(kMatchCountMinWidth, static_cast<int>(sz.cx));
+  sz.Enlarge(kMatchCountExtraWidth, 0);
+  sz.set_width(std::max(kMatchCountMinWidth, static_cast<int>(sz.width())));
   match_count_text_->SetBounds(find_previous_button_->x() -
                                    kWhiteSpaceAfterMatchCountLabel -
-                                   sz.cx,
-                               (height() - sz.cy) / 2 + 1,
-                               sz.cx,
-                               sz.cy);
+                                   sz.width(),
+                               (height() - sz.height()) / 2 + 1,
+                               sz.width(),
+                               sz.height());
 
   // And whatever space is left in between, gets filled up by the find edit box.
-  find_text_->GetPreferredSize(&sz);
-  sz.cx = match_count_text_->x() - kMarginLeftOfFindTextField;
-  find_text_->SetBounds(match_count_text_->x() - sz.cx,
-                        (height() - sz.cy) / 2 + 1,
-                        sz.cx,
-                        sz.cy);
+  sz = find_text_->GetPreferredSize();
+  sz.set_width(match_count_text_->x() - kMarginLeftOfFindTextField);
+  find_text_->SetBounds(match_count_text_->x() - sz.width(),
+                        (height() - sz.height()) / 2 + 1,
+                        sz.width(),
+                        sz.height());
   find_text_->SetController(this);
   find_text_->RequestFocus();
 
@@ -414,22 +414,18 @@ void FindInPageView::ViewHierarchyChanged(bool is_add,
   }
 }
 
-void FindInPageView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-
-  find_text_->GetPreferredSize(out);
-  out->cy = kDlgBackground_middle->height();
+gfx::Size FindInPageView::GetPreferredSize() {
+  gfx::Size prefsize = find_text_->GetPreferredSize();
+  prefsize.set_height(kDlgBackground_middle->height());
 
   // Add up all the preferred sizes and margins of the rest of the controls.
-  out->cx += kMarginLeftOfCloseButton + kMarginRightOfCloseButton +
-             kMarginLeftOfFindTextField;
-  CSize sz;
-  find_previous_button_->GetPreferredSize(&sz);
-  out->cx += sz.cx;
-  find_next_button_->GetPreferredSize(&sz);
-  out->cx += sz.cx;
-  close_button_->GetPreferredSize(&sz);
-  out->cx += sz.cx;
+  prefsize.Enlarge(kMarginLeftOfCloseButton + kMarginRightOfCloseButton +
+                       kMarginLeftOfFindTextField,
+                   0);
+  prefsize.Enlarge(find_previous_button_->GetPreferredSize().width(), 0);
+  prefsize.Enlarge(find_next_button_->GetPreferredSize().width(), 0);
+  prefsize.Enlarge(close_button_->GetPreferredSize().width(), 0);
+  return prefsize;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -65,12 +65,14 @@ MenuButton::~MenuButton() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void MenuButton::GetPreferredSize(CSize* result) {
-  TextButton::GetPreferredSize(result);
+gfx::Size MenuButton::GetPreferredSize() {
+  gfx::Size prefsize = TextButton::GetPreferredSize();
   if (show_menu_marker_) {
-    result->cx += kMenuMarker->width() + kMenuMarkerPaddingLeft +
-        kMenuMarkerPaddingRight;
+    prefsize.Enlarge(kMenuMarker->width() + kMenuMarkerPaddingLeft +
+                         kMenuMarkerPaddingRight,
+                     0);
   }
+  return prefsize;
 }
 
 void MenuButton::Paint(ChromeCanvas* canvas, bool for_drag) {

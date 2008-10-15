@@ -79,15 +79,16 @@ void TitleBarMenuButton::SetContents(ChromeViews::View* contents) {
   contents_ = contents;
 }
 
-void TitleBarMenuButton::GetPreferredSize(CSize *out) {
+gfx::Size TitleBarMenuButton::GetPreferredSize() {
+  gfx::Size prefsize;
   if (contents_)
-    contents_->GetPreferredSize(out);
-  else
-    out->cx = out->cy = 0;
+    prefsize = contents_->GetPreferredSize();
 
-  out->cx += drop_arrow_->width() + kHorizMargin + (2 * kHorizBorderSize);
-  out->cy = std::max(drop_arrow_->height(), static_cast<int>(out->cy));
-  out->cy += (2 * kVertBorderSize);
+  prefsize.set_height(std::max(drop_arrow_->height(), prefsize.height()));
+  prefsize.Enlarge(
+      drop_arrow_->width() + kHorizMargin + (2 * kHorizBorderSize),
+      2 * kVertBorderSize);
+  return prefsize;
 }
 
 void TitleBarMenuButton::Paint(ChromeCanvas* canvas) {
@@ -97,17 +98,16 @@ void TitleBarMenuButton::Paint(ChromeCanvas* canvas) {
   }
 
   if (contents_) {
-    CSize s;
-    contents_->GetPreferredSize(&s);
+    gfx::Size s = contents_->GetPreferredSize();
     // Note: we use a floating view in this case because we never want the
     // contents to process any event.
     PaintFloatingView(canvas,
                       contents_,
                       kVertBorderSize,
-                      (height() - s.cy) / 2,
+                      (height() - s.height()) / 2,
                       width() - kHorizMargin - drop_arrow_->width() -
                       (2 * kHorizBorderSize),
-                      s.cy);
+                      s.height());
   }
 
   // We can not use the mirroring infrastructure in ChromeViews in order to
@@ -205,10 +205,9 @@ void SimpleXPFrameTitleBar::RunMenu(ChromeViews::View* source,
 }
 
 void SimpleXPFrameTitleBar::Layout() {
-  CSize s;
-  menu_button_->GetPreferredSize(&s);
-  menu_button_->SetBounds(kFavIconMargin, (height() - s.cy) / 2,
-                          s.cx, s.cy);
+  gfx::Size s = menu_button_->GetPreferredSize();
+  menu_button_->SetBounds(kFavIconMargin, (height() - s.height()) / 2,
+                          s.width(), s.height());
   menu_button_->Layout();
   label_->SetBounds(menu_button_->x() + menu_button_->width() +
                     kFavIconPadding, kLabelVerticalOffset,
@@ -322,12 +321,11 @@ void SimpleXPFrame::Layout() {
 
   if (browser_->ShouldDisplayURLField()) {
     TabContentsContainerView* container = GetTabContentsContainer();
-    CSize s;
-    location_bar_->GetPreferredSize(&s);
+    gfx::Size s = location_bar_->GetPreferredSize();
     location_bar_->SetBounds(container->x() - kLocationBarOffset,
                           container->y(),
                           container->width() + kLocationBarOffset * 2,
-                          s.cy);
+                          s.height());
     container->SetBounds(container->x(),
                          location_bar_->y() + location_bar_->height() +
                          kLocationBarSpacing, container->width(),

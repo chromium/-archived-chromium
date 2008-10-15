@@ -42,7 +42,7 @@ class Decision : public View {
 
   // Overridden from View for custom layout.
   virtual void Layout();
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
  protected:
   // Override to call Layout().

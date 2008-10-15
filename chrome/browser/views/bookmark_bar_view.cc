@@ -628,10 +628,10 @@ class ButtonSeparatorView : public ChromeViews::View {
     canvas->drawRect(rc_down, paint_down);
   }
 
-  virtual void GetPreferredSize(CSize* out) {
+  virtual gfx::Size GetPreferredSize() {
     // We get the full height of the bookmark bar, so that the height returned
     // here doesn't matter.
-    out->SetSize(kSeparatorWidth, 1);
+    return gfx::Size(kSeparatorWidth, 1);
   }
 
  private:
@@ -739,25 +739,29 @@ void BookmarkBarView::SetPageNavigator(PageNavigator* navigator) {
   page_navigator_ = navigator;
 }
 
-void BookmarkBarView::GetPreferredSize(CSize *out) {
+gfx::Size BookmarkBarView::GetPreferredSize() {
   if (!prefButtonHeight) {
     ChromeViews::TextButton text_button(L"X");
-    CSize text_button_pref;
-    text_button.GetMinimumSize(&text_button_pref);
-    prefButtonHeight = static_cast<int>(text_button_pref.cy);
+    gfx::Size text_button_pref = text_button.GetMinimumSize();
+    prefButtonHeight = static_cast<int>(text_button_pref.height());
   }
 
+  gfx::Size prefsize;
   if (IsNewTabPage()) {
-    out->cy = kBarHeight + static_cast<int>(static_cast<double>
-              (kNewtabBarHeight - kBarHeight) *
-              (1 - size_animation_->GetCurrentValue()));
+    prefsize.set_height(kBarHeight + static_cast<int>(static_cast<double>
+                        (kNewtabBarHeight - kBarHeight) *
+                        (1 - size_animation_->GetCurrentValue())));
   } else {
-    out->cy = std::max(static_cast<int>(static_cast<double>(kBarHeight) *
-              size_animation_->GetCurrentValue()), 1);
+    prefsize.set_height(
+        std::max(static_cast<int>(static_cast<double>(kBarHeight) *
+                 size_animation_->GetCurrentValue()), 1));
   }
 
-  // Width doesn't matter, we're always given a width based on the browser size.
-  out->cx = 1;
+  // Width doesn't matter, we're always given a width based on the browser
+  // size.
+  prefsize.set_width(1);
+
+  return prefsize;
 }
 
 void BookmarkBarView::Layout() {
@@ -786,33 +790,32 @@ void BookmarkBarView::Layout() {
         (kSeparatorMargin) * current_state);
   }
 
-  CSize other_bookmarked_pref;
-  other_bookmarked_button_->GetPreferredSize(&other_bookmarked_pref);
-  CSize overflow_pref;
-  overflow_button_->GetPreferredSize(&overflow_pref);
-  CSize bookmarks_separator_pref;
-  bookmarks_separator_view_->GetPreferredSize(&bookmarks_separator_pref);
-  const int max_x = width - other_bookmarked_pref.cx - kButtonPadding -
-              overflow_pref.cx - kButtonPadding -
-              bookmarks_separator_pref.cx;
+  gfx::Size other_bookmarked_pref =
+      other_bookmarked_button_->GetPreferredSize();
+  gfx::Size overflow_pref = overflow_button_->GetPreferredSize();
+  gfx::Size bookmarks_separator_pref =
+      bookmarks_separator_view_->GetPreferredSize();
+  const int max_x = width - other_bookmarked_pref.width() - kButtonPadding -
+              overflow_pref.width() - kButtonPadding -
+              bookmarks_separator_pref.width();
 
   if (GetBookmarkButtonCount() == 0 && model_ && model_->IsLoaded()) {
-    CSize pref;
-    instructions_->GetPreferredSize(&pref);
-    instructions_->SetBounds(x + kInstructionsPadding, y,
-                             std::min(static_cast<int>(pref.cx), max_x - x),
-                             height);
+    gfx::Size pref = instructions_->GetPreferredSize();
+    instructions_->SetBounds(
+        x + kInstructionsPadding, y,
+        std::min(static_cast<int>(pref.width()),
+        max_x - x),
+        height);
     instructions_->SetVisible(true);
   } else {
     instructions_->SetVisible(false);
 
     for (int i = 0; i < GetBookmarkButtonCount(); ++i) {
       ChromeViews::View* child = GetChildViewAt(i);
-      CSize pref;
-      child->GetPreferredSize(&pref);
-      int next_x = x + pref.cx + kButtonPadding;
+      gfx::Size pref = child->GetPreferredSize();
+      int next_x = x + pref.width() + kButtonPadding;
       child->SetVisible(next_x < max_x);
-      child->SetBounds(x, y, pref.cx, height);
+      child->SetBounds(x, y, pref.width(), height);
       x = next_x;
     }
   }
@@ -826,21 +829,22 @@ void BookmarkBarView::Layout() {
   x = max_x + kButtonPadding;
 
   // The overflow button.
-  overflow_button_->SetBounds(x, y, overflow_pref.cx, height);
+  overflow_button_->SetBounds(x, y, overflow_pref.width(), height);
   overflow_button_->SetVisible(!all_visible);
 
-  x += overflow_pref.cx;
+  x += overflow_pref.height();
 
   // Separator.
   bookmarks_separator_view_->SetBounds(x,
                                        y - kTopMargin,
-                                       bookmarks_separator_pref.cx,
+                                       bookmarks_separator_pref.width(),
                                        height + kTopMargin + kBottomMargin -
                                        separator_margin);
-  x += bookmarks_separator_pref.cx;
+  x += bookmarks_separator_pref.width();
 
-  other_bookmarked_button_->SetBounds(x, y, other_bookmarked_pref.cx, height);
-  x += other_bookmarked_pref.cx + kButtonPadding;
+  other_bookmarked_button_->SetBounds(x, y, other_bookmarked_pref.width(),
+                                      height);
+  x += other_bookmarked_pref.width() + kButtonPadding;
 }
 
 void BookmarkBarView::DidChangeBounds(const CRect& previous,
@@ -1298,12 +1302,10 @@ void BookmarkBarView::BookmarkNodeChangedImpl(BookmarkModel* model,
   int index = model_->GetBookmarkBarNode()->IndexOfChild(node);
   DCHECK(index != -1);
   ChromeViews::TextButton* button = GetBookmarkButton(index);
-  CSize old_pref;
-  button->GetPreferredSize(&old_pref);
+  gfx::Size old_pref = button->GetPreferredSize();
   ConfigureButton(node, button);
-  CSize new_pref;
-  button->GetPreferredSize(&new_pref);
-  if (old_pref.cx != new_pref.cx) {
+  gfx::Size new_pref = button->GetPreferredSize();
+  if (old_pref.width() != new_pref.width()) {
     Layout();
     SchedulePaint();
   } else if (button->IsVisible()) {

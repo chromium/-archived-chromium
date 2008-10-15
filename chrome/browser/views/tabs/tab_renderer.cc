@@ -330,7 +330,7 @@ void TabRenderer::StopPulse() {
 }
 
 // static
-gfx::Size TabRenderer::GetMinimumSize() {
+gfx::Size TabRenderer::GetMinimumUnselectedSize() {
   InitResources();
 
   gfx::Size minimum_size;
@@ -343,14 +343,14 @@ gfx::Size TabRenderer::GetMinimumSize() {
 
 // static
 gfx::Size TabRenderer::GetMinimumSelectedSize() {
-  gfx::Size minimum_size = GetMinimumSize();
+  gfx::Size minimum_size = GetMinimumUnselectedSize();
   minimum_size.set_width(kLeftPadding + kFaviconSize + kRightPadding);
   return minimum_size;
 }
 
 // static
 gfx::Size TabRenderer::GetStandardSize() {
-  gfx::Size standard_size = GetMinimumSize();
+  gfx::Size standard_size = GetMinimumUnselectedSize();
   standard_size.set_width(
       standard_size.width() + kFavIconTitleSpacing + kStandardTitleWidth);
   return standard_size;
@@ -369,7 +369,7 @@ std::wstring TabRenderer::GetTitle() const {
 void TabRenderer::Paint(ChromeCanvas* canvas) {
   // Don't paint if we're narrower than we can render correctly. (This should
   // only happen during animations).
-  if (width() < GetMinimumSize().width())
+  if (width() < GetMinimumUnselectedSize().width())
     return;
 
   // See if the model changes whether the icons should be painted.
@@ -492,7 +492,7 @@ void TabRenderer::Layout() {
   // If the user has big fonts, the title will appear rendered too far down on
   // the y-axis if we use the regular top padding, so we need to adjust it so
   // that the text appears centered.
-  gfx::Size minimum_size = GetMinimumSize();
+  gfx::Size minimum_size = GetMinimumUnselectedSize();
   int text_height = title_top + title_font_height + kBottomPadding;
   if (text_height > minimum_size.height())
     title_top -= (text_height - minimum_size.height()) / 2;
@@ -635,9 +635,8 @@ void TabRenderer::PaintLoadingAnimation(ChromeCanvas* canvas) {
 }
 
 int TabRenderer::IconCapacity() const {
-  if (height() < GetMinimumSize().height()) {
+  if (height() < GetMinimumUnselectedSize().height())
     return 0;
-  }
   return (width() - kLeftPadding - kRightPadding) / kFaviconSize;
 }
 

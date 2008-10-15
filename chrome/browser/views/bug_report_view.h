@@ -49,7 +49,7 @@ class BugReportView : public ChromeViews::View,
   };
 
   // Overridden from ChromeViews::View:
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
   // ChromeViews::TextField::Controller implementation:
   virtual void ContentsChanged(ChromeViews::TextField* sender,

@@ -39,7 +39,7 @@ class AboutChromeView : public ChromeViews::View,
   void Init();
 
   // Overridden from ChromeViews::View:
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
   virtual void ViewHierarchyChanged(bool is_add,
@@ -95,7 +95,7 @@ class AboutChromeView : public ChromeViews::View,
                               const std::wstring& text,
                               ChromeViews::Link* link,
                               gfx::Rect* rect,
-                              CSize* position,
+                              gfx::Size* position,
                               const gfx::Rect& bounds,
                               const ChromeFont& font);
 
@@ -104,7 +104,7 @@ class AboutChromeView : public ChromeViews::View,
   // details on the parameters, see DrawTextAndPositionUrl.
   void DrawTextStartingFrom(ChromeCanvas* canvas,
                             const std::wstring& text,
-                            CSize* position,
+                            gfx::Size* position,
                             const gfx::Rect& bounds,
                             const ChromeFont& font);
 
@@ -113,7 +113,7 @@ class AboutChromeView : public ChromeViews::View,
   // not, |position| is updated to wrap to the beginning of the next line.
   void WrapIfWordDoesntFit(int word_width,
                            int font_height,
-                           CSize* position,
+                           gfx::Size* position,
                            const gfx::Rect& bounds);
 
   Profile* profile_;

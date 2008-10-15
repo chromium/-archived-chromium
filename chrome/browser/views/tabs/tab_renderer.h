@@ -54,7 +54,7 @@ class TabRenderer : public ChromeViews::View,
   void StopPulse();
 
   // Returns the minimum possible size of a single unselected Tab.
-  static gfx::Size GetMinimumSize();
+  static gfx::Size GetMinimumUnselectedSize();
   // Returns the minimum possible size of a selected Tab. Selected tabs must
   // always show a close button and have a larger minimum size than unselected
   // tabs.

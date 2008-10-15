@@ -225,11 +225,10 @@ void BugReportView::SetupControl() {
   layout->AddPaddingRow(0, kUnrelatedControlVerticalSpacing);
 }
 
-void BugReportView::GetPreferredSize(CSize *out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size BugReportView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_BUGREPORT_DIALOG_WIDTH_CHARS,
-      IDS_BUGREPORT_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_BUGREPORT_DIALOG_HEIGHT_LINES));
 }
 
 void BugReportView::ItemChanged(ChromeViews::ComboBox* combo_box,

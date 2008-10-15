@@ -204,14 +204,13 @@ void LocationBarView::SetProfile(Profile* profile) {
   }
 }
 
-void LocationBarView::GetPreferredSize(CSize *out) {
-  CSize size;
-  security_image_view_.GetPreferredSize(&size);
-  out->cx = 0;
-
-  out->cy = std::max(
-      (popup_window_mode_ ? kPopupBackgroundCenter : kBackground)->height(),
-      static_cast<int>(size.cy));
+gfx::Size LocationBarView::GetPreferredSize() {
+  return gfx::Size(
+      0, 
+      std::max(
+          (popup_window_mode_ ? kPopupBackgroundCenter
+                              : kBackground)->height(),
+          security_image_view_.GetPreferredSize().width()));
 }
 
 void LocationBarView::DidChangeBounds(const CRect& previous,
@@ -375,15 +374,15 @@ void LocationBarView::DoLayout(const bool force_layout) {
   location_entry_->GetClientRect(&edit_bounds);
 
   int entry_width = width() - kEntryPadding - kEntryPadding;
-  CSize security_image_size;
+  gfx::Size security_image_size;
   if (security_image_view_.IsVisible()) {
-    security_image_view_.GetPreferredSize(&security_image_size);
-    entry_width -= security_image_size.cx;
+    security_image_size = security_image_view_.GetPreferredSize();
+    entry_width -= security_image_size.width();
   }
-  CSize info_label_size;
+  gfx::Size info_label_size;
   if (info_label_.IsVisible()) {
-    info_label_.GetPreferredSize(&info_label_size);
-    entry_width -= (info_label_size.cx + kInnerPadding);
+    info_label_size = info_label_.GetPreferredSize();
+    entry_width -= (info_label_size.width() + kInnerPadding);
   }
 
   const int max_edit_width = entry_width - formatting_rect.left -
@@ -404,18 +403,18 @@ void LocationBarView::DoLayout(const bool force_layout) {
   int location_y = ((height() - bh) / 2) + kTextVertMargin;
   int location_height = bh - (2 * kTextVertMargin);
   if (info_label_.IsVisible()) {
-    info_label_.SetBounds(width() - kEntryPadding - info_label_size.cx,
+    info_label_.SetBounds(width() - kEntryPadding - info_label_size.width(),
                           location_y,
-                          info_label_size.cx, location_height);
+                          info_label_size.width(), location_height);
   }
   if (security_image_view_.IsVisible()) {
-    const int info_label_width = info_label_size.cx ?
-        info_label_size.cx + kInnerPadding : 0;
+    const int info_label_width = info_label_size.width() ?
+        info_label_size.width() + kInnerPadding : 0;
     security_image_view_.SetBounds(width() - kEntryPadding -
                                       info_label_width  -
-                                      security_image_size.cx,
+                                      security_image_size.width(),
                                    location_y,
-                                   security_image_size.cx, location_height);
+                                   security_image_size.width(), location_height);
   }
   gfx::Rect location_bounds(kEntryPadding, location_y, entry_width,
                             location_height);
@@ -455,11 +454,10 @@ bool LocationBarView::UsePref(int pref_width, int text_width, int max_width) {
 }
 
 bool LocationBarView::NeedsResize(View* view, int text_width, int max_width) {
-  CSize size;
-  view->GetPreferredSize(&size);
-  if (!UsePref(size.cx, text_width, max_width))
-    view->GetMinimumSize(&size);
-  return (view->width() != size.cx);
+  gfx::Size size = view->GetPreferredSize();
+  if (!UsePref(size.width(), text_width, max_width))
+    size = view->GetMinimumSize();
+  return (view->width() != size.width());
 }
 
 bool LocationBarView::AdjustHints(int text_width, int max_width) {
@@ -472,9 +470,8 @@ bool LocationBarView::AdjustHints(int text_width, int max_width) {
 
   if (show_search_hint) {
     // Only show type to search if all the text fits.
-    CSize view_pref;
-    type_to_search_view_.GetPreferredSize(&view_pref);
-    show_search_hint = UsePref(view_pref.cx, text_width, max_width);
+    gfx::Size view_pref = type_to_search_view_.GetPreferredSize();
+    show_search_hint = UsePref(view_pref.width(), text_width, max_width);
   }
 
   // NOTE: This isn't just one big || statement as ToggleVisibility MUST be
@@ -505,20 +502,20 @@ void LocationBarView::LayoutView(bool leading, ChromeViews::View* view,
                                  int text_width, int max_width,
                                  gfx::Rect* bounds) {
   DCHECK(view && bounds);
-  CSize view_size(0, 0);
-  view->GetPreferredSize(&view_size);
-  if (!UsePref(view_size.cx, text_width, max_width))
-    view->GetMinimumSize(&view_size);
-  if (view_size.cx + kInnerPadding < bounds->width()) {
+  gfx::Size view_size = view->GetPreferredSize();
+  if (!UsePref(view_size.width(), text_width, max_width))
+    view_size = view->GetMinimumSize();
+  if (view_size.width() + kInnerPadding < bounds->width()) {
     view->SetVisible(true);
     if (leading) {
-      view->SetBounds(bounds->x(), bounds->y(), view_size.cx, bounds->height());
-      bounds->Offset(view_size.cx + kInnerPadding, 0);
+      view->SetBounds(bounds->x(), bounds->y(), view_size.width(),
+                      bounds->height());
+      bounds->Offset(view_size.width() + kInnerPadding, 0);
     } else {
-      view->SetBounds(bounds->right() - view_size.cx, bounds->y(),
-                      view_size.cx, bounds->height());
+      view->SetBounds(bounds->right() - view_size.width(), bounds->y(),
+                      view_size.width(), bounds->height());
     }
-    bounds->set_width(bounds->width() - view_size.cx - kInnerPadding);
+    bounds->set_width(bounds->width() - view_size.width() - kInnerPadding);
   } else {
     view->SetVisible(false);
   }
@@ -641,12 +638,12 @@ void LocationBarView::SelectedKeywordView::Paint(ChromeCanvas* canvas) {
   canvas->TranslateInt(0, -kBackgroundYOffset);
 }
 
-void LocationBarView::SelectedKeywordView::GetPreferredSize(CSize* size) {
-  full_label_.GetPreferredSize(size);
+gfx::Size LocationBarView::SelectedKeywordView::GetPreferredSize() {
+  return full_label_.GetPreferredSize();
 }
 
-void LocationBarView::SelectedKeywordView::GetMinimumSize(CSize* size) {
-  partial_label_.GetMinimumSize(size);
+gfx::Size LocationBarView::SelectedKeywordView::GetMinimumSize() {
+  return partial_label_.GetMinimumSize();
 }
 
 void LocationBarView::SelectedKeywordView::DidChangeBounds(
@@ -656,9 +653,8 @@ void LocationBarView::SelectedKeywordView::DidChangeBounds(
 }
 
 void LocationBarView::SelectedKeywordView::Layout() {
-  CSize pref;
-  GetPreferredSize(&pref);
-  bool at_pref = (width() == pref.cx);
+  gfx::Size pref = GetPreferredSize();
+  bool at_pref = (width() == pref.width());
   if (at_pref)
     full_label_.SetBounds(0, 0, width(), height());
   else
@@ -772,21 +768,21 @@ void LocationBarView::KeywordHintView::Paint(ChromeCanvas* canvas) {
                         tab_button_bounds.y());
 }
 
-void LocationBarView::KeywordHintView::GetPreferredSize(CSize *out) {
+gfx::Size LocationBarView::KeywordHintView::GetPreferredSize() {
   // TODO(sky): currently height doesn't matter, once baseline support is
   // added this should check baselines.
-  leading_label_.GetPreferredSize(out);
-  int width = out->cx;
+  gfx::Size prefsize = leading_label_.GetPreferredSize();
+  int width = prefsize.width();
   width += kTabButtonBitmap->width();
-  trailing_label_.GetPreferredSize(out);
-  width += out->cx;
-  out->cx = width;
+  prefsize = trailing_label_.GetPreferredSize();
+  width += prefsize.width();
+  return gfx::Size(width, prefsize.height());
 }
 
-void LocationBarView::KeywordHintView::GetMinimumSize(CSize* out) {
+gfx::Size LocationBarView::KeywordHintView::GetMinimumSize() {
   // TODO(sky): currently height doesn't matter, once baseline support is
   // added this should check baselines.
-  out->cx = kTabButtonBitmap->width();
+  return gfx::Size(kTabButtonBitmap->width(), 0);
 }
 
 void LocationBarView::KeywordHintView::Layout() {
@@ -796,15 +792,15 @@ void LocationBarView::KeywordHintView::Layout() {
   leading_label_.SetVisible(show_labels);
   trailing_label_.SetVisible(show_labels);
   int x = 0;
-  CSize pref;
+  gfx::Size pref;
 
   if (show_labels) {
-    leading_label_.GetPreferredSize(&pref);
-    leading_label_.SetBounds(x, 0, pref.cx, height());
+    pref = leading_label_.GetPreferredSize();
+    leading_label_.SetBounds(x, 0, pref.width(), height());
 
-    x += pref.cx + kTabButtonBitmap->width();
-    trailing_label_.GetPreferredSize(&pref);
-    trailing_label_.SetBounds(x, 0, pref.cx, height());
+    x += pref.width() + kTabButtonBitmap->width();
+    pref = trailing_label_.GetPreferredSize();
+    trailing_label_.SetBounds(x, 0, pref.width(), height());
   }
 }
 

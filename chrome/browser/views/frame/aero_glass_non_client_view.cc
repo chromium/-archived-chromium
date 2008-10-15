@@ -242,11 +242,12 @@ void AeroGlassNonClientView::Layout() {
   LayoutClientView();
 }
 
-void AeroGlassNonClientView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  frame_->client_view()->GetPreferredSize(out);
-  out->cx += 2 * kWindowHorizontalClientEdgeWidth;
-  out->cy += CalculateNonClientTopHeight() + kWindowBottomClientEdgeHeight;
+gfx::Size AeroGlassNonClientView::GetPreferredSize() {
+  gfx::Size prefsize = frame_->client_view()->GetPreferredSize();
+  prefsize.Enlarge(2 * kWindowHorizontalClientEdgeWidth, 
+                   CalculateNonClientTopHeight() +
+                       kWindowBottomClientEdgeHeight);
+  return prefsize;
 }
 
 void AeroGlassNonClientView::DidChangeBounds(const CRect& previous,

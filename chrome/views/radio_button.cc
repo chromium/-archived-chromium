@@ -60,11 +60,13 @@ std::string RadioButton::GetClassName() const {
   return kViewClassName;
 }
 
-void RadioButton::GetPreferredSize(CSize *out) {
-  label_->GetPreferredSize(out);
-  out->cy = std::max(static_cast<int>(out->cy + kFocusPaddingVertical * 2),
-                     kRadioHeight) ;
-  out->cx += kRadioToLabel + kRadioWidth + kFocusPaddingHorizontal * 2;
+gfx::Size RadioButton::GetPreferredSize() {
+  gfx::Size prefsize = label_->GetPreferredSize();
+  prefsize.set_height(std::max(prefsize.height() + kFocusPaddingVertical * 2,
+                               kRadioHeight));
+  prefsize.Enlarge(kRadioToLabel + kRadioWidth + kFocusPaddingHorizontal * 2,
+                   0);
+  return prefsize;
 }
 
 void RadioButton::Layout() {

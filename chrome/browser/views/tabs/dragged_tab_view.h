@@ -61,7 +61,7 @@ class DraggedTabView : public ChromeViews::View,
   // Overridden from ChromeViews::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
   // Paint the view, when it's attached to a TabStrip.
   void PaintAttachedTab(ChromeCanvas* canvas);

@@ -110,18 +110,16 @@ void BookmarkEditorView::Layout() {
   // buttons...
   CRect parent_bounds;
   GetParent()->GetLocalBounds(&parent_bounds, false);
-  CSize prefsize;
-  new_group_button_.GetPreferredSize(&prefsize);
-  int button_y = parent_bounds.bottom - prefsize.cy - kButtonVEdgeMargin;
-  new_group_button_.SetBounds(kPanelHorizMargin, button_y, prefsize.cx,
-                              prefsize.cy);
+  gfx::Size prefsize = new_group_button_.GetPreferredSize();
+  int button_y = parent_bounds.bottom - prefsize.height() - kButtonVEdgeMargin;
+  new_group_button_.SetBounds(kPanelHorizMargin, button_y, prefsize.width(),
+                              prefsize.height());
 }
 
-void BookmarkEditorView::GetPreferredSize(CSize *out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size BookmarkEditorView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_EDITBOOKMARK_DIALOG_WIDTH_CHARS,
-      IDS_EDITBOOKMARK_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_EDITBOOKMARK_DIALOG_HEIGHT_LINES));
 }
 
 void BookmarkEditorView::DidChangeBounds(const CRect& previous,

@@ -74,7 +74,7 @@ class ShelfItemDialog : public ChromeViews::View,
 
   // Overridden from View.
   virtual void DidChangeBounds(const CRect& previous, const CRect& current);
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
 
   // TableViewObserver.

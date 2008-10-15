@@ -250,15 +250,10 @@ void NativeScrollBar::DidChangeBounds(const CRect& previous,
   Layout();
 }
 
-void NativeScrollBar::GetPreferredSize(CSize *out) {
-  DCHECK(out);
-  if (IsHorizontal()) {
-    out->cx = 0;
-    out->cy = GetLayoutSize();
-  } else {
-    out->cx = GetLayoutSize();
-    out->cy = 0;
-  }
+gfx::Size NativeScrollBar::GetPreferredSize() {
+  if (IsHorizontal())
+    return gfx::Size(0, GetLayoutSize());
+  return gfx::Size(GetLayoutSize(), 0);
 }
 
 void NativeScrollBar::Update(int viewport_size, int content_size, int current_pos) {

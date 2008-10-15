@@ -196,10 +196,8 @@ bool BrowserView::IsBookmarkBarVisible() const {
   if (bookmark_bar_view->IsNewTabPage() || bookmark_bar_view->IsAnimating())
     return true;
 
-  CSize sz;
-  bookmark_bar_view->GetPreferredSize(&sz);
   // 1 is the minimum in GetPreferredSize for the bookmark bar.
-  return sz.cy > 1;
+  return bookmark_bar_view->GetPreferredSize().height() > 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -31,10 +31,8 @@ LRESULT Separator::OnNotify(int w_param, LPNMHDR l_param) {
   return 0;
 }
 
-void Separator::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  out->cx = width();
-  out->cy = fixed_height_;
+gfx::Size Separator::GetPreferredSize() {
+  return gfx::Size(width(), fixed_height_);
 }
 
 }

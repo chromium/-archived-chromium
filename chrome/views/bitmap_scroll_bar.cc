@@ -14,6 +14,9 @@
 
 #include "generated_resources.h"
 
+#undef min
+#undef max
+
 namespace ChromeViews {
 
 namespace {
@@ -85,11 +88,10 @@ class BitmapScrollBarThumb : public View {
   void SetSize(int size) {
     // Make sure the thumb is never sized smaller than its minimum possible
     // display size.
-    CSize prefsize;
-    GetPreferredSize(&prefsize);
+    gfx::Size prefsize = GetPreferredSize();
     size = std::max(size,
                     static_cast<int>(scroll_bar_->IsHorizontal() ?
-                        prefsize.cx : prefsize.cy));
+                        prefsize.width() : prefsize.height()));
     gfx::Rect thumb_bounds = bounds();
     if (scroll_bar_->IsHorizontal()) {
       thumb_bounds.set_width(size);
@@ -127,11 +129,11 @@ class BitmapScrollBarThumb : public View {
   }
 
   // View overrides:
-  virtual void GetPreferredSize(CSize* preferred_size) {
-    DCHECK(preferred_size);
-    preferred_size->cx = background_bitmap()->width();
-    preferred_size->cy = start_cap_bitmap()->height() +
-        end_cap_bitmap()->height() + grippy_bitmap()->height();
+  virtual gfx::Size GetPreferredSize() {
+    return gfx::Size(background_bitmap()->width(),
+                     start_cap_bitmap()->height() +
+                         end_cap_bitmap()->height() +
+                         grippy_bitmap()->height());
   }
 
  protected:
@@ -280,20 +282,19 @@ BitmapScrollBar::BitmapScrollBar(bool horizontal, bool show_scroll_buttons)
 }
 
 gfx::Rect BitmapScrollBar::GetTrackBounds() const {
-  CSize prefsize;
-  prev_button_->GetPreferredSize(&prefsize);
+  gfx::Size prefsize = prev_button_->GetPreferredSize();
   if (IsHorizontal()) {
     if (!show_scroll_buttons_)
-      prefsize.cx = 0;
-    int new_width = std::max(0,
-                             static_cast<int>(width() - (prefsize.cx * 2)));
-    gfx::Rect track_bounds(prefsize.cx, 0, new_width, prefsize.cy);
+      prefsize.set_width(0);
+    int new_width =
+        std::max(0, static_cast<int>(width() - (prefsize.width() * 2)));
+    gfx::Rect track_bounds(prefsize.width(), 0, new_width, prefsize.height());
     return track_bounds;
   }
   if (!show_scroll_buttons_)
-    prefsize.cy = 0;
-  gfx::Rect track_bounds(0, prefsize.cy, prefsize.cx,
-                         std::max(0l, height() - (prefsize.cy * 2)));
+    prefsize.set_height(0);
+  gfx::Rect track_bounds(0, prefsize.height(), prefsize.width(),
+                         std::max(0, height() - (prefsize.height() * 2)));
   return track_bounds;
 }
 
@@ -381,15 +382,11 @@ void BitmapScrollBar::TrackClicked() {
 ///////////////////////////////////////////////////////////////////////////////
 // BitmapScrollBar, View implementation:
 
-void BitmapScrollBar::GetPreferredSize(CSize* preferred_size) {
-  DCHECK(preferred_size);
-
+gfx::Size BitmapScrollBar::GetPreferredSize() {
   // In this case, we're returning the desired width of the scrollbar and its
   // minimum allowable height.
-  CSize button_prefsize;
-  prev_button_->GetPreferredSize(&button_prefsize);
-  preferred_size->cx = button_prefsize.cx;
-  preferred_size->cy = button_prefsize.cy * 2;
+  gfx::Size button_prefsize = prev_button_->GetPreferredSize();
+  return gfx::Size(button_prefsize.width(), button_prefsize.height() * 2);
 }
 
 void BitmapScrollBar::Paint(ChromeCanvas* canvas) {
@@ -403,16 +400,15 @@ void BitmapScrollBar::Paint(ChromeCanvas* canvas) {
 void BitmapScrollBar::Layout() {
   // Size and place the two scroll buttons.
   if (show_scroll_buttons_) {
-    CSize prefsize;
-    prev_button_->GetPreferredSize(&prefsize);
-    prev_button_->SetBounds(0, 0, prefsize.cx, prefsize.cy);
-    next_button_->GetPreferredSize(&prefsize);
+    gfx::Size prefsize = prev_button_->GetPreferredSize();
+    prev_button_->SetBounds(gfx::Point(), prefsize);
+    prefsize = next_button_->GetPreferredSize();
     if (IsHorizontal()) {
-      next_button_->SetBounds(width() - prefsize.cx, 0, prefsize.cx,
-                              prefsize.cy);
+      next_button_->SetBounds(width() - prefsize.width(), 0, prefsize.width(),
+                              prefsize.height());
     } else {
-      next_button_->SetBounds(0, height() - prefsize.cy, prefsize.cx,
-                              prefsize.cy);
+      next_button_->SetBounds(0, height() - prefsize.height(), prefsize.width(),
+                              prefsize.height());
     }
   } else {
     prev_button_->SetBounds(0, 0, 0, 0);
@@ -420,8 +416,7 @@ void BitmapScrollBar::Layout() {
   }
 
   // Size and place the thumb
-  CSize thumb_prefsize;
-  thumb_->GetPreferredSize(&thumb_prefsize);
+  gfx::Size thumb_prefsize = thumb_->GetPreferredSize();
   gfx::Rect track_bounds = GetTrackBounds();
 
   // Preserve the height/width of the thumb (depending on orientation) as set
@@ -429,17 +424,17 @@ void BitmapScrollBar::Layout() {
   // appropriate value for the bitmaps provided.
   if (IsHorizontal()) {
     thumb_->SetBounds(thumb_->x(), thumb_->y(), thumb_->width(),
-                      thumb_prefsize.cy);
+                      thumb_prefsize.height());
   } else {
-    thumb_->SetBounds(thumb_->x(), thumb_->y(), thumb_prefsize.cx,
+    thumb_->SetBounds(thumb_->x(), thumb_->y(), thumb_prefsize.width(),
                       thumb_->height());
   }
 
   // Hide the thumb if the track isn't tall enough to display even a tiny
   // thumb. The user can only use the mousewheel, scroll buttons or keyboard
   // in this scenario.
-  if ((IsHorizontal() && (track_bounds.width() < thumb_prefsize.cx)) ||
-      (!IsHorizontal() && (track_bounds.height() < thumb_prefsize.cy))) {
+  if ((IsHorizontal() && (track_bounds.width() < thumb_prefsize.width()) ||
+      (!IsHorizontal() && (track_bounds.height() < thumb_prefsize.height())))) {
     thumb_->SetVisible(false);
   } else if (!thumb_->IsVisible()) {
     thumb_->SetVisible(true);
@@ -672,9 +667,8 @@ void BitmapScrollBar::Update(int viewport_size, int content_size,
 }
 
 int BitmapScrollBar::GetLayoutSize() const {
-  CSize prefsize;
-  prev_button_->GetPreferredSize(&prefsize);
-  return IsHorizontal() ? prefsize.cy : prefsize.cx;
+  gfx::Size prefsize = prev_button_->GetPreferredSize();
+  return IsHorizontal() ? prefsize.height() : prefsize.width();
 }
 
 int BitmapScrollBar::GetPosition() const {

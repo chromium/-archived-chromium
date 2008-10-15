@@ -343,8 +343,8 @@ void HungRendererWarningView::Init() {
   hung_pages_table_ = new ChromeViews::GroupTableView(
       hung_pages_table_model_.get(), columns, ChromeViews::ICON_AND_TEXT, true,
       false, true);
-  hung_pages_table_->SetPreferredSize(
-      CSize(kTableViewWidth, kTableViewHeight));
+  hung_pages_table_->set_preferred_size(
+    gfx::Size(kTableViewWidth, kTableViewHeight));
 
   CreateKillButtonView();
 

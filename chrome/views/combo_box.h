@@ -41,7 +41,7 @@ class ComboBox : public NativeControl {
   void SetListener(Listener* listener);
 
   // Overriden from View.
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
   // Overriden from NativeControl
   virtual HWND CreateNativeControl(HWND parent_container);

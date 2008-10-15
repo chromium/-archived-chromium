@@ -169,6 +169,10 @@ void View::SetBounds(int x, int y, int width, int height) {
   SetBounds(tmp);
 }
 
+void View::SetBounds(const gfx::Point& origin, const gfx::Size& size) {
+  SetBounds(origin.x(), origin.y(), size.width(), size.height());
+}
+
 void View::GetLocalBounds(CRect* out, bool include_border) const {
   if (include_border || border_ == NULL) {
     out->left = 0;
@@ -195,32 +199,27 @@ void View::GetPosition(CPoint* p) const {
   p->y = y();
 }
 
-void View::GetPreferredSize(CSize* out) {
-  if (layout_manager_.get()) {
-    layout_manager_->GetPreferredSize(this, out);
-  } else {
-    out->cx = out->cy = 0;
-  }
+gfx::Size View::GetPreferredSize() {
+  if (layout_manager_.get())
+    return layout_manager_->GetPreferredSize(this);
+  return gfx::Size();
 }
 
 void View::SizeToPreferredSize() {
-  CSize size;
-  GetPreferredSize(&size);
-  if ((size.cx != width()) || (size.cy != height()))
-    SetBounds(x(), y(), size.cx, size.cy);
+  gfx::Size prefsize = GetPreferredSize();
+  if ((prefsize.width() != width()) || (prefsize.height() != height()))
+    SetBounds(x(), y(), prefsize.width(), prefsize.height());
 }
 
-void View::GetMinimumSize(CSize* out) {
-  GetPreferredSize(out);
+gfx::Size View::GetMinimumSize() {
+  return GetPreferredSize();
 }
 
 int View::GetHeightForWidth(int w) {
   if (layout_manager_.get())
     return layout_manager_->GetPreferredHeightForWidth(this, w);
 
-  CSize size;
-  GetPreferredSize(&size);
-  return size.cy;
+  return GetPreferredSize().height();
 }
 
 void View::DidChangeBounds(const CRect& previous, const CRect& current) {

@@ -170,24 +170,22 @@ int SecurityTabView::Section::GetHeightForWidth(int width) {
   // (multi-line).  We need to know the width of the description label to know
   // its height.
   int height = 0;
-  CSize size;
-  title_label_->GetPreferredSize(&size);
-  height += size.cy + kVGapTitleToImage;
+  gfx::Size size = title_label_->GetPreferredSize();
+  height += size.height() + kVGapTitleToImage;
 
-  CSize image_size;
-  status_image_->GetPreferredSize(&image_size);
+  gfx::Size image_size = status_image_->GetPreferredSize();
 
   int text_height = 0;
   if (!head_line_label_->GetText().empty()) {
-    head_line_label_->GetPreferredSize(&size);
-    text_height = size.cy + kVGapHeadLineToDescription;
+    size = head_line_label_->GetPreferredSize();
+    text_height = size.height() + kVGapHeadLineToDescription;
   }
 
-  int description_width = width - image_size.cx - kHGapImageToDescription -
-                          kHGapToBorder;
+  int description_width =
+      width - image_size.width() - kHGapImageToDescription - kHGapToBorder;
   text_height += description_label_->GetHeightForWidth(description_width);
 
-  height += std::max(static_cast<int>(image_size.cy), text_height);
+  height += std::max(image_size.height(), text_height);
 
   return height;
 }
@@ -196,24 +194,24 @@ void SecurityTabView::Section::Layout() {
   // First, layout the title and separator.
   int x = 0;
   int y = 0;
-  CSize size;
-  title_label_->GetPreferredSize(&size);
-  title_label_->SetBounds(x, y, size.cx, size.cy);
-  x += size.cx + kHGapTitleToSeparator;
+  gfx::Size size = title_label_->GetPreferredSize();
+  title_label_->SetBounds(x, y, size.width(), size.height());
+  x += size.width() + kHGapTitleToSeparator;
   separator_->SetBounds(x + kHExtraSeparatorPadding, y,
-                        width() - x - 2 * kHExtraSeparatorPadding, size.cy);
+                        width() - x - 2 * kHExtraSeparatorPadding,
+                        size.height());
 
   // Then the image, head-line and description.
   x = kHGapToBorder;
   y += title_label_->height() + kVGapTitleToImage;
-  status_image_->GetPreferredSize(&size);
-  status_image_->SetBounds(x, y, size.cx, size.cy);
-  x += size.cx + kHGapImageToDescription;
+  size = status_image_->GetPreferredSize();
+  status_image_->SetBounds(x, y, size.width(), size.height());
+  x += size.width() + kHGapImageToDescription;
   int w = width() - x;
   if (!head_line_label_->GetText().empty()) {
-    head_line_label_->GetPreferredSize(&size);
-    head_line_label_->SetBounds(x, y, w > 0 ? w : 0, size.cy);
-    y += size.cy + kVGapHeadLineToDescription;
+    size = head_line_label_->GetPreferredSize();
+    head_line_label_->SetBounds(x, y, w > 0 ? w : 0, size.height());
+    y += size.height() + kVGapHeadLineToDescription;
   } else {
     head_line_label_->SetBounds(x, y, 0, 0);
   }
@@ -450,14 +448,13 @@ class PageInfoContentView : public ChromeViews::View {
 
   virtual void Layout() {
     if (cert_viewer_button_) {
-      CSize ps;
-      cert_viewer_button_->GetPreferredSize(&ps);
+      gfx::Size ps = cert_viewer_button_->GetPreferredSize();
 
       CRect parent_bounds;
       GetParent()->GetLocalBounds(&parent_bounds, false);
-      int y_buttons = parent_bounds.bottom - ps.cy - kButtonVEdgeMargin;
-      cert_viewer_button_->SetBounds(kPanelHorizMargin, y_buttons, ps.cx,
-                                     ps.cy);
+      int y_buttons = parent_bounds.bottom - ps.height() - kButtonVEdgeMargin;
+      cert_viewer_button_->SetBounds(kPanelHorizMargin, y_buttons, ps.width(),
+                                     ps.height());
     }
     View::Layout();
   }

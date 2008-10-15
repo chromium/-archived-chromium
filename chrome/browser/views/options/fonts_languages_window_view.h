@@ -35,7 +35,7 @@ class FontsLanguagesWindowView : public ChromeViews::View,
 
   // ChromeViews::View overrides:
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
  protected:
   // ChromeViews::View overrides:

@@ -50,21 +50,21 @@ void Label::Init(const std::wstring& text, const ChromeFont& font) {
 Label::~Label() {
 }
 
-void Label::GetPreferredSize(CSize* out) {
-  DCHECK(out);
+gfx::Size Label::GetPreferredSize() {
+  gfx::Size prefsize;
   if (is_multi_line_) {
     ChromeCanvas cc(0, 0, true);
     int w = width(), h = 0;
     cc.SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
-    out->cx = w;
-    out->cy = h;
+    prefsize.SetSize(w, h);
   } else {
-    GetTextSize(out);
+    prefsize = GetTextSize();
   }
 
   gfx::Insets insets = GetInsets();
-  out->cx += insets.left() + insets.right();
-  out->cy += insets.top() + insets.bottom();
+  prefsize.Enlarge(insets.left() + insets.right(),
+                   insets.top() + insets.bottom());
+  return prefsize;
 }
 
 int Label::ComputeMultiLineFlags() {
@@ -179,18 +179,15 @@ const GURL Label::GetURL() const {
     return GURL(text_);
 }
 
-void Label::GetTextSize(CSize* out) {
+gfx::Size Label::GetTextSize() {
   if (!text_size_valid_) {
-    text_size_.cx = font_.GetStringWidth(text_);
-    text_size_.cy = font_.height();
+    text_size_.SetSize(font_.GetStringWidth(text_), font_.height());
     text_size_valid_ = true;
   }
 
-  if (text_size_valid_) {
-    *out = text_size_;
-  } else {
-    out->cx = out->cy = 0;
-  }
+  if (text_size_valid_)
+    return text_size_;
+  return gfx::Size();
 }
 
 int Label::GetHeightForWidth(int w) {
@@ -314,15 +311,14 @@ void Label::SetContainsMouse(bool contains_mouse) {
 }
 
 gfx::Rect Label::GetTextBounds() {
-  CSize text_size;
-  GetTextSize(&text_size);
+  gfx::Size text_size = GetTextSize();
   gfx::Insets insets = GetInsets();
   int avail_width = width() - insets.left() - insets.right();
   // Respect the size set by the owner view
-  text_size.cx = std::min(avail_width, static_cast<int>(text_size.cx));
+  text_size.set_width(std::min(avail_width, text_size.width()));
 
   int text_y = insets.top() +
-      (height() - text_size.cy - insets.top() - insets.bottom()) / 2;
+      (height() - text_size.height() - insets.top() - insets.bottom()) / 2;
   int text_x;
   switch (horiz_alignment_) {
     case ALIGN_LEFT:
@@ -331,13 +327,13 @@ gfx::Rect Label::GetTextBounds() {
     case ALIGN_CENTER:
       // We put any extra margin pixel on the left rather than the right, since
       // GetTextExtentPoint32() can report a value one too large on the right.
-      text_x = insets.left() + (avail_width + 1 - text_size.cx) / 2;
+      text_x = insets.left() + (avail_width + 1 - text_size.width()) / 2;
       break;
     case ALIGN_RIGHT:
-      text_x = width() - insets.right() - text_size.cx;
+      text_x = width() - insets.right() - text_size.width();
       break;
   }
-  return gfx::Rect(text_x, text_y, text_size.cx, text_size.cy);
+  return gfx::Rect(text_x, text_y, text_size.width(), text_size.height());
 }
 
 void Label::SizeToFit(int max_width) {

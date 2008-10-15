@@ -40,9 +40,8 @@ void StarToggle::Paint(ChromeCanvas* canvas) {
                         (height() - state_off_->height()) / 2);
 }
 
-void StarToggle::GetPreferredSize(CSize* out) {
-  out->cx = state_off_->width();
-  out->cy = state_off_->height();
+gfx::Size StarToggle::GetPreferredSize() {
+  return gfx::Size(state_off_->width(), state_off_->height());
 }
 
 bool StarToggle::OnMouseDragged(const ChromeViews::MouseEvent& e) {

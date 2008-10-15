@@ -30,10 +30,10 @@ void ComboBox::SetListener(Listener* listener) {
   listener_ = listener;
 }
 
-void ComboBox::GetPreferredSize(CSize* out) {
+gfx::Size ComboBox::GetPreferredSize() {
   HWND hwnd = GetNativeControlHWND();
   if (!hwnd)
-    return;
+    return gfx::Size();
 
   COMBOBOXINFO cbi;
   memset(reinterpret_cast<unsigned char*>(&cbi), 0, sizeof(cbi));
@@ -54,12 +54,14 @@ void ComboBox::GetPreferredSize(CSize* out) {
   int item_to_button_distance = std::max(kItemOffset - border.width(), 0);
 
   // The cx computation can be read as measuring from left to right.
-  out->cx = std::max(kItemOffset + content_width_ + kComboboxExtraPaddingX +
-                     item_to_button_distance + rect_button.width() +
-                     border.width(), kMinComboboxWidth);
+  int pref_width = std::max(kItemOffset + content_width_ +
+                                kComboboxExtraPaddingX +
+                                item_to_button_distance + rect_button.width() +
+                                 border.width(), kMinComboboxWidth);
   // The two arguments to ::max below should be typically be equal.
-  out->cy = std::max(rect_item.height() + 2 * kItemOffset,
-                     rect_button.height() + 2 * border.height());
+  int pref_height = std::max(rect_item.height() + 2 * kItemOffset,
+                             rect_button.height() + 2 * border.height());
+  return gfx::Size(pref_width, pref_height);
 }
 
 HWND ComboBox::CreateNativeControl(HWND parent_container) {

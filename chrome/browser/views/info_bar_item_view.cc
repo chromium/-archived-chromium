@@ -20,9 +20,8 @@ class HorizontalSpacer : public ChromeViews::View {
  public:
   explicit HorizontalSpacer(int width) : width_(width) {}
 
-  void GetPreferredSize(CSize* out) {
-    out->cx = width_;
-    out->cy = 0;
+  gfx::Size GetPreferredSize() {
+    return gfx::Size(width_, 0);
   }
 
  private:
@@ -50,9 +49,10 @@ int InfoBarItemView::CenterPosition(int size, int target_size) {
   return (target_size - size) / 2;
 }
 
-void InfoBarItemView::GetPreferredSize(CSize* out) {
-  out->cx = GetParent()->width();
-  out->cy = static_cast<int>(kInfoBarHeight * animation_->GetCurrentValue());
+gfx::Size InfoBarItemView::GetPreferredSize() {
+  return gfx::Size(
+      GetParent()->width(),
+      static_cast<int>(kInfoBarHeight * animation_->GetCurrentValue()));
 }
 
 // The following is an overall note on the underlying implementation. You don't
@@ -99,14 +99,13 @@ void InfoBarItemView::Layout() {
   for (int i = child_count - 1; i >= insert_index_ ; i--) {
     View* v = GetChildViewAt(i);
     if (v->IsVisible()) {
-      CSize view_size;
-      v->GetPreferredSize(&view_size);
-      next_x = next_x - view_size.cx;
+      gfx::Size view_size = v->GetPreferredSize();
+      next_x = next_x - view_size.width();
       v->SetBounds(next_x,
-                   CenterPosition(view_size.cy,
+                   CenterPosition(view_size.height(),
                        static_cast<int>(kInfoBarHeight)) - height_diff,
-                   view_size.cx,
-                   view_size.cy);
+                   view_size.width(),
+                   view_size.height());
     }
   }
   int left_most_x = next_x;
@@ -118,18 +117,17 @@ void InfoBarItemView::Layout() {
   for (int i = 0; i < insert_index_ ; i++) {
     View* v = GetChildViewAt(i);
     if (v->IsVisible()) {
-      CSize view_size;
-      v->GetPreferredSize(&view_size);
+      gfx::Size view_size = v->GetPreferredSize();
       int remaining_space = std::max(0, left_most_x - next_x);
-      if (view_size.cx > remaining_space) {
-        view_size.cx = remaining_space;
+      if (view_size.width() > remaining_space) {
+        view_size.set_width(remaining_space);
       }
       v->SetBounds(next_x,
-                   CenterPosition(view_size.cy,
+                   CenterPosition(view_size.height(),
                        static_cast<int>(kInfoBarHeight)) - height_diff,
-                   view_size.cx,
-                   view_size.cy);
-      next_x = next_x + view_size.cx;
+                   view_size.width(),
+                   view_size.height());
+      next_x = next_x + view_size.width();
     }
   }
 }

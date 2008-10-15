@@ -149,14 +149,14 @@ void SetURLAndDragImage(const GURL& url,
   } else {
     button.SetIcon(icon);
   }
-  CSize pref;
-  button.GetPreferredSize(&pref);
-  button.SetBounds(0, 0, pref.cx, pref.cy);
+  gfx::Size prefsize = button.GetPreferredSize();
+  button.SetBounds(gfx::Point(), prefsize);
 
   // Render the image.
-  ChromeCanvas canvas(pref.cx, pref.cy, false);
+  ChromeCanvas canvas(prefsize.width(), prefsize.height(), false);
   button.Paint(&canvas, true);
-  SetDragImageOnDataObject(canvas, pref.cx, pref.cy, pref.cx / 2, pref.cy / 2,
+  SetDragImageOnDataObject(canvas, prefsize.width(), prefsize.height(),
+                           prefsize.width() / 2, prefsize.height() / 2,
                            data);
 }
 

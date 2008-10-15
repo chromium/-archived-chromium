@@ -30,7 +30,7 @@ class NativeButton : public NativeControl {
   NativeButton(const std::wstring& label, bool is_default);
   virtual ~NativeButton();
 
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
   void SetLabel(const std::wstring& l);
   const std::wstring GetLabel() const;

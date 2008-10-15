@@ -229,7 +229,7 @@ class AddLanguageWindowView : public ChromeViews::View,
 
   // ChromeViews::View overrides.
   virtual void Layout();
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
  protected:
   virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
@@ -290,18 +290,17 @@ void AddLanguageWindowView::ItemChanged(ChromeViews::ComboBox* combo_box,
 }
 
 void AddLanguageWindowView::Layout() {
-  CSize sz;
-  accept_language_combobox_->GetPreferredSize(&sz);
+  gfx::Size sz = accept_language_combobox_->GetPreferredSize();
   accept_language_combobox_->SetBounds(kDialogPadding, kDialogPadding,
-                                       width() - 2*kDialogPadding, sz.cy);
+                                       width() - 2*kDialogPadding,
+                                       sz.height());
 }
 
-void AddLanguageWindowView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
+gfx::Size AddLanguageWindowView::GetPreferredSize() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
-  out->cx = font.ave_char_width() * kDefaultWindowWidthChars;
-  out->cy = font.height() * kDefaultWindowHeightLines;
+  return gfx::Size(font.ave_char_width() * kDefaultWindowWidthChars,
+                   font.height() * kDefaultWindowHeightLines);
 }
 
 void AddLanguageWindowView::ViewHierarchyChanged(

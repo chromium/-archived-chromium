@@ -108,7 +108,7 @@ class TitleBarMenuButton : public ChromeViews::MenuButton {
   void SetContents(ChromeViews::View* contents);
 
   // overridden from View
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void Paint(ChromeCanvas* canvas);
   virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
 

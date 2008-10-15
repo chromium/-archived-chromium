@@ -36,7 +36,7 @@ class DownloadShelfView : public ChromeViews::View,
   // A new download has started, so add it to our shelf.
   void AddDownload(DownloadItem* download);
 
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
 
   virtual void Layout();
 

@@ -75,8 +75,8 @@ public:
     ALIGN_RIGHT
   };
 
-  void GetPreferredSize(CSize* result);
-  void GetMinimumSize(CSize* result);
+  virtual gfx::Size GetPreferredSize();
+  virtual gfx::Size GetMinimumSize();
   virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
 
   // Call SetText once per string in your set of possible values at
@@ -113,11 +113,11 @@ public:
 
  private:
   std::wstring text_;
-  CSize text_size_;
+  gfx::Size text_size_;
 
   // Track the size of the largest text string seen so far, so that
   // changing text_ will not resize the button boundary.
-  CSize max_text_size_;
+  gfx::Size max_text_size_;
 
   TextAlignment alignment_;
 

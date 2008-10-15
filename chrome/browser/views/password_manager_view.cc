@@ -36,21 +36,20 @@ MultiLabelButtons::MultiLabelButtons(const std::wstring& label,
       pref_size_(-1, -1) {
 }
 
-void MultiLabelButtons::GetPreferredSize(CSize *out) {
-  if (pref_size_.cx == -1 && pref_size_.cy == -1) {
+gfx::Size MultiLabelButtons::GetPreferredSize() {
+  if (pref_size_.width() == -1 && pref_size_.height() == -1) {
     // Let's compute our preferred size.
     std::wstring current_label = GetLabel();
     SetLabel(label_);
-    NativeButton::GetPreferredSize(&pref_size_);
+    pref_size_ = NativeButton::GetPreferredSize();
     SetLabel(alt_label_);
-    CSize alt_pref_size;
-    NativeButton::GetPreferredSize(&alt_pref_size);
+    gfx::Size alt_pref_size = NativeButton::GetPreferredSize();
     // Revert to the original label.
     SetLabel(current_label);
-    pref_size_.cx = std::max(pref_size_.cx, alt_pref_size.cx);
-    pref_size_.cy = std::max(pref_size_.cy, alt_pref_size.cy);
+    pref_size_.SetSize(std::max(pref_size_.width(), alt_pref_size.width()),
+                       std::max(pref_size_.height(), alt_pref_size.height()));
   }
-  *out = pref_size_;
+  return gfx::Size(pref_size_.width(), pref_size_.height());
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -296,16 +295,14 @@ void PasswordManagerView::Layout() {
   // the close button.
   CRect parent_bounds;
   GetParent()->GetLocalBounds(&parent_bounds, false);
-  CSize prefsize;
-  remove_all_button_.GetPreferredSize(&prefsize);
-  int button_y = parent_bounds.bottom - prefsize.cy - kButtonVEdgeMargin;
-  remove_all_button_.SetBounds(kPanelHorizMargin, button_y, prefsize.cx,
-                               prefsize.cy);
+  gfx::Size prefsize = remove_all_button_.GetPreferredSize();
+  int button_y = parent_bounds.bottom - prefsize.height() - kButtonVEdgeMargin;
+  remove_all_button_.SetBounds(kPanelHorizMargin, button_y, prefsize.width(),
+                               prefsize.height());
 }
 
-void PasswordManagerView::GetPreferredSize(CSize* out) {
-  out->cx = kDefaultWindowWidth;
-  out->cy = kDefaultWindowHeight;
+gfx::Size PasswordManagerView::GetPreferredSize() {
+  return gfx::Size(kDefaultWindowWidth, kDefaultWindowHeight);
 }
 
 void PasswordManagerView::ViewHierarchyChanged(bool is_add,

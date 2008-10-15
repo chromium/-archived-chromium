@@ -97,10 +97,8 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
 
     tmp_parent.AddChildView(bb_view_);
 
-    CSize bb_view_pref;
-    bb_view_->GetPreferredSize(&bb_view_pref);
+    bb_view_pref_ = bb_view_->GetPreferredSize();
     bb_view_pref_.set_width(1000);
-    bb_view_pref_.set_height(bb_view_pref.cy);
     ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(4);
     while (button->IsVisible()) {
       bb_view_pref_.set_width(bb_view_pref_.width() - 25);

@@ -217,7 +217,7 @@ class ConstrainedWindowNonClientView
   // Overridden from ChromeViews::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
 
   // Overridden from ChromeViews::BaseButton::ButtonListener:
@@ -425,12 +425,8 @@ int ConstrainedWindowNonClientView::CalculateTitlebarHeight() const {
 int ConstrainedWindowNonClientView::CalculateNonClientHeight(
     bool with_url_field) const {
   int r = CalculateTitlebarHeight();
-
-  if (with_url_field) {
-    CSize s;
-    location_bar_->GetPreferredSize(&s);
-    r += s.cy;
-  }
+  if (with_url_field)
+    r += location_bar_->GetPreferredSize().height();
   return r;
 }
 
@@ -572,15 +568,15 @@ void ConstrainedWindowNonClientView::Layout() {
   }
 
   int location_bar_height = 0;
-  CSize ps;
+  gfx::Size ps;
   if (should_display_url_field) {
-    location_bar_->GetPreferredSize(&ps);
-    location_bar_height = ps.cy;
+    ps = location_bar_->GetPreferredSize();
+    location_bar_height = ps.height();
   }
 
-  close_button_->GetPreferredSize(&ps);
-  close_button_->SetBounds(width() - ps.cx - kWindowControlsRightOffset,
-                           kWindowControlsTopOffset, ps.cx, ps.cy);
+  ps = close_button_->GetPreferredSize();
+  close_button_->SetBounds(width() - ps.width() - kWindowControlsRightOffset,
+                           kWindowControlsTopOffset, ps.width(), ps.height());
 
   int titlebar_height = CalculateTitlebarHeight();
   if (window_delegate_) {
@@ -620,12 +616,12 @@ void ConstrainedWindowNonClientView::Layout() {
   container_->client_view()->SetBounds(client_bounds_.ToRECT());
 }
 
-void ConstrainedWindowNonClientView::GetPreferredSize(CSize* out) {
-  DCHECK(out);
-  container_->client_view()->GetPreferredSize(out);
-  out->cx += 2 * kWindowHorizontalBorderSize;
-  out->cy += CalculateNonClientHeight(ShouldDisplayURLField()) +
-      kWindowVerticalBorderSize;
+gfx::Size ConstrainedWindowNonClientView::GetPreferredSize() {
+  gfx::Size prefsize = container_->client_view()->GetPreferredSize();
+  prefsize.Enlarge(2 * kWindowHorizontalBorderSize, 
+                   CalculateNonClientHeight(ShouldDisplayURLField()) +
+                       kWindowVerticalBorderSize);
+  return prefsize;
 }
 
 void ConstrainedWindowNonClientView::ViewHierarchyChanged(bool is_add,

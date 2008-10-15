@@ -46,7 +46,7 @@ class CheckBox : public NativeButton {
 
   virtual std::string GetClassName() const;
 
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void Layout();
 
   virtual bool OnMousePressed(const MouseEvent& event);

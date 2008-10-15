@@ -143,8 +143,7 @@ void TextButtonBorder::GetInsets(gfx::Insets* insets) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 TextButton::TextButton(const std::wstring& text)
-    : max_text_size_(CSize(0, 0)),
-      font_(ResourceBundle::GetSharedInstance().GetFont(
+    : font_(ResourceBundle::GetSharedInstance().GetFont(
           ResourceBundle::BaseFont)),
       color_(kEnabledColor),
       BaseButton(),
@@ -158,24 +157,25 @@ TextButton::TextButton(const std::wstring& text)
 TextButton::~TextButton() {
 }
 
-void TextButton::GetPreferredSize(CSize *result) {
+gfx::Size TextButton::GetPreferredSize() {
   gfx::Insets insets = GetInsets();
 
   // Use the max size to set the button boundaries.
-  result->cx = max_text_size_.cx + icon_.width() + insets.width();
-  result->cy = std::max(static_cast<int>(max_text_size_.cy), icon_.height()) +
-               insets.height();
+  gfx::Size prefsize(max_text_size_.width() + icon_.width() + insets.width(),
+                     std::max(max_text_size_.height(), icon_.height()) +
+                         insets.height());
 
   if (icon_.width() > 0 && !text_.empty())
-    result->cx += kIconTextPadding;
+    prefsize.Enlarge(kIconTextPadding, 0);
 
   if (max_width_ > 0)
-    result->cx = std::min(max_width_, static_cast<int>(result->cx));
+    prefsize.set_width(std::min(max_width_, prefsize.width()));
+  
+  return prefsize;
 }
 
-void TextButton::GetMinimumSize(CSize *result) {
-  result->cx = max_text_size_.cx;
-  result->cy = max_text_size_.cy;
+gfx::Size TextButton::GetMinimumSize() {
+  return max_text_size_;
 }
 
 bool TextButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
@@ -185,10 +185,10 @@ bool TextButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
 void TextButton::SetText(const std::wstring& text) {
   text_ = text;
   // Update our new current and max text size
-  text_size_.cx = font_.GetStringWidth(text_);
-  text_size_.cy = font_.height();
-  max_text_size_.cx = std::max(max_text_size_.cx, text_size_.cx);
-  max_text_size_.cy = std::max(max_text_size_.cy, text_size_.cy);
+  text_size_.SetSize(font_.GetStringWidth(text_), font_.height());
+  max_text_size_.SetSize(std::max(max_text_size_.width(), text_size_.width()),
+                         std::max(max_text_size_.height(),
+                                  text_size_.height()));
 }
 
 void TextButton::SetIcon(const SkBitmap& icon) {
@@ -227,7 +227,7 @@ void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
   int available_width = width() - insets.width();
   int available_height = height() - insets.height();
   // Use the actual text (not max) size to properly center the text.
-  int content_width = text_size_.cx;
+  int content_width = text_size_.width();
   if (icon_.width() > 0) {
     content_width += icon_.width();
     if (!text_.empty())
@@ -246,9 +246,9 @@ void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
   int text_x = icon_x;
   if (icon_.width() > 0)
     text_x += icon_.width() + kIconTextPadding;
-  const int text_width = std::min(static_cast<int>(text_size_.cx),
+  const int text_width = std::min(text_size_.width(),
                                   width() - insets.right() - text_x);
-  int text_y = (available_height - text_size_.cy) / 2 + insets.top();
+  int text_y = (available_height - text_size_.height()) / 2 + insets.top();
 
   if (text_width > 0) {
     // Because the text button can (at times) draw multiple elements on the
@@ -259,7 +259,7 @@ void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
     // horizontally.
     //
     // Due to the above, we must perform the flipping manually for RTL UIs.
-    gfx::Rect text_bounds(text_x, text_y, text_width, text_size_.cy);
+    gfx::Rect text_bounds(text_x, text_y, text_width, text_size_.height());
     text_bounds.set_x(MirroredLeftPointForRect(text_bounds));
 
     // Draw bevel highlight

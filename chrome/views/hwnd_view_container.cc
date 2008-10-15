@@ -59,9 +59,9 @@ void FillLayout::Layout(View* host) {
   frame_view->SetBounds(CRect(CPoint(0, 0), bounds.Size()));
 }
 
-void FillLayout::GetPreferredSize(View* host, CSize* out) {
+gfx::Size FillLayout::GetPreferredSize(View* host) {
   DCHECK(host->GetChildViewCount() == 1);
-  host->GetChildViewAt(0)->GetPreferredSize(out);
+  return host->GetChildViewAt(0)->GetPreferredSize();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

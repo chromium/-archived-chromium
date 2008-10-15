@@ -584,69 +584,69 @@ void XPFrame::Layout() {
   root_view_.SetBounds(0, 0, width, height);
   frame_view_->SetBounds(0, 0, width, height);
 
-  CSize preferred_size;
+  gfx::Size preferred_size;
 
   if (IsZoomed()) {
-    close_button_->GetPreferredSize(&preferred_size);
+    preferred_size = close_button_->GetPreferredSize();
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                      ChromeViews::Button::ALIGN_BOTTOM);
-    close_button_->SetBounds(width - preferred_size.cx -
+    close_button_->SetBounds(width - preferred_size.width() -
                              kWindowControlsRightZoomedOffset,
                              0,
-                             preferred_size.cx +
+                             preferred_size.width() +
                              kWindowControlsRightZoomedOffset,
-                             preferred_size.cy +
+                             preferred_size.height() +
                              kWindowControlsTopZoomedOffset);
 
     max_button_->SetVisible(false);
 
     restore_button_->SetVisible(true);
-    restore_button_->GetPreferredSize(&preferred_size);
+    preferred_size = restore_button_->GetPreferredSize();
     restore_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                        ChromeViews::Button::ALIGN_BOTTOM);
-    restore_button_->SetBounds(close_button_->x() - preferred_size.cx,
+    restore_button_->SetBounds(close_button_->x() - preferred_size.width(),
                                0,
-                               preferred_size.cx,
-                               preferred_size.cy +
+                               preferred_size.width(),
+                               preferred_size.height() +
                                kWindowControlsTopZoomedOffset);
 
-    min_button_->GetPreferredSize(&preferred_size);
+    preferred_size = min_button_->GetPreferredSize();
     min_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                    ChromeViews::Button::ALIGN_BOTTOM);
-    min_button_->SetBounds(restore_button_->x() - preferred_size.cx,
+    min_button_->SetBounds(restore_button_->x() - preferred_size.width(),
                            0,
-                           preferred_size.cx,
-                           preferred_size.cy +
+                           preferred_size.width(),
+                           preferred_size.height() +
                            kWindowControlsTopZoomedOffset);
 
   } else {
-    close_button_->GetPreferredSize(&preferred_size);
+    preferred_size = close_button_->GetPreferredSize();
     close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                      ChromeViews::Button::ALIGN_TOP);
     close_button_->SetBounds(width - kWindowControlsRightOffset -
-                             preferred_size.cx,
+                             preferred_size.width(),
                              kWindowControlsTopOffset,
-                             preferred_size.cx,
-                             preferred_size.cy);
+                             preferred_size.width(),
+                             preferred_size.height());
 
     restore_button_->SetVisible(false);
 
     max_button_->SetVisible(true);
-    max_button_->GetPreferredSize(&preferred_size);
+    preferred_size = max_button_->GetPreferredSize();
     max_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                    ChromeViews::Button::ALIGN_TOP);
-    max_button_->SetBounds(close_button_->x() - preferred_size.cx,
+    max_button_->SetBounds(close_button_->x() - preferred_size.width(),
                            kWindowControlsTopOffset,
-                           preferred_size.cx,
-                           preferred_size.cy);
+                           preferred_size.width(),
+                           preferred_size.height());
 
-    min_button_->GetPreferredSize(&preferred_size);
+    preferred_size = min_button_->GetPreferredSize();
     min_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
                                    ChromeViews::Button::ALIGN_TOP);
-    min_button_->SetBounds(max_button_->x() - preferred_size.cx,
+    min_button_->SetBounds(max_button_->x() - preferred_size.width(),
                            kWindowControlsTopOffset,
-                           preferred_size.cx,
-                           preferred_size.cy);
+                           preferred_size.width(),
+                           preferred_size.height());
   }
 
   int right_limit = min_button_->x();
@@ -674,23 +674,22 @@ void XPFrame::Layout() {
     int tab_strip_x = left_margin;
 
     if (is_off_the_record_) {
-      CSize otr_image_size;
-      off_the_record_image_->GetPreferredSize(&otr_image_size);
-      tab_strip_x += otr_image_size.cx + (2 * kOTRImageHorizMargin);
+      gfx::Size otr_image_size = off_the_record_image_->GetPreferredSize();
+      tab_strip_x += otr_image_size.width() + (2 * kOTRImageHorizMargin);
       if (IsZoomed()) {
         off_the_record_image_->SetBounds(left_margin + kOTRImageHorizMargin,
                                          top_margin + 1,
-                                         otr_image_size.cx,
+                                         otr_image_size.width(),
                                          tabstrip_->GetPreferredHeight() -
                                          kToolbarOverlapVertOffset - 1);
       } else {
         off_the_record_image_->SetBounds(left_margin + kOTRImageHorizMargin,
                                          top_margin - 1 +
                                          tabstrip_->GetPreferredHeight() -
-                                         otr_image_size.cy -
+                                         otr_image_size.height() -
                                          kOTRImageVertMargin,
-                                         otr_image_size.cx,
-                                         otr_image_size.cy);
+                                         otr_image_size.width(),
+                                         otr_image_size.height());
       }
     }
 
@@ -698,15 +697,15 @@ void XPFrame::Layout() {
       if (IsZoomed()) {
         distributor_logo_->SetVisible(false);
       } else {
-        CSize distributor_logo_size;
-        distributor_logo_->GetPreferredSize(&distributor_logo_size);
+        gfx::Size distributor_logo_size =
+            distributor_logo_->GetPreferredSize();
         distributor_logo_->SetVisible(true);
         distributor_logo_->SetBounds(min_button_->x() - 
-                                         distributor_logo_size.cx -
+                                         distributor_logo_size.width() -
                                          kDistributorLogoHorizontalOffset,
                                      kDistributorLogoVerticalOffset,
-                                     distributor_logo_size.cx,
-                                     distributor_logo_size.cy);
+                                     distributor_logo_size.width(),
+                                     distributor_logo_size.height());
       }
     }
 
@@ -753,26 +752,26 @@ void XPFrame::Layout() {
 
   int browser_h = height - last_y - bottom_margin;
   if (shelf_view_) {
-    shelf_view_->GetPreferredSize(&preferred_size);
+    preferred_size = shelf_view_->GetPreferredSize();
     shelf_view_->SetBounds(left_margin,
-                           height - bottom_margin - preferred_size.cy,
+                           height - bottom_margin - preferred_size.height(),
                            width - left_margin - right_margin,
-                           preferred_size.cy);
-    browser_h -= preferred_size.cy;
+                           preferred_size.height());
+    browser_h -= preferred_size.height();
   }
 
   int bookmark_bar_height = 0;
 
-  CSize bookmark_bar_size;
-  CSize info_bar_size;
+  gfx::Size bookmark_bar_size;
+  gfx::Size info_bar_size;
 
   if (bookmark_bar_view_.get()) {
-    bookmark_bar_view_->GetPreferredSize(&bookmark_bar_size);
-    bookmark_bar_height = bookmark_bar_size.cy;
+    bookmark_bar_size = bookmark_bar_view_->GetPreferredSize();
+    bookmark_bar_height = bookmark_bar_size.height();
   }
 
   if (info_bar_view_)
-    info_bar_view_->GetPreferredSize(&info_bar_size);
+    info_bar_size = info_bar_view_->GetPreferredSize();
 
   // If we're showing a bookmarks bar in the new tab page style and we
   // have an infobar showing, we need to flip them.
@@ -783,9 +782,9 @@ void XPFrame::Layout() {
     info_bar_view_->SetBounds(left_margin,
                               last_y,
                               client_rect.Width() - left_margin - right_margin,
-                              info_bar_size.cy);
-    browser_h -= info_bar_size.cy;
-    last_y += info_bar_size.cy;
+                              info_bar_size.height());
+    browser_h -= info_bar_size.height();
+    last_y += info_bar_size.height();
 
     last_y -= kSeparationLineHeight;
 
@@ -793,9 +792,9 @@ void XPFrame::Layout() {
                                   last_y,
                                   client_rect.Width() - left_margin -
                                   right_margin,
-                                  bookmark_bar_size.cy);
-    browser_h -= (bookmark_bar_size.cy - kSeparationLineHeight);
-    last_y += bookmark_bar_size.cy;
+                                  bookmark_bar_size.height());
+    browser_h -= (bookmark_bar_size.height() - kSeparationLineHeight);
+    last_y += bookmark_bar_size.height();
   } else {
     if (bookmark_bar_view_.get()) {
       // We want our bookmarks bar to be responsible for drawing its own
@@ -806,9 +805,9 @@ void XPFrame::Layout() {
                                     last_y,
                                     client_rect.Width() - left_margin -
                                     right_margin,
-                                    bookmark_bar_size.cy);
-      browser_h -= (bookmark_bar_size.cy - kSeparationLineHeight);
-      last_y += bookmark_bar_size.cy;
+                                    bookmark_bar_size.height());
+      browser_h -= (bookmark_bar_size.height() - kSeparationLineHeight);
+      last_y += bookmark_bar_size.height();
     }
 
     if (info_bar_view_) {
@@ -816,9 +815,9 @@ void XPFrame::Layout() {
                                 last_y,
                                 client_rect.Width() -
                                     left_margin - right_margin,
-                                info_bar_size.cy);
-      browser_h -= info_bar_size.cy;
-      last_y += info_bar_size.cy;
+                                info_bar_size.height());
+      browser_h -= info_bar_size.height();
+      last_y += info_bar_size.height();
     }
   }
 
@@ -1894,10 +1893,8 @@ bool XPFrame::IsBookmarkBarVisible() const {
   if (bookmark_bar_view_->IsNewTabPage() || bookmark_bar_view_->IsAnimating())
     return true;
 
-  CSize sz;
-  bookmark_bar_view_->GetPreferredSize(&sz);
   // 1 is the minimum in GetPreferredSize for the bookmark bar.
-  return sz.cy > 1;
+  return bookmark_bar_view_->GetPreferredSize().height() > 1;
 }
 
 void XPFrame::MoveToFront(bool should_activate) {
@@ -2304,9 +2301,7 @@ bool XPFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   if (*view == new_view) {
     // The views haven't changed, if the views pref changed schedule a layout.
     if (new_view) {
-      CSize pref_size;
-      new_view->GetPreferredSize(&pref_size);
-      if (pref_size.cy != new_view->height())
+      if (new_view->GetPreferredSize().height() != new_view->height())
         return true;
     }
     return false;
@@ -2325,9 +2320,7 @@ bool XPFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
 
   int new_height = 0;
   if (new_view) {
-    CSize preferred_size;
-    new_view->GetPreferredSize(&preferred_size);
-    new_height = preferred_size.cy;
+    new_height = new_view->GetPreferredSize().height();
     root_view_.AddChildView(new_view);
   }
   bool changed = false;

@@ -104,101 +104,98 @@ void ClearBrowsingDataView::Init() {
 ////////////////////////////////////////////////////////////////////////////////
 // ClearBrowsingDataView, ChromeViews::View implementation:
 
-void ClearBrowsingDataView::GetPreferredSize(CSize *out) {
-  DCHECK(out);
-  *out = ChromeViews::Window::GetLocalizedContentsSize(
+gfx::Size ClearBrowsingDataView::GetPreferredSize() {
+  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_CLEARDATA_DIALOG_WIDTH_CHARS,
-      IDS_CLEARDATA_DIALOG_HEIGHT_LINES).ToSIZE();
+      IDS_CLEARDATA_DIALOG_HEIGHT_LINES));
 }
 
 void ClearBrowsingDataView::Layout() {
-  CSize panel_size;
-  GetPreferredSize(&panel_size);
-
-  CSize sz;
+  gfx::Size panel_size = GetPreferredSize();
 
   // Delete All label goes to the top left corner.
-  delete_all_label_->GetPreferredSize(&sz);
+  gfx::Size sz = delete_all_label_->GetPreferredSize();
   delete_all_label_->SetBounds(kPanelHorizMargin, kPanelVertMargin,
-                               sz.cx, sz.cy);
+                               sz.width(), sz.height());
 
   // Check-boxes go beneath it (with a little indentation).
-  del_history_checkbox_->GetPreferredSize(&sz);
+  sz = del_history_checkbox_->GetPreferredSize();
   del_history_checkbox_->SetBounds(2 * kPanelHorizMargin,
                                    delete_all_label_->y() +
                                        delete_all_label_->height() +
                                        kRelatedControlVerticalSpacing,
-                                   sz.cx, sz.cy);
+                                   sz.width(), sz.height());
 
-  del_downloads_checkbox_->GetPreferredSize(&sz);
+  sz = del_downloads_checkbox_->GetPreferredSize();
   del_downloads_checkbox_->SetBounds(2 * kPanelHorizMargin,
                                      del_history_checkbox_->y() +
                                          del_history_checkbox_->height() +
                                          kRelatedControlVerticalSpacing,
-                                     sz.cx, sz.cy);
+                                     sz.width(), sz.height());
 
-  del_cache_checkbox_->GetPreferredSize(&sz);
+  sz = del_cache_checkbox_->GetPreferredSize();
   del_cache_checkbox_->SetBounds(2 * kPanelHorizMargin,
                                  del_downloads_checkbox_->y() +
                                      del_downloads_checkbox_->height() +
                                      kRelatedControlVerticalSpacing,
-                                 sz.cx, sz.cy);
+                                 sz.width(), sz.height());
 
-  del_cookies_checkbox_->GetPreferredSize(&sz);
+  sz = del_cookies_checkbox_->GetPreferredSize();
   del_cookies_checkbox_->SetBounds(2 * kPanelHorizMargin,
                                    del_cache_checkbox_->y() +
                                        del_cache_checkbox_->height() +
                                        kRelatedControlVerticalSpacing,
-                                   sz.cx, sz.cy);
+                                   sz.width(), sz.height());
 
-  del_passwords_checkbox_->GetPreferredSize(&sz);
+  sz = del_passwords_checkbox_->GetPreferredSize();
   del_passwords_checkbox_->SetBounds(2 * kPanelHorizMargin,
                                      del_cookies_checkbox_->y() +
                                          del_cookies_checkbox_->height() +
                                          kRelatedControlVerticalSpacing,
-                                     sz.cx, sz.cy);
+                                     sz.width(), sz.height());
 
   // Time period label is next below the combo boxes.
-  time_period_label_->GetPreferredSize(&sz);
+  sz = time_period_label_->GetPreferredSize();
   time_period_label_->SetBounds(kPanelHorizMargin,
                                 del_passwords_checkbox_->y() +
                                     del_passwords_checkbox_->height() +
                                     kRelatedControlVerticalSpacing +
                                     kExtraMarginForTimePeriodLabel,
-                                sz.cx, sz.cy);
+                                sz.width(), sz.height());
 
   // Time period combo box goes on the right of the label, and we align it
   // vertically to the label as well.
-  int label_y_size = sz.cy;
-  time_period_combobox_->GetPreferredSize(&sz);
+  int label_y_size = sz.height();
+  sz = time_period_combobox_->GetPreferredSize();
   time_period_combobox_->SetBounds(time_period_label_->x() +
                                        time_period_label_->width() +
                                        kRelatedControlVerticalSpacing,
                                    time_period_label_->y() -
-                                       ((sz.cy - label_y_size) / 2),
-                                   sz.cx, sz.cy);
+                                       ((sz.height() - label_y_size) / 2),
+                                   sz.width(), sz.height());
 
   // Get the y-coordinate of our parent so we can position the throbber and
   // status message at the bottom of the panel.
   CRect parent_bounds;
   GetParent()->GetLocalBounds(&parent_bounds, false);
 
-  throbber_->GetPreferredSize(&sz);
+  sz = throbber_->GetPreferredSize();
   int throbber_topleft_x = kPanelHorizMargin;
-  int throbber_topleft_y = parent_bounds.bottom - sz.cy -
+  int throbber_topleft_y = parent_bounds.bottom - sz.height() -
                            kButtonVEdgeMargin - 3;
-  throbber_->SetBounds(throbber_topleft_x, throbber_topleft_y, sz.cx, sz.cy);
+  throbber_->SetBounds(throbber_topleft_x, throbber_topleft_y, sz.width(),
+                       sz.height());
 
   // The status label should be at the bottom of the screen, to the right of
   // the throbber.
-  status_label_.GetPreferredSize(&sz);
+  sz = status_label_.GetPreferredSize();
   int status_label_x = throbber_->x() + throbber_->width() +
                        kRelatedControlHorizontalSpacing;
   status_label_.SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
   status_label_.SetBounds(status_label_x,
                           throbber_topleft_y + 1,
-                          sz.cx,
-                          sz.cy);
+                          sz.width(),
+                          sz.height());
 }
 
 void ClearBrowsingDataView::ViewHierarchyChanged(bool is_add,

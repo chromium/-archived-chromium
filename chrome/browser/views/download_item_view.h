@@ -62,7 +62,7 @@ class DownloadItemView : public ChromeViews::NativeButton::Listener,
   // View overrides
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void OnMouseExited(const ChromeViews::MouseEvent& event);
   virtual void OnMouseMoved(const ChromeViews::MouseEvent& event);
   virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
@@ -139,7 +139,7 @@ class DownloadItemView : public ChromeViews::NativeButton::Listener,
 
   // Sets |size| with the size of the Save and Discard buttons (they have the
   // same size).
-  void GetButtonSize(CSize* size);
+  gfx::Size GetButtonSize();
 
   // Sizes the dangerous download label to a minimum width available using 2
   // lines.  The size is computed only the first time this method is invoked
@@ -228,7 +228,7 @@ class DownloadItemView : public ChromeViews::NativeButton::Listener,
   bool dangerous_download_label_sized_;
 
   // The size of the buttons.  Cached so animation works when hidden.
-  CSize cached_button_size_;
+  gfx::Size cached_button_size_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DownloadItemView);
 };

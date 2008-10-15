@@ -358,7 +358,7 @@ class MenuItemView : public View {
   virtual void Paint(ChromeCanvas* canvas);
 
   // Returns the preferred size of this item.
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
   // Returns the object responsible for controlling showing the menu.
   MenuController* GetMenuController();
@@ -500,7 +500,7 @@ class SubmenuView : public View {
   // Positions and sizes the child views. This tiles the views vertically,
   // giving each child the available width.
   virtual void Layout();
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
   // View method. Overriden to schedule a paint. We do this so that when
   // scrolling occurs, everything is repainted correctly.

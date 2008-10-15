@@ -37,6 +37,11 @@ class Size {
     height_ = height;
   }
 
+  void Enlarge(int width, int height) {
+    width_ += width;
+    height_ += height;
+  }
+
   void set_width(int width) { width_ = width; }
   void set_height(int height) { height_ = height; }
 

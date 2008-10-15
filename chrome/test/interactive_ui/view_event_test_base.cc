@@ -17,11 +17,10 @@ class TestView : public ChromeViews::View {
   TestView() {}
 
   void set_preferred_size(const gfx::Size& size) { preferred_size_ = size; }
-  void GetPreferredSize(CSize* out) {
+  gfx::Size GetPreferredSize() {
     if (!preferred_size_.IsEmpty())
-      *out = preferred_size_.ToSIZE();
-    else
-      View::GetPreferredSize(out);
+      return preferred_size_;
+    return View::GetPreferredSize();
   }
 
  private:

@@ -29,7 +29,7 @@ class RadioButton : public CheckBox {
   RadioButton(const std::wstring& label, int group_id);
   virtual ~RadioButton();
 
-  virtual void GetPreferredSize(CSize *out);
+  virtual gfx::Size GetPreferredSize();
   virtual void Layout();
 
   virtual std::string GetClassName() const;

@@ -60,7 +60,7 @@ class FillLayout : public LayoutManager {
 
   // Overridden from LayoutManager:
   virtual void Layout(View* host);
-  virtual void GetPreferredSize(View* host, CSize* out);
+  virtual gfx::Size GetPreferredSize(View* host);
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(FillLayout);

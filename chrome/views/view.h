@@ -158,6 +158,7 @@ class View : public AcceleratorTarget {
 
   // Set the bounds in the parent's coordinate system.
   void SetBounds(const CRect& bounds);
+  void SetBounds(const gfx::Point& origin, const gfx::Size& size);
   void SetBounds(int x, int y, int width, int height);
   void SetX(int x) { SetBounds(x, y(), width(), height()); }
   void SetY(int y) { SetBounds(x(), y, width(), height()); }
@@ -212,14 +213,14 @@ class View : public AcceleratorTarget {
   void GetPosition(CPoint* out) const;
 
   // Get the size the View would like to be, if enough space were available.
-  virtual void GetPreferredSize(CSize* out);
+  virtual gfx::Size GetPreferredSize();
 
   // Convenience method that sizes this view to its preferred size.
   void SizeToPreferredSize();
 
   // Gets the minimum size of the view. View's implementation invokes
   // GetPreferredSize.
-  virtual void GetMinimumSize(CSize* out);
+  virtual gfx::Size GetMinimumSize();
 
   // Return the height necessary to display this view with the provided width.
   // View's implementation returns the value from getPreferredSize.cy.

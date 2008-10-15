@@ -571,21 +571,20 @@ void ColumnSet::ResetColumnXCoordinates() {
 }
 
 void ColumnSet::CalculateSize() {
-  CSize pref;
+  gfx::Size pref;
   // Reset the preferred and remaining sizes.
   for (std::vector<ViewState*>::iterator i = view_states_.begin();
        i != view_states_.end(); ++i) {
     ViewState* view_state = *i;
-    pref.cx = pref.cy = 0;
     if (!view_state->pref_width_fixed || !view_state->pref_height_fixed) {
-      view_state->view->GetPreferredSize(&pref);
+      pref = view_state->view->GetPreferredSize();
       if (!view_state->pref_width_fixed)
-        view_state->pref_width = pref.cx;
+        view_state->pref_width = pref.width();
       if (!view_state->pref_height_fixed)
-        view_state->pref_height = pref.cy;
+        view_state->pref_height = pref.height();
     }
-    view_state->remaining_width = pref.cx;
-    view_state->remaining_height = pref.cy;
+    view_state->remaining_width = pref.width();
+    view_state->remaining_height = pref.height();
   }
 
   // Let layout element reset the sizes for us.
@@ -789,9 +788,11 @@ void GridLayout::Layout(View* host) {
   }
 }
 
-void GridLayout::GetPreferredSize(View* host, CSize* out) {
+gfx::Size GridLayout::GetPreferredSize(View* host) {
   DCHECK(host_ == host);
-  SizeRowsAndColumns(false, 0, 0, out);
+  CSize out;
+  SizeRowsAndColumns(false, 0, 0, &out);
+  return gfx::Size(out.cx, out.cy);
 }
 
 int GridLayout::GetPreferredHeightForWidth(View* host, int width) {
