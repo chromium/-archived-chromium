@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   base::AtExitManager at_exit_manager;  
 
 #if defined(OS_WIN)
-  TestShell::InitLogging(true);  // suppress error dialogs
+  TestShell::InitLogging(true, false);  // suppress error dialogs
 
   // Initialize test shell in non-interactive mode, which will let us load one
   // request than automatically quit.
