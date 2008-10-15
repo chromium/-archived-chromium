@@ -127,7 +127,10 @@ def Diff(name, type, current, expected, deps_file):
     print name.upper() + " DEPENDENCIES MISMATCH\n"
 
   if len(only_in_expected):
-    found_extra = 1
+    # Setting found_extra to 1 causes the build to fail. In some case, some
+    # dependencies are stripped out on optimized build; don't break anything
+    # just for that.
+    found_extra = 0
     print "%s is no longer dependent on these %s: %s." % (name,
         type,
         ' '.join(only_in_expected))
