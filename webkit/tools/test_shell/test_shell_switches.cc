@@ -48,8 +48,8 @@ const wchar_t kDebugMemoryInUse[] = L"debug-memory-in-use";
 // Enable cookies on the file:// scheme.  --layout-tests also enables this.
 const wchar_t kEnableFileCookies[] = L"enable-file-cookies";
 
-// Enable new HTTP stack.
-const wchar_t kUseNewHttp[] = L"new-http";
+// Enable the winhttp network stack.
+const wchar_t kUseWinHttp[] = L"winhttp";
 
 // Enable tracing events (see base/trace_event.h)
 const wchar_t kEnableTracing[] = L"enable-tracing";

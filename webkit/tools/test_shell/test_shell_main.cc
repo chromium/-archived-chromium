@@ -152,9 +152,8 @@ int main(int argc, char* argv[]) {
 #if defined(OS_WIN)
   // Make the selection of network stacks early on before any consumers try to
   // issue HTTP requests.
-  net::HttpNetworkLayer::UseWinHttp(true);
-  if (parsed_command_line.HasSwitch(test_shell::kUseNewHttp))
-    net::HttpNetworkLayer::UseWinHttp(false);
+  if (parsed_command_line.HasSwitch(test_shell::kUseWinHttp))
+    net::HttpNetworkLayer::UseWinHttp(true);
 #endif
 
   net::HttpCache::Mode cache_mode = net::HttpCache::NORMAL;
