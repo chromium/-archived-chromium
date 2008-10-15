@@ -479,10 +479,8 @@ bool BrowserView2::IsBookmarkBarVisible() const {
   if (bookmark_bar_view_->IsNewTabPage() || bookmark_bar_view_->IsAnimating())
     return true;
 
-  CSize sz;
-  bookmark_bar_view_->GetPreferredSize(&sz);
   // 1 is the minimum in GetPreferredSize for the bookmark bar.
-  return sz.cy > 1;
+  return bookmark_bar_view_->GetPreferredSize().height() > 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -625,9 +623,7 @@ bool BrowserView2::RestoreWindowPosition(CRect* bounds,
       // its desired height, since the toolbar is considered part of the
       // window's client area as far as GetWindowBoundsForClientBounds is
       // concerned...
-      CSize ps;
-      toolbar_->GetPreferredSize(&ps);
-      bounds->bottom += ps.cy;
+      bounds->bottom += toolbar_->GetPreferredSize().height();
     }
 
     gfx::Rect window_rect =
@@ -897,21 +893,20 @@ int BrowserView2::LayoutTabStrip() {
 
 int BrowserView2::LayoutToolbar(int top) {
   if (IsToolbarVisible()) {
-    CSize ps;
-    toolbar_->GetPreferredSize(&ps);
+    gfx::Size ps = toolbar_->GetPreferredSize();
     int toolbar_y =
         top - (IsTabStripVisible() ? kToolbarTabStripVerticalOverlap : 0);
     // With detached popup windows with the aero glass frame, we need to offset
     // by a pixel to make things look good.
     if (!IsTabStripVisible() && win_util::ShouldUseVistaFrame())
-      ps.cy -= 1;
+      ps.Enlarge(0, -1);
     int browser_view_width = width();
 #ifdef CHROME_PERSONALIZATION
     if (IsPersonalizationEnabled())
       Personalization::AdjustBrowserView(personalization_, &browser_view_width);
 #endif
-    toolbar_->SetBounds(0, toolbar_y, browser_view_width, ps.cy);
-    return toolbar_y + ps.cy;
+    toolbar_->SetBounds(0, toolbar_y, browser_view_width, ps.height());
+    return toolbar_y + ps.height();
   }
   toolbar_->SetVisible(false);
   return top;
@@ -937,21 +932,19 @@ int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
 
 int BrowserView2::LayoutBookmarkBar(int top) {
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_) {
-    CSize ps;
-    active_bookmark_bar_->GetPreferredSize(&ps);
+    gfx::Size ps = active_bookmark_bar_->GetPreferredSize();
     if (!active_info_bar_ || show_bookmark_bar_pref_.GetValue())
       top -= kSeparationLineHeight;
-    active_bookmark_bar_->SetBounds(0, top, width(), ps.cy);
-    top += ps.cy;
+    active_bookmark_bar_->SetBounds(0, top, width(), ps.height());
+    top += ps.height();
   }  
   return top;
 }
 int BrowserView2::LayoutInfoBar(int top) {
   if (SupportsWindowFeature(FEATURE_INFOBAR) && active_info_bar_) {
-    CSize ps;
-    active_info_bar_->GetPreferredSize(&ps);
-    active_info_bar_->SetBounds(0, top, width(), ps.cy);
-    top += ps.cy;
+    gfx::Size ps = active_info_bar_->GetPreferredSize();
+    active_info_bar_->SetBounds(0, top, width(), ps.height());
+    top += ps.height();
     if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_ &&
         !show_bookmark_bar_pref_.GetValue()) {
       top -= kSeparationLineHeight;
@@ -967,10 +960,10 @@ void BrowserView2::LayoutTabContents(int top, int bottom) {
 int BrowserView2::LayoutDownloadShelf() {
   int bottom = height();
   if (SupportsWindowFeature(FEATURE_DOWNLOADSHELF) && active_download_shelf_) {
-    CSize ps;
-    active_download_shelf_->GetPreferredSize(&ps);
-    active_download_shelf_->SetBounds(0, bottom - ps.cy, width(), ps.cy);
-    bottom -= ps.cy;
+    gfx::Size ps = active_download_shelf_->GetPreferredSize();
+    active_download_shelf_->SetBounds(0, bottom - ps.height(), width(),
+                                      ps.height());
+    bottom -= ps.height();
   }
   return bottom;
 }
@@ -986,10 +979,10 @@ bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
   ChromeViews::View* new_bookmark_bar_view = NULL;
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents) {
     new_bookmark_bar_view = GetBookmarkBarView();
-    CSize ps;
-    new_bookmark_bar_view->GetPreferredSize(&ps);
-    if (!show_bookmark_bar_pref_.GetValue() && ps.cy == 0)
+    if (!show_bookmark_bar_pref_.GetValue() &&
+        new_bookmark_bar_view->GetPreferredSize().height() == 0) {
       new_bookmark_bar_view = NULL;
+    }
   }
   return UpdateChildViewAndLayout(new_bookmark_bar_view,
                                   &active_bookmark_bar_);
@@ -1024,9 +1017,7 @@ bool BrowserView2::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   if (*old_view == new_view) {
     // The views haven't changed, if the views pref changed schedule a layout.
     if (new_view) {
-      CSize pref_size;
-      new_view->GetPreferredSize(&pref_size);
-      if (pref_size.cy != new_view->height())
+      if (new_view->GetPreferredSize().height() != new_view->height())
         return true;
     }
     return false;
@@ -1045,9 +1036,7 @@ bool BrowserView2::UpdateChildViewAndLayout(ChromeViews::View* new_view,
 
   int new_height = 0;
   if (new_view) {
-    CSize preferred_size;
-    new_view->GetPreferredSize(&preferred_size);
-    new_height = preferred_size.cy;
+    new_height = new_view->GetPreferredSize().height();
     AddChildView(new_view);
   }
   bool changed = false;
