@@ -70,7 +70,8 @@ public:
     virtual ~TestShell();
 
     // Initialization and clean up of logging.
-    static void InitLogging(bool suppress_error_dialogs);
+    static void InitLogging(bool suppress_error_dialogs, 
+                            bool running_layout_tests);
     static void CleanupLogging();
 
     // Initialization and clean up of a static member variable.	

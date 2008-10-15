@@ -126,16 +126,24 @@ static void UnitTestAssertHandler(const std::string& str) {
 }
 
 // static
-void TestShell::InitLogging(bool suppress_error_dialogs) {
+void TestShell::InitLogging(bool suppress_error_dialogs,
+                            bool running_layout_tests) {
   if (suppress_error_dialogs) {
     logging::SetLogAssertHandler(UnitTestAssertHandler);
   }
+
+  // Only log to a file if we're running layout tests. This prevents debugging
+  // output from disrupting whether or not we pass.
+  logging::LoggingDestination destination = 
+      logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+  if (running_layout_tests)
+    destination = logging::LOG_ONLY_TO_FILE;
   
   // We might have multiple test_shell processes going at once
   char log_filename_template[] = "/tmp/test_shell_XXXXXX";
   char* log_filename = mktemp(log_filename_template);
   logging::InitLogging(log_filename,
-                       logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
+                       destination,
                        logging::LOCK_LOG_FILE,
                        logging::DELETE_OLD_LOG_FILE);
   
@@ -342,7 +350,7 @@ void TestShell::TestFinished() {
     puts("#TEST_TIMED_OUT\n");
     puts("#EOF\n");
     fflush(stdout);
-    [[NSApplication sharedApplication] terminate:self];
+    abort();
   }
 
   [pool release];
@@ -361,8 +369,9 @@ void TestShell::WaitTestFinished() {
   // message loop.  If the watchdog is what catches a 
   // timeout, it can't do anything except terminate the test
   // shell, which is unfortunate.
-  // Why multiply the timeout by 2.5? Who knows. That's what windows does.
-  NSTimeInterval timeout_seconds = GetFileTestTimeout() * 2.5 / 1000;
+  // Windows multiplies by 2.5, but that causes us to run for far, far too
+  // long. We can adjust it down later if we need to.
+  NSTimeInterval timeout_seconds = GetFileTestTimeout() / 1000;
   WatchDogTarget* watchdog = [[[WatchDogTarget alloc] 
                                 initWithTimeout:timeout_seconds] autorelease];
   NSThread* thread = [[NSThread alloc] initWithTarget:watchdog
@@ -559,8 +568,10 @@ void TestShell::ResizeSubViews() {
   ResetWebPreferences();
   shell->webView()->SetPreferences(*web_prefs_);
 
-  [shell->m_mainWnd setFrameTopLeftPoint:NSMakePoint(kTestWindowXLocation,
-                                                     kTestWindowYLocation)];
+  // Hide the window. We can't actually use NSWindow's |-setFrameTopLeftPoint:|
+  // because it leaves a chunk of the window visible instead of moving it
+  // offscreen.
+  [shell->m_mainWnd orderOut:nil];
   shell->ResizeSubViews();
 
   if (strstr(filename, "loading/"))

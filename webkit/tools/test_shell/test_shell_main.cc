@@ -135,7 +135,10 @@ int main(int argc, char* argv[]) {
        (GetEnvironmentVariable(L"CHROME_HEADLESS", NULL, 0) ||
        parsed_command_line.HasSwitch(test_shell::kNoErrorDialogs) ||
        parsed_command_line.HasSwitch(test_shell::kLayoutTests));
-  TestShell::InitLogging(suppress_error_dialogs);
+  bool layout_test_mode =
+      parsed_command_line.HasSwitch(test_shell::kLayoutTests);
+
+  TestShell::InitLogging(suppress_error_dialogs, layout_test_mode);
 
   // Suppress abort message in v8 library in debugging mode.
   // V8 calls abort() when it hits assertion errors.
@@ -153,9 +156,6 @@ int main(int argc, char* argv[]) {
   if (parsed_command_line.HasSwitch(test_shell::kUseNewHttp))
     net::HttpNetworkLayer::UseWinHttp(false);
 #endif
-
-  bool layout_test_mode =
-      parsed_command_line.HasSwitch(test_shell::kLayoutTests);
 
   net::HttpCache::Mode cache_mode = net::HttpCache::NORMAL;
   bool playback_mode = 

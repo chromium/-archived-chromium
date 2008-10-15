@@ -81,11 +81,11 @@ int main(const int argc, const char *argv[]) {
   bool suppress_error_dialogs = (getenv("CHROME_HEADLESS") != NULL) ||
       parsed_command_line.HasSwitch(test_shell::kNoErrorDialogs) ||
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);
-  TestShell::InitLogging(suppress_error_dialogs);
-		 
   bool layout_test_mode =
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);
   bool interactive = !layout_test_mode;
+  
+  TestShell::InitLogging(suppress_error_dialogs, layout_test_mode);
   TestShell::InitializeTestShell(interactive);
 
   bool no_tree = parsed_command_line.HasSwitch(test_shell::kNoTree);
@@ -250,7 +250,6 @@ int main(const int argc, const char *argv[]) {
             continue;
           
           SetCurrentTestName(filenameBuffer);
-          
           if (!TestShell::RunFileTest(filenameBuffer, params))
             break;
         }

@@ -172,7 +172,8 @@ static void UnitTestAssertHandler(const std::string& str) {
 }
 
 // static
-void TestShell::InitLogging(bool suppress_error_dialogs) {
+void TestShell::InitLogging(bool suppress_error_dialogs,
+                            bool running_layout_tests) {
     if (!IsDebuggerPresent() && suppress_error_dialogs) {
         UINT new_flags = SEM_FAILCRITICALERRORS |
                          SEM_NOGPFAULTERRORBOX |
@@ -184,12 +185,19 @@ void TestShell::InitLogging(bool suppress_error_dialogs) {
         logging::SetLogAssertHandler(UnitTestAssertHandler);
     }
 
+    // Only log to a file if we're running layout tests. This prevents debugging
+    // output from disrupting whether or not we pass.
+    logging::LoggingDestination destination = 
+        logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
+    if (running_layout_tests)
+      destination = logging::LOG_ONLY_TO_FILE;
+
     // We might have multiple test_shell processes going at once
     std::wstring log_filename;
     PathService::Get(base::DIR_EXE, &log_filename);
     file_util::AppendToPath(&log_filename, L"test_shell.log");
     logging::InitLogging(log_filename.c_str(),
-                         logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG,
+                         destination,
                          logging::LOCK_LOG_FILE,
                          logging::DELETE_OLD_LOG_FILE);
 
