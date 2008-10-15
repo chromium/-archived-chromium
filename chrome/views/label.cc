@@ -355,7 +355,7 @@ void Label::SizeToFit(int max_width) {
   if (max_width > 0)
     label_width = std::min(label_width, max_width);
 
-  SetBounds(x(), y(), width(), 0);
+  SetBounds(x(), y(), label_width, 0);
   SizeToPreferredSize();
 }
 
