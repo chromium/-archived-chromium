@@ -250,6 +250,9 @@ Chrome supports. -->
       <message name="IDS_CANT_WRITE_USER_DIRECTORY_EXIT_BUTTON" desc="Text on button of dialog that closes Chrome if we can't create a directory for this user.">
         Exit Chrome
       </message>
+      <message name="IDS_MACHINE_LEVEL_INSTALL_CONFLICT" desc="Error message to display when user tries to run user level Chromium even though machine level Chromium is already installed.">
+        System level Google Chrome is already installed on this computer. We will replace your user level Google Chrome with the system level installation.
+      </message>
     </messages>
   </release>
 </grit>

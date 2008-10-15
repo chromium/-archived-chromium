@@ -20,12 +20,17 @@
 // independently.
 class InstallUtil {
  public:
+  // Reads the uninstall command for Chromium from registry and returns it.
+  // If system_install is true the command is read from HKLM, otherwise
+  // from HKCU.
+  static std::wstring GetChromeUninstallCmd(bool system_install);
+
   // Find the version of Chrome installed on the system by checking the
   // Google Update registry key. Returns the version or NULL if no version is
   // found.
   // system_install: if true, looks for version number under the HKLM root,
   //                 otherwise looks under the HKCU.
-  static installer::Version * GetChromeVersion(bool system_install);
+  static installer::Version* GetChromeVersion(bool system_install);
 
   // This function checks if the current OS is supported for Chromium.
   static bool IsOSSupported();

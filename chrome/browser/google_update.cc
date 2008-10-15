@@ -12,8 +12,8 @@
 #include "base/task.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/google_update_constants.h"
+#include "chrome/installer/util/helper.h"
 #include "google_update_idl_i.c"
 
 namespace {
@@ -23,16 +23,20 @@ namespace {
 bool CanUpdateCurrentChrome() {
   std::wstring current_exe_path;
   if (PathService::Get(base::DIR_EXE, &current_exe_path)) {
-    std::wstring standard_exe_path = installer::GetChromeInstallPath(false);
+    std::wstring user_exe_path = installer::GetChromeInstallPath(false);
+    std::wstring machine_exe_path = installer::GetChromeInstallPath(true);
     std::transform(current_exe_path.begin(), current_exe_path.end(),
                    current_exe_path.begin(), tolower);
-    std::transform(standard_exe_path.begin(), standard_exe_path.end(),
-                   standard_exe_path.begin(), tolower);
-    if (current_exe_path != standard_exe_path) {
+    std::transform(user_exe_path.begin(), user_exe_path.end(),
+                   user_exe_path.begin(), tolower);
+    std::transform(machine_exe_path.begin(), machine_exe_path.end(),
+                   machine_exe_path.begin(), tolower);
+    if (current_exe_path != user_exe_path && 
+        current_exe_path != machine_exe_path ) {
       LOG(ERROR) << L"Google Update cannot update Chrome installed in a "
                  << L"non-standard location: " << current_exe_path.c_str()
-                 << L". The standard location is: " << standard_exe_path.c_str()
-                 << L".";
+                 << L". The standard location is: " << user_exe_path.c_str()
+                 << L" or " << machine_exe_path.c_str() << L".";
       return false;
     }
   }

@@ -132,7 +132,7 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
     arguments.append(installer_util::switches::kUninstall);
     if (system_install) {
       arguments.append(L" --");
-      arguments.append(installer_util::switches::kSystemInstall);
+      arguments.append(installer_util::switches::kSystemLevel);
     }
 
     LOG(INFO) << "Creating/updating uninstall link at " << uninstall_link;

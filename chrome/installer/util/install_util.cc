@@ -17,6 +17,15 @@
 #include "chrome/installer/util/google_update_constants.h"
 
 
+std::wstring InstallUtil::GetChromeUninstallCmd(bool system_install) {
+  HKEY root = system_install ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  RegKey key(root, dist->GetUninstallRegPath().c_str());
+  std::wstring uninstall_cmd;
+  key.ReadValue(installer_util::kUninstallStringField, &uninstall_cmd);
+  return uninstall_cmd;
+}
+
 installer::Version* InstallUtil::GetChromeVersion(bool system_install) {
   RegKey key;
   std::wstring version_str;

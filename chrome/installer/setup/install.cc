@@ -52,7 +52,7 @@ void AddUninstallShortcutWorkItems(HKEY reg_root,
   uninstall_cmd.append(installer_util::switches::kUninstall);
   if (reg_root == HKEY_LOCAL_MACHINE) {
     uninstall_cmd.append(L" --");
-    uninstall_cmd.append(installer_util::switches::kSystemInstall);
+    uninstall_cmd.append(installer_util::switches::kSystemLevel);
   }
 
   // Create DisplayName, UninstallString and InstallLocation keys

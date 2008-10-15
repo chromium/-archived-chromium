@@ -253,17 +253,17 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
 installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
                                               const installer::Version* version,
                                               bool system_install) {
-  bool remove_all = true;
-  if (cmd_line.HasSwitch(installer_util::switches::kDoNotRemoveSharedItems))
-    remove_all = false;
   LOG(INFO) << "Uninstalling Chome";
   if (!version) {
     LOG(ERROR) << "No Chrome installation found for uninstall.";
     return installer_util::CHROME_NOT_INSTALLED;
-  } else {
-    return installer_setup::UninstallChrome(cmd_line.program(), system_install,
-                                            *version, remove_all);
   }
+
+  bool remove_all = !cmd_line.HasSwitch(
+      installer_util::switches::kDoNotRemoveSharedItems);
+  bool force = cmd_line.HasSwitch(installer_util::switches::kForceUninstall);
+  return installer_setup::UninstallChrome(cmd_line.program(), system_install,
+                                          *version, remove_all, force);
 }
 }  // namespace
 
@@ -290,7 +290,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   }
 
   bool system_install =
-      parsed_command_line.HasSwitch(installer_util::switches::kSystemInstall);
+      parsed_command_line.HasSwitch(installer_util::switches::kSystemLevel);
   LOG(INFO) << "system install is " << system_install;
 
   // Check to avoid simultaneous per-user and per-machine installs.

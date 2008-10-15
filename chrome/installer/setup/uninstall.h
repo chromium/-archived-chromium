@@ -22,9 +22,12 @@ namespace installer_setup {
 //                   current user.
 // installed_version: currently installed version of Chrome.
 // remove_all: Remove all shared files, registry entries as well.
+// force_uninstall: Uninstall without prompting for user confirmation or
+//                  any checks for Chrome running.
 installer_util::InstallStatus UninstallChrome(
     const std::wstring& exe_path, bool system_uninstall,
-    const installer::Version& installed_version, bool remove_all);
+    const installer::Version& installed_version,
+    bool remove_all, bool force_uninstall);
 
 }  // namespace installer_setup
 

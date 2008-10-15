@@ -49,6 +49,9 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/installer/util/google_update_settings.h"
+#include "chrome/installer/util/helper.h"
+#include "chrome/installer/util/install_util.h"
+#include "chrome/installer/util/version.h"
 #include "chrome/views/accelerator_handler.h"
 #include "net/base/net_module.h"
 #include "net/base/net_resources.h"
@@ -219,6 +222,39 @@ bool CreateUniqueChromeEvent() {
     CloseHandle(handle);
   }
   return already_running;
+}
+
+// Check if there is any machine level Chrome installed on the current
+// machine. If yes and the current Chrome process is user level, we do not
+// allow the user level Chrome to run. So we notify the user and uninstall
+// user level Chrome.
+bool CheckMachineLevelInstall() {
+  scoped_ptr<installer::Version> version(InstallUtil::GetChromeVersion(true));
+  if (version.get()) {
+    std::wstring exe;
+    PathService::Get(base::DIR_EXE, &exe);
+    std::transform(exe.begin(), exe.end(), exe.begin(), tolower);
+    std::wstring user_exe_path = installer::GetChromeInstallPath(false);
+    std::transform(user_exe_path.begin(), user_exe_path.end(),
+                   user_exe_path.begin(), tolower);
+    if (exe == user_exe_path) {
+      const std::wstring text = 
+          l10n_util::GetString(IDS_MACHINE_LEVEL_INSTALL_CONFLICT);
+      const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
+      const UINT flags = MB_OK | MB_ICONERROR | MB_TOPMOST;
+      win_util::MessageBox(NULL, text, caption, flags);
+      std::wstring uninstall_cmd = InstallUtil::GetChromeUninstallCmd(false);
+      if (!uninstall_cmd.empty()) {
+        uninstall_cmd.append(L" --");
+        uninstall_cmd.append(installer_util::switches::kForceUninstall);
+        uninstall_cmd.append(L" --");
+        uninstall_cmd.append(installer_util::switches::kDoNotRemoveSharedItems);
+        process_util::LaunchApp(uninstall_cmd, false, false, NULL);
+      }
+      return true;
+    }
+  }
+  return false;
 }
 
 // We record in UMA the conditions that can prevent breakpad from generating
@@ -399,6 +435,16 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   if (DoUpgradeTasks(parsed_command_line)) {
     return ResultCodes::NORMAL_EXIT;
   }
+
+  // Check if there is any machine level Chrome installed on the current
+  // machine. If yes and the current Chrome process is user level, we do not
+  // allow the user level Chrome to run. So we notify the user and uninstall
+  // user level Chrome.
+  // Note this check should only happen here, after all the checks above
+  // (uninstall, resource bundle initialization, other chrome browser
+  // processes etc).
+  if (CheckMachineLevelInstall())
+    return ResultCodes::MACHINE_LEVEL_INSTALL_EXISTS;
 
   message_window.Create();
 

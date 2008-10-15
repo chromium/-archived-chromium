@@ -81,8 +81,14 @@ bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
   file_util::Move(setup_exe, temp_file);
 
   LOG(INFO) << "Deleting install path " << install_path;
-  if (!file_util::Delete(install_path, true))
-    LOG(ERROR) << "Failed to delete folder: " << install_path;
+  if (!file_util::Delete(install_path, true)) {
+    LOG(ERROR) << "Failed to delete folder (1st try): " << install_path;
+    // This is to let any closing chrome.exe die before trying delete one
+    // more time.
+    Sleep(10000);
+    if (!file_util::Delete(install_path, true))
+      LOG(ERROR) << "Failed to delete folder (2nd try): " << install_path;
+  }
 
   // Now check and delete if the parent directories are empty
   // For example Google\Chrome or Chromium
@@ -163,11 +169,14 @@ installer_util::InstallStatus IsChromeActiveOrUserCancelled(
 
 installer_util::InstallStatus installer_setup::UninstallChrome(
     const std::wstring& exe_path, bool system_uninstall,
-    const installer::Version& installed_version, bool remove_all) {
-  installer_util::InstallStatus status =
-      IsChromeActiveOrUserCancelled(system_uninstall);
-  if (status != installer_util::UNINSTALL_CONFIRMED)
-    return status;
+    const installer::Version& installed_version,
+    bool remove_all, bool force_uninstall) {
+  if (!force_uninstall) {
+    installer_util::InstallStatus status =
+        IsChromeActiveOrUserCancelled(system_uninstall);
+    if (status != installer_util::UNINSTALL_CONFIRMED)
+      return status;
+  }
 
 #if defined(GOOGLE_CHROME_BUILD)
   // TODO(rahulk): This should be done by DoPreUninstallOperations call above

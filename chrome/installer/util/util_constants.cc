@@ -31,10 +31,14 @@ const wchar_t kRegisterChromeBrowser[] = L"register-chrome-browser";
 const wchar_t kDoNotRemoveSharedItems[] = L"do-not-remove-shared-items";
 
 // Install Chrome to system wise location. The default is per user install.
-const wchar_t kSystemInstall[] = L"system-install";
+const wchar_t kSystemLevel[] = L"system-level";
 
 // If present, setup will uninstall chrome.
 const wchar_t kUninstall[] = L"uninstall";
+
+// If present, setup will uninstall chrome without asking for any
+// confirmation from user.
+const wchar_t kForceUninstall[] = L"force-uninstall";
 
 // Enable verbose logging (info level).
 const wchar_t kVerboseLogging[] = L"verbose-logging";
