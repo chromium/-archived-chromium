@@ -358,9 +358,11 @@ void DownloadManager::Shutdown() {
   for (std::set<DownloadItem*>::const_iterator rm_it = to_remove.begin();
        rm_it != to_remove.end(); ++rm_it) {
     DownloadItem* download = *rm_it;
+    int64 handle = download->db_handle();
     download->Remove(true);
-    // Same as above, delete the download if it is not in 'downloads_'.
-    if (download->db_handle() == kUninitializedHandle)
+    // Same as above, delete the download if it is not in 'downloads_' (as the
+    // Remove() call above won't have deleted it).
+    if (handle == kUninitializedHandle)
       delete download;
   }
   to_remove.clear();
