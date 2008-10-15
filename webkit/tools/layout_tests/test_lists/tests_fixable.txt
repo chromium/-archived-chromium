@@ -506,19 +506,11 @@ V8 | KJS # LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.
 //
 
 // The following tests fail because SVG animation is not yet implemented
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-07-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-08-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
 
 // This test fails because SVG filters are not implemented
@@ -986,34 +978,11 @@ V8 | KJS # LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-shortcut.
 V8 | KJS # LayoutTests/http/tests/security/listener/xss-window-onclick-addEventListener.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-09-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-10-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-12-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-23-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-31-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-44-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-60-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-62-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-63-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-64-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-65-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-66-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-67-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-68-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-69-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-70-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-77-t.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-85-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
