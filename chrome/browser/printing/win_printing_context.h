@@ -113,7 +113,7 @@ class PrintingContext {
   // Complete print context settings.
   PrintSettings settings_;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   // Current page number in the print job.
   int page_number_;
 #endif

@@ -135,7 +135,7 @@ class PrintingContext::CallbackHandler
 
 PrintingContext::PrintingContext()
     : hdc_(NULL),
-#ifdef _DEBUG
+#ifndef NDEBUG
       page_number_(-1),
 #endif
       dialog_box_(NULL),
@@ -242,7 +242,7 @@ void PrintingContext::ResetSettings() {
   settings_.Clear();
   in_print_job_ = false;
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   page_number_ = -1;
 #endif
 }
@@ -297,7 +297,7 @@ PrintingContext::Result PrintingContext::NewDocument(
   if (StartDoc(hdc_, &di) <= 0)
     return OnErrror();
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   page_number_ = 0;
 #endif
   return OK;
@@ -312,7 +312,7 @@ PrintingContext::Result PrintingContext::NewPage() {
   if (StartPage(hdc_) <= 0)
     return OnErrror();
 
-#ifdef _DEBUG
+#ifndef NDEBUG
   ++page_number_;
 #endif
 

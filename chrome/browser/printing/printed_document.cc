@@ -89,7 +89,7 @@ bool PrintedDocument::GetPage(int page_number,
 
 void PrintedDocument::RenderPrintedPage(const PrintedPage& page,
                                         HDC context) const {
-#ifdef _DEBUG
+#ifndef NDEBUG
   {
     // Make sure the page is from our list.
     AutoLock lock(lock_);
