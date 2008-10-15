@@ -199,11 +199,10 @@ void BrowserView2::AddViewToDropList(ChromeViews::View* view) {
 bool BrowserView2::ActivateAppModalDialog() const {
   // If another browser is app modal, flash and activate the modal browser.
   if (BrowserList::IsShowingAppModalDialog()) {
-    if (browser_ != BrowserList::GetLastActive()) {
-      CHECK(BrowserList::GetLastActive());
-      CHECK(BrowserList::GetLastActive()->window());
-      BrowserList::GetLastActive()->window()->FlashFrame();
-      BrowserList::GetLastActive()->MoveToFront(true);
+    Browser* active_browser = BrowserList::GetLastActive();
+    if (active_browser && (browser_ != active_browser)) {
+      active_browser->window()->FlashFrame();
+      active_browser->MoveToFront(true);
     }
     AppModalDialogQueue::ActivateModalDialog();
     return true;
