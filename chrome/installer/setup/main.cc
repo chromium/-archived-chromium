@@ -293,6 +293,16 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
       parsed_command_line.HasSwitch(installer_util::switches::kSystemInstall);
   LOG(INFO) << "system install is " << system_install;
 
+  // Check to avoid simultaneous per-user and per-machine installs.
+  scoped_ptr<installer::Version>
+      chrome_version(InstallUtil::GetChromeVersion(!system_install));
+  if (chrome_version.get()) {
+    LOG(ERROR) << "Already installed version " << chrome_version->GetString()
+               << " conflicts with the current install mode.";
+    return system_install ? installer_util::USER_LEVEL_INSTALL_EXISTS :
+                            installer_util::MACHINE_LEVEL_INSTALL_EXISTS;
+  }
+
   // Check the existing version installed.
   scoped_ptr<installer::Version>
       installed_version(InstallUtil::GetChromeVersion(system_install));
