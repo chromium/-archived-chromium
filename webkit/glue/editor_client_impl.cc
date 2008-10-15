@@ -558,13 +558,11 @@ void EditorClientImpl::handleInputMethodKeydown(WebCore::KeyboardEvent* keyEvent
 }
 
 void EditorClientImpl::textFieldDidBeginEditing(WebCore::Element*) {
-  NOTIMPLEMENTED();
 }
 
 void EditorClientImpl::textFieldDidEndEditing(WebCore::Element*) {
-  // Notification that focus was lost.
-  // Be careful with this, it's also sent when the page is being closed.
-  NOTIMPLEMENTED();
+  // Notification that focus was lost.  Be careful with this, it's also sent
+  // when the page is being closed.
 }
 
 void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
@@ -583,11 +581,9 @@ bool EditorClientImpl::doTextFieldCommandFromEvent(WebCore::Element*,
 }
 
 void EditorClientImpl::textWillBeDeletedInTextField(WebCore::Element*) {
-  NOTIMPLEMENTED();
 }
 
 void EditorClientImpl::textDidChangeInTextArea(WebCore::Element*) {
-  NOTIMPLEMENTED();
 }
 
 #if defined(OS_MACOSX)
