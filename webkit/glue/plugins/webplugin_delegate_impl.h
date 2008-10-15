@@ -132,6 +132,8 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   ATOM RegisterNativeWindowClass();
 
   // Our WndProc functions.
+  static LRESULT CALLBACK DummyWindowProc(
+      HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK NativeWndProc(
       HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
   static LRESULT CALLBACK FlashWindowlessWndProc(

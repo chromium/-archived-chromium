@@ -369,7 +369,7 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
     WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR,
     kNativeWindowClassName,
     0,
-    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+    WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
     0,
     0,
     0,
@@ -380,6 +380,21 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
     0);
   if (windowed_handle_ == 0)
     return false;
+
+  if (IsWindow(parent_)) {
+    // This is a tricky workaround for Issue 2673 in chromium "Flash: IME not
+    // available". To use IMEs in this window, we have to make Windows attach
+    // IMEs to this window (i.e. load IME DLLs, attach them to this process,
+    // and add their message hooks to this window). Windows attaches IMEs while
+    // this process creates a top-level window. On the other hand, to layout
+    // this window correctly in the given parent window (RenderWidgetHostHWND),
+    // this window should be a child window of the parent window.
+    // To satisfy both of the above conditions, this code once creates a
+    // top-level window and change it to a child window of the parent window.
+    SetWindowLongPtr(windowed_handle_, GWL_STYLE,
+                     WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+    SetParent(windowed_handle_, parent_);
+  }
 
   BOOL result = SetProp(windowed_handle_, kWebPluginDelegateProperty, this);
   DCHECK(result == TRUE) << "SetProp failed, last error = " << GetLastError();
@@ -706,7 +721,7 @@ ATOM WebPluginDelegateImpl::RegisterNativeWindowClass() {
   WNDCLASSEX wcex;
   wcex.cbSize         = sizeof(WNDCLASSEX);
   wcex.style          = CS_DBLCLKS;
-  wcex.lpfnWndProc    = DefWindowProc;
+  wcex.lpfnWndProc    = DummyWindowProc;
   wcex.cbClsExtra     = 0;
   wcex.cbWndExtra     = 0;
   wcex.hInstance      = GetModuleHandle(NULL);
@@ -723,6 +738,17 @@ ATOM WebPluginDelegateImpl::RegisterNativeWindowClass() {
   wcex.hIconSm        = 0;
 
   return RegisterClassEx(&wcex);
+}
+
+LRESULT CALLBACK WebPluginDelegateImpl::DummyWindowProc(
+    HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+  // This is another workaround for Issue 2673 in chromium "Flash: IME not
+  // available". Somehow, the CallWindowProc() function does not dispatch
+  // window messages when its first parameter is a handle representing the
+  // DefWindowProc() function. To avoid this problem, this code creates a
+  // wrapper function which just encapsulates the DefWindowProc() function
+  // and set it as the window procedure of a windowed plug-in.
+  return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 LRESULT CALLBACK WebPluginDelegateImpl::NativeWndProc(
