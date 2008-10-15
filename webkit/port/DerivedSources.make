@@ -749,6 +749,7 @@ all : \
     V8RangeException.h \
     V8Rect.h \
     V8SVGAElement.h \
+    V8SVGAltGlyphElement.h \
     V8SVGAngle.h \
     V8SVGAnimatedAngle.h \
     V8SVGAnimateColorElement.h \

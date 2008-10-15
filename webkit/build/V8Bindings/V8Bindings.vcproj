@@ -1256,6 +1256,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SVGAltGlyphElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SVGAltGlyphElement.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8SVGAngle.cpp"
 				>
 			</File>
@@ -1557,6 +1565,14 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8SVGGElement.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SVGGlyphElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SVGGlyphElement.h"
 				>
 			</File>
 			<File

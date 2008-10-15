@@ -2252,6 +2252,7 @@ FOR_EACH_TAG(ADD_TO_HASH_MAP)
     FOR_EACH_FOREIGN_OBJECT_TAG(macro) \
     FOR_EACH_USE_TAG(macro) \
     macro(a, A) \
+    macro(altGlyph, ALTGLYPH) \
     macro(circle, CIRCLE) \
     macro(clipPath, CLIPPATH) \
     macro(cursor, CURSOR) \
@@ -2259,6 +2260,7 @@ FOR_EACH_TAG(ADD_TO_HASH_MAP)
     macro(desc, DESC) \
     macro(ellipse, ELLIPSE) \
     macro(g, G) \
+    macro(glyph, GLYPH) \
     macro(image, IMAGE) \
     macro(linearGradient, LINEARGRADIENT) \
     macro(line, LINE) \

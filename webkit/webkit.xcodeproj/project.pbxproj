@@ -128,6 +128,7 @@
 		4DB7FA470E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FA430E9BF0CA00C66CE0 /* StyleGeneratedImage.cpp */; };
 		4DB7FA670E9BF24600C66CE0 /* NetworkStateNotifierMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F9EE0E9BECEC00C66CE0 /* NetworkStateNotifierMac.cpp */; };
 		4DB7FE770E9BF6D800C66CE0 /* WebSystemInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */; };
+		4DBB28F70EA611B200A0A427 /* V8SVGAltGlyphElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DBB28F50EA611B200A0A427 /* V8SVGAltGlyphElement.cpp */; };
 		4DFF09850E9C1261003CF5B4 /* AccessibilityObjectWin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DFF09840E9C1261003CF5B4 /* AccessibilityObjectWin.cpp */; };
 		7B0091350DAFEFBE00F72082 /* CSSGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */; };
 		7B0091370DAFEFBE00F72082 /* HTMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */; };
@@ -1545,6 +1546,8 @@
 		4DB7FE690E9BF69A00C66CE0 /* WebSystemInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebSystemInterface.h; sourceTree = "<group>"; };
 		4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebSystemInterface.m; sourceTree = "<group>"; };
 		4DB7FE6F0E9BF6AC00C66CE0 /* libwebcoresysteminterface.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebcoresysteminterface.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DBB28F50EA611B200A0A427 /* V8SVGAltGlyphElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGAltGlyphElement.cpp; sourceTree = "<group>"; };
+		4DBB28F60EA611B200A0A427 /* V8SVGAltGlyphElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGAltGlyphElement.h; sourceTree = "<group>"; };
 		4DFF09840E9C1261003CF5B4 /* AccessibilityObjectWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObjectWin.cpp; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
@@ -6564,6 +6567,8 @@
 				7B0092520DAFEFE400F72082 /* V8StyleSheetList.h */,
 				7B0092530DAFEFE400F72082 /* V8SVGAElement.cpp */,
 				7B0092540DAFEFE400F72082 /* V8SVGAElement.h */,
+				4DBB28F50EA611B200A0A427 /* V8SVGAltGlyphElement.cpp */,
+				4DBB28F60EA611B200A0A427 /* V8SVGAltGlyphElement.h */,
 				7B0092550DAFEFE400F72082 /* V8SVGAngle.cpp */,
 				7B0092560DAFEFE400F72082 /* V8SVGAngle.h */,
 				4DB7EF8A0E9B9F6300C66CE0 /* V8SVGAnimateColorElement.cpp */,
@@ -7631,6 +7636,7 @@
 				7B0094910DAFEFE600F72082 /* V8StyleSheet.cpp in Sources */,
 				7B0094930DAFEFE600F72082 /* V8StyleSheetList.cpp in Sources */,
 				7B0094950DAFEFE600F72082 /* V8SVGAElement.cpp in Sources */,
+				4DBB28F70EA611B200A0A427 /* V8SVGAltGlyphElement.cpp in Sources */,
 				7B0094970DAFEFE600F72082 /* V8SVGAngle.cpp in Sources */,
 				4DB7EF970E9B9F6300C66CE0 /* V8SVGAnimateColorElement.cpp in Sources */,
 				7B00949B0DAFEFE600F72082 /* V8SVGAnimatedAngle.cpp in Sources */,

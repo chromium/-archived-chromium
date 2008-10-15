@@ -169,6 +169,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   SVG_FOREIGN_OBJECT_ELEMENT_TYPES(V)                                   \
   SVG_USE_ELEMENT_TYPES(V)                                              \
   V(SVGAELEMENT, SVGAElement)                                           \
+  V(SVGALTGLYPHELEMENT, SVGAltGlyphElement)                             \
   V(SVGCIRCLEELEMENT, SVGCircleElement)                                 \
   V(SVGCLIPPATHELEMENT, SVGClipPathElement)                             \
   V(SVGCURSORELEMENT, SVGCursorElement)                                 \
@@ -176,6 +177,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(SVGDESCELEMENT, SVGDescElement)                                     \
   V(SVGELLIPSEELEMENT, SVGEllipseElement)                               \
   V(SVGGELEMENT, SVGGElement)                                           \
+  V(SVGGLYPHELEMENT, SVGGlyphElement)                                           \
   V(SVGGRADIENTELEMENT, SVGGradientElement)                             \
   V(SVGIMAGEELEMENT, SVGImageElement)                                   \
   V(SVGLINEARGRADIENTELEMENT, SVGLinearGradientElement)                 \

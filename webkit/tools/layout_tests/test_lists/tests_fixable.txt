@@ -945,7 +945,6 @@ V8 | KJS # LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destro
 V8 | KJS # LayoutTests/printing = FAIL
 V8 | KJS # LayoutTests/security/autocomplete-cleared-on-back.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
-V8 | KJS # LayoutTests/svg/dom/altGlyph-dom.xhtml = FAIL
 
 // Post-MERGE failures: these will all need to be fixed one day
 V8 | KJS # LayoutTests/editing/execCommand/outdent-selection.gchtml = FAIL

@@ -247,6 +247,7 @@
 
 #if ENABLE(SVG)
 #include "V8SVGAElement.h"
+#include "V8SVGAltGlyphElement.h"
 #include "V8SVGCircleElement.h"
 #include "V8SVGClipPathElement.h"
 #include "V8SVGCursorElement.h"
@@ -256,6 +257,7 @@
 #include "V8SVGEllipseElement.h"
 #include "V8SVGException.h"
 #include "V8SVGGElement.h"
+#include "V8SVGGlyphElement.h"
 #include "V8SVGGradientElement.h"
 #include "V8SVGImageElement.h"
 #include "V8SVGLinearGradientElement.h"
