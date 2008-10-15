@@ -89,9 +89,9 @@ class PlatformUtility(object):
                                             use_ssl=use_ssl,
                                             port=port)
 
-      # Run off file://
-      return PlatformUtility._FilenameToUri(self, full_path, use_http=False, 
-                                            use_ssl=False, port=0)
+    # Run off file://
+    return PlatformUtility._FilenameToUri(self, full_path, use_http=False, 
+                                          use_ssl=False, port=0)
 
   def LigHTTPdExecutablePath(self):
     """Returns the executable path to start LigHTTPd"""
