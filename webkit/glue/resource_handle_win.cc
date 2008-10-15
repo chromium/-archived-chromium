@@ -252,12 +252,12 @@ ResourceHandleInternal::ResourceHandleInternal(ResourceHandle* job,
     : job_(job),
       client_(c),
       request_(r),
+MSVC_SUPPRESS_WARNING(4355)  // can use this
+      data_url_factory_(this),
       load_flags_(net::LOAD_NORMAL),
       pending_(false),
       expected_content_length_(-1),
-      multipart_delegate_(NULL),
-MSVC_SUPPRESS_WARNING(4355)  // can use this
-      data_url_factory_(this) {
+      multipart_delegate_(NULL) {
 }
 
 ResourceHandleInternal::~ResourceHandleInternal() {
@@ -367,6 +367,8 @@ bool ResourceHandleInternal::Start(
       break;
     case ReturnCacheDataDontLoad:
       load_flags_ |= net::LOAD_ONLY_FROM_CACHE;
+      break;
+    case UseProtocolCachePolicy:
       break;
   }
 
