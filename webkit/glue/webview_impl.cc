@@ -33,8 +33,9 @@
 #include "config.h"
 #include "build/build_config.h"
 
-#if defined(OS_WIN)
 #include "base/compiler_specific.h"
+MSVC_PUSH_WARNING_LEVEL(0);
+#if defined(OS_WIN)
 #include "Cursor.h"
 #endif
 #include "Document.h"
