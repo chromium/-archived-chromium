@@ -1595,6 +1595,13 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
                                       error_page_url));
 }
 
+void WebFrameImpl::ExecuteJavaScript(const std::string& js_code,
+                                     const std::string& script_url) {
+  frame_->loader()->executeScript(webkit_glue::StdStringToString(script_url),
+                                  1, // base line number (for errors)
+                                  webkit_glue::StdStringToString(js_code));
+}
+
 std::wstring WebFrameImpl::GetName() {
   return webkit_glue::StringToStdWString(frame_->tree()->name());
 }

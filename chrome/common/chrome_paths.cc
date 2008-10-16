@@ -129,6 +129,11 @@ bool PathProvider(int key, std::wstring* result) {
         return false;
       file_util::AppendToPath(&cur, L"Dictionaries");
       break;
+    case chrome::DIR_USER_SCRIPTS:
+      // TODO(aa): Figure out where the script directory should live.
+      cur = L"C:\\SCRIPTS\\";
+      exists = true;  // don't trigger directory creation code
+      break;
     case chrome::FILE_LOCAL_STATE:
       if (!PathService::Get(chrome::DIR_USER_DATA, &cur))
         return false;

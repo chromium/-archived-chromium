@@ -18,6 +18,7 @@ class VisitedLinkSlave;
 struct WebPreferences;
 class RenderDnsMaster;
 class NotificationService;
+class GreasemonkeySlave;
 
 // The RenderThreadBase is the minimal interface that a RenderWidget expects
 // from a render thread. The interface basically abstracts a way to send and
@@ -64,7 +65,11 @@ class RenderThread : public IPC::Channel::Listener,
   // The RenderThread instance for the current thread.
   static RenderThread* current();
 
+  // Gets the VisitedLinkSlave instance for this thread
   VisitedLinkSlave* visited_link_slave() const { return visited_link_slave_; }
+
+  // Gets the GreasemonkeySlave instance for this thread
+  GreasemonkeySlave* greasemonkey_slave() const { return greasemonkey_slave_; }
 
   // Do DNS prefetch resolution of a hostname.
   void Resolve(const char* name, size_t length);
@@ -89,6 +94,7 @@ class RenderThread : public IPC::Channel::Listener,
 
  private:
   void OnUpdateVisitedLinks(SharedMemoryHandle table);
+  void OnUpdateGreasemonkeyScripts(SharedMemoryHandle table);
 
   void OnPluginMessage(const std::wstring& dll_path,
                        const std::vector<uint8>& data);
@@ -120,6 +126,7 @@ class RenderThread : public IPC::Channel::Listener,
 
   // These objects live solely on the render thread.
   VisitedLinkSlave* visited_link_slave_;
+  GreasemonkeySlave* greasemonkey_slave_;
 
   scoped_ptr<RenderDnsMaster> render_dns_master_;
 

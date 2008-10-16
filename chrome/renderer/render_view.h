@@ -623,6 +623,9 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // maintains the cache and other features of the accessibility tree.
   scoped_ptr<GlueAccessibility> glue_accessibility_;
 
+  // True if Greasemonkey is enabled in this process.
+  bool greasemonkey_enabled_;
+
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };
 

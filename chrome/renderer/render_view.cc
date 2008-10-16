@@ -31,6 +31,7 @@
 #include "chrome/renderer/about_handler.h"
 #include "chrome/renderer/chrome_plugin_host.h"
 #include "chrome/renderer/debug_message_handler.h"
+#include "chrome/renderer/greasemonkey_slave.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/renderer_resources.h"
 #include "chrome/renderer/visitedlink_slave.h"
@@ -150,7 +151,8 @@ RenderView::RenderView()
     history_back_list_count_(0),
     history_forward_list_count_(0),
     disable_popup_blocking_(false),
-    has_unload_listener_(false) {
+    has_unload_listener_(false),
+    greasemonkey_enabled_(false) {
   resource_dispatcher_ = new ResourceDispatcher(this);
 #ifdef CHROME_PERSONALIZATION
   personalization_ = Personalization::CreateRendererPersonalization();
@@ -261,6 +263,8 @@ void RenderView::Init(HWND parent_hwnd,
       command_line.HasSwitch(switches::kDomAutomationController);
   disable_popup_blocking_ =
       command_line.HasSwitch(switches::kDisablePopupBlocking);
+  greasemonkey_enabled_ =
+      command_line.HasSwitch(switches::kEnableGreasemonkey);
 
   debug_message_handler_ = new DebugMessageHandler(this);
   RenderThread::current()->AddFilter(debug_message_handler_);
@@ -1369,6 +1373,17 @@ void RenderView::DidFinishDocumentLoadForFrame(WebView* webview,
                                                WebFrame* frame) {
   // Check whether we have new encoding name.
   UpdateEncoding(frame, webview->GetMainFrameEncodingName());
+
+  // Inject any Greasemonkey scripts. Do not inject into chrome UI pages, but
+  // do inject into any other document.
+  if (greasemonkey_enabled_) {
+    const GURL &gurl = frame->GetURL();
+    if (gurl.SchemeIs("file") ||
+        gurl.SchemeIs("http") ||
+        gurl.SchemeIs("https")) {
+      RenderThread::current()->greasemonkey_slave()->InjectScripts(frame);
+    }
+  }
 }
 
 void RenderView::DidHandleOnloadEventsForFrame(WebView* webview,

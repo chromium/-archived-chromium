@@ -15,6 +15,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/plugin/plugin_channel.h"
 #include "chrome/renderer/net/render_dns_master.h"
+#include "chrome/renderer/greasemonkey_slave.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/visitedlink_slave.h"
@@ -41,6 +42,7 @@ RenderThread::RenderThread(const std::wstring& channel_name)
       channel_name_(channel_name),
       owner_loop_(MessageLoop::current()),
       visited_link_slave_(NULL),
+      greasemonkey_slave_(NULL),
       render_dns_master_(NULL),
       in_send_(0) {
   DCHECK(owner_loop_);
@@ -111,9 +113,8 @@ void RenderThread::Init() {
   // The renderer thread should wind-up COM.
   CoInitialize(0);
 
-  // TODO(darin): We should actually try to share this object between
-  // RenderThread instances.
   visited_link_slave_ = new VisitedLinkSlave();
+  greasemonkey_slave_ = new GreasemonkeySlave();
 
   render_dns_master_.reset(new RenderDnsMaster());
 
@@ -141,12 +142,20 @@ void RenderThread::CleanUp() {
   delete visited_link_slave_;
   visited_link_slave_ = NULL;
 
+  delete greasemonkey_slave_;
+  greasemonkey_slave_ = NULL;
+
   CoUninitialize();
 }
 
 void RenderThread::OnUpdateVisitedLinks(SharedMemoryHandle table) {
   DCHECK(table) << "Bad table handle";
   visited_link_slave_->Init(table);
+}
+
+void RenderThread::OnUpdateGreasemonkeyScripts(SharedMemoryHandle scripts) {
+  DCHECK(scripts) << "Bad scripts handle";
+  greasemonkey_slave_->UpdateScripts(scripts);  
 }
 
 void RenderThread::OnMessageReceived(const IPC::Message& msg) {
@@ -163,6 +172,8 @@ void RenderThread::OnMessageReceived(const IPC::Message& msg) {
       IPC_MESSAGE_HANDLER(ViewMsg_GetCacheResourceStats,
                           OnGetCacheResourceStats)
       IPC_MESSAGE_HANDLER(ViewMsg_PluginMessage, OnPluginMessage)
+      IPC_MESSAGE_HANDLER(ViewMsg_Greasemonkey_NewScripts,
+                          OnUpdateGreasemonkeyScripts)
       // send the rest to the router
       IPC_MESSAGE_UNHANDLED(router_.OnMessageReceived(msg))
     IPC_END_MESSAGE_MAP()

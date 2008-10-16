@@ -21,6 +21,7 @@
 #include "base/process_util.h"
 #include "base/rand_util.h"
 #include "base/shared_memory.h"
+#include "base/singleton.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "base/thread.h"
@@ -38,6 +39,7 @@
 #include "chrome/browser/sandbox_policy.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/visitedlink_master.h"
+#include "chrome/browser/greasemonkey_master.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -268,6 +270,7 @@ bool RenderProcessHost::Init() {
     switches::kDisablePopupBlocking,
     switches::kUseLowFragHeapCrt,
     switches::kGearsInRenderer,
+    switches::kEnableGreasemonkey,
   };
 
   for (int i = 0; i < arraysize(switch_names); ++i) {
@@ -423,27 +426,64 @@ bool RenderProcessHost::Init() {
   // Now that the process is created, set it's backgrounding accordingly.
   SetBackgrounded(backgrounded_);
 
-  VisitedLinkMaster* visitedlink_master = profile_->GetVisitedLinkMaster();
-  if (visitedlink_master) {
-    std::wstring history_table_name = visitedlink_master->GetSharedMemoryName();
-    SharedMemoryHandle handle_for_process = NULL;
-    HANDLE target_process = process_.handle();
-    if (!target_process) {
-      // Target process can be null if it's started with the --single-process
-      // flag.
-      target_process = GetCurrentProcess();
-    }
-
-    visitedlink_master->ShareToProcess(target_process, &handle_for_process);
-    DCHECK(handle_for_process);
-
-    channel_->Send(new ViewMsg_VisitedLink_NewTable(handle_for_process));
+  // Send the process its initial VisitedLink and Greasemonkey data.
+  HANDLE target_process = process_.handle();
+  if (!target_process) {
+    // Target process can be null if it's started with the --single-process
+    // flag.
+    target_process = GetCurrentProcess();
   }
+
+  InitVisitedLinks(target_process);
+  InitGreasemonkeyScripts(target_process);
 
   if (max_page_id_ != -1)
     channel_->Send(new ViewMsg_SetNextPageID(max_page_id_ + 1));
 
   return true;
+}
+
+void RenderProcessHost::InitVisitedLinks(HANDLE target_process) {
+  VisitedLinkMaster* visitedlink_master = profile_->GetVisitedLinkMaster();
+  if (!visitedlink_master) {
+    return;
+  }
+
+  SharedMemoryHandle handle_for_process = NULL;
+  visitedlink_master->ShareToProcess(target_process, &handle_for_process);
+  DCHECK(handle_for_process);
+  if (handle_for_process) {
+    channel_->Send(new ViewMsg_VisitedLink_NewTable(handle_for_process));
+  }
+}
+
+void RenderProcessHost::InitGreasemonkeyScripts(HANDLE target_process) {
+  CommandLine command_line;
+  if (!command_line.HasSwitch(switches::kEnableGreasemonkey)) {
+    return;
+  }
+
+  // TODO(aa): Figure out lifetime and ownership of this object
+  // - VisitedLinkMaster is owned by Profile, but there has been talk of
+  //   having scripts live elsewhere besides the profile.
+  // - File IO should be asynchronous (see VisitedLinkMaster), but how do we
+  //   get scripts to the first renderer without blocking startup? Should we
+  //   cache some information across restarts?
+  GreasemonkeyMaster* greasemonkey_master =
+      Singleton<GreasemonkeyMaster>::get();
+  if (!greasemonkey_master) {
+    return;
+  }
+
+  // TODO(aa): This does blocking IO. Move to background thread.
+  greasemonkey_master->UpdateScripts();
+
+  SharedMemoryHandle handle_for_process = NULL;
+  greasemonkey_master->ShareToProcess(target_process, &handle_for_process);
+  DCHECK(handle_for_process);
+  if (handle_for_process) {
+    channel_->Send(new ViewMsg_Greasemonkey_NewScripts(handle_for_process));
+  }
 }
 
 void RenderProcessHost::Attach(IPC::Channel::Listener* listener,
