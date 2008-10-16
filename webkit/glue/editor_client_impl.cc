@@ -218,7 +218,6 @@ bool EditorClientImpl::shouldApplyStyle(WebCore::CSSStyleDeclaration* style,
 bool EditorClientImpl::shouldMoveRangeAfterDelete(
     WebCore::Range* /*range*/,
     WebCore::Range* /*rangeToBeReplaced*/) {
-  NOTIMPLEMENTED();
   return true;
 }
 
@@ -274,11 +273,9 @@ void EditorClientImpl::didEndEditing() {
 }
 
 void EditorClientImpl::didWriteSelectionToPasteboard() {
-  NOTIMPLEMENTED();
 }
 
 void EditorClientImpl::didSetSelectionTypesForPasteboard() {
-  NOTIMPLEMENTED();
 }
 
 void EditorClientImpl::registerCommandForUndo(
