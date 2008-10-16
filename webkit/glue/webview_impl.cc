@@ -1494,6 +1494,7 @@ void WebViewImpl::didAddHistoryItem(WebCore::HistoryItem* item) {
 #ifndef NDEBUG
   new_navigation_loader_ = main_frame_->frame()->loader()->documentLoader();
 #endif
+  delegate_->DidAddHistoryItem();
 }
 
 void WebViewImpl::willGoToHistoryItem(WebCore::HistoryItem* item) {

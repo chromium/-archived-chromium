@@ -485,6 +485,8 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 
   virtual void TransitionToCommittedForNewPage();
 
+  virtual void DidAddHistoryItem();
+
   // A helper method used by WasOpenedByUserGesture.
   bool WasOpenedByUserGestureHelper() const;
 

@@ -716,6 +716,9 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // will occur.
   virtual void TransitionToCommittedForNewPage() { }
 
+  // Called when an item was added to the history
+  virtual void DidAddHistoryItem() { }
+
   WebViewDelegate() { }
   virtual ~WebViewDelegate() { }
 

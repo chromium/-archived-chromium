@@ -273,6 +273,19 @@ class UITest : public testing::Test {
   // error.
   DictionaryValue* GetDefaultProfilePreferences();
 
+  // Generate the URL for testing a particular test.
+  // HTML for the tests is all located in 
+  // test_root_directory\test_directory\<testcase>
+  static GURL GetTestUrl(const std::wstring& test_directory,
+                         const std::wstring &test_case);
+
+  // Waits for the test case to finish.
+  // ASSERTS if there are test failures.
+  void WaitForFinish(const std::string &name,
+                     const std::string &id, const GURL &url,
+                     const std::string& test_complete_cookie,
+                     const std::string& expected_cookie_value,
+                     const int wait_time);
  private:
   // Check that no processes related to Chrome exist, displaying
   // the given message if any do.

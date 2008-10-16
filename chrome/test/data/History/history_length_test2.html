@@ -1,0 +1,33 @@
+<html>
+<head><title>History test2</title>
+<script src="HistoryHelper.js"></script>
+</head>
+
+<body onload="onLoad();">
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+History test2....
+<div id="Div1" style="border: 1px solid red; width: 100%">
+</body>
+
+<SCRIPT type="text/javascript">
+function onLoad() {
+ setTimeout(OnValidateHistoryLength, 100);
+}
+
+function OnValidateHistoryLength() {
+ if (window.history.length != 3) {
+   onFailure("History_Length_Test", 1, "History length mismatch");
+   alert(window.history.length);
+   return false;
+ }
+
+ window.history.back();
+ return true; 
+}
+
+function OnEchoHistory() {
+ alert(window.history.length);
+}
+
+</SCRIPT>
+</html>

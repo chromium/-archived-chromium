@@ -28,6 +28,7 @@
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/test_file_util.h"
 #include "googleurl/src/gurl.h"
+#include "net/base/net_util.h"
 
 bool UITest::in_process_renderer_ = false;
 bool UITest::in_process_plugins_ = false;
@@ -586,5 +587,40 @@ void UITest::PrintResult(const std::wstring& measurement,
           trace.c_str(), value, units.c_str());
 }
 
+GURL UITest::GetTestUrl(const std::wstring& test_directory,
+                        const std::wstring &test_case) {
+  std::wstring path;
+  PathService::Get(chrome::DIR_TEST_DATA, &path);
+  file_util::AppendToPath(&path, test_directory);
+  file_util::AppendToPath(&path, test_case);
+  return net::FilePathToFileURL(path);
+}
+
+void UITest::WaitForFinish(const std::string &name,
+                           const std::string &id,
+                           const GURL &url,
+                           const std::string& test_complete_cookie,
+                           const std::string& expected_cookie_value,
+                           const int wait_time) {
+  const int kIntervalMilliSeconds = 50;
+  // The webpage being tested has javascript which sets a cookie
+  // which signals completion of the test.  The cookie name is
+  // a concatenation of the test name and the test id.  This allows
+  // us to run multiple tests within a single webpage and test 
+  // that they all c
+  std::string cookie_name = name;
+  cookie_name.append(".");
+  cookie_name.append(id);
+  cookie_name.append(".");
+  cookie_name.append(test_complete_cookie);
+
+  scoped_ptr<TabProxy> tab(GetActiveTab());
+
+  bool test_result = WaitUntilCookieValue(tab.get(), url, 
+                                          cookie_name.c_str(),
+                                          kIntervalMilliSeconds, wait_time,
+                                          expected_cookie_value.c_str());
+  EXPECT_EQ(true, test_result);
+}
 
 

@@ -1,0 +1,66 @@
+<html>
+<head><title>History test1</title>
+<script src="HistoryHelper.js"></script>
+</head>
+
+<body onload="onLoad();">
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+History Test1 running....
+</body>
+
+<SCRIPT type="text/javascript">
+var first_run_cookie = "First_History_Test_Run";
+var second_run_cookie = "Second_History_Test_Run";
+
+function onLoad() {
+  if (readCookie(second_run_cookie) != null) {
+    setTimeout(OnValidateHistoryForSecondRun, 100);
+    return true;
+  }
+  
+  if (readCookie(first_run_cookie) != null) {
+    setTimeout(OnMoveForwardInHistory, 100);
+    return true;
+  }
+  
+  setTimeout(OnNavigateToPage2, 100);  
+  return true;
+}
+
+function OnValidateHistoryForSecondRun() {
+  eraseCookie(first_run_cookie);
+  eraseCookie(second_run_cookie);
+  
+  if (window.history.length != 2) {
+    onFailure("History_Length_Test", 1, "Second run history length mismatch");
+    return false;
+  }
+  
+  onSuccess("History_Length_Test", 1);
+  return true;
+}
+
+function OnMoveForwardInHistory() {
+  if (window.history.length != 2) {
+    onFailure("History_Length_Test", 1, "History length mismatch");
+    return false;
+  }
+
+  createCookie(second_run_cookie, "1", "1");
+  window.history.forward();
+  return true;
+}
+
+function OnNavigateToPage2() {
+  if (window.history.length != 2) {
+    onFailure("History_Length_Test", 1, "History length mismatch");
+    return false;
+  }
+  
+  createCookie(first_run_cookie, "1", "1");
+  window.location.href = "history_length_test2.html";
+  return true;
+}
+
+</SCRIPT>
+</html>

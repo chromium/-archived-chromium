@@ -221,6 +221,14 @@
 				RelativePath="..\..\browser\browser_uitest.cc"
 				>
 			</File>
+			<Filter
+				Name="TestImages"
+				>
+				<File
+					RelativePath="..\..\browser\images_uitest.cc"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="TestChromeLogging"
@@ -235,14 +243,6 @@
 			>
 			<File
 				RelativePath="..\..\browser\download\download_uitest.cc"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="TestImages"
-			>
-			<File
-				RelativePath="..\..\browser\images_uitest.cc"
 				>
 			</File>
 		</Filter>
@@ -519,6 +519,14 @@
 			>
 			<File
 				RelativePath=".\omnibox_uitest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestHistory"
+			>
+			<File
+				RelativePath=".\history_uitest.cc"
 				>
 			</File>
 		</Filter>
