@@ -547,7 +547,7 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
     std::wstring file_name;
     std::wstring path;
     while (path.empty()) {
-      SStringPrintf(&file_name, L"dangerous_download_%d.download",
+      SStringPrintf(&file_name, L"unconfirmed %d.download",
                     base::RandInt(0, 100000));
        path = dir;
        file_util::AppendToPath(&path, file_name);
