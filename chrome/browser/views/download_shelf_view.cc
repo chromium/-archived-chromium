@@ -199,6 +199,15 @@ void DownloadShelfView::AnimationEnded(const Animation *animation) {
 }
 
 void DownloadShelfView::Layout() {
+  // When the download shelf is not visible it is not parented to anything,
+  // which means it is not safe to lay out the controls, so we return early.
+  // Otherwise, we can have problems when for example the user switches to
+  // another tab (that doesn't have a download shelf) _before_ the download
+  // has started and we'll crash when calling SetVisible() below because
+  // the NativeControlContainer ctor tries to use the ViewContainer.
+  if (!GetViewContainer())
+    return;
+
   gfx::Size image_size = arrow_image_->GetPreferredSize();
   gfx::Size close_button_size = close_button_->GetPreferredSize();
   gfx::Size show_all_size = show_all_view_->GetPreferredSize();
