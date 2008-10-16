@@ -12,7 +12,8 @@ import sys
 
 import google.path_utils
 
-import layout_package.path_utils
+# Distinguish the path_utils.py in this dir from google.path_utils.
+import path_utils as layout_package_path_utils
 
 # This will be a native path to the directory this file resides in.
 # It can either be relative or absolute depending how it's executed.
@@ -61,7 +62,7 @@ class PlatformUtility(object):
     return "file:///" + self.GetAbsolutePath(path)
 
   def FilenameToUri(self, full_path):
-    relative_path = layout_package.path_utils.RelativeTestFilename(full_path)
+    relative_path = layout_package_path_utils.RelativeTestFilename(full_path)
     port = None
     use_ssl = False
 
