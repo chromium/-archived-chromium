@@ -265,8 +265,8 @@ TEST(OSExchangeDataTest, TestURLExchangeFormats) {
 
     STGMEDIUM medium;
     EXPECT_EQ(S_OK, com_data->GetData(&format_etc, &medium));
-    std::string output =
-        ScopedHGlobal<char>(medium.hGlobal).get();
+    ScopedHGlobal<char> glob(medium.hGlobal);
+    std::string output(glob.get(), glob.Size());
     std::string file_contents = "[InternetShortcut]\r\nURL=" + url_spec + "\r\n";
     EXPECT_EQ(file_contents, output);
     ReleaseStgMedium(&medium);
