@@ -603,11 +603,21 @@ void NPN_InvalidateRect(NPP id, NPRect *invalidRect) {
   DCHECK(plugin.get() != NULL);
   if (plugin.get() && plugin->webplugin()) {
     if (invalidRect) {
+      if (!plugin->windowless()) {
+        RECT rect = {0};
+        rect.left = invalidRect->left;
+        rect.right = invalidRect->right;
+        rect.top = invalidRect->top;
+        rect.bottom = invalidRect->bottom;
+        ::InvalidateRect(plugin->window_handle(), &rect, FALSE);
+        return;
+      }
+
       gfx::Rect rect(invalidRect->left,
                      invalidRect->top,
                      invalidRect->right - invalidRect->left,
                      invalidRect->bottom - invalidRect->top);
-        plugin->webplugin()->InvalidateRect(rect);
+      plugin->webplugin()->InvalidateRect(rect);
     } else {
       plugin->webplugin()->Invalidate();
     }
