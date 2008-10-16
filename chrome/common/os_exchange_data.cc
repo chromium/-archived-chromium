@@ -330,7 +330,7 @@ void OSExchangeData::SetFileContents(const std::wstring& filename,
       ClipboardUtil::GetFileDescriptorFormat()->cfFormat, storage));
 
   // Add CFSTR_FILECONTENTS
-  storage = GetStorageForString(file_contents);
+  storage = GetStorageForBytes(file_contents.data(), file_contents.length());
   contents_.push_back(new StoredDataInfo(
       ClipboardUtil::GetFileContentFormatZero()->cfFormat, storage));
 }
