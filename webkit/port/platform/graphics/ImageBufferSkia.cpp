@@ -64,15 +64,110 @@ Image* ImageBuffer::image() const
     return m_image.get();
 }
 
-PassRefPtr<ImageData> ImageBuffer::getImageData(const IntRect&) const
+PassRefPtr<ImageData> ImageBuffer::getImageData(const IntRect& rect) const
 {
-    notImplemented();
-    return 0;
+    ASSERT(context());
+
+    RefPtr<ImageData> result = ImageData::create(rect.width(), rect.height());
+    unsigned char* data = result->data()->data().data();
+
+    if (rect.x() < 0 || rect.y() < 0 ||
+        (rect.x() + rect.width()) > m_size.width() ||
+        (rect.y() + rect.height()) > m_size.height())
+        memset(data, 0, result->data()->length());
+
+    int originx = rect.x();
+    int destx = 0;
+    if (originx < 0) {
+        destx = -originx;
+        originx = 0;
+    }
+    int endx = rect.x() + rect.width();
+    if (endx > m_size.width())
+        endx = m_size.width();
+    int numColumns = endx - originx;
+
+    int originy = rect.y();
+    int desty = 0;
+    if (originy < 0) {
+        desty = -originy;
+        originy = 0;
+    }
+    int endy = rect.y() + rect.height();
+    if (endy > m_size.height())
+        endy = m_size.height();
+    int numRows = endy - originy;
+
+    const SkBitmap& bitmap = *context()->platformContext()->bitmap();
+    ASSERT(bitmap.config() == SkBitmap::kARGB_8888_Config);
+    SkAutoLockPixels bitmapLock(bitmap);
+
+    unsigned destBytesPerRow = 4 * rect.width();
+    unsigned char* destRow = data + desty * destBytesPerRow + destx * 4;
+
+    for (int y = 0; y < numRows; ++y) {
+        uint32_t* srcRow = bitmap.getAddr32(originx, originy + y);
+        for (int x = 0; x < numColumns; ++x) {
+            SkColor color = SkPMColorToColor(srcRow[x]);
+            unsigned char* destPixel = &destRow[x * 4];
+            destPixel[0] = SkColorGetR(color);
+            destPixel[1] = SkColorGetG(color);
+            destPixel[2] = SkColorGetB(color);
+            destPixel[3] = SkColorGetA(color);            
+        }
+        destRow += destBytesPerRow;
+    }
+
+    return result;
 }
 
-void ImageBuffer::putImageData(ImageData*, const IntRect&, const IntPoint&)
+void ImageBuffer::putImageData(ImageData* source, const IntRect& sourceRect,
+                               const IntPoint& destPoint)
 {
-    notImplemented();
+    ASSERT(sourceRect.width() > 0);
+    ASSERT(sourceRect.height() > 0);
+
+    int originx = sourceRect.x();
+    int destx = destPoint.x() + sourceRect.x();
+    ASSERT(destx >= 0);
+    ASSERT(destx < m_size.width());
+    ASSERT(originx >= 0);
+    ASSERT(originx < sourceRect.right());
+
+    int endx = destPoint.x() + sourceRect.right();
+    ASSERT(endx <= m_size.width());
+
+    int numColumns = endx - destx;
+
+    int originy = sourceRect.y();
+    int desty = destPoint.y() + sourceRect.y();
+    ASSERT(desty >= 0);
+    ASSERT(desty < m_size.height());
+    ASSERT(originy >= 0);
+    ASSERT(originy < sourceRect.bottom());
+
+    int endy = destPoint.y() + sourceRect.bottom();
+    ASSERT(endy <= m_size.height());
+    int numRows = endy - desty;
+
+    const SkBitmap& bitmap = *context()->platformContext()->bitmap();
+    ASSERT(bitmap.config() == SkBitmap::kARGB_8888_Config);
+    SkAutoLockPixels bitmapLock(bitmap);
+
+    unsigned srcBytesPerRow = 4 * source->width();
+
+    const unsigned char* srcRow = source->data()->data().data() +
+        originy * srcBytesPerRow + originx * 4;
+
+    for (int y = 0; y < numRows; ++y) {
+        uint32_t* destRow = bitmap.getAddr32(destx, desty + y);
+        for (int x = 0; x < numColumns; ++x) {
+            const unsigned char* srcPixel = &srcRow[x * 4];
+            destRow[x] = SkPreMultiplyARGB(srcPixel[3], srcPixel[0],
+                                           srcPixel[1], srcPixel[2]);
+        }
+        srcRow += srcBytesPerRow;
+    }
 }
 
 String ImageBuffer::toDataURL(const String&) const

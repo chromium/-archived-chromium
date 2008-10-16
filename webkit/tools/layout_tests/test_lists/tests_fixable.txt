@@ -795,20 +795,12 @@ V8 | KJS # LayoutTests/fast/css/shadow-multiple.html = FAIL
 # There appears to be some parsing error. These tests give "successfullyParsed
 # should be true (of type boolean). Was undefined (of type undefined)."
 # http://code.google.com/p/chromium/issues/detail?id=2976
-V8 | KJS # LayoutTests/fast/canvas/canvas-invalid-fillstyle.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-invalid-strokestyle.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-ImageData-behaviour.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-alphaImageData-behavior.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-putImageData.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/drawImage-with-negative-source-destination.html = FAIL
 
 # getImageData isn't supported on canvas.
 # http://code.google.com/p/chromium/issues/detail?id=2974
 V8 | KJS # LayoutTests/fast/canvas/canvas-pattern-behaviour.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-longlived-context.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-path-with-inf-nan-dimensions.html = FAIL
-V8 | KJS # LayoutTests/fast/canvas/canvas-save-restore-with-path.html = FAIL
 
 # We don't implement toDataURL.
 # http://code.google.com/p/chromium/issues/detail?id=2972

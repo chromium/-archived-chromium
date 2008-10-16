@@ -413,6 +413,10 @@ class V8Proxy {
                                      v8::Persistent<v8::Value> handle);
 #endif
 
+  // Check whether a V8 value is a wrapper of type |classType|.
+  static bool IsWrapperOfType(v8::Handle<v8::Value> obj,
+                              V8ClassIndex::V8WrapperType classType);
+
  private:
   void initContextIfNeeded();
   void DisconnectEventListeners();

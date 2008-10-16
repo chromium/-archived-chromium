@@ -119,8 +119,7 @@ static U8CPU InvScaleByte(U8CPU component, uint32_t scale)
     return (component * scale + 0x8000) >> 16;
 }
 
-// move this guy into SkColor.h
-static SkColor SkPMColorToColor(SkPMColor pm)
+SkColor SkPMColorToColor(SkPMColor pm)
 {
     if (0 == pm)
         return 0;

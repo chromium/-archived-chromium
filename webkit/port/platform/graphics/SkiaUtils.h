@@ -20,6 +20,9 @@ class SkRegion;
 // corresponding Skia type.
 SkPorterDuff::Mode WebCoreCompositeToSkiaComposite(WebCore::CompositeOperator);
 
+// move this guy into SkColor.h
+SkColor SkPMColorToColor(SkPMColor pm);
+
 // Converts Android colors to WebKit ones.
 WebCore::Color SkPMColorToWebCoreColor(SkPMColor pm);
 

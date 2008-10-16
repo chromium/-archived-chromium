@@ -1230,6 +1230,11 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           NodeCollectionIndexedPropertyEnumerator<HTMLFormElement>,
           v8::External::New(reinterpret_cast<void*>(V8ClassIndex::NODE)));
       break;
+    case V8ClassIndex::CANVASPIXELARRAY:
+      desc->InstanceTemplate()->SetIndexedPropertyHandler(
+          USE_INDEXED_PROPERTY_GETTER(CanvasPixelArray),
+          USE_INDEXED_PROPERTY_SETTER(CanvasPixelArray));
+      break;
     case V8ClassIndex::STYLESHEET:  // fall through
     case V8ClassIndex::CSSSTYLESHEET: {
       // We add an extra internal field to hold a reference to
@@ -2066,6 +2071,13 @@ bool V8Proxy::MaybeDOMWrapper(v8::Handle<v8::Value> value) {
 
 
 bool V8Proxy::IsDOMEventWrapper(v8::Handle<v8::Value> value) {
+  // All kinds of events use EVENT as dom type in JS wrappers.
+  // See EventToV8Object
+  return IsWrapperOfType(value, V8ClassIndex::EVENT);
+}
+
+bool V8Proxy::IsWrapperOfType(v8::Handle<v8::Value> value,
+                              V8ClassIndex::V8WrapperType classType) {
   if (value.IsEmpty() || !value->IsObject()) return false;
 
   v8::Handle<v8::Object> obj = v8::Handle<v8::Object>::Cast(value);
@@ -2084,9 +2096,7 @@ bool V8Proxy::IsDOMEventWrapper(v8::Handle<v8::Value> value) {
   ASSERT(V8ClassIndex::INVALID_CLASS_INDEX < type->Int32Value() &&
     type->Int32Value() < V8ClassIndex::CLASSINDEX_END);
 
-  // All kinds of events use EVENT as dom type in JS wrappers.
-  // See EventToV8Object
-  return V8ClassIndex::FromInt(type->Int32Value()) == V8ClassIndex::EVENT;
+  return V8ClassIndex::FromInt(type->Int32Value()) == classType;
 }
 
 

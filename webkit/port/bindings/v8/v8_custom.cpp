@@ -50,6 +50,7 @@
 #include "Base64.h"
 #include "CanvasGradient.h"
 #include "CanvasPattern.h"
+#include "CanvasPixelArray.h"
 #include "CanvasRenderingContext2D.h"
 #include "CanvasStyle.h"
 #include "Clipboard.h"
@@ -635,6 +636,33 @@ NAMED_PROPERTY_GETTER(HTMLCollection) {
   return HTMLCollectionGetNamedItems(imp, key);
 }
 
+INDEXED_PROPERTY_GETTER(CanvasPixelArray) {
+  INC_STATS(L"DOM.CanvasPixelArray.IndexedPropertyGetter");
+  CanvasPixelArray* pixelArray =
+      V8Proxy::ToNativeObject<CanvasPixelArray>(V8ClassIndex::CANVASPIXELARRAY,
+          info.Holder());
+
+  // TODO(eroman): This performance will not be good when looping through
+  // many pixels. See: http://code.google.com/p/chromium/issues/detail?id=3473
+  
+  unsigned char result;
+  if (!pixelArray->get(index, result))
+      return v8::Undefined();
+  return v8::Number::New(result);
+}
+
+INDEXED_PROPERTY_SETTER(CanvasPixelArray) {
+  INC_STATS(L"DOM.CanvasPixelArray.IndexedPropertySetter");
+  CanvasPixelArray* pixelArray =
+      V8Proxy::ToNativeObject<CanvasPixelArray>(V8ClassIndex::CANVASPIXELARRAY,
+          info.Holder());
+
+  double pixelValue = value->NumberValue();
+  pixelArray->set(index, pixelValue);
+
+  // TODO(eroman): what to return?
+  return v8::Undefined();
+}
 
 CALLBACK_FUNC_DECL(HTMLCollectionItem) {
   INC_STATS(L"DOM.HTMLCollection.item()");
@@ -2072,9 +2100,6 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DDrawImageFromRect) {
   return v8::Undefined();
 }
 
-// Remove the macro since we don't need it anymore.
-#undef TO_FLOAT
-
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DCreatePattern) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.createPattern()");
   CanvasRenderingContext2D* context =
@@ -2131,11 +2156,11 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DFillText) {
   }
 
   String text = ToWebCoreString(args[0]);
-  float x = static_cast<float>(args[1]->NumberValue());
-  float y = static_cast<float>(args[2]->NumberValue());
+  float x = TO_FLOAT(args[1]);
+  float y = TO_FLOAT(args[2]);
 
   if (args.Length() == 4) {
-    float maxWidth = static_cast<float>(args[3]->NumberValue());
+    float maxWidth = TO_FLOAT(args[3]);
     context->fillText(text, x, y, maxWidth);
   } else {
     context->fillText(text, x, y);
@@ -2160,11 +2185,11 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DStrokeText) {
   }
 
   String text = ToWebCoreString(args[0]);
-  float x = static_cast<float>(args[1]->NumberValue());
-  float y = static_cast<float>(args[2]->NumberValue());
+  float x = TO_FLOAT(args[1]);
+  float y = TO_FLOAT(args[2]);
 
   if (args.Length() == 4) {
-    float maxWidth = static_cast<float>(args[3]->NumberValue());
+    float maxWidth = TO_FLOAT(args[3]);
     context->strokeText(text, x, y, maxWidth);
   } else {
     context->strokeText(text, x, y);
@@ -2175,7 +2200,45 @@ CALLBACK_FUNC_DECL(CanvasRenderingContext2DStrokeText) {
 
 CALLBACK_FUNC_DECL(CanvasRenderingContext2DPutImageData) {
   INC_STATS(L"DOM.CanvasRenderingContext2D.putImageData()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
+  
+  // Two froms:
+  // * putImageData(ImageData, x, y)
+  // * putImageData(ImageData, x, y, dirtyX, dirtyY, dirtyWidth, dirtyHeight)
+  if (args.Length() != 3 && args.Length() != 7) {
+    V8Proxy::SetDOMException(SYNTAX_ERR);
+    return v8::Handle<v8::Value>();
+  }
+
+  CanvasRenderingContext2D* context =
+      V8Proxy::ToNativeObject<CanvasRenderingContext2D>(
+          V8ClassIndex::CANVASRENDERINGCONTEXT2D, args.Holder());
+
+  ImageData* imageData = 0;
+
+  // Need to check that the argument is of the correct type, since
+  // ToNativeObject() expects it to be correct. If the argument was incorrect
+  // we leave it null, and putImageData() will throw the correct exception
+  // (TYPE_MISMATCH_ERR).
+  if (V8Proxy::IsWrapperOfType(args[0], V8ClassIndex::IMAGEDATA)) {
+    imageData = V8Proxy::ToNativeObject<ImageData>(
+        V8ClassIndex::IMAGEDATA, args[0]);
+  }
+
+  ExceptionCode ec = 0;
+
+  if (args.Length() == 7) {
+    context->putImageData(imageData,
+        TO_FLOAT(args[1]), TO_FLOAT(args[2]), TO_FLOAT(args[3]),
+        TO_FLOAT(args[4]), TO_FLOAT(args[5]), TO_FLOAT(args[6]), ec);
+  } else {
+    context->putImageData(imageData, TO_FLOAT(args[1]), TO_FLOAT(args[2]), ec);
+  }
+
+  if (ec != 0) {
+    V8Proxy::SetDOMException(ec);
+    return v8::Handle<v8::Value>();
+  }
+
   return v8::Undefined();
 }
 
@@ -3433,8 +3496,8 @@ CALLBACK_FUNC_DECL(SVGMatrixRotateFromVector) {
       *V8Proxy::ToNativeObject<V8SVGPODTypeWrapper<AffineTransform> >(
           V8ClassIndex::SVGMATRIX, args.Holder());
   ExceptionCode ec = 0;
-  float x = static_cast<float>(args[0]->NumberValue());
-  float y = static_cast<float>(args[1]->NumberValue());
+  float x = TO_FLOAT(args[0]);
+  float y = TO_FLOAT(args[1]);
   AffineTransform result = imp;
   result.rotateFromVector(x, y);
   if (x == 0.0 || y == 0.0) {
