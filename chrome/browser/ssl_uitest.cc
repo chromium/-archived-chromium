@@ -202,8 +202,7 @@ TEST_F(SSLUITest, TestHTTPSExpiredCert) {
 //
 
 // Visits a page with mixed content.
-// Diasbled for flackiness (bug #2742).
-TEST_F(SSLUITest, DISABLED_TestMixedContents) {
+TEST_F(SSLUITest, TestMixedContents) {
   HTTPSTestServer https_server(kHostName, kOKHTTPSPort,
                                kDocRoot, GetOKCertPath());
   TestServer http_server(kDocRoot);
@@ -717,8 +716,7 @@ TEST_F(SSLUITest, TestConnectToBadPort) {
 // - navigate to a bad HTTPS (expect unsafe content and filtered frame), then
 //   back 
 // - navigate to HTTP (expect mixed content), then back
-// Disabled for flackiness (bug #2742).
-TEST_F(SSLUITest, DISABLED_TestGoodFrameNavigation) {
+TEST_F(SSLUITest, TestGoodFrameNavigation) {
   TestServer http_server(kDocRoot);
   HTTPSTestServer good_https_server(kHostName, kOKHTTPSPort,
                                     kDocRoot, GetOKCertPath());

@@ -317,7 +317,8 @@ class DefaultPolicy : public SSLPolicy {
     }
     mixed_content_handler->StartRequest(filter_policy);
 
-    NavigationEntry* entry = navigation_controller->GetActiveEntry();
+    NavigationEntry* entry = navigation_controller->GetLastCommittedEntry();
+    DCHECK(entry);
     // Even though we are loading the mixed-content resource, it will not be
     // included in the page when we set the policy to FILTER_ALL or
     // FILTER_ALL_EXCEPT_IMAGES (only images and they are stamped with warning
