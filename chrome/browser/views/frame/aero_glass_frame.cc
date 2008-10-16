@@ -91,7 +91,7 @@ ChromeViews::Window* AeroGlassFrame::GetWindow() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassFrame, ChromeViews::HWNDViewContainer implementation:
+// AeroGlassFrame, ChromeViews::ContainerWin implementation:
 
 void AeroGlassFrame::OnInitMenuPopup(HMENU menu, UINT position,
                                      BOOL is_system_menu) {
@@ -183,7 +183,7 @@ LRESULT AeroGlassFrame::OnNCHitTest(const CPoint& pt) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassFrame, ChromeViews::HWNDViewContainer overrides:
+// AeroGlassFrame, ChromeViews::ContainerWin overrides:
 
 bool AeroGlassFrame::AcceleratorPressed(
     ChromeViews::Accelerator* accelerator) {

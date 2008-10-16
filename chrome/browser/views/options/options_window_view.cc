@@ -172,8 +172,8 @@ gfx::Size OptionsWindowView::GetPreferredSize() {
 void OptionsWindowView::ViewHierarchyChanged(bool is_add,
                                              ChromeViews::View* parent,
                                              ChromeViews::View* child) {
-  // Can't init before we're inserted into a ViewContainer, because we require
-  // a HWND to parent native child controls to.
+  // Can't init before we're inserted into a Container, because we require a
+  // HWND to parent native child controls to.
   if (is_add && child == this)
     Init();
 }

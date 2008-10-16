@@ -40,9 +40,9 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/chrome_menu.h"
+#include "chrome/views/container.h"
 #include "chrome/views/menu_button.h"
 #include "chrome/views/tooltip_manager.h"
-#include "chrome/views/view_container.h"
 #include "chrome/views/window.h"
 #include "generated_resources.h"
 
@@ -1408,7 +1408,7 @@ void BookmarkBarView::RunMenu(ChromeViews::View* view,
   gfx::Point screen_loc(x, 0);
   View::ConvertPointToScreen(this, &screen_loc);
   menu_runner_.reset(new MenuRunner(this, node, start_index));
-  HWND parent_hwnd = GetViewContainer()->GetHWND();
+  HWND parent_hwnd = GetContainer()->GetHWND();
   menu_runner_->RunMenuAt(parent_hwnd,
                           gfx::Rect(screen_loc.x(), screen_loc.y(),
                                     view->width(), bar_height),
@@ -1433,7 +1433,7 @@ void BookmarkBarView::ButtonPressed(ChromeViews::BaseButton* sender) {
         PageTransition::AUTO_BOOKMARK);
   } else {
     BookmarkBarContextMenuController::OpenAll(
-        GetViewContainer()->GetHWND(), GetPageNavigator(), node,
+        GetContainer()->GetHWND(), GetPageNavigator(), node,
         event_utils::DispositionFromEventFlags(sender->mouse_event_flags()));
   }
   UserMetrics::RecordAction(L"ClickedBookmarkBarURLButton", profile_);
@@ -1591,7 +1591,7 @@ void BookmarkBarView::ShowDropFolderForNode(BookmarkNode* node) {
   gfx::Point screen_loc;
   View::ConvertPointToScreen(view_to_position_menu_from, &screen_loc);
   drop_menu_runner_->RunMenuAt(
-      GetViewContainer()->GetHWND(),
+      GetContainer()->GetHWND(),
       gfx::Rect(screen_loc.x(), screen_loc.y(),
                 view_to_position_menu_from->width(),
                 view_to_position_menu_from->height()),
@@ -1828,7 +1828,7 @@ void BookmarkBarView::StartThrobbing() {
   if (bubble_url_.is_empty())
     return;  // Bubble isn't showing; nothing to throb.
 
-  if (!GetViewContainer())
+  if (!GetContainer())
     return;  // We're not showing, don't do anything.
 
   BookmarkNode* node = model_->GetMostRecentlyAddedNodeForURL(bubble_url_);

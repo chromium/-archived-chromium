@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_WINDOW_H__
 #define CHROME_VIEWS_WINDOW_H__
 
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container_win.h"
 
 namespace gfx {
 class Size;
@@ -22,15 +22,15 @@ class Client;
 class NonClientView;
 class WindowDelegate;
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //
 // Window
 //
-//  A Window is a HWNDViewContainer that has a caption and a border. The frame
-//  is rendered by the operating system.
+//  A Window is a ContainerWin that has a caption and a border. The frame is
+//  rendered by the operating system.
 //
-////////////////////////////////////////////////////////////////////////////////
-class Window : public HWNDViewContainer {
+///////////////////////////////////////////////////////////////////////////////
+class Window : public ContainerWin {
  public:
   virtual ~Window();
 
@@ -156,7 +156,7 @@ class Window : public HWNDViewContainer {
   // Shows the system menu at the specified screen point.
   void RunSystemMenu(const CPoint& point);
 
-  // Overridden from HWNDViewContainer:
+  // Overridden from ContainerWin:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
   virtual LRESULT OnAppCommand(HWND window, short app_command, WORD device,
                                int keystate);

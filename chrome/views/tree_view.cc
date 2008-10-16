@@ -13,8 +13,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
+#include "chrome/views/container.h"
 #include "chrome/views/focus_manager.h"
-#include "chrome/views/view_container.h"
 
 namespace ChromeViews {
 
@@ -411,7 +411,7 @@ bool TreeView::OnKeyDown(int virtual_key_code) {
     }
     return true;
   } else if (virtual_key_code == VK_RETURN && !process_enter_) {
-    ViewContainer* vc = GetViewContainer();
+    Container* vc = GetContainer();
     DCHECK(vc);
     FocusManager* fm = FocusManager::GetFocusManager(vc->GetHWND());
     DCHECK(fm);

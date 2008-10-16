@@ -1027,8 +1027,8 @@ void Browser::DuplicateContentsAt(int index) {
     Browser* new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile(),
                                        BrowserType::APPLICATION, app_name_);
 
-    // We need to show the browser now. Otherwise HWNDViewContainer assumes
-    // the tab contents is invisible and won't size it.
+    // We need to show the browser now. Otherwise ContainerWin assumes the
+    // TabContents is invisible and won't size it.
     new_browser->Show();
 
     // The page transition below is only for the purpose of inserting the tab.

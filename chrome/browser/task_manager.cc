@@ -937,7 +937,7 @@ void TaskManagerContents::ShowContextMenu(ChromeViews::View* source,
                                           int y,
                                           bool is_mouse_gesture) {
   UpdateStatsCounters();
-  Menu menu(this, Menu::TOPLEFT, source->GetViewContainer()->GetHWND());
+  Menu menu(this, Menu::TOPLEFT, source->GetContainer()->GetHWND());
   for (std::vector<ChromeViews::TableColumn>::iterator i =
        columns_.begin(); i != columns_.end(); ++i) {
     menu.AppendMenuItem(i->id, i->title, Menu::CHECKBOX);

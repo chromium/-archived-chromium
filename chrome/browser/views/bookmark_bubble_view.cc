@@ -136,9 +136,9 @@ void BookmarkBubbleView::DidChangeBounds(const CRect& previous,
 }
 
 void BookmarkBubbleView::BubbleShown() {
-  DCHECK(GetViewContainer());
+  DCHECK(GetContainer());
   ChromeViews::FocusManager* focus_manager =
-      ChromeViews::FocusManager::GetFocusManager(GetViewContainer()->GetHWND());
+      ChromeViews::FocusManager::GetFocusManager(GetContainer()->GetHWND());
   focus_manager->RegisterAccelerator(
       ChromeViews::Accelerator(VK_RETURN, false, false, false), this);
 
@@ -316,7 +316,7 @@ bool BookmarkBubbleView::CloseOnEscape() {
 }
 
 void BookmarkBubbleView::Close() {
-  static_cast<InfoBubble*>(GetViewContainer())->Close();
+  static_cast<InfoBubble*>(GetContainer())->Close();
 }
 
 void BookmarkBubbleView::RemoveBookmark() {
@@ -342,16 +342,16 @@ void BookmarkBubbleView::ShowEditor() {
 
   // Parent the editor to our root ancestor (not the root we're in, as that
   // is the info bubble and will close shortly).
-  HWND parent = GetAncestor(GetViewContainer()->GetHWND(), GA_ROOTOWNER);
+  HWND parent = GetAncestor(GetContainer()->GetHWND(), GA_ROOTOWNER);
 
   // We're about to show the bookmark editor. When the bookmark editor closes
-  // we want the browser to become active. HWNDViewContainer::Hide() does a
-  // hide in a such way that activation isn't changed, which means when we
-  // close Windows gets confused as to who it should give active status to.
-  // We explicitly hide the bookmark bubble window in such a way that
-  // activation status changes. That way, when the editor closes, activation
-  // is properly restored to the browser.
-  ShowWindow(GetViewContainer()->GetHWND(), SW_HIDE);
+  // we want the browser to become active. ContainerWin::Hide() does a hide in
+  // a such way that activation isn't changed, which means when we close
+  // Windows gets confused as to who it should give active status to. We
+  // explicitly hide the bookmark bubble window in such a way that activation
+  // status changes. That way, when the editor closes, activation is properly
+  // restored to the browser.
+  ShowWindow(GetContainer()->GetHWND(), SW_HIDE);
 
   // Even though we just hid the window, we need to invoke Close to schedule
   // the delete and all that.

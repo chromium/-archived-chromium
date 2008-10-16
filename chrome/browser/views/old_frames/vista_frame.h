@@ -16,7 +16,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/views/old_frames/frame_view.h"
 #include "chrome/browser/views/status_bubble.h"
-#include "chrome/views/view_container.h"
+#include "chrome/views/container.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/image_view.h"
@@ -44,7 +44,7 @@ class VistaFrame : public BrowserWindow,
                                       CWindow,
                                       CWinTraits<WS_OVERLAPPEDWINDOW |
                                                  WS_CLIPCHILDREN>>,
-                   public ChromeViews::ViewContainer,
+                   public ChromeViews::Container,
                    public ChromeViews::AcceleratorTarget {
  public:
   // Create a new VistaFrame given the bounds and provided browser.
@@ -187,7 +187,7 @@ class VistaFrame : public BrowserWindow,
   virtual bool IsBookmarkBarVisible() const;
 
   ////////////////////////////////////////////////////////////////////////////////
-  // ChromeViews::ViewContainer
+  // ChromeViews::Container
   ////////////////////////////////////////////////////////////////////////////////
 
   virtual void GetBounds(CRect *out, bool including_frame) const;

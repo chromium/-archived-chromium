@@ -342,10 +342,9 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
     }
   }
 
-  // When the animation completes, we send the ViewContainer a message to
-  // simulate a mouse moved event at the current mouse position. This tickles
-  // the Tab the mouse is currently over to show the "hot" state of the close
-  // button.
+  // When the animation completes, we send the Container a message to simulate
+  // a mouse moved event at the current mouse position. This tickles the Tab
+  // the mouse is currently over to show the "hot" state of the close button.
   void HighlightCloseButton() {
     if (tabstrip_->available_width_for_tabs_ == -1 ||
         tabstrip_->IsDragSessionActive()) {
@@ -356,7 +355,7 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
 
     POINT pt;
     GetCursorPos(&pt);
-    ChromeViews::ViewContainer* vc = tabstrip_->GetViewContainer();
+    ChromeViews::Container* vc = tabstrip_->GetContainer();
     RECT wr;
     GetWindowRect(vc->GetHWND(), &wr);
     pt.x -= wr.left;
@@ -837,7 +836,7 @@ void TabStrip::TabInsertedAt(TabContents* contents,
 
   // Don't animate the first tab, it looks weird, and don't animate anything
   // if the containing window isn't visible yet.
-  if (GetTabCount() > 1 && IsWindowVisible(GetViewContainer()->GetHWND())) {
+  if (GetTabCount() > 1 && IsWindowVisible(GetContainer()->GetHWND())) {
     StartInsertTabAnimation(index);
   } else {
     Layout();
@@ -1402,7 +1401,7 @@ TabStrip::DropInfo::DropInfo(int drop_index, bool drop_before, bool point_down)
     : drop_index(drop_index),
       drop_before(drop_before),
       point_down(point_down) {
-  arrow_window = new ChromeViews::HWNDViewContainer();
+  arrow_window = new ChromeViews::ContainerWin();
   arrow_window->set_window_style(WS_POPUP);
   arrow_window->set_window_ex_style(WS_EX_TOPMOST | WS_EX_NOACTIVATE |
                                     WS_EX_LAYERED | WS_EX_TRANSPARENT);

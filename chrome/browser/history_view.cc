@@ -22,6 +22,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/time_format.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/container.h"
 #include "chrome/views/link.h"
 
 #include "generated_resources.h"
@@ -562,7 +563,7 @@ void HistoryItemRenderer::StarStateChanged(bool state) {
   gfx::Rect star_bounds(star_location.x(), star_location.y() + 4,
                         star_toggle_->width(),
                         star_toggle_->height());
-  HWND parent = GetViewContainer()->GetHWND();
+  HWND parent = GetContainer()->GetHWND();
   Profile* profile = model_->profile();
   GURL url = model_->GetURL(model_index_);
 
@@ -835,7 +836,7 @@ ChromeViews::VariableRowHeightScrollHelper::RowInfo
 }
 
 bool HistoryView::IsVisible() {
-  ChromeViews::ViewContainer* vc = GetViewContainer();
+  ChromeViews::Container* vc = GetContainer();
   return vc && vc->IsVisible();
 }
 
@@ -1242,7 +1243,7 @@ void HistoryView::DeleteDayAtModelIndex(int index) {
       IDS_HISTORY_DELETE_PRIOR_VISITS_WARNING_TITLE);
   UINT flags = MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND;
 
-  if (win_util::MessageBox(GetViewContainer()->GetHWND(),
+  if (win_util::MessageBox(GetContainer()->GetHWND(),
                            text, caption, flags) !=  IDOK) {
     return;
   }

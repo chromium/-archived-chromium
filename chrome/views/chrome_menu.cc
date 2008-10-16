@@ -21,7 +21,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/border.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container_win.h"
 #include "chrome/views/root_view.h"
 #include "generated_resources.h"
 
@@ -517,7 +517,7 @@ class MenuSeparator : public View {
 
 class MenuHostRootView : public RootView {
  public:
-  explicit MenuHostRootView(ViewContainer* container,
+  explicit MenuHostRootView(Container* container,
                             SubmenuView* submenu)
       : RootView(container),
         submenu_(submenu),
@@ -623,7 +623,7 @@ class MenuHostRootView : public RootView {
 // DelayedClosed, which avoids timing issues with deleting the window while
 // capture or events are directed at it.
 
-class MenuHost : public HWNDViewContainer {
+class MenuHost : public ContainerWin {
  public:
   MenuHost(SubmenuView* submenu)
       : closed_(false),
@@ -647,7 +647,7 @@ class MenuHost : public HWNDViewContainer {
             const gfx::Rect& bounds,
             View* contents_view,
             bool do_capture) {
-    HWNDViewContainer::Init(parent, bounds, true);
+    ContainerWin::Init(parent, bounds, true);
     SetContentsView(contents_view);
     // We don't want to take focus away from the hosting window.
     ShowWindow(SW_SHOWNA);
@@ -674,11 +674,11 @@ class MenuHost : public HWNDViewContainer {
     GetRootView()->RemoveAllChildViews(false);
     closed_ = true;
     ReleaseCapture();
-    HWNDViewContainer::Hide();
+    ContainerWin::Hide();
   }
 
   virtual void OnCaptureChanged(HWND hwnd) {
-    HWNDViewContainer::OnCaptureChanged(hwnd);
+    ContainerWin::OnCaptureChanged(hwnd);
     owns_capture_ = false;
 #ifdef DEBUG_MENU
     DLOG(INFO) << "Capture changed";
@@ -2559,7 +2559,7 @@ bool MenuController::IsMenuWindow(MenuItemView* item, HWND window) {
   if (!item)
     return false;
   return ((item->HasSubmenu() && item->GetSubmenu()->IsShowing() &&
-           item->GetSubmenu()->GetViewContainer()->GetHWND() == window) ||
+           item->GetSubmenu()->GetContainer()->GetHWND() == window) ||
            IsMenuWindow(item->GetParentMenuItem(), window));
 }
 

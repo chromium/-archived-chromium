@@ -55,7 +55,7 @@ void DebuggerView::ViewHierarchyChanged(bool is_add,
                                         ChromeViews::View* parent,
                                         ChromeViews::View* child) {
   if (is_add && child == this) {
-    DCHECK(GetViewContainer());
+    DCHECK(GetContainer());
     OnInit();
   }
 }

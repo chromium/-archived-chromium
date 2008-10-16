@@ -38,13 +38,13 @@ class AeroGlassFrame : public BrowserFrame,
   virtual void UpdateThrobber(bool running);
   virtual ChromeViews::Window* GetWindow();
 
-  // Overridden from ChromeViews::HWNDViewContainer:
+  // Overridden from ChromeViews::ContainerWin:
   virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id,
                               ChromeViews::Accelerator* accelerator);
 
  protected:
-  // Overridden from ChromeViews::HWNDViewContainer:
+  // Overridden from ChromeViews::ContainerWin:
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual void OnEndSession(BOOL ending, UINT logoff);
   virtual void OnExitMenuLoop(bool is_track_popup_menu);

@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_WEB_CONTENTS_VIEW_WIN_H_
 
 #include "chrome/browser/web_contents_view.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container_win.h"
 
 class InfoBarView;
 class InfoBarMessageView;
@@ -16,7 +16,7 @@ class WebDropTarget;
 // Windows-specific implementation of the WebContentsView. It is a HWND that
 // contains all of the contents of the tab and associated child views.
 class WebContentsViewWin : public WebContentsView,
-                           public ChromeViews::HWNDViewContainer {
+                           public ChromeViews::ContainerWin {
  public:
   // The corresponding WebContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
@@ -49,7 +49,7 @@ class WebContentsViewWin : public WebContentsView,
  private:
   // Windows events ------------------------------------------------------------
 
-  // Overrides from HWNDViewContainer.
+  // Overrides from ContainerWin.
   virtual void OnDestroy();
   virtual void OnHScroll(int scroll_type, short position, HWND scrollbar);
   virtual void OnMouseLeave();

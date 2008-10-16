@@ -16,9 +16,9 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/container.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/root_view.h"
-#include "chrome/views/view_container.h"
 
 #include "generated_resources.h"
 
@@ -630,7 +630,7 @@ bool DownloadItemView::OnMousePressed(const ChromeViews::MouseEvent& event) {
 
     ChromeViews::View::ConvertPointToScreen(this, &point);
     download_util::DownloadShelfContextMenu menu(download_,
-                                                 GetViewContainer()->GetHWND(),
+                                                 GetContainer()->GetHWND(),
                                                  model_.get(),
                                                  point.ToPOINT());
     drop_down_pressed_ = false;

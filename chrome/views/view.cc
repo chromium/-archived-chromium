@@ -22,10 +22,10 @@
 #include "chrome/views/accessibility/accessible_wrapper.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
+#include "chrome/views/container.h"
 #include "chrome/views/layout_manager.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/tooltip_manager.h"
-#include "chrome/views/view_container.h"
 #include "SkShader.h"
 
 namespace ChromeViews {
@@ -323,7 +323,7 @@ void View::SetFocusable(bool focusable) {
 }
 
 FocusManager* View::GetFocusManager() {
-  ViewContainer* container = GetViewContainer();
+  Container* container = GetContainer();
   if (!container)
     return NULL;
 
@@ -803,14 +803,14 @@ View* View::GetViewForPoint(const gfx::Point& point,
   return this;
 }
 
-ViewContainer* View::GetViewContainer() const {
+Container* View::GetContainer() const {
   // The root view holds a reference to this view hierarchy's container.
-  return parent_ ? parent_->GetViewContainer() : NULL;
+  return parent_ ? parent_->GetContainer() : NULL;
 }
 
 // Get the containing RootView
 RootView* View::GetRootView() {
-  ViewContainer* vc = GetViewContainer();
+  Container* vc = GetContainer();
   if (vc) {
     return vc->GetRootView();
   } else {
@@ -1319,7 +1319,7 @@ void View::ConvertPointToView(View* src, View* dst, gfx::Point* point,
 
     // If src is NULL, sp is in the screen coordinate system
     if (src == NULL) {
-      ViewContainer* vc = dst->GetViewContainer();
+      Container* vc = dst->GetContainer();
       if (vc) {
         CRect b;
         vc->GetBounds(&b, false);
@@ -1330,7 +1330,7 @@ void View::ConvertPointToView(View* src, View* dst, gfx::Point* point,
 }
 
 // static
-void View::ConvertPointToViewContainer(View* src, gfx::Point* p) {
+void View::ConvertPointToContainer(View* src, gfx::Point* p) {
   DCHECK(src);
   DCHECK(p);
 
@@ -1344,9 +1344,9 @@ void View::ConvertPointToViewContainer(View* src, gfx::Point* p) {
 }
 
 // static
-void View::ConvertPointFromViewContainer(View *source, gfx::Point* p) {
+void View::ConvertPointFromContainer(View *source, gfx::Point* p) {
   gfx::Point t;
-  ConvertPointToViewContainer(source, &t);
+  ConvertPointToContainer(source, &t);
   p->SetPoint(p->x() - t.x(), p->y() - t.y());
 }
 
@@ -1356,9 +1356,9 @@ void View::ConvertPointToScreen(View* src, gfx::Point* p) {
   DCHECK(p);
 
   // If the view is not connected to a tree, there's nothing we can do.
-  ViewContainer* vc = src->GetViewContainer();
+  Container* vc = src->GetContainer();
   if (vc) {
-    ConvertPointToViewContainer(src, p);
+    ConvertPointToContainer(src, p);
     CRect r;
     vc->GetBounds(&r, false);
     p->SetPoint(p->x() + r.left, p->y() + r.top);
@@ -1531,7 +1531,7 @@ void View::Focus() {
   // messages.
   FocusManager* focus_manager = GetFocusManager();
   if (focus_manager)
-    focus_manager->FocusHWND(GetRootView()->GetViewContainer()->GetHWND());
+    focus_manager->FocusHWND(GetRootView()->GetContainer()->GetHWND());
 }
 
 bool View::CanProcessTabKeyEvents() {
@@ -1548,13 +1548,13 @@ bool View::GetTooltipTextOrigin(int x, int y, CPoint* loc) {
 }
 
 void View::TooltipTextChanged() {
-  ViewContainer* view_container = GetViewContainer();
+  Container* view_container = GetContainer();
   if (view_container != NULL && view_container->GetTooltipManager())
     view_container->GetTooltipManager()->TooltipTextChanged(this);
 }
 
 void View::UpdateTooltip() {
-  ViewContainer* view_container = GetViewContainer();
+  Container* view_container = GetContainer();
   if (view_container != NULL && view_container->GetTooltipManager())
     view_container->GetTooltipManager()->UpdateTooltip();
 }
@@ -1587,8 +1587,8 @@ gfx::Rect View::GetVisibleBounds() {
       ancestor_bounds.SetRect(0, 0, ancestor->width(),
                               ancestor->height());
       vis_bounds = vis_bounds.Intersect(ancestor_bounds);
-    } else if (!view->GetViewContainer()) {
-      // If the view has no ViewContainer, we're not visible. Return an empty
+    } else if (!view->GetContainer()) {
+      // If the view has no Container, we're not visible. Return an empty
       // rect.
       return gfx::Rect();
     }

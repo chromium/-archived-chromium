@@ -11,7 +11,7 @@
 
 namespace ChromeViews {
 
-class ViewContainer;
+class Container;
 class PaintTask;
 class RootViewDropTarget;
 
@@ -31,11 +31,11 @@ class FocusListener {
 // RootView class
 //
 //   The RootView is the root of a View hierarchy. Its parent is not
-//   necessarily a ViewContainer, but the ViewContainer's View child is
-//   always a RootView.
+//   necessarily a Container, but the Container's View child is always a
+//   RootView.
 //
 //   The RootView manages the View hierarchy's interface with the
-//   ViewContainer, and also maintains the current invalid rect - the region
+//   Container, and also maintains the current invalid rect - the region
 //   that needs repainting.
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ class RootView : public View,
  public:
   static const char kViewClassName[];
 
-  explicit RootView(ViewContainer* view_container);
+  explicit RootView(Container* container);
 
   virtual ~RootView();
 
@@ -71,7 +71,7 @@ class RootView : public View,
   // returns whether this root view needs to paint as soon as possible.
   virtual bool NeedsPainting(bool urgent);
 
-  // Invoked by the ViewContainer to discover what rectangle should be
+  // Invoked by the Container to discover what rectangle should be
   // painted
   const CRect& GetScheduledPaintRect();
 
@@ -80,8 +80,8 @@ class RootView : public View,
 
   // Tree functions
 
-  // Get the ViewContainer that hosts this View.
-  virtual ViewContainer* GetViewContainer() const;
+  // Get the Container that hosts this View.
+  virtual Container* GetContainer() const;
 
   // The following event methods are overridden to propagate event to the
   // control tree
@@ -91,19 +91,19 @@ class RootView : public View,
   virtual void OnMouseMoved(const MouseEvent& e);
   virtual void SetMouseHandler(View* new_mouse_handler);
 
-  // Invoked when the ViewContainers has been fully initialized.
-  // At the time the constructor is invoked the ViewContainer may not be
+  // Invoked when the Containers has been fully initialized.
+  // At the time the constructor is invoked the Container may not be
   // completely initialized, when this method is invoked, it is.
-  void OnViewContainerCreated();
+  void OnContainerCreated();
 
-  // Invoked prior to the ViewContainer being destroyed.
-  void OnViewContainerDestroyed();
+  // Invoked prior to the Container being destroyed.
+  void OnContainerDestroyed();
 
-  // Invoked By the ViewContainer if the mouse drag is interrupted by
+  // Invoked By the Container if the mouse drag is interrupted by
   // the system. Invokes OnMouseReleased with a value of true for canceled.
   void ProcessMouseDragCanceled();
 
-  // Invoked by the ViewContainer instance when the mouse moves outside of
+  // Invoked by the Container instance when the mouse moves outside of
   // the container bounds
   virtual void ProcessOnMouseExited();
 
@@ -167,10 +167,10 @@ class RootView : public View,
   virtual std::string GetClassName() const;
 
   // Clears the region that is schedule to be painted. You nearly never need
-  // to invoke this. This is primarily intended for ViewContainers.
+  // to invoke this. This is primarily intended for Containers.
   void ClearPaintRect();
 
-  // Invoked from the ViewContainer to service a WM_PAINT call.
+  // Invoked from the Container to service a WM_PAINT call.
   void OnPaint(HWND hwnd);
 
   // Returns the MSAA role of the current view. The role is what assistive
@@ -202,7 +202,7 @@ class RootView : public View,
   DISALLOW_EVIL_CONSTRUCTORS(RootView);
 
   // Convert a point to our current mouse handler. Returns false if the
-  // mouse handler is not connected to a ViewContainer. In that case, the
+  // mouse handler is not connected to a Container. In that case, the
   // conversion cannot take place and *p is unchanged
   bool ConvertPointToMouseHandler(const gfx::Point& l, gfx::Point *p);
 
@@ -267,8 +267,8 @@ class RootView : public View,
   // The view currently handling enter / exit
   View* mouse_move_handler_;
 
-  // The host ViewContainer
-  ViewContainer* view_container_;
+  // The host Container
+  Container* container_;
 
   // The rectangle that should be painted
   CRect invalid_rect_;

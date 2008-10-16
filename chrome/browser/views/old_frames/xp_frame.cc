@@ -37,7 +37,6 @@
 #include "chrome/views/background.h"
 #include "chrome/views/event.h"
 #include "chrome/views/focus_manager.h"
-#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/hwnd_notification_source.h"
 #include "chrome/views/tooltip_manager.h"
 #include "chrome/views/view.h"
@@ -540,7 +539,7 @@ void XPFrame::Init() {
   FrameUtil::LoadAccelerators(this, accelerators_table, this);
 
   ShelfVisibilityChanged();
-  root_view_.OnViewContainerCreated();
+  root_view_.OnContainerCreated();
 }
 
 TabStrip* XPFrame::CreateTabStrip(Browser* browser) {
@@ -879,7 +878,7 @@ void XPFrame::Close() {
   } else {
     // Empty tab strip, it's now safe to do the final clean-up.
 
-    root_view_.OnViewContainerDestroyed();
+    root_view_.OnContainerDestroyed();
 
     NotificationService::current()->Notify(
         NOTIFY_WINDOW_CLOSED, Source<HWND>(m_hWnd),
@@ -1794,7 +1793,7 @@ void XPFrame::SetResizeCursor(ResizeMode r_mode) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ViewContainer
+// Container
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1814,7 +1813,7 @@ gfx::Rect XPFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   }
 
   gfx::Point p;
-  ChromeViews::View::ConvertPointToViewContainer(tab_contents_container_, &p);
+  ChromeViews::View::ConvertPointToContainer(tab_contents_container_, &p);
   CRect bounds;
   GetBounds(&bounds, true);
 

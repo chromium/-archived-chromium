@@ -16,9 +16,6 @@ class MessageLoop;
 class RenderProcessHost;
 class NavigationPerformanceViewer;
 class PageLoadView;
-namespace ChromeViews {
-class HWNDViewContainer;
-}
 
 class NetworkStatusView : public StatusView {
  public:

@@ -11,7 +11,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/tab_contents_delegate.h"
-#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/root_view.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"

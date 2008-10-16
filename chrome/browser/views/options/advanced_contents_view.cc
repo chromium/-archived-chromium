@@ -505,7 +505,7 @@ void ContentSection::ButtonPressed(ChromeViews::NativeButton* sender) {
     disable_popup_blocked_notification_pref_.SetValue(!notification_disabled);
   } else if (sender == gears_settings_button_) {
     UserMetricsRecordAction(L"Options_GearsSettings", NULL);
-    GearsSettingsPressed(GetAncestor(GetViewContainer()->GetHWND(), GA_ROOT));
+    GearsSettingsPressed(GetAncestor(GetContainer()->GetHWND(), GA_ROOT));
   }
 }
 

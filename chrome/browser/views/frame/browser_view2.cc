@@ -272,7 +272,7 @@ unsigned int BrowserView2::FeaturesForBrowserType(BrowserType::Type type) {
 void BrowserView2::Init() {
   // Stow a pointer to this object onto the window handle so that we can get
   // at it later when all we have is a HWND.
-  SetProp(GetViewContainer()->GetHWND(), kBrowserWindowKey, this);
+  SetProp(GetContainer()->GetHWND(), kBrowserWindowKey, this);
 
   LoadAccelerators();
   SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
@@ -291,7 +291,7 @@ void BrowserView2::Init() {
   set_contents_view(contents_container_);
   AddChildView(contents_container_);
 
-  status_bubble_.reset(new StatusBubble(GetViewContainer()));
+  status_bubble_.reset(new StatusBubble(GetContainer()));
 
 #ifdef CHROME_PERSONALIZATION    
   EnablePersonalization(CommandLine().HasSwitch(switches::kEnableP13n));
@@ -311,7 +311,7 @@ void BrowserView2::Close() {
 }
 
 void* BrowserView2::GetPlatformID() {
-  return GetViewContainer()->GetHWND();
+  return GetContainer()->GetHWND();
 }
 
 TabStrip* BrowserView2::GetTabStrip() const {
@@ -356,7 +356,7 @@ void BrowserView2::FlashFrame() {
 void BrowserView2::ContinueDetachConstrainedWindowDrag(
     const gfx::Point& mouse_point,
     int frame_component) {
-  HWND vc_hwnd = GetViewContainer()->GetHWND();
+  HWND vc_hwnd = GetContainer()->GetHWND();
   if (frame_component == HTCLIENT) {
     // If the user's mouse was over the content area of the popup when they
     // clicked down, we need to re-play the mouse down event so as to actually
@@ -789,7 +789,7 @@ void BrowserView2::DidChangeBounds(const CRect& previous,
 void BrowserView2::ViewHierarchyChanged(bool is_add,
                                         ChromeViews::View* parent,
                                         ChromeViews::View* child) {
-  if (is_add && child == this && GetViewContainer() && !initialized_) {
+  if (is_add && child == this && GetContainer() && !initialized_) {
     Init();
     initialized_ = true;
   }
@@ -1072,7 +1072,7 @@ void BrowserView2::LoadAccelerators() {
   CopyAcceleratorTable(accelerator_table, accelerators, count);
 
   ChromeViews::FocusManager* focus_manager =
-    ChromeViews::FocusManager::GetFocusManager(GetViewContainer()->GetHWND());
+    ChromeViews::FocusManager::GetFocusManager(GetContainer()->GetHWND());
   DCHECK(focus_manager);
 
   // Let's build our own accelerator table.

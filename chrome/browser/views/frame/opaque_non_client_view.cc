@@ -660,7 +660,7 @@ void OpaqueNonClientView::ViewHierarchyChanged(bool is_add,
                                                ChromeViews::View* parent,
                                                ChromeViews::View* child) {
   if (is_add && child == this) {
-    DCHECK(GetViewContainer());
+    DCHECK(GetContainer());
     DCHECK(frame_->client_view()->GetParent() != this);
     AddChildView(frame_->client_view());
 

@@ -109,9 +109,9 @@ STDMETHODIMP ViewAccessibility::get_accParent(IDispatch** disp_parent) {
   ChromeViews::View* parent = view_->GetParent();
 
   if (!parent) {
-    // This function can get called during teardown of HWNDViewContainer so
-    // we should bail out if we fail to get the HWND.
-    if (!view_->GetViewContainer() || !view_->GetViewContainer()->GetHWND()) {
+    // This function can get called during teardown of ContainerWin so we
+    // should bail out if we fail to get the HWND.
+    if (!view_->GetContainer() || !view_->GetContainer()->GetHWND()) {
       *disp_parent = NULL;
       return S_FALSE;
     }
@@ -120,7 +120,7 @@ STDMETHODIMP ViewAccessibility::get_accParent(IDispatch** disp_parent) {
     // the default implementation, to interface with Windows' hierarchy and to
     // support calls from e.g. WindowFromAccessibleObject.
     HRESULT hr =
-        ::AccessibleObjectFromWindow(view_->GetViewContainer()->GetHWND(),
+        ::AccessibleObjectFromWindow(view_->GetContainer()->GetHWND(),
                                      OBJID_WINDOW, IID_IAccessible,
                                      reinterpret_cast<void**>(disp_parent));
 

@@ -13,7 +13,7 @@
 #include "skia/include/SkBitmap.h"
 
 namespace ChromeViews {
-class HWNDViewContainer;
+class ContainerWin;
 }
 namespace gfx {
 class Point;
@@ -76,7 +76,7 @@ class DraggedTabView : public ChromeViews::View,
   int ScaleValue(int value);
 
   // The window that contains the DraggedTabView.
-  ChromeViews::HWNDViewContainer* container_;
+  ChromeViews::ContainerWin* container_;
 
   // The renderer that paints the Tab shape.
   scoped_ptr<TabRenderer> renderer_;

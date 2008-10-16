@@ -15,8 +15,8 @@
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/container.h"
 #include "chrome/views/hwnd_view.h"
-#include "chrome/views/view_container.h"
 #include "SkBitmap.h"
 #include "SkColorFilter.h"
 

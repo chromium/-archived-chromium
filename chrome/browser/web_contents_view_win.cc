@@ -47,7 +47,7 @@ WebContentsViewWin::~WebContentsViewWin() {
 void WebContentsViewWin::CreateView(HWND parent_hwnd,
                                     const gfx::Rect& initial_bounds) {
   set_delete_on_destroy(false);
-  HWNDViewContainer::Init(parent_hwnd, initial_bounds, false);
+  ContainerWin::Init(parent_hwnd, initial_bounds, false);
 
   // Remove the root view drop target so we can register our own.
   RevokeDragDrop(GetHWND());
@@ -344,7 +344,7 @@ void WebContentsViewWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
 }
 
 void WebContentsViewWin::OnSize(UINT param, const CSize& size) {
-  HWNDViewContainer::OnSize(param, size);
+  ContainerWin::OnSize(param, size);
 
   // Hack for thinkpad touchpad driver.
   // Set fake scrollbars so that we can get scroll messages,

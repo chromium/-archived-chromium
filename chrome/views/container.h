@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_VIEW_CONTAINER_H_
-#define CHROME_VIEWS_VIEW_CONTAINER_H_
+#ifndef CHROME_VIEWS_CONTAINER_H_
+#define CHROME_VIEWS_CONTAINER_H_
 
 // TODO(maruel):  Remove once HWND is abstracted.
 #include <windows.h>
@@ -22,24 +22,23 @@ class Accelerator;
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// ViewContainer class
+// Container interface
 //
-//   ViewContainer is an abstract class that defines the API that should
-//   be implemented by a CWindow / HWND implementation in order to host a view
+//   Container is an abstract class that defines the API that should be
+//   implemented by a CWindow / HWND implementation in order to host a view
 //   hierarchy.
 //
-//   ViewContainer wraps a hierarchy of View objects (see view.h) that
-//   implement painting and flexible layout within the bounds of the
-//   ViewContainer's window.
+//   Container wraps a hierarchy of View objects (see view.h) that implement
+//   painting and flexible layout within the bounds of the Container's window.
 //
-//   The ViewContainer is responsible for handling various system events and
+//   The Container is responsible for handling various system events and
 //   forwarding them to the appropriate view.
 //
 /////////////////////////////////////////////////////////////////////////////
 
-class ViewContainer {
+class Container {
  public:
-  virtual ~ViewContainer() { }
+  virtual ~Container() { }
 
   // Returns the bounds of this container in the screen coordinate system.
   // If the receiving view container is a frame which is larger than its
@@ -68,8 +67,8 @@ class ViewContainer {
   // Returns whether the view container is the currently active window.
   virtual bool IsActive() = 0;
 
-  // Returns the TooltipManager for this ViewContainer. If this ViewContainer
-  // does not support tooltips, NULL is returned.
+  // Returns the TooltipManager for this Container. If this Container does not
+  // support tooltips, NULL is returned.
   virtual TooltipManager* GetTooltipManager() {
     return NULL;
   }

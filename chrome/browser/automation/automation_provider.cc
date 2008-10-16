@@ -1143,7 +1143,7 @@ void AutomationProvider::WindowGetViewBounds(const IPC::Message& message,
   if (window_tracker_->ContainsHandle(handle)) {
     HWND hwnd = window_tracker_->GetResource(handle);
     ChromeViews::RootView* root_view =
-        ChromeViews::HWNDViewContainer::FindRootView(hwnd);
+        ChromeViews::ContainerWin::FindRootView(hwnd);
     if (root_view) {
       ChromeViews::View* view = root_view->GetViewByID(view_id);
       if (view) {

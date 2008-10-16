@@ -15,11 +15,11 @@
 //  A ChromeViews::View subclass used to render the presentation of the crashed
 //  "sad tab" in the browser window when a renderer is destroyed unnaturally.
 //
-//  Note that since this view is not (currently) part of a ViewContainer or
+//  Note that since this view is not (currently) part of a Container or
 //  RootView hierarchy, it cannot respond to events or contain controls that
-//  do, right now it is used simply to render. Adding an extra ViewContainer to
+//  do, right now it is used simply to render. Adding an extra Container to
 //  WebContents seemed like a lot of complexity. Ideally, perhaps WebContents'
-//  view portion would itself become a ViewContainer in the future, then event
+//  view portion would itself become a Container in the future, then event
 //  processing will work.
 //
 ///////////////////////////////////////////////////////////////////////////////

@@ -10,9 +10,9 @@
 #include "chrome/common/throb_animation.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/button.h"
+#include "chrome/views/container.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view_menu_delegate.h"
-#include "chrome/views/view_container.h"
 
 #include "generated_resources.h"
 

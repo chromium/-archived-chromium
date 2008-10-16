@@ -8,7 +8,7 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/common/animation.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container_win.h"
 
 class FindInPageView;
 class SlideAnimation;
@@ -34,7 +34,7 @@ namespace ChromeViews {
 ////////////////////////////////////////////////////////////////////////////////
 class FindInPageController : public RenderViewHostDelegate::FindInPage,
                              public ChromeViews::FocusChangeListener,
-                             public ChromeViews::HWNDViewContainer,
+                             public ChromeViews::ContainerWin,
                              public AnimationDelegate {
  public:
   FindInPageController(TabContents* parent_tab,
@@ -107,7 +107,7 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
     find_string_ = find_string;
   }
 
-  // Overridden from ChromeViews::HWNDViewContainer:
+  // Overridden from ChromeViews::ContainerWin:
   virtual void OnFinalMessage(HWND window);
 
   // Overridden from ChromeViews::FocusChangeListener:

@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_VIEWS_STATUS_BUBBLE_H__
 
 #include "base/gfx/rect.h"
-#include "chrome/views/hwnd_view_container.h"
-#include "chrome/views/view_container.h"
+#include "chrome/views/container.h"
+#include "chrome/views/container_win.h"
 
 class GURL;
 
@@ -16,7 +16,7 @@ class GURL;
 // to allow users to see where hovered links point to.
 class StatusBubble {
  public:
-  explicit StatusBubble(ChromeViews::ViewContainer* frame);
+  explicit StatusBubble(ChromeViews::Container* frame);
   ~StatusBubble();
 
   // Sets the bubble contents to a specific string and causes the bubble
@@ -74,10 +74,10 @@ class StatusBubble {
 
   // We use a HWND for the popup so that it may float above any HWNDs in our
   // UI (the location bar, for example).
-  ChromeViews::HWNDViewContainer* popup_;
+  ChromeViews::ContainerWin* popup_;
   double opacity_;
 
-  ChromeViews::ViewContainer* frame_;
+  ChromeViews::Container* frame_;
   StatusView* view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(StatusBubble);

@@ -63,7 +63,7 @@ void OpaqueFrame::UpdateWindowIcon() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueFrame, ChromeViews::HWNDViewContainer overrides:
+// OpaqueFrame, ChromeViews::ContainerWin overrides:
 
 bool OpaqueFrame::AcceleratorPressed(ChromeViews::Accelerator* accelerator) {
   return browser_view_->AcceleratorPressed(*accelerator);

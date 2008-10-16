@@ -181,7 +181,7 @@ gfx::Size AeroGlassNonClientView::CalculateWindowSizeForClientSize(
 
 CPoint AeroGlassNonClientView::GetSystemMenuPoint() const {
   CPoint offset(0, 0);
-  MapWindowPoints(GetViewContainer()->GetHWND(), HWND_DESKTOP, &offset, 1);
+  MapWindowPoints(GetContainer()->GetHWND(), HWND_DESKTOP, &offset, 1);
   return offset;
 }
 
@@ -259,7 +259,7 @@ void AeroGlassNonClientView::ViewHierarchyChanged(bool is_add,
                                                ChromeViews::View* parent,
                                                ChromeViews::View* child) {
   if (is_add && child == this) {
-    DCHECK(GetViewContainer());
+    DCHECK(GetContainer());
     DCHECK(frame_->client_view()->GetParent() != this);
     AddChildView(frame_->client_view());
   }

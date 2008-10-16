@@ -13,7 +13,8 @@
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/hwnd_view_container.h"
+// Included for SetRootViewForHWND.
+#include "chrome/views/container_win.h"
 #include "chrome/test/automation/automation_messages.h"
 
 static const wchar_t kWindowObjectKey[] = L"ChromeWindowObject";

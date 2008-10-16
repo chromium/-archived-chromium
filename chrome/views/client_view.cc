@@ -24,7 +24,7 @@ int ClientView::NonClientHitTest(const gfx::Point& point) {
 
 gfx::Size ClientView::GetPreferredSize() {
   // |contents_view_| is allowed to be NULL up until the point where this view
-  // is attached to a ViewContainer.
+  // is attached to a Container.
   if (contents_view_)
     return contents_view_->GetPreferredSize();
   return gfx::Size();
@@ -32,7 +32,7 @@ gfx::Size ClientView::GetPreferredSize() {
 
 void ClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   if (is_add && child == this) {
-    DCHECK(GetViewContainer());
+    DCHECK(GetContainer());
     DCHECK(contents_view_); // |contents_view_| must be valid now!
     AddChildView(contents_view_);
   }
@@ -44,7 +44,7 @@ void ClientView::DidChangeBounds(const CRect& previous, const CRect& current) {
 
 void ClientView::Layout() {
   // |contents_view_| is allowed to be NULL up until the point where this view
-  // is attached to a ViewContainer.
+  // is attached to a Container.
   if (contents_view_)
     contents_view_->SetBounds(0, 0, width(), height());
 }

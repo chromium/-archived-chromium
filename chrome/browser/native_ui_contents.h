@@ -8,7 +8,7 @@
 #include "chrome/browser/page_state.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/views/background.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container_win.h"
 #include "chrome/views/link.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/text_field.h"
@@ -33,7 +33,7 @@ class NativeUI;
 //
 ////////////////////////////////////////////////////////////////////////////////
 class NativeUIContents : public TabContents,
-                         public ChromeViews::HWNDViewContainer {
+                         public ChromeViews::ContainerWin {
  public:
   explicit NativeUIContents(Profile* profile);
 

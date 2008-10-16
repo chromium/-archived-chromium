@@ -12,7 +12,7 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
-#include "chrome/views/view_container.h"
+#include "chrome/views/container.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_unittest.h"
 

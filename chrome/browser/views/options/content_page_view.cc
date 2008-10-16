@@ -25,11 +25,11 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/checkbox.h"
+#include "chrome/views/container.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/radio_button.h"
 #include "chrome/views/text_field.h"
-#include "chrome/views/view_container.h"
 #include "generated_resources.h"
 #include "skia/include/SkBitmap.h"
 
@@ -127,7 +127,7 @@ gfx::Size FileDisplayArea::GetPreferredSize() {
 void FileDisplayArea::ViewHierarchyChanged(bool is_add,
                                            ChromeViews::View* parent,
                                            ChromeViews::View* child) {
-  if (!initialized_ && is_add && GetViewContainer())
+  if (!initialized_ && is_add && GetContainer())
     Init();
 }
 

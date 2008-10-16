@@ -9,10 +9,10 @@
 #include "chrome/browser/render_widget_host_view_win.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/views/accelerator.h"
+#include "chrome/views/container.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
-#include "chrome/views/view_container.h"
 #include "chrome/views/view_storage.h"
 
 // The following keys are used in SetProp/GetProp to associate additional
@@ -304,7 +304,7 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
   DCHECK((message == WM_KEYDOWN) || (message == WM_SYSKEYDOWN));
 
   if (!IsWindowVisible(root_)) {
-    // We got a message for a hidden window. Because HWNDViewContainer::Close
+    // We got a message for a hidden window. Because ContainerWin::Close
     // hides the window, then destroys it, it it possible to get a message after
     // we've hidden the window. If we allow the message to be dispatched
     // chances are we'll crash in some weird place. By returning false we make
@@ -425,7 +425,7 @@ bool FocusManager::ContainsView(View* view) {
   if (!root_view)
     return false;
 
-  ViewContainer* view_container = root_view->GetViewContainer();
+  Container* view_container = root_view->GetContainer();
   if (!view_container)
     return false;
 
@@ -457,7 +457,7 @@ View* FocusManager::GetNextFocusableView(View* original_starting_view,
   View* starting_view = NULL;
   if (original_starting_view) {
     // If the starting view has a focus traversable, use it.
-    // This is the case with HWNDViewContainers for example.
+    // This is the case with ContainerWins for example.
     focus_traversable = original_starting_view->GetFocusTraversable();
 
     // Otherwise default to the root view.

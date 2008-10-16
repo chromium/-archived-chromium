@@ -15,9 +15,9 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/views/container.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/root_view.h"
-#include "chrome/views/view_container.h"
 
 class AutomationProvider;
 class TabContents;
@@ -27,10 +27,10 @@ class TabContentsContainerView;
 // An external tab is a Chrome tab that is meant to displayed in an
 // external process. This class provides the FocusManger needed by the
 // TabContents as well as an implementation of TabContentsDelagate.
-// It also implements ViewContainer
+// It also implements Container
 class ExternalTabContainer : public TabContentsDelegate,
                              public NotificationObserver,
-                             public ChromeViews::ViewContainer,
+                             public ChromeViews::Container,
                              public ChromeViews::KeystrokeListener,
                              public CWindowImpl<ExternalTabContainer,
                                                 CWindow,
@@ -88,7 +88,7 @@ class ExternalTabContainer : public TabContentsDelegate,
                        const NotificationDetails& details);
 
   ////////////////////////////////////////////////////////////////////////////////
-  // ChromeViews::ViewContainer
+  // ChromeViews::Container
   ////////////////////////////////////////////////////////////////////////////////
   virtual void GetBounds(CRect *out, bool including_frame) const;
   virtual void MoveToFront(bool should_activate);

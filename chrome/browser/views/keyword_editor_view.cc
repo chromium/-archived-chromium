@@ -585,7 +585,7 @@ void KeywordEditorView::OnDoubleClick() {
 void KeywordEditorView::ButtonPressed(ChromeViews::NativeButton* sender) {
   if (sender == add_button_) {
     EditKeywordController* controller =
-        new EditKeywordController(GetViewContainer()->GetHWND(), NULL, this,
+        new EditKeywordController(GetContainer()->GetHWND(), NULL, this,
                                   profile_);
     controller->Show();
   } else if (sender == remove_button_) {
@@ -625,7 +625,7 @@ void KeywordEditorView::ButtonPressed(ChromeViews::NativeButton* sender) {
     const TemplateURL* template_url =
         &table_model_->GetTemplateURL(selected_row);
     EditKeywordController* controller =
-        new EditKeywordController(GetViewContainer()->GetHWND(), template_url,
+        new EditKeywordController(GetContainer()->GetHWND(), template_url,
                                   this, profile_);
     controller->Show();
   } else if (sender == enable_suggest_checkbox_) {

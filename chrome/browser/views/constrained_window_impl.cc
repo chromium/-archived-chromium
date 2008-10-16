@@ -627,11 +627,10 @@ gfx::Size ConstrainedWindowNonClientView::GetPreferredSize() {
 void ConstrainedWindowNonClientView::ViewHierarchyChanged(bool is_add,
                                                           View *parent,
                                                           View *child) {
-  if (is_add && GetViewContainer()) {
-    // Add our Client View as we are added to the ViewContainer so that if we
-    // are subsequently resized all the parent-child relationships are
-    // established.
-    if (is_add && GetViewContainer() && child == this)
+  if (is_add && GetContainer()) {
+    // Add our Client View as we are added to the Container so that if we are
+    // subsequently resized all the parent-child relationships are established.
+    if (is_add && GetContainer() && child == this)
       AddChildView(container_->client_view());
     if (location_bar_ && !location_bar_->IsInitialized())
       location_bar_->Init();
@@ -1241,7 +1240,7 @@ void ConstrainedWindowImpl::UpdateUI(unsigned int changed_flags) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowImpl, ChromeViews::HWNDViewContainer overrides:
+// ConstrainedWindowImpl, ChromeViews::ContainerWin overrides:
 
 void ConstrainedWindowImpl::OnDestroy() {
   // We do this here, rather than |Close|, since the window may be destroyed in
@@ -1291,7 +1290,7 @@ void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
     constrained_contents_ = NULL;
   }
 
-  HWNDViewContainer::OnFinalMessage(window);
+  ContainerWin::OnFinalMessage(window);
 }
 
 void ConstrainedWindowImpl::OnGetMinMaxInfo(LPMINMAXINFO mm_info) {

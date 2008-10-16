@@ -31,13 +31,13 @@ namespace ChromeViews {
 
 class Background;
 class Border;
+class Container;
 class FocusManager;
 class FocusTraversable;
 class LayoutManager;
 class RestoreFocusTask;
 class RootView;
 class ScrollView;
-class ViewContainer;
 
 // ContextMenuController is responsible for showing the context menu for a
 // View. To use a ContextMenuController invoke SetContextMenuController on a
@@ -430,8 +430,8 @@ class View : public AcceleratorTarget {
   // Get the child View at the specified point.
   virtual View* GetViewForPoint(const gfx::Point& point);
 
-  // Get the containing ViewContainer
-  virtual ViewContainer* GetViewContainer() const;
+  // Get the Container that hosts this View, if any.
+  virtual Container* GetContainer() const;
 
   // Get the containing RootView
   virtual RootView* GetRootView();
@@ -503,7 +503,7 @@ class View : public AcceleratorTarget {
 
   // Convenience method to retrieve the FocusManager associated with the
   // container window that contains this view.  This can return NULL if this
-  // view is not part of a view hierarchy with a ViewContainer.
+  // view is not part of a view hierarchy with a Container.
   virtual FocusManager* GetFocusManager();
 
   // Sets a keyboard accelerator for that view. When the user presses the
@@ -675,13 +675,13 @@ class View : public AcceleratorTarget {
                                  gfx::Point* point);
 
   // Convert a point from the coordinate system of a View to that of the
-  // ViewContainer. This is useful for example when sizing HWND children
-  // of the ViewContainer that don't know about the View hierarchy and need
-  // to be placed relative to the ViewContainer that is their parent.
-  static void ConvertPointToViewContainer(View* src, gfx::Point* point);
+  // Container. This is useful for example when sizing HWND children of the
+  // Container that don't know about the View hierarchy and need to be placed
+  // relative to the Container that is their parent.
+  static void ConvertPointToContainer(View* src, gfx::Point* point);
 
-  // Convert a point from a view ViewContainer to a View dest
-  static void ConvertPointFromViewContainer(View *dest, gfx::Point* p);
+  // Convert a point from a view Container to a View dest
+  static void ConvertPointFromContainer(View *dest, gfx::Point* p);
 
   // Convert a point from the coordinate system of a View to that of the
   // screen. This is useful for example when placing popup windows.
@@ -1168,7 +1168,7 @@ class View : public AcceleratorTarget {
                                  gfx::Point* point,
                                  bool try_other_direction);
 
-  // Propagates UpdateTooltip() to the TooltipManager for the ViewContainer.
+  // Propagates UpdateTooltip() to the TooltipManager for the Container.
   // This must be invoked any time the View hierarchy changes in such a way
   // the view under the mouse differs. For example, if the bounds of a View is
   // changed, this is invoked. Similarly, as Views are added/removed, this

@@ -7,7 +7,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/view_container.h"
+#include "chrome/views/container.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // OptionsPageView
@@ -43,7 +43,7 @@ void OptionsPageView::Observe(NotificationType type,
 void OptionsPageView::ViewHierarchyChanged(bool is_add,
                                            ChromeViews::View* parent,
                                            ChromeViews::View* child) {
-  if (!initialized_ && is_add && GetViewContainer()) {
+  if (!initialized_ && is_add && GetContainer()) {
     // It is important that this only get done _once_ otherwise we end up
     // duplicating the view hierarchy when tabs are switched.
     initialized_ = true;
@@ -53,7 +53,7 @@ void OptionsPageView::ViewHierarchyChanged(bool is_add,
 }
 
 HWND OptionsPageView::GetRootWindow() const {
-  // Our ViewContainer is the TabbedPane content HWND, which is a child HWND.
+  // Our Container is the TabbedPane content HWND, which is a child HWND.
   // We need the root HWND for parenting.
-  return GetAncestor(GetViewContainer()->GetHWND(), GA_ROOT);
+  return GetAncestor(GetContainer()->GetHWND(), GA_ROOT);
 }

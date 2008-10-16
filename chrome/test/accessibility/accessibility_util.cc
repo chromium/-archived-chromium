@@ -21,7 +21,7 @@ static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
 
 static BOOL CALLBACK WindowEnumProc(HWND hwnd, LPARAM data) {
   std::wstring class_name = win_util::GetClassName(hwnd);
-  if (class_name == L"Chrome_HWNDViewContainer_0") {
+  if (class_name == L"Chrome_ContainerWin_0") {
     HANDLE window_interface = GetProp(hwnd, kBrowserWindowKey);
     if (window_interface) {
       HWND* out = reinterpret_cast<HWND*>(data);

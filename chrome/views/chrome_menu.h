@@ -19,7 +19,7 @@
 
 namespace ChromeViews {
 
-class HWNDViewContainer;
+class ContainerWin;
 class MenuController;
 class MenuItemView;
 class SubmenuView;
@@ -477,8 +477,8 @@ class MenuItemView : public View {
 // . Forwards the appropriate events to the MenuController. This allows the
 //   MenuController to update the selection as the user moves the mouse around.
 // . Renders the drop indicator during a drop operation.
-// . Shows and hides the window (an HWNDViewContainer) when the menu is
-//   shown on screen.
+// . Shows and hides the window (a ContainerWin) when the menu is shown on
+//   screen.
 //
 // SubmenuView is itself contained in a MenuScrollViewContainer.
 // MenuScrollViewContainer handles showing as much of the SubmenuView as the
@@ -571,7 +571,7 @@ class SubmenuView : public View {
   // Parent menu item.
   MenuItemView* parent_menu_item_;
 
-  // HWNDViewContainer subclass used to show the children.
+  // ContainerWin subclass used to show the children.
   MenuHost* host_;
 
   // If non-null, indicates a drop is in progress and drop_item is the item

@@ -13,11 +13,11 @@ class ChromeFont;
 
 namespace ChromeViews {
 
+class Container;
 class View;
-class ViewContainer;
 
 // TooltipManager takes care of the wiring to support tooltips for Views.
-// This class is intended to be used by ViewContainers. To use this, you must
+// This class is intended to be used by Containers. To use this, you must
 // do the following:
 // Add the following to your MSG_MAP:
 //
@@ -57,8 +57,8 @@ class TooltipManager {
   // Returns the separator for lines of text in a tooltip.
   static const std::wstring& GetLineSeparator();
 
-  // Creates a TooltipManager for the specified ViewContainer and parent window.
-  TooltipManager(ViewContainer* container, HWND parent);
+  // Creates a TooltipManager for the specified Container and parent window.
+  TooltipManager(Container* container, HWND parent);
   virtual ~TooltipManager();
 
   // Notification that the view hierarchy has changed in some way.
@@ -122,7 +122,7 @@ class TooltipManager {
   void DestroyKeyboardTooltipWindow(HWND window_to_destroy);
 
   // Hosting view container.
-  ViewContainer* view_container_;
+  Container* container_;
 
   // The View the mouse is under. This is null if the mouse isn't under a
   // View.

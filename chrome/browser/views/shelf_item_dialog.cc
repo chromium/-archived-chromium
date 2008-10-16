@@ -458,7 +458,7 @@ bool ShelfItemDialog::AcceleratorPressed(
     window()->Close();
   } else if (accelerator.GetKeyCode() == VK_RETURN) {
     ChromeViews::FocusManager* fm = ChromeViews::FocusManager::GetFocusManager(
-        GetViewContainer()->GetHWND());
+        GetContainer()->GetHWND());
     if (fm->GetFocusedView() == url_table_) {
       // Return on table behaves like a double click.
       OnDoubleClick();

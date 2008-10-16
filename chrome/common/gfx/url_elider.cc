@@ -7,7 +7,6 @@
 #include "chrome/common/gfx/url_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/label.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"

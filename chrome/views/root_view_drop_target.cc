@@ -7,13 +7,13 @@
 #include "base/gfx/point.h"
 #include "base/logging.h"
 #include "chrome/common/drag_drop_types.h"
+#include "chrome/views/container.h"
 #include "chrome/views/root_view.h"
-#include "chrome/views/view_container.h"
 
 namespace ChromeViews {
 
 RootViewDropTarget::RootViewDropTarget(RootView* root_view)
-    : BaseDropTarget(root_view->GetViewContainer()->GetHWND()),
+    : BaseDropTarget(root_view->GetContainer()->GetHWND()),
       root_view_(root_view),
       target_view_(NULL),
       deepest_view_(NULL) {

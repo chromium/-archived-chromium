@@ -702,7 +702,7 @@ bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
       ChromeViews::View::ConvertPointToScreen(this, &point);
 
       download_util::DownloadDestinationContextMenu menu(
-          model_, GetViewContainer()->GetHWND(), point.ToPOINT());
+          model_, GetContainer()->GetHWND(), point.ToPOINT());
     }
   } else {
     parent_->ItemBecameSelected(NULL);
@@ -743,7 +743,7 @@ void DownloadItemTabView::LinkActivated(ChromeViews::Link* source,
                                         int event_flags) {
   // There are several links in our view that could have been clicked:
   if (source == file_name_) {
-    ChromeViews::ViewContainer* container = this->GetViewContainer();
+    ChromeViews::Container* container = this->GetContainer();
     HWND parent_window = container ? container->GetHWND() : NULL;
     model_->manager()->OpenDownloadInShell(model_, parent_window);
   } else if (source == pause_) {

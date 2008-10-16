@@ -16,8 +16,8 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/checkbox.h"
+#include "chrome/views/container_win.h"
 #include "chrome/views/grid_layout.h"
-#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/scroll_view.h"
@@ -151,7 +151,7 @@ NativeUIContents::~NativeUIContents() {
 void NativeUIContents::CreateView(HWND parent_hwnd,
                                   const gfx::Rect& initial_bounds) {
   set_delete_on_destroy(false);
-  HWNDViewContainer::Init(parent_hwnd, initial_bounds, false);
+  ContainerWin::Init(parent_hwnd, initial_bounds, false);
 }
 
 LRESULT NativeUIContents::OnCreate(LPCREATESTRUCT create_struct) {

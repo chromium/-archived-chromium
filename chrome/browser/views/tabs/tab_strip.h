@@ -9,7 +9,7 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab.h"
 #include "chrome/views/button.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container_win.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
 
@@ -342,7 +342,7 @@ class TabStrip : public ChromeViews::View,
     bool point_down;
 
     // Renders the drop indicator.
-    ChromeViews::HWNDViewContainer* arrow_window;
+    ChromeViews::ContainerWin* arrow_window;
     ChromeViews::ImageView* arrow_view;
 
    private:

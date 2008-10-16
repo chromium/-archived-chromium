@@ -10,7 +10,7 @@
 
 class ChromeCanvas;
 namespace ChromeViews {
-class HWNDViewContainer;
+class ContainerWin;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ class HWNDPhotobooth {
   void CreateCaptureWindow(HWND initial_hwnd);
 
   // The nearly off-screen photo-booth layered window used to hold the HWND.
-  ChromeViews::HWNDViewContainer* capture_window_;
+  ChromeViews::ContainerWin* capture_window_;
 
   // The current HWND being captured.
   HWND current_hwnd_;

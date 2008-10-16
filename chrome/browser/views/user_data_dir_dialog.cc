@@ -70,7 +70,7 @@ bool UserDataDirDialog::Accept() {
   std::wstring dialog_title = l10n_util::GetString(
       IDS_CANT_WRITE_USER_DIRECTORY_CHOOSE_DIRECTORY_BUTTON);
   HWND owning_hwnd =
-      GetAncestor(message_box_view_->GetViewContainer()->GetHWND(), GA_ROOT);
+      GetAncestor(message_box_view_->GetContainer()->GetHWND(), GA_ROOT);
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_FOLDER,
                                   dialog_title, std::wstring(), owning_hwnd,
                                   NULL);

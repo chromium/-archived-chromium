@@ -11,8 +11,8 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
+#include "chrome/views/container_win.h"
 #include "chrome/views/external_focus_tracker.h"
-#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view_storage.h"
@@ -41,9 +41,9 @@ FindInPageController::FindInPageController(TabContents* parent_tab,
   // own handler for Escape.
   SetFocusChangeListener(parent_hwnd);
 
-  // Don't let HWNDViewContainer manage our lifetime. We want our lifetime to
+  // Don't let ContainerWin manage our lifetime. We want our lifetime to
   // coincide with WebContents.
-  HWNDViewContainer::set_delete_on_destroy(false);
+  ContainerWin::set_delete_on_destroy(false);
 
   view_ = new FindInPageView(this);
 
@@ -60,7 +60,7 @@ FindInPageController::FindInPageController(TabContents* parent_tab,
   gfx::Rect find_dlg_rect = GetDialogPosition(gfx::Rect());
   set_window_style(WS_CHILD | WS_CLIPCHILDREN);
   set_window_ex_style(WS_EX_TOPMOST);
-  HWNDViewContainer::Init(parent_hwnd, find_dlg_rect, false);
+  ContainerWin::Init(parent_hwnd, find_dlg_rect, false);
   SetContentsView(view_);
 
   // Start the process of animating the opening of the window.
@@ -326,7 +326,7 @@ void FindInPageController::SetParent(HWND new_parent) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, ChromeViews::HWNDViewContainer implementation:
+// FindInPageController, ChromeViews::ContainerWin implementation:
 
 void FindInPageController::OnFinalMessage(HWND window) {
   // We are exiting, so we no longer need to monitor focus changes.
@@ -487,12 +487,12 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
       toolbar->GetLocalBounds(&local_bounds, false);
       toolbar_bounds = gfx::Rect(local_bounds);
     }
-    // Need to convert toolbar bounds into ViewContainer coords because the
-    // toolbar is the child of another view that isn't the top level view.
-    // This is required to ensure correct positioning relative to the top,left
-    // of the window.
+    // Need to convert toolbar bounds into Container coords because the toolbar
+    // is the child of another view that isn't the top level view. This is
+    // required to ensure correct positioning relative to the top,left of the
+    // window.
     gfx::Point topleft;
-    ChromeViews::View::ConvertPointToViewContainer(toolbar, &topleft);
+    ChromeViews::View::ConvertPointToContainer(toolbar, &topleft);
     toolbar_bounds.Offset(topleft.x(), topleft.y());
   }
 

@@ -5,12 +5,12 @@
 #include "chrome/browser/views/tabs/tab.h"
 
 #include "base/gfx/size.h"
-#include "chrome/views/view_container.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/chrome_menu.h"
+#include "chrome/views/container.h"
 #include "chrome/views/tooltip_manager.h"
 #include "generated_resources.h"
 
@@ -53,9 +53,8 @@ class TabContextMenuController : public ChromeViews::MenuDelegate {
   }
 
   void RunMenuAt(int x, int y) {
-    menu_->RunMenuAt(tab_->GetViewContainer()->GetHWND(),
-                     gfx::Rect(x, y, 0, 0), ChromeViews::MenuItemView::TOPLEFT,
-                     true);
+    menu_->RunMenuAt(tab_->GetContainer()->GetHWND(), gfx::Rect(x, y, 0, 0),
+                     ChromeViews::MenuItemView::TOPLEFT, true);
   }
 
  private:

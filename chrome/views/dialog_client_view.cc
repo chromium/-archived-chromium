@@ -226,7 +226,7 @@ void DialogClientView::ViewHierarchyChanged(bool is_add, View* parent, View* chi
   if (is_add && child == this) {
     // Can only add and update the dialog buttons _after_ they are added to the
     // view hierarchy since they are native controls and require the
-    // ViewContainer's HWND.
+    // Container's HWND.
     ShowDialogButtons();
     ClientView::ViewHierarchyChanged(is_add, parent, child);
     UpdateDialogButtons();

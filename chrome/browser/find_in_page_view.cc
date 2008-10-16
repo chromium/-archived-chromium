@@ -13,7 +13,6 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
-#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/label.h"
 #include "skia/include/SkGradientShader.h"
 

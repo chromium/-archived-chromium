@@ -6,9 +6,9 @@
 
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/container.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/scroll_view.h"
-#include "chrome/views/view_container.h"
 #include "base/logging.h"
 
 namespace ChromeViews {
@@ -38,7 +38,7 @@ void HWNDView::Attach(HWND hwnd) {
   ShowWindow(hwnd_, SW_HIDE);
 
   // Need to set the HWND's parent before changing its size to avoid flashing.
-  ::SetParent(hwnd_, GetViewContainer()->GetHWND());
+  ::SetParent(hwnd_, GetContainer()->GetHWND());
   UpdateHWNDBounds();
 
   // Register with the focus manager so the associated view is focused when the
@@ -66,12 +66,12 @@ void HWNDView::UpdateHWNDBounds() {
   if (!hwnd_)
     return;
 
-  // Since HWNDs know nothing about the View hierarchy (they are direct children
-  // of the ViewContainer that hosts our View hierarchy) they need to be
-  // positioned in the coordinate system of the ViewContainer, not the current
+  // Since HWNDs know nothing about the View hierarchy (they are direct
+  // children of the Container that hosts our View hierarchy) they need to be
+  // positioned in the coordinate system of the Container, not the current
   // view.
   gfx::Point top_left;
-  ConvertPointToViewContainer(this, &top_left);
+  ConvertPointToContainer(this, &top_left);
 
   gfx::Rect vis_bounds = GetVisibleBounds();
   bool visible = !vis_bounds.IsEmpty();
@@ -150,7 +150,7 @@ gfx::Size HWNDView::GetPreferredSize() {
 
 void HWNDView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
   if (hwnd_) {
-    ViewContainer* vc = GetViewContainer();
+    Container* vc = GetContainer();
     if (is_add && vc) {
       HWND parent = ::GetParent(hwnd_);
       HWND vc_hwnd = vc->GetHWND();

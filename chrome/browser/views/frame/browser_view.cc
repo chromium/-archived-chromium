@@ -61,7 +61,7 @@ void BrowserView::Init() {
   toolbar_->Init(browser_->profile());
   toolbar_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TOOLBAR));
 
-  status_bubble_.reset(new StatusBubble(GetViewContainer()));
+  status_bubble_.reset(new StatusBubble(GetContainer()));
 }
 
 void BrowserView::Show(int command, bool adjust_to_fit) {
@@ -228,10 +228,10 @@ void BrowserView::DidChangeBounds(const CRect& previous,
 void BrowserView::ViewHierarchyChanged(bool is_add,
                                        ChromeViews::View* parent,
                                        ChromeViews::View* child) {
-  if (is_add && child == this && GetViewContainer() && !initialized_) {
+  if (is_add && child == this && GetContainer() && !initialized_) {
     Init();
     // Make sure not to call Init() twice if we get inserted into a different
-    // ViewContainer.
+    // Container.
     initialized_ = true;
   }
 }

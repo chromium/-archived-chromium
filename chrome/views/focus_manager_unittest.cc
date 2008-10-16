@@ -14,7 +14,7 @@
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
 #include "chrome/views/checkbox.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container_win.h"
 #include "chrome/views/label.h"
 #include "chrome/views/link.h"
 #include "chrome/views/native_button.h"
@@ -114,7 +114,7 @@ class BorderView : public ChromeViews::NativeControl {
                                         0, 0, width(), height(),
                                         parent_container, NULL, NULL, NULL);
     // Create the view container which is a child of the TabControl.
-    view_container_ = new ChromeViews::HWNDViewContainer();
+    view_container_ = new ChromeViews::ContainerWin();
     view_container_->Init(tab_control, gfx::Rect(), false);
     view_container_->SetContentsView(child_);
     view_container_->SetFocusTraversableParentView(this);
@@ -162,12 +162,12 @@ private:
   }
 
   View* child_;
-  ChromeViews::HWNDViewContainer* view_container_;
+  ChromeViews::ContainerWin* view_container_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BorderView);
 };
 
-class TestViewWindow : public ChromeViews::HWNDViewContainer {
+class TestViewWindow : public ChromeViews::ContainerWin {
  public:
   explicit TestViewWindow(FocusManagerTest* test);
   ~TestViewWindow() { }
@@ -239,7 +239,7 @@ void TestViewWindow::Init() {
   contents_->SetBackground(
       ChromeViews::Background::CreateSolidBackground(255, 255, 255));
 
-  HWNDViewContainer::Init(NULL, bounds, true);
+  ContainerWin::Init(NULL, bounds, true);
   SetContentsView(contents_);
 
   ChromeViews::CheckBox* cb =

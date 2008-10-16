@@ -107,7 +107,7 @@ void InfoBubble::Init(HWND parent_hwnd,
       (win_util::GetWinVersion() < win_util::WINVERSION_XP) ?
       0 : CS_DROPSHADOW);
 
-  HWNDViewContainer::Init(parent_hwnd, bounds, true);
+  ContainerWin::Init(parent_hwnd, bounds, true);
   SetContentsView(content_view_);
   // The preferred size may differ when parented. Ask for the bounds again
   // and if they differ reset the bounds.
@@ -146,7 +146,7 @@ void InfoBubble::Close() {
     delegate_->InfoBubbleClosing(this);
   if (frame)
     frame->InfoBubbleClosing();
-  HWNDViewContainer::Close();
+  ContainerWin::Close();
 }
 
 void InfoBubble::AnimationProgressed(const Animation* animation) {

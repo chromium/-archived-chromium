@@ -16,7 +16,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/view_container.h"
+#include "chrome/views/container.h"
 #include "chrome/views/window.h"
 
 #include "chromium_strings.h"
@@ -121,7 +121,7 @@ class EditFolderController : public InputWindowDelegate,
         visual_order_(visual_order),
         is_new_(is_new) {
     DCHECK(is_new_ || node);
-    window_ = CreateInputWindow(view->GetViewContainer()->GetHWND(), this);
+    window_ = CreateInputWindow(view->GetContainer()->GetHWND(), this);
     view_->SetModelChangedListener(this);
   }
 
@@ -274,7 +274,7 @@ void BookmarkBarContextMenuController::RunMenuAt(int x, int y) {
   view_->SetModelChangedListener(this);
 
   // width/height don't matter here.
-  menu_.RunMenuAt(view_->GetViewContainer()->GetHWND(), gfx::Rect(x, y, 0, 0),
+  menu_.RunMenuAt(view_->GetContainer()->GetHWND(), gfx::Rect(x, y, 0, 0),
                   ChromeViews::MenuItemView::TOPLEFT, true);
 
   if (view_->GetModelChangedListener() == this)
@@ -328,9 +328,9 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
       else
         initial_disposition = CURRENT_TAB;
 
-      // GetViewContainer is NULL during testing.
-      HWND parent_hwnd = view_->GetViewContainer() ?
-          view_->GetViewContainer()->GetHWND() : 0;
+      // GetContainer is NULL during testing.
+      HWND parent_hwnd = view_->GetContainer() ?
+          view_->GetContainer()->GetHWND() : 0;
 
       OpenAll(parent_hwnd, view_->GetPageNavigator(), node_,
               initial_disposition);
@@ -341,7 +341,7 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Edit", profile);
 
       if (node_->GetType() == history::StarredEntry::URL) {
-        BookmarkEditorView::Show(view_->GetViewContainer()->GetHWND(),
+        BookmarkEditorView::Show(view_->GetContainer()->GetHWND(),
                                  view_->GetProfile(), NULL, node_);
       } else {
         // Controller deletes itself when done.
@@ -362,7 +362,7 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
     case add_bookmark_id: {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Add", profile);
 
-      BookmarkEditorView::Show(view_->GetViewContainer()->GetHWND(),
+      BookmarkEditorView::Show(view_->GetContainer()->GetHWND(),
                                view_->GetProfile(), node_, NULL);
       break;
     }

@@ -28,7 +28,7 @@ namespace ChromeViews {
 // TODO(glen): Resolve this with Microsoft.
 class AeroTooltipManager : public ChromeViews::TooltipManager {
  public:
-  AeroTooltipManager(ViewContainer* container, HWND parent);
+  AeroTooltipManager(Container* container, HWND parent);
   virtual ~AeroTooltipManager();
 
   void OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param);

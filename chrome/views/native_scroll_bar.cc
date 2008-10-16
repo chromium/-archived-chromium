@@ -11,8 +11,8 @@
 #include <atlframe.h>
 
 #include "base/message_loop.h"
+#include "chrome/views/container.h"
 #include "chrome/views/hwnd_view.h"
-#include "chrome/views/view_container.h"
 
 namespace ChromeViews {
 
@@ -30,7 +30,7 @@ class ScrollBarContainer : public CWindowImpl<ScrollBarContainer,
  public:
   ScrollBarContainer(ScrollBar* parent) : parent_(parent),
                                           scrollbar_(NULL) {
-    Create(parent->GetViewContainer()->GetHWND());
+    Create(parent->GetContainer()->GetHWND());
     ::ShowWindow(m_hWnd, SW_SHOW);
   }
 
@@ -126,7 +126,7 @@ class ScrollBarContainer : public CWindowImpl<ScrollBarContainer,
     // If we receive an event from the scrollbar, make the view
     // component focused so we actually get mousewheel events.
     if (source != NULL) {
-      ViewContainer* vc = parent_->GetViewContainer();
+      Container* vc = parent_->GetContainer();
       if (vc && vc->GetHWND() != GetFocus()) {
         parent_->RequestFocus();
       }
@@ -227,8 +227,8 @@ NativeScrollBar::~NativeScrollBar() {
 
 void NativeScrollBar::ViewHierarchyChanged(bool is_add, View *parent,
                                            View *child) {
-  ViewContainer* vc;
-  if (is_add && (vc = GetViewContainer()) && !sb_view_) {
+  Container* vc;
+  if (is_add && (vc = GetContainer()) && !sb_view_) {
     sb_view_ = new HWNDView();
     AddChildView(sb_view_);
     sb_container_ = new ScrollBarContainer(this);

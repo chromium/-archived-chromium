@@ -8,7 +8,7 @@
 #include "chrome/browser/render_widget_host_view_win.h"
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/browser/site_instance.h"
-#include "chrome/views/view_container.h"
+#include "chrome/views/container.h"
 
 HWNDHtmlView::~HWNDHtmlView() {
   if (render_view_host_) {
@@ -47,6 +47,6 @@ void HWNDHtmlView::Init(HWND parent_hwnd) {
 
 void HWNDHtmlView::ViewHierarchyChanged(bool is_add, View* parent,
                                         View* child) {
-  if (is_add && GetViewContainer() && !initialized_)
-    Init(GetViewContainer()->GetHWND());
+  if (is_add && GetContainer() && !initialized_)
+    Init(GetContainer()->GetHWND());
 }

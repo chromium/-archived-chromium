@@ -41,7 +41,7 @@ class OpaqueFrame : public BrowserFrame,
   // Overridden from ChromeViews::CustomFrameWindow:
   virtual void UpdateWindowIcon();
 
-  // Overridden from ChromeViews::HWNDViewContainer:
+  // Overridden from ChromeViews::ContainerWin:
   virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id,
                               ChromeViews::Accelerator* accelerator);

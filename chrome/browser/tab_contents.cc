@@ -13,7 +13,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
@@ -26,8 +26,8 @@ static size_t kMaxNumberOfConstrainedPopups = 20;
 namespace {
 
 BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
-  // Note: erase is required to properly paint some widgets borders. This can be
-  // seen with textfields.
+  // Note: erase is required to properly paint some widgets borders. This can
+  // be seen with textfields.
   InvalidateRect(hwnd, NULL, TRUE);
   return TRUE;
 }
@@ -365,7 +365,7 @@ void TabContents::StoreFocus() {
     if (container_hwnd) {
       ChromeViews::View* focused_view = focus_manager->GetFocusedView();
       if (focused_view) {
-        HWND hwnd = focused_view->GetRootView()->GetViewContainer()->GetHWND();
+        HWND hwnd = focused_view->GetRootView()->GetContainer()->GetHWND();
         if (container_hwnd == hwnd || ::IsChild(container_hwnd, hwnd))
           focus_manager->ClearFocus();
       }

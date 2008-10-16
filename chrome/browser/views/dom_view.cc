@@ -5,7 +5,7 @@
 #include "chrome/browser/views/dom_view.h"
 
 #include "chrome/browser/dom_ui/dom_ui_host.h"
-#include "chrome/views/hwnd_view_container.h"
+#include "chrome/views/container.h"
 
 DOMView::DOMView(const GURL& contents)
     : contents_(contents), initialized_(false), host_(NULL) {
@@ -29,7 +29,7 @@ bool DOMView::Init(Profile* profile, SiteInstance* instance) {
   // should only be associated with instances of DOMUIHost.
   TabContentsType type = TabContents::TypeForURL(&contents_);
   TabContents* tab_contents =  TabContents::CreateWithType(type,
-      GetViewContainer()->GetHWND(), profile, instance);
+      GetContainer()->GetHWND(), profile, instance);
   host_ = tab_contents->AsDOMUIHost();
   DCHECK(host_);
 

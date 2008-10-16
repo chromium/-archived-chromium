@@ -38,7 +38,6 @@
 #include "chrome/views/aero_tooltip_manager.h"
 #include "chrome/views/background.h"
 #include "chrome/views/event.h"
-#include "chrome/views/hwnd_view_container.h"
 #include "chrome/views/hwnd_notification_source.h"
 
 #include "chromium_strings.h"
@@ -468,7 +467,7 @@ void VistaFrame::Init() {
   FrameUtil::LoadAccelerators(this, accelerators_table, this);
 
   ShelfVisibilityChanged();
-  root_view_.OnViewContainerCreated();
+  root_view_.OnContainerCreated();
   Layout();
 }
 
@@ -522,7 +521,7 @@ void VistaFrame::Close() {
     browser_->OnWindowClosing();
   } else {
     // Empty tab strip, it's now safe to clean-up.
-    root_view_.OnViewContainerDestroyed();
+    root_view_.OnContainerDestroyed();
 
     NotificationService::current()->Notify(
         NOTIFY_WINDOW_CLOSED, Source<HWND>(m_hWnd),
@@ -588,7 +587,7 @@ gfx::Rect VistaFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   }
 
   gfx::Point p;
-  ChromeViews::View::ConvertPointToViewContainer(tab_contents_container_, &p);
+  ChromeViews::View::ConvertPointToContainer(tab_contents_container_, &p);
   CRect bounds;
   GetBounds(&bounds, true);
 
@@ -1173,7 +1172,7 @@ void VistaFrame::ProcessMouseExited() {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ChromeViews::ViewContainer
+// ChromeViews::Container
 //
 ////////////////////////////////////////////////////////////////////////////////
 

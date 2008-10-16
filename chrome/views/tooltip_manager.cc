@@ -13,7 +13,7 @@
 #include "chrome/views/root_view.h"
 #include "chrome/views/tooltip_manager.h"
 #include "chrome/views/view.h"
-#include "chrome/views/view_container.h"
+#include "chrome/views/container.h"
 
 namespace ChromeViews {
 
@@ -76,8 +76,8 @@ const std::wstring& TooltipManager::GetLineSeparator() {
   return *separator;
 }
 
-TooltipManager::TooltipManager(ViewContainer* container, HWND parent)
-    : view_container_(container),
+TooltipManager::TooltipManager(Container* container, HWND parent)
+    : container_(container),
       parent_(parent),
       last_mouse_x_(-1),
       last_mouse_y_(-1),
@@ -147,7 +147,7 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
       case TTN_GETDISPINFO: {
         if (last_view_out_of_sync_) {
           // View under the mouse is out of sync, determine it now.
-          RootView* root_view = view_container_->GetRootView();
+          RootView* root_view = container_->GetRootView();
           last_tooltip_view_ = root_view->GetViewForPoint(
               gfx::Point(last_mouse_x_, last_mouse_y_));
           last_view_out_of_sync_ = false;
@@ -165,7 +165,7 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
           tooltip_text_.clear();
           // Mouse is over a View, ask the View for it's tooltip.
           gfx::Point view_loc(last_mouse_x_, last_mouse_y_);
-          View::ConvertPointToView(view_container_->GetRootView(),
+          View::ConvertPointToView(container_->GetRootView(),
                                    last_tooltip_view_, &view_loc);
           if (last_tooltip_view_->GetTooltipText(view_loc.x(), view_loc.y(),
                                                  &tooltip_text_) &&
@@ -194,7 +194,7 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
         if (tooltip_height_ == 0)
           tooltip_height_ = CalcTooltipHeight();
         gfx::Point view_loc(last_mouse_x_, last_mouse_y_);
-        View::ConvertPointToView(view_container_->GetRootView(),
+        View::ConvertPointToView(container_->GetRootView(),
                                  last_tooltip_view_, &view_loc);
         if (last_tooltip_view_->GetTooltipTextOrigin(
               view_loc.x(), view_loc.y(), &text_origin) &&
@@ -284,7 +284,7 @@ void TooltipManager::TrimTooltipToFit(std::wstring* text,
 
   // Determine the available width for the tooltip.
   gfx::Point screen_loc(position_x, position_y);
-  View::ConvertPointToScreen(view_container_->GetRootView(), &screen_loc);
+  View::ConvertPointToScreen(container_->GetRootView(), &screen_loc);
   gfx::Rect monitor_bounds =
       win_util::GetMonitorBoundsForRect(gfx::Rect(screen_loc.x(), screen_loc.y(),
                                                   0, 0));
@@ -319,7 +319,7 @@ void TooltipManager::TrimTooltipToFit(std::wstring* text,
 }
 
 void TooltipManager::UpdateTooltip(int x, int y) {
-  RootView* root_view = view_container_->GetRootView();
+  RootView* root_view = container_->GetRootView();
   View* view = root_view->GetViewForPoint(gfx::Point(x, y));
   if (view != last_tooltip_view_) {
     // NOTE: This *must* be sent regardless of the visibility of the tooltip.
@@ -352,7 +352,7 @@ void TooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
   if (u_msg >= WM_NCMOUSEMOVE && u_msg <= WM_NCXBUTTONDBLCLK) {
     // NC message coordinates are in screen coordinates.
     CRect frame_bounds;
-    view_container_->GetBounds(&frame_bounds, true);
+    container_->GetBounds(&frame_bounds, true);
     x -= frame_bounds.left;
     y -= frame_bounds.top;
   }
@@ -385,8 +385,8 @@ void TooltipManager::ShowKeyboardTooltip(View* focused_view) {
   gfx::Point screen_point;
   focused_view->ConvertPointToScreen(focused_view, &screen_point);
   gfx::Point relative_point_coordinates;
-  focused_view->ConvertPointToViewContainer(focused_view,
-                                            &relative_point_coordinates);
+  focused_view->ConvertPointToContainer(focused_view,
+                                        &relative_point_coordinates);
   keyboard_tooltip_hwnd_ = CreateWindowEx(
       WS_EX_TRANSPARENT | l10n_util::GetExtendedTooltipStyles(),
       TOOLTIPS_CLASS, NULL, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL);

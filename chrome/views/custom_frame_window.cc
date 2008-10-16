@@ -525,9 +525,9 @@ gfx::Size DefaultNonClientView::GetPreferredSize() {
 void DefaultNonClientView::ViewHierarchyChanged(bool is_add,
                                                 View* parent,
                                                 View* child) {
-  // Add our Client View as we are added to the ViewContainer so that if we are
+  // Add our Client View as we are added to the Container so that if we are
   // subsequently resized all the parent-child relationships are established.
-  if (is_add && GetViewContainer() && child == this)
+  if (is_add && GetContainer() && child == this)
     AddChildView(container_->client_view());
 }
 
@@ -920,7 +920,7 @@ void CustomFrameWindow::SetClientView(ClientView* cv) {
   DCHECK(cv && !client_view() && GetHWND());
   set_client_view(cv);
   // For a CustomFrameWindow, the non-client view is the root.
-  HWNDViewContainer::SetContentsView(non_client_view_);
+  ContainerWin::SetContentsView(non_client_view_);
   // When the non client view is added to the view hierarchy, it will cause the
   // client view to be added as well.
 }
@@ -970,7 +970,7 @@ void CustomFrameWindow::SizeWindowToDefault() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CustomFrameWindow, HWNDViewContainer overrides:
+// CustomFrameWindow, ContainerWin overrides:
 
 void CustomFrameWindow::OnGetMinMaxInfo(MINMAXINFO* minmax_info) {
   // We handle this message so that we can make sure we interact nicely with

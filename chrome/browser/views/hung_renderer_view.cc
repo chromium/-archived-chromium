@@ -321,7 +321,7 @@ void HungRendererWarningView::ButtonPressed(
 void HungRendererWarningView::ViewHierarchyChanged(bool is_add,
                                                    ChromeViews::View* parent,
                                                    ChromeViews::View* child) {
-  if (!initialized_ && is_add && child == this && GetViewContainer())
+  if (!initialized_ && is_add && child == this && GetContainer())
     Init();
 }
 

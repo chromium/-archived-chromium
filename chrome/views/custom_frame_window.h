@@ -47,7 +47,7 @@ class CustomFrameWindow : public Window {
   virtual void EnableClose(bool enable);
   virtual void DisableInactiveRendering(bool disable);
 
-  // Overridden from HWNDViewContainer:
+  // Overridden from ContainerWin:
   virtual void OnGetMinMaxInfo(MINMAXINFO* minmax_info);
   virtual void OnInitMenu(HMENU menu);
   virtual void OnMouseLeave();

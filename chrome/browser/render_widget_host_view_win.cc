@@ -21,7 +21,9 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/hwnd_view_container.h"
+// Included for ChromeViews::kReflectedMessage - TODO(beng): move this to
+// win_util.h!
+#include "chrome/views/container_win.h"
 #include "webkit/glue/webcursor.h"
 
 namespace {
