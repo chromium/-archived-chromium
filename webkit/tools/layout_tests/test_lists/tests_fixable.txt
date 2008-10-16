@@ -928,7 +928,6 @@ V8 | KJS # LayoutTests/media/progress-event-total.html = FAIL
 V8 | KJS # LayoutTests/media/video-click-dlbclick-standalone.html = FAIL
 V8 | KJS # LayoutTests/media/video-layer-crash.html = FAIL
 V8 | KJS # LayoutTests/media/video-source-type-params.html = FAIL
-V8 | KJS # LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/printing = FAIL
 V8 | KJS # LayoutTests/security/autocomplete-cleared-on-back.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/security/set-form-autocomplete-attribute.html = FAIL

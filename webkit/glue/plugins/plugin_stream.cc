@@ -83,8 +83,10 @@ bool PluginStream::Open(const std::string &mime_type,
   NPError err = instance_->NPP_NewStream((NPMIMEType)char_mime_type,
                                          &stream_, seekable_stream,
                                          &requested_plugin_mode_);
-  if (err != NPERR_NO_ERROR)
+  if (err != NPERR_NO_ERROR) {
+    Notify(err);
     return false;
+  }
 
   opened_ = true;
 
