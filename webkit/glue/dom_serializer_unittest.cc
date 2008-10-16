@@ -4,7 +4,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "Document.h"
 #include "DocumentType.h"
 #include "Element.h"
@@ -17,7 +19,7 @@
 #include "markup.h"
 #include "SharedBuffer.h"
 #include "SubstituteData.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/hash_tables.h"

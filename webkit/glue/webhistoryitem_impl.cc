@@ -28,9 +28,11 @@
 
 #include "webkit/glue/glue_serialize.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "HistoryItem.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 
 WebHistoryItem* WebHistoryItem::Create(const GURL& url,

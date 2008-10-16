@@ -8,7 +8,10 @@
 
 #include <string>
 #include "config.h"
-#pragma warning(push, 0)
+
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "HTMLInputElement.h"
 #include "HTMLFormElement.h"
 #include "Document.h"
@@ -17,7 +20,7 @@
 #include "EventNames.h"
 #include "Event.h"
 #include "EventListener.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 

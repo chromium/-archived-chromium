@@ -4,7 +4,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "FloatRect.h"
 #include "FileChooser.h"
 #include "FrameLoadRequest.h"
@@ -14,7 +16,7 @@
 #include "Page.h"
 #include "ScriptController.h"
 #include "WindowFeatures.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 #undef LOG
 
 #include "webkit/glue/chrome_client_impl.h"

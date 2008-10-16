@@ -77,12 +77,13 @@
 
 #include "config.h"
 
+#include "base/compiler_specific.h"
 #include "build/build_config.h"
 
 #include <algorithm>
 #include <string>
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "HTMLFormElement.h"  // need this before Document.h
 #include "Chrome.h"
 #include "ChromeClientChromium.h"
@@ -122,7 +123,7 @@
 #include "WidgetClientChromium.h"
 #include "XPathResult.h"
 
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/gfx/bitmap_platform_device.h"

@@ -4,10 +4,12 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformString.h"
 #include "RegularExpression.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/glue_util.h"

@@ -10,13 +10,14 @@
 #include <vector>
 
 #include "config.h"
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceHandle.h"
 #include "ResourceHandleClient.h"
 #include "ResourceRequest.h"
 #include "Widget.h"
-#include "Vector.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"

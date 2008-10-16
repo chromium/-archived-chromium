@@ -4,7 +4,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "FrameLoader.h"
 #include "FrameTree.h"
 #include "Document.h"
@@ -21,7 +23,7 @@
 #include "HTMLMetaElement.h"
 #include "HTMLNames.h"
 #include "KURL.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 #undef LOG
 
 // Brings in more WebKit headers and #undefs LOG again, so this needs to come

@@ -4,12 +4,15 @@
 
 #include "config.h"
 
+#include "base/compiler_specific.h"
+
 #if defined(OS_WIN)
 #include <windows.h>
 #endif
 
 #include "StringImpl.h"  // This is so that the KJS build works
-#pragma warning(push, 0)
+
+MSVC_PUSH_WARNING_LEVEL(0);
 // HACK: make it possible to initialize these classes...
 // TODO(darin): send this change to webkit.org
 #define private protected
@@ -18,7 +21,7 @@
 #include "PlatformWheelEvent.h"
 #undef private
 #include "Widget.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/gfx/point.h"

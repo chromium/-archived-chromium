@@ -33,8 +33,8 @@
 #include "config.h"
 #include "build/build_config.h"
 
-#pragma warning(push, 0)
 #if defined(OS_WIN)
+#include "base/compiler_specific.h"
 #include "Cursor.h"
 #endif
 #include "Document.h"
@@ -68,7 +68,7 @@
 #include "Settings.h"
 #include "TypingCommand.h"
 #include "event_conversion.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 #undef LOG
 
 #include "base/gfx/rect.h"

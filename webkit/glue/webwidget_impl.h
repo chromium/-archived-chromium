@@ -6,14 +6,15 @@
 #define WEBKIT_GLUE_WEBWIDGET_IMPL_H__
 
 #include "base/basictypes.h"
+#include "base/compiler_specific.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/point.h"
 #include "base/gfx/size.h"
 #include "webkit/glue/webwidget.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "WidgetClientChromium.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 namespace WebCore {
   class Frame;

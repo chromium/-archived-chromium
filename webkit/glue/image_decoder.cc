@@ -5,7 +5,9 @@
 #include "config.h"
 #include "webkit/glue/image_decoder.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #if defined(OS_WIN) || defined(OS_LINUX)
 #include "ImageSourceSkia.h"
 #elif defined(OS_MACOSX)
@@ -15,7 +17,7 @@
 #include "IntSize.h"
 #include "RefPtr.h"
 #include "SharedBuffer.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #include "SkBitmap.h"
 

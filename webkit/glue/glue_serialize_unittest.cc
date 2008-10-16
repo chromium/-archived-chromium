@@ -7,15 +7,16 @@
 
 #include "webkit/glue/glue_serialize.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "base/compiler_specific.h"
 #include "base/pickle.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "CString.h"
 #include "FormData.h"
 #include "HistoryItem.h"
 #include "PlatformString.h"
 #include "ResourceRequest.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 using namespace std;
 using namespace WebCore;

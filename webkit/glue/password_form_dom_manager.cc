@@ -4,7 +4,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "Frame.h"
@@ -13,7 +15,7 @@
 #include "HTMLInputElement.h"
 #include "HTMLNames.h"
 #include "KURL.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 

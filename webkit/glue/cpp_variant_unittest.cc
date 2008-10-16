@@ -4,12 +4,14 @@
 
 #include "config.h"
 
+#include "base/compiler_specific.h"
+
 #include "webkit/glue/cpp_variant.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "npruntime_priv.h"  // for NPN_InitializeVariantWithStringCopy
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #if USE(JSC)
 #define _NPN_InitializeVariantWithStringCopy NPN_InitializeVariantWithStringCopy

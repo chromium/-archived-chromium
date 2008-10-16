@@ -4,9 +4,11 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceResponse.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 #undef LOG
 
 #include "webkit/glue/unittest_test_server.h"

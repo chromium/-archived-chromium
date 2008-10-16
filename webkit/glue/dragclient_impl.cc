@@ -4,13 +4,15 @@
 
 #include "config.h"
 
+#include "base/compiler_specific.h"
+
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
 #include <objidl.h>
 #endif
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #if defined(OS_WIN)
 #include "ClipboardWin.h"
 #include "COMPtr.h"
@@ -20,7 +22,7 @@
 #include "HitTestResult.h"
 #include "Image.h"
 #include "KURL.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 #undef LOG
 
 #include "webkit/glue/dragclient_impl.h"

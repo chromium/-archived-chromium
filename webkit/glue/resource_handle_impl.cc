@@ -24,7 +24,9 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "CString.h"
 #include "Console.h"
 #include "DocLoader.h"
@@ -37,7 +39,7 @@
 #include "ResourceHandleClient.h"
 #include "ResourceRequest.h"
 #include "ResourceResponse.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"
@@ -251,12 +253,12 @@ ResourceHandleInternal::ResourceHandleInternal(ResourceHandle* job,
     : job_(job),
       client_(c),
       request_(r),
+MSVC_SUPPRESS_WARNING(4355)  // can use this
+      data_url_factory_(this),
       load_flags_(net::LOAD_NORMAL),
       pending_(false),
       expected_content_length_(-1),
-      multipart_delegate_(NULL),
-MSVC_SUPPRESS_WARNING(4355)  // can use this
-      data_url_factory_(this) {
+      multipart_delegate_(NULL) {
 }
 
 ResourceHandleInternal::~ResourceHandleInternal() {

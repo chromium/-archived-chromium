@@ -4,12 +4,14 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "FloatRect.h"
 #include "InspectorController.h"
 #include "Page.h"
 #include "Settings.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 #include "webkit/glue/inspector_client_impl.h"

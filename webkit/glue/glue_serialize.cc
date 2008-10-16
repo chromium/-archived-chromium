@@ -5,11 +5,13 @@
 #include "config.h"
 #include <string>
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "HistoryItem.h"
 #include "PlatformString.h"
 #include "ResourceRequest.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 #undef LOG
 
 #include "webkit/glue/glue_serialize.h"

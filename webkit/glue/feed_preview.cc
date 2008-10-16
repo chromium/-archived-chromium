@@ -4,13 +4,15 @@
 
 #include "config.h"
 
+#include "base/compiler_specific.h"
+
 #include "webkit/glue/feed_preview.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceRequest.h"
 #include "ResourceResponse.h"
 #include "ResourceHandle.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 

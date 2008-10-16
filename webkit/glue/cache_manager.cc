@@ -4,13 +4,15 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 // Instead of providing accessors, we make all members of Cache public.
 // This will make it easier to track WebKit changes to the Cache class.
 #define private public
 #include "Cache.h"
 #undef private
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/logging.h"

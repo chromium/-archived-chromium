@@ -6,13 +6,14 @@
 #include <string>
 
 #include "webkit/glue/glue_util.h"
+#include "base/compiler_specific.h"
 #include "base/string_util.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #undef LOG
 #include "CString.h"
 #include "PlatformString.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #include "KURL.h"
 

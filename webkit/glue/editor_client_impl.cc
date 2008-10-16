@@ -6,7 +6,10 @@
 // and I'm not really sure what to do about most of them.
 
 #include "config.h"
-#pragma warning(push, 0)
+
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "Document.h"
 #include "EditCommand.h"
 #include "Editor.h"
@@ -17,7 +20,7 @@
 #include "KeyboardEvent.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformString.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 #include "base/string_util.h"

@@ -29,9 +29,11 @@
 #ifndef WEBKIT_GLUE_WEBDOCUMENTLOADER_IMPL_H__
 #define WEBKIT_GLUE_WEBDOCUMENTLOADER_IMPL_H__
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "DocumentLoader.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"

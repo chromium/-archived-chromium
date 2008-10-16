@@ -5,10 +5,12 @@
 #include <ctype.h>
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "Frame.h"
 #include "Editor.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 

@@ -8,13 +8,13 @@ env = env.Clone()
 
 if env['PLATFORM'] == 'win32':
   env.Append(
-    CCFLAGS = [
-      '/TP',
+      CCFLAGS = [
+          '/TP',
 
-      '/WX',
+          '/WX',
 
-      '/wd4800',
-    ],
+          '/wd4800',
+      ],
   )
 
 input_files = [
@@ -29,6 +29,7 @@ input_files = [
   'cpp_variant.cc',
   'debugger.cc',
   'dom_operations.cc',
+  'dom_serializer.cc',
   'dragclient_impl.cc',
   'editor_client_impl.cc',
   'entity_map.cc',
@@ -45,6 +46,7 @@ input_files = [
   'password_autocomplete_listener.cc',
   'password_form_dom_manager.cc',
   'resource_fetcher.cc',
+  'resource_handle_impl.cc',
   'searchable_form_data.cc',
   'simple_clipboard_impl.cc',
   'stacking_order_iterator.cc',
@@ -68,7 +70,6 @@ if env['PLATFORM'] == 'win32':
   input_files.append([
     '$PENDING_DIR/AccessibleBase.cpp',
     '$PENDING_DIR/AccessibleDocument.cpp',
-    'dom_serializer.cc',
     'glue_accessibility.cc',
     'plugins/mozilla_extensions.cc',
     'plugins/plugin_host.cc',
@@ -79,7 +80,6 @@ if env['PLATFORM'] == 'win32':
     'plugins/plugin_stream_url.cc',
     'plugins/plugin_string_stream.cc',
     'plugins/webplugin_delegate_impl.cc',
-    'resource_handle_win.cc',
     'webdropdata.cc',
     'webinputevent_win.cc',
     'webplugin_impl.cc',

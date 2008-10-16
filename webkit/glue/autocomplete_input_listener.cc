@@ -7,7 +7,7 @@
 
 #include "webkit/glue/autocomplete_input_listener.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "HTMLInputElement.h"
 #include "HTMLFormElement.h"
 #include "Document.h"
@@ -15,7 +15,7 @@
 #include "Editor.h"
 #include "EventNames.h"
 #include "Event.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #undef LOG
 
