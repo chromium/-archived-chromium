@@ -738,6 +738,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   // client area.
   gfx::Rect bv_bounds = bounds();
   bv_bounds.Offset(0, toolbar_->y());
+  bv_bounds.set_height(bv_bounds.height() - toolbar_->y());
   if (bv_bounds.Contains(point))
     return HTCLIENT;
 
