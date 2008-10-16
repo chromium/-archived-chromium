@@ -15,7 +15,7 @@ class Point;
 
 class PrefService;
 
-namespace ChromeViews {
+namespace views {
 
 class ClientView;
 class Client;
@@ -259,7 +259,7 @@ class Window : public ContainerWin {
   DISALLOW_EVIL_CONSTRUCTORS(Window);
 };
 
-}
+}  // namespace views
 
 #endif  // CHROME_VIEWS_WINDOW_H__
 

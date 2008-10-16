@@ -18,7 +18,7 @@
 #include "chrome/views/background.h"
 #include "base/gfx/native_theme.h"
 
-namespace ChromeViews {
+namespace views {
 
 // Maps to the original WNDPROC for the controller window before we subclassed
 // it.
@@ -348,5 +348,5 @@ LRESULT CALLBACK NativeControl::NativeControlWndProc(HWND window, UINT message,
                         message, w_param, l_param);
 }
 
-}
+}  // namespace views
 

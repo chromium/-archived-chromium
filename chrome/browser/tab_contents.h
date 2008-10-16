@@ -19,6 +19,9 @@ namespace gfx {
 class Rect;
 class Size;
 }
+namespace views {
+class WindowDelegate;
+}
 
 class DOMUIHost;
 class DownloadItem;
@@ -319,8 +322,8 @@ class TabContents : public PageNavigator,
   // is sized according to the preferred size of the content_view, and centered
   // within the contents.
   ConstrainedWindow* CreateConstrainedDialog(
-      ChromeViews::WindowDelegate* window_delegate,
-      ChromeViews::View* contents_view);
+      views::WindowDelegate* window_delegate,
+      views::View* contents_view);
 
   // Adds a new tab or window with the given already-created contents
   void AddNewContents(TabContents* new_contents,
@@ -403,7 +406,7 @@ class TabContents : public PageNavigator,
   // this returns NULL, the TabContents is supposed to know how to process TAB
   // key events and is just sent the key messages.  If this returns a RootView,
   // the focus is passed to the RootView.
-  virtual ChromeViews::RootView* GetContentsRootView() { return NULL; }
+  virtual views::RootView* GetContentsRootView() { return NULL; }
 
   // Toolbars and such ---------------------------------------------------------
  

@@ -38,7 +38,7 @@ void ToolbarStarToggle::ShowStarBubble(const GURL& url, bool newly_bookmarked) {
   }
 
   gfx::Point star_location;
-  ChromeViews::View::ConvertPointToScreen(this, &star_location);
+  views::View::ConvertPointToScreen(this, &star_location);
   // Shift the x location by 1 as visually the center of the star appears 1
   // pixel to the right. By doing this bubble arrow points to the center
   // of the star.
@@ -49,13 +49,13 @@ void ToolbarStarToggle::ShowStarBubble(const GURL& url, bool newly_bookmarked) {
   is_bubble_showing_ = true;
 }
 
-bool ToolbarStarToggle::OnMousePressed(const ChromeViews::MouseEvent& e) {
+bool ToolbarStarToggle::OnMousePressed(const views::MouseEvent& e) {
   ignore_click_ = ((TimeTicks::Now() - bubble_closed_time_).InMilliseconds() <
                    kDisallowClickMS);
   return ToggleButton::OnMousePressed(e);
 }
 
-void ToolbarStarToggle::OnMouseReleased(const ChromeViews::MouseEvent& e,
+void ToolbarStarToggle::OnMouseReleased(const views::MouseEvent& e,
                                         bool canceled) {
   ToggleButton::OnMouseReleased(e, canceled);
   ignore_click_ = false;

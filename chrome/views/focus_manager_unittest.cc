@@ -96,7 +96,7 @@ class FocusManagerTest;
 // Taken from keyword_editor_view.cc.
 // It is interesting in our test as it is a native control containing another
 // RootView.
-class BorderView : public ChromeViews::NativeControl {
+class BorderView : public views::NativeControl {
  public:
   explicit BorderView(View* child) : child_(child) {
     DCHECK(child);
@@ -114,7 +114,7 @@ class BorderView : public ChromeViews::NativeControl {
                                         0, 0, width(), height(),
                                         parent_container, NULL, NULL, NULL);
     // Create the view container which is a child of the TabControl.
-    view_container_ = new ChromeViews::ContainerWin();
+    view_container_ = new views::ContainerWin();
     view_container_->Init(tab_control, gfx::Rect(), false);
     view_container_->SetContentsView(child_);
     view_container_->SetFocusTraversableParentView(this);
@@ -131,11 +131,11 @@ class BorderView : public ChromeViews::NativeControl {
     ResizeContents(GetNativeControlHWND());
   }
 
-  virtual ChromeViews::RootView* GetContentsRootView() {
+  virtual views::RootView* GetContentsRootView() {
     return view_container_->GetRootView();
   }
 
-  virtual ChromeViews::FocusTraversable* GetFocusTraversable() {
+  virtual views::FocusTraversable* GetFocusTraversable() {
     return view_container_;
   }
 
@@ -162,19 +162,19 @@ private:
   }
 
   View* child_;
-  ChromeViews::ContainerWin* view_container_;
+  views::ContainerWin* view_container_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BorderView);
 };
 
-class TestViewWindow : public ChromeViews::ContainerWin {
+class TestViewWindow : public views::ContainerWin {
  public:
   explicit TestViewWindow(FocusManagerTest* test);
   ~TestViewWindow() { }
 
   void Init();
 
-  ChromeViews::View* contents() const { return contents_; }
+  views::View* contents() const { return contents_; }
   
 
   // Return the ID of the component that currently has the focus.
@@ -183,22 +183,22 @@ class TestViewWindow : public ChromeViews::ContainerWin {
   // Simulate pressing the tab button in the window.
   void PressTab(bool shift_pressed, bool ctrl_pressed);
 
-  ChromeViews::RootView* GetContentsRootView() const {
+  views::RootView* GetContentsRootView() const {
     return contents_->GetRootView();
   }
 
-  ChromeViews::RootView* GetStyleRootView() const {
+  views::RootView* GetStyleRootView() const {
     return style_tab_->GetContentsRootView();
   }
 
-  ChromeViews::RootView* GetSearchRootView() const {
+  views::RootView* GetSearchRootView() const {
     return search_border_view_->GetContentsRootView();
   }
 
  private:
-  ChromeViews::View* contents_;
+  views::View* contents_;
 
-  ChromeViews::TabbedPane* style_tab_;
+  views::TabbedPane* style_tab_;
   BorderView* search_border_view_;
 
   FocusManagerTest* test_;
@@ -235,25 +235,25 @@ TestViewWindow::TestViewWindow(FocusManagerTest* test)
 // Initializes and shows the window with the contents view.
 void TestViewWindow::Init() {
   gfx::Rect bounds(0, 0, 600, 460);
-  contents_ = new ChromeViews::View();
+  contents_ = new views::View();
   contents_->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(255, 255, 255));
+      views::Background::CreateSolidBackground(255, 255, 255));
 
   ContainerWin::Init(NULL, bounds, true);
   SetContentsView(contents_);
 
-  ChromeViews::CheckBox* cb =
-      new ChromeViews::CheckBox(L"This is a checkbox");
+  views::CheckBox* cb =
+      new views::CheckBox(L"This is a checkbox");
   contents_->AddChildView(cb);
   // In this fast paced world, who really has time for non hard-coded layout?
   cb->SetBounds(10, 10, 200, 20);
   cb->SetID(kTopCheckBoxID);
 
-  ChromeViews::View* left_container = new ChromeViews::View();
+  views::View* left_container = new views::View();
   left_container->SetBorder(
-      ChromeViews::Border::CreateSolidBorder(1, SK_ColorBLACK));
+      views::Border::CreateSolidBorder(1, SK_ColorBLACK));
   left_container->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(240, 240, 240));
+      views::Background::CreateSolidBackground(240, 240, 240));
   left_container->SetID(kLeftContainerID);
   contents_->AddChildView(left_container);
   left_container->SetBounds(10, 35, 250, 200);
@@ -265,12 +265,12 @@ void TestViewWindow::Init() {
   int y = 10;
   int gap_between_labels = 10;
 
-  ChromeViews::Label* label = new ChromeViews::Label(L"Apple:");
+  views::Label* label = new views::Label(L"Apple:");
   label->SetID(kAppleLabelID);
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  ChromeViews::TextField* text_field = new ChromeViews::TextField();
+  views::TextField* text_field = new views::TextField();
   text_field->SetID(kAppleTextFieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
@@ -278,12 +278,12 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  label = new ChromeViews::Label(L"Orange:");
+  label = new views::Label(L"Orange:");
   label->SetID(kOrangeLabelID);
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new ChromeViews::TextField();
+  text_field = new views::TextField();
   text_field->SetID(kOrangeTextFieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
@@ -291,12 +291,12 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  label = new ChromeViews::Label(L"Banana:");
+  label = new views::Label(L"Banana:");
   label->SetID(kBananaLabelID);
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new ChromeViews::TextField();
+  text_field = new views::TextField();
   text_field->SetID(kBananaTextFieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
@@ -304,12 +304,12 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  label = new ChromeViews::Label(L"Kiwi:");
+  label = new views::Label(L"Kiwi:");
   label->SetID(kKiwiLabelID);
   left_container->AddChildView(label);
   label->SetBounds(label_x, y, label_width, label_height);
 
-  text_field = new ChromeViews::TextField();
+  text_field = new views::TextField();
   text_field->SetID(kKiwiTextFieldID);
   left_container->AddChildView(text_field);
   text_field->SetBounds(label_x + label_width + 5, y,
@@ -317,23 +317,23 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  ChromeViews::NativeButton* button =
-      new ChromeViews::NativeButton(L"Click me");
+  views::NativeButton* button =
+      new views::NativeButton(L"Click me");
   button->SetBounds(label_x, y + 10, 50, 20);
   button->SetID(kFruitButtonID);
   left_container->AddChildView(button);
   y += 40;
 
-  cb =  new ChromeViews::CheckBox(L"This is another check box");
+  cb =  new views::CheckBox(L"This is another check box");
   cb->SetBounds(label_x + label_width + 5, y, 100, 20);
   cb->SetID(kFruitCheckBoxID);
   left_container->AddChildView(cb);
 
-  ChromeViews::View* right_container = new ChromeViews::View();
+  views::View* right_container = new views::View();
   right_container->SetBorder(
-      ChromeViews::Border::CreateSolidBorder(1, SK_ColorBLACK));
+      views::Border::CreateSolidBorder(1, SK_ColorBLACK));
   right_container->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(240, 240, 240));
+      views::Background::CreateSolidBackground(240, 240, 240));
   right_container->SetID(kRightContainerID);
   contents_->AddChildView(right_container);
   right_container->SetBounds(270, 35, 300, 200);
@@ -341,44 +341,44 @@ void TestViewWindow::Init() {
   y = 10;
   int radio_button_height = 15;
   int gap_between_radio_buttons = 10;
-  ChromeViews::View* radio_button =
-      new ChromeViews::RadioButton(L"Asparagus", 1);
+  views::View* radio_button =
+      new views::RadioButton(L"Asparagus", 1);
   radio_button->SetID(kAsparagusButtonID);
   right_container->AddChildView(radio_button);
   radio_button->SetBounds(5, y, 70, radio_button_height);
   radio_button->SetGroup(1);
   y += radio_button_height + gap_between_radio_buttons;
-  radio_button = new ChromeViews::RadioButton(L"Broccoli", 1);
+  radio_button = new views::RadioButton(L"Broccoli", 1);
   radio_button->SetID(kBroccoliButtonID);
   right_container->AddChildView(radio_button);
   radio_button->SetBounds(5, y, 70, radio_button_height);
   radio_button->SetGroup(1);
   y += radio_button_height + gap_between_radio_buttons;
-  radio_button = new ChromeViews::RadioButton(L"Cauliflower", 1);
+  radio_button = new views::RadioButton(L"Cauliflower", 1);
   radio_button->SetID(kCauliflowerButtonID);
   right_container->AddChildView(radio_button);
   radio_button->SetBounds(5, y, 70, radio_button_height);
   radio_button->SetGroup(1);
   y += radio_button_height + gap_between_radio_buttons;
 
-  ChromeViews::View* inner_container = new ChromeViews::View();
+  views::View* inner_container = new views::View();
   inner_container->SetBorder(
-      ChromeViews::Border::CreateSolidBorder(1, SK_ColorBLACK));
+      views::Border::CreateSolidBorder(1, SK_ColorBLACK));
   inner_container->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(230, 230, 230));
+      views::Background::CreateSolidBackground(230, 230, 230));
   inner_container->SetID(kInnerContainerID);
   right_container->AddChildView(inner_container);
   inner_container->SetBounds(100, 10, 150, 180);
 
-  ChromeViews::ScrollView* scroll_view = new ChromeViews::ScrollView();
+  views::ScrollView* scroll_view = new views::ScrollView();
   scroll_view->SetID(kScrollViewID);
   inner_container->AddChildView(scroll_view);
   scroll_view->SetBounds(1, 1, 148, 178);
 
-  ChromeViews::View* scroll_content = new ChromeViews::View();
+  views::View* scroll_content = new views::View();
   scroll_content->SetBounds(0, 0, 200, 200);
   scroll_content->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(200, 200, 200));
+      views::Background::CreateSolidBackground(200, 200, 200));
   scroll_view->SetContents(scroll_content);
 
   static const wchar_t* const kTitles[] = {
@@ -399,8 +399,8 @@ void TestViewWindow::Init() {
 
   y = 5;
   for (int i = 0; i < arraysize(kTitles); ++i) {
-    ChromeViews::Link* link = new ChromeViews::Link(kTitles[i]);
-    link->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+    views::Link* link = new views::Link(kTitles[i]);
+    link->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     link->SetID(kIDs[i]);
     scroll_content->AddChildView(link);
     link->SetBounds(5, y, 300, 15);
@@ -409,18 +409,18 @@ void TestViewWindow::Init() {
 
   y = 250;
   int width = 50;
-  button = new ChromeViews::NativeButton(L"OK");
+  button = new views::NativeButton(L"OK");
   button->SetID(kOKButtonID);
 
   contents_->AddChildView(button);
   button->SetBounds(150, y, width, 20);
 
-  button = new ChromeViews::NativeButton(L"Cancel");
+  button = new views::NativeButton(L"Cancel");
   button->SetID(kCancelButtonID);
   contents_->AddChildView(button);
   button->SetBounds(250, y, width, 20);
 
-  button = new ChromeViews::NativeButton(L"Help");
+  button = new views::NativeButton(L"Help");
   button->SetID(kHelpButtonID);
   contents_->AddChildView(button);
   button->SetBounds(350, y, width, 20);
@@ -428,47 +428,47 @@ void TestViewWindow::Init() {
   y += 40;
 
   // Left bottom box with style checkboxes.
-  ChromeViews::View* contents = new ChromeViews::View();
+  views::View* contents = new views::View();
   contents->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(SK_ColorWHITE));
-  cb = new ChromeViews::CheckBox(L"Bold");
+      views::Background::CreateSolidBackground(SK_ColorWHITE));
+  cb = new views::CheckBox(L"Bold");
   contents->AddChildView(cb);
   cb->SetBounds(10, 10, 50, 20);
   cb->SetID(kBoldCheckBoxID);
 
-  cb = new ChromeViews::CheckBox(L"Italic");
+  cb = new views::CheckBox(L"Italic");
   contents->AddChildView(cb);
   cb->SetBounds(70, 10, 50, 20);
   cb->SetID(kItalicCheckBoxID);
 
-  cb = new ChromeViews::CheckBox(L"Underlined");
+  cb = new views::CheckBox(L"Underlined");
   contents->AddChildView(cb);
   cb->SetBounds(130, 10, 70, 20);
   cb->SetID(kUnderlinedCheckBoxID);
 
-  style_tab_ = new ChromeViews::TabbedPane();
+  style_tab_ = new views::TabbedPane();
   style_tab_->SetID(kStyleContainerID);
   contents_->AddChildView(style_tab_);
   style_tab_->SetBounds(10, y, 210, 50);
   style_tab_->AddTab(L"Style", contents);
-  style_tab_->AddTab(L"Other", new ChromeViews::View());
+  style_tab_->AddTab(L"Other", new views::View());
 
   // Right bottom box with search.
-  contents = new ChromeViews::View();
+  contents = new views::View();
   contents->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(SK_ColorWHITE));
-  text_field = new ChromeViews::TextField();
+      views::Background::CreateSolidBackground(SK_ColorWHITE));
+  text_field = new views::TextField();
   contents->AddChildView(text_field);
   text_field->SetBounds(10, 10, 100, 20);
   text_field->SetID(kSearchTextFieldID);
 
-  button = new ChromeViews::NativeButton(L"Search");
+  button = new views::NativeButton(L"Search");
   contents->AddChildView(button);
   button->SetBounds(115, 10, 50, 20);
   button->SetID(kSearchButtonID);
 
-  ChromeViews::Link* link = new ChromeViews::Link(L"Help");
-  link->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  views::Link* link = new views::Link(L"Help");
+  link->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   link->SetID(kHelpLinkID);
   contents->AddChildView(link);
   link->SetBounds(170, 10, 30, 15);
@@ -481,16 +481,16 @@ void TestViewWindow::Init() {
 
   y += 60;
 
-  contents = new ChromeViews::View();
+  contents = new views::View();
   contents->SetFocusable(true);
   contents->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(SK_ColorBLUE));
+      views::Background::CreateSolidBackground(SK_ColorBLUE));
   contents->SetID(kThumbnailContainerID);
-  button = new ChromeViews::NativeButton(L"Star");
+  button = new views::NativeButton(L"Star");
   contents->AddChildView(button);
   button->SetBounds(5, 5, 50, 20);
   button->SetID(kThumbnailStarID);
-  button = new ChromeViews::NativeButton(L"SuperStar");
+  button = new views::NativeButton(L"SuperStar");
   contents->AddChildView(button);
   button->SetBounds(60, 5, 100, 20);
   button->SetID(kThumbnailSuperStarID);
@@ -547,17 +547,17 @@ TEST_F(FocusManagerTest, NormalTraversal) {
 
   // Uncomment the following line if you want to test manually the UI of this
   // test.
-  // MessageLoop::current()->Run(new ChromeViews::AcceleratorHandler());
+  // MessageLoop::current()->Run(new views::AcceleratorHandler());
 
-  ChromeViews::FocusManager* focus_manager =
-      ChromeViews::FocusManager::GetFocusManager(test_window_->GetHWND());
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(test_window_->GetHWND());
   // Let's traverse the whole focus hierarchy (several times, to make sure it
   // loops OK).
   focus_manager->SetFocusedView(NULL);
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < arraysize(kTraversalIDs); j++) {
       focus_manager->AdvanceFocus(false);
-      ChromeViews::View* focused_view = focus_manager->GetFocusedView();
+      views::View* focused_view = focus_manager->GetFocusedView();
       EXPECT_TRUE(focused_view != NULL);
       if (focused_view)
         EXPECT_EQ(kTraversalIDs[j], focused_view->GetID());
@@ -565,7 +565,7 @@ TEST_F(FocusManagerTest, NormalTraversal) {
   }
 
   // Focus the 1st item.
-  ChromeViews::RootView* root_view = test_window_->GetContentsRootView();
+  views::RootView* root_view = test_window_->GetContentsRootView();
   focus_manager->SetFocusedView(root_view->GetViewByID(kTraversalIDs[0]));
 
   /* BROKEN because of bug #1153276.  The reverse order of traversal in Tabbed
@@ -574,7 +574,7 @@ TEST_F(FocusManagerTest, NormalTraversal) {
   for (int i = 0; i < 3; ++i) {
     for (int j = arraysize(kTraversalIDs) - 1; j >= 0; --j) {
       focus_manager->AdvanceFocus(true);
-      ChromeViews::View* focused_view = focus_manager->GetFocusedView();
+      views::View* focused_view = focus_manager->GetFocusedView();
       EXPECT_TRUE(focused_view != NULL);
       if (focused_view)
         EXPECT_EQ(kTraversalIDs[j], focused_view->GetID());
@@ -602,23 +602,23 @@ TEST_F(FocusManagerTest, TraversalWithNonEnabledViews) {
       kThumbnailContainerID, kThumbnailStarID, kThumbnailSuperStarID };
 
   // Let's disable some views.
-  ChromeViews::RootView* root_view = test_window_->GetContentsRootView();
+  views::RootView* root_view = test_window_->GetContentsRootView();
   for (int i = 0; i < arraysize(kMainContentsDisabledIDs); i++) {
-    ChromeViews::View* v = root_view->GetViewByID(kMainContentsDisabledIDs[i]);
+    views::View* v = root_view->GetViewByID(kMainContentsDisabledIDs[i]);
     ASSERT_TRUE(v != NULL);
     if (v)
       v->SetEnabled(false);
   }
   root_view = test_window_->GetStyleRootView();
   for (int i = 0; i < arraysize(kStyleContentsDisabledIDs); i++) {
-    ChromeViews::View* v = root_view->GetViewByID(kStyleContentsDisabledIDs[i]);
+    views::View* v = root_view->GetViewByID(kStyleContentsDisabledIDs[i]);
     ASSERT_TRUE(v != NULL);
     if (v)
       v->SetEnabled(false);
   }
   root_view = test_window_->GetSearchRootView();
   for (int i = 0; i < arraysize(kSearchContentsDisabledIDs); i++) {
-    ChromeViews::View* v =
+    views::View* v =
         root_view->GetViewByID(kSearchContentsDisabledIDs[i]);
     ASSERT_TRUE(v != NULL);
     if (v)
@@ -626,9 +626,9 @@ TEST_F(FocusManagerTest, TraversalWithNonEnabledViews) {
   }
 
 
-  ChromeViews::FocusManager* focus_manager =
-      ChromeViews::FocusManager::GetFocusManager(test_window_->GetHWND());
-  ChromeViews::View* focused_view;
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(test_window_->GetHWND());
+  views::View* focused_view;
   // Let's do one traversal (several times, to make sure it loops ok).
   for (int i = 0; i < 3;++i) {
     for (int j = 0; j < arraysize(kTraversalIDs); j++) {

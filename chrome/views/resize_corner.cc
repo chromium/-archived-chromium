@@ -9,7 +9,7 @@
 #include "base/gfx/native_theme.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 
-namespace ChromeViews {
+namespace views {
 
 ResizeCorner::ResizeCorner() {
 }
@@ -29,5 +29,5 @@ void ResizeCorner::Paint(ChromeCanvas* canvas) {
   canvas->endPlatformPaint();
 }
 
-}
+}  // namespace views
 

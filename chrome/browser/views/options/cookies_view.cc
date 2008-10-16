@@ -26,7 +26,7 @@
 #include "net/url_request/url_request_context.h"
 
 // static
-ChromeViews::Window* CookiesView::instance_ = NULL;
+views::Window* CookiesView::instance_ = NULL;
 static const int kCookieInfoViewBorderSize = 1;
 static const int kCookieInfoViewInsetSize = 3;
 static const int kSearchFilterDelayMs = 500;
@@ -34,7 +34,7 @@ static const int kSearchFilterDelayMs = 500;
 ///////////////////////////////////////////////////////////////////////////////
 // CookiesTableModel
 
-class CookiesTableModel : public ChromeViews::TableModel {
+class CookiesTableModel : public views::TableModel {
  public:
   explicit CookiesTableModel(Profile* profile);
   virtual ~CookiesTableModel() {}
@@ -47,11 +47,11 @@ class CookiesTableModel : public ChromeViews::TableModel {
   void RemoveCookies(int start_index, int remove_count);
   void RemoveAllShownCookies();
 
-  // ChromeViews::TableModel implementation:
+  // views::TableModel implementation:
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
   virtual SkBitmap GetIcon(int row);
-  virtual void SetObserver(ChromeViews::TableModelObserver* observer);
+  virtual void SetObserver(views::TableModelObserver* observer);
   virtual int CompareValues(int row1, int row2, int column_id);
 
   // Filter the cookies to only display matched results.
@@ -71,7 +71,7 @@ class CookiesTableModel : public ChromeViews::TableModel {
   CookieList all_cookies_;
   CookiePtrList shown_cookies_;
 
-  ChromeViews::TableModelObserver* observer_;
+  views::TableModelObserver* observer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(CookiesTableModel);
 };
@@ -135,7 +135,7 @@ void CookiesTableModel::RemoveAllShownCookies() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesTableModel, ChromeViews::TableModel implementation:
+// CookiesTableModel, views::TableModel implementation:
 
 int CookiesTableModel::RowCount() {
   return static_cast<int>(shown_cookies_.size());
@@ -168,7 +168,7 @@ SkBitmap CookiesTableModel::GetIcon(int row) {
   return *icon;
 }
 
-void CookiesTableModel::SetObserver(ChromeViews::TableModelObserver* observer) {
+void CookiesTableModel::SetObserver(views::TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -240,17 +240,17 @@ void CookiesTableModel::UpdateSearchResults(const std::wstring& filter) {
 // CookiesTableView
 //  Overridden to handle Delete key presses
 
-class CookiesTableView : public ChromeViews::TableView {
+class CookiesTableView : public views::TableView {
  public:
   CookiesTableView(CookiesTableModel* cookies_model,
-                   std::vector<ChromeViews::TableColumn> columns);
+                   std::vector<views::TableColumn> columns);
   virtual ~CookiesTableView() {}
 
   // Removes the cookies associated with the selected rows in the TableView.
   void RemoveSelectedCookies();
 
  protected:
-  // ChromeViews::TableView implementation:
+  // views::TableView implementation:
   virtual void OnKeyDown(unsigned short virtual_keycode);
 
  private:
@@ -262,9 +262,9 @@ class CookiesTableView : public ChromeViews::TableView {
 
 CookiesTableView::CookiesTableView(
     CookiesTableModel* cookies_model,
-    std::vector<ChromeViews::TableColumn> columns)
-    : ChromeViews::TableView(cookies_model, columns,
-                             ChromeViews::ICON_AND_TEXT, false, true, true),
+    std::vector<views::TableColumn> columns)
+    : views::TableView(cookies_model, columns, views::ICON_AND_TEXT, false,
+                       true, true),
       cookies_model_(cookies_model) {
 }
 
@@ -281,7 +281,7 @@ void CookiesTableView::RemoveSelectedCookies() {
   // Remove the selected cookies.  This iterates over the rows backwards, which
   // is required when calling RemoveCookies, see bug 2994.
   int first_selected_row = -1;
-  for (ChromeViews::TableView::iterator i = SelectionBegin();
+  for (views::TableView::iterator i = SelectionBegin();
        i != SelectionEnd(); ++i) {
     int selected_row = *i;
     if (first_selected_row == -1)
@@ -302,7 +302,7 @@ void CookiesTableView::OnKeyDown(unsigned short virtual_keycode) {
 // CookieInfoView
 //
 //  Responsible for displaying a tabular grid of Cookie information.
-class CookieInfoView : public ChromeViews::View {
+class CookieInfoView : public views::View {
  public:
   CookieInfoView();
   virtual ~CookieInfoView();
@@ -319,30 +319,30 @@ class CookieInfoView : public ChromeViews::View {
   void EnableCookieDisplay(bool enabled);
 
  protected:
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
  private:
   // Set up the view layout
   void Init();
 
   // Individual property labels
-  ChromeViews::Label* name_label_;
-  ChromeViews::TextField* name_value_field_;
-  ChromeViews::Label* content_label_;
-  ChromeViews::TextField* content_value_field_;
-  ChromeViews::Label* domain_label_;
-  ChromeViews::TextField* domain_value_field_;
-  ChromeViews::Label* path_label_;
-  ChromeViews::TextField* path_value_field_;
-  ChromeViews::Label* send_for_label_;
-  ChromeViews::TextField* send_for_value_field_;
-  ChromeViews::Label* created_label_;
-  ChromeViews::TextField* created_value_field_;
-  ChromeViews::Label* expires_label_;
-  ChromeViews::TextField* expires_value_field_;
+  views::Label* name_label_;
+  views::TextField* name_value_field_;
+  views::Label* content_label_;
+  views::TextField* content_value_field_;
+  views::Label* domain_label_;
+  views::TextField* domain_value_field_;
+  views::Label* path_label_;
+  views::TextField* path_value_field_;
+  views::Label* send_for_label_;
+  views::TextField* send_for_value_field_;
+  views::Label* created_label_;
+  views::TextField* created_value_field_;
+  views::Label* expires_label_;
+  views::TextField* expires_value_field_;
 
   DISALLOW_EVIL_CONSTRUCTORS(CookieInfoView);
 };
@@ -424,11 +424,11 @@ void CookieInfoView::ClearCookieDisplay() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookieInfoView, ChromeViews::View overrides:
+// CookieInfoView, views::View overrides:
 
 void CookieInfoView::ViewHierarchyChanged(bool is_add,
-                                          ChromeViews::View* parent,
-                                          ChromeViews::View* child) {
+                                          views::View* parent,
+                                          views::View* child) {
   if (is_add && child == this)
     Init();
 }
@@ -438,34 +438,34 @@ void CookieInfoView::ViewHierarchyChanged(bool is_add,
 
 void CookieInfoView::Init() {
   SkColor border_color = color_utils::GetSysSkColor(COLOR_3DSHADOW);
-  ChromeViews::Border* border = ChromeViews::Border::CreateSolidBorder(
+  views::Border* border = views::Border::CreateSolidBorder(
       kCookieInfoViewBorderSize, border_color);
   SetBorder(border);
 
-  name_label_ = new ChromeViews::Label(
+  name_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_NAME_LABEL));
-  name_value_field_ = new ChromeViews::TextField;
-  content_label_ = new ChromeViews::Label(
+  name_value_field_ = new views::TextField;
+  content_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_CONTENT_LABEL));
-  content_value_field_ = new ChromeViews::TextField;
-  domain_label_ = new ChromeViews::Label(
+  content_value_field_ = new views::TextField;
+  domain_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_DOMAIN_LABEL));
-  domain_value_field_ = new ChromeViews::TextField;
-  path_label_ = new ChromeViews::Label(
+  domain_value_field_ = new views::TextField;
+  path_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_PATH_LABEL));
-  path_value_field_ = new ChromeViews::TextField;
-  send_for_label_ = new ChromeViews::Label(
+  path_value_field_ = new views::TextField;
+  send_for_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_SENDFOR_LABEL));
-  send_for_value_field_ = new ChromeViews::TextField;
-  created_label_ = new ChromeViews::Label(
+  send_for_value_field_ = new views::TextField;
+  created_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_CREATED_LABEL));
-  created_value_field_ = new ChromeViews::TextField;
-  expires_label_ = new ChromeViews::Label(
+  created_value_field_ = new views::TextField;
+  expires_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_EXPIRES_LABEL));
-  expires_value_field_ = new ChromeViews::TextField;
+  expires_value_field_ = new views::TextField;
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = new GridLayout(this);
   layout->SetInsets(kCookieInfoViewInsetSize,
@@ -543,7 +543,7 @@ void CookieInfoView::Init() {
 void CookiesView::ShowCookiesWindow(Profile* profile) {
   if (!instance_) {
     CookiesView* cookies_view = new CookiesView(profile);
-    instance_ = ChromeViews::Window::CreateChromeWindow(
+    instance_ = views::Window::CreateChromeWindow(
         NULL, gfx::Rect(), cookies_view);
   }
   if (!instance_->IsVisible()) {
@@ -563,9 +563,9 @@ void CookiesView::UpdateSearchResults() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesView, ChromeViews::NativeButton::listener implementation:
+// CookiesView, views::NativeButton::listener implementation:
 
-void CookiesView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void CookiesView::ButtonPressed(views::NativeButton* sender) {
   if (sender == remove_button_) {
     cookies_table_->RemoveSelectedCookies();
   } else if (sender == remove_all_button_) {
@@ -578,7 +578,7 @@ void CookiesView::ButtonPressed(ChromeViews::NativeButton* sender) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesView, ChromeViews::TableViewObserver implementation:
+// CookiesView, views::TableViewObserver implementation:
 void CookiesView::OnSelectionChanged() {
   int selected_row_count = cookies_table_->SelectedRowCount();
   if (selected_row_count == 1) {
@@ -597,9 +597,9 @@ void CookiesView::OnSelectionChanged() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesView, ChromeViews::TextField::Controller implementation:
+// CookiesView, views::TextField::Controller implementation:
 
-void CookiesView::ContentsChanged(ChromeViews::TextField* sender,
+void CookiesView::ContentsChanged(views::TextField* sender,
                                   const std::wstring& new_contents) {
   search_update_factory_.RevokeAll();
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
@@ -607,9 +607,8 @@ void CookiesView::ContentsChanged(ChromeViews::TextField* sender,
           &CookiesView::UpdateSearchResults), kSearchFilterDelayMs);
 }
 
-void CookiesView::HandleKeystroke(ChromeViews::TextField* sender,
-                                  UINT message, TCHAR key, UINT repeat_count,
-                                  UINT flags) {
+void CookiesView::HandleKeystroke(views::TextField* sender, UINT message,
+                                  TCHAR key, UINT repeat_count, UINT flags) {
   switch (key) {
     case VK_ESCAPE:
       ResetSearchQuery();
@@ -622,7 +621,7 @@ void CookiesView::HandleKeystroke(ChromeViews::TextField* sender,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesView, ChromeViews::DialogDelegate implementation:
+// CookiesView, views::DialogDelegate implementation:
 
 std::wstring CookiesView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_COOKIES_WINDOW_TITLE);
@@ -632,12 +631,12 @@ void CookiesView::WindowClosing() {
   instance_ = NULL;
 }
 
-ChromeViews::View* CookiesView::GetContentsView() {
+views::View* CookiesView::GetContentsView() {
   return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesView, ChromeViews::View overrides:
+// CookiesView, views::View overrides:
 
 void CookiesView::Layout() {
   // Lay out the Remove/Remove All buttons in the parent view.
@@ -659,14 +658,14 @@ void CookiesView::Layout() {
 }
 
 gfx::Size CookiesView::GetPreferredSize() {
-  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+  return gfx::Size(views::Window::GetLocalizedContentsSize(
       IDS_COOKIES_DIALOG_WIDTH_CHARS,
       IDS_COOKIES_DIALOG_HEIGHT_LINES));
 }
 
 void CookiesView::ViewHierarchyChanged(bool is_add,
-                                       ChromeViews::View* parent,
-                                       ChromeViews::View* child) {
+                                       views::View* parent,
+                                       views::View* child) {
   if (is_add && child == this)
     Init();
 }
@@ -688,45 +687,43 @@ CookiesView::CookiesView(Profile* profile)
 }
 
 void CookiesView::Init() {
-  search_label_ = new ChromeViews::Label(
+  search_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_SEARCH_LABEL));
-  search_field_ = new ChromeViews::TextField;
+  search_field_ = new views::TextField;
   search_field_->SetController(this);
-  clear_search_button_ = new ChromeViews::NativeButton(
+  clear_search_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_COOKIES_CLEAR_SEARCH_LABEL));
   clear_search_button_->SetListener(this);
-  description_label_ = new ChromeViews::Label(
+  description_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_INFO_LABEL));
-  description_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  description_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
 
   cookies_table_model_.reset(new CookiesTableModel(profile_));
   info_view_ = new CookieInfoView;
-  std::vector<ChromeViews::TableColumn> columns;
-  columns.push_back(ChromeViews::TableColumn(IDS_COOKIES_DOMAIN_COLUMN_HEADER,
-                                             ChromeViews::TableColumn::LEFT,
-                                             200, 0.5f));
+  std::vector<views::TableColumn> columns;
+  columns.push_back(views::TableColumn(IDS_COOKIES_DOMAIN_COLUMN_HEADER,
+                                       views::TableColumn::LEFT, 200, 0.5f));
   columns.back().sortable = true;
-  columns.push_back(ChromeViews::TableColumn(IDS_COOKIES_NAME_COLUMN_HEADER,
-                                             ChromeViews::TableColumn::LEFT,
-                                             150, 0.5f));
+  columns.push_back(views::TableColumn(IDS_COOKIES_NAME_COLUMN_HEADER,
+                                       views::TableColumn::LEFT, 150, 0.5f));
   columns.back().sortable = true;
   cookies_table_ = new CookiesTableView(cookies_table_model_.get(), columns);
   cookies_table_->SetObserver(this);
   // Make the table initially sorted by domain.
-  ChromeViews::TableView::SortDescriptors sort;
+  views::TableView::SortDescriptors sort;
   sort.push_back(
-      ChromeViews::TableView::SortDescriptor(
-          IDS_COOKIES_DOMAIN_COLUMN_HEADER, true));
+      views::TableView::SortDescriptor(IDS_COOKIES_DOMAIN_COLUMN_HEADER,
+                                       true));
   cookies_table_->SetSortDescriptors(sort);
-  remove_button_ = new ChromeViews::NativeButton(
+  remove_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_COOKIES_REMOVE_LABEL));
   remove_button_->SetListener(this);
-  remove_all_button_ = new ChromeViews::NativeButton(
+  remove_all_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_COOKIES_REMOVE_ALL_LABEL));
   remove_all_button_->SetListener(this);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);

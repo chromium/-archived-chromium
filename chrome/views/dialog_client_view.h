@@ -9,7 +9,7 @@
 #include "chrome/views/client_view.h"
 #include "chrome/views/native_button.h"
 
-namespace ChromeViews {
+namespace views {
 
 class DialogDelegate;
 class Window;
@@ -102,7 +102,7 @@ class DialogClientView : public ClientView,
   DISALLOW_EVIL_CONSTRUCTORS(DialogClientView);
 };
 
-}
+}  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_DIALOG_CLIENT_VIEW_H_
 

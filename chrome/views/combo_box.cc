@@ -18,7 +18,8 @@ static const int kMinComboboxWidth = 148;
 // dropdowns so that text isn't too crowded.
 static const int kComboboxExtraPaddingX = 6;
 
-namespace ChromeViews {
+namespace views {
+
 ComboBox::ComboBox(Model* model)
     : model_(model), selected_item_(0), listener_(NULL), content_width_(0) {
 }
@@ -159,5 +160,6 @@ void ComboBox::SetSelectedItem(int index) {
 int ComboBox::GetSelectedItem() {
   return selected_item_;
 }
-}
+
+}  // namespace views
 

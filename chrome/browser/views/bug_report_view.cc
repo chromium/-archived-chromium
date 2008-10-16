@@ -30,8 +30,8 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
-using ChromeViews::ColumnSet;
-using ChromeViews::GridLayout;
+using views::ColumnSet;
+using views::GridLayout;
 
 // Report a bug data version
 static const int kBugReportVersion = 1;
@@ -43,7 +43,7 @@ static const int kDescriptionLines = 5;
 static const char kReportPhishingUrl[] =
     "http://www.google.com/safebrowsing/report_phish/";
 
-class BugReportComboBoxModel : public ChromeViews::ComboBox::Model {
+class BugReportComboBoxModel : public views::ComboBox::Model {
  public:
   BugReportComboBoxModel() {}
 
@@ -58,12 +58,12 @@ class BugReportComboBoxModel : public ChromeViews::ComboBox::Model {
     OTHER_PROBLEM
   };
 
-  // ChromeViews::ComboBox::Model interface.
-  virtual int GetItemCount(ChromeViews::ComboBox* source) {
+  // views::ComboBox::Model interface.
+  virtual int GetItemCount(views::ComboBox* source) {
     return OTHER_PROBLEM + 1;
   }
 
-  virtual std::wstring GetItemAt(ChromeViews::ComboBox* source, int index) {
+  virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
     return GetItemAtIndex(index);
   }
 
@@ -148,30 +148,30 @@ void BugReportView::SetupControl() {
   bug_type_model_.reset(new BugReportComboBoxModel);
 
   // Adds all controls.
-  bug_type_label_ = new ChromeViews::Label(
+  bug_type_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_BUG_TYPE));
-  bug_type_combo_ = new ChromeViews::ComboBox(bug_type_model_.get());
+  bug_type_combo_ = new views::ComboBox(bug_type_model_.get());
   bug_type_combo_->SetListener(this);
 
-  page_title_label_ = new ChromeViews::Label(
+  page_title_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_REPORT_PAGE_TITLE));
-  page_title_text_ = new ChromeViews::Label(tab_->GetTitle());
-  page_url_label_ = new ChromeViews::Label(
+  page_title_text_ = new views::Label(tab_->GetTitle());
+  page_url_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_REPORT_URL_LABEL));
   // page_url_text_'s text (if any) is filled in after dialog creation
-  page_url_text_ = new ChromeViews::TextField;
+  page_url_text_ = new views::TextField;
   page_url_text_->SetController(this);
 
-  description_label_ = new ChromeViews::Label(
+  description_label_ = new views::Label(
       l10n_util::GetString(IDS_BUGREPORT_DESCRIPTION_LABEL));
   description_text_ =
-      new ChromeViews::TextField(ChromeViews::TextField::STYLE_MULTILINE);
+      new views::TextField(views::TextField::STYLE_MULTILINE);
   description_text_->SetHeightInLines(kDescriptionLines);
 
-  include_page_source_checkbox_ = new ChromeViews::CheckBox(
+  include_page_source_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_BUGREPORT_INCLUDE_PAGE_SOURCE_CHKBOX));
   include_page_source_checkbox_->SetIsSelected(true);
-  include_page_image_checkbox_ = new ChromeViews::CheckBox(
+  include_page_image_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_BUGREPORT_INCLUDE_PAGE_IMAGE_CHKBOX));
   include_page_image_checkbox_->SetIsSelected(true);
 
@@ -226,12 +226,12 @@ void BugReportView::SetupControl() {
 }
 
 gfx::Size BugReportView::GetPreferredSize() {
-  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+  return gfx::Size(views::Window::GetLocalizedContentsSize(
       IDS_BUGREPORT_DIALOG_WIDTH_CHARS,
       IDS_BUGREPORT_DIALOG_HEIGHT_LINES));
 }
 
-void BugReportView::ItemChanged(ChromeViews::ComboBox* combo_box,
+void BugReportView::ItemChanged(views::ComboBox* combo_box,
                                 int prev_index,
                                 int new_index) {
   if (new_index == prev_index)
@@ -257,11 +257,11 @@ void BugReportView::ItemChanged(ChromeViews::ComboBox* combo_box,
   GetDialogClientView()->UpdateDialogButtons();
 }
 
-void BugReportView::ContentsChanged(ChromeViews::TextField* sender,
+void BugReportView::ContentsChanged(views::TextField* sender,
                                     const std::wstring& new_contents) {
 }
 
-void BugReportView::HandleKeystroke(ChromeViews::TextField* sender,
+void BugReportView::HandleKeystroke(views::TextField* sender,
                                     UINT message, TCHAR key,
                                     UINT repeat_count, UINT flags) {
 }
@@ -315,7 +315,7 @@ bool BugReportView::Accept() {
   return true;
 }
 
-ChromeViews::View* BugReportView::GetContentsView() {
+views::View* BugReportView::GetContentsView() {
   return this;
 }
 

@@ -24,7 +24,7 @@ class AutocompletePopupModel;
 class CommandController;
 class Profile;
 class TabContents;
-namespace ChromeViews {
+namespace views {
 class View;
 }
 
@@ -467,7 +467,7 @@ class AutocompleteEditView
   AutocompleteEditView(const ChromeFont& font,
                        AutocompleteEditController* controller,
                        ToolbarModel* toolbar_model,
-                       ChromeViews::View* parent_view,
+                       views::View* parent_view,
                        HWND hwnd,
                        Profile* profile,
                        CommandController* command_controller,
@@ -477,7 +477,7 @@ class AutocompleteEditView
   AutocompleteEditModel* model() { return model_.get(); }
   const AutocompleteEditModel* model() const { return model_.get(); }
 
-  ChromeViews::View* parent_view() const { return parent_view_; }
+  views::View* parent_view() const { return parent_view_; }
 
   // For use when switching tabs, this saves the current state onto the tab so
   // that it can be restored during a later call to Update().
@@ -584,7 +584,7 @@ class AutocompleteEditView
 
   // Called before an accelerator is processed to give us a chance to override
   // it.
-  bool OverrideAccelerator(const ChromeViews::Accelerator& accelerator);
+  bool OverrideAccelerator(const views::Accelerator& accelerator);
 
   // Handler for external events passed in to us.  The View that owns us may
   // send us events that we should treat as if they were events on us.
@@ -804,7 +804,7 @@ class AutocompleteEditView
 
   // The parent view for the edit, used to align the popup and for
   // accessibility.
-  ChromeViews::View* parent_view_;
+  views::View* parent_view_;
 
   ToolbarModel* toolbar_model_;
 

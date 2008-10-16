@@ -16,7 +16,7 @@ class InfoBarMessageView :  public InfoBarItemView {
  public:
   explicit InfoBarMessageView(const std::wstring& message);
 
-  explicit InfoBarMessageView(ChromeViews::Label* message);
+  explicit InfoBarMessageView(views::Label* message);
 
   virtual ~InfoBarMessageView();
 
@@ -30,7 +30,7 @@ class InfoBarMessageView :  public InfoBarItemView {
 
   std::wstring message_string_;
 
-  ChromeViews::Label* message_label_;
+  views::Label* message_label_;
 
   DISALLOW_EVIL_CONSTRUCTORS(InfoBarMessageView);
 };

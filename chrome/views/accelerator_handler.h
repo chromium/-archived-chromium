@@ -7,7 +7,7 @@
 
 #include "base/message_loop.h"
 
-namespace ChromeViews {
+namespace views {
 
 // This class delegates WM_KEYDOWN and WM_SYSKEYDOWN messages to
 // the associated FocusManager class for the window that is receiving
@@ -24,6 +24,8 @@ class AcceleratorHandler : public MessageLoopForUI::Dispatcher {
  private:
   DISALLOW_EVIL_CONSTRUCTORS(AcceleratorHandler);
 };
-}
+
+}  // namespace views
+
 #endif  // CHROME_VIEWS_ACCELERATOR_HANDLER_H__
 

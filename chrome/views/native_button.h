@@ -11,8 +11,7 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/native_control.h"
 
-namespace ChromeViews {
-
+namespace views {
 
 class HWNDView;
 
@@ -134,7 +133,7 @@ class NativeButton : public NativeControl {
   DISALLOW_EVIL_CONSTRUCTORS(NativeButton);
 };
 
-}
+}  // namespace views
 
 #endif  // CHROME_VIEWS_NATIVE_BUTTON_H__
 

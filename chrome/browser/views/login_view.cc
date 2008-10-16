@@ -16,7 +16,7 @@
 
 #include "generated_resources.h"
 
-namespace ChromeViews {
+namespace views {
 
 static const int kMessageWidth = 320;
 static const int kTextFieldStackHorizontalSpacing = 30;
@@ -96,7 +96,7 @@ void LoginView::SetModel(LoginModel* model) {
     login_model_->SetObserver(this);
 }
 ///////////////////////////////////////////////////////////////////////////////
-// LoginView, ChromeViews::View, ChromeViews::LoginModelObserver overrides:
+// LoginView, views::View, views::LoginModelObserver overrides:
 
 void LoginView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
   if (is_add && child == this) {

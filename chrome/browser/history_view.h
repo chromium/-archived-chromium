@@ -19,10 +19,10 @@ class HistoryItemRenderer;
 class BaseHistoryModel;
 class SearchableUIContainer;
 
-class HistoryView : public ChromeViews::View,
+class HistoryView : public views::View,
                     public BaseHistoryModelObserver,
-                    public ChromeViews::LinkController,
-    ChromeViews::VariableRowHeightScrollHelper::Controller {
+                    public views::LinkController,
+    views::VariableRowHeightScrollHelper::Controller {
  public:
   HistoryView(SearchableUIContainer* container,
               BaseHistoryModel* model,
@@ -41,9 +41,9 @@ class HistoryView : public ChromeViews::View,
 
   // Overriden for focus traversal.
   virtual bool EnumerateFloatingViews(
-      ChromeViews::View::FloatingViewPosition position,
+      views::View::FloatingViewPosition position,
       int starting_id, int* id);
-  virtual ChromeViews::View* ValidateFloatingViewForID(int id);
+  virtual views::View* ValidateFloatingViewForID(int id);
 
   // Render the visible area.
   virtual void Paint(ChromeCanvas* canvas);
@@ -64,11 +64,11 @@ class HistoryView : public ChromeViews::View,
   PageNavigator* navigator() const { return navigator_; }
 
   // Scrolling.
-  virtual int GetPageScrollIncrement(ChromeViews::ScrollView* scroll_view,
+  virtual int GetPageScrollIncrement(views::ScrollView* scroll_view,
                                      bool is_horizontal, bool is_positive);
-  virtual int GetLineScrollIncrement(ChromeViews::ScrollView* scroll_view,
+  virtual int GetLineScrollIncrement(views::ScrollView* scroll_view,
                                      bool is_horizontal, bool is_positive);
-  virtual ChromeViews::VariableRowHeightScrollHelper::RowInfo GetRowInfo(int y);
+  virtual views::VariableRowHeightScrollHelper::RowInfo GetRowInfo(int y);
 
  private:
   // For any given break (see comments for BreakOffsets, below), we store the
@@ -99,7 +99,7 @@ class HistoryView : public ChromeViews::View,
                               bool* is_delete_control);
 
   // Invoked when the user clicks the delete previous visits link.
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+  virtual void LinkActivated(views::Link* source, int event_flags);
 
   // Prompts the user to make sure they really want to delete, and if so
   // deletes the day at the specified model index.
@@ -126,7 +126,7 @@ class HistoryView : public ChromeViews::View,
   HistoryItemRenderer* renderer_;
 
   // Used to render 'delete' controls.
-  scoped_ptr<ChromeViews::Link> delete_renderer_;
+  scoped_ptr<views::Link> delete_renderer_;
 
   // Class that performs the navigation when the user clicks on a page.
   PageNavigator* navigator_;
@@ -193,7 +193,7 @@ class HistoryView : public ChromeViews::View,
 
   int GetBreakOffsetHeight(BreakValue value);
 
-  ChromeViews::VariableRowHeightScrollHelper scroll_helper_;
+  views::VariableRowHeightScrollHelper scroll_helper_;
 
   // Whether we are showing search results.
   bool show_results_;

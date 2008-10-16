@@ -161,8 +161,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void GetShelfVisibility(const IPC::Message& message, int handle);
   void SetFilteredInet(const IPC::Message& message, bool enabled);
 
-  void ScheduleMouseEvent(ChromeViews::View* view,
-                          ChromeViews::Event::EventType type,
+  void ScheduleMouseEvent(views::View* view,
+                          views::Event::EventType type,
                           POINT point,
                           int flags);
   void GetFocusedViewID(const IPC::Message& message, int handle);

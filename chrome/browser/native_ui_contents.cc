@@ -25,8 +25,8 @@
 
 #include "generated_resources.h"
 
-using ChromeViews::ColumnSet;
-using ChromeViews::GridLayout;
+using views::ColumnSet;
+using views::GridLayout;
 
 //static
 bool NativeUIContents::g_ui_factories_initialized = false;
@@ -71,7 +71,7 @@ namespace {
 // NativeRootView is a trivial RootView subclass that allows URL drops and
 // forwards them to the NavigationController to open.
 
-class NativeRootView : public ChromeViews::RootView {
+class NativeRootView : public views::RootView {
  public:
   explicit NativeRootView(NativeUIContents* host)
       : RootView(host),
@@ -83,7 +83,7 @@ class NativeRootView : public ChromeViews::RootView {
     return data.HasURL();
   }
 
-  virtual int OnDragUpdated(const ChromeViews::DropTargetEvent& event) {
+  virtual int OnDragUpdated(const views::DropTargetEvent& event) {
     if (event.GetSourceOperations() & DragDropTypes::DRAG_COPY)
       return DragDropTypes::DRAG_COPY;
     if (event.GetSourceOperations() & DragDropTypes::DRAG_LINK)
@@ -91,7 +91,7 @@ class NativeRootView : public ChromeViews::RootView {
     return DragDropTypes::DRAG_NONE;
   }
 
-  virtual int OnPerformDrop(const ChromeViews::DropTargetEvent& event) {
+  virtual int OnPerformDrop(const views::DropTargetEvent& event) {
     GURL url;
     std::wstring title;
     if (!event.GetData().GetURLAndTitle(&url, &title) || !url.is_valid())
@@ -137,7 +137,7 @@ NativeUIContents::NativeUIContents(Profile* profile)
 
 NativeUIContents::~NativeUIContents() {
   if (current_ui_) {
-    ChromeViews::RootView* root_view = GetRootView();
+    views::RootView* root_view = GetRootView();
     current_ui_->WillBecomeInvisible(this);
     root_view->RemoveChildView(current_view_);
     current_ui_ = NULL;
@@ -163,13 +163,13 @@ LRESULT NativeUIContents::OnCreate(LPCREATESTRUCT create_struct) {
   tmp.left = tmp.top = 0;
 
   // Install the focus manager so we get notified of Tab key events.
-  ChromeViews::FocusManager::InstallFocusSubclass(GetHWND(), NULL);
+  views::FocusManager::InstallFocusSubclass(GetHWND(), NULL);
   GetRootView()->SetBackground(new NativeUIBackground);
   return 0;
 }
 
 void NativeUIContents::OnDestroy() {
-  ChromeViews::FocusManager::UninstallFocusSubclass(GetHWND());
+  views::FocusManager::UninstallFocusSubclass(GetHWND());
 }
 
 void NativeUIContents::OnSize(UINT size_command, const CSize& new_size) {
@@ -224,7 +224,7 @@ void NativeUIContents::SetPageState(PageState* page_state) {
 }
 
 bool NativeUIContents::NavigateToPendingEntry(bool reload) {
-  ChromeViews::RootView* root_view = GetRootView();
+  views::RootView* root_view = GetRootView();
   DCHECK(root_view);
 
   if (current_ui_) {
@@ -284,7 +284,7 @@ bool NativeUIContents::NavigateToPendingEntry(bool reload) {
 
 void NativeUIContents::Layout() {
   if (current_view_) {
-    ChromeViews::RootView* root_view = GetRootView();
+    views::RootView* root_view = GetRootView();
     current_view_->SetBounds(0, 0, root_view->width(),
                              root_view->height());
     current_view_->Layout();
@@ -332,11 +332,11 @@ void NativeUIContents::SetIsLoading(bool is_loading,
 }
 
 // FocusTraversable Implementation
-ChromeViews::View* NativeUIContents::FindNextFocusableView(
-    ChromeViews::View* starting_view, bool reverse,
-    ChromeViews::FocusTraversable::Direction direction, bool dont_loop,
-    ChromeViews::FocusTraversable** focus_traversable,
-    ChromeViews::View** focus_traversable_view) {
+views::View* NativeUIContents::FindNextFocusableView(
+    views::View* starting_view, bool reverse,
+    views::FocusTraversable::Direction direction, bool dont_loop,
+    views::FocusTraversable** focus_traversable,
+    views::View** focus_traversable_view) {
   return GetRootView()->FindNextFocusableView(
       starting_view, reverse, direction, dont_loop,
       focus_traversable, focus_traversable_view);
@@ -383,7 +383,7 @@ void NativeUIContents::RegisterNativeUIFactory(const GURL& url,
   (*g_path_to_factory)[key] = factory;
 }
 
-ChromeViews::RootView* NativeUIContents::CreateRootView() {
+views::RootView* NativeUIContents::CreateRootView() {
   return new NativeRootView(this);
 }
 
@@ -428,7 +428,7 @@ NativeUIBackground::~NativeUIBackground() {
 }
 
 void NativeUIBackground::Paint(ChromeCanvas* canvas,
-                               ChromeViews::View* view) const {
+                               views::View* view) const {
   static const SkColor kBackground = SkColorSetRGB(255, 255, 255);
   canvas->FillRectInt(kBackground, 0, 0, view->width(), view->height());
 }
@@ -442,7 +442,7 @@ void NativeUIBackground::Paint(ChromeCanvas* canvas,
 // only for native controls to be able to get query the background
 // brush.
 
-class SearchableUIBackground : public ChromeViews::Background {
+class SearchableUIBackground : public views::Background {
  public:
   explicit SearchableUIBackground(SkColor native_control_color) {
     SetNativeControlColor(native_control_color);
@@ -451,7 +451,7 @@ class SearchableUIBackground : public ChromeViews::Background {
 
   // Empty implementation.
   // The actual painting of the bar happens in SearchableUIContainer::Paint.
-  virtual void Paint(ChromeCanvas* canvas, ChromeViews::View* view) const { }
+  virtual void Paint(ChromeCanvas* canvas, views::View* view) const { }
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(SearchableUIBackground);
@@ -470,15 +470,15 @@ SearchableUIContainer::SearchableUIContainer(
       title_link_(NULL),
       title_image_(NULL),
       scroll_view_(NULL) {
-  title_link_ = new ChromeViews::Link;
+  title_link_ = new views::Link;
   ResourceBundle& resource_bundle = ResourceBundle::GetSharedInstance();
   ChromeFont title_font(resource_bundle
       .GetFont(ResourceBundle::WebFont).DeriveFont(2));
   title_link_->SetFont(title_font);
-  title_link_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  title_link_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   title_link_->SetController(this);
 
-  title_image_ = new ChromeViews::ImageView();
+  title_image_ = new views::ImageView();
   title_image_->SetVisible(false);
 
   // Get the product logo
@@ -486,23 +486,23 @@ SearchableUIContainer::SearchableUIContainer(
     kProductLogo = resource_bundle.GetBitmapNamed(IDR_PRODUCT_LOGO);
   }
 
-  product_logo_ = new ChromeViews::ImageView();
+  product_logo_ = new views::ImageView();
   product_logo_->SetVisible(true);
   product_logo_->SetImage(*kProductLogo);
   AddChildView(product_logo_);
 
-  search_field_ = new ChromeViews::TextField;
+  search_field_ = new views::TextField;
   search_field_->SetFont(ResourceBundle::GetSharedInstance().GetFont(
                              ResourceBundle::WebFont));
   search_field_->SetController(this);
 
-  scroll_view_ = new ChromeViews::ScrollView;
-  scroll_view_->SetBackground(ChromeViews::Background::CreateSolidBackground(kBackground));
+  scroll_view_ = new views::ScrollView;
+  scroll_view_->SetBackground(views::Background::CreateSolidBackground(kBackground));
 
   // Set background class so that native controls can get a color.
   SetBackground(new SearchableUIBackground(kBackground));
 
-  throbber_ = new ChromeViews::SmoothedThrobber(50);
+  throbber_ = new views::SmoothedThrobber(50);
 
   GridLayout* layout = new GridLayout(this);
   // View owns the LayoutManager and will delete it along with all the columns
@@ -510,7 +510,7 @@ SearchableUIContainer::SearchableUIContainer(
   SetLayoutManager(layout);
 
   search_button_ =
-      new ChromeViews::NativeButton(std::wstring());
+      new views::NativeButton(std::wstring());
   search_button_->SetFont(resource_bundle.GetFont(ResourceBundle::WebFont));
   search_button_->SetListener(this);
 
@@ -571,7 +571,7 @@ SearchableUIContainer::SearchableUIContainer(
 SearchableUIContainer::~SearchableUIContainer() {
 }
 
-void SearchableUIContainer::SetContents(ChromeViews::View* contents) {
+void SearchableUIContainer::SetContents(views::View* contents) {
   // The column view will resize to accomodate long titles.
   title_link_->SetText(delegate_->GetTitle());
 
@@ -586,7 +586,7 @@ void SearchableUIContainer::SetContents(ChromeViews::View* contents) {
   scroll_view_->SetContents(contents);
 }
 
-ChromeViews::View* SearchableUIContainer::GetContents() {
+views::View* SearchableUIContainer::GetContents() {
   return scroll_view_->GetContents();
 }
 
@@ -622,11 +622,11 @@ void SearchableUIContainer::Paint(ChromeCanvas* canvas) {
                       0, scroll_view_->y() - 1, width(), 1);
 }
 
-ChromeViews::TextField* SearchableUIContainer::GetSearchField() const {
+views::TextField* SearchableUIContainer::GetSearchField() const {
   return search_field_;
 }
 
-ChromeViews::ScrollView* SearchableUIContainer::GetScrollView() const {
+views::ScrollView* SearchableUIContainer::GetScrollView() const {
   return scroll_view_;
 }
 
@@ -643,11 +643,11 @@ void SearchableUIContainer::StopThrobber() {
   throbber_->Stop();
 }
 
-void SearchableUIContainer::ButtonPressed(ChromeViews::NativeButton* sender) {
+void SearchableUIContainer::ButtonPressed(views::NativeButton* sender) {
   DoSearch();
 }
 
-void SearchableUIContainer::LinkActivated(ChromeViews::Link *link,
+void SearchableUIContainer::LinkActivated(views::Link *link,
                                           int event_flags) {
   if (link == title_link_) {
     search_field_->SetText(std::wstring());
@@ -655,7 +655,7 @@ void SearchableUIContainer::LinkActivated(ChromeViews::Link *link,
   }
 }
 
-void SearchableUIContainer::HandleKeystroke(ChromeViews::TextField* sender,
+void SearchableUIContainer::HandleKeystroke(views::TextField* sender,
                                             UINT message,
                                             TCHAR key,
                                             UINT repeat_count,

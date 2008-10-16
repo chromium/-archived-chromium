@@ -29,25 +29,25 @@
 ///////////////////////////////////////////////////////////////////////////////
 // HungPagesTableModel
 
-class HungPagesTableModel : public ChromeViews::GroupTableModel {
+class HungPagesTableModel : public views::GroupTableModel {
  public:
   HungPagesTableModel();
   virtual ~HungPagesTableModel();
 
   void InitForWebContents(WebContents* hung_contents);
 
-  // Overridden from ChromeViews::GroupTableModel:
+  // Overridden from views::GroupTableModel:
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
   virtual SkBitmap GetIcon(int row);
-  virtual void SetObserver(ChromeViews::TableModelObserver* observer);
-  virtual void GetGroupRangeForItem(int item, ChromeViews::GroupRange* range);
+  virtual void SetObserver(views::TableModelObserver* observer);
+  virtual void GetGroupRangeForItem(int item, views::GroupRange* range);
 
  private:
   typedef std::vector<WebContents*> WebContentsVector;
   WebContentsVector webcontentses_;
 
-  ChromeViews::TableModelObserver* observer_;
+  views::TableModelObserver* observer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(HungPagesTableModel);
 };
@@ -73,7 +73,7 @@ void HungPagesTableModel::InitForWebContents(WebContents* hung_contents) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungPagesTableModel, ChromeViews::GroupTableModel implementation:
+// HungPagesTableModel, views::GroupTableModel implementation:
 
 int HungPagesTableModel::RowCount() {
   return static_cast<int>(webcontentses_.size());
@@ -92,14 +92,12 @@ SkBitmap HungPagesTableModel::GetIcon(int row) {
   return webcontentses_.at(row)->GetFavIcon();
 }
 
-void HungPagesTableModel::SetObserver(
-    ChromeViews::TableModelObserver* observer) {
+void HungPagesTableModel::SetObserver(views::TableModelObserver* observer) {
   observer_ = observer;
 }
 
-void HungPagesTableModel::GetGroupRangeForItem(
-    int item,
-    ChromeViews::GroupRange* range) {
+void HungPagesTableModel::GetGroupRangeForItem(int item,
+                                               views::GroupRange* range) {
   DCHECK(range);
   range->start = 0;
   range->length = RowCount();
@@ -108,9 +106,9 @@ void HungPagesTableModel::GetGroupRangeForItem(
 ///////////////////////////////////////////////////////////////////////////////
 // HungRendererWarningView
 
-class HungRendererWarningView : public ChromeViews::View,
-                                public ChromeViews::DialogDelegate,
-                                public ChromeViews::NativeButton::Listener {
+class HungRendererWarningView : public views::View,
+                                public views::DialogDelegate,
+                                public views::NativeButton::Listener {
  public:
   HungRendererWarningView();
   ~HungRendererWarningView();
@@ -118,24 +116,24 @@ class HungRendererWarningView : public ChromeViews::View,
   void ShowForWebContents(WebContents* contents);
   void EndForWebContents(WebContents* contents);
 
-  // ChromeViews::WindowDelegate overrides:
+  // views::WindowDelegate overrides:
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual int GetDialogButtons() const;
   virtual std::wstring GetDialogButtonLabel(
-      ChromeViews::DialogDelegate::DialogButton button) const;
-  virtual ChromeViews::View* GetExtraView();
+      views::DialogDelegate::DialogButton button) const;
+  virtual views::View* GetExtraView();
   virtual bool Accept(bool window_closing);
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
   
-  // ChromeViews::NativeButton::Listener overrides:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // views::NativeButton::Listener overrides:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
  protected:
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
  private:
   // Initialize the controls in this dialog.
@@ -149,15 +147,15 @@ class HungRendererWarningView : public ChromeViews::View,
   static void InitClass();
 
   // Controls within the dialog box.
-  ChromeViews::ImageView* frozen_icon_view_;
-  ChromeViews::Label* info_label_;
-  ChromeViews::GroupTableView* hung_pages_table_;
+  views::ImageView* frozen_icon_view_;
+  views::Label* info_label_;
+  views::GroupTableView* hung_pages_table_;
 
   // The button we insert into the ClientView to kill the errant process. This
   // is parented to a container view that uses a grid layout to align it
   // properly.
-  ChromeViews::NativeButton* kill_button_;
-  class ButtonContainer : public ChromeViews::View {
+  views::NativeButton* kill_button_;
+  class ButtonContainer : public views::View {
    public:
     ButtonContainer() {}
     virtual ~ButtonContainer() {}
@@ -251,7 +249,7 @@ void HungRendererWarningView::EndForWebContents(WebContents* contents) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, ChromeViews::DialogDelegate implementation:
+// HungRendererWarningView, views::DialogDelegate implementation:
 
 std::wstring HungRendererWarningView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_PRODUCT_NAME);
@@ -273,13 +271,13 @@ int HungRendererWarningView::GetDialogButtons() const {
 }
 
 std::wstring HungRendererWarningView::GetDialogButtonLabel(
-    ChromeViews::DialogDelegate::DialogButton button) const {
+    views::DialogDelegate::DialogButton button) const {
   if (button == DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_BROWSER_HANGMONITOR_RENDERER_WAIT);
   return std::wstring();
 }
 
-ChromeViews::View* HungRendererWarningView::GetExtraView() {
+views::View* HungRendererWarningView::GetExtraView() {
   return kill_button_container_;
 }
 
@@ -295,15 +293,14 @@ bool HungRendererWarningView::Accept(bool window_closing) {
   return true;
 }
 
-ChromeViews::View* HungRendererWarningView::GetContentsView() {
+views::View* HungRendererWarningView::GetContentsView() {
   return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, ChromeViews::NativeButton::Listener implementation:
+// HungRendererWarningView, views::NativeButton::Listener implementation:
 
-void HungRendererWarningView::ButtonPressed(
-    ChromeViews::NativeButton* sender) {
+void HungRendererWarningView::ButtonPressed(views::NativeButton* sender) {
   if (sender == kill_button_) {
     // Kill the process.
     HANDLE process = contents_->process()->process();
@@ -312,11 +309,11 @@ void HungRendererWarningView::ButtonPressed(
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, ChromeViews::View overrides:
+// HungRendererWarningView, views::View overrides:
 
 void HungRendererWarningView::ViewHierarchyChanged(bool is_add,
-                                                   ChromeViews::View* parent,
-                                                   ChromeViews::View* child) {
+                                                   views::View* parent,
+                                                   views::View* child) {
   if (!initialized_ && is_add && child == this && GetContainer())
     Init();
 }
@@ -325,27 +322,27 @@ void HungRendererWarningView::ViewHierarchyChanged(bool is_add,
 // HungRendererWarningView, private:
 
 void HungRendererWarningView::Init() {
-  frozen_icon_view_ = new ChromeViews::ImageView;
+  frozen_icon_view_ = new views::ImageView;
   frozen_icon_view_->SetImage(frozen_icon_);
 
-  info_label_ = new ChromeViews::Label(
+  info_label_ = new views::Label(
       l10n_util::GetString(IDS_BROWSER_HANGMONITOR_RENDERER));
   info_label_->SetMultiLine(true);
-  info_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  info_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
 
   hung_pages_table_model_.reset(new HungPagesTableModel);
-  std::vector<ChromeViews::TableColumn> columns;
-  columns.push_back(ChromeViews::TableColumn());
-  hung_pages_table_ = new ChromeViews::GroupTableView(
-      hung_pages_table_model_.get(), columns, ChromeViews::ICON_AND_TEXT, true,
+  std::vector<views::TableColumn> columns;
+  columns.push_back(views::TableColumn());
+  hung_pages_table_ = new views::GroupTableView(
+      hung_pages_table_model_.get(), columns, views::ICON_AND_TEXT, true,
       false, true);
   hung_pages_table_->set_preferred_size(
     gfx::Size(kTableViewWidth, kTableViewHeight));
 
   CreateKillButtonView();
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);
@@ -372,14 +369,14 @@ void HungRendererWarningView::Init() {
 }
 
 void HungRendererWarningView::CreateKillButtonView() {
-  kill_button_ = new ChromeViews::NativeButton(
+  kill_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_BROWSER_HANGMONITOR_RENDERER_END));
   kill_button_->SetListener(this);
 
   kill_button_container_ = new ButtonContainer;
  
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = new GridLayout(kill_button_container_);
   kill_button_container_->SetLayoutManager(layout);
@@ -429,7 +426,7 @@ HungRendererWarningView* HungRendererWarning::instance_ = NULL;
 
 static HungRendererWarningView* CreateHungRendererWarningView() {
   HungRendererWarningView* cv = new HungRendererWarningView;
-  ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), cv);
+  views::Window::CreateChromeWindow(NULL, gfx::Rect(), cv);
   return cv;
 }
 

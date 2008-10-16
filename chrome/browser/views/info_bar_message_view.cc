@@ -12,7 +12,7 @@ InfoBarMessageView::InfoBarMessageView(const std::wstring& message)
   Init();
 }
 
-InfoBarMessageView::InfoBarMessageView(ChromeViews::Label* message)
+InfoBarMessageView::InfoBarMessageView(views::Label* message)
     : message_string_(),
       message_label_(message) {
   Init();
@@ -31,7 +31,7 @@ std::wstring InfoBarMessageView::GetMessageText() {
 
 void InfoBarMessageView::Init() {
   if (message_label_ == NULL) {
-    message_label_ = new ChromeViews::Label(message_string_);
+    message_label_ = new views::Label(message_string_);
     message_label_->SetFont(
       ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::MediumFont));
   } else {

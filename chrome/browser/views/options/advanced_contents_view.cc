@@ -49,7 +49,7 @@ namespace {
 
 // A background object that paints the scrollable list background,
 // which may be rendered by the system visual styles system.
-class ListBackground : public ChromeViews::Background {
+class ListBackground : public views::Background {
  public:
   explicit ListBackground() {
     SkColor list_color =
@@ -59,7 +59,7 @@ class ListBackground : public ChromeViews::Background {
   }
   virtual ~ListBackground() {}
 
-  virtual void Paint(ChromeCanvas* canvas, ChromeViews::View* view) const {
+  virtual void Paint(ChromeCanvas* canvas, views::View* view) const {
     HDC dc = canvas->beginPlatformPaint();
     RECT native_lb = view->GetLocalBounds(true).ToRECT();
     gfx::NativeTheme::instance()->PaintListBackground(dc, true, &native_lb);
@@ -87,47 +87,47 @@ class AdvancedSection : public OptionsPageView {
  protected:
   // Convenience helpers to add different kinds of ColumnSets for specific
   // types of layout.
-  void AddWrappingColumnSet(ChromeViews::GridLayout* layout, int id);
-  void AddDependentTwoColumnSet(ChromeViews::GridLayout* layout, int id);
-  void AddTwoColumnSet(ChromeViews::GridLayout* layout, int id);
-  void AddIndentedColumnSet(ChromeViews::GridLayout* layout, int id);
+  void AddWrappingColumnSet(views::GridLayout* layout, int id);
+  void AddDependentTwoColumnSet(views::GridLayout* layout, int id);
+  void AddTwoColumnSet(views::GridLayout* layout, int id);
+  void AddIndentedColumnSet(views::GridLayout* layout, int id);
 
   // Convenience helpers for adding controls to specific layouts in an
   // aesthetically pleasing way.
-  void AddWrappingCheckboxRow(ChromeViews::GridLayout* layout,
-                             ChromeViews::CheckBox* checkbox,
+  void AddWrappingCheckboxRow(views::GridLayout* layout,
+                             views::CheckBox* checkbox,
                              int id,
                              bool related_follows);
-  void AddWrappingLabelRow(ChromeViews::GridLayout* layout,
-                           ChromeViews::Label* label,
+  void AddWrappingLabelRow(views::GridLayout* layout,
+                           views::Label* label,
                            int id,
                            bool related_follows);
-  void AddTwoColumnRow(ChromeViews::GridLayout* layout,
-                       ChromeViews::Label* label,
-                       ChromeViews::View* control,
+  void AddTwoColumnRow(views::GridLayout* layout,
+                       views::Label* label,
+                       views::View* control,
                        bool control_stretches,  // Whether or not the control
                                                 // expands to fill the width.
                        int id,
                        bool related_follows);
-  void AddLeadingControl(ChromeViews::GridLayout* layout,
-                         ChromeViews::View* control,
+  void AddLeadingControl(views::GridLayout* layout,
+                         views::View* control,
                          int id,
                          bool related_follows);
-  void AddIndentedControl(ChromeViews::GridLayout* layout,
-                          ChromeViews::View* control,
+  void AddIndentedControl(views::GridLayout* layout,
+                          views::View* control,
                           int id,
                           bool related_follows);
-  void AddSpacing(ChromeViews::GridLayout* layout, bool related_follows);
+  void AddSpacing(views::GridLayout* layout, bool related_follows);
 
   // OptionsPageView overrides:
   virtual void InitControlLayout();
 
   // The View that contains the contents of the section.
-  ChromeViews::View* contents_;
+  views::View* contents_;
 
  private:
   // The section title.
-  ChromeViews::Label* title_label_;
+  views::Label* title_label_;
 
   DISALLOW_EVIL_CONSTRUCTORS(AdvancedSection);
 };
@@ -138,7 +138,7 @@ class AdvancedSection : public OptionsPageView {
 AdvancedSection::AdvancedSection(Profile* profile,
                                  const std::wstring& title)
     : contents_(NULL),
-      title_label_(new ChromeViews::Label(title)),
+      title_label_(new views::Label(title)),
       OptionsPageView(profile) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   ChromeFont title_font =
@@ -160,21 +160,20 @@ void AdvancedSection::DidChangeBounds(const gfx::Rect& previous,
 ////////////////////////////////////////////////////////////////////////////////
 // AdvancedSection, protected:
 
-void AdvancedSection::AddWrappingColumnSet(ChromeViews::GridLayout* layout,
-                                           int id) {
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+void AdvancedSection::AddWrappingColumnSet(views::GridLayout* layout, int id) {
+  using views::GridLayout;
+  using views::ColumnSet;
   ColumnSet* column_set = layout->AddColumnSet(id);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
                         GridLayout::USE_PREF, 0, 0);
 }
 
-void AdvancedSection::AddDependentTwoColumnSet(ChromeViews::GridLayout* layout,
+void AdvancedSection::AddDependentTwoColumnSet(views::GridLayout* layout,
                                                int id) {
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
   ColumnSet* column_set = layout->AddColumnSet(id);
-  column_set->AddPaddingColumn(0, ChromeViews::CheckBox::GetTextIndent());
+  column_set->AddPaddingColumn(0, views::CheckBox::GetTextIndent());
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
@@ -183,10 +182,9 @@ void AdvancedSection::AddDependentTwoColumnSet(ChromeViews::GridLayout* layout,
   column_set->AddPaddingColumn(0, kUnrelatedControlHorizontalSpacing);
 }
 
-void AdvancedSection::AddTwoColumnSet(ChromeViews::GridLayout* layout,
-                                      int id) {
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+void AdvancedSection::AddTwoColumnSet(views::GridLayout* layout, int id) {
+  using views::GridLayout;
+  using views::ColumnSet;
   ColumnSet* column_set = layout->AddColumnSet(id);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
@@ -195,18 +193,17 @@ void AdvancedSection::AddTwoColumnSet(ChromeViews::GridLayout* layout,
                         GridLayout::USE_PREF, 0, 0);
 }
 
-void AdvancedSection::AddIndentedColumnSet(ChromeViews::GridLayout* layout,
-                                           int id) {
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+void AdvancedSection::AddIndentedColumnSet(views::GridLayout* layout, int id) {
+  using views::GridLayout;
+  using views::ColumnSet;
   ColumnSet* column_set = layout->AddColumnSet(id);
-  column_set->AddPaddingColumn(0, ChromeViews::CheckBox::GetTextIndent());
+  column_set->AddPaddingColumn(0, views::CheckBox::GetTextIndent());
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
                         GridLayout::USE_PREF, 0, 0);
 }
 
-void AdvancedSection::AddWrappingCheckboxRow(ChromeViews::GridLayout* layout,
-                                             ChromeViews::CheckBox* checkbox,
+void AdvancedSection::AddWrappingCheckboxRow(views::GridLayout* layout,
+                                             views::CheckBox* checkbox,
                                              int id,
                                              bool related_follows) {
   checkbox->SetMultiLine(true);
@@ -215,46 +212,46 @@ void AdvancedSection::AddWrappingCheckboxRow(ChromeViews::GridLayout* layout,
   AddSpacing(layout, related_follows);
 }
 
-void AdvancedSection::AddWrappingLabelRow(ChromeViews::GridLayout* layout,
-                                          ChromeViews::Label* label,
+void AdvancedSection::AddWrappingLabelRow(views::GridLayout* layout,
+                                          views::Label* label,
                                           int id,
                                           bool related_follows) {
   label->SetMultiLine(true);
-  label->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   layout->StartRow(0, id);
   layout->AddView(label);
   AddSpacing(layout, related_follows);
 }
 
-void AdvancedSection::AddTwoColumnRow(ChromeViews::GridLayout* layout,
-                                      ChromeViews::Label* label,
-                                      ChromeViews::View* control,
+void AdvancedSection::AddTwoColumnRow(views::GridLayout* layout,
+                                      views::Label* label,
+                                      views::View* control,
                                       bool control_stretches,
                                       int id,
                                       bool related_follows) {
-  label->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   layout->StartRow(0, id);
   layout->AddView(label);
   if (control_stretches) {
     layout->AddView(control);
   } else {
-    layout->AddView(control, 1, 1, ChromeViews::GridLayout::LEADING,
-                    ChromeViews::GridLayout::CENTER);
+    layout->AddView(control, 1, 1, views::GridLayout::LEADING,
+                    views::GridLayout::CENTER);
   }
   AddSpacing(layout, related_follows);
 }
 
-void AdvancedSection::AddLeadingControl(ChromeViews::GridLayout* layout,
-                                        ChromeViews::View* control,
+void AdvancedSection::AddLeadingControl(views::GridLayout* layout,
+                                        views::View* control,
                                         int id,
                                         bool related_follows) {
-  using ChromeViews::GridLayout;
+  using views::GridLayout;
   layout->StartRow(0, id);
   layout->AddView(control, 1, 1, GridLayout::LEADING, GridLayout::CENTER);
   AddSpacing(layout, related_follows);
 }
 
-void AdvancedSection::AddSpacing(ChromeViews::GridLayout* layout,
+void AdvancedSection::AddSpacing(views::GridLayout* layout,
                                  bool related_follows) {
   layout->AddPaddingRow(0, related_follows ? kRelatedControlVerticalSpacing
                                            : kUnrelatedControlVerticalSpacing);
@@ -264,10 +261,10 @@ void AdvancedSection::AddSpacing(ChromeViews::GridLayout* layout,
 // AdvancedSection, OptionsPageView overrides:
 
 void AdvancedSection::InitControlLayout() {
-  contents_ = new ChromeViews::View;
+  contents_ = new views::View;
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = new GridLayout(this);
   SetLayoutManager(layout);
@@ -293,19 +290,19 @@ void AdvancedSection::InitControlLayout() {
 // GeneralSection
 
 class GeneralSection : public AdvancedSection,
-                       public ChromeViews::NativeButton::Listener,
-                       public ChromeViews::LinkController {
+                       public views::NativeButton::Listener,
+                       public views::LinkController {
  public:
   explicit GeneralSection(Profile* profile);
   virtual ~GeneralSection() {}
 
-  // Overridden from ChromeViews::NativeButton::Listener:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // Overridden from views::NativeButton::Listener:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
-  // Overridden from ChromeViews::LinkController:
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+  // Overridden from views::LinkController:
+  virtual void LinkActivated(views::Link* source, int event_flags);
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Layout();
 
  protected:
@@ -315,10 +312,10 @@ class GeneralSection : public AdvancedSection,
 
  private:
   // Controls for this section:
-  ChromeViews::Label* reset_file_handlers_label_;
-  ChromeViews::NativeButton* reset_file_handlers_button_;
-  ChromeViews::CheckBox* reporting_enabled_checkbox_;
-  ChromeViews::Link* learn_more_link_;
+  views::Label* reset_file_handlers_label_;
+  views::NativeButton* reset_file_handlers_button_;
+  views::CheckBox* reporting_enabled_checkbox_;
+  views::Link* learn_more_link_;
 
   // Preferences for this section:
   StringPrefMember auto_open_files_;
@@ -338,7 +335,7 @@ GeneralSection::GeneralSection(Profile* profile)
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_GENERAL)) {
 }
 
-void GeneralSection::ButtonPressed(ChromeViews::NativeButton* sender) {
+void GeneralSection::ButtonPressed(views::NativeButton* sender) {
   if (sender == reset_file_handlers_button_) {
     profile()->GetDownloadManager()->ResetAutoOpenFiles();
     UserMetricsRecordAction(L"Options_ResetAutoOpenFiles",
@@ -358,8 +355,7 @@ void GeneralSection::ButtonPressed(ChromeViews::NativeButton* sender) {
   }
 }
 
-void GeneralSection::LinkActivated(ChromeViews::Link* source,
-                                   int event_flags) {
+void GeneralSection::LinkActivated(views::Link* source, int event_flags) {
   if (source == learn_more_link_) {
     // We open a new browser window so the Options dialog doesn't get lost
     // behind other windows.
@@ -379,7 +375,7 @@ void GeneralSection::Layout() {
   // preferred size calculation code is dependent on its width, and if we don't
   // do this then it will return 0 as a preferred width when GridLayout (called
   // from View::Layout) tries to access it.
-  ChromeViews::View* parent = GetParent();
+  views::View* parent = GetParent();
   if (parent && parent->width()) {
     const int parent_width = parent->width();
     reporting_enabled_checkbox_->SetBounds(0, 0, parent_width - 20, 0);
@@ -390,21 +386,20 @@ void GeneralSection::Layout() {
 void GeneralSection::InitControlLayout() {
   AdvancedSection::InitControlLayout();
 
-  reset_file_handlers_label_ = new ChromeViews::Label(
+  reset_file_handlers_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_INFO));
-  reset_file_handlers_button_ = new ChromeViews::NativeButton(
+  reset_file_handlers_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_RESETTODEFAULT));
   reset_file_handlers_button_->SetListener(this);
-  reporting_enabled_checkbox_ = new ChromeViews::CheckBox(
+  reporting_enabled_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_OPTIONS_ENABLE_LOGGING));
   reporting_enabled_checkbox_->SetMultiLine(true);
   reporting_enabled_checkbox_->SetListener(this);
-  learn_more_link_ =
-      new ChromeViews::Link(l10n_util::GetString(IDS_LEARN_MORE));
+  learn_more_link_ = new views::Link(l10n_util::GetString(IDS_LEARN_MORE));
   learn_more_link_->SetController(this);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
@@ -478,13 +473,13 @@ void GeneralSection::ResolveMetricsReportingEnabled() {
 // ContentSection
 
 class ContentSection : public AdvancedSection,
-                       public ChromeViews::NativeButton::Listener {
+                       public views::NativeButton::Listener {
  public:
   explicit ContentSection(Profile* profile);
   virtual ~ContentSection() {}
 
-  // Overridden from ChromeViews::NativeButton::Listener:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // Overridden from views::NativeButton::Listener:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
  protected:
   // OptionsPageView overrides:
@@ -493,9 +488,9 @@ class ContentSection : public AdvancedSection,
 
  private:
   // Controls for this section:
-  ChromeViews::CheckBox* popup_blocked_notification_checkbox_;
-  ChromeViews::Label* gears_label_;
-  ChromeViews::NativeButton* gears_settings_button_;
+  views::CheckBox* popup_blocked_notification_checkbox_;
+  views::Label* gears_label_;
+  views::NativeButton* gears_settings_button_;
 
   BooleanPrefMember disable_popup_blocked_notification_pref_;
 
@@ -510,7 +505,7 @@ ContentSection::ContentSection(Profile* profile)
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_CONTENT)) {
 }
 
-void ContentSection::ButtonPressed(ChromeViews::NativeButton* sender) {
+void ContentSection::ButtonPressed(views::NativeButton* sender) {
   if (sender == popup_blocked_notification_checkbox_) {
     bool notification_disabled =
         popup_blocked_notification_checkbox_->IsSelected();
@@ -531,18 +526,18 @@ void ContentSection::ButtonPressed(ChromeViews::NativeButton* sender) {
 void ContentSection::InitControlLayout() {
   AdvancedSection::InitControlLayout();
 
-  popup_blocked_notification_checkbox_ = new ChromeViews::CheckBox(
+  popup_blocked_notification_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_OPTIONS_SHOWPOPUPBLOCKEDNOTIFICATION));
   popup_blocked_notification_checkbox_->SetListener(this);
 
-  gears_label_ = new ChromeViews::Label(
+  gears_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_GROUP_NAME));
-  gears_settings_button_ = new ChromeViews::NativeButton(
+  gears_settings_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_CONFIGUREGEARS_BUTTON));
   gears_settings_button_->SetListener(this);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
@@ -571,16 +566,16 @@ void ContentSection::NotifyPrefChanged(const std::wstring* pref_name) {
 ////////////////////////////////////////////////////////////////////////////////
 // SecuritySection
 
-class MixedContentComboModel : public ChromeViews::ComboBox::Model {
+class MixedContentComboModel : public views::ComboBox::Model {
  public:
   MixedContentComboModel() {}
 
   // Return the number of items in the combo box.
-  virtual int GetItemCount(ChromeViews::ComboBox* source) {
+  virtual int GetItemCount(views::ComboBox* source) {
     return 3;
   }
 
-  virtual std::wstring GetItemAt(ChromeViews::ComboBox* source, int index) {
+  virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
     const int kStringIDs[] = {
       IDS_OPTIONS_INCLUDE_MIXED_CONTENT,
       IDS_OPTIONS_INCLUDE_MIXED_CONTENT_IMAGE_ONLY,
@@ -609,16 +604,16 @@ class MixedContentComboModel : public ChromeViews::ComboBox::Model {
   DISALLOW_EVIL_CONSTRUCTORS(MixedContentComboModel);
 };
 
-class CookieBehaviorComboModel : public ChromeViews::ComboBox::Model {
+class CookieBehaviorComboModel : public views::ComboBox::Model {
  public:
   CookieBehaviorComboModel() {}
 
   // Return the number of items in the combo box.
-  virtual int GetItemCount(ChromeViews::ComboBox* source) {
+  virtual int GetItemCount(views::ComboBox* source) {
     return 3;
   }
 
-  virtual std::wstring GetItemAt(ChromeViews::ComboBox* source, int index) {
+  virtual std::wstring GetItemAt(views::ComboBox* source, int index) {
     const int kStringIDs[] = {
       IDS_OPTIONS_COOKIES_ACCEPT_ALL_COOKIES,
       IDS_OPTIONS_COOKIES_RESTRICT_THIRD_PARTY_COOKIES,
@@ -648,17 +643,17 @@ class CookieBehaviorComboModel : public ChromeViews::ComboBox::Model {
 };
 
 class SecuritySection : public AdvancedSection,
-                        public ChromeViews::NativeButton::Listener,
-                        public ChromeViews::ComboBox::Listener {
+                        public views::NativeButton::Listener,
+                        public views::ComboBox::Listener {
  public:
   explicit SecuritySection(Profile* profile);
   virtual ~SecuritySection() {}
 
-  // Overridden from ChromeViews::NativeButton::Listener:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // Overridden from views::NativeButton::Listener:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
-  // Overridden from ChromeViews::ComboBox::Listener:
-  virtual void ItemChanged(ChromeViews::ComboBox* sender,
+  // Overridden from views::ComboBox::Listener:
+  virtual void ItemChanged(views::ComboBox* sender,
                            int prev_index,
                            int new_index);
 
@@ -669,17 +664,17 @@ class SecuritySection : public AdvancedSection,
 
  private:
   // Controls for this section:
-  ChromeViews::CheckBox* enable_safe_browsing_checkbox_;
-  ChromeViews::Label* ssl_info_label_;
-  ChromeViews::CheckBox* enable_ssl2_checkbox_;
-  ChromeViews::CheckBox* check_for_cert_revocation_checkbox_;
-  ChromeViews::Label* mixed_content_info_label_;
-  ChromeViews::ComboBox* mixed_content_combobox_;
-  ChromeViews::Label* manage_certificates_label_;
-  ChromeViews::NativeButton* manage_certificates_button_;
-  ChromeViews::Label* cookie_behavior_label_;
-  ChromeViews::ComboBox* cookie_behavior_combobox_;
-  ChromeViews::NativeButton* show_cookies_button_;
+  views::CheckBox* enable_safe_browsing_checkbox_;
+  views::Label* ssl_info_label_;
+  views::CheckBox* enable_ssl2_checkbox_;
+  views::CheckBox* check_for_cert_revocation_checkbox_;
+  views::Label* mixed_content_info_label_;
+  views::ComboBox* mixed_content_combobox_;
+  views::Label* manage_certificates_label_;
+  views::NativeButton* manage_certificates_button_;
+  views::Label* cookie_behavior_label_;
+  views::ComboBox* cookie_behavior_combobox_;
+  views::NativeButton* show_cookies_button_;
 
   // The contents of the mixed content combobox.
   scoped_ptr<MixedContentComboModel> mixed_content_model_;
@@ -710,7 +705,7 @@ SecuritySection::SecuritySection(Profile* profile)
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_SECURITY)) {
 }
 
-void SecuritySection::ButtonPressed(ChromeViews::NativeButton* sender) {
+void SecuritySection::ButtonPressed(views::NativeButton* sender) {
   if (sender == enable_safe_browsing_checkbox_) {
     bool enabled = enable_safe_browsing_checkbox_->IsSelected();
     if (enabled) {
@@ -753,7 +748,7 @@ void SecuritySection::ButtonPressed(ChromeViews::NativeButton* sender) {
   }
 }
 
-void SecuritySection::ItemChanged(ChromeViews::ComboBox* sender,
+void SecuritySection::ItemChanged(views::ComboBox* sender,
                                   int prev_index,
                                   int new_index) {
   if (sender == mixed_content_combobox_) {
@@ -786,40 +781,40 @@ void SecuritySection::ItemChanged(ChromeViews::ComboBox* sender,
 void SecuritySection::InitControlLayout() {
   AdvancedSection::InitControlLayout();
 
-  enable_safe_browsing_checkbox_ = new ChromeViews::CheckBox(
+  enable_safe_browsing_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_OPTIONS_SAFEBROWSING_ENABLEPROTECTION));
   enable_safe_browsing_checkbox_->SetListener(this);
-  ssl_info_label_ = new ChromeViews::Label(
+  ssl_info_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_SSL_GROUP_DESCRIPTION));
-  enable_ssl2_checkbox_ = new ChromeViews::CheckBox(
+  enable_ssl2_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_OPTIONS_SSL_USESSL2));
   enable_ssl2_checkbox_->SetListener(this);
-  check_for_cert_revocation_checkbox_ = new ChromeViews::CheckBox(
+  check_for_cert_revocation_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_OPTIONS_SSL_CHECKREVOCATION));
   check_for_cert_revocation_checkbox_->SetListener(this);
-  mixed_content_info_label_ = new ChromeViews::Label(
+  mixed_content_info_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_MIXED_CONTENT_LABEL));
   mixed_content_model_.reset(new MixedContentComboModel);
-  mixed_content_combobox_ = new ChromeViews::ComboBox(
+  mixed_content_combobox_ = new views::ComboBox(
       mixed_content_model_.get());
   mixed_content_combobox_->SetListener(this);
-  manage_certificates_label_ = new ChromeViews::Label(
+  manage_certificates_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CERTIFICATES_LABEL));
-  manage_certificates_button_ = new ChromeViews::NativeButton(
+  manage_certificates_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_CERTIFICATES_MANAGE_BUTTON));
   manage_certificates_button_->SetListener(this);
-  cookie_behavior_label_ = new ChromeViews::Label(
+  cookie_behavior_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_COOKIES_ACCEPT_LABEL));
   allow_cookies_model_.reset(new CookieBehaviorComboModel);
-  cookie_behavior_combobox_ = new ChromeViews::ComboBox(
+  cookie_behavior_combobox_ = new views::ComboBox(
       allow_cookies_model_.get());
   cookie_behavior_combobox_->SetListener(this);
-  show_cookies_button_ = new ChromeViews::NativeButton(
+  show_cookies_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_COOKIES_SHOWCOOKIES));
   show_cookies_button_->SetListener(this);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
@@ -939,13 +934,13 @@ class OpenConnectionDialogTask : public Task {
 }  // namespace
 
 class NetworkSection : public AdvancedSection,
-                       public ChromeViews::NativeButton::Listener {
+                       public views::NativeButton::Listener {
  public:
   explicit NetworkSection(Profile* profile);
   virtual ~NetworkSection() {}
 
-  // Overridden from ChromeViews::NativeButton::Listener:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // Overridden from views::NativeButton::Listener:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
  protected:
   // OptionsPageView overrides:
@@ -954,10 +949,10 @@ class NetworkSection : public AdvancedSection,
 
  private:
   // Controls for this section:
-  ChromeViews::Label* change_proxies_label_;
-  ChromeViews::NativeButton* change_proxies_button_;
-  ChromeViews::CheckBox* enable_link_doctor_checkbox_;
-  ChromeViews::CheckBox* enable_dns_prefetching_checkbox_;
+  views::Label* change_proxies_label_;
+  views::NativeButton* change_proxies_button_;
+  views::CheckBox* enable_link_doctor_checkbox_;
+  views::CheckBox* enable_dns_prefetching_checkbox_;
 
   BooleanPrefMember alternate_error_pages_;
   BooleanPrefMember dns_prefetch_enabled_;
@@ -974,7 +969,7 @@ NetworkSection::NetworkSection(Profile* profile)
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_NETWORK)) {
 }
 
-void NetworkSection::ButtonPressed(ChromeViews::NativeButton* sender) {
+void NetworkSection::ButtonPressed(views::NativeButton* sender) {
   if (sender == change_proxies_button_) {
     UserMetricsRecordAction(L"Options_ChangeProxies", NULL);
     base::Thread* thread = g_browser_process->file_thread();
@@ -1007,20 +1002,20 @@ void NetworkSection::ButtonPressed(ChromeViews::NativeButton* sender) {
 void NetworkSection::InitControlLayout() {
   AdvancedSection::InitControlLayout();
 
-  change_proxies_label_ = new ChromeViews::Label(
+  change_proxies_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_PROXIES_LABEL));
-  change_proxies_button_ = new ChromeViews::NativeButton(
+  change_proxies_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_PROXIES_CONFIGURE_BUTTON));
   change_proxies_button_->SetListener(this);
-  enable_link_doctor_checkbox_ = new ChromeViews::CheckBox(
+  enable_link_doctor_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_OPTIONS_LINKDOCTOR_PREF));
   enable_link_doctor_checkbox_->SetListener(this);
-  enable_dns_prefetching_checkbox_ = new ChromeViews::CheckBox(
+  enable_dns_prefetching_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_NETWORK_DNS_PREFETCH_ENABLED_DESCRIPTION));
   enable_dns_prefetching_checkbox_->SetListener(this);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
@@ -1074,8 +1069,8 @@ class AdvancedContentsView : public OptionsPageView {
   explicit AdvancedContentsView(Profile* profile);
   virtual ~AdvancedContentsView();
 
-  // ChromeViews::View overrides:
-  virtual int GetLineScrollIncrement(ChromeViews::ScrollView* scroll_view,
+  // views::View overrides:
+  virtual int GetLineScrollIncrement(views::ScrollView* scroll_view,
                                      bool is_horizontal, bool is_positive);
   virtual void Layout();
   virtual void DidChangeBounds(const gfx::Rect& previous,
@@ -1108,10 +1103,10 @@ AdvancedContentsView::~AdvancedContentsView() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// AdvancedContentsView, ChromeViews::View overrides:
+// AdvancedContentsView, views::View overrides:
 
 int AdvancedContentsView::GetLineScrollIncrement(
-    ChromeViews::ScrollView* scroll_view,
+    views::ScrollView* scroll_view,
     bool is_horizontal,
     bool is_positive) {
 
@@ -1121,7 +1116,7 @@ int AdvancedContentsView::GetLineScrollIncrement(
 }
 
 void AdvancedContentsView::Layout() {
-  ChromeViews::View* parent = GetParent();
+  views::View* parent = GetParent();
   if (parent && parent->width()) {
     const int width = parent->width();
     const int height = GetHeightForWidth(width);
@@ -1143,8 +1138,8 @@ void AdvancedContentsView::DidChangeBounds(const gfx::Rect& previous,
 // AdvancedContentsView, OptionsPageView implementation:
 
 void AdvancedContentsView::InitControlLayout() {
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);
@@ -1181,7 +1176,7 @@ void AdvancedContentsView::InitClass() {
 
 AdvancedScrollViewContainer::AdvancedScrollViewContainer(Profile* profile)
     : contents_view_(new AdvancedContentsView(profile)),
-      scroll_view_(new ChromeViews::ScrollView) {
+      scroll_view_(new views::ScrollView) {
   AddChildView(scroll_view_);
   scroll_view_->SetContents(contents_view_);
   SetBackground(new ListBackground());
@@ -1191,7 +1186,7 @@ AdvancedScrollViewContainer::~AdvancedScrollViewContainer() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// AdvancedScrollViewContainer, ChromeViews::View overrides:
+// AdvancedScrollViewContainer, views::View overrides:
 
 void AdvancedScrollViewContainer::Layout() {
   gfx::Rect lb = GetLocalBounds(false);

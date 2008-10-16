@@ -111,7 +111,7 @@ static bool show_mnemonics;
 
 using gfx::NativeTheme;
 
-namespace ChromeViews {
+namespace views {
 
 // Calculates all sizes that we can from the OS.
 //
@@ -1722,8 +1722,8 @@ void MenuController::OnMouseDragged(SubmenuView* source,
     return;
 
   if (possible_drag_) {
-    if (ChromeViews::View::ExceededDragThreshold(event.x() - press_x_,
-                                                 event.y() - press_y_)) {
+    if (View::ExceededDragThreshold(event.x() - press_x_,
+                                    event.y() - press_y_)) {
       MenuItemView* item = state_.item;
       DCHECK(item);
       // Points are in the coordinates of the submenu, need to map to that of
@@ -2719,5 +2719,5 @@ void MenuController::StopScrolling() {
   scroll_task_.reset(NULL);
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

@@ -37,7 +37,7 @@ class AeroGlassWindowResources {
   AeroGlassWindowResources() { InitClass(); }
   virtual ~AeroGlassWindowResources() { }
 
-  virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const {
+  virtual SkBitmap* GetPartBitmap(views::FramePartBitmap part) const {
     return standard_frame_bitmaps_[part];
   }
 
@@ -156,7 +156,7 @@ gfx::Rect AeroGlassNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassNonClientView, ChromeViews::NonClientView implementation:
+// AeroGlassNonClientView, views::NonClientView implementation:
 
 gfx::Rect AeroGlassNonClientView::CalculateClientAreaBounds(int win_width,
                                                             int win_height) const {
@@ -225,7 +225,7 @@ void AeroGlassNonClientView::EnableClose(bool enable) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassNonClientView, ChromeViews::View overrides:
+// AeroGlassNonClientView, views::View overrides:
 
 void AeroGlassNonClientView::Paint(ChromeCanvas* canvas) {
   PaintOTRAvatar(canvas);
@@ -251,8 +251,8 @@ gfx::Size AeroGlassNonClientView::GetPreferredSize() {
 }
 
 void AeroGlassNonClientView::ViewHierarchyChanged(bool is_add,
-                                               ChromeViews::View* parent,
-                                               ChromeViews::View* child) {
+                                                  views::View* parent,
+                                                  views::View* child) {
   if (is_add && child == this) {
     DCHECK(GetContainer());
     DCHECK(frame_->client_view()->GetParent() != this);

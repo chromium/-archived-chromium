@@ -35,7 +35,7 @@ void HWNDHtmlView::Init(HWND parent_hwnd) {
   // same z-order as constrained windows.
   HWND hwnd = view->Create(parent_hwnd);
   view->ShowWindow(SW_SHOW);
-  ChromeViews::HWNDView::Attach(hwnd);
+  views::HWNDView::Attach(hwnd);
 
   // Start up the renderer.
   if (allow_dom_ui_bindings_)

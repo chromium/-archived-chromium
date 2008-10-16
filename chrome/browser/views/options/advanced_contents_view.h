@@ -8,7 +8,7 @@
 #include "chrome/browser/views/options/options_page_view.h"
 
 class AdvancedContentsView;
-namespace ChromeViews {
+namespace views {
 class ScrollView;
 }
 
@@ -17,12 +17,12 @@ class ScrollView;
 //
 //  A View that contains a scroll view containing the Advanced options.
 
-class AdvancedScrollViewContainer : public ChromeViews::View {
+class AdvancedScrollViewContainer : public views::View {
  public:
   explicit AdvancedScrollViewContainer(Profile* profile);
   virtual ~AdvancedScrollViewContainer();
 
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void Layout();
 
  private:
@@ -30,7 +30,7 @@ class AdvancedScrollViewContainer : public ChromeViews::View {
   AdvancedContentsView* contents_view_;
 
   // The scroll view that contains the advanced options.
-  ChromeViews::ScrollView* scroll_view_;
+  views::ScrollView* scroll_view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(AdvancedScrollViewContainer);
 };

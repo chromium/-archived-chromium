@@ -51,9 +51,9 @@ class XPFrame : public BrowserWindow,
                                               WS_MINIMIZEBOX |
                                               WS_MAXIMIZEBOX |
                                               WS_CLIPCHILDREN>>,
-                public ChromeViews::BaseButton::ButtonListener,
-                public ChromeViews::Container,
-                public ChromeViews::AcceleratorTarget {
+                public views::BaseButton::ButtonListener,
+                public views::Container,
+                public views::AcceleratorTarget {
  public:
 
   // Create a new XPFrame given the bounds and provided browser.
@@ -78,8 +78,8 @@ class XPFrame : public BrowserWindow,
   virtual void Close();
   virtual void* GetPlatformID();
   virtual void SetAcceleratorTable(
-      std::map<ChromeViews::Accelerator, int>* accelerator_table);
-  virtual bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
+      std::map<views::Accelerator, int>* accelerator_table);
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
@@ -152,8 +152,8 @@ class XPFrame : public BrowserWindow,
 
   void OnFinalMessage(HWND hwnd);
 
-  // ChromeViews::BaseButton::ButtonListener
-  void ButtonPressed(ChromeViews::BaseButton *sender);
+  // views::BaseButton::ButtonListener
+  void ButtonPressed(views::BaseButton *sender);
 
   //
   // Container
@@ -161,13 +161,12 @@ class XPFrame : public BrowserWindow,
   virtual void MoveToFront(bool should_activate);
   virtual HWND GetHWND() const;
   virtual void PaintNow(const CRect& update_rect);
-  virtual ChromeViews::RootView* GetRootView();
+  virtual views::RootView* GetRootView();
   virtual bool IsVisible();
   virtual bool IsActive();
-  virtual ChromeViews::TooltipManager* GetTooltipManager();
+  virtual views::TooltipManager* GetTooltipManager();
   virtual StatusBubble* GetStatusBubble();
-  virtual bool GetAccelerator(int cmd_id,
-                              ChromeViews::Accelerator* accelerator);
+  virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
 
   virtual void ShelfVisibilityChanged();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
@@ -215,7 +214,7 @@ class XPFrame : public BrowserWindow,
 #endif
 
   // Return the frame view.
-  ChromeViews::View* GetFrameView() { return frame_view_; }
+  views::View* GetFrameView() { return frame_view_; }
 
   // Return the tab contents container.
   TabContentsContainerView* GetTabContentsContainer() {
@@ -283,8 +282,7 @@ class XPFrame : public BrowserWindow,
    protected:
     // Overriden to return false if maximized and over the min/max/close
     // button.
-    virtual bool ShouldForwardToTabStrip(
-        const ChromeViews::DropTargetEvent& event);
+    virtual bool ShouldForwardToTabStrip(const views::DropTargetEvent& event);
 
    private:
     void PaintFrameBorder(ChromeCanvas* canvas);
@@ -385,8 +383,8 @@ class XPFrame : public BrowserWindow,
   // Updates either the infobar or the bottom shelf depending on the views
   // passed in.
   void UpdateShelfViews(int view_top, int preferred_height,
-                        ChromeViews::View* new_view,
-                        ChromeViews::View** current_view,
+                        views::View* new_view,
+                        views::View** current_view,
                         int* last_height);
 
   // If the workaround to prevent taskbar from hiding behind maximizing
@@ -401,8 +399,7 @@ class XPFrame : public BrowserWindow,
   //
   // This function returns true if anything was changed. The caller should
   // ensure that Layout() is eventually called in this case.
-  bool UpdateChildViewAndLayout(ChromeViews::View* new_view,
-                                ChromeViews::View** view);
+  bool UpdateChildViewAndLayout(views::View* new_view, views::View** view);
 
   // Return the set of bitmaps that should be used to draw this frame.
   SkBitmap** GetFrameBitmaps();
@@ -413,7 +410,7 @@ class XPFrame : public BrowserWindow,
   void ShelfVisibilityChangedImpl(TabContents* current_tab);
 
   // Root view
-  ChromeViews::RootView root_view_;
+  views::RootView root_view_;
 
   // Top level view used to render the frame itself including the title bar
   XPFrameView* frame_view_;
@@ -422,10 +419,10 @@ class XPFrame : public BrowserWindow,
   TabContentsContainerView* tab_contents_container_;
 
   // Frame buttons
-  ChromeViews::Button* min_button_;
-  ChromeViews::Button* max_button_;
-  ChromeViews::Button* restore_button_;
-  ChromeViews::Button* close_button_;
+  views::Button* min_button_;
+  views::Button* max_button_;
+  views::Button* restore_button_;
+  views::Button* close_button_;
 
   // Whether we should save the bounds of the window. We don't want to
   // save the default size of windows for certain classes of windows
@@ -465,14 +462,14 @@ class XPFrame : public BrowserWindow,
   // Frame min size
   CSize minimum_size_;
 
-  scoped_ptr<ChromeViews::TooltipManager> tooltip_manager_;
+  scoped_ptr<views::TooltipManager> tooltip_manager_;
 
   // A view positioned at the bottom of the frame.
-  ChromeViews::View* shelf_view_;
+  views::View* shelf_view_;
 
   // A view positioned beneath the bookmark bar.
   // Implementation mirrors shelf_view_
-  ChromeViews::View* info_bar_view_;
+  views::View* info_bar_view_;
 
   // The view that contains the tabs and any associated controls.
   TabStrip* tabstrip_;
@@ -481,19 +478,19 @@ class XPFrame : public BrowserWindow,
   scoped_ptr<BookmarkBarView> bookmark_bar_view_;
 
   // The visible bookmark bar. NULL if none is visible.
-  ChromeViews::View* active_bookmark_bar_;
+  views::View* active_bookmark_bar_;
 
   // The optional container for the off the record icon.
-  ChromeViews::ImageView* off_the_record_image_;
+  views::ImageView* off_the_record_image_;
 
   // The container for the distributor logo.
-  ChromeViews::ImageView* distributor_logo_;
+  views::ImageView* distributor_logo_;
 
   // We need to own the text of the menu, the Windows API does not copy it.
   std::wstring task_manager_label_text_;
 
   // A mapping between accelerators and commands.
-  scoped_ptr<std::map<ChromeViews::Accelerator, int>> accelerator_table_;
+  scoped_ptr<std::map<views::Accelerator, int>> accelerator_table_;
 
   // Whether this frame represents an off the record session.
   bool is_off_the_record_;

@@ -6,7 +6,7 @@
 
 #include "chrome/views/focus_manager.h"
 
-namespace ChromeViews {
+namespace views {
 
 AcceleratorHandler::AcceleratorHandler() {
 }
@@ -14,8 +14,7 @@ AcceleratorHandler::AcceleratorHandler() {
 bool AcceleratorHandler::Dispatch(const MSG& msg) {
   bool process_message = true;
   if ((msg.message == WM_KEYDOWN) || (msg.message == WM_SYSKEYDOWN)) {
-    ChromeViews::FocusManager* focus_manager =
-        ChromeViews::FocusManager::GetFocusManager(msg.hwnd);
+    FocusManager* focus_manager = FocusManager::GetFocusManager(msg.hwnd);
     if (focus_manager) {
       // FocusManager::OnKeyDown returns false if this message has been
       // consumed and should not be propogated further
@@ -33,4 +32,4 @@ bool AcceleratorHandler::Dispatch(const MSG& msg) {
   return true;
 }
 
-}
+}  // namespace views

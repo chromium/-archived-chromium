@@ -12,7 +12,7 @@
 #include "chrome/views/table_view.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 class Label;
 class TableModel;
 class TableView;
@@ -26,15 +26,15 @@ class AddLanguageView;
 // LanguagesPageView
 
 class LanguagesPageView : public OptionsPageView,
-                          public ChromeViews::NativeButton::Listener,
-                          public ChromeViews::TableViewObserver,
-                          public ChromeViews::ComboBox::Listener {
+                          public views::NativeButton::Listener,
+                          public views::TableViewObserver,
+                          public views::ComboBox::Listener {
  public:
   explicit LanguagesPageView(Profile* profile);
   virtual ~LanguagesPageView();
 
-  // ChromeViews::NativeButton::Listener implementation:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // views::NativeButton::Listener implementation:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
   // Save Changes made to relevant pref members associated with this tab.
   // This is public since it is called by FontsLanguageWindowView in its
@@ -51,8 +51,8 @@ class LanguagesPageView : public OptionsPageView,
   virtual void InitControlLayout();
   virtual void NotifyPrefChanged(const std::wstring* pref_name);
 
-  // ChromeViews::ComboBox::Listener implementation:
-  virtual void ItemChanged(ChromeViews::ComboBox* sender,
+  // views::ComboBox::Listener implementation:
+  virtual void ItemChanged(views::ComboBox* sender,
                            int prev_index,
                            int new_index);
 
@@ -64,19 +64,19 @@ class LanguagesPageView : public OptionsPageView,
   void OnMoveDownLanguage();
   void OnMoveUpLanguage();
 
-  ChromeViews::Label* languages_instructions_;
-  ChromeViews::View* languages_contents_;
-  ChromeViews::View* button_stack_;
-  ChromeViews::TableView* language_order_table_;
-  ChromeViews::NativeButton* move_up_button_;
-  ChromeViews::NativeButton* move_down_button_;
-  ChromeViews::NativeButton* add_button_;
-  ChromeViews::NativeButton* remove_button_;
-  ChromeViews::Label* language_info_label_;
-  ChromeViews::Label* ui_language_label_;
-  ChromeViews::ComboBox* change_ui_language_combobox_;
-  ChromeViews::ComboBox* change_dictionary_language_combobox_;
-  ChromeViews::Label* dictionary_language_label_;
+  views::Label* languages_instructions_;
+  views::View* languages_contents_;
+  views::View* button_stack_;
+  views::TableView* language_order_table_;
+  views::NativeButton* move_up_button_;
+  views::NativeButton* move_down_button_;
+  views::NativeButton* add_button_;
+  views::NativeButton* remove_button_;
+  views::Label* language_info_label_;
+  views::Label* ui_language_label_;
+  views::ComboBox* change_ui_language_combobox_;
+  views::ComboBox* change_dictionary_language_combobox_;
+  views::Label* dictionary_language_label_;
 
   scoped_ptr<LanguageOrderTableModel> language_order_table_model_;
   AddLanguageView* add_language_instance_;

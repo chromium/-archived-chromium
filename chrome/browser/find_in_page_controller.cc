@@ -47,13 +47,13 @@ FindInPageController::FindInPageController(TabContents* parent_tab,
 
   view_ = new FindInPageView(this);
 
-  ChromeViews::FocusManager* focus_manager;
-  focus_manager = ChromeViews::FocusManager::GetFocusManager(parent_hwnd_);
+  views::FocusManager* focus_manager;
+  focus_manager = views::FocusManager::GetFocusManager(parent_hwnd_);
   DCHECK(focus_manager);
 
   // Stores the currently focused view, and tracks focus changes so that we can
   // restore focus when the find box is closed.
-  focus_tracker_.reset(new ChromeViews::ExternalFocusTracker(view_,
+  focus_tracker_.reset(new views::ExternalFocusTracker(view_,
                                                              focus_manager));
 
   // Figure out where to place the dialog, initialize and set the position.
@@ -152,7 +152,7 @@ void FindInPageController::UpdateWindowEdges(const gfx::Rect& new_pos) {
   static const int kAddedWidth = 14;
   int difference = (curr_pos_relative_.right() - kAddedWidth) -
                    dialog_bounds.width() -
-                   ChromeViews::NativeScrollBar::GetVerticalScrollBarWidth() +
+                   views::NativeScrollBar::GetVerticalScrollBarWidth() +
                    1;
   if (difference > 0) {
     POINT exclude[4];
@@ -320,13 +320,13 @@ void FindInPageController::SetParent(HWND new_parent) {
                   WM_CHANGEUISTATE, MAKEWPARAM(UIS_INITIALIZE, 0), 0);
 
     // We have a new focus manager now, so start tracking with that.
-    focus_tracker_.reset(new ChromeViews::ExternalFocusTracker(view_,
-                                                               focus_manager_));
+    focus_tracker_.reset(new views::ExternalFocusTracker(view_,
+                                                         focus_manager_));
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, ChromeViews::ContainerWin implementation:
+// FindInPageController, views::ContainerWin implementation:
 
 void FindInPageController::OnFinalMessage(HWND window) {
   // We are exiting, so we no longer need to monitor focus changes.
@@ -340,10 +340,10 @@ void FindInPageController::OnFinalMessage(HWND window) {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, ChromeViews::FocusChangeListener implementation:
+// FindInPageController, views::FocusChangeListener implementation:
 
-void FindInPageController::FocusWillChange(ChromeViews::View* focused_before,
-                                           ChromeViews::View* focused_now) {
+void FindInPageController::FocusWillChange(views::View* focused_before,
+                                           views::View* focused_now) {
   // First we need to determine if one or both of the views passed in are child
   // views of our view.
   bool our_view_before = focused_before && view_->IsParentOf(focused_before);
@@ -366,10 +366,10 @@ void FindInPageController::FocusWillChange(ChromeViews::View* focused_before,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, ChromeViews::AcceleratorTarget implementation:
+// FindInPageController, views::AcceleratorTarget implementation:
 
 bool FindInPageController::AcceleratorPressed(
-    const ChromeViews::Accelerator& accelerator) {
+    const views::Accelerator& accelerator) {
   DCHECK(accelerator.GetKeyCode() == VK_ESCAPE);  // We only expect Escape key.
   // This will end the Find session and hide the window, causing it to loose
   // focus and in the process unregister us as the handler for the Escape
@@ -451,8 +451,8 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
 
   // We need to find the View for the toolbar because we want to visually
   // extend it (draw our dialog slightly overlapping its border).
-  ChromeViews::View* root_view = ChromeViews::GetRootViewForHWND(parent_hwnd_);
-  ChromeViews::View* toolbar = NULL;
+  views::View* root_view = views::GetRootViewForHWND(parent_hwnd_);
+  views::View* toolbar = NULL;
   BookmarkBarView* bookmark_bar = NULL;
   if (root_view) {
     toolbar = root_view->GetViewByID(VIEW_ID_TOOLBAR);
@@ -490,7 +490,7 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
     // required to ensure correct positioning relative to the top,left of the
     // window.
     gfx::Point topleft;
-    ChromeViews::View::ConvertPointToContainer(toolbar, &topleft);
+    views::View::ConvertPointToContainer(toolbar, &topleft);
     toolbar_bounds.Offset(topleft.x(), topleft.y());
   }
 
@@ -545,7 +545,7 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
 
   // We also want to stay well within limits of the vertical scrollbar and not
   // draw on the window border (frame) itself either.
-  int width = ChromeViews::NativeScrollBar::GetVerticalScrollBarWidth();
+  int width = views::NativeScrollBar::GetVerticalScrollBarWidth();
   width += kWindowBorderWidth;
   bounds->set_x(bounds->x() + width);
   bounds->set_width(bounds->width() - (2 * width));
@@ -652,8 +652,7 @@ void FindInPageController::SetFocusChangeListener(HWND parent_hwnd) {
   }
 
   // Register as a listener with the new focus manager.
-  focus_manager_ =
-      ChromeViews::FocusManager::GetFocusManager(parent_hwnd);
+  focus_manager_ = views::FocusManager::GetFocusManager(parent_hwnd);
   DCHECK(focus_manager_);
   focus_manager_->AddFocusChangeListener(this);
 }
@@ -666,11 +665,11 @@ void FindInPageController::RestoreSavedFocus() {
 }
 
 void FindInPageController::RegisterEscAccelerator() {
-  ChromeViews::Accelerator escape(VK_ESCAPE, false, false, false);
+  views::Accelerator escape(VK_ESCAPE, false, false, false);
 
   // TODO(finnur): Once we fix issue 1307173 we should not remember any old
   // accelerator targets and just Register and Unregister when needed.
-  ChromeViews::AcceleratorTarget* old_target =
+  views::AcceleratorTarget* old_target =
       focus_manager_->RegisterAccelerator(escape, this);
 
   if (!old_accel_target_for_esc_)
@@ -681,8 +680,8 @@ void FindInPageController::UnregisterEscAccelerator() {
   // TODO(finnur): Once we fix issue 1307173 we should not remember any old
   // accelerator targets and just Register and Unregister when needed.
   DCHECK(old_accel_target_for_esc_ != NULL);
-  ChromeViews::Accelerator escape(VK_ESCAPE, false, false, false);
-  ChromeViews::AcceleratorTarget* current_target =
+  views::Accelerator escape(VK_ESCAPE, false, false, false);
+  views::AcceleratorTarget* current_target =
       focus_manager_->GetTargetForAccelerator(escape);
   if (current_target == this)
     focus_manager_->RegisterAccelerator(escape, old_accel_target_for_esc_);

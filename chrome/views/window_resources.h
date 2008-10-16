@@ -5,9 +5,9 @@
 #ifndef CHROME_BROWSER_VIEWS_WINDOW_RESOURCES_H_
 #define CHROME_BROWSER_VIEWS_WINDOW_RESOURCES_H_
 
-#include "SkBitmap.h"
+class SkBitmap;
 
-// TODO(beng): (http://crbug.com/2395) Move this file to chrome/views.
+namespace views {
 
 typedef int FramePartBitmap;
 
@@ -25,4 +25,7 @@ class WindowResources {
   virtual SkBitmap* GetPartBitmap(FramePartBitmap part) const = 0;
 };
 
+}  // namespace views
+
 #endif  // CHROME_BROWSER_VIEWS_WINDOW_RESOURCES_H_
+

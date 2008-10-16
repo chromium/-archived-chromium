@@ -11,8 +11,8 @@
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/views/dom_view.h"
 
-namespace ChromeViews {
-  class Window;
+namespace views {
+class Window;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,15 +37,15 @@ class HtmlDialogView
   // Initializes the contents of the dialog (the DOMView and the callbacks).
   void InitDialog();
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
 
-  // Overridden from ChromeViews::WindowDelegate:
+  // Overridden from views::WindowDelegate:
   virtual bool CanResize() const;
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
   // Overridden from HtmlDialogContentsDelegate:
   virtual GURL GetDialogContentURL() const;

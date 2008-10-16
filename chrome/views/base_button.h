@@ -12,7 +12,7 @@
 class OSExchangeData;
 class ThrobAnimation;
 
-namespace ChromeViews {
+namespace views {
 
 class MouseEvent;
 
@@ -78,13 +78,12 @@ class BaseButton : public View,
   //
   // These methods are overriden to implement a simple push button
   // behavior
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
-  virtual bool OnMouseDragged(const ChromeViews::MouseEvent& e);
-  virtual void OnMouseReleased(const ChromeViews::MouseEvent& e,
-                               bool canceled);
-  virtual void OnMouseMoved(const ChromeViews::MouseEvent& e);
-  virtual void OnMouseEntered(const ChromeViews::MouseEvent& e);
-  virtual void OnMouseExited(const ChromeViews::MouseEvent& e);
+  virtual bool OnMousePressed(const MouseEvent& e);
+  virtual bool OnMouseDragged(const MouseEvent& e);
+  virtual void OnMouseReleased(const MouseEvent& e, bool canceled);
+  virtual void OnMouseMoved(const MouseEvent& e);
+  virtual void OnMouseEntered(const MouseEvent& e);
+  virtual void OnMouseExited(const MouseEvent& e);
   virtual bool OnKeyPressed(const KeyEvent& e);
   virtual bool OnKeyReleased(const KeyEvent& e);
 
@@ -134,7 +133,7 @@ class BaseButton : public View,
 
   // Returns true if the event is one that can trigger notifying the listener.
   // This implementation returns true if the left mouse button is down.
-  virtual bool IsTriggerableEvent(const ChromeViews::MouseEvent& e);
+  virtual bool IsTriggerableEvent(const MouseEvent& e);
 
   //
   // Set the state. If the state is different, causes the button
@@ -179,7 +178,7 @@ class BaseButton : public View,
   bool animate_on_state_change_;
 };
 
-} // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_BASE_BUTTON_H__
 

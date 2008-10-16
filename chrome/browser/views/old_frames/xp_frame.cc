@@ -102,8 +102,8 @@ static const SkColor kSeparationLineColor = SkColorSetRGB(178, 178, 178);
 // Padding between the tab strip and the window controls in maximized mode.
 static const int kZoomedStripPadding = 16;
 
-using ChromeViews::Accelerator;
-using ChromeViews::FocusManager;
+using views::Accelerator;
+using views::FocusManager;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -356,10 +356,10 @@ XPFrame::~XPFrame() {
 }
 
 void XPFrame::InitAfterHWNDCreated() {
-  tooltip_manager_.reset(new ChromeViews::TooltipManager(this, m_hWnd));
+  tooltip_manager_.reset(new views::TooltipManager(this, m_hWnd));
 }
 
-ChromeViews::TooltipManager* XPFrame::GetTooltipManager() {
+views::TooltipManager* XPFrame::GetTooltipManager() {
   return tooltip_manager_.get();
 }
 
@@ -401,7 +401,7 @@ void XPFrame::Init() {
 
   // Link the HWND with its root view so we can retrieve the RootView from the
   // HWND for automation purposes.
-  ChromeViews::SetRootViewForHWND(m_hWnd, &root_view_);
+  views::SetRootViewForHWND(m_hWnd, &root_view_);
 
   // Remove the WS_CAPTION explicitely because we don't want a window style
   // title bar
@@ -420,7 +420,7 @@ void XPFrame::Init() {
   // TODO(brettw) if we have a preference for default page background, this
   // color should be the same.
   root_view_.SetBackground(
-      ChromeViews::Background::CreateSolidBackground(SK_ColorWHITE));
+      views::Background::CreateSolidBackground(SK_ColorWHITE));
 
   browser_view_ = new BrowserView(this, browser_, NULL, NULL);
   frame_view_->AddChildView(browser_view_);
@@ -440,7 +440,7 @@ void XPFrame::Init() {
 #endif
 
   if (is_off_the_record_) {
-    off_the_record_image_ = new ChromeViews::ImageView();
+    off_the_record_image_ = new views::ImageView();
     SkBitmap* otr_icon = rb.GetBitmapNamed(IDR_OTR_ICON);
     off_the_record_image_->SetImage(*otr_icon);
     off_the_record_image_->SetTooltipText(
@@ -451,58 +451,58 @@ void XPFrame::Init() {
 
   SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
   if (!image->isNull()) {
-    distributor_logo_ = new ChromeViews::ImageView();
+    distributor_logo_ = new views::ImageView();
     frame_view_->AddViewToDropList(distributor_logo_);
     distributor_logo_->SetImage(image);
     frame_view_->AddChildView(distributor_logo_);
   }
 
-  min_button_ = new ChromeViews::Button();
+  min_button_ = new views::Button();
   min_button_->SetListener(this, MINIATURIZE_TAG);
-  min_button_->SetImage(ChromeViews::Button::BS_NORMAL,
+  min_button_->SetImage(views::Button::BS_NORMAL,
                         rb.GetBitmapNamed(IDR_MINIMIZE));
-  min_button_->SetImage(ChromeViews::Button::BS_HOT,
+  min_button_->SetImage(views::Button::BS_HOT,
                         rb.GetBitmapNamed(IDR_MINIMIZE_H));
-  min_button_->SetImage(ChromeViews::Button::BS_PUSHED,
+  min_button_->SetImage(views::Button::BS_PUSHED,
                         rb.GetBitmapNamed(IDR_MINIMIZE_P));
   min_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_MINIMIZE));
   min_button_->SetTooltipText(
       l10n_util::GetString(IDS_XPFRAME_MINIMIZE_TOOLTIP));
   frame_view_->AddChildView(min_button_);
 
-  max_button_ = new ChromeViews::Button();
+  max_button_ = new views::Button();
   max_button_->SetListener(this, MAXIMIZE_TAG);
-  max_button_->SetImage(ChromeViews::Button::BS_NORMAL,
+  max_button_->SetImage(views::Button::BS_NORMAL,
                         rb.GetBitmapNamed(IDR_MAXIMIZE));
-  max_button_->SetImage(ChromeViews::Button::BS_HOT,
+  max_button_->SetImage(views::Button::BS_HOT,
                         rb.GetBitmapNamed(IDR_MAXIMIZE_H));
-  max_button_->SetImage(ChromeViews::Button::BS_PUSHED,
+  max_button_->SetImage(views::Button::BS_PUSHED,
                         rb.GetBitmapNamed(IDR_MAXIMIZE_P));
   max_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_MAXIMIZE));
   max_button_->SetTooltipText(
       l10n_util::GetString(IDS_XPFRAME_MAXIMIZE_TOOLTIP));
   frame_view_->AddChildView(max_button_);
 
-  restore_button_ = new ChromeViews::Button();
+  restore_button_ = new views::Button();
   restore_button_->SetListener(this, RESTORE_TAG);
-  restore_button_->SetImage(ChromeViews::Button::BS_NORMAL,
+  restore_button_->SetImage(views::Button::BS_NORMAL,
                             rb.GetBitmapNamed(IDR_RESTORE));
-  restore_button_->SetImage(ChromeViews::Button::BS_HOT,
+  restore_button_->SetImage(views::Button::BS_HOT,
                             rb.GetBitmapNamed(IDR_RESTORE_H));
-  restore_button_->SetImage(ChromeViews::Button::BS_PUSHED,
+  restore_button_->SetImage(views::Button::BS_PUSHED,
                             rb.GetBitmapNamed(IDR_RESTORE_P));
   restore_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_RESTORE));
   restore_button_->SetTooltipText(
       l10n_util::GetString(IDS_XPFRAME_RESTORE_TOOLTIP));
   frame_view_->AddChildView(restore_button_);
 
-  close_button_ = new ChromeViews::Button();
+  close_button_ = new views::Button();
   close_button_->SetListener(this, CLOSE_TAG);
-  close_button_->SetImage(ChromeViews::Button::BS_NORMAL,
+  close_button_->SetImage(views::Button::BS_NORMAL,
                           rb.GetBitmapNamed(IDR_CLOSE));
-  close_button_->SetImage(ChromeViews::Button::BS_HOT,
+  close_button_->SetImage(views::Button::BS_HOT,
                           rb.GetBitmapNamed(IDR_CLOSE_H));
-  close_button_->SetImage(ChromeViews::Button::BS_PUSHED,
+  close_button_->SetImage(views::Button::BS_PUSHED,
                           rb.GetBitmapNamed(IDR_CLOSE_P));
   close_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   close_button_->SetTooltipText(
@@ -587,8 +587,8 @@ void XPFrame::Layout() {
 
   if (IsZoomed()) {
     preferred_size = close_button_->GetPreferredSize();
-    close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                     ChromeViews::Button::ALIGN_BOTTOM);
+    close_button_->SetImageAlignment(views::Button::ALIGN_LEFT,
+                                     views::Button::ALIGN_BOTTOM);
     close_button_->SetBounds(width - preferred_size.width() -
                              kWindowControlsRightZoomedOffset,
                              0,
@@ -601,8 +601,8 @@ void XPFrame::Layout() {
 
     restore_button_->SetVisible(true);
     preferred_size = restore_button_->GetPreferredSize();
-    restore_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                       ChromeViews::Button::ALIGN_BOTTOM);
+    restore_button_->SetImageAlignment(views::Button::ALIGN_LEFT,
+                                       views::Button::ALIGN_BOTTOM);
     restore_button_->SetBounds(close_button_->x() - preferred_size.width(),
                                0,
                                preferred_size.width(),
@@ -610,8 +610,8 @@ void XPFrame::Layout() {
                                kWindowControlsTopZoomedOffset);
 
     preferred_size = min_button_->GetPreferredSize();
-    min_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                   ChromeViews::Button::ALIGN_BOTTOM);
+    min_button_->SetImageAlignment(views::Button::ALIGN_LEFT,
+                                   views::Button::ALIGN_BOTTOM);
     min_button_->SetBounds(restore_button_->x() - preferred_size.width(),
                            0,
                            preferred_size.width(),
@@ -620,8 +620,8 @@ void XPFrame::Layout() {
 
   } else {
     preferred_size = close_button_->GetPreferredSize();
-    close_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                     ChromeViews::Button::ALIGN_TOP);
+    close_button_->SetImageAlignment(views::Button::ALIGN_LEFT,
+                                     views::Button::ALIGN_TOP);
     close_button_->SetBounds(width - kWindowControlsRightOffset -
                              preferred_size.width(),
                              kWindowControlsTopOffset,
@@ -632,16 +632,16 @@ void XPFrame::Layout() {
 
     max_button_->SetVisible(true);
     preferred_size = max_button_->GetPreferredSize();
-    max_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                   ChromeViews::Button::ALIGN_TOP);
+    max_button_->SetImageAlignment(views::Button::ALIGN_LEFT,
+                                   views::Button::ALIGN_TOP);
     max_button_->SetBounds(close_button_->x() - preferred_size.width(),
                            kWindowControlsTopOffset,
                            preferred_size.width(),
                            preferred_size.height());
 
     preferred_size = min_button_->GetPreferredSize();
-    min_button_->SetImageAlignment(ChromeViews::Button::ALIGN_LEFT,
-                                   ChromeViews::Button::ALIGN_TOP);
+    min_button_->SetImageAlignment(views::Button::ALIGN_LEFT,
+                                   views::Button::ALIGN_TOP);
     min_button_->SetBounds(max_button_->x() - preferred_size.width(),
                            kWindowControlsTopOffset,
                            preferred_size.width(),
@@ -896,9 +896,9 @@ void XPFrame::SetAcceleratorTable(
   accelerator_table_.reset(accelerator_table);
 }
 
-bool XPFrame::GetAccelerator(int cmd_id, ChromeViews::Accelerator* accelerator)
+bool XPFrame::GetAccelerator(int cmd_id, views::Accelerator* accelerator)
   {
-  std::map<ChromeViews::Accelerator, int>::iterator it =
+  std::map<views::Accelerator, int>::iterator it =
       accelerator_table_->begin();
   for (; it != accelerator_table_->end(); ++it) {
     if (it->second == cmd_id) {
@@ -1063,7 +1063,7 @@ void XPFrame::OnNCRButtonDown(UINT flags, const CPoint& pt) {
 }
 
 void XPFrame::OnMouseButtonDown(UINT flags, const CPoint& pt) {
-  using namespace ChromeViews;
+  using namespace views;
   if (m_hWnd == NULL || !IsWindowVisible()) {
     return;
   }
@@ -1235,14 +1235,13 @@ LRESULT XPFrame::OnGetObject(UINT uMsg, WPARAM w_param, LPARAM object_id) {
 }
 
 void XPFrame::OnKeyDown(TCHAR c, UINT rep_cnt, UINT flags) {
-  ChromeViews::KeyEvent event(ChromeViews::Event::ET_KEY_PRESSED, c,
-                              rep_cnt, flags);
+  views::KeyEvent event(views::Event::ET_KEY_PRESSED, c, rep_cnt, flags);
   root_view_.ProcessKeyEvent(event);
 }
 
 void XPFrame::OnKeyUp(TCHAR c, UINT rep_cnt, UINT flags) {
-  ChromeViews::KeyEvent event(ChromeViews::Event::ET_KEY_RELEASED, c,
-                              rep_cnt, flags);
+  views::KeyEvent event(views::Event::ET_KEY_RELEASED, c, rep_cnt,
+                        flags);
   root_view_.ProcessKeyEvent(event);
 }
 
@@ -1386,7 +1385,7 @@ LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
   }
 
   gfx::Point tsp(p);
-  ChromeViews::View::ConvertPointToView(&root_view_, tabstrip_, &tsp);
+  views::View::ConvertPointToView(&root_view_, tabstrip_, &tsp);
 
   // If the mouse is over the tabstrip. Check if we should move the window or
   // capture the mouse.
@@ -1397,7 +1396,7 @@ LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
     if (!IsZoomed() && tsp.y() < kTabShadowSize)
       return HTCAPTION;
 
-    ChromeViews::View* v = tabstrip_->GetViewForPoint(tsp);
+    views::View* v = tabstrip_->GetViewForPoint(tsp);
     // If there is not tab at this location, claim the hit was in the title
     // bar to get a move action.
     if (v == tabstrip_)
@@ -1412,7 +1411,7 @@ LRESULT XPFrame::OnNCHitTest(const CPoint& pt) {
     // The mouse is not above the tab strip. If there is no control under it,
     // let's move the window.
     if (ComputeResizeMode(p.x(), p.y(), r.Width(), r.Height()) == RM_UNDEFINED) {
-      ChromeViews::View* v = root_view_.GetViewForPoint(p);
+      views::View* v = root_view_.GetViewForPoint(p);
       if (v == frame_view_ || v == off_the_record_image_ || 
           v == distributor_logo_) {
         return HTCAPTION;
@@ -1554,7 +1553,7 @@ void XPFrame::OnSysCommand(UINT notification_code, CPoint click) {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void XPFrame::ButtonPressed(ChromeViews::BaseButton *sender) {
+void XPFrame::ButtonPressed(views::BaseButton *sender) {
   switch (sender->GetTag()) {
     case MINIATURIZE_TAG:
       // We deliberately don't call ShowWindow(SW_SHOWMINIMIZED) directly
@@ -1813,7 +1812,7 @@ gfx::Rect XPFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   }
 
   gfx::Point p;
-  ChromeViews::View::ConvertPointToContainer(tab_contents_container_, &p);
+  views::View::ConvertPointToContainer(tab_contents_container_, &p);
   CRect bounds;
   GetBounds(&bounds, true);
 
@@ -1919,8 +1918,8 @@ void XPFrame::PaintNow(const CRect& update_rect) {
   }
 }
 
-ChromeViews::RootView* XPFrame::GetRootView() {
-  return const_cast<ChromeViews::RootView*>(&root_view_);
+views::RootView* XPFrame::GetRootView() {
+  return const_cast<views::RootView*>(&root_view_);
 }
 
 bool XPFrame::IsVisible() {
@@ -1934,7 +1933,7 @@ bool XPFrame::IsActive() {
 bool XPFrame::ProcessMousePressed(const CPoint &pt,
                                   UINT flags,
                                   bool dbl_click) {
-  using namespace ChromeViews;
+  using namespace views;
   MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED,
                            pt.x,
                            pt.y,
@@ -1953,7 +1952,7 @@ bool XPFrame::ProcessMousePressed(const CPoint &pt,
 }
 
 void XPFrame::ProcessMouseDragged(const CPoint &pt, UINT flags) {
-  using namespace ChromeViews;
+  using namespace views;
   MouseEvent drag_event(Event::ET_MOUSE_DRAGGED,
                         pt.x,
                         pt.y,
@@ -1962,7 +1961,7 @@ void XPFrame::ProcessMouseDragged(const CPoint &pt, UINT flags) {
 }
 
 void XPFrame::ProcessMouseReleased(const CPoint &pt, UINT flags) {
-  using namespace ChromeViews;
+  using namespace views;
 
   current_action_ = FA_NONE;
   ReleaseCapture();
@@ -1975,7 +1974,7 @@ void XPFrame::ProcessMouseReleased(const CPoint &pt, UINT flags) {
 }
 
 void XPFrame::ProcessMouseMoved(const CPoint& pt, UINT flags) {
-  using namespace ChromeViews;
+  using namespace views;
   MouseEvent mouse_move(Event::ET_MOUSE_MOVED,
                         pt.x,
                         pt.y,
@@ -2268,7 +2267,7 @@ void XPFrame::XPFrameView::SetAccessibleName(const std::wstring& name) {
 }
 
 bool XPFrame::XPFrameView::ShouldForwardToTabStrip(
-    const ChromeViews::DropTargetEvent& event) {
+    const views::DropTargetEvent& event) {
   if (!FrameView::ShouldForwardToTabStrip(event))
     return false;
   if (parent_->IsZoomed() && event.x() >= parent_->min_button_->x() &&
@@ -2294,8 +2293,8 @@ void XPFrame::SelectedTabToolbarSizeChanged(bool is_animating) {
   }
 }
 
-bool XPFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
-                                       ChromeViews::View** view) {
+bool XPFrame::UpdateChildViewAndLayout(views::View* new_view,
+                                       views::View** view) {
   DCHECK(view);
   if (*view == new_view) {
     // The views haven't changed, if the views pref changed schedule a layout.
@@ -2408,7 +2407,7 @@ void XPFrame::ContinueDetachConstrainedWindowDrag(const gfx::Point& mouse_pt,
     // Because xpframe does its own resizing, and does not respond properly to
     // WM_NCHITTEST, there's no reliable way for us to handle other frame
     // component types. Alas. This will be corrected when XPFrame subclasses
-    // ChromeViews::CustomFrameWindow, some day.
+    // views::CustomFrameWindow, some day.
   }
 }
 
@@ -2477,18 +2476,18 @@ void XPFrame::ShelfVisibilityChangedImpl(TabContents* current_tab) {
   // Coalesce layouts.
   bool changed = false;
 
-  ChromeViews::View* new_shelf = NULL;
+  views::View* new_shelf = NULL;
   if (current_tab && current_tab->IsDownloadShelfVisible())
     new_shelf = current_tab->GetDownloadShelfView();
   changed |= UpdateChildViewAndLayout(new_shelf, &shelf_view_);
 
-  ChromeViews::View* new_info_bar = NULL;
+  views::View* new_info_bar = NULL;
   WebContents* web_contents = current_tab ? current_tab->AsWebContents() : NULL;
   if (web_contents && web_contents->view()->IsInfoBarVisible())
     new_info_bar = web_contents->view()->GetInfoBarView();
   changed |= UpdateChildViewAndLayout(new_info_bar, &info_bar_view_);
 
-  ChromeViews::View* new_bookmark_bar_view = NULL;
+  views::View* new_bookmark_bar_view = NULL;
   if (SupportsBookmarkBar())
     new_bookmark_bar_view = GetBookmarkBarView();
   changed |= UpdateChildViewAndLayout(new_bookmark_bar_view,

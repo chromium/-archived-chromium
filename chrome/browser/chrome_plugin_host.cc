@@ -274,7 +274,7 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
 
   // The following public methods are called from the UI thread.
 
-  // ChromeViews::WindowDelegate implementation:
+  // views::WindowDelegate implementation:
   virtual bool IsModal() const { return false; }
 
   // HtmlDialogContentsDelegate implementation:

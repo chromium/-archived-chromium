@@ -10,7 +10,7 @@
 #include "chrome/views/window_delegate.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using ChromeViews::TableView;
+using views::TableView;
 
 // TestTableModel --------------------------------------------------------------
 
@@ -22,7 +22,7 @@ using ChromeViews::TableView;
 // 0, 1
 // 1, 1
 // 2, 2
-class TestTableModel : public ChromeViews::TableModel {
+class TestTableModel : public views::TableModel {
  public:
   TestTableModel();
 
@@ -38,11 +38,11 @@ class TestTableModel : public ChromeViews::TableModel {
   // TableModel
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
-  virtual void SetObserver(ChromeViews::TableModelObserver* observer);
+  virtual void SetObserver(views::TableModelObserver* observer);
   virtual int CompareValues(int row1, int row2, int column_id);
 
  private:
-  ChromeViews::TableModelObserver* observer_;
+  views::TableModelObserver* observer_;
 
   // The data.
   std::vector<std::vector<int>> rows_;
@@ -88,7 +88,7 @@ std::wstring TestTableModel::GetText(int row, int column_id) {
   return IntToWString(rows_[row][column_id]);
 }
 
-void TestTableModel::SetObserver(ChromeViews::TableModelObserver* observer) {
+void TestTableModel::SetObserver(views::TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -98,12 +98,12 @@ int TestTableModel::CompareValues(int row1, int row2, int column_id) {
 
 // TableViewTest ---------------------------------------------------------------
 
-class TableViewTest : public testing::Test, ChromeViews::WindowDelegate {
+class TableViewTest : public testing::Test, views::WindowDelegate {
  public:
   virtual void SetUp();
   virtual void TearDown();
 
-  virtual ChromeViews::View* GetContentsView() {
+  virtual views::View* GetContentsView() {
     return table_;
   }
 
@@ -133,20 +133,20 @@ class TableViewTest : public testing::Test, ChromeViews::WindowDelegate {
 
  private:
   MessageLoopForUI message_loop_;
-  ChromeViews::Window* window_;
+  views::Window* window_;
 };
 
 void TableViewTest::SetUp() {
   OleInitialize(NULL);
   model_.reset(CreateModel());
-  std::vector<ChromeViews::TableColumn> columns;
+  std::vector<views::TableColumn> columns;
   columns.resize(2);
   columns[0].id = 0;
   columns[1].id = 1;
-  table_ = new TableView(model_.get(), columns, ChromeViews::ICON_AND_TEXT,
+  table_ = new TableView(model_.get(), columns, views::ICON_AND_TEXT,
                          false, false, false);
   window_ =
-      ChromeViews::Window::CreateChromeWindow(NULL,
+      views::Window::CreateChromeWindow(NULL,
                                               gfx::Rect(100, 100, 512, 512),
                                               this);
 }

@@ -24,9 +24,9 @@
 
 #include "generated_resources.h"
 
-using ChromeViews::GridLayout;
-using ChromeViews::ImageView;
-using ChromeViews::TextField;
+using views::GridLayout;
+using views::ImageView;
+using views::TextField;
 
 
 namespace {
@@ -53,8 +53,8 @@ EditKeywordController::EditKeywordController(
 void EditKeywordController::Show() {
   // Window interprets an empty rectangle as needing to query the content for
   // the size as well as centering relative to the parent.
-  ChromeViews::Window::CreateChromeWindow(::IsWindow(parent_) ? parent_ : NULL,
-                                          gfx::Rect(), this); 
+  views::Window::CreateChromeWindow(::IsWindow(parent_) ? parent_ : NULL,
+                                    gfx::Rect(), this); 
   window()->Show();
   GetDialogClientView()->UpdateDialogButtons();
   title_tf_->SelectAll();
@@ -152,7 +152,7 @@ bool EditKeywordController::Accept() {
   return true;
 }
 
-ChromeViews::View* EditKeywordController::GetContentsView() {
+views::View* EditKeywordController::GetContentsView() {
   return view_;
 }
 
@@ -171,7 +171,7 @@ void EditKeywordController::HandleKeystroke(TextField* sender,
 
 void EditKeywordController::Init() {
   // Create the views we'll need.
-  view_ = new ChromeViews::View();
+  view_ = new views::View();
   if (template_url_) {
     title_tf_ = CreateTextField(template_url_->short_name());
     keyword_tf_ = CreateTextField(template_url_->keyword());
@@ -201,7 +201,7 @@ void EditKeywordController::Init() {
   // Define the structure of the layout.
 
   // For the buttons.
-  ChromeViews::ColumnSet* column_set = layout->AddColumnSet(0);
+  views::ColumnSet* column_set = layout->AddColumnSet(0);
   column_set->AddPaddingColumn(1, 0);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
@@ -264,17 +264,16 @@ void EditKeywordController::Init() {
                           reversed_percent);
   }
 
-  ChromeViews::Label* description_label = new ChromeViews::Label(description);
-  description_label->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  views::Label* description_label = new views::Label(description);
+  description_label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   layout->AddView(description_label);
 
   layout->AddPaddingRow(0, related_y);
 }
 
-ChromeViews::Label* EditKeywordController::CreateLabel(int message_id) {
-  ChromeViews::Label* label = new ChromeViews::Label(
-      l10n_util::GetString(message_id));
-  label->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+views::Label* EditKeywordController::CreateLabel(int message_id) {
+  views::Label* label = new views::Label(l10n_util::GetString(message_id));
+  label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   return label;
 }
 

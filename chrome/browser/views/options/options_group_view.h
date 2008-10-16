@@ -7,7 +7,7 @@
 
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 class Label;
 class Separator;
 };
@@ -18,9 +18,9 @@ class Separator;
 //  A helper View that gathers related options into groups with a title and
 //  optional description.
 //
-class OptionsGroupView : public ChromeViews::View {
+class OptionsGroupView : public views::View {
  public:
-  OptionsGroupView(ChromeViews::View* contents,
+  OptionsGroupView(views::View* contents,
                    const std::wstring& title,
                    const std::wstring& description,
                    bool show_separator);
@@ -33,19 +33,19 @@ class OptionsGroupView : public ChromeViews::View {
   int GetContentsWidth() const;
 
  protected:
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
  private:
   void Init();
 
-  ChromeViews::View* contents_;
-  ChromeViews::Label* title_label_;
-  ChromeViews::Label* description_label_;
-  ChromeViews::Separator* separator_;
+  views::View* contents_;
+  views::Label* title_label_;
+  views::Label* description_label_;
+  views::Separator* separator_;
 
   // True if we should show a separator line below the contents of this
   // section.

@@ -60,12 +60,12 @@ FirstRunViewBase::~FirstRunViewBase() {
 }
 
 void FirstRunViewBase::SetupControls() {
-  using ChromeViews::Label;
-  using ChromeViews::ImageView;
-  using ChromeViews::Background;
+  using views::Label;
+  using views::ImageView;
+  using views::Background;
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  background_image_ = new ChromeViews::ImageView();
+  background_image_ = new views::ImageView();
   background_image_->SetImage(rb.GetBitmapNamed(IDR_WIZARD_ICON));
   background_image_->SetHorizontalAlignment(ImageView::TRAILING);
 
@@ -93,21 +93,21 @@ void FirstRunViewBase::SetupControls() {
   AddChildView(background_image_);
 
   // The first separator marks the end of the image.
-  separator_1_ = new ChromeViews::Separator;
+  separator_1_ = new views::Separator;
   AddChildView(separator_1_);
 
   // The "make us default browser" check box.
-  default_browser_ = new ChromeViews::CheckBox(
+  default_browser_ = new views::CheckBox(
       l10n_util::GetString(IDS_FR_CUSTOMIZE_DEFAULT_BROWSER));
   default_browser_->SetMultiLine(true);
   AddChildView(default_browser_);
 
   // The second separator marks the start of buttons.
-  separator_2_ = new ChromeViews::Separator;
+  separator_2_ = new views::Separator;
   AddChildView(separator_2_);
 }
 
-void FirstRunViewBase::AdjustDialogWidth(const ChromeViews::View* sub_view) {
+void FirstRunViewBase::AdjustDialogWidth(const views::View* sub_view) {
   gfx::Rect sub_view_bounds = sub_view->bounds();
   preferred_width_ =
       std::max(preferred_width_,
@@ -179,7 +179,7 @@ int FirstRunViewBase::GetDefaultImportItems() const {
 
 void FirstRunViewBase::DisableButtons() {
   window()->EnableClose(false);
-  ChromeViews::DialogClientView* dcv = GetDialogClientView();
+  views::DialogClientView* dcv = GetDialogClientView();
   dcv->ok_button()->SetEnabled(false);
   dcv->cancel_button()->SetEnabled(false);
   default_browser_->SetEnabled(false);

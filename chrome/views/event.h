@@ -11,7 +11,7 @@
 
 class OSExchangeData;
 
-namespace ChromeViews {
+namespace views {
 
 class View;
 
@@ -83,10 +83,10 @@ class Event {
   // Returns the EventFlags in terms of windows flags.
   int GetWindowsFlags() const;
 
-  // Convert windows flags to ChromeViews::Event flags
+  // Convert windows flags to views::Event flags
   static int ConvertWindowsFlags(uint32 win_flags);
 
-  // Convert WebInputEvent::Modifiers flags to ChromeViews::Event flags.
+  // Convert WebInputEvent::Modifiers flags to views::Event flags.
   // Note that this only deals with keyboard modifiers.
   static int ConvertWebInputEventFlags(int web_input_event_flags);
 
@@ -304,7 +304,7 @@ class DropTargetEvent : public LocatedEvent {
   DISALLOW_EVIL_CONSTRUCTORS(DropTargetEvent);
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // CHROME_VIEWS_EVENT_H__
 

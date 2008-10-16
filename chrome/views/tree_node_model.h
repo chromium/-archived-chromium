@@ -11,7 +11,7 @@
 #include "chrome/common/scoped_vector.h"
 #include "chrome/views/tree_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 // TreeNodeModel and TreeNodes provide an implementation of TreeModel around
 // TreeNodes. TreeNodes form a directed acyclic graph.
@@ -266,7 +266,7 @@ class TreeNodeModel : public TreeModel {
   DISALLOW_EVIL_CONSTRUCTORS(TreeNodeModel);
 };
 
-} // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_TREE_NODE_MODEL_H__
 

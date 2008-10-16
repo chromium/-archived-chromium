@@ -16,8 +16,8 @@
 
 #include "generated_resources.h"
 
-using ChromeViews::ColumnSet;
-using ChromeViews::GridLayout;
+using views::ColumnSet;
+using views::GridLayout;
 
 // We can only have one PasswordManagerView at a time.
 static PasswordManagerView* instance_ = NULL;
@@ -98,7 +98,7 @@ int PasswordManagerTableModel::CompareValues(int row1, int row2,
 }
 
 void PasswordManagerTableModel::SetObserver(
-    ChromeViews::TableModelObserver* observer) {
+    views::TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -177,7 +177,7 @@ void PasswordManagerView::Show(Profile* profile) {
     instance_ = new PasswordManagerView(profile);
 
     // manager is owned by the dialog window, so Close() will delete it.
-    ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), instance_);
+    views::Window::CreateChromeWindow(NULL, gfx::Rect(), instance_);
   }
   if (!instance_->window()->IsVisible()) {
     instance_->window()->Show();
@@ -201,26 +201,20 @@ PasswordManagerView::PasswordManagerView(Profile* profile)
 void PasswordManagerView::SetupTable() {
   // Creates the different columns for the table.
   // The float resize values are the result of much tinkering.
-  std::vector<ChromeViews::TableColumn> columns;
-  columns.push_back(
-      ChromeViews::TableColumn(
-          IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN,
-          ChromeViews::TableColumn::LEFT, -1, 0.55f));
+  std::vector<views::TableColumn> columns;
+  columns.push_back(views::TableColumn(IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN,
+                                       views::TableColumn::LEFT, -1, 0.55f));
   columns.back().sortable = true;
-  columns.push_back(
-      ChromeViews::TableColumn(
-          IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN,
-          ChromeViews::TableColumn::RIGHT, -1, 0.37f));
+  columns.push_back(views::TableColumn(
+      IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN, views::TableColumn::RIGHT,
+      -1, 0.37f));
   columns.back().sortable = true;
-  table_view_ = new ChromeViews::TableView(&table_model_,
-                                           columns,
-                                           ChromeViews::TEXT_ONLY,
-                                           true, true, true);
+  table_view_ = new views::TableView(&table_model_, columns, views::TEXT_ONLY,
+                                     true, true, true);
   // Make the table initially sorted by host.
-  ChromeViews::TableView::SortDescriptors sort;
-  sort.push_back(
-      ChromeViews::TableView::SortDescriptor(
-          IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN, true));
+  views::TableView::SortDescriptors sort;
+  sort.push_back(views::TableView::SortDescriptor(
+      IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN, true));
   table_view_->SetSortDescriptors(sort);
   table_view_->SetObserver(this);
 }
@@ -306,8 +300,8 @@ gfx::Size PasswordManagerView::GetPreferredSize() {
 }
 
 void PasswordManagerView::ViewHierarchyChanged(bool is_add,
-                                               ChromeViews::View* parent,
-                                               ChromeViews::View* child) {
+                                               views::View* parent,
+                                               views::View* child) {
   if (child == this) {
     // Add and remove the Remove All button from the ClientView's hierarchy.
     if (is_add) {
@@ -352,7 +346,7 @@ std::wstring PasswordManagerView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_PASSWORD_MANAGER_VIEW_TITLE);
 }
 
-void PasswordManagerView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void PasswordManagerView::ButtonPressed(views::NativeButton* sender) {
   DCHECK(window());
   // Close will result in our destruction.
   if (sender == &remove_all_button_) {
@@ -362,7 +356,7 @@ void PasswordManagerView::ButtonPressed(ChromeViews::NativeButton* sender) {
 
   // The following require a selection (and only one, since table is single-
   // select only).
-  ChromeViews::TableSelectionIterator iter = table_view_->SelectionBegin();
+  views::TableSelectionIterator iter = table_view_->SelectionBegin();
   int row = *iter;
   PasswordForm* selected = table_model_.GetPasswordFormAt(row);
   DCHECK(++iter == table_view_->SelectionEnd());
@@ -393,6 +387,6 @@ void PasswordManagerView::WindowClosing() {
   instance_ = NULL;
 }
 
-ChromeViews::View* PasswordManagerView::GetContentsView() {
+views::View* PasswordManagerView::GetContentsView() {
   return this;
 }

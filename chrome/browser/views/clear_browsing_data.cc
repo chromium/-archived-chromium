@@ -57,7 +57,7 @@ ClearBrowsingDataView::~ClearBrowsingDataView(void) {
 void ClearBrowsingDataView::Init() {
   // Views we will add to the *parent* of this dialog, since it will display
   // next to the buttons which we don't draw ourselves.
-  throbber_.reset(new ChromeViews::Throbber(50, true));
+  throbber_.reset(new views::Throbber(50, true));
   throbber_->SetParentOwned(false);
   throbber_->SetVisible(false);
 
@@ -66,7 +66,7 @@ void ClearBrowsingDataView::Init() {
   status_label_.SetParentOwned(false);
 
   // Regular view controls we draw by ourself. First, we add the dialog label.
-  delete_all_label_ = new ChromeViews::Label(
+  delete_all_label_ = new views::Label(
       l10n_util::GetString(IDS_CLEAR_BROWSING_DATA_LABEL));
   AddChildView(delete_all_label_);
 
@@ -92,20 +92,20 @@ void ClearBrowsingDataView::Init() {
       profile_->GetPrefs()->GetBoolean(prefs::kDeletePasswords));
 
   // Add a label which appears before the combo box for the time period.
-  time_period_label_ = new ChromeViews::Label(
-    l10n_util::GetString(IDS_CLEAR_BROWSING_DATA_TIME_LABEL));
+  time_period_label_ = new views::Label(
+      l10n_util::GetString(IDS_CLEAR_BROWSING_DATA_TIME_LABEL));
   AddChildView(time_period_label_);
 
   // Add the combo box showing how far back in time we want to delete.
-  time_period_combobox_ = new ChromeViews::ComboBox(this);
+  time_period_combobox_ = new views::ComboBox(this);
   AddChildView(time_period_combobox_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ClearBrowsingDataView, ChromeViews::View implementation:
+// ClearBrowsingDataView, views::View implementation:
 
 gfx::Size ClearBrowsingDataView::GetPreferredSize() {
-  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+  return gfx::Size(views::Window::GetLocalizedContentsSize(
       IDS_CLEARDATA_DIALOG_WIDTH_CHARS,
       IDS_CLEARDATA_DIALOG_HEIGHT_LINES));
 }
@@ -190,7 +190,7 @@ void ClearBrowsingDataView::Layout() {
   sz = status_label_.GetPreferredSize();
   int status_label_x = throbber_->x() + throbber_->width() +
                        kRelatedControlHorizontalSpacing;
-  status_label_.SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  status_label_.SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   status_label_.SetBounds(status_label_x,
                           throbber_topleft_y + 1,
                           sz.width(),
@@ -198,8 +198,8 @@ void ClearBrowsingDataView::Layout() {
 }
 
 void ClearBrowsingDataView::ViewHierarchyChanged(bool is_add,
-                                                 ChromeViews::View* parent,
-                                                 ChromeViews::View* child) {
+                                                 views::View* parent,
+                                                 views::View* child) {
   // Since we want the some of the controls to show up in the same visual row
   // as the buttons, which are provided by the framework, we must add the
   // buttons to the non-client view, which is the parent of this view.
@@ -217,7 +217,7 @@ void ClearBrowsingDataView::ViewHierarchyChanged(bool is_add,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ClearBrowsingDataView, ChromeViews::DialogDelegate implementation:
+// ClearBrowsingDataView, views::DialogDelegate implementation:
 
 std::wstring ClearBrowsingDataView::GetDialogButtonLabel(
     DialogButton button) const {
@@ -276,19 +276,19 @@ bool ClearBrowsingDataView::Accept() {
   return false;  // We close the dialog in OnBrowsingDataRemoverDone().
 }
 
-ChromeViews::View* ClearBrowsingDataView::GetContentsView() {
+views::View* ClearBrowsingDataView::GetContentsView() {
   return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ClearBrowsingDataView, ChromeViews::ComboBox::Model implementation:
+// ClearBrowsingDataView, views::ComboBox::Model implementation:
 
-int ClearBrowsingDataView::GetItemCount(ChromeViews::ComboBox* source) {
+int ClearBrowsingDataView::GetItemCount(views::ComboBox* source) {
   DCHECK(source == time_period_combobox_);
   return 4;
 }
 
-std::wstring ClearBrowsingDataView::GetItemAt(ChromeViews::ComboBox* source,
+std::wstring ClearBrowsingDataView::GetItemAt(views::ComboBox* source,
                                               int index) {
   DCHECK(source == time_period_combobox_);
   switch (index) {
@@ -302,9 +302,9 @@ std::wstring ClearBrowsingDataView::GetItemAt(ChromeViews::ComboBox* source,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ClearBrowsingDataView, ChromeViews::ButtonListener implementation:
+// ClearBrowsingDataView, views::ButtonListener implementation:
 
-void ClearBrowsingDataView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void ClearBrowsingDataView::ButtonPressed(views::NativeButton* sender) {
   if (sender == del_history_checkbox_)
     profile_->GetPrefs()->SetBoolean(prefs::kDeleteBrowsingHistory,
         del_history_checkbox_->IsSelected() ? true : false);
@@ -329,9 +329,9 @@ void ClearBrowsingDataView::ButtonPressed(ChromeViews::NativeButton* sender) {
 ////////////////////////////////////////////////////////////////////////////////
 // ClearBrowsingDataView, private:
 
-ChromeViews::CheckBox* ClearBrowsingDataView::AddCheckbox(
-    const std::wstring& text, bool checked) {
-  ChromeViews::CheckBox* checkbox = new ChromeViews::CheckBox(text);
+views::CheckBox* ClearBrowsingDataView::AddCheckbox(const std::wstring& text,
+                                                    bool checked) {
+  views::CheckBox* checkbox = new views::CheckBox(text);
   checkbox->SetIsSelected(checked);
   checkbox->SetListener(this);
   AddChildView(checkbox);
@@ -361,7 +361,7 @@ void ClearBrowsingDataView::UpdateControlEnabledState() {
 
 // Convenience method that returns true if the supplied checkbox is selected
 // and enabled.
-static bool IsCheckBoxEnabledAndSelected(ChromeViews::CheckBox* cb) {
+static bool IsCheckBoxEnabledAndSelected(views::CheckBox* cb) {
   return (cb->IsEnabled() && cb->IsSelected());
 }
 

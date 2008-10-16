@@ -1141,17 +1141,16 @@ void AutomationProvider::WindowGetViewBounds(const IPC::Message& message,
   void* iter = NULL;
   if (window_tracker_->ContainsHandle(handle)) {
     HWND hwnd = window_tracker_->GetResource(handle);
-    ChromeViews::RootView* root_view =
-        ChromeViews::ContainerWin::FindRootView(hwnd);
+    views::RootView* root_view = views::ContainerWin::FindRootView(hwnd);
     if (root_view) {
-      ChromeViews::View* view = root_view->GetViewByID(view_id);
+      views::View* view = root_view->GetViewByID(view_id);
       if (view) {
         succeeded = true;
         gfx::Point point;
         if (screen_coordinates)
-          ChromeViews::View::ConvertPointToScreen(view, &point);
+          views::View::ConvertPointToScreen(view, &point);
         else
-          ChromeViews::View::ConvertPointToView(view, root_view, &point);
+          views::View::ConvertPointToView(view, root_view, &point);
         bounds = view->GetLocalBounds(false);
         bounds.set_origin(point);
       }
@@ -1166,15 +1165,15 @@ void AutomationProvider::WindowGetViewBounds(const IPC::Message& message,
 // that it's being sent to can do the requisite post-processing.
 class MouseEventTask : public Task {
  public:
-  MouseEventTask(ChromeViews::View* view,
-                 ChromeViews::Event::EventType type,
+  MouseEventTask(views::View* view,
+                 views::Event::EventType type,
                  POINT point,
                  int flags)
       : view_(view), type_(type), point_(point), flags_(flags) {}
   virtual ~MouseEventTask() {}
 
   virtual void Run() {
-    ChromeViews::MouseEvent event(type_, point_.x, point_.y, flags_);
+    views::MouseEvent event(type_, point_.x, point_.y, flags_);
     // We need to set the cursor position before we process the event because
     // some code (tab dragging, for instance) queries the actual cursor location
     // rather than the location of the mouse event. Note that the reason why
@@ -1185,15 +1184,15 @@ class MouseEventTask : public Task {
     view_->ConvertPointToScreen(view_, &screen_location);
     ::SetCursorPos(screen_location.x(), screen_location.y());
     switch (type_) {
-      case ChromeViews::Event::ET_MOUSE_PRESSED:
+      case views::Event::ET_MOUSE_PRESSED:
         view_->OnMousePressed(event);
         break;
 
-      case ChromeViews::Event::ET_MOUSE_DRAGGED:
+      case views::Event::ET_MOUSE_DRAGGED:
         view_->OnMouseDragged(event);
         break;
 
-      case ChromeViews::Event::ET_MOUSE_RELEASED:
+      case views::Event::ET_MOUSE_RELEASED:
         view_->OnMouseReleased(event, false);
         break;
 
@@ -1203,16 +1202,16 @@ class MouseEventTask : public Task {
   }
 
  private:
-  ChromeViews::View* view_;
-  ChromeViews::Event::EventType type_;
+  views::View* view_;
+  views::Event::EventType type_;
   POINT point_;
   int flags_;
 
   DISALLOW_COPY_AND_ASSIGN(MouseEventTask);
 };
 
-void AutomationProvider::ScheduleMouseEvent(ChromeViews::View* view,
-                                            ChromeViews::Event::EventType type,
+void AutomationProvider::ScheduleMouseEvent(views::View* view,
+                                            views::Event::EventType type,
                                             POINT point,
                                             int flags) {
   MessageLoop::current()->PostTask(FROM_HERE,
@@ -1270,14 +1269,14 @@ void AutomationProvider::WindowSimulateClick(const IPC::Message& message,
     ui_controls::SendMouseMove(click.x, click.y);
 
     ui_controls::MouseButton button = ui_controls::LEFT;
-    if ((flags & ChromeViews::Event::EF_LEFT_BUTTON_DOWN) ==
-        ChromeViews::Event::EF_LEFT_BUTTON_DOWN) {
+    if ((flags & views::Event::EF_LEFT_BUTTON_DOWN) ==
+        views::Event::EF_LEFT_BUTTON_DOWN) {
       button = ui_controls::LEFT;
-    } else if ((flags & ChromeViews::Event::EF_RIGHT_BUTTON_DOWN) ==
-        ChromeViews::Event::EF_RIGHT_BUTTON_DOWN) {
+    } else if ((flags & views::Event::EF_RIGHT_BUTTON_DOWN) ==
+        views::Event::EF_RIGHT_BUTTON_DOWN) {
       button = ui_controls::RIGHT;
-    } else if ((flags & ChromeViews::Event::EF_MIDDLE_BUTTON_DOWN) ==
-        ChromeViews::Event::EF_MIDDLE_BUTTON_DOWN) {
+    } else if ((flags & views::Event::EF_MIDDLE_BUTTON_DOWN) ==
+        views::Event::EF_MIDDLE_BUTTON_DOWN) {
       button = ui_controls::MIDDLE;
     } else {
       NOTREACHED();
@@ -1298,21 +1297,21 @@ void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
     UINT down_message = 0;
     UINT up_message = 0;
     WPARAM wparam_flags = 0;
-    if (flags & ChromeViews::Event::EF_SHIFT_DOWN)
+    if (flags & views::Event::EF_SHIFT_DOWN)
       wparam_flags |= MK_SHIFT;
-    if (flags & ChromeViews::Event::EF_CONTROL_DOWN)
+    if (flags & views::Event::EF_CONTROL_DOWN)
       wparam_flags |= MK_CONTROL;
-    if (flags & ChromeViews::Event::EF_LEFT_BUTTON_DOWN) {
+    if (flags & views::Event::EF_LEFT_BUTTON_DOWN) {
       wparam_flags |= MK_LBUTTON;
       down_message = WM_LBUTTONDOWN;
       up_message = WM_LBUTTONUP;
     }
-    if (flags & ChromeViews::Event::EF_MIDDLE_BUTTON_DOWN) {
+    if (flags & views::Event::EF_MIDDLE_BUTTON_DOWN) {
       wparam_flags |= MK_MBUTTON;
       down_message = WM_MBUTTONDOWN;
       up_message = WM_MBUTTONUP;
     }
-    if (flags & ChromeViews::Event::EF_RIGHT_BUTTON_DOWN) {
+    if (flags & views::Event::EF_RIGHT_BUTTON_DOWN) {
       wparam_flags |= MK_RBUTTON;
       down_message = WM_LBUTTONDOWN;
       up_message = WM_LBUTTONUP;
@@ -1335,12 +1334,12 @@ void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
     if (press_escape_en_route) {
       // Press Escape.
       ui_controls::SendKeyPress(VK_ESCAPE,
-                               ((flags & ChromeViews::Event::EF_CONTROL_DOWN)
-                                == ChromeViews::Event::EF_CONTROL_DOWN),
-                               ((flags & ChromeViews::Event::EF_SHIFT_DOWN) ==
-                                ChromeViews::Event::EF_SHIFT_DOWN),
-                               ((flags & ChromeViews::Event::EF_ALT_DOWN) ==
-                                ChromeViews::Event::EF_ALT_DOWN));
+                               ((flags & views::Event::EF_CONTROL_DOWN)
+                                == views::Event::EF_CONTROL_DOWN),
+                               ((flags & views::Event::EF_SHIFT_DOWN) ==
+                                views::Event::EF_SHIFT_DOWN),
+                               ((flags & views::Event::EF_ALT_DOWN) ==
+                                views::Event::EF_ALT_DOWN));
     }
     SendMessage(top_level_hwnd, up_message, wparam_flags,
                 MAKELPARAM(end.x, end.y));
@@ -1362,12 +1361,12 @@ void AutomationProvider::WindowSimulateKeyPress(const IPC::Message& message,
 
   // The key event is sent to whatever window is active.
   ui_controls::SendKeyPress(key,
-                           ((flags & ChromeViews::Event::EF_CONTROL_DOWN) ==
-                              ChromeViews::Event::EF_CONTROL_DOWN),
-                            ((flags & ChromeViews::Event::EF_SHIFT_DOWN) ==
-                              ChromeViews::Event::EF_SHIFT_DOWN),
-                            ((flags & ChromeViews::Event::EF_ALT_DOWN) ==
-                              ChromeViews::Event::EF_ALT_DOWN));
+                           ((flags & views::Event::EF_CONTROL_DOWN) ==
+                              views::Event::EF_CONTROL_DOWN),
+                            ((flags & views::Event::EF_SHIFT_DOWN) ==
+                              views::Event::EF_SHIFT_DOWN),
+                            ((flags & views::Event::EF_ALT_DOWN) ==
+                              views::Event::EF_ALT_DOWN));
 }
 
 void AutomationProvider::GetFocusedViewID(const IPC::Message& message,
@@ -1375,10 +1374,10 @@ void AutomationProvider::GetFocusedViewID(const IPC::Message& message,
   int view_id = -1;
   if (window_tracker_->ContainsHandle(handle)) {
     HWND hwnd = window_tracker_->GetResource(handle);
-    ChromeViews::FocusManager* focus_manager =
-        ChromeViews::FocusManager::GetFocusManager(hwnd);
+    views::FocusManager* focus_manager =
+        views::FocusManager::GetFocusManager(hwnd);
     DCHECK(focus_manager);
-    ChromeViews::View* focused_view = focus_manager->GetFocusedView();
+    views::View* focused_view = focus_manager->GetFocusedView();
     if (focused_view)
       view_id = focused_view->GetID();
   }

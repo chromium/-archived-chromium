@@ -14,7 +14,7 @@ class CRect;
 }
 using WTL::CRect;
 
-namespace ChromeViews {
+namespace views {
 
 class RootView;
 class TooltipManager;
@@ -79,7 +79,7 @@ class Container {
                               Accelerator* accelerator) = 0;
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif // CHROME_VIEWS_VIEW_CONTAINER_H_
 

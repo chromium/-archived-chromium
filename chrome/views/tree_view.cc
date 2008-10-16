@@ -16,7 +16,7 @@
 #include "chrome/views/container.h"
 #include "chrome/views/focus_manager.h"
 
-namespace ChromeViews {
+namespace views {
 
 static HIMAGELIST tree_image_list_ = NULL;
 
@@ -590,5 +590,5 @@ LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
   return CallWindowProc(handler, window, message, w_param, l_param);
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

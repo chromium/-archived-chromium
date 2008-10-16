@@ -57,7 +57,7 @@ struct WebApplicationInfo;
 //
 //  The intent of this class is to provide a view-agnostic communication
 //  conduit with a renderer. This is so we can build HTML views not only as
-//  TabContents (see WebContents for an example) but also as ChromeViews, etc.
+//  TabContents (see WebContents for an example) but also as views, etc.
 //
 //  The exact API of this object needs to be more thoroughly designed. Right
 //  now it mimics what WebContents exposed, which is a fairly large API and may

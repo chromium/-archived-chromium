@@ -38,11 +38,11 @@ void OptionsPageView::Observe(NotificationType type,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OptionsPageView, ChromeViews::View overrides:
+// OptionsPageView, views::View overrides:
 
 void OptionsPageView::ViewHierarchyChanged(bool is_add,
-                                           ChromeViews::View* parent,
-                                           ChromeViews::View* child) {
+                                           views::View* parent,
+                                           views::View* child) {
   if (!initialized_ && is_add && GetContainer()) {
     // It is important that this only get done _once_ otherwise we end up
     // duplicating the view hierarchy when tabs are switched.

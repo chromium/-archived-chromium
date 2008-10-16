@@ -13,7 +13,7 @@
 #include "base/message_loop.h"
 #include "chrome/common/l10n_util.h"
 
-namespace ChromeViews {
+namespace views {
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroTooltipManager, public:
@@ -117,5 +117,5 @@ void AeroTooltipManager::InitialTimer::Execute() {
     manager_->OnTimer();
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

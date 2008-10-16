@@ -11,7 +11,7 @@ namespace gfx {
 class Path;
 }
 
-namespace ChromeViews {
+namespace views {
 
 class ClientView;
 
@@ -83,7 +83,7 @@ class NonClientView : public View {
   bool paint_as_active_;
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_NON_CLIENT_VIEW_H_
 

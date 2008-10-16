@@ -65,7 +65,7 @@ static const int kLocationBarSpacing = 1;
 //
 ////////////////////////////////////////////////////////////////////////////////
 TitleBarMenuButton::TitleBarMenuButton(SimpleXPFrameTitleBar* title_bar)
-    : ChromeViews::MenuButton(L"", title_bar, false),
+    : views::MenuButton(L"", title_bar, false),
       contents_(NULL),
       title_bar_(title_bar) {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
@@ -75,7 +75,7 @@ TitleBarMenuButton::TitleBarMenuButton(SimpleXPFrameTitleBar* title_bar)
 TitleBarMenuButton::~TitleBarMenuButton() {
 }
 
-void TitleBarMenuButton::SetContents(ChromeViews::View* contents) {
+void TitleBarMenuButton::SetContents(views::View* contents) {
   contents_ = contents;
 }
 
@@ -110,7 +110,7 @@ void TitleBarMenuButton::Paint(ChromeCanvas* canvas) {
                       s.height());
   }
 
-  // We can not use the mirroring infrastructure in ChromeViews in order to
+  // We can not use the mirroring infrastructure in views in order to
   // mirror the drop down arrow because is is drawn directly on the canvas
   // (instead of using a child View). Thus, we should mirror its position
   // manually.
@@ -122,8 +122,8 @@ void TitleBarMenuButton::Paint(ChromeCanvas* canvas) {
   canvas->DrawBitmapInt(*drop_arrow_, arrow_bounds.x(), arrow_bounds.y());
 }
 
-bool TitleBarMenuButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
-  if (e.GetFlags() & ChromeViews::MouseEvent::EF_IS_DOUBLE_CLICK) {
+bool TitleBarMenuButton::OnMousePressed(const views::MouseEvent& e) {
+  if (e.GetFlags() & views::MouseEvent::EF_IS_DOUBLE_CLICK) {
     if (!HitTest(e.location()))
       return true;
     title_bar_->CloseWindow();
@@ -151,9 +151,9 @@ SimpleXPFrameTitleBar::SimpleXPFrameTitleBar(SimpleXPFrame* parent)
 
   tab_icon_->Update();
 
-  label_ = new ChromeViews::Label();
+  label_ = new views::Label();
   label_->SetColor(kTitleBarTextColor);
-  label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   AddChildView(label_);
 }
 
@@ -188,7 +188,7 @@ SkBitmap SimpleXPFrameTitleBar::GetFavIcon() {
   return SkBitmap();
 }
 
-void SimpleXPFrameTitleBar::RunMenu(ChromeViews::View* source,
+void SimpleXPFrameTitleBar::RunMenu(views::View* source,
                                     const CPoint& pt, HWND hwnd) {
   // Make sure we calculate the menu position based on the display bounds of
   // the menu button. The display bounds are different than the actual bounds
@@ -263,8 +263,8 @@ SimpleXPFrame* SimpleXPFrame::CreateFrame(const gfx::Rect& bounds,
                    l10n_util::GetString(IDS_PRODUCT_NAME).c_str());
   instance->InitAfterHWNDCreated();
   instance->SetIsOffTheRecord(browser->profile()->IsOffTheRecord());
-  ChromeViews::FocusManager::CreateFocusManager(instance->m_hWnd,
-                                                instance->GetRootView());
+  views::FocusManager::CreateFocusManager(instance->m_hWnd,
+                                          instance->GetRootView());
   return instance;
 }
 
@@ -341,7 +341,7 @@ void SimpleXPFrame::Layout() {
 LRESULT SimpleXPFrame::OnNCHitTest(const CPoint& pt) {
   if (IsTitleBarVisible()) {
     gfx::Point p(pt);
-    ChromeViews::View::ConvertPointToView(NULL, title_bar_, &p);
+    views::View::ConvertPointToView(NULL, title_bar_, &p);
     if (!title_bar_->WillHandleMouseEvent(p.x(), p.y()) &&
         p.x() >= 0 && p.y() >= kTopResizeBarHeight &&
         p.x() < title_bar_->width() &&

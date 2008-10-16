@@ -11,7 +11,7 @@
 #include "skia/include/SkBitmap.h"
 #include "skia/include/SkGradientShader.h"
 
-namespace ChromeViews {
+namespace views {
 
 namespace {
 
@@ -163,5 +163,5 @@ void HorizontalPainter::Paint(int w, int h, ChromeCanvas* canvas) {
                        height_);
 }
 
-}
+}  // namespace views
 

@@ -29,8 +29,8 @@ static const int kStatusBubbleOffset = 2;
 
 BrowserView::BrowserView(BrowserWindow* frame,
                          Browser* browser,
-                         ChromeViews::Window* window,
-                         ChromeViews::View* contents_view)
+                         views::Window* window,
+                         views::View* contents_view)
     : frame_(frame),
       browser_(browser),
       initialized_(false)
@@ -123,7 +123,7 @@ void BrowserView::SizeToContents(const gfx::Rect& contents_bounds) {
 }
 
 void BrowserView::SetAcceleratorTable(
-    std::map<ChromeViews::Accelerator, int>* accelerator_table) {
+    std::map<views::Accelerator, int>* accelerator_table) {
   frame_->SetAcceleratorTable(accelerator_table);
 }
 
@@ -201,7 +201,7 @@ bool BrowserView::IsBookmarkBarVisible() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView, ChromeViews::ClientView overrides:
+// BrowserView, views::ClientView overrides:
 
 /*
 bool BrowserView::CanClose() const {
@@ -214,15 +214,15 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
 */
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView, ChromeViews::View overrides:
+// BrowserView, views::View overrides:
 
 void BrowserView::Layout() {
   toolbar_->SetBounds(0, 0, width(), height());
 }
 
 void BrowserView::ViewHierarchyChanged(bool is_add,
-                                       ChromeViews::View* parent,
-                                       ChromeViews::View* child) {
+                                       views::View* parent,
+                                       views::View* child) {
   if (is_add && child == this && GetContainer() && !initialized_) {
     Init();
     // Make sure not to call Init() twice if we get inserted into a different

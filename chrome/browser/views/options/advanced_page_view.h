@@ -16,7 +16,7 @@ class PrefService;
 // AdvancedPageView
 
 class AdvancedPageView : public OptionsPageView,
-                         public ChromeViews::NativeButton::Listener {
+                         public views::NativeButton::Listener {
  public:
   explicit AdvancedPageView(Profile* profile);
   virtual ~AdvancedPageView();
@@ -24,8 +24,8 @@ class AdvancedPageView : public OptionsPageView,
   // Resets all prefs to their default values.
   void ResetToDefaults();
 
-  // ChromeViews::NativeButton::Listener implementation:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // views::NativeButton::Listener implementation:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
  protected:
   // OptionsPageView implementation:
@@ -34,7 +34,7 @@ class AdvancedPageView : public OptionsPageView,
  private:
   // Controls for the Advanced page
   AdvancedScrollViewContainer* advanced_scroll_view_;
-  ChromeViews::NativeButton* reset_to_default_button_;
+  views::NativeButton* reset_to_default_button_;
 
   DISALLOW_EVIL_CONSTRUCTORS(AdvancedPageView);
 };

@@ -113,7 +113,7 @@ TEST_F(TabDraggingTest, Tab1Tab2) {
   end.x = start.x + 2*bounds1.width()/3;
   end.y = start.y;
   ASSERT_TRUE(browser->SimulateDrag(start, end,
-                                    ChromeViews::Event::EF_LEFT_BUTTON_DOWN,
+                                    views::Event::EF_LEFT_BUTTON_DOWN,
                                     false));
 
   // Now check for expected results.
@@ -217,7 +217,7 @@ TEST_F(TabDraggingTest, Tab1Tab3) {
   end.x = start.x + bounds1.width()/2 + bounds2.width() + bounds3.width()/2;
   end.y = start.y;
   ASSERT_TRUE(browser->SimulateDrag(start, end,
-                                    ChromeViews::Event::EF_LEFT_BUTTON_DOWN,
+                                    views::Event::EF_LEFT_BUTTON_DOWN,
                                     false));
 
   // Now check for expected results.
@@ -331,7 +331,7 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
   // Simulate drag with 'true' as the last parameter. This will interrupt 
   // in-flight with Escape.
   ASSERT_TRUE(browser->SimulateDrag(start, end,
-                                    ChromeViews::Event::EF_LEFT_BUTTON_DOWN,
+                                    views::Event::EF_LEFT_BUTTON_DOWN,
                                     true));
 
   // Now check for expected results.
@@ -457,7 +457,7 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
 
   // Simulate tab drag.
   ASSERT_TRUE(browser->SimulateDrag(start, end,
-                                    ChromeViews::Event::EF_LEFT_BUTTON_DOWN,
+                                    views::Event::EF_LEFT_BUTTON_DOWN,
                                     false));
 
   // Now, first make sure that the old window has only two tabs remaining.

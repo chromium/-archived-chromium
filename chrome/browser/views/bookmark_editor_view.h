@@ -15,7 +15,7 @@
 #include "chrome/views/text_field.h"
 #include "chrome/views/tree_node_model.h"
 
-namespace ChromeViews {
+namespace views {
 class Window;
 }
 
@@ -31,12 +31,12 @@ class Profile;
 //
 // To use BookmarkEditorView invoke the static show method.
 
-class BookmarkEditorView : public ChromeViews::View,
-                           public ChromeViews::NativeButton::Listener,
-                           public ChromeViews::TreeViewController,
-                           public ChromeViews::DialogDelegate,
-                           public ChromeViews::TextField::Controller,
-                           public ChromeViews::ContextMenuController,
+class BookmarkEditorView : public views::View,
+                           public views::NativeButton::Listener,
+                           public views::TreeViewController,
+                           public views::DialogDelegate,
+                           public views::TextField::Controller,
+                           public views::ContextMenuController,
                            public Menu::Delegate,
                            public BookmarkModelObserver {
   FRIEND_TEST(BookmarkEditorViewTest, ChangeParent);
@@ -67,28 +67,28 @@ class BookmarkEditorView : public ChromeViews::View,
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
   virtual bool AreAcceleratorsEnabled(DialogButton button);
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
   // View methods.
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
-  virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+  virtual void ViewHierarchyChanged(bool is_add, views::View* parent,
+                                    views::View* child);
 
   // TreeViewObserver methods.
-  virtual void OnTreeViewSelectionChanged(ChromeViews::TreeView* tree_view);
-  virtual bool CanEdit(ChromeViews::TreeView* tree_view,
-                       ChromeViews::TreeModelNode* node);
+  virtual void OnTreeViewSelectionChanged(views::TreeView* tree_view);
+  virtual bool CanEdit(views::TreeView* tree_view,
+                       views::TreeModelNode* node);
 
   // TextField::Controller methods.
-  virtual void ContentsChanged(ChromeViews::TextField* sender,
+  virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(ChromeViews::TextField* sender,
+  virtual void HandleKeystroke(views::TextField* sender,
                                UINT message, TCHAR key, UINT repeat_count,
                                UINT flags) {}
 
   // NativeButton/CheckBox.
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  virtual void ButtonPressed(views::NativeButton* sender);
 
   // Menu::Delegate method.
   virtual void ExecuteCommand(int id);
@@ -112,16 +112,16 @@ class BookmarkEditorView : public ChromeViews::View,
 
  private:
   // Type of node in the tree.
-  typedef ChromeViews::TreeNodeWithValue<int> EditorNode;
+  typedef views::TreeNodeWithValue<int> EditorNode;
 
   // Model for the TreeView. Trivial subclass that doesn't allow titles with
   // empty strings.
-  class EditorTreeModel : public ChromeViews::TreeNodeModel<EditorNode> {
+  class EditorTreeModel : public views::TreeNodeModel<EditorNode> {
    public:
     explicit EditorTreeModel(EditorNode* root)
         : TreeNodeModel<EditorNode>(root) {}
 
-    virtual void SetTitle(ChromeViews::TreeModelNode* node,
+    virtual void SetTitle(views::TreeModelNode* node,
                           const std::wstring& title) {
       if (!title.empty())
         TreeNodeModel::SetTitle(node, title);
@@ -222,16 +222,16 @@ class BookmarkEditorView : public ChromeViews::View,
   scoped_ptr<EditorTreeModel> tree_model_;
 
   // Displays star groups.
-  ChromeViews::TreeView tree_view_;
+  views::TreeView tree_view_;
 
   // Used to create a new group.
-  ChromeViews::NativeButton new_group_button_;
+  views::NativeButton new_group_button_;
 
   // Used for editing the URL.
-  ChromeViews::TextField url_tf_;
+  views::TextField url_tf_;
 
   // Used for editing the title.
-  ChromeViews::TextField title_tf_;
+  views::TextField title_tf_;
 
   // Initial parent to select. Is only used if node_ is NULL.
   BookmarkNode* parent_;

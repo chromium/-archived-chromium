@@ -46,7 +46,7 @@ JavascriptMessageBoxHandler::~JavascriptMessageBoxHandler() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// JavascriptMessageBoxHandler, ChromeViews::DialogDelegate implementation:
+// JavascriptMessageBoxHandler, views::DialogDelegate implementation:
 
 int JavascriptMessageBoxHandler::GetDialogButtons() const {
   int dialog_buttons = 0;
@@ -119,7 +119,7 @@ bool JavascriptMessageBoxHandler::Accept() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// JavascriptMessageBoxHandler, ChromeViews::AppModalDialogDelegate
+// JavascriptMessageBoxHandler, views::AppModalDialogDelegate
 // implementation:
 
 void JavascriptMessageBoxHandler::ShowModalDialog() {
@@ -133,8 +133,7 @@ void JavascriptMessageBoxHandler::ShowModalDialog() {
 
   web_contents_->Activate();
   HWND root_hwnd = GetAncestor(web_contents_->GetContainerHWND(), GA_ROOT);
-  dialog_ =
-      ChromeViews::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this);
+  dialog_ = views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this);
   dialog_->Show();
 }
 
@@ -147,9 +146,9 @@ void JavascriptMessageBoxHandler::ActivateModalDialog() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// JavascriptMessageBoxHandler, ChromeViews::WindowDelegate implementation:
+// JavascriptMessageBoxHandler, views::WindowDelegate implementation:
 
-ChromeViews::View* JavascriptMessageBoxHandler::GetContentsView() {
+views::View* JavascriptMessageBoxHandler::GetContentsView() {
   return message_box_view_;
 }
 

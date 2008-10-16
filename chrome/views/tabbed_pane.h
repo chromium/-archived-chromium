@@ -7,7 +7,7 @@
 
 #include "chrome/views/native_control.h"
 
-namespace ChromeViews {
+namespace views {
 
 // The TabbedPane class is a view that shows tabs.  When the user clicks on a
 // tab, the associated view is displayed.
@@ -83,6 +83,6 @@ class TabbedPane : public NativeControl {
   DISALLOW_EVIL_CONSTRUCTORS(TabbedPane);
 };
 
-}
+}  // namespace views
 
 #endif  // #define CHROME_VIEWS_TABBED_PANE_H__

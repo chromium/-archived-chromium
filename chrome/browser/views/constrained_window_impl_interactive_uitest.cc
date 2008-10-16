@@ -51,7 +51,7 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
   // isn't what we want to test.
   POINT link_point(tab_view_bounds.CenterPoint().ToPOINT());
   ASSERT_TRUE(window->SimulateOSClick(link_point,
-                                      ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+                                      views::Event::EF_LEFT_BUTTON_DOWN));
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 1000));
 
@@ -75,7 +75,7 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
                                           &tab_view_bounds, true));
   POINT popup_link_point(tab_view_bounds.CenterPoint().ToPOINT());
   ASSERT_TRUE(popup_window->SimulateOSClick(
-                  popup_link_point, ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+                  popup_link_point, views::Event::EF_LEFT_BUTTON_DOWN));
 
   // No idea how to wait here other then sleeping. This timeout used to be
   // lower, then we started hitting it before it was done. :(
@@ -128,7 +128,7 @@ TEST_F(InteractiveConstrainedWindowTest, ClickingXClosesConstrained) {
   // Click that X.
   POINT click_point(constrained_close_button.ToPOINT());
   ASSERT_TRUE(window->SimulateOSClick(click_point,
-                                      ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+                                      views::Event::EF_LEFT_BUTTON_DOWN));
 
   // Check that there is only one constrained window. (There would have been
   // two pre-click).

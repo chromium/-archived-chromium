@@ -9,7 +9,7 @@
 #include "base/task.h"
 #include "chrome/views/tooltip_manager.h"
 
-namespace ChromeViews {
+namespace views {
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroTooltipManager
@@ -26,7 +26,7 @@ namespace ChromeViews {
 //  TTF_TRACKed tooltips.
 //
 // TODO(glen): Resolve this with Microsoft.
-class AeroTooltipManager : public ChromeViews::TooltipManager {
+class AeroTooltipManager : public TooltipManager {
  public:
   AeroTooltipManager(Container* container, HWND parent);
   virtual ~AeroTooltipManager();
@@ -51,7 +51,7 @@ class AeroTooltipManager : public ChromeViews::TooltipManager {
   scoped_refptr<InitialTimer> initial_timer_;
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_AERO_TOOLTIP_MANAGER_H__
 

@@ -18,7 +18,7 @@ class Profile;
 class BookmarkModel;
 class BookmarkNode;
 
-namespace ChromeViews {
+namespace views {
 class CheckBox;
 class TextField;
 }
@@ -27,10 +27,10 @@ class TextField;
 // InfoBubble. BookmarkBubbleView provides views for unstarring and editting
 // the bookmark it is created with. Don't create a BookmarkBubbleView directly,
 // instead use the static Show method.
-class BookmarkBubbleView : public ChromeViews::View,
-                           public ChromeViews::LinkController,
-                           public ChromeViews::NativeButton::Listener,
-                           public ChromeViews::ComboBox::Listener,
+class BookmarkBubbleView : public views::View,
+                           public views::LinkController,
+                           public views::NativeButton::Listener,
+                           public views::ComboBox::Listener,
                            public InfoBubbleDelegate {
  public:
    static void Show(HWND parent,
@@ -50,19 +50,19 @@ class BookmarkBubbleView : public ChromeViews::View,
   virtual void BubbleShown();
 
   // Override to close on return.
-  virtual bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
 
  private:
   // Model for the combobox showing the list of folders to choose from. The
   // list always contains the bookmark bar, other node and parent. The list
   // also contains an extra item that shows the text 'Choose another folder...'.
-  class RecentlyUsedFoldersModel : public ChromeViews::ComboBox::Model {
+  class RecentlyUsedFoldersModel : public views::ComboBox::Model {
    public:
     RecentlyUsedFoldersModel(BookmarkModel* bb_model, BookmarkNode* node);
 
     // ComboBox::Model methods. Call through to nodes_.
-    virtual int GetItemCount(ChromeViews::ComboBox* source);
-    virtual std::wstring GetItemAt(ChromeViews::ComboBox* source, int index);
+    virtual int GetItemCount(views::ComboBox* source);
+    virtual std::wstring GetItemAt(views::ComboBox* source, int index);
 
     // Returns the node at the specified index.
     BookmarkNode* GetNodeAt(int index);
@@ -95,13 +95,13 @@ class BookmarkBubbleView : public ChromeViews::View,
 
   // LinkController method, either unstars the item or shows the bookmark
   // editor (depending upon which link was clicked).
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+  virtual void LinkActivated(views::Link* source, int event_flags);
 
   // ButtonListener method, closes the bubble or opens the edit dialog.		
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  virtual void ButtonPressed(views::NativeButton* sender);
 
   // ComboBox::Listener method. Changes the parent of the bookmark.
-  virtual void ItemChanged(ChromeViews::ComboBox* combo_box,
+  virtual void ItemChanged(views::ComboBox* combo_box,
                            int prev_index,
                            int new_index);
 
@@ -142,20 +142,20 @@ class BookmarkBubbleView : public ChromeViews::View,
   RecentlyUsedFoldersModel parent_model_;
 
   // Link for removing/unstarring the bookmark.
-  ChromeViews::Link* remove_link_;
+  views::Link* remove_link_;
 
   // Button to bring up the editor.
-  ChromeViews::NativeButton* edit_button_;
+  views::NativeButton* edit_button_;
 
   // Button to close the window.
-  ChromeViews::NativeButton* close_button_;
+  views::NativeButton* close_button_;
 
   // TextField showing the title of the bookmark.
-  ChromeViews::TextField* title_tf_;
+  views::TextField* title_tf_;
 
   // ComboBox showing a handful of folders the user can choose from, including
   // the current parent.
-  ChromeViews::ComboBox* parent_combobox_;
+  views::ComboBox* parent_combobox_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BookmarkBubbleView);
 };

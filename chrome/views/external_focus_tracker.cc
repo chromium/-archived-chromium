@@ -7,13 +7,13 @@
 #include "chrome/views/view.h"
 #include "chrome/views/view_storage.h"
 
-namespace ChromeViews {
+namespace views {
 
-ExternalFocusTracker::ExternalFocusTracker(
-    ChromeViews::View* parent_view, ChromeViews::FocusManager* focus_manager)
+ExternalFocusTracker::ExternalFocusTracker(View* parent_view,
+                                           FocusManager* focus_manager)
     : focus_manager_(focus_manager),
       parent_view_(parent_view) {
-  view_storage_ = ChromeViews::ViewStorage::GetSharedInstance();
+  view_storage_ = ViewStorage::GetSharedInstance();
   last_focused_view_storage_id_ = view_storage_->CreateStorageID();
   // Store the view which is focused when we're created.
   StartTracking();
@@ -41,8 +41,7 @@ void ExternalFocusTracker::FocusLastFocusedExternalView() {
     last_focused_view->RequestFocus();
 }
 
-void ExternalFocusTracker::SetFocusManager(
-    ChromeViews::FocusManager* focus_manager) {
+void ExternalFocusTracker::SetFocusManager(FocusManager* focus_manager) {
   if (focus_manager_)
     focus_manager_->RemoveFocusChangeListener(this);
   focus_manager_ = focus_manager;
@@ -63,5 +62,5 @@ void ExternalFocusTracker::StartTracking() {
   focus_manager_->AddFocusChangeListener(this);
 }
 
-} // namespace
+}  // namespace views
 

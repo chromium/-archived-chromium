@@ -12,7 +12,7 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 class CheckBox;
 class GroupboxView;
 class Label;
@@ -29,28 +29,28 @@ class SearchEngineListModel;
 // GeneralPageView
 
 class GeneralPageView : public OptionsPageView,
-                        public ChromeViews::ComboBox::Listener,
-                        public ChromeViews::NativeButton::Listener,
-                        public ChromeViews::TextField::Controller,
+                        public views::ComboBox::Listener,
+                        public views::NativeButton::Listener,
+                        public views::TextField::Controller,
                         public ShelfItemDialogDelegate,
-                        public ChromeViews::TableViewObserver {
+                        public views::TableViewObserver {
  public:
   explicit GeneralPageView(Profile* profile);
   virtual ~GeneralPageView();
 
  protected:
-  // ChromeViews::NativeButton::Listener implementation:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // views::NativeButton::Listener implementation:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
-  // ChromeViews::ComboBox::Listener implementation:
-  virtual void ItemChanged(ChromeViews::ComboBox* combo_box,
+  // views::ComboBox::Listener implementation:
+  virtual void ItemChanged(views::ComboBox* combo_box,
                            int prev_index,
                            int new_index);
 
-  // ChromeViews::TextField::Controller implementation:
-  virtual void ContentsChanged(ChromeViews::TextField* sender,
+  // views::TextField::Controller implementation:
+  virtual void ContentsChanged(views::TextField* sender,
      const std::wstring& new_contents);
-  virtual void HandleKeystroke(ChromeViews::TextField* sender,
+  virtual void HandleKeystroke(views::TextField* sender,
      UINT message, TCHAR key, UINT repeat_count,
      UINT flags);
 
@@ -59,7 +59,7 @@ class GeneralPageView : public OptionsPageView,
   virtual void NotifyPrefChanged(const std::wstring* pref_name);
   virtual void HighlightGroup(OptionsGroup highlight_group);
 
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void Layout();
 
  private:
@@ -119,35 +119,35 @@ class GeneralPageView : public OptionsPageView,
 
   // Controls for the Startup group
   OptionsGroupView* startup_group_;
-  ChromeViews::RadioButton* startup_homepage_radio_;
-  ChromeViews::RadioButton* startup_last_session_radio_;
-  ChromeViews::RadioButton* startup_custom_radio_;
-  ChromeViews::NativeButton* startup_add_custom_page_button_;
-  ChromeViews::NativeButton* startup_remove_custom_page_button_;
-  ChromeViews::NativeButton* startup_use_current_page_button_;
-  ChromeViews::TableView* startup_custom_pages_table_;
+  views::RadioButton* startup_homepage_radio_;
+  views::RadioButton* startup_last_session_radio_;
+  views::RadioButton* startup_custom_radio_;
+  views::NativeButton* startup_add_custom_page_button_;
+  views::NativeButton* startup_remove_custom_page_button_;
+  views::NativeButton* startup_use_current_page_button_;
+  views::TableView* startup_custom_pages_table_;
   scoped_ptr<CustomHomePagesTableModel> startup_custom_pages_table_model_;
 
   // Controls for the Home Page group
   OptionsGroupView* homepage_group_;
-  ChromeViews::RadioButton* homepage_use_newtab_radio_;
-  ChromeViews::RadioButton* homepage_use_url_radio_;
-  ChromeViews::TextField* homepage_use_url_textfield_;
-  ChromeViews::CheckBox* homepage_show_home_button_checkbox_;
+  views::RadioButton* homepage_use_newtab_radio_;
+  views::RadioButton* homepage_use_url_radio_;
+  views::TextField* homepage_use_url_textfield_;
+  views::CheckBox* homepage_show_home_button_checkbox_;
   BooleanPrefMember new_tab_page_is_home_page_;
   StringPrefMember homepage_;
   BooleanPrefMember show_home_button_;
 
   // Controls for the Default Search group
   OptionsGroupView* default_search_group_;
-  ChromeViews::ComboBox* default_search_engine_combobox_;
-  ChromeViews::NativeButton* default_search_manage_engines_button_;
+  views::ComboBox* default_search_engine_combobox_;
+  views::NativeButton* default_search_manage_engines_button_;
   scoped_ptr<SearchEngineListModel> default_search_engines_model_;
 
   // Controls for the Default Browser group
   OptionsGroupView* default_browser_group_;
-  ChromeViews::Label* default_browser_status_label_;
-  ChromeViews::NativeButton* default_browser_use_as_default_button_;
+  views::Label* default_browser_status_label_;
+  views::NativeButton* default_browser_use_as_default_button_;
 
   // The helper object that performs default browser set/check tasks.
   class DefaultBrowserWorker;

@@ -15,8 +15,8 @@
 
 #include "generated_resources.h"
 
-using ChromeViews::ColumnSet;
-using ChromeViews::GridLayout;
+using views::ColumnSet;
+using views::GridLayout;
 
 ImporterView::ImporterView(Profile* profile)
     : import_from_label_(NULL),
@@ -38,12 +38,12 @@ ImporterView::~ImporterView() {
 void ImporterView::SetupControl() {
   // Adds all controls.
   import_from_label_ =
-      new ChromeViews::Label(l10n_util::GetString(IDS_IMPORT_FROM_LABEL));
+      new views::Label(l10n_util::GetString(IDS_IMPORT_FROM_LABEL));
 
-  profile_combobox_ = new ChromeViews::ComboBox(this);
+  profile_combobox_ = new views::ComboBox(this);
 
   import_items_label_ =
-      new ChromeViews::Label(l10n_util::GetString(IDS_IMPORT_ITEMS_LABEL));
+      new views::Label(l10n_util::GetString(IDS_IMPORT_ITEMS_LABEL));
 
   history_checkbox_ =
       InitCheckbox(l10n_util::GetString(IDS_IMPORT_HISTORY_CHKBOX), true);
@@ -89,7 +89,7 @@ void ImporterView::SetupControl() {
 }
 
 gfx::Size ImporterView::GetPreferredSize() {
-  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+  return gfx::Size(views::Window::GetLocalizedContentsSize(
       IDS_IMPORT_DIALOG_WIDTH_CHARS,
       IDS_IMPORT_DIALOG_HEIGHT_LINES));
 }
@@ -142,18 +142,17 @@ bool ImporterView::Accept() {
   return false;
 }
 
-ChromeViews::View* ImporterView::GetContentsView() {
+views::View* ImporterView::GetContentsView() {
   return this;
 }
 
-int ImporterView::GetItemCount(ChromeViews::ComboBox* source) {
+int ImporterView::GetItemCount(views::ComboBox* source) {
   DCHECK(source == profile_combobox_);
   DCHECK(importer_host_.get());
   return importer_host_->GetAvailableProfileCount();
 }
 
-std::wstring ImporterView::GetItemAt(ChromeViews::ComboBox* source,
-                                     int index) {
+std::wstring ImporterView::GetItemAt(views::ComboBox* source, int index) {
   DCHECK(source == profile_combobox_);
   DCHECK(importer_host_.get());
   return importer_host_->GetSourceProfileNameAt(index);
@@ -168,9 +167,9 @@ void ImporterView::ImportComplete() {
   window()->Close();
 }
 
-ChromeViews::CheckBox* ImporterView::InitCheckbox(
-    const std::wstring& text, bool checked) {
-  ChromeViews::CheckBox* checkbox = new ChromeViews::CheckBox(text);
+views::CheckBox* ImporterView::InitCheckbox(const std::wstring& text,
+                                            bool checked) {
+  views::CheckBox* checkbox = new views::CheckBox(text);
   checkbox->SetIsSelected(checked);
   return checkbox;
 }

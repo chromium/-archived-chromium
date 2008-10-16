@@ -30,7 +30,7 @@ RepostFormWarningDialog::~RepostFormWarningDialog() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// RepostFormWarningDialog, ChromeViews::DialogDelegate implementation:
+// RepostFormWarningDialog, views::DialogDelegate implementation:
 
 std::wstring RepostFormWarningDialog::GetWindowTitle() const {
   return l10n_util::GetString(IDS_HTTP_POST_WARNING_TITLE);
@@ -60,9 +60,9 @@ bool RepostFormWarningDialog::Accept() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// RepostFormWarningDialog, ChromeViews::WindowDelegate implementation:
+// RepostFormWarningDialog, views::WindowDelegate implementation:
 
-ChromeViews::View* RepostFormWarningDialog::GetContentsView() {
+views::View* RepostFormWarningDialog::GetContentsView() {
   return message_box_view_;
 }
 
@@ -80,7 +80,7 @@ RepostFormWarningDialog::RepostFormWarningDialog(
   HWND root_hwnd = NULL;
   if (BrowserList::GetLastActive())
     root_hwnd = BrowserList::GetLastActive()->GetTopLevelHWND();
-  ChromeViews::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
+  views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
   NotificationService::current()->
       AddObserver(this, NOTIFY_LOAD_START, NotificationService::AllSources());
   NotificationService::current()->

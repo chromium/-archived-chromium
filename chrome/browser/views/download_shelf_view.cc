@@ -63,7 +63,7 @@ namespace {
 // Sets size->width() to view's preferred width + size->width().s
 // Sets size->height() to the max of the view's preferred height and
 // size->height();
-void AdjustSize(ChromeViews::View* view, gfx::Size* size) {
+void AdjustSize(views::View* view, gfx::Size* size) {
   gfx::Size view_preferred = view->GetPreferredSize();
   size->Enlarge(view_preferred.width(), 0);
   size->set_height(std::max(view_preferred.height(), size->height()));
@@ -82,26 +82,25 @@ DownloadShelfView::DownloadShelfView(TabContents* tab_contents)
 
 void DownloadShelfView::Init() {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-  arrow_image_ = new ChromeViews::ImageView();
+  arrow_image_ = new views::ImageView();
   arrow_image_->SetImage(rb.GetBitmapNamed(IDR_DOWNLOADS_FAVICON));
   AddChildView(arrow_image_);
 
   show_all_view_ =
-      new ChromeViews::Link(l10n_util::GetString(IDS_SHOW_ALL_DOWNLOADS));
+      new views::Link(l10n_util::GetString(IDS_SHOW_ALL_DOWNLOADS));
   show_all_view_->SetController(this);
   AddChildView(show_all_view_);
 
-  close_button_ = new ChromeViews::Button();
-  close_button_->SetImage(ChromeViews::Button::BS_NORMAL,
+  close_button_ = new views::Button();
+  close_button_->SetImage(views::Button::BS_NORMAL,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR));
-  close_button_->SetImage(ChromeViews::Button::BS_HOT,
+  close_button_->SetImage(views::Button::BS_HOT,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR_H));
-  close_button_->SetImage(ChromeViews::Button::BS_PUSHED,
+  close_button_->SetImage(views::Button::BS_PUSHED,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR_P));
   close_button_->SetListener(this, 0);
   AddChildView(close_button_);
-  SetBackground(
-      ChromeViews::Background::CreateSolidBackground(kBackgroundColor));
+  SetBackground(views::Background::CreateSolidBackground(kBackgroundColor));
 
   new_item_animation_.reset(new SlideAnimation(this));
   new_item_animation_->SetSlideDuration(kNewItemAnimationDurationMs);
@@ -259,8 +258,7 @@ void DownloadShelfView::Layout() {
 }
 
 // Open the download page.
-void DownloadShelfView::LinkActivated(ChromeViews::Link* source,
-                                      int event_flags) {
+void DownloadShelfView::LinkActivated(views::Link* source, int event_flags) {
   int index;
   NavigationController* controller = tab_contents_->controller();
   Browser* browser = Browser::GetBrowserForController(controller, &index);
@@ -268,6 +266,6 @@ void DownloadShelfView::LinkActivated(ChromeViews::Link* source,
   browser->ShowNativeUI(DownloadTabUI::GetURL());
 }
 
-void DownloadShelfView::ButtonPressed(ChromeViews::BaseButton* button) {
+void DownloadShelfView::ButtonPressed(views::BaseButton* button) {
   shelf_animation_->Hide();
 }

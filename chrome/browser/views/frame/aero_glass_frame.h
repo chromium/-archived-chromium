@@ -19,7 +19,7 @@ class BrowserView2;
 //  areas are drawn by the system.
 //
 class AeroGlassFrame : public BrowserFrame,
-                       public ChromeViews::Window {
+                       public views::Window {
  public:
   explicit AeroGlassFrame(BrowserView2* browser_view);
   virtual ~AeroGlassFrame();
@@ -36,15 +36,14 @@ class AeroGlassFrame : public BrowserFrame,
   virtual void SizeToContents(const gfx::Rect& contents_bounds) {}
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual void UpdateThrobber(bool running);
-  virtual ChromeViews::Window* GetWindow();
+  virtual views::Window* GetWindow();
 
-  // Overridden from ChromeViews::ContainerWin:
-  virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
-  virtual bool GetAccelerator(int cmd_id,
-                              ChromeViews::Accelerator* accelerator);
+  // Overridden from views::ContainerWin:
+  virtual bool AcceleratorPressed(views::Accelerator* accelerator);
+  virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
 
  protected:
-  // Overridden from ChromeViews::ContainerWin:
+  // Overridden from views::ContainerWin:
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual void OnEndSession(BOOL ending, UINT logoff);
   virtual void OnExitMenuLoop(bool is_track_popup_menu);

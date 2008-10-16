@@ -15,7 +15,7 @@
 #include "chrome/views/hwnd_notification_source.h"
 #include "chrome/views/root_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 static const DWORD kWindowDefaultChildStyle =
     WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
@@ -168,7 +168,7 @@ void ContainerWin::Init(HWND parent, const gfx::Rect& bounds,
   root_view_->OnContainerCreated();
 
   if (has_own_focus_manager) {
-    ChromeViews::FocusManager::CreateFocusManager(hwnd_, GetRootView());
+    FocusManager::CreateFocusManager(hwnd_, GetRootView());
   } else {
     // Subclass the window so we get the tab key messages when a view with no
     // associated native window is focused.
@@ -217,7 +217,7 @@ void ContainerWin::SetContentsView(View* view) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ChromeViews::Container implementation:
+// Container implementation:
 
 void ContainerWin::GetBounds(CRect *out, bool including_frame) const {
   if (including_frame) {
@@ -912,5 +912,5 @@ LRESULT CALLBACK ContainerWin::WndProc(HWND window, UINT message,
   return result;
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

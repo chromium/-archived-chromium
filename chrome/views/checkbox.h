@@ -8,7 +8,7 @@
 #include "base/gfx/rect.h"
 #include "chrome/views/native_button.h"
 
-namespace ChromeViews {
+namespace views {
 
 class Label;
 
@@ -21,7 +21,7 @@ class Label;
 // transparent as well as other things. The background was always drawn as solid
 // black.
 //
-// The label is implemented with a ChromeViews::Label
+// The label is implemented with a views::Label
 //
 ////////////////////////////////////////////////////////////////////////////////
 class CheckBox : public NativeButton {
@@ -79,7 +79,8 @@ class CheckBox : public NativeButton {
 
   DISALLOW_EVIL_CONSTRUCTORS(CheckBox);
 };
-}
+
+}  // namespace views
 
 #endif  // CHROME_VIEWS_NATIVE_CHECKBOX_H__
 

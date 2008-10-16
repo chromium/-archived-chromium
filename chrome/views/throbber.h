@@ -13,9 +13,9 @@
 
 class SkBitmap;
 
-namespace ChromeViews {
+namespace views {
 
-class Throbber : public ChromeViews::View {
+class Throbber : public View {
  public:
   // |frame_time_ms| is the amount of time that should elapse between frames
   //                 (in milliseconds)
@@ -90,7 +90,7 @@ class CheckmarkThrobber : public Throbber {
   // If checked is false, the throbber stops spinning and displays nothing.
   void SetChecked(bool checked);
 
-  // Overridden from ChromeViews::Throbber:
+  // Overridden from Throbber:
   virtual void Paint(ChromeCanvas* canvas);
 
  private:
@@ -107,7 +107,7 @@ class CheckmarkThrobber : public Throbber {
   DISALLOW_EVIL_CONSTRUCTORS(CheckmarkThrobber);
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // CHROME_VIEWS_THROBBER_H__
 

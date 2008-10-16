@@ -16,7 +16,7 @@
 
 #include "generated_resources.h"
 
-namespace ChromeViews {
+namespace views {
 
 // Padding between the icon and text.
 static const int kIconTextPadding = 5;
@@ -178,7 +178,7 @@ gfx::Size TextButton::GetMinimumSize() {
   return max_text_size_;
 }
 
-bool TextButton::OnMousePressed(const ChromeViews::MouseEvent& e) {
+bool TextButton::OnMousePressed(const MouseEvent& e) {
   return true;
 }
 
@@ -298,5 +298,5 @@ void TextButton::SetEnabled(bool enabled) {
   SchedulePaint();
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

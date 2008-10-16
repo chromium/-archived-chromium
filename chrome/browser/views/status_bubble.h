@@ -16,7 +16,7 @@ class GURL;
 // to allow users to see where hovered links point to.
 class StatusBubble {
  public:
-  explicit StatusBubble(ChromeViews::Container* frame);
+  explicit StatusBubble(views::Container* frame);
   ~StatusBubble();
 
   // Sets the bubble contents to a specific string and causes the bubble
@@ -74,10 +74,10 @@ class StatusBubble {
 
   // We use a HWND for the popup so that it may float above any HWNDs in our
   // UI (the location bar, for example).
-  ChromeViews::ContainerWin* popup_;
+  views::ContainerWin* popup_;
   double opacity_;
 
-  ChromeViews::Container* frame_;
+  views::Container* frame_;
   StatusView* view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(StatusBubble);

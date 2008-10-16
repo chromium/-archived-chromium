@@ -7,7 +7,7 @@
 
 #include "chrome/views/scroll_bar.h"
 
-namespace ChromeViews {
+namespace views {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -202,7 +202,7 @@ class FixedRowHeightScrollHelper : public VariableRowHeightScrollHelper {
   DISALLOW_EVIL_CONSTRUCTORS(FixedRowHeightScrollHelper);
 };
 
-}
+}  // namespace views
 
 #endif // CHROME_VIEWS_SCROLL_VIEW_H__
 

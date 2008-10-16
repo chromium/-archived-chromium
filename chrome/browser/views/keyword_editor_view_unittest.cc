@@ -12,7 +12,7 @@
 // Base class for keyword editor tests. Creates a profile containing an
 // empty TemplateURLModel.
 class KeywordEditorViewTest : public testing::Test,
-                              public ChromeViews::TableModelObserver {
+                              public views::TableModelObserver {
  public:
   virtual void SetUp() {
     model_changed_count_ = items_changed_count_ = added_count_ =

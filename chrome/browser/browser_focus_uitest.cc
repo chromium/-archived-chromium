@@ -43,7 +43,7 @@ bool ActivateTabByClick(AutomationProxy* automation,
 
   POINT click(bounds.CenterPoint().ToPOINT());
   if (!browser_window->SimulateOSClick(click,
-                                       ChromeViews::Event::EF_LEFT_BUTTON_DOWN))
+                                       views::Event::EF_LEFT_BUTTON_DOWN))
     return false;
 
   // Wait a bit to let the click be processed.
@@ -86,7 +86,7 @@ TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
   POINT click(bounds.CenterPoint().ToPOINT());
 
   EXPECT_TRUE(window->SimulateOSClick(click,
-      ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+      views::Event::EF_LEFT_BUTTON_DOWN));
   ::Sleep(kActionDelayMs);
   EXPECT_TRUE(window->GetFocusedViewID(&focused_view_id));
   EXPECT_EQ(VIEW_ID_LOCATION_BAR, focused_view_id);
@@ -173,7 +173,7 @@ TEST_F(BrowserFocusTest, TabsRememberFocus) {
       EXPECT_TRUE(window->GetViewBounds(view_id, &bounds, true));
       POINT click(bounds.CenterPoint().ToPOINT());
       EXPECT_TRUE(window->SimulateOSClick(click,
-          ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+          views::Event::EF_LEFT_BUTTON_DOWN));
       ::Sleep(kActionDelayMs);
     }
 
@@ -250,7 +250,7 @@ TEST_F(BrowserFocusTest, LocationBarLockFocus) {
   EXPECT_TRUE(window->GetViewBounds(VIEW_ID_LOCATION_BAR, &bounds, true));
   POINT click(bounds.CenterPoint().ToPOINT());
   EXPECT_TRUE(window->SimulateOSClick(click,
-      ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+      views::Event::EF_LEFT_BUTTON_DOWN));
   ::Sleep(kActionDelayMs);
 
   // Wait for the page to steal focus.
@@ -282,7 +282,7 @@ TEST_F(BrowserFocusTest, FocusTraversal) {
   EXPECT_TRUE(window->GetViewBounds(VIEW_ID_LOCATION_BAR, &bounds, true));
   POINT click(bounds.CenterPoint().ToPOINT());
   EXPECT_TRUE(window->SimulateOSClick(click,
-      ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+      views::Event::EF_LEFT_BUTTON_DOWN));
   ::Sleep(kActionDelayMs);
 
   const wchar_t* kExpElementIDs[] = {
@@ -323,7 +323,7 @@ TEST_F(BrowserFocusTest, FocusTraversal) {
 
     // Now let's press tab to move the focus.
     for (int j = 0; j < 7; ++j) {
-      window->SimulateOSKeyPress(L'\t', ChromeViews::Event::EF_SHIFT_DOWN);
+      window->SimulateOSKeyPress(L'\t', views::Event::EF_SHIFT_DOWN);
       ::Sleep(kActionDelayMs);
 
       // Let's make sure the focus is on the expected element in the page.

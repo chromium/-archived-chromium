@@ -32,7 +32,7 @@ class StarredURLDatabase;
 // BookmarkNode contains information about a starred entry: title, URL, favicon,
 // star id and type. BookmarkNodes are returned from a BookmarkModel.
 //
-class BookmarkNode : public ChromeViews::TreeNode<BookmarkNode> {
+class BookmarkNode : public views::TreeNode<BookmarkNode> {
   friend class BookmarkEditorView;
   friend class BookmarkModel;
   friend class BookmarkCodec;

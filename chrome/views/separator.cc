@@ -7,7 +7,7 @@
 #include "base/logging.h"
 #include "chrome/views/hwnd_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 static const int kSeparatorSize = 2;
 
@@ -35,5 +35,5 @@ gfx::Size Separator::GetPreferredSize() {
   return gfx::Size(width(), fixed_height_);
 }
 
-}
+}  // namespace views
 

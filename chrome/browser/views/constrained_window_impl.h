@@ -13,7 +13,7 @@
 class ConstrainedTabContentsWindowDelegate;
 class ConstrainedWindowAnimation;
 class ConstrainedWindowNonClientView;
-namespace ChromeViews {
+namespace views {
 class HWNDView;
 class WindowDelegate;
 }
@@ -25,7 +25,7 @@ class WindowDelegate;
 //  a child HWND with a custom window frame.
 //
 class ConstrainedWindowImpl : public ConstrainedWindow,
-                              public ChromeViews::CustomFrameWindow,
+                              public views::CustomFrameWindow,
                               public TabContentsDelegate {
  public:
   virtual ~ConstrainedWindowImpl();
@@ -109,10 +109,10 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // Use the static factory methods on ConstrainedWindow to construct a
   // ConstrainedWindow.
   ConstrainedWindowImpl(TabContents* owner,
-                        ChromeViews::WindowDelegate* window_delegate,
+                        views::WindowDelegate* window_delegate,
                         TabContents* constrained_contents);
   ConstrainedWindowImpl(TabContents* owner,
-                        ChromeViews::WindowDelegate* window_delegate);
+                        views::WindowDelegate* window_delegate);
   void Init(TabContents* owner);
 
   // Called after changing either the anchor point or titlebar
@@ -128,7 +128,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   void ResizeConstrainedWindow(int width, int height);
 
   // Initialize the Constrained Window as a Constrained Dialog containing a
-  // ChromeViews::View client area.
+  // views::View client area.
   void InitAsDialog(const gfx::Rect& initial_bounds);
 
   // Builds the underlying HWND and window delegates for a newly
@@ -172,14 +172,14 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // when this window is destroyed.
   bool focus_restoration_disabled_;
 
-  // A default ChromeViews::WindowDelegate implementation for this window when
+  // A default views::WindowDelegate implementation for this window when
   // a TabContents is being constrained. (For the Constrained Dialog case, the
   // caller is required to provide the WindowDelegate).
-  scoped_ptr<ChromeViews::WindowDelegate> contents_window_delegate_;
+  scoped_ptr<views::WindowDelegate> contents_window_delegate_;
 
   // We keep a reference on the HWNDView so we can properly detach the tab
   // contents when detaching.
-  ChromeViews::HWNDView* contents_container_;
+  views::HWNDView* contents_container_;
 
   // true if this window is really a constrained dialog. This is set by
   // InitAsDialog().

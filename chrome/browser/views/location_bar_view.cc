@@ -30,7 +30,7 @@
 #include "chrome/views/root_view.h"
 #include "generated_resources.h"
 
-using ChromeViews::View;
+using views::View;
 
 const int LocationBarView::kTextVertMargin = 2;
 
@@ -123,7 +123,7 @@ void LocationBarView::Init() {
   }
 
   // URL edit field.
-  ChromeViews::Container* vc = GetContainer();
+  views::Container* vc = GetContainer();
   DCHECK(vc) << "LocationBarView::Init - vc is NULL!";
   location_entry_.reset(new AutocompleteEditView(font_, this, model_, this,
                                                  vc->GetHWND(),
@@ -131,7 +131,7 @@ void LocationBarView::Init() {
                                                  popup_window_mode_));
 
   // View container for URL edit field.
-  location_entry_view_ = new ChromeViews::HWNDView;
+  location_entry_view_ = new views::HWNDView;
   DCHECK(location_entry_view_) << "LocationBarView::Init - OOM!";
   location_entry_view_->SetID(VIEW_ID_AUTOCOMPLETE);
   AddChildView(location_entry_view_);
@@ -266,16 +266,16 @@ void LocationBarView::VisibleBoundsInRootChanged() {
   location_entry_->ClosePopup();
 }
 
-bool LocationBarView::OnMousePressed(const ChromeViews::MouseEvent& event) {
+bool LocationBarView::OnMousePressed(const views::MouseEvent& event) {
   UINT msg;
   if (event.IsLeftMouseButton()) {
-    msg = (event.GetFlags() & ChromeViews::MouseEvent::EF_IS_DOUBLE_CLICK) ?
+    msg = (event.GetFlags() & views::MouseEvent::EF_IS_DOUBLE_CLICK) ?
         WM_LBUTTONDBLCLK : WM_LBUTTONDOWN;
   } else if (event.IsMiddleMouseButton()) {
-    msg = (event.GetFlags() & ChromeViews::MouseEvent::EF_IS_DOUBLE_CLICK) ?
+    msg = (event.GetFlags() & views::MouseEvent::EF_IS_DOUBLE_CLICK) ?
         WM_MBUTTONDBLCLK : WM_MBUTTONDOWN;
   } else if (event.IsRightMouseButton()) {
-    msg = (event.GetFlags() & ChromeViews::MouseEvent::EF_IS_DOUBLE_CLICK) ?
+    msg = (event.GetFlags() & views::MouseEvent::EF_IS_DOUBLE_CLICK) ?
         WM_RBUTTONDBLCLK : WM_RBUTTONDOWN;
   } else {
     NOTREACHED();
@@ -285,12 +285,12 @@ bool LocationBarView::OnMousePressed(const ChromeViews::MouseEvent& event) {
   return true;
 }
 
-bool LocationBarView::OnMouseDragged(const ChromeViews::MouseEvent& event) {
+bool LocationBarView::OnMouseDragged(const views::MouseEvent& event) {
   OnMouseEvent(event, WM_MOUSEMOVE);
   return true;
 }
 
-void LocationBarView::OnMouseReleased(const ChromeViews::MouseEvent& event,
+void LocationBarView::OnMouseReleased(const views::MouseEvent& event,
                                       bool canceled) {
   UINT msg;
   if (canceled) {
@@ -493,7 +493,7 @@ bool LocationBarView::AdjustHints(int text_width, int max_width) {
   return needs_layout;
 }
 
-void LocationBarView::LayoutView(bool leading, ChromeViews::View* view,
+void LocationBarView::LayoutView(bool leading, views::View* view,
                                  int text_width, int max_width,
                                  gfx::Rect* bounds) {
   DCHECK(view && bounds);
@@ -554,8 +554,7 @@ bool LocationBarView::ToggleVisibility(bool new_vis, View* view) {
   return false;
 }
 
-void LocationBarView::OnMouseEvent(const ChromeViews::MouseEvent& event,
-                                   UINT msg) {
+void LocationBarView::OnMouseEvent(const views::MouseEvent& event, UINT msg) {
   UINT flags = 0;
   if (event.IsControlDown())
     flags |= MK_CONTROL;
@@ -612,11 +611,11 @@ LocationBarView::SelectedKeywordView::SelectedKeywordView(Profile* profile)
   full_label_.SetVisible(false);
   partial_label_.SetVisible(false);
   full_label_.SetBorder(
-      ChromeViews::Border::CreateEmptyBorder(kTopInset, kLeftInset,
-                                             kBottomInset, kRightInset));
+      views::Border::CreateEmptyBorder(kTopInset, kLeftInset, kBottomInset,
+                                       kRightInset));
   partial_label_.SetBorder(
-      ChromeViews::Border::CreateEmptyBorder(kTopInset, kLeftInset,
-                                             kBottomInset, kRightInset));
+      views::Border::CreateEmptyBorder(kTopInset, kLeftInset, kBottomInset,
+                                       kRightInset));
 }
 
 LocationBarView::SelectedKeywordView::~SelectedKeywordView() {
@@ -795,7 +794,7 @@ void LocationBarView::KeywordHintView::Layout() {
 
 // We don't translate accelerators for ALT + numpad digit, they are used for
 // entering special characters.
-bool LocationBarView::ShouldLookupAccelerators(const ChromeViews::KeyEvent& e) {
+bool LocationBarView::ShouldLookupAccelerators(const views::KeyEvent& e) {
   if (!e.IsAltDown())
     return true;
 
@@ -861,7 +860,7 @@ void LocationBarView::ShowFirstRunBubbleInternal() {
   // right hand side of the location bar.
   if (UILayoutIsRightToLeft())
     location.Offset(width(), 0);
-  ChromeViews::View::ConvertPointToScreen(this, &location);
+  views::View::ConvertPointToScreen(this, &location);
 
   // We try to guess that 20 pixels offset is a good place for the first
   // letter in the OmniBox.
@@ -935,15 +934,15 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
   model_->GetIconHoverText(&text, &text_color);
 
   gfx::Point location;
-  ChromeViews::View::ConvertPointToScreen(this, &location);
+  views::View::ConvertPointToScreen(this, &location);
   gfx::Rect bounds(location.x(), location.y(), width(), height());
 
-  ChromeViews::Label* label = new ChromeViews::Label(text);
+  views::Label* label = new views::Label(text);
   label->SetMultiLine(true);
   label->SetColor(text_color);
   label->SetFont(ResourceBundle::GetSharedInstance().GetFont(
       ResourceBundle::BaseFont).DeriveFont(2));
-  label->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   label->SizeToFit(0);
   DCHECK(info_bubble_ == NULL);
   info_bubble_ = InfoBubble::Show(GetRootView()->GetContainer()->GetHWND(),
@@ -952,7 +951,7 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
 }
 
 void LocationBarView::SecurityImageView::OnMouseMoved(
-    const ChromeViews::MouseEvent& event) {
+    const views::MouseEvent& event) {
   if (show_info_bubble_task_) {
     show_info_bubble_task_->Cancel();
     show_info_bubble_task_ = NULL;
@@ -969,7 +968,7 @@ void LocationBarView::SecurityImageView::OnMouseMoved(
 }
 
 void LocationBarView::SecurityImageView::OnMouseExited(
-    const ChromeViews::MouseEvent& event) {
+    const views::MouseEvent& event) {
   if (show_info_bubble_task_) {
     show_info_bubble_task_->Cancel();
     show_info_bubble_task_ = NULL;
@@ -980,7 +979,7 @@ void LocationBarView::SecurityImageView::OnMouseExited(
 }
 
 bool LocationBarView::SecurityImageView::OnMousePressed(
-    const ChromeViews::MouseEvent& event) {
+    const views::MouseEvent& event) {
   NavigationEntry* nav_entry =
       BrowserList::GetLastActive()->GetSelectedTabContents()->
           controller()->GetActiveEntry();
@@ -1001,7 +1000,7 @@ void LocationBarView::SecurityImageView::InfoBubbleClosing(
 }
 
 bool LocationBarView::OverrideAccelerator(
-    const ChromeViews::Accelerator& accelerator)  {
+    const views::Accelerator& accelerator)  {
   return location_entry_->OverrideAccelerator(accelerator);
 }
 

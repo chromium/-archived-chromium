@@ -56,7 +56,7 @@
 //
 // AddView takes care of adding the View to the View the GridLayout was
 // created with.
-namespace ChromeViews {
+namespace views {
 
 class Column;
 class ColumnSet;
@@ -348,7 +348,7 @@ class ColumnSet {
   DISALLOW_EVIL_CONSTRUCTORS(ColumnSet);
 };
 
-} // namespace
+}  // namespace views
 
 #endif // CHROME_VIEWS_GRID_LAYOUT_H__
 

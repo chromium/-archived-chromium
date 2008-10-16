@@ -6,7 +6,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/image_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 ImageView::ImageView()
     : image_size_set_(false),
@@ -166,5 +166,5 @@ bool ImageView::GetTooltipText(int x, int y, std::wstring* tooltip) {
   }
 }
 
-}
+}  // namespace views
 

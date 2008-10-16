@@ -11,7 +11,7 @@
 #include "chrome/views/link.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 class Label;
 class Window;
 }
@@ -22,26 +22,26 @@ class ImporterHost;
 // FirstRunView implements the dialog that welcomes to user to Chrome after
 // a fresh install.
 class FirstRunView : public FirstRunViewBase,
-                     public ChromeViews::LinkController,
+                     public views::LinkController,
                      public FirstRunCustomizeView::CustomizeViewObserver {
  public:
   explicit FirstRunView(Profile* profile);
   virtual ~FirstRunView();
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
 
-  // Overridden from ChromeViews::DialogDelegate:
+  // Overridden from views::DialogDelegate:
   virtual bool Accept();
   virtual bool Cancel();
 
-  // Overridden from ChromeViews::WindowDelegate:
+  // Overridden from views::WindowDelegate:
   virtual std::wstring GetWindowTitle() const;
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
-  // Overridden from ChromeViews::LinkActivated:
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+  // Overridden from views::LinkActivated:
+  virtual void LinkActivated(views::Link* source, int event_flags);
 
   // Overridden from FirstRunCustomizeView:
   virtual void CustomizeAccepted();
@@ -54,11 +54,11 @@ class FirstRunView : public FirstRunViewBase,
   // Creates the dialog that allows the user to customize work items.
   void OpenCustomizeDialog();
 
-  ChromeViews::Label* welcome_label_;
-  ChromeViews::Label* actions_label_;
-  ChromeViews::Label* actions_import_;
-  ChromeViews::Label* actions_shorcuts_;
-  ChromeViews::Link* customize_link_;
+  views::Label* welcome_label_;
+  views::Label* actions_label_;
+  views::Label* actions_import_;
+  views::Label* actions_shorcuts_;
+  views::Link* customize_link_;
   bool customize_selected_;
 
   DISALLOW_COPY_AND_ASSIGN(FirstRunView);

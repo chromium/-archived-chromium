@@ -27,7 +27,7 @@ class ChromeCanvas;
 class OSExchangeData;
 class SkBitmap;
 
-namespace ChromeViews {
+namespace views {
 
 class Background;
 class Border;
@@ -87,8 +87,8 @@ class DragController {
 //
 // View class
 //
-//   A View is a rectangle within the ChromeViews View hierarchy. It is the
-//   base class for all Views.
+//   A View is a rectangle within the views View hierarchy. It is the base
+///  class for all Views.
 //
 //   A View is a container of other Views (there is no such thing as a Leaf
 //   View - makes code simpler, reduces type conversion headaches, design
@@ -320,9 +320,9 @@ class View : public AcceleratorTarget {
   //
   // Enabling canvas flipping is useful for leaf views that draw a bitmap that
   // needs to be flipped horizontally when the UI layout is right-to-left
-  // (ChromeViews::Button, for example). This method is helpful for such
-  // classes because their drawing logic stays the same and they can become
-  // agnostic to the UI directionality.
+  // (views::Button, for example). This method is helpful for such classes
+  // because their drawing logic stays the same and they can become agnostic to
+  // the UI directionality.
   void EnableCanvasFlippingForRTLUI(bool enable) {
     flip_canvas_on_paint_for_rtl_ui_ = enable;
   }
@@ -587,7 +587,7 @@ class View : public AcceleratorTarget {
   // Accessor used to determine if a child view (leaf) has accessibility focus.
   // Returns NULL if there are no children, or if none of the children has
   // accessibility focus.
-  virtual ChromeViews::View* GetAccFocusedChildView() { return NULL; }
+  virtual View* GetAccFocusedChildView() { return NULL; }
 
   // Floating views
   //
@@ -1124,7 +1124,7 @@ class View : public AcceleratorTarget {
   // Starts a drag and drop operation originating from this view. This invokes
   // WriteDragData to write the data and GetDragOperations to determine the
   // supported drag operations. When done, OnDragDone is invoked.
-  void DoDrag(const ChromeViews::MouseEvent& e, int press_x, int press_y);
+  void DoDrag(const MouseEvent& e, int press_x, int press_y);
 
   // Adds a child View at the specified position. |floating_view| should be true
   // if the |v| is a floating view.
@@ -1301,7 +1301,7 @@ class View : public AcceleratorTarget {
   DISALLOW_COPY_AND_ASSIGN(View);
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // CHROME_VIEWS_VIEW_H_
 

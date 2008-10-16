@@ -16,7 +16,7 @@ class GURL;
 // user to star the current page. ToolbarStarToggle manages showing the
 // InfoBubble and rendering the appropriate state while the bubble is visible.
 
-class ToolbarStarToggle : public ChromeViews::ToggleButton,
+class ToolbarStarToggle : public views::ToggleButton,
                           public InfoBubbleDelegate {
  public:
   explicit ToolbarStarToggle(BrowserToolbarView* host);
@@ -28,11 +28,10 @@ class ToolbarStarToggle : public ChromeViews::ToggleButton,
 
   // Overridden to update ignore_click_ based on whether the mouse was clicked
   // quickly after the bubble was hidden.
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
+  virtual bool OnMousePressed(const views::MouseEvent& e);
 
   // Overridden to set ignore_click_ to false.
-  virtual void OnMouseReleased(const ChromeViews::MouseEvent& e,
-                               bool canceled);
+  virtual void OnMouseReleased(const views::MouseEvent& e, bool canceled);
   virtual void OnDragDone();
 
   // Only invokes super if ignore_click_ is true and the bubble isn't showing.

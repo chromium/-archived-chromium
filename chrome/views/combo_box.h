@@ -7,7 +7,7 @@
 
 #include "chrome/views/native_control.h"
 
-namespace ChromeViews {
+namespace views {
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ComboBox is a basic non editable combo box. It is initialized from a simple
@@ -73,7 +73,8 @@ class ComboBox : public NativeControl {
 
   DISALLOW_EVIL_CONSTRUCTORS(ComboBox);
 };
-}
+
+}  // namespace views
 
 #endif  // CHROME_VIEWS_COMBO_BOX_H__
 

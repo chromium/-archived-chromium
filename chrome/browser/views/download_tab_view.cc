@@ -99,44 +99,44 @@ DownloadItemTabView::DownloadItemTabView()
       is_floating_view_renderer_(false) {
   // Create our element views using empty strings for now,
   // set them based on the model's state in Layout().
-  since_ = new ChromeViews::Label(L"");
+  since_ = new views::Label(L"");
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   ChromeFont font = rb.GetFont(ResourceBundle::WebFont);
-  since_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  since_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   since_->SetFont(font);
   AddChildView(since_);
 
-  date_ = new ChromeViews::Label(L"");
+  date_ = new views::Label(L"");
   date_->SetColor(kStatusColor);
-  date_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  date_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   date_->SetFont(font);
   AddChildView(date_);
 
   // file_name_ is enabled once the download has finished and we can open
   // it via ShellExecute.
-  file_name_ = new ChromeViews::Link(L"");
-  file_name_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  file_name_ = new views::Link(L"");
+  file_name_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   file_name_->SetController(this);
   file_name_->SetFont(font);
   AddChildView(file_name_);
 
   // dangerous_download_warning_ is enabled when a dangerous download has been
   // initiated.
-  dangerous_download_warning_ = new ChromeViews::Label();
+  dangerous_download_warning_ = new views::Label();
   dangerous_download_warning_ ->SetMultiLine(true);
   dangerous_download_warning_->SetColor(kWarningColor);
   dangerous_download_warning_->SetHorizontalAlignment(
-      ChromeViews::Label::ALIGN_LEFT);
+      views::Label::ALIGN_LEFT);
   dangerous_download_warning_->SetFont(font);
   AddChildView(dangerous_download_warning_);
 
   // The save and discard buttons are shown to prompt the user when a dangerous
   // download was started.
-  save_button_ = new ChromeViews::NativeButton(
+  save_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_SAVE_DOWNLOAD));
   save_button_->set_enforce_dlu_min_size(false);
   save_button_->SetListener(this);
-  discard_button_ = new ChromeViews::NativeButton(
+  discard_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_DISCARD_DOWNLOAD));
   discard_button_->SetListener(this);
   discard_button_->set_enforce_dlu_min_size(false);
@@ -144,40 +144,39 @@ DownloadItemTabView::DownloadItemTabView()
   AddChildView(discard_button_);
 
   // Set our URL name
-  download_url_ = new ChromeViews::Label(L"");
+  download_url_ = new views::Label(L"");
   download_url_->SetColor(kUrlColor);
-  download_url_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  download_url_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   download_url_->SetFont(font);
   AddChildView(download_url_);
 
   // Set our time remaining
-  time_remaining_ = new ChromeViews::Label(L"");
+  time_remaining_ = new views::Label(L"");
   time_remaining_->SetColor(kStatusColor);
-  time_remaining_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  time_remaining_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   time_remaining_->SetFont(font);
   AddChildView(time_remaining_);
 
   // Set our download progress
-  download_progress_ = new ChromeViews::Label(L"");
+  download_progress_ = new views::Label(L"");
   download_progress_->SetColor(kStatusColor);
-  download_progress_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  download_progress_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   download_progress_->SetFont(font);
   AddChildView(download_progress_);
 
   // Set our 'Pause', 'Cancel' and 'Show in folder' links using
   // actual strings, since these are constant
-  pause_ = new ChromeViews::Link(l10n_util::GetString(IDS_DOWNLOAD_LINK_PAUSE));
+  pause_ = new views::Link(l10n_util::GetString(IDS_DOWNLOAD_LINK_PAUSE));
   pause_->SetController(this);
   pause_->SetFont(font);
   AddChildView(pause_);
 
-  cancel_ = new ChromeViews::Link(
-                  l10n_util::GetString(IDS_DOWNLOAD_LINK_CANCEL));
+  cancel_ = new views::Link(l10n_util::GetString(IDS_DOWNLOAD_LINK_CANCEL));
   cancel_->SetController(this);
   cancel_->SetFont(font);
   AddChildView(cancel_);
 
-  show_ = new ChromeViews::Link(l10n_util::GetString(IDS_DOWNLOAD_LINK_SHOW));
+  show_ = new views::Link(l10n_util::GetString(IDS_DOWNLOAD_LINK_SHOW));
   show_->SetController(this);
   show_->SetFont(font);
   AddChildView(show_);
@@ -386,7 +385,7 @@ void DownloadItemTabView::LayoutCancelled() {
       total_text.assign(total_text_localized);
 
     // Note that there is no need to adjust the new amount string for the
-    // locale direction as ChromeViews::Label does that for us.
+    // locale direction as views::Label does that for us.
     amount = l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_SIZE,
                                    received_size,
                                    total_text);
@@ -670,7 +669,7 @@ void DownloadItemTabView::PaintBackground(ChromeCanvas* canvas) {
   }
 }
 
-bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
+bool DownloadItemTabView::OnMousePressed(const views::MouseEvent& event) {
   gfx::Point point(event.location());
 
   // If the click is in the highlight region, then highlight this download.
@@ -694,7 +693,7 @@ bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
     // dangerous download.
     if (event.IsRightMouseButton() &&
         model_->safety_state() != DownloadItem::DANGEROUS) {
-      ChromeViews::View::ConvertPointToScreen(this, &point);
+      views::View::ConvertPointToScreen(this, &point);
 
       download_util::DownloadDestinationContextMenu menu(
           model_, GetContainer()->GetHWND(), point.ToPOINT());
@@ -707,7 +706,7 @@ bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
 }
 
 // Handle drag (file copy) operations.
-bool DownloadItemTabView::OnMouseDragged(const ChromeViews::MouseEvent& event) {
+bool DownloadItemTabView::OnMouseDragged(const views::MouseEvent& event) {
   if (model_->state() != DownloadItem::COMPLETE ||
       model_->safety_state() == DownloadItem::DANGEROUS)
     return false;
@@ -734,11 +733,10 @@ bool DownloadItemTabView::OnMouseDragged(const ChromeViews::MouseEvent& event) {
   return true;
 }
 
-void DownloadItemTabView::LinkActivated(ChromeViews::Link* source,
-                                        int event_flags) {
+void DownloadItemTabView::LinkActivated(views::Link* source, int event_flags) {
   // There are several links in our view that could have been clicked:
   if (source == file_name_) {
-    ChromeViews::Container* container = this->GetContainer();
+    views::Container* container = this->GetContainer();
     HWND parent_window = container ? container->GetHWND() : NULL;
     model_->manager()->OpenDownloadInShell(model_, parent_window);
   } else if (source == pause_) {
@@ -754,7 +752,7 @@ void DownloadItemTabView::LinkActivated(ChromeViews::Link* source,
   parent_->ItemBecameSelected(model_);
 }
 
-void DownloadItemTabView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void DownloadItemTabView::ButtonPressed(views::NativeButton* sender) {
   if (sender == save_button_) {
     parent_->model()->DangerousDownloadValidated(model_);
     // Relayout and repaint to display the right mode (complete or in progress).
@@ -841,7 +839,7 @@ void DownloadTabView::Layout() {
 
 // Paint our scrolled region
 void DownloadTabView::Paint(ChromeCanvas* canvas) {
-  ChromeViews::View::Paint(canvas);
+  views::View::Paint(canvas);
 
   if (download_util::kBigIconSize == 0 || downloads_.size() == 0)
     return;
@@ -892,7 +890,7 @@ bool DownloadTabView::GetFloatingViewIDForPoint(int x, int y, int* id) {
   return false;
 }
 
-ChromeViews::View* DownloadTabView::CreateFloatingViewForIndex(int index) {
+views::View* DownloadTabView::CreateFloatingViewForIndex(int index) {
   if (index >= static_cast<int>(downloads_.size())) {
     // It's possible that the downloads have been cleared via the "Clear
     // Browsing Data" command, so this index is gone.
@@ -913,14 +911,14 @@ ChromeViews::View* DownloadTabView::CreateFloatingViewForIndex(int index) {
 }
 
 bool DownloadTabView::EnumerateFloatingViews(
-      ChromeViews::View::FloatingViewPosition position,
+      views::View::FloatingViewPosition position,
       int starting_id, int* id) {
   DCHECK(id);
   return View::EnumerateFloatingViewsForInterval(
       0, static_cast<int>(downloads_.size()), false, position, starting_id, id);
 }
 
-ChromeViews::View* DownloadTabView::ValidateFloatingViewForID(int id) {
+views::View* DownloadTabView::ValidateFloatingViewForID(int id) {
   return CreateFloatingViewForIndex(id);
 }
 
@@ -1107,14 +1105,14 @@ bool DownloadTabView::ShouldDrawDateForDownload(DownloadItem* download) {
 }
 
 int DownloadTabView::GetPageScrollIncrement(
-    ChromeViews::ScrollView* scroll_view, bool is_horizontal,
+    views::ScrollView* scroll_view, bool is_horizontal,
     bool is_positive) {
   return scroll_helper_.GetPageScrollIncrement(scroll_view, is_horizontal,
                                                is_positive);
 }
 
 int DownloadTabView::GetLineScrollIncrement(
-    ChromeViews::ScrollView* scroll_view, bool is_horizontal,
+    views::ScrollView* scroll_view, bool is_horizontal,
     bool is_positive) {
   return scroll_helper_.GetLineScrollIncrement(scroll_view, is_horizontal,
                                                is_positive);
@@ -1248,7 +1246,7 @@ const std::wstring DownloadTabUI::GetSearchButtonText() const {
   return l10n_util::GetString(IDS_DOWNLOAD_SEARCH_BUTTON);
 }
 
-ChromeViews::View* DownloadTabUI::GetView() {
+views::View* DownloadTabUI::GetView() {
   return &searchable_container_;
 }
 

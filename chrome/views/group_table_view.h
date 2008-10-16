@@ -12,7 +12,7 @@
 // It allows to have groups of rows that act as a single row from the selection
 // perspective. Groups are visually separated by a horizontal line.
 
-namespace ChromeViews {
+namespace views {
 
 struct GroupRange {
   int start;
@@ -77,6 +77,6 @@ class GroupTableView : public TableView {
   DISALLOW_COPY_AND_ASSIGN(GroupTableView);
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // CHROME_VIEWS_GROUP_TABLE_VIEW_H_

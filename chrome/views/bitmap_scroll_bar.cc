@@ -17,7 +17,7 @@
 #undef min
 #undef max
 
-namespace ChromeViews {
+namespace views {
 
 namespace {
 
@@ -699,5 +699,5 @@ void BitmapScrollBar::SetThumbTrackState(BaseButton::ButtonState state) {
   SchedulePaint();
 }
 
-}
+}  // namespace views
 

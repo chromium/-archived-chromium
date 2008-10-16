@@ -10,11 +10,11 @@
 
 class MessageBoxView;
 class NavigationController;
-namespace ChromeViews {
+namespace views {
 class Window;
 }
 
-class RepostFormWarningDialog : public ChromeViews::DialogDelegate,
+class RepostFormWarningDialog : public views::DialogDelegate,
                                 public NotificationObserver {
  public:
   // Creates and runs a message box which asks the user if they want to resend
@@ -23,16 +23,16 @@ class RepostFormWarningDialog : public ChromeViews::DialogDelegate,
       NavigationController* navigation_controller);
   virtual ~RepostFormWarningDialog();
 
-  // ChromeViews::DialogDelegate Methods:
+  // views::DialogDelegate Methods:
   virtual std::wstring GetWindowTitle() const;
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual void WindowClosing();
   virtual bool Cancel();
   virtual bool Accept();
 
-  // ChromeViews::WindowDelegate Methods:
+  // views::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
  private:
   // Use RunRepostFormWarningDialog to use.

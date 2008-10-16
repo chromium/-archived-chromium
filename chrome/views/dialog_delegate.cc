@@ -6,7 +6,7 @@
 
 #include "chrome/views/window.h"
 
-namespace ChromeViews {
+namespace views {
 
 // Overridden from WindowDelegate:
 View* DialogDelegate::GetInitiallyFocusedView() const {
@@ -30,5 +30,5 @@ DialogClientView* DialogDelegate::GetDialogClientView() const {
   return dialog_client_view;
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

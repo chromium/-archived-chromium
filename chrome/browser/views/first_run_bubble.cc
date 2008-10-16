@@ -45,8 +45,8 @@ std::wstring GetDefaultSearchEngineName() {
 
 // Implements the client view inside the first run bubble. It is kind of a
 // dialog-ish view, but is not a true dialog.
-class FirstRunBubbleView : public ChromeViews::View,
-                           public ChromeViews::NativeButton::Listener {
+class FirstRunBubbleView : public views::View,
+                           public views::NativeButton::Listener {
  public:
   explicit FirstRunBubbleView(FirstRunBubble* bubble_window)
       : bubble_window_(bubble_window),
@@ -58,45 +58,44 @@ class FirstRunBubbleView : public ChromeViews::View,
     ChromeFont& font =
         ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::MediumFont);
 
-    label1_ = new ChromeViews::Label(l10n_util::GetString(IDS_FR_BUBBLE_TITLE));
+    label1_ = new views::Label(l10n_util::GetString(IDS_FR_BUBBLE_TITLE));
     label1_->SetFont(font.DeriveFont(3, ChromeFont::BOLD));
-    label1_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+    label1_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     AddChildView(label1_);
 
     gfx::Size ps = GetPreferredSize();
 
-    label2_ =
-        new ChromeViews::Label(l10n_util::GetString(IDS_FR_BUBBLE_SUBTEXT));
+    label2_ = new views::Label(l10n_util::GetString(IDS_FR_BUBBLE_SUBTEXT));
     label2_->SetMultiLine(true);
     label2_->SetFont(font);
-    label2_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+    label2_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     label2_->SizeToFit(ps.width() - kBubblePadding * 2);
     AddChildView(label2_);
 
     std::wstring question_str
         = l10n_util::GetStringF(IDS_FR_BUBBLE_QUESTION,
                                 GetDefaultSearchEngineName());
-    label3_ = new ChromeViews::Label(question_str);
+    label3_ = new views::Label(question_str);
     label3_->SetMultiLine(true);
     label3_->SetFont(font);
-    label3_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+    label3_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     label3_->SizeToFit(ps.width() - kBubblePadding * 2);
     AddChildView(label3_);
 
     std::wstring keep_str = l10n_util::GetStringF(IDS_FR_BUBBLE_OK,
                                                   GetDefaultSearchEngineName());
-    keep_button_ = new ChromeViews::NativeButton(keep_str, true);
+    keep_button_ = new views::NativeButton(keep_str, true);
     keep_button_->SetListener(this);
     AddChildView(keep_button_);
 
     std::wstring change_str = l10n_util::GetString(IDS_FR_BUBBLE_CHANGE);
-    change_button_ = new ChromeViews::NativeButton(change_str);
+    change_button_ = new views::NativeButton(change_str);
     change_button_->SetListener(this);
     AddChildView(change_button_);
   }
 
   // Overridden from NativeButton::Listener.
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender) {
+  virtual void ButtonPressed(views::NativeButton* sender) {
     bubble_window_->Close();
     if (change_button_ == sender) {
       Browser* browser = BrowserList::GetLastActive();
@@ -107,7 +106,7 @@ class FirstRunBubbleView : public ChromeViews::View,
     }
   }
 
-  // Overridden from ChromeViews::View.
+  // Overridden from views::View.
   virtual void Layout() {
     gfx::Size canvas = GetPreferredSize();
 
@@ -154,20 +153,20 @@ class FirstRunBubbleView : public ChromeViews::View,
       keep_button_->RequestFocus();
   }
 
-  // Overridden from ChromeViews::View.
+  // Overridden from views::View.
   virtual gfx::Size GetPreferredSize() {
-    return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+    return gfx::Size(views::Window::GetLocalizedContentsSize(
         IDS_FIRSTRUNBUBBLE_DIALOG_WIDTH_CHARS,
         IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES));
   }
 
  private:
   FirstRunBubble* bubble_window_;
-  ChromeViews::Label* label1_;
-  ChromeViews::Label* label2_;
-  ChromeViews::Label* label3_;
-  ChromeViews::NativeButton* change_button_;
-  ChromeViews::NativeButton* keep_button_;
+  views::Label* label1_;
+  views::Label* label2_;
+  views::Label* label3_;
+  views::NativeButton* change_button_;
+  views::NativeButton* keep_button_;
   DISALLOW_EVIL_CONSTRUCTORS(FirstRunBubbleView);
 };
 
@@ -204,7 +203,7 @@ void FirstRunBubble::InfoBubbleClosing(InfoBubble* info_bubble) {
 FirstRunBubble* FirstRunBubble::Show(HWND parent_hwnd,
                                      const gfx::Rect& position_relative_to) {
   FirstRunBubble* window = new FirstRunBubble();
-  ChromeViews::View* view = new FirstRunBubbleView(window);
+  views::View* view = new FirstRunBubbleView(window);
   window->SetDelegate(window);
   window->Init(parent_hwnd, position_relative_to, view);
   BrowserWindow* frame = window->GetHostingWindow();

@@ -297,7 +297,7 @@ void Menu::AddMenuItemInternal(int index,
       delegate_->GetLabel(item_id) : label);
 
   // Find out if there is a shortcut we need to append to the label.
-  ChromeViews::Accelerator accelerator(0, false, false, false);
+  views::Accelerator accelerator(0, false, false, false);
   if (delegate_ && delegate_->GetAcceleratorInfo(item_id, &accelerator)) {
     actual_label += L'\t';
     actual_label += accelerator.GetShortcutText();

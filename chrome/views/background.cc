@@ -11,7 +11,7 @@
 #include "chrome/views/view.h"
 #include "skia/include/SkPaint.h"
 
-namespace ChromeViews {
+namespace views {
 
 // SolidBackground is a trivial Background implementation that fills the
 // background in a solid color.
@@ -34,7 +34,7 @@ class SolidBackground : public Background {
   DISALLOW_EVIL_CONSTRUCTORS(SolidBackground);
 };
 
-class BackgroundPainter : public ChromeViews::Background {
+class BackgroundPainter : public Background {
  public:
   BackgroundPainter(bool owns_painter, Painter* painter)
       : owns_painter_(owns_painter), painter_(painter) {
@@ -102,5 +102,5 @@ Background* Background::CreateBackgroundPainter(bool owns_painter,
   return new BackgroundPainter(owns_painter, painter);
 }
 
-}
+}  // namespace views
 

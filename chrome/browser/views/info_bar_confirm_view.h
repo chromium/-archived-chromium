@@ -12,7 +12,7 @@
 // default), and a close button. Can be inherited to override the behavior
 // of button presses.
 class InfoBarConfirmView : public InfoBarMessageView,
-                           public ChromeViews::NativeButton::Listener {
+                           public views::NativeButton::Listener {
  public:
   explicit InfoBarConfirmView(const std::wstring& message);
 
@@ -27,7 +27,7 @@ class InfoBarConfirmView : public InfoBarMessageView,
   // ButtonListener Method:
   // Invokes OKButtonPressed or CancelButtonPressed() when their
   // respective buttons are pressed.
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  virtual void ButtonPressed(views::NativeButton* sender);
 
   // Sets the label on the OK button, if it exists.
   void SetOKButtonLabel(const std::wstring& label);
@@ -54,9 +54,9 @@ class InfoBarConfirmView : public InfoBarMessageView,
   // then call AddAllChildViews.
   void Init();
 
-  ChromeViews::NativeButton* ok_button_;
+  views::NativeButton* ok_button_;
 
-  ChromeViews::NativeButton* cancel_button_;
+  views::NativeButton* cancel_button_;
 
   DISALLOW_EVIL_CONSTRUCTORS(InfoBarConfirmView);
 };

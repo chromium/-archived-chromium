@@ -14,10 +14,12 @@ class BrowserView2;
 class OpaqueFrame;
 class TabContents;
 class TabStrip;
+namespace views {
 class WindowResources;
+}
 
-class OpaqueNonClientView : public ChromeViews::NonClientView,
-                            public ChromeViews::BaseButton::ButtonListener,
+class OpaqueNonClientView : public views::NonClientView,
+                            public views::BaseButton::ButtonListener,
                             public TabIconView::TabContentsProvider {
  public:
   // Constructs a non-client view for an OpaqueFrame. |is_otr| specifies if the
@@ -41,10 +43,10 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   virtual TabContents* GetCurrentTabContents();
   virtual SkBitmap GetFavIcon();
 
-  // Overridden from ChromeViews::BaseButton::ButtonListener:
-  virtual void ButtonPressed(ChromeViews::BaseButton* sender);
+  // Overridden from views::BaseButton::ButtonListener:
+  virtual void ButtonPressed(views::BaseButton* sender);
 
-  // Overridden from ChromeViews::NonClientView:
+  // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
                                                      int height) const;
@@ -53,15 +55,15 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
   virtual void EnableClose(bool enable);
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
-  virtual ChromeViews::View* GetViewForPoint(const gfx::Point& point,
-                                             bool can_create_floating);
+  virtual views::View* GetViewForPoint(const gfx::Point& point,
+                                       bool can_create_floating);
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
   virtual bool GetAccessibleRole(VARIANT* role);
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
@@ -91,7 +93,7 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   void LayoutClientView();
 
   // Returns the set of resources to use to paint this view.
-  WindowResources* resources() const {
+  views::WindowResources* resources() const {
     return frame_->is_active() || paint_as_active() ?
         current_active_resources_ : current_inactive_resources_;
   }
@@ -109,10 +111,10 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   gfx::Rect otr_avatar_bounds_;
 
   // Window controls.
-  ChromeViews::Button* minimize_button_;
-  ChromeViews::Button* maximize_button_;
-  ChromeViews::Button* restore_button_;
-  ChromeViews::Button* close_button_;
+  views::Button* minimize_button_;
+  views::Button* maximize_button_;
+  views::Button* restore_button_;
+  views::Button* close_button_;
 
   // The Window icon.
   TabIconView* window_icon_;
@@ -124,8 +126,8 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   BrowserView2* browser_view_;
 
   // The resources currently used to paint this view.
-  WindowResources* current_active_resources_;
-  WindowResources* current_inactive_resources_;
+  views::WindowResources* current_active_resources_;
+  views::WindowResources* current_inactive_resources_;
 
   // The accessible name of this view.
   std::wstring accessible_name_;
@@ -136,10 +138,10 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   static SkBitmap app_top_left_;
   static SkBitmap app_top_center_;
   static SkBitmap app_top_right_;
-  static WindowResources* active_resources_;
-  static WindowResources* inactive_resources_;
-  static WindowResources* active_otr_resources_;
-  static WindowResources* inactive_otr_resources_;
+  static views::WindowResources* active_resources_;
+  static views::WindowResources* inactive_resources_;
+  static views::WindowResources* active_otr_resources_;
+  static views::WindowResources* inactive_otr_resources_;
   static ChromeFont title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(OpaqueNonClientView);

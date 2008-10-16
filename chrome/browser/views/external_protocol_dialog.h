@@ -11,7 +11,7 @@
 class MessageBoxView;
 class TabContents;
 
-class ExternalProtocolDialog : public ChromeViews::DialogDelegate {
+class ExternalProtocolDialog : public views::DialogDelegate {
  public:
   // Creates and runs a External Protocol dialog box.
   // |url| - The url of the request.
@@ -34,16 +34,16 @@ class ExternalProtocolDialog : public ChromeViews::DialogDelegate {
 
   virtual ~ExternalProtocolDialog();
 
-  // ChromeViews::DialogDelegate Methods:
+  // views::DialogDelegate Methods:
   virtual int GetDialogButtons() const;
   virtual int GetDefaultDialogButton() const;
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool Accept();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
-  // ChromeViews::WindowDelegate Methods:
+  // views::WindowDelegate Methods:
   virtual bool IsAlwaysOnTop() const { return false; }
   virtual bool IsModal() const { return false; }
 

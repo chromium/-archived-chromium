@@ -15,7 +15,7 @@ class OSExchangeData;
 // FrameView is the View that contains all the views of the BrowserWindow
 // (XPFrame or VistaFrame). FrameView forwards all drag and drop messages to
 // the TabStrip.
-class FrameView : public ChromeViews::View {
+class FrameView : public views::View {
  public:
   explicit FrameView(BrowserWindow* frame);
   virtual ~FrameView() {}
@@ -23,22 +23,21 @@ class FrameView : public ChromeViews::View {
   // Adds view to the set of views that drops are allowed to occur on. You only
   // need invoke this for views whose y-coordinate extends above the tab strip
   // and you want to allow drops on.
-  void AddViewToDropList(ChromeViews::View* view);
+  void AddViewToDropList(views::View* view);
 
  protected:
   // As long as ShouldForwardToTabStrip returns true, drag and drop methods
   // are forwarded to the tab strip.
   virtual bool CanDrop(const OSExchangeData& data);
-  virtual void OnDragEntered(const ChromeViews::DropTargetEvent& event);
-  virtual int OnDragUpdated(const ChromeViews::DropTargetEvent& event);
+  virtual void OnDragEntered(const views::DropTargetEvent& event);
+  virtual int OnDragUpdated(const views::DropTargetEvent& event);
   virtual void OnDragExited();
-  virtual int OnPerformDrop(const ChromeViews::DropTargetEvent& event);
+  virtual int OnPerformDrop(const views::DropTargetEvent& event);
 
   // Returns true if the event should be forwarded to the TabStrip. This returns
   // true if y coordinate is less than the bottom of the tab strip, and is not
   // over another child view.
-  virtual bool ShouldForwardToTabStrip(
-      const ChromeViews::DropTargetEvent& event);
+  virtual bool ShouldForwardToTabStrip(const views::DropTargetEvent& event);
 
   // Overriden to remove views from dropable_views_.
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
@@ -46,8 +45,8 @@ class FrameView : public ChromeViews::View {
  private:
   // Creates and returns a new DropTargetEvent in the coordinates of the
   // TabStrip.
-  ChromeViews::DropTargetEvent* MapEventToTabStrip(
-      const ChromeViews::DropTargetEvent& event);
+  views::DropTargetEvent* MapEventToTabStrip(
+      const views::DropTargetEvent& event);
 
   // The BrowserWindow we're the child of.
   BrowserWindow* window_;
@@ -61,7 +60,7 @@ class FrameView : public ChromeViews::View {
   bool forwarding_to_tab_strip_;
 
   // Set of additional views drops are allowed on. We do NOT own these.
-  std::set<ChromeViews::View*> dropable_views_;
+  std::set<views::View*> dropable_views_;
 
   DISALLOW_EVIL_CONSTRUCTORS(FrameView);
 };

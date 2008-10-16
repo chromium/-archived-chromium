@@ -9,7 +9,7 @@
 #include "base/logging.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 
 // LayoutElement ------------------------------------------------------
 
@@ -1010,5 +1010,5 @@ ColumnSet* GridLayout::GetLastValidColumnSet() {
   return NULL;
 }
 
-} // namespace
+}  // namespace views
 

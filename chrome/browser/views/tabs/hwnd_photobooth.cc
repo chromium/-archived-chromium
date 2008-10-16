@@ -143,7 +143,7 @@ void HWNDPhotobooth::CreateCaptureWindow(HWND initial_hwnd) {
   gfx::Point window_position = GetCaptureWindowPosition();
   gfx::Rect capture_bounds(window_position.x(), window_position.y(),
                            contents_rect.Width(), contents_rect.Height());
-  capture_window_ = new ChromeViews::ContainerWin;
+  capture_window_ = new views::ContainerWin;
   capture_window_->set_window_style(WS_POPUP);
   // WS_EX_TOOLWINDOW ensures the capture window doesn't produce a Taskbar
   // button.

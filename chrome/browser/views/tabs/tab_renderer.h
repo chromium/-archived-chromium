@@ -22,7 +22,7 @@ class TabContents;
 //  A View that renders a Tab, either in a TabStrip or in a DraggedTabView.
 //
 ///////////////////////////////////////////////////////////////////////////////
-class TabRenderer : public ChromeViews::View,
+class TabRenderer : public views::View,
                     public AnimationDelegate {
  public:
   // Possible animation states.
@@ -64,18 +64,18 @@ class TabRenderer : public ChromeViews::View,
   static gfx::Size GetStandardSize();
 
  protected:
-  ChromeViews::Button* close_button() const { return close_button_; }
+  views::Button* close_button() const { return close_button_; }
   const gfx::Rect& title_bounds() const { return title_bounds_; }
 
   // Returns the title of the Tab.
   std::wstring GetTitle() const;
 
  private:
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void OnMouseEntered(const ChromeViews::MouseEvent& event);
-  virtual void OnMouseExited(const ChromeViews::MouseEvent& event);
+  virtual void OnMouseEntered(const views::MouseEvent& event);
+  virtual void OnMouseExited(const views::MouseEvent& event);
 
   // Overridden from AnimationDelegate:
   virtual void AnimationProgressed(const Animation* animation);
@@ -124,7 +124,7 @@ class TabRenderer : public ChromeViews::View,
   int animation_frame_;
 
   // Close Button.
-  ChromeViews::Button* close_button_;
+  views::Button* close_button_;
 
   // Hover animation.
   scoped_ptr<SlideAnimation> hover_animation_;

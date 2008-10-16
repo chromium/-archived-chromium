@@ -27,7 +27,7 @@ class ModalHtmlDialogDelegate
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  // ChromeViews::WindowDelegate implementation:
+  // views::WindowDelegate implementation:
   virtual bool IsModal() const;
 
   // ModalHtmlDialogContents::ModalHTMLDialogContentsDelegate implementation:

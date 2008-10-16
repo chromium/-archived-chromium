@@ -151,10 +151,9 @@ bool BrowserView2::ShouldShowOffTheRecordAvatar() const {
       browser_->GetType() == BrowserType::TABBED_BROWSER;
 }
 
-bool BrowserView2::AcceleratorPressed(
-    const ChromeViews::Accelerator& accelerator) {
+bool BrowserView2::AcceleratorPressed(const views::Accelerator& accelerator) {
   DCHECK(accelerator_table_.get());
-  std::map<ChromeViews::Accelerator, int>::const_iterator iter =
+  std::map<views::Accelerator, int>::const_iterator iter =
       accelerator_table_->find(accelerator);
   DCHECK(iter != accelerator_table_->end());
 
@@ -168,8 +167,8 @@ bool BrowserView2::AcceleratorPressed(
 }
 
 bool BrowserView2::GetAccelerator(int cmd_id,
-                                  ChromeViews::Accelerator* accelerator) {
-  std::map<ChromeViews::Accelerator, int>::iterator it =
+                                  views::Accelerator* accelerator) {
+  std::map<views::Accelerator, int>::iterator it =
       accelerator_table_->begin();
   for (; it != accelerator_table_->end(); ++it) {
     if (it->second == cmd_id) {
@@ -192,7 +191,7 @@ bool BrowserView2::SystemCommandReceived(UINT notification_code,
   return handled;
 }
 
-void BrowserView2::AddViewToDropList(ChromeViews::View* view) {
+void BrowserView2::AddViewToDropList(views::View* view) {
   dropable_views_.insert(view);
 }
 
@@ -392,7 +391,7 @@ void BrowserView2::SizeToContents(const gfx::Rect& contents_bounds) {
 }
 
 void BrowserView2::SetAcceleratorTable(
-    std::map<ChromeViews::Accelerator, int>* accelerator_table) {
+    std::map<views::Accelerator, int>* accelerator_table) {
   accelerator_table_.reset(accelerator_table);
 }
 
@@ -547,7 +546,7 @@ void BrowserView2::TabStripEmpty() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, ChromeViews::WindowDelegate implementation:
+// BrowserView2, views::WindowDelegate implementation:
 
 bool BrowserView2::CanResize() const {
   return true;
@@ -565,7 +564,7 @@ std::wstring BrowserView2::GetWindowTitle() const {
   return browser_->GetCurrentPageTitle();
 }
 
-ChromeViews::View* BrowserView2::GetInitiallyFocusedView() const {
+views::View* BrowserView2::GetInitiallyFocusedView() const {
   return GetLocationBarView();
 }
 
@@ -658,18 +657,17 @@ bool BrowserView2::RestoreWindowPosition(CRect* bounds,
 void BrowserView2::WindowClosing() {
 }
 
-ChromeViews::View* BrowserView2::GetContentsView() {
+views::View* BrowserView2::GetContentsView() {
   return contents_container_;
 }
 
-ChromeViews::ClientView* BrowserView2::CreateClientView(
-    ChromeViews::Window* window) {
+views::ClientView* BrowserView2::CreateClientView(views::Window* window) {
   set_window(window);
   return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, ChromeViews::ClientView overrides:
+// BrowserView2, views::ClientView overrides:
 
 bool BrowserView2::CanClose() const {
   // You cannot close a frame for which there is an active originating drag
@@ -708,7 +706,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   // might be a popup window without a TabStrip, or the TabStrip could be
   // animating.
   if (IsTabStripVisible() && tabstrip_->CanProcessInputEvents()) {
-    ChromeViews::Window* window = frame_->GetWindow();
+    views::Window* window = frame_->GetWindow();
     gfx::Point point_in_view_coords(point);
     View::ConvertPointToView(GetParent(), this, &point_in_view_coords);
 
@@ -762,7 +760,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, ChromeViews::View overrides:
+// BrowserView2, views::View overrides:
 
 void BrowserView2::Layout() {
   int top = LayoutTabStrip();
@@ -783,8 +781,8 @@ void BrowserView2::Layout() {
 }
 
 void BrowserView2::ViewHierarchyChanged(bool is_add,
-                                        ChromeViews::View* parent,
-                                        ChromeViews::View* child) {
+                                        views::View* parent,
+                                        views::View* child) {
   if (is_add && child == this && GetContainer() && !initialized_) {
     Init();
     initialized_ = true;
@@ -799,19 +797,19 @@ bool BrowserView2::CanDrop(const OSExchangeData& data) {
   return can_drop_;
 }
 
-void BrowserView2::OnDragEntered(const ChromeViews::DropTargetEvent& event) {
+void BrowserView2::OnDragEntered(const views::DropTargetEvent& event) {
   if (can_drop_ && ShouldForwardToTabStrip(event)) {
     forwarding_to_tab_strip_ = true;
-    scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+    scoped_ptr<views::DropTargetEvent> mapped_event(
         MapEventToTabStrip(event));
     tabstrip_->OnDragEntered(*mapped_event.get());
   }
 }
 
-int BrowserView2::OnDragUpdated(const ChromeViews::DropTargetEvent& event) {
+int BrowserView2::OnDragUpdated(const views::DropTargetEvent& event) {
   if (can_drop_) {
     if (ShouldForwardToTabStrip(event)) {
-      scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+      scoped_ptr<views::DropTargetEvent> mapped_event(
           MapEventToTabStrip(event));
       if (!forwarding_to_tab_strip_) {
         tabstrip_->OnDragEntered(*mapped_event.get());
@@ -833,10 +831,10 @@ void BrowserView2::OnDragExited() {
   }
 }
 
-int BrowserView2::OnPerformDrop(const ChromeViews::DropTargetEvent& event) {
+int BrowserView2::OnPerformDrop(const views::DropTargetEvent& event) {
   if (forwarding_to_tab_strip_) {
     forwarding_to_tab_strip_ = false;
-    scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+    scoped_ptr<views::DropTargetEvent> mapped_event(
           MapEventToTabStrip(event));
     return tabstrip_->OnPerformDrop(*mapped_event.get());
   }
@@ -848,7 +846,7 @@ int BrowserView2::OnPerformDrop(const ChromeViews::DropTargetEvent& event) {
 // BrowserView2, private:
 
 bool BrowserView2::ShouldForwardToTabStrip(
-    const ChromeViews::DropTargetEvent& event) {
+    const views::DropTargetEvent& event) {
   if (!tabstrip_->IsVisible())
     return false;
 
@@ -863,18 +861,18 @@ bool BrowserView2::ShouldForwardToTabStrip(
   // Mouse isn't over the tab strip. Only forward if the mouse isn't over
   // another view on the tab strip or is over a view we were told the user can
   // drop on.
-  ChromeViews::View* view_over_mouse = GetViewForPoint(event.location());
+  views::View* view_over_mouse = GetViewForPoint(event.location());
   return (view_over_mouse == this || view_over_mouse == tabstrip_ ||
           dropable_views_.find(view_over_mouse) != dropable_views_.end());
 }
 
-ChromeViews::DropTargetEvent* BrowserView2::MapEventToTabStrip(
-    const ChromeViews::DropTargetEvent& event) {
+views::DropTargetEvent* BrowserView2::MapEventToTabStrip(
+    const views::DropTargetEvent& event) {
   gfx::Point tab_strip_loc(event.location());
   ConvertPointToView(this, tabstrip_, &tab_strip_loc);
-  return new ChromeViews::DropTargetEvent(event.GetData(), tab_strip_loc.x(),
-                                          tab_strip_loc.y(),
-                                          event.GetSourceOperations());
+  return new views::DropTargetEvent(event.GetData(), tab_strip_loc.x(),
+                                    tab_strip_loc.y(),
+                                    event.GetSourceOperations());
 }
 
 int BrowserView2::LayoutTabStrip() {
@@ -972,7 +970,7 @@ void BrowserView2::LayoutStatusBubble(int top) {
 }
 
 bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
-  ChromeViews::View* new_bookmark_bar_view = NULL;
+  views::View* new_bookmark_bar_view = NULL;
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents) {
     new_bookmark_bar_view = GetBookmarkBarView();
     if (!show_bookmark_bar_pref_.GetValue() &&
@@ -985,7 +983,7 @@ bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
 }
 
 bool BrowserView2::MaybeShowInfoBar(TabContents* contents) {
-  ChromeViews::View* new_info_bar = NULL;
+  views::View* new_info_bar = NULL;
   if (contents && contents->AsWebContents() &&
       contents->AsWebContents()->view()->IsInfoBarVisible())
     new_info_bar = contents->AsWebContents()->view()->GetInfoBarView();
@@ -993,7 +991,7 @@ bool BrowserView2::MaybeShowInfoBar(TabContents* contents) {
 }
 
 bool BrowserView2::MaybeShowDownloadShelf(TabContents* contents) {
-  ChromeViews::View* new_shelf = NULL;
+  views::View* new_shelf = NULL;
   if (contents && contents->IsDownloadShelfVisible())
     new_shelf = contents->GetDownloadShelfView();
   return UpdateChildViewAndLayout(new_shelf, &active_download_shelf_);
@@ -1007,8 +1005,8 @@ void BrowserView2::UpdateUIForContents(TabContents* contents) {
     Layout();
 }
 
-bool BrowserView2::UpdateChildViewAndLayout(ChromeViews::View* new_view,
-                                            ChromeViews::View** old_view) {
+bool BrowserView2::UpdateChildViewAndLayout(views::View* new_view,
+                                            views::View** old_view) {
   DCHECK(old_view);
   if (*old_view == new_view) {
     // The views haven't changed, if the views pref changed schedule a layout.
@@ -1067,18 +1065,18 @@ void BrowserView2::LoadAccelerators() {
   ACCEL* accelerators = static_cast<ACCEL*>(malloc(sizeof(ACCEL) * count));
   CopyAcceleratorTable(accelerator_table, accelerators, count);
 
-  ChromeViews::FocusManager* focus_manager =
-    ChromeViews::FocusManager::GetFocusManager(GetContainer()->GetHWND());
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetContainer()->GetHWND());
   DCHECK(focus_manager);
 
   // Let's build our own accelerator table.
-  accelerator_table_.reset(new std::map<ChromeViews::Accelerator, int>);
+  accelerator_table_.reset(new std::map<views::Accelerator, int>);
   for (int i = 0; i < count; ++i) {
     bool alt_down = (accelerators[i].fVirt & FALT) == FALT;
     bool ctrl_down = (accelerators[i].fVirt & FCONTROL) == FCONTROL;
     bool shift_down = (accelerators[i].fVirt & FSHIFT) == FSHIFT;
-    ChromeViews::Accelerator accelerator(accelerators[i].key,
-      shift_down, ctrl_down, alt_down);
+    views::Accelerator accelerator(accelerators[i].key, shift_down, ctrl_down,
+                                   alt_down);
     (*accelerator_table_)[accelerator] = accelerators[i].cmd;
 
     // Also register with the focus manager.

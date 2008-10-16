@@ -33,8 +33,8 @@ class TabContentsContainerView;
 class BrowserView2 : public BrowserWindow,
                      public NotificationObserver,
                      public TabStripModelObserver,
-                     public ChromeViews::WindowDelegate,
-                     public ChromeViews::ClientView {
+                     public views::WindowDelegate,
+                     public views::ClientView {
  public:
   explicit BrowserView2(Browser* browser);
   virtual ~BrowserView2();
@@ -72,13 +72,13 @@ class BrowserView2 : public BrowserWindow,
   bool ShouldShowOffTheRecordAvatar() const;
 
   // Handle the specified |accelerator| being pressed.
-  bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
+  bool AcceleratorPressed(const views::Accelerator& accelerator);
 
   // Provides the containing frame with the accelerator for the specified
   // command id. This can be used to provide menu item shortcut hints etc.
   // Returns true if an accelerator was found for the specified |cmd_id|, false
   // otherwise.
-  bool GetAccelerator(int cmd_id, ChromeViews::Accelerator* accelerator);
+  bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
 
   // Handles incoming system messages. Returns true if the message was
   // handled.
@@ -87,7 +87,7 @@ class BrowserView2 : public BrowserWindow,
   // Adds view to the set of views that drops are allowed to occur on. You only
   // need invoke this for views whose y-coordinate extends above the tab strip
   // and you want to allow drops on.
-  void AddViewToDropList(ChromeViews::View* view);
+  void AddViewToDropList(views::View* view);
 
   // Shows the next app-modal dialog box, if there is one to be shown, or moves
   // an existing showing one to the front. Returns true if one was shown or
@@ -150,7 +150,7 @@ class BrowserView2 : public BrowserWindow,
       int frame_component);
   virtual void SizeToContents(const gfx::Rect& contents_bounds);
   virtual void SetAcceleratorTable(
-      std::map<ChromeViews::Accelerator, int>* accelerator_table);
+      std::map<views::Accelerator, int>* accelerator_table);
   virtual void ValidateThrobber();
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
@@ -180,12 +180,12 @@ class BrowserView2 : public BrowserWindow,
                              bool user_gesture);
   virtual void TabStripEmpty();
 
-  // Overridden from ChromeViews::WindowDelegate:
+  // Overridden from views::WindowDelegate:
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
-  virtual ChromeViews::View* GetInitiallyFocusedView() const;
+  virtual views::View* GetInitiallyFocusedView() const;
   virtual bool ShouldShowWindowTitle() const;
   virtual SkBitmap GetWindowIcon();
   virtual bool ShouldShowWindowIcon() const;
@@ -197,11 +197,10 @@ class BrowserView2 : public BrowserWindow,
                                      bool* maximized,
                                      bool* always_on_top);
   virtual void WindowClosing();
-  virtual ChromeViews::View* GetContentsView();
-  virtual ChromeViews::ClientView* CreateClientView(
-      ChromeViews::Window* window);
+  virtual views::View* GetContentsView();
+  virtual views::ClientView* CreateClientView(views::Window* window);
 
-  // Overridden from ChromeViews::ClientView:
+  // Overridden from views::ClientView:
   virtual bool CanClose() const;
   virtual int NonClientHitTest(const gfx::Point& point);
 
@@ -219,30 +218,29 @@ class BrowserView2 : public BrowserWindow,
 
 
  protected:
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Layout();
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
   // As long as ShouldForwardToTabStrip returns true, drag and drop methods
   // are forwarded to the tab strip.
   virtual bool CanDrop(const OSExchangeData& data);
-  virtual void OnDragEntered(const ChromeViews::DropTargetEvent& event);
-  virtual int OnDragUpdated(const ChromeViews::DropTargetEvent& event);
+  virtual void OnDragEntered(const views::DropTargetEvent& event);
+  virtual int OnDragUpdated(const views::DropTargetEvent& event);
   virtual void OnDragExited();
-  virtual int OnPerformDrop(const ChromeViews::DropTargetEvent& event);
+  virtual int OnPerformDrop(const views::DropTargetEvent& event);
 
  private:
   // Returns true if the event should be forwarded to the TabStrip. This
   // returns true if y coordinate is less than the bottom of the tab strip, and
   // is not over another child view.
-  virtual bool ShouldForwardToTabStrip(
-      const ChromeViews::DropTargetEvent& event);
+  virtual bool ShouldForwardToTabStrip(const views::DropTargetEvent& event);
 
   // Creates and returns a new DropTargetEvent in the coordinates of the
   // TabStrip.
-  ChromeViews::DropTargetEvent* MapEventToTabStrip(
-      const ChromeViews::DropTargetEvent& event);
+  views::DropTargetEvent* MapEventToTabStrip(
+      const views::DropTargetEvent& event);
 
   // Layout the TabStrip, returns the coordinate of the bottom of the TabStrip,
   // for laying out subsequent controls.
@@ -291,8 +289,7 @@ class BrowserView2 : public BrowserWindow,
   // the new_view is added. This is intended to be used when swapping in/out
   // child views that are referenced via a field.
   // Returns true if anything was changed, and a re-Layout is now required.
-  bool UpdateChildViewAndLayout(ChromeViews::View* new_view,
-                                ChromeViews::View** old_view);
+  bool UpdateChildViewAndLayout(views::View* new_view, views::View** old_view);
 
   // Copy the accelerator table from the app resources into something we can
   // use.
@@ -314,9 +311,9 @@ class BrowserView2 : public BrowserWindow,
   scoped_ptr<Browser> browser_;
 
   // Tool/Info bars that we are currently showing. Used for layout.
-  ChromeViews::View* active_bookmark_bar_;
-  ChromeViews::View* active_info_bar_;
-  ChromeViews::View* active_download_shelf_;
+  views::View* active_bookmark_bar_;
+  views::View* active_info_bar_;
+  views::View* active_download_shelf_;
 
   // The TabStrip.
   TabStrip* tabstrip_;
@@ -334,7 +331,7 @@ class BrowserView2 : public BrowserWindow,
   scoped_ptr<StatusBubble> status_bubble_;
 
   // A mapping between accelerators and commands.
-  scoped_ptr<std::map<ChromeViews::Accelerator, int>> accelerator_table_;
+  scoped_ptr<std::map<views::Accelerator, int>> accelerator_table_;
 
   // A PrefMember to track the "always show bookmark bar" pref.
   BooleanPrefMember show_bookmark_bar_pref_;
@@ -357,7 +354,7 @@ class BrowserView2 : public BrowserWindow,
   bool forwarding_to_tab_strip_;
 
   // Set of additional views drops are allowed on. We do NOT own these.
-  std::set<ChromeViews::View*> dropable_views_;
+  std::set<views::View*> dropable_views_;
 
   // The OTR avatar image.
   static SkBitmap otr_avatar_;

@@ -13,7 +13,7 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/text_field.h"
 
-namespace ChromeViews {
+namespace views {
 class CheckBox;
 class FocusTraversable;
 class ScrollView;
@@ -33,7 +33,7 @@ class NativeUI;
 //
 ////////////////////////////////////////////////////////////////////////////////
 class NativeUIContents : public TabContents,
-                         public ChromeViews::ContainerWin {
+                         public views::ContainerWin {
  public:
   explicit NativeUIContents(Profile* profile);
 
@@ -64,14 +64,14 @@ class NativeUIContents : public TabContents,
   void SetIsLoading(bool is_loading, LoadNotificationDetails* details);
 
   // FocusTraversable Implementation
-  virtual ChromeViews::View* FindNextFocusableView(
-      ChromeViews::View* starting_view,
+  virtual views::View* FindNextFocusableView(
+      views::View* starting_view,
       bool reverse,
-      ChromeViews::FocusTraversable::Direction direction,
+      views::FocusTraversable::Direction direction,
       bool dont_loop,
-      ChromeViews::FocusTraversable** focus_traversable,
-      ChromeViews::View** focus_traversable_view);
-  virtual ChromeViews::RootView* GetContentsRootView() { return GetRootView(); }
+      views::FocusTraversable** focus_traversable,
+      views::View** focus_traversable_view);
+  virtual views::RootView* GetContentsRootView() { return GetRootView(); }
 
   // Return the scheme used. We currently use nativeui:
   static std::string GetScheme();
@@ -85,7 +85,7 @@ class NativeUIContents : public TabContents,
   virtual ~NativeUIContents();
 
   // Overridden to create a view that that handles drag and drop.
-  virtual ChromeViews::RootView* CreateRootView();
+  virtual views::RootView* CreateRootView();
 
  private:
   // Initialize the factories. This is called the first time a NativeUIContents
@@ -126,7 +126,7 @@ class NativeUIContents : public TabContents,
 
   // The current view for the current UI. We don't ask again just in case the
   // UI implementation keeps allocating new uis.
-  ChromeViews::View* current_view_;
+  views::View* current_view_;
 
   // The current page state for the native contents.
   scoped_ptr<PageState> state_;
@@ -154,7 +154,7 @@ class NativeUI {
   virtual const int GetFavIconID () const = 0;
 
   // Return the view that should be used to render this user interface.
-  virtual ChromeViews::View* GetView() = 0;
+  virtual views::View* GetView() = 0;
 
   // Inform the view that it is about to become visible.
   virtual void WillBecomeVisible(NativeUIContents* parent) = 0;
@@ -200,12 +200,12 @@ class NativeUIFactory {
 // A standard background for native UIs.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class NativeUIBackground : public ChromeViews::Background {
+class NativeUIBackground : public views::Background {
  public:
   NativeUIBackground();
   virtual ~NativeUIBackground();
 
-  virtual void Paint(ChromeCanvas* canvas, ChromeViews::View* view) const;
+  virtual void Paint(ChromeCanvas* canvas, views::View* view) const;
 
  private:
 
@@ -219,10 +219,10 @@ class NativeUIBackground : public ChromeViews::Background {
 // implements a consistent look for these UIs.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class SearchableUIContainer : public ChromeViews::View,
-                              public ChromeViews::NativeButton::Listener,
-                              public ChromeViews::LinkController,
-                              public ChromeViews::TextField::Controller {
+class SearchableUIContainer : public views::View,
+                              public views::NativeButton::Listener,
+                              public views::LinkController,
+                              public views::TextField::Controller {
  public:
   // The Delegate is notified when the user clicks the search button.
   class Delegate {
@@ -239,8 +239,8 @@ class SearchableUIContainer : public ChromeViews::View,
   virtual ~SearchableUIContainer();
 
   // Add the view as the contents of the container.
-  void SetContents(ChromeViews::View* contents);
-  ChromeViews::View* GetContents();
+  void SetContents(views::View* contents);
+  views::View* GetContents();
 
   virtual void Layout();
 
@@ -248,8 +248,8 @@ class SearchableUIContainer : public ChromeViews::View,
   virtual void Paint(ChromeCanvas* canvas);
 
   // Provide the mode access to various UI elements.
-  ChromeViews::TextField* GetSearchField() const;
-  ChromeViews::ScrollView* GetScrollView() const;
+  views::TextField* GetSearchField() const;
+  views::ScrollView* GetScrollView() const;
 
   // Enable/disable the search text-field/button.
   void SetSearchEnabled(bool enabled);
@@ -260,14 +260,14 @@ class SearchableUIContainer : public ChromeViews::View,
 
  private:
   // Invoked when the user presses the search button.
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  virtual void ButtonPressed(views::NativeButton* sender);
 
   // TextField method, does nothing.
-  virtual void ContentsChanged(ChromeViews::TextField* sender,
+  virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents)  {}
 
   // Textfield method, if key is the return key the search is updated.
-  virtual void HandleKeystroke(ChromeViews::TextField* sender,
+  virtual void HandleKeystroke(views::TextField* sender,
                                UINT message,
                                TCHAR key,
                                UINT repeat_count,
@@ -276,16 +276,16 @@ class SearchableUIContainer : public ChromeViews::View,
   // Notifies the delegate to update the search.
   void DoSearch();
 
-  void LinkActivated(ChromeViews::Link* link, int event_flags);
+  void LinkActivated(views::Link* link, int event_flags);
 
   Delegate* delegate_;
-  ChromeViews::Link* title_link_;
-  ChromeViews::ImageView* title_image_;
-  ChromeViews::ImageView* product_logo_;
-  ChromeViews::TextField* search_field_;
-  ChromeViews::NativeButton* search_button_;
-  ChromeViews::ScrollView* scroll_view_;
-  ChromeViews::Throbber* throbber_;
+  views::Link* title_link_;
+  views::ImageView* title_image_;
+  views::ImageView* product_logo_;
+  views::TextField* search_field_;
+  views::NativeButton* search_button_;
+  views::ScrollView* scroll_view_;
+  views::Throbber* throbber_;
 
   DISALLOW_EVIL_CONSTRUCTORS(SearchableUIContainer);
 };

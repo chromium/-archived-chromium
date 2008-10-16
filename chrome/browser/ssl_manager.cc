@@ -46,16 +46,16 @@ SSLManager::SSLInfoBar::SSLInfoBar(SSLManager* manager,
       task_(task) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   if (!message.empty()) {
-    label_ = new ChromeViews::Label(message);
+    label_ = new views::Label(message);
     label_->SetFont(rb.GetFont(ResourceBundle::MediumFont));
-    label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+    label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     AddChildViewLeading(label_);
   }
 
   if (!link_text.empty()) {
     DCHECK(task) << L"Link and no task";  // What do you want to do when users
                                           // click the link??
-    link_ = new ChromeViews::Link(link_text);
+    link_ = new views::Link(link_text);
     link_->SetFont(rb.GetFont(ResourceBundle::MediumFont));
     link_->SetController(this);
     AddChildViewTrailing(link_);
@@ -77,7 +77,7 @@ const std::wstring SSLManager::SSLInfoBar::GetMessageText() const {
   return label_->GetText();
 }
 
-void SSLManager::SSLInfoBar::LinkActivated(ChromeViews::Link* source,
+void SSLManager::SSLInfoBar::LinkActivated(views::Link* source,
                                            int event_flags) {
   if (task_.get()) {
     task_->Run();

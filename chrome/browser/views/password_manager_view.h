@@ -18,7 +18,7 @@
 class Profile;
 struct PasswordForm;
 
-class PasswordManagerTableModel : public ChromeViews::TableModel,
+class PasswordManagerTableModel : public views::TableModel,
                                   public WebDataServiceConsumer {
  public:
   explicit PasswordManagerTableModel(Profile* profile);
@@ -28,7 +28,7 @@ class PasswordManagerTableModel : public ChromeViews::TableModel,
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column);
   virtual int CompareValues(int row1, int row2, int column_id);
-  virtual void SetObserver(ChromeViews::TableModelObserver* observer);
+  virtual void SetObserver(views::TableModelObserver* observer);
 
   // Delete the PasswordForm at specified row from the database (and remove
   // from view).
@@ -69,7 +69,7 @@ class PasswordManagerTableModel : public ChromeViews::TableModel,
   }
 
   // The TableView observing this model.
-  ChromeViews::TableModelObserver* observer_;
+  views::TableModelObserver* observer_;
 
   // Handle to any pending WebDataService::GetLogins query.
   WebDataService::Handle pending_login_query_;
@@ -85,7 +85,7 @@ class PasswordManagerTableModel : public ChromeViews::TableModel,
 
 // A button that can have 2 different labels set on it and for which the
 // preferred size is the size of the widest string.
-class MultiLabelButtons : public ChromeViews::NativeButton {
+class MultiLabelButtons : public views::NativeButton {
  public:
   MultiLabelButtons(const std::wstring& label, const std::wstring& alt_label);
 
@@ -99,10 +99,10 @@ class MultiLabelButtons : public ChromeViews::NativeButton {
   DISALLOW_EVIL_CONSTRUCTORS(MultiLabelButtons);
 };
 
-class PasswordManagerView : public ChromeViews::View,
-                            public ChromeViews::DialogDelegate,
-                            public ChromeViews::TableViewObserver,
-                            public ChromeViews::NativeButton::Listener {
+class PasswordManagerView : public views::View,
+                            public views::DialogDelegate,
+                            public views::TableViewObserver,
+                            public views::NativeButton::Listener {
  public:
   explicit PasswordManagerView(Profile* profile);
   virtual ~PasswordManagerView();
@@ -113,16 +113,16 @@ class PasswordManagerView : public ChromeViews::View,
   // View methods.
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
-  virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+  virtual void ViewHierarchyChanged(bool is_add, views::View* parent,
+                                    views::View* child);
 
-  // ChromeViews::TableViewObserver implementation.
+  // views::TableViewObserver implementation.
   virtual void OnSelectionChanged();
 
   // NativeButton::Listener implementation.
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  virtual void ButtonPressed(views::NativeButton* sender);
 
-  // ChromeViews::DialogDelegate methods:
+  // views::DialogDelegate methods:
   virtual int GetDialogButtons() const;
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
@@ -130,7 +130,7 @@ class PasswordManagerView : public ChromeViews::View,
   virtual bool HasAlwaysOnTopMenu() const;
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
  private:
   // Wire up buttons, the model, and the table view, and query the DB for
@@ -145,13 +145,13 @@ class PasswordManagerView : public ChromeViews::View,
 
   // Components in this view.
   PasswordManagerTableModel table_model_;
-  ChromeViews::TableView* table_view_;
+  views::TableView* table_view_;
 
   // The buttons and labels.
   MultiLabelButtons show_button_;
-  ChromeViews::NativeButton remove_button_;
-  ChromeViews::NativeButton remove_all_button_;
-  ChromeViews::Label password_label_;
+  views::NativeButton remove_button_;
+  views::NativeButton remove_all_button_;
+  views::Label password_label_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerView);
 };

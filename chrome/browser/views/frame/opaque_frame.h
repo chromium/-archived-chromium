@@ -9,7 +9,7 @@
 #include "chrome/views/custom_frame_window.h"
 
 class BrowserView2;
-namespace ChromeViews {
+namespace views {
 class Window;
 }
 class OpaqueNonClientView;
@@ -24,7 +24,7 @@ class TabStrip;
 //  borders are provided with bitmaps.
 //
 class OpaqueFrame : public BrowserFrame,
-                    public ChromeViews::CustomFrameWindow {
+                    public views::CustomFrameWindow {
  public:
   explicit OpaqueFrame(BrowserView2* browser_view);
   virtual ~OpaqueFrame();
@@ -36,15 +36,14 @@ class OpaqueFrame : public BrowserFrame,
   virtual void SizeToContents(const gfx::Rect& contents_bounds);
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual void UpdateThrobber(bool running);
-  virtual ChromeViews::Window* GetWindow();
+  virtual views::Window* GetWindow();
 
-  // Overridden from ChromeViews::CustomFrameWindow:
+  // Overridden from views::CustomFrameWindow:
   virtual void UpdateWindowIcon();
 
-  // Overridden from ChromeViews::ContainerWin:
-  virtual bool AcceleratorPressed(ChromeViews::Accelerator* accelerator);
-  virtual bool GetAccelerator(int cmd_id,
-                              ChromeViews::Accelerator* accelerator);
+  // Overridden from views::ContainerWin:
+  virtual bool AcceleratorPressed(views::Accelerator* accelerator);
+  virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
   virtual void OnEndSession(BOOL ending, UINT logoff);
   virtual void OnExitMenuLoop(bool is_track_popup_menu);
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);

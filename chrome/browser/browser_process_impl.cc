@@ -183,7 +183,7 @@ BrowserProcessImpl::~BrowserProcessImpl() {
   print_job_manager_.reset();
 
   // The ViewStorage needs to go before the NotificationService.
-  ChromeViews::ViewStorage::DeleteSharedInstance();
+  views::ViewStorage::DeleteSharedInstance();
 
   // Now OK to destroy NotificationService.
   main_notification_service_.reset();
@@ -341,8 +341,8 @@ void BrowserProcessImpl::CreateDebuggerWrapper(int port) {
 
 void BrowserProcessImpl::CreateAcceleratorHandler() {
   DCHECK(accelerator_handler_.get() == NULL);
-  scoped_ptr<ChromeViews::AcceleratorHandler> accelerator_handler(
-      new ChromeViews::AcceleratorHandler);
+  scoped_ptr<views::AcceleratorHandler> accelerator_handler(
+      new views::AcceleratorHandler);
   accelerator_handler_.swap(accelerator_handler);
 }
 

@@ -12,7 +12,7 @@
 
 using namespace std;
 
-namespace ChromeViews {
+namespace views {
 
 static const int kPaddingEdge = 10;
 static const int kSpacingInfoBottom = 20;
@@ -26,7 +26,7 @@ class Option : public View,
          Controller* controller);
 
   // NativeButton::Listener methods:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  virtual void ButtonPressed(NativeButton* sender);
 
  private:
   int command_id_;
@@ -145,9 +145,9 @@ Option::Option(int command_id,
   layout->AddView(button);
 }
 
-void Option::ButtonPressed(ChromeViews::NativeButton* sender) {
+void Option::ButtonPressed(NativeButton* sender) {
   controller_->ExecuteCommand(command_id_);
 }
 
-} // namespace ChromeViews
+}  // namespace views
 

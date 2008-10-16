@@ -14,7 +14,7 @@ class RenderViewHostDelegate;
 // A simple view that wraps a RenderViewHost in an HWNDView to facilitate
 // rendering HTML as arbitrary browser views.
 // TODO(timsteele): (bug 1317303). This should replace DOMView.
-class HWNDHtmlView : public ChromeViews::HWNDView {
+class HWNDHtmlView : public views::HWNDView {
  public:
   HWNDHtmlView(const GURL& content_url, RenderViewHostDelegate* delegate,
                bool allow_dom_ui_bindings)

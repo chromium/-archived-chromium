@@ -87,9 +87,10 @@ BrowserWindow* FrameUtil::CreateBrowserWindow(const gfx::Rect& bounds,
 }
 
 // static
-bool FrameUtil::LoadAccelerators(BrowserWindow* frame,
+bool FrameUtil::LoadAccelerators(
+    BrowserWindow* frame,
     HACCEL accelerator_table,
-    ChromeViews::AcceleratorTarget* accelerator_target) {
+    views::AcceleratorTarget* accelerator_target) {
   DCHECK(!g_browser_process->IsUsingNewFrames());
 
   // We have to copy the table to access its contents.
@@ -103,18 +104,18 @@ bool FrameUtil::LoadAccelerators(BrowserWindow* frame,
   CopyAcceleratorTable(accelerator_table, accelerators, count);
 
   HWND hwnd = static_cast<HWND>(frame->GetPlatformID());
-  ChromeViews::FocusManager* focus_manager =
-      ChromeViews::FocusManager::GetFocusManager(hwnd);
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(hwnd);
   DCHECK(focus_manager);
 
   // Let's build our own accelerator table.
-  std::map<ChromeViews::Accelerator, int>* our_accelerators =
-      new std::map<ChromeViews::Accelerator, int>;
+  std::map<views::Accelerator, int>* our_accelerators =
+      new std::map<views::Accelerator, int>;
   for (int i = 0; i < count; ++i) {
     bool alt_down = (accelerators[i].fVirt & FALT) == FALT;
     bool ctrl_down = (accelerators[i].fVirt & FCONTROL) == FCONTROL;
     bool shift_down = (accelerators[i].fVirt & FSHIFT) == FSHIFT;
-    ChromeViews::Accelerator accelerator(accelerators[i].key,
+    views::Accelerator accelerator(accelerators[i].key,
                                          shift_down, ctrl_down, alt_down);
     (*our_accelerators)[accelerator] = accelerators[i].cmd;
 

@@ -12,7 +12,7 @@
 #include "chrome/views/view.h"
 #include "skia/include/SkBitmap.h"
 
-namespace ChromeViews {
+namespace views {
 class ContainerWin;
 }
 namespace gfx {
@@ -23,7 +23,7 @@ class Tab;
 class TabContents;
 class TabRenderer;
 
-class DraggedTabView : public ChromeViews::View,
+class DraggedTabView : public views::View,
                        public AnimationDelegate {
  public:
   DraggedTabView(TabContents* datasource,
@@ -58,7 +58,7 @@ class DraggedTabView : public ChromeViews::View,
   virtual void AnimationEnded(const Animation* animation);
   virtual void AnimationCanceled(const Animation* animation);
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
@@ -76,7 +76,7 @@ class DraggedTabView : public ChromeViews::View,
   int ScaleValue(int value);
 
   // The window that contains the DraggedTabView.
-  ChromeViews::ContainerWin* container_;
+  views::ContainerWin* container_;
 
   // The renderer that paints the Tab shape.
   scoped_ptr<TabRenderer> renderer_;

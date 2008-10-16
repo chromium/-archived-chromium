@@ -12,7 +12,7 @@
 //
 // SadTabView
 //
-//  A ChromeViews::View subclass used to render the presentation of the crashed
+//  A views::View subclass used to render the presentation of the crashed
 //  "sad tab" in the browser window when a renderer is destroyed unnaturally.
 //
 //  Note that since this view is not (currently) part of a Container or
@@ -23,12 +23,12 @@
 //  processing will work.
 //
 ///////////////////////////////////////////////////////////////////////////////
-class SadTabView : public ChromeViews::View {
+class SadTabView : public views::View {
  public:
   SadTabView();
   virtual ~SadTabView() {}
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
 

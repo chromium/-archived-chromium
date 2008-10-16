@@ -11,13 +11,12 @@
 
 class MessageBoxView;
 class WebContents;
-
-namespace ChromeViews {
+namespace views {
 class Window;
 }
 
 class JavascriptMessageBoxHandler
-    : public ChromeViews::AppModalDialogDelegate,
+    : public views::AppModalDialogDelegate,
       public NotificationObserver {
  public:
   // Creates and runs a Javascript Message Box dialog.
@@ -34,20 +33,20 @@ class JavascriptMessageBoxHandler
                                       IPC::Message* reply_msg);
   virtual ~JavascriptMessageBoxHandler();
 
-  // ChromeViews::DialogDelegate Methods:
+  // views::DialogDelegate Methods:
   virtual int GetDialogButtons() const;
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool Cancel();
   virtual bool Accept();
 
-  // ChromeViews::AppModalDialogDelegate
+  // views::AppModalDialogDelegate
   virtual void ShowModalDialog();
   virtual void ActivateModalDialog();
 
-  // ChromeViews::WindowDelegate Methods:
+  // views::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
  protected:
   // Use RunJavaScriptMessageBox to use.
@@ -78,7 +77,7 @@ class JavascriptMessageBoxHandler
   int dialog_flags_;
 
   // The dialog if it is currently visible.
-  ChromeViews::Window* dialog_;
+  views::Window* dialog_;
 
   DISALLOW_EVIL_CONSTRUCTORS(JavascriptMessageBoxHandler);
 };

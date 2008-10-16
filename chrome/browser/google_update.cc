@@ -161,7 +161,7 @@ GoogleUpdate::~GoogleUpdate() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// GoogleUpdate, ChromeViews::DialogDelegate implementation:
+// GoogleUpdate, views::DialogDelegate implementation:
 
 void GoogleUpdate::CheckForUpdate(bool install_if_newer) {
   // We need to shunt this request over to InitiateGoogleUpdateCheck and have

@@ -114,7 +114,7 @@ class StarredURLDatabase : public URLDatabase {
   StarID CreateStarredEntry(StarredEntry* entry);
 
   // Used when checking integrity of starred table.
-  typedef ChromeViews::TreeNodeWithValue<history::StarredEntry> StarredNode;
+  typedef views::TreeNodeWithValue<history::StarredEntry> StarredNode;
 
   // Returns the max group id, or 0 if there is an error.
   UIStarID GetMaxGroupID();

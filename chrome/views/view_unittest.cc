@@ -28,7 +28,7 @@ class ViewTest : public testing::Test {
 };
 
 // Paints the RootView.
-void PaintRootView(ChromeViews::RootView* root, bool empty_paint) {
+void PaintRootView(views::RootView* root, bool empty_paint) {
   if (!empty_paint) {
     root->PaintNow();
   } else {
@@ -90,7 +90,7 @@ class EmptyWindow : public CWindowImpl<EmptyWindow,
 */
 }
 
-using namespace ChromeViews;
+using namespace views;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -283,7 +283,7 @@ TEST_F(ViewTest, MouseEvent) {
   TestView* v2 = new TestView();
   v2->SetBounds (100, 100, 100, 100);
 
-  ChromeViews::ContainerWin window;
+  views::ContainerWin window;
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
   window.Init(NULL, gfx::Rect(50, 50, 650, 650), false);
@@ -357,7 +357,7 @@ TEST_F(ViewTest, Painting) {
                             RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
   bool empty_paint = paint_window.empty_paint();
 
-  ChromeViews::ContainerWin window;
+  views::ContainerWin window;
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
   window.Init(NULL, gfx::Rect(50, 50, 650, 650), NULL);
@@ -426,10 +426,10 @@ public:
   void Observe(NotificationType type, const NotificationSource& source,
     const NotificationDetails& details) {
       ASSERT_TRUE(type == NOTIFY_VIEW_REMOVED);
-      removed_views_.push_back(Source<ChromeViews::View>(source).ptr());
+      removed_views_.push_back(Source<views::View>(source).ptr());
   }
 
-  bool WasRemoved(ChromeViews::View* view) {
+  bool WasRemoved(views::View* view) {
     return std::find(removed_views_.begin(), removed_views_.end(), view) !=
         removed_views_.end();
   }
@@ -444,8 +444,8 @@ TEST_F(ViewTest, RemoveNotification) {
   NotificationService::current()->AddObserver(
       observer.get(), NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
 
-  ChromeViews::ContainerWin* window = new ChromeViews::ContainerWin;
-  ChromeViews::RootView* root_view = window->GetRootView();
+  views::ContainerWin* window = new views::ContainerWin;
+  views::RootView* root_view = window->GetRootView();
 
   View* v1 = new View;
   root_view->AddChildView(v1);
@@ -508,7 +508,7 @@ TEST_F(ViewTest, RemoveNotification) {
 }
 
 namespace {
-class HitTestView : public ChromeViews::View {
+class HitTestView : public views::View {
  public:
   explicit HitTestView(bool has_hittest_mask)
       : has_hittest_mask_(has_hittest_mask) {
@@ -516,7 +516,7 @@ class HitTestView : public ChromeViews::View {
   virtual ~HitTestView() {}
 
  protected:
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual bool HasHitTestMask() const {
     return has_hittest_mask_;
   }
@@ -540,16 +540,16 @@ class HitTestView : public ChromeViews::View {
   DISALLOW_COPY_AND_ASSIGN(HitTestView);
 };
 
-gfx::Point ConvertPointToView(ChromeViews::View* view, const gfx::Point& p) {
+gfx::Point ConvertPointToView(views::View* view, const gfx::Point& p) {
   gfx::Point tmp(p);
-  ChromeViews::View::ConvertPointToView(view->GetRootView(), view, &tmp);
+  views::View::ConvertPointToView(view->GetRootView(), view, &tmp);
   return tmp;
 }
 }
 
 TEST_F(ViewTest, HitTestMasks) {
-  ChromeViews::ContainerWin window;
-  ChromeViews::RootView* root_view = window.GetRootView();
+  views::ContainerWin window;
+  views::RootView* root_view = window.GetRootView();
   root_view->SetBounds(0, 0, 500, 500);
 
   gfx::Rect v1_bounds = gfx::Rect(0, 0, 100, 100);

@@ -158,8 +158,8 @@ bool Upgrade::RelaunchChromeBrowser(const CommandLine& command_line) {
 }
 
 void OpenFirstRunDialog(Profile* profile) {
-  ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(),
-                                          new FirstRunView(profile))->Show();
+  views::Window::CreateChromeWindow(NULL, gfx::Rect(),
+                                    new FirstRunView(profile))->Show();
   // We must now run a message loop (will be terminated when the First Run UI
   // is closed) so that the window can receive messages and we block the
   // browser window from showing up. We pass the accelerator handler here so

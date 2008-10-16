@@ -38,7 +38,7 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
 
   renderer_->UpdateData(datasource);
 
-  container_ = new ChromeViews::ContainerWin;
+  container_ = new views::ContainerWin;
   container_->set_window_style(WS_POPUP);
   container_->set_window_ex_style(
     WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW);
@@ -138,7 +138,7 @@ void DraggedTabView::AnimationCanceled(const Animation* animation) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// DraggedTabView, ChromeViews::View overrides:
+// DraggedTabView, views::View overrides:
 
 void DraggedTabView::Paint(ChromeCanvas* canvas) {
   if (attached_) {

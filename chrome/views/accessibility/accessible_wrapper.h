@@ -10,8 +10,8 @@
 
 #include "base/basictypes.h"
 
-namespace ChromeViews {
-  class View;
+namespace views {
+class View;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ namespace ChromeViews {
 ////////////////////////////////////////////////////////////////////////////////
 class AccessibleWrapper {
  public:
-  explicit AccessibleWrapper(ChromeViews::View* view);
+  explicit AccessibleWrapper(views::View* view);
   ~AccessibleWrapper() {}
 
   STDMETHODIMP CreateDefaultInstance(REFIID iid);
@@ -47,7 +47,7 @@ class AccessibleWrapper {
   CComPtr<IAccessible> accessibility_info_;
 
   // View needed to initialize IAccessible.
-  ChromeViews::View* view_;
+  views::View* view_;
 
   DISALLOW_COPY_AND_ASSIGN(AccessibleWrapper);
 };

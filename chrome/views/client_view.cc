@@ -5,7 +5,7 @@
 #include "base/logging.h"
 #include "chrome/views/client_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 ///////////////////////////////////////////////////////////////////////////////
 // ClientView, public:
@@ -45,4 +45,4 @@ void ClientView::Layout() {
     contents_view_->SetBounds(0, 0, width(), height());
 }
 
-};  // namespace ChromeViews
+}  // namespace views

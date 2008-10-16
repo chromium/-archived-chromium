@@ -29,7 +29,7 @@ UserDataDirDialog::UserDataDirDialog(const std::wstring& user_data_dir)
   message_box_view_ = new MessageBoxView(MessageBoxView::kIsConfirmMessageBox,
       message_text.c_str(), std::wstring(), kDialogWidth);
 
-  ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), this)->Show();
+  views::Window::CreateChromeWindow(NULL, gfx::Rect(), this)->Show();
 }
 
 UserDataDirDialog::~UserDataDirDialog() {
@@ -82,7 +82,7 @@ bool UserDataDirDialog::Cancel() {
   return true;
 }
 
-ChromeViews::View* UserDataDirDialog::GetContentsView() {
+views::View* UserDataDirDialog::GetContentsView() {
   return message_box_view_;
 }
 

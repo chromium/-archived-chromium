@@ -14,8 +14,8 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/throbber.h"
 
-class DelayView : public ChromeViews::View,
-                  public ChromeViews::NativeButton::Listener {
+class DelayView : public views::View,
+                  public views::NativeButton::Listener {
  public:
   // |text| explains the delay
   // |controller| receives notifications when the "cancel" button is pressed
@@ -29,18 +29,18 @@ class DelayView : public ChromeViews::View,
     ID_CANCEL = 10000,
   };
 
-  // Overridden from ChromeViews::View
+  // Overridden from views::View
   virtual void Layout();
 
-  // Implemented from ChromeViews::NativeButton::Listener
-  virtual void ButtonPressed(ChromeViews::NativeButton *sender);
+  // Implemented from views::NativeButton::Listener
+  virtual void ButtonPressed(views::NativeButton *sender);
 
  private:
   CommandController* controller_;
 
-  ChromeViews::Label* label_;
-  ChromeViews::NativeButton* cancel_button_;
-  ChromeViews::Throbber* throbber_;
+  views::Label* label_;
+  views::NativeButton* cancel_button_;
+  views::Throbber* throbber_;
 
   DISALLOW_EVIL_CONSTRUCTORS(DelayView);
 };

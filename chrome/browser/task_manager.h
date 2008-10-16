@@ -31,7 +31,7 @@ class TaskManagerWindow;
 
 struct BytesReadParam;
 
-namespace ChromeViews {
+namespace views {
 class View;
 class Window;
 }
@@ -41,7 +41,7 @@ class ProcessMetrics;
 }
 
 // This class is a singleton.
-class TaskManager : public ChromeViews::DialogDelegate {
+class TaskManager : public views::DialogDelegate {
  public:
   // A resource represents one row in the task manager.
   // Resources from similar processes are grouped together by the task manager.
@@ -123,7 +123,7 @@ class TaskManager : public ChromeViews::DialogDelegate {
   void AddResource(Resource* resource);
   void RemoveResource(Resource* resource);
 
-  // ChromeViews::DialogDelegate methods:
+  // views::DialogDelegate methods:
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
   virtual bool ShouldShowWindowIcon() const;
@@ -138,7 +138,7 @@ class TaskManager : public ChromeViews::DialogDelegate {
                                      bool* always_on_top);
   virtual int GetDialogButtons() const;
   virtual void WindowClosing();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
  private:
   // Obtain an instance via GetInstance().
@@ -164,7 +164,7 @@ class TaskManager : public ChromeViews::DialogDelegate {
 };
 
 // The model that the table is using.
-class TaskManagerTableModel : public ChromeViews::GroupTableModel,
+class TaskManagerTableModel : public views::GroupTableModel,
                               public URLRequestJobTracker::JobObserver,
                               public base::RefCounted<TaskManagerTableModel> {
  public:
@@ -175,8 +175,8 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
   int RowCount();
   std::wstring GetText(int row, int column);
   SkBitmap GetIcon(int row);
-  void GetGroupRangeForItem(int item, ChromeViews::GroupRange* range);
-  void SetObserver(ChromeViews::TableModelObserver* observer);
+  void GetGroupRangeForItem(int item, views::GroupRange* range);
+  void SetObserver(views::TableModelObserver* observer);
   virtual int CompareValues(int row1, int row2, int column_id);
 
   // Returns the index at the specified row.
@@ -308,7 +308,7 @@ class TaskManagerTableModel : public ChromeViews::GroupTableModel,
   // A map that contains the CPU usage (in %) for a process since last refresh.
   CPUUsageMap cpu_usage_map_;
 
-  ChromeViews::TableModelObserver* observer_;
+  views::TableModelObserver* observer_;
 
   MessageLoop* ui_loop_;
 

@@ -8,7 +8,7 @@
 #include "base/task.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 
-namespace ChromeViews {
+namespace views {
 
 static const COLORREF kSeparatorLineColor = RGB(208, 208, 208);
 static const int kSeparatorLineThickness = 1;
@@ -190,4 +190,4 @@ std::string GroupTableView::GetClassName() const {
   return kViewClassName;
 }
 
-}  // Namespace
+}  // namespace views

@@ -11,7 +11,7 @@
 #include "chrome/browser/views/tabs/tab_renderer.h"
 #include "chrome/common/notification_service.h"
 
-namespace ChromeViews {
+namespace views {
 class MouseEvent;
 class View;
 }
@@ -192,7 +192,7 @@ class DraggedTabController : public TabContentsDelegate,
   gfx::Point GetCursorScreenPoint() const;
 
   // Returns the bounds (in screen coordinates) of the specified View.
-  gfx::Rect GetViewScreenBounds(ChromeViews::View* tabstrip) const;
+  gfx::Rect GetViewScreenBounds(views::View* tabstrip) const;
 
   // Utility to convert the specified TabStripModel index to something valid
   // for the attached TabStrip.
@@ -270,7 +270,7 @@ class DraggedTabController : public TabContentsDelegate,
   // The last view that had focus in the window containing |source_tab_|. This
   // is saved so that focus can be restored properly when a drag begins and
   // ends within this same window.
-  ChromeViews::View* old_focused_view_;
+  views::View* old_focused_view_;
 
   bool in_destructor_;
 

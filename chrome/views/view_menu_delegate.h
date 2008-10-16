@@ -7,7 +7,7 @@
 
 #include <windows.h>
 
-namespace ChromeViews {
+namespace views {
 
 class View;
 
@@ -24,12 +24,10 @@ class ViewMenuDelegate {
  public:
   // Create and show a menu at the specified position. Source is the view the
   // ViewMenuDelegate was set on.
-  virtual void RunMenu(ChromeViews::View* source,
-                       const CPoint& pt,
-                       HWND hwnd) = 0;
+  virtual void RunMenu(View* source, const CPoint& pt, HWND hwnd) = 0;
 };
 
-} // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_VIEW_MENU_DELEGATE_H__
 

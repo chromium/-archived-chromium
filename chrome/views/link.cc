@@ -8,7 +8,7 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/event.h"
 
-namespace ChromeViews {
+namespace views {
 
 static HCURSOR g_hand_cursor = NULL;
 
@@ -184,5 +184,5 @@ HCURSOR Link::GetCursorForPoint(Event::EventType event_type, int x, int y) {
   }
 }
 
-}
+}  // namespace views
 

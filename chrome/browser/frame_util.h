@@ -9,7 +9,7 @@
 
 class Browser;
 class BrowserWindow;
-namespace ChromeViews {
+namespace views {
 class AcceleratorTarget;
 }
 namespace gfx {
@@ -33,7 +33,7 @@ class FrameUtil {
   static bool LoadAccelerators(
       BrowserWindow* frame,
       HACCEL accelerator_table,
-      ChromeViews::AcceleratorTarget* accelerator_target);
+      views::AcceleratorTarget* accelerator_target);
 
   // Activate any app modal dialog that might be present. Returns true if one
   // was present.

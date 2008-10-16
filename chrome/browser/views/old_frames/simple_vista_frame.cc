@@ -54,8 +54,8 @@ SimpleVistaFrame* SimpleVistaFrame::CreateFrame(const gfx::Rect& bounds,
                    l10n_util::GetString(IDS_PRODUCT_NAME).c_str());
   instance->InitAfterHWNDCreated();
   instance->SetIsOffTheRecord(browser->profile()->IsOffTheRecord());
-  ChromeViews::FocusManager::CreateFocusManager(instance->m_hWnd,
-                                                instance->GetRootView());
+  views::FocusManager::CreateFocusManager(instance->m_hWnd,
+                                          instance->GetRootView());
   return instance;
 }
 

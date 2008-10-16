@@ -11,7 +11,7 @@
 
 class Timer;
 
-namespace ChromeViews {
+namespace views {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -43,10 +43,9 @@ class ButtonDropDown : public Button {
 
  private:
   // Overridden from Button
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
-  virtual void OnMouseReleased(const ChromeViews::MouseEvent& e,
-                               bool canceled);
-  virtual bool OnMouseDragged(const ChromeViews::MouseEvent& e);
+  virtual bool OnMousePressed(const MouseEvent& e);
+  virtual void OnMouseReleased(const MouseEvent& e, bool canceled);
+  virtual bool OnMouseDragged(const MouseEvent& e);
 
   // Internal function to show the dropdown menu
   void ShowDropDownMenu(HWND window);
@@ -63,7 +62,7 @@ class ButtonDropDown : public Button {
   DISALLOW_EVIL_CONSTRUCTORS(ButtonDropDown);
 };
 
-} // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_BUTTON_DROPDOWN_H__
 

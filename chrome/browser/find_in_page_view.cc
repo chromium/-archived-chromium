@@ -92,54 +92,54 @@ FindInPageView::FindInPageView(FindInPageController* controller)
       active_match_ordinal_(-1) {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
-  find_text_ = new ChromeViews::TextField();
+  find_text_ = new views::TextField();
   find_text_->SetFont(rb.GetFont(ResourceBundle::BaseFont));
   find_text_->set_default_width_in_chars(kDefaultCharWidth);
   AddChildView(find_text_);
 
-  match_count_text_ = new ChromeViews::Label();
+  match_count_text_ = new views::Label();
   match_count_text_->SetFont(rb.GetFont(ResourceBundle::BaseFont));
   match_count_text_->SetColor(kTextColorMatchCount);
-  match_count_text_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_CENTER);
+  match_count_text_->SetHorizontalAlignment(views::Label::ALIGN_CENTER);
   AddChildView(match_count_text_);
 
   // Create a focus forwarder view which sends focus to find_text_.
   focus_forwarder_view_ = new FocusForwarderView(find_text_);
   AddChildView(focus_forwarder_view_);
 
-  find_previous_button_ = new ChromeViews::Button();
+  find_previous_button_ = new views::Button();
   find_previous_button_->SetEnabled(false);
   find_previous_button_->SetFocusable(true);
-  find_previous_button_->SetImage(ChromeViews::Button::BS_NORMAL,
+  find_previous_button_->SetImage(views::Button::BS_NORMAL,
       rb.GetBitmapNamed(IDR_FINDINPAGE_PREV));
-  find_previous_button_->SetImage(ChromeViews::Button::BS_HOT,
+  find_previous_button_->SetImage(views::Button::BS_HOT,
       rb.GetBitmapNamed(IDR_FINDINPAGE_PREV_H));
-  find_previous_button_->SetImage(ChromeViews::Button::BS_DISABLED,
+  find_previous_button_->SetImage(views::Button::BS_DISABLED,
       rb.GetBitmapNamed(IDR_FINDINPAGE_PREV_P));
   find_previous_button_->SetTooltipText(
       l10n_util::GetString(IDS_FIND_IN_PAGE_PREVIOUS_TOOLTIP));
   AddChildView(find_previous_button_);
 
-  find_next_button_ = new ChromeViews::Button();
+  find_next_button_ = new views::Button();
   find_next_button_->SetEnabled(false);
   find_next_button_->SetFocusable(true);
-  find_next_button_->SetImage(ChromeViews::Button::BS_NORMAL,
+  find_next_button_->SetImage(views::Button::BS_NORMAL,
       rb.GetBitmapNamed(IDR_FINDINPAGE_NEXT));
-  find_next_button_->SetImage(ChromeViews::Button::BS_HOT,
+  find_next_button_->SetImage(views::Button::BS_HOT,
       rb.GetBitmapNamed(IDR_FINDINPAGE_NEXT_H));
-  find_next_button_->SetImage(ChromeViews::Button::BS_DISABLED,
+  find_next_button_->SetImage(views::Button::BS_DISABLED,
       rb.GetBitmapNamed(IDR_FINDINPAGE_NEXT_P));
   find_next_button_->SetTooltipText(
       l10n_util::GetString(IDS_FIND_IN_PAGE_NEXT_TOOLTIP));
   AddChildView(find_next_button_);
 
-  close_button_ = new ChromeViews::Button();
+  close_button_ = new views::Button();
   close_button_->SetFocusable(true);
-  close_button_->SetImage(ChromeViews::Button::BS_NORMAL,
+  close_button_->SetImage(views::Button::BS_NORMAL,
       rb.GetBitmapNamed(IDR_CLOSE_BAR));
-  close_button_->SetImage(ChromeViews::Button::BS_HOT,
+  close_button_->SetImage(views::Button::BS_HOT,
       rb.GetBitmapNamed(IDR_CLOSE_BAR_H));
-  close_button_->SetImage(ChromeViews::Button::BS_PUSHED,
+  close_button_->SetImage(views::Button::BS_PUSHED,
       rb.GetBitmapNamed(IDR_CLOSE_BAR_P));
   close_button_->SetTooltipText(
       l10n_util::GetString(IDS_FIND_IN_PAGE_CLOSE_TOOLTIP));
@@ -176,7 +176,7 @@ void FindInPageView::ResetMatchCount() {
 
 void FindInPageView::ResetMatchCountBackground() {
   match_count_text_->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(kBackgroundColorMatch));
+      views::Background::CreateSolidBackground(kBackgroundColorMatch));
   match_count_text_->SetColor(kTextColorMatchCount);
 }
 
@@ -202,7 +202,7 @@ void FindInPageView::UpdateMatchCount(int number_of_matches,
     ResetMatchCountBackground();
   } else {
     match_count_text_->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(kBackgroundColorNoMatch));
+      views::Background::CreateSolidBackground(kBackgroundColorNoMatch));
     match_count_text_->SetColor(kTextColorNoMatch);
     MessageBeep(MB_OK);
   }
@@ -238,7 +238,7 @@ void FindInPageView::OnShow() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// FindInPageView, ChromeViews::View overrides:
+// FindInPageView, views::View overrides:
 
 void FindInPageView::Paint(ChromeCanvas* canvas) {
   SkPaint paint;
@@ -422,9 +422,9 @@ gfx::Size FindInPageView::GetPreferredSize() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageView, ChromeViews::BaseButton::ButtonListener implementation:
+// FindInPageView, views::BaseButton::ButtonListener implementation:
 
-void FindInPageView::ButtonPressed(ChromeViews::BaseButton* sender) {
+void FindInPageView::ButtonPressed(views::BaseButton* sender) {
   switch (sender->GetTag()) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
@@ -443,9 +443,9 @@ void FindInPageView::ButtonPressed(ChromeViews::BaseButton* sender) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageView, ChromeViews::TextField::Controller implementation:
+// FindInPageView, views::TextField::Controller implementation:
 
-void FindInPageView::ContentsChanged(ChromeViews::TextField* sender,
+void FindInPageView::ContentsChanged(views::TextField* sender,
                                      const std::wstring& new_contents) {
   // When the user changes something in the text box we check the contents and
   // if the textbox contains something we set it as the new search string and
@@ -462,7 +462,7 @@ void FindInPageView::ContentsChanged(ChromeViews::TextField* sender,
   }
 }
 
-void FindInPageView::HandleKeystroke(ChromeViews::TextField* sender,
+void FindInPageView::HandleKeystroke(views::TextField* sender,
                                      UINT message, TCHAR key, UINT repeat_count,
                                      UINT flags) {
   // If the dialog is not visible, there is no reason to process keyboard input.
@@ -484,7 +484,7 @@ void FindInPageView::HandleKeystroke(ChromeViews::TextField* sender,
 }
 
 bool FindInPageView::FocusForwarderView::OnMousePressed(
-    const ChromeViews::MouseEvent& event) {
+    const views::MouseEvent& event) {
   if (view_to_focus_on_mousedown_) {
     view_to_focus_on_mousedown_->ClearSelection();
     view_to_focus_on_mousedown_->RequestFocus();

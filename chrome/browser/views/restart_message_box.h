@@ -12,21 +12,21 @@ class MessageBoxView;
 
 // A dialog box that tells the user that s/he needs to restart Chrome
 // for a change to take effect.
-class RestartMessageBox : public ChromeViews::DialogDelegate {
+class RestartMessageBox : public views::DialogDelegate {
  public:
   // This box is modal to |parent_hwnd|.
   static void ShowMessageBox(HWND parent_hwnd);
 
  protected:
-  // ChromeViews::DialogDelegate:
+  // views::DialogDelegate:
   virtual int GetDialogButtons() const;
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
 
-  // ChromeViews::WindowDelegate:
+  // views::WindowDelegate:
   virtual void WindowClosing();
   virtual bool IsModal() const;
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
  private:
   explicit RestartMessageBox(HWND parent_hwnd);

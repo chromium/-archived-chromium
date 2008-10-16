@@ -164,24 +164,24 @@ int GetContentHeight() {
 //
 //  This is a Button subclass that causes middle clicks to be forwarded to the
 //  parent View by explicitly not handling them in OnMousePressed.
-class TabCloseButton : public ChromeViews::Button {
+class TabCloseButton : public views::Button {
  public:
   TabCloseButton() : Button() {}
   virtual ~TabCloseButton() {}
 
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& event) {
+  virtual bool OnMousePressed(const views::MouseEvent& event) {
     return !event.IsOnlyMiddleMouseButton();
   }
 
   // We need to let the parent know about mouse state so that it
   // can highlight itself appropriately. Note that Exit events
   // fire before Enter events, so this works.
-  virtual void OnMouseEntered(const ChromeViews::MouseEvent& event) {
+  virtual void OnMouseEntered(const views::MouseEvent& event) {
     BaseButton::OnMouseEntered(event);
     GetParent()->OnMouseEntered(event);
   }
 
-  virtual void OnMouseExited(const ChromeViews::MouseEvent& event) {
+  virtual void OnMouseExited(const views::MouseEvent& event) {
     BaseButton::OnMouseExited(event);
     GetParent()->OnMouseExited(event);
   }
@@ -247,9 +247,9 @@ TabRenderer::TabRenderer()
 
   // Add the Close Button.
   close_button_ = new TabCloseButton;
-  close_button_->SetImage(ChromeViews::Button::BS_NORMAL, close_button_n);
-  close_button_->SetImage(ChromeViews::Button::BS_HOT, close_button_h);
-  close_button_->SetImage(ChromeViews::Button::BS_PUSHED, close_button_p);
+  close_button_->SetImage(views::Button::BS_NORMAL, close_button_n);
+  close_button_->SetImage(views::Button::BS_HOT, close_button_h);
+  close_button_->SetImage(views::Button::BS_PUSHED, close_button_p);
   AddChildView(close_button_);
 
   hover_animation_.reset(new SlideAnimation(this));
@@ -364,7 +364,7 @@ std::wstring TabRenderer::GetTitle() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// TabRenderer, ChromeViews::View overrides:
+// TabRenderer, views::View overrides:
 
 void TabRenderer::Paint(ChromeCanvas* canvas) {
   // Don't paint if we're narrower than we can render correctly. (This should
@@ -507,8 +507,8 @@ void TabRenderer::Layout() {
   // are not represented as child Views (which is the preferred method).
   // Instead, these UI elements are drawn directly on the canvas from within
   // Tab::Paint(). The Tab's child Views (for example, the Tab's close button
-  // which is a ChromeViews::Button instance) are automatically mirrored by the
-  // mirroring infrastructure in ChromeViews. The elements Tab draws directly
+  // which is a views::Button instance) are automatically mirrored by the
+  // mirroring infrastructure in views. The elements Tab draws directly
   // on the canvas need to be manually mirrored if the View's layout is
   // right-to-left.
   favicon_bounds_.set_x(MirroredLeftPointForRect(favicon_bounds_));
@@ -516,12 +516,12 @@ void TabRenderer::Layout() {
   download_icon_bounds_.set_x(MirroredLeftPointForRect(download_icon_bounds_));
 }
 
-void TabRenderer::OnMouseEntered(const ChromeViews::MouseEvent& e) {
+void TabRenderer::OnMouseEntered(const views::MouseEvent& e) {
   hover_animation_->SetTweenType(SlideAnimation::EASE_OUT);
   hover_animation_->Show();
 }
 
-void TabRenderer::OnMouseExited(const ChromeViews::MouseEvent& e) {
+void TabRenderer::OnMouseExited(const views::MouseEvent& e) {
   hover_animation_->SetTweenType(SlideAnimation::EASE_IN);
   hover_animation_->Hide();
 }

@@ -12,7 +12,7 @@
 
 class ChromeCanvas;
 
-namespace ChromeViews {
+namespace views {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -104,7 +104,7 @@ class ImageView : public View {
   DISALLOW_EVIL_CONSTRUCTORS(ImageView);
 };
 
-}
+}  // namespace views
 
 #endif  // CHROME_VIEWS_IMAGE_VIEW_H__
 

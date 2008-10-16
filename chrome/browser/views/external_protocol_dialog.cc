@@ -41,7 +41,7 @@ ExternalProtocolDialog::~ExternalProtocolDialog() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// ExternalProtocolDialog, ChromeViews::DialogDelegate implementation:
+// ExternalProtocolDialog, views::DialogDelegate implementation:
 
 int ExternalProtocolDialog::GetDialogButtons() const {
   return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
@@ -82,7 +82,7 @@ bool ExternalProtocolDialog::Accept() {
   return true;
 }
 
-ChromeViews::View* ExternalProtocolDialog::GetContentsView() {
+views::View* ExternalProtocolDialog::GetContentsView() {
   return message_box_view_;
 }
 
@@ -116,7 +116,7 @@ ExternalProtocolDialog::ExternalProtocolDialog(TabContents* tab_contents,
     root_hwnd = NULL;
   }
 
-  ChromeViews::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
+  views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
 }
 
 /* static */

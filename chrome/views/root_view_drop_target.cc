@@ -10,7 +10,7 @@
 #include "chrome/views/container.h"
 #include "chrome/views/root_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 RootViewDropTarget::RootViewDropTarget(RootView* root_view)
     : BaseDropTarget(root_view->GetContainer()->GetHWND()),
@@ -116,5 +116,5 @@ View* RootViewDropTarget::CalculateTargetView(
   return view;
 }
 
-}  // namespace
+}  // namespace views
 

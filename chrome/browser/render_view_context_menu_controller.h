@@ -20,7 +20,7 @@ class RenderViewContextMenuController : public Menu::Delegate {
   virtual std::wstring GetLabel(int id) const;
   virtual bool IsCommandEnabled(int id) const;
   virtual void ExecuteCommand(int id);
-  virtual bool GetAcceleratorInfo(int id, ChromeViews::Accelerator* accel);
+  virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
  private:
   // Opens the specified URL string in a new tab.  If |in_current_window| is

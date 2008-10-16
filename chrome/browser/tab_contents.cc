@@ -47,7 +47,7 @@ TabContents::TabContents(TabContentsType type)
       max_page_id_(-1),
       capturing_contents_(false) {
   last_focused_view_storage_id_ =
-      ChromeViews::ViewStorage::GetSharedInstance()->CreateStorageID();
+      views::ViewStorage::GetSharedInstance()->CreateStorageID();
 }
 
 TabContents::~TabContents() {
@@ -55,8 +55,7 @@ TabContents::~TabContents() {
   //
   // It is possible the view went away before us, so we only do this if the
   // view is registered.
-  ChromeViews::ViewStorage* view_storage =
-      ChromeViews::ViewStorage::GetSharedInstance();
+  views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
   if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
     view_storage->RemoveView(last_focused_view_storage_id_);
 }
@@ -260,8 +259,8 @@ bool TabContents::NavigateToPendingEntry(bool reload) {
 }
 
 ConstrainedWindow* TabContents::CreateConstrainedDialog(
-    ChromeViews::WindowDelegate* window_delegate,
-    ChromeViews::View* contents_view) {
+    views::WindowDelegate* window_delegate,
+    views::View* contents_view) {
   ConstrainedWindow* window =
       ConstrainedWindow::CreateConstrainedDialog(
           this, gfx::Rect(), contents_view, window_delegate);
@@ -326,16 +325,16 @@ void TabContents::HideContents() {
   SetParent(GetContainerHWND(), NULL);
 
   // Remove any focus manager related information.
-  ChromeViews::FocusManager::UninstallFocusSubclass(GetContainerHWND());
+  views::FocusManager::UninstallFocusSubclass(GetContainerHWND());
 
   WasHidden();
 }
 
 void TabContents::Focus() {
-  ChromeViews::FocusManager* focus_manager =
-      ChromeViews::FocusManager::GetFocusManager(GetContainerHWND());
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetContainerHWND());
   DCHECK(focus_manager);
-  ChromeViews::View* v =
+  views::View* v =
       focus_manager->GetViewForWindow(GetContainerHWND(), true);
   DCHECK(v);
   if (v)
@@ -343,18 +342,18 @@ void TabContents::Focus() {
 }
 
 void TabContents::StoreFocus() {
-  ChromeViews::ViewStorage* view_storage =
-      ChromeViews::ViewStorage::GetSharedInstance();
+  views::ViewStorage* view_storage =
+      views::ViewStorage::GetSharedInstance();
 
   if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
     view_storage->RemoveView(last_focused_view_storage_id_);
 
-  ChromeViews::FocusManager* focus_manager =
-      ChromeViews::FocusManager::GetFocusManager(GetContainerHWND());
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetContainerHWND());
   if (focus_manager) {
     // |focus_manager| can be NULL if the tab has been detached but still
     // exists.
-    ChromeViews::View* focused_view = focus_manager->GetFocusedView();
+    views::View* focused_view = focus_manager->GetFocusedView();
     if (focused_view)
       view_storage->StoreView(last_focused_view_storage_id_, focused_view);
 
@@ -363,7 +362,7 @@ void TabContents::StoreFocus() {
     // TODO(brettw) this should move to the view somehow.
     HWND container_hwnd = GetContainerHWND();
     if (container_hwnd) {
-      ChromeViews::View* focused_view = focus_manager->GetFocusedView();
+      views::View* focused_view = focus_manager->GetFocusedView();
       if (focused_view) {
         HWND hwnd = focused_view->GetRootView()->GetContainer()->GetHWND();
         if (container_hwnd == hwnd || ::IsChild(container_hwnd, hwnd))
@@ -374,16 +373,16 @@ void TabContents::StoreFocus() {
 }
 
 void TabContents::RestoreFocus() {
-  ChromeViews::ViewStorage* view_storage =
-      ChromeViews::ViewStorage::GetSharedInstance();
-  ChromeViews::View* last_focused_view =
+  views::ViewStorage* view_storage =
+      views::ViewStorage::GetSharedInstance();
+  views::View* last_focused_view =
       view_storage->RetrieveView(last_focused_view_storage_id_);
 
   if (!last_focused_view) {
     SetInitialFocus();
   } else {
-    ChromeViews::FocusManager* focus_manager =
-        ChromeViews::FocusManager::GetFocusManager(GetContainerHWND());
+    views::FocusManager* focus_manager =
+        views::FocusManager::GetFocusManager(GetContainerHWND());
 
     // If you hit this DCHECK, please report it to Jay (jcampan).
     DCHECK(focus_manager != NULL) << "No focus manager when restoring focus.";
@@ -547,7 +546,7 @@ void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
   // http://b/1118139.
   gfx::Point anchor_position(
       new_size.width() -
-          ChromeViews::NativeScrollBar::GetVerticalScrollBarWidth(),
+          views::NativeScrollBar::GetVerticalScrollBarWidth(),
       new_size.height());
   int window_count = static_cast<int>(child_windows_.size());
   for (int i = window_count - 1; i >= 0; --i) {

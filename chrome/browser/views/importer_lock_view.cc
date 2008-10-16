@@ -14,8 +14,8 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
-using ChromeViews::ColumnSet;
-using ChromeViews::GridLayout;
+using views::ColumnSet;
+using views::GridLayout;
 
 // Default size of the dialog window.
 static const int kDefaultWindowWidth = 320;
@@ -24,10 +24,10 @@ static const int kDefaultWindowHeight = 100;
 ImporterLockView::ImporterLockView(ImporterHost* host)
     : description_label_(NULL),
       importer_host_(host) {
-  description_label_ = new ChromeViews::Label(
+  description_label_ = new views::Label(
       l10n_util::GetString(IDS_IMPORTER_LOCK_TEXT));
   description_label_->SetMultiLine(true);
-  description_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  description_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   AddChildView(description_label_);
 }
 
@@ -35,7 +35,7 @@ ImporterLockView::~ImporterLockView() {
 }
 
 gfx::Size ImporterLockView::GetPreferredSize() {
-  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+  return gfx::Size(views::Window::GetLocalizedContentsSize(
       IDS_IMPORTLOCK_DIALOG_WIDTH_CHARS,
       IDS_IMPORTLOCK_DIALOG_HEIGHT_LINES));
 }
@@ -76,7 +76,7 @@ bool ImporterLockView::Cancel() {
   return true;
 }
 
-ChromeViews::View* ImporterLockView::GetContentsView() {
+views::View* ImporterLockView::GetContentsView() {
   return this;
 }
 

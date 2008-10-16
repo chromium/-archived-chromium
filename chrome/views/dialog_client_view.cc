@@ -19,14 +19,14 @@
 #include "chrome/views/window.h"
 #include "generated_resources.h"
 
-namespace ChromeViews {
+namespace views {
 
 namespace {
 
 // Updates any of the standard buttons according to the delegate.
-void UpdateButtonHelper(ChromeViews::NativeButton* button_view,
-                        ChromeViews::DialogDelegate* delegate,
-                        ChromeViews::DialogDelegate::DialogButton button) {
+void UpdateButtonHelper(NativeButton* button_view,
+                        DialogDelegate* delegate,
+                        DialogDelegate::DialogButton button) {
   std::wstring label = delegate->GetDialogButtonLabel(button);
   if (!label.empty())
     button_view->SetLabel(label);
@@ -136,7 +136,7 @@ void DialogClientView::ShowDialogButtons() {
     AddChildView(cancel_button_);
   }
 
-  ChromeViews::View* extra_view = dd->GetExtraView();
+  View* extra_view = dd->GetExtraView();
   if (extra_view && !extra_view_) {
     extra_view_ = extra_view;
     extra_view_->SetGroup(kButtonGroup);
@@ -372,5 +372,5 @@ void DialogClientView::InitClass() {
   }
 }
 
-}
+}  // namespace views
 

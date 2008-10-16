@@ -12,7 +12,7 @@
 
 #include "generated_resources.h"
 
-namespace ChromeViews {
+namespace views {
 
 // How long to wait before showing the menu
 static const int kMenuTimerDelay = 500;
@@ -39,7 +39,7 @@ ButtonDropDown::~ButtonDropDown() {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-bool ButtonDropDown::OnMousePressed(const ChromeViews::MouseEvent& e) {
+bool ButtonDropDown::OnMousePressed(const MouseEvent& e) {
   if (IsEnabled() && e.IsLeftMouseButton() && HitTest(e.location())) {
     // Store the y pos of the mouse coordinates so we can use them later to
     // determine if the user dragged the mouse down (which should pop up the
@@ -56,8 +56,7 @@ bool ButtonDropDown::OnMousePressed(const ChromeViews::MouseEvent& e) {
   return Button::OnMousePressed(e);
 }
 
-void ButtonDropDown::OnMouseReleased(const ChromeViews::MouseEvent& e,
-                                     bool canceled) {
+void ButtonDropDown::OnMouseReleased(const MouseEvent& e, bool canceled) {
   Button::OnMouseReleased(e, canceled);
 
   if (canceled)
@@ -78,7 +77,7 @@ void ButtonDropDown::OnMouseReleased(const ChromeViews::MouseEvent& e,
   }
 }
 
-bool ButtonDropDown::OnMouseDragged(const ChromeViews::MouseEvent& e) {
+bool ButtonDropDown::OnMouseDragged(const MouseEvent& e) {
   bool result = Button::OnMouseDragged(e);
 
   if (!show_menu_factory_.empty()) {
@@ -175,5 +174,5 @@ bool ButtonDropDown::GetAccessibleState(VARIANT* state) {
   return true;
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

@@ -13,7 +13,7 @@
 class ChromeCanvas;
 class SkBitmap;
 
-namespace ChromeViews {
+namespace views {
 
 // Painter, as the name implies, is responsible for painting in a particular
 // region. Think of Painter as a Border or Background that can be painted
@@ -115,7 +115,7 @@ class HorizontalPainter : public Painter {
   DISALLOW_EVIL_CONSTRUCTORS(HorizontalPainter);
 };
 
-}
+}  // namespace views
 
 #endif  // CHROME_VIEWS_PAINTER_H__
 

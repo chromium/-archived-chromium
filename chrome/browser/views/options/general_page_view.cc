@@ -168,7 +168,7 @@ void GeneralPageView::DefaultBrowserWorker::UpdateUI(bool is_default) {
 // CustomHomePagesTableModel is the model for the TableView showing the list
 // of pages the user wants opened on startup.
 
-class CustomHomePagesTableModel : public ChromeViews::TableModel {
+class CustomHomePagesTableModel : public views::TableModel {
  public:
   explicit CustomHomePagesTableModel(Profile* profile);
   virtual ~CustomHomePagesTableModel() {}
@@ -185,11 +185,11 @@ class CustomHomePagesTableModel : public ChromeViews::TableModel {
   // Returns the set of urls this model contains.
   std::vector<GURL> GetURLs();
 
-  // ChromeViews::TableModel overrides:
+  // views::TableModel overrides:
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
   virtual SkBitmap GetIcon(int row);
-  virtual void SetObserver(ChromeViews::TableModelObserver* observer);
+  virtual void SetObserver(views::TableModelObserver* observer);
 
  private:
   // Each item in the model is represented as an Entry. Entry stores the URL
@@ -233,7 +233,7 @@ class CustomHomePagesTableModel : public ChromeViews::TableModel {
   // Profile used to load icons.
   Profile* profile_;
 
-  ChromeViews::TableModelObserver* observer_;
+  views::TableModelObserver* observer_;
 
   // Used in loading favicons.
   CancelableRequestConsumer fav_icon_consumer_;
@@ -311,7 +311,7 @@ SkBitmap CustomHomePagesTableModel::GetIcon(int row) {
 }
 
 void CustomHomePagesTableModel::SetObserver(
-    ChromeViews::TableModelObserver* observer) {
+    views::TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -376,7 +376,7 @@ CustomHomePagesTableModel::Entry*
 ///////////////////////////////////////////////////////////////////////////////
 // SearchEngineListModel
 
-class SearchEngineListModel : public ChromeViews::ComboBox::Model,
+class SearchEngineListModel : public views::ComboBox::Model,
                               public TemplateURLModelObserver {
  public:
   explicit SearchEngineListModel(Profile* profile);
@@ -384,11 +384,11 @@ class SearchEngineListModel : public ChromeViews::ComboBox::Model,
 
   // Sets the ComboBox. SearchEngineListModel needs a handle to the ComboBox
   // so that when the TemplateURLModel changes the combobox can be updated.
-  void SetComboBox(ChromeViews::ComboBox* combo_box);
+  void SetComboBox(views::ComboBox* combo_box);
 
-  // ChromeViews::ComboBox::Model overrides:
-  virtual int GetItemCount(ChromeViews::ComboBox* source);
-  virtual std::wstring GetItemAt(ChromeViews::ComboBox* source, int index);
+  // views::ComboBox::Model overrides:
+  virtual int GetItemCount(views::ComboBox* source);
+  virtual std::wstring GetItemAt(views::ComboBox* source, int index);
 
   // Returns the TemplateURL at the specified index.
   const TemplateURL* GetTemplateURLAt(int index);
@@ -409,7 +409,7 @@ class SearchEngineListModel : public ChromeViews::ComboBox::Model,
   TemplateURLModel* template_url_model_;
 
   // The combobox hosting us.
-  ChromeViews::ComboBox* combo_box_;
+  views::ComboBox* combo_box_;
 
   // The TemplateURLs we're showing.
   typedef std::vector<const TemplateURL*> TemplateURLs;
@@ -433,7 +433,7 @@ SearchEngineListModel::~SearchEngineListModel() {
     template_url_model_->RemoveObserver(this);
 }
 
-void SearchEngineListModel::SetComboBox(ChromeViews::ComboBox* combo_box) {
+void SearchEngineListModel::SetComboBox(views::ComboBox* combo_box) {
   combo_box_ = combo_box;
   if (template_url_model_ && template_url_model_->loaded())
     ChangeComboBoxSelection();
@@ -441,11 +441,11 @@ void SearchEngineListModel::SetComboBox(ChromeViews::ComboBox* combo_box) {
     combo_box_->SetEnabled(false);
 }
 
-int SearchEngineListModel::GetItemCount(ChromeViews::ComboBox* source) {
+int SearchEngineListModel::GetItemCount(views::ComboBox* source) {
   return static_cast<int>(template_urls_.size());
 }
 
-std::wstring SearchEngineListModel::GetItemAt(ChromeViews::ComboBox* source,
+std::wstring SearchEngineListModel::GetItemAt(views::ComboBox* source,
                                               int index) {
   DCHECK(index < GetItemCount(combo_box_));
   return template_urls_[index]->short_name();
@@ -532,9 +532,9 @@ GeneralPageView::~GeneralPageView() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GeneralPageView, ChromeViews::NativeButton::Listener implementation:
+// GeneralPageView, views::NativeButton::Listener implementation:
 
-void GeneralPageView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void GeneralPageView::ButtonPressed(views::NativeButton* sender) {
   if (sender == startup_homepage_radio_ ||
       sender == startup_last_session_radio_ ||
       sender == startup_custom_radio_) {
@@ -585,9 +585,9 @@ void GeneralPageView::ButtonPressed(ChromeViews::NativeButton* sender) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GeneralPageView, ChromeViews::ComboBox::Listener implementation:
+// GeneralPageView, views::ComboBox::Listener implementation:
 
-void GeneralPageView::ItemChanged(ChromeViews::ComboBox* combo_box,
+void GeneralPageView::ItemChanged(views::ComboBox* combo_box,
                                   int prev_index, int new_index) {
   if (combo_box == default_search_engine_combobox_) {
     SetDefaultSearchProvider();
@@ -596,9 +596,9 @@ void GeneralPageView::ItemChanged(ChromeViews::ComboBox* combo_box,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GeneralPageView, ChromeViews::TextField::Controller implementation:
+// GeneralPageView, views::TextField::Controller implementation:
 
-void GeneralPageView::ContentsChanged(ChromeViews::TextField* sender,
+void GeneralPageView::ContentsChanged(views::TextField* sender,
                                       const std::wstring& new_contents) {
   if (sender == homepage_use_url_textfield_) {
     // If the text field contains a valid URL, sync it to prefs. We run it
@@ -611,7 +611,7 @@ void GeneralPageView::ContentsChanged(ChromeViews::TextField* sender,
   }
 }
 
-void GeneralPageView::HandleKeystroke(ChromeViews::TextField* sender,
+void GeneralPageView::HandleKeystroke(views::TextField* sender,
                                       UINT message, TCHAR key,
                                       UINT repeat_count, UINT flags) {
   // Not necessary.
@@ -621,8 +621,8 @@ void GeneralPageView::HandleKeystroke(ChromeViews::TextField* sender,
 // GeneralPageView, OptionsPageView implementation:
 
 void GeneralPageView::InitControlLayout() {
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = new GridLayout(this);
   layout->SetInsets(5, 5, 5, 5);
@@ -726,7 +726,7 @@ void GeneralPageView::HighlightGroup(OptionsGroup highlight_group) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GeneralPageView, ChromeViews::View overrides:
+// GeneralPageView, views::View overrides:
 
 void GeneralPageView::Layout() {
   // We need to Layout twice - once to get the width of the contents box...
@@ -765,45 +765,45 @@ void GeneralPageView::SetDefaultBrowserUIState(DefaultBrowserUIState state) {
 }
 
 void GeneralPageView::InitStartupGroup() {
-  startup_homepage_radio_ = new ChromeViews::RadioButton(
+  startup_homepage_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_SHOW_DEFAULT_AND_NEWTAB),
       kStartupRadioGroup);
   startup_homepage_radio_->SetListener(this);
-  startup_last_session_radio_ = new ChromeViews::RadioButton(
+  startup_last_session_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_SHOW_LAST_SESSION),
       kStartupRadioGroup);
   startup_last_session_radio_->SetListener(this);
   startup_last_session_radio_->SetMultiLine(true);
-  startup_custom_radio_ = new ChromeViews::RadioButton(
+  startup_custom_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_SHOW_PAGES),
       kStartupRadioGroup);
   startup_custom_radio_->SetListener(this);
-  startup_add_custom_page_button_ = new ChromeViews::NativeButton(
+  startup_add_custom_page_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_ADD_BUTTON));
   startup_add_custom_page_button_->SetListener(this);
-  startup_remove_custom_page_button_ = new ChromeViews::NativeButton(
+  startup_remove_custom_page_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_REMOVE_BUTTON));
   startup_remove_custom_page_button_->SetEnabled(false);
   startup_remove_custom_page_button_->SetListener(this);
-  startup_use_current_page_button_ = new ChromeViews::NativeButton(
+  startup_use_current_page_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_USE_CURRENT));
   startup_use_current_page_button_->SetListener(this);
 
   startup_custom_pages_table_model_.reset(
       new CustomHomePagesTableModel(profile()));
-  std::vector<ChromeViews::TableColumn> columns;
-  columns.push_back(ChromeViews::TableColumn());
-  startup_custom_pages_table_ = new ChromeViews::TableView(
+  std::vector<views::TableColumn> columns;
+  columns.push_back(views::TableColumn());
+  startup_custom_pages_table_ = new views::TableView(
       startup_custom_pages_table_model_.get(), columns,
-      ChromeViews::ICON_AND_TEXT, true, false, true);
+      views::ICON_AND_TEXT, true, false, true);
   // URLs are inherently left-to-right, so do not mirror the table.
   startup_custom_pages_table_->EnableUIMirroringForRTLLanguages(false);
   startup_custom_pages_table_->SetObserver(this);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
-  ChromeViews::View* contents = new ChromeViews::View;
+  views::View* contents = new views::View;
   GridLayout* layout = new GridLayout(contents);
   contents->SetLayoutManager(layout);
 
@@ -833,7 +833,7 @@ void GeneralPageView::InitStartupGroup() {
   layout->StartRow(0, double_column_view_set_id);
   layout->AddView(startup_custom_pages_table_);
 
-  ChromeViews::View* button_stack = new ChromeViews::View;
+  views::View* button_stack = new views::View;
   GridLayout* button_stack_layout = new GridLayout(button_stack);
   button_stack->SetLayoutManager(button_stack_layout);
 
@@ -859,26 +859,26 @@ void GeneralPageView::InitStartupGroup() {
 }
 
 void GeneralPageView::InitHomepageGroup() {
-  homepage_use_newtab_radio_ = new ChromeViews::RadioButton(
+  homepage_use_newtab_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_HOMEPAGE_USE_NEWTAB),
       kHomePageRadioGroup);
   homepage_use_newtab_radio_->SetListener(this);
   homepage_use_newtab_radio_->SetMultiLine(true);
-  homepage_use_url_radio_ = new ChromeViews::RadioButton(
+  homepage_use_url_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_HOMEPAGE_USE_URL),
       kHomePageRadioGroup);
   homepage_use_url_radio_->SetListener(this);
-  homepage_use_url_textfield_ = new ChromeViews::TextField;
+  homepage_use_url_textfield_ = new views::TextField;
   homepage_use_url_textfield_->SetController(this);
-  homepage_show_home_button_checkbox_ = new ChromeViews::CheckBox(
+  homepage_show_home_button_checkbox_ = new views::CheckBox(
       l10n_util::GetString(IDS_OPTIONS_HOMEPAGE_SHOW_BUTTON));
   homepage_show_home_button_checkbox_->SetListener(this);
   homepage_show_home_button_checkbox_->SetMultiLine(true);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
-  ChromeViews::View* contents = new ChromeViews::View;
+  views::View* contents = new views::View;
   GridLayout* layout = new GridLayout(contents);
   contents->SetLayoutManager(layout);
 
@@ -914,18 +914,18 @@ void GeneralPageView::InitHomepageGroup() {
 void GeneralPageView::InitDefaultSearchGroup() {
   default_search_engines_model_.reset(new SearchEngineListModel(profile()));
   default_search_engine_combobox_ =
-      new ChromeViews::ComboBox(default_search_engines_model_.get());
+      new views::ComboBox(default_search_engines_model_.get());
   default_search_engines_model_->SetComboBox(default_search_engine_combobox_);
   default_search_engine_combobox_->SetListener(this);
 
-  default_search_manage_engines_button_ = new ChromeViews::NativeButton(
+  default_search_manage_engines_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_DEFAULTSEARCH_MANAGE_ENGINES_LINK));
   default_search_manage_engines_button_->SetListener(this);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
-  ChromeViews::View* contents = new ChromeViews::View;
+  views::View* contents = new views::View;
   GridLayout* layout = new GridLayout(contents);
   contents->SetLayoutManager(layout);
 
@@ -947,19 +947,19 @@ void GeneralPageView::InitDefaultSearchGroup() {
 }
 
 void GeneralPageView::InitDefaultBrowserGroup() {
-  default_browser_status_label_ = new ChromeViews::Label;
+  default_browser_status_label_ = new views::Label;
   default_browser_status_label_->SetMultiLine(true);
   default_browser_status_label_->SetHorizontalAlignment(
-      ChromeViews::Label::ALIGN_LEFT);
-  default_browser_use_as_default_button_ = new ChromeViews::NativeButton(
+      views::Label::ALIGN_LEFT);
+  default_browser_use_as_default_button_ = new views::NativeButton(
       l10n_util::GetStringF(IDS_OPTIONS_DEFAULTBROWSER_USEASDEFAULT,
                             l10n_util::GetString(IDS_PRODUCT_NAME)));
   default_browser_use_as_default_button_->SetListener(this);
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
-  ChromeViews::View* contents = new ChromeViews::View;
+  views::View* contents = new views::View;
   GridLayout* layout = new GridLayout(contents);
   contents->SetLayoutManager(layout);
 
@@ -1001,7 +1001,7 @@ void GeneralPageView::AddURLToStartupURLs() {
 }
 
 void GeneralPageView::RemoveURLsFromStartupURLs() {
-  for (ChromeViews::TableView::iterator i =
+  for (views::TableView::iterator i =
        startup_custom_pages_table_->SelectionBegin();
        i != startup_custom_pages_table_->SelectionEnd(); ++i) {
     startup_custom_pages_table_model_->Remove(*i);

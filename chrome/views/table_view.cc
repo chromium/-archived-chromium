@@ -20,7 +20,7 @@
 #include "SkBitmap.h"
 #include "SkColorFilter.h"
 
-namespace ChromeViews {
+namespace views {
 
 // Added to column width to prevent truncation.
 const int kListViewTextPadding = 15;
@@ -554,7 +554,7 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
   // If there's only one column and the title string is empty, don't show a
   // header.
   if (all_columns_.size() == 1) {
-    std::map<int, ChromeViews::TableColumn>::const_iterator first =
+    std::map<int, TableColumn>::const_iterator first =
         all_columns_.begin();
     if (first->second.title.empty())
       style |= LVS_NOCOLUMNHEADER;
@@ -1294,4 +1294,4 @@ void TableSelectionIterator::UpdateModelIndexFromViewIndex() {
     model_index_ = table_view_->view_to_model(view_index_);
 }
 
-}  // namespace
+}  // namespace views

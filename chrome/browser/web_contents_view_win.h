@@ -16,7 +16,7 @@ class WebDropTarget;
 // Windows-specific implementation of the WebContentsView. It is a HWND that
 // contains all of the contents of the tab and associated child views.
 class WebContentsViewWin : public WebContentsView,
-                           public ChromeViews::ContainerWin {
+                           public views::ContainerWin {
  public:
   // The corresponding WebContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently

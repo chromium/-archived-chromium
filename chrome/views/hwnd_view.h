@@ -9,7 +9,7 @@
 
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -93,7 +93,7 @@ class HWNDView : public View {
   View* focus_view_;
 };
 
-}
+}  // namespace views
 
 #endif // CHROME_VIEWS_HWND_VIEW_H__
 

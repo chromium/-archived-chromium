@@ -14,7 +14,7 @@ static int kCheckBoxWidth = 13;
 static int kCheckBoxHeight = 13;
 static int kCheckBoxToLabel = 4;
 
-namespace ChromeViews {
+namespace views {
 
 // Horizontal focus padding.
 const int CheckBox::kFocusPaddingHorizontal = 2;
@@ -27,7 +27,7 @@ CheckBox::CheckBox(const std::wstring& label)
       is_selected_(false) {
   // Note: we paint the label as a floating view
   SetMinSizeFromDLUs(gfx::Size(0, 0));
-  label_ = new ChromeViews::Label(label);
+  label_ = new Label(label);
   label_->SetHorizontalAlignment(Label::ALIGN_LEFT);
 }
 
@@ -176,5 +176,5 @@ void CheckBox::OnMouseReleased(const MouseEvent& event,
     OnCommand(BN_CLICKED, 0, GetNativeControlHWND());
 }
 
-}
+}  // namespace views
 

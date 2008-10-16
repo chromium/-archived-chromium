@@ -26,7 +26,7 @@
 namespace {
 
 // A dialog box that asks the user to confirm resetting settings.
-class ResetDefaultsConfirmBox : public ChromeViews::DialogDelegate {
+class ResetDefaultsConfirmBox : public views::DialogDelegate {
  public:
   // This box is modal to |parent_hwnd|.
   static void ShowConfirmBox(HWND parent_hwnd, AdvancedPageView* page_view) {
@@ -35,7 +35,7 @@ class ResetDefaultsConfirmBox : public ChromeViews::DialogDelegate {
   }
 
  protected:
-  // ChromeViews::DialogDelegate
+  // views::DialogDelegate
   virtual int GetDialogButtons() const {
     return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
   }
@@ -58,10 +58,10 @@ class ResetDefaultsConfirmBox : public ChromeViews::DialogDelegate {
     advanced_page_view_->ResetToDefaults();
     return true;
   }
-  // ChromeViews::WindowDelegate
+  // views::WindowDelegate
   virtual void WindowClosing() { delete this; }
   virtual bool IsModal() const { return true; }
-  virtual ChromeViews::View* GetContentsView() { return message_box_view_; }
+  virtual views::View* GetContentsView() { return message_box_view_; }
 
  private:
   ResetDefaultsConfirmBox(HWND parent_hwnd, AdvancedPageView* page_view)
@@ -73,7 +73,7 @@ class ResetDefaultsConfirmBox : public ChromeViews::DialogDelegate {
         l10n_util::GetString(IDS_OPTIONS_RESET_MESSAGE).c_str(),
         std::wstring(),
         kDialogWidth);
-    ChromeViews::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
+    views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
                                             this)->Show();
   }
   virtual ~ResetDefaultsConfirmBox() { }
@@ -152,9 +152,9 @@ void AdvancedPageView::ResetToDefaults() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AdvancedPageView, ChromeViews::NativeButton::Listener implementation:
+// AdvancedPageView, views::NativeButton::Listener implementation:
 
-void AdvancedPageView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void AdvancedPageView::ButtonPressed(views::NativeButton* sender) {
   if (sender == reset_to_default_button_) {
     UserMetricsRecordAction(L"Options_ResetToDefaults", NULL);
     ResetDefaultsConfirmBox::ShowConfirmBox(GetRootWindow(), this);
@@ -165,13 +165,13 @@ void AdvancedPageView::ButtonPressed(ChromeViews::NativeButton* sender) {
 // AdvancedPageView, OptionsPageView implementation:
 
 void AdvancedPageView::InitControlLayout() {
-  reset_to_default_button_ = new ChromeViews::NativeButton(
+  reset_to_default_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_OPTIONS_RESET));
   reset_to_default_button_->SetListener(this);
   advanced_scroll_view_ = new AdvancedScrollViewContainer(profile());
 
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);

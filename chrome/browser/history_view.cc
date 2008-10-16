@@ -85,7 +85,7 @@ static const int kIconPadding = 4;
 
 // SnippetRenderer is a View that can displayed text with bolding and wrapping.
 // It's used to display search result snippets.
-class SnippetRenderer : public ChromeViews::View {
+class SnippetRenderer : public views::View {
  public:
   SnippetRenderer();
 
@@ -224,8 +224,8 @@ int SnippetRenderer::ProcessRun(
 }
 
 // A View for an individual history result.
-class HistoryItemRenderer : public ChromeViews::View,
-                            public ChromeViews::LinkController,
+class HistoryItemRenderer : public views::View,
+                            public views::LinkController,
                             public StarToggle::Delegate {
  public:
   HistoryItemRenderer(HistoryView* parent, bool show_full);
@@ -280,7 +280,7 @@ class HistoryItemRenderer : public ChromeViews::View,
   virtual void StarStateChanged(bool state);
 
   // Notification that the link was clicked.
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+  virtual void LinkActivated(views::Link* source, int event_flags);
 
   // Returns the region the mouse is over.
   DragRegion GetDragRegion(int x, int y);
@@ -297,8 +297,8 @@ class HistoryItemRenderer : public ChromeViews::View,
 
   // Widgets.
   StarToggle* star_toggle_;
-  ChromeViews::Link* title_link_;
-  ChromeViews::Label* time_label_;
+  views::Link* title_link_;
+  views::Label* time_label_;
   SnippetRenderer* snippet_label_;
 
   DISALLOW_EVIL_CONSTRUCTORS(HistoryItemRenderer);
@@ -316,19 +316,19 @@ HistoryItemRenderer::HistoryItemRenderer(HistoryView* parent,
   star_toggle_->set_change_state_immediately(false);
   AddChildView(star_toggle_);
 
-  title_link_ = new ChromeViews::Link();
+  title_link_ = new views::Link();
   title_link_->SetFont(text_font);
-  title_link_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  title_link_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   title_link_->SetController(this);
   AddChildView(title_link_);
 
   const SkColor kTimeColor = SkColorSetRGB(136, 136, 136);  // Gray.
 
-  time_label_ = new ChromeViews::Label();
+  time_label_ = new views::Label();
   ChromeFont time_font(text_font);
   time_label_->SetFont(time_font);
   time_label_->SetColor(kTimeColor);
-  time_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  time_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   AddChildView(time_label_);
 
   snippet_label_ = new SnippetRenderer();
@@ -355,7 +355,7 @@ std::wstring HistoryItemRenderer::DisplayURL(const GURL& url) {
 }
 
 void HistoryItemRenderer::Paint(ChromeCanvas* canvas) {
-  ChromeViews::View::Paint(canvas);
+  views::View::Paint(canvas);
 
   // Draw thumbnail or placeholder.
   if (show_full_) {
@@ -557,7 +557,7 @@ void HistoryItemRenderer::SetDisplayStyle(bool show_full) {
 void HistoryItemRenderer::StarStateChanged(bool state) {
   // Show the user a tip that can be used to edit the bookmark/star.
   gfx::Point star_location;
-  ChromeViews::View::ConvertPointToScreen(star_toggle_, &star_location);
+  views::View::ConvertPointToScreen(star_toggle_, &star_location);
   // Shift the location to make the bubble appear at a visually pleasing
   // location.
   gfx::Rect star_bounds(star_location.x(), star_location.y() + 4,
@@ -577,7 +577,7 @@ void HistoryItemRenderer::StarStateChanged(bool state) {
   BookmarkBubbleView::Show(parent, star_bounds, NULL, profile, url, state);
 }
 
-void HistoryItemRenderer::LinkActivated(ChromeViews::Link* link,
+void HistoryItemRenderer::LinkActivated(views::Link* link,
                                         int event_flags) {
   if (link == title_link_) {
     const GURL& url = model_->GetURL(model_index_);
@@ -663,7 +663,7 @@ void HistoryView::EnsureRenderer() {
     renderer_ = new HistoryItemRenderer(this, show_results_);
   if (show_delete_controls_ && !delete_renderer_.get()) {
     delete_renderer_.reset(
-        new ChromeViews::Link(
+        new views::Link(
             l10n_util::GetString(IDS_HISTORY_DELETE_PRIOR_VISITS_LINK)));
     delete_renderer_->SetFont(day_break_font_);
   }
@@ -794,20 +794,20 @@ void HistoryView::SetShowDeleteControls(bool show_delete_controls) {
 }
 
 int HistoryView::GetPageScrollIncrement(
-    ChromeViews::ScrollView* scroll_view, bool is_horizontal,
+    views::ScrollView* scroll_view, bool is_horizontal,
     bool is_positive) {
   return scroll_helper_.GetPageScrollIncrement(scroll_view, is_horizontal,
                                                is_positive);
 }
 
 int HistoryView::GetLineScrollIncrement(
-    ChromeViews::ScrollView* scroll_view, bool is_horizontal,
+    views::ScrollView* scroll_view, bool is_horizontal,
     bool is_positive) {
   return scroll_helper_.GetLineScrollIncrement(scroll_view, is_horizontal,
                                                is_positive);
 }
 
-ChromeViews::VariableRowHeightScrollHelper::RowInfo
+views::VariableRowHeightScrollHelper::RowInfo
     HistoryView::GetRowInfo(int y) {
   // Get the time separator header for a given Y click.
   BreakOffsets::iterator i = GetBreakOffsetIteratorForY(y);
@@ -816,7 +816,7 @@ ChromeViews::VariableRowHeightScrollHelper::RowInfo
 
   // Check if the click is on the separator header.
   if (y < current_y + GetBreakOffsetHeight(i->second)) {
-    return ChromeViews::VariableRowHeightScrollHelper::RowInfo(
+    return views::VariableRowHeightScrollHelper::RowInfo(
         current_y, GetBreakOffsetHeight(i->second));
   }
 
@@ -831,12 +831,12 @@ ChromeViews::VariableRowHeightScrollHelper::RowInfo
   }
 
   // Find the item that corresponds to this new current_y value.
-  return ChromeViews::VariableRowHeightScrollHelper::RowInfo(
+  return views::VariableRowHeightScrollHelper::RowInfo(
       current_y, GetEntryHeight());
 }
 
 bool HistoryView::IsVisible() {
-  ChromeViews::Container* vc = GetContainer();
+  views::Container* vc = GetContainer();
   return vc && vc->IsVisible();
 }
 
@@ -888,7 +888,7 @@ int HistoryView::GetBreakOffsetHeight(HistoryView::BreakValue value) {
 }
 
 void HistoryView::Paint(ChromeCanvas* canvas) {
-  ChromeViews::View::Paint(canvas);
+  views::View::Paint(canvas);
 
   EnsureRenderer();
 
@@ -1164,7 +1164,7 @@ bool HistoryView::GetFloatingViewIDForPoint(int x, int y, int* id) {
 }
 
 bool HistoryView::EnumerateFloatingViews(
-    ChromeViews::View::FloatingViewPosition position,
+    views::View::FloatingViewPosition position,
     int starting_id,
     int* id) {
   DCHECK(id);
@@ -1173,7 +1173,7 @@ bool HistoryView::EnumerateFloatingViews(
                                                  position, starting_id, id);
 }
 
-ChromeViews::View* HistoryView::ValidateFloatingViewForID(int id) {
+views::View* HistoryView::ValidateFloatingViewForID(int id) {
   if (id >= GetMaxViewID())
     return NULL;
 
@@ -1183,7 +1183,7 @@ ChromeViews::View* HistoryView::ValidateFloatingViewForID(int id) {
 
   int y = GetYCoordinateForViewID(id, &model_index, &is_delete_control);
   if (is_delete_control) {
-    ChromeViews::Link* delete_link = new ChromeViews::Link(
+    views::Link* delete_link = new views::Link(
         l10n_util::GetString(IDS_HISTORY_DELETE_PRIOR_VISITS_LINK));
     delete_link->SetID(model_index);
     delete_link->SetFont(day_break_font_);
@@ -1207,7 +1207,7 @@ ChromeViews::View* HistoryView::ValidateFloatingViewForID(int id) {
   AttachFloatingView(floating_view, id);
 
 #ifdef DEBUG_FLOATING_VIEWS
-  floating_view->SetBackground(ChromeViews::Background::CreateSolidBackground(
+  floating_view->SetBackground(views::Background::CreateSolidBackground(
                                SkColorSetRGB(255, 0, 0)));
   floating_view->SchedulePaint();
 #endif
@@ -1232,7 +1232,7 @@ int HistoryView::GetMaxViewID() {
   return std::max(0, deletes + model_->GetItemCount());
 }
 
-void HistoryView::LinkActivated(ChromeViews::Link* source, int event_flags) {
+void HistoryView::LinkActivated(views::Link* source, int event_flags) {
   DeleteDayAtModelIndex(source->GetID());
 }
 

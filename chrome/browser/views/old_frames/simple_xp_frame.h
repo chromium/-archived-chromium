@@ -14,7 +14,7 @@
 class SimpleXPFrameTitleBar;
 class WebAppIconManager;
 
-namespace ChromeViews {
+namespace views {
 class Label;
 }
 
@@ -99,25 +99,25 @@ class SimpleXPFrameTitleBar;
 // A custom menu button for the custom title bar.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class TitleBarMenuButton : public ChromeViews::MenuButton {
+class TitleBarMenuButton : public views::MenuButton {
  public:
   explicit TitleBarMenuButton(SimpleXPFrameTitleBar* title_bar);
   virtual ~TitleBarMenuButton();
 
   // Set the contents view which is the view presenting the menu icon.
-  void SetContents(ChromeViews::View* contents);
+  void SetContents(views::View* contents);
 
   // overridden from View
   virtual gfx::Size GetPreferredSize();
   virtual void Paint(ChromeCanvas* canvas);
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
+  virtual bool OnMousePressed(const views::MouseEvent& e);
 
  private:
   // The drop arrow icon.
   SkBitmap* drop_arrow_;
 
   // The contents is an additional view positioned before the drop down.
-  ChromeViews::View* contents_;
+  views::View* contents_;
 
   // The title bar that created this instance.
   SimpleXPFrameTitleBar* title_bar_;
@@ -130,9 +130,9 @@ class TitleBarMenuButton : public ChromeViews::MenuButton {
 // Custom title bar.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class SimpleXPFrameTitleBar : public ChromeViews::View,
+class SimpleXPFrameTitleBar : public views::View,
                               public TabIconView::TabContentsProvider,
-                              public ChromeViews::ViewMenuDelegate {
+                              public views::ViewMenuDelegate {
  public:
   explicit SimpleXPFrameTitleBar(SimpleXPFrame* parent);
   virtual ~SimpleXPFrameTitleBar();
@@ -141,7 +141,7 @@ class SimpleXPFrameTitleBar : public ChromeViews::View,
   virtual TabContents* GetCurrentTabContents();
   virtual SkBitmap GetFavIcon();
 
-  virtual void RunMenu(ChromeViews::View* source, const CPoint& pt, HWND hwnd);
+  virtual void RunMenu(views::View* source, const CPoint& pt, HWND hwnd);
   virtual void Layout();
   bool WillHandleMouseEvent(int x, int y);
   void SetWindowTitle(std::wstring s);
@@ -164,7 +164,7 @@ class SimpleXPFrameTitleBar : public ChromeViews::View,
   SimpleXPFrame* parent_;
 
   // The window title.
-  ChromeViews::Label* label_;
+  views::Label* label_;
 
   // Lazily created chrome icon. Created and used as the icon in the
   // TabIconView for all non-Application windows.

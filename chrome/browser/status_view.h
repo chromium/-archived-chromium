@@ -60,8 +60,8 @@ class StatusView : public TabContents,
  private:
   // FocusTraversal Implementation
   // TODO (jcampan): make focus traversal work
-  ChromeViews::View* FindNextFocusableView(ChromeViews::View* starting_view,
-                                          bool reverse, bool dont_loop) {
+  views::View* FindNextFocusableView(views::View* starting_view, bool reverse,
+                                     bool dont_loop) {
     return NULL;
   }
 

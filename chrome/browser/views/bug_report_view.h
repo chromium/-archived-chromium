@@ -12,13 +12,11 @@
 #include "chrome/views/text_field.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
-
+namespace views {
 class CheckBox;
 class Label;
 class Throbber;
 class Window;
-
 }
 
 class Profile;
@@ -34,10 +32,10 @@ class BugReportComboBoxModel;
 //
 // Note: The UI team hasn't defined yet how the bug report UI will look like.
 //       So now use dialog as a placeholder.
-class BugReportView : public ChromeViews::View,
-                      public ChromeViews::DialogDelegate,
-                      public ChromeViews::ComboBox::Listener,
-                      public ChromeViews::TextField::Controller {
+class BugReportView : public views::View,
+                      public views::DialogDelegate,
+                      public views::ComboBox::Listener,
+                      public views::TextField::Controller {
  public:
   explicit BugReportView(Profile* profile, TabContents* tab);
   virtual ~BugReportView();
@@ -48,21 +46,21 @@ class BugReportView : public ChromeViews::View,
     png_data_.reset(png_data);
   };
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
 
-  // ChromeViews::TextField::Controller implementation:
-  virtual void ContentsChanged(ChromeViews::TextField* sender,
+  // views::TextField::Controller implementation:
+  virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(ChromeViews::TextField* sender,
+  virtual void HandleKeystroke(views::TextField* sender,
                                UINT message, TCHAR key,
                                UINT repeat_count, UINT flags);
 
-  // ChromeViews::ComboBox::Listener implementation:
-  virtual void ItemChanged(ChromeViews::ComboBox* combo_box,
-                           int prev_index, int new_index);
+  // views::ComboBox::Listener implementation:
+  virtual void ItemChanged(views::ComboBox* combo_box, int prev_index,
+                           int new_index);
 
-  // Overridden from ChromeViews::DialogDelegate:
+  // Overridden from views::DialogDelegate:
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual int GetDefaultDialogButton() const;
   virtual bool CanResize() const;
@@ -72,7 +70,7 @@ class BugReportView : public ChromeViews::View,
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
   void SetUrl(const GURL& url);
 
@@ -92,16 +90,16 @@ class BugReportView : public ChromeViews::View,
   // Redirects the user to Google's phishing reporting page.
   void ReportPhishing();
 
-  ChromeViews::Label* bug_type_label_;
-  ChromeViews::ComboBox* bug_type_combo_;
-  ChromeViews::Label* page_title_label_;
-  ChromeViews::Label* page_title_text_;
-  ChromeViews::Label* page_url_label_;
-  ChromeViews::TextField* page_url_text_;
-  ChromeViews::Label* description_label_;
-  ChromeViews::TextField* description_text_;
-  ChromeViews::CheckBox* include_page_source_checkbox_;
-  ChromeViews::CheckBox* include_page_image_checkbox_;
+  views::Label* bug_type_label_;
+  views::ComboBox* bug_type_combo_;
+  views::Label* page_title_label_;
+  views::Label* page_title_text_;
+  views::Label* page_url_label_;
+  views::TextField* page_url_text_;
+  views::Label* description_label_;
+  views::TextField* description_text_;
+  views::CheckBox* include_page_source_checkbox_;
+  views::CheckBox* include_page_image_checkbox_;
 
   scoped_ptr<BugReportComboBoxModel> bug_type_model_;
 

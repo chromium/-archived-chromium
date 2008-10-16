@@ -8,7 +8,7 @@
 #include "chrome/views/window.h"
 #include "skia/include/SkBitmap.h"
 
-namespace ChromeViews {
+namespace views {
 
 WindowDelegate::WindowDelegate() {
 }
@@ -30,5 +30,5 @@ void WindowDelegate::ReleaseWindow() {
   window_.release();
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

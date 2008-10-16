@@ -10,7 +10,7 @@
 #include "googleurl/src/gurl.h"
 #include "SkColor.h"
 
-namespace ChromeViews {
+namespace views {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -171,6 +171,7 @@ class Label : public View {
   scoped_ptr<Background> mouse_over_background_;
 };
 
-}
+}  // namespace views
+
 #endif  // CHROME_VIEWS_VIEW_H__
 

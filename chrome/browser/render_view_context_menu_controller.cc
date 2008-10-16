@@ -184,33 +184,34 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
   }
 }
 
-bool RenderViewContextMenuController::GetAcceleratorInfo(int id,
-    ChromeViews::Accelerator* accel) {
+bool RenderViewContextMenuController::GetAcceleratorInfo(
+    int id,
+    views::Accelerator* accel) {
   // There are no formally defined accelerators we can query so we assume
   // that Ctrl+C, Ctrl+V, Ctrl+X, Ctrl-A, etc do what they normally do.
   switch (id) {
     case IDS_CONTENT_CONTEXT_UNDO:
-      *accel = ChromeViews::Accelerator(L'Z', false, true, false);
+      *accel = views::Accelerator(L'Z', false, true, false);
       return true;
 
     case IDS_CONTENT_CONTEXT_REDO:
-      *accel = ChromeViews::Accelerator(L'Z', true, true, false);
+      *accel = views::Accelerator(L'Z', true, true, false);
       return true;
 
     case IDS_CONTENT_CONTEXT_CUT:
-      *accel = ChromeViews::Accelerator(L'X', false, true, false);
+      *accel = views::Accelerator(L'X', false, true, false);
       return true;
 
     case IDS_CONTENT_CONTEXT_COPY:
-      *accel = ChromeViews::Accelerator(L'C', false, true, false);
+      *accel = views::Accelerator(L'C', false, true, false);
       return true;
 
     case IDS_CONTENT_CONTEXT_PASTE:
-      *accel = ChromeViews::Accelerator(L'V', false, true, false);
+      *accel = views::Accelerator(L'V', false, true, false);
       return true;
 
     case IDS_CONTENT_CONTEXT_SELECTALL:
-      *accel = ChromeViews::Accelerator(L'A', false, true, false);
+      *accel = views::Accelerator(L'A', false, true, false);
 
     default:
       return false;

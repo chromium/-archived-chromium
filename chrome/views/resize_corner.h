@@ -7,7 +7,7 @@
 
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 
 // Simple drawing of a resize corner. Has no functionality.
 class ResizeCorner : public View {
@@ -22,7 +22,7 @@ class ResizeCorner : public View {
   DISALLOW_EVIL_CONSTRUCTORS(ResizeCorner);
 };
 
-}
+}  // namespace views
 
 #endif  // CHROME_VIEWS_RESIZE_CORNER_H__
 

@@ -10,7 +10,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "skia/include/SkBitmap.h"
 
-namespace ChromeViews {
+namespace views {
 
 Throbber::Throbber(int frame_time_ms,
                    bool paint_while_stopped)
@@ -178,5 +178,5 @@ void CheckmarkThrobber::InitClass() {
 // static
 SkBitmap* CheckmarkThrobber::checkmark_ = NULL;
 
-}  // namespace ChromeViews
+}  // namespace views
 

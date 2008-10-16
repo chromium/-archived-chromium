@@ -641,7 +641,7 @@ AutocompleteEditView::AutocompleteEditView(
     const ChromeFont& font,
     AutocompleteEditController* controller,
     ToolbarModel* toolbar_model,
-    ChromeViews::View* parent_view,
+    views::View* parent_view,
     HWND hwnd,
     Profile* profile,
     CommandController* command_controller,
@@ -1113,7 +1113,7 @@ void AutocompleteEditView::PasteAndGo(const std::wstring& text) {
 }
 
 bool AutocompleteEditView::OverrideAccelerator(
-    const ChromeViews::Accelerator& accelerator) {
+    const views::Accelerator& accelerator) {
   // Only override <esc>.
   if ((accelerator.GetKeyCode() != VK_ESCAPE) || accelerator.IsAltDown())
     return false;

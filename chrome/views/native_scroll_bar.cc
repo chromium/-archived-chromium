@@ -14,7 +14,7 @@
 #include "chrome/views/container.h"
 #include "chrome/views/hwnd_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -350,5 +350,5 @@ int NativeScrollBar::GetVerticalScrollBarWidth() {
   return ::GetSystemMetrics(SM_CXVSCROLL);
 }
 
-}
+}  // namespace views
 

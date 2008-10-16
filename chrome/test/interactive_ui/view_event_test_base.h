@@ -53,7 +53,7 @@ class Size;
 //   // Then use this to schedule another mouse move.
 //   ScheduleMouseMoveInBackground(loc.x, loc.y);
 
-class ViewEventTestBase : public ChromeViews::WindowDelegate,
+class ViewEventTestBase : public views::WindowDelegate,
                           public testing::Test {
  public:
   // Invoke when done either because of failure or success. Quits the message
@@ -74,7 +74,7 @@ class ViewEventTestBase : public ChromeViews::WindowDelegate,
 
   // WindowDelegate method. Calls into CreateContentsView to get the actual
   // view.
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
   // Overriden to do nothing so that this class can be used in runnable tasks.
   void AddRef() {}
@@ -82,7 +82,7 @@ class ViewEventTestBase : public ChromeViews::WindowDelegate,
 
  protected:
   // Returns the view that is added to the window. 
-  virtual ChromeViews::View* CreateContentsView() = 0;
+  virtual views::View* CreateContentsView() = 0;
 
   // Called once the message loop is running.
   virtual void DoTestOnMessageLoop() = 0;
@@ -108,7 +108,7 @@ class ViewEventTestBase : public ChromeViews::WindowDelegate,
   // Spawns a new thread posts a MouseMove in the background.
   void ScheduleMouseMoveInBackground(int x, int y);
 
-  ChromeViews::Window* window_;
+  views::Window* window_;
 
  private:
   // Stops the thread started by ScheduleMouseMoveInBackground.
@@ -119,7 +119,7 @@ class ViewEventTestBase : public ChromeViews::WindowDelegate,
   void RunTestMethod(Task* task);
 
   // The content of the Window.
-  ChromeViews::View* content_view_;
+  views::View* content_view_;
 
   // Thread for posting background MouseMoves.
   scoped_ptr<base::Thread> dnd_thread_;

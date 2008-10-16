@@ -9,7 +9,7 @@
 #include "chrome/views/window.h"
 #include "chrome/views/window_delegate.h"
 
-namespace ChromeViews {
+namespace views {
 
 class NonClientView;
 
@@ -80,7 +80,7 @@ class CustomFrameWindow : public Window {
   DISALLOW_EVIL_CONSTRUCTORS(CustomFrameWindow);
 };
 
-}
+}  // namespace views
 
 #endif  // CHROME_VIEWS_CUSTOM_FRAME_WINDOW_H__
 

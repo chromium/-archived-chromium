@@ -29,14 +29,14 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
-  class Label;
+namespace views {
+class Label;
 }
 class DownloadShelfView;
 class SkBitmap;
 
-class DownloadItemView : public ChromeViews::NativeButton::Listener,
-                         public ChromeViews::View,
+class DownloadItemView : public views::NativeButton::Listener,
+                         public views::View,
                          public DownloadItem::Observer,
                          public AnimationDelegate {
  public:
@@ -63,15 +63,14 @@ class DownloadItemView : public ChromeViews::NativeButton::Listener,
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
   virtual gfx::Size GetPreferredSize();
-  virtual void OnMouseExited(const ChromeViews::MouseEvent& event);
-  virtual void OnMouseMoved(const ChromeViews::MouseEvent& event);
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
-  virtual void OnMouseReleased(const ChromeViews::MouseEvent& event,
-                               bool canceled);
-  virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
+  virtual void OnMouseExited(const views::MouseEvent& event);
+  virtual void OnMouseMoved(const views::MouseEvent& event);
+  virtual bool OnMousePressed(const views::MouseEvent& event);
+  virtual void OnMouseReleased(const views::MouseEvent& event, bool canceled);
+  virtual bool OnMouseDragged(const views::MouseEvent& event);
 
   // NativeButton::Listener implementation.
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  virtual void ButtonPressed(views::NativeButton* sender);
 
   // AnimationDelegate implementation.
   virtual void AnimationProgressed(const Animation* animation);
@@ -217,11 +216,11 @@ class DownloadItemView : public ChromeViews::NativeButton::Listener,
   base::RepeatingTimer<DownloadItemView> progress_timer_;
 
   // Dangerous mode buttons.
-  ChromeViews::NativeButton* save_button_;
-  ChromeViews::NativeButton* discard_button_;
+  views::NativeButton* save_button_;
+  views::NativeButton* discard_button_;
 
   // Dangerous mode label.
-  ChromeViews::Label* dangerous_download_label_;
+  views::Label* dangerous_download_label_;
 
   // Whether the dangerous mode label has been sized yet.
   bool dangerous_download_label_sized_;

@@ -10,7 +10,7 @@
 
 #include "chrome/browser/browser.h"
 
-namespace ChromeViews {
+namespace views {
 class Window;
 };
 class WebContents;
@@ -44,8 +44,8 @@ class BrowserList {
   // top level, but whose lifetime is associated wtih the existence of at least
   // one active Browser. When the last Browser is destroyed, all open dependent
   // windows are closed.
-  static void AddDependentWindow(ChromeViews::Window* window);
-  static void RemoveDependentWindow(ChromeViews::Window* window);
+  static void AddDependentWindow(views::Window* window);
+  static void RemoveDependentWindow(views::Window* window);
 
   static void AddObserver(Observer* observer);
   static void RemoveObserver(Observer* observer);
@@ -147,7 +147,7 @@ class BrowserList {
   static list_type browsers_;
   static std::vector<Observer*> observers_;
   static list_type last_active_browsers_;
-  typedef std::vector<ChromeViews::Window*> DependentWindowList;
+  typedef std::vector<views::Window*> DependentWindowList;
   static DependentWindowList dependent_windows_;
 
   // True if last_active_ is app modal, false otherwise.

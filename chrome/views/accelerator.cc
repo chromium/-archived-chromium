@@ -9,7 +9,7 @@
 #include "chrome/common/l10n_util.h"
 #include "generated_resources.h"
 
-namespace ChromeViews {
+namespace views {
 
 std::wstring Accelerator::GetShortcutText() const {
   int string_id = 0;
@@ -94,8 +94,8 @@ std::wstring Accelerator::GetShortcutText() const {
   // string.
   //
   // TODO(idana) bug# 1232732: this hack can be avoided if instead of using
-  // ChromeViews::Menu we use ChromeViews::MenuItemView because the latter is a
-  // View subclass and therefore it supports marking text as RTL or LTR using
+  // views::Menu we use views::MenuItemView because the latter is a View
+  // subclass and therefore it supports marking text as RTL or LTR using
   // standard Unicode directionality marks.
   if (adjust_shortcut_for_rtl) {
     int key_length = static_cast<int>(shortcut_rtl.length());
@@ -110,5 +110,5 @@ std::wstring Accelerator::GetShortcutText() const {
   return shortcut;
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

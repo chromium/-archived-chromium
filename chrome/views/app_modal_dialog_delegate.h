@@ -7,7 +7,7 @@
 
 #include "chrome/views/dialog_delegate.h"
 
-namespace ChromeViews {
+namespace views {
 
 // Pure virtual interface for a window which is app modal.
 class AppModalDialogDelegate : public DialogDelegate {
@@ -19,7 +19,7 @@ class AppModalDialogDelegate : public DialogDelegate {
   virtual void ActivateModalDialog() = 0;
 };
 
-} // namespace ChromeViews
+} // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_APP_MODAL_DIALOG_DELEGATE_H__
 

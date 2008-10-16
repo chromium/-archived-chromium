@@ -8,7 +8,7 @@
 #include "chrome/views/view.h"
 #include "chrome/views/event.h"
 
-namespace ChromeViews {
+namespace views {
 
 class ScrollBar;
 
@@ -97,6 +97,7 @@ class ScrollBar : public View {
   int max_pos_;
 };
 
-}
+}  // namespace views
+
 #endif
 

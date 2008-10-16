@@ -21,7 +21,7 @@
 // To use it, you first need to create a view storage id that can then be used
 // to store/retrieve views.
 
-namespace ChromeViews {
+namespace views {
 
 struct ViewLocationInfo;
 
@@ -75,7 +75,7 @@ class ViewStorage : public NotificationObserver {
   DISALLOW_EVIL_CONSTRUCTORS(ViewStorage);
 };
 
-}
+}  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_VIEW_STORAGE_H__
 

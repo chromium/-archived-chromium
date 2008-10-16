@@ -15,7 +15,7 @@ FrameView::FrameView(BrowserWindow* window)
       forwarding_to_tab_strip_(false) {
 }
 
-void FrameView::AddViewToDropList(ChromeViews::View* view) {
+void FrameView::AddViewToDropList(views::View* view) {
   dropable_views_.insert(view);
 }
 
@@ -26,19 +26,19 @@ bool FrameView::CanDrop(const OSExchangeData& data) {
   return can_drop_;
 }
 
-void FrameView::OnDragEntered(const ChromeViews::DropTargetEvent& event) {
+void FrameView::OnDragEntered(const views::DropTargetEvent& event) {
   if (can_drop_ && ShouldForwardToTabStrip(event)) {
     forwarding_to_tab_strip_ = true;
-    scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+    scoped_ptr<views::DropTargetEvent> mapped_event(
         MapEventToTabStrip(event));
     window_->GetTabStrip()->OnDragEntered(*mapped_event.get());
   }
 }
 
-int FrameView::OnDragUpdated(const ChromeViews::DropTargetEvent& event) {
+int FrameView::OnDragUpdated(const views::DropTargetEvent& event) {
   if (can_drop_) {
     if (ShouldForwardToTabStrip(event)) {
-      scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+      scoped_ptr<views::DropTargetEvent> mapped_event(
           MapEventToTabStrip(event));
       if (!forwarding_to_tab_strip_) {
         window_->GetTabStrip()->OnDragEntered(*mapped_event.get());
@@ -60,10 +60,10 @@ void FrameView::OnDragExited() {
   }
 }
 
-int FrameView::OnPerformDrop(const ChromeViews::DropTargetEvent& event) {
+int FrameView::OnPerformDrop(const views::DropTargetEvent& event) {
   if (forwarding_to_tab_strip_) {
     forwarding_to_tab_strip_ = false;
-    scoped_ptr<ChromeViews::DropTargetEvent> mapped_event(
+    scoped_ptr<views::DropTargetEvent> mapped_event(
           MapEventToTabStrip(event));
     return window_->GetTabStrip()->OnPerformDrop(*mapped_event.get());
   }
@@ -71,7 +71,7 @@ int FrameView::OnPerformDrop(const ChromeViews::DropTargetEvent& event) {
 }
 
 bool FrameView::ShouldForwardToTabStrip(
-    const ChromeViews::DropTargetEvent& event) {
+    const views::DropTargetEvent& event) {
   if (!window_->GetTabStrip()->IsVisible())
     return false;
 
@@ -86,7 +86,7 @@ bool FrameView::ShouldForwardToTabStrip(
   // Mouse isn't over the tab strip. Only forward if the mouse isn't over
   // another view on the tab strip or is over a view we were told the user can
   // drop on.
-  ChromeViews::View* view_over_mouse = GetViewForPoint(event.location());
+  views::View* view_over_mouse = GetViewForPoint(event.location());
   return (view_over_mouse == this ||
           view_over_mouse == window_->GetTabStrip() ||
           dropable_views_.find(view_over_mouse) != dropable_views_.end());
@@ -97,12 +97,12 @@ void FrameView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
     dropable_views_.erase(child);
 }
 
-ChromeViews::DropTargetEvent* FrameView::MapEventToTabStrip(
-    const ChromeViews::DropTargetEvent& event) {
+views::DropTargetEvent* FrameView::MapEventToTabStrip(
+    const views::DropTargetEvent& event) {
   gfx::Point tab_strip_loc(event.location());
   ConvertPointToView(this, window_->GetTabStrip(), &tab_strip_loc);
-  return new ChromeViews::DropTargetEvent(event.GetData(), tab_strip_loc.x(),
-                                          tab_strip_loc.y(),
-                                          event.GetSourceOperations());
+  return new views::DropTargetEvent(event.GetData(), tab_strip_loc.x(),
+                                    tab_strip_loc.y(),
+                                    event.GetSourceOperations());
 }
 

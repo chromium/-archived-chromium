@@ -12,10 +12,10 @@
 #include "chrome/views/link.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
-  class TextField;
-  class Throbber;
-  class Window;
+namespace views {
+class TextField;
+class Throbber;
+class Window;
 }
 
 class Profile;
@@ -27,9 +27,9 @@ class Profile;
 // and check for updates.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class AboutChromeView : public ChromeViews::View,
-                        public ChromeViews::DialogDelegate,
-                        public ChromeViews::LinkController,
+class AboutChromeView : public views::View,
+                        public views::DialogDelegate,
+                        public views::LinkController,
                         public GoogleUpdateStatusListener {
  public:
   explicit AboutChromeView(Profile* profile);
@@ -38,15 +38,15 @@ class AboutChromeView : public ChromeViews::View,
   // Initialize the controls on the dialog.
   void Init();
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
-  // Overridden from ChromeViews::DialogDelegate:
+  // Overridden from views::DialogDelegate:
   virtual int GetDialogButtons() const;
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool IsDialogButtonEnabled(DialogButton button) const;
@@ -58,10 +58,10 @@ class AboutChromeView : public ChromeViews::View,
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
-  // Overridden from ChromeViews::LinkController:
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+  // Overridden from views::LinkController:
+  virtual void LinkActivated(views::Link* source, int event_flags);
 
   // Overridden from GoogleUpdateStatusListener:
   virtual void OnReportResults(GoogleUpdateUpgradeResult result,
@@ -93,7 +93,7 @@ class AboutChromeView : public ChromeViews::View,
   // character, which we need to position the URLs within the text.
   void DrawTextAndPositionUrl(ChromeCanvas* canvas,
                               const std::wstring& text,
-                              ChromeViews::Link* link,
+                              views::Link* link,
                               gfx::Rect* rect,
                               gfx::Size* position,
                               const gfx::Rect& bounds,
@@ -119,31 +119,31 @@ class AboutChromeView : public ChromeViews::View,
   Profile* profile_;
 
   // UI elements on the dialog.
-  ChromeViews::ImageView* about_dlg_background_;
-  ChromeViews::Label* about_title_label_;
-  ChromeViews::TextField* version_label_;
-  ChromeViews::Label* copyright_label_;
-  ChromeViews::Label* main_text_label_;
+  views::ImageView* about_dlg_background_;
+  views::Label* about_title_label_;
+  views::TextField* version_label_;
+  views::Label* copyright_label_;
+  views::Label* main_text_label_;
   int main_text_label_height_;
-  ChromeViews::Link* chromium_url_;
+  views::Link* chromium_url_;
   gfx::Rect chromium_url_rect_;
-  ChromeViews::Link* open_source_url_;
+  views::Link* open_source_url_;
   gfx::Rect open_source_url_rect_;
-  ChromeViews::Link* terms_of_service_url_;
+  views::Link* terms_of_service_url_;
   gfx::Rect terms_of_service_url_rect_;
   // UI elements we add to the parent view.
-  scoped_ptr<ChromeViews::Throbber> throbber_;
-  ChromeViews::ImageView success_indicator_;
-  ChromeViews::ImageView update_available_indicator_;
-  ChromeViews::ImageView timeout_indicator_;
-  ChromeViews::Label update_label_;
+  scoped_ptr<views::Throbber> throbber_;
+  views::ImageView success_indicator_;
+  views::ImageView update_available_indicator_;
+  views::ImageView timeout_indicator_;
+  views::Label update_label_;
 
   // Keeps track of the visible state of the Check For Updates button.
   CheckButtonStatus check_button_status_;
 
   // The text to display as the main label of the About box. We draw this text
   // word for word with the help of the WordIterator, and make room for URLs
-  // which are drawn using ChromeViews::Link. See also |url_offsets_|.
+  // which are drawn using views::Link. See also |url_offsets_|.
   std::wstring main_label_chunk1_;
   std::wstring main_label_chunk2_;
   std::wstring main_label_chunk3_;

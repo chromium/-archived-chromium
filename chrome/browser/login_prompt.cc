@@ -27,7 +27,7 @@
 #include "generated_resources.h"
 
 using namespace std;
-using ChromeViews::LoginView;
+using views::LoginView;
 
 class LoginHandlerImpl;
 
@@ -51,7 +51,7 @@ static void ResetLoginHandlerForRequest(URLRequest* request) {
 // have been called.
 class LoginHandlerImpl : public LoginHandler,
                          public base::RefCountedThreadSafe<LoginHandlerImpl>,
-                         public ChromeViews::DialogDelegate {
+                         public views::DialogDelegate {
  public:
   LoginHandlerImpl(URLRequest* request, MessageLoop* ui_loop)
       : dialog_(NULL),
@@ -104,7 +104,7 @@ class LoginHandlerImpl : public LoginHandler,
     password_manager_ = password_manager;
   }
 
-  // ChromeViews::DialogDelegate methods:
+  // views::DialogDelegate methods:
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const {
     if (button == DIALOGBUTTON_OK)
       return l10n_util::GetString(IDS_LOGIN_DIALOG_OK_BUTTON_LABEL);
@@ -140,7 +140,7 @@ class LoginHandlerImpl : public LoginHandler,
     SetAuth(login_view_->GetUsername(), login_view_->GetPassword());
     return true;
   }
-  virtual ChromeViews::View* GetContentsView() {
+  virtual views::View* GetContentsView() {
     return login_view_;
   }
 

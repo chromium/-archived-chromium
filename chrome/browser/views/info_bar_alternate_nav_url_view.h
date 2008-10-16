@@ -9,13 +9,13 @@
 #include "chrome/views/link.h"
 
 class InfoBarAlternateNavURLView : public InfoBarItemView,
-                                   public ChromeViews::LinkController {
+                                   public views::LinkController {
  public:
   explicit InfoBarAlternateNavURLView(const std::wstring& alternate_nav_url);
   virtual ~InfoBarAlternateNavURLView() { }
 
   // LinkController
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+  virtual void LinkActivated(views::Link* source, int event_flags);
 
  private:
   std::wstring alternate_nav_url_;

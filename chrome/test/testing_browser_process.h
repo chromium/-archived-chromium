@@ -101,7 +101,7 @@ class TestingBrowserProcess : public BrowserProcess {
     return false;
   }
 
-  virtual ChromeViews::AcceleratorHandler* accelerator_handler() {
+  virtual views::AcceleratorHandler* accelerator_handler() {
     return NULL;
   }
 

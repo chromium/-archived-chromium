@@ -11,7 +11,7 @@
 #include "base/logging.h"
 #include "chrome/views/native_control.h"
 
-namespace ChromeViews {
+namespace views {
 
 class TreeModel;
 class TreeModelNode;
@@ -322,7 +322,7 @@ class TreeView : public NativeControl, public TreeModelObserver {
   DISALLOW_EVIL_CONSTRUCTORS(TreeView);
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // CHROME_VIEWS_TREE_VIEW_H__
 

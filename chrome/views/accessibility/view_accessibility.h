@@ -33,7 +33,7 @@ class ATL_NO_VTABLE ViewAccessibility
   ViewAccessibility() {}
   ~ViewAccessibility() {}
 
-  HRESULT Initialize(ChromeViews::View* view);
+  HRESULT Initialize(views::View* view);
 
   // Supported IAccessible methods.
 
@@ -101,7 +101,7 @@ class ATL_NO_VTABLE ViewAccessibility
  private:
   // Checks to see if child_id is within the child bounds of view. Returns true
   // if the child is within the bounds, false otherwise.
-  bool IsValidChild(int child_id, ChromeViews::View* view) const;
+  bool IsValidChild(int child_id, views::View* view) const;
 
   // Determines navigation direction for accNavigate, based on left, up and
   // previous being mapped all to previous and right, down, next being mapped
@@ -114,15 +114,15 @@ class ATL_NO_VTABLE ViewAccessibility
                   int upper_bound) const;
 
   // Wrapper to retrieve the view's instance of IAccessible.
-  AccessibleWrapper* GetAccessibleWrapper(ChromeViews::View* view) const {
+  AccessibleWrapper* GetAccessibleWrapper(views::View* view) const {
     return view->GetAccessibleWrapper();
   }
 
   // Helper function which sets applicable states of view.
-  void SetState(VARIANT* state, ChromeViews::View* view);
+  void SetState(VARIANT* state, views::View* view);
 
   // Member View needed for view-specific calls.
-  ChromeViews::View* view_;
+  views::View* view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ViewAccessibility);
 };

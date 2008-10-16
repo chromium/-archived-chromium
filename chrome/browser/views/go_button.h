@@ -23,7 +23,7 @@ class LocationBarView;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class GoButton : public ChromeViews::ToggleButton {
+class GoButton : public views::ToggleButton {
  public:
   GoButton(LocationBarView* location_bar, CommandController* controller);
   virtual ~GoButton();
@@ -31,7 +31,7 @@ class GoButton : public ChromeViews::ToggleButton {
   typedef enum Mode { MODE_GO = 0, MODE_STOP };
 
   virtual void NotifyClick(int mouse_event_flags);
-  virtual void OnMouseExited(const ChromeViews::MouseEvent& e);
+  virtual void OnMouseExited(const views::MouseEvent& e);
 
   // Force the button state
   void ChangeMode(Mode mode);

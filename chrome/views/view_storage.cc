@@ -9,7 +9,7 @@
 #include "chrome/common/notification_types.h"
 #include "chrome/common/stl_util-inl.h"
 
-namespace ChromeViews {
+namespace views {
 
 ViewStorage* ViewStorage::shared_instance_ = NULL;
 
@@ -203,5 +203,5 @@ void ViewStorage::Observe(NotificationType type,
   EraseView((*ids)[0], true);
 }
 
-}
+}  // namespace views
 

@@ -30,8 +30,8 @@ class TabContentsContainerView;
 // It also implements Container
 class ExternalTabContainer : public TabContentsDelegate,
                              public NotificationObserver,
-                             public ChromeViews::Container,
-                             public ChromeViews::KeystrokeListener,
+                             public views::Container,
+                             public views::KeystrokeListener,
                              public CWindowImpl<ExternalTabContainer,
                                                 CWindow,
                                                 CWinTraits<WS_POPUP |
@@ -88,21 +88,21 @@ class ExternalTabContainer : public TabContentsDelegate,
                        const NotificationDetails& details);
 
   ////////////////////////////////////////////////////////////////////////////////
-  // ChromeViews::Container
+  // views::Container
   ////////////////////////////////////////////////////////////////////////////////
   virtual void GetBounds(CRect *out, bool including_frame) const;
   virtual void MoveToFront(bool should_activate);
   virtual HWND GetHWND() const;
   virtual void PaintNow(const CRect& update_rect);
-  virtual ChromeViews::RootView* GetRootView();
+  virtual views::RootView* GetRootView();
   virtual bool IsVisible();
   virtual bool IsActive();
   virtual bool GetAccelerator(int cmd_id,
-                              ChromeViews::Accelerator* accelerator) {
+                              views::Accelerator* accelerator) {
     return false;
   }
 
-  // ChromeViews::KeystrokeListener implementation
+  // views::KeystrokeListener implementation
   // This method checks whether this keydown message is needed by the
   // external host. If so, it sends it over to the external host
   virtual bool ProcessKeyDown(HWND window, UINT message, WPARAM wparam,
@@ -135,7 +135,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   NotificationRegistrar registrar_;
 
   // Root view
-  ChromeViews::RootView root_view_;
+  views::RootView root_view_;
   // The accelerator table of the external host.
   HACCEL external_accel_table_;
   unsigned int external_accel_entry_count_;

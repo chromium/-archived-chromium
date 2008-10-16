@@ -8,7 +8,7 @@
 #include "base/logging.h"
 
 class HungRendererWarningView;
-namespace ChromeViews {
+namespace views {
 class Window;
 }
 class WebContents;

@@ -37,7 +37,7 @@ void DebuggerWindow::Show(TabContents* tab) {
     return;
   }
   view_ = new DebuggerView();
-  window_ = ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
+  window_ = views::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
   window_->Show();
   view_->OnShow();
   debugger_ready_ = true;
@@ -127,7 +127,7 @@ void DebuggerWindow::SetDebuggerBreak(bool brk) {
 }
 
 ///////////////////////////////////////////////////////////////////
-// ChromeViews::WindowDelegate methods
+// views::WindowDelegate methods
 
 std::wstring DebuggerWindow::GetWindowTitle() const {
   if (!debugger_ready_) {
@@ -157,20 +157,21 @@ bool DebuggerWindow::CanResize() const {
   return true;
 }
 
-ChromeViews::View* DebuggerWindow::GetContentsView() {
+views::View* DebuggerWindow::GetContentsView() {
   return view_;
 }
 
 ///////////////////////////////////////////////////////////////////
-// Overridden from ChromeViews::TextField::Controller:
+// Overridden from views::TextField::Controller:
 
-void DebuggerWindow::ContentsChanged(ChromeViews::TextField* sender,
-                                  const std::wstring& new_contents) {
+void DebuggerWindow::ContentsChanged(views::TextField* sender,
+                                     const std::wstring& new_contents) {
   //
 }
 
-void DebuggerWindow::HandleKeystroke(ChromeViews::TextField* sender, UINT message,
-                                  TCHAR key, UINT repeat_count, UINT flags) {
+void DebuggerWindow::HandleKeystroke(views::TextField* sender, UINT message,
+                                     TCHAR key, UINT repeat_count,
+                                     UINT flags) {
 #ifndef CHROME_DEBUGGER_DISABLED
   if (key == VK_RETURN) {
     std::wstring txt = sender->GetText();

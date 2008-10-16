@@ -38,7 +38,7 @@ const int kHorizontalPadding = 10;
 
 ////////////////////////////////////////////////////////////////////////////////
 // SecurityTabView
-class SecurityTabView : public ChromeViews::View {
+class SecurityTabView : public views::View {
  public:
   SecurityTabView(Profile* profile,
                   const GURL& url,
@@ -58,7 +58,7 @@ class SecurityTabView : public ChromeViews::View {
  private:
   // A section contains an image that shows a status (good or bad), a title,
   // an optional head-line (in bold) and a description.
-  class Section : public ChromeViews::View {
+  class Section : public views::View {
    public:
     Section(const std::wstring& title,
             bool state,
@@ -85,11 +85,11 @@ class SecurityTabView : public ChromeViews::View {
     static SkBitmap* good_state_icon_;
     static SkBitmap* bad_state_icon_;
 
-    ChromeViews::Label* title_label_;
-    ChromeViews::Separator* separator_;
-    ChromeViews::ImageView* status_image_;
-    ChromeViews::Label* head_line_label_;
-    ChromeViews::Label* description_label_;
+    views::Label* title_label_;
+    views::Separator* separator_;
+    views::ImageView* status_image_;
+    views::Label* head_line_label_;
+    views::Label* description_label_;
 
     DISALLOW_EVIL_CONSTRUCTORS(Section);
   };
@@ -139,26 +139,26 @@ SecurityTabView::Section::Section(const std::wstring& title, bool state,
     good_state_icon_ = rb.GetBitmapNamed(IDR_PAGEINFO_GOOD);
     bad_state_icon_ = rb.GetBitmapNamed(IDR_PAGEINFO_BAD);
   }
-  title_label_ = new ChromeViews::Label(title);
-  title_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  title_label_ = new views::Label(title);
+  title_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   AddChildView(title_label_);
 
-  separator_ = new ChromeViews::Separator();
+  separator_ = new views::Separator();
   AddChildView(separator_);
 
-  status_image_ = new ChromeViews::ImageView();
+  status_image_ = new views::ImageView();
   status_image_->SetImage(state ? good_state_icon_ : bad_state_icon_);
   AddChildView(status_image_);
 
-  head_line_label_ = new ChromeViews::Label(head_line);
+  head_line_label_ = new views::Label(head_line);
   head_line_label_->SetFont(
       head_line_label_->GetFont().DeriveFont(0, ChromeFont::BOLD));
-  head_line_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  head_line_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   AddChildView(head_line_label_);
 
-  description_label_ = new ChromeViews::Label(description);
+  description_label_ = new views::Label(description);
   description_label_->SetMultiLine(true);
-  description_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  description_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   AddChildView(description_label_);
 }
 
@@ -430,18 +430,18 @@ void SecurityTabView::OnGotVisitCountToHost(HistoryService::Handle handle,
 
 ////////////////////////////////////////////////////////////////////////////////
 // PageInfoContentView
-class PageInfoContentView : public ChromeViews::View {
+class PageInfoContentView : public views::View {
  public:
   PageInfoContentView() : cert_viewer_button_(NULL) {}
 
-  void set_cert_viewer_button(ChromeViews::NativeButton* cert_viewer_button) {
+  void set_cert_viewer_button(views::NativeButton* cert_viewer_button) {
     cert_viewer_button_ = cert_viewer_button;
   }
 
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void GetPreferredSize(CSize *out) {
     DCHECK(out);
-    *out = ChromeViews::Window::GetLocalizedContentsSize(
+    *out = views::Window::GetLocalizedContentsSize(
         IDS_PAGEINFO_DIALOG_WIDTH_CHARS,
         IDS_PAGEINFO_DIALOG_HEIGHT_LINES).ToSIZE();
   }
@@ -460,7 +460,7 @@ class PageInfoContentView : public ChromeViews::View {
   }
 
  private:
-  ChromeViews::NativeButton* cert_viewer_button_;
+  views::NativeButton* cert_viewer_button_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PageInfoContentView);
 };
@@ -514,7 +514,7 @@ void PageInfoWindow::Init(Profile* profile,
                           HWND parent) {
   cert_id_ = ssl.cert_id();
 
-  cert_info_button_ = new ChromeViews::NativeButton(
+  cert_info_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_PAGEINFO_CERT_INFO_BUTTON));
   cert_info_button_->SetListener(this);
 
@@ -522,23 +522,22 @@ void PageInfoWindow::Init(Profile* profile,
   DWORD sys_color = ::GetSysColor(COLOR_3DFACE);
   SkColor color = SkColorSetRGB(GetRValue(sys_color), GetGValue(sys_color),
                                 GetBValue(sys_color));
-  contents_->SetBackground(
-      ChromeViews::Background::CreateSolidBackground(color));
+  contents_->SetBackground(views::Background::CreateSolidBackground(color));
 
-  ChromeViews::GridLayout* layout = new ChromeViews::GridLayout(contents_);
+  views::GridLayout* layout = new views::GridLayout(contents_);
   contents_->SetLayoutManager(layout);
-  ChromeViews::ColumnSet* columns = layout->AddColumnSet(0);
+  views::ColumnSet* columns = layout->AddColumnSet(0);
   columns->AddPaddingColumn(0, kHorizontalPadding);
-  columns->AddColumn(ChromeViews::GridLayout::FILL,  // Horizontal resize.
-                     ChromeViews::GridLayout::FILL,  // Vertical resize.
+  columns->AddColumn(views::GridLayout::FILL,  // Horizontal resize.
+                     views::GridLayout::FILL,  // Vertical resize.
                      1,  // Resize weight.
-                     ChromeViews::GridLayout::USE_PREF,  // Size type.
+                     views::GridLayout::USE_PREF,  // Size type.
                      0,  // Ignored for USE_PREF.
                      0);  // Minimum size.
-  columns->AddColumn(ChromeViews::GridLayout::FILL,  // Horizontal resize.
-                     ChromeViews::GridLayout::FILL,  // Vertical resize.
+  columns->AddColumn(views::GridLayout::FILL,  // Horizontal resize.
+                     views::GridLayout::FILL,  // Vertical resize.
                      1,  // Resize weight.
-                     ChromeViews::GridLayout::USE_PREF,  // Size type.
+                     views::GridLayout::USE_PREF,  // Size type.
                      0,  // Ignored for USE_PREF.
                      0);  // Minimum size.
   columns->AddPaddingColumn(0, kHorizontalPadding);
@@ -562,7 +561,7 @@ void PageInfoWindow::Init(Profile* profile,
     }
   }
 
-  ChromeViews::Window::CreateChromeWindow(parent, gfx::Rect(), this);
+  views::Window::CreateChromeWindow(parent, gfx::Rect(), this);
   // TODO(beng): (Cleanup) - cert viewer button should use GetExtraView.
   
   if (cert_id_) {
@@ -578,11 +577,11 @@ void PageInfoWindow::Init(Profile* profile,
   }
 }
 
-ChromeViews::View* PageInfoWindow::CreateGeneralTabView() {
-  return new ChromeViews::View();
+views::View* PageInfoWindow::CreateGeneralTabView() {
+  return new views::View();
 }
 
-ChromeViews::View* PageInfoWindow::CreateSecurityTabView(
+views::View* PageInfoWindow::CreateSecurityTabView(
     Profile* profile,
     const GURL& url,
     const NavigationEntry::SSLStatus& ssl,
@@ -621,11 +620,11 @@ bool PageInfoWindow::RestoreWindowPosition(CRect* bounds,
       bounds, maximized, always_on_top);
 }
 
-ChromeViews::View* PageInfoWindow::GetContentsView() {
+views::View* PageInfoWindow::GetContentsView() {
   return contents_;
 }
 
-void PageInfoWindow::ButtonPressed(ChromeViews::NativeButton* sender) {
+void PageInfoWindow::ButtonPressed(views::NativeButton* sender) {
   if (sender == cert_info_button_) {
     DCHECK(cert_id_ != 0);
     ShowCertDialog(cert_id_);

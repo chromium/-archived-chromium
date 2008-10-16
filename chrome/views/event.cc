@@ -7,7 +7,7 @@
 #include "chrome/views/view.h"
 #include "webkit/glue/webinputevent.h"
 
-namespace ChromeViews {
+namespace views {
 
 Event::Event(EventType type, int flags)
     : type_(type),
@@ -94,5 +94,5 @@ bool KeyEvent::IsExtendedKey() const {
   return (message_flags_ & KF_EXTENDED) == KF_EXTENDED;
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

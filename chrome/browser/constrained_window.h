@@ -9,7 +9,7 @@
 #include "webkit/glue/window_open_disposition.h"
 
 class ConstrainedWindow;
-namespace ChromeViews {
+namespace views {
 class View;
 class WindowDelegate;
 }
@@ -74,17 +74,17 @@ class ConstrainedTabContentsDelegate {
 //
 class ConstrainedWindow {
  public:
-  // Create a Constrained Window that contains a ChromeViews::View subclass
+  // Create a Constrained Window that contains a views::View subclass
   // that provides the client area. Typical uses include the HTTP Basic Auth
   // prompt. The caller must provide an object implementing
-  // ChromeViews::WindowDelegate so that the Constrained Window can be properly
+  // views::WindowDelegate so that the Constrained Window can be properly
   // configured. If |initial_bounds| is empty, the dialog will be centered
   // within the constraining TabContents.
   static ConstrainedWindow* CreateConstrainedDialog(
       TabContents* owner,
       const gfx::Rect& initial_bounds,
-      ChromeViews::View* contents_view,
-      ChromeViews::WindowDelegate* window_delegate);
+      views::View* contents_view,
+      views::WindowDelegate* window_delegate);
 
   // Create a Constrained Window that contains a TabContents subclass, e.g. for
   // a web popup. |initial_bounds| specifies the desired position of the

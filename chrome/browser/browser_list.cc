@@ -65,7 +65,7 @@ void BrowserList::RemoveBrowser(Browser* browser) {
 }
 
 // static
-void BrowserList::AddDependentWindow(ChromeViews::Window* window) {
+void BrowserList::AddDependentWindow(views::Window* window) {
   DependentWindowList::const_iterator existing =
       find(dependent_windows_.begin(), dependent_windows_.end(), window);
   DCHECK(existing == dependent_windows_.end());
@@ -74,7 +74,7 @@ void BrowserList::AddDependentWindow(ChromeViews::Window* window) {
 }
 
 // static
-void BrowserList::RemoveDependentWindow(ChromeViews::Window* window) {
+void BrowserList::RemoveDependentWindow(views::Window* window) {
   DependentWindowList::iterator existing =
       find(dependent_windows_.begin(), dependent_windows_.end(), window);
   DCHECK(existing != dependent_windows_.end());

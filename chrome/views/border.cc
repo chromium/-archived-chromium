@@ -6,8 +6,7 @@
 
 #include "base/logging.h"
 
-namespace ChromeViews {
-
+namespace views {
 
 namespace {
 
@@ -103,5 +102,5 @@ Border* Border::CreateEmptyBorder(int top, int left, int bottom, int right) {
   return new EmptyBorder(top, left, bottom, right);
 }
 
-} // namespace
+}  // namespace views
 

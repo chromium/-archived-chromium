@@ -216,7 +216,7 @@ SkBitmap TaskManagerTableModel::GetIcon(int row) {
 }
 
 void TaskManagerTableModel::GetGroupRangeForItem(int item,
-    ChromeViews::GroupRange* range) {
+                                                 views::GroupRange* range) {
   DCHECK((item >= 0) && (item < RowCount())) <<
       " invalid item "<< item << " (items count=" << RowCount() << ")";
 
@@ -476,8 +476,7 @@ void TaskManagerTableModel::Refresh() {
       kUpdateTimeMs);
 }
 
-void TaskManagerTableModel::SetObserver(
-    ChromeViews::TableModelObserver* observer) {
+void TaskManagerTableModel::SetObserver(views::TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -653,11 +652,11 @@ bool TaskManagerTableModel::GetProcessMetricsForRows(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class TaskManagerContents : public ChromeViews::View,
-                            public ChromeViews::NativeButton::Listener,
-                            public ChromeViews::TableViewObserver,
-                            public ChromeViews::LinkController,
-                            public ChromeViews::ContextMenuController,
+class TaskManagerContents : public views::View,
+                            public views::NativeButton::Listener,
+                            public views::TableViewObserver,
+                            public views::LinkController,
+                            public views::ContextMenuController,
                             public Menu::Delegate {
  public:
   TaskManagerContents(TaskManager* task_manager,
@@ -667,28 +666,28 @@ class TaskManagerContents : public ChromeViews::View,
   void Init(TaskManagerTableModel* table_model);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
-  virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+  virtual void ViewHierarchyChanged(bool is_add, views::View* parent,
+                                    views::View* child);
   void GetSelection(std::vector<int>* selection);
   void GetFocused(std::vector<int>* focused);
 
   // NativeButton::Listener implementation.
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  virtual void ButtonPressed(views::NativeButton* sender);
 
-  // ChromeViews::TableViewObserver implementation.
+  // views::TableViewObserver implementation.
   virtual void OnSelectionChanged();
   virtual void OnDoubleClick();
   virtual void OnKeyDown(unsigned short virtual_keycode);
 
-  // ChromeViews::LinkController implementation.
-  virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+  // views::LinkController implementation.
+  virtual void LinkActivated(views::Link* source, int event_flags);
 
   // Called by the column picker to pick up any new stat counters that
   // may have appeared since last time.
   void UpdateStatsCounters();
 
   // Menu::Delegate
-  virtual void ShowContextMenu(ChromeViews::View* source,
+  virtual void ShowContextMenu(views::View* source,
                                int x,
                                int y,
                                bool is_mouse_gesture);
@@ -696,14 +695,14 @@ class TaskManagerContents : public ChromeViews::View,
   virtual void ExecuteCommand(int id);
 
  private:
-  scoped_ptr<ChromeViews::NativeButton> kill_button_;
-  scoped_ptr<ChromeViews::Link> about_memory_link_;
-  ChromeViews::GroupTableView* tab_table_;
+  scoped_ptr<views::NativeButton> kill_button_;
+  scoped_ptr<views::Link> about_memory_link_;
+  views::GroupTableView* tab_table_;
 
   TaskManager* task_manager_;
 
   // all possible columns, not necessarily visible
-  std::vector<ChromeViews::TableColumn> columns_;
+  std::vector<views::TableColumn> columns_;
 
   DISALLOW_EVIL_CONSTRUCTORS(TaskManagerContents);
 };
@@ -718,46 +717,31 @@ TaskManagerContents::~TaskManagerContents() {
 }
 
 void TaskManagerContents::Init(TaskManagerTableModel* table_model) {
-  columns_.push_back(
-      ChromeViews::TableColumn(
-          IDS_TASK_MANAGER_PAGE_COLUMN,
-          ChromeViews::TableColumn::LEFT, -1, 1));
+  columns_.push_back(views::TableColumn(IDS_TASK_MANAGER_PAGE_COLUMN,
+                                        views::TableColumn::LEFT, -1, 1));
   columns_.back().sortable = true;
-  columns_.push_back(
-      ChromeViews::TableColumn(
-          IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN,
-          ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.push_back(views::TableColumn(IDS_TASK_MANAGER_PHYSICAL_MEM_COLUMN,
+                                        views::TableColumn::RIGHT, -1, 0));
   columns_.back().sortable = true;
-  columns_.push_back(
-      ChromeViews::TableColumn(
-          IDS_TASK_MANAGER_SHARED_MEM_COLUMN,
-          ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.push_back(views::TableColumn(IDS_TASK_MANAGER_SHARED_MEM_COLUMN,
+                                        views::TableColumn::RIGHT, -1, 0));
   columns_.back().sortable = true;
-  columns_.push_back(
-      ChromeViews::TableColumn(
-          IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN,
-          ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.push_back(views::TableColumn(IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN,
+                                        views::TableColumn::RIGHT, -1, 0));
   columns_.back().sortable = true;
-  columns_.push_back(
-      ChromeViews::TableColumn(
-          IDS_TASK_MANAGER_CPU_COLUMN,
-          ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.push_back(views::TableColumn(IDS_TASK_MANAGER_CPU_COLUMN,
+                                        views::TableColumn::RIGHT, -1, 0));
   columns_.back().sortable = true;
-  columns_.push_back(
-      ChromeViews::TableColumn(
-          IDS_TASK_MANAGER_NET_COLUMN,
-          ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.push_back(views::TableColumn(IDS_TASK_MANAGER_NET_COLUMN,
+                                        views::TableColumn::RIGHT, -1, 0));
   columns_.back().sortable = true;
-  columns_.push_back(
-      ChromeViews::TableColumn(
-          IDS_TASK_MANAGER_PROCESS_ID_COLUMN,
-          ChromeViews::TableColumn::RIGHT, -1, 0));
+  columns_.push_back(views::TableColumn(IDS_TASK_MANAGER_PROCESS_ID_COLUMN,
+                                        views::TableColumn::RIGHT, -1, 0));
   columns_.back().sortable = true;
 
-  tab_table_ = new ChromeViews::GroupTableView(table_model,
-                                               columns_,
-                                               ChromeViews::ICON_AND_TEXT,
-                                               false, true, true);
+  tab_table_ = new views::GroupTableView(table_model, columns_,
+                                         views::ICON_AND_TEXT, false, true,
+                                         true);
 
   // Hide some columns by default
   tab_table_->SetColumnVisibility(IDS_TASK_MANAGER_PROCESS_ID_COLUMN, false);
@@ -765,17 +749,17 @@ void TaskManagerContents::Init(TaskManagerTableModel* table_model) {
   tab_table_->SetColumnVisibility(IDS_TASK_MANAGER_PRIVATE_MEM_COLUMN, false);
 
   UpdateStatsCounters();
-  ChromeViews::TableColumn col(kGoatsTeleportedColumn, L"Goats Teleported",
-                               ChromeViews::TableColumn::RIGHT, -1, 0);
+  views::TableColumn col(kGoatsTeleportedColumn, L"Goats Teleported",
+                         views::TableColumn::RIGHT, -1, 0);
   col.sortable = true;
   columns_.push_back(col);
   tab_table_->AddColumn(col);
   tab_table_->SetObserver(this);
   SetContextMenuController(this);
-  kill_button_.reset(new ChromeViews::NativeButton(
+  kill_button_.reset(new views::NativeButton(
       l10n_util::GetString(IDS_TASK_MANAGER_KILL)));
   kill_button_->SetListener(this);
-  about_memory_link_.reset(new ChromeViews::Link(
+  about_memory_link_.reset(new views::Link(
       l10n_util::GetString(IDS_TASK_MANAGER_ABOUT_MEMORY_LINK)));
   about_memory_link_->SetController(this);
 
@@ -798,8 +782,7 @@ void TaskManagerContents::UpdateStatsCounters() {
         // stat names not in the string table would be filtered out.
         // TODO(erikkay): Width is hard-coded right now, so many column
         // names are clipped.
-        ChromeViews::TableColumn col(i, row, ChromeViews::TableColumn::RIGHT,
-                                     90, 0);
+        views::TableColumn col(i, row, views::TableColumn::RIGHT, 90, 0);
         col.sortable = true;
         columns_.push_back(col);
         tab_table_->AddColumn(col);
@@ -809,8 +792,8 @@ void TaskManagerContents::UpdateStatsCounters() {
 }
 
 void TaskManagerContents::ViewHierarchyChanged(bool is_add,
-                                               ChromeViews::View* parent,
-                                               ChromeViews::View* child) {
+                                               views::View* parent,
+                                               views::View* child) {
   // Since we want the Kill button and the Memory Details link to show up in
   // the same visual row as the close button, which is provided by the
   // framework, we must add the buttons to the non-client view, which is the
@@ -871,7 +854,7 @@ gfx::Size TaskManagerContents::GetPreferredSize() {
 
 void TaskManagerContents::GetSelection(std::vector<int>* selection) {
   DCHECK(selection);
-  for (ChromeViews::TableSelectionIterator iter  = tab_table_->SelectionBegin();
+  for (views::TableSelectionIterator iter  = tab_table_->SelectionBegin();
        iter != tab_table_->SelectionEnd(); ++iter) {
     // The TableView returns the selection starting from the end.
     selection->insert(selection->begin(), *iter);
@@ -889,12 +872,12 @@ void TaskManagerContents::GetFocused(std::vector<int>* focused) {
 }
 
 // NativeButton::Listener implementation.
-void TaskManagerContents::ButtonPressed(ChromeViews::NativeButton* sender) {
+void TaskManagerContents::ButtonPressed(views::NativeButton* sender) {
   if (sender == kill_button_)
     task_manager_->KillSelectedProcesses();
 }
 
-// ChromeViews::TableViewObserver implementation.
+// views::TableViewObserver implementation.
 void TaskManagerContents::OnSelectionChanged() {
   kill_button_->SetEnabled(!task_manager_->BrowserProcessIsSelected() &&
                            tab_table_->SelectedRowCount() > 0);
@@ -909,8 +892,8 @@ void TaskManagerContents::OnKeyDown(unsigned short virtual_keycode) {
     task_manager_->ActivateFocusedTab();
 }
 
-// ChromeViews::LinkController implementation
-void TaskManagerContents::LinkActivated(ChromeViews::Link* source,
+// views::LinkController implementation
+void TaskManagerContents::LinkActivated(views::Link* source,
                                         int event_flags) {
   DCHECK(source == about_memory_link_);
   Browser* browser = BrowserList::GetLastActive();
@@ -919,13 +902,13 @@ void TaskManagerContents::LinkActivated(ChromeViews::Link* source,
                    PageTransition::LINK);
 }
 
-void TaskManagerContents::ShowContextMenu(ChromeViews::View* source,
+void TaskManagerContents::ShowContextMenu(views::View* source,
                                           int x,
                                           int y,
                                           bool is_mouse_gesture) {
   UpdateStatsCounters();
   Menu menu(this, Menu::TOPLEFT, source->GetContainer()->GetHWND());
-  for (std::vector<ChromeViews::TableColumn>::iterator i =
+  for (std::vector<views::TableColumn>::iterator i =
        columns_.begin(); i != columns_.end(); ++i) {
     menu.AppendMenuItem(i->id, i->title, Menu::CHECKBOX);
   }
@@ -963,7 +946,7 @@ void TaskManager::Open() {
   if (task_manager->window()) {
     task_manager->window()->MoveToFront(true);
   } else {
-    ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), task_manager);
+    views::Window::CreateChromeWindow(NULL, gfx::Rect(), task_manager);
     task_manager->table_model_->StartUpdating();
     task_manager->window()->Show();
   }
@@ -1102,7 +1085,7 @@ void TaskManager::WindowClosing() {
   ReleaseWindow();
 }
 
-ChromeViews::View* TaskManager::GetContentsView() {
+views::View* TaskManager::GetContentsView() {
   return contents_.get();
 }
 

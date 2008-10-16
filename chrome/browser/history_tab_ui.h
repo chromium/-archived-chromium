@@ -29,7 +29,7 @@ class HistoryTabUI : public NativeUI,
   virtual const int GetFavIconID() const;
   virtual const int GetSectionIconID() const;
   virtual const std::wstring GetSearchButtonText() const;
-  virtual ChromeViews::View* GetView();
+  virtual views::View* GetView();
   virtual void WillBecomeVisible(NativeUIContents* parent);
   virtual void WillBecomeInvisible(NativeUIContents* parent);
   virtual void Navigate(const PageState& state);

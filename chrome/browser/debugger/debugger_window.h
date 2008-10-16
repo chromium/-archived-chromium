@@ -14,8 +14,8 @@ class DebuggerView;
 class TabContents;
 
 class DebuggerWindow : public DebuggerInputOutput,
-                    public ChromeViews::WindowDelegate,
-                    public ChromeViews::TextField::Controller {
+                       public views::WindowDelegate,
+                       public views::TextField::Controller {
  public:
   DebuggerWindow();
   virtual ~DebuggerWindow();
@@ -37,20 +37,20 @@ class DebuggerWindow : public DebuggerInputOutput,
   virtual void SetDebuggerReady(bool ready);
   virtual void SetDebuggerBreak(bool brk);
 
-  // ChromeViews::WindowDelegate methods:
+  // views::WindowDelegate methods:
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool CanResize() const;
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
-  // Overridden from ChromeViews::TextField::Controller:
-  virtual void ContentsChanged(ChromeViews::TextField* sender,
+  // Overridden from views::TextField::Controller:
+  virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(ChromeViews::TextField* sender, UINT message,
+  virtual void HandleKeystroke(views::TextField* sender, UINT message,
                                TCHAR key, UINT repeat_count, UINT flags);
 
  private:
-  ChromeViews::Window* window_;
+  views::Window* window_;
   DebuggerView* view_;
 
   bool debugger_ready_;

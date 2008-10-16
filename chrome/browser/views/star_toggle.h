@@ -14,7 +14,7 @@
 // Delegate when the state changes.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class StarToggle : public ChromeViews::View {
+class StarToggle : public views::View {
  public:
   class Delegate {
    public:
@@ -42,10 +42,10 @@ class StarToggle : public ChromeViews::View {
   // Overriden from view.
   void Paint(ChromeCanvas* canvas);
   gfx::Size GetPreferredSize();
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
-  virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
-  virtual void OnMouseReleased(const ChromeViews::MouseEvent& e, bool canceled);
-  bool OnKeyPressed(const ChromeViews::KeyEvent& e);
+  virtual bool OnMousePressed(const views::MouseEvent& e);
+  virtual bool OnMouseDragged(const views::MouseEvent& event);
+  virtual void OnMouseReleased(const views::MouseEvent& e, bool canceled);
+  bool OnKeyPressed(const views::KeyEvent& e);
 
  private:
   // The state.

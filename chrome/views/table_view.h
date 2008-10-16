@@ -41,7 +41,7 @@ class SkBitmap;
 // sort by way of overriding CompareValues.
 //
 // TableView is a wrapper around the window type ListView in report mode.
-namespace ChromeViews {
+namespace views {
 
 class HWNDView;
 class ListView;
@@ -583,7 +583,7 @@ class TableView : public NativeControl,
   std::vector<int> visible_columns_;
 
   // Mapping of an int id to a TableColumn representing all possible columns.
-  std::map<int,ChromeViews::TableColumn> all_columns_;
+  std::map<int, TableColumn> all_columns_;
 
   // Cached value of columns_.size()
   int column_count_;
@@ -643,6 +643,6 @@ class TableView : public NativeControl,
   DISALLOW_COPY_AND_ASSIGN(TableView);
 };
 
-}  // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_TABLE_VIEW_H_

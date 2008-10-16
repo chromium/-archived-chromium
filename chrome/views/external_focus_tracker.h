@@ -7,7 +7,7 @@
 
 #include "chrome/views/focus_manager.h"
 
-namespace ChromeViews {
+namespace views {
 
 class View;
 class ViewStorage;
@@ -43,7 +43,7 @@ class ExternalFocusTracker : public FocusChangeListener {
   // manager went away, but you might later want to start tracking with a new
   // manager later, or call FocusLastFocusedExternalView to focus the previous
   // view.
-  void SetFocusManager(ChromeViews::FocusManager* focus_manager);
+  void SetFocusManager(FocusManager* focus_manager);
 
  private:
   // Store the provided view. This view will be focused when
@@ -71,6 +71,7 @@ class ExternalFocusTracker : public FocusChangeListener {
   DISALLOW_EVIL_CONSTRUCTORS(ExternalFocusTracker);
 };
 
-} // namespace
+}  // namespace views
+
 #endif // CHROME_BROWSER_VIEWS_EXTERNAL_FOCUS_TRACKER_H__
 

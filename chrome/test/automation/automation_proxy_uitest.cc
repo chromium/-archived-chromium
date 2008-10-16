@@ -119,7 +119,7 @@ TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
     end.x = start.x + 2 * bounds.width() / 3;
     end.y = start.y;
     ASSERT_TRUE(browser->SimulateDrag(start, end,
-                                      ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+                                      views::Event::EF_LEFT_BUTTON_DOWN));
 
     // Check to see that the drag event successfully swapped the two tabs.
     tab1.reset(browser->GetTab(0));

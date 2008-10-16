@@ -20,12 +20,12 @@ static const SkScalar kTabCapWidth = 15;
 static const SkScalar kTabTopCurveWidth = 4;
 static const SkScalar kTabBottomCurveWidth = 3;
 
-class TabContextMenuController : public ChromeViews::MenuDelegate {
+class TabContextMenuController : public views::MenuDelegate {
  public:
   explicit TabContextMenuController(Tab* tab)
       : tab_(tab),
         last_command_(TabStripModel::CommandFirst) {
-    menu_.reset(new ChromeViews::MenuItemView(this));
+    menu_.reset(new views::MenuItemView(this));
     menu_->AppendMenuItemWithLabel(TabStripModel::CommandNewTab,
                                    l10n_util::GetString(IDS_TAB_CXMENU_NEWTAB));
     menu_->AppendSeparator();
@@ -54,11 +54,11 @@ class TabContextMenuController : public ChromeViews::MenuDelegate {
 
   void RunMenuAt(int x, int y) {
     menu_->RunMenuAt(tab_->GetContainer()->GetHWND(), gfx::Rect(x, y, 0, 0),
-                     ChromeViews::MenuItemView::TOPLEFT, true);
+                     views::MenuItemView::TOPLEFT, true);
   }
 
  private:
-  // ChromeViews::MenuDelegate implementation:
+  // views::MenuDelegate implementation:
   virtual bool IsCommandEnabled(int id) const {
     // The MenuItemView used to contain the contents of the Context Menu itself
     // has a command id of 0, and it will check to see if it's enabled for
@@ -78,7 +78,7 @@ class TabContextMenuController : public ChromeViews::MenuDelegate {
         tab_);
   }
 
-  virtual void SelectionChanged(ChromeViews::MenuItemView* menu) {
+  virtual void SelectionChanged(views::MenuItemView* menu) {
     TabStripModel::ContextMenuCommand command =
         static_cast<TabStripModel::ContextMenuCommand>(menu->GetCommand());
     tab_->delegate()->StopHighlightTabsForCommand(last_command_, tab_);
@@ -88,7 +88,7 @@ class TabContextMenuController : public ChromeViews::MenuDelegate {
 
  private:
   // The context menu.
-  scoped_ptr<ChromeViews::MenuItemView> menu_;
+  scoped_ptr<views::MenuItemView> menu_;
 
   // The Tab the context menu was brought up for.
   Tab* tab_;
@@ -124,7 +124,7 @@ bool Tab::IsSelected() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Tab, ChromeViews::View overrides:
+// Tab, views::View overrides:
 
 bool Tab::HasHitTestMask() const {
   return true;
@@ -134,7 +134,7 @@ void Tab::GetHitTestMask(gfx::Path* mask) const {
   MakePathForTab(mask);
 }
 
-bool Tab::OnMousePressed(const ChromeViews::MouseEvent& event) {
+bool Tab::OnMousePressed(const views::MouseEvent& event) {
   if (event.IsOnlyLeftMouseButton()) {
     // Store whether or not we were selected just now... we only want to be
     // able to drag foreground tabs, so we don't start dragging the tab if
@@ -147,13 +147,12 @@ bool Tab::OnMousePressed(const ChromeViews::MouseEvent& event) {
   return true;
 }
 
-bool Tab::OnMouseDragged(const ChromeViews::MouseEvent& event) {
+bool Tab::OnMouseDragged(const views::MouseEvent& event) {
   delegate_->ContinueDrag(event);
   return true;
 }
 
-void Tab::OnMouseReleased(const ChromeViews::MouseEvent& event,
-                          bool canceled) {
+void Tab::OnMouseReleased(const views::MouseEvent& event, bool canceled) {
   // Notify the drag helper that we're done with any potential drag operations.
   // Clean up the drag helper, which is re-created on the next mouse press.
   delegate_->EndDrag(canceled);
@@ -177,7 +176,7 @@ bool Tab::GetTooltipText(int x, int y, std::wstring* tooltip) {
 bool Tab::GetTooltipTextOrigin(int x, int y, CPoint* origin) {
   ChromeFont font;
   origin->x = title_bounds().x() + 10;
-  origin->y = -ChromeViews::TooltipManager::GetTooltipHeight() - 4;
+  origin->y = -views::TooltipManager::GetTooltipHeight() - 4;
   return true;
 }
 
@@ -195,9 +194,9 @@ bool Tab::GetAccessibleName(std::wstring* name) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Tab, ChromeViews::ContextMenuController implementation:
+// Tab, views::ContextMenuController implementation:
 
-void Tab::ShowContextMenu(ChromeViews::View* source, int x, int y,
+void Tab::ShowContextMenu(views::View* source, int x, int y,
                           bool is_mouse_gesture) {
   TabContextMenuController controller(this);
   controller.RunMenuAt(x, y);
@@ -205,9 +204,9 @@ void Tab::ShowContextMenu(ChromeViews::View* source, int x, int y,
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// ChromeViews::BaseButton::ButtonListener implementation:
+// views::BaseButton::ButtonListener implementation:
 
-void Tab::ButtonPressed(ChromeViews::BaseButton* sender) {
+void Tab::ButtonPressed(views::BaseButton* sender) {
   if (sender == close_button())
     delegate_->CloseTab(this);
 }

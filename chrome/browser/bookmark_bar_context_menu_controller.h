@@ -15,7 +15,7 @@ class PageNavigator;
 // BookmarkBarContextMenuController manages the context menus shown for the
 // bookmark bar, items on the bookmark bar, and submens of folders on the
 // bookmark bar.
-class BookmarkBarContextMenuController : public ChromeViews::MenuDelegate,
+class BookmarkBarContextMenuController : public views::MenuDelegate,
     public BookmarkBarView::ModelChangedListener {
  public:
   // Recursively opens all bookmarks of |node|. |initial_disposition| dictates
@@ -36,7 +36,7 @@ class BookmarkBarContextMenuController : public ChromeViews::MenuDelegate,
   virtual void ModelChanged();
 
   // Returns the menu.
-  ChromeViews::MenuItemView* menu() { return &menu_; }
+  views::MenuItemView* menu() { return &menu_; }
 
   // Menu::Delegate methods.
   virtual void ExecuteCommand(int id);
@@ -48,7 +48,7 @@ class BookmarkBarContextMenuController : public ChromeViews::MenuDelegate,
   // bookmarks/folders.
   BookmarkNode* GetParentAndVisualOrderForNewNode(int* visual_order);
 
-  ChromeViews::MenuItemView menu_;
+  views::MenuItemView menu_;
   BookmarkBarView* view_;
   BookmarkNode* node_;
 

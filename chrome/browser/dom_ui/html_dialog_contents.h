@@ -9,7 +9,7 @@
 #include "chrome/views/window_delegate.h"
 
 // Implement this class to receive notifications.
-class HtmlDialogContentsDelegate : public ChromeViews::WindowDelegate {
+class HtmlDialogContentsDelegate : public views::WindowDelegate {
  public:
    // Get the HTML file path for the content to load in the dialog.
    virtual GURL GetDialogContentURL() const = 0;

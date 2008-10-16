@@ -22,13 +22,13 @@
 #include "chrome/views/text_field.h"
 #include "generated_resources.h"
 
-using ChromeViews::ComboBox;
-using ChromeViews::ColumnSet;
-using ChromeViews::GridLayout;
-using ChromeViews::Label;
-using ChromeViews::Link;
-using ChromeViews::NativeButton;
-using ChromeViews::View;
+using views::ComboBox;
+using views::ColumnSet;
+using views::GridLayout;
+using views::Label;
+using views::Link;
+using views::NativeButton;
+using views::View;
 
 // Color of the title.
 static const SkColor kTitleColor = SkColorSetRGB(6, 45, 117);
@@ -137,17 +137,17 @@ void BookmarkBubbleView::DidChangeBounds(const gfx::Rect& previous,
 
 void BookmarkBubbleView::BubbleShown() {
   DCHECK(GetContainer());
-  ChromeViews::FocusManager* focus_manager =
-      ChromeViews::FocusManager::GetFocusManager(GetContainer()->GetHWND());
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetContainer()->GetHWND());
   focus_manager->RegisterAccelerator(
-      ChromeViews::Accelerator(VK_RETURN, false, false, false), this);
+      views::Accelerator(VK_RETURN, false, false, false), this);
 
   title_tf_->RequestFocus();
   title_tf_->SelectAll();
 }
 
 bool BookmarkBubbleView::AcceleratorPressed(
-    const ChromeViews::Accelerator& accelerator) {
+    const views::Accelerator& accelerator) {
   if (accelerator.GetKeyCode() != VK_RETURN)
     return false;
   if (edit_button_->HasFocus())
@@ -239,7 +239,7 @@ void BookmarkBubbleView::Init() {
   layout->StartRow(0, 2);
   layout->AddView(
       new Label(l10n_util::GetString(IDS_BOOMARK_BUBBLE_TITLE_TEXT)));
-  title_tf_ = new ChromeViews::TextField();
+  title_tf_ = new views::TextField();
   title_tf_->SetText(GetTitle());
   layout->AddView(title_tf_);
 
@@ -266,7 +266,7 @@ std::wstring BookmarkBubbleView::GetTitle() {
   return std::wstring();
 }
 
-void BookmarkBubbleView::ButtonPressed(ChromeViews::NativeButton* sender) {		
+void BookmarkBubbleView::ButtonPressed(views::NativeButton* sender) {		
   if (sender == edit_button_) {
     UserMetrics::RecordAction(L"BookmarkBubble_Edit", profile_);
     ShowEditor();

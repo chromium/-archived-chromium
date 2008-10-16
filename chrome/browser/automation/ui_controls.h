@@ -8,7 +8,7 @@
 #include <string>
 #include <wtypes.h>
 
-namespace ChromeViews {
+namespace views {
 class View;
 }
 
@@ -57,8 +57,10 @@ bool SendMouseClick(MouseButton type);
 
 // A combination of SendMouseMove to the middle of the view followed by
 // SendMouseEvents.
-void MoveMouseToCenterAndPress(
-    ChromeViews::View* view, MouseButton button, int state, Task* task);
+void MoveMouseToCenterAndPress(views::View* view,
+                               MouseButton button,
+                               int state,
+                               Task* task);
 
 }  // ui_controls
 

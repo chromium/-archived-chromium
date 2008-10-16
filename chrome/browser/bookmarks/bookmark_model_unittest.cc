@@ -477,7 +477,7 @@ TEST_F(BookmarkModelTest, NotifyURLsStarred) {
 namespace {
 
 // See comment in PopulateNodeFromString.
-typedef ChromeViews::TreeNodeWithValue<history::StarredEntry::Type> TestNode;
+typedef views::TreeNodeWithValue<history::StarredEntry::Type> TestNode;
 
 // Does the work of PopulateNodeFromString. index gives the index of the current
 // element in description to process.

@@ -9,7 +9,7 @@
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 class CheckBox;
 class Window;
 class ImageView;
@@ -23,22 +23,22 @@ class ImporterHost;
 // This class abstracts the code that creates the dialog look for the two
 // first-run dialogs. This amounts to the bitmap, the two separators, the
 // progress throbber and some common resize code.
-class FirstRunViewBase : public ChromeViews::View,
-                         public ChromeViews::DialogDelegate {
+class FirstRunViewBase : public views::View,
+                         public views::DialogDelegate {
  public:
   explicit FirstRunViewBase(Profile* profile);
   virtual ~FirstRunViewBase();
 
-  // Overridden from ChromeViews::View.
+  // Overridden from views::View.
   virtual void Layout();
 
-  // Overridden from ChromeViews::WindowDelegate.
+  // Overridden from views::WindowDelegate.
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
   virtual bool IsAlwaysOnTop() const;
   virtual bool HasAlwaysOnTopMenu() const;
 
-  // Overridden from ChromeViews::DialogDelegate.
+  // Overridden from views::DialogDelegate.
   std::wstring GetDialogButtonLabel(DialogButton button) const;
 
  protected:
@@ -60,13 +60,13 @@ class FirstRunViewBase : public ChromeViews::View,
   // Disables the standard buttons of the dialog. Useful when importing.
   void DisableButtons();
   // Computes a tight dialog width given a contained UI element.
-  void AdjustDialogWidth(const ChromeViews::View* sub_view);
+  void AdjustDialogWidth(const views::View* sub_view);
 
   // Sets a minimum dialog size.
   void SetMinimumDialogWidth(int width);
 
   // Returns the background image. It is useful for getting the metrics.
-  const ChromeViews::ImageView* background_image() const {
+  const views::ImageView* background_image() const {
     return background_image_;
   }
   // Returns the computed preferred width of the dialog. This value can change
@@ -77,14 +77,14 @@ class FirstRunViewBase : public ChromeViews::View,
 
   scoped_refptr<ImporterHost> importer_host_;
   Profile* profile_;
-  ChromeViews::CheckBox* default_browser_;
+  views::CheckBox* default_browser_;
 
  private:
   // Initializes the controls on the dialog.
   void SetupControls();
-  ChromeViews::ImageView* background_image_;
-  ChromeViews::Separator* separator_1_;
-  ChromeViews::Separator* separator_2_;
+  views::ImageView* background_image_;
+  views::Separator* separator_1_;
+  views::Separator* separator_2_;
   int preferred_width_;
 
   DISALLOW_COPY_AND_ASSIGN(FirstRunViewBase);

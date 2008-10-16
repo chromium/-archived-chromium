@@ -14,7 +14,7 @@
 #include "chrome/views/root_view_drop_target.h"
 #include "chrome/views/container.h"
 
-namespace ChromeViews {
+namespace views {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -966,5 +966,5 @@ View* RootView::GetDragView() {
   return drag_view_;
 }
 
-}
+}  // namespace views
 

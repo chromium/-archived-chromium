@@ -16,7 +16,7 @@ namespace gfx {
 class Point;
 }
 
-namespace ChromeViews {
+namespace views {
 
 class RootView;
 class View;
@@ -70,7 +70,7 @@ class RootViewDropTarget : public BaseDropTarget {
   DISALLOW_EVIL_CONSTRUCTORS(RootViewDropTarget);
 };
 
-}  // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_ROOT_VIEW_DROP_TARGET_H__
 

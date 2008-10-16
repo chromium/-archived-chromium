@@ -346,8 +346,8 @@ void ImporterHost::Observe(NotificationType type,
 }
 
 void ImporterHost::ShowWarningDialog() {
-  ChromeViews::Window::CreateChromeWindow(GetActiveWindow(), gfx::Rect(),
-                                          new ImporterLockView(this))->Show();
+  views::Window::CreateChromeWindow(GetActiveWindow(), gfx::Rect(),
+                                    new ImporterLockView(this))->Show();
 }
 
 void ImporterHost::OnLockViewEnd(bool is_continue) {

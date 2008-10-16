@@ -12,7 +12,7 @@
 
 class ChromeCanvas;
 
-namespace ChromeViews {
+namespace views {
 
 class Painter;
 class View;
@@ -75,6 +75,7 @@ class Background {
   DISALLOW_EVIL_CONSTRUCTORS(Background);
 };
 
-}
+}  // namespace views
+
 #endif  // CHROME_VIEWS_BACKGROUND_H__
 

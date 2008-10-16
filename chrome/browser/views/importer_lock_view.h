@@ -8,37 +8,35 @@
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
-
+namespace views {
 class Label;
 class Window;
-
 }
 
 class ImporterHost;
 
 // ImporterLockView draws the dialog, and asks the user to shut Firefox
 // down before starting the import.
-class ImporterLockView : public ChromeViews::View,
-                         public ChromeViews::DialogDelegate {
+class ImporterLockView : public views::View,
+                         public views::DialogDelegate {
  public:
   explicit ImporterLockView(ImporterHost* host);
   virtual ~ImporterLockView();
 
-  // Overridden from ChromeViews::View.
+  // Overridden from views::View.
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
 
-  // Overridden from ChromeViews::DialogDelegate:
+  // Overridden from views::DialogDelegate:
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
   virtual bool Cancel();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
  private:
-  ChromeViews::Label* description_label_;
+  views::Label* description_label_;
 
   ImporterHost* importer_host_;
 

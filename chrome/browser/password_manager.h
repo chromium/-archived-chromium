@@ -21,7 +21,7 @@ class WebContents;
 // receiving password form data from the renderer and managing the password
 // database through the WebDataService. The PasswordManager is a LoginModel
 // for purposes of supporting HTTP authentication dialogs.
-class PasswordManager : public ChromeViews::LoginModel {
+class PasswordManager : public views::LoginModel {
  public:
   static void RegisterUserPrefs(PrefService* prefs);
 
@@ -55,7 +55,7 @@ class PasswordManager : public ChromeViews::LoginModel {
   void ProvisionallySavePassword(PasswordForm form);
 
   // LoginModel implementation.
-  virtual void SetObserver(ChromeViews::LoginModelObserver* observer) {
+  virtual void SetObserver(views::LoginModelObserver* observer) {
     observer_ = observer;
   }
 
@@ -105,7 +105,7 @@ class PasswordManager : public ChromeViews::LoginModel {
   WebContents* web_contents_;
 
   // The LoginModelObserver (i.e LoginView) requiring autofill.
-  ChromeViews::LoginModelObserver* observer_;
+  views::LoginModelObserver* observer_;
 
   // Set to false to disable the password manager (will no longer fill
   // passwords or ask you if you want to save passwords).

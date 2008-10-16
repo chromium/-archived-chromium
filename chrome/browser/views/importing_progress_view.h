@@ -10,13 +10,13 @@
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
 
-namespace ChromeViews {
+namespace views {
 class CheckmarkThrobber;
 class Label;
 }
 
-class ImportingProgressView : public ChromeViews::View,
-                              public ChromeViews::DialogDelegate,
+class ImportingProgressView : public views::View,
+                              public views::DialogDelegate,
                               public ImporterHost::Observer {
  public:
   ImportingProgressView(const std::wstring& source_name,
@@ -33,36 +33,36 @@ class ImportingProgressView : public ChromeViews::View,
   virtual void ImportStarted();
   virtual void ImportEnded();
 
-  // Overridden from ChromeViews::DialogDelegate:
+  // Overridden from views::DialogDelegate:
   virtual int GetDialogButtons() const;
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Cancel();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
  private:
   // Set up the control layout within this dialog.
   void InitControlLayout();
 
   // Various dialog controls.
-  scoped_ptr<ChromeViews::CheckmarkThrobber> state_bookmarks_;
-  scoped_ptr<ChromeViews::CheckmarkThrobber> state_searches_;
-  scoped_ptr<ChromeViews::CheckmarkThrobber> state_passwords_;
-  scoped_ptr<ChromeViews::CheckmarkThrobber> state_history_;
-  scoped_ptr<ChromeViews::CheckmarkThrobber> state_cookies_;
-  ChromeViews::Label* label_info_;
-  scoped_ptr<ChromeViews::Label> label_bookmarks_;
-  scoped_ptr<ChromeViews::Label> label_searches_;
-  scoped_ptr<ChromeViews::Label> label_passwords_;
-  scoped_ptr<ChromeViews::Label> label_history_;
-  scoped_ptr<ChromeViews::Label> label_cookies_;
+  scoped_ptr<views::CheckmarkThrobber> state_bookmarks_;
+  scoped_ptr<views::CheckmarkThrobber> state_searches_;
+  scoped_ptr<views::CheckmarkThrobber> state_passwords_;
+  scoped_ptr<views::CheckmarkThrobber> state_history_;
+  scoped_ptr<views::CheckmarkThrobber> state_cookies_;
+  views::Label* label_info_;
+  scoped_ptr<views::Label> label_bookmarks_;
+  scoped_ptr<views::Label> label_searches_;
+  scoped_ptr<views::Label> label_passwords_;
+  scoped_ptr<views::Label> label_history_;
+  scoped_ptr<views::Label> label_cookies_;
 
   // The native window that we are parented to. Can be NULL.
   HWND parent_window_;

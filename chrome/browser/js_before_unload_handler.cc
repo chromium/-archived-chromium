@@ -27,7 +27,7 @@ void JavascriptBeforeUnloadHandler::RunBeforeUnloadDialog(
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// JavascriptBeforeUnloadHandler, ChromeViews::DialogDelegate implementation:
+// JavascriptBeforeUnloadHandler, views::DialogDelegate implementation:
 
 std::wstring JavascriptBeforeUnloadHandler::GetWindowTitle() const {
   return l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE);

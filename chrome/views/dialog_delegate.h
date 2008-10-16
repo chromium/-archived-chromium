@@ -8,7 +8,7 @@
 #include "chrome/views/dialog_client_view.h"
 #include "chrome/views/window_delegate.h"
 
-namespace ChromeViews {
+namespace views {
 
 class NativeButton;
 class View;
@@ -59,7 +59,7 @@ class DialogDelegate : public WindowDelegate {
   // Override this function if with a view which will be shown in the same
   // row as the OK and CANCEL buttons but flush to the left and extending
   // up to the buttons.
-  virtual ChromeViews::View* GetExtraView() { return NULL; }
+  virtual View* GetExtraView() { return NULL; }
 
   // Returns the default dialog button. This should not be a mask as only one
   // button should ever be the default button. Return DIALOGBUTTON_NONE if
@@ -107,7 +107,7 @@ class DialogDelegate : public WindowDelegate {
   DialogClientView* GetDialogClientView() const;
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_DIALOG_DELEGATE_H_
 

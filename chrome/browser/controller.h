@@ -93,7 +93,7 @@ class CommandController : public Controller {
 
   // Add a button to the list of managed buttons. The button is synced with
   // the provided command
-  void AddManagedButton(ChromeViews::Button* button, int command);
+  void AddManagedButton(views::Button* button, int command);
 
   // Controller
   virtual bool SupportsCommand(int id) const;
@@ -120,15 +120,15 @@ class CommandController : public Controller {
   //
   // ButtonController
   //
-  // An adapter class to use ChromeViews buttons with our controller
+  // An adapter class to use views buttons with our controller
   //
   ///////////////////////////////////////////////////////////////////////////////
-  class ButtonController : public ChromeViews::BaseButton::ButtonListener,
+  class ButtonController : public views::BaseButton::ButtonListener,
                            public CommandObserver {
 
    public:
 
-    ButtonController(ChromeViews::Button* b,
+    ButtonController(views::Button* b,
                      CommandController* controller,
                      int command)
         : button_(b),
@@ -144,12 +144,12 @@ class CommandController : public Controller {
       button_->SetEnabled(enabled);
     }
 
-    virtual void ButtonPressed(ChromeViews::BaseButton* sender) {
+    virtual void ButtonPressed(views::BaseButton* sender) {
       controller_->ExecuteCommand(sender->GetTag());
     }
 
    private:
-    ChromeViews::Button* button_;
+    views::Button* button_;
     CommandController* controller_;
   };
 

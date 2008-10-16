@@ -12,7 +12,7 @@
 class BrowserView2;
 class AeroGlassWindowResources;
 
-class AeroGlassNonClientView : public ChromeViews::NonClientView {
+class AeroGlassNonClientView : public views::NonClientView {
  public:
   // Constructs a non-client view for an AeroGlassFrame.
   AeroGlassNonClientView(AeroGlassFrame* frame, BrowserView2* browser_view);
@@ -21,7 +21,7 @@ class AeroGlassNonClientView : public ChromeViews::NonClientView {
   gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip);
 
  protected:
-  // Overridden from ChromeViews::NonClientView:
+  // Overridden from views::NonClientView:
   virtual gfx::Rect CalculateClientAreaBounds(int width, int height) const;
   virtual gfx::Size CalculateWindowSizeForClientSize(int width,
                                                      int height) const;
@@ -30,13 +30,13 @@ class AeroGlassNonClientView : public ChromeViews::NonClientView {
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
   virtual void EnableClose(bool enable);
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
  private:
   // Returns the height of the non-client area at the top of the window (the

@@ -98,8 +98,8 @@ typedef enum { CT_BOTTOM_CENTER = 0, CT_BOTTOM_LEFT_CORNER,
                CT_BOTTOM_RIGHT_CORNER, CT_LEFT_SIDE, CT_RIGHT_SIDE,
                CT_TOP_CENTER, CT_TOP_LEFT_CORNER, CT_TOP_RIGHT_CORNER };
 
-using ChromeViews::Accelerator;
-using ChromeViews::FocusManager;
+using views::Accelerator;
+using views::FocusManager;
 
 //static
 VistaFrame* VistaFrame::CreateFrame(const gfx::Rect& bounds,
@@ -152,7 +152,7 @@ VistaFrame::~VistaFrame() {
 
 // On Vista (unlike on XP), we let the OS render the Windows decor (close
 // button, maximize button, etc.). Since the mirroring infrastructure in
-// ChromeViews does not rely on HWND flipping, the Windows decor on Vista are
+// views does not rely on HWND flipping, the Windows decor on Vista are
 // not mirrored for RTL locales; that is, they appear on the upper right
 // instead of on the upper left (see bug http://b/issue?id=1128173).
 //
@@ -161,7 +161,7 @@ VistaFrame::~VistaFrame() {
 // RTL locales by the mirroring infrastructure. In order to make sure they are
 // not mirrored, we flip them manually so make sure they don't overlap the
 // Windows decor. Unfortunately, there is no cleaner way to do this because the
-// current ChromeViews mirroring API does not allow mirroring the position of
+// current views mirroring API does not allow mirroring the position of
 // a subset of child Views; in other words, once a View is mirrored (in our
 // case frame_view_), then the positions of all its child Views (including, in
 // our case, the OTR image and the tabstrip) are mirrored. Once bug mentioned
@@ -397,7 +397,7 @@ void VistaFrame::Init() {
 
   // Link the HWND with its root view so we can retrieve the RootView from the
   // HWND for automation purposes.
-  ChromeViews::SetRootViewForHWND(m_hWnd, &root_view_);
+  views::SetRootViewForHWND(m_hWnd, &root_view_);
 
   frame_view_ = new VistaFrameView(this);
   root_view_.AddChildView(frame_view_);
@@ -414,20 +414,19 @@ void VistaFrame::Init() {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
   if (is_off_the_record_) {
-    off_the_record_image_ = new ChromeViews::ImageView();
+    off_the_record_image_ = new views::ImageView();
     frame_view_->AddViewToDropList(off_the_record_image_);
     SkBitmap* otr_icon = rb.GetBitmapNamed(IDR_OTR_ICON);
     off_the_record_image_->SetImage(*otr_icon);
     off_the_record_image_->SetTooltipText(
         l10n_util::GetString(IDS_OFF_THE_RECORD_TOOLTIP));
-    off_the_record_image_->SetVerticalAlignment(
-        ChromeViews::ImageView::LEADING);
+    off_the_record_image_->SetVerticalAlignment(views::ImageView::LEADING);
     frame_view_->AddChildView(off_the_record_image_);
   }
 
   SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
   if (!image->isNull()) {
-    distributor_logo_ = new ChromeViews::ImageView();
+    distributor_logo_ = new views::ImageView();
     frame_view_->AddViewToDropList(distributor_logo_);
     distributor_logo_->SetImage(image);
     frame_view_->AddChildView(distributor_logo_);
@@ -540,9 +539,8 @@ void VistaFrame::SetAcceleratorTable(
   accelerator_table_.reset(accelerator_table);
 }
 
-bool VistaFrame::GetAccelerator(int cmd_id,
-                                ChromeViews::Accelerator* accelerator) {
-  std::map<ChromeViews::Accelerator, int>::iterator it =
+bool VistaFrame::GetAccelerator(int cmd_id, views::Accelerator* accelerator) {
+  std::map<views::Accelerator, int>::iterator it =
       accelerator_table_->begin();
   for (; it != accelerator_table_->end(); ++it) {
     if(it->second == cmd_id) {
@@ -587,7 +585,7 @@ gfx::Rect VistaFrame::GetBoundsForContentBounds(const gfx::Rect content_rect) {
   }
 
   gfx::Point p;
-  ChromeViews::View::ConvertPointToContainer(tab_contents_container_, &p);
+  views::View::ConvertPointToContainer(tab_contents_container_, &p);
   CRect bounds;
   GetBounds(&bounds, true);
 
@@ -848,14 +846,12 @@ LRESULT VistaFrame::OnGetObject(UINT uMsg, WPARAM w_param, LPARAM object_id) {
 }
 
 void VistaFrame::OnKeyDown(TCHAR c, UINT rep_cnt, UINT flags) {
-  ChromeViews::KeyEvent event(ChromeViews::Event::ET_KEY_PRESSED, c,
-                              rep_cnt, flags);
+  views::KeyEvent event(views::Event::ET_KEY_PRESSED, c, rep_cnt, flags);
   root_view_.ProcessKeyEvent(event);
 }
 
 void VistaFrame::OnKeyUp(TCHAR c, UINT rep_cnt, UINT flags) {
-  ChromeViews::KeyEvent event(ChromeViews::Event::ET_KEY_RELEASED, c,
-                              rep_cnt, flags);
+  views::KeyEvent event(views::Event::ET_KEY_RELEASED, c, rep_cnt, flags);
   root_view_.ProcessKeyEvent(event);
 }
 
@@ -969,13 +965,13 @@ LRESULT VistaFrame::OnNCHitTest(const CPoint& pt) {
   GetBounds(&cr, false);
 
   gfx::Point tab_pt(pt);
-  ChromeViews::View::ConvertPointToView(NULL, tabstrip_, &tab_pt);
+  views::View::ConvertPointToView(NULL, tabstrip_, &tab_pt);
 
   // If we are over the tabstrip
   if (tab_pt.x() > 0 && tab_pt.y() >= kTabShadowSize &&
       tab_pt.x() < tabstrip_->width() &&
       tab_pt.y() < tabstrip_->height()) {
-    ChromeViews::View* v = tabstrip_->GetViewForPoint(tab_pt);
+    views::View* v = tabstrip_->GetViewForPoint(tab_pt);
     if (v == tabstrip_)
       return HTCAPTION;
 
@@ -1117,7 +1113,7 @@ void VistaFrame::OnCaptureChanged(HWND hwnd) {
 
 bool VistaFrame::ProcessMousePressed(const CPoint& pt, UINT flags,
                                      bool dbl_click) {
-  using namespace ChromeViews;
+  using namespace views;
   MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED,
                            pt.x,
                            pt.y,
@@ -1136,7 +1132,7 @@ bool VistaFrame::ProcessMousePressed(const CPoint& pt, UINT flags,
 }
 
 void VistaFrame::ProcessMouseDragged(const CPoint& pt, UINT flags) {
-  using namespace ChromeViews;
+  using namespace views;
   MouseEvent drag_event(Event::ET_MOUSE_DRAGGED,
                         pt.x,
                         pt.y,
@@ -1145,7 +1141,7 @@ void VistaFrame::ProcessMouseDragged(const CPoint& pt, UINT flags) {
 }
 
 void VistaFrame::ProcessMouseReleased(const CPoint& pt, UINT flags) {
-  using namespace ChromeViews;
+  using namespace views;
   if (in_drag_session_) {
     in_drag_session_ = false;
     ReleaseCapture();
@@ -1158,7 +1154,7 @@ void VistaFrame::ProcessMouseReleased(const CPoint& pt, UINT flags) {
 }
 
 void VistaFrame::ProcessMouseMoved(const CPoint &pt, UINT flags) {
-  using namespace ChromeViews;
+  using namespace views;
   MouseEvent mouse_move(Event::ET_MOUSE_MOVED,
                         pt.x,
                         pt.y,
@@ -1172,7 +1168,7 @@ void VistaFrame::ProcessMouseExited() {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ChromeViews::Container
+// views::Container
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1213,8 +1209,8 @@ void VistaFrame::PaintNow(const CRect& update_rect) {
   }
 }
 
-ChromeViews::RootView* VistaFrame::GetRootView() {
-  return const_cast<ChromeViews::RootView*>(&root_view_);
+views::RootView* VistaFrame::GetRootView() {
+  return const_cast<views::RootView*>(&root_view_);
 }
 
 bool VistaFrame::IsVisible() {
@@ -1337,7 +1333,7 @@ static void UpdatePosition(const TITLEBARINFOEX& info,
 }
 
 bool VistaFrame::VistaFrameView::ShouldForwardToTabStrip(
-    const ChromeViews::DropTargetEvent& event) {
+    const views::DropTargetEvent& event) {
   if (!FrameView::ShouldForwardToTabStrip(event))
     return false;
 
@@ -1386,7 +1382,7 @@ LRESULT VistaFrame::OnNotify(int w_param, NMHDR* l_param) {
   return result;
 }
 
-ChromeViews::TooltipManager* VistaFrame::GetTooltipManager() {
+views::TooltipManager* VistaFrame::GetTooltipManager() {
   return tooltip_manager_.get();
 }
 
@@ -1395,7 +1391,7 @@ StatusBubble* VistaFrame::GetStatusBubble() {
 }
 
 void VistaFrame::InitAfterHWNDCreated() {
-  tooltip_manager_.reset(new ChromeViews::AeroTooltipManager(this, m_hWnd));
+  tooltip_manager_.reset(new views::AeroTooltipManager(this, m_hWnd));
 }
 
 void VistaFrame::ResetDWMFrame() {
@@ -1436,8 +1432,8 @@ void VistaFrame::SelectedTabToolbarSizeChanged(bool is_animating) {
   }
 }
 
-bool VistaFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
-                                          ChromeViews::View** view) {
+bool VistaFrame::UpdateChildViewAndLayout(views::View* new_view,
+                                          views::View** view) {
   DCHECK(view);
   if (*view == new_view) {
     // The views haven't changed, if the views pref changed schedule a layout.
@@ -1601,18 +1597,18 @@ void VistaFrame::ShelfVisibilityChangedImpl(TabContents* current_tab) {
   // Coalesce layouts.
   bool changed = false;
 
-  ChromeViews::View* new_shelf = NULL;
+  views::View* new_shelf = NULL;
   if (current_tab && current_tab->IsDownloadShelfVisible())
     new_shelf = current_tab->GetDownloadShelfView();
   changed |= UpdateChildViewAndLayout(new_shelf, &shelf_view_);
 
-  ChromeViews::View* new_info_bar = NULL;
+  views::View* new_info_bar = NULL;
   WebContents* web_contents = current_tab ? current_tab->AsWebContents() : NULL;
   if (web_contents && web_contents->view()->IsInfoBarVisible())
     new_info_bar = web_contents->view()->GetInfoBarView();
   changed |= UpdateChildViewAndLayout(new_info_bar, &info_bar_view_);
 
-  ChromeViews::View* new_bookmark_bar_view = NULL;
+  views::View* new_bookmark_bar_view = NULL;
   if (SupportsBookmarkBar())
     new_bookmark_bar_view = GetBookmarkBarView();
   changed |= UpdateChildViewAndLayout(new_bookmark_bar_view,

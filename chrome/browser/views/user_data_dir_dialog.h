@@ -14,11 +14,11 @@
 #include "chrome/views/dialog_delegate.h"
 
 class MessageBoxView;
-namespace ChromeViews {
+namespace views {
 class Window;
 }
 
-class UserDataDirDialog : public ChromeViews::DialogDelegate,
+class UserDataDirDialog : public views::DialogDelegate,
                           public MessageLoopForUI::Dispatcher,
                           public SelectFileDialog::Listener {
  public:
@@ -31,7 +31,7 @@ class UserDataDirDialog : public ChromeViews::DialogDelegate,
 
   std::wstring user_data_dir() { return user_data_dir_; }
 
-  // ChromeViews::DialogDelegate Methods:
+  // views::DialogDelegate Methods:
   virtual int GetDialogButtons() const;
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
@@ -39,10 +39,10 @@ class UserDataDirDialog : public ChromeViews::DialogDelegate,
   virtual bool Accept();
   virtual bool Cancel();
 
-  // ChromeViews::WindowDelegate Methods:
+  // views::WindowDelegate Methods:
   virtual bool IsAlwaysOnTop() const { return false; }
   virtual bool IsModal() const { return false; }
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
   // MessageLoop::Dispatcher Method:
   virtual bool Dispatch(const MSG& msg);

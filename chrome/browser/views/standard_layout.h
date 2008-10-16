@@ -67,8 +67,8 @@ const int kButtonHEdgeMargin = 7;
 const int kRelatedButtonHSpacing = 6;
 
 // Creates a GridLayout with kPanel*Margin insets.
-static ChromeViews::GridLayout* CreatePanelGridLayout(ChromeViews::View* host) {
-  ChromeViews::GridLayout* layout = new ChromeViews::GridLayout(host);
+static views::GridLayout* CreatePanelGridLayout(views::View* host) {
+  views::GridLayout* layout = new views::GridLayout(host);
   layout->SetInsets(kPanelVertMargin, kPanelHorizMargin,
                     kPanelVertMargin, kPanelHorizMargin);
   return layout;

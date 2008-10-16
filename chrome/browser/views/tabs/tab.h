@@ -24,8 +24,8 @@ class Profile;
 //
 ///////////////////////////////////////////////////////////////////////////////
 class Tab : public TabRenderer,
-            public ChromeViews::ContextMenuController,
-            public ChromeViews::BaseButton::ButtonListener {
+            public views::ContextMenuController,
+            public views::BaseButton::ButtonListener {
  public:
   static const std::string kTabClassName;
 
@@ -60,11 +60,10 @@ class Tab : public TabRenderer,
     virtual void StopAllHighlighting() = 0;
 
     // Potentially starts a drag for the specified Tab.
-    virtual void MaybeStartDrag(Tab* tab,
-                                const ChromeViews::MouseEvent& event) = 0;
+    virtual void MaybeStartDrag(Tab* tab, const views::MouseEvent& event) = 0;
 
     // Continues dragging a Tab.
-    virtual void ContinueDrag(const ChromeViews::MouseEvent& event) = 0;
+    virtual void ContinueDrag(const views::MouseEvent& event) = 0;
 
     // Ends dragging a Tab. |canceled| is true if the drag was aborted in a way
     // other than the user releasing the mouse.
@@ -85,12 +84,12 @@ class Tab : public TabRenderer,
   virtual bool IsSelected() const;
 
  private:
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual bool HasHitTestMask() const;
   virtual void GetHitTestMask(gfx::Path* mask) const;
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
-  virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
-  virtual void OnMouseReleased(const ChromeViews::MouseEvent& event,
+  virtual bool OnMousePressed(const views::MouseEvent& event);
+  virtual bool OnMouseDragged(const views::MouseEvent& event);
+  virtual void OnMouseReleased(const views::MouseEvent& event,
                                bool canceled);
   virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);
   virtual bool GetTooltipTextOrigin(int x, int y, CPoint* origin);
@@ -98,14 +97,14 @@ class Tab : public TabRenderer,
   virtual bool GetAccessibleRole(VARIANT* role);
   virtual bool GetAccessibleName(std::wstring* name);
 
-  // ChromeViews::ContextMenuController overrides:
-  virtual void ShowContextMenu(ChromeViews::View* source,
+  // views::ContextMenuController overrides:
+  virtual void ShowContextMenu(views::View* source,
                                int x,
                                int y,
                                bool is_mouse_gesture);
 
-  // ChromeViews::BaseButton::ButtonListener overrides:
-  virtual void ButtonPressed(ChromeViews::BaseButton* sender);
+  // views::BaseButton::ButtonListener overrides:
+  virtual void ButtonPressed(views::BaseButton* sender);
 
   // Creates a path that contains the clickable region of the tab's visual
   // representation. Used by GetViewForPoint for hit-testing.

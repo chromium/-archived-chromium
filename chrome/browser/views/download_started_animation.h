@@ -10,7 +10,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/views/image_view.h"
 
-namespace ChromeViews {
+namespace views {
 class ContainerWin;
 };
 class TabContents;
@@ -22,7 +22,7 @@ class TabContents;
 // finishes animating.
 class DownloadStartedAnimation : public Animation,
                                  public NotificationObserver,
-                                 public ChromeViews::ImageView {
+                                 public views::ImageView {
  public:
   DownloadStartedAnimation(TabContents* tab_contents);
 
@@ -42,7 +42,7 @@ class DownloadStartedAnimation : public Animation,
                        const NotificationDetails& details);
 
   // We use a HWND for the popup so that it may float above any HWNDs in our UI.
-  ChromeViews::ContainerWin* popup_;
+  views::ContainerWin* popup_;
 
   // The content area holding us.
   TabContents* tab_contents_;

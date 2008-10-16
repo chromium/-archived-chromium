@@ -11,7 +11,7 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 class CheckBox;
 class RadioButton;
 }
@@ -23,14 +23,14 @@ class PrefService;
 // ContentPageView
 
 class ContentPageView : public OptionsPageView,
-                        public ChromeViews::NativeButton::Listener,
+                        public views::NativeButton::Listener,
                         public SelectFileDialog::Listener {
  public:
   explicit ContentPageView(Profile* profile);
   virtual ~ContentPageView();
 
-  // ChromeViews::NativeButton::Listener implementation:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // views::NativeButton::Listener implementation:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
   // SelectFileDialog::Listener implementation:
   virtual void FileSelected(const std::wstring& path, void* params);
@@ -43,7 +43,7 @@ class ContentPageView : public OptionsPageView,
   virtual void InitControlLayout();
   virtual void NotifyPrefChanged(const std::wstring* pref_name);
 
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void Layout();
 
  private:
@@ -59,25 +59,25 @@ class ContentPageView : public OptionsPageView,
   // Controls for the Download Location group.
   OptionsGroupView* download_location_group_;
   FileDisplayArea* download_default_download_location_display_;
-  ChromeViews::NativeButton* download_browse_button_;
-  ChromeViews::CheckBox* download_ask_for_save_location_checkbox_;
+  views::NativeButton* download_browse_button_;
+  views::CheckBox* download_ask_for_save_location_checkbox_;
   scoped_refptr<SelectFileDialog> select_file_dialog_;
 
   // Controls for the Password Saving group
   OptionsGroupView* passwords_group_;
-  ChromeViews::RadioButton* passwords_asktosave_radio_;
-  ChromeViews::RadioButton* passwords_neversave_radio_;
-  ChromeViews::NativeButton* passwords_show_passwords_button_;
+  views::RadioButton* passwords_asktosave_radio_;
+  views::RadioButton* passwords_neversave_radio_;
+  views::NativeButton* passwords_show_passwords_button_;
 
   // Controls for the Popup Blocking group.
   OptionsGroupView* popups_group_;
-  ChromeViews::RadioButton* popups_show_minimized_radio_;
-  ChromeViews::RadioButton* popups_block_all_radio_;
+  views::RadioButton* popups_show_minimized_radio_;
+  views::RadioButton* popups_block_all_radio_;
 
   // Controls for the Fonts and Languages group.
   OptionsGroupView* fonts_lang_group_;
-  ChromeViews::Label* fonts_and_languages_label_;
-  ChromeViews::NativeButton* change_content_fonts_button_;
+  views::Label* fonts_and_languages_label_;
+  views::NativeButton* change_content_fonts_button_;
 
   StringPrefMember default_download_location_;
   BooleanPrefMember ask_for_save_location_;

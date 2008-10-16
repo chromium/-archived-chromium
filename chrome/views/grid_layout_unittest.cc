@@ -7,9 +7,9 @@
 
 #include "testing/gtest/include/gtest/gtest.h"
 
-using ChromeViews::ColumnSet;
-using ChromeViews::GridLayout;
-using ChromeViews::View;
+using views::ColumnSet;
+using views::GridLayout;
+using views::View;
 
 static void ExpectViewBoundsEquals(int x, int y, int w, int h,
                                    const View* view) {
@@ -222,7 +222,7 @@ TEST_F(GridLayoutTest, ColSpan3) {
 
 
 TEST_F(GridLayoutTest, ColSpan4) {
-  ChromeViews::ColumnSet* set = layout->AddColumnSet(0);
+  views::ColumnSet* set = layout->AddColumnSet(0);
 
   set->AddColumn(GridLayout::LEADING, GridLayout::LEADING, 0,
                  GridLayout::USE_PREF, 0, 0);
@@ -358,7 +358,7 @@ TEST_F(GridLayoutTest, Insets) {
 TEST_F(GridLayoutTest, FixedSize) {
   layout->SetInsets(2, 2, 2, 2);
 
-  ChromeViews::ColumnSet* set = layout->AddColumnSet(0);
+  views::ColumnSet* set = layout->AddColumnSet(0);
 
   int column_count = 4;
   int title_width = 100;
@@ -367,10 +367,10 @@ TEST_F(GridLayoutTest, FixedSize) {
   int pref_height = 20;
 
   for (int i = 0; i < column_count; ++i) {
-    set->AddColumn(ChromeViews::GridLayout::CENTER,
-                   ChromeViews::GridLayout::CENTER,
+    set->AddColumn(views::GridLayout::CENTER,
+                   views::GridLayout::CENTER,
                    0,
-                   ChromeViews::GridLayout::FIXED,
+                   views::GridLayout::FIXED,
                    title_width,
                    title_width);
   }
@@ -399,12 +399,12 @@ TEST_F(GridLayoutTest, FixedSize) {
 }
 
 TEST_F(GridLayoutTest, RowSpanWithPaddingRow) {
-  ChromeViews::ColumnSet* set = layout->AddColumnSet(0);
+  views::ColumnSet* set = layout->AddColumnSet(0);
 
-  set->AddColumn(ChromeViews::GridLayout::CENTER,
-                 ChromeViews::GridLayout::CENTER,
+  set->AddColumn(views::GridLayout::CENTER,
+                 views::GridLayout::CENTER,
                  0,
-                 ChromeViews::GridLayout::FIXED,
+                 views::GridLayout::FIXED,
                  10,
                  10);
 
@@ -414,18 +414,18 @@ TEST_F(GridLayoutTest, RowSpanWithPaddingRow) {
 }
 
 TEST_F(GridLayoutTest, RowSpan) {
-  ChromeViews::ColumnSet* set = layout->AddColumnSet(0);
+  views::ColumnSet* set = layout->AddColumnSet(0);
 
-  set->AddColumn(ChromeViews::GridLayout::LEADING,
-                 ChromeViews::GridLayout::LEADING,
+  set->AddColumn(views::GridLayout::LEADING,
+                 views::GridLayout::LEADING,
                  0,
-                 ChromeViews::GridLayout::USE_PREF,
+                 views::GridLayout::USE_PREF,
                  0,
                  0);
-  set->AddColumn(ChromeViews::GridLayout::LEADING,
-                 ChromeViews::GridLayout::LEADING,
+  set->AddColumn(views::GridLayout::LEADING,
+                 views::GridLayout::LEADING,
                  0,
-                 ChromeViews::GridLayout::USE_PREF,
+                 views::GridLayout::USE_PREF,
                  0,
                  0);
 
@@ -433,7 +433,7 @@ TEST_F(GridLayoutTest, RowSpan) {
   layout->AddView(new SettableSizeView(gfx::Size(20, 10)));
   layout->AddView(new SettableSizeView(gfx::Size(20, 40)), 1, 2);
   layout->StartRow(1, 0);
-  ChromeViews::View* s3 = new SettableSizeView(gfx::Size(20, 10));
+  views::View* s3 = new SettableSizeView(gfx::Size(20, 10));
   layout->AddView(s3);
 
   GetPreferredSize();
@@ -445,7 +445,7 @@ TEST_F(GridLayoutTest, RowSpan) {
 }
 
 TEST_F(GridLayoutTest, RowSpan2) {
-  ChromeViews::ColumnSet* set = layout->AddColumnSet(0);
+  views::ColumnSet* set = layout->AddColumnSet(0);
 
   set->AddColumn(GridLayout::LEADING, GridLayout::LEADING,
                  0, GridLayout::USE_PREF, 0, 0);
@@ -454,7 +454,7 @@ TEST_F(GridLayoutTest, RowSpan2) {
 
   layout->StartRow(0, 0);
   layout->AddView(new SettableSizeView(gfx::Size(20, 20)));
-  ChromeViews::View* s3 = new SettableSizeView(gfx::Size(64, 64));
+  views::View* s3 = new SettableSizeView(gfx::Size(64, 64));
   layout->AddView(s3, 1, 3);
 
   layout->AddPaddingRow(0, 10);
@@ -471,7 +471,7 @@ TEST_F(GridLayoutTest, RowSpan2) {
 }
 
 TEST_F(GridLayoutTest, FixedViewWidth) {
-  ChromeViews::ColumnSet* set = layout->AddColumnSet(0);
+  views::ColumnSet* set = layout->AddColumnSet(0);
 
   set->AddColumn(GridLayout::LEADING, GridLayout::LEADING,
                  0, GridLayout::USE_PREF, 0, 0);
@@ -492,7 +492,7 @@ TEST_F(GridLayoutTest, FixedViewWidth) {
 }
 
 TEST_F(GridLayoutTest, FixedViewHeight) {
-  ChromeViews::ColumnSet* set = layout->AddColumnSet(0);
+  views::ColumnSet* set = layout->AddColumnSet(0);
 
   set->AddColumn(GridLayout::LEADING, GridLayout::LEADING,
                  0, GridLayout::USE_PREF, 0, 0);

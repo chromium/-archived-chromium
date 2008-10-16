@@ -32,7 +32,7 @@
 #undef min
 #undef max
 
-using ChromeViews::DropTargetEvent;
+using views::DropTargetEvent;
 
 static const int kDefaultAnimationDurationMs = 100;
 static const int kResizeLayoutAnimationDurationMs = 166;
@@ -60,13 +60,13 @@ static inline int Round(double x) {
 //
 //  A subclass of button that hit-tests to the shape of the new tab button.
 
-class NewTabButton : public ChromeViews::Button {
+class NewTabButton : public views::Button {
  public:
   NewTabButton() {}
   virtual ~NewTabButton() {}
 
  protected:
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual bool HasHitTestMask() const {
     return true;
   }
@@ -355,7 +355,7 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
 
     POINT pt;
     GetCursorPos(&pt);
-    ChromeViews::Container* vc = tabstrip_->GetContainer();
+    views::Container* vc = tabstrip_->GetContainer();
     RECT wr;
     GetWindowRect(vc->GetHWND(), &wr);
     pt.x -= wr.left;
@@ -526,7 +526,7 @@ bool TabStrip::CanProcessInputEvents() const {
 }
 
 bool TabStrip::PointIsWithinWindowCaption(const gfx::Point& point) {
-  ChromeViews::View* v = GetViewForPoint(point);
+  views::View* v = GetViewForPoint(point);
 
   // If there is no control at this location, claim the hit was in the title
   // bar to get a move action.
@@ -596,7 +596,7 @@ gfx::Rect TabStrip::GetIdealBounds(int index) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TabStrip, ChromeViews::View overrides:
+// TabStrip, views::View overrides:
 
 void TabStrip::PaintChildren(ChromeCanvas* canvas) {
   // Paint the tabs in reverse order, so they stack to the left.
@@ -634,7 +634,7 @@ void TabStrip::PaintChildren(ChromeCanvas* canvas) {
 }
 
 // Overridden to support automation. See automation_proxy_uitest.cc.
-ChromeViews::View* TabStrip::GetViewByID(int view_id) const {
+views::View* TabStrip::GetViewByID(int view_id) const {
   if (GetTabCount() > 0) {
     if (view_id == VIEW_ID_TAB_LAST) {
       return GetTabAt(GetTabCount() - 1);
@@ -742,15 +742,15 @@ void TabStrip::SetAccessibleName(const std::wstring& name) {
   accessible_name_.assign(name);
 }
 
-ChromeViews::View* TabStrip::GetViewForPoint(const gfx::Point& point) {
+views::View* TabStrip::GetViewForPoint(const gfx::Point& point) {
   return GetViewForPoint(point, false);
 }
 
-ChromeViews::View* TabStrip::GetViewForPoint(const gfx::Point& point,
-                                             bool can_create_floating) {
+views::View* TabStrip::GetViewForPoint(const gfx::Point& point,
+                                       bool can_create_floating) {
   // Return any view that isn't a Tab or this TabStrip immediately. We don't
   // want to interfere.
-  ChromeViews::View* v = View::GetViewForPoint(point, can_create_floating);
+  views::View* v = View::GetViewForPoint(point, can_create_floating);
   if (v && v != this && v->GetClassName() != Tab::kTabClassName)
     return v;
 
@@ -1004,7 +1004,7 @@ void TabStrip::StopAllHighlighting() {
     GetTabAt(i)->StopPulse();
 }
 
-void TabStrip::MaybeStartDrag(Tab* tab, const ChromeViews::MouseEvent& event) {
+void TabStrip::MaybeStartDrag(Tab* tab, const views::MouseEvent& event) {
   // Don't accidentally start any drag operations during animations if the
   // mouse is down... during an animation tabs are being resized automatically,
   // so the View system can misinterpret this easily if the mouse is down that
@@ -1015,7 +1015,7 @@ void TabStrip::MaybeStartDrag(Tab* tab, const ChromeViews::MouseEvent& event) {
   drag_controller_->CaptureDragInfo(gfx::Point(event.x(), event.y()));
 }
 
-void TabStrip::ContinueDrag(const ChromeViews::MouseEvent& event) {
+void TabStrip::ContinueDrag(const views::MouseEvent& event) {
   // We can get called even if |MaybeStartDrag| wasn't called in the event of
   // a TabStrip animation when the mouse button is down. In this case we should
   // _not_ continue the drag because it can lead to weird bugs.
@@ -1029,9 +1029,9 @@ void TabStrip::EndDrag(bool canceled) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TabStrip, ChromeViews::BaseButton::ButtonListener implementation:
+// TabStrip, views::BaseButton::ButtonListener implementation:
 
-void TabStrip::ButtonPressed(ChromeViews::BaseButton* sender) {
+void TabStrip::ButtonPressed(views::BaseButton* sender) {
   if (sender == newtab_button_)
     model_->AddBlankTab(true);
 }
@@ -1101,10 +1101,10 @@ void TabStrip::Init() {
   SkBitmap* bitmap;
 
   bitmap = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON);
-  newtab_button_->SetImage(ChromeViews::Button::BS_NORMAL, bitmap);
-  newtab_button_->SetImage(ChromeViews::Button::BS_PUSHED,
+  newtab_button_->SetImage(views::Button::BS_NORMAL, bitmap);
+  newtab_button_->SetImage(views::Button::BS_PUSHED,
                            rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_P));
-  newtab_button_->SetImage(ChromeViews::Button::BS_HOT,
+  newtab_button_->SetImage(views::Button::BS_HOT,
                            rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_H));
 
   newtab_button_size_.SetSize(bitmap->width(), bitmap->height());
@@ -1375,7 +1375,7 @@ void TabStrip::SetDropIndex(int index, bool drop_before) {
       drop_bounds.height(), SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
-int TabStrip::GetDropEffect(const ChromeViews::DropTargetEvent& event) {
+int TabStrip::GetDropEffect(const views::DropTargetEvent& event) {
   const int source_ops = event.GetSourceOperations();
   if (source_ops & DragDropTypes::DRAG_COPY)
     return DragDropTypes::DRAG_COPY;
@@ -1396,12 +1396,12 @@ TabStrip::DropInfo::DropInfo(int drop_index, bool drop_before, bool point_down)
     : drop_index(drop_index),
       drop_before(drop_before),
       point_down(point_down) {
-  arrow_window = new ChromeViews::ContainerWin();
+  arrow_window = new views::ContainerWin;
   arrow_window->set_window_style(WS_POPUP);
   arrow_window->set_window_ex_style(WS_EX_TOPMOST | WS_EX_NOACTIVATE |
                                     WS_EX_LAYERED | WS_EX_TRANSPARENT);
 
-  arrow_view = new ChromeViews::ImageView;
+  arrow_view = new views::ImageView;
   arrow_view->SetImage(GetDropArrowImage(point_down));
 
   arrow_window->Init(

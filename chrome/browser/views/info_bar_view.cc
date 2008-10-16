@@ -44,7 +44,7 @@ InfoBarView::~InfoBarView() {
       Source<NavigationController>(web_contents_->controller()));
 }
 
-void InfoBarView::AppendInfoBarItem(ChromeViews::View* view, bool auto_expire) {
+void InfoBarView::AppendInfoBarItem(views::View* view, bool auto_expire) {
   // AddChildView adds an entry to expire_map_ for view.
   AddChildView(view);
   if (auto_expire)
@@ -132,7 +132,7 @@ void InfoBarView::ViewHierarchyChanged(bool is_add, View *parent,
 
 void InfoBarView::Init() {
   SetBackground(
-      ChromeViews::Background::CreateVerticalGradientBackground(
+      views::Background::CreateVerticalGradientBackground(
           kBackgroundColorTop, kBackgroundColorBottom));
 }
 
@@ -158,9 +158,9 @@ void InfoBarView::PaintBorder(ChromeCanvas* canvas) {
 }
 
 void InfoBarView::PaintSeparators(ChromeCanvas* canvas) {
-  ChromeViews::View* last_view = NULL;
+  views::View* last_view = NULL;
   for (int i = GetChildViewCount() - 1; i >= 0; i--) {
-    ChromeViews::View* view = GetChildViewAt(i);
+    views::View* view = GetChildViewAt(i);
     if (last_view != NULL) {
       if (view->IsVisible()) {
         PaintSeparator(canvas, last_view, view);
@@ -174,8 +174,8 @@ void InfoBarView::PaintSeparators(ChromeCanvas* canvas) {
 }
 
 void InfoBarView::PaintSeparator(ChromeCanvas* canvas,
-                                 ChromeViews::View* v1,
-                                 ChromeViews::View* v2) {
+                                 views::View* v1,
+                                 views::View* v2) {
   canvas->FillRectInt(kSeparatorColor,
                       0,
                       v2->y() - kSeparatorHeight,
@@ -201,7 +201,7 @@ void InfoBarView::Observe(NotificationType type,
     return;
 
   // Determine the views to remove first.
-  std::vector<ChromeViews::View*> to_remove;
+  std::vector<views::View*> to_remove;
   for (std::map<View*,int>::iterator i = expire_map_.begin();
        i != expire_map_.end(); ++i) {
     if (PageTransition::StripQualifier(details.entry->transition_type()) ==
@@ -214,7 +214,7 @@ void InfoBarView::Observe(NotificationType type,
     return;
 
   // Remove the views.
-  for (std::vector<ChromeViews::View*>::iterator i = to_remove.begin();
+  for (std::vector<views::View*>::iterator i = to_remove.begin();
        i != to_remove.end(); ++i) {
     // RemoveChildView takes care of removing from expire_map for us.
     RemoveChildView(*i);

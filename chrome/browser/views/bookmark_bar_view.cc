@@ -46,11 +46,11 @@
 #include "chrome/views/window.h"
 #include "generated_resources.h"
 
-using ChromeViews::BaseButton;
-using ChromeViews::DropTargetEvent;
-using ChromeViews::MenuButton;
-using ChromeViews::MenuItemView;
-using ChromeViews::View;
+using views::BaseButton;
+using views::DropTargetEvent;
+using views::MenuButton;
+using views::MenuItemView;
+using views::View;
 
 // Margins around the content.
 static const int kTopMargin = 2;
@@ -174,7 +174,7 @@ static std::wstring CreateToolTipForURLAndTitle(const gfx::Point& screen_loc,
                                                 const std::wstring& languages) {
   const gfx::Rect monitor_bounds = win_util::GetMonitorBoundsForRect(
       gfx::Rect(screen_loc.x(), screen_loc.y(), 1, 1));
-  ChromeFont tt_font = ChromeViews::TooltipManager::GetDefaultFont();
+  ChromeFont tt_font = views::TooltipManager::GetDefaultFont();
   std::wstring result;
 
   // First the title.
@@ -191,7 +191,7 @@ static std::wstring CreateToolTipForURLAndTitle(const gfx::Point& screen_loc,
   // Only show the URL if the url and title differ.
   if (title != UTF8ToWide(url.spec())) {
     if (!result.empty())
-      result.append(ChromeViews::TooltipManager::GetLineSeparator());
+      result.append(views::TooltipManager::GetLineSeparator());
 
     // We need to explicitly specify the directionality of the URL's text to
     // make sure it is treated as an LTR string when the context is RTL. For
@@ -223,7 +223,7 @@ static int GetDragOperationsForNode(BookmarkNode* node) {
 
 // Buttons used for the bookmarks on the bookmark bar.
 
-class BookmarkButton : public ChromeViews::TextButton {
+class BookmarkButton : public views::TextButton {
  public:
   BookmarkButton(const GURL& url,
                  const std::wstring& title,
@@ -250,17 +250,17 @@ class BookmarkButton : public ChromeViews::TextButton {
     return !tooltip->empty();
   }
 
-  virtual bool IsTriggerableEvent(const ChromeViews::MouseEvent& e) {
+  virtual bool IsTriggerableEvent(const views::MouseEvent& e) {
     return event_utils::IsPossibleDispositionEvent(e);
   }
 
   virtual void Paint(ChromeCanvas *canvas) {
-    ChromeViews::TextButton::Paint(canvas);
+    views::TextButton::Paint(canvas);
 
     PaintAnimation(this, canvas, show_animation_->GetCurrentValue());
   }
 
-  static void PaintAnimation(ChromeViews::View* view,
+  static void PaintAnimation(views::View* view,
                              ChromeCanvas* canvas,
                              double animation_value) {
     // Since we can't change the alpha of the button (it contains un-alphable
@@ -290,10 +290,10 @@ class BookmarkButton : public ChromeViews::TextButton {
 
 // Buttons used for folders on the bookmark bar, including the 'other folders'
 // button.
-class BookmarkFolderButton : public ChromeViews::MenuButton {
+class BookmarkFolderButton : public views::MenuButton {
  public:
   BookmarkFolderButton(const std::wstring& title,
-                       ChromeViews::ViewMenuDelegate* menu_delegate,
+                       views::ViewMenuDelegate* menu_delegate,
                        bool show_menu_marker)
       : MenuButton(title, menu_delegate, show_menu_marker) {
     show_animation_.reset(new SlideAnimation(this));
@@ -306,14 +306,14 @@ class BookmarkFolderButton : public ChromeViews::MenuButton {
     }
   }
 
-  virtual bool IsTriggerableEvent(const ChromeViews::MouseEvent& e) {
+  virtual bool IsTriggerableEvent(const views::MouseEvent& e) {
     // This is hard coded to avoid potential notification on left mouse down,
     // which we want to show the menu.
     return e.IsMiddleMouseButton();
   }
 
   virtual void Paint(ChromeCanvas *canvas) {
-    ChromeViews::MenuButton::Paint(canvas, false);
+    views::MenuButton::Paint(canvas, false);
 
     BookmarkButton::PaintAnimation(this, canvas,
                                    show_animation_->GetCurrentValue());
@@ -368,7 +368,7 @@ struct DropInfo {
 // MenuRunner is used to show the contents of bookmark folders on the
 // bookmark bar, other folder, or overflow bookmarks.
 //
-class MenuRunner : public ChromeViews::MenuDelegate,
+class MenuRunner : public views::MenuDelegate,
                    public BookmarkBarView::ModelChangedListener {
  public:
   // start_child_index is the index of the first child in node to add to the
@@ -455,7 +455,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
 
   // ViewMenuDelegate method. Overridden to forward to the PageNavigator so
   // that we accept any events that may trigger opening a url.
-  virtual bool IsTriggerableEvent(const ChromeViews::MouseEvent& e) {
+  virtual bool IsTriggerableEvent(const views::MouseEvent& e) {
     return event_utils::IsPossibleDispositionEvent(e);
   }
 
@@ -494,7 +494,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
   }
 
   virtual int GetDropOperation(MenuItemView* item,
-                               const ChromeViews::DropTargetEvent& event,
+                               const views::DropTargetEvent& event,
                                DropPosition* position) {
     DCHECK(drop_data_.is_valid);
     BookmarkNode* node = menu_id_to_node_map_[item->GetCommand()];
@@ -602,7 +602,7 @@ class MenuRunner : public ChromeViews::MenuDelegate,
 
 // TODO(sky/glen): this is temporary, need to decide on what this should
 // look like.
-class ButtonSeparatorView : public ChromeViews::View {
+class ButtonSeparatorView : public views::View {
  public:
   ButtonSeparatorView() {}
   virtual ~ButtonSeparatorView() {}
@@ -741,7 +741,7 @@ void BookmarkBarView::SetPageNavigator(PageNavigator* navigator) {
 
 gfx::Size BookmarkBarView::GetPreferredSize() {
   if (!prefButtonHeight) {
-    ChromeViews::TextButton text_button(L"X");
+    views::TextButton text_button(L"X");
     gfx::Size text_button_pref = text_button.GetMinimumSize();
     prefButtonHeight = static_cast<int>(text_button_pref.height());
   }
@@ -811,7 +811,7 @@ void BookmarkBarView::Layout() {
     instructions_->SetVisible(false);
 
     for (int i = 0; i < GetBookmarkButtonCount(); ++i) {
-      ChromeViews::View* child = GetChildViewAt(i);
+      views::View* child = GetChildViewAt(i);
       gfx::Size pref = child->GetPreferredSize();
       int next_x = x + pref.width() + kButtonPadding;
       child->SetVisible(next_x < max_x);
@@ -1127,20 +1127,20 @@ void BookmarkBarView::AnimationEnded(const Animation* animation) {
   SchedulePaint();
 }
 
-ChromeViews::TextButton* BookmarkBarView::GetBookmarkButton(int index) {
+views::TextButton* BookmarkBarView::GetBookmarkButton(int index) {
   DCHECK(index >= 0 && index < GetBookmarkButtonCount());
-  return static_cast<ChromeViews::TextButton*>(GetChildViewAt(index));
+  return static_cast<views::TextButton*>(GetChildViewAt(index));
 }
 
-ChromeViews::MenuItemView* BookmarkBarView::GetMenu() {
+views::MenuItemView* BookmarkBarView::GetMenu() {
   return menu_runner_.get() ? menu_runner_->menu() : NULL;
 }
 
-ChromeViews::MenuItemView* BookmarkBarView::GetContextMenu() {
+views::MenuItemView* BookmarkBarView::GetContextMenu() {
   return menu_runner_.get() ? menu_runner_->context_menu() : NULL;
 }
 
-ChromeViews::MenuItemView* BookmarkBarView::GetDropMenu() {
+views::MenuItemView* BookmarkBarView::GetDropMenu() {
   return drop_menu_runner_.get() ? drop_menu_runner_->menu() : NULL;
 }
 
@@ -1162,7 +1162,7 @@ void BookmarkBarView::Init() {
   bookmarks_separator_view_ = new ButtonSeparatorView();
   AddChildView(bookmarks_separator_view_);
 
-  instructions_ = new ChromeViews::Label(
+  instructions_ = new views::Label(
       l10n_util::GetString(IDS_BOOKMARKS_NO_ITEMS),
       rb.GetFont(ResourceBundle::BaseFont));
   instructions_->SetColor(kInstructionsColor);
@@ -1280,7 +1280,7 @@ void BookmarkBarView::BookmarkNodeRemovedImpl(BookmarkModel* model,
     return;
   }
   DCHECK(index >= 0 && index < GetBookmarkButtonCount());
-  ChromeViews::View* button = GetChildViewAt(index);
+  views::View* button = GetChildViewAt(index);
   RemoveChildView(button);
   MessageLoop::current()->DeleteSoon(FROM_HERE, button);
   Layout();
@@ -1301,7 +1301,7 @@ void BookmarkBarView::BookmarkNodeChangedImpl(BookmarkModel* model,
   }
   int index = model_->GetBookmarkBarNode()->IndexOfChild(node);
   DCHECK(index != -1);
-  ChromeViews::TextButton* button = GetBookmarkButton(index);
+  views::TextButton* button = GetBookmarkButton(index);
   gfx::Size old_pref = button->GetPreferredSize();
   ConfigureButton(node, button);
   gfx::Size new_pref = button->GetPreferredSize();
@@ -1330,7 +1330,7 @@ void BookmarkBarView::WriteDragData(View* sender,
 
   for (int i = 0; i < GetBookmarkButtonCount(); ++i) {
     if (sender == GetBookmarkButton(i)) {
-      ChromeViews::TextButton* button = GetBookmarkButton(i);
+      views::TextButton* button = GetBookmarkButton(i);
       ChromeCanvas canvas(button->width(), button->height(), false);
       button->Paint(&canvas, true);
       drag_utils::SetDragImageOnDataObject(canvas, button->width(),
@@ -1361,7 +1361,7 @@ int BookmarkBarView::GetDragOperations(View* sender, int x, int y) {
   return DragDropTypes::DRAG_NONE;
 }
 
-void BookmarkBarView::RunMenu(ChromeViews::View* view,
+void BookmarkBarView::RunMenu(views::View* view,
                               const CPoint& pt,
                               HWND hwnd) {
   BookmarkNode* node;
@@ -1416,7 +1416,7 @@ void BookmarkBarView::RunMenu(ChromeViews::View* view,
                           false);
 }
 
-void BookmarkBarView::ButtonPressed(ChromeViews::BaseButton* sender) {
+void BookmarkBarView::ButtonPressed(views::BaseButton* sender) {
   BookmarkNode* node;
   if (sender->GetTag() == kOtherFolderButtonTag) {
     node = model_->other_node();
@@ -1463,7 +1463,7 @@ void BookmarkBarView::ShowContextMenu(View* source,
   controller.RunMenuAt(x, y);
 }
 
-ChromeViews::View* BookmarkBarView::CreateBookmarkButton(BookmarkNode* node) {
+views::View* BookmarkBarView::CreateBookmarkButton(BookmarkNode* node) {
   if (node->GetType() == history::StarredEntry::URL) {
     BookmarkButton* button = new BookmarkButton(node->GetURL(),
                                                 node->GetTitle(),
@@ -1472,7 +1472,7 @@ ChromeViews::View* BookmarkBarView::CreateBookmarkButton(BookmarkNode* node) {
     ConfigureButton(node, button);
     return button;
   } else {
-    ChromeViews::MenuButton* button =
+    views::MenuButton* button =
         new BookmarkFolderButton(node->GetTitle(), this, false);
     button->SetIcon(GetGroupIcon());
     button->SetListener(this, 0);
@@ -1482,7 +1482,7 @@ ChromeViews::View* BookmarkBarView::CreateBookmarkButton(BookmarkNode* node) {
 }
 
 void BookmarkBarView::ConfigureButton(BookmarkNode* node,
-                                      ChromeViews::TextButton* button) {
+                                      views::TextButton* button) {
   button->SetText(node->GetTitle());
   button->ClearMaxTextSize();
   button->SetContextMenuController(this);
@@ -1667,7 +1667,7 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
 
   for (int i = 0; i < GetBookmarkButtonCount() &&
        GetBookmarkButton(i)->IsVisible() && !found; i++) {
-    ChromeViews::TextButton* button = GetBookmarkButton(i);
+    views::TextButton* button = GetBookmarkButton(i);
     int button_x = mirrored_x - button->x();
     int button_w = button->width();
     if (button_x < button_w) {

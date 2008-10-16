@@ -111,7 +111,7 @@ void CommandController::RemoveCommandObserver(int id,
     list->erase(existing);
 }
 
-void CommandController::AddManagedButton(ChromeViews::Button* b, int command) {
+void CommandController::AddManagedButton(views::Button* b, int command) {
   ButtonController* bc = new ButtonController(b, this, command);
   managed_button_controllers_.push_back(bc);
 }

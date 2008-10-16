@@ -15,7 +15,7 @@ class DOMUIHost;
 class Profile;
 class SiteInstance;
 
-class DOMView : public ChromeViews::HWNDView {
+class DOMView : public views::HWNDView {
  public:
   // Construct a DOMView to display the given data: URL.
   explicit DOMView(const GURL& contents);

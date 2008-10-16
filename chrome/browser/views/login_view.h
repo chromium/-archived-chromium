@@ -8,7 +8,7 @@
 #include "base/task.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 class Label;
 class TextField;
 class LoginModel;
@@ -53,7 +53,7 @@ class LoginView : public View, public LoginModelObserver {
   void SetModel(LoginModel* model);
 
  protected:
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
 
  private:

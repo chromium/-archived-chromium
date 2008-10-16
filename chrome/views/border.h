@@ -10,8 +10,7 @@
 #include "chrome/views/view.h"
 #include "SkColor.h"
 
-namespace ChromeViews {
-
+namespace views {
 
 class View;
 
@@ -54,7 +53,7 @@ class Border {
   DISALLOW_EVIL_CONSTRUCTORS(Border);
 };
 
-}
+}  // namespace views
 
 #endif // CHROME_VIEWS_BORDER_H__
 

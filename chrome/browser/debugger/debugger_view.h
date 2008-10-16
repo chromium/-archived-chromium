@@ -20,8 +20,8 @@ class DebuggerWindow;
 class TabContentsContainerView;
 class WebContents;
 
-class DebuggerView : public ChromeViews::View,
-                  public TabContentsDelegate {
+class DebuggerView : public views::View,
+                     public TabContentsDelegate {
  public:
   DebuggerView();
   virtual ~DebuggerView();
@@ -43,7 +43,7 @@ class DebuggerView : public ChromeViews::View,
 
   void SetOutputViewReady();
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual std::string GetClassName() const {
     return "DebuggerView";
   }
@@ -51,8 +51,8 @@ class DebuggerView : public ChromeViews::View,
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
   // Overridden from PageNavigator (TabContentsDelegate's base interface):
   virtual void OpenURLFromTab(TabContents* source,

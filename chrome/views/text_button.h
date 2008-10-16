@@ -12,7 +12,7 @@
 #include "chrome/views/base_button.h"
 #include "skia/include/SkBitmap.h"
 
-namespace ChromeViews {
+namespace views {
 
 class MouseEvent;
 
@@ -77,7 +77,7 @@ public:
 
   virtual gfx::Size GetPreferredSize();
   virtual gfx::Size GetMinimumSize();
-  virtual bool OnMousePressed(const ChromeViews::MouseEvent& e);
+  virtual bool OnMousePressed(const MouseEvent& e);
 
   // Call SetText once per string in your set of possible values at
   // button creation time, so that it can contain the largest of them
@@ -135,7 +135,7 @@ public:
 };
 
 
-} // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_TEXT_BUTTON_H__
 

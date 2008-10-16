@@ -7,7 +7,7 @@
 
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 
 class DialogClientView;
 class Window;
@@ -73,6 +73,6 @@ class ClientView : public View {
   View* contents_view_;
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_CLIENT_VIEW_H_

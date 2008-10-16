@@ -68,7 +68,7 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
   }
 
   virtual void SetUp() {
-    ChromeViews::MenuItemView::allow_task_nesting_during_run_ = true;
+    views::MenuItemView::allow_task_nesting_during_run_ = true;
     BookmarkBarView::testing_ = true;
 
     profile_.reset(new TestingProfile());
@@ -93,13 +93,13 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
     // This code looks a bit hacky, but I've written it so that it shouldn't
     // be dependant upon any of the layout code in BookmarkBarView. Instead
     // we brute force search for a size that triggers the overflow button.
-    ChromeViews::View tmp_parent;
+    views::View tmp_parent;
 
     tmp_parent.AddChildView(bb_view_);
 
     bb_view_pref_ = bb_view_->GetPreferredSize();
     bb_view_pref_.set_width(1000);
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(4);
+    views::TextButton* button = bb_view_->GetBookmarkButton(4);
     while (button->IsVisible()) {
       bb_view_pref_.set_width(bb_view_pref_.width() - 25);
       bb_view_->SetBounds(0, 0, bb_view_pref_.width(), bb_view_pref_.height());
@@ -113,12 +113,12 @@ class BookmarkBarViewEventTestBase : public ViewEventTestBase {
 
   virtual void TearDown() {
     BookmarkBarView::testing_ = false;
-    ChromeViews::MenuItemView::allow_task_nesting_during_run_ = false;
+    views::MenuItemView::allow_task_nesting_during_run_ = false;
     ViewEventTestBase::TearDown();
   }
 
  protected:
-  virtual ChromeViews::View* CreateContentsView() {
+  virtual views::View* CreateContentsView() {
     return bb_view_;
   }
 
@@ -173,7 +173,7 @@ class BookmarkBarViewTest1 : public BookmarkBarViewEventTestBase {
   virtual void DoTestOnMessageLoop() {
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest1::Step2));
@@ -182,18 +182,18 @@ class BookmarkBarViewTest1 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
     // Button should be depressed.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
-    ASSERT_TRUE(button->GetState() == ChromeViews::BaseButton::BS_PUSHED);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
+    ASSERT_TRUE(button->GetState() == views::BaseButton::BS_PUSHED);
 
     // Click on the 2nd menu item (A URL).
     ASSERT_TRUE(menu->GetSubmenu());
 
-    ChromeViews::MenuItemView* menu_to_select =
+    views::MenuItemView* menu_to_select =
         menu->GetSubmenu()->GetMenuItemAt(0);
     ui_controls::MoveMouseToCenterAndPress(menu_to_select, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
@@ -207,10 +207,10 @@ class BookmarkBarViewTest1 : public BookmarkBarViewEventTestBase {
                 GetURL());
 
     // Make sure button is no longer pushed.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
-    ASSERT_TRUE(button->GetState() == ChromeViews::BaseButton::BS_NORMAL);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
+    ASSERT_TRUE(button->GetState() == views::BaseButton::BS_NORMAL);
 
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu == NULL || !menu->GetSubmenu()->IsShowing());
 
     Done();
@@ -225,7 +225,7 @@ class BookmarkBarViewTest2 : public BookmarkBarViewEventTestBase {
   virtual void DoTestOnMessageLoop() {
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest2::Step2));
@@ -234,7 +234,7 @@ class BookmarkBarViewTest2 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL && menu->GetSubmenu()->IsShowing());
 
     // Click on 0x0, which should trigger closing menu.
@@ -242,7 +242,7 @@ class BookmarkBarViewTest2 : public BookmarkBarViewEventTestBase {
     // true. If that changes, this code will need to find another empty space
     // to press the mouse on.
     gfx::Point mouse_loc;
-    ChromeViews::View::ConvertPointToScreen(bb_view_, &mouse_loc);
+    views::View::ConvertPointToScreen(bb_view_, &mouse_loc);
     ui_controls::SendMouseMove(0, 0);
     ui_controls::SendMouseEventsNotifyWhenDone(
         ui_controls::LEFT, ui_controls::DOWN | ui_controls::UP,
@@ -251,12 +251,12 @@ class BookmarkBarViewTest2 : public BookmarkBarViewEventTestBase {
 
   void Step3() {
     // The menu shouldn't be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu == NULL || !menu->GetSubmenu()->IsShowing());
 
     // Make sure button is no longer pushed.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
-    ASSERT_TRUE(button->GetState() == ChromeViews::BaseButton::BS_NORMAL);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
+    ASSERT_TRUE(button->GetState() == views::BaseButton::BS_NORMAL);
 
     window_->Activate();
 
@@ -273,7 +273,7 @@ class BookmarkBarViewTest3 : public BookmarkBarViewEventTestBase {
   virtual void DoTestOnMessageLoop() {
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->other_bookmarked_button();
+    views::TextButton* button = bb_view_->other_bookmarked_button();
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest3::Step2));
@@ -282,11 +282,11 @@ class BookmarkBarViewTest3 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
-    ChromeViews::MenuItemView* child_menu =
+    views::MenuItemView* child_menu =
         menu->GetSubmenu()->GetMenuItemAt(1);
     ASSERT_TRUE(child_menu != NULL);
 
@@ -298,8 +298,8 @@ class BookmarkBarViewTest3 : public BookmarkBarViewEventTestBase {
 
   void Step3() {
     // Make sure sub menu is showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
-    ChromeViews::MenuItemView* child_menu =
+    views::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* child_menu =
         menu->GetSubmenu()->GetMenuItemAt(1);
     ASSERT_TRUE(child_menu->GetSubmenu() != NULL);
     ASSERT_TRUE(child_menu->GetSubmenu()->IsShowing());
@@ -314,8 +314,8 @@ class BookmarkBarViewTest3 : public BookmarkBarViewEventTestBase {
 
   void Step4() {
     // Make sure sub menu we first clicked isn't showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
-    ChromeViews::MenuItemView* child_menu =
+    views::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* child_menu =
         menu->GetSubmenu()->GetMenuItemAt(1);
     ASSERT_TRUE(child_menu->GetSubmenu() != NULL);
     ASSERT_FALSE(child_menu->GetSubmenu()->IsShowing());
@@ -345,7 +345,7 @@ class BookmarkBarViewTest4 : public BookmarkBarViewEventTestBase {
   virtual void DoTestOnMessageLoop() {
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->other_bookmarked_button();
+    views::TextButton* button = bb_view_->other_bookmarked_button();
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest4::Step2));
@@ -354,11 +354,11 @@ class BookmarkBarViewTest4 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
-    ChromeViews::MenuItemView* child_menu =
+    views::MenuItemView* child_menu =
         menu->GetSubmenu()->GetMenuItemAt(0);
     ASSERT_TRUE(child_menu != NULL);
 
@@ -370,7 +370,7 @@ class BookmarkBarViewTest4 : public BookmarkBarViewEventTestBase {
 
   void Step3() {
     // Make sure the context menu is showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetContextMenu();
+    views::MenuItemView* menu = bb_view_->GetContextMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu());
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
@@ -400,7 +400,7 @@ class BookmarkBarViewTest5 : public BookmarkBarViewEventTestBase {
 
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest5::Step2));
@@ -409,11 +409,11 @@ class BookmarkBarViewTest5 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
-    ChromeViews::MenuItemView* child_menu =
+    views::MenuItemView* child_menu =
         menu->GetSubmenu()->GetMenuItemAt(0);
     ASSERT_TRUE(child_menu != NULL);
 
@@ -424,10 +424,10 @@ class BookmarkBarViewTest5 : public BookmarkBarViewEventTestBase {
   }
 
   void Step3() {
-    ChromeViews::MenuItemView* target_menu =
+    views::MenuItemView* target_menu =
         bb_view_->GetMenu()->GetSubmenu()->GetMenuItemAt(1);
     gfx::Point loc(1, target_menu->height() - 1);
-    ChromeViews::View::ConvertPointToScreen(target_menu, &loc);
+    views::View::ConvertPointToScreen(target_menu, &loc);
 
     // Start a drag.
     ui_controls::SendMouseMoveNotifyWhenDone(loc.x() + 10, loc.y(),
@@ -439,10 +439,10 @@ class BookmarkBarViewTest5 : public BookmarkBarViewEventTestBase {
 
   void Step4() {
     // Drop the item so that it's now the second item.
-   ChromeViews::MenuItemView* target_menu =
+   views::MenuItemView* target_menu =
         bb_view_->GetMenu()->GetSubmenu()->GetMenuItemAt(1);
    gfx::Point loc(1, target_menu->height() - 1);
-    ChromeViews::View::ConvertPointToScreen(target_menu, &loc);
+    views::View::ConvertPointToScreen(target_menu, &loc);
     ui_controls::SendMouseMove(loc.x(), loc.y());
 
     ui_controls::SendMouseEventsNotifyWhenDone(ui_controls::LEFT,
@@ -467,7 +467,7 @@ class BookmarkBarViewTest6 : public BookmarkBarViewEventTestBase {
  protected:
   virtual void DoTestOnMessageLoop() {
     // Press the mouse button on the overflow button. Don't release it though.
-    ChromeViews::TextButton* button = bb_view_->overflow_button();
+    views::TextButton* button = bb_view_->overflow_button();
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN, CreateEventTask(this, &BookmarkBarViewTest6::Step2));
   }
@@ -475,11 +475,11 @@ class BookmarkBarViewTest6 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
-    ChromeViews::MenuItemView* child_menu =
+    views::MenuItemView* child_menu =
         menu->GetSubmenu()->GetMenuItemAt(0);
     ASSERT_TRUE(child_menu != NULL);
 
@@ -508,7 +508,7 @@ class BookmarkBarViewTest7 : public BookmarkBarViewEventTestBase {
 
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest7::Step2));
@@ -517,11 +517,11 @@ class BookmarkBarViewTest7 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
-    ChromeViews::MenuItemView* child_menu =
+    views::MenuItemView* child_menu =
         menu->GetSubmenu()->GetMenuItemAt(0);
     ASSERT_TRUE(child_menu != NULL);
 
@@ -533,10 +533,10 @@ class BookmarkBarViewTest7 : public BookmarkBarViewEventTestBase {
 
   void Step3() {
     // Drag over other button.
-    ChromeViews::TextButton* other_button =
+    views::TextButton* other_button =
         bb_view_->other_bookmarked_button();
     gfx::Point loc(other_button->width() / 2, other_button->height() / 2);
-    ChromeViews::View::ConvertPointToScreen(other_button, &loc);
+    views::View::ConvertPointToScreen(other_button, &loc);
 
     // Start a drag.
     ui_controls::SendMouseMoveNotifyWhenDone(loc.x() + 10, loc.y(),
@@ -547,14 +547,14 @@ class BookmarkBarViewTest7 : public BookmarkBarViewEventTestBase {
   }
 
   void Step4() {
-    ChromeViews::MenuItemView* drop_menu = bb_view_->GetDropMenu();
+    views::MenuItemView* drop_menu = bb_view_->GetDropMenu();
     ASSERT_TRUE(drop_menu != NULL);
     ASSERT_TRUE(drop_menu->GetSubmenu()->IsShowing());
 
-    ChromeViews::MenuItemView* target_menu =
+    views::MenuItemView* target_menu =
         drop_menu->GetSubmenu()->GetMenuItemAt(0);
     gfx::Point loc(1, 1);
-    ChromeViews::View::ConvertPointToScreen(target_menu, &loc);
+    views::View::ConvertPointToScreen(target_menu, &loc);
     ui_controls::SendMouseMove(loc.x(), loc.y());
     ui_controls::SendMouseEventsNotifyWhenDone(
         ui_controls::LEFT, ui_controls::UP,
@@ -581,7 +581,7 @@ class BookmarkBarViewTest8 : public BookmarkBarViewEventTestBase {
 
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest8::Step2));
@@ -590,11 +590,11 @@ class BookmarkBarViewTest8 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
-    ChromeViews::MenuItemView* child_menu =
+    views::MenuItemView* child_menu =
         menu->GetSubmenu()->GetMenuItemAt(0);
     ASSERT_TRUE(child_menu != NULL);
 
@@ -606,10 +606,10 @@ class BookmarkBarViewTest8 : public BookmarkBarViewEventTestBase {
 
   void Step3() {
     // Drag over other button.
-    ChromeViews::TextButton* other_button =
+    views::TextButton* other_button =
         bb_view_->other_bookmarked_button();
     gfx::Point loc(other_button->width() / 2, other_button->height() / 2);
-    ChromeViews::View::ConvertPointToScreen(other_button, &loc);
+    views::View::ConvertPointToScreen(other_button, &loc);
 
     // Start a drag.
     ui_controls::SendMouseMoveNotifyWhenDone(loc.x() + 10, loc.y(),
@@ -620,25 +620,25 @@ class BookmarkBarViewTest8 : public BookmarkBarViewEventTestBase {
   }
 
   void Step4() {
-    ChromeViews::MenuItemView* drop_menu = bb_view_->GetDropMenu();
+    views::MenuItemView* drop_menu = bb_view_->GetDropMenu();
     ASSERT_TRUE(drop_menu != NULL);
     ASSERT_TRUE(drop_menu->GetSubmenu()->IsShowing());
 
     // Now drag back over first menu.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
     gfx::Point loc(button->width() / 2, button->height() / 2);
-    ChromeViews::View::ConvertPointToScreen(button, &loc);
+    views::View::ConvertPointToScreen(button, &loc);
     ui_controls::SendMouseMoveNotifyWhenDone(loc.x(), loc.y(),
         NewRunnableMethod(this, &BookmarkBarViewTest8::Step5));
   }
 
   void Step5() {
     // Drop on folder F11.
-    ChromeViews::MenuItemView* drop_menu = bb_view_->GetDropMenu();
+    views::MenuItemView* drop_menu = bb_view_->GetDropMenu();
     ASSERT_TRUE(drop_menu != NULL);
     ASSERT_TRUE(drop_menu->GetSubmenu()->IsShowing());
 
-    ChromeViews::MenuItemView* target_menu =
+    views::MenuItemView* target_menu =
         drop_menu->GetSubmenu()->GetMenuItemAt(1);
     ui_controls::MoveMouseToCenterAndPress(
         target_menu, ui_controls::LEFT, ui_controls::UP,
@@ -666,7 +666,7 @@ class BookmarkBarViewTest9 : public BookmarkBarViewEventTestBase {
   virtual void DoTestOnMessageLoop() {
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest9::Step2));
@@ -675,25 +675,25 @@ class BookmarkBarViewTest9 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
     first_menu_ = menu->GetSubmenu()->GetMenuItemAt(0);
     gfx::Point menu_loc;
-    ChromeViews::View::ConvertPointToScreen(first_menu_, &menu_loc);
+    views::View::ConvertPointToScreen(first_menu_, &menu_loc);
     start_y_ = menu_loc.y();
 
     // Move the mouse over the scroll button.
-    ChromeViews::View* scroll_container = menu->GetSubmenu()->GetParent();
+    views::View* scroll_container = menu->GetSubmenu()->GetParent();
     ASSERT_TRUE(scroll_container != NULL);
     scroll_container = scroll_container->GetParent();
     ASSERT_TRUE(scroll_container != NULL);
-    ChromeViews::View* scroll_down_button = scroll_container->GetChildViewAt(1);
+    views::View* scroll_down_button = scroll_container->GetChildViewAt(1);
     ASSERT_TRUE(scroll_down_button);
     gfx::Point loc(scroll_down_button->width() / 2,
                    scroll_down_button->height() / 2);
-    ChromeViews::View::ConvertPointToScreen(scroll_down_button, &loc);
+    views::View::ConvertPointToScreen(scroll_down_button, &loc);
     ui_controls::SendMouseMoveNotifyWhenDone(
         loc.x(), loc.y(), CreateEventTask(this, &BookmarkBarViewTest9::Step3));
   }
@@ -705,7 +705,7 @@ class BookmarkBarViewTest9 : public BookmarkBarViewEventTestBase {
 
   void Step4() {
     gfx::Point menu_loc;
-    ChromeViews::View::ConvertPointToScreen(first_menu_, &menu_loc);
+    views::View::ConvertPointToScreen(first_menu_, &menu_loc);
     ASSERT_NE(start_y_, menu_loc.y());
 
     // Hide menu.
@@ -715,7 +715,7 @@ class BookmarkBarViewTest9 : public BookmarkBarViewEventTestBase {
   }
 
   int start_y_;
-  ChromeViews::MenuItemView* first_menu_;
+  views::MenuItemView* first_menu_;
 };
 
 VIEW_TEST(BookmarkBarViewTest9, ScrollButtonScrolls)
@@ -726,7 +726,7 @@ class BookmarkBarViewTest10 : public BookmarkBarViewEventTestBase {
   virtual void DoTestOnMessageLoop() {
     // Move the mouse to the first folder on the bookmark bar and press the
     // mouse.
-    ChromeViews::TextButton* button = bb_view_->GetBookmarkButton(0);
+    views::TextButton* button = bb_view_->GetBookmarkButton(0);
     ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
         ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest10::Step2));
@@ -735,7 +735,7 @@ class BookmarkBarViewTest10 : public BookmarkBarViewEventTestBase {
  private:
   void Step2() {
     // Menu should be showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
 
@@ -747,7 +747,7 @@ class BookmarkBarViewTest10 : public BookmarkBarViewEventTestBase {
 
   void Step3() {
     // Make sure menu is showing and item is selected.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
     ASSERT_TRUE(menu->GetSubmenu()->GetMenuItemAt(0)->IsSelected());
@@ -759,7 +759,7 @@ class BookmarkBarViewTest10 : public BookmarkBarViewEventTestBase {
   }
 
   void Step4() {
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
     ASSERT_FALSE(menu->GetSubmenu()->GetMenuItemAt(0)->IsSelected());
@@ -773,10 +773,10 @@ class BookmarkBarViewTest10 : public BookmarkBarViewEventTestBase {
 
   void Step5() {
     // Make sure the submenu is showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
-    ChromeViews::MenuItemView* submenu = menu->GetSubmenu()->GetMenuItemAt(1);
+    views::MenuItemView* submenu = menu->GetSubmenu()->GetMenuItemAt(1);
     ASSERT_TRUE(submenu->IsSelected());
     ASSERT_TRUE(submenu->GetSubmenu());
     ASSERT_TRUE(submenu->GetSubmenu()->IsShowing());
@@ -789,10 +789,10 @@ class BookmarkBarViewTest10 : public BookmarkBarViewEventTestBase {
 
   void Step6() {
     // Make sure the submenu is showing.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
-    ChromeViews::MenuItemView* submenu = menu->GetSubmenu()->GetMenuItemAt(1);
+    views::MenuItemView* submenu = menu->GetSubmenu()->GetMenuItemAt(1);
     ASSERT_TRUE(submenu->IsSelected());
     ASSERT_TRUE(!submenu->GetSubmenu() || !submenu->GetSubmenu()->IsShowing());
 
@@ -804,7 +804,7 @@ class BookmarkBarViewTest10 : public BookmarkBarViewEventTestBase {
 
   void Step7() {
     // Make sure menu is showing and item is selected.
-    ChromeViews::MenuItemView* menu = bb_view_->GetMenu();
+    views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu != NULL);
     ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
     ASSERT_TRUE(menu->GetSubmenu()->GetMenuItemAt(0)->IsSelected());

@@ -48,17 +48,16 @@ FirstRunCustomizeView::FirstRunCustomizeView(Profile* profile,
 FirstRunCustomizeView::~FirstRunCustomizeView() {
 }
 
-ChromeViews::CheckBox* FirstRunCustomizeView::MakeCheckBox(int label_id) {
-  ChromeViews::CheckBox* cbox =
-      new ChromeViews::CheckBox(l10n_util::GetString(label_id));
+views::CheckBox* FirstRunCustomizeView::MakeCheckBox(int label_id) {
+  views::CheckBox* cbox = new views::CheckBox(l10n_util::GetString(label_id));
   cbox->SetListener(this);
   AddChildView(cbox);
   return cbox;
 }
 
 void FirstRunCustomizeView::SetupControls() {
-  using ChromeViews::Label;
-  using ChromeViews::CheckBox;
+  using views::Label;
+  using views::CheckBox;
 
   main_label_ = new Label(l10n_util::GetString(IDS_FR_CUSTOMIZE_DLG_TEXT));
   main_label_->SetMultiLine(true);
@@ -67,7 +66,7 @@ void FirstRunCustomizeView::SetupControls() {
 
   import_cbox_ = MakeCheckBox(IDS_FR_CUSTOMIZE_IMPORT);
 
-  import_from_combo_ = new ChromeViews::ComboBox(this);
+  import_from_combo_ = new views::ComboBox(this);
   AddChildView(import_from_combo_);
 
   shortcuts_label_ =
@@ -84,7 +83,7 @@ void FirstRunCustomizeView::SetupControls() {
 }
 
 gfx::Size FirstRunCustomizeView::GetPreferredSize() {
-  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+  return gfx::Size(views::Window::GetLocalizedContentsSize(
       IDS_FIRSTRUNCUSTOMIZE_DIALOG_WIDTH_CHARS,
       IDS_FIRSTRUNCUSTOMIZE_DIALOG_HEIGHT_LINES));
 }
@@ -155,18 +154,18 @@ void FirstRunCustomizeView::Layout() {
   AdjustDialogWidth(quick_shortcut_cbox_);
 }
 
-void FirstRunCustomizeView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void FirstRunCustomizeView::ButtonPressed(views::NativeButton* sender) {
   if (import_cbox_ == sender) {
     // Disable the import combobox if the user unchecks the checkbox.
     import_from_combo_->SetEnabled(import_cbox_->IsSelected());
   }
 }
 
-int FirstRunCustomizeView::GetItemCount(ChromeViews::ComboBox* source) {
+int FirstRunCustomizeView::GetItemCount(views::ComboBox* source) {
   return importer_host_->GetAvailableProfileCount();
 }
 
-std::wstring FirstRunCustomizeView::GetItemAt(ChromeViews::ComboBox* source,
+std::wstring FirstRunCustomizeView::GetItemAt(views::ComboBox* source,
                                               int index) {
   return importer_host_->GetSourceProfileNameAt(index);
 }
@@ -175,7 +174,7 @@ std::wstring FirstRunCustomizeView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_FR_CUSTOMIZE_DLG_TITLE);
 }
 
-ChromeViews::View* FirstRunCustomizeView::GetContentsView() {
+views::View* FirstRunCustomizeView::GetContentsView() {
   return this;
 }
 

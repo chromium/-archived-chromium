@@ -23,7 +23,7 @@ class AppModalDialogQueue {
   // sloppy app modality.
   // Note: The AppModalDialogDelegate |dialog| must be window modal before it
   // can be added as app modal.
-  static void AddDialog(ChromeViews::AppModalDialogDelegate* dialog);
+  static void AddDialog(views::AppModalDialogDelegate* dialog);
 
   // Removes the current dialog in the queue (the one that is being shown).
   // Shows the next dialog in the queue, if any is present. This does not
@@ -41,11 +41,11 @@ class AppModalDialogQueue {
 
  private:
   // Shows |dialog| and notifies the BrowserList that a modal dialog is showing.
-  static void ShowModalDialog(ChromeViews::AppModalDialogDelegate* dialog);
+  static void ShowModalDialog(views::AppModalDialogDelegate* dialog);
 
   // Contains all app modal dialogs which are waiting to be shown, with the
   // currently modal dialog at the front of the queue.
-  static std::queue<ChromeViews::AppModalDialogDelegate*>*
+  static std::queue<views::AppModalDialogDelegate*>*
       app_modal_dialog_queue_;
 };
 

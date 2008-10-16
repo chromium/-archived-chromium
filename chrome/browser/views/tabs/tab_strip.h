@@ -17,7 +17,7 @@ class DraggedTabController;
 class ScopedMouseCloseWidthCalculator;
 class TabStripModel;
 
-namespace ChromeViews {
+namespace views {
 class ImageView;
 }
 
@@ -34,10 +34,10 @@ class ImageView;
 //      in response to dragged tabs.
 //
 ///////////////////////////////////////////////////////////////////////////////
-class TabStrip : public ChromeViews::View,
+class TabStrip : public views::View,
                  public TabStripModelObserver,
                  public Tab::TabDelegate,
-                 public ChromeViews::Button::ButtonListener,
+                 public views::Button::ButtonListener,
                  public MessageLoopForUI::Observer {
  public:
   TabStrip(TabStripModel* model);
@@ -96,23 +96,23 @@ class TabStrip : public ChromeViews::View,
   // Retrieve the ideal bounds for the Tab at the specified index.
   gfx::Rect GetIdealBounds(int index);
 
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void PaintChildren(ChromeCanvas* canvas);
-  virtual ChromeViews::View* GetViewByID(int id) const;
+  virtual views::View* GetViewByID(int id) const;
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
   // NOTE: the drag and drop methods are invoked from FrameView. This is done to
   // allow for a drop region that extends outside the bounds of the TabStrip.
-  virtual void OnDragEntered(const ChromeViews::DropTargetEvent& event);
-  virtual int OnDragUpdated(const ChromeViews::DropTargetEvent& event);
+  virtual void OnDragEntered(const views::DropTargetEvent& event);
+  virtual int OnDragUpdated(const views::DropTargetEvent& event);
   virtual void OnDragExited();
-  virtual int OnPerformDrop(const ChromeViews::DropTargetEvent& event);
+  virtual int OnPerformDrop(const views::DropTargetEvent& event);
   virtual bool GetAccessibleRole(VARIANT* role);
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
-  virtual ChromeViews::View* GetViewForPoint(const gfx::Point& point);
-  virtual ChromeViews::View* GetViewForPoint(const gfx::Point& point,
-                                             bool can_create_floating);
+  virtual views::View* GetViewForPoint(const gfx::Point& point);
+  virtual views::View* GetViewForPoint(const gfx::Point& point,
+                                       bool can_create_floating);
 
  protected:
   // TabStripModelObserver implementation:
@@ -141,13 +141,12 @@ class TabStrip : public ChromeViews::View,
   virtual void StopHighlightTabsForCommand(
       TabStripModel::ContextMenuCommand command_id, Tab* tab);
   virtual void StopAllHighlighting();
-  virtual void MaybeStartDrag(Tab* tab,
-                              const ChromeViews::MouseEvent& event);
-  virtual void ContinueDrag(const ChromeViews::MouseEvent& event);
+  virtual void MaybeStartDrag(Tab* tab, const views::MouseEvent& event);
+  virtual void ContinueDrag(const views::MouseEvent& event);
   virtual void EndDrag(bool canceled);
 
-  // ChromeViews::Button::ButtonListener implementation:
-  virtual void ButtonPressed(ChromeViews::BaseButton* sender);
+  // views::Button::ButtonListener implementation:
+  virtual void ButtonPressed(views::BaseButton* sender);
 
   // MessageLoop::Observer implementation:
   virtual void WillProcessMessage(const MSG& msg);
@@ -220,14 +219,14 @@ class TabStrip : public ChromeViews::View,
   gfx::Rect GetDropBounds(int drop_index, bool drop_before, bool* is_beneath);
 
   // Updates the location of the drop based on the event.
-  void UpdateDropIndex(const ChromeViews::DropTargetEvent& event);
+  void UpdateDropIndex(const views::DropTargetEvent& event);
 
   // Sets the location of the drop, repainting as necessary.
   void SetDropIndex(int index, bool drop_before);
 
   // Returns the drop effect for dropping a URL on the tab strip. This does
   // not query the data in anyway, it only looks at the source operations.
-  int GetDropEffect(const ChromeViews::DropTargetEvent& event);
+  int GetDropEffect(const views::DropTargetEvent& event);
 
   // Returns the image to use for indicating a drop on a tab. If is_down is
   // true, this returns an arrow pointing down.
@@ -299,7 +298,7 @@ class TabStrip : public ChromeViews::View,
   base::RepeatingTimer<TabStrip> loading_animation_timer_;
 
   // The "New Tab" button.
-  ChromeViews::Button* newtab_button_;
+  views::Button* newtab_button_;
   gfx::Size newtab_button_size_;
   gfx::Size actual_newtab_button_size_;
 
@@ -341,8 +340,8 @@ class TabStrip : public ChromeViews::View,
     bool point_down;
 
     // Renders the drop indicator.
-    ChromeViews::ContainerWin* arrow_window;
-    ChromeViews::ImageView* arrow_view;
+    views::ContainerWin* arrow_window;
+    views::ImageView* arrow_view;
 
    private:
     DISALLOW_EVIL_CONSTRUCTORS(DropInfo);

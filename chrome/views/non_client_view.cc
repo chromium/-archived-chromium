@@ -4,7 +4,7 @@
 
 #include "chrome/views/non_client_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 int NonClientView::GetHTComponentForFrame(const gfx::Point& point,
                                           int resize_area_size,
@@ -53,5 +53,5 @@ int NonClientView::GetHTComponentForFrame(const gfx::Point& point,
   return HTNOWHERE;
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

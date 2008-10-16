@@ -18,7 +18,7 @@ class JavascriptBeforeUnloadHandler : public JavascriptMessageBoxHandler {
                                     IPC::Message* reply_msg);
   virtual ~JavascriptBeforeUnloadHandler() {}
 
-  // ChromeViews::DialogDelegate Methods:
+  // views::DialogDelegate Methods:
   virtual std::wstring GetWindowTitle() const;
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
 

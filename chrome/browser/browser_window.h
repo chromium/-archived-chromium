@@ -15,9 +15,6 @@ class BookmarkBarView;
 class Browser;
 class BrowserList;
 class BrowserView;
-namespace ChromeViews {
-class RootView;
-}
 class GoButton;
 class LocationBarView;
 class Profile;
@@ -25,6 +22,9 @@ class StatusBubble;
 class TabContents;
 class TabStrip;
 class ToolbarStarToggle;
+namespace views {
+class RootView;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // BrowserWindow interface
@@ -115,7 +115,7 @@ class BrowserWindow {
   // Note if you are not calling FrameUtil::LoadAccelerators() on this frame,
   // this method is never invoked.
   virtual void SetAcceleratorTable(
-      std::map<ChromeViews::Accelerator, int>* accelerator_table) = 0;
+      std::map<views::Accelerator, int>* accelerator_table) = 0;
 
   // Updates internal state specifying whether the throbber is to be shown.
   // If the throbber was shown, and should still be shown, the frame of the

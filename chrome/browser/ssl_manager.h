@@ -265,7 +265,7 @@ class SSLManager : public NotificationObserver {
   // An info bar with a message and an optional link that runs a task when
   // clicked.
   class SSLInfoBar : public InfoBarItemView,
-                     public ChromeViews::LinkController {
+                     public views::LinkController {
    public:
     SSLInfoBar(SSLManager* manager,
                const std::wstring& message,
@@ -276,12 +276,12 @@ class SSLManager : public NotificationObserver {
 
     const std::wstring GetMessageText() const;
 
-    // ChromeViews::LinkController method.
-    virtual void LinkActivated(ChromeViews::Link* source, int event_flags);
+    // views::LinkController method.
+    virtual void LinkActivated(views::Link* source, int event_flags);
 
    private:
-    ChromeViews::Label* label_;
-    ChromeViews::Link* link_;
+    views::Label* label_;
+    views::Link* link_;
     SSLManager* manager_;
     scoped_ptr<Task> task_;
 

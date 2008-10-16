@@ -16,7 +16,7 @@
 
 // This class displays a message box within a constrained window
 // with options for a message, a prompt, and OK and Cancel buttons.
-class MessageBoxView : public ChromeViews::View {
+class MessageBoxView : public views::View {
  public:
   // flags
   static const int kFlagHasOKButton = 0x1;
@@ -61,8 +61,8 @@ class MessageBoxView : public ChromeViews::View {
  protected:
   // Layout and Painting functions.
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
  private:
   // Called after ViewHierarchyChanged's call stack unwinds and returns to the
@@ -78,16 +78,16 @@ class MessageBoxView : public ChromeViews::View {
   void ResetLayoutManager();
 
   // Message for the message box.
-  ChromeViews::Label* message_label_;
+  views::Label* message_label_;
 
   // Input text field for the message box.
-  ChromeViews::TextField* prompt_field_;
+  views::TextField* prompt_field_;
 
   // Icon displayed in the upper left corner of the message box.
-  ChromeViews::ImageView* icon_;
+  views::ImageView* icon_;
 
   // Checkbox for the message box.
-  ChromeViews::CheckBox* check_box_;
+  views::CheckBox* check_box_;
 
   // Maximum width of the message label.
   int message_width_;

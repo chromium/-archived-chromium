@@ -50,12 +50,12 @@ void OpaqueFrame::UpdateThrobber(bool running) {
   GetOpaqueNonClientView()->UpdateWindowIcon();
 }
 
-ChromeViews::Window* OpaqueFrame::GetWindow() {
+views::Window* OpaqueFrame::GetWindow() {
   return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueFrame, ChromeViews::CustomFrameWindow overrides:
+// OpaqueFrame, views::CustomFrameWindow overrides:
 
 void OpaqueFrame::UpdateWindowIcon() {
   CustomFrameWindow::UpdateWindowIcon();
@@ -63,14 +63,13 @@ void OpaqueFrame::UpdateWindowIcon() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueFrame, ChromeViews::ContainerWin overrides:
+// OpaqueFrame, views::ContainerWin overrides:
 
-bool OpaqueFrame::AcceleratorPressed(ChromeViews::Accelerator* accelerator) {
+bool OpaqueFrame::AcceleratorPressed(views::Accelerator* accelerator) {
   return browser_view_->AcceleratorPressed(*accelerator);
 }
 
-bool OpaqueFrame::GetAccelerator(int cmd_id,
-                                 ChromeViews::Accelerator* accelerator) {
+bool OpaqueFrame::GetAccelerator(int cmd_id, views::Accelerator* accelerator) {
   return browser_view_->GetAccelerator(cmd_id, accelerator);
 }
 

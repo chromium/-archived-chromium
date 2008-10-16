@@ -30,7 +30,7 @@ static const wchar_t* const kFocusManagerKey = L"__VIEW_CONTAINER__";
 // - prevent tab key events from being sent to views.
 static const wchar_t* const kViewKey = L"__CHROME_VIEW__";
 
-namespace ChromeViews {
+namespace views {
 
 static bool IsCompatibleWithMouseWheelRedirection(HWND window) {
   std::wstring class_name = win_util::GetClassName(window);
@@ -367,8 +367,8 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
   int repeat_count = LOWORD(lparam);
   int flags = HIWORD(lparam);
   if (focused_view_ &&
-      !focused_view_->ShouldLookupAccelerators(ChromeViews::KeyEvent(
-          ChromeViews::Event::ET_KEY_PRESSED, virtual_key_code,
+      !focused_view_->ShouldLookupAccelerators(KeyEvent(
+          Event::ET_KEY_PRESSED, virtual_key_code,
           repeat_count, flags))) {
     // This should not be processed as an accelerator.
     return true;
@@ -736,8 +736,7 @@ void FocusManager::Observe(NotificationType type,
                            const NotificationSource& source,
                            const NotificationDetails& details) {
   DCHECK(type == NOTIFY_VIEW_REMOVED);
-  if (focused_view_ &&
-      Source<ChromeViews::View>(focused_view_) == source)
+  if (focused_view_ && Source<View>(focused_view_) == source)
     focused_view_ = NULL;
 }
 
@@ -777,5 +776,5 @@ void FocusManager::RemoveFocusChangeListener(FocusChangeListener* listener) {
   focus_change_listeners_.erase(place);
 }
 
-}
+}  // namespace views
 

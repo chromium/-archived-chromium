@@ -13,7 +13,7 @@
 #include "chrome/views/view.h"
 
 
-namespace ChromeViews {
+namespace views {
 class GroupboxView;
 class Label;
 class TableModel;
@@ -27,18 +27,18 @@ class DefaultEncodingComboboxModel;
 // FontsPageView
 
 class FontsPageView : public OptionsPageView,
-                      public ChromeViews::ComboBox::Listener,
+                      public views::ComboBox::Listener,
                       public SelectFontDialog::Listener,
-                      public ChromeViews::NativeButton::Listener {
+                      public views::NativeButton::Listener {
  public:
   explicit FontsPageView(Profile* profile);
   virtual ~FontsPageView();
 
-  // ChromeViews::NativeButton::Listener implementation:
-  virtual void ButtonPressed(ChromeViews::NativeButton* sender);
+  // views::NativeButton::Listener implementation:
+  virtual void ButtonPressed(views::NativeButton* sender);
 
-  // ChromeViews::ComboBox::Listener implementation:
-  virtual void ItemChanged(ChromeViews::ComboBox* combo_box,
+  // views::ComboBox::Listener implementation:
+  virtual void ItemChanged(views::ComboBox* combo_box,
                            int prev_index,
                            int new_index);
 
@@ -72,20 +72,20 @@ class FontsPageView : public OptionsPageView,
   bool fixed_width_button_pressed_;
   bool encoding_dropdown_clicked_;
 
-  ChromeViews::Label* fonts_group_title_;
-  ChromeViews::Label* encoding_group_title_;
+  views::Label* fonts_group_title_;
+  views::Label* encoding_group_title_;
 
-  ChromeViews::View* fonts_contents_;
-  ChromeViews::View* encoding_contents_;
+  views::View* fonts_contents_;
+  views::View* encoding_contents_;
 
   // Fonts settings.
   // Select Font dialogs.
   scoped_refptr<SelectFontDialog> select_font_dialog_;
 
   // Buttons.
-  ChromeViews::NativeButton* fixed_width_font_change_page_button_;
-  ChromeViews::NativeButton* serif_font_change_page_button_;
-  ChromeViews::NativeButton* sans_serif_font_change_page_button_;
+  views::NativeButton* fixed_width_font_change_page_button_;
+  views::NativeButton* serif_font_change_page_button_;
+  views::NativeButton* sans_serif_font_change_page_button_;
 
   // FontDisplayView objects to display selected font.
   FontDisplayView* fixed_width_font_display_view_;
@@ -93,9 +93,9 @@ class FontsPageView : public OptionsPageView,
   FontDisplayView* sans_serif_font_display_view_;
 
   // Labels to describe what is to be changed.
-  ChromeViews::Label* fixed_width_font_label_;
-  ChromeViews::Label* serif_font_label_;
-  ChromeViews::Label* sans_serif_font_label_;
+  views::Label* fixed_width_font_label_;
+  views::Label* serif_font_label_;
+  views::Label* sans_serif_font_label_;
 
   // Advanced Font names and sizes as PrefMembers.
   StringPrefMember serif_name_;
@@ -112,8 +112,8 @@ class FontsPageView : public OptionsPageView,
 
   // Default Encoding.
   scoped_ptr<DefaultEncodingComboboxModel> default_encoding_combobox_model_;
-  ChromeViews::Label* default_encoding_combobox_label_;
-  ChromeViews::ComboBox* default_encoding_combobox_;
+  views::Label* default_encoding_combobox_label_;
+  views::ComboBox* default_encoding_combobox_;
   std::wstring default_encoding_selected_;
   bool default_encoding_changed_;
 

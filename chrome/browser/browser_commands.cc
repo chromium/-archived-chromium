@@ -495,7 +495,7 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_ABOUT: {
       UserMetrics::RecordAction(L"AboutChrome", profile_);
-      ChromeViews::Window::CreateChromeWindow(
+      views::Window::CreateChromeWindow(
           GetTopLevelHWND(),
           gfx::Rect(),
           new AboutChromeView(profile_))->Show();
@@ -862,8 +862,8 @@ void Browser::OpenKeywordEditor() {
 }
 
 void Browser::OpenImportSettingsDialog() {
-  ChromeViews::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
-                                          new ImporterView(profile_))->Show();
+  views::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
+                                    new ImporterView(profile_))->Show();
 }
 
 void Browser::OpenBugReportDialog() {
@@ -902,12 +902,12 @@ void Browser::OpenBugReportDialog() {
   bug_report_view->set_png_data(screenshot_png);
 
   // Create and show the dialog
-  ChromeViews::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
-                                          bug_report_view)->Show();
+  views::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
+                                    bug_report_view)->Show();
 }
 
 void Browser::OpenClearBrowsingDataDialog() {
-    ChromeViews::Window::CreateChromeWindow(
+    views::Window::CreateChromeWindow(
         GetTopLevelHWND(),
         gfx::Rect(),
         new ClearBrowsingDataView(profile_))->Show();

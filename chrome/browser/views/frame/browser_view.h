@@ -21,13 +21,13 @@ class BrowserToolbarView;
 //  including the TabStrip, toolbars, download shelves, the content area etc.
 //
 class BrowserView : public BrowserWindow,
-/*                  public ChromeViews::ClientView */
-                    public ChromeViews::View {
+/*                  public views::ClientView */
+                    public views::View {
  public:
   BrowserView(BrowserWindow* frame,
               Browser* browser,
-              ChromeViews::Window* window,
-              ChromeViews::View* contents_view);
+              views::Window* window,
+              views::View* contents_view);
   virtual ~BrowserView();
 
   // TODO(beng): remove this once all layout is done inside this object.
@@ -53,7 +53,7 @@ class BrowserView : public BrowserWindow,
       int frame_component);
   virtual void SizeToContents(const gfx::Rect& contents_bounds);
   virtual void SetAcceleratorTable(
-      std::map<ChromeViews::Accelerator, int>* accelerator_table);
+      std::map<views::Accelerator, int>* accelerator_table);
   virtual void ValidateThrobber();
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
@@ -72,16 +72,16 @@ class BrowserView : public BrowserWindow,
   virtual bool IsBookmarkBarVisible() const;
 
   /*
-  // Overridden from ChromeViews::ClientView:
+  // Overridden from views::ClientView:
   virtual bool CanClose() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   */
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Layout();
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
  private:
   // The Browser object we are associated with.

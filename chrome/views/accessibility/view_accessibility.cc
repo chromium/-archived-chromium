@@ -9,7 +9,7 @@
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/views/accessibility/accessible_wrapper.h"
 
-HRESULT ViewAccessibility::Initialize(ChromeViews::View* view) {
+HRESULT ViewAccessibility::Initialize(views::View* view) {
   if (!view) {
     return E_INVALIDARG;
   }
@@ -39,7 +39,7 @@ STDMETHODIMP ViewAccessibility::get_accChild(VARIANT var_child,
     return S_OK;
   }
 
-  ChromeViews::View* child = NULL;
+  views::View* child = NULL;
   bool get_iaccessible = false;
 
   // Check to see if child is out-of-bounds.
@@ -60,7 +60,7 @@ STDMETHODIMP ViewAccessibility::get_accChild(VARIANT var_child,
 
   // Sprecial case to handle the AutocompleteEdit MSAA.
   if (child->GetID() == VIEW_ID_AUTOCOMPLETE) {
-    ChromeViews::View* parent = child->GetParent();
+    views::View* parent = child->GetParent();
 
     // Paranoia check, to make sure we are making a correct cast.
     if (parent->GetID() == VIEW_ID_LOCATION_BAR) {
@@ -106,7 +106,7 @@ STDMETHODIMP ViewAccessibility::get_accParent(IDispatch** disp_parent) {
     return E_INVALIDARG;
   }
 
-  ChromeViews::View* parent = view_->GetParent();
+  views::View* parent = view_->GetParent();
 
   if (!parent) {
     // This function can get called during teardown of ContainerWin so we
@@ -168,7 +168,7 @@ STDMETHODIMP ViewAccessibility::accNavigate(LONG nav_dir, VARIANT start,
         child_id = view_->GetChildViewCount() - 1;
       }
 
-      ChromeViews::View* child = view_->GetChildViewAt(child_id);
+      views::View* child = view_->GetChildViewAt(child_id);
 
       if (child->GetChildViewCount() != 0) {
         end->vt = VT_DISPATCH;
@@ -196,7 +196,7 @@ STDMETHODIMP ViewAccessibility::accNavigate(LONG nav_dir, VARIANT start,
     case NAVDIR_DOWN:
     case NAVDIR_NEXT: {
       // Retrieve parent to access view index and perform bounds checking.
-      ChromeViews::View* parent = view_->GetParent();
+      views::View* parent = view_->GetParent();
       if (!parent) {
         return E_FAIL;
       }
@@ -218,7 +218,7 @@ STDMETHODIMP ViewAccessibility::accNavigate(LONG nav_dir, VARIANT start,
           }
         }
 
-        ChromeViews::View* child = parent->GetChildViewAt(view_index);
+        views::View* child = parent->GetChildViewAt(view_index);
         if (child->GetChildViewCount() != 0) {
           end->vt = VT_DISPATCH;
           // Retrieve IDispatch for non-leaf child.
@@ -449,7 +449,7 @@ STDMETHODIMP ViewAccessibility::accLocation(LONG* x_left, LONG* y_top,
   gfx::Rect view_bounds;
   // Retrieving the parent View to be used for converting from view-to-screen
   // coordinates.
-  ChromeViews::View* parent = view_->GetParent();
+  views::View* parent = view_->GetParent();
 
   if (parent == NULL) {
     // If no parent, remain within the same View.
@@ -475,7 +475,7 @@ STDMETHODIMP ViewAccessibility::accLocation(LONG* x_left, LONG* y_top,
     *height = view_bounds.height();
 
     gfx::Point topleft(view_bounds.origin());
-    ChromeViews::View::ConvertPointToScreen(parent, &topleft);
+    views::View::ConvertPointToScreen(parent, &topleft);
     *x_left = topleft.x();
     *y_top  = topleft.y();
   } else {
@@ -493,7 +493,7 @@ STDMETHODIMP ViewAccessibility::accHitTest(LONG x_left, LONG y_top,
   }
 
   gfx::Point pt(x_left, y_top);
-  ChromeViews::View::ConvertPointToView(NULL, view_, &pt);
+  views::View::ConvertPointToView(NULL, view_, &pt);
 
   if (!view_->HitTest(pt)) {
     // If containing parent is not hit, return with failure.
@@ -503,11 +503,11 @@ STDMETHODIMP ViewAccessibility::accHitTest(LONG x_left, LONG y_top,
 
   int child_count = view_->GetChildViewCount();
   bool child_hit = false;
-  ChromeViews::View* child_view = NULL;
+  views::View* child_view = NULL;
   for (int child_id = 0; child_id < child_count; ++child_id) {
     // Search for hit within any of the children.
     child_view = view_->GetChildViewAt(child_id);
-    ChromeViews::View::ConvertPointToView(view_, child_view, &pt);
+    views::View::ConvertPointToView(view_, child_view, &pt);
     if (child_view->HitTest(pt)) {
       // Store child_id (adjusted with +1 to convert to MSAA indexing).
       child->lVal = child_id + 1;
@@ -515,7 +515,7 @@ STDMETHODIMP ViewAccessibility::accHitTest(LONG x_left, LONG y_top,
       break;
     }
     // Convert point back to parent view to test next child.
-    ChromeViews::View::ConvertPointToView(child_view, view_, &pt);
+    views::View::ConvertPointToView(child_view, view_, &pt);
   }
 
   child->vt = VT_I4;
@@ -573,8 +573,7 @@ STDMETHODIMP ViewAccessibility::get_accKeyboardShortcut(VARIANT var_id,
 
 // Helper functions.
 
-bool ViewAccessibility::IsValidChild(int child_id,
-                                     ChromeViews::View* view) const {
+bool ViewAccessibility::IsValidChild(int child_id, views::View* view) const {
   if (((child_id) < 0) ||
       ((child_id) >= view->GetChildViewCount())) {
     return false;
@@ -604,7 +603,7 @@ bool ViewAccessibility::IsValidNav(int nav_dir, int start_id, int lower_bound,
   return true;
 }
 
-void ViewAccessibility::SetState(VARIANT* state, ChromeViews::View* view) {
+void ViewAccessibility::SetState(VARIANT* state, views::View* view) {
   // Default state; all views can have accessibility focus.
   state->lVal |= STATE_SYSTEM_FOCUSABLE;
 
@@ -624,7 +623,7 @@ void ViewAccessibility::SetState(VARIANT* state, ChromeViews::View* view) {
     state->lVal |= STATE_SYSTEM_PRESSED;
   }
   // Check both for actual View focus, as well as accessibility focus.
-  ChromeViews::View* parent = view->GetParent();
+  views::View* parent = view->GetParent();
 
   if (view->HasFocus() ||
       (parent && parent->GetAccFocusedChildView() == view)) {

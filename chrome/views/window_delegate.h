@@ -17,7 +17,7 @@ class CRect;
 }
 using WTL::CRect;
 
-namespace ChromeViews {
+namespace views {
 
 class ClientView;
 class DialogDelegate;
@@ -141,7 +141,7 @@ class WindowDelegate {
   scoped_ptr<Window> window_;
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // CHROME_VIEWS_WINDOW_DELEGATE_H_
 

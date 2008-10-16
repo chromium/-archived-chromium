@@ -32,10 +32,10 @@ class ToolbarStarToggle;
 //  rendering the Toolbar used in the Browser Window
 //
 ///////////////////////////////////////////////////////////////////////////////
-class BrowserToolbarView : public ChromeViews::View,
+class BrowserToolbarView : public views::View,
                            public EncodingMenuControllerDelegate,
-                           public ChromeViews::ViewMenuDelegate,
-                           public ChromeViews::DragController,
+                           public views::ViewMenuDelegate,
+                           public views::DragController,
                            public LocationBarView::Delegate,
                            public NotificationObserver {
  public:
@@ -45,22 +45,22 @@ class BrowserToolbarView : public ChromeViews::View,
   // Create the contents of the Browser Toolbar
   void Init(Profile* profile);
 
-  // ChromeViews::View
+  // views::View
   virtual void Layout();
   virtual void DidGainFocus();
   virtual void WillLoseFocus();
-  virtual bool OnKeyPressed(const ChromeViews::KeyEvent& e);
-  virtual bool OnKeyReleased(const ChromeViews::KeyEvent& e);
+  virtual bool OnKeyPressed(const views::KeyEvent& e);
+  virtual bool OnKeyReleased(const views::KeyEvent& e);
   virtual gfx::Size GetPreferredSize();
 
   // Overridden from EncodingMenuControllerDelegate:
   virtual bool IsItemChecked(int id) const;
 
   // Overridden from Menu::BaseControllerDelegate:
-  virtual bool GetAcceleratorInfo(int id, ChromeViews::Accelerator* accel);
+  virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel);
 
-  // ChromeViews::MenuDelegate
-  virtual void RunMenu(ChromeViews::View* source, const CPoint& pt, HWND hwnd);
+  // views::MenuDelegate
+  virtual void RunMenu(views::View* source, const CPoint& pt, HWND hwnd);
 
   // Sets the profile which is active on the currently-active tab.
   void SetProfile(Profile* profile);
@@ -97,7 +97,7 @@ class BrowserToolbarView : public ChromeViews::View,
   // first accessible child, based on the above policy.
   int GetNextAccessibleViewIndex(int view_index, bool nav_left);
 
-  ChromeViews::View* GetAccFocusedChildView() {
+  views::View* GetAccFocusedChildView() {
     return acc_focused_view_;
   }
 
@@ -157,18 +157,18 @@ class BrowserToolbarView : public ChromeViews::View,
   std::wstring accessible_name_;
   // Child view currently having MSAA focus (location bar excluded from arrow
   // navigation).
-  ChromeViews::View* acc_focused_view_;
+  views::View* acc_focused_view_;
 
   // Controls
-  ChromeViews::Button* back_;
-  ChromeViews::Button* forward_;
-  ChromeViews::Button* reload_;
-  ChromeViews::Button* home_;
+  views::Button* back_;
+  views::Button* forward_;
+  views::Button* reload_;
+  views::Button* home_;
   ToolbarStarToggle* star_;
   LocationBarView* location_bar_;
   GoButton* go_;
-  ChromeViews::MenuButton* page_menu_;
-  ChromeViews::MenuButton* app_menu_;
+  views::MenuButton* page_menu_;
+  views::MenuButton* app_menu_;
   Profile* profile_;
   Browser* browser_;
 

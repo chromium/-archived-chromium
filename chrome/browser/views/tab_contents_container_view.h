@@ -19,7 +19,7 @@ class TabContents;
 // This View contains the TabContents.
 // It takes care of linking the TabContents to the browser RootView so that the
 // focus can traverse from one to the other when pressing Tab/Shift-Tab.
-class TabContentsContainerView : public ChromeViews::HWNDView,
+class TabContentsContainerView : public views::HWNDView,
                                  public NotificationObserver {
  public:
   TabContentsContainerView();
@@ -30,7 +30,7 @@ class TabContentsContainerView : public ChromeViews::HWNDView,
   TabContents* GetTabContents() const { return tab_contents_; }
 
   // Overridden from View.
-  virtual ChromeViews::FocusTraversable* GetFocusTraversable();
+  virtual views::FocusTraversable* GetFocusTraversable();
   virtual bool IsFocusable() const;
   virtual void Focus();
   virtual void RequestFocus();
@@ -38,8 +38,8 @@ class TabContentsContainerView : public ChromeViews::HWNDView,
   virtual bool CanProcessTabKeyEvents();
 
   // Overridden from HWNDView.
-  virtual ChromeViews::FocusTraversable* GetFocusTraversableParent();
-  virtual ChromeViews::View* GetFocusTraversableParentView();
+  virtual views::FocusTraversable* GetFocusTraversableParent();
+  virtual views::View* GetFocusTraversableParentView();
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -54,7 +54,7 @@ class TabContentsContainerView : public ChromeViews::HWNDView,
  protected:
   // Web content should be given first crack at accelerators. This function
   // returns false if the current tab is a webcontents.
-  virtual bool ShouldLookupAccelerators(const ChromeViews::KeyEvent& e);
+  virtual bool ShouldLookupAccelerators(const views::KeyEvent& e);
 
  private:
   // Add or remove observers for events that we care about.

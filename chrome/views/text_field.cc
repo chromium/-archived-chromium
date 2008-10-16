@@ -28,7 +28,7 @@
 
 using gfx::NativeTheme;
 
-namespace ChromeViews {
+namespace views {
 
 static const int kDefaultEditStyle = WS_CHILD | WS_VISIBLE;
 
@@ -996,5 +996,5 @@ bool TextField::ShouldLookupAccelerators(const KeyEvent& e) {
   return !win_util::IsNumPadDigit(e.GetCharacter(), e.IsExtendedKey());
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

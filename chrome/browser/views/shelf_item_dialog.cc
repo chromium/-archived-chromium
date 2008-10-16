@@ -26,8 +26,8 @@
 #include "generated_resources.h"
 #include "net/base/net_util.h"
 
-using ChromeViews::ColumnSet;
-using ChromeViews::GridLayout;
+using views::ColumnSet;
+using views::GridLayout;
 
 // Preferred height of the table.
 static const int kTableWidth = 300;
@@ -45,7 +45,7 @@ static SkBitmap* default_fav_icon = NULL;
 // How long we query entry points for.
 static const int kPossibleURLTimeScope = 30;
 
-class PossibleURLModel : public ChromeViews::TableModel {
+class PossibleURLModel : public views::TableModel {
  public:
   PossibleURLModel() : profile_(NULL) {
     if (!default_fav_icon) {
@@ -195,7 +195,7 @@ class PossibleURLModel : public ChromeViews::TableModel {
     }
   }
 
-  virtual void SetObserver(ChromeViews::TableModelObserver* observer) {
+  virtual void SetObserver(views::TableModelObserver* observer) {
     observer_ = observer;
   }
 
@@ -217,7 +217,7 @@ class PossibleURLModel : public ChromeViews::TableModel {
   Profile* profile_;
 
   // Our observer.
-  ChromeViews::TableModelObserver* observer_;
+  views::TableModelObserver* observer_;
 
   // Our consumer for favicon requests.
   CancelableRequestConsumerT<size_t, NULL> consumer_;
@@ -249,24 +249,19 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
 
   url_table_model_.reset(new PossibleURLModel());
 
-  ChromeViews::TableColumn col1(IDS_ASI_PAGE_COLUMN,
-                                ChromeViews::TableColumn::LEFT, -1,
-                                50);
+  views::TableColumn col1(IDS_ASI_PAGE_COLUMN, views::TableColumn::LEFT, -1,
+                          50);
   col1.sortable = true;
-  ChromeViews::TableColumn col2(IDS_ASI_URL_COLUMN,
-                                ChromeViews::TableColumn::LEFT, -1,
-                                50);
+  views::TableColumn col2(IDS_ASI_URL_COLUMN, views::TableColumn::LEFT, -1,
+                          50);
   col2.sortable = true;
-  std::vector<ChromeViews::TableColumn> cols;
+  std::vector<views::TableColumn> cols;
   cols.push_back(col1);
   cols.push_back(col2);
 
-  url_table_ = new ChromeViews::TableView(url_table_model_.get(),
-                                          cols,
-                                          ChromeViews::ICON_AND_TEXT,
-                                          true,
-                                          true,
-                                          true);
+  url_table_ = new views::TableView(url_table_model_.get(), cols,
+                                    views::ICON_AND_TEXT, true, true,
+                                    true);
   url_table_->SetObserver(this);
 
   // Yummy layout code.
@@ -287,12 +282,12 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
 
   if (show_title) {
     layout->StartRow(0, labels_column_set_id);
-    ChromeViews::Label* title_label = new ChromeViews::Label();
-    title_label->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+    views::Label* title_label = new views::Label();
+    title_label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     title_label->SetText(l10n_util::GetString(IDS_ASI_TITLE_LABEL));
     layout->AddView(title_label);
 
-    title_field_ = new ChromeViews::TextField();
+    title_field_ = new views::TextField();
     title_field_->SetController(this);
     layout->AddView(title_field_);
 
@@ -302,20 +297,20 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
   }
 
   layout->StartRow(0, labels_column_set_id);
-  ChromeViews::Label* url_label = new ChromeViews::Label();
-  url_label->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  views::Label* url_label = new views::Label();
+  url_label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   url_label->SetText(l10n_util::GetString(IDS_ASI_URL));
   layout->AddView(url_label);
 
-  url_field_ = new ChromeViews::TextField();
+  url_field_ = new views::TextField();
   url_field_->SetController(this);
   layout->AddView(url_field_);
 
   layout->AddPaddingRow(0, kUnrelatedControlVerticalSpacing);
 
   layout->StartRow(0, single_column_view_set_id);
-  ChromeViews::Label* description_label = new ChromeViews::Label();
-  description_label->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  views::Label* description_label = new views::Label();
+  description_label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   description_label->SetText(l10n_util::GetString(IDS_ASI_DESCRIPTION));
   description_label->SetFont(
       description_label->GetFont().DeriveFont(0, ChromeFont::BOLD));
@@ -328,8 +323,8 @@ ShelfItemDialog::ShelfItemDialog(ShelfItemDialogDelegate* delegate,
 
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
-  AddAccelerator(ChromeViews::Accelerator(VK_ESCAPE, false, false, false));
-  AddAccelerator(ChromeViews::Accelerator(VK_RETURN, false, false, false));
+  AddAccelerator(views::Accelerator(VK_ESCAPE, false, false, false));
+  AddAccelerator(views::Accelerator(VK_RETURN, false, false, false));
 }
 
 ShelfItemDialog::~ShelfItemDialog() {
@@ -338,7 +333,7 @@ ShelfItemDialog::~ShelfItemDialog() {
 
 void ShelfItemDialog::Show(HWND parent) {
   DCHECK(!window());
-  ChromeViews::Window::CreateChromeWindow(parent, gfx::Rect(), this)->Show();
+  views::Window::CreateChromeWindow(parent, gfx::Rect(), this)->Show();
   if (title_field_) {
     title_field_->SetText(l10n_util::GetString(IDS_ASI_DEFAULT_TITLE));
     title_field_->SelectAll();
@@ -407,7 +402,7 @@ void ShelfItemDialog::InitiateTitleAutoFill(const GURL& url) {
       NewCallback(this, &ShelfItemDialog::OnURLInfoAvailable));
 }
 
-void ShelfItemDialog::ContentsChanged(ChromeViews::TextField* sender,
+void ShelfItemDialog::ContentsChanged(views::TextField* sender,
                                       const std::wstring& new_contents) {
   // If the user has edited the title field we no longer want to autofill it
   // so we reset the expected handle to an impossible value.
@@ -434,7 +429,7 @@ bool ShelfItemDialog::IsDialogButtonEnabled(DialogButton button) const {
   return true;
 }
 
-ChromeViews::View* ShelfItemDialog::GetContentsView() {
+views::View* ShelfItemDialog::GetContentsView() {
   return this;
 }
 
@@ -447,17 +442,17 @@ void ShelfItemDialog::PerformModelChange() {
 }
 
 gfx::Size ShelfItemDialog::GetPreferredSize() {
-  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+  return gfx::Size(views::Window::GetLocalizedContentsSize(
       IDS_SHELFITEM_DIALOG_WIDTH_CHARS,
       IDS_SHELFITEM_DIALOG_HEIGHT_LINES));
 }
 
 bool ShelfItemDialog::AcceleratorPressed(
-    const ChromeViews::Accelerator& accelerator) {
+    const views::Accelerator& accelerator) {
   if (accelerator.GetKeyCode() == VK_ESCAPE) {
     window()->Close();
   } else if (accelerator.GetKeyCode() == VK_RETURN) {
-    ChromeViews::FocusManager* fm = ChromeViews::FocusManager::GetFocusManager(
+    views::FocusManager* fm = views::FocusManager::GetFocusManager(
         GetContainer()->GetHWND());
     if (fm->GetFocusedView() == url_table_) {
       // Return on table behaves like a double click.

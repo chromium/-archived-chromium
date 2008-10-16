@@ -15,10 +15,10 @@
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/text_field.h"
 
-namespace ChromeViews {
-  class Label;
-  class ImageView;
-  class Window;
+namespace views {
+class Label;
+class ImageView;
+class Window;
 }
 
 class KeywordEditorView;
@@ -26,8 +26,8 @@ class Profile;
 class TemplateURL;
 class TemplateURLModel;
 
-class EditKeywordController : public ChromeViews::TextField::Controller,
-                              public ChromeViews::DialogDelegate {
+class EditKeywordController : public views::TextField::Controller,
+                              public views::DialogDelegate {
  public:
   // The template_url and/or keyword_editor_view may be NULL.
   EditKeywordController(HWND parent,
@@ -49,14 +49,14 @@ class EditKeywordController : public ChromeViews::TextField::Controller,
   virtual void WindowClosing();
   virtual bool Cancel();
   virtual bool Accept();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
-  // ChromeViews::TextField::Controller overrides. Updates whether the user can
+  // views::TextField::Controller overrides. Updates whether the user can
   // accept the dialog as well as updating image views showing whether value is
   // valid.
-  virtual void ContentsChanged(ChromeViews::TextField* sender,
+  virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(ChromeViews::TextField* sender,
+  virtual void HandleKeystroke(views::TextField* sender,
                                UINT message,
                                TCHAR key,
                                UINT repeat_count,
@@ -66,10 +66,10 @@ class EditKeywordController : public ChromeViews::TextField::Controller,
   void Init();
 
   // Create a Label containing the text with the specified message id.
-  ChromeViews::Label* CreateLabel(int message_id);
+  views::Label* CreateLabel(int message_id);
 
   // Creates a text field with the specified text.
-  ChromeViews::TextField* CreateTextField(const std::wstring& text);
+  views::TextField* CreateTextField(const std::wstring& text);
 
   // Returns true if the currently input URL is valid. The URL is valid if it
   // contains no search terms and is a valid url, or if it contains a search
@@ -92,7 +92,7 @@ class EditKeywordController : public ChromeViews::TextField::Controller,
   // Updates the tooltip and image of the image view based on is_valid. If
   // is_valid is false the tooltip of the image view is set to the message with
   // id invalid_message_id, otherwise the tooltip is set to the empty text.
-  void UpdateImageView(ChromeViews::ImageView* image_view,
+  void UpdateImageView(views::ImageView* image_view,
                        bool is_valid,
                        int invalid_message_id);
 
@@ -109,7 +109,7 @@ class EditKeywordController : public ChromeViews::TextField::Controller,
   HWND parent_;
 
   // View containing the buttons, text fields ...
-  ChromeViews::View* view_;
+  views::View* view_;
 
   // We may have been created by this, in which case we will call back to it on
   // success to add/modify the entry.  May be NULL.
@@ -119,14 +119,14 @@ class EditKeywordController : public ChromeViews::TextField::Controller,
   Profile* profile_;
 
   // Text fields.
-  ChromeViews::TextField* title_tf_;
-  ChromeViews::TextField* keyword_tf_;
-  ChromeViews::TextField* url_tf_;
+  views::TextField* title_tf_;
+  views::TextField* keyword_tf_;
+  views::TextField* url_tf_;
 
   // Shows error images.
-  ChromeViews::ImageView* title_iv_;
-  ChromeViews::ImageView* keyword_iv_;
-  ChromeViews::ImageView* url_iv_;
+  views::ImageView* title_iv_;
+  views::ImageView* keyword_iv_;
+  views::ImageView* url_iv_;
 
   DISALLOW_EVIL_CONSTRUCTORS(EditKeywordController);
 };

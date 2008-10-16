@@ -9,7 +9,7 @@
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/view.h"
 
-namespace ChromeViews {
+namespace views {
 
 class Container;
 class PaintTask;
@@ -339,7 +339,7 @@ class RootView : public View,
 #endif
 };
 
-}
+}  // namespace views
 
 #endif // CHROME_VIEWS_ROOT_VIEW_H__
 

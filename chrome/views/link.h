@@ -7,7 +7,7 @@
 
 #include "chrome/views/label.h"
 
-namespace ChromeViews {
+namespace views {
 
 class Link;
 
@@ -86,6 +86,8 @@ class Link : public Label {
   // The color when the link is neither highlighted nor disabled.
   SkColor normal_color_;
 };
-}
+
+}  // namespace views
+
 #endif  // CHROME_VIEWS_LINK_H__
 

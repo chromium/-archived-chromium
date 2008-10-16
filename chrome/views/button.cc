@@ -17,7 +17,7 @@
 
 #include "generated_resources.h"
 
-namespace ChromeViews {
+namespace views {
 
 static const int kDefaultWidth = 16;   // Default button width if no theme.
 static const int kDefaultHeight = 14;  // Default button height if no theme.
@@ -199,5 +199,6 @@ void ToggleButton::SetToggled(bool toggled) {
 void ToggleButton::SetToggledTooltipText(const std::wstring& tooltip) {
   toggled_tooltip_text_.assign(tooltip);
 }
-}  // namespace ChromeViews
+
+}  // namespace views
 

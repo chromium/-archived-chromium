@@ -8,7 +8,7 @@
 #include "chrome/views/base_button.h"
 #include "skia/include/SkBitmap.h"
 
-namespace ChromeViews {
+namespace views {
 
 class MouseEvent;
 
@@ -128,7 +128,7 @@ class ToggleButton : public Button {
   DISALLOW_EVIL_CONSTRUCTORS(ToggleButton);
 };
 
-}  // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_BUTTON_H_
 

@@ -140,8 +140,7 @@ void SetURLAndDragImage(const GURL& url,
   data->SetURL(url, title);
 
   // Create a button to render the drag image for us.
-  ChromeViews::TextButton button(
-      title.empty() ? UTF8ToWide(url.spec()) : title);
+  views::TextButton button(title.empty() ? UTF8ToWide(url.spec()) : title);
   button.set_max_width(BookmarkBarView::kMaxButtonWidth);
   if (icon.isNull()) {
     button.SetIcon(*ResourceBundle::GetSharedInstance().GetBitmapNamed(

@@ -13,7 +13,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-AccessibleWrapper::AccessibleWrapper(ChromeViews::View* view) :
+AccessibleWrapper::AccessibleWrapper(views::View* view) :
     accessibility_info_(NULL),
     view_(view) {
 }

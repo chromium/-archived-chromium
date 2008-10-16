@@ -384,7 +384,7 @@ class Browser : public TabStripModelDelegate,
   void CloseFrame();
 
   // Returns the root view for this browser.
-  ChromeViews::RootView* GetRootView() const;
+  views::RootView* GetRootView() const;
 
   // Returns what the user's home page is, or the new tab page if the home page
   // has not been set.

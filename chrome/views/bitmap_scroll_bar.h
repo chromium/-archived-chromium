@@ -10,7 +10,7 @@
 #include "chrome/views/repeat_controller.h"
 #include "chrome/views/scroll_bar.h"
 
-namespace ChromeViews {
+namespace views {
 
 namespace {
 class BitmapScrollBarThumb;
@@ -178,7 +178,7 @@ class BitmapScrollBar : public ScrollBar,
   DISALLOW_EVIL_CONSTRUCTORS(BitmapScrollBar);
 };
 
-}
+}  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_BITMAP_SCROLL_BAR_H__
 

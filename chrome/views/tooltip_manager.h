@@ -11,7 +11,7 @@
 
 class ChromeFont;
 
-namespace ChromeViews {
+namespace views {
 
 class Container;
 class View;
@@ -158,6 +158,6 @@ class TooltipManager {
   DISALLOW_EVIL_CONSTRUCTORS(TooltipManager);
 };
 
-} // namespace ChromeViews
+}  // namespace views
 
 #endif // CHROME_VIEWS_TOOLTIP_MANAGER_H_

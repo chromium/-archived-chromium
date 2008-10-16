@@ -26,19 +26,18 @@ InfoBarAlternateNavURLView::InfoBarAlternateNavURLView(
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   if (offset > 0) {
-    ChromeViews::Label* label_1 =
-        new ChromeViews::Label(label.substr(0, offset));
+    views::Label* label_1 = new views::Label(label.substr(0, offset));
     label_1->SetFont(rb.GetFont(ResourceBundle::MediumFont));
     AddChildViewLeading(label_1, 0);
   }
 
-  ChromeViews::Link* link = new ChromeViews::Link(alternate_nav_url_);
+  views::Link* link = new views::Link(alternate_nav_url_);
   link->SetFont(rb.GetFont(ResourceBundle::MediumFont));
   link->SetController(this);
   AddChildViewLeading(link, 0);
 
   if (offset < label.length()) {
-    ChromeViews::Label* label_2 = new ChromeViews::Label(label.substr(offset));
+    views::Label* label_2 = new views::Label(label.substr(offset));
     label_2->SetFont(rb.GetFont(ResourceBundle::MediumFont));
     AddChildViewLeading(label_2, 0);
   }
@@ -46,7 +45,7 @@ InfoBarAlternateNavURLView::InfoBarAlternateNavURLView(
   SetIcon(*rb.GetBitmapNamed(IDR_INFOBAR_ALT_NAV_URL));
 }
 
-void InfoBarAlternateNavURLView::LinkActivated(ChromeViews::Link* source,
+void InfoBarAlternateNavURLView::LinkActivated(views::Link* source,
                                                int event_flags) {
   // Navigating may or may not automatically close the infobar, depending on
   // whether the desired disposition replaces the current tab.  We always want

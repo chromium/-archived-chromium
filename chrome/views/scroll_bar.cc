@@ -4,7 +4,7 @@
 
 #include "chrome/views/scroll_bar.h"
 
-namespace ChromeViews {
+namespace views {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -44,5 +44,5 @@ int ScrollBar::GetMinPosition() const {
   return 0;
 }
 
-}
+}  // namespace views
 

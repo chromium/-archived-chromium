@@ -144,7 +144,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return 0 == module_ref_count_;
   }
 
-  virtual ChromeViews::AcceleratorHandler* accelerator_handler() {
+  virtual views::AcceleratorHandler* accelerator_handler() {
     DCHECK(CalledOnValidThread());
     if (!accelerator_handler_.get())
       CreateAcceleratorHandler();
@@ -238,7 +238,7 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
 
   scoped_ptr<AutomationProviderList> automation_provider_list_;
 
-  scoped_ptr<ChromeViews::AcceleratorHandler> accelerator_handler_;
+  scoped_ptr<views::AcceleratorHandler> accelerator_handler_;
 
   scoped_ptr<GoogleURLTracker> google_url_tracker_;
 

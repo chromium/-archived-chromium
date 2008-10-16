@@ -14,9 +14,9 @@ class FindInPageView;
 class SlideAnimation;
 class TabContents;
 
-namespace ChromeViews {
-  class ExternalFocusTracker;
-  class View;
+namespace views {
+class ExternalFocusTracker;
+class View;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,8 +33,8 @@ namespace ChromeViews {
 //
 ////////////////////////////////////////////////////////////////////////////////
 class FindInPageController : public RenderViewHostDelegate::FindInPage,
-                             public ChromeViews::FocusChangeListener,
-                             public ChromeViews::ContainerWin,
+                             public views::FocusChangeListener,
+                             public views::ContainerWin,
                              public AnimationDelegate {
  public:
   FindInPageController(TabContents* parent_tab,
@@ -107,15 +107,15 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
     find_string_ = find_string;
   }
 
-  // Overridden from ChromeViews::ContainerWin:
+  // Overridden from views::ContainerWin:
   virtual void OnFinalMessage(HWND window);
 
-  // Overridden from ChromeViews::FocusChangeListener:
-  virtual void FocusWillChange(ChromeViews::View* focused_before,
-                               ChromeViews::View* focused_now);
+  // Overridden from views::FocusChangeListener:
+  virtual void FocusWillChange(views::View* focused_before,
+                               views::View* focused_now);
 
-  // Overridden from ChromeViews::AcceleratorTarget:
-  virtual bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
+  // Overridden from views::AcceleratorTarget:
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
 
   // AnimationDelegate implementation:
   virtual void AnimationProgressed(const Animation* animation);
@@ -221,16 +221,16 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   bool show_on_tab_selection_;
 
   // The focus manager we register with to keep track of focus changes.
-  ChromeViews::FocusManager* focus_manager_;
+  views::FocusManager* focus_manager_;
 
   // Stores the previous accelerator target for the Escape key, so that we can
   // restore the state once we loose focus.
-  ChromeViews::AcceleratorTarget* old_accel_target_for_esc_;
+  views::AcceleratorTarget* old_accel_target_for_esc_;
 
   // Tracks and stores the last focused view which is not the FindInPageView or
   // any of its children. Used to restore focus once the FindInPageView is
   // closed.
-  scoped_ptr<ChromeViews::ExternalFocusTracker> focus_tracker_;
+  scoped_ptr<views::ExternalFocusTracker> focus_tracker_;
 
   DISALLOW_COPY_AND_ASSIGN(FindInPageController);
 };

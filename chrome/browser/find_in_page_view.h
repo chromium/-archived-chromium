@@ -11,10 +11,10 @@
 
 class FindInPageController;
 
-namespace ChromeViews {
-  class Label;
-  class MouseEvent;
-  class View;
+namespace views {
+class Label;
+class MouseEvent;
+class View;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +24,9 @@ namespace ChromeViews {
 // button. It communicates the user search words to the FindInPageController.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class FindInPageView : public ChromeViews::View,
-                       public ChromeViews::BaseButton::ButtonListener,
-                       public ChromeViews::TextField::Controller {
+class FindInPageView : public views::View,
+                       public views::BaseButton::ButtonListener,
+                       public views::TextField::Controller {
  public:
   // A tag denoting which button the user pressed.
   enum ButtonTag {
@@ -65,19 +65,19 @@ class FindInPageView : public ChromeViews::View,
   // Find window (while animating the opening or closing of the window).
   void animation_offset(int offset) { animation_offset_ = offset; }
 
-  // Overridden from ChromeViews::View:
+  // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 
-  // Overridden from ChromeViews::ButtonListener::ButtonPressed:
-  virtual void ButtonPressed(ChromeViews::BaseButton* sender);
+  // Overridden from views::ButtonListener::ButtonPressed:
+  virtual void ButtonPressed(views::BaseButton* sender);
 
-  // Overridden from ChromeViews::TextField::Controller:
-  virtual void ContentsChanged(ChromeViews::TextField* sender,
+  // Overridden from views::TextField::Controller:
+  virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(ChromeViews::TextField* sender, UINT message,
+  virtual void HandleKeystroke(views::TextField* sender, UINT message,
                                TCHAR key, UINT repeat_count, UINT flags);
 
   // Set whether or not we're attempting to blend with the toolbar.
@@ -90,16 +90,16 @@ class FindInPageView : public ChromeViews::View,
   // match_count label. The user, however, expects being able to click anywhere
   // inside what looks like the find text box (including on or around the
   // match_count label) and have focus brought to the find box.
-  class FocusForwarderView : public ChromeViews::View {
+  class FocusForwarderView : public views::View {
    public:
     explicit FocusForwarderView(
-        ChromeViews::TextField* view_to_focus_on_mousedown)
+        views::TextField* view_to_focus_on_mousedown)
       : view_to_focus_on_mousedown_(view_to_focus_on_mousedown) {}
 
   private:
-    virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
+    virtual bool OnMousePressed(const views::MouseEvent& event);
 
-    ChromeViews::TextField* view_to_focus_on_mousedown_;
+    views::TextField* view_to_focus_on_mousedown_;
 
     DISALLOW_EVIL_CONSTRUCTORS(FocusForwarderView);
   };
@@ -109,12 +109,12 @@ class FindInPageView : public ChromeViews::View,
   FindInPageController* controller_;
 
   // The controls in the window.
-  ChromeViews::TextField* find_text_;
-  ChromeViews::Label* match_count_text_;
+  views::TextField* find_text_;
+  views::Label* match_count_text_;
   FocusForwarderView* focus_forwarder_view_;
-  ChromeViews::Button* find_previous_button_;
-  ChromeViews::Button* find_next_button_;
-  ChromeViews::Button* close_button_;
+  views::Button* find_previous_button_;
+  views::Button* find_next_button_;
+  views::Button* close_button_;
 
   // Whether or not we're attempting to blend with the toolbar (this is
   // false if the bookmarks bar is visible).

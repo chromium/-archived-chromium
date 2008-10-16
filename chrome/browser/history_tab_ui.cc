@@ -69,7 +69,7 @@ const std::wstring HistoryTabUI::GetSearchButtonText() const {
   return l10n_util::GetString(IDS_HISTORY_SEARCH_BUTTON);
 }
 
-ChromeViews::View* HistoryTabUI::GetView() {
+views::View* HistoryTabUI::GetView() {
   return &searchable_container_;
 }
 

@@ -8,7 +8,7 @@
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/root_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 // FIXME(ACW) there got be a better way to find out the check box sizes
 static int kRadioWidth = 13;
@@ -120,5 +120,5 @@ View* RadioButton::GetSelectedViewForGroup(int group_id) {
   return NULL;
 }
 
-}
+}  // namespace views
 

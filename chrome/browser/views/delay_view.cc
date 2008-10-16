@@ -21,18 +21,17 @@ DelayView::DelayView(const std::wstring& text, CommandController* controller,
       cancel_button_(NULL) {
   DCHECK(controller);
 
-  label_ = new ChromeViews::Label(text);
+  label_ = new views::Label(text);
   AddChildView(label_);
 
   if (show_cancel) {
-    cancel_button_ =
-        new ChromeViews::NativeButton(l10n_util::GetString(IDS_CANCEL));
+    cancel_button_ = new views::NativeButton(l10n_util::GetString(IDS_CANCEL));
     cancel_button_->SetID(ID_CANCEL);
     cancel_button_->SetListener(this);
     AddChildView(cancel_button_);
   }
 
-  throbber_ = new ChromeViews::Throbber(50, true);
+  throbber_ = new views::Throbber(50, true);
   AddChildView(throbber_);
   throbber_->Start();
 }
@@ -40,7 +39,7 @@ DelayView::DelayView(const std::wstring& text, CommandController* controller,
 DelayView::~DelayView() {
 }
 
-void DelayView::ButtonPressed(ChromeViews::NativeButton *sender) {
+void DelayView::ButtonPressed(views::NativeButton *sender) {
   if (sender->GetID() == ID_CANCEL) {
     controller_->ExecuteCommand(IDCANCEL);
   }

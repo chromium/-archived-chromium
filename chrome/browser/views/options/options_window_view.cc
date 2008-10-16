@@ -31,9 +31,9 @@ static const int kDefaultWindowHeightLines = 29;
 //
 //  The contents of the Options dialog window.
 //
-class OptionsWindowView : public ChromeViews::View,
-                          public ChromeViews::DialogDelegate,
-                          public ChromeViews::TabbedPane::Listener {
+class OptionsWindowView : public views::View,
+                          public views::DialogDelegate,
+                          public views::TabbedPane::Listener {
  public:
   explicit OptionsWindowView(Profile* profile);
   virtual ~OptionsWindowView();
@@ -41,25 +41,25 @@ class OptionsWindowView : public ChromeViews::View,
   // Shows the Tab corresponding to the specified OptionsPage.
   void ShowOptionsPage(OptionsPage page, OptionsGroup highlight_group);
 
-  // ChromeViews::DialogDelegate implementation:
+  // views::DialogDelegate implementation:
   virtual int GetDialogButtons() const { return DIALOGBUTTON_CANCEL; }
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool Cancel();
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
-  // ChromeViews::TabbedPane::Listener implementation:
+  // views::TabbedPane::Listener implementation:
   virtual void TabSelectedAt(int index);
 
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
  protected:
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
  private:
   // Init the assorted Tabbed pages
   void Init();
@@ -68,7 +68,7 @@ class OptionsWindowView : public ChromeViews::View,
   OptionsPageView* GetCurrentOptionsPageView() const;
 
   // The Tab view that contains all of the options pages.
-  ChromeViews::TabbedPane* tabs_;
+  views::TabbedPane* tabs_;
 
   // The Profile associated with these options.
   Profile* profile_;
@@ -125,7 +125,7 @@ void OptionsWindowView::ShowOptionsPage(OptionsPage page,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OptionsWindowView, ChromeViews::DialogDelegate implementation:
+// OptionsWindowView, views::DialogDelegate implementation:
 
 std::wstring OptionsWindowView::GetWindowTitle() const {
   return l10n_util::GetStringF(IDS_OPTIONS_DIALOG_TITLE,
@@ -142,12 +142,12 @@ bool OptionsWindowView::Cancel() {
   return GetCurrentOptionsPageView()->CanClose();
 }
 
-ChromeViews::View* OptionsWindowView::GetContentsView() {
+views::View* OptionsWindowView::GetContentsView() {
   return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OptionsWindowView, ChromeViews::TabbedPane::Listener implementation:
+// OptionsWindowView, views::TabbedPane::Listener implementation:
 
 void OptionsWindowView::TabSelectedAt(int index) {
   DCHECK(index > OPTIONS_PAGE_DEFAULT && index < OPTIONS_PAGE_COUNT);
@@ -155,7 +155,7 @@ void OptionsWindowView::TabSelectedAt(int index) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OptionsWindowView, ChromeViews::View overrides:
+// OptionsWindowView, views::View overrides:
 
 void OptionsWindowView::Layout() {
   tabs_->SetBounds(kDialogPadding, kDialogPadding,
@@ -164,14 +164,14 @@ void OptionsWindowView::Layout() {
 }
 
 gfx::Size OptionsWindowView::GetPreferredSize() {
-  return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
+  return gfx::Size(views::Window::GetLocalizedContentsSize(
       IDS_OPTIONS_DIALOG_WIDTH_CHARS,
       IDS_OPTIONS_DIALOG_HEIGHT_LINES));
 }
 
 void OptionsWindowView::ViewHierarchyChanged(bool is_add,
-                                             ChromeViews::View* parent,
-                                             ChromeViews::View* child) {
+                                             views::View* parent,
+                                             views::View* child) {
   // Can't init before we're inserted into a Container, because we require a
   // HWND to parent native child controls to.
   if (is_add && child == this)
@@ -182,7 +182,7 @@ void OptionsWindowView::ViewHierarchyChanged(bool is_add,
 // OptionsWindowView, private:
 
 void OptionsWindowView::Init() {
-  tabs_ = new ChromeViews::TabbedPane;
+  tabs_ = new views::TabbedPane;
   tabs_->SetListener(this);
   AddChildView(tabs_);
 
@@ -202,7 +202,7 @@ void OptionsWindowView::Init() {
 }
 
 OptionsPageView* OptionsWindowView::GetCurrentOptionsPageView() const {
-  ChromeViews::RootView* contents_root_view = tabs_->GetContentsRootView();
+  views::RootView* contents_root_view = tabs_->GetContentsRootView();
   DCHECK(contents_root_view->GetChildViewCount() == 1);
   return static_cast<OptionsPageView*>(contents_root_view->GetChildViewAt(0));
 }
@@ -220,7 +220,7 @@ void ShowOptionsWindow(OptionsPage page,
   //             about this case this will have to be fixed.
   if (!instance_) {
     instance_ = new OptionsWindowView(profile);
-    ChromeViews::Window::CreateChromeWindow(NULL, gfx::Rect(), instance_);
+    views::Window::CreateChromeWindow(NULL, gfx::Rect(), instance_);
     // The window is alive by itself now...
   }
   instance_->ShowOptionsPage(page, highlight_group);

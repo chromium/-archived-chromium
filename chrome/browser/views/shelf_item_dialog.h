@@ -14,7 +14,7 @@
 #include "chrome/views/view.h"
 #include "chrome/views/window.h"
 
-namespace ChromeViews {
+namespace views {
 class Button;
 class Label;
 }
@@ -40,10 +40,10 @@ class ShelfItemDialogDelegate {
 // ShelfItemDialog deletes itself when the dialog is closed.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class ShelfItemDialog : public ChromeViews::View,
-                        public ChromeViews::DialogDelegate,
-                        public ChromeViews::TextField::Controller,
-                        public ChromeViews::TableViewObserver {
+class ShelfItemDialog : public views::View,
+                        public views::DialogDelegate,
+                        public views::TextField::Controller,
+                        public views::TableViewObserver {
  public:
   ShelfItemDialog(ShelfItemDialogDelegate* delegate,
                   Profile* profile,
@@ -63,18 +63,18 @@ class ShelfItemDialog : public ChromeViews::View,
   virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool Accept();
   virtual bool IsDialogButtonEnabled(DialogButton button) const;
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
   // TextField::Controller.
-  virtual void ContentsChanged(ChromeViews::TextField* sender,
+  virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(ChromeViews::TextField* sender,
+  virtual void HandleKeystroke(views::TextField* sender,
                                UINT message, TCHAR key, UINT repeat_count,
                                UINT flags) {}
 
   // Overridden from View.
   virtual gfx::Size GetPreferredSize();
-  virtual bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
 
   // TableViewObserver.
   virtual void OnSelectionChanged();
@@ -101,16 +101,16 @@ class ShelfItemDialog : public ChromeViews::View,
   Profile* profile_;
 
   // URL Field.
-  ChromeViews::TextField* url_field_;
+  views::TextField* url_field_;
 
   // Title field. This is NULL if we're not showing the title.
-  ChromeViews::TextField* title_field_;
+  views::TextField* title_field_;
 
   // The table model.
   scoped_ptr<PossibleURLModel> url_table_model_;
 
   // The table of visited urls.
-  ChromeViews::TableView* url_table_;
+  views::TableView* url_table_;
 
   // Handle of the title request we are expecting.
   CancelableRequestProvider::Handle expected_title_handle_;

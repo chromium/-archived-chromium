@@ -7,7 +7,7 @@
 
 #include "chrome/views/checkbox.h"
 
-namespace ChromeViews {
+namespace views {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -55,6 +55,7 @@ class RadioButton : public CheckBox {
   DISALLOW_EVIL_CONSTRUCTORS(RadioButton);
 };
 
-}
+}  // namespace views
+
 #endif // CHROME_VIEWS_RADIO_BUTTON_H__
 

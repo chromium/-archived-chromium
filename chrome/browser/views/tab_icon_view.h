@@ -14,7 +14,7 @@ class TabContents;
 // A view to display a tab fav icon or a throbber.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class TabIconView : public ChromeViews::View {
+class TabIconView : public views::View {
  public:
   class TabContentsProvider {
    public:

@@ -160,7 +160,7 @@ enum PaintDownloadProgressSize {
 // drawing in a right-to-left locale, we need to mirror the position of the
 // progress animation within the containing View.
 void PaintDownloadProgress(ChromeCanvas* canvas,
-                           ChromeViews::View* containing_view,
+                           views::View* containing_view,
                            int origin_x,
                            int origin_y,
                            int start_angle,
@@ -168,7 +168,7 @@ void PaintDownloadProgress(ChromeCanvas* canvas,
                            PaintDownloadProgressSize size);
 
 void PaintDownloadComplete(ChromeCanvas* canvas,
-                           ChromeViews::View* containing_view,
+                           views::View* containing_view,
                            int origin_x,
                            int origin_y,
                            double animation_progress,

@@ -204,42 +204,42 @@ static const wchar_t* const accept_language_list[] = {
 //
 // This opens another window from where a new accept language can be selected.
 //
-class AddLanguageWindowView : public ChromeViews::View,
-                              public ChromeViews::ComboBox::Listener,
-                              public ChromeViews::DialogDelegate {
+class AddLanguageWindowView : public views::View,
+                              public views::ComboBox::Listener,
+                              public views::DialogDelegate {
  public:
   AddLanguageWindowView(LanguagesPageView* language_delegate, Profile* profile);
-  ChromeViews::Window* container() const { return container_; }
-  void set_container(ChromeViews::Window* container) {
+  views::Window* container() const { return container_; }
+  void set_container(views::Window* container) {
     container_ = container;
   }
 
-  // ChromeViews::DialogDelegate methods.
+  // views::DialogDelegate methods.
   virtual bool Accept();
   virtual std::wstring GetWindowTitle() const;
 
-  // ChromeViews::WindowDelegate method.
+  // views::WindowDelegate method.
   virtual bool IsModal() const { return true; }
-  virtual ChromeViews::View* GetContentsView() { return this; }
+  virtual views::View* GetContentsView() { return this; }
 
-  // ChromeViews::ComboBox::Listener implementation:
-  virtual void ItemChanged(ChromeViews::ComboBox* combo_box,
+  // views::ComboBox::Listener implementation:
+  virtual void ItemChanged(views::ComboBox* combo_box,
                            int prev_index,
                            int new_index);
 
-  // ChromeViews::View overrides.
+  // views::View overrides.
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
  protected:
-  virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+  virtual void ViewHierarchyChanged(bool is_add, views::View* parent,
+                                    views::View* child);
 
  private:
   void Init();
 
   // The Options dialog window.
-  ChromeViews::Window* container_;
+  views::Window* container_;
 
   // Used for Call back to LanguagePageView that language has been selected.
   LanguagesPageView* language_delegate_;
@@ -247,7 +247,7 @@ class AddLanguageWindowView : public ChromeViews::View,
 
   // Combobox and its corresponding model.
   scoped_ptr<LanguageComboboxModel> accept_language_combobox_model_;
-  ChromeViews::ComboBox* accept_language_combobox_;
+  views::ComboBox* accept_language_combobox_;
 
   // The Profile associated with this window.
   Profile* profile_;
@@ -282,7 +282,7 @@ bool AddLanguageWindowView::Accept() {
   return true;
 }
 
-void AddLanguageWindowView::ItemChanged(ChromeViews::ComboBox* combo_box,
+void AddLanguageWindowView::ItemChanged(views::ComboBox* combo_box,
                                   int prev_index,
                                   int new_index) {
   accept_language_selected_ = accept_language_combobox_model_->
@@ -303,8 +303,9 @@ gfx::Size AddLanguageWindowView::GetPreferredSize() {
                    font.height() * kDefaultWindowHeightLines);
 }
 
-void AddLanguageWindowView::ViewHierarchyChanged(
-    bool is_add, ChromeViews::View* parent, ChromeViews::View* child) {
+void AddLanguageWindowView::ViewHierarchyChanged(bool is_add,
+                                                 views::View* parent,
+                                                 views::View* child) {
   // Can't init before we're inserted into a Container, because we require
   // a HWND to parent native child controls to.
   if (is_add && child == this)
@@ -328,14 +329,14 @@ void AddLanguageWindowView::Init() {
   }
   accept_language_combobox_model_.reset(new LanguageComboboxModel(
     profile_, locale_codes));
-  accept_language_combobox_ = new ChromeViews::ComboBox(
+  accept_language_combobox_ = new views::ComboBox(
       accept_language_combobox_model_.get());
   accept_language_combobox_->SetSelectedItem(0);
   accept_language_combobox_->SetListener(this);
   AddChildView(accept_language_combobox_);
 }
 
-class LanguageOrderTableModel : public ChromeViews::TableModel {
+class LanguageOrderTableModel : public views::TableModel {
  public:
   LanguageOrderTableModel();
 
@@ -357,10 +358,10 @@ class LanguageOrderTableModel : public ChromeViews::TableModel {
   // Returns the set of languagess this model contains.
   std::wstring GetLanguageList() { return VectorToList(languages_); }
 
-  // ChromeViews::TableModel overrides:
+  // views::TableModel overrides:
   virtual int RowCount();
   virtual std::wstring GetText(int row, int column_id);
-  virtual void SetObserver(ChromeViews::TableModelObserver* observer);
+  virtual void SetObserver(views::TableModelObserver* observer);
 
  private:
   // This method converts a comma separated list to a vector of strings.
@@ -374,7 +375,7 @@ class LanguageOrderTableModel : public ChromeViews::TableModel {
   std::vector<std::wstring> languages_;
   std::wstring comma_separated_language_list_;
 
-  ChromeViews::TableModelObserver* observer_;
+  views::TableModelObserver* observer_;
 
   DISALLOW_EVIL_CONSTRUCTORS(LanguageOrderTableModel);
 };
@@ -393,7 +394,7 @@ void LanguageOrderTableModel::SetAcceptLanguagesString(
 }
 
 void LanguageOrderTableModel::SetObserver(
-    ChromeViews::TableModelObserver* observer) {
+    views::TableModelObserver* observer) {
   observer_ = observer;
 }
 
@@ -491,7 +492,7 @@ LanguagesPageView::~LanguagesPageView() {
     language_order_table_->SetModel(NULL);
 }
 
-void LanguagesPageView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void LanguagesPageView::ButtonPressed(views::NativeButton* sender) {
   if (sender == move_up_button_) {
     OnMoveUpLanguage();
     language_table_edited_ = true;
@@ -502,7 +503,7 @@ void LanguagesPageView::ButtonPressed(ChromeViews::NativeButton* sender) {
     OnRemoveLanguage();
     language_table_edited_ = true;
   } else if (sender == add_button_) {
-    ChromeViews::Window::CreateChromeWindow(
+    views::Window::CreateChromeWindow(
         GetContainer()->GetHWND(),
         gfx::Rect(),
         new AddLanguageWindowView(this, profile()))->Show();
@@ -518,25 +519,25 @@ void LanguagesPageView::OnAddLanguage(const std::wstring& new_language) {
 
 void LanguagesPageView::InitControlLayout() {
   // Define the buttons.
-  add_button_ = new ChromeViews::NativeButton(l10n_util::GetString(
+  add_button_ = new views::NativeButton(l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_ADD_BUTTON_LABEL));
   add_button_->SetListener(this);
-  remove_button_ = new ChromeViews::NativeButton(l10n_util::GetString(
+  remove_button_ = new views::NativeButton(l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_REMOVE_BUTTON_LABEL));
   remove_button_->SetEnabled(false);
   remove_button_->SetListener(this);
-  move_up_button_ = new ChromeViews::NativeButton(l10n_util::GetString(
+  move_up_button_ = new views::NativeButton(l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_MOVEUP_BUTTON_LABEL));
   move_up_button_->SetEnabled(false);
   move_up_button_->SetListener(this);
-  move_down_button_ = new ChromeViews::NativeButton(l10n_util::GetString(
+  move_down_button_ = new views::NativeButton(l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_MOVEDOWN_BUTTON_LABEL));
   move_down_button_->SetEnabled(false);
   move_down_button_->SetListener(this);
 
-  languages_contents_ = new ChromeViews::View;
-  using ChromeViews::GridLayout;
-  using ChromeViews::ColumnSet;
+  languages_contents_ = new views::View;
+  using views::GridLayout;
+  using views::ColumnSet;
 
   GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);
@@ -547,23 +548,23 @@ void LanguagesPageView::InitControlLayout() {
   // Add the instructions label.
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
                       GridLayout::USE_PREF, 0, 0);
-  languages_instructions_ = new ChromeViews::Label(
+  languages_instructions_ = new views::Label(
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_LANGUAGES_INSTRUCTIONS));
   languages_instructions_->SetMultiLine(true);
   languages_instructions_->SetHorizontalAlignment(
-      ChromeViews::Label::ALIGN_LEFT);
+      views::Label::ALIGN_LEFT);
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(languages_instructions_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
   // Add two columns - for table, and for button stack.
-  std::vector<ChromeViews::TableColumn> columns;
-  columns.push_back(ChromeViews::TableColumn());
+  std::vector<views::TableColumn> columns;
+  columns.push_back(views::TableColumn());
   language_order_table_model_.reset(new LanguageOrderTableModel);
-  language_order_table_ = new ChromeViews::TableView(
+  language_order_table_ = new views::TableView(
       language_order_table_model_.get(), columns,
-      ChromeViews::TEXT_ONLY, false, true, true);
+      views::TEXT_ONLY, false, true, true);
   language_order_table_->SetObserver(this);
 
   const int double_column_view_set_id = 1;
@@ -580,7 +581,7 @@ void LanguagesPageView::InitControlLayout() {
   layout->AddView(language_order_table_);
 
   // Now add the four buttons to the second column.
-  button_stack_ = new ChromeViews::View;
+  button_stack_ = new views::View;
   GridLayout* button_stack_layout = new GridLayout(button_stack_);
   button_stack_->SetLayoutManager(button_stack_layout);
 
@@ -607,20 +608,20 @@ void LanguagesPageView::InitControlLayout() {
 
   layout->AddPaddingRow(0, kUnrelatedControlLargeVerticalSpacing);
 
-  language_info_label_ = new ChromeViews::Label(
+  language_info_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CHROME_LANGUAGE_INFO));
-  language_info_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
-  ui_language_label_ = new ChromeViews::Label(
+  language_info_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+  ui_language_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CHROME_UI_LANGUAGE));
-  ui_language_label_->SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
+  ui_language_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   ui_language_model_.reset(new LanguageComboboxModel);
   change_ui_language_combobox_ =
-      new ChromeViews::ComboBox(ui_language_model_.get());
+      new views::ComboBox(ui_language_model_.get());
   change_ui_language_combobox_->SetListener(this);
-  dictionary_language_label_ = new ChromeViews::Label(
+  dictionary_language_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CHROME_DICTIONARY_LANGUAGE));
   dictionary_language_label_->SetHorizontalAlignment(
-      ChromeViews::Label::ALIGN_LEFT);
+      views::Label::ALIGN_LEFT);
 
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(language_info_label_);
@@ -641,7 +642,7 @@ void LanguagesPageView::InitControlLayout() {
   dictionary_language_model_.reset(new LanguageComboboxModel(profile(),
                                                              locale_codes));
   change_dictionary_language_combobox_ =
-      new ChromeViews::ComboBox(dictionary_language_model_.get());
+      new views::ComboBox(dictionary_language_model_.get());
   change_dictionary_language_combobox_->SetListener(this);
 
   layout->StartRow(0, double_column_view_set_2_id);
@@ -685,7 +686,7 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
   }
 }
 
-void LanguagesPageView::ItemChanged(ChromeViews::ComboBox* sender,
+void LanguagesPageView::ItemChanged(views::ComboBox* sender,
                                     int prev_index,
                                     int new_index) {
   if (sender == change_ui_language_combobox_) {
@@ -711,7 +712,7 @@ void LanguagesPageView::OnSelectionChanged() {
 
 void LanguagesPageView::OnRemoveLanguage() {
   int item_selected = 0;
-  for (ChromeViews::TableView::iterator i =
+  for (views::TableView::iterator i =
        language_order_table_->SelectionBegin();
        i != language_order_table_->SelectionEnd(); ++i) {
     language_order_table_model_->Remove(*i);

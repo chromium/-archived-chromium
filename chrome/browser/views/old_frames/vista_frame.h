@@ -28,7 +28,7 @@ class BookmarkBarView;
 class Browser;
 class BrowserView;
 class TabContentsContainerView;
-class ChromeViews::FocusManager;
+class views::FocusManager;
 class SkBitmap;
 class TabStrip;
 
@@ -44,8 +44,8 @@ class VistaFrame : public BrowserWindow,
                                       CWindow,
                                       CWinTraits<WS_OVERLAPPEDWINDOW |
                                                  WS_CLIPCHILDREN>>,
-                   public ChromeViews::Container,
-                   public ChromeViews::AcceleratorTarget {
+                   public views::Container,
+                   public views::AcceleratorTarget {
  public:
   // Create a new VistaFrame given the bounds and provided browser.
   // |bounds| may be empty to let Windows decide where to place the window.
@@ -170,8 +170,8 @@ class VistaFrame : public BrowserWindow,
       int frame_component);
   virtual void SizeToContents(const gfx::Rect& contents_bounds);
   virtual void SetAcceleratorTable(
-      std::map<ChromeViews::Accelerator, int>* accelerator_table);
-  virtual bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
+      std::map<views::Accelerator, int>* accelerator_table);
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
   virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
@@ -187,20 +187,19 @@ class VistaFrame : public BrowserWindow,
   virtual bool IsBookmarkBarVisible() const;
 
   ////////////////////////////////////////////////////////////////////////////////
-  // ChromeViews::Container
+  // views::Container
   ////////////////////////////////////////////////////////////////////////////////
 
   virtual void GetBounds(CRect *out, bool including_frame) const;
   virtual void MoveToFront(bool should_activate);
   virtual HWND GetHWND() const;
   virtual void PaintNow(const CRect& update_rect);
-  virtual ChromeViews::RootView* GetRootView();
+  virtual views::RootView* GetRootView();
   virtual bool IsVisible();
   virtual bool IsActive();
-  virtual ChromeViews::TooltipManager* GetTooltipManager();
+  virtual views::TooltipManager* GetTooltipManager();
   virtual StatusBubble* GetStatusBubble();
-  virtual bool GetAccelerator(int cmd_id,
-                              ChromeViews::Accelerator* accelerator);
+  virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
 
   virtual void ShelfVisibilityChanged();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
@@ -274,8 +273,7 @@ class VistaFrame : public BrowserWindow,
 
    protected:
     // Overriden to return false if over the min/max/close buttons of the frame.
-    virtual bool ShouldForwardToTabStrip(
-        const ChromeViews::DropTargetEvent& event);
+    virtual bool ShouldForwardToTabStrip(const views::DropTargetEvent& event);
 
    private:
     void PaintContentsBorder(ChromeCanvas* canvas,
@@ -324,8 +322,7 @@ class VistaFrame : public BrowserWindow,
   //
   // This function returns true if anything was changed. The caller should
   // ensure that Layout() is eventually called in this case.
-  bool UpdateChildViewAndLayout(ChromeViews::View* new_view,
-                                ChromeViews::View** view);
+  bool UpdateChildViewAndLayout(views::View* new_view, views::View** view);
 
   // Implementation for ShelfVisibilityChanged(). Updates the various shelf
   // fields. If one of the shelves has changed (or it's size has changed) and
@@ -333,16 +330,16 @@ class VistaFrame : public BrowserWindow,
   void ShelfVisibilityChangedImpl(TabContents* current_tab);
 
   // Root view
-  ChromeViews::RootView root_view_;
+  views::RootView root_view_;
 
   // Tooltip Manager
-  scoped_ptr<ChromeViews::TooltipManager> tooltip_manager_;
+  scoped_ptr<views::TooltipManager> tooltip_manager_;
 
   // The optional container for the off the record icon.
-  ChromeViews::ImageView* off_the_record_image_;
+  views::ImageView* off_the_record_image_;
 
   // The container for the distributor logo.
-  ChromeViews::ImageView* distributor_logo_;
+  views::ImageView* distributor_logo_;
 
   // The view that contains the tabs and any associated controls.
   TabStrip* tabstrip_;
@@ -351,7 +348,7 @@ class VistaFrame : public BrowserWindow,
   scoped_ptr<BookmarkBarView> bookmark_bar_view_;
 
   // The visible bookmark bar. NULL if none is visible.
-  ChromeViews::View* active_bookmark_bar_;
+  views::View* active_bookmark_bar_;
 
   // Browser contents
   TabContentsContainerView* tab_contents_container_;
@@ -369,17 +366,17 @@ class VistaFrame : public BrowserWindow,
   bool in_drag_session_;
 
   // A view positioned at the bottom of the frame.
-  ChromeViews::View* shelf_view_;
+  views::View* shelf_view_;
 
   // A view positioned beneath the bookmark bar view.
   // Implementation mirrors shelf_view_
-  ChromeViews::View* info_bar_view_;
+  views::View* info_bar_view_;
 
   // We need to own the text of the menu, the Windows API does not copy it.
   std::wstring task_manager_label_text_;
 
   // A mapping between accelerators and commands.
-  scoped_ptr<std::map<ChromeViews::Accelerator, int>> accelerator_table_;
+  scoped_ptr<std::map<views::Accelerator, int>> accelerator_table_;
 
   // Whether this frame represents an off the record session.
   bool is_off_the_record_;

@@ -19,7 +19,7 @@ namespace gfx {
 class Rect;
 }
 
-namespace ChromeViews {
+namespace views {
 
 class RootView;
 class TooltipManager;
@@ -69,18 +69,18 @@ class FillLayout : public LayoutManager {
 ///////////////////////////////////////////////////////////////////////////////
 //
 // ContainerWin
-//  A container for a ChromeViews hierarchy used to represent anything that can
-//  be contained within an HWND, e.g. a control, a window, etc. Specializations
+//  A container for a views hierarchy used to represent anything that can be
+//  contained within an HWND, e.g. a control, a window, etc. Specializations
 //  suitable for specific tasks, e.g. top level window, are derived from this.
 //
-//  This Container contains a RootView which owns the hierarchy of ChromeViews
-//  within it. As long as ChromeViews are part of this tree, they will be
-//  deleted automatically when the RootView is destroyed. If you remove a view
-//  from the tree, you are then responsible for cleaning up after it.
+//  This Container contains a RootView which owns the hierarchy of views
+//  within it. As long as views are part of this tree, they will be deleted
+//  automatically when the RootView is destroyed. If you remove a view from the
+//  tree, you are then responsible for cleaning up after it.
 //
 //  Note: We try and keep this API platform-neutral, since to some extent we
 //        consider this the boundary between the platform and potentially cross
-//        platform ChromeViews code. In some cases this isn't true, primarily
+//        platform views code. In some cases this isn't true, primarily
 //        because of other code that has not yet been refactored to maintain
 //        this <controller>-<view>-<platform-specific-view> separation.
 //
@@ -269,8 +269,7 @@ class ContainerWin : public Container,
   void SetFocusTraversableParent(FocusTraversable* parent);
   void SetFocusTraversableParentView(View* parent_view);
 
-  virtual bool GetAccelerator(int cmd_id,
-                              ChromeViews::Accelerator* accelerator) {
+  virtual bool GetAccelerator(int cmd_id, Accelerator* accelerator) {
     return false;
   }
 
@@ -580,7 +579,7 @@ class ContainerWin : public Container,
   HWND hwnd_;
 };
 
-}  // namespace ChromeViews
+}  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_CONTAINER_WIN_H_
 

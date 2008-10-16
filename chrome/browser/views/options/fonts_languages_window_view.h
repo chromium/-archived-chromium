@@ -19,35 +19,35 @@ class LanguagesPageView;
 //
 //  The contents of the "Fonts and Languages Preferences" dialog window.
 //
-class FontsLanguagesWindowView : public ChromeViews::View,
-                                 public ChromeViews::DialogDelegate {
+class FontsLanguagesWindowView : public views::View,
+                                 public views::DialogDelegate {
  public:
   explicit FontsLanguagesWindowView(Profile* profile);
   virtual ~FontsLanguagesWindowView();
 
-  // ChromeViews::DialogDelegate implementation:
+  // views::DialogDelegate implementation:
   virtual bool Accept();
 
-  // ChromeViews::WindowDelegate Methods:
+  // views::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }
   virtual std::wstring GetWindowTitle() const;
-  virtual ChromeViews::View* GetContentsView();
+  virtual views::View* GetContentsView();
 
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
  protected:
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
  private:
   // Init the assorted Tabbed pages
   void Init();
 
   // The Tab view that contains all of the options pages.
-  ChromeViews::TabbedPane* tabs_;
+  views::TabbedPane* tabs_;
 
   // Fonts Page View handle remembered so that prefs is updated only when
   // OK is pressed.

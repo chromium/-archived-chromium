@@ -44,7 +44,7 @@ DownloadStartedAnimation::DownloadStartedAnimation(TabContents* tab_contents)
   SetImage(kDownloadImage);
 
   gfx::Rect rc(0, 0, 0, 0);
-  popup_ = new ChromeViews::ContainerWin;
+  popup_ = new views::ContainerWin;
   popup_->set_window_style(WS_POPUP);
   popup_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
                               WS_EX_TRANSPARENT);

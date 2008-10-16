@@ -72,7 +72,7 @@ class WindowFinder {
 gfx::Point ConvertScreenPointToTabStripPoint(TabStrip* tabstrip,
                                              const gfx::Point& screen_point) {
   gfx::Point tabstrip_topleft;
-  ChromeViews::View::ConvertPointToScreen(tabstrip, &tabstrip_topleft);
+  views::View::ConvertPointToScreen(tabstrip, &tabstrip_topleft);
   return gfx::Point(screen_point.x() - tabstrip_topleft.x(),
                     screen_point.y() - tabstrip_topleft.y());
 }
@@ -273,7 +273,7 @@ void DraggedTabController::DidProcessMessage(const MSG& msg) {
 void DraggedTabController::InitWindowCreatePoint() {
   window_create_point_.SetPoint(mouse_offset_.x(), mouse_offset_.y());
   Tab* first_tab = attached_tabstrip_->GetTabAt(0);
-  ChromeViews::View::ConvertPointToContainer(first_tab, &window_create_point_);
+  views::View::ConvertPointToContainer(first_tab, &window_create_point_);
 }
 
 gfx::Point DraggedTabController::GetWindowCreatePoint() const {
@@ -723,10 +723,9 @@ gfx::Point DraggedTabController::GetCursorScreenPoint() const {
   return gfx::Point(pt);
 }
 
-gfx::Rect DraggedTabController::GetViewScreenBounds(
-    ChromeViews::View* view) const {
+gfx::Rect DraggedTabController::GetViewScreenBounds(views::View* view) const {
   gfx::Point view_topleft;
-  ChromeViews::View::ConvertPointToScreen(view, &view_topleft);
+  views::View::ConvertPointToScreen(view, &view_topleft);
   gfx::Rect view_screen_bounds = view->GetLocalBounds(true);
   view_screen_bounds.Offset(view_topleft.x(), view_topleft.y());
   return view_screen_bounds;

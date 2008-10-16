@@ -22,7 +22,7 @@
 
 #include "generated_resources.h"
 
-namespace ChromeViews {
+namespace views {
 
 // static
 HCURSOR Window::nwse_cursor_ = NULL;
@@ -503,7 +503,7 @@ void Window::SetInitialFocus() {
   if (!focus_on_creation_)
     return;
 
-  ChromeViews::View* v = window_delegate_->GetInitiallyFocusedView();
+  View* v = window_delegate_->GetInitiallyFocusedView();
   if (v) {
     v->RequestFocus();
   } else {
@@ -658,5 +658,5 @@ void Window::InitClass() {
   }
 }
 
-}  // namespace ChromeViews
+}  // namespace views
 

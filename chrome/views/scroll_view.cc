@@ -10,7 +10,7 @@
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
 
-namespace ChromeViews {
+namespace views {
 
 const char* const ScrollView::kViewClassName = "chrome/views/ScrollView";
 
@@ -497,5 +497,5 @@ VariableRowHeightScrollHelper::RowInfo
                  row_height_);
 }
 
-}
+}  // namespace views
 

@@ -54,8 +54,8 @@ void GoButton::NotifyClick(int mouse_event_flags) {
   }
 }
 
-void GoButton::OnMouseExited(const ChromeViews::MouseEvent& e) {
-  using namespace ChromeViews;
+void GoButton::OnMouseExited(const views::MouseEvent& e) {
+  using namespace views;
 
   if (visible_mode_ != intended_mode_)
     ChangeMode(intended_mode_);

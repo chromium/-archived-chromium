@@ -27,7 +27,7 @@ void InfoBarConfirmView::CancelButtonPressed() {
   BeginClose();
 }
 
-void InfoBarConfirmView::ButtonPressed(ChromeViews::NativeButton* sender) {
+void InfoBarConfirmView::ButtonPressed(views::NativeButton* sender) {
   // If you close the bar from one of these functions, make sure to use
   // BeginClose() - Close() could delete us and cause the rest of the
   // function to go bananas.
@@ -88,11 +88,10 @@ bool InfoBarConfirmView::GetAccessibleRole(VARIANT* role) {
 }
 
 void InfoBarConfirmView::Init() {
-  ok_button_ = new ChromeViews::NativeButton(l10n_util::GetString(IDS_OK));
+  ok_button_ = new views::NativeButton(l10n_util::GetString(IDS_OK));
   ok_button_->SetListener(this);
 
-  cancel_button_ =
-      new ChromeViews::NativeButton(l10n_util::GetString(IDS_CANCEL));
+  cancel_button_ = new views::NativeButton(l10n_util::GetString(IDS_CANCEL));
   cancel_button_->SetListener(this);
   AddChildViewTrailing(cancel_button_, kRelatedButtonHSpacing);
   AddChildViewTrailing(ok_button_);

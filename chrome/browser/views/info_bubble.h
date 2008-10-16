@@ -30,7 +30,7 @@ class InfoBubbleDelegate {
   virtual bool CloseOnEscape() = 0;
 };
 
-class InfoBubble : public ChromeViews::ContainerWin,
+class InfoBubble : public views::ContainerWin,
                    public AnimationDelegate {
  public:
   // Shows the InfoBubble. The InfoBubble is parented to parent_hwnd, contains
@@ -43,7 +43,7 @@ class InfoBubble : public ChromeViews::ContainerWin,
    // behavior if there is no delegate).
   static InfoBubble* Show(HWND parent_hwnd,
                           const gfx::Rect& position_relative_to,
-                          ChromeViews::View* content,
+                          views::View* content,
                           InfoBubbleDelegate* delegate);
 
   InfoBubble();
@@ -52,7 +52,7 @@ class InfoBubble : public ChromeViews::ContainerWin,
   // Creates the InfoBubble.
   void Init(HWND parent_hwnd,
             const gfx::Rect& position_relative_to,
-            ChromeViews::View* content);
+            views::View* content);
 
   // Sets the delegate for that InfoBubble.
   void SetDelegate(InfoBubbleDelegate* delegate) { delegate_ = delegate; }
@@ -67,7 +67,7 @@ class InfoBubble : public ChromeViews::ContainerWin,
   virtual void Close();
 
   // AcceleratorTarget method:
-  virtual bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
 
   // AnimationDelegate Implementation
   virtual void AnimationProgressed(const Animation* animation);
@@ -77,7 +77,7 @@ class InfoBubble : public ChromeViews::ContainerWin,
   // InfoBubble::CreateContentView() creates one of these. ContentView houses
   // the supplied content as its only child view, renders the arrow/border of
   // the bubble and sizes the content.
-  class ContentView : public ChromeViews::View {
+  class ContentView : public views::View {
    public:
     // Possible edges the arrow is aligned along.
     enum ArrowEdge {
@@ -89,7 +89,7 @@ class InfoBubble : public ChromeViews::ContainerWin,
 
     // Creates the ContentView. The supplied view is added as the only child of
     // the ContentView.
-    ContentView(ChromeViews::View* content, InfoBubble* host);
+    ContentView(views::View* content, InfoBubble* host);
 
     virtual ~ContentView() {}
 
@@ -143,7 +143,7 @@ class InfoBubble : public ChromeViews::ContainerWin,
   };
 
   // Creates and return a new ContentView containing content.
-  virtual ContentView* CreateContentView(ChromeViews::View* content);
+  virtual ContentView* CreateContentView(views::View* content);
 
   // Returns the BrowserWindow that owns this InfoBubble.
   BrowserWindow* GetHostingWindow();

@@ -18,7 +18,7 @@
 //
 // There are 2 types of focus:
 // - the native focus, which is the focus that an HWND has.
-// - the view focus, which is the focus that a ChromeViews::View has.
+// - the view focus, which is the focus that a views::View has.
 //
 // Each native view must register with their Focus Manager so the focus manager
 // gets notified when they are focused (and keeps track of the native focus) and
@@ -72,7 +72,7 @@
 // Note that FocusTraversable do not have to be RootViews: TabContents is
 // FocusTraversable.
 
-namespace ChromeViews {
+namespace views {
 
 class View;
 class RootView;
@@ -325,7 +325,7 @@ class FocusManager : public NotificationObserver {
   DISALLOW_EVIL_CONSTRUCTORS(FocusManager);
 };
 
-}
+}  // namespace views
 
 #endif  // CHROME_VIEWS_FOCUS_MANAGER_H__
 

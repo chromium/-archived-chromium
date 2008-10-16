@@ -17,7 +17,7 @@
 #include "chrome/views/view.h"
 #include "skia/include/SkBitmap.h"
 
-namespace ChromeViews {
+namespace views {
 
 class ContainerWin;
 class MenuController;
@@ -95,7 +95,7 @@ class MenuDelegate : Controller {
   }
 
   // Executes the specified command. mouse_event_flags give the flags of the
-  // mouse event that triggered this to be invoked (ChromeViews::MouseEvent
+  // mouse event that triggered this to be invoked (views::MouseEvent
   // flags). mouse_event_flags is 0 if this is triggered by a user gesture
   // other than a mouse event.
   virtual void ExecuteCommand(int id, int mouse_event_flags) {
@@ -939,7 +939,7 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   DISALLOW_EVIL_CONSTRUCTORS(MenuController);
 };
 
-} // namespace
+}  // namespace views
 
 #endif  // CHROME_VIEWS_CHROME_MENU_H__
 

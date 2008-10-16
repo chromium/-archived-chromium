@@ -16,9 +16,9 @@
 #include "chrome/views/container.h"
 #include "chrome/views/root_view.h"
 
-using ChromeViews::FocusTraversable;
-using ChromeViews::FocusManager;
-using ChromeViews::View;
+using views::FocusTraversable;
+using views::FocusManager;
+using views::View;
 
 TabContentsContainerView::TabContentsContainerView() : tab_contents_(NULL) {
   SetID(VIEW_ID_TAB_CONTAINER);
@@ -46,7 +46,7 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
       FocusManager::UninstallFocusSubclass(hwnd);
     }
 
-    ChromeViews::RootView* root_view = tab_contents_->GetContentsRootView();
+    views::RootView* root_view = tab_contents_->GetContentsRootView();
     if (root_view) {
       // Unlink the RootViews as a clean-up.
       root_view->SetFocusTraversableParent(NULL);
@@ -79,7 +79,7 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
 
   AddObservers();
 
-  ChromeViews::RootView* root_view = tab_contents_->GetContentsRootView();
+  views::RootView* root_view = tab_contents_->GetContentsRootView();
   if (root_view) {
     // Link the RootViews for proper focus traversal (note that we skip the
     // TabContentsContainerView as it acts as a FocusTraversable proxy).
@@ -88,7 +88,7 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
   }
 }
 
-ChromeViews::FocusTraversable* TabContentsContainerView::GetFocusTraversable() {
+views::FocusTraversable* TabContentsContainerView::GetFocusTraversable() {
   if (tab_contents_ && tab_contents_->GetContentsRootView())
     return tab_contents_->GetContentsRootView();
   return NULL;
@@ -119,7 +119,7 @@ bool TabContentsContainerView::CanProcessTabKeyEvents() {
   return tab_contents_ && !tab_contents_->GetContentsRootView();
 }
 
-ChromeViews::FocusTraversable*
+views::FocusTraversable*
     TabContentsContainerView::GetFocusTraversableParent() {
   if (tab_contents_ && tab_contents_->GetContentsRootView()) {
     // Since we link the RootView of the TabContents to the RootView that
@@ -130,8 +130,7 @@ ChromeViews::FocusTraversable*
   return GetRootView();
 }
 
-ChromeViews::View*
-    TabContentsContainerView::GetFocusTraversableParentView() {
+views::View* TabContentsContainerView::GetFocusTraversableParentView() {
   if (tab_contents_ && tab_contents_->GetContentsRootView()) {
     // Since we link the RootView of the TabContents to the RootView that
     // contains us, this should not be invoked.
@@ -170,7 +169,7 @@ bool TabContentsContainerView::GetAccessibleRole(VARIANT* role) {
 }
 
 bool TabContentsContainerView::ShouldLookupAccelerators(
-    const ChromeViews::KeyEvent& e) {
+    const views::KeyEvent& e) {
   if (tab_contents_ && !tab_contents_->is_crashed() &&
       tab_contents_->AsWebContents())
     return false;

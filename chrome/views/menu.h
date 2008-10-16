@@ -18,7 +18,7 @@ namespace {
 class MenuHostWindow;
 }
 
-namespace ChromeViews {
+namespace views {
 class Accelerator;
 }
 
@@ -65,7 +65,7 @@ class Menu {
     // The delegate needs to implement this function if it wants to display
     // the shortcut text next to each menu item. If there is an accelerator
     // for a given item id, the implementor must return it.
-    virtual bool GetAcceleratorInfo(int id, ChromeViews::Accelerator* accel) {
+    virtual bool GetAcceleratorInfo(int id, views::Accelerator* accel) {
       return false;
     }
 

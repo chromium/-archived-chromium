@@ -15,7 +15,7 @@
 
 #include "chrome/views/event.h"
 
-namespace ChromeViews {
+namespace views {
 
 class Accelerator {
  public:

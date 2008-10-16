@@ -19,7 +19,7 @@ class PrefService;
 //  A base class for Options dialog pages that handles ensuring control
 //  initialization is done just once.
 //
-class OptionsPageView : public ChromeViews::View,
+class OptionsPageView : public views::View,
                         public NotificationObserver {
  public:
   virtual ~OptionsPageView();
@@ -58,10 +58,10 @@ class OptionsPageView : public ChromeViews::View,
   // set.
   virtual void NotifyPrefChanged(const std::wstring* pref_name) { }
 
-  // ChromeViews::View overrides:
+  // views::View overrides:
   virtual void ViewHierarchyChanged(bool is_add,
-                                    ChromeViews::View* parent,
-                                    ChromeViews::View* child);
+                                    views::View* parent,
+                                    views::View* child);
 
   // Returns the HWND on which created windows should be parented.
   HWND GetRootWindow() const;

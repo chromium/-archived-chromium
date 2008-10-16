@@ -13,7 +13,7 @@ namespace gfx {
 class Size;
 }
 
-namespace ChromeViews {
+namespace views {
 
 class View;
 
@@ -57,7 +57,7 @@ class LayoutManager {
   virtual void ViewRemoved(View* host, View* view) {}
 };
 
-}
+}  // namespace views
 
 #endif // CHROME_VIEWS_LAYOUT_MANAGER_H__
 

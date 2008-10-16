@@ -40,7 +40,7 @@ bool ActivateTabByClick(AutomationProxy* automation,
 
   POINT click(bounds.CenterPoint().ToPOINT());
   if (!browser_window->SimulateOSClick(click,
-                                       ChromeViews::Event::EF_LEFT_BUTTON_DOWN))
+                                       views::Event::EF_LEFT_BUTTON_DOWN))
     return false;
 
   // Wait a bit to let the click be processed.
@@ -84,7 +84,7 @@ TEST_F(FindInPageTest, CrashEscHandlers) {
   EXPECT_TRUE(window->GetViewBounds(VIEW_ID_LOCATION_BAR, &bounds, false));
   POINT click(bounds.CenterPoint().ToPOINT());
   EXPECT_TRUE(window->SimulateOSClick(click,
-      ChromeViews::Event::EF_LEFT_BUTTON_DOWN));
+                                      views::Event::EF_LEFT_BUTTON_DOWN));
   ::Sleep(kActionDelayMs);
   int focused_view_id;
   EXPECT_TRUE(window->GetFocusedViewID(&focused_view_id));
