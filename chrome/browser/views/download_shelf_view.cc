@@ -204,8 +204,8 @@ void DownloadShelfView::Layout() {
   // Otherwise, we can have problems when for example the user switches to
   // another tab (that doesn't have a download shelf) _before_ the download
   // has started and we'll crash when calling SetVisible() below because
-  // the NativeControlContainer ctor tries to use the ViewContainer.
-  if (!GetViewContainer())
+  // the NativeControlContainer ctor tries to use the Container.
+  if (!GetContainer())
     return;
 
   gfx::Size image_size = arrow_image_->GetPreferredSize();
