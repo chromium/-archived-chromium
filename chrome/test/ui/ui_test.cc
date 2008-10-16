@@ -203,7 +203,7 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
                                        switches::kJavaScriptFlags,
                                        js_flags_);
 
-  CommandLine::AppendSwitch(&command_line, switches::kDisableMetricsReporting);
+  CommandLine::AppendSwitch(&command_line, switches::kMetricsRecordingOnly);
 
   // We always want to enable chrome logging
   CommandLine::AppendSwitch(&command_line, switches::kEnableLogging);

@@ -17,12 +17,12 @@ const wchar_t kDisableHangMonitor[]            = L"disable-hang-monitor";
 // Completely disables UMA metrics system.
 const wchar_t kDisableMetrics[]                = L"disable-metrics";
 
-// Disables only the sending of metrics reports.  In contrast to
-// kDisableMetrics, this executes all the code that a normal client would use
-// for reporting, except the report is dropped rather than sent to the server.
-// This is useful for finding issues in the metrics code during UI and
-// performance tests.
-const wchar_t kDisableMetricsReporting[]       = L"disable-metrics-reporting";
+// Enables the recording of metrics reports but disables reporting.
+// In contrast to kDisableMetrics, this executes all the code that a normal
+// client would use for reporting, except the report is dropped rather than sent
+// to the server. This is useful for finding issues in the metrics code during
+// UI and performance tests.
+const wchar_t kMetricsRecordingOnly[]       = L"metrics-recording-only";
 
 // Causes the browser process to throw an assertion on startup.
 const wchar_t kBrowserAssertTest[]             = L"assert-test";
