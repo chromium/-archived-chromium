@@ -56,7 +56,7 @@ extern void InitHunspellWithFiles(FILE* file_aff_hunspell,
 // A test with a "[ROBUSTNESS]" mark shows it is a robustness test and it uses
 // grammartically incorrect string.
 // TODO(hbono): Please feel free to add more tests.
-TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
+TEST_F(SpellCheckTest, DISABLED_SpellCheckStrings_EN_US) {
   static const struct {
     // A string to be tested.
     const wchar_t* input;
@@ -275,7 +275,7 @@ TEST_F(SpellCheckTest, SpellCheckStrings_EN_US) {
 }
 
 
-TEST_F(SpellCheckTest, SpellCheckSuggestions_EN_US) {
+TEST_F(SpellCheckTest, DISABLED_SpellCheckSuggestions_EN_US) {
   static const struct {
     // A string to be tested.
     const wchar_t* input;
