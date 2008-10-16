@@ -115,7 +115,8 @@ class TestView : public View {
     last_clip_.setEmpty();
   }
 
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
   virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
   virtual bool OnMousePressed(const MouseEvent& event);
   virtual bool OnMouseDragged(const MouseEvent& event);
@@ -145,7 +146,8 @@ class TestView : public View {
 // DidChangeBounds
 ////////////////////////////////////////////////////////////////////////////////
 
-void TestView::DidChangeBounds(const CRect& previous, const CRect& current) {
+void TestView::DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current) {
   did_change_bounds_ = true;
   previous_bounds_ = previous;
   new_bounds_ = current;
