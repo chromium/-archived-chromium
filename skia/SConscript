@@ -83,7 +83,6 @@ input_files = [
   'images/SkImageDecoder.cpp',
   'images/SkImageRef.cpp',
   'images/SkStream.cpp',
-  'images/SkStream.cpp',
   'picture/SkPictureFlat.cpp',
   'picture/SkPicturePlayback.cpp',
   'picture/SkPictureRecord.cpp',
