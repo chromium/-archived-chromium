@@ -819,9 +819,8 @@ void DefaultNonClientView::LayoutTitleBar() {
 }
 
 void DefaultNonClientView::LayoutClientView() {
-  gfx::Rect client_bounds(
-      CalculateClientAreaBounds(width(), height()));
-  container_->client_view()->SetBounds(client_bounds.ToRECT());
+  gfx::Rect client_bounds = CalculateClientAreaBounds(width(), height());
+  container_->client_view()->SetBounds(client_bounds);
 }
 
 // static

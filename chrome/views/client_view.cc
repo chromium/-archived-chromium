@@ -38,10 +38,6 @@ void ClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   }
 }
 
-void ClientView::DidChangeBounds(const CRect& previous, const CRect& current) {
-  Layout();
-}
-
 void ClientView::Layout() {
   // |contents_view_| is allowed to be NULL up until the point where this view
   // is attached to a Container.

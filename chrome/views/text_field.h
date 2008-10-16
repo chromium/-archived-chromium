@@ -73,7 +73,6 @@ class TextField : public View {
   // Overridden for layout purposes
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
 
   // Controller accessors
   void SetController(Controller* controller);

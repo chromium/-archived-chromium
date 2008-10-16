@@ -642,9 +642,8 @@ ChromeViews::View* CookiesView::GetContentsView() {
 void CookiesView::Layout() {
   // Lay out the Remove/Remove All buttons in the parent view.
   gfx::Size ps = remove_button_->GetPreferredSize();
-  CRect parent_bounds;
-  GetParent()->GetLocalBounds(&parent_bounds, false);
-  int y_buttons = parent_bounds.bottom - ps.height() - kButtonVEdgeMargin;
+  gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
+  int y_buttons = parent_bounds.bottom() - ps.height() - kButtonVEdgeMargin;
 
   remove_button_->SetBounds(kPanelHorizMargin, y_buttons, ps.width(),
                             ps.height());

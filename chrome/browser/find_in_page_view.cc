@@ -244,8 +244,7 @@ void FindInPageView::Paint(ChromeCanvas* canvas) {
   SkPaint paint;
 
   // Get the local bounds so that we now how much to stretch the background.
-  CRect lb;
-  GetLocalBounds(&lb, true);
+  gfx::Rect lb = GetLocalBounds(true);
 
   // First, we draw the background image for the whole dialog (3 images: left,
   // middle and right). Note, that the window region has been set by the
@@ -270,13 +269,13 @@ void FindInPageView::Paint(ChromeCanvas* canvas) {
   canvas->TileImageInt(*bg_middle,
                         bg_left->width(),
                         0,
-                        lb.Width() -
+                        lb.width() -
                             bg_left->width() -
                             bg_right->width(),
                         bg_middle->height());
 
   canvas->TileImageInt(*bg_right,
-                        lb.right - bg_right->width(),
+                        lb.right() - bg_right->width(),
                         0,
                         bg_right->width(),
                         bg_right->height());
@@ -322,12 +321,12 @@ void FindInPageView::Paint(ChromeCanvas* canvas) {
     // While animating we draw the curved edges at the point where the
     // controller told us the top of the window is: |animation_offset_|.
     canvas->TileImageInt(*bg_left,
-                         lb.TopLeft().x,
+                         lb.x(),
                          animation_offset_,
                          bg_left->width(),
                          kAnimatingEdgeHeight);
     canvas->TileImageInt(*bg_right,
-                         lb.BottomRight().x - bg_right->width(),
+                         lb.right() - bg_right->width(),
                          animation_offset_,
                          bg_right->width(),
                          kAnimatingEdgeHeight);
@@ -397,11 +396,6 @@ void FindInPageView::Layout() {
                                    find_previous_button_->x() -
                                        find_text_edge,
                                    find_previous_button_->height());
-}
-
-void FindInPageView::DidChangeBounds(const CRect& old_bounds,
-                                     const CRect& new_bounds) {
-  Layout();
 }
 
 void FindInPageView::ViewHierarchyChanged(bool is_add,

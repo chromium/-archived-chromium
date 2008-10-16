@@ -115,6 +115,13 @@ void Rect::Inset(int horizontal, int vertical) {
   set_height(std::max(height() - (vertical * 2), 0));
 }
 
+void Rect::Inset(int left, int top, int right, int bottom) {
+  set_width(std::max(width() - left - right, 0));
+  set_height(std::max(height() - top - bottom, 0));
+  set_x(left);
+  set_y(top);
+}
+
 void Rect::Offset(int horizontal, int vertical) {
   set_x(x() + horizontal);
   set_y(y() + vertical);

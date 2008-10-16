@@ -210,13 +210,12 @@ void NativeControl::Layout() {
     ValidateNativeControl();
 
   if (hwnd_view_) {
-    CRect lb;
-    GetLocalBounds(&lb, false);
+    gfx::Rect lb = GetLocalBounds(false);
 
-    int x = lb.left;
-    int y = lb.top;
-    int width = lb.Width();
-    int height = lb.Height();
+    int x = lb.x();
+    int y = lb.y();
+    int width = lb.width();
+    int height = lb.height();
     if (fixed_width_ > 0) {
       width = std::min(fixed_width_, width);
       switch (horizontal_alignment_) {
@@ -224,10 +223,10 @@ void NativeControl::Layout() {
           // Nothing to do.
           break;
         case CENTER:
-          x += (lb.Width() - width) / 2;
+          x += (lb.width() - width) / 2;
           break;
         case TRAILING:
-          x = x + lb.Width() - width;
+          x = x + lb.width() - width;
           break;
         default:
           NOTREACHED();
@@ -241,10 +240,10 @@ void NativeControl::Layout() {
           // Nothing to do.
           break;
         case CENTER:
-          y += (lb.Height() - height) / 2;
+          y += (lb.height() - height) / 2;
           break;
         case TRAILING:
-          y = y + lb.Height() - height;
+          y = y + lb.height() - height;
           break;
         default:
           NOTREACHED();
@@ -253,11 +252,6 @@ void NativeControl::Layout() {
 
     hwnd_view_->SetBounds(x, y, width, height);
   }
-}
-
-void NativeControl::DidChangeBounds(const CRect& previous,
-                                    const CRect& current) {
-  Layout();
 }
 
 void NativeControl::Focus() {

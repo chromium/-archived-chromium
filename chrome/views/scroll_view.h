@@ -42,8 +42,7 @@ class ScrollView : public View,
 
   // Overridden to layout the viewport and scrollbars.
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
-
+  
   // Returns the visible region of the content View.
   gfx::Rect GetVisibleRect() const;
 
@@ -87,8 +86,8 @@ class ScrollView : public View,
 
   // Computes the visibility of both scrollbars, taking in account the view port
   // and content sizes.
-  void ComputeScrollBarsVisibility(const CSize& viewport_size,
-                                   const CSize& content_size,
+  void ComputeScrollBarsVisibility(const gfx::Size& viewport_size,
+                                   const gfx::Size& content_size,
                                    bool* horiz_is_shown,
                                    bool* vert_is_shown) const;
 

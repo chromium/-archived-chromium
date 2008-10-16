@@ -44,8 +44,6 @@ class DownloadShelfView : public ChromeViews::View,
   //   PaintBackground, PaintBorder and PaintSeparators.
   virtual void Paint(ChromeCanvas* canvas);
 
-  void DidChangeBounds(const CRect& previous, const CRect& current);
-
   // AnimationDelegate implementations
   virtual void AnimationProgressed(const Animation* animation);
   virtual void AnimationEnded(const Animation* animation);

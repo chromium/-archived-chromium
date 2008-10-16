@@ -112,10 +112,6 @@ class InfoBubble : public ChromeViews::ContainerWin,
     // Positions the content relative to the border.
     virtual void Layout();
 
-    virtual void DidChangeBounds(const CRect& previous, const CRect& current) {
-      Layout();
-    }
-
     // Return the mask for the content view.
     HRGN GetMask(const CSize& size);
 

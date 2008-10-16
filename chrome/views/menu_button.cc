@@ -126,14 +126,13 @@ bool MenuButton::Activate() {
   // after the menu closes.
   PaintNow();
   if (menu_delegate_) {
-    CRect lb;
-    GetLocalBounds(&lb, true);
+    gfx::Rect lb = GetLocalBounds(true);
 
     // The position of the menu depends on whether or not the locale is
     // right-to-left.
-    gfx::Point menu_position(lb.BottomRight());
+    gfx::Point menu_position(lb.right(), lb.bottom());
     if (UILayoutIsRightToLeft())
-      menu_position.set_x(lb.left);
+      menu_position.set_x(lb.x());
 
     View::ConvertPointToScreen(this, &menu_position);
     if (UILayoutIsRightToLeft())

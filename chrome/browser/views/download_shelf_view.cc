@@ -177,11 +177,6 @@ gfx::Size DownloadShelfView::GetPreferredSize() {
   return prefsize;
 }
 
-void DownloadShelfView::DidChangeBounds(const CRect& previous,
-                                        const CRect& current) {
-  Layout();
-}
-
 void DownloadShelfView::AnimationProgressed(const Animation *animation) {
   if (animation == new_item_animation_.get()) {
     Layout();

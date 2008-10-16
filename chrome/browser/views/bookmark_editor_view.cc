@@ -108,10 +108,9 @@ void BookmarkEditorView::Layout() {
 
   // Manually lay out the New Folder button in the same row as the OK/Cancel
   // buttons...
-  CRect parent_bounds;
-  GetParent()->GetLocalBounds(&parent_bounds, false);
+  gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
   gfx::Size prefsize = new_group_button_.GetPreferredSize();
-  int button_y = parent_bounds.bottom - prefsize.height() - kButtonVEdgeMargin;
+  int button_y = parent_bounds.bottom() - prefsize.height() - kButtonVEdgeMargin;
   new_group_button_.SetBounds(kPanelHorizMargin, button_y, prefsize.width(),
                               prefsize.height());
 }
@@ -120,11 +119,6 @@ gfx::Size BookmarkEditorView::GetPreferredSize() {
   return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_EDITBOOKMARK_DIALOG_WIDTH_CHARS,
       IDS_EDITBOOKMARK_DIALOG_HEIGHT_LINES));
-}
-
-void BookmarkEditorView::DidChangeBounds(const CRect& previous,
-                                         const CRect& current) {
-  Layout();
 }
 
 void BookmarkEditorView::ViewHierarchyChanged(bool is_add,

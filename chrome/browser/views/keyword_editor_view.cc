@@ -421,11 +421,6 @@ void KeywordEditorView::ModifyTemplateURL(const TemplateURL* template_url,
   UserMetrics::RecordAction(L"KeywordEditor_ModifiedKeyword", profile_);
 }
 
-void KeywordEditorView::DidChangeBounds(const CRect& previous,
-                                        const CRect& current) {
-  Layout();
-}
-
 gfx::Size KeywordEditorView::GetPreferredSize() {
   return gfx::Size(ChromeViews::Window::GetLocalizedContentsSize(
       IDS_SEARCHENGINES_DIALOG_WIDTH_CHARS,

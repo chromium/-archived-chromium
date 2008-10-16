@@ -141,7 +141,10 @@ class View : public AcceleratorTarget {
   // the bounds of one of their child views (for example, when implementing
   // View::Layout()).
   // TODO(beng): Convert |bounds_| to a gfx::Rect.
-  gfx::Rect bounds() const { return gfx::Rect(bounds_); }
+  gfx::Rect bounds() const { return bounds_; }
+
+  // Get the size of the View.
+  gfx::Size size() const { return bounds_.size(); }
 
   // Return the bounds of the View, relative to the parent. If
   // |settings| is IGNORE_MIRRORING_TRANSFORMATION, the function returns the
@@ -157,14 +160,15 @@ class View : public AcceleratorTarget {
   gfx::Rect GetBounds(PositionMirroringSettings settings) const;
 
   // Set the bounds in the parent's coordinate system.
-  void SetBounds(const CRect& bounds);
-  void SetBounds(const gfx::Point& origin, const gfx::Size& size);
-  void SetBounds(int x, int y, int width, int height);
+  void SetBounds(const gfx::Rect& bounds);
+  void SetBounds(int x, int y, int width, int height) {
+    SetBounds(gfx::Rect(x, y, std::max(0, width), std::max(0, height)));
+  }
   void SetX(int x) { SetBounds(x, y(), width(), height()); }
   void SetY(int y) { SetBounds(x(), y, width(), height()); }
 
   // Returns the left coordinate of the View, relative to the parent View,
-  // which is the value of bounds_.left.
+  // which is the value of bounds_.x().
   //
   // This is the function subclasses should use whenever they need to obtain
   // the left position of one of their child views (for example, when
@@ -172,14 +176,14 @@ class View : public AcceleratorTarget {
   int x() const {
     // This is equivalent to GetX(IGNORE_MIRRORING_TRANSFORMATION), but
     // inlinable.
-    return bounds_.left;
+    return bounds_.x();
   };
 
   // Return the left coordinate of the View, relative to the parent. If
   // |settings| is IGNORE_MIRRORING_SETTINGS, the function returns the value of
-  // bounds_.left. If |settings| is APPLY_MIRRORING_SETTINGS AND the parent
+  // bounds_.x(). If |settings| is APPLY_MIRRORING_SETTINGS AND the parent
   // View is using a right-to-left UI layout, then the function returns the
-  // mirrored value of bounds_.left.
+  // mirrored value of bounds_.x().
   //
   // NOTE: in the vast majority of the cases, the mirroring implementation is
   //       transparent to the View subclasses and therefore you should use the
@@ -188,22 +192,19 @@ class View : public AcceleratorTarget {
   int GetX(PositionMirroringSettings settings) const;
 
   int y() const {
-    return bounds_.top;
+    return bounds_.y();
   };
   int width() const {
-    return bounds_.Width();
+    return bounds_.width();
   };
   int height() const {
-    return bounds_.Height();
+    return bounds_.height();
   };
 
   // Return this control local bounds. If include_border is true, local bounds
   // is the rectangle {0, 0, width(), height()}, otherwise, it does not
   // include the area where the border (if any) is painted.
-  void GetLocalBounds(CRect* out, bool include_border) const;
-
-  // Get the size of the View
-  void GetSize(CSize* out) const;
+  gfx::Rect GetLocalBounds(bool include_border) const;
 
   // Get the position of the View, relative to the parent.
   //
@@ -230,7 +231,8 @@ class View : public AcceleratorTarget {
 
   // This method is invoked when this object size or position changes.
   // The default implementation does nothing.
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
 
   // Set whether the receiving view is visible. Painting is scheduled as needed
   virtual void SetVisible(bool flag);
@@ -971,10 +973,6 @@ class View : public AcceleratorTarget {
                                      bool is_horizontal, bool is_positive);
 
  protected:
-  // TODO(beng): these members should NOT be protected per style guide.
-  // This View's bounds in the parent coordinate system.
-  CRect bounds_;
-
   // The id of this View. Used to find this View.
   int id_;
 
@@ -1220,6 +1218,9 @@ class View : public AcceleratorTarget {
   // Returns the view at the end of the specified |path|, starting at the
   // |start| view.
   static View* GetViewForPath(View* start, const std::vector<int>& path);
+
+  // This View's bounds in the parent coordinate system.
+  gfx::Rect bounds_;
 
   // This view's parent
   View *parent_;

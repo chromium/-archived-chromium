@@ -839,15 +839,9 @@ void TextField::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
 
 void TextField::Layout() {
   if (native_view_) {
-    CRect lb;
-    GetLocalBounds(&lb, true);
-    native_view_->SetBounds(0, 0, lb.Width(), lb.Height());
+    native_view_->SetBounds(GetLocalBounds(true));
     native_view_->UpdateHWNDBounds();
   }
-}
-
-void TextField::DidChangeBounds(const CRect& previous, const CRect& current) {
-  Layout();
 }
 
 gfx::Size TextField::GetPreferredSize() {

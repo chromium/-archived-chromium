@@ -61,9 +61,8 @@ class ListBackground : public ChromeViews::Background {
 
   virtual void Paint(ChromeCanvas* canvas, ChromeViews::View* view) const {
     HDC dc = canvas->beginPlatformPaint();
-    CRect lb;
-    view->GetLocalBounds(&lb, true);
-    gfx::NativeTheme::instance()->PaintListBackground(dc, true, &lb);
+    RECT native_lb = view->GetLocalBounds(true).ToRECT();
+    gfx::NativeTheme::instance()->PaintListBackground(dc, true, &native_lb);
     canvas->endPlatformPaint();
   }
 
@@ -82,7 +81,8 @@ class AdvancedSection : public OptionsPageView {
   AdvancedSection(Profile* profile, const std::wstring& title);
   virtual ~AdvancedSection() {}
 
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
 
  protected:
   // Convenience helpers to add different kinds of ColumnSets for specific
@@ -151,8 +151,8 @@ AdvancedSection::AdvancedSection(Profile* profile,
   title_label_->SetColor(title_color);
 }
 
-void AdvancedSection::DidChangeBounds(const CRect& previous,
-                                      const CRect& current) {
+void AdvancedSection::DidChangeBounds(const gfx::Rect& previous,
+                                      const gfx::Rect& current) {
   Layout();
   contents_->Layout();
 }
@@ -1077,7 +1077,9 @@ class AdvancedContentsView : public OptionsPageView {
   // ChromeViews::View overrides:
   virtual int GetLineScrollIncrement(ChromeViews::ScrollView* scroll_view,
                                      bool is_horizontal, bool is_positive);
-  void Layout();
+  virtual void Layout();
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
 
  protected:
   // OptionsPageView implementation:
@@ -1125,10 +1127,17 @@ void AdvancedContentsView::Layout() {
     const int height = GetHeightForWidth(width);
     SetBounds(0, 0, width, height);
   } else {
-    SetBounds(gfx::Point(), GetPreferredSize());
+    gfx::Size prefsize = GetPreferredSize();
+    SetBounds(0, 0, prefsize.width(), prefsize.height());
   }
   View::Layout();
 }
+
+void AdvancedContentsView::DidChangeBounds(const gfx::Rect& previous,
+                                           const gfx::Rect& current) {
+  // Override to do nothing. Calling Layout() interferes with our scrolling.
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // AdvancedContentsView, OptionsPageView implementation:
@@ -1185,12 +1194,11 @@ AdvancedScrollViewContainer::~AdvancedScrollViewContainer() {
 // AdvancedScrollViewContainer, ChromeViews::View overrides:
 
 void AdvancedScrollViewContainer::Layout() {
-  CRect lb;
-  GetLocalBounds(&lb, false);
+  gfx::Rect lb = GetLocalBounds(false);
 
   gfx::Size border = gfx::NativeTheme::instance()->GetThemeBorderSize(
       gfx::NativeTheme::LIST);
-  lb.DeflateRect(border.ToSIZE());
+  lb.Inset(border.width(), border.height());
   scroll_view_->SetBounds(lb);
   scroll_view_->Layout();
 }

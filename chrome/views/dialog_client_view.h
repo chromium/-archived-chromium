@@ -58,7 +58,6 @@ class DialogClientView : public ClientView,
   virtual void PaintChildren(ChromeCanvas* canvas);
   virtual void Layout();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
-  virtual void DidChangeBounds(const CRect& prev, const CRect& next);
   virtual gfx::Size GetPreferredSize();
   virtual bool AcceleratorPressed(const Accelerator& accelerator);
 

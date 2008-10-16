@@ -633,10 +633,6 @@ void TabStrip::PaintChildren(ChromeCanvas* canvas) {
   newtab_button_->ProcessPaint(canvas);
 }
 
-void TabStrip::DidChangeBounds(const CRect& prev, const CRect& curr) {
-  Layout();
-}
-
 // Overridden to support automation. See automation_proxy_uitest.cc.
 ChromeViews::View* TabStrip::GetViewByID(int view_id) const {
   if (GetTabCount() > 0) {
@@ -1235,17 +1231,16 @@ void TabStrip::ResizeLayoutTabs() {
 }
 
 bool TabStrip::IsCursorInTabStripZone() {
-  CRect bounds;
-  GetLocalBounds(&bounds, true);
-  gfx::Point tabstrip_topleft(bounds.TopLeft());
+  gfx::Rect bounds = GetLocalBounds(true);
+  gfx::Point tabstrip_topleft(bounds.origin());
   View::ConvertPointToScreen(this, &tabstrip_topleft);
-  bounds.MoveToXY(tabstrip_topleft.ToPOINT());
-  bounds.bottom += kTabStripAnimationVSlop;
+  bounds.set_origin(tabstrip_topleft);
+  bounds.set_height(bounds.height() + kTabStripAnimationVSlop);
 
   CPoint cursor_point;
   GetCursorPos(&cursor_point);
 
-  return !!bounds.PtInRect(cursor_point);
+  return bounds.Contains(cursor_point.x, cursor_point.y);
 }
 
 void TabStrip::AddMessageLoopObserver() {

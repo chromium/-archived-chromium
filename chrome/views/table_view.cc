@@ -146,8 +146,8 @@ void TableView::SetSortDescriptors(const SortDescriptors& sort_descriptors) {
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(TRUE), 0);
 }
 
-void TableView::DidChangeBounds(const CRect& previous,
-                                const CRect& current) {
+void TableView::DidChangeBounds(const gfx::Rect& previous,
+                                const gfx::Rect& current) {
   if (!list_view_)
     return;
   SendMessage(list_view_, WM_SETREDRAW, static_cast<WPARAM>(FALSE), 0);
@@ -1039,13 +1039,12 @@ void TableView::ResetColumnSizes() {
     return;
 
   // See comment in TableColumn for what this does.
-  CRect bounds;
-  GetLocalBounds(&bounds, false);  // false so it doesn't include the border.
-  int width = bounds.Width();
-  if (GetClientRect(GetNativeControlHWND(), &bounds) &&
-      bounds.Width() > 0) {
+  int width = this->width();
+  CRect native_bounds;
+  if (GetClientRect(GetNativeControlHWND(), &native_bounds) &&
+      native_bounds.Width() > 0) {
     // Prefer the bounds of the window over our bounds, which may be different.
-    width = bounds.Width();
+    width = native_bounds.Width();
   }
 
   float percent = 0;

@@ -50,7 +50,6 @@ class DebuggerView : public ChromeViews::View,
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add,
                                     ChromeViews::View* parent,
                                     ChromeViews::View* child);

@@ -56,7 +56,7 @@ void FillLayout::Layout(View* host) {
     return;
 
   View* frame_view = host->GetChildViewAt(0);
-  frame_view->SetBounds(CRect(CPoint(0, 0), bounds.Size()));
+  frame_view->SetBounds(0, 0, bounds.Width(), bounds.Height());
 }
 
 gfx::Size FillLayout::GetPreferredSize(View* host) {
@@ -800,7 +800,7 @@ void ContainerWin::ChangeSize(UINT size_param, const CSize& size) {
 
   // Resizing changes the size of the view hierarchy and thus forces a
   // complete relayout.
-  root_view_->SetBounds(CRect(CPoint(0,0), rect.Size()));
+  root_view_->SetBounds(0, 0, rect.Width(), rect.Height());
   root_view_->Layout();
   root_view_->SchedulePaint();
 

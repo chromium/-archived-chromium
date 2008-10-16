@@ -203,8 +203,7 @@ CRect RootView::GetScheduledPaintRectConstrainedToSize() {
   if (invalid_rect_.IsRectEmpty())
     return invalid_rect_;
 
-  CRect local_bounds;
-  GetLocalBounds(&local_bounds, true);
+  CRect local_bounds = GetLocalBounds(true).ToRECT();
   CRect invalid_rect;
   invalid_rect.IntersectRect(&invalid_rect_, &local_bounds);
   return invalid_rect;

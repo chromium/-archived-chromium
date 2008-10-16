@@ -613,7 +613,7 @@ void ConstrainedWindowNonClientView::Layout() {
                              location_bar_height);
     location_bar_->Layout();
   }
-  container_->client_view()->SetBounds(client_bounds_.ToRECT());
+  container_->client_view()->SetBounds(client_bounds_);
 }
 
 gfx::Size ConstrainedWindowNonClientView::GetPreferredSize() {

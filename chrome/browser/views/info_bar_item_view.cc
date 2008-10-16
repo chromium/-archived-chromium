@@ -132,8 +132,8 @@ void InfoBarItemView::Layout() {
   }
 }
 
-void InfoBarItemView::DidChangeBounds(const CRect& previous,
-                                      const CRect& current) {
+void InfoBarItemView::DidChangeBounds(const gfx::Rect& previous,
+                                      const gfx::Rect& current) {
   if (GetParent() != NULL)
     Layout();
 }

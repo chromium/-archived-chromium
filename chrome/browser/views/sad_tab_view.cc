@@ -88,10 +88,6 @@ void SadTabView::Layout() {
   message_bounds_.SetRect(message_x, message_y, message_width, message_height);
 }
 
-void SadTabView::DidChangeBounds(const CRect&, const CRect&) {
-  Layout();
-}
-
 // static
 void SadTabView::InitClass() {
   static bool initialized = false;

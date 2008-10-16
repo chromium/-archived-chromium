@@ -250,11 +250,6 @@ gfx::Size AeroGlassNonClientView::GetPreferredSize() {
   return prefsize;
 }
 
-void AeroGlassNonClientView::DidChangeBounds(const CRect& previous,
-                                          const CRect& current) {
-  Layout();
-}
-
 void AeroGlassNonClientView::ViewHierarchyChanged(bool is_add,
                                                ChromeViews::View* parent,
                                                ChromeViews::View* child) {
@@ -413,9 +408,8 @@ void AeroGlassNonClientView::LayoutDistributorLogo() {
 }
 
 void AeroGlassNonClientView::LayoutClientView() {
-  gfx::Rect client_bounds(
-      CalculateClientAreaBounds(width(), height()));
-  frame_->client_view()->SetBounds(client_bounds.ToRECT());
+  gfx::Rect client_bounds = CalculateClientAreaBounds(width(), height());
+  frame_->client_view()->SetBounds(client_bounds);
 }
 
 // static

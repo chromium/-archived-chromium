@@ -130,8 +130,8 @@ BookmarkBubbleView::~BookmarkBubbleView() {
   SetNodeTitleFromTextField();
 }
 
-void BookmarkBubbleView::DidChangeBounds(const CRect& previous,
-                                         const CRect& current) {
+void BookmarkBubbleView::DidChangeBounds(const gfx::Rect& previous,
+                                         const gfx::Rect& current) {
   Layout();
 }
 

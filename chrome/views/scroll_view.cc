@@ -118,19 +118,20 @@ void ScrollView::SetControlVisibility(View* control, bool should_show) {
   }
 }
 
-void ScrollView::ComputeScrollBarsVisibility(const CSize& vp_size,
-                                             const CSize& content_size,
+void ScrollView::ComputeScrollBarsVisibility(const gfx::Size& vp_size,
+                                             const gfx::Size& content_size,
                                              bool* horiz_is_shown,
                                              bool* vert_is_shown) const {
   // Try to fit both ways first, then try vertical bar only, then horizontal
   // bar only, then defaults to both shown.
-  if (content_size.cx <= vp_size.cx && content_size.cy <= vp_size.cy) {
+  if (content_size.width() <= vp_size.width() &&
+      content_size.height() <= vp_size.height()) {
     *horiz_is_shown = false;
     *vert_is_shown = false;
-  } else if (content_size.cx <= vp_size.cx - GetScrollBarWidth()) {
+  } else if (content_size.width() <= vp_size.width() - GetScrollBarWidth()) {
     *horiz_is_shown = false;
     *vert_is_shown = true;
-  } else if (content_size.cy <= vp_size.cy - GetScrollBarHeight()) {
+  } else if (content_size.height() <= vp_size.height() - GetScrollBarHeight()) {
     *horiz_is_shown = true;
     *vert_is_shown = false;
   } else {
@@ -148,14 +149,12 @@ void ScrollView::Layout() {
   // override this default behavior, the inner view has to calculate the
   // available space, used ComputeScrollBarsVisibility() to use the same
   // calculation that is done here and sets its bound to fit within.
-  WTL::CRect viewport_bounds;
-  GetLocalBounds(&viewport_bounds, true);
+  gfx::Rect viewport_bounds = GetLocalBounds(true);
   // Realign it to 0 so it can be used as-is for SetBounds().
-  viewport_bounds.MoveToXY(0, 0);
-    // viewport_size is the total client space available.
-  WTL::CSize viewport_size(viewport_bounds.right,
-                           viewport_bounds.bottom);
-  if (viewport_size.cx == 0 || viewport_size.cy == 0) {
+  viewport_bounds.set_origin(gfx::Point(0, 0));
+  // viewport_size is the total client space available.
+  gfx::Size viewport_size = viewport_bounds.size();
+  if (viewport_bounds.IsEmpty()) {
     // There's nothing to layout.
     return;
   }
@@ -164,20 +163,20 @@ void ScrollView::Layout() {
   // this.
   int horiz_sb_height = GetScrollBarHeight();
   int vert_sb_width = GetScrollBarWidth();
-  viewport_bounds.right -= vert_sb_width;
+  viewport_bounds.set_width(viewport_bounds.width() - vert_sb_width);
   // Update the bounds right now so the inner views can fit in it.
   viewport_->SetBounds(viewport_bounds);
 
-  // Give contents_ a chance to update its bounds if it depends on the viewport.
-  if (contents_) {
+  // Give contents_ a chance to update its bounds if it depends on the
+  // viewport.
+  if (contents_)
     contents_->Layout();
-  }
 
   bool should_layout_contents = false;
   bool horiz_sb_required = false;
   bool vert_sb_required = false;
   if (contents_) {
-    WTL::CSize content_size(contents_->width(), contents_->height());
+    gfx::Size content_size = contents_->size();
     ComputeScrollBarsVisibility(viewport_size,
                                 content_size,
                                 &horiz_sb_required,
@@ -192,31 +191,31 @@ void ScrollView::Layout() {
 
   // Non-default.
   if (horiz_sb_required) {
-    viewport_bounds.bottom -= horiz_sb_height;
+    viewport_bounds.set_height(viewport_bounds.height() - horiz_sb_height);
     should_layout_contents = true;
   }
   // Default.
   if (!vert_sb_required) {
-    viewport_bounds.right += vert_sb_width;
+    viewport_bounds.set_width(viewport_bounds.width() + vert_sb_width);
     should_layout_contents = true;
   }
 
   if (horiz_sb_required) {
     horiz_sb_->SetBounds(0,
-                         viewport_bounds.bottom,
-                         viewport_bounds.right,
+                         viewport_bounds.bottom(),
+                         viewport_bounds.right(),
                          horiz_sb_height);
   }
   if (vert_sb_required) {
-    vert_sb_->SetBounds(viewport_bounds.right,
+    vert_sb_->SetBounds(viewport_bounds.right(),
                         0,
                         vert_sb_width,
-                        viewport_bounds.bottom);
+                        viewport_bounds.bottom());
   }
   if (resize_corner_required) {
     // Show the resize corner.
-    resize_corner_->SetBounds(viewport_bounds.right,
-                              viewport_bounds.bottom,
+    resize_corner_->SetBounds(viewport_bounds.right(),
+                              viewport_bounds.bottom(),
                               vert_sb_width,
                               horiz_sb_height);
   }
@@ -256,10 +255,6 @@ void ScrollView::CheckScrollBounds() {
     // This is no op if bounds are the same
     contents_->SetBounds(-x, -y, contents_->width(), contents_->height());
   }
-}
-
-void ScrollView::DidChangeBounds(const CRect& previous, const CRect& current) {
-  Layout();
 }
 
 gfx::Rect ScrollView::GetVisibleRect() const {
@@ -342,9 +337,7 @@ void ScrollView::ScrollToPosition(ScrollBar* source, int position) {
       else if (position > max_pos)
         position = max_pos;
       contents_->SetX(-position);
-      CRect bounds;
-      contents_->GetLocalBounds(&bounds, true);
-      contents_->SchedulePaint(bounds, true);
+      contents_->SchedulePaint(contents_->GetLocalBounds(true).ToRECT(), true);
     }
   } else if (source == vert_sb_ && vert_sb_->IsVisible()) {
     int vh = viewport_->height();
@@ -357,9 +350,7 @@ void ScrollView::ScrollToPosition(ScrollBar* source, int position) {
       else if (position > max_pos)
         position = max_pos;
       contents_->SetY(-position);
-      CRect bounds;
-      contents_->GetLocalBounds(&bounds, true);
-      contents_->SchedulePaint(bounds, true);
+      contents_->SchedulePaint(contents_->GetLocalBounds(true).ToRECT(), true);
     }
   }
 }

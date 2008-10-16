@@ -47,7 +47,6 @@ class BrowserToolbarView : public ChromeViews::View,
 
   // ChromeViews::View
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void DidGainFocus();
   virtual void WillLoseFocus();
   virtual bool OnKeyPressed(const ChromeViews::KeyEvent& e);

@@ -59,7 +59,6 @@ class OpaqueNonClientView : public ChromeViews::NonClientView,
   virtual gfx::Size GetPreferredSize();
   virtual ChromeViews::View* GetViewForPoint(const gfx::Point& point,
                                              bool can_create_floating);
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add,
                                     ChromeViews::View* parent,
                                     ChromeViews::View* child);

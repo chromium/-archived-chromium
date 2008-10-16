@@ -840,7 +840,8 @@ bool HistoryView::IsVisible() {
   return vc && vc->IsVisible();
 }
 
-void HistoryView::DidChangeBounds(const CRect& previous, const CRect& current) {
+void HistoryView::DidChangeBounds(const gfx::Rect& previous,
+                                  const gfx::Rect& current) {
   SchedulePaint();
 }
 
@@ -851,14 +852,13 @@ void HistoryView::Layout() {
   if (!parent)
     return;
 
-  CRect bounds;
-  parent->GetLocalBounds(&bounds, true);
+  gfx::Rect bounds = parent->GetLocalBounds(true);
 
   // If not visible, have zero size so we don't compute anything.
   int width = 0;
   int height = 0;
   if (IsVisible()) {
-    width = bounds.Width();
+    width = bounds.width();
     height = std::max(GetLastEntryMaxY(),
                       kEntryPadding + kNoResultTextHeight);
   }

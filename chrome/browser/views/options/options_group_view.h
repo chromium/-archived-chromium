@@ -32,20 +32,6 @@ class OptionsGroupView : public ChromeViews::View {
   // Retrieves the width of the ContentsView. Used to help size wrapping items.
   int GetContentsWidth() const;
 
-  class ContentsView : public ChromeViews::View {
-   public:
-    virtual ~ContentsView() {}
-
-    // ChromeViews::View overrides:
-    virtual void DidChangeBounds(const CRect& prev_bounds,
-                                 const CRect& next_bounds) {
-      Layout();
-    }
-
-   private:
-    DISALLOW_EVIL_CONSTRUCTORS(ContentsView);
-  };
-
  protected:
   // ChromeViews::View overrides:
   virtual void Paint(ChromeCanvas* canvas);

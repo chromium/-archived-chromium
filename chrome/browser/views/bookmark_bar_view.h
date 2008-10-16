@@ -88,7 +88,8 @@ class BookmarkBarView : public ChromeViews::View,
   // View methods:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
   virtual void Paint(ChromeCanvas* canvas);
   virtual void PaintChildren(ChromeCanvas* canvas);

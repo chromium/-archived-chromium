@@ -69,7 +69,6 @@ class DownloadItemView : public ChromeViews::NativeButton::Listener,
   virtual void OnMouseReleased(const ChromeViews::MouseEvent& event,
                                bool canceled);
   virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
 
   // NativeButton::Listener implementation.
   virtual void ButtonPressed(ChromeViews::NativeButton* sender);

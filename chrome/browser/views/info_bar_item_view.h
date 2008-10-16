@@ -48,7 +48,8 @@ class InfoBarItemView : public ChromeViews::View,
   // Lays out all child views of the info bar from trailing to leading.
   virtual void Layout();
 
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
 
   // Starts the close animation, which will end in the bar closing itself.
   void BeginClose();

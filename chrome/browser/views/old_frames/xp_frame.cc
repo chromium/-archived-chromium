@@ -2328,7 +2328,7 @@ bool XPFrame::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   } else if (new_view && *view) {
     // The view changed, but the new view wants the same size, give it the
     // bounds of the last view and have it repaint.
-    new_view->SetBounds((*view)->bounds().ToRECT());
+    new_view->SetBounds((*view)->bounds());
     new_view->SchedulePaint();
   } else if (new_view) {
     DCHECK(new_height == 0);

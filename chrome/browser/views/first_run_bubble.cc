@@ -95,11 +95,6 @@ class FirstRunBubbleView : public ChromeViews::View,
     AddChildView(change_button_);
   }
 
-  // Overridden from ChromeViews::View.
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current) {
-    Layout();
-  }
-
   // Overridden from NativeButton::Listener.
   virtual void ButtonPressed(ChromeViews::NativeButton* sender) {
     bubble_window_->Close();

@@ -439,15 +439,10 @@ void TabRenderer::Paint(ChromeCanvas* canvas) {
 }
 
 void TabRenderer::Layout() {
-  CRect lb;
-  GetLocalBounds(&lb, false);
-  if (lb.IsRectEmpty())
+  gfx::Rect lb = GetLocalBounds(false);
+  if (lb.IsEmpty())
     return;
-
-  lb.left += kLeftPadding;
-  lb.top += kTopPadding;
-  lb.bottom -= kBottomPadding;
-  lb.right -= kRightPadding;
+  lb.Inset(kLeftPadding, kTopPadding, kRightPadding, kBottomPadding);
 
   // First of all, figure out who is tallest.
   int content_height = GetContentHeight();
@@ -456,17 +451,17 @@ void TabRenderer::Layout() {
   showing_icon_ = ShouldShowIcon();
   if (showing_icon_) {
     int favicon_top = kTopPadding + (content_height - kFaviconSize) / 2;
-    favicon_bounds_.SetRect(lb.left, favicon_top, kFaviconSize, kFaviconSize);
+    favicon_bounds_.SetRect(lb.x(), favicon_top, kFaviconSize, kFaviconSize);
   } else {
-    favicon_bounds_.SetRect(lb.left, lb.top, 0, 0);
+    favicon_bounds_.SetRect(lb.x(), lb.y(), 0, 0);
   }
 
   // Size the download icon.
   showing_download_icon_ = data_.show_download_icon;
   if (showing_download_icon_) {
-      int icon_top = kTopPadding + (content_height - download_icon_height) / 2;
-      download_icon_bounds_.SetRect(lb.Width() - download_icon_width, icon_top,
-                                    download_icon_width, download_icon_height);
+    int icon_top = kTopPadding + (content_height - download_icon_height) / 2;
+    download_icon_bounds_.SetRect(lb.width() - download_icon_width, icon_top,
+                                  download_icon_width, download_icon_height);
   }
 
   // Size the Close button.
@@ -476,7 +471,7 @@ void TabRenderer::Layout() {
         kTopPadding + kCloseButtonVertFuzz +
         (content_height - close_button_height) / 2;
     // If the ratio of the close button size to tab width exceeds the maximum.
-    close_button_->SetBounds(lb.Width() + kCloseButtonHorzFuzz,
+    close_button_->SetBounds(lb.width() + kCloseButtonHorzFuzz,
                              close_button_top, close_button_width,
                              close_button_height);
     close_button_->SetVisible(true);
@@ -502,7 +497,7 @@ void TabRenderer::Layout() {
     title_width = std::max(close_button_->x() -
                            kTitleCloseButtonSpacing - title_left, 0);
   } else {
-    title_width = std::max(lb.Width() - title_left, 0);
+    title_width = std::max(lb.width() - title_left, 0);
   }
   if (data_.show_download_icon)
     title_width = std::max(title_width - download_icon_width, 0);
@@ -520,12 +515,6 @@ void TabRenderer::Layout() {
   title_bounds_.set_x(MirroredLeftPointForRect(title_bounds_));
   download_icon_bounds_.set_x(MirroredLeftPointForRect(download_icon_bounds_));
 }
-
-void TabRenderer::DidChangeBounds(const CRect& previous,
-                                  const CRect& current) {
-  Layout();
-}
-
 
 void TabRenderer::OnMouseEntered(const ChromeViews::MouseEvent& e) {
   hover_animation_->SetTweenType(SlideAnimation::EASE_OUT);

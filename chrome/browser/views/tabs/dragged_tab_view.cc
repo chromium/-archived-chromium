@@ -150,13 +150,14 @@ void DraggedTabView::Paint(ChromeCanvas* canvas) {
 
 void DraggedTabView::Layout() {
   if (attached_) {
-    renderer_->SetBounds(gfx::Point(), GetPreferredSize());
+    gfx::Size prefsize = GetPreferredSize();
+    renderer_->SetBounds(0, 0, prefsize.width(), prefsize.height());
   } else {
     int left = 0;
     if (UILayoutIsRightToLeft())
       left = GetPreferredSize().width() - attached_tab_size_.width();
-    renderer_->SetBounds(CRect(left, 0, left + attached_tab_size_.width(),
-                               attached_tab_size_.height()));
+    renderer_->SetBounds(left, 0, left + attached_tab_size_.width(),
+                         attached_tab_size_.height());
   }
 }
 

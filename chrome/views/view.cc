@@ -129,69 +129,34 @@ gfx::Rect View::GetBounds(PositionMirroringSettings settings) const {
 // y(), width() and height() are agnostic to the RTL UI layout of the
 // parent view. x(), on the other hand, is not.
 int View::GetX(PositionMirroringSettings settings) const {
-  if (settings == IGNORE_MIRRORING_TRANSFORMATION) {
-    return bounds_.left;
-  }
-  return MirroredX();
+  return settings == IGNORE_MIRRORING_TRANSFORMATION ? x() : MirroredX();
 }
 
-void View::SetBounds(const CRect& bounds) {
-  if (bounds.left == bounds_.left &&
-      bounds.top == bounds_.top &&
-      bounds.Width() == bounds_.Width() &&
-      bounds.Height() == bounds_.Height()) {
+void View::SetBounds(const gfx::Rect& bounds) {
+  if (bounds == bounds_)
     return;
-  }
 
-  CRect prev = bounds_;
+  gfx::Rect prev = bounds_;
   bounds_ = bounds;
-  if (bounds_.right < bounds_.left)
-    bounds_.right = bounds_.left;
-
-  if (bounds_.bottom < bounds_.top)
-    bounds_.bottom = bounds_.top;
-
   DidChangeBounds(prev, bounds_);
 
   RootView* root = GetRootView();
   if (root) {
-    bool size_changed = (prev.Width() != bounds_.Width() ||
-                         prev.Height() != bounds_.Height());
-    bool position_changed = (prev.left != bounds_.left ||
-                             prev.top != bounds_.top);
+    bool size_changed = prev.size() != bounds_.size();
+    bool position_changed = prev.origin() != bounds_.origin();
     if (size_changed || position_changed)
       root->ViewBoundsChanged(this, size_changed, position_changed);
   }
 }
 
-void View::SetBounds(int x, int y, int width, int height) {
-  CRect tmp(x, y, x + width, y + height);
-  SetBounds(tmp);
-}
+gfx::Rect View::GetLocalBounds(bool include_border) const {
+  if (include_border || border_ == NULL)
+    return gfx::Rect(0, 0, width(), height());
 
-void View::SetBounds(const gfx::Point& origin, const gfx::Size& size) {
-  SetBounds(origin.x(), origin.y(), size.width(), size.height());
-}
-
-void View::GetLocalBounds(CRect* out, bool include_border) const {
-  if (include_border || border_ == NULL) {
-    out->left = 0;
-    out->top = 0;
-    out->right = width();
-    out->bottom = height();
-  } else {
-    gfx::Insets insets;
-    border_->GetInsets(&insets);
-    out->left = insets.left();
-    out->top = insets.top();
-    out->right = width() - insets.left();
-    out->bottom = height() - insets.top();
-  }
-}
-
-void View::GetSize(CSize* sz) const {
-  sz->cx = width();
-  sz->cy = height();
+  gfx::Insets insets;
+  border_->GetInsets(&insets);
+  return gfx::Rect(insets.left(), insets.top(),
+                   width() - insets.width(), height() - insets.height());
 }
 
 void View::GetPosition(CPoint* p) const {
@@ -222,7 +187,9 @@ int View::GetHeightForWidth(int w) {
   return GetPreferredSize().height();
 }
 
-void View::DidChangeBounds(const CRect& previous, const CRect& current) {
+void View::DidChangeBounds(const gfx::Rect& previous,
+                           const gfx::Rect& current) {
+  Layout();
 }
 
 void View::ScrollRectToVisible(int x, int y, int width, int height) {
@@ -284,10 +251,9 @@ bool View::UILayoutIsRightToLeft() const {
 inline int View::MirroredX() const {
   // TODO(beng): reimplement in terms of MirroredLeftPointForRect.
   View* parent = GetParent();
-  if (parent && parent->UILayoutIsRightToLeft()) {
-    return parent->width() - bounds_.left - width();
-  }
-  return bounds_.left;
+  if (parent && parent->UILayoutIsRightToLeft())
+    return parent->width() - x() - width();
+  return x();
 }
 
 int View::MirroredLeftPointForRect(const gfx::Rect& bounds) const {
@@ -368,9 +334,7 @@ void View::SchedulePaint(const CRect& r, bool urgent) {
 }
 
 void View::SchedulePaint() {
-  CRect lb;
-  GetLocalBounds(&lb, true);
-  SchedulePaint(lb, false);
+  SchedulePaint(GetLocalBounds(true).ToRECT(), false);
 }
 
 void View::SchedulePaint(int x, int y, int w, int h) {
@@ -426,11 +390,10 @@ void View::ProcessPaint(ChromeCanvas* canvas) {
   // Note that the X (or left) position we pass to ClipRectInt takes into
   // consideration whether or not the view uses a right-to-left layout so that
   // we paint our view in its mirrored position if need be.
-  if (canvas->ClipRectInt(MirroredX(), bounds_.top, bounds_.Width(),
-                          bounds_.Height())) {
+  if (canvas->ClipRectInt(MirroredX(), y(), width(), height())) {
     // Non-empty clip, translate the graphics such that 0,0 corresponds to
     // where this view is located (related to its parent).
-    canvas->TranslateInt(MirroredX(), bounds_.top);
+    canvas->TranslateInt(MirroredX(), y());
 
     // Save the state again, so that any changes don't effect PaintChildren.
     canvas->save();
@@ -967,8 +930,8 @@ void View::PrintViewHierarchyImp(int indent) {
   buf << L' ';
   buf << GetID();
   buf << L' ';
-  buf << bounds_.left << L"," << bounds_.top << L",";
-  buf << bounds_.right << L"," << bounds_.bottom;
+  buf << bounds_.x() << L"," << bounds_.y() << L",";
+  buf << bounds_.right() << L"," << bounds_.bottom();
   buf << L' ';
   buf << this;
 

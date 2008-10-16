@@ -847,8 +847,8 @@ void BookmarkBarView::Layout() {
   x += other_bookmarked_pref.width() + kButtonPadding;
 }
 
-void BookmarkBarView::DidChangeBounds(const CRect& previous,
-                                      const CRect& current) {
+void BookmarkBarView::DidChangeBounds(const gfx::Rect& previous,
+                                      const gfx::Rect& current) {
   Layout();
 }
 

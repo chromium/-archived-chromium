@@ -262,7 +262,7 @@ void WebContentsViewWin::OnPaint(HDC junk_dc) {
       web_contents_->sad_tab_.reset(new SadTabView);
     CRect cr;
     GetClientRect(&cr);
-    web_contents_->sad_tab_->SetBounds(cr);
+    web_contents_->sad_tab_->SetBounds(gfx::Rect(cr));
     ChromeCanvasPaint canvas(GetHWND(), true);
     web_contents_->sad_tab_->ProcessPaint(&canvas);
     return;

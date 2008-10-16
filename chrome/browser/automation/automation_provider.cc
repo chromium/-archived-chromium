@@ -1136,8 +1136,7 @@ void AutomationProvider::WindowGetViewBounds(const IPC::Message& message,
                                              int view_id,
                                              bool screen_coordinates) {
   bool succeeded = false;
-  CRect bounds;
-  bounds.SetRect(0, 0, 0, 0);
+  gfx::Rect bounds;
 
   void* iter = NULL;
   if (window_tracker_->ContainsHandle(handle)) {
@@ -1153,14 +1152,14 @@ void AutomationProvider::WindowGetViewBounds(const IPC::Message& message,
           ChromeViews::View::ConvertPointToScreen(view, &point);
         else
           ChromeViews::View::ConvertPointToView(view, root_view, &point);
-        view->GetLocalBounds(&bounds, false);
-        bounds.MoveToXY(point.x(), point.y());
+        bounds = view->GetLocalBounds(false);
+        bounds.set_origin(point);
       }
     }
   }
 
-  Send(new AutomationMsg_WindowViewBoundsResponse(
-           message.routing_id(), succeeded, gfx::Rect(bounds)));
+  Send(new AutomationMsg_WindowViewBoundsResponse(message.routing_id(),
+                                                  succeeded, bounds));
 }
 
 // This task enqueues a mouse event on the event loop, so that the view

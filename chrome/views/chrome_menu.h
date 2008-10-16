@@ -504,7 +504,8 @@ class SubmenuView : public View {
 
   // View method. Overriden to schedule a paint. We do this so that when
   // scrolling occurs, everything is repainted correctly.
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
 
   // Painting.
   void PaintChildren(ChromeCanvas* canvas);

@@ -68,8 +68,6 @@ class FindInPageView : public ChromeViews::View,
   // Overridden from ChromeViews::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect& old_bounds,
-                               const CRect& new_bounds);
   virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 

@@ -38,7 +38,8 @@ class HWNDView : public View {
   // Detach the attached window handle. It will no longer be updated
   void Detach();
 
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
   virtual void VisibilityChanged(View* starting_from, bool is_visible);
 
   HWND GetHWND() const;

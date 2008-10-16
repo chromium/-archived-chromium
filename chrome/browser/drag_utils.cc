@@ -150,7 +150,7 @@ void SetURLAndDragImage(const GURL& url,
     button.SetIcon(icon);
   }
   gfx::Size prefsize = button.GetPreferredSize();
-  button.SetBounds(gfx::Point(), prefsize);
+  button.SetBounds(0, 0, prefsize.width(), prefsize.height());
 
   // Render the image.
   ChromeCanvas canvas(prefsize.width(), prefsize.height(), false);

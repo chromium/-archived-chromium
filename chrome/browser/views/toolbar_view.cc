@@ -342,11 +342,6 @@ void BrowserToolbarView::Layout() {
   }
 }
 
-void BrowserToolbarView::DidChangeBounds(const CRect& previous,
-                                         const CRect& current) {
-  Layout();
-}
-
 void BrowserToolbarView::DidGainFocus() {
   // Find first accessible child (-1 for start search at parent).
   int first_acc_child = GetNextAccessibleViewIndex(-1, false);

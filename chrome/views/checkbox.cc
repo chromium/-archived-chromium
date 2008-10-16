@@ -61,7 +61,7 @@ std::string CheckBox::GetClassName() const {
 
 void CheckBox::Layout() {
   int label_x = GetTextIndent();
-  label_->SetBounds(label_x, 0, width() - label_x, height());
+  label_->SetBounds(label_x, 0, std::max(0, width() - label_x), height());
   if (hwnd_view_) {
     int first_line_height = label_->GetFont().height();
     hwnd_view_->SetBounds(0, ((first_line_height - kCheckBoxHeight) / 2) + 1,

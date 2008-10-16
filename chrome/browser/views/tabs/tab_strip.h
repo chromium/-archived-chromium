@@ -98,7 +98,6 @@ class TabStrip : public ChromeViews::View,
 
   // ChromeViews::View overrides:
   virtual void PaintChildren(ChromeCanvas* canvas);
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual ChromeViews::View* GetViewByID(int id) const;
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();

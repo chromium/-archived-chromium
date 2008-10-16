@@ -450,9 +450,9 @@ class PageInfoContentView : public ChromeViews::View {
     if (cert_viewer_button_) {
       gfx::Size ps = cert_viewer_button_->GetPreferredSize();
 
-      CRect parent_bounds;
-      GetParent()->GetLocalBounds(&parent_bounds, false);
-      int y_buttons = parent_bounds.bottom - ps.height() - kButtonVEdgeMargin;
+      gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
+      int y_buttons =
+          parent_bounds.bottom() - ps.height() - kButtonVEdgeMargin;
       cert_viewer_button_->SetBounds(kPanelHorizMargin, y_buttons, ps.width(),
                                      ps.height());
     }

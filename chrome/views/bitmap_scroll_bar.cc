@@ -98,7 +98,7 @@ class BitmapScrollBarThumb : public View {
     } else {
       thumb_bounds.set_height(size);
     }
-    SetBounds(thumb_bounds.ToRECT());
+    SetBounds(thumb_bounds);
   }
 
   // Retrieves the size (width or height) of the thumb.
@@ -117,7 +117,7 @@ class BitmapScrollBarThumb : public View {
     } else {
       thumb_bounds.set_x(track_bounds.y() + position);
     }
-    SetBounds(thumb_bounds.ToRECT());
+    SetBounds(thumb_bounds);
   }
 
   // Gets the position of the thumb on the x or y axis.
@@ -401,7 +401,7 @@ void BitmapScrollBar::Layout() {
   // Size and place the two scroll buttons.
   if (show_scroll_buttons_) {
     gfx::Size prefsize = prev_button_->GetPreferredSize();
-    prev_button_->SetBounds(gfx::Point(), prefsize);
+    prev_button_->SetBounds(0, 0, prefsize.width(), prefsize.height());
     prefsize = next_button_->GetPreferredSize();
     if (IsHorizontal()) {
       next_button_->SetBounds(width() - prefsize.width(), 0, prefsize.width(),
@@ -439,11 +439,6 @@ void BitmapScrollBar::Layout() {
   } else if (!thumb_->IsVisible()) {
     thumb_->SetVisible(true);
   }
-}
-
-void BitmapScrollBar::DidChangeBounds(const CRect& previous,
-                                      const CRect& current) {
-  Layout();
 }
 
 bool BitmapScrollBar::OnMousePressed(const MouseEvent& event) {

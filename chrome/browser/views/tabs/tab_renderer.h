@@ -74,7 +74,6 @@ class TabRenderer : public ChromeViews::View,
   // Overridden from ChromeViews::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void OnMouseEntered(const ChromeViews::MouseEvent& event);
   virtual void OnMouseExited(const ChromeViews::MouseEvent& event);
 

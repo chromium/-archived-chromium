@@ -667,7 +667,6 @@ class TaskManagerContents : public ChromeViews::View,
   void Init(TaskManagerTableModel* table_model);
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
                                     ChromeViews::View* child);
   void GetSelection(std::vector<int>* selection);
@@ -809,11 +808,6 @@ void TaskManagerContents::UpdateStatsCounters() {
   }
 }
 
-void TaskManagerContents::DidChangeBounds(const CRect& previous,
-                                          const CRect& current) {
-  Layout();
-}
-
 void TaskManagerContents::ViewHierarchyChanged(bool is_add,
                                                ChromeViews::View* parent,
                                                ChromeViews::View* child) {
@@ -839,31 +833,24 @@ void TaskManagerContents::ViewHierarchyChanged(bool is_add,
 void TaskManagerContents::Layout() {
   // kPanelHorizMargin is too big.
   const int kTableButtonSpacing = 12;
-  CRect bounds;
-  GetLocalBounds(&bounds, true);
-  int x = bounds.left;
-  int y = bounds.top;
 
   gfx::Size size = kill_button_->GetPreferredSize();
   int prefered_width = size.width();
   int prefered_height = size.height();
 
-  tab_table_->SetBounds(
-      x + kPanelHorizMargin,
-      y + kPanelVertMargin,
-      bounds.Width() - 2 * kPanelHorizMargin,
-      bounds.Height() - 2 * kPanelVertMargin - prefered_height);
-
+  tab_table_->SetBounds(x() + kPanelHorizMargin,
+                        y() + kPanelVertMargin,
+                        width() - 2 * kPanelHorizMargin,
+                        height() - 2 * kPanelVertMargin - prefered_height);
+  
   // y-coordinate of button top left.
-  CRect parent_bounds;
-  GetParent()->GetLocalBounds(&parent_bounds, false);
-  int y_buttons = parent_bounds.bottom - prefered_height - kButtonVEdgeMargin;
+  gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
+  int y_buttons = parent_bounds.bottom() - prefered_height - kButtonVEdgeMargin;
 
-  kill_button_->SetBounds(
-      x + bounds.Width() - prefered_width - kPanelHorizMargin,
-      y_buttons,
-      prefered_width,
-      prefered_height);
+  kill_button_->SetBounds(x() + width() - prefered_width - kPanelHorizMargin,
+                          y_buttons,
+                          prefered_width,
+                          prefered_height);
 
   size = about_memory_link_->GetPreferredSize();
   int link_prefered_width = size.width();
@@ -872,7 +859,7 @@ void TaskManagerContents::Layout() {
   // bottom of buttons vertically.
   int link_y_offset = std::max(0, prefered_height - link_prefered_height) / 2;
   about_memory_link_->SetBounds(
-      x + kPanelHorizMargin,
+      x() + kPanelHorizMargin,
       y_buttons + prefered_height - link_prefered_height - link_y_offset,
       link_prefered_width,
       link_prefered_height);

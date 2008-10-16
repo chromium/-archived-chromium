@@ -50,14 +50,13 @@ void DelayView::Layout() {
   if (!GetParent())
     return;
 
-  CSize available;
-  GetParent()->GetSize(&available);
+  gfx::Size available = GetParent()->size();
 
   if (cancel_button_) {
     gfx::Size button_size = cancel_button_->GetPreferredSize();
-    cancel_button_->SetBounds(available.cx - kWindowMargin -
+    cancel_button_->SetBounds(available.width() - kWindowMargin -
                                   button_size.width(),
-                              available.cy - kWindowMargin -
+                              available.height() - kWindowMargin -
                                   button_size.height(),
                               button_size.width(), button_size.height());
   }
@@ -73,8 +72,8 @@ void DelayView::Layout() {
                           label_size.width(),
                       std::max(throbber_size.height(), label_size.height()));
 
-  main_rect.set_x((available.cx / 2) - (main_rect.width() / 2));
-  main_rect.set_y((available.cy / 2) - (main_rect.height() / 2));
+  main_rect.set_x((available.width() / 2) - (main_rect.width() / 2));
+  main_rect.set_y((available.height() / 2) - (main_rect.height() / 2));
 
   label_->SetBounds(main_rect.x() + throbber_size.width() +
                         kThrobberLabelSpace,

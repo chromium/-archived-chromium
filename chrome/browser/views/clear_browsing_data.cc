@@ -176,12 +176,11 @@ void ClearBrowsingDataView::Layout() {
 
   // Get the y-coordinate of our parent so we can position the throbber and
   // status message at the bottom of the panel.
-  CRect parent_bounds;
-  GetParent()->GetLocalBounds(&parent_bounds, false);
+  gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
 
   sz = throbber_->GetPreferredSize();
   int throbber_topleft_x = kPanelHorizMargin;
-  int throbber_topleft_y = parent_bounds.bottom - sz.height() -
+  int throbber_topleft_y = parent_bounds.bottom() - sz.height() -
                            kButtonVEdgeMargin - 3;
   throbber_->SetBounds(throbber_topleft_x, throbber_topleft_y, sz.width(),
                        sz.height());

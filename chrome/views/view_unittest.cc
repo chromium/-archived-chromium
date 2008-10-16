@@ -124,8 +124,8 @@ class TestView : public View {
 
   // DidChangeBounds test
   bool did_change_bounds_;
-  CRect previous_bounds_;
-  CRect new_bounds_;
+  gfx::Rect previous_bounds_;
+  gfx::Rect new_bounds_;
 
   // AddRemoveNotifications test
   bool child_added_;
@@ -154,8 +154,8 @@ void TestView::DidChangeBounds(const CRect& previous, const CRect& current) {
 TEST_F(ViewTest, DidChangeBounds) {
   TestView* v = new TestView();
 
-  CRect prev_rect(0, 0, 200, 200);
-  CRect new_rect(100, 100, 250, 250);
+  gfx::Rect prev_rect(0, 0, 200, 200);
+  gfx::Rect new_rect(100, 100, 250, 250);
 
   v->SetBounds(prev_rect);
   v->Reset();
@@ -552,12 +552,12 @@ TEST_F(ViewTest, HitTestMasks) {
 
   gfx::Rect v1_bounds = gfx::Rect(0, 0, 100, 100);
   HitTestView* v1 = new HitTestView(false);
-  v1->SetBounds(v1_bounds.ToRECT());
+  v1->SetBounds(v1_bounds);
   root_view->AddChildView(v1);
 
   gfx::Rect v2_bounds = gfx::Rect(105, 0, 100, 100);
   HitTestView* v2 = new HitTestView(true);
-  v2->SetBounds(v2_bounds.ToRECT());
+  v2->SetBounds(v2_bounds);
   root_view->AddChildView(v2);
 
   gfx::Point v1_centerpoint = v1_bounds.CenterPoint();

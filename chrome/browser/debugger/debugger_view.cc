@@ -46,10 +46,6 @@ void DebuggerView::Layout() {
   web_container_->SetBounds(0, 0, width(), height());
 }
 
-void DebuggerView::DidChangeBounds(const CRect& previous,
-                                   const CRect& current) {
-  Layout();
-}
 
 void DebuggerView::ViewHierarchyChanged(bool is_add,
                                         ChromeViews::View* parent,
@@ -63,8 +59,7 @@ void DebuggerView::ViewHierarchyChanged(bool is_add,
 void DebuggerView::Paint(ChromeCanvas* canvas) {
 #ifndef NDEBUG
   SkPaint paint;
-  canvas->FillRectInt(SK_ColorCYAN, bounds_.left, bounds_.top,
-                      bounds_.Width(), bounds_.Height());
+  canvas->FillRectInt(SK_ColorCYAN, x(), y(), width(), height());
 #endif
 }
 

@@ -442,7 +442,8 @@ class MenuScrollViewContainer : public View {
     scroll_view_->Layout();
   }
 
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current) {
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current) {
     gfx::Size content_pref = scroll_view_->GetContents()->GetPreferredSize();
     scroll_up_button_->SetVisible(content_pref.height() > height());
     scroll_down_button_->SetVisible(content_pref.height() > height());
@@ -829,7 +830,8 @@ gfx::Size SubmenuView::GetPreferredSize() {
   return gfx::Size(max_width + insets.width(), height + insets.height());
 }
 
-void SubmenuView::DidChangeBounds(const CRect& previous, const CRect& current) {
+void SubmenuView::DidChangeBounds(const gfx::Rect& previous,
+                                  const gfx::Rect& current) {
   SchedulePaint();
 }
 

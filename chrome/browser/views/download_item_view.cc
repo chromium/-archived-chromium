@@ -311,11 +311,6 @@ void DownloadItemView::Layout() {
   }
 }
 
-void DownloadItemView::DidChangeBounds(const CRect& previous,
-                                       const CRect& current) {
-  Layout();
-}
-
 void DownloadItemView::ButtonPressed(ChromeViews::NativeButton* sender) {
   if (sender == discard_button_) {
     if (download_->state() == DownloadItem::IN_PROGRESS)
@@ -790,6 +785,6 @@ void DownloadItemView::SizeLabelToMinWidth() {
   if (min_width == -1)
     size = dangerous_download_label_->GetPreferredSize();
 
-  dangerous_download_label_->SetBounds(gfx::Point(), size);
+  dangerous_download_label_->SetBounds(0, 0, size.width(), size.height());
   dangerous_download_label_sized_ = true;
 }

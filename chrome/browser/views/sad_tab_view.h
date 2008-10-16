@@ -31,7 +31,6 @@ class SadTabView : public ChromeViews::View {
   // Overridden from ChromeViews::View:
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect&, const CRect&);
 
  private:
   static void InitClass();

@@ -727,10 +727,9 @@ gfx::Rect DraggedTabController::GetViewScreenBounds(
     ChromeViews::View* view) const {
   gfx::Point view_topleft;
   ChromeViews::View::ConvertPointToScreen(view, &view_topleft);
-  CRect view_screen_bounds;
-  view->GetLocalBounds(&view_screen_bounds, true);
-  view_screen_bounds.OffsetRect(view_topleft.ToPOINT());
-  return gfx::Rect(view_screen_bounds);
+  gfx::Rect view_screen_bounds = view->GetLocalBounds(true);
+  view_screen_bounds.Offset(view_topleft.x(), view_topleft.y());
+  return view_screen_bounds;
 }
 
 int DraggedTabController::NormalizeIndexToAttachedTabStrip(int index) const {

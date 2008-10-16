@@ -238,16 +238,8 @@ void NativeScrollBar::ViewHierarchyChanged(bool is_add, View *parent,
 }
 
 void NativeScrollBar::Layout() {
-  if (sb_view_) {
-    CRect lb;
-    GetLocalBounds(&lb, true);
-    sb_view_->SetBounds(0, 0, lb.Width(), lb.Height());
-  }
-}
-
-void NativeScrollBar::DidChangeBounds(const CRect& previous,
-                                      const CRect& current) {
-  Layout();
+  if (sb_view_)
+    sb_view_->SetBounds(GetLocalBounds(true));
 }
 
 gfx::Size NativeScrollBar::GetPreferredSize() {

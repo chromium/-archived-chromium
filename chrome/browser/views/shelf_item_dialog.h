@@ -73,7 +73,6 @@ class ShelfItemDialog : public ChromeViews::View,
                                UINT flags) {}
 
   // Overridden from View.
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual gfx::Size GetPreferredSize();
   virtual bool AcceleratorPressed(const ChromeViews::Accelerator& accelerator);
 

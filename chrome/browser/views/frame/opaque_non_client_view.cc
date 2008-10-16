@@ -651,11 +651,6 @@ ChromeViews::View* OpaqueNonClientView::GetViewForPoint(
   return View::GetViewForPoint(point, can_create_floating);
 }
 
-void OpaqueNonClientView::DidChangeBounds(const CRect& previous,
-                                          const CRect& current) {
-  Layout();
-}
-
 void OpaqueNonClientView::ViewHierarchyChanged(bool is_add,
                                                ChromeViews::View* parent,
                                                ChromeViews::View* child) {
@@ -1007,13 +1002,12 @@ void OpaqueNonClientView::LayoutTitleBar() {
 
   // Do this last, after the icon has been moved.
   if (window_icon_)
-    window_icon_->SetBounds(icon_bounds_.ToRECT());
+    window_icon_->SetBounds(icon_bounds_);
 }
 
 void OpaqueNonClientView::LayoutClientView() {
-  gfx::Rect client_bounds(
-      CalculateClientAreaBounds(width(), height()));
-  frame_->client_view()->SetBounds(client_bounds.ToRECT());
+  gfx::Rect client_bounds = CalculateClientAreaBounds(width(), height());
+  frame_->client_view()->SetBounds(client_bounds);
 }
 
 // static

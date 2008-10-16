@@ -161,10 +161,6 @@ class HungRendererWarningView : public ChromeViews::View,
    public:
     ButtonContainer() {}
     virtual ~ButtonContainer() {}
-
-    virtual void DidChangeBounds(const CRect& previous, const CRect& current) {
-      Layout();
-    }
    private:
     DISALLOW_EVIL_CONSTRUCTORS(ButtonContainer);
   };

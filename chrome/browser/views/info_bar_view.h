@@ -42,8 +42,6 @@ class InfoBarView : public ChromeViews::View,
   // PaintBackground, PaintBorder and PaintSeparators.
   virtual void Paint(ChromeCanvas* canvas);
 
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
-
   WebContents* web_contents() { return web_contents_; }
 
  protected:

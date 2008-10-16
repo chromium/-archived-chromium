@@ -59,11 +59,6 @@ void Decision::AppendOption(int command_id,
   AddChildView(option);
 }
 
-void Decision::DidChangeBounds(const CRect& old_bounds,
-                               const CRect& new_bounds) {
-  Layout();
-}
-
 void Decision::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
   if (is_add && child == this) {
     // Layout when this is added so that the buttons are laid out correctly.
@@ -72,29 +67,28 @@ void Decision::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
 }
 
 void Decision::Layout() {
-  CRect lb;
-  GetLocalBounds(&lb, false);
+  gfx::Rect lb = GetLocalBounds(false);
 
   // Resize for padding.
-  lb.DeflateRect(kPaddingEdge, kPaddingEdge);
-  int width = lb.Width();
+  lb.Inset(kPaddingEdge, kPaddingEdge);
+  int width = lb.width();
 
-  CPoint position(lb.TopLeft());
+  gfx::Point position = lb.origin();
   gfx::Size size = title_label_->GetPreferredSize();
-  title_label_->SetBounds(position.x, position.y, width, size.height());
-  position.y += size.height() + kSpacingInfoBottom;
+  title_label_->SetBounds(position.x(), position.y(), width, size.height());
+  position.set_y(position.y() + size.height() + kSpacingInfoBottom);
 
   size.set_height(details_label_->GetHeightForWidth(width));
-  details_label_->SetBounds(position.x, position.y, width, size.height());
-  position.y += size.height() + kSpacingInfoBottom;
+  details_label_->SetBounds(position.x(), position.y(), width, size.height());
+  position.set_y(position.y() + size.height() + kSpacingInfoBottom);
 
   for (std::vector<Option*>::const_iterator iter = options_.begin();
        iter != options_.end(); ++iter) {
     Option* option = *iter;
     size = option->GetPreferredSize();
-    option->SetBounds(position.x, position.y, width, size.height());
+    option->SetBounds(position.x(), position.y(), width, size.height());
     option->Layout();
-    position.y += size.height() + kSpacingInfoBottom;
+    position.set_y(position.y() + size.height() + kSpacingInfoBottom);
   }
 }
 

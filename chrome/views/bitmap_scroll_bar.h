@@ -90,7 +90,6 @@ class BitmapScrollBar : public ScrollBar,
   virtual gfx::Size GetPreferredSize();
   virtual void Paint(ChromeCanvas* canvas);
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual bool OnMousePressed(const MouseEvent& event);
   virtual void OnMouseReleased(const MouseEvent& event, bool canceled);
   virtual bool OnMouseWheel(const MouseWheelEvent& event);

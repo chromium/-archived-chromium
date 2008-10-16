@@ -266,12 +266,11 @@ void AboutChromeView::Layout() {
 
   // Get the y-coordinate of our parent so we can position the text left of the
   // buttons at the bottom.
-  CRect parent_bounds;
-  GetParent()->GetLocalBounds(&parent_bounds, false);
+  gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
 
   sz = throbber_->GetPreferredSize();
   int throbber_topleft_x = kPanelHorizMargin;
-  int throbber_topleft_y = parent_bounds.bottom - sz.height() -
+  int throbber_topleft_y = parent_bounds.bottom() - sz.height() -
                            kButtonVEdgeMargin - 3;
   throbber_->SetBounds(throbber_topleft_x, throbber_topleft_y,
                        sz.width(), sz.height());
@@ -300,7 +299,7 @@ void AboutChromeView::Layout() {
   update_label_.SetHorizontalAlignment(ChromeViews::Label::ALIGN_LEFT);
   update_label_.SetBounds(update_label_x,
                           throbber_topleft_y + 1,
-                          parent_bounds.Width() - update_label_x,
+                          parent_bounds.width() - update_label_x,
                           sz.height());
 }
 

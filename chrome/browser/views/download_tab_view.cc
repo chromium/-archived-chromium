@@ -670,11 +670,6 @@ void DownloadItemTabView::PaintBackground(ChromeCanvas* canvas) {
   }
 }
 
-void DownloadItemTabView::DidChangeBounds(const CRect& previous,
-                                          const CRect& current) {
-  Layout();
-}
-
 bool DownloadItemTabView::OnMousePressed(const ChromeViews::MouseEvent& event) {
   gfx::Point point(event.location());
 
@@ -819,13 +814,7 @@ void DownloadTabView::UpdateDownloadProgress() {
   SchedulePaint();
 }
 
-void DownloadTabView::DidChangeBounds(const CRect& previous,
-                                      const CRect& current) {
-  Layout();
-}
-
 void DownloadTabView::Layout() {
-  CRect r;
   DetachAllFloatingViews();
   // Dangerous downloads items use NativeButtons, so they need to be attached
   // as NativeControls are not supported yet in floating views.
@@ -844,7 +833,6 @@ void DownloadTabView::Layout() {
   }
   View* v = GetParent();
   if (v) {
-    v->GetLocalBounds(&r, true);
     int h = static_cast<int>(downloads_.size()) *
             (download_util::kBigProgressIconSize + kSpacer) + kSpacer;
     SetBounds(x(), y(), v->width(), h);

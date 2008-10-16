@@ -36,7 +36,6 @@ class DownloadItemTabView : public ChromeViews::View,
   virtual void Paint(ChromeCanvas* canvas);
   void PaintBackground(ChromeCanvas* canvas);
   virtual gfx::Size GetPreferredSize();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual bool OnMousePressed(const ChromeViews::MouseEvent& event);
   virtual bool OnMouseDragged(const ChromeViews::MouseEvent& event);
 
@@ -111,7 +110,6 @@ class DownloadTabView : public ChromeViews::View,
   DownloadManager* model() const { return model_; }
 
   // View overrides
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void Layout();
   virtual void Paint(ChromeCanvas* canvas);
   virtual bool GetFloatingViewIDForPoint(int x, int y, int* id);

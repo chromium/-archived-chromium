@@ -36,10 +36,6 @@ class Decision : public View {
                     const std::wstring& description,
                     const std::wstring& action);
 
-  // Need to override this to call layout.
-  virtual void DidChangeBounds(const CRect& old_bounds,
-                               const CRect& new_bounds);
-
   // Overridden from View for custom layout.
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();

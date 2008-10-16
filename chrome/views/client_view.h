@@ -55,7 +55,6 @@ class ClientView : public View {
  protected:
   // Overridden from View:
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void Layout();
 
   // Accessors for private data members.

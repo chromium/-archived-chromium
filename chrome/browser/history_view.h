@@ -33,7 +33,8 @@ class HistoryView : public ChromeViews::View,
   bool IsVisible();
 
   // Overridden for layout purposes.
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
   virtual void Layout();
 
   virtual bool GetFloatingViewIDForPoint(int x, int y, int* id);

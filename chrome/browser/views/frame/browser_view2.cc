@@ -782,11 +782,6 @@ void BrowserView2::Layout() {
   SchedulePaint();
 }
 
-void BrowserView2::DidChangeBounds(const CRect& previous,
-                                   const CRect& current) {
-  Layout();
-}
-
 void BrowserView2::ViewHierarchyChanged(bool is_add,
                                         ChromeViews::View* parent,
                                         ChromeViews::View* child) {
@@ -1046,7 +1041,7 @@ bool BrowserView2::UpdateChildViewAndLayout(ChromeViews::View* new_view,
   } else if (new_view && *old_view) {
     // The view changed, but the new view wants the same size, give it the
     // bounds of the last view and have it repaint.
-    new_view->SetBounds((*old_view)->bounds().ToRECT());
+    new_view->SetBounds((*old_view)->bounds());
     new_view->SchedulePaint();
   } else if (new_view) {
     DCHECK(new_height == 0);

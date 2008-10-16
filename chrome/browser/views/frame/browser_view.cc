@@ -220,11 +220,6 @@ void BrowserView::Layout() {
   toolbar_->SetBounds(0, 0, width(), height());
 }
 
-void BrowserView::DidChangeBounds(const CRect& previous,
-                                  const CRect& current) {
-  Layout();
-}
-
 void BrowserView::ViewHierarchyChanged(bool is_add,
                                        ChromeViews::View* parent,
                                        ChromeViews::View* child) {

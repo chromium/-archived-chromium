@@ -213,11 +213,6 @@ gfx::Size LocationBarView::GetPreferredSize() {
           security_image_view_.GetPreferredSize().width()));
 }
 
-void LocationBarView::DidChangeBounds(const CRect& previous,
-                                      const CRect& current) {
-  Layout();
-}
-
 void LocationBarView::Layout() {
   DoLayout(true);
 }
@@ -646,12 +641,6 @@ gfx::Size LocationBarView::SelectedKeywordView::GetMinimumSize() {
   return partial_label_.GetMinimumSize();
 }
 
-void LocationBarView::SelectedKeywordView::DidChangeBounds(
-    const CRect& previous,
-    const CRect& current) {
-  Layout();
-}
-
 void LocationBarView::SelectedKeywordView::Layout() {
   gfx::Size pref = GetPreferredSize();
   bool at_pref = (width() == pref.width());
@@ -802,11 +791,6 @@ void LocationBarView::KeywordHintView::Layout() {
     pref = trailing_label_.GetPreferredSize();
     trailing_label_.SetBounds(x, 0, pref.width(), height());
   }
-}
-
-void LocationBarView::KeywordHintView::DidChangeBounds(const CRect& previous,
-                                          const CRect& current) {
-  Layout();
 }
 
 // We don't translate accelerators for ALT + numpad digit, they are used for

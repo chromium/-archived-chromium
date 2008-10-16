@@ -43,7 +43,8 @@ class BookmarkBubbleView : public ChromeViews::View,
   virtual ~BookmarkBubbleView();
 
   // Overriden to force a layout.
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
 
   // Invoked after the bubble has been shown.
   virtual void BubbleShown();

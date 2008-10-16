@@ -77,8 +77,7 @@ void HWNDView::UpdateHWNDBounds() {
   bool visible = !vis_bounds.IsEmpty();
 
   if (visible && !fast_resize_) {
-    if (vis_bounds.width() != bounds_.Width() ||
-        vis_bounds.height() != bounds_.Height()) {
+    if (vis_bounds.size() != size()) {
       // Only a portion of the HWND is really visible.
       int x = vis_bounds.x();
       int y = vis_bounds.y();
@@ -114,14 +113,12 @@ void HWNDView::UpdateHWNDBounds() {
       ::SetWindowPos(hwnd_, 0, top_left.x(), top_left.y(), rect.Width(),
                      rect.Height(), swp_flags);
 
-      HRGN clip_region = CreateRectRgn(0, 0,
-                                       bounds_.Width(),
-                                       bounds_.Height());
+      HRGN clip_region = CreateRectRgn(0, 0, width(), height());
       SetWindowRgn(hwnd_, clip_region, FALSE);
       installed_clip_ = true;
     } else {
-      ::SetWindowPos(hwnd_, 0, top_left.x(), top_left.y(), bounds_.Width(),
-                     bounds_.Height(), swp_flags);
+      ::SetWindowPos(hwnd_, 0, top_left.x(), top_left.y(), width(), height(),
+                     swp_flags);
     }
   } else if (::IsWindowVisible(hwnd_)) {
     // The window is currently visible, but its clipped by another view. Hide
@@ -132,7 +129,10 @@ void HWNDView::UpdateHWNDBounds() {
   }
 }
 
-void HWNDView::DidChangeBounds(const CRect& previous, const CRect& current) {
+void HWNDView::DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current) {
+  // TODO(beng): (Cleanup) Could UpdateHWNDBounds be replaced by a Layout
+  //             method and this function gotten rid of?
   UpdateHWNDBounds();
 }
 
@@ -183,8 +183,7 @@ void HWNDView::Paint(ChromeCanvas* canvas) {
   // It would be nice if this used some approximation of the page's
   // current background color.
   if (installed_clip_ && win_util::ShouldUseVistaFrame())
-    canvas->FillRectInt(SkColorSetRGB(255, 255, 255), 0, 0,
-                        bounds_.Width(), bounds_.Height());
+    canvas->FillRectInt(SkColorSetRGB(255, 255, 255), 0, 0, width(), height());
 }
 
 std::string HWNDView::GetClassName() const {

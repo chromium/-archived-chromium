@@ -32,7 +32,6 @@ class NativeControl : public View {
 
   virtual void ViewHierarchyChanged(bool is_add, View *parent, View *child);
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
 
   // Overridden to properly set the native control state.
   virtual void SetVisible(bool f);

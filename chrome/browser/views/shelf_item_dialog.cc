@@ -480,11 +480,6 @@ bool ShelfItemDialog::AcceleratorPressed(
   return true;
 }
 
-void ShelfItemDialog::DidChangeBounds(const CRect& previous,
-                                      const CRect& current) {
-  Layout();
-}
-
 void ShelfItemDialog::OnSelectionChanged() {
   int selection = url_table_->FirstSelectedRow();
   if (selection >= 0 && selection < url_table_model_->RowCount()) {

@@ -93,11 +93,6 @@ void InfoBarView::Paint(ChromeCanvas* canvas) {
   PaintSeparators(canvas);
 }
 
-void InfoBarView::DidChangeBounds(const CRect& previous,
-                                  const CRect& current) {
-  Layout();
-}
-
 void InfoBarView::ChildAnimationProgressed() {
   if (web_contents_)
     web_contents_->ToolbarSizeChanged(true);

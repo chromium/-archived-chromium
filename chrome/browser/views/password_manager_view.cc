@@ -293,10 +293,10 @@ void PasswordManagerView::Layout() {
 
   // Manually lay out the Remove All button in the same row as
   // the close button.
-  CRect parent_bounds;
-  GetParent()->GetLocalBounds(&parent_bounds, false);
+  gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
   gfx::Size prefsize = remove_all_button_.GetPreferredSize();
-  int button_y = parent_bounds.bottom - prefsize.height() - kButtonVEdgeMargin;
+  int button_y =
+      parent_bounds.bottom() - prefsize.height() - kButtonVEdgeMargin;
   remove_all_button_.SetBounds(kPanelHorizMargin, button_y, prefsize.width(),
                                prefsize.height());
 }

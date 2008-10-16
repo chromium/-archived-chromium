@@ -107,15 +107,14 @@ bool ButtonDropDown::OnMouseDragged(const ChromeViews::MouseEvent& e) {
 
 void ButtonDropDown::ShowDropDownMenu(HWND window) {
   if (menu_delegate_) {
-    CRect lb;
-    GetLocalBounds(&lb, true);
+    gfx::Rect lb = GetLocalBounds(true);
 
     // Both the menu position and the menu anchor type change if the UI layout
     // is right-to-left.
-    gfx::Point menu_position(lb.TopLeft());
-    menu_position.Offset(0, lb.Height() - 1);
+    gfx::Point menu_position(lb.origin());
+    menu_position.Offset(0, lb.height() - 1);
     if (UILayoutIsRightToLeft())
-      menu_position.Offset(lb.Width() - 1, 0);
+      menu_position.Offset(lb.width() - 1, 0);
 
     Menu::AnchorPoint anchor = Menu::TOPLEFT;
     if (UILayoutIsRightToLeft())

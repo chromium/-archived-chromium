@@ -72,7 +72,6 @@ class BookmarkEditorView : public ChromeViews::View,
   // View methods.
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add, ChromeViews::View* parent,
                                     ChromeViews::View* child);
 

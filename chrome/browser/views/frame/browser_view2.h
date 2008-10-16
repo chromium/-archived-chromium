@@ -221,7 +221,6 @@ class BrowserView2 : public BrowserWindow,
  protected:
   // Overridden from ChromeViews::View:
   virtual void Layout();
-  virtual void DidChangeBounds(const CRect& previous, const CRect& current);
   virtual void ViewHierarchyChanged(bool is_add,
                                     ChromeViews::View* parent,
                                     ChromeViews::View* child);
