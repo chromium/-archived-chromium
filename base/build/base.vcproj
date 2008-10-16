@@ -638,14 +638,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\shared_event.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\shared_event.h"
-			>
-		</File>
-		<File
 			RelativePath="..\shared_memory.h"
 			>
 		</File>

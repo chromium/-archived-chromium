@@ -88,7 +88,6 @@ if env['PLATFORM'] == 'win32':
     # This group all depends on MessageLoop.
     'idle_timer.cc',
     'object_watcher.cc',
-    'shared_event.cc',   # Is this used?
     'watchdog.cc',
 
     'resource_util.cc',  # Uses HMODULE, but may be abstractable.
@@ -308,7 +307,6 @@ if env['PLATFORM'] == 'win32':
     'clipboard_unittest.cc',
     'idletimer_unittest.cc',
     'process_util_unittest.cc',
-    'shared_event_unittest.cc',
     'stats_table_unittest.cc',
     'watchdog_unittest.cc',
     'gfx/native_theme_unittest.cc',

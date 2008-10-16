@@ -276,10 +276,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\shared_event_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\shared_memory_unittest.cc"
 				>
 			</File>
