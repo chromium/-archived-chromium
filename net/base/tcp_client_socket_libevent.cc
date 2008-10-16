@@ -259,7 +259,7 @@ void TCPClientSocket::DidCompleteConnect() {
 }
 
 void TCPClientSocket::DidCompleteIO() {
-  int bytes_transferred = -1;
+  int bytes_transferred;
   switch (wait_state_) {
     case WAITING_READ:
       bytes_transferred = read(socket_, buf_, buf_len_);
@@ -269,6 +269,7 @@ void TCPClientSocket::DidCompleteIO() {
       break;
     default:
       NOTREACHED();
+      return;
   }
 
   int result;
