@@ -632,7 +632,7 @@ DWORD Window::CalculateWindowExStyle() {
   if (window_delegate_->AsDialogDelegate()) {
     window_ex_styles |= WS_EX_DLGMODALFRAME;
   } else if (!(window_style() & WS_CHILD)) {
-    window_ex_styles |= WS_EX_APPWINDOW;
+    //window_ex_styles |= WS_EX_APPWINDOW;
   }
   if (window_delegate_->IsAlwaysOnTop())
     window_ex_styles |= WS_EX_TOPMOST;
