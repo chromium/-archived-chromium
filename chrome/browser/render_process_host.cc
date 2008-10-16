@@ -20,7 +20,6 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/rand_util.h"
-#include "base/shared_event.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"

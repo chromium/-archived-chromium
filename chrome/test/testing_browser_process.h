@@ -12,7 +12,6 @@
 
 #include <string>
 
-#include "base/shared_event.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/notification_service.h"

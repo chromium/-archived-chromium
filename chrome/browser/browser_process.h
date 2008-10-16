@@ -27,7 +27,6 @@ class RenderProcessHost;
 class ResourceDispatcherHost;
 class DebuggerWrapper;
 class WebAppInstallerService;
-class SharedEvent;
 class SuspendController;
 
 namespace base {
