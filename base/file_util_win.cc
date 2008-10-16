@@ -683,11 +683,8 @@ std::wstring FileEnumerator::Next() {
       // it to pending_paths_ so we scan it after we finish scanning this
       // directory.
       pending_paths_.push(cur_file);
-      return (file_type_ & FileEnumerator::DIRECTORIES) ? cur_file : Next();
     }
-
-    if ((file_type_ & FileEnumerator::DIRECTORIES) == 0)
-      return Next();
+    return (file_type_ & FileEnumerator::DIRECTORIES) ? cur_file : Next();
   }
   return (file_type_ & FileEnumerator::FILES) ? cur_file : Next();
 }

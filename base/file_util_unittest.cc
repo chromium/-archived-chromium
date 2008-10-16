@@ -885,6 +885,14 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_TRUE(c2.HasFile(dir2inner));
   EXPECT_EQ(c2.size(), 3);
 
+  // Only enumerate directories non-recursively.
+  file_util::FileEnumerator f2_non_recursive(
+      test_dir_, false, file_util::FileEnumerator::DIRECTORIES);
+  FindResultCollector c2_non_recursive(f2_non_recursive);
+  EXPECT_TRUE(c2_non_recursive.HasFile(dir1));
+  EXPECT_TRUE(c2_non_recursive.HasFile(dir2));
+  EXPECT_EQ(c2_non_recursive.size(), 2);
+
   // Enumerate files and directories.
   file_util::FileEnumerator f3(test_dir_, true,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
