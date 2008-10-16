@@ -209,6 +209,9 @@ NET_ERROR(METHOD_NOT_SUPPORTED, -322)
 // the request to a proxy.
 NET_ERROR(UNEXPECTED_PROXY_AUTH, -323)
 
+// The server closed the connection without sending any data.
+NET_ERROR(EMPTY_RESPONSE, -324)
+
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 

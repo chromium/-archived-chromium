@@ -228,6 +228,7 @@ class HttpNetworkTransactionTest : public PlatformTest {
 };
 
 struct SimpleGetHelperResult {
+  int rv;
   std::string status_line;
   std::string response_data;
 };
@@ -253,8 +254,9 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   int rv = trans->Start(&request, &callback);
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
-  rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  out.rv = callback.WaitForResult();
+  if (out.rv != net::OK)
+    return out;
 
   const net::HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response != NULL);
@@ -288,6 +290,7 @@ TEST_F(HttpNetworkTransactionTest, SimpleGET) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ(net::OK, out.rv);
   EXPECT_EQ("HTTP/1.0 200 OK", out.status_line);
   EXPECT_EQ("hello world", out.response_data);
 }
@@ -299,6 +302,7 @@ TEST_F(HttpNetworkTransactionTest, SimpleGETNoHeaders) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ(net::OK, out.rv);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("hello world", out.response_data);
 }
@@ -310,6 +314,7 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk2Bytes) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ(net::OK, out.rv);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
   EXPECT_EQ("DATA", out.response_data);
 }
@@ -321,6 +326,7 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ(net::OK, out.rv);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
   EXPECT_EQ("DATA", out.response_data);
 }
@@ -332,6 +338,7 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk5Bytes) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ(net::OK, out.rv);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("xxxxxHTTP/1.1 404 Not Found\nServer: blah", out.response_data);
 }
@@ -347,6 +354,7 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes_Slow) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ(net::OK, out.rv);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
   EXPECT_EQ("DATA", out.response_data);
 }
@@ -358,6 +366,7 @@ TEST_F(HttpNetworkTransactionTest, StatusLinePartial) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ(net::OK, out.rv);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("HTT", out.response_data);
 }
@@ -372,6 +381,7 @@ TEST_F(HttpNetworkTransactionTest, StopsReading204) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
+  EXPECT_EQ(net::OK, out.rv);
   EXPECT_EQ("HTTP/1.1 204 No Content", out.status_line);
   EXPECT_EQ("", out.response_data);
 }
@@ -595,7 +605,7 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
 // Firefox 3.0.1: blank page
 // Opera 9.52: after five attempts, blank page
 // Us with WinHTTP: error page (net::ERR_INVALID_RESPONSE)
-// Us: blank page
+// Us: error page (net::EMPTY_RESPONSE)
 TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
   MockRead data_reads[] = {
     MockRead(false, net::OK),  // EOF
@@ -604,8 +614,7 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
-  EXPECT_EQ("", out.response_data);
+  EXPECT_EQ(out.rv, net::ERR_EMPTY_RESPONSE);
 }
 
 // Test the request-challenge-retry sequence for basic auth.

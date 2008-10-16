@@ -603,6 +603,34 @@ int HttpNetworkTransaction::DoReadHeaders() {
   return connection_.socket()->Read(buf, buf_len, &io_callback_);
 }
 
+int HttpNetworkTransaction::HandleSocketClosedBeforeReadingEndOfHeaders() {
+  if (establishing_tunnel_) {
+    // The socket was closed before the tunnel could be established.
+    return ERR_TUNNEL_CONNECTION_FAILED;
+  }
+
+  if (has_found_status_line_start()) {
+    // Assume EOF is end-of-headers.
+    header_buf_body_offset_ = header_buf_len_;
+    return OK;
+  }
+
+  // No status line was matched yet. Could have been a HTTP/0.9 response, or
+  // a partial HTTP/1.x response.
+
+  if (header_buf_len_ == 0) {
+    // The connection was closed before any data was sent. This could have
+    // been intended as a HTTP/0.9 response with no data, but more likely
+    // than not it represents an error.
+    return ERR_EMPTY_RESPONSE;
+  }
+
+  // Assume everything else is a HTTP/0.9 response (including responses
+  // of 'h', 'ht', 'htt').
+  header_buf_body_offset_ = 0;
+  return OK;
+}
+
 int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
   if (result < 0)
     return HandleIOError(result);
@@ -617,18 +645,9 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
 
   // The socket was closed before we found end-of-headers.
   if (result == 0) {
-    if (establishing_tunnel_) {
-      // The socket was closed before the tunnel could be established.
-      return ERR_TUNNEL_CONNECTION_FAILED;
-    }
-    if (has_found_status_line_start()) {
-      // Assume EOF is end-of-headers.
-      header_buf_body_offset_ = header_buf_len_;
-    } else {
-      // No status line was matched yet, assume HTTP/0.9
-      // (this will also match a HTTP/1.x that got closed early).
-      header_buf_body_offset_ = 0;
-    }
+    int rv = HandleSocketClosedBeforeReadingEndOfHeaders();
+    if (rv != OK)
+      return rv;
   } else {
     header_buf_len_ += result;
     DCHECK(header_buf_len_ <= header_buf_capacity_);
