@@ -730,23 +730,8 @@ if env['PLATFORM'] in ('darwin', 'posix'):
     '$WEBCORE_DIR/css/CSSFontFaceSource.cpp',
     '$WEBCORE_DIR/loader/CachedFont.cpp',
     
-    # Need PasteboardHelper.h
-    '$WEBCORE_DIR/editing/Editor.cpp',
-
-    # Needs base/gfx/platform_device
-    '$WEBCORE_DIR/html/CanvasRenderingContext2D.cpp',
-
-    # Missing gtk bits.
+    # Missing WebCore::FrameView::printPanScrollIcon
     '$WEBCORE_DIR/page/EventHandler.cpp',
-    '$WEBCORE_DIR/platform/ContextMenu.cpp',
-    '$WEBCORE_DIR/platform/FileChooser.cpp',
-    '$WEBCORE_DIR/rendering/RenderFileUploadControl.cpp',
-    '$WEBCORE_DIR/rendering/RenderMenuList.cpp',
-    '$WEBCORE_DIR/rendering/HitTestResult.cpp',
-    '$WEBCORE_DIR/rendering/RenderListBox.cpp',
-    '$WEBCORE_DIR/rendering/RenderLayer.cpp',
-    '$WEBCORE_DIR/rendering/RenderTheme.cpp',
-    '$WEBCORE_DIR/rendering/RenderTextControl.cpp',
   ]
   for remove in remove_files:
     input_files.remove(remove)
