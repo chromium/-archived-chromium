@@ -87,7 +87,7 @@ env.ChromeStaticLibrary('hunspell', input_files)
 
 
 dictionaries = [
-    'dictionaries/en-US.bdic',
+    'dictionaries/en-US-1-1.bdic',
     'dictionaries/en-US.dic',
     'dictionaries/en-US.aff',
 ]
