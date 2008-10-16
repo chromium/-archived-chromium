@@ -356,7 +356,8 @@ bool ClipboardUtil::GetFileContents(IDataObject* data_object,
   if (SUCCEEDED(data_object->GetData(GetFileContentFormatZero(), &content))) {
     if (TYMED_HGLOBAL == content.tymed) {
       ScopedHGlobal<char> data(content.hGlobal);
-      file_contents->assign(data.get(), data.Size());
+      // The size includes the trailing NULL byte.  We don't want it.
+      file_contents->assign(data.get(), data.Size() - 1);
     }
     ReleaseStgMedium(&content);
   }
