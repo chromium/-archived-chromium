@@ -90,6 +90,11 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // (e.g. "word:word").
   bool IsValidContraction(const std::wstring& word);
 
+  // Return the file name of the dictionary, including the path and the version
+  // numbers.
+  std::wstring GetVersionedFileName(const std::wstring& language,
+                                    const std::wstring& dict_dir);
+
   // Path to the spellchecker file.
   std::wstring bdict_file_name_;
 

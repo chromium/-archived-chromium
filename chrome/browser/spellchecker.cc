@@ -194,12 +194,50 @@ void SpellChecker::RegisterUserPrefs(PrefService* prefs) {
       IDS_SPELLCHECK_DICTIONARY);
 }
 
+std::wstring SpellChecker::GetVersionedFileName(const std::wstring& language,
+                                                const std::wstring& dict_dir) {
+  // The default version string currently in use.
+  static const wchar_t kDefaultVersionString[] = L"-1-1";
+  
+  // Use this struct to insert version strings for dictionary files which have
+  // special version strings, other than the default version string.
+  // For de-DE, we are currently using de-DE-1-1-1 for versioning, because
+  // de-DE-1-1.bdic, in the download server, corresponds to a less used
+  // dictionary. This version, i.e., de-DE-1-1-1.bdic, is actually renamed
+  // from de-DE-neu-1-1.bic.
+  static const struct {
+    // The language input.
+    const char* language;
+
+    // The corresponding version.
+    const char* version;
+  } special_version_string[] = {
+    "de-DE", "-1-1-1",
+  };
+  
+  // Generate the bdict file name using default version string or special 
+  // version string, depending on the language.
+  std::wstring versioned_bdict_file_name(language + kDefaultVersionString +
+                                         L".bdic");
+  std::string language_string(WideToUTF8(language));
+  for (int i = 0; i < arraysize(special_version_string); i++ ) {
+    if (language_string.compare(special_version_string[i].language) == 0) {
+      versioned_bdict_file_name = 
+          language + UTF8ToWide(special_version_string[i].version) + L".bdic";
+      break;
+    }
+  }
+
+  std::wstring bdict_file_name(dict_dir);
+  file_util::AppendToPath(&bdict_file_name, versioned_bdict_file_name);
+  return bdict_file_name;
+}
+
 SpellChecker::SpellChecker(const std::wstring& dict_dir,
                            const std::wstring& language,
                            URLRequestContext* request_context,
                            const std::wstring& custom_dictionary_file_name)
-    : bdict_file_name_(dict_dir),
-      custom_dictionary_file_name_(custom_dictionary_file_name),
+    : custom_dictionary_file_name_(custom_dictionary_file_name),
       bdict_file_(NULL),
       bdict_mapping_(NULL),
       bdict_mapped_data_(NULL),
@@ -223,7 +261,7 @@ SpellChecker::SpellChecker(const std::wstring& dict_dir,
     file_loop_ = file_thread->message_loop();
 
   // Get the path to the spellcheck file.
-  file_util::AppendToPath(&bdict_file_name_, language + L".bdic");
+  bdict_file_name_ = GetVersionedFileName(language, dict_dir);
 
   // Get the path to the custom dictionary file.
   if (custom_dictionary_file_name_.empty()) {
