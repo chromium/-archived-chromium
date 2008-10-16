@@ -43,7 +43,8 @@ class BookmarkLoadObserver : public BookmarkModelObserver {
 }  // namespace
 
 TestingProfile::TestingProfile()
-    : start_time_(Time::Now()), has_history_service_(false) {
+    : start_time_(Time::Now()), has_history_service_(false),
+      off_the_record_(false) {
   PathService::Get(base::DIR_TEMP, &path_);
   file_util::AppendToPath(&path_, L"TestingProfilePath");
   file_util::Delete(path_, true);
@@ -51,7 +52,8 @@ TestingProfile::TestingProfile()
 }
 
 TestingProfile::TestingProfile(int count)
-    : start_time_(Time::Now()), has_history_service_(false) {
+    : start_time_(Time::Now()), has_history_service_(false),
+      off_the_record_(false) {
   PathService::Get(base::DIR_TEMP, &path_);
   file_util::AppendToPath(&path_, L"TestingProfilePath" + IntToWString(count));
   file_util::Delete(path_, true);

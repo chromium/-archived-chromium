@@ -2108,8 +2108,8 @@ each locale. -->
       <message name="IDS_BOOMARK_BAR_DEFAULT_FOLDER" desc="Title of the default bookmarks folder">
         Bookmarks
       </message>
-      <message name="IDS_BOOMARK_BAR_OPEN" desc="Menu description for loading bookmark in current page">
-        Open
+      <message name="IDS_BOOMARK_BAR_OPEN_INCOGNITO" desc="Menu description for openning bookmark in incognito window">
+        Open in incognito window
       </message>
       <message name="IDS_BOOMARK_BAR_OPEN_IN_NEW_TAB" desc="Menu description for loading bookmark in a new tab">
         Open in new tab
@@ -2128,6 +2128,9 @@ each locale. -->
       </message>
       <message name="IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW" desc="Menu title for opening all urls in a bookmark folder in a new window">
         Open all bookmarks in new window
+      </message>
+      <message name="IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO" desc="Menu description for openning all urls in a bookmark folder in an incognito window">
+        Open all bookmarks in incognito window
       </message>
       <message name="IDS_BOOKMARK_BAR_REMOVE" desc="Menu title for removing/unstarring a bookmark">
         Delete

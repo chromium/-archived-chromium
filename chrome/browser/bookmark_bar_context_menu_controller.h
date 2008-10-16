@@ -43,18 +43,6 @@ class BookmarkBarContextMenuController : public ChromeViews::MenuDelegate,
   virtual bool IsItemChecked(int id) const;
   virtual bool IsCommandEnabled(int id) const;
 
-  // IDs used for the menus. Public for testing.
-  static const int always_show_command_id;
-  static const int open_bookmark_id;
-  static const int open_bookmark_in_new_window_id;
-  static const int open_bookmark_in_new_tab_id;
-  static const int open_all_bookmarks_id;
-  static const int open_all_bookmarks_in_new_window_id;
-  static const int edit_bookmark_id;
-  static const int delete_bookmark_id;
-  static const int add_bookmark_id;
-  static const int new_folder_id;
-
  private:
   // Returns the parent node and visual_order to use when adding new
   // bookmarks/folders.

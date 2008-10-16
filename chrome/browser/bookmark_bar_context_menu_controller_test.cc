@@ -12,6 +12,8 @@
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+#include "generated_resources.h"
+
 namespace {
 
 // PageNavigator implementation that records the URL.
@@ -90,55 +92,50 @@ TEST_F(BookmarkBarContextMenuControllerTest, DeleteURL) {
   BookmarkBarContextMenuController controller(
       bb_view_.get(), model_->GetBookmarkBarNode()->GetChild(0));
   GURL url = model_->GetBookmarkBarNode()->GetChild(0)->GetURL();
-  ASSERT_TRUE(controller.IsCommandEnabled(
-                  BookmarkBarContextMenuController::delete_bookmark_id));
+  ASSERT_TRUE(controller.IsCommandEnabled(IDS_BOOKMARK_BAR_REMOVE));
   // Delete the URL.
-  controller.ExecuteCommand(
-      BookmarkBarContextMenuController::delete_bookmark_id);
+  controller.ExecuteCommand(IDS_BOOKMARK_BAR_REMOVE);
   // Model shouldn't have URL anymore.
   ASSERT_FALSE(model_->IsBookmarked(url));
-}
-
-// Tests openning from the menu.
-TEST_F(BookmarkBarContextMenuControllerTest, OpenURL) {
-  BookmarkBarContextMenuController controller(
-      bb_view_.get(), model_->GetBookmarkBarNode()->GetChild(0));
-  GURL url = model_->GetBookmarkBarNode()->GetChild(0)->GetURL();
-  ASSERT_TRUE(controller.IsCommandEnabled(
-                  BookmarkBarContextMenuController::open_bookmark_id));
-  // Open it.
-  controller.ExecuteCommand(
-      BookmarkBarContextMenuController::open_bookmark_id);
-  // Should have navigated to it.
-  ASSERT_EQ(1, navigator_.urls_.size());
-  ASSERT_TRUE(url == navigator_.urls_[0]);
 }
 
 // Tests open all on a folder with a couple of bookmarks.
 TEST_F(BookmarkBarContextMenuControllerTest, OpenAll) {
   BookmarkNode* folder = model_->GetBookmarkBarNode()->GetChild(1);
   BookmarkBarContextMenuController controller(bb_view_.get(), folder);
-  ASSERT_TRUE(controller.IsCommandEnabled(
-      BookmarkBarContextMenuController::open_all_bookmarks_id));
-  ASSERT_TRUE(controller.IsCommandEnabled(
-      BookmarkBarContextMenuController::open_all_bookmarks_in_new_window_id));
+  ASSERT_TRUE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL));
+  ASSERT_TRUE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO));
+  ASSERT_TRUE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW));
   // Open it.
-  controller.ExecuteCommand(
-      BookmarkBarContextMenuController::open_all_bookmarks_id);
+  controller.ExecuteCommand(IDS_BOOMARK_BAR_OPEN_ALL);
   // Should have navigated to F1's children.
   ASSERT_EQ(2, navigator_.urls_.size());
   ASSERT_TRUE(folder->GetChild(0)->GetURL() == navigator_.urls_[0]);
   ASSERT_TRUE(folder->GetChild(1)->GetChild(0)->GetURL() ==
               navigator_.urls_[1]);
+
+  // Make sure incognito is disabled when OTR.
+  profile_->set_off_the_record(true);
+  ASSERT_TRUE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL));
+  ASSERT_FALSE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO));
+  ASSERT_TRUE(
+      controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW));
 }
 
 // Tests that menus are appropriately disabled for empty folders.
 TEST_F(BookmarkBarContextMenuControllerTest, DisableForEmptyFolder) {
   BookmarkNode* folder = model_->GetBookmarkBarNode()->GetChild(2);
   BookmarkBarContextMenuController controller(bb_view_.get(), folder);
-  EXPECT_FALSE(controller.IsCommandEnabled(
-      BookmarkBarContextMenuController::open_all_bookmarks_id));
-  EXPECT_FALSE(controller.IsCommandEnabled(
-      BookmarkBarContextMenuController::open_all_bookmarks_in_new_window_id));
+  EXPECT_FALSE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL));
+  EXPECT_FALSE(
+      controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW));
 }
 
+// Tests the enabled state of open incognito.
+TEST_F(BookmarkBarContextMenuControllerTest, DisableIncognito) {
+  BookmarkBarContextMenuController controller(
+      bb_view_.get(), model_->GetBookmarkBarNode()->GetChild(0));
+  EXPECT_TRUE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_INCOGNITO));
+  profile_->set_off_the_record(true);
+  EXPECT_FALSE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_INCOGNITO));
+}
