@@ -109,8 +109,9 @@ class HttpNetworkTransaction : public HttpTransaction {
   int ReconsiderProxyAfterError(int error);
 
   // Decides the policy when the connection is closed before the end of headers
-  // has been reached.
-  int HandleSocketClosedBeforeReadingEndOfHeaders();
+  // has been read. This only applies to reading responses, and not writing
+  // requests.
+  int HandleConnectionClosedBeforeEndOfHeaders();
 
   // Return true if based on the bytes read so far, the start of the
   // status line is known. This is used to distingish between HTTP/0.9

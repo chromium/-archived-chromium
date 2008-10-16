@@ -603,9 +603,9 @@ int HttpNetworkTransaction::DoReadHeaders() {
   return connection_.socket()->Read(buf, buf_len, &io_callback_);
 }
 
-int HttpNetworkTransaction::HandleSocketClosedBeforeReadingEndOfHeaders() {
+int HttpNetworkTransaction::HandleConnectionClosedBeforeEndOfHeaders() {
   if (establishing_tunnel_) {
-    // The socket was closed before the tunnel could be established.
+    // The connection was closed before the tunnel could be established.
     return ERR_TUNNEL_CONNECTION_FAILED;
   }
 
@@ -619,9 +619,8 @@ int HttpNetworkTransaction::HandleSocketClosedBeforeReadingEndOfHeaders() {
   // a partial HTTP/1.x response.
 
   if (header_buf_len_ == 0) {
-    // The connection was closed before any data was sent. This could have
-    // been intended as a HTTP/0.9 response with no data, but more likely
-    // than not it represents an error.
+    // The connection was closed before any data was sent. Likely an error
+    // rather than empty HTTP/0.9 response.
     return ERR_EMPTY_RESPONSE;
   }
 
@@ -645,7 +644,7 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
 
   // The socket was closed before we found end-of-headers.
   if (result == 0) {
-    int rv = HandleSocketClosedBeforeReadingEndOfHeaders();
+    int rv = HandleConnectionClosedBeforeEndOfHeaders();
     if (rv != OK)
       return rv;
   } else {

@@ -223,6 +223,12 @@ class HttpNetworkTransactionTest : public PlatformTest {
     mock_sockets_index = 0;
   }
 
+  virtual void TearDown() {
+    // Empty the current queue.
+    MessageLoop::current()->RunAllPending();
+    PlatformTest::TearDown();
+  }
+
  protected:
   void KeepAliveConnectionResendRequestTest(const MockRead& read_failure);
 };
@@ -268,9 +274,6 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   EXPECT_EQ(net::OK, rv);
 
   trans->Destroy();
-
-  // Empty the current queue.
-  MessageLoop::current()->RunAllPending();
 
   return out;
 }
@@ -434,9 +437,6 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
     EXPECT_EQ(kExpectedResponseData[i], response_data);
 
     trans->Destroy();
-
-    // Empty the current queue.
-    MessageLoop::current()->RunAllPending();
   }
 }
 
@@ -482,9 +482,6 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
   EXPECT_EQ("hello world", response_data);
 
   trans->Destroy();
-
-  // Empty the current queue.
-  MessageLoop::current()->RunAllPending();
 }
 
 // read_failure specifies a read failure that should cause the network
@@ -544,9 +541,6 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
     EXPECT_EQ(kExpectedResponseData[i], response_data);
 
     trans->Destroy();
-
-    // Empty the current queue.
-    MessageLoop::current()->RunAllPending();
   }
 }
 
@@ -592,9 +586,6 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
   EXPECT_TRUE(response == NULL);
 
   trans->Destroy();
-
-  // Empty the current queue.
-  MessageLoop::current()->RunAllPending();
 }
 
 // What do various browsers do when the server closes a non-keepalive
@@ -614,7 +605,7 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
     MockRead(false, net::OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(out.rv, net::ERR_EMPTY_RESPONSE);
+  EXPECT_EQ(net::ERR_EMPTY_RESPONSE, out.rv);
 }
 
 // Test the request-challenge-retry sequence for basic auth.
@@ -700,9 +691,6 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   EXPECT_EQ(100, response->headers->GetContentLength());
 
   trans->Destroy();
-
-  // Empty the current queue.
-  MessageLoop::current()->RunAllPending();
 }
 
 // Test the flow when both the proxy server AND origin server require
@@ -836,7 +824,4 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   EXPECT_EQ(100, response->headers->GetContentLength());
 
   trans->Destroy();
-
-  // Empty the current queue.
-  MessageLoop::current()->RunAllPending();
 }
