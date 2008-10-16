@@ -53,10 +53,17 @@ void CALLBACK NetworkStateNotifier::addrChangeCallback(void* context, BOOLEAN ti
 void NetworkStateNotifier::registerForAddressChange()
 {
 }
+#elif PLATFORM(MAC)
+void NetworkStateNotifier::networkStateChangeTimerFired(Timer<NetworkStateNotifier>*)
+{
+}
 #endif
 
 NetworkStateNotifier::NetworkStateNotifier()
     : m_isOnLine(true)
+#if PLATFORM(MAC)
+    , m_networkStateChangeTimer(this, &NetworkStateNotifier::networkStateChangeTimerFired)
+#endif
 {
 }
 
