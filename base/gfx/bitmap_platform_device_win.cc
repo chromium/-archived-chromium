@@ -223,7 +223,8 @@ void BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::ReleaseBitmapDC() {
   hdc_ = NULL;
 }
 
-bool BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::IsBitmapDCCreated() const {
+bool BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::IsBitmapDCCreated()
+    const {
   return hdc_ != NULL;
 }
 
@@ -302,21 +303,22 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
   }
 
   // The device object will take ownership of the HBITMAP.
-  return new BitmapPlatformDeviceWin(new BitmapPlatformDeviceWinData(hbitmap), bitmap);
+  return new BitmapPlatformDeviceWin(new BitmapPlatformDeviceWinData(hbitmap),
+                                     bitmap);
 }
 
 // The device will own the HBITMAP, which corresponds to also owning the pixel
 // data. Therefore, we do not transfer ownership to the SkDevice's bitmap.
-BitmapPlatformDeviceWin::BitmapPlatformDeviceWin(BitmapPlatformDeviceWinData* data,
-                                           const SkBitmap& bitmap)
-    : PlatformDeviceWin(bitmap),
-      data_(data) {
+BitmapPlatformDeviceWin::BitmapPlatformDeviceWin(
+    BitmapPlatformDeviceWinData* data,
+    const SkBitmap& bitmap) : PlatformDeviceWin(bitmap), data_(data) {
 }
 
 // The copy constructor just adds another reference to the underlying data.
 // We use a const cast since the default Skia definitions don't define the
 // proper constedness that we expect (accessBitmap should really be const).
-BitmapPlatformDeviceWin::BitmapPlatformDeviceWin(const BitmapPlatformDeviceWin& other)
+BitmapPlatformDeviceWin::BitmapPlatformDeviceWin(
+    const BitmapPlatformDeviceWin& other)
     : PlatformDeviceWin(
           const_cast<BitmapPlatformDeviceWin&>(other).accessBitmap(true)),
       data_(other.data_) {
@@ -393,11 +395,13 @@ void BitmapPlatformDeviceWin::drawToHDC(HDC dc, int x, int y,
     data_->ReleaseBitmapDC();
 }
 
-void BitmapPlatformDeviceWin::prepareForGDI(int x, int y, int width, int height) {
+void BitmapPlatformDeviceWin::prepareForGDI(int x, int y, int width,
+                                            int height) {
   processPixels<PrepareAlphaForGDI>(x, y, width, height);
 }
 
-void BitmapPlatformDeviceWin::postProcessGDI(int x, int y, int width, int height) {
+void BitmapPlatformDeviceWin::postProcessGDI(int x, int y, int width,
+                                             int height) {
   processPixels<PostProcessAlphaForGDI>(x, y, width, height);
 }
 
