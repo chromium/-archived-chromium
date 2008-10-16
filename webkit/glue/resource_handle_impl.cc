@@ -319,6 +319,21 @@ bool ResourceHandleInternal::Start(
         request_.frame()->document()->policyBaseURL()));
   }
 
+  switch (request_.cachePolicy()) {
+    case ReloadIgnoringCacheData:
+      // Required by LayoutTests/http/tests/misc/refresh-headers.php
+      load_flags_ |= net::LOAD_VALIDATE_CACHE;
+      break;
+    case ReturnCacheDataElseLoad:
+      load_flags_ |= net::LOAD_PREFERRING_CACHE;
+      break;
+    case ReturnCacheDataDontLoad:
+      load_flags_ |= net::LOAD_ONLY_FROM_CACHE;
+      break;
+    case UseProtocolCachePolicy:
+      break;
+  }
+
   // Translate the table of request headers to a formatted string blob
   String headerBuf;
   const HTTPHeaderMap& headerMap = request_.httpHeaderFields();
@@ -340,6 +355,17 @@ bool ResourceHandleInternal::Start(
     if (equalIgnoringCase((*it).first, "referer") ||
         equalIgnoringCase((*it).first, "user-agent"))
       continue;
+
+    // Skip over "Cache-Control: max-age=0" header if the corresponding
+    // load flag is already specified. FrameLoader sets both the flag and
+    // the extra header -- the extra header is redundant since our network
+    // implementation will add the necessary headers based on load flags.
+    // See http://code.google.com/p/chromium/issues/detail?id=3434.
+    if ((load_flags_ & net::LOAD_VALIDATE_CACHE) &&
+        equalIgnoringCase((*it).first, "cache-control") &&
+        (*it).second == "max-age=0")
+      continue;
+
     // WinInet dies if blank headers are set.  TODO(darin): Is this still an
     // issue now that we are using WinHTTP?
     if ((*it).first.isEmpty()) {
@@ -354,19 +380,6 @@ bool ResourceHandleInternal::Start(
     if (!headerBuf.isEmpty())
       headerBuf.append(crlf);
     headerBuf.append((*it).first + sep + (*it).second);
-  }
-
-  switch (request_.cachePolicy()) {
-    case ReloadIgnoringCacheData:
-      // Required by LayoutTests/http/tests/misc/refresh-headers.php
-      load_flags_ |= net::LOAD_VALIDATE_CACHE;
-      break;
-    case ReturnCacheDataElseLoad:
-      load_flags_ |= net::LOAD_PREFERRING_CACHE;
-      break;
-    case ReturnCacheDataDontLoad:
-      load_flags_ |= net::LOAD_ONLY_FROM_CACHE;
-      break;
   }
 
   // TODO(jcampan): in the non out-of-process plugin case the request does not

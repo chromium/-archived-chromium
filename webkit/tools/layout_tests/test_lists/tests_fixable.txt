@@ -26,10 +26,6 @@ V8 | KJS # LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL | T
 // in URL. http://code.google.com/p/chromium/issues/detail?id=3436
 V8 | KJS # SKIP : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT | PASS
 
-// Times out when using new http stack duplicate Cache-Control request headers
-// are sent on reload. http://code.google.com/p/chromium/issues/detail?id=3434
-V8 | KJS # SKIP : LayoutTests/http/tests/misc/refresh-headers.php = TIMEOUT | PASS
-
 // -----------------------------------------------------------------
 // FLAKY TESTS
 // -----------------------------------------------------------------
