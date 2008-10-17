@@ -3134,12 +3134,6 @@ each locale. -->
       <message name="IDS_BLOCKED_POPUP" desc="Text on a blocked popup's window titlebar.">
         Blocked Pop-up
       </message>
-
-      <!-- Chromium related strings -->
-      <message name="IDS_OPEN_SOURCE_PROJECT_NAME" desc="The name of the open source version of Google Chrome">
-        Chromium
-      </message>
-
     </messages>
   </release>
 </grit>

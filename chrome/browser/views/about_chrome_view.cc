@@ -30,6 +30,7 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+namespace {
 // The pixel width of the version text field. Ideally, we'd like to have the
 // bounds set to the edge of the icon. However, the icon is not a view but a
 // part of the background, so we have to hard code the width to make sure
@@ -37,9 +38,27 @@
 const int kVersionFieldWidth = 195;
 
 // The URLs that you navigate to when clicking the links in the About dialog.
-const wchar_t* const kChromiumUrl = L"http://www.chromium.org";
+const wchar_t* const kChromiumUrl = L"http://www.chromium.org/";
 const wchar_t* const kAcknowledgements = L"about:credits";
 const wchar_t* const kTOS = L"about:terms";
+
+// These are used as placeholder text around the links in the text in the about
+// dialog.
+const wchar_t* kBeginLink = L"BEGIN_LINK";
+const wchar_t* kEndLink = L"END_LINK";
+const wchar_t* kBeginLinkChr = L"BEGIN_LINK_CHR";
+const wchar_t* kBeginLinkOss = L"BEGIN_LINK_OSS";
+const wchar_t* kEndLinkChr = L"END_LINK_CHR";
+const wchar_t* kEndLinkOss = L"END_LINK_OSS";
+
+// Returns a substring from |text| between start and end.
+std::wstring StringSubRange(const std::wstring& text, size_t start,
+                            size_t end) {
+  DCHECK(end > start);
+  return text.substr(start, end - start);
+}
+
+}  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
 // AboutChromeView, public:
@@ -143,33 +162,41 @@ void AboutChromeView::Init() {
   main_text_label_ = new views::Label(L"");
 
   // Figure out what to write in the main label of the About box.
-  std::vector<size_t> url_offsets;
-  std::wstring text = l10n_util::GetStringF(IDS_ABOUT_VERSION_LICENSE,
-                                            std::wstring(),
-                                            std::wstring(),
-                                            &url_offsets);
-  chromium_url_appears_first_ = url_offsets[0] < url_offsets[1];
-  int link1 = std::min(url_offsets[0], url_offsets[1]);
-  int link2 = std::max(url_offsets[0], url_offsets[1]);
+  std::wstring text = l10n_util::GetString(IDS_ABOUT_VERSION_LICENSE);
+
+  chromium_url_appears_first_ =
+      text.find(kBeginLinkChr) < text.find(kBeginLinkOss);
+
+  size_t link1 = text.find(kBeginLink);
+  DCHECK(link1 != std::wstring::npos);
+  size_t link1_end = text.find(kEndLink, link1);
+  DCHECK(link1_end != std::wstring::npos);
+  size_t link2 = text.find(kBeginLink, link1_end);
+  DCHECK(link2 != std::wstring::npos);
+  size_t link2_end = text.find(kEndLink, link2);
+  DCHECK(link1_end != std::wstring::npos);
 
   main_label_chunk1_ = text.substr(0, link1);
-  main_label_chunk2_ = text.substr(link1, link2 - link1);
-  main_label_chunk3_ = text.substr(link2);
+  main_label_chunk2_ = StringSubRange(text, link1_end + wcslen(kEndLinkOss),
+                                      link2);
+  main_label_chunk3_ = text.substr(link2_end + wcslen(kEndLinkOss));
 
   // The Chromium link within the main text of the dialog.
   chromium_url_ = new views::Link(
-      l10n_util::GetString(IDS_OPEN_SOURCE_PROJECT_NAME));
+      StringSubRange(text, text.find(kBeginLinkChr) + wcslen(kBeginLinkChr),
+                     text.find(kEndLinkChr)));
   AddChildView(chromium_url_);
   chromium_url_->SetController(this);
 
   // The Open Source link within the main text of the dialog.
   open_source_url_ = new views::Link(
-      l10n_util::GetString(IDS_ABOUT_OPEN_SOURCE_SOFTWARE));
+      StringSubRange(text, text.find(kBeginLinkOss) + wcslen(kBeginLinkOss),
+                     text.find(kEndLinkOss)));
   AddChildView(open_source_url_);
   open_source_url_->SetController(this);
 
 #if defined(GOOGLE_CHROME_BUILD)
-  url_offsets.clear();
+  std::vector<size_t> url_offsets;
   text = l10n_util::GetStringF(IDS_ABOUT_TERMS_OF_SERVICE,
                                std::wstring(),
                                std::wstring(),
