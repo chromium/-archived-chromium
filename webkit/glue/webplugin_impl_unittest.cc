@@ -124,7 +124,8 @@ TEST(WebPluginImplTest, PostParserBodyWithNewLines) {
   EXPECT_EQ(request.httpBody()->flattenToString(), "\n\nabcdefg\n\nabcdefg");
 }
 
-TEST(WebPluginImplTest, PostParserErrorNoBody) {
+// Bug 3542
+TEST(WebPluginImplTest, DISABLED_PostParserErrorNoBody) {
   // Test an error case with headers and no body
   char *ex1 = "Foo:bar\n";
   WebCore::ResourceRequest request;
@@ -133,7 +134,8 @@ TEST(WebPluginImplTest, PostParserErrorNoBody) {
   EXPECT_EQ(false, rv);
 }
 
-TEST(WebPluginImplTest, PostParserErrorEmpty) {
+// Bug 3542
+TEST(WebPluginImplTest, DISABLED_PostParserErrorEmpty) {
   // Test an error case with an empty string
   char *ex1 = "";
   WebCore::ResourceRequest request;
