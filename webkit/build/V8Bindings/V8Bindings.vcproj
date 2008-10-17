@@ -2437,6 +2437,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\ScriptCallContextV8.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\ScriptController.h"
 			>
 		</File>

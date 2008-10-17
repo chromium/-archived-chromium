@@ -66,6 +66,7 @@
 #include "Range.h"
 #include "ResourceRequest.h"
 #include "ResourceResponse.h"
+#include "ScriptCallContext.h"
 #include "ScriptController.h"
 #include "Settings.h"
 #include "SharedBuffer.h"
@@ -129,9 +130,39 @@ struct ConsoleMessage {
         , groupLevel(g) 
     {	
     }
+
+    ConsoleMessage(MessageSource s, MessageLevel l, ScriptCallContext* context, unsigned g)
+        : source(s)
+        , level(l)
+#if USE(JSC)
+        , wrappedArguments(args.size())
+#endif
+        , line(context->lineNumber())
+        , url(context->sourceURL())
+        , groupLevel(g)
+    {
+#if USE(JSC)
+        JSLock lock(false);
+        for (unsigned i = 0; i < context->argumentCount(); ++i)
+            wrappedArguments[i] = JSInspectedObjectWrapper::wrap(context->argumentAt(i));
+#elif USE(V8)
+        // FIXME: This is not correct. The objects are being converted to
+        // string and appended to one big message. But it's better than only
+        // supporting one string argument that we had previously.
+        for (unsigned i = 0; i < context->argumentCount(); ++i) {
+            if (i)
+                message.append(", ");
+            message.append(context->argumentStringAt(i));
+        }
+#endif
+    }
+
     MessageSource source;	
     MessageLevel level;	
     String message;	
+#if USE(JSC)
+    Vector<ProtectedPtr<JSValue> > wrappedArguments;
+#endif
     unsigned line;	
     String url;	
     unsigned groupLevel;
@@ -752,6 +783,14 @@ void InspectorController::enableTrackResources(bool trackResources)
     m_resources.clear();
 }
 
+void InspectorController::addMessageToConsole(MessageSource source, MessageLevel level, ScriptCallContext* context)
+{
+    if (!enabled())
+        return;
+
+    addConsoleMessage(new ConsoleMessage(source, level, context, m_groupLevel));
+}
+
 void InspectorController::addMessageToConsole(MessageSource source, MessageLevel level, const String& message, unsigned lineNumber, const String& sourceID)
 {
     if (!enabled())
@@ -787,6 +826,23 @@ void InspectorController::clearConsoleMessages()
 {
     deleteAllValues(m_consoleMessages);
     m_consoleMessages.clear();
+}
+
+void InspectorController::startGroup(MessageSource source, ScriptCallContext* context)
+{    
+    ++m_groupLevel;
+
+    addConsoleMessage(new ConsoleMessage(source, StartGroupMessageLevel, context, m_groupLevel));
+}
+
+void InspectorController::endGroup(MessageSource source, unsigned lineNumber, const String& sourceURL)
+{
+    if (m_groupLevel == 0)
+        return;
+
+    --m_groupLevel;
+
+    addConsoleMessage(new ConsoleMessage(source, EndGroupMessageLevel, String(), lineNumber, sourceURL, m_groupLevel));
 }
 
 void InspectorController::attachWindow()
