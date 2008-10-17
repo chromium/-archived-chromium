@@ -503,6 +503,9 @@ class XPFrame : public BrowserWindow,
   // Set during layout. Total height of the title bar.
   int title_bar_height_;
 
+  // Whether this frame needs a layout or not.
+  bool needs_layout_;
+
   static bool g_initialized;
   static HCURSOR g_resize_cursors[4];
   static SkBitmap** g_bitmaps;

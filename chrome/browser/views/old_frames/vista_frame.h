@@ -378,6 +378,9 @@ class VistaFrame : public BrowserWindow,
   // A mapping between accelerators and commands.
   scoped_ptr<std::map<views::Accelerator, int>> accelerator_table_;
 
+  // Whether this frame needs a layout or not.
+  bool needs_layout_;
+
   // Whether this frame represents an off the record session.
   bool is_off_the_record_;
 
