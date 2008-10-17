@@ -129,16 +129,16 @@ void AppendToLog(const char* filename, int line, const char* message);
 
 // Get the mime type (if any) that is associated with the given file extension.
 // Returns true if a corresponding mime type exists.
-bool GetMimeTypeFromExtension(std::wstring &ext, std::string *mime_type);
+bool GetMimeTypeFromExtension(const std::wstring& ext, std::string* mime_type);
 
 // Get the mime type (if any) that is associated with the given file.  
 // Returns true if a corresponding mime type exists.
-bool GetMimeTypeFromFile(const std::wstring &file_path, std::string *mime_type);
+bool GetMimeTypeFromFile(const std::wstring& file_path, std::string* mime_type);
 
 // Get the preferred extension (if any) associated with the given mime type.
 // Returns true if a corresponding file extension exists.
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      std::wstring *ext);
+                                      std::wstring* ext);
 
 #ifdef _WIN32
 // Returns the com object pointer for the FontLink interface
@@ -219,7 +219,7 @@ void ClipboardReadHTML(std::wstring* markup, GURL* url);
 // GetExeDirectory(), depending on the embedder's implementation.
 // Path is an output parameter to receive the path.
 // Returns true if successful, false otherwise.
-bool GetApplicationDirectory(std::wstring *path);
+bool GetApplicationDirectory(std::wstring* path);
 
 // Gets the URL where the inspector's HTML file resides. It must use the
 // protocol returned by GetUIResourceProtocol.
@@ -232,7 +232,7 @@ std::string GetUIResourceProtocol();
 // Gets the directory where the launching executable resides on disk.
 // Path is an output parameter to receive the path.
 // Returns true if successful, false otherwise.
-bool GetExeDirectory(std::wstring *path);
+bool GetExeDirectory(std::wstring* path);
 
 // Embedders implement this function to return the list of plugins to Webkit.
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);

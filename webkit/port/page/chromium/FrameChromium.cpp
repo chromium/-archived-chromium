@@ -78,7 +78,6 @@ void computePageRectsForFrame(Frame* frame, const IntRect& printRect, float head
 
     float currPageHeight = pageHeight / userScaleFactor;
     float docHeight      = root->layer()->height();
-    float docWidth       = root->layer()->width();
     float currPageWidth  = pageWidth / userScaleFactor;
 
     

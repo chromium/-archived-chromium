@@ -35,7 +35,7 @@
 
 #include "SkBitmap.h"
 
-#include "base/gfx/platform_canvas_win.h"
+#include "base/gfx/platform_canvas.h"
 
 using namespace std;
 
@@ -59,7 +59,11 @@ static bool IsCoordinateReasonable(float coord)
 {
 #ifdef CHECK_REASONABLE
     // First check for valid floats.
+#if defined(COMPILER_MSVC)
     if (!_finite(coord))
+#else
+    if (!finite(coord))
+#endif
         return false;
 
     // Skia uses 16.16 fixed point and 26.6 fixed point in various places. If
@@ -167,10 +171,10 @@ void add_corner_arc(SkPath* path, const SkRect& rect, const IntSize& size, int s
     path->arcTo(r, SkIntToScalar(startAngle), SkIntToScalar(90), false);
 }
 
-COMPILE_ASSERT(GraphicsContextPlatformPrivate::NoStroke == NoStroke, AssertNoStroke);
-COMPILE_ASSERT(GraphicsContextPlatformPrivate::SolidStroke == SolidStroke, AssertSolidStroke);
-COMPILE_ASSERT(GraphicsContextPlatformPrivate::DottedStroke == DottedStroke, AssertDottedStroke);
-COMPILE_ASSERT(GraphicsContextPlatformPrivate::DashedStroke == DashedStroke, AssertDashedStroke);
+COMPILE_ASSERT(static_cast<int>(GraphicsContextPlatformPrivate::NoStroke) == static_cast<int>(NoStroke), AssertNoStroke);
+COMPILE_ASSERT(static_cast<int>(GraphicsContextPlatformPrivate::SolidStroke) == static_cast<int>(SolidStroke), AssertSolidStroke);
+COMPILE_ASSERT(static_cast<int>(GraphicsContextPlatformPrivate::DottedStroke) == static_cast<int>(DottedStroke), AssertDottedStroke);
+COMPILE_ASSERT(static_cast<int>(GraphicsContextPlatformPrivate::DashedStroke) == static_cast<int>(DashedStroke), AssertDashedStroke);
 
 // Note: Remove this function as soon as StrokeStyle is moved in GraphicsTypes.h.
 GraphicsContextPlatformPrivate::StrokeStyle StrokeStyle2StrokeStyle(StrokeStyle style)
@@ -572,7 +576,7 @@ void GraphicsContext::strokeRect(const FloatRect& rect, float lineWidth)
 
 GraphicsContext* GraphicsContext::createOffscreenContext(int width, int height)
 {
-    gfx::PlatformCanvasWin* canvas = new gfx::PlatformCanvasWin(width, height, false);
+    gfx::PlatformCanvas* canvas = new gfx::PlatformCanvas(width, height, false);
     PlatformContextSkia* pgc = new PlatformContextSkia(canvas);
     canvas->drawARGB(0, 0, 0, 0, SkPorterDuff::kClear_Mode);
 
@@ -791,9 +795,6 @@ void GraphicsContext::beginTransparencyLayer(float opacity)
     if (paintingDisabled())
         return;
 
-    SkDevice* old_device = m_data->canvas()->getDevice();
-    const SkBitmap& old_bitmap = old_device->accessBitmap(false);
-
     // We need the "alpha" layer flag here because the base layer is opaque
     // (the surface of the page) but layers on top may have transparent parts.
     // Without explicitly setting the alpha flag, the layer will inherit the
@@ -810,7 +811,9 @@ void GraphicsContext::endTransparencyLayer()
     if (paintingDisabled())
         return;
 
+#if PLATFORM(WIN_OS)
     m_data->canvas()->getTopPlatformDevice().fixupAlphaBeforeCompositing();
+#endif
     m_data->canvas()->restore();
 }
 
@@ -978,6 +981,7 @@ AffineTransform GraphicsContext::getCTM() const
     return m_data->canvas()->getTotalMatrix();
 }
 
+#if PLATFORM(WIN_OS)
 HDC GraphicsContext::getWindowsContext(const IntRect&, bool supportAlphaBlend, bool mayCreateBitmap)
 {
     if (paintingDisabled())
@@ -990,6 +994,7 @@ void GraphicsContext::releaseWindowsContext(HDC hdc, const IntRect&, bool suppor
 {
     // noop, the DC will be lazily freed by the bitmap when no longer needed
 }
+#endif
 
 static inline float square(float n)
 {

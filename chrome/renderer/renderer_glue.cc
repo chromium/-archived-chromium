@@ -84,7 +84,7 @@ void webkit_glue::AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-bool webkit_glue::GetMimeTypeFromExtension(std::wstring &ext,
+bool webkit_glue::GetMimeTypeFromExtension(const std::wstring &ext,
                                            std::string *mime_type) {
   if (IsPluginProcess())
     return net::GetMimeTypeFromExtension(ext, mime_type);

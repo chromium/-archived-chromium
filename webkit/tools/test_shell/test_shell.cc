@@ -1012,7 +1012,7 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-bool GetMimeTypeFromExtension(std::wstring &ext, std::string *mime_type) {
+bool GetMimeTypeFromExtension(const std::wstring &ext, std::string *mime_type) {
   return net::GetMimeTypeFromExtension(ext, mime_type);
 }
 

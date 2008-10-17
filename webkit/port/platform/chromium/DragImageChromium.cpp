@@ -32,6 +32,8 @@
 
 #if PLATFORM(WIN)
 #include <windows.h>
+#else
+#include "NotImplemented.h"
 #endif
 
 namespace WebCore {
@@ -54,8 +56,12 @@ IntSize dragImageSize(DragImageRef image)
 
 void deleteDragImage(DragImageRef image)
 {
+#if PLATFORM(WIN)
     if (image)
         ::DeleteObject(image);
+#else
+    notImplemented();
+#endif
 }
 
 DragImageRef scaleDragImage(DragImageRef image, FloatSize scale)

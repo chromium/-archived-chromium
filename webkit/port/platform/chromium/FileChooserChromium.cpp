@@ -24,7 +24,9 @@
  */
 
 #include "config.h"
+#if PLATFORM(WIN_OS)
 #include <shlwapi.h>
+#endif
 
 #pragma warning(push, 0)
 #include "ChromeClientChromium.h"
