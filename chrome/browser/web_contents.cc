@@ -414,6 +414,10 @@ void WebContents::Paste() {
    render_view_host()->Paste();
 }
 
+void WebContents::DisassociateFromPopupCount() {
+  render_view_host()->DisassociateFromPopupCount();
+}
+
 void WebContents::DidBecomeSelected() {
   TabContents::DidBecomeSelected();
 

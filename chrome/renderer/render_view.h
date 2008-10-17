@@ -51,6 +51,20 @@ namespace webkit_glue {
   struct FileUploadData;
 }
 
+// We need to prevent a page from trying to create infinite popups. It is not
+// as simple as keeping a count of the number of immediate children
+// popups. Having an html file that window.open()s itself would create
+// an unlimited chain of RenderViews who only have one RenderView child.
+//
+// Therefore, each new top level RenderView creates a new counter and shares it
+// with all its children and grandchildren popup RenderViews created with
+// CreateWebView() to have a sort of global limit for the page so no more than
+// kMaximumNumberOfPopups popups are created.
+//
+// This is a RefCounted holder of an int because I can't say
+// scoped_refptr<int>.
+typedef base::RefCountedData<int> SharedRenderViewCounter;
+
 //
 // RenderView is an object that manages a WebView object, and provides a
 // communication interface with an embedding application process
@@ -64,12 +78,15 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // the renderer and plugin processes know to pump window messages.  If this
   // is a constrained popup or as a new tab, opener_id is the routing ID of the
   // RenderView responsible for creating this RenderView (corresponding to the
-  // parent_hwnd).
-  static RenderView* Create(HWND parent_hwnd,
-                            HANDLE modal_dialog_event,
-                            int32 opener_id,
-                            const WebPreferences& webkit_prefs,
-                            int32 routing_id);
+  // parent_hwnd). |counter| is either a currently initialized counter, or NULL
+  // (in which case we treat this RenderView as a top level window).
+  static RenderView* Create(
+      HWND parent_hwnd,
+      HANDLE modal_dialog_event,
+      int32 opener_id,
+      const WebPreferences& webkit_prefs,
+      SharedRenderViewCounter* counter,
+      int32 routing_id);
 
   // Sets the "next page id" counter.
   static void SetNextPageID(int32 next_page_id);
@@ -293,6 +310,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
             HANDLE modal_dialog_event,
             int32 opener_id,
             const WebPreferences& webkit_prefs,
+            SharedRenderViewCounter* counter,
             int32 routing_id);
 
   void UpdateURL(WebFrame* frame);
@@ -442,6 +460,10 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // Handles messages posted from automation.
   void OnMessageFromExternalHost(const std::string& target,
                                  const std::string& message);
+
+  // Message that we should no longer be part of the current popup window
+  // grouping, and should form our own grouping.
+  void OnDisassociateFromPopupCount();
 
   // Switches the frame's CSS media type to "print" and calculate the number of
   // printed pages that are to be expected. |frame| will be used to calculate
@@ -618,6 +640,16 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 
   // True if the page has any frame-level unload or beforeunload listeners.
   bool has_unload_listener_;
+
+  // The total number of unrequested popups that exist and can be followed back
+  // to a common opener. This count is shared among all RenderViews created
+  // with CreateWebView(). All popups are treated as unrequested until
+  // specifically instructed otherwise by the Browser process.
+  scoped_refptr<SharedRenderViewCounter> shared_popup_counter_;
+
+  // Whether this is a top level window (instead of a popup). Top level windows
+  // shouldn't count against their own |shared_popup_counter_|.
+  bool decrement_shared_popup_at_destruction_;
 
   // Handles accessibility requests into the renderer side, as well as
   // maintains the cache and other features of the accessibility tree.

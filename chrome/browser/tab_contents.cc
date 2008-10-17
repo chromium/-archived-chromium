@@ -21,8 +21,6 @@
 
 #include "generated_resources.h"
 
-static size_t kMaxNumberOfConstrainedPopups = 20;
-
 namespace {
 
 BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
@@ -283,6 +281,8 @@ void TabContents::AddNewContents(TabContents* new_contents,
       popup_owner = our_owner;
     popup_owner->AddConstrainedPopup(new_contents, initial_pos);
   } else {
+    new_contents->DisassociateFromPopupCount();
+
     delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
                               user_gesture);
   }
@@ -290,11 +290,6 @@ void TabContents::AddNewContents(TabContents* new_contents,
 
 void TabContents::AddConstrainedPopup(TabContents* new_contents,
                                       const gfx::Rect& initial_pos) {
-  if (child_windows_.size() > kMaxNumberOfConstrainedPopups) {
-    new_contents->CloseContents();
-    return;
-  }
-
   ConstrainedWindow* window =
       ConstrainedWindow::CreateConstrainedPopup(
           this, initial_pos, new_contents);
@@ -499,6 +494,7 @@ void TabContents::DetachContents(ConstrainedWindow* window,
                                  int frame_component) {
   WillClose(window);
   if (delegate_) {
+    contents->DisassociateFromPopupCount();
     delegate_->StartDraggingDetachedContents(
         this, contents, contents_bounds, mouse_pt, frame_component);
   }

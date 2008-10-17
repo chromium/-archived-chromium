@@ -1005,6 +1005,10 @@ void RenderViewHost::OnPersonalizationEvent(const std::string& message,
 }
 #endif
 
+void RenderViewHost::DisassociateFromPopupCount() {
+  Send(new ViewMsg_DisassociateFromPopupCount(routing_id_));
+}
+
 void RenderViewHost::OnMsgGoToEntryAtOffset(int offset) {
   delegate_->GoToEntryAtOffset(offset);
 }
@@ -1222,4 +1226,3 @@ void RenderViewHost::ForwardMessageFromExternalHost(
     const std::string& target, const std::string& message) {
   Send(new ViewMsg_HandleMessageFromExternalHost(routing_id_, target, message));
 }
-

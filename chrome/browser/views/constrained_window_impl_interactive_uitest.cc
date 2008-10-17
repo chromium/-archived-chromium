@@ -143,3 +143,58 @@ TEST_F(InteractiveConstrainedWindowTest, ClickingXClosesConstrained) {
   EXPECT_TRUE(automation()->GetBrowserWindowCount(&browser_window_count));
   EXPECT_EQ(browser_window_count, 1);
 }
+
+// Tests that in the window.open() equivalent of a fork bomb, we stop building
+// windows.
+TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
+  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get());
+
+  scoped_ptr<WindowProxy> window(
+      automation()->GetWindowForBrowser(browser.get()));
+  ASSERT_TRUE(window.get());
+
+  scoped_ptr<TabProxy> tab(browser->GetTab(0));
+  ASSERT_TRUE(tab.get());
+
+  std::wstring filename(test_data_directory_);
+  file_util::AppendToPath(&filename, L"constrained_files");
+  file_util::AppendToPath(&filename,
+                          L"infinite_popups.html");
+  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
+
+  gfx::Rect tab_view_bounds;
+  ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
+                                    &tab_view_bounds, true));
+
+  // Simulate a click of the actual link to force user_gesture to be
+  // true; if we don't, the resulting popup will be constrained, which
+  // isn't what we want to test.
+  POINT link_point(tab_view_bounds.CenterPoint().ToPOINT());
+  ASSERT_TRUE(window->SimulateOSClick(link_point,
+                                      views::Event::EF_LEFT_BUTTON_DOWN));
+
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 1000));
+
+  scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
+  ASSERT_TRUE(popup_browser.get());
+  scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
+  ASSERT_TRUE(popup_tab.get());
+
+  // And now we spin on this, waiting to make sure that we don't spawn popup
+  // windows endlessly. The current limit is 25, so allowing for possible race
+  // conditions and one off errors, don't break out until we go over 35 popup
+  // windows (in which case we are bork bork bork).
+  const int kMaxPopupWindows = 35;
+  int constrained_window_count = 0;
+  int new_constrained_window_count;
+  bool continuing = true;
+  while (continuing && constrained_window_count < kMaxPopupWindows) {
+    continuing = popup_tab->WaitForChildWindowCountToChange(
+        constrained_window_count, &new_constrained_window_count,
+        100000);
+    EXPECT_GE(new_constrained_window_count, constrained_window_count);
+    EXPECT_LE(new_constrained_window_count, kMaxPopupWindows);
+    constrained_window_count = new_constrained_window_count;
+  }
+}

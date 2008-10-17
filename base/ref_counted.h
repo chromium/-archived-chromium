@@ -109,6 +109,19 @@ class RefCountedThreadSafe : public subtle::RefCountedThreadSafeBase {
   DISALLOW_COPY_AND_ASSIGN(RefCountedThreadSafe<T>);
 };
 
+//
+// A wrapper for some piece of data so we can place other things in
+// scoped_refptrs<>.
+//
+template<typename T>
+class RefCountedData : public base::RefCounted< base::RefCountedData<T> > {
+ public:
+  RefCountedData() : data() {}
+  RefCountedData(const T& in_value) : data(in_value) {}
+
+  T data;
+};
+
 }  // namespace base
 
 //
@@ -213,4 +226,3 @@ class scoped_refptr {
 };
 
 #endif  // BASE_REF_COUNTED_H_
-

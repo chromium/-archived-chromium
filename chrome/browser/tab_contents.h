@@ -314,6 +314,9 @@ class TabContents : public PageNavigator,
   virtual void Copy() { }
   virtual void Paste() { }
 
+  // Called on a TabContents when it isn't a popup, but a new window.
+  virtual void DisassociateFromPopupCount() { }
+
   // Window management ---------------------------------------------------------
 
   // Create a new window constrained to this TabContents' clip and visibility.

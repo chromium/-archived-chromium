@@ -94,6 +94,9 @@ const TimeDelta kDelayForNavigationSync = TimeDelta::FromSeconds(5);
 // globally unique in the renderer.
 static int32 next_page_id_ = 1;
 
+// The maximum number of popups that can be spawned from one page.
+static const int kMaximumNumberOfUnacknowledgedPopups = 25;
+
 static const char* const kUnreachableWebDataURL =
     "chrome-resource://chromewebdata/";
 
@@ -152,6 +155,7 @@ RenderView::RenderView()
     history_forward_list_count_(0),
     disable_popup_blocking_(false),
     has_unload_listener_(false),
+    decrement_shared_popup_at_destruction_(false),
     greasemonkey_enabled_(false) {
   resource_dispatcher_ = new ResourceDispatcher(this);
 #ifdef CHROME_PERSONALIZATION
@@ -160,6 +164,9 @@ RenderView::RenderView()
 }
 
 RenderView::~RenderView() {
+  if (decrement_shared_popup_at_destruction_)
+    shared_popup_counter_->data--;
+
   resource_dispatcher_->ClearMessageSender();
   // Clear any back-pointers that might still be held by plugins.
   PluginDelegateList::iterator it = plugin_delegates_.begin();
@@ -177,17 +184,20 @@ RenderView::~RenderView() {
 }
 
 /*static*/
-RenderView* RenderView::Create(HWND parent_hwnd,
-                               HANDLE modal_dialog_event,
-                               int32 opener_id,
-                               const WebPreferences& webkit_prefs,
-                               int32 routing_id) {
+RenderView* RenderView::Create(
+    HWND parent_hwnd,
+    HANDLE modal_dialog_event,
+    int32 opener_id,
+    const WebPreferences& webkit_prefs,
+    SharedRenderViewCounter* counter,
+    int32 routing_id) {
   DCHECK(routing_id != MSG_ROUTING_NONE);
   scoped_refptr<RenderView> view = new RenderView();
   view->Init(parent_hwnd,
              modal_dialog_event,
              opener_id,
              webkit_prefs,
+             counter,
              routing_id);  // adds reference
   return view;
 }
@@ -227,11 +237,21 @@ void RenderView::Init(HWND parent_hwnd,
                       HANDLE modal_dialog_event,
                       int32 opener_id,
                       const WebPreferences& webkit_prefs,
+                      SharedRenderViewCounter* counter,
                       int32 routing_id) {
   DCHECK(!webview());
 
   if (opener_id != MSG_ROUTING_NONE)
     opener_id_ = opener_id;
+
+  if (counter) {
+    shared_popup_counter_ = counter;
+    shared_popup_counter_->data++;
+    decrement_shared_popup_at_destruction_ = true;
+  } else {
+    shared_popup_counter_ = new SharedRenderViewCounter(0);
+    decrement_shared_popup_at_destruction_ = false;
+  }
 
   // Avoid a leak here by not assigning, since WebView::Create addrefs for us.
   WebWidget* view = WebView::Create(this, webkit_prefs);
@@ -344,6 +364,8 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
 #endif
     IPC_MESSAGE_HANDLER(ViewMsg_HandleMessageFromExternalHost,
                         OnMessageFromExternalHost)
+    IPC_MESSAGE_HANDLER(ViewMsg_DisassociateFromPopupCount,
+                        OnDisassociateFromPopupCount)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
   IPC_END_MESSAGE_MAP()
@@ -1673,6 +1695,10 @@ void RenderView::DebuggerOutput(const std::wstring& out) {
 }
 
 WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
+  // Check to make sure we aren't overloading on popups.
+  if (shared_popup_counter_->data > kMaximumNumberOfUnacknowledgedPopups)
+    return NULL;
+
   int32 routing_id = MSG_ROUTING_NONE;
   HANDLE modal_dialog_event = NULL;
   bool result = RenderThread::current()->Send(
@@ -1686,7 +1712,8 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
   // The WebView holds a reference to this new RenderView
   const WebPreferences& prefs = webview->GetPreferences();
   RenderView* view = RenderView::Create(NULL, modal_dialog_event, routing_id_,
-                                        prefs, routing_id);
+                                        prefs, shared_popup_counter_,
+                                        routing_id);
   view->set_opened_by_user_gesture(user_gesture);
 
   // Copy over the alternate error page URL so we can have alt error pages in
@@ -2595,6 +2622,13 @@ void RenderView::OnMessageFromExternalHost(
   main_frame->LoadRequest(request.get());
 }
 
+void RenderView::OnDisassociateFromPopupCount() {
+  if (decrement_shared_popup_at_destruction_)
+    shared_popup_counter_->data--;
+  shared_popup_counter_ = new SharedRenderViewCounter(0);
+  decrement_shared_popup_at_destruction_ = false;
+}
+
 std::string RenderView::GetAltHTMLForTemplate(
     const DictionaryValue& error_strings, int template_resource_id) const {
   const StringPiece template_html(
@@ -2609,4 +2643,3 @@ std::string RenderView::GetAltHTMLForTemplate(
   return jstemplate_builder::GetTemplateHtml(
       template_html, &error_strings, "t");
 }
-

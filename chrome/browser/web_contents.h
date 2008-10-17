@@ -92,6 +92,7 @@ class WebContents : public TabContents,
   virtual void Cut();
   virtual void Copy();
   virtual void Paste();
+  virtual void DisassociateFromPopupCount();
   virtual void DidBecomeSelected();
   virtual void WasHidden();
   virtual void ShowContents();
