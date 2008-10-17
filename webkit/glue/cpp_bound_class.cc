@@ -27,7 +27,7 @@ MSVC_POP_WARNING()
 
 #if USE(JSC)
 #pragma warning(push, 0)
-#include "JSLock.h"
+#include <kjs/JSLock.h>
 #pragma warning(pop)
 #endif
 
