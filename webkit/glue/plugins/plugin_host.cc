@@ -162,7 +162,7 @@ bool PluginHost::SetPostData(const char *buf,
   //
   enum { INPUT_COLON=0, INPUT_NEWLINE, INPUT_NULL, INPUT_OTHER };
   enum { GETNAME, GETVALUE, GETDATA, DONE, ERR };
-  int statemachine[3][4] = { { GETVALUE, GETDATA, ERR,  GETNAME },
+  int statemachine[3][4] = { { GETVALUE, GETDATA, GETDATA, GETNAME },
                              { GETVALUE, GETNAME, DONE, GETVALUE },
                              { GETDATA,  GETDATA, DONE, GETDATA } };
   std::string name, value;
@@ -216,8 +216,9 @@ bool PluginHost::SetPostData(const char *buf,
         break; 
       case GETDATA:
       {
-        // Finished headers, now get body.
-        start = ptr + 1;
+        // Finished headers, now get body
+        if (*ptr)
+          start = ptr + 1;
         size_t previous_size = body->size();
         size_t new_body_size = length - static_cast<int>(start - buf);
         body->resize(previous_size + new_body_size);
@@ -444,7 +445,7 @@ static NPError PostURLNotify(NPP id,
       DCHECK(file_url.SchemeIsFile());
       net::FileURLToFilePath(file_url, &file_path);
     } else {
-      std::wstring file_path = base::SysNativeMBToWide(file_path_ascii);
+      file_path = base::SysNativeMBToWide(file_path_ascii);
     }
 
     file_util::FileInfo post_file_info = {0};

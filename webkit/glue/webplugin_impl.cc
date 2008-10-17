@@ -366,6 +366,10 @@ bool WebPluginImpl::SetPostData(WebCore::ResourceRequest* request,
     request->addHTTPHeaderField(webkit_glue::StdStringToString(names[i]),
                                 webkit_glue::StdStringToString(values[i]));
 
+  WebCore::String content_type = request->httpContentType();
+  if (content_type.isEmpty())
+    request->setHTTPContentType("application/x-www-form-urlencoded");
+
   RefPtr<WebCore::FormData> data = WebCore::FormData::create();
   if (body.size())
     data->appendData(&body.front(), body.size());

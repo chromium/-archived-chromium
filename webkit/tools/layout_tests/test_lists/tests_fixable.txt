@@ -175,9 +175,6 @@ V8 | KJS # LayoutTests/fast/repaint/bugzilla-6473.html = PASS | FAIL
 // Bug 982608: test had a wrong result for one condition
 V8 | KJS # LayoutTests/plugins/destroy-stream-twice.html = FAIL
 
-// http://crbug.com/2858 : no support for postURL with file data.
-V8 | KJS # LayoutTests/http/tests/plugins/post-url-file.html = FAIL
-
 // This test has been modified and placed in pending, so we ignore the original
 // until we get our modification into WebKit.
 V8 | KJS # LayoutTests/security/block-test.html = PASS | FAIL
