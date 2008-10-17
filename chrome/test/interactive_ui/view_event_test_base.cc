@@ -23,6 +23,11 @@ class TestView : public views::View {
     return View::GetPreferredSize();
   }
 
+  virtual void Layout() {
+    View* child_view = GetChildViewAt(0);
+    child_view->SetBounds(0, 0, width(), height());
+  }
+
  private:
   gfx::Size preferred_size_;
 
@@ -63,7 +68,6 @@ views::View* ViewEventTestBase::GetContentsView() {
     // Wrap the real view (as returned by CreateContentsView) in a View so
     // that we can customize the preferred size.
     TestView* test_view = new TestView();
-    test_view->SetLayoutManager(new views::FillLayout());
     test_view->set_preferred_size(GetPreferredSize());
     test_view->AddChildView(CreateContentsView());
     content_view_ = test_view;
