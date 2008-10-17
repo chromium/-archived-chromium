@@ -44,6 +44,5 @@ input_files = [
 ]
 
 dll = env.ChromeSharedLibrary('npaxshim', input_files)
-i = env.Install('$TARGET_ROOT', dll)
+i = env.Replicate('$MAIN_DIR/Hammer', dll[0])
 env.Alias('webkit', i)
-

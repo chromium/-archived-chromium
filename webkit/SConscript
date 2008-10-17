@@ -81,7 +81,9 @@ env.Prepend(
         '$ZLIB_DIR',
         '$LIBPNG_DIR',
         '$LIBJPEG_DIR',
+        '$LIBXSLT_DIR/scons',
         '$LIBXSLT_DIR',
+        '$LIBXML_DIR/scons/include',
         '$LIBXML_DIR/include',
         '$LIBXML_DIR/DerivedSources/include',
         '$ICU38_DIR/public/common',
@@ -91,8 +93,8 @@ env.Prepend(
         '$SKIA_DIR/platform',
         '$NPAPI_DIR',
         '$V8_DIR/include',
-        '$WEBKIT_DIR/V8Bindings/DerivedSources',
-        '$WEBKIT_DIR/V8Bindings/SharedSources',
+        '$DERIVED_DIR',
+        '$SHARED_DIR',
         '$WEBKIT_DIR/port/bindings/v8',
         '$WEBKIT_DIR/WebCore',
         '$WEBKIT_DIR/WebCore/JavaScriptHeaders',
@@ -144,9 +146,12 @@ env.Prepend(
         '$WEBKIT_DIR/port/svg/animation',
         '$WEBKIT_DIR/port/svg/graphics/filters',
 
-        '#/..',
+        '$ROOT_DIR',
     ],
 )
+
+if env.Bit('windows'):
+  env.Append(CPPPATH = ['$WEBKIT_DIR/port/page/win'])
 
 env.Append(
     WEBCORE_DIR = "$THIRD_PARTY_WEBKIT_DIR/WebCore",
@@ -159,8 +164,8 @@ env.Append(
     PCRE_DIR = "$JAVASCRIPTCORE_DIR/pcre",
 
     V8BINDINGS_DIR = "$WEBKIT_DIR/V8Bindings",
-    DERIVED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/DerivedSources"),
-    SHARED_DIR = env.Dir("$WEBKIT_DIR/V8Bindings/SharedSources"),
+    DERIVED_DIR = "$WEBKIT_DIR/V8Bindings/DerivedSources",
+    SHARED_DIR = "$WEBKIT_DIR/V8Bindings/SharedSources",
 
     # This is a stop gap to get linux building in time for the webkit
     # merge. The true fix is to move the above CPPPATH prepend under this
@@ -280,4 +285,3 @@ version = env.Command('$WEBKIT_DIR/build/WebCore/webkit_version.h',
                        '#/../webkit/build/webkit_version.py'],
                       "$PYTHON ${SOURCES[1]} ${SOURCES[0]} ${TARGET.dir}")
 env.AlwaysBuild(version)
-

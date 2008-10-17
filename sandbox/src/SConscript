@@ -10,6 +10,7 @@ env = env.Clone()
 # in the base env here, not just in env_tests.
 env.Prepend(
     CPPPATH = [
+        '$ROOT_DIR',
         '$GTEST_DIR/include',
         '$GTEST_DIR',
         '../..',
@@ -27,8 +28,10 @@ env.Append(
     ],
 )
 
+env.Dir('$OBJ_ROOT/sandbox/src').addRepository(env.Dir('$ROOT_DIR/sandbox'))
+
 env_tests = env.Clone(
-    TESTS_DIR = '../tests',
+    TESTS_DIR = 'tests',
     INTEGRATION_TESTS_DIR = '$TESTS_DIR/integration_tests',
     UNIT_TESTS_DIR = '$TESTS_DIR/unit_tests',
     VALIDATION_TESTS_DIR = '$TESTS_DIR/validation_tests',
@@ -158,6 +161,8 @@ unit_test_files = [
 # TODO(bradnelson): This step generates unittests_tests.pch.ib_tag
 #                   SCons doesn't know.
 env_p = env_unit_tests.Clone()
+# TODO(bradnelson): Make this automatic.
+env_p['COMPONENT_PLATFORM_SETUP'](env_p, 'ComponentTestProgram')
 pch, obj = env_p.PCH(['$UNIT_TESTS_DIR/unit_tests.pch',
                       '$UNIT_TESTS_DIR/unit_tests.obj'],
                      '$UNIT_TESTS_DIR/unit_tests.cc')
@@ -201,6 +206,8 @@ integration_test_files = [
 # TODO(bradnelson): This step generates integration_tests.pch.ib_tag
 #                   SCons doesn't know.
 env_p = env_integration_tests.Clone()
+# TODO(bradnelson): Make this automatic.
+env_p['COMPONENT_PLATFORM_SETUP'](env_p, 'ComponentTestProgram')
 pch, obj = env_p.PCH(['$INTEGRATION_TESTS_DIR/integration_tests.pch',
                       '$INTEGRATION_TESTS_DIR/integration_tests.obj'],
                      '$INTEGRATION_TESTS_DIR/integration_tests.cc')
@@ -233,7 +240,8 @@ validation_test_files = [
 ]
 
 env_p = env_validation_tests.Clone()
-
+# TODO(bradnelson): Make this automatic.
+env_p['COMPONENT_PLATFORM_SETUP'](env_p, 'ComponentTestProgram')
 # TODO(bradnelson): This step generates unittests_tests.pch.ib_tag
 #                   SCons doesn't know.
 pch, obj = env_p.PCH(['$VALIDATION_TESTS_DIR/unit_tests.pch',
@@ -249,11 +257,10 @@ validation_tests = env_validation_tests.ChromeTestProgram(
 )
 
 
-# Install tests to a path where they can find their inputs.
-installed_tests = env.Install('$OBJ_ROOT',
+# Install tests to where the buildbot expects them for now.
+installed_tests = env.Install('$MAIN_DIR/Hammer',
     unit_tests + validation_tests + integration_tests)
 
 
 # Setup alias for sandbox related targets.
 env.Alias('sandbox', ['.', installed_tests])
-

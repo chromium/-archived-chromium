@@ -6,10 +6,12 @@ Import('env')
 
 env = env.Clone()
 
-# Remove an inherited relative path that doesn't make sense anymore.  This
-# makes sure we don't pull in the wrong version of time.h when building on
-# linux.
-env['CPPPATH'].remove('..')
+# This path causing linux to grab the wrong time.h
+env.FilterOut(
+    CPPPATH = [
+        '$MAIN_DIR/..',
+    ],
+)
 
 env.Prepend(
     CPPPATH = [
@@ -20,7 +22,6 @@ env.Prepend(
         '$LIBPNG_DIR',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
-        '../..',
     ],
     CPPDEFINES = [
         'PNG_USER_CONFIG',
@@ -62,6 +63,7 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
+    'gdi_util.cc',
     'bitmap_platform_device_win.cc',
     'platform_canvas_win.cc',
     'platform_device_win.cc',
@@ -74,4 +76,3 @@ elif env['PLATFORM'] == 'posix':
   ])
 
 env.ChromeStaticLibrary('base_gfx', input_files)
-

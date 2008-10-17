@@ -14,7 +14,7 @@ env.Prepend(
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
         '$SDCH_DIR/open-vcdiff/src',
-        '..',
+        '$ROOT_DIR',
     ],
 )
 
@@ -166,7 +166,7 @@ env.ChromeStaticLibrary('net', input_files)
 
 env_tests.Prepend(
     CPPPATH = [
-        '..',
+        '$ROOT_DIR',
     ],
     CPPDEFINES = [
         'UNIT_TEST',
@@ -221,6 +221,9 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   )
 
 
+disk_cache_test_util = env.ChromeObject('disk_cache/disk_cache_test_util.cc')
+
+
 unittest_files = [
     'base/auth_cache_unittest.cc',
     'base/base64_unittest.cc',
@@ -244,7 +247,6 @@ unittest_files = [
     'disk_cache/backend_unittest.cc',
     'disk_cache/block_files_unittest.cc',
     'disk_cache/disk_cache_test_base.cc',
-    'disk_cache/disk_cache_test_util.cc',
     'disk_cache/entry_unittest.cc',
     'disk_cache/mapped_file_unittest.cc',
     'disk_cache/storage_block_unittest.cc',
@@ -254,6 +256,7 @@ unittest_files = [
     'http/http_chunked_decoder_unittest.cc',
     'http/http_response_headers_unittest.cc',
     'http/http_vary_data_unittest.cc',
+    disk_cache_test_util,
 ]
 
 if env['PLATFORM'] == 'win32':
@@ -286,12 +289,12 @@ if env['PLATFORM'] in ('posix', 'win32'):
 
   net_perftests = env_tests.ChromeTestProgram(
       'net_perftests',
-      ['disk_cache/disk_cache_test_util.cc',
-       'disk_cache/disk_cache_perftest.cc',
+      ['disk_cache/disk_cache_perftest.cc',
+       disk_cache_test_util,
        'base/cookie_monster_perftest.cc',
        # TODO(sgk): avoid using .cc from base directly
-       '$BASE_DIR/run_all_perftests$OBJSUFFIX',
-       '$BASE_DIR/perftimer$OBJSUFFIX']
+       '$OBJ_ROOT/base/run_all_perftests$OBJSUFFIX',
+       '$OBJ_ROOT/base/perftimer$OBJSUFFIX']
   )
 
   install_targets.extend([
@@ -302,13 +305,13 @@ if env['PLATFORM'] == 'win32':
   stress_cache = env_tests.ChromeTestProgram(
       'stress_cache',
       ['disk_cache/stress_cache.cc',
-       'disk_cache/disk_cache_test_util.cc']
+       disk_cache_test_util],
   )
 
   crash_cache = env_tests.ChromeTestProgram(
       'crash_cache',
       ['tools/crash_cache/crash_cache.cc',
-       'disk_cache/disk_cache_test_util.cc']
+       disk_cache_test_util],
   )
 
   install_targets.extend([
@@ -317,14 +320,14 @@ if env['PLATFORM'] == 'win32':
   ])
 
 
-# Create install of tests.
-installed_tests = env.Install('$TARGET_ROOT', install_targets)
+# Install tests where the buildbot expects them.
+installed_tests = env.Install('$MAIN_DIR/Hammer', install_targets)
 
 
 if env['PLATFORM'] == 'win32':
-  env_res.Append(
+  env_res.Prepend(
       CPPPATH = [
-          '..',
+          '$ROOT_DIR',
       ],
       RCFLAGS = [
           ['/l', '0x409'],

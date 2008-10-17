@@ -45,23 +45,7 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-if env['PLATFORM'] == 'win32':
-  dll = env.ChromeSharedLibrary([
-      'npapi_layout_test_plugin',
-      'npapi_layout_test_plugin.lib',
-      'npapi_layout_test_plugin.ilk',
-      'npapi_layout_test_plugin.pdb'
-  ], input_files)
+  dll = env.ChromeSharedLibrary('npapi_layout_test_plugin', input_files)
 
-  # TODO(sgk):  goes away when env.ChromeSharedLibrary() knows how
-  # to do this for us.
-  env.Install('$LIBS_DIR', dll[1])
-else:
-  dll = env.ChromeSharedLibrary(['npapi_layout_test_plugin'], input_files)
-
-i = env.Install('$TARGET_ROOT/plugins', dll)
+i = env.Install('$MAIN_DIR/Hammer', dll[0])
 env.Alias('webkit', i)
-
-i = env.Install('$TARGET_ROOT', dll)
-env.Alias('webkit', i)
-
