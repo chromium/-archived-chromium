@@ -112,10 +112,6 @@ class BrowserView2 : public BrowserWindow,
   // to add or delete entries.
   void PrepareToRunSystemMenu(HMENU menu);
 
-  // Called after the system menu has ended, and disposes of the
-  // current System menu object.
-  void SystemMenuEnded();
-
   // Possible elements of the Browser window.
   enum WindowFeature {
     FEATURE_TITLEBAR = 1,
@@ -232,6 +228,9 @@ class BrowserView2 : public BrowserWindow,
   virtual int OnPerformDrop(const views::DropTargetEvent& event);
 
  private:
+  // Creates the system menu.
+  void InitSystemMenu();
+
   // Returns true if the event should be forwarded to the TabStrip. This
   // returns true if y coordinate is less than the bottom of the tab strip, and
   // is not over another child view.

@@ -46,7 +46,6 @@ class AeroGlassFrame : public BrowserFrame,
   // Overridden from views::ContainerWin:
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual void OnEndSession(BOOL ending, UINT logoff);
-  virtual void OnExitMenuLoop(bool is_track_popup_menu);
   virtual LRESULT OnMouseActivate(HWND window,
                                   UINT hittest_code,
                                   UINT message);

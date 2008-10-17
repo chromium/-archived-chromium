@@ -77,15 +77,9 @@ void OpaqueFrame::OnEndSession(BOOL ending, UINT logoff) {
   FrameUtil::EndSession();
 }
 
-void OpaqueFrame::OnExitMenuLoop(bool is_track_popup_menu) {
-  //browser_view_->SystemMenuEnded();
-  SetMsgHandled(FALSE);
-}
-
 void OpaqueFrame::OnInitMenuPopup(HMENU menu, UINT position,
                                   BOOL is_system_menu) {
-  //browser_view_->PrepareToRunSystemMenu(menu);
-  SetMsgHandled(FALSE);
+  browser_view_->PrepareToRunSystemMenu(menu);
 }
 
 LRESULT OpaqueFrame::OnMouseActivate(HWND window, UINT hittest_code,

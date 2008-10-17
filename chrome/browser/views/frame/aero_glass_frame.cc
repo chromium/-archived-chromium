@@ -102,10 +102,6 @@ void AeroGlassFrame::OnEndSession(BOOL ending, UINT logoff) {
   FrameUtil::EndSession();
 }
 
-void AeroGlassFrame::OnExitMenuLoop(bool is_track_popup_menu) {
-  browser_view_->SystemMenuEnded();
-}
-
 LRESULT AeroGlassFrame::OnMouseActivate(HWND window, UINT hittest_code,
                                         UINT message) {
   return browser_view_->ActivateAppModalDialog() ? MA_NOACTIVATEANDEAT

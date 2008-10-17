@@ -228,25 +228,15 @@ SkBitmap BrowserView2::GetOTRAvatarIcon() {
 }
 
 void BrowserView2::PrepareToRunSystemMenu(HMENU menu) {
-  system_menu_.reset(new Menu(menu));
-  int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
-  // We add the menu items in reverse order so that insertion_index never needs
-  // to change.
-  if (browser_->GetType() == BrowserType::TABBED_BROWSER) {
-    system_menu_->AddSeparator(insertion_index);
-    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASKMANAGER,
-                                       l10n_util::GetString(IDS_TASKMANAGER));
-    // If it's a regular browser window with tabs, we don't add any more items,
-    // since it already has menus (Page, Chrome).
-    return;
-  } else {
-    BuildMenuForTabStriplessWindow(system_menu_.get(), insertion_index);
+  for (int i = 0; i < arraysize(kMenuLayout); ++i) {
+    int command = kMenuLayout[i].command;
+    // |command| can be zero on submenu items (IDS_ENCODING,
+    // IDS_ZOOM) and on separators.
+    if (command != 0) {
+      system_menu_->EnableMenuItemByID(command,
+                                       browser_->IsCommandEnabled(command));
+    }
   }
-}
-
-void BrowserView2::SystemMenuEnded() {
-  system_menu_.reset();
-  encoding_menu_delegate_.reset();
 }
 
 bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {
@@ -299,6 +289,8 @@ void BrowserView2::Init() {
         browser_->profile(), this);
   }
 #endif
+
+  InitSystemMenu();
 }
 
 void BrowserView2::Show(int command, bool adjust_to_fit) {
@@ -845,6 +837,23 @@ int BrowserView2::OnPerformDrop(const views::DropTargetEvent& event) {
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView2, private:
 
+void BrowserView2::InitSystemMenu() {
+  HMENU system_menu = GetSystemMenu(frame_->GetWindow()->GetHWND(), FALSE);
+  system_menu_.reset(new Menu(system_menu));
+  int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
+  // We add the menu items in reverse order so that insertion_index never needs
+  // to change.
+  if (browser_->GetType() == BrowserType::TABBED_BROWSER) {
+    system_menu_->AddSeparator(insertion_index);
+    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASKMANAGER,
+                                       l10n_util::GetString(IDS_TASKMANAGER));
+    // If it's a regular browser window with tabs, we don't add any more items,
+    // since it already has menus (Page, Chrome).
+  } else {
+    BuildMenuForTabStriplessWindow(system_menu_.get(), insertion_index);
+  }
+}
+
 bool BrowserView2::ShouldForwardToTabStrip(
     const views::DropTargetEvent& event) {
   if (!tabstrip_->IsVisible())
@@ -1121,12 +1130,6 @@ void BrowserView2::BuildMenuForTabStriplessWindow(Menu* menu,
       } else {
         menu->AddMenuItemWithLabel(insertion_index, command,
                                    l10n_util::GetString(kMenuLayout[i].label));
-        // |command| can be zero on submenu items (IDS_ENCODING,
-        // IDS_ZOOM) and on separators.
-        if (command != 0) {
-          menu->EnableMenuItemAt(insertion_index,
-                                 browser_->IsCommandEnabled(command));
-        }
       }
     }
   }

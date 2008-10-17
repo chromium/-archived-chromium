@@ -104,6 +104,7 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_SHOW_HISTORY, true);
   controller_.UpdateCommandEnabled(IDC_SHOW_BOOKMARKS_BAR, true);
   controller_.UpdateCommandEnabled(IDC_SHOW_DOWNLOADS, true);
+  controller_.UpdateCommandEnabled(IDC_ENCODING, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_AUTO_DETECT, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_UTF8, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_UTF16LE, true);
