@@ -526,6 +526,13 @@ void DownloadManager::StartDownload(DownloadCreateInfo* info) {
     info->suggested_path = *download_path_;
   file_util::AppendToPath(&info->suggested_path, generated_name);
 
+  // Let's check if this download is dangerous, based on its name.
+  if (!*prompt_for_download_ && !info->save_as) {
+    const std::wstring filename =
+        file_util::GetFilenameFromPath(info->suggested_path);
+    info->is_dangerous = IsDangerous(filename);
+  }
+
   // We need to move over to the download thread because we don't want to stat
   // the suggested path on the UI thread.
   file_loop_->PostTask(FROM_HERE,
@@ -551,7 +558,7 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
   info->path_uniquifier = GetUniquePathNumber(info->suggested_path);
 
   // If the download is deemmed dangerous, we'll use a temporary name for it.
-  if (!info->save_as && IsDangerous(filename)) {
+  if (info->is_dangerous) {
     info->original_name = file_util::GetFilenameFromPath(info->suggested_path);
     // Create a temporary file to hold the file until the user approves its
     // download.
@@ -566,7 +573,6 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
          path.clear();
     }
     info->suggested_path = path;
-    info->is_dangerous = true;
   } else {
     // We know the final path, build it if necessary.
     if (info->path_uniquifier > 0) {
