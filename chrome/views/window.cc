@@ -368,7 +368,6 @@ LRESULT Window::OnAppCommand(HWND window, short app_command, WORD device,
   return 0;
 }
 
-
 void Window::OnCommand(UINT notification_code, int command_id, HWND window) {
   if (!window_delegate_->ExecuteWindowsCommand(command_id))
     ContainerWin::OnCommand(notification_code, command_id, window);
@@ -381,11 +380,6 @@ void Window::OnDestroy() {
   }
   RestoreEnabledIfNecessary();
   ContainerWin::OnDestroy();
-}
-
-LRESULT Window::OnEraseBkgnd(HDC dc) {
-  SetMsgHandled(TRUE);
-  return 1;
 }
 
 LRESULT Window::OnNCActivate(BOOL active) {

@@ -162,7 +162,6 @@ class Window : public ContainerWin {
                                int keystate);
   virtual void OnCommand(UINT notification_code, int command_id, HWND window);
   virtual void OnDestroy();
-  virtual LRESULT OnEraseBkgnd(HDC dc);
   virtual LRESULT OnNCActivate(BOOL active);
   virtual LRESULT OnNCHitTest(const CPoint& point);
   virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
