@@ -1189,22 +1189,27 @@ void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
       // view! Ick! By handling this message we prevent Windows from doing this
       // undesirable thing, but that means we need to roll the sys-command
       // handling ourselves.
-      CPoint temp = point;
-      MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
-      UINT flags = 0;
-      if ((GetKeyState(VK_CONTROL) & 0x80) == 0x80)
-        flags |= MK_CONTROL;
-      if ((GetKeyState(VK_SHIFT) & 0x80) == 0x80)
-        flags |= MK_SHIFT;
-      flags |= MK_LBUTTON;
-      ProcessMousePressed(temp, flags, false);
-      SetMsgHandled(TRUE);
+      ProcessNCMousePress(point, MK_LBUTTON);
       return;
     }
     default:
       Window::OnNCLButtonDown(ht_component, point);
       break;
   }
+}
+
+void CustomFrameWindow::OnNCMButtonDown(UINT ht_component,
+                                        const CPoint& point) {
+  if (ht_component == HTCAPTION) {
+    // When there's only one window and only one tab, the tab area is reported
+    // to be part of the caption area of the window. However users should still
+    // be able to middle click that tab to close it so we need to make sure
+    // these messages reach the View system.
+    ProcessNCMousePress(point, MK_MBUTTON);
+    SetMsgHandled(FALSE);
+    return;
+  }
+  ContainerWin::OnNCMButtonDown(ht_component, point);
 }
 
 LRESULT CustomFrameWindow::OnNCUAHDrawCaption(UINT msg, WPARAM w_param,
@@ -1316,6 +1321,18 @@ void CustomFrameWindow::ResetWindowRegion() {
   }
 
   DeleteObject(current_rgn);
+}
+
+void CustomFrameWindow::ProcessNCMousePress(const CPoint& point, int flags) {
+  CPoint temp = point;
+  MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
+  UINT message_flags = 0;
+  if ((GetKeyState(VK_CONTROL) & 0x80) == 0x80)
+    message_flags |= MK_CONTROL;
+  if ((GetKeyState(VK_SHIFT) & 0x80) == 0x80)
+    message_flags |= MK_SHIFT;
+  message_flags |= flags;
+  ProcessMousePressed(temp, message_flags, false);
 }
 
 }  // namespace views

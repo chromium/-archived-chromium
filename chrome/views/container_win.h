@@ -216,6 +216,9 @@ class ContainerWin : public Container,
     MSG_WM_NCLBUTTONDBLCLK(OnNCLButtonDblClk)
     MSG_WM_NCLBUTTONDOWN(OnNCLButtonDown)
     MSG_WM_NCLBUTTONUP(OnNCLButtonUp)
+    MSG_WM_NCMBUTTONDBLCLK(OnNCMButtonDblClk)
+    MSG_WM_NCMBUTTONDOWN(OnNCMButtonDown)
+    MSG_WM_NCMBUTTONUP(OnNCMButtonUp)
     MSG_WM_NCPAINT(OnNCPaint)
     MSG_WM_NCRBUTTONDBLCLK(OnNCRButtonDblClk)
     MSG_WM_NCRBUTTONDOWN(OnNCRButtonDown)
@@ -389,6 +392,9 @@ class ContainerWin : public Container,
   virtual void OnNCLButtonDblClk(UINT flags, const CPoint& point);
   virtual void OnNCLButtonDown(UINT flags, const CPoint& point);
   virtual void OnNCLButtonUp(UINT flags, const CPoint& point);
+  virtual void OnNCMButtonDblClk(UINT flags, const CPoint& point);
+  virtual void OnNCMButtonDown(UINT flags, const CPoint& point);
+  virtual void OnNCMButtonUp(UINT flags, const CPoint& point);
   virtual LRESULT OnNCMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCMouseMove(UINT flags, const CPoint& point);
   virtual void OnNCPaint(HRGN rgn) { SetMsgHandled(FALSE); }

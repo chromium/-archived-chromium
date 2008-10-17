@@ -56,6 +56,7 @@ class CustomFrameWindow : public Window {
   virtual LRESULT OnNCHitTest(const CPoint& point);
   virtual void OnNCPaint(HRGN rgn);
   virtual void OnNCLButtonDown(UINT ht_component, const CPoint& point);
+  virtual void OnNCMButtonDown(UINT ht_component, const CPoint& point);
   virtual LRESULT OnNCUAHDrawCaption(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCUAHDrawFrame(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
@@ -66,6 +67,13 @@ class CustomFrameWindow : public Window {
  private:
   // Resets the window region.
   void ResetWindowRegion();
+
+  // Converts a non-client mouse down message to a regular ChromeViews event
+  // and handle it. |point| is the mouse position of the message in screen
+  // coords. |flags| are flags that would be passed with a WM_L/M/RBUTTON*
+  // message and relate to things like which button was pressed. These are
+  // combined with flags relating to the current key state.
+  void ProcessNCMousePress(const CPoint& point, int flags);
 
   // True if this window is the active top level window.
   bool is_active_;

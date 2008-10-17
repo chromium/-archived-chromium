@@ -565,6 +565,18 @@ void ContainerWin::OnNCLButtonUp(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
+void ContainerWin::OnNCMButtonDblClk(UINT flags, const CPoint& point) {
+  SetMsgHandled(FALSE);
+}
+
+void ContainerWin::OnNCMButtonDown(UINT flags, const CPoint& point) {
+  SetMsgHandled(FALSE);
+}
+
+void ContainerWin::OnNCMButtonUp(UINT flags, const CPoint& point) {
+  SetMsgHandled(FALSE);
+}
+
 LRESULT ContainerWin::OnNCMouseLeave(UINT uMsg, WPARAM w_param,
                                      LPARAM l_param) {
   ProcessMouseExited();
