@@ -864,7 +864,6 @@ V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
 // ----------------------------------------------------------------------------
 
 V8 | KJS # LayoutTests/accessibility = FAIL
-V8 | KJS # LayoutTests/css3/transform-value-types.html = FAIL
 V8 | KJS # LayoutTests/dom/html/level2/html/HTMLFormElement10.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/editing/pasteboard/5780697-2.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/background-origin-root-element.html = FAIL

@@ -1,0 +1,4 @@
+transform-value-types
+--------------------------
+The printing of prototype objects and constructors is implementation dependent.
+We print these differently from KJS which is harmless.
