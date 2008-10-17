@@ -97,7 +97,6 @@
 #include "RenderPartObject.h"
 #include "RenderWidget.h"
 #include "ScheduledAction.h"
-#include "ScriptCallContext.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"
 #include "StyleSheetList.h"
@@ -2274,17 +2273,14 @@ CALLBACK_FUNC_DECL(ConsoleError) {
   INC_STATS(L"DOM.Console.error()");
   v8::Handle<v8::Value> holder = args.Holder();
   Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->error(&context);
+  String message = ToWebCoreString(args[0]);
+  imp->error(message);
   return v8::Undefined();
 }
 
 CALLBACK_FUNC_DECL(ConsoleGroup) {
   INC_STATS(L"DOM.Console.group()");
-  v8::Handle<v8::Value> holder = args.Holder();
-  Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->group(&context);
+  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
   return v8::Undefined();
 }
 
@@ -2292,8 +2288,8 @@ CALLBACK_FUNC_DECL(ConsoleInfo) {
   INC_STATS(L"DOM.Console.info()");
   v8::Handle<v8::Value> holder = args.Holder();
   Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->info(&context);
+  String message = ToWebCoreString(args[0]);
+  imp->info(message);
   return v8::Undefined();
 }
 
@@ -2301,8 +2297,8 @@ CALLBACK_FUNC_DECL(ConsoleLog) {
   INC_STATS(L"DOM.Console.log()");
   v8::Handle<v8::Value> holder = args.Holder();
   Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->log(&context);
+  String message = ToWebCoreString(args[0]);
+  imp->log(message);
   return v8::Undefined();
 }
 
@@ -2328,8 +2324,8 @@ CALLBACK_FUNC_DECL(ConsoleWarn) {
   INC_STATS(L"DOM.Console.warn()");
   v8::Handle<v8::Value> holder = args.Holder();
   Console* imp = V8Proxy::ToNativeObject<Console>(V8ClassIndex::CONSOLE, holder);
-  ScriptCallContext context(args);
-  imp->warn(&context);
+  String message = ToWebCoreString(args[0]);
+  imp->warn(message);
   return v8::Undefined();
 }
 

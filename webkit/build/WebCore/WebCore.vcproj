@@ -246,10 +246,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Console.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\ContextMenuClient.h"
 				>
 			</File>
@@ -395,10 +391,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Screen.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\ScriptCallContext.h"
 				>
 			</File>
 			<File
