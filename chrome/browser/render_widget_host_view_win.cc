@@ -50,13 +50,21 @@ BOOL CALLBACK DismissOwnedPopups(HWND window, LPARAM arg) {
 
 }  // namespace
 
+// RenderWidgetHostView --------------------------------------------------------
+
+// static
+RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
+    RenderWidgetHost* widget) {
+  return new RenderWidgetHostViewWin(widget);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostViewWin, public:
 
 RenderWidgetHostViewWin::RenderWidgetHostViewWin(
-    RenderWidgetHost* render_widget_host)
+    RenderWidgetHost* widget)
     : RenderWidgetHostView(),
-      render_widget_host_(render_widget_host),
+      render_widget_host_(widget),
       real_cursor_(LoadCursor(NULL, IDC_ARROW)),
       real_cursor_type_(WebCursor::ARROW),
       track_mouse_leave_(false),
@@ -68,6 +76,13 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(
       shutdown_factory_(this),
       parent_hwnd_(NULL),
       is_loading_(false) {
+  render_widget_host_->set_view(this);
+
+  // We set the parent HWND explicitly as pop-up HWNDs are parented and owned by
+  // the first non-child HWND of the HWND that was specified to the CreateWindow
+  // call.
+  set_parent_hwnd(GetPluginHWND());
+  set_close_on_deactivate(true);
 }
 
 RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {
@@ -78,6 +93,10 @@ RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostViewWin, RenderWidgetHostView implementation:
+
+RenderWidgetHost* RenderWidgetHostViewWin::GetRenderWidgetHost() const {
+  return render_widget_host_;
+}
 
 void RenderWidgetHostViewWin::DidBecomeSelected() {
   if (!is_hidden_)

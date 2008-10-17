@@ -894,6 +894,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\web_contents_view.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\web_contents_view.h"
 				>
 			</File>

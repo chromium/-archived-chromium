@@ -30,8 +30,8 @@ class WebContentsViewWin : public WebContentsView,
   // CreatePageView. Do we really need both?
   virtual void CreateView(HWND parent_hwnd,
                           const gfx::Rect& initial_bounds);
-  virtual RenderWidgetHostViewWin* CreatePageView(
-      RenderViewHost* render_view_host);
+  virtual RenderWidgetHostViewWin* CreateViewForWidget(
+      RenderWidgetHost* render_widget_host);
   virtual HWND GetContainerHWND() const;
   virtual HWND GetContentHWND() const;
   virtual void GetContainerBounds(gfx::Rect* out) const;
@@ -45,6 +45,17 @@ class WebContentsViewWin : public WebContentsView,
   virtual void ShowContextMenu(
       const ViewHostMsg_ContextMenu_Params& params);
   virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
+
+  // Backend implementation of RenderViewHostDelegate::View.
+  virtual WebContents* CreateNewWindowInternal(
+      int route_id, HANDLE modal_dialog_event);
+  virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id);
+  virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
+                                         WindowOpenDisposition disposition,
+                                         const gfx::Rect& initial_pos,
+                                         bool user_gesture);
+  virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
+                                         const gfx::Rect& initial_pos);
 
  private:
   // Windows events ------------------------------------------------------------

@@ -143,7 +143,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   bool msg_is_ok = true;
   IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateView, OnMsgCreateView)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindow, OnMsgCreateWindow)
     IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidget, OnMsgCreateWidget)
     // TODO(brettw): we should get the view ID for this so the resource
     // dispatcher can prioritize things based on the visible view.
@@ -286,16 +286,16 @@ bool ResourceMessageFilter::Send(IPC::Message* message) {
   return channel_->Send(message);
 }
 
-void ResourceMessageFilter::OnMsgCreateView(int opener_id,
-                                            bool user_gesture,
-                                            int* route_id,
-                                            HANDLE* modal_dialog_event) {
-  render_widget_helper_->CreateView(opener_id, user_gesture, route_id,
-                                    modal_dialog_event, render_handle_);
+void ResourceMessageFilter::OnMsgCreateWindow(int opener_id,
+                                              bool user_gesture,
+                                              int* route_id,
+                                              HANDLE* modal_dialog_event) {
+  render_widget_helper_->CreateNewWindow(opener_id, user_gesture, route_id,
+                                         modal_dialog_event, render_handle_);
 }
 
 void ResourceMessageFilter::OnMsgCreateWidget(int opener_id, int* route_id) {
-  render_widget_helper_->CreateWidget(opener_id, route_id);
+  render_widget_helper_->CreateNewWidget(opener_id, route_id);
 }
 
 void ResourceMessageFilter::OnRequestResource(

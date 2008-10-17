@@ -57,7 +57,8 @@ class RenderWidgetHostViewWin :
                      RenderWidgetHostHWNDTraits>,
   public RenderWidgetHostView {
  public:
-  explicit RenderWidgetHostViewWin(RenderWidgetHost* render_widget_host);
+  // The view will associate itself with the given widget.
+  explicit RenderWidgetHostViewWin(RenderWidgetHost* widget);
   virtual ~RenderWidgetHostViewWin();
 
   void set_close_on_deactivate(bool close_on_deactivate) {
@@ -113,6 +114,7 @@ class RenderWidgetHostViewWin :
   END_MSG_MAP()
 
   // Implementation of RenderWidgetHostView:
+  virtual RenderWidgetHost* GetRenderWidgetHost() const;
   virtual void DidBecomeSelected();
   virtual void WasHidden();
   virtual void SetSize(const gfx::Size& size);

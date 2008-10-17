@@ -108,9 +108,9 @@ class RenderWidgetHelper :
 
   MessageLoop* ui_loop() { return ui_loop_; }
 
-  void CreateView(int opener_id, bool user_gesture, int* route_id,
-                  HANDLE* modal_dialog_event, HANDLE render_process);
-  void CreateWidget(int opener_id, int* route_id);
+  void CreateNewWindow(int opener_id, bool user_gesture, int* route_id,
+                       HANDLE* modal_dialog_event, HANDLE render_process);
+  void CreateNewWidget(int opener_id, int* route_id);
 
  private:
   // A class used to proxy a paint message.  PaintMsgProxy objects are created

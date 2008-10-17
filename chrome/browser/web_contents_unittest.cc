@@ -21,32 +21,34 @@
 class TestRenderWidgetHostView : public RenderWidgetHostView {
  public:
   TestRenderWidgetHostView() {}
-  void DidBecomeSelected() {}
-  void WasHidden() {}
-  void SetSize(const gfx::Size& size) {}
-  HWND GetPluginHWND() { return NULL; }
-  HANDLE ModalDialogEvent() { return NULL; }
-  void ForwardMouseEventToRenderer(UINT message,
-                                   WPARAM wparam,
-                                   LPARAM lparam) {}
-  void Focus() {}
-  void Blur() {}
-  bool HasFocus() { return true; }
-  void AdvanceFocus(bool reverse) {}
-  void Show() {}
-  void Hide() {}
-  gfx::Rect GetViewBounds() const { return gfx::Rect(); }
-  void UpdateCursor(const WebCursor& cursor) {}
-  void UpdateCursorIfOverSelf() {}
+
+  virtual RenderWidgetHost* GetRenderWidgetHost() const { return NULL; }
+  virtual void DidBecomeSelected() {}
+  virtual void WasHidden() {}
+  virtual void SetSize(const gfx::Size& size) {}
+  virtual HWND GetPluginHWND() { return NULL; }
+  virtual HANDLE ModalDialogEvent() { return NULL; }
+  virtual void ForwardMouseEventToRenderer(UINT message,
+                                           WPARAM wparam,
+                                           LPARAM lparam) {}
+  virtual void Focus() {}
+  virtual void Blur() {}
+  virtual bool HasFocus() { return true; }
+  virtual void AdvanceFocus(bool reverse) {}
+  virtual void Show() {}
+  virtual void Hide() {}
+  virtual gfx::Rect GetViewBounds() const { return gfx::Rect(); }
+  virtual void UpdateCursor(const WebCursor& cursor) {}
+  virtual void UpdateCursorIfOverSelf() {}
   // Indicates if the page has finished loading.
   virtual void SetIsLoading(bool is_loading) {}
-  void IMEUpdateStatus(ViewHostMsg_ImeControl control, int x, int y) {}
-  void DidPaintRect(const gfx::Rect& rect) {}
-  void DidScrollRect(const gfx::Rect& rect, int dx, int dy) {}
-  void RendererGone() {}
-  void Destroy() {}
-  void PrepareToDestroy() {}
-  void SetTooltipText(const std::wstring& tooltip_text) {}
+  virtual void IMEUpdateStatus(ViewHostMsg_ImeControl control, int x, int y) {}
+  virtual void DidPaintRect(const gfx::Rect& rect) {}
+  virtual void DidScrollRect(const gfx::Rect& rect, int dx, int dy) {}
+  virtual void RendererGone() {}
+  virtual void Destroy() {}
+  virtual void PrepareToDestroy() {}
+  virtual void SetTooltipText(const std::wstring& tooltip_text) {}
 };
 
 // Subclass RenderViewHost so that it does not create a process.

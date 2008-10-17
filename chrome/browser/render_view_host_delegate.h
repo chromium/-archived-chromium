@@ -47,6 +47,37 @@ enum LoadState;
 //
 class RenderViewHostDelegate {
  public:
+  class View {
+   public:
+    // The page is trying to open a new page (e.g. a popup window). The
+    // window should be created associated with the given route, but it should
+    // not be shown yet. That should happen in response to ShowCreatedWindow.
+    //
+    // Note: this is not called "CreateWindow" because that will clash with
+    // the Windows function which is actually a #define.
+    virtual void CreateNewWindow(int route_id, HANDLE modal_dialog_event) = 0;
+
+    // The page is trying to open a new widget (e.g. a select popup). The
+    // widget should be created associated with the given route, but it should
+    // not be shown yet. That should happen in response to ShowCreatedWidget.
+    virtual void CreateNewWidget(int route_id) = 0;
+
+    // Show a previously created page with the specified disposition and bounds.
+    // The window is identified by the route_id passed to CreateNewWindow.
+    //
+    // Note: this is not called "ShowWindow" because that will clash with
+    // the Windows function which is actually a #define.
+    virtual void ShowCreatedWindow(int route_id,
+                                   WindowOpenDisposition disposition,
+                                   const gfx::Rect& initial_pos,
+                                   bool user_gesture) = 0;
+
+    // Show the newly created widget with the specified bounds.
+    // The widget is identified by the route_id passed to CreateNewWidget.
+    virtual void ShowCreatedWidget(int route_id,
+                                   const gfx::Rect& initial_pos) = 0;
+  };
+
   class FindInPage {
    public:
     // A find operation in the current page completed.
@@ -81,26 +112,12 @@ class RenderViewHostDelegate {
   };
 
   // Returns the current delegate associated with a feature. May be NULL.
+  virtual View* GetViewDelegate() const { return NULL; }
   virtual FindInPage* GetFindInPageDelegate() const { return NULL; }
   virtual Save* GetSaveDelegate() const { return NULL; }
 
   // Retrieves the profile to be used.
   virtual Profile* GetProfile() const = 0;
-
-  // The page is trying to open a new page (e.g. a popup window).
-  virtual void CreateView(int route_id, HANDLE modal_dialog_event) { }
-
-  // The page is trying to open a new widget (e.g. a select popup).
-  virtual void CreateWidget(int route_id) { }
-
-  // Show the newly created page with the specified disposition and bounds.
-  virtual void ShowView(int route_id,
-                        WindowOpenDisposition disposition,
-                        const gfx::Rect& initial_pos,
-                        bool user_gesture) { }
-
-  // Show the newly created widget with the specified bounds.
-  virtual void ShowWidget(int route_id, const gfx::Rect& initial_pos) { }
 
   // The RenderView is being constructed (message sent to the renderer process
   // to construct a RenderView).  Now is a good time to send other setup events

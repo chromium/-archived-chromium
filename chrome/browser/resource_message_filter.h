@@ -69,8 +69,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                        const NotificationDetails& details);
 
  private:
-  void OnMsgCreateView(int opener_id, bool user_gesture, int* route_id,
-                       HANDLE* modal_dialog_event);
+  void OnMsgCreateWindow(int opener_id, bool user_gesture, int* route_id,
+                         HANDLE* modal_dialog_event);
   void OnMsgCreateWidget(int opener_id, int* route_id);
   void OnRequestResource(const IPC::Message& msg, int request_id,
                          const ViewHostMsg_Resource_Request& request);

@@ -462,11 +462,11 @@ IPC_END_MESSAGES(View)
 // These are messages sent from the renderer to the browser process.
 
 IPC_BEGIN_MESSAGES(ViewHost, 2)
-  // Sent by the renderer when it is creating a new view.  The browser creates
+  // Sent by the renderer when it is creating a new window.  The browser creates
   // a tab for it and responds with a ViewMsg_CreatingNew_ACK.  If route_id is
   // MSG_ROUTING_NONE, the view couldn't be created.  modal_dialog_event is set
   // by the browser when a modal dialog is shown.
-  IPC_SYNC_MESSAGE_CONTROL2_2(ViewHostMsg_CreateView,
+  IPC_SYNC_MESSAGE_CONTROL2_2(ViewHostMsg_CreateWindow,
                               int /* opener_id */,
                               bool /* user_gesture */,
                               int /* route_id */,
@@ -481,7 +481,7 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
 
   // These two messages are sent as a result of the above two, in the browser
   // process, from RenderWidgetHelper to RenderViewHost.
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateViewWithRoute,
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateWindowWithRoute,
                       int /* route_id */,
                       HANDLE /* modal_dialog_event */)
 

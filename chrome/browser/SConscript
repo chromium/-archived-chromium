@@ -289,6 +289,7 @@ if env['PLATFORM'] == 'win32':
       'web_app_icon_manager.cc',
       'web_app_launcher.cc',
       'web_contents.cc',
+      'web_contents_view.cc',
       'web_drag_source.cc',
       'web_drop_target.cc',
       'webdata/web_data_service.cc',

@@ -193,9 +193,10 @@ WebContents::WebContents(Profile* profile,
 
   // Register for notifications about all interested prefs change.
   PrefService* prefs = profile->GetPrefs();
-  if (prefs)
+  if (prefs) {
     for (int i = 0; i < kPrefsToObserveLength; ++i)
       prefs->AddPrefObserver(kPrefsToObserve[i], this);
+  }
 
   // Register for notifications about URL starredness changing on any profile.
   NotificationService::current()->
@@ -699,6 +700,10 @@ void WebContents::SetIsLoading(bool is_loading,
   render_manager_.SetIsLoading(is_loading);
 }
 
+RenderViewHostDelegate::View* WebContents::GetViewDelegate() const {
+  return view_.get();
+}
+
 RenderViewHostDelegate::FindInPage* WebContents::GetFindInPageDelegate() const {
   // The find in page controller implements this interface for us. Our return
   // value can be NULL, so it's fine if the find in controller doesn't exist.
@@ -711,103 +716,6 @@ RenderViewHostDelegate::Save* WebContents::GetSaveDelegate() const {
 
 Profile* WebContents::GetProfile() const {
   return profile();
-}
-
-void WebContents::CreateView(int route_id, HANDLE modal_dialog_event) {
-  // TODO(brettw) move this to the view.
-  WebContents* new_view = new WebContents(profile(),
-                                          GetSiteInstance(),
-                                          render_view_factory_,
-                                          route_id,
-                                          modal_dialog_event);
-  new_view->SetupController(profile());
-  // TODO(beng)
-  // The intention here is to create background tabs, which should ideally
-  // be parented to NULL. However doing that causes the corresponding view
-  // container windows to show up as overlapped windows, which causes
-  // other issues. We should fix this.
-  HWND new_view_parent_window = ::GetAncestor(GetContainerHWND(), GA_ROOT);
-  new_view->CreateView(new_view_parent_window, gfx::Rect());
-  // TODO(brettw) it seems bogus that we have to call this function on the
-  // newly created object and give it one of its own member variables.
-  new_view->view_->CreatePageView(new_view->render_view_host());
-
-  // Don't show the view until we get enough context in ShowView.
-  pending_views_[route_id] = new_view;
-}
-
-void WebContents::CreateWidget(int route_id) {
-  RenderWidgetHost* widget_host = new RenderWidgetHost(process(), route_id);
-  // TODO(brettw) createe the view in some cross-platform way (probably move
-  // to the WebContentsView). CreatePageView seems to do this already? This
-  // is confusing.
-  RenderWidgetHostViewWin* widget_view =
-      new RenderWidgetHostViewWin(widget_host);
-  widget_host->set_view(widget_view);
-  // We set the parent HWDN explicitly as pop-up HWNDs are parented and owned by
-  // the first non-child HWND of the HWND that was specified to the CreateWindow
-  // call.
-  widget_view->set_parent_hwnd(render_widget_host_view()->GetPluginHWND());
-  widget_view->set_close_on_deactivate(true);
-
-  // Don't show the widget until we get its position in ShowWidget.
-  pending_widgets_[route_id] = widget_host;
-}
-
-void WebContents::ShowView(int route_id,
-                           WindowOpenDisposition disposition,
-                           const gfx::Rect& initial_pos,
-                           bool user_gesture) {
-  PendingViews::iterator iter = pending_views_.find(route_id);
-  if (iter == pending_views_.end()) {
-    DCHECK(false);
-    return;
-  }
-
-  WebContents* new_web_contents = iter->second;
-  pending_views_.erase(route_id);
-
-  if (!new_web_contents->render_widget_host_view() ||
-      !new_web_contents->process()->channel()) {
-    // The view has gone away or the renderer crashed. Nothing to do.
-    return;
-  }
-
-  // TODO(brettw) this seems bogus to reach into here and initialize the host.
-  new_web_contents->render_view_host()->Init();
-  AddNewContents(new_web_contents, disposition, initial_pos, user_gesture);
-}
-
-void WebContents::ShowWidget(int route_id, const gfx::Rect& initial_pos) {
-  PendingWidgets::iterator iter = pending_widgets_.find(route_id);
-  if (iter == pending_widgets_.end()) {
-    DCHECK(false);
-    return;
-  }
-
-  RenderWidgetHost* widget_host = iter->second;
-  pending_widgets_.erase(route_id);
-
-  // TODO(beng): (Cleanup) move all this windows-specific creation and showing
-  //             code into RenderWidgetHostViewWin behind some API that a
-  //             ChromeView can also reasonably implement.
-  RenderWidgetHostViewWin* widget_view =
-      static_cast<RenderWidgetHostViewWin*>(widget_host->view());
-
-  if (!widget_view || !widget_host->process()->channel()) {
-    // The view has gone away or the renderer crashed. Nothing to do.
-    return;
-  }
-
-  // This logic should be implemented by RenderWidgetHostViewWin (as mentioned
-  // above) in the ::Init function, which should take a parent and some initial
-  // bounds.
-  widget_view->Create(view_->GetContainerHWND(), NULL, NULL,
-                      WS_POPUP, WS_EX_TOOLWINDOW);
-  widget_view->MoveWindow(initial_pos.x(), initial_pos.y(), initial_pos.width(),
-                          initial_pos.height(), TRUE);
-  widget_view->ShowWindow(SW_SHOW);
-  widget_host->Init();
 }
 
 void WebContents::RendererReady(RenderViewHost* rvh) {
@@ -1604,13 +1512,14 @@ void WebContents::UpdateRenderViewSizeForRenderManager() {
 
 bool WebContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
-  // TODO(brettw) move this to the view. Probably the RenderWidgetHostViewWins
-  // should be created by a factory somewhere that just returns a
-  // RenderWidgetHostView*.
-  RenderWidgetHostViewWin* rvh_view = view_->CreatePageView(render_view_host);
+  RenderWidgetHostView* rvh_view = view_->CreateViewForWidget(render_view_host);
 
   bool ok = render_view_host->CreateRenderView();
   if (ok) {
+    // TODO(brettw) hack alert. Do this in some cross platform way, or move
+    // to the view?
+    RenderWidgetHostViewWin* rvh_view_win =
+        static_cast<RenderWidgetHostViewWin*>(rvh_view);
     rvh_view->SetSize(view_->GetContainerSize());
     UpdateMaxPageIDIfNecessary(render_view_host->site_instance(),
                                render_view_host);

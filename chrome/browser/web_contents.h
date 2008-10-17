@@ -221,16 +221,10 @@ class WebContents : public TabContents,
 
   // RenderViewHostDelegate ----------------------------------------------------
 
+  virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual RenderViewHostDelegate::FindInPage* GetFindInPageDelegate() const;
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
   virtual Profile* GetProfile() const;
-  virtual void CreateView(int route_id, HANDLE modal_dialog_event);
-  virtual void CreateWidget(int route_id);
-  virtual void ShowView(int route_id,
-                        WindowOpenDisposition disposition,
-                        const gfx::Rect& initial_pos,
-                        bool user_gesture);
-  virtual void ShowWidget(int route_id, const gfx::Rect& initial_pos);
   virtual void RendererReady(RenderViewHost* render_view_host);
   virtual void RendererGone(RenderViewHost* render_view_host);
   virtual void DidNavigate(RenderViewHost* render_view_host,
@@ -557,14 +551,6 @@ class WebContents : public TabContents,
   // The current load state and the URL associated with it.
   net::LoadState load_state_;
   std::wstring load_state_host_;
-
-  // These maps hold on to the pages/widgets that we created on behalf of the
-  // renderer that haven't shown yet.
-  typedef base::hash_map<int, WebContents*> PendingViews;
-  PendingViews pending_views_;
-
-  typedef base::hash_map<int, RenderWidgetHost*> PendingWidgets;
-  PendingWidgets pending_widgets_;
 
   // Non-null if we're displaying content for a web app.
   scoped_refptr<WebApp> web_app_;

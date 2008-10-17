@@ -187,11 +187,11 @@ void RenderWidgetHelper::OnCrossSiteClosePageACK(
   dispatcher->OnClosePageACK(new_render_process_host_id, new_request_id);
 }
 
-void RenderWidgetHelper::CreateView(int opener_id,
-                                    bool user_gesture,
-                                    int* route_id,
-                                    HANDLE* modal_dialog_event,
-                                    HANDLE render_process) {
+void RenderWidgetHelper::CreateNewWindow(int opener_id,
+                                         bool user_gesture,
+                                         int* route_id,
+                                         HANDLE* modal_dialog_event,
+                                         HANDLE render_process) {
   if (!user_gesture && block_popups_) {
     *route_id = MSG_ROUTING_NONE;
     *modal_dialog_event = NULL;
@@ -210,12 +210,12 @@ void RenderWidgetHelper::CreateView(int opener_id,
   DCHECK(result) << "Couldn't duplicate modal dialog event for the renderer.";
 
   // The easiest way to reach RenderViewHost is just to send a routed message.
-  ViewHostMsg_CreateViewWithRoute msg(opener_id, *route_id, event);
+  ViewHostMsg_CreateWindowWithRoute msg(opener_id, *route_id, event);
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &RenderWidgetHelper::OnSimulateReceivedMessage, msg));
 }
 
-void RenderWidgetHelper::CreateWidget(int opener_id, int* route_id) {
+void RenderWidgetHelper::CreateNewWidget(int opener_id, int* route_id) {
   *route_id = GetNextRoutingID();
   ViewHostMsg_CreateWidgetWithRoute msg(opener_id, *route_id);
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(

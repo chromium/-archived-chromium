@@ -54,12 +54,11 @@ void WebContentsViewWin::CreateView(HWND parent_hwnd,
   drop_target_ = new WebDropTarget(GetHWND(), web_contents_);
 }
 
-RenderWidgetHostViewWin* WebContentsViewWin::CreatePageView(
-    RenderViewHost* render_view_host) {
-  // Create the View as well. Its lifetime matches the child process'.
-  DCHECK(!render_view_host->view());
-  RenderWidgetHostViewWin* view = new RenderWidgetHostViewWin(render_view_host);
-  render_view_host->set_view(view);
+RenderWidgetHostViewWin* WebContentsViewWin::CreateViewForWidget(
+    RenderWidgetHost* render_widget_host) {
+  DCHECK(!render_widget_host->view());
+  RenderWidgetHostViewWin* view =
+      new RenderWidgetHostViewWin(render_widget_host);
   view->Create(GetHWND());
   view->ShowWindow(SW_SHOW);
   return view;
@@ -215,6 +214,99 @@ void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
                 event.actual_message.message,
                 event.actual_message.wParam,
                 event.actual_message.lParam);
+}
+
+WebContents* WebContentsViewWin::CreateNewWindowInternal(
+    int route_id,
+    HANDLE modal_dialog_event) {
+  // Create the new web contents. This will automatically create the new
+  // WebContentsView. In the future, we may want to create the view separately.
+  WebContents* new_contents =
+      new WebContents(web_contents_->profile(),
+                      web_contents_->GetSiteInstance(),
+                      web_contents_->render_view_factory_,
+                      route_id,
+                      modal_dialog_event);
+  new_contents->SetupController(web_contents_->profile());
+  WebContentsView* new_view = new_contents->view();
+
+  // TODO(beng)
+  // The intention here is to create background tabs, which should ideally
+  // be parented to NULL. However doing that causes the corresponding view
+  // container windows to show up as overlapped windows, which causes
+  // other issues. We should fix this.
+  HWND new_view_parent_window = ::GetAncestor(GetContainerHWND(), GA_ROOT);
+  new_view->CreateView(new_view_parent_window, gfx::Rect());
+
+  // TODO(brettw) it seems bogus that we have to call this function on the
+  // newly created object and give it one of its own member variables.
+  new_view->CreateViewForWidget(new_contents->render_view_host());
+  return new_contents;
+}
+
+RenderWidgetHostView* WebContentsViewWin::CreateNewWidgetInternal(
+    int route_id) {
+  // Create the widget and its associated view.
+  // TODO(brettw) can widget creation be cross-platform?
+  RenderWidgetHost* widget_host =
+      new RenderWidgetHost(web_contents_->process(), route_id);
+  RenderWidgetHostViewWin* widget_view =
+      new RenderWidgetHostViewWin(widget_host);
+
+  // We set the parent HWDN explicitly as pop-up HWNDs are parented and owned by
+  // the first non-child HWND of the HWND that was specified to the CreateWindow
+  // call.
+  // TODO(brettw) this should not need to get the current RVHView from the
+  // WebContents. We should have it somewhere ourselves.
+  widget_view->set_parent_hwnd(
+      web_contents_->render_widget_host_view()->GetPluginHWND());
+  widget_view->set_close_on_deactivate(true);
+
+  return widget_view;
+}
+  
+void WebContentsViewWin::ShowCreatedWindowInternal(
+    WebContents* new_web_contents,
+    WindowOpenDisposition disposition,
+    const gfx::Rect& initial_pos,
+    bool user_gesture) {
+  if (!new_web_contents->render_widget_host_view() ||
+      !new_web_contents->process()->channel()) {
+    // The view has gone away or the renderer crashed. Nothing to do.
+    return;
+  }
+
+  // TODO(brettw) this seems bogus to reach into here and initialize the host.
+  new_web_contents->render_view_host()->Init();
+  web_contents_->AddNewContents(new_web_contents, disposition, initial_pos,
+                                user_gesture);
+}
+
+void WebContentsViewWin::ShowCreatedWidgetInternal(
+    RenderWidgetHostView* widget_host_view,
+    const gfx::Rect& initial_pos) {
+  // TODO(beng): (Cleanup) move all this windows-specific creation and showing
+  //             code into RenderWidgetHostView behind some API that a
+  //             ChromeView can also reasonably implement.
+  RenderWidgetHostViewWin* widget_host_view_win =
+      static_cast<RenderWidgetHostViewWin*>(widget_host_view);
+
+  RenderWidgetHost* widget_host = widget_host_view->GetRenderWidgetHost();
+  if (!widget_host->process()->channel()) {
+    // The view has gone away or the renderer crashed. Nothing to do.
+    return;
+  }
+
+  // This logic should be implemented by RenderWidgetHostHWND (as mentioned
+  // above) in the ::Init function, which should take a parent and some initial
+  // bounds.
+  widget_host_view_win->Create(GetContainerHWND(), NULL, NULL,
+                               WS_POPUP, WS_EX_TOOLWINDOW);
+  widget_host_view_win->MoveWindow(initial_pos.x(), initial_pos.y(),
+                                   initial_pos.width(), initial_pos.height(),
+                                   TRUE);
+  widget_host_view_win->ShowWindow(SW_SHOW);
+  widget_host->Init();
 }
 
 void WebContentsViewWin::OnHScroll(int scroll_type, short position,

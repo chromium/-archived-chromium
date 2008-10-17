@@ -387,7 +387,7 @@ class RenderViewHost : public RenderWidgetHost {
   virtual void UnhandledInputEvent(const WebInputEvent& event);
 
   // IPC message handlers:
-  void OnMsgCreateView(int route_id, HANDLE modal_dialog_event);
+  void OnMsgCreateWindow(int route_id, HANDLE modal_dialog_event);
   void OnMsgCreateWidget(int route_id);
   void OnMsgShowView(int route_id,
                      WindowOpenDisposition disposition,

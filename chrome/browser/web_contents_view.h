@@ -7,16 +7,19 @@
 
 #include <windows.h>
 
+#include <map>
 #include <string>
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
+#include "chrome/browser/render_view_host_delegate.h"
 
 class InfoBarView;
 class RenderViewHost;
 class RenderWidgetHost;
-class RenderWidgetHostViewWin;
+class RenderWidgetHostView;
+class RenderWidgetHostViewWin;  // TODO(brettw) this should not be necessary.
 struct ViewHostMsg_ContextMenu_Params;
 class WebContents;
 struct WebDropData;
@@ -24,8 +27,12 @@ class WebKeyboardEvent;
 
 // The WebContentsView is an interface that is implemented by the platform-
 // dependent web contents views. The WebContents uses this interface to talk to
-// them.
-class WebContentsView {
+// them. View-related messages will also get forwarded directly to this class
+// from RenderViewHost via RenderViewHostDelegate::View.
+//
+// It contains a small amount of logic with respect to creating new sub-view
+// that should be the same for all platforms.
+class WebContentsView : public RenderViewHostDelegate::View {
  public:
   virtual ~WebContentsView() {}
 
@@ -34,9 +41,10 @@ class WebContentsView {
 
   // Sets up the View that holds the rendered web page, receives messages for
   // it and contains page plugins.
-  // TODO(brettw) this should be a RenderWidgetHostView instead.
-  virtual RenderWidgetHostViewWin* CreatePageView(
-      RenderViewHost* render_view_host) = 0;
+  // TODO(brettw) make this so we don't need to return the Win version (see the
+  // caller in WebContents).
+  virtual RenderWidgetHostViewWin* CreateViewForWidget(
+      RenderWidgetHost* render_widget_host) = 0;
 
   // Returns the HWND that contains the contents of the tab.
   // TODO(brettw) this should not be necessary in this cross-platform interface.
@@ -103,7 +111,46 @@ class WebContentsView {
  protected:
   WebContentsView() {}  // Abstract interface.
 
+  // Internal interface for the RenderViewHostDelegate::View interface.
+  // Subclasses should implement this rather thank ...::View directly, since the
+  // routing stuff will already be computed.
+  //
+  // The only difference is that the Create functions return the newly
+  // created objects so that they can be associated with the given routes. When
+  // they are shown later, we'll look them up again and pass the objects to
+  // the Show functions rather than the route ID.
+  virtual WebContents* CreateNewWindowInternal(int route_id,
+                                               HANDLE modal_dialog_event) = 0;
+  virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id) = 0;
+  virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
+                                         WindowOpenDisposition disposition,
+                                         const gfx::Rect& initial_pos,
+                                         bool user_gesture) = 0;
+  virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
+                                         const gfx::Rect& initial_pos) = 0;
+
  private:
+  // We implement RenderViewHostDelegate::View directly and do some book-keeping
+  // associated with the request. The request is then forwarded to *Internal
+  // which does platform-specific work.
+  virtual void CreateNewWindow(int route_id, HANDLE modal_dialog_event);
+  virtual void CreateNewWidget(int route_id);
+  virtual void ShowCreatedWindow(int route_id,
+                                 WindowOpenDisposition disposition,
+                                 const gfx::Rect& initial_pos,
+                                 bool user_gesture);
+  virtual void ShowCreatedWidget(int route_id, const gfx::Rect& initial_pos);
+
+  // Tracks created WebContents objects that have not been shown yet. They are
+  // identified by the route ID passed to CreateNewWindow.
+  typedef std::map<int, WebContents*> PendingContents;
+  PendingContents pending_contents_;
+
+  // These maps hold on to the widgets that we created on behalf of the
+  // renderer that haven't shown yet.
+  typedef std::map<int, RenderWidgetHostView*> PendingWidgetViews;
+  PendingWidgetViews pending_widget_views_;
+
   DISALLOW_COPY_AND_ASSIGN(WebContentsView);
 };
 

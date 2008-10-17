@@ -599,7 +599,7 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
 
   bool msg_is_ok = true;
   IPC_BEGIN_MESSAGE_MAP_EX(RenderViewHost, msg, msg_is_ok)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateViewWithRoute, OnMsgCreateView)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindowWithRoute, OnMsgCreateWindow)
     IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidgetWithRoute, OnMsgCreateWidget)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ShowView, OnMsgShowView)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ShowWidget, OnMsgShowWidget)
@@ -701,24 +701,33 @@ void RenderViewHost::Shutdown() {
   RenderWidgetHost::Shutdown();
 }
 
-void RenderViewHost::OnMsgCreateView(int route_id, HANDLE modal_dialog_event) {
-  delegate_->CreateView(route_id, modal_dialog_event);
+void RenderViewHost::OnMsgCreateWindow(int route_id,
+                                       HANDLE modal_dialog_event) {
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->CreateNewWindow(route_id, modal_dialog_event);
 }
 
 void RenderViewHost::OnMsgCreateWidget(int route_id) {
-  delegate_->CreateWidget(route_id);
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->CreateNewWidget(route_id);
 }
 
 void RenderViewHost::OnMsgShowView(int route_id,
                                    WindowOpenDisposition disposition,
                                    const gfx::Rect& initial_pos,
                                    bool user_gesture) {
-  delegate_->ShowView(route_id, disposition, initial_pos, user_gesture);
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->ShowCreatedWindow(route_id, disposition, initial_pos, user_gesture);
 }
 
 void RenderViewHost::OnMsgShowWidget(int route_id,
                                      const gfx::Rect& initial_pos) {
-  delegate_->ShowWidget(route_id, initial_pos);
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->ShowCreatedWidget(route_id, initial_pos);
 }
 
 void RenderViewHost::OnMsgRunModal(IPC::Message* reply_msg) {
