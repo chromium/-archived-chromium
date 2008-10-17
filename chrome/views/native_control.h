@@ -5,6 +5,8 @@
 #ifndef CHROME_VIEWS_NATIVE_CONTROL_H__
 #define CHROME_VIEWS_NATIVE_CONTROL_H__
 
+#include <windows.h>
+
 #include "chrome/views/view.h"
 
 namespace views {
