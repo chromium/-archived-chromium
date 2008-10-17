@@ -1,12 +1,12 @@
 # checkdeps.py shouldn't check include paths for files in these dirs:
 skip_child_includes = [
   "build",
+  # Skip port and pending because they use webkit style for includes.
   "pending",
+  "port",
 ]
 
 include_rules = [
   # For bridge/c/c_utility.h in npruntime_util.cc
   "+bridge",
-  # For bindings/npruntime.h in ScriptController.h
-  "+bindings",
 ]
