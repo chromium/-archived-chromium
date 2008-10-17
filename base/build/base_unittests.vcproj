@@ -184,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\directory_watcher_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\file_path_unittest.cc"
 				>
 			</File>
@@ -256,11 +260,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\gfx\rect_unittest.cc"
+				RelativePath="..\rand_util_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\rand_util_unittest.cc"
+				RelativePath="..\gfx\rect_unittest.cc"
 				>
 			</File>
 			<File
