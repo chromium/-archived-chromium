@@ -187,10 +187,6 @@
 				RelativePath="..\..\port\page\AccessibilityObjectWrapperWin.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\port\page\Console.cpp"
-				>
-			</File>
 			<Filter
 				Name="chromium"
 				>

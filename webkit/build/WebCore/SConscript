@@ -351,6 +351,7 @@ input_files = [
     '$WEBCORE_DIR/page/AXObjectCache.cpp',
     '$WEBCORE_DIR/page/BarInfo.cpp',
     '$WEBCORE_DIR/page/Chrome.cpp',
+    '$WEBCORE_DIR/page/Console.cpp',
     '$WEBCORE_DIR/page/ContextMenuController.cpp',
     '$WEBCORE_DIR/page/DOMSelection.cpp',
     '$WEBCORE_DIR/page/DOMWindow.cpp',

@@ -494,7 +494,7 @@ WebInspector.ConsoleMessage.prototype = {
         
         function formatForConsole(obj)
         {
-            return WebInspector.console._format(obj, plainText);
+            return WebInspector.console._format(obj, plaintext);
         }
 
         if (Object.type(parameters[0], InspectorController.inspectedWindow()) === "string") {
