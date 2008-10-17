@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/platform_test.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/host_resolver.h"
 #include "net/base/net_errors.h"
+#include "net/base/scoped_host_mapper.h"
 #include "net/base/ssl_client_socket.h"
 #include "net/base/ssl_config_service.h"
 #include "net/base/tcp_client_socket.h"
@@ -14,21 +16,21 @@
 
 //-----------------------------------------------------------------------------
 
-namespace {
-
 const net::SSLConfig kDefaultSSLConfig;
 
-class SSLClientSocketTest : public testing::Test {
+class SSLClientSocketTest : public PlatformTest {
  public:
   SSLClientSocketTest()
       : socket_factory_(net::ClientSocketFactory::GetDefaultFactory()) {
+    // TODO(darin): kill this exception once we have a way to test out the
+    // TCPClientSocket class using loopback connections.
+    host_mapper_.AddRule("bugs.webkit.org", "bugs.webkit.org");
   }
-
+ 
  protected:
+  net::ScopedHostMapper host_mapper_;
   net::ClientSocketFactory* socket_factory_;
 };
-
-}  // namespace
 
 //-----------------------------------------------------------------------------
 
@@ -70,10 +72,10 @@ TEST_F(SSLClientSocketTest, DISABLED_Read) {
 
   std::string hostname = "bugs.webkit.org";
   int rv = resolver.Resolve(hostname, 443, &addr, &callback);
-  EXPECT_EQ(rv, net::ERR_IO_PENDING);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
-  EXPECT_EQ(rv, net::OK);
+  EXPECT_EQ(net::OK, rv);
 
   scoped_ptr<net::SSLClientSocket> sock(
       socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
@@ -81,10 +83,10 @@ TEST_F(SSLClientSocketTest, DISABLED_Read) {
 
   rv = sock->Connect(&callback);
   if (rv != net::OK) {
-    ASSERT_EQ(rv, net::ERR_IO_PENDING);
+    ASSERT_EQ(net::ERR_IO_PENDING, rv);
 
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, net::OK);
+    EXPECT_EQ(net::OK, rv);
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
@@ -93,7 +95,7 @@ TEST_F(SSLClientSocketTest, DISABLED_Read) {
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text) - 1);
+    EXPECT_EQ(static_cast<int>(arraysize(request_text) - 1), rv);
   }
 
   char buf[4096];
@@ -118,7 +120,7 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_SmallChunks) {
 
   std::string hostname = "bugs.webkit.org";
   int rv = resolver.Resolve(hostname, 443, &addr, NULL);
-  EXPECT_EQ(rv, net::OK);
+  EXPECT_EQ(net::OK, rv);
 
   scoped_ptr<net::SSLClientSocket> sock(
       socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
@@ -126,10 +128,10 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_SmallChunks) {
 
   rv = sock->Connect(&callback);
   if (rv != net::OK) {
-    ASSERT_EQ(rv, net::ERR_IO_PENDING);
+    ASSERT_EQ(net::ERR_IO_PENDING, rv);
 
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, net::OK);
+    EXPECT_EQ(net::OK, rv);
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
@@ -138,7 +140,7 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_SmallChunks) {
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text) - 1);
+    EXPECT_EQ(static_cast<int>(arraysize(request_text) - 1), rv);
   }
 
   char buf[1];
@@ -163,7 +165,7 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_Interrupted) {
 
   std::string hostname = "bugs.webkit.org";
   int rv = resolver.Resolve(hostname, 443, &addr, NULL);
-  EXPECT_EQ(rv, net::OK);
+  EXPECT_EQ(net::OK, rv);
 
   scoped_ptr<net::SSLClientSocket> sock(
       socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
@@ -171,10 +173,10 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_Interrupted) {
 
   rv = sock->Connect(&callback);
   if (rv != net::OK) {
-    ASSERT_EQ(rv, net::ERR_IO_PENDING);
+    ASSERT_EQ(net::ERR_IO_PENDING, rv);
 
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, net::OK);
+    EXPECT_EQ(net::OK, rv);
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
@@ -183,7 +185,7 @@ TEST_F(SSLClientSocketTest, DISABLED_Read_Interrupted) {
 
   if (rv == net::ERR_IO_PENDING) {
     rv = callback.WaitForResult();
-    EXPECT_EQ(rv, arraysize(request_text) - 1);
+    EXPECT_EQ(static_cast<int>(arraysize(request_text) - 1), rv);
   }
 
   // Do a partial read and then exit.  This test should not crash!

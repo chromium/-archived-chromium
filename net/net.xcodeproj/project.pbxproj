@@ -142,6 +142,8 @@
 		821F23C30E5E105E003C7E38 /* url_request_about_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A20E5A198600A747DB /* url_request_about_job.cc */; };
 		821F23CA0E5E106B003C7E38 /* url_request_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33980E5A198600A747DB /* url_request_job.cc */; };
 		821F23CC0E5E106D003C7E38 /* url_request_simple_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED339C0E5A198600A747DB /* url_request_simple_job.cc */; };
+		8220FABD0E914ACA008170A9 /* ssl_client_socket_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32950E5A181C00A747DB /* ssl_client_socket_unittest.cc */; };
+		8220FAFC0E915561008170A9 /* ssl_client_socket_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32970E5A181C00A747DB /* ssl_client_socket_mac.cc */; };
 		825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32BE0E5A181C00A747DB /* ev_root_ca_metadata.cc */; };
 		827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32800E5A181C00A747DB /* x509_certificate_mac.cc */; };
 		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
@@ -491,6 +493,7 @@
 		7BED32940E5A181C00A747DB /* ssl_config_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ssl_config_service.cc; sourceTree = "<group>"; };
 		7BED32950E5A181C00A747DB /* ssl_client_socket_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ssl_client_socket_unittest.cc; sourceTree = "<group>"; };
 		7BED32960E5A181C00A747DB /* ssl_client_socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssl_client_socket.h; sourceTree = "<group>"; };
+		7BED32970E5A181C00A747DB /* ssl_client_socket_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ssl_client_socket_mac.cc; sourceTree = "<group>"; };
 		7BED32980E5A181C00A747DB /* socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socket.h; sourceTree = "<group>"; };
 		7BED32990E5A181C00A747DB /* registry_controlled_domain_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = registry_controlled_domain_unittest.cc; sourceTree = "<group>"; };
 		7BED329A0E5A181C00A747DB /* registry_controlled_domain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = registry_controlled_domain.h; sourceTree = "<group>"; };
@@ -653,6 +656,7 @@
 		82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x509_certificate_unittest.cc; sourceTree = "<group>"; };
 		82113A270E84360200E3848F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = "<group>"; };
 		82113BBC0E892E5800E3848F /* x509_certificate.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x509_certificate.cc; sourceTree = "<group>"; };
+		8249C4920EA786B100A4A54B /* ssl_client_socket_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ssl_client_socket_mac.h; sourceTree = "<group>"; };
 		936882DC0E9154E200043405 /* file_input_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_input_stream.h; sourceTree = "<group>"; };
 		93D11DCD0E91463000C36437 /* file_input_stream_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_input_stream_posix.cc; sourceTree = "<group>"; };
 		DFEE18250E882E3600666107 /* stats_histogram.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stats_histogram.cc; sourceTree = "<group>"; };
@@ -898,8 +902,8 @@
 				7BED32BF0E5A181C00A747DB /* escape_unittest.cc */,
 				7BED32BE0E5A181C00A747DB /* ev_root_ca_metadata.cc */,
 				7BED32BD0E5A181C00A747DB /* ev_root_ca_metadata.h */,
-				93D11DCD0E91463000C36437 /* file_input_stream_posix.cc */,
 				936882DC0E9154E200043405 /* file_input_stream.h */,
+				93D11DCD0E91463000C36437 /* file_input_stream_posix.cc */,
 				7BED32BC0E5A181C00A747DB /* filter.cc */,
 				7BED32BB0E5A181C00A747DB /* filter.h */,
 				7BED32BA0E5A181C00A747DB /* gzip_filter.cc */,
@@ -946,6 +950,8 @@
 				E49DD2E90E892F8C003C7A87 /* sdch_manager.h */,
 				7BED32980E5A181C00A747DB /* socket.h */,
 				7BED32960E5A181C00A747DB /* ssl_client_socket.h */,
+				7BED32970E5A181C00A747DB /* ssl_client_socket_mac.cc */,
+				8249C4920EA786B100A4A54B /* ssl_client_socket_mac.h */,
 				7BED32950E5A181C00A747DB /* ssl_client_socket_unittest.cc */,
 				7BED32940E5A181C00A747DB /* ssl_config_service.cc */,
 				7BED32930E5A181C00A747DB /* ssl_config_service.h */,
@@ -1463,6 +1469,7 @@
 				7B8B5B560E5CEADE002F9A97 /* registry_controlled_domain.cc in Sources */,
 				7BA362B60E8C3D020023C8B9 /* sdch_filter.cc in Sources */,
 				E49DD2EA0E892F8C003C7A87 /* sdch_manager.cc in Sources */,
+				8220FAFC0E915561008170A9 /* ssl_client_socket_mac.cc in Sources */,
 				7B8504410E5B2E9600730B43 /* stats.cc in Sources */,
 				DFEE18270E882E3600666107 /* stats_histogram.cc in Sources */,
 				E47E933F0E8924DC00CA613E /* tcp_client_socket_libevent.cc in Sources */,
@@ -1524,6 +1531,7 @@
 				7B8B5B9E0E5D188E002F9A97 /* registry_controlled_domain_unittest.cc in Sources */,
 				E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */,
 				7BA362B70E8C3D040023C8B9 /* sdch_filter_unitest.cc in Sources */,
+				8220FABD0E914ACA008170A9 /* ssl_client_socket_unittest.cc in Sources */,
 				7BD8F7110E65DCF500034DE9 /* storage_block_unittest.cc in Sources */,
 				E47E93430E8924EE00CA613E /* tcp_client_socket_unittest.cc in Sources */,
 				7BA361450E8C341F0023C8B9 /* test_completion_callback_unittest.cc in Sources */,

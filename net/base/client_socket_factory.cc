@@ -8,6 +8,8 @@
 #include "build/build_config.h"
 #if defined(OS_WIN)
 #include "net/base/ssl_client_socket_win.h"
+#elif defined(OS_MACOSX)
+#include "net/base/ssl_client_socket_mac.h"
 #endif
 #include "net/base/tcp_client_socket.h"
 
@@ -26,8 +28,9 @@ class DefaultClientSocketFactory : public ClientSocketFactory {
       const SSLConfig& ssl_config) {
 #if defined(OS_WIN)
     return new SSLClientSocketWin(transport_socket, hostname, ssl_config);
+#elif defined(OS_MACOSX)
+    return new SSLClientSocketMac(transport_socket, hostname, ssl_config);
 #else
-    // TODO(pinkerton): turn on when we port SSL socket from win32
     NOTIMPLEMENTED();
     return NULL;
 #endif
