@@ -48,7 +48,7 @@ void ClipboardWriteWebSmartPaste() {
 }
 #endif
 
-bool ClipboardIsFormatAvailable(unsigned int format) {
+bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
   return clipboard.IsFormatAvailable(format);
 }
 
