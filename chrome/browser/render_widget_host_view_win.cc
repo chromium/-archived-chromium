@@ -77,12 +77,6 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(
       parent_hwnd_(NULL),
       is_loading_(false) {
   render_widget_host_->set_view(this);
-
-  // We set the parent HWND explicitly as pop-up HWNDs are parented and owned by
-  // the first non-child HWND of the HWND that was specified to the CreateWindow
-  // call.
-  set_parent_hwnd(GetPluginHWND());
-  set_close_on_deactivate(true);
 }
 
 RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {
