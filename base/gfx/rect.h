@@ -79,6 +79,9 @@ class Rect {
 
   // Move the rectangle by a horizontal and vertical distance.
   void Offset(int horizontal, int vertical);
+  void Offset(const gfx::Point& point) {
+    Offset(point.x(), point.y());
+  }
 
   // Returns true if the area of the rectangle is zero.
   bool IsEmpty() const;
