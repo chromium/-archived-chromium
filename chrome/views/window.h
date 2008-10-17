@@ -51,7 +51,8 @@ class Window : public ContainerWin {
   gfx::Size CalculateMaximumSize() const;
 
   // Show the window.
-  virtual void Show();
+  void Show();
+  void Show(int show_style);
 
   // Activate the window, assuming it already exists and is visible.
   void Activate();

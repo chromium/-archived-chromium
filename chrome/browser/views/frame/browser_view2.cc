@@ -294,7 +294,7 @@ void BrowserView2::Init() {
 }
 
 void BrowserView2::Show(int command, bool adjust_to_fit) {
-  frame_->GetWindow()->Show();
+  frame_->GetWindow()->Show(command);
 }
 
 void BrowserView2::Close() {

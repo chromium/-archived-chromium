@@ -85,7 +85,11 @@ gfx::Size Window::CalculateMaximumSize() const {
 }
 
 void Window::Show() {
-  ShowWindow(SW_SHOW);
+  Show(SW_SHOW);
+}
+
+void Window::Show(int show_style) {
+  ShowWindow(show_style);
   SetInitialFocus();
 }
 

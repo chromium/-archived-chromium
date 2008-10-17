@@ -528,6 +528,8 @@ class Browser : public TabStripModelDelegate,
   //
   // After the first call to Show() succeeds, this is set to -1, indicating that
   // subsequent calls to Show() should be ignored.
+  // TODO(beng): This should be removed (http://crbug.com/3557) and put into
+  //             BrowserView2, or some more likely place.
   int initial_show_command_;
 
   class BrowserToolbarModel : public ToolbarModel {
