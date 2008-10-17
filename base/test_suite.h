@@ -19,6 +19,8 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #include "base/multiprocess_test.h"
+#elif defined(OS_LINUX)
+#include <gtk/gtk.h>
 #endif
 
 class TestSuite {
@@ -26,6 +28,9 @@ class TestSuite {
   TestSuite(int argc, char** argv) {
     CommandLine::SetArgcArgv(argc, argv);
     testing::InitGoogleTest(&argc, argv);
+#if defined(OS_LINUX)
+    gtk_init_check(&argc, &argv);
+#endif
   }
 
   virtual ~TestSuite() {}

@@ -166,6 +166,7 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
       'atomicops_internals_x86_gcc.cc',
       'base_paths_linux.cc',
+      'clipboard_linux.cc',
       'file_util_linux.cc',
       'hmac_nss.cc',
       'message_pump_glib.cc',
@@ -253,6 +254,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
 test_files = [
     'at_exit_unittest.cc',
     'atomicops_unittest.cc',
+    'clipboard_unittest.cc',
     'command_line_unittest.cc',
     'condition_variable_unittest.cc',
     'file_path_unittest.cc',
@@ -305,7 +307,6 @@ if env['PLATFORM'] == 'win32':
   env_tests.ChromeTestProgram('debug_message', ['debug_message.cc'])
 
   test_files.extend([
-    'clipboard_unittest.cc',
     'directory_watcher_unittest.cc',
     'idletimer_unittest.cc',
     'process_util_unittest.cc',
