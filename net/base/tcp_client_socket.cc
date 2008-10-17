@@ -219,6 +219,51 @@ int TCPClientSocket::CreateSocket(const struct addrinfo* ai) {
     LOG(ERROR) << "WSASocket failed: " << err;
     return MapWinsockError(err);
   }
+
+  // Increase the socket buffer sizes from the default sizes.
+  // In performance testing, there is substantial benefit by increasing
+  // from 8KB to 32KB.  I tested 64, 128, and 256KB as well, but did not
+  // see additional performance benefit (will be network dependent).
+  // See also:
+  //    http://support.microsoft.com/kb/823764/EN-US
+  // On XP, the default buffer sizes are 8KB.
+  const int kSocketBufferSize = 32 * 1024;
+  int rv = setsockopt(socket_, SOL_SOCKET, SO_SNDBUF, 
+      reinterpret_cast<const char*>(&kSocketBufferSize),
+      sizeof(kSocketBufferSize));
+  DCHECK(!rv) << "Could not set socket send buffer size";
+  rv = setsockopt(socket_, SOL_SOCKET, SO_RCVBUF, 
+      reinterpret_cast<const char*>(&kSocketBufferSize),
+      sizeof(kSocketBufferSize));
+  DCHECK(!rv) << "Could not set socket receive buffer size";
+
+  // Disable Nagle.
+  // The Nagle implementation on windows is governed by RFC 896.  The idea
+  // behind Nagle is to reduce small packets on the network.  When Nagle is
+  // enabled, if a partial packet has been sent, the TCP stack will disallow
+  // further *partial* packets until an ACK has been received from the other
+  // side.  Good applications should always strive to send as much data as
+  // possible and avoid partial-packet sends.  However, in most real world
+  // applications, there are edge cases where this does not happen, and two
+  // partil packets may be sent back to back.  For a browser, it is NEVER
+  // a benefit to delay for an RTT before the second packet is sent.
+  //
+  // As a practical example in Chromium today, consider the case of a small
+  // POST.  I have verified this:
+  //     Client writes 649 bytes of header  (partial packet #1)
+  //     Client writes 50 bytes of POST data (partial packet #2)
+  // In the above example, with Nagle, a RTT delay is inserted between these
+  // two sends due to nagle.  RTTs can easily be 100ms or more.  The best
+  // fix is to make sure that for POSTing data, we write as much data as 
+  // possible and minimize partial packets.  We will fix that.  But disabling
+  // Nagle also ensure we don't run into this delay in other edge cases.
+  // See also:
+  //    http://technet.microsoft.com/en-us/library/bb726981.aspx
+  const BOOL kDisableNagle = TRUE;
+  rv = setsockopt(socket_, IPPROTO_TCP, TCP_NODELAY,
+      reinterpret_cast<const char*>(&kDisableNagle), sizeof(kDisableNagle));
+  DCHECK(!rv) << "Could not disable nagle";
+
   return OK;
 }
 
