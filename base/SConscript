@@ -103,6 +103,7 @@ if env['PLATFORM'] == 'win32':
       'cpu.cc',
       'debug_on_start.cc',
       'debug_util_win.cc',
+      'directory_watcher_win.cc',
       'file_util_win.cc',
       'hmac_win.cc',
       'iat_patch.cc',
@@ -305,6 +306,7 @@ if env['PLATFORM'] == 'win32':
 
   test_files.extend([
     'clipboard_unittest.cc',
+    'directory_watcher_unittest.cc',
     'idletimer_unittest.cc',
     'process_util_unittest.cc',
     'stats_table_unittest.cc',
