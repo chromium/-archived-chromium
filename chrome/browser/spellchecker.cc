@@ -510,7 +510,8 @@ class AddWordToCustomDictionaryTask : public Task {
     // or not.
     word_ += "\n";
     FILE* f = file_util::OpenFile(file_name_, "a+");
-    fputs(word_.c_str(), f);
+    if (f != NULL)
+      fputs(word_.c_str(), f);
     file_util::CloseFile(f);
   }
 
