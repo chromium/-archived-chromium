@@ -84,6 +84,12 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // the process has been created, it should just call Init().
   bool Init();
 
+  // Send the child process its initial visited link database.
+  void InitVisitedLinks(HANDLE target_process);
+
+  // Send the child process its initial greasemonkey scripts.
+  void InitGreasemonkeyScripts(HANDLE target_process);
+
   // Used for refcounting, each holder of this object must Attach and Release
   // just like it would for a COM object. This object should be allocated on
   // the heap; when no listeners own it any more, it will delete itself.
