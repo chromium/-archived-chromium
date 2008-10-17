@@ -16,68 +16,94 @@ class OSExchangeData;
 class Pickle;
 class Profile;
 
-// BookmarkDragData is used by the bookmark bar to represent a dragged
-// URL or starred group on the clipboard during drag and drop.
+// BookmarkDragData is used to represent the following:
+//
+// . A single URL.
+// . A single node from the bookmark model.
+// . A set of nodes from the bookmark model.
+//
+// BookmarkDragData is used by bookmark related views to represent a dragged
+// bookmark or bookmarks.
 //
 // Typical usage when writing data for a drag is:
 //   BookmarkDragData data(node_user_is_dragging);
-//   data.profile_id = profile_id;
 //   data.Write(os_exchange_data_for_drag);
 //
 // Typical usage to read is:
 //   BookmarkDragData data;
 //   if (data.Read(os_exchange_data))
-//     // data is valid
+//     // data is valid, contents are in elements.
 
 struct BookmarkDragData {
-  BookmarkDragData();
 
-  // Created a BookmarkDragData populated from node.
+  // Element represents a single node.
+  struct Element {
+    explicit Element(BookmarkNode* node);
+
+    Element() : is_url(false), id_(0) {}
+
+    // If true, this element represents a URL.
+    bool is_url;
+
+    // The URL, only valid if is_url is true.
+    GURL url;
+
+    // Title of the entry, used for both urls and groups/folders.
+    std::wstring title;
+
+    // Children, only used for non-URL nodes.
+    std::vector<Element> children;
+
+   private:
+    friend struct BookmarkDragData;
+
+    // For reading/writing this Element.
+    void WriteToPickle(Pickle* pickle) const;
+    bool ReadFromPickle(Pickle* pickle, void** iterator);
+
+    // ID of the node.
+    int id_;
+  };
+
+  BookmarkDragData() { }
+
+  // Created a BookmarkDragData populated from the arguments.
   explicit BookmarkDragData(BookmarkNode* node);
+  explicit BookmarkDragData(const std::vector<BookmarkNode*>& nodes);
 
-  // Writes this BookmarkDragData to data. If BookmarkDragData is a URL,
-  // this writes out the URL and URL title clipboard data as well.
+  // Writes elements to data. If there is only one element and it is a URL
+  // the URL and title are written to the clipboard in a format other apps can
+  // use.
   void Write(Profile* profile, OSExchangeData* data) const;
 
   // Restores this data from the clipboard, returning true on success.
   bool Read(const OSExchangeData& data);
 
-  // Returns the node represented by this DragData. If this DragData was created
-  // from the same profile then the node from the model is returned. If the
-  // node can't be found (may have been deleted), NULL is returned.
-  BookmarkNode* GetNode(Profile* profile) const;
+  // Returns the nodes represented by this DragData. If this DragData was
+  // created from the same profile then the nodes from the model are returned.
+  // If the nodes can't be found (may have been deleted), an empty vector is
+  // returned.
+  std::vector<BookmarkNode*> GetNodes(Profile* profile) const;
 
-  // If true, this entry represents a StarredEntry of type URL.
-  bool is_url;
+  // Convenience for getting the first node. Returns NULL if the data doesn't
+  // match any nodes or there is more than one node.
+  BookmarkNode* GetFirstNode(Profile* profile) const;
 
-  // The URL, only valid if is_url is true.
-  GURL url;
+  // Do we contain valid data?
+  bool is_valid() const { return !elements.empty(); }
 
-  // Title of the entry
-  std::wstring title;
+  // Returns true if there is a single url.
+  bool has_single_url() const { return is_valid() && elements[0].is_url; }
 
-  // Children, only used for non-URL nodes.
-  std::vector<BookmarkDragData> children;
+  // Number of elements.
+  size_t size() { return elements.size(); }
 
-  // If true our data is valid.
-  bool is_valid;
+  // The actual elements written to the clipboard.
+  std::vector<Element> elements;
 
  private:
-  // Writes the data to a Pickle.
-  void WriteToPickle(Pickle* pickle) const;
-
-  bool ReadFromPickle(Pickle* pickle, void** iterator);
-
-  // Adds to children an entry for each child of node.
-  void AddChildren(BookmarkNode* node);
-
   // Path of the profile we originated from.
-  // This is only saved for the root node.
   std::wstring profile_path_;
-
-  // ID (node->id()) of the node this BookmarkDragData was created from.
-  // This is only saved for the root node.
-  int id_;
 };
 
 #endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_DATA_

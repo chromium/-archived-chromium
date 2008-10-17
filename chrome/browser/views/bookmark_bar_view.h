@@ -367,7 +367,7 @@ class BookmarkBarView : public views::View,
   // Creates a new group/entry for data, and recursively invokes itself for
   // all children of data. This is used during drag and drop to clone a
   // group from another profile.
-  void CloneDragData(const BookmarkDragData& data,
+  void CloneDragData(const BookmarkDragData::Element& data,
                      BookmarkNode* parent,
                      int index_to_add_at);
 

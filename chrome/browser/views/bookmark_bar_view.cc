@@ -472,13 +472,15 @@ class MenuRunner : public views::MenuDelegate,
   }
 
   virtual bool CanDrop(MenuItemView* menu, const OSExchangeData& data) {
-    if (!drop_data_.Read(data))
+    // Only accept drops of 1 node, which is the case for all data dragged from
+    // bookmark bar and menus.
+    if (!drop_data_.Read(data) || drop_data_.elements.size() != 1)
       return false;
 
-    if (drop_data_.is_url)
+    if (drop_data_.has_single_url())
       return true;
 
-    BookmarkNode* drag_node = drop_data_.GetNode(view_->GetProfile());
+    BookmarkNode* drag_node = drop_data_.GetFirstNode(view_->GetProfile());
     if (!drag_node) {
       // Dragging a group from another profile, always accept.
       return true;
@@ -496,7 +498,7 @@ class MenuRunner : public views::MenuDelegate,
   virtual int GetDropOperation(MenuItemView* item,
                                const views::DropTargetEvent& event,
                                DropPosition* position) {
-    DCHECK(drop_data_.is_valid);
+    DCHECK(drop_data_.is_valid());
     BookmarkNode* node = menu_id_to_node_map_[item->GetCommand()];
     BookmarkNode* drop_parent = node->GetParent();
     int index_to_drop_at = drop_parent->IndexOfChild(node);
@@ -972,7 +974,9 @@ bool BookmarkBarView::CanDrop(const OSExchangeData& data) {
   if (!drop_info_.get())
     drop_info_.reset(new DropInfo());
 
-  return drop_info_->data.Read(data);
+  // Only accept drops of 1 node, which is the case for all data dragged from
+  // bookmark bar and menus.
+  return drop_info_->data.Read(data) && drop_info_->data.size() == 1;
 }
 
 void BookmarkBarView::OnDragEntered(const DropTargetEvent& event) {
@@ -1068,7 +1072,7 @@ int BookmarkBarView::OnPerformDrop(const DropTargetEvent& event) {
   const bool drop_on = drop_info_->drop_on;
   const BookmarkDragData data = drop_info_->data;
   const bool is_over_other = drop_info_->is_over_other;
-  DCHECK(data.is_valid);
+  DCHECK(data.is_valid());
 
   if (drop_info_->drop_index != -1) {
     // TODO(sky): optimize the SchedulePaint region.
@@ -1628,7 +1632,7 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
                                             bool* is_over_other) {
   DCHECK(model_);
   DCHECK(model_->IsLoaded());
-  DCHECK(data.is_valid);
+  DCHECK(data.is_valid());
 
   // The drop event uses the screen coordinates while the child Views are
   // always laid out from left to right (even though they are rendered from
@@ -1659,7 +1663,7 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
   } else if (!GetBookmarkButtonCount()) {
     // No bookmarks, accept the drop.
     *index = 0;
-    int ops = data.GetNode(profile_)
+    int ops = data.GetFirstNode(profile_)
         ? DragDropTypes::DRAG_MOVE
         : DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
     return PreferredDropOperation(event, ops);
@@ -1722,7 +1726,8 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
                          model_->GetBookmarkBarNode()->GetChild(*index);
     int operation =
         CalculateDropOperation(event, data, parent, parent->GetChildCount());
-    if (!operation && !data.is_url && data.GetNode(profile_) == parent) {
+    if (!operation && !data.has_single_url() &&
+        data.GetFirstNode(profile_) == parent) {
       // Don't open a menu if the node being dragged is the the menu to
       // open.
       *drop_on = false;
@@ -1741,7 +1746,7 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
   if (!CanDropAt(data, parent, index))
     return DragDropTypes::DRAG_NONE;
 
-  if (data.GetNode(profile_)) {
+  if (data.GetFirstNode(profile_)) {
     // User is dragging from this profile: move.
     return DragDropTypes::DRAG_MOVE;
   } else {
@@ -1754,8 +1759,8 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
 bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
                                 BookmarkNode* parent,
                                 int index) {
-  DCHECK(data.is_valid);
-  BookmarkNode* dragged_node = data.GetNode(profile_);
+  DCHECK(data.is_valid());
+  BookmarkNode* dragged_node = data.GetFirstNode(profile_);
   if (dragged_node) {
     if (dragged_node->GetParent() == parent) {
       const int existing_index = parent->IndexOfChild(dragged_node);
@@ -1776,40 +1781,40 @@ bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
 int BookmarkBarView::PerformDropImpl(const BookmarkDragData& data,
                                      BookmarkNode* parent_node,
                                      int index) {
-  BookmarkNode* dragged_node = data.GetNode(profile_);
+  BookmarkNode* dragged_node = data.GetFirstNode(profile_);
   if (dragged_node) {
     // Drag from same profile, do a move.
     model_->Move(dragged_node, parent_node, index);
     return DragDropTypes::DRAG_MOVE;
-  } else if (data.is_url) {
+  } else if (data.has_single_url()) {
     // New URL, add it at the specified location.
-    std::wstring title = data.title;
+    std::wstring title = data.elements[0].title;
     if (title.empty()) {
       // No title, use the host.
-      title = UTF8ToWide(data.url.host());
+      title = UTF8ToWide(data.elements[0].url.host());
       if (title.empty())
         title = l10n_util::GetString(IDS_BOOMARK_BAR_UNKNOWN_DRAG_TITLE);
     }
-    model_->AddURL(parent_node, index, title, data.url);
+    model_->AddURL(parent_node, index, title, data.elements[0].url);
     return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
   } else {
     // Dropping a group from different profile. Always accept.
-    CloneDragData(data, parent_node, index);
+    CloneDragData(data.elements[0], parent_node, index);
     return DragDropTypes::DRAG_COPY;
   }
 }
 
-void BookmarkBarView::CloneDragData(const BookmarkDragData& data,
+void BookmarkBarView::CloneDragData(const BookmarkDragData::Element& element,
                                     BookmarkNode* parent,
                                     int index_to_add_at) {
-  DCHECK(data.is_valid && model_);
-  if (data.is_url) {
-    model_->AddURL(parent, index_to_add_at, data.title, data.url);
+  DCHECK(model_);
+  if (element.is_url) {
+    model_->AddURL(parent, index_to_add_at, element.title, element.url);
   } else {
     BookmarkNode* new_folder = model_->AddGroup(parent, index_to_add_at,
-                                                data.title);
-    for (int i = 0; i < static_cast<int>(data.children.size()); ++i)
-      CloneDragData(data.children[i], new_folder, i);
+                                                element.title);
+    for (int i = 0; i < static_cast<int>(element.children.size()); ++i)
+      CloneDragData(element.children[i], new_folder, i);
   }
 }
 
