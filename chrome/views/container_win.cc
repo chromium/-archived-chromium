@@ -247,13 +247,13 @@ HWND ContainerWin::GetHWND() const {
   return hwnd_;
 }
 
-void ContainerWin::PaintNow(const CRect& update_rect) {
+void ContainerWin::PaintNow(const gfx::Rect& update_rect) {
   if (layered_) {
     PaintLayeredWindow();
   } else if (root_view_->NeedsPainting(false) && IsWindow()) {
     if (!opaque_ && GetParent()) {
       // We're transparent. Need to force painting to occur from our parent.
-      CRect parent_update_rect = update_rect;
+      CRect parent_update_rect = update_rect.ToRECT();
       POINT location_in_parent = { 0, 0 };
       ClientToScreen(hwnd_, &location_in_parent);
       ::ScreenToClient(GetParent(), &location_in_parent);
@@ -261,7 +261,8 @@ void ContainerWin::PaintNow(const CRect& update_rect) {
       ::RedrawWindow(GetParent(), parent_update_rect, NULL,
                      RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
     } else {
-      RedrawWindow(hwnd_, update_rect, NULL,
+      RECT native_update_rect = update_rect.ToRECT();
+      RedrawWindow(hwnd_, &native_update_rect, NULL,
                    RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
     }
     // As we were created with a style of WS_CLIPCHILDREN redraw requests may
@@ -805,7 +806,7 @@ void ContainerWin::ChangeSize(UINT size_param, const CSize& size) {
   root_view_->SchedulePaint();
 
   if (layered_)
-    PaintNow(rect);
+    PaintNow(gfx::Rect(rect));
 }
 
 RootView* ContainerWin::CreateRootView() {
@@ -826,9 +827,9 @@ void ContainerWin::PaintLayeredWindow() {
   // call to UpdateLayeredWindow updates the entire window, not just the
   // cliprect.
   contents_->save(SkCanvas::kClip_SaveFlag);
-  CRect dirty_rect = root_view_->GetScheduledPaintRect();
-  contents_->ClipRectInt(
-      dirty_rect.left, dirty_rect.top, dirty_rect.Width(), dirty_rect.Height());
+  gfx::Rect dirty_rect = root_view_->GetScheduledPaintRect();
+  contents_->ClipRectInt(dirty_rect.x(), dirty_rect.y(), dirty_rect.width(),
+                         dirty_rect.height());
   root_view_->ProcessPaint(contents_.get());
   contents_->restore();
 

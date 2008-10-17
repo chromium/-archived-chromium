@@ -53,7 +53,6 @@ const char RootView::kViewClassName[] = "chrome/views/RootView";
 
 RootView::RootView(Container* container)
   : container_(container),
-    invalid_rect_(0,0,0,0),
     mouse_pressed_handler_(NULL),
     mouse_move_handler_(NULL),
     explicit_mouse_handler_(FALSE),
@@ -91,14 +90,14 @@ RootView::~RootView() {
 //
 /////////////////////////////////////////////////////////////////////////////
 
-void RootView::SchedulePaint(const CRect& r, bool urgent) {
+void RootView::SchedulePaint(const gfx::Rect& r, bool urgent) {
   // If there is an existing invalid rect, add the union of the scheduled
   // rect with the invalid rect. This could be optimized further if
   // necessary.
-  if (invalid_rect_.IsRectNull())
+  if (invalid_rect_.IsEmpty())
     invalid_rect_ = r;
   else
-    invalid_rect_.UnionRect(invalid_rect_, r);
+    invalid_rect_ = invalid_rect_.Union(r);
 
   if (urgent || invalid_rect_urgent_) {
     invalid_rect_urgent_ = true;
@@ -146,9 +145,9 @@ void RootView::ProcessPaint(ChromeCanvas* canvas) {
 
   // Clip the invalid rect to our bounds. If a view is in a scrollview
   // it could be a lot larger
-  invalid_rect_ = GetScheduledPaintRectConstrainedToSize();
+  invalid_rect_ = gfx::Rect(GetScheduledPaintRectConstrainedToSize());
 
-  if (invalid_rect_.IsRectNull())
+  if (invalid_rect_.IsEmpty())
     return;
 
   // Clear the background.
@@ -158,9 +157,10 @@ void RootView::ProcessPaint(ChromeCanvas* canvas) {
   canvas->save();
 
   // Set the clip rect according to the invalid rect.
-  int clip_x = invalid_rect_.left + x();
-  int clip_y = invalid_rect_.top + y();
-  canvas->ClipRectInt(clip_x, clip_y, invalid_rect_.Width(), invalid_rect_.Height());
+  int clip_x = invalid_rect_.x() + x();
+  int clip_y = invalid_rect_.y() + y();
+  canvas->ClipRectInt(clip_x, clip_y, invalid_rect_.width(),
+                      invalid_rect_.height());
 
   // Paint the tree
   View::ProcessPaint(canvas);
@@ -184,7 +184,7 @@ void RootView::PaintNow() {
 }
 
 bool RootView::NeedsPainting(bool urgent) {
-  bool has_invalid_rect = !invalid_rect_.IsRectNull();
+  bool has_invalid_rect = !invalid_rect_.IsEmpty();
   if (urgent) {
     if (invalid_rect_urgent_)
       return has_invalid_rect;
@@ -195,18 +195,15 @@ bool RootView::NeedsPainting(bool urgent) {
   }
 }
 
-const CRect& RootView::GetScheduledPaintRect() {
+const gfx::Rect& RootView::GetScheduledPaintRect() {
   return invalid_rect_;
 }
 
-CRect RootView::GetScheduledPaintRectConstrainedToSize() {
-  if (invalid_rect_.IsRectEmpty())
-    return invalid_rect_;
+RECT RootView::GetScheduledPaintRectConstrainedToSize() {
+  if (invalid_rect_.IsEmpty())
+    return invalid_rect_.ToRECT();
 
-  CRect local_bounds = GetLocalBounds(true).ToRECT();
-  CRect invalid_rect;
-  invalid_rect.IntersectRect(&invalid_rect_, &local_bounds);
-  return invalid_rect;
+  return invalid_rect_.Intersect(GetLocalBounds(true)).ToRECT();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -889,7 +886,7 @@ std::string RootView::GetClassName() const {
 }
 
 void RootView::ClearPaintRect() {
-  invalid_rect_.SetRectEmpty();
+  invalid_rect_.SetRect(0, 0, 0, 0);
 
   // This painting has been done. Reset the urgent flag.
   invalid_rect_urgent_ = false;
@@ -899,9 +896,8 @@ void RootView::ClearPaintRect() {
 }
 
 void RootView::OnPaint(HWND hwnd) {
-  CRect original_dirty_region =
-        GetScheduledPaintRectConstrainedToSize();
-  if (!original_dirty_region.IsRectEmpty()) {
+  RECT original_dirty_region = GetScheduledPaintRectConstrainedToSize();
+  if (!!IsRectEmpty(&original_dirty_region)) {
     // Invoke InvalidateRect so that the dirty region of the window includes the
     // region we need to paint. If we didn't do this and the region didn't
     // include the dirty region, ProcessPaint would incorrectly mark everything
@@ -912,7 +908,7 @@ void RootView::OnPaint(HWND hwnd) {
   ChromeCanvasPaint canvas(hwnd);
   if (!canvas.isEmpty()) {
     const PAINTSTRUCT& ps = canvas.paintStruct();
-    SchedulePaint(ps.rcPaint, false);
+    SchedulePaint(gfx::Rect(ps.rcPaint), false);
     if (NeedsPainting(false))
       ProcessPaint(&canvas);
   }

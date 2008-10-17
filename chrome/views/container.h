@@ -8,6 +8,10 @@
 // TODO(maruel):  Remove once HWND is abstracted.
 #include <windows.h>
 
+namespace gfx {
+class Rect;
+}
+
 // TODO(maruel):  Remove once gfx::Rect is used instead.
 namespace WTL {
 class CRect;
@@ -56,7 +60,7 @@ class Container {
   virtual HWND GetHWND() const = 0;
 
   // Forces a paint of a specified rectangle immediately.
-  virtual void PaintNow(const CRect& update_rect) = 0;
+  virtual void PaintNow(const gfx::Rect& update_rect) = 0;
 
   // Returns the RootView contained by this container
   virtual RootView* GetRootView() = 0;

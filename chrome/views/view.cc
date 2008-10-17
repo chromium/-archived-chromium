@@ -159,9 +159,8 @@ gfx::Rect View::GetLocalBounds(bool include_border) const {
                    width() - insets.width(), height() - insets.height());
 }
 
-void View::GetPosition(CPoint* p) const {
-  p->x = GetX(APPLY_MIRRORING_TRANSFORMATION);
-  p->y = y();
+gfx::Point View::GetPosition() const {
+  return gfx::Point(GetX(APPLY_MIRRORING_TRANSFORMATION), y());
 }
 
 gfx::Size View::GetPreferredSize() {
@@ -317,29 +316,25 @@ void View::SetHotTracked(bool flag) {
 //
 /////////////////////////////////////////////////////////////////////////////
 
-void View::SchedulePaint(const CRect& r, bool urgent) {
-  if (!IsVisible()) {
+void View::SchedulePaint(const gfx::Rect& r, bool urgent) {
+  if (!IsVisible())
     return;
-  }
 
   if (parent_) {
     // Translate the requested paint rect to the parent's coordinate system
     // then pass this notification up to the parent.
-    CRect paint_rect(r);
-    CPoint p;
-    GetPosition(&p);
-    paint_rect.OffsetRect(p);
+    gfx::Rect paint_rect = r;
+    paint_rect.Offset(GetPosition());
     parent_->SchedulePaint(paint_rect, urgent);
   }
 }
 
 void View::SchedulePaint() {
-  SchedulePaint(GetLocalBounds(true).ToRECT(), false);
+  SchedulePaint(GetLocalBounds(true), false);
 }
 
 void View::SchedulePaint(int x, int y, int w, int h) {
-  CRect r(x, y, x + w, y + h);
-  SchedulePaint(&r, false);
+  SchedulePaint(gfx::Rect(x, y, w, h), false);
 }
 
 void View::Paint(ChromeCanvas* canvas) {
@@ -1506,7 +1501,7 @@ bool View::GetTooltipText(int x, int y, std::wstring* tooltip) {
   return false;
 }
 
-bool View::GetTooltipTextOrigin(int x, int y, CPoint* loc) {
+bool View::GetTooltipTextOrigin(int x, int y, gfx::Point* loc) {
   return false;
 }
 

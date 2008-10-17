@@ -86,10 +86,6 @@ class Browser : public TabStripModelDelegate,
   static void RegisterPrefs(PrefService* prefs);
   static void RegisterUserPrefs(PrefService* prefs);
 
-  // Initialize the receiver with the provided bounds which
-  // is in the screen coordinate system.
-  void InitWithBounds(CRect* bounds, int show_command);
-
   void GoBack();
   void GoForward();
   void Stop();
@@ -244,7 +240,7 @@ class Browser : public TabStripModelDelegate,
       PageTransition::Type transition,
       bool defer_load,
       SiteInstance* instance) const;
-  virtual void ShowApplicationMenu(const gfx::Point p);
+  virtual void ShowApplicationMenu(const gfx::Point& p);
   virtual bool CanDuplicateContentsAt(int index);
   virtual void DuplicateContentsAt(int index);
   virtual void ValidateLoadingAnimations();
@@ -305,7 +301,7 @@ class Browser : public TabStripModelDelegate,
 
   // Invoke the menu we use for application and popup windows at the provided
   // point and for the provided hwnd.
-  void RunSimpleFrameMenu(const CPoint& pt, HWND hwnd);
+  void RunSimpleFrameMenu(const gfx::Point& pt, HWND hwnd);
 
   // Show some native UI given a URL. If a tab with the same URL is already
   // visible in this browser, it becomes selected. Otherwise a new tab is

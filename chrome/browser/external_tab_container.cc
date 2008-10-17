@@ -253,8 +253,9 @@ HWND ExternalTabContainer::GetHWND() const {
   return m_hWnd;
 }
 
-void ExternalTabContainer::PaintNow(const CRect& update_rect) {
-  RedrawWindow(update_rect,
+void ExternalTabContainer::PaintNow(const gfx::Rect& update_rect) {
+  RECT native_update_rect = update_rect.ToRECT();
+  RedrawWindow(&native_update_rect,
                NULL,
                RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_NOERASE);
 }

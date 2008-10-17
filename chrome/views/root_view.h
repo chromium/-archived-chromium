@@ -51,7 +51,7 @@ class RootView : public View,
   // Layout and Painting functions
 
   // Overridden from View to implement paint scheduling.
-  virtual void SchedulePaint(const CRect& r, bool urgent);
+  virtual void SchedulePaint(const gfx::Rect& r, bool urgent);
 
   // Convenience to schedule the whole view
   virtual void SchedulePaint();
@@ -73,10 +73,10 @@ class RootView : public View,
 
   // Invoked by the Container to discover what rectangle should be
   // painted
-  const CRect& GetScheduledPaintRect();
+  const gfx::Rect& GetScheduledPaintRect();
 
   // Returns the region scheduled to paint clipped to the RootViews bounds.
-  CRect GetScheduledPaintRectConstrainedToSize();
+  RECT GetScheduledPaintRectConstrainedToSize();
 
   // Tree functions
 
@@ -271,7 +271,7 @@ class RootView : public View,
   Container* container_;
 
   // The rectangle that should be painted
-  CRect invalid_rect_;
+  gfx::Rect invalid_rect_;
 
   // Whether the current invalid rect should be painted urgently.
   bool invalid_rect_urgent_;

@@ -372,7 +372,7 @@ void SimpleXPFrame::ValidateThrobber() {
 }
 
 void SimpleXPFrame::RunMenu(const CPoint& pt, HWND hwnd) {
-  browser_->RunSimpleFrameMenu(pt, hwnd);
+  browser_->RunSimpleFrameMenu(gfx::Point(pt.x, pt.y), hwnd);
 }
 
 void SimpleXPFrame::ShowTabContents(TabContents* selected_contents) {

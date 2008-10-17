@@ -446,7 +446,7 @@ gfx::Rect ConstrainedWindowNonClientView::CalculateWindowBoundsForClientBounds(
 }
 
 void ConstrainedWindowNonClientView::UpdateWindowTitle() {
-  SchedulePaint(title_bounds_.ToRECT(), false);
+  SchedulePaint(title_bounds_, false);
   UpdateLocationBar();
 }
 

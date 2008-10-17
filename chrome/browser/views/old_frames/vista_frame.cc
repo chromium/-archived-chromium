@@ -1203,9 +1203,10 @@ HWND VistaFrame::GetHWND() const {
   return m_hWnd;
 }
 
-void VistaFrame::PaintNow(const CRect& update_rect) {
-  if (!update_rect.IsRectNull() && IsVisible()) {
-    RedrawWindow(update_rect,
+void VistaFrame::PaintNow(const gfx::Rect& update_rect) {
+  if (!update_rect.IsEmpty() && IsVisible()) {
+    RECT native_update_rect = update_rect.ToRECT();
+    RedrawWindow(&native_update_rect,
                  NULL,
                  RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_NOERASE);
   }
@@ -1522,7 +1523,7 @@ void VistaFrame::ContinueDetachConstrainedWindowDrag(const gfx::Point& mouse_pt,
   // correct. (Otherwise parts of the tabstrip are clipped).
   CRect cr;
   GetClientRect(&cr);
-  PaintNow(cr);
+  PaintNow(gfx::Rect(cr));
 
   // The user's mouse is already moving, and the left button is down, but we
   // need to start moving this frame, so we _post_ it a NCLBUTTONDOWN message

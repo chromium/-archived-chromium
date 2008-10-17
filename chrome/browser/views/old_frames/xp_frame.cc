@@ -1017,7 +1017,8 @@ void XPFrame::OnSize(UINT param, const CSize& size) {
 
   // We paint immediately during a resize because it will feel laggy otherwise.
   if (root_view_.NeedsPainting(false)) {
-    RedrawWindow(root_view_.GetScheduledPaintRect(),
+    RECT native_update_rect = root_view_.GetScheduledPaintRect().ToRECT();
+    RedrawWindow(&native_update_rect,
                  NULL,
                  RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
     MessageLoopForUI::current()->PumpOutPendingPaintMessages();
@@ -1910,9 +1911,10 @@ HWND XPFrame::GetHWND() const {
   return m_hWnd;
 }
 
-void XPFrame::PaintNow(const CRect& update_rect) {
-  if (!update_rect.IsRectNull() && IsVisible()) {
-    RedrawWindow(update_rect,
+void XPFrame::PaintNow(const gfx::Rect& update_rect) {
+  if (!update_rect.IsEmpty() && IsVisible()) {
+    RECT native_update_rect = update_rect.ToRECT();
+    RedrawWindow(&native_update_rect,
                  NULL,
                  // While we don't seem to need RDW_NOERASE here for correctness
                  // (unlike Vista), I don't know whether it would hurt.
@@ -2390,7 +2392,7 @@ void XPFrame::ContinueDetachConstrainedWindowDrag(const gfx::Point& mouse_pt,
   // correct. (Otherwise parts of the tabstrip are clipped).
   CRect cr;
   GetClientRect(&cr);
-  PaintNow(cr);
+  PaintNow(gfx::Rect(cr));
 
   // The user's mouse is already moving, and the left button is down, but we
   // need to start moving this frame, so we _post_ it a NCLBUTTONDOWN message

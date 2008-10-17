@@ -190,7 +190,7 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
         *handled = true;
         tooltip_showing_ = true;
         // The tooltip is about to show, allow the view to position it
-        CPoint text_origin;
+        gfx::Point text_origin;
         if (tooltip_height_ == 0)
           tooltip_height_ = CalcTooltipHeight();
         gfx::Point view_loc(last_mouse_x_, last_mouse_y_);
@@ -198,7 +198,7 @@ LRESULT TooltipManager::OnNotify(int w_param, NMHDR* l_param, bool* handled) {
                                  last_tooltip_view_, &view_loc);
         if (last_tooltip_view_->GetTooltipTextOrigin(
               view_loc.x(), view_loc.y(), &text_origin) &&
-            SetTooltipPosition(text_origin.x, text_origin.y)) {
+            SetTooltipPosition(text_origin.x(), text_origin.y())) {
           // Return true, otherwise the rectangle we specified is ignored.
           return TRUE;
         }

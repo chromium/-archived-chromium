@@ -145,7 +145,7 @@ void SimpleVistaFrame::OnNCLButtonDown(UINT flags, const CPoint& pt) {
   if (flags == HTSYSMENU) {
     POINT p = {0, 0};
     ::ClientToScreen(*this, &p);
-    browser_->RunSimpleFrameMenu(p, *this);
+    browser_->RunSimpleFrameMenu(gfx::Point(p.x, p.y), *this);
     SetMsgHandled(true);
   } else {
     SetMsgHandled(false);

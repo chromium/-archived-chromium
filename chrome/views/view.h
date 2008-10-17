@@ -6,12 +6,8 @@
 #define CHROME_VIEWS_VIEW_H_
 
 #include <map>
+#include <oleacc.h>
 #include <vector>
-
-// TODO(maruel):  Remove these once WTL::CRect and WTL::CPoint are no more used.
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlmisc.h>
 
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
@@ -173,11 +169,12 @@ class View : public AcceleratorTarget {
   // This is the function subclasses should use whenever they need to obtain
   // the left position of one of their child views (for example, when
   // implementing View::Layout()).
-  int x() const {
-    // This is equivalent to GetX(IGNORE_MIRRORING_TRANSFORMATION), but
-    // inlinable.
-    return bounds_.x();
-  };
+  // This is equivalent to GetX(IGNORE_MIRRORING_TRANSFORMATION), but
+  // inlinable.
+  int x() const { return bounds_.x(); }
+  int y() const { return bounds_.y(); }
+  int width() const { return bounds_.width(); }
+  int height() const { return bounds_.height(); }
 
   // Return the left coordinate of the View, relative to the parent. If
   // |settings| is IGNORE_MIRRORING_SETTINGS, the function returns the value of
@@ -191,16 +188,6 @@ class View : public AcceleratorTarget {
   //       coordinate of a child View.
   int GetX(PositionMirroringSettings settings) const;
 
-  int y() const {
-    return bounds_.y();
-  };
-  int width() const {
-    return bounds_.width();
-  };
-  int height() const {
-    return bounds_.height();
-  };
-
   // Return this control local bounds. If include_border is true, local bounds
   // is the rectangle {0, 0, width(), height()}, otherwise, it does not
   // include the area where the border (if any) is painted.
@@ -211,7 +198,7 @@ class View : public AcceleratorTarget {
   // Note that if the parent uses right-to-left UI layout, then the mirrored
   // position of this View is returned. Use x()/y() if you want to ignore
   // mirroring.
-  void GetPosition(CPoint* out) const;
+  gfx::Point GetPosition() const;
 
   // Get the size the View would like to be, if enough space were available.
   virtual gfx::Size GetPreferredSize();
@@ -364,7 +351,7 @@ class View : public AcceleratorTarget {
   // Mark the specified rectangle as dirty (needing repaint). If |urgent| is
   // true, the view will be repainted when the current event processing is
   // done. Otherwise, painting will take place as soon as possible.
-  virtual void SchedulePaint(const CRect& r, bool urgent);
+  virtual void SchedulePaint(const gfx::Rect& r, bool urgent);
 
   // Mark the entire View's bounds as dirty. Painting will occur as soon as
   // possible.
@@ -909,7 +896,7 @@ class View : public AcceleratorTarget {
   // Returns the location (relative to this View) for the text on the tooltip
   // to display. If false is returned (the default), the tooltip is placed at
   // a default position.
-  virtual bool GetTooltipTextOrigin(int x, int y, CPoint* loc);
+  virtual bool GetTooltipTextOrigin(int x, int y, gfx::Point* loc);
 
   // Set whether this view is owned by its parent. A view that is owned by its
   // parent is automatically deleted when the parent is deleted. The default is
@@ -1044,10 +1031,6 @@ class View : public AcceleratorTarget {
   // view container, which is what is appropriate for views that have no native
   // window associated with them (so the root view gets the keyboard messages).
   virtual void Focus();
-
-  // Heavyweight views (views that hold a native control) should return the
-  // window for that control.
-  virtual HWND GetNativeControlHWND() { return NULL; }
 
   // Invoked when a key is pressed before the key event is processed by the
   // focus manager for accelerators.  This gives a chance to the view to

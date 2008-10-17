@@ -93,7 +93,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   virtual void GetBounds(CRect *out, bool including_frame) const;
   virtual void MoveToFront(bool should_activate);
   virtual HWND GetHWND() const;
-  virtual void PaintNow(const CRect& update_rect);
+  virtual void PaintNow(const gfx::Rect& update_rect);
   virtual views::RootView* GetRootView();
   virtual bool IsVisible();
   virtual bool IsActive();

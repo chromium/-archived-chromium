@@ -913,7 +913,7 @@ void Browser::OpenClearBrowsingDataDialog() {
         new ClearBrowsingDataView(profile_))->Show();
 }
 
-void Browser::RunSimpleFrameMenu(const CPoint& pt, HWND hwnd) {
+void Browser::RunSimpleFrameMenu(const gfx::Point& pt, HWND hwnd) {
   bool for_popup = !IsApplication();
   EncodingMenuControllerDelegate d(this, &controller_);
 
@@ -968,7 +968,7 @@ void Browser::RunSimpleFrameMenu(const CPoint& pt, HWND hwnd) {
 
   m.AppendSeparator();
   m.AppendMenuItemWithLabel(IDC_CLOSE_WEB_APP, l10n_util::GetString(IDS_CLOSE));
-  m.RunMenuAt(pt.x, pt.y);
+  m.RunMenuAt(pt.x(), pt.y());
 }
 
 void Browser::CopyCurrentURLToClipBoard() {

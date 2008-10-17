@@ -1347,15 +1347,12 @@ TabContents* Browser::CreateTabContentsForURL(
   return contents;
 }
 
-void Browser::ShowApplicationMenu(const gfx::Point p) {
+void Browser::ShowApplicationMenu(const gfx::Point& p) {
   if (!window_)
     return;
 
   HWND hwnd = reinterpret_cast<HWND>(window_->GetPlatformID());
-  CPoint t;
-  t.x = p.x();
-  t.y = p.y();
-  RunSimpleFrameMenu(t, hwnd);
+  RunSimpleFrameMenu(p, hwnd);
 }
 
 void Browser::ValidateLoadingAnimations() {

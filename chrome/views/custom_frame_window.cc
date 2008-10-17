@@ -1157,7 +1157,7 @@ void CustomFrameWindow::OnNCPaint(HRGN rgn) {
     UnionRect(&dirty_region, &tmp, &old_paint_region);
   }
 
-  root_view->SchedulePaint(dirty_region, false);
+  root_view->SchedulePaint(gfx::Rect(dirty_region), false);
 
   // ChromeCanvasPaints destructor does the actual painting. As such, wrap the
   // following in a block to force paint to occur so that we can release the dc.

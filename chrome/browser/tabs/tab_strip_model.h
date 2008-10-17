@@ -125,7 +125,7 @@ class TabStripModelDelegate {
 
   // Show the web application context menu at the provided point. |p| is in
   // screen coordinate system.
-  virtual void ShowApplicationMenu(const gfx::Point p) = 0;
+  virtual void ShowApplicationMenu(const gfx::Point& p) = 0;
 
   // Return whether some contents can be duplicated.
   virtual bool CanDuplicateContentsAt(int index) = 0;

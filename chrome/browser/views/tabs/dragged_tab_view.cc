@@ -97,7 +97,7 @@ void DraggedTabView::Detach(HWNDPhotobooth* photobooth) {
 void DraggedTabView::Update() {
   container_->set_can_update_layered_window(true);
   SchedulePaint();
-  container_->PaintNow(CRect());
+  container_->PaintNow(gfx::Rect());
   container_->set_can_update_layered_window(false);
 }
 
