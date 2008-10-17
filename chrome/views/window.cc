@@ -343,7 +343,7 @@ void Window::RunSystemMenu(const CPoint& point) {
   // We need to call this otherwise there's a small chance that we aren't going
   // to get a system menu. We also can't take the return value of this
   // function. We need to call it *again* to get a valid HMENU.
-  ::GetSystemMenu(GetHWND(), TRUE);
+  //::GetSystemMenu(GetHWND(), TRUE);
   HMENU system_menu = ::GetSystemMenu(GetHWND(), FALSE);
   int id = ::TrackPopupMenu(system_menu,
                             TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
