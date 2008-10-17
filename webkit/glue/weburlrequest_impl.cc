@@ -183,7 +183,7 @@ void WebRequestImpl::SetUploadData(const net::UploadData& data)
 
   const std::vector<net::UploadData::Element>& elements = data.elements();
   std::vector<net::UploadData::Element>::const_iterator it = elements.begin();
-  for (UINT i = 0; it != elements.end(); ++it, ++i) {
+  for (; it != elements.end(); ++it) {
     const net::UploadData::Element& element = (*it);
     if (element.type() == net::UploadData::TYPE_BYTES) {
       formdata->appendData(
