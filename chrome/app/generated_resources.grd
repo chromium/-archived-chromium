@@ -3134,6 +3134,16 @@ each locale. -->
       <message name="IDS_BLOCKED_POPUP" desc="Text on a blocked popup's window titlebar.">
         Blocked Pop-up
       </message>
+      <!-- Multiple download warning-->
+      <message name="IDS_MULTI_DOWNLOAD_WARNING" desc="Warning invoked if multiple downloads are attempted without user interaction.">
+        This site is attempting to download multiple files. Do you want to allow this?
+      </message>
+      <message name="IDS_MULTI_DOWNLOAD_WARNING_ALLOW" desc="Text on the allow button in the IDS_MULTI_DOWNLOAD_WARNING dialog">
+        Allow
+      </message>
+      <message name="IDS_MULTI_DOWNLOAD_WARNING_DENY" desc="Text on the deny button in the IDS_MULTI_DOWNLOAD_WARNING dialog">
+        Deny
+      </message>
     </messages>
   </release>
 </grit>

@@ -14,8 +14,9 @@
 #include "chrome/views/text_field.h"
 #include "chrome/views/view.h"
 
-// This class displays a message box within a constrained window
-// with options for a message, a prompt, and OK and Cancel buttons.
+// This class displays the contents of a message box. It is intended for use
+// within a constrained window, and has options for a message, prompt, OK
+// and Cancel buttons.
 class MessageBoxView : public views::View {
  public:
   // flags

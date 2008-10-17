@@ -232,7 +232,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   friend class RenderWidgetHostViewWin;
 
   void ForwardMouseEvent(const WebMouseEvent& mouse_event);
-  void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
+  virtual void ForwardKeyboardEvent(const WebKeyboardEvent& key_event);
   void ForwardWheelEvent(const WebMouseWheelEvent& wheel_event);
   void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
 

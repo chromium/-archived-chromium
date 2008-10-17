@@ -1112,6 +1112,14 @@ void RenderViewHost::UnhandledInputEvent(const WebInputEvent& event) {
         static_cast<const WebKeyboardEvent&>(event));
 }
 
+void RenderViewHost::ForwardKeyboardEvent(const WebKeyboardEvent& key_event) {
+  if (key_event.type == WebKeyboardEvent::CHAR &&
+      (key_event.key_data == '\n' || key_event.key_data == ' ')) {
+    delegate_->OnEnterOrSpace();
+  }
+  RenderWidgetHost::ForwardKeyboardEvent(key_event);
+}
+
 void RenderViewHost::OnMissingPluginStatus(int status) {
   delegate_->OnMissingPluginStatus(status);
 }

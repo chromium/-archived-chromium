@@ -413,9 +413,6 @@ void NavigationController::RemoveEntryAtIndex(int index,
   } else if (last_committed_entry_index_ > index) {
     last_committed_entry_index_--;
   }
-
-  // TODO(brettw) bug 1324021: we probably need some notification here so the
-  // session service can stay in sync.
 }
 
 void NavigationController::Destroy() {

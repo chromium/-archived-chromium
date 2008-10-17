@@ -2038,6 +2038,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\download\download_request_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\download\download_request_manager.h"
+				>
+			</File>
+			<File
 				RelativePath=".\download\download_util.cc"
 				>
 			</File>

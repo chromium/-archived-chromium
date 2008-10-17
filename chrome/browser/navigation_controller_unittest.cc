@@ -19,96 +19,23 @@
 #include "chrome/common/notification_types.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/test/test_notification_tracker.h"
+#include "chrome/test/test_tab_contents.h"
 #include "chrome/test/testing_profile.h"
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
 
-// TODO(darin): come up with a better way to define these integers
-// TODO(acw): we should have a real dynamic factory for content types.
-// That way we could have several implementation of
-// TabContents::CreateWithType(). Once this is done we'll be able to
-// have a unit test for NavigationController::Clone()
-const TabContentsType kTestContentsType1 =
-    static_cast<TabContentsType>(TAB_CONTENTS_NUM_TYPES + 1);
-const TabContentsType kTestContentsType2 =
-    static_cast<TabContentsType>(TAB_CONTENTS_NUM_TYPES + 2);
-
-// Tests can set this to set the site instance for all the test contents. This
-// refcounted pointer will NOT be derefed on cleanup (the tests do this
-// themselves).
-static SiteInstance* site_instance;
-
-// TestContents ----------------------------------------------------------------
-
-class TestContents : public TabContents {
- public:
-  BEGIN_MSG_MAP(TestContents)
-  END_MSG_MAP()
-
-  TestContents(TabContentsType type) : TabContents(type) {
-  }
-
-  // Overridden from TabContents so we can provide a non-NULL site instance in
-  // some cases. To use, the test will have to set the site_instance_ member
-  // variable to some site instance it creates.
-  virtual SiteInstance* GetSiteInstance() const {
-    return site_instance;
-  }
-
-  // Just record the navigation so it can be checked by the test case. We don't
-  // want the normal behavior of TabContents just saying it committed since we
-  // want to behave more like the renderer and call RendererDidNavigate.
-  virtual bool NavigateToPendingEntry(bool reload) {
-    return true;
-  }
-
-  // Sets up a call to RendererDidNavigate pretending to be a main frame
-  // navigation to the given URL.
-  void CompleteNavigationAsRenderer(int page_id, const GURL& url) {
-    ViewHostMsg_FrameNavigate_Params params;
-    params.page_id = page_id;
-    params.url = url;
-    params.transition = PageTransition::LINK;
-    params.should_update_history = false;
-    params.gesture = NavigationGestureUser;
-    params.is_post = false;
-
-    NavigationController::LoadCommittedDetails details;
-    controller()->RendererDidNavigate(params, false, &details);
-  }
-};
-
-class TestContentsFactory : public TabContentsFactory {
- public:
-  TestContentsFactory(TabContentsType type, const char* scheme)
-      : type_(type),
-        scheme_(scheme) {
-  }
-
-  virtual TabContents* CreateInstance() {
-    return new TestContents(type_);
-  }
-
-  virtual bool CanHandleURL(const GURL& url) {
-    return url.SchemeIs(scheme_);
-  }
-
- private:
-  TabContentsType type_;
-  const char* scheme_;
-};
-
-TestContentsFactory factory1(kTestContentsType1, "test1");
-TestContentsFactory factory2(kTestContentsType2, "test2");
-
 // NavigationControllerTest ----------------------------------------------------
 
 class NavigationControllerTest : public testing::Test,
                                  public TabContentsDelegate {
  public:
-  NavigationControllerTest() : contents(NULL), profile(NULL) {
+  NavigationControllerTest()
+      : contents(NULL),
+        profile(NULL),
+        factory1_(TestTabContentsFactory::CreateAndRegisterFactory()),
+        factory2_(TestTabContentsFactory::CreateAndRegisterFactory()) {
   }
 
   ~NavigationControllerTest() {
@@ -118,20 +45,17 @@ class NavigationControllerTest : public testing::Test,
   // testing::Test methods:
 
   virtual void SetUp() {
-    TabContents::RegisterFactory(kTestContentsType1, &factory1);
-    TabContents::RegisterFactory(kTestContentsType2, &factory2);
-
     if (!profile)
       profile = new TestingProfile();
 
-    contents = new TestContents(kTestContentsType1);
+    contents = new TestTabContents(type1());
     contents->set_delegate(this);
     contents->CreateView(::GetDesktopWindow(), gfx::Rect());
     contents->SetupController(profile);
   }
 
   virtual void TearDown() {
-    site_instance = NULL;
+    TestTabContents::set_site_instance(NULL);
 
     // Make sure contents is valid. NavigationControllerHistoryTest ends up
     // resetting this before TearDown is invoked.
@@ -144,9 +68,6 @@ class NavigationControllerTest : public testing::Test,
     contents->set_delegate(NULL);
     contents->CloseContents();
     contents = NULL;
-
-    TabContents::RegisterFactory(kTestContentsType1, NULL);
-    TabContents::RegisterFactory(kTestContentsType2, NULL);
   }
 
   // TabContentsDelegate methods (only care about ReplaceContents):
@@ -159,7 +80,7 @@ class NavigationControllerTest : public testing::Test,
   virtual void ReplaceContents(TabContents* source,
                                TabContents* new_contents) {
     contents->set_delegate(NULL);
-    contents = static_cast<TestContents*>(new_contents);
+    contents = static_cast<TestTabContents*>(new_contents);
     contents->set_delegate(this);
   }
   virtual void AddNewContents(TabContents*,
@@ -178,12 +99,20 @@ class NavigationControllerTest : public testing::Test,
   virtual void URLStarredChanged(TabContents* source, bool starred) {}
   virtual void UpdateTargetURL(TabContents* source, const GURL& url) {};
 
-  TestContents* contents;
+  TabContentsType type1() const { return factory1_->type(); }
+  TabContentsType type2() const { return factory2_->type(); }
+
+  const std::string& scheme1() const { return factory1_->scheme(); }
+  const std::string& scheme2() const { return factory2_->scheme(); }
+
+  TestTabContents* contents;
 
   Profile* profile;
- 
+
  private:
   MessageLoopForUI message_loop_;
+  scoped_ptr<TestTabContentsFactory> factory1_;
+  scoped_ptr<TestTabContentsFactory> factory2_;
 };
 
 // NavigationControllerHistoryTest ---------------------------------------------
@@ -192,9 +121,9 @@ class NavigationControllerHistoryTest : public NavigationControllerTest {
  public:
   NavigationControllerHistoryTest()
       : profile_manager_(NULL),
-        url0("test1:foo1"),
-        url1("test1:foo1"),
-        url2("test1:foo1") {
+        url0(scheme1() + ":foo1"),
+        url1(scheme1() + ":foo1"),
+        url2(scheme1() + ":foo1") {
   }
 
   virtual ~NavigationControllerHistoryTest() {
@@ -323,8 +252,8 @@ TEST_F(NavigationControllerTest, LoadURL) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   // Creating a pending notification should not have issued any of the
@@ -393,7 +322,7 @@ TEST_F(NavigationControllerTest, LoadURL_SamePage) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
+  const GURL url1(scheme1() + ":foo1");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
@@ -420,8 +349,8 @@ TEST_F(NavigationControllerTest, LoadURL_Discarded) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
@@ -449,13 +378,13 @@ TEST_F(NavigationControllerTest, LoadURL_NoPending) {
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
   // First make an existing committed entry.
-  const GURL kExistingURL1("test1:eh");
+  const GURL kExistingURL1(scheme1() + ":eh");
   contents->controller()->LoadURL(kExistingURL1, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, kExistingURL1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 	
   // Do a new navigation without making a pending one.
-  const GURL kNewURL("test1:see");
+  const GURL kNewURL(scheme1() + ":see");
   contents->CompleteNavigationAsRenderer(99, kNewURL);
 
   // There should no longer be any pending entry, and the third navigation we
@@ -475,18 +404,18 @@ TEST_F(NavigationControllerTest, LoadURL_NewPending) {
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
   // First make an existing committed entry.
-  const GURL kExistingURL1("test1:eh");
+  const GURL kExistingURL1(scheme1() + ":eh");
   contents->controller()->LoadURL(kExistingURL1, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, kExistingURL1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
   // Make a pending entry to somewhere new.
-  const GURL kExistingURL2("test1:bee");
+  const GURL kExistingURL2(scheme1() + ":bee");
   contents->controller()->LoadURL(kExistingURL2, PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
 
   // Before that commits, do a new navigation.
-  const GURL kNewURL("test1:see");
+  const GURL kNewURL(scheme1() + ":see");
   contents->CompleteNavigationAsRenderer(3, kNewURL);
 
   // There should no longer be any pending entry, and the third navigation we
@@ -505,12 +434,12 @@ TEST_F(NavigationControllerTest, LoadURL_ExistingPending) {
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
   // First make some history.
-  const GURL kExistingURL1("test1:eh");
+  const GURL kExistingURL1(scheme1() + ":eh");
   contents->controller()->LoadURL(kExistingURL1, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, kExistingURL1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  const GURL kExistingURL2("test1:bee");
+  const GURL kExistingURL2(scheme1() + ":bee");
   contents->controller()->LoadURL(kExistingURL2, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(1, kExistingURL2);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
@@ -523,7 +452,7 @@ TEST_F(NavigationControllerTest, LoadURL_ExistingPending) {
   EXPECT_EQ(1, contents->controller()->GetLastCommittedEntryIndex());
 
   // Before that commits, do a new navigation.
-  const GURL kNewURL("test1:see");
+  const GURL kNewURL(scheme1() + ":see");
   NavigationController::LoadCommittedDetails details;
   contents->CompleteNavigationAsRenderer(3, kNewURL);
 
@@ -539,7 +468,7 @@ TEST_F(NavigationControllerTest, Reload) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
+  const GURL url1(scheme1() + ":foo1");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
@@ -576,8 +505,8 @@ TEST_F(NavigationControllerTest, Reload_GeneratesNewPage) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, url1);
@@ -604,11 +533,11 @@ TEST_F(NavigationControllerTest, Back) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
+  const GURL url1(scheme1() + ":foo1");
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  const GURL url2("test1:foo2");
+  const GURL url2(scheme1() + ":foo2");
   contents->CompleteNavigationAsRenderer(1, url2);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
@@ -642,9 +571,9 @@ TEST_F(NavigationControllerTest, Back_GeneratesNewPage) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
-  const GURL url3("test1:foo3");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
+  const GURL url3(scheme1() + ":foo3");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, url1);
@@ -685,9 +614,9 @@ TEST_F(NavigationControllerTest, Back_NewPending) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL kUrl1("test1:foo1");
-  const GURL kUrl2("test1:foo2");
-  const GURL kUrl3("test1:foo3");
+  const GURL kUrl1(scheme1() + ":foo1");
+  const GURL kUrl2(scheme1() + ":foo2");
+  const GURL kUrl3(scheme1() + ":foo3");
 
   // First navigate two places so we have some back history.
   contents->CompleteNavigationAsRenderer(0, kUrl1);
@@ -712,9 +641,9 @@ TEST_F(NavigationControllerTest, Back_NewPending) {
 // Receives a back message when there is a different renavigation already
 // pending.
 TEST_F(NavigationControllerTest, Back_OtherBackPending) {
-  const GURL kUrl1("test1:foo1");
-  const GURL kUrl2("test1:foo2");
-  const GURL kUrl3("test1:foo3");
+  const GURL kUrl1(scheme1() + ":foo1");
+  const GURL kUrl2(scheme1() + ":foo2");
+  const GURL kUrl3(scheme1() + ":foo3");
 
   // First navigate three places so we have some back history.
   contents->CompleteNavigationAsRenderer(0, kUrl1);
@@ -727,7 +656,7 @@ TEST_F(NavigationControllerTest, Back_OtherBackPending) {
   // That second URL should be the last committed and it should have gotten the
   // new title.
   EXPECT_EQ(kUrl2, contents->controller()->GetEntryWithPageID(
-      kTestContentsType1, NULL, 1)->url());
+      type1(), NULL, 1)->url());
   EXPECT_EQ(1, contents->controller()->GetLastCommittedEntryIndex());
   EXPECT_EQ(-1, contents->controller()->GetPendingEntryIndex());
 
@@ -757,8 +686,8 @@ TEST_F(NavigationControllerTest, Forward) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
 
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
@@ -799,9 +728,9 @@ TEST_F(NavigationControllerTest, Forward_GeneratesNewPage) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
-  const GURL url3("test1:foo3");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
+  const GURL url3(scheme1() + ":foo3");
 
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
@@ -843,11 +772,11 @@ TEST_F(NavigationControllerTest, NewSubframe) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
+  const GURL url1(scheme1() + ":foo1");
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  const GURL url2("test1:foo2");
+  const GURL url2(scheme1() + ":foo2");
   ViewHostMsg_FrameNavigate_Params params;
   params.page_id = 1;
   params.url = url2;
@@ -882,7 +811,7 @@ TEST_F(NavigationControllerTest, SubframeOnEmptyPage) {
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
   // Navigation controller currently has no entries.
-  const GURL url("test1:foo2");
+  const GURL url(scheme1() + ":foo2");
   ViewHostMsg_FrameNavigate_Params params;
   params.page_id = 1;
   params.url = url;
@@ -903,11 +832,11 @@ TEST_F(NavigationControllerTest, AutoSubframe) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
+  const GURL url1(scheme1() + ":foo1");
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  const GURL url2("test1:foo2");
+  const GURL url2(scheme1() + ":foo2");
   ViewHostMsg_FrameNavigate_Params params;
   params.page_id = 0;
   params.url = url2;
@@ -932,12 +861,12 @@ TEST_F(NavigationControllerTest, BackSubframe) {
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
   // Main page.
-  const GURL url1("test1:foo1");
+  const GURL url1(scheme1() + ":foo1");
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
   // First manual subframe navigation.
-  const GURL url2("test1:foo2");
+  const GURL url2(scheme1() + ":foo2");
   ViewHostMsg_FrameNavigate_Params params;
   params.page_id = 1;
   params.url = url2;
@@ -954,7 +883,7 @@ TEST_F(NavigationControllerTest, BackSubframe) {
   EXPECT_EQ(2, contents->controller()->GetEntryCount());
 
   // Second manual subframe navigation should also make a new entry.
-  const GURL url3("test1:foo3");
+  const GURL url3(scheme1() + ":foo3");
   params.page_id = 2;
   params.url = url3;
   EXPECT_TRUE(contents->controller()->RendererDidNavigate(params, false,
@@ -988,8 +917,8 @@ TEST_F(NavigationControllerTest, LinkClick) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
 
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
@@ -1013,12 +942,12 @@ TEST_F(NavigationControllerTest, InPage) {
 
   // Main page. Note that we need "://" so this URL is treated as "standard"
   // which are the only ones that can have a ref.
-  const GURL url1("test1://foo");
+  const GURL url1(scheme1() + "://foo");
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
   // First navigation.
-  const GURL url2("test1://foo#a");
+  const GURL url2(scheme1() + "://foo#a");
   ViewHostMsg_FrameNavigate_Params params;
   params.page_id = 1;
   params.url = url2;
@@ -1077,13 +1006,13 @@ TEST_F(NavigationControllerTest, SwitchTypes) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo");
-  const GURL url2("test2:foo");
+  const GURL url1(scheme1() + ":foo");
+  const GURL url2(scheme2() + ":foo");
 
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  TestContents* initial_contents = contents;
+  TestTabContents* initial_contents = contents;
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
 
   // The tab contents should have been replaced
@@ -1126,13 +1055,13 @@ TEST_F(NavigationControllerTest, SwitchTypes_Discard) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url1("test1:foo");
-  const GURL url2("test2:foo");
+  const GURL url1(scheme1() + ":foo");
+  const GURL url2(scheme2() + ":foo");
 
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  TestContents* initial_contents = contents;
+  TestTabContents* initial_contents = contents;
 
   contents->controller()->LoadURL(url2, PageTransition::TYPED);
   EXPECT_EQ(0, notifications.size());
@@ -1161,9 +1090,9 @@ TEST_F(NavigationControllerTest, SwitchTypes_Discard) {
 // Tests that TabContentsTypes that are not in use are deleted (via a
 // TabContentsCollector task).  Prevents regression of bug 1296773.
 TEST_F(NavigationControllerTest, SwitchTypesCleanup) {
-  const GURL url1("test1:foo");
-  const GURL url2("test2:foo");
-  const GURL url3("test2:bar");
+  const GURL url1(scheme1() + ":foo");
+  const GURL url2(scheme2() + ":foo");
+  const GURL url3(scheme2() + ":bar");
 
   // Note that we need the LoadURL calls so that pending entries and the
   // different tab contents types are created. "Renderer" navigations won't
@@ -1188,9 +1117,9 @@ TEST_F(NavigationControllerTest, SwitchTypesCleanup) {
 
   // Now that the tasks have been flushed, the first tab type should be gone.
   ASSERT_TRUE(
-      contents->controller()->GetTabContents(kTestContentsType1) == NULL);
+      contents->controller()->GetTabContents(type1()) == NULL);
   ASSERT_EQ(contents, 
-      contents->controller()->GetTabContents(kTestContentsType2));
+      contents->controller()->GetTabContents(type2()));
 }
 
 namespace {
@@ -1239,7 +1168,7 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
   char buffer[128];
   // Load up to the max count, all entries should be there.
   for (url_index = 0; url_index < kMaxEntryCount; url_index++) {
-    SNPrintF(buffer, 128, "test1://www.a.com/%d", url_index);
+    SNPrintF(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(), url_index);
     GURL url(buffer);
     contents->controller()->LoadURL(url, PageTransition::TYPED);
     contents->CompleteNavigationAsRenderer(url_index, url);
@@ -1251,7 +1180,7 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
   PrunedListener listener(contents->controller());
 
   // Navigate some more.
-  SNPrintF(buffer, 128, "test1://www.a.com/%d", url_index);
+  SNPrintF(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(), url_index);
   GURL url(buffer);
   contents->controller()->LoadURL(url, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(url_index, url);
@@ -1265,11 +1194,11 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
   // We expect http://www.a.com/0 to be gone.
   EXPECT_EQ(contents->controller()->GetEntryCount(), kMaxEntryCount);
   EXPECT_EQ(contents->controller()->GetEntryAtIndex(0)->url(),
-            GURL("test1://www.a.com/1"));
+            GURL(scheme1() + "://www.a.com/1"));
 
   // More navigations.
   for (int i = 0; i < 3; i++) {
-    SNPrintF(buffer, 128, "test1://www.a.com/%d", url_index);
+    SNPrintF(buffer, 128, (scheme1() + "://www.a.com/%d").c_str(), url_index);
     url = GURL(buffer);
     contents->controller()->LoadURL(url, PageTransition::TYPED);
       contents->CompleteNavigationAsRenderer(url_index, url);
@@ -1277,7 +1206,7 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
   }
   EXPECT_EQ(contents->controller()->GetEntryCount(), kMaxEntryCount);
   EXPECT_EQ(contents->controller()->GetEntryAtIndex(0)->url(),
-            GURL("test1://www.a.com/4"));
+            GURL(scheme1() + "://www.a.com/4"));
 
   NavigationController::set_max_entry_count(original_count);
 }
@@ -1286,11 +1215,12 @@ TEST_F(NavigationControllerTest, EnforceMaxNavigationCount) {
 // everything is updated properly. This can be tricky since there is no
 // SiteInstance for the entries created initially.
 TEST_F(NavigationControllerTest, RestoreNavigate) {
-  site_instance = SiteInstance::CreateSiteInstance(profile);
+  SiteInstance* site_instance = SiteInstance::CreateSiteInstance(profile);
+  TestTabContents::set_site_instance(site_instance);
   site_instance->AddRef();
 
   // Create a NavigationController with a restored set of tabs.
-  GURL url("test1:foo");
+  GURL url(scheme1() + ":foo");
   std::vector<TabNavigation> navigations;
   navigations.push_back(TabNavigation(0, url, L"Title", "state",
                                       PageTransition::LINK));
@@ -1326,18 +1256,19 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
   // Clean up the navigation controller.
   ClearContents();
   controller->Destroy();
+  TestTabContents::set_site_instance(NULL);
   site_instance->Release();
 }
 
 // Make sure that the page type and stuff is correct after an interstitial.
 TEST_F(NavigationControllerTest, Interstitial) {
   // First navigate somewhere normal.
-  const GURL url1("test1:foo");
+  const GURL url1(scheme1() + ":foo");
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, url1);
 
   // Now navigate somewhere with an interstitial.
-  const GURL url2("test1:bar");
+  const GURL url2(scheme1() + ":bar");
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->controller()->GetPendingEntry()->set_page_type(
       NavigationEntry::INTERSTITIAL_PAGE);
@@ -1353,13 +1284,13 @@ TEST_F(NavigationControllerTest, Interstitial) {
 }
 
 TEST_F(NavigationControllerTest, RemoveEntry) {
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
-  const GURL url3("test1:foo3");
-  const GURL url4("test1:foo4");
-  const GURL url5("test1:foo5");
-  const GURL pending_url("test1:pending");
-  const GURL default_url("test1:default");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
+  const GURL url3(scheme1() + ":foo3");
+  const GURL url4(scheme1() + ":foo4");
+  const GURL url5(scheme1() + ":foo5");
+  const GURL pending_url(scheme1() + ":pending");
+  const GURL default_url(scheme1() + ":default");
 
   contents->controller()->LoadURL(url1, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, url1);
@@ -1416,12 +1347,12 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   TestNotificationTracker notifications;
   RegisterForAllNavNotifications(&notifications, contents->controller());
 
-  const GURL url0("test1:foo0");
-  const GURL url1("test1:foo1");
-  const GURL url2("test1:foo2");
-  const GURL url3("test1:foo3");
-  const GURL url4("test1:foo4");
-  const GURL transient_url("test1:transient");
+  const GURL url0(scheme1() + ":foo0");
+  const GURL url1(scheme1() + ":foo1");
+  const GURL url2(scheme1() + ":foo2");
+  const GURL url3(scheme1() + ":foo3");
+  const GURL url4(scheme1() + ":foo4");
+  const GURL transient_url(scheme1() + ":transient");
 
   contents->controller()->LoadURL(url0, PageTransition::TYPED);
   contents->CompleteNavigationAsRenderer(0, url0);

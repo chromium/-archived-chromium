@@ -14,9 +14,13 @@
 
 #include "base/basictypes.h"
 #include "base/message_loop.h"
+#if defined(OS_WIN)
+#include "chrome/browser/resource_dispatcher_host.h"
+#endif  // defined(OS_WIN)
 
 class AutomationProviderList;
 class ClipboardService;
+class DownloadRequestManager;
 class GoogleURLTracker;
 class IconManager;
 class MetricsService;
@@ -24,8 +28,8 @@ class NotificationService;
 class PrefService;
 class ProfileManager;
 class RenderProcessHost;
-class ResourceDispatcherHost;
 class DebuggerWrapper;
+class ResourceDispatcherHost;
 class WebAppInstallerService;
 class SuspendController;
 
@@ -124,6 +128,11 @@ class BrowserProcess {
   virtual bool IsUsingNewFrames() = 0;
 
 #if defined(OS_WIN)
+  DownloadRequestManager* download_request_manager() {
+    ResourceDispatcherHost* rdh = resource_dispatcher_host();
+    return rdh ? rdh->download_request_manager() : NULL;
+  }
+
   // Returns an event that is signaled when the browser shutdown.
   virtual HANDLE shutdown_event() = 0;
 #endif

@@ -158,6 +158,7 @@ if env['PLATFORM'] == 'win32':
       'download/download_item_model.cc',
       'download/download_manager.cc',
       'download/download_util.cc',
+      'download/download_request_manager.cc',
       'download/save_file.cc',
       'download/save_file_manager.cc',
       'download/save_item.cc',

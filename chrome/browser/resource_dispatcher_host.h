@@ -27,13 +27,14 @@
 #include "webkit/glue/resource_type.h"
 
 class DownloadFileManager;
-class SaveFileManager;
+class DownloadRequestManager;
+class LoginHandler;
 class MessageLoop;
 class PluginService;
 class SafeBrowsingService;
+class SaveFileManager;
 class TabContents;
 class URLRequestContext;
-class LoginHandler;
 struct ViewHostMsg_Resource_Request;
 struct ViewMsg_Resource_ResponseHead;
 
@@ -72,7 +73,8 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                             int min_size) = 0;
 
     // Data (*bytes_read bytes) was written into the buffer provided by
-    // OnWillRead.
+    // OnWillRead. A return value of false cancels the request, true continues
+    // reading data.
     virtual bool OnReadCompleted(int request_id, int* bytes_read) = 0;
 
     // The response is complete.  The final response status is given.
@@ -101,7 +103,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   // Holds the data we would like to associate with each request
   class ExtraRequestInfo : public URLRequest::UserData {
-   friend ResourceDispatcherHost;
+   friend class ResourceDispatcherHost;
    public:
     ExtraRequestInfo(EventHandler* handler,
                      int request_id,
@@ -296,6 +298,10 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     return download_file_manager_;
   }
 
+  DownloadRequestManager* download_request_manager() const {
+    return download_request_manager_.get();
+  }
+
   SaveFileManager* save_file_manager() const {
     return save_file_manager_;
   }
@@ -357,12 +363,13 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
  private:
   class AsyncEventHandler;
-  class SyncEventHandler;
+  class BufferedEventHandler;
   class CrossSiteNotifyTabTask;
   class DownloadEventHandler;
-  class BufferedEventHandler;
+  class DownloadThrottlingEventHandler;
   class SaveFileEventHandler;
   class ShutdownTask;
+  class SyncEventHandler;
 
   friend class ShutdownTask;
 
@@ -378,7 +385,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // Reads data from the response using our internal buffer as async IO.
   // Returns true if data is available immediately, false otherwise.  If the
   // return value is false, we will receive a OnReadComplete() callback later.
-  bool Read(URLRequest *, int *bytes_read);
+  bool Read(URLRequest* request, int* bytes_read);
 
   // Internal function to finish an async IO which has completed.  Returns
   // true if there is more data to read (e.g. we haven't read EOF yet and
@@ -449,6 +456,9 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // We own the download file writing thread and manager
   scoped_refptr<DownloadFileManager> download_file_manager_;
 
+  // Determines whether a download is allowed.
+  scoped_refptr<DownloadRequestManager> download_request_manager_;
+
   // We own the save file manager.
   scoped_refptr<SaveFileManager> save_file_manager_;
 
@@ -478,4 +488,3 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 };
 
 #endif  // CHROME_BROWSER_RESOURCE_DISPATCHER_HOST_H__
-

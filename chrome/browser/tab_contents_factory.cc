@@ -24,6 +24,18 @@
 typedef std::map<TabContentsType, TabContentsFactory*> TabContentsFactoryMap;
 static TabContentsFactoryMap* g_extra_types;  // Only allocated if needed.
 
+// static
+TabContentsType TabContentsFactory::NextUnusedType() {
+  int type = static_cast<int>(TAB_CONTENTS_NUM_TYPES);
+  if (g_extra_types) {
+    for (TabContentsFactoryMap::iterator i = g_extra_types->begin();
+         i != g_extra_types->end(); ++i) {
+      type = std::max(type, static_cast<int>(i->first));
+    }
+  }
+  return static_cast<TabContentsType>(type + 1);
+}
+
 /*static*/
 TabContents* TabContents::CreateWithType(TabContentsType type,
                                          HWND parent,

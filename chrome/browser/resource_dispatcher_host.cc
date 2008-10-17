@@ -15,6 +15,7 @@
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/download/download_file.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/login_prompt.h"
@@ -424,6 +425,181 @@ class ResourceDispatcherHost::DownloadEventHandler
   static const int kThrottleTimeMs = 200;  // milliseconds
 
   DISALLOW_EVIL_CONSTRUCTORS(DownloadEventHandler);
+};
+
+// DownloadThrottlingEventHandler----------------------------------------------
+
+// DownloadThrottlingEventHandler is used to determine if a download should be
+// allowed. When a DownloadThrottlingEventHandler is created it pauses the
+// download and asks the DownloadRequestManager if the download should be
+// allowed. The DownloadRequestManager notifies us asynchronously as to whether
+// the download is allowed or not. If the download is allowed the request is
+// resumed, a DownloadEventHandler is created and all EventHandler methods are
+// delegated to it. If the download is not allowed the request is canceled.
+
+class ResourceDispatcherHost::DownloadThrottlingEventHandler :
+    public ResourceDispatcherHost::EventHandler,
+    public DownloadRequestManager::Callback {
+ public:
+  DownloadThrottlingEventHandler(ResourceDispatcherHost* host,
+                                 URLRequest* request,
+                                 const std::string& url,
+                                 int render_process_host_id,
+                                 int render_view_id,
+                                 int request_id,
+                                 bool in_complete)
+      : host_(host),
+        request_(request),
+        url_(url),
+        render_process_host_id_(render_process_host_id),
+        render_view_id_(render_view_id),
+        request_id_(request_id),
+        tmp_buffer_length_(0),
+        ignore_on_read_complete_(in_complete) {
+    // Pause the request.
+    host_->PauseRequest(render_process_host_id_, request_id_, true);
+    host_->download_request_manager()->CanDownloadOnIOThread(
+        render_process_host_id_, render_view_id, this);
+   }
+
+  virtual ~DownloadThrottlingEventHandler() {}
+
+  virtual bool OnUploadProgress(int request_id,
+                                uint64 position,
+                                uint64 size) {
+    if (download_handler_.get())
+      return download_handler_->OnUploadProgress(request_id, position, size);
+    return true;
+  }
+
+  virtual bool OnRequestRedirected(int request_id, const GURL& url) {
+    if (download_handler_.get())
+      return download_handler_->OnRequestRedirected(request_id, url);
+    url_ = url.spec();
+    return true;
+  }
+
+  virtual bool OnResponseStarted(int request_id, Response* response) {
+    if (download_handler_.get())
+      return download_handler_->OnResponseStarted(request_id, response);
+    response_ = response;
+    return true;
+  }
+
+  virtual bool OnWillRead(int request_id,
+                          char** buf,
+                          int* buf_size,
+                          int min_size) {
+    if (download_handler_.get())
+      return download_handler_->OnWillRead(request_id, buf, buf_size, min_size);
+
+    // We should only have this invoked once, as such we only deal with one
+    // tmp buffer.
+    DCHECK(!tmp_buffer_.get());
+    if (min_size < 0)
+      min_size = 1024;
+    tmp_buffer_.reset(new char[min_size]);
+    *buf = tmp_buffer_.get();
+    *buf_size = min_size;
+    return true;
+  }
+
+  virtual bool OnReadCompleted(int request_id, int* bytes_read) {
+    if (ignore_on_read_complete_) {
+      // See comments above definition for details on this.
+      ignore_on_read_complete_ = false;
+      return true;
+    }
+    if (!*bytes_read)
+      return true;
+
+    if (tmp_buffer_.get()) {
+      DCHECK(!tmp_buffer_length_);
+      tmp_buffer_length_ = *bytes_read;
+      if (download_handler_.get())
+        CopyTmpBufferToDownloadHandler();
+      return true;
+    }
+    if (download_handler_.get())
+      return download_handler_->OnReadCompleted(request_id, bytes_read);
+    return true;
+  }
+
+  virtual bool OnResponseCompleted(int request_id,
+                                   const URLRequestStatus& status) {
+    if (download_handler_.get())
+      return download_handler_->OnResponseCompleted(request_id, status);
+    NOTREACHED();
+    return true;
+  }
+
+  void CancelDownload() {
+    host_->CancelRequest(render_process_host_id_, request_id_, false);
+  }
+
+  void ContinueDownload() {
+    DCHECK(!download_handler_.get());
+    download_handler_ =
+        new DownloadEventHandler(host_,
+                                 render_process_host_id_,
+                                 render_view_id_,
+                                 request_id_,
+                                 url_,
+                                 host_->download_file_manager(),
+                                 request_,
+                                 false);
+    if (response_.get())
+      download_handler_->OnResponseStarted(request_id_, response_.get());
+
+    if (tmp_buffer_length_)
+      CopyTmpBufferToDownloadHandler();
+
+    // And let the request continue.
+    host_->PauseRequest(render_process_host_id_, request_id_, false);
+  }
+
+ private:
+  void CopyTmpBufferToDownloadHandler() {
+    // Copy over the tmp buffer.
+    char* buffer;
+    int buf_size;
+    if (download_handler_->OnWillRead(request_id_, &buffer, &buf_size,
+                                      tmp_buffer_length_)) {
+      CHECK(buf_size >= tmp_buffer_length_);
+      memcpy(buffer, tmp_buffer_.get(), tmp_buffer_length_);
+      download_handler_->OnReadCompleted(request_id_, &tmp_buffer_length_);
+    }
+    tmp_buffer_length_ = 0;
+    tmp_buffer_.reset();
+  }
+
+  ResourceDispatcherHost* host_;
+  URLRequest* request_;
+  std::string url_;
+  int render_process_host_id_;
+  int render_view_id_;
+  int request_id_;
+
+  // Handles the actual download. This is only created if the download is
+  // allowed to continue.
+  scoped_refptr<DownloadEventHandler> download_handler_;
+
+  // Response supplied to OnResponseStarted. Only non-null if OnResponseStarted
+  // is invoked.
+  scoped_refptr<Response> response_;
+
+  // If we're created by way of BufferedEventHandler we'll get one request for
+  // a buffer. This is that buffer.
+  scoped_array<char> tmp_buffer_;
+  int tmp_buffer_length_;
+
+  // If true the next call to OnReadCompleted is ignored. This is used if we're
+  // paused during a call to OnReadCompleted. Pausing during OnReadCompleted
+  // results in two calls to OnReadCompleted for the same data. This make sure
+  // we ignore one of them.
+  bool ignore_on_read_complete_;
+
+  DISALLOW_COPY_AND_ASSIGN(DownloadThrottlingEventHandler);
 };
 
 
@@ -859,7 +1035,7 @@ class ResourceDispatcherHost::BufferedEventHandler
   bool OnResponseStarted(int request_id, Response* response) {
     response_ = response;
     if (!DelayResponse())
-      return CompleteResponseStarted(request_id);
+      return CompleteResponseStarted(request_id, false);
     return true;
   }
 
@@ -888,8 +1064,9 @@ class ResourceDispatcherHost::BufferedEventHandler
   // Returns true if we have to keep buffering data.
   bool KeepBuffering(int bytes_read);
 
-  // Sends a pending OnResponseStarted notification.
-  bool CompleteResponseStarted(int request_id);
+  // Sends a pending OnResponseStarted notification. |in_complete| is true if
+  // this is invoked from |OnResponseCompleted|.
+  bool CompleteResponseStarted(int request_id, bool in_complete);
 
   scoped_refptr<ResourceDispatcherHost::EventHandler> real_handler_;
   scoped_refptr<Response> response_;
@@ -941,7 +1118,7 @@ bool ResourceDispatcherHost::BufferedEventHandler::OnReadCompleted(
     *bytes_read = bytes_read_;
 
     // Done buffering, send the pending ResponseStarted event.
-    if (!CompleteResponseStarted(request_id))
+    if (!CompleteResponseStarted(request_id, true))
       return false;
   }
 
@@ -1026,7 +1203,8 @@ bool ResourceDispatcherHost::BufferedEventHandler::KeepBuffering(
 }
 
 bool ResourceDispatcherHost::BufferedEventHandler::CompleteResponseStarted(
-    int request_id) {
+    int request_id,
+    bool in_complete) {
   // Check to see if we should forward the data from this request to the
   // download thread.
   // TODO(paulg): Only download if the context from the renderer allows it.
@@ -1053,17 +1231,17 @@ bool ResourceDispatcherHost::BufferedEventHandler::CompleteResponseStarted(
 
     info->is_download = true;
 
-    scoped_refptr<DownloadEventHandler> download_handler =
-        new DownloadEventHandler(host_,
-                                 info->render_process_host_id,
-                                 info->render_view_id,
-                                 request_id,
-                                 request_->url().spec(),
-                                 host_->download_file_manager(),
-                                 request_, false);
+    scoped_refptr<DownloadThrottlingEventHandler> download_handler =
+        new DownloadThrottlingEventHandler(host_,
+                                           request_,
+                                           request_->url().spec(),
+                                           info->render_process_host_id,
+                                           info->render_view_id,
+                                           request_id,
+                                           in_complete);
     if (bytes_read_) {
       // a Read has already occurred and we need to copy the data into the
-      // DownloadEventHandler.
+      // EventHandler.
       char *buf = NULL;
       int buf_len = 0;
       download_handler->OnWillRead(request_id, &buf, &buf_len, bytes_read_);
@@ -1236,6 +1414,7 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
     : ui_loop_(MessageLoop::current()),
       io_loop_(io_loop),
       download_file_manager_(new DownloadFileManager(ui_loop_, this)),
+      download_request_manager_(new DownloadRequestManager(io_loop, ui_loop_)),
       save_file_manager_(new SaveFileManager(ui_loop_, io_loop, this)),
       safe_browsing_(new SafeBrowsingService),
       request_id_(-1),
@@ -1279,6 +1458,10 @@ void ResourceDispatcherHost::OnShutdown() {
   DCHECK(MessageLoop::current() == io_loop_);
   is_shutdown_ = true;
   STLDeleteValues(&pending_requests_);
+  // Make sure we shutdown the timer now, otherwise by the time our destructor
+  // runs if the timer is still running the Task is deleted twice (once by
+  // the MessageLoop and the second time by RepeatingTimer).
+  update_load_states_timer_.Stop();
 }
 
 bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
@@ -1970,7 +2153,7 @@ void ResourceDispatcherHost::ResumeRequest(const GlobalRequestID& request_id) {
     OnResponseStarted(i->second);
 }
 
-bool ResourceDispatcherHost::Read(URLRequest *request, int *bytes_read) {
+bool ResourceDispatcherHost::Read(URLRequest* request, int* bytes_read) {
   ExtraRequestInfo* info = ExtraInfoForRequest(request);
   DCHECK(!info->is_paused);
 
@@ -2308,4 +2491,3 @@ void ResourceDispatcherHost::MaybeUpdateUploadProgress(ExtraRequestInfo *info,
     info->last_upload_position = position;
   }
 }
-

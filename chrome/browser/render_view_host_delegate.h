@@ -359,6 +359,11 @@ class RenderViewHostDelegate {
   virtual void OnDidGetApplicationInfo(
       int32 page_id,
       const webkit_glue::WebApplicationInfo& app_info) { }
+
+  // Notification the user has pressed enter or space while focus was on the
+  // page. This is used to avoid uninitiated user downloads (aka carpet
+  // bombing), see DownloadRequestManager for details.
+  virtual void OnEnterOrSpace() { }
 };
 
 #endif  // CHROME_BROWSER_RENDER_VIEW_HOST_DELEGATE_H__

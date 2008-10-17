@@ -6,6 +6,8 @@
 
 #include <windows.h>
 
+#include "chrome/browser/browser_process.h"
+#include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/find_in_page_controller.h"
 #include "chrome/browser/render_view_context_menu.h"
 #include "chrome/browser/render_view_context_menu_controller.h"
@@ -327,11 +329,16 @@ LRESULT WebContentsViewWin::OnMouseRange(UINT msg,
   switch (msg) {
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-    case WM_RBUTTONDOWN:
+    case WM_RBUTTONDOWN: {
       // Make sure this TabContents is activated when it is clicked on.
       if (web_contents_->delegate())
         web_contents_->delegate()->ActivateContents(web_contents_);
+      DownloadRequestManager* drm =
+          g_browser_process->download_request_manager();
+      if (drm)
+        drm->OnUserGesture(web_contents_);
       break;
+    }
     case WM_MOUSEMOVE:
       // Let our delegate know that the mouse moved (useful for resetting status
       // bubble state).
@@ -514,4 +521,3 @@ void WebContentsViewWin::WheelZoom(int distance) {
     web_contents_->delegate()->ContentsZoomChange(zoom_in);
   }
 }
-
