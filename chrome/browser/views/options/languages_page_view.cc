@@ -482,7 +482,8 @@ LanguagesPageView::LanguagesPageView(Profile* profile)
       change_dictionary_language_combobox_(NULL),
       dictionary_language_label_(NULL),
       OptionsPageView(profile),
-      language_table_edited_(false) {
+      language_table_edited_(false),
+      spellcheck_language_index_selected_(-1) {
   accept_languages_.Init(prefs::kAcceptLanguages,
       profile->GetPrefs(), NULL);
 }
