@@ -139,6 +139,15 @@ static NSAttributedString *stripAttachmentCharacters(NSAttributedString *string)
 
 void Pasteboard::writeSelection(NSPasteboard* pasteboard, Range* selectedRange, bool canSmartCopyOrDelete, Frame* frame)
 {
+#if 0
+// TODO(pinkerton): We need to figure out how to get copy/paste info back
+// to the main process and let it manage the pasteboard. One major problem is
+// that we can't rely on -[NSAttributedString initWithHTML] since it calls
+// the system WebKit and that wrecks havoc with ObjC's single-level 
+// namespace. That will cause some big problems getting rtf strings
+// onto the pasteboard since we have no other way of creating that data
+// ourselves. Punt for now.
+
     if (WebArchivePboardType == nil)
         Pasteboard::generalPasteboard(); //Initialises pasteboard types
     ASSERT(selectedRange);
@@ -209,6 +218,7 @@ void Pasteboard::writeSelection(NSPasteboard* pasteboard, Range* selectedRange, 
     if ([types containsObject:WebSmartPastePboardType]) {
         [pasteboard setData:nil forType:WebSmartPastePboardType];
     }
+#endif
 }
     
 void Pasteboard::writeSelection(Range* selectedRange, bool canSmartCopyOrDelete, Frame* frame)
