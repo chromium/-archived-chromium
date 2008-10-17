@@ -837,6 +837,12 @@ V8 | KJS # LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 
+# More tests that fail because of masks not working properly.
+V8 | KJS # LayoutTests/fast/backgrounds/mask-composite.html = FAIL
+V8 | KJS # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
+V8 | KJS # LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
+V8 | KJS # LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
+
 # These two are fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.
 # The WebKit only mentions svg/custom/invalid-fill-hex.svg but the changes to
 # the CSS grammar also fixes editing/execCommand/16049.html. They should
@@ -862,20 +868,9 @@ V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
 
 V8 | KJS # LayoutTests/accessibility = FAIL
 V8 | KJS # LayoutTests/dom/html/level2/html/HTMLFormElement10.html = FAIL | TIMEOUT
-V8 | KJS # LayoutTests/editing/pasteboard/5780697-2.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/background-origin-root-element.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/background-position-1.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/background-position-rounding.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/mask-composite.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
-V8 | KJS # LayoutTests/fast/block/basic/adding-near-anonymous-block.html = FAIL
 V8 | KJS # LayoutTests/fast/block/basic/min-pref-width-nowrap-floats.html = FAIL
-V8 | KJS # LayoutTests/fast/block/positioning/move-with-auto-width.html = FAIL
-V8 | KJS # LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
-V8 | KJS # LayoutTests/fast/borders/border-color-inherit.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
-V8 | KJS # LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/documenturi-assigned-junk-implies-relative-urls-do-not-resolve.html = FAIL
