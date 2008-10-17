@@ -34,10 +34,10 @@ void PaintRootView(views::RootView* root, bool empty_paint) {
   } else {
     // User isn't logged in, so that PaintNow will generate an empty rectangle.
     // Invoke paint directly.
-    CRect paint_rect = root->GetScheduledPaintRect();
-    ChromeCanvas canvas(paint_rect.Width(), paint_rect.Height(), true);
-    canvas.TranslateInt(-paint_rect.left, -paint_rect.top);
-    canvas.ClipRectInt(0, 0, paint_rect.Width(), paint_rect.Height());
+    gfx::Rect paint_rect = root->GetScheduledPaintRect();
+    ChromeCanvas canvas(paint_rect.width(), paint_rect.height(), true);
+    canvas.TranslateInt(-paint_rect.x(), -paint_rect.y());
+    canvas.ClipRectInt(0, 0, paint_rect.width(), paint_rect.height());
     root->ProcessPaint(&canvas);
   }
 }
