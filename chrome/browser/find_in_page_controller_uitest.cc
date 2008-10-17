@@ -130,59 +130,82 @@ TEST_F(FindInPageControllerTest, FindEnoughMatches_Issue1155639) {
 // The find window should not change its location just because we open and close
 // a new tab.
 TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
+  fprintf(stderr, "Starting FindMovesOnTabClose_Issue1343052\n");
   TestServer server(L"chrome/test/data");
 
+  fprintf(stderr, "TestServerPageW\n");
   GURL url = server.TestServerPageW(kFramePage);
+  fprintf(stderr, "GetActiveTab A\n");
   scoped_ptr<TabProxy> tabA(GetActiveTab());
+  fprintf(stderr, "Navigate A\n");
   ASSERT_TRUE(tabA->NavigateToURL(url));
+  fprintf(stderr, "WaitUntilTabCount(1) for A\n");
   WaitUntilTabCount(1);
 
+  fprintf(stderr, "GetBrowserWindow(0)\n");
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get() != NULL);
 
   // Toggle the bookmark bar state.
+  fprintf(stderr, "ApplyAccelerator bookmark bar\n");
   browser->ApplyAccelerator(IDC_SHOW_BOOKMARKS_BAR);
+  fprintf(stderr, "WaitForBookmarkVisibility\n");
   EXPECT_TRUE(WaitForBookmarkBarVisibilityChange(browser.get(), true));
 
   // Open the Find window and wait for it to animate.
+  fprintf(stderr, "OpenFindInPage in A\n");
   EXPECT_TRUE(tabA->OpenFindInPage());
+  fprintf(stderr, "WaitForWindowFullyVisible in A\n");
   EXPECT_TRUE(WaitForFindWindowFullyVisible(tabA.get()));
 
   // Find its location.
   int x = -1, y = -1;
+  fprintf(stderr, "GetFindWindowLocation in A\n");
   EXPECT_TRUE(tabA->GetFindWindowLocation(&x, &y));
 
   // Open another tab (tab B).
+  fprintf(stderr, "AppendTab B\n");
   EXPECT_TRUE(browser->AppendTab(url));
+  fprintf(stderr, "GetActiveTab B\n");
   scoped_ptr<TabProxy> tabB(GetActiveTab());
 
   // Close tab B.
+  fprintf(stderr, "Tab Close B\n");
   EXPECT_TRUE(tabB->Close(true));
 
   // See if the Find window has moved.
   int new_x = -1, new_y = -1;
+  fprintf(stderr, "GetFindWindowLocation in A\n");
   EXPECT_TRUE(tabA->GetFindWindowLocation(&new_x, &new_y));
 
   EXPECT_EQ(x, new_x);
   EXPECT_EQ(y, new_y);
 
   // Now reset the bookmarks bar state and try the same again.
+  fprintf(stderr, "ApplyAccelerator BookmarksBar\n");
   browser->ApplyAccelerator(IDC_SHOW_BOOKMARKS_BAR);
+  fprintf(stderr, "WaitForBookmarkBarVisibilityChange\n");
   EXPECT_TRUE(WaitForBookmarkBarVisibilityChange(browser.get(), false));
 
   // Bookmark bar has moved, reset our coordinates.
+  fprintf(stderr, "GetFindWindowLocation again\n");
   EXPECT_TRUE(tabA->GetFindWindowLocation(&x, &y));
 
   // Open another tab (tab C).
+  fprintf(stderr, "Append tab C\n");
   EXPECT_TRUE(browser->AppendTab(url));
+  fprintf(stderr, "GetActiveTab C\n");
   scoped_ptr<TabProxy> tabC(GetActiveTab());
 
   // Close it.
+  fprintf(stderr, "Close tab C\n");
   EXPECT_TRUE(tabC->Close(true));
 
   // See if the Find window has moved.
+  fprintf(stderr, "GetFindWindowLocation yet again\n");
   EXPECT_TRUE(tabA->GetFindWindowLocation(&new_x, &new_y));
 
   EXPECT_EQ(x, new_x);
   EXPECT_EQ(y, new_y);
+  fprintf(stderr, "Done!\n");
 }
