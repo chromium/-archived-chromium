@@ -3,12 +3,21 @@
 // found in the LICENSE file.
 
 #include "config.h"
+
+#pragma warning(push, 0)
+#include "FormData.h"
+#include "HTTPHeaderMap.h"
+#include "ResourceRequest.h"
+#pragma warning(pop)
+
+#undef LOG
+#include "base/logging.h"
+#include "net/base/upload_data.h"
 #include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
 
 using WebCore::FrameLoadRequest;
-using WebCore::ResourceRequest;
 using WebCore::ResourceRequestCachePolicy;
 using WebCore::String;
 
@@ -85,6 +94,40 @@ std::wstring WebRequestImpl::GetHttpHeaderValue(const std::wstring& field) const
           webkit_glue::StdWStringToString(field)));
 }
 
+void WebRequestImpl::SetHttpHeaderValue(const std::wstring& field,
+                                        const std::wstring& value) {
+  request_.resourceRequest().setHTTPHeaderField(
+      webkit_glue::StdWStringToString(field),
+      webkit_glue::StdWStringToString(value));
+}
+
+void WebRequestImpl::GetHttpHeaders(HeaderMap* headers) const {
+  headers->clear();
+
+  const WebCore::HTTPHeaderMap& map =
+      request_.resourceRequest().httpHeaderFields();
+  WebCore::HTTPHeaderMap::const_iterator end = map.end();
+  WebCore::HTTPHeaderMap::const_iterator it = map.begin();
+  for (; it != end; ++it) {
+    headers->insert(
+        std::make_pair(
+            webkit_glue::StringToStdString(it->first),
+            webkit_glue::StringToStdString(it->second)));
+  }
+}
+
+void WebRequestImpl::SetHttpHeaders(const HeaderMap& headers) {
+  WebCore::ResourceRequest& request = request_.resourceRequest();
+
+  HeaderMap::const_iterator end = headers.end();
+  HeaderMap::const_iterator it = headers.begin();
+  for (; it != end; ++it) {
+    request.setHTTPHeaderField(
+        webkit_glue::StdStringToString(it->first),
+        webkit_glue::StdStringToString(it->second));
+  }
+}
+
 std::wstring WebRequestImpl::GetHttpReferrer() const {
   return webkit_glue::StringToStdWString(
       request_.resourceRequest().httpReferrer());
@@ -110,8 +153,51 @@ void WebRequestImpl::SetSecurityInfo(const std::string& value) {
       webkit_glue::StdStringToCString(value));
 }
 
-bool WebRequestImpl::HasFormData() const {
-  return history_item() && history_item()->formData();
+bool WebRequestImpl::HasUploadData() const {
+  WebCore::FormData* formdata = request_.resourceRequest().httpBody();
+  return formdata && !formdata->isEmpty();
+}
+
+void WebRequestImpl::GetUploadData(net::UploadData* data) const {
+  WebCore::FormData* formdata = request_.resourceRequest().httpBody();
+  if (!formdata)
+    return;
+
+  const Vector<WebCore::FormDataElement>& elements = formdata->elements();
+  Vector<WebCore::FormDataElement>::const_iterator it = elements.begin();
+  for (; it != elements.end(); ++it) {
+    const WebCore::FormDataElement& element = (*it);
+    if (element.m_type == WebCore::FormDataElement::data) {
+      data->AppendBytes(element.m_data.data(), element.m_data.size());
+    } else if (element.m_type == WebCore::FormDataElement::encodedFile) {
+      data->AppendFile(webkit_glue::StringToStdWString(element.m_filename));
+    } else {
+      NOTREACHED();
+    }
+  }
+}
+
+void WebRequestImpl::SetUploadData(const net::UploadData& data)
+{
+  RefPtr<WebCore::FormData> formdata = WebCore::FormData::create();
+
+  const std::vector<net::UploadData::Element>& elements = data.elements();
+  std::vector<net::UploadData::Element>::const_iterator it = elements.begin();
+  for (UINT i = 0; it != elements.end(); ++it, ++i) {
+    const net::UploadData::Element& element = (*it);
+    if (element.type() == net::UploadData::TYPE_BYTES) {
+      formdata->appendData(
+          std::string(element.bytes().begin(), element.bytes().end()).c_str(),
+          element.bytes().size());
+    } else if (element.type() == net::UploadData::TYPE_FILE) {
+      formdata->appendFile(
+          webkit_glue::StdWStringToString(element.file_path()));
+    } else {
+      NOTREACHED();
+    }
+  }
+
+  request_.resourceRequest().setHTTPBody(formdata);
 }
 
 // static
