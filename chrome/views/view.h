@@ -5,8 +5,11 @@
 #ifndef CHROME_VIEWS_VIEW_H_
 #define CHROME_VIEWS_VIEW_H_
 
+#include <atlbase.h>	 
+#include <atlapp.h>	 
+#include <atlmisc.h>	 
+
 #include <map>
-#include <oleacc.h>
 #include <vector>
 
 #include "base/gfx/rect.h"
