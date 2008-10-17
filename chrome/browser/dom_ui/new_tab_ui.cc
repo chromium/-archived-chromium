@@ -553,8 +553,7 @@ void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkModel* model,
 
 RecentlyClosedTabsHandler::RecentlyClosedTabsHandler(DOMUIHost* dom_ui_host)
     : dom_ui_host_(dom_ui_host),
-      tab_restore_service_(NULL),
-      handle_recently_closed_tab_factory_(this) {
+      tab_restore_service_(NULL) {
   dom_ui_host->RegisterMessageCallback("getRecentlyClosedTabs",
       NewCallback(this,
                   &RecentlyClosedTabsHandler::HandleGetRecentlyClosedTabs));
@@ -597,8 +596,10 @@ void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
         for (TabRestoreService::Tabs::const_iterator it = tabs.begin();
              it != tabs.end(); ++it) {
           if (it->id == session_to_restore) {
+            TabRestoreService* tab_restore_service = tab_restore_service_;
             browser->ReplaceRestoredTab(
                  it->navigations, it->current_navigation_index);
+            tab_restore_service->RemoveHistoricalTabById(session_to_restore);
             // The current tab has been nuked at this point;
             // don't touch any member variables.
             break;
@@ -626,30 +627,16 @@ void RecentlyClosedTabsHandler::HandleGetRecentlyClosedTabs(
 
 void RecentlyClosedTabsHandler::TabRestoreServiceChanged(
     TabRestoreService* service) {
-  handle_recently_closed_tab_factory_.RevokeAll();
-
   const TabRestoreService::Tabs& tabs = service->tabs();
   ListValue list_value;
   int added_count = 0;
 
-  Time now = Time::Now();
-  TimeDelta expire_delta = TimeDelta::FromMinutes(5);
-  Time five_minutes_ago = now - expire_delta;
-  Time oldest_item = now;
-
-  // We filter the list of recently closed to only show 'interesting'
-  // tabs, where an interesting tab has navigations, was closed within
-  // the last five minutes and is not the new tab ui.
+  // We filter the list of recently closed to only show 'interesting' tabs,
+  // where an interesting tab navigation is not the new tab ui.
   for (TabRestoreService::Tabs::const_iterator it = tabs.begin();
        it != tabs.end() && added_count < 3; ++it) {
     if (it->navigations.empty())
       continue;
-
-    if (five_minutes_ago > it->close_time)
-      continue;
-
-    if (it->close_time < oldest_item)
-      oldest_item = it->close_time;
 
     const TabNavigation& navigator =
         it->navigations.at(it->current_navigation_index);
@@ -663,19 +650,6 @@ void RecentlyClosedTabsHandler::TabRestoreServiceChanged(
     list_value.Append(dictionary);
     added_count++;
   }
-
-  // If we displayed anything, we must schedule a redisplay when the
-  // oldest item expires.
-  if (added_count) {
-    TimeDelta next_run = (oldest_item + expire_delta) - now;
-
-    MessageLoop::current()->PostDelayedTask(FROM_HERE,
-        handle_recently_closed_tab_factory_.NewRunnableMethod(
-            &RecentlyClosedTabsHandler::HandleGetRecentlyClosedTabs,
-            reinterpret_cast<const Value*>(NULL)),
-        static_cast<int>(next_run.InMilliseconds()));
-  }
-
   dom_ui_host_->CallJavascriptFunction(L"recentlyClosedTabs", list_value);
 }
 

@@ -250,9 +250,6 @@ class RecentlyClosedTabsHandler : public DOMMessageHandler,
   /// TabRestoreService that we are observing.
   TabRestoreService* tab_restore_service_;
 
-  /// Controls the periodic calling of HandleRecentlyClosedTabs.
-  ScopedRunnableMethodFactory<RecentlyClosedTabsHandler> handle_recently_closed_tab_factory_;
-
   DISALLOW_EVIL_CONSTRUCTORS(RecentlyClosedTabsHandler);
 };
 
