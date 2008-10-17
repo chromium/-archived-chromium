@@ -2,5 +2,11 @@
 skip_child_includes = [
   "build",
   "pending",
-  "port",
+]
+
+include_rules = [
+  # For bridge/c/c_utility.h in npruntime_util.cc
+  "+bridge",
+  # For bindings/npruntime.h in ScriptController.h
+  "+bindings",
 ]
