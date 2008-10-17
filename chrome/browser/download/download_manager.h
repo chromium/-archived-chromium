@@ -99,6 +99,7 @@ class DownloadItem {
   // Constructing from user action:
   DownloadItem(int32 download_id,
                const std::wstring& path,
+               int path_uniquifier,
                const std::wstring& url,
                const std::wstring& original_name,
                const Time start_time,
@@ -170,6 +171,8 @@ class DownloadItem {
   void set_file_name(const std::wstring& name) { file_name_ = name; }
   std::wstring full_path() const { return full_path_; }
   void set_full_path(const std::wstring& path) { full_path_ = path; }
+  int path_uniquifier() const { return path_uniquifier_; }
+  void set_path_uniquifier(int uniquifier) { path_uniquifier_ = uniquifier; }
   std::wstring url() const { return url_; }
   int64 total_bytes() const { return total_bytes_; }
   void set_total_bytes(int64 total_bytes) { total_bytes_ = total_bytes; }
@@ -194,7 +197,8 @@ class DownloadItem {
   void set_original_name(const std::wstring& name) { original_name_ = name; }
 
   // Returns the file-name that should be reported to the user, which is
-  // file_name_ for safe downloads and original_name_ for dangerous ones.
+  // file_name_ for safe downloads and original_name_ for dangerous ones with
+  // the uniquifier number.
   std::wstring GetFileName() const;
 
  private:
@@ -206,6 +210,10 @@ class DownloadItem {
 
   // Full path to the downloaded file
   std::wstring full_path_;
+
+  // A number that should be appended to the path to make it unique, or 0 if the
+  // path should be used as is.
+  int path_uniquifier_;
 
   // Short display version of the file
   std::wstring file_name_;
@@ -456,7 +464,8 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // Invoked on the UI thread when a dangerous downloaded file has been renamed.
   void DangerousDownloadRenamed(int64 download_handle,
                                 bool success,
-                                const std::wstring& new_path);
+                                const std::wstring& new_path,
+                                int new_path_uniquifier);
 
   // Checks whether a file represents a risk if downloaded.
   bool IsDangerous(const std::wstring& file_name);

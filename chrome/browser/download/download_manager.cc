@@ -60,27 +60,31 @@ static const int kUpdateTimeMs = 1000;
 // negative.
 static const int kUninitializedHandle = 0;
 
-// Attempts to modify |path| to be a non-existing path.
-// Returns true if |path| points to a non-existing path upon return.
-static bool UniquifyPath(std::wstring* path) {
-  DCHECK(path);
+// Appends the passed the number between parenthesis the path before the
+// extension.
+static void AppendNumberToPath(std::wstring* path, int number) {
+  file_util::InsertBeforeExtension(path, StringPrintf(L" (%d)", number));
+}
+
+// Attempts to find a number that can be appended to that path to make it
+// unique. If |path| does not exist, 0 is returned.  If it fails to find such
+// a number, -1 is returned.
+static int GetUniquePathNumber(const std::wstring& path) {
   const int kMaxAttempts = 100;
 
-  if (!file_util::PathExists(*path))
-    return true;
+  if (!file_util::PathExists(path))
+    return 0;
 
   std::wstring new_path;
   for (int count = 1; count <= kMaxAttempts; ++count) {
-    new_path.assign(*path);
-    file_util::InsertBeforeExtension(&new_path, StringPrintf(L" (%d)", count));
+    new_path.assign(path);
+    AppendNumberToPath(&new_path, count);
 
-    if (!file_util::PathExists(new_path)) {
-      path->swap(new_path);
-      return true;
-    }
+    if (!file_util::PathExists(new_path))
+      return count;
   }
 
-  return false;
+  return -1;
 }
 
 static bool DownloadPathIsDangerous(const std::wstring& download_path) {
@@ -120,6 +124,7 @@ DownloadItem::DownloadItem(const DownloadCreateInfo& info)
 // Constructor for DownloadItem created via user action in the main thread.
 DownloadItem::DownloadItem(int32 download_id,
                            const std::wstring& path,
+                           int path_uniquifier,
                            const std::wstring& url,
                            const std::wstring& original_name,
                            const Time start_time,
@@ -129,6 +134,7 @@ DownloadItem::DownloadItem(int32 download_id,
                            bool is_dangerous)
     : id_(download_id),
       full_path_(path),
+      path_uniquifier_(path_uniquifier),
       url_(url),
       original_name_(original_name),
       total_bytes_(download_size),
@@ -267,6 +273,11 @@ void DownloadItem::TogglePause() {
 std::wstring DownloadItem::GetFileName() const {
   if (safety_state_ == DownloadItem::SAFE)
     return file_name_;
+  if (path_uniquifier_ > 0) {
+    std::wstring name(original_name_);
+    AppendNumberToPath(&name, path_uniquifier_);
+    return name;
+  }
   return original_name_;
 }
 
@@ -537,7 +548,7 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
     file_util::AppendToPath(&info->suggested_path, filename);
   }
 
-  info->suggested_path_exists = !UniquifyPath(&info->suggested_path);
+  info->path_uniquifier = GetUniquePathNumber(info->suggested_path);
 
   // If the download is deemmed dangerous, we'll use a temporary name for it.
   if (!info->save_as && IsDangerous(filename)) {
@@ -556,6 +567,14 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
     }
     info->suggested_path = path;
     info->is_dangerous = true;
+  } else {
+    // We know the final path, build it if necessary.
+    if (info->path_uniquifier > 0) {
+      AppendNumberToPath(&(info->suggested_path), info->path_uniquifier);
+      // Setting path_uniquifier to 0 to make sure we don't try to unique it
+      // later on.
+      info->path_uniquifier = 0;
+    }
   }
 
   // Now we return to the UI thread.
@@ -569,7 +588,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
   DCHECK(MessageLoop::current() == ui_loop_);
   DCHECK(info);
 
-  if (*prompt_for_download_ || info->save_as || info->suggested_path_exists) {
+  if (*prompt_for_download_ || info->save_as || info->path_uniquifier == -1) {
     // We must ask the user for the place to put the download.
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
@@ -597,6 +616,7 @@ void DownloadManager::ContinueStartDownload(DownloadCreateInfo* info,
   if (it == in_progress_.end()) {
     download = new DownloadItem(info->download_id,
                                 info->path,
+                                info->path_uniquifier,
                                 info->url,
                                 info->original_name,
                                 info->start_time,
@@ -766,9 +786,18 @@ void DownloadManager::ProceedWithFinishedDangerousDownload(
     const std::wstring& original_name) {
   bool success = false;
   std::wstring new_path = path;
+  int uniquifier = 0;
   if (file_util::PathExists(path)) {
     new_path = file_util::GetDirectoryFromPath(new_path);
     file_util::AppendToPath(&new_path, original_name);
+    // Make our name unique at this point, as if a dangerous file is downloading
+    // and a 2nd download is started for a file with the same name, they would
+    // have the same path.  This is because we uniquify the name on download
+    // start, and at that time the first file does not exists yet, so the second
+    // file gets the same name.
+    uniquifier = GetUniquePathNumber(new_path);
+    if (uniquifier > 0)
+      AppendNumberToPath(&new_path, uniquifier);
     success = file_util::Move(path, new_path);
   } else {
     NOTREACHED();
@@ -776,13 +805,14 @@ void DownloadManager::ProceedWithFinishedDangerousDownload(
   
   ui_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &DownloadManager::DangerousDownloadRenamed,
-                        download_handle, success, new_path));
+                        download_handle, success, new_path, uniquifier));
 }
 
 // Call from the file thread when the finished dangerous download was renamed.
 void DownloadManager::DangerousDownloadRenamed(int64 download_handle,
                                                bool success,
-                                               const std::wstring& new_path) {
+                                               const std::wstring& new_path,
+                                               int new_path_uniquifier) {
   DownloadMap::iterator it = downloads_.find(download_handle);
   if (it == downloads_.end()) {
     NOTREACHED();
@@ -791,8 +821,12 @@ void DownloadManager::DangerousDownloadRenamed(int64 download_handle,
 
   DownloadItem* download = it->second;
   // If we failed to rename the file, we'll just keep the name as is.
-  if (success)
+  if (success) {
+    // We need to update the path uniquifier so that the UI shows the right
+    // name when calling GetFileName().
+    download->set_path_uniquifier(new_path_uniquifier);
     RenameDownload(download, new_path);
+  }
 
   // Continue the download finished sequence.
   ContinueDownloadFinished(download);

@@ -174,7 +174,7 @@ bool SavePackage::Init() {
   }
 
   // Create the fake DownloadItem and display the view.
-  download_ = new DownloadItem(1, saved_main_file_path_, page_url_,
+  download_ = new DownloadItem(1, saved_main_file_path_, 0, page_url_,
                                std::wstring(), Time::Now(), 0, -1, -1, false);
   download_->set_manager(web_contents_->profile()->GetDownloadManager());
   DownloadShelfView* shelf = web_contents_->GetDownloadShelfView();
