@@ -1179,6 +1179,7 @@ bool ResourceDispatcherHost::BufferedEventHandler::KeepBuffering(
       // SniffMimeType() returns false if there is not enough data to determine
       // the mime type. However, even if it returns false, it returns a new type
       // that is probably better than the current one.
+      DCHECK(bytes_read_ < 512 /*kMaxBytesToSniff*/);
       if (!finished_) {
         buffering_ = true;
         return true;

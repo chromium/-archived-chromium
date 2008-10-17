@@ -529,7 +529,9 @@ bool SniffMimeType(const char* content, size_t content_size,
     // We're not interested in sniffing these types for images and the like.
     // Instead, we're looking explicitly for a feed.  If we don't find one we're
     // done and return early.
-    return SniffXML(content, content_size, result);
+    if (SniffXML(content, content_size, result))
+      return true;
+    return content_size >= kMaxBytesToSniff;
   }
 
   // Now we look in our large table of magic numbers to see if we can find
