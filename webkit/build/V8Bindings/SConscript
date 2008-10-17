@@ -333,38 +333,4 @@ inputs = [
 if env['PLATFORM'] == 'win32':
   inputs.append('precompiled_v8bindings.cpp')
 
-
-# TODO(erg): These are temporarily disabled during the merge of code back to
-# WebKit. As soon as we're back on TOT, these go back into the working files
-# section.
-if env['PLATFORM'] in ('darwin', 'posix'):
-  remove_files = [
-    '$DERIVED_DIR/SVGElementFactory.cpp',
-    '$DERIVED_DIR/V8SVGCursorElement.cpp',
-    '$DERIVED_DIR/V8SVGMaskElement.cpp',
-  ]
-  for remove in remove_files:
-    inputs.remove(remove)
-
-# TODO(erg): Get Frame.h ported and half of this should compile. Get whatever
-#            String.h is referenced below and the other half should compile
-if env['PLATFORM'] in ('darwin', 'posix'):
-  remove_files = [
-    '$DERIVED_DIR/V8Clipboard.cpp',
-    '$DERIVED_DIR/V8DOMWindow.cpp',
-    '$DERIVED_DIR/V8HTMLInputElement.cpp',
-    '$DERIVED_DIR/V8HTMLIsIndexElement.cpp',
-    '$DERIVED_DIR/V8HTMLSelectionInputElement.cpp',
-    '$DERIVED_DIR/V8InspectorController.cpp',
-    '$DERIVED_DIR/V8Location.cpp',
-    '$DERIVED_DIR/V8MimeType.cpp',
-    '$DERIVED_DIR/V8MimeTypeArray.cpp',
-    '$DERIVED_DIR/V8MouseEvent.cpp',
-    '$DERIVED_DIR/V8Navigator.cpp',
-    '$DERIVED_DIR/V8Plugin.cpp',
-    '$DERIVED_DIR/V8PluginArray.cpp',
-  ]
-  for remove in remove_files:
-    inputs.remove(remove)
-
 env.ChromeStaticLibrary('V8Bindings', inputs)
