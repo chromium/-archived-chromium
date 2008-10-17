@@ -421,14 +421,6 @@ void ProxyService::DidCompletePacRequest(int config_id, int result_code) {
 }
 
 void ProxyService::UpdateConfig() {
-#if !defined(WIN_OS)
-  if (!resolver_) {
-    // Tied to the NOTIMPLEMENTED in HttpNetworkLayer::HttpNetworkLayer()
-    NOTIMPLEMENTED();
-    return;
-  }
-#endif
-
   ProxyConfig latest;
   if (resolver_->GetProxyConfig(&latest) != OK)
     return;

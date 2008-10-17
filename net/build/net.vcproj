@@ -1009,6 +1009,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\proxy\proxy_resolver_null.h"
+				>
+			</File>
+			<File
 				RelativePath="..\proxy\proxy_resolver_winhttp.cc"
 				>
 			</File>

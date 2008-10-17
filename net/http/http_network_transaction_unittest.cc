@@ -11,6 +11,7 @@
 #include "net/http/http_network_transaction.h"
 #include "net/http/http_transaction_unittest.h"
 #include "net/proxy/proxy_resolver_fixed.h"
+#include "net/proxy/proxy_resolver_null.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 //-----------------------------------------------------------------------------
@@ -195,24 +196,15 @@ class MockClientSocketFactory : public net::ClientSocketFactory {
 
 MockClientSocketFactory mock_socket_factory;
 
-class NullProxyResolver : public net::ProxyResolver {
- public:
-  virtual int GetProxyConfig(net::ProxyConfig* config) {
-    return net::ERR_FAILED;
+net::HttpNetworkSession* CreateSession(net::ProxyResolver* proxy_resolver) {
+  if (!proxy_resolver) {
+    proxy_resolver = new net::ProxyResolverNull();
   }
-  virtual int GetProxyForURL(const std::string& query_url,
-                             const std::string& pac_url,
-                             net::ProxyInfo* results) {
-    return net::ERR_FAILED;
-  }
-};
-
-// TODO(eroman): google style disallows default arguments...
-net::HttpNetworkSession* CreateSession(
-    net::ProxyResolver* proxy_resolver = NULL) {
-  if (!proxy_resolver)
-    proxy_resolver = new NullProxyResolver();
   return new net::HttpNetworkSession(proxy_resolver);
+}
+
+net::HttpNetworkSession* CreateSession() {
+  return CreateSession(NULL);
 }
 
 class HttpNetworkTransactionTest : public PlatformTest {
@@ -261,8 +253,10 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
   out.rv = callback.WaitForResult();
-  if (out.rv != net::OK)
+  if (out.rv != net::OK) {
+    trans->Destroy();
     return out;
+  }
 
   const net::HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response != NULL);
