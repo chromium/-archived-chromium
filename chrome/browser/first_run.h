@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_FIRST_RUN_H__
-#define CHROME_BROWSER_FIRST_RUN_H__
+#ifndef CHROME_BROWSER_FIRST_RUN_H_
+#define CHROME_BROWSER_FIRST_RUN_H_
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
@@ -50,9 +50,54 @@ class FirstRun {
   // FirstRun::ImportSettings().
   static int ImportWithUI(Profile* profile, const CommandLine& cmdline);
 
+  // These are the possible results of calling ProcessMasterPreferences.
+  enum MasterPrefResult {
+    MASTER_PROFILE_NOT_FOUND          = 0,
+    MASTER_PROFILE_ERROR              = 1,
+    MASTER_PROFILE_SHOW_EULA          = 2,
+    MASTER_PROFILE_NO_FIRST_RUN_UI    = 4
+  };
+
+  // The master preferences is a JSON file with the same entries as the
+  // 'Default\Preferences' file. This function locates this file from
+  // master_pref_path or if that path is empty from the default location
+  // which is '<path to chrome.exe>\master_preferences', and process it
+  // so it becomes the default preferences in profile pointed by user_data_dir.
+  //
+  // Since this function destroys any existing prefs file, it is meant to be
+  // invoked only on first run. The current use of this function is to set the
+  // following 3 properties:
+  // - default home page
+  // - show bookmark bar
+  // - show home page button
+  //
+  // A prototypical 'master_preferences' file looks like this:
+  //
+  // {
+  //   "browser": {
+  //      "show_home_button": true
+  //   },
+  //   "bookmark_bar": {
+  //      "show_on_all_tabs": true
+  //   },
+  //   "homepage": "http://slashdot.org",
+  //   "homepage_is_newtabpage": false
+  // }
+  //
+  // A reserved "distribution" entry in the file will be used to group
+  // other installation properties such as the EULA display. This entry will
+  // be ignored at other times.
+  // Currently only the following return values are used:
+  // MASTER_PROFILE_NOT_FOUND : Typical outcome for organic installs.
+  // MASTER_PROFILE_ERROR : A critical error processing the master profile.
+  // MASTER_PROFILE_SHOW_FIRST_RUN_UI : master profile processed ok.
+  static MasterPrefResult ProcessMasterPreferences(
+      const std::wstring& user_data_dir,
+      const std::wstring& master_prefs_path);
+
  private:
   // This class is for scoping purposes.
-  DISALLOW_EVIL_CONSTRUCTORS(FirstRun);
+  DISALLOW_COPY_AND_ASSIGN(FirstRun);
 };
 
 // This class contains the actions that need to be performed when an upgrade
@@ -81,7 +126,7 @@ class FirstRunBrowserProcess : public BrowserProcessImpl {
   virtual GoogleURLTracker* google_url_tracker() { return NULL; }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(FirstRunBrowserProcess);
+  DISALLOW_COPY_AND_ASSIGN(FirstRunBrowserProcess);
 };
 
 // Show the First Run UI to the user, allowing them to create shortcuts for
@@ -89,5 +134,5 @@ class FirstRunBrowserProcess : public BrowserProcessImpl {
 // |profile| and perhaps some other tasks.
 void OpenFirstRunDialog(Profile* profile);
 
-#endif  // CHROME_BROWSER_FIRST_RUN_H__
+#endif  // CHROME_BROWSER_FIRST_RUN_H_
 

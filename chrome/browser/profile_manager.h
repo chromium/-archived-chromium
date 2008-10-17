@@ -124,6 +124,12 @@ class ProfileManager {
 
   // ------------------ static utility functions -------------------
 
+  // Returns the path to the profile directory based on the user data directory.
+  static std::wstring GetDefaultProfileDir(const std::wstring& user_data_dir);
+
+  // Returns the path to the profile given the user profile directory.
+  static std::wstring GetDefaultProfilePath(const std::wstring& profile_dir);
+
   // Tries to determine whether the given path represents a profile
   // directory, and returns true if it thinks it does.
   static bool IsProfile(const std::wstring& path);

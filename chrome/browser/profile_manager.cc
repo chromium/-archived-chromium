@@ -58,21 +58,32 @@ ProfileManager::~ProfileManager() {
   available_profiles_.clear();
 }
 
+std::wstring ProfileManager::GetDefaultProfileDir(
+    const std::wstring& user_data_dir) {
+  std::wstring default_profile_dir(user_data_dir);
+  file_util::AppendToPath(&default_profile_dir, chrome::kNotSignedInProfile);
+  return default_profile_dir;
+}
+
+std::wstring ProfileManager::GetDefaultProfilePath(
+    const std::wstring &profile_dir) {
+  std::wstring default_prefs_path(profile_dir);
+  file_util::AppendToPath(&default_prefs_path, chrome::kPreferencesFilename);
+  return default_prefs_path;
+}
+
 Profile* ProfileManager::GetDefaultProfile(const std::wstring& user_data_dir) {
   // Initialize profile, creating default if necessary
-  std::wstring default_profile_path = user_data_dir;
-  file_util::AppendToPath(&default_profile_path,
-                          chrome::kNotSignedInProfile);
-
+  std::wstring default_profile_dir = GetDefaultProfileDir(user_data_dir);
   // If the profile is already loaded (e.g., chrome.exe launched twice), just
   // return it.
-  Profile* profile = GetProfileByPath(default_profile_path);
+  Profile* profile = GetProfileByPath(default_profile_dir);
   if (NULL != profile)
     return profile;
 
-  if (!ProfileManager::IsProfile(default_profile_path)) {
+  if (!ProfileManager::IsProfile(default_profile_dir)) {
     // If the profile directory doesn't exist, create it.
-    profile = ProfileManager::CreateProfile(default_profile_path,
+    profile = ProfileManager::CreateProfile(default_profile_dir,
         L"",  // No name.
         L"",  // No nickname.
         chrome::kNotSignedInID);
@@ -82,7 +93,7 @@ Profile* ProfileManager::GetDefaultProfile(const std::wstring& user_data_dir) {
     DCHECK(result);
   } else {
     // The profile already exists on disk, just load it.
-    profile = AddProfileByPath(default_profile_path);
+    profile = AddProfileByPath(default_profile_dir);
     if (!profile)
       return NULL;
 
@@ -209,8 +220,7 @@ Profile* ProfileManager::GetProfileByID(const std::wstring& id) const {
 
 // static
 bool ProfileManager::IsProfile(const std::wstring& path) {
-  std::wstring prefs_path = path;
-  file_util::AppendToPath(&prefs_path, chrome::kPreferencesFilename);
+  std::wstring prefs_path = GetDefaultProfilePath(path);
 
   std::wstring history_path = path;
   file_util::AppendToPath(&history_path, chrome::kHistoryFilename);

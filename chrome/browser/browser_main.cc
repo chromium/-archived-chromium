@@ -320,6 +320,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
 
   bool is_first_run = FirstRun::IsChromeFirstRun() ||
       parsed_command_line.HasSwitch(switches::kFirstRun);
+  bool first_run_ui_bypass = false; 
 
   // Initialize ResourceBundle which handles files loaded from external
   // sources. This has to be done before uninstall code path and before prefs
@@ -327,7 +328,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   local_state->RegisterStringPref(prefs::kApplicationLocale, L"");
   local_state->RegisterBooleanPref(prefs::kMetricsReportingEnabled, false);
 
-  // During first run we read the google update registry key to find what
+  // During first run we read the google_update registry key to find what
   // language the user selected when downloading the installer. This
   // becomes our default language in the prefs.
   if (is_first_run) {
@@ -336,6 +337,12 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
       local_state->SetString(prefs::kApplicationLocale, install_lang);
     if (GoogleUpdateSettings::GetCollectStatsConsent())
       local_state->SetBoolean(prefs::kMetricsReportingEnabled, true);
+    // On first run, we  need to process the master preferences before the
+    // browser's profile_manager object is created.
+    FirstRun::MasterPrefResult master_pref_res = 
+        FirstRun::ProcessMasterPreferences(user_data_dir, std::wstring());
+    first_run_ui_bypass =
+        (master_pref_res == FirstRun::MASTER_PROFILE_NO_FIRST_RUN_UI);
   }
 
   ResourceBundle::InitSharedInstance(
@@ -351,7 +358,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   // Initialize histogram statistics gathering system.
   StatisticsRecorder statistics;
 
-  // Strart tracking the creation and deletion of Task instances
+  // Start tracking the creation and deletion of Task instances
   bool tracking_objects = false;
 #ifdef TRACK_ALL_TASK_OBJECTS
   tracking_objects = tracked_objects::ThreadData::StartTracking(true);
@@ -453,7 +460,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   // Note that this be done _after_ the PrefService is initialized and all
   // preferences are registered, since some of the code that the importer
   // touches reads preferences.
-  if (is_first_run) {
+  if (is_first_run && !first_run_ui_bypass) {
     // We need to avoid dispatching new tabs when we are doing the import
     // because that will lead to data corruption or a crash. Lock() does that.
     message_window.Lock();

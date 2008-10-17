@@ -16,11 +16,13 @@
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "chrome/app/result_codes.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/profile_manager.h"
 #include "chrome/browser/views/first_run_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -37,6 +39,10 @@ const wchar_t kSentinelFile[] = L"First Run";
 // These two names are used for upgrades in-place of the chrome exe.
 const wchar_t kChromeUpgradeExe[] = L"new_chrome.exe";
 const wchar_t kChromeBackupExe[] = L"old_chrome.exe";
+
+// This is the default name for the master preferences file used to pre-set
+// values in the user profile at first run.
+const wchar_t kDefaultMasterPrefs[] = L"master_preferences";
 
 // Gives the full path to the sentinel file. The file might not exist.
 bool GetFirstRunSentinelFilePath(std::wstring* path) {
@@ -60,6 +66,19 @@ bool GetBackupChromeFile(std::wstring* path) {
     return false;
   file_util::AppendToPath(path, kChromeBackupExe);
   return true;
+}
+
+std::wstring GetDefaultPrefFilePath(bool create_profile_dir, 
+                                    const std::wstring& user_data_dir) {
+  std::wstring default_pref_dir =
+      ProfileManager::GetDefaultProfileDir(user_data_dir);
+  if (create_profile_dir) {
+    if (!file_util::PathExists(default_pref_dir)) {
+      if (!file_util::CreateDirectory(default_pref_dir))
+        return std::wstring();
+    }
+  }
+  return ProfileManager::GetDefaultProfilePath(default_pref_dir);
 }
 
 }  // namespace
@@ -130,6 +149,38 @@ bool FirstRun::CreateSentinel() {
     return false;
   ::CloseHandle(file);
   return true;
+}
+
+FirstRun::MasterPrefResult FirstRun::ProcessMasterPreferences(
+      const std::wstring& user_data_dir,
+      const std::wstring& master_prefs_path) {
+  DCHECK(!user_data_dir.empty());
+  std::wstring master_prefs;
+  if (master_prefs_path.empty()) {
+    // The default location of the master prefs is next to the chrome exe.
+    std::wstring master_path;
+    if (!PathService::Get(base::DIR_EXE, &master_path))
+      return MASTER_PROFILE_ERROR;
+    file_util::AppendToPath(&master_path, kDefaultMasterPrefs);
+    if (!file_util::PathExists(master_path))
+      return MASTER_PROFILE_NOT_FOUND;
+    master_prefs = master_path;
+  } else {
+    master_prefs = master_prefs_path;
+  }
+
+  std::wstring user_prefs = GetDefaultPrefFilePath(true, user_data_dir);
+  if (user_prefs.empty())
+    return MASTER_PROFILE_ERROR;
+
+  // The master prefs are regular prefs so we can just copy the file
+  // to the default place and they just work.
+  if (!file_util::CopyFile(master_prefs, user_prefs))
+    return MASTER_PROFILE_ERROR;
+
+  // TODO (cpu): Process the 'distribution' dictionary and return the
+  // appropriate values.
+  return MASTER_PROFILE_NO_FIRST_RUN_UI;
 }
 
 bool Upgrade::SwapNewChromeExeIfPresent() {
