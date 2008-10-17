@@ -11,6 +11,7 @@ env_test = env.Clone()
 env = env.Clone()
 
 install_targets = []
+grit_files = []
 
 
 env.Prepend(
@@ -208,39 +209,40 @@ if env_dll['PLATFORM'] == 'win32':
 else:
   targets = ['chrome']
 
+
+
+# TODO(sgk): make a pseudo-Builder for these
+import sys
+sys.path.append(Dir('#/../tools/grit').abspath)
+
+env_grd = env.Clone()
+env_grd.Tool('scons', toolpath=['#/../tools/grit/grit'])
+
+# NOTE: fake target gets replaced with real targets from reading .grd
+generated = env_grd.GRIT('app/resources/fake_generated_target',
+                         '#/../chrome/app/generated_resources.grd')
+grit_files.extend(generated)
+
+# NOTE: fake target gets replaced with real targets from reading .grd
+chromium = env_grd.GRIT('app/resources/fake_chromium_target',
+                         '#/../chrome/app/chromium_strings.grd')
+grit_files.extend(chromium)
+
+# NOTE: fake target gets replaced with real targets from reading .grd
+google_chrome = env_grd.GRIT('app/resources/fake_google_chrome_target',
+                         '#/../chrome/app/google_chrome_strings.grd')
+grit_files.extend(google_chrome)
+
+
+
 # TODO(port)
 if env_dll['PLATFORM'] == 'win32':
   dll_targets = env_dll.ChromeSharedLibrary(targets,
                                             dll_resources + input_files + libs)
   install_targets.extend(dll_targets)
 
-  # TODO(sgk): make a pseudo-Builder for these
-  import os
-  import sys
-  sys.path.append(Dir('#/../tools/grit').abspath)
-
-  env_grd = env.Clone()
-  env_grd.Tool('scons', toolpath=['#/../tools/grit/grit'])
-
-  # NOTE: fake target gets replaced with real targets from reading .grd
-  generated = env_grd.GRIT('app/resources/fake_generated_target',
-                           '#/../chrome/app/generated_resources.grd')
-  for g in [ g for g in generated if str(g).endswith('.rc') ]:
-      env_res.RES(g)
-
-  # NOTE: fake target gets replaced with real targets from reading .grd
-  chromium = env_grd.GRIT('app/resources/fake_chromium_target',
-                           '#/../chrome/app/chromium_strings.grd')
-  for g in [ g for g in chromium if str(g).endswith('.rc') ]:
-      env_res.RES(g)
-
-  # NOTE: fake target gets replaced with real targets from reading .grd
-  google_chrome = env_grd.GRIT('app/resources/fake_google_chrome_target',
-                           '#/../chrome/app/google_chrome_strings.grd')
-  for g in [ g for g in google_chrome if str(g).endswith('.rc') ]:
-      env_res.RES(g)
-
-
+  for g in [ g for g in grit_files if str(g).endswith('.rc') ]:
+    env_res.RES(g)
 
   def chrome_version_emitter(target, source, env):
       source.append('$CHROME_SRC_DIR/VERSION')

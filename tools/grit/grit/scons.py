@@ -41,7 +41,7 @@ def _Builder(target, source, env):
   builder = build.RcBuilder()
   
   # Get the CPP defines from the environment.
-  for flag in env['RCFLAGS']:
+  for flag in env.get('RCFLAGS', []):
     if flag.startswith('/D'):
       flag = flag[2:]
     name, val = build.ParseDefine(flag)
