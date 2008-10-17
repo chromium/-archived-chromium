@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/platform_test.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/browser/history/text_database.h"
@@ -76,13 +77,14 @@ bool ResultsHaveURL(const std::vector<TextDatabase::Match>& results,
 
 }  // namespace
 
-class TextDatabaseTest : public testing::Test {
+class TextDatabaseTest : public PlatformTest {
  public:
   TextDatabaseTest() : db_(NULL) {
   }
 
  protected:
   void SetUp() {
+    PlatformTest::SetUp();
     PathService::Get(base::DIR_TEMP, &temp_path_);
   }
 
@@ -90,6 +92,7 @@ class TextDatabaseTest : public testing::Test {
     for (size_t i = 0; i < opened_files_.size(); i++)
       file_util::Delete(opened_files_[i], false);
     file_util::Delete(file_name_, false);
+    PlatformTest::TearDown();
   }
 
   // Create databases with this function, which will ensure that the files are

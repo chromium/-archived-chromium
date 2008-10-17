@@ -130,6 +130,7 @@
 		4D7BFF5E0E9D53FD009A6919 /* libbase_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFDC90E9D525B009A6919 /* libbase_gfx.a */; };
 		4D7BFF730E9D5425009A6919 /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF6E0E9D540F009A6919 /* libgoogleurl.a */; };
 		4D7BFF7B0E9D5449009A6919 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF7A0E9D5449009A6919 /* AppKit.framework */; };
+		4DC6498F0EA92BF90017C876 /* platform_test_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4DC6498E0EA92BF90017C876 /* platform_test_mac.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1151,6 +1152,7 @@
 		4D7BFF4C0E9D53C1009A6919 /* bzip2.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bzip2.xcodeproj; path = third_party/bzip2/bzip2.xcodeproj; sourceTree = "<group>"; };
 		4D7BFF5F0E9D540F009A6919 /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = build/googleurl.xcodeproj; sourceTree = "<group>"; };
 		4D7BFF7A0E9D5449009A6919 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
+		4DC6498E0EA92BF90017C876 /* platform_test_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_test_mac.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1234,7 +1236,8 @@
 			isa = PBXGroup;
 			children = (
 				4D7BF2FA0E9D46CD009A6919 /* Configuration */,
-				4D7BF3380E9D479D009A6919 /* Source */,
+				4DC6498D0EA92BE10017C876 /* base */,
+				4D7BF3380E9D479D009A6919 /* chrome */,
 				4D7BFDD00E9D527E009A6919 /* Frameworks */,
 				4D7BFB090E9D4BA1009A6919 /* Projects */,
 				4D7BF3070E9D477E009A6919 /* Products */,
@@ -1264,14 +1267,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4D7BF3380E9D479D009A6919 /* Source */ = {
+		4D7BF3380E9D479D009A6919 /* chrome */ = {
 			isa = PBXGroup;
 			children = (
 				4D7BF8210E9D47FB009A6919 /* browser */,
 				4D7BFB840E9D4C6F009A6919 /* common */,
 				4D7BFCEB0E9D4DDA009A6919 /* test */,
 			);
-			name = Source;
+			name = chrome;
 			sourceTree = "<group>";
 		};
 		4D7BF8210E9D47FB009A6919 /* browser */ = {
@@ -2142,6 +2145,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4DC6498D0EA92BE10017C876 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				4DC6498E0EA92BF90017C876 /* platform_test_mac.mm */,
+			);
+			name = base;
+			path = ../base;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2531,6 +2543,7 @@
 				4D7BFCE70E9D4DD4009A6919 /* json_value_serializer_unittest.cc in Sources */,
 				4D7BFB580E9D4C43009A6919 /* page_range_unittest.cc in Sources */,
 				4D7BFB5F0E9D4C46009A6919 /* page_setup_unittest.cc in Sources */,
+				4DC6498F0EA92BF90017C876 /* platform_test_mac.mm in Sources */,
 				4D7BFB780E9D4C5A009A6919 /* protocol_parser_unittest.cc in Sources */,
 				4D7BFCF30E9D4E07009A6919 /* run_all_unittests.cc in Sources */,
 				4D7BFB7F0E9D4C63009A6919 /* safe_browsing_util_unittest.cc in Sources */,
