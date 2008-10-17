@@ -39,9 +39,6 @@ cp -p "../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.cpp" \
       "../third_party/WebKit/WebCore/bindings/js/PausedTimeouts.h" \
       "${GENERATED_DIR}/bindings/v8/WebCore/bindings/js"
 
-# TODO(mmentovai): Am I still needed?
-ln -sfh "${SRCROOT}/../third_party/WebKit/WebCore" WebCore
-
 # TODO(mmentovai): If I'm still needed, can I move to jsbindings_prebuild.sh?
 cd "${GENERATED_DIR}/DerivedSources/v8"
 mkdir -p ForwardingHeaders/loader
