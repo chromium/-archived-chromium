@@ -981,21 +981,6 @@ AffineTransform GraphicsContext::getCTM() const
     return m_data->canvas()->getTotalMatrix();
 }
 
-#if PLATFORM(WIN_OS)
-HDC GraphicsContext::getWindowsContext(const IntRect&, bool supportAlphaBlend, bool mayCreateBitmap)
-{
-    if (paintingDisabled())
-        return 0;
-    // No need to ever call endPlatformPaint() since it is a noop.
-    return m_data->canvas()->beginPlatformPaint();
-}
-
-void GraphicsContext::releaseWindowsContext(HDC hdc, const IntRect&, bool supportAlphaBlend, bool mayCreateBitmap)
-{
-    // noop, the DC will be lazily freed by the bitmap when no longer needed
-}
-#endif
-
 static inline float square(float n)
 {
     return n * n;

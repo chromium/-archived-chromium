@@ -50,3 +50,7 @@ PassRefPtr<SharedBuffer> SharedBuffer::createWithContentsOfFile(const String& fi
     notImplemented();
     return 0;
 }
+
+namespace WTF {
+void scheduleDispatchFunctionsOnMainThread() { notImplemented(); }
+}

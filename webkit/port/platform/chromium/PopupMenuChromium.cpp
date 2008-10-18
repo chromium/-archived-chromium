@@ -76,7 +76,7 @@ class PopupListBox;
 // to the child listBox (with the appropriate transforms).
 class PopupContainer : public FramelessScrollView {
 public:
-    static HWND Create(PopupMenuClient* client);
+    static PassRefPtr<PopupContainer> create(PopupMenuClient* client);
 
     // FramelessScrollView
     virtual void paint(GraphicsContext* gc, const IntRect& rect);
@@ -315,19 +315,10 @@ static PlatformWheelEvent constructRelativeWheelEvent(const PlatformWheelEvent& 
 ///////////////////////////////////////////////////////////////////////////////
 // PopupContainer implementation
 
-// Get a pointer to the PopupContainer instance for the m_popup HWND, since we
-// can't augment the PopupMenu class (above the portability layer). We store the
-// PopupContainer in the HWND member, which is fairly hacky.
-static PopupContainer* popupWindow(HWND popup) 
-{
-    return reinterpret_cast<PopupContainer*>(popup);
-}
-
 // static
-HWND PopupContainer::Create(PopupMenuClient* client)
+PassRefPtr<PopupContainer> PopupContainer::create(PopupMenuClient* client)
 {
-    PopupContainer* container = new PopupContainer(client);
-    return reinterpret_cast<HWND>(container);
+    return adoptRef(new PopupContainer(client));
 }
 
 PopupContainer::PopupContainer(PopupMenuClient* client)
@@ -1016,8 +1007,6 @@ bool PopupListBox::isPointInBounds(const IntPoint& point)
 
 PopupMenu::PopupMenu(PopupMenuClient* client) 
     : m_popupClient(client)
-    , m_popup(0)
-    , m_wasClicked(false)
 {
 }
 
@@ -1028,13 +1017,12 @@ PopupMenu::~PopupMenu()
 
 void PopupMenu::show(const IntRect& r, FrameView* v, int index) 
 {
-    m_popup = PopupContainer::Create(client());
+    p.m_popup = PopupContainer::create(client());
 
-    PopupContainer* popup = popupWindow(m_popup);
     // The rect is the size of the select box. It's usually larger than we need.
     // subtract border size so that usually the container will be displayed 
     // exactly the same width as the select box.
-    popup->listBox()->setBaseWidth(max(r.width() - kBorderSize * 2, 0));
+    p.m_popup->listBox()->setBaseWidth(max(r.width() - kBorderSize * 2, 0));
 
     updateFromElement();
 
@@ -1050,56 +1038,26 @@ void PopupMenu::show(const IntRect& r, FrameView* v, int index)
     location.move(0, r.height());
 
     IntRect popupRect(location, r.size());
-    popup->setFrameGeometry(popupRect);
-    popup->showPopup(v);
+    p.m_popup->setFrameGeometry(popupRect);
+    p.m_popup->showPopup(v);
 }
 
 void PopupMenu::hide()
 {
-    if (m_popup) {
-        PopupContainer* popup = popupWindow(m_popup);
-        popup->hidePopup();
-        popup->deref();
-        m_popup = 0;
+    if (p.m_popup) {
+        p.m_popup->hidePopup();
+        p.m_popup = 0;
     }
 }
 
 void PopupMenu::updateFromElement()
 {
-    popupWindow(m_popup)->listBox()->updateFromElement();
+    p.m_popup->listBox()->updateFromElement();
 }
 
 bool PopupMenu::itemWritingDirectionIsNatural() 
 { 
     return false; 
-}
-
-bool PopupMenu::up(unsigned lines)
-{
-    popupWindow(m_popup)->listBox()->adjustSelectedIndex(-static_cast<int>(lines));
-    return true;
-}
-
-bool PopupMenu::down(unsigned lines)
-{
-    popupWindow(m_popup)->listBox()->adjustSelectedIndex(static_cast<int>(lines));
-    return true;
-}
-
-int PopupMenu::focusedIndex() const
-{
-    return popupWindow(m_popup)->listBox()->selectedIndex();
-}
-
-void PopupMenu::valueChanged(Scrollbar*)
-{
-    // FIXME
-}
-
-WebCore::IntRect PopupMenu::windowClipRect() const
-{
-    // FIXME
-    return WebCore::IntRect();
 }
 
 } // namespace WebCore

@@ -30,7 +30,7 @@
 #include "SelectionController.h"
 #include <wtf/RefPtr.h>
 
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
 #include <windows.h>
 #endif
 
@@ -56,7 +56,7 @@ DragOperation DragController::dragOperation(DragData* dragData)
 bool DragController::isCopyKeyDown() {
     // TODO(darin): This should not be OS specific.  Delegate to the embedder
     // instead.
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
     return ::GetAsyncKeyState(VK_CONTROL);
 #else
     return false;

@@ -9,6 +9,7 @@
 #pragma warning(push, 0)
 #include "AccessibleDocument.h"
 #include "AXObjectCache.h"
+#include "COMPtr.h"
 #include "Document.h"
 #include "Frame.h"
 #pragma warning(pop)

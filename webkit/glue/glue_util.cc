@@ -7,11 +7,13 @@
 
 #include "webkit/glue/glue_util.h"
 #include "base/compiler_specific.h"
+#include "base/gfx/rect.h"
 #include "base/string_util.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #undef LOG
 #include "CString.h"
+#include "IntRect.h"
 #include "PlatformString.h"
 MSVC_POP_WARNING();
 
@@ -91,6 +93,16 @@ WebCore::KURL GURLToKURL(const GURL& url) {
 #else
   return WebCore::KURL(StdWStringToString(UTF8ToWide(spec)));
 #endif
+}
+
+// Rect conversions ------------------------------------------------------------
+
+gfx::Rect FromIntRect(const WebCore::IntRect& r) {
+  return gfx::Rect(r.x(), r.y(), r.width(), r.height());
+}
+
+WebCore::IntRect ToIntRect(const gfx::Rect& r) {
+  return WebCore::IntRect(r.x(), r.y(), r.width(), r.height());
 }
 
 }  // namespace webkit_glue

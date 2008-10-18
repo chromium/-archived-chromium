@@ -138,6 +138,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\Collator.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\icu\CollatorICU.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\Deque.h"
 			>
 		</File>
@@ -294,15 +302,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\Collator.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\Unicode.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\unicode\icu\CollatorICU.cpp"
 			>
 		</File>
 		<File
@@ -327,10 +327,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\VectorTraits.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\win\MainThreadWin.cpp"
 			>
 		</File>
 	</Files>

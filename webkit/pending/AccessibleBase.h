@@ -27,7 +27,7 @@
 #define AccessibleBase_h
 
 #include "AccessibilityObject.h"
-#include "AccessibilityObjectWrapperWin.h"
+#include "AccessibilityObjectWrapper.h"
 
 class AccessibleBase : public IAccessible, public WebCore::AccessibilityObjectWrapper {
 public:
@@ -35,7 +35,7 @@ public:
 
     // IUnknown
     virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppvObject);
-    virtual ULONG STDMETHODCALLTYPE AddRef(void) { return ++m_refCount; }
+    virtual ULONG STDMETHODCALLTYPE AddRef(void);
     virtual ULONG STDMETHODCALLTYPE Release(void);
 
     // IAccessible
@@ -100,8 +100,6 @@ protected:
     HRESULT getAccessibilityObjectForChild(VARIANT vChild, WebCore::AccessibilityObject*&) const;
 
     static AccessibleBase* wrapper(WebCore::AccessibilityObject*);
-
-    int m_refCount;
 
 private:
     AccessibleBase() { }

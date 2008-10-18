@@ -401,7 +401,7 @@ bool WebViewImpl::SendContextMenuEvent(const WebKeyboardEvent& event) {
   if (!view)
     return false;
 
-  POINT coords = {-1, -1};
+  IntPoint coords(-1, -1);
   int right_aligned = ::GetSystemMetrics(SM_MENUDROPALIGNMENT);
   IntPoint location;
 
@@ -444,8 +444,8 @@ bool WebViewImpl::SendContextMenuEvent(const WebKeyboardEvent& event) {
   focused_frame->view()->setCursor(pointerCursor());
   WebMouseEvent mouse_event;
   mouse_event.button = WebMouseEvent::BUTTON_RIGHT;
-  mouse_event.x = coords.x;
-  mouse_event.y = coords.y;
+  mouse_event.x = coords.x();
+  mouse_event.y = coords.y();
   mouse_event.type = WebInputEvent::MOUSE_UP;
 
   MakePlatformMouseEvent platform_event(view, mouse_event);

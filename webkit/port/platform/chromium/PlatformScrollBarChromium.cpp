@@ -236,7 +236,7 @@ void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
 
     layout();
 
-    HDC hdc = gc->getWindowsContext(damageRect);
+    HDC hdc = gc->platformContext()->canvas()->beginPlatformPaint();
     const bool horz = orientation() == HorizontalScrollbar;
     const PlatformContextSkia* const skia = gc->platformContext();
     const gfx::NativeTheme* const nativeTheme = skia->nativeTheme();
@@ -306,7 +306,7 @@ void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
                                          DFCS_SCROLLRIGHT : DFCS_SCROLLDOWN) |
                                          getClassicThemeState(Arrow2),
                                      &m_segmentRects[Arrow2]);
-    gc->releaseWindowsContext(hdc, damageRect);
+    gc->platformContext()->canvas()->endPlatformPaint();
 
     gc->restore();
 }

@@ -29,7 +29,7 @@
 #include "config.h"
 #include "DragData.h"
 
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
 #include "ClipboardWin.h"
 #include "ClipboardUtilitiesWin.h"
 #include "WCDataObject.h"
@@ -56,12 +56,6 @@ bool containsHTML(const WebDropData& drop_data) {
         || drop_data.text_html.length() > 0;
 }
 
-// Our DragDataRef is actually a WebDropData* instead of a IDataObject*. 
-// Provide a helper method for converting back.
-WebDropData* dropData(DragDataRef dragData) {
-    return reinterpret_cast<WebDropData*>(dragData);
-}
-
 }
 
 namespace WebCore {
@@ -69,7 +63,7 @@ namespace WebCore {
 PassRefPtr<Clipboard> DragData::createClipboard(ClipboardAccessPolicy policy) const
 {
 // TODO(darin): Invent ClipboardChromium and use that instead.
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
     WCDataObject* data;
     WCDataObject::createInstance(&data);
     RefPtr<ClipboardWin> clipboard = ClipboardWin::create(true, data, policy);
@@ -85,43 +79,40 @@ PassRefPtr<Clipboard> DragData::createClipboard(ClipboardAccessPolicy policy) co
 
 bool DragData::containsURL() const
 {
-    return dropData(m_platformDragData)->url.is_valid();
+    return m_platformDragData->url.is_valid();
 }
 
 String DragData::asURL(String* title) const
 {
-    WebDropData* data = dropData(m_platformDragData);
-    if (!data->url.is_valid())
+    if (!m_platformDragData->url.is_valid())
         return String();
  
     // |title| can be NULL
     if (title)
-        *title = webkit_glue::StdWStringToString(data->url_title);
-    return webkit_glue::StdStringToString(data->url.spec());
+        *title = webkit_glue::StdWStringToString(m_platformDragData->url_title);
+    return webkit_glue::StdStringToString(m_platformDragData->url.spec());
 }
 
 bool DragData::containsFiles() const
 {
-    return !dropData(m_platformDragData)->filenames.empty();
+    return !m_platformDragData->filenames.empty();
 }
 
 void DragData::asFilenames(Vector<String>& result) const
 {
-    WebDropData* data = dropData(m_platformDragData);
-    for (size_t i = 0; i < data->filenames.size(); ++i) {
-        result.append(webkit_glue::StdWStringToString(data->filenames[i]));
-    }
+    for (size_t i = 0; i < m_platformDragData->filenames.size(); ++i)
+        result.append(webkit_glue::StdWStringToString(m_platformDragData->filenames[i]));
 }
 
 bool DragData::containsPlainText() const
 {
-    return !dropData(m_platformDragData)->plain_text.empty();
+    return !m_platformDragData->plain_text.empty();
 }
 
 String DragData::asPlainText() const
 {
-    return webkit_glue::StdWStringToString(dropData(
-        m_platformDragData)->plain_text);
+    return webkit_glue::StdWStringToString(
+        m_platformDragData->plain_text);
 }
 
 bool DragData::containsColor() const
@@ -135,15 +126,15 @@ bool DragData::canSmartReplace() const
     // This is allowed whenever the drag data contains a 'range' (ie.,
     // ClipboardWin::writeRange is called).  For example, dragging a link
     // should not result in a space being added.
-    WebDropData* data = dropData(m_platformDragData);
-    return !data->cf_html.empty() && !data->plain_text.empty() &&
-        !data->url.is_valid();
+    return !m_platformDragData->cf_html.empty() &&
+           !m_platformDragData->plain_text.empty() &&
+           !m_platformDragData->url.is_valid();
 }
 
 bool DragData::containsCompatibleContent() const
 {
     return containsPlainText() || containsURL()
-        || ::containsHTML(*dropData(m_platformDragData))
+        || ::containsHTML(*m_platformDragData)
         || containsColor();
 }
 
@@ -166,17 +157,16 @@ PassRefPtr<DocumentFragment> DragData::asFragment(Document* doc) const
      //    if (PassRefPtr<DocumentFragment> fragment = fragmentFromFilenames(doc, m_platformDragData))
      //        return fragment;
 
-     WebDropData* data = dropData(m_platformDragData);
-     if (!data->cf_html.empty()) {
+     if (!m_platformDragData->cf_html.empty()) {
          RefPtr<DocumentFragment> fragment = fragmentFromCF_HTML(doc,
-             webkit_glue::StdWStringToString(data->cf_html));
+             webkit_glue::StdWStringToString(m_platformDragData->cf_html));
          return fragment;
      }
 
-     if (!data->text_html.empty()) {
+     if (!m_platformDragData->text_html.empty()) {
          String url;
          RefPtr<DocumentFragment> fragment = createFragmentFromMarkup(doc,
-             webkit_glue::StdWStringToString(data->text_html), url);
+             webkit_glue::StdWStringToString(m_platformDragData->text_html), url);
          return fragment;
      }
 

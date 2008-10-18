@@ -36,24 +36,8 @@ void NetworkStateNotifier::updateState()
 {
 }
 
-// TODO(darin): Kill this once we stop defining PLATFORM(WIN)
-#if PLATFORM(WIN)
-void NetworkStateNotifier::addressChanged()
-{
-}
-
-void NetworkStateNotifier::callAddressChanged(void* context)
-{
-}
-
-void CALLBACK NetworkStateNotifier::addrChangeCallback(void* context, BOOLEAN timedOut)
-{
-}
-
-void NetworkStateNotifier::registerForAddressChange()
-{
-}
-#elif PLATFORM(MAC)
+// TODO(darin): Kill this once we stop defining PLATFORM(MAC)
+#if PLATFORM(MAC)
 void NetworkStateNotifier::networkStateChangeTimerFired(Timer<NetworkStateNotifier>*)
 {
 }

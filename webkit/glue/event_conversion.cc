@@ -40,7 +40,7 @@ uint32 MakePlatformMouseEvent::last_click_time_ = 0;
 MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
                                                const WebMouseEvent& e)
 #if defined(OS_WIN)
-    : PlatformMouseEvent(NULL, 0, 0, 0, false /* TODO(darin): do we care? */) {
+  {
 #elif defined(OS_MACOSX)
     : PlatformMouseEvent(e.mac_event.get()) {
 #elif defined(OS_LINUX)
@@ -85,9 +85,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
         last_click_position = IntPoint();
         last_click_time_ = 0;
       }
-#if defined(OS_WIN)
-      setClickCount(last_click_count_);
-#endif
+      m_clickCount = last_click_count_;
       m_eventType = MouseEventMoved;
       break;
 
@@ -101,16 +99,12 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
       }
       last_click_time_ = current_time;
       last_click_button = m_button;
-#if defined(OS_WIN)
-      setClickCount(last_click_count_);
-#endif
+      m_clickCount = last_click_count_;
       m_eventType = MouseEventPressed;
       break;
 
     case WebInputEvent::MOUSE_UP:
-#if defined(OS_WIN)
-      setClickCount(last_click_count_);
-#endif
+      m_clickCount = last_click_count_;
       m_eventType = MouseEventReleased;
       break;
 
@@ -119,9 +113,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
   }
 
   if (webkit_glue::IsLayoutTestMode()) {
-#if defined(OS_WIN)
-    setClickCount(e.layout_test_click_count);
-#endif
+    m_clickCount = e.layout_test_click_count;
   }
 }
 
@@ -130,7 +122,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
 MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
                                                const WebMouseWheelEvent& e)
 #if defined(OS_WIN)
-    : PlatformWheelEvent(NULL, 0, 0, false) {  // TODO(jackson): Check if it's a horizontal event
+  {
 #elif defined(OS_MACOSX)
     : PlatformWheelEvent(e.mac_event.get()) {
 #elif defined(OS_LINUX)
@@ -146,13 +138,20 @@ MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
   m_linesToScrollPerDelta = 1;
   m_pageXScrollMode = false;
   m_pageYScrollMode = false;
+  m_isAccepted = false;
   m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
   m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
   m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;
   m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
+  m_isContinuous = false;
+  m_continuousDeltaX = 0;
+  m_continuousDeltaY = 0;
 }
 
-static inline const PlatformKeyboardEvent::Type platformKeyTypeForWebInputEventType(WebInputEvent::Type type) {
+// MakePlatformKeyboardEvent --------------------------------------------------
+
+static inline const PlatformKeyboardEvent::Type ToPlatformKeyboardEventType(
+    WebInputEvent::Type type) {
   switch (type) {
     case WebInputEvent::KEY_UP:
       return PlatformKeyboardEvent::KeyUp;
@@ -164,26 +163,141 @@ static inline const PlatformKeyboardEvent::Type platformKeyTypeForWebInputEventT
       ASSERT_NOT_REACHED();
   }
   return PlatformKeyboardEvent::KeyDown;
-} 
+}
 
-// MakePlatformKeyboardEvent --------------------------------------------------
+static inline String ToSingleCharacterString(UChar c) {
+  return String(&c, 1);
+}
+
+static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
+  switch (keyCode) {
+    case VK_MENU:
+      return "Alt";
+    case VK_CONTROL:
+      return "Control";
+    case VK_SHIFT:
+      return "Shift";
+    case VK_CAPITAL:
+      return "CapsLock";
+    case VK_LWIN:
+    case VK_RWIN:
+      return "Win";
+    case VK_CLEAR:
+      return "Clear";
+    case VK_DOWN:
+      return "Down";
+    // "End"
+    case VK_END:
+      return "End";
+    // "Enter"
+    case VK_RETURN:
+      return "Enter";
+    case VK_EXECUTE:
+      return "Execute";
+    case VK_F1:
+      return "F1";
+    case VK_F2:
+      return "F2";
+    case VK_F3:
+      return "F3";
+    case VK_F4:
+      return "F4";
+    case VK_F5:
+      return "F5";
+    case VK_F6:
+      return "F6";
+    case VK_F7:
+      return "F7";
+    case VK_F8:
+      return "F8";
+    case VK_F9:
+      return "F9";
+    case VK_F10:
+      return "F11";
+    case VK_F12:
+      return "F12";
+    case VK_F13:
+      return "F13";
+    case VK_F14:
+      return "F14";
+    case VK_F15:
+      return "F15";
+    case VK_F16:
+      return "F16";
+    case VK_F17:
+      return "F17";
+    case VK_F18:
+      return "F18";
+    case VK_F19:
+      return "F19";
+    case VK_F20:
+      return "F20";
+    case VK_F21:
+      return "F21";
+    case VK_F22:
+      return "F22";
+    case VK_F23:
+      return "F23";
+    case VK_F24:
+      return "F24";
+    case VK_HELP:
+      return "Help";
+    case VK_HOME:
+      return "Home";
+    case VK_INSERT:
+      return "Insert";
+    case VK_LEFT:
+      return "Left";
+    case VK_NEXT:
+      return "PageDown";
+    case VK_PRIOR:
+      return "PageUp";
+    case VK_PAUSE:
+      return "Pause";
+    case VK_SNAPSHOT:
+      return "PrintScreen";
+    case VK_RIGHT:
+      return "Right";
+    case VK_SCROLL:
+      return "Scroll";
+    case VK_SELECT:
+      return "Select";
+    case VK_UP:
+      return "Up";
+    // Standard says that DEL becomes U+007F.
+    case VK_DELETE:
+      return "U+007F";
+    default:
+      return String::format("U+%04X", toupper(keyCode));
+  }
+}
 
 MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
 #if defined(OS_WIN)
-    : PlatformKeyboardEvent(NULL, e.key_code, e.key_data,
-                            platformKeyTypeForWebInputEventType(e.type), 
-                            e.system_key) {
+  {
 #elif defined(OS_MACOSX)
     : PlatformKeyboardEvent(e.mac_event.get()) {
 #elif defined(OS_LINUX)
     : PlatformKeyboardEvent(NULL) {
 #endif
+  m_type = ToPlatformKeyboardEventType(e.type);
+  if (m_type == Char || m_type == KeyDown)
+    m_text = m_unmodifiedText = ToSingleCharacterString(e.key_code);
+  if (m_type != Char)
+    m_keyIdentifier = GetKeyIdentifierForWindowsKeyCode(e.key_code);
+  if (m_type == Char || m_type == KeyDown || m_type == KeyUp ||
+      m_type == RawKeyDown) {
+    m_windowsVirtualKeyCode = e.key_code;
+  } else {
+    m_windowsVirtualKeyCode = 0;
+  }
   m_autoRepeat = (e.modifiers & WebInputEvent::IS_AUTO_REPEAT) != 0;
   m_isKeypad = (e.modifiers & WebInputEvent::IS_KEYPAD) != 0;
   m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
   m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
   m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;
   m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
+  m_isSystemKey = e.system_key;
 } 
 
 void MakePlatformKeyboardEvent::SetKeyType(Type type) {

@@ -36,6 +36,7 @@
 #include <hash_map>
 #include <string>
 #include <windows.h>
+#include <objidl.h>
 #include <mlang.h>
 
 #include "base/gfx/font_utils.h"
@@ -336,11 +337,6 @@ static bool fontContainsCharacter(const FontPlatformData* font_data,
     return cmap->contains(character);
 }
 
-IMLangFontLink2* FontCache::getFontLinkInterface()
-{
-  return webkit_glue::GetLangFontLink();
-}
-
 // Given the desired base font, this will create a SimpleFontData for a specific
 // font that can be used to render the given range of characters.
 // Two methods are used : our own getFallbackFamily and Windows' font linking.
@@ -438,7 +434,7 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
     // IMLangFontLink can break up a string into regions that can be rendered
     // using one particular font.
     // See http://blogs.msdn.com/oldnewthing/archive/2004/07/16/185261.aspx
-    IMLangFontLink2* langFontLink = getFontLinkInterface();
+    IMLangFontLink2* langFontLink = webkit_glue::GetLangFontLink();
     if (!langFontLink)
         return 0;
 

@@ -851,7 +851,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
 #if defined(OS_WIN)
       // TODO(pinkerton): Fix Mac scrolling to be more like Win ScrollView
       if (selection_rect) {
-        gfx::Rect rect(
+        gfx::Rect rect = webkit_glue::FromIntRect(
             frame()->view()->convertToContainingWindow(active_selection_rect_));
         rect.Offset(-frameview()->scrollOffset().width(),
                     -frameview()->scrollOffset().height());
@@ -959,7 +959,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   pos.move(-frameview()->scrollOffset().width(),
            -frameview()->scrollOffset().height());
   ReportFindInPageSelection(
-      gfx::Rect(frame()->view()->convertToContainingWindow(pos)),
+      webkit_glue::FromIntRect(frame()->view()->convertToContainingWindow(pos)),
       active_tickmark_ + 1,
       request.request_id);
 #endif
@@ -1170,7 +1170,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
       pos.move(-frameview()->scrollOffset().width(),
         -frameview()->scrollOffset().height());
       ReportFindInPageSelection(
-          gfx::Rect(frame()->view()->convertToContainingWindow(pos)),
+          webkit_glue::FromIntRect(frame()->view()->convertToContainingWindow(pos)),
           active_tickmark_ + 1,
           request.request_id);
 #endif
@@ -1834,7 +1834,7 @@ void WebFrameImpl::GetPageRect(int page, gfx::Rect* page_size) const {
     NOTREACHED();
     return;
   }
-  *page_size = pages_[page];
+  *page_size = webkit_glue::FromIntRect(pages_[page]);
 }
 
 bool WebFrameImpl::SpoolPage(int page,

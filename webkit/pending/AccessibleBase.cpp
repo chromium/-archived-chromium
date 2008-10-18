@@ -47,7 +47,6 @@ using namespace WebCore;
 
 AccessibleBase::AccessibleBase(AccessibilityObject* obj)
     : AccessibilityObjectWrapper(obj)
-    , m_refCount(0)
 {
     ASSERT_ARG(obj, obj);
     m_object->setWrapper(this);
@@ -81,12 +80,15 @@ HRESULT STDMETHODCALLTYPE AccessibleBase::QueryInterface(REFIID riid, void** ppv
     return S_OK;
 }
 
+ULONG STDMETHODCALLTYPE AccessibleBase::AddRef(void)
+{
+    ref();
+    return 0;
+}
+
 ULONG STDMETHODCALLTYPE AccessibleBase::Release(void)
 {
-    ASSERT(m_refCount > 0);
-    if (--m_refCount)
-        return m_refCount;
-    delete this;
+    deref();
     return 0;
 }
 

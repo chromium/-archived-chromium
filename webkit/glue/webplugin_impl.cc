@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "Cursor.h"
 #include "Document.h"
 #include "Element.h"
 #include "Event.h"
@@ -26,6 +27,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "KeyboardEvent.h"
 #include "MouseEvent.h"
 #include "Page.h"
+#include "PlatformContextSkia.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformString.h"
 #include "ResourceHandle.h"
@@ -52,7 +54,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/stacking_order_iterator.h"
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
-#include "webkit/port/platform/Cursor.h"
 
 // This class handles invididual multipart responses. It is instantiated when
 // we receive HTTP status code 206 in the HTTP response. This indicates
@@ -518,7 +519,7 @@ void WebPluginImpl::Invalidate() {
 
 void WebPluginImpl::InvalidateRect(const gfx::Rect& rect) {
   if (widget_)
-    widget_->invalidateRect(WebCore::IntRect(rect.ToRECT()));
+    widget_->invalidateRect(webkit_glue::ToIntRect(rect));
 }
 
 WebCore::IntRect WebPluginImpl::windowClipRect() const {
@@ -615,8 +616,8 @@ void WebPluginImpl::setFrameGeometry(const WebCore::IntRect& rect) {
     // so that all the HWNDs are moved together.
     WebPluginGeometry move;
     move.window = window_;
-    move.window_rect = gfx::Rect(window_rect);
-    move.clip_rect = gfx::Rect(clip_rect);
+    move.window_rect = webkit_glue::FromIntRect(window_rect);
+    move.clip_rect = webkit_glue::FromIntRect(clip_rect);
     move.cutout_rects = cutout_rects;
     move.visible = visible_;
 
@@ -624,7 +625,8 @@ void WebPluginImpl::setFrameGeometry(const WebCore::IntRect& rect) {
   }
 
   delegate_->UpdateGeometry(
-      gfx::Rect(window_rect), gfx::Rect(clip_rect), cutout_rects,
+      webkit_glue::FromIntRect(window_rect),
+      webkit_glue::FromIntRect(clip_rect), cutout_rects,
       received_first_paint_notification_? visible_ : false);
 
   // delegate_ can go away as a result of above call, so check it first.
@@ -664,7 +666,8 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
       CalculateBounds(widget_->frameGeometry(), &window_rect, &clip_rect,
                       &cutout_rects);
 
-      delegate_->UpdateGeometry(gfx::Rect(window_rect), gfx::Rect(clip_rect),
+      delegate_->UpdateGeometry(webkit_glue::FromIntRect(window_rect),
+                                webkit_glue::FromIntRect(clip_rect),
                                 cutout_rects, visible_);
       delegate_->FlushGeometryUpdates();
     }
@@ -682,15 +685,15 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
                 static_cast<float>(origin.y()));
 
   // HDC is only used when in windowless mode.
-  HDC hdc = gc->getWindowsContext(damage_rect); // Is this the right rect?
+  HDC hdc = gc->platformContext()->canvas()->beginPlatformPaint();
 
   WebCore::IntRect window_rect =
       WebCore::IntRect(view->contentsToWindow(damage_rect.location()),
                        damage_rect.size());
 
-  delegate_->Paint(hdc, gfx::Rect(window_rect));
+  delegate_->Paint(hdc, webkit_glue::FromIntRect(window_rect));
 
-  gc->releaseWindowsContext(hdc, damage_rect);
+  gc->platformContext()->canvas()->endPlatformPaint();
   gc->restore();
 }
 
@@ -702,11 +705,9 @@ void WebPluginImpl::print(WebCore::GraphicsContext* gc) {
     return;
 
   gc->save();
-  // Our implementation of getWindowsContext doesn't care about any of the
-  // parameters, so just pass some random ones in.
-  HDC hdc = gc->getWindowsContext(WebCore::IntRect(), true, true);
+  HDC hdc = gc->platformContext()->canvas()->beginPlatformPaint();
   delegate_->Print(hdc);
-  gc->releaseWindowsContext(hdc, WebCore::IntRect(), true, true);
+  gc->platformContext()->canvas()->endPlatformPaint();
   gc->restore();
 }
 
@@ -821,7 +822,7 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   // A windowless plugin can change the cursor in response to the WM_MOUSEMOVE
   // event. We need to reflect the changed cursor in the frame view as the
   // the mouse is moved in the boundaries of the windowless plugin.
-  parent()->setCursor(current_web_cursor);
+  parent()->setCursor(WebCore::PlatformCursor(current_web_cursor));
 }
 
 void WebPluginImpl::handleKeyboardEvent(WebCore::KeyboardEvent* event) {
@@ -1062,7 +1063,7 @@ void WebPluginImpl::CalculateBounds(const WebCore::IntRect& frame_rect,
   widget_->windowCutoutRects(&rects);
   // Convert to gfx::Rect and subtract out the plugin position.
   for (size_t i = 0; i < rects.size(); i++) {
-    gfx::Rect r(rects[i]);
+    gfx::Rect r = webkit_glue::FromIntRect(rects[i]);
     r.Offset(-frame_rect.x(), -frame_rect.y());
     cutout_rects->push_back(r);
   }

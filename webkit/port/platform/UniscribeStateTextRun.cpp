@@ -36,8 +36,8 @@ UniscribeStateTextRun::UniscribeStateTextRun(const WebCore::TextRun& run,
                                              const WebCore::Font& font)
     : UniscribeState(run.characters(), run.length(), run.rtl(),
                      font.primaryFont()->platformData().hfont(),
-                     font.primaryFont()->scriptCache(),
-                     font.primaryFont()->scriptFontProperties()),
+                     font.primaryFont()->platformData().scriptCache(),
+                     font.primaryFont()->platformData().scriptFontProperties()),
        font_(&font),
        font_index_(0) {
     set_directional_override(run.directionalOverride());
@@ -112,8 +112,8 @@ bool UniscribeStateTextRun::NextWinFontData(
         font_data->fontDataForCharacter(' ');
 
     hfonts_->push_back(simple_font_data->platformData().hfont()); 
-    script_caches_->push_back(simple_font_data->scriptCache());
-    font_properties_->push_back(simple_font_data->scriptFontProperties());
+    script_caches_->push_back(simple_font_data->platformData().scriptCache());
+    font_properties_->push_back(simple_font_data->platformData().scriptFontProperties());
     ascents_->push_back(simple_font_data->ascent()); 
   }
 

@@ -23,17 +23,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "PlatformMouseEvent.h"
+#include "config.h"
+#include "PlatformKeyboardEvent.h"
 
+#if PLATFORM(WIN_OS)
 #include <windows.h>
+#else
+#include "NotImplemented.h"
+#endif
 
 namespace WebCore {
 
-PlatformMouseEvent::PlatformMouseEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam, bool activatedWebView)
-    : m_clickCount(0)
-    , m_activatedWebView(activatedWebView)
+void PlatformKeyboardEvent::disambiguateKeyDownEvent(Type, bool)
 {
-    // All other code in here has moved to glue/event_conversion.cc
+    // No KeyDown events on Windows to disambiguate.
+    ASSERT_NOT_REACHED();
 }
 
-} // namespace WebCore
+bool PlatformKeyboardEvent::currentCapsLockState()
+{
+#if PLATFORM(WIN_OS)
+    // TODO(darin): does this even work inside the sandbox?
+    return GetKeyState(VK_CAPITAL) & 1;
+#else
+    notImplemented();
+    return false;
+#endif
+}
+
+}

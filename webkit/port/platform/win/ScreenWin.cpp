@@ -37,6 +37,10 @@
 
 namespace WebCore {
 
+static FloatRect ToFloatRect(const RECT& rect) {
+    return FloatRect(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+}
+
 // Returns info for the default monitor if widget is NULL
 static MONITORINFOEX monitorInfoForWidget(Widget* widget)
 {
@@ -78,13 +82,13 @@ bool screenIsMonochrome(Widget* widget)
 FloatRect screenRect(Widget* widget)
 {
     MONITORINFOEX monitorInfo = monitorInfoForWidget(widget);
-    return monitorInfo.rcMonitor;
+    return ToFloatRect(monitorInfo.rcMonitor);
 }
 
 FloatRect screenAvailableRect(Widget* widget)
 {
     MONITORINFOEX monitorInfo = monitorInfoForWidget(widget);
-    return monitorInfo.rcWork;
+    return ToFloatRect(monitorInfo.rcWork);
 }
 
 } // namespace WebCore

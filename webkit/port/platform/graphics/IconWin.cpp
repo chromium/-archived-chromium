@@ -31,15 +31,15 @@
 
 namespace WebCore {
 
-Icon::Icon(HICON icon)
-    : m_hIcon(icon)
+Icon::Icon(const PlatformIcon& icon)
+    : m_icon(icon)
 {
 }
 
 Icon::~Icon()
 {
-    if (m_hIcon)
-        DestroyIcon(m_hIcon);
+    if (m_icon)
+        DestroyIcon(m_icon);
 }
 
 PassRefPtr<Icon> Icon::newIconForFile(const String& filename)
@@ -59,7 +59,7 @@ void Icon::paint(GraphicsContext* context, const IntRect& r)
     if (context->paintingDisabled())
         return;
 
-    context->platformContext()->paintIcon(m_hIcon, r);
+    context->platformContext()->paintIcon(m_icon, r);
 }
 
 } // namespace WebCore

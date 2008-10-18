@@ -12,8 +12,13 @@
 
 namespace WebCore {
 class CString;
+class IntRect;
 class KURL;
 class String;
+}
+
+namespace gfx {
+class Rect;
 }
 
 namespace webkit_glue {
@@ -39,6 +44,9 @@ WebCore::String StdStringToString(const std::string& str);
 
 GURL KURLToGURL(const WebCore::KURL& url);
 WebCore::KURL GURLToKURL(const GURL& url);
+
+gfx::Rect FromIntRect(const WebCore::IntRect& r);
+WebCore::IntRect ToIntRect(const gfx::Rect& r);
 
 }  // namespace webkit_glue
 

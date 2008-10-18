@@ -195,11 +195,11 @@ static bool FillNonBMPGlyphs(UChar* buffer,
                              const SimpleFontData* fontData)
 {
     bool have_glyphs = false;
-     
+    
     UniscribeStateTextRun state(buffer, GlyphPage::size * 2, false,
                                 fontData->m_font.hfont(),
-                                fontData->scriptCache(),
-                                fontData->scriptFontProperties());
+                                fontData->m_font.scriptCache(),
+                                fontData->m_font.scriptFontProperties());
     state.set_inhibit_ligate(true);
     state.Init();
 

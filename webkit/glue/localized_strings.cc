@@ -123,16 +123,6 @@ String WebCore::unknownFileSizeText() {
   return String();
 }
 
-// These two are used in FileChooserWin.cpp.
-#if PLATFORM(WIN)
-String WebCore::uploadFileText() {
-  return String();
-}
-String WebCore::allFilesText() {
-  return String();
-}
-#endif
-
 // The following two functions are not declared in LocalizedStrings.h.
 // They are used by the menu for the HTML keygen tag.
 namespace WebCore {

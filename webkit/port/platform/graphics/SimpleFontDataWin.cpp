@@ -35,6 +35,7 @@
 #include <wtf/MathExtras.h>
 #include <unicode/uchar.h>
 #include <unicode/unorm.h>
+#include <objidl.h>
 #include <mlang.h>
 
 #include "webkit/glue/webkit_glue.h"
@@ -50,8 +51,6 @@ void SimpleFontData::platformInit()
 {
     HDC dc = GetDC(0);
     HGDIOBJ oldFont = SelectObject(dc, m_font.hfont());
-
-    m_isSystemFont = false;
 
     TEXTMETRIC tm = {0};
     if (!GetTextMetrics(dc, &tm)) {
@@ -88,36 +87,13 @@ void SimpleFontData::platformInit()
 
     SelectObject(dc, oldFont);
     ReleaseDC(0, dc);
-
-    // Uniscribe will allocate this for us, and expects it to be initialized to
-    // NULL.
-    m_scriptCache = 0;
-
-    // It's unclear why this variable is a pointer.
-    m_scriptFontProperties = 0;
 }
 
 void SimpleFontData::platformDestroy()
 {
-    if (m_font.isMLangFont()) {
-        // We have to release the font instead of just deleting it, since we
-        // didn't make it.
-        //
-        // TODO(brettw): bug 1072298: This should be removed when we remove
-        // IMLangFontLink2 support. I think this is incorrect, as it will delete
-        // the font out from under any other PlatformData structures that share
-        // the same internal refcounted objects.
-        IMLangFontLink2* langFontLink = FontCache::getFontLinkInterface();
-        if (langFontLink)
-            langFontLink->ReleaseFont(m_font.hfont());
-    }
-
     // We don't hash this on Win32, so it's effectively owned by us.
     delete m_smallCapsFontData;
     m_smallCapsFontData = NULL;
-
-    ScriptFreeCache(&m_scriptCache);
-    delete m_scriptFontProperties;
 }
 
 SimpleFontData* SimpleFontData::smallCapsFontData(const FontDescription& fontDescription) const
@@ -142,7 +118,7 @@ bool SimpleFontData::containsCharacters(const UChar* characters, int length) con
     // FIXME: Microsoft documentation seems to imply that characters can be output using a given font and DC
     // merely by testing code page intersection.  This seems suspect though.  Can't a font only partially
     // cover a given code page?
-    IMLangFontLink2* langFontLink = FontCache::getFontLinkInterface();
+    IMLangFontLink2* langFontLink = webkit_glue::GetLangFontLink();
     if (!langFontLink)
         return false;
 
@@ -214,39 +190,6 @@ float SimpleFontData::platformWidthForGlyph(Glyph glyph) const
     ReleaseDC(0, dc);
 
     return static_cast<float>(width);
-}
-
-SCRIPT_FONTPROPERTIES* SimpleFontData::scriptFontProperties() const
-{
-    if (!m_scriptFontProperties) {
-        m_scriptFontProperties = new SCRIPT_FONTPROPERTIES;
-        memset(m_scriptFontProperties, 0, sizeof(SCRIPT_FONTPROPERTIES));
-        m_scriptFontProperties->cBytes = sizeof(SCRIPT_FONTPROPERTIES);
-        HRESULT result = ScriptGetFontProperties(0, scriptCache(),
-                                                 m_scriptFontProperties);
-        if (result == E_PENDING) {
-            HDC dc = GetDC(0);
-            HGDIOBJ oldFont = SelectObject(dc, m_font.hfont());
-            HRESULT hr = ScriptGetFontProperties(dc, scriptCache(),
-                                                 m_scriptFontProperties);
-            if (S_OK != hr) {
-                if (webkit_glue::EnsureFontLoaded(m_font.hfont())) {
-                    // Retry ScriptGetFontProperties.
-                    // TODO(nsylvain): Handle gracefully the error if this call
-                    // also fails. See bug 1136944.
-                    hr = ScriptGetFontProperties(dc, scriptCache(),
-                                                 m_scriptFontProperties);
-                    if (S_OK != hr) {
-                        ASSERT_NOT_REACHED();
-                    }
-                }
-            }
-
-            SelectObject(dc, oldFont);
-            ReleaseDC(0, dc);
-        }
-    }
-    return m_scriptFontProperties;
 }
 
 }

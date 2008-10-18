@@ -30,7 +30,7 @@
 #include "GraphicsContext.h"
 #include "Image.h"
 
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
 #include <windows.h>
 #else
 #include "NotImplemented.h"
@@ -43,7 +43,7 @@ IntSize dragImageSize(DragImageRef image)
 // TODO(darin): DragImageRef should be changed to be a cross-platform
 // container.  However, it may still make sense for its contents to be
 // platform-dependent.
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
     if (!image)
         return IntSize();
     BITMAP b;
@@ -56,7 +56,7 @@ IntSize dragImageSize(DragImageRef image)
 
 void deleteDragImage(DragImageRef image)
 {
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
     if (image)
         ::DeleteObject(image);
 #else

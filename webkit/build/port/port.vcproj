@@ -183,10 +183,6 @@
 		<Filter
 			Name="page"
 			>
-			<File
-				RelativePath="..\..\port\page\AccessibilityObjectWrapperWin.h"
-				>
-			</File>
 			<Filter
 				Name="chromium"
 				>
@@ -731,15 +727,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\win\KeyEventWin.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\win\PasteboardWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\win\PlatformMouseEventWin.cpp"
 					>
 				</File>
 				<File
@@ -756,10 +744,6 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\win\WCDataObject.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\win\WheelEventWin.cpp"
 					>
 				</File>
 			</Filter>
@@ -804,6 +788,10 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\chromium\MimeTypeRegistryChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\PlatformKeyboardEventChromium.cpp"
 					>
 				</File>
 				<File
@@ -951,19 +939,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\IntPointWin.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\graphics\IntRectSkia.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\IntRectWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\IntSizeWin.cpp"
 					>
 				</File>
 				<File
@@ -1059,6 +1035,14 @@
 					</File>
 					<File
 						RelativePath="..\..\port\platform\graphics\svg\SVGResourceMaskerSkia.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="chromium"
+					>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\PlatformIcon.h"
 						>
 					</File>
 				</Filter>

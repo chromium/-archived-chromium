@@ -273,36 +273,6 @@ void BitmapImage::checkForSolidColor()
 {
 }
 
-bool BitmapImage::getHBITMAP(HBITMAP bmp)
-{
-    NativeImageSkia* bm = nativeImageForCurrentFrame();
-    if (!bm)
-      return false;
-
-    // |bmp| is already allocated and sized correctly, we just need to draw
-    // into it.
-    BITMAPINFOHEADER hdr;
-    gfx::CreateBitmapHeader(bm->width(), bm->height(), &hdr);
-    SkAutoLockPixels bm_lock(*bm); 
-    return SetDIBits(0, bmp, 0, bm->height(), bm->getPixels(),
-                     reinterpret_cast<BITMAPINFO*>(&hdr), DIB_RGB_COLORS) ==
-        bm->height();
-}
-
-bool BitmapImage::getHBITMAPOfSize(HBITMAP bmp, LPSIZE size)
-{
-    notImplemented();
-    return false;
-}
-
-void BitmapImage::drawFrameMatchingSourceSize(GraphicsContext*,
-                                              const FloatRect& dstRect,
-                                              const IntSize& srcSize,
-                                              CompositeOperator)
-{
-    notImplemented();
-}
-
 void BitmapImage::draw(GraphicsContext* ctxt, const FloatRect& dstRect,
                        const FloatRect& srcRect, CompositeOperator compositeOp)
 {

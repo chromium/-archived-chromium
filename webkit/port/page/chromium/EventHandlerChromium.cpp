@@ -26,6 +26,7 @@
 #include "config.h"
 #include "EventHandler.h"
 
+#include "Clipboard.h"
 #include "Cursor.h"
 #include "FloatPoint.h"
 #include "FocusController.h"
@@ -42,7 +43,7 @@
 #include "SelectionController.h"
 #include "NotImplemented.h"
 
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
 #include "ClipboardWin.h"
 #include "WCDataObject.h"
 #endif
@@ -139,7 +140,7 @@ bool EventHandler::eventActivatedView(const PlatformMouseEvent& event) const
 
 PassRefPtr<Clipboard> EventHandler::createDraggingClipboard() const
 {
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
     COMPtr<WCDataObject> dataObject;
     WCDataObject::createInstance(&dataObject);
     return ClipboardWin::create(true, dataObject.get(), ClipboardWritable);
