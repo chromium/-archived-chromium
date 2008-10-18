@@ -28,34 +28,25 @@ if env['PLATFORM'] == 'win32':
   )
 
 lib_input_files = [
-    'gurl.cc',
-    'url_canon_etc.cc',
-    'url_canon_fileurl.cc',
-    'url_canon_host.cc',
-    'url_canon_icu.cc',
-    'url_canon_internal.cc',
-    'url_canon_ip.cc',
-    'url_canon_mailtourl.cc',
-    'url_canon_path.cc',
-    'url_canon_pathurl.cc',
-    'url_canon_query.cc',
-    'url_canon_relative.cc',
-    'url_canon_stdurl.cc',
-    'url_parse.cc',
-    'url_parse_file.cc',
-    'url_util.cc',
+    'src/gurl.cc',
+    'src/url_canon_etc.cc',
+    'src/url_canon_fileurl.cc',
+    'src/url_canon_host.cc',
+    'src/url_canon_icu.cc',
+    'src/url_canon_internal.cc',
+    'src/url_canon_ip.cc',
+    'src/url_canon_mailtourl.cc',
+    'src/url_canon_path.cc',
+    'src/url_canon_pathurl.cc',
+    'src/url_canon_query.cc',
+    'src/url_canon_relative.cc',
+    'src/url_canon_stdurl.cc',
+    'src/url_parse.cc',
+    'src/url_parse_file.cc',
+    'src/url_util.cc',
 ]
 
-def BuildObjectFiles(environ, input_files):
-  obj_files = []
-  for input_file in input_files:
-    source = '../googleurl/src/' + input_file
-    target = '$TARGET_ROOT/googleurl/' + input_file[:input_file.find('.cc')]
-    obj_files.append(environ.StaticObject(source = source, target = target))
-  return obj_files
-
-env.ChromeStaticLibrary('$TARGET_ROOT/googleurl/googleurl',
-                        BuildObjectFiles(env, lib_input_files))
+env.ChromeStaticLibrary('googleurl', lib_input_files)
 
 env_tests = env.Clone()
 
@@ -75,21 +66,20 @@ env_tests.Append(
 )
 
 test_files = [
-   'gurl_unittest.cc',
-   'url_canon_unittest.cc',
-   'url_parse_unittest.cc',
-   'url_util_unittest.cc',
+   'src/gurl_unittest.cc',
+   'src/url_canon_unittest.cc',
+   'src/url_parse_unittest.cc',
+   'src/url_util_unittest.cc',
+   # The version of gtest that googleurl uses provides a main() function; ours
+   # doesn't so include our own main function.
+   env_tests.ChromeObject('run_all_unittests',
+                          '$OBJ_ROOT/base/run_all_unittests.cc'),
 ]
 
-test_obj_files = BuildObjectFiles(env_tests, test_files)
 # The version of gtest that googleurl uses provides a main() function; ours
 # doesn't so include our own main function.
-test_obj_files.append(env_tests.StaticObject(source = '../base/run_all_unittests.cc',
-    target = '$TARGET_ROOT/googleurl/run_all_unittests'))
+gurl_unittests = env_tests.ChromeTestProgram('googleurl_unittests', test_files)
 
-gurl_unittests = env_tests.ChromeTestProgram(
-    '$TARGET_ROOT/googleurl/googleurl_unittests', test_obj_files)
-
-installed_gurl_unittests = env.Install('$TARGET_ROOT', gurl_unittests)
+installed_gurl_unittests = env.Replicate('$MAIN_DIR/Hammer', gurl_unittests)
 
 env.Alias('googleurl', installed_gurl_unittests)

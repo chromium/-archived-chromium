@@ -25,6 +25,7 @@ env.Append(
         '$WEBKIT_DIR/glue',
         '$GTEST_DIR/include',
     ],
+    LIBPATH = ['$V8_DIR'],
     LIBS = [
         'test_shell',
         'glue',
@@ -92,12 +93,16 @@ elif env['PLATFORM'] in ('posix', 'darwin'):
       ]
   )
 
-input_files = [
+common_objs = [env.ChromeObject(i) for i in [
     'test_navigation_controller.cc',
     'test_shell_switches.cc',
+]]
+
+
+input_files = [
+    common_objs,
 ]
 if env['PLATFORM'] == 'win32':
-  # TODO(port): put portable files in above test_files declaration.
   input_files.extend([
       'drag_delegate.cc',
       'drop_delegate.cc',
@@ -128,13 +133,13 @@ if env['PLATFORM'] == 'win32':
   # TODO(port): figure out what to do with resources.
   resources = [
       env_res.RES('resources/test_shell.rc'),
-      '$NET_DIR/net_resources.res',
+      '$OBJ_ROOT/net/net_resources.res',
       '$WEBKIT_DIR/build/localized_strings/webkit_strings_en-US.res',
   ]
 
   exe_input_files = [
       'test_shell_main.cc',
-      '$V8_DIR/snapshot-empty$OBJSUFFIX'
+      '$V8_DIR/obj/release/snapshot-empty$OBJSUFFIX'
   ]
 elif env['PLATFORM'] == 'posix':
   exe_input_files = [
@@ -150,33 +155,52 @@ if env['PLATFORM'] == 'win32':
   env.Depends(test_shell, '$V8_DIR/vc80.pdb')
 
 test_files = [
-   'run_all_tests.cc',
+    common_objs,
+    'image_decoder_unittest.cc',
+    'keyboard_unittest.cc',
+    'layout_test_controller_unittest.cc',
+    'node_leak_test.cc',
+    'plugin_tests.cc',
+    'run_all_tests.cc',
+    'test_shell_test.cc',
+    'text_input_controller_unittest.cc',
+    '$WEBKIT_DIR/glue/autocomplete_input_listener_unittest.cc',
+    '$WEBKIT_DIR/glue/bookmarklet_unittest.cc',
+    '$WEBKIT_DIR/glue/context_menu_unittest.cc',
+    '$WEBKIT_DIR/glue/cpp_bound_class_unittest.cc',
+    '$WEBKIT_DIR/glue/cpp_variant_unittest.cc',
+    '$WEBKIT_DIR/glue/dom_operations_unittest.cc',
+    '$WEBKIT_DIR/glue/dom_serializer_unittest.cc',
+    '$WEBKIT_DIR/glue/glue_serialize_unittest.cc',
+    '$WEBKIT_DIR/glue/iframe_redirect_unittest.cc',
+    '$WEBKIT_DIR/glue/mimetype_unittest.cc',
+    '$WEBKIT_DIR/glue/multipart_response_delegate_unittest.cc',
+    '$WEBKIT_DIR/glue/password_autocomplete_listener_unittest.cc',
+    '$WEBKIT_DIR/glue/regular_expression_unittest.cc',
+    '$WEBKIT_DIR/glue/resource_fetcher_unittest.cc',
+    # Commented out until a regression is fixed and this file is restored.
+    #'$WEBKIT_DIR/glue/stringimpl_unittest.cc',
+    '$WEBKIT_DIR/glue/webframe_unittest.cc',
+    '$WEBKIT_DIR/glue/webplugin_impl_unittest.cc',
+    '$WEBKIT_DIR/port/platform/GKURL_unittest.cpp',
+    '$WEBKIT_DIR/port/platform/image-decoders/bmp/BMPImageDecoder_unittest.cpp',
+    '$WEBKIT_DIR/port/platform/image-decoders/ico/ICOImageDecoder_unittest.cpp',
+    '$WEBKIT_DIR/port/platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp',
+
+    '$V8_DIR/obj/release/snapshot-empty$OBJSUFFIX',
 ]
 
 if env['PLATFORM'] == 'win32':
   # TODO(port): put portable files in above test_files declaration.
   test_files.extend([
-      'drag_delegate.cc',
-      'drop_delegate.cc',
-      'event_sending_controller.cc',
       'image_decoder_unittest.cc',
       'keyboard_unittest.cc',
-      'layout_test_controller.cc',
       'layout_test_controller_unittest.cc',
       'node_leak_test.cc',
       'plugin_tests.cc',
       'run_all_tests.cc',
-      'simple_resource_loader_bridge.cc',
-      'test_navigation_controller.cc',
-      'test_shell.cc',
-      'test_shell_request_context.cc',
-      'test_shell_switches.cc',
       'test_shell_test.cc',
-      'test_webview_delegate.cc',
-      'text_input_controller.cc',
       'text_input_controller_unittest.cc',
-      'webview_host.cc',
-      'webwidget_host.cc',
       '$WEBKIT_DIR/glue/autocomplete_input_listener_unittest.cc',
       '$WEBKIT_DIR/glue/bookmarklet_unittest.cc',
       '$WEBKIT_DIR/glue/context_menu_unittest.cc',
@@ -200,11 +224,10 @@ if env['PLATFORM'] == 'win32':
       '$WEBKIT_DIR/port/platform/image-decoders/ico/ICOImageDecoder_unittest.cpp',
       '$WEBKIT_DIR/port/platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp',
 
-      '$V8_DIR/snapshot-empty$OBJSUFFIX',
+      '$V8_DIR/obj/release/snapshot-empty$OBJSUFFIX'
   ])
 
 test_shell_tests = env.ChromeTestProgram('test_shell_tests',
                                          resources + test_files)
 i = env.Install('$TARGET_ROOT', test_shell_tests)
 env.Alias('webkit', i)
-

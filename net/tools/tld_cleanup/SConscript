@@ -8,7 +8,7 @@ env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
-        '../../..',
+        '$ROOT_DIR',
     ],
     LIBS = [
       'googleurl',
@@ -49,4 +49,3 @@ i = env.Install('$TARGET_ROOT', exe_targets)
 env.Alias('net', i)
 
 env.Install('$TARGET_ROOT', exe_targets)
-

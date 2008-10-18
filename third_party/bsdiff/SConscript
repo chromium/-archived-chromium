@@ -34,7 +34,7 @@ env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
-        '../bspatch',
+        '$BSPATCH_DIR',
     ]
 )
 
