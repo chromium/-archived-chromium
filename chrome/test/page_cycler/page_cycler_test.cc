@@ -89,7 +89,6 @@ class PageCyclerTest : public UITest {
   }
 
   void PrintIOPerfInfo(const wchar_t* test_name) {
-    printf("\n");
     BrowserProcessFilter chrome_filter(L"");
     process_util::NamedProcessIterator
         chrome_process_itr(chrome::kBrowserProcessExecutableName,
@@ -109,34 +108,49 @@ class PageCyclerTest : public UITest {
       ZeroMemory(&io_counters, sizeof(io_counters));
 
       if (process_metrics.get()->GetIOCounters(&io_counters)) {
-        wchar_t* browser_name = L"browser";
-        wchar_t* render_name = L"render";
-        wchar_t* chrome_name;
-        if (pid == chrome_filter.browser_process_id()) {
-          chrome_name = browser_name;
-        } else {
-          chrome_name = render_name;
-        }
+        // Print out IO performance.  We assume that the values can be
+        // converted to size_t (they're reported as ULONGLONG, 64-bit numbers).
+        std::wstring chrome_name =
+            (pid == chrome_filter.browser_process_id()) ? L"_b" : L"_r";
 
-        // print out IO performance
-        wprintf(L"%ls_%ls_read_op = %d\n",
-                test_name, chrome_name, io_counters.ReadOperationCount);
-        wprintf(L"%ls_%ls_write_op = %d\n",
-                test_name, chrome_name, io_counters.WriteOperationCount);
-        wprintf(L"%ls_%ls_other_op = %d\n",
-                test_name, chrome_name, io_counters.OtherOperationCount);
-        wprintf(L"%ls_%ls_read_byte = %d K\n",
-                test_name, chrome_name, io_counters.ReadTransferCount / 1024);
-        wprintf(L"%ls_%ls_write_byte = %d K\n",
-                test_name, chrome_name, io_counters.WriteTransferCount / 1024);
-        wprintf(L"%ls_%ls_other_byte = %d K\n",
-                test_name, chrome_name, io_counters.OtherTransferCount / 1024);
+        PrintResult(L"read_op", chrome_name, chrome_name + test_name,
+                    static_cast<size_t>(io_counters.ReadOperationCount), L"",
+                    false /* not important */);
+        PrintResult(L"write_op", chrome_name, chrome_name + test_name,
+                    static_cast<size_t>(io_counters.WriteOperationCount), L"",
+                    false /* not important */);
+        PrintResult(L"other_op", chrome_name, chrome_name + test_name,
+                    static_cast<size_t>(io_counters.OtherOperationCount), L"",
+                    false /* not important */);
+
+        size_t total = static_cast<size_t>(io_counters.ReadOperationCount +
+                                           io_counters.WriteOperationCount +
+                                           io_counters.OtherOperationCount);
+        PrintResult(L"total_op", chrome_name, chrome_name + test_name,
+                    total, L"", true /* important */);
+
+        PrintResult(L"read_byte", chrome_name, chrome_name + test_name,
+                    static_cast<size_t>(io_counters.ReadTransferCount / 1024),
+                    L"kb", false /* not important */);
+        PrintResult(L"write_byte", chrome_name, chrome_name + test_name,
+                    static_cast<size_t>(io_counters.WriteTransferCount / 1024),
+                    L"kb", false /* not important */);
+        PrintResult(L"other_byte", chrome_name, chrome_name + test_name,
+                    static_cast<size_t>(io_counters.OtherTransferCount / 1024),
+                    L"kb", false /* not important */);
+
+        total = static_cast<size_t>((io_counters.ReadTransferCount +
+                                     io_counters.WriteTransferCount +
+                                     io_counters.OtherTransferCount) / 1024);
+        PrintResult(L"total_byte", chrome_name, chrome_name + test_name,
+                    total, L"kb", true /* important */);
+
+
       }
     }
   }
 
   void PrintMemoryUsageInfo(const wchar_t* test_name) {
-    printf("\n");
     BrowserProcessFilter chrome_filter(L"");
     process_util::NamedProcessIterator
         chrome_process_itr(chrome::kBrowserProcessExecutableName,
@@ -151,25 +165,29 @@ class PageCyclerTest : public UITest {
       size_t current_working_set_size;
       if (GetMemoryInfo(pid, &peak_virtual_size, &current_virtual_size,
                         &peak_working_set_size, &current_working_set_size)) {
-        if (pid == chrome_filter.browser_process_id()) {
-          wprintf(L"%ls_browser_vm_peak = %d\n", test_name, peak_virtual_size);
-          wprintf(L"%ls_browser_vm_final = %d\n", test_name,
-                                                  current_virtual_size);
-          wprintf(L"%ls_browser_ws_peak = %d\n", test_name,
-                                                  peak_working_set_size);
-          wprintf(L"%ls_browser_ws_final = %d\n", test_name,
-                                                  current_working_set_size);
-        } else {
-          wprintf(L"%ls_render_vm_peak = %d\n", test_name, peak_virtual_size);
-          wprintf(L"%ls_render_vm_final = %d\n", test_name,
-                                                 current_virtual_size);
-          wprintf(L"%ls_render_ws_peak = %d\n", test_name,
-                                                peak_working_set_size);
-          wprintf(L"%ls_render_ws_final = %d\n", test_name,
-                                                 current_working_set_size);
-        }
+
+        std::wstring chrome_name =
+            (pid == chrome_filter.browser_process_id()) ? L"_b" : L"_r";
+
+        std::wstring trace_name(test_name);
+        PrintResult(L"vm_peak", chrome_name,
+                    L"vm_pk" + chrome_name + trace_name,
+                    peak_virtual_size, L"bytes",
+                    true /* important */);
+        PrintResult(L"vm_final", chrome_name,
+                    L"vm_f" + chrome_name + trace_name,
+                    current_virtual_size, L"bytes",
+                    false /* not important */);
+        PrintResult(L"ws_peak", chrome_name,
+                    L"ws_pk" + chrome_name + trace_name,
+                    peak_working_set_size, L"bytes",
+                    true /* important */);
+        PrintResult(L"ws_final", chrome_name,
+                    L"ws_pk" + chrome_name + trace_name,
+                    current_working_set_size, L"bytes",
+                    false /* not important */);
       }
-    };
+    }
   }
 
   // When use_http is true, the test name passed here will be used directly in
@@ -182,12 +200,12 @@ class PageCyclerTest : public UITest {
     if (timings.empty())
       return;
 
-    PrintMemoryUsageInfo(L"__pc");
-    PrintIOPerfInfo(L"__pc");
+    PrintMemoryUsageInfo(L"");
+    PrintIOPerfInfo(L"");
 
-    printf("\n");
-    wprintf(L"__pc_pages = [%ls]\n", pages.c_str());
-    wprintf(L"__pc_timings = [%ls]\n", timings.c_str());
+    wprintf(L"\nPages: [%ls]\n", pages.c_str());
+    PrintResultList(L"times", L"", L"t", timings, L"ms",
+                    true /* important */);
   }
 };
 
@@ -210,11 +228,11 @@ class PageCyclerReferenceTest : public PageCyclerTest {
     if (timings.empty())
       return;
 
-    PrintMemoryUsageInfo(L"__pc_reference");
-    PrintIOPerfInfo(L"__pc_reference");
+    PrintMemoryUsageInfo(L"_ref");
+    PrintIOPerfInfo(L"_ref");
 
-    printf("\n");
-    wprintf(L"__pc_reference_timings = [%ls]\n", timings.c_str());
+    PrintResultList(L"times", L"", L"t_ref", timings, L"ms",
+                    true /* important */);
   }
 };
 

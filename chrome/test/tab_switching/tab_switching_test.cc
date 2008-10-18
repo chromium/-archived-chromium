@@ -101,10 +101,9 @@ class TabSwitchingUITest : public UITest {
     }
 
     // Print the average and standard deviation.
-    // Format: __tsw_timings = [512.00, 419.17]
-    //         Where 512.00 = average
-    //               419.17 = std dev.
-    printf("__tsw_timings = [%s,%s]\n", average.c_str(), std_dev.c_str());
+    PrintResultMeanAndError(L"tab_switch", L"", L"t",
+        ASCIIToWide(average) + L", " + ASCIIToWide(std_dev), L"ms",
+        true /* important */);
   }
 
  protected:

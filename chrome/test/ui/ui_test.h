@@ -160,6 +160,27 @@ class UITest : public testing::Test {
                    const std::wstring& units,
                    bool important);
 
+  // Like PrintResult(), but prints a (mean, standard deviation) result pair.
+  // The |<values>| should be two comma-seaprated numbers, the mean and
+  // standard deviation (or other error metric) of the measurement.
+  void PrintResultMeanAndError(const std::wstring& measurement,
+                               const std::wstring& modifier,
+                               const std::wstring& trace,
+                               const std::wstring& mean_and_error,
+                               const std::wstring& units,
+                               bool important);
+
+  // Like PrintResult(), but prints an entire list of results. The |values|
+  // will generally be a list of comma-separated numbers. A typical
+  // post-processing step might produce plots of their mean and standard
+  // deviation.
+  void PrintResultList(const std::wstring& measurement,
+                       const std::wstring& modifier,
+                       const std::wstring& trace,
+                       const std::wstring& values,
+                       const std::wstring& units,
+                       bool important);
+
   // Gets the directory for the currently active profile in the browser.
   std::wstring GetDownloadDirectory();
 
@@ -290,6 +311,16 @@ class UITest : public testing::Test {
   // Check that no processes related to Chrome exist, displaying
   // the given message if any do.
   void AssertAppNotRunning(const std::wstring& error_message);
+
+  // Common functionality for the public PrintResults methods.
+  void PrintResultsImpl(const std::wstring& measurement,
+                        const std::wstring& modifier,
+                        const std::wstring& trace,
+                        const std::wstring& values,
+                        const std::wstring& prefix,
+                        const std::wstring& suffix,
+                        const std::wstring& units,
+                        bool important);
 
  protected:
   AutomationProxy* automation() {
