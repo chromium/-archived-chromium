@@ -9,7 +9,7 @@ env = env.Clone()
 env.Prepend(
     CPPPATH = [
         '$NPAPI_DIR',
-        '$ROOT_DIR',
+        '#/..',
     ],
 )
 
@@ -41,3 +41,4 @@ input_files = [
 ]
 
 env.ChromeStaticLibrary('activex_shim', input_files)
+

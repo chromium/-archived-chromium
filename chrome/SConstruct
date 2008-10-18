@@ -5,3 +5,4 @@
 build_component = 'chrome'
 SConscript('../build/SConscript.main',
            exports=['build_component'])
+
