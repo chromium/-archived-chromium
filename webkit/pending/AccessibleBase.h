@@ -29,6 +29,8 @@
 #include "AccessibilityObject.h"
 #include "AccessibilityObjectWrapper.h"
 
+#include <oleacc.h>
+
 class AccessibleBase : public IAccessible, public WebCore::AccessibilityObjectWrapper {
 public:
     static AccessibleBase* createInstance(WebCore::AccessibilityObject*);
