@@ -153,7 +153,8 @@ class TestingProfile : public Profile {
   }
 
 #ifdef CHROME_PERSONALIZATION
-  virtual ProfilePersonalization GetProfilePersonalization() {
+  virtual ProfilePersonalization* GetProfilePersonalization() {
+    return NULL;
   }
 #endif
 
