@@ -13,13 +13,9 @@
 #include "StringImpl.h"  // This is so that the KJS build works
 
 MSVC_PUSH_WARNING_LEVEL(0);
-// HACK: make it possible to initialize these classes...
-// TODO(darin): send this change to webkit.org
-#define private protected
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformWheelEvent.h"
-#undef private
 #include "Widget.h"
 MSVC_POP_WARNING();
 
@@ -165,6 +161,7 @@ static inline const PlatformKeyboardEvent::Type ToPlatformKeyboardEventType(
   return PlatformKeyboardEvent::KeyDown;
 }
 
+#if defined(OS_WIN)
 static inline String ToSingleCharacterString(UChar c) {
   return String(&c, 1);
 }
@@ -271,6 +268,7 @@ static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
       return String::format("U+%04X", toupper(keyCode));
   }
 }
+#endif
 
 MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
 #if defined(OS_WIN)
@@ -280,6 +278,7 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
 #elif defined(OS_LINUX)
     : PlatformKeyboardEvent(NULL) {
 #endif
+#if defined(OS_WIN)
   m_type = ToPlatformKeyboardEventType(e.type);
   if (m_type == Char || m_type == KeyDown)
     m_text = m_unmodifiedText = ToSingleCharacterString(e.key_code);
@@ -291,13 +290,14 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   } else {
     m_windowsVirtualKeyCode = 0;
   }
+  m_isSystemKey = e.system_key;
+#endif
   m_autoRepeat = (e.modifiers & WebInputEvent::IS_AUTO_REPEAT) != 0;
   m_isKeypad = (e.modifiers & WebInputEvent::IS_KEYPAD) != 0;
   m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
   m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
   m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;
   m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
-  m_isSystemKey = e.system_key;
 } 
 
 void MakePlatformKeyboardEvent::SetKeyType(Type type) {
