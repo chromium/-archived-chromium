@@ -43,6 +43,7 @@ void NetworkStateNotifier::networkStateChangeTimerFired(Timer<NetworkStateNotifi
 }
 #endif
 
+#if PLATFORM(WIN) || PLATFORM(MAC)
 NetworkStateNotifier::NetworkStateNotifier()
     : m_isOnLine(true)
 #if PLATFORM(MAC)
@@ -50,5 +51,6 @@ NetworkStateNotifier::NetworkStateNotifier()
 #endif
 {
 }
+#endif
 
 }

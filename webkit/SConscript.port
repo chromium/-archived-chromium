@@ -118,11 +118,8 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   # Remove from the list files that haven't yet been made portable
   # to Mac and Linux.
   remove_files = [
-    '$PORT_DIR/platform/network/chromium/NetworkStateNotifierChromium.cpp',
     '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
-    '$PORT_DIR/page/chromium/DragControllerChromium.cpp',
     '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
-    '$PORT_DIR/platform/chromium/ContextMenuItemChromium.cpp',
     '$PORT_DIR/platform/chromium/CursorChromium.cpp',
     '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
     '$PORT_DIR/platform/chromium/PlatformScrollBarChromium.cpp',

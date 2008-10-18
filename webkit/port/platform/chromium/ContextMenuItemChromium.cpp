@@ -51,7 +51,7 @@ ContextMenuItem::~ContextMenuItem()
 
 PlatformMenuItemDescription ContextMenuItem::releasePlatformDescription()
 {
-    return 0;
+    return PlatformMenuItemDescription();
 }
 
 ContextMenuItemType ContextMenuItem::type() const
