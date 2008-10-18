@@ -1150,8 +1150,3 @@ V8 | KJS # LayoutTests/fast/dom/gc-1.html = CRASH | PASS
 // Post-merge flakey on debug builds (passes consistently on release)
 V8 | KJS # LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
 V8 | KJS # LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
-
-// This one is flakey and might be related.
-V8 # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
-
-
