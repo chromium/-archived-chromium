@@ -221,4 +221,44 @@ bool ScrollView::isScrollable() {
   return false;
 }
 
+// PLATFORM(CHROMIUM) is defined, so we need to stub these methods:
+
+void ScrollView::detachFromWindow()
+{
+}
+
+void ScrollView::attachToWindow()
+{
+}
+
+void ScrollView::hide()
+{
+}
+
+void ScrollView::show()
+{
+}
+
+void ScrollView::themeChanged()
+{
+}
+
+void ScrollView::setParent(ScrollView* parentView)
+{
+}
+
+void Widget::setParent(ScrollView* parentView)
+{
+}
+
+IntPoint Widget::convertSelfToChild(const Widget* child, const IntPoint& point) const
+{
+    return IntPoint();
+}
+
+IntPoint Widget::convertChildToSelf(const Widget* child, const IntPoint& point) const
+{
+    return IntPoint();
+}
+
 }
