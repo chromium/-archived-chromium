@@ -26,8 +26,6 @@
 #ifndef AccessibilityObjectWrapper_h
 #define AccessibilityObjectWrapper_h
 
-#include <oleacc.h>
-
 namespace WebCore {
 
     class AccessibilityObject;

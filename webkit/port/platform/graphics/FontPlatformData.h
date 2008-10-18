@@ -24,10 +24,17 @@
 #ifndef FontPlatformData_H
 #define FontPlatformData_H
 
+#include "config.h"
+
 #include "StringImpl.h"
 #include <wtf/PassRefPtr.h>
 #include <wtf/RefCounted.h>
+
+// TODO(tc): Once this file is only included by the ChromiumWin build, we can
+// remove the PLATFORM #ifs.
+#if PLATFORM(WIN_OS)
 #include <usp10.h>
+#endif
 
 typedef struct HFONT__ *HFONT;
 
@@ -69,8 +76,10 @@ public:
         return m_font == other.m_font && m_size == other.m_size;
     }
 
+#if PLATFORM(WIN_OS)
     SCRIPT_FONTPROPERTIES* scriptFontProperties() const;
     SCRIPT_CACHE* scriptCache() const { return &m_scriptCache; }
+#endif
 
 private:
     // We refcount the internal HFONT so that FontPlatformData can be
@@ -114,8 +123,10 @@ private:
     RefPtr<RefCountedHFONT> m_font;
     float m_size;  // Point size of the font in pixels.
 
+#if PLATFORM(WIN_OS)
     mutable SCRIPT_CACHE m_scriptCache;
     mutable SCRIPT_FONTPROPERTIES* m_scriptFontProperties;
+#endif
 };
 
 }

@@ -117,12 +117,10 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
 
 MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
                                                const WebMouseWheelEvent& e)
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   {
 #elif defined(OS_MACOSX)
     : PlatformWheelEvent(e.mac_event.get()) {
-#elif defined(OS_LINUX)
-    : PlatformWheelEvent(NULL) {
 #endif
 #if defined(OS_WIN) || defined(OS_LINUX)
   m_position = widget->convertFromContainingWindow(IntPoint(e.x, e.y));
@@ -161,11 +159,11 @@ static inline const PlatformKeyboardEvent::Type ToPlatformKeyboardEventType(
   return PlatformKeyboardEvent::KeyDown;
 }
 
-#if defined(OS_WIN)
 static inline String ToSingleCharacterString(UChar c) {
   return String(&c, 1);
 }
 
+#if defined(OS_WIN)
 static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
   switch (keyCode) {
     case VK_MENU:
@@ -268,17 +266,19 @@ static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
       return String::format("U+%04X", toupper(keyCode));
   }
 }
+#else
+static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
+  return String::format("U+%04X", toupper(keyCode));
+}
 #endif
 
 MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   {
 #elif defined(OS_MACOSX)
     : PlatformKeyboardEvent(e.mac_event.get()) {
-#elif defined(OS_LINUX)
-    : PlatformKeyboardEvent(NULL) {
 #endif
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   m_type = ToPlatformKeyboardEventType(e.type);
   if (m_type == Char || m_type == KeyDown)
     m_text = m_unmodifiedText = ToSingleCharacterString(e.key_code);
@@ -290,7 +290,6 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   } else {
     m_windowsVirtualKeyCode = 0;
   }
-  m_isSystemKey = e.system_key;
 #endif
   m_autoRepeat = (e.modifiers & WebInputEvent::IS_AUTO_REPEAT) != 0;
   m_isKeypad = (e.modifiers & WebInputEvent::IS_KEYPAD) != 0;
@@ -298,6 +297,9 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
   m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;
   m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
+#if defined(OS_WIN)
+  m_isSystemKey = e.system_key;
+#endif
 } 
 
 void MakePlatformKeyboardEvent::SetKeyType(Type type) {
