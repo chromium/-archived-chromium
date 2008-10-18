@@ -22,7 +22,6 @@ class PluginInstaller;
 class RenderViewHost;
 class RenderViewHostFactory;
 class RenderWidgetHost;
-class SadTabView;
 class WebContentsView;
 
 // WebContents represents the contents of a tab that shows web pages. It embeds
@@ -269,9 +268,6 @@ class WebContents : public TabContents,
                                 const GURL& image_url,
                                 bool errored,
                                 const SkBitmap& image);
-  virtual void ShowContextMenu(const ViewHostMsg_ContextMenu_Params& params);
-  virtual void StartDragging(const WebDropData& drop_data);
-  virtual void UpdateDragCursor(bool is_drop_target);
   virtual void RequestOpenURL(const GURL& url,
                               WindowOpenDisposition disposition);
   virtual void DomOperationResponse(const std::string& json_string,
@@ -292,7 +288,6 @@ class WebContents : public TabContents,
                                    const std::string& json_arguments,
                                    IPC::Message* reply_msg);
   virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms);
-  virtual void TakeFocus(bool reverse);
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& url, bool autodetected);
   virtual void InspectElementReply(int num_resources);
@@ -322,9 +317,6 @@ class WebContents : public TabContents,
       int32 page_id,
       const webkit_glue::WebApplicationInfo& info);
   virtual void OnEnterOrSpace();
-
-  // Stupid render view host view pass-throughs.
-  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
 
   // SelectFileDialog::Listener ------------------------------------------------
 
@@ -453,6 +445,16 @@ class WebContents : public TabContents,
   virtual void UpdateHistoryForNavigation(const GURL& display_url,
       const ViewHostMsg_FrameNavigate_Params& params);
 
+  // Saves the given title to the navigation entry and does associated work. It
+  // will update history and the view for the new title, and also synthesize
+  // titles for file URLs that have none (so we require that the URL of the
+  // entry already be set).
+  //
+  // This is used as the backend for state updates, which include a new title,
+  // or the dedicated set title message. It returns true if the new title is
+  // different and was therefore updated.
+  bool UpdateTitleForEntry(NavigationEntry* entry, const std::wstring& title);
+
   // Misc non-view stuff -------------------------------------------------------
 
   // Helper functions for sending notifications.
@@ -496,8 +498,10 @@ class WebContents : public TabContents,
   TimeTicks current_load_start_;
 
   // Whether we have a (non-empty) title for the current page.
-  // Used to prevent subsequent title updates from affecting history.
-  bool has_page_title_;
+  // Used to prevent subsequent title updates from affecting history. This
+  // prevents some weirdness because some AJAXy apps use titles for status
+  // messages.
+  bool received_page_title_;
 
   // SavePackage, lazily created.
   scoped_refptr<SavePackage> save_package_;
@@ -523,10 +527,6 @@ class WebContents : public TabContents,
 
   // PluginInstaller, lazily created.
   scoped_ptr<PluginInstaller> plugin_installer_;
-
-  // The SadTab renderer.
-  // TODO(brettw) move into WebContentsView*.
-  scoped_ptr<SadTabView> sad_tab_;
 
   // Handles downloading favicons.
   FavIconHelper fav_icon_helper_;

@@ -164,29 +164,35 @@ InfoBarView* WebContentsViewWin::GetInfoBarView() {
   return info_bar_view_.get();
 }
 
+void WebContentsViewWin::SetPageTitle(const std::wstring& title) {
+  if (GetContainerHWND()) {
+    // It's possible to get this after the hwnd has been destroyed.
+    ::SetWindowText(GetContainerHWND(), title.c_str());
+    // TODO(brettw) this call seems messy the way it reaches into the widget
+    // view, and I'm not sure it's necessary. Maybe we should just remove it.
+    ::SetWindowText(web_contents_->render_widget_host_view()->GetPluginHWND(),
+                    title.c_str());
+  }
+}
+
+void WebContentsViewWin::Invalidate() {
+  // Note that it's possible to get this message after the window was destroyed.
+  if (::IsWindow(GetContainerHWND()))
+    InvalidateRect(GetContainerHWND(), NULL, FALSE);
+}
+
 void WebContentsViewWin::UpdateDragCursor(bool is_drop_target) {
   drop_target_->set_is_drop_target(is_drop_target);
 }
 
-void WebContentsViewWin::ShowContextMenu(
-    const ViewHostMsg_ContextMenu_Params& params) {
-  RenderViewContextMenuController menu_controller(web_contents_, params);
-  RenderViewContextMenu menu(&menu_controller,
-                             GetHWND(),
-                             params.type,
-                             params.misspelled_word,
-                             params.dictionary_suggestions,
-                             web_contents_->profile());
+void WebContentsViewWin::TakeFocus(bool reverse) {
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetContainerHWND());
 
-  POINT screen_pt = { params.x, params.y };
-  MapWindowPoints(GetHWND(), HWND_DESKTOP, &screen_pt, 1);
-
-  // Enable recursive tasks on the message loop so we can get updates while
-  // the context menu is being displayed.
-  bool old_state = MessageLoop::current()->NestableTasksAllowed();
-  MessageLoop::current()->SetNestableTasksAllowed(true);
-  menu.RunMenuAt(screen_pt.x, screen_pt.y);
-  MessageLoop::current()->SetNestableTasksAllowed(old_state);
+  // We may not have a focus manager if the tab has been switched before this
+  // message arrived.
+  if (focus_manager)
+    focus_manager->AdvanceFocus(reverse);
 }
 
 void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
@@ -216,6 +222,27 @@ void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
                 event.actual_message.message,
                 event.actual_message.wParam,
                 event.actual_message.lParam);
+}
+
+void WebContentsViewWin::ShowContextMenu(
+    const ViewHostMsg_ContextMenu_Params& params) {
+  RenderViewContextMenuController menu_controller(web_contents_, params);
+  RenderViewContextMenu menu(&menu_controller,
+                             GetHWND(),
+                             params.type,
+                             params.misspelled_word,
+                             params.dictionary_suggestions,
+                             web_contents_->profile());
+
+  POINT screen_pt = { params.x, params.y };
+  MapWindowPoints(GetHWND(), HWND_DESKTOP, &screen_pt, 1);
+
+  // Enable recursive tasks on the message loop so we can get updates while
+  // the context menu is being displayed.
+  bool old_state = MessageLoop::current()->NestableTasksAllowed();
+  MessageLoop::current()->SetNestableTasksAllowed(true);
+  menu.RunMenuAt(screen_pt.x, screen_pt.y);
+  MessageLoop::current()->SetNestableTasksAllowed(old_state);
 }
 
 WebContents* WebContentsViewWin::CreateNewWindowInternal(
@@ -357,13 +384,13 @@ LRESULT WebContentsViewWin::OnMouseRange(UINT msg,
 void WebContentsViewWin::OnPaint(HDC junk_dc) {
   if (web_contents_->render_view_host() &&
       !web_contents_->render_view_host()->IsRenderViewLive()) {
-    if (!web_contents_->sad_tab_.get())
-      web_contents_->sad_tab_.reset(new SadTabView);
+    if (!sad_tab_.get())
+      sad_tab_.reset(new SadTabView);
     CRect cr;
     GetClientRect(&cr);
-    web_contents_->sad_tab_->SetBounds(gfx::Rect(cr));
+    sad_tab_->SetBounds(gfx::Rect(cr));
     ChromeCanvasPaint canvas(GetHWND(), true);
-    web_contents_->sad_tab_->ProcessPaint(&canvas);
+    sad_tab_->ProcessPaint(&canvas);
     return;
   }
 

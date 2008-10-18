@@ -954,6 +954,10 @@ void RenderViewHost::OnMsgDidDownloadImage(
 
 void RenderViewHost::OnMsgContextMenu(
     const ViewHostMsg_ContextMenu_Params& params) {
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (!view)
+    return;
+
   // Validate the URLs in |params|.  If the renderer can't request the URLs
   // directly, don't show them in the context menu.
   ViewHostMsg_ContextMenu_Params validated_params(params);
@@ -965,7 +969,7 @@ void RenderViewHost::OnMsgContextMenu(
   FilterURL(policy, renderer_id, &validated_params.page_url);
   FilterURL(policy, renderer_id, &validated_params.frame_url);
 
-  delegate_->ShowContextMenu(validated_params);
+  view->ShowContextMenu(validated_params);
 }
 
 void RenderViewHost::OnMsgOpenURL(const GURL& url,
@@ -1058,15 +1062,21 @@ void RenderViewHost::OnMsgPasswordFormsSeen(
 
 void RenderViewHost::OnMsgStartDragging(
     const WebDropData& drop_data) {
-  delegate_->StartDragging(drop_data);
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->StartDragging(drop_data);
 }
 
 void RenderViewHost::OnUpdateDragCursor(bool is_drop_target) {
-  delegate_->UpdateDragCursor(is_drop_target);
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->UpdateDragCursor(is_drop_target);
 }
 
 void RenderViewHost::OnTakeFocus(bool reverse) {
-  delegate_->TakeFocus(reverse);
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view)
+    view->TakeFocus(reverse);
 }
 
 void RenderViewHost::OnMsgPageHasOSDD(int32 page_id, const GURL& doc_url,
@@ -1110,10 +1120,17 @@ void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {
 }
 
 void RenderViewHost::UnhandledInputEvent(const WebInputEvent& event) {
-  if ((event.type == WebInputEvent::KEY_DOWN) ||
-      (event.type == WebInputEvent::CHAR))
-    delegate_->HandleKeyboardEvent(
-        static_cast<const WebKeyboardEvent&>(event));
+  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (view) {
+    // TODO(brettw) why do we have to filter these types of events here. Can't
+    // the renderer just send us the ones we care abount, or maybe the view
+    // should be able to decide which ones it wants or not?
+    if ((event.type == WebInputEvent::KEY_DOWN) ||
+        (event.type == WebInputEvent::CHAR)) {
+      view->HandleKeyboardEvent(
+          static_cast<const WebKeyboardEvent&>(event));
+    }
+  }
 }
 
 void RenderViewHost::ForwardKeyboardEvent(const WebKeyboardEvent& key_event) {

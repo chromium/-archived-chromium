@@ -34,7 +34,6 @@
 #include "chrome/browser/template_url_fetcher.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/views/hung_renderer_view.h"  // TODO(brettw) delete me.
-#include "chrome/browser/views/sad_tab_view.h"  // FIXME(brettw) delete me.
 #include "chrome/browser/web_contents_view.h"
 #include "chrome/browser/web_contents_view_win.h"
 #include "chrome/common/chrome_switches.h"
@@ -177,7 +176,7 @@ WebContents::WebContents(Profile* profile,
       ALLOW_THIS_IN_INITIALIZER_LIST(
           render_manager_(render_view_factory, this, this)),
       render_view_factory_(render_view_factory),
-      has_page_title_(false),
+      received_page_title_(false),
       is_starred_(false),
       printing_(*this),
       notify_disconnection_(false),
@@ -750,26 +749,14 @@ void WebContents::RendererGone(RenderViewHost* rvh) {
     return;
   }
 
-  // TODO(brettw) move the platform-specific view stuff here to the view.
-
-  // Force an invalidation here to render sad tab.  however, it is possible for
-  // our window to have already gone away (since we may be in the process of
-  // closing this render view).
-  if (::IsWindow(view_->GetContainerHWND()))
-    InvalidateRect(view_->GetContainerHWND(), NULL, FALSE);
-
   SetIsLoading(false, NULL);
-
-  // Ensure that this browser window is enabled.  This deals with the case where
-  // a renderer crashed while showing a modal dialog.  We're assuming that the
-  // browser code will never show a modal dialog, so we could only be disabled
-  // by something the renderer (or some plug-in) did.
-  HWND root_window = ::GetAncestor(view_->GetContainerHWND(), GA_ROOT);
-  if (!::IsWindowEnabled(root_window))
-    ::EnableWindow(root_window, TRUE);
-
   NotifyDisconnected();
   SetIsCrashed(true);
+
+  // Force an invalidation to render sad tab. The view will notice we crashed
+  // when it paints.
+  view_->Invalidate();
+
   // Hide any visible hung renderer warning for this web contents' process.
   HungRendererWarning::HideForWebContents(this);
 }
@@ -861,31 +848,9 @@ void WebContents::UpdateState(RenderViewHost* rvh,
     entry->set_url(url);
   }
 
-  // For file URLs without a title, use the pathname instead.
-  std::wstring final_title;
-  if (url.SchemeIsFile() && title.empty()) {
-    final_title = UTF8ToWide(url.ExtractFileName());
-  } else {
-    TrimWhitespace(title, TRIM_ALL, &final_title);
-  }
-  if (final_title != entry->title()) {
+  // Save the new title if it changed.
+  if (UpdateTitleForEntry(entry, title))
     changed_flags |= INVALIDATE_TITLE;
-    entry->set_title(final_title);
-
-    // Update the history system for this page.
-    if (!profile()->IsOffTheRecord()) {
-      HistoryService* hs =
-          profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
-      if (hs)
-        hs->SetPageTitle(entry->display_url(), final_title);
-    }
-  }
-  // TODO(brettw) move this to the view.
-  if (view_->GetContainerHWND()) {
-    // It's possible to get this after the hwnd has been destroyed.
-    ::SetWindowText(view_->GetContainerHWND(), title.c_str());
-    ::SetWindowText(render_widget_host_view()->GetPluginHWND(), title.c_str());
-  }
 
   // Update the state (forms, etc.).
   if (state != entry->content_state())
@@ -919,29 +884,12 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
                                              page_id);
   }
 
-  if (!entry)
+  if (!entry || !UpdateTitleForEntry(entry, title))
     return;
-
-  std::wstring trimmed_title;
-  TrimWhitespace(title, TRIM_ALL, &trimmed_title);
-  if (title == entry->title())
-    return;  // Title did not change, do nothing.
-
-  entry->set_title(trimmed_title);
 
   // Broadcast notifications when the UI should be updated.
   if (entry == controller()->GetEntryAtOffset(0))
     NotifyNavigationStateChanged(INVALIDATE_TITLE);
-
-  // Update the history system for this page.
-  if (profile()->IsOffTheRecord())
-    return;
-
-  HistoryService* hs = profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
-  if (hs && !has_page_title_ && !trimmed_title.empty()) {
-    hs->SetPageTitle(entry->display_url(), trimmed_title);
-    has_page_title_ = true;
-  }
 }
 
 
@@ -1125,19 +1073,6 @@ void WebContents::DidDownloadImage(
     web_app_->SetImage(image_url, image);
 }
 
-void WebContents::ShowContextMenu(
-    const ViewHostMsg_ContextMenu_Params& params) {
-  view_->ShowContextMenu(params);
-}
-
-void WebContents::StartDragging(const WebDropData& drop_data) {
-  view_->StartDragging(drop_data);
-}
-
-void WebContents::UpdateDragCursor(bool is_drop_target) {
-  view_->UpdateDragCursor(is_drop_target);
-}
-
 void WebContents::RequestOpenURL(const GURL& url,
                                  WindowOpenDisposition disposition) {
   OpenURL(url, disposition, PageTransition::LINK);
@@ -1238,18 +1173,6 @@ void WebContents::ShowModalHTMLDialog(const GURL& url, int width, int height,
 void WebContents::PasswordFormsSeen(
     const std::vector<PasswordForm>& forms) {
   GetPasswordManager()->PasswordFormsSeen(forms);
-}
-
-void WebContents::TakeFocus(bool reverse) {
-  // TODO(brettw) move this to the view.
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(view_->GetContainerHWND());
-
-  // We may not have a focus manager if the tab has been switched before this
-  // message arrived.
-  if (focus_manager) {
-    focus_manager->AdvanceFocus(reverse);
-  }
 }
 
 // Checks to see if we should generate a keyword based on the OSDD, and if
@@ -1496,11 +1419,6 @@ void WebContents::OnEnterOrSpace() {
     drm->OnUserGesture(this);
 }
 
-// Stupid pass-through for RenderViewHostDelegate.
-void WebContents::HandleKeyboardEvent(const WebKeyboardEvent& event) {
-  view_->HandleKeyboardEvent(event);
-}
-
 void WebContents::FileSelected(const std::wstring& path, void* params) {
   render_view_host()->FileSelected(path);
 }
@@ -1620,8 +1538,8 @@ void WebContents::DidNavigateMainFramePostCommit(
   // the commit.
   GenerateKeywordIfNecessary(params);
 
-  // We no longer know the title after this navigation.
-  has_page_title_ = false;
+  // Allow the new page to set the title again.
+  received_page_title_ = false;
 
   // Update contents MIME type of the main webframe.
   contents_mime_type_ = params.contents_mime_type;
@@ -1793,6 +1711,43 @@ void WebContents::UpdateHistoryForNavigation(const GURL& display_url,
                   params.transition, params.redirects);
     }
   }
+}
+
+bool WebContents::UpdateTitleForEntry(NavigationEntry* entry,
+                                      const std::wstring& title) {
+  // For file URLs without a title, use the pathname instead. In the case of a
+  // synthesized title, we don't want the update to count toward the "one set
+  // per page of the title to history."
+  std::wstring final_title;
+  bool explicit_set;
+  if (entry->url().SchemeIsFile() && title.empty()) {
+    final_title = UTF8ToWide(entry->url().ExtractFileName());
+    explicit_set = false;  // Don't count synthetic titles toward the set limit.
+  } else {
+    TrimWhitespace(title, TRIM_ALL, &final_title);
+    explicit_set = true;
+  }
+
+  if (final_title == entry->title())
+    return false;  // Nothing changed, don't bother.
+
+  entry->set_title(final_title);
+
+  // Update the history system for this page.
+  if (!profile()->IsOffTheRecord() && !received_page_title_) {
+    HistoryService* hs =
+        profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
+    if (hs)
+      hs->SetPageTitle(entry->display_url(), final_title);
+    
+    // Don't allow the title to be saved again for explicitly set ones.
+    received_page_title_ = explicit_set;
+  }
+
+  // Lastly, set the title for the view.
+  view_->SetPageTitle(final_title);
+
+  return true;
 }
 
 void WebContents::NotifySwapped() {

@@ -20,7 +20,6 @@ class RenderViewHost;
 class RenderWidgetHost;
 class RenderWidgetHostView;
 class RenderWidgetHostViewWin;  // TODO(brettw) this should not be necessary.
-struct ViewHostMsg_ContextMenu_Params;
 class WebContents;
 struct WebDropData;
 class WebKeyboardEvent;
@@ -68,10 +67,6 @@ class WebContentsView : public RenderViewHostDelegate::View {
     return gfx::Size(rc.width(), rc.height());
   }
 
-  // The user started dragging content of the specified type within the tab.
-  // Contextual information about the dragged content is supplied by drop_data.
-  virtual void StartDragging(const WebDropData& drop_data) = 0;
-
   // Enumerate and 'un-parent' any plugin windows that are children of us.
   virtual void DetachPluginWindows() = 0;
 
@@ -95,25 +90,24 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // tell us what we need to display instead.
   virtual InfoBarView* GetInfoBarView() = 0;
 
-  // The page wants to update the mouse cursor during a drag & drop operation.
-  // |is_drop_target| is true if the mouse is over a valid drop target.
-  virtual void UpdateDragCursor(bool is_drop_target) = 0;
+  // Sets the page title for the native widgets corresponding to the view. This
+  // is not strictly necessary and isn't expected to be displayed anywhere, but
+  // can aid certain debugging tools such as Spy++ on Windows where you are
+  // trying to find a specific window.
+  virtual void SetPageTitle(const std::wstring& title) = 0;
 
-  // Runs a context menu with the given parameters from the renderer.
-  virtual void ShowContextMenu(
-      const ViewHostMsg_ContextMenu_Params& params) = 0;
-
-  // Posts the given keyboard message and handles it in the native way. This
-  // is called when the renderer reflects a keyboard message back up to us for
-  // default handling.
-  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event) = 0;
+  // Schedules a complete repaint of the window. This is used for cases where
+  // the existing contents became invalid due to an external event, such as the
+  // renderer crashing.
+  virtual void Invalidate() = 0;
 
  protected:
   WebContentsView() {}  // Abstract interface.
 
-  // Internal interface for the RenderViewHostDelegate::View interface.
-  // Subclasses should implement this rather thank ...::View directly, since the
-  // routing stuff will already be computed.
+  // Internal interface for some functions in the RenderViewHostDelegate::View
+  // interface. Subclasses should implement this rather than the corresponding
+  // ...::View functions directly, since the routing stuff will already be
+  // computed. They should implement the rest of the functions as normal.
   //
   // The only difference is that the Create functions return the newly
   // created objects so that they can be associated with the given routes. When
@@ -130,9 +124,9 @@ class WebContentsView : public RenderViewHostDelegate::View {
                                          const gfx::Rect& initial_pos) = 0;
 
  private:
-  // We implement RenderViewHostDelegate::View directly and do some book-keeping
-  // associated with the request. The request is then forwarded to *Internal
-  // which does platform-specific work.
+  // We implement these functions on RenderViewHostDelegate::View directly and
+  // do some book-keeping associated with the request. The request is then
+  // forwarded to *Internal which does platform-specific work.
   virtual void CreateNewWindow(int route_id, HANDLE modal_dialog_event);
   virtual void CreateNewWidget(int route_id);
   virtual void ShowCreatedWindow(int route_id,

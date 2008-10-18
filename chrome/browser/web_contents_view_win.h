@@ -5,11 +5,13 @@
 #ifndef CHROME_BROWSER_WEB_CONTENTS_VIEW_WIN_H_
 #define CHROME_BROWSER_WEB_CONTENTS_VIEW_WIN_H_
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/web_contents_view.h"
 #include "chrome/views/container_win.h"
 
 class InfoBarView;
 class InfoBarMessageView;
+class SadTabView;
 struct WebDropData;
 class WebDropTarget;
 
@@ -35,16 +37,13 @@ class WebContentsViewWin : public WebContentsView,
   virtual HWND GetContainerHWND() const;
   virtual HWND GetContentHWND() const;
   virtual void GetContainerBounds(gfx::Rect* out) const;
-  virtual void StartDragging(const WebDropData& drop_data);
   virtual void DetachPluginWindows();
   virtual void DisplayErrorInInfoBar(const std::wstring& text);
   virtual void SetInfoBarVisible(bool visible);
   virtual bool IsInfoBarVisible() const;
   virtual InfoBarView* GetInfoBarView();
-  virtual void UpdateDragCursor(bool is_drop_target);
-  virtual void ShowContextMenu(
-      const ViewHostMsg_ContextMenu_Params& params);
-  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
+  virtual void SetPageTitle(const std::wstring& title);
+  virtual void Invalidate();
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual WebContents* CreateNewWindowInternal(
@@ -56,6 +55,12 @@ class WebContentsViewWin : public WebContentsView,
                                          bool user_gesture);
   virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
                                          const gfx::Rect& initial_pos);
+  virtual void ShowContextMenu(
+      const ViewHostMsg_ContextMenu_Params& params);
+  virtual void StartDragging(const WebDropData& drop_data);
+  virtual void UpdateDragCursor(bool is_drop_target);
+  virtual void TakeFocus(bool reverse);
+  virtual void HandleKeyboardEvent(const WebKeyboardEvent& event);
 
  private:
   // Windows events ------------------------------------------------------------
@@ -93,6 +98,10 @@ class WebContentsViewWin : public WebContentsView,
 
   // InfoBarView, lazily created.
   scoped_ptr<InfoBarView> info_bar_view_;
+
+  // Used to render the sad tab. This will be non-NULL only when the sad tab is
+  // visible.
+  scoped_ptr<SadTabView> sad_tab_;
 
   // Info bar for crashed plugin message.
   // IMPORTANT: This instance is owned by the InfoBarView. It is valid
