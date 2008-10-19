@@ -272,25 +272,6 @@ void AboutChromeView::Layout() {
                               sz.width(),
                               main_text_label_height_);
 
-  // Position the URLs within the main label. The rects here are calculated when
-  // we draw the strings. First position the Chromium URL within the main label.
-  chromium_url_->SetBounds(chromium_url_rect_.x(),
-                           chromium_url_rect_.y(),
-                           chromium_url_rect_.width(),
-                           chromium_url_rect_.height());
-  // Then position the Open Source URL within the main label.
-  open_source_url_->SetBounds(open_source_url_rect_.x(),
-                              open_source_url_rect_.y(),
-                              open_source_url_rect_.width(),
-                              open_source_url_rect_.height());
-#if defined(GOOGLE_CHROME_BUILD)
-  // Then position the TOS URL within the main label.
-  terms_of_service_url_->SetBounds(terms_of_service_url_rect_.x(),
-                                   terms_of_service_url_rect_.y(),
-                                   terms_of_service_url_rect_.width(),
-                                   terms_of_service_url_rect_.height());
-#endif
-
   // Get the y-coordinate of our parent so we can position the text left of the
   // buttons at the bottom.
   gfx::Rect parent_bounds = GetParent()->GetLocalBounds(false);
@@ -374,7 +355,25 @@ void AboutChromeView::Paint(ChromeCanvas* canvas) {
   // The last text chunk doesn't have a URL associated with it.
   DrawTextStartingFrom(canvas, main_label_chunk5_, &position, label_bounds,
                        font);
+
+  // Position the TOS URL within the main label.
+  terms_of_service_url_->SetBounds(terms_of_service_url_rect_.x(),
+                                   terms_of_service_url_rect_.y(),
+                                   terms_of_service_url_rect_.width(),
+                                   terms_of_service_url_rect_.height());
 #endif
+
+  // Position the URLs within the main label. First position the Chromium URL
+  // within the main label.
+  chromium_url_->SetBounds(chromium_url_rect_.x(),
+                           chromium_url_rect_.y(),
+                           chromium_url_rect_.width(),
+                           chromium_url_rect_.height());
+  // Then position the Open Source URL within the main label.
+  open_source_url_->SetBounds(open_source_url_rect_.x(),
+                              open_source_url_rect_.y(),
+                              open_source_url_rect_.width(),
+                              open_source_url_rect_.height());
 
   // Save the height so we can set the bounds correctly.
   main_text_label_height_ = position.height() + font.height();
