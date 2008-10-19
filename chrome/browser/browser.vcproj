@@ -2103,6 +2103,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\browser_trial.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\browser_trial.h"
+			>
+		</File>
+		<File
 			RelativePath=".\cert_store.cc"
 			>
 		</File>
