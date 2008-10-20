@@ -106,7 +106,7 @@ DWORD UnPackArchive(const std::wstring& archive, bool system_install,
                    << "installed on the system.";
         return 1;
       }
-      if (int i = PatchArchiveFile(system_install, temp_path, 
+      if (int i = PatchArchiveFile(system_install, temp_path,
                                    uncompressed_archive, installed_version)) {
         LOG(ERROR) << "Binary patching failed with error " << i;
         return 1;
@@ -180,7 +180,7 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
   if (!file_util::CreateNewTempDirectory(std::wstring(L"chrome_"),
                                          &temp_path)) {
     LOG(ERROR) << "Could not create temporary path.";
-    InstallUtil::SetInstallerError(system_install, 
+    InstallUtil::SetInstallerError(system_install,
                                    installer_util::TEMP_DIR_FAILED,
                                    IDS_INSTALL_TEMP_DIR_FAILED_BASE);
     return installer_util::TEMP_DIR_FAILED;
@@ -269,7 +269,7 @@ installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
   LOG(INFO) << "Uninstalling Chome";
   if (!version) {
     LOG(ERROR) << "No Chrome installation found for uninstall.";
-    InstallUtil::SetInstallerError(system_install, 
+    InstallUtil::SetInstallerError(system_install,
                                    installer_util::CHROME_NOT_INSTALLED,
                                    IDS_UNINSTALL_FAILED_BASE);
     return installer_util::CHROME_NOT_INSTALLED;
@@ -298,7 +298,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // error message and get out.
   if (!InstallUtil::IsOSSupported()) {
     LOG(ERROR) << "Chrome only supports Windows XP or later.";
-    InstallUtil::SetInstallerError(system_install, 
+    InstallUtil::SetInstallerError(system_install,
                                    installer_util::OS_NOT_SUPPORTED,
                                    IDS_INSTALL_OS_NOT_SUPPORTED_BASE);
     return installer_util::OS_NOT_SUPPORTED;
@@ -307,7 +307,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // Initialize COM for use later.
   if (CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) != S_OK) {
     LOG(ERROR) << "COM initialization failed.";
-    InstallUtil::SetInstallerError(system_install, 
+    InstallUtil::SetInstallerError(system_install,
                                    installer_util::OS_ERROR,
                                    IDS_INSTALL_OS_ERROR_BASE);
     return installer_util::OS_ERROR;
@@ -319,7 +319,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   if (chrome_version.get()) {
     LOG(ERROR) << "Already installed version " << chrome_version->GetString()
                << " conflicts with the current install mode.";
-    installer_util::InstallStatus status = system_install ? 
+    installer_util::InstallStatus status = system_install ?
         installer_util::USER_LEVEL_INSTALL_EXISTS :
         installer_util::SYSTEM_LEVEL_INSTALL_EXISTS;
     int str_id = system_install ? IDS_INSTALL_USER_LEVEL_EXISTS_BASE :
@@ -327,7 +327,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     InstallUtil::SetInstallerError(system_install, status, str_id);
     return status;
   }
-  
+
   // If --register-chrome-browser option is specified, register all
   // Chrome protocol/file associations as well as register it as a valid
   // browser for StarMenu->Internet shortcut. This option should only
@@ -374,4 +374,3 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   return dist->GetInstallReturnCode(install_status);
 }
-
