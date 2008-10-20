@@ -19,7 +19,10 @@
 RenderLayerIterator::RenderLayerIterator() {
 }
 
-void RenderLayerIterator::Reset(WebCore::RenderLayer* rl) {
+void RenderLayerIterator::Reset(const WebCore::IntRect& bounds,
+                                WebCore::RenderLayer* rl) {
+  bounds_ = bounds;
+  root_layer_ = rl;
   if (rl) {
     context_stack_.push_back(Context(rl));
   }
@@ -28,7 +31,10 @@ void RenderLayerIterator::Reset(WebCore::RenderLayer* rl) {
 WebCore::RenderLayer* RenderLayerIterator::Next() {
   while (context_stack_.size()) {
     Context* ctx = &(context_stack_.back());
-    if (ctx->HasMoreNeg()) {
+    if (!ctx->layer()->boundingBox(root_layer_).intersects(bounds_)) {
+      // Doesn't overlap bounds; skip this layer.
+      context_stack_.pop_back();
+    } else if (ctx->HasMoreNeg()) {
       context_stack_.push_back(ctx->NextNeg());
     } else if (ctx->HasSelf()) {
       // Emit self.
@@ -102,11 +108,12 @@ RenderLayerIterator::Context RenderLayerIterator::Context::NextPos() {
 //
 
 StackingOrderIterator::StackingOrderIterator() {
-  Reset(NULL);
+  Reset(WebCore::IntRect(0, 0, 0, 0), NULL);
 }
 
-void StackingOrderIterator::Reset(WebCore::RenderLayer* rl) {
-  layer_iterator_.Reset(rl);
+void StackingOrderIterator::Reset(const WebCore::IntRect& bounds,
+                                  WebCore::RenderLayer* rl) {
+  layer_iterator_.Reset(bounds, rl);
   current_object_ = NULL;
   current_layer_root_ = NULL;
 }
@@ -131,7 +138,6 @@ WebCore::RenderObject* StackingOrderIterator::Next() {
       current_object_ = layer->renderer();
       current_layer_root_ = current_object_;
     }
-    // No more layers.
   }
   return current_object_;
 }

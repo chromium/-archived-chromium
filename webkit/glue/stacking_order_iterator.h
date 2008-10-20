@@ -9,6 +9,7 @@
 #define WEBKIT_GLUE_STACKING_ORDER_ITERATOR_H__
 
 #include <vector>
+#include "IntRect.h"
 
 namespace WebCore {
 class RenderLayer;
@@ -24,8 +25,10 @@ class RenderLayerIterator {
  public:
   RenderLayerIterator();
 
-  // Sets the RenderLayer subtree to iterate over.
-  void Reset(WebCore::RenderLayer* rl);
+  // Sets the RenderLayer subtree to iterate over, and the bounding
+  // box we are interested in.  The bounds coordinates are relative to
+  // the given layer.
+  void Reset(const WebCore::IntRect& bounds, WebCore::RenderLayer* rl);
 
   // Returns the next RenderLayer in stacking order, back to front.
   WebCore::RenderLayer* Next();
@@ -43,6 +46,10 @@ class RenderLayerIterator {
     bool HasMorePos();
     Context NextPos();
 
+    WebCore::RenderLayer* layer() const {
+      return layer_;
+    }
+
    private:
     WebCore::RenderLayer* layer_;
     size_t next_neg_;
@@ -51,6 +58,8 @@ class RenderLayerIterator {
     size_t next_pos_;
   };
 
+  WebCore::IntRect bounds_;
+  const WebCore::RenderLayer* root_layer_;
   std::vector<Context> context_stack_;
 };
 
@@ -61,7 +70,7 @@ class RenderLayerIterator {
 class StackingOrderIterator {
  public:
   StackingOrderIterator();
-  void Reset(WebCore::RenderLayer* rl);
+  void Reset(const WebCore::IntRect& bounds, WebCore::RenderLayer* rl);
   WebCore::RenderObject* Next();
 
  private:
