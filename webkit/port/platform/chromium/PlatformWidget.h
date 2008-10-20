@@ -32,10 +32,6 @@
 
 #include "base/gfx/native_widget_types.h"
 
-namespace WebCore {
-
 typedef gfx::ViewHandle PlatformWidget;
-
-}
 
 #endif
