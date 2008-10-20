@@ -20,35 +20,31 @@ class Location : public RefCounted<Location> {
 
   Frame* frame() { return m_frame; }
 
-  String hash();
+  String protocol() const;
+  String host() const;
+  String hostname() const;
+  String port() const;
+  String pathname() const;
+  String search() const;
+  String hash() const;
+  String href() const;
+
+  String toString() const;  
+
+#if USE(V8)
   void setHash(const String& str);
-
-  String host();
   void setHost(const String& str);
-
-  String hostname();
   void setHostname(const String&);
-
-  String href();
   void setHref(const String&);
-
-  String pathname();
   void setPathname(const String&);
-
-  String port();
   void setPort(const String&);
-
-  String protocol();
   void setProtocol(const String&);
-
-  String search();
   void setSearch(const String&);
 
   void reload(bool forceget);
   void replace(const String& url);
   void assign(const String& url);
-
-  String toString();  
+#endif
 
   void disconnectFrame() { m_frame = 0; }
 
@@ -57,9 +53,9 @@ class Location : public RefCounted<Location> {
 
   Frame* m_frame;
 
+#if USE(V8)
   friend class WindowV8;
-
-  void ChangeLocationTo(const KURL& url, bool lock_history);
+#endif
 };
 
 }  // namespace WebCore
