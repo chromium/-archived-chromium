@@ -242,6 +242,7 @@ env.Replace(
     CCFLAGS = [],
     CPPDEFINES = [],
     LIBS = [],
+    ARFLAGS = [],
     LINKFLAGS = [],
 )
 
@@ -360,11 +361,15 @@ if env['OS'] in ['win32', 'wince']:
 # Do not export UTF functions.
           'U_STATIC_IMPLEMENTATION',
       ],
+# Static lib flags.
+      ARFLAGS = [
+          '/NOLOGO',
+      ],
+# Shared lib and exe flags.
       LINKFLAGS = [
           '/NOLOGO',
           '/DEBUG',
           '/RELEASE',
-
           '/PDB:${TARGET.base}.pdb',
 # Set the preferred base address.  This value was chosen because (a) it's near
 # the top of the valid address range, and (b) it doesn't conflict with other
@@ -379,6 +384,7 @@ if env['OS'] in ['win32', 'wince']:
           '/W3',
           '/WX',
           '/GR-',
+          '/Fd"${TARGET.base}.pdb"',
       ],
       CXXFLAGS = [
           '/TP',
@@ -412,6 +418,9 @@ if env['OS'] in ['win32', 'wince']:
             '_MERGE_PROXYSTUB',
             'BREAKPAD_AVOID_STREAMS',
             'XP_WIN',
+        ],
+        ARFLAGS = [
+            '/MACHINE:X86',
         ],
         LINKFLAGS = [
             '/MACHINE:X86',
@@ -454,6 +463,9 @@ if env['OS'] in ['win32', 'wince']:
             'POCKETPC2003_UI_MODEL',
             '_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA',
             '_CE_CRT_ALLOW_WIN_MINMAX',
+        ],
+        ARFLAGS = [
+            '/MACHINE:THUMB',
         ],
         LINKFLAGS = [
             '/MACHINE:THUMB',

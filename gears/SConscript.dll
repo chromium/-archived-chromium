@@ -33,7 +33,7 @@ env.Tool('midl')
 if env['BROWSER'] == 'IE':
   env.Replace(
       SCONS_DIR = '../../../..',  # the scons dir relative to OPEN_DIR
-      IDLINCPREFIX = '/I$SCONS_DIR',
+      IDLINCPREFIX = '/I$SCONS_DIR/',
       IDLINCSUFFIX = '',
       _IDLINCFLAGS = ('${_concat(IDLINCPREFIX, CPPPATH, IDLINCSUFFIX, '
                      '__env__, RDirs, TARGET, SOURCE)}'),
@@ -250,6 +250,9 @@ env_res.Replace(
     CPPDEFINES = [
         '_UNICODE',
         'UNICODE',
+        '$EXTRA_DEFINES',
+    ],
+    EXTRA_DEFINES = [
         'BROWSER_${BROWSER}=1',
     ],
     CPPPATH = [
@@ -547,7 +550,6 @@ if env['OS'] == 'win32':
       '$OPEN_DIR/base/common/file_win32.cc',
       '$OPEN_DIR/base/common/message_queue_cr.cc',
       '$OPEN_DIR/base/common/time_utils_win32.cc',
-      '$OPEN_DIR/base/common/vista_utils.cc',
       '$OPEN_DIR/base/ie/ie_version.cc',
   ]
 
@@ -1031,6 +1033,21 @@ if not env['OFFICIAL_BUILD']:
   ]
 
 #-----------------------------------------------------------------------------
+# vista_broker
+
+vista_broker_srcs = [
+    '$OPEN_DIR/base/common/process_utils_win32.cc',
+    '$OPEN_DIR/base/common/string16.cc',
+    '$OPEN_DIR/base/common/string_utils.cc',
+    '$OPEN_DIR/desktop/shortcut_utils_win32.cc',
+    '$OPEN_DIR/vista_broker/vista_broker.cc',
+]
+
+vista_broker_srcs += [
+    '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
+]
+
+#-----------------------------------------------------------------------------
 # resources
 
 dll_resources = []
@@ -1050,6 +1067,14 @@ if env['OS'] in ['win32', 'wince']:
 
     if env['OS'] == 'wince':
       dll_resources += [env_res.RES('$GENFILES_DIR/setup.rc')]
+
+  vista_broker_resources = env_res.RES(
+      '$GENFILES_DIR/vista_broker_string_table.res',
+      '$GENFILES_DIR/string_table.rc',
+      EXTRA_DEFINES = 'VISTA_BROKER=1')
+  vista_broker_resources += env_res.RES(
+      '$OPEN_DIR/vista_broker/vista_broker.rc',
+      EXTRA_DEFINES = 'VISTA_BROKER=1')
 
 #-----------------------------------------------------------------------------
 # libs
@@ -1079,9 +1104,8 @@ elif env['BROWSER'] == 'IE':
 # - spidermonkey
 # - libspeex
 # - libtremor
-# - vista broker  
 # TODO: other targets
-# - installer (safari, android, iemobile ...)
+# - installer (safari, android, ...)
 
 # Now build the dependency tree.
 def PatternRule(t, s): return utils.PatternRule(t, s, env)
@@ -1161,3 +1185,13 @@ env.Alias('gears', module)
 
 if env['OS'] == 'wince':
   wince_setup = env.ChromeSharedLibrary('setup', wince_setup_srcs)
+
+if env['OS'] == 'win32' and env['BROWSER'] == 'IE':
+# Note: We use IE_OUTDIR so that relative path from gears.dll is same in
+# development environment as deployment environment.
+# Note: vista_broker.exe needs to stay in sync with name used in
+# desktop_win32.cc.
+# TODO(aa): This can move to common_outdir like crash_sender.exe
+  vista_broker = env.Program('vista_broker',
+      vista_broker_srcs + vista_broker_resources)
+  env.Alias('gears', vista_broker)
