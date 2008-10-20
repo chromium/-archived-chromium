@@ -14,8 +14,6 @@ env.Prepend(
         '#/../third_party/libxml/include',
         '#/../third_party/npapi',
         '#/..',
-# TODO(bradnelson): this might be needed?
-#        '$OBJ_ROOT/webkit/build/localized_strings',
     ],
 )
 
@@ -53,3 +51,4 @@ if env['PLATFORM'] == 'win32':
   ])
 
 env.ChromeStaticLibrary('default_plugin', input_files)
+

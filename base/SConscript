@@ -11,7 +11,7 @@ env.Prepend(
     CPPPATH = [
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
-        '$ROOT_DIR',
+        '..',
     ],
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
@@ -192,7 +192,7 @@ env_tests.Prepend(
         '$LIBPNG_DIR',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
-        '$ROOT_DIR',
+        '..',
     ],
     CPPDEFINES = [
         'UNIT_TEST',
@@ -306,7 +306,7 @@ test_files = [
 if env['PLATFORM'] == 'win32':
   # These tests aren't really Windows-specific, they're just here until
   # we have the port versions working.
-  env_tests.ChromeProgram('debug_message', ['debug_message.cc'])
+  env_tests.ChromeTestProgram('debug_message', ['debug_message.cc'])
 
   test_files.extend([
     'directory_watcher_unittest.cc',
@@ -338,14 +338,8 @@ if env['PLATFORM'] == 'darwin':
 
 base_unittests = env_tests.ChromeTestProgram('base_unittests', test_files)
 
-# Temporarily put things where the buildbot expects them.
-installed_base_unittests = env.Replicate('$MAIN_DIR/Hammer', base_unittests)
-if env['PLATFORM'] == 'win32':
-  icu_data = '$OBJ_ROOT/icudt38.dll'
-else:
-  icu_data = '$OBJ_ROOT/icudt38l.dat'
-icu_data = env.Replicate('$MAIN_DIR/Hammer', icu_data)
-env.Requires(installed_base_unittests, icu_data)
+# Install up a level to allow unit test path assumptions to be valid.
+installed_base_unittests = env.Install('$TARGET_ROOT', base_unittests)
 
 
 sconscript_dirs = [
