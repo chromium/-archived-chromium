@@ -244,15 +244,8 @@ ResourceDispatcher::~ResourceDispatcher() {
 // ResourceDispatcher implementation ------------------------------------------
 
 bool ResourceDispatcher::OnMessageReceived(const IPC::Message& message) {
-  switch (message.type()) {
-    case ViewMsg_Resource_UploadProgress::ID:
-    case ViewMsg_Resource_ReceivedResponse::ID:
-    case ViewMsg_Resource_ReceivedRedirect::ID:
-    case ViewMsg_Resource_DataReceived::ID:
-    case ViewMsg_Resource_RequestComplete::ID:
-      break;
-    default:
-      return false;
+  if (!IsResourceMessage(message)) {
+    return false;
   }
 
   int request_id;
@@ -508,3 +501,19 @@ webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
                                                   request_context);
 }
 
+
+bool ResourceDispatcher::IsResourceMessage(const IPC::Message& message) const {
+  switch (message.type()) {
+    case ViewMsg_Resource_UploadProgress::ID:
+    case ViewMsg_Resource_ReceivedResponse::ID:
+    case ViewMsg_Resource_ReceivedRedirect::ID:
+    case ViewMsg_Resource_DataReceived::ID:
+    case ViewMsg_Resource_RequestComplete::ID:
+      return true;
+
+    default:
+      break;
+  }
+
+  return false;
+}

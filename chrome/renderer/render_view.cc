@@ -156,7 +156,8 @@ RenderView::RenderView()
     disable_popup_blocking_(false),
     has_unload_listener_(false),
     decrement_shared_popup_at_destruction_(false),
-    greasemonkey_enabled_(false) {
+    greasemonkey_enabled_(false),
+    waiting_for_create_window_ack_(false) {
   resource_dispatcher_ = new ResourceDispatcher(this);
 #ifdef CHROME_PERSONALIZATION
   personalization_ = Personalization::CreateRendererPersonalization();
@@ -291,9 +292,22 @@ void RenderView::Init(HWND parent_hwnd,
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
+  // If the current RenderView instance represents a popup, then we
+  // need to wait for ViewMsg_CreatingNew_ACK to be sent by the browser.
+  // As part of this ack we also receive the browser window handle, which
+  // parents any plugins instantiated in this RenderView instance.
+  // Plugins can be instantiated only when we receive the parent window
+  // handle as they are child windows.
+  if (waiting_for_create_window_ack_ && 
+      resource_dispatcher_->IsResourceMessage(message)) {
+    queued_resource_messages_.push(new IPC::Message(message));
+    return;
+  }
+
   // Let the resource dispatcher intercept resource messages first.
   if (resource_dispatcher_->OnMessageReceived(message))
     return;
+
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)
     IPC_MESSAGE_HANDLER(ViewMsg_CreatingNew_ACK, OnCreatingNewAck)
     IPC_MESSAGE_HANDLER(ViewMsg_CaptureThumbnail, SendThumbnail)
@@ -375,6 +389,15 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
 // view.
 void RenderView::OnCreatingNewAck(HWND parent) {
   CompleteInit(parent);
+
+  waiting_for_create_window_ack_ = false;
+
+  while (!queued_resource_messages_.empty()) {
+    IPC::Message* queued_msg = queued_resource_messages_.front();
+    queued_resource_messages_.pop();
+    resource_dispatcher_->OnMessageReceived(*queued_msg);
+    delete queued_msg;
+  }
 }
 
 void RenderView::SendThumbnail() {
@@ -1715,6 +1738,7 @@ WebView* RenderView::CreateWebView(WebView* webview, bool user_gesture) {
                                         prefs, shared_popup_counter_,
                                         routing_id);
   view->set_opened_by_user_gesture(user_gesture);
+  view->set_waiting_for_create_window_ack(true);
 
   // Copy over the alternate error page URL so we can have alt error pages in
   // the new render view (we don't need the browser to send the URL back down).

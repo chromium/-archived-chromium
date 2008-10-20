@@ -68,6 +68,10 @@ class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
     message_sender_ = NULL;
   }
 
+  // Returns true if the message passed in is a resource related
+  // message.
+  bool IsResourceMessage(const IPC::Message& message) const;
+
  private:
   friend class ResourceDispatcherTest;
 

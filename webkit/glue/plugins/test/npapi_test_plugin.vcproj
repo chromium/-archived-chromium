@@ -207,6 +207,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\plugin_javascript_open_popup.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\plugin_javascript_open_popup.h"
+			>
+		</File>
+		<File
 			RelativePath=".\plugin_new_fails_test.cc"
 			>
 		</File>

@@ -13,6 +13,7 @@
 #include "webkit/glue/plugins/test/plugin_npobject_lifetime_test.h"
 #include "webkit/glue/plugins/test/plugin_npobject_proxy_test.h"
 #include "webkit/glue/plugins/test/plugin_window_size_test.h"
+#include "webkit/glue/plugins/test/plugin_javascript_open_popup.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
 
@@ -125,9 +126,17 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
     new_test = new NPAPIClient::NewFailsTest(instance,
         NPAPIClient::PluginClient::HostFunctions());
   } else if (base::strcasecmp(argv[name_index], 
-            "npobject_delete_plugin_in_evaluate") == 0) {
+             "npobject_delete_plugin_in_evaluate") == 0) {
     new_test = new NPAPIClient::NPObjectDeletePluginInNPN_Evaluate(instance,
       NPAPIClient::PluginClient::HostFunctions());
+  } else if (base::strcasecmp(argv[name_index],
+             "plugin_javascript_open_popup_with_plugin") == 0) {
+    new_test = new NPAPIClient::ExecuteJavascriptOpenPopupWithPluginTest(
+        instance, NPAPIClient::PluginClient::HostFunctions());
+  } else if (base::strcasecmp(argv[name_index],
+             "plugin_popup_with_plugin_target") == 0) {
+    new_test = new NPAPIClient::ExecuteJavascriptPopupWindowTargetPluginTest(
+        instance, NPAPIClient::PluginClient::HostFunctions());
   } else {
     // If we don't have a test case for this, create a
     // generic one which basically never fails.

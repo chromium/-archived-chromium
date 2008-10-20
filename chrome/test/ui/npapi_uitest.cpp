@@ -271,3 +271,12 @@ TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInNPNEvaluate) {
                   kShortWaitTimeout);
  }
 }
+
+TEST_F(NPAPIVisiblePluginTester, OpenPopupWindowWithPlugin) {
+  GURL url = GetTestUrl(L"npapi",
+                        L"get_javascript_open_popup_with_plugin.html");
+  NavigateToURL(url);
+  WaitForFinish("plugin_popup_with_plugin_target", "1", url,
+                kTestCompleteCookie, kTestCompleteSuccess,
+                kShortWaitTimeout);
+}

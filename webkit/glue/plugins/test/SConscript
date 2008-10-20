@@ -16,6 +16,7 @@ input_files = [
     'plugin_geturl_test.cc',
     'plugin_new_fails_test.cc',
     'plugin_npobject_proxy_test.cc',
+    'plugin_javascript_open_popup.cc',
     'plugin_test.cc'
 ]
 

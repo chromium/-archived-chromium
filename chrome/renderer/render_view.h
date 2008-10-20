@@ -512,6 +512,10 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // A helper method used by WasOpenedByUserGesture.
   bool WasOpenedByUserGestureHelper() const;
 
+  void set_waiting_for_create_window_ack(bool wait) {
+    waiting_for_create_window_ack_ = wait;
+  }
+
   // Handles resource loads for this view.
   scoped_refptr<ResourceDispatcher> resource_dispatcher_;
 
@@ -657,6 +661,13 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 
   // True if Greasemonkey is enabled in this process.
   bool greasemonkey_enabled_;
+
+  // Resource message queue. Used to queue up resource IPCs if we need
+  // to wait for an ACK from the browser before proceeding.
+  std::queue<IPC::Message*> queued_resource_messages_;
+
+  // Set if we are waiting for an ack for ViewHostMsg_CreateWindow
+  bool waiting_for_create_window_ack_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };
