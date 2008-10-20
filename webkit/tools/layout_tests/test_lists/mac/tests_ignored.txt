@@ -1,0 +1,185 @@
+// These tests will be run (unless skipped), but do not expect ever to pass
+// them. They use platform-specific conventions, or features we have decided 
+// never to support.
+
+// TODO(pinkerton): these need to be scrubbed for Mac OS. They're just a 
+// fork of the windows version right now.
+
+// -----------------------------------------------------------------
+// SKIPPED TESTS
+// -----------------------------------------------------------------
+
+// XHTML tests.  See bug 793944.  These tests seem like they work, but
+// only because the expected output expects to see JS errors.  There is
+// no point in running these tests, because they are giving us a false
+// sense of testing that isn't really happening.  Furthermore, since they
+// appear to pass if we do try to run them, we can't even list them as
+// permanently expected to fail.
+V8 | KJS # SKIP : LayoutTests/dom/xhtml = PASS
+
+// Fails due to different window.close() rules.  See bug 753420.  We need
+// to decide whether we ever expect to pass this.  Now also timing out.
+V8 | KJS # SKIP : LayoutTests/fast/dom/open-and-close-by-DOM.html = FAIL
+
+// Fails because we use MIME names for charset while webkit uses IANA names.
+// Instead of this, we added the corresponding test in chrome with the 
+// MIME name (EUC-JP) in the expected result.
+V8 | KJS # SKIP : LayoutTests/fast/encoding/hanarei-blog32-fc2-com.html = FAIL
+
+// Skip because of WebKit bug 18512. These bugs "poison" future tests, causing
+// all SVG objects with fill="red" to be rendered in green.
+V8 | KJS # SKIP : LayoutTests/svg/custom/fill-SVGPaint-interface.svg = PASS
+V8 | KJS # SKIP : LayoutTests/svg/custom/getPresentationAttribute.svg = PASS
+
+// -----------------------------------------------------------------
+// FAILING TESTS
+// -----------------------------------------------------------------
+
+// Bug: 1137420
+// We don't intend to pass all of these cases, so this is an expected fail.
+// Window resizing is not implemented in chrome.
+V8 | KJS # LayoutTests/fast/dom/Window/window-resize.html = FAIL
+
+// Chrome uses different keyboard accelerators from those used by Safari, so
+// these tests will always fail.
+V8 | KJS # LayoutTests/editing/pasteboard/emacs-cntl-y-001.html = FAIL
+V8 | KJS # LayoutTests/editing/pasteboard/emacs-ctrl-a-k-y.html = FAIL
+V8 | KJS # LayoutTests/editing/pasteboard/emacs-ctrl-k-y-001.html = FAIL
+V8 | KJS # LayoutTests/editing/input/emacs-ctrl-o.html = FAIL
+
+// These tests check for very kjs-specific garbage collector behavior. Gc-8 
+// tests behavior that makes no sense for us to implement. Gc-10 makes sense
+// but would have to be implemented much differently to work in v8.
+V8 | KJS # LayoutTests/fast/dom/gc-8.html = FAIL
+V8 | KJS # LayoutTests/fast/dom/gc-10.html = FAIL
+
+// This fails because we're missing various useless apple-specific
+// properties on the window object.
+// This test also timeouts in Debug mode. See bug 1058654.
+V8 | KJS # LayoutTests/fast/dom/Window/window-properties.html = FAIL | TIMEOUT
+
+// Safari specific test to ensure that JavaScript errors aren't logged when in
+// private browsing mode.
+V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-private-browsing.html = FAIL
+
+// We don't care about dashboard compatibility mode.
+V8 | KJS # LayoutTests/http/tests/xmlhttprequest/default-content-type-dashboard.html = FAIL
+V8 | KJS # LayoutTests/http/tests/xmlhttprequest/svg-created-by-xhr-disallowed-in-dashboard.html = FAIL
+
+// Chrome uses different keyboard accelerators from those used by Safari, so
+// these tests will always fail.
+// TODO(ericroman): can the following 2 tests be removed from this list, since they pass?
+V8 | KJS # LayoutTests/fast/events/keydown-1.html = FAIL
+V8 | KJS # LayoutTests/fast/events/option-tab.html = FAIL
+
+// Chrome does not support WebArchives (just like Safari for Windows).
+// See bug 761653.
+V8 | KJS # SKIP : LayoutTests/webarchive/loading = FAIL | TIMEOUT
+V8 | KJS # LayoutTests/webarchive = PASS
+V8 | KJS # LayoutTests/svg/webarchive = FAIL | PASS
+V8 | KJS # LayoutTests/svg/custom/image-with-prefix-in-webarchive.svg = FAIL | PASS
+
+// Bug 932737
+V8 | KJS # LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
+
+// Mac-specific stuff
+// Don't run the platform/mac* tests
+V8 | KJS # LayoutTests/platform = FAIL | PASS
+
+// Ignored because we do not have OBJC bindings
+V8 | KJS # LayoutTests/editing/pasteboard/paste-RTFD.html = FAIL
+V8 | KJS # LayoutTests/editing/pasteboard/paste-TIFF.html = FAIL
+V8 | KJS # LayoutTests/plugins/jsobjc-dom-wrappers.html = FAIL
+V8 | KJS # LayoutTests/plugins/jsobjc-simple.html = FAIL
+V8 | KJS # LayoutTests/plugins/root-object-premature-delete-crash.html = FAIL
+V8 | KJS # LayoutTests/plugins/throw-on-dealloc.html = FAIL
+V8 | KJS # LayoutTests/plugins/undefined-property-crash.html = FAIL
+
+// Uses __apple_runtime_object
+V8 | KJS # LayoutTests/plugins/call-as-function-test.html = FAIL
+
+// Ignore test because it tries to load .pdf files in <img> tags.
+V8 | KJS # LayoutTests/fast/images/pdf-as-image-landscape.html = FAIL
+V8 | KJS # LayoutTests/fast/images/pdf-as-image.html = FAIL
+V8 | KJS # LayoutTests/fast/replaced/pdf-as-image.html = FAIL
+
+// This test tries to print a PDF file as the expected result.  I don't think
+// we plan on supporting this anytime soon.
+V8 | KJS # SKIP : LayoutTests/printing/media-queries-print.html = PASS
+
+// Uses Option-tab key to circle through form elements. Will not work on
+// Windows.
+V8 | KJS # LayoutTests/fast/events/frame-tab-focus.html = FAIL
+
+// Bug 853268: Chrome doesn't call the willCacheResponse callback (a method
+// of ResourceHandleClient).  That function is Mac-specific.
+V8 | KJS # LayoutTests/http/tests/misc/willCacheResponse-delegate-callback.html = FAIL
+
+// Checks for very kjs-specific garbage collector
+// behavior. Gc-9 is completely braindamaged; it tests that certain
+// properties are reset by the garbage collector. It looks to pass recently.
+V8 # LayoutTests/fast/dom/gc-9.html = PASS | FAIL
+
+// This test checks that ((new Error()).message is undefined, which is
+// a direct contradiction of the javascript spec 15.11.4.3 which
+// says that it must be a string.
+V8 # LayoutTests/fast/js/kde/evil-n.html = FAIL
+
+// This test is broken.  The regular expression used contains an error
+// which kjs swallows and returns false, which is the expected result,
+// but for which we issue a syntax error.
+V8 # LayoutTests/fast/js/code-serialize-paren.html = FAIL
+
+// These tests check for a kjs-specific extension, that source file
+// name and line numbers are available as properties on exception
+// objects.  We handle error positions differently.
+V8 # LayoutTests/fast/js/exception-linenums-in-html-1.html = FAIL
+V8 # LayoutTests/fast/js/exception-linenums-in-html-2.html = FAIL
+V8 # LayoutTests/fast/js/exception-linenums.html = FAIL
+
+// These tests rely on specific details of decompilation of 
+// functions. V8 always returns the source code as written; there's
+// no decompilation or pretty printing involved except for
+// certain "native" functions where the V8 output does not include
+// newline characters. This is working as intended and we don't care
+// if the tests pass or fail. 
+V8 # LayoutTests/fast/js/function-names.html = FAIL | PASS
+
+// WebKit has moved/changed this test upstream
+// https://bugs.webkit.org/show_bug.cgi?id=18681
+// We will pass the new one after we merge
+KJS | V8 # LayoutTests/http/tests/incremental/slow-utf8-css.pl = FAIL
+
+// This test relies on the x-mac-cyrillic encoding which we don't ship.
+V8 # LayoutTests/fast/encoding/frame-default-enc.html = FAIL
+
+// These tests expect a tiff decoder, which we don't have.
+KJS | V8 # LayoutTests/fast/images/embed-image.html = FAIL
+KJS | V8 # LayoutTests/fast/images/object-image.html = FAIL
+
+// -----------------------------------------------------------------
+// CHROME REWRITTEN TESTS
+// -----------------------------------------------------------------
+
+// These tests have been rewritten, with the original being ignored,
+// because they were written in ways which are not cross-browser.
+// (e.g. they expect implementation-dependent strings in output)
+V8 # LayoutTests/fast/js/date-proto-generic-invocation.html = FAIL
+V8 # LayoutTests/fast/js/kde/function.html = FAIL
+V8 # LayoutTests/fast/js/kde/inbuilt_function_tostring.html = FAIL
+
+// Bug 849085: we're taking a different approach on this test than 
+// Webkit does.
+KJS | V8 # SKIP : LayoutTests/plugins/get-url-with-blank-target.html = FAIL
+
+// This test doesn't work on the bbot.  Works locally.
+KJS | V8 # SKIP : chrome/http/tests/plugins/get-file-url.html = FAIL | PASS | TIMEOUT
+
+
+// These tests tests V8 bindings only, KJS needs to re-baseline the output.
+// See Bug 1205552
+KJS # SKIP : chrome/fast/dom/set-document-body-no-crash.html = FAIL
+KJS # SKIP : chrome/fast/dom/set-table-head-no-crash.html = FAIL
+
+// Dashboard-related test
+KJS | V8 # SKIP : LayoutTests/fast/css/dashboard-region-parser.html = FAIL

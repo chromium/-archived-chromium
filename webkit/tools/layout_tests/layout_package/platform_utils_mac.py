@@ -129,3 +129,7 @@ class PlatformUtility(object):
     # TODO(pinkerton): make |target| happy with case-sensitive file systems.
     return PathFromBase('xcodebuild', target, 'TestShell.app',
                         'Contents', 'MacOS', self.TestShellBinary())
+
+  def TestListPlatformDir(self):
+    """Return the platform-specific directory for where the test lists live"""
+    return 'mac'

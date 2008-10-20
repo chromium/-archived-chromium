@@ -162,3 +162,8 @@ def FilenameToUri(path):
   platform_util = layout_package.platform_utils.PlatformUtility(WebKitRoot())
   return platform_util.FilenameToUri(path)
 
+def TestListPlatformDir():
+  # Avoid circular import by delaying it.
+  import layout_package.platform_utils
+  platform_util = layout_package.platform_utils.PlatformUtility(WebKitRoot())
+  return platform_util.TestListPlatformDir()

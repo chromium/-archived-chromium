@@ -130,6 +130,7 @@ class TestRunner:
       saved_test_files = self._test_files
 
     file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
+    file_dir = os.path.join(file_dir, path_utils.TestListPlatformDir())
     file_dir = path_utils.GetAbsolutePath(file_dir)
     
     expectations = test_expectations.TestExpectations(self._test_files, 

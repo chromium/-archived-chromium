@@ -182,3 +182,7 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
       target: Build target mode (debug or release)
     """
     return PathFromBase('chrome', target, self.TestShellBinary())
+
+  def TestListPlatformDir(self):
+    """Return the platform-specific directory for where the test lists live"""
+    return 'win'
