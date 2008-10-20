@@ -10,21 +10,8 @@
 #include "chrome/installer/setup/setup.h"
 #include "chrome/installer/setup/setup_constants.h"
 #include "chrome/installer/util/browser_distribution.h"
-#include "chrome/installer/util/copy_tree_work_item.h"
-#include "chrome/installer/util/create_dir_work_item.h"
-#include "chrome/installer/util/create_reg_key_work_item.h"
-#include "chrome/installer/util/delete_tree_work_item.h"
-#include "chrome/installer/util/install_util.h"
-#include "chrome/installer/util/l10n_string_util.h"
-#include "chrome/installer/util/logging_installer.h"
 #include "chrome/installer/util/google_update_constants.h"
-#include "chrome/installer/util/set_reg_value_work_item.h"
 #include "chrome/installer/util/shell_util.h"
-#include "chrome/installer/util/util_constants.h"
-#include "chrome/installer/util/version.h"
-#include "chrome/installer/util/work_item_list.h"
-
-#include "installer_util_strings.h"
 
 namespace {
 std::wstring AppendPath(const std::wstring parent_path,

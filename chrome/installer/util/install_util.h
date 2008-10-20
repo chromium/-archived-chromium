@@ -39,6 +39,12 @@ class InstallUtil {
 
   // This function checks if the current OS is supported for Chromium.
   static bool IsOSSupported();
+
+  // This function sets installer error information in registry so that Google
+  // Update can read it and display to the user.
+  static void SetInstallerError(bool system_install,
+                               installer_util::InstallStatus status,
+                               int string_resource_id);
  private:
   DISALLOW_EVIL_CONSTRUCTORS(InstallUtil);
 };

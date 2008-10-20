@@ -15,6 +15,8 @@
 #include "base/win_util.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"
+#include "chrome/installer/util/l10n_string_util.h"
+#include "chrome/installer/util/work_item_list.h"
 
 bool InstallUtil::ExecuteExeAsAdmin(const std::wstring& exe,
                                     const std::wstring& params,
@@ -79,4 +81,22 @@ bool InstallUtil::IsOSSupported() {
     return true;
   }
   return false;
+}
+
+void InstallUtil::SetInstallerError(bool system_install,
+                                    installer_util::InstallStatus status,
+                                    int string_resource_id) {
+  HKEY root = system_install ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+  std::wstring key(google_update::kRegPathClients);
+  key.append(L"\\");
+  key.append(google_update::kChromeGuid);
+  scoped_ptr<WorkItemList> install_list(WorkItem::CreateWorkItemList());
+  install_list->AddSetRegValueWorkItem(root, key, L"InstallerResult", 1, true);
+  install_list->AddSetRegValueWorkItem(root, key, L"InstallerError",
+                                       status, true);
+  std::wstring msg = installer_util::GetLocalizedString(string_resource_id);
+  install_list->AddSetRegValueWorkItem(root, key, L"InstallerResultUIString",
+                                       msg, true);
+  if (!install_list->Do())
+    LOG(ERROR) << "Failed to record installer error information in registry.";
 }

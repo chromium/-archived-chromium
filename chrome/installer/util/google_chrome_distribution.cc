@@ -16,11 +16,9 @@
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/wmi_util.h"
-#include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/google_update_settings.h"
-#include "chrome/installer/util/logging_installer.h"
 
 #include "installer_util_strings.h"
 
