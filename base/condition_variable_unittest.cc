@@ -165,7 +165,8 @@ TEST_F(ConditionVariableTest, TimeoutTest) {
   lock.Release();
 }
 
-TEST_F(ConditionVariableTest, MultiThreadConsumerTest) {
+// This test is flaky due to excessive timing sensitivity.
+TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   const int kThreadCount = 10;
   WorkQueue queue(kThreadCount);  // Start the threads.
 
