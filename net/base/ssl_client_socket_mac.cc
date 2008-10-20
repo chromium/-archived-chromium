@@ -159,6 +159,112 @@ OSStatus OSStatusFromNetError(int net_error) {
   }
 }
 
+// Shared with the Windows code. TODO(avi): merge to a common place
+int CertStatusFromNetError(int error) {
+  switch (error) {
+    case ERR_CERT_COMMON_NAME_INVALID:
+      return CERT_STATUS_COMMON_NAME_INVALID;
+    case ERR_CERT_DATE_INVALID:
+      return CERT_STATUS_DATE_INVALID;
+    case ERR_CERT_AUTHORITY_INVALID:
+      return CERT_STATUS_AUTHORITY_INVALID;
+    case ERR_CERT_NO_REVOCATION_MECHANISM:
+      return CERT_STATUS_NO_REVOCATION_MECHANISM;
+    case ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
+      return CERT_STATUS_UNABLE_TO_CHECK_REVOCATION;
+    case ERR_CERT_REVOKED:
+      return CERT_STATUS_REVOKED;
+    case ERR_CERT_CONTAINS_ERRORS:
+      NOTREACHED();
+      // Falls through.
+    case ERR_CERT_INVALID:
+      return CERT_STATUS_INVALID;
+    default:
+      return 0;
+  }
+}
+
+// Converts from a cipher suite to its key size. If the suite is marked with a
+// **, it's not actually implemented in Secure Transport and won't be returned
+// (but we'll code for it anyway).  The reference here is
+// http://www.opensource.apple.com/darwinsource/10.5.5/libsecurity_ssl-32463/lib/cipherSpecs.c
+// Seriously, though, there has to be an API for this, but I can't find one.
+// Anybody?
+int KeySizeOfCipherSuite(SSLCipherSuite suite) {
+  switch (suite) {
+    // SSL 2 only
+    
+    case SSL_RSA_WITH_DES_CBC_MD5:
+      return 56;
+    case SSL_RSA_WITH_3DES_EDE_CBC_MD5:
+      return 112;
+    case SSL_RSA_WITH_RC2_CBC_MD5:
+    case SSL_RSA_WITH_IDEA_CBC_MD5:              // **
+      return 128;
+    case SSL_NO_SUCH_CIPHERSUITE:                // **
+      return 0;
+    
+    // SSL 2, 3, TLS
+    
+    case SSL_NULL_WITH_NULL_NULL:
+    case SSL_RSA_WITH_NULL_MD5:
+    case SSL_RSA_WITH_NULL_SHA:                  // **
+    case SSL_FORTEZZA_DMS_WITH_NULL_SHA:         // **
+      return 0;
+    case SSL_RSA_EXPORT_WITH_RC4_40_MD5:
+    case SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5:
+    case SSL_RSA_EXPORT_WITH_DES40_CBC_SHA:
+    case SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA:   // **
+    case SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA:   // **
+    case SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA:
+    case SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA:
+    case SSL_DH_anon_EXPORT_WITH_RC4_40_MD5:
+    case SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA:
+      return 40;
+    case SSL_RSA_WITH_DES_CBC_SHA:
+    case SSL_DH_DSS_WITH_DES_CBC_SHA:            // **
+    case SSL_DH_RSA_WITH_DES_CBC_SHA:            // **
+    case SSL_DHE_DSS_WITH_DES_CBC_SHA:
+    case SSL_DHE_RSA_WITH_DES_CBC_SHA:
+    case SSL_DH_anon_WITH_DES_CBC_SHA:
+      return 56;
+    case SSL_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA: // **
+      return 80;
+    case SSL_RSA_WITH_3DES_EDE_CBC_SHA:
+    case SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA:       // **
+    case SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA:       // **
+    case SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA:
+    case SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA:
+    case SSL_DH_anon_WITH_3DES_EDE_CBC_SHA:
+      return 112;
+    case SSL_RSA_WITH_RC4_128_MD5:
+    case SSL_RSA_WITH_RC4_128_SHA:
+    case SSL_RSA_WITH_IDEA_CBC_SHA:              // **
+    case SSL_DH_anon_WITH_RC4_128_MD5:
+      return 128;
+    
+    // TLS AES options (see RFC 3268)
+    
+    case TLS_RSA_WITH_AES_128_CBC_SHA:
+    case TLS_DH_DSS_WITH_AES_128_CBC_SHA:        // **
+    case TLS_DH_RSA_WITH_AES_128_CBC_SHA:        // **
+    case TLS_DHE_DSS_WITH_AES_128_CBC_SHA:
+    case TLS_DHE_RSA_WITH_AES_128_CBC_SHA:
+    case TLS_DH_anon_WITH_AES_128_CBC_SHA:
+      return 128;
+    case TLS_RSA_WITH_AES_256_CBC_SHA:
+    case TLS_DH_DSS_WITH_AES_256_CBC_SHA:        // **
+    case TLS_DH_RSA_WITH_AES_256_CBC_SHA:        // **
+    case TLS_DHE_DSS_WITH_AES_256_CBC_SHA:
+    case TLS_DHE_RSA_WITH_AES_256_CBC_SHA:
+    case TLS_DH_anon_WITH_AES_256_CBC_SHA:
+      return 256;
+    
+    default:
+      return -1;
+  }
+}
+
 }  // namespace
 
 //-----------------------------------------------------------------------------
@@ -174,6 +280,7 @@ SSLClientSocketMac::SSLClientSocketMac(ClientSocket* transport_socket,
       user_callback_(NULL),
       next_state_(STATE_NONE),
       next_io_state_(STATE_NONE),
+      server_cert_status_(0),
       completed_handshake_(false),
       ssl_context_(NULL),
       pending_send_error_(OK),
@@ -258,8 +365,33 @@ int SSLClientSocketMac::Write(const char* buf, int buf_len,
 }
 
 void SSLClientSocketMac::GetSSLInfo(SSLInfo* ssl_info) {
-  // TODO(port): implement!
-  memset(ssl_info, 0, sizeof(SSLInfo));
+  DCHECK(completed_handshake_);
+  OSStatus status;
+  
+  ssl_info->Reset();
+  
+  // set cert
+  CFArrayRef certs;
+  status = SSLCopyPeerCertificates(ssl_context_, &certs);
+  if (!status) {
+    DCHECK(CFArrayGetCount(certs) > 0);
+    
+    SecCertificateRef client_cert =
+        static_cast<SecCertificateRef>(
+          const_cast<void*>(CFArrayGetValueAtIndex(certs, 0)));
+    CFRetain(client_cert);
+    ssl_info->cert = X509Certificate::CreateFromHandle(client_cert);
+    CFRelease(certs);
+  }
+  
+  // update status
+  ssl_info->cert_status = server_cert_status_;
+  
+  // security info
+  SSLCipherSuite suite;
+  status = SSLGetNegotiatedCipher(ssl_context_, &suite);
+  if (!status)
+    ssl_info->security_bits = KeySizeOfCipherSuite(suite);
 }
   
 void SSLClientSocketMac::DoCallback(int rv) {
@@ -389,7 +521,21 @@ int SSLClientSocketMac::DoHandshake() {
   if (status == noErr)
     completed_handshake_ = true;
   
-  return NetErrorFromOSStatus(status);
+  int net_error = NetErrorFromOSStatus(status);
+  
+  // At this point we have a connection. For now, we're going to use the default
+  // certificate verification that the system does, and accept its answer for
+  // the cert status. In the future, we'll need to call SSLSetEnableCertVerify
+  // to disable cert verification and do the verification ourselves. This allows
+  // very fine-grained control over what we'll accept for certification.
+  // TODO(avi): ditto
+  
+  // TODO(wtc): for now, always check revocation.
+  server_cert_status_ = CERT_STATUS_REV_CHECKING_ENABLED;
+  if (net_error)
+    server_cert_status_ |= CertStatusFromNetError(net_error);
+  
+  return net_error;
 }
 
 int SSLClientSocketMac::DoReadComplete(int result) {

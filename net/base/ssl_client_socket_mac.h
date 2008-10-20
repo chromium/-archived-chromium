@@ -86,6 +86,8 @@ class SSLClientSocketMac : public SSLClientSocket {
   };
   State next_state_;
   State next_io_state_;
+  
+  int server_cert_status_;
 
   bool completed_handshake_;
   SSLContextRef ssl_context_;
