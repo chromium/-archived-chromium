@@ -166,6 +166,7 @@ TEST_F(ConditionVariableTest, TimeoutTest) {
 }
 
 // This test is flaky due to excessive timing sensitivity.
+// http://code.google.com/p/chromium/issues/detail?id=3599
 TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   const int kThreadCount = 10;
   WorkQueue queue(kThreadCount);  // Start the threads.
