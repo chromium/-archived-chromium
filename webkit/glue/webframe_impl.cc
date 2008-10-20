@@ -149,6 +149,11 @@ MSVC_POP_WARNING();
 #include <gdk/gdk.h>
 #endif
 
+#if USE(JSC)
+#include "bridge/c/c_instance.h"
+#include "bridge/runtime_object.h"
+#endif
+
 using WebCore::ChromeClientChromium;
 using WebCore::Color;
 using WebCore::Document;
@@ -699,8 +704,24 @@ void WebFrameImpl::BindToWindowObject(const std::wstring& name,
   if (!frame_ || !frame_->script()->isEnabled())
     return;
 
+  // TODO(mbelshe): Move this to the ScriptController and make it JS neutral.
+
   String key = webkit_glue::StdWStringToString(name);
+#if USE(V8)
   frame_->script()->BindToWindowObject(frame_.get(), key, object);
+#endif
+
+#if USE(JSC)
+  KJS::JSGlobalObject* window = frame_->script()->globalObject();
+  KJS::ExecState* exec = window->globalExec();
+  KJS::Bindings::RootObject* root = KJS::Bindings::findRootObject(window);
+  ASSERT(exec);
+  KJS::RuntimeObjectImp* instance = KJS::Bindings::Instance::createRuntimeObject(
+      exec, KJS::Bindings::CInstance::create(object, root));
+  KJS::Identifier id(exec, key.latin1().data());
+  KJS::PutPropertySlot slot;
+  window->put(exec, id, instance, slot);
+#endif
 }
 
 
@@ -710,7 +731,10 @@ void WebFrameImpl::CallJSGC() {
     return;
   if (!frame_->settings()->isJavaScriptEnabled())
     return;
+  // TODO(mbelshe): Move this to the ScriptController and make it JS neutral.
+#if USE(V8)
   frame_->script()->collectGarbage();
+#endif
 }
 
 void WebFrameImpl::GetContentAsPlainText(int max_chars,

@@ -49,14 +49,14 @@ MSVC_POP_WARNING();
 namespace webkit_glue {
 
 void SetJavaScriptFlags(const std::wstring& str) {
-#if USE(V8) || USE(JSC)
+#if USE(V8)
   std::string utf8_str = WideToUTF8(str);
   WebCore::ScriptController::setFlags(utf8_str.data(), static_cast<int>(utf8_str.size()));
 #endif
 }
 
 void SetRecordPlaybackMode(bool value) {
-#if USE(V8) || USE(JSC)
+#if USE(V8)
   WebCore::ScriptController::setRecordPlaybackMode(value);
 #endif
 }
