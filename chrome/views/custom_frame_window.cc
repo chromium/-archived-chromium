@@ -25,45 +25,52 @@
 
 namespace views {
 
-// A scoping class that removes the WS_VISIBLE style of a window.
+// When the user presses the mouse down in the non-client area of the window,
+// Windows sends WM_SYSCOMMAND with one of these notification codes. They
+// represent frame size/move operations initiated by the user's direct mouse
+// gesture-driven manipulation of the frame, as opposed to SC_SIZE/SC_MOVE
+// which are the result of system menu operations.
+static const int SC_FRAMESIZE = 0xF002;
+static const int SC_FRAMEMOVE = 0xF012;
+
+// A scoping class that prevents a window from being able to redraw in response
+// to invalidations that may occur within it for the lifetime of the object.
 //
 // Why would we want such a thing? Well, it turns out Windows has some
 // "unorthodox" behavior when it comes to painting its non-client areas.
-// Sadly, the default implementation of some messages, e.g. WM_SETTEXT and
-// WM_SETICON actually paint all or parts of the native title bar of the
-// application. That's right, they just paint it. They don't go through
-// WM_NCPAINT or anything like that that we already override. What this means
-// is that we end up with occasional flicker of bits of the normal Windows
-// title bar whenever we do things like change the title text, or right click
-// on the caption. The solution turns out to be to handle these messages,
-// use this scoped object to remove the WS_VISIBLE style which prevents this
-// rendering from happening, call the default window procedure, then add the
-// WS_VISIBLE style back when this object goes out of scope.
+// Occasionally, Windows will paint portions of the default non-client area
+// right over the top of the custom frame. This is not simply fixed by handling
+// WM_NCPAINT/WM_PAINT, with some investigation it turns out that this
+// rendering is being done *inside* the default implementation of some message
+// handlers and functions:
+//  . WM_SETTEXT
+//  . WM_SETICON
+//  . WM_NCLBUTTONDOWN
+//  . EnableMenuItem, called from our WM_INITMENU handler
+// The solution is to handle these messages and call DefWindowProc ourselves,
+// but prevent the window from being able to update itself for the duration of
+// the call. We do this with this class, which automatically calls its
+// associated CustomFrameWindow's lock and unlock functions as it is created
+// and destroyed. See documentation in those methods for the technique used.
+//
+// IMPORTANT: Do not use this scoping object for large scopes or periods of
+//            time! IT WILL PREVENT THE WINDOW FROM BEING REDRAWN! (duh).
+//
 // I would love to hear Raymond Chen's explanation for all this. And maybe a
 // list of other messages that this applies to ;-)
-//
-// *** Sigh. ***
-class ScopedVisibilityRemover {
+class CustomFrameWindow::ScopedRedrawLock {
  public:
-  explicit ScopedVisibilityRemover(HWND hwnd)
-      : hwnd_(hwnd),
-        window_style_(0) {
-    window_style_ = GetWindowLong(hwnd_, GWL_STYLE);
-    if (window_style_ & WS_VISIBLE)
-      SetWindowLong(hwnd_, GWL_STYLE, window_style_ & ~WS_VISIBLE);
+  explicit ScopedRedrawLock(CustomFrameWindow* window) : window_(window) {
+    window_->LockUpdates();
   }
 
-  ~ScopedVisibilityRemover() {
-    if (window_style_ & WS_VISIBLE)
-      SetWindowLong(hwnd_, GWL_STYLE, window_style_);
+  ~ScopedRedrawLock() {
+    window_->UnlockUpdates();
   }
 
  private:
   // The window having its style changed.
-  HWND hwnd_;
-
-  // The original style of the window, including WS_VISIBLE if present.
-  DWORD window_style_;
+  CustomFrameWindow* window_;
 };
 
 HCURSOR CustomFrameWindow::resize_cursors_[6];
@@ -878,7 +885,8 @@ class NonClientViewLayout : public LayoutManager {
 
 CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate)
     : Window(window_delegate),
-      is_active_(false) {
+      is_active_(false),
+      lock_updates_(false) {
   InitClass();
   non_client_view_ = new DefaultNonClientView(this);
 }
@@ -1016,6 +1024,7 @@ void CustomFrameWindow::OnInitMenu(HMENU menu) {
   bool maximized = IsMaximized();
   bool minimized_or_maximized = minimized || maximized;
 
+  ScopedRedrawLock lock(this);
   EnableMenuItem(menu, SC_RESTORE,
                  window_delegate()->CanMaximize() && minimized_or_maximized);
   EnableMenuItem(menu, SC_MOVE, !minimized_or_maximized);
@@ -1194,6 +1203,17 @@ void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
     }
     default:
       Window::OnNCLButtonDown(ht_component, point);
+      if (!IsMsgHandled()) {
+        // Window::OnNCLButtonDown set the message as unhandled. This normally
+        // means ContainerWin::ProcessWindowMessage will pass it to
+        // DefWindowProc. Sadly, DefWindowProc for WM_NCLBUTTONDOWN does weird
+        // non-client painting, so we need to call it directly here inside a
+        // scoped update lock.
+        ScopedRedrawLock lock(this);
+        DefWindowProc(GetHWND(), WM_NCLBUTTONDOWN, ht_component,
+                      MAKELPARAM(point.x, point.y));
+        SetMsgHandled(TRUE);
+      }
       break;
   }
 }
@@ -1260,13 +1280,13 @@ LRESULT CustomFrameWindow::OnSetCursor(HWND window, UINT hittest_code,
 }
 
 LRESULT CustomFrameWindow::OnSetIcon(UINT size_type, HICON new_icon) {
-  ScopedVisibilityRemover remover(GetHWND());
+  ScopedRedrawLock lock(this);
   return DefWindowProc(GetHWND(), WM_SETICON, size_type,
                        reinterpret_cast<LPARAM>(new_icon));
 }
 
 LRESULT CustomFrameWindow::OnSetText(const wchar_t* text) {
-  ScopedVisibilityRemover remover(GetHWND());
+  ScopedRedrawLock lock(this);
   return DefWindowProc(GetHWND(), WM_SETTEXT, NULL,
                        reinterpret_cast<LPARAM>(text));
 }
@@ -1277,6 +1297,18 @@ void CustomFrameWindow::OnSize(UINT param, const CSize& size) {
   // ResetWindowRegion is going to trigger WM_NCPAINT. By doing it after we've
   // invoked OnSize we ensure the RootView has been layed out.
   ResetWindowRegion();
+}
+
+void CustomFrameWindow::OnSysCommand(UINT notification_code, CPoint click) {
+  if (notification_code == SC_FRAMEMOVE || notification_code == SC_FRAMESIZE) {
+    if (lock_updates_) {
+      // We were locked, before entering a resize or move modal loop. Now that
+      // we've begun to move the window, we need to unlock updates so that the
+      // sizing/moving feedback can be continuous.
+      UnlockUpdates();
+    }
+  }
+  Window::OnSysCommand(notification_code, click);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1293,6 +1325,18 @@ void CustomFrameWindow::InitClass() {
     resize_cursors_[RC_NWSE] = LoadCursor(NULL, IDC_SIZENWSE);
     initialized = true;
   }
+}
+
+void CustomFrameWindow::LockUpdates() {
+  lock_updates_ = true;
+  // This message causes invalidations to be discarded until it is called again
+  // with WPARAM TRUE (see UnlockUpdates).
+  SendMessage(GetHWND(), WM_SETREDRAW, FALSE, 0);
+}
+
+void CustomFrameWindow::UnlockUpdates() {
+  SendMessage(GetHWND(), WM_SETREDRAW, TRUE, 0);
+  lock_updates_ = false;
 }
 
 void CustomFrameWindow::ResetWindowRegion() {

@@ -109,7 +109,7 @@ void OpaqueFrame::OnSysCommand(UINT notification_code, CPoint click) {
   if (!browser_view_->SystemCommandReceived(notification_code,
                                             gfx::Point(click))) {
     // Use the default implementation for any other command.
-    SetMsgHandled(FALSE);
+    CustomFrameWindow::OnSysCommand(notification_code, click);
   }
 }
 

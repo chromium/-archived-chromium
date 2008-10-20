@@ -63,8 +63,16 @@ class CustomFrameWindow : public Window {
   virtual LRESULT OnSetIcon(UINT size_type, HICON new_icon);
   virtual LRESULT OnSetText(const wchar_t* text);
   virtual void OnSize(UINT param, const CSize& size);
+  virtual void OnSysCommand(UINT notification_code, CPoint click);
 
  private:
+  class ScopedRedrawLock;
+
+  // Lock or unlock the window from being able to redraw itself in response to
+  // updates to its invalid region.
+  void LockUpdates();
+  void UnlockUpdates();
+
   // Resets the window region.
   void ResetWindowRegion();
 
@@ -77,6 +85,9 @@ class CustomFrameWindow : public Window {
 
   // True if this window is the active top level window.
   bool is_active_;
+
+  // True if updates to this window are currently locked.
+  bool lock_updates_;
 
   // Static resource initialization.
   static void InitClass();
