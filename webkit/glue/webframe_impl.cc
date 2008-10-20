@@ -1686,7 +1686,6 @@ void WebFrameImpl::CreateChildFrame(const FrameLoadRequest& r,
   // Reload will maintain the frame contents, LoadSame will not.
   if (parentItem && parentItem->children().size() != 0 &&
       (isBackForwardLoadType(loadType) ||
-       loadType == WebCore::FrameLoadTypeReload ||
        loadType == WebCore::FrameLoadTypeReloadAllowingStaleData)) {
     HistoryItem* childItem = parentItem->childItemWithName(r.frameName());
     if (childItem) {
