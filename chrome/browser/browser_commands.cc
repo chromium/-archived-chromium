@@ -334,7 +334,7 @@ void Browser::ExecuteCommand(int id) {
         LocationBarView* lbv = GetLocationBarView();
         if (lbv) {
           AutocompleteEditView* aev = lbv->location_entry();
-          aev->model()->SetUserText(L"?");
+          aev->SetUserText(L"?");
           aev->SetFocus();
         }
       }
