@@ -168,6 +168,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\port\page\Navigator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\page\Navigator.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\port\dom\ScheduledAction.h"
 				>
 			</File>

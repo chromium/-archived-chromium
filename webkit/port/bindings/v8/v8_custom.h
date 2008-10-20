@@ -279,12 +279,6 @@ DECLARE_CALLBACK(ElementSetAttributeNodeNS)
 DECLARE_CALLBACK(EventTargetNodeAddEventListener)
 DECLARE_CALLBACK(EventTargetNodeRemoveEventListener)
 
-// Custom implementation is Navigator properties.
-// We actually only need this because WebKit has
-// navigator.appVersion as custom. Our version just
-// passes through.
-DECLARE_PROPERTY_ACCESSOR(NavigatorAppVersion)
-
 // Custom implementation of XMLHttpRequest properties
 DECLARE_PROPERTY_ACCESSOR(XMLHttpRequestOnabort)
 DECLARE_PROPERTY_ACCESSOR(XMLHttpRequestOnerror)

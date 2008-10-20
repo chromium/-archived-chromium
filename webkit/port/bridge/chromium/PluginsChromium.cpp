@@ -35,7 +35,6 @@
 
 #include "config.h"
 
-#include "PluginData.h"
 #pragma warning(push, 0)
 #include "PluginInfoStore.h"
 #pragma warning(pop)
@@ -69,8 +68,6 @@ void LoadPlugins(bool refresh)
 // deleting contents of the PluginInfo.
 PluginInfo* PluginInfoStore::createPluginInfoForPluginAtIndex(unsigned int index) 
 {
-    LoadPlugins(false);
-
     WebCore::PluginInfo* rv = new WebCore::PluginInfo();
     const WebPluginInfo& plugin = g_plugins[index];
     rv->name = webkit_glue::StdWStringToString(plugin.name);

@@ -5,8 +5,6 @@
 #include "config.h"
 #include "PluginData.h"
 
-#include "PluginInfoStore.h"
-
 #undef LOG
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
@@ -22,9 +20,28 @@ void PluginData::initPlugins()
         return;
     refreshData = false;
 
-    PluginInfoStore c;
     for (size_t i = 0; i < plugins.size(); ++i) {
-        PluginInfo* info = c.createPluginInfoForPluginAtIndex(i);
+        const WebPluginInfo& sourceInfo = plugins[i];
+
+        PluginInfo* info = new PluginInfo;
+        info->name = webkit_glue::StdWStringToString(sourceInfo.name);
+        info->file = webkit_glue::StdWStringToString(sourceInfo.file);
+        info->desc = webkit_glue::StdWStringToString(sourceInfo.desc);
+
+        for (size_t j = 0; j < sourceInfo.mime_types.size(); ++j) {
+            const WebPluginMimeType& mimeType = sourceInfo.mime_types[j];
+
+            MimeClassInfo* mime = new MimeClassInfo;
+            mime->type = webkit_glue::StdStringToString(mimeType.mime_type);
+            mime->desc = webkit_glue::StdWStringToString(mimeType.description);
+
+            for (size_t k = 0; k < mimeType.file_extensions.size(); ++k) {
+                if (k > 0)
+                    mime->suffixes += ",";
+                mime->suffixes += webkit_glue::StdStringToString(mimeType.file_extensions[k]);
+            }
+            info->mimes.append(mime);
+        }
         m_plugins.append(info);
     }
 }

@@ -1,0 +1,63 @@
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.  Use of this
+// source code is governed by a BSD-style license that can be found in the
+// LICENSE file.
+
+module core {
+#if defined(V8_BINDING)
+// V8 specific
+interface Navigator {
+  readonly attribute DOMString appCodeName;
+  readonly attribute DOMString appName;
+  readonly attribute DOMString appVersion;
+  readonly attribute DOMString language;
+  readonly attribute MimeTypeArray mimeTypes;
+  readonly attribute DOMString platform;
+//  readonly attribute DOMString oscpu;
+  readonly attribute DOMString vendor;
+  readonly attribute DOMString vendorSub;
+  readonly attribute DOMString product;
+  readonly attribute DOMString productSub;
+  readonly attribute PluginArray plugins;
+//  readonly attribute DOMString securityPolicy;
+  readonly attribute DOMString userAgent;
+  readonly attribute boolean cookieEnabled;
+  readonly attribute boolean onLine;
+//  readonly attribute DOMString buildID;
+
+  boolean javaEnabled();
+//  boolean taintEnabled();
+};
+
+interface MimeType {
+  readonly attribute DOMString description;
+  readonly attribute Plugin enabledPlugin;
+  readonly attribute DOMString suffixes;
+  readonly attribute DOMString type;
+};
+
+interface Plugin {
+  readonly attribute DOMString description;
+  readonly attribute DOMString filename;
+  readonly attribute DOMString name;
+
+  readonly attribute unsigned long length;
+  MimeType item(in unsigned long index);
+  MimeType namedItem(in DOMString name);
+};
+
+interface MimeTypeArray {
+  readonly attribute unsigned long length;
+  MimeType item(in unsigned long index);
+  MimeType namedItem(in DOMString name);
+};
+
+interface PluginArray {
+  readonly attribute unsigned long length;
+  Plugin item(in unsigned long index);
+  Plugin namedItem(in DOMString name);
+  void refresh(in boolean reloadDocuments);
+};
+
+#endif // V8_BINDING
+
+} // module
