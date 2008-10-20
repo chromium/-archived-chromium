@@ -1148,3 +1148,18 @@ V8 | KJS # LayoutTests/fast/dom/gc-1.html = CRASH | PASS
 // Post-merge flakey on debug builds (passes consistently on release)
 V8 | KJS # LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
 V8 | KJS # LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
+
+// Started timing out with r3615 (mbelshe)
+V8 | KJS # LayoutTests/fast/dom/null-document-location-assign-crash.html = TIMEOUT
+V8 | KJS # LayoutTests/fast/dom/null-document-location-href-put-crash.html = TIMEOUT
+V8 | KJS # LayoutTests/fast/dom/null-document-location-replace-crash.html = TIMEOUT
+V8 | KJS # LayoutTests/http/tests/security/postMessage/javascript-page-still-sends-origin.html = TIMEOUT
+
+// Started crashing in DEBUG only with r2842 (mbelshe)
+V8 | KJS # LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH | PASS
+
+// Started failing in DEBUG only with one of the following revisions (all darin): 3587, 3588, 3589
+V8 | KJS # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PASS
+
+// Got flakey (both debug and release) around r3581 (ananta).
+V8 | KJS # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
