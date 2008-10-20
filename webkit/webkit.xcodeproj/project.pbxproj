@@ -126,6 +126,11 @@
 		4DB7FA670E9BF24600C66CE0 /* NetworkStateNotifierMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7F9EE0E9BECEC00C66CE0 /* NetworkStateNotifierMac.cpp */; };
 		4DB7FE770E9BF6D800C66CE0 /* WebSystemInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DB7FE6A0E9BF69A00C66CE0 /* WebSystemInterface.m */; };
 		4DBB28F70EA611B200A0A427 /* V8SVGAltGlyphElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DBB28F50EA611B200A0A427 /* V8SVGAltGlyphElement.cpp */; };
+		4DDC62A30EAD140400FB5EBE /* Navigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABA23E6B0E9FC43700C96905 /* Navigator.cpp */; };
+		4DDC62B60EAD142D00FB5EBE /* MimeType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62AE0EAD142D00FB5EBE /* MimeType.cpp */; };
+		4DDC62B70EAD142D00FB5EBE /* MimeTypeArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B00EAD142D00FB5EBE /* MimeTypeArray.cpp */; };
+		4DDC62B80EAD142D00FB5EBE /* Plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B20EAD142D00FB5EBE /* Plugin.cpp */; };
+		4DDC62B90EAD142D00FB5EBE /* PluginArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */; };
 		7B0091350DAFEFBE00F72082 /* CSSGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */; };
 		7B0091370DAFEFBE00F72082 /* HTMLNames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */; };
 		7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912F0DAFEFBE00F72082 /* SVGElementFactory.cpp */; };
@@ -393,7 +398,6 @@
 		7B0096060DAFF0DD00F72082 /* v8_npobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095E80DAFF0DD00F72082 /* v8_npobject.cpp */; };
 		7B00960B0DAFF0DD00F72082 /* v8_vectornodelist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */; };
 		7B0096220DAFF19C00F72082 /* Location.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0096150DAFF19C00F72082 /* Location.cpp */; };
-		7B0096240DAFF19C00F72082 /* Navigator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0096180DAFF19C00F72082 /* Navigator.cpp */; };
 		7B00962A0DAFF1D000F72082 /* InspectorController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0096290DAFF1D000F72082 /* InspectorController.cpp */; };
 		7B1438070E7874FC00901940 /* webframeloaderclient_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254053F0D92E3DA0006B936 /* webframeloaderclient_impl.cc */; };
 		7B14AAA90DE3340400F4E646 /* CharsetData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B14AAA80DE3340400F4E646 /* CharsetData.cpp */; };
@@ -1546,6 +1550,15 @@
 		4DB7FE6F0E9BF6AC00C66CE0 /* libwebcoresysteminterface.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libwebcoresysteminterface.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4DBB28F50EA611B200A0A427 /* V8SVGAltGlyphElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8SVGAltGlyphElement.cpp; sourceTree = "<group>"; };
 		4DBB28F60EA611B200A0A427 /* V8SVGAltGlyphElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8SVGAltGlyphElement.h; sourceTree = "<group>"; };
+		4DDC62A20EAD13EF00FB5EBE /* Navigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Navigator.h; sourceTree = "<group>"; };
+		4DDC62AE0EAD142D00FB5EBE /* MimeType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MimeType.cpp; sourceTree = "<group>"; };
+		4DDC62AF0EAD142D00FB5EBE /* MimeType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MimeType.h; sourceTree = "<group>"; };
+		4DDC62B00EAD142D00FB5EBE /* MimeTypeArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MimeTypeArray.cpp; sourceTree = "<group>"; };
+		4DDC62B10EAD142D00FB5EBE /* MimeTypeArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MimeTypeArray.h; sourceTree = "<group>"; };
+		4DDC62B20EAD142D00FB5EBE /* Plugin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Plugin.cpp; sourceTree = "<group>"; };
+		4DDC62B30EAD142D00FB5EBE /* Plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plugin.h; sourceTree = "<group>"; };
+		4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginArray.cpp; sourceTree = "<group>"; };
+		4DDC62B50EAD142D00FB5EBE /* PluginArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginArray.h; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
 		7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLNames.cpp; sourceTree = "<group>"; };
@@ -2087,8 +2100,6 @@
 		7B0095EE0DAFF0DD00F72082 /* v8_vectornodelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_vectornodelist.h; sourceTree = "<group>"; };
 		7B0096150DAFF19C00F72082 /* Location.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Location.cpp; sourceTree = "<group>"; };
 		7B0096160DAFF19C00F72082 /* Location.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Location.h; sourceTree = "<group>"; };
-		7B0096180DAFF19C00F72082 /* Navigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Navigator.cpp; sourceTree = "<group>"; };
-		7B0096190DAFF19C00F72082 /* Navigator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Navigator.h; sourceTree = "<group>"; };
 		7B00961D0DAFF19C00F72082 /* ScheduledAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScheduledAction.h; sourceTree = "<group>"; };
 		7B0096290DAFF1D000F72082 /* InspectorController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InspectorController.cpp; path = port/page/inspector/InspectorController.cpp; sourceTree = "<group>"; };
 		7B0E595B0DB3D195007D4907 /* IconDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IconDatabase.h; sourceTree = "<group>"; };
@@ -5065,6 +5076,7 @@
 				7B5E8F090D7F3C49001ECF42 /* MouseEventWithHitTestResults.cpp */,
 				7B5E8F0A0D7F3C49001ECF42 /* MouseEventWithHitTestResults.h */,
 				ABA23E6B0E9FC43700C96905 /* Navigator.cpp */,
+				4DDC62A20EAD13EF00FB5EBE /* Navigator.h */,
 				7B5E8F0B0D7F3C49001ECF42 /* Page.cpp */,
 				7B5E8F0C0D7F3C49001ECF42 /* Page.h */,
 				4DB7F1FB0E9BAE2900C66CE0 /* PageGroup.cpp */,
@@ -5523,6 +5535,14 @@
 		7B5E94F70D7F3E5B001ECF42 /* plugins */ = {
 			isa = PBXGroup;
 			children = (
+				4DDC62AE0EAD142D00FB5EBE /* MimeType.cpp */,
+				4DDC62AF0EAD142D00FB5EBE /* MimeType.h */,
+				4DDC62B00EAD142D00FB5EBE /* MimeTypeArray.cpp */,
+				4DDC62B10EAD142D00FB5EBE /* MimeTypeArray.h */,
+				4DDC62B20EAD142D00FB5EBE /* Plugin.cpp */,
+				4DDC62B30EAD142D00FB5EBE /* Plugin.h */,
+				4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */,
+				4DDC62B50EAD142D00FB5EBE /* PluginArray.h */,
 				7B5E94FD0D7F3E5B001ECF42 /* PluginInfoStore.h */,
 			);
 			path = plugins;
@@ -7170,8 +7190,6 @@
 				7B5E8EFF0D7F3C48001ECF42 /* EventHandlerMac.mm */,
 				7B0096150DAFF19C00F72082 /* Location.cpp */,
 				7B0096160DAFF19C00F72082 /* Location.h */,
-				7B0096180DAFF19C00F72082 /* Navigator.cpp */,
-				7B0096190DAFF19C00F72082 /* Navigator.h */,
 			);
 			path = page;
 			sourceTree = "<group>";
@@ -7490,7 +7508,6 @@
 				4DB7F5620E9BD69A00C66CE0 /* JSNSResolver.cpp in Sources */,
 				7B0095F10DAFF0DD00F72082 /* JSXPathNSResolver.cpp in Sources */,
 				7B0096220DAFF19C00F72082 /* Location.cpp in Sources */,
-				7B0096240DAFF19C00F72082 /* Navigator.cpp in Sources */,
 				7B0095F30DAFF0DD00F72082 /* np_v8object.cpp in Sources */,
 				7B0095F50DAFF0DD00F72082 /* npruntime.cpp in Sources */,
 				7B0091390DAFEFBE00F72082 /* SVGElementFactory.cpp in Sources */,
@@ -8141,6 +8158,8 @@
 				E45623A30E268E87005E4685 /* MediaQueryExp.cpp in Sources */,
 				E45624060E268E87005E4685 /* MergeIdenticalElementsCommand.cpp in Sources */,
 				E45623CB0E268E87005E4685 /* MessageEvent.cpp in Sources */,
+				4DDC62B60EAD142D00FB5EBE /* MimeType.cpp in Sources */,
+				4DDC62B70EAD142D00FB5EBE /* MimeTypeArray.cpp in Sources */,
 				E45625180E268E87005E4685 /* MIMETypeRegistry.cpp in Sources */,
 				E45624FF0E268E87005E4685 /* MIMETypeRegistryMac.mm in Sources */,
 				E45624070E268E87005E4685 /* ModifySelectionListLevel.cpp in Sources */,
@@ -8154,6 +8173,7 @@
 				E45623D10E268E87005E4685 /* NameNodeList.cpp in Sources */,
 				E456265B0E268E87005E4685 /* NativeXPathNSResolver.cpp in Sources */,
 				E45624910E268E87005E4685 /* NavigationAction.cpp in Sources */,
+				4DDC62A30EAD140400FB5EBE /* Navigator.cpp in Sources */,
 				E45624920E268E87005E4685 /* NetscapePlugInStreamLoader.cpp in Sources */,
 				4DB7F9DD0E9BEC9500C66CE0 /* NetworkStateNotifier.cpp in Sources */,
 				4DB7FA670E9BF24600C66CE0 /* NetworkStateNotifierMac.cpp in Sources */,
@@ -8180,6 +8200,8 @@
 				E45625010E268E87005E4685 /* PlatformMouseEventMac.mm in Sources */,
 				E45625020E268E87005E4685 /* PlatformScreenMac.mm in Sources */,
 				E45625030E268E87005E4685 /* PlatformScrollBarMac.mm in Sources */,
+				4DDC62B80EAD142D00FB5EBE /* Plugin.cpp in Sources */,
+				4DDC62B90EAD142D00FB5EBE /* PluginArray.cpp in Sources */,
 				E45624930E268E87005E4685 /* PluginDocument.cpp in Sources */,
 				E45625570E268E87005E4685 /* PointerEventsHitRules.cpp in Sources */,
 				E45625050E268E87005E4685 /* PopupMenuMac.mm in Sources */,

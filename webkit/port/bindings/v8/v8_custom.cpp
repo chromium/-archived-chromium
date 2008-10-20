@@ -114,6 +114,8 @@
 #include "SVGPathSeg.h"
 #endif
 
+#include "Navigator.h"
+
 #undef LOG
 
 #include "webkit/glue/webplugin_impl.h"
@@ -3142,6 +3144,17 @@ CALLBACK_FUNC_DECL(EventTargetNodeRemoveEventListener) {
   }
 
   return v8::Undefined();
+}
+
+
+// Navigator ------------------------------------------------------------------
+ACCESSOR_GETTER(NavigatorAppVersion) {
+  INC_STATS(L"DOM.Navigator.appVersion");
+  v8::Handle<v8::Object> holder = info.Holder();
+  Navigator* imp = V8Proxy::ToNativeObject<Navigator>(V8ClassIndex::NAVIGATOR,
+                                                      holder);
+  String v = ToString(imp->appVersion());
+  return v8StringOrUndefined(v);
 }
 
 

@@ -11,8 +11,26 @@
 
 namespace WebCore {
 
+static v8::Handle<v8::Value> GetV8Object(
+    void * result,
+    v8::Local<v8::Value> data) {
+  if (!result) return v8::Handle<v8::Value>();
+  V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(data);
+  if (type == V8ClassIndex::NODE)
+    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
+  else
+    return V8Proxy::ToV8Object(type, result);
+}
+
+template <class D>
+static v8::Handle<v8::Value> GetV8Object(
+    PassRefPtr<D> result,
+    v8::Local<v8::Value> data) {
+  return GetV8Object(result.get(), data);
+}
+
 // Returns named property of a collection.
-template <class C>
+template <class C, class D>
 static v8::Handle<v8::Value> GetNamedPropertyOfCollection(
     v8::Local<v8::String> name,
     v8::Local<v8::Object> object,
@@ -23,20 +41,14 @@ static v8::Handle<v8::Value> GetNamedPropertyOfCollection(
   ASSERT(t != V8ClassIndex::NODE);
   C* collection = V8Proxy::ToNativeObject<C>(t, object);
   String prop_name = ToWebCoreString(name);
-  void* result = collection->namedItem(prop_name);
-  if (!result) return v8::Handle<v8::Value>();
-  V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(data);
-  if (type == V8ClassIndex::NODE)
-    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
-  else
-    return V8Proxy::ToV8Object(type, result);
+  return GetV8Object<D>(collection->namedItem(prop_name), data);
 }
 
 // A template of named property accessor of collections.
-template <class C>
+template <class C, class D>
 static v8::Handle<v8::Value> CollectionNamedPropertyGetter(
     v8::Local<v8::String> name, const v8::AccessorInfo& info) {
-  return GetNamedPropertyOfCollection<C>(name, info.Holder(), info.Data());
+  return GetNamedPropertyOfCollection<C, D>(name, info.Holder(), info.Data());
 }
 
 
@@ -50,34 +62,12 @@ static v8::Handle<v8::Value> NodeCollectionNamedPropertyGetter(
   C* collection = V8Proxy::DOMWrapperToNode<C>(info.Holder());
   String prop_name = ToWebCoreString(name);
   void* result = collection->namedItem(prop_name);
-  if (!result) return v8::Handle<v8::Value>();
-  V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(info.Data());
-  if (type == V8ClassIndex::NODE)
-    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
-  else
-    return V8Proxy::ToV8Object(type, result);
-}
-
-
-// A template returns whether a collection has a named property.
-// This function does not cause JS heap allocation.
-template <class C>
-static bool HasNamedPropertyOfCollection(v8::Local<v8::String> name,
-                                         v8::Local<v8::Object> object,
-                                         v8::Local<v8::Value> data) {
-  // TODO: assert object is a collection type
-  ASSERT(V8Proxy::MaybeDOMWrapper(object));
-
-  V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(object);
-  C* collection = V8Proxy::ToNativeObject<C>(t, object);
-  String prop_name = ToWebCoreString(name);
-  void* result = collection->namedItem(prop_name);
-  return result != NULL;
+  return GetV8Object(result, info.Data());
 }
 
 
 // Returns the property at the index of a collection.
-template <class C>
+template <class C, class D>
 static v8::Handle<v8::Value> GetIndexedPropertyOfCollection(
     uint32_t index, v8::Local<v8::Object> object, v8::Local<v8::Value> data) {
   // TODO, assert that object must be a collection type
@@ -85,21 +75,15 @@ static v8::Handle<v8::Value> GetIndexedPropertyOfCollection(
   V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(object);
   ASSERT(t != V8ClassIndex::NODE);
   C* collection = V8Proxy::ToNativeObject<C>(t, object);
-  void* result = collection->item(index);
-  if (!result) return v8::Handle<v8::Value>();
-  V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(data);
-  if (type == V8ClassIndex::NODE)
-    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
-  else
-    return V8Proxy::ToV8Object(type, result);
+  return GetV8Object<D>(collection->item(index), data);
 }
 
 
 // A template of index interceptor of collections.
-template <class C>
+template <class C, class D>
 static v8::Handle<v8::Value> CollectionIndexedPropertyGetter(
     uint32_t index, const v8::AccessorInfo& info) {
-  return GetIndexedPropertyOfCollection<C>(index, info.Holder(), info.Data());
+  return GetIndexedPropertyOfCollection<C, D>(index, info.Holder(), info.Data());
 }
 
 
@@ -111,12 +95,7 @@ static v8::Handle<v8::Value> NodeCollectionIndexedPropertyGetter(
   ASSERT(V8Proxy::GetDOMWrapperType(info.Holder()) == V8ClassIndex::NODE);
   C* collection = V8Proxy::DOMWrapperToNode<C>(info.Holder());
   void* result = collection->item(index);
-  if (!result) return v8::Handle<v8::Value>();
-  V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(info.Data());
-  if (type == V8ClassIndex::NODE)
-    return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
-  else
-    return V8Proxy::ToV8Object(type, result);
+  return GetV8Object(result, info.Data());
 }
 
 
@@ -158,21 +137,6 @@ static v8::Handle<v8::Array> CollectionIndexedPropertyEnumerator(
 }
 
 
-// Returns whether a collection has a property at a given index.
-// This function does not cause JS heap allocation.
-template <class C>
-static bool HasIndexedPropertyOfCollection(uint32_t index,
-                                           v8::Local<v8::Object> object,
-                                           v8::Local<v8::Value> data) {
-  // TODO, assert that object must be a collection type
-  ASSERT(V8Proxy::MaybeDOMWrapper(object));
-  V8ClassIndex::V8WrapperType t = V8Proxy::GetDOMWrapperType(object);
-  C* collection = V8Proxy::ToNativeObject<C>(t, object);
-  void* result = collection->item(index);
-  return result != NULL;
-}
-
-
 // A template for indexed getters on collections of strings that should return
 // null if the resulting string is a null string.
 template <class C>
@@ -188,11 +152,11 @@ static v8::Handle<v8::Value> CollectionStringOrNullIndexedPropertyGetter(
 
 
 // Add indexed getter to the function template for a collection.
-template <class T>
+template <class T, class D>
 static void SetCollectionIndexedGetter(v8::Handle<v8::FunctionTemplate> desc,
                                        V8ClassIndex::V8WrapperType type) {
   desc->InstanceTemplate()->SetIndexedPropertyHandler(
-      CollectionIndexedPropertyGetter<T>,
+      CollectionIndexedPropertyGetter<T, D>,
       0,
       0,
       0,
@@ -202,11 +166,11 @@ static void SetCollectionIndexedGetter(v8::Handle<v8::FunctionTemplate> desc,
 
 
 // Add named getter to the function template for a collection.
-template <class T>
+template <class T, class D>
 static void SetCollectionNamedGetter(v8::Handle<v8::FunctionTemplate> desc,
                                      V8ClassIndex::V8WrapperType type) {
   desc->InstanceTemplate()->SetNamedPropertyHandler(
-      CollectionNamedPropertyGetter<T>,
+      CollectionNamedPropertyGetter<T, D>,
       0,
       0,
       0,
@@ -216,21 +180,21 @@ static void SetCollectionNamedGetter(v8::Handle<v8::FunctionTemplate> desc,
 
 
 // Add named and indexed getters to the function template for a collection.
-template <class T>
+template <class T, class D>
 static void SetCollectionIndexedAndNamedGetters(
     v8::Handle<v8::FunctionTemplate> desc, V8ClassIndex::V8WrapperType type) {
   // If we interceptor before object, accessing 'length' can trigger
   // a webkit assertion error.
   // (see fast/dom/HTMLDocument/document-special-properties.html
   desc->InstanceTemplate()->SetNamedPropertyHandler(
-      CollectionNamedPropertyGetter<T>,
+      CollectionNamedPropertyGetter<T, D>,
       0,
       0,
       0,
       0,
       v8::External::New(reinterpret_cast<void*>(type)));
   desc->InstanceTemplate()->SetIndexedPropertyHandler(
-      CollectionIndexedPropertyGetter<T>,
+      CollectionIndexedPropertyGetter<T, D>,
       0,
       0,
       0,

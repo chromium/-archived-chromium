@@ -73,20 +73,24 @@
 #include "EventTarget.h"
 #include "Event.h"
 #include "HTMLInputElement.h"
-#include "XMLHttpRequest.h"
-#include "StyleSheet.h"
-#include "StyleSheetList.h"
 #include "CSSRule.h"
 #include "CSSRuleList.h"
 #include "CSSValueList.h"
 #include "CSSVariablesDeclaration.h"
 #include "FrameLoader.h"
 #include "FrameTree.h"
+#include "MimeTypeArray.h"
+#include "NodeFilter.h"
+#include "Plugin.h"
+#include "PluginArray.h"
 #include "RangeException.h"
 #include "ScriptController.h"
-#include "NodeFilter.h"
 #include "SecurityOrigin.h"
+#include "Settings.h"
+#include "StyleSheet.h"
+#include "StyleSheetList.h"
 #include "WebKitCSSTransformValue.h"
+#include "XMLHttpRequest.h"
 #include "XMLHttpRequestException.h"
 #include "XPathException.h"
 
@@ -1123,10 +1127,13 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       SetCollectionStringOrNullIndexedGetter<CSSStyleDeclaration>(desc);
       break;
     case V8ClassIndex::CSSRULELIST:
-      SetCollectionIndexedGetter<CSSRuleList>(desc, V8ClassIndex::CSSRULE);
+      SetCollectionIndexedGetter<CSSRuleList, CSSRule>(desc, 
+                                                       V8ClassIndex::CSSRULE);
       break;
     case V8ClassIndex::CSSVALUELIST:
-      SetCollectionIndexedGetter<CSSValueList>(desc, V8ClassIndex::CSSVALUE);
+      SetCollectionIndexedGetter<CSSValueList, CSSValue>(
+          desc, 
+          V8ClassIndex::CSSVALUE);
       break;
     case V8ClassIndex::CSSVARIABLESDECLARATION:
       SetCollectionStringOrNullIndexedGetter<CSSVariablesDeclaration>(desc);
@@ -1138,10 +1145,13 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           USE_NAMED_PROPERTY_GETTER(HTMLCollection));
       desc->InstanceTemplate()->SetCallAsFunctionHandler(
           USE_CALLBACK(HTMLCollectionCallAsFunction));
-      SetCollectionIndexedGetter<HTMLCollection>(desc, V8ClassIndex::NODE);
+      SetCollectionIndexedGetter<HTMLCollection, Node>(desc, 
+                                                       V8ClassIndex::NODE);
       break;
     case V8ClassIndex::HTMLOPTIONSCOLLECTION:
-      SetCollectionNamedGetter<HTMLOptionsCollection>(desc, V8ClassIndex::NODE);
+      SetCollectionNamedGetter<HTMLOptionsCollection, Node>(
+          desc, 
+          V8ClassIndex::NODE);
       desc->InstanceTemplate()->SetIndexedPropertyHandler(
           USE_INDEXED_PROPERTY_GETTER(HTMLOptionsCollection),
           USE_INDEXED_PROPERTY_SETTER(HTMLOptionsCollection));
@@ -1251,7 +1261,7 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       SetCollectionStringOrNullIndexedGetter<MediaList>(desc);
       break;
     case V8ClassIndex::MIMETYPEARRAY:
-      SetCollectionIndexedAndNamedGetters<MimeTypeArray>(
+      SetCollectionIndexedAndNamedGetters<MimeTypeArray, MimeType>(
           desc,
           V8ClassIndex::MIMETYPE);
       break;
@@ -1267,22 +1277,26 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           v8::External::New(reinterpret_cast<void*>(V8ClassIndex::NODE)));
       break;
     case V8ClassIndex::NODELIST:
-      SetCollectionIndexedGetter<NodeList>(desc, V8ClassIndex::NODE);
+      SetCollectionIndexedGetter<NodeList, Node>(desc, V8ClassIndex::NODE);
       desc->InstanceTemplate()->SetNamedPropertyHandler(
           USE_NAMED_PROPERTY_GETTER(NodeList));
       break;
     case V8ClassIndex::PLUGIN:
-      SetCollectionIndexedAndNamedGetters<Plugin>(desc, V8ClassIndex::MIMETYPE);
+      SetCollectionIndexedAndNamedGetters<Plugin, MimeType>(
+          desc,
+          V8ClassIndex::MIMETYPE);
       break;
     case V8ClassIndex::PLUGINARRAY:
-      SetCollectionIndexedAndNamedGetters<PluginArray>(desc,
-                                                       V8ClassIndex::PLUGIN);
+      SetCollectionIndexedAndNamedGetters<PluginArray, Plugin>(
+          desc,
+          V8ClassIndex::PLUGIN);
       break;
     case V8ClassIndex::STYLESHEETLIST:
       desc->InstanceTemplate()->SetNamedPropertyHandler(
           USE_NAMED_PROPERTY_GETTER(StyleSheetList));
-      SetCollectionIndexedGetter<StyleSheetList>(desc,
-                                                 V8ClassIndex::STYLESHEET);
+      SetCollectionIndexedGetter<StyleSheetList, StyleSheet>(
+          desc,
+          V8ClassIndex::STYLESHEET);
       break;
     case V8ClassIndex::DOMWINDOW: {
       v8::Local<v8::Signature> default_signature = v8::Signature::New(desc);

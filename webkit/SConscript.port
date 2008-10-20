@@ -36,7 +36,6 @@ input_files = [
     '$PORT_DIR/loader/IconDatabaseNone.cpp',
 
     '$PORT_DIR/page/Location.cpp',
-    '$PORT_DIR/page/Navigator.cpp',
     '$PORT_DIR/page/chromium/AccessibilityObjectChromium.cpp',
     '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
     '$PORT_DIR/page/chromium/DragControllerChromium.cpp',

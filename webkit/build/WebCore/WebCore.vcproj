@@ -369,6 +369,14 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\MouseEventWithHitTestResults.h"
 				>
 			</File>
+						<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Navigator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Navigator.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Page.cpp"
 				>
@@ -383,10 +391,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\PageGroup.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Plugin.h"
 				>
 			</File>
 			<File
@@ -5986,7 +5990,39 @@
 			Name="plugins"
 			>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\MimeType.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\MimeType.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\MimeTypeArray.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\MimeTypeArray.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\npfunctions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\Plugin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\Plugin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginArray.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\plugins\PluginArray.h"
 				>
 			</File>
 			<File

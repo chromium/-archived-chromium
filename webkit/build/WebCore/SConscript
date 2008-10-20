@@ -363,6 +363,7 @@ input_files = [
     '$WEBCORE_DIR/page/FrameView.cpp',
     '$WEBCORE_DIR/page/History.cpp',
     '$WEBCORE_DIR/page/MouseEventWithHitTestResults.cpp',
+    '$WEBCORE_DIR/page/Navigator.cpp',
     '$WEBCORE_DIR/page/Page.cpp',
     '$WEBCORE_DIR/page/PageGroup.cpp',
     '$WEBCORE_DIR/page/Screen.cpp',
@@ -454,6 +455,10 @@ input_files = [
     '$WEBCORE_DIR/platform/text/TextStream.cpp',
     '$WEBCORE_DIR/platform/text/UnicodeRange.cpp',
 
+    '$WEBCORE_DIR/plugins/MimeType.cpp',
+    '$WEBCORE_DIR/plugins/MimeTypeArray.cpp',
+    '$WEBCORE_DIR/plugins/Plugin.cpp.cpp',
+    '$WEBCORE_DIR/plugins/PluginArray.cpp',
     '$WEBCORE_DIR/plugins/PluginData.cpp',
 
     '$WEBCORE_DIR/rendering/AutoTableLayout.cpp',

@@ -225,10 +225,6 @@ sub GetImplementationFileName
     my $iface = shift;
     return "HTMLCollection.h" if $iface eq "UndetectableHTMLCollection";
     return "HTMLInputElement.h" if $iface eq "HTMLSelectionInputElement";
-    return "Navigator.h" if $iface eq "MimeType";
-    return "Navigator.h" if $iface eq "MimeTypeArray";
-    return "Navigator.h" if $iface eq "Plugin";
-    return "Navigator.h" if $iface eq "PluginArray";
     return "Event.h" if $iface eq "DOMTimeStamp";
     return "NamedAttrMap.h" if $iface eq "NamedNodeMap";
     return "NameNodeList.h" if $iface eq "NodeList";
@@ -1433,11 +1429,13 @@ sub IsRefPtrType
     return 1 if $type eq "HTMLElement";
     return 1 if $type eq "HTMLOptionsCollection";
     return 1 if $type eq "ImageData";
+    return 1 if $type eq "MimeType";
     return 1 if $type eq "Node";
     return 1 if $type eq "NodeList";
     return 1 if $type eq "NodeFilter";
     return 1 if $type eq "NodeIterator";
     return 1 if $type eq "NSResolver";
+    return 1 if $type eq "Plugin";
     return 1 if $type eq "ProcessingInstruction";
     return 1 if $type eq "Range";
     return 1 if $type eq "Text";
