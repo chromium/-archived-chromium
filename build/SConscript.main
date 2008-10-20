@@ -74,9 +74,9 @@ base_env.Replace(
     SDCH_DIR              = '$ROOT_DIR/sdch',
     SKIA_DIR              = '$ROOT_DIR/skia',
     TESTING_DIR           = '$ROOT_DIR/testing',
-    THIRD_PARTY_DIR       = '$OBJ_ROOT/third_party',
+    THIRD_PARTY_DIR       = '$ROOT_DIR/third_party',
     V8_DIR                = '$ROOT_DIR/v8',
-    WEBKIT_DIR            = '$OBJ_ROOT/webkit',
+    WEBKIT_DIR            = '$ROOT_DIR/webkit',
 
     GTEST_DIR             = '$TESTING_DIR/gtest',
 
@@ -535,9 +535,16 @@ VERBOSE=1                 Display full command lines
 
 #-----------------------------------------------------------------------
 
-# Build all programs and libraries by default.
-Default([base_env.Alias('all_programs'),
-         base_env.Alias('all_libraries')])
+# By default, the Hammer modules execute the tests to capture test
+# output, but do it from a location that doesn't (yet) work for us.
+# Replace the Hammer defaults with Chromium's.
+Default(None)
+Import('build_component')
+Default(Alias(build_component))
+
+# TODO:  Get to the point of using Hammer's aliases.
+#Default([base_env.Alias('all_programs'),
+#         base_env.Alias('all_libraries')])
 
 # Create a list of all variants that are buildable.
 environment_list = [

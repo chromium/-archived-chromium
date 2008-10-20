@@ -340,7 +340,12 @@ base_unittests = env_tests.ChromeTestProgram('base_unittests', test_files)
 
 # Temporarily put things where the buildbot expects them.
 installed_base_unittests = env.Replicate('$MAIN_DIR/Hammer', base_unittests)
-env.Requires(installed_base_unittests, '$MAIN_DIR/Hammer/icudt38.dll')
+if env['PLATFORM'] == 'win32':
+  icu_data = '$OBJ_ROOT/icudt38.dll'
+else:
+  icu_data = '$OBJ_ROOT/icudt38l.dat'
+icu_data = env.Replicate('$MAIN_DIR/Hammer', icu_data)
+env.Requires(installed_base_unittests, icu_data)
 
 
 sconscript_dirs = [
