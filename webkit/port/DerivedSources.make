@@ -43,6 +43,7 @@ VPATH = \
     $(WebCore)/dom \
     $(WebCore)/html \
     $(WebCore)/page \
+    $(WebCore)/plugins \
     $(WebCore)/storage \
     $(WebCore)/xml \
     $(WebCore)/svg \
@@ -921,6 +922,10 @@ all : \
     V8InspectorController.h \
     V8Location.h \
     V8Navigator.h \
+    V8MimeType.h \
+    V8MimeTypeArray.h \
+    V8Plugin.h \
+    V8PluginArray.h \
     V8RGBColor.h \
     V8SVGAnimatedPoints.h \
     V8SVGURIReference.h \
@@ -1129,7 +1134,7 @@ OBJC_BINDINGS_SCRIPTS = \
 #
 
 DOM%.h : %.idl $(OBJC_BINDINGS_SCRIPTS) $(PUBLICDOMINTERFACES)
-	perl -I $(WebCore)/bindings/scripts $(WebCore)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_OBJECTIVE_C" --generator ObjC --include dom --include html --include css --include page --include xml --include svg --include bindings/js --outputdir . $<
+	perl -I $(WebCore)/bindings/scripts $(WebCore)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_OBJECTIVE_C" --generator ObjC --include dom --include html --include css --include page --include xml --include svg --include bindings/js  --include plugins --outputdir . $<
 
 # new-style JavaScript bindings
 
@@ -1142,7 +1147,7 @@ JS_BINDINGS_SCRIPTS = \
 #
 
 JS%.h : %.idl $(JS_BINDINGS_SCRIPTS)
-	perl -I $(WebCore)/bindings/scripts $(WebCore)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator JS --include dom --include html --include css --include page --include xml --include svg --include bindings/js --outputdir . $<
+	perl -I $(WebCore)/bindings/scripts $(WebCore)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator JS --include dom --include html --include css --include page --include xml --include svg --include bindings/js --include plugins --outputdir . $<
 
 # new-style V8 bindings
 
@@ -1160,5 +1165,5 @@ V8%.h : %.idl $(V8_SCRIPTS)
 	rm -f $@; \
 	for i in 1 2 3 4 5 6 7 8 9 10; do \
 	  if test -e $@; then break; fi; \
-	  perl -w -I $(PORTROOT)/bindings/scripts -I $(WebCore)/bindings/scripts $(PORTROOT)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT V8_BINDING" --generator V8 --include ../../../webkit/pending --include ../../../webkit/port/dom --include ../../../webkit/port/html --include ../../../webkit/port/page --include ../../../webkit/port/xml --include svg --include dom --include html --include css --include page --include xml --outputdir . $< ; \
+	  perl -w -I $(PORTROOT)/bindings/scripts -I $(WebCore)/bindings/scripts $(PORTROOT)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT V8_BINDING" --generator V8 --include ../../../webkit/pending --include ../../../webkit/port/dom --include ../../../webkit/port/html --include ../../../webkit/port/page --include ../../../webkit/port/xml --include svg --include dom --include html --include css --include page --include xml --include plugins --outputdir . $< ; \
 	done
