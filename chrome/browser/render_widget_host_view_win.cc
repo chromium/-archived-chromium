@@ -435,7 +435,6 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
     if (!whiteout_start_time_.is_null()) {
       TimeDelta whiteout_duration = TimeTicks::Now() - whiteout_start_time_;
 
-#if 0  // TODO(jar): temp rollback to fix UI reliability regression
       // If field trial is active, report results in special histogram.
       static scoped_refptr<FieldTrial> trial(
           FieldTrialList::Find(BrowserTrial::kMemoryModelFieldTrial));
@@ -449,9 +448,6 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
       } else {
         UMA_HISTOGRAM_TIMES(L"MPArch.RWHH_WhiteoutDuration", whiteout_duration);
       }
-#else
-      UMA_HISTOGRAM_TIMES(L"MPArch.RWHH_WhiteoutDuration", whiteout_duration);
-#endif  // 0.
 
       // Reset the start time to 0 so that we start recording again the next
       // time the backing store is NULL...

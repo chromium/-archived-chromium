@@ -117,7 +117,6 @@ BrowserProcessImpl::BrowserProcessImpl(CommandLine& command_line)
         memory_model_ = MEDIUM_MEMORY_MODEL;
     }
   } else {
-#if 0  // TODO(jar): Comment out setting of fix UI reliability regression.
     // Randomly choose what memory model to use.
     const double probability = 0.5;
     FieldTrial* trial(new FieldTrial(BrowserTrial::kMemoryModelFieldTrial,
@@ -127,7 +126,6 @@ BrowserProcessImpl::BrowserProcessImpl(CommandLine& command_line)
       memory_model_ = HIGH_MEMORY_MODEL;
     else
       memory_model_ = MEDIUM_MEMORY_MODEL;
-#endif  // 0.
   }
 
   suspend_controller_ = new SuspendController();
