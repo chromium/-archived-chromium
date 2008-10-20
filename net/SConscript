@@ -262,7 +262,7 @@ unittest_files = [
 if env['PLATFORM'] == 'win32':
   unittest_files.extend([
       'base/directory_lister_unittest.cc',
-      'base/sdch_filter_unitest.cc',
+      'base/sdch_filter_unittest.cc',
       'base/ssl_config_service_unittest.cc',
       'base/ssl_client_socket_unittest.cc',
       'base/wininet_util_unittest.cc',

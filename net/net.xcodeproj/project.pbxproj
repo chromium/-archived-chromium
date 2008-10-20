@@ -114,7 +114,7 @@
 		7BA3614E0E8C347E0023C8B9 /* cookie_policy_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32620E5A181C00A747DB /* cookie_policy_unittest.cc */; };
 		7BA361ED0E8C38D30023C8B9 /* proxy_service_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA361EC0E8C38D30023C8B9 /* proxy_service_unittest.cc */; };
 		7BA362B60E8C3D020023C8B9 /* sdch_filter.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA3615E0E8C35A50023C8B9 /* sdch_filter.cc */; };
-		7BA362B70E8C3D040023C8B9 /* sdch_filter_unitest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA361600E8C35A50023C8B9 /* sdch_filter_unitest.cc */; };
+		7BA362B70E8C3D040023C8B9 /* sdch_filter_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA361600E8C35A50023C8B9 /* sdch_filter_unittest.cc */; };
 		7BA362C40E8C3D4C0023C8B9 /* libsdch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA362C10E8C3D2B0023C8B9 /* libsdch.a */; };
 		7BD8F70C0E65DCD800034DE9 /* block_files_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32F90E5A190600A747DB /* block_files_unittest.cc */; };
 		7BD8F70D0E65DCE000034DE9 /* disk_cache_test_base.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32D50E5A190600A747DB /* disk_cache_test_base.cc */; };
@@ -429,7 +429,7 @@
 		7BA3615D0E8C35A50023C8B9 /* scoped_host_mapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scoped_host_mapper.h; sourceTree = "<group>"; };
 		7BA3615E0E8C35A50023C8B9 /* sdch_filter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_filter.cc; sourceTree = "<group>"; };
 		7BA3615F0E8C35A50023C8B9 /* sdch_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdch_filter.h; sourceTree = "<group>"; };
-		7BA361600E8C35A50023C8B9 /* sdch_filter_unitest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_filter_unitest.cc; sourceTree = "<group>"; };
+		7BA361600E8C35A50023C8B9 /* sdch_filter_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdch_filter_unittest.cc; sourceTree = "<group>"; };
 		7BA361EB0E8C38C60023C8B9 /* http_version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http_version.h; sourceTree = "<group>"; };
 		7BA361EC0E8C38D30023C8B9 /* proxy_service_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_service_unittest.cc; path = proxy/proxy_service_unittest.cc; sourceTree = "<group>"; };
 		7BA362B90E8C3D2B0023C8B9 /* sdch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sdch.xcodeproj; path = sdch/sdch.xcodeproj; sourceTree = "<group>"; };
@@ -946,7 +946,7 @@
 				7BA3615D0E8C35A50023C8B9 /* scoped_host_mapper.h */,
 				7BA3615E0E8C35A50023C8B9 /* sdch_filter.cc */,
 				7BA3615F0E8C35A50023C8B9 /* sdch_filter.h */,
-				7BA361600E8C35A50023C8B9 /* sdch_filter_unitest.cc */,
+				7BA361600E8C35A50023C8B9 /* sdch_filter_unittest.cc */,
 				E49DD2E80E892F8C003C7A87 /* sdch_manager.cc */,
 				E49DD2E90E892F8C003C7A87 /* sdch_manager.h */,
 				7BED32980E5A181C00A747DB /* socket.h */,
@@ -1532,7 +1532,7 @@
 				7BA361ED0E8C38D30023C8B9 /* proxy_service_unittest.cc in Sources */,
 				7B8B5B9E0E5D188E002F9A97 /* registry_controlled_domain_unittest.cc in Sources */,
 				E4AFA6430E5241B400201347 /* run_all_unittests.cc in Sources */,
-				7BA362B70E8C3D040023C8B9 /* sdch_filter_unitest.cc in Sources */,
+				7BA362B70E8C3D040023C8B9 /* sdch_filter_unittest.cc in Sources */,
 				8220FABD0E914ACA008170A9 /* ssl_client_socket_unittest.cc in Sources */,
 				7BD8F7110E65DCF500034DE9 /* storage_block_unittest.cc in Sources */,
 				E47E93430E8924EE00CA613E /* tcp_client_socket_unittest.cc in Sources */,

@@ -359,7 +359,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\base\sdch_filter_unitest.cc"
+					RelativePath="..\base\sdch_filter_unittest.cc"
 					>
 				</File>
 				<File
