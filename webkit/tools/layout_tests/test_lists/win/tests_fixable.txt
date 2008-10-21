@@ -904,6 +904,7 @@ V8 | KJS # LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
 V8 | KJS # LayoutTests/fast/transforms/shadows.html = FAIL
 V8 | KJS # LayoutTests/http/tests/misc/acid3.html = FAIL
 V8 | KJS # DEFER : LayoutTests/http/tests/misc/frame-default-enc-same-domain.html = FAIL
+V8 | KJS # LayoutTests/http/tests/security/canvas-remote-read-remote-image.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-object-prototype.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/cross-origin-xsl-BLOCKED.html = FAIL
