@@ -1,0 +1,19 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Master configuration for building base components (including base_gfx).
+"""
+
+Import('env')
+
+sconscript_files = [
+    'base_lib.scons',
+    'base_unittests.scons',
+    'gfx/base_gfx.scons',
+]
+
+SConscript(sconscript_files, exports=['env'])
+
+env.Alias('base', '.')

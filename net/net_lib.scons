@@ -1,0 +1,191 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building net.lib / libnet.a.
+"""
+
+Import('env')
+
+env_res = env.Clone()
+env_tests = env.Clone()
+env = env.Clone()
+
+env.SConscript([
+    '$ICU38_DIR/using_icu38.scons',
+    '$SDCH_DIR/using_sdch.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$ROOT_DIR',
+    ],
+)
+
+# These net files work on *all* platforms; files that don't work
+# cross-platform live below.
+input_files = [
+    'base/address_list.cc',
+    'base/auth_cache.cc',
+    'base/base64.cc',
+    'base/bzip2_filter.cc',
+    'base/client_socket_factory.cc',
+    'base/client_socket_handle.cc',
+    'base/client_socket_pool.cc',
+    'base/cookie_monster.cc',
+    'base/cookie_policy.cc',
+    'base/data_url.cc',
+    'base/directory_lister.cc',
+    'base/dns_resolution_observer.cc',
+    'base/escape.cc',
+    'base/ev_root_ca_metadata.cc',
+    'base/filter.cc',
+    'base/gzip_filter.cc',
+    'base/gzip_header.cc',
+    'base/host_resolver.cc',
+    'base/listen_socket.cc',
+    'base/mime_sniffer.cc',
+    'base/mime_util.cc',
+    'base/net_errors.cc',
+    'base/net_module.cc',
+    'base/net_util.cc',
+    'base/registry_controlled_domain.cc',
+    'base/sdch_filter.cc',
+    'base/sdch_manager.cc',
+    'base/ssl_client_socket_win.cc',
+    'base/ssl_config_service.cc',
+    'base/tcp_client_socket.cc',
+    'base/telnet_server.cc',
+    'base/upload_data.cc',
+    'base/upload_data_stream.cc',
+    'base/wininet_util.cc',
+    'base/winsock_init.cc',
+    'base/x509_certificate.cc',
+    'disk_cache/backend_impl.cc',
+    'disk_cache/block_files.cc',
+    'disk_cache/entry_impl.cc',
+    'disk_cache/file_lock.cc',
+    'disk_cache/hash.cc',
+    'disk_cache/mem_backend_impl.cc',
+    'disk_cache/mem_entry_impl.cc',
+    'disk_cache/mem_rankings.cc',
+    'disk_cache/rankings.cc',
+    'disk_cache/stats.cc',
+    'disk_cache/stats_histogram.cc',
+    'disk_cache/trace.cc',
+    'http/cert_status_cache.cc',
+    'http/http_auth.cc',
+    'http/http_auth_handler.cc',
+    'http/http_auth_handler_basic.cc',
+    'http/http_auth_handler_digest.cc',
+    'http/http_cache.cc',
+    'http/http_chunked_decoder.cc',
+    'http/http_network_layer.cc',
+    'http/http_network_transaction.cc',
+    'http/http_response_headers.cc',
+    'http/http_transaction_winhttp.cc',
+    'http/http_util.cc',
+    'http/http_vary_data.cc',
+    'http/winhttp_request_throttle.cc',
+    'proxy/proxy_resolver_fixed.cc',
+    'proxy/proxy_resolver_winhttp.cc',
+    'proxy/proxy_service.cc',
+    'url_request/mime_sniffer_proxy.cc',
+    'url_request/url_request.cc',
+    'url_request/url_request_about_job.cc',
+    'url_request/url_request_error_job.cc',
+    'url_request/url_request_file_dir_job.cc',
+    'url_request/url_request_file_job.cc',
+    'url_request/url_request_filter.cc',
+    'url_request/url_request_ftp_job.cc',
+    'url_request/url_request_http_job.cc',
+    'url_request/url_request_inet_job.cc',
+    'url_request/url_request_job.cc',
+    'url_request/url_request_job_manager.cc',
+    'url_request/url_request_job_metrics.cc',
+    'url_request/url_request_job_tracker.cc',
+    'url_request/url_request_simple_job.cc',
+    'url_request/url_request_test_job.cc',
+    'url_request/url_request_view_cache_job.cc',
+]
+
+if env['PLATFORM'] in ('posix', 'darwin'):
+  # Remove files that still need to be ported from the input_files list.
+  # TODO(port): delete files from this list as they get ported.
+  to_be_ported_files = [
+      'base/client_socket_factory.cc',
+      'base/directory_lister.cc',
+      'base/dns_resolution_observer.cc',
+      'base/listen_socket.cc',
+      'base/ssl_client_socket_win.cc',
+      'base/ssl_config_service.cc',
+      'base/tcp_client_socket.cc',
+      'base/telnet_server.cc',
+      'base/upload_data_stream.cc',
+      'base/wininet_util.cc',
+      'base/winsock_init.cc',
+      'http/http_network_layer.cc',
+      'http/http_network_transaction.cc',
+      'http/http_transaction_winhttp.cc',
+      'http/winhttp_request_throttle.cc',
+      'proxy/proxy_resolver_fixed.cc',
+      'proxy/proxy_resolver_winhttp.cc',
+      'proxy/proxy_service.cc',
+      'url_request/url_request_file_dir_job.cc',
+      'url_request/url_request_filter.cc',
+      'url_request/url_request_ftp_job.cc',
+      'url_request/url_request_inet_job.cc',
+      'url_request/url_request_job_manager.cc',
+  ]
+  for remove in to_be_ported_files:
+      input_files.remove(remove)
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      'base/file_input_stream_win.cc',
+      'base/net_util_win.cc',
+      'base/platform_mime_util_win.cc',
+      'base/x509_certificate_win.cc',
+      'disk_cache/cache_util_win.cc',
+      'disk_cache/file_win.cc',
+      'disk_cache/mapped_file_win.cc',
+      'disk_cache/os_file_win.cc',
+  ])
+
+if env['PLATFORM'] == 'darwin':
+  input_files.extend([
+      'base/platform_mime_util_mac.mm',
+      'base/x509_certificate_mac.cc',
+  ])
+
+if env['PLATFORM'] == 'posix':
+  input_files.extend([
+      # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
+      'base/platform_mime_util_linux.cc',
+  ])
+
+if env['PLATFORM'] in ('darwin', 'posix'):
+  input_files.extend([
+      'base/file_input_stream_posix.cc',
+      'base/net_util_posix.cc',
+      'base/tcp_client_socket_libevent.cc',
+      'disk_cache/cache_util_posix.cc',
+      'disk_cache/file_posix.cc',
+      'disk_cache/mapped_file_posix.cc',
+      'disk_cache/os_file_posix.cc',
+  ])
+
+if env['PLATFORM'] == 'win32':
+  # TODO(bradnelson): This step generates file precompiled_net.pch.ib_tag
+  #                   possibly only on incredibuild, scons doesn't know this.
+  env_p = env.Clone()
+  env_p.Append(CCFLAGS='/Ylnet')
+  pch, obj = env_p.PCH('precompiled_net.pch', 'build/precompiled_net.cc')
+  env['PCH'] = pch
+  env['PCHSTOP'] = 'precompiled_net.h'
+  env.Append(CCPCHFLAGS = ['/FIprecompiled_net.h'])
+  input_files += [obj]
+
+env.ChromeStaticLibrary('net', input_files)

@@ -13,7 +13,7 @@ env.Prepend(
     'corecg',
     'sgl',
     'picture',
-    '#..',
+    '$ROOT_DIR',
   ],
 )
 

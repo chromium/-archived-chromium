@@ -1,0 +1,188 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building base.lib / libbase.a.
+"""
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$ICU38_DIR/using_icu38.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$ROOT_DIR',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/Wp64',
+      ],
+  )
+
+# These base files work on *all* platforms; files that don't work
+# cross-platform live below.
+input_files = [
+    'at_exit.cc',
+    'base_paths.cc',
+    'base_switches.cc',
+    'bzip2_error_handler.cc',
+    'clipboard_util.cc',
+    'command_line.cc',
+    'debug_util.cc',
+    'event_recorder.cc',
+    'file_path.cc',
+    'file_util.cc',
+    'file_version_info.cc',
+    'histogram.cc',
+    'icu_util.cc',
+    'idle_timer.cc',
+    'json_reader.cc',
+    'json_writer.cc',
+    'lazy_instance.cc',
+    'lock.cc',
+    'logging.cc',
+    'md5.cc',
+    'memory_debug.cc',
+    'message_loop.cc',
+    'message_pump_default.cc',
+    'non_thread_safe.cc',
+    'object_watcher.cc',
+    'path_service.cc',
+    'pickle.cc',
+    'rand_util.cc',
+    'ref_counted.cc',
+    'resource_util.cc',
+    'revocable_store.cc',
+    'sha2.cc',
+    'simple_thread.cc',
+    'stats_table.cc',
+    'string_escape.cc',
+    'string_piece.cc',
+    'string_util.cc',
+    'string_util_icu.cc',
+    'system_monitor.cc',
+    'third_party/nspr/prtime.cc',
+    'third_party/nss/sha512.cc',
+    'thread.cc',
+    'time.cc',
+    'time_format.cc',
+    'timer.cc',
+    'trace_event.cc',
+    'tracked.cc',
+    'tracked_objects.cc',
+    'values.cc',
+    'watchdog.cc',
+    'word_iterator.cc',
+]
+
+if env['PLATFORM'] in ('posix', 'darwin'):
+  # Remove files that still need to be ported from the input_files list.
+  # TODO(port): delete files from this list as they get ported.
+  to_be_ported_files = [
+    'clipboard_util.cc',
+    'event_recorder.cc',
+    'file_version_info.cc',
+
+    # This group all depends on MessageLoop.
+    'idle_timer.cc',
+    'object_watcher.cc',
+    'watchdog.cc',
+
+    'resource_util.cc',  # Uses HMODULE, but may be abstractable.
+  ]
+  for remove in to_be_ported_files:
+      input_files.remove(remove)
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      'base_drag_source.cc',
+      'base_drop_target.cc',
+      'base_paths_win.cc',
+      'clipboard_win.cc',
+      'condition_variable_win.cc',
+      'cpu.cc',
+      'debug_on_start.cc',
+      'debug_util_win.cc',
+      'file_util_win.cc',
+      'hmac_win.cc',
+      'iat_patch.cc',
+      'image_util.cc',
+      'lock_impl_win.cc',
+      'message_pump_win.cc',
+      'pe_image.cc',
+      'platform_thread_win.cc',
+      'process_util_win.cc',
+      'process_win.cc',
+      'rand_util_win.cc',
+      'registry.cc',
+      'shared_memory_win.cc',
+      'sys_info_win.cc',
+      'sys_string_conversions_win.cc',
+      'system_monitor_win.cc',
+      'thread_local_storage_win.cc',
+      'thread_local_win.cc',
+      'time_win.cc',
+      'waitable_event_win.cc',
+      'win_util.cc',
+      'wmi_util.cc',
+      'worker_pool.cc',
+  ])
+
+if env['PLATFORM'] in ('darwin', 'posix'):
+  input_files.extend([
+      'condition_variable_posix.cc',
+      'debug_util_posix.cc',
+      'file_util_posix.cc',
+      'lock_impl_posix.cc',
+      'message_pump_libevent.cc',
+      'platform_thread_posix.cc',
+      'process_util_posix.cc',
+      'rand_util_posix.cc',
+      'shared_memory_posix.cc',
+      'string16.cc',
+      'sys_info_posix.cc',
+      'thread_local_storage_posix.cc',
+      'thread_local_posix.cc',
+      'time_posix.cc',
+      'waitable_event_generic.cc',
+  ])
+
+if env['PLATFORM'] == 'darwin':
+  input_files.extend([
+      'base_paths_mac.mm',
+      'clipboard_mac.mm',
+      'file_util_mac.mm',
+      'file_version_info_mac.mm',
+      'hmac_mac.cc',
+      'message_pump_mac.mm',
+      'platform_thread_mac.mm',
+      'scoped_nsautorelease_pool.mm',
+      'sys_string_conversions_mac.mm',
+      'worker_pool_mac.mm',
+  ])
+
+if env['PLATFORM'] == 'posix':
+  input_files.extend([
+      'atomicops_internals_x86_gcc.cc',
+      'base_paths_linux.cc',
+      'file_util_linux.cc',
+      'hmac_nss.cc',
+      'message_pump_glib.cc',
+      'nss_init.cc',
+      'process_posix.cc',
+      'process_util_linux.cc',
+      'sys_string_conversions_linux.cc',
+      'worker_pool.cc',
+  ])
+
+base_lib = env.ChromeStaticLibrary('base', input_files)
+env.Alias('base', base_lib)

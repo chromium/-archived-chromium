@@ -15,6 +15,7 @@ elif p == 'name':
 
 
 default_warnings = ['no-missing-sconscript', 'no-no-parallel-support']
+default_warnings = ['no-no-parallel-support']
 SetOption('warn', default_warnings + GetOption('warn'))
 
 
@@ -29,6 +30,7 @@ env = Environment(
     BUILD_TYPE = ARGUMENTS.get('BUILD_TYPE', 'Hammer'),
     TARGET_ROOT = '#/$BUILD_TYPE',
     OBJ_ROOT = '$TARGET_ROOT',
+    ROOT_DIR = '#/..',
 
     LIBS_DIR              = '$OBJ_ROOT/Libs',
 
@@ -37,17 +39,7 @@ env = Environment(
     CHROME_DIR            = '$OBJ_ROOT/chrome',
     GEARS_DIR             = '$OBJ_ROOT/gears',
     GOOGLE_UPDATE_DIR     = '$OBJ_ROOT/google_update',
-
-    # Work around a limitation (bug?) in SCons in that, when we build
-    # from a different directory, it forces the build targets defined
-    # the SConscript.googleurl file to be relative to that file (i.e.,
-    # here in the build/ directory with us), not relative to the
-    # the SConstruct directory from which SCons was launched.  When
-    # we roll forward to a version of SCons that fixes this, we'll
-    # need to revert to the $BUILD_TYPE definition of GOOGLEURL_DIR.
-    #GOOGLEURL_DIR         = '$OBJ_ROOT/googleurl',
-    GOOGLEURL_DIR         = '#/../build/googleurl',
-
+    GOOGLEURL_DIR         = '$OBJ_ROOT/googleurl',
     NET_DIR               = '$OBJ_ROOT/net',
     RLZ_DIR               = '$OBJ_ROOT/rlz',
     SANDBOX_DIR           = '$OBJ_ROOT/sandbox',
@@ -464,8 +456,8 @@ env.Decider('MD5-timestamp')
 
 
 # Overlay things from a layer below.
-env.Dir('$TARGET_ROOT').addRepository(Dir('..'))
-
+env.Dir('$TARGET_ROOT').addRepository(Dir('#/..'))
+env.Dir('$TARGET_ROOT/googleurl').addRepository(env.Dir('$ROOT_DIR/build'))
 
 included = [c for c in load if not c.startswith('-')]
 excluded = [c[1:] for c in load if c.startswith('-')]
@@ -483,7 +475,7 @@ def LoadComponent(c):
 sconscripts = []
 
 if LoadComponent('base'):
-  sconscripts.append('$BASE_DIR/SConscript')
+  sconscripts.append('$BASE_DIR/base.scons')
 
 if LoadComponent('breakpad'):
   sconscripts.append('$BREAKPAD_DIR/SConscript')
@@ -500,10 +492,10 @@ if LoadComponent('google_update'):
 if LoadComponent('googleurl'):
   # googleurl comes from a different repository so we provide the SConscript
   # file.
-  sconscripts.append('SConscript.googleurl')
+  sconscripts.append('$GOOGLEURL_DIR/googleurl.scons')
 
 if LoadComponent('net'):
-  sconscripts.append('$NET_DIR/SConscript')
+  sconscripts.append('$NET_DIR/net.scons')
 
 if LoadComponent('rlz'):
   sconscripts.append('$RLZ_DIR/SConscript')
@@ -523,12 +515,12 @@ if LoadComponent('testing'):
 if LoadComponent('third_party'):
   sconscripts.extend([
       '$BSDIFF_DIR/SConscript',
-      '$BZIP2_DIR/SConscript',
-      '$ICU38_DIR/SConscript',
-      '$LIBPNG_DIR/SConscript',
+      '$BZIP2_DIR/bzip2.scons',
+      '$ICU38_DIR/icu38.scons',
+      '$LIBPNG_DIR/libpng.scons',
       '$LZMA_SDK_DIR/SConscript',
-      '$MODP_B64_DIR/SConscript',
-      '$ZLIB_DIR/SConscript',
+      '$MODP_B64_DIR/modp_b64.scons',
+      '$ZLIB_DIR/zlib.scons',
   ])
   # Temporary until we get these building on Mac.
   if env['PLATFORM'] != 'darwin':
@@ -539,7 +531,7 @@ if LoadComponent('third_party'):
     ])
   if env['PLATFORM'] in ('posix', 'darwin'):
     sconscripts.extend([
-      '$LIBEVENT_DIR/SConscript',
+      '$LIBEVENT_DIR/libevent.scons',
     ])
   # This is temporary until we get this lib to build on other platforms.
   if env['PLATFORM'] == 'win32':

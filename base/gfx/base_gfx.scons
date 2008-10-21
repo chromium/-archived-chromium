@@ -1,0 +1,79 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building base_gfx.lib / libbase_gfx.a.
+"""
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$ROOT_DIR',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/WX',
+      ],
+  )
+
+input_files = [
+    'convolver.cc',
+    'font_utils.cc',
+    'gdi_util.cc',
+    'image_operations.cc',
+    'native_theme.cc',
+    'png_decoder.cc',
+    'png_encoder.cc',
+    'point.cc',
+    'rect.cc',
+    'size.cc',
+    'skia_utils.cc',
+    'uniscribe.cc',
+    'vector_canvas.cc',
+    'vector_device.cc',
+]
+
+if env['PLATFORM'] in ('posix', 'darwin'):
+  # Remove files that still need to be ported from the input_files list.
+  # TODO(port): delete files from this list as they get ported.
+  to_be_ported_files = [
+      'font_utils.cc',
+      'gdi_util.cc',
+      'native_theme.cc',
+      'skia_utils.cc',
+      'uniscribe.cc',
+      'vector_canvas.cc',
+      'vector_device.cc',
+  ]
+  for remove in to_be_ported_files:
+    input_files.remove(remove)
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      'bitmap_platform_device_win.cc',
+      'platform_canvas_win.cc',
+      'platform_device_win.cc',
+  ])
+elif env['PLATFORM'] == 'posix':
+  input_files.extend([
+      'bitmap_platform_device_linux.cc',
+      'platform_canvas_linux.cc',
+      'platform_device_linux.cc',
+  ])
+
+env.ChromeStaticLibrary('base_gfx', input_files)

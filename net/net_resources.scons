@@ -1,0 +1,41 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building the net_resources.rc resources.
+"""
+
+Import('env')
+
+env = env.Clone()
+
+env.Prepend(
+    CPPPATH = [
+        '$ROOT_DIR',
+    ],
+    RCFLAGS = [
+        ['/l', '0x409'],
+    ],
+)
+
+input_files = [
+    'base/effective_tld_names.dat',
+    'tools/tld_cleanup/tld_cleanup.exe'
+]
+
+# TODO: Need to figure out what to do with external resources on linux.
+# This dat file needed by net_resources is generated.
+tld_names_clean = env.Command('net/effective_tld_names_clean.dat',
+                              input_files,
+                              '${SOURCES[1]} ${SOURCES[0]} $TARGET')
+
+rc = env.Command('net_resources.rc',
+                 'base/net_resources.rc',
+                  Copy('$TARGET', '$SOURCE'))
+
+env.Depends(rc, tld_names_clean)
+
+net_resources = env.RES(rc)
+
+env.Alias('net', net_resources)

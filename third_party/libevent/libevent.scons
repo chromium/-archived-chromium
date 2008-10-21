@@ -2,12 +2,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This SConscript is currently only suitable for Linux.
+
+__doc__ = """
+Configuration for building event.lib / libevent.a.
+
+This is currently only suitable for Linux and Mac.
+"""
 
 Import('env')
 
-env = env.Clone(
-)
+env = env.Clone()
 
 env.Append(
     CPPDEFINES = [

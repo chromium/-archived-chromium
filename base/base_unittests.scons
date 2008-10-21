@@ -1,0 +1,171 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Configuration for building base_unittests{,.exe}.
+"""
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$BASE_DIR/using_base.scons',
+    '$BASE_DIR/gfx/using_base_gfx.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+], {'env':env})
+
+if env['PLATFORM'] in ('posix', 'darwin'):
+  env.SConscript([
+      '$LIBEVENT_DIR/using_libevent.scons',
+  ], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$ROOT_DIR',
+    ],
+    CPPDEFINES = [
+        'GOOGLE_CHROME_BUILD',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/WX',
+      ],
+      CPPDEFINES = [
+          '_WIN32_WINNT=0x0600',
+          'WINVER=0x0600',
+          '_HAS_EXCEPTIONS=0',
+      ],
+      LINKFLAGS = [
+          '/MANIFEST',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/MACHINE:X86',
+          '/FIXED:No',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+  )
+
+# These test files work on *all* platforms; tests that don't work
+# cross-platform live below.
+input_files = [
+    'at_exit_unittest.cc',
+    'atomicops_unittest.cc',
+    'clipboard_unittest.cc',
+    'command_line_unittest.cc',
+    'condition_variable_unittest.cc',
+    'file_path_unittest.cc',
+    'file_util_unittest.cc',
+    'histogram_unittest.cc',
+    'hmac_unittest.cc',
+    'idletimer_unittest.cc',
+    'json_reader_unittest.cc',
+    'json_writer_unittest.cc',
+    'lazy_instance_unittest.cc',
+    'linked_ptr_unittest.cc',
+    'message_loop_unittest.cc',
+    'observer_list_unittest.cc',
+    'path_service_unittest.cc',
+    'pickle_unittest.cc',
+    'pr_time_unittest.cc',
+    'process_util_unittest.cc',
+    'rand_util_unittest.cc',
+    'ref_counted_unittest.cc',
+    'run_all_unittests.cc',
+    'scoped_ptr_unittest.cc',
+    'sha2_unittest.cc',
+    'shared_memory_unittest.cc',
+    'simple_thread_unittest.cc',
+    'singleton_unittest.cc',
+    'stack_container_unittest.cc',
+    'stats_table_unittest.cc',
+    'string_escape_unittest.cc',
+    'string_piece_unittest.cc',
+    'string_tokenizer_unittest.cc',
+    'string_util_unittest.cc',
+    'sys_info_unittest.cc',
+    'thread_local_storage_unittest.cc',
+    'thread_local_unittest.cc',
+    'thread_unittest.cc',
+    'time_unittest.cc',
+    'timer_unittest.cc',
+    'tracked_objects_unittest.cc',
+    'tuple_unittest.cc',
+    'values_unittest.cc',
+    'waitable_event_unittest.cc',
+    'watchdog_unittest.cc',
+    'word_iterator_unittest.cc',
+    'worker_pool_unittest.cc',
+     
+    'gfx/convolver_unittest.cc',
+    'gfx/image_operations_unittest.cc',
+    'gfx/native_theme_unittest.cc',
+    'gfx/png_codec_unittest.cc',
+    'gfx/rect_unittest.cc',
+    'gfx/uniscribe_unittest.cc',
+    'gfx/vector_canvas_unittest.cc',
+]
+
+if env['PLATFORM'] in ('posix', 'darwin'):
+  #env.ChromeTestProgram('debug_message', ['debug_message.cc'])
+
+  # Remove files that still need to be ported from the input_files list.
+  # TODO(port): delete files from this list as they get ported.
+  to_be_ported_files = [
+      'clipboard_unittest.cc',
+      'idletimer_unittest.cc',
+      'process_util_unittest.cc',
+      'stats_table_unittest.cc',
+      'watchdog_unittest.cc',
+      'gfx/native_theme_unittest.cc',
+      'gfx/uniscribe_unittest.cc',
+      'gfx/vector_canvas_unittest.cc',
+  ]
+  for remove in to_be_ported_files:
+    input_files.remove(remove)
+
+if env['PLATFORM'] == 'win32':
+  # Windows-specific tests.
+  input_files.extend([
+      'file_version_info_unittest.cc',
+      'object_watcher_unittest.cc',
+      'pe_image_unittest.cc',
+      'sys_string_conversions_win_unittest.cc',
+      'time_unittest_win.cc',
+      'win_util_unittest.cc',
+      'wmi_util_unittest.cc',
+  ])
+
+if env['PLATFORM'] == 'darwin':
+  # Mac-specific tests.
+  input_files.extend([
+      'platform_test_mac.mm',
+  ])
+
+base_unittests = env.ChromeTestProgram('base_unittests', input_files)
+
+# Install up a level to allow unit test path assumptions to be valid.
+installed_base_unittests = env.Install('$TARGET_ROOT', base_unittests)
+
+env.Alias('base', installed_base_unittests)
+
+# TODO(sgk) should this be moved into base.lib like everything else?  This will
+# require updating a bunch of other SConscripts which link directly against
+# this generated object file.
+env.StaticObject('perftimer.cc')
+
+# Since run_all_perftests supplies a main, we cannot have it in base.lib
+env.StaticObject('run_all_perftests.cc')
