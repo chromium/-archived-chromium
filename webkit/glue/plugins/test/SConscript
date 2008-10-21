@@ -16,7 +16,6 @@ input_files = [
     'plugin_geturl_test.cc',
     'plugin_new_fails_test.cc',
     'plugin_npobject_proxy_test.cc',
-    'plugin_javascript_open_popup.cc',
     'plugin_test.cc'
 ]
 
@@ -25,6 +24,7 @@ if env['PLATFORM'] == 'win32':
   input_files.extend([
       'plugin_execute_script_delete_test.cc',
       'plugin_geturl_test.cc',
+      'plugin_javascript_open_popup.cc',
       'plugin_client.cc',                 # Includes not ported headers.
       'plugin_npobject_lifetime_test.cc', # Has win32-isms (HWND, CALLBACK).
       'plugin_window_size_test.cc'        # Has w32-isms including HWND.

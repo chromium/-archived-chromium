@@ -312,6 +312,11 @@ idl_files = [
 
     'page/inspector/InspectorController.idl',
 
+    'plugins/MimeTypeArray.idl',
+    'plugins/MimeType.idl',
+    'plugins/PluginArray.idl',
+    'plugins/Plugin.idl',
+
     'ksvg2/svg/SVGMatrix.idl',
     'ksvg2/svg/SVGPathSegList.idl',
     'ksvg2/svg/SVGPointList.idl',

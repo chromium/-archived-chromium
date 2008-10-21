@@ -457,7 +457,7 @@ input_files = [
 
     '$WEBCORE_DIR/plugins/MimeType.cpp',
     '$WEBCORE_DIR/plugins/MimeTypeArray.cpp',
-    '$WEBCORE_DIR/plugins/Plugin.cpp.cpp',
+    '$WEBCORE_DIR/plugins/Plugin.cpp',
     '$WEBCORE_DIR/plugins/PluginArray.cpp',
     '$WEBCORE_DIR/plugins/PluginData.cpp',
 
