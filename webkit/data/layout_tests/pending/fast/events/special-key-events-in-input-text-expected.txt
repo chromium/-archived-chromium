@@ -34,19 +34,4 @@ INPUT - keyup - false,false,true,false - U+0030 - 48 - 0. Value: ")".
 Backspace:
 INPUT - keydown - false,false,false,false - U+0008 - 8 - 0. Value: ")".
 INPUT - keyup - false,false,false,false - U+0008 - 8 - 0. Value: "".
-Left Curly Brace:
-INPUT - keydown - false,false,true,false - U+00DB - 219 - 0. Value: "".
-INPUT - keypress - false,false,true,false - - 123 - 123. Value: "".
-INPUT - textInput - {. Value: "".
-INPUT - keyup - false,false,true,false - U+00DB - 219 - 0. Value: "{".
-Backspace:
-INPUT - keydown - false,false,false,false - U+0008 - 8 - 0. Value: "{".
-INPUT - keyup - false,false,false,false - U+0008 - 8 - 0. Value: "".
-Right Curly Brace:
-INPUT - keydown - false,false,true,false - U+00DD - 221 - 0. Value: "".
-INPUT - keypress - false,false,true,false - - 125 - 125. Value: "".
-INPUT - textInput - }. Value: "".
-INPUT - keyup - false,false,true,false - U+00DD - 221 - 0. Value: "}".
-Backspace:
-INPUT - keydown - false,false,false,false - U+0008 - 8 - 0. Value: "}".
-INPUT - keyup - false,false,false,false - U+0008 - 8 - 0. Value: "".
+
