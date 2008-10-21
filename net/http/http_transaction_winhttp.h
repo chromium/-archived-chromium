@@ -50,8 +50,9 @@ class HttpTransactionWinHttp : public HttpTransaction {
     DISALLOW_EVIL_CONSTRUCTORS(Factory);
   };
 
+  virtual ~HttpTransactionWinHttp();
+
   // HttpTransaction methods:
-  virtual void Destroy();
   virtual int Start(const HttpRequestInfo*, CompletionCallback*);
   virtual int RestartIgnoringLastError(CompletionCallback*);
   virtual int RestartWithAuth(const std::wstring&,
@@ -80,7 +81,6 @@ class HttpTransactionWinHttp : public HttpTransaction {
   // Methods ------------------------------------------------------------------
 
   HttpTransactionWinHttp(Session* session, const ProxyInfo* info);
-  ~HttpTransactionWinHttp();
 
   void DoCallback(int rv);
   int ResolveProxy();

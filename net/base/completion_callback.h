@@ -23,6 +23,36 @@ class CompletionCallbackImpl :
   }
 };
 
+// CancelableCompletionCallback is used for completion callbacks
+// which may outlive the target for the method dispatch. In such a case, the
+// provider of the callback calls Cancel() to mark the callback as
+// "canceled". When the canceled callback is eventually run it does nothing
+// other than to decrement the refcount to 0 and free the memory.
+template <class T>
+class CancelableCompletionCallback :
+    public CompletionCallbackImpl<T>,
+    public base::RefCounted<CancelableCompletionCallback<T> > {
+ public:
+  CancelableCompletionCallback(T* obj, void (T::* meth)(int))
+    : CompletionCallbackImpl<T>(obj, meth), is_canceled_(false) {
+  }
+
+  void Cancel() {
+    is_canceled_ = true;
+  }
+
+  virtual void RunWithParams(const Tuple1<int>& params) {
+    if (is_canceled_) {
+      base::RefCounted<CancelableCompletionCallback<T> >::Release();
+    } else {
+      CompletionCallbackImpl<T>::RunWithParams(params);
+    }
+  }
+
+ private:
+  bool is_canceled_;
+};
+
 }  // namespace net
 
 #endif  // NET_BASE_COMPLETION_CALLBACK_H__

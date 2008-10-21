@@ -156,8 +156,7 @@ HttpCache::ActiveEntry::~ActiveEntry() {
 
 //-----------------------------------------------------------------------------
 
-class HttpCache::Transaction : public HttpTransaction,
-                               public base::RefCounted<HttpCache::Transaction> {
+class HttpCache::Transaction : public HttpTransaction {
  public:
   explicit Transaction(HttpCache* cache)
       : request_(NULL),
@@ -175,12 +174,14 @@ class HttpCache::Transaction : public HttpTransaction,
         ALLOW_THIS_IN_INITIALIZER_LIST(
             network_read_callback_(this, &Transaction::OnNetworkReadCompleted)),
         ALLOW_THIS_IN_INITIALIZER_LIST(
-            cache_read_callback_(this, &Transaction::OnCacheReadCompleted)) {
-    AddRef();  // Balanced in Destroy
+            cache_read_callback_(new CancelableCompletionCallback<Transaction>(
+                this, &Transaction::OnCacheReadCompleted))) {
   }
 
+  // Clean up the transaction.
+  virtual ~Transaction();
+
   // HttpTransaction methods:
-  virtual void Destroy();
   virtual int Start(const HttpRequestInfo*, CompletionCallback*);
   virtual int RestartIgnoringLastError(CompletionCallback*);
   virtual int RestartWithAuth(const std::wstring& username,
@@ -298,7 +299,7 @@ class HttpCache::Transaction : public HttpTransaction,
   scoped_ptr<HttpRequestInfo> custom_request_;
   HttpCache* cache_;
   HttpCache::ActiveEntry* entry_;
-  HttpTransaction* network_trans_;
+  scoped_ptr<HttpTransaction> network_trans_;
   CompletionCallback* callback_;  // consumer's callback
   HttpResponseInfo response_;
   HttpResponseInfo auth_response_;
@@ -310,10 +311,10 @@ class HttpCache::Transaction : public HttpTransaction,
   uint64 final_upload_progress_;
   CompletionCallbackImpl<Transaction> network_info_callback_;
   CompletionCallbackImpl<Transaction> network_read_callback_;
-  CompletionCallbackImpl<Transaction> cache_read_callback_;
+  scoped_refptr<CancelableCompletionCallback<Transaction> > cache_read_callback_;
 };
 
-void HttpCache::Transaction::Destroy() {
+HttpCache::Transaction::~Transaction() {
   if (entry_) {
     if (mode_ & WRITE) {
       // Assume that this is not a successful write.
@@ -325,14 +326,13 @@ void HttpCache::Transaction::Destroy() {
     cache_->RemovePendingTransaction(this);
   }
 
-  if (network_trans_)
-    network_trans_->Destroy();
+  // If there is an outstanding callback, mark it as cancelled so running it
+  // does nothing.
+  cache_read_callback_->Cancel();
 
   // We could still have a cache read in progress, so we just null the cache_
   // pointer to signal that we are dead.  See OnCacheReadCompleted.
   cache_ = NULL;
-
-  Release();
 }
 
 int HttpCache::Transaction::Start(const HttpRequestInfo* request,
@@ -435,7 +435,7 @@ int HttpCache::Transaction::Read(char* buf, int buf_len,
   switch (mode_) {
     case NONE:
     case WRITE:
-      DCHECK(network_trans_);
+      DCHECK(network_trans_.get());
       rv = network_trans_->Read(buf, buf_len, &network_read_callback_);
       read_buf_ = buf;
       if (rv >= 0)
@@ -443,14 +443,14 @@ int HttpCache::Transaction::Read(char* buf, int buf_len,
       break;
     case READ:
       DCHECK(entry_);
-      AddRef();  // Balanced in OnCacheReadCompleted
+      cache_read_callback_->AddRef();  // Balanced in OnCacheReadCompleted
       rv = entry_->disk_entry->ReadData(kResponseContentIndex, read_offset_,
-                                        buf, buf_len, &cache_read_callback_);
+                                        buf, buf_len, cache_read_callback_);
       read_buf_ = buf;
       if (rv >= 0) {
         OnCacheReadCompleted(rv);
       } else if (rv != ERR_IO_PENDING) {
-        Release();
+        cache_read_callback_->Release();
       }
       break;
     default:
@@ -471,7 +471,7 @@ const HttpResponseInfo* HttpCache::Transaction::GetResponseInfo() const {
 }
 
 LoadState HttpCache::Transaction::GetLoadState() const {
-  if (network_trans_)
+  if (network_trans_.get())
     return network_trans_->GetLoadState();
   if (entry_ || !request_)
     return LOAD_STATE_IDLE;
@@ -479,7 +479,7 @@ LoadState HttpCache::Transaction::GetLoadState() const {
 }
 
 uint64 HttpCache::Transaction::GetUploadProgress() const {
-  if (network_trans_)
+  if (network_trans_.get())
     return network_trans_->GetUploadProgress();
   return final_upload_progress_;
 }
@@ -669,10 +669,10 @@ int HttpCache::Transaction::BeginCacheValidation() {
 
 int HttpCache::Transaction::BeginNetworkRequest() {
   DCHECK(mode_ & WRITE || mode_ == NONE);
-  DCHECK(!network_trans_);
+  DCHECK(!network_trans_.get());
 
-  network_trans_ = cache_->network_layer_->CreateTransaction();
-  if (!network_trans_)
+  network_trans_.reset(cache_->network_layer_->CreateTransaction());
+  if (!network_trans_.get())
     return net::ERR_FAILED;
 
   int rv = network_trans_->Start(request_, &network_info_callback_);
@@ -683,7 +683,7 @@ int HttpCache::Transaction::BeginNetworkRequest() {
 
 int HttpCache::Transaction::RestartNetworkRequest() {
   DCHECK(mode_ & WRITE || mode_ == NONE);
-  DCHECK(network_trans_);
+  DCHECK(network_trans_.get());
 
   int rv = network_trans_->RestartIgnoringLastError(&network_info_callback_);
   if (rv != ERR_IO_PENDING)
@@ -695,7 +695,7 @@ int HttpCache::Transaction::RestartNetworkRequestWithAuth(
     const std::wstring& username,
     const std::wstring& password) {
   DCHECK(mode_ & WRITE || mode_ == NONE);
-  DCHECK(network_trans_);
+  DCHECK(network_trans_.get());
 
   int rv = network_trans_->RestartWithAuth(username, password,
                                            &network_info_callback_);
@@ -861,8 +861,7 @@ void HttpCache::Transaction::OnNetworkInfoAvailable(int result) {
             cache_->ConvertWriterToReader(entry_);
             // We no longer need the network transaction, so destroy it.
             final_upload_progress_ = network_trans_->GetUploadProgress();
-            network_trans_->Destroy();
-            network_trans_ = NULL;
+            network_trans_.reset();
             mode_ = READ;
           }
         } else {
@@ -901,18 +900,16 @@ void HttpCache::Transaction::OnNetworkReadCompleted(int result) {
 }
 
 void HttpCache::Transaction::OnCacheReadCompleted(int result) {
-  // If Destroy was called while waiting for this callback, then cache_ will be
-  // NULL.  In that case, we don't want to do anything but cleanup.
-  if (cache_) {
-    if (result > 0) {
-      read_offset_ += result;
-    } else if (result == 0) {  // end of file
-      cache_->DoneReadingFromEntry(entry_, this);
-      entry_ = NULL;
-    }
-    HandleResult(result);
+  DCHECK(cache_);
+  cache_read_callback_->Release();  // Balance the AddRef() from Start()
+
+  if (result > 0) {
+    read_offset_ += result;
+  } else if (result == 0) {  // end of file
+    cache_->DoneReadingFromEntry(entry_, this);
+    entry_ = NULL;
   }
-  Release();
+  HandleResult(result);
 }
 
 //-----------------------------------------------------------------------------

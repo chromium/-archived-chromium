@@ -103,7 +103,6 @@ class TestTransactionConsumer : public CallbackRunner< Tuple1<int> > {
   }
 
   ~TestTransactionConsumer() {
-    trans_->Destroy();
   }
 
   void Start(const net::HttpRequestInfo* request) {
@@ -175,7 +174,7 @@ class TestTransactionConsumer : public CallbackRunner< Tuple1<int> > {
     DONE
   } state_;
 
-  net::HttpTransaction* trans_;
+  scoped_ptr<net::HttpTransaction> trans_;
   std::string content_;
   char read_buf_[1024];
   int error_;
@@ -194,10 +193,6 @@ class MockNetworkTransaction : public net::HttpTransaction {
  public:
   MockNetworkTransaction() :
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)), data_cursor_(0) {
-  }
-
-  virtual void Destroy() {
-    delete this;
   }
 
   virtual int Start(const net::HttpRequestInfo* request,

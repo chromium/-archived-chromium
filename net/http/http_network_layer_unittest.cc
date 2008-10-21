@@ -23,25 +23,23 @@ class HttpNetworkLayerTest : public PlatformTest {
 TEST_F(HttpNetworkLayerTest, CreateAndDestroy) {
   net::HttpNetworkLayer factory(NULL);
 
-  net::HttpTransaction* trans = factory.CreateTransaction();
-  trans->Destroy();
+  scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
 }
 
 TEST_F(HttpNetworkLayerTest, Suspend) {
   net::HttpNetworkLayer factory(NULL);
 
-  net::HttpTransaction* trans = factory.CreateTransaction();
-  trans->Destroy();
+  scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
+  trans.reset();
 
   factory.Suspend(true);
 
-  trans = factory.CreateTransaction();
+  trans.reset(factory.CreateTransaction());
   ASSERT_TRUE(trans == NULL);
 
   factory.Suspend(false);
 
-  trans = factory.CreateTransaction();
-  trans->Destroy();
+  trans.reset(factory.CreateTransaction());
 }
 
 TEST_F(HttpNetworkLayerTest, GoogleGET) {
@@ -50,7 +48,7 @@ TEST_F(HttpNetworkLayerTest, GoogleGET) {
 
   TestCompletionCallback callback;
 
-  net::HttpTransaction* trans = factory.CreateTransaction();
+  scoped_ptr<net::HttpTransaction> trans(factory.CreateTransaction());
 
   net::HttpRequestInfo request_info;
   request_info.url = GURL("http://www.google.com/");
@@ -64,9 +62,7 @@ TEST_F(HttpNetworkLayerTest, GoogleGET) {
   EXPECT_EQ(net::OK, rv);
 
   std::string contents;
-  rv = ReadTransaction(trans, &contents);
+  rv = ReadTransaction(trans.get(), &contents);
   EXPECT_EQ(net::OK, rv);
-
-  trans->Destroy();
 }
 

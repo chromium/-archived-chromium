@@ -31,8 +31,9 @@ class HttpNetworkTransaction : public HttpTransaction {
   HttpNetworkTransaction(HttpNetworkSession* session,
                          ClientSocketFactory* socket_factory);
 
+  virtual ~HttpNetworkTransaction();
+
   // HttpTransaction methods:
-  virtual void Destroy();
   virtual int Start(const HttpRequestInfo* request_info,
                     CompletionCallback* callback);
   virtual int RestartIgnoringLastError(CompletionCallback* callback);
@@ -45,7 +46,6 @@ class HttpNetworkTransaction : public HttpTransaction {
   virtual uint64 GetUploadProgress() const;
 
  private:
-  ~HttpNetworkTransaction();
   void BuildRequestHeaders();
   void BuildTunnelRequest();
   void DoCallback(int result);

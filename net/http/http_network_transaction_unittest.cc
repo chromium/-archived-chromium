@@ -234,8 +234,8 @@ struct SimpleGetHelperResult {
 SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   SimpleGetHelperResult out;
 
-  net::HttpTransaction* trans = new net::HttpNetworkTransaction(
-      CreateSession(), &mock_socket_factory);
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -253,10 +253,8 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
   out.rv = callback.WaitForResult();
-  if (out.rv != net::OK) {
-    trans->Destroy();
+  if (out.rv != net::OK)
     return out;
-  }
 
   const net::HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response != NULL);
@@ -264,10 +262,8 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   EXPECT_TRUE(response->headers != NULL);
   out.status_line = response->headers->GetStatusLine();
 
-  rv = ReadTransaction(trans, &out.response_data);
+  rv = ReadTransaction(trans.get(), &out.response_data);
   EXPECT_EQ(net::OK, rv);
-
-  trans->Destroy();
 
   return out;
 }
@@ -275,9 +271,8 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
 //-----------------------------------------------------------------------------
 
 TEST_F(HttpNetworkTransactionTest, Basic) {
-  net::HttpTransaction* trans = new net::HttpNetworkTransaction(
-      CreateSession(), &mock_socket_factory);
-  trans->Destroy();
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(), &mock_socket_factory));
 }
 
 TEST_F(HttpNetworkTransactionTest, SimpleGET) {
@@ -403,8 +398,8 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
   };
 
   for (int i = 0; i < 2; ++i) {
-    net::HttpTransaction* trans =
-        new net::HttpNetworkTransaction(session, &mock_socket_factory);
+    scoped_ptr<net::HttpTransaction> trans(
+        new net::HttpNetworkTransaction(session, &mock_socket_factory));
 
     net::HttpRequestInfo request;
     request.method = "GET";
@@ -426,17 +421,15 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
     EXPECT_EQ("HTTP/1.1 200 OK", response->headers->GetStatusLine());
 
     std::string response_data;
-    rv = ReadTransaction(trans, &response_data);
+    rv = ReadTransaction(trans.get(), &response_data);
     EXPECT_EQ(net::OK, rv);
     EXPECT_EQ(kExpectedResponseData[i], response_data);
-
-    trans->Destroy();
   }
 }
 
 TEST_F(HttpNetworkTransactionTest, Ignores100) {
-  net::HttpTransaction* trans = new net::HttpNetworkTransaction(
-      CreateSession(), &mock_socket_factory);
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "POST";
@@ -471,11 +464,9 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
   EXPECT_EQ("HTTP/1.0 200 OK", response->headers->GetStatusLine());
 
   std::string response_data;
-  rv = ReadTransaction(trans, &response_data);
+  rv = ReadTransaction(trans.get(), &response_data);
   EXPECT_EQ(net::OK, rv);
   EXPECT_EQ("hello world", response_data);
-
-  trans->Destroy();
 }
 
 // read_failure specifies a read failure that should cause the network
@@ -514,8 +505,8 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
   for (int i = 0; i < 2; ++i) {
     TestCompletionCallback callback;
 
-    net::HttpTransaction* trans =
-        new net::HttpNetworkTransaction(session, &mock_socket_factory);
+    scoped_ptr<net::HttpTransaction> trans(
+        new net::HttpNetworkTransaction(session, &mock_socket_factory));
 
     int rv = trans->Start(&request, &callback);
     EXPECT_EQ(net::ERR_IO_PENDING, rv);
@@ -530,11 +521,9 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
     EXPECT_EQ("HTTP/1.1 200 OK", response->headers->GetStatusLine());
 
     std::string response_data;
-    rv = ReadTransaction(trans, &response_data);
+    rv = ReadTransaction(trans.get(), &response_data);
     EXPECT_EQ(net::OK, rv);
     EXPECT_EQ(kExpectedResponseData[i], response_data);
-
-    trans->Destroy();
   }
 }
 
@@ -549,8 +538,8 @@ TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionEOF) {
 }
 
 TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
-  net::HttpTransaction* trans = new net::HttpNetworkTransaction(
-      CreateSession(), &mock_socket_factory);
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -578,8 +567,6 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
 
   const net::HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response == NULL);
-
-  trans->Destroy();
 }
 
 // What do various browsers do when the server closes a non-keepalive
@@ -605,8 +592,8 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
 // Test the request-challenge-retry sequence for basic auth.
 // (basic auth is the easiest to mock, because it has no randomness).
 TEST_F(HttpNetworkTransactionTest, BasicAuth) {
-  net::HttpTransaction* trans = new net::HttpNetworkTransaction(
-      CreateSession(), &mock_socket_factory);
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(), &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -683,8 +670,6 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   EXPECT_FALSE(response == NULL);
   EXPECT_TRUE(response->auth_challenge.get() == NULL);
   EXPECT_EQ(100, response->headers->GetContentLength());
-
-  trans->Destroy();
 }
 
 // Test the flow when both the proxy server AND origin server require
@@ -695,9 +680,9 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   proxy_info.UseNamedProxy("myproxy:70");
 
   // Configure against proxy server "myproxy:70".
-  net::HttpTransaction* trans = new net::HttpNetworkTransaction(
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
       CreateSession(new net::ProxyResolverFixed(proxy_info)),
-      &mock_socket_factory);
+      &mock_socket_factory));
 
   net::HttpRequestInfo request;
   request.method = "GET";
@@ -816,6 +801,4 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   response = trans->GetResponseInfo();
   EXPECT_TRUE(response->auth_challenge.get() == NULL);
   EXPECT_EQ(100, response->headers->GetContentLength());
-
-  trans->Destroy();
 }

@@ -54,23 +54,21 @@ URLRequestHttpJob::URLRequestHttpJob(URLRequest* request)
 }
 
 URLRequestHttpJob::~URLRequestHttpJob() {
-  if (transaction_)
-    DestroyTransaction();
 }
 
 void URLRequestHttpJob::SetUpload(net::UploadData* upload) {
-  DCHECK(!transaction_) << "cannot change once started";
+  DCHECK(!transaction_.get()) << "cannot change once started";
   request_info_.upload_data = upload;
 }
 
 void URLRequestHttpJob::SetExtraRequestHeaders(
     const std::string& headers) {
-  DCHECK(!transaction_) << "cannot change once started";
+  DCHECK(!transaction_.get()) << "cannot change once started";
   request_info_.extra_headers = headers;
 }
 
 void URLRequestHttpJob::Start() {
-  DCHECK(!transaction_);
+  DCHECK(!transaction_.get());
 
   // TODO(darin): URLRequest::referrer() should return a GURL
   GURL referrer(request_->referrer());
@@ -97,7 +95,7 @@ void URLRequestHttpJob::Start() {
 }
 
 void URLRequestHttpJob::Kill() {
-  if (!transaction_)
+  if (!transaction_.get())
     return;
 
   DestroyTransaction();
@@ -105,15 +103,16 @@ void URLRequestHttpJob::Kill() {
 }
 
 net::LoadState URLRequestHttpJob::GetLoadState() const {
-  return transaction_ ? transaction_->GetLoadState() : net::LOAD_STATE_IDLE;
+  return transaction_.get() ?
+      transaction_->GetLoadState() : net::LOAD_STATE_IDLE;
 }
 
 uint64 URLRequestHttpJob::GetUploadProgress() const {
-  return transaction_ ? transaction_->GetUploadProgress() : 0;
+  return transaction_.get() ? transaction_->GetUploadProgress() : 0;
 }
 
 bool URLRequestHttpJob::GetMimeType(std::string* mime_type) {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
 
   if (!response_info_)
     return false;
@@ -122,7 +121,7 @@ bool URLRequestHttpJob::GetMimeType(std::string* mime_type) {
 }
 
 bool URLRequestHttpJob::GetCharset(std::string* charset) {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
 
   if (!response_info_)
     return false;
@@ -132,7 +131,7 @@ bool URLRequestHttpJob::GetCharset(std::string* charset) {
 
 void URLRequestHttpJob::GetResponseInfo(net::HttpResponseInfo* info) {
   DCHECK(request_);
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
 
   if (response_info_)
     *info = *response_info_;
@@ -140,7 +139,7 @@ void URLRequestHttpJob::GetResponseInfo(net::HttpResponseInfo* info) {
 
 bool URLRequestHttpJob::GetResponseCookies(
     std::vector<std::string>* cookies) {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
 
   if (!response_info_)
     return false;
@@ -154,7 +153,7 @@ bool URLRequestHttpJob::GetResponseCookies(
 }
 
 int URLRequestHttpJob::GetResponseCode() {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
 
   if (!response_info_)
     return -1;
@@ -164,7 +163,7 @@ int URLRequestHttpJob::GetResponseCode() {
 
 bool URLRequestHttpJob::GetContentEncodings(
     std::vector<std::string>* encoding_types) {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
 
   if (!response_info_)
     return false;
@@ -292,7 +291,7 @@ bool URLRequestHttpJob::NeedsAuth() {
 
 void URLRequestHttpJob::GetAuthChallengeInfo(
     scoped_refptr<net::AuthChallengeInfo>* result) {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
   DCHECK(response_info_);
 
   // sanity checks:
@@ -320,7 +319,7 @@ void URLRequestHttpJob::GetCachedAuthData(
 
 void URLRequestHttpJob::SetAuth(const std::wstring& username,
                                 const std::wstring& password) {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
 
   // Proxy gets set first, then WWW.
   if (proxy_auth_state_ == net::AUTH_STATE_NEED_AUTH) {
@@ -375,7 +374,7 @@ void URLRequestHttpJob::CancelAuth() {
 }
 
 void URLRequestHttpJob::ContinueDespiteLastError() {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
   DCHECK(!response_info_) << "should not have a response yet";
 
   // No matter what, we want to report our status as IO pending since we will
@@ -393,7 +392,7 @@ void URLRequestHttpJob::ContinueDespiteLastError() {
 }
 
 bool URLRequestHttpJob::GetMoreData() {
-  return transaction_ && !read_in_progress_;
+  return transaction_.get() && !read_in_progress_;
 }
 
 bool URLRequestHttpJob::ReadRawData(char* buf, int buf_size, int *bytes_read) {
@@ -424,7 +423,7 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
 
   // If the transaction was destroyed, then the job was cancelled, and
   // we can just ignore this notification.
-  if (!transaction_)
+  if (!transaction_.get())
     return;
 
   // Clear the IO_PENDING status
@@ -497,10 +496,9 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
 }
 
 void URLRequestHttpJob::DestroyTransaction() {
-  DCHECK(transaction_);
+  DCHECK(transaction_.get());
 
-  transaction_->Destroy();
-  transaction_ = NULL;
+  transaction_.reset();
   response_info_ = NULL;
 }
 
@@ -508,20 +506,20 @@ void URLRequestHttpJob::StartTransaction() {
   // NOTE: This method assumes that request_info_ is already setup properly.
 
   // Create a transaction.
-  DCHECK(!transaction_);
+  DCHECK(!transaction_.get());
 
   DCHECK(request_->context());
   DCHECK(request_->context()->http_transaction_factory());
 
-  transaction_ =
-      request_->context()->http_transaction_factory()->CreateTransaction();
+  transaction_.reset(
+      request_->context()->http_transaction_factory()->CreateTransaction());
 
   // No matter what, we want to report our status as IO pending since we will
   // be notifying our consumer asynchronously via OnStartCompleted.
   SetStatus(URLRequestStatus(URLRequestStatus::IO_PENDING, 0));
 
   int rv;
-  if (transaction_) {
+  if (transaction_.get()) {
     rv = transaction_->Start(&request_info_, &start_callback_);
     if (rv == net::ERR_IO_PENDING)
       return;

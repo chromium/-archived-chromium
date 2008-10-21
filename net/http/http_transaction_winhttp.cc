@@ -825,10 +825,6 @@ HttpTransactionWinHttp::~HttpTransactionWinHttp() {
     session_->Release();
 }
 
-void HttpTransactionWinHttp::Destroy() {
-  delete this;
-}
-
 int HttpTransactionWinHttp::Start(const HttpRequestInfo* request_info,
                                   CompletionCallback* callback) {
   DCHECK(request_info);

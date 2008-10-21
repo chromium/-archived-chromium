@@ -62,10 +62,6 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
 #endif
 }
 
-void HttpNetworkTransaction::Destroy() {
-  delete this;
-}
-
 int HttpNetworkTransaction::Start(const HttpRequestInfo* request_info,
                                   CompletionCallback* callback) {
   request_ = request_info;
