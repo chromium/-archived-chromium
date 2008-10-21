@@ -1,0 +1,15 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>BuildBot Index page</title>
+<script>
+  var location_no_index = location.href.replace("index.html","");
+  var location_no_slash = location_no_index.replace(/\/$/g,"");
+  var new_location = location_no_slash.replace(/$/g, "/waterfall");
+  document.write("<meta http-equiv='REFRESH' content='0;url=" + new_location + "'>");
+</script>
+</HEAD>
+<BODY>
+</BODY>
+</HTML>
+

@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<!-- Copyright 2008 Google Inc.  All rights reserved. -->
+
+<head><title>Chromium Whuffie</title>
+
+<script>
+whuffie_list = {};
+whuffie_reasons = [];
+</script>
+
+<!-- These files fill the whuffie_data and whuffie_reasons variables. -->
+<script src="whuffie_list.js"></script>
+<script src="whuffie_reasons.js"></script>
+
+<style>
+.date {color: blue;}
+.plus {color: green;}
+.minus {color: red;}
+.zero {color: black;}
+#spacer {width: 20px;}
+#reason_cell {vertical-align: top;}
+</style>
+
+<script>
+// Keep a global list of names.
+whuffie_names = [];
+for (var name in whuffie_data)
+  whuffie_names.push(name);
+
+// Track the 0-based index of the current sort column and the reversed state.
+whuffie_currentSortCol = -1;  // unsorted
+whuffie_direction = 1;  // forward (use -1 for reversed)
+
+// Sorts or reverses the indicated column. This is not at all general, but
+// simple.
+function sortRows(column) {
+  // For names, we can simply reverse the list on reversal. For values, we'll
+  // need to re-sort so the secondary (name) sort stays ascending.
+  if (column == whuffie_currentSortCol)
+    whuffie_direction = -whuffie_direction;
+
+  if (column == 0) {
+    if (column == whuffie_currentSortCol)
+      whuffie_names.reverse();
+    else
+      whuffie_names.sort();
+  } else {
+    whuffie_names.sort(valueComparator);
+  }
+  whuffie_currentSortCol = column;
+}
+
+function valueComparator(a, b) {
+  var aVal = parseInt(whuffie_data[a], 10);
+  var bVal = parseInt(whuffie_data[b], 10);
+
+  // Descending is the "normal" sort order for whuffie values.
+  if (aVal < bVal)
+    return whuffie_direction;
+  if (aVal > bVal)
+    return -whuffie_direction;
+
+  // Sort by ascending name if values are equal.
+  if (a < b)
+    return -1;
+  if (a > b)
+    return 1;
+
+  return 0;
+}
+
+function drawValues(sort_column) {
+  sortRows(sort_column);
+
+  var table = ['<table border="1">',
+      '<tr><th><a href="" onclick="return drawValues(0);">Name</a></th>',
+      '<th><a href="" onclick="return drawValues(1);">Whuffie</a></th></tr>'];
+
+  for (var dataLine = 0; dataLine < whuffie_names.length; ++dataLine) {
+    var value = whuffie_data[whuffie_names[dataLine]];
+    var colorClass;
+    if (value > 0)
+      colorClass = 'plus';
+    else if (value < 0)
+      colorClass = 'minus';
+    else
+      colorClass = 'zero';
+    table.push.apply(table, ['<tr><td>',
+                             whuffie_names[dataLine],
+                             '</td><td><span class="', colorClass, '">',
+                             value,
+                             '</span></td></tr>']);
+  }
+  document.getElementById('value_cell').innerHTML = table.join('') +
+                                                    '</table>';
+
+  // Return false so we don't try to follow the anchor that was clicked.
+  return false;
+}
+
+function drawReasons() {
+  // Reorder the reasons newest-first.
+  whuffie_reasons.reverse();
+
+  // Parse the newline-separated pieces and build HTML.
+  var html = [];
+  for (var i = 0; i < whuffie_reasons.length; i++) {
+    // pieces = [date, before, target, operator, after]
+    var pieces = whuffie_reasons[i].split('\n');
+    html.push.apply(html, ['<span class="date">', pieces[0], '</span> ',
+                           pieces[1],
+                           ' <span class="',
+                           pieces[3] == '++' ? 'plus' : 'minus',
+                           '"> ',
+                           pieces[2], pieces[3], '</span> ',
+                           pieces[4], '<br>']);
+  }
+  document.getElementById('reason_cell').innerHTML =
+      '<b>Recent Reasons</b><br>' + html.join('');
+  return false;
+}
+</script>
+</head>
+
+<body>
+<h1>Chrome Whuffie</h1>
+
+<table><tr>
+<td id="value_cell">Values</td>
+<td id="spacer">&nbsp;</td>
+<td id="reason_cell">Reasons</td>
+</tr></table>
+
+<script>
+drawValues(1);
+drawReasons();
+</script>
+</body>
+</html>

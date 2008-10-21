@@ -1,0 +1,7 @@
+URL: http://www.zope.org/Products/Zope3/
+Version: 3.3.1
+License: Zope Public License, Version 2.1 (ZPL)
+
+Local Modifications:
+Only kept zope.exceptions-Zope-3.x, zope.interface-Zope-3.x and
+zope.testing-Zope-3.x.

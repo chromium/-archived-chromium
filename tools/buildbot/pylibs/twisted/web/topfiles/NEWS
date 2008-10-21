@@ -1,0 +1,107 @@
+8.1.0 (2008-05-18)
+==================
+
+Fixes
+-----
+
+ - Fixed an XMLRPC bug whereby sometimes a callRemote Deferred would
+   accidentally be fired twice when a connection was lost during the handling of
+   a response (#3152)
+ - Fixed a bug in the "Using Twisted Web" document which prevented an example
+   resource from being renderable (#3147)
+ - The deprecated mktap API is no longer used (#3127)
+
+
+8.0.0 (2008-03-17)
+==================
+
+Features
+--------
+ - Add support to twisted.web.client.getPage for the HTTP HEAD method. (#2750)
+
+Fixes
+-----
+ - Set content-type in xmlrpc responses to "text/xml" (#2430)
+ - Add more error checking in the xmlrpc.XMLRPC render method, and enforce
+   POST requests. (#2505)
+ - Reject unicode input to twisted.web.client._parse to reject invalid
+   unicode URLs early. (#2628)
+ - Correctly re-quote URL path segments when generating an URL string to
+   return from Request.prePathURL. (#2934)
+ - Make twisted.web.proxy.ProxyClientFactory close the connection when
+   reporting a 501 error. (#1089)
+ - Fix twisted.web.proxy.ReverseProxyResource to specify the port in the
+   host header if different from 80. (#1117)
+ - Change twisted.web.proxy.ReverseProxyResource so that it correctly encodes
+   the request URI it sends on to the server for which it is a proxy. (#3013)
+ - Make "twistd web --personal" use PBServerFactory (#2681)
+
+Misc
+----
+ - #1996, #2382, #2211, #2633, #2634, #2640, #2752, #238, #2905
+
+
+0.7.0 (2007-01-02)
+==================
+
+Features
+--------
+ - Python 2.5 is now supported (#1867)
+ - twisted.web.xmlrpc now supports the <nil/> xml-rpc extension type
+   in both the server and the client (#469)
+
+Fixes
+-----
+ - Microdom and SUX now manages certain malformed XML more resiliently
+   (#1984, #2225, #2298)
+ - twisted.web.client.getPage can now deal with an URL of the form
+   "http://example.com" (no trailing slash) (#1080)
+ - The HTTP server now allows (invalid) URLs with multiple question
+   marks (#1550)
+ - '=' can now be in the value of a cookie (#1051)
+ - Microdom now correctly handles xmlns="" (#2184)
+
+Deprecations and Removals
+-------------------------
+ - websetroot was removed, because it wasn't working anyway (#945)
+ - woven.guard no longer supports the old twisted.cred API (#1440)
+
+Other
+-----
+The following changes are minor or closely related to other changes.
+
+ - #1636, #1637, #1638, #1936, #1883, #447
+
+
+0.6.0 (2006-05-21)
+==================
+
+Features
+--------
+ - Basic auth support for the XMLRPC client (#1474).
+
+Fixes
+-----
+ - More correct datetime parsing.
+ - Efficiency improvements (#974)
+ - Handle popular non-RFC compliant formats for If-Modified-Since
+   headers (#976).
+ - Improve support for certain buggy CGI scripts.
+ - CONTENT_LENGTH is now available to CGI scripts.
+ - Support for even worse HTML in microdom (#1358).
+ - Trying to view a user's home page when the user doesn't have a
+   ~/public_html no longer displays a traceback (#551).
+ - Misc: #543, #1011, #1005, #1287, #1337, #1383, #1079, #1492, #1189,
+   #737, #872.
+
+
+0.5.0
+=====
+ - Client properly reports timeouts as error
+ - "Socially deprecate" woven
+ - Fix memory leak in _c_urlarg library
+ - Stop using _c_urlarg library
+ - Fix 'gzip' and 'bzip2' content-encodings
+ - Escape log entries so remote user cannot corrupt the log
+ - Commented out range support because it's broken
+ - Fix HEAD responses without content-length

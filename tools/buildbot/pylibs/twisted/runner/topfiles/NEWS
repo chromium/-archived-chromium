@@ -1,0 +1,20 @@
+8.0.0 (2008-03-17)
+==================
+
+Misc
+----
+ - Remove all "API Stability" markers (#2847)
+
+
+0.2.0 (2006-05-24)
+==================
+
+Fixes
+-----
+ - Fix a bug that broke inetdtap.RPCServer.
+ - Misc: #1142
+
+
+0.1.0
+=====
+ - Pass *blocking* sockets to subprocesses run by inetd

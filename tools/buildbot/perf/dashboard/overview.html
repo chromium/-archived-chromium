@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <title>Chrome Perf Overview</title>
+    <script src="js/common.js"></script>
+    <script language="javascript">
+      function DisplayGraph(name) {
+        document.write('<td><iframe scrolling="no" height="250" width="400" src="http://build.chromium.org/buildbot/perf/');
+        document.write(name);
+        document.write('/report.html?history=50')
+        var params = ParseParams();
+        if ('trace' in params) {
+          document.write('&trace=');
+          document.write(params.trace);
+        }
+        document.write('&lookout"></iframe></td>');
+      }
+    </script>
+  </head>
+  <body>
+    <center>
+      <h1>
+        Currently showing
+        <script language=javascript>
+          var params = ParseParams();
+          if ('trace' in params) {
+            document.write(params.trace)
+          } else {
+            document.write('page-load-time')
+          }
+        </script>
+      </h1>
+      <br>
+      [ <a href="overview.html">page-load-time</a> |
+        <a href="overview.html?trace=vm-peak-browser">vm-peak-browser</a> |
+        <a href="overview.html?trace=vm-peak-renderer">vm-peak-renderer</a> |
+        <a href="overview.html?trace=ws-peak-browser">ws-peak-browser</a> |
+        <a href="overview.html?trace=ws-peak-renderer">ws-peak-renderer</a> |
+        <a href="overview.html?trace=io-op-browser">io-op-browser</a> |
+        <a href="overview.html?trace=io-byte-browser">io-byte-browser</a> ]
+      <h1>Chromium XP Dual Core</h1>
+      <table>
+        <tr>
+            <script>DisplayGraph("xp-release-dual-core/moz");</script>
+            <script>DisplayGraph("xp-release-dual-core/intl1");</script>
+            <script>DisplayGraph("xp-release-dual-core/intl2");</script>
+        </tr>
+        <tr>
+            <script>DisplayGraph("xp-release-dual-core/dhtml");</script>
+            <script>DisplayGraph("xp-release-dual-core/startup");</script>
+            <script>DisplayGraph("xp-release-dual-core/new-tab-ui-cold");</script>
+        </tr>
+      </table>
+      <h1>Chromium Vista Dual Core</h1>
+      <table>
+        <tr>
+            <script>DisplayGraph("vista-release-dual-core/moz");</script>
+            <script>DisplayGraph("vista-release-dual-core/intl1");</script>
+            <script>DisplayGraph("vista-release-dual-core/intl2");</script>
+        </tr>
+        <tr>
+            <script>DisplayGraph("vista-release-dual-core/dhtml");</script>
+            <script>DisplayGraph("vista-release-dual-core/startup");</script>
+            <script>DisplayGraph("vista-release-dual-core/new-tab-ui-cold");</script>
+        </tr>
+      </table>
+      <h1>Chromium XP JSC</h1>
+      <table>
+        <tr>
+            <script>DisplayGraph("xp-release-jsc/moz");</script>
+            <script>DisplayGraph("xp-release-jsc/intl1");</script>
+            <script>DisplayGraph("xp-release-jsc/intl2");</script>
+        </tr>
+        <tr>
+            <script>DisplayGraph("xp-release-jsc/dhtml");</script>
+            <script>DisplayGraph("xp-release-jsc/startup");</script>
+            <script>DisplayGraph("xp-release-jsc/new-tab-ui-cold");</script>
+        </tr>
+      </table>
+
+
+    </center>
+  </body>
+</html>
+

@@ -1,0 +1,18 @@
+# Chromium crontab input file for restarting build slaves on reboot.
+# Feed this to crontab as follows:
+#
+#    $ crontab -u $USER crontab.in
+#
+# Note that it's a good idea to specify the -u option when using
+# a role account, because crontab can get confused by su.
+#
+# Crontab will run the command with a hermetic environment with
+# $SHELL, $LOGNAME (also $USER if necessary) and $HOME set from
+# /etc/passwd, and $PATH set to "/usr/bin:/bin", so there's no
+# need to set environment variables.
+#
+# $MAILTO is used explicitly by cron for failure notification.
+
+MAILTO=chrome-build-alerts@google.com
+
+@reboot cd $HOME/b/slave && make start

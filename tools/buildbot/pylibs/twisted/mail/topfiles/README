@@ -1,0 +1,5 @@
+Twisted Mail 8.1.0
+
+Mail was recently split out of Twisted.
+
+Twisted Mail depends on Twisted and (sometimes) Twisted Names.

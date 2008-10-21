@@ -1,0 +1,279 @@
+<html>
+<head>
+<style>
+body {
+  font-family: sans-serif;
+}
+div#output {
+  cursor: pointer;
+}
+div#switcher {
+  cursor: pointer;
+}
+div#switcher a {
+  border-top: 1px solid black;
+  border-left: 1px solid black;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+canvas.plot {
+  border: 1px solid black;
+}
+div.plot-coordinates {
+  font-family: monospace;
+}
+iframe {
+  display: none;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+div.selector {
+  border: solid 1px black;
+  cursor: pointer;
+  padding-left: 0.3em;
+  background-color: white;
+}
+div.selector:hover {
+  background-color: rgb(200,200,250);
+}
+div.selected {
+  border-left: none;
+}
+div#selectors {
+  width: 80px;
+  display: none;
+}
+</style>
+<script src="js/common.js"></script>
+<script src="js/coordinates.js"></script>
+<script src="js/plotter.js"></script>
+<script src="config.js"></script>
+<script>
+document.title = Config.title;
+
+var params = ParseParams();
+if (!('history' in params)) {
+  params.history = 150;
+  window.location.href = MakeURL(params);
+}
+if (!('trace' in params)) {
+  params.trace = 'summary';
+  window.location.href = MakeURL(params);
+}
+
+function goTo(trace) {
+  params.trace = trace;
+  if (params.trace == '' && params.trace != '0')
+   params.trace = 'summary';
+  window.location.href = MakeURL(params);
+}
+
+function goToClosure(trace) {
+  return function(){goTo(trace)};
+}
+
+var didUpdatePositionDetails = false;
+
+function unitsForTrace() {
+  return 'msec';
+}
+
+function timing(dict) {
+  return parseFloat(dict['time']);
+}
+
+function deviation(absoluteValue, dict) {
+  deviationPercentage = parseFloat(dict['stdd']);
+  return absoluteValue / 100 * deviationPercentage;
+}
+
+function testCategoryDetails(dict) {
+  return dict['details'];
+}
+
+function jsonToJs(data) {
+  return eval('(' + data + ')')
+}
+
+function addSelectionTabs(rows) {
+  if (rows.length > 0 && rows[0].length > 0) {
+    data = jsonToJs(rows[0]);
+    tabs = ['summary'];
+    for (var clNumber in data) 
+      for (var testType in data[clNumber]) 
+        for (test_name in testCategoryDetails(data[clNumber][testType]))
+          tabs.push(test_name);
+
+    initPlotSwitcher(tabs);
+  }
+}
+
+function onSummaryReceived(data) {
+  var rows = data.split('\n');
+  addSelectionTabs(rows);
+  clNumbers = [];
+  dataRows = {};
+  
+  for(var i = 0; i < rows.length; i++) {
+    if (rows[i].length < 1)
+      break;
+    if (i > params.history) // limit by history
+      break;
+
+    clData = jsonToJs(rows[i]);    
+    
+    if (params.trace == 'summary') {
+      for (var clNumber in clData) {
+        clNumbers.push(clNumber)
+
+        for(testType in clData[clNumber]){
+          if(!dataRows[testType])
+            dataRows[testType] = []
+
+          time = timing(clData[clNumber][testType]);
+          stdd = deviation(time, clData[clNumber][testType]);
+          dataRows[testType].push([time, stdd])
+        }
+      }
+    } else {
+      // specific selection that is defined in params.trace
+      for (var clNumber in clData) {
+        clNumbers.push(clNumber)
+        currentData = clData[clNumber]
+        for(testType in currentData){
+          if(!dataRows[params.trace])
+            dataRows[params.trace] = []
+            
+          details = testCategoryDetails(currentData[testType]);
+          if (details[params.trace]) {
+            testData = details[params.trace];
+            time = timing(testData);
+            stdd = deviation(time, testData);
+            dataRows[params.trace].push([time, stdd])
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  dataGrid = []
+  for(key in dataRows) {
+    dataGrid.push(dataRows[key].reverse())
+  }
+  clNumbers.reverse();
+  var plotter = new Plotter(clNumbers, dataGrid, Config.dataDescription,
+    unitsForTrace(), document.getElementById("output"), true);
+  plotter.onclick = handlePlotClicked;
+  plotter.plot();
+  
+  return;
+}
+
+function handlePlotClicked(cl, value, fuzz, e) {
+  document.getElementById('view-change').
+    setAttribute('src', Config.changeLinkPrefix + cl);
+
+  if (!didUpdatePositionDetails) {
+    updatePositionDetails();
+    didUpdatePositionDetails = true;
+  }
+}
+
+function updatePositionDetails() {
+  var output = document.getElementById("output");  
+  var win_height = window.innerHeight;
+  var details = document.getElementById("views");
+  var views = document.getElementById("views");
+  var selectors = document.getElementById("selectors");
+  selectors.style.display = "block";
+
+  var views_width = output.offsetWidth - selectors.offsetWidth;
+
+  views.style.border = "1px solid black";
+  views.style.width = views_width + "px";
+  views.style.height = (win_height - output.offsetHeight - 
+                         output.offsetTop - 30) + "px";
+
+  selectors.style.position = "absolute";
+  selectors.style.left = (views.offsetLeft + views_width + 1) + "px";
+  selectors.style.top = views.offsetTop + "px";
+
+  viewCl();
+}
+
+function viewCl(target) {
+    document.getElementById("view-change").style.display = "block";
+}
+
+function initPlotSwitcher(tabs) {
+  for(var i = 0; i < tabs.length; i++) {
+    var anchor = document.createElement("a");
+    anchor.appendChild(document.createTextNode(tabs[i]));
+    anchor.addEventListener("click", goToClosure(tabs[i]), false);
+    document.getElementById("switcher").appendChild(anchor);
+  }
+
+  if ('lookout' in params) {
+    switcher.style.display = "none";
+    details.style.display = "none";
+    header_text.style.display = "none";
+    explain.style.display = "none";
+    selection.style.display = "none";
+  } else {
+    document.getElementById("header_lookout").style.display = "none";
+  }
+}
+
+function log(data) {
+  document.getElementById('log').appendChild(
+       document.createTextNode(data + '\n'));
+}
+
+function init() {
+  Fetch("summary.dat", onSummaryReceived);
+}
+
+window.addEventListener("load", init, false); 
+</script>
+</head>
+<body>
+<p>
+<div id="header_lookout" align="center">
+  <font style='color: #0066FF; font-family: Arial, serif;font-size: 20pt; font-weight: bold;'>
+    <script>document.write(Config.title);</script>
+  </font>
+</div>
+<div id="header_text">
+Builds generated by the <a href="http://build.chromium.org/">BUILD TYPE</a> build
+slave are run through the
+<script>
+document.write('<a href="' + Config.sourceLink + '">' + Config.title + '</a>');
+</script>
+and the results of that test are charted here.
+</div>
+</p>
+<p style="font-size: 0.75em; font-style: italic; color: rgb(100,100,100)">
+<div id="explain">
+The vertical axis is the time in milliseconds for the build to complete the
+test, and the horizontal axis is the change-list for the build being
+tested
+</div>
+</p>
+<div id="switcher">
+
+</div>
+<div id="output"></div>
+<div id="details">
+  <div id="views">
+    <iframe id="view-change"></iframe>
+    <iframe id="view-pages"></iframe>
+  </div>
+  <div id="selectors">
+    <div class="selector" onclick="viewCl()">CL</div>
+  </div>
+</div>
+<pre id="log"></pre>
+</body>
+</html>

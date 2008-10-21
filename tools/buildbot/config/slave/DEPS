@@ -1,0 +1,14 @@
+deps = {
+  "scripts":
+    "/trunk/tools/buildbot/scripts",
+
+  "pylibs":
+    "/trunk/tools/buildbot/pylibs",
+}
+
+deps_os = {
+  "win": {
+    "symsrc":
+      "/trunk/tools/symsrc",
+  }
+}

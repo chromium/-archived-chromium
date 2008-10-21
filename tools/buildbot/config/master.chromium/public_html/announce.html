@@ -1,0 +1,80 @@
+<center>
+  <table width="100%" valign="top" bgcolor="#efefef" style="border-top-left-radius: 10px; -webkit-border-top-left-radius: 40px;  -webkit-border-top-right-radius: 40px;  -webkit-border-bottom-left-radius: 40px;  -webkit-border-bottom-right-radius: 40px; ">
+    <tr>
+      <td width="23%">
+        <table valign="top" width="100%">
+          <tr>
+            <td style="text-align: right;">
+              <b>Builds:</b>
+            </td>
+            <td>
+              <a href="http://build.chromium.org/buildbot/continuous/">continuous</a> |
+              <a href="http://build.chromium.org/buildbot/symbols/">symbols</a> |
+              <a href="http://build.chromium.org/buildbot/perf/dashboard/overview.html">perf</a> |
+              <a href="http://chromium-status.appspot.com">status</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">
+              <b>Development:</b>
+            </td>
+            <td>
+              <a href="http://src.chromium.org/viewvc">source</a> |
+              <a href="http://codereview.chromium.org/">reviews</a> |
+              <a href="http://code.google.com/p/chromium/issues/list">bugs</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">
+              <b>Chromium:</b>
+            </td>
+            <td>
+              <a href="http://www.chromium.org">www</a> |
+              <a href="http://blog.chromium.org">blog</a> |
+              <a href="http://dev.chromium.org/">dev</a> |
+              <a href="http://www.google.com/support/chrome/">support</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">
+               <b>Sheriffs: </b>
+            </td>
+            <td>
+              nsylvain, tc
+            </td>
+          </tr>
+        </table>
+      </td>
+      <td width="1" bgcolor="#CCCCCC">
+      </td>
+      <td width="2%">
+      </td>
+      <td width="72%">
+        <table width="100%">
+          <script language="javascript">
+            var chrome = "builder=Chromium+XP&builder=Chromium+Builder&builder=Chromium+Builder+(dbg)&builder=XP+Tests&builder=XP+Tests+(dbg)&builder=XP+Tests+(purify)&builder=Vista+Tests&builder=Vista+Tests+(dbg)&builder=Interactive+Tests+(dbg)&builder=XP+Perf&builder=XP+Perf+(dbg)&builder=Vista+Perf&builder=Vista+Perf+(dbg)&builder=Chromium+XP+(jsc)"
+            var webkit = "builder=Webkit+Builder&builder=Webkit+Builder+(V8-Latest)&builder=Webkit+Builder+(dbg)&builder=Webkit&builder=Webkit+(V8-Latest)&builder=Webkit+(dbg)&builder=Webkit+(purify)&builder=Webkit+(purify+layout)"
+            var modules = "builder=Modules+XP&builder=Modules+XP+(dbg)&builder=Modules+XP+(purify)&builder=Modules+Vista&builder=Modules+Vista+(dbg)&builder=Modules+Linux+(dbg)&builder=Modules+Mac&builder=Modules+Mac+(dbg)"
+  
+            var bar = "./horizontal_one_box_per_builder"
+            var waterfall = "./waterfall"
+  
+            function GetUrl(type, content) {
+              return type + "?" + content + "&reload=30";
+            }
+  
+            function DisplayBar(content, name) {
+              document.write("<tr><td><a href='" + GetUrl(waterfall, content) + "'>" + name + "</a></td><td width='99%'><iframe width='100%' height='20' frameborder='0' scrolling='no' src='" + GetUrl(bar, content) + "'></iframe></td></tr>\n");
+            }
+
+            DisplayBar(chrome, "Chromium");
+            DisplayBar(webkit, "Webkit");
+            DisplayBar(modules, "Modules");
+          </script>
+        </table>
+      </td>
+      <td width="3%">
+      </td>
+    </tr>
+  </table>
+</center>

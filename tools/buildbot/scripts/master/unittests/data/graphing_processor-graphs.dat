@@ -1,0 +1,1 @@
+[{"units": "kb", "important": true, "name": "commit_charge"}, {"units": "kb", "important": true, "name": "ws_final_total"}, {"units": "", "important": false, "name": "processes"}, {"units": "kb", "important": false, "name": "vm_final_browser"}, {"units": "kb", "important": false, "name": "vm_final_total"}, {"units": "kb", "important": false, "name": "ws_final_browser"}]

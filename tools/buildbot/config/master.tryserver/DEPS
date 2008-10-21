@@ -1,0 +1,7 @@
+deps = {
+  "pylibs":
+    "/trunk/tools/buildbot/pylibs",
+
+  "scripts":
+    "/trunk/tools/buildbot/scripts",
+}

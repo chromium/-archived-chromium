@@ -1,0 +1,11 @@
+URL: http://twistedmatrix.com/trac/
+Version: 8.1.0
+License file: LICENSE
+
+
+Local modifications:
+
+internet/_dumbwin32proc.py:
+  Edited _init__() to save the created process's PID.  Edited kill() to run
+  taskkill on that PID rather than calling TerminateProcess(), so that steps'
+  children are also killed.  Original version saved as _dumbwin32proc_orig.py.

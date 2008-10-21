@@ -1,0 +1,28 @@
+635:2chrome/tools/build/buildbot/scripts/runtest.sh release startup_tests.exe --gtest_filter=Startup*.*
+ in dir /cygdrive/c/builds/chrome/chrome-release/build (timeout 1800 secs)
+ watching logfiles {}
+ argv: ['chrome/tools/build/buildbot/scripts/runtest.sh', 'release', 'startup_tests.exe', '--gtest_filter=Startup*.*']
+ environment: {'WINDIR': 'C:\\WINDOWS', 'PYTHONPATH': '/c/builds/pylibs:/c/builds/chrome/custom', 'SYSTEMDRIVE': 'C:', 'PATH': '/c/builds/depot_tools:/usr/bin:/c/windows/system32:/c/windows/system32/WBEM', 'LOGNAME': 'cltbld', 'CHROME_HEADLESS': '1', 'SYSTEMROOT': 'C:\\WINDOWS', 'USERPROFILE': 'c:\\docume~1\\cltbld'}
+,760:0Note: Google Test filter = Startup*.Perf
+[==========] Running 2 tests from 2 test cases.
+[----------] Global test environment set-up.
+[----------] 1 test from StartupTest
+[ RUN      ] StartupTest.Perf
+
+__ts_pages = [about:blank]
+
+__ts_timings = [248.54,226.73,259.85,219.63,205.71]
+[       OK ] StartupTest.Perf
+[----------] 1 test from StartupReferenceTest
+[ RUN      ] StartupReferenceTest.Perf
+
+__ts_pages = [about:blank]
+
+__ts_reference_timings = [225.98,222.25,223.09,230.94,204.17]
+.00,116.00,121.00,125.00,112.00,117.00,111.00]
+[       OK ] StartupReferenceTest.Perf
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test cases ran.
+[  PASSED  ] 2 tests.
+,35:2program finished with exit code 0
+,

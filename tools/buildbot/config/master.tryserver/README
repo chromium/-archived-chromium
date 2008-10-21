@@ -1,0 +1,8 @@
+This directory contains the configuration for the buildbot master.
+
+Files:
+  Makefile        commands for controlling buildbot
+  master.cfg      contains the tryserver configuration
+  buildbot.tac    generated file that initializes buildbot
+  buildbot.css    css file used for the waterfall display
+  twistd          shell script used to run buildbot

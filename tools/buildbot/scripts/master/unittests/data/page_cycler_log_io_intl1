@@ -1,0 +1,51 @@
+677:2python chrome/tools/build/buildbot/scripts/runtest.py debug page_cycler_tests.exe --gtest_filter=PageCycler*.Moz
+ in dir /cygdrive/c/b/chrome/chrome-debug/build (timeout 1800 secs)
+ watching logfiles {}
+ argv: ['python', 'chrome/tools/build/buildbot/scripts/runtest.py', 'debug', 'page_cycler_tests.exe', '--gtest_filter=PageCycler*.Moz']
+ environment: {'WINDIR': 'C:\\WINDOWS', 'APPDATA': 'C:\\docume~1\\user_name\\APPLIC~1', 'PYTHONPATH': '/c/b/pylibs:/c/b/chrome/custom', 'PATH': '/c/b/depot_tools:/c/b/svn:/usr/bin:/c/windows/system32:/c/windows/system32/WBEM', 'LOGNAME': 'user_name', 'CHROME_HEADLESS': '1', 'SYSTEMROOT': 'C:\\WINDOWS', 'USERPROFILE': 'c:\\docume~1\\user_name'}
+,2845:0
+/cygdrive/c/b/chrome/chrome-debug/build/chrome/debug/page_cycler_tests.exe --gtest_filter=PageCycler*.Moz
+Note: Google Test filter = PageCycler*.Intl1
+[==========] Running 2 tests from 2 test cases.
+[----------] Global test environment set-up.
+[----------] 1 test from PageCyclerTest
+[ RUN      ] PageCyclerTest.Intl1
+__pc_browser_vm_peak = 8671232
+__pc_browser_vm_final = 4980736
+__pc_render_vm_peak = 67645440
+__pc_render_vm_final = 62971904
+
+__pc_browser_read_op = 12743
+__pc_browser_write_op = 8823
+__pc_browser_other_op = 26638
+__pc_browser_read_byte = 7654 K
+__pc_browser_write_byte = 6231 K
+__pc_browser_other_byte = 584 K
+__pc_render_read_op = 3769
+__pc_render_write_op = 1991
+__pc_render_other_op = 1646
+__pc_render_read_byte = 387 K
+__pc_render_write_byte = 930 K
+__pc_render_other_byte = 131 K
+
+__pc_pages = [bugzilla.mozilla.org,espn.go.com,slashdot.com]
+__pc_timings = [391,812,579,281,625,391,516,328,438]
+[       OK ] PageCyclerTest.Intl1
+[----------] 1 test from PageCyclerReferenceTest
+[ RUN      ] PageCyclerReferenceTest.Intl1.
+__pc_reference_browser_vm_peak = 3883008
+__pc_reference_browser_vm_final = 3842048
+__pc_reference_render_vm_peak = 54603776
+__pc_reference_render_vm_final = 54300672
+
+__pc_reference_browser_read_op = 4594
+__pc_reference_browser_write_op = 5834
+__pc_reference_browser_other_op = 24627
+__pc_reference_browser_read_byte = 7237 K
+__pc_reference_browser_write_byte = 8891 K
+__pc_reference_browser_other_byte = 515 K
+__pc_reference_render_read_op = 5476
+__pc_reference_render_write_op = 1907
+
+,35:2program finished with exit code 0
+,

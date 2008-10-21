@@ -1,0 +1,22 @@
+#!/usr/bin/python2.4
+
+import os
+import subprocess
+import sys
+
+print 'content-type: text/xml'
+print ''
+
+try:
+	options = {}
+	query_string = os.environ['QUERY_STRING'].split('&')
+	for q in query_string:
+	  opt = q.split('=')
+	  options[opt[0]] = opt[1]
+
+	c = ['svn', 'log', '--xml', '-v', '-r', options['range'], options['url']]
+	sys.stdout.flush()
+	subprocess.call(c)
+except Exception, e:
+	print e
+
