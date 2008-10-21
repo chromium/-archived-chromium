@@ -21,7 +21,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "FrameView.h"
 #include "GraphicsContext.h"
 #include "HTMLNames.h"
-#include "HTMLPluginElement.h"
+#include "HTMLPlugInElement.h"
 #include "IntRect.h"
 #include "KURL.h"
 #include "KeyboardEvent.h"
@@ -44,18 +44,21 @@ MSVC_POP_WARNING();
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
+#include "glue_util.h"
 #include "net/base/escape.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/multipart_response_delegate.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/plugins/plugin_host.h"
+#if defined(OS_WIN)
 #include "webkit/glue/plugins/plugin_instance.h"
+#endif
 #include "webkit/glue/stacking_order_iterator.h"
 #include "webkit/glue/webview_impl.h"
 #include "googleurl/src/gurl.h"
 
-// This class handles invididual multipart responses. It is instantiated when
+// This class handles individual multipart responses. It is instantiated when
 // we receive HTTP status code 206 in the HTTP response. This indicates
 // that the response could have multiple parts each separated by a boundary
 // specified in the response header.
@@ -63,7 +66,7 @@ class MultiPartResponseClient : public WebCore::ResourceHandleClient {
  public:
   MultiPartResponseClient(WebPluginResourceClient* resource_client)
       : resource_client_(resource_client) {
-    Clear(); 
+    Clear();
   }
 
   // Called when the multipart parser encounters an embedded multipart
@@ -87,7 +90,7 @@ class MultiPartResponseClient : public WebCore::ResourceHandleClient {
     resource_client_->DidReceiveData(
         data, data_length, byte_range_lower_bound_);
   }
-  
+
   void Clear() {
     resource_response_ = WebCore::ResourceResponse();
     byte_range_lower_bound_ = 0;
@@ -192,12 +195,12 @@ void WebPluginContainer::windowCutoutRects(const WebCore::IntRect& bounds,
 
 void WebPluginContainer::didReceiveResponse(
     const WebCore::ResourceResponse& response) {
-  
+
   HttpResponseInfo http_response_info;
   ReadHttpResponseInfo(response, &http_response_info);
 
   impl_->delegate_->DidReceiveManualResponse(
-      http_response_info.url, 
+      http_response_info.url,
       base::SysWideToNativeMB(http_response_info.mime_type),
       base::SysWideToNativeMB(impl_->GetAllHeaders(response)),
       http_response_info.expected_length,
@@ -230,7 +233,7 @@ void WebPluginContainer::ReadHttpResponseInfo(
   // If the length comes in as -1, then it indicates that it was not
   // read off the HTTP headers. We replicate Safari webkit behavior here,
   // which is to set it to 0.
-  http_response->expected_length = 
+  http_response->expected_length =
       static_cast<uint32>(std::max(response.expectedContentLength(), 0LL));
   WebCore::String content_encoding =
       response.httpHeaderField("Content-Encoding");
@@ -267,15 +270,15 @@ WebPluginImpl::WebPluginImpl(WebCore::Element* element,
                              WebFrameImpl* webframe,
                              WebPluginDelegate* delegate,
                              const GURL& plugin_url)
-    : element_(element),
+    : windowless_(false),
+      window_(NULL),
+      element_(element),
       webframe_(webframe),
       delegate_(delegate),
-      windowless_(false),
-      window_(NULL),
       force_geometry_update_(false),
       visible_(false),
-      widget_(NULL),
       received_first_paint_notification_(false),
+      widget_(NULL),
       plugin_url_(plugin_url) {
 }
 
@@ -395,11 +398,11 @@ RoutingStatus WebPluginImpl::RouteToFrame(const char *method,
   if (!frame())
     return NOT_ROUTED;
 
-  // Take special action for javascript URLs
+  // Take special action for JavaScript URLs
   WebCore::String str_target = target;
   if (is_javascript_url) {
     WebCore::Frame *frameTarget = frame()->tree()->find(str_target);
-    // For security reasons, do not allow javascript on frames
+    // For security reasons, do not allow JavaScript on frames
     // other than this frame.
     if (frameTarget != frame()) {
       // FIXME - might be good to log this into a security
@@ -686,16 +689,22 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
   gc->translate(static_cast<float>(origin.x()),
                 static_cast<float>(origin.y()));
 
+#if defined(OS_WIN)
   // HDC is only used when in windowless mode.
   HDC hdc = gc->platformContext()->canvas()->beginPlatformPaint();
+#else
+  NOTIMPLEMENTED();
+#endif
 
   WebCore::IntRect window_rect =
       WebCore::IntRect(view->contentsToWindow(damage_rect.location()),
                        damage_rect.size());
 
+#if defined(OS_WIN)
   delegate_->Paint(hdc, webkit_glue::FromIntRect(window_rect));
 
   gc->platformContext()->canvas()->endPlatformPaint();
+#endif
   gc->restore();
 }
 
@@ -707,9 +716,13 @@ void WebPluginImpl::print(WebCore::GraphicsContext* gc) {
     return;
 
   gc->save();
+#if defined(OS_WIN)
   HDC hdc = gc->platformContext()->canvas()->beginPlatformPaint();
   delegate_->Print(hdc);
   gc->platformContext()->canvas()->endPlatformPaint();
+#else
+  NOTIMPLEMENTED();
+#endif
   gc->restore();
 }
 
@@ -742,6 +755,7 @@ void WebPluginImpl::handleEvent(WebCore::Event* event) {
 }
 
 void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
+#if defined(OS_WIN)
   DCHECK(parent()->isFrameView());
   WebCore::IntPoint p =
       static_cast<WebCore::FrameView*>(parent())->contentsToWindow(
@@ -825,9 +839,13 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   // event. We need to reflect the changed cursor in the frame view as the
   // the mouse is moved in the boundaries of the windowless plugin.
   parent()->setCursor(WebCore::PlatformCursor(current_web_cursor));
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void WebPluginImpl::handleKeyboardEvent(WebCore::KeyboardEvent* event) {
+#if defined(OS_WIN)
   NPEvent np_event;
   np_event.wParam = event->keyCode();
 
@@ -846,6 +864,9 @@ void WebPluginImpl::handleKeyboardEvent(WebCore::KeyboardEvent* event) {
   WebCursor current_web_cursor;
   if (!delegate_->HandleEvent(&np_event, &current_web_cursor))
     event->setDefaultHandled();
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 NPObject* WebPluginImpl::GetPluginScriptableObject() {
@@ -884,16 +905,16 @@ std::wstring WebPluginImpl::GetAllHeaders(
   result.append(L"HTTP ");
   result.append(FormatNumber(response.httpStatusCode()));
   result.append(L" ");
-  result.append(status.characters(), status.length());
+  result.append(StringToStdWString(status));
   result.append(L"\n");
 
   WebCore::HTTPHeaderMap::const_iterator it =
       response.httpHeaderFields().begin();
   for (; it != response.httpHeaderFields().end(); ++it) {
     if (!it->first.isEmpty() && !it->second.isEmpty()) {
-      result.append(std::wstring(it->first.characters(), it->first.length()));
+      result.append(StringToStdWString(it->first));
       result.append(L": ");
-      result.append(std::wstring(it->second.characters(), it->second.length()));
+      result.append(StringToStdWString(it->second));
       result.append(L"\n");
     }
   }
@@ -913,7 +934,7 @@ void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
   WebPluginContainer::ReadHttpResponseInfo(response, &http_response_info);
 
   bool cancel = false;
-  
+
   if (response.httpStatusCode() == kHttpPartialResponseStatusCode) {
     HandleHttpMultipartResponse(response, client);
     return;
@@ -970,7 +991,7 @@ void WebPluginImpl::didReceiveData(WebCore::ResourceHandle* handle,
 void WebPluginImpl::didFinishLoading(WebCore::ResourceHandle* handle) {
   WebPluginResourceClient* client = GetClientFromHandle(handle);
   if (client) {
-    MultiPartResponseHandlerMap::iterator index = 
+    MultiPartResponseHandlerMap::iterator index =
         multi_part_response_map_.find(client);
     if (index != multi_part_response_map_.end()) {
       delete (*index).second;
@@ -1172,7 +1193,7 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
   if (!WebCore::FrameLoader::shouldHideReferrer(kurl, referrer))
     info.request.setHTTPReferrer(referrer);
 
-  if (lstrcmpA(method, "POST") == 0) {
+  if (strcmp(method, "POST") == 0) {
     // Adds headers or form data to a request.  This must be called before
     // we initiate the actual request.
     SetPostData(&info.request, buf, buf_len);
@@ -1222,9 +1243,9 @@ void WebPluginImpl::HandleHttpMultipartResponse(
   MultiPartResponseClient* multi_part_response_client =
       new MultiPartResponseClient(client);
 
-  MultipartResponseDelegate* multi_part_response_handler = 
-      new MultipartResponseDelegate(multi_part_response_client, NULL, 
-                                    response, 
+  MultipartResponseDelegate* multi_part_response_handler =
+      new MultipartResponseDelegate(multi_part_response_client, NULL,
+                                    response,
                                     multipart_boundary);
   multi_part_response_map_[client] = multi_part_response_handler;
 }

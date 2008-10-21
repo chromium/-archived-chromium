@@ -74,8 +74,8 @@ class WebPluginContainer : public WebCore::Widget {
   // can be used by any platform.
   void windowCutoutRects(const WebCore::IntRect& bounds,
                          WTF::Vector<WebCore::IntRect>* cutouts) const;
-  
-  // These methods are invoked from webkit when it has data to be sent to the 
+
+  // These methods are invoked from webkit when it has data to be sent to the
   // plugin. The plugin in this case does not initiate a download for the data.
   void didReceiveResponse(const WebCore::ResourceResponse& response);
   void didReceiveData(const char *buffer, int length);
@@ -88,7 +88,7 @@ class WebPluginContainer : public WebCore::Widget {
     uint32 last_modified;
     uint32 expected_length;
   };
-  // Helper function to read fields in a HTTP response structure. 
+  // Helper function to read fields in a HTTP response structure.
   // These fields are written to the HttpResponseInfo structure passed in.
   static void ReadHttpResponseInfo(const WebCore::ResourceResponse& response,
                                    HttpResponseInfo* http_response);
@@ -118,7 +118,7 @@ class WebPluginImpl : public WebPlugin,
 
   virtual NPObject* GetPluginScriptableObject();
 
-  // Helper function for sorting post data. 
+  // Helper function for sorting post data.
   static bool SetPostData(WebCore::ResourceRequest* request,
                           const char *buf,
                           uint32 length);
@@ -137,10 +137,10 @@ class WebPluginImpl : public WebPlugin,
 
   // Executes the script passed in. The notify_needed and notify_data arguments
   // are passed in by the plugin process. These indicate whether the plugin
-  // expects a notification on script execution. We pass them back to the 
+  // expects a notification on script execution. We pass them back to the
   // plugin as is. This avoids having to track the notification arguments
   // in the plugin process.
-  bool ExecuteScript(const std::string& url, const std::wstring& script, 
+  bool ExecuteScript(const std::string& url, const std::wstring& script,
                      bool notify_needed, int notify_data, bool popups_allowed);
 
   // Given a download request, check if we need to route the output
@@ -258,7 +258,7 @@ class WebPluginImpl : public WebPlugin,
                        WebCore::IntRect* clip_rect,
                        std::vector<gfx::Rect>* cutout_rects);
 
-  void HandleURLRequest(const char *method, 
+  void HandleURLRequest(const char *method,
                         bool is_javascript_url,
                         const char* target, unsigned int len,
                         const char* buf, bool is_file_data,
@@ -268,7 +268,7 @@ class WebPluginImpl : public WebPlugin,
   void CancelDocumentLoad();
 
   void InitiateHTTPRangeRequest(const char* url, const char* range_info,
-                                HANDLE existing_stream, bool notify_needed, 
+                                HANDLE existing_stream, bool notify_needed,
                                 HANDLE notify_data);
 
   // Handles HTTP multipart responses, i.e. responses received with a HTTP
