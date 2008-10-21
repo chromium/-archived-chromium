@@ -48,6 +48,13 @@ class LockImpl {
  private:
   OSLockType os_lock_;
 
+#if !defined(NDEBUG) && defined(OS_WIN)
+  // All private data is implicitly protected by lock_.
+  // Be VERY careful to only access members under that lock.
+  int32 recursion_count_shadow_;
+  bool recursion_used_;      // Allow debugging to continued after a DCHECK().
+#endif  // NDEBUG
+
   DISALLOW_COPY_AND_ASSIGN(LockImpl);
 };
 
