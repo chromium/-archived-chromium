@@ -7,7 +7,6 @@ dependents = [
   'WINMM.dll',
   'COMCTL32.dll',
   'SHLWAPI.dll',
-  'RPCRT4.dll',
   'GDI32.dll',
   'SHELL32.dll',
   'VERSION.dll',

@@ -11,16 +11,13 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/rand_util.h"
 #include "base/stack_container.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/win_util.h"
-
-#ifdef _WIN32
-#pragma comment(lib, "rpcrt4.lib") // for UuidCreate().
-#endif
 
 const int32 VisitedLinkMaster::kFileHeaderSignatureOffset = 0;
 const int32 VisitedLinkMaster::kFileHeaderVersionOffset = 4;
@@ -44,24 +41,12 @@ const int32 VisitedLinkMaster::kBigDeleteThreshold = 64;
 namespace {
 
 // Fills the given salt structure with some quasi-random values
-// Fills some salt values into the given buffer, we ask the system to generate
-// a UUID for us, and we use some of the bytes out of that. It is not necessary
-// to generate a cryptographically strong random string, only that it be
-// reasonably different for different users. Here, we use every-other byte of
-// the 16-byte UUID.
+// It is not necessary to generate a cryptographically strong random string,
+// only that it be reasonably different for different users.
 void GenerateSalt(uint8 salt[LINK_SALT_LENGTH]) {
-  UUID uuid;
-  UuidCreate(&uuid);
-
   DCHECK_EQ(LINK_SALT_LENGTH, 8) << "This code assumes the length of the salt";
-  salt[0] = static_cast<uint8>(uuid.Data1 & 0xFF);
-  salt[1] = static_cast<uint8>((uuid.Data1 >> 8) & 0xFF);
-  salt[2] = static_cast<uint8>(uuid.Data2 & 0xFF);
-  salt[3] = static_cast<uint8>(uuid.Data3 & 0xFF);
-  salt[4] = uuid.Data4[0];
-  salt[5] = uuid.Data4[2];
-  salt[6] = uuid.Data4[4];
-  salt[7] = uuid.Data4[6];
+  uint64 randval = base::RandUInt64();
+  memcpy(salt, &randval, 8);
 }
 // AsyncWriter ----------------------------------------------------------------
 
@@ -1024,4 +1009,3 @@ void VisitedLinkMaster::TableBuilder::OnCompleteMainThread() {
   // VisitedLinkMaster::RebuildTableFromHistory.
   Release();
 }
-
