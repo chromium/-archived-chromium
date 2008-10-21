@@ -46,6 +46,7 @@
 #undef LOG
 #include "base/gfx/native_theme.h"
 #include "base/gfx/platform_canvas_win.h"
+#include "base/gfx/skia_utils.h"
 #include "base/win_util.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webkit_glue.h"
@@ -164,18 +165,18 @@ void PlatformScrollbar::DrawTickmarks(GraphicsContext* context) const
         return;
 
     RECT track_area;
-    if (m_segmentRects[Track].left != -1) {
+    if (m_segmentRects[Track].x() != -1) {
       // Scroll bar is too small to draw a thumb.
-      track_area.left   = m_segmentRects[Track].left;
-      track_area.top    = m_segmentRects[Track].top;
-      track_area.right  = m_segmentRects[Track].right - 1;
-      track_area.bottom = m_segmentRects[Track].bottom - 1;
+      track_area.left   = m_segmentRects[Track].x();
+      track_area.top    = m_segmentRects[Track].y();
+      track_area.right  = m_segmentRects[Track].right() - 1;
+      track_area.bottom = m_segmentRects[Track].bottom() - 1;
     } else {
       // Find the area between the arrows of the scroll bar.
-      track_area.left   = m_segmentRects[BeforeThumb].left;
-      track_area.top    = m_segmentRects[BeforeThumb].top;
-      track_area.right  = m_segmentRects[AfterThumb].right - 1;
-      track_area.bottom = m_segmentRects[AfterThumb].bottom - 1;
+      track_area.left   = m_segmentRects[BeforeThumb].x();
+      track_area.top    = m_segmentRects[BeforeThumb].y();
+      track_area.right  = m_segmentRects[AfterThumb].right() - 1;
+      track_area.bottom = m_segmentRects[AfterThumb].bottom() - 1;
     }
 
     // We now can figure out the actual height and width of the track.
@@ -243,40 +244,44 @@ void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
     gfx::PlatformCanvasWin* const canvas = skia->canvas();
     
     // Draw the up/left arrow of the scroll bar.
+    RECT rect = gfx::SkIRectToRECT(m_segmentRects[Arrow1]);
     nativeTheme->PaintScrollbarArrow(hdc, getThemeArrowState(Arrow1),
                                      (horz ? DFCS_SCROLLLEFT : DFCS_SCROLLUP) |
                                          getClassicThemeState(Arrow1),
-                                     &m_segmentRects[Arrow1]);
+                                     &rect);
 
-    if (m_segmentRects[Track].left != -1) {
+    if (m_segmentRects[Track].x() != -1) {
         // The scroll bar is too small to draw the thumb. Just draw a
         // single track between the arrows.
+        rect = gfx::SkIRectToRECT(m_segmentRects[Track]);
         nativeTheme->PaintScrollbarTrack(hdc,
                                          horz ? SBP_UPPERTRACKHORZ :
                                              SBP_UPPERTRACKVERT,
                                          getThemeState(Track),
                                          getClassicThemeState(Track),
-                                         &m_segmentRects[Track],
-                                         &m_segmentRects[Track], canvas);
+                                         &rect, &rect, canvas);
         DrawTickmarks(gc);
     } else {
         // Draw the track area before the thumb on the scroll bar.
+        rect = gfx::SkIRectToRECT(m_segmentRects[BeforeThumb]);
         nativeTheme->PaintScrollbarTrack(hdc,
                                          horz ? SBP_UPPERTRACKHORZ :
                                              SBP_UPPERTRACKVERT,
                                          getThemeState(BeforeThumb),
                                          getClassicThemeState(BeforeThumb),
-                                         &m_segmentRects[BeforeThumb],
-                                         &m_segmentRects[BeforeThumb], canvas);
+                                         &rect, &rect, canvas);
               
         // Draw the track area after the thumb on the scroll bar.
+        rect = gfx::SkIRectToRECT(m_segmentRects[BeforeThumb]);
+        RECT rect_after = gfx::SkIRectToRECT(m_segmentRects[AfterThumb]);
         nativeTheme->PaintScrollbarTrack(hdc,
                                          horz ? SBP_LOWERTRACKHORZ :
                                              SBP_LOWERTRACKVERT,
                                          getThemeState(AfterThumb),
                                          getClassicThemeState(AfterThumb),
-                                         &m_segmentRects[AfterThumb],
-                                         &m_segmentRects[BeforeThumb], canvas);
+                                         &rect_after,
+                                         &rect,
+                                         canvas);
          
         // Draw the tick-marks on the scroll bar, if any tick-marks
         // exist. Note: The thumb will be drawn on top of the tick-marks,
@@ -284,28 +289,31 @@ void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
         DrawTickmarks(gc);
 
         // Draw the thumb (the box you drag in the scroll bar to scroll).
+        rect = gfx::SkIRectToRECT(m_segmentRects[Thumb]);
         nativeTheme->PaintScrollbarThumb(hdc,
                                          horz ? SBP_THUMBBTNHORZ :
                                              SBP_THUMBBTNVERT,
                                          getThemeState(Thumb),
                                          getClassicThemeState(Thumb),
-                                         &m_segmentRects[Thumb]);
+                                         &rect);
          
         // Draw the gripper (the three little lines on the thumb).
+        rect = gfx::SkIRectToRECT(m_segmentRects[Thumb]);
         nativeTheme->PaintScrollbarThumb(hdc,
                                          horz ? SBP_GRIPPERHORZ :
                                              SBP_GRIPPERVERT,
                                          getThemeState(Thumb),
                                          getClassicThemeState(Thumb),
-                                         &m_segmentRects[Thumb]);
+                                         &rect);
     }
 
     // Draw the down/right arrow of the scroll bar.
+    rect = gfx::SkIRectToRECT(m_segmentRects[Arrow2]);
     nativeTheme->PaintScrollbarArrow(hdc, getThemeArrowState(Arrow2),
                                      (horz ?
                                          DFCS_SCROLLRIGHT : DFCS_SCROLLDOWN) |
                                          getClassicThemeState(Arrow2),
-                                     &m_segmentRects[Arrow2]);
+                                     &rect);
     gc->platformContext()->canvas()->endPlatformPaint();
 
     gc->restore();
@@ -441,28 +449,28 @@ void PlatformScrollbar::handleMouseMoveEventWhenCapturing(const PlatformMouseEve
     if (orientation() == HorizontalScrollbar) {
         xCancelDistance = kOffEndMultiplier * horizontalScrollbarHeight();
         yCancelDistance = kOffSideMultiplier * horizontalScrollbarHeight();
-        backgroundSpan = m_segmentRects[AfterThumb].right -
-            m_segmentRects[BeforeThumb].left;
-        thumbGirth = m_segmentRects[Thumb].right - m_segmentRects[Thumb].left;
+        backgroundSpan = m_segmentRects[AfterThumb].right() -
+            m_segmentRects[BeforeThumb].x();
+        thumbGirth = m_segmentRects[Thumb].right() - m_segmentRects[Thumb].x();
         delta = pos.x() - m_dragOrigin.thumbPos;
     } else {
         xCancelDistance = kOffSideMultiplier * verticalScrollbarWidth();
         yCancelDistance = kOffEndMultiplier * verticalScrollbarWidth();
-        backgroundSpan = m_segmentRects[AfterThumb].bottom -
-            m_segmentRects[BeforeThumb].top;
-        thumbGirth = m_segmentRects[Thumb].bottom - m_segmentRects[Thumb].top;
+        backgroundSpan = m_segmentRects[AfterThumb].bottom() -
+            m_segmentRects[BeforeThumb].y();
+        thumbGirth = m_segmentRects[Thumb].bottom() - m_segmentRects[Thumb].y();
         delta = pos.y() - m_dragOrigin.thumbPos;
     }
 
     // Snap scrollbar back to drag origin if mouse gets too far away
     if ((m_lastNativePos.x() <
-            (m_segmentRects[BeforeThumb].left - xCancelDistance)) ||
+            (m_segmentRects[BeforeThumb].x() - xCancelDistance)) ||
         (m_lastNativePos.x() >
-            (m_segmentRects[AfterThumb].right + xCancelDistance)) ||
+            (m_segmentRects[AfterThumb].right() + xCancelDistance)) ||
         (m_lastNativePos.y() <
-            (m_segmentRects[BeforeThumb].top - yCancelDistance)) ||
+            (m_segmentRects[BeforeThumb].y() - yCancelDistance)) ||
         (m_lastNativePos.y() >
-            (m_segmentRects[AfterThumb].bottom + yCancelDistance)))
+            (m_segmentRects[AfterThumb].bottom() + yCancelDistance)))
         delta = 0;
 
     // Convert delta from pixel coords to scrollbar logical coords
@@ -572,7 +580,7 @@ void PlatformScrollbar::layout()
         return;
     m_needsLayout = false;
 
-    const RECT invalid = {-1, -1, -1, -1};
+    const IntRect invalid(-1, -1, 0, 0);
     if (m_totalSize <= 0) {
         for (int i = 0; i < NumSegments; ++i)
             m_segmentRects[i] = invalid;
@@ -602,7 +610,7 @@ void PlatformScrollbar::layout()
     // Scrollbar:       |<|--------|XXX|------|>|
     // Start arrow:     |<|
     *changingCoord2 += buttonGirth;
-    m_segmentRects[Arrow1] = box;
+    m_segmentRects[Arrow1] = gfx::RECTToSkIRect(box);
 
     if (thumbGirth >= backgroundSpan) {
         if (backgroundSpan == 0) {
@@ -611,7 +619,7 @@ void PlatformScrollbar::layout()
             // Track:     |-------------------|
             *changingCoord1 = *changingCoord2;
             *changingCoord2 += backgroundSpan;
-            m_segmentRects[Track] = box;
+            m_segmentRects[Track] = gfx::RECTToSkIRect(box);
         }
 
         m_segmentRects[BeforeThumb] = invalid;
@@ -625,23 +633,23 @@ void PlatformScrollbar::layout()
         // Before thumb:  |--------|
         *changingCoord1 = *changingCoord2;
         *changingCoord2 += thumbOffset;
-        m_segmentRects[BeforeThumb] = box;
+        m_segmentRects[BeforeThumb] = gfx::RECTToSkIRect(box);
 
         // Thumb:                  |XXX|
         *changingCoord1 = *changingCoord2;
         *changingCoord2 += thumbGirth;
-        m_segmentRects[Thumb] = box;
+        m_segmentRects[Thumb] = gfx::RECTToSkIRect(box);
 
         // After thumb:                |------|
         *changingCoord1 = *changingCoord2;
         *changingCoord2 += backgroundSpan - (thumbOffset + thumbGirth);
-        m_segmentRects[AfterThumb] = box;
+        m_segmentRects[AfterThumb] = gfx::RECTToSkIRect(box);
     }
 
     // End arrow:                             |>|
     *changingCoord1 = *changingCoord2;
     *changingCoord2 += buttonGirth;
-    m_segmentRects[Arrow2] = box;
+    m_segmentRects[Arrow2] = gfx::RECTToSkIRect(box);
 
     // Changed layout, so need to update m_mouseOver and m_autorepeatTimer
     updateMousePositionInternal();
@@ -667,10 +675,10 @@ void PlatformScrollbar::updateMousePositionInternal()
 {
     m_mouseOver = None;
     for (int i = 0; i < NumSegments; ++i) {
-        if ((m_lastNativePos.x() >= m_segmentRects[i].left) &&
-            (m_lastNativePos.x() < m_segmentRects[i].right) &&
-            (m_lastNativePos.y() >= m_segmentRects[i].top) &&
-            (m_lastNativePos.y() < m_segmentRects[i].bottom)) {
+        if ((m_lastNativePos.x() >= m_segmentRects[i].x()) &&
+            (m_lastNativePos.x() < m_segmentRects[i].right()) &&
+            (m_lastNativePos.y() >= m_segmentRects[i].y()) &&
+            (m_lastNativePos.y() < m_segmentRects[i].bottom())) {
             m_mouseOver = static_cast<Segment>(i);
             break;
         }

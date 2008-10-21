@@ -26,8 +26,6 @@
 #ifndef PlatformScrollbar_h
 #define PlatformScrollbar_h
 
-#include <windows.h>
-
 #include "Widget.h"
 #include "ScrollBar.h"
 #include "Timer.h"
@@ -156,7 +154,7 @@ private:
         int thumbPos;           // Relevant (window) mouse coordinate, and...
         int scrollVal;          // ...current scrollvalue, when...
     } m_dragOrigin;             // ...user begins dragging the thumb.
-    RECT m_segmentRects[NumSegments];
+    IntRect m_segmentRects[NumSegments];
                                 // The native coordinates of the scrollbar
                                 // segments.
     Segment m_mouseOver;        // The scrollbar segment the mouse is over.
