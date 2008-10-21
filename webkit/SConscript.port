@@ -113,9 +113,26 @@ input_files = [
     '$PORT_DIR/plugins/chromium/PluginDataChromium.cpp',
 ]
 
-if env['PLATFORM'] in ('posix', 'darwin'):
-  # Remove from the list files that haven't yet been made portable
-  # to Mac and Linux.
+if env['PLATFORM'] == 'posix':
+  # Remove from the list files that haven't yet been made portable to Linux.
+  remove_files = [
+    '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
+    '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
+    '$PORT_DIR/platform/chromium/CursorChromium.cpp',
+    '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
+    '$PORT_DIR/platform/chromium/PlatformScrollBarChromium.cpp',
+    '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
+    '$PORT_DIR/platform/chromium/ScrollViewChromium.cpp',
+    '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
+    '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
+    '$PORT_DIR/platform/graphics/ImageSkia.cpp',
+    '$PORT_DIR/platform/graphics/SkGraphicsContext.cpp',
+  ]
+  for remove in remove_files:
+    input_files.remove(remove)
+
+if env['PLATFORM'] == 'darwin':
+  # Remove from the list files that haven't yet been made portable to Mac.
   remove_files = [
     '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
     '$PORT_DIR/page/chromium/EventHandlerChromium.cpp',
