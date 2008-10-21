@@ -295,6 +295,8 @@ bool GetFileSize(const std::wstring& file_path, int64* file_size) {
 }
 
 bool CloseFile(FILE* file) {
+  if (file == NULL)
+    return true;
   return fclose(file) == 0;
 }
 
