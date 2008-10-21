@@ -58,7 +58,6 @@ input_files = [
   'webframeloaderclient_impl.cc',
   'webhistoryitem_impl.cc',
   'webkit_glue.cc',
-  'webplugin_impl.cc',
   'webtextinput_impl.cc',
   'weburlrequest_impl.cc',
   'webwidget_impl.cc',
@@ -83,6 +82,7 @@ if env['PLATFORM'] == 'win32':
     'plugins/webplugin_delegate_impl.cc',
     'webdropdata.cc',
     'webinputevent_win.cc',
+    'webplugin_impl.cc',
   ])
 
 env.ChromeStaticLibrary('glue', input_files)
