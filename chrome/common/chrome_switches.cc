@@ -312,8 +312,8 @@ const wchar_t kGearsPluginPathOverride[] = L"gears-plugin-path";
 // Switch to load Gears in the renderer process.
 const wchar_t kGearsInRenderer[] = L"gears-in-renderer";
 
-// Enable new HTTP stack.
-const wchar_t kUseNewHttp[] = L"new-http";
+// Enable winhttp HTTP stack.
+const wchar_t kUseWinHttp[] = L"winhttp";
 
 // Enable the fastback page cache.
 const wchar_t kEnableFastback[] = L"enable-fastback";
