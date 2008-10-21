@@ -12,3 +12,9 @@ dumped prematurely.  We dump the correct tree.
 anchor-toString.html
 --------------------------
 Replaced "file:///" with "file:///C:/" in the expected output, since GURL resolves differently than WebCore (see http://b/1089284)
+
+documenturi-assigned-junk-implies-relative-urls-do-not-resolve
+--------------------------------------------------------------
+The resolution of a relative URL w.r.t. a junk base URL is resolved differently
+in GKURL than WebKit. It is pretty arbitrary anyway and our solution (return the
+empty string) is no worse than theirs (return the relative URL).
