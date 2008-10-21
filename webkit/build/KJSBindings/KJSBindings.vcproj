@@ -125,6 +125,10 @@
 			Name="DerivedSources"
 			>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\CSSGrammar.cpp"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\CSSGrammar.h"
 				>
 			</File>
@@ -1433,6 +1437,158 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="page"
+			>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptCallFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptCallFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptDebugListener.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptDebugServer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptDebugServer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfileNode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfileNode.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="bridge"
+			>
+			<File
+				RelativePath="..\..\port\bridge\KJSBridge.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\NP_jsobject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\NP_jsobject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\npruntime.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\npruntime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\npruntime_impl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\npruntime_internal.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\npruntime_priv.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime_array.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime_array.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime_method.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime_method.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime_object.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime_object.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime_root.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\runtime_root.h"
+				>
+			</File>
+			<Filter
+				Name="c"
+				>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\c\c_class.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\c\c_class.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\c\c_instance.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\c\c_instance.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\c\c_runtime.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\c\c_runtime.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\c\c_utility.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\bridge\c\c_utility.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ExceptionContext.cpp"
 			>
@@ -1831,6 +1987,10 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSStorageCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSStorageCustom.h"
 			>
 		</File>
 		<File

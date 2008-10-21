@@ -18,5 +18,6 @@ xcopy /y /d "%JAVASCRIPTCORE_DIR%\API\JavaScriptCore.h" %DIR%
 xcopy /y /d "%JAVASCRIPTCORE_DIR%\API\JSRetainPtr.h" %DIR%
 xcopy /y /d "%JAVASCRIPTCORE_DIR%\API\OpaqueJSString.h" %DIR%
 xcopy /y /d "%JAVASCRIPTCORE_DIR%\API\WebKitAvailability.h" %DIR%
+xcopy /y /d "%JAVASCRIPTCORE_DIR%\Profiler\Profiler.h" %DIR%
 
 endlocal

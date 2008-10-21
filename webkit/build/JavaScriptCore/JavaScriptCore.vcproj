@@ -257,6 +257,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\debugger.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\debugger.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DebuggerCallFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DebuggerCallFrame.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\dtoa.cpp"
 				>
 			</File>
@@ -445,6 +461,58 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSNotAnObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSNotAnObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSNumberCell.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSNumberCell.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\jsobject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSStaticScopeObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSStaticScopeObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSString.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSString.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSType.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSValue.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSValue.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSVariableObject.cpp"
 				>
 			</File>
@@ -458,6 +526,22 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSWrapperObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\LabelStack.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\LabelStack.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\lexer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\lexer.h"
 				>
 			</File>
 			<File
@@ -494,6 +578,18 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NodeInfo.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\nodes.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\nodes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\nodes2string.cpp"
 				>
 			</File>
 			<File
@@ -545,6 +641,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\Parser.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\Parser.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PropertyMap.cpp"
 				>
 			</File>
@@ -586,6 +690,94 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\regexp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpConstructor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpConstructor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpPrototype.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpPrototype.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ScopeChain.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ScopeChain.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ScopeChainMark.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SmallStrings.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SmallStrings.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SourceProvider.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SourceRange.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringConstructor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringConstructor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringObject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringObjectThatMasqueradesAsUndefined.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringPrototype.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringPrototype.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StructureID.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StructureID.h"
 				>
 			</File>
 			<File
@@ -713,6 +905,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\API\JSProfilerPrivate.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\API\JSProfilerPrivate.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\API\JSRetainPtr.h"
 				>
 			</File>
@@ -738,6 +938,158 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\API\JSValueRef.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\API\OpaqueJSString.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\API\OpaqueJSString.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="profiler"
+			>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\CallIdentifier.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\HeavyProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\HeavyProfile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\Profile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\Profile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\ProfileGenerator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\ProfileGenerator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\ProfileNode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\ProfileNode.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\Profiler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\Profiler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\TreeProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\profiler\TreeProfile.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="VM"
+			>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\CodeBlock.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\CodeBlock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\CodeGenerator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\CodeGenerator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\ExceptionHelpers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\ExceptionHelpers.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\Instruction.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\JSPropertyNameIterator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\JSPropertyNameIterator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\LabelID.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\Machine.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\Machine.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\Opcode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\Opcode.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\Register.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\RegisterFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\RegisterFile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\RegisterID.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\SamplingTool.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\SamplingTool.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\SegmentedVector.h"
 				>
 			</File>
 		</Filter>
