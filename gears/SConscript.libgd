@@ -45,7 +45,7 @@ if env['OS'] == 'win32':
           '/wd4102',
       ],
   )
-elif env['OS'] == 'linux':
+elif env['OS'] in ['linux', 'osx']:
   env.Append(
       CPPFLAGS = [
           '-Wno-unused-variable',

@@ -73,6 +73,16 @@ elif env['OS'] == 'linux':
           'HAVE_USLEEP=1',
       ],
   )
+elif env['OS'] == 'osx':
+  env.Append(
+      CFLAGS = [
+          '-Wno-uninitialized',
+          '-Wno-pointer-sign',
+      ],
+      CPPDEFINES = [
+          'HAVE_USLEEP=1',
+      ],
+  )
 
 input_files = [
     '$SQLITE_DIR/src/alter.c',

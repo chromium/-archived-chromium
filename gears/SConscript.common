@@ -156,7 +156,8 @@ if env['OS'] == 'win32':
   crash_sender = env.Program('crash_sender', crash_sender_srcs,
       LIBS = Split('advapi32.lib shell32.lib wininet.lib'))
 elif env['OS'] == 'osx':
-  crash_sender = env.Program('crash_sender', crash_sender_srcs,
-      FRAMEWORKS = Split('Carbon Cocoa Foundation IOKit SystemConfiguration'),
-      LIBS='stdc++')
+  pass
+  # crash_sender = env.Program('crash_sender', crash_sender_srcs,
+  #     FRAMEWORKS = Split('Carbon Cocoa Foundation IOKit SystemConfiguration'),
+  #     LIBS='stdc++')
 env.Alias('gears', crash_sender)

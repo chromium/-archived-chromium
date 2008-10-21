@@ -6,6 +6,8 @@
 # This assumes you have a working gears checkout from p4 in the current dir.
 # Steps for this:
 # > echo %USER%-chromegears > p4config
+# or on linux/osx:
+# > echo $USER-chromegears > p4config
 # > set P4CONFIG=p4config
 # > g4 client -p //depot/googleclient/gears/p4_depot_paths
 # > g4 sync
@@ -56,7 +58,7 @@ os_browsers_map = {
     'win32': ['IE', 'FF2', 'FF3', 'NPAPI'],
     'wince': ['IE'],
     'linux': ['FF2', 'FF3'],
-    'osx': ['SF'],
+    'osx': ['SF', 'FF2', 'FF3'],
     'android': ['NPAPI'],
 }
 
@@ -98,7 +100,7 @@ env.Replace(
 )
 
 # Platform
-# TODO: OSX and Symbian builds will override this value.
+# TODO: Symbian builds will override this value.
 # For other platforms we set just one value.
 if env['OS'] in ['wince', 'android']:
   env.Replace(ARCH = 'arm')
@@ -121,6 +123,18 @@ env.Replace(
 
     GENFILES_DIR = "$BROWSER_OUTDIR/genfiles",
     COMMON_GENFILES_DIR = "$COMMON_OUTDIR/genfiles",
+)
+
+# Library flags
+env.Replace(
+    MOZJS_INCLUDE_PATHS = [
+        '$MOZJS_DIR',
+        '$THIRD_PARTY_DIR/spidermonkey/nspr/pr/include',
+        '$THIRD_PARTY_DIR/spidermonkey/nspr/pr/include/private',
+        '$THIRD_PARTY_DIR/spidermonkey/nspr/pr/include/obsolete',
+        '$OSX_SDK_ROOT/Developer/Headers/FlatCarbon/',
+    ],
+    MOZJS_DIR = '$THIRD_PARTY_DIR/spidermonkey',
 )
 
 # Add our tools to the PATH.
@@ -236,7 +250,6 @@ env.Replace(
         '$OPEN_DIR',
         '$OPEN_DIR/..',
         '$THIRD_PARTY_DIR',
-	'$THIRD_PARTY_DIR/breakpad/src',
         '$THIRD_PARTY_DIR/googleurl',
         '$THIRD_PARTY_DIR/npapi',
         '$THIRD_PARTY_DIR/zlib',
@@ -247,10 +260,20 @@ env.Replace(
     LIBPATH = [
         '$LIBS_DIR',
     ],
+    CFLAGS = [],
     CCFLAGS = [],
-    CPPDEFINES = [],
+    CXXFLAGS = [],
+    CPPDEFINES = [
+    # SpiderMonkey (the Firefox JS engine)'s JS_GET_CLASS macro in jsapi.h needs
+    # this defined to work with the gecko SDK that we've built.
+    # The definition of JS_THREADSAFE must be kept in sync with MOZJS_CPPFLAGS.
+        'JS_THREADSAFE'
+    ],
+    FRAMEWORKPATH = [],
+    FRAMEWORKS = [],
     LIBS = [],
     LINKFLAGS = [],
+    SHLINKFLAGS = [],
 )
 
 if env['MODE'] == 'dbg':
@@ -399,6 +422,7 @@ if env['OS'] in ['win32', 'wince']:
       ],
       CPPPATH = [
           '$VC80_CPPPATH',
+          '$THIRD_PARTY_DIR/breakpad/src',
       ],
       LIBPATH = [
           '$VC80_LIBPATH',
@@ -511,6 +535,7 @@ if env['OS'] in ['win32', 'wince']:
           '/OPT:ICF',
         ],
     )
+#--------------------------- LINUX ---------------------------
 elif env['OS'] == 'linux':
   env.Append(
       CPPDEFINES = [
@@ -575,19 +600,108 @@ elif env['OS'] == 'linux':
           '-O2',
       ],
     )
+#--------------------------- OSX ---------------------------
+elif env['OS'] == 'osx':
+# Gears uses the 10.4 SDK, so we need to build with g++-4.0.
+# Chrome uses g++-4.2 so we override this here.
+  env['CC'] = 'gcc-4.0'
+  env['CXX'] = 'g++-4.0'
+# Compile assembly files with the same command line as C files.
+  env['ASCOM'] = '$CCCOM'
+  
+  env.Append(OSX_SDK_ROOT = '/Developer/SDKs/MacOSX10.4u.sdk')
 
+  env.Append(
+      CPPDEFINES = [
+          'OSX',
+          'OS_MACOSX',
+# for breakpad
+          'USE_PROTECTED_ALLOCATIONS=1',
+      ],
+      CPPPATH = [
+# Breakpad assumes it is in the include path
+          '$THIRD_PARTY_DIR/breakpad_osx/src',
+      ],
+      CCFLAGS = [
+          ('-arch', 'ppc'),
+          ('-arch', 'i386'),
+          '-fPIC',
+          '-fmessage-length=0',
+# TODO
+#          '-Wall',
+# NS_LITERAL_STRING does not work properly without this compiler option
+          '-fshort-wchar',
+          '-fvisibility=hidden',
+# Breakpad on OSX needs debug symbols to use the STABS format, rather than the
+# default DWARF debug symbols format. Note that we enable gstabs for debug &
+# opt; we strip them later in opt.
+          '-gstabs+',
+      ],
+      CXXFLAGS = [
+          '-fvisibility-inlines-hidden',
+          '-fno-exceptions',
+          '-fno-rtti',
+          ('-Wall',
+           '-Wno-non-virtual-dtor',
+           '-Wno-ctor-dtor-privacy',
+           '-Wno-char-subscripts',
+# When a function is deprecated in gcc, it stupidly warns about all functions
+# and member functions that have the same name, regardless of signature.
+# Example: Standard osx headers deprecate 'SetPort', which causes a warning for
+# url_canon::Replacements::SetPort().
+           '-Wno-deprecated-declarations',
+          ),
+          '-funsigned-char',
+          ('-include', env.File('#/$OPEN_DIR/base/safari/prefix_header.h').abspath),
+          ('-isysroot', '$OSX_SDK_ROOT')
+      ],
+      LINKFLAGS = [
+          '-fPIC',
+           '-Bsymbolic',
+           '-arch',
+           'ppc',
+           '-arch',
+           'i386',
+           '-isysroot',
+           '$OSX_SDK_ROOT',
+           '-Wl,-dead_strip'
+      ],
+  )
+  if env['MODE'] == 'dbg':
+    env.Append(
+        CPPFLAGS = [
+            '-g',
+            '-O0',
+        ],
+    )
+  else:  # MODE=opt
+    env.Append(
+        CPPFLAGS = [
+            '-O2',
+        ],
+    )
+    
 # Load all the components
 
 sconscripts = [
     'SConscript.googleurl',
-    'SConscript.libgd',
     'SConscript.libjpeg',
     'SConscript.libpng',
-    'SConscript.portaudio',
+    'SConscript.libmozjs',
     'SConscript.sqlite',
     'SConscript.zlib',
 ]
 
+if env['OS']  == 'osx':
+  sconscripts += [
+      'SConscript.libbreakpad_osx',
+  ]
+
+if env['OS']  != 'osx':
+  sconscripts += [
+      'SConscript.libgd',
+      'SConscript.portaudio',
+  ]
 
 for each in sconscripts:
   env.SConscript(each,

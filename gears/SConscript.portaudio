@@ -50,7 +50,23 @@ elif env['OS'] == 'linux':
           'HAVE_SYS_SOUNDCARD_H=1',
       ],
   )
- 
+elif env['OS'] == 'osx':
+  env.Append(
+      CPPPATH = [
+          '$PA_DIR/src/hostapi/coreaudio',
+          '$PA_DIR/src/hostapi/mac_osx',
+          '$PA_DIR/src/os/unix',
+      ],
+      CPPFLAGS = [
+# disable some warnings
+          '-Wno-unused-variable',
+          '-Wno-uninitialized',
+      ],
+      CPPDEFINES = [
+          'PA_USE_COREAUDIO',
+      ],
+  )
+
 input_files = [
     '$PA_DIR/src/common/pa_allocation.c',
     '$PA_DIR/src/common/pa_converters.c',
