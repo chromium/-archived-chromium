@@ -101,6 +101,11 @@ bool NPN_Evaluate(NPP npp, NPObject *npobj, NPString *script, NPVariant *result)
   return _NPN_Evaluate(npp, npobj, script, result);
 }
 
+bool NPN_EvaluateHelper(NPP npp, bool popups_allowed, NPObject* npobj,
+                        NPString* npscript, NPVariant *result) {
+  return _NPN_Evaluate(npp, npobj, script, result);
+}
+
 bool NPN_GetProperty(NPP npp, NPObject *npobj, NPIdentifier propertyName,
                      NPVariant *result) {
   return _NPN_GetProperty(npp, npobj, propertyName, result);
