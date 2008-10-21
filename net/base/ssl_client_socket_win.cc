@@ -1052,6 +1052,10 @@ int SSLClientSocketWin::VerifyServerCert() {
     }
   }
 
+  // TODO(wtc): Suppress CERT_STATUS_NO_REVOCATION_MECHANISM for now to be
+  // compatible with WinHTTP, which doesn't report this error (bug 3004).
+  server_cert_status_ &= ~CERT_STATUS_NO_REVOCATION_MECHANISM;
+
   if (IsCertStatusError(server_cert_status_))
     return MapCertStatusToNetError(server_cert_status_);
   return OK;
