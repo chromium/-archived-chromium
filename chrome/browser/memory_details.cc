@@ -12,6 +12,7 @@
 #include "base/process_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/browser_trial.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/render_process_host.h"
@@ -221,34 +222,59 @@ void MemoryDetails::UpdateHistograms() {
   // Reports a set of memory metrics to UMA.
   // Memory is measured in units of 10KB.
 
+  // If field trial is active, report results in special histograms.
+  static scoped_refptr<FieldTrial> trial(
+      FieldTrialList::Find(BrowserTrial::kMemoryModelFieldTrial));
+
   DWORD browser_pid = GetCurrentProcessId();
   ProcessData browser = process_data_[CHROME_BROWSER];
   size_t aggregate_memory = 0;
   for (size_t index = 0; index < browser.processes.size(); index++) {
-    aggregate_memory += browser.processes[index].working_set.priv;
+    int sample = static_cast<int>(browser.processes[index].working_set.priv);
+    aggregate_memory += sample;
     if (browser.processes[index].pid == browser_pid) {
-      UMA_HISTOGRAM_MEMORY_KB(L"Memory.Browser",
-          static_cast<int>(browser.processes[index].working_set.priv));
+      if (trial.get()) {
+        if (trial->boolean_value())
+          UMA_HISTOGRAM_MEMORY_KB(L"Memory.Browser_trial_high_memory", sample);
+        else
+          UMA_HISTOGRAM_MEMORY_KB(L"Memory.Browser_trial_med_memory", sample);
+      } else {
+        UMA_HISTOGRAM_MEMORY_KB(L"Memory.Browser", sample);
+      }
     } else {
       bool is_plugin_process = false;
       for (size_t index2 = 0; index2 < plugins_.size(); index2++) {
         if (browser.processes[index].pid == plugins_[index2].pid) {
-          UMA_HISTOGRAM_MEMORY_KB(L"Memory.Plugin",
-              static_cast<int>(browser.processes[index].working_set.priv));
+          UMA_HISTOGRAM_MEMORY_KB(L"Memory.Plugin", sample);
           is_plugin_process = true;
           break;
         }
       }
-      if (!is_plugin_process)
-        UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer",
-            static_cast<int>(browser.processes[index].working_set.priv));
+      if (!is_plugin_process) {
+        if (trial.get()) {
+          if (trial->boolean_value())
+            UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer_high_memory", sample);
+          else
+            UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer_med_memory", sample);
+        } else {
+          UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer", sample);
+        }
+      }
     }
   }
   UMA_HISTOGRAM_COUNTS_100(L"Memory.ProcessCount",
       static_cast<int>(browser.processes.size()));
   UMA_HISTOGRAM_COUNTS_100(L"Memory.PluginProcessCount",
       static_cast<int>(plugins_.size()));
-  UMA_HISTOGRAM_MEMORY_MB(L"Memory.Total",
-      static_cast<int>(aggregate_memory / 1000));
+
+  int total_sample = static_cast<int>(aggregate_memory / 1000);
+  if (trial.get()) {
+    if (trial->boolean_value())
+      UMA_HISTOGRAM_MEMORY_MB(L"Memory.Total_trial_high_memory", total_sample);
+    else
+      UMA_HISTOGRAM_MEMORY_MB(L"Memory.Total_trial_med_memory", total_sample);
+  } else {
+    UMA_HISTOGRAM_MEMORY_MB(L"Memory.Total", total_sample);
+  }
 }
 
