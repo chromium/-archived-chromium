@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/find_in_page_controller.h"
+#include "chrome/browser/find_bar_win.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"

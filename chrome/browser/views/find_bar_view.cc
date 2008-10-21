@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/find_in_page_view.h"
+#include "chrome/browser/views/find_bar_view.h"
 
 #include <algorithm>
 
 #include "base/string_util.h"
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/find_in_page_controller.h"
+#include "chrome/browser/views/find_bar_win.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
@@ -76,10 +76,10 @@ static const SkBitmap* kBackground_left = NULL;
 static const int kDefaultCharWidth = 43;
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageView, public:
+// FindBarView, public:
 
-FindInPageView::FindInPageView(FindInPageController* controller)
-    : controller_(controller),
+FindBarView::FindBarView(FindBarWin* container)
+    : container_(container),
       find_text_(NULL),
       match_count_text_(NULL),
       focus_forwarder_view_(NULL),
@@ -166,22 +166,22 @@ FindInPageView::FindInPageView(FindInPageController* controller)
   }
 }
 
-FindInPageView::~FindInPageView() {
+FindBarView::~FindBarView() {
 }
 
-void FindInPageView::ResetMatchCount() {
+void FindBarView::ResetMatchCount() {
   match_count_text_->SetText(std::wstring());
   ResetMatchCountBackground();
 }
 
-void FindInPageView::ResetMatchCountBackground() {
+void FindBarView::ResetMatchCountBackground() {
   match_count_text_->SetBackground(
       views::Background::CreateSolidBackground(kBackgroundColorMatch));
   match_count_text_->SetColor(kTextColorMatchCount);
 }
 
-void FindInPageView::UpdateMatchCount(int number_of_matches,
-                                      bool final_update) {
+void FindBarView::UpdateMatchCount(int number_of_matches,
+                                   bool final_update) {
   if (number_of_matches < 0)  // We ignore -1 sent during FindNext operations.
     return;
 
@@ -208,12 +208,12 @@ void FindInPageView::UpdateMatchCount(int number_of_matches,
   }
 }
 
-void FindInPageView::UpdateActiveMatchOrdinal(int ordinal) {
+void FindBarView::UpdateActiveMatchOrdinal(int ordinal) {
   if (ordinal >= 0)
     active_match_ordinal_ = ordinal;
 }
 
-void FindInPageView::UpdateResultLabel() {
+void FindBarView::UpdateResultLabel() {
   std::wstring search_string = find_text_->GetText();
 
   if (search_string.length() > 0) {
@@ -232,15 +232,15 @@ void FindInPageView::UpdateResultLabel() {
   Layout();  // The match_count label may have increased/decreased in size.
 }
 
-void FindInPageView::OnShow() {
+void FindBarView::OnShow() {
   find_text_->RequestFocus();
   find_text_->SelectAll();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// FindInPageView, views::View overrides:
+// FindBarView, views::View overrides:
 
-void FindInPageView::Paint(ChromeCanvas* canvas) {
+void FindBarView::Paint(ChromeCanvas* canvas) {
   SkPaint paint;
 
   // Get the local bounds so that we now how much to stretch the background.
@@ -250,7 +250,7 @@ void FindInPageView::Paint(ChromeCanvas* canvas) {
   // middle and right). Note, that the window region has been set by the
   // controller, so the whitespace in the left and right background images is
   // actually outside the window region and is therefore not drawn. See
-  // FindInPageController::CreateRoundedWindowEdges() for details.
+  // FindInPageContainerWin::CreateRoundedWindowEdges() for details.
   const SkBitmap *bg_left =
       toolbar_blend_ ? kDlgBackground_left : kDlgBackground_bb_left;
   const SkBitmap *bg_middle =
@@ -333,7 +333,7 @@ void FindInPageView::Paint(ChromeCanvas* canvas) {
   }
 }
 
-void FindInPageView::Layout() {
+void FindBarView::Layout() {
   gfx::Size panel_size = GetPreferredSize();
 
   // First we draw the close button on the far right.
@@ -398,16 +398,16 @@ void FindInPageView::Layout() {
                                    find_previous_button_->height());
 }
 
-void FindInPageView::ViewHierarchyChanged(bool is_add,
-                                          View *parent,
-                                          View *child) {
+void FindBarView::ViewHierarchyChanged(bool is_add,
+                                       View *parent,
+                                       View *child) {
   if (is_add && child == this) {
     find_text_->SetHorizontalMargins(3, 3);  // Left and Right margins.
     find_text_->RemoveBorder();  // We draw our own border (a background image).
   }
 }
 
-gfx::Size FindInPageView::GetPreferredSize() {
+gfx::Size FindBarView::GetPreferredSize() {
   gfx::Size prefsize = find_text_->GetPreferredSize();
   prefsize.set_height(kDlgBackground_middle->height());
 
@@ -422,19 +422,19 @@ gfx::Size FindInPageView::GetPreferredSize() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageView, views::BaseButton::ButtonListener implementation:
+// FindBarView, views::BaseButton::ButtonListener implementation:
 
-void FindInPageView::ButtonPressed(views::BaseButton* sender) {
+void FindBarView::ButtonPressed(views::BaseButton* sender) {
   switch (sender->GetTag()) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
       if (find_text_->GetText().length() > 0) {
-        controller_->set_find_string(find_text_->GetText());
-        controller_->StartFinding(sender->GetTag() == FIND_NEXT_TAG);
+        container_->set_find_string(find_text_->GetText());
+        container_->StartFinding(sender->GetTag() == FIND_NEXT_TAG);
       }
       break;
     case CLOSE_TAG:
-      controller_->EndFindSession();
+      container_->EndFindSession();
       break;
     default:
       NOTREACHED() << L"Unknown button";
@@ -443,30 +443,29 @@ void FindInPageView::ButtonPressed(views::BaseButton* sender) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageView, views::TextField::Controller implementation:
+// FindBarView, views::TextField::Controller implementation:
 
-void FindInPageView::ContentsChanged(views::TextField* sender,
-                                     const std::wstring& new_contents) {
+void FindBarView::ContentsChanged(views::TextField* sender,
+                                  const std::wstring& new_contents) {
   // When the user changes something in the text box we check the contents and
   // if the textbox contains something we set it as the new search string and
   // initiate search (even though old searches might be in progress).
   if (new_contents.length() > 0) {
-    controller_->set_find_string(new_contents);
-    controller_->StartFinding(true);
+    container_->set_find_string(new_contents);
+    container_->StartFinding(true);
   } else {
     // The textbox is empty so we reset.
     UpdateMatchCount(0, true);       // true = final update.
     UpdateResultLabel();
-    controller_->StopFinding(true);  // true = clear selection on page.
-    controller_->set_find_string(std::wstring());
+    container_->StopFinding(true);  // true = clear selection on page.
+    container_->set_find_string(std::wstring());
   }
 }
 
-void FindInPageView::HandleKeystroke(views::TextField* sender,
-                                     UINT message, TCHAR key, UINT repeat_count,
-                                     UINT flags) {
+void FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
+                                  TCHAR key, UINT repeat_count, UINT flags) {
   // If the dialog is not visible, there is no reason to process keyboard input.
-  if (!controller_->IsVisible())
+  if (!container_->IsVisible())
     return;
 
   switch (key) {
@@ -474,16 +473,16 @@ void FindInPageView::HandleKeystroke(views::TextField* sender,
       // Pressing Return/Enter starts the search (unless text box is empty).
       std::wstring find_string = find_text_->GetText();
       if (find_string.length() > 0) {
-        controller_->set_find_string(find_string);
+        container_->set_find_string(find_string);
         // Search forwards for enter, backwards for shift-enter.
-        controller_->StartFinding(GetKeyState(VK_SHIFT) >= 0);
+        container_->StartFinding(GetKeyState(VK_SHIFT) >= 0);
       }
       break;
     }
   }
 }
 
-bool FindInPageView::FocusForwarderView::OnMousePressed(
+bool FindBarView::FocusForwarderView::OnMousePressed(
     const views::MouseEvent& event) {
   if (view_to_focus_on_mousedown_) {
     view_to_focus_on_mousedown_->ClearSelection();

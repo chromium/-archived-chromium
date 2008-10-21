@@ -289,20 +289,6 @@ class TabContents : public PageNavigator,
   // Stop any pending navigation.
   virtual void Stop() {}
 
-  // An asynchronous call to trigger the string search in the page.
-  // It sends an IPC message to the Renderer that handles the string
-  // search, selecting the matches and setting the caret positions.
-  // This function also starts the asynchronous scoping effort.
-  virtual void StartFinding(int request_id,
-                            const std::wstring& string,
-                            bool forward, bool match_case,
-                            bool find_next) { }
-
-  // An asynchronous call to stop the string search in the page. If
-  // |clear_selection| is true, it will also clear the selection on the
-  // focused frame.
-  virtual void StopFinding(bool clear_selection) { }
-
   // TODO(erg): HACK ALERT! This was thrown together for beta and
   // needs to be completely removed after we ship it. Right now, the
   // cut/copy/paste menu items are always enabled and will send a
@@ -349,15 +335,6 @@ class TabContents : public PageNavigator,
   // right of the screen. This is a quick way for users to "clean up" a flurry
   // of unwanted popups.
   void CloseAllSuppressedPopups();
-
-  // Show, Hide and Size the TabContents.
-  // TODO(beng): (Cleanup) Show/Size TabContents should be made to actually
-  //             show and size the View. For simplicity sake, for now they're
-  //             just empty. This is currently a bit of a mess and is just a
-  //             band-aid.
-  virtual void ShowContents() {}
-  virtual void HideContents();
-  virtual void SizeContents(const gfx::Size& size) {}
 
   // Views and focus -----------------------------------------------------------
 

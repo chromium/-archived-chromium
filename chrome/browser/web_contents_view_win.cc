@@ -6,14 +6,15 @@
 
 #include <windows.h>
 
+#include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/find_in_page_controller.h"
 #include "chrome/browser/render_view_context_menu.h"
 #include "chrome/browser/render_view_context_menu_controller.h"
 #include "chrome/browser/render_view_host.h"
 #include "chrome/browser/render_widget_host_view_win.h"
 #include "chrome/browser/tab_contents_delegate.h"
+#include "chrome/browser/views/find_bar_win.h"
 #include "chrome/browser/views/info_bar_message_view.h"
 #include "chrome/browser/views/info_bar_view.h"
 #include "chrome/browser/views/sad_tab_view.h"
@@ -26,7 +27,7 @@
 
 namespace {
 
-// Windows callback for DetachPluginWindows.
+// Windows callback for OnDestroy to detach the plugin windows.
 BOOL CALLBACK EnumPluginWindowsCallback(HWND window, LPARAM param) {
   if (WebPluginDelegateImpl::IsPluginDelegateWindow(window)) {
     ::ShowWindow(window, SW_HIDE);
@@ -44,6 +45,10 @@ WebContentsViewWin::WebContentsViewWin(WebContents* web_contents)
 }
 
 WebContentsViewWin::~WebContentsViewWin() {
+}
+
+WebContents* WebContentsViewWin::GetWebContents() {
+  return web_contents_;
 }
 
 void WebContentsViewWin::CreateView(HWND parent_hwnd,
@@ -117,8 +122,19 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
     web_contents_->render_view_host()->DragSourceSystemDragEnded();
 }
 
-void WebContentsViewWin::DetachPluginWindows() {
+void WebContentsViewWin::OnContentsDestroy() {
+  // TODO(brettw) this seems like maybe it can be moved into OnDestroy and this
+  // function can be deleted? If you're adding more here, consider whether it
+  // can be moved into OnDestroy which is a Windows message handler as the
+  // window is being torn down.
+
+  // First detach all plugin windows so that they are not destroyed
+  // automatically. They will be cleaned up properly in plugin process.
   EnumChildWindows(GetHWND(), EnumPluginWindowsCallback, NULL);
+
+  // Close the find bar if any.
+  if (find_bar_.get())
+    find_bar_->Close();
 }
 
 void WebContentsViewWin::DisplayErrorInInfoBar(const std::wstring& text) {
@@ -181,6 +197,55 @@ void WebContentsViewWin::Invalidate() {
     InvalidateRect(GetContainerHWND(), NULL, FALSE);
 }
 
+void WebContentsViewWin::SizeContents(const gfx::Size& size) {
+  // TODO(brettw) this is a hack and should be removed. See web_contents_view.h.
+  WasSized(size);
+}
+
+void WebContentsViewWin::FindInPage(const Browser& browser,
+                                    bool find_next, bool forward_direction) {
+ if (!find_bar_.get()) {
+    // We want the Chrome top-level (Frame) window.
+    HWND hwnd = browser.GetTopLevelHWND();
+    find_bar_.reset(new FindBarWin(this, hwnd));
+  } else if (!find_bar_->IsVisible()) {
+    find_bar_->Show();
+  }
+
+  if (find_next && !find_bar_->find_string().empty())
+    find_bar_->StartFinding(forward_direction);
+}
+
+void WebContentsViewWin::HideFindBar(bool end_session) {
+  if (find_bar_.get()) {
+    if (end_session)
+      find_bar_->EndFindSession();
+    else
+      find_bar_->DidBecomeUnselected();
+  }
+}
+
+void WebContentsViewWin::ReparentFindWindow(Browser* new_browser) const {
+  if (find_bar_.get())
+    find_bar_->SetParent(new_browser->GetTopLevelHWND());
+}
+
+bool WebContentsViewWin::GetFindBarWindowInfo(gfx::Point* position,
+                                              bool* fully_visible) const {
+  CRect window_rect;
+  if (!find_bar_.get() ||
+      !::IsWindow(find_bar_->GetHWND()) ||
+      !::GetWindowRect(find_bar_->GetHWND(), &window_rect)) {
+    *position = gfx::Point(0, 0);
+    *fully_visible = false;
+    return false;
+  }
+
+  *position = gfx::Point(window_rect.TopLeft().x, window_rect.TopLeft().y);
+  *fully_visible = find_bar_->IsVisible() && !find_bar_->IsAnimating();
+  return true;
+}
+
 void WebContentsViewWin::UpdateDragCursor(bool is_drop_target) {
   drop_target_->set_is_drop_target(is_drop_target);
 }
@@ -222,6 +287,17 @@ void WebContentsViewWin::HandleKeyboardEvent(const WebKeyboardEvent& event) {
                 event.actual_message.message,
                 event.actual_message.wParam,
                 event.actual_message.lParam);
+}
+
+void WebContentsViewWin::OnFindReply(int request_id,
+                                     int number_of_matches,
+                                     const gfx::Rect& selection_rect,
+                                     int active_match_ordinal,
+                                     bool final_update) {
+  if (find_bar_.get()) {
+    find_bar_->OnFindReply(request_id, number_of_matches, selection_rect,
+                           active_match_ordinal, final_update);
+  }
 }
 
 void WebContentsViewWin::ShowContextMenu(
@@ -445,27 +521,23 @@ void WebContentsViewWin::OnVScroll(int scroll_type, short position,
 
 void WebContentsViewWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
   if (window_pos->flags & SWP_HIDEWINDOW) {
-    web_contents_->HideContents();
+    WasHidden();
   } else {
     // The WebContents was shown by a means other than the user selecting a
     // Tab, e.g. the window was minimized then restored.
     if (window_pos->flags & SWP_SHOWWINDOW)
-      web_contents_->ShowContents();
+      WasShown();
+
     // Unless we were specifically told not to size, cause the renderer to be
     // sized to the new bounds, which forces a repaint. Not required for the
     // simple minimize-restore case described above, for example, since the
     // size hasn't changed.
-    if (!(window_pos->flags & SWP_NOSIZE)) {
-      gfx::Size size(window_pos->cx, window_pos->cy);
-      web_contents_->SizeContents(size);  // FIXME(brettw) should this be on this class?
-    }
+    if (!(window_pos->flags & SWP_NOSIZE))
+      WasSized(gfx::Size(window_pos->cx, window_pos->cy));
 
     // If we have a FindInPage dialog, notify it that the window changed.
-    if (web_contents_->find_in_page_controller_.get() &&
-        web_contents_->find_in_page_controller_->IsVisible()) {
-      web_contents_->find_in_page_controller_->MoveWindowIfNecessary(
-          gfx::Rect());
-    }
+    if (find_bar_.get() && find_bar_->IsVisible())
+      find_bar_->MoveWindowIfNecessary(gfx::Rect());
   }
 }
 
@@ -509,6 +581,28 @@ void WebContentsViewWin::ScrollCommon(UINT message, int scroll_type,
     SendMessage(GetContentHWND(), message, MAKELONG(scroll_type, position),
                 (LPARAM) scrollbar);
   }
+}
+
+void WebContentsViewWin::WasHidden() {
+  web_contents_->HideContents();
+  if (find_bar_.get())
+    find_bar_->DidBecomeUnselected();
+}
+
+void WebContentsViewWin::WasShown() {
+  web_contents_->ShowContents();
+  if (find_bar_.get())
+    find_bar_->DidBecomeSelected();
+}
+
+void WebContentsViewWin::WasSized(const gfx::Size& size) {
+  if (web_contents_->render_widget_host_view())
+    web_contents_->render_widget_host_view()->SetSize(size);
+  if (find_bar_.get())
+    find_bar_->RespondToResize(size);
+
+  // TODO(brettw) this function can probably be moved to this class.
+  web_contents_->RepositionSupressedPopupsToFit(size);
 }
 
 bool WebContentsViewWin::ScrollZoom(int scroll_type) {

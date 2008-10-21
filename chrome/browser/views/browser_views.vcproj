@@ -433,6 +433,26 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Find Bar"
+			>
+			<File
+				RelativePath=".\find_bar_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\find_bar_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\find_bar_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\find_bar_win.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\about_chrome_view.cc"
 			>

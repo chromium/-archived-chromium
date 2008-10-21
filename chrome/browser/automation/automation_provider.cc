@@ -5,7 +5,7 @@
 #include "chrome/browser/automation/automation_provider.h"
 
 #include "base/path_service.h"
-#include "chrome/app/chrome_dll_resource.h"
+#include "chrome/app/chrome_dll_resource.h" 
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
@@ -24,6 +24,7 @@
 #include "chrome/browser/ssl_manager.h"
 #include "chrome/browser/ssl_blocking_page.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_paths.h"
@@ -1715,17 +1716,18 @@ void AutomationProvider::HandleFindRequest(const IPC::Message& message,
       FindInPageNotificationObserver(this, tab_contents, message.routing_id()));
 
   // The find in page dialog must be up for us to get the notification that the
-  // find was complete
-  if (tab_contents->AsWebContents()) {
+  // find was complete.
+  WebContents* web_contents = tab_contents->AsWebContents();
+  if (web_contents) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
     Browser* browser = Browser::GetBrowserForController(tab, NULL);
-    tab_contents->AsWebContents()->OpenFindInPageWindow(*browser);
-  }
+    web_contents->view()->FindInPage(*browser, true, request.forward);
 
-  tab_contents->StartFinding(
-      FindInPageNotificationObserver::kFindInPageRequestId,
-      request.search_string, request.forward, request.match_case,
-      request.find_next);
+    web_contents->render_view_host()->StartFinding(
+        FindInPageNotificationObserver::kFindInPageRequestId,
+        request.search_string, request.forward, request.match_case,
+        request.find_next);
+  }
 }
 
 void AutomationProvider::HandleOpenFindInPageRequest(
@@ -1734,16 +1736,17 @@ void AutomationProvider::HandleOpenFindInPageRequest(
   WebContents* web_contents = GetWebContentsForHandle(handle, &tab);
   if (web_contents) {
     Browser* browser = Browser::GetBrowserForController(tab, NULL);
-    web_contents->OpenFindInPageWindow(*browser);
+    web_contents->view()->FindInPage(*browser, false, false);
   }
 }
 
 void AutomationProvider::GetFindWindowVisibility(const IPC::Message& message,
                                                  int handle) {
+  gfx::Point position;
   bool visible = false;
   WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
   if (web_contents)
-    visible = web_contents->IsFindWindowFullyVisible();
+    visible = web_contents->view()->GetFindBarWindowInfo(&position, &visible);
 
   Send(new AutomationMsg_FindWindowVisibilityResponse(message.routing_id(),
                                                       visible));
@@ -1751,13 +1754,15 @@ void AutomationProvider::GetFindWindowVisibility(const IPC::Message& message,
 
 void AutomationProvider::HandleFindWindowLocationRequest(
     const IPC::Message& message, int handle) {
-  int x = -1, y = -1;
+  gfx::Point position(0, 0);
+  bool visible = false;
   WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
   if (web_contents)
-    web_contents->GetFindInPageWindowLocation(&x, &y);
+    visible = web_contents->view()->GetFindBarWindowInfo(&position, &visible);
 
   Send(new AutomationMsg_FindWindowLocationResponse(message.routing_id(),
-                                                    x, y));
+                                                    position.x(),
+                                                    position.y()));
 }
 
 void AutomationProvider::GetBookmarkBarVisitility(const IPC::Message& message,

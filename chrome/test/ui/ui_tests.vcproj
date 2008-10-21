@@ -358,7 +358,7 @@
 			Name="TestFindInPage"
 			>
 			<File
-				RelativePath="..\..\browser\find_in_page_controller_uitest.cc"
+				RelativePath="..\..\browser\views\find_bar_win_uitest.cc"
 				>
 			</File>
 		</Filter>

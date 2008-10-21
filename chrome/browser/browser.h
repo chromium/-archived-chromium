@@ -97,19 +97,13 @@ class Browser : public TabStripModelDelegate,
 
   // Opens the FindInPage window for the currently open tab.
   void OpenFindInPageWindow();
-  // Becomes the parent window of the Find window of the specified tab. This is
-  // useful, for example, when tabs are dragged out of (or in to) the tab strip
-  // to make sure the Find window shows up in the right Browser window.
-  void AdoptFindWindow(TabContents* tab_contents);
 
   // debugger shell
   void OpenDebuggerWindow();
 
   // Advance the find selection by one. Direction is either forward or backwards
-  // depending on parameter passed in. If selection cannot be advanced (for
-  // example because no search has been issued, then the function returns false
-  // and caller can call OpenFindInPageWindow to show the search window.
-  bool AdvanceFindSelection(bool forward_direction);
+  // depending on parameter passed in.
+  void AdvanceFindSelection(bool forward_direction);
 
   Profile* profile() const { return profile_; }
 

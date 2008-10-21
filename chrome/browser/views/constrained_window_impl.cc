@@ -15,6 +15,7 @@
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/web_app.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/browser/window_sizer.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -1132,9 +1133,16 @@ void ConstrainedWindowImpl::InitSizeForContents(
   CustomFrameWindow::Init(owner_->GetContainerHWND(), initial_bounds);
   contents_container_->Attach(constrained_contents_->GetContainerHWND());
 
-  constrained_contents_->SizeContents(
+  // TODO(brettw) this should be done some other way, see
+  // WebContentsView::SizeContents.
+  if (constrained_contents_->AsWebContents()) {
+    // This should always be true, all constrained windows are WebContents.
+    constrained_contents_->AsWebContents()->view()->SizeContents(
       gfx::Size(contents_container_->width(),
                 contents_container_->height()));
+  } else {
+    NOTREACHED();
+  }
   current_bounds_ = initial_bounds;
 
   // Note that this is HWND_TOP, not HWND_TOPMOST... this is important

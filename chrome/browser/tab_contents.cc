@@ -311,20 +311,6 @@ void TabContents::CloseAllSuppressedPopups() {
   }
 }
 
-void TabContents::HideContents() {
-  // Hide the contents before adjusting its parent to avoid a full desktop
-  // flicker.
-  ShowWindow(GetContainerHWND(), SW_HIDE);
-
-  // Reset the parent to NULL to ensure hidden tabs don't receive messages.
-  SetParent(GetContainerHWND(), NULL);
-
-  // Remove any focus manager related information.
-  views::FocusManager::UninstallFocusSubclass(GetContainerHWND());
-
-  WasHidden();
-}
-
 void TabContents::Focus() {
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(GetContainerHWND());
@@ -534,6 +520,7 @@ void TabContents::SetIsLoading(bool is_loading,
                         NotificationService::NoDetails());
 }
 
+// TODO(brettw) This should be on the WebContentsView.
 void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
   // TODO(erg): There's no way to detect whether scroll bars are
   // visible, so for beta, we're just going to assume that the

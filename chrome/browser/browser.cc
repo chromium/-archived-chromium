@@ -1312,7 +1312,10 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   // When we detach a tab we need to make sure any associated Find window moves
   // along with it to its new home (basically we just make new_window the parent
   // of the Find window).
-  new_window->AdoptFindWindow(detached_contents);
+  // TODO(brettw) this could probably be improved, see
+  // WebContentsView::ReparentFindWindow for more.
+  if (detached_contents->AsWebContents())
+    detached_contents->AsWebContents()->view()->ReparentFindWindow(new_window);
 }
 
 int Browser::GetDragActions() const {
@@ -1383,7 +1386,10 @@ void Browser::TabInsertedAt(TabContents* contents,
   // associated Find window is moved along with it. We therefore change the
   // parent of the Find window (if the parent is already correctly set this
   // does nothing).
-  AdoptFindWindow(contents);
+  // TODO(brettw) this could probably be improved, see
+  // WebContentsView::ReparentFindWindow for more.
+  if (contents->AsWebContents())
+    contents->AsWebContents()->view()->ReparentFindWindow(this);
 
   // If the tab crashes in the beforeunload or unload handler, it won't be
   // able to ack. But we know we can close it.

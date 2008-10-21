@@ -970,22 +970,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\find_in_page_controller.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\find_in_page_controller.h"
-				>
-			</File>
-			<File
-				RelativePath=".\find_in_page_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\find_in_page_view.h"
-				>
-			</File>
-			<File
 				RelativePath=".\find_notification_details.h"
 				>
 			</File>

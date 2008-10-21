@@ -15,7 +15,6 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/web_app.h"
 
-class FindInPageController;
 class InterstitialPageDelegate;
 class PasswordManager;
 class PluginInstaller;
@@ -82,12 +81,6 @@ class WebContents : public TabContents,
   virtual std::wstring GetStatusText() const;
   virtual bool NavigateToPendingEntry(bool reload);
   virtual void Stop();
-  virtual void StartFinding(int request_id,
-                            const std::wstring& search_string,
-                            bool forward,
-                            bool match_case,
-                            bool find_next);
-  virtual void StopFinding(bool clear_selection);
   virtual void Cut();
   virtual void Copy();
   virtual void Paste();
@@ -96,7 +89,6 @@ class WebContents : public TabContents,
   virtual void WasHidden();
   virtual void ShowContents();
   virtual void HideContents();
-  virtual void SizeContents(const gfx::Size& size);
   virtual void SetDownloadShelfVisible(bool visible);
 
   // Retarded pass-throughs to the view.
@@ -106,16 +98,6 @@ class WebContents : public TabContents,
   virtual HWND GetContainerHWND() const;
   virtual HWND GetContentHWND();
   virtual void GetContainerBounds(gfx::Rect *out) const;
-
-  // Find in page --------------------------------------------------------------
-
-  // TODO(brettw) these should be commented.
-  void OpenFindInPageWindow(const Browser& browser);
-  void ReparentFindWindow(HWND new_parent);
-  bool AdvanceFindSelection(bool forward_direction);
-  bool IsFindWindowFullyVisible();
-  bool GetFindInPageWindowLocation(int* x, int* y);
-  void SetFindInPageVisible(bool visible);
 
   // Web apps ------------------------------------------------------------------
 
@@ -222,7 +204,6 @@ class WebContents : public TabContents,
   // RenderViewHostDelegate ----------------------------------------------------
 
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
-  virtual RenderViewHostDelegate::FindInPage* GetFindInPageDelegate() const;
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
   virtual Profile* GetProfile() const;
   virtual void RendererReady(RenderViewHost* render_view_host);
@@ -403,9 +384,11 @@ class WebContents : public TabContents,
       const NavigationController::LoadCommittedDetails& details,
       const ViewHostMsg_FrameNavigate_Params& params);
 
-  // Called when navigating the main frame to close all child windows if the
-  // domain is changing.
-  void MaybeCloseChildWindows(const ViewHostMsg_FrameNavigate_Params& params);
+  // Closes all child windows (constrained popups) when the domain changes.
+  // Supply the new and old URLs, and this function will figure out when the
+  // domain changing conditions are met.
+  void MaybeCloseChildWindows(const GURL& previous_url,
+                              const GURL& current_url);
 
   // Updates the starred state from the bookmark bar model. If the state has
   // changed, the delegate is notified.
@@ -486,10 +469,6 @@ class WebContents : public TabContents,
   // once.
   bool notify_disconnection_;
 
-  // When a navigation occurs (and is committed), we record its URL. This lets
-  // us see where we are navigating from.
-  GURL last_url_;
-
   // Maps from handle to page_id.
   typedef std::map<HistoryService::Handle, int32> HistoryRequestMap;
   HistoryRequestMap history_requests_;
@@ -505,9 +484,6 @@ class WebContents : public TabContents,
 
   // SavePackage, lazily created.
   scoped_refptr<SavePackage> save_package_;
-
-  // Handles communication with the FindInPage popup.
-  scoped_ptr<FindInPageController> find_in_page_controller_;
 
   // Tracks our pending CancelableRequests. This maps pending requests to
   // page IDs so that we know whether a given callback still applies. The

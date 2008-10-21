@@ -99,16 +99,13 @@ class RenderViewHostDelegate {
     // specified events. This gives an opportunity to the browser to process the
     // event (used for keyboard shortcuts).
     virtual void HandleKeyboardEvent(const WebKeyboardEvent& event) = 0;
-  };
 
-  class FindInPage {
-   public:
     // A find operation in the current page completed.
-    virtual void FindReply(int request_id,
-                           int number_of_matches,
-                           const gfx::Rect& selection_rect,
-                           int active_match_ordinal,
-                           bool final_update) = 0;
+    virtual void OnFindReply(int request_id,
+                             int number_of_matches,
+                             const gfx::Rect& selection_rect,
+                             int active_match_ordinal,
+                             bool final_update) = 0;
   };
 
   // Interface for saving web pages.
@@ -136,7 +133,6 @@ class RenderViewHostDelegate {
 
   // Returns the current delegate associated with a feature. May be NULL.
   virtual View* GetViewDelegate() const { return NULL; }
-  virtual FindInPage* GetFindInPageDelegate() const { return NULL; }
   virtual Save* GetSaveDelegate() const { return NULL; }
 
   // Retrieves the profile to be used.

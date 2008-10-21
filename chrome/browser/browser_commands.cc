@@ -33,6 +33,7 @@
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/views/toolbar_view.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/win_util.h"
@@ -394,14 +395,12 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_FIND_NEXT:
       UserMetrics::RecordAction(L"FindNext", profile_);
-      if (!AdvanceFindSelection(true))
-        OpenFindInPageWindow();
+      AdvanceFindSelection(true);
       break;
 
     case IDC_FIND_PREVIOUS:
       UserMetrics::RecordAction(L"FindPrevious", profile_);
-      if (!AdvanceFindSelection(false))
-        OpenFindInPageWindow();
+      AdvanceFindSelection(false);
       break;
 
     case IDS_COMMANDS_REPORTBUG:
@@ -823,21 +822,15 @@ void Browser::StarCurrentTabContents() {
 void Browser::OpenFindInPageWindow() {
   TabContents* current_tab = GetSelectedTabContents();
   if (current_tab && current_tab->AsWebContents())
-    current_tab->AsWebContents()->OpenFindInPageWindow(*this);
+    current_tab->AsWebContents()->view()->FindInPage(*this, false, false);
 }
 
-void Browser::AdoptFindWindow(TabContents* tab_contents) {
-  if (tab_contents->AsWebContents())
-    tab_contents->AsWebContents()->ReparentFindWindow(GetTopLevelHWND());
-}
-
-bool Browser::AdvanceFindSelection(bool forward_direction) {
+void Browser::AdvanceFindSelection(bool forward_direction) {
   TabContents* current_tab = GetSelectedTabContents();
   if (current_tab && current_tab->AsWebContents()) {
-    current_tab->AsWebContents()->AdvanceFindSelection(forward_direction);
+    current_tab->AsWebContents()->view()->FindInPage(*this, true,
+                                                     forward_direction);
   }
-
-  return false;
 }
 
 void Browser::OpenDebuggerWindow() {

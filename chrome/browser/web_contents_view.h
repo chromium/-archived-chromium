@@ -15,6 +15,7 @@
 #include "base/gfx/size.h"
 #include "chrome/browser/render_view_host_delegate.h"
 
+class Browser;
 class InfoBarView;
 class RenderViewHost;
 class RenderWidgetHost;
@@ -34,6 +35,8 @@ class WebKeyboardEvent;
 class WebContentsView : public RenderViewHostDelegate::View {
  public:
   virtual ~WebContentsView() {}
+
+  virtual WebContents* GetWebContents() = 0;
 
   virtual void CreateView(HWND parent_hwnd,
                           const gfx::Rect& initial_bounds) = 0;
@@ -67,8 +70,13 @@ class WebContentsView : public RenderViewHostDelegate::View {
     return gfx::Size(rc.width(), rc.height());
   }
 
-  // Enumerate and 'un-parent' any plugin windows that are children of us.
-  virtual void DetachPluginWindows() = 0;
+  // Called when the WebContents is being destroyed. This should clean up child
+  // windows that are part of the view.
+  //
+  // TODO(brettw) It seems like this might be able to be done internally as the
+  // window is being torn down without input from the WebContents. Try to
+  // implement functions that way rather than adding stuff here.
+  virtual void OnContentsDestroy() = 0;
 
   // Displays the given error in the info bar. A new info bar will be shown if
   // one is not shown already. The new error text will replace any existing
@@ -100,6 +108,55 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // the existing contents became invalid due to an external event, such as the
   // renderer crashing.
   virtual void Invalidate() = 0;
+
+  // TODO(brettw) this is a hack. It's used in two places at the time of this
+  // writing: (1) when render view hosts switch, we need to size the replaced
+  // one to be correct, since it wouldn't have known about sizes that happened
+  // while it was hidden; (2) in constrained windows.
+  //
+  // (1) will be fixed once interstitials are cleaned up. (2) seems like it
+  // should be cleaned up or done some other way, since this works for normal
+  // TabContents without the special code.
+  virtual void SizeContents(const gfx::Size& size) = 0;
+
+  // Find in page --------------------------------------------------------------
+
+  // Opens the find in page window if it isn't already open. It will advance to
+  // the next match if |find_next| is set and there is a search string,
+  // otherwise, the find window will merely be opened. |forward_direction|
+  // indicates the direction to search when find_next is set, otherwise it is
+  // ignored.
+  virtual void FindInPage(const Browser& browser,
+                          bool find_next, bool forward_direction) = 0;
+
+  // Hides the find bar if there is one shown. Does nothing otherwise. The find
+  // bar will not be deleted, merely hidden. This ensures that any search terms
+  // are preserved if the user subsequently opens the find bar.
+  //
+  // If |end_session| is true, then the find session will be ended, which
+  // indicates the user requested they no longer be in find mode for that tab.
+  // The find bar will not be restored when we switch back to the tab.
+  // Otherwise, we assume that the find bar is being hidden because the tab is
+  // being hidden, and all state like visibility and tickmarks will be restored
+  // when the tab comes back.
+  virtual void HideFindBar(bool end_session) = 0;
+
+  // Called when the tab is reparented to a new browser window. On MS Windows,
+  // we have to change the parent of our find bar to go with the new window.
+  //
+  // TODO(brettw) this seems like it could be improved. Possibly all doohickies
+  // around the tab like this, the download bar etc. should be managed by the
+  // BrowserView2 object.
+  virtual void ReparentFindWindow(Browser* new_browser) const = 0;
+
+  // Computes the location of the find bar and whether it is fully visible in
+  // its parent window. The return value indicates if the window is visible at
+  // all. Both out arguments are required.
+  //
+  // This is used for UI tests of the find bar. If the find bar is not currently
+  // shown (return value of false), the out params will be {(0, 0), false}.
+  virtual bool GetFindBarWindowInfo(gfx::Point* position,
+                                    bool* fully_visible) const = 0;
 
  protected:
   WebContentsView() {}  // Abstract interface.

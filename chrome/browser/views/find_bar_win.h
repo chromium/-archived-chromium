@@ -2,17 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H_
-#define CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H_
+#ifndef CHROME_BROWSER_VIEWS_FIND_BAR_WIN_H_
+#define CHROME_BROWSER_VIEWS_FIND_BAR_WIN_H_
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/common/animation.h"
 #include "chrome/views/container_win.h"
 
-class FindInPageView;
+class FindBarView;
+class RenderViewHost;
 class SlideAnimation;
-class TabContents;
+class WebContentsView;
 
 namespace views {
 class ExternalFocusTracker;
@@ -21,41 +22,38 @@ class View;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// The FindInPageController implements the container window for the FindInPage
-// functionality. It uses the FindInPageView implementation to draw its content
-// and is responsible for showing, hiding, closing, and moving the window if
-// needed, for example if the window is obscuring the selection results. It also
+// The FindBarWin implements the container window for the Windows find-in-page
+// functionality. It uses the FindBarWin implementation to draw its content and
+// is responsible for showing, hiding, closing, and moving the window if needed,
+// for example if the window is obscuring the selection results. It also
 // communicates with the parent_tab to instruct it to start searching for what
 // the user selected and receives notifications about the search results and
 // communicates that to the view.
 //
-// We create one controller per tab and remember each search query per tab.
+// We create one container per tab and remember each search query per tab.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class FindInPageController : public RenderViewHostDelegate::FindInPage,
-                             public views::FocusChangeListener,
-                             public views::ContainerWin,
-                             public AnimationDelegate {
+class FindBarWin : public views::FocusChangeListener,
+                   public views::ContainerWin,
+                   public AnimationDelegate {
  public:
-  FindInPageController(TabContents* parent_tab,
-                       HWND parent_hwnd);
-  virtual ~FindInPageController();
+  FindBarWin(WebContentsView* parent_tab, HWND parent_hwnd);
+  virtual ~FindBarWin();
 
-  // Shows the FindInPage window. The previous search string will again be
-  // visible.
+  // Shows the find bar. Any previous search string will again be visible.
   void Show();
 
-  // Ends the current FindInPage session.
+  // Ends the current session.
   void EndFindSession();
 
-  // Closes the FindInPage window (calls Close on the Window Container).
+  // Closes the find bar window (calls Close on the Window Container).
   void Close();
 
   // This is triggered when the parent tab of the Find dialog becomes
-  // unselected, at which point the FindInPage dialog should become hidden.
-  // Otherwise, we leave artifacts on the chrome when other tabs are visible.
-  // However, we need to show the Find dialog again when the parent tab becomes
-  // selected again, so we set a flag for that and show the window if we get a
+  // unselected, at which point the find bar should become hidden. Otherwise,
+  // we leave artifacts on the chrome when other tabs are visible. However, we
+  // need to show the Find dialog again when the parent tab becomes selected
+  // again, so we set a flag for that and show the window if we get a
   // DidBecomeSelected call.
   void DidBecomeUnselected();
 
@@ -75,10 +73,10 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   // also clear the selection on the focused frame.
   void StopFinding(bool clear_selection);
 
-  // If the FindInPage window obscures the search results we need to move the
-  // window. To do that we need to know what is selected on the page. We simply
-  // calculate where it would be if we place it on the left of the selection and
-  // if it doesn't fit on the screen we try the right side. The parameter
+  // If the find bar obscures the search results we need to move the window. To
+  // do that we need to know what is selected on the page. We simply calculate
+  // where it would be if we place it on the left of the selection and if it
+  // doesn't fit on the screen we try the right side. The parameter
   // |selection_rect| is expected to have coordinates relative to the top of
   // the web page area.
   void MoveWindowIfNecessary(const gfx::Rect& selection_rect);
@@ -89,9 +87,9 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   // Whether we are animating the position of the Find window.
   bool IsAnimating();
 
-  // Changes the parent window for the FindInPage controller. If |new_parent| is
-  // already the parent of this window then no action is taken. |new_parent| can
-  // not be NULL.
+  // Changes the parent window for the find bar. If |new_parent| is already
+  // the parent of this window then no action is taken.
+  // |new_parent| can not be NULL.
   void SetParent(HWND new_parent);
 
   // We need to monitor focus changes so that we can register a handler for
@@ -106,6 +104,14 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   void set_find_string(const std::wstring& find_string) {
     find_string_ = find_string;
   }
+
+  // Updates the find bar with the latest results. This is called when the
+  // renderer (through the RenderViewHostDelegate::View) finds more stuff. 
+  void OnFindReply(int request_id,
+                   int number_of_matches,
+                   const gfx::Rect& selection_rect,
+                   int active_match_ordinal,
+                   bool final_update);
 
   // Overridden from views::ContainerWin:
   virtual void OnFinalMessage(HWND window);
@@ -122,28 +128,24 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   virtual void AnimationEnded(const Animation* animation);
 
  private:
-  // RenderViewHostDelegate::FindInPage implementation.
-  virtual void FindReply(int request_id,
-                         int number_of_matches,
-                         const gfx::Rect& selection_rect,
-                         int active_match_ordinal,
-                         bool final_update);
+  // Returns the RenderViewHost associated with the current tab.
+  RenderViewHost* GetRenderViewHost() const;
 
-  // Retrieves the boundaries that the FindInPage dialog has to work with within
-  // the Chrome frame window. The resulting rectangle will be a rectangle that
+  // Retrieves the boundaries that the find bar has to work with within the
+  // Chrome frame window. The resulting rectangle will be a rectangle that
   // overlaps the bottom of the Chrome toolbar by one pixel (so we can create
-  // the illusion that the FindInPage window is part of the toolbar) and covers
-  // the page area, except that we deflate the rect width by subtracting (from
-  // both sides) the width of the toolbar and some extra pixels to account for
-  // the width of the Chrome window borders. |bounds| is relative to the browser
+  // the illusion that the find bar is part of the toolbar) and covers the page
+  // area, except that we deflate the rect width by subtracting (from both
+  // sides) the width of the toolbar and some extra pixels to account for the
+  // width of the Chrome window borders. |bounds| is relative to the browser
   // window. If the function fails to determine the browser window/client area
   // rectangle or the rectangle for the page area then |bounds| will
   // be an empty rectangle.
   void GetDialogBounds(gfx::Rect* bounds);
 
-  // Returns the rectangle representing where to position the FindInPage dialog.
-  // It uses GetDialogBounds and positions itself within that, either to the
-  // left (if an InfoBar is present) or to the right (no InfoBar). If
+  // Returns the rectangle representing where to position the find bar. It uses
+  // GetDialogBounds and positions itself within that, either to the left (if an
+  // InfoBar is present) or to the right (no InfoBar). If
   // |avoid_overlapping_rect| is specified, the return value will be a rectangle
   // located immediately to the left of |avoid_overlapping_rect|, as long as
   // there is enough room for the dialog to draw within the bounds. If not, the
@@ -169,7 +171,7 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   void UpdateWindowEdges(const gfx::Rect& new_pos);
 
   // Upon dismissing the window, restore focus to the last focused view which is
-  // not FindInPageView or any of its children.
+  // not FindBarView or any of its children.
   void RestoreSavedFocus();
 
   // Registers this class as the handler for when Escape is pressed. We will
@@ -181,13 +183,13 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   void UnregisterEscAccelerator();
 
   // The tab we are associated with.
-  TabContents* parent_tab_;
+  WebContentsView* parent_tab_;
 
   // The window handle of our parent window (the main Chrome window).
   HWND parent_hwnd_;
 
   // Our view, which is responsible for drawing the UI.
-  FindInPageView* view_;
+  FindBarView* view_;
 
   // Each time a search request comes in we assign it an id before passing it
   // over the IPC so that when the results come in we can evaluate whether we
@@ -227,13 +229,12 @@ class FindInPageController : public RenderViewHostDelegate::FindInPage,
   // restore the state once we loose focus.
   views::AcceleratorTarget* old_accel_target_for_esc_;
 
-  // Tracks and stores the last focused view which is not the FindInPageView or
-  // any of its children. Used to restore focus once the FindInPageView is
+  // Tracks and stores the last focused view which is not the FindBarView
+  // or any of its children. Used to restore focus once the FindBarView is
   // closed.
   scoped_ptr<views::ExternalFocusTracker> focus_tracker_;
 
-  DISALLOW_COPY_AND_ASSIGN(FindInPageController);
+  DISALLOW_COPY_AND_ASSIGN(FindBarWin);
 };
 
-#endif  // CHROME_BROWSER_FIND_IN_PAGE_CONTROLLER_H_
-
+#endif  // CHROME_BROWSER_VIEWS_FIND_BAR_WIN_H_

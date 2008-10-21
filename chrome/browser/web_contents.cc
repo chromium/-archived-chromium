@@ -15,7 +15,6 @@
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
-#include "chrome/browser/find_in_page_controller.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/google_util.h"
 #include "chrome/browser/interstitial_page.h"
@@ -300,13 +299,8 @@ void WebContents::Destroy() {
 
   cancelable_consumer_.CancelAllRequests();
 
-  // Close the Find in page dialog.
-  if (find_in_page_controller_.get())
-    find_in_page_controller_->Close();
-
-  // Detach plugin windows so that they are not destroyed automatically.
-  // They will be cleaned up properly in plugin process.
-  view_->DetachPluginWindows();
+  // Clean up subwindows like plugins and the find in page bar.
+  view_->OnContentsDestroy();
 
   NotifyDisconnected();
   HungRendererWarning::HideForWebContents(this);
@@ -388,19 +382,6 @@ void WebContents::Stop() {
   printing_.Stop();
 }
 
-void WebContents::StartFinding(int request_id,
-                               const std::wstring& search_string,
-                               bool forward,
-                               bool match_case,
-                               bool find_next) {
-  render_view_host()->StartFinding(request_id, search_string, forward,
-                                   match_case, find_next);
-}
-
-void WebContents::StopFinding(bool clear_selection) {
-  render_view_host()->StopFinding(clear_selection);
-}
-
 void WebContents::Cut() {
   render_view_host()->Cut();
 }
@@ -444,10 +425,6 @@ void WebContents::WasHidden() {
     }
   }
 
-  // If we have a FindInPage dialog, notify it that its tab was hidden.
-  if (find_in_page_controller_.get())
-    find_in_page_controller_->DidBecomeUnselected();
-
   TabContents::WasHidden();
 }
 
@@ -461,10 +438,6 @@ void WebContents::ShowContents() {
     ConstrainedWindow* window = child_windows_.at(i);
     window->DidBecomeSelected();
   }
-
-  // If we have a FindInPage dialog, notify it that its tab was selected.
-  if (find_in_page_controller_.get())
-    find_in_page_controller_->DidBecomeSelected();
 }
 
 void WebContents::HideContents() {
@@ -475,14 +448,6 @@ void WebContents::HideContents() {
   // calling TabContents::WasHidden() twice if callers call both versions of
   // HideContents() on a WebContents.
   WasHidden();
-}
-
-void WebContents::SizeContents(const gfx::Size& size) {
-  if (render_widget_host_view())
-    render_widget_host_view()->SetSize(size);
-  if (find_in_page_controller_.get())
-    find_in_page_controller_->RespondToResize(size);
-  RepositionSupressedPopupsToFit(size);
 }
 
 void WebContents::SetDownloadShelfVisible(bool visible) {
@@ -507,68 +472,6 @@ HWND WebContents::GetContentHWND() {
 }
 void WebContents::GetContainerBounds(gfx::Rect *out) const {
   view_->GetContainerBounds(out);
-}
-
-void WebContents::OpenFindInPageWindow(const Browser& browser) {
-  if (!find_in_page_controller_.get()) {
-    // Get the Chrome top-level (Frame) window.
-    HWND hwnd = browser.GetTopLevelHWND();
-    find_in_page_controller_.reset(new FindInPageController(this, hwnd));
-  } else {
-    find_in_page_controller_->Show();
-  }
-}
-
-void WebContents::ReparentFindWindow(HWND new_parent) {
-  DCHECK(new_parent);
-  if (find_in_page_controller_.get()) {
-    find_in_page_controller_->SetParent(new_parent);
-  }
-}
-
-bool WebContents::AdvanceFindSelection(bool forward_direction) {
-  // If no controller has been created or it doesn't know what to search for
-  // then just return false so that caller knows that it should create and
-  // show the window.
-  if (!find_in_page_controller_.get() ||
-      find_in_page_controller_->find_string().empty())
-    return false;
-
-  // The dialog already exists, so show if hidden.
-  if (!find_in_page_controller_->IsVisible())
-    find_in_page_controller_->Show();
-
-  find_in_page_controller_->StartFinding(forward_direction);
-  return true;
-}
-
-bool WebContents::IsFindWindowFullyVisible() {
-  return find_in_page_controller_->IsVisible() &&
-         !find_in_page_controller_->IsAnimating();
-}
-
-bool WebContents::GetFindInPageWindowLocation(int* x, int* y) {
-  DCHECK(x && y);
-  HWND find_wnd = find_in_page_controller_->GetHWND();
-  CRect window_rect;
-  if (IsFindWindowFullyVisible() &&
-      ::IsWindow(find_wnd) &&
-      ::GetWindowRect(find_wnd, &window_rect)) {
-    *x = window_rect.TopLeft().x;
-    *y = window_rect.TopLeft().y;
-    return true;     
-  }
-
-  return false;
-}
-
-void WebContents::SetFindInPageVisible(bool visible) {
-  if (find_in_page_controller_.get()) {
-    if (visible)
-      find_in_page_controller_->Show();
-    else
-      find_in_page_controller_->EndFindSession();
-  }
 }
 
 void WebContents::SetWebApp(WebApp* web_app) {
@@ -660,9 +563,8 @@ void WebContents::PrintPreview() {
   if (render_manager_.showing_interstitial_page())
     return;
 
-  // If we have a FindInPage dialog, notify it that its tab was hidden.
-  if (find_in_page_controller_.get())
-    find_in_page_controller_->DidBecomeUnselected();
+  // If we have a find bar it needs to hide as well.
+  view_->HideFindBar(false);
 
   // We don't show the print preview for the beta, only the print dialog.
   printing_.ShowPrintDialog();
@@ -673,9 +575,8 @@ bool WebContents::PrintNow() {
   if (render_manager_.showing_interstitial_page())
     return false;
 
-  // If we have a FindInPage dialog, notify it that its tab was hidden.
-  if (find_in_page_controller_.get())
-    find_in_page_controller_->DidBecomeUnselected();
+  // If we have a find bar it needs to hide as well.
+  view_->HideFindBar(false);
 
   return printing_.PrintNow();
 }
@@ -706,12 +607,6 @@ void WebContents::SetIsLoading(bool is_loading,
 
 RenderViewHostDelegate::View* WebContents::GetViewDelegate() const {
   return view_.get();
-}
-
-RenderViewHostDelegate::FindInPage* WebContents::GetFindInPageDelegate() const {
-  // The find in page controller implements this interface for us. Our return
-  // value can be NULL, so it's fine if the find in controller doesn't exist.
-  return find_in_page_controller_.get();
 }
 
 RenderViewHostDelegate::Save* WebContents::GetSaveDelegate() const {
@@ -1436,8 +1331,8 @@ void WebContents::BeforeUnloadFiredFromRenderManager(
 }
 
 void WebContents::UpdateRenderViewSizeForRenderManager() {
-  // Using same technique as OnPaint, which sets size of SadTab.
-  SizeContents(view_->GetContainerSize());
+  // TODO(brettw) this is a hack. See WebContentsView::SizeContents.
+  view_->SizeContents(view_->GetContainerSize());
 }
 
 bool WebContents::CreateRenderViewForRenderManager(
@@ -1548,13 +1443,13 @@ void WebContents::DidNavigateMainFramePostCommit(
   fav_icon_helper_.FetchFavIcon(details.entry->url());
 
   // Close constrained popups if necessary.
-  MaybeCloseChildWindows(params);
+  MaybeCloseChildWindows(details.previous_url, details.entry->url());
 
   // We hide the FindInPage window when the user navigates away, except on
   // reload.
   if (PageTransition::StripQualifier(params.transition) !=
       PageTransition::RELOAD)
-    SetFindInPageVisible(false);
+    view_->HideFindBar(true);
 
   // Update the starred state.
   UpdateStarredStateForCurrentURL();
@@ -1586,12 +1481,11 @@ void WebContents::DidNavigateAnyFramePostCommit(
     GetPasswordManager()->ProvisionallySavePassword(params.password_form);
 }
 
-void WebContents::MaybeCloseChildWindows(
-    const ViewHostMsg_FrameNavigate_Params& params) {
+void WebContents::MaybeCloseChildWindows(const GURL& previous_url,
+                                         const GURL& current_url) {
   if (net::RegistryControlledDomainService::SameDomainOrHost(
-          last_url_, params.url))
+          previous_url, current_url))
     return;
-  last_url_ = params.url;
 
   // Clear out any child windows since we are leaving this page entirely.
   // We use indices instead of iterators in case CloseWindow does something

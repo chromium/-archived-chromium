@@ -2,22 +2,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/find_in_page_controller.h"
+#include "chrome/browser/views/find_bar_win.h"
 
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/find_in_page_view.h"
 #include "chrome/browser/find_notification_details.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/render_view_host.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
+#include "chrome/browser/views/find_bar_view.h"
+#include "chrome/browser/web_contents.h"
+#include "chrome/browser/web_contents_view.h"
 #include "chrome/views/container_win.h"
 #include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view_storage.h"
 
-int FindInPageController::request_id_counter_ = 0;
+int FindBarWin::request_id_counter_ = 0;
 
 // The minimum space between the FindInPage window and the search result.
 static const int kMinFindWndDistanceFromSelection = 5;
@@ -26,17 +28,16 @@ static const int kMinFindWndDistanceFromSelection = 5;
 static const int kWindowBorderWidth = 3;
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, public:
+// FindBarWin, public:
 
-FindInPageController::FindInPageController(TabContents* parent_tab,
-                                           HWND parent_hwnd)
-  : parent_tab_(parent_tab),
-    current_request_id_(request_id_counter_++),
-    parent_hwnd_(parent_hwnd),
-    find_dialog_animation_offset_(0),
-    show_on_tab_selection_(false),
-    focus_manager_(NULL),
-    old_accel_target_for_esc_(NULL) {
+FindBarWin::FindBarWin(WebContentsView* parent_tab, HWND parent_hwnd)
+    : parent_tab_(parent_tab),
+      current_request_id_(request_id_counter_++),
+      parent_hwnd_(parent_hwnd),
+      find_dialog_animation_offset_(0),
+      show_on_tab_selection_(false),
+      focus_manager_(NULL),
+      old_accel_target_for_esc_(NULL) {
   // Start listening to focus changes, so we can register and unregister our
   // own handler for Escape.
   SetFocusChangeListener(parent_hwnd);
@@ -45,7 +46,7 @@ FindInPageController::FindInPageController(TabContents* parent_tab,
   // coincide with WebContents.
   ContainerWin::set_delete_on_destroy(false);
 
-  view_ = new FindInPageView(this);
+  view_ = new FindBarView(this);
 
   views::FocusManager* focus_manager;
   focus_manager = views::FocusManager::GetFocusManager(parent_hwnd_);
@@ -53,8 +54,7 @@ FindInPageController::FindInPageController(TabContents* parent_tab,
 
   // Stores the currently focused view, and tracks focus changes so that we can
   // restore focus when the find box is closed.
-  focus_tracker_.reset(new views::ExternalFocusTracker(view_,
-                                                             focus_manager));
+  focus_tracker_.reset(new views::ExternalFocusTracker(view_, focus_manager));
 
   // Figure out where to place the dialog, initialize and set the position.
   gfx::Rect find_dlg_rect = GetDialogPosition(gfx::Rect());
@@ -68,14 +68,14 @@ FindInPageController::FindInPageController(TabContents* parent_tab,
   animation_->Show();
 }
 
-FindInPageController::~FindInPageController() {
+FindBarWin::~FindBarWin() {
   Close();
 }
 
 // TODO(brettw) this should not be so complicated. The view should really be in
 // charge of these regions. CustomFrameWindow will do this for us. It will also
 // let us set a path for the window region which will avoid some logic here.
-void FindInPageController::UpdateWindowEdges(const gfx::Rect& new_pos) {
+void FindBarWin::UpdateWindowEdges(const gfx::Rect& new_pos) {
   int w = new_pos.width();
   int h = new_pos.height();
 
@@ -178,7 +178,7 @@ void FindInPageController::UpdateWindowEdges(const gfx::Rect& new_pos) {
   SetWindowRgn(region, TRUE);  // TRUE = Redraw.
 }
 
-void FindInPageController::Show() {
+void FindBarWin::Show() {
   // Note: This function is called when the user presses Ctrl+F or switches back
   // to the parent tab of the Find window (assuming the Find window has been
   // opened at least once). If the Find window is already visible, we should
@@ -201,11 +201,11 @@ void FindInPageController::Show() {
   view_->OnShow();
 }
 
-bool FindInPageController::IsAnimating() {
+bool FindBarWin::IsAnimating() {
   return animation_->IsAnimating();
 }
 
-void FindInPageController::EndFindSession() {
+void FindBarWin::EndFindSession() {
   if (IsVisible()) {
     show_on_tab_selection_ = false;
     animation_->Hide();
@@ -227,7 +227,7 @@ void FindInPageController::EndFindSession() {
   }
 }
 
-void FindInPageController::Close() {
+void FindBarWin::Close() {
   // We may already have been destroyed if the selection resulted in a tab
   // switch which will have reactivated the browser window and closed us, so
   // we need to check to see if we're still a window before trying to destroy
@@ -236,14 +236,14 @@ void FindInPageController::Close() {
     DestroyWindow();
 }
 
-void FindInPageController::DidBecomeSelected() {
+void FindBarWin::DidBecomeSelected() {
   if (!IsVisible() && show_on_tab_selection_) {
     Show();
     show_on_tab_selection_ = false;
   }
 }
 
-void FindInPageController::DidBecomeUnselected() {
+void FindBarWin::DidBecomeUnselected() {
   if (::IsWindow(GetHWND()) && IsVisible()) {
     // Finish any existing animations.
     if (animation_->IsAnimating()) {
@@ -257,7 +257,7 @@ void FindInPageController::DidBecomeUnselected() {
   }
 }
 
-void FindInPageController::StartFinding(bool forward_direction) {
+void FindBarWin::StartFinding(bool forward_direction) {
   if (find_string_.empty())
     return;
 
@@ -267,19 +267,19 @@ void FindInPageController::StartFinding(bool forward_direction) {
 
   last_find_string_ = find_string_;
 
-  parent_tab_->StartFinding(current_request_id_,
-                            find_string_,
-                            forward_direction,
-                            false,  // case sensitive
-                            find_next);
+  GetRenderViewHost()->StartFinding(current_request_id_,
+                                    find_string_,
+                                    forward_direction,
+                                    false,  // case sensitive
+                                    find_next);
 }
 
-void FindInPageController::StopFinding(bool clear_selection) {
+void FindBarWin::StopFinding(bool clear_selection) {
   last_find_string_.clear();
-  parent_tab_->StopFinding(clear_selection);
+  GetRenderViewHost()->StopFinding(clear_selection);
 }
 
-void FindInPageController::MoveWindowIfNecessary(
+void FindBarWin::MoveWindowIfNecessary(
     const gfx::Rect& selection_rect) {
   gfx::Rect new_pos = GetDialogPosition(selection_rect);
   SetDialogPosition(new_pos);
@@ -289,7 +289,7 @@ void FindInPageController::MoveWindowIfNecessary(
   view_->SchedulePaint();
 }
 
-void FindInPageController::RespondToResize(const gfx::Size& new_size) {
+void FindBarWin::RespondToResize(const gfx::Size& new_size) {
   if (!IsVisible())
     return;
 
@@ -305,7 +305,7 @@ void FindInPageController::RespondToResize(const gfx::Size& new_size) {
   SetDialogPosition(new_pos);
 }
 
-void FindInPageController::SetParent(HWND new_parent) {
+void FindBarWin::SetParent(HWND new_parent) {
   DCHECK(new_parent);
   if (parent_hwnd_ != new_parent) {
     // Sync up the focus listener with the new focus manager.
@@ -326,9 +326,9 @@ void FindInPageController::SetParent(HWND new_parent) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, views::ContainerWin implementation:
+// FindBarWin, views::ContainerWin implementation:
 
-void FindInPageController::OnFinalMessage(HWND window) {
+void FindBarWin::OnFinalMessage(HWND window) {
   // We are exiting, so we no longer need to monitor focus changes.
   focus_manager_->RemoveFocusChangeListener(this);
 
@@ -340,10 +340,10 @@ void FindInPageController::OnFinalMessage(HWND window) {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, views::FocusChangeListener implementation:
+// FindBarWin, views::FocusChangeListener implementation:
 
-void FindInPageController::FocusWillChange(views::View* focused_before,
-                                           views::View* focused_now) {
+void FindBarWin::FocusWillChange(views::View* focused_before,
+                                 views::View* focused_now) {
   // First we need to determine if one or both of the views passed in are child
   // views of our view.
   bool our_view_before = focused_before && view_->IsParentOf(focused_before);
@@ -366,10 +366,9 @@ void FindInPageController::FocusWillChange(views::View* focused_before,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, views::AcceleratorTarget implementation:
+// FindBarWin, views::AcceleratorTarget implementation:
 
-bool FindInPageController::AcceleratorPressed(
-    const views::Accelerator& accelerator) {
+bool FindBarWin::AcceleratorPressed(const views::Accelerator& accelerator) {
   DCHECK(accelerator.GetKeyCode() == VK_ESCAPE);  // We only expect Escape key.
   // This will end the Find session and hide the window, causing it to loose
   // focus and in the process unregister us as the handler for the Escape
@@ -380,10 +379,9 @@ bool FindInPageController::AcceleratorPressed(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindInPageController, AnimationDelegate implementation:
+// FindBarWin, AnimationDelegate implementation:
 
-void FindInPageController::AnimationProgressed(
-    const Animation* animation) {
+void FindBarWin::AnimationProgressed(const Animation* animation) {
   // First, we calculate how many pixels to slide the window.
   find_dialog_animation_offset_ =
       static_cast<int>((1.0 - animation_->GetCurrentValue()) *
@@ -400,8 +398,7 @@ void FindInPageController::AnimationProgressed(
   view_->SchedulePaint();
 }
 
-void FindInPageController::AnimationEnded(
-    const Animation* animation) {
+void FindBarWin::AnimationEnded(const Animation* animation) {
   if (!animation_->IsShowing()) {
     // Animation has finished closing.
     find_dialog_animation_offset_ = 0;
@@ -411,11 +408,11 @@ void FindInPageController::AnimationEnded(
   }
 }
 
-void FindInPageController::FindReply(int request_id,
-                                     int number_of_matches,
-                                     const gfx::Rect& selection_rect,
-                                     int active_match_ordinal,
-                                     bool final_update) {
+void FindBarWin::OnFindReply(int request_id,
+                             int number_of_matches,
+                             const gfx::Rect& selection_rect,
+                             int active_match_ordinal,
+                             bool final_update) {
   // Ignore responses for requests other than the one we have most recently
   // issued. That way we won't act on stale results when the user has
   // already typed in another query.
@@ -441,12 +438,17 @@ void FindInPageController::FindReply(int request_id,
                                  selection_rect,
                                  active_match_ordinal,
                                  final_update);
-  NotificationService::current()->
-      Notify(NOTIFY_FIND_RESULT_AVAILABLE, Source<TabContents>(parent_tab_),
-             Details<FindNotificationDetails>(&detail));
+  NotificationService::current()->Notify(
+      NOTIFY_FIND_RESULT_AVAILABLE,
+      Source<TabContents>(parent_tab_->GetWebContents()),
+      Details<FindNotificationDetails>(&detail));
 }
 
-void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
+RenderViewHost* FindBarWin::GetRenderViewHost() const {
+  return parent_tab_->GetWebContents()->render_view_host();
+}
+
+void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
   DCHECK(bounds);
 
   // We need to find the View for the toolbar because we want to visually
@@ -551,8 +553,7 @@ void FindInPageController::GetDialogBounds(gfx::Rect* bounds) {
   bounds->set_width(bounds->width() - (2 * width));
 }
 
-gfx::Rect FindInPageController::GetDialogPosition(
-    gfx::Rect avoid_overlapping_rect) {
+gfx::Rect FindBarWin::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
   // Find the area we have to work with (after accounting for scrollbars, etc).
   gfx::Rect dialog_bounds;
   GetDialogBounds(&dialog_bounds);
@@ -625,7 +626,7 @@ gfx::Rect FindInPageController::GetDialogPosition(
   return new_pos;
 }
 
-void FindInPageController::SetDialogPosition(const gfx::Rect& new_pos) {
+void FindBarWin::SetDialogPosition(const gfx::Rect& new_pos) {
   if (new_pos.IsEmpty())
     return;
 
@@ -641,7 +642,7 @@ void FindInPageController::SetDialogPosition(const gfx::Rect& new_pos) {
   curr_pos_relative_ = new_pos;
 }
 
-void FindInPageController::SetFocusChangeListener(HWND parent_hwnd) {
+void FindBarWin::SetFocusChangeListener(HWND parent_hwnd) {
   // When tabs get torn off the tab-strip they get a new window with a new
   // FocusManager, which means we need to clean up old listener and start a new
   // one with the new FocusManager.
@@ -657,14 +658,16 @@ void FindInPageController::SetFocusChangeListener(HWND parent_hwnd) {
   focus_manager_->AddFocusChangeListener(this);
 }
 
-void FindInPageController::RestoreSavedFocus() {
-  if (focus_tracker_.get() == NULL)
-    parent_tab_->Focus();
-  else
+void FindBarWin::RestoreSavedFocus() {
+  if (focus_tracker_.get() == NULL) {
+    // TODO(brettw) Focus() should be on WebContentsView.
+    parent_tab_->GetWebContents()->Focus();
+  } else {
     focus_tracker_->FocusLastFocusedExternalView();
+  }
 }
 
-void FindInPageController::RegisterEscAccelerator() {
+void FindBarWin::RegisterEscAccelerator() {
   views::Accelerator escape(VK_ESCAPE, false, false, false);
 
   // TODO(finnur): Once we fix issue 1307173 we should not remember any old
@@ -676,7 +679,7 @@ void FindInPageController::RegisterEscAccelerator() {
     old_accel_target_for_esc_ = old_target;
 }
 
-void FindInPageController::UnregisterEscAccelerator() {
+void FindBarWin::UnregisterEscAccelerator() {
   // TODO(finnur): Once we fix issue 1307173 we should not remember any old
   // accelerator targets and just Register and Unregister when needed.
   DCHECK(old_accel_target_for_esc_ != NULL);

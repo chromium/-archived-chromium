@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_FIND_IN_PAGE_VIEW_H__
-#define CHROME_BROWSER_FIND_IN_PAGE_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_FIND_BAR_VIEW_H_
+#define CHROME_BROWSER_VIEWS_FIND_BAR_VIEW_H_
 
 #include "base/gfx/size.h"
 #include "chrome/views/button.h"
 #include "chrome/views/text_field.h"
 
-class FindInPageController;
+class FindBarWin;
 
 namespace views {
 class Label;
@@ -21,12 +21,12 @@ class View;
 //
 // The FindInPageView is responsible for drawing the UI controls of the
 // FindInPage window, the find text box, the 'Find' button and the 'Close'
-// button. It communicates the user search words to the FindInPageController.
+// button. It communicates the user search words to the FindBarWin.
 //
 ////////////////////////////////////////////////////////////////////////////////
-class FindInPageView : public views::View,
-                       public views::BaseButton::ButtonListener,
-                       public views::TextField::Controller {
+class FindBarView : public views::View,
+                    public views::BaseButton::ButtonListener,
+                    public views::TextField::Controller {
  public:
   // A tag denoting which button the user pressed.
   enum ButtonTag {
@@ -35,8 +35,8 @@ class FindInPageView : public views::View,
     CLOSE_TAG,              // The Close button (the 'X').
   };
 
-  FindInPageView(FindInPageController* controller);
-  virtual ~FindInPageView();
+  FindBarView(FindBarWin* container);
+  virtual ~FindBarView();
 
   // Updates the UI to show how many matches were found on the page/frames.
   // This function does nothing if |number_of_matches| is below 0, which can
@@ -96,17 +96,17 @@ class FindInPageView : public views::View,
         views::TextField* view_to_focus_on_mousedown)
       : view_to_focus_on_mousedown_(view_to_focus_on_mousedown) {}
 
-  private:
+   private:
     virtual bool OnMousePressed(const views::MouseEvent& event);
 
     views::TextField* view_to_focus_on_mousedown_;
 
-    DISALLOW_EVIL_CONSTRUCTORS(FocusForwarderView);
+    DISALLOW_COPY_AND_ASSIGN(FocusForwarderView);
   };
 
-  // The controller that maintains the selected model, and performs actions
-  // such as handling selected items.
-  FindInPageController* controller_;
+  // Manages the OS-specific view for the find bar and acts as an intermediary
+  // between us and the WebContentsView.
+  FindBarWin* container_;
 
   // The controls in the window.
   views::TextField* find_text_;
@@ -132,8 +132,7 @@ class FindInPageView : public views::View,
   // The ordinal of the currently active match.
   int active_match_ordinal_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(FindInPageView);
+  DISALLOW_COPY_AND_ASSIGN(FindBarView);
 };
 
-#endif  // CHROME_BROWSER_FIND_IN_PAGE_VIEW_H__
-
+#endif  // CHROME_BROWSER_VIEWS_FIND_BAR_VIEW_H_
