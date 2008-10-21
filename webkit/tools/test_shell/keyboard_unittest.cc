@@ -34,7 +34,6 @@ static inline void SetupKeyDownEvent(WebKeyboardEvent& keyboard_event,
                                      char key_code,
                                      int modifiers) {
   keyboard_event.key_code = key_code;
-  keyboard_event.key_data = key_code;
   keyboard_event.modifiers = modifiers;
   keyboard_event.type = WebInputEvent::KEY_DOWN;
 }

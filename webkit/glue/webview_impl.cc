@@ -1014,10 +1014,8 @@ void WebViewImpl::SetInitialFocus(bool reverse) {
     keyboard_event.type = WebInputEvent::KEY_DOWN;
     if (reverse)
       keyboard_event.modifiers = WebInputEvent::SHIFT_KEY;
-#if defined(OS_WIN)
-    keyboard_event.key_code = VK_TAB;
-#endif
-    keyboard_event.key_data = L'\t';
+    // VK_TAB which is only defined on Windows.
+    keyboard_event.key_code = 0x09;
     MakePlatformKeyboardEvent platform_event(keyboard_event);
     // We have to set the key type explicitly to avoid an assert in the
     // KeyboardEvent constructor.

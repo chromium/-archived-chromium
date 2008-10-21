@@ -405,7 +405,6 @@ int EventSendingController::GetButtonNumberFromSingleArg(
     event_down.type = WebInputEvent::KEY_DOWN;
     event_down.modifiers = 0;
     event_down.key_code = code;
-    event_down.key_data = code;
 
     if (args.size() >= 2 && args[1].isObject())
       ApplyKeyModifiers(&(args[1]), &event_down);
@@ -434,30 +433,24 @@ int EventSendingController::GetButtonNumberFromSingleArg(
         switch(code) {
           case '5':
             event_char.key_code = kPercentVirtualKeyCode;
-            event_char.key_data = kPercentVirtualKeyCode;
             break;
           case '7':
             event_char.key_code = kAmpersandVirtualKeyCode;
-            event_char.key_data = kAmpersandVirtualKeyCode;
             break;
           case '9':
             event_char.key_code = kLeftParenthesesVirtualKeyCode;
-            event_char.key_data = kLeftParenthesesVirtualKeyCode;
             break;
           case '0':
             event_char.key_code = kRightParenthesesVirtualKeyCode;
-            event_char.key_data = kRightParenthesesVirtualKeyCode;
             break;
 #if defined(OS_WIN)
           //  '[{' for US
           case VK_OEM_4:
             event_char.key_code = kLeftCurlyBracketVirtualKeyCode;
-            event_char.key_data = kLeftCurlyBracketVirtualKeyCode;
             break;
           //  ']}' for US
           case VK_OEM_6:
             event_char.key_code = kRightCurlyBracketVirtualKeyCode;
-            event_char.key_data = kRightCurlyBracketVirtualKeyCode;
             break;
 #endif
           default:

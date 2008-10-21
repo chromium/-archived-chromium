@@ -160,7 +160,6 @@ WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
     modifiers |= IS_AUTO_REPEAT;
 
   key_code = [event keyCode];
-  key_data = [[event characters] characterAtIndex:0];
   
   mac_event = event;  // retains |event|
 }

@@ -1134,7 +1134,7 @@ void RenderViewHost::UnhandledInputEvent(const WebInputEvent& event) {
 
 void RenderViewHost::ForwardKeyboardEvent(const WebKeyboardEvent& key_event) {
   if (key_event.type == WebKeyboardEvent::CHAR &&
-      (key_event.key_data == '\n' || key_event.key_data == ' ')) {
+      (key_event.key_code == VK_RETURN || key_event.key_code == VK_SPACE)) {
     delegate_->OnEnterOrSpace();
   }
   RenderWidgetHost::ForwardKeyboardEvent(key_event);

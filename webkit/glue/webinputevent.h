@@ -115,15 +115,13 @@ class WebMouseWheelEvent : public WebMouseEvent {
 class WebKeyboardEvent : public WebInputEvent {
  public:
   int key_code;
-  int key_data;
 #if defined(OS_WIN)
   bool system_key;  // Set if we receive a SYSKEYDOWN/WM_SYSKEYUP message.
   MSG actual_message; // Set to the current keyboard message.
 #endif
 
   WebKeyboardEvent() 
-      : key_code(0),
-        key_data(0)
+      : key_code(0)
 #if defined(OS_WIN)
         , system_key(false) {
     memset(&actual_message, 0, sizeof(actual_message));
