@@ -30,13 +30,13 @@ env = Environment(
     TARGET_ROOT = '#/$BUILD_TYPE',
     OBJ_ROOT = '$TARGET_ROOT',
 
-    LIBS_DIR              = '#/$BUILD_TYPE/Libs',
+    LIBS_DIR              = '$OBJ_ROOT/Libs',
 
-    BASE_DIR              = '#/$BUILD_TYPE/base',
-    BREAKPAD_DIR          = '#/$BUILD_TYPE/breakpad',
-    CHROME_DIR            = '#/$BUILD_TYPE/chrome',
-    GEARS_DIR             = '#/$BUILD_TYPE/gears',
-    GOOGLE_UPDATE_DIR     = '#/$BUILD_TYPE/google_update',
+    BASE_DIR              = '$OBJ_ROOT/base',
+    BREAKPAD_DIR          = '$OBJ_ROOT/breakpad',
+    CHROME_DIR            = '$OBJ_ROOT/chrome',
+    GEARS_DIR             = '$OBJ_ROOT/gears',
+    GOOGLE_UPDATE_DIR     = '$OBJ_ROOT/google_update',
 
     # Work around a limitation (bug?) in SCons in that, when we build
     # from a different directory, it forces the build targets defined
@@ -45,18 +45,18 @@ env = Environment(
     # the SConstruct directory from which SCons was launched.  When
     # we roll forward to a version of SCons that fixes this, we'll
     # need to revert to the $BUILD_TYPE definition of GOOGLEURL_DIR.
-    #GOOGLEURL_DIR         = '#/$BUILD_TYPE/googleurl',
+    #GOOGLEURL_DIR         = '$OBJ_ROOT/googleurl',
     GOOGLEURL_DIR         = '#/../build/googleurl',
 
-    NET_DIR               = '#/$BUILD_TYPE/net',
-    RLZ_DIR               = '#/$BUILD_TYPE/rlz',
-    SANDBOX_DIR           = '#/$BUILD_TYPE/sandbox',
-    SDCH_DIR              = '#/$BUILD_TYPE/sdch',
-    SKIA_DIR              = '#/$BUILD_TYPE/skia',
-    TESTING_DIR           = '#/$BUILD_TYPE/testing',
-    THIRD_PARTY_DIR       = '#/$BUILD_TYPE/third_party',
-    V8_DIR                = '#/$BUILD_TYPE/v8',
-    WEBKIT_DIR            = '#/$BUILD_TYPE/webkit',
+    NET_DIR               = '$OBJ_ROOT/net',
+    RLZ_DIR               = '$OBJ_ROOT/rlz',
+    SANDBOX_DIR           = '$OBJ_ROOT/sandbox',
+    SDCH_DIR              = '$OBJ_ROOT/sdch',
+    SKIA_DIR              = '$OBJ_ROOT/skia',
+    TESTING_DIR           = '$OBJ_ROOT/testing',
+    THIRD_PARTY_DIR       = '$OBJ_ROOT/third_party',
+    V8_DIR                = '$OBJ_ROOT/v8',
+    WEBKIT_DIR            = '$OBJ_ROOT/webkit',
 
     GTEST_DIR             = '$TESTING_DIR/gtest',
 
