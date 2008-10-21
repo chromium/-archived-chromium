@@ -24,6 +24,7 @@
  */
 
 #include "config.h"
+#include "build/build_config.h"
 #include "ScrollView.h"
 
 #include "Chrome.h"
@@ -49,7 +50,7 @@
 #include <wtf/HashSet.h>
 
 #undef LOG
-#include "base/gfx/platform_canvas_win.h"
+#include "base/gfx/platform_canvas.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview_impl.h"
 
@@ -95,7 +96,7 @@ public:
     // Retrieves the index of the active tickmark for a given frame.  If the
     // frame does not have an active tickmark (for example if the active
     // tickmark resides in another frame) this function returns kNoTickmark.
-    size_t ScrollView::ScrollViewPrivate::getActiveTickmarkIndex() const;
+    size_t getActiveTickmarkIndex() const;
 
     // This is a helper function for accessing the bitmaps that have been cached
     // in the renderer.
@@ -107,8 +108,10 @@ public:
     // Highlights the node selected in the DOM inspector.
     void highlightInspectedNode(GraphicsContext* context, Frame* frame) const;
     
+#if defined(OS_WIN)
     // Highlight a certain Range on the page.
     void highlightRange(HDC hdc, HDC mem_dc, RefPtr<Range> range) const;
+#endif
 
     void setAllowsScrolling(bool);
     bool allowsScrolling() const;
@@ -124,7 +127,6 @@ public:
     ScrollbarMode m_hScrollbarMode;
     RefPtr<PlatformScrollbar> m_vBar;
     RefPtr<PlatformScrollbar> m_hBar;
-    HRGN m_dirtyRegion;
     HashSet<Widget*> m_children;
     bool m_visible;
     bool m_attachedToWindow;
@@ -306,6 +308,7 @@ const SkBitmap* ScrollView::ScrollViewPrivate::GetPreloadedBitmapFromRenderer(
     return c->getPreloadedResourceBitmap(resource_id);
 }
 
+#if defined(OS_WIN)
 void ScrollView::ScrollViewPrivate::highlightMatches(
     GraphicsContext* context) const
 {
@@ -402,6 +405,13 @@ void ScrollView::ScrollViewPrivate::highlightMatches(
     canvas->endPlatformPaint();
     context->restore();
 }
+#else
+void ScrollView::ScrollViewPrivate::highlightMatches(
+    GraphicsContext* context) const
+{
+    notImplemented();
+}
+#endif
 
 // TODO(ojan): http://b/1143983 make this work for inline elements as they can
 // wrap (use highlightRange instead?)
@@ -432,6 +442,7 @@ void ScrollView::ScrollViewPrivate::highlightInspectedNode(
     context->platformContext()->paintSkPaint(inspected_node->getRect(), paint);
 }
 
+#if defined(OS_WIN)
 void ScrollView::ScrollViewPrivate::highlightRange(HDC hdc, HDC mem_dc,
                                                    RefPtr<Range> range) const {
     // We need to figure out whether the match that we want to
@@ -511,6 +522,7 @@ void ScrollView::ScrollViewPrivate::highlightRange(HDC hdc, HDC mem_dc,
         }
     }
 }
+#endif
 
 ScrollView::ScrollView()
 {
