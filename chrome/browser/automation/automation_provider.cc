@@ -1746,7 +1746,7 @@ void AutomationProvider::GetFindWindowVisibility(const IPC::Message& message,
   bool visible = false;
   WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
   if (web_contents)
-    visible = web_contents->view()->GetFindBarWindowInfo(&position, &visible);
+    web_contents->view()->GetFindBarWindowInfo(&position, &visible);
 
   Send(new AutomationMsg_FindWindowVisibilityResponse(message.routing_id(),
                                                       visible));
@@ -1758,7 +1758,7 @@ void AutomationProvider::HandleFindWindowLocationRequest(
   bool visible = false;
   WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
   if (web_contents)
-    visible = web_contents->view()->GetFindBarWindowInfo(&position, &visible);
+    web_contents->view()->GetFindBarWindowInfo(&position, &visible);
 
   Send(new AutomationMsg_FindWindowLocationResponse(message.routing_id(),
                                                     position.x(),
