@@ -28,21 +28,22 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
+#include "build/build_config.h"
 #include "SkGraphicsContext.h"
 
-#include <vssym32.h>
-
 #include "base/gfx/image_operations.h"
-#include "base/gfx/native_theme.h"
-#include "base/gfx/platform_canvas_win.h"
+#include "base/gfx/platform_canvas.h"
 #include "base/gfx/skia_utils.h"
 #include "GraphicsContextPlatformPrivate.h"
 #include "NativeImageSkia.h"
 #include "SkBitmap.h"
 
-// These need to be moved
+#if defined(OS_WIN)
+#include <vssym32.h>
+#include "base/gfx/native_theme.h"
 #include "ThemeData.h"
 #include "UniscribeStateTextRun.h"
+#endif
 
 #undef LOG
 #include "SkiaUtils.h"
@@ -148,8 +149,8 @@ void DrawResampledBitmap(SkCanvas& canvas,
 
 
 SkGraphicsContext::SkGraphicsContext(gfx::PlatformCanvas* canvas)
-    : canvas_(canvas),
-      paint_context_(NULL),
+    : paint_context_(NULL),
+      canvas_(canvas),
       own_canvas_(false) {
 }
 
@@ -158,6 +159,7 @@ SkGraphicsContext::~SkGraphicsContext() {
     delete canvas_;
 }
 
+#if defined(OS_WIN)
 const gfx::NativeTheme* SkGraphicsContext::nativeTheme() {
   return gfx::NativeTheme::instance();
 }
@@ -278,34 +280,11 @@ bool SkGraphicsContext::paintText(FontHandle hfont,
   canvas_->endPlatformPaint();
   return success;
 }
+#endif
 
 void SkGraphicsContext::paintSkPaint(const SkRect& rect,
                                      const SkPaint& paint) {
   canvas_->drawRect(rect, paint);
-}
-
-// Returns smallest multiple of two of the dest size that is more than a small
-// multiple larger than src_size.
-//
-// Used to determine the size that source should be high-quality upsampled to,
-// after which we use linear interpolation. Making sure that the linear
-// interpolation is a factor of two reduces artifacts, and doing the lowest
-// level of resampling 
-static int GetResamplingThreshold(int src_size, int dest_size) {
-  int lower_bound = src_size * 3 / 2;  // Minimum size we'll resample to (1.5x).
-  int cur = dest_size;
-
-  // Find the largest multiple of two of the destination size less than our
-  // threshold
-  while (cur > lower_bound)
-    cur /= 2;
-
-  // We want the next size above that, or just the destination size if it's
-  // smaller.
-  cur *= 2;
-  if (cur > dest_size)
-    return dest_size;
-  return cur;
 }
 
 // static
