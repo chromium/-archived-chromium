@@ -12,6 +12,7 @@
 #include "base/pickle.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
+#include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
 bool GreasemonkeyMaster::UpdateScripts() {
