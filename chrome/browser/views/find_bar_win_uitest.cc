@@ -155,6 +155,11 @@ TEST_F(FindInPageControllerTest, FindMovesOnTabClose_Issue1343052) {
   // Open the Find window and wait for it to animate.
   fprintf(stderr, "OpenFindInPage in A\n");
   EXPECT_TRUE(tabA->OpenFindInPage());
+  // TODO(brettw) fix this! It appears that WaitForFindWindowFullyVisible is
+  // broken somehow, and we're getting incorrect values here, probably as a
+  // result of the animation. Waiting some extra time seems to make this test
+  // pass.
+  Sleep(1000);
   fprintf(stderr, "WaitForWindowFullyVisible in A\n");
   EXPECT_TRUE(WaitForFindWindowFullyVisible(tabA.get()));
 
