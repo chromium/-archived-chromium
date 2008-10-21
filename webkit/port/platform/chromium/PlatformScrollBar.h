@@ -178,4 +178,3 @@ private:
 }
 
 #endif // PlatformScrollbar_h
-
