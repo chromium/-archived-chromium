@@ -39,12 +39,16 @@ bool GreasemonkeySlave::UpdateScripts(SharedMemoryHandle shared_memory) {
   pickle.ReadInt(&iter, &num_scripts);
 
   for (int i = 0; i < num_scripts; ++i) {
-    const char* data = NULL;
-    int data_length = 0;
-    pickle.ReadData(&iter, &data, &data_length);
+    const char* url = NULL;
+    int url_length = 0;
+    const char* body = NULL;
+    int body_length = 0;
 
-    GreasemonkeyScript script;
-    if (script.Parse(StringPiece(data, data_length))) {
+    pickle.ReadData(&iter, &url, &url_length);
+    pickle.ReadData(&iter, &body, &body_length);
+
+    GreasemonkeyScript script(StringPiece(url, url_length));
+    if (script.Parse(StringPiece(body, body_length))) {
       scripts_.push_back(script);
     }
   }
@@ -57,9 +61,8 @@ bool GreasemonkeySlave::InjectScripts(WebFrame* frame) {
 
   for (std::vector<GreasemonkeyScript>::iterator script = scripts_.begin();
        script != scripts_.end(); ++script) {
-    // TODO(aa): Pass in URL to script when we have it.
     frame->ExecuteJavaScript(script->GetBody().as_string(),
-                             "Greasemonkey Script");
+                             script->GetURL().as_string());
   }
 
   return true;

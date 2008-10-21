@@ -5,8 +5,6 @@
 #ifndef CHROME_RENDERER_GREASEMONKEY_SLAVE_H__
 #define CHROME_RENDERER_GREASEMONKEY_SLAVE_H__
 
-#include <vector>
-
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/string_piece.h"
@@ -15,12 +13,15 @@
 // Parsed representation of a Greasemonkey script.
 class GreasemonkeyScript {
  public:
-  // TODO(aa): Pass in filename script came from, for errors. Needs to be in
-  // shared memory.
-  GreasemonkeyScript() {}
+  GreasemonkeyScript(const StringPiece& script_url)
+    : url_(script_url) {}
 
   const StringPiece& GetBody() const {
     return body_;
+  }
+
+  const StringPiece& GetURL() const {
+    return url_;
   }
 
   bool Parse(const StringPiece& script_text) {
@@ -30,9 +31,14 @@ class GreasemonkeyScript {
   }
 
  private:
-  // References the body of the script in shared memory. The underlying memory
-  // is valid until shared_memory_ is either deleted or Unmap()'d.
+  // The body of the script, which will be injected into content pages. This
+  // references shared_memory_, and is valid until that memory is either
+  // deleted or Unmap()'d.
   StringPiece body_;
+
+  // The url of the file the script came from. This references shared_memory_,
+  // and is valid until that memory is either deleted or Unmap()'d.
+  StringPiece url_;
 };
 
 

@@ -4,15 +4,18 @@
 
 #include "chrome/browser/greasemonkey_master.h"
 
+#include <vector>
+
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/pickle.h"
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
+#include "net/base/net_util.h"
 
 bool GreasemonkeyMaster::UpdateScripts() {
-  std::vector<std::string> scripts;
+  std::vector<std::wstring> scripts;
   std::wstring path;
 
   PathService::Get(chrome::DIR_USER_SCRIPTS, &path);
@@ -21,20 +24,23 @@ bool GreasemonkeyMaster::UpdateScripts() {
                                        L"*.user.js");
   for (std::wstring file = enumerator.Next(); !file.empty();
        file = enumerator.Next()) {
-    // TODO(aa): Support unicode script files.
-    std::string contents;
-    file_util::ReadFileToString(file, &contents);
-    scripts.push_back(contents);
+    scripts.push_back(file);
   }
 
   // Pickle scripts data.
   Pickle pickle;
   pickle.WriteSize(scripts.size());
-  for (std::vector<std::string>::iterator script = scripts.begin();
-       script != scripts.end(); ++script) {
-    // Write script body as 'data' so that we can read it out in the slave
-    // without allocating a new string.
-    pickle.WriteData(script->c_str(), script->size());
+  for (std::vector<std::wstring>::iterator path = scripts.begin();
+       path != scripts.end(); ++path) {
+    std::string file_url = net::FilePathToFileURL(*path).spec();
+    std::string contents;
+    // TODO(aa): Support unicode script files.
+    file_util::ReadFileToString(*path, &contents);
+
+    // Write scripts as 'data' so that we can read it out in the slave without
+    // allocating a new string.
+    pickle.WriteData(file_url.c_str(), file_url.length());
+    pickle.WriteData(contents.c_str(), contents.length());
   }
 
   // Create the shared memory object.

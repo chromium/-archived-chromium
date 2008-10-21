@@ -5,8 +5,6 @@
 #ifndef CHROME_BROWSER_GREASEMONKEY_MASTER_H__
 #define CHROME_BROWSER_GREASEMONKEY_MASTER_H__
 
-#include <vector>
-
 #include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
