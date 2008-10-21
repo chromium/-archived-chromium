@@ -143,7 +143,6 @@ String imageTitle(const String& filename, const IntSize& size) {
 
 } //namespace WebCore
 
-#if defined(OS_WIN)
 // We don't use these strings, so they return an empty String. We can't just
 // make them asserts because webcore still calls them.
 String WebCore::contextMenuItemTagOpenLinkInNewWindow() { return String(); }
@@ -182,4 +181,3 @@ String WebCore::contextMenuItemTagLeftToRight() { return String(); }
 String WebCore::contextMenuItemTagRightToLeft() { return String(); }
 String WebCore::contextMenuItemTagInspectElement() { return String(); }
 String WebCore::contextMenuItemTagShowSpellingPanel(bool show) { return String(); }
-#endif  // OS_WIN
