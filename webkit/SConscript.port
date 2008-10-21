@@ -130,6 +130,11 @@ if env['PLATFORM'] == 'posix':
   for remove in remove_files:
     input_files.remove(remove)
 
+  # Linux specific implementations
+  input_files.extend([
+    '$PORT_DIR/platform/chromium/ScreenLinux.cpp'
+  ])
+
 if env['PLATFORM'] == 'darwin':
   # Remove from the list files that haven't yet been made portable to Mac.
   remove_files = [
