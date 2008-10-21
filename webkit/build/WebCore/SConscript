@@ -735,7 +735,13 @@ if env['PLATFORM'] in ('darwin', 'posix'):
     # includes platform specific FontCustomPlatformData.h
     '$WEBCORE_DIR/css/CSSFontFaceSource.cpp',
     '$WEBCORE_DIR/loader/CachedFont.cpp',
-    
+  ]
+  for remove in remove_files:
+    input_files.remove(remove)
+
+# These files don't compile on the mac
+if env['PLATFORM'] in ('darwin'):
+  remove_files = [
     # Missing WebCore::FrameView::printPanScrollIcon
     '$WEBCORE_DIR/page/EventHandler.cpp',
   ]
