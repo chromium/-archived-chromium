@@ -1,9 +1,0 @@
-URL: http://buildbot.net/trac
-Version: 0.7.8
-License: GNU General Public License (GPL) Version 2
-
-Local modifications:
-
-slave/bot.py:
-  Edited to import google_commands.  Original version saved as bot_orig.py.
-

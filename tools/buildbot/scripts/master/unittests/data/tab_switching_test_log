@@ -1,9 +1,0 @@
-[==========] Running 1 tests from 1 test case.
-[----------] Global test environment set-up.
-[----------] 1 test from TabSwitchingUITest
-[ RUN      ] TabSwitchingUITest.GenerateTabSwitchStats
-__tsw_timings = [3305.8,2704.2]
-[       OK ] TabSwitchingUITest.GenerateTabSwitchStats
-[----------] Global test environment tear-down
-[==========] 1 test from 1 test cases ran.
-[  PASSED  ] 1 test.
