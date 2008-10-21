@@ -11,6 +11,7 @@
 #include "base/string_util.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/ev_root_ca_metadata.h"
+#include "net/base/scoped_cert_chain_context.h"
 
 #pragma comment(lib, "crypt32.lib")
 
@@ -156,18 +157,6 @@ bool ContainsPolicy(const CERT_POLICIES_INFO* policies_info,
   }
   return false;
 }
-
-// This class wraps the CertFreeCertificateChain function in a class that can
-// be passed as a template argument to scoped_ptr_malloc.
-class ScopedPtrMallocFreeCertChain {
- public:
-  void operator()(const CERT_CHAIN_CONTEXT* x) const {
-    CertFreeCertificateChain(x);
-  }
-};
-
-typedef scoped_ptr_malloc<const CERT_CHAIN_CONTEXT,
-                          ScopedPtrMallocFreeCertChain> ScopedCertChainContext;
 
 // Helper function to parse a principal from a WinInet description of that
 // principal.

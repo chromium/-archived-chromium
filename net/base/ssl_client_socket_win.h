@@ -117,6 +117,7 @@ class SSLClientSocketWin : public SSLClientSocket {
   int bytes_received_;  // The number of bytes of received ciphertext.
 
   bool completed_handshake_;
+  bool complete_handshake_on_write_complete_;
 
   // Only used in the STATE_HANDSHAKE_READ_COMPLETE and
   // STATE_PAYLOAD_READ_COMPLETE states.  True if a 'result' argument of OK

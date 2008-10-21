@@ -8,6 +8,7 @@
 #include "base/ref_counted.h"
 #include "net/base/auth_cache.h"
 #include "net/base/client_socket_pool.h"
+#include "net/base/ssl_config_service.h"
 #include "net/proxy/proxy_service.h"
 
 namespace net {
@@ -19,8 +20,8 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
   enum {
     MAX_SOCKETS_PER_GROUP = 6
   };
-  
-  HttpNetworkSession(ProxyResolver* proxy_resolver)
+
+  explicit HttpNetworkSession(ProxyResolver* proxy_resolver)
       : connection_pool_(new ClientSocketPool(MAX_SOCKETS_PER_GROUP)),
         proxy_resolver_(proxy_resolver),
         proxy_service_(proxy_resolver) {
@@ -29,12 +30,19 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
   AuthCache* auth_cache() { return &auth_cache_; }
   ClientSocketPool* connection_pool() { return connection_pool_; }
   ProxyService* proxy_service() { return &proxy_service_; }
+#if defined(OS_WIN)
+  SSLConfigService* ssl_config_service() { return &ssl_config_service_; }
+#endif
 
  private:
   AuthCache auth_cache_;
   scoped_refptr<ClientSocketPool> connection_pool_;
   scoped_ptr<ProxyResolver> proxy_resolver_;
   ProxyService proxy_service_;
+#if defined(OS_WIN)
+  // TODO(port): Port the SSLConfigService class to Linux and Mac OS X.
+  SSLConfigService ssl_config_service_;
+#endif
 };
 
 }  // namespace net

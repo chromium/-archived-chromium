@@ -413,6 +413,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\scoped_cert_chain_context.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\sdch_filter.cc"
 				>
 			</File>
