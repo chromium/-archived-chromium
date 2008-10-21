@@ -200,7 +200,7 @@ class URLFetcher {
     // URL, to avoid placing too much demand on the remote resource.  We update
     // this with the status of all requests as they return, and in turn use it
     // to determine how long to wait before making another request.
-    ProtectEntry* protect_entry_;
+    URLFetcherProtectEntry* protect_entry_;
     // |num_retries_| indicates how many times we've failed to successfully
     // fetch this URL.  Once this value exceeds the maximum number of retries
     // specified by the protection manager, we'll give up.

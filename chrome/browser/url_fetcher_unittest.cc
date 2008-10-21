@@ -376,8 +376,9 @@ TEST_F(URLFetcherProtectTest, Overload) {
 
   // Registers an entry for test url. It only allows 3 requests to be sent
   // in 200 milliseconds.
-  ProtectManager* manager = ProtectManager::GetInstance();
-  ProtectEntry* entry = new ProtectEntry(200, 3, 11, 1, 2.0, 0, 256);
+  URLFetcherProtectManager* manager = URLFetcherProtectManager::GetInstance();
+  URLFetcherProtectEntry* entry =
+      new URLFetcherProtectEntry(200, 3, 11, 1, 2.0, 0, 256);
   manager->Register(url.host(), entry);
 
   CreateFetcher(url);
@@ -393,8 +394,9 @@ TEST_F(URLFetcherProtectTest, ServerUnavailable) {
   //     new_backoff = 2.0 * old_backoff + 0
   // and maximum backoff time is 256 milliseconds.
   // Maximum retries allowed is set to 11.
-  ProtectManager* manager = ProtectManager::GetInstance();
-  ProtectEntry* entry = new ProtectEntry(200, 3, 11, 1, 2.0, 0, 256);
+  URLFetcherProtectManager* manager = URLFetcherProtectManager::GetInstance();
+  URLFetcherProtectEntry* entry =
+      new URLFetcherProtectEntry(200, 3, 11, 1, 2.0, 0, 256);
   manager->Register(url.host(), entry);
 
   CreateFetcher(url);
@@ -419,8 +421,9 @@ TEST_F(URLFetcherCancelTest, ReleasesContext) {
   //     new_backoff = 2.0 * old_backoff + 0
   // The initial backoff is 2 seconds and maximum backoff is 4 seconds.
   // Maximum retries allowed is set to 2.
-  ProtectManager* manager = ProtectManager::GetInstance();
-  ProtectEntry* entry = new ProtectEntry(200, 3, 2, 2000, 2.0, 0, 4000);
+  URLFetcherProtectManager* manager = URLFetcherProtectManager::GetInstance();
+  URLFetcherProtectEntry* entry =
+      new URLFetcherProtectEntry(200, 3, 2, 2000, 2.0, 0, 4000);
   manager->Register(url.host(), entry);
 
   // Create a separate thread that will create the URLFetcher.  The current

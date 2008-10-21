@@ -33,7 +33,7 @@
 //             maximum backoff time      (when backoff > maximum backoff time)
 //
 // where |k| is the multiplier, and |c| is the constant factor.
-class ProtectEntry {
+class URLFetcherProtectEntry {
  public:
   enum EventType {
     SEND,      // request will be sent out
@@ -41,14 +41,14 @@ class ProtectEntry {
     FAILURE    // no response or error
   };
 
-  ProtectEntry();
-  ProtectEntry(int sliding_window_period, int max_send_threshold,
-               int max_retries, int initial_timeout,
-               double multiplier, int constant_factor,
-               int maximum_timeout);
+  URLFetcherProtectEntry();
+  URLFetcherProtectEntry(int sliding_window_period, int max_send_threshold,
+                         int max_retries, int initial_timeout,
+                         double multiplier, int constant_factor,
+                         int maximum_timeout);
 
 
-  virtual ~ProtectEntry() { }
+  virtual ~URLFetcherProtectEntry() { }
 
   // When a connection event happens, log it to the queue, and recalculate
   // the timeout period. It returns the backoff time, in milliseconds, that
@@ -110,36 +110,36 @@ class ProtectEntry {
   // there are too many requests sent in sliding window.
   std::queue<TimeTicks> send_log_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ProtectEntry);
+  DISALLOW_COPY_AND_ASSIGN(URLFetcherProtectEntry);
 };
 
 
 // This singleton class is used to manage all protect entries.
 // Now we use the host name as service id.
-class ProtectManager {
+class URLFetcherProtectManager {
  public:
-  ~ProtectManager();
+  ~URLFetcherProtectManager();
 
   // Returns the global instance of this class.
-  static ProtectManager* GetInstance();
+  static URLFetcherProtectManager* GetInstance();
 
   // Registers a new entry in this service. If the entry already exists,
   // just returns it.
-  ProtectEntry* Register(std::string id);
+  URLFetcherProtectEntry* Register(std::string id);
   // Always registers the entry even when it exists.
-  ProtectEntry* Register(std::string id, ProtectEntry* entry);
+  URLFetcherProtectEntry* Register(std::string id,
+                                   URLFetcherProtectEntry* entry);
 
  private:
-  ProtectManager() { }
+  URLFetcherProtectManager() { }
 
-  typedef std::map<const std::string, ProtectEntry*> ProtectService;
+  typedef std::map<const std::string, URLFetcherProtectEntry*> ProtectService;
 
   static Lock lock_;
-  static scoped_ptr<ProtectManager> protect_manager_;
+  static scoped_ptr<URLFetcherProtectManager> protect_manager_;
   ProtectService services_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ProtectManager);
+  DISALLOW_COPY_AND_ASSIGN(URLFetcherProtectManager);
 };
 
 #endif  // CHROME_BROWSER_URL_FETCHER_PROTECT_H__
-

@@ -131,6 +131,9 @@
 		4D7BFF730E9D5425009A6919 /* libgoogleurl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF6E0E9D540F009A6919 /* libgoogleurl.a */; };
 		4D7BFF7B0E9D5449009A6919 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFF7A0E9D5449009A6919 /* AppKit.framework */; };
 		4DC6498F0EA92BF90017C876 /* platform_test_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4DC6498E0EA92BF90017C876 /* platform_test_mac.mm */; };
+		4DDC63E70EAE344300FB5EBE /* metrics_response_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8B60E9D4839009A6919 /* metrics_response_unittest.cc */; };
+		4DDC644B0EAE390800FB5EBE /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFB230E9D4BBF009A6919 /* libxml.a */; };
+		4DDC64580EAE394200FB5EBE /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DDC64550EAE392400FB5EBE /* libzlib.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -455,6 +458,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7BA018350E5A28DB00044150;
 			remoteInfo = googleurl;
+		};
+		4DDC64490EAE38F500FB5EBE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D7BFB0B0E9D4BBF009A6919 /* libxml.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B12F2AB0D8EE24200CB6E8F /* xml */;
+			remoteInfo = xml;
+		};
+		4DDC64540EAE392400FB5EBE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DDC64500EAE392400FB5EBE /* zlib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libzlib.a */;
+			remoteInfo = zlib;
+		};
+		4DDC64560EAE393800FB5EBE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4DDC64500EAE392400FB5EBE /* zlib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* zlib */;
+			remoteInfo = zlib;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1153,6 +1177,7 @@
 		4D7BFF5F0E9D540F009A6919 /* googleurl.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = googleurl.xcodeproj; path = build/googleurl.xcodeproj; sourceTree = "<group>"; };
 		4D7BFF7A0E9D5449009A6919 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		4DC6498E0EA92BF90017C876 /* platform_test_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_test_mac.mm; sourceTree = "<group>"; };
+		4DDC64500EAE392400FB5EBE /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = third_party/zlib/zlib.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1186,6 +1211,8 @@
 				4D7B00510E9D5473009A6919 /* libnet.a in Frameworks */,
 				4D7B00520E9D5473009A6919 /* libskia.a in Frameworks */,
 				4D7B01420E9D56C4009A6919 /* libsqlite.a in Frameworks */,
+				4DDC644B0EAE390800FB5EBE /* libxml.a in Frameworks */,
+				4DDC64580EAE394200FB5EBE /* libzlib.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1843,6 +1870,7 @@
 				4D7B00340E9D5464009A6919 /* net.xcodeproj */,
 				4D7B002E0E9D5459009A6919 /* skia.xcodeproj */,
 				4D7B01390E9D56BC009A6919 /* sqlite.xcodeproj */,
+				4DDC64500EAE392400FB5EBE /* zlib.xcodeproj */,
 			);
 			name = Projects;
 			path = ..;
@@ -2154,6 +2182,14 @@
 			path = ../base;
 			sourceTree = "<group>";
 		};
+		4DDC64510EAE392400FB5EBE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4DDC64550EAE392400FB5EBE /* libzlib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2196,10 +2232,12 @@
 				4D7BFE780E9D52EB009A6919 /* PBXTargetDependency */,
 				4D7BFF580E9D53D2009A6919 /* PBXTargetDependency */,
 				4D7BFF390E9D536D009A6919 /* PBXTargetDependency */,
+				4DDC644A0EAE38F500FB5EBE /* PBXTargetDependency */,
 				4D7B00600E9D54BF009A6919 /* PBXTargetDependency */,
 				4D7B00560E9D5487009A6919 /* PBXTargetDependency */,
 				4D7B00540E9D5487009A6919 /* PBXTargetDependency */,
 				4D7B01440E9D56CC009A6919 /* PBXTargetDependency */,
+				4DDC64570EAE393800FB5EBE /* PBXTargetDependency */,
 			);
 			name = unit_tests;
 			productName = unit_tests;
@@ -2282,6 +2320,10 @@
 				{
 					ProductGroup = 4D7B013A0E9D56BC009A6919 /* Products */;
 					ProjectRef = 4D7B01390E9D56BC009A6919 /* sqlite.xcodeproj */;
+				},
+				{
+					ProductGroup = 4DDC64510EAE392400FB5EBE /* Products */;
+					ProjectRef = 4DDC64500EAE392400FB5EBE /* zlib.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -2464,6 +2506,13 @@
 			remoteRef = 4D7BFF6F0E9D540F009A6919 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		4DDC64550EAE392400FB5EBE /* libzlib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libzlib.a;
+			remoteRef = 4DDC64540EAE392400FB5EBE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -2541,6 +2590,7 @@
 				4D7BFB3C0E9D4C25009A6919 /* history_types_unittest.cc in Sources */,
 				4D7BFCE30E9D4DCE009A6919 /* jpeg_codec_unittest.cc in Sources */,
 				4D7BFCE70E9D4DD4009A6919 /* json_value_serializer_unittest.cc in Sources */,
+				4DDC63E70EAE344300FB5EBE /* metrics_response_unittest.cc in Sources */,
 				4D7BFB580E9D4C43009A6919 /* page_range_unittest.cc in Sources */,
 				4D7BFB5F0E9D4C46009A6919 /* page_setup_unittest.cc in Sources */,
 				4DC6498F0EA92BF90017C876 /* platform_test_mac.mm in Sources */,
@@ -2694,6 +2744,16 @@
 			isa = PBXTargetDependency;
 			name = googleurl;
 			targetProxy = 4D7BFF710E9D5416009A6919 /* PBXContainerItemProxy */;
+		};
+		4DDC644A0EAE38F500FB5EBE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = xml;
+			targetProxy = 4DDC64490EAE38F500FB5EBE /* PBXContainerItemProxy */;
+		};
+		4DDC64570EAE393800FB5EBE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = zlib;
+			targetProxy = 4DDC64560EAE393800FB5EBE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

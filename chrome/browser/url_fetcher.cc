@@ -36,7 +36,7 @@ URLFetcher::Core::Core(URLFetcher* fetcher,
       request_(NULL),
       response_code_(-1),
       load_flags_(net::LOAD_NORMAL),
-      protect_entry_(ProtectManager::GetInstance()->Register(
+      protect_entry_(URLFetcherProtectManager::GetInstance()->Register(
           original_url_.host())),
       num_retries_(0) {
 }
@@ -47,7 +47,7 @@ void URLFetcher::Core::Start() {
   DCHECK(request_context_) << "We need an URLRequestContext!";
   io_loop_->PostDelayedTask(FROM_HERE, NewRunnableMethod(
           this, &Core::StartURLRequest),
-      protect_entry_->UpdateBackoff(ProtectEntry::SEND));
+      protect_entry_->UpdateBackoff(URLFetcherProtectEntry::SEND));
 }
 
 void URLFetcher::Core::Stop() {
@@ -161,7 +161,8 @@ void URLFetcher::Core::OnCompletedURLRequest(const URLRequestStatus& status) {
   if (response_code_ >= 500) {
     // When encountering a server error, we will send the request again
     // after backoff time.
-    const int wait = protect_entry_->UpdateBackoff(ProtectEntry::FAILURE);
+    const int wait =
+        protect_entry_->UpdateBackoff(URLFetcherProtectEntry::FAILURE);
     ++num_retries_;
     // Restarts the request if we still need to notify the delegate.
     if (delegate_) {
@@ -174,7 +175,7 @@ void URLFetcher::Core::OnCompletedURLRequest(const URLRequestStatus& status) {
       }
     }
   } else {
-    protect_entry_->UpdateBackoff(ProtectEntry::SUCCESS);
+    protect_entry_->UpdateBackoff(URLFetcherProtectEntry::SUCCESS);
     if (delegate_)
       delegate_->OnURLFetchComplete(fetcher_, url_, status, response_code_,
                                     cookies_, data_);
