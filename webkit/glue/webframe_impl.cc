@@ -714,7 +714,7 @@ void WebFrameImpl::BindToWindowObject(const std::wstring& name,
 #if USE(JSC)
   KJS::JSGlobalObject* window = frame_->script()->globalObject();
   KJS::ExecState* exec = window->globalExec();
-  KJS::Bindings::RootObject* root = KJS::Bindings::findRootObject(window);
+  KJS::Bindings::RootObject* root = frame_->script()->bindingRootObject();
   ASSERT(exec);
   KJS::RuntimeObjectImp* instance = KJS::Bindings::Instance::createRuntimeObject(
       exec, KJS::Bindings::CInstance::create(object, root));
