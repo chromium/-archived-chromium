@@ -110,7 +110,7 @@ if env['OS'] == 'win32':
           ('OurMsiVersion', '$MSI_VERSION'),
           ('OurCommonPath', '$SCONS_DIR/$COMMON_OUTDIR'),
           ('OurIEPath', '$SCONS_DIR/$IE_OUTDIR'),
-          ('OurIpcTestPath', '$SCONS_DIR/$BASE_OUTDIR/ipc_test'),  # TODO
+          ('OurIpcTestPath', '$SCONS_DIR/$BASE_OUTDIR/common'),
           ('OurFFPath',
             '$SCONS_DIR/$BASE_OUTDIR/$INSTALLER_BASEDIR/$INSTALLER_BASENAME'),
           ('OurNpapiPath', '$SCONS_DIR/$NPAPI_OUTDIR'),

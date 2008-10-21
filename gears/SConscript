@@ -124,45 +124,53 @@ env.Replace(
 )
 
 # Add our tools to the PATH.
-paths = []
-if env['OS'] in ['win32', 'wince']:
-  # Clear out our environment so we don't accidentally use the system's libs.
-  env['ENV']['PATH'] = ''
-  env['ENV']['LIB'] = ''
-  env['ENV']['INCLUDE'] = ''
+if os.path.exists(env.Dir('#/$PRIVATE_THIRD_PARTY_DIR').abspath):
+  paths = []
+  if env['OS'] in ['win32', 'wince']:
+    # Clear out our environment so we don't accidentally use the system's libs.
+    env['ENV']['PATH'] = ''
+    env['ENV']['LIB'] = ''
+    env['ENV']['INCLUDE'] = ''
 
-  # Keep system32 for 'xcopy'.
-  paths += [env.subst('${ENV["SYSTEMROOT"]}/system32')]
-  if env['OS'] == 'win32':
-    env.Append(
-        VC80 = env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/vc_80/files').abspath)
-    paths += [
-        env.subst('$VC80/common7/ide'),
-        env.subst('$VC80/vc/bin'),
-        env.subst('$VC80/common7/tools'),
-        env.subst('$VC80/common7/tools/bin'),
-        env.subst('$VC80/team_tools/performance_tools'),
-    ]
-  else:  # wince
-    env.Append(
-        VC80 = env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/vc_80ce/files').abspath)
-    paths += [
-        env.subst('$VC80/bin/x86_arm'),
-        env.subst('$VC80/common7/ide'),
-        env.subst('$VC80/common7/tools'),
-        env.subst('$VC80/common7/tools/bin'),
-        env.subst('$VC80/vc/bin'),
-        env.subst('$VC80/smartdevices/sdktools'),
-    ]
+    # Keep system32 for 'xcopy'.
+    paths += [env.subst('${ENV["SYSTEMROOT"]}/system32')]
+    if env['OS'] == 'win32':
+      env.Append(
+          VC80 = env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/vc_80/files').abspath)
+      paths += [
+          env.subst('$VC80/common7/ide'),
+          env.subst('$VC80/vc/bin'),
+          env.subst('$VC80/common7/tools'),
+          env.subst('$VC80/common7/tools/bin'),
+          env.subst('$VC80/team_tools/performance_tools'),
+      ]
+    else:  # wince
+      env.Append(
+          VC80 = env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/vc_80ce/files').abspath)
+      paths += [
+          env.subst('$VC80/bin/x86_arm'),
+          env.subst('$VC80/common7/ide'),
+          env.subst('$VC80/common7/tools'),
+          env.subst('$VC80/common7/tools/bin'),
+          env.subst('$VC80/vc/bin'),
+          env.subst('$VC80/smartdevices/sdktools'),
+      ]
 
-  paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath]
+    paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath]
 
-paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath]
-paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath]
+  paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath]
+  paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath]
 
-# Prepend them so our tools come first.
-for each in reversed(paths):
-  env.PrependENVPath('PATH', each)
+  # Prepend them so our tools come first.
+  for each in reversed(paths):
+    env.PrependENVPath('PATH', each)
+else:
+  # If we don't have a private third_party dir, we expect the system
+  # environment to be set up correctly to point to tool paths.
+  env['ENV']['PATH'] = os.environ['PATH']
+  env['ENV']['LIB'] = os.environ['LIB']
+  env['ENV']['INCLUDE'] = os.environ['INCLUDE']
+
 
 # Building M4 files
 env.Tool('m4')
