@@ -33,7 +33,8 @@ class StartupTest : public UITest {
   void SetUp() {}
   void TearDown() {}
 
-  void RunStartupTest(const wchar_t* label, bool test_cold, bool important) {
+  void RunStartupTest(const wchar_t* graph, const wchar_t* trace,
+      bool test_cold, bool important) {
     const int kNumCycles = 20;
 
     // Make a backup of gears.dll so we can overwrite the original, which
@@ -77,7 +78,7 @@ class StartupTest : public UITest {
     std::wstring times;
     for (int i = 0; i < kNumCycles; ++i)
       StringAppendF(&times, L"%.2f,", timings[i].InMillisecondsF());
-    PrintResultList(L"startup", L"", label, times, L"ms", important);
+    PrintResultList(graph, L"", trace, times, L"ms", important);
   }
 
  protected:
@@ -114,24 +115,27 @@ class StartupFileTest : public StartupTest {
 }  // namespace
 
 TEST_F(StartupTest, Perf) {
-  RunStartupTest(L"warm", false /* not cold */, true /* important */);
+  RunStartupTest(L"warm", L"t", false /* not cold */, true /* important */);
 }
 
 TEST_F(StartupReferenceTest, Perf) {
-  RunStartupTest(L"warm_ref", false /* not cold */, true /* important */);
+  RunStartupTest(L"warm", L"t_ref", false /* not cold */,
+                 true /* important */);
 }
 
 // TODO(mpcomplete): Should we have reference timings for all these?
 
 TEST_F(StartupTest, PerfCold) {
-  RunStartupTest(L"cold", true /* cold */, false /* not important */);
+  RunStartupTest(L"cold", L"t", true /* cold */, false /* not important */);
 }
 
 TEST_F(StartupFileTest, PerfGears) {
-  RunStartupTest(L"gears", false /* not cold */, false /* not important */);
+  RunStartupTest(L"warm", L"gears", false /* not cold */,
+                 false /* not important */);
 }
 
 TEST_F(StartupFileTest, PerfColdGears) {
-  RunStartupTest(L"gears_cold", true /* cold */, false /* not important */);
+  RunStartupTest(L"cold", L"gears", true /* cold */,
+                 false /* not important */);
 }
 
