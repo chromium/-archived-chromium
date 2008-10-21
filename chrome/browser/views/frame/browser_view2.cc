@@ -966,6 +966,7 @@ int BrowserView2::LayoutDownloadShelf() {
     gfx::Size ps = active_download_shelf_->GetPreferredSize();
     active_download_shelf_->SetBounds(0, bottom - ps.height(), width(),
                                       ps.height());
+    active_download_shelf_->Layout();
     bottom -= ps.height();
   }
   return bottom;

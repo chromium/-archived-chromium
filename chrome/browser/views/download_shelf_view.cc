@@ -182,7 +182,7 @@ void DownloadShelfView::AnimationProgressed(const Animation *animation) {
     SchedulePaint();
   } else if (animation == shelf_animation_.get()) {
     // Force a re-layout of the parent, which will call back into
-    // GetPreferredSize, where we will do our animation. In the  case where the
+    // GetPreferredSize, where we will do our animation. In the case where the
     // animation is hiding, we do a full resize - the fast resizing would
     // otherwise leave blank white areas where the shelf was and where the
     // user's eye is. Thankfully bottom-resizing is a lot faster than

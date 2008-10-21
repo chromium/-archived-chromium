@@ -25,12 +25,12 @@
 // TODO(paulg): These may need to be adjusted when download progress
 //              animation is added, and also possibly to take into account
 //              different screen resolutions.
-static const int kTextWidth = 140;           // Pixels
-static const int kDangerousTextWidth = 200;  // Pixels
-static const int kHorizontalTextPadding = 2; // Pixels
-static const int kVerticalPadding = 3;       // Pixels
-static const int kVerticalTextSpacer = 2;    // Pixels
-static const int kVerticalTextPadding = 2;   // Pixels
+static const int kTextWidth = 140;            // Pixels
+static const int kDangerousTextWidth = 200;   // Pixels
+static const int kHorizontalTextPadding = 2;  // Pixels
+static const int kVerticalPadding = 3;        // Pixels
+static const int kVerticalTextSpacer = 2;     // Pixels
+static const int kVerticalTextPadding = 2;    // Pixels
 
 // The maximum number of characters we show in a file name when displaying the
 // dangerous download message.
@@ -41,10 +41,10 @@ static const int kFileNameMaxLength = 20;
 static const int kLeftPadding = 0;  // Pixels.
 
 // The space between the Save and Discard buttons when prompting for a dangerous
-// donwload.
+// download.
 static const int kButtonPadding = 5;  // Pixels.
 
-// The space on the left and right side of the dangerous donwload label.
+// The space on the left and right side of the dangerous download label.
 static const int kLabelPadding = 4;  // Pixels.
 
 static const SkColor kFileNameColor = SkColorSetRGB(87, 108, 149);
@@ -208,9 +208,10 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
         views::Label::ALIGN_LEFT);
     dangerous_download_label_->SetColor(kFileNameColor);
     AddChildView(dangerous_download_label_);
+    SizeLabelToMinWidth();
   }
 
-  // Set up our animation
+  // Set up our animation.
   StartDownloadProgress();
 }
 
@@ -220,7 +221,7 @@ DownloadItemView::~DownloadItemView() {
   download_->RemoveObserver(this);
 }
 
-// Progress animation handlers
+// Progress animation handlers.
 
 void DownloadItemView::UpdateDownloadProgress() {
   progress_angle_ = (progress_angle_ +
@@ -241,7 +242,7 @@ void DownloadItemView::StopDownloadProgress() {
   progress_timer_.Stop();
 }
 
-// DownloadObserver interface
+// DownloadObserver interface.
 
 // Update the progress graphic on the icon and our text status label
 // to reflect our current bytes downloaded, time remaining.
@@ -294,7 +295,6 @@ void DownloadItemView::OnDownloadUpdated(DownloadItem* download) {
 // In dangerous mode we have to layout our buttons.
 void DownloadItemView::Layout() {
   if (IsDangerousMode()) {
-    SizeLabelToMinWidth();
     int x = kLeftPadding + dangerous_mode_body_image_set_.top_left->width() +
       warning_icon_->width() + kLabelPadding;
     int y = (height() - dangerous_download_label_->height()) / 2;
@@ -479,7 +479,7 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
       }
     }
 
-    // Draw the icon image
+    // Draw the icon image.
     canvas->DrawBitmapInt(*icon,
                           download_util::kSmallProgressIconOffset,
                           download_util::kSmallProgressIconOffset);
@@ -524,7 +524,7 @@ void DownloadItemView::ClearDangerousMode() {
   body_state_ = NORMAL;
   drop_down_state_ = NORMAL;
 
-  // Remove the views used by the dangerours mode.
+  // Remove the views used by the dangerous mode.
   RemoveChildView(save_button_);
   delete save_button_;
   save_button_ = NULL;
@@ -545,27 +545,30 @@ void DownloadItemView::ClearDangerousMode() {
 
 gfx::Size DownloadItemView::GetPreferredSize() {
   int width, height;
+
+  // First, we set the height to the height of two rows or text plus margins.
+  height = 2 * kVerticalPadding + 2 * font_.height() + kVerticalTextPadding;
+  // Then we increase the size if the progress icon doesn't fit.
+  height = std::max<int>(height, download_util::kSmallProgressIconSize);
+
   if (IsDangerousMode()) {
     width = kLeftPadding + dangerous_mode_body_image_set_.top_left->width();
     width += warning_icon_->width() + kLabelPadding;
     width += dangerous_download_label_->width() + kLabelPadding;
     gfx::Size button_size = GetButtonSize();
+    // Make sure the button fits.
+    height = std::max<int>(height, 2 * kVerticalPadding + button_size.height());
+    // Then we make sure the warning icon fits.
+    height = std::max<int>(height, 2 * kVerticalPadding +
+                                   warning_icon_->height());
     width += button_size.width() * 2 + kButtonPadding;
     width += dangerous_mode_body_image_set_.top_right->width();
-    height = std::max<int>(2 * kVerticalPadding +  2 * font_.height() +
-                             kVerticalTextPadding,
-                           2 * kVerticalPadding + warning_icon_->height());
-    height = std::max<int>(height,
-                           2 * kVerticalPadding + button_size.height());
   } else {
     width = kLeftPadding + normal_body_image_set_.top_left->width();
     width += download_util::kSmallProgressIconSize;
     width += kTextWidth;
     width += normal_body_image_set_.top_right->width();
     width += normal_drop_down_image_set_.top->width();
-    height = std::max<int>(2 * kVerticalPadding +  2 * font_.height() +
-                             kVerticalTextPadding,
-                           download_util::kSmallProgressIconSize);
   }
   return gfx::Size(width, height);
 }
@@ -743,7 +746,7 @@ gfx::Size DownloadItemView::GetButtonSize() {
   return size;
 }
 
-// This method computes the miminum width of the label for diplaying its text
+// This method computes the minimum width of the label for displaying its text
 // on 2 lines.  It just breaks the string in 2 lines on the spaces and keeps the
 // configuration with minimum width.
 void DownloadItemView::SizeLabelToMinWidth() {
@@ -765,10 +768,10 @@ void DownloadItemView::SizeLabelToMinWidth() {
     text.replace(sp_index, 1, L"\n");
     dangerous_download_label_->SetText(text);
     size = dangerous_download_label_->GetPreferredSize();
-    
+
     if (min_width == -1)
       min_width = size.width();
- 
+
     // If the width is growing again, it means we passed the optimal width spot.
     if (size.width() > min_width)
       break;
