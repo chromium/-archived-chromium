@@ -2,14 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "chrome/renderer/about_handler.h"
 
+#include "base/platform_thread.h"
 #include "googleurl/src/gurl.h"
 
 struct AboutHandlerUrl {
-  char *url;
+  const char *url;
   void (*action)();
 };
 
@@ -58,12 +57,12 @@ void AboutHandler::AboutCrash() {
 // static
 void AboutHandler::AboutHang() {
   for (;;) {
-    Sleep(1000);
+    PlatformThread::Sleep(1000);
   }
 }
 
 // static
 void AboutHandler::AboutShortHang() {
-  Sleep(20000);
+  PlatformThread::Sleep(20000);
 }
 

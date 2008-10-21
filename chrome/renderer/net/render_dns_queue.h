@@ -75,8 +75,8 @@ class DnsQueue {
  private:
   bool Validate();  // Checks that all internal data is valid.
 
-  const BufferSize buffer_size_;  // Size one smaller than allocated space.
   const scoped_array<char> buffer_;  // Circular buffer, plus extra char ('\0').
+  const BufferSize buffer_size_;  // Size one smaller than allocated space.
   const BufferSize buffer_sentinel_;  // Index of extra '\0' at end of buffer_.
 
   // If writable_ == readable_, then the buffer is empty.

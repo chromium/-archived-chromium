@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
+#include "chrome/renderer/visitedlink_slave.h"
+
 #include "base/logging.h"
 #include "base/shared_memory.h"
-#include "chrome/common/win_util.h"
-#include "chrome/renderer/visitedlink_slave.h"
 
 VisitedLinkSlave::VisitedLinkSlave() : shared_memory_(NULL) {
 }

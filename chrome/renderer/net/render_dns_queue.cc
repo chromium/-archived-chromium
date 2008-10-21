@@ -67,7 +67,8 @@ DnsQueue::PushResult DnsQueue::Push(const char* source,
     std::memcpy(&buffer_[dest], source, space_till_wrap);
     // Ensure caller didn't have embedded '\0' and also
     // ensure trailing sentinel was in place.
-    DCHECK(space_till_wrap == strlen(&buffer_[dest]));  // Relies on sentinel.
+    // Relies on sentinel.
+    DCHECK(static_cast<size_t>(space_till_wrap) == strlen(&buffer_[dest]));
 
     length -= space_till_wrap;
     source += space_till_wrap;
@@ -78,7 +79,8 @@ DnsQueue::PushResult DnsQueue::Push(const char* source,
   std::memcpy(&buffer_[dest], source, length);
   DCHECK(dest + length < buffer_sentinel_);
   buffer_[dest + length] = '\0';  // We need termination in our buffer.
-  DCHECK(length == strlen(&buffer_[dest]));  // Preclude embedded '\0'.
+  // Preclude embedded '\0'.
+  DCHECK(static_cast<size_t>(length) == strlen(&buffer_[dest]));
 
   dest += length + 1;
   if (dest == buffer_sentinel_)

@@ -5,9 +5,6 @@
 #ifndef CHROME_WIN_RENDERER_VISITEDLINK_SLAVE_H__
 #define CHROME_WIN_RENDERER_VISITEDLINK_SLAVE_H__
 
-#include <string>
-#include <windows.h>
-
 #include "base/shared_memory.h"
 #include "chrome/common/visitedlink_common.h"
 
