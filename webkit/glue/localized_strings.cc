@@ -52,7 +52,7 @@ inline String GetLocalizedString(int message_id) {
   return webkit_glue::StdWStringToString(str);
 }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
 String WebCore::searchableIndexIntroduction() {
   return GetLocalizedString(IDS_SEARCHABLE_INDEX_INTRO);
 }
@@ -98,7 +98,7 @@ String WebCore::AXImageMapText() {
 String WebCore::AXHeadingText() {
   return GetLocalizedString(IDS_AX_ROLE_HEADING);
 }
-#endif  // OS_WIN
+#endif  // OS_WIN || OS_LINUX
 String WebCore::AXButtonActionVerb() {
   return GetLocalizedString(IDS_AX_BUTTON_ACTION_VERB);
 }
