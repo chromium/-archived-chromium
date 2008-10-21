@@ -73,202 +73,207 @@ Cursor::Cursor(PlatformCursor c)
 
 const Cursor& pointerCursor()
 {
-    static Cursor c = WebCursor::ARROW;
+    // The double-parenthesis here and elsewhere is a glorious hack to work
+    // around a corner in C++ parsing.  Otherwise, code like
+    //    Cursor c(PlatformCursor(...));
+    // is parsed as a *function* declaration (since PlatformCursor is a type,
+    // after all).
+    static const Cursor c((PlatformCursor(WebCursor::ARROW)));
     return c;
 }
 
 const Cursor& crossCursor()
 {
-    static Cursor c = WebCursor::CROSS;
+    static const Cursor c((PlatformCursor(WebCursor::CROSS)));
     return c;
 }
 
 const Cursor& handCursor()
 {
-    static Cursor c = WebCursor::HAND;
+    static const Cursor c((PlatformCursor(WebCursor::HAND)));
     return c;
 }
 
 const Cursor& iBeamCursor()
 {
-    static Cursor c = WebCursor::IBEAM;
+    static const Cursor c((PlatformCursor(WebCursor::IBEAM)));
     return c;
 }
 
 const Cursor& waitCursor()
 {
-    static Cursor c = WebCursor::WAIT;
+    static const Cursor c((PlatformCursor(WebCursor::WAIT)));
     return c;
 }
 
 const Cursor& helpCursor()
 {
-    static Cursor c = WebCursor::HELP;
+    static const Cursor c((PlatformCursor(WebCursor::HELP)));
     return c;
 }
 
 const Cursor& eastResizeCursor()
 {
-    static Cursor c = WebCursor::SIZEWE;
+    static const Cursor c((PlatformCursor(WebCursor::SIZEWE)));
     return c;
 }
 
 const Cursor& northResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENS;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENS)));
     return c;
 }
 
 const Cursor& northEastResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENESW;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENESW)));
     return c;
 }
 
 const Cursor& northWestResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENWSE;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENWSE)));
     return c;
 }
 
 const Cursor& southResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENS;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENS)));
     return c;
 }
 
 const Cursor& southEastResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENWSE;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENWSE)));
     return c;
 }
 
 const Cursor& southWestResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENESW;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENESW)));
     return c;
 }
 
 const Cursor& westResizeCursor()
 {
-    static Cursor c = WebCursor::SIZEWE;
+    static const Cursor c((PlatformCursor(WebCursor::SIZEWE)));
     return c;
 }
 
 const Cursor& northSouthResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENS;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENS)));
     return c;
 }
 
 const Cursor& eastWestResizeCursor()
 {
-    static Cursor c = WebCursor::SIZEWE;
+    static const Cursor c((PlatformCursor(WebCursor::SIZEWE)));
     return c;
 }
 
 const Cursor& northEastSouthWestResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENESW;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENESW)));
     return c;
 }
 
 const Cursor& northWestSouthEastResizeCursor()
 {
-    static Cursor c = WebCursor::SIZENWSE;
+    static const Cursor c((PlatformCursor(WebCursor::SIZENWSE)));
     return c;
 }
 
 const Cursor& columnResizeCursor()
 {
-    static Cursor c = WebCursor::COLRESIZE;
+    static const Cursor c((PlatformCursor(WebCursor::COLRESIZE)));
     return c;
 }
 
 const Cursor& rowResizeCursor()
 {
-    static Cursor c = WebCursor::ROWRESIZE;
+    static const Cursor c((PlatformCursor(WebCursor::ROWRESIZE)));
     return c;
 }
 
 const Cursor& middlePanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_MIDDLE);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& eastPanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_EAST);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& northPanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_NORTH);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& northEastPanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_NORTH_EAST);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& northWestPanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_NORTH_WEST);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& southPanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_SOUTH);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& southEastPanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_SOUTH_EAST);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& southWestPanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_SOUTH_WEST);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& westPanningCursor()
 {
     SkBitmap* bitmap = webkit_glue::GetBitmapResource(IDC_PAN_WEST);
-    static Cursor c = WebCursor(bitmap, 7, 7);
+    static const Cursor c((PlatformCursor(WebCursor(bitmap, 7, 7))));
     return c;
 }
 
 const Cursor& moveCursor() 
 {
-    static Cursor c = WebCursor::SIZEALL;
+    static const Cursor c((PlatformCursor(WebCursor::SIZEALL)));
     return c;
 }
 
 const Cursor& verticalTextCursor()
 {
-    static Cursor c = WebCursor::VERTICALTEXT;
+    static const Cursor c((PlatformCursor(WebCursor::VERTICALTEXT)));
     return c;
 }
 
 const Cursor& cellCursor()
 {
-    static Cursor c = WebCursor::CELL;
+    static const Cursor c((PlatformCursor(WebCursor::CELL)));
     return c;
 }
 
@@ -279,13 +284,13 @@ const Cursor& contextMenuCursor()
 
 const Cursor& aliasCursor()
 {
-    static Cursor c = WebCursor::ALIAS;
+    static const Cursor c((PlatformCursor(WebCursor::ALIAS)));
     return c;
 }
 
 const Cursor& progressCursor()
 {
-    static Cursor c = WebCursor::APPSTARTING;
+    static const Cursor c((PlatformCursor(WebCursor::APPSTARTING)));
     return c;
 }
 
@@ -296,7 +301,7 @@ const Cursor& noDropCursor()
 
 const Cursor& copyCursor()
 {
-    static Cursor c = WebCursor::COPYCUR;
+    static const Cursor c((PlatformCursor(WebCursor::COPYCUR)));
     return c;
 }
 
@@ -307,19 +312,19 @@ const Cursor& noneCursor()
 
 const Cursor& notAllowedCursor()
 {
-    static Cursor c = WebCursor::NO;
+    static const Cursor c((PlatformCursor(WebCursor::NO)));
     return c;
 }
 
 const Cursor& zoomInCursor()
 {
-    static Cursor c = WebCursor::ZOOMIN;
+    static const Cursor c((PlatformCursor(WebCursor::ZOOMIN)));
     return c;
 }
 
 const Cursor& zoomOutCursor()
 {
-    static Cursor c = WebCursor::ZOOMOUT;
+    static const Cursor c((PlatformCursor(WebCursor::ZOOMOUT)));
     return c;
 }
 

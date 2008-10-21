@@ -35,10 +35,10 @@
 namespace WebCore {
 
 struct PlatformCursor : WebCursor {
-  PlatformCursor(int type = 0)
+  explicit PlatformCursor(int type = 0)
       : WebCursor(static_cast<WebCursor::Type>(type)) {
   }
-  PlatformCursor(const WebCursor& c)
+  explicit PlatformCursor(const WebCursor& c)
       : WebCursor(c) {
   }
 };
