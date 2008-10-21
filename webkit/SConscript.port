@@ -159,6 +159,12 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/rendering/RenderThemeWin.cpp',
   ])
 
+if env['PLATFORM'] == 'posix':
+  input_files.extend([
+    '$PORT_DIR/platform/chromium/FileSystemPosix.cpp',
+    '$PORT_DIR/platform/chromium/SoundPosix.cpp',
+  ])
+
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
     '$PORT_DIR/bridge/mac/FrameMac.mm',

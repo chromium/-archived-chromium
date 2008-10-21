@@ -742,6 +742,11 @@ if env['PLATFORM'] in ('darwin', 'posix'):
   for remove in remove_files:
     input_files.remove(remove)
 
+if env['PLATFORM'] == 'posix':
+  input_files.extend([
+    '$WEBCORE_DIR/platform/posix/FileSystemPOSIX.cpp',
+  ])
+
 # Windows specific files.
 if env['PLATFORM'] == 'win32':
   input_files.extend([
