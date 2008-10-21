@@ -78,6 +78,8 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(
       parent_hwnd_(NULL),
       is_loading_(false) {
   render_widget_host_->set_view(this);
+  renderer_accessible_ =
+      CommandLine().HasSwitch(switches::kEnableRendererAccessibility);
 }
 
 RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {
@@ -800,6 +802,10 @@ LRESULT RenderWidgetHostViewWin::OnMouseActivate(UINT, WPARAM, LPARAM,
 LRESULT RenderWidgetHostViewWin::OnGetObject(UINT message, WPARAM wparam,
                                              LPARAM lparam, BOOL& handled) {
   LRESULT reference_result = static_cast<LRESULT>(0L);
+  // TODO(jcampan): http://b/issue?id=1432077 Disabling accessibility in the
+  // renderer is a temporary work-around until that bug is fixed.
+  if (!renderer_accessible_)
+    return reference_result;
 
   // Accessibility readers will send an OBJID_CLIENT message.
   if (OBJID_CLIENT == lparam) {

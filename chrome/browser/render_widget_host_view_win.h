@@ -259,6 +259,11 @@ class RenderWidgetHostViewWin :
   // value returns true for is_null() if we are not recording whiteout times.
   TimeTicks whiteout_start_time_;
 
+  // Whether the renderer is made accessible.
+  // TODO(jcampan): http://b/issue?id=1432077 This is a temporary work-around
+  // until that bug is fixed.
+  bool renderer_accessible_;
+
   DISALLOW_EVIL_CONSTRUCTORS(RenderWidgetHostViewWin);
 };
 

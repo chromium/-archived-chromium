@@ -341,5 +341,9 @@ const wchar_t kIncognito[] = L"incognito";
 // operations.
 const wchar_t kUseNewSafeBrowsing[] = L"new-safe-browsing";
 
+// Turns on the accessibility in the renderer.  Off by default until 
+// http://b/issue?id=1432077 is fixed.
+const wchar_t kEnableRendererAccessibility[] = L"enable-renderer-accessibility";
+
 }  // namespace switches
 
