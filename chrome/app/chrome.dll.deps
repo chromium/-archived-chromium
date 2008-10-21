@@ -4,7 +4,6 @@ dependents = [
   'KERNEL32.dll',
   'USER32.dll',
   'ADVAPI32.dll',
-  'MSIMG32.dll',
   'WINMM.dll',
   'COMCTL32.dll',
   'SHLWAPI.dll',
@@ -31,4 +30,3 @@ delay_loaded = [
   'COMDLG32.dll',
   'urlmon.dll',
 ]
-

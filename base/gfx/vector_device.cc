@@ -583,13 +583,13 @@ void VectorDevice::InternalDrawBitmap(const SkBitmap& bitmap, int x, int y,
     DCHECK(result);
     // Note that this function expect premultiplied colors (!)
     BLENDFUNCTION blend_function = {AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA};
-    result = AlphaBlend(dc,
-                        x, y,  // Destination origin.
-                        src_size_x, src_size_y,  // Destination size.
-                        bitmap_dc,
-                        0, 0,  // Source origin.
-                        src_size_x, src_size_y,  // Source size.
-                        blend_function);
+    result = GdiAlphaBlend(dc,
+                           x, y,  // Destination origin.
+                           src_size_x, src_size_y,  // Destination size.
+                           bitmap_dc,
+                           0, 0,  // Source origin.
+                           src_size_x, src_size_y,  // Source size.
+                           blend_function);
     DCHECK(result);
     result = SetStretchBltMode(dc, previous_mode);
     DCHECK(result);

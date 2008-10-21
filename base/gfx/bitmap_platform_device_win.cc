@@ -376,18 +376,19 @@ void BitmapPlatformDeviceWin::drawToHDC(HDC dc, int x, int y,
            src_rect->top,
            SRCCOPY);
   } else {
+    DCHECK(copy_width != 0 && copy_height != 0);
     BLENDFUNCTION blend_function = {AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-    AlphaBlend(dc,
-               x,
-               y,
-               copy_width,
-               copy_height,
-               source_dc,
-               src_rect->left,
-               src_rect->top,
-               copy_width,
-               copy_height,
-               blend_function);
+    GdiAlphaBlend(dc,
+                  x,
+                  y,
+                  copy_width,
+                  copy_height,
+                  source_dc,
+                  src_rect->left,
+                  src_rect->top,
+                  copy_width,
+                  copy_height,
+                  blend_function);
   }
   LoadTransformToDC(source_dc, data_->transform());
 

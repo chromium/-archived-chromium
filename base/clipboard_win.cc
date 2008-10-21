@@ -317,8 +317,8 @@ void Clipboard::WriteBitmapFromHandle(HBITMAP source_hbitmap,
 
   // Now we need to blend it into an HBITMAP we can place on the clipboard
   BLENDFUNCTION bf = {AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
-  ::AlphaBlend(compatible_dc, 0, 0, size.width(), size.height(),
-               source_dc, 0, 0, size.width(), size.height(), bf);
+  ::GdiAlphaBlend(compatible_dc, 0, 0, size.width(), size.height(),
+                  source_dc, 0, 0, size.width(), size.height(), bf);
 
   // Clean up all the handles we just opened
   ::SelectObject(compatible_dc, old_hbitmap);
