@@ -34,6 +34,9 @@ module html {
         attribute long width;
         attribute long height;
 
+        DOMString toDataURL(in [ConvertUndefinedOrNullToNullString] DOMString type)
+            raises(DOMException);
+
 #if defined(V8_BINDING)
         CanvasRenderingContext2D getContext(in DOMString contextId);
 #elif !defined(LANGUAGE_OBJECTIVE_C)
