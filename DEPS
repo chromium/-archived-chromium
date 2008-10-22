@@ -27,7 +27,7 @@ deps = {
     "/trunk/deps/third_party/svn@3230",
 
   "src/v8":
-    "http://v8.googlecode.com/svn/trunk@531",
+    "http://v8.googlecode.com/svn/branches/bleeding_edge@539",
 
   "src/webkit/data/layout_tests/LayoutTests":
     "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@36102",
