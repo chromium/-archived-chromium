@@ -33,6 +33,8 @@
 #include "ClipboardWin.h"
 #include "ClipboardUtilitiesWin.h"
 #include "WCDataObject.h"
+#else
+#include "Clipboard.h"  // This and ClipboardWin.h should be ClipboardChromium.h
 #endif
 
 #include "DocumentFragment.h"
@@ -157,11 +159,14 @@ PassRefPtr<DocumentFragment> DragData::asFragment(Document* doc) const
      //    if (PassRefPtr<DocumentFragment> fragment = fragmentFromFilenames(doc, m_platformDragData))
      //        return fragment;
 
+#if PLATFORM(WIN_OS)
+     // fragmentFromCF_HTML comes from ClipboardUtilitiesWin.
      if (!m_platformDragData->cf_html.empty()) {
          RefPtr<DocumentFragment> fragment = fragmentFromCF_HTML(doc,
              webkit_glue::StdWStringToString(m_platformDragData->cf_html));
          return fragment;
      }
+#endif
 
      if (!m_platformDragData->text_html.empty()) {
          String url;

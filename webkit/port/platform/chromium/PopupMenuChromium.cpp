@@ -53,6 +53,11 @@
 #include "RenderTheme.h"
 #include "Widget.h"
 #include "WidgetClientChromium.h"
+
+#if !PLATFORM(WIN_OS)
+#include "KeyboardCodes.h"
+#endif
+
 #pragma warning(pop)
 
 using namespace WTF;
