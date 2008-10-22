@@ -6,15 +6,19 @@
 #include "base/sys_string_conversions.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-// Apparently Windows doesn't have constants for these.
-static const int kCpLatin1 = 850;
-static const int kCpBig5 = 950;
+#ifdef WCHAR_T_IS_UTF32
+static const std::wstring kSysWideOldItalicLetterA = L"\x10300";
+#else
+static const std::wstring kSysWideOldItalicLetterA = L"\xd800\xdf00";
+#endif
 
-TEST(SysStringsWin, SysWideToUTF8) {
+TEST(SysStrings, SysWideToUTF8) {
   using base::SysWideToUTF8;
   EXPECT_EQ("Hello, world", SysWideToUTF8(L"Hello, world"));
   EXPECT_EQ("\xe4\xbd\xa0\xe5\xa5\xbd", SysWideToUTF8(L"\x4f60\x597d"));
-  EXPECT_EQ("\xF0\x90\x8C\x80", SysWideToUTF8(L"\xd800\xdf00"));  // >16 bits
+
+  // >16 bits
+  EXPECT_EQ("\xF0\x90\x8C\x80", SysWideToUTF8(kSysWideOldItalicLetterA));
 
   // Error case. When Windows finds a UTF-16 character going off the end of
   // a string, it just converts that literal value to UTF-8, even though this
@@ -36,11 +40,12 @@ TEST(SysStringsWin, SysWideToUTF8) {
   EXPECT_EQ(expected_null, SysWideToUTF8(wide_null));
 }
 
-TEST(SysStringsWin, SysUTF8ToWide) {
+TEST(SysStrings, SysUTF8ToWide) {
   using base::SysUTF8ToWide;
   EXPECT_EQ(L"Hello, world", SysUTF8ToWide("Hello, world"));
   EXPECT_EQ(L"\x4f60\x597d", SysUTF8ToWide("\xe4\xbd\xa0\xe5\xa5\xbd"));
-  EXPECT_EQ(L"\xd800\xdf00", SysUTF8ToWide("\xF0\x90\x8C\x80"));  // >16 bits
+  // >16 bits
+  EXPECT_EQ(kSysWideOldItalicLetterA, SysUTF8ToWide("\xF0\x90\x8C\x80"));
 
   // Error case. When Windows finds an invalid UTF-8 character, it just skips
   // it. This seems weird because it's inconsistent with the reverse conversion.
@@ -60,4 +65,3 @@ TEST(SysStringsWin, SysUTF8ToWide) {
 
   EXPECT_EQ(expected_null, SysUTF8ToWide(utf8_null));
 }
-

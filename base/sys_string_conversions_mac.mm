@@ -61,7 +61,7 @@ static StringType CFStringToSTLStringWithEncodingT(CFStringRef cfstring,
     return StringType();
 
   out_buffer[elements - 1] = '\0';
-  return StringType(&out_buffer[0]);
+  return StringType(&out_buffer[0], elements - 1);
 }
 
 // Given an STL string |in| with an encoding specified by |in_encoding|,

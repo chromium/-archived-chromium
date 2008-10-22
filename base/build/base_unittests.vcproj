@@ -324,7 +324,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\sys_string_conversions_win_unittest.cc"
+				RelativePath="..\sys_string_conversions_unittest.cc"
 				>
 			</File>
 			<File

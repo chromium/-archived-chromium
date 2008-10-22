@@ -169,7 +169,7 @@ if env['PLATFORM'] == 'win32':
       'file_version_info_unittest.cc',
       'object_watcher_unittest.cc',
       'pe_image_unittest.cc',
-      'sys_string_conversions_win_unittest.cc',
+      'sys_string_conversions_unittest.cc',
       'time_unittest_win.cc',
       'win_util_unittest.cc',
       'wmi_util_unittest.cc',
