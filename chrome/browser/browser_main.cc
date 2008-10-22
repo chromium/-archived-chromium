@@ -295,8 +295,9 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
 #if defined(OS_WIN)
   // Make the selection of network stacks early on before any consumers try to
   // issue HTTP requests.
-  if (parsed_command_line.HasSwitch(switches::kUseWinHttp))
-    net::HttpNetworkLayer::UseWinHttp(true);
+  net::HttpNetworkLayer::UseWinHttp(true);
+  if (parsed_command_line.HasSwitch(switches::kUseNewHttp))
+    net::HttpNetworkLayer::UseWinHttp(false);
 #endif
 
   std::wstring user_data_dir;
