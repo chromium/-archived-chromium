@@ -112,6 +112,7 @@ if env['PLATFORM'] == 'win32':
       'cpu.cc',
       'debug_on_start.cc',
       'debug_util_win.cc',
+      'directory_watcher_win.cc',
       'file_util_win.cc',
       'hmac_win.cc',
       'iat_patch.cc',

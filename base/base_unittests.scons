@@ -165,6 +165,7 @@ if env['PLATFORM'] == 'darwin':
 if env['PLATFORM'] == 'win32':
   # Windows-specific tests.
   input_files.extend([
+      'directory_watcher_unittest.cc',
       'file_version_info_unittest.cc',
       'object_watcher_unittest.cc',
       'pe_image_unittest.cc',
