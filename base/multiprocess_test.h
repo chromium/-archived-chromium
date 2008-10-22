@@ -7,7 +7,13 @@
 
 #include "base/command_line.h"
 #include "base/process_util.h"
+#include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+#if defined(OS_POSIX)
+#include <sys/types.h>
+#include <unistd.h>
+#endif
 
 // Command line switch to invoke a child process rather than
 // to run the normal test suite.
@@ -24,13 +30,15 @@ static const wchar_t kRunClientProcess[] = L"client";
 // 3) Create a mainline function for the child processes
 // 4) Call SpawnChild("foo"), where "foo" is the name of
 //    the function you wish to run in the child processes.
+// 5) On posix, add the function's name to the list in the file
+//    base_unittests_exported_symbols.version
 // That's it!
 //
 class MultiProcessTest : public testing::Test {
  public:
   // Prototype function for a client function.  Multi-process
   // clients must provide a callback with this signature to run.
-  typedef int (__cdecl *ChildFunctionPtr)();
+  typedef int (*ChildFunctionPtr)();
 
  protected:
   // Run a child process.
@@ -44,13 +52,27 @@ class MultiProcessTest : public testing::Test {
   //    }
   //
   // Returns the handle to the child, or NULL on failure
-  HANDLE SpawnChild(const std::wstring& procname) {
-    std::wstring cl(GetCommandLineW());
-    CommandLine::AppendSwitchWithValue(&cl, kRunClientProcess, procname);
-    // TODO(darin): re-enable this once we have base/debug_util.h
-    //ProcessDebugFlags(&cl, DebugUtil::UNKNOWN, false);
-    HANDLE handle = NULL;
-    process_util::LaunchApp(cl, false, true, &handle);
+  //
+  // TODO(darin): re-enable this once we have base/debug_util.h
+  // ProcessDebugFlags(&cl, DebugUtil::UNKNOWN, false);
+  ProcessHandle SpawnChild(const std::wstring& procname) {
+    CommandLine cl;
+    ProcessHandle handle = static_cast<ProcessHandle>(NULL);
+
+#if defined(OS_WIN)
+    std::wstring clstr = cl.command_line_string();
+    CommandLine::AppendSwitchWithValue(&clstr, kRunClientProcess, procname);
+    process_util::LaunchApp(clstr, false, true, &handle);
+#elif defined(OS_POSIX)
+    std::vector<std::string> clvec(cl.argv());
+    std::wstring wswitchstr =
+        CommandLine::PrefixedSwitchStringWithValue(kRunClientProcess,
+                                                   procname);
+    std::string switchstr = WideToUTF8(wswitchstr);
+    clvec.push_back(switchstr.c_str());
+    process_util::LaunchApp(clvec, false, &handle);
+#endif
+
     return handle;
   }
 };

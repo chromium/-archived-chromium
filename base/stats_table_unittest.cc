@@ -2,14 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <process.h>
-#include <windows.h>
-
 #include "base/multiprocess_test.h"
+#include "base/platform_thread.h"
 #include "base/stats_table.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+#if defined(OS_WIN)
+#include <process.h>
+#include <windows.h>
+#endif
 
 namespace {
   class StatsTableTest : public MultiProcessTest {
@@ -61,6 +64,8 @@ const std::wstring kCounterMixed = L"CounterMixed";
 // The number of thread loops that we will do.
 const int kThreadLoops = 1000;
 
+// TODO(estade): port this test
+#if defined(OS_WIN)
 unsigned __stdcall StatsTableMultipleThreadMain(void* param) {
   // Each thread will open the shared memory and set counters
   // concurrently in a loop.  We'll use some pauses to
@@ -81,10 +86,11 @@ unsigned __stdcall StatsTableMultipleThreadMain(void* param) {
       mixed_counter.Decrement();
     else
       mixed_counter.Increment();
-    Sleep(index % 10);   // short wait
+    PlatformThread::Sleep(index % 10);   // short wait
   }
   return 0;
 }
+
 // Create a few threads and have them poke on their counters.
 TEST_F(StatsTableTest, MultipleThreads) {
   // Create a stats table.
@@ -140,10 +146,11 @@ TEST_F(StatsTableTest, MultipleThreads) {
       table.GetCounterValue(name));
   EXPECT_EQ(0, table.CountThreadsRegistered());
 }
+#endif  // defined(OS_WIN)
 
 const std::wstring kTableName = L"MultipleProcessStatTable";
 
-extern "C" int __declspec(dllexport) ChildProcessMain() {
+extern "C" int DYNAMIC_EXPORT StatsTableMultipleProcessMain() {
   // Each process will open the shared memory and set counters
   // concurrently in a loop.  We'll use some pauses to
   // mixup the scheduling.
@@ -159,38 +166,38 @@ extern "C" int __declspec(dllexport) ChildProcessMain() {
     lucky13_counter.Set(1313);
     increment_counter.Increment();
     decrement_counter.Decrement();
-    Sleep(index % 10);   // short wait
+    PlatformThread::Sleep(index % 10);   // short wait
   }
   return 0;
 }
 
-// Create a few threads and have them poke on their counters.
+// Create a few processes and have them poke on their counters.
 TEST_F(StatsTableTest, MultipleProcesses) {
   // Create a stats table.
   const std::wstring kTableName = L"MultipleProcessStatTable";
-  const int kMaxThreads = 20;
+  const int kMaxProcs = 20;
   const int kMaxCounter = 5;
-  StatsTable table(kTableName, kMaxThreads, kMaxCounter);
+  StatsTable table(kTableName, kMaxProcs, kMaxCounter);
   StatsTable::set_current(&table);
 
   EXPECT_EQ(0, table.CountThreadsRegistered());
 
-  // Spin up a set of threads to go bang on the various counters.
-  // After we join the threads, we'll make sure the counters
+  // Spin up a set of processes to go bang on the various counters.
+  // After we join the processes, we'll make sure the counters
   // contain the values we expected.
-  HANDLE threads[kMaxThreads];
+  ProcessHandle procs[kMaxProcs];
 
   // Spawn the processes.
-  for (int16 index = 0; index < kMaxThreads; index++) {
-    threads[index] = this->SpawnChild(L"ChildProcessMain");
-    EXPECT_NE((HANDLE)NULL, threads[index]);
+  for (int16 index = 0; index < kMaxProcs; index++) {
+    procs[index] = this->SpawnChild(L"StatsTableMultipleProcessMain");
+    EXPECT_NE(static_cast<ProcessHandle>(NULL), procs[index]);
   }
 
-  // Wait for the threads to finish.
-  for (int index = 0; index < kMaxThreads; index++) {
-    DWORD rv = WaitForSingleObject(threads[index], 60 * 1000);
-    EXPECT_EQ(rv, WAIT_OBJECT_0);  // verify all threads finished
+  // Wait for the processes to finish.
+  for (int index = 0; index < kMaxProcs; index++) {
+    EXPECT_TRUE(process_util::WaitForSingleProcess(procs[index], 60 * 1000));
   }
+
   StatsCounter zero_counter(kCounterZero);
   StatsCounter lucky13_counter(kCounter1313);
   StatsCounter increment_counter(kCounterIncrement);
@@ -201,13 +208,13 @@ TEST_F(StatsTableTest, MultipleProcesses) {
   name = L"c:" + kCounterZero;
   EXPECT_EQ(0, table.GetCounterValue(name));
   name = L"c:" + kCounter1313;
-  EXPECT_EQ(1313 * kMaxThreads,
+  EXPECT_EQ(1313 * kMaxProcs,
       table.GetCounterValue(name));
   name = L"c:" + kCounterIncrement;
-  EXPECT_EQ(kMaxThreads * kThreadLoops,
+  EXPECT_EQ(kMaxProcs * kThreadLoops,
       table.GetCounterValue(name));
   name = L"c:" + kCounterDecrement;
-  EXPECT_EQ(-kMaxThreads * kThreadLoops,
+  EXPECT_EQ(-kMaxProcs * kThreadLoops,
       table.GetCounterValue(name));
   EXPECT_EQ(0, table.CountThreadsRegistered());
 }
@@ -290,13 +297,13 @@ TEST_F(StatsTableTest, StatsCounterTimer) {
 
   // Do some timing.
   bar.Start();
-  Sleep(500);
+  PlatformThread::Sleep(500);
   bar.Stop();
   EXPECT_LE(500, table.GetCounterValue(L"t:bar"));
 
   // Verify that timing again is additive.
   bar.Start();
-  Sleep(500);
+  PlatformThread::Sleep(500);
   bar.Stop();
   EXPECT_LE(1000, table.GetCounterValue(L"t:bar"));
 }
@@ -319,14 +326,14 @@ TEST_F(StatsTableTest, StatsRate) {
 
   // Do some timing.
   baz.Start();
-  Sleep(500);
+  PlatformThread::Sleep(500);
   baz.Stop();
   EXPECT_EQ(1, table.GetCounterValue(L"c:baz"));
   EXPECT_LE(500, table.GetCounterValue(L"t:baz"));
 
   // Verify that timing again is additive.
   baz.Start();
-  Sleep(500);
+  PlatformThread::Sleep(500);
   baz.Stop();
   EXPECT_EQ(2, table.GetCounterValue(L"c:baz"));
   EXPECT_LE(1000, table.GetCounterValue(L"t:baz"));
@@ -353,7 +360,7 @@ TEST_F(StatsTableTest, StatsScope) {
   {
     StatsScope<StatsCounterTimer> timer(foo);
     StatsScope<StatsRate> timer2(bar);
-    Sleep(500);
+    PlatformThread::Sleep(500);
   }
   EXPECT_LE(500, table.GetCounterValue(L"t:foo"));
   EXPECT_LE(500, table.GetCounterValue(L"t:bar"));
@@ -363,7 +370,7 @@ TEST_F(StatsTableTest, StatsScope) {
   {
     StatsScope<StatsCounterTimer> timer(foo);
     StatsScope<StatsRate> timer2(bar);
-    Sleep(500);
+    PlatformThread::Sleep(500);
   }
   EXPECT_LE(1000, table.GetCounterValue(L"t:foo"));
   EXPECT_LE(1000, table.GetCounterValue(L"t:bar"));

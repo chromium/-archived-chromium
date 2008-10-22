@@ -59,6 +59,22 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
+if env['PLATFORM'] == 'posix':
+  # Explicity list the functions we want to export from the base_unittest
+  # executable in the following file.
+  exported_symbols_filename = \
+      env.Dir('#').abspath + '/base_unittest_exported_symbols.version'
+
+  env.Append(
+      LIBS = [
+          'event',
+      ],
+      LINKFLAGS = [
+          '-Xlinker',
+          '--dynamic-list=' + exported_symbols_filename,
+      ],
+  )
+
 # These test files work on *all* platforms; tests that don't work
 # cross-platform live below.
 input_files = [
@@ -127,8 +143,6 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   to_be_ported_files = [
       'clipboard_unittest.cc',
       'idletimer_unittest.cc',
-      'process_util_unittest.cc',
-      'stats_table_unittest.cc',
       'watchdog_unittest.cc',
       'gfx/native_theme_unittest.cc',
       'gfx/uniscribe_unittest.cc',
@@ -136,6 +150,17 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   ]
   for remove in to_be_ported_files:
     input_files.remove(remove)
+
+if env['PLATFORM'] == 'darwin':
+  # Remove files that still need to be ported from the input_files list.
+  # TODO(port): delete files from this list as they get ported.
+  to_be_ported_files = [
+      'process_util_unittest.cc',
+      'stats_table_unittest.cc',
+  ]
+  for remove in to_be_ported_files:
+    input_files.remove(remove)
+
 
 if env['PLATFORM'] == 'win32':
   # Windows-specific tests.

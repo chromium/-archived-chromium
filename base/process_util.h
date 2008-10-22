@@ -17,6 +17,7 @@
 
 #include <string>
 
+#include "base/command_line.h"
 #include "base/process.h"
 
 #if defined(OS_WIN)
@@ -47,6 +48,7 @@ ProcessHandle GetCurrentProcessHandle();
 // Win XP SP1 as well.
 int GetProcId(ProcessHandle process);
 
+#if defined(OS_WIN)
 // Runs the given application name with the given command line. Normally, the
 // first command line argument should be the path to the process, and don't
 // forget to quote it.
@@ -62,6 +64,24 @@ int GetProcId(ProcessHandle process);
 // NOTE: In this case, the caller is responsible for closing the handle so
 //       that it doesn't leak!
 bool LaunchApp(const std::wstring& cmdline,
+               bool wait, bool start_hidden, ProcessHandle* process_handle);
+#elif defined(OS_POSIX)
+// Runs the application specified in argv[0] with the command line argv.
+// Both the elements of argv and argv itself must be terminated with a null
+// byte.
+//
+// As above, if wait is true, execute synchronously. The pid will be stored
+// in process_handle if that pointer is non-null.
+//
+// Note that the first argument in argv must point to the filename,
+// and must be fully specified.
+bool LaunchApp(const std::vector<std::string>& argv,
+               bool wait, ProcessHandle* process_handle);
+#endif
+
+// Execute the application specified by cl. This function delegates to one
+// of the above two platform-specific functions.
+bool LaunchApp(const CommandLine& cl,
                bool wait, bool start_hidden, ProcessHandle* process_handle);
 
 // Used to filter processes by process ID.
@@ -105,6 +125,11 @@ bool DidProcessCrash(ProcessHandle handle);
 bool WaitForProcessesToExit(const std::wstring& executable_name,
                             int wait_milliseconds,
                             const ProcessFilter* filter);
+
+// Wait for a single process to exit. Return true if it exited cleanly within
+// the given time limit.
+bool WaitForSingleProcess(ProcessHandle handle,
+                          int wait_milliseconds);
 
 // Waits a certain amount of time (can be 0) for all the processes with a given
 // executable name to exit, then kills off any of them that are still around.

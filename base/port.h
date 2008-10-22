@@ -53,8 +53,10 @@ inline void va_copy(va_list& a, va_list& b) {
 // Define an OS-neutral wrapper for shared library entry points
 #if defined(OS_WIN)
 #define API_CALL __stdcall
+#define DYNAMIC_EXPORT __declspec(dllexport)
 #elif defined(OS_POSIX)
 #define API_CALL 
+#define DYNAMIC_EXPORT
 #endif
 
 #endif  // BASE_PORT_H_

@@ -5,6 +5,8 @@
 #include "base/process_util.h"
 
 #include <string>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -21,6 +23,50 @@ enum ParsingState {
 }  // namespace
 
 namespace process_util {
+
+bool LaunchApp(const std::vector<std::string>& argv,
+               bool wait, ProcessHandle* process_handle) {
+  bool retval = true;
+
+  char* argv_copy[argv.size() + 1];
+  for (size_t i = 0; i < argv.size(); i++) {
+    argv_copy[i] = new char[argv[i].size() + 1];
+    strcpy(argv_copy[i], argv[i].c_str());
+  }
+  argv_copy[argv.size()] = NULL;
+
+  int pid = vfork();
+  if (pid == 0) {
+    execv(argv_copy[0], argv_copy);
+  } else if (pid < 0) {
+    retval = false;
+  } else {
+    if (wait)
+      waitpid(pid, 0, 0);
+
+    if(process_handle)
+      *process_handle = pid;
+  }
+
+  for (size_t i = 0; i < argv.size(); i++)
+    delete[] argv_copy[i];
+
+  return retval;
+}
+
+bool LaunchApp(const CommandLine& cl,
+               bool wait, bool start_hidden, ProcessHandle* process_handle) {
+  return LaunchApp(cl.argv(), wait, process_handle);
+}
+
+bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
+  int status;
+  waitpid(handle, &status, 0);
+  return WIFEXITED(status);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//// ProcessMetrics
 
 // To have /proc/self/io file you must enable CONFIG_TASK_IO_ACCOUNTING
 // in your kernel configuration.

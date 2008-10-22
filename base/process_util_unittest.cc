@@ -4,10 +4,35 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "testing/gtest/include/gtest/gtest.h"
+#include "base/multiprocess_test.h"
 #include "base/process_util.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
-TEST(ProcessUtilTest, EnableLFH) {
+#if defined(OS_WIN)
+#include <windows.h>
+#elif defined(OS_LINUX)
+#include <dlfcn.h>
+#endif
+
+namespace {
+class ProcessUtilTest : public MultiProcessTest {
+};
+}
+
+extern "C" int DYNAMIC_EXPORT SimpleChildProcess() {
+  return 0;
+}
+
+TEST_F(ProcessUtilTest, SpawnChild) {
+  ProcessHandle handle = this->SpawnChild(L"SimpleChildProcess");
+
+  ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
+  EXPECT_TRUE(process_util::WaitForSingleProcess(handle, 1000));
+}
+
+// TODO(estade): if possible, port these 2 tests.
+#if defined(OS_WIN)
+TEST_F(ProcessUtilTest, EnableLFH) {
   ASSERT_TRUE(process_util::EnableLowFragmentationHeap());
   if (IsDebuggerPresent()) {
     // Under these conditions, LFH can't be enabled. There's no point to test
@@ -38,7 +63,7 @@ TEST(ProcessUtilTest, EnableLFH) {
   }
 }
 
-TEST(ProcessUtilTest, CalcFreeMemory) {
+TEST_F(ProcessUtilTest, CalcFreeMemory) {
   process_util::ProcessMetrics* metrics =
     process_util::ProcessMetrics::CreateProcessMetrics(::GetCurrentProcess());
   ASSERT_TRUE(NULL != metrics);
@@ -72,4 +97,5 @@ TEST(ProcessUtilTest, CalcFreeMemory) {
   delete[] alloc;
   delete metrics;
 }
+#endif  // defined(OS_WIN)
 

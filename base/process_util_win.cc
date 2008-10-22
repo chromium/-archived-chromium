@@ -144,6 +144,12 @@ bool LaunchApp(const std::wstring& cmdline,
   return true;
 }
 
+bool LaunchApp(CommandLine& cl,
+               bool wait, bool start_hidden, ProcessHandle* process_handle) {
+  return LaunchApp(cl.command_line_string(), wait,
+                   start_hidden, process_handle);
+}
+
 // Attempts to kill the process identified by the given process
 // entry structure, giving it the specified exit code.
 // Returns true if this is successful, false otherwise.
@@ -316,6 +322,12 @@ bool WaitForProcessesToExit(const std::wstring& executable_name,
   return result;
 }
 
+bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
+  bool retval = WaitForSingleObject(handle, wait_milliseconds) == WAIT_OBJECT_0;
+  CloseHandle(handle);
+  return retval;
+}
+
 bool CleanupProcesses(const std::wstring& executable_name,
                       int wait_milliseconds,
                       int exit_code,
@@ -327,7 +339,6 @@ bool CleanupProcesses(const std::wstring& executable_name,
     process_util::KillProcesses(executable_name, exit_code, filter);
   return exited_cleanly;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // ProcesMetrics

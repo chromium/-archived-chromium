@@ -1,0 +1,5 @@
+# list of functions exported from the Linux base_unittests executable.
+{
+  SimpleChildProcess;
+  StatsTableMultipleProcessMain;
+};
