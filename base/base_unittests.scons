@@ -62,8 +62,8 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] == 'posix':
   # Explicity list the functions we want to export from the base_unittest
   # executable in the following file.
-  exported_symbols_filename = \
-      env.Dir('#').abspath + '/base_unittest_exported_symbols.version'
+  env['EXPORTED_SYMBOLS_FILE'] = \
+      env.File('$ROOT_DIR/base/base_unittest_exported_symbols.version')
 
   env.Append(
       LIBS = [
@@ -71,7 +71,7 @@ if env['PLATFORM'] == 'posix':
       ],
       LINKFLAGS = [
           '-Xlinker',
-          '--dynamic-list=' + exported_symbols_filename,
+          '--dynamic-list=$EXPORTED_SYMBOLS_FILE'
       ],
   )
 
@@ -182,6 +182,8 @@ if env['PLATFORM'] == 'darwin':
   ])
 
 base_unittests = env.ChromeTestProgram('base_unittests', input_files)
+
+env.Depends(base_unittests, '$EXPORTED_SYMBOLS_FILE')
 
 # Install up a level to allow unit test path assumptions to be valid.
 installed_base_unittests = env.Install('$TARGET_ROOT', base_unittests)
