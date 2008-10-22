@@ -393,10 +393,6 @@ ALL_WRAPPER_TYPES(DEFINE_ENUM)
 #undef DEFINE_ENUM
     CLASSINDEX_END,
   };
-  static inline V8WrapperType ToWrapperType(v8::Handle<v8::Value> obj) {
-    return static_cast<V8WrapperType>(
-        reinterpret_cast<int>(v8::Handle<v8::External>::Cast(obj)->Value()));
-  }
 
   static int ToInt(V8WrapperType type) { return static_cast<int>(type); }
 

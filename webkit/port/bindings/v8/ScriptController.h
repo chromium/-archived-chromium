@@ -231,6 +231,7 @@ public:
 
     void clearWindowShell();
     void updateDocument();
+    void notifyDOMWindowReady() { m_proxy->domWindowReady(); }
 
     void pauseTimeouts(OwnPtr<PausedTimeouts>&);
     void resumeTimeouts(OwnPtr<PausedTimeouts>&);

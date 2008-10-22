@@ -374,7 +374,7 @@ END
   HolderToNative($dataNode, $implClassName, $classIndex);
 
   push(@implContentDecls, <<END);
-    if (!V8Proxy::IsFromSameOrigin(imp->frame(), false)) {
+    if (!V8Proxy::CanAccessFrame(imp->frame(), false)) {
       static v8::Persistent<v8::FunctionTemplate> shared_template =
         v8::Persistent<v8::FunctionTemplate>::New($newTemplateString);
       return shared_template->GetFunction();
@@ -765,7 +765,7 @@ END
     && !$function->signature->extendedAttributes->{"DoNotCheckDomainSecurity"}) {
     # We have not find real use cases yet.
     push(@implContentDecls,
-"    if (!V8Proxy::IsFromSameOrigin(imp->frame(), true)) {\n".
+"    if (!V8Proxy::CanAccessFrame(imp->frame(), true)) {\n".
 "      return v8::Undefined();\n" .
 "    }\n"); 
   }
@@ -1056,7 +1056,7 @@ END
 
     my $access_check = "/* no access check */";
     if ($dataNode->extendedAttributes->{"CheckDomainSecurity"}) {
-      $access_check = "instance->SetAccessCheckCallbacks(V8Custom::v8${interfaceName}NamedSecurityCheck, V8Custom::v8${interfaceName}IndexedSecurityCheck, v8::External::New((void*)V8ClassIndex::${classIndex}));";
+      $access_check = "instance->SetAccessCheckCallbacks(V8Custom::v8${interfaceName}NamedSecurityCheck, V8Custom::v8${interfaceName}IndexedSecurityCheck, v8::Integer::New(V8ClassIndex::ToInt(V8ClassIndex::${classIndex})));";
     }
 
     # Generate the template configuration method

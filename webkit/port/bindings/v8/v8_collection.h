@@ -12,10 +12,11 @@
 namespace WebCore {
 
 static v8::Handle<v8::Value> GetV8Object(
-    void * result,
+    void* result,
     v8::Local<v8::Value> data) {
   if (!result) return v8::Handle<v8::Value>();
-  V8ClassIndex::V8WrapperType type = V8ClassIndex::ToWrapperType(data);
+  V8ClassIndex::V8WrapperType type =
+      V8ClassIndex::FromInt(data->Int32Value());
   if (type == V8ClassIndex::NODE)
     return V8Proxy::NodeToV8Object(static_cast<Node*>(result));
   else
@@ -161,7 +162,7 @@ static void SetCollectionIndexedGetter(v8::Handle<v8::FunctionTemplate> desc,
       0,
       0,
       CollectionIndexedPropertyEnumerator<T>,
-      v8::External::New(reinterpret_cast<void*>(type)));
+      v8::Integer::New(V8ClassIndex::ToInt(type)));
 }
 
 
@@ -175,7 +176,7 @@ static void SetCollectionNamedGetter(v8::Handle<v8::FunctionTemplate> desc,
       0,
       0,
       0,
-      v8::External::New(reinterpret_cast<void*>(type)));
+      v8::Integer::New(V8ClassIndex::ToInt(type)));
 }
 
 
@@ -192,14 +193,14 @@ static void SetCollectionIndexedAndNamedGetters(
       0,
       0,
       0,
-      v8::External::New(reinterpret_cast<void*>(type)));
+      v8::Integer::New(V8ClassIndex::ToInt(type)));
   desc->InstanceTemplate()->SetIndexedPropertyHandler(
       CollectionIndexedPropertyGetter<T, D>,
       0,
       0,
       0,
       CollectionIndexedPropertyEnumerator<T>,
-      v8::External::New(reinterpret_cast<void*>(type)));
+      v8::Integer::New(V8ClassIndex::ToInt(type)));
 }
 
 
@@ -220,4 +221,3 @@ static void SetCollectionStringOrNullIndexedGetter(
 }  // namespace WebCore
 
 #endif  // V8_PROPERTY_H__
-

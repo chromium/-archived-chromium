@@ -96,7 +96,7 @@ Frame* ScriptController::retrieveActiveFrame()
 
 bool ScriptController::isSafeScript(Frame* target)
 {
-    return V8Proxy::IsFromSameOrigin(target, true);
+    return V8Proxy::CanAccessFrame(target, true);
 }
 
 void ScriptController::gcProtectJSWrapper(void* dom_object)
@@ -512,9 +512,7 @@ NPObject* ScriptController::createScriptObjectForPluginElement(HTMLPlugInElement
 
 void ScriptController::clearWindowShell()
 {
-    // TODO(eseidel): we don't yet have a split window implementation
-    // we need to clear the window object here.
-    m_proxy->clear();
+    m_proxy->clearForNavigation();
 }
 
 void ScriptController::attachDebugger(void*)

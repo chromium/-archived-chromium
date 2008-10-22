@@ -11,6 +11,7 @@
 #include "v8_utility.h"
 #include "Node.h"
 #include "NodeFilter.h"
+#include "SecurityOrigin.h"  // for WebCore::SecurityOrigin
 #include "PlatformString.h"  // for WebCore::String
 #include <wtf/HashMap.h>   // for HashMap
 #include <wtf/PassRefPtr.h> // so generated bindings don't have to
@@ -157,17 +158,19 @@ class V8Proxy {
 
   ~V8Proxy();
 
-  // Clear security token by setting the security token
-  // for the context to the global object.
-  void ClearSecurityToken();
+  Frame* frame() { return m_frame; }
 
-  // Clear page-specific data, exception keep the global object identify.
-  void clear();
+  // Clear page-specific data, but keep the global object identify.
+  void clearForNavigation();
+
+  // Clear data before closing the frame.
+  void clearForClose();
+
+  // Notify that a new DOMWindow object is ready.
+  void domWindowReady();
 
   // Destroy the global object.
   void DestroyGlobal();
-
-  Frame* frame() { return m_frame; }
 
   // TODO(mpcomplete): Need comment.  User Gesture related.
   bool inlineCode() const { return m_inlineCode; }
@@ -262,20 +265,12 @@ class V8Proxy {
   // is disabled and it returns true.
   static bool HandleOutOfMemory();
 
-  // Generate the security token for a context.
-  static v8::Handle<v8::Value> GenerateSecurityToken(
-      v8::Local<v8::Context> context);
-
-  // Check if the active execution context is from the same origin
-  // as the target frame.
-  static bool IsFromSameOrigin(Frame* target, bool report_error);
+  // Check if the active execution context can access the target frame.
+  static bool CanAccessFrame(Frame* target, bool report_error);
 
   // Check if it is safe to access the given node from the
   // current security context.
   static bool CheckNodeSecurity(Node* node);
-
-  // Return true if the current security context can access the target frame.
-  static bool CanAccess(Frame* target);
 
   static v8::Handle<v8::Value> CheckNewLegal(const v8::Arguments& args);
 
@@ -420,6 +415,8 @@ class V8Proxy {
  private:
   void initContextIfNeeded();
   void DisconnectEventListeners();
+
+  static bool CanAccessPrivate(DOMWindow* target);
 
   // Check whether a V8 value is a DOM Event wrapper
   static bool IsDOMEventWrapper(v8::Handle<v8::Value> obj);
