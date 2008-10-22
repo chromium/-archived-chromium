@@ -63,12 +63,12 @@ Widget::~Widget()
     delete data;
 }
 
-void Widget::setContainingWindow(HWND containingWindow)
+void Widget::setContainingWindow(PlatformWidget containingWindow)
 {
     ASSERT_NOT_REACHED();
 }
 
-HWND Widget::containingWindow() const
+PlatformWidget Widget::containingWindow() const
 {
     if (!data->client)
         return NULL;
