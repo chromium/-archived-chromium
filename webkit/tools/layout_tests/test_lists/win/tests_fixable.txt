@@ -797,7 +797,6 @@ V8 | KJS # LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 
 # We don't implement toDataURL.
 # http://code.google.com/p/chromium/issues/detail?id=2972
-V8 | KJS # LayoutTests/fast/canvas/toDataURL-noData.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
 
 # layoutTestController.setStopProvisionalFrameLoads needs implementing
@@ -921,7 +920,7 @@ V8 | KJS # LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
 // Post-MERGE failures: these will all need to be fixed one day
 V8 | KJS # LayoutTests/editing/selection/caret-rtl-2.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL
+V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/block/float/float-avoidance.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/drawImage.html = FAIL
