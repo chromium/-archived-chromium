@@ -240,6 +240,9 @@ each locale. -->
       <message name="IDS_CONTENT_CONTEXT_INSPECTELEMENT" desc="The name of the Inspect Element command in the content area context menu">
         I&amp;nspect element
       </message>
+      <message name="IDS_CONTENT_CONTEXT_RELOAD" desc="The name of the Reload command in the content area context menu">
+        Re&amp;load
+      </message>
 
       <message name="IDS_CONTENT_CONTEXT_OPENFRAMENEWWINDOW" desc="The name of the Open Frame in New Window command in the content area context menu">
         Open frame in new &amp;window

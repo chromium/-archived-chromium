@@ -106,6 +106,8 @@ bool RenderViewContextMenuController::IsCommandEnabled(int id) const {
 
     case IDS_CONTENT_CONTEXT_FORWARD:
       return source_web_contents_->controller()->CanGoForward();
+    case IDS_CONTENT_CONTEXT_RELOAD:
+      return true;
     case IDS_CONTENT_CONTEXT_VIEWPAGESOURCE:
     case IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE:
     case IDS_CONTENT_CONTEXT_INSPECTELEMENT:
@@ -271,6 +273,10 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
 
     case IDS_CONTENT_CONTEXT_SAVEPAGEAS:
       source_web_contents_->OnSavePage();
+      break;
+
+    case IDS_CONTENT_CONTEXT_RELOAD:
+      source_web_contents_->controller()->Reload();
       break;
 
     case IDS_CONTENT_CONTEXT_PRINT:

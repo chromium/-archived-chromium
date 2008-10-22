@@ -84,6 +84,7 @@ void RenderViewContextMenu::AppendImageItems() {
 void RenderViewContextMenu::AppendPageItems() {
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_BACK);
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_FORWARD);
+  AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_RELOAD);
   AppendSeparator();
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_SAVEPAGEAS);
   AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_PRINT);
