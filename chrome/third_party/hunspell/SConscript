@@ -36,7 +36,7 @@ env = env.Clone()
 env.Prepend(
     CPPPATH = [
         '$ICU38_DIR/public/common',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
 )
 

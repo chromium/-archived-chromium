@@ -85,7 +85,7 @@ env.ChromeStaticLibrary('googleurl-gears', input_files)
 #
 #   # The version of gtest that googleurl uses provides a main() function; ours
 #   # doesn't so include our own main function.
-#   '#/../base/run_all_unittests.cc'
+#   '$CHROME_SRC_DIR/base/run_all_unittests.cc'
 #]
 #
 #gurl_unittests = env_tests.ChromeTestProgram('googleurl_unittests', test_files)

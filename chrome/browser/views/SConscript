@@ -12,7 +12,7 @@ env.Prepend(
         '$CHROME_DIR/app/resources',
         #'$OBJ_ROOT/google_update',
         '#/tools/build/win',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',

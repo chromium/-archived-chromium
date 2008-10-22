@@ -16,7 +16,7 @@ env.SConscript([
 
 env.Prepend(
     CPPPATH = [
-        '$ROOT_DIR',
+        '$CHROME_SRC_DIR',
     ],
 )
 

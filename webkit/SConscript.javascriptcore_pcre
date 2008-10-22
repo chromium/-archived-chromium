@@ -31,8 +31,8 @@ if env['PLATFORM'] == 'win32':
 
 dir = env.Dir('$PCRE_DIR')
 
-dir.addRepository(env.Dir('#/../webkit/pending'))
-dir.addRepository(env.Dir('#/../third_party/WebKit/JavaScriptCore/pcre'))
+dir.addRepository(env.Dir('$CHROME_SRC_DIR/webkit/pending'))
+dir.addRepository(env.Dir('$CHROME_SRC_DIR/third_party/WebKit/JavaScriptCore/pcre'))
 
 input_files = [
      '$PCRE_DIR/pcre_compile.cpp',

@@ -17,7 +17,7 @@ env_res.Append(
     CPPPATH = [
         "$TARGET_ROOT",
         ".",
-        "#/..",
+        "$CHROME_SRC_DIR",
     ],
     RCFLAGS = [
         ["/l", "0x409"],
@@ -31,7 +31,7 @@ env.Prepend(
     CPPPATH = [
         '$GTEST_DIR/include',
         '$GTEST_DIR',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     CCFLAGS = [
         '/TP',
@@ -109,7 +109,7 @@ env_test.Prepend(
     CPPPATH = [
         '$GTEST_DIR/include',
         '$GTEST_DIR',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     LIBS = [
         'gtest',

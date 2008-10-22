@@ -11,7 +11,7 @@ env.Prepend(
     CPPPATH = [
         '$CHROME_DIR/app/resources',
         '#/tools/build/win',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',

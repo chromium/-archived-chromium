@@ -11,7 +11,7 @@ if env['PLATFORM'] == 'win32':
   env_res.Append(
       CPPPATH = [
           '.',
-          '#/..',
+          '$CHROME_SRC_DIR',
           '$NET_DIR',
       ],
       RCFLAGS = [

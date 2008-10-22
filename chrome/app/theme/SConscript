@@ -10,7 +10,7 @@ env_res = env_res.Clone()
 env_res.Append(
     CPPPATH = [
         '.',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     RCFLAGS = [
         ['/l', '0x409'],

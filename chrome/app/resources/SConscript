@@ -10,9 +10,9 @@ env_res = env_res.Clone()
 env_res.Append(
     CPPPATH = [
         '.',
-        '#/../chrome/Debug/obj/chrome_dll',
-        '#/..',
-        '#/../chrome/Debug/obj',
+        '$CHROME_SRC_DIR/chrome/Debug/obj/chrome_dll',
+        '$CHROME_SRC_DIR',
+        '$CHROME_SRC_DIR/chrome/Debug/obj',
     ],
     RCFLAGS = [
         ['/l', '0x409'],

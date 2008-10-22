@@ -9,7 +9,7 @@ env = env.Clone()
 env.Prepend(
     CPPPATH = [
         '$BREAKPAD_DIR/src',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     LIBS = [
         'base',

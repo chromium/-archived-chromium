@@ -10,7 +10,7 @@ env = env.Clone()
 env.Prepend(
     CPPPATH = [
         '$CHROME_DIR/tools/build/win',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     CCFLAGS = [
         '/TP',

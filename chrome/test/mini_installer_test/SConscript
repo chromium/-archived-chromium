@@ -15,7 +15,7 @@ env_test.Prepend(
     CPPPATH = [
         '$GTEST_DIR/include',
         '$GTEST_DIR',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     LIBS = [
         'util',

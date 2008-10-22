@@ -10,7 +10,7 @@ env.Prepend(
     CPPPATH = [
         '$CHROME_DIR/app/resources',
         '#/tools/build/win',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     CPPDEFINES = [
         'U_STATIC_IMPLEMENTATION',
@@ -131,7 +131,7 @@ env_test.Append(
         '$SKIA_DIR/include',
         '$SKIA_DIR/include/corecg',
         '$SKIA_DIR/platform',
-        '#/..',
+        '$CHROME_SRC_DIR',
         '$GTEST_DIR/include',
     ],
     LIBS = [

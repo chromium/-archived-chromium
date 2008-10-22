@@ -9,7 +9,7 @@ env = env.Clone()
 env.Prepend(
     CPPPATH = [
         '$NPAPI_DIR',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     LIBS = [
         'activex_shim',

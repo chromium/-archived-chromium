@@ -17,7 +17,7 @@ env_test.Prepend(
         '$SKIA_DIR/include',
         '$SKIA_DIR/include/corecg',
         '$SKIA_DIR/platform',
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     LIBS = [
         'googleurl',

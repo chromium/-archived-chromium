@@ -13,7 +13,7 @@ except AttributeError:
 
 env = env.Clone(
     V8_MODE = 'release',
-    V8_SRC_DIR = '#/../v8',
+    V8_SRC_DIR = '$CHROME_SRC_DIR/v8',
     V8_MODE_DIR = '$V8_SRC_DIR/obj/$V8_MODE',
     V8_SCONS_COM = 'cd ../v8 && $PYTHON $SCONS $SCONSFLAGS mode=$V8_MODE',
     SCONS='../third_party/scons/scons.py',
@@ -49,7 +49,7 @@ v8_scons_targets_on = [
 
 if env['PLATFORM'] == 'win32':
   v8_scons_targets_off.extend([
-      env.File('#/../v8/vc80.pdb')
+      env.File('$CHROME_SRC_DIR/v8/vc80.pdb')
   ])
 
 v8 = env.Command(v8_scons_targets_off + v8_scons_targets_on,

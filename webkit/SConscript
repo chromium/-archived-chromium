@@ -31,8 +31,8 @@ env_res = env.Clone()
 # or not the file involved is a generated file or checked-in source.
 
 port_dir = env.Dir('$WEBKIT_DIR/port')
-port_dir.addRepository(env.Dir('#/../webkit/port'))
-port_dir.addRepository(env.Dir('#/../third_party/WebKit/WebCore'))
+port_dir.addRepository(env.Dir('$CHROME_SRC_DIR/webkit/port'))
+port_dir.addRepository(env.Dir('$CHROME_SRC_DIR/third_party/WebKit/WebCore'))
 
 if env['PLATFORM'] == 'win32':
   env['WEBKIT_PLATFORM_SUBDIR'] = 'win'
@@ -141,7 +141,7 @@ env.Prepend(
         '$WEBKIT_DIR/port/svg/animation',
         '$WEBKIT_DIR/port/svg/graphics/filters',
 
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
 )
 
@@ -263,7 +263,7 @@ if env['PLATFORM'] == 'win32':
 
 version = env.Command('$WEBKIT_DIR/build/WebCore/webkit_version.h',
                       ['$WEBCORE_DIR/Configurations/Version.xcconfig',
-                       '#/../webkit/build/webkit_version.py'],
+                       '$CHROME_SRC_DIR/webkit/build/webkit_version.py'],
                       "$PYTHON ${SOURCES[1]} ${SOURCES[0]} ${TARGET.dir}")
 env.AlwaysBuild(version)
 

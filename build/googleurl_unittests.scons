@@ -14,12 +14,12 @@ env.SConscript([
     '$BASE_DIR/using_base.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$GTEST_DIR/../using_gtest.scons',
-    '#/../build/using_googleurl.scons',
+    '$CHROME_SRC_DIR/build/using_googleurl.scons',
 ], {'env':env})
 
 env.Prepend(
     CPPPATH = [
-        '$ROOT_DIR',
+        '$CHROME_SRC_DIR',
     ],
 )
 

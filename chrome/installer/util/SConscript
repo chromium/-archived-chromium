@@ -22,7 +22,7 @@ env.Prepend(
         '$LIBJPEG_DIR',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
-        '#/..',
+        '$CHROME_SRC_DIR',
         '.',
     ],
     CPPDEFINES = [
@@ -66,7 +66,8 @@ x = env.ChromeStaticLibrary('util', input_files)
 # create_string_rc.py imports FP.py from the tools/grit/grit/extern
 # directory, so add that to PYTHONPATH for this command execution.
 env_x = env.Clone()
-env_x.AppendENVPath('PYTHONPATH', [Dir('#/../tools/grit/grit/extern').abspath])
+env_x.AppendENVPath('PYTHONPATH',
+    [env_x.Dir('$CHROME_SRC_DIR/tools/grit/grit/extern').abspath])
 env_x.Command(['$CHROME_DIR/installer/util/installer_util_strings.rc',
                '$CHROME_DIR/installer/util/installer_util_strings.h'],
               ['$CHROME_DIR/installer/util/prebuild/create_string_rc.py',

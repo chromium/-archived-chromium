@@ -27,7 +27,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
 
 env.Prepend(
     CPPPATH = [
-        '$ROOT_DIR',
+        '$CHROME_SRC_DIR',
     ],
     CPPDEFINES = [
         'GOOGLE_CHROME_BUILD',
@@ -63,7 +63,7 @@ if env['PLATFORM'] == 'posix':
   # Explicity list the functions we want to export from the base_unittest
   # executable in the following file.
   env['EXPORTED_SYMBOLS_FILE'] = \
-      env.File('$ROOT_DIR/base/base_unittest_exported_symbols.version')
+      env.File('$CHROME_SRC_DIR/base/base_unittest_exported_symbols.version')
 
   env.Append(
       LIBS = [

@@ -9,7 +9,7 @@ env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
-        '#/..',
+        '$CHROME_SRC_DIR',
     ],
     LIBS = [
         'googleurl',

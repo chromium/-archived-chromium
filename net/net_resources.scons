@@ -12,7 +12,7 @@ env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
-        '$ROOT_DIR',
+        '$CHROME_SRC_DIR',
     ],
     RCFLAGS = [
         ['/l', '0x409'],

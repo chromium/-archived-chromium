@@ -8,12 +8,12 @@ env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
-        '#/../webkit/glue',
+        '$CHROME_SRC_DIR/webkit/glue',
         '$ICU38/public/common',
         '$ICU38/public/i18n',
-        '#/../third_party/libxml/include',
-        '#/../third_party/npapi',
-        '#/..',
+        '$CHROME_SRC_DIR/third_party/libxml/include',
+        '$CHROME_SRC_DIR/third_party/npapi',
+        '$CHROME_SRC_DIR',
     ],
 )
 

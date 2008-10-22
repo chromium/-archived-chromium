@@ -28,9 +28,9 @@ else:
 
 env = Environment(
     BUILD_TYPE = ARGUMENTS.get('BUILD_TYPE', 'Hammer'),
-    TARGET_ROOT = '#/$BUILD_TYPE',
+    CHROME_SRC_DIR = Dir('#/..').abspath,
+    TARGET_ROOT = Dir('#/$BUILD_TYPE').abspath,
     OBJ_ROOT = '$TARGET_ROOT',
-    ROOT_DIR = '#/..',
 
     LIBS_DIR              = '$OBJ_ROOT/Libs',
 
@@ -456,8 +456,8 @@ env.Decider('MD5-timestamp')
 
 
 # Overlay things from a layer below.
-env.Dir('$TARGET_ROOT').addRepository(Dir('#/..'))
-env.Dir('$TARGET_ROOT/googleurl').addRepository(env.Dir('$ROOT_DIR/build'))
+env.Dir('$TARGET_ROOT').addRepository(env.Dir('$CHROME_SRC_DIR'))
+env.Dir('$TARGET_ROOT/googleurl').addRepository(env.Dir('$CHROME_SRC_DIR/build'))
 
 included = [c for c in load if not c.startswith('-')]
 excluded = [c[1:] for c in load if c.startswith('-')]
@@ -539,7 +539,7 @@ if LoadComponent('third_party'):
         '$BSPATCH_DIR/SConscript',
     ])
 
-if LoadComponent('v8') and env.Dir('#/../v8').exists():
+if LoadComponent('v8') and env.Dir('$CHROME_SRC_DIR/v8').exists():
   env.SConscript('SConscript.v8',
                  exports=['env'])
 
