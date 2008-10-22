@@ -28,9 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
+#include "build/build_config.h"
 
-#include <windows.h>
-#include <vssym32.h>
 #include "AffineTransform.h"
 #include "BitmapImage.h"
 #include "BitmapImageSingleFrameSkia.h"
@@ -38,19 +37,24 @@
 #include "GraphicsContext.h"
 #include "Logging.h"
 #include "NativeImageSkia.h"
-#include "notImplemented.h"
+#include "NotImplemented.h"
 #include "PlatformScrollBar.h"
 #include "PlatformString.h"
 
 #include "SkiaUtils.h"
 #include "SkShader.h"
 
-#include "base/gfx/gdi_util.h"
 #include "base/gfx/image_operations.h"
-#include "base/gfx/native_theme.h"
-#include "base/gfx/platform_canvas_win.h"
+#include "base/gfx/platform_canvas.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkit_resources.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#include <vssym32.h>
+#include "base/gfx/gdi_util.h"
+#include "base/gfx/native_theme.h"
+#endif
 
 namespace WebCore {
 
@@ -78,6 +82,7 @@ void TransformDimensions(const SkMatrix& matrix,
     *dest_height = SkScalarToFloat((dest_points[2] - dest_points[0]).length());
 }
 
+#if defined(OS_WIN)
 // Creates an Image for the text area resize corner. We do this by drawing the
 // theme native control into a memory buffer then converting the memory buffer
 // into a BMP byte stream, then feeding it into the Image object.  We have to
@@ -104,6 +109,7 @@ static PassRefPtr<Image> GetTextAreaResizeCorner()
     device.postProcessGDI(0, 0, width, height);
     return BitmapImageSingleFrameSkia::create(device.accessBitmap(false));
 }
+#endif
 
 }  // namespace
 
@@ -132,8 +138,13 @@ PassRefPtr<Image> Image::loadPlatformResource(const char *name)
         return loadImageWithResourceId(IDR_BROKENIMAGE);
     if (!strcmp(name, "tickmarkDash"))
         return loadImageWithResourceId(IDR_TICKMARK_DASH);
+    // TODO(port): Need to make this portable.
     if (!strcmp(name, "textAreaResizeCorner"))
+#if defined(OS_WIN)
         return GetTextAreaResizeCorner();
+#else
+        notImplemented();
+#endif
     if (!strcmp(name, "deleteButton") || !strcmp(name, "deleteButtonPressed")) {
         LOG(NotYetImplemented, "Image resource %s does not yet exist\n", name);
         return Image::nullImage();
@@ -141,35 +152,6 @@ PassRefPtr<Image> Image::loadPlatformResource(const char *name)
 
     LOG(NotYetImplemented, "Unknown image resource %s requested\n", name);
     return Image::nullImage();
-}
-
-static bool subsetBitmap(SkBitmap* dst, const SkBitmap& src, const FloatRect& clip)
-{
-    FloatRect floatBounds(0, 0, src.width(), src.height());
-    if (!floatBounds.intersects(clip))
-        return false;
-
-    SkAutoLockPixels src_lock(src);
-    IntRect bounds(floatBounds);
-    void* addr;
-    switch (src.getConfig()) {
-    case SkBitmap::kIndex8_Config:
-    case SkBitmap::kA8_Config:
-        addr = (void*)src.getAddr8(bounds.x(), bounds.y());
-        break;
-    case SkBitmap::kRGB_565_Config:
-        addr = (void*)src.getAddr16(bounds.x(), bounds.y());
-        break;
-    case SkBitmap::kARGB_8888_Config:
-        addr = (void*)src.getAddr32(bounds.x(), bounds.y());
-        break;
-    default:
-        SkDEBUGF(("subset_bitmap: can't subset this bitmap config %d\n", src.getConfig()));
-        return false;
-    }
-    dst->setConfig(src.getConfig(), bounds.width(), bounds.height(), src.rowBytes());
-    dst->setPixels(addr);
-    return false;
 }
 
 void Image::drawPattern(GraphicsContext* context,

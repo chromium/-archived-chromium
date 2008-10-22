@@ -121,7 +121,6 @@ if env['PLATFORM'] == 'posix':
     '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
     '$PORT_DIR/platform/chromium/PlatformScrollBarChromium.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
-    '$PORT_DIR/platform/graphics/ImageSkia.cpp',
   ]
   for remove in remove_files:
     input_files.remove(remove)
