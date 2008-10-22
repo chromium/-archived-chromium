@@ -245,9 +245,9 @@ if env_dll['PLATFORM'] == 'win32':
     env_res.RES(g)
 
   def chrome_version_emitter(target, source, env):
-      source.append('$CHROME_SRC_DIR/VERSION')
+      source.append('$CHROME_SRC_DIR/chrome/VERSION')
       # TODO(sgk):  parameterize for chromium-vs.-google_chrome
-      source.append('$CHROME_SRC_DIR/app/theme/google_chrome/BRANDING')
+      source.append('$CHROME_SRC_DIR/chrome/app/theme/google_chrome/BRANDING')
       return target, source
 
   b = Builder(action = '$CHROME_VERSION_RC_COM',
@@ -257,10 +257,9 @@ if env_dll['PLATFORM'] == 'win32':
 
   env.Replace(
       CHROME_VERSION_RC_COM =
-          '$VERSION_BAT $SOURCE $CHROME_SRC_DIR $PWD $TARGET',
+          '$VERSION_BAT $SOURCE $CHROME_SRC_DIR/chrome $PWD $TARGET',
       VERSION_BAT = env.File(
           '$CHROME_SRC_DIR/chrome/tools/build/win/version.bat'),
-      CHROME_SRC_DIR = env.Dir('$CHROME_SRC_DIR/chrome'),
       PWD = Dir('.'),
   )
 
