@@ -54,7 +54,7 @@
 #include "Widget.h"
 #include "WidgetClientChromium.h"
 
-#if !PLATFORM(WIN_OS)
+#if PLATFORM(DARWIN)
 #include "KeyboardCodes.h"
 #endif
 
