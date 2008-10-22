@@ -35,7 +35,7 @@
 #if defined(OS_WIN)
 typedef struct HBITMAP__* HBITMAP;
 #elif defined(OS_MACOSX)
-#if __OBJC__ 
+#if __OBJC__
 @class NSImage;
 #else
 class NSImage;
@@ -48,6 +48,9 @@ namespace WebCore {
 typedef HBITMAP DragImageRef;
 #elif defined(OS_MACOSX)
 typedef NSImage* DragImageRef;
+#else
+// TODO(port): remove null port.
+typedef void* DragImageRef;
 #endif
 
 }
