@@ -84,14 +84,6 @@ class EditorClientImpl : public WebCore::EditorClient {
   virtual void textWillBeDeletedInTextField(WebCore::Element*);
   virtual void textDidChangeInTextArea(WebCore::Element*);
 
-#if defined(OS_MACOSX)
-  virtual NSData* dataForArchivedSelection(WebCore::Frame*); 
-  virtual NSString* userVisibleString(NSURL*);
-#ifdef BUILDING_ON_TIGER
-  virtual NSArray* pasteboardTypesForSelection(WebCore::Frame*);
-#endif
-#endif
-
   virtual void ignoreWordInSpellDocument(const WebCore::String&);
   virtual void learnWord(const WebCore::String&);
   virtual void checkSpellingOfString(const UChar*, int length,

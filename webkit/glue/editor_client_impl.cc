@@ -586,23 +586,6 @@ void EditorClientImpl::textWillBeDeletedInTextField(WebCore::Element*) {
 void EditorClientImpl::textDidChangeInTextArea(WebCore::Element*) {
 }
 
-#if defined(OS_MACOSX)
-// TODO(pinkerton): implement these when we get to copy/paste
-NSData* EditorClientImpl::dataForArchivedSelection(WebCore::Frame*) {
-  NOTIMPLEMENTED();
-}
-
-NSString* EditorClientImpl::userVisibleString(NSURL*) {
-  NOTIMPLEMENTED();
-}
-
-#ifdef BUILDING_ON_TIGER
-NSArray* EditorClientImpl::pasteboardTypesForSelection(WebCore::Frame*) {
-  NOTIMPLEMENTED();
-}
-#endif
-#endif
-
 void EditorClientImpl::ignoreWordInSpellDocument(const WebCore::String&) {
   NOTIMPLEMENTED();
 }
