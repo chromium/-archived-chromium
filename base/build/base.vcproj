@@ -502,6 +502,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\observer_list_threadsafe.h"
+			>
+		</File>
+		<File
 			RelativePath="..\path_service.cc"
 			>
 		</File>

@@ -625,5 +625,19 @@ typename Callback5<Arg1, Arg2, Arg3, Arg4, Arg5>::Type* NewCallback(
       Tuple5<Arg1, Arg2, Arg3, Arg4, Arg5> >(object, method);
 }
 
+// An UnboundMethod is a wrapper for a method where the actual object is
+// provided at Run dispatch time.
+template <class T, class Method, class Params>
+class UnboundMethod {
+ public:
+  UnboundMethod(Method m, Params p) : m_(m), p_(p) {}
+  void Run(T* obj) const {
+    DispatchToMethod(obj, m_, p_);
+  }
+ private:
+  Method m_;
+  Params p_;
+};
+
 #endif  // BASE_TASK_H__
 

@@ -244,6 +244,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\observer_list_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\path_service_unittest.cc"
 				>
 			</File>
