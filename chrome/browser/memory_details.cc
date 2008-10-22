@@ -253,9 +253,11 @@ void MemoryDetails::UpdateHistograms() {
       if (!is_plugin_process) {
         if (trial.get()) {
           if (trial->boolean_value())
-            UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer_high_memory", sample);
+            UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer_trial_high_memory",
+                                    sample);
           else
-            UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer_med_memory", sample);
+            UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer_trial_med_memory",
+                                    sample);
         } else {
           UMA_HISTOGRAM_MEMORY_KB(L"Memory.Renderer", sample);
         }
