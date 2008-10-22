@@ -72,6 +72,11 @@ class WebContents : public TabContents,
 
   bool is_starred() const { return is_starred_; }
 
+  const std::wstring& encoding() const { return encoding_; }
+  void set_encoding(const std::wstring& encoding) {
+    encoding_ = encoding;
+  }
+
   // TabContents (public overrides) --------------------------------------------
 
   virtual void Destroy();
@@ -188,6 +193,16 @@ class WebContents : public TabContents,
   // Returns true if this WebContents will notify about disconnection.
   bool notify_disconnection() const { return notify_disconnection_; }
 
+  // Override the encoding and reload the page by sending down
+  // ViewMsg_SetPageEncoding to the renderer. |UpdateEncoding| is kinda
+  // the opposite of this, by which 'browser' is notified of 
+  // the encoding of the current tab from 'renderer' (determined by
+  // auto-detect, http header, meta, bom detection, etc).
+  void override_encoding(const std::wstring& encoding) {
+    set_encoding(encoding);
+    render_view_host()->SetPageEncoding(encoding);
+  }
+
  protected:
   // Should be deleted via CloseContents.
   virtual ~WebContents();
@@ -219,7 +234,7 @@ class WebContents : public TabContents,
                            int32 page_id,
                            const std::wstring& title);
   virtual void UpdateEncoding(RenderViewHost* render_view_host,
-                              const std::wstring& encoding_name);
+                              const std::wstring& encoding);
   virtual void UpdateTargetURL(int32 page_id, const GURL& url);
   virtual void UpdateThumbnail(const GURL& url,
                                const SkBitmap& bitmap,
@@ -361,6 +376,7 @@ class WebContents : public TabContents,
     // message back to the WebContents, if we haven't been deleted.
     GearsCreateShortcutCallbackFunctor* callback_functor;
   };
+
 
   // NotificationObserver ------------------------------------------------------
 
@@ -520,6 +536,9 @@ class WebContents : public TabContents,
   // When a navigation occurs, we record its contents MIME type. It can be
   // used to check whether we can do something for some special contents.
   std::string contents_mime_type_;
+
+  // Character encoding. TODO(jungshik) : convert to std::string
+  std::wstring encoding_;
 
   PendingInstall pending_install_;
 

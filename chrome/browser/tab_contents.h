@@ -209,11 +209,6 @@ class TabContents : public PageNavigator,
   // Returns a human-readable description the tab's loading state.
   virtual std::wstring GetStatusText() const { return std::wstring(); }
 
-  const std::wstring& encoding() { return encoding_name_; }
-  void set_encoding(const std::wstring& encoding_name) {
-    encoding_name_ = encoding_name;
-  }
-
   // Return whether this tab contents is loading a resource.
   bool is_loading() const { return is_loading_; }
 
@@ -517,8 +512,6 @@ class TabContents : public PageNavigator,
 
   // The id used in the ViewStorage to store the last focused view.
   int last_focused_view_storage_id_;
-
-  std::wstring encoding_name_;
 
   // See capturing_contents() above.
   bool capturing_contents_;

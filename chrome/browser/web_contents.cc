@@ -789,8 +789,8 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
 
 
 void WebContents::UpdateEncoding(RenderViewHost* render_view_host,
-                                 const std::wstring& encoding_name) {
-  set_encoding(encoding_name);
+                                 const std::wstring& encoding) {
+  set_encoding(encoding);
 }
 
 void WebContents::UpdateTargetURL(int32 page_id, const GURL& url) {

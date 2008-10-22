@@ -167,7 +167,7 @@ class RenderViewHostDelegate {
 
   // The page's encoding was changed and should be updated.
   virtual void UpdateEncoding(RenderViewHost* render_view_host,
-                              const std::wstring& encoding_name) { }
+                              const std::wstring& encoding) { }
 
   // The destination URL has changed should be updated
   virtual void UpdateTargetURL(int32 page_id, const GURL& url) { }

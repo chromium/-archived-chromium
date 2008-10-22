@@ -9,7 +9,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents.h"
+#include "chrome/browser/web_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -29,9 +29,11 @@ bool EncodingMenuControllerDelegate::IsItemChecked(int id) const {
   TabContents* current_tab = browser_->GetSelectedTabContents();
   if (!current_tab)
     return false;
-  std::wstring encoding_name = current_tab->encoding();
-  if (encoding_name.empty())
-    encoding_name = profile->GetPrefs()->GetString(prefs::kDefaultCharset);
+  std::wstring encoding;
+  if (current_tab->AsWebContents())
+    encoding = current_tab->AsWebContents()->encoding();
+  if (encoding.empty())
+    encoding = profile->GetPrefs()->GetString(prefs::kDefaultCharset);
   switch (id) {
     case IDC_ENCODING_AUTO_DETECT:
       return profile->GetPrefs()->GetBoolean(
@@ -73,7 +75,7 @@ bool EncodingMenuControllerDelegate::IsItemChecked(int id) const {
     case IDC_ENCODING_ISO88598:
     case IDC_ENCODING_WINDOWS1255:
     case IDC_ENCODING_WINDOWS1258:
-      return (!encoding_name.empty() && encoding_name ==
+      return (!encoding.empty() && encoding ==
           CharacterEncoding::GetCanonicalEncodingNameByCommandId(id));
     default:
       return false;
