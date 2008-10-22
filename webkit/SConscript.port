@@ -177,6 +177,7 @@ if env['PLATFORM'] == 'posix':
     '$PORT_DIR/platform/graphics/chromium/FontCacheLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
+    '$PORT_DIR/rendering/RenderThemeGtk.cpp'
   ])
 
 if env['PLATFORM'] == 'darwin':
