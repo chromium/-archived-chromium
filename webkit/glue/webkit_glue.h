@@ -275,6 +275,14 @@ std::wstring GetWebKitLocale();
 // Notifies the browser that the current page runs out of JS memory.
 void NotifyJSOutOfMemory(WebCore::Frame* frame);
 
+// Tells the plugin thread to terminate the process forcefully instead of
+// exiting cleanly.
+void SetForcefullyTerminatePluginProcess(bool value);
+
+// Returns true if the plugin thread should terminate the process forcefully
+// instead of exiting cleanly.
+bool ShouldForcefullyTerminatePluginProcess();
+
 } // namespace webkit_glue
 
 #endif  // WEBKIT_GLUE_H__

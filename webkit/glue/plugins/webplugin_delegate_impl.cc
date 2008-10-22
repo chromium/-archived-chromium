@@ -4,11 +4,15 @@
 
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 
+#include <string>
+#include <vector>
+
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/gfx/gdi_util.h"
 #include "base/gfx/point.h"
 #include "base/stats_counters.h"
+#include "base/string_util.h"
 #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webplugin.h"
@@ -16,6 +20,7 @@
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/plugin_stream_url.h"
+#include "webkit/glue/webkit_glue.h"
 
 static StatsCounter windowless_queue(L"Plugin.ThrottleQueue");
 
@@ -146,6 +151,16 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
     // agent.
     instance_->set_use_mozilla_user_agent();
     quirks_ |= PLUGIN_QUIRK_THROTTLE_WM_USER_PLUS_ONE;
+  } else if (filename == L"nppdf32.dll") {
+    // Check for the version number above or equal 9.
+    std::vector<std::wstring> version;
+    SplitString(plugin_info.version, L'.', &version);
+    if (version.size() > 0) {
+      int major = static_cast<int>(StringToInt64(version[0]));
+      if (major >= 9) {
+        quirks_ |= PLUGIN_QUIRK_DIE_AFTER_UNLOAD;
+      }
+    }
   } else if (plugin_info.name.find(L"Windows Media Player") !=
              std::wstring::npos) {
     // Windows Media Player needs two NPP_SetWindow calls.
@@ -200,6 +215,9 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
       return false;
     }
   }
+
+  if (quirks_ & PLUGIN_QUIRK_DIE_AFTER_UNLOAD)
+    webkit_glue::SetForcefullyTerminatePluginProcess(true);
 
   bool start_result = instance_->Start(url, argn, argv, argc, load_manually);
 

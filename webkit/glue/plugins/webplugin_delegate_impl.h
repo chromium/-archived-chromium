@@ -88,6 +88,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
     PLUGIN_QUIRK_DONT_CALL_WND_PROC_RECURSIVELY = 4,
     PLUGIN_QUIRK_DONT_SET_NULL_WINDOW_HANDLE_ON_DESTROY = 8,
     PLUGIN_QUIRK_DONT_ALLOW_MULTIPLE_INSTANCES = 16,
+    PLUGIN_QUIRK_DIE_AFTER_UNLOAD = 32,
   };
 
   int quirks() { return quirks_; }

@@ -114,6 +114,10 @@ void PluginThread::CleanUp() {
   notification_service_.reset();
   resource_dispatcher_ = NULL;
   CoUninitialize();
+
+  if (webkit_glue::ShouldForcefullyTerminatePluginProcess())
+    TerminateProcess(GetCurrentProcess(), 0);
+
 }
 
 void PluginThread::OnCreateChannel(int process_id, HANDLE renderer_handle) {

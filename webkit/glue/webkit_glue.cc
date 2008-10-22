@@ -48,6 +48,9 @@ MSVC_POP_WARNING();
 
 namespace webkit_glue {
 
+// Global variable used by the plugin quirk "die after unload".
+bool g_forcefully_terminate_plugin_process = false;
+
 void SetJavaScriptFlags(const std::wstring& str) {
 #if USE(V8)
   std::string utf8_str = WideToUTF8(str);
@@ -439,6 +442,19 @@ void NotifyJSOutOfMemory(WebCore::Frame* frame) {
   if (!delegate)
     return;
   delegate->JSOutOfMemory();
+}
+
+void SetForcefullyTerminatePluginProcess(bool value) {
+  if (IsPluginRunningInRendererProcess()) {
+    // Ignore this quirk when the plugins are not running in their own process.
+    return;
+  }
+
+  g_forcefully_terminate_plugin_process = value;
+}
+
+bool ShouldForcefullyTerminatePluginProcess() {
+  return g_forcefully_terminate_plugin_process;
 }
 
 } // namespace webkit_glue
