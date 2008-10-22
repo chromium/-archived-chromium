@@ -1203,6 +1203,7 @@ void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
     }
     default:
       Window::OnNCLButtonDown(ht_component, point);
+      /*
       if (!IsMsgHandled()) {
         // Window::OnNCLButtonDown set the message as unhandled. This normally
         // means ContainerWin::ProcessWindowMessage will pass it to
@@ -1214,6 +1215,7 @@ void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
                       MAKELPARAM(point.x, point.y));
         SetMsgHandled(TRUE);
       }
+      */
       break;
   }
 }
