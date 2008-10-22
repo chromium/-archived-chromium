@@ -32,7 +32,7 @@
 
 #include "build/build_config.h"
 
-#if PLATFORM(OS_WIN)
+#if defined(OS_WIN)
 typedef struct HBITMAP__* HBITMAP;
 #elif defined(OS_MACOSX)
 #if __OBJC__ 
