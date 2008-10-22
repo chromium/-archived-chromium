@@ -1269,15 +1269,9 @@ bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
   *drop_data_copy = drop_data;
   current_drop_data_.reset(drop_data_copy);
 
-#if defined(OS_WIN) || defined(OS_LINUX)
   DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
       IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
       kDropTargetOperation);
-#elif defined(OS_MACOSX)
-  DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
-      IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
-      kDropTargetOperation, nil);
-#endif
   DragOperation effect = page_->dragController()->dragEntered(&drag_data);
   return effect != DragOperationNone;
 }
@@ -1285,28 +1279,17 @@ bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
 bool WebViewImpl::DragTargetDragOver(
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(current_drop_data_.get());
-#if defined(OS_WIN) || defined(OS_LINUX)
   DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
       IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
       kDropTargetOperation);
-#elif defined(OS_MACOSX)
-  DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
-      IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
-      kDropTargetOperation, nil);
-#endif
   DragOperation effect = page_->dragController()->dragUpdated(&drag_data);
   return effect != DragOperationNone;
 }
 
 void WebViewImpl::DragTargetDragLeave() {
   DCHECK(current_drop_data_.get());
-#if defined(OS_WIN) || defined(OS_LINUX)
   DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
       IntPoint(), IntPoint(), DragOperationNone);
-#elif defined(OS_MACOSX)
-  DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
-      IntPoint(), IntPoint(), DragOperationNone, nil);
-#endif
   page_->dragController()->dragExited(&drag_data);
   current_drop_data_.reset(NULL);
 }
@@ -1314,15 +1297,9 @@ void WebViewImpl::DragTargetDragLeave() {
 void WebViewImpl::DragTargetDrop(
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(current_drop_data_.get());
-#if defined(OS_WIN) || defined(OS_LINUX)
   DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
       IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
       kDropTargetOperation);
-#elif defined(OS_MACOSX)
-  DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
-      IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
-      kDropTargetOperation, nil);
-#endif
   page_->dragController()->performDrag(&drag_data);
   current_drop_data_.reset(NULL);
 }

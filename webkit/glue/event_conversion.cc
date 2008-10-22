@@ -35,13 +35,7 @@ uint32 MakePlatformMouseEvent::last_click_time_ = 0;
 
 MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
                                                const WebMouseEvent& e)
-#if defined(OS_WIN)
   {
-#elif defined(OS_MACOSX)
-    : PlatformMouseEvent(e.mac_event.get()) {
-#elif defined(OS_LINUX)
-    : PlatformMouseEvent() {
-#endif
 #if defined(OS_WIN) || defined(OS_LINUX)
   // TODO(mpcomplete): widget is always toplevel, unless it's a popup.  We
   // may be able to get rid of this once we abstract popups into a WebKit API.
@@ -117,11 +111,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
 
 MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
                                                const WebMouseWheelEvent& e)
-#if defined(OS_WIN) || defined(OS_LINUX)
   {
-#elif defined(OS_MACOSX)
-    : PlatformWheelEvent(e.mac_event.get()) {
-#endif
 #if defined(OS_WIN) || defined(OS_LINUX)
   m_position = widget->convertFromContainingWindow(IntPoint(e.x, e.y));
 #endif
@@ -273,11 +263,7 @@ static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
 #endif
 
 MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
-#if defined(OS_WIN) || defined(OS_LINUX)
   {
-#elif defined(OS_MACOSX)
-    : PlatformKeyboardEvent(e.mac_event.get()) {
-#endif
 #if defined(OS_WIN) || defined(OS_LINUX)
   m_type = ToPlatformKeyboardEventType(e.type);
   if (m_type == Char || m_type == KeyDown)
