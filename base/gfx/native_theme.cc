@@ -82,7 +82,7 @@ HRESULT NativeTheme::PaintButton(HDC hdc,
 
   // Draw it manually.
   // All pressed states have both low bits set, and no other states do.
-  const bool focused = ((state_id & TS_CHECKED) == TS_CHECKED);
+  const bool focused = ((state_id & ETS_FOCUSED) == ETS_FOCUSED);
   const bool pressed = ((state_id & PBS_PRESSED) == PBS_PRESSED);
   if ((BP_PUSHBUTTON == part_id) && (pressed || focused)) {
     // BP_PUSHBUTTON has a focus rect drawn around the outer edge, and the

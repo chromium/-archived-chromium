@@ -421,7 +421,7 @@ unsigned RenderThemeWin::determineState(RenderObject* o)
     else if (isPressed(o)) // Active overrides hover and focused.
         result = TS_PRESSED;
     else if (supportsFocus(o->style()->appearance()) && isFocused(o))
-        result = TS_CHECKED;
+        result = ETS_FOCUSED;
     else if (isHovered(o))
         result = TS_HOT;
     if (isChecked(o))
