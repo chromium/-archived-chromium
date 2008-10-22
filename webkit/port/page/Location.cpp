@@ -35,6 +35,7 @@
 #include "FrameLoader.h"
 #include "ScriptController.h"
 #include "CSSHelper.h"
+#include "Frame.h"
 
 namespace {
 
@@ -74,6 +75,16 @@ namespace WebCore {
   //                              a static accessor?
   //    isSafeScript()
 #endif
+
+Location::Location(Frame* frame)
+    : m_frame(frame)
+{
+}
+
+void Location::disconnectFrame()
+{
+    m_frame = 0;
+}
 
 String Location::hash() const {
   if (!m_frame)

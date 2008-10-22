@@ -164,10 +164,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\Location.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\port\dom\ScheduledAction.h"
 				>
 			</File>
