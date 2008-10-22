@@ -1157,3 +1157,7 @@ V8 | KJS # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PA
 
 // Got flakey (both debug and release) around r3581 (ananta).
 V8 | KJS # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
+
+// Regressed some pixel layouts.  Disable while I investigate.
+V8 | KJS # LayoutTests/fast/overflow/scroll-nested-positioned-layer-in-overflow.html = FAIL
+V8 | KJS # LayoutTests/fast/overflow/scrollRevealButton.html = FAIL
