@@ -120,7 +120,6 @@ if env['PLATFORM'] == 'posix':
     '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
     '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
     '$PORT_DIR/platform/chromium/PlatformScrollBarChromium.cpp',
-    '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
   ]

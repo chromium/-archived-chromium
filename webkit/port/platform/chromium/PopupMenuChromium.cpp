@@ -41,11 +41,12 @@
 #include "FramelessScrollView.h"
 #include "GraphicsContext.h"
 #include "IntRect.h"
+#include "NotImplemented.h"
 #include "Page.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformScreen.h"
-#include "PlatformScrollbar.h"
+#include "PlatformScrollBar.h"
 #include "PlatformWheelEvent.h"
 #include "SystemTime.h"
 #include "RenderBlock.h"
@@ -182,11 +183,11 @@ private:
     PopupListBox(PopupMenuClient* client)
         : m_originalIndex(0)
         , m_selectedIndex(0)
+        , m_acceptOnAbandon(false)
         , m_visibleRows(0)
         , m_popupClient(client)
         , m_repeatingChar(0)
         , m_lastCharTime(0)
-        , m_acceptOnAbandon(false)
     {
         setScrollbarsMode(ScrollbarAlwaysOff);
     }
@@ -543,10 +544,9 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
     if (event.type() == PlatformKeyboardEvent::KeyUp)
         return true;
 
+#if defined(OS_WIN)
     if (numItems() == 0 && event.windowsVirtualKeyCode() != VK_ESCAPE)
         return true;
-
-    int oldIndex = m_selectedIndex;
 
     switch (event.windowsVirtualKeyCode()) {
     case VK_ESCAPE:
@@ -580,6 +580,9 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
         }
         break;
     }
+#else
+    notImplemented();
+#endif
 
     if (m_originalIndex != m_selectedIndex) {
         // Keyboard events should update the selection immediately (but we don't
