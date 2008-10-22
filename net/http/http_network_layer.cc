@@ -46,18 +46,16 @@ void HttpNetworkLayer::UseWinHttp(bool value) {
 
 HttpNetworkLayer::HttpNetworkLayer(const ProxyInfo* pi)
     : suspended_(false) {
-  ProxyResolver* proxy_resolver;
   if (pi) {
-    proxy_resolver = new ProxyResolverFixed(*pi);
+    proxy_resolver_.reset(new ProxyResolverFixed(*pi));
   } else {
 #if defined(OS_WIN)
-    proxy_resolver = new ProxyResolverWinHttp();
+    proxy_resolver_.reset(new ProxyResolverWinHttp());
 #else
     NOTIMPLEMENTED();
-    proxy_resolver = new ProxyResolverNull();
+    proxy_resolver_.reset(new ProxyResolverNull());
 #endif
   }
-  session_ = new HttpNetworkSession(proxy_resolver);
 }
 
 HttpNetworkLayer::~HttpNetworkLayer() {
@@ -66,6 +64,9 @@ HttpNetworkLayer::~HttpNetworkLayer() {
 HttpTransaction* HttpNetworkLayer::CreateTransaction() {
   if (suspended_)
     return NULL;
+
+  if (!session_)
+    session_ = new HttpNetworkSession(proxy_resolver_.release());
 
   return new HttpNetworkTransaction(
       session_, ClientSocketFactory::GetDefaultFactory());
@@ -82,7 +83,7 @@ AuthCache* HttpNetworkLayer::GetAuthCache() {
 void HttpNetworkLayer::Suspend(bool suspend) {
   suspended_ = suspend;
 
-  if (suspend)
+  if (suspend && session_)
     session_->connection_pool()->CloseIdleSockets();
 }
 

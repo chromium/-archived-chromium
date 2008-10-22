@@ -6,12 +6,14 @@
 #define NET_HTTP_HTTP_NETWORK_LAYER_H_
 
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "net/http/http_transaction_factory.h"
 
 namespace net {
 
 class HttpNetworkSession;
 class ProxyInfo;
+class ProxyResolver;
 
 class HttpNetworkLayer : public HttpTransactionFactory {
  public:
@@ -37,6 +39,10 @@ class HttpNetworkLayer : public HttpTransactionFactory {
 #if defined(OS_WIN)
   static bool use_winhttp_;
 #endif
+
+  // The pending proxy resolver to use when lazily creating session_.
+  // NULL afterwards.
+  scoped_ptr<ProxyResolver> proxy_resolver_;
 
   scoped_refptr<HttpNetworkSession> session_;
   bool suspended_;
