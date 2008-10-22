@@ -2,14 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "config.h"
+
 #include <string>
 
-#include "config.h"
 #include "FileSystem.h"
 #include "CString.h"
 
 #include "base/sys_string_conversions.h"
-#include "glue/glue_util.h"
+#include "webkit/glue/glue_util.h"
 
 namespace WebCore {
 

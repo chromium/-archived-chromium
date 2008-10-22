@@ -31,6 +31,7 @@
 #include "NativeImageSkia.h"
 #include "NotImplemented.h"
 
+#include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_resources.h"
 #include "webkit/glue/webkit_glue.h"
 
