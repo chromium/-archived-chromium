@@ -110,18 +110,25 @@ static NSArray* writableTypesForImage()
 
 Pasteboard* Pasteboard::generalPasteboard() 
 {
+#if 0
     static Pasteboard* pasteboard = new Pasteboard([NSPasteboard generalPasteboard]);
     return pasteboard;
+#endif
+    return nil;
 }
 
+#if 0
 Pasteboard::Pasteboard(NSPasteboard* pboard)
     : m_pasteboard(pboard)
 {
 }
+#endif
 
 void Pasteboard::clear()
 {
+#if 0
     [m_pasteboard.get() declareTypes:[NSArray array] owner:nil];
+#endif
 }
 
 static NSAttributedString *stripAttachmentCharacters(NSAttributedString *string)
@@ -137,9 +144,10 @@ static NSAttributedString *stripAttachmentCharacters(NSAttributedString *string)
     return result;
 }
 
+#if 0
 void Pasteboard::writeSelection(NSPasteboard* pasteboard, Range* selectedRange, bool canSmartCopyOrDelete, Frame* frame)
 {
-#if 0
+
 // TODO(pinkerton): We need to figure out how to get copy/paste info back
 // to the main process and let it manage the pasteboard. One major problem is
 // that we can't rely on -[NSAttributedString initWithHTML] since it calls
@@ -218,14 +226,17 @@ void Pasteboard::writeSelection(NSPasteboard* pasteboard, Range* selectedRange, 
     if ([types containsObject:WebSmartPastePboardType]) {
         [pasteboard setData:nil forType:WebSmartPastePboardType];
     }
-#endif
 }
+#endif
     
 void Pasteboard::writeSelection(Range* selectedRange, bool canSmartCopyOrDelete, Frame* frame)
 {
+#if 0
     Pasteboard::writeSelection(m_pasteboard.get(), selectedRange, canSmartCopyOrDelete, frame);
+#endif
 }
 
+#if 0
 void Pasteboard::writeURL(NSPasteboard* pasteboard, NSArray* types, const KURL& url, const String& titleStr, Frame* frame)
 {
     if (WebArchivePboardType == nil)
@@ -262,10 +273,13 @@ void Pasteboard::writeURL(NSPasteboard* pasteboard, NSArray* types, const KURL& 
     if ([types containsObject:NSStringPboardType])
         [pasteboard setString:userVisibleString forType:NSStringPboardType];
 }
+#endif
     
 void Pasteboard::writeURL(const KURL& url, const String& titleStr, Frame* frame)
 {
+#if 0
     Pasteboard::writeURL(m_pasteboard.get(), nil, url, titleStr, frame);
+#endif
 }
 
 static NSFileWrapper* fileWrapperForImage(CachedResource* resource, NSURL *url)
@@ -282,6 +296,7 @@ static NSFileWrapper* fileWrapperForImage(CachedResource* resource, NSURL *url)
     return wrapper;
 }
 
+#if 0
 void Pasteboard::writeFileWrapperAsRTFDAttachment(NSFileWrapper* wrapper)
 {
     NSTextAttachment *attachment = [[NSTextAttachment alloc] initWithFileWrapper:wrapper];
@@ -292,9 +307,11 @@ void Pasteboard::writeFileWrapperAsRTFDAttachment(NSFileWrapper* wrapper)
     NSData *RTFDData = [string RTFDFromRange:NSMakeRange(0, [string length]) documentAttributes:nil];
     [m_pasteboard.get() setData:RTFDData forType:NSRTFDPboardType];
 }
+#endif
 
 void Pasteboard::writeImage(Node* node, const KURL& url, const String& title)
 {
+#if 0
     ASSERT(node);
     Frame* frame = node->document()->frame();
 
@@ -318,15 +335,20 @@ void Pasteboard::writeImage(Node* node, const KURL& url, const String& title)
     ASSERT(MIMETypeRegistry::isSupportedImageResourceMIMEType(MIMEType));
 
     writeFileWrapperAsRTFDAttachment(fileWrapperForImage(cachedImage, cocoaURL));
+#endif
 }
 
 bool Pasteboard::canSmartReplace()
 {
+#if 0
     return [[m_pasteboard.get() types] containsObject:WebSmartPastePboardType];
+#endif
+    return false;
 }
 
 String Pasteboard::plainText(Frame* frame)
 {
+#if 0
     NSArray *types = [m_pasteboard.get() types];
     
     if ([types containsObject:NSStringPboardType])
@@ -361,12 +383,13 @@ String Pasteboard::plainText(Frame* frame)
             return string;
     }
 
-    
+#endif    
     return String(); 
 }
 
 PassRefPtr<DocumentFragment> Pasteboard::documentFragment(Frame* frame, PassRefPtr<Range> context, bool allowPlainText, bool& chosePlainText)
 {
+#if 0
     NSArray *types = [m_pasteboard.get() types];
     chosePlainText = false;
 
@@ -392,7 +415,7 @@ PassRefPtr<DocumentFragment> Pasteboard::documentFragment(Frame* frame, PassRefP
         if (fragment)
             return fragment.release();
     }
-    
+#endif    
     return 0;
 }
 

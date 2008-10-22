@@ -314,16 +314,20 @@ void ClipboardMac::setDragImage(CachedImage* image, Node *node, const IntPoint &
     
 void ClipboardMac::writeRange(Range* range, Frame* frame)
 {
+#if 0
     ASSERT(range);
     ASSERT(frame);
     Pasteboard::writeSelection(m_pasteboard.get(), range, frame->editor()->smartInsertDeleteEnabled() && frame->selectionGranularity() == WordGranularity, frame);
+#endif
 }
     
 void ClipboardMac::writeURL(const KURL& url, const String& title, Frame* frame)
 {   
+#if 0
     ASSERT(frame);
     ASSERT(m_pasteboard);
     Pasteboard::writeURL(m_pasteboard.get(), nil, url, title, frame);
+#endif
 }
     
 void ClipboardMac::declareAndWriteDragImage(Element* element, const KURL& url, const String& title, Frame* frame)
@@ -339,33 +343,19 @@ void ClipboardMac::declareAndWriteDragImage(Element* element, const KURL& url, c
     
 DragImageRef ClipboardMac::createDragImage(IntPoint& loc) const
 {
-    NSPoint nsloc = {loc.x(), loc.y()};
-    DragImageRef result = dragNSImage(nsloc);
-    loc = (IntPoint)nsloc;
+    NSImage *result = nil;
+    if (m_dragImage) {
+        result = createDragImageFromImage(m_dragImage->image());        
+        
+        loc = m_dragLoc;
+        loc.setY([result size].height - loc.y());
+    }
     return result;
 }
     
 NSImage *ClipboardMac::dragNSImage(NSPoint& loc) const
 {
-    NSImage *result = nil;
-    if (m_dragImageElement) {
-        if (m_frame) {
-            NSRect imageRect;
-            NSRect elementRect;
-            result = m_frame->snapshotDragImage(m_dragImageElement.get(), &imageRect, &elementRect);
-            // Client specifies point relative to element, not the whole image, which may include child
-            // layers spread out all over the place.
-            loc.x = elementRect.origin.x - imageRect.origin.x + m_dragLoc.x();
-            loc.y = elementRect.origin.y - imageRect.origin.y + m_dragLoc.y();
-            loc.y = imageRect.size.height - loc.y;
-        }
-    } else if (m_dragImage) {
-        result = m_dragImage->image()->getNSImage();
-        
-        loc = m_dragLoc;
-        loc.y = [result size].height - loc.y;
-    }
-    return result;
+  return nil;
 }
 
 }

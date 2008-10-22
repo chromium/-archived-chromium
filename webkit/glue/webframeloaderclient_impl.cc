@@ -289,16 +289,6 @@ void WebFrameLoaderClient::dispatchDidFinishLoading(DocumentLoader* loader,
     d->DidFinishLoading(webview, identifier);
 }
 
-#if defined(OS_MACOSX)
-// This is TEMPORARY until we can pull this upstream. TODO(avi): do it
-NSCachedURLResponse* WebFrameLoaderClient::willCacheResponse(
-      WebCore::DocumentLoader*,
-      unsigned long identifier,
-      NSCachedURLResponse*) const {
-  return nil;
-}
-#endif
-
 GURL WebFrameLoaderClient::GetAlt404PageUrl(DocumentLoader* loader) {
   WebViewImpl* webview = webframe_->webview_impl();
   WebViewDelegate* d = webview->delegate();

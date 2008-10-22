@@ -30,11 +30,25 @@
 #ifndef DragImageRef_h__
 #define DragImageRef_h__
 
+#include "build/build_config.h"
+
+#if PLATFORM(OS_WIN)
 typedef struct HBITMAP__* HBITMAP;
+#elif defined(OS_MACOSX)
+#if __OBJC__ 
+@class NSImage;
+#else
+class NSImage;
+#endif
+#endif
 
 namespace WebCore {
 
+#if defined(OS_WIN)
 typedef HBITMAP DragImageRef;
+#elif defined(OS_MACOSX)
+typedef NSImage* DragImageRef;
+#endif
 
 }
 

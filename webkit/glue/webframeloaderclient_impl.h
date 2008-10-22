@@ -187,15 +187,6 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   virtual void unloadListenerChanged();
 
-#if defined(OS_MACOSX)
-// The above should have && !defined(BUILDING_CHROMIUM__) at the end but can't
-// for now, since we need to add that extra define all the way down to the
-// WebCore core. TODO(avi): Get that define into WebCore.
-  virtual NSCachedURLResponse* willCacheResponse(WebCore::DocumentLoader*,
-                                                 unsigned long identifier,
-                                                 NSCachedURLResponse*) const;
-#endif
-  
   // Callback function for download of alternate 404 pages.  If the server is
   // down or we take more than 1s to download the page, html will be an empty
   // string.
