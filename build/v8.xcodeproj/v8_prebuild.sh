@@ -38,6 +38,7 @@ LIBRARIES_EMPTY_CC="${V8_GENERATED_SOURCES_DIR}/libraries-empty.cc"
 python "${V8ROOT}/tools/js2c.py" \
   "${LIBRARIES_CC}.new" \
   "${LIBRARIES_EMPTY_CC}.new" \
+  CORE \
   ${NATIVE_JS_FILES}
 
 # Only use the new files if they're different from the existing files (if any),
