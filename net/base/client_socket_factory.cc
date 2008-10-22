@@ -8,6 +8,8 @@
 #include "build/build_config.h"
 #if defined(OS_WIN)
 #include "net/base/ssl_client_socket_win.h"
+#elif defined(OS_LINUX)
+#include "net/base/ssl_client_socket_nss.h"
 #elif defined(OS_MACOSX)
 #include "net/base/ssl_client_socket_mac.h"
 #endif
@@ -28,6 +30,8 @@ class DefaultClientSocketFactory : public ClientSocketFactory {
       const SSLConfig& ssl_config) {
 #if defined(OS_WIN)
     return new SSLClientSocketWin(transport_socket, hostname, ssl_config);
+#elif defined(OS_LINUX)
+    return new SSLClientSocketNSS(transport_socket, hostname, ssl_config);
 #elif defined(OS_MACOSX)
     return new SSLClientSocketMac(transport_socket, hostname, ssl_config);
 #else

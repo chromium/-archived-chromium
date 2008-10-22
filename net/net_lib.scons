@@ -54,7 +54,6 @@ input_files = [
     'base/registry_controlled_domain.cc',
     'base/sdch_filter.cc',
     'base/sdch_manager.cc',
-    'base/ssl_client_socket_win.cc',
     'base/ssl_config_service.cc',
     'base/tcp_client_socket.cc',
     'base/telnet_server.cc',
@@ -115,11 +114,9 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [
-      'base/client_socket_factory.cc',
       'base/directory_lister.cc',
       'base/dns_resolution_observer.cc',
       'base/listen_socket.cc',
-      'base/ssl_client_socket_win.cc',
       'base/ssl_config_service.cc',
       'base/tcp_client_socket.cc',
       'base/telnet_server.cc',
@@ -147,6 +144,7 @@ if env['PLATFORM'] == 'win32':
       'base/file_input_stream_win.cc',
       'base/net_util_win.cc',
       'base/platform_mime_util_win.cc',
+      'base/ssl_client_socket_win.cc',
       'base/x509_certificate_win.cc',
       'disk_cache/cache_util_win.cc',
       'disk_cache/file_win.cc',
@@ -162,8 +160,11 @@ if env['PLATFORM'] == 'darwin':
 
 if env['PLATFORM'] == 'posix':
   input_files.extend([
+      'base/nss_memio.c',
       # TODO(tc): gnome-vfs? xdgmime? /etc/mime.types?
       'base/platform_mime_util_linux.cc',
+      'base/ssl_client_socket_nss.cc',
+      'base/x509_certificate_nss.cc',
   ])
 
 if env['PLATFORM'] in ('darwin', 'posix'):

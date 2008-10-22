@@ -5,7 +5,9 @@
 #ifndef NET_BASE_CLIENT_SOCKET_H_
 #define NET_BASE_CLIENT_SOCKET_H_
 
+#include "base/logging.h"
 #include "net/base/socket.h"
+#include "net/base/net_errors.h"
 
 namespace net {
 
@@ -40,6 +42,16 @@ class ClientSocket : public Socket {
   // Called to test if the connection is still alive.  Returns false if a
   // connection wasn't established or the connection is dead.
   virtual bool IsConnected() const = 0;
+
+#if defined(OS_LINUX)
+  // Identical to posix system call getpeername().
+  // Needed by ssl_client_socket_nss.
+  virtual int GetPeerName(struct sockaddr *name, socklen_t *namelen) {
+    // Default implementation just permits some unit tests to link.
+    NOTREACHED();
+    return ERR_UNEXPECTED;
+  }
+#endif
 };
 
 }  // namespace net

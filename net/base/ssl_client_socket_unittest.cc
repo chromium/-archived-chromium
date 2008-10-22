@@ -88,6 +88,7 @@ TEST_F(SSLClientSocketTest, DISABLED_Read) {
     rv = callback.WaitForResult();
     EXPECT_EQ(net::OK, rv);
   }
+  EXPECT_TRUE(sock->IsConnected());
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
   rv = sock->Write(request_text, arraysize(request_text) - 1, &callback);

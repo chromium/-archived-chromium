@@ -12,6 +12,7 @@
 #include "base/object_watcher.h"
 #elif defined(OS_POSIX)
 struct event;  // From libevent
+#include <sys/socket.h>  // for struct sockaddr
 #define SOCKET int
 #include "base/message_pump_libevent.h"
 #endif
@@ -25,8 +26,10 @@ namespace net {
 
 // A client socket that uses TCP as the transport layer.
 //
-// NOTE: The implementation supports half duplex only.  Read and Write calls
-// must not be in progress at the same time.
+// NOTE: The windows implementation supports half duplex only.  
+// Read and Write calls must not be in progress at the same time.
+// The libevent implementation supports full duplex because that
+// made it slightly easier to implement ssl.
 class TCPClientSocket : public ClientSocket,
 #if defined(OS_WIN)
                         public base::ObjectWatcher::Delegate
@@ -49,10 +52,18 @@ class TCPClientSocket : public ClientSocket,
   virtual bool IsConnected() const;
 
   // Socket methods:
-  // Multiple outstanding requests are not supported.  In particular, full
-  // duplex mode (reading and writing at the same time) is not supported.
+  // Multiple outstanding requests are not supported.  
+  // Full duplex mode (reading and writing at the same time) is not supported
+  // on Windows (but is supported on Linux and Mac for ease of implementation
+  // of SSLClientSocket)
   virtual int Read(char* buf, int buf_len, CompletionCallback* callback);
   virtual int Write(const char* buf, int buf_len, CompletionCallback* callback);
+
+#if defined(OS_POSIX)
+  // Identical to posix system call of same name
+  // Needed by ssl_client_socket_nss
+  virtual int GetPeerName(struct sockaddr *name, socklen_t *namelen);
+#endif
 
  private:
   SOCKET socket_;
@@ -63,6 +74,7 @@ class TCPClientSocket : public ClientSocket,
   // Where we are in above list, or NULL if all addrinfos have been tried.
   const struct addrinfo* current_ai_;
 
+#if defined(OS_WIN)
   enum WaitState {
     NOT_WAITING,
     WAITING_CONNECT,
@@ -71,7 +83,6 @@ class TCPClientSocket : public ClientSocket,
   };
   WaitState wait_state_;
 
-#if defined(OS_WIN)
   // base::ObjectWatcher::Delegate methods:
   virtual void OnObjectSignaled(HANDLE object);
 
@@ -79,25 +90,40 @@ class TCPClientSocket : public ClientSocket,
   WSABUF buffer_;
 
   base::ObjectWatcher watcher_;
+
+  void DidCompleteIO();
 #elif defined(OS_POSIX)
+  // Whether we're currently waiting for connect() to complete
+  bool waiting_connect_;
+
   // The socket's libevent wrapper
   scoped_ptr<event> event_;
 
   // Called by MessagePumpLibevent when the socket is ready to do I/O
   void OnSocketReady(short flags);
 
-  // The buffer used by OnSocketReady to retry Read and Write requests
+  // The buffer used by OnSocketReady to retry Read requests
   char* buf_;
   int buf_len_;
+
+  // The buffer used by OnSocketReady to retry Write requests
+  const char* write_buf_;
+  int write_buf_len_;
+
+  // External callback; called when write is complete.
+  CompletionCallback* write_callback_;
+
+  void DoWriteCallback(int rv);
+  void DidCompleteRead();
+  void DidCompleteWrite();
 #endif
 
-  // External callback; called when read or write is complete.
+  // External callback; called when read (and on Windows, write) is complete.
   CompletionCallback* callback_;
 
   int CreateSocket(const struct addrinfo* ai);
   void DoCallback(int rv);
   void DidCompleteConnect();
-  void DidCompleteIO();
 };
 
 }  // namespace net

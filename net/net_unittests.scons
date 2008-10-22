@@ -118,6 +118,11 @@ if env['PLATFORM'] == 'darwin':
       '../base/platform_test_mac$OBJSUFFIX',
   ])
 
+if env['PLATFORM'] in ('darwin', 'posix'):
+  input_files.extend([
+      'base/ssl_client_socket_unittest.cc',
+  ])
+
 net_unittests = env.ChromeTestProgram('net_unittests', input_files)
 
 installed_test = env.Install('$TARGET_ROOT', net_unittests)
