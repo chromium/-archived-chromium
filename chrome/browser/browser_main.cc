@@ -12,6 +12,7 @@
 #include "base/gfx/vector_canvas.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
+#include "base/process_util.h"
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/tracked_objects.h"

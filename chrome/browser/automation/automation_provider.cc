@@ -5,6 +5,7 @@
 #include "chrome/browser/automation/automation_provider.h"
 
 #include "base/path_service.h"
+#include "base/process_util.h"
 #include "chrome/app/chrome_dll_resource.h" 
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/ui_controls.h"

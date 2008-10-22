@@ -24,7 +24,6 @@
 #include "base/basictypes.h"
 #include "base/hash_tables.h"
 #include "base/lock.h"
-#include "base/shared_memory.h"
 #include "base/thread_local_storage.h"
 
 class StatsTablePrivate;
@@ -165,7 +164,6 @@ class StatsTable {
   typedef base::hash_map<std::wstring, int> CountersMap;
 
   bool                opened_;
-  SharedMemory        shared_memory_;
   StatsTablePrivate*  impl_;
   // The counters_lock_ protects the counters_ hash table.
   Lock                counters_lock_;
@@ -182,4 +180,3 @@ class StatsTable {
 };
 
 #endif  // BASE_STATS_TABLE_H__
-

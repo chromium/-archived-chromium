@@ -4,10 +4,11 @@
 
 #include "base/stats_table.h"
 
-#include "base/string_util.h"
 #include "base/logging.h"
-#include "base/thread_local_storage.h"
 #include "base/platform_thread.h"
+#include "base/shared_memory.h"
+#include "base/string_util.h"
+#include "base/thread_local_storage.h"
 
 #if defined(OS_POSIX)
 #include "errno.h"
@@ -115,8 +116,12 @@ class StatsTablePrivate {
     int max_threads;
   };
 
-  // Create the StatsTablePrivate based on expected size parameters.
-  StatsTablePrivate(void* memory, int size, int max_threads, int max_counters);
+  // Construct a new StatsTablePrivate based on expected size parameters, or
+  // return NULL on failure.
+  static StatsTablePrivate* New(const std::wstring& name, int size,
+                                int max_threads, int max_counters);
+
+  SharedMemory* shared_memory() { return &shared_memory_; }
 
   // Accessors for our header pointers
   TableHeader* table_header() const { return table_header_; }
@@ -145,6 +150,9 @@ class StatsTablePrivate {
   }
 
  private:
+  // Constructor is private because you should use New() instead.
+  StatsTablePrivate() {}
+
   // Initializes the table on first access.  Sets header values
   // appropriately and zeroes all counters.
   void InitializeTable(void* memory, int size, int max_counters,
@@ -153,6 +161,7 @@ class StatsTablePrivate {
   // Initializes our in-memory pointers into a pre-created StatsTable.
   void ComputeMappedPointers(void* memory);
 
+  SharedMemory shared_memory_;
   TableHeader* table_header_;
   wchar_t* thread_names_table_;
   int* thread_tid_table_;
@@ -161,16 +170,30 @@ class StatsTablePrivate {
   int* data_table_;
 };
 
-StatsTablePrivate::StatsTablePrivate(void* memory, int size, int max_threads,
-                                     int max_counters) {
+// static
+StatsTablePrivate* StatsTablePrivate::New(const std::wstring& name,
+                                          int size,
+                                          int max_threads,
+                                          int max_counters) {
+  scoped_ptr<StatsTablePrivate> priv(new StatsTablePrivate());
+
+  if (!priv->shared_memory_.Create(name, false, true, size))
+    return NULL;
+  if (!priv->shared_memory_.Map(size))
+    return NULL;
+  void* memory = priv->shared_memory_.memory();
+
   TableHeader* header = static_cast<TableHeader*>(memory);
+
   // If the version does not match, then assume the table needs
   // to be initialized.
   if (header->version != kTableVersion)
-    InitializeTable(memory, size, max_counters, max_threads);
+    priv->InitializeTable(memory, size, max_counters, max_threads);
 
   // We have a valid table, so compute our pointers.
-  ComputeMappedPointers(memory);
+  priv->ComputeMappedPointers(memory);
+
+  return priv.release();
 }
 
 void StatsTablePrivate::InitializeTable(void* memory, int size,
@@ -229,7 +252,8 @@ StatsTable* StatsTable::global_table_ = NULL;
 
 StatsTable::StatsTable(const std::wstring& name, int max_threads,
                        int max_counters)
-    : tls_index_(SlotReturnFunction) {
+    : impl_(NULL),
+      tls_index_(SlotReturnFunction) {
   int table_size =
     AlignedSize(sizeof(StatsTablePrivate::TableHeader)) +
     AlignedSize((max_counters * sizeof(wchar_t) * kMaxCounterNameLength)) +
@@ -238,12 +262,9 @@ StatsTable::StatsTable(const std::wstring& name, int max_threads,
     AlignedSize(max_threads * sizeof(int)) +
     AlignedSize((sizeof(int) * (max_counters * max_threads)));
 
-  impl_ = NULL;
-  // TODO(mbelshe): Move this out of the constructor
-  if (shared_memory_.Create(name, false, true, table_size))
-    if (shared_memory_.Map(table_size))
-      impl_ = new StatsTablePrivate(shared_memory_.memory(), table_size,
-                                    max_threads, max_counters);
+  impl_ = StatsTablePrivate::New(name, table_size, max_threads, max_counters);
+
+  // TODO(port): clean up this error reporting.
 #if defined(OS_WIN)
   if (!impl_)
     LOG(ERROR) << "StatsTable did not initialize:" << GetLastError();
@@ -277,7 +298,7 @@ int StatsTable::RegisterThread(const std::wstring& name) {
   // so that two threads don't grab the same slot.  Fortunately,
   // thread creation shouldn't happen in inner loops.
   {
-    SharedMemoryAutoLock lock(&shared_memory_);
+    SharedMemoryAutoLock lock(impl_->shared_memory());
     slot = FindEmptyThread();
     if (!slot) {
       return 0;
@@ -433,7 +454,7 @@ int StatsTable::AddCounter(const std::wstring& name) {
   {
     // To add a counter to the shared memory, we need the
     // shared memory lock.
-    SharedMemoryAutoLock lock(&shared_memory_);
+    SharedMemoryAutoLock lock(impl_->shared_memory());
 
     // We have space, so create a new counter.
     counter_id = FindCounterOrEmptyRow(name);

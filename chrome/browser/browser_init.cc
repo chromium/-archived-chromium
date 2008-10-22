@@ -12,6 +12,7 @@
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/path_service.h"
+#include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/app/locales/locale_settings.h"
