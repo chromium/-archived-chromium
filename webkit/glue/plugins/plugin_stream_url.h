@@ -15,16 +15,16 @@ namespace NPAPI {
 class PluginInstance;
 
 // A NPAPI Stream based on a URL.
-class PluginStreamUrl : public PluginStream, 
+class PluginStreamUrl : public PluginStream,
                         public WebPluginResourceClient {
  public:
   // Create a new stream for sending to the plugin by fetching
-  // a URL. If notifyNeeded is set, then the plugin will be notified 
+  // a URL. If notifyNeeded is set, then the plugin will be notified
   // when the stream has been fully sent to the plugin.  Initialize
-  // must be called before the object is used.  
+  // must be called before the object is used.
   PluginStreamUrl(int resource_id,
-                  const GURL &url, 
-                  PluginInstance *instance, 
+                  const GURL &url,
+                  PluginInstance *instance,
                   bool notify_needed,
                   void *notify_data);
   virtual ~PluginStreamUrl();
@@ -34,8 +34,8 @@ class PluginStreamUrl : public PluginStream,
   // it is still loading.
   virtual bool Close(NPReason reason);
 
-  virtual WebPluginResourceClient* AsResourceClient() { 
-    return static_cast<WebPluginResourceClient*>(this); 
+  virtual WebPluginResourceClient* AsResourceClient() {
+    return static_cast<WebPluginResourceClient*>(this);
   }
 
   virtual void CancelRequest();

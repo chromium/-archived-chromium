@@ -115,7 +115,7 @@ int PluginStream::Write(const char *buffer, const int length,
   // to each stream, we'll return failure.
 
   DCHECK(opened_);
-  if (WriteToFile(buffer, length) && 
+  if (WriteToFile(buffer, length) &&
       WriteToPlugin(buffer, length, data_offset))
     return length;
 

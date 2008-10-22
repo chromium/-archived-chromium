@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// TODO: Need to deal with NPAPI's NPSavedData.  
+// TODO: Need to deal with NPAPI's NPSavedData.
 //       I haven't seen plugins use it yet.
 
 #ifndef WEBKIT_GLUE_PLUGIN_PLUGIN_INSTANCE_H__
@@ -42,23 +42,23 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   virtual ~PluginInstance();
 
   // Activates the instance by calling NPP_New.
-  // This should be called after our instance is all 
+  // This should be called after our instance is all
   // setup from the host side and we are ready to receive
-  // requests from the plugin.  We must not call any 
-  // functions on the plugin instance until start has 
+  // requests from the plugin.  We must not call any
+  // functions on the plugin instance until start has
   // been called.
   //
   // url: The instance URL.
-  // param_names: the list of names of attributes passed via the 
+  // param_names: the list of names of attributes passed via the
   //       element.
   // param_values: the list of values corresponding to param_names
   // param_count: number of attributes
   // load_manually: if true indicates that the plugin data would be passed
-  //                from webkit. if false indicates that the plugin should 
+  //                from webkit. if false indicates that the plugin should
   //                download the data.
   //                This also controls whether the plugin is instantiated as
   //                a full page plugin (NP_FULL) or embedded (NP_EMBED)
-  // 
+  //
   bool Start(const GURL& url,
              char** const param_names,
              char** const param_values,
@@ -68,16 +68,18 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   // NPAPI's instance identifier for this instance
   NPP npp() { return npp_; }
 
-  // Get/Set for the instance's HWND.  
+#if defined(OS_WIN)
+  // Get/Set for the instance's HWND.
   HWND window_handle() { return hwnd_; }
   void set_window_handle(HWND value) { hwnd_ = value; }
+#endif
 
   // Get/Set whether this instance is in Windowless mode.
   // Default is false.
   bool windowless() { return windowless_; }
   void set_windowless(bool value) { windowless_ = value; }
 
-  // Get/Set whether this instance is transparent.  
+  // Get/Set whether this instance is transparent.
   // This only applies to windowless plugins.  Transparent
   // plugins require that webkit paint the background.
   // Default is true.
@@ -93,9 +95,11 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
 
   NPAPI::PluginLib* plugin_lib() { return plugin_; }
 
+#if defined(OS_WIN)
   // Handles a windows native message which this PluginInstance should deal
   // with.  Returns true if the event is handled, false otherwise.
   bool HandleEvent(UINT message, WPARAM wParam, LPARAM lParam);
+#endif
 
   // Creates a stream for sending an URL.  If notify_needed
   // is true, it will send a notification to the plugin
@@ -104,27 +108,27 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   // url, or false if it's for a url that the plugin
   // fetched through NPN_GetUrl[Notify].
   PluginStreamUrl *CreateStream(int resource_id,
-                                const std::string &url, 
-                                const std::string &mime_type, 
+                                const std::string &url,
+                                const std::string &mime_type,
                                 bool notify_needed,
                                 void *notify_data);
 
   // Convenience function for sending a stream from a URL to this instance.
-  // URL can be a relative or a fully qualified url. 
+  // URL can be a relative or a fully qualified url.
   void SendStream(const std::string& url, bool notify_needed,
                   void* notify_data);
   // For each instance, we track all streams.  When the
-  // instance closes, all remaining streams are also 
+  // instance closes, all remaining streams are also
   // closed.  All streams associated with this instance
-  // should call AddStream so that they can be cleaned 
+  // should call AddStream so that they can be cleaned
   // up when the instance shuts down.
   void AddStream(PluginStream* stream);
 
-  // This is called when a stream is closed. We remove the stream from the 
+  // This is called when a stream is closed. We remove the stream from the
   // list, which releases the reference maintained to the stream.
   void RemoveStream(PluginStream* stream);
 
-  // Closes all open streams on this instance.  
+  // Closes all open streams on this instance.
   void CloseStreams();
 
   // Have the plugin create it's script object.
@@ -183,7 +187,7 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   void PushPopupsEnabledState(bool enabled);
   void PopPopupsEnabledState();
 
-  bool popups_allowed() const { 
+  bool popups_allowed() const {
     return popups_enabled_stack_.empty() ? false : popups_enabled_stack_.top();
   }
 
@@ -199,18 +203,18 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   // The real player plugin dll(nppl3260) when loaded by firefox is loaded via
   // the NS COM API which is analogous to win32 COM. So the NPAPI functions in
   // the plugin are invoked via an interface by firefox. The plugin instance
-  // handle which is passed to every NPAPI method is owned by the real player 
+  // handle which is passed to every NPAPI method is owned by the real player
   // plugin, i.e. it expects the ndata member to point to a structure which
   // it knows about. Eventually it dereferences this structure and compares
   // a member variable at offset 0x24(Version 6.0.11.2888) /2D (Version
   // 6.0.11.3088) with 0 and on failing this check, takes  a different code
   // path which causes a crash. Safari and Opera work with version 6.0.11.2888
   // by chance as their ndata structure contains a 0 at the location which real
-  // player checks:(. They crash with version 6.0.11.3088 as well. The 
-  // following member just adds a 96 byte padding to our PluginInstance class 
-  // which is passed in the ndata member. This magic number works correctly on 
-  // Vista with UAC on or off :(. 
-  // NOTE: Please dont change the ordering of the member variables 
+  // player checks:(. They crash with version 6.0.11.3088 as well. The
+  // following member just adds a 96 byte padding to our PluginInstance class
+  // which is passed in the ndata member. This magic number works correctly on
+  // Vista with UAC on or off :(.
+  // NOTE: Please dont change the ordering of the member variables
   // New members should be added after this padding array.
   // TODO(iyengar) : Disassemble the Realplayer ndata structure and look into
   // the possiblity of conforming to it (http://b/issue?id=936667). We
@@ -221,7 +225,9 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   scoped_refptr<PluginHost>                host_;
   NPPluginFuncs*                           npp_functions_;
   std::vector<scoped_refptr<PluginStream> > open_streams_;
+#if defined(OS_WIN)
   HWND                                     hwnd_;
+#endif
   bool                                     windowless_;
   bool                                     transparent_;
   WebPlugin*                               webplugin_;
@@ -229,12 +235,14 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
   GURL                                     get_url_;
   void*                                    get_notify_data_;
   bool                                     use_mozilla_user_agent_;
+#if defined(OS_WIN)
   scoped_refptr<MozillaExtensionApi>       mozilla_extenstions_;
+#endif
   MessageLoop*                             message_loop_;
   // Using TLS to store PluginInstance object during its creation.
-  // We need to pass this instance to the service manager 
+  // We need to pass this instance to the service manager
   // (MozillaExtensionApi) created as a result of NPN_GetValue
-  // in the context of NP_Initialize. 
+  // in the context of NP_Initialize.
   static ThreadLocalStorage::Slot          plugin_instance_tls_index_;
   scoped_refptr<PluginStreamUrl>           plugin_data_stream_;
   GURL                                     instance_url_;

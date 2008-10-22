@@ -143,21 +143,21 @@ bool PluginHost::SetPostData(const char *buf,
                              std::vector<std::string>* names,
                              std::vector<std::string>* values,
                              std::vector<char>* body) {
-  // Use a state table to do the parsing.  Whitespace must be 
+  // Use a state table to do the parsing.  Whitespace must be
   // trimmed after the fact if desired.  In our case, we actually
   // don't care about the whitespace, because we're just going to
   // pass this back into another POST.  This function strips out the
   // "Content-length" header and does not append it to the request.
 
-  // 
+  //
   // This parser takes action only on state changes.
   //
   // Transition table:
   //                  :       \n  NULL    Other
   // 0 GetHeader      1       2   4       0
-  // 1 GetValue       1       0   3       1    
+  // 1 GetValue       1       0   3       1
   // 2 GetData        2       2   3       2
-  // 3 DONE           
+  // 3 DONE
   // 4 ERR
   //
   enum { INPUT_COLON=0, INPUT_NEWLINE, INPUT_NULL, INPUT_OTHER };
@@ -177,17 +177,17 @@ bool PluginHost::SetPostData(const char *buf,
     // Translate the current character into an input
     // for the state table.
     switch (*ptr) {
-      case ':' : 
-        input = INPUT_COLON;   
+      case ':' :
+        input = INPUT_COLON;
         break;
-      case '\n': 
-        input = INPUT_NEWLINE; 
+      case '\n':
+        input = INPUT_NEWLINE;
         break;
-      case 0   : 
-        input = INPUT_NULL;    
+      case 0   :
+        input = INPUT_NULL;
         break;
-      default  : 
-        input = INPUT_OTHER;   
+      default  :
+        input = INPUT_OTHER;
         break;
     }
 
@@ -201,7 +201,7 @@ bool PluginHost::SetPostData(const char *buf,
         value = std::string(start, ptr - start);
         TrimWhitespace(value, TRIM_ALL, &value);
         // If the name field is empty, we'll skip this header
-        // but we won't error out.  
+        // but we won't error out.
         if (!name.empty() && name != "content-length") {
           names->push_back(name);
           values->push_back(value);
@@ -213,7 +213,7 @@ bool PluginHost::SetPostData(const char *buf,
         name = StringToLowerASCII(std::string(start, ptr - start));
         TrimWhitespace(name, TRIM_ALL, &name);
         start = ptr + 1;
-        break; 
+        break;
       case GETDATA:
       {
         // Finished headers, now get body
@@ -233,7 +233,7 @@ bool PluginHost::SetPostData(const char *buf,
         done = true;
         break;
       }
-    } 
+    }
     state = newstate;
     ptr++;
   } while (!done);
@@ -299,7 +299,7 @@ NPError  NPN_RequestRead(NPStream* stream, NPByteRange* range_list) {
     return NPERR_GENERIC_ERROR;
   }
 
-  scoped_refptr<NPAPI::PluginInstance> plugin = 
+  scoped_refptr<NPAPI::PluginInstance> plugin =
       reinterpret_cast<NPAPI::PluginInstance*>(stream->ndata);
   if (!plugin.get()) {
     return NPERR_GENERIC_ERROR;
@@ -316,9 +316,9 @@ static bool IsJavaScriptUrl(const std::string& url) {
 // Generic form of GetURL for common code between
 // GetURL() and GetURLNotify().
 static NPError GetURLNotify(NPP id,
-                            const char* url, 
+                            const char* url,
                             const char* target,
-                            bool notify, 
+                            bool notify,
                             void* notify_data) {
   if (!url)
     return NPERR_INVALID_URL;
@@ -327,14 +327,14 @@ static NPError GetURLNotify(NPP id,
 
   scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
   if (plugin.get()) {
-    plugin->webplugin()->HandleURLRequest("GET", 
-                                          is_javascript_url, 
-                                          target, 
-                                          0, 
-                                          0, 
-                                          false, 
-                                          notify, 
-                                          url, 
+    plugin->webplugin()->HandleURLRequest("GET",
+                                          is_javascript_url,
+                                          target,
+                                          0,
+                                          0,
+                                          false,
+                                          notify,
+                                          url,
                                           notify_data,
                                           plugin->popups_allowed());
   } else {
@@ -344,27 +344,27 @@ static NPError GetURLNotify(NPP id,
   return NPERR_NO_ERROR;
 }
 
-// Requests creation of a new stream with the contents of the 
+// Requests creation of a new stream with the contents of the
 // specified URL; gets notification of the result.
 NPError NPN_GetURLNotify(NPP id,
-                         const char* url, 
+                         const char* url,
                          const char* target,
                          void* notify_data) {
-  // This is identical to NPN_GetURL, but after finishing, the 
-  // browser will call NPP_URLNotify to inform the plugin that 
+  // This is identical to NPN_GetURL, but after finishing, the
+  // browser will call NPP_URLNotify to inform the plugin that
   // it has completed.
 
-  // According to the NPAPI documentation, if target == _self 
-  // or a parent to _self, the browser should return NPERR_INVALID_PARAM, 
+  // According to the NPAPI documentation, if target == _self
+  // or a parent to _self, the browser should return NPERR_INVALID_PARAM,
   // because it can't notify the plugin once deleted.  This is
   // absolutely false; firefox doesn't do this, and Flash relies on
   // being able to use this.
 
   // Also according to the NPAPI documentation, we should return
   // NPERR_INVALID_URL if the url requested is not valid.  However,
-  // this would require that we synchronously start fetching the 
+  // this would require that we synchronously start fetching the
   // URL.  That just isn't practical.  As such, there really is
-  // no way to return this error.  From looking at the Firefox 
+  // no way to return this error.  From looking at the Firefox
   // implementation, it doesn't look like Firefox does this either.
 
   return GetURLNotify(id, url, target, true, notify_data);
@@ -377,9 +377,9 @@ NPError  NPN_GetURL(NPP id, const char* url, const char* target) {
   //
   // If target == null, the browser fetches content and streams to plugin.
   //    otherwise, the browser loads content into an existing browser frame.
-  // If the target is the window/frame containing the plugin, the plugin 
+  // If the target is the window/frame containing the plugin, the plugin
   //    may be destroyed.
-  // If the target is _blank, a mailto: or news: url open content in a new 
+  // If the target is _blank, a mailto: or news: url open content in a new
   //    browser window
   // If the target is _self, no other instance of the plugin is created.  The
   //    plugin continues to operate in its own window
@@ -504,21 +504,21 @@ NPError  NPN_PostURL(NPP id,
   // POSTs data to an URL, either from a temp file or a buffer.
   // If file is true, buf contains a temp file (which host will delete after
   //   completing), and len contains the length of the filename.
-  // If file is false, buf contains the data to send, and len contains the 
+  // If file is false, buf contains the data to send, and len contains the
   //   length of the buffer
   //
-  // If target is null, 
+  // If target is null,
   //   server response is returned to the plugin
   // If target is _current, _self, or _top,
   //   server response is written to the plugin window and plugin is unloaded.
   // If target is _new or _blank,
   //   server response is written to a new browser window
-  // If target is an existing frame, 
+  // If target is an existing frame,
   //   server response goes to that frame.
   //
   // For protocols other than FTP
   //   file uploads must be line-end converted from \r\n to \n
-  // 
+  //
   // Note:  you cannot specify headers (even a blank line) in a memory buffer,
   //        use NPN_PostURLNotify
 
@@ -529,9 +529,9 @@ NPError NPN_NewStream(NPP id,
                       NPMIMEType type,
                       const char* target,
                       NPStream** stream) {
-  // Requests creation of a new data stream produced by the plugin, 
+  // Requests creation of a new data stream produced by the plugin,
   // consumed by the browser.
-  // 
+  //
   // Browser should put this stream into a window target.
   //
   // TODO: implement me
@@ -588,6 +588,7 @@ void NPN_Status(NPP id, const char* message) {
 }
 
 void NPN_InvalidateRect(NPP id, NPRect *invalidRect) {
+#if defined(OS_WIN)
   // Invalidates specified drawing area prior to repainting or refreshing a
   // windowless plugin
 
@@ -596,8 +597,8 @@ void NPN_InvalidateRect(NPP id, NPRect *invalidRect) {
   // pass an update event or a paint message to the plug-in.  After calling
   // this method, the plug-in recieves a paint message asynchronously.
 
-  // The browser redraws invalid areas of the document and any windowless 
-  // plug-ins at regularly timed intervals. To force a paint message, the 
+  // The browser redraws invalid areas of the document and any windowless
+  // plug-ins at regularly timed intervals. To force a paint message, the
   // plug-in can call NPN_ForceRedraw after calling this method.
 
   scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
@@ -623,6 +624,9 @@ void NPN_InvalidateRect(NPP id, NPRect *invalidRect) {
       plugin->webplugin()->Invalidate();
     }
   }
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 void NPN_InvalidateRegion(NPP id, NPRegion invalidRegion) {
@@ -707,10 +711,14 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
   }
   case NPNVnetscapeWindow:
   {
+#if defined(OS_WIN)
     scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
     HWND handle = plugin->window_handle();
     *((void**)value) = (void*)handle;
     rv = NPERR_NO_ERROR;
+#else
+    NOTIMPLEMENTED();
+#endif
     break;
   }
   case NPNVjavascriptEnabledBool:

@@ -19,11 +19,11 @@ namespace NPAPI
 class PluginInstance;
 
 // The Plugin Host implements the NPN_xxx functions for NPAPI plugins.
-// These are the functions exposed from the Plugin Host for use 
+// These are the functions exposed from the Plugin Host for use
 // by the Plugin.
 //
-// The PluginHost is managed as a singleton.  This isn't strictly 
-// necessary, but since the callback functions are all global C 
+// The PluginHost is managed as a singleton.  This isn't strictly
+// necessary, but since the callback functions are all global C
 // functions, there is really no point in having per-instance PluginHosts.
 class PluginHost : public base::RefCounted<PluginHost> {
  public:
@@ -31,13 +31,13 @@ class PluginHost : public base::RefCounted<PluginHost> {
   // must call deref() when finished with the object.
   static PluginHost *Singleton();
   virtual ~PluginHost();
-  
+
   // The table of functions provided to the plugin.
   NPNetscapeFuncs *host_functions() { return &host_funcs_; }
 
-  // Helper function for parsing post headers, and applying attributes 
-  // to the stream.  NPAPI post data include headers + data combined.  
-  // This function parses it out and adds it to the stream in a WebKit 
+  // Helper function for parsing post headers, and applying attributes
+  // to the stream.  NPAPI post data include headers + data combined.
+  // This function parses it out and adds it to the stream in a WebKit
   // style.
   static bool SetPostData(const char *buf,
                           uint32 length,

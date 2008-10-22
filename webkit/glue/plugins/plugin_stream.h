@@ -79,7 +79,7 @@ class PluginStream : public base::RefCounted<PluginStream> {
   bool open() { return opened_; }
 
  private:
-  // Open a temporary file for this stream.  
+  // Open a temporary file for this stream.
   // If successful, will set temp_file_name_, temp_file_handle_, and
   // return true.
   bool OpenTempFile();
@@ -113,8 +113,10 @@ class PluginStream : public base::RefCounted<PluginStream> {
   bool                          close_on_write_data_;
   uint16                        requested_plugin_mode_;
   bool                          opened_;
+#if defined(OS_WIN)
   char                          temp_file_name_[MAX_PATH];
   HANDLE                        temp_file_handle_;
+#endif
   std::vector<char>             delivery_data_;
   int                           data_offset_;
   bool                          seekable_stream_;
