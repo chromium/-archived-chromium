@@ -164,7 +164,6 @@ wtf_inputs = [
 
 if env['PLATFORM'] == 'win32':
   wtf_inputs.extend([
-      '$WTF_DIR/win/MainThreadWin.cpp',
       '$WTF_DIR/ThreadingWin.cpp',
   ])
 elif env['PLATFORM'] == 'posix':

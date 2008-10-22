@@ -53,6 +53,7 @@ input_files = [
     '$PORT_DIR/platform/chromium/FramelessScrollView.cpp',
     '$PORT_DIR/platform/chromium/Language.cpp',
     '$PORT_DIR/platform/chromium/MimeTypeRegistryChromium.cpp',
+    '$PORT_DIR/platform/chromium/PlatformKeyboardEventChromium.cpp',
     '$PORT_DIR/platform/chromium/PlatformScrollBarChromium.cpp',
     '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
     '$PORT_DIR/platform/chromium/SSLKeyGeneratorChromium.cpp',
@@ -156,22 +157,16 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/win/ClipboardUtilitiesWin.cpp',
     '$PORT_DIR/platform/win/ClipboardWin.cpp',
     '$PORT_DIR/platform/win/EditorWin.cpp',
-    '$PORT_DIR/platform/win/KeyEventWin.cpp',
     '$PORT_DIR/platform/win/PasteboardWin.cpp',
-    '$PORT_DIR/platform/win/PlatformMouseEventWin.cpp',
     '$PORT_DIR/platform/win/ScreenWin.cpp',
     '$PORT_DIR/platform/win/SoundWin.cpp',
     '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
     '$PORT_DIR/platform/win/WCDataObject.cpp',
-    '$PORT_DIR/platform/win/WheelEventWin.cpp',
     '$PORT_DIR/platform/graphics/FontCacheWin.cpp',
     '$PORT_DIR/platform/graphics/FontPlatformDataWin.cpp',
     '$PORT_DIR/platform/graphics/FontWin.cpp',
     '$PORT_DIR/platform/graphics/GlyphPageTreeNodeWin.cpp',
     '$PORT_DIR/platform/graphics/IconWin.cpp',
-    '$PORT_DIR/platform/graphics/IntPointWin.cpp',
-    '$PORT_DIR/platform/graphics/IntRectWin.cpp',
-    '$PORT_DIR/platform/graphics/IntSizeWin.cpp',
     '$PORT_DIR/platform/graphics/SimpleFontDataWin.cpp',
     '$PORT_DIR/rendering/RenderThemeWin.cpp',
   ])
@@ -204,6 +199,7 @@ if env['PLATFORM'] == 'darwin':
 
 if env.get('KJS'):
   input_files.extend([
+    '$PORT_DIR/bridge/KJSBridge.cpp',
     '$PORT_DIR/bridge/ScriptControllerKJS.cpp',
   ])
 else:
