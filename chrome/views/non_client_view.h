@@ -54,6 +54,13 @@ class NonClientView : public View {
   // the system menu).
   virtual void EnableClose(bool enable) = 0;
 
+  // Tells the window controls as rendered by the NonClientView to reset
+  // themselves to a normal state. This happens in situations where the
+  // containing window does not receive a normal sequences of messages that
+  // would lead to the controls returning to this normal state naturally, e.g.
+  // when the window is maximized, minimized or restored.
+  virtual void ResetWindowControls() = 0;
+
   // Prevents the non-client view from rendering as inactive when called with
   // |disable| true, until called with false.
   void set_paint_as_active(bool paint_as_active) { 

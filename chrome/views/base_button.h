@@ -121,6 +121,13 @@ class BaseButton : public View,
     return state_;
   }
 
+  //
+  // Set the state. If the state is different, causes the button
+  // to be repainted
+  //
+  virtual void SetState(ButtonState new_state);
+
+
   virtual void Paint(ChromeCanvas* canvas);
 
   // Variant of paint that allows you to specify whether the paint is for a
@@ -134,12 +141,6 @@ class BaseButton : public View,
   // Returns true if the event is one that can trigger notifying the listener.
   // This implementation returns true if the left mouse button is down.
   virtual bool IsTriggerableEvent(const MouseEvent& e);
-
-  //
-  // Set the state. If the state is different, causes the button
-  // to be repainted
-  //
-  virtual void SetState(ButtonState new_state);
 
   virtual void OnDragDone();
 

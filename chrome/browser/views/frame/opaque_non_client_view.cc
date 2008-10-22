@@ -592,6 +592,13 @@ void OpaqueNonClientView::EnableClose(bool enable) {
   close_button_->SetEnabled(enable);
 }
 
+void OpaqueNonClientView::ResetWindowControls() {
+  restore_button_->SetState(views::Button::BS_NORMAL);
+  minimize_button_->SetState(views::Button::BS_NORMAL);
+  maximize_button_->SetState(views::Button::BS_NORMAL);
+  // The close button isn't affected by this constraint.
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, views::View overrides:
 

@@ -29,6 +29,7 @@ class AeroGlassNonClientView : public views::NonClientView {
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
   virtual void EnableClose(bool enable);
+  virtual void ResetWindowControls();
 
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);

@@ -219,9 +219,15 @@ int AeroGlassNonClientView::NonClientHitTest(const gfx::Point& point) {
 
 void AeroGlassNonClientView::GetWindowMask(const gfx::Size& size,
                                            gfx::Path* window_mask) {
+  // We use the native window region.
 }
 
 void AeroGlassNonClientView::EnableClose(bool enable) {
+  // This is handled exclusively by Window.
+}
+
+void AeroGlassNonClientView::ResetWindowControls() {
+  // Our window controls are rendered by the system and do not require reset.
 }
 
 ///////////////////////////////////////////////////////////////////////////////

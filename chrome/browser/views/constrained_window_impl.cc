@@ -214,6 +214,7 @@ class ConstrainedWindowNonClientView
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual void GetWindowMask(const gfx::Size& size, gfx::Path* window_mask);
   virtual void EnableClose(bool enable);
+  virtual void ResetWindowControls();
 
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
@@ -551,6 +552,10 @@ void ConstrainedWindowNonClientView::GetWindowMask(const gfx::Size& size,
 
 void ConstrainedWindowNonClientView::EnableClose(bool enable) {
   close_button_->SetEnabled(enable);
+}
+
+void ConstrainedWindowNonClientView::ResetWindowControls() {
+  // We have no window controls to reset.
 }
 
 ////////////////////////////////////////////////////////////////////////////////
