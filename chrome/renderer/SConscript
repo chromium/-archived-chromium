@@ -10,7 +10,7 @@ env = env.Clone()
 env.Prepend(
     CPPPATH = [
         '$CHROME_DIR/app/resources',
-        '#/tools/build/win',
+        '/chrome/tools/build/win',
         '$CHROME_SRC_DIR',
     ],
     CPPDEFINES = [
