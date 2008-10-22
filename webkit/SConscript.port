@@ -180,6 +180,10 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
     '$PORT_DIR/platform/chromium/FileSystemPosix.cpp',
     '$PORT_DIR/platform/chromium/SoundPosix.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontCacheLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
   ])
 
 if env['PLATFORM'] == 'darwin':
