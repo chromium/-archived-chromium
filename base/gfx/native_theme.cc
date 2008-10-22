@@ -82,8 +82,9 @@ HRESULT NativeTheme::PaintButton(HDC hdc,
 
   // Draw it manually.
   // All pressed states have both low bits set, and no other states do.
-  const bool focused = ((state_id & PBS_PRESSED) == PBS_PRESSED);
-  if ((part_id == BP_PUSHBUTTON) && focused) {
+  const bool focused = ((state_id & TS_CHECKED) == TS_CHECKED);
+  const bool pressed = ((state_id & PBS_PRESSED) == PBS_PRESSED);
+  if ((BP_PUSHBUTTON == part_id) && (pressed || focused)) {
     // BP_PUSHBUTTON has a focus rect drawn around the outer edge, and the
     // button itself is shrunk by 1 pixel.
     HBRUSH brush = GetSysColorBrush(COLOR_3DDKSHADOW);
@@ -92,13 +93,21 @@ HRESULT NativeTheme::PaintButton(HDC hdc,
       InflateRect(rect, -1, -1);
     }
   }
-
   DrawFrameControl(hdc, rect, DFC_BUTTON, classic_state);
 
-  // BP_RADIOBUTTON, BP_CHECKBOX, BP_GROUPBOX and BP_USERBUTTON have their
-  // focus drawn over the control.
-  if ((part_id != BP_PUSHBUTTON) && focused)
+  // Draw the focus rectangle (the dotted line box) only on buttons.  For radio
+  // and checkboxes, we let webkit draw the focus rectangle (orange glow).
+  if ((BP_PUSHBUTTON == part_id) && focused) {
+    // The focus rect is inside the button.  The exact number of pixels depends
+    // on whether we're in classic mode or using uxtheme.
+    if (handle && get_theme_content_rect_) {
+      get_theme_content_rect_(handle, hdc, part_id, state_id, rect, rect);
+    } else {
+      InflateRect(rect, -GetSystemMetrics(SM_CXEDGE), 
+                  -GetSystemMetrics(SM_CYEDGE));
+    }
     DrawFocusRect(hdc, rect);
+  }
 
   return S_OK;
 }
