@@ -38,6 +38,9 @@ NET_ERROR(UNEXPECTED, -9)
 // Permission to access a resource was denied.
 NET_ERROR(ACCESS_DENIED, -10)
 
+// The operation failed because of unimplemented functionality.
+NET_ERROR(NOT_IMPLEMENTED, -11)
+
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
 

@@ -13,12 +13,12 @@ namespace net {
 class ProxyResolverNull : public ProxyResolver {
  public:
   virtual int GetProxyConfig(ProxyConfig* config) {
-    return ERR_FAILED;
+    return ERR_NOT_IMPLEMENTED;
   }
   virtual int GetProxyForURL(const std::string& query_url,
                              const std::string& pac_url,
                              ProxyInfo* results) {
-    return ERR_FAILED;
+    return ERR_NOT_IMPLEMENTED;
   }
 };
 
