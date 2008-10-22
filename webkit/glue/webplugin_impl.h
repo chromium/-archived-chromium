@@ -66,6 +66,10 @@ class WebPluginContainer : public WebCore::Widget {
   virtual void attachToWindow();
   virtual void detachFromWindow();
 
+#if USE(JSC)
+  virtual bool isPluginView() const;
+#endif
+
   // Returns window-relative rectangles that should clip this widget.
   // Only rects that intersect the given bounds are relevant.
   // Use this to implement iframe shim behavior.

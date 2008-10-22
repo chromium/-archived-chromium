@@ -121,6 +121,13 @@ WebCore::IntRect WebPluginContainer::windowClipRect() const {
   return impl_->windowClipRect();
 }
 
+#if USE(JSC)
+bool WebPluginContainer::isPluginView() const { 
+  return true; 
+}
+#endif
+
+
 void WebPluginContainer::geometryChanged() const {
   impl_->geometryChanged();
 }
