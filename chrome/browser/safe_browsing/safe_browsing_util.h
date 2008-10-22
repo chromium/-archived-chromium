@@ -34,6 +34,7 @@ class SBEntry;
 typedef struct {
   std::string url;
   std::string mac;
+  std::string list_name;
 } ChunkUrl;
 
 // A truncated hash's type.

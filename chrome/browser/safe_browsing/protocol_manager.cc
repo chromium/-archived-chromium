@@ -306,18 +306,7 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
       break;
     }
     case CHUNK_REQUEST: {
-      // Find list name from url.
-      std::string url_path = url.ExtractFileName();
-      if (url_path.empty())
-        return false;
-
-      std::string::size_type pos = url_path.find_first_of('_');
-      if (pos == std::string::npos)
-        return false;
-
       const ChunkUrl chunk_url = chunk_request_urls_.front();
-      DCHECK(url.spec().find(chunk_url.url) != std::string::npos);
-
       bool re_key = false;
       std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
       if (!parser.ParseChunk(data, length,
@@ -347,8 +336,7 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
         delete chunks;
       } else {
         chunk_pending_to_write_ = true;
-        std::string list_name(url_path, 0, pos);
-        sb_service_->HandleChunk(list_name, chunks);
+        sb_service_->HandleChunk(chunk_url.list_name, chunks);
       }
 
       break;

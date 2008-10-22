@@ -214,6 +214,7 @@ bool SafeBrowsingProtocolParser::ParseUpdate(
 
         ChunkUrl chunk_url;
         chunk_url.url = redirect_url;
+        chunk_url.list_name = list_name;
         if (!key.empty())
           chunk_url.mac = mac;
         chunk_urls->push_back(chunk_url);
