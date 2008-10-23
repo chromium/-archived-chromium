@@ -5,7 +5,9 @@
 #ifndef BASE_CLIPBOARD_H_
 #define BASE_CLIPBOARD_H_
 
+#include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -29,6 +31,9 @@ class Clipboard {
 #elif defined(OS_LINUX)
   typedef struct _GdkAtom* FormatType;
   typedef struct _GtkClipboard GtkClipboard;
+  // A mapping from target (format) string to the relevant data (usually a
+  // string, but potentially arbitrary data).
+  typedef std::map<std::string, std::pair<uint8*, size_t> > TargetMap;
 #endif
 
   Clipboard();
@@ -98,7 +103,7 @@ class Clipboard {
   // out parameter.
   void ReadFile(std::wstring* file) const;
   void ReadFiles(std::vector<std::wstring>* files) const;
-  
+
   // Get format Identifiers for various types.
   static FormatType GetUrlFormatType();
   static FormatType GetUrlWFormatType();
@@ -135,6 +140,23 @@ class Clipboard {
 
   HWND clipboard_owner_;
 #elif defined(OS_LINUX)
+  // Write changes to gtk clipboard.
+  void SetGtkClipboard();
+  // Free pointers in clipboard_data_ and clear() the map.
+  void FreeTargetMap();
+  // Insert a mapping into clipboard_data_, or change an existing mapping.
+  uint8* InsertOrOverwrite(std::string target, uint8* data, size_t data_len);
+
+  // We have to be able to store multiple formats on the clipboard
+  // simultaneously. The Chrome Clipboard class accomplishes this by
+  // expecting that consecutive calls to Write* (WriteHTML, WriteText, etc.)
+  // The GTK clipboard interface does not naturally support consecutive calls
+  // building on one another. So we keep all data in a map, and always pass the
+  // map when we are setting the gtk clipboard. Consecutive calls to Write*
+  // will write to the map and set the GTK clipboard, then add to the same
+  // map and set the GTK clipboard again. GTK thinks it is wiping out the
+  // clipboard but we are actually keeping the previous data.
+  TargetMap clipboard_data_;
   GtkClipboard* clipboard_;
 #endif
 

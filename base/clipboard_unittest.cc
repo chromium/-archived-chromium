@@ -42,6 +42,21 @@ TEST_F(ClipboardTest, TextTest) {
   EXPECT_EQ(WideToUTF8(text), ascii_text);
 }
 
+TEST_F(ClipboardTest, OverwriteTest) {
+  Clipboard clipboard;
+
+  std::wstring text1(L"first string"), text2(L"second string"), text_result;
+
+  clipboard.Clear();
+  clipboard.WriteText(text1);
+  clipboard.WriteText(text2);
+
+  EXPECT_TRUE(clipboard.IsFormatAvailable(
+      Clipboard::GetPlainTextWFormatType()));
+  clipboard.ReadText(&text_result);
+  EXPECT_EQ(text2, text_result);
+}
+
 TEST_F(ClipboardTest, HTMLTest) {
   Clipboard clipboard;
 
@@ -61,8 +76,6 @@ TEST_F(ClipboardTest, HTMLTest) {
 #endif
 }
 
-// TODO(estade): Port the following tests.
-#if !defined(OS_LINUX)
 TEST_F(ClipboardTest, TrickyHTMLTest) {
   Clipboard clipboard;
 
@@ -75,15 +88,15 @@ TEST_F(ClipboardTest, TrickyHTMLTest) {
       Clipboard::GetHtmlFormatType()));
   clipboard.ReadHTML(&markup_result, &url_result);
   EXPECT_EQ(markup, markup_result);
-
-#if defined(OS_MACOSX)
-  // TODO(playmobil): It's not clear that the OS X clipboard needs to support
+#if defined(OS_WIN)
+  // TODO(playmobil): It's not clear that non windows clipboards need to support
   // this.
-#else  
   EXPECT_EQ(url, url_result);
 #endif
 }
 
+// TODO(estade): Port the following test (decide what target we use for urls)
+#if !defined(OS_LINUX)
 TEST_F(ClipboardTest, BookmarkTest) {
   Clipboard clipboard;
 
@@ -98,6 +111,7 @@ TEST_F(ClipboardTest, BookmarkTest) {
   EXPECT_EQ(title, title_result);
   EXPECT_EQ(url, url_result);
 }
+#endif
 
 TEST_F(ClipboardTest, MultiFormatTest) {
   Clipboard clipboard;
@@ -118,10 +132,9 @@ TEST_F(ClipboardTest, MultiFormatTest) {
       Clipboard::GetPlainTextFormatType()));
   clipboard.ReadHTML(&markup_result, &url_result);
   EXPECT_EQ(markup, markup_result);
-#if defined(OS_MACOSX)
-  // TODO(playmobil): It's not clear that the OS X clipboard needs to support
+#if defined(OS_WIN)
+  // TODO(playmobil): It's not clear that non windows clipboards need to support
   // this.
-#else  
   EXPECT_EQ(url, url_result);
 #endif
   clipboard.ReadText(&text_result);
@@ -130,6 +143,8 @@ TEST_F(ClipboardTest, MultiFormatTest) {
   EXPECT_EQ(WideToUTF8(text), ascii_text);
 }
 
+// TODO(estade): Port the following tests (decide what targets we use for files)
+#if !defined(OS_LINUX)
 // Files for this test don't actually need to exist on the file system, just
 // don't try to use a non-existent file you've retrieved from the clipboard.
 TEST_F(ClipboardTest, FileTest) {
@@ -176,6 +191,7 @@ TEST_F(ClipboardTest, MultipleFilesTest) {
   for (size_t i = 0; i < out_files.size(); ++i)
     EXPECT_EQ(files[i], out_files[i]);
 }
+#endif  // !defined(OS_LINUX)
 
 #if defined(OS_WIN)  // Windows only tests.
 TEST_F(ClipboardTest, HyperlinkTest) {
@@ -224,4 +240,3 @@ TEST_F(ClipboardTest, BitmapTest) {
                       Clipboard::GetBitmapFormatType()));
 }
 #endif
-#endif  // !defined(OS_LINUX)

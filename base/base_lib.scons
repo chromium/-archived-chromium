@@ -175,6 +175,7 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
       'atomicops_internals_x86_gcc.cc',
       'base_paths_linux.cc',
+      'clipboard_linux.cc',
       'file_util_linux.cc',
       'hmac_nss.cc',
       'message_pump_glib.cc',
