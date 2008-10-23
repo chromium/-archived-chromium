@@ -119,6 +119,13 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
   type = MOUSE_WHEEL;
   button = BUTTON_NONE;
 
+  // Add a simple workaround to scroll multiples units per page.
+  // The right fix needs to extend webkit's implementation of
+  // wheel events and that's not something we want to do at
+  // this time. See bug# 928509
+  // TODO(joshia): Implement the right fix for bug# 928509
+  const int kPageScroll = 10;  // 10 times wheel scroll 
+
   UINT key_state = GET_KEYSTATE_WPARAM(wparam);
   int wheel_delta = static_cast<int>(GET_WHEEL_DELTA_WPARAM(wparam));
 
@@ -146,12 +153,6 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
     if (GetAsyncKeyState(VK_CONTROL))
       key_state |= MK_CONTROL;
 
-    // Add a simple workaround to scroll multiples units per page.
-    // The right fix needs to extend webkit's implementation of
-    // wheel events and that's not something we want to do at
-    // this time. See bug# 928509
-    // TODO(joshia): Implement the right fix for bug# 928509
-    const int kPageScroll = 10;  // 10 times wheel scroll 
     switch (LOWORD(wparam)) {
       case SB_LINEUP:    // == SB_LINELEFT
         wheel_delta = WHEEL_DELTA;
@@ -211,8 +212,11 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
   unsigned long scroll_lines = kDefaultScrollLinesPerWheelDelta;
   SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scroll_lines, 0);
 
-  // TODO(darin): handle the case where scroll_lines is WHEEL_PAGESIZE
   int delta_lines = 0;
+  if (scroll_lines == WHEEL_PAGESCROLL) {
+    scroll_lines = kPageScroll;
+  }
+
   if (scroll_lines == 0) {
       carryover = 0;
   } else {
