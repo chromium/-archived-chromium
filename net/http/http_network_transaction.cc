@@ -660,6 +660,10 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
       int eoh = HttpUtil::LocateEndOfHeaders(
           header_buf_.get(), header_buf_len_, header_buf_http_offset_);
       if (eoh == -1) {
+        // Prevent growing the headers buffer indefinitely.
+        if (header_buf_len_ >= kMaxHeaderBufSize)
+          return ERR_RESPONSE_HEADERS_TOO_BIG;
+
         // Haven't found the end of headers yet, keep reading.
         next_state_ = STATE_READ_HEADERS;
         return OK;

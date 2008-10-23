@@ -206,7 +206,17 @@ class HttpNetworkTransaction : public HttpTransaction {
   int header_buf_capacity_;
   int header_buf_len_;
   int header_buf_body_offset_;
+
+  // The number of bytes by which the header buffer is grown when it reaches
+  // capacity.
   enum { kHeaderBufInitialSize = 4096 };
+
+  // |kMaxHeaderBufSize| is the number of bytes that the response headers can
+  // grow to. If the body start is not found within this range of the
+  // response, the transaction will fail with ERR_RESPONSE_HEADERS_TOO_BIG.
+  // Note: |kMaxHeaderBufSize| should be a multiple of |kHeaderBufInitialSize|.
+  enum { kMaxHeaderBufSize = 32768 };  // 32 kilobytes.
+
   // The position where status line starts; -1 if not found yet.
   int header_buf_http_offset_;
 

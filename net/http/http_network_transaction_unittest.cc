@@ -268,6 +268,23 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   return out;
 }
 
+// Create a long header list that consumes >= |size| bytes. The caller is
+// responsible for freeing the memory.
+char* MakeLargeHeadersString(int size) {
+  const char* row =
+      "SomeHeaderName: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n";
+  const int sizeof_row = strlen(row);
+  const int num_rows = static_cast<int>(
+      ceil(static_cast<float>(size) / sizeof_row));
+  const int sizeof_data = num_rows * sizeof_row;
+  DCHECK(sizeof_data >= size);
+
+  char* data = new char[sizeof_data];
+  for (int i = 0; i < num_rows; ++i)
+    memcpy(data + i * sizeof_row, row, sizeof_row);
+  return data;
+}
+
 //-----------------------------------------------------------------------------
 
 TEST_F(HttpNetworkTransactionTest, Basic) {
@@ -801,4 +818,43 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   response = trans->GetResponseInfo();
   EXPECT_TRUE(response->auth_challenge.get() == NULL);
   EXPECT_EQ(100, response->headers->GetContentLength());
+}
+
+// Test reading a server response which has only headers, and no body.
+// After some maximum number of bytes is consumed, the transaction should
+// fail with ERR_RESPONSE_HEADERS_TOO_BIG.
+TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(), &mock_socket_factory));
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.load_flags = 0;
+
+  // Respond with 50 kb of headers (we should fail after 32 kb).
+  scoped_array<char> large_headers_string(MakeLargeHeadersString(
+      50 * 1024));
+
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead(large_headers_string.get()),
+    MockRead("\r\nBODY"),
+    MockRead(false, net::OK),
+  };
+  MockSocket data;
+  data.reads = data_reads;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(net::ERR_RESPONSE_HEADERS_TOO_BIG, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_TRUE(response == NULL);
 }

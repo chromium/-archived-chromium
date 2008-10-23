@@ -218,6 +218,9 @@ NET_ERROR(UNEXPECTED_PROXY_AUTH, -323)
 // The server closed the connection without sending any data.
 NET_ERROR(EMPTY_RESPONSE, -324)
 
+// The headers section of the response is too large.
+NET_ERROR(RESPONSE_HEADERS_TOO_BIG, -325)
+
 // The cache does not have the requested entry.
 NET_ERROR(CACHE_MISS, -400)
 
