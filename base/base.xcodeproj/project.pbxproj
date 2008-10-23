@@ -163,6 +163,8 @@
 		ABF4B9BC0DC2BD1000A6E319 /* sha2.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403620D92D27C0006B936 /* sha2.cc */; };
 		ABF4B9BE0DC2BD1500A6E319 /* sha512.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403700D92D2840006B936 /* sha512.cc */; };
 		ABF4B9C30DC2BD6C00A6E319 /* values.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403880D92D2CF0006B936 /* values.cc */; };
+		ABF68B2A0EB0F93100E72835 /* field_trial.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF68B280EB0F93100E72835 /* field_trial.cc */; };
+		ABF68B2B0EB0F93E00E72835 /* field_trial_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF68B260EB0F93100E72835 /* field_trial_unittest.cc */; };
 		ABFBD3E60DC793C600E164CB /* md5.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403290D92D2090006B936 /* md5.cc */; };
 		B52C916C0E9428F500208D01 /* clipboard_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B52C916B0E9428F500208D01 /* clipboard_unittest.cc */; };
 		B53C85280E9C298C000F70AB /* idle_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820EB4EB0E3A60FE009668FC /* idle_timer.cc */; };
@@ -619,6 +621,9 @@
 		ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = base_paths_mac.mm; sourceTree = "<group>"; };
 		ABF4B99D0DC2BB6000A6E319 /* clipboard_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = clipboard_mac.mm; sourceTree = "<group>"; };
 		ABF4B9B40DC2BC9F00A6E319 /* path_service.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = path_service.cc; sourceTree = "<group>"; };
+		ABF68B260EB0F93100E72835 /* field_trial_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_trial_unittest.cc; sourceTree = "<group>"; };
+		ABF68B270EB0F93100E72835 /* field_trial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = field_trial.h; sourceTree = "<group>"; };
+		ABF68B280EB0F93100E72835 /* field_trial.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_trial.cc; sourceTree = "<group>"; };
 		B52C916B0E9428F500208D01 /* clipboard_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clipboard_unittest.cc; sourceTree = "<group>"; };
 		B57E4D770E9C26340090055D /* idletimer_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idletimer_unittest.cc; sourceTree = "<group>"; };
 		B5D544AA0EAFB7E000272A1C /* sys_string_conversions_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sys_string_conversions_unittest.cc; sourceTree = "<group>"; };
@@ -848,6 +853,9 @@
 				7B78CE100E53131800609465 /* debug_util_posix.cc */,
 				825402FF0D92D1BC0006B936 /* event_recorder.cc */,
 				825403000D92D1BC0006B936 /* event_recorder.h */,
+				ABF68B270EB0F93100E72835 /* field_trial.h */,
+				ABF68B280EB0F93100E72835 /* field_trial.cc */,
+				ABF68B260EB0F93100E72835 /* field_trial_unittest.cc */,
 				4D11B89B0E929EFF00EF7617 /* file_path.cc */,
 				4D11B89C0E929EFF00EF7617 /* file_path.h */,
 				4D11B89D0E929EFF00EF7617 /* file_path_unittest.cc */,
@@ -1348,6 +1356,7 @@
 				824653680DC12CEC007C2BAA /* condition_variable_posix.cc in Sources */,
 				7B78CE250E5314A000609465 /* debug_util.cc in Sources */,
 				7B78CE120E53131800609465 /* debug_util_posix.cc in Sources */,
+				ABF68B2A0EB0F93100E72835 /* field_trial.cc in Sources */,
 				4D11B89E0E929F0400EF7617 /* file_path.cc in Sources */,
 				A5A026550E4A214600498DA9 /* file_util.cc in Sources */,
 				A5A0270B0E4A630D00498DA9 /* file_util_mac.mm in Sources */,
@@ -1439,6 +1448,7 @@
 				7B78D38F0E54FE0100609465 /* command_line_unittest.cc in Sources */,
 				BA73AA330E5F614B00A20026 /* condition_variable_unittest.cc in Sources */,
 				7B8505D40E5B43FE00730B43 /* convolver_unittest.cc in Sources */,
+				ABF68B2B0EB0F93E00E72835 /* field_trial_unittest.cc in Sources */,
 				4D11B89F0E929F0700EF7617 /* file_path_unittest.cc in Sources */,
 				A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */,
 				7B78D3910E54FE0100609465 /* file_version_info_unittest.cc in Sources */,
