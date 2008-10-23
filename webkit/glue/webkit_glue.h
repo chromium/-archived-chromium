@@ -5,11 +5,15 @@
 #ifndef WEBKIT_GLUE_H__
 #define WEBKIT_GLUE_H__
 
-#include <string>
-#include <vector>
-#ifdef _WIN32
+#include "base/basictypes.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
 #endif
+
+#include <string>
+#include <vector>
+
 #include "base/string16.h"
 #include "webkit/glue/webplugin.h"
 
@@ -37,6 +41,13 @@ class Frame;
 }  // namespace WebCore
 
 class SkBitmap;
+
+#if defined(OS_MACOSX)
+typedef struct CGImage* CGImageRef;
+typedef CGImageRef GlueBitmap;
+#else
+typedef SkBitmap* GlueBitmap;
+#endif
 
 namespace webkit_glue {
 
@@ -171,9 +182,9 @@ std::wstring GetLocalizedString(int message_id);
 // specified as BINDATA in the relevant .rc file.
 std::string GetDataResource(int resource_id);
 
-// Returns an SkBitmap for a resource.  This resource must have been
+// Returns a GlueBitmap for a resource.  This resource must have been
 // specified as BINDATA in the relevant .rc file.
-SkBitmap* GetBitmapResource(int resource_id);
+GlueBitmap GetBitmapResource(int resource_id);
 
 #ifdef _WIN32
 // Loads and returns a cursor.

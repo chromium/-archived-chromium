@@ -12,18 +12,20 @@
 WebCursor::WebCursor()
     : type_(ARROW),
       hotspot_x_(0),
-      hotspot_y_(0) {
-  memset(&bitmap_, 0, sizeof(bitmap_));
+      hotspot_y_(0),
+      bitmap_() {
 }
 
 WebCursor::WebCursor(Type cursor_type)
     : type_(cursor_type),
       hotspot_x_(0),
-      hotspot_y_(0) {
-  memset(&bitmap_, 0, sizeof(bitmap_));
+      hotspot_y_(0),
+      bitmap_() {
 }
 
-WebCursor::WebCursor(const SkBitmap* bitmap, int hotspot_x, int hotspot_y)
+WebCursor::WebCursor(const WebCursorBitmapPtr bitmap,
+                     int hotspot_x,
+                     int hotspot_y)
     : type_(ARROW),
       hotspot_x_(0),
       hotspot_y_(0) {
@@ -31,20 +33,31 @@ WebCursor::WebCursor(const SkBitmap* bitmap, int hotspot_x, int hotspot_y)
     type_ = CUSTOM;
     hotspot_x_ = hotspot_x;
     hotspot_y_ = hotspot_y;
+#if defined(OS_MACOSX)
+    CGImageRetain(bitmap_ = bitmap);
+#else
     bitmap_ = *bitmap;
+#endif
   } else {
+#if defined(OS_MACOSX)
+    bitmap_ = NULL;
+#else
     memset(&bitmap_, 0, sizeof(bitmap_));
+#endif
   }
 }
 
 WebCursor::~WebCursor() {
+#if defined(OS_MACOSX)
+  CGImageRelease(bitmap_);
+#endif
 }
 
 WebCursor::WebCursor(const WebCursor& other) {
   type_ = other.type_;
   hotspot_x_ = other.hotspot_x_;
   hotspot_y_ = other.hotspot_y_;
-  bitmap_ = other.bitmap_;
+  set_bitmap(other.bitmap_);
 }
 
 WebCursor& WebCursor::operator=(const WebCursor& other) {
@@ -52,10 +65,11 @@ WebCursor& WebCursor::operator=(const WebCursor& other) {
     type_ = other.type_;
     hotspot_x_ = other.hotspot_x_;
     hotspot_y_ = other.hotspot_y_;
-    bitmap_ = other.bitmap_;
+    set_bitmap(other.bitmap_);
   }
   return *this;
 }
+
 #if defined(OS_WIN)
 HCURSOR WebCursor::GetCursor(HINSTANCE module_handle) const {
   if (type_ == CUSTOM) 
@@ -136,7 +150,9 @@ HCURSOR WebCursor::GetCustomCursor() const {
   return cursor_handle;
 }
 #endif
-bool WebCursor::IsSameBitmap(const SkBitmap& bitmap) const {
+
+#if !defined(OS_MACOSX)
+bool WebCursor::IsSameBitmap(const WebCursorBitmap& bitmap) const {
   SkAutoLockPixels new_bitmap_lock(bitmap);
   SkAutoLockPixels bitmap_lock(bitmap_); 
   return (memcmp(bitmap_.getPixels(), bitmap.getPixels(), 
@@ -151,4 +167,4 @@ bool WebCursor::IsEqual(const WebCursor& other) const {
     return IsSameBitmap(other.bitmap_);
   return true;
 }
-
+#endif
