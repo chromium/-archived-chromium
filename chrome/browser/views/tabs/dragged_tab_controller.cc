@@ -498,8 +498,11 @@ void DraggedTabController::Detach() {
   TabStripModel* attached_model = attached_tabstrip_->model();
   int index = attached_model->GetIndexOfTabContents(dragged_contents_);
   if (index >= 0 && index < attached_model->count()) {
+    // Sometimes, DetachTabContentsAt has consequences that result in
+    // attached_tabstrip_ being set to NULL, so we need to save it first.
+    TabStrip* attached_tabstrip = attached_tabstrip_;
     attached_model->DetachTabContentsAt(index);
-    attached_tabstrip_->SchedulePaint();
+    attached_tabstrip->SchedulePaint();
   }
 
   // If we've removed the last Tab from the TabStrip, hide the frame now.
