@@ -1941,7 +1941,10 @@ each locale. -->
         A new version of <ph name="PRODUCT_NAME">$1<ex>Google Chrome</ex></ph> is available
       </message>
       <message name="IDS_UPGRADE_SUCCESSFUL" desc="Status label: Successfully upgraded">
-        <ph name="PRODUCT_NAME">$1<ex>Google Chrome</ex></ph> has been updated <ph name="VERSION">$2<ex>(0.1.131)</ex></ph>
+        <ph name="PRODUCT_NAME">$1<ex>Google Chrome</ex></ph> has been updated to <ph name="VERSION">$2<ex>0.1.131</ex></ph>
+      </message>
+      <message name="IDS_UPGRADE_SUCCESSFUL_NOVERSION" desc="Status label: Successfully upgraded">
+        <ph name="PRODUCT_NAME">$1<ex>Google Chrome</ex></ph> has been updated
       </message>
       <message name="IDS_UPGRADE_ALREADY_UP_TO_DATE" desc="Status label: Already up to date">
         <ph name="PRODUCT_NAME">$1<ex>Google Chrome</ex></ph> is up to date (<ph name="VERSION">$2<ex>0.1.131</ex></ph>)

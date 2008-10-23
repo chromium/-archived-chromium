@@ -610,11 +610,6 @@ void AboutChromeView::OnReportResults(GoogleUpdateUpgradeResult result,
   // Make a note of which version Google Update is reporting is the latest
   // version.
   new_version_available_ = version;
-  if (!new_version_available_.empty()) {
-    new_version_available_ = std::wstring(L"(") +
-                             new_version_available_ +
-                             std::wstring(L")");
-  }
   UpdateStatus(result, error_code);
 }
 
@@ -671,18 +666,23 @@ void AboutChromeView::UpdateStatus(GoogleUpdateUpgradeResult result,
       }
       // No break here as we want to notify user about upgrade if there is one.
     }
-    case UPGRADE_SUCCESSFUL:
+    case UPGRADE_SUCCESSFUL: {
       if (result == UPGRADE_ALREADY_UP_TO_DATE)
         UserMetrics::RecordAction(L"UpgradeCheck_AlreadyUpgraded", profile_);
       else
         UserMetrics::RecordAction(L"UpgradeCheck_Upgraded", profile_);
       check_button_status_ = CHECKBUTTON_HIDDEN;
-      update_label_.SetText(l10n_util::GetStringF(IDS_UPGRADE_SUCCESSFUL,
-          l10n_util::GetString(IDS_PRODUCT_NAME),
-          new_version_available_));
+      const std::wstring& update_string = new_version_available_.empty()
+          ? l10n_util::GetStringF(IDS_UPGRADE_SUCCESSFUL_NOVERSION,
+                                  l10n_util::GetString(IDS_PRODUCT_NAME))
+          : l10n_util::GetStringF(IDS_UPGRADE_SUCCESSFUL,
+                                  l10n_util::GetString(IDS_PRODUCT_NAME),
+                                  new_version_available_);
+      update_label_.SetText(update_string);
       show_success_indicator = true;
       RestartMessageBox::ShowMessageBox(window()->GetHWND());
       break;
+    }
     case UPGRADE_ERROR:
       UserMetrics::RecordAction(L"UpgradeCheck_Error", profile_);
       check_button_status_ = CHECKBUTTON_HIDDEN;
