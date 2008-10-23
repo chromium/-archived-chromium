@@ -685,6 +685,13 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
       !render_manager_.showing_interstitial_page())
     GetSiteInstance()->SetSite(params.url);
 
+  // Need to update MIME type here because it's referred to in 
+  // UpdateNavigationCommands() called by RendererDidNavigate() to
+  // determine whether or not to enable the encoding menu. 
+  // TODO(jungshik): Add a test for the encoding menu to avoid 
+  // regressing it again. 
+  contents_mime_type_ = params.contents_mime_type;
+
   NavigationController::LoadCommittedDetails details;
   if (!controller()->RendererDidNavigate(
       params,
@@ -1440,9 +1447,6 @@ void WebContents::DidNavigateMainFramePostCommit(
 
   // Allow the new page to set the title again.
   received_page_title_ = false;
-
-  // Update contents MIME type of the main webframe.
-  contents_mime_type_ = params.contents_mime_type;
 
   // Get the favicon, either from history or request it from the net.
   fav_icon_helper_.FetchFavIcon(details.entry->url());
