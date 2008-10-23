@@ -209,37 +209,37 @@ be available for now. -->
         Exit Chromium
       </message>
       <message name="IDS_MACHINE_LEVEL_INSTALL_CONFLICT" desc="Error message to display when user tries to run user level Chromium even though machine level Chromium is already installed.">
-        System level Chromium is already installed on this computer. We will replace your user level Chromium with the system level installation.
+        An administrator has installed Chromium on this system, and it is available for all users. The system-level Chromium will replace your user-level installation now.
       </message>
       <message name="IDS_INSTALL_HIGHER_VERSION" desc="Error displayed when higher version already exists.">
-        A newer version of Chromium is already installed on this computer; if it no-longer works, please uninstall it before trying again.
+        This computer already has a more recent version of Chromium. If the software is not working, please uninstall Chromium and download it again.
       </message>
       <message name="IDS_INSTALL_USER_LEVEL_EXISTS" desc="Error displayed during system level install if user level Chromium is already installed.">
-        Chromium is already installed as a non-administrator. Please uninstall it and try again.
+        Chromium has already been installed for this user. If the software is not working, please uninstall Chromium and download it again.
       </message>
       <message name="IDS_INSTALL_SYSTEM_LEVEL_EXISTS" desc="Error displayed during user level install if system level Chromium is already installed.">
-        Chromium is already installed as an administrator. Please uninstall it, if you want to install Chromium as a non-administrator.
+        Chromium is already installed and available to all users of this computer. If you want to install Chromium at the user level, you must first uninstall the system-level version installed by an administrator.
       </message>
       <message name="IDS_INSTALL_FAILED" desc="Error displayed if installation fails due to some unknown error.">
         Installation failed due to unspecified error. If Chromium is currently running, please close it and try again.
       </message>
       <message name="IDS_INSTALL_OS_NOT_SUPPORTED" desc="Error displayed if OS is not supported">
-        Your operating system is not supported - Chromium works on Windows Vista and XP SP1+.
+        Chromium requires Windows Vista or Windows XP with SP1 or higher.
       </message>
       <message name="IDS_INSTALL_OS_ERROR" desc="Error displayed when any Windows API call fails and we do not have more specific information.">
-        Your operating system encountered an unspecified error during installation.
+        An operating system error occurred during installation. Please download Chromium again.
       </message>
       <message name="IDS_INSTALL_TEMP_DIR_FAILED" desc="Error displayed when we fail to create temporary directory during installation.">
-        Could not create temporary directory for installer; please check for permissions and free space on hard disk.
+        The installer couldn't create a temporary directory. Please check for free disk space and permission to install software.
       </message>
       <message name="IDS_INSTALL_UNCOMPRESSION_FAILED" desc="Error when when we can not uncompress installation archive.">
-        Failed to uncompress installer archive. Please try downloading Chromium again.
+        The installer failed to uncompress archive. Please download Chromium again.
       </message>
       <message name="IDS_INSTALL_INVALID_ARCHIVE" desc="Error displayed when we can not open the installation archive.">
-        Installer archive is corrupted or invalid. Please try downloading Chromium again.
+        The installer archive is corrupted or invalid. Please download Chromium again.
       </message>
       <message name="IDS_UNINSTALL_FAILED" desc="Error during uninstall if we can not find the installation directory from registry.">
-        Chromium is not installed or failed to find installation directory from registry.
+        Chromium is not installed or it failed to find installation directory. Please download Chromium again.
       </message>
     </messages>
   </release>
