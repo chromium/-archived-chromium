@@ -125,10 +125,6 @@
 			Name="API"
 			>
 			<File
-				RelativePath="..\..\glue\autofill_form.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\glue\cache_manager.h"
 				>
 			</File>
@@ -373,6 +369,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\glue_accessibility.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\glue_accessibility.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\glue_serialize.cc"
 				>
 			</File>
@@ -457,7 +461,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\glue\resource_handle_win.cc"
+				RelativePath="..\..\glue\resource_handle_impl.cc"
 				>
 			</File>
 			<File
@@ -474,6 +478,14 @@
 			</File>
 			<File
 				RelativePath="..\..\glue\simple_clipboard_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\stacking_order_iterator.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\stacking_order_iterator.h"
 				>
 			</File>
 			<File
