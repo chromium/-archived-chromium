@@ -57,9 +57,6 @@ void scheduleDispatchFunctionsOnMainThread() { notImplemented(); }
 
 #if USE(JSC)
 #include "EventLoop.h"
-#include "PluginView.h"
 
 void EventLoop::cycle() { notImplemented(); }
-
-void PluginView::setJavaScriptPaused(bool) { notImplemented(); }
 #endif

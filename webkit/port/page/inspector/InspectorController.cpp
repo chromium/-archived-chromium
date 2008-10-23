@@ -58,10 +58,6 @@
 #include "InspectorClient.h"
 #include "v8_proxy.h"
 #include "v8_binding.h"
-// TODO(ojan): Import this and enable the JavaScriptDebugServer in the code below.
-// We need to do this once we start adding debugger hooks or when we do the next
-// full webkit merge, whichever comes first.
-// #include "JavaScriptDebugServer.h"
 #include "Page.h"
 #include "Range.h"
 #include "ResourceRequest.h"
@@ -78,6 +74,10 @@
 #if ENABLE(DATABASE)
 #include "Database.h"
 #include "JSDatabase.h"
+#endif
+
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+#include "JavaScriptDebugServer.h"
 #endif
 
 namespace WebCore {
@@ -614,8 +614,10 @@ InspectorController::InspectorController(Page* page, InspectorClient* client)
     , m_client(client)
     , m_page(0)
     , m_windowVisible(false)
+#if ENABLE(JAVASCRIPT_DEBUGGER)
     , m_debuggerAttached(false)
     , m_attachDebuggerWhenShown(false)
+#endif
     , m_recordingUserInitiatedProfile(false)
     , m_showAfterVisible(ElementsPanel)
     , m_nextIdentifier(-2)
@@ -757,12 +759,16 @@ void InspectorController::setWindowVisible(bool visible, bool attached)
         populateScriptObjects();
         if (m_nodeToFocus)
             focusNode();
+#if ENABLE(JAVASCRIPT_DEBUGGER)
         if (m_attachDebuggerWhenShown) 
-            startDebuggingAndReloadInspectedPage(); 
+            startDebuggingAndReloadInspectedPage();
+#endif
         if (m_showAfterVisible != CurrentPanel) 
             showPanel(m_showAfterVisible); 
     } else { 
-        stopDebugging(); 
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+        stopDebugging();
+#endif
         resetScriptObjects();
     }
 
@@ -1003,7 +1009,9 @@ void InspectorController::close()
 
     ++bug1228513::g_totalNumClose;
 
-    stopDebugging(); 
+#if ENABLE(JAVASCRIPT_DEBUGGER)
+    stopDebugging();
+#endif
     closeWindow();
     if (m_page) {
         v8::HandleScope handle_scope;
@@ -1615,16 +1623,6 @@ void InspectorController::moveWindowBy(float x, float y) const
     FloatRect frameRect = m_page->chrome()->windowRect();
     frameRect.move(x, y);
     m_page->chrome()->setWindowRect(frameRect);
-}
-
-void InspectorController::startDebuggingAndReloadInspectedPage()
-{
-    notImplemented();
-}
-
-void InspectorController::stopDebugging()
-{
-    notImplemented();
 }
 
 static void drawOutlinedRect(GraphicsContext& context, const IntRect& rect, const Color& fillColor)
