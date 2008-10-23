@@ -131,13 +131,13 @@ v8::Handle<v8::Value> NPObjectInvokeDefaultHandler(const v8::Arguments& args) {
 }
 
 
-static void WeakTemplateCallback(v8::Persistent<v8::Object> obj, void* param);
+static void WeakTemplateCallback(v8::Persistent<v8::Value> obj, void* param);
 
 // NPIdentifier is PrivateIdentifier*.
 static WeakReferenceMap<PrivateIdentifier, v8::FunctionTemplate> \
     static_template_map(&WeakTemplateCallback);
 
-static void WeakTemplateCallback(v8::Persistent<v8::Object> obj,
+static void WeakTemplateCallback(v8::Persistent<v8::Value> obj,
                                  void* param) {
   PrivateIdentifier* iden = static_cast<PrivateIdentifier*>(param);
   ASSERT(iden != NULL);
@@ -277,11 +277,11 @@ v8::Handle<v8::Value> NPObjectSetIndexedProperty(v8::Local<v8::Object> self,
 }
 
 
-static void WeakNPObjectCallback(v8::Persistent<v8::Object> obj, void* param);
+static void WeakNPObjectCallback(v8::Persistent<v8::Value> obj, void* param);
 
 static DOMWrapperMap<NPObject> static_npobject_map(&WeakNPObjectCallback);
 
-static void WeakNPObjectCallback(v8::Persistent<v8::Object> obj,
+static void WeakNPObjectCallback(v8::Persistent<v8::Value> obj,
                                  void* param) {
   NPObject* npobject = static_cast<NPObject*>(param);
   ASSERT(static_npobject_map.contains(npobject));

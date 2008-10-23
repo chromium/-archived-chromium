@@ -281,8 +281,8 @@ class DOMPeerableWrapperMap : public DOMWrapperMap<T> {
 };
 
 
-static void WeakPeerableCallback(v8::Persistent<v8::Object> obj, void* para);
-static void WeakNodeCallback(v8::Persistent<v8::Object> obj, void* para);
+static void WeakPeerableCallback(v8::Persistent<v8::Value> obj, void* para);
+static void WeakNodeCallback(v8::Persistent<v8::Value> obj, void* para);
 // A map from DOM node to its JS wrapper.
 static DOMWrapperMap<Node>& dom_node_map()
 {
@@ -300,7 +300,7 @@ static DOMWrapperMap<Peerable>& dom_object_map()
 }
 
 #if ENABLE(SVG)
-static void WeakSVGElementInstanceCallback(v8::Persistent<v8::Object> obj,
+static void WeakSVGElementInstanceCallback(v8::Persistent<v8::Value> obj,
                                            void* param);
 
 // A map for SVGElementInstances, which are not peerable
@@ -311,7 +311,7 @@ static DOMWrapperMap<SVGElementInstance>& dom_svg_element_instance_map()
   return static_dom_svg_element_instance_map;
 }
 
-static void WeakSVGElementInstanceCallback(v8::Persistent<v8::Object> obj,
+static void WeakSVGElementInstanceCallback(v8::Persistent<v8::Value> obj,
                                            void* param)
 {
   SVGElementInstance* instance = static_cast<SVGElementInstance*>(param);
@@ -348,7 +348,7 @@ v8::Handle<v8::Value> V8Proxy::SVGElementInstanceToV8Object(
 
 // SVG non-node elements may have a reference to a context node which
 // should be notified when the element is change
-static void WeakSVGObjectWithContext(v8::Persistent<v8::Object> obj,
+static void WeakSVGObjectWithContext(v8::Persistent<v8::Value> obj,
                                      void* param);
 
 // Map of SVG objects with contexts to V8 objects
@@ -389,7 +389,7 @@ v8::Handle<v8::Value> V8Proxy::SVGObjectWithContextToV8Object(
   return result;
 }
 
-static void WeakSVGObjectWithContext(v8::Persistent<v8::Object> obj,
+static void WeakSVGObjectWithContext(v8::Persistent<v8::Value> obj,
                                      void* param)
 {
   Peerable* dom_obj = static_cast<Peerable*>(param);
@@ -433,7 +433,7 @@ SVGElement* V8Proxy::GetSVGContext(void* obj)
 // Called when obj is near death (not reachable from JS roots)
 // It is time to remove the entry from the table and dispose
 // the handle.
-static void WeakPeerableCallback(v8::Persistent<v8::Object> obj, void* para)
+static void WeakPeerableCallback(v8::Persistent<v8::Value> obj, void* para)
 {
   Peerable* dom_obj = static_cast<Peerable*>(para);
   ASSERT(dom_object_map().contains(dom_obj));
@@ -443,7 +443,7 @@ static void WeakPeerableCallback(v8::Persistent<v8::Object> obj, void* para)
   dom_object_map().forget(dom_obj);
 }
 
-static void WeakNodeCallback(v8::Persistent<v8::Object> obj, void* param)
+static void WeakNodeCallback(v8::Persistent<v8::Value> obj, void* param)
 {
   Node* node = static_cast<Node*>(param);
   ASSERT(dom_node_map().contains(node));
@@ -716,12 +716,13 @@ static void HandleConsoleMessage(v8::Handle<v8::Message> message,
   ASSERT(!errorMessageString.IsEmpty());
   String errorMessage = ToWebCoreString(errorMessageString);
 
-  v8::Handle<v8::String> resourceNameString = message->GetScriptResourceName();
-  String resourceName = (resourceNameString.IsEmpty())
-    ? frame->document()->url()
-    : ToWebCoreString(resourceNameString);
+  v8::Handle<v8::Value> resourceName = message->GetScriptResourceName();
+  bool useURL = (resourceName.IsEmpty() || !resourceName->IsString());
+  String resourceNameString = (useURL)
+      ? frame->document()->url()
+      : ToWebCoreString(resourceName);
   JavaScriptConsoleMessage consoleMessage(errorMessage,
-                                          resourceName,
+                                          resourceNameString,
                                           message->GetLineNumber());
   ConsoleMessageManager::AddMessage(page, consoleMessage);
 }

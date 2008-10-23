@@ -237,7 +237,7 @@ v8::Local<v8::Object> V8EventListener::GetThisObject(Event* event,
 
 // ------- V 8 X H R E v e n t L i s t e n e r -----------------
 
-static void WeakXHRListenerCallback(v8::Persistent<v8::Object> obj,
+static void WeakXHRListenerCallback(v8::Persistent<v8::Value> obj,
                                     void* para) {
   V8XHREventListener* listener = static_cast<V8XHREventListener*>(para);
 

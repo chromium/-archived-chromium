@@ -75,7 +75,7 @@ void DebuggerShell::Start() {
   CompileAndRun(debugger_shell_js, "chrome.dll/debugger_shell.js");
 }
 
-void DebuggerShell::HandleWeakReference(v8::Persistent<v8::Object> obj, void* data) {
+void DebuggerShell::HandleWeakReference(v8::Persistent<v8::Value> obj, void* data) {
   DebuggerNodeWrapper* node = static_cast<DebuggerNodeWrapper*>(data);
   node->Release();
 }
