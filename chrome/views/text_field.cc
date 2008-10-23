@@ -975,7 +975,7 @@ void TextField::RemoveBorder() {
 
 void TextField::SetEnabled(bool enabled) {
   View::SetEnabled(enabled);
-  SetReadOnly(enabled);
+  SetReadOnly(!enabled);
   edit_->SetEnabled(enabled);
 }
 
