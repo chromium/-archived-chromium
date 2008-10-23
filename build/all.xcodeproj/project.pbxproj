@@ -45,6 +45,7 @@
 				7BF8964E0E75D705000BAF8A /* PBXTargetDependency */,
 				4D7B02320E9D57E4009A6919 /* PBXTargetDependency */,
 				7BF895DE0E75D5FB000BAF8A /* PBXTargetDependency */,
+				4DB68A420EAFF13D00AB2128 /* PBXTargetDependency */,
 				4DB681B50EAF948E00AB2128 /* PBXTargetDependency */,
 				4DB681B70EAF948E00AB2128 /* PBXTargetDependency */,
 				4DB681B90EAF948E00AB2128 /* PBXTargetDependency */,
@@ -169,6 +170,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4DB684920EAFDF7000AB2128;
 			remoteInfo = xslt;
+		};
+		4DB68A410EAFF13D00AB2128 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E45626A20E268F03005E4685;
+			remoteInfo = glue;
 		};
 		7B262E390E82E508001CE27F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1332,6 +1340,11 @@
 			isa = PBXTargetDependency;
 			name = xslt;
 			targetProxy = 4DB686780EAFE61A00AB2128 /* PBXContainerItemProxy */;
+		};
+		4DB68A420EAFF13D00AB2128 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = glue;
+			targetProxy = 4DB68A410EAFF13D00AB2128 /* PBXContainerItemProxy */;
 		};
 		7B2630020E82F19B001CE27F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

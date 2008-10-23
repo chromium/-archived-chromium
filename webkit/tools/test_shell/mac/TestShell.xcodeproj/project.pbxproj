@@ -94,14 +94,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 4DB687CA0EAFE79200AB2128 /* libxslt.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 4DB684930EAFDF7000AB2128 /* libxslt.a */;
+			remoteGlobalIDString = 4DB684930EAFDF7000AB2128;
 			remoteInfo = xslt;
 		};
 		4DB687D50EAFE7B100AB2128 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4DB687CA0EAFE79200AB2128 /* libxslt.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 4DB684920EAFDF7000AB2128 /* xslt */;
+			remoteGlobalIDString = 4DB684920EAFDF7000AB2128;
 			remoteInfo = xslt;
 		};
 		4DB7FE750E9BF6CB00C66CE0 /* PBXContainerItemProxy */ = {

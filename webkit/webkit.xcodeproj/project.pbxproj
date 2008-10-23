@@ -3943,7 +3943,6 @@
 		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
 		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
 		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontCacheMacPending.cpp; path = mac/FontCacheMacPending.cpp; sourceTree = "<group>"; };
-		E4E4CAE60E805325009A687C /* webkit_staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = webkit_staticlib.xcconfig; path = build/webkit_staticlib.xcconfig; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -6274,7 +6273,6 @@
 				7BF8842E0E71C120000BAF8A /* executable.xcconfig */,
 				7BF8842F0E71C120000BAF8A /* release.xcconfig */,
 				7BF884300E71C120000BAF8A /* staticlib.xcconfig */,
-				E4E4CAE60E805325009A687C /* webkit_staticlib.xcconfig */,
 			);
 			name = Configuration;
 			path = ../build;
@@ -9254,7 +9252,7 @@
 		};
 		E45627130E268F03005E4685 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E4E4CAE60E805325009A687C /* webkit_staticlib.xcconfig */;
+			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
 			buildSettings = {
 				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
 				HEADER_SEARCH_PATHS = (
@@ -9272,7 +9270,7 @@
 		};
 		E45627140E268F03005E4685 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E4E4CAE60E805325009A687C /* webkit_staticlib.xcconfig */;
+			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
 			buildSettings = {
 				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
 				HEADER_SEARCH_PATHS = (
