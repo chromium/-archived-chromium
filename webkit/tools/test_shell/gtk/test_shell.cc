@@ -170,7 +170,9 @@ bool SpellCheckWord(const wchar_t* word, int word_len,
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  return NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
+  //return NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
+  NOTIMPLEMENTED();
+  return false;
 }
 
 bool IsPluginRunningInRendererProcess() {
