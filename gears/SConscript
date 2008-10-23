@@ -35,9 +35,9 @@ import os
 Import('env')
 
 env = env.Clone(
-    OPEN_DIR = "googleclient/gears/opensource/gears",
-    THIRD_PARTY_DIR = "googleclient/gears/opensource/third_party",
-    PRIVATE_THIRD_PARTY_DIR = "googleclient/third_party",
+    OPEN_DIR = "gears",
+    THIRD_PARTY_DIR = "third_party",
+    PRIVATE_THIRD_PARTY_DIR = "third_party_internal",
 )
 
 if not os.path.exists(env.Dir('#/$OPEN_DIR').abspath):
@@ -680,6 +680,15 @@ elif env['OS'] == 'osx':
             '-O2',
         ],
     )
+
+# TODO(mpcomplete): fix this and properly separate our DLL flags from EXE
+# flags.
+env.Append(
+    SHLINKFLAGS = [
+        '$LINKFLAGS',
+        '/DLL',
+    ],
+)
     
 # Load all the components
 

@@ -34,7 +34,7 @@ env.Tool('midl')
 
 if env['BROWSER'] == 'IE':
   env.Replace(
-      SCONS_DIR = '../../../..',  # the scons dir relative to OPEN_DIR
+      SCONS_DIR = '..',  # the scons dir relative to OPEN_DIR
       IDLINCPREFIX = '/I$SCONS_DIR/',
       IDLINCSUFFIX = '',
       _IDLINCFLAGS = ('${_concat(IDLINCPREFIX, CPPPATH, IDLINCSUFFIX, '

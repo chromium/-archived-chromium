@@ -76,7 +76,7 @@ if env['OS'] == 'win32':
   env.Append(
 # Note: Since light.exe is run from $OPEN_DIR, candle.exe must generate
 # output with paths relative to that dir.
-      SCONS_DIR = '../../../..',  # the scons dir relative to OPEN_DIR
+      SCONS_DIR = '..',  # the scons dir relative to OPEN_DIR
 # You can change the names of ProductId vars, but NEVER change their values!
       CANDLEDEFINES = [
           ('OurWin32ProductId',
