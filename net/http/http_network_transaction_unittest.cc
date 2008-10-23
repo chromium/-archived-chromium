@@ -268,9 +268,8 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   return out;
 }
 
-// Create a long header list that consumes >= |size| bytes. The caller is
-// responsible for freeing the memory.
-char* MakeLargeHeadersString(int size) {
+// Fill |str| with a long header list that consumes >= |size| bytes.
+void FillLargeHeadersString(std::string* str, int size) {
   const char* row =
       "SomeHeaderName: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\r\n";
   const int sizeof_row = strlen(row);
@@ -278,11 +277,10 @@ char* MakeLargeHeadersString(int size) {
       ceil(static_cast<float>(size) / sizeof_row));
   const int sizeof_data = num_rows * sizeof_row;
   DCHECK(sizeof_data >= size);
-
-  char* data = new char[sizeof_data];
+  str->reserve(sizeof_data);
+  
   for (int i = 0; i < num_rows; ++i)
-    memcpy(data + i * sizeof_row, row, sizeof_row);
-  return data;
+    str->append(row, sizeof_row);
 }
 
 //-----------------------------------------------------------------------------
@@ -833,12 +831,12 @@ TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
   request.load_flags = 0;
 
   // Respond with 50 kb of headers (we should fail after 32 kb).
-  scoped_array<char> large_headers_string(MakeLargeHeadersString(
-      50 * 1024));
+  std::string large_headers_string;
+  FillLargeHeadersString(&large_headers_string, 50 * 1024);
 
   MockRead data_reads[] = {
     MockRead("HTTP/1.0 200 OK\r\n"),
-    MockRead(large_headers_string.get()),
+    MockRead(true, large_headers_string.data(), large_headers_string.size()),
     MockRead("\r\nBODY"),
     MockRead(false, net::OK),
   };
