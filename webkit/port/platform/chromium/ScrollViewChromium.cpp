@@ -424,6 +424,7 @@ void ScrollView::ScrollViewPrivate::highlightInspectedNode(
     if (!inspected_node)
       return;
 
+#if !PLATFORM(CG)
     SkPaint paint;
     paint.setARGB(122, 255, 225, 0); // Yellow
 
@@ -440,6 +441,14 @@ void ScrollView::ScrollViewPrivate::highlightInspectedNode(
     // TODO(ojan): http://b/1143975 Draw the padding/border/margin boxes in
     // different colors.
     context->platformContext()->paintSkPaint(inspected_node->getRect(), paint);
+#else
+    CGContextRef cg_context = context->platformContext();
+    CGContextSaveGState(cg_context);
+    CGContextSetRGBFillColor(cg_context, 0.4784, 1.0, 0.8824, 1.0);
+    CGContextSetRGBStrokeColor(cg_context, 0.4784, 1.0, 0.8824, 1.0);
+    CGContextFillRect(cg_context, inspected_node->getRect());
+    CGContextRestoreGState(cg_context);
+#endif
 }
 
 #if defined(OS_WIN)
