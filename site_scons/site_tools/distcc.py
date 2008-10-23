@@ -40,6 +40,7 @@ line.
 
 import optparse
 import os
+import sys
 from SCons.compat._scons_optparse import OptionConflictError
 import SCons.Script
 
@@ -84,6 +85,9 @@ def generate(env):
   for compiler_var in ('CC', 'CXX'):
     compiler = env.get(compiler_var)
     if compiler in distcc_compilers:
+      if sys.platform == 'darwin':
+        # On Mac, distcc requires the full path to the compiler
+        compiler = env.WhereIs(compiler)
       env[compiler_var] = '$DISTCC ' + compiler
 
 

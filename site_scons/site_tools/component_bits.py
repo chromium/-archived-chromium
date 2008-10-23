@@ -35,6 +35,7 @@ This module is automatically included by the component_setup tool.
 
 
 import __builtin__
+import types
 import SCons
 
 
@@ -45,14 +46,57 @@ _bit_exclusive_groups = {}
 #------------------------------------------------------------------------------
 
 
-def DeclareBit(bit_name, desc, exclusive_groups=tuple()):
+def _CheckDeclared(bits):
+  """Checks each of the bits to make sure it's been declared.
+
+  Args:
+    bits: List of bits to check.
+
+  Raises:
+    ValueError: A bit has not been declared.
+  """
+  for bit in bits:
+    if bit not in _bit_descriptions:
+      raise ValueError('Bit "%s" used before DeclareBit()' %
+                       bit)
+
+
+def _CheckExclusive(already_set, proposed):
+  """Checks if setting proposed bits would violate any exclusive groups.
+
+  Args:
+    already_set: List of bits already set.
+    proposed: List of bits attempting to be set.
+
+  Raises:
+    ValueError: A proposed bit belongs to an exclusive group which already has
+        a bit set.
+  """
+  # Remove any already-set bits from proposed (note this makes a copy of
+  # proposed so we don't alter the passed list).
+  proposed = [bit for bit in proposed if bit not in already_set]
+
+  for group_name, group_bits in _bit_exclusive_groups.items():
+    set_match = group_bits.intersection(already_set)
+    proposed_match = group_bits.intersection(proposed)
+    if set_match and proposed_match:
+      raise ValueError('Unable to set bit "%s" because it belongs to the same '
+                       'exclusive group "%s" as already-set bit "%s"' % (
+                       proposed_match.pop(), group_name, set_match.pop()))
+
+
+#------------------------------------------------------------------------------
+
+
+def DeclareBit(bit_name, desc, exclusive_groups=None):
   """Declares and describes the bit.
 
   Args:
     bit_name: Name of the bit being described.
     desc: Description of bit.
     exclusive_groups: Bit groups which this bit belongs to.  At most one bit
-        may be set in each exclusive group.
+        may be set in each exclusive group.  May be a string, list of string,
+        or None.
 
   Raises:
     ValueError: The bit has already been defined with a different description,
@@ -74,13 +118,15 @@ def DeclareBit(bit_name, desc, exclusive_groups=tuple()):
   _bit_descriptions[bit_name] = desc
 
   # Add bit to its exclusive groups
-  for g in exclusive_groups:
-    if g not in _bit_exclusive_groups:
-      _bit_exclusive_groups[g] = set()
-    _bit_exclusive_groups[g].add(bit_name)
+  if exclusive_groups:
+    if type(exclusive_groups) == types.StringType:
+      exclusive_groups = [exclusive_groups]
+    for g in exclusive_groups:
+      if g not in _bit_exclusive_groups:
+        _bit_exclusive_groups[g] = set()
+      _bit_exclusive_groups[g].add(bit_name)
 
 #------------------------------------------------------------------------------
-
 
 def Bit(env, bit_name):
   """Checks if the environment has the bit.
@@ -92,8 +138,7 @@ def Bit(env, bit_name):
   Returns:
     True if the bit is present in the environment.
   """
-  # TODO(rspangler): Add bit sanity checking (description exists, exclusive
-  # groups not violated).
+  _CheckDeclared([bit_name])
   return bit_name in env['_BITS']
 
 #------------------------------------------------------------------------------
@@ -109,7 +154,7 @@ def AllBits(env, *args):
   Returns:
     True if every bit listed is present in the environment.
   """
-  # TODO(rspangler): Add bit sanity checking
+  _CheckDeclared(args)
   return set(args).issubset(env['_BITS'])
 
 #------------------------------------------------------------------------------
@@ -125,7 +170,7 @@ def AnyBits(env, *args):
   Returns:
     True if at least one bit listed is present in the environment.
   """
-  # TODO(rspangler): Add bit sanity checking
+  _CheckDeclared(args)
   return set(args).intersection(env['_BITS'])
 
 #------------------------------------------------------------------------------
@@ -138,7 +183,8 @@ def SetBits(env, *args):
     env: Environment to check.
     args: List of bit names to set.
   """
-  # TODO(rspangler): Add bit sanity checking
+  _CheckDeclared(args)
+  _CheckExclusive(env['_BITS'], args)
   env['_BITS'] = env['_BITS'].union(args)
 
 #------------------------------------------------------------------------------
@@ -151,7 +197,7 @@ def ClearBits(env, *args):
     env: Environment to check.
     args: List of bit names to set.
   """
-  # TODO(rspangler): Add bit sanity checking
+  _CheckDeclared(args)
   env['_BITS'] = env['_BITS'].difference(args)
 
 #------------------------------------------------------------------------------
@@ -165,7 +211,7 @@ def SetBitFromOption(env, bit_name, default):
     bit_name: Name of the bit to set from a command line option.
     default: Default value for bit if command line option is not present.
   """
-  # TODO(rspangler): Add bit sanity checking
+  _CheckDeclared([bit_name])
 
   # Add the command line option, if not already present
   if bit_name not in _bits_with_options:

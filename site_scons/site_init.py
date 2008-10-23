@@ -42,7 +42,7 @@ import SCons
 
 
 # List of target groups for printing help; modified by AddTargetGroup(); used
-# by BuildComponents().
+# by BuildEnvironments().
 __target_groups = {}
 
 
@@ -51,8 +51,9 @@ def _HostPlatform():
 
   That is, the platform we're actually running SCons on.  You shouldn't use
   this inside your SConscript files; instead, include the appropriate
-  target_platform tool for your environments.  When you call BuildComponents(),
-  only environments with the current host platform will be built.
+  target_platform tool for your environments.  When you call
+  BuildEnvironments(), only environments with the current host platform will be
+  built.
 
   Returns:
     The host platform name - one of ('WINDOWS', 'LINUX', 'MAC').
@@ -179,6 +180,8 @@ def _AddTargetHelp():
     if items:
       colwidth = max(map(len, items)) + 2
       cols = 77 / colwidth
+      if cols < 1:
+          cols = 1      # If target names are really long, one per line
       rows = (len(items) + cols - 1) / cols
       items.sort()
       if xml_help:
@@ -199,8 +202,8 @@ def _AddTargetHelp():
 #------------------------------------------------------------------------------
 
 
-def BuildComponents(environments):
-  """Build a collection of components under a collection of environments.
+def BuildEnvironments(environments):
+  """Build a collection of SConscripts under a collection of environments.
 
   Only environments with HOST_PLATFORMS containing the platform specified by
   --host-platform (or the native host platform, if --host-platform was not
@@ -209,11 +212,14 @@ def BuildComponents(environments):
   Each matching environment is checked against the modes passed to the --mode
   command line argument (or 'default', if no mode(s) were specified).  If any
   of the modes match the environment's BUILD_TYPE or any of the environment's
-  BUILD_GROUPS, all the BUILD_COMPONENTS and BUILD_SCONSCRIPTS in that
-  environment will be built.
+  BUILD_GROUPS, all the BUILD_SCONSCRIPTS (and for legacy reasons,
+  BUILD_COMPONENTS) in that environment will be built.
 
   Args:
     environments: List of SCons environments.
+
+  Returns:
+    List of environments which were actually evaluated (built).
   """
   # Get options
   xml_help = SCons.Script.GetOption('xml_help')
@@ -235,45 +241,49 @@ def BuildComponents(environments):
   if xml_help:
     SCons.Script.Help('<help_from_sconscripts>\n<![CDATA[\n')
 
+  environments_to_evaluate = []
   for e in environments:
     if not e.Overlap(e['HOST_PLATFORMS'], [host_platform, '*']):
       continue      # Environment requires a host platform which isn't us
 
     if e.Overlap([e['BUILD_TYPE'], e['BUILD_GROUPS']], build_modes):
-      # Set up for deferred functions and published resources
-      e._InitializeComponentBuilders()
-      e._InitializeDefer()
-      e._InitializePublish()
+      environments_to_evaluate.append(e)
 
-      # Read SConscript for each component
-      # TODO(rspangler): Remove BUILD_COMPONENTS once all projects have
-      # transitioned to the BUILD_SCONSCRIPTS nomenclature.
-      for c in e.get('BUILD_COMPONENTS', []) + e.get('BUILD_SCONSCRIPTS', []):
-        # Clone the environment so components can't interfere with each other
-        ec = e.Clone()
+  for e in environments_to_evaluate:
+    # Set up for deferred functions and published resources
+    e._InitializeComponentBuilders()
+    e._InitializeDefer()
+    e._InitializePublish()
 
-        if ec.Entry(c).isdir():
-          # The component is a directory, so assume it contains a SConscript
-          # file.
-          c_dir = ec.Dir(c)
+    # Read SConscript for each component
+    # TODO(rspangler): Remove BUILD_COMPONENTS once all projects have
+    # transitioned to the BUILD_SCONSCRIPTS nomenclature.
+    for c in e.get('BUILD_COMPONENTS', []) + e.get('BUILD_SCONSCRIPTS', []):
+      # Clone the environment so components can't interfere with each other
+      ec = e.Clone()
 
-          # Use 'build.scons' as the default filename, but if that doesn't
-          # exist, fall back to 'SConscript'.
-          c_script = c_dir.File('build.scons')
-          if not c_script.exists():
-            c_script = c_dir.File('SConscript')
-        else:
-          # The component is a SConscript file.
-          c_script = ec.File(c)
-          c_dir = c_script.dir
+      if ec.Entry(c).isdir():
+        # The component is a directory, so assume it contains a SConscript
+        # file.
+        c_dir = ec.Dir(c)
 
-        ec.SConscript(c_script,
-                      build_dir='$OBJ_ROOT/' + str(c_dir),
-                      exports={'env': ec},
-                      duplicate=0)
+        # Use 'build.scons' as the default filename, but if that doesn't
+        # exist, fall back to 'SConscript'.
+        c_script = c_dir.File('build.scons')
+        if not c_script.exists():
+          c_script = c_dir.File('SConscript')
+      else:
+        # The component is a SConscript file.
+        c_script = ec.File(c)
+        c_dir = c_script.dir
 
-      # Execute deferred functions
-      e._ExecuteDefer()
+      ec.SConscript(c_script,
+                    build_dir='$OBJ_ROOT/' + str(c_dir),
+                    exports={'env': ec},
+                    duplicate=0)
+
+    # Execute deferred functions
+    e._ExecuteDefer()
 
   if xml_help:
     SCons.Script.Help(']]>\n</help_from_sconscripts>\n')
@@ -283,6 +293,9 @@ def BuildComponents(environments):
   # End final help tag
   if xml_help:
     SCons.Script.Help('</help>\n')
+
+  # Return list of environments actually evaluated
+  return environments_to_evaluate
 
 
 #------------------------------------------------------------------------------
@@ -365,10 +378,19 @@ Additional options for SCons:
 def SiteInitMain():
   """Main code executed in site_init."""
 
+  # Bail out if we've been here before. This is needed to handle the case where
+  # this site_init.py has been dropped into a project directory.
+  if hasattr(__builtin__, 'BuildEnvironments'):
+    return
+
   # Let people use new global methods directly.
   __builtin__.AddSiteDir = AddSiteDir
-  __builtin__.BuildComponents = BuildComponents
+  __builtin__.BuildEnvironments = BuildEnvironments
   __builtin__.AddTargetGroup = AddTargetGroup
+  # Legacy method names
+  # TODO(rspangler): Remove these once they're no longer used anywhere.
+  __builtin__.BuildComponents = BuildEnvironments
+
 
   # Set list of default tools for component_setup
   __builtin__.component_setup_tools = [

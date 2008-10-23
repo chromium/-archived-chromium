@@ -119,6 +119,11 @@ def _ComponentPlatformSetup(env, builder_name, **kwargs):
   for k, v in kwargs.items():
     env[k] = v
 
+  # Add compiler flags for included headers, if any
+  env['INCLUDES'] = env.Flatten(env.subst_list(['$INCLUDES']))
+  for h in env['INCLUDES']:
+    env.Append(CCFLAGS = ['${CCFLAG_INCLUDE}%s' % h])
+
   # Call platform-specific component setup function, if any
   if env.get('COMPONENT_PLATFORM_SETUP'):
     env['COMPONENT_PLATFORM_SETUP'](env, builder_name)
@@ -144,8 +149,8 @@ def ComponentPackageDeferred(env):
 
   # Install program and resources
   all_outputs = []
-  components = _RetrieveComponents(package_name,
-                                   env.get('COMPONENT_PACKAGE_FILTER'))
+  filter = env.Flatten(env.subst_list('$COMPONENT_PACKAGE_FILTER'))
+  components = _RetrieveComponents(package_name, filter)
   for resource, dest_dir in env.get('COMPONENT_PACKAGE_RESOURCES').items():
     all_outputs += env.ReplicatePublished(dest_dir, components, resource)
 
@@ -210,9 +215,14 @@ def ComponentObject(self, *args, **kwargs):
 
   # Make appropriate object type
   if env.get('COMPONENT_STATIC'):
-    return env.StaticObject(*args, **kwargs)
+    o = env.StaticObject(*args, **kwargs)
   else:
-    return env.SharedObject(*args, **kwargs)
+    o = env.SharedObject(*args, **kwargs)
+
+  # Add dependencies on includes
+  env.Depends(o, env['INCLUDES'])
+
+  return o
 
 #------------------------------------------------------------------------------
 
@@ -237,6 +247,9 @@ def ComponentLibrary(self, lib_name, *args, **kwargs):
     lib_outputs = env.StaticLibrary(lib_name, *args, **kwargs)
   else:
     lib_outputs = env.SharedLibrary(lib_name, *args, **kwargs)
+
+  # Add dependencies on includes
+  env.Depends(lib_outputs, env['INCLUDES'])
 
   # Scan library outputs for files we need to link against this library, and
   # files we need to run executables linked against this library.
@@ -307,8 +320,25 @@ def ComponentTestProgramDeferred(env):
         COMMAND_OUTPUT_CMDLINE=env['COMPONENT_TEST_CMDLINE'],
         COMMAND_OUTPUT_RUN_DIR='$TESTS_DIR',
     )
-    test_out = env.CommandOutput(
-        '$TEST_OUTPUT_DIR/${PROGRAM_BASENAME}.out.txt', test_program)
+    test_out_name = '$TEST_OUTPUT_DIR/${PROGRAM_BASENAME}.out.txt'
+    if (env.GetOption('component_test_retest')
+        and env.File(test_out_name).exists()):
+      # Delete old test results, so test will rerun.
+      env.Execute(SCons.Script.Delete(test_out_name))
+
+    # Set timeout based on test size
+    timeout = env.get('COMPONENT_TEST_TIMEOUT')
+    if type(timeout) is dict:
+      timeout = timeout.get(env.get('COMPONENT_TEST_SIZE'))
+    if timeout:
+      env['COMMAND_OUTPUT_TIMEOUT'] = timeout
+
+    # Run the test.  Note that we need to refer to the file by name, so that
+    # SCons will recreate the file node after we've deleted it; if we used the
+    # env.File() we created in the if statement above, SCons would still think
+    # it exists and not rerun the test.
+    test_out = env.CommandOutput(test_out_name, test_program)
+
     # Running the test requires the test and its libs copied to the tests dir
     env.Depends(test_out, all_outputs)
     env.ComponentTestOutput('run_' + prog_name, test_out)
@@ -336,6 +366,9 @@ def ComponentTestProgram(self, prog_name, *args, **kwargs):
 
   # Call env.Program()
   out_nodes = env.Program(prog_name, *args, **kwargs)
+
+  # Add dependencies on includes
+  env.Depends(out_nodes, env['INCLUDES'])
 
   # Publish output
   env.Publish(prog_name, 'run', out_nodes[0])
@@ -398,6 +431,9 @@ def ComponentProgram(self, prog_name, *args, **kwargs):
   # Call env.Program()
   out_nodes = env.Program(prog_name, *args, **kwargs)
 
+  # Add dependencies on includes
+  env.Depends(out_nodes, env['INCLUDES'])
+
   # Publish output
   env.Publish(prog_name, 'run', out_nodes[0])
   env.Publish(prog_name, 'debug', out_nodes[1:])
@@ -431,9 +467,22 @@ def ComponentTestOutput(self, test_name, nodes):
     Passthrough return code from env.Alias().
   """
 
-  # Add an alias for the test outputs, and add it to the right groups
+  # Add an alias for the test output
   a = self.Alias(test_name, nodes)
-  for group in self['COMPONENT_TEST_OUTPUT_GROUPS']:
+
+  groups = self.get('COMPONENT_TEST_OUTPUT_GROUPS')
+  if not groups:
+    # Output group not explicitly specified, so automatically add to groups
+    if self.get('COMPONENT_TEST_ENABLED'):
+      # Enabled tests go in all tests, and their size category
+      groups = ['run_all_tests']
+      if self.get('COMPONENT_TEST_SIZE'):
+        groups.append(self.subst('run_${COMPONENT_TEST_SIZE}_tests'))
+    else:
+      # Disabled tests only go in their group
+      groups = ['run_disabled_tests']
+
+  for group in groups:
     SCons.Script.Alias(group, a)
 
   # Return the output node
@@ -456,7 +505,14 @@ def generate(env):
       # COMPONENT_TEST_CMDLINE='${SOURCE.abspath}',
       # (it generates a SCons error)
       COMPONENT_TEST_CMDLINE='${PROGRAM_NAME}',
-      COMPONENT_STATIC=True,  # Static linking is a sensible default.
+      # Default test size is large
+      COMPONENT_TEST_SIZE='large',
+      # Default timeouts for component tests
+      COMPONENT_TEST_TIMEOUT={'large':900, 'medium':450, 'small':180},
+      # Tests are enabled by default
+      COMPONENT_TEST_ENABLED=True,
+      # Static linking is a sensible default
+      COMPONENT_STATIC=True,
       # Don't publish libraries to the staging dir by themselves by default.
       COMPONENT_LIBRARY_PUBLISH=False,
   )
@@ -469,7 +525,6 @@ def generate(env):
       COMPONENT_LIBRARY_GROUPS=['all_libraries'],
       COMPONENT_PROGRAM_GROUPS=['all_programs'],
       COMPONENT_TEST_PROGRAM_GROUPS=['all_test_programs'],
-      COMPONENT_TEST_OUTPUT_GROUPS=['run_all_tests'],
 
       # Additional components whose resources should be copied into program
       # directories, in addition to those from LIBS and the program itself.
@@ -493,6 +548,15 @@ def generate(env):
       },
   )
 
+  # Add command line option for retest
+  SCons.Script.AddOption(
+      '--retest',
+      dest='component_test_retest',
+      action='store_true',
+      help='force all tests to rerun')
+  SCons.Script.Help('  --retest                    '
+                    'Rerun specified tests, ignoring cached results.\n')
+
   # Add our pseudo-builder methods
   env.AddMethod(_InitializeComponentBuilders)
   env.AddMethod(_StoreComponents)
@@ -509,3 +573,8 @@ def generate(env):
   AddTargetGroup('all_test_programs', 'tests can be built')
   AddTargetGroup('all_packages', 'packages can be built')
   AddTargetGroup('run_all_tests', 'tests can be run')
+  AddTargetGroup('run_disabled_tests', 'tests are disabled')
+  AddTargetGroup('run_small_tests', 'small tests can be run')
+  AddTargetGroup('run_medium_tests', 'medium tests can be run')
+  AddTargetGroup('run_large_tests', 'large tests can be run')
+

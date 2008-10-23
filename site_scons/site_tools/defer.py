@@ -34,7 +34,7 @@
 import os
 import sys
 import types
-
+import SCons.Errors
 
 __defer_groups = {}
 
@@ -73,11 +73,10 @@ def _ExecuteDefer(self):
       del __defer_groups[name]
       break
     if not did_work:
-      print 'Error in _ExecuteDefer: dependency cycle detected.'
+      errmsg = 'Error in _ExecuteDefer: dependency cycle detected.\n'
       for name, group in __defer_groups.items():
-        print '   %s after: %s' % (name, group.after)
-      # TODO(rspangler): should throw exception?
-      sys.exit(1)
+        errmsg += '   %s after: %s\n' % (name, group.after)
+      raise SCons.Errors.UserError(errmsg)
 
   # Restore directory
   os.chdir(oldcwd)
@@ -152,9 +151,7 @@ def Defer(self, *args, **kwargs):
       after.append(a.__name__)
     elif a is not None:
       # Deferring
-      # TODO(rspangler): should throw an exception
-      print ('Warning: Defer can only wait for functions or names; ignoring'
-             'after = ', a)
+      raise ValueError('Defer after=%r is not a function or name' % a)
 
   # Find the deferred function
   if name not in __defer_groups:

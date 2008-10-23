@@ -103,7 +103,7 @@ def RunManifest(target, source, env, resource_num):
   """
 
   cmdline = env.subst(
-      'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;%d'
+      'mt.exe -nologo -manifest "$MANIFEST_FILE" -outputresource:"$TARGET";%d'
       % resource_num,
       target=target, source=source)
   print cmdline
@@ -179,7 +179,11 @@ def generate(env):
   # NOTE: SCons requires the use of this name, which fails gpylint.
   """SCons entry point for this tool."""
 
-  # Set up environment paths first
+  # Bring in the outside PATH, INCLUDE, and LIB if not blocked.
+  if not env.get('MSVC_BLOCK_ENVIRONMENT_CHANGES'):
+    env.AppendENVPath('PATH', os.environ.get('PATH', '[]'))
+    env.AppendENVPath('INCLUDE', os.environ.get('INCLUDE', '[]'))
+    env.AppendENVPath('LIB', os.environ.get('LIB', '[]'))
 
   # Load various Visual Studio related tools.
   env.Tool('as')
@@ -191,6 +195,14 @@ def generate(env):
   env.Tool('msvc')
   env.Tool('mslib')
   env.Tool('mslink')
+
+  # Find VC80_DIR if it isn't already set.
+  if not env.get('VC80_DIR'):
+    # Look in each directory in the path for cl.exe.
+    for p in env['ENV']['PATH'].split(os.pathsep):
+      # Use the directory two layers up if it exists.
+      if os.path.exists(os.path.join(p, 'cl.exe')):
+        env['VC80_DIR'] = os.path.dirname(os.path.dirname(p))
 
   # The msvc, mslink, and mslib tools search the registry for installed copies
   # of Visual Studio and prepends them to the PATH, INCLUDE, and LIB
@@ -210,6 +222,8 @@ def generate(env):
       # A better rebuild command (actually cleans, then rebuild)
       MSVSREBUILDCOM=''.join(['$MSVSSCONSCOM -c "$MSVSBUILDTARGET" && ',
                               '$MSVSSCONSCOM "$MSVSBUILDTARGET"']),
+
+      CCFLAG_INCLUDE='/FI',     # Command line option to include a header
   )
 
   env.Append(
@@ -244,6 +258,7 @@ def generate(env):
   )
 
   # Add manifests to EXEs and DLLs
+  env['MANIFEST_FILE'] = '${TARGET}.manifest'  # To allow override.
   wait_action = SCons.Script.Action(WaitForWritable,
                                     lambda target, source, env: ''),
   env['LINKCOM'] = [

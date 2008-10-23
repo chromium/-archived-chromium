@@ -60,7 +60,7 @@ def ConcatSourceBuilder(target, source, env):
 
     source_path = str(source_file)
 
-    if 'msvc' in env['TOOLS']:
+    if env.get('CC') == 'cl':
       # Add message pragma for nicer progress indication when building with
       # MSVC.
       output_lines.append('#pragma message("--%s")' % (
@@ -68,11 +68,9 @@ def ConcatSourceBuilder(target, source, env):
 
     output_lines.append('#include "%s"' % source_path)
 
-  # Need an EOL at the end of the file for more finicky build tools
-  output_lines.append('\n')
-
   output_file = open(str(target[0]), 'w')
-  output_file.write('\n'.join(output_lines))
+  # Need an EOL at the end of the file for more finicky build tools
+  output_file.write('\n'.join(output_lines) + '\n')
   output_file.close()
 
 

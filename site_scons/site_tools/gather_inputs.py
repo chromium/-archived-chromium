@@ -64,12 +64,26 @@ def GatherInputs(env, target, groups=['.*'], exclude_pattern=None):
       for t in tgt:
         _FindSources(ptrns, t, all)
     else:
+      # Get key to use for tracking whether we've seen this node
+      target_abspath = None
+      if hasattr(tgt, 'abspath'):
+        # Use target's absolute path as the key
+        target_abspath = tgt.abspath
+        target_key = target_abspath
+      else:
+        # Hope node's representation is unique enough (the default repr
+        # contains a pointer to the target as a string).  This works for
+        # Alias() nodes.
+        target_key = repr(tgt)
+
       # Skip if we have been here before
-      if tgt.abspath in all: return
+      if target_key in all: return
       # Note that we have been here
-      all[tgt.abspath] = True
+      all[target_key] = True
       # Skip ones that match an exclude pattern, if we have one.
-      if exclude_pattern and exclude_pattern.match(tgt.abspath): return
+      if (exclude_pattern and target_abspath
+          and exclude_pattern.match(target_abspath)):
+        return
 
       # Handle non-leaf nodes recursively
       lst = tgt.children(scan=1)
@@ -81,8 +95,9 @@ def GatherInputs(env, target, groups=['.*'], exclude_pattern=None):
       for pattern, lst in ptrns.items():
         # Get real file (backed by repositories).
         rfile = tgt.rfile()
-        # Add to the list for the first pattern that matches.
-        if pattern.match(rfile.path):
+        # Add files to the list for the first pattern that matches (implicitly,
+        # don't add directories).
+        if rfile.isfile() and pattern.match(rfile.path):
           lst.append(rfile.abspath)
           break
 

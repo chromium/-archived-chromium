@@ -36,8 +36,10 @@ def generate(env):
   """SCons entry point for this tool."""
 
   env['DIRECTX9_DIR'] = '$DIRECTX9_0_C_DIR'
-  env.AppendENVPath('INCLUDE', env.Dir('$DIRECTX9_DIR/include').abspath)
-  env.AppendENVPath('LIB', env.Dir('$DIRECTX9_DIR/lib').abspath)
+  env.Append(
+      LIBPATH=['$DIRECTX9_DIR/lib'],
+      CCFLAGS=['/I$DIRECTX9_DIR/include'],
+  )
 
 
 def exists(env):

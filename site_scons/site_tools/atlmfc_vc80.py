@@ -31,7 +31,7 @@
 """Windows ATL MFC for VC80 (Visual Studio 2005) tool for SCons.
 
 Note that ATL MFC requires the commercial (non-free) version of Visual Studio
-2005.  Using this in an open-source project thus limits the size of the
+2005.  Using this in an open-source project thus limits the size of the 
 developer community to those with the commercial version.
 """
 
@@ -40,7 +40,7 @@ import os
 
 def _FindLocalInstall():
   """Returns the directory containing the local install of the tool.
-
+  
   Returns:
     Path to tool (as a string), or None if not found.
   """
@@ -59,19 +59,22 @@ def generate(env):
 
   if not env.get('ATLMFC_VC80_DIR'):
     env['ATLMFC_VC80_DIR'] = _FindLocalInstall()
-
-  env.AppendENVPath('INCLUDE', env.Dir('$ATLMFC_VC80_DIR/include').abspath)
-  env.AppendENVPath('LIB', env.Dir('$ATLMFC_VC80_DIR/lib').abspath)
+  
+  env.Append(
+      LIBPATH=['$ATLMFC_VC80_DIR/lib'],
+      RCFLAGS=['/I"$ATLMFC_VC80_DIR/include"'],
+      CCFLAGS=['/I"$ATLMFC_VC80_DIR/include"'],
+  )
 
 
 def exists(env):
   """Returns true if tool exists."""
   # NOTE: SCons requires the use of this name, which fails gpylint.
-
+  
   # If directory explicitly specified, we exist
   if env.get('ATLMFC_VC80_DIR'):
     return 1
   elif _FindLocalInstall():
     return 1
   else:
-    return 0
+    return 0  

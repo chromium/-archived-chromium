@@ -41,6 +41,7 @@ def generate(env):
   # TODO(rspangler): Should this really be a bit, or should we have a
   # COLLADA_DOM_VERSION variable
   env['COLLADA_DOM_VERSION'] = '1.3.0'
+
   env.Append(CPPDEFINES=['COLLADA_DOM_130'])
 
   if sys.platform in ('win32', 'cygwin'):
