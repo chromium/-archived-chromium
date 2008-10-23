@@ -477,6 +477,9 @@ void GraphicsContext::fillPath()
     if (colorSpace == SolidColorSpace && !fillColor().alpha())
         return;
 
+    m_data->setFillRule(state.fillRule == RULE_EVENODD ?
+      SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType);
+
     SkPaint paint;
     m_data->setup_paint_fill(&paint);
 
