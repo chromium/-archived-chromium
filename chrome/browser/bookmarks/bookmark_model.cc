@@ -201,6 +201,22 @@ void BookmarkModel::GetBookmarksMatchingText(
   }
 }
 
+bool BookmarkModel::DoesBookmarkMatchText(const std::wstring& text,
+                                          BookmarkNode* node) {
+  if (!node->is_url())
+    return false;
+
+  QueryParser parser;
+  ScopedVector<QueryNode> query_nodes;
+  parser.ParseQuery(text, &query_nodes.get());
+  if (query_nodes.empty())
+    return false;
+
+  Snippet::MatchPositions match_position;
+  return parser.DoesQueryMatch(node->GetTitle(), query_nodes.get(),
+                               &match_position);
+}
+
 void BookmarkModel::Remove(BookmarkNode* parent, int index) {
   if (!loaded_ || !IsValidIndex(parent, index, false) || parent == &root_) {
     NOTREACHED();
@@ -355,8 +371,11 @@ BookmarkNode* BookmarkModel::AddURLWithCreationTime(
   new_node->date_added_ = creation_time;
   new_node->type_ = history::StarredEntry::URL;
 
-  AutoLock url_lock(url_lock_);
-  nodes_ordered_by_url_set_.insert(new_node);
+  {
+    // Only hold the lock for the duration of the insert.
+    AutoLock url_lock(url_lock_);
+    nodes_ordered_by_url_set_.insert(new_node);
+  }
 
   return AddNode(parent, index, new_node, was_bookmarked);
 }
@@ -535,7 +554,7 @@ void BookmarkModel::RemoveAndDeleteNode(BookmarkNode* delete_me) {
     store_->ScheduleSave();
 
   FOR_EACH_OBSERVER(BookmarkModelObserver, observers_,
-                    BookmarkNodeRemoved(this, parent, index));
+                    BookmarkNodeRemoved(this, parent, index, node.get()));
 
   if (details.changed_urls.empty()) {
     // No point in sending out notification if the starred state didn't change.
@@ -596,7 +615,7 @@ BookmarkNode* BookmarkModel::GetNodeByID(BookmarkNode* node, int id) {
 bool BookmarkModel::IsValidIndex(BookmarkNode* parent,
                                  int index,
                                  bool allow_end) {
-  return (parent &&
+  return (parent && parent->is_folder() &&
           (index >= 0 && (index < parent->GetChildCount() ||
                           (allow_end && index == parent->GetChildCount()))));
   }

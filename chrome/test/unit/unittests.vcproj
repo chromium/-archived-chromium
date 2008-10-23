@@ -583,6 +583,22 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestBookmarkFolderTreeModel"
+			>
+			<File
+				RelativePath="..\..\browser\bookmarks\bookmark_folder_tree_model_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestBookmarkTableModel"
+			>
+			<File
+				RelativePath="..\..\browser\bookmarks\bookmark_table_model_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestMetricsResponse"
 			>
 			<File

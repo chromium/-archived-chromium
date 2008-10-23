@@ -147,9 +147,16 @@ class BookmarkModelObserver {
                                  int index) = 0;
 
   // Invoked when a node has been removed, the item may still be starred though.
+  // TODO(sky): merge these two into one.
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
                                    BookmarkNode* parent,
-                                   int index) = 0;
+                                   int index) {}
+  virtual void BookmarkNodeRemoved(BookmarkModel* model,
+                                   BookmarkNode* parent,
+                                   int old_index,
+                                   BookmarkNode* node) {
+    BookmarkNodeRemoved(model, parent, old_index);
+  }
 
   // Invoked when the title or favicon of a node has changed.
   virtual void BookmarkNodeChanged(BookmarkModel* model,
@@ -221,6 +228,10 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   void GetBookmarksMatchingText(const std::wstring& text,
                                 size_t max_count,
                                 std::vector<TitleMatch>* matches);
+
+  // Returns true if the specified bookmark's title matches the specified
+  // text.
+  bool DoesBookmarkMatchText(const std::wstring& text, BookmarkNode* node);
 
   void AddObserver(BookmarkModelObserver* observer) {
     observers_.AddObserver(observer);

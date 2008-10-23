@@ -237,8 +237,9 @@ class TreeNodeModel : public TreeModel {
 
   NodeType* Remove(NodeType* parent, int index) {
     DCHECK(parent);
-    parent->Remove(index);
+    NodeType* child = parent->Remove(index);
     NotifyObserverTreeNodesRemoved(parent, index, 1);
+    return child;
   }
 
   void NotifyObserverTreeNodesAdded(NodeType* parent, int start, int count) {

@@ -746,6 +746,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmarks\bookmark_folder_tree_model.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_folder_tree_model.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmarks\bookmark_model.cc"
 				>
 			</File>
@@ -763,6 +771,14 @@
 			</File>
 			<File
 				RelativePath=".\bookmarks\bookmark_storage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_table_model.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_table_model.h"
 				>
 			</File>
 		</Filter>
