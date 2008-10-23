@@ -113,10 +113,6 @@ class PluginInstance : public base::RefCounted<PluginInstance> {
                                 bool notify_needed,
                                 void *notify_data);
 
-  // Convenience function for sending a stream from a URL to this instance.
-  // URL can be a relative or a fully qualified url.
-  void SendStream(const std::string& url, bool notify_needed,
-                  void* notify_data);
   // For each instance, we track all streams.  When the
   // instance closes, all remaining streams are also
   // closed.  All streams associated with this instance

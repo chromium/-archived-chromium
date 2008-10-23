@@ -258,7 +258,8 @@ WebCore::Widget* WebPluginImpl::Create(const GURL& url,
                                        WebFrameImpl *frame,
                                        WebPluginDelegate* delegate,
                                        bool load_manually) {
-  WebPluginImpl* webplugin = new WebPluginImpl(element, frame, delegate, url);
+  WebPluginImpl* webplugin = new WebPluginImpl(element, frame, delegate, url,
+                                               load_manually);
 
   if (!delegate->Initialize(url, argn, argv, argc, webplugin, load_manually)) {
     delegate->PluginDestroyed();
@@ -275,7 +276,8 @@ WebCore::Widget* WebPluginImpl::Create(const GURL& url,
 WebPluginImpl::WebPluginImpl(WebCore::Element* element,
                              WebFrameImpl* webframe,
                              WebPluginDelegate* delegate,
-                             const GURL& plugin_url)
+                             const GURL& plugin_url,
+                             bool load_manually)
     : windowless_(false),
       window_(NULL),
       element_(element),
@@ -285,7 +287,9 @@ WebPluginImpl::WebPluginImpl(WebCore::Element* element,
       visible_(false),
       received_first_paint_notification_(false),
       widget_(NULL),
-      plugin_url_(plugin_url) {
+      plugin_url_(plugin_url),
+      load_manually_(load_manually),
+      first_geometry_update_(true) {
 }
 
 WebPluginImpl::~WebPluginImpl() {
@@ -644,6 +648,18 @@ void WebPluginImpl::setFrameGeometry(const WebCore::IntRect& rect) {
   if (force_geometry_update_ && delegate_) {
     force_geometry_update_ = false;
     delegate_->FlushGeometryUpdates();
+  }
+
+  // Initiate a download on the plugin url. This should be done for the
+  // first update geometry sequence.
+  if (first_geometry_update_) {
+    first_geometry_update_ = false;
+    // An empty url corresponds to an EMBED tag with no src attribute.
+    if (!load_manually_ && plugin_url_.is_valid()) {
+      HandleURLRequestInternal("GET", false, NULL, 0, NULL, false, false,
+                               plugin_url_.spec().c_str(), NULL, false,
+                               false);
+    }
   }
 }
 
@@ -1104,6 +1120,16 @@ void WebPluginImpl::HandleURLRequest(const char *method,
                                      const char* buf, bool is_file_data,
                                      bool notify, const char* url,
                                      void* notify_data, bool popups_allowed) {
+  HandleURLRequestInternal(method, is_javascript_url, target, len, buf,
+                           is_file_data, notify, url, notify_data,
+                           popups_allowed, true);
+}
+
+void WebPluginImpl::HandleURLRequestInternal(
+    const char *method, bool is_javascript_url, const char* target,
+    unsigned int len, const char* buf, bool is_file_data, bool notify,
+    const char* url, void* notify_data, bool popups_allowed,
+    bool use_plugin_src_as_referrer) {
   // For this request, we either route the output to a frame
   // because a target has been specified, or we handle the request
   // here, i.e. by executing the script if it is a javascript url
@@ -1153,7 +1179,8 @@ void WebPluginImpl::HandleURLRequest(const char *method,
     }
 
     InitiateHTTPRequest(resource_id, resource_client, method, buf, len,
-                        GURL(complete_url_string), NULL);
+                        GURL(complete_url_string), NULL,
+                        use_plugin_src_as_referrer);
   }
 }
 
@@ -1167,7 +1194,8 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
                                         const char* method, const char* buf,
                                         int buf_len,
                                         const GURL& url,
-                                        const char* range_info) {
+                                        const char* range_info,
+                                        bool use_plugin_src_as_referrer) {
   if (!client) {
     NOTREACHED();
     return false;
@@ -1188,12 +1216,12 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
     info.request.addHTTPHeaderField("Range", range_info);
 
   WebCore::String referrer;
-  // If the plugin is instantiated without a SRC URL, then use the
-  // containing frame URL as the referrer.
-  if (plugin_url_.spec().empty()) {
-    referrer = frame()->loader()->outgoingReferrer();
-  } else {
+  // GetURL/PostURL requests initiated explicitly by plugins should specify the
+  // plugin SRC url as the referrer if it is available.
+  if (use_plugin_src_as_referrer && !plugin_url_.spec().empty()) {
     referrer = webkit_glue::StdStringToString(plugin_url_.spec());
+  } else { 
+    referrer = frame()->loader()->outgoingReferrer();
   }
 
   if (!WebCore::FrameLoader::shouldHideReferrer(kurl, referrer))
@@ -1233,7 +1261,7 @@ void WebPluginImpl::InitiateHTTPRangeRequest(const char* url,
                                       notify_needed, notify_data,
                                       existing_stream);
   InitiateHTTPRequest(resource_id, resource_client, "GET", NULL, 0,
-                      GURL(complete_url_string), range_info);
+                      GURL(complete_url_string), range_info, true);
 }
 
 void WebPluginImpl::HandleHttpMultipartResponse(

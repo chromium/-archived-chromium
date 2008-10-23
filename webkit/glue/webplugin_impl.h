@@ -131,7 +131,8 @@ class WebPluginImpl : public WebPlugin,
   friend class WebPluginContainer;
 
   WebPluginImpl(WebCore::Element *element, WebFrameImpl *frame,
-                WebPluginDelegate* delegate, const GURL& plugin_url);
+                WebPluginDelegate* delegate, const GURL& plugin_url,
+                bool load_manually);
 
   // WebPlugin implementation:
   void SetWindow(HWND window, HANDLE pump_messages_event);
@@ -165,8 +166,8 @@ class WebPluginImpl : public WebPlugin,
   // Returns true on success.
   bool InitiateHTTPRequest(int resource_id, WebPluginResourceClient* client,
                            const char* method, const char* buf, int buf_len,
-                           const GURL& url,
-                           const char* range_info);
+                           const GURL& url, const char* range_info,
+                           bool use_plugin_src_as_referer);
 
   gfx::Rect GetWindowClipRect(const gfx::Rect& rect);
 
@@ -280,6 +281,13 @@ class WebPluginImpl : public WebPlugin,
   void HandleHttpMultipartResponse(const WebCore::ResourceResponse& response,
                                    WebPluginResourceClient* client);
 
+  void HandleURLRequestInternal(const char *method, bool is_javascript_url,
+                                const char* target, unsigned int len,
+                                const char* buf, bool is_file_data,
+                                bool notify, const char* url,
+                                void* notify_data, bool popups_allowed,
+                                bool use_plugin_src_as_referrer);
+
   struct ClientInfo {
     int id;
     WebPluginResourceClient* client;
@@ -310,6 +318,12 @@ class WebPluginImpl : public WebPlugin,
 
   // The plugin source URL.
   GURL plugin_url_;
+
+  // Indicates if the download would be initiated by the plugin or us.
+  bool load_manually_;
+
+  // Indicates if this is the first geometry update received by the plugin.
+  bool first_geometry_update_;
 
   DISALLOW_COPY_AND_ASSIGN(WebPluginImpl);
 };

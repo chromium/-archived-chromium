@@ -74,17 +74,6 @@ PluginStreamUrl *PluginInstance::CreateStream(int resource_id,
   return stream;
 }
 
-void PluginInstance::SendStream(const std::string &url,
-                                bool notify_needed,
-                                void *notify_data) {
-  if (notify_needed) {
-    host_->host_functions()->geturlnotify(npp(), url.c_str(), NULL,
-                                          notify_data);
-  } else {
-    host_->host_functions()->geturl(npp(), url.c_str(), NULL);
-  }
-}
-
 void PluginInstance::AddStream(PluginStream* stream) {
   open_streams_.push_back(stream);
 }

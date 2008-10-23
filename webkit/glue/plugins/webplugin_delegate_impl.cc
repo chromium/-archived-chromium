@@ -137,9 +137,7 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
       handle_event_depth_(0),
       user_gesture_message_posted_(false),
 #pragma warning(suppress: 4355)  // can use this
-      user_gesture_msg_factory_(this),
-      load_manually_(false),
-      first_geometry_update_(true) {
+      user_gesture_msg_factory_(this) {
   memset(&window_, 0, sizeof(window_));
 
   const WebPluginInfo& plugin_info = instance_->plugin_lib()->plugin_info();
@@ -243,7 +241,6 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
 
   plugin->SetWindow(windowed_handle_, handle_event_pump_messages_event_);
 
-  load_manually_ = load_manually;
   plugin_url_ = url.spec();
   return true;
 }
@@ -278,16 +275,6 @@ void WebPluginDelegateImpl::UpdateGeometry(
     WindowlessUpdateGeometry(window_rect, clip_rect);
   } else {
     WindowedUpdateGeometry(window_rect, clip_rect, cutout_rects, visible);
-  }
-
-  // Initiate a download on the plugin url. This should be done for the
-  // first update geometry sequence.
-  if (first_geometry_update_) {
-    first_geometry_update_ = false;
-    // An empty url corresponds to an EMBED tag with no src attribute.
-    if (!load_manually_ && !plugin_url_.empty()) {
-      instance_->SendStream(plugin_url_.c_str(), false, NULL);
-    }
   }
 }
 

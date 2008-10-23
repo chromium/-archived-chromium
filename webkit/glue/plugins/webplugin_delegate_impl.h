@@ -261,12 +261,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // The url with which the plugin was instantiated.
   std::string plugin_url_;
 
-  // Indicates if the download would be initiated by the plugin or us.
-  bool load_manually_;
-
-  // Indicates whether a geometry update sequence is the first.
-  bool first_geometry_update_;
-
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateImpl);
 };
 
