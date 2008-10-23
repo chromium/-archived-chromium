@@ -421,7 +421,8 @@ int HttpNetworkTransaction::DoInitConnectionComplete(int result) {
   // Set the reused_socket_ flag to indicate that we are using a keep-alive
   // connection.  This flag is used to handle errors that occur while we are
   // trying to reuse a keep-alive connection.
-  if (reused_socket_ = (connection_.socket() != NULL)) {
+  reused_socket_ = (connection_.socket() != NULL);
+  if (reused_socket_) {
     next_state_ = STATE_WRITE_HEADERS;
   } else {
     next_state_ = STATE_RESOLVE_HOST;

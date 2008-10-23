@@ -6,8 +6,6 @@
 
 #include <set>
 
-#include "net/url_request/url_request_inet_job.h"
-
 URLRequestFilter* URLRequestFilter::shared_instance_ = NULL;
 
 /* static */

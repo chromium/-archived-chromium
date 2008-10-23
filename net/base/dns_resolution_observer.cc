@@ -5,10 +5,9 @@
 // This file supports network stack independent notification of progress
 // towards resolving a hostname.
 
-#include <windows.h>
-#include <string>
-
 #include "net/base/dns_resolution_observer.h"
+
+#include <string>
 
 #include "base/logging.h"
 
