@@ -16,7 +16,12 @@
 #else
 class NSEvent;
 #endif  // __OBJC__
-#endif  // OS_MACOSX
+#elif defined(OS_LINUX)
+typedef struct _GdkEventButton GdkEventButton;
+typedef struct _GdkEventMotion GdkEventMotion;
+typedef struct _GdkEventScroll GdkEventScroll;
+typedef struct _GdkEventKey GdkEventKey;
+#endif
 
 // The classes defined in this file are intended to be used with WebView's
 // HandleInputEvent method.  These event types are cross-platform; however,
@@ -92,6 +97,9 @@ class WebMouseEvent : public WebInputEvent {
   WebMouseEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 #elif defined(OS_MACOSX)
   WebMouseEvent(NSEvent *event);
+#elif defined(OS_LINUX)
+  explicit WebMouseEvent(const GdkEventButton* event);
+  explicit WebMouseEvent(const GdkEventMotion* event);
 #endif
 };
 
@@ -107,6 +115,8 @@ class WebMouseWheelEvent : public WebMouseEvent {
   WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 #elif defined(OS_MACOSX)
   WebMouseWheelEvent(NSEvent *event);
+#elif defined(OS_LINUX)
+  explicit WebMouseWheelEvent(const GdkEventScroll* event);
 #endif
 };
 
@@ -134,6 +144,8 @@ class WebKeyboardEvent : public WebInputEvent {
   WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 #elif defined(OS_MACOSX)
   WebKeyboardEvent(NSEvent *event);
+#elif defined(OS_LINUX)
+  explicit WebKeyboardEvent(const GdkEventKey* event);
 #endif
 };
 

@@ -72,7 +72,7 @@ input_files = [
 if env['PLATFORM'] == 'win32':
   # TODO(port): These extra files aren't win32-specific, they've just not been
   # tested on other platforms yet.
-  input_files.append([
+  input_files.extend([
     '$PENDING_DIR/AccessibleBase.cpp',
     '$PENDING_DIR/AccessibleDocument.cpp',
     'glue_accessibility.cc',
@@ -82,7 +82,11 @@ if env['PLATFORM'] == 'win32':
     'plugins/plugin_stream.cc',
     'plugins/webplugin_delegate_impl.cc',
     'webdropdata.cc',
-    'webinputevent_win.cc',
   ])
+
+if env['PLATFORM'] == 'win32':
+  input_files.append('webinputevent_win.cc')
+elif env['PLATFORM'] == 'posix':
+  input_files.append('webinputevent_linux.cc')
 
 env.ChromeStaticLibrary('glue', input_files)
