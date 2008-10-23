@@ -89,7 +89,7 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   PathService::Get(base::DIR_TEMP, &filename);
   filename.push_back(file_util::kPathSeparator);
   filename.append(L"SafeBrowsingTestDatabase");
-  DeleteFile(filename.c_str());  // In case it existed from a previous run.
+  file_util::Delete(filename, false);  // In case it existed from a previous run.
 
   SafeBrowsingDatabaseImpl database;
   database.SetSynchronous();
@@ -98,7 +98,7 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   PopulateDatabaseForCacheTest(&database);
 
   // We should have both full hashes in the cache.
-  EXPECT_EQ(database.hash_cache_.size(), 2);
+  EXPECT_EQ(database.hash_cache_.size(), 2U);
 
   // Test the cache lookup for the first prefix.
   std::string list;
@@ -106,7 +106,7 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   std::vector<SBFullHashResult> full_hashes;
   database.ContainsUrl(GURL("http://www.evil.com/phishing.html"),
                        &list, &prefixes, &full_hashes, Time::Now());
-  EXPECT_EQ(full_hashes.size(), 1);
+  EXPECT_EQ(full_hashes.size(), 1U);
 
   SBFullHashResult full_hash;
   base::SHA256HashString("www.evil.com/phishing.html",
@@ -120,7 +120,7 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   // Test the cache lookup for the second prefix.
   database.ContainsUrl(GURL("http://www.evil.com/malware.html"),
                        &list, &prefixes, &full_hashes, Time::Now());
-  EXPECT_EQ(full_hashes.size(), 1);
+  EXPECT_EQ(full_hashes.size(), 1U);
   base::SHA256HashString("www.evil.com/malware.html",
                          &full_hash.hash, sizeof(SBFullHash));
   EXPECT_EQ(memcmp(&full_hashes[0].hash,
@@ -149,7 +149,7 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   // This prefix should still be there.
   database.ContainsUrl(GURL("http://www.evil.com/malware.html"),
                        &list, &prefixes, &full_hashes, Time::Now());
-  EXPECT_EQ(full_hashes.size(), 1);
+  EXPECT_EQ(full_hashes.size(), 1U);
   base::SHA256HashString("www.evil.com/malware.html",
                          &full_hash.hash, sizeof(SBFullHash));
   EXPECT_EQ(memcmp(&full_hashes[0].hash,
@@ -161,7 +161,7 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   // This prefix should be gone.
   database.ContainsUrl(GURL("http://www.evil.com/phishing.html"),
                        &list, &prefixes, &full_hashes, Time::Now());
-  EXPECT_EQ(full_hashes.size(), 0);
+  EXPECT_EQ(full_hashes.size(), 0U);
 
   prefixes.clear();
   full_hashes.clear();
@@ -170,8 +170,8 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   AddDelChunk(&database, "goog-malware-shavar", 1);
   database.ContainsUrl(GURL("http://www.evil.com/malware.html"),
                        &list, &prefixes, &full_hashes, Time::Now());
-  EXPECT_EQ(full_hashes.size(), 0);
-  EXPECT_EQ(database.hash_cache_.size(), 0);
+  EXPECT_EQ(full_hashes.size(), 0U);
+  EXPECT_EQ(database.hash_cache_.size(), 0U);
 
   prefixes.clear();
   full_hashes.clear();
@@ -180,7 +180,7 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   // the cached entries' received time to make them older, since the database
   // cache insert uses Time::Now(). First, store some entries.
   PopulateDatabaseForCacheTest(&database);
-  EXPECT_EQ(database.hash_cache_.size(), 2);
+  EXPECT_EQ(database.hash_cache_.size(), 2U);
 
   // Now adjust one of the entries times to be in the past.
   Time expired = Time::Now() - TimeDelta::FromMinutes(60);
@@ -194,15 +194,15 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
 
   database.ContainsUrl(GURL("http://www.evil.com/malware.html"),
                        &list, &prefixes, &full_hashes, expired);
-  EXPECT_EQ(full_hashes.size(), 0);
+  EXPECT_EQ(full_hashes.size(), 0U);
 
   // Expired entry was dumped.
-  EXPECT_EQ(database.hash_cache_.size(), 1);
+  EXPECT_EQ(database.hash_cache_.size(), 1U);
 
   // This entry should still exist.
   database.ContainsUrl(GURL("http://www.evil.com/phishing.html"),
                        &list, &prefixes, &full_hashes, expired);
-  EXPECT_EQ(full_hashes.size(), 1);
+  EXPECT_EQ(full_hashes.size(), 1U);
 
 
   // Testing prefix miss caching. First, we clear out the existing database,
@@ -217,11 +217,11 @@ TEST(SafeBrowsingDatabaseImpl, HashCaching) {
   database.CacheHashResults(prefix_misses, empty_full_hash);
 
   // Prefixes with no full results are misses.
-  EXPECT_EQ(database.prefix_miss_cache_.size(), 2);
+  EXPECT_EQ(database.prefix_miss_cache_.size(), 2U);
 
   // Update the database.
   PopulateDatabaseForCacheTest(&database);
 
   // Prefix miss cache should be cleared.
-  EXPECT_EQ(database.prefix_miss_cache_.size(), 0);
+  EXPECT_EQ(database.prefix_miss_cache_.size(), 0U);
 }

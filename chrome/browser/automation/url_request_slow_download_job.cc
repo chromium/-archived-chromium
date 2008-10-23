@@ -31,11 +31,11 @@ void URLRequestSlowDownloadJob::Start() {
 /* static */
 void URLRequestSlowDownloadJob::AddUITestUrls() {
   URLRequestFilter* filter = URLRequestFilter::GetInstance();
-  filter->AddUrlHandler(GURL(kUnknownSizeUrl),
+  filter->AddUrlHandler(GURL(WideToUTF8(kUnknownSizeUrl)),
                         &URLRequestSlowDownloadJob::Factory);
-  filter->AddUrlHandler(GURL(kKnownSizeUrl),
+  filter->AddUrlHandler(GURL(WideToUTF8(kKnownSizeUrl)),
                         &URLRequestSlowDownloadJob::Factory);
-  filter->AddUrlHandler(GURL(kFinishDownloadUrl),
+  filter->AddUrlHandler(GURL(WideToUTF8(kFinishDownloadUrl)),
                         &URLRequestSlowDownloadJob::Factory);
 }
 

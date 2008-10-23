@@ -19,7 +19,7 @@ class URLRequestFailedDnsJob : public URLRequestJob {
                                 const std::string& scheme);
 
   // A test URL that can be used in UI tests.
-  static const wchar_t kTestUrl[];
+  static const char kTestUrl[];
 
   // For UI tests: adds the testing URLs to the URLRequestFilter.
   static void AddUITestUrls();
