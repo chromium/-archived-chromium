@@ -1051,7 +1051,8 @@ V8 | KJS # LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
-V8 | KJS # LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL
+// Flaky on both release and debug. 
+V8 | KJS # LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL | CRASH
 V8 | KJS # LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/dominant-baseline-modes.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/dynamic-svg-document-creation.svg = FAIL
@@ -1150,3 +1151,5 @@ V8 | KJS # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PA
 // Got flakey (both debug and release) around r3581 (ananta).
 V8 | KJS # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
 
+// Started failing image diff with r3806 (jhaas)
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
