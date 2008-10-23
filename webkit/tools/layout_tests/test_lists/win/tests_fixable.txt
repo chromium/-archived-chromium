@@ -1150,6 +1150,3 @@ V8 | KJS # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PA
 
 // Got flakey (both debug and release) around r3581 (ananta).
 V8 | KJS # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
-
-// Started failing image diff with r3806 (jhaas)
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
