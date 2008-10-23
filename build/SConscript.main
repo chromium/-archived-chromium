@@ -152,10 +152,10 @@ if env['PLATFORM'] == 'win32':
     CSCRIPT = 'c:\\Windows\\System32\\cscript',
 
     PLATFORMSDK_VISTA_REL = '../third_party/platformsdk_vista_6_0',
-    PLATFORMSDK_VISTA = '#/$PLATFORMSDK_VISTA_REL',
+    PLATFORMSDK_VISTA = '$CHROME_SRC_DIR/$PLATFORMSDK_VISTA_REL',
     VISUAL_STUDIO = visual_studio_path,
 
-    CYGWIN_DIR = Dir('#../third_party/cygwin'),
+    CYGWIN_DIR = env.Dir('$CHROME_SRC_DIR/third_party/cygwin'),
     CYGWIN_BIN_DIR = '$CYGWIN_DIR/bin',
 
     PERL = '$CYGWIN_BIN_DIR/perl.exe',

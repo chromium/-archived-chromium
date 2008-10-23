@@ -7,15 +7,15 @@ import re
 
 Import('env')
 
-webcore = env.Dir('#../third_party/WebKit/WebCore')
+webcore = env.Dir('$CHROME_SRC_DIR/third_party/WebKit/WebCore')
 webcore_posix = webcore.abspath.replace('\\', '/')
 
 cygwin = env.Dir('$CYGWIN_DIR/bin')
 cygwin_posix = cygwin.abspath.replace('\\', '/')
 
-pending = env.Dir('#../webkit/pending')
-portroot = env.Dir('#../webkit/port')
-webkit_build = env.Dir('#../webkit/build')
+pending = env.Dir('$CHROME_SRC_DIR/webkit/pending')
+portroot = env.Dir('$CHROME_SRC_DIR/webkit/port')
+webkit_build = env.Dir('$CHROME_SRC_DIR/webkit/build')
 
 
 def PosixIncludes(env, prefix, files, suffix):

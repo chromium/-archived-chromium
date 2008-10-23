@@ -763,7 +763,7 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] == 'win32':
   env_p = env.Clone()
   env_p.Append(CCFLAGS='/Ylwebcore')
-  pch, obj = env_p.PCH('../precompiled_webkit.cc')
+  pch, obj = env_p.PCH('$OBJ_ROOT/build/precompiled_webkit.cc')
   env['PCH'] = pch
   env['PCHSTOP'] = 'precompiled_webkit.h'
   env.Append(CCPCHFLAGS = ['/FIprecompiled_webkit.h'])

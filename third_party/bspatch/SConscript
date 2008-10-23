@@ -35,7 +35,7 @@ env = env.Clone(
 
 env.Prepend(
     CPPPATH = [
-        '#../third_party/lzma_sdk/',
+        '$CHROME_SRC_DIR/third_party/lzma_sdk/',
     ],
 )
 

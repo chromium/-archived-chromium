@@ -15,8 +15,8 @@ env = env.Clone(
     V8_MODE = 'release',
     V8_SRC_DIR = '$CHROME_SRC_DIR/v8',
     V8_MODE_DIR = '$V8_SRC_DIR/obj/$V8_MODE',
-    V8_SCONS_COM = 'cd ../v8 && $PYTHON $SCONS $SCONSFLAGS mode=$V8_MODE',
-    SCONS='../third_party/scons/scons.py',
+    V8_SCONS_COM = 'cd $CHROME_SRC_DIR/v8 && $PYTHON $SCONS $SCONSFLAGS mode=$V8_MODE',
+    SCONS='$CHROME_SRC_DIR/third_party/scons/scons.py',
     SCONSFLAGS = ('-Q '
                   '--warn=no-deprecated '
                   '--warn=no-no-parallel-support' + cpu_flag),
@@ -55,7 +55,7 @@ if env['PLATFORM'] == 'win32':
 v8 = env.Command(v8_scons_targets_off + v8_scons_targets_on,
                  [],
                  ['$V8_SCONS_COM snapshot=off sample=shell',
-                  '$V8_SCONS_COM snapshot=on ${TARGETS[-%d:]}'
+                  '$V8_SCONS_COM snapshot=on ${TARGETS[-%d:].abspath}'
                       % len(v8_scons_targets_on)])
 env.AlwaysBuild(v8)
 
