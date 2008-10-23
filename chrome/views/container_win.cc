@@ -50,13 +50,11 @@ FillLayout::~FillLayout() {
 }
 
 void FillLayout::Layout(View* host) {
-  CRect bounds;
-  host->GetContainer()->GetBounds(&bounds, false);
   if (host->GetChildViewCount() == 0)
     return;
 
   View* frame_view = host->GetChildViewAt(0);
-  frame_view->SetBounds(0, 0, bounds.Width(), bounds.Height());
+  frame_view->SetBounds(0, 0, host->width(), host->height());
 }
 
 gfx::Size FillLayout::GetPreferredSize(View* host) {
