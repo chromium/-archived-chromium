@@ -798,7 +798,6 @@
 		E45624ED0E268E87005E4685 /* BlockExceptions.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90D70D7F3CC2001ECF42 /* BlockExceptions.mm */; };
 		E45624EE0E268E87005E4685 /* ClipboardMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90D90D7F3CC2001ECF42 /* ClipboardMac.mm */; };
 		E45624FC0E268E87005E4685 /* LocalCurrentGraphicsContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E90D7F3CC2001ECF42 /* LocalCurrentGraphicsContext.mm */; };
-		E45624FD0E268E87005E4685 /* LocalizedStringsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90EA0D7F3CC2001ECF42 /* LocalizedStringsMac.mm */; };
 		E45624FE0E268E87005E4685 /* LoggingMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90EB0D7F3CC2001ECF42 /* LoggingMac.mm */; };
 		E45625000E268E87005E4685 /* PasteboardMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90EE0D7F3CC2001ECF42 /* PasteboardMac.mm */; };
 		E456250F0E268E87005E4685 /* WebCoreKeyGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91020D7F3CC2001ECF42 /* WebCoreKeyGenerator.m */; };
@@ -8168,7 +8167,6 @@
 				E45625550E268E87005E4685 /* ListMarkerBox.cpp in Sources */,
 				E456248B0E268E87005E4685 /* loader.cpp in Sources */,
 				E45624FC0E268E87005E4685 /* LocalCurrentGraphicsContext.mm in Sources */,
-				E45624FD0E268E87005E4685 /* LocalizedStringsMac.mm in Sources */,
 				E45624EB0E268E87005E4685 /* Logging.cpp in Sources */,
 				E45624FE0E268E87005E4685 /* LoggingMac.mm in Sources */,
 				E45624900E268E87005E4685 /* MainResourceLoader.cpp in Sources */,
