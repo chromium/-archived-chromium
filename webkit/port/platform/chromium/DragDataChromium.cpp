@@ -40,7 +40,7 @@
 #include "DocumentFragment.h"
 #include "KURL.h"
 #include "PlatformString.h"
-#include "Markup.h"
+#include "markup.h"
 
 #undef LOG
 #include "base/file_util.h"

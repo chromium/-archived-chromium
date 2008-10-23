@@ -117,8 +117,6 @@ input_files = [
 if env['PLATFORM'] == 'posix':
   # Remove from the list files that haven't yet been made portable to Linux.
   remove_files = [
-    '$PORT_DIR/page/chromium/AXObjectCacheChromium.cpp',
-    '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
     '$PORT_DIR/platform/chromium/PlatformScrollBarChromium.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
   ]
