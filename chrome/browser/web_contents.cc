@@ -1158,6 +1158,10 @@ void WebContents::DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params) {
 
 GURL WebContents::GetAlternateErrorPageURL() const {
   GURL url;
+  // Disable alternate error pages when in OffTheRecord/Incognito mode.
+  if (profile()->IsOffTheRecord())
+    return url;
+
   PrefService* prefs = profile()->GetPrefs();
   DCHECK(prefs);
   if (prefs->GetBoolean(prefs::kAlternateErrorPagesEnabled)) {
