@@ -865,7 +865,6 @@ V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
 // ----------------------------------------------------------------------------
 
 V8 | KJS # LayoutTests/accessibility = FAIL
-V8 | KJS # LayoutTests/dom/html/level2/html/HTMLFormElement10.html = FAIL | TIMEOUT
 V8 | KJS # LayoutTests/fast/block/basic/min-pref-width-nowrap-floats.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
@@ -879,7 +878,6 @@ V8 | KJS # LayoutTests/fast/text/fixed-pitch-control-characters.html = FAIL
 V8 | KJS # LayoutTests/fast/text/selection-painted-separately.html = FAIL
 V8 | KJS # LayoutTests/fast/text/soft-hyphen-2.html = FAIL
 V8 | KJS # LayoutTests/fast/text/soft-hyphen-3.html = FAIL
-V8 | KJS # LayoutTests/fast/dom/Window/closure-access-after-navigation-iframe.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/frameset-style-recalc.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/iframe-text-contents.html = FAIL
 V8 | KJS # LayoutTests/fast/gradients/border-image-gradient-sides-and-corners.html = FAIL
