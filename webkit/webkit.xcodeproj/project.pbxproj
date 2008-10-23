@@ -456,6 +456,7 @@
 		E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40060DA0EA69E0B0055B38E /* ScriptController.cpp */; };
 		E40063610EA907510055B38E /* ScriptCallContextV8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40063600EA907510055B38E /* ScriptCallContextV8.cpp */; };
 		E40064540EA90AA10055B38E /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E3D0D7F3C48001ECF42 /* Console.cpp */; };
+		E40FB28F0EAFF0BC006F380A /* PlatformScreenMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */; };
 		E43CE13C0E68621500D8C5B9 /* PausedTimeouts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */; };
 		E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
 		E45063BA0E4104700025A81A /* localized_strings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051A0D92E3DA0006B936 /* localized_strings.cc */; };
@@ -2936,7 +2937,6 @@
 		7B5E90ED0D7F3CC2001ECF42 /* PasteboardHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PasteboardHelper.h; sourceTree = "<group>"; };
 		7B5E90EE0D7F3CC2001ECF42 /* PasteboardMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PasteboardMac.mm; path = ../../../../../webkit/port/platform/mac/PasteboardMac.mm; sourceTree = "<group>"; };
 		7B5E90EF0D7F3CC2001ECF42 /* PlatformMouseEventMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlatformMouseEventMac.mm; sourceTree = "<group>"; };
-		7B5E90F00D7F3CC2001ECF42 /* PlatformScreenMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlatformScreenMac.mm; sourceTree = "<group>"; };
 		7B5E90F10D7F3CC2001ECF42 /* PlatformScrollBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformScrollBar.h; sourceTree = "<group>"; };
 		7B5E90F20D7F3CC2001ECF42 /* PlatformScrollBarMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlatformScrollBarMac.mm; sourceTree = "<group>"; };
 		7B5E90F40D7F3CC2001ECF42 /* PopupMenuMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PopupMenuMac.mm; sourceTree = "<group>"; };
@@ -2995,7 +2995,6 @@
 		7B5E91540D7F3CC2001ECF42 /* Pasteboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pasteboard.h; sourceTree = "<group>"; };
 		7B5E91560D7F3CC2001ECF42 /* PlatformMenuDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformMenuDescription.h; sourceTree = "<group>"; };
 		7B5E91570D7F3CC2001ECF42 /* PlatformMouseEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformMouseEvent.h; sourceTree = "<group>"; };
-		7B5E91580D7F3CC2001ECF42 /* PlatformScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformScreen.h; sourceTree = "<group>"; };
 		7B5E91590D7F3CC2001ECF42 /* PlatformWheelEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformWheelEvent.h; sourceTree = "<group>"; };
 		7B5E915A0D7F3CC2001ECF42 /* PopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopupMenu.h; sourceTree = "<group>"; };
 		7B5E915B0D7F3CC2001ECF42 /* PopupMenuClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopupMenuClient.h; sourceTree = "<group>"; };
@@ -3887,6 +3886,7 @@
 		E40060DA0EA69E0B0055B38E /* ScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptController.cpp; sourceTree = "<group>"; };
 		E40063600EA907510055B38E /* ScriptCallContextV8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallContextV8.cpp; sourceTree = "<group>"; };
 		E40063760EA908220055B38E /* ScriptCallContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScriptCallContext.cpp; path = ../third_party/WebKit/WebCore/bindings/js/ScriptCallContext.cpp; sourceTree = SOURCE_ROOT; };
+		E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PlatformScreenMac.mm; path = mac/PlatformScreenMac.mm; sourceTree = "<group>"; };
 		E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PausedTimeouts.h; path = WebCore/bindings/js/PausedTimeouts.h; sourceTree = "<group>"; };
 		E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PausedTimeouts.cpp; path = WebCore/bindings/js/PausedTimeouts.cpp; sourceTree = "<group>"; };
 		E45062DF0E40B5420025A81A /* SkiaUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkiaUtils.cpp; sourceTree = "<group>"; };
@@ -5163,7 +5163,6 @@
 				7B5E91540D7F3CC2001ECF42 /* Pasteboard.h */,
 				7B5E91560D7F3CC2001ECF42 /* PlatformMenuDescription.h */,
 				7B5E91570D7F3CC2001ECF42 /* PlatformMouseEvent.h */,
-				7B5E91580D7F3CC2001ECF42 /* PlatformScreen.h */,
 				7B5E91590D7F3CC2001ECF42 /* PlatformWheelEvent.h */,
 				7B5E915A0D7F3CC2001ECF42 /* PopupMenu.h */,
 				7B5E915B0D7F3CC2001ECF42 /* PopupMenuClient.h */,
@@ -5366,7 +5365,6 @@
 				7B5E90ED0D7F3CC2001ECF42 /* PasteboardHelper.h */,
 				7B5E90EE0D7F3CC2001ECF42 /* PasteboardMac.mm */,
 				7B5E90EF0D7F3CC2001ECF42 /* PlatformMouseEventMac.mm */,
-				7B5E90F00D7F3CC2001ECF42 /* PlatformScreenMac.mm */,
 				7B5E90F10D7F3CC2001ECF42 /* PlatformScrollBar.h */,
 				7B5E90F20D7F3CC2001ECF42 /* PlatformScrollBarMac.mm */,
 				7B5E90F40D7F3CC2001ECF42 /* PopupMenuMac.mm */,
@@ -6892,6 +6890,7 @@
 				E45628270E269688005E4685 /* network */,
 				E4D08FDA0EAE7A5F0022CE54 /* EditorMac.mm */,
 				AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */,
+				E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */,
 				B507F51B0E9BE98B00D16D77 /* PluginStubsMac.cpp */,
 				E473F66D0EAE012D006C2098 /* SSLKeyGeneratorChromium.cpp */,
 				E473F66F0EAE016A006C2098 /* SystemTimeChromium.cpp */,
@@ -8704,6 +8703,7 @@
 				93BF8E9C0EA6B0F30030F05C /* NetworkStateNotifierChromium.cpp in Sources */,
 				E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */,
 				E473F6530EAE002F006C2098 /* PlatformKeyboardEventChromium.cpp in Sources */,
+				E40FB28F0EAFF0BC006F380A /* PlatformScreenMac.mm in Sources */,
 				E473F65A0EAE005C006C2098 /* PlatformScrollBarChromium.cpp in Sources */,
 				B507F51C0E9BE98B00D16D77 /* PluginStubsMac.cpp in Sources */,
 				7B2B0A650E3143EC00D4C6B7 /* PNGImageDecoder.cpp in Sources */,
