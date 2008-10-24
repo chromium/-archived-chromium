@@ -451,8 +451,8 @@ std::string BDictWriter::GetBDict() const {
   hunspell::BDict::Header* header =
       reinterpret_cast<hunspell::BDict::Header*>(&ret[0]);
   header->signature = hunspell::BDict::SIGNATURE;
-  header->major_version = 1;
-  header->minor_version = 0;
+  header->major_version = hunspell::BDict::MAJOR_VERSION;
+  header->minor_version = hunspell::BDict::MINOR_VERSION;
   header->aff_offset = static_cast<uint32>(aff_offset);
   header->dic_offset = static_cast<uint32>(dic_offset);
 

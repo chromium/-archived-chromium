@@ -190,11 +190,20 @@ void AffReader::AddAffix(std::string* rule) {
   // will re-encode the number on the first line, but that will be a NOP. If
   // there are not that many groups, we won't reencode it, but pass it through.
   int found_spaces = 0;
+  std::string token;
   for (size_t i = 0; i < rule->length(); i++) {
     if ((*rule)[i] == ' ') {
       found_spaces++;
       if (found_spaces == 3) {
-        std::string part = rule->substr(i);  // From here to end.
+        size_t part_start = i;
+        std::string part;
+        if (token[0] != 'Y' && token[0] != 'N') {
+          // This token represents a stripping prefix or suffix, which is
+          // either a length or a string to be replaced.
+          // We also reencode them to UTF-8.
+          part_start = i - token.length();
+        }
+        part = rule->substr(part_start);  // From here to end.
 
         size_t slash_index = part.find('/');
         if (slash_index != std::string::npos && !has_indexed_affixes()) {
@@ -233,9 +242,12 @@ void AffReader::AddAffix(std::string* rule) {
         if (!EncodingToUTF8(part, &reencoded))
           break;
 
-        *rule = rule->substr(0, i) + reencoded;
+        *rule = rule->substr(0, part_start) + reencoded;
         break;
       }
+      token.clear();
+    } else {
+      token.push_back((*rule)[i]);
     }
   }
 

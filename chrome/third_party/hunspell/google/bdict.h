@@ -98,6 +98,10 @@ class BDict {
  public:
   // File header.
   enum { SIGNATURE = 0x63694442 };
+  enum {
+    MAJOR_VERSION = 1,
+    MINOR_VERSION = 1
+  };
   struct Header {
     uint32 signature;
 
