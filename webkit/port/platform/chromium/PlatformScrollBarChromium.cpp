@@ -89,7 +89,7 @@ static const int kLayoutTestScrollbarThumbGirth = 17;
 /*static*/ int PlatformScrollbar::horizontalScrollbarHeight(
     ScrollbarControlSize controlSize)
 {
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
     return webkit_glue::IsLayoutTestMode() ? kMacScrollbarSize[controlSize] :
         GetSystemMetrics(SM_CYHSCROLL);
 #elif PLATFORM(UNIX)
@@ -100,7 +100,7 @@ static const int kLayoutTestScrollbarThumbGirth = 17;
 /*static*/ int PlatformScrollbar::verticalScrollbarWidth(
     ScrollbarControlSize controlSize)
 {
-#if PLATFORM(WIN)
+#if PLATFORM(WIN_OS)
     return webkit_glue::IsLayoutTestMode() ? kMacScrollbarSize[controlSize] :
         GetSystemMetrics(SM_CXVSCROLL);
 #elif PLATFORM(UNIX)
