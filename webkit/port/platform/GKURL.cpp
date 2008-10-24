@@ -30,6 +30,7 @@
 #include "config.h"
 #include "KURL.h"
 #include "CString.h"
+#include "NotImplemented.h"
 #include "TextEncoding.h"
 #include "Vector.h"
 
@@ -208,6 +209,19 @@ KURL::KURL(const char* canonical_spec, int canonical_spec_len,
     else
         m_url.setAscii(canonical_spec, canonical_spec_len);
 }
+
+#if PLATFORM(CF)
+KURL::KURL(CFURLRef)
+{
+    notImplemented();
+    invalidate();
+}
+
+CFURLRef KURL::createCFURL() const {
+    notImplemented();
+    return NULL;
+}
+#endif
 
 String KURL::componentString(const url_parse::Component& comp) const
 {
