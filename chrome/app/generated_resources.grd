@@ -2170,9 +2170,6 @@ each locale. -->
       <message name="IDS_ERRORPAGES_SUGGESTION_RELOAD" desc="Suggest reloading to the user">
         &lt;a jsvalues="href:reloadUrl"&gt;Reload&lt;/a&gt; this web page later.
       </message>
-      <message name="IDS_ERRORPAGES_SUGGESTION_CACHE" desc="String suggesting to try using the google cache.">
-        View a &lt;a jsvalues="href:cacheUrl"&gt;cached copy of the web page from Google&lt;/a&gt;
-      </message>
       <message name="IDS_ERRORPAGES_SUGGESTION_HOMEPAGE" desc="String suggesting to try just the hostname of the site.">
         Go to the homepage of the site:
       </message>

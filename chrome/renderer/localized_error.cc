@@ -17,19 +17,10 @@
 
 namespace {
 
-// Helper method for generating the google cache lookup url.
-const std::wstring ConstructGoogleCacheUrl(const std::wstring& url) {
-  // TODO(tc): use locale based google domain
-  std::wstring cache_url(L"http://www.google.com/search?q=cache:");
-  cache_url.append(EscapeQueryParamValueUTF8(url));
-  return cache_url;
-}
-
 enum NAV_SUGGESTIONS {
   SUGGEST_NONE     = 0,
   SUGGEST_RELOAD   = 1 << 0,
-  SUGGEST_CACHE    = 1 << 1,
-  SUGGEST_HOSTNAME = 1 << 2,
+  SUGGEST_HOSTNAME = 1 << 1,
 };
 
 struct WebErrorNetErrorMap {
@@ -47,21 +38,21 @@ WebErrorNetErrorMap net_error_options[] = {
    IDS_ERRORPAGES_HEADING_NOT_AVAILABLE,
    IDS_ERRORPAGES_SUMMARY_NOT_AVAILABLE,
    IDS_ERRORPAGES_DETAILS_TIMED_OUT,
-   SUGGEST_RELOAD | SUGGEST_CACHE,
+   SUGGEST_RELOAD,
   },
   {net::ERR_CONNECTION_FAILED,
    IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
    IDS_ERRORPAGES_HEADING_NOT_AVAILABLE,
    IDS_ERRORPAGES_SUMMARY_NOT_AVAILABLE,
    IDS_ERRORPAGES_DETAILS_CONNECT_FAILED,
-   SUGGEST_RELOAD | SUGGEST_CACHE,
+   SUGGEST_RELOAD,
   },
   {net::ERR_NAME_NOT_RESOLVED,
    IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
    IDS_ERRORPAGES_HEADING_NOT_AVAILABLE,
    IDS_ERRORPAGES_SUMMARY_NOT_AVAILABLE,
    IDS_ERRORPAGES_DETAILS_NAME_NOT_RESOLVED,
-   SUGGEST_RELOAD | SUGGEST_CACHE,
+   SUGGEST_RELOAD,
   },
   {net::ERR_INTERNET_DISCONNECTED,
    IDS_ERRORPAGES_TITLE_NOT_AVAILABLE,
@@ -155,15 +146,6 @@ void GetLocalizedErrorValues(const WebError& error,
     error_strings->Set(L"suggestionsReload", suggest_reload);
   }
 
-  if (options.suggestions & SUGGEST_CACHE) {
-    DictionaryValue* suggest_cache = new DictionaryValue;
-    suggest_cache->SetString(L"msg",
-        l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_CACHE));
-    suggest_cache->SetString(L"cacheUrl",
-        ConstructGoogleCacheUrl(failed_url).c_str());
-    error_strings->Set(L"suggestionsCache", suggest_cache);
-  }
-
   if (options.suggestions & SUGGEST_HOSTNAME) {
     // Only show the "Go to hostname" suggestion if the failed_url has a path.
     const GURL& failed_url = error.GetFailedURL();
@@ -201,5 +183,3 @@ void GetFormRepostErrorValues(const GURL& display_url,
                      l10n_util::GetString(IDS_ERRORPAGES_HTTP_POST_WARNING));
   error_strings->Set(L"summary", summary);
 }
-
-
