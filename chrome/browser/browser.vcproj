@@ -746,6 +746,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmarks\bookmark_drag_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_drag_utils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmarks\bookmark_folder_tree_model.cc"
 				>
 			</File>
