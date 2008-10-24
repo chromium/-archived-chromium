@@ -543,7 +543,7 @@ void View::DoDrag(const MouseEvent& e, int press_x, int press_y) {
   WriteDragData(press_x, press_y, data.get());
 
   // Message the RootView to do the drag and drop. That way if we're removed
-  // the RootView can detect it and avoid callins us back.
+  // the RootView can detect it and avoid calling us back.
   RootView* root_view = GetRootView();
   root_view->StartDragForViewFromMouseEvent(
       this, data, GetDragOperations(press_x, press_y));

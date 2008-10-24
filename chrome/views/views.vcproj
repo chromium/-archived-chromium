@@ -534,6 +534,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\single_split_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\single_split_view.h"
+			>
+		</File>
+		<File
 			RelativePath=".\tabbed_pane.cc"
 			>
 		</File>
