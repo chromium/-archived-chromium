@@ -48,7 +48,9 @@ static const int kTabShadowSize = 2;
 // The height of the status bubble.
 static const int kStatusBubbleHeight = 20;
 // The distance of the status bubble from the left edge of the window.
-static const int kStatusBubbleOffset = 2;
+static const int kStatusBubbleHorizontalOffset = 3;
+// The distance of the status bubble from the bottom edge of the window.
+static const int kStatusBubbleVerticalOffset = 2;
 // An offset distance between certain toolbars and the toolbar that preceded
 // them in layout.
 static const int kSeparationLineHeight = 1;
@@ -974,8 +976,8 @@ int BrowserView2::LayoutDownloadShelf() {
 
 void BrowserView2::LayoutStatusBubble(int top) {
   int status_bubble_y =
-      top - kStatusBubbleHeight + kStatusBubbleOffset + y();
-  status_bubble_->SetBounds(kStatusBubbleOffset, status_bubble_y,
+      top - kStatusBubbleHeight + kStatusBubbleVerticalOffset + y();
+  status_bubble_->SetBounds(kStatusBubbleHorizontalOffset, status_bubble_y,
                             width() / 3, kStatusBubbleHeight);
 }
 

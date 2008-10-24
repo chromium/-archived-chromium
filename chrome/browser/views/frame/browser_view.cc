@@ -22,7 +22,8 @@
 
 // Status Bubble metrics.
 static const int kStatusBubbleHeight = 20;
-static const int kStatusBubbleOffset = 2;
+static const int kStatusBubbleHorizontalOffset = 3;
+static const int kStatusBubbleVerticalOffset = 2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, public:
@@ -42,9 +43,9 @@ BrowserView::~BrowserView() {
 }
 
 void BrowserView::LayoutStatusBubble(int status_bubble_y) {
-  status_bubble_->SetBounds(kStatusBubbleOffset,
+  status_bubble_->SetBounds(kStatusBubbleHorizontalOffset,
                             status_bubble_y - kStatusBubbleHeight +
-                            kStatusBubbleOffset,
+                            kStatusBubbleVerticalOffset,
                             width() / 3,
                             kStatusBubbleHeight);
 }
