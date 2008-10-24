@@ -27,10 +27,10 @@ else:
 
 
 env = Environment(
-    BUILD_TYPE = ARGUMENTS.get('BUILD_TYPE', 'Hammer'),
-    CHROME_SRC_DIR = Dir('#/..').abspath,
-    TARGET_ROOT = Dir('#/$BUILD_TYPE').abspath,
-    OBJ_ROOT = '$TARGET_ROOT',
+    tools = ['component_setup'],
+    CHROME_SRC_DIR = '$MAIN_DIR/..',
+    DESTINATION_ROOT = '$MAIN_DIR/Hammer',
+    TARGET_ROOT = '$DESTINATION_ROOT',
 
     LIBS_DIR              = '$OBJ_ROOT/Libs',
 
@@ -70,8 +70,6 @@ env = Environment(
 
     PYTHON=sys.executable,
 
-    LIBPATH               = ['$LIBS_DIR'],
-
     PERL                  = 'perl',
     PERL_INCLUDE_FLAG     = '-I ',
     PERL_INCLUDE_SUFFIX   = '',
@@ -81,62 +79,36 @@ env = Environment(
                              '__env__, RDirs, TARGET, SOURCE)}'),
 )
 
-def AddPdbToTarget(args):
-    """Add the windows pdb file to the build target.
+env.Append(LIBPATH = ['$LIBS_DIR'])
 
-    Arguments:
-      args is a tuple passed to ChromeProgram or ChromeTestProgram
-    Returns:
-      A tuple to pass on to Environment.Program."""
-    # Only add .pdb to the target if the target was only a string. We can't
-    # blindly add foo.pdb because chrome.exe and chrome.dll use chrome_exe.pdb
-    # and chrome_dll.pdb.
-    if not isinstance(args[0], str):
-        return args
-
-    mutable_args = list(args)
-    mutable_args[0] = [args[0], args[0] + '.pdb']
-    return tuple(mutable_args)
 
 def ChromeProgram(env, *args, **kw):
-    if env['PLATFORM'] == 'win32':
-        # TODO(tc): We should handle kw['target'] too.
-        args = AddPdbToTarget(args)
-    return env.Program(*args, **kw)
-env.AddMethod(ChromeProgram, "ChromeProgram")
+  return env.ComponentProgram(*args, **kw)
+env.AddMethod(ChromeProgram)
 
 def ChromeTestProgram(env, *args, **kw):
-    if env['PLATFORM'] == 'win32':
-        # TODO(tc): We should handle kw['target'] too.
-        args = AddPdbToTarget(args)
-    return env.Program(*args, **kw)
-env.AddMethod(ChromeTestProgram, "ChromeTestProgram")
+  return env.ComponentTestProgram(*args, **kw)
+env.AddMethod(ChromeTestProgram)
 
 def ChromeStaticLibrary(env, *args, **kw):
-    result = env.StaticLibrary(*args, **kw)
-    if env['PLATFORM'] == 'win32':
-      # TODO(sgk):
-      # We'd like to do this with env.Install() like we do on other systems,
-      # but this causes problems on Windows when the Python copy of the file
-      # in one thread prevents a linker spawned by another thread from
-      # opening the copied .lib, despite the fact that the copy has
-      # successfully concluded before the spawn occurs.  Work around the
-      # underlying problem (whatever it is) by calling the external Windows
-      # xcopy utility.
-      env.Command('$LIBS_DIR/${RESULT.name}', '$RESULT',
-                  "xcopy /q /y $SOURCE ${TARGET.dir}",
-                  RESULT=result[0])
-    else:
-      env.Install('$LIBS_DIR', result)
-    return result
-env.AddMethod(ChromeStaticLibrary, "ChromeStaticLibrary")
+  kw['COMPONENT_STATIC'] = True
+  return env.ComponentLibrary(*args, **kw)
+env.AddMethod(ChromeStaticLibrary)
 
 def ChromeSharedLibrary(env, *args, **kw):
-    return env.SharedLibrary(*args, **kw)
+  kw['COMPONENT_STATIC'] = False
+  return [env.ComponentLibrary(*args, **kw)[0]]
 env.AddMethod(ChromeSharedLibrary, "ChromeSharedLibrary")
+
+def ChromeObject(env, *args, **kw):
+  return env.ComponentObject(*args, **kw)
+env.AddMethod(ChromeObject)
+
 
 
 if env['PLATFORM'] == 'win32':
+  env.Tool('target_platform_windows')
+  env.Tool('target_debug')
 
   processors = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
   SetOption('num_jobs', processors + 1)
@@ -163,7 +135,9 @@ if env['PLATFORM'] == 'win32':
     MSVS_ENV = msvs_env,
 
     YACC = '$CYGWIN_BIN_DIR/bison.exe',
+  )
 
+  env.Append(
     ARFLAGS = [
         '/nologo',
     ],
@@ -281,6 +255,13 @@ if env['PLATFORM'] == 'win32':
   env.AppendENVPath('PATH', ';C:\\WINDOWS\\system32')
 
 elif env['PLATFORM'] == 'posix':
+  env.Tool('target_platform_linux')
+  env.Tool('target_debug')
+  env.Tool('yacc')
+
+  # TODO(bradnelson): this is needed for now because target_platform_linux has
+  # OS_LINUX defined in a weird way.
+  env.FilterOut(CPPDEFINES = ['OS_LINUX=OS_LINUX'])
 
   # Copy some environment variables from the outer environment if they exist.
   for envvar in ['CC', 'CXX']:
@@ -338,9 +319,6 @@ elif env['PLATFORM'] == 'posix':
                '$_LIBDIRFLAGS '
                '-Wl,--start-group $_LIBFLAGS -Wl,--end-group'),
 
-      # We need rt for clock_gettime.
-      LIBS = ['rt'],
-
       PERL = '/usr/bin/perl',
       PERL_INCLUDE_FLAG = '-I ',
       PERL_INCLUDE_SUFFIX = '',
@@ -348,6 +326,11 @@ elif env['PLATFORM'] == 'posix':
                              'PERL_INCLUDE_PATH, '
                              'PERL_INCLUDE_SUFFIX,'
                              '__env__, RDirs, TARGET, SOURCE)}'),
+  )
+
+  env.Append(
+      # We need rt for clock_gettime.
+      LIBS = ['rt'],
 
       ICU_LIBS = ['icu'],
   )
@@ -361,6 +344,8 @@ elif env['PLATFORM'] == 'posix':
   env.ParseConfig('pkg-config --cflags --libs gtk+-2.0')
 
 elif env['PLATFORM'] == 'darwin':
+  env.Tool('target_platform_mac')
+  env.Tool('target_debug')
 
   # For now, mac only loads the components we know work on Mac, by default.
   load = [
@@ -381,7 +366,9 @@ elif env['PLATFORM'] == 'darwin':
       CC = 'gcc-4.2',
       CXX = 'g++-4.2',
       LINK = '$CXX',
+  )
 
+  env.Append(
       CFLAGS = [
           '-std=c99',
       ],
@@ -444,20 +431,14 @@ if GetOption('clobber'):
   shutil.rmtree(env.Dir('$TARGET_ROOT').abspath, True)
 
 
-# Place the .sconsign.dblite in the build directory.
-target_dir = env.Dir('$TARGET_ROOT')
-if not os.path.exists(target_dir.abspath):
-  Execute(Mkdir(target_dir))
-SConsignFile(target_dir.File('.sconsign').abspath)
-
 
 # Use timestamps change, followed by MD5 for speed
 env.Decider('MD5-timestamp')
 
 
 # Overlay things from a layer below.
-env.Dir('$TARGET_ROOT').addRepository(env.Dir('$CHROME_SRC_DIR'))
-env.Dir('$TARGET_ROOT/googleurl').addRepository(env.Dir('$CHROME_SRC_DIR/build'))
+env.Dir('$OBJ_ROOT').addRepository(env.Dir('$CHROME_SRC_DIR'))
+env.Dir('$OBJ_ROOT/googleurl').addRepository(env.Dir('$CHROME_SRC_DIR/build'))
 
 included = [c for c in load if not c.startswith('-')]
 excluded = [c[1:] for c in load if c.startswith('-')]

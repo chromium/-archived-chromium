@@ -70,17 +70,7 @@ if env['PLATFORM'] == 'win32':
       ],
   )
 
-  dll = env.ChromeSharedLibrary([
-      'npapi_test_plugin',
-      'npapi_test_plugin.lib',
-      'npapi_test_plugin.ilk',
-      'npapi_test_plugin.pdb'
-      ], input_files)
-
-  # TODO(sgk):  goes away once ChromeSharedLibrary does this for us.
-  env.Install('$LIBS_DIR', dll[1])
-else:
-  dll = env.ChromeSharedLibrary(['npapi_test_plugin'], input_files)
+dll = env.ChromeSharedLibrary('npapi_test_plugin', input_files)
 
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('webkit', i)
