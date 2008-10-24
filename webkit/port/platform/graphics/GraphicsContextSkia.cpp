@@ -24,6 +24,7 @@
 
 #include "Assertions.h"
 #include "AffineTransform.h"
+#include "Color.h"
 #include "FloatRect.h"
 #include "Gradient.h"
 #include "IntRect.h"
@@ -874,7 +875,7 @@ void GraphicsContext::drawFocusRing(const Color& color)
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
 
-    paint.setARGB(255, 229, 151, 0);
+    paint.setColor(focusRingColor().rgb());
     paint.setStrokeWidth(exterior_offset * 2);
     paint.setPathEffect(new SkCornerPathEffect(exterior_offset * 2))->unref();
     exterior_region.getBoundaryPath(&path);

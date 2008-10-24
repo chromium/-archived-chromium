@@ -34,4 +34,10 @@ namespace WebCore {
 
 COMPILE_ASSERT(SK_ColorBLACK == Color::black, SkColorAndColorAreLaidOutTheSame);
 
+Color WebCore::focusRingColor()
+{
+    static Color focusRingColor(229, 151, 0, 255);
+    return focusRingColor;
+}
+
 } // namespace WebCore
