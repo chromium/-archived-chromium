@@ -32,9 +32,9 @@
 
 #include "config.h"
 
-#if defined(OS_WIN)
+#if PLATFORM(WIN_OS)
 typedef struct HBITMAP__* HBITMAP;
-#elif defined(OS_MACOSX)
+#elif PLATFORM(DARWIN)
 #if __OBJC__
 @class NSImage;
 #else
@@ -44,9 +44,9 @@ class NSImage;
 
 namespace WebCore {
 
-#if defined(OS_WIN)
+#if PLATFORM(WIN_OS)
 typedef HBITMAP DragImageRef;
-#elif defined(OS_MACOSX)
+#elif PLATFORM(DARWIN)
 typedef NSImage* DragImageRef;
 #else
 // TODO(port): remove null port.
