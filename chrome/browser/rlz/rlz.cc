@@ -65,6 +65,7 @@ typedef bool (*SendFinancialPingFn)(RLZTracker::Product product,
                                     const WCHAR* product_brand,
                                     const WCHAR* product_id,
                                     const WCHAR* product_lang,
+                                    bool exclude_id,
                                     void* reserved);
 }  // extern "C"
 
@@ -256,6 +257,6 @@ bool RLZTracker::SendFinancialPing(Product product,
                                    const wchar_t* product_lang) {
   AccessPoint points[] = {CHROME_OMNIBOX, CHROME_HOME_PAGE, NO_ACCESS_POINT};
   return (send_ping) ? send_ping(product, points, product_signature,
-      product_brand, product_id, product_lang, NULL) : false;
+      product_brand, product_id, product_lang, false, NULL) : false;
 }
 
