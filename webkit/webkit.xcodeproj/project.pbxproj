@@ -42,6 +42,9 @@
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
+		4DB044230EB161D600A5633C /* IconMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB044220EB161D600A5633C /* IconMac.cpp */; };
+		4DB044260EB161E800A5633C /* FontCacheMacPending.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */; };
+		4DB044430EB1639E00A5633C /* ImageMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB044420EB1639E00A5633C /* ImageMac.cpp */; };
 		4DB299C50EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */; };
 		4DB299C60EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */; };
 		4DB299C70EA4DD1E007EA4CF /* V8WebKitTransitionEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299C10EA4DD1E007EA4CF /* V8WebKitTransitionEvent.cpp */; };
@@ -1206,7 +1209,6 @@
 		E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */; };
 		E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
-		E4E4CA470E8027ED009A687C /* FontCacheMacPending.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1348,7 +1350,9 @@
 /* Begin PBXFileReference section */
 		046192AA0EA5476500FB37B0 /* BitmapImageSingleFrameSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitmapImageSingleFrameSkia.h; sourceTree = "<group>"; };
 		4D11C4D90E9ABE9200EF7617 /* ExceptionContextV8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionContextV8.cpp; sourceTree = "<group>"; };
-		4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GraphicsContextStub.cpp; path = mac/GraphicsContextStub.cpp; sourceTree = "<group>"; };
+		4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphicsContextStub.cpp; sourceTree = "<group>"; };
+		4DB044220EB161D600A5633C /* IconMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IconMac.cpp; sourceTree = "<group>"; };
+		4DB044420EB1639E00A5633C /* ImageMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageMac.cpp; sourceTree = "<group>"; };
 		4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitAnimationEvent.cpp; sourceTree = "<group>"; };
 		4DB299BE0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8WebKitAnimationEvent.h; sourceTree = "<group>"; };
 		4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8WebKitCSSTransformValue.cpp; sourceTree = "<group>"; };
@@ -3942,7 +3946,7 @@
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
 		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
 		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
-		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontCacheMacPending.cpp; path = mac/FontCacheMacPending.cpp; sourceTree = "<group>"; };
+		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontCacheMacPending.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3998,6 +4002,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4DB044090EB161B600A5633C /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */,
+				4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */,
+				4DB044220EB161D600A5633C /* IconMac.cpp */,
+				4DB044420EB1639E00A5633C /* ImageMac.cpp */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
 		4DB7F10F0E9BABEE00C66CE0 /* archive */ = {
 			isa = PBXGroup;
 			children = (
@@ -6904,9 +6919,8 @@
 		822B1BE70DC77910005C9A96 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
+				4DB044090EB161B600A5633C /* mac */,
 				046192AA0EA5476500FB37B0 /* BitmapImageSingleFrameSkia.h */,
-				E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */,
-				4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */,
 				82C2604A0DCB9AC1005CFE91 /* ImageSourceSkia.cpp */,
 				82C2604B0DCB9AC1005CFE91 /* ImageSourceSkia.h */,
 				E48A07220E3F95A000172919 /* NativeImageSkia.cpp */,
@@ -8020,7 +8034,6 @@
 				E45624C70E268E87005E4685 /* Font.cpp in Sources */,
 				E45624C80E268E87005E4685 /* FontCache.cpp in Sources */,
 				E45624D60E268E87005E4685 /* FontCacheMac.mm in Sources */,
-				E4E4CA470E8027ED009A687C /* FontCacheMacPending.cpp in Sources */,
 				E45624D70E268E87005E4685 /* FontCustomPlatformData.cpp in Sources */,
 				E45624C90E268E87005E4685 /* FontData.cpp in Sources */,
 				4DB7F0080E9BA3A100C66CE0 /* FontDescription.cpp in Sources */,
@@ -8687,6 +8700,7 @@
 				4D11C4E10E9ABEA900EF7617 /* ExceptionContextV8.cpp in Sources */,
 				E473F63F0EADFFB5006C2098 /* FileChooserChromium.cpp in Sources */,
 				E473F6430EADFFC6006C2098 /* FileSystemPosix.cpp in Sources */,
+				4DB044260EB161E800A5633C /* FontCacheMacPending.cpp in Sources */,
 				E473F6880EAE021B006C2098 /* FrameChromium.cpp in Sources */,
 				E473F6440EADFFC6006C2098 /* FramelessScrollView.cpp in Sources */,
 				7B2B0A5F0E3143EC00D4C6B7 /* GIFImageDecoder.cpp in Sources */,
@@ -8694,6 +8708,8 @@
 				AB8FE8A50E9BCD3E0051E7B4 /* GKURL.cpp in Sources */,
 				4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */,
 				E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */,
+				4DB044230EB161D600A5633C /* IconMac.cpp in Sources */,
+				4DB044430EB1639E00A5633C /* ImageMac.cpp in Sources */,
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
 				4DB7F55C0E9BD66300C66CE0 /* JSNSResolver.cpp in Sources */,
