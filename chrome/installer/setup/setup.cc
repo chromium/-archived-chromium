@@ -40,6 +40,35 @@ void AddChromeToMediaPlayerList() {
 
 }
 
+void DoFirstInstallTasks(std::wstring install_path, bool system_level) {
+  // Try to add Chrome to Media Player shim inclusion list. We don't do any
+  // error checking here because this operation will fail if user doesn't
+  // have admin rights and we want to ignore the error.
+  AddChromeToMediaPlayerList();
+
+  // We try to register Chrome as a valid browser on local machine. This
+  // will work only if current user has admin rights.
+  std::wstring chrome_exe(install_path);
+  file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
+  CommandLine cmd_line;
+  LOG(INFO) << "Registering Chrome as browser";
+  ShellUtil::RegisterStatus ret = ShellUtil::FAILURE;
+  if (cmd_line.HasSwitch(installer_util::switches::kMakeChromeDefault)) {
+    ret = ShellUtil::AddChromeToSetAccessDefaults(chrome_exe, false);
+    if (ret == ShellUtil::SUCCESS) {
+      if (system_level) {
+        ShellUtil::MakeChromeDefault(
+            ShellUtil::CURRENT_USER | ShellUtil::SYSTEM_LEVEL, chrome_exe);
+      } else {
+        ShellUtil::MakeChromeDefault(ShellUtil::CURRENT_USER, chrome_exe);
+      }
+    }
+  } else {
+    ret = ShellUtil::AddChromeToSetAccessDefaults(chrome_exe, true);
+  }
+  LOG(INFO) << "Return status of Chrome browser registration " << ret;
+}
+
 // This method creates Chrome shortcuts in Start->Programs for all users or
 // only for current user depending on whether it is system wide install or
 // user only install.
@@ -211,21 +240,9 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
                                        install_path, new_version.GetString()))
       LOG(WARNING) << "Failed to create/update start menu shortcut.";
 
-    std::wstring chrome_exe(install_path);
-    file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
     if (result == installer_util::FIRST_INSTALL_SUCCESS ||
         result == installer_util::INSTALL_REPAIRED) {
-      // Try to add Chrome to Media Player shim inclusion list. We don't do any
-      // error checking here because this operation will fail if user doesn't
-      // have admin rights and we want to ignore the error.
-      AddChromeToMediaPlayerList();
-
-      // We try to register Chrome as a valid browser on local machine. This
-      // will work only if current user has admin rights.
-      LOG(INFO) << "Registering Chrome as browser";
-      ShellUtil::RegisterStatus ret =
-          ShellUtil::AddChromeToSetAccessDefaults(chrome_exe, true);
-      LOG(INFO) << "Return status of Chrome browser registration " << ret;
+      DoFirstInstallTasks(install_path, system_install);
     } else {
       RemoveOldVersionDirs(install_path, new_version.GetString());
     }

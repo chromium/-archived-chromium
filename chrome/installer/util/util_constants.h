@@ -42,6 +42,7 @@ extern const wchar_t kForceUninstall[];
 extern const wchar_t kInstallArchive[];
 extern const wchar_t kLogFile[];
 extern const wchar_t kRegisterChromeBrowser[];
+extern const wchar_t kMakeChromeDefault[];
 extern const wchar_t kSystemLevel[];
 extern const wchar_t kUninstall[];
 extern const wchar_t kVerboseLogging[];

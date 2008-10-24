@@ -137,6 +137,17 @@ class ShellUtil {
   // User's profile only affects any new user profiles (not existing ones).
   static bool GetQuickLaunchPath(bool system_level, std::wstring* path);
 
+  // Make Chrome default browser. Before calling this function Chrome should
+  // already have been registered by calling AddChromeToSetAccessDefaults()
+  // method, otherwise this function will fail.
+  // system_level: Register as default browser at system level. If true
+  //               we should be running as admin user. Currently this setting
+  //               does not have any effect on Vista where we always set
+  //               as default only for the current user.
+  // chrome_exe: The chrome.exe path to register as default browser.
+  static bool MakeChromeDefault(int shell_change,
+                                const std::wstring chrome_exe);
+
   // Remove Chrome shortcut from Desktop.
   // If shell_change is CURRENT_USER, the shortcut is removed from the
   // Desktop folder of current user's profile.

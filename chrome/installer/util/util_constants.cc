@@ -37,6 +37,12 @@ const wchar_t kLogFile[] = L"log-file";
 // options kInstallArchive and kUninstall are ignored.
 const wchar_t kRegisterChromeBrowser[] = L"register-chrome-browser";
 
+// Register Chrome as default browser on the system. Usually this will require
+// that setup is running as admin. If running as admin we try to register
+// as default browser at system level, if running as non-admin we try to
+// register as default browser only for the current user. 
+const wchar_t kMakeChromeDefault[] = L"make-chrome-default";
+
 // Install Chrome to system wise location. The default is per user install.
 const wchar_t kSystemLevel[] = L"system-level";
 

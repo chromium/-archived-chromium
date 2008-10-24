@@ -122,99 +122,12 @@ bool ShellIntegration::SetAsDefaultBrowser() {
     return false;
   }
 
-  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
-    LOG(INFO) << "Registering Chrome as default browser on Vista.";
-    IApplicationAssociationRegistration* pAAR;
-    HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration,
-        NULL, CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration),
-        (void**)&pAAR);
-    if (SUCCEEDED(hr)) {
-      BrowserDistribution* dist = BrowserDistribution::GetDistribution();
-      hr = pAAR->SetAppAsDefaultAll(dist->GetApplicationName().c_str());
-      pAAR->Release();
-    }
-    if (!SUCCEEDED(hr))
-      LOG(ERROR) << "Could not make Chrome default browser.";
-  } else {
-    // when we support system wide installs this will need to change to HKLM
-    HKEY root_key = HKEY_CURRENT_USER;
-    // Create a list of registry entries to create so that we can rollback
-    // in case of problem.
-    scoped_ptr<WorkItemList> items(WorkItem::CreateWorkItemList());
-    std::wstring classes_path(ShellUtil::kRegClasses);
-
-    std::wstring exe_name = file_util::GetFilenameFromPath(chrome_exe);
-    std::wstring chrome_open = L"\"" + chrome_exe + L"\" \"%1\"";
-    std::wstring chrome_icon(chrome_exe);
-    ShellUtil::GetChromeIcon(chrome_icon);
-
-    // Create Software\Classes\ChromeHTML
-    std::wstring html_prog_id = classes_path + L"\\" +
-                                ShellUtil::kChromeHTMLProgId;
-    items->AddCreateRegKeyWorkItem(root_key, html_prog_id);
-    std::wstring default_icon = html_prog_id + ShellUtil::kRegDefaultIcon;
-    items->AddCreateRegKeyWorkItem(root_key, default_icon);
-    items->AddSetRegValueWorkItem(root_key, default_icon, L"",
-                                  chrome_icon, true);
-    std::wstring open_cmd = html_prog_id + ShellUtil::kRegShellOpen;
-    items->AddCreateRegKeyWorkItem(root_key, open_cmd);
-    items->AddSetRegValueWorkItem(root_key, open_cmd, L"",
-                                  chrome_open, true);
-
-    // file extension associations
-    for (int i = 0; ShellUtil::kFileAssociations[i] != NULL; i++) {
-      std::wstring key_path = classes_path + L"\\" +
-                              ShellUtil::kFileAssociations[i];
-      items->AddCreateRegKeyWorkItem(root_key, key_path);
-      items->AddSetRegValueWorkItem(root_key, key_path, L"",
-                                    ShellUtil::kChromeHTMLProgId, true);
-    }
-
-    // protocols associations
-    for (int i = 0; ShellUtil::kProtocolAssociations[i] != NULL; i++) {
-      std::wstring key_path = classes_path + L"\\" +
-                              ShellUtil::kProtocolAssociations[i];
-      // HKCU\Software\Classes\<protocol>\DefaultIcon
-      std::wstring icon_path = key_path + ShellUtil::kRegDefaultIcon;
-      items->AddCreateRegKeyWorkItem(root_key, icon_path);
-      items->AddSetRegValueWorkItem(root_key, icon_path, L"",
-                                    chrome_icon, true);
-      // HKCU\Software\Classes\<protocol>\shell\open\command
-      std::wstring shell_path = key_path + ShellUtil::kRegShellOpen;
-      items->AddCreateRegKeyWorkItem(root_key, shell_path);
-      items->AddSetRegValueWorkItem(root_key, shell_path, L"",
-                                    chrome_open, true);
-      // HKCU\Software\Classes\<protocol>\shell\open\ddeexec
-      std::wstring dde_path = key_path + L"\\shell\\open\\ddeexec";
-      items->AddCreateRegKeyWorkItem(root_key, dde_path);
-      items->AddSetRegValueWorkItem(root_key, dde_path, L"", L"", true);
-      // HKCU\Software\Classes\<protocol>\shell\@
-      std::wstring protocol_shell_path = key_path + ShellUtil::kRegShellPath;
-      items->AddSetRegValueWorkItem(root_key, protocol_shell_path, L"",
-                                    L"open", true);
-    }
-
-    // start->Internet shortcut. This works only if we have already
-    // added needed entries in HKLM registry. So unless the Chrome
-    // registration status is SUCCESS don't bother.
-    if (register_status == ShellUtil::SUCCESS) {
-      std::wstring start_internet(ShellUtil::kRegStartMenuInternet);
-      items->AddCreateRegKeyWorkItem(root_key, start_internet);
-      items->AddSetRegValueWorkItem(root_key, start_internet, L"",
-                                    exe_name, true);
-    }
-
-    // Apply all the registry changes and if there is a problem, rollback
-    if (!items->Do()) {
-      LOG(ERROR) << "Error while registering Chrome as default browser";
-      items->Rollback();
-      return false;
-    }
+  // From UI currently we only allow setting default browser for current user.
+  // So we pass false for system_level.
+  if (!ShellUtil::MakeChromeDefault(ShellUtil::CURRENT_USER, chrome_exe)) {
+    LOG(ERROR) << "Chrome could not be set as default browser.";
+    return false;
   }
-
-  // Send Windows notification event so that it can update icons for
-  // file associations.
-  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 
   LOG(INFO) << "Chrome registered as default browser.";
   return true;
@@ -265,13 +178,11 @@ bool ShellIntegration::IsDefaultBrowser() {
 
     // open command for protocol associations
     for (int i = 0; i < _countof(kChromeProtocols); i++) {
-      // For now, we only ever set in HKCU, so no need to check HKLM since we'll
-      // never be present there...
-      HKEY root_key = HKEY_CURRENT_USER;
-
-      // Check Software\Classes\<protocol>\shell\open\command
-      std::wstring key_path(ShellUtil::kRegClasses);
-      key_path.append(L"\\" + kChromeProtocols[i] + ShellUtil::kRegShellOpen);
+      // Check in HKEY_CLASSES_ROOT that is the result of merge between
+      // HKLM and HKCU
+      HKEY root_key = HKEY_CLASSES_ROOT;
+      // Check <protocol>\shell\open\command
+      std::wstring key_path(kChromeProtocols[i] + ShellUtil::kRegShellOpen);
       RegKey key(root_key, key_path.c_str(), KEY_READ);
       std::wstring value;
       if (!key.Valid() || !key.ReadValue(L"", &value))
