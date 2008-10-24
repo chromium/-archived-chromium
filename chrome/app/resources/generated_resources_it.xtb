@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Copia</translation>
 <translation id="5076340679995252485">&amp;Incolla</translation>
 <translation id="5300471193642408424">Mostra pagine</translation>
+<translation id="3994878504415702912">&amp;Carattere</translation>
 <translation id="8434177709403049435">&amp;Codifica</translation>
 <translation id="6040143037577758943">Chiudi</translation>
 <translation id="9147392381910171771">&amp;Opzioni</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Modifica</translation>
 <translation id="3157931365184549694">Ripristina</translation>
 <translation id="8261506727792406068">Elimina</translation>
+<translation id="5317780077021120954">Salva</translation>
 <translation id="5626134646977739690">Nome:</translation>
 <translation id="2148716181193084225">Oggi</translation>
 <translation id="7781829728241885113">Ieri</translation>
@@ -692,6 +694,10 @@
 <translation id="5291303148298143069">Avvisami quando un popup viene bloccato</translation>
 <translation id="3383487468758466563">Caratteri e lingue:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sei passato alla navigazione in incognito<ph name="END_BOLD"/>. Le pagine aperte in questa finestra non vengono registrate nella cronologia di navigazione o di ricerca, e non lasciano traccia sul tuo computer, ad esempio sotto forma di cookie, una volta chiusa la finestra. Tuttavia, qualsiasi file scaricato o preferito creato verrà conservato.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La navigazione in incognito non influisce sul comportamento di altri utenti, server o software. Diffida di:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Siti web che raccolgono o condividono informazioni su di te<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Provider di servizi Internet o datori di lavoro che registrano le pagine da te visitate<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software dannosi che registrano le sequenze di tasti da te utilizzate in cambio di smiley gratuiti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Agenti segreti<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persone che ti stanno alle spalle<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Ulteriori informazioni<ph name="END_LINK"/> sulla navigazione in incognito.</translation>
-<translation id="1604816462140255479">&amp;Carattere</translation>
-<translation id="2089625293428655599">Parti di questo software sono state ottenute in licenza da terze parti come descritto alla pagina: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Popup bloccato</translation>
+<translation id="7052402604161570346">Questo tipo di file può danneggiare il computer. Scaricare <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Annulla</translation>
+<translation id="6069278982995177296">Duplica</translation>
+<translation id="1134009406053225289">Apri nella finestra di navigazione in incognito</translation>
+<translation id="1273291576878293349">Apri tutti i Preferiti nella finestra di navigazione in incognito</translation>
 </translationbundle>

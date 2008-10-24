@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Przeglądarka Google Chrome nie odpowiada. Uruchomić ponownie?</translation>
 <translation id="1137776625614346046">Obszar Najczęściej odwiedzane zawiera najczęściej używane witryny. Po pewnym okresie używania przeglądarki Chrome, kiedy otworzysz nową kartę, wyświetlą się Twoje najczęściej odwiedzane witryny. Bardziej szczegółowe informacje na temat tych i pozostałych funkcji znajdują się na stronie <ph name="BEGIN_LINK"/>Pierwsze kroki<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Pomóż ulepszyć aplikację Google Chrome, automatycznie przesyłając statystyki użytkowania i raporty o awariach do Google</translation>
+<translation id="4281844954008187215">Warunki korzystania z usługi</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> Google Chrome</translation>
+<translation id="2874156562296220396">Stworzenie przeglądarki Google Chrome było możliwe dzięki projektowi open source <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> i innym <ph name="BEGIN_LINK_OSS"/>programom o otwartym kodzie źródłowym<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">Na tym komputerze jest już zainstalowana przeglądarka Google Chrome na poziomie systemu. Przeglądarka Google Chrome zainstalowana na poziomie użytkownika zostanie zastąpiona przez instalację systemową.</translation>
 </translationbundle>

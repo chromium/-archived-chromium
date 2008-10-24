@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome не відповідає. Перезапустити?</translation>
 <translation id="1137776625614346046">Область &quot;Часто відвідувані&quot; містить веб-сайти, які найчастіше використовуються. Після використання Google Chrome протягом певного часу часто відвідувані сайти відображатимуться щоразу, коли відкриватиметься нова вкладка. Докладніше про цю та інші функції можна дізнатися на сторінці <ph name="BEGIN_LINK"/>Початок роботи<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Допоможіть покращити Google Chrome, автоматично надсилаючи статистику використання та звіти про аварійне завершення роботи до Google</translation>
+<translation id="4281844954008187215">Загальні положення та умови Google</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396">Google Chrome було створено на основі проекту програмного забезпечення з відкритим кодом <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> та іншого <ph name="BEGIN_LINK_OSS"/>програмного забезпечення з відкритим кодом<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">Рівень системи Google Chrome уже встановлено на цьому комп'ютері. Установку рівня користувача буде змінено на рівень системи.</translation>
 </translationbundle>

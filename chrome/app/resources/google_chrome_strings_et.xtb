@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome ei reageeri. Taaskäivitada kohe?</translation>
 <translation id="1137776625614346046">Ala „Enim külastatud” näitab veebisaite, mida te kõige sagedamini kasutate. Kui olete Google Chrome'i juba mõnda aega kasutanud, näete enim külastatud saite iga kord, kui avate uue vahelehe. Saate lisateavet selle ja teiste funktsioonide kohta leheküljelt <ph name="BEGIN_LINK"/>Alustamine<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Aidake muuta Google Chrome'i paremaks, saates Google'ile automaatselt kasutusstatistikat ja veaaruandeid</translation>
+<translation id="4281844954008187215">Kasutustingimused</translation>
+<translation id="1281036569101707544">Google Chrome'i <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396">Google Chrome'i on teinud võimalikuks avatud lähtekoodiga <ph name="BEGIN_LINK_CHROMIUM"/>Chromiumi<ph name="END_LINK_CHROMIUM"/> projekt ja muu <ph name="BEGIN_LINK_OSS"/>avatud lähtekoodiga tarkvara<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">Teie arvutisse on juba installitud süsteemi tasemel Google Chrome. Ma asendame teie kasutaja tasemel Google Chrome'i süsteemi tasemel installiga.</translation>
 </translationbundle>

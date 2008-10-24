@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopeeri</translation>
 <translation id="5076340679995252485">&amp;Kleebi</translation>
 <translation id="5300471193642408424">Kuva leheküljed</translation>
+<translation id="3994878504415702912">&amp;Suumi</translation>
 <translation id="8434177709403049435">&amp;Kodeerimine</translation>
 <translation id="6040143037577758943">Sule</translation>
 <translation id="9147392381910171771">&amp;Valikud</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Muuda</translation>
 <translation id="3157931365184549694">Taasta</translation>
 <translation id="8261506727792406068">Kustuta</translation>
+<translation id="5317780077021120954">Salvesta</translation>
 <translation id="5626134646977739690">Nimi:</translation>
 <translation id="2148716181193084225">Täna</translation>
 <translation id="7781829728241885113">Eile</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Teavitage mind, kui hüpikaken on blokeeritud</translation>
 <translation id="3383487468758466563">Fondid ja keeled:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Te surfate tundmatuna<ph name="END_BOLD"/>. Leheküljed, mida selles aknas vaatate, ei ilmu teie brauseri ega otsingu ajalukku ega jäta pärast incognito akna sulgemist teie arvutisse muid jälgi (nt küpsiseid). Samas säilivad kõik failid, mida alla laadite või teie loodud järjehoidjad.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Tundmatuna surfamine ei mõjuta teiste inimeste, serverite või tarkvara käitumist. Vaadake ette:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Veebisaidid, mis koguvad ja jagavad andmeid teie kohta<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Interneti teenusepakkujad või töötajad, kes jälitavad teie külastatud lehekülgi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Õelvara, mis jälitab teie klahvilööke vastutasuks tasuta naeratuste eest<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Salaagentide jälitustegevus<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Inimesed, kes seisavad teie selja taga<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Lugege lisateavet<ph name="END_LINK"/> tundmatuna surfamise kohta.</translation>
-<translation id="1604816462140255479">Tekst &amp;suum</translation>
-<translation id="2089625293428655599">Selle tarkvara osad on litsentsitud kolmandatelt osapooltelt nagu kirjeldatud saidil: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blokeeritud hüpikaken</translation>
+<translation id="7052402604161570346">Seda tüüpi fail võib teie arvutit kahjustada. Kas te soovite kindlasti faili <ph name="FILE_NAME"/> alla laadida?</translation>
+<translation id="6434309073475700221">Tühista</translation>
+<translation id="6069278982995177296">Koopia</translation>
+<translation id="1134009406053225289">Ava inkogonito aknas</translation>
+<translation id="1273291576878293349">Ava kõik järjehoidjad inkogonito aknas</translation>
 </translationbundle>

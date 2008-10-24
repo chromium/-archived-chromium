@@ -46,4 +46,8 @@ Se continuar, o Chrome não procurará nenhuma outra correspondência incorreta 
 <translation id="2499193704281978000">O Google Chrome não responde. Deseja reiniciá-lo agora?</translation>
 <translation id="1137776625614346046">A área &quot;Mais visitados&quot; mostra os sites que você usa com mais freqüência. Depois de usar o Google Chrome por algum tempo, você verá os sites mais visitados sempre que abrir uma nova guia. Saiba mais sobre esse e outros recursos na <ph name="BEGIN_LINK"/>página Primeiros passos<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Enviar estatísticas de uso e relatórios de problemas automaticamente ao Google para ajudar a tornar o Google Chrome melhor.</translation>
+<translation id="4281844954008187215">Termos de Serviço</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> do Google Chrome</translation>
+<translation id="2874156562296220396">O Google Chrome foi possibilitado pelo projeto de código aberto <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> e outros <ph name="BEGIN_LINK_OSS"/>softwares de código aberto<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">O Google Chrome já está instalado neste computador em nível de sistema. Substituiremos o Google Chrome em nível de usuário pela instalação em nível de sistema.</translation>
 </translationbundle>

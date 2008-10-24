@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome ne reagira. Želite li ga ponovno pokrenuti?</translation>
 <translation id="1137776625614346046">Područje &quot;Najposjećenije&quot; prikazuje web lokacije koje najčešće koristite. Nakon što neko vrijeme budete koristili Google Chrome, prilikom svakog otvaranja nove kartice vidjet ćete Vaše najposjećenije stranice. Više pojedinosti o ovom i drugim značajkama možete saznati na <ph name="BEGIN_LINK"/>stranici Prvi koraci<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Automatskim slanjem statistike o korištenju i izvješća o padu sustava u Google, pomognite nam da poboljšamo Google Chrome</translation>
+<translation id="4281844954008187215">Uvjeti upotrebe usluge</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396">Google Chrome omogućili su <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/>, projekt utemeljen na otvorenom kôdu i drugi <ph name="BEGIN_LINK_OSS"/>softveri utemeljeni na otvorenom kôdu <ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">Google Chrome na razini sustava već je instaliran na ovom računalu. Zamijenit ćemo Google Chrome na razini korisnika instalacijom na razini sustava.</translation>
 </translationbundle>

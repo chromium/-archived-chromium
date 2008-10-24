@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">K&amp;opioi</translation>
 <translation id="5076340679995252485">&amp;Liitä</translation>
 <translation id="5300471193642408424">Näytä sivut</translation>
+<translation id="3994878504415702912">&amp;Koko</translation>
 <translation id="8434177709403049435">&amp;Koodaus</translation>
 <translation id="6040143037577758943">Sulje</translation>
 <translation id="9147392381910171771">&amp;Asetukset</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Muokkaa</translation>
 <translation id="3157931365184549694">Palauta</translation>
 <translation id="8261506727792406068">Poista</translation>
+<translation id="5317780077021120954">Tallenna</translation>
 <translation id="5626134646977739690">Nimi:</translation>
 <translation id="2148716181193084225">Tänään</translation>
 <translation id="7781829728241885113">Eilen</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Ilmoita, kun ponnahdusikkuna estetään</translation>
 <translation id="3383487468758466563">Kirjasimet ja kielet:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Esiinnyt nyt tuntemattomana<ph name="END_BOLD"/>. Tässä ikkunassa näytettäviä sivuja ei näytetä selaimen historiassa tai selaushistoriassa. Niistä ei jätetä tietokoneelle muitakaan jälkiä, kuten evästeitä, kun suljet incognito-ikkunan. Lataamasi tiedostot tai luomasi kirjanmerkit kuitenkin säilytetään.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Tuntemattomana esiintyminen ei vaikuta muiden ihmisten, palvelinten tai ohjelmistojen toimintaan. Varo:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>verkkosivustoja, jotka keräävät tai jakavat tietoja sinusta<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internet-palveluntarjoajia tai työntekijöitä, jotka seuraavat sivuja, joilla käyt<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>haittaohjelmia, jotka seuraavat näppäinpainalluksia ja antavat vastineeksi ilmaisia hymiöitä<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>turvallisuuspalveluiden työntekijöiden tekemää seurantaa<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>takanasi seisovia ihmisiä<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Lisätietoja<ph name="END_LINK"/> selaamisesta incognito-tilassa.</translation>
-<translation id="1604816462140255479">Tekstin &amp;koko</translation>
-<translation id="2089625293428655599">Osia tästä ohjelmistosta on lisensoitu kolmansilta osapuolilta. Lisätietoa osoitteessa: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Estetty ponnahdusikkuna</translation>
+<translation id="7052402604161570346">Tämäntyyppinen tiedosto voi vahingoittaa tietokonettasi. Haluatko varmasti ladata tiedoston <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Hylkää</translation>
+<translation id="6069278982995177296">Monista</translation>
+<translation id="1134009406053225289">Avaa incognito-ikkunassa</translation>
+<translation id="1273291576878293349">Avaa kaikki kirjanmerkit incognito-ikkunassa</translation>
 </translationbundle>

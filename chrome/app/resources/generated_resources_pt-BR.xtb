@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Copiar</translation>
 <translation id="5076340679995252485">&amp;Colar</translation>
 <translation id="5300471193642408424">Mostrar páginas</translation>
+<translation id="3994878504415702912">&amp;Zoom</translation>
 <translation id="8434177709403049435">&amp;Codificação</translation>
 <translation id="6040143037577758943">Fechar</translation>
 <translation id="9147392381910171771">&amp;Opções</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Editar</translation>
 <translation id="3157931365184549694">Restaurar</translation>
 <translation id="8261506727792406068">Excluir</translation>
+<translation id="5317780077021120954">Salvar</translation>
 <translation id="5626134646977739690">Nome:</translation>
 <translation id="2148716181193084225">Hoje</translation>
 <translation id="7781829728241885113">Ontem</translation>
@@ -166,7 +168,7 @@
 <translation id="3183922693828471536">Percorrer até aqui</translation>
 <translation id="4610637590575890427">Você quis ir a <ph name="SITE"/>?</translation>
 <translation id="8182985032676093812">Código fonte de <ph name="PAGE_URL"/></translation>
-<translation id="4880827082731008257">Histórico de pesquisas</translation>
+<translation id="4880827082731008257">Histórico de pesquisa</translation>
 <translation id="5650551054760837876">Nenhum resultado de pesquisa encontrado.</translation>
 <translation id="7596288230018319236">Todas as páginas que você visitar serão exibidas aqui a menos que que sejam abertas em uma janela anônima. Use o botão &quot;Pesquisar&quot; nesta página para pesquisar todas as páginas no seu histórico.</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Notificar quando um pop-up for bloqueado</translation>
 <translation id="3383487468758466563">Fontes e idiomas:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Você está navegando no modo anônimo.<ph name="END_BOLD"/>. As páginas visualizadas nesta janela não aparecerão nos históricos do navegador ou da pesquisa, nem deixarão outros rastros em seu computador (por exemplo, cookies) após você fechar a janela anônima. Porém, todos os arquivos que você baixar ou os favoritos que marcar serão preservados. <ph name="LINE_BREAK"/> <ph name="BEGIN_BOLD"/>A navegação no modo anônimo não afeta o comportamento de outras pessoas, servidores ou softwares. Tenha cuidado com:<ph name="END_BOLD"/> <ph name="BEGIN_LIST"/> <ph name="BEGIN_LIST_ITEM"/>Sites que coletam ou compartilham informações a seu respeito<ph name="END_LIST_ITEM"/> <ph name="BEGIN_LIST_ITEM"/>Provedores de internet ou empregadores que rastreiam as páginas visitadas por você<ph name="END_LIST_ITEM"/> <ph name="BEGIN_LIST_ITEM"/>Smileys gratuitos, pois eles podem ser iscas de softwares maliciosos<ph name="END_LIST_ITEM"/> <ph name="BEGIN_LIST_ITEM"/>Vigilância de agentes secretos<ph name="END_LIST_ITEM"/> <ph name="BEGIN_LIST_ITEM"/>Pessoas que ficam atrás de você quando você está navegando<ph name="END_LIST_ITEM"/> <ph name="END_LIST"/> <ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre a navegação no modo anônimo.</translation>
-<translation id="1604816462140255479">&amp;Zoom de texto</translation>
-<translation id="2089625293428655599">Partes deste software foram licenciadas de terceiros como descrito em: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Pop-up bloqueado</translation>
+<translation id="7052402604161570346">Este tipo de arquivo pode danificar o seu computador. Tem certeza de que deseja fazer download de <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Descartar</translation>
+<translation id="6069278982995177296">Duplicar</translation>
+<translation id="1134009406053225289">Abrir em uma janela anônima</translation>
+<translation id="1273291576878293349">Abrir todos os favoritos em uma janela anônima</translation>
 </translationbundle>

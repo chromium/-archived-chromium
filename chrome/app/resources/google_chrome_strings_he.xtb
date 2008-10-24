@@ -12,10 +12,12 @@
 <translation id="6626317981028933585">למרבה הצער, הגדרות Mozilla Firefox שלך אינן זמינות בשעה שהדפדפן פועל. על מנת לייבא הגדרות אלו ל-Google Chrome, שמור את עבודתך וסגור את כל חלונות Firefox. לאחר מכן, לחץ על 'המשך'.</translation>
 <translation id="1195935957447623558">Google Chrome לא נסגר כראוי. לפתיחה מחדש של הדפים שפתחת, לחץ על 'שחזר'.</translation>
 <translation id="3335672657969596251">Google Chrome אינו תומך ב <ph name="OS_NAME"/></translation>
+<translation id="2874156562296220396">Google Chromeהפך להיות אפשרי על ידי פרוייקט המקור הפתוח <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> ועל ידי <ph name="BEGIN_LINK_OSS"/>תוכנת מקור פתוחה<ph name="END_LINK_OSS"/>.</translation>
 <translation id="7101265395643981223">התחל את Google Chrome</translation>
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="8236873504073475138">Google Chrome אינו תומך ב-Windows 2000. תכונות מסוימות עלולות שלא לפעול.</translation>
 <translation id="6817660909204164466">עזור לשפר את Gogle Chrome באמצעות שליחת נתונים סטטיסטיים לגבי שימוש ודוחות קריסה באופן אוטומטי  Google</translation>
+<translation id="4071826835145709731">Google Chrome ברמת מערכת כבר מותקן במחשב זה. נחליף את ה-Google Chrome ברמת המשתמש שלך בהתקנה ברמת המערכת.</translation>
 <translation id="8227755444512189073">Google Chrome חייב לבצע יישום חיצוני על מנת לנהל <ph name="SCHEME"/> קישורים הקישור המבוקש הוא <ph name="PROTOLINK"/>.</translation>
 <translation id="5941830788786076944">הפוך את Google Chrome לדפדפן ברירת המחדל</translation>
 <translation id="6622748519798088408">זכויות יוצרים © 2008-2006 Google Inc. כל הזכויות שמורות.</translation>
@@ -43,6 +45,8 @@
 <translation id="5016204670686360703">אם תבטל כעת, לא כל הפריטים ייובאו. אתה יכול לייבא שוב במועד מאוחר יותר, מתפריט Chrome.</translation>
 <translation id="3889417619312448367">הסר את Google Chrome</translation>
 <translation id="8449380764213232436">Google Chrome מייבא כעת את הפריטים הבאים מ <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="4281844954008187215">מונחי שירות</translation>
 <translation id="1144950271450340860">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך השרת הציג אישור שהונפק על ידי יישות שלא אמינה על ידי מערכת ההפעלה של המחשב שלך. משמעות הדבר היא שהשרת ייצר את אימותי האבטחה שלו, ש-Google Chrome אינו יכול לסמוך עליהם לצרכי השגת פרטי זהות, או שמתקיף מנסה ליירט את התקשורת שלך. מומלץ לא להמשיך, &lt;strong&gt;במיוחד&lt;/strong&gt; אם בעבר לא ראית אזהרה זו לגבי אתר זה.</translation>
 <translation id="5046764976540625289">צא מ-Chrome</translation>
 </translationbundle>

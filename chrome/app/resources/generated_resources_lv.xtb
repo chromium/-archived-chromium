@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">Ko&amp;pēt</translation>
 <translation id="5076340679995252485">&amp;Ielīmēt</translation>
 <translation id="5300471193642408424">Rādīt lapas</translation>
+<translation id="3994878504415702912">Tālummaiņa</translation>
 <translation id="8434177709403049435">Kodēšana</translation>
 <translation id="6040143037577758943">Aizvērt</translation>
 <translation id="9147392381910171771">&amp;Iespējas</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Rediģēt</translation>
 <translation id="3157931365184549694">Atjaunot</translation>
 <translation id="8261506727792406068">Dzēst</translation>
+<translation id="5317780077021120954">Saglabāt</translation>
 <translation id="5626134646977739690">Nosaukums:</translation>
 <translation id="2148716181193084225">Šodien</translation>
 <translation id="7781829728241885113">Vakar</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Brīdināt, kad tiek bloķēts uznirstošais logs</translation>
 <translation id="3383487468758466563">Fonti un valodas:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jūs esat kļuvis inkognito<ph name="END_BOLD"/>. Lapas, kuras jūs skatāt šajā logā, neparādīsies jūsu pārlūkprogrammas vēsturē vai meklēšanas vēsturē un neatstās citas pēdas, piemēram, sīkfailus, jūsu datorā pēc inkognito loga aizvēršanas. Taču visi lejupielādētie faili un izveidotās grāmatzīmes būs saglabātas.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Lietojot inkognito funkciju netiks ietekmēta citu personu, serveru un programmatūras darbība. Uzmanieties no:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>vietnēm, kas apkopo un kopīgo informāciju par jums;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>interneta pakalpojumu sniedzējiem vai darba devējiem, kas izseko jūsu apmeklētās lapas;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ļaunprātīgas programmatūras, kas izseko jūsu taustiņsitienus, parādot smaidiņus;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>slepeno aģentu novērošanas;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>cilvēkiem, kas stāv aiz jums.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Uzziniet vairāk<ph name="END_LINK"/> par pārlūkošanu inkognito režīmā.</translation>
-<translation id="1604816462140255479">Teksta &amp;tālummaiņa</translation>
-<translation id="2089625293428655599">Šīs programmatūras daļas licencējušas trešās personas kā aprakstīts: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Bloķētie uznirstošie logi</translation>
+<translation id="7052402604161570346">Šāda veida fails var kaitēt jūsu datoram. Vai tiešām vēlaties lejupielādēt <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Atmest</translation>
+<translation id="6069278982995177296">Dublikāts</translation>
+<translation id="1134009406053225289">Atvērt inkognito logā</translation>
+<translation id="1273291576878293349">Atvērt visas grāmatzīmes inkognito logā</translation>
 </translationbundle>

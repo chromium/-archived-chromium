@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome не реагује. Желите ли да га одмах поново покренете?</translation>
 <translation id="1137776625614346046">Област „Најпосећенији“ приказује веб сајтове које најчешће посећујете. Након што извесно време будете користили Google Chrome, сваки пут када отворите нову картицу видећете сајтове које најчешће посећујете. О овој и осталим функцијама више ћете сазнати на <ph name="BEGIN_LINK"/>страници „Први кораци“<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Pomagajte izboljšati Chrome s samodejnim pošiljanjem statistike uporabe in poročil o zrušitvah Googlu</translation>
+<translation id="4281844954008187215">Услови коришћења услуге</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396"><ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> пројекат софтвера отвореног кода и други типови <ph name="BEGIN_LINK_OSS"/>софтвера отвореног кода<ph name="END_LINK_OSS"/> су омогућили настанак програма Google Chrome.</translation>
+<translation id="4071826835145709731">Google Chrome са приступом на нивоу система је већ инсталиран на овом рачунару. Заменићемо ваш Google Chrome са приступом на нивоу корисника инсталацијом за системски ниво.</translation>
 </translationbundle>

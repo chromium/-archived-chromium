@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Copiar</translation>
 <translation id="5076340679995252485">&amp;Pegar</translation>
 <translation id="5300471193642408424">Mostrar páginas</translation>
+<translation id="3994878504415702912">&amp;Tamaño</translation>
 <translation id="8434177709403049435">&amp;Codificación</translation>
 <translation id="6040143037577758943">Cerrar</translation>
 <translation id="9147392381910171771">&amp;Opciones</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Editar</translation>
 <translation id="3157931365184549694">Restaurar</translation>
 <translation id="8261506727792406068">Eliminar</translation>
+<translation id="5317780077021120954">Guardar</translation>
 <translation id="5626134646977739690">Nombre:</translation>
 <translation id="2148716181193084225">Hoy</translation>
 <translation id="7781829728241885113">Ayer</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Deseo que el sistema me avise cuando se bloquee un pop-up.</translation>
 <translation id="3383487468758466563">Fuentes e idiomas:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ingresaste en el modo &quot;Navegar de incógnito&quot;<ph name="END_BOLD"/>. Las páginas que consultes a través de esta ventana no quedarán registradas en el historial del navegador ni en el historial de búsquedas, y tampoco dejarán otros rastros en el equipo (como cookies) una vez cerrada. Aunque sí quedarán almacenados los archivos que descargues y los marcadores que guardes durante la sesión.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>La función &quot;Navegar de incógnito&quot; no afecta al comportamiento de otros usuarios, servidores o programas. Atención con:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>sitios web que recopilan o comparten información personal,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>proveedores de servicios de Internet o trabajadores de estas empresas que supervisan las páginas que visita el usuario,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>software malicioso que realiza un seguimiento de las teclas que utiliza el usuario a cambio de unos emoticones gratuitos,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>el seguimiento por parte de detectives privados,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>personas merodeando cerca de tu equipo.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Más información<ph name="END_LINK"/> sobre la función &quot;Navegar de incógnito&quot;.</translation>
-<translation id="1604816462140255479">Tamaño del &amp;texto</translation>
-<translation id="2089625293428655599">Algunas partes de este software tienen licencias de terceros, como se describe en <ph name="URL"/></translation>
+<translation id="5256138355144269748">Pop-up bloqueado</translation>
+<translation id="7052402604161570346">Este tipo de archivo puede dañar el equipo. ¿Estás seguro de que deseas descargar <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Rechazar</translation>
+<translation id="6069278982995177296">Duplicar</translation>
+<translation id="1134009406053225289">Abrir en una ventana de incógnito</translation>
+<translation id="1273291576878293349">Abrir todos los marcadores en una ventana de incógnito</translation>
 </translationbundle>

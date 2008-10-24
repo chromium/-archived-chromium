@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">K&amp;opyala</translation>
 <translation id="5076340679995252485">&amp;Yapıştır</translation>
 <translation id="5300471193642408424">Sayfaları göster</translation>
+<translation id="3994878504415702912">Y&amp;aklaştır</translation>
 <translation id="8434177709403049435">Ko&amp;dlama</translation>
 <translation id="6040143037577758943">Kapat</translation>
 <translation id="9147392381910171771">&amp;Seçenekler</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Düzenle</translation>
 <translation id="3157931365184549694">Geri yükle</translation>
 <translation id="8261506727792406068">Sil</translation>
+<translation id="5317780077021120954">Kaydet</translation>
 <translation id="5626134646977739690">Adı:</translation>
 <translation id="2148716181193084225">Bugün</translation>
 <translation id="7781829728241885113">Dün</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Bir pop-up engellendiğinde bana haber ver</translation>
 <translation id="3383487468758466563">Yazı Tipleri ve Diller:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Kimliğinizi gizlediniz<ph name="END_BOLD"/>. Bu pencerede görüntülediğiniz sayfalar tarayıcı geçmişinizde veya arama geçmişinizde görünmez ve gizli pencereyi kapattığınızda bilgisayarınızda çerezler gibi başka izler bırakmaz. Ancak indirdiğiniz dosyalar veya oluşturduğunuz yer imleri korunur.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Kimliğinizi gizlemeniz, diğer kullanıcıların, sunucuların veya yazılımın davranışını etkilemez. Dikkat etmeniz gerekenler:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Hakkınızda bilgi toplayan veya sizinle ilgili bilgileri paylaşan web siteleri<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ziyaret ettiğiniz sayfaları izleyen İnternet hizmet sağlayıcıları veya işverenler<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ücretsiz gülen suratlar karşılığında hangi tuşlara bastığınızı izleyen kötü amaçlı yazılımlar<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Gizli aracıların gözetimi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Arkanızda duran kişiler<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Gizli kimlikle tarama hakkında daha fazla bilgi<ph name="END_LINK"/>.</translation>
-<translation id="1604816462140255479">Metin &amp;yaklaştır</translation>
-<translation id="2089625293428655599">Bu yazılımın bazı bölümleri şu adreste açıklandığı gibi üçüncü taraflar tarafından lisanslanmıştır: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Engellenen Pop-up</translation>
+<translation id="7052402604161570346">Bu türdeki dosyalar bilgisayarınıza zarar verebilir. <ph name="FILE_NAME"/> dosyasını indirmek istediğinizden emin misiniz?</translation>
+<translation id="6434309073475700221">Sil</translation>
+<translation id="6069278982995177296">Yinele</translation>
+<translation id="1134009406053225289">Gizli pencerede aç</translation>
+<translation id="1273291576878293349">Tüm yer imlerini gizli pencerede aç</translation>
 </translationbundle>

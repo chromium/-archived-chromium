@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">コピー(&amp;C)</translation>
 <translation id="5076340679995252485">貼り付け(&amp;P)</translation>
 <translation id="5300471193642408424">ページの表示</translation>
+<translation id="3994878504415702912">ズーム(&amp;Z)</translation>
 <translation id="8434177709403049435">エンコード(&amp;E)</translation>
 <translation id="6040143037577758943">閉じる</translation>
 <translation id="9147392381910171771">オプション(&amp;O)</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">編集</translation>
 <translation id="3157931365184549694">復元</translation>
 <translation id="8261506727792406068">削除</translation>
+<translation id="5317780077021120954">保存</translation>
 <translation id="5626134646977739690">名前:</translation>
 <translation id="2148716181193084225">今日</translation>
 <translation id="7781829728241885113">昨日</translation>
@@ -127,7 +129,7 @@
 <translation id="1963227389609234879">すべて削除</translation>
 <translation id="2870560284913253234">サイト</translation>
 <translation id="8503813439785031346">ユーザー名</translation>
-<translation id="7887334752153342268">新しいウィンドウで開く</translation>
+<translation id="7887334752153342268">新しいタブで開く</translation>
 <translation id="7649070708921625228">ヘルプ</translation>
 <translation id="2190355936436201913">(なし)</translation>
 <translation id="8328145009876646418">左端</translation>
@@ -272,8 +274,8 @@
 <translation id="3759876923365568382">残り <ph name="NUMBER_FEW"/> 日</translation>
 <translation id="3520476450377425184">残り <ph name="NUMBER_MANY"/> 日</translation>
 <translation id="121827551500866099">すべてのダウンロードを表示</translation>
-<translation id="1168020859489941584"><ph name="TIME_REMAINING"/> 後に起動します...</translation>
-<translation id="1383861834909034572">ダウンロードしたら開く</translation>
+<translation id="1168020859489941584">後 <ph name="TIME_REMAINING"/>でファイルが開きます...</translation>
+<translation id="1383861834909034572">ダウンロードが完了したら開きます</translation>
 <translation id="2371076942591664043">ダウンロードしたら開く(&amp;D)</translation>
 <translation id="5139955368427980650">開く(&amp;O)</translation>
 <translation id="7167486101654761064">この種類のファイルは常に開く(&amp;A)</translation>
@@ -698,6 +700,10 @@
           <ph name="BEGIN_LIST_ITEM"/>背後にいる人<ph name="END_LIST_ITEM"/>
         <ph name="END_LIST"/>
         シークレット モードの詳細については<ph name="BEGIN_LINK"/>こちら<ph name="END_LINK"/>をご覧ください。</translation>
-<translation id="1604816462140255479">テキスト拡大(&amp;Z)</translation>
-<translation id="2089625293428655599">このソフトウェアの一部はサードパーティのライセンスを受けています: <ph name="URL"/></translation>
+<translation id="5256138355144269748">ポップアップをブロックしました</translation>
+<translation id="7052402604161570346">この種類のファイルはコンピュータに損害を与える可能性があります。本当に <ph name="FILE_NAME"/> をダウンロードしてもよろしいですか？</translation>
+<translation id="6434309073475700221">破棄</translation>
+<translation id="6069278982995177296">新しいウィンドウで開く</translation>
+<translation id="1134009406053225289">シークレット ウィンドウで開く</translation>
+<translation id="1273291576878293349">すべてのブックマークをシークレット ウィンドウで開く</translation>
 </translationbundle>

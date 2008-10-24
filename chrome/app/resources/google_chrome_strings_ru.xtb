@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome не отвечает. Перезапустить браузер?</translation>
 <translation id="1137776625614346046">В области &quot;Наиболее посещаемые&quot; показываются веб-сайты, на которые вы заходите чаще всего. Поработав некоторое время в Google Chrome, вы будете каждый раз при открытии новой вкладки видеть наиболее посещаемые вами сайты. Подробнее об этой и других функциях можно узнать на странице <ph name="BEGIN_LINK"/>Начало работы<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Помочь улучшить Google Chrome, автоматически отправляя в Google статистику использования и отчеты о сбоях</translation>
+<translation id="4281844954008187215">Условия предоставления услуг</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> для Google Chrome</translation>
+<translation id="2874156562296220396">Google Chrome создан на основе <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> и другого <ph name="BEGIN_LINK_OSS"/>программного обеспечения с открытым исходным кодом<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">Браузер Google Chrome системного уровня уже установлен на этом компьютере. Google Chrome пользовательского уровня будет заменен установкой системного уровня.</translation>
 </translationbundle>

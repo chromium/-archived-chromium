@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Salin</translation>
 <translation id="5076340679995252485">Tem&amp;pel</translation>
 <translation id="5300471193642408424">Tampilkan laman</translation>
+<translation id="3994878504415702912">&amp;Zum</translation>
 <translation id="8434177709403049435">&amp;Pengaksaraan</translation>
 <translation id="6040143037577758943">Tutup</translation>
 <translation id="9147392381910171771">&amp;Pilihan</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Edit</translation>
 <translation id="3157931365184549694">Kembalikan</translation>
 <translation id="8261506727792406068">Hapus</translation>
+<translation id="5317780077021120954">Simpan</translation>
 <translation id="5626134646977739690">Nama:</translation>
 <translation id="2148716181193084225">Hari ini</translation>
 <translation id="7781829728241885113">Kemarin</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Beri tahukan saya bila pop-up diblokir</translation>
 <translation id="3383487468758466563">Font dan Bahasa:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Anda menggunakan penyamaran<ph name="END_BOLD"/>. Halaman yang Anda lihat di jendela ini tidak akan ditampilkan dalam riwayat browser atau riwayat pencarian dan tidak akan meninggalkan jejak, seperti cookie, di komputer setelah jendela penyamaran ditutup. Namun, file yang di-download atau bookmark yang dibuat akan disimpan.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Menggunakan penyamaran tidak akan mempengaruhi aktivitas pengguna, server, atau perangkat lunak lainnya. Waspadai:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Situs Web yang mengumpulkan atau berbagi informasi tentang Anda<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Penyedia layanan Internet atau perusahaan yang melacak halaman yang Anda kunjungi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Perangkat lunak berbahaya yang melacak penekanan tombol dengan imbalan smiley gratis<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pemantauan agen rahasia<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Orang yang berdiri di belakang Anda<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Selengkapnya<ph name="END_LINK"/> tentang cara melakukan penelusuran menggunakan penyamaran.</translation>
-<translation id="1604816462140255479">&amp;Zoom teks</translation>
-<translation id="2089625293428655599">Sebagian perangkat lunak ini dilisensikan oleh pihak ketiga seperti dijelaskan di: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Munculan yang Diblokir</translation>
+<translation id="7052402604161570346">Jenis berkas ini dapat membahayakan komputer Anda. Yakin ingin mengunduh <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Singkirkan</translation>
+<translation id="6069278982995177296">Gandakan</translation>
+<translation id="1134009406053225289">Buka di jendela penyamaran</translation>
+<translation id="1273291576878293349">Buka semua bookmark di jendela penyamaran</translation>
 </translationbundle>

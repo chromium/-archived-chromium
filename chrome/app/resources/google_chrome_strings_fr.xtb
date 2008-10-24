@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome ne répond pas. Relancer maintenant ?</translation>
 <translation id="1137776625614346046">La zone &quot;Les plus visités&quot; montre les sites Web que vous consultez le plus souvent. Après avoir utilisé Google Chrome pendant un certain temps, vous verrez la liste de vos sites les plus visités chaque fois que vous ouvrirez un nouvel onglet. Pour en savoir plus sur cette fonction et d'autres, accédez à la page <ph name="BEGIN_LINK"/>Mise en route<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Nous aider à améliorer Google Chrome en envoyant automatiquement les statistiques d'utilisation et les rapports d'erreur à Google</translation>
+<translation id="4281844954008187215">Conditions d'utilisation</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> de Google Chrome</translation>
+<translation id="2874156562296220396">Google Chrome fonctionne grâce au projet Open Source <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> et à d'autres <ph name="BEGIN_LINK_OSS"/>logiciels libres<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">La version système de Google Chrome est déjà installée sur cet ordinateur. Nous remplacerons votre version utilisateur de Google Chrome par la version système.</translation>
 </translationbundle>

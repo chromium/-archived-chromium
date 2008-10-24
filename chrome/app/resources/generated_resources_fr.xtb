@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Copier</translation>
 <translation id="5076340679995252485">C&amp;oller</translation>
 <translation id="5300471193642408424">Afficher les pages</translation>
+<translation id="3994878504415702912">&amp;Zoom</translation>
 <translation id="8434177709403049435">Codag&amp;e</translation>
 <translation id="6040143037577758943">Fermer</translation>
 <translation id="9147392381910171771">&amp;Options</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Modifier</translation>
 <translation id="3157931365184549694">Rétablir</translation>
 <translation id="8261506727792406068">Supprimer</translation>
+<translation id="5317780077021120954">Enregistrer</translation>
 <translation id="5626134646977739690">Nom :</translation>
 <translation id="2148716181193084225">Aujourd'hui</translation>
 <translation id="7781829728241885113">Hier</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">M'avertir lorsqu'une fenêtre pop-up est bloquée</translation>
 <translation id="3383487468758466563">Polices et langues :</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Vous êtes passé en navigation privée<ph name="END_BOLD"/>. Les pages que vous consultez dans cette fenêtre n'apparaîtront ni dans l'historique de votre navigateur ni dans l'historique des recherches, et ne laisseront aucune trace (comme les cookies) sur votre ordinateur une fois que vous aurez fermé la fenêtre de navigation privée. Tous les fichiers téléchargés et les favoris créés seront toutefois conservés.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Passer en navigation privée n'a aucun effet sur les autres utilisateurs, serveurs ou logiciels. Méfiez-vous :<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>des sites Web qui collectent ou partagent des informations vous concernant ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des fournisseurs d'accès Internet ou des employeurs qui conservent une trace des pages que vous visitez ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des programmes indésirables qui enregistrent vos frappes en échange d'émoticônes gratuites ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des agents secrets ;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>des personnes qui se tiennent derrière vous.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>En savoir plus<ph name="END_LINK"/> sur la navigation privée.</translation>
-<translation id="1604816462140255479">&amp;Zoom texte</translation>
-<translation id="2089625293428655599">Certaines parties de ce logiciel sont utilisées sous licences obtenues de tiers, comme indiqué à la page : <ph name="URL"/></translation>
+<translation id="5256138355144269748">Fenêtre pop-up bloquée</translation>
+<translation id="7052402604161570346">Ce type de fichier peut endommager votre ordinateur. Voulez-vous vraiment télécharger <ph name="FILE_NAME"/> ?</translation>
+<translation id="6434309073475700221">Annuler</translation>
+<translation id="6069278982995177296">Dupliquer</translation>
+<translation id="1134009406053225289">Ouvrir dans une fenêtre de navigation privée</translation>
+<translation id="1273291576878293349">Ouvrir tous les favoris dans une fenêtre de navigation privée</translation>
 </translationbundle>

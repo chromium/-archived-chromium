@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;คัดลอก</translation>
 <translation id="5076340679995252485">&amp;วาง</translation>
 <translation id="5300471193642408424">แสดงหน้าเว็บ</translation>
+<translation id="3994878504415702912">ซู&amp;ม</translation>
 <translation id="8434177709403049435">&amp;การเข้ารหัส</translation>
 <translation id="6040143037577758943">ปิด</translation>
 <translation id="9147392381910171771">&amp;ตัวเลือก</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">แก้ไข</translation>
 <translation id="3157931365184549694">คืนสภาพ</translation>
 <translation id="8261506727792406068">ลบ</translation>
+<translation id="5317780077021120954">บันทึก</translation>
 <translation id="5626134646977739690">ชื่อ:</translation>
 <translation id="2148716181193084225">วันนี้</translation>
 <translation id="7781829728241885113">เมื่อวานนี้</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">แจ้งฉันเมื่อป๊อปอัปถูกบล็อค</translation>
 <translation id="3383487468758466563">แบบอักษรและภาษา:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>คุณกำลังเข้าชมแบบไม่ระบุตัวตน<ph name="END_BOLD"/> หน้าเว็บที่คุณดูในหน้าต่างนี้จะไม่ปรากฏในประวัติของเบราว์เซอร์หรือประวัติการเข้าชม และจะไม่ทิ้งร่องรอยใดๆ ไว้เหมือนกับคุกกี้ในคอมพิวเตอร์ของคุณหลังจากที่คุณปิดหน้าต่างที่ไม่ระบุตัวตน อย่างไรก็ตาม ไฟล์ที่คุณดาวน์โหลดหรือสร้างบุ๊คมาร์คจะถูกเก็บไว้        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>การเข้าชมแบบไม่ระบุตัวตนจะไม่ส่งผลต่อพฤติกรรมของบุคคลอื่น เซิร์ฟเวอร์ หรือซอฟต์แวร์ ควรระวัง: <ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>เว็บไซต์ที่รวบรวมหรือแบ่งปันข้อมูลเกี่ยวกับตัวคุณ <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ผู้ให้บริการอินเทอร์เน็ตหรือนายจ้างที่ติดตามหน้าเว็บไซต์ที่คุณเยี่ยมชม <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ซอฟต์แวร์ที่เป็นอันตรายซึ่งติดตามการเคาะแป้นพิมพ์ของคุณเพื่อแลกกับสไมลี่ฟรี   <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>การตรวจตราจากเจ้าหน้าที่สืบราชการลับ<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>บุคคลที่ยืนอยู่ด้านหลังคุณ<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>เรียนรู้เพิ่มเติม<ph name="END_LINK"/> เกี่ยวกับการเรียกดูเว็บโดยไม่เปิดเผยตัวตน</translation>
-<translation id="1604816462140255479">ซูม&amp;ข้อความ</translation>
-<translation id="2089625293428655599">ส่วนของซอฟต์แวร์นี้ได้รับสิทธิ์จากบุคคลที่สามดังที่อธิบายไว้ใน: <ph name="URL"/></translation>
+<translation id="5256138355144269748">ป๊อปอัปที่ถูกบล็อก</translation>
+<translation id="7052402604161570346">ไฟล์ประเภทนี้สามารถทำอันตรายกับคอมพิวเตอร์ของคุณได้ คุณแน่ใจหรือไม่ว่าต้องการดาวน์โหลด <ph name="FILE_NAME"/></translation>
+<translation id="6434309073475700221">ทิ้ง</translation>
+<translation id="6069278982995177296">ทำซ้ำ</translation>
+<translation id="1134009406053225289">เปิดในหน้าต่างที่ไม่ระบุตัวตน</translation>
+<translation id="1273291576878293349">เปิดบุ๊คมาร์คทั้งหมดในหน้าต่างใหม่ที่ไม่ระบุตัวตน</translation>
 </translationbundle>

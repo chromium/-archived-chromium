@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopírovat</translation>
 <translation id="5076340679995252485">Vložit</translation>
 <translation id="5300471193642408424">Zobrazit stránky</translation>
+<translation id="3994878504415702912">Velikost písma</translation>
 <translation id="8434177709403049435">Kódování</translation>
 <translation id="6040143037577758943">Zavřít</translation>
 <translation id="9147392381910171771">&amp;Možnosti</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Upravit</translation>
 <translation id="3157931365184549694">Obnovit</translation>
 <translation id="8261506727792406068">Smazat</translation>
+<translation id="5317780077021120954">Uložit</translation>
 <translation id="5626134646977739690">Jméno:</translation>
 <translation id="2148716181193084225">Dnes</translation>
 <translation id="7781829728241885113">Včera</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Upozornit při blokování překryvných prvků</translation>
 <translation id="3383487468758466563">Písma a jazyky:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jste v anonymním režimu<ph name="END_BOLD"/>. Stránky, které otevřete v tomto okně, se nezobrazí v historii prohlížeče ani v historii vyhledávání a nezanechají ve vašem počítači po zavření anonymního okna žádné stopy, jako např. soubory cookie. Zachovány však zůstanou všechny soubory, které stáhnete, a záložky, které vytvoříte.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>To, že jste vy v anonymním režimu, nijak neovlivňuje chování ostatních lidí, serverů ani softwaru. Dejte si pozor na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Webové stránky, které sbírají nebo sdílí údaje o vás,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Poskytovatele internetových služeb nebo zaměstnavatele, kteří sledují stránky, které navštívíte,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Škodlivý software, který monitoruje vaši klávesnici a na oplátku vám nabídne sadu smajlíků zdarma,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Sledování tajnými agenty,<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Lidi, kteří stojí za vámi.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Další informace<ph name="END_LINK"/> o prohlížení v anonymním režimu.</translation>
-<translation id="1604816462140255479">&amp;Velikost písma</translation>
-<translation id="2089625293428655599">Části tohoto softwaru jsou vytvořeny v licenci třetích stran, jak je popsáno zde: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Zablokovaný překryvný prvek</translation>
+<translation id="7052402604161570346">Soubor tohoto typu může poškodit počítač. Opravdu chcete soubor <ph name="FILE_NAME"/> stáhnout?</translation>
+<translation id="6434309073475700221">Zrušit</translation>
+<translation id="6069278982995177296">Duplikovat</translation>
+<translation id="1134009406053225289">Otevřít v anonymním okně</translation>
+<translation id="1273291576878293349">Otevřít všechny záložky v anonymním okně</translation>
 </translationbundle>

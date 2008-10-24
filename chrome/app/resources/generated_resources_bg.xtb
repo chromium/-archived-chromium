@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Копиране</translation>
 <translation id="5076340679995252485">&amp;Поставяне</translation>
 <translation id="5300471193642408424">Показване на страниците</translation>
+<translation id="3994878504415702912">&amp;Мащаб</translation>
 <translation id="8434177709403049435">&amp;Кодиране</translation>
 <translation id="6040143037577758943">Затваряне</translation>
 <translation id="9147392381910171771">&amp;Опции</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Редактиране</translation>
 <translation id="3157931365184549694">Възстановяване</translation>
 <translation id="8261506727792406068">Изтриване</translation>
+<translation id="5317780077021120954">Запазване</translation>
 <translation id="5626134646977739690">Име:</translation>
 <translation id="2148716181193084225">Днес</translation>
 <translation id="7781829728241885113">Вчера</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Известяване, когато е блокиран изскачащ прозорец</translation>
 <translation id="3383487468758466563">Шрифтове и езици:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Преминахте в режим „инкогнито“<ph name="END_BOLD"/>. Страниците, които разглеждате в този прозорец, няма да се показват в хронологията на браузъра ви или в хронологията на търсенията и няма да оставят други доказателства, като например бисквитки в компютъра ви, след затварянето на прозореца при използване на функция „инкогнито“. Всички файлове, които изтегляте, или отметки, които създавате, ще бъдат запазени обаче.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Преминаването в режим „инкогнито“ не засяга поведението на други хора, сървъри или софтуер. Внимавайте за следното:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Уебсайтове, които събират или споделят информация за Вас<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Доставчици на интернет услуги или работодатели, които проследяват страниците, които посещавате<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Злонамерен софтуер, който проследява колко пъти натискате клавишите в замяна на безплатни емотикони<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Наблюдение от тайни агенти<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Хора, които са стоят зад вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Научете повече<ph name="END_LINK"/> за сърфирането инкогнито.</translation>
-<translation id="1604816462140255479">&amp;Мащабиране на текст</translation>
-<translation id="2089625293428655599">Части от този софтуер са били лицензирани от трети страни, както е описано на следния адрес: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Блокиран изскачащ прозорец</translation>
+<translation id="7052402604161570346">Този тип файл може да навреди на компютъра ви. Наистина ли искате да изтеглите <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Отхвърляне</translation>
+<translation id="6069278982995177296">Дублиране</translation>
+<translation id="1134009406053225289">Отваряне на прозорец при използване на функцията „инкогнито“</translation>
+<translation id="1273291576878293349">Отваряне на всички отметки в прозорци при използване на функцията „инкогнито“</translation>
 </translationbundle>

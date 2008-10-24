@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopiëren</translation>
 <translation id="5076340679995252485">&amp;Plakken</translation>
 <translation id="5300471193642408424">Pagina's weergeven</translation>
+<translation id="3994878504415702912">&amp;Zoomen</translation>
 <translation id="8434177709403049435">Cod&amp;eren</translation>
 <translation id="6040143037577758943">Sluiten</translation>
 <translation id="9147392381910171771">&amp;Opties</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Bewerken</translation>
 <translation id="3157931365184549694">Herstellen</translation>
 <translation id="8261506727792406068">Verwijderen</translation>
+<translation id="5317780077021120954">Opslaan</translation>
 <translation id="5626134646977739690">Naam:</translation>
 <translation id="2148716181193084225">Vandaag</translation>
 <translation id="7781829728241885113">Gisteren</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Melding weergeven wanneer er een pop-up wordt geblokkeerd</translation>
 <translation id="3383487468758466563">Lettertypen en talen:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>U bent incognito<ph name="END_BOLD"/>. Pagina's die u in dit venster weergeeft, worden niet opgenomen in uw browsergeschiedenis of zoekgeschiedenis. Nadat u het incognitovenster heeft gesloten, blijven er geen andere sporen (zoals cookies) op uw computer achter. Alle bestanden die u downloadt of bladwijzers die u maakt, blijven echter bewaard.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Incognito gaan heeft geen invloed op het gedrag van andere mensen, servers of software. Wees alert op:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>websites die gegevens over u verzamelen of delen<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internetproviders of werkgevers die uw bezochte pagina's bijhouden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>schadelijke software die uw toetsaanslagen bijhoudt in ruil voor gratis smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>surveillance door geheim agenten<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>mensen die over uw schouder meekijken<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Meer informatie<ph name="END_LINK"/> over incognito browsen.</translation>
-<translation id="1604816462140255479">Tekst &amp;zoomen</translation>
-<translation id="2089625293428655599">Voor delen van deze software is licentie verkregen van derden zoals beschreven op: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Pop-up geblokkeerd</translation>
+<translation id="7052402604161570346">Dit type bestand kan schadelijk zijn voor uw computer. Weet u zeker dat u <ph name="FILE_NAME"/> wilt downloaden?</translation>
+<translation id="6434309073475700221">Annuleren</translation>
+<translation id="6069278982995177296">Kopiëren</translation>
+<translation id="1134009406053225289">Openen in incognitovenster</translation>
+<translation id="1273291576878293349">Alle bladwijzers openen in incognitovenster</translation>
 </translationbundle>

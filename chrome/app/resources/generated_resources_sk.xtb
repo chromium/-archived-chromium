@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopírovať</translation>
 <translation id="5076340679995252485">&amp;Vložiť</translation>
 <translation id="5300471193642408424">Zobraziť stránky</translation>
+<translation id="3994878504415702912">&amp;Lupa</translation>
 <translation id="8434177709403049435">&amp;Kódovanie</translation>
 <translation id="6040143037577758943">Zatvoriť</translation>
 <translation id="9147392381910171771">&amp;Možnosti</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Upraviť</translation>
 <translation id="3157931365184549694">Obnoviť</translation>
 <translation id="8261506727792406068">Odstrániť</translation>
+<translation id="5317780077021120954">Uložiť</translation>
 <translation id="5626134646977739690">Názov:</translation>
 <translation id="2148716181193084225">Dnes</translation>
 <translation id="7781829728241885113">Včera</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Upozorniť na blokovanie automaticky otváraného okna</translation>
 <translation id="3383487468758466563">Písma a jazyky:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Aktivovali ste prehľadávanie inkognito<ph name="END_BOLD"/>. Stránky, ktoré si prezeráte v tomto okne, sa nezobrazia v histórii prehliadača ani v histórii vyhľadávania. Na rozdiel od súborov cookie po zatvorení okna inkognito v počítači nevytvoria žiadny záznam. Akékoľvek načítané súbory alebo vytvorené záložky sa však uchovajú.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Prehľadávanie inkognito neovplyvňuje správanie ostatných ľudí, serverov ani softvéru. Venujte zvýšenú pozornosť:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Webovým stránkam, ktoré zbierajú alebo zdieľajú vaše osobné informácie<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Poskytovateľom internetových služieb alebo zamestnancom, ktorí sledujú vami navštívené stránky<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Škodlivému softvéru, ktorý sleduje vami stlačené klávesy výmenou za bezplatné „smajlíky“ <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pozorovaniu tajnými agentmi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ľuďom stojacim za vaším chrbtom<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Viac informácií<ph name="END_LINK"/> o prehliadaní inkognito.</translation>
-<translation id="1604816462140255479">Priblíženie t&amp;extu</translation>
-<translation id="2089625293428655599">Na časti tohto softvéru sa vzťahujú licencie tretích strán, ako sa uvádza na stránke: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blokované automaticky otvárané okná</translation>
+<translation id="7052402604161570346">Tento typ súborov môže poškodiť váš počítač. Naozaj chcete prevziať súbor <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Odstrániť</translation>
+<translation id="6069278982995177296">Duplikovať</translation>
+<translation id="1134009406053225289">Otvoriť v okne inkognito</translation>
+<translation id="1273291576878293349">Otvoriť všetky záložky v okne inkognito</translation>
 </translationbundle>

@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">谷歌浏览器没有反应。 现在重新启动？</translation>
 <translation id="1137776625614346046">“最常访问的网站”区域显示您最常访问的网站。 使用谷歌浏览器一段时间后，只要打开新的标签页，您就会看到最常访问的网站。 您可在<ph name="BEGIN_LINK"/>使用入门页<ph name="END_LINK"/>了解有关此功能和其他功能的详情。</translation>
 <translation id="6817660909204164466">将使用统计信息和崩溃报告自动发送给谷歌，帮助我们完善谷歌浏览器</translation>
+<translation id="4281844954008187215">服务条款</translation>
+<translation id="1281036569101707544">谷歌浏览器<ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396">谷歌浏览器的诞生离不开 <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> 开源项目以及其他<ph name="BEGIN_LINK_OSS"/>开源软件<ph name="END_LINK_OSS"/>。</translation>
+<translation id="4071826835145709731">该计算机上已经安装系统级谷歌浏览器（所有用户都能使用）。我们将用它替换您的用户级谷歌浏览器（指定用户才能使用）。</translation>
 </translationbundle>

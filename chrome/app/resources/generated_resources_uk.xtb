@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Копіювати</translation>
 <translation id="5076340679995252485">&amp;Вставити</translation>
 <translation id="5300471193642408424">Показати сторінки</translation>
+<translation id="3994878504415702912">&amp;Масштаб</translation>
 <translation id="8434177709403049435">&amp;Кодування</translation>
 <translation id="6040143037577758943">Закрити</translation>
 <translation id="9147392381910171771">&amp;Параметри</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Редагувати</translation>
 <translation id="3157931365184549694">Відновити</translation>
 <translation id="8261506727792406068">Видалити</translation>
+<translation id="5317780077021120954">Зберегти</translation>
 <translation id="5626134646977739690">Ім'я:</translation>
 <translation id="2148716181193084225">Сьогодні</translation>
 <translation id="7781829728241885113">Учора</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Повідомляти, коли спливаючі вікна заблоковані</translation>
 <translation id="3383487468758466563">Шрифти та мови:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ви перейшли до анонімного перегляду<ph name="END_BOLD"/>. Сторінки, відкриті в цьому вікні, не будуть записані до історії веб-переглядача або пошуку. Після закриття анонімного вікна на комп’ютері не залишиться жодних слідів відвідування цих сторінок, наприклад, cookie-файлів. Проте всі завантажені файли та створені закладки будуть збережені.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Анонімний перегляд не впливає на реакцію інших користувачів, серверів або програмного забезпечення. Обережно ставтеся до:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Веб-сайтів, які збирають або відкривають спільний доступ до Вашої особистої інформації<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Постачальників Інтернет-послуг, що відстежують сторінки, які Ви відвідуєте<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Зловмисного програмного забезпечення, яке пропонує Вам безкоштовні набори смайлів, а насправді відстежує натискання клавіш<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Нагляду з боку секретних служб<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Людей, що стоять позаду Вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Докладніше<ph name="END_LINK"/> про анонімний перегляд сторінок.</translation>
-<translation id="1604816462140255479">&amp;Масштабування тексту</translation>
-<translation id="2089625293428655599">Частини цього програмного забезпечення були ліцензовані сторонніми виробниками, як зазначено на: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Заблоковані спливаючі вікна</translation>
+<translation id="7052402604161570346">Цей тип файлу може бути шкідливим для вашого комп’ютера. Ви дійсно бажаєте завантажити <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Скасувати</translation>
+<translation id="6069278982995177296">Копія</translation>
+<translation id="1134009406053225289">Відкрити в анонімному вікні</translation>
+<translation id="1273291576878293349">Відкрити всі закладки в новому анонімному вікні</translation>
 </translationbundle>

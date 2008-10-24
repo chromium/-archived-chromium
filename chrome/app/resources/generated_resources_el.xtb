@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Αντιγραφή</translation>
 <translation id="5076340679995252485">&amp;Επικόλληση</translation>
 <translation id="5300471193642408424">Εμφάνιση σελίδων</translation>
+<translation id="3994878504415702912">&amp;Εστίαση</translation>
 <translation id="8434177709403049435">Κωδικο&amp;ποίηση</translation>
 <translation id="6040143037577758943">Κλείσιμο</translation>
 <translation id="9147392381910171771">&amp;Επιλογές</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Επεξεργασία</translation>
 <translation id="3157931365184549694">Επαναφορά</translation>
 <translation id="8261506727792406068">Διαγραφή</translation>
+<translation id="5317780077021120954">Αποθήκευση</translation>
 <translation id="5626134646977739690">Όνομα:</translation>
 <translation id="2148716181193084225">Σήμερα</translation>
 <translation id="7781829728241885113">Χθες</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Να ενημερώνομαι όταν γίνεται αποκλεισμός αναδυόμενων παραθύρων</translation>
 <translation id="3383487468758466563">Γραμματοσειρές και γλώσσες:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Σερφάρετε ανώνυμα<ph name="END_BOLD"/>. Οι σελίδες που βλέπετε σε αυτό το παράθυρο δεν θα εμφανίζονται στο ιστορικό του προγράμματος περιήγησης ή στο ιστορικό αναζήτησης και δεν θα αφήσουν άλλα ίχνη, όπως cookies, στον υπολογιστή σας αφού κλείσετε το παράθυρο ανώνυμης περιήγησης. Όμως,τα αρχεία που κατεβάζετε ή οι σελιδοδείκτες που δημιουργείτε θα διατηρηθούν.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Η ανώνυμη περιήγηση δεν επηρεάζει την συμπεριφορά άλλων ανθρώπων, διακομιστών ή λογισμικού. Να είστε προσεκτικοί σχετικά με:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Ιστότοπους που συγκεντρώνουν ή μοιράζονται πληροφορίες για εσάς<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Παροχείς υπηρεσιών Internet ή εργοδότες που παρακολουθούν τις σελίδες που επισκέπτεστε<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Κακόβουλα προγράμματα που παρακολουθούν τις πληροφορίες που πληκτρολογείτε με αντάλλαγμα δωρεάν smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Παρακολούθηση από μυστικούς πράκτορες<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Άτομα που βρίσκονται πίσω από εσάς<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Μάθετε περισσότερα<ph name="END_LINK"/> σχετικά με την ανώνυμη περιήγηση.</translation>
-<translation id="1604816462140255479">Κείμενο &amp;Εστίαση</translation>
-<translation id="2089625293428655599">Η άδεια για τμήματα του παρόντος λογισμικού δόθηκε από τρίτα μέρη, όπως περιγράφεται στη διεύθυνση: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Αποκλεισμένο αναδυόμενο παράθυρο</translation>
+<translation id="7052402604161570346">Αυτός ο τύπος αρχείου ενδέχεται να βλάψει τον υπολογιστή σας. Είστε βέβαιοι ότι θέλετε να κάνετε λήψη του <ph name="FILE_NAME"/>;</translation>
+<translation id="6434309073475700221">Απόρριψη</translation>
+<translation id="6069278982995177296">Διπλότυπο</translation>
+<translation id="1134009406053225289">Άνοιγμα σε παράθυρο για ανώνυμο σερφάρισμα</translation>
+<translation id="1273291576878293349">Άνοιγμα όλων των σελιδοδεικτών σε παράθυρο για ανώνυμο σερφάρισμα</translation>
 </translationbundle>

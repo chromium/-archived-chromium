@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome svarar inte. Vill du starta om det nu?</translation>
 <translation id="1137776625614346046">Avsnittet &quot;Mest besökta&quot; visar vilka webbplatser som du besöker oftast. När du har använt Google Chrome ett tag visas de mest besökta webbplatserna varje gång du öppnar en ny flik. Du kan läsa mer om den här och andra funktioner på <ph name="BEGIN_LINK"/>sidan Komma igång<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Hjälp till att göra Google Chrome bättre genom att automatiskt skicka användningsstatistik och felrapporter till Google</translation>
+<translation id="4281844954008187215">Användarvillkor</translation>
+<translation id="1281036569101707544">Google Chrome: <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396">Google Chrome fungerar tack vare det öppna källkodsprojektet <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> och andra <ph name="BEGIN_LINK_OSS"/>program med öppen källkod<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">Google Chrome är redan installerat på systemnivå på den här datorn. Vi ersätter ditt exemplar av Google Chrome på användarnivå med systemnivåversionen.</translation>
 </translationbundle>

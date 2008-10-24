@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">複製(&amp;C)</translation>
 <translation id="5076340679995252485">貼上(&amp;P)</translation>
 <translation id="5300471193642408424">顯示網頁</translation>
+<translation id="3994878504415702912">縮放(&amp;Z)</translation>
 <translation id="8434177709403049435">編碼(&amp;E)</translation>
 <translation id="6040143037577758943">關閉</translation>
 <translation id="9147392381910171771">選項 (&amp;O)</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">編輯</translation>
 <translation id="3157931365184549694">還原</translation>
 <translation id="8261506727792406068">刪除</translation>
+<translation id="5317780077021120954">儲存</translation>
 <translation id="5626134646977739690">名稱:</translation>
 <translation id="2148716181193084225">今天</translation>
 <translation id="7781829728241885113">昨天</translation>
@@ -79,13 +81,13 @@
 <translation id="7400418766976504921">網址</translation>
 <translation id="7000311294523403548">未命名的網頁</translation>
 <translation id="6227291405321948850">未命名的網頁影像</translation>
-<translation id="5965640700983474726">輸入內容以開始搜尋</translation>
+<translation id="5965640700983474726">輸入搜尋網址/內容</translation>
 <translation id="436869212180315161">按下</translation>
 <translation id="2814489978934728345">停止載入此網頁</translation>
 <translation id="583281660410589416">不明</translation>
 <translation id="1526560967942511387">未命名文件</translation>
 <translation id="370665806235115550">載入中...</translation>
-<translation id="7554791636758816595">新增分頁</translation>
+<translation id="7554791636758816595">新分頁</translation>
 <translation id="5556459405103347317">重新載入</translation>
 <translation id="8004582292198964060">瀏覽器</translation>
 <translation id="8028993641010258682">大小</translation>
@@ -174,7 +176,7 @@
 <translation id="2674170444375937751">確定要從您的記錄中刪除這些網頁嗎？</translation>
 <translation id="6165508094623778733">取得更多資訊</translation>
 <translation id="3280237271814976245">另存新檔(&amp;A)...</translation>
-<translation id="8664389313780386848">檢視網頁原始檔(&amp;V)</translation>
+<translation id="8664389313780386848">檢視網頁原始碼(&amp;V)</translation>
 <translation id="1970746430676306437">檢視網頁資訊(&amp;I)</translation>
 <translation id="7567293639574541773">檢查元素(&amp;N)</translation>
 <translation id="1474307029659222435">在新視窗中開啟框(&amp;W)</translation>
@@ -182,7 +184,7 @@
 <translation id="7552620667503495646">在新分頁中開啟框架(&amp;T)</translation>
 <translation id="1621207256975573490">另存框架為(&amp;F)...</translation>
 <translation id="1608306110678187802">列印框架(&amp;R)...</translation>
-<translation id="1163931534039071049">檢視框架原始檔(&amp;V)</translation>
+<translation id="1163931534039071049">檢視框架原始碼(&amp;V)</translation>
 <translation id="1908748899139377733">檢視框架資訊(&amp;I)</translation>
 <translation id="6886871292305414135">在新分頁中開啟連結(&amp;T)</translation>
 <translation id="8899851313684471736">在新視窗中開啟連結(&amp;W)</translation>
@@ -209,7 +211,7 @@
 <translation id="5818003990515275822">韓文</translation>
 <translation id="4890284164788142455">泰文</translation>
 <translation id="7434509671034404296">開發人員選項</translation>
-<translation id="2440604414813129000">檢視原始檔(&amp;O)</translation>
+<translation id="2440604414813129000">檢視原始碼(&amp;O)</translation>
 <translation id="3842377959466606212">網頁資訊(&amp;I)</translation>
 <translation id="5872213955895293073">為 JavaScript 偵錯</translation>
 <translation id="5904714272463161824">回報錯誤或毀損的網站(&amp;R)...</translation>
@@ -250,21 +252,7 @@
 <translation id="4115153316875436289"><ph name="NUMBER_TWO"/> 天</translation>
 <translation id="8355915647418390920"><ph name="NUMBER_FEW"/> 天</translation>
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> 天</translation>
-<translation id="2544782972264605588">剩下 <ph name="NUMBER_DEFAULT"/> 秒
-
-
-
-
-
-
-
-
-
-
-
-
-
-正在安裝新版本...</translation>
+<translation id="2544782972264605588">剩下 <ph name="NUMBER_DEFAULT"/> 秒</translation>
 <translation id="152482086482215392">剩下 <ph name="NUMBER_ONE"/> 秒</translation>
 <translation id="6390842777729054533">剩下 <ph name="NUMBER_ZERO"/> 秒</translation>
 <translation id="494645311413743213">剩下 <ph name="NUMBER_TWO"/> 秒</translation>
@@ -365,7 +353,7 @@
 <translation id="3737554291183722650">網頁標題:</translation>
 <translation id="2679629658858164554">網頁網址:</translation>
 <translation id="5765780083710877561">描述:</translation>
-<translation id="5868426874618963178">傳送此網頁的原始檔</translation>
+<translation id="5868426874618963178">傳送此網頁的原始碼</translation>
 <translation id="1983108933174595844">傳送目前網頁的畫面</translation>
 <translation id="1767991048059195456">傳送報告</translation>
 <translation id="486595306984036763">開啟網路釣魚報告</translation>
@@ -611,7 +599,7 @@
 <translation id="8155798677707647270">安裝新版本...</translation>
 <translation id="6484929352454160200">現已提供新版本的 <ph name="PRODUCT_NAME"/></translation>
 <translation id="3702398161649563352"><ph name="PRODUCT_NAME"/> 已更新至 <ph name="VERSION"/></translation>
-<translation id="965674096648379287">此網頁要求您先前輸入的資料方能正確顯示。您再可以再次傳送資料，但您將因此重複此網頁先前執行過的行動。按一下「重新載入」以重新傳送此資料，並顯示此頁。</translation>
+<translation id="965674096648379287">此網頁要求您先前輸入的資料方能正確顯示。您可以再次傳送資料，但您將因此重複此網頁先前執行過的行動。按一下「重新載入」以重新傳送此資料，並顯示此頁。</translation>
 <translation id="7012108905414904806">不過，本頁包含其他不安全的資源。這些資源在傳輸當中可能被他人看見，而且網頁的外觀或行為甚至可能遭攻擊者變更。</translation>
 <translation id="7755167023778553803">然而此網站包含其他無法驗證身份之網站的資源。</translation>
 <translation id="6451458296329894277">確認重新提交表單</translation>
@@ -622,7 +610,7 @@
 <translation id="8502249598105294518">此功能表用來自訂及控制 <ph name="PRODUCT_NAME"/></translation>
 <translation id="4475552974751346499">搜尋下載內容</translation>
 <translation id="3473034187222004855">複製檔案路徑(&amp;P)</translation>
-<translation id="3577682619813191010">複雜檔案(&amp;F)</translation>
+<translation id="3577682619813191010">複製檔案(&amp;F)</translation>
 <translation id="7029809446516969842">密碼</translation>
 <translation id="8725178340343806893">我的最愛/書籤</translation>
 <translation id="873849583815421063">結束中...</translation>
@@ -650,7 +638,7 @@
 <translation id="3191701650141760424">結束安裝</translation>
 <translation id="7451556917824271099">位於 &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; 的網站包含來自 &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; 網站的元素，且其中似乎包含惡意程式，可能損害您的電腦或在未經您同意之下擅自執行。單憑造訪包含惡意程式的網站就足以影響您的電腦。</translation>
 <translation id="5048040498971143039">「<ph name="SEARCH_STRING"/>」的搜尋結果</translation>
-<translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>，剩餘時間：<ph name="TIME_LEFT"/></translation>
+<translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>，<ph name="TIME_LEFT"/></translation>
 <translation id="4692623383562244444">搜尋引擎</translation>
 <translation id="5584537427775243893">匯入中</translation>
 <translation id="6248988683584659830">搜尋設定</translation>
@@ -664,7 +652,7 @@
 <translation id="1731911755844941020">正在傳送要求...</translation>
 <translation id="7925285046818567682">正在等候 <ph name="HOST_NAME"/>...</translation>
 <translation id="2021921916539001817">從 <ph name="HOST_NAME"/> 傳送中...</translation>
-<translation id="6698381487523150993">建立於：</translation>
+<translation id="6698381487523150993">建立於:</translation>
 <translation id="8562413501751825163">在載入前關閉 Firefox</translation>
 <translation id="480990236307250886">開啟首頁</translation>
 <translation id="6514771739083339959">首頁:</translation>
@@ -697,13 +685,17 @@
 <translation id="8899388739470541164">越南文</translation>
 <translation id="1714078437629572290">開啟首頁</translation>
 <translation id="5316814419223884568">就從這裡開始搜尋</translation>
-<translation id="3065140616557457172">輸入搜尋內容或要瀏覽的網址，什麼都行。</translation>
-<translation id="4178055285485194276">起始時：</translation>
-<translation id="1154228249304313899">開啟此頁：</translation>
+<translation id="3065140616557457172">輸入搜尋網址或內容，什麼都行。</translation>
+<translation id="4178055285485194276">起始時:</translation>
+<translation id="1154228249304313899">開啟此頁:</translation>
 <translation id="3761000923495507277">在工具列上顯示 [首頁] 按鈕</translation>
 <translation id="5291303148298143069">彈出式視窗遭到封鎖時請通知我</translation>
-<translation id="3383487468758466563">字型及語言：</translation>
+<translation id="3383487468758466563">字型及語言:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>您已採用無痕式瀏覽<ph name="END_BOLD"/>。 您在此視窗內檢視的網頁不會在瀏覽記錄或搜尋記錄中顯示，關閉無痕式視窗後，也不會在電腦上留下其他痕跡，例如 Cookie。 但是，您下載的任何檔案或建立的書籤都會保留下來。        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>無痕式瀏覽不會影響其他使用者、伺服器或軟體的行為。 請小心：<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>收集或共用關於您之資訊的網站<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>追蹤您造訪網頁的網際網路服務供應商或雇主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>以免費表情圖示騙取並追蹤按鍵組合的惡意軟體<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>秘密代理程式所進行的監控<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>站在您身後的人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>瞭解更多<ph name="END_LINK"/>關於無痕式瀏覽的資訊。</translation>
-<translation id="1604816462140255479">文字與縮放</translation>
-<translation id="2089625293428655599">此軟體的部分是由第三方所授權，如下所述：<ph name="URL"/></translation>
+<translation id="5256138355144269748">已封鎖彈出式視窗</translation>
+<translation id="7052402604161570346">此類型檔案可能傷害您的電腦，確定要下載 <ph name="FILE_NAME"/> 嗎？</translation>
+<translation id="6434309073475700221">捨棄</translation>
+<translation id="6069278982995177296">複製</translation>
+<translation id="1134009406053225289">在無痕式視窗中開啟</translation>
+<translation id="1273291576878293349">所有書籤均在無痕式視窗中開啟</translation>
 </translationbundle>

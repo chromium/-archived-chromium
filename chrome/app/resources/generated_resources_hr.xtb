@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopiraj</translation>
 <translation id="5076340679995252485">&amp;Zalijepi</translation>
 <translation id="5300471193642408424">Prikaži stranice</translation>
+<translation id="3994878504415702912">&amp;Zum</translation>
 <translation id="8434177709403049435">&amp;Kodiranje</translation>
 <translation id="6040143037577758943">Zatvori</translation>
 <translation id="9147392381910171771">&amp;Opcije</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Uredi</translation>
 <translation id="3157931365184549694">Vrati</translation>
 <translation id="8261506727792406068">Obriši</translation>
+<translation id="5317780077021120954">Spremi</translation>
 <translation id="5626134646977739690">Naziv:</translation>
 <translation id="2148716181193084225">Danas</translation>
 <translation id="7781829728241885113">Danas</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Obavijesti me ako je skočni prozor blokiran</translation>
 <translation id="3383487468758466563">Fontovi i jezici:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Otišli ste inkognito<ph name="END_BOLD"/>. Stranice otvorene u ovom prozoru neće se pojaviti u povijesti Vašeg preglednika ili povijesti pretraživanja niti ćete na računalu ostaviti neke druge tragove,kao što su kolačići, nakon što taj prozor zatvorite. No sačuvat će se sve datoteke koje ste preuzeli ili oznake koje ste stvorili.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Inkognito pregledavanje ne utječe na ponašanje drugih ljudi, poslužitelja ili softvera. Čuvajte se:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>web lokacija koje prikupljaju ili dijele informacije o Vama<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>pružatelja internetskih usluga ili poslodavaca koji prate koje stranice posjećujete<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>zlonamjernog softvera koji prati što upisujete putem tipkovnice u zamjenu za besplatne smajliće<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>nadzora tajnih službi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ljudi koji Vam stoje iza leđa<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Saznajte više o<ph name="END_LINK"/> o inkognito pregledavanju.</translation>
-<translation id="1604816462140255479">Zum &amp;teksta</translation>
-<translation id="2089625293428655599">Dijelovi ovog softvera imaju licencu trećih strana kao što je opisano na: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blokirani skočni prozor</translation>
+<translation id="7052402604161570346">Ova vrsta datoteke može nauditi Vašem računalu. Jeste li sigurni da želite preuzeti datoteku <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Odbaci</translation>
+<translation id="6069278982995177296">Udvostruči</translation>
+<translation id="1134009406053225289">Otvori u prozoru inkognito</translation>
+<translation id="1273291576878293349">Otvori sve Google oznake u prozoru inkognito</translation>
 </translationbundle>

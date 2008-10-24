@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google 크롬이 응답하지 않습니다. 다시 시작하시겠습니까?</translation>
 <translation id="1137776625614346046">'자주 방문한 페이지'에는 가장 자주 이용하는 사이트가 표시됩니다. 크롬을 어느 정도 사용한 다음에는 새 탭을 열 때마다 자주 방문한 페이지를 볼 수 있습니다. <ph name="BEGIN_LINK"/>시작 페이지<ph name="END_LINK"/>에서 '자주 방문한 페이지' 및 기타 기능에 대해 자세히 알아보세요.</translation>
 <translation id="6817660909204164466">사용 통계 및 충돌 보고서가 Google로 자동 전송되도록 선택하시면 크롬을 개선하는 데 도움이 됩니다.</translation>
+<translation id="4281844954008187215">서비스 약관</translation>
+<translation id="1281036569101707544">Google 크롬 <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396">Google 크롬은 <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> 오픈소스 프로젝트를 비롯한 여러 <ph name="BEGIN_LINK_OSS"/>오픈소스 소프트웨어<ph name="END_LINK_OSS"/>에 기초해 만들어진 브라우저입니다.</translation>
+<translation id="4071826835145709731">시스템 수준 Google 크롬이 이미 컴퓨터에 설치되어 있습니다. 사용자 수준 Google 크롬을 설치된 시스템 수준 Google 크롬으로 대체합니다.</translation>
 </translationbundle>

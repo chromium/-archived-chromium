@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopier</translation>
 <translation id="5076340679995252485">&amp;Indsæt</translation>
 <translation id="5300471193642408424">Vis sider</translation>
+<translation id="3994878504415702912">&amp;Zoom</translation>
 <translation id="8434177709403049435">&amp;Kodning</translation>
 <translation id="6040143037577758943">Luk</translation>
 <translation id="9147392381910171771">&amp;Valgmuligheder</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Rediger</translation>
 <translation id="3157931365184549694">Gendan</translation>
 <translation id="8261506727792406068">Slet</translation>
+<translation id="5317780077021120954">Gem</translation>
 <translation id="5626134646977739690">Navn:</translation>
 <translation id="2148716181193084225">I dag</translation>
 <translation id="7781829728241885113">I går</translation>
@@ -689,6 +691,10 @@
 <translation id="5291303148298143069">Giv mig besked, når en popup bliver blokeret</translation>
 <translation id="3383487468758466563">Skrifttyper og sprog:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Du er nu inkognito<ph name="END_BOLD"/>. Sider, du ser i dette vindue, vil ikke fremgå af din browserhistorik eller søgehistorik, og de vil ikke efterlade andre spor, som f.eks. cookies, på din computer, efter du har lukket inkognitovinduet. Alle filer, du downloader, eller bogmærker, du opretter, vil dog blive bevaret.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Når du vælger at være inkognito, påvirker det ikke andre mennesker, servere eller software. Vær forsigtig med:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>websteder, der indsamler eller videregiver oplysninger om dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internetudbydere og arbejdsgivere, der sporer, hvilke sider du besøger<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ondsindet software, der sporer dine tasteanslag i bytte for gratis smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>hemmelige agenter, der overvåger dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>mennesker, der kigger dig over skulderen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Få flere oplysninger<ph name="END_LINK"/> om inkognitobrowsing.</translation>
-<translation id="1604816462140255479">Tekst &amp;zoom</translation>
-<translation id="2089625293428655599">Dele af denne software er licenseret fra tredjepart som beskrevet på: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blokeret popup</translation>
+<translation id="7052402604161570346">Denne type fil kan beskadige din computer. Er du sikker på, at du vil downloade <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Kasser</translation>
+<translation id="6069278982995177296">Dublet</translation>
+<translation id="1134009406053225289">Åbn i inkognitovindue</translation>
+<translation id="1273291576878293349">Åbn alle bogmærker i inkognitovindue</translation>
 </translationbundle>

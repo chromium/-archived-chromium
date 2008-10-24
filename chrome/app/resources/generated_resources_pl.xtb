@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopiuj</translation>
 <translation id="5076340679995252485">&amp;Wklej</translation>
 <translation id="5300471193642408424">Pokaż strony</translation>
+<translation id="3994878504415702912">&amp;Rozmiar tekstu</translation>
 <translation id="8434177709403049435">&amp;Kodowanie</translation>
 <translation id="6040143037577758943">Zamknij</translation>
 <translation id="9147392381910171771">&amp;Opcje</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Edycja</translation>
 <translation id="3157931365184549694">Przywróć</translation>
 <translation id="8261506727792406068">Usuń</translation>
+<translation id="5317780077021120954">Zapisz</translation>
 <translation id="5626134646977739690">Nazwa:</translation>
 <translation id="2148716181193084225">Dzisiaj</translation>
 <translation id="7781829728241885113">Wczoraj</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Powiadom mnie o zablokowaniu wyskakującego okienka</translation>
 <translation id="3383487468758466563">Czcionki i języki:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jesteś teraz incognito<ph name="END_BOLD"/>. Strony przeglądane w tym oknie nie będą wyświetlane w historii przeglądarki ani historii wyszukiwania. Po zamknięciu okna incognito na komputerze nie zostanie po nich żaden ślad np. w postaci plików cookie. Zachowane zostaną jednak pobrane pliki lub utworzone zakładki.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Przejście do trybu incognito nie ma wpływu na działania innych osób, serwery ani oprogramowanie. Należy uważać na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>witryny zbierające lub udostępniające dane na temat użytkowników<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>dostawców usług internetowych oraz pracowników śledzących odwiedzane przez użytkowników strony<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>złośliwe oprogramowanie śledzące naciśnięcia klawiszy w zamian za darmowe emotikony <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>monitoring prowadzony przez tajnych agentów<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>osoby stojące za plecami<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Więcej informacji<ph name="END_LINK"/> na temat trybu incognito przeglądarki.</translation>
-<translation id="1604816462140255479">Rozmiar tekstu</translation>
-<translation id="2089625293428655599">Część niniejszego oprogramowania pochodzi z licencji innych firm, zgodnie z opisem: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Zablokowane wyskakujące okienko</translation>
+<translation id="7052402604161570346">Plik tego typu może uszkodzić komputer. Czy na pewno chcesz pobrać <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Przerwij</translation>
+<translation id="6069278982995177296">Duplikuj</translation>
+<translation id="1134009406053225289">Otwórz w oknie incognito</translation>
+<translation id="1273291576878293349">Otwórz wszystkie zakładki w oknie incognito</translation>
 </translationbundle>

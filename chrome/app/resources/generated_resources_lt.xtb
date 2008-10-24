@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopijuoti</translation>
 <translation id="5076340679995252485">&amp;Įklijuoti</translation>
 <translation id="5300471193642408424">Rodyti puslapius</translation>
+<translation id="3994878504415702912">Priartinti</translation>
 <translation id="8434177709403049435">&amp;Kodavimas</translation>
 <translation id="6040143037577758943">Uždaryti</translation>
 <translation id="9147392381910171771">&amp;Parinktys</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Redaguoti</translation>
 <translation id="3157931365184549694">Atkurti</translation>
 <translation id="8261506727792406068">Pašalinti</translation>
+<translation id="5317780077021120954">Įrašyti</translation>
 <translation id="5626134646977739690">Vardas:</translation>
 <translation id="2148716181193084225">Šiandien</translation>
 <translation id="7781829728241885113">Vakar</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Praneškite, kai blokuojamas iškylantysis langas</translation>
 <translation id="3383487468758466563">Šriftai ir kalbos:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jums taikomas svetimas vardas<ph name="END_BOLD"/>. Kai tik uždarote šį nežinomą langą, šiame lange peržiūrėti puslapiai nebus įrašomi į naršyklės retrospektyvą ar paieškos retrospektyvą bei kompiuteryje nepaliks jokių kitų programų, pvz. slapukų. Tačiau bus išsaugoti atsisiųsti failai ar sukurtos žymos.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Svetimo vardo taikymas neturi įtakos kitiems asmenims, serveriams ar programinei įrangai. Saugokitės:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>svetainių, kurios renka ar platina informaciją apie jus<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>interneto paslaugos teikėjų ar darbdavių, kurie stebi, kuriuos puslapius peržiūrite<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>kenkėjiškos programinės įrangos, kuri siūlydama nemokamą šypsniukų paslaugą fiksuoja klavišų paspaudimus<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>slaptųjų agentų sekimo<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>už nugaros stovinčių asmenų<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Sužinokite daugiau<ph name="END_LINK"/> apie naršymą svetimu vardu.</translation>
-<translation id="1604816462140255479">Tekstas ir &amp;mastelis</translation>
-<translation id="2089625293428655599">Šios programinės įrangos dalys licencijuotos iš trečiųjų šalių, kaip aprašyta adresu <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blokuotas iššokantis langas</translation>
+<translation id="7052402604161570346">Šis failų tipas gali pakenkti jūsų kompiuteriui. Ar tikrai norite atsisiųsti <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Atmesti</translation>
+<translation id="6069278982995177296">Daryti atsarginę kopiją</translation>
+<translation id="1134009406053225289">Atidaryti nežinomame lange</translation>
+<translation id="1273291576878293349">Atidaryti visas žymas nežinomame lange</translation>
 </translationbundle>

@@ -46,4 +46,8 @@
 <translation id="2499193704281978000">Google Chrome е блокирал. Искате ли да рестартирате сега?</translation>
 <translation id="1137776625614346046">Областта „Най-посещавани“ съдържа най-често използваните от вас уебсайтове. След като използвате Google Chrome за известно време, ще забележите, че най-посещаваните от вас сайтове се показват всеки път, когато отворите нов раздел в браузъра. Можете да научите повече за това и за другите функции на <ph name="BEGIN_LINK"/>страницата Първи стъпки<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Помогнете за усъвършенстването на Google Chrome чрез автоматично изпращане до Google на статистически данни за употребата и отчети за грешки.</translation>
+<translation id="4281844954008187215">Условия за ползване</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> на Google Chrome</translation>
+<translation id="2874156562296220396">Google Chrome съществува благодарение на проекта с отворен код <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> и други <ph name="BEGIN_LINK_OSS"/>софтуерни продукти с отворен код<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">Google Chrome е вече инсталиран на този компютър за цялата система. Ще заменим Google Chrome на ниво потребител с инсталацията на ниво система.</translation>
 </translationbundle>

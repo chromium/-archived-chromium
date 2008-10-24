@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">복사(&amp;C)</translation>
 <translation id="5076340679995252485">붙여넣기(&amp;P)</translation>
 <translation id="5300471193642408424">페이지 표시</translation>
+<translation id="3994878504415702912">글꼴 크기(&amp;Z)</translation>
 <translation id="8434177709403049435">인코딩(&amp;E)</translation>
 <translation id="6040143037577758943">닫기</translation>
 <translation id="9147392381910171771">옵션(&amp;O)</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">수정</translation>
 <translation id="3157931365184549694">복구</translation>
 <translation id="8261506727792406068">삭제</translation>
+<translation id="5317780077021120954">저장</translation>
 <translation id="5626134646977739690">이름:</translation>
 <translation id="2148716181193084225">오늘</translation>
 <translation id="7781829728241885113">어제</translation>
@@ -272,7 +274,7 @@
 <translation id="3759876923365568382"><ph name="NUMBER_FEW"/>일 남음</translation>
 <translation id="3520476450377425184"><ph name="NUMBER_MANY"/>일 남음</translation>
 <translation id="121827551500866099">다운로드 항목 모두 표시...</translation>
-<translation id="1168020859489941584"><ph name="TIME_REMAINING"/>초 후에 파일이 열립니다...</translation>
+<translation id="1168020859489941584"><ph name="TIME_REMAINING"/> 후에 파일이 열립니다...</translation>
 <translation id="1383861834909034572">완료되면 열기</translation>
 <translation id="2371076942591664043">완료되면 열기(&amp;d)</translation>
 <translation id="5139955368427980650">열기(&amp;O)</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">팝업 차단 시 알림</translation>
 <translation id="3383487468758466563">언어와 글꼴:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>시크릿 모드로 바뀌었습니다<ph name="END_BOLD"/>. 시크릿 창에서 연 페이지는 브라우저의 웹 기록이나 검색 기록에 나타나지 않으며 창을 닫은 후에는 쿠키 같은 기록을 컴퓨터에 남기지 않습니다. 그러나 다운로드한 파일이나 작성한 북마크는 저장됩니다.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>시크릿 모드는 다른 사용자나 서버 또는 소프트웨어의 동작에 영향을 주지 않습니다. 주의:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>사용자 정보를 수집하고 공유하는 사이트<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>사용자가 방문한 페이지를 추적하는 인터넷 서비스 제공업체 또는 기업<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>무료 이모티콘을 제공하고 사용자의 키보드 입력을 추적하는 악성 소프트웨어<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>스파이의 감시<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>뒤에 서 있는 사람<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        시크릿 검색에 대해 <ph name="BEGIN_LINK"/>자세히 알아보기<ph name="END_LINK"/></translation>
-<translation id="1604816462140255479">글꼴 크기</translation>
-<translation id="2089625293428655599">본 소프트웨어에는 타사 라이센스 소프트웨어가 일부 포함되어 있습니다. 자세한 내용은 다음 페이지를 참조하세요. <ph name="URL"/></translation>
+<translation id="5256138355144269748">차단된 팝업</translation>
+<translation id="7052402604161570346">컴퓨터에 해를 끼칠 수 있는 파일 유형입니다. <ph name="FILE_NAME"/>을(를) 다운로드하시겠습니까?</translation>
+<translation id="6434309073475700221">중지</translation>
+<translation id="6069278982995177296">새 창에서 보기</translation>
+<translation id="1134009406053225289">시크릿 창으로 열기</translation>
+<translation id="1273291576878293349">모든 북마크를 시크릿 창으로 열기</translation>
 </translationbundle>

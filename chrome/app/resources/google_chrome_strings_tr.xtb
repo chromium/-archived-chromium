@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome yanıt vermiyor. Şimdi yeniden başlatılsın mı?</translation>
 <translation id="1137776625614346046">&quot;En çok ziyaret edilenler&quot; alanında en sık kullandığınız web siteleri gösterilir. Google Chrome'u bir süre kullandıktan sonra, yeni bir sekme açtığınızda en sık ziyaret ettiğiniz siteleri görürsünüz. <ph name="BEGIN_LINK"/>Başlarken sayfasında<ph name="END_LINK"/> bu ve diğer özellikler hakkında daha fazla bilgi edinebilirsiniz.</translation>
 <translation id="6817660909204164466">Google'a otomatik olarak kullanım istatistikleri ve sistem çökmesi raporları göndererek Google Chrome'un iyileştirilmesine katkıda bulunun.</translation>
+<translation id="4281844954008187215">Hizmet Şartları</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396">Google Chrome, <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> açık kaynak projesi ve diğer <ph name="BEGIN_LINK_OSS"/>açık kaynak yazılımlar<ph name="END_LINK_OSS"/> ile oluşturulmuştur.</translation>
+<translation id="4071826835145709731">Sistem düzeyindeki Google Chrome bu bilgisayarda zaten yüklü. Kullanıcı düzeyindeki Google Chrome'unuzu sistem düzeyi kurulumuyla değiştireceğiz.</translation>
 </translationbundle>

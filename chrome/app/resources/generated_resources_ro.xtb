@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Copiaţi</translation>
 <translation id="5076340679995252485">&amp;Inseraţi</translation>
 <translation id="5300471193642408424">Afişaţi paginile</translation>
+<translation id="3994878504415702912">&amp;Zoom</translation>
 <translation id="8434177709403049435">Codificar&amp;e</translation>
 <translation id="6040143037577758943">Închideţi</translation>
 <translation id="9147392381910171771">&amp;Opţiuni</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Editaţi</translation>
 <translation id="3157931365184549694">Restabiliţi</translation>
 <translation id="8261506727792406068">Ştergeţi</translation>
+<translation id="5317780077021120954">Salvaţi</translation>
 <translation id="5626134646977739690">Nume:</translation>
 <translation id="2148716181193084225">Astăzi</translation>
 <translation id="7781829728241885113">Ieri</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Anunţă-mă dacă un pop-up este blocat</translation>
 <translation id="3383487468758466563">Fonturi şi limbi:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Aţi trecut în modul incognito<ph name="END_BOLD"/>. Paginile pe care le vedeţi în această fereastră nu vor apărea în istoricul browserului sau în istoricul căutării şi nu vor lăsa urme pe computer, cum ar fi cookie-uri, după ce închideţi fereastra incognito. Cu toate acestea, vor fi păstrate orice fişiere descărcate sau marcaje create.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Intrarea incognito nu afectează comportamentul altor persoane, servere sau aplicaţii software. Fiţi atent la:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Site-urile Web care colectează sau distribuie informaţii despre dvs.<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Furnizorii de servicii Internet sau angajaţii care urmăresc paginile pe care le vizitaţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Aplicaţiile software dăunătoare care urmăresc apăsarea tastelor în schimbul emoticoanelor gratuite<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Supravegherea de către agenţi secreţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persoanele care stau în spatele dvs.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Aflaţi mai multe<ph name="END_LINK"/> despre accesarea incognito.</translation>
-<translation id="1604816462140255479">&amp;Panoramare text</translation>
-<translation id="2089625293428655599">Fragmente ale acestui software au fost licenţiate de la terţe părţi, după cum este descris la: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Fereastră de tip pop-up blocată</translation>
+<translation id="7052402604161570346">Acest tip de fişier poate fi dăunător pentru computerul dvs. Sunteţi sigur că doriţi să descărcaţi <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Renunţaţi</translation>
+<translation id="6069278982995177296">Duplicaţi</translation>
+<translation id="1134009406053225289">Deschideţi în fereastră incognito</translation>
+<translation id="1273291576878293349">Deschideţi toate marcajele în fereastră incognito</translation>
 </translationbundle>

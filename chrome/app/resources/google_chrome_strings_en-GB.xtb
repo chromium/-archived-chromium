@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome is unresponsive. Restart now?</translation>
 <translation id="1137776625614346046">The &quot;Most visited&quot; area shows the websites that you use most often. After using Google Chrome for a while, you will see your most visited sites whenever you open a new tab. You can learn more about this and other features on the <ph name="BEGIN_LINK"/>Getting Started page<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">Help to make Google Chrome better by sending usage statistics and crash reports to Google automatically</translation>
+<translation id="4281844954008187215">Terms of Service</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="2874156562296220396">Google Chrome is made possible by the <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> open source project and other <ph name="BEGIN_LINK_OSS"/>open source software<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">System level Google Chrome is already installed on this computer. We will replace your user-level Google Chrome with the system-level installation.</translation>
 </translationbundle>

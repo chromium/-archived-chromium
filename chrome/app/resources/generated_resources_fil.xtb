@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopyahin</translation>
 <translation id="5076340679995252485">&amp;Ilagay</translation>
 <translation id="5300471193642408424">Ipakita ang mga pahina</translation>
+<translation id="3994878504415702912">&amp;I-zoom</translation>
 <translation id="8434177709403049435">&amp;Encoding</translation>
 <translation id="6040143037577758943">Isara</translation>
 <translation id="9147392381910171771">&amp;Mga pagpipilian</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">I-edit</translation>
 <translation id="3157931365184549694">Ipanumbalik</translation>
 <translation id="8261506727792406068">Tanggalin</translation>
+<translation id="5317780077021120954">I-save</translation>
 <translation id="5626134646977739690">Pangalan:</translation>
 <translation id="2148716181193084225">Ngayon</translation>
 <translation id="7781829728241885113">Kahapon</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Abisuhan ako kapag naharangan ang isang pop-up</translation>
 <translation id="3383487468758466563">Mga Font at Mga Wika:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ikaw ay naging incognito<ph name="END_BOLD"/>. Ang mga pahinang tiningnan mo sa window na ito ay hindi lilitaw sa iyong kasaysayan ng browser o kasaysayan sa paghahanap, at hindi mag-iiwan ng ibang mga bakas, katulad ng mga cookies, sa iyong computer pagkatapos mo isara ang window na incognito. Gayunpaman, mapapanatili ang anumang mga file na na-download mo o mga bookmark na nalikha mo.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Hindi maaapektuhan ang ugali ng ibang tao, mga server, o software na incognito. Maging mapagmasid sa:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Mga website na kumukolekta o nagbabahagi ng impormasyon tungkol sa iyo<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Mga nagbibigay ng serbisyong Pang-internet o mga nagpapatrabaho na sumusubaybay sa mga pahina na nabisita mo<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ang mapaminsalang software na sumusubaybay sa iyong mga keystroke na may kapalit na libreng mga smiley<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Sa pagmamanman ng mga secret agent<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Mga taong sumusuporta sa iyo<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Dagdagan ang nalalaman<ph name="END_LINK"/> tungkol sa pag-browse ng incognito.</translation>
-<translation id="1604816462140255479">Text &amp;zoom</translation>
-<translation id="2089625293428655599">Ang mga bahagi ng software na ito ay nilisensya mula sa mga ikatlong partido ayon sa inilalarawan sa: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Hinarangang Pop-up</translation>
+<translation id="7052402604161570346">Ang uri ng file na ito ay maaaring makapinsala sa iyong computer. Sigurado ka bang gusto mong i-download ang <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Itapon</translation>
+<translation id="6069278982995177296">I-duplicate</translation>
+<translation id="1134009406053225289">Buksan sa incognito window</translation>
+<translation id="1273291576878293349">Bukasan ang lahat ng mga bookmark sa incognito window</translation>
 </translationbundle>

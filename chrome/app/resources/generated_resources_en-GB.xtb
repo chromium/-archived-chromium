@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Copy</translation>
 <translation id="5076340679995252485">&amp;Paste</translation>
 <translation id="5300471193642408424">Show pages</translation>
+<translation id="3994878504415702912">&amp;Zoom</translation>
 <translation id="8434177709403049435">&amp;Encoding</translation>
 <translation id="6040143037577758943">Close</translation>
 <translation id="9147392381910171771">&amp;Options</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Edit</translation>
 <translation id="3157931365184549694">Restore</translation>
 <translation id="8261506727792406068">Delete</translation>
+<translation id="5317780077021120954">Save</translation>
 <translation id="5626134646977739690">Name:</translation>
 <translation id="2148716181193084225">Today</translation>
 <translation id="7781829728241885113">Yesterday</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Notify me when a pop-up is blocked</translation>
 <translation id="3383487468758466563">Fonts and Languages:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>You've gone incognito<ph name="END_BOLD"/>. Pages that you view in this window won't appear in your browser history or search history, and they won't leave other traces, like cookies, on your computer after you close the incognito window. Any files that you download or bookmarks that you create will be preserved, however.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Going incognito doesn't affect the behaviour of other people, servers or software. Be wary of:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websites that collect or share information about you<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internet service providers or employers that track the pages that you visit<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Malicious software that tracks your keystrokes in exchange for free smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Surveillance by secret agents<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>People standing behind you<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Learn more<ph name="END_LINK"/> about incognito browsing.</translation>
-<translation id="1604816462140255479">Text &amp;zoom</translation>
-<translation id="2089625293428655599">Portions of this software were licensed from third parties as described at: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blocked Pop-up</translation>
+<translation id="7052402604161570346">This type of file can harm your computer. Are you sure that you want to download <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Discard</translation>
+<translation id="6069278982995177296">Duplicate</translation>
+<translation id="1134009406053225289">Open in incognito window</translation>
+<translation id="1273291576878293349">Open all bookmarks in incognito window</translation>
 </translationbundle>

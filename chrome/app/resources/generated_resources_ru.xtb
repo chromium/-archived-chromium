@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Копировать</translation>
 <translation id="5076340679995252485">&amp;Вставить</translation>
 <translation id="5300471193642408424">Показать страницы</translation>
+<translation id="3994878504415702912">&amp;Размер текста</translation>
 <translation id="8434177709403049435">&amp;Кодировка</translation>
 <translation id="6040143037577758943">Закрыть</translation>
 <translation id="9147392381910171771">&amp;Параметры</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Изменить</translation>
 <translation id="3157931365184549694">Восстановить</translation>
 <translation id="8261506727792406068">Удалить</translation>
+<translation id="5317780077021120954">Сохранить</translation>
 <translation id="5626134646977739690">Имя:</translation>
 <translation id="2148716181193084225">Сегодня</translation>
 <translation id="7781829728241885113">Вчера</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Уведомлять меня при блокировании всплывающего окна</translation>
 <translation id="3383487468758466563">Языки и шрифты:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Вы перешли в режим инкогнито<ph name="END_BOLD"/>. Страницы, которые вы просматриваете в окне в режиме инкогнито, не появятся в истории вашего браузера или истории поиска, а также не оставят на вашем компьютере других следов, таких как файлы cookie, когда вы закроете это окно. Тем не менее, все файлы, которые вы загружаете, или закладки, которые вы создаете, останутся в целости и сохранности.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Переход в режим инкогнито не влияет на поведение других пользователей, серверов или программ. Опасайтесь:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Веб-сайтов, которые собирают информацию о вас или передают ее другим<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Поставщиков услуг Интернета или их сотрудников, которые отслеживают, какие страницы вы посещаете<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Вредоносного ПО, которое отслеживает нажатие клавиш клавиатуры в обмен на бесплатные смайлики<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Слежки тайными агентами<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Людей, которые стоят у вас за спиной<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Подробнее<ph name="END_LINK"/> о просмотре веб-страниц режиме инкогнито.</translation>
-<translation id="1604816462140255479">Размер &amp;текста</translation>
-<translation id="2089625293428655599">На некоторые части данного программного обеспечения была получена лицензия сторонних производителей, как это описано на следующей странице: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Заблокированное всплывающее окно</translation>
+<translation id="7052402604161570346">Файл данного типа может нанести вред вашему компьютеру. Вы действительно хотите загрузить <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Отменить передачу</translation>
+<translation id="6069278982995177296">Повторяющиеся</translation>
+<translation id="1134009406053225289">Открыть в окне в режиме инкогнито</translation>
+<translation id="1273291576878293349">Открыть все закладки в окне в режиме инкогнито</translation>
 </translationbundle>

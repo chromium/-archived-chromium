@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopieren</translation>
 <translation id="5076340679995252485">&amp;Einfügen</translation>
 <translation id="5300471193642408424">Seiten anzeigen</translation>
+<translation id="3994878504415702912">&amp;Zoom</translation>
 <translation id="8434177709403049435">Codi&amp;erung</translation>
 <translation id="6040143037577758943">Schließen</translation>
 <translation id="9147392381910171771">&amp;Optionen</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Bearbeiten</translation>
 <translation id="3157931365184549694">Wiederherstellen</translation>
 <translation id="8261506727792406068">Löschen</translation>
+<translation id="5317780077021120954">Speichern</translation>
 <translation id="5626134646977739690">Name:</translation>
 <translation id="2148716181193084225">Heute</translation>
 <translation id="7781829728241885113">Gestern</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Über Blockierung von Pop-ups informieren</translation>
 <translation id="3383487468758466563">Schriftarten und Sprachen:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Sie haben den Modus für anonymes Browsen aktiviert<ph name="END_BOLD"/>. In diesem Fenster aufgerufene Seiten werden nicht im Browserverlauf oder Suchverlauf angezeigt. Zudem werden nach dem Schließen des Inkognito-Fensters keine anderen Hinweise wie Cookies auf dem Computer gespeichert. Heruntergeladene Dateien oder hinzugefügte Lesezeichen werden jedoch beibehalten. <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Das anonyme Browsen wirkt sich nicht auf das Nutzerverhalten bzw. auf die Funktionsweise von Servern oder Software aus. Vorsicht ist geboten bei:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Websites, auf denen Informationen über Sie gesammelt oder weitergegeben werden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Internetanbietern oder Arbeitgebern, die die von Ihnen aufgerufenen Seiten protokollieren<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Bösartiger Software, mit der Ihre Tastatureingaben festgehalten werden (dafür bekommen Sie Smileys gratis)<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Überwachung durch Ermittlungsbehörden<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Personen, die hinter Ihnen stehen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        Weitere Informationen zum anonymen Browsen erhalten Sie <ph name="BEGIN_LINK"/>hier<ph name="END_LINK"/>.</translation>
-<translation id="1604816462140255479">Text&amp;zoom</translation>
-<translation id="2089625293428655599">Teile dieser Software sind von Drittanbietern lizenziert. Weitere Informationen erhalten Sie unter: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blockiertes Pop-up-Fenster</translation>
+<translation id="7052402604161570346">Dateien dieses Typs können Schäden an Ihrem Computer verursachen. Möchten Sie die Datei <ph name="FILE_NAME"/> wirklich herunterladen?</translation>
+<translation id="6434309073475700221">Verwerfen</translation>
+<translation id="6069278982995177296">Duplizieren</translation>
+<translation id="1134009406053225289">In Inkognito-Fenster öffnen</translation>
+<translation id="1273291576878293349">Alle Lesezeichen in Inkognito-Fenster öffnen</translation>
 </translationbundle>

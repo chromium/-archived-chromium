@@ -8,7 +8,6 @@
 <translation id="4195643157523330669">פתח בכרטיסייה חדשה</translation>
 <translation id="3786934874263773074">&amp;מצא בדף</translation>
 <translation id="3369624026883419694">פותר מארח...</translation>
-<translation id="1604816462140255479">גודל &amp;טקסט</translation>
 <translation id="4890855023395992542">כתובת אתר השירות:</translation>
 <translation id="4047345532928475040">לא זמין</translation>
 <translation id="7767960058630128695">סיסמאות:</translation>
@@ -77,6 +76,7 @@
 <translation id="4552416320897244156">דף למטה</translation>
 <translation id="7658239707568436148">ביטול</translation>
 <translation id="6644971472240498405">יום <ph name="NUMBER_ONE"/></translation>
+<translation id="7052402604161570346">סוג קובץ זה יכול לגרום נזק למחשב שלך. האם אתה בטוח שברצונך להוריד <ph name="FILE_NAME"/>?</translation>
 <translation id="5921544176073914576">דף התחזות</translation>
 <translation id="6690744523875189208"><ph name="NUMBER_TWO"/> שעות</translation>
 <translation id="3990502903496589789">קצה ימני</translation>
@@ -156,7 +156,6 @@ Del</translation>
 <translation id="2231233239095101917">הסקריפט בדף מצריך זכרון רב מדי. טען מחדש בכדי לאפשר סקריפטים שוב.</translation>
 <translation id="9181716872983600413">Unicode</translation>
 <translation id="4222982218026733335">אישור שרת לא תקף</translation>
-<translation id="2089625293428655599">חלקים מתוכנה זו כפופים לרישיון מצד גורמי צד שלישי, כמפורט בכתובת:<ph name="URL"/></translation>
 <translation id="3745810751851099214">שלח עבור:</translation>
 <translation id="8820817407110198400">סימניות</translation>
 <translation id="2648845569394238430">חיפוש:</translation>
@@ -240,10 +239,12 @@ Del</translation>
 <translation id="1644574205037202324">היסטוריה</translation>
 <translation id="8609465669617005112">הזז למעלה</translation>
 <translation id="2679629658858164554">כתובת האתר של הדף:</translation>
+<translation id="1134009406053225289">פתח בחלון נסתר</translation>
 <translation id="5626134646977739690">שם:</translation>
 <translation id="6391832066170725637">הקובץ או הספרייה לא נמצאו.</translation>
 <translation id="6021004449668343960">גופן Sans-Serif:</translation>
 <translation id="2518917559152314023">ה&amp;וסף...</translation>
+<translation id="6069278982995177296">שכפל</translation>
 <translation id="6779164083355903755">&amp;הסר</translation>
 <translation id="1379170046778889619">פרטי אבטחה</translation>
 <translation id="4178055285485194276">בקבוצת ההפעלה:</translation>
@@ -267,6 +268,7 @@ Del</translation>
 <translation id="703748601351783580">פתח את כל הסימניות בחלון חדש</translation>
 <translation id="1521442365706402292">נהל אישורים</translation>
 <translation id="3702398161649563352"><ph name="PRODUCT_NAME"/> עודכן <ph name="VERSION"/></translation>
+<translation id="6434309073475700221">התעלם</translation>
 <translation id="6264485186158353794">חזרה לחוף מבטחים</translation>
 <translation id="4948468046837535074">פתח את הדפים הבאים:</translation>
 <translation id="2544782972264605588">נותרו <ph name="NUMBER_DEFAULT"/> שניות</translation>
@@ -432,6 +434,7 @@ Del</translation>
 <translation id="3037605927509011580">אוי, לא!</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, הושלם</translation>
 <translation id="6281636957902664775">עבור אל <ph name="URL"/></translation>
+<translation id="5256138355144269748">חלונות קופצים חסומים</translation>
 <translation id="6364916375976753737">גלול שמאלה</translation>
 <translation id="1767991048059195456">שלח דוח</translation>
 <translation id="6463795194797719782">&amp;ערוך</translation>
@@ -443,6 +446,7 @@ Del</translation>
 <translation id="1684861821302948641">מחק דפים</translation>
 <translation id="7073704676847768330">כנראה שזה לא האתר שאתה מחפש!</translation>
 <translation id="111844081046043029">האם אתה בטוח שברצונך לצאת מדף זה?</translation>
+<translation id="3994878504415702912">מרחק מתצוגה</translation>
 <translation id="4200983522494130825">&amp;כרטיסייה חדשה</translation>
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> ימים</translation>
 <translation id="3009731429620355204">הפעלות</translation>
@@ -527,6 +531,7 @@ Del</translation>
 <translation id="5329858601952122676">&amp;מחק</translation>
 <translation id="6710213216561001401">הקודם</translation>
 <translation id="5295309862264981122">אשר ניווט</translation>
+<translation id="1273291576878293349">פתח את כל הסימניות בחלון נסתר</translation>
 <translation id="1702534956030472451">מערב אירופאית</translation>
 <translation id="2175607476662778685">סרגל הפעלה מהירה</translation>
 <translation id="7511635910912978956">נותרו <ph name="NUMBER_FEW"/> שעות</translation>
@@ -578,6 +583,7 @@ Del</translation>
 <translation id="2979639724566107830">פתח בחלון חדש</translation>
 <translation id="6349678711452810642">הפוך לברירת מחדל</translation>
 <translation id="3520476450377425184">נותרו <ph name="NUMBER_MANY"/> ימים</translation>
+<translation id="5317780077021120954">שמור</translation>
 <translation id="7334704644505105275">פותר הבאגים JavaScript - תפוס</translation>
 <translation id="4477534650265381513">לגישה מהירה מקם את הסימניות שלך כאן, בסרגל הסימניות</translation>
 <translation id="8398877366907290961">המשך בכל זאת</translation>

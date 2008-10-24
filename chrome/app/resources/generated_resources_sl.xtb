@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Kopiraj</translation>
 <translation id="5076340679995252485">&amp;Prilepi</translation>
 <translation id="5300471193642408424">Pokaži strani</translation>
+<translation id="3994878504415702912">&amp;Povečaj</translation>
 <translation id="8434177709403049435">&amp;Kodiranje</translation>
 <translation id="6040143037577758943">Zapri</translation>
 <translation id="9147392381910171771">&amp;Možnosti</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Uredi</translation>
 <translation id="3157931365184549694">Obnovite</translation>
 <translation id="8261506727792406068">Izbriši</translation>
+<translation id="5317780077021120954">Shrani</translation>
 <translation id="5626134646977739690">Ime:</translation>
 <translation id="2148716181193084225">Danes</translation>
 <translation id="7781829728241885113">Včeraj</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Obvesti me, ko je pojavno okno blokirano</translation>
 <translation id="3383487468758466563">Pisave in jeziki:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Zdaj se vaša dejanja ne beležijo v zgodovino<ph name="END_BOLD"/>. Strani, ki jih gledate v tem oknu, ne bodo zabeležene v zgodovini vašega brskalnika ali zgodovini iskanja in ko boste to okno zaprli, v vašem računalniku ne bodo puščale drugih sledi, na primer piškotkov. Vendar pa se bodo vaše prenesene datoteke in ustvarjeni zaznamki ohranili.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Stanje, ko se dejanja ne beležijo v zgodovino, ne vpliva na obnašanje drugih ljudi, strežnikov ali programske opreme. Bodite pozorni na:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Spletna mesta, ki vaše podatke zbirajo ali dajejo v skupno rabo<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ponudnike internetnih storitev ali delodajalce, ki sledijo stranem, ki ste jih obiskali<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Zlonamerno programsko opremo, ki v zameno za brezplačne smeške zabeleži vse, kar natipkate<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Nadzor tajnih agentov<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ljudi, ki stojijo za vami<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Več <ph name="END_LINK"/> o brskanju brez beleženja v zgodovino.</translation>
-<translation id="1604816462140255479">Besedilo &amp;povečaj</translation>
-<translation id="2089625293428655599">Delom te programske opreme so licence odobrila druga podjetja, kot je opisano na strani: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blokirano pojavno okno</translation>
+<translation id="7052402604161570346">Ta vrsta datoteke lahko škoduje vašemu računalniku. Ali ste prepričani, da želite prenesti datoteko <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Zavrzi</translation>
+<translation id="6069278982995177296">Podvoji</translation>
+<translation id="1134009406053225289">Odpri v oknu brez beleženja zgodovine</translation>
+<translation id="1273291576878293349">Vse zaznamke odpri v oknu brez beleženja zgodovine</translation>
 </translationbundle>

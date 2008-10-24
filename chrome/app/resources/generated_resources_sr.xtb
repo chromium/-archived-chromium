@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Копирај</translation>
 <translation id="5076340679995252485">&amp;Налепи</translation>
 <translation id="5300471193642408424">Прикажи странице</translation>
+<translation id="3994878504415702912">&amp;Зумирај</translation>
 <translation id="8434177709403049435">&amp;Кодирање</translation>
 <translation id="6040143037577758943">Затвори</translation>
 <translation id="9147392381910171771">&amp;Опције</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Измени</translation>
 <translation id="3157931365184549694">Поново отворите</translation>
 <translation id="8261506727792406068">Брисање</translation>
+<translation id="5317780077021120954">Сачувај</translation>
 <translation id="5626134646977739690">Име:</translation>
 <translation id="2148716181193084225">Данас</translation>
 <translation id="7781829728241885113">Јуче</translation>
@@ -686,6 +688,10 @@
 <translation id="5291303148298143069">Обавести ме кад год буде блокиран неки искачући прозор</translation>
 <translation id="3383487468758466563">Фонтови и језици:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Пребацили сте се на „Без архивирања“<ph name="END_BOLD"/>. Странице које буду приказане у овом прозору неће се појавити у историји вашег прегледача ни у историји претраге, нити ће оставити било какве друге трагове, рецимо колачиће, на вашем рачунару након што затворите прозор „Без архивирања“. Међутим, све датотеке које будете преузели и обележивачи које направите биће сачувани.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Ако се пребаците на „Без архивирања“, то неће утицати на понашање других особа, сервера и софтвера. Заштитите се од:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>веб сајтова који прикупљају или деле информације о вама<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>добављача интернет услуга или послодаваца који прате странице које посећујете<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>злонамерног софтвера који прати оно што куцате на тастатури, а за узврат добијате бесплатне смајлије<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>праћење од стране тајних агената<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>особа које стоје иза вас<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Сазнајте више<ph name="END_LINK"/> о прегледању без архивирања.</translation>
-<translation id="1604816462140255479">&amp;Зумирање текста</translation>
-<translation id="2089625293428655599">Delom te programske opreme so licence odobrila druga podjetja, kot je opisano na strani: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Искачући прозор је блокиран</translation>
+<translation id="7052402604161570346">Овај тип датотеке може да нашкоди вашем рачунару. Желите ли заиста да преузмете <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Одбаци</translation>
+<translation id="6069278982995177296">Дупликат</translation>
+<translation id="1134009406053225289">Отвори у прозору за прегледање без архивирања</translation>
+<translation id="1273291576878293349">Отвори све обележиваче у прозору за прегледање без архивирања</translation>
 </translationbundle>

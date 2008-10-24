@@ -45,4 +45,8 @@
 <translation id="2499193704281978000">Google Chrome لا يستجيب. هل تريد إعادة تشغيله الآن؟</translation>
 <translation id="1137776625614346046">تعرض منطقة &quot;المواقع الأكثر زيارةً&quot; المواقع التي تتردّد إليها. فبعد مرور مدّة قصيرة على استخدام Google Chrome يمكنك مشاهدة المواقع الأكثر زيارةً كلّما فتحت علامة تبويب جديدة. لمزيد من المعلومات عن هذه الميزة وعن سواها من الميزات، اذهب إلى الرّابط <ph name="BEGIN_LINK"/>صفحة بدء التشغيل<ph name="END_LINK"/>.</translation>
 <translation id="6817660909204164466">المساعدة في تحسين Google Chrome عن طريق إرسال إحصائيات الاستخدام وتقارير الأعطال تلقائيًا إلى Google</translation>
+<translation id="4281844954008187215">شروط الخدمة</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> في Google Chrome</translation>
+<translation id="2874156562296220396">أصبح Google Chrome متاحًا من خلال مشروع المصدر المفتوح <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> و<ph name="BEGIN_LINK_OSS"/>برامج أخرى مفتوحة المصدر<ph name="END_LINK_OSS"/>.</translation>
+<translation id="4071826835145709731">إن برنامج Google Chrome مثبت على مستوى النظام في هذا الكمبيوتر. سننقل التثبيت الحالي من مستوى المستخدم إلى مستوى النظام.</translation>
 </translationbundle>

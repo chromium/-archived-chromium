@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">复制(&amp;C)</translation>
 <translation id="5076340679995252485">粘贴(&amp;P)</translation>
 <translation id="5300471193642408424">显示网页</translation>
+<translation id="3994878504415702912">缩放(&amp;Z)</translation>
 <translation id="8434177709403049435">编码(&amp;E)</translation>
 <translation id="6040143037577758943">关闭</translation>
 <translation id="9147392381910171771">选项(&amp;O)</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">修改</translation>
 <translation id="3157931365184549694">恢复</translation>
 <translation id="8261506727792406068">删除</translation>
+<translation id="5317780077021120954">保存</translation>
 <translation id="5626134646977739690">名称：</translation>
 <translation id="2148716181193084225">今天</translation>
 <translation id="7781829728241885113">昨天</translation>
@@ -702,6 +704,10 @@
 <translation id="5291303148298143069">当弹出式窗口被阻止时通知我</translation>
 <translation id="3383487468758466563">字体和语言：</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>您已经隐身了<ph name="END_BOLD"/>。 您在此窗口查看的网页将不会显示在浏览器历史记录或搜索历史记录中，并且在您关闭隐身窗口后，这些网页也不会在您的计算机上留下其他记录，例如 Cookie。 不过，您下载的所有文件或创建的书签都会被保存。        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>隐身状态并不影响其他人、服务器或软件的行为。 请警惕：<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>收集或共享有关您的信息的网站<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>跟踪您所访问的网页的互联网服务提供商或雇主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>跟踪您为获取免费笑脸图标所用按键的恶意软件<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>间谍的监视<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>站在您身后的人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>了解<ph name="END_LINK"/>有关隐身浏览的详情。</translation>
-<translation id="1604816462140255479">文字缩放(&amp;Z)</translation>
-<translation id="2089625293428655599">此软件中的某些部分授权自下述网址中的第三方：<ph name="URL"/></translation>
+<translation id="5256138355144269748">已拦截的弹出式窗口</translation>
+<translation id="7052402604161570346">该类型的文件可能会损坏您的计算机。是否确实要下载 <ph name="FILE_NAME"/>？</translation>
+<translation id="6434309073475700221">放弃</translation>
+<translation id="6069278982995177296">复制</translation>
+<translation id="1134009406053225289">在隐身窗口中打开</translation>
+<translation id="1273291576878293349">在隐身窗口中打开所有书签</translation>
 </translationbundle>

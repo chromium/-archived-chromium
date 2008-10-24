@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Copiar</translation>
 <translation id="5076340679995252485">C&amp;olar</translation>
 <translation id="5300471193642408424">Mostrar páginas</translation>
+<translation id="3994878504415702912">&amp;Zoom</translation>
 <translation id="8434177709403049435">&amp;Codificação</translation>
 <translation id="6040143037577758943">Fechar</translation>
 <translation id="9147392381910171771">&amp;Opções</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Editar</translation>
 <translation id="3157931365184549694">Restaurar</translation>
 <translation id="8261506727792406068">Eliminar</translation>
+<translation id="5317780077021120954">Guardar</translation>
 <translation id="5626134646977739690">Nome:</translation>
 <translation id="2148716181193084225">Hoje</translation>
 <translation id="7781829728241885113">Ontem</translation>
@@ -688,6 +690,10 @@
 <translation id="5291303148298143069">Notificar-me quando uma janela de pop-up for bloqueada</translation>
 <translation id="3383487468758466563">Tipos de letra e linguagens:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Está neste momento no modo sem registo<ph name="END_BOLD"/>. As páginas visualizadas nesta janela não serão apresentadas no histórico do seu browser ou no histórico de pesquisas, não deixando quaisquer indícios, tais como cookies, no seu computador depois de fechar a janela sem registo. No entanto, quaisquer ficheiros que transfira ou marcadores de posição que crie serão preservados.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>O modo sem registo não afecta o comportamento de outras pessoas, servidores ou de software. Tenha em atenção:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Web sites que recolhem ou partilham informações sobre o utilizador<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Fornecedores de serviços Internet ou funcionários que controlam as páginas que visita<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Software mal intencionado que controla os seus batimentos de tecla em troca de sorrisos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Monitorização por agentes secretos<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pessoas atrás de si enquanto está ao computador<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Saiba mais<ph name="END_LINK"/> sobre a navegação sem registo.</translation>
-<translation id="1604816462140255479">&amp;Zoom do texto</translation>
-<translation id="2089625293428655599">Partes deste software foram licenciadas de terceiros, tal como descrito em: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Pop-up bloqueado</translation>
+<translation id="7052402604161570346">Este tipo de ficheiro pode danificar o computador. Tem a certeza de que pretende transferir o ficheiro <ph name="FILE_NAME"/>?</translation>
+<translation id="6434309073475700221">Rejeitar</translation>
+<translation id="6069278982995177296">Duplicado</translation>
+<translation id="1134009406053225289">Abrir na janela sem registo</translation>
+<translation id="1273291576878293349">Abrir todos os marcadores na janela sem registo</translation>
 </translationbundle>

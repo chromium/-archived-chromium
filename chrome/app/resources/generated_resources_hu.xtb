@@ -24,6 +24,7 @@
 <translation id="7814458197256864873">&amp;Másolás</translation>
 <translation id="5076340679995252485">&amp;Beillesztés</translation>
 <translation id="5300471193642408424">Oldalak megjelenítése</translation>
+<translation id="3994878504415702912">&amp;Szöveg mérete</translation>
 <translation id="8434177709403049435">&amp;Kódolás</translation>
 <translation id="6040143037577758943">Bezárás</translation>
 <translation id="9147392381910171771">&amp;Beállítások</translation>
@@ -35,6 +36,7 @@
 <translation id="9065203028668620118">Szerkesztés</translation>
 <translation id="3157931365184549694">Visszaállítás</translation>
 <translation id="8261506727792406068">Törlés</translation>
+<translation id="5317780077021120954">Mentés</translation>
 <translation id="5626134646977739690">Név:</translation>
 <translation id="2148716181193084225">Ma</translation>
 <translation id="7781829728241885113">Tegnap</translation>
@@ -689,6 +691,10 @@
 <translation id="5291303148298143069">Értesítést szeretnék a pop-upok blokkolásáról</translation>
 <translation id="3383487468758466563">Betűtípusok és nyelvek:</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Ön inkognitóra váltott<ph name="END_BOLD"/>. Az inkognitóablakban megtekintett oldalak nem jelennek meg böngészője előzményeiben, illetve keresési előzményeiben, és nem hagynak más nyomot pl. cookie-t sem a számítógépén az inkognitóablak bezárását követően. A letöltött fájlok, valamint a létrehozott könyvjelzők azonban megmaradnak.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Az inkognitó üzemmód nem befolyásolja a többi felhasználó, szerver vagy szoftver viselkedését. Ügyeljen a következőkre:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan webhelyek, amelyek információt gyűjtenek vagy osztanak meg Önről<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan internetszolgáltatók vagy alkalmazottaik, akik nyomon követik az Ön által látogatott oldalakat<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Olyan kártékony szoftverek, amelyek ingyenes hangulatjelekért cserébe nyomon követik billentyűbeviteleit<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Titkos ügynökök megfigyelése<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Az Ön mögött álló emberek<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>További tájékoztatás<ph name="END_LINK"/> az inkognitóban történő böngészésről.</translation>
-<translation id="1604816462140255479">Nagyítás/kicsinyítés</translation>
-<translation id="2089625293428655599">A jelen szoftver bizonyos részeit harmadik féltől licenceltük, az alábbi címen leírtak szerint: <ph name="URL"/></translation>
+<translation id="5256138355144269748">Blokkolt felugró ablak</translation>
+<translation id="7052402604161570346">Az ilyen fájlok kárt okozhatnak a számítógépében. Biztosan letölti a(z) <ph name="FILE_NAME"/> fájlt?</translation>
+<translation id="6434309073475700221">Elvetés</translation>
+<translation id="6069278982995177296">Másodpéldány</translation>
+<translation id="1134009406053225289">Megnyitás inkognitóablakban</translation>
+<translation id="1273291576878293349">Az összes könyvjelző megnyitása inkognitóablakban</translation>
 </translationbundle>
