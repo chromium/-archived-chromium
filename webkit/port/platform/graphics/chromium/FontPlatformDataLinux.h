@@ -23,6 +23,7 @@ public:
     FontPlatformData();
     FontPlatformData(WTF::HashTableDeletedValueType);
     FontPlatformData(const FontDescription&, const AtomicString& family);
+    FontPlatformData(float size, bool bold, bool oblique);
     ~FontPlatformData();
 
     bool isHashTableDeletedValue() const;

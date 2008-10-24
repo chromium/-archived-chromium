@@ -730,7 +730,7 @@ input_files = [
 ]
 
 # These files don't compile yet on linux or mac.
-if env['PLATFORM'] in ('darwin', 'posix'):
+if env['PLATFORM'] in ('darwin'):
   remove_files = [
     # includes platform specific FontCustomPlatformData.h
     '$WEBCORE_DIR/css/CSSFontFaceSource.cpp',

@@ -22,7 +22,10 @@
 #define FontCustomPlatformData_h
 
 #include <wtf/Noncopyable.h>
+
+#if PLATFORM(WIN_OS)
 #include <windows.h>
+#endif
 
 namespace WebCore {
 
@@ -30,14 +33,19 @@ class FontPlatformData;
 class SharedBuffer;
 
 struct FontCustomPlatformData : Noncopyable {
+#if PLATFORM(WIN_OS)
     FontCustomPlatformData(HFONT font)
         : m_font(font)
     {}
+#endif
+
     ~FontCustomPlatformData();
 
     FontPlatformData fontPlatformData(int size, bool bold, bool italic);
 
+#if PLATFORM(WIN_OS)
     HFONT m_font;
+#endif
 };
 
 FontCustomPlatformData* createFontCustomPlatformData(SharedBuffer*);

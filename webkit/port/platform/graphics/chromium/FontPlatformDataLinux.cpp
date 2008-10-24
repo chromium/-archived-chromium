@@ -24,6 +24,10 @@ FontPlatformData::FontPlatformData(const FontDescription& fontDescription,
     notImplemented();
 }
 
+FontPlatformData::FontPlatformData(float size, bool bold, bool oblique) {
+    notImplemented();
+}
+
 FontPlatformData::~FontPlatformData() {
     notImplemented();
 }

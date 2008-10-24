@@ -23,6 +23,7 @@
 
 #include "SharedBuffer.h"
 #include "FontPlatformData.h"
+#include "NotImplemented.h"
 
 namespace WebCore {
 
@@ -40,11 +41,15 @@ FontCustomPlatformData* createFontCustomPlatformData(SharedBuffer* buffer)
 {
     ASSERT_ARG(buffer, buffer);
 
+#if PLATFORM(WIN_OS)
     HFONT font = 0;
     // FIXME: Figure out some way to get Windows to give us back a font object.
     if (!font)
         return 0;
     return new FontCustomPlatformData(font);
+#else
+    notImplemented();
+#endif
 }
 
 }
