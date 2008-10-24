@@ -36,21 +36,9 @@ void NetworkStateNotifier::updateState()
 {
 }
 
-// TODO(darin): Kill this once we stop defining PLATFORM(MAC)
-#if PLATFORM(MAC)
-void NetworkStateNotifier::networkStateChangeTimerFired(Timer<NetworkStateNotifier>*)
-{
-}
-#endif
-
-#if PLATFORM(WIN_OS) || PLATFORM(MAC)
 NetworkStateNotifier::NetworkStateNotifier()
     : m_isOnLine(true)
-#if PLATFORM(MAC)
-    , m_networkStateChangeTimer(this, &NetworkStateNotifier::networkStateChangeTimerFired)
-#endif
 {
 }
-#endif
 
 }
