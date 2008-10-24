@@ -5,6 +5,7 @@
 
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 
+#include "base/command_line.h"
 #include "base/histogram.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
@@ -17,6 +18,7 @@
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "net/base/registry_controlled_domain.h"
@@ -26,7 +28,9 @@ SafeBrowsingService::SafeBrowsingService()
       database_(NULL),
       protocol_manager_(NULL),
       enabled_(false),
-      resetting_(false) {
+      resetting_(false),
+      database_loaded_(false) {
+  new_safe_browsing_ = CommandLine().HasSwitch(switches::kUseNewSafeBrowsing);
 }
 
 SafeBrowsingService::~SafeBrowsingService() {
@@ -86,7 +90,12 @@ void SafeBrowsingService::OnIOInitialize(MessageLoop* notify_loop,
                                                       notify_loop,
                                                       client_key,
                                                       wrapped_key);
-  protocol_manager_->Initialize();
+  // We want to initialize the protocol manager only after the database has
+  // loaded, which we'll receive asynchronously (DatabaseLoadComplete). If
+  // database_loaded_ isn't true, we'll wait for that notification to do the
+  // init.
+  if (database_loaded_)
+    protocol_manager_->Initialize();
 }
 
 void SafeBrowsingService::OnDBInitialize() {
@@ -113,8 +122,15 @@ void SafeBrowsingService::OnIOShutdown() {
 
   database_ = NULL;
 
-  // Delete checks once the database thread is done, calling back any clients
-  // with 'URL_SAFE'.
+  // Delete queued and pending checks once the database thread is done, calling
+  // back any clients with 'URL_SAFE'.
+  while (!queued_checks_.empty()) {
+    QueuedCheck check = queued_checks_.front();
+    if (check.client)
+      check.client->OnUrlCheckResult(check.url, URL_SAFE);
+    queued_checks_.pop_front();
+  }
+
   for (CurrentChecks::iterator it = checks_.begin();
        it != checks_.end(); ++it) {
     if ((*it)->client)
@@ -140,9 +156,11 @@ bool SafeBrowsingService::CanCheckUrl(const GURL& url) const {
 
 bool SafeBrowsingService::CheckUrl(const GURL& url, Client* client) {
   DCHECK(MessageLoop::current() == io_loop_);
-
   if (!enabled_ || !database_)
     return true;
+
+  if (new_safe_browsing_)
+    return CheckUrlNew(url, client);
 
   if (!resetting_) {
     Time start_time = Time::Now();
@@ -161,9 +179,47 @@ bool SafeBrowsingService::CheckUrl(const GURL& url, Client* client) {
   check->start = Time::Now();
   checks_.insert(check);
 
+  // Old school SafeBrowsing does an asynchronous database check.
   db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::CheckDatabase,
       check, protocol_manager_->last_update()));
+
+  return false;
+}
+
+bool SafeBrowsingService::CheckUrlNew(const GURL& url, Client* client) {
+  if (resetting_ || !database_loaded_) {
+    QueuedCheck check;
+    check.client = client;
+    check.url = url;
+    queued_checks_.push_back(check);
+    return false;
+  }
+
+  std::string list;
+  std::vector<SBPrefix> prefix_hits;
+  std::vector<SBFullHashResult> full_hits;
+  bool prefix_match = database_->ContainsUrl(url, &list, &prefix_hits, 
+                                             &full_hits, 
+                                             protocol_manager_->last_update());
+  if (!prefix_match)
+    return true;  // URL is okay.
+
+  // Needs to be asynchronous, since we could be in the constructor of a
+  // ResourceDispatcherHost event handler which can't pause there.
+  SafeBrowsingCheck* check = new SafeBrowsingCheck();
+  check->url = url;
+  check->client = client;
+  check->result = URL_SAFE;
+  check->start = Time::Now();
+  check->need_get_hash = full_hits.empty();
+  check->prefix_hits.swap(prefix_hits);
+  check->full_hits.swap(full_hits);
+  checks_.insert(check);
+
+  io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &SafeBrowsingService::OnCheckDone, check));
+
   return false;
 }
 
@@ -218,6 +274,16 @@ void SafeBrowsingService::CancelCheck(Client* client) {
     if ((*i)->client == client)
       (*i)->client = NULL;
   }
+
+  // Scan the queued clients store. Clients may be here if they requested a URL
+  // check before the database has finished loading or resetting.
+  if (!database_loaded_ || resetting_) {
+    std::deque<QueuedCheck>::iterator it = queued_checks_.begin();
+    for (; it != queued_checks_.end(); ++it) {
+      if (it->client == client)
+        it->client = NULL;
+    }
+  }
 }
 
 void SafeBrowsingService::CheckDatabase(SafeBrowsingCheck* info,
@@ -247,16 +313,16 @@ void SafeBrowsingService::CheckDatabase(SafeBrowsingCheck* info,
         this, &SafeBrowsingService::OnCheckDone, info));
 }
 
-void SafeBrowsingService::OnCheckDone(SafeBrowsingCheck* info) {
+void SafeBrowsingService::OnCheckDone(SafeBrowsingCheck* check) {
   DCHECK(MessageLoop::current() == io_loop_);
 
   // If we've been shutdown during the database lookup, this check will already
   // have been deleted (in OnIOShutdown).
-  if (!enabled_ || checks_.find(info) == checks_.end())
+  if (!enabled_ || checks_.find(check) == checks_.end())
     return;
 
-  UMA_HISTOGRAM_TIMES(L"SB.Database", Time::Now() - info->start);
-  if (info->client && info->need_get_hash) {
+  UMA_HISTOGRAM_TIMES(L"SB.Database", Time::Now() - check->start);
+  if (check->client && check->need_get_hash) {
     // We have a partial match so we need to query Google for the full hash.
     // Clean up will happen in HandleGetHashResults.
 
@@ -265,28 +331,28 @@ void SafeBrowsingService::OnCheckDone(SafeBrowsingCheck* info) {
     // when the results arrive. We only do this for checks involving one prefix,
     // since that is the common case (multiple prefixes will issue the request
     // as normal).
-    if (info->prefix_hits.size() == 1) {
-      SBPrefix prefix = info->prefix_hits[0];
+    if (check->prefix_hits.size() == 1) {
+      SBPrefix prefix = check->prefix_hits[0];
       GetHashRequests::iterator it = gethash_requests_.find(prefix);
       if (it != gethash_requests_.end()) {
         // There's already a request in progress.
-        it->second.push_back(info);
+        it->second.push_back(check);
         return;
       }
 
       // No request in progress, so we're the first for this prefix.
       GetHashRequestors requestors;
-      requestors.push_back(info);
+      requestors.push_back(check);
       gethash_requests_[prefix] = requestors;
     }
 
     // Reset the start time so that we can measure the network time without the
     // database time.
-    info->start = Time::Now();
-    protocol_manager_->GetFullHash(info, info->prefix_hits);
+    check->start = Time::Now();
+    protocol_manager_->GetFullHash(check, check->prefix_hits);
   } else {
     // We may have cached results for previous GetHash queries.
-    HandleOneCheck(info, info->full_hits);
+    HandleOneCheck(check, check->full_hits);
   }
 }
 
@@ -304,10 +370,14 @@ SafeBrowsingDatabase* SafeBrowsingService::GetDatabase() {
 
   Time before = Time::Now();
   SafeBrowsingDatabase* database = SafeBrowsingDatabase::Create();
-  Callback0::Type* callback =
+  Callback0::Type* chunk_callback =
       NewCallback(this, &SafeBrowsingService::ChunkInserted);
-  result = database->Init(path, callback);
-  if (!result) {
+  bool init_success = database->Init(path, chunk_callback);
+
+  io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &SafeBrowsingService::DatabaseLoadComplete, !init_success));
+
+  if (!init_success) {
     NOTREACHED();
     return NULL;
   }
@@ -337,9 +407,14 @@ void SafeBrowsingService::HandleGetHashResults(
   UMA_HISTOGRAM_LONG_TIMES(L"SB.Network", Time::Now() - check->start);
   OnHandleGetHashResults(check, full_hashes);  // 'check' is deleted here.
 
-  if (can_cache)
-    db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &SafeBrowsingService::CacheHashResults, prefixes, full_hashes));
+  if (can_cache) {
+    if (!new_safe_browsing_) {
+      db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+          this, &SafeBrowsingService::CacheHashResults, prefixes, full_hashes));
+    } else if (database_) {
+      database_->CacheHashResults(prefixes, full_hashes);
+    }
+  }
 }
 
 void SafeBrowsingService::OnHandleGetHashResults(
@@ -386,17 +461,17 @@ void SafeBrowsingService::GetAllChunks() {
       this, &SafeBrowsingService::GetAllChunksFromDatabase));
 }
 
-void SafeBrowsingService::UpdateFinished() {
+void SafeBrowsingService::UpdateFinished(bool update_succeeded) {
   DCHECK(MessageLoop::current() == io_loop_);
   DCHECK(enabled_);
   db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &SafeBrowsingService::DatabaseUpdateFinished));
+      this, &SafeBrowsingService::DatabaseUpdateFinished, update_succeeded));
 }
 
-void SafeBrowsingService::DatabaseUpdateFinished() {
+void SafeBrowsingService::DatabaseUpdateFinished(bool update_succeeded) {
   DCHECK(MessageLoop::current() == db_thread_->message_loop());
   if (GetDatabase())
-    GetDatabase()->UpdateFinished();
+    GetDatabase()->UpdateFinished(update_succeeded);
 }
 
 void SafeBrowsingService::OnBlockingPageDone(const BlockingPageParam& param) {
@@ -439,6 +514,20 @@ void SafeBrowsingService::OnChunkInserted() {
   protocol_manager_->OnChunkInserted();
 }
 
+void SafeBrowsingService::DatabaseLoadComplete(bool database_error) {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  database_loaded_ = true;
+
+  // TODO(paulg): More robust database initialization error handling.
+  if (protocol_manager_ && !database_error)
+    protocol_manager_->Initialize();
+
+  // If we have any queued requests, we can now check them.
+  if (!resetting_)
+    RunQueuedClients();
+}
+
 // static
 void SafeBrowsingService::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kSafeBrowsingClientKey, L"");
@@ -462,6 +551,8 @@ void SafeBrowsingService::OnResetDatabase() {
 void SafeBrowsingService::OnResetComplete() {
   DCHECK(MessageLoop::current() == io_loop_);
   resetting_ = false;
+  database_loaded_ = true;
+  RunQueuedClients();
 }
 
 void SafeBrowsingService::HandleChunk(const std::string& list,
@@ -566,3 +657,15 @@ void SafeBrowsingService::HandleResume() {
   DCHECK(MessageLoop::current() == db_thread_->message_loop());
   GetDatabase()->HandleResume();
 }
+
+void SafeBrowsingService::RunQueuedClients() {
+  DCHECK(MessageLoop::current() == io_loop_);
+  HISTOGRAM_COUNTS(L"SB.QueueDepth", queued_checks_.size());
+  while (!queued_checks_.empty()) {
+    QueuedCheck check = queued_checks_.front();
+    HISTOGRAM_TIMES(L"SB.QueueDelay", Time::Now() - check.start);
+    CheckUrl(check.url, check.client);
+    queued_checks_.pop_front();
+  }
+}
+

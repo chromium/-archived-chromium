@@ -121,7 +121,7 @@ class SafeBrowsingProtocolParser {
   // The name of the current list
   std::string list_name_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SafeBrowsingProtocolParser);
+  DISALLOW_COPY_AND_ASSIGN(SafeBrowsingProtocolParser);
 };
 
 

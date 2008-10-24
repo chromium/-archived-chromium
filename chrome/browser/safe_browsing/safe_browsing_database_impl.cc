@@ -101,8 +101,8 @@ bool SafeBrowsingDatabaseImpl::Init(const std::wstring& filename,
   if (load_filter) {
     LoadBloomFilter();
   } else {
-    bloom_filter_.reset(
-        new BloomFilter(kBloomFilterMinSize * kBloomFilterSizeRatio));
+    bloom_filter_ =
+        new BloomFilter(kBloomFilterMinSize * kBloomFilterSizeRatio);
   }
 
   init_ = true;
@@ -225,8 +225,8 @@ bool SafeBrowsingDatabaseImpl::ResetDatabase() {
     return false;
   }
 
-  bloom_filter_.reset(
-      new BloomFilter(kBloomFilterMinSize * kBloomFilterSizeRatio));
+  bloom_filter_ =
+      new BloomFilter(kBloomFilterMinSize * kBloomFilterSizeRatio);
   file_util::Delete(bloom_filter_filename_, false);
 
   if (!Open())
@@ -1044,7 +1044,7 @@ void SafeBrowsingDatabaseImpl::OnDoneReadingHostKeys() {
   for (size_t i = 0; i < bloom_filter_temp_hostkeys_.size(); ++i)
     filter->Insert(bloom_filter_temp_hostkeys_[i]);
 
-  bloom_filter_.reset(filter);
+  bloom_filter_ = filter;
 
   TimeDelta bloom_gen = Time::Now() - before;
   TimeDelta delta = Time::Now() - bloom_filter_rebuild_time_;

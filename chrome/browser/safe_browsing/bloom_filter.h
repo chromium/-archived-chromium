@@ -8,10 +8,11 @@
 #ifndef CHROME_BROWSER_SAFE_BROWSING_BLOOM_FILTER_H_
 #define CHROME_BROWSER_SAFE_BROWSING_BLOOM_FILTER_H_
 
+#include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/basictypes.h"
 
-class BloomFilter {
+class BloomFilter : public base::RefCountedThreadSafe<BloomFilter> {
  public:
   // Constructs an empty filter with the given size.
   BloomFilter(int bit_size);

@@ -265,6 +265,7 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
                               &next_update_sec, &re_key,
                               &reset, chunk_deletes, &chunk_urls)) {
         delete chunk_deletes;
+        sb_service_->UpdateFinished(false);
         return false;
       }
 
@@ -512,7 +513,7 @@ void SafeBrowsingProtocolManager::OnChunkInserted() {
 
   if (chunk_request_urls_.empty()) {
     UMA_HISTOGRAM_LONG_TIMES(L"SB.Update", Time::Now() - last_update_);
-    sb_service_->UpdateFinished();
+    sb_service_->UpdateFinished(true);
   } else {
     IssueChunkRequest();
   }

@@ -24,7 +24,10 @@ SafeBrowsingDatabase* SafeBrowsingDatabase::Create() {
 }
 
 bool SafeBrowsingDatabase::NeedToCheckUrl(const GURL& url) {
-  if (!bloom_filter_.get())
+  // Keep a reference to the current bloom filter in case the database rebuilds
+  // it while we're accessing it.
+  scoped_refptr<BloomFilter> filter = bloom_filter_;
+  if (!filter.get())
     return true;
 
   IncrementBloomFilterReadCount();
@@ -37,16 +40,16 @@ bool SafeBrowsingDatabase::NeedToCheckUrl(const GURL& url) {
   SBPrefix host_key;
   if (url.HostIsIPAddress()) {
     base::SHA256HashString(url.host() + "/", &host_key, sizeof(SBPrefix));
-    if (bloom_filter_->Exists(host_key))
+    if (filter->Exists(host_key))
       return true;
   } else {
     base::SHA256HashString(hosts[0] + "/", &host_key, sizeof(SBPrefix));
-    if (bloom_filter_->Exists(host_key))
+    if (filter->Exists(host_key))
       return true;
 
     if (hosts.size() > 1) {
       base::SHA256HashString(hosts[1] + "/", &host_key, sizeof(SBPrefix));
-      if (bloom_filter_->Exists(host_key))
+      if (filter->Exists(host_key))
         return true;
     }
   }
@@ -77,7 +80,7 @@ void SafeBrowsingDatabase::LoadBloomFilter() {
   SB_DLOG(INFO) << "SafeBrowsingDatabase read bloom filter in " <<
         (Time::Now() - before).InMilliseconds() << " ms";
 
-  bloom_filter_.reset(new BloomFilter(data, size));
+  bloom_filter_ = new BloomFilter(data, size);
 }
 
 void SafeBrowsingDatabase::DeleteBloomFilter() {

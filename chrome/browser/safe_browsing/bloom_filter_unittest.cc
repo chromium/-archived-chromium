@@ -11,6 +11,7 @@
 
 #include "base/logging.h"
 #include "base/rand_util.h"
+#include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -27,24 +28,25 @@ TEST(SafeBrowsing, BloomFilter) {
   uint32 count = 1000;
 
   // Build up the bloom filter.
-  BloomFilter filter(count * 10);
+  scoped_refptr<BloomFilter> filter = new BloomFilter(count * 10);
 
   typedef std::set<int> Values;
   Values values;
   for (uint32 i = 0; i < count; ++i) {
     uint32 value = GenHash();
     values.insert(value);
-    filter.Insert(value);
+    filter->Insert(value);
   }
 
   // Check serialization works.
-  char* data_copy = new char[filter.size()];
-  memcpy(data_copy, filter.data(), filter.size());
-  BloomFilter filter_copy(data_copy, filter.size());
+  char* data_copy = new char[filter->size()];
+  memcpy(data_copy, filter->data(), filter->size());
+  scoped_refptr<BloomFilter> filter_copy =
+      new BloomFilter(data_copy, filter->size());
 
   // Check no false negatives by ensuring that every time we inserted exists.
   for (Values::iterator i = values.begin(); i != values.end(); ++i) {
-    EXPECT_TRUE(filter_copy.Exists(*i));
+    EXPECT_TRUE(filter_copy->Exists(*i));
   }
 
   // Check false positive error rate by checking the same number of items that
@@ -57,7 +59,7 @@ TEST(SafeBrowsing, BloomFilter) {
     if (values.find(value) != values.end())
       continue;
 
-    if (filter_copy.Exists(value))
+    if (filter_copy->Exists(value))
       found_count++;
 
     checked ++;

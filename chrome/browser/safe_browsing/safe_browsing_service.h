@@ -22,6 +22,7 @@
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/resource_type.h"
 
+class BloomFilter;
 class MessageLoop;
 class PrefService;
 class SafeBrowsingBlockingPage;
@@ -98,6 +99,9 @@ class SafeBrowsingService
   // and "client" is called asynchronously with the result when it is ready.
   bool CheckUrl(const GURL& url, Client* client);
 
+  // For the new SafeBrowsingDatabase, which runs the check synchronously.
+  bool CheckUrlNew(const GURL& url, Client* client);
+
   // Cancels a pending check if the result is no longer needed.
   void CancelCheck(Client* client);
 
@@ -111,9 +115,6 @@ class SafeBrowsingService
                            int render_view_id);
 
   // Bundle of SafeBrowsing state for one URL check.
-  // TODO(paulg): Make this struct private to SafeBrowsingService and maintain
-  //              request mappings using CancelableRequests instead (which can
-  //              store this state for us).
   struct SafeBrowsingCheck {
     GURL url;
     Client* client;
@@ -134,7 +135,7 @@ class SafeBrowsingService
   void HandleChunk(const std::string& list, std::deque<SBChunk>* chunks);
   void HandleChunkDelete(std::vector<SBChunkDelete>* chunk_deletes);
   void GetAllChunks();
-  void UpdateFinished();
+  void UpdateFinished(bool update_succeeded);
 
   // The blocking page on the UI thread has completed.
   void OnBlockingPageDone(const BlockingPageParam& param);
@@ -150,6 +151,9 @@ class SafeBrowsingService
   // Called by the database (on the db thread) when a chunk insertion is
   // complete.
   void ChunkInserted();
+
+  // Notification from the database when it's done loading its bloom filter.
+  void DatabaseLoadComplete(bool database_error);
 
   // Preference handling.
   static void RegisterUserPrefs(PrefService* prefs);
@@ -199,7 +203,7 @@ class SafeBrowsingService
 
   void NotifyClientBlockingComplete(Client* client, bool proceed);
 
-  void DatabaseUpdateFinished();
+  void DatabaseUpdateFinished(bool update_succeeded);
 
   void Start();
   void Stop();
@@ -228,6 +232,13 @@ class SafeBrowsingService
 
   // Invoked on the UI thread to show the blocking page.
   void DoDisplayBlockingPage(const BlockingPageParam& param);
+
+  // During a reset or the initial load we may have to queue checks until the
+  // database is ready. This method is run once the database has loaded (or if
+  // we shut down SafeBrowsing before the database has finished loading).
+  void RunQueuedClients();
+
+  void OnUpdateComplete(bool update_succeeded);
 
   MessageLoop* io_loop_;
 
@@ -266,7 +277,21 @@ class SafeBrowsingService
   // Indicates if we are in the process of resetting the database.
   bool resetting_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SafeBrowsingService);
+  // Indicates if we are using the new bloom filter based database.
+  bool new_safe_browsing_;
+
+  // Indicates if the database has finished initialization.
+  bool database_loaded_;
+
+  // Clients that we've queued up for checking later once the database is ready.
+  typedef struct {
+    Client* client;
+    GURL url;
+    Time start;
+  } QueuedCheck;
+  std::deque<QueuedCheck> queued_checks_;
+
+  DISALLOW_COPY_AND_ASSIGN(SafeBrowsingService);
 };
 
 #endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_SERVICE_H_

@@ -64,13 +64,14 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // Store the results of a GetHash response. In the case of empty results, we
   // cache the prefixes until the next update so that we don't have to issue
   // further GetHash requests we know will be empty.
-  virtual void CacheHashResults(const std::vector<SBPrefix>& prefixes,
-                        const std::vector<SBFullHashResult>& full_hits);
+  virtual void CacheHashResults(
+      const std::vector<SBPrefix>& prefixes,
+      const std::vector<SBFullHashResult>& full_hits);
 
   // Called when the user's machine has resumed from a lower power state.
   virtual void HandleResume();
 
-  virtual void UpdateFinished();
+  virtual void UpdateFinished(bool update_succeeded);
   virtual bool NeedToCheckUrl(const GURL& url);
 
  private:
@@ -101,10 +102,6 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
 
   // Checks if a chunk is in the database.
   bool ChunkExists(int list_id, ChunkType type, int chunk_id);
-
-  // Note the existence of a chunk in the database.  This is used as a faster
-  // cache of all of the chunks we have.
-  void InsertChunk(int list_id, ChunkType type, int chunk_id);
 
   // Return a comma separated list of chunk ids that are in the database for
   // the given list and chunk type.
@@ -164,6 +161,7 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // Clears the did_resume_ flag.  This is called by HandleResume after a delay
   // to handle the case where we weren't in the middle of any work.
   void OnResumeDone();
+
   // If the did_resume_ flag is set, sleep for a period and then clear the
   // flag.  This method should be called periodically inside of busy disk loops.
   void WaitAfterResume();
@@ -173,8 +171,18 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   void AddSub(int chunk, SBPrefix host, SBEntry* entry);
   void AddSubPrefix(SBPrefix prefix, int encoded_chunk, int encoded_add_chunk);
   void ProcessPendingSubs();
-  void CreateChunkCaches();
   int GetAddPrefixCount();
+  void AddFullPrefix(SBPrefix prefix,
+                     int encoded_chunk,
+                     SBFullHash full_prefix);
+  void SubFullPrefix(SBPrefix prefix,
+                     int encoded_chunk,
+                     int encoded_add_chunk,
+                     SBFullHash full_prefix);
+
+  // Reads and writes chunk numbers to and from persistent store.
+  void ReadChunkNumbers();
+  void WriteChunkNumbers();
 
   // Encode the list id in the lower bit of the chunk.
   static inline int EncodeChunkId(int chunk, int list_id) {
@@ -240,7 +248,7 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // Cache of prefixes that returned empty results (no full hash match).
   std::set<SBPrefix> prefix_miss_cache_;
 
-  // a cache of all of the existing add and sub chunks
+  // Caches for all of the existing add and sub chunks.
   std::set<int> add_chunk_cache_;
   std::set<int> sub_chunk_cache_;
 

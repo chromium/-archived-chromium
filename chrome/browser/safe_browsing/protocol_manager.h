@@ -204,7 +204,7 @@ class SafeBrowsingProtocolManager : public URLFetcher::Delegate {
   // Current product version sent in each request.
   std::string version_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SafeBrowsingProtocolManager);
+  DISALLOW_COPY_AND_ASSIGN(SafeBrowsingProtocolManager);
 };
 
 #endif  // CHROME_BROWSER_SAFE_BROWSING_PROTOCOL_MANAGER_H_
