@@ -32,12 +32,6 @@ class FirstRun {
   static bool CreateChromeQuickLaunchShortcut();
   // Creates the sentinel file that signals that chrome has been configured.
   static bool CreateSentinel();
-  // Removes the desktop shortcut to chrome. Returns false if it could not
-  // be removed.
-  static bool RemoveChromeDesktopShortcut();
-  // Removes the quick launch shortcut to chrome. Returns false if it could not
-  // be removed.
-  static bool RemoveChromeQuickLaunchShortcut();
   // Removes the sentinel file created in ConfigDone(). Returns false if the
   // sentinel file could not be removed.
   static bool RemoveSentinel();

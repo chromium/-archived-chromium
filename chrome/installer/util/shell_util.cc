@@ -269,7 +269,6 @@ const wchar_t* ShellUtil::kFileAssociations[] = {L".htm", L".html", L".shtml",
 const wchar_t* ShellUtil::kProtocolAssociations[] = {L"ftp", L"http", L"https",
     NULL};
 
-
 ShellUtil::RegisterStatus ShellUtil::AddChromeToSetAccessDefaults(
     const std::wstring& chrome_exe, bool skip_if_not_admin) {
   if (IsChromeRegistered(chrome_exe))
@@ -305,21 +304,170 @@ bool ShellUtil::GetChromeShortcutName(std::wstring* shortcut) {
   return true;
 }
 
-bool ShellUtil::GetDesktopPath(std::wstring* path) {
+bool ShellUtil::GetDesktopPath(bool system_level, std::wstring* path) {
   wchar_t desktop[MAX_PATH];
-  if (FAILED(SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, SHGFP_TYPE_CURRENT,
-                             desktop)))
+  int dir = system_level ? CSIDL_COMMON_DESKTOPDIRECTORY : CSIDL_DESKTOP;
+  if (FAILED(SHGetFolderPath(NULL, dir, NULL, SHGFP_TYPE_CURRENT, desktop)))
     return false;
   *path = desktop;
   return true;
 }
 
-bool ShellUtil::GetQuickLaunchPath(std::wstring* path) {
-  if (!PathService::Get(base::DIR_APP_DATA, path))
-    return false;
-  // This path works on Vista as well.
-  file_util::AppendToPath(path, L"Microsoft\\Internet Explorer\\Quick Launch");
+bool ShellUtil::GetQuickLaunchPath(bool system_level, std::wstring* path) {
+  const static wchar_t* kQuickLaunchPath =
+      L"Microsoft\\Internet Explorer\\Quick Launch";
+  wchar_t qlaunch[MAX_PATH];
+  if (system_level) {
+    // We are accessing GetDefaultUserProfileDirectory this way so that we do
+    // not have to declare dependency to Userenv.lib for chrome.exe
+    typedef BOOL (WINAPI *PROFILE_FUNC)(LPWSTR, LPDWORD);
+    HMODULE module = LoadLibrary(L"Userenv.dll");
+    PROFILE_FUNC p = reinterpret_cast<PROFILE_FUNC>(GetProcAddress(module,
+        "GetDefaultUserProfileDirectoryW"));
+    DWORD size = MAX_PATH;
+    if ((p == NULL) || ((p)(qlaunch, &size) != TRUE))
+      return false;
+    *path = qlaunch;
+    if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+      file_util::AppendToPath(path, L"AppData\\Roaming");
+    } else {
+      file_util::AppendToPath(path, L"Application Data");
+    }
+  } else {
+    if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL,
+                               SHGFP_TYPE_CURRENT, qlaunch)))
+      return false;
+    *path = qlaunch;
+  }
+  file_util::AppendToPath(path, kQuickLaunchPath);
   return true;
+}
+
+bool ShellUtil::CreateChromeDesktopShortcut(const std::wstring& chrome_exe,
+                                            int shell_change,
+                                            bool create_new) {
+  std::wstring shortcut_name;
+  if (!ShellUtil::GetChromeShortcutName(&shortcut_name))
+    return false;
+
+  bool ret = true;
+  if (shell_change & ShellUtil::CURRENT_USER) {
+    std::wstring shortcut_path;
+    if (ShellUtil::GetDesktopPath(false, &shortcut_path)) {
+      file_util::AppendToPath(&shortcut_path, shortcut_name);
+      ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, shortcut_path,
+                                                   create_new);
+    } else {
+      ret = false;
+    }
+  }
+
+  if (shell_change & ShellUtil::SYSTEM_LEVEL) {
+    std::wstring shortcut_path;
+    if (ShellUtil::GetDesktopPath(true, &shortcut_path)) {
+      file_util::AppendToPath(&shortcut_path, shortcut_name);
+      ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, shortcut_path,
+                                                   create_new);
+    } else {
+      ret = false;
+    }
+  }
+  return ret;
+}
+
+bool ShellUtil::CreateChromeQuickLaunchShortcut(const std::wstring& chrome_exe,
+                                                int shell_change,
+                                                bool create_new) {
+  std::wstring shortcut_name;
+  if (!ShellUtil::GetChromeShortcutName(&shortcut_name))
+    return false;
+
+  bool ret = true;
+  // First create shortcut for the current user.
+  if (shell_change & ShellUtil::CURRENT_USER) {
+    std::wstring user_ql_path;
+    if (ShellUtil::GetQuickLaunchPath(false, &user_ql_path)) {
+      file_util::AppendToPath(&user_ql_path, shortcut_name);
+      ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, user_ql_path,
+                                                   create_new);
+    } else {
+      ret = false;
+    }
+  }
+
+  // Add a shortcut to Default User's profile so that all new user profiles
+  // get it.
+  if (shell_change & ShellUtil::SYSTEM_LEVEL) {
+    std::wstring default_ql_path;
+    if (ShellUtil::GetQuickLaunchPath(true, &default_ql_path)) {
+      file_util::AppendToPath(&default_ql_path, shortcut_name);
+      ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, default_ql_path,
+                                                   create_new);
+    } else {
+      ret = false;
+    }
+  }
+
+  return ret;
+}
+
+bool ShellUtil::RemoveChromeDesktopShortcut(int shell_change) {
+  std::wstring shortcut_name;
+  if (!ShellUtil::GetChromeShortcutName(&shortcut_name))
+    return false;
+
+  bool ret = true;
+  if (shell_change & ShellUtil::CURRENT_USER) {
+    std::wstring shortcut_path;
+    if (ShellUtil::GetDesktopPath(false, &shortcut_path)) {
+      file_util::AppendToPath(&shortcut_path, shortcut_name);
+      ret = ret && file_util::Delete(shortcut_path, false);
+    } else {
+      ret = false;
+    }
+  }
+
+  if (shell_change & ShellUtil::SYSTEM_LEVEL) {
+    std::wstring shortcut_path;
+    if (ShellUtil::GetDesktopPath(true, &shortcut_path)) {
+      file_util::AppendToPath(&shortcut_path, shortcut_name);
+      ret = ret && file_util::Delete(shortcut_path, false);
+    } else {
+      ret = false;
+    }
+  }
+  return ret;
+}
+
+bool ShellUtil::RemoveChromeQuickLaunchShortcut(int shell_change) {
+  std::wstring shortcut_name;
+  if (!ShellUtil::GetChromeShortcutName(&shortcut_name))
+    return false;
+
+  bool ret = true;
+  // First remove shortcut for the current user.
+  if (shell_change & ShellUtil::CURRENT_USER) {
+    std::wstring user_ql_path;
+    if (ShellUtil::GetQuickLaunchPath(false, &user_ql_path)) {
+      file_util::AppendToPath(&user_ql_path, shortcut_name);
+      ret = ret && file_util::Delete(user_ql_path, false);
+    } else {
+      ret = false;
+    }
+  }
+
+  // Delete shortcut in Default User's profile
+  if (shell_change & ShellUtil::SYSTEM_LEVEL) {
+    std::wstring default_ql_path;
+    if (ShellUtil::GetQuickLaunchPath(true, &default_ql_path)) {
+      file_util::AppendToPath(&default_ql_path, shortcut_name);
+      ret = ret && file_util::Delete(default_ql_path, false);
+    } else {
+      ret = false;
+    }
+  }
+
+  return ret;
 }
 
 bool ShellUtil::UpdateChromeShortcut(const std::wstring& chrome_exe,

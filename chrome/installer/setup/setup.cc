@@ -6,6 +6,7 @@
 
 #include "chrome/installer/setup/setup.h"
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/registry.h"
@@ -37,22 +38,6 @@ void AddChromeToMediaPlayerList() {
   if (!work_item.get()->Do())
     LOG(ERROR) << "Could not add Chrome to media player inclusion list.";
 
-}
-
-// Update shortcuts that are created by chrome.exe during first run, but
-// we take care of updating them in case the location of chrome.exe changes.
-void UpdateChromeExeShortcuts(const std::wstring& chrome_exe) {
-  std::wstring desktop_shortcut, ql_shortcut, shortcut_name;
-  if (!ShellUtil::GetQuickLaunchPath(&ql_shortcut) ||
-      !ShellUtil::GetDesktopPath(&desktop_shortcut) ||
-      !ShellUtil::GetChromeShortcutName(&shortcut_name))
-    return;
-  file_util::AppendToPath(&ql_shortcut, shortcut_name);
-  file_util::AppendToPath(&desktop_shortcut, shortcut_name);
-
-  // Go ahead and update the shortcuts if they exist.
-  ShellUtil::UpdateChromeShortcut(chrome_exe, ql_shortcut, false);
-  ShellUtil::UpdateChromeShortcut(chrome_exe, desktop_shortcut, false);
 }
 
 // This method creates Chrome shortcuts in Start->Programs for all users or
@@ -94,7 +79,7 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   // - The shortcut already exists in case of updates (user may have deleted
   //   shortcuts since our install. So on updates we only update if shortcut
   //   already exists)
-  bool ret1 = true;
+  bool ret = true;
   std::wstring chrome_link(shortcut_path);  // Chrome link (launches Chrome)
   file_util::AppendToPath(&chrome_link, product_name + L".lnk");
   std::wstring chrome_exe(install_path);  // Chrome link target
@@ -106,15 +91,16 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
       file_util::CreateDirectoryW(shortcut_path);
 
     LOG(INFO) << "Creating shortcut to " << chrome_exe << " at " << chrome_link;
-    ShellUtil::UpdateChromeShortcut(chrome_exe, chrome_link, true);
+    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe, chrome_link, true);
   } else if (file_util::PathExists(chrome_link)) {
     LOG(INFO) << "Updating shortcut at " << chrome_link
               << " to point to " << chrome_exe;
-    ShellUtil::UpdateChromeShortcut(chrome_exe, chrome_link, false);
+    ret = ret && ShellUtil::UpdateChromeShortcut(chrome_exe,
+                                                 chrome_link,
+                                                 false); // do not create new
   }
 
   // Create/update uninstall link
-  bool ret2 = true;
   std::wstring uninstall_link(shortcut_path);  // Uninstall Chrome link
   file_util::AppendToPath(&uninstall_link,
       dist->GetUninstallLinkName() + L".lnk");
@@ -136,19 +122,33 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
 
     LOG(INFO) << "Creating/updating uninstall link at " << uninstall_link;
     std::wstring target_folder = file_util::GetDirectoryFromPath(install_path);
-    ret2 = file_util::CreateShortcutLink(setup_exe.c_str(),
-                                         uninstall_link.c_str(),
-                                         target_folder.c_str(),
-                                         arguments.c_str(),
-                                         NULL,
-                                         setup_exe.c_str(),
-                                         0);
+    ret = ret && file_util::CreateShortcutLink(setup_exe.c_str(),
+                                               uninstall_link.c_str(),
+                                               target_folder.c_str(),
+                                               arguments.c_str(),
+                                               NULL, setup_exe.c_str(), 0);
   }
 
-  // Update Desktop and Quick Launch shortcuts (only if they already exist)
-  UpdateChromeExeShortcuts(chrome_exe);
+  // Update Desktop and Quick Launch shortcuts. If --create-new-shortcuts
+  // is specified we want to create them, otherwise we update them only if
+  // they exist.
+  bool create = false;  // Only update; do not create, if they do not exist
+  CommandLine cmd_line;
+  if (cmd_line.HasSwitch(installer_util::switches::kCreateAllShortcuts))
+    create = true;
+  if (system_install) {
+    ret = ret && ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
+        ShellUtil::SYSTEM_LEVEL, create);
+    ret = ret && ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
+        ShellUtil::CURRENT_USER | ShellUtil::SYSTEM_LEVEL, create);
+  } else {
+    ret = ret && ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
+        ShellUtil::CURRENT_USER, create);
+    ret = ret && ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
+        ShellUtil::CURRENT_USER, create);
+  }
 
-  return ret1 && ret2;
+  return ret;
 }
 }  // namespace
 

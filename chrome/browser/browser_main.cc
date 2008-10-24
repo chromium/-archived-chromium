@@ -53,6 +53,7 @@
 #include "chrome/installer/util/google_update_settings.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"
+#include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/version.h"
 #include "chrome/views/accelerator_handler.h"
 #include "net/base/net_module.h"
@@ -167,9 +168,10 @@ int DoUninstallTasks() {
   ResultCodes::ExitCode ret = ResultCodes::NORMAL_EXIT;
   if (!FirstRun::RemoveSentinel())
     ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
-  if (!FirstRun::RemoveChromeDesktopShortcut())
+  // We only want to modify user level shortcuts so pass false for system_level.
+  if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER))
     ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
-  if (!FirstRun::RemoveChromeQuickLaunchShortcut())
+  if (!ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER))
     ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
   return ret;
 }

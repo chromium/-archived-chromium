@@ -93,41 +93,21 @@ bool FirstRun::IsChromeFirstRun() {
 }
 
 bool FirstRun::CreateChromeDesktopShortcut() {
-  std::wstring chrome_exe, shortcut_path, shortcut_name;
-  if (!PathService::Get(base::FILE_EXE, &chrome_exe) ||
-      !ShellUtil::GetDesktopPath(&shortcut_path) ||
-      !ShellUtil::GetChromeShortcutName(&shortcut_name))
+  std::wstring chrome_exe;
+  if (!PathService::Get(base::FILE_EXE, &chrome_exe))
     return false;
-  file_util::AppendToPath(&shortcut_path, shortcut_name);
-  return ShellUtil::UpdateChromeShortcut(chrome_exe, shortcut_path, true);
-}
-
-bool FirstRun::RemoveChromeDesktopShortcut() {
-  std::wstring shortcut_path, shortcut_name;
-  if (!ShellUtil::GetDesktopPath(&shortcut_path) ||
-      !ShellUtil::GetChromeShortcutName(&shortcut_name))
-    return false;
-  file_util::AppendToPath(&shortcut_path, shortcut_name);
-  return file_util::Delete(shortcut_path, false);
+  return ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
+    ShellUtil::CURRENT_USER, // create only for current user
+    true); // create if doesnt exist
 }
 
 bool FirstRun::CreateChromeQuickLaunchShortcut() {
-  std::wstring chrome_exe, shortcut_path, shortcut_name;
-  if (!PathService::Get(base::FILE_EXE, &chrome_exe) ||
-      !ShellUtil::GetQuickLaunchPath(&shortcut_path) ||
-      !ShellUtil::GetChromeShortcutName(&shortcut_name))
+  std::wstring chrome_exe;
+  if (!PathService::Get(base::FILE_EXE, &chrome_exe))
     return false;
-  file_util::AppendToPath(&shortcut_path, shortcut_name);
-  return ShellUtil::UpdateChromeShortcut(chrome_exe, shortcut_path, true);
-}
-
-bool FirstRun::RemoveChromeQuickLaunchShortcut() {
-  std::wstring shortcut_path, shortcut_name;
-  if (!ShellUtil::GetQuickLaunchPath(&shortcut_path) ||
-      !ShellUtil::GetChromeShortcutName(&shortcut_name))
-    return false;
-  file_util::AppendToPath(&shortcut_path, shortcut_name);
-  return file_util::Delete(shortcut_path, false);
+  return ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
+    ShellUtil::CURRENT_USER, // create only for current user
+    true); // create if doesnt exist
 }
 
 bool FirstRun::RemoveSentinel() {
