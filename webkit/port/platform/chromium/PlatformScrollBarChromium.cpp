@@ -27,10 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// TODO(pinkerton): clearly this needs a lot of work for mac and linux. 
+// Right now it has just been stubbed out to get things to compile with fixed
+// geometries.
+
 #include "config.h"
 #include <algorithm>
+#if PLATFORM(WIN_OS)
 #include <windows.h>
 #include <vsstyle.h>
+#endif
 #include "FrameView.h"
 #include "GraphicsContext.h"
 #include "IntRect.h"
@@ -44,10 +50,14 @@
 #include "graphics/SkiaUtils.h"
 
 #undef LOG
+#if PLATFORM(WIN_OS)
 #include "base/gfx/native_theme.h"
-#include "base/gfx/platform_canvas_win.h"
+#endif
+#include "base/gfx/platform_canvas.h"
 #include "base/gfx/skia_utils.h"
+#if PLATFORM(WIN_OS)
 #include "base/win_util.h"
+#endif
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -79,15 +89,23 @@ static const int kLayoutTestScrollbarThumbGirth = 17;
 /*static*/ int PlatformScrollbar::horizontalScrollbarHeight(
     ScrollbarControlSize controlSize)
 {
+#if PLATFORM(WIN)
     return webkit_glue::IsLayoutTestMode() ? kMacScrollbarSize[controlSize] :
         GetSystemMetrics(SM_CYHSCROLL);
+#elif PLATFORM(UNIX)
+    return kMacScrollbarSize[controlSize];
+#endif
 }
 
 /*static*/ int PlatformScrollbar::verticalScrollbarWidth(
     ScrollbarControlSize controlSize)
 {
+#if PLATFORM(WIN)
     return webkit_glue::IsLayoutTestMode() ? kMacScrollbarSize[controlSize] :
         GetSystemMetrics(SM_CXVSCROLL);
+#elif PLATFORM(UNIX)
+    return kMacScrollbarSize[controlSize];
+#endif
 }
 
 PlatformScrollbar::PlatformScrollbar(ScrollbarClient* client,
@@ -136,6 +154,7 @@ void PlatformScrollbar::setEnabled(bool enabled)
 
 void PlatformScrollbar::DrawTickmarks(GraphicsContext* context) const
 {
+#if PLATFORM(WIN_OS)
     // We don't draw on the horizontal scrollbar. It is too confusing
     // to have the tickmarks appear on both scrollbars.
     const bool horz = orientation() == HorizontalScrollbar;
@@ -220,11 +239,13 @@ void PlatformScrollbar::DrawTickmarks(GraphicsContext* context) const
         // Draw the tick-mark as a rounded rect with a slightly curved edge.
         canvas->drawBitmap(*dash, track_area.left, y_pos);
     }
+#endif
 }
 
 // paint in the coordinate space of our parent's content area
 void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
 {
+#if PLATFORM(WIN_OS)
     if (gc->paintingDisabled())
         return;
 
@@ -317,6 +338,7 @@ void PlatformScrollbar::paint(GraphicsContext* gc, const IntRect& damageRect)
     gc->platformContext()->canvas()->endPlatformPaint();
 
     gc->restore();
+#endif
 }
 
 void PlatformScrollbar::setFrameGeometry(const IntRect& rect)
@@ -555,8 +577,12 @@ void PlatformScrollbar::setCapturingMouse(bool capturing)
 int PlatformScrollbar::scrollButtonGirth(int systemMetricsCode, int limit,
                                          int* backgroundSpan)
 {
+#if PLATFORM(WIN_OS)
     const int girth = webkit_glue::IsLayoutTestMode() ? 
         kLayoutTestScrollbarButtonGirth : GetSystemMetrics(systemMetricsCode);
+#elif PLATFORM(UNIX)
+    const int girth = kLayoutTestScrollbarButtonGirth;
+#endif
     *backgroundSpan = limit - 2 * girth;
     if (*backgroundSpan < 0) {
         *backgroundSpan = 0;
@@ -568,14 +594,19 @@ int PlatformScrollbar::scrollButtonGirth(int systemMetricsCode, int limit,
 int PlatformScrollbar::scrollThumbGirth(int systemMetricsCode,
                                         int backgroundSpan)
 {
+#if PLATFORM(WIN_OS)
     const int minimumGirth = webkit_glue::IsLayoutTestMode() ? 
         kLayoutTestScrollbarThumbGirth : GetSystemMetrics(systemMetricsCode);
+#elif PLATFORM(UNIX)
+    const int minimumGirth = kLayoutTestScrollbarThumbGirth;
+#endif
     return std::max<int>(m_visibleSize * backgroundSpan / m_totalSize,
                          minimumGirth);
 }
 
 void PlatformScrollbar::layout()
 {
+#if PLATFORM(WIN_OS)
     if (!m_needsLayout)
         return;
     m_needsLayout = false;
@@ -658,6 +689,7 @@ void PlatformScrollbar::layout()
     // setting m_needsLayout = true; by the time we reach this point, we're
     // called by paint(), so invalidate() is not only unnecessary but will
     // waste effort.
+#endif
 }
 
 void PlatformScrollbar::updateMousePosition(int x, int y)
@@ -695,6 +727,7 @@ void PlatformScrollbar::updateMousePositionInternal()
 
 int PlatformScrollbar::getThemeState(Segment target) const
 {
+#if PLATFORM(WIN_OS)
     // When dragging the thumb, draw thumb pressed and other segments normal
     // regardless of where the cursor actually is.  See also four places in
     // getThemeArrowState().
@@ -714,10 +747,14 @@ int PlatformScrollbar::getThemeState(Segment target) const
     if (m_captureStart == None)
         return SCRBS_HOT;
     return (m_captureStart == target) ? SCRBS_PRESSED : SCRBS_NORMAL;
+#elif PLATFORM(UNIX)
+    return 0;
+#endif
 }
 
 int PlatformScrollbar::getThemeArrowState(Segment target) const
 {
+#if PLATFORM(WIN_OS)
     // We could take advantage of knowing the values in the state enum to write
     // some simpler code, but treating the state enum as a black box seems
     // clearer and more future-proof.
@@ -785,10 +822,14 @@ int PlatformScrollbar::getThemeArrowState(Segment target) const
     if (m_captureStart == None)
         return ABS_DOWNHOT;
     return (m_captureStart == target) ? ABS_DOWNPRESSED : ABS_DOWNNORMAL;
+#elif PLATFORM(UNIX)
+    return 0;
+#endif
 }
 
 int PlatformScrollbar::getClassicThemeState(Segment target) const
 {
+#if PLATFORM(WIN_OS)
     // When dragging the thumb, draw the buttons normal even when hovered.
     if (m_captureStart == Thumb)
         return 0;
@@ -799,6 +840,9 @@ int PlatformScrollbar::getClassicThemeState(Segment target) const
     if (m_captureStart == None)
         return DFCS_HOT;
     return (m_captureStart == target) ? (DFCS_PUSHED | DFCS_FLAT) : 0;
+#elif PLATFORM(UNIX)
+    return 0;
+#endif
 }
 
 }  // namespace WebCore
