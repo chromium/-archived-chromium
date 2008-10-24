@@ -484,7 +484,9 @@ class RecursiveClient : public Worker {
       msg->EnableMessagePumping();
     bool result = Send(msg);
     DCHECK(result != close_channel_);
-    if (!close_channel_) {
+    if (close_channel_) {
+      delete reply_msg;
+    } else {
       SyncChannelTestMsg_Double::WriteReplyParams(reply_msg, in * 2);
       Send(reply_msg);
     }
@@ -493,6 +495,7 @@ class RecursiveClient : public Worker {
 
   void OnAnswerDelay(Message* reply_msg) {
     if (close_channel_) {
+      delete reply_msg;
       CloseChannel();
     } else {
       SyncChannelTestMsg_AnswerToLife::WriteReplyParams(reply_msg, 42);
