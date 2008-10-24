@@ -56,7 +56,8 @@ TCPClientSocket::TCPClientSocket(const AddressList& addresses)
     : socket_(INVALID_SOCKET),
       addresses_(addresses),
       current_ai_(addresses_.head()),
-      wait_state_(NOT_WAITING) {
+      wait_state_(NOT_WAITING),
+      callback_(NULL) {
   memset(&overlapped_, 0, sizeof(overlapped_));
   EnsureWinsockInit();
 }
@@ -228,11 +229,11 @@ int TCPClientSocket::CreateSocket(const struct addrinfo* ai) {
   //    http://support.microsoft.com/kb/823764/EN-US
   // On XP, the default buffer sizes are 8KB.
   const int kSocketBufferSize = 32 * 1024;
-  int rv = setsockopt(socket_, SOL_SOCKET, SO_SNDBUF, 
+  int rv = setsockopt(socket_, SOL_SOCKET, SO_SNDBUF,
       reinterpret_cast<const char*>(&kSocketBufferSize),
       sizeof(kSocketBufferSize));
   DCHECK(!rv) << "Could not set socket send buffer size";
-  rv = setsockopt(socket_, SOL_SOCKET, SO_RCVBUF, 
+  rv = setsockopt(socket_, SOL_SOCKET, SO_RCVBUF,
       reinterpret_cast<const char*>(&kSocketBufferSize),
       sizeof(kSocketBufferSize));
   DCHECK(!rv) << "Could not set socket receive buffer size";
@@ -254,7 +255,7 @@ int TCPClientSocket::CreateSocket(const struct addrinfo* ai) {
   //     Client writes 50 bytes of POST data (partial packet #2)
   // In the above example, with Nagle, a RTT delay is inserted between these
   // two sends due to nagle.  RTTs can easily be 100ms or more.  The best
-  // fix is to make sure that for POSTing data, we write as much data as 
+  // fix is to make sure that for POSTing data, we write as much data as
   // possible and minimize partial packets.  We will fix that.  But disabling
   // Nagle also ensure we don't run into this delay in other edge cases.
   // See also:
