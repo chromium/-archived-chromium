@@ -45,12 +45,7 @@
 				7BF8964E0E75D705000BAF8A /* PBXTargetDependency */,
 				4D7B02320E9D57E4009A6919 /* PBXTargetDependency */,
 				7BF895DE0E75D5FB000BAF8A /* PBXTargetDependency */,
-				4DB68A420EAFF13D00AB2128 /* PBXTargetDependency */,
-				4DB681B50EAF948E00AB2128 /* PBXTargetDependency */,
-				4DB681B70EAF948E00AB2128 /* PBXTargetDependency */,
-				4DB681B90EAF948E00AB2128 /* PBXTargetDependency */,
-				4DB681BB0EAF948E00AB2128 /* PBXTargetDependency */,
-				4DB681BD0EAF948E00AB2128 /* PBXTargetDependency */,
+				4DB042C40EB1536A00A5633C /* PBXTargetDependency */,
 				7BF896440E75D705000BAF8A /* PBXTargetDependency */,
 			);
 			name = All;
@@ -115,47 +110,19 @@
 			remoteGlobalIDString = 4D7B014C0E9D572C009A6919;
 			remoteInfo = run_unit_tests;
 		};
+		4DB042C30EB1536A00A5633C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E45627B70E2691D0005E4685 /* All */;
+			remoteInfo = All;
+		};
 		4DB6807E0EAF88B000AB2128 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D7B02380E9D5816009A6919 /* chrome.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 4D640CEB0EAE86BD00EBCFC0;
 			remoteInfo = renderer;
-		};
-		4DB681B40EAF948E00AB2128 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 7BFD8E650DAFE7630084BC4B;
-			remoteInfo = jsbindings;
-		};
-		4DB681B60EAF948E00AB2128 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 7B27489C0E43815F009BCE03;
-			remoteInfo = pcre;
-		};
-		4DB681B80EAF948E00AB2128 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = E45620380E268E87005E4685;
-			remoteInfo = webcore;
-		};
-		4DB681BA0EAF948E00AB2128 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 4DB7FE6E0E9BF6AC00C66CE0;
-			remoteInfo = webcoresysteminterface;
-		};
-		4DB681BC0EAF948E00AB2128 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 7B5E85AD0D7F28CD001ECF42;
-			remoteInfo = wtf;
 		};
 		4DB686620EAFE60400AB2128 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -170,13 +137,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4DB684920EAFDF7000AB2128;
 			remoteInfo = xslt;
-		};
-		4DB68A410EAFF13D00AB2128 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 7BF895BB0E75D5E5000BAF8A /* webkit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = E45626A20E268F03005E4685;
-			remoteInfo = glue;
 		};
 		7B262E390E82E508001CE27F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1311,40 +1271,15 @@
 			name = run_unit_tests;
 			targetProxy = 4D7B02570E9D5833009A6919 /* PBXContainerItemProxy */;
 		};
-		4DB681B50EAF948E00AB2128 /* PBXTargetDependency */ = {
+		4DB042C40EB1536A00A5633C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = jsbindings;
-			targetProxy = 4DB681B40EAF948E00AB2128 /* PBXContainerItemProxy */;
-		};
-		4DB681B70EAF948E00AB2128 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = pcre;
-			targetProxy = 4DB681B60EAF948E00AB2128 /* PBXContainerItemProxy */;
-		};
-		4DB681B90EAF948E00AB2128 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = webcore;
-			targetProxy = 4DB681B80EAF948E00AB2128 /* PBXContainerItemProxy */;
-		};
-		4DB681BB0EAF948E00AB2128 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = webcoresysteminterface;
-			targetProxy = 4DB681BA0EAF948E00AB2128 /* PBXContainerItemProxy */;
-		};
-		4DB681BD0EAF948E00AB2128 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = wtf;
-			targetProxy = 4DB681BC0EAF948E00AB2128 /* PBXContainerItemProxy */;
+			name = All;
+			targetProxy = 4DB042C30EB1536A00A5633C /* PBXContainerItemProxy */;
 		};
 		4DB686790EAFE61A00AB2128 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = xslt;
 			targetProxy = 4DB686780EAFE61A00AB2128 /* PBXContainerItemProxy */;
-		};
-		4DB68A420EAFF13D00AB2128 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = glue;
-			targetProxy = 4DB68A410EAFF13D00AB2128 /* PBXContainerItemProxy */;
 		};
 		7B2630020E82F19B001CE27F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
