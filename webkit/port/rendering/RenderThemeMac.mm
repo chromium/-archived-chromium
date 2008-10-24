@@ -17,6 +17,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
+// TODO(pinkerton): we still need to figure out if passing a null view to
+// the cell drawing routines will work. I expect not, and if that's the case
+// we'll have to figure out something else. For now, at least leave the lines
+// commented in, but the procurement of the view if 0'd.
+
 #import "config.h"
 #import "RenderThemeMac.h"
 
@@ -52,6 +57,7 @@ using std::min;
 // The methods in this file are specific to the Mac OS X platform.
 
 // FIXME: The platform-independent code in this class should be factored out and merged with RenderThemeSafari. 
+
 
 @interface WebCoreRenderThemeNotificationObserver : NSObject
 {
@@ -98,6 +104,24 @@ enum {
     bottomPadding,
     leftPadding
 };
+
+// In our Mac port, we don't define PLATFORM(MAC) and thus don't pick up the
+// |operator NSRect()| on WebCore::IntRect and FloatRect. This substitues for that missing
+// conversion operator.
+NSRect IntRectToNSRect(const IntRect & rect)
+{
+    return NSMakeRect(rect.x(), rect.y(), rect.width(), rect.height());
+}
+
+NSRect FloatRectToNSRect(const FloatRect & rect)
+{
+    return NSMakeRect(rect.x(), rect.y(), rect.width(), rect.height());
+}
+
+IntRect NSRectToIntRect(const NSRect & rect)
+{
+    return IntRect(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+}
 
 RenderTheme* theme()
 {
@@ -666,7 +690,9 @@ bool RenderThemeMac::paintCheckbox(RenderObject* o, const RenderObject::PaintInf
         paintInfo.context->translate(-inflatedRect.x(), -inflatedRect.y());
     }
     
-    [checkbox drawWithFrame:NSRect(inflatedRect) inView:o->view()->frameView()->documentView()];
+#if 0
+    [checkbox drawWithFrame:NSRect(IntRectToNSRect(inflatedRect)) inView:o->view()->frameView()->documentView()];
+#endif
     [checkbox setControlView:nil];
 
     paintInfo.context->restore();
@@ -740,7 +766,11 @@ bool RenderThemeMac::paintRadio(RenderObject* o, const RenderObject::PaintInfo& 
         paintInfo.context->translate(-inflatedRect.x(), -inflatedRect.y());
     }
 
-    [radio drawWithFrame:NSRect(inflatedRect) inView:o->view()->frameView()->documentView()];
+#if 0
+    NSView* view = o->view()->frameView()->documentView();
+#endif
+    NSView* view = nil;
+    [radio drawWithFrame:NSRect(IntRectToNSRect(inflatedRect)) inView:view];
     [radio setControlView:nil];
 
     paintInfo.context->restore();
@@ -892,9 +922,11 @@ void RenderThemeMac::setButtonCellState(const RenderObject* o, const IntRect& r)
 
     setControlSize(button, buttonSizes(), r.size(), o->style()->effectiveZoom());
 
+#if 0
     NSWindow *window = [o->view()->frameView()->documentView() window];
     BOOL isDefaultButton = (isDefault(o) && [window isKeyWindow]);
     [button setKeyEquivalent:(isDefaultButton ? @"\r" : @"")];
+#endif
 
     // Update the various states we respond to.
     updateCheckedState(button, o);
@@ -939,7 +971,10 @@ bool RenderThemeMac::paintButton(RenderObject* o, const RenderObject::PaintInfo&
         }
     } 
 
+#if 0
     NSView *view = o->view()->frameView()->documentView();
+#endif
+    NSView *view = nil;
     NSWindow *window = [view window];
     NSButtonCell *previousDefaultButtonCell = [window defaultButtonCell];
 
@@ -949,7 +984,7 @@ bool RenderThemeMac::paintButton(RenderObject* o, const RenderObject::PaintInfo&
     } else if ([previousDefaultButtonCell isEqual:button])
         [window setDefaultButtonCell:nil];
 
-    [button drawWithFrame:NSRect(inflatedRect) inView:view];
+    [button drawWithFrame:NSRect(IntRectToNSRect(inflatedRect)) inView:view];
     [button setControlView:nil];
 
     if (![previousDefaultButtonCell isEqual:button])
@@ -963,7 +998,7 @@ bool RenderThemeMac::paintButton(RenderObject* o, const RenderObject::PaintInfo&
 bool RenderThemeMac::paintTextField(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& r)
 {
     LocalCurrentGraphicsContext localContext(paintInfo.context);
-    wkDrawBezeledTextFieldCell(r, isEnabled(o) && !isReadOnlyControl(o));
+    wkDrawBezeledTextFieldCell(IntRectToNSRect(r), isEnabled(o) && !isReadOnlyControl(o));
     return false;
 }
 
@@ -985,7 +1020,7 @@ bool RenderThemeMac::paintCapsLockIndicator(RenderObject* o, const RenderObject:
 bool RenderThemeMac::paintTextArea(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& r)
 {
     LocalCurrentGraphicsContext localContext(paintInfo.context);
-    wkDrawBezeledTextArea(r, isEnabled(o) && !isReadOnlyControl(o));
+    wkDrawBezeledTextArea(IntRectToNSRect(r), isEnabled(o) && !isReadOnlyControl(o));
     return false;
 }
 
@@ -1052,7 +1087,11 @@ bool RenderThemeMac::paintMenuList(RenderObject* o, const RenderObject::PaintInf
         paintInfo.context->translate(-inflatedRect.x(), -inflatedRect.y());
     }
 
-    [popupButton drawWithFrame:inflatedRect inView:o->view()->frameView()->documentView()];
+#if 0
+    NSView* view = o->view()->frameView()->documentView();
+#endif
+    NSView* view = nil;
+    [popupButton drawWithFrame:IntRectToNSRect(inflatedRect) inView:view];
     [popupButton setControlView:nil];
 
     paintInfo.context->restore();
@@ -1449,7 +1488,11 @@ bool RenderThemeMac::paintSliderThumb(RenderObject* o, const RenderObject::Paint
         paintInfo.context->translate(-unzoomedRect.x(), -unzoomedRect.y());
     }
 
-    [sliderThumbCell drawWithFrame:unzoomedRect inView:o->view()->frameView()->documentView()];
+#if 0
+    NSView* view = o->view()->frameView()->documentView();
+#endif
+    NSView* view = nil;
+    [sliderThumbCell drawWithFrame:FloatRectToNSRect(unzoomedRect) inView:view];
     [sliderThumbCell setControlView:nil];
 
     paintInfo.context->restore();
@@ -1498,7 +1541,11 @@ bool RenderThemeMac::paintSearchField(RenderObject* o, const RenderObject::Paint
     // Set the search button to nil before drawing.  Then reset it so we can draw it later.
     [search setSearchButtonCell:nil];
 
-    [search drawWithFrame:NSRect(unzoomedRect) inView:o->view()->frameView()->documentView()];
+#if 0
+    NSView* view = o->view()->frameView()->documentView();
+#endif
+    NSView* view = nil;
+    [search drawWithFrame:NSRect(IntRectToNSRect(unzoomedRect)) inView:view];
 #ifdef BUILDING_ON_TIGER
     if ([search showsFirstResponder])
         wkDrawTextFieldCellFocusRing(search, NSRect(unzoomedRect));
@@ -1583,9 +1630,9 @@ bool RenderThemeMac::paintSearchFieldCancelButton(RenderObject* o, const RenderO
 
     float zoomLevel = o->style()->effectiveZoom();
 
-    NSRect bounds = [search cancelButtonRectForBounds:NSRect(input->renderer()->absoluteBoundingBoxRect())];
+    NSRect bounds = [search cancelButtonRectForBounds:NSRect(IntRectToNSRect(input->renderer()->absoluteBoundingBoxRect()))];
     
-    IntRect unzoomedRect(bounds);
+    IntRect unzoomedRect(NSRectToIntRect(bounds));
     if (zoomLevel != 1.0f) {
         unzoomedRect.setWidth(unzoomedRect.width() / zoomLevel);
         unzoomedRect.setHeight(unzoomedRect.height() / zoomLevel);
@@ -1594,7 +1641,11 @@ bool RenderThemeMac::paintSearchFieldCancelButton(RenderObject* o, const RenderO
         paintInfo.context->translate(-unzoomedRect.x(), -unzoomedRect.y());
     }
 
-    [[search cancelButtonCell] drawWithFrame:unzoomedRect inView:o->view()->frameView()->documentView()];
+#if 0
+    NSView* view = o->view()->frameView()->documentView();
+#endif
+    NSView* view = nil;
+    [[search cancelButtonCell] drawWithFrame:IntRectToNSRect(unzoomedRect) inView:view];
     [[search cancelButtonCell] setControlView:nil];
 
     paintInfo.context->restore();
@@ -1653,8 +1704,12 @@ bool RenderThemeMac::paintSearchFieldResultsDecoration(RenderObject* o, const Re
     if ([search searchMenuTemplate] != nil)
         [search setSearchMenuTemplate:nil];
 
-    NSRect bounds = [search searchButtonRectForBounds:NSRect(input->renderer()->absoluteBoundingBoxRect())];
-    [[search searchButtonCell] drawWithFrame:bounds inView:o->view()->frameView()->documentView()];
+    NSRect bounds = [search searchButtonRectForBounds:NSRect(IntRectToNSRect(input->renderer()->absoluteBoundingBoxRect()))];
+#if 0
+    NSView* view = o->view()->frameView()->documentView();
+#endif
+    NSView* view = nil;
+    [[search searchButtonCell] drawWithFrame:bounds inView:view];
     [[search searchButtonCell] setControlView:nil];
     return false;
 }
@@ -1682,9 +1737,9 @@ bool RenderThemeMac::paintSearchFieldResultsButton(RenderObject* o, const Render
 
     float zoomLevel = o->style()->effectiveZoom();
 
-    NSRect bounds = [search searchButtonRectForBounds:NSRect(input->renderer()->absoluteBoundingBoxRect())];
+    NSRect bounds = [search searchButtonRectForBounds:NSRect(IntRectToNSRect(input->renderer()->absoluteBoundingBoxRect()))];
     
-    IntRect unzoomedRect(bounds);
+    IntRect unzoomedRect(NSRectToIntRect(bounds));
     if (zoomLevel != 1.0f) {
         unzoomedRect.setWidth(unzoomedRect.width() / zoomLevel);
         unzoomedRect.setHeight(unzoomedRect.height() / zoomLevel);
@@ -1693,7 +1748,11 @@ bool RenderThemeMac::paintSearchFieldResultsButton(RenderObject* o, const Render
         paintInfo.context->translate(-unzoomedRect.x(), -unzoomedRect.y());
     }
 
-    [[search searchButtonCell] drawWithFrame:unzoomedRect inView:o->view()->frameView()->documentView()];
+#if 0
+    NSView* view = o->view()->frameView()->documentView();
+#endif
+    NSView* view = nil;
+    [[search searchButtonCell] drawWithFrame:IntRectToNSRect(unzoomedRect) inView:view];
     [[search searchButtonCell] setControlView:nil];
     
     paintInfo.context->restore();
