@@ -30,8 +30,11 @@ import google.process_utils as proc
 
 
 # The list of binaries that will be instrumented for code coverage
-windows_binaries = ['unit_tests.exe',
+windows_binaries = ['base_unittests.exe',
+                    'unit_tests.exe',
+                    'automated_ui_tests.exe',
                     'ui_tests.exe',
+                    'installer_unittests.exe',
                     'ipc_tests.exe',
                     'memory_test.exe',
                     'net_perftests.exe',
@@ -39,7 +42,9 @@ windows_binaries = ['unit_tests.exe',
                     'page_cycler_tests.exe',
                     'perf_tests.exe',
                     'plugin_tests.exe',
+                    'security_tests.dll',
                     'selenium_tests.exe',
+                    'startup_tests.exe',
                     'tab_switching_test.exe',
                     'test_shell_tests.exe',
                     'test_shell.exe',
@@ -47,11 +52,15 @@ windows_binaries = ['unit_tests.exe',
                   
 # The list of tests that will be run
 windows_tests = ['unit_tests.exe',
+                 'base_unittests.exe',
+                 'automated_ui_tests.exe',
                  'ui_tests.exe',
+                 'installer_unittests.exe',
                  'ipc_tests.exe',
                  'net_perftests.exe',
                  'net_unittests.exe',
                  'plugin_tests.exe',
+                 'startup_tests.exe',
                  'tab_switching_test.exe',
                  'test_shell_tests.exe']
 
@@ -89,7 +98,7 @@ class Coverage(object):
     self.instrumented = False
     self.tools_path = tools_path
     self.src_path = src_path
-    self._dir = None
+    self._dir = tempfile.mkdtemp()
   
   
   def SetUp(self, binaries):
@@ -103,14 +112,12 @@ class Coverage(object):
       binaries: List of binaries that need to be instrumented.
 
     Returns:
-      Path of the file containing code coverage data on successful
-      instrumentation.
-      None on error.
+      True on success.
+      False on error.
     """
     if self.instrumented:
       logging.error('Binaries already instrumented')
-      return None
-    coverage_file = None
+      return False
     if IsWindows():
       # Stop all previous instance of VSPerfMon counters
       counters_command = ('%s -shutdown' % 
@@ -121,7 +128,7 @@ class Coverage(object):
       # using the /PROFILE linker flag.
       if self.tools_path == None:
         logging.error('Could not locate Visual Studio Team Server tools')
-        return None
+        return False
       # Remove trailing slashes
       self.tools_path = self.tools_path.rstrip('\\') 
       instrument_command = '%s /COVERAGE ' % (os.path.join(self.tools_path,
@@ -136,30 +143,10 @@ class Coverage(object):
         # Check if the file has been instrumented correctly.
         if output.pop().rfind('Successfully instrumented') == -1:
           logging.error('Error instrumenting %s' % (binary))
-          return None
-
-      # Generate the file name for the coverage results
-      self._dir = tempfile.mkdtemp()
-      coverage_file = os.path.join(self._dir, 'chrome_win32_%s.coverage' % 
-                                              (self.revision))
-      logging.info('.coverage file: %s' % (coverage_file))
-
-      # After all the binaries have been instrumented, we start the counters.
-      counters_command = ('%s -start:coverage -output:%s' %
-                          (os.path.join(self.tools_path, 'vsperfcmd.exe'),
-                          coverage_file))
-      # Here we use subprocess.call() instead of the RunCommandFull because the
-      # VSPerfCmd spawns another process before terminating and this confuses
-      # the subprocess.Popen() used by RunCommandFull.
-      retcode = subprocess.call(counters_command)
-      # TODO(niranjan): Check whether the counters have been started
-      # successfully.
-      
+          return False
       # We are now ready to run tests and measure code coverage.
       self.instrumented = True
-    else:
-      return None
-    return coverage_file
+      return True
       
 
   def TearDown(self):
@@ -190,7 +177,49 @@ class Coverage(object):
     self.instrumented = False
     
 
-  def Upload(self, coverage_file, upload_path, sym_path=None, src_root=None):
+  def RunTest(self, test):
+    """Run tests and collect the .coverage file
+
+    Args: 
+      test: Path to the test to be run.
+
+    Returns:
+      Path of the intermediate .coverage file on success.
+      None on error.
+    """
+    # Generate the intermediate file name for the coverage results
+    testname = os.path.split(test)[1].strip('.exe')
+    coverage_file = os.path.join(self._dir, '%s_win32_%s.coverage' % 
+                                            (testname, self.revision))
+    logging.info('.coverage file for test %s: %s' % (test, coverage_file))
+
+    # After all the binaries have been instrumented, we start the counters.
+    counters_command = ('%s -start:coverage -output:%s' %
+                        (os.path.join(self.tools_path, 'vsperfcmd.exe'),
+                         coverage_file))
+    # Here we use subprocess.call() instead of the RunCommandFull because the
+    # VSPerfCmd spawns another process before terminating and this confuses
+    # the subprocess.Popen() used by RunCommandFull.
+    retcode = subprocess.call(counters_command)
+    
+    # Run the test binary
+    logging.info('Executing test %s: ' % test)
+    (retcode, output) = proc.RunCommandFull(test, collect_output=True)
+    if retcode != 0: # Return error if the tests fail
+      logging.error('One or more tests failed in %s.' % test)
+      return None
+    
+    # Stop the counters
+    counters_command = ('%s -shutdown' % 
+                        (os.path.join(self.tools_path, 'vsperfcmd.exe')))
+    (retcode, output) = proc.RunCommandFull(counters_command,
+                                            collect_output=True)
+    logging.info('Counters shut down: %s' % (output))
+    # Return the intermediate .coverage file
+    return coverage_file
+
+    
+  def Upload(self, list_coverage, upload_path, sym_path=None, src_root=None):
     """Upload the results to the dashboard.
 
     This method uploads the coverage data to a dashboard where it will be
@@ -198,7 +227,7 @@ class Coverage(object):
     the lcov format. This method needs to be called before the TearDown method.
 
     Args:
-      coverage_file: The coverage data file to upload.
+      list_coverage: The list of coverage data files to consoliate and upload.
       upload_path: Destination where the coverage data will be processed.
       sym_path: Symbol path for the build (Win32 only)
       src_root: Root folder of the source tree (Win32 only)
@@ -214,25 +243,36 @@ class Coverage(object):
       (retcode, output) = proc.RunCommandFull(counters_command,
                                               collect_output=True)
       logging.info('Counters shut down: %s' % (output))
-      # Convert the .coverage file to lcov format
-      if self.tools_path == None:
-        logging.error('Lcov converter tool not found')
-        return False
-      self.tools_path = self.tools_path.rstrip('\\')
-      convert_command = ('%s -sym_path=%s -src_root=%s %s' % 
-                         (os.path.join(self.tools_path, 
-                                       'coverage_analyzer.exe'),
-                         sym_path,
-                         src_root,
-                         coverage_file))
-      (retcode, output) = proc.RunCommandFull(convert_command,
-                                              collect_output=True)
-      if output != 0:
-        logging.error('Conversion to LCOV failed. Exiting.')
-        sys.exit(1)
-      lcov_file = coverage_file + '.lcov'
-      logging.info('Conversion to lcov complete')
-    shutil.copy(lcov_file, upload_path)
+      lcov_file = os.path.join(upload_path, 'chrome_win32_%s.lcov' % 
+                                            (self.revision))
+      lcov = open(lcov_file, 'w')
+      for coverage_file in list_coverage:
+        
+        # Convert the intermediate .coverage file to lcov format
+        if self.tools_path == None:
+          logging.error('Lcov converter tool not found')
+          return False
+        self.tools_path = self.tools_path.rstrip('\\')
+        convert_command = ('%s -sym_path=%s -src_root=%s %s' % 
+                           (os.path.join(self.tools_path, 
+                                         'coverage_analyzer.exe'),
+                           sym_path,
+                           src_root,
+                           coverage_file))
+        (retcode, output) = proc.RunCommandFull(convert_command,
+                                                collect_output=True)
+        if output != 0:
+          logging.error('Conversion to LCOV failed. Exiting.')
+          sys.exit(1)
+        tmp_lcov_file = coverage_file + '.lcov'
+        logging.info('Conversion to lcov complete for %s' % (coverage_file))
+        # Now append this .lcov file to the cumulative lcov file
+        logging.info('Consolidating LCOV file: %s' % (tmp_lcov_file))
+        tmp_lcov = open(tmp_lcov_file, 'r')
+        lcov.write(tmp_lcov.read())
+        tmp_lcov.close()
+    lcov.close()
+    # Finally upload the LCOV file
     logging.info('LCOV file uploaded to %s' % (upload_path))
 
 
@@ -279,22 +319,22 @@ def main():
     cov = Coverage(options.revision,
                    options.src_root,
                    options.tools_path)
+    list_coverage = []
     # Instrument the binaries
-    coverage_file = cov.SetUp(windows_binaries)
-    if coverage_file != None:
+    if cov.SetUp(windows_binaries):
       # Run all the tests
       for test in windows_tests:
         test = os.path.join(options.src_root, 'chrome', 'Release', test)
-        logging.info('Executing test %s: ' % test)
-        (retcode, output) = proc.RunCommandFull(test, collect_output=True)
-        if retcode != 0: # Die if the tests fail
-          logging.error('One or more tests failed in %s. Exiting.' % test)
-          sys.exit(retcode)
+        coverage = cov.RunTest(test)
+        if coverage == None: # Indicate failure to the buildbots.
+          return 1
+        # Collect the intermediate file
+        list_coverage.append(coverage)
     else: 
       logging.error('Error during instrumentation.')
       sys.exit(1)
 
-    cov.Upload(coverage_file,
+    cov.Upload(list_coverage,
                options.upload_path,
                os.path.join(options.src_root, 'chrome', 'Release'),
                options.src_root)
