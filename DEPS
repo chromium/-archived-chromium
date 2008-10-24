@@ -31,12 +31,6 @@ deps = {
 
   "src/webkit/data/layout_tests/LayoutTests":
     "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@36102",
-  
-  "src/gears/gears":
-    "http://gears.googlecode.com/svn/trunk/gears@2919",
-
-  "src/gears/third_party":
-    "http://gears.googlecode.com/svn/trunk/third_party@2919",
 }
 
 include_rules = [
@@ -52,7 +46,6 @@ include_rules = [
 # checkdeps.py shouldn't check include paths for files in these dirs:
 skip_child_includes = [
    "breakpad",
-   "gears",
    "sdch",
    "skia",
    "testing",
