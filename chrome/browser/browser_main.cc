@@ -535,12 +535,14 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
 
   // Prepare for memory caching of SDCH dictionaries.
   SdchManager sdch_manager;  // Construct singleton database.
+  sdch_manager.set_sdch_fetcher(new SdchDictionaryFetcher);
+  // TODO(jar): Use default to "" so that all domains are supported.
+  std::string switch_domain(".google.com");  // Provide default test domain.
   if (parsed_command_line.HasSwitch(switches::kSdchFilter)) {
-    sdch_manager.set_sdch_fetcher(new SdchDictionaryFetcher);
-    std::wstring switch_domain =
-        parsed_command_line.GetSwitchValue(switches::kSdchFilter);
-    sdch_manager.EnableSdchSupport(WideToASCII(switch_domain));
+    switch_domain =
+        WideToASCII(parsed_command_line.GetSwitchValue(switches::kSdchFilter));
   }
+  sdch_manager.EnableSdchSupport(switch_domain);
 
   MetricsService* metrics = NULL;
   if (!parsed_command_line.HasSwitch(switches::kDisableMetrics)) {
