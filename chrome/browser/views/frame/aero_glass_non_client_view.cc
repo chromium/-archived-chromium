@@ -424,9 +424,9 @@ void AeroGlassNonClientView::InitClass() {
   if (!initialized) {
     resources_ = new AeroGlassWindowResources;
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
-    if (!image->isNull())
-      distributor_logo_ = *image;
+#if defined(GOOGLE_CHROME_BUILD)
+    distributor_logo_ = *rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
+#endif
 
     initialized = true;
   }

@@ -426,13 +426,12 @@ void VistaFrame::Init() {
     frame_view_->AddChildView(off_the_record_image_);
   }
 
-  SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO);
-  if (!image->isNull()) {
+#if defined(GOOGLE_CHROME_BUILD)
     distributor_logo_ = new views::ImageView();
     frame_view_->AddViewToDropList(distributor_logo_);
-    distributor_logo_->SetImage(image);
+    distributor_logo_->SetImage(rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO));
     frame_view_->AddChildView(distributor_logo_);
-  }
+#endif
 
   tab_contents_container_ = new TabContentsContainerView();
   frame_view_->AddChildView(tab_contents_container_);

@@ -450,13 +450,12 @@ void XPFrame::Init() {
     frame_view_->AddViewToDropList(off_the_record_image_);
   }
 
-  SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
-  if (!image->isNull()) {
-    distributor_logo_ = new views::ImageView();
-    frame_view_->AddViewToDropList(distributor_logo_);
-    distributor_logo_->SetImage(image);
-    frame_view_->AddChildView(distributor_logo_);
-  }
+#if defined(GOOGLE_CHROME_BUILD)
+  distributor_logo_ = new views::ImageView();
+  frame_view_->AddViewToDropList(distributor_logo_);
+  distributor_logo_->SetImage(rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT));
+  frame_view_->AddChildView(distributor_logo_);
+#endif
 
   min_button_ = new views::Button();
   min_button_->SetListener(this, MINIATURIZE_TAG);

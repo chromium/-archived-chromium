@@ -1024,9 +1024,9 @@ void OpaqueNonClientView::InitClass() {
     inactive_resources_ = new InactiveWindowResources;
 
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    SkBitmap* image = rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
-    if (!image->isNull())
-      distributor_logo_ = *image;
+#if defined(GOOGLE_CHROME_BUILD)
+    distributor_logo_ = *rb.GetBitmapNamed(IDR_DISTRIBUTOR_LOGO_LIGHT);
+#endif
 
     app_top_left_ = *rb.GetBitmapNamed(IDR_APP_TOP_LEFT);
     app_top_center_ = *rb.GetBitmapNamed(IDR_APP_TOP_CENTER);
