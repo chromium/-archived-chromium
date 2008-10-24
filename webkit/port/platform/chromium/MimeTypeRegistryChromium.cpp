@@ -36,10 +36,8 @@
 namespace WebCore 
 {
 
-// From MIMETypeRegistryMac.mm.  PLATFORM(CG) seems wrong, this should
-// probably be PLATFORM(CF), but the caller uses PLATFORM(CG).  This is
-// filed upstream at https://bugs.webkit.org/show_bug.cgi?id=21847.
-#if PLATFORM(CG)
+// From MIMETypeRegistryMac.mm.
+#if PLATFORM(DARWIN) && PLATFORM(CG)
 String getMIMETypeForUTI(const String & uti)
 {
     CFStringRef utiref = uti.createCFString();
