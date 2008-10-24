@@ -741,6 +741,13 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
     rv = NPERR_NO_ERROR;
     break;
   }
+  case NPNVSupportsWindowless:
+  {
+    NPBool* supports_windowless = reinterpret_cast<NPBool*>(value);
+    *supports_windowless = TRUE;
+    rv = NPERR_NO_ERROR;
+    break;
+  }
   case default_plugin::kMissingPluginStatusStart +
        default_plugin::MISSING_PLUGIN_AVAILABLE:
   // fall through

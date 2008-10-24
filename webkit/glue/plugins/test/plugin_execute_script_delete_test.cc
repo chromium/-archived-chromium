@@ -16,9 +16,17 @@ int16 ExecuteScriptDeleteTest::HandleEvent(void* event) {
   NPEvent* np_event = reinterpret_cast<NPEvent*>(event);
   if (WM_PAINT == np_event->event ) {
     NPNetscapeFuncs* browser = NPAPIClient::PluginClient::HostFunctions();
-    NPUTF8* urlString = "javascript:DeletePluginWithinScript()";
-    NPUTF8* targetString = NULL;
-    browser->geturl(id(), urlString, targetString);
+
+    NPBool supports_windowless = 0;
+    NPError result = browser->getvalue(id(), NPNVSupportsWindowless,
+                                       &supports_windowless);
+    if ((result != NPERR_NO_ERROR) || (supports_windowless != TRUE)) {
+      SetError("Failed to read NPNVSupportsWindowless value");
+    } else {
+      NPUTF8* urlString = "javascript:DeletePluginWithinScript()";
+      NPUTF8* targetString = NULL;
+      browser->geturl(id(), urlString, targetString);
+    }
     SignalTestCompleted();
   }
   // If this test failed, then we'd have crashed by now.
