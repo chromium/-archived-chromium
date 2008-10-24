@@ -57,6 +57,9 @@ WebCursor::WebCursor(const WebCursor& other) {
   type_ = other.type_;
   hotspot_x_ = other.hotspot_x_;
   hotspot_y_ = other.hotspot_y_;
+#if defined(OS_MACOSX)
+  bitmap_ = NULL;  // set_bitmap releases bitmap_.
+#endif
   set_bitmap(other.bitmap_);
 }
 
