@@ -10,6 +10,7 @@
 #include "base/trace_event.h"
 #include "build/build_config.h"
 #include "net/base/client_socket_factory.h"
+#include "net/base/dns_resolution_observer.h"
 #include "net/base/host_resolver.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_util.h"
@@ -452,11 +453,14 @@ int HttpNetworkTransaction::DoResolveHost() {
     port = request_->url.EffectiveIntPort();
   }
 
+  DidStartDnsResolution(host, this);
   return resolver_.Resolve(host, port, &addresses_, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoResolveHostComplete(int result) {
-  if (result == OK) {
+  bool ok = (result == OK);
+  DidFinishDnsResolutionWithStatus(ok, this);
+  if (ok) {
     next_state_ = STATE_CONNECT;
   } else {
     result = ReconsiderProxyAfterError(result);

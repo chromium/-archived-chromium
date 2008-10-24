@@ -45,6 +45,7 @@
 		04C626D60E8DE39E0067E92A /* http_auth_handler_digest_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04C626D50E8DE39E0067E92A /* http_auth_handler_digest_unittest.cc */; };
 		04C626D80E8DE3AA0067E92A /* http_auth_handler_basic_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04C626D70E8DE3AA0067E92A /* http_auth_handler_basic_unittest.cc */; };
 		04C626DA0E8DE3BA0067E92A /* http_auth_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 04C626D90E8DE3BA0067E92A /* http_auth_unittest.cc */; };
+		4DB04D3F0EB24EDF00A5633C /* dns_resolution_observer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32590E5A181C00A747DB /* dns_resolution_observer.cc */; };
 		533102E70E5E3EBF00FF8E32 /* net_util_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */; };
 		7B2630680E82F2A1001CE27F /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B2630650E82F282001CE27F /* libevent.a */; };
 		7B466C470E5E732900C91F63 /* platform_test_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B466C460E5E732900C91F63 /* platform_test_mac.mm */; };
@@ -1430,6 +1431,7 @@
 				7B8B5A430E5CD1FD002F9A97 /* cookie_monster.cc in Sources */,
 				7B85040C0E5B2DD800730B43 /* cookie_policy.cc in Sources */,
 				7B85040D0E5B2DD800730B43 /* data_url.cc in Sources */,
+				4DB04D3F0EB24EDF00A5633C /* dns_resolution_observer.cc in Sources */,
 				7B8504100E5B2DF000730B43 /* entry_impl.cc in Sources */,
 				7B8504120E5B2DF000730B43 /* escape.cc in Sources */,
 				825C2FCC0E5C968B00FDEAB7 /* ev_root_ca_metadata.cc in Sources */,
