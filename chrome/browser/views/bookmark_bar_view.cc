@@ -10,6 +10,7 @@
 #include "base/gfx/skia_utils.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/bookmark_bar_context_menu_controller.h"
+#include "chrome/browser/bookmarks/bookmark_drag_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
@@ -147,21 +148,6 @@ static const SkColor kInstructionsColor = SkColorSetRGB(128, 128, 142);
 static const int kOtherFolderButtonTag = 1;
 
 namespace {
-
-// Calculates the drop operation given the event and supported set of
-// operations.
-int PreferredDropOperation(const DropTargetEvent& event, int operation) {
-  int common_ops = (event.GetSourceOperations() & operation);
-  if (!common_ops)
-    return 0;
-  if (DragDropTypes::DRAG_COPY & common_ops)
-    return DragDropTypes::DRAG_COPY;
-  if (DragDropTypes::DRAG_LINK & common_ops)
-    return DragDropTypes::DRAG_LINK;
-  if (DragDropTypes::DRAG_MOVE & common_ops)
-    return DragDropTypes::DRAG_MOVE;
-  return DragDropTypes::DRAG_NONE;
-}
 
 // Returns the tooltip text for the specified url and title. The returned
 // text is clipped to fit within the bounds of the monitor.
@@ -1666,7 +1652,7 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
     int ops = data.GetFirstNode(profile_)
         ? DragDropTypes::DRAG_MOVE
         : DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
-    return PreferredDropOperation(event, ops);
+    return bookmark_drag_utils::PreferredDropOperation(event, ops);
   }
 
   for (int i = 0; i < GetBookmarkButtonCount() &&
@@ -1743,7 +1729,11 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
                                             const BookmarkDragData& data,
                                             BookmarkNode* parent,
                                             int index) {
-  if (!CanDropAt(data, parent, index))
+  if (data.IsFromProfile(profile_) && data.size() > 1)
+    // Currently only accept one dragged node at a time.
+    return DragDropTypes::DRAG_NONE;
+
+  if (!bookmark_drag_utils::IsValidDropLocation(profile_, data, parent, index))
     return DragDropTypes::DRAG_NONE;
 
   if (data.GetFirstNode(profile_)) {
@@ -1751,32 +1741,10 @@ int BookmarkBarView::CalculateDropOperation(const DropTargetEvent& event,
     return DragDropTypes::DRAG_MOVE;
   } else {
     // User is dragging from another app, copy.
-    return PreferredDropOperation(
+    return bookmark_drag_utils::PreferredDropOperation(
         event, DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK);
   }
 }
-
-bool BookmarkBarView::CanDropAt(const BookmarkDragData& data,
-                                BookmarkNode* parent,
-                                int index) {
-  DCHECK(data.is_valid());
-  BookmarkNode* dragged_node = data.GetFirstNode(profile_);
-  if (dragged_node) {
-    if (dragged_node->GetParent() == parent) {
-      const int existing_index = parent->IndexOfChild(dragged_node);
-      if (index == existing_index || existing_index + 1 == index)
-        return false;
-    }
-    // Allow the drop only if the node we're going to drop on isn't a
-    // descendant of the dragged node.
-    BookmarkNode* test_node = parent;
-    while (test_node && test_node != dragged_node)
-      test_node = test_node->GetParent();
-    return (test_node == NULL);
-  }  // else case clones, always allow.
-  return true;
-}
-
 
 int BookmarkBarView::PerformDropImpl(const BookmarkDragData& data,
                                      BookmarkNode* parent_node,
@@ -1799,22 +1767,9 @@ int BookmarkBarView::PerformDropImpl(const BookmarkDragData& data,
     return DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK;
   } else {
     // Dropping a group from different profile. Always accept.
-    CloneDragData(data.elements[0], parent_node, index);
+    bookmark_drag_utils::CloneDragData(model_, data.elements, parent_node,
+                                       index);
     return DragDropTypes::DRAG_COPY;
-  }
-}
-
-void BookmarkBarView::CloneDragData(const BookmarkDragData::Element& element,
-                                    BookmarkNode* parent,
-                                    int index_to_add_at) {
-  DCHECK(model_);
-  if (element.is_url) {
-    model_->AddURL(parent, index_to_add_at, element.title, element.url);
-  } else {
-    BookmarkNode* new_folder = model_->AddGroup(parent, index_to_add_at,
-                                                element.title);
-    for (int i = 0; i < static_cast<int>(element.children.size()); ++i)
-      CloneDragData(element.children[i], new_folder, i);
   }
 }
 

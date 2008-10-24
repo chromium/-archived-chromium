@@ -96,7 +96,10 @@ struct BookmarkDragData {
   bool has_single_url() const { return is_valid() && elements[0].is_url; }
 
   // Number of elements.
-  size_t size() { return elements.size(); }
+  size_t size() const { return elements.size(); }
+
+  // Returns true if this data is from the specified profile.
+  bool IsFromProfile(Profile* profile) const;
 
   // The actual elements written to the clipboard.
   std::vector<Element> elements;

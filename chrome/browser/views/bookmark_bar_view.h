@@ -352,24 +352,11 @@ class BookmarkBarView : public views::View,
                              BookmarkNode* parent,
                              int index);
 
-  // Returns true if the specified location is a valid drop location for
-  // the supplied drag data.
-  bool CanDropAt(const BookmarkDragData& data,
-                 BookmarkNode* parent,
-                 int index);
-
   // Performs a drop of the specified data at the specified location. Returns
   // the result.
   int PerformDropImpl(const BookmarkDragData& data,
                       BookmarkNode* parent_node,
                       int index);
-
-  // Creates a new group/entry for data, and recursively invokes itself for
-  // all children of data. This is used during drag and drop to clone a
-  // group from another profile.
-  void CloneDragData(const BookmarkDragData::Element& data,
-                     BookmarkNode* parent,
-                     int index_to_add_at);
 
   // Returns the index of the first hidden bookmark button. If all buttons are
   // visible, this returns GetBookmarkButtonCount().

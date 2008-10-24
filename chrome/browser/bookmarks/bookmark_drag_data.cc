@@ -135,7 +135,7 @@ bool BookmarkDragData::Read(const OSExchangeData& data) {
 std::vector<BookmarkNode*> BookmarkDragData::GetNodes(Profile* profile) const {
   std::vector<BookmarkNode*> nodes;
 
-  if (profile->GetPath() != profile_path_)
+  if (!IsFromProfile(profile))
     return nodes;
 
   for (size_t i = 0; i < elements.size(); ++i) {
@@ -153,4 +153,8 @@ std::vector<BookmarkNode*> BookmarkDragData::GetNodes(Profile* profile) const {
 BookmarkNode* BookmarkDragData::GetFirstNode(Profile* profile) const {
   std::vector<BookmarkNode*> nodes = GetNodes(profile);
   return nodes.size() == 1 ? nodes[0] : NULL;
+}
+
+bool BookmarkDragData::IsFromProfile(Profile* profile) const {
+  return (profile->GetPath() == profile_path_);
 }
