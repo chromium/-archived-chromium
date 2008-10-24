@@ -52,14 +52,16 @@ bool ChannelProxy::Context::TryFilters(const Message& message) {
 // Called on the IPC::Channel thread
 void ChannelProxy::Context::OnMessageReceived(const Message& message) {
   // First give a chance to the filters to process this message.
-  if (TryFilters(message))
-    return;
+  if (!TryFilters(message))
+    OnMessageReceivedNoFilter(message);
+}
 
+// Called on the IPC::Channel thread
+void ChannelProxy::Context::OnMessageReceivedNoFilter(const Message& message) {
   // NOTE: This code relies on the listener's message loop not going away while
   // this thread is active.  That should be a reasonable assumption, but it
   // feels risky.  We may want to invent some more indirect way of referring to
   // a MessageLoop if this becomes a problem.
-
   listener_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &Context::OnDispatchMessage, message));
 }
@@ -82,7 +84,7 @@ void ChannelProxy::Context::OnChannelError() {
 }
 
 // Called on the IPC::Channel thread
-void ChannelProxy::Context::OnOpenChannel() {
+void ChannelProxy::Context::OnChannelOpened() {
   DCHECK(channel_ != NULL);
 
   // Assume a reference to ourselves on behalf of this thread.  This reference
@@ -99,7 +101,7 @@ void ChannelProxy::Context::OnOpenChannel() {
 }
 
 // Called on the IPC::Channel thread
-void ChannelProxy::Context::OnCloseChannel() {
+void ChannelProxy::Context::OnChannelClosed() {
   // It's okay for IPC::ChannelProxy::Close to be called more than once, which
   // would result in this branch being taken.
   if (!channel_)
@@ -220,22 +222,18 @@ void ChannelProxy::Init(const std::wstring& channel_id, Channel::Mode mode,
 
   // complete initialization on the background thread
   context_->ipc_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      context_.get(), &Context::OnOpenChannel));
+      context_.get(), &Context::OnChannelOpened));
 }
 
 void ChannelProxy::Close() {
   // Clear the backpointer to the listener so that any pending calls to
   // Context::OnDispatchMessage or OnDispatchError will be ignored.  It is
   // possible that the channel could be closed while it is receiving messages!
-  context_->clear();
+  context_->Clear();
 
-  if (MessageLoop::current() == context_->ipc_message_loop()) {
-    // We're being destructed on the IPC thread, so no need to use the message
-    // loop as it might go away.
-    context_->OnCloseChannel();
-  } else {
+  if (context_->ipc_message_loop()) {
     context_->ipc_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-        context_.get(), &Context::OnCloseChannel));
+        context_.get(), &Context::OnChannelClosed));
   }
 }
 

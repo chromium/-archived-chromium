@@ -107,6 +107,13 @@ bool ObjectWatcher::StopWatching() {
   return true;
 }
 
+HANDLE ObjectWatcher::GetWatchedObject() {
+  if (!watch_)
+    return NULL;
+
+  return watch_->object;
+}
+
 // static
 void CALLBACK ObjectWatcher::DoneWaiting(void* param, BOOLEAN timed_out) {
   DCHECK(!timed_out);

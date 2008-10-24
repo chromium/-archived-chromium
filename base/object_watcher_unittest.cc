@@ -34,6 +34,7 @@ void RunTest_BasicSignal(MessageLoop::Type message_loop_type) {
   MessageLoop message_loop(message_loop_type);
 
   base::ObjectWatcher watcher;
+  EXPECT_EQ(NULL, watcher.GetWatchedObject());
 
   // A manual-reset event that is not yet signaled.
   HANDLE event = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -41,11 +42,13 @@ void RunTest_BasicSignal(MessageLoop::Type message_loop_type) {
   QuitDelegate delegate;
   bool ok = watcher.StartWatching(event, &delegate);
   EXPECT_TRUE(ok);
+  EXPECT_EQ(event, watcher.GetWatchedObject());
   
   SetEvent(event);
 
   MessageLoop::current()->Run();
 
+  EXPECT_EQ(NULL, watcher.GetWatchedObject());
   CloseHandle(event);
 }
 

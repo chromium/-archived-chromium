@@ -112,8 +112,6 @@ class ChannelProxy : public Message::Sender {
   void RemoveFilter(MessageFilter* filter);
 
  protected:
-  Channel::Listener* listener() const { return context_->listener(); }
-
   class Context;
   // A subclass uses this constructor if it needs to add more information
   // to the internal state.  If create_pipe_now is true, the pipe is created
@@ -129,12 +127,16 @@ class ChannelProxy : public Message::Sender {
     Context(Channel::Listener* listener, MessageFilter* filter,
             MessageLoop* ipc_thread);
     virtual ~Context() { }
+    MessageLoop* ipc_message_loop() const { return ipc_message_loop_; }
 
   protected:
     // IPC::Channel::Listener methods:
     virtual void OnMessageReceived(const Message& message);
     virtual void OnChannelConnected(int32 peer_pid);
     virtual void OnChannelError();
+
+    // Like OnMessageReceived but doesn't try the filters.
+    void OnMessageReceivedNoFilter(const Message& message);
 
     Channel::Listener* listener() const { return listener_; }
     const std::wstring& channel_id() const { return channel_id_; }
@@ -143,27 +145,27 @@ class ChannelProxy : public Message::Sender {
     // Returns true if the message was processed, false otherwise.
     bool TryFilters(const Message& message);
 
+    // Like Open and Close, but called on the IPC thread.
+    virtual void OnChannelOpened();
+    virtual void OnChannelClosed();
+
+    // Called on the consumers thread when the ChannelProxy is closed.  At that
+    // point the consumer is telling us that they don't want to receive any
+    // more messages, so we honor that wish by forgetting them!
+    virtual void Clear() { listener_ = NULL; }
+
    private:
     friend class ChannelProxy;
     // Create the Channel
     void CreateChannel(const std::wstring& id, const Channel::Mode& mode);
 
     // Methods called via InvokeLater:
-    void OnOpenChannel();
-    void OnCloseChannel();
     void OnSendMessage(Message* message_ptr);
     void OnAddFilter(MessageFilter* filter);
     void OnRemoveFilter(MessageFilter* filter);
     void OnDispatchMessage(const Message& message);
     void OnDispatchConnected(int32 peer_pid);
     void OnDispatchError();
-
-    MessageLoop* ipc_message_loop() const { return ipc_message_loop_; }
-
-    // Called on the consumers thread when the ChannelProxy is closed.  At that
-    // point the consumer is telling us that they don't want to receive any
-    // more messages, so we honor that wish by forgetting them!
-    void clear() { listener_ = NULL; }
 
     MessageLoop* listener_message_loop_;
     Channel::Listener* listener_;

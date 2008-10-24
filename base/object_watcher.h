@@ -68,6 +68,10 @@ class ObjectWatcher : public MessageLoop::DestructionObserver {
   //
   bool StopWatching();
 
+  // Returns the handle of the object being watched, or NULL if the object
+  // watcher is stopped.
+  HANDLE GetWatchedObject();
+
  private:
   // Called on a background thread when done waiting.
   static void CALLBACK DoneWaiting(void* param, BOOLEAN timed_out);

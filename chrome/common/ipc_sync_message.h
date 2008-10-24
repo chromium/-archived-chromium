@@ -27,8 +27,9 @@ class SyncMessage : public Message {
   // If this message can cause the receiver to block while waiting for user
   // input (i.e. by calling MessageBox), then the caller needs to pump window
   // messages and dispatch asynchronous messages while waiting for the reply.
-  // If this handle is passed in, then window messages will be pumped while
-  // it's set.  The handle must be valid until after the Send call returns.
+  // If this handle is passed in, then window messages will start being pumped
+  // when it's set.  Note that this behavior will continue even if the event is
+  // later reset.  The handle must be valid until after the Send call returns.
   void set_pump_messages_event(HANDLE event) {
     pump_messages_event_ = event;
     if (event) {
