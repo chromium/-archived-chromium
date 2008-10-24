@@ -5,6 +5,7 @@
 #include "config.h"
 
 #include "base/compiler_specific.h"
+#include "build/build_config.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Cursor.h"
@@ -375,7 +376,13 @@ bool WebPluginImpl::SetPostData(WebCore::ResourceRequest* request,
   std::vector<std::string> names;
   std::vector<std::string> values;
   std::vector<char> body;
+#if !defined(OS_LINUX)
   bool rv = NPAPI::PluginHost::SetPostData(buf, length, &names, &values, &body);
+#else
+  // TODO(port): unstub once we have plugin support
+  bool rv = false;
+  NOTREACHED();
+#endif
 
   for (size_t i = 0; i < names.size(); ++i)
     request->addHTTPHeaderField(webkit_glue::StdStringToString(names[i]),

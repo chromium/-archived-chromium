@@ -24,31 +24,17 @@
  */
 
 #include "config.h"
-#include "base/compiler_specific.h"
 
-#define WIN32_COMPILE_HACK
-
-MSVC_PUSH_WARNING_LEVEL(0);
-#include "SSLKeyGenerator.h"
-#include "KURL.h"
+#include "Editor.h"
+#include "Clipboard.h"
 #include "NotImplemented.h"
-#include "SharedBuffer.h"
-MSVC_POP_WARNING();
 
-using namespace WebCore;
+namespace WebCore {
 
-String WebCore::signedPublicKeyAndChallengeString(unsigned, const String&, const KURL&) { notImplemented(); return String(); }
-
-String KURL::fileSystemPath() const { notImplemented(); return String(); }
-
-PassRefPtr<SharedBuffer> SharedBuffer::createWithContentsOfFile(const String& filePath)
+PassRefPtr<Clipboard> Editor::newGeneralClipboard(ClipboardAccessPolicy policy)
 {
     notImplemented();
-    return 0;
+    return NULL;
 }
 
-namespace WTF {
-#if !defined(__linux__)
-void scheduleDispatchFunctionsOnMainThread() { notImplemented(); }
-#endif
-}
+} // namespace WebCore

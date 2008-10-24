@@ -12,6 +12,7 @@
 #include "net/base/mime_util.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
 WebPreferences* TestShell::web_prefs_ = NULL;
@@ -21,7 +22,7 @@ WindowList* TestShell::window_list_;
 TestShell::TestShell() {
   // Uncomment this line to get a bunch of linker errors.  This is what we need
   // to fix.
-  //m_webViewHost.reset(WebViewHost::Create(NULL, NULL, *TestShell::web_prefs_));
+  m_webViewHost.reset(WebViewHost::Create(NULL, NULL, *TestShell::web_prefs_));
 }
 
 TestShell::~TestShell() {
@@ -189,6 +190,22 @@ bool IsDefaultPluginEnabled() {
 
 std::wstring GetWebKitLocale() {
   return L"en-US";
+}
+
+// The following cookie functions shouldn't live here, but do for now in order
+// to get things linking
+
+std::string GetCookies(const GURL &url, const GURL &policy_url) {
+  return "";
+}
+
+void SetCookie(const GURL &url, const GURL &policy_url, const std::string &cookie) {
+}
+
+
+ResourceLoaderBridge *
+ResourceLoaderBridge::Create(WebFrame*, std::string const &, GURL const&, GURL const&, GURL const&, std::string const&, int, int, ResourceType::Type, bool) {
+  return NULL;
 }
 
 }  // namespace webkit_glue

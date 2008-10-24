@@ -144,11 +144,14 @@ String GetPluginMimeTypeFromExtension(const String& extension) {
     std::string mime_type;
     std::string extension_std = WideToUTF8(
         webkit_glue::StringToStdWString(extension));
+#if !defined(__linux__)
+    // TODO(port): unstub once we have plugin support for Linux
     for (size_t i = 0; i < g_plugins.size(); ++i) {
         if (NPAPI::PluginList::SupportsExtension(
                 g_plugins[i], extension_std, &mime_type))
             break;
     }
+#endif
 
     return webkit_glue::StdStringToString(mime_type);
 }

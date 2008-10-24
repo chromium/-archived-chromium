@@ -69,6 +69,18 @@ input_files = [
   'webview_impl.cc',
 ]
 
+if env['PLATFORM'] == 'posix':
+  # TODO(port): until we have plugin support for Linux, these files aren't built.
+  remove_files = [
+    'plugins/plugin_host.cc',
+    'plugins/plugin_instance.cc',
+    'plugins/plugin_string_stream.cc',
+    'plugins/plugin_stream_url.cc',
+  ]
+
+  for file in remove_files:
+    input_files.remove(file)
+
 if env['PLATFORM'] == 'win32':
   # TODO(port): These extra files aren't win32-specific, they've just not been
   # tested on other platforms yet.

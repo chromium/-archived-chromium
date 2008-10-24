@@ -436,7 +436,7 @@ void RenderThemeGtk::systemFont(int, FontDescription&) const
     notImplemented();
 }
 
-void RenderTheme::systemFont(int, Document*, FontDescription&) const
+void RenderThemeGtk::systemFont(int, Document*, FontDescription&) const
 {
     notImplemented();
 }
