@@ -36,6 +36,22 @@
 namespace WebCore 
 {
 
+// From MIMETypeRegistryMac.mm.  PLATFORM(CG) seems wrong, this should
+// probably be PLATFORM(CF), but the caller uses PLATFORM(CG).  This is
+// filed upstream at https://bugs.webkit.org/show_bug.cgi?id=21847.
+#if PLATFORM(CG)
+String getMIMETypeForUTI(const String & uti)
+{
+    CFStringRef utiref = uti.createCFString();
+    CFStringRef mime = UTTypeCopyPreferredTagWithClass(utiref, kUTTagClassMIMEType);
+    String mimeType = mime;
+    if (mime)
+        CFRelease(mime);
+    CFRelease(utiref);
+    return mimeType;
+}
+#endif
+
 // Returns the file extension if one is found.  Does not include the dot in the
 // filename.  E.g., 'html'.
 // NOTE: This does not work in the sandbox because the renderer doesn't have

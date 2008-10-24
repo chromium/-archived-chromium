@@ -282,6 +282,7 @@ void Pasteboard::writeURL(const KURL& url, const String& titleStr, Frame* frame)
 #endif
 }
 
+#if 0
 static NSFileWrapper* fileWrapperForImage(CachedResource* resource, NSURL *url)
 {
     SharedBuffer* coreData = resource->data();
@@ -296,7 +297,6 @@ static NSFileWrapper* fileWrapperForImage(CachedResource* resource, NSURL *url)
     return wrapper;
 }
 
-#if 0
 void Pasteboard::writeFileWrapperAsRTFDAttachment(NSFileWrapper* wrapper)
 {
     NSTextAttachment *attachment = [[NSTextAttachment alloc] initWithFileWrapper:wrapper];
