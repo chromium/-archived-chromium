@@ -324,7 +324,7 @@ bool ShellUtil::GetQuickLaunchPath(bool system_level, std::wstring* path) {
     HMODULE module = LoadLibrary(L"Userenv.dll");
     PROFILE_FUNC p = reinterpret_cast<PROFILE_FUNC>(GetProcAddress(module,
         "GetDefaultUserProfileDirectoryW"));
-    DWORD size = MAX_PATH;
+    DWORD size = _countof(qlaunch);
     if ((p == NULL) || ((p)(qlaunch, &size) != TRUE))
       return false;
     *path = qlaunch;
