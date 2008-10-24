@@ -60,6 +60,11 @@ static void initializeKillRingIfNeeded()
     }
 }
 
+// TODO(port): WebCore's Editor.cpp provides these functions as stubs when
+// PLATFORM(MAC) is not in effect.  We no longer use PLATFORM(MAC) for the
+// Chromium verison of WebKit, but we may want these implementations instead of
+// the stubs in Editor.cpp.
+#if 0
 void Editor::appendToKillRing(const String& string)
 {
     initializeKillRingIfNeeded();
@@ -89,6 +94,7 @@ void Editor::setKillRingToYankedState()
     initializeKillRingIfNeeded();
     _NSSetKillRingToYankedState();
 }
+#endif
 
 void Editor::showFontPanel()
 {
@@ -109,9 +115,9 @@ void Editor::showColorPanel()
 // tried to do so it seemed that we first need to move more of the logic from
 // -[WebHTMLView.cpp _documentFragmentFromPasteboard] into PasteboardMac.
 
+#if 0
 void Editor::paste()
 {
-#if 0
     ASSERT(m_frame->document());
     FrameView* view = m_frame->view();
     if (!view)
@@ -120,7 +126,7 @@ void Editor::paste()
     loader->setAllowStaleResources(true);
     [view->documentView() tryToPerform:@selector(paste:) with:nil];
     loader->setAllowStaleResources(false);
-#endif
 }
+#endif
 
 } // namespace WebCore
