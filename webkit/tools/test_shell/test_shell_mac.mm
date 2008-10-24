@@ -276,6 +276,8 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   [m_editWnd setAutoresizingMask:(NSViewWidthSizable | NSViewMinYMargin)];
   [m_editWnd setTarget:web_view];
   [m_editWnd setAction:@selector(takeURLStringValueFrom:)];
+  [[m_editWnd cell] setWraps:NO];
+  [[m_editWnd cell] setScrollable:YES];
 
   // show the window
   [m_mainWnd makeKeyAndOrderFront: nil];
