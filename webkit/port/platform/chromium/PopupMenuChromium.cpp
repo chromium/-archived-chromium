@@ -54,7 +54,7 @@
 #include "Widget.h"
 #include "WidgetClientChromium.h"
 
-#if PLATFORM(DARWIN)
+#if !PLATFORM(WIN_OS)
 #include "KeyboardCodes.h"
 #endif
 
@@ -549,7 +549,6 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
     if (event.type() == PlatformKeyboardEvent::KeyUp)
         return true;
 
-#if defined(OS_WIN)
     if (numItems() == 0 && event.windowsVirtualKeyCode() != VK_ESCAPE)
         return true;
 
@@ -585,9 +584,6 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
         }
         break;
     }
-#else
-    notImplemented();
-#endif
 
     if (m_originalIndex != m_selectedIndex) {
         // Keyboard events should update the selection immediately (but we don't

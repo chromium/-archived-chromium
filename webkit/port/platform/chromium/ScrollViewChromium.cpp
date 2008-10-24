@@ -24,7 +24,6 @@
  */
 
 #include "config.h"
-#include "build/build_config.h"
 #include "ScrollView.h"
 
 #include "Chrome.h"
@@ -108,7 +107,7 @@ public:
     // Highlights the node selected in the DOM inspector.
     void highlightInspectedNode(GraphicsContext* context, Frame* frame) const;
     
-#if defined(OS_WIN)
+#if PLATFORM(WIN_OS)
     // Highlight a certain Range on the page.
     void highlightRange(HDC hdc, HDC mem_dc, RefPtr<Range> range) const;
 #endif
@@ -308,7 +307,7 @@ const SkBitmap* ScrollView::ScrollViewPrivate::GetPreloadedBitmapFromRenderer(
     return c->getPreloadedResourceBitmap(resource_id);
 }
 
-#if defined(OS_WIN)
+#if PLATFORM(WIN_OS)
 void ScrollView::ScrollViewPrivate::highlightMatches(
     GraphicsContext* context) const
 {
@@ -451,7 +450,7 @@ void ScrollView::ScrollViewPrivate::highlightInspectedNode(
 #endif
 }
 
-#if defined(OS_WIN)
+#if PLATFORM(WIN_OS)
 void ScrollView::ScrollViewPrivate::highlightRange(HDC hdc, HDC mem_dc,
                                                    RefPtr<Range> range) const {
     // We need to figure out whether the match that we want to

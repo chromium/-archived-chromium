@@ -30,7 +30,7 @@
 #ifndef DragImageRef_h__
 #define DragImageRef_h__
 
-#include "build/build_config.h"
+#include "config.h"
 
 #if defined(OS_WIN)
 typedef struct HBITMAP__* HBITMAP;
