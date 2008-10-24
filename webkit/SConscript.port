@@ -124,7 +124,8 @@ if env['PLATFORM'] == 'posix':
 
   # Linux specific implementations
   input_files.extend([
-    '$PORT_DIR/platform/chromium/ScreenLinux.cpp'
+    '$PORT_DIR/platform/chromium/ScreenLinux.cpp',
+    '$PORT_DIR/platform/chromium/PasteboardLinux.cpp',
   ])
 
 if env['PLATFORM'] == 'darwin':
