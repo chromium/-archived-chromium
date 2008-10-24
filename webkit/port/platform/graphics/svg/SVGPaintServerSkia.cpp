@@ -50,6 +50,13 @@ void SVGPaintServer::draw(GraphicsContext*& context, const RenderObject* object,
 
 void SVGPaintServer::teardown(GraphicsContext*& context, const RenderObject*, SVGPaintTargetType, bool isPaintingText) const
 {
+    // WebKit implicitly expects us to reset the path.
+    // For example in fillAndStrokePath() of RenderPath.cpp the path is 
+    // added back to the context after filling. This is because internally it
+    // calls CGContextFillPath() which closes the path.
+    context->beginPath();
+    context->platformContext()->setGradient(NULL);
+    context->platformContext()->setPattern(NULL);
 }
 
 void SVGPaintServer::renderPath(GraphicsContext*& context, const RenderObject* object, SVGPaintTargetType type) const
