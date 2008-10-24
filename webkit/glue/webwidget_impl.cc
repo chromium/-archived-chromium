@@ -126,10 +126,15 @@ void WebWidgetImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
     return;
 
   if (!rect.IsEmpty()) {
+#if defined(OS_MACOSX)
+    CGContextRef context = canvas->getTopPlatformDevice().GetBitmapContext();
+    GraphicsContext gc(context);
+#else
     PlatformContextSkia context(canvas);
-
     // PlatformGraphicsContext is actually a pointer to PlatformContextSkia.
     GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
+#endif
+
     IntRect dirty_rect(rect.x(), rect.y(), rect.width(), rect.height());
 
     widget_->paint(&gc, dirty_rect);
