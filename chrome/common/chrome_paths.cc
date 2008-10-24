@@ -2,32 +2,30 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
 #include <shellapi.h>
 #include <shlobj.h>
+#endif
 
 #include "chrome/common/chrome_paths.h"
 
 #include "base/command_line.h"
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "base/path_service.h"
+#include "base/sys_info.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 
 namespace chrome {
 
-bool GetUserDirectory(int directory_type, std::wstring* result) {
-  wchar_t path_buf[MAX_PATH];
-  if (FAILED(SHGetFolderPath(NULL, directory_type, NULL,
-                             SHGFP_TYPE_CURRENT, path_buf)))
-    return false;
-  result->assign(path_buf);
-  return true;
-}
-
 // Gets the default user data directory, regardless of whether
 // DIR_USER_DATA has been overridden by a command-line option.
 bool GetDefaultUserDataDirectory(std::wstring* result) {
+#if defined(OS_WIN)
   if (!PathService::Get(base::DIR_LOCAL_APP_DATA, result))
     return false;
 #if defined(GOOGLE_CHROME_BUILD)
@@ -36,6 +34,11 @@ bool GetDefaultUserDataDirectory(std::wstring* result) {
   file_util::AppendToPath(result, chrome::kBrowserAppName);
   file_util::AppendToPath(result, chrome::kUserDataDirname);
   return true;
+#else  // defined(OS_WIN)
+  // TODO(port): Decide what to do on other platforms.
+  NOTIMPLEMENTED();
+  return false;
+#endif  // defined(OS_WIN)
 }
 
 bool GetGearsPluginPathFromCommandLine(std::wstring *path) {
@@ -64,14 +67,6 @@ bool PathProvider(int key, std::wstring* result) {
       return PathService::Get(base::FILE_MODULE, result);
   }
 
-  // We need to go compute the value. It would be nice to support paths with
-  // names longer than MAX_PATH, but the system functions don't seem to be
-  // designed for it either, with the exception of GetTempPath (but other
-  // things will surely break if the temp path is too long, so we don't bother
-  // handling it.
-  wchar_t system_buffer[MAX_PATH];
-  system_buffer[0] = 0;
-
   // Assume that we will need to create the directory if it does not already
   // exist.  This flag can be set to true to prevent checking.
   bool exists = false;
@@ -83,8 +78,20 @@ bool PathProvider(int key, std::wstring* result) {
         return false;
       break;
     case chrome::DIR_USER_DOCUMENTS:
-      if (!GetUserDirectory(CSIDL_MYDOCUMENTS, &cur))
-        return false;
+#if defined(OS_WIN)
+      {
+        wchar_t path_buf[MAX_PATH];
+        if (FAILED(SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL,
+                                   SHGFP_TYPE_CURRENT, path_buf)))
+          return false;
+        cur.assign(path_buf);
+      }
+#else
+      // TODO(port): Get the path (possibly using xdg-user-dirs)
+      // or decide we don't need it on other platforms.
+      NOTIMPLEMENTED();
+      return false;
+#endif
       break;
     case chrome::DIR_CRASH_DUMPS:
       // The crash reports are always stored relative to the default user data
@@ -96,10 +103,26 @@ bool PathProvider(int key, std::wstring* result) {
       file_util::AppendToPath(&cur, L"Crash Reports");
       break;
     case chrome::DIR_USER_DESKTOP:
-      if (FAILED(SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL,
-                                 SHGFP_TYPE_CURRENT, system_buffer)))
-        return false;
-      cur = system_buffer;
+#if defined(OS_WIN)
+      {
+        // We need to go compute the value. It would be nice to support paths
+        // with names longer than MAX_PATH, but the system functions don't seem
+        // to be designed for it either, with the exception of GetTempPath
+        // (but other things will surely break if the temp path is too long,
+        // so we don't bother handling it.
+        wchar_t system_buffer[MAX_PATH];
+        system_buffer[0] = 0;
+        if (FAILED(SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL,
+                                   SHGFP_TYPE_CURRENT, system_buffer)))
+          return false;
+        cur.assign(system_buffer);
+      }
+#else
+      // TODO(port): Get the path (possibly using xdg-user-dirs)
+      // or decide we don't need it on other platforms.
+      NOTIMPLEMENTED();
+      return false;
+#endif
       exists = true;
       break;
     case chrome::DIR_RESOURCES:
@@ -131,7 +154,12 @@ bool PathProvider(int key, std::wstring* result) {
       break;
     case chrome::DIR_USER_SCRIPTS:
       // TODO(aa): Figure out where the script directory should live.
+#if defined(OS_WIN)
       cur = L"C:\\SCRIPTS\\";
+#else
+      NOTIMPLEMENTED();
+      return false;
+#endif
       exists = true;  // don't trigger directory creation code
       break;
     case chrome::FILE_LOCAL_STATE:
