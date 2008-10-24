@@ -41,6 +41,7 @@
 		4D11C4E10E9ABEA900EF7617 /* ExceptionContextV8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D11C4D90E9ABE9200EF7617 /* ExceptionContextV8.cpp */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
+		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
 		4DB299C50EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BD0EA4DD1E007EA4CF /* V8WebKitAnimationEvent.cpp */; };
 		4DB299C60EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299BF0EA4DD1E007EA4CF /* V8WebKitCSSTransformValue.cpp */; };
 		4DB299C70EA4DD1E007EA4CF /* V8WebKitTransitionEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB299C10EA4DD1E007EA4CF /* V8WebKitTransitionEvent.cpp */; };
@@ -8646,6 +8647,7 @@
 				E45626F80E268F03005E4685 /* resource_fetcher.cc in Sources */,
 				E45627160E268F26005E4685 /* resource_handle_impl.cc in Sources */,
 				E456270C0E268F03005E4685 /* searchable_form_data.cc in Sources */,
+				4DB043A40EB1577900A5633C /* webcursor.cc in Sources */,
 				E45627030E268F03005E4685 /* webdatasource_impl.cc in Sources */,
 				E45627010E268F03005E4685 /* webdocumentloader_impl.cc in Sources */,
 				E45626FB0E268F03005E4685 /* weberror_impl.cc in Sources */,
