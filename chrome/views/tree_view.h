@@ -95,13 +95,18 @@ class TreeViewController {
 // TreeView displays hierarchical data as returned from a TreeModel. The user
 // can expand, collapse and edit the items. A Controller may be attached to
 // receive notification of selection changes and restrict editing.
-class TreeView : public NativeControl, public TreeModelObserver {
+class TreeView : public NativeControl, TreeModelObserver {
  public:
   TreeView();
   virtual ~TreeView();
 
+  // Is dragging enabled? The default is false.
+  void set_drag_enabled(bool drag_enabled) { drag_enabled_ = drag_enabled; }
+  bool drag_enabled() const { return drag_enabled_; }
+
   // Sets the model. TreeView does not take ownership of the model.
   void SetModel(TreeModel* model);
+  TreeModel* model() const { return model_; }
 
   // Sets whether the user can edit the nodes. The default is true. If true,
   // the Controller is queried to determine if a particular node can be edited.
@@ -132,6 +137,9 @@ class TreeView : public NativeControl, public TreeModelObserver {
 
   // Convenience to expand ALL nodes in the tree.
   void ExpandAll();
+
+  // Returns true if the specified node is expanded.
+  bool IsExpanded(TreeModelNode* node);
 
   // Sets whether the root is shown. If true, the root node of the tree is
   // shown, if false only the children of the root are shown. The default is
@@ -199,6 +207,12 @@ class TreeView : public NativeControl, public TreeModelObserver {
   virtual bool OnKeyDown(int virtual_key_code);
 
   virtual void OnContextMenu(const CPoint& location);
+
+  // Returns the TreeModelNode for |tree_item|.
+  TreeModelNode* GetNodeForTreeItem(HTREEITEM tree_item);
+
+  // Returns the tree item for |node|.
+  HTREEITEM GetTreeItemForNode(TreeModelNode* node);
 
  private:
   // See notes in TableView::TableViewWrapper for why this is needed.
@@ -319,10 +333,11 @@ class TreeView : public NativeControl, public TreeModelObserver {
   // Original handler installed on the TreeView.
   WNDPROC original_handler_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TreeView);
+  bool drag_enabled_;
+
+  DISALLOW_COPY_AND_ASSIGN(TreeView);
 };
 
 }  // namespace views
 
 #endif  // CHROME_VIEWS_TREE_VIEW_H__
-

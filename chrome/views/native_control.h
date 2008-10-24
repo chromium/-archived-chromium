@@ -54,7 +54,7 @@ class NativeControl : public View {
   virtual LRESULT OnCommand(UINT code, int id, HWND source) { return 0; }
 
   // Invoked when the appropriate gesture for a context menu is issued.
-  virtual void OnContextMenu(const CPoint& location) {}
+  virtual void OnContextMenu(const CPoint& location);
 
   // Overridden so to set the native focus to the native control.
   virtual void Focus();

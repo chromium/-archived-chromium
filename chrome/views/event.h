@@ -111,7 +111,7 @@ class Event {
 //
 // LocatedEvent class
 //
-// A generifc event that is used for any events that is located at a specific
+// A generic event that is used for any events that is located at a specific
 // position in the screen.
 //
 ////////////////////////////////////////////////////////////////////////////////

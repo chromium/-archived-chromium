@@ -60,7 +60,8 @@ TreeView::TreeView()
       show_context_menu_only_when_node_selected_(true),
       select_on_right_mouse_down_(true),
       wrapper_(this),
-      original_handler_(NULL) {
+      original_handler_(NULL),
+      drag_enabled_(false) {
 }
 
 TreeView::~TreeView() {
@@ -177,6 +178,17 @@ void TreeView::ExpandAll() {
   ExpandAll(model_->GetRoot());
 }
 
+bool TreeView::IsExpanded(TreeModelNode* node) {
+  TreeModelNode* parent = model_->GetParent(node);
+  if (!parent)
+    return true;
+  if (!IsExpanded(parent))
+    return false;
+  NodeDetails* details = GetNodeDetails(node);
+  return (TreeView_GetItemState(tree_view_, details->tree_item, TVIS_EXPANDED) &
+          TVIS_EXPANDED) != 0;
+}
+
 void TreeView::SetRootShown(bool root_shown) {
   if (root_shown_ == root_shown)
     return;
@@ -282,8 +294,9 @@ void TreeView::TreeNodeChanged(TreeModel* model, TreeModelNode* node) {
 }
 
 HWND TreeView::CreateNativeControl(HWND parent_container) {
-  int style = WS_CHILD | TVS_DISABLEDRAGDROP | TVS_HASBUTTONS |
-              TVS_HASLINES | TVS_SHOWSELALWAYS;
+  int style = WS_CHILD | TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS;
+  if (!drag_enabled_)
+    style |= TVS_DISABLEDRAGDROP;
   if (editable_)
     style |= TVS_EDITLABELS;
   tree_view_ = ::CreateWindowEx(WS_EX_CLIENTEDGE | GetAdditionalExStyle(),
@@ -473,6 +486,16 @@ void TreeView::OnContextMenu(const CPoint& location) {
   }
 }
 
+TreeModelNode* TreeView::GetNodeForTreeItem(HTREEITEM tree_item) {
+  NodeDetails* details = GetNodeDetailsByTreeItem(tree_item);
+  return details ? details->node : NULL;
+}
+
+HTREEITEM TreeView::GetTreeItemForNode(TreeModelNode* node) {
+  NodeDetails* details = GetNodeDetails(node);
+  return details ? details->tree_item : NULL;
+}
+
 void TreeView::ExpandAll(TreeModelNode* node) {
   DCHECK(node);
   // Expand the node.
@@ -575,15 +598,19 @@ LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
       GetWindowLongPtr(window, GWLP_USERDATA));
   DCHECK(wrapper);
   TreeView* tree = wrapper->tree_view;
-  if (message == WM_RBUTTONDOWN && tree->select_on_right_mouse_down_) {
-    TVHITTESTINFO hit_info;
-    hit_info.pt.x = GET_X_LPARAM(l_param);
-    hit_info.pt.y = GET_Y_LPARAM(l_param);
-    HTREEITEM hit_item = TreeView_HitTest(window, &hit_info);
-    if (hit_item && (hit_info.flags & (TVHT_ONITEM | TVHT_ONITEMRIGHT |
-                                       TVHT_ONITEMINDENT)) != 0)
-      TreeView_SelectItem(tree->tree_view_, hit_item);
-    // Fall through and let the default handler process as well.
+  switch (message) {
+    case WM_RBUTTONDOWN:
+      if (tree->select_on_right_mouse_down_) {
+        TVHITTESTINFO hit_info;
+        hit_info.pt.x = GET_X_LPARAM(l_param);
+        hit_info.pt.y = GET_Y_LPARAM(l_param);
+        HTREEITEM hit_item = TreeView_HitTest(window, &hit_info);
+        if (hit_item && (hit_info.flags & (TVHT_ONITEM | TVHT_ONITEMRIGHT |
+                                           TVHT_ONITEMINDENT)) != 0)
+          TreeView_SelectItem(tree->tree_view_, hit_item);
+      }
+      // Fall through and let the default handler process as well.
+      break;
   }
   WNDPROC handler = tree->original_handler_;
   DCHECK(handler);
@@ -591,4 +618,3 @@ LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
 }
 
 }  // namespace views
-

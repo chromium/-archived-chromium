@@ -212,6 +212,16 @@ TestTableModel* TableViewTest::CreateModel() {
   return new TestTableModel();
 }
 
+// NullModelTableViewTest ------------------------------------------------------
+
+class NullModelTableViewTest : public TableViewTest {
+ protected:
+  // Creates the model.
+  TestTableModel* CreateModel() {
+    return NULL;
+  }
+};
+
 // Tests -----------------------------------------------------------------------
 
 // Tests various sorting permutations.
@@ -362,4 +372,9 @@ TEST_F(TableViewTest, PersistMultiSelectionOnAdd) {
   model_->AddRow(3, 4, 4);
 
   VerifySelectedRows(1, 0, -1);
+}
+
+TEST_F(NullModelTableViewTest, NullModel) {
+  // There's nothing explicit to test. If there is a bug in TableView relating
+  // to a NULL model we'll crash.
 }

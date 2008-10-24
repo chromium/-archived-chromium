@@ -254,6 +254,14 @@ void NativeControl::Layout() {
   }
 }
 
+void NativeControl::OnContextMenu(const CPoint& location) {
+  if (!GetContextMenuController())
+    return;
+
+  GetContextMenuController()->ShowContextMenu(
+      this, location.x, location.y, true);
+}
+
 void NativeControl::Focus() {
   if (container_) {
     DCHECK(container_->GetControl());
