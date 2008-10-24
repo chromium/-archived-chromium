@@ -36,8 +36,10 @@ namespace WebCore {
 
 void PlatformKeyboardEvent::disambiguateKeyDownEvent(Type, bool)
 {
+#if PLATFORM(WIN_OS)
     // No KeyDown events on Windows to disambiguate.
     ASSERT_NOT_REACHED();
+#endif
 }
 
 bool PlatformKeyboardEvent::currentCapsLockState()
