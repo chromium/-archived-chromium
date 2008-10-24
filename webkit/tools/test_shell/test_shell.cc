@@ -871,9 +871,6 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
 }
 
 bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
-    const TestNavigationEntry& test_entry =
-        *static_cast<const TestNavigationEntry*>(&entry);
-
     WebRequestCachePolicy cache_policy;
     if (reload) {
       cache_policy = WebRequestReloadIgnoringCacheData;
@@ -895,8 +892,8 @@ bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
 
     // Get the right target frame for the entry.
     WebFrame* frame = webView()->GetMainFrame();
-    if (!test_entry.GetTargetFrame().empty())
-        frame = webView()->GetFrameWithName(test_entry.GetTargetFrame());
+    if (!entry.GetTargetFrame().empty())
+        frame = webView()->GetFrameWithName(entry.GetTargetFrame());
     // TODO(mpcomplete): should we clear the target frame, or should
     // back/forward navigations maintain the target frame?
 
