@@ -13,8 +13,10 @@
 #include <wtf/RetainPtr.h>
 #ifdef __OBJC__
 @class NSEvent;
+@class NSView;
 #else
 class NSEvent;
+class NSView;
 #endif  // __OBJC__
 #elif defined(OS_LINUX)
 typedef struct _GdkEventButton GdkEventButton;
@@ -96,7 +98,7 @@ class WebMouseEvent : public WebInputEvent {
 #if defined(OS_WIN)
   WebMouseEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 #elif defined(OS_MACOSX)
-  WebMouseEvent(NSEvent *event);
+  WebMouseEvent(NSEvent *event, NSView* view);
 #elif defined(OS_LINUX)
   explicit WebMouseEvent(const GdkEventButton* event);
   explicit WebMouseEvent(const GdkEventMotion* event);
@@ -114,7 +116,7 @@ class WebMouseWheelEvent : public WebMouseEvent {
 #if defined(OS_WIN)
   WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 #elif defined(OS_MACOSX)
-  WebMouseWheelEvent(NSEvent *event);
+  WebMouseWheelEvent(NSEvent *event, NSView* view);
 #elif defined(OS_LINUX)
   explicit WebMouseWheelEvent(const GdkEventScroll* event);
 #endif

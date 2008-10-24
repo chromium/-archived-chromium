@@ -17,7 +17,7 @@ static const unsigned long kDefaultScrollLinesPerWheelDelta = 3;
 
 // WebMouseEvent --------------------------------------------------------------
 
-WebMouseEvent::WebMouseEvent(NSEvent *event) {
+WebMouseEvent::WebMouseEvent(NSEvent *event, NSView* view) {
   switch ([event type]) {
     case NSMouseExited:
       type = MOUSE_LEAVE;
@@ -72,9 +72,10 @@ WebMouseEvent::WebMouseEvent(NSEvent *event) {
   global_x = location.x;
   global_y = location.y;
 
-  location = [event locationInWindow];  // local (to receiving window)
+  NSPoint windowLocal = [event locationInWindow];
+  location = [view convertPoint:windowLocal fromView:nil];
+  y = [view frame].size.height - location.y;  // flip y
   x = location.x;
-  y = location.y;
   
   // set modifiers:
 
@@ -95,7 +96,7 @@ WebMouseEvent::WebMouseEvent(NSEvent *event) {
 
 // WebMouseWheelEvent ---------------------------------------------------------
 
-WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event) {
+WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
   type = MOUSE_WHEEL;
   button = BUTTON_NONE;
 
@@ -103,9 +104,10 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event) {
   global_x = location.x;
   global_y = location.y;
   
-  location = [event locationInWindow];  // local (to receiving window)
+  NSPoint windowLocal = [event locationInWindow];
+  location = [view convertPoint:windowLocal fromView:nil];
+  y = [view frame].size.height - location.y;  // flip y
   x = location.x;
-  y = location.y;
 
   int wheel_delta = [event deltaY];
   const int delta_lines = wheel_delta * kDefaultScrollLinesPerWheelDelta;

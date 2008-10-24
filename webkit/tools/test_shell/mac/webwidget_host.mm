@@ -213,7 +213,7 @@ void WebWidgetHost::Resize(const gfx::Rect& rect) {
 }
 
 void WebWidgetHost::MouseEvent(NSEvent *event) {
-  WebMouseEvent web_event(event);
+  WebMouseEvent web_event(event, view_);
   switch (web_event.type) {
     case WebInputEvent::MOUSE_MOVE:
       TrackMouseLeave(true);
@@ -236,7 +236,7 @@ void WebWidgetHost::MouseEvent(NSEvent *event) {
 }
 
 void WebWidgetHost::WheelEvent(NSEvent *event) {
-  WebMouseWheelEvent web_event(event);
+  WebMouseWheelEvent web_event(event, view_);
   webwidget_->HandleInputEvent(&web_event);
 }
 

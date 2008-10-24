@@ -38,11 +38,9 @@ uint32 MakePlatformMouseEvent::last_click_time_ = 0;
 
 MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
                                                const WebMouseEvent& e) {
-#if defined(OS_WIN) || defined(OS_LINUX)
   // TODO(mpcomplete): widget is always toplevel, unless it's a popup.  We
   // may be able to get rid of this once we abstract popups into a WebKit API.
   m_position = widget->convertFromContainingWindow(IntPoint(e.x, e.y));
-#endif
   m_globalPosition = IntPoint(e.global_x, e.global_y);
   m_button = static_cast<MouseButton>(e.button);
   m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
@@ -114,9 +112,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
 MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
                                                const WebMouseWheelEvent& e)
   {
-#if defined(OS_WIN) || defined(OS_LINUX)
   m_position = widget->convertFromContainingWindow(IntPoint(e.x, e.y));
-#endif
   m_globalPosition = IntPoint(e.global_x, e.global_y);
   m_deltaX = static_cast<float>(e.delta_x);
   m_deltaY = static_cast<float>(e.delta_y);
