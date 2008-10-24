@@ -1,6 +1,7 @@
 This is an import of a cygwin-based lighttpd for windows from:
 
 LightTPD-1.4.19-1-Win32-SSL.exe (http://en.wlmp-project.net/)
+LightTPD-1.4.20.tar.gz (http://www.lighttpd.net/)
 
 Modifications to the base install:
   - Move cygwin1.dll (see no_dll/README)
@@ -13,9 +14,10 @@ PHP is licensed under the PHP license (http://www.php.net/license/)
 
 ******
 
+--- For Mac ---
 The Mac version of LigHTTPd is built on intel from LightTPD 1.4.20 with the 
 following configure options defined:
-  --with-open-ssl
+  --with-openssl
   --prefix=/tmp/lighttpd so a "make install" bundles it
      correctly
   
@@ -32,8 +34,48 @@ configure options:
   --prefix=/tmp/php
   --enable-fastcgi
   --enable-sockets
-  --enable-libxml
   --enable-force-cgi-redirect
+
+--- For Linux ---
+Similar to the Mac version, grab the sources, configure, compile and move
+binaries to the correct location in third_party/lighttpd/lnx/
+
+LightTPD
+ 1) Uncompress
+   gzip -cd lighttpd-1.4.20.tar.gz | tar xf -
+ 2) You may need some libs
+   apt-get install libpcre3-dev   # required for pcre-devel
+   apt-get install libbz2-dev     # required for bzip2-headers
+ 3) configure, make and install
+   ./configure --with-openssl --prefix=/tmp/lighttpd_lnx
+   make
+   make install
+ 4) create directory and copy files
+   cd third_party/lighttpd/
+   mkdir lnx
+   cd lnx
+   mkdir bin
+   mkdir lib
+   cp /tmp/lighttpd_lnx/sbin/lighttpd bin/
+   cp /tmp/lighttpd_lnx/lib/* lib/
+
+PHP-CGI
+ 1) Uncompress 
+   gzip -cd php-5.2.6.tar.gz | tar xf -
+ 2) you may need some libs
+   apt-get install libxml2-dev     # required for xml2-config
+ 3) configure, make and install
+   ./configure --prefix=/tmp/php_lnx \
+               --enable-fastcgi \
+               --enable-sockets \
+               --enable-force-cgi-redirect
+   make
+   make install
+ 4) copy files
+   cd third_party/lighttpd/lnx
+   cp /tmp/php_lnx/bin/php_cgi bin/
+   
+Extra: You can now remove the directories where you compiled and installed.
 
 The resulting libraries and executables are then copied into the third_party
 dir in the source tree to mirror where the windows executables live. It's 
