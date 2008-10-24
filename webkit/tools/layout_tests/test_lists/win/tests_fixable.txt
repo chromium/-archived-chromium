@@ -934,7 +934,6 @@ V8 | KJS # LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/form-hides-table.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/legend-access-key.html = FAIL
 V8 | KJS # LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 V8 | KJS # LayoutTests/fast/table/text-field-baseline.html = FAIL
 V8 | KJS # LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS
