@@ -126,14 +126,6 @@ class SyncChannel::ReceivedSyncMsgQueue :
     }
   }
 
-  // Called on the IPC thread when the current sync Send() call is unblocked.
-  void DidUnblock() {
-    if (!received_replies_.empty()) {
-      MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &ReceivedSyncMsgQueue::DispatchReplies));
-    }
-  }
-
   // SyncChannel calls this in its destructor.
   void RemoveListener(Channel::Listener* listener) {
     AutoLock auto_lock(message_lock_);
@@ -167,14 +159,6 @@ class SyncChannel::ReceivedSyncMsgQueue :
   static base::LazyInstance<base::ThreadLocalPointer<ReceivedSyncMsgQueue> >
       lazy_tls_ptr_;
 
- private:
-  ReceivedSyncMsgQueue() :
-      dispatch_event_(CreateEvent(NULL, TRUE, FALSE, NULL)),
-      task_pending_(false),
-      listener_message_loop_(MessageLoop::current()),
-      listener_count_(0) {
-  }
-
   // Called on the ipc thread to check if we can unblock any current Send()
   // calls based on a queued reply.
   void DispatchReplies() {
@@ -186,6 +170,14 @@ class SyncChannel::ReceivedSyncMsgQueue :
         return;
       }
     }
+  }
+
+ private:
+  ReceivedSyncMsgQueue() :
+      dispatch_event_(CreateEvent(NULL, TRUE, FALSE, NULL)),
+      task_pending_(false),
+      listener_message_loop_(MessageLoop::current()),
+      listener_count_(0) {
   }
 
   // Holds information about a queued synchronous message.
@@ -252,12 +244,25 @@ void SyncChannel::SyncContext::Push(SyncMessage* sync_msg) {
 }
 
 bool SyncChannel::SyncContext::Pop() {
-  AutoLock auto_lock(deserializers_lock_);
-  PendingSyncMsg msg = deserializers_.back();
-  delete msg.deserializer;
-  CloseHandle(msg.done_event);
-  deserializers_.pop_back();
-  return msg.send_result;
+  bool result;
+  {
+    AutoLock auto_lock(deserializers_lock_);
+    PendingSyncMsg msg = deserializers_.back();
+    delete msg.deserializer;
+    CloseHandle(msg.done_event);
+    deserializers_.pop_back();
+    result = msg.send_result;
+  }
+
+  // We got a reply to a synchronous Send() call that's blocking the listener
+  // thread.  However, further down the call stack there could be another
+  // blocking Send() call, whose reply we received after we made this last
+  // Send() call.  So check if we have any queued replies available that
+  // can now unblock the listener thread.
+  ipc_message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      received_sync_msgs_.get(), &ReceivedSyncMsgQueue::DispatchReplies));
+
+  return result;
 }
 
 HANDLE SyncChannel::SyncContext::GetSendDoneEvent() {
@@ -274,26 +279,17 @@ void SyncChannel::SyncContext::DispatchMessages() {
 }
 
 bool SyncChannel::SyncContext::TryToUnblockListener(const Message* msg) {
-  {
-    AutoLock auto_lock(deserializers_lock_);
-    if (deserializers_.empty() ||
-        !SyncMessage::IsMessageReplyTo(*msg, deserializers_.back().id)) {
-      return false;
-    }
-
-    if (!msg->is_reply_error()) {
-      deserializers_.back().send_result = deserializers_.back().deserializer->
-          SerializeOutputParameters(*msg);
-    }
-    SetEvent(deserializers_.back().done_event);
+  AutoLock auto_lock(deserializers_lock_);
+  if (deserializers_.empty() ||
+      !SyncMessage::IsMessageReplyTo(*msg, deserializers_.back().id)) {
+    return false;
   }
 
-  // We got a reply to a synchronous Send() call that's blocking the listener
-  // thread.  However, further down the call stack there could be another
-  // blocking Send() call, whose reply we received after we made this last
-  // Send() call.  So check if we have any queued replies available that
-  // can now unblock the listener thread.
-  received_sync_msgs_->DidUnblock();
+  if (!msg->is_reply_error()) {
+    deserializers_.back().send_result = deserializers_.back().deserializer->
+        SerializeOutputParameters(*msg);
+  }
+  SetEvent(deserializers_.back().done_event);
 
   return true;
 }
