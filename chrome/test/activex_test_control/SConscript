@@ -41,8 +41,7 @@ input_files = [
     'chrome_test_control.cc',
 ]
 
-dll = env.ChromeSharedLibrary(['activex_test_control', 'activex_test_control.lib'],
-                        input_files)
+dll = env.ChromeSharedLibrary('activex_test_control', input_files)
 
 i = env.Install('$TARGET_ROOT', dll)
 env.Alias('chrome', i)

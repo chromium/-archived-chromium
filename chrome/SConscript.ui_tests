@@ -93,7 +93,6 @@ ui_test_files = [
     'browser/download/download_uitest.cc',
     'browser/download/save_page_uitest.cc',
     'browser/errorpage_uitest.cc',
-    'browser/find_in_page_controller_uitest.cc',
     'browser/history/redirect_uitest.cc',
     'browser/iframe_uitest.cc',
     'browser/images_uitest.cc',
@@ -133,6 +132,12 @@ ui_test_files = [
     '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
 ]
+
+if env_test['PLATFORM'] == 'win32':
+  ui_test_files.extend([
+      'find_bar_win_interactive_uitest.cc',
+      'find_bar_win_uitest.cc',
+  ])
 
 ui_tests = env_test.ChromeTestProgram('ui_tests',  ui_test_files + libs)
 

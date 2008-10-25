@@ -109,6 +109,13 @@ env.AddMethod(ChromeObject)
 if env['PLATFORM'] == 'win32':
   env.Tool('target_platform_windows')
   env.Tool('target_debug')
+  env.Tool('midl')
+
+  # TODO(bradnelson): this is needed for now because target_platform_windows
+  # has OS_WINDOWS defined in a weird way.
+  env.FilterOut(CPPDEFINES = ['OS_WINDOWS=OS_WINDOWS'])
+
+  env['PDB'] = '${TARGET.base}.pdb'
 
   processors = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
   SetOption('num_jobs', processors + 1)
@@ -124,7 +131,7 @@ if env['PLATFORM'] == 'win32':
     CSCRIPT = 'c:\\Windows\\System32\\cscript',
 
     PLATFORMSDK_VISTA_REL = '../third_party/platformsdk_vista_6_0',
-    PLATFORMSDK_VISTA = '$CHROME_SRC_DIR/$PLATFORMSDK_VISTA_REL',
+    PLATFORMSDK_VISTA = '$CHROME_SRC_DIR/third_party/platformsdk_vista_6_0',
     VISUAL_STUDIO = visual_studio_path,
 
     CYGWIN_DIR = env.Dir('$CHROME_SRC_DIR/third_party/cygwin'),

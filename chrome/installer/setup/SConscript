@@ -76,16 +76,7 @@ input_files = [
     'uninstall.cc',
 ]
 
-if env['PLATFORM'] == 'win32':
-  targets = [
-      'setup.exe',
-      'setup.pdb',
-      'setup.lib',
-  ]
-else:
-  targets = ['setup']
-
-exe = env.ChromeProgram(targets, resources + input_files)
+exe = env.ChromeProgram('setup', resources + input_files)
 i = env.Install('$TARGET_ROOT', exe)
 
 env.Alias('chrome', i)

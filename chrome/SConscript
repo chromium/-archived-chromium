@@ -200,16 +200,6 @@ libs = [
 ]
 
 
-if env_dll['PLATFORM'] == 'win32':
-  targets = [
-      'chrome.dll',
-      'chrome_dll.pdb',
-      'chrome_dll.lib',
-  ]
-else:
-  targets = ['chrome']
-
-
 
 # TODO(sgk): make a pseudo-Builder for these
 import sys
@@ -237,17 +227,18 @@ grit_files.extend(google_chrome)
 
 # TODO(port)
 if env_dll['PLATFORM'] == 'win32':
-  dll_targets = env_dll.ChromeSharedLibrary(targets,
-                                            dll_resources + input_files + libs)
+  dll_targets = env_dll.ChromeSharedLibrary('chrome.dll',
+                                            dll_resources + input_files + libs,
+                                            PDB='chrome_dll.pdb')
   install_targets.extend(dll_targets)
 
   for g in [ g for g in grit_files if str(g).endswith('.rc') ]:
     env_res.RES(g)
 
   def chrome_version_emitter(target, source, env):
-      source.append('$CHROME_SRC_DIR/chrome/VERSION')
+      source.append(env.File('$CHROME_SRC_DIR/chrome/VERSION'))
       # TODO(sgk):  parameterize for chromium-vs.-google_chrome
-      source.append('$CHROME_SRC_DIR/chrome/app/theme/google_chrome/BRANDING')
+      source.append(env.File('$CHROME_SRC_DIR/chrome/app/theme/google_chrome/BRANDING'))
       return target, source
 
   b = Builder(action = '$CHROME_VERSION_RC_COM',
@@ -323,19 +314,10 @@ env_exe.Append(
     ],
 )
 
-if env['PLATFORM'] == 'win32':
-  targets = [
-      'chrome.exe',
-      'chrome_exe.pdb',
-      'chrome_exe_implib.lib',
-  ]
-else:
-  targets = ['chrome']
-
 # TODO(port)
 if env['PLATFORM'] == 'win32':
   chrome_exe = env_exe.ChromeProgram(
-      targets,
+      'chrome',
       [
           env_res.RES('app/chrome_exe.rc'),
           'app/breakpad.cc',
