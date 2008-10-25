@@ -640,7 +640,7 @@ const wchar_t* GetOldUpdatesPath() {
 // Counts the IO needed for the initial update of a database.
 // test\data\safe_browsing\download_update.py was used to fetch the add/sub
 // chunks that are read, in order to get repeatable runs.
-TEST(SafeBrowsingDatabase, DatabaseInitialIO) {
+TEST(SafeBrowsingDatabase, DISABLED_DatabaseInitialIO) {
   UpdateDatabase(L"", L"", L"initial");
 }
 
