@@ -42,6 +42,7 @@ static const TCHAR kRegistryFirefoxInstalled[] =
 static const TCHAR kMozillaActiveXPlugin[] = _T("npmozax.dll");
 static const TCHAR kNewWMPPlugin[] = _T("np-mswmp.dll");
 static const TCHAR kOldWMPPlugin[] = _T("npdsplay.dll");
+static const TCHAR kYahooApplicationStatePlugin[] = _T("npystate.dll");
 static const TCHAR kRegistryJava[] =
     _T("Software\\JavaSoft\\Java Runtime Environment");
 static const TCHAR kRegistryBrowserJavaVersion[] = _T("BrowserJavaVersion");
@@ -188,6 +189,12 @@ void PluginList::LoadPlugin(const std::wstring &path) {
 bool PluginList::ShouldLoadPlugin(const std::wstring& filename) {
   // Depends on XPCOM.
   if (filename == kMozillaActiveXPlugin)
+    return false;
+
+  // Disable the yahoo application state plugin as it crashes the plugin
+  // process on return from NPObjectStub::OnInvoke. Please refer to
+  // http://b/issue?id=1372124 for more information.
+  if (filename == kYahooApplicationStatePlugin)
     return false;
 
   // We will use activex shim to handle embeded wmp media.
