@@ -193,15 +193,14 @@ const wchar_t kShowHomeButton[] = L"browser.show_home_button";
 const wchar_t kRecentlySelectedEncoding[] =
     L"profile.recently_selected_encodings";
 
-// Boolean prefs that define the default values for the check boxes in the Clear
-// Browsing Data dialog.
+// Clear Browsing Data dialog preferences.
 const wchar_t kDeleteBrowsingHistory[] = L"browser.clear_data.browsing_history";
 const wchar_t kDeleteDownloadHistory[] =
     L"browser.clear_data.download_history";
 const wchar_t kDeleteCache[] = L"browser.clear_data.cache";
 const wchar_t kDeleteCookies[] = L"browser.clear_data.cookies";
 const wchar_t kDeletePasswords[] = L"browser.clear_data.passwords";
-
+const wchar_t kDeleteTimePeriod[] = L"browser.clear_data.time_period";
 
 // *************** LOCAL STATE ***************
 // These are attached to the machine/installation

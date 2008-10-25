@@ -34,6 +34,7 @@ class ClearBrowsingDataView : public views::View,
                               public views::DialogDelegate,
                               public views::ComboBox::Model,
                               public views::NativeButton::Listener,
+                              public views::ComboBox::Listener,
                               public BrowsingDataRemover::Observer {
  public:
   explicit ClearBrowsingDataView(Profile* profile);
@@ -67,6 +68,10 @@ class ClearBrowsingDataView : public views::View,
 
   // Overridden from views::NativeButton::Listener:
   virtual void ButtonPressed(views::NativeButton* sender);
+
+   // Overridden from views::ComboBox::Listener:
+  virtual void ItemChanged(views::ComboBox* sender, int prev_index,
+                           int new_index);
 
  private:
   // Adds a new check-box as a child to the view.

@@ -98,6 +98,9 @@ void ClearBrowsingDataView::Init() {
 
   // Add the combo box showing how far back in time we want to delete.
   time_period_combobox_ = new views::ComboBox(this);
+  time_period_combobox_->SetSelectedItem(profile_->GetPrefs()->GetInteger(
+                                         prefs::kDeleteTimePeriod));
+  time_period_combobox_->SetListener(this);
   AddChildView(time_period_combobox_);
 }
 
@@ -299,6 +302,15 @@ std::wstring ClearBrowsingDataView::GetItemAt(views::ComboBox* source,
     default: NOTREACHED() << L"Missing item";
              return L"?";
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ClearBrowsingDataView, views::ComboBoxListener implementation:
+
+void ClearBrowsingDataView::ItemChanged(views::ComboBox* sender,
+                                        int prev_index, int new_index) {
+  if (sender == time_period_combobox_ && prev_index != new_index)
+    profile_->GetPrefs()->SetInteger(prefs::kDeleteTimePeriod, new_index);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

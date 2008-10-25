@@ -185,6 +185,7 @@ void Browser::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kDeleteCache, true);
   prefs->RegisterBooleanPref(prefs::kDeleteCookies, true);
   prefs->RegisterBooleanPref(prefs::kDeletePasswords, false);
+  prefs->RegisterIntegerPref(prefs::kDeleteTimePeriod, 0);
 }
 
 Browser::Browser(const gfx::Rect& initial_bounds,
