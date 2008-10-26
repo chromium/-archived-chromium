@@ -857,11 +857,6 @@ V8 | KJS # SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 # http://code.google.com/p/chromium/issues/detail?id=3273
 V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
 
-// TODO(eroman): These seem to have regressed after r3962
-V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
-V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
-
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
