@@ -706,7 +706,7 @@
 			Name="TestSpellCheck"
 			>
 			<File
-				RelativePath="..\..\renderer\spellcheck_unittest.cc"
+				RelativePath="..\..\browser\spellcheck_unittest.cc"
 				>
 			</File>
 		</Filter>
