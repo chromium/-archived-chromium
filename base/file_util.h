@@ -346,8 +346,8 @@ class FileEnumerator {
   DISALLOW_EVIL_CONSTRUCTORS(FileEnumerator);
 };
 
-// Renames a file using the MoveFileEx API and ensures that the target file gets
-// the correct security descriptor in the new path.
+// Renames a file using the SHFileOperation API to ensure that the target file
+// gets the correct default security descriptor in the new path.
 bool RenameFileAndResetSecurityDescriptor(
     const std::wstring& source_file_path,
     const std::wstring& target_file_path);

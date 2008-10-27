@@ -535,47 +535,24 @@ int WriteFile(const std::wstring& filename, const char* data, int size) {
 bool RenameFileAndResetSecurityDescriptor(
     const std::wstring& source_file_path,
     const std::wstring& target_file_path) {
-  // The MoveFile API does not reset the security descriptor on the target
-  // file. To ensure that the target file gets the correct security descriptor
-  // we create the target file initially in the target path, read its security
-  // descriptor and stamp this descriptor on the target file after the MoveFile
-  // API completes.
-  ScopedHandle temp_file_handle_for_security_desc(
-      CreateFileW(target_file_path.c_str(), GENERIC_READ | GENERIC_WRITE,
-                  FILE_SHARE_READ, NULL, OPEN_ALWAYS,
-                  FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE,
-                  NULL));
-  if (!temp_file_handle_for_security_desc.IsValid())
-    return false;
+  // The parameters to SHFileOperation must be terminated with 2 NULL chars.
+  std::wstring source = source_file_path;
+  std::wstring target = target_file_path;
 
-  // Check how much we should allocate for the security descriptor.
-  unsigned long security_descriptor_size_in_bytes = 0;
-  GetFileSecurity(target_file_path.c_str(), DACL_SECURITY_INFORMATION, NULL, 0,
-                  &security_descriptor_size_in_bytes);
-  if (ERROR_INSUFFICIENT_BUFFER != GetLastError() ||
-      security_descriptor_size_in_bytes == 0)
-    return false;
+  source.append(1, L'\0');
+  target.append(1, L'\0');
 
-  scoped_array<char> security_descriptor(
-      new char[security_descriptor_size_in_bytes]);
+  SHFILEOPSTRUCT move_info = {0};
+  move_info.wFunc = FO_MOVE;
+  move_info.pFrom = source.c_str();
+  move_info.pTo = target.c_str();
+  move_info.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI |
+                     FOF_NOCONFIRMMKDIR | FOF_NOCOPYSECURITYATTRIBS;
 
-  if (!GetFileSecurity(target_file_path.c_str(), DACL_SECURITY_INFORMATION,
-                       security_descriptor.get(),
-                       security_descriptor_size_in_bytes,
-                       &security_descriptor_size_in_bytes)) {
-    return false;
-  }
-
-  temp_file_handle_for_security_desc.Set(INVALID_HANDLE_VALUE);
-
-  if (!MoveFileEx(source_file_path.c_str(), target_file_path.c_str(),
-                  MOVEFILE_COPY_ALLOWED)) {
-    return false;
-  }
-
-  return !!SetFileSecurity(target_file_path.c_str(),
-                           DACL_SECURITY_INFORMATION,
-                           security_descriptor.get());
+  if (0 != SHFileOperation(&move_info))
+   return false;
+  
+  return true;
 }
 
 // Gets the current working directory for the process.
