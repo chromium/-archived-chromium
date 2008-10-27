@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/field_trial.h"
 #include "base/histogram.h"
 #include "base/logging.h"
 #include "base/sha2.h"
@@ -25,7 +26,7 @@ SdchManager* SdchManager::Global() {
 void SdchManager::SdchErrorRecovery(ProblemCodes problem) {
   static LinearHistogram histogram(L"Sdch.ProblemCodes", MIN_PROBLEM_CODE,
                                    MAX_PROBLEM_CODE - 1, MAX_PROBLEM_CODE);
-  // TODO(jar): Set UMA flag for uploading.
+  histogram.SetFlags(kUmaTargetedHistogramFlag);
   histogram.Add(problem);
 }
 
@@ -51,11 +52,13 @@ SdchManager::~SdchManager() {
   global_ = NULL;
 }
 
-// static 
+// static
 bool SdchManager::BlacklistDomain(const GURL& url) {
   if (!global_ )
     return false;
   std::string domain(url.host());
+  UMA_HISTOGRAM_TIMES(L"Sdch.UptimeBeforeBlacklisting",
+       Time::Now() - FieldTrialList::application_start_time());
   global_->blacklisted_domains_.insert(url.host());
   return true;
 }
@@ -171,7 +174,7 @@ bool SdchManager::AddSdchDictionary(const std::string& dictionary_text,
   if (!Dictionary::CanSet(domain, path, ports, dictionary_url))
     return false;
 
-  HISTOGRAM_COUNTS(L"Sdch.Dictionary size loaded", dictionary_text.size());
+  UMA_HISTOGRAM_COUNTS(L"Sdch.Dictionary size loaded", dictionary_text.size());
   DLOG(INFO) << "Loaded dictionary with client hash " << client_hash <<
       " and server hash " << server_hash;
   Dictionary* dictionary =
@@ -187,7 +190,6 @@ void SdchManager::GetVcdiffDictionary(const std::string& server_hash,
   *dictionary = NULL;
   DictionaryMap::iterator it = dictionaries_.find(server_hash);
   if (it == dictionaries_.end()) {
-    SdchErrorRecovery(DICTIONARY_NOT_FOUND_FOR_HASH);
     return;
   }
   Dictionary* matching_dictionary = it->second;

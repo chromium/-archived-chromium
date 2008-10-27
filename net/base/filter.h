@@ -55,6 +55,17 @@ class Filter {
     FILTER_ERROR
   };
 
+  // Specifies type of filters that can be created.
+  enum FilterType {
+    FILTER_TYPE_DEFLATE,
+    FILTER_TYPE_GZIP,
+    FILTER_TYPE_BZIP2,
+    FILTER_TYPE_GZIP_HELPING_SDCH,
+    FILTER_TYPE_SDCH,
+    FILTER_TYPE_UNSUPPORTED,
+  };
+
+
   virtual ~Filter();
 
   // Creates a Filter object.
@@ -71,8 +82,7 @@ class Filter {
   // (decoding) order. For example, types[0] = "sdch", types[1] = "gzip" will
   // cause data to first be gunizip filtered, and the resulting output from that
   // filter will be sdch decoded.
-  static Filter* Factory(const std::vector<std::string>& filter_types,
-                         const std::string& mime_type,
+  static Filter* Factory(const std::vector<FilterType>& filter_types,
                          int buffer_size);
 
   // External call to obtain data from this filter chain.  If ther is no
@@ -107,20 +117,24 @@ class Filter {
   void SetURL(const GURL& url);
   const GURL& url() const { return url_; }
 
-  void SetMimeType(std::string& mime_type);
+  void SetMimeType(const std::string& mime_type);
   const std::string& mime_type() const { return mime_type_; }
 
- protected:
-  // Specifies type of filters that can be created.
-  enum FilterType {
-    FILTER_TYPE_DEFLATE,
-    FILTER_TYPE_GZIP,
-    FILTER_TYPE_BZIP2,
-    FILTER_TYPE_GZIP_HELPING_SDCH,
-    FILTER_TYPE_SDCH,  // open-vcdiff compression relative to a dictionary.
-    FILTER_TYPE_UNSUPPORTED
-  };
+  // Translate the text of a filter name (from Content-Encoding header) into a
+  // FilterType.
+  static FilterType ConvertEncodingToType(const std::string& filter_type);
 
+  // Given a array of encoding_types, try to do some error recovery adjustment
+  // to the list.  This includes handling known bugs in the Apache server (where
+  // redundant gzip encoding is specified), as well as issues regarding SDCH
+  // encoding, where various proxies and anti-virus products modify or strip the
+  // encodings.  These fixups require context, which includes whether this
+  // response was made to an SDCH request (i.e., an available dictionary was
+  // advertised in the GET), as well as the mime type of the content.
+  static void FixupEncodingTypes(bool is_sdch_response,
+                                 const std::string& mime_type,
+                                 std::vector<FilterType>* encoding_types);
+ protected:
   Filter();
 
   FRIEND_TEST(SdchFilterTest, ContentTypeId);
@@ -143,11 +157,6 @@ class Filter {
   // Allocates and initializes stream_buffer_.
   // Buffer_size is the maximum size of stream_buffer_ in number of chars.
   bool InitBuffer(int buffer_size);
-
-  // Translate the text of a filter name (from Content-Encoding header) into a
-  // FilterType, in the context of a mime type.
-  static FilterType ConvertEncodingToType(const std::string& filter_type,
-                                          const std::string& mime_type);
 
   // A factory helper for creating filters for within a chain of potentially
   // multiple encodings.  If a chain of filters is created, then this may be

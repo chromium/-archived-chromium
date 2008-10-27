@@ -71,7 +71,10 @@ class FieldTrialList : NonThreadSafe {
   // data that is gathered before the application has reach sufficient
   // stability (example: most DLL have loaded, etc.)
   static Time application_start_time() {
-    return global_->application_start_time_;
+    if (global_)
+      return global_->application_start_time_;
+    // For testing purposes only, or when we don't yet have a start time.
+    return Time::Now();
   }
 
  private:

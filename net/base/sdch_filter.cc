@@ -29,7 +29,7 @@ SdchFilter::~SdchFilter() {
   static int filter_use_count = 0;
   ++filter_use_count;
   if (META_REFRESH_RECOVERY == decoding_status_) {
-    HISTOGRAM_COUNTS(L"Sdch.FilterUseBeforeDisabling", filter_use_count);
+    UMA_HISTOGRAM_COUNTS(L"Sdch.FilterUseBeforeDisabling", filter_use_count);
   }
 
   if (vcdiff_streaming_decoder_.get()) {
@@ -37,9 +37,8 @@ SdchFilter::~SdchFilter() {
       decoding_status_ = DECODING_ERROR;
   }
 
-  // TODO(jar): Use UMA_HISTOGRAM when we turn sdch on by default.
-  HISTOGRAM_COUNTS(L"Sdch.Bytes read", source_bytes_);
-  HISTOGRAM_COUNTS(L"Sdch.Bytes output", output_bytes_);
+  UMA_HISTOGRAM_COUNTS(L"Sdch.Bytes read", source_bytes_);
+  UMA_HISTOGRAM_COUNTS(L"Sdch.Bytes output", output_bytes_);
 
   if (dictionary_)
     dictionary_->Release();
@@ -82,6 +81,8 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
       DCHECK(0 == dest_buffer_excess_index_);
       DCHECK(dest_buffer_excess_.empty());
       if (!dictionary_hash_is_plausible_) {
+        // One of the first 9 bytes precluded consideration as a hash.
+        // This can't be an SDCH payload.
         SdchManager::SdchErrorRecovery(SdchManager::PASSING_THROUGH_NON_SDCH);
         decoding_status_ = PASS_THROUGH;
         dest_buffer_excess_ = dictionary_hash_;  // Send what we scanned.
@@ -185,6 +186,7 @@ Filter::FilterStatus SdchFilter::InitializeDictionary() {
 
   if (!dictionary_) {
     DCHECK(dictionary_hash_.size() == kServerIdLength);
+    // Since dictionary was not found, check to see if hash was even plausible.
     for (size_t i = 0; i < kServerIdLength - 1; ++i) {
       char base64_char = dictionary_hash_[i];
       if (!isalnum(base64_char) && '-' != base64_char && '_' != base64_char) {

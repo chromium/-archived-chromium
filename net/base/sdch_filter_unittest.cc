@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// TODO(jar): Change file name to *_unittest.cc (with double "t').
-
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -130,12 +128,11 @@ static std::string NewSdchDictionary(const std::string& domain) {
 //------------------------------------------------------------------------------
 
 TEST_F(SdchFilterTest, BasicBadDictionary) {
-  std::vector<std::string> filters;
-  filters.push_back("sdch");
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
   const int kInputBufferSize(30);
   char output_buffer[20];
-  scoped_ptr<Filter> filter(Filter::Factory(filters, "missing-mime",
-                                            kInputBufferSize));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
   std::string url_string("http://ignore.com");
   filter->SetURL(GURL(url_string));
 
@@ -225,13 +222,12 @@ TEST_F(SdchFilterTest, BasicDictionary) {
 
   std::string compressed(NewSdchCompressedData(dictionary));
 
-  std::vector<std::string> filters;
-  filters.push_back("sdch");
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
 
   // Decode with a large buffer (larger than test input, or compressed data).
   const int kInputBufferSize(100);
-  scoped_ptr<Filter> filter(Filter::Factory(filters, "missing-mime",
-                                            kInputBufferSize));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
   filter->SetURL(url);
 
   size_t feed_block_size = 100;
@@ -242,7 +238,7 @@ TEST_F(SdchFilterTest, BasicDictionary) {
   EXPECT_EQ(output, expanded_);
 
   // Decode with really small buffers (size 1) to check for edge effects.
-  filter.reset((Filter::Factory(filters, "missing-mime", kInputBufferSize)));
+  filter.reset((Filter::Factory(filter_types, kInputBufferSize)));
   filter->SetURL(url);
 
   feed_block_size = 1;
@@ -265,14 +261,13 @@ TEST_F(SdchFilterTest, CrossDomainDictionaryUse) {
 
   std::string compressed(NewSdchCompressedData(dictionary));
 
-  std::vector<std::string> filters;
-  filters.push_back("sdch");
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
   const int kInputBufferSize(100);
 
   // Decode with content arriving from the "wrong" domain.
   // This tests CanSet() in the sdch_manager_->
-  scoped_ptr<Filter> filter((Filter::Factory(filters, "missing-mime",
-                                             kInputBufferSize)));
+  scoped_ptr<Filter> filter((Filter::Factory(filter_types,  kInputBufferSize)));
   GURL wrong_domain_url("http://www.wrongdomain.com");
   filter->SetURL(wrong_domain_url);
 
@@ -307,13 +302,12 @@ TEST_F(SdchFilterTest, DictionaryPathValidation) {
 
   std::string compressed_for_path(NewSdchCompressedData(dictionary_with_path));
 
-  std::vector<std::string> filters;
-  filters.push_back("sdch");
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
   const int kInputBufferSize(100);
 
   // Test decode the path data, arriving from a valid path.
-  scoped_ptr<Filter> filter((Filter::Factory(filters, "missing-mime",
-                            kInputBufferSize)));
+  scoped_ptr<Filter> filter((Filter::Factory(filter_types, kInputBufferSize)));
   filter->SetURL(GURL(url_string + path));
 
   size_t feed_block_size = 100;
@@ -325,7 +319,7 @@ TEST_F(SdchFilterTest, DictionaryPathValidation) {
   EXPECT_EQ(output, expanded_);
 
   // Test decode the path data, arriving from a invalid path.
-  filter.reset((Filter::Factory(filters, "missing-mime", kInputBufferSize)));
+  filter.reset((Filter::Factory(filter_types, kInputBufferSize)));
   filter->SetURL(GURL(url_string));
 
   feed_block_size = 100;
@@ -361,13 +355,12 @@ TEST_F(SdchFilterTest, DictionaryPortValidation) {
 
   std::string compressed_for_port(NewSdchCompressedData(dictionary_with_port));
 
-  std::vector<std::string> filters;
-  filters.push_back("sdch");
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
   const int kInputBufferSize(100);
 
   // Test decode the port data, arriving from a valid port.
-  scoped_ptr<Filter> filter((Filter::Factory(filters, "missing-mime",
-                                             kInputBufferSize)));
+  scoped_ptr<Filter> filter((Filter::Factory(filter_types, kInputBufferSize)));
   filter->SetURL(GURL(url_string + ":" + port));
 
   size_t feed_block_size = 100;
@@ -378,7 +371,7 @@ TEST_F(SdchFilterTest, DictionaryPortValidation) {
   EXPECT_EQ(output, expanded_);
 
   // Test decode the port data, arriving from a valid (default) port.
-  filter.reset((Filter::Factory(filters, "missing-mime", kInputBufferSize)));
+  filter.reset((Filter::Factory(filter_types, kInputBufferSize)));
   filter->SetURL(GURL(url_string));  // Default port.
 
   feed_block_size = 100;
@@ -389,7 +382,7 @@ TEST_F(SdchFilterTest, DictionaryPortValidation) {
   EXPECT_EQ(output, expanded_);
 
   // Test decode the port data, arriving from a invalid port.
-  filter.reset((Filter::Factory(filters, "missing-mime", kInputBufferSize)));
+  filter.reset((Filter::Factory(filter_types, kInputBufferSize)));
   filter->SetURL(GURL(url_string + ":" + port + "1"));
 
   feed_block_size = 100;
@@ -480,14 +473,13 @@ TEST_F(SdchFilterTest, FilterChaining) {
   std::string gzip_compressed_sdch = gzip_compress(sdch_compressed);
 
   // Construct a chained filter.
-  std::vector<std::string> filters;
-  filters.push_back("sdch");
-  filters.push_back("gzip");
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+  filter_types.push_back(Filter::FILTER_TYPE_GZIP);
 
   // First try with a large buffer (larger than test input, or compressed data).
   const int kInputBufferSize(100);
-  scoped_ptr<Filter> filter(Filter::Factory(filters, "missing-mime",
-                                            kInputBufferSize));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
   filter->SetURL(url);
 
   // Verify that chained filter is waiting for data.
@@ -504,7 +496,7 @@ TEST_F(SdchFilterTest, FilterChaining) {
   EXPECT_EQ(output, expanded_);
 
   // Next try with a tiny buffer to cover edge effects.
-  filter.reset(Filter::Factory(filters, "missing-mime", kInputBufferSize));
+  filter.reset(Filter::Factory(filter_types, kInputBufferSize));
   filter->SetURL(url);
 
   feed_block_size = 1;
@@ -530,15 +522,15 @@ TEST_F(SdchFilterTest, DefaultGzipIfSdch) {
   // Use Gzip to compress the sdch sdch_compressed data.
   std::string gzip_compressed_sdch = gzip_compress(sdch_compressed);
 
-  // Only claim to have sdch content, but really usethe gzipped sdch content.
+  // Only claim to have sdch content, but really use the gzipped sdch content.
   // System should automatically add the missing (optional) gzip.
-  std::vector<std::string> filters;
-  filters.push_back("sdch");
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+  Filter::FixupEncodingTypes(true, "anything/mime", &filter_types);
 
   // First try with a large buffer (larger than test input, or compressed data).
   const int kInputBufferSize(100);
-  scoped_ptr<Filter> filter(Filter::Factory(filters, "missing-mime",
-                            kInputBufferSize));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
   filter->SetURL(url);
 
   // Verify that chained filter is waiting for data.
@@ -555,7 +547,7 @@ TEST_F(SdchFilterTest, DefaultGzipIfSdch) {
   EXPECT_EQ(output, expanded_);
 
   // Next try with a tiny buffer to cover edge effects.
-  filter.reset(Filter::Factory(filters, "missing-mime", kInputBufferSize));
+  filter.reset(Filter::Factory(filter_types, kInputBufferSize));
   filter->SetURL(url);
 
   feed_block_size = 1;
@@ -588,57 +580,4 @@ TEST_F(SdchFilterTest, DomainBlacklisting) {
   SdchManager::BlacklistDomain(google_url);
   EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(test_url));
   EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(google_url));
-}
-
-
-// TODO(jar): move this sort of test into filter_unittest.cc, or
-// url_request_http_job_unittest.cc if that is more applicable after refactoring
-// to use array of enums rather than array of strings to express content
-// encodings.
-TEST_F(SdchFilterTest, ContentTypeId) {
-  // Check for basic translation of Content-Encoding, including case variations.
-  EXPECT_EQ(Filter::FILTER_TYPE_DEFLATE,
-            Filter::ConvertEncodingToType("deflate", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_DEFLATE,
-            Filter::ConvertEncodingToType("deflAte", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_GZIP,
-            Filter::ConvertEncodingToType("gzip", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_GZIP,
-            Filter::ConvertEncodingToType("GzIp", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_GZIP,
-            Filter::ConvertEncodingToType("x-gzip", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_GZIP,
-            Filter::ConvertEncodingToType("X-GzIp", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_BZIP2,
-            Filter::ConvertEncodingToType("bzip2", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_BZIP2,
-            Filter::ConvertEncodingToType("BZiP2", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_BZIP2,
-            Filter::ConvertEncodingToType("x-bzip2", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_BZIP2,
-            Filter::ConvertEncodingToType("X-BZiP2", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_SDCH,
-            Filter::ConvertEncodingToType("sdch", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_SDCH,
-            Filter::ConvertEncodingToType("sDcH", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_UNSUPPORTED,
-            Filter::ConvertEncodingToType("weird", "nothing"));
-  EXPECT_EQ(Filter::FILTER_TYPE_UNSUPPORTED,
-            Filter::ConvertEncodingToType("strange", "nothing"));
-
-  // Check to see that apache bug (marking things as gzipped because of their
-  // on-disk file type) is ignored.
-  EXPECT_EQ(Filter::FILTER_TYPE_UNSUPPORTED,
-            Filter::ConvertEncodingToType("gzip", "application/x-gzip"));
-  EXPECT_EQ(Filter::FILTER_TYPE_UNSUPPORTED,
-            Filter::ConvertEncodingToType("gzip", "application/gzip"));
-  EXPECT_EQ(Filter::FILTER_TYPE_UNSUPPORTED,
-            Filter::ConvertEncodingToType("gzip", "application/x-gunzip"));
-
-  EXPECT_EQ(Filter::FILTER_TYPE_UNSUPPORTED,
-            Filter::ConvertEncodingToType("x-gzip", "application/x-gzip"));
-  EXPECT_EQ(Filter::FILTER_TYPE_UNSUPPORTED,
-            Filter::ConvertEncodingToType("x-gzip", "application/gzip"));
-  EXPECT_EQ(Filter::FILTER_TYPE_UNSUPPORTED,
-            Filter::ConvertEncodingToType("x-gzip", "application/x-gunzip"));
 }

@@ -114,12 +114,14 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   // some types of requests. Returns true on success. Calling this on a request
   // that doesn't have or specify an encoding type will return false.
   // Returns a array of strings showing the sequential encodings used on the
-  // content.  For example, types[0] = "sdch" and types[1] = gzip, means the
-  // content was first encoded by sdch, and then encoded by gzip.  To decode,
-  // a series of filters must be applied in the reverse order (in the above
-  // example, ungzip first, and then sdch expand).
-  // TODO(jar): Cleaner API would return an array of enums.
-  virtual bool GetContentEncodings(std::vector<std::string>* encoding_types) {
+  // content.
+  // For example, encoding_types[0] = FILTER_TYPE_SDCH and encoding_types[1] =
+  // FILTER_TYPE_GZIP, means the content was first encoded by sdch, and then
+  // result was encoded by gzip.  To decode, a series of filters must be applied
+  // in the reverse order (in the above example, ungzip first, and then sdch
+  // expand).
+  virtual bool GetContentEncodings(
+      std::vector<Filter::FilterType>* encoding_types) {
     return false;
   }
 

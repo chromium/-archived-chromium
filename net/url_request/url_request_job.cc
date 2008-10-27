@@ -47,12 +47,12 @@ void URLRequestJob::DetachRequest() {
 }
 
 void URLRequestJob::SetupFilter() {
-  std::vector<std::string> encoding_types;
+  std::vector<Filter::FilterType> encoding_types;
   if (GetContentEncodings(&encoding_types)) {
-    std::string mime_type;
-    GetMimeType(&mime_type);
-    filter_.reset(Filter::Factory(encoding_types, mime_type, kFilterBufSize));
+    filter_.reset(Filter::Factory(encoding_types, kFilterBufSize));
     if (filter_.get()) {
+      std::string mime_type;
+      GetMimeType(&mime_type);
       filter_->SetURL(request_->url());
       filter_->SetMimeType(mime_type);
     }

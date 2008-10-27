@@ -11,7 +11,7 @@
 
 namespace {
 
-// Filter types:
+// Filter types (using canonical lower case only):
 const char kDeflate[]      = "deflate";
 const char kGZip[]         = "gzip";
 const char kXGZip[]        = "x-gzip";
@@ -32,53 +32,34 @@ const char kApplicationGzip[]      = "application/gzip";
 const char kApplicationXGunzip[]   = "application/x-gunzip";
 const char kApplicationXCompress[] = "application/x-compress";
 const char kApplicationCompress[]  = "application/compress";
+const char kTextHtml[]             = "text/html";
 
 }  // namespace
 
-Filter* Filter::Factory(const std::vector<std::string>& filter_types,
-                        const std::string& mime_type,
+Filter* Filter::Factory(const std::vector<FilterType>& filter_types,
                         int buffer_size) {
   if (filter_types.empty() || buffer_size < 0)
     return NULL;
 
-  std::string safe_mime_type =  (filter_types.size() > 1) ? "" : mime_type;
   Filter* filter_list = NULL;  // Linked list of filters.
-  FilterType type_id = FILTER_TYPE_UNSUPPORTED;
   for (size_t i = 0; i < filter_types.size(); i++) {
-    type_id = ConvertEncodingToType(filter_types[i], safe_mime_type);
-    filter_list = PrependNewFilter(type_id, buffer_size, filter_list);
+    filter_list = PrependNewFilter(filter_types[i], buffer_size, filter_list);
     if (!filter_list)
       return NULL;
   }
 
-  // Handle proxy that changes content encoding "sdch,gzip" into "sdch".
-  if (1 == filter_types.size() && FILTER_TYPE_SDCH == type_id)
-    filter_list = PrependNewFilter(FILTER_TYPE_GZIP_HELPING_SDCH, buffer_size,
-                                   filter_list);
   return filter_list;
 }
 
 // static
-Filter::FilterType Filter::ConvertEncodingToType(const std::string& filter_type,
-                                                 const std::string& mime_type) {
+Filter::FilterType Filter::ConvertEncodingToType(
+    const std::string& filter_type) {
   FilterType type_id;
   if (LowerCaseEqualsASCII(filter_type, kDeflate)) {
     type_id = FILTER_TYPE_DEFLATE;
   } else if (LowerCaseEqualsASCII(filter_type, kGZip) ||
              LowerCaseEqualsASCII(filter_type, kXGZip)) {
-    if (LowerCaseEqualsASCII(mime_type, kApplicationXGzip) ||
-        LowerCaseEqualsASCII(mime_type, kApplicationGzip) ||
-        LowerCaseEqualsASCII(mime_type, kApplicationXGunzip)) {
-      // The server has told us that it sent us gziped content with a gzip
-      // content encoding.  Sadly, Apache mistakenly sets these headers for all
-      // .gz files.  We match Firefox's nsHttpChannel::ProcessNormal and ignore
-      // the Content-Encoding here.
-      // TODO(jar): Move all this encoding type "fixup" into the
-      // GetContentEncoding() methods.  Combine this defaulting with SDCH fixup.
-      type_id = FILTER_TYPE_UNSUPPORTED;
-    } else {
-      type_id = FILTER_TYPE_GZIP;
-    }
+    type_id = FILTER_TYPE_GZIP;
   } else if (LowerCaseEqualsASCII(filter_type, kBZip2) ||
              LowerCaseEqualsASCII(filter_type, kXBZip2)) {
     type_id = FILTER_TYPE_BZIP2;
@@ -90,6 +71,79 @@ Filter::FilterType Filter::ConvertEncodingToType(const std::string& filter_type,
     type_id = FILTER_TYPE_UNSUPPORTED;
   }
   return type_id;
+}
+
+// static
+void Filter::FixupEncodingTypes(
+    bool is_sdch_response,
+    const std::string& mime_type,
+    std::vector<FilterType>* encoding_types) {
+
+  if ((1 == encoding_types->size()) &&
+      (FILTER_TYPE_GZIP == encoding_types->front())) {
+    if (LowerCaseEqualsASCII(mime_type, kApplicationXGzip) ||
+        LowerCaseEqualsASCII(mime_type, kApplicationGzip) ||
+        LowerCaseEqualsASCII(mime_type, kApplicationXGunzip))
+      // The server has told us that it sent us gziped content with a gzip
+      // content encoding.  Sadly, Apache mistakenly sets these headers for all
+      // .gz files.  We match Firefox's nsHttpChannel::ProcessNormal and ignore
+      // the Content-Encoding here.
+      encoding_types->clear();
+    return;
+  }
+
+  if (!is_sdch_response)
+    return;
+
+  // If content encoding included SDCH, then everything is fine.
+  if (!encoding_types->empty() &&
+      (FILTER_TYPE_SDCH == encoding_types->front())) {
+    // Some proxies (found currently in Argentina) strip the Content-Encoding
+    // text from "sdch,gzip" to a mere "sdch" without modifying the compressed
+    // payload.   To handle this gracefully, we simulate the "probably" deleted
+    // ",gzip" by appending a tentative gzip decode, which will default to a
+    // no-op pass through filter if it doesn't get gzip headers where expected.
+    if (1 == encoding_types->size())
+      encoding_types->push_back(FILTER_TYPE_GZIP_HELPING_SDCH);
+    return;
+  }
+
+  // SDCH "search results" protective hack: To make sure we don't break the only
+  // currently deployed SDCH enabled server! Be VERY cautious about proxies that
+  // strip all content-encoding to not include sdch.  IF we don't see content
+  // encodings that seem to match what we'd expect from a server that asked us
+  // to use a dictionary (and we advertised said dictionary in the GET), then
+  // we set the encoding to (try to) use SDCH to decode.  Note that SDCH will
+  // degrade into a pass-through filter if it doesn't have a viable dictionary
+  // hash in its header.  Also note that a solo "sdch" will implicitly create
+  // a "sdch,gzip" decoding filter, where the gzip portion will degrade to a
+  // pass through if a gzip header is not encountered.  Hence we can replace
+  // "gzip" with "sdch" and "everything will work."
+  // The one failure mode comes when we advertise a dictionary, and the server
+  // tries to *send* a gzipped file (not gzip encode content), and then we could
+  // do a gzip decode :-(.  Since current server support does not ever see such
+  // a transfer, we are safe (for now).
+  if (LowerCaseEqualsASCII(mime_type, kTextHtml)) {
+    // Suspicious case: Advertised dictionary, but server didn't use sdch, even
+    // though it is text_html content.
+    if (encoding_types->empty())
+      SdchManager::SdchErrorRecovery(SdchManager::ADDED_CONTENT_ENCODING);
+    else if (1 == encoding_types->size())
+      SdchManager::SdchErrorRecovery(SdchManager::FIXED_CONTENT_ENCODING);
+    else
+      SdchManager::SdchErrorRecovery(SdchManager::FIXED_CONTENT_ENCODINGS);
+    encoding_types->clear();
+    encoding_types->push_back(FILTER_TYPE_SDCH);
+    encoding_types->push_back(FILTER_TYPE_GZIP_HELPING_SDCH);
+    return;
+  }
+
+  // It didn't have SDCH encoding... but it wasn't HTML... so maybe it really
+  // wasn't SDCH encoded.  It would be nice if we knew this, and didn't bother
+  // to propose a dictionary etc., but current SDCH spec does not provide a nice
+  // way for us to conclude that.  Perhaps in the future, this case will be much
+  // more rare.
+  return;
 }
 
 // static
@@ -247,7 +301,7 @@ void Filter::SetURL(const GURL& url) {
     next_filter_->SetURL(url);
 }
 
-void Filter::SetMimeType(std::string& mime_type) {
+void Filter::SetMimeType(const std::string& mime_type) {
   mime_type_ = mime_type;
   if (next_filter_.get())
     next_filter_->SetMimeType(mime_type);

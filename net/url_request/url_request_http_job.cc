@@ -10,6 +10,7 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/cookie_monster.h"
+#include "net/base/filter.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
@@ -162,67 +163,24 @@ int URLRequestHttpJob::GetResponseCode() {
 }
 
 bool URLRequestHttpJob::GetContentEncodings(
-    std::vector<std::string>* encoding_types) {
+    std::vector<Filter::FilterType>* encoding_types) {
   DCHECK(transaction_.get());
-
   if (!response_info_)
     return false;
+  DCHECK(encoding_types->empty());
 
   std::string encoding_type;
   void* iter = NULL;
   while (response_info_->headers->EnumerateHeader(&iter, "Content-Encoding",
                                                   &encoding_type)) {
-    encoding_types->push_back(StringToLowerASCII(encoding_type));
+    encoding_types->push_back(Filter::ConvertEncodingToType(encoding_type));
   }
 
-  // TODO(jar): Transition to returning enums, rather than strings, and perform
-  // all content encoding fixups here, rather than doing some in the
-  // FilterFactor().  Note that enums generated can be more specific than mere
-  // restatement of strings.  For example, rather than just having a GZIP
-  // encoding we can have a GZIP_OPTIONAL encoding to help with odd SDCH related
-  // fixups.
-
-  // TODO(jar): Refactor code so that content-encoding error recovery is
-  // testable via unit tests.
-
-  if (!IsSdchResponse())
-    return !encoding_types->empty();
-
-  // If content encoding included SDCH, then everything is fine.
-  if (!encoding_types->empty() && ("sdch" == encoding_types->front()))
-    return !encoding_types->empty();
-
-  // SDCH "search results" protective hack: To make sure we don't break the only
-  // currently deployed SDCH enabled server, be VERY cautious about proxies that
-  // strip all content-encoding to not include sdch.  IF we don't see content
-  // encodings that seem to match what we'd expect from a server that asked us
-  // to use a dictionary (and we advertised said dictionary in the GET), then
-  // we set the encoding to (try to) use SDCH to decode.  Note that SDCH will
-  // degrade into a pass-through filter if it doesn't have a viable dictionary
-  // hash in its header.  Also note that a solo "sdch" will implicitly create
-  // a "sdch,gzip" decoding filter, where the gzip portion will degrade to a
-  // pass through if a gzip header is not encountered.  Hence we can replace
-  // "gzip" with "sdch" and "everything will work."
-  // The one failure mode comes when we advertise a dictionary, and the server
-  // tries to *send* a gzipped file (not gzip encode content), and then we could
-  // do a gzip decode :-(.  Since current server support does not ever see such
-  // a transfer, we are safe (for now).
-
-  std::string mime_type;
-  GetMimeType(&mime_type);
-  if (std::string::npos != mime_type.find_first_of("text/html")) {
-    // Suspicious case: Advertised dictionary, but server didn't use sdch, even
-    // though it is text_html content.
-    if (encoding_types->empty())
-      SdchManager::SdchErrorRecovery(SdchManager::ADDED_CONTENT_ENCODING);
-    else if (encoding_types->size() == 1)
-      SdchManager::SdchErrorRecovery(SdchManager::FIXED_CONTENT_ENCODING);
-    else
-      SdchManager::SdchErrorRecovery(SdchManager::FIXED_CONTENT_ENCODINGS);
-    encoding_types->clear();
-    encoding_types->push_back("sdch");  // Handle SDCH/GZIP-opt encoding.
+  if (!encoding_types->empty()) {
+    std::string mime_type;
+    GetMimeType(&mime_type);
+    Filter::FixupEncodingTypes(IsSdchResponse(), mime_type, encoding_types);
   }
-
   return !encoding_types->empty();
 }
 
@@ -534,6 +492,39 @@ void URLRequestHttpJob::StartTransaction() {
 }
 
 void URLRequestHttpJob::AddExtraHeaders() {
+  // Supply Accept-Encoding headers first so that it is more likely that they
+  // will be in the first transmitted packet.  This can sometimes make it easier
+  // to filter and analyze the streams to assure that a proxy has not damaged
+  // these headers.  Some proxies deliberately corrupt Accept-Encoding headers.
+  if (!SdchManager::Global() ||
+      !SdchManager::Global()->IsInSupportedDomain(request_->url())) {
+    // Tell the server what compression formats we support (other than SDCH).
+    request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2\r\n";
+  } else {
+    // Supply SDCH related headers, as well as accepting that encoding.
+    // Tell the server what compression formats we support.
+    request_info_.extra_headers += "Accept-Encoding: "
+        "gzip,deflate,bzip2,sdch\r\n";
+
+    // TODO(jar): See if it is worth optimizing away these bytes when the URL is
+    // probably an img or such. (and SDCH encoding is not likely).
+    std::string avail_dictionaries;
+    SdchManager::Global()->GetAvailDictionaryList(request_->url(),
+                                                  &avail_dictionaries);
+    if (!avail_dictionaries.empty()) {
+      request_info_.extra_headers += "Avail-Dictionary: "
+          + avail_dictionaries + "\r\n";
+      request_info_.load_flags |= net::LOAD_SDCH_DICTIONARY_ADVERTISED;
+    }
+
+    scoped_ptr<FileVersionInfo> file_version_info(
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+    request_info_.extra_headers += "X-SDCH: Chrome ";
+    request_info_.extra_headers +=
+        WideToASCII(file_version_info->product_version());
+    request_info_.extra_headers += "\r\n";
+  }
+
   URLRequestContext* context = request_->context();
   if (context) {
     // Add in the cookie header.  TODO might we need more than one header?
@@ -553,36 +544,6 @@ void URLRequestHttpJob::AddExtraHeaders() {
       request_info_.extra_headers += "Accept-Charset: " +
           context->accept_charset() + "\r\n";
   }
-
-  if (!SdchManager::Global() ||
-      !SdchManager::Global()->IsInSupportedDomain(request_->url())) {
-    // Tell the server what compression formats we support (other than SDCH).
-    request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2\r\n";
-    return;
-  }
-
-  // Supply SDCH related headers, as well as accepting that encoding.
-
-  // TODO(jar): See if it is worth optimizing away these bytes when the URL is
-  // probably an img or such. (and SDCH encoding is not likely).
-  std::string avail_dictionaries;
-  SdchManager::Global()->GetAvailDictionaryList(request_->url(),
-                                                &avail_dictionaries);
-  if (!avail_dictionaries.empty()) {
-    request_info_.extra_headers += "Avail-Dictionary: "
-        + avail_dictionaries + "\r\n";
-    request_info_.load_flags |= net::LOAD_SDCH_DICTIONARY_ADVERTISED;
-  }
-
-  scoped_ptr<FileVersionInfo> file_version_info(
-    FileVersionInfo::CreateFileVersionInfoForCurrentModule());
-  request_info_.extra_headers += "X-SDCH: Chrome ";
-  request_info_.extra_headers +=
-      WideToASCII(file_version_info->product_version());
-  request_info_.extra_headers += "\r\n";
-
-  // Tell the server what compression formats we support.
-  request_info_.extra_headers += "Accept-Encoding: gzip,deflate,bzip2,sdch\r\n";
 }
 
 void URLRequestHttpJob::FetchResponseCookies() {

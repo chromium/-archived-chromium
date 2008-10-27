@@ -227,15 +227,15 @@
 				Name="http"
 				>
 				<File
-					RelativePath="..\http\http_auth_unittest.cc"
-					>
-				</File>
-				<File
 					RelativePath="..\http\http_auth_handler_basic_unittest.cc"
 					>
 				</File>
 				<File
 					RelativePath="..\http\http_auth_handler_digest_unittest.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\http\http_auth_unittest.cc"
 					>
 				</File>
 				<File
@@ -324,6 +324,10 @@
 				</File>
 				<File
 					RelativePath="..\base\file_input_stream_unittest.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\base\filter_unittest.cc"
 					>
 				</File>
 				<File
