@@ -123,7 +123,6 @@ bool ShellIntegration::SetAsDefaultBrowser() {
   }
 
   // From UI currently we only allow setting default browser for current user.
-  // So we pass false for system_level.
   if (!ShellUtil::MakeChromeDefault(ShellUtil::CURRENT_USER, chrome_exe)) {
     LOG(ERROR) << "Chrome could not be set as default browser.";
     return false;

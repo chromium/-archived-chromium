@@ -140,7 +140,8 @@ class ShellUtil {
   // Make Chrome default browser. Before calling this function Chrome should
   // already have been registered by calling AddChromeToSetAccessDefaults()
   // method, otherwise this function will fail.
-  // system_level: Register as default browser at system level. If true
+  // shell_change: Defined whether to register as default browser at system
+  //               level or user level. If value has ShellChange::SYSTEM_LEVEL
   //               we should be running as admin user. Currently this setting
   //               does not have any effect on Vista where we always set
   //               as default only for the current user.
