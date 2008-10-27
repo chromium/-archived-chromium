@@ -12,6 +12,8 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+
 // Key names.
 static const wchar_t* kRootsKey = L"roots";
 static const wchar_t* kRootFolderNameKey = L"bookmark_bar";
@@ -193,4 +195,3 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
       Time::FromInternalValue(StringToInt64(date_added_string));
   return true;
 }
-

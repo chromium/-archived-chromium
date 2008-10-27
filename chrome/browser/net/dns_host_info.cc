@@ -15,6 +15,10 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace chrome_browser_net {
 
 static bool detailed_logging_enabled = false;

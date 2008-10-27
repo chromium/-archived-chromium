@@ -17,6 +17,8 @@
 
 #include "generated_resources.h"
 
+using base::TimeDelta;
+
 namespace printing {
 
 PrintViewManager::PrintViewManager(WebContents& owner)

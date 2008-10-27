@@ -28,15 +28,15 @@ class Watchdog {
  public:
   // TODO(JAR)change default arg to required arg after all users have migrated.
   // Constructor specifies how long the Watchdog will wait before alarming.
-  Watchdog(const TimeDelta& duration,
+  Watchdog(const base::TimeDelta& duration,
            const std::wstring& thread_watched_name,
            bool enabled = true);
   virtual ~Watchdog();
 
   // Start timing, and alarm when time expires (unless we're disarm()ed.)
   void Arm();  // Arm  starting now.
-  void ArmSomeTimeDeltaAgo(const TimeDelta& time_delta);
-  void ArmAtStartTime(const TimeTicks start_time);
+  void ArmSomeTimeDeltaAgo(const base::TimeDelta& time_delta);
+  void ArmAtStartTime(const base::TimeTicks start_time);
 
   // Reset time, and do not set off the alarm.
   void Disarm();
@@ -60,12 +60,12 @@ class Watchdog {
   Lock lock_;  // Mutex for state_.
   ConditionVariable condition_variable_;
   State state_;
-  const TimeDelta duration_;  // How long after start_time_ do we alarm?
+  const base::TimeDelta duration_;  // How long after start_time_ do we alarm?
   const std::wstring thread_watched_name_;
   HANDLE handle_;  // Handle for watchdog thread.
   DWORD thread_id_;  // Also for watchdog thread.
 
-  TimeTicks start_time_;  // Start of epoch, and alarm after duration_.
+  base::TimeTicks start_time_;  // Start of epoch, and alarm after duration_.
 
   // When the debugger breaks (when we alarm), all the other alarms that are
   // armed will expire (also alarm).  To diminish this effect, we track any
@@ -75,9 +75,9 @@ class Watchdog {
   // on alarms from callers that specify old times.
   static Lock static_lock_;  // Lock for access of static data...
   // When did we last alarm and get stuck (for a while) in a debugger?
-  static TimeTicks last_debugged_alarm_time_;
+  static base::TimeTicks last_debugged_alarm_time_;
   // How long did we sit on a break in the debugger?
-  static TimeDelta last_debugged_alarm_delay_;
+  static base::TimeDelta last_debugged_alarm_delay_;
 
 
   DISALLOW_EVIL_CONSTRUCTORS(Watchdog);

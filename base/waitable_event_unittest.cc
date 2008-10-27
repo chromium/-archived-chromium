@@ -6,6 +6,7 @@
 #include "base/waitable_event.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::TimeDelta;
 using base::WaitableEvent;
 
 namespace {

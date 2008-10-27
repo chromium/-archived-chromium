@@ -11,6 +11,8 @@
 
 #include "generated_resources.h"
 
+using base::TimeDelta;
+
 DownloadItemModel::DownloadItemModel(DownloadItem* download)
     : download_(download) {
 }

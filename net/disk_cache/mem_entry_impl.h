@@ -21,8 +21,8 @@ class MemEntryImpl : public Entry {
   virtual void Doom();
   virtual void Close();
   virtual std::string GetKey() const;
-  virtual Time GetLastUsed() const;
-  virtual Time GetLastModified() const;
+  virtual base::Time GetLastUsed() const;
+  virtual base::Time GetLastModified() const;
   virtual int32 GetDataSize(int index) const;
   virtual int ReadData(int index, int offset, char* buf, int buf_len,
                        net::CompletionCallback* completion_callback);
@@ -72,8 +72,8 @@ class MemEntryImpl : public Entry {
 
   MemEntryImpl* next_;         // Pointers for the LRU list.
   MemEntryImpl* prev_;
-  Time last_modified_;         // LRU information.
-  Time last_used_;
+  base::Time last_modified_;         // LRU information.
+  base::Time last_used_;
   MemBackendImpl* backend_;    // Back pointer to the cache.
   bool doomed_;                // True if this entry was removed from the cache.
 

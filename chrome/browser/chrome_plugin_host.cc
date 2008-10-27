@@ -40,6 +40,8 @@
 #include "net/base/base64.h"
 #include "skia/include/SkBitmap.h"
 
+using base::TimeDelta;
+
 // This class manages the interception of network requests.  It queries the
 // plugin on every request, and creates an intercept job if the plugin can
 // intercept the request.
@@ -755,4 +757,3 @@ void CPHandleCommand(int command, CPCommandInterface* data,
       NewRunnableFunction(PluginCommandHandler::HandleCommand,
                           command, data, context_as_int32));
 }
-

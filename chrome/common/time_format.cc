@@ -21,6 +21,9 @@
 #include "unicode/plurrule.h"
 #include "unicode/smpdtfmt.h"
 
+using base::Time;
+using base::TimeDelta;
+
 class TimeRemainingFormat {
   public:
     const std::vector<PluralFormat*>& formatter(bool short_version) {

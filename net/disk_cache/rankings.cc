@@ -9,6 +9,8 @@
 #include "net/disk_cache/entry_impl.h"
 #include "net/disk_cache/errors.h"
 
+using base::Time;
+
 // This is used by crash_cache.exe to generate unit test files.
 disk_cache::RankCrashes g_rankings_crash = disk_cache::NO_CRASH;
 
@@ -676,4 +678,3 @@ void Rankings::UpdateIterators(CacheRankingsBlock* node) {
 }
 
 }  // namespace disk_cache
-

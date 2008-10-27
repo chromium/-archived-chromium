@@ -7,6 +7,8 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
 
+using base::Time;
+
 // The max number of results to retrieve when browsing user's history.
 static const int kMaxBrowseResults = 800;
 

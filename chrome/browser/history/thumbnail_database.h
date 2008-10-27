@@ -15,7 +15,7 @@
 
 struct sqlite3;
 struct ThumbnailScore;
-class Time;
+class base::Time;
 
 namespace history {
 
@@ -80,10 +80,10 @@ class ThumbnailDatabase {
   // should be refreshed.
   bool SetFavIcon(FavIconID icon_id,
                   const std::vector<unsigned char>& icon_data,
-                  Time time);
+                  base::Time time);
 
   // Sets the time the favicon was last updated.
-  bool SetFavIconLastUpdateTime(FavIconID icon_id, const Time& time);
+  bool SetFavIconLastUpdateTime(FavIconID icon_id, const base::Time& time);
 
   // Returns the id of the entry in the favicon database with the specified url.
   // Returns 0 if no entry exists for the specified url.
@@ -92,7 +92,7 @@ class ThumbnailDatabase {
   // Gets the png encoded favicon and last updated time for the specified
   // favicon id.
   bool GetFavIcon(FavIconID icon_id,
-                  Time* last_updated,
+                  base::Time* last_updated,
                   std::vector<unsigned char>* png_icon_data,
                   GURL* icon_url);
 

@@ -23,6 +23,9 @@
 #include "chrome/common/pref_service.h"
 #include "net/base/registry_controlled_domain.h"
 
+using base::Time;
+using base::TimeDelta;
+
 SafeBrowsingService::SafeBrowsingService()
     : io_loop_(NULL),
       database_(NULL),

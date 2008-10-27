@@ -15,6 +15,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "SkBitmap.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace history {
 
 namespace {

@@ -9,6 +9,8 @@
 #include "chrome/common/scoped_vector.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 void SessionServiceTestHelper::RestoreSessionFromCommands(
     const std::vector<SessionCommand*>& commands,
     std::vector<SessionWindow*>* valid_windows) {

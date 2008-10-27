@@ -9,6 +9,10 @@
 #include "build/build_config.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 // Test conversions to/from time_t and exploding/unexploding.
 TEST(Time, TimeT) {
   // C library time and exploded time.

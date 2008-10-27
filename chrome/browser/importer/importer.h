@@ -73,7 +73,7 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
     GURL url;
     std::vector<std::wstring> path;
     std::wstring title;
-    Time creation_time;
+    base::Time creation_time;
 
     BookmarkEntry() : in_toolbar(false) {}
   };

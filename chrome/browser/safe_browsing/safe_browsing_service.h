@@ -119,8 +119,8 @@ class SafeBrowsingService
     GURL url;
     Client* client;
     bool need_get_hash;
-    Time start;  // Time that check was sent to SB service.
-    TimeDelta db_time;  // How long DB look-up took.
+    base::Time start;  // Time that check was sent to SB service.
+    base::TimeDelta db_time;  // How long DB look-up took.
     UrlCheckResult result;
     std::vector<SBPrefix> prefix_hits;
     std::vector<SBFullHashResult> full_hits;
@@ -165,7 +165,7 @@ class SafeBrowsingService
   // delta starting from when we would have started reading data from the
   // network, and ending when the SafeBrowsing check completes indicating that
   // the current page is 'safe'.
-  static void LogPauseDelay(TimeDelta time);
+  static void LogPauseDelay(base::TimeDelta time);
 
   // We defer SafeBrowsing work for a short duration when the computer comes
   // out of a suspend state to avoid thrashing the disk.
@@ -178,7 +178,7 @@ class SafeBrowsingService
   SafeBrowsingDatabase* GetDatabase();
 
   // Called on the database thread to check a url.
-  void CheckDatabase(SafeBrowsingCheck* info, Time last_update);
+  void CheckDatabase(SafeBrowsingCheck* info, base::Time last_update);
 
   // Called on the IO thread with the check result.
   void OnCheckDone(SafeBrowsingCheck* info);
@@ -287,7 +287,7 @@ class SafeBrowsingService
   typedef struct {
     Client* client;
     GURL url;
-    Time start;
+    base::Time start;
   } QueuedCheck;
   std::deque<QueuedCheck> queued_checks_;
 

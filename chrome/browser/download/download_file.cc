@@ -26,6 +26,8 @@
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"
 
+using base::TimeDelta;
+
 // Throttle updates to the UI thread so that a fast moving download doesn't
 // cause it to become unresponsive (ins milliseconds).
 static const int kUpdatePeriodMs = 500;

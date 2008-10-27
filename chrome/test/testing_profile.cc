@@ -8,6 +8,8 @@
 #include "chrome/browser/history/history_backend.h"
 #include "chrome/common/chrome_constants.h"
 
+using base::Time;
+
 namespace {
 
 // BookmarkLoadObserver is used when blocking until the BookmarkModel

@@ -9,6 +9,8 @@
 #include "base/histogram.h"
 #include "base/win_util.h"
 
+using base::Time;
+
 namespace {
 
 class HandlerData : public base::MessagePumpForIO::Watcher {

@@ -7,6 +7,8 @@
 #include "base/basictypes.h"
 #include "base/string_util.h"
 
+using base::TimeDelta;
+
 void URLRequestJobMetrics::AppendText(std::wstring* text) {
   if (!text)
     return;

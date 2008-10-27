@@ -27,6 +27,10 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 // The URL scheme used for the new tab.
 static const char kNewTabUIScheme[] = "chrome-internal";
 
@@ -823,4 +827,3 @@ void NewTabUIContents::RequestOpenURL(const GURL& url,
     }
   }
 }
-

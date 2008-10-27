@@ -22,6 +22,8 @@
 #include "net/disk_cache/disk_cache.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 
+using base::Time;
+
 const int kError = -1;
 const int kExpectedCrash = 1000000;
 

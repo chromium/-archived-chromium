@@ -255,7 +255,7 @@ class TemplateURL {
         show_in_default_list_(false),
         safe_for_autoreplace_(false),
         id_(0),
-        date_created_(Time::Now()),
+        date_created_(base::Time::Now()),
         usage_count_(0),
         prepopulate_id_(0) {}
   ~TemplateURL() {}
@@ -368,8 +368,8 @@ class TemplateURL {
   //
   // NOTE: this may be 0, which indicates the keyword was created before we
   // started tracking creation time.
-  void set_date_created(Time time) { date_created_ = time; }
-  Time date_created() const { return date_created_; }
+  void set_date_created(base::Time time) { date_created_ = time; }
+  base::Time date_created() const { return date_created_; }
 
   // Number of times this keyword has been explicitly used to load a URL.  We
   // don't increment this for uses as the "default search engine" since that's
@@ -425,7 +425,7 @@ class TemplateURL {
   // List of supported input encodings.
   std::vector<std::string> input_encodings_;
   IDType id_;
-  Time date_created_;
+  base::Time date_created_;
   int usage_count_;
   int prepopulate_id_;
 

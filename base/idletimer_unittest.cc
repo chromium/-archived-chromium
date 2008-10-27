@@ -6,6 +6,8 @@
 #include "base/message_loop.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
 using base::IdleTimer;
 
 namespace {

@@ -314,11 +314,11 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   void RemoveIE7Login(const IE7PasswordInfo& info);
 
   // Removes all logins created in the specified daterange
-  void RemoveLoginsCreatedBetween(const Time delete_begin,
-                                  const Time delete_end);
+  void RemoveLoginsCreatedBetween(const base::Time delete_begin,
+                                  const base::Time delete_end);
 
   // Removes all logins created on or after the date passed in.
-  void RemoveLoginsCreatedAfter(const Time delete_begin);
+  void RemoveLoginsCreatedAfter(const base::Time delete_begin);
 
   // Gets a list of password forms that match |form|.
   // |consumer| will be notified when the request is done. The result is of
@@ -407,7 +407,8 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   void UpdateLoginImpl(GenericRequest<PasswordForm>* request);
   void RemoveLoginImpl(GenericRequest<PasswordForm>* request);
   void RemoveIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request);
-  void RemoveLoginsCreatedBetweenImpl(GenericRequest2<Time, Time>* request);
+  void RemoveLoginsCreatedBetweenImpl(
+      GenericRequest2<base::Time, base::Time>* request);
   void GetLoginsImpl(GenericRequest<PasswordForm>* request);
   void GetIE7LoginImpl(GenericRequest<IE7PasswordInfo>* request);
   void GetAllAutofillableLoginsImpl(WebDataRequest* request);
@@ -481,4 +482,3 @@ class WebDataServiceConsumer {
 };
 
 #endif  // CHROME_BROWSER_WEBDATA_WEB_DATA_SERVICE_H__
-

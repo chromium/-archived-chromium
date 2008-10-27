@@ -13,6 +13,8 @@
 #include "chrome/common/thumbnail_score.h"
 #include "skia/include/SkBitmap.h"
 
+using base::Time;
+
 namespace history {
 
 // Version number of the database.

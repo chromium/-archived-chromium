@@ -10,6 +10,9 @@
 #include "chrome/common/time_format.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 TEST(TimeFormat, RelativeDate) {
   Time now = Time::Now();
   std::wstring today_str = TimeFormat::RelativeDate(now, NULL);

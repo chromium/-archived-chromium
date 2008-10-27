@@ -23,6 +23,9 @@
 #include "webkit/glue/plugins/plugin_lib.h"
 #include "googleurl/src/gurl.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace NPAPI
 {
 

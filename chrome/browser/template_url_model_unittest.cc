@@ -15,6 +15,9 @@
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // A Task used to coordinate when the database has finished processing
 // requests. See note in BlockTillServiceProcessesRequests for details.
 //
@@ -630,4 +633,3 @@ TEST_F(TemplateURLModelTest, ChangeGoogleBaseValue) {
   EXPECT_EQ(L"http://foo.com/?q=x", t_url->url()->ReplaceSearchTerms(*t_url,
       L"x", TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()));
 }
-

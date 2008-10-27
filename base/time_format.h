@@ -10,9 +10,9 @@
 
 #include <string>
 
-class Time;
-
 namespace base {
+
+class Time;
 
 // Returns the time of day, e.g., "3:07 PM".
 std::wstring TimeFormatTimeOfDay(const Time& time);
@@ -38,4 +38,3 @@ std::wstring TimeFormatFriendlyDate(const Time& time);
 }  // namespace base
 
 #endif  // BASE_TIME_FORMAT_H_
-

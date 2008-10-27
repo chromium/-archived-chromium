@@ -16,6 +16,9 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 // This class exists to group together the data and functionality used for
 // synchronous automation requests.
 class AutomationRequest :
@@ -556,4 +559,3 @@ TabProxy* AutomationProxy::CreateExternalTab(HWND* external_tab_container) {
   delete response;
   return tab_proxy;
 }
-

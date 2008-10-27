@@ -16,6 +16,9 @@
 #include "base/spin_wait.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace {
 //------------------------------------------------------------------------------
 // Define our test class, with several common variables.

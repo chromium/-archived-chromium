@@ -8,6 +8,8 @@
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 
+using base::Time;
+
 // HistoricalTab --------------------------------------------------------------
 
 // ID of the next HistoricalTab.
@@ -179,4 +181,3 @@ void TabRestoreService::PopulateTabFromSessionTab(
 void TabRestoreService::NotifyTabsChanged() {
   FOR_EACH_OBSERVER(Observer, observer_list_, TabRestoreServiceChanged(this));
 }
-

@@ -11,6 +11,8 @@
 #include "chrome/browser/importer/firefox_profile_lock.h"
 #include "chrome/common/chrome_paths.h"
 
+using base::Time;
+
 TEST(FirefoxImporterTest, Firefox2NSS3Decryptor) {
   std::wstring nss_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &nss_path));

@@ -34,6 +34,8 @@
 #include "net/base/cookie_monster.h"
 #include "net/url_request/url_request_filter.h"
 
+using base::Time;
+
 class InitialLoadObserver : public NotificationObserver {
  public:
   InitialLoadObserver(size_t tab_count, AutomationProvider* automation)

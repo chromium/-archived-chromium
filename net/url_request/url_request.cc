@@ -20,6 +20,7 @@
 URLRequestMetrics url_request_metrics;
 #endif
 
+using base::Time;
 using net::UploadData;
 using std::string;
 using std::wstring;
@@ -335,4 +336,3 @@ int64 URLRequest::GetExpectedContentSize() const {
 
   return expected_content_size;
 }
-

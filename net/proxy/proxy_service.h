@@ -65,11 +65,11 @@ class ProxyConfig {
 // Contains the information about when to retry a proxy server.
 struct ProxyRetryInfo {
   // We should not retry until this time.
-  TimeTicks bad_until;
+  base::TimeTicks bad_until;
 
   // This is the current delay. If the proxy is still bad, we need to increase
   // this delay.
-  TimeDelta current_delay;
+  base::TimeDelta current_delay;
 };
 
 // Map of proxy servers with the associated RetryInfo structures.
@@ -161,7 +161,7 @@ class ProxyService {
   bool config_is_bad_;
 
   // The time when the proxy configuration was last read from the system.
-  TimeTicks config_last_update_time_;
+  base::TimeTicks config_last_update_time_;
 
   // Map of the known bad proxies and the information about the retry time.
   ProxyRetryInfoMap proxy_retry_info_;

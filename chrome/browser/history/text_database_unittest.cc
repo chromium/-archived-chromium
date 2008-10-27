@@ -10,6 +10,8 @@
 #include "chrome/browser/history/text_database.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 namespace history {
 
 namespace {

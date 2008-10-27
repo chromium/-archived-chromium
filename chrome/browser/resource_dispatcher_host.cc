@@ -50,6 +50,10 @@
 # define RESOURCE_LOG(stuff)
 #endif
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 // ----------------------------------------------------------------------------
 
 // The interval for calls to ResourceDispatcherHost::UpdateLoadStates

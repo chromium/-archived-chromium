@@ -21,6 +21,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 
+using base::Time;
+using base::TimeDelta;
+
 namespace {
 
 class DnsMasterTest : public testing::Test {

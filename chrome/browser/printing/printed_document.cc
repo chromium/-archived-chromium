@@ -21,6 +21,8 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
 
+using base::Time;
+
 namespace printing {
 
 PrintedDocument::PrintedDocument(const PrintSettings& settings,

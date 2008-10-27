@@ -21,6 +21,8 @@
 #include "net/http/http_transaction.h"
 #include "net/http/http_util.h"
 
+using base::Time;
+
 namespace net {
 
 // disk cache entry data indices.

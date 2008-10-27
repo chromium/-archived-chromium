@@ -38,6 +38,8 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+using base::TimeDelta;
+
 namespace views {
 class ClientView;
 }

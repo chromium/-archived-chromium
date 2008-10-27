@@ -24,6 +24,8 @@
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 namespace {
 
 // NavigationControllerTest ----------------------------------------------------

@@ -29,10 +29,10 @@ class Profile;
 class WebContents;
 class URLRequestContext;
 class WebContents;
-class Time;
 
 namespace base {
 class Thread;
+class Time;
 }
 
 // The SavePackage object manages the process of saving a page as only-html or

@@ -32,6 +32,8 @@
 // an FTS table that is indexed like a normal table, and the index over it is
 // free since sqlite always indexes the internal rowid.
 
+using base::Time;
+
 namespace history {
 
 namespace {

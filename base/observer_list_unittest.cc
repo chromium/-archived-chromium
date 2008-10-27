@@ -9,6 +9,8 @@
 #include "base/ref_counted.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 namespace {
 
 class ObserverListTest : public testing::Test {

@@ -5,6 +5,8 @@
 #include "chrome/browser/history/history_types.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 namespace history {
 
 namespace {

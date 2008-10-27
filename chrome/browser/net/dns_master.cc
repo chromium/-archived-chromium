@@ -14,6 +14,8 @@
 #include "base/win_util.h"
 #include "chrome/browser/net/dns_slave.h"
 
+using base::TimeDelta;
+
 namespace chrome_browser_net {
 
 //------------------------------------------------------------------------------

@@ -64,13 +64,13 @@ class URLFetcherProtectEntry {
  private:
   // When a request comes, calculate the release time for it.
   // Returns the backoff time before sending.
-  TimeDelta AntiOverload();
+  base::TimeDelta AntiOverload();
   // Resets backoff when service is ok.
   // Returns the backoff time before sending.
-  TimeDelta ResetBackoff();
+  base::TimeDelta ResetBackoff();
   // Calculates new backoff when encountering a failure.
   // Returns the backoff time before sending.
-  TimeDelta IncreaseBackoff();
+  base::TimeDelta IncreaseBackoff();
 
   // Default parameters.  Time is in milliseconds.
   static const int kDefaultSlidingWindowPeriod;
@@ -101,14 +101,14 @@ class URLFetcherProtectEntry {
   // current exponential backoff period
   int timeout_period_;
   // time that protection is scheduled to end
-  TimeTicks release_time_;
+  base::TimeTicks release_time_;
 
   // Sets up a lock to ensure thread safe.
   Lock lock_;
 
   // A list of the recent send events. We ues them to decide whether
   // there are too many requests sent in sliding window.
-  std::queue<TimeTicks> send_log_;
+  std::queue<base::TimeTicks> send_log_;
 
   DISALLOW_COPY_AND_ASSIGN(URLFetcherProtectEntry);
 };

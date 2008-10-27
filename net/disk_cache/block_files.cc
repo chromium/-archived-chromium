@@ -10,6 +10,8 @@
 #include "base/time.h"
 #include "net/disk_cache/file_lock.h"
 
+using base::Time;
+
 namespace {
 
 const wchar_t* kBlockName = L"data_";

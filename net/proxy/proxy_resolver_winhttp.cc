@@ -12,6 +12,9 @@
 
 #pragma comment(lib, "winhttp.lib")
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace net {
 
 // A small wrapper for histogramming purposes ;-)

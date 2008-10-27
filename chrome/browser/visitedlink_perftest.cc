@@ -14,6 +14,8 @@
 #include "chrome/test/test_file_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::TimeDelta;
+
 namespace {
 
 // how we generate URLs, note that the two strings should be the same length

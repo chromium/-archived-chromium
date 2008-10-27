@@ -490,7 +490,7 @@ class WebContents : public TabContents,
   HistoryRequestMap history_requests_;
 
   // System time at which the current load was started.
-  TimeTicks current_load_start_;
+  base::TimeTicks current_load_start_;
 
   // Whether we have a (non-empty) title for the current page.
   // Used to prevent subsequent title updates from affecting history. This
@@ -527,7 +527,7 @@ class WebContents : public TabContents,
   scoped_refptr<SelectFileDialog> select_file_dialog_;
 
   // The time that the last javascript message was dismissed.
-  TimeTicks last_javascript_message_dismissal_;
+  base::TimeTicks last_javascript_message_dismissal_;
 
   // True if the user has decided to block future javascript messages. This is
   // reset on navigations to false on navigations.
@@ -543,7 +543,7 @@ class WebContents : public TabContents,
   PendingInstall pending_install_;
 
   // The last time that the download shelf was made visible.
-  TimeTicks last_download_shelf_show_;
+  base::TimeTicks last_download_shelf_show_;
 
   // The current load state and the URL associated with it.
   net::LoadState load_state_;

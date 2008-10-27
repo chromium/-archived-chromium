@@ -16,6 +16,8 @@
 #include "net/http/http_transaction_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 namespace {
 
 //-----------------------------------------------------------------------------

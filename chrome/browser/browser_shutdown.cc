@@ -24,6 +24,9 @@
 #include "chrome/browser/plugin_service.h"
 #include "net/dns_global.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace browser_shutdown {
 
 Time shutdown_started_;

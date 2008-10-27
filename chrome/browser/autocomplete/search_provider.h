@@ -116,7 +116,7 @@ class SearchProvider : public AutocompleteProvider,
   // algorithms for the different types of matches.
   int CalculateRelevanceForWhatYouTyped() const;
   // |time| is the time at which this query was last seen.
-  int CalculateRelevanceForHistory(const Time& time) const;
+  int CalculateRelevanceForHistory(const base::Time& time) const;
   // |suggestion_value| is which suggestion this is in the list returned from
   // the server; the best suggestion is suggestion number 0.
   int CalculateRelevanceForSuggestion(size_t suggestion_value) const;

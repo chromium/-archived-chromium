@@ -19,6 +19,9 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+using base::TimeDelta;
+
 const int SearchProvider::kQueryDelayMs = 200;
 
 void SearchProvider::Start(const AutocompleteInput& input,

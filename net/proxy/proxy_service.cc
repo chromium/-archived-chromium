@@ -18,6 +18,9 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace net {
 
 // ProxyConfig ----------------------------------------------------------------

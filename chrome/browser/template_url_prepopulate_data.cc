@@ -11,6 +11,8 @@
 #include "chrome/common/pref_service.h"
 #undef IN  // On Windows, windef.h defines this, which screws up "India" cases.
 
+using base::Time;
+
 namespace {
 
 // NOTE: See comments in GetDataVersion() below!  You should probably not change

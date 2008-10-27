@@ -13,6 +13,9 @@
 #include "net/base/cookie_monster.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace {
   class ParsedCookieTest : public testing::Test { };
   class CookieMonsterTest : public testing::Test { };

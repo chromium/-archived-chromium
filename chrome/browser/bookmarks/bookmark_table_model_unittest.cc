@@ -10,6 +10,9 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // Base class for bookmark model tests.
 // Initial state of the bookmark model is as follows:
 // bb

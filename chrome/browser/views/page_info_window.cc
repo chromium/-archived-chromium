@@ -33,6 +33,8 @@
 #include "skia/include/SkColor.h"
 #include "generated_resources.h"
 
+using base::Time;
+
 const int kVerticalPadding = 10;
 const int kHorizontalPadding = 10;
 

@@ -7,6 +7,8 @@
 #include "base/logging.h"
 #include "base/rand_util.h"
 
+using base::Time;
+
 //------------------------------------------------------------------------------
 // FieldTrialList methods and members.
 

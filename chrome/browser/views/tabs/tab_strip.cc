@@ -32,6 +32,7 @@
 #undef min
 #undef max
 
+using base::TimeDelta;
 using views::DropTargetEvent;
 
 static const int kDefaultAnimationDurationMs = 100;

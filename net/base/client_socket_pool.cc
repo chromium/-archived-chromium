@@ -9,6 +9,8 @@
 #include "net/base/client_socket_handle.h"
 #include "net/base/net_errors.h"
 
+using base::TimeDelta;
+
 namespace {
 
 // The timeout value, in seconds, used to clean up disconnected idle sockets.

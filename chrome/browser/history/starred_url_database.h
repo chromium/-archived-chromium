@@ -73,7 +73,7 @@ class StarredURLDatabase : public URLDatabase {
                              const std::wstring& title,
                              UIStarID parent_group_id,
                              int visual_order,
-                             Time date_modified);
+                             base::Time date_modified);
 
   // Adjusts the visual order of all children of parent_group_id with a
   // visual_order >= start_visual_order by delta. For example,
@@ -91,7 +91,7 @@ class StarredURLDatabase : public URLDatabase {
                                UIStarID group_id,
                                UIStarID parent_group_id,
                                const std::wstring& title,
-                               const Time& date_added,
+                               const base::Time& date_added,
                                int visual_order,
                                StarredEntry::Type type);
 

@@ -15,9 +15,12 @@ namespace IPC {
 class Message;
 }
 
+namespace base {
+class TimeDelta;
+}
+
 class MessageLoop;
 class ResourceDispatcherHost;
-class TimeDelta;
 
 // Instantiated per RenderProcessHost to provide various optimizations on
 // behalf of a RenderWidgetHost.  This class bridges between the IO thread
@@ -97,7 +100,7 @@ class RenderWidgetHelper :
   // Called on the UI thread to wait for the next PaintRect message for the
   // specified render widget.  Returns true if successful, and the msg out-
   // param will contain a copy of the received PaintRect message.
-  bool WaitForPaintMsg(int render_widget_id, const TimeDelta& max_delay,
+  bool WaitForPaintMsg(int render_widget_id, const base::TimeDelta& max_delay,
                        IPC::Message* msg);
 
 

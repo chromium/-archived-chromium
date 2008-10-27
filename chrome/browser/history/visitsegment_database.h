@@ -45,17 +45,17 @@ class VisitSegmentDatabase {
 
   // Increase the segment visit count by the provided amount. Return true on
   // success.
-  bool IncreaseSegmentVisitCount(SegmentID segment_id, const Time& ts,
+  bool IncreaseSegmentVisitCount(SegmentID segment_id, const base::Time& ts,
                                  int amount);
 
   // Compute the segment usage since |from_time| using the provided aggregator.
   // A PageUsageData is added in |result| for the nine highest-scored segments.
-  void QuerySegmentUsage(const Time& from_time,
+  void QuerySegmentUsage(const base::Time& from_time,
                          std::vector<PageUsageData*>* result);
 
   // Delete all the segment usage data which is older than the provided time
   // stamp.
-  void DeleteSegmentData(const Time& older_than);
+  void DeleteSegmentData(const base::Time& older_than);
 
   // Change the presentation id for the segment identified by |segment_id|
   void SetSegmentPresentationIndex(SegmentID segment_id, int index);

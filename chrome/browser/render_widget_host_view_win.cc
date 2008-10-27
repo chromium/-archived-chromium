@@ -26,6 +26,9 @@
 #include "chrome/views/container_win.h"
 #include "webkit/glue/webcursor.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace {
 
 // Tooltips will wrap after this width. Yes, wrap. Imagine that!

@@ -15,6 +15,8 @@
 #endif
 
 using base::Thread;
+using base::Time;
+using base::TimeDelta;
 
 // TODO(darin): Platform-specific MessageLoop tests should be grouped together
 // to avoid chopping this file up with so many #ifdefs.

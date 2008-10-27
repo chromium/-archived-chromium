@@ -97,10 +97,10 @@ class URLRow {
     typed_count_ = typed_count;
   }
 
-  Time last_visit() const {
+  base::Time last_visit() const {
     return last_visit_;
   }
-  void set_last_visit(Time last_visit) {
+  void set_last_visit(base::Time last_visit) {
     last_visit_ = last_visit;
   }
 
@@ -151,7 +151,7 @@ class URLRow {
 
   // The date of the last visit of this URL, which saves us from having to
   // loop up in the visit table for things like autocomplete and expiration.
-  Time last_visit_;
+  base::Time last_visit_;
 
   // Indicates this entry should now be shown in typical UI or queries, this
   // is usually for subframes.
@@ -173,7 +173,7 @@ class VisitRow {
  public:
   VisitRow();
   VisitRow(URLID arg_url_id,
-           Time arg_visit_time,
+           base::Time arg_visit_time,
            VisitID arg_referring_visit,
            PageTransition::Type arg_transition,
            SegmentID arg_segment_id);
@@ -184,7 +184,7 @@ class VisitRow {
   // Row ID into the URL table of the URL that this page is.
   URLID url_id;
 
-  Time visit_time;
+  base::Time visit_time;
 
   // Indicates another visit that was the referring page for this one.
   // 0 indicates no referrer.
@@ -236,7 +236,7 @@ struct ImportedFavIconUsage {
 // associated with a VisitRow.
 struct PageVisit {
   URLID page_id;
-  Time visit_time;
+  base::Time visit_time;
 };
 
 // StarredEntry ---------------------------------------------------------------
@@ -278,7 +278,7 @@ struct StarredEntry {
   std::wstring title;
 
   // When this was added.
-  Time date_added;
+  base::Time date_added;
 
   // Group ID of the star group this entry is in. If 0, this entry is not
   // in a star group.
@@ -305,7 +305,7 @@ struct StarredEntry {
 
   // Time the entry was last modified. This is only used for groups and
   // indicates the last time a URL was added as a child to the group.
-  Time date_group_modified;
+  base::Time date_group_modified;
 };
 
 // URLResult -------------------------------------------------------------------
@@ -313,7 +313,7 @@ struct StarredEntry {
 class URLResult : public URLRow {
  public:
   URLResult() {}
-  URLResult(const GURL& url, Time visit_time)
+  URLResult(const GURL& url, base::Time visit_time)
       : URLRow(url),
         visit_time_(visit_time) {
   }
@@ -324,8 +324,8 @@ class URLResult : public URLRow {
     title_match_positions_ = title_matches;
   }
 
-  Time visit_time() const { return visit_time_; }
-  void set_visit_time(Time visit_time) { visit_time_ = visit_time; }
+  base::Time visit_time() const { return visit_time_; }
+  void set_visit_time(base::Time visit_time) { visit_time_ = visit_time; }
 
   const Snippet& snippet() const { return snippet_; }
 
@@ -342,7 +342,7 @@ class URLResult : public URLRow {
   friend class HistoryBackend;
 
   // The time that this result corresponds to.
-  Time visit_time_;
+  base::Time visit_time_;
 
   // These values are typically set by HistoryBackend.
   Snippet snippet_;
@@ -373,8 +373,8 @@ class QueryResults {
   //
   // TODO(brettw): bug 1203054: This field is not currently set properly! Do
   // not use until the bug is fixed.
-  Time first_time_searched() const { return first_time_searched_; }
-  void set_first_time_searched(Time t) { first_time_searched_ = t; }
+  base::Time first_time_searched() const { return first_time_searched_; }
+  void set_first_time_searched(base::Time t) { first_time_searched_ = t; }
   // Note: If you need end_time_searched, it can be added.
 
   size_t size() const { return results_.size(); }
@@ -429,7 +429,7 @@ class QueryResults {
   // (this is inclusive). This is used when inserting or deleting.
   void AdjustResultMap(size_t begin, size_t end, ptrdiff_t delta);
 
-  Time first_time_searched_;
+  base::Time first_time_searched_;
 
   // The ordered list of results. The pointers inside this are owned by this
   // QueryResults object.
@@ -460,13 +460,13 @@ struct QueryOptions {
   // will be searched. However, if you set one, you must set the other.
   //
   // The beginning is inclusive and the ending is exclusive.
-  Time begin_time;
-  Time end_time;
+  base::Time begin_time;
+  base::Time end_time;
 
   // Sets the query time to the last |days_ago| days to the present time.
   void SetRecentDayRange(int days_ago) {
-    end_time = Time::Now();
-    begin_time = end_time - TimeDelta::FromDays(days_ago);
+    end_time = base::Time::Now();
+    begin_time = end_time - base::TimeDelta::FromDays(days_ago);
   }
 
   // When set, only one visit for each URL will be returned, which will be the
@@ -489,7 +489,7 @@ struct QueryOptions {
 // gives the time and search term of the keyword visit.
 struct KeywordSearchTermVisit {
   // The time of the visit.
-  Time time;
+  base::Time time;
 
   // The search term that was used.
   std::wstring term;

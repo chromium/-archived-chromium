@@ -238,8 +238,8 @@ struct ParamTraits<wchar_t> {
 };
 
 template <>
-struct ParamTraits<Time> {
-  typedef Time param_type;
+struct ParamTraits<base::Time> {
+  typedef base::Time param_type;
   static void Write(Message* m, const param_type& p) {
     ParamTraits<int64>::Write(m, p.ToInternalValue());
   }
@@ -247,7 +247,7 @@ struct ParamTraits<Time> {
     int64 value;
     if (!ParamTraits<int64>::Read(m, iter, &value))
       return false;
-    *r = Time::FromInternalValue(value);
+    *r = base::Time::FromInternalValue(value);
     return true;
   }
   static void Log(const param_type& p, std::wstring* l) {
@@ -636,16 +636,16 @@ struct ParamTraits<ThumbnailScore> {
     IPC::ParamTraits<double>::Write(m, p.boring_score);
     IPC::ParamTraits<bool>::Write(m, p.good_clipping);
     IPC::ParamTraits<bool>::Write(m, p.at_top);
-    IPC::ParamTraits<Time>::Write(m, p.time_at_snapshot);
+    IPC::ParamTraits<base::Time>::Write(m, p.time_at_snapshot);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     double boring_score;
     bool good_clipping, at_top;
-    Time time_at_snapshot;
+    base::Time time_at_snapshot;
     if (!IPC::ParamTraits<double>::Read(m, iter, &boring_score) ||
         !IPC::ParamTraits<bool>::Read(m, iter, &good_clipping) ||
         !IPC::ParamTraits<bool>::Read(m, iter, &at_top) ||
-        !IPC::ParamTraits<Time>::Read(m, iter, &time_at_snapshot))
+        !IPC::ParamTraits<base::Time>::Read(m, iter, &time_at_snapshot))
       return false;
 
     r->boring_score = boring_score;

@@ -23,6 +23,10 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/registry_controlled_domain.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 /* The HistoryBackend consists of a number of components:
 
     HistoryDatabase (stores past 3 months of history)

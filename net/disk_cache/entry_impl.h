@@ -24,8 +24,8 @@ class EntryImpl : public Entry, public base::RefCounted<EntryImpl> {
   virtual void Doom();
   virtual void Close();
   virtual std::string GetKey() const;
-  virtual Time GetLastUsed() const;
-  virtual Time GetLastModified() const;
+  virtual base::Time GetLastUsed() const;
+  virtual base::Time GetLastModified() const;
   virtual int32 GetDataSize(int index) const;
   virtual int ReadData(int index, int offset, char* buf, int buf_len,
                        net::CompletionCallback* completion_callback);

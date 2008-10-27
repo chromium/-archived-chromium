@@ -69,11 +69,11 @@ class BookmarkNode : public views::TreeNode<BookmarkNode> {
   }
 
   // Returns the time the bookmark/group was added.
-  Time date_added() const { return date_added_; }
+  base::Time date_added() const { return date_added_; }
 
   // Returns the last time the group was modified. This is only maintained
   // for folders (including the bookmark and other folder).
-  Time date_group_modified() const { return date_group_modified_; }
+  base::Time date_group_modified() const { return date_group_modified_; }
 
   // Convenience for testing if this nodes represents a group. A group is
   // a node whose type is not URL.
@@ -114,10 +114,10 @@ class BookmarkNode : public views::TreeNode<BookmarkNode> {
   history::StarredEntry::Type type_;
 
   // Date we were created.
-  Time date_added_;
+  base::Time date_added_;
 
   // Time last modified. Only used for groups.
-  Time date_group_modified_;
+  base::Time date_group_modified_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkNode);
 };
@@ -292,7 +292,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
                                        int index,
                                        const std::wstring& title,
                                        const GURL& url,
-                                       const Time& creation_time);
+                                       const base::Time& creation_time);
 
   // This is the convenience that makes sure the url is starred or not starred.
   // If is_starred is false, all bookmarks for URL are removed. If is_starred is
@@ -373,7 +373,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   bool IsValidIndex(BookmarkNode* parent, int index, bool allow_end);
 
   // Sets the date modified time of the specified node.
-  void SetDateGroupModified(BookmarkNode* parent, const Time time);
+  void SetDateGroupModified(BookmarkNode* parent, const base::Time time);
 
   // Creates the bookmark bar/other nodes. These call into
   // CreateRootNodeFromStarredEntry.

@@ -47,6 +47,7 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+using base::Time;
 using history::HistoryBackend;
 
 // Sends messages from the backend to us on the main thread. This must be a

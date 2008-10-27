@@ -257,7 +257,7 @@ class RenderWidgetHostViewWin :
   // The time at which this view started displaying white pixels as a result of
   // not having anything to paint (empty backing store from renderer). This
   // value returns true for is_null() if we are not recording whiteout times.
-  TimeTicks whiteout_start_time_;
+  base::TimeTicks whiteout_start_time_;
 
   // Whether the renderer is made accessible.
   // TODO(jcampan): http://b/issue?id=1432077 This is a temporary work-around

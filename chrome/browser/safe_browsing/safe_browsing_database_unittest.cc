@@ -17,6 +17,8 @@
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 static const wchar_t kSafeBrowsingTestDatabase[] = L"SafeBrowsingTestDatabase";
 
 namespace {

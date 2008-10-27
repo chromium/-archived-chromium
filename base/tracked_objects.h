@@ -80,11 +80,11 @@ class DeathData {
   // a corrosponding death.
   explicit DeathData(int count) : count_(count), square_duration_(0) {}
 
-  void RecordDeath(const TimeDelta& duration);
+  void RecordDeath(const base::TimeDelta& duration);
 
   // Metrics accessors.
   int count() const { return count_; }
-  TimeDelta life_duration() const { return life_duration_; }
+  base::TimeDelta life_duration() const { return life_duration_; }
   int64 square_duration() const { return square_duration_; }
   int AverageMsDuration() const;
   double StandardDeviation() const;
@@ -99,7 +99,7 @@ class DeathData {
 
  private:
   int count_;                // Number of destructions.
-  TimeDelta life_duration_;    // Sum of all lifetime durations.
+  base::TimeDelta life_duration_;    // Sum of all lifetime durations.
   int64 square_duration_;  // Sum of squares in milliseconds.
 };
 
@@ -128,7 +128,7 @@ class Snapshot {
   const std::string DeathThreadName() const;
 
   int count() const { return death_data_.count(); }
-  TimeDelta life_duration() const { return death_data_.life_duration(); }
+  base::TimeDelta life_duration() const { return death_data_.life_duration(); }
   int64 square_duration() const { return death_data_.square_duration(); }
   int AverageMsDuration() const { return death_data_.AverageMsDuration(); }
 
@@ -339,7 +339,7 @@ class ThreadData {
   Births* FindLifetime(const Location& location);
 
   // Find a place to record a death on this thread.
-  void TallyADeath(const Births& lifetimes, const TimeDelta& duration);
+  void TallyADeath(const Births& lifetimes, const base::TimeDelta& duration);
 
   // (Thread safe) Get start of list of instances.
   static ThreadData* first();

@@ -10,6 +10,8 @@
 #include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::TimeDelta;
+
 namespace {
 
 //------------------------------------------------------------------------------

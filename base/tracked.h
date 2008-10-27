@@ -116,7 +116,7 @@ class Tracked {
   // The time this object was constructed.  If its life consisted of a long
   // waiting period, and then it became active, then this value is generally
   // reset before the object begins it active life.
-  Time tracked_birth_time_;
+  base::Time tracked_birth_time_;
 
 #endif  // TRACK_ALL_TASK_OBJECTS
 

@@ -40,7 +40,7 @@ class DownloadDatabase {
   // (inclusive) and before |remove_end|. You may use null Time values
   // to do an unbounded delete in either direction. This function ignores
   // all downloads that are in progress or are waiting to be cancelled.
-  void RemoveDownloadsBetween(Time remove_begin, Time remove_end);
+  void RemoveDownloadsBetween(base::Time remove_begin, base::Time remove_end);
 
   // Search for downloads matching the search text.
   void SearchDownloads(std::vector<int64>* results,

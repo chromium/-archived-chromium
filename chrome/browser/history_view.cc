@@ -27,6 +27,9 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // The extra-wide space between groups of entries for each new day.
 static const int kDayHeadingHeight = 50;
 
@@ -1309,4 +1312,3 @@ gfx::Rect HistoryView::CalculateDeleteControlBounds(int base_y) {
                    delete_width,
                    kBrowseResultsHeight);
 }
-

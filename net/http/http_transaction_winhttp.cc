@@ -29,6 +29,8 @@
 #pragma comment(lib, "winhttp.lib")
 #pragma warning(disable: 4355)
 
+using base::Time;
+
 namespace net {
 
 static int TranslateOSError(DWORD error) {

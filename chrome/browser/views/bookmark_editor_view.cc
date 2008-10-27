@@ -23,6 +23,7 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+using base::Time;
 using views::ColumnSet;
 using views::GridLayout;
 using views::Label;

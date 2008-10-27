@@ -13,6 +13,8 @@
 #include "net/base/cert_status_flags.h"
 #include "net/base/ev_root_ca_metadata.h"
 
+using base::Time;
+
 namespace net {
 
 namespace {

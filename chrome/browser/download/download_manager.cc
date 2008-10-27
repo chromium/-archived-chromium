@@ -41,6 +41,9 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // Periodically update our observers.
 class DownloadItemUpdateTask : public Task {
  public:
@@ -1323,4 +1326,3 @@ void DownloadManager::OnSearchComplete(HistoryService::Handle handle,
 
   requestor->SetDownloads(searched_downloads);
 }
-

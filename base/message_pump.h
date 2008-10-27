@@ -7,9 +7,9 @@
 
 #include "base/ref_counted.h"
 
-class Time;
-
 namespace base {
+
+class Time;
 
 class MessagePump : public RefCountedThreadSafe<MessagePump> {
  public:
@@ -120,4 +120,3 @@ class MessagePump : public RefCountedThreadSafe<MessagePump> {
 }  // namespace base
 
 #endif  // BASE_MESSAGE_PUMP_H_
-

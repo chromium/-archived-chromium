@@ -16,6 +16,10 @@
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webinputevent.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 // How long to (synchronously) wait for the renderer to respond with a
 // PaintRect message, when our backing-store is invalid, before giving up and
 // returning a null or incorrectly sized backing-store from GetBackingStore.
@@ -834,5 +838,3 @@ void RenderWidgetHost::RendererExited() {
 void RenderWidgetHost::SystemThemeChanged() {
   Send(new ViewMsg_ThemeChanged(routing_id_));
 }
-
-

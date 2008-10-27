@@ -22,7 +22,7 @@ struct IE7PasswordInfo {
   std::vector<unsigned char> encrypted_data;
 
   // When the login was imported.
-  Time date_created;
+  base::Time date_created;
 };
 
 namespace ie7_password {

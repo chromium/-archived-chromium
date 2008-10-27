@@ -14,9 +14,9 @@ typedef void* HANDLE;
 #include "base/lock.h"
 #endif
 
-class TimeDelta;
-
 namespace base {
+
+class TimeDelta;
 
 // A WaitableEvent can be a useful thread synchronization tool when you want to
 // allow one thread to wait for another thread to finish some work.
@@ -80,4 +80,3 @@ class WaitableEvent {
 }  // namespace base
 
 #endif  // BASE_WAITABLE_EVENT_H_
-

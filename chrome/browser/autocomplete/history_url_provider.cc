@@ -23,6 +23,10 @@
 #include "googleurl/src/url_util.h"
 #include "net/base/net_util.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 HistoryURLProviderParams::HistoryURLProviderParams(
     const AutocompleteInput& input,
     bool trim_http,

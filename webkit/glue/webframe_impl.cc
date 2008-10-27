@@ -154,6 +154,7 @@ MSVC_POP_WARNING();
 #include "bridge/runtime_object.h"
 #endif
 
+using base::Time;
 using WebCore::ChromeClientChromium;
 using WebCore::Color;
 using WebCore::Document;

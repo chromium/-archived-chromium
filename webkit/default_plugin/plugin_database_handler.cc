@@ -13,6 +13,9 @@
 #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/default_plugin/plugin_main.h"
 
+using base::Time;
+using base::TimeDelta;
+
 PluginDatabaseHandler::PluginDatabaseHandler(
     PluginInstallerImpl& plugin_installer_instance)
     : plugin_downloads_file_(INVALID_HANDLE_VALUE),

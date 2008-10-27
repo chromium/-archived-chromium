@@ -6,6 +6,8 @@
 
 #include "chrome/browser/history/history_types.h"
 
+using base::Time;
+
 namespace history {
 
 // URLRow ----------------------------------------------------------------------

@@ -6,6 +6,8 @@
 
 // URLFetcherProtectEntry ----------------------------------------------------
 
+using base::TimeDelta;
+using base::TimeTicks;
 
 // Default parameters.  Time is in milliseconds.
 // static
@@ -169,4 +171,3 @@ URLFetcherProtectEntry* URLFetcherProtectManager::Register(
   services_[id] = entry;
   return entry;
 }
-

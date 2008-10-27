@@ -9,6 +9,8 @@
 #include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 namespace {
 
 // time_t representation of 15th Oct 2007 12:45:00 PDT

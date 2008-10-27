@@ -178,7 +178,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
     uint64 last_upload_position;
 
-    TimeTicks last_upload_ticks;
+    base::TimeTicks last_upload_ticks;
 
     bool waiting_for_upload_progress_ack;
 

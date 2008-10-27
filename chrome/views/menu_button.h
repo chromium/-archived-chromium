@@ -81,7 +81,7 @@ class MenuButton : public TextButton {
   // menu. There is no clean way to get the second click event because the
   // menu is displayed using a modal loop and, unlike regular menus in Windows,
   // the button is not part of the displayed menu.
-  Time menu_closed_time_;
+  base::Time menu_closed_time_;
 
   // The associated menu's resource identifier.
   ViewMenuDelegate* menu_delegate_;

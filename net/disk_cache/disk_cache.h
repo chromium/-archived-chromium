@@ -67,11 +67,11 @@ class Backend {
 
   // Marks a range of entries for deletion. This supports unbounded deletes in
   // either direction by using null Time values for either argument.
-  virtual bool DoomEntriesBetween(const Time initial_time,
-                                  const Time end_time) = 0;
+  virtual bool DoomEntriesBetween(const base::Time initial_time,
+                                  const base::Time end_time) = 0;
 
   // Marks all entries accessed since initial_time for deletion.
-  virtual bool DoomEntriesSince(const Time initial_time) = 0;
+  virtual bool DoomEntriesSince(const base::Time initial_time) = 0;
 
   // Enumerate the cache.  Initialize iter to NULL before calling this method
   // the first time.  That will cause the enumeration to start at the head of
@@ -110,10 +110,10 @@ class Entry {
   virtual std::string GetKey() const = 0;
 
   // Returns the time when this cache entry was last used.
-  virtual Time GetLastUsed() const = 0;
+  virtual base::Time GetLastUsed() const = 0;
 
   // Returns the time when this cache entry was last modified.
-  virtual Time GetLastModified() const = 0;
+  virtual base::Time GetLastModified() const = 0;
 
   // Returns the size of the cache data with the given index.
   virtual int32 GetDataSize(int index) const = 0;

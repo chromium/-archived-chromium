@@ -32,8 +32,9 @@ class MemBackendImpl : public Backend {
   virtual bool CreateEntry(const std::string& key, Entry** entry);
   virtual bool DoomEntry(const std::string& key);
   virtual bool DoomAllEntries();
-  virtual bool DoomEntriesBetween(const Time initial_time, const Time end_time);
-  virtual bool DoomEntriesSince(const Time initial_time);
+  virtual bool DoomEntriesBetween(const base::Time initial_time,
+                                  const base::Time end_time);
+  virtual bool DoomEntriesSince(const base::Time initial_time);
   virtual bool OpenNextEntry(void** iter, Entry** next_entry);
   virtual void EndEnumeration(void** iter);
   virtual void GetStats(

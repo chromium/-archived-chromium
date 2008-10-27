@@ -15,6 +15,8 @@
 #include "chrome/common/time_format.h"
 #include "generated_resources.h"
 
+using base::Time;
+
 // Wraps the function sqlite3_close() in a class that is
 // used in scoped_ptr_malloc.
 
@@ -499,4 +501,3 @@ void Firefox3Importer::LoadFavicons(
     s.reset();
   }
 }
-

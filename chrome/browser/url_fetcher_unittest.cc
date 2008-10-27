@@ -9,6 +9,9 @@
 #include "net/url_request/url_request_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace {
 
 const wchar_t kDocRoot[] = L"chrome/test/data";

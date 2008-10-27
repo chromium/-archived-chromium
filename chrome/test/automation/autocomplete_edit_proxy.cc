@@ -10,6 +10,9 @@
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/test/automation/automation_proxy.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 bool AutocompleteEditProxy::GetText(std::wstring* text) const {
   if (!is_valid())
     return false;

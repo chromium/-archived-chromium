@@ -30,6 +30,8 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
+using base::TimeTicks;
+
 bool UITest::in_process_renderer_ = false;
 bool UITest::in_process_plugins_ = false;
 bool UITest::no_sandbox_ = false;

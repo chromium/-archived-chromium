@@ -11,6 +11,8 @@
 #include "base/pickle.h"
 #include "chrome/common/scoped_vector.h"
 
+using base::TimeTicks;
+
 // File version number.
 static const int32 kFileCurrentVersion = 1;
 
@@ -375,4 +377,3 @@ std::wstring SessionBackend::GetCurrentSessionPath() {
   file_util::AppendToPath(&path, kCurrentSessionFileName);
   return path;
 }
-

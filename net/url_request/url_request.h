@@ -286,13 +286,13 @@ class URLRequest {
 
   // The time at which the returned response was requested.  For cached
   // responses, this may be a time well in the past.
-  const Time& request_time() const {
+  const base::Time& request_time() const {
     return response_info_.request_time;
   }
 
   // The time at which the returned response was generated.  For cached
   // responses, this may be a time well in the past.
-  const Time& response_time() const {
+  const base::Time& response_time() const {
     return response_info_.response_time;
   }
 

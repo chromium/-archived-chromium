@@ -57,7 +57,7 @@ class MetricsLog {
                        const GURL& url,
                        PageTransition::Type origin,
                        int session_index,
-                       TimeDelta load_time);
+                       base::TimeDelta load_time);
 
   // Records the current operating environment.  Takes the list of installed
   // plugins as a parameter because that can't be obtained synchronously
@@ -162,8 +162,8 @@ class MetricsLog {
   void WriteProfileMetrics(const std::wstring& key,
                            const DictionaryValue& profile_metrics);
 
-  Time start_time_;
-  Time end_time_;
+  base::Time start_time_;
+  base::Time end_time_;
 
   std::string client_id_;
   std::string session_id_;

@@ -13,6 +13,9 @@
 #include "net/url_request/url_request_job_metrics.h"
 #include "net/url_request/url_request_job_tracker.h"
 
+using base::Time;
+using base::TimeTicks;
+
 // Buffer size allocated when de-compressing data.
 static const int kFilterBufSize = 32 * 1024;
 
@@ -498,4 +501,3 @@ void URLRequestJob::SetStatus(const URLRequestStatus &status) {
   if (request_)
     request_->set_status(status);
 }
-

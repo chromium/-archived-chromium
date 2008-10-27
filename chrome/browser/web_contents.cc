@@ -86,6 +86,9 @@
 //   DidNavigate method.  This replaces the current RVH with the
 //   pending RVH and goes back to the NORMAL RendererState.
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace {
 
 // Amount of time we wait between when a key event is received and the renderer

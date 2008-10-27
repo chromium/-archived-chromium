@@ -14,6 +14,8 @@
 // testing.
 #define ALLOW_EXTERNAL_ACCESS 0
 
+using base::Time;
+
 namespace {
 
 class X509CertificateTest : public testing::Test {

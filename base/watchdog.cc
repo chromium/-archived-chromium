@@ -7,6 +7,9 @@
 #include "base/platform_thread.h"
 #include "base/string_util.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 //------------------------------------------------------------------------------
 // Public API methods.
 
@@ -145,4 +148,3 @@ Lock Watchdog::static_lock_;  // Lock for access of static data...
 TimeTicks Watchdog::last_debugged_alarm_time_ = TimeTicks();
 // static
 TimeDelta Watchdog::last_debugged_alarm_delay_;
-

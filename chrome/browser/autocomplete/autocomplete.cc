@@ -26,6 +26,7 @@
 
 #include "generated_resources.h"
 
+using base::TimeDelta;
 
 // AutocompleteInput ----------------------------------------------------------
 

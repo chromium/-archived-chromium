@@ -56,6 +56,8 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+using base::TimeDelta;
+
 static BrowserList g_browserlist;
 
 // How long we wait before updating the browser chrome while loading a page.

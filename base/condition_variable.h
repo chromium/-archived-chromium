@@ -80,7 +80,7 @@ class ConditionVariable {
   // Wait() releases the caller's critical section atomically as it starts to
   // sleep, and the reacquires it when it is signaled.
   void Wait();
-  void TimedWait(const TimeDelta& max_time);
+  void TimedWait(const base::TimeDelta& max_time);
 
   // Broadcast() revives all waiting threads.
   void Broadcast();

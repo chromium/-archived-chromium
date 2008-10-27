@@ -6,6 +6,9 @@
 
 #include "base/logging.h"
 
+using base::Time;
+using base::TimeDelta;
+
 const TimeDelta ThumbnailScore::kUpdateThumbnailTime = TimeDelta::FromDays(1);
 const double ThumbnailScore::kThumbnailMaximumBoringness = 0.94;
 const double ThumbnailScore::kThumbnailDegradePerHour = 0.01;

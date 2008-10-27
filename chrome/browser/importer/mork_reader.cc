@@ -49,6 +49,8 @@
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/importer/firefox_importer_utils.h"
 
+using base::Time;
+
 namespace {
 
 // Convert a hex character (0-9, A-F) to its corresponding byte value.

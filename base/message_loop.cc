@@ -23,6 +23,9 @@
 #include "base/message_pump_glib.h"
 #endif
 
+using base::Time;
+using base::TimeDelta;
+
 // A lazily created thread local storage for quick access to a thread's message
 // loop, if one exists.  This should be safe and free of static constructors.
 static base::LazyInstance<base::ThreadLocalPointer<MessageLoop> > lazy_tls_ptr(

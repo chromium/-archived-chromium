@@ -13,6 +13,9 @@
 #include "chrome/test/automation/automation_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 bool BrowserProxy::ActivateTab(int tab_index) {
   return ActivateTabWithTimeout(tab_index, INFINITE, NULL);
 }

@@ -39,7 +39,7 @@ class DnsMaster {
   // The number of slave processes that will do DNS prefetching
   static const int kSlaveCountMax = 8;
 
-  explicit DnsMaster(TimeDelta shutdown_wait_time);
+  explicit DnsMaster(base::TimeDelta shutdown_wait_time);
 
   ~DnsMaster() {
     if (!shutdown_)
@@ -82,14 +82,14 @@ class DnsMaster {
   // Accessor methods, used mostly for testing.
   // Both functions return DnsHostInfo::kNullDuration if name was not yet
   // processed enough.
-  TimeDelta GetResolutionDuration(const std::string hostname) {
+  base::TimeDelta GetResolutionDuration(const std::string hostname) {
     AutoLock auto_lock(lock_);
     if (results_.find(hostname) == results_.end())
       return DnsHostInfo::kNullDuration;
     return results_[hostname].resolve_duration();
   }
 
-  TimeDelta GetQueueDuration(const std::string hostname) {
+  base::TimeDelta GetQueueDuration(const std::string hostname) {
     AutoLock auto_lock(lock_);
     if (results_.find(hostname) == results_.end())
       return DnsHostInfo::kNullDuration;
@@ -157,7 +157,7 @@ class DnsMaster {
 
   // The following is the maximum time the ShutdownSlaves method
   // will wait for all the slave processes to terminate.
-  const TimeDelta kShutdownWaitTime_;
+  const base::TimeDelta kShutdownWaitTime_;
 
   // A list of successful events resulting from pre-fetching.
   DnsHostInfo::DnsInfoTable cache_hits_;

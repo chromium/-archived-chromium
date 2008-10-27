@@ -16,6 +16,9 @@
 #include "chrome/browser/history/thumbnail_database.h"
 #include "chrome/common/notification_types.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace history {
 
 namespace {

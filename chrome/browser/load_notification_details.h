@@ -19,7 +19,7 @@ class LoadNotificationDetails {
  public:
   LoadNotificationDetails(const GURL& url,
                           PageTransition::Type origin,
-                          TimeDelta load_time,
+                          base::TimeDelta load_time,
                           NavigationController* controller,
                           int session_index)
       : url_(url),
@@ -32,13 +32,13 @@ class LoadNotificationDetails {
 
   const GURL& url() const { return url_; }
   PageTransition::Type origin() const { return origin_; }
-  TimeDelta load_time() const { return load_time_; }
+  base::TimeDelta load_time() const { return load_time_; }
   int session_index() const { return session_index_; }
   NavigationController* controller() const { return controller_; }
 
  private:
   GURL url_;           // the URL loaded
-  TimeDelta load_time_;               // length of time the page load took
+  base::TimeDelta load_time_;               // length of time the page load took
   int session_index_;  // index of the load within the tab session
   PageTransition::Type origin_;       // type of action that caused the load
   NavigationController* controller_;  // tells us which tab the load was in

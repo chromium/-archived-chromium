@@ -187,7 +187,7 @@ class Profile {
   // was created, rather it is the time the user started chrome and logged into
   // this profile. For the single profile case, this corresponds to the time
   // the user started chrome.
-  virtual Time GetStartTime() const = 0;
+  virtual base::Time GetStartTime() const = 0;
 
   // Returns the TabRestoreService. This returns NULL when off the record.
   virtual TabRestoreService* GetTabRestoreService() = 0;
@@ -253,7 +253,7 @@ class ProfileImpl : public Profile {
   virtual bool DidLastSessionExitCleanly();
   virtual BookmarkModel* GetBookmarkModel();
   virtual bool IsSameProfile(Profile* profile);
-  virtual Time GetStartTime() const;
+  virtual base::Time GetStartTime() const;
   virtual TabRestoreService* GetTabRestoreService();
   virtual void ResetTabRestoreService();
   virtual void InitializeSpellChecker();
@@ -308,7 +308,7 @@ class ProfileImpl : public Profile {
   scoped_ptr<OffTheRecordProfileImpl> off_the_record_profile_;
 
   // See GetStartTime for details.
-  Time start_time_;
+  base::Time start_time_;
 
   scoped_ptr<TabRestoreService> tab_restore_service_;
 

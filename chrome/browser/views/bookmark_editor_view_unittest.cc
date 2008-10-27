@@ -11,6 +11,9 @@
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // Base class for bookmark editor tests. Creates a BookmarkModel and populates
 // it with test data.
 class BookmarkEditorViewTest : public testing::Test {

@@ -26,6 +26,8 @@
 #include "generated_resources.h"
 #include "net/base/net_util.h"
 
+using base::Time;
+using base::TimeDelta;
 using views::ColumnSet;
 using views::GridLayout;
 

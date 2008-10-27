@@ -12,6 +12,10 @@
 #include "base/string_util.h"
 #include "chrome/common/mru_cache.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace history {
 
 namespace {

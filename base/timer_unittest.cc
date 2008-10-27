@@ -7,6 +7,8 @@
 #include "base/timer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::TimeDelta;
+
 namespace {
 
 class OneShotTimerTester {

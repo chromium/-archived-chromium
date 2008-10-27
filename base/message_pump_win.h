@@ -249,4 +249,3 @@ class MessagePumpForIO : public MessagePumpWin {
 }  // namespace base
 
 #endif  // BASE_MESSAGE_PUMP_WIN_H_
-

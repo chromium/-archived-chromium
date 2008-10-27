@@ -12,6 +12,9 @@
 #include "chrome/views/tree_node_model.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 class BookmarkModelTest : public testing::Test, public BookmarkModelObserver {
  public:
   struct ObserverDetails {

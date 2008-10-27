@@ -43,6 +43,9 @@
 #include "chrome/tools/profiles/thumbnail-inl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 class HistoryTest;
 
 // Specialize RunnableMethodTraits for HistoryTest so we can create callbacks.

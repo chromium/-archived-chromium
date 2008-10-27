@@ -17,6 +17,8 @@
 #include "chrome/common/sqlite_utils.h"
 #include "chrome/common/stl_util-inl.h"
 
+using base::Time;
+
 // The following table is used to store star (aka bookmark) information. This
 // class derives from URLDatabase, which has its own schema.
 //
@@ -626,4 +628,3 @@ bool StarredURLDatabase::MigrateBookmarksToFileImpl(const std::wstring& path) {
 }
 
 }  // namespace history
-

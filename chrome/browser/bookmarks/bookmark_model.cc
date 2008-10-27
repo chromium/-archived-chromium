@@ -13,6 +13,8 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+
 namespace {
 
 // Functions used for sorting.

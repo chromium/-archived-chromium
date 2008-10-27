@@ -16,6 +16,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/password_form.h"
 
+using base::Time;
+using base::TimeDelta;
+
 class WebDatabaseTest : public testing::Test {
  protected:
 

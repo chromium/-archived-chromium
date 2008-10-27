@@ -30,6 +30,8 @@
 
 #include "generated_resources.h"
 
+using base::TimeTicks;
+
 static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
 // This is a helper class which acts as a proxy for invoking a task from the

@@ -7,6 +7,10 @@
 #include "chrome/browser/history/text_database_manager.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace history {
 
 namespace {

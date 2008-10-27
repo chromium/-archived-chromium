@@ -8,6 +8,8 @@
 
 #include "base/logging.h"
 
+namespace base {
+
 // TimeDelta ------------------------------------------------------------------
 
 // static
@@ -120,3 +122,4 @@ bool Time::FromString(const wchar_t* time_string, Time* parsed_time) {
   return true;
 }
 
+}  // namespace base

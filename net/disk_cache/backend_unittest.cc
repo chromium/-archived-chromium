@@ -13,6 +13,8 @@
 #include "net/disk_cache/mapped_file.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 namespace {
 
 // Copies a set of cache files from the data folder to the test folder.

@@ -61,6 +61,8 @@
 
 #include "generated_resources.h"
 
+using base::TimeDelta;
+
 //-----------------------------------------------------------------------------
 
 // define to write the time necessary for thumbnail/DOM text retrieval,

@@ -5,6 +5,9 @@
 #include "net/base/ssl_config_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace {
 
 class SSLConfigServiceTest : public testing::Test {

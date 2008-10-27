@@ -75,7 +75,7 @@ class Firefox2Importer : public Importer {
                                     GURL* url,
                                     GURL* favicon,
                                     std::wstring* shortcut,
-                                    Time* add_date,
+                                    base::Time* add_date,
                                     std::wstring* post_data);
 
   // Fetches the given attribute value from the |tag|. Returns true if

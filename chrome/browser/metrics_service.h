@@ -439,7 +439,7 @@ class MetricsService : public NotificationObserver,
   // outbound network link).  This is usually also the duration for which we
   // build up a log, but if other unsent-logs from previous sessions exist, we
   // quickly transmit those unsent logs while we continue to build a log.
-  TimeDelta interlog_duration_;
+  base::TimeDelta interlog_duration_;
 
   // The maximum number of events which get transmitted in a log.  This defaults
   // to a constant and otherwise is provided by the UMA server in the server

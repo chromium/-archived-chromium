@@ -5,6 +5,8 @@
 #include "base/message_loop.h"
 #include "chrome/common/animation.h"
 
+using base::TimeDelta;
+
 Animation::Animation(int frame_rate,
                      AnimationDelegate* delegate)
   : animating_(false),

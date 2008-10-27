@@ -47,6 +47,10 @@
 #include "base/singleton.h"
 #include "base/system_monitor.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace {
 
 // From MSDN, FILETIME "Contains a 64-bit value representing the number of

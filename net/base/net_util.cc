@@ -37,6 +37,8 @@
 #include "net/base/base64.h"
 #include "unicode/datefmt.h"
 
+using base::Time;
+
 namespace {
 
 // what we prepend to get a file URL

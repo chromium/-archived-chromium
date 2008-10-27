@@ -22,6 +22,8 @@
 
 #include "generated_resources.h"
 
+using base::TimeDelta;
+
 // TODO(paulg): These may need to be adjusted when download progress
 //              animation is added, and also possibly to take into account
 //              different screen resolutions.

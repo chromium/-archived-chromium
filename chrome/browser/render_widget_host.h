@@ -194,7 +194,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Starts a hang monitor timeout. If there's already a hang monitor timeout
   // the new one will only fire if it has a shorter delay than the time
   // left on the existing timeouts.
-  void StartHangMonitorTimeout(TimeDelta delay);
+  void StartHangMonitorTimeout(base::TimeDelta delay);
 
   // Called when we receive a notification indicating that the renderer
   // process has gone.
@@ -282,7 +282,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   RenderWidgetHostView* view_;
 
   // The time when an input event was sent to the RenderWidget.
-  TimeTicks input_event_start_time_;
+  base::TimeTicks input_event_start_time_;
 
   // Indicates whether a page is loading or not.
   bool is_loading_;
@@ -300,7 +300,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
   // The following value indicates a time in the future when we would consider
   // the renderer hung if it does not generate an appropriate response message.
-  Time time_when_considered_hung_;
+  base::Time time_when_considered_hung_;
 
   // This timer runs to check if time_when_considered_hung_ has past.
   base::OneShotTimer<RenderWidgetHost> hung_renderer_timer_;
@@ -319,7 +319,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
   // Used for UMA histogram logging to measure the time for a repaint view
   // operation to finish.
-  TimeTicks repaint_start_time_;
+  base::TimeTicks repaint_start_time_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RenderWidgetHost);
 };

@@ -7,6 +7,8 @@
 #include "base/string_util.h"
 #include "base/tracked_objects.h"
 
+using base::Time;
+
 namespace tracked_objects {
 
 //------------------------------------------------------------------------------

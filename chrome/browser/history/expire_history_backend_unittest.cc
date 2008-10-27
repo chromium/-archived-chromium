@@ -20,6 +20,10 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "SkBitmap.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 // The test must be in the history namespace for the gtest forward declarations
 // to work. It also eliminates a bunch of ugly "history::".
 namespace history {

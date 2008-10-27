@@ -61,8 +61,8 @@ class VisitDatabase {
   // is used for history expiration.)
   //
   // The results will be in increasing order of date.
-  void GetAllVisitsInRange(Time begin_time, Time end_time, int max_results,
-                           VisitVector* visits);
+  void GetAllVisitsInRange(base::Time begin_time, base::Time end_time,
+                           int max_results, VisitVector* visits);
 
   // Fills all visits in the given time range into the given vector that should
   // be user-visible, which excludes things like redirects and subframes. The
@@ -75,7 +75,7 @@ class VisitDatabase {
   //
   // When |most_recent_visit_only| is set, only one visit for each URL will be
   // returned, and it will be the most recent one in the time range.
-  void GetVisibleVisitsInRange(Time begin_time, Time end_time,
+  void GetVisibleVisitsInRange(base::Time begin_time, base::Time end_time,
                                bool most_recent_visit_only,
                                int max_count,
                                VisitVector* visits);
@@ -116,7 +116,8 @@ class VisitDatabase {
   // schemes are ignored and false is returned).
   // count is set to the number of visits, first_visit is set to the first time
   // the host was visited. Returns true on success.
-  bool GetVisitCountToHost(const GURL& url, int* count, Time* first_visit);
+  bool GetVisitCountToHost(const GURL& url, int* count,
+                           base::Time* first_visit);
 
  protected:
   // Returns the database and statement cache for the functions in this
@@ -144,4 +145,3 @@ class VisitDatabase {
 }  // history
 
 #endif  // CHROME_BROWSER_HISTORY_VISIT_DATABASE_H__
-

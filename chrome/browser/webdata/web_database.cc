@@ -73,6 +73,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+using base::Time;
+
 // Current version number.
 static const int kCurrentVersionNumber = 21;
 
@@ -883,4 +885,3 @@ void WebDatabase::MigrateOldVersionsAsNeeded() {
       return;
   }
 }
-

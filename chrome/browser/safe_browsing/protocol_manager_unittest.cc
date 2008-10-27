@@ -8,6 +8,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "chrome/browser/safe_browsing/protocol_manager.h"
 
+using base::Time;
+using base::TimeDelta;
+
 class SafeBrowsingProtocolManagerTest : public testing::Test {
 };
 

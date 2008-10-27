@@ -18,6 +18,9 @@
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace {
   SBPrefix Sha256Prefix(const std::string& str) {
     SBPrefix hash;

@@ -14,6 +14,8 @@
 #include "chrome/tools/profiles/thumbnail-inl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 // This file only tests functionality where it is most convenient to call the
 // backend directly. Most of the history backend functions are tested by the
 // history unit test. Because of the elaborate callbacks involved, this is no
@@ -385,4 +387,3 @@ TEST_F(HistoryBackendTest, GetPageThumbnailAfterRedirects) {
 }
 
 }  // namespace history
-

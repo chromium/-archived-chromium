@@ -18,6 +18,8 @@
 #include "generated_resources.h"
 #include "net/base/data_url.h"
 
+using base::Time;
+
 // Firefox2Importer.
 
 Firefox2Importer::Firefox2Importer() {
@@ -512,4 +514,3 @@ void Firefox2Importer::DataURLToFaviconUsage(
 
   favicons->push_back(usage);
 }
-

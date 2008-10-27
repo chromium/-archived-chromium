@@ -17,6 +17,9 @@
 #include "chrome/common/sqlite_utils.h"
 #include "googleurl/src/gurl.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // Database version.  If this is different than what's stored on disk, the
 // database is reset.
 static const int kDatabaseVersion = 4;

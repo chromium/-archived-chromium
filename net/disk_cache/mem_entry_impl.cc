@@ -7,6 +7,8 @@
 #include "net/base/net_errors.h"
 #include "net/disk_cache/mem_backend_impl.h"
 
+using base::Time;
+
 namespace disk_cache {
 
 MemEntryImpl::MemEntryImpl(MemBackendImpl* backend) {

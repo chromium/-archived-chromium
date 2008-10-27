@@ -48,7 +48,7 @@ class TabRestoreService {
     HistoricalTab();
 
     // Time the tab was closed.
-    Time close_time;
+    base::Time close_time;
 
     // If true, this is a historical session and not a closed tab.
     bool from_last_session;

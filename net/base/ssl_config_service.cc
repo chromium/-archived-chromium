@@ -6,6 +6,9 @@
 
 #include "base/registry.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace net {
 
 static const int kConfigUpdateInterval = 10;  // seconds

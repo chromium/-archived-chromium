@@ -15,6 +15,8 @@
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"
 
+using base::TimeDelta;
+
 namespace {
 
 // Returns the directory name where the "typical" user data is that we use for

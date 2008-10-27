@@ -13,6 +13,9 @@
 #include "chrome/common/chrome_plugin_lib.h"
 #include "net/base/net_errors.h"
 
+using base::Time;
+using base::TimeDelta;
+
 //
 // URLRequestInterceptJob
 //
@@ -207,4 +210,3 @@ void URLRequestInterceptJob::Observe(NotificationType type,
 
   DetachPlugin();
 }
-

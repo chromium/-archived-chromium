@@ -26,6 +26,8 @@
 #include "net/url_request/url_request.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 namespace {
 
 class URLRequestTest : public testing::Test {

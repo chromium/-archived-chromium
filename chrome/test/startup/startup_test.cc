@@ -10,6 +10,9 @@
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace {
 
 // Wrapper around CopyFile to retry 10 times if there is an error. 

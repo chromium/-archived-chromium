@@ -49,7 +49,7 @@ class BaseHistoryModel {
   virtual int GetItemCount() = 0;
 
   // Returns the time of the visit with the given index.
-  virtual Time GetVisitTime(int index) = 0;
+  virtual base::Time GetVisitTime(int index) = 0;
 
   // Returns the title at the specified index.
   virtual const std::wstring& GetTitle(int index) = 0;

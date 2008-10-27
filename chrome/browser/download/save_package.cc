@@ -37,6 +37,8 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+
 // Default name which will be used when we can not get proper name from
 // resource URL.
 static const wchar_t kDefaultSaveName[] = L"saved_resource";
@@ -1060,4 +1062,3 @@ bool SavePackage::GetSafePureFileName(const std::wstring& dir_path,
     return false;
   }
 }
-

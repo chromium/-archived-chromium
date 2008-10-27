@@ -18,6 +18,8 @@
 #include "chrome/common/chrome_paths.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
+using base::TimeDelta;
+
 const TCHAR ChromePluginLib::kRegistryChromePlugins[] =
     _T("Software\\Google\\Chrome\\Plugins");
 static const TCHAR kRegistryLoadOnStartup[] = _T("LoadOnStartup");

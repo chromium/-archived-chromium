@@ -9,6 +9,8 @@
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 TEST_F(DiskCacheTest, BlockFiles_Grow) {
   std::wstring path = GetCachePath();
   ASSERT_TRUE(DeleteCache(path.c_str()));

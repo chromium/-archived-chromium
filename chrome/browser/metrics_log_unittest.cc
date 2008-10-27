@@ -10,6 +10,8 @@
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::TimeDelta;
+
 namespace {
   class MetricsLogTest : public testing::Test {
   };

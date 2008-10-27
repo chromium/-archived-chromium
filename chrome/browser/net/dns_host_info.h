@@ -44,14 +44,14 @@ class DnsHostInfo {
       STARTED,               // Resolution has begun.
       FINISHED,              // Resolution has completed.
       FINISHED_UNRESOLVED};  // No resolution found.
-  static const TimeDelta kMaxNonNetworkDnsLookupDuration;
+  static const base::TimeDelta kMaxNonNetworkDnsLookupDuration;
   // The number of OS cache entries we can guarantee(?) before cache eviction
   // might likely take place.
   static const int kMaxGuaranteedCacheSize = 50;
 
   typedef std::vector<DnsHostInfo> DnsInfoTable;
 
-  static const TimeDelta kNullDuration;
+  static const base::TimeDelta kNullDuration;
 
   // DnsHostInfo are usually made by the default constructor during
   // initializing of the DnsMaster's map (of info for Hostnames).
@@ -71,7 +71,7 @@ class DnsHostInfo {
   // on how recently we've done DNS prefetching for hostname.
   bool NeedsDnsUpdate(const std::string& hostname);
 
-  static void set_cache_expiration(TimeDelta time);
+  static void set_cache_expiration(base::TimeDelta time);
 
   // The prefetching lifecycle.
   void SetQueuedState();
@@ -102,9 +102,9 @@ class DnsHostInfo {
     return (hostname == hostname_);
   }
 
-  TimeDelta resolve_duration() const { return resolve_duration_;}
-  TimeDelta queue_duration() const { return queue_duration_;}
-  TimeDelta benefits_remaining() const { return benefits_remaining_; }
+  base::TimeDelta resolve_duration() const { return resolve_duration_;}
+  base::TimeDelta queue_duration() const { return queue_duration_;}
+  base::TimeDelta benefits_remaining() const { return benefits_remaining_; }
 
   DnsBenefit AcruePrefetchBenefits(DnsHostInfo* later_host_info);
 
@@ -117,22 +117,26 @@ class DnsHostInfo {
 
  private:
   // The next declaration is non-const to facilitate testing.
-  static TimeDelta kCacheExpirationDuration;
+  static base::TimeDelta kCacheExpirationDuration;
 
   DnsProcessingState state_;
   std::string hostname_;  // Hostname for this info.
 
-  TimeTicks time_;  // When was last state changed (usually lookup completed).
-  TimeDelta resolve_duration_;  // Time needed for DNS to resolve.
-  TimeDelta queue_duration_;  // Time spent in queue.
-  TimeDelta benefits_remaining_;  // Unused potential benefits of a prefetch.
+  // When was last state changed (usually lookup completed).
+  base::TimeTicks time_;
+  // Time needed for DNS to resolve.
+  base::TimeDelta resolve_duration_;
+  // Time spent in queue.
+  base::TimeDelta queue_duration_;
+  // Unused potential benefits of a prefetch.
+  base::TimeDelta benefits_remaining_;
 
   int sequence_number_;  // Used to calculate potential of cache eviction.
   static int sequence_counter;  // Used to allocate sequence_number_'s.
 
-  TimeDelta GetDuration() {
-    TimeTicks old_time = time_;
-    time_ = TimeTicks::Now();
+  base::TimeDelta GetDuration() {
+    base::TimeTicks old_time = time_;
+    time_ = base::TimeTicks::Now();
     return time_ - old_time;
   }
 
@@ -147,4 +151,3 @@ class DnsHostInfo {
 }  // namespace chrome_browser_net
 
 #endif  // CHROME_BROWSER_NET_DNS_HOST_INFO_H_
-

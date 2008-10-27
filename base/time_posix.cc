@@ -13,6 +13,8 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 
+namespace base {
+
 // The Time routines in this file use standard POSIX routines, or almost-
 // standard routines in the case of timegm.  We need to use a Mach-specific
 // function for TimeTicks::Now() on Mac OS X.
@@ -140,3 +142,5 @@ TimeTicks TimeTicks::Now() {
 TimeTicks TimeTicks::HighResNow() {
   return Now();
 }
+
+}  // namespace base

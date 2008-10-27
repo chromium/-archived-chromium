@@ -17,11 +17,11 @@ class HttpResponseInfo {
  public:
   // The time at which the request was made that resulted in this response.
   // For cached responses, this time could be "far" in the past.
-  Time request_time;
+  base::Time request_time;
 
   // The time at which the response headers were received.  For cached
   // responses, this time could be "far" in the past.
-  Time response_time;
+  base::Time response_time;
 
   // If the response headers indicate a 401 or 407 failure, then this structure
   // will contain additional information about the authentication challenge.

@@ -24,6 +24,8 @@
 #include "chrome/common/scoped_vector.h"
 #include "chrome/common/win_util.h"
 
+using base::Time;
+
 // Identifier for commands written to file.
 static const SessionCommand::id_type kCommandSetTabWindow = 0;
 // kCommandSetWindowBounds is no longer used (it's superseded by

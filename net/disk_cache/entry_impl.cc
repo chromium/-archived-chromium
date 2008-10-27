@@ -11,6 +11,9 @@
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/cache_util.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace {
 
 // This is a simple Task to execute the callback (from the message loop instead

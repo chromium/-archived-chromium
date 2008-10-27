@@ -10,6 +10,8 @@
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
 
+using base::Time;
+
 // The following tables are used to store url segment information.
 //
 // segments
@@ -386,4 +388,3 @@ bool VisitSegmentDatabase::DeleteSegmentForURL(URLID url_id) {
 }
 
 }  // namespace history
-

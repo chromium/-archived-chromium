@@ -12,6 +12,8 @@
 #include "chrome/common/resource_bundle.h"
 #include "googleurl/src/gurl.h"
 
+using base::TimeTicks;
+
 // The amount of time (in milliseconds) between when the bubble closes and when
 // pressing on the button again does something. Yes, this is a hackish. I tried
 // many different options, all to no avail:
@@ -88,4 +90,3 @@ void ToolbarStarToggle::InfoBubbleClosing(InfoBubble* info_bubble) {
 bool ToolbarStarToggle::CloseOnEscape() {
   return true;
 }
-

@@ -17,6 +17,9 @@
 #include "net/disk_cache/hash.h"
 #include "net/disk_cache/file.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace {
 
 const wchar_t* kIndexName = L"index";

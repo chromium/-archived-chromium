@@ -29,6 +29,8 @@
 #include "NotImplemented.h"
 #include "base/time.h"
 
+using base::Time;
+
 namespace WebCore {
 
 // Get the current time in seconds since epoch.

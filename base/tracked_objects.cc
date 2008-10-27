@@ -8,6 +8,8 @@
 
 #include "base/string_util.h"
 
+using base::TimeDelta;
+
 namespace tracked_objects {
 
 // A TLS slot to the TrackRegistry for the current thread.

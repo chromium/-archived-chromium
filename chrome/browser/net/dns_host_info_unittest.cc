@@ -11,6 +11,8 @@
 #include "chrome/browser/net/dns_host_info.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::TimeDelta;
+
 namespace {
 
 class DnsHostInfoTest : public testing::Test {

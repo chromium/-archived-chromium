@@ -183,6 +183,9 @@
 #include "net/base/load_flags.h"
 #include "third_party/bzip2/bzlib.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // Check to see that we're being called on only one thread.
 static bool IsSingleThreaded();
 

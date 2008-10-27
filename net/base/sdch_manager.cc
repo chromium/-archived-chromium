@@ -12,6 +12,8 @@
 #include "net/base/sdch_manager.h"
 #include "net/url_request/url_request_http_job.h"
 
+using base::Time;
+using base::TimeDelta;
 
 //------------------------------------------------------------------------------
 // static

@@ -211,8 +211,8 @@ class MockNetworkTransaction : public net::HttpTransaction {
         StringPrintf("%s\n%s\n", resp_status.c_str(), resp_headers.c_str());
     std::replace(header_data.begin(), header_data.end(), '\n', '\0');
 
-    response_.request_time = Time::Now();
-    response_.response_time = Time::Now();
+    response_.request_time = base::Time::Now();
+    response_.response_time = base::Time::Now();
     response_.headers = new net::HttpResponseHeaders(header_data);
     response_.ssl_info.cert_status = t->cert_status;
     data_ = resp_data;

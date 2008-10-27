@@ -15,6 +15,9 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/notification_service.h"
 
+using base::Time;
+using base::TimeDelta;
+
 static const unsigned int kReviseAllocationDelayMS = 200 /* milliseconds */;
 
 // The default size limit of the in-memory cache is 8 MB

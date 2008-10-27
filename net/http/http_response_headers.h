@@ -14,8 +14,11 @@
 #include "net/http/http_version.h"
 
 class Pickle;
+
+namespace base {
 class Time;
 class TimeDelta;
+}
 
 namespace net {
 
@@ -150,33 +153,33 @@ class HttpResponseHeaders :
   // support unit testing.  The request_time parameter indicates the time at
   // which the request was made that resulted in this response, which was
   // received at response_time.
-  bool RequiresValidation(const Time& request_time,
-                          const Time& response_time,
-                          const Time& current_time) const;
+  bool RequiresValidation(const base::Time& request_time,
+                          const base::Time& response_time,
+                          const base::Time& current_time) const;
 
   // Returns the amount of time the server claims the response is fresh from
   // the time the response was generated.  See section 13.2.4 of RFC 2616.  See
   // RequiresValidation for a description of the response_time parameter.
-  TimeDelta GetFreshnessLifetime(const Time& response_time) const;
+  base::TimeDelta GetFreshnessLifetime(const base::Time& response_time) const;
 
   // Returns the age of the response.  See section 13.2.3 of RFC 2616.
   // See RequiresValidation for a description of this method's parameters.
-  TimeDelta GetCurrentAge(const Time& request_time,
-                          const Time& response_time,
-                          const Time& current_time) const;
+  base::TimeDelta GetCurrentAge(const base::Time& request_time,
+                                const base::Time& response_time,
+                                const base::Time& current_time) const;
 
   // The following methods extract values from the response headers.  If a
   // value is not present, then false is returned.  Otherwise, true is returned
   // and the out param is assigned to the corresponding value.
-  bool GetMaxAgeValue(TimeDelta* value) const;
-  bool GetAgeValue(TimeDelta* value) const;
-  bool GetDateValue(Time* value) const;
-  bool GetLastModifiedValue(Time* value) const;
-  bool GetExpiresValue(Time* value) const;
+  bool GetMaxAgeValue(base::TimeDelta* value) const;
+  bool GetAgeValue(base::TimeDelta* value) const;
+  bool GetDateValue(base::Time* value) const;
+  bool GetLastModifiedValue(base::Time* value) const;
+  bool GetExpiresValue(base::Time* value) const;
 
   // Extracts the time value of a particular header.  This method looks for the
   // first matching header value and parses its value as a HTTP-date.
-  bool GetTimeValuedHeader(const std::string& name, Time* result) const;
+  bool GetTimeValuedHeader(const std::string& name, base::Time* result) const;
 
   // Determines if this response indicates a keep-alive connection.
   bool IsKeepAlive() const;
@@ -284,4 +287,3 @@ class HttpResponseHeaders :
 }  // namespace net
 
 #endif  // NET_HTTP_RESPONSE_HEADERS_H_
-

@@ -14,6 +14,8 @@
 #include "base/time.h"
 #include "webkit/tools/test_shell/image_decoder_unittest.h"
 
+using base::Time;
+
 void ReadFileToVector(const std::wstring& path, Vector<char>* contents) {
   std::string contents_str;
   file_util::ReadFileToString(path, &contents_str);

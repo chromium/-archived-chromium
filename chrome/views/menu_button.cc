@@ -21,6 +21,9 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace views {
 
 // The amount of time, in milliseconds, we wait before allowing another mouse

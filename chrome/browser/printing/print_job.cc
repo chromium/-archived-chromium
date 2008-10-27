@@ -13,6 +13,8 @@
 #pragma warning(disable:4355)  // 'this' : used in base member initializer list
 #endif
 
+using base::TimeDelta;
+
 namespace printing {
 
 PrintJob::PrintJob(PrintedPagesSource* source)

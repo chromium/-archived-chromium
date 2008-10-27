@@ -9,6 +9,9 @@
 #include "chrome/browser/render_process_host.h"
 #include "chrome/browser/resource_dispatcher_host.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 // A Task used with InvokeLater that we hold a pointer to in pending_paints_.
 // Instances are deleted by MessageLoop after it calls their Run method.
 class RenderWidgetHelper::PaintMsgProxy : public Task {
@@ -228,4 +231,3 @@ void RenderWidgetHelper::OnSimulateReceivedMessage(
   if (host)
     host->OnMessageReceived(message);
 }
-

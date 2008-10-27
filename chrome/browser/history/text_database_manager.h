@@ -95,7 +95,7 @@ class TextDatabaseManager {
   // get updated to refer to the full text indexed information. The visit time
   // should be the time corresponding to that visit in the database.
   void AddPageURL(const GURL& url, URLID url_id, VisitID visit_id,
-                  Time visit_time);
+                  base::Time visit_time);
   void AddPageTitle(const GURL& url, const std::wstring& title);
   void AddPageContents(const GURL& url, const std::wstring& body);
 
@@ -106,14 +106,14 @@ class TextDatabaseManager {
   bool AddPageData(const GURL& url,
                    URLID url_id,
                    VisitID visit_id,
-                   Time visit_time,
+                   base::Time visit_time,
                    const std::wstring& title,
                    const std::wstring& body);
 
   // Deletes the instance of indexed data identified by the given time and URL.
   // Any changes will be tracked in the optional change set for use when calling
   // OptimizeChangedDatabases later. change_set can be NULL.
-  void DeletePageData(Time time, const GURL& url,
+  void DeletePageData(base::Time time, const GURL& url,
                       ChangeSet* change_set);
 
   // The text database manager keeps a list of changes that are made to the
@@ -124,7 +124,7 @@ class TextDatabaseManager {
   //
   // Either or both times my be is_null to be unbounded in that direction. When
   // non-null, the range is [begin, end).
-  void DeleteFromUncommitted(Time begin, Time end);
+  void DeleteFromUncommitted(base::Time begin, base::Time end);
 
   // Same as DeleteFromUncommitted but for a single URL.
   void DeleteURLFromUncommitted(const GURL& url);
@@ -149,7 +149,7 @@ class TextDatabaseManager {
   void GetTextMatches(const std::wstring& query,
                       const QueryOptions& options,
                       std::vector<TextDatabase::Match>* results,
-                      Time* first_time_searched);
+                      base::Time* first_time_searched);
 
  private:
   // These tests call ExpireRecentChangesForTime to force expiration.
@@ -161,12 +161,12 @@ class TextDatabaseManager {
   // visit, title, and body all come in at different times.
   class PageInfo {
    public:
-    PageInfo(URLID url_id, VisitID visit_id, Time visit_time);
+    PageInfo(URLID url_id, VisitID visit_id, base::Time visit_time);
 
     // Getters.
     URLID url_id() const { return url_id_; }
     VisitID visit_id() const { return visit_id_; }
-    Time visit_time() const { return visit_time_; }
+    base::Time visit_time() const { return visit_time_; }
     const std::wstring& title() const { return title_; }
     const std::wstring& body() const { return body_; }
 
@@ -183,7 +183,7 @@ class TextDatabaseManager {
     // Returns true if this entry was added too long ago and we should give up
     // waiting for more data. The current time is passed in as an argument so we
     // can check many without re-querying the timer.
-    bool Expired(TimeTicks now) const;
+    bool Expired(base::TimeTicks now) const;
 
    private:
     URLID url_id_;
@@ -191,11 +191,11 @@ class TextDatabaseManager {
 
     // Time of the visit of the URL. This will be the value stored in the URL
     // and visit tables for the entry.
-    Time visit_time_;
+    base::Time visit_time_;
 
     // When this page entry was created. We have a cap on the maximum time that
     // an entry will be in the queue before being flushed to the database.
-    TimeTicks added_time_;
+    base::TimeTicks added_time_;
 
     // Will be the string " " when they are set to distinguish set and unset.
     std::wstring title_;
@@ -203,8 +203,8 @@ class TextDatabaseManager {
   };
 
   // Converts the given time to a database identifier or vice-versa.
-  static TextDatabase::DBIdent TimeToID(Time time);
-  static Time IDToTime(TextDatabase::DBIdent id);
+  static TextDatabase::DBIdent TimeToID(base::Time time);
+  static base::Time IDToTime(TextDatabase::DBIdent id);
 
   // Returns a text database for the given identifier or time. This file will
   // be created if it doesn't exist and |for_writing| is set. On error,
@@ -217,7 +217,7 @@ class TextDatabaseManager {
   // The pointer will be tracked in the cache. The caller should not store it
   // or delete it since it will get automatically deleted as necessary.
   TextDatabase* GetDB(TextDatabase::DBIdent id, bool for_writing);
-  TextDatabase* GetDBForTime(Time time, bool for_writing);
+  TextDatabase* GetDBForTime(base::Time time, bool for_writing);
 
   // Populates the present_databases_ list based on which files are on disk.
   // When the list is already initialized, this will do nothing, so you can
@@ -234,7 +234,7 @@ class TextDatabaseManager {
   // Given "now," this will expire old things from the recent_changes_ list.
   // This is used as the backend for FlushOldChanges and is called directly
   // by the unit tests with fake times.
-  void FlushOldChangesForTime(TimeTicks now);
+  void FlushOldChangesForTime(base::TimeTicks now);
 
   // Directory holding our index files.
   const std::wstring dir_;

@@ -12,6 +12,8 @@
 #include "chrome/common/sqlite_utils.h"
 #include "googleurl/src/gurl.h"
 
+using base::Time;
+
 namespace history {
 
 const char URLDatabase::kURLRowFields[] = HISTORY_URL_ROW_FIELDS;

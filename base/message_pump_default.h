@@ -38,4 +38,3 @@ class MessagePumpDefault : public MessagePump {
 }  // namespace base
 
 #endif  // BASE_MESSAGE_PUMP_DEFAULT_H_
-

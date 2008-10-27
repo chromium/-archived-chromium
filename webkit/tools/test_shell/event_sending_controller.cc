@@ -30,6 +30,9 @@
 // TODO(mpcomplete): layout before each event?
 // TODO(mpcomplete): do we need modifiers for mouse events?
 
+using base::Time;
+using base::TimeTicks;
+
 TestShell* EventSendingController::shell_ = NULL;
 gfx::Point EventSendingController::last_mouse_pos_;
 WebMouseEvent::Button EventSendingController::pressed_button_ = 

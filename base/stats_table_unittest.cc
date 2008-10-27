@@ -14,6 +14,8 @@
 #include <windows.h>
 #endif
 
+using base::TimeTicks;
+
 namespace {
   class StatsTableTest : public MultiProcessTest {
   };

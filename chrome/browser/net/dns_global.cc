@@ -21,6 +21,8 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/dns_resolution_observer.h"
 
+using base::TimeDelta;
+
 namespace chrome_browser_net {
 
 static void DiscardAllPrefetchState();

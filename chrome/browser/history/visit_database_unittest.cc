@@ -11,6 +11,9 @@
 #include "chrome/common/sqlite_utils.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace history {
 
 namespace {

@@ -12,6 +12,8 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/printing/print_job_manager.h"
 
+using base::Time;
+
 namespace {
 
 // Retrieves the content of a GetPrinter call.

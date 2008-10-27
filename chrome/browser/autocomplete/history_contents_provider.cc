@@ -10,6 +10,8 @@
 #include "chrome/browser/profile.h"
 #include "net/base/net_util.h"
 
+using base::TimeTicks;
+
 namespace {
 
 // Number of days to search for full text results. The longer this is, the more

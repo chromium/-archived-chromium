@@ -20,6 +20,9 @@
 
 #define OPEN_ELEMENT_FOR_SCOPE(name) ScopedElement scoped_element(this, name)
 
+using base::Time;
+using base::TimeDelta;
+
 // libxml take xmlChar*, which is unsigned char*
 inline const unsigned char* UnsignedChar(const char* input) {
   return reinterpret_cast<const unsigned char*>(input);
@@ -642,4 +645,3 @@ void MetricsLog::RecordHistogramDelta(const Histogram& histogram,
     }
   }
 }
-

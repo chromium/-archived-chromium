@@ -52,7 +52,7 @@ class SafeBrowsingDatabase {
                            std::string* matching_list,
                            std::vector<SBPrefix>* prefix_hits,
                            std::vector<SBFullHashResult>* full_hits,
-                           Time last_update) = 0;
+                           base::Time last_update) = 0;
 
   // Processes add/sub commands.  Database will free the chunks when it's done.
   virtual void InsertChunks(const std::string& list_name,

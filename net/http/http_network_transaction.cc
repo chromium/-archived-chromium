@@ -28,6 +28,8 @@
 //    + pre-emptive authorization
 //    + use the username/password encoded in the URL.
 
+using base::Time;
+
 namespace net {
 
 //-----------------------------------------------------------------------------

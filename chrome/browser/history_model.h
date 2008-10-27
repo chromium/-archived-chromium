@@ -22,7 +22,7 @@ class HistoryModel : public BaseHistoryModel,
 
   // BaseHistoryModel methods (see BaseHistoryModel for description).
   virtual int GetItemCount();
-  virtual Time GetVisitTime(int index);
+  virtual base::Time GetVisitTime(int index);
   virtual const std::wstring& GetTitle(int index);
   virtual const GURL& GetURL(int index);
   virtual history::URLID GetURLID(int index);
@@ -83,7 +83,7 @@ class HistoryModel : public BaseHistoryModel,
   int search_depth_;
 
   // The time that the current query was started.
-  Time search_start_;
+  base::Time search_start_;
 
   DISALLOW_EVIL_CONSTRUCTORS(HistoryModel);
 };

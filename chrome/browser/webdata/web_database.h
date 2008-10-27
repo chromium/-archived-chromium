@@ -14,7 +14,7 @@
 #include "chrome/common/sqlite_utils.h"
 #include "skia/include/SkBitmap.h"
 
-class Time;
+class base::Time;
 struct PasswordForm;
 struct IE7PasswordInfo;
 
@@ -91,8 +91,8 @@ class WebDatabase {
   // Removes all logins created from |delete_begin| onwards (inclusive) and
   // before |delete_end|. You may use a null Time value to do an unbounded
   // delete in either direction.
-  bool RemoveLoginsCreatedBetween(const Time delete_begin,
-                                  const Time delete_end);
+  bool RemoveLoginsCreatedBetween(const base::Time delete_begin,
+                                  const base::Time delete_end);
 
   // Loads a list of matching password forms into the specified vector |forms|.
   // The list will contain all possibly relevant entries to the observed |form|,

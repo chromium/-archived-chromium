@@ -28,6 +28,9 @@
 #undef min
 #undef max
 
+using base::Time;
+using base::TimeDelta;
+
 // Margins between the top of the item and the label.
 static const int kItemTopMargin = 3;
 
@@ -2720,4 +2723,3 @@ void MenuController::StopScrolling() {
 }
 
 }  // namespace views
-

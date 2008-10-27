@@ -8,6 +8,9 @@
 #include "chrome/browser/history/history.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // Tests the history service for querying functionality.
 
 namespace history {

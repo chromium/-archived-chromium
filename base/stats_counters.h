@@ -187,15 +187,15 @@ class StatsCounterTimer : protected StatsCounter {
   void Start() {
     if (!Enabled())
       return;
-    start_time_ = TimeTicks::Now();
-    stop_time_ = TimeTicks();
+    start_time_ = base::TimeTicks::Now();
+    stop_time_ = base::TimeTicks();
   }
 
   // Stop the timer and record the results.
   void Stop() {
     if (!Enabled() || !Running())
       return;
-    stop_time_ = TimeTicks::Now();
+    stop_time_ = base::TimeTicks::Now();
     Record();
   }
 
@@ -205,12 +205,12 @@ class StatsCounterTimer : protected StatsCounter {
   }
 
   // Accept a TimeDelta to increment.
-  virtual void AddTime(TimeDelta time) {
+  virtual void AddTime(base::TimeDelta time) {
     Add(static_cast<int>(time.InMilliseconds()));
   }
 
   // TODO(jar)  temporary hack include method till base and chrome use new name.
-  void IncrementTimer(TimeDelta time) {
+  void IncrementTimer(base::TimeDelta time) {
     AddTime(time);
   }
 
@@ -220,8 +220,8 @@ class StatsCounterTimer : protected StatsCounter {
     AddTime(stop_time_ - start_time_);
   }
 
-  TimeTicks start_time_;
-  TimeTicks stop_time_;
+  base::TimeTicks start_time_;
+  base::TimeTicks stop_time_;
 };
 
 // A StatsRate is a timer that keeps a count of the number of intervals added so

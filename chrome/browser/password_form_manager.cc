@@ -12,6 +12,8 @@
 #include "chrome/browser/profile.h"
 #include "webkit/glue/password_form_dom_manager.h"
 
+using base::Time;
+
 PasswordFormManager::PasswordFormManager(Profile* profile,
                                          PasswordManager* password_manager,
                                          const PasswordForm& observed_form,

@@ -20,6 +20,8 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/password_form.h"
 
+using base::Time;
+
 // Done so that we can use invokeLater on BrowsingDataRemovers and not have
 // BrowsingDataRemover implement RefCounted.
 void RunnableMethodTraits<BrowsingDataRemover>::RetainCallee(
@@ -200,4 +202,3 @@ void BrowsingDataRemover::ClearCacheOnIOThread(Time delete_begin,
   ui_loop->PostTask(FROM_HERE, NewRunnableMethod(
       this, &BrowsingDataRemover::ClearedCache));
 }
-

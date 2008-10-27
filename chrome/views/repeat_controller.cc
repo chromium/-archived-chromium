@@ -4,6 +4,8 @@
 
 #include "chrome/views/repeat_controller.h"
 
+using base::TimeDelta;
+
 namespace views {
 
 // The delay before the first and then subsequent repeats. Values taken from

@@ -59,25 +59,25 @@ class ExpireHistoryBackend {
 
   // Begins periodic expiration of history older than the given threshold. This
   // will continue until the object is deleted.
-  void StartArchivingOldStuff(TimeDelta expiration_threshold);
+  void StartArchivingOldStuff(base::TimeDelta expiration_threshold);
 
   // Deletes everything associated with a URL.
   void DeleteURL(const GURL& url);
 
   // Removes all visits in the given time range, updating the URLs accordingly.
-  void ExpireHistoryBetween(Time begin_time, Time end_time);
+  void ExpireHistoryBetween(base::Time begin_time, base::Time end_time);
 
   // Archives all visits before and including the given time, updating the URLs
   // accordingly. This function is intended for migrating old databases
   // (which encompased all time) to the tiered structure and testing, and
   // probably isn't useful for anything else.
-  void ArchiveHistoryBefore(Time end_time);
+  void ArchiveHistoryBefore(base::Time end_time);
 
   // Returns the current time that we are archiving stuff to. This will return
   // the threshold in absolute time rather than a delta, so the caller should
   // not save it.
-  Time GetCurrentArchiveTime() const {
-    return Time::Now() - expiration_threshold_;
+  base::Time GetCurrentArchiveTime() const {
+    return base::Time::Now() - expiration_threshold_;
   }
 
  private:
@@ -90,7 +90,7 @@ class ExpireHistoryBackend {
   struct DeleteDependencies {
     // The time range affected. These can be is_null() to be unbounded in one
     // or both directions.
-    Time begin_time, end_time;
+    base::Time begin_time, end_time;
 
     // ----- Filled by DeleteVisitRelatedInfo or manually if a function doesn't
     //       call that function. -----
@@ -208,7 +208,7 @@ class ExpireHistoryBackend {
 
   // Schedules a call to DoArchiveIteration at the given time in the
   // future.
-  void ScheduleArchive(TimeDelta delay);
+  void ScheduleArchive(base::TimeDelta delay);
 
   // Calls ArchiveSomeOldHistory to expire some amount of old history, and
   // schedules another call to happen in the future.
@@ -218,7 +218,7 @@ class ExpireHistoryBackend {
   // than |time_threshold|. The return value indicates if we think there might
   // be more history to expire with the current time threshold (it does not
   // indicate success or failure).
-  bool ArchiveSomeOldHistory(Time time_threshold, int max_visits);
+  bool ArchiveSomeOldHistory(base::Time time_threshold, int max_visits);
 
   // Tries to detect possible bad history or inconsistencies in the database
   // and deletes items. For example, URLs with no visits.
@@ -243,7 +243,7 @@ class ExpireHistoryBackend {
 
   // The threshold for "old" history where we will automatically expire it to
   // the archived database.
-  TimeDelta expiration_threshold_;
+  base::TimeDelta expiration_threshold_;
 
   // The BookmarkService; may be null. This is owned by the Profile.
   //

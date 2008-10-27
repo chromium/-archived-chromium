@@ -66,4 +66,3 @@ class ExternalProtocolDialog : public views::DialogDelegate {
 };
 
 #endif // CHROME_BROWSER_EXTERNAL_PROTOCOL_DIALOG_H__
-

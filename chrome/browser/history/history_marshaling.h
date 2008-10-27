@@ -21,7 +21,7 @@ namespace history {
 class HistoryAddPageArgs : public base::RefCounted<HistoryAddPageArgs> {
  public:
   HistoryAddPageArgs(const GURL& arg_url,
-                     Time arg_time,
+                     base::Time arg_time,
                      const void* arg_id_scope,
                      int32 arg_page_id,
                      const GURL& arg_referrer,
@@ -37,7 +37,7 @@ class HistoryAddPageArgs : public base::RefCounted<HistoryAddPageArgs> {
   }
 
   GURL url;
-  Time time;
+  base::Time time;
 
   const void* id_scope;
   int32 page_id;

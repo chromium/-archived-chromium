@@ -10,6 +10,9 @@
 #include "net/disk_cache/cache_util.h"
 #include "net/disk_cache/file.h"
 
+using base::Time;
+using base::TimeDelta;
+
 std::string GenerateKey(bool same_length) {
   char key[200];
   CacheTestFillBuffer(key, sizeof(key), same_length);

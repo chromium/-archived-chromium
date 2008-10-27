@@ -15,6 +15,8 @@
 
 #pragma comment(lib, "crypt32.lib")
 
+using base::Time;
+
 namespace net {
 
 namespace {

@@ -21,6 +21,9 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // The combo box is vertically aligned to the 'time-period' label, which makes
 // the combo box look a little too close to the check box above it when we use
 // standard layout to separate them. We therefore add a little extra margin to
@@ -420,4 +423,3 @@ void ClearBrowsingDataView::OnBrowsingDataRemoverDone() {
   remover_ = NULL;
   window()->Close();
 }
-

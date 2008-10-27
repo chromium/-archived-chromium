@@ -20,7 +20,7 @@
 struct DownloadCreateInfo {
   DownloadCreateInfo(const std::wstring& path,
                      const std::wstring& url,
-                     Time start_time,
+                     base::Time start_time,
                      int64 received_bytes,
                      int64 total_bytes,
                      int32 state,
@@ -50,7 +50,7 @@ struct DownloadCreateInfo {
   // A number that should be added to the suggested path to make it unique.
   // 0 means no number should be appended.  Not actually stored in the db.
   int path_uniquifier;
-  Time start_time;
+  base::Time start_time;
   int64 received_bytes;
   int64 total_bytes;
   int32 state;

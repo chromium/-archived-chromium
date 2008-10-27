@@ -40,6 +40,9 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 
+using base::Time;
+using base::TimeDelta;
+
 // Delay, in milliseconds, before we explicitly create the SessionService.
 static const int kCreateSessionServiceDelayMS = 500;
 

@@ -20,6 +20,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+using base::Time;
+
 WebDataService::WebDataService() : should_commit_(false),
                                    next_request_handle_(1),
                                    thread_(NULL),

@@ -12,6 +12,8 @@
 #include "chrome/common/sqlite_utils.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 
+using base::Time;
+
 // Download schema:
 //
 //   id             SQLite-generated primary key.
@@ -175,4 +177,3 @@ void DownloadDatabase::SearchDownloads(std::vector<int64>* results,
 }
 
 }  // namespace history
-

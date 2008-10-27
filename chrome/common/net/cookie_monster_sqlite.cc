@@ -14,6 +14,8 @@
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
 
+using base::Time;
+
 // This class is designed to be shared between any calling threads and the
 // database thread.  It batches operations and commits them on a timer.
 class SQLitePersistentCookieStore::Backend
@@ -354,4 +356,3 @@ void SQLitePersistentCookieStore::DeleteCookie(
   if (backend_.get())
     backend_->DeleteCookie(cc);
 }
-

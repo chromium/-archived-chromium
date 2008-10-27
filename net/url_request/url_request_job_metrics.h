@@ -28,10 +28,10 @@ class URLRequestJobMetrics {
   scoped_ptr<GURL> url_;
 
   // Time when the job starts.
-  TimeTicks start_time_;
+  base::TimeTicks start_time_;
 
   // Time when the job is done.
-  TimeTicks end_time_;
+  base::TimeTicks end_time_;
 
   // Total number of bytes the job reads from underline IO.
   int total_bytes_read_;

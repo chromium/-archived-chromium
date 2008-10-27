@@ -63,6 +63,9 @@
 #define COOKIE_DLOG(severity) DLOG_IF(INFO, 0)
 #endif
 
+using base::Time;
+using base::TimeDelta;
+
 namespace net {
 
 // static

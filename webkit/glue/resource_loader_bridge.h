@@ -36,11 +36,11 @@ class ResourceLoaderBridge {
   struct ResponseInfo {
     // The time at which the request was made that resulted in this response.
     // For cached responses, this time could be "far" in the past.
-    Time request_time;
+    base::Time request_time;
 
     // The time at which the response headers were received.  For cached
     // responses, this time could be "far" in the past.
-    Time response_time;
+    base::Time response_time;
 
     // The response headers or NULL if the URL type does not support headers.
     scoped_refptr<net::HttpResponseHeaders> headers;

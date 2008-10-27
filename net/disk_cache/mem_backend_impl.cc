@@ -8,6 +8,8 @@
 #include "net/disk_cache/cache_util.h"
 #include "net/disk_cache/mem_entry_impl.h"
 
+using base::Time;
+
 namespace {
 
 const int kDefaultCacheSize = 10 * 1024 * 1024;

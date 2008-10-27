@@ -19,6 +19,9 @@
 #include "chrome/browser/printing/printing_test.h"
 #include "net/url_request/url_request_unittest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace {
 
 const wchar_t* const kGenerateSwitch = L"print-layout-generate";

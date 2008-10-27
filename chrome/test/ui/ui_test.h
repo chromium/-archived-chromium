@@ -353,7 +353,7 @@ class UITest : public testing::Test {
   std::wstring homepage_;               // Homepage used for testing.
   bool wait_for_initial_loads_;         // Wait for initial loads to complete
                                         // in SetUp() before running test body.
-  TimeTicks browser_launch_time_;       // Time when the browser was run.
+  base::TimeTicks browser_launch_time_; // Time when the browser was run.
   bool dom_automation_enabled_;         // This can be set to true to have the
                                         // test run the dom automation case.
   std::wstring template_user_data_;     // See set_template_user_data().

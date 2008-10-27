@@ -150,4 +150,3 @@ void TraceLog::Log(const std::string& msg) {
 }
 
 } // namespace base
-

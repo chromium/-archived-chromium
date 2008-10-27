@@ -18,6 +18,9 @@
 #include "net/base/escape.h"
 #include "net/http/http_util.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace net {
 
 //-----------------------------------------------------------------------------

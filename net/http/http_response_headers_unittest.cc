@@ -11,6 +11,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 using namespace std;
+using base::Time;
 using net::HttpResponseHeaders;
 using net::HttpVersion;
 

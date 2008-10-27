@@ -25,6 +25,8 @@
 
 #include "generated_resources.h"
 
+using base::Time;
+
 namespace {
 
 // Gets the creation time of the given file or directory.

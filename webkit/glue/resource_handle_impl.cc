@@ -59,6 +59,8 @@ MSVC_POP_WARNING();
 #include "net/base/load_flags.h"
 
 using webkit_glue::ResourceLoaderBridge;
+using base::Time;
+using base::TimeDelta;
 using net::HttpResponseHeaders;
 
 namespace {
@@ -751,4 +753,3 @@ bool ResourceHandle::willLoadFromCache(ResourceRequest& request) {
 }
 
 }  // namespace WebCore
-

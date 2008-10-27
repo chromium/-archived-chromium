@@ -18,6 +18,9 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_switches.h"
 
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace {
 
 // The maximum threshold of delay of the message  before considering it a delay.

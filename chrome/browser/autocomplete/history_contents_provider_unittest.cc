@@ -11,6 +11,9 @@
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+
 namespace {
 
 struct TestEntry {

@@ -136,7 +136,7 @@ class TestingProfile : public Profile {
   virtual bool Profile::IsSameProfile(Profile *p) {
     return this == p;
   }
-  virtual Time GetStartTime() const {
+  virtual base::Time GetStartTime() const {
     return start_time_;
   }
   virtual TabRestoreService* GetTabRestoreService() {
@@ -162,7 +162,7 @@ class TestingProfile : public Profile {
   // The path of the profile; the various database and other files are relative
   // to this.
   std::wstring path_;
-  Time start_time_;
+  base::Time start_time_;
   scoped_ptr<PrefService> prefs_;
 
  private:

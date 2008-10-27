@@ -22,6 +22,8 @@
 #include "net/disk_cache/hash.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+
 extern int g_cache_tests_max_id;
 extern volatile int g_cache_tests_received;
 extern volatile bool g_cache_tests_error;

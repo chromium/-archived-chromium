@@ -44,8 +44,8 @@
 // These macros all use 50 buckets.
 
 #define HISTOGRAM_TIMES(name, sample) do { \
-    static Histogram counter((name), TimeDelta::FromMilliseconds(1), \
-                             TimeDelta::FromSeconds(10), 50); \
+    static Histogram counter((name), base::TimeDelta::FromMilliseconds(1), \
+                             base::TimeDelta::FromSeconds(10), 50); \
     counter.AddTime(sample); \
   } while (0)
 
@@ -103,16 +103,16 @@
 static const int kUmaTargetedHistogramFlag = 0x1;
 
 #define UMA_HISTOGRAM_TIMES(name, sample) do { \
-    static Histogram counter((name), TimeDelta::FromMilliseconds(1), \
-                             TimeDelta::FromSeconds(10), 50); \
+    static Histogram counter((name), base::TimeDelta::FromMilliseconds(1), \
+                             base::TimeDelta::FromSeconds(10), 50); \
     counter.SetFlags(kUmaTargetedHistogramFlag); \
     counter.AddTime(sample); \
   } while (0)
 
 // Use this macro when times can routinely be much longer than 10 seconds.
 #define UMA_HISTOGRAM_LONG_TIMES(name, sample) do { \
-    static Histogram counter((name), TimeDelta::FromMilliseconds(1), \
-                             TimeDelta::FromHours(1), 50); \
+    static Histogram counter((name), base::TimeDelta::FromMilliseconds(1), \
+                             base::TimeDelta::FromHours(1), 50); \
     counter.SetFlags(kUmaTargetedHistogramFlag); \
     counter.AddTime(sample); \
   } while (0)
@@ -191,8 +191,8 @@ class Histogram : public StatsRate {
 
   Histogram(const wchar_t* name, Sample minimum,
             Sample maximum, size_t bucket_count);
-  Histogram(const wchar_t* name, TimeDelta minimum,
-            TimeDelta maximum, size_t bucket_count);
+  Histogram(const wchar_t* name, base::TimeDelta minimum,
+            base::TimeDelta maximum, size_t bucket_count);
   virtual ~Histogram();
 
   // Hooks to override stats counter methods.  This ensures that we gather all
@@ -330,8 +330,8 @@ class LinearHistogram : public Histogram {
   };
   LinearHistogram(const wchar_t* name, Sample minimum,
             Sample maximum, size_t bucket_count);
-  LinearHistogram(const wchar_t* name, TimeDelta minimum,
-            TimeDelta maximum, size_t bucket_count);
+  LinearHistogram(const wchar_t* name, base::TimeDelta minimum,
+            base::TimeDelta maximum, size_t bucket_count);
   ~LinearHistogram() {}
 
   // Store a list of number/text values for use in rendering the histogram.

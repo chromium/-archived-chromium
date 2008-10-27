@@ -27,6 +27,8 @@
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
 
+using base::TimeDelta;
+
 namespace {
 
 void FilterURL(RendererSecurityPolicy* policy, int renderer_id, GURL* url) {

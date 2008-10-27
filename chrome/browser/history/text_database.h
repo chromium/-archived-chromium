@@ -36,7 +36,7 @@ class TextDatabase {
     std::wstring title;
 
     // Time the page that was returned was visited.
-    Time time;
+    base::Time time;
 
     // Identifies any found matches in the title of the document. These are not
     // included in the snippet.
@@ -98,13 +98,13 @@ class TextDatabase {
 
   // Adds the given data to the page. Returns true on success. The data should
   // already be converted to UTF-8.
-  bool AddPageData(Time time,
+  bool AddPageData(base::Time time,
                    const std::string& url,
                    const std::string& title,
                    const std::string& contents);
 
   // Deletes the indexed data exactly matching the given URL/time pair.
-  void DeletePageData(Time time, const std::string& url);
+  void DeletePageData(base::Time time, const std::string& url);
 
   // Optimizes the tree inside the database. This will, in addition to making
   // access faster, remove any deleted data from the database (normally it is
@@ -133,7 +133,7 @@ class TextDatabase {
                       const QueryOptions& options,
                       std::vector<Match>* results,
                       URLSet* unique_urls,
-                      Time* first_time_searched);
+                      base::Time* first_time_searched);
 
   // Converts the given database identifier to a filename. This does not include
   // the path, just the file and extension.

@@ -124,7 +124,7 @@ struct PasswordForm {
   // When the login was saved (by chrome).
   //
   // When parsing an HTML form, this is not used.
-  Time date_created;
+  base::Time date_created;
 
   // Tracks if the user opted to never remember passwords for this form. Default
   // to false.

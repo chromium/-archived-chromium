@@ -52,11 +52,11 @@ public:
     switch (type) {
       case NOTIFY_NAV_ENTRY_COMMITTED:
         last_navigation_times_[Source<NavigationController>(source).ptr()] =
-            Time::Now();
+            base::Time::Now();
         return;
       case NOTIFY_EXTERNAL_TAB_CLOSED:
       case NOTIFY_TAB_CLOSING:
-        std::map<NavigationController*, Time>::iterator iter =
+        std::map<NavigationController*, base::Time>::iterator iter =
             last_navigation_times_.find(
             Source<NavigationController>(source).ptr());
         if (iter != last_navigation_times_.end())
@@ -66,22 +66,22 @@ public:
     AutomationResourceTracker::Observe(type, source, details);
   }
 
-  Time GetLastNavigationTime(int handle) {
+  base::Time GetLastNavigationTime(int handle) {
     if (ContainsHandle(handle)) {
       NavigationController* controller = GetResource(handle);
       if (controller) {
-        std::map<NavigationController*, Time>::const_iterator iter =
+        std::map<NavigationController*, base::Time>::const_iterator iter =
             last_navigation_times_.find(controller);
         if (iter != last_navigation_times_.end())
           return iter->second;
       }
     }
-    return Time();
+    return base::Time();
   }
 
  private:
   // Last time a navigation occurred.
-   std::map<NavigationController*, Time> last_navigation_times_;
+   std::map<NavigationController*, base::Time> last_navigation_times_;
 
   DISALLOW_COPY_AND_ASSIGN(AutomationTabTracker);
 };

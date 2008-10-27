@@ -26,6 +26,8 @@
 #include "unicode/rbbi.h"
 #include "unicode/uchar.h"
 
+using base::Time;
+
 // String in the URL that is replaced by the search term.
 static const wchar_t kSearchTermParameter[] = L"{searchTerms}";
 
@@ -973,4 +975,3 @@ void TemplateURLModel::GoogleBaseURLChanged() {
                       OnTemplateURLModelChanged());
   }
 }
-

@@ -19,7 +19,7 @@ struct ThumbnailScore {
 
   // Builds a ThumbnailScore with the passed in values.
   ThumbnailScore(double score, bool clipping, bool top,
-                 const Time& time);
+                 const base::Time& time);
   ~ThumbnailScore();
 
   // Tests for equivalence between two ThumbnailScore objects.
@@ -46,7 +46,7 @@ struct ThumbnailScore {
 
   // Record the time when a thumbnail was taken. This is used to make
   // sure thumbnails are kept fresh.
-  Time time_at_snapshot;
+  base::Time time_at_snapshot;
 
   // How bad a thumbnail needs to be before we completely ignore it.
   static const double kThumbnailMaximumBoringness;
@@ -54,7 +54,7 @@ struct ThumbnailScore {
   // Time before we take a worse thumbnail (subject to
   // kThumbnailMaximumBoringness) over what's currently in the database
   // for freshness.
-  static const TimeDelta kUpdateThumbnailTime;
+  static const base::TimeDelta kUpdateThumbnailTime;
 
   // Penalty of how much more boring a thumbnail should be per hour.
   static const double kThumbnailDegradePerHour;

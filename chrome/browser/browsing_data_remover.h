@@ -36,7 +36,8 @@ class BrowsingDataRemover : public NotificationObserver {
 
   // Creates a BrowsingDataRemover to remove browser data from the specified
   // profile in the specified time range. Use Remove to initiate the removal.
-  BrowsingDataRemover(Profile* profile, Time delete_begin, Time delete_end);
+  BrowsingDataRemover(Profile* profile, base::Time delete_begin,
+                      base::Time delete_end);
   ~BrowsingDataRemover();
 
   // Removes the specified items related to browsing.
@@ -64,8 +65,8 @@ class BrowsingDataRemover : public NotificationObserver {
   void ClearedCache();
 
   // Invoked on the IO thread to delete from the cache.
-  void ClearCacheOnIOThread(Time delete_begin,
-                            Time delete_end,
+  void ClearCacheOnIOThread(base::Time delete_begin,
+                            base::Time delete_end,
                             MessageLoop* ui_loop);
 
   // Returns true if we're all done.
@@ -78,10 +79,10 @@ class BrowsingDataRemover : public NotificationObserver {
   Profile* profile_;
 
   // Start time to delete from.
-  const Time delete_begin_;
+  const base::Time delete_begin_;
 
   // End time to delete to.
-  const Time delete_end_;
+  const base::Time delete_end_;
 
   // True if Remove has been invoked.
   bool removing_;
@@ -104,4 +105,3 @@ class BrowsingDataRemover : public NotificationObserver {
 };
 
 #endif  // CHROME_BROWSER_BROWSING_DATA_REMOVER_H__
-

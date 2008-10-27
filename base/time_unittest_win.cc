@@ -9,6 +9,10 @@
 #include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using base::Time;
+using base::TimeDelta;
+using base::TimeTicks;
+
 namespace {
 
 class MockTimeTicks : public TimeTicks {
