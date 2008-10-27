@@ -5,10 +5,9 @@
 // See header file for description of class
 
 #include <ws2tcpip.h>
+#include <Wspiapi.h>  // Needed for win2k compatibility
 
 #include "chrome/browser/net/dns_slave.h"
-
-#include <Wspiapi.h>  // Needed for win2k compatibility
 
 #include "base/logging.h"
 #include "base/platform_thread.h"

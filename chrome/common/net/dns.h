@@ -6,19 +6,19 @@
 // and dns_master.cc
 
 
-#ifndef CHROME_COMMON_DNS_H__
-#define CHROME_COMMON_DNS_H__
+#ifndef CHROME_COMMON_DNS_H_
+#define CHROME_COMMON_DNS_H_
 
+#include <string>
 #include <vector>
 
-namespace chrome_common_net{
+namespace chrome_common_net {
 
 // IPC messages are passed from the renderer to the browser in the form of
 // Namelist instances.
 // Each element of this vector is a hostname that needs to be looked up.
 // The hostnames should never be empty strings.
 typedef std::vector<std::string> NameList;
-
 }
 
-#endif  // CHROME_COMMON_DNS_H__
+#endif  // CHROME_COMMON_DNS_H_

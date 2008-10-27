@@ -8,8 +8,8 @@
 // to a slave, to resolution by the (blocking) DNS service as either FOUND or
 // NO_SUCH_NAME.
 
-#ifndef CHROME_BROWSER_NET_DNS_HOST_INFO_H__
-#define CHROME_BROWSER_NET_DNS_HOST_INFO_H__
+#ifndef CHROME_BROWSER_NET_DNS_HOST_INFO_H_
+#define CHROME_BROWSER_NET_DNS_HOST_INFO_H_
 
 #include <string>
 #include <vector>
@@ -141,10 +141,10 @@ class DnsHostInfo {
 
   // We put these objects into a std::map, and hence we
   // need some "evil" constructors.
-  // DISALLOW_EVIL_CONSTRUCTORS(DnsHostInfo);
+  // DISALLOW_COPY_AND_ASSIGN(DnsHostInfo);
 };
 
 }  // namespace chrome_browser_net
 
-#endif  // CHROME_BROWSER_NET_DNS_HOST_INFO_H__
+#endif  // CHROME_BROWSER_NET_DNS_HOST_INFO_H_
 

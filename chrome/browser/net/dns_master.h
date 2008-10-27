@@ -14,8 +14,8 @@
 // use several DnsSlave threads to concurrently perform the
 // lookups.
 
-#ifndef CHROME_BROWSER_NET_DNS_MASTER_H__
-#define CHROME_BROWSER_NET_DNS_MASTER_H__
+#ifndef CHROME_BROWSER_NET_DNS_MASTER_H_
+#define CHROME_BROWSER_NET_DNS_MASTER_H_
 
 #include <map>
 #include <queue>
@@ -165,10 +165,10 @@ class DnsMaster {
   // and before the HTTP stack tried to look them up.
   Results cache_eviction_map_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DnsMaster);
+  DISALLOW_COPY_AND_ASSIGN(DnsMaster);
 };
 
 }  // namespace chrome_browser_net
 
-#endif  // CHROME_BROWSER_NET_DNS_MASTER_H__
+#endif  // CHROME_BROWSER_NET_DNS_MASTER_H_
 

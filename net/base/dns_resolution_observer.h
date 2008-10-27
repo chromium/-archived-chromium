@@ -10,8 +10,8 @@
 // Remove'd during process termination.
 
 
-#ifndef NET_BASE_DNS_RESOLUTION_OBSERVER_H__
-#define NET_BASE_DNS_RESOLUTION_OBSERVER_H__
+#ifndef NET_BASE_DNS_RESOLUTION_OBSERVER_H_
+#define NET_BASE_DNS_RESOLUTION_OBSERVER_H_
 
 #include <string>
 
@@ -19,6 +19,8 @@ namespace net {
 
 class DnsResolutionObserver {
  public:
+  virtual ~DnsResolutionObserver() {}
+
   // For each OnStartResolution() notification, there should be a later
   // OnFinishResolutionWithStatus() indicating completion of the resolution
   // activity.
@@ -51,8 +53,7 @@ DnsResolutionObserver* RemoveDnsResolutionObserver();
 // to any registered observer.
 void DidStartDnsResolution(const std::string& name, void* context);
 void DidFinishDnsResolutionWithStatus(bool was_resolved, void* context);
-
 }  // namspace net
 
-#endif  // NET_BASE_DNS_RESOLUTION_OBSERVER_H__
+#endif  // NET_BASE_DNS_RESOLUTION_OBSERVER_H_
 

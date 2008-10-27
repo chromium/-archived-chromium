@@ -15,8 +15,8 @@
 // This class does no "de-duping," and merely slavishly services
 // items supplied by its DnsMaster.
 
-#ifndef CHROME_BROWSER_NET_DNS_SLAVE_H__
-#define CHROME_BROWSER_NET_DNS_SLAVE_H__
+#ifndef CHROME_BROWSER_NET_DNS_SLAVE_H_
+#define CHROME_BROWSER_NET_DNS_SLAVE_H_
 
 #include <windows.h>
 #include <string>
@@ -63,10 +63,10 @@ class DnsSlave {
 
   void BlockingDnsLookup();
 
-  DISALLOW_EVIL_CONSTRUCTORS(DnsSlave);
+  DISALLOW_COPY_AND_ASSIGN(DnsSlave);
 };
 
 }  // namespace chrome_browser_net
 
-#endif  // CHROME_BROWSER_NET_DNS_SLAVE_H__
+#endif  // CHROME_BROWSER_NET_DNS_SLAVE_H_
 

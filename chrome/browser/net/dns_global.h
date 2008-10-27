@@ -8,8 +8,8 @@
 // provided by DnsMaster to be left as more generally usable code, and possibly
 // be shared across multiple client projects.
 
-#ifndef CHROME_BROWSER_NET_DNS_GLOBAL_H__
-#define CHROME_BROWSER_NET_DNS_GLOBAL_H__
+#ifndef CHROME_BROWSER_NET_DNS_GLOBAL_H_
+#define CHROME_BROWSER_NET_DNS_GLOBAL_H_
 
 #include "chrome/browser/net/dns_master.h"
 
@@ -35,8 +35,8 @@ void DnsPrefetchGetHtmlInfo(std::string* output);
 // Save the hostnames actually used at the start of this session to prefetch
 // during the next startup.
 void SaveHostNamesForNextStartup(PrefService* local_state);
-void DnsPretchHostNamesAtStartup(PrefService* user_prefs,
-                                 PrefService* local_state);
+void DnsPrefetchHostNamesAtStartup(PrefService* user_prefs,
+                                   PrefService* local_state);
 
 // Helper class to handle global init and shutdown.
 class DnsPrefetcherInit {
@@ -47,10 +47,10 @@ class DnsPrefetcherInit {
   ~DnsPrefetcherInit() {ShutdownDnsPrefetch();}
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(DnsPrefetcherInit);
+  DISALLOW_COPY_AND_ASSIGN(DnsPrefetcherInit);
 };
 
 }  // namespace chrome_browser_net
 
-#endif  // CHROME_BROWSER_NET_DNS_GLOBAL_H__
+#endif  // CHROME_BROWSER_NET_DNS_GLOBAL_H_
 

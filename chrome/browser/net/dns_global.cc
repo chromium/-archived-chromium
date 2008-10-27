@@ -299,7 +299,7 @@ class OffTheRecordObserver : public NotificationObserver {
   Lock lock_;
   int count_off_the_record_windows_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(OffTheRecordObserver);
+  DISALLOW_COPY_AND_ASSIGN(OffTheRecordObserver);
 };
 
 // TODO(jar): Use static class object so that I don't have to get the
@@ -391,9 +391,8 @@ void SaveHostNamesForNextStartup(PrefService* local_state) {
   PrefetchObserver::SaveStartupListAsPref(local_state);
 }
 
-// TODO(jar): correct typo in name  change ...Pretch... to ...Prefetch...
-void DnsPretchHostNamesAtStartup(PrefService* user_prefs,
-                                 PrefService* local_state) {
+void DnsPrefetchHostNamesAtStartup(PrefService* user_prefs,
+                                   PrefService* local_state) {
   NameList hostnames;
   // Prefetch DNS for hostnames we learned about during last session.
   // This may catch secondary hostnames, pulled in by the homepages.  It will

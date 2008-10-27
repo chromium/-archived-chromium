@@ -246,7 +246,7 @@ class MinMaxAverage {
   int64 minimum_;
   int64 maximum_;
 
-  // DISALLOW_EVIL_CONSTRUCTORS(MinMaxAverage);
+  // DISALLOW_COPY_AND_ASSIGN(MinMaxAverage);
 };
 
 static std::string HoursMinutesSeconds(int seconds) {
