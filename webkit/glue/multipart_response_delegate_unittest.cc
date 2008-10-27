@@ -13,7 +13,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ResourceResponse.h"
 #include "ResourceHandle.h"
 #include "ResourceHandleClient.h"
-#include "String.h"
 MSVC_POP_WARNING();
 
 #include "base/basictypes.h"
@@ -89,7 +88,7 @@ TEST(MultipartResponseTest, Functions) {
     { "Line\rLine", 4, 1 },
     { "Line\r\rLine", 4, 1 },
   };
-  for (int i = 0; i < arraysize(line_tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(line_tests); ++i) {
     EXPECT_EQ(line_tests[i].expected,
               delegate.PushOverLine(line_tests[i].input,
                                     line_tests[i].position));
@@ -111,7 +110,7 @@ TEST(MultipartResponseTest, Functions) {
     { "Foo: bar\r\nBaz:\n", false, 0, "Foo: bar\r\nBaz:\n" },
     { "\r\n", true, 1, "" },
   };
-  for (int i = 0; i < arraysize(header_tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(header_tests); ++i) {
     client.Reset();
     delegate.data_.assign(header_tests[i].data);
     EXPECT_EQ(header_tests[i].rv,
@@ -154,7 +153,7 @@ TEST(MultipartResponseTest, Functions) {
     { "foo", "bound", string::npos },
     { "bound", "--boundbound", 0 },
   };
-  for (int i = 0; i < arraysize(boundary_tests); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(boundary_tests); ++i) {
     delegate.boundary_.assign(boundary_tests[i].boundary);
     delegate.data_.assign(boundary_tests[i].data);
     EXPECT_EQ(boundary_tests[i].position,
@@ -425,7 +424,7 @@ TEST(MultipartResponseTest, MultipartByteRangeParsingTest) {
   result = MultipartResponseDelegate::ReadMultipartBoundary(
       response3, &multipart_boundary);
   EXPECT_EQ(result, false);
-  EXPECT_EQ(multipart_boundary.length(), 0);
+  EXPECT_EQ(multipart_boundary.length(), 0U);
 }
 
 TEST(MultipartResponseTest, MultipartContentRangesTest) {

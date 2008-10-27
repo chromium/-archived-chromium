@@ -192,20 +192,4 @@ std::wstring GetWebKitLocale() {
   return L"en-US";
 }
 
-// The following cookie functions shouldn't live here, but do for now in order
-// to get things linking
-
-std::string GetCookies(const GURL &url, const GURL &policy_url) {
-  return "";
-}
-
-void SetCookie(const GURL &url, const GURL &policy_url, const std::string &cookie) {
-}
-
-
-ResourceLoaderBridge *
-ResourceLoaderBridge::Create(WebFrame*, std::string const &, GURL const&, GURL const&, GURL const&, std::string const&, int, int, ResourceType::Type, bool) {
-  return NULL;
-}
-
 }  // namespace webkit_glue

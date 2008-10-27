@@ -32,12 +32,11 @@
 
 #include "config.h"
 
-#include "base/basictypes.h"
-#include "base/string_util.h"
+#include "base/compiler_specific.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/glue_util.h"
 
-#pragma warning(push, 0)
+MSVC_PUSH_WARNING_LEVEL(0);
 
 // This is because we have multiple headers called "CString.h" and KURL.cpp
 // can grab the wrong one.
@@ -62,7 +61,12 @@
 #include "KURL.h"
 #include "GKURL.cpp"
 
-#pragma warning(pop)
+MSVC_POP_WARNING();
+
+#undef LOG
+#include "base/basictypes.h"
+#include "base/string16.h"
+#include "base/string_util.h"
 
 namespace {
 
@@ -101,7 +105,7 @@ TEST(GKURL, SameGetters) {
     "javascript:hello!//world",
   };
 
-  for (int i = 0; i < arraysize(cases); i++) {
+  for (size_t i = 0; i < arraysize(cases); i++) {
     // UTF-8
     WebCore::WebKitKURL kurl(cases[i]);
     WebCore::GoogleKURL gurl(cases[i]);
@@ -157,7 +161,7 @@ TEST(GKURL, DifferentGetters) {
     {"http://www.google.com/foo/blah?bar=baz#\xce\xb1\xce\xb2", "http", "www.google.com", 0, "", NULL, "/foo/blah/", "blah", "?bar=baz", "\xce\xb1\xce\xb2"}
   };
 
-  for (int i = 0; i < arraysize(cases); i++) {
+  for (size_t i = 0; i < arraysize(cases); i++) {
     WebCore::GoogleKURL gurl(cases[i].url);
 
     EXPECT_EQ(cases[i].protocol, gurl.protocol());
@@ -217,7 +221,7 @@ TEST(GKURL, Setters) {
     {"https://me:pass@google.com:88/a?f#b",   "http",       "goo.com",         92,   "",   "",     "/",            NULL,     NULL,      ""},
   };
 
-  for (int i = 0; i < arraysize(cases); i++) {
+  for (size_t i = 0; i < arraysize(cases); i++) {
     WebCore::GoogleKURL gurl(cases[i].url);
     WebCore::WebKitKURL kurl(cases[i].url);
 
@@ -272,7 +276,7 @@ TEST(GKURL, Decode) {
     "%e4%bd%a0%e5%a5%bd",
   };
 
-  for (int i = 0; i < arraysize(decode_cases); i++) {
+  for (size_t i = 0; i < arraysize(decode_cases); i++) {
     WebCore::String input(decode_cases[i]);
     WebCore::String webkit = WebCore::WebKitKURL::decodeURLEscapeSequences(input);
     WebCore::String google = WebCore::GoogleKURL::decodeURLEscapeSequences(input);
@@ -286,16 +290,18 @@ TEST(GKURL, Decode) {
   // Test the error behavior for invalid UTF-8 (we differ from WebKit here).
   WebCore::String invalid = WebCore::GoogleKURL::decodeURLEscapeSequences(
       "%e4%a0%e5%a5%bd");
+  char16 invalid_expected_helper[4] = { 0x00e4, 0x00a0, 0x597d, 0 };
   WebCore::String invalid_expected(
-      reinterpret_cast<const ::UChar*>(L"\x00e4\x00a0\x597d"),
+      reinterpret_cast<const ::UChar*>(invalid_expected_helper),
       3);
   EXPECT_EQ(invalid_expected, invalid);
 }
 
 TEST(GKURL, Encode) {
   // Also test that it gets converted to UTF-8 properly.
+  char16 wide_input_helper[3] = { 0x4f60, 0x597d, 0 };
   WebCore::String wide_input(
-      reinterpret_cast<const ::UChar*>(L"\x4f60\x597d"), 2);
+      reinterpret_cast<const ::UChar*>(wide_input_helper), 2);
   WebCore::String wide_reference("\xe4\xbd\xa0\xe5\xa5\xbd", 6);
   WebCore::String wide_output =
       WebCore::GoogleKURL::encodeWithURLEscapeSequences(wide_input);

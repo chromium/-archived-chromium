@@ -53,7 +53,7 @@ int g_deallocate_call_count = 0;
 void CheckObject(const NPVariant& actual) {
   EXPECT_EQ(NPVariantType_Object, actual.type);
   EXPECT_TRUE(actual.value.objectValue);
-  EXPECT_EQ(1, actual.value.objectValue->referenceCount);
+  EXPECT_EQ(1U, actual.value.objectValue->referenceCount);
   EXPECT_EQ(1, g_allocate_call_count);
   EXPECT_EQ(0, g_deallocate_call_count);
 }
@@ -117,10 +117,10 @@ TEST(CppVariantTest, CopyConstructorIncrementsRefCount) {
   NPObject *object = MakeVoidObject();
   source.Set(object);
   // 2 references so far.
-  EXPECT_EQ(2, source.value.objectValue->referenceCount);
+  EXPECT_EQ(2U, source.value.objectValue->referenceCount);
   
   CppVariant dest = source;
-  EXPECT_EQ(3, dest.value.objectValue->referenceCount);
+  EXPECT_EQ(3U, dest.value.objectValue->referenceCount);
   EXPECT_EQ(1, g_allocate_call_count);
   NPN_ReleaseObject(object);
   source.SetNull();
@@ -147,11 +147,11 @@ TEST(CppVariantTest, AssignmentIncrementsRefCount) {
   NPObject *object = MakeVoidObject();
   source.Set(object);
   // 2 references so far.
-  EXPECT_EQ(2, source.value.objectValue->referenceCount);
+  EXPECT_EQ(2U, source.value.objectValue->referenceCount);
 
   CppVariant dest;
   dest = source;
-  EXPECT_EQ(3, dest.value.objectValue->referenceCount);
+  EXPECT_EQ(3U, dest.value.objectValue->referenceCount);
   EXPECT_EQ(1, g_allocate_call_count);
   
   NPN_ReleaseObject(object);
@@ -300,7 +300,6 @@ TEST(CppVariantTest, SetsSimpleTypesAndValues) {
   CheckString("std test string", cpp);
 
   // NPString
-  const char *ascii_str = "test NPString";
   NPString np_ascii_str = { "test NPString",
                             static_cast<uint32_t>(strlen("test NPString")) };
   cpp.Set(np_ascii_str);
@@ -336,9 +335,9 @@ TEST(CppVariantTest, FreeDataReleasesObject) {
   CppVariant cpp;
   NPObject* object = MakeVoidObject();
   cpp.Set(object);
-  EXPECT_EQ(2, object->referenceCount);
+  EXPECT_EQ(2U, object->referenceCount);
   cpp.FreeData();
-  EXPECT_EQ(1, object->referenceCount);
+  EXPECT_EQ(1U, object->referenceCount);
   EXPECT_EQ(0, g_deallocate_call_count);
 
   cpp.Set(object);

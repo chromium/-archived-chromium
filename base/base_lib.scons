@@ -178,6 +178,7 @@ if env['PLATFORM'] == 'posix':
       'base_paths_linux.cc',
       'clipboard_linux.cc',
       'file_util_linux.cc',
+      'file_version_info_linux.cc',
       'hmac_nss.cc',
       'message_pump_glib.cc',
       'nss_init.cc',

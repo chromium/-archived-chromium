@@ -5,10 +5,7 @@
 #include "config.h"
 #include <string>
 
-#include "webkit/glue/glue_serialize.h"
-#include "testing/gtest/include/gtest/gtest.h"
 #include "base/compiler_specific.h"
-#include "base/pickle.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "CString.h"
@@ -17,6 +14,12 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformString.h"
 #include "ResourceRequest.h"
 MSVC_POP_WARNING();
+
+#undef LOG
+
+#include "base/pickle.h"
+#include "testing/gtest/include/gtest/gtest.h"
+#include "webkit/glue/glue_serialize.h"
 
 using namespace std;
 using namespace WebCore;

@@ -2,13 +2,18 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <vector>
+#ifndef WEBKIT_TOOLS_TEST_SHELL_IMAGE_DECODER_UNITTEST_H_
+#define WEBKIT_TOOLS_TEST_SHELL_IMAGE_DECODER_UNITTEST_H_
 
-#include "base/basictypes.h"
-#include "testing/gtest/include/gtest/gtest.h"
+#include <vector>
 
 #include "Vector.h"
 #include "ImageDecoder.h"
+
+#undef LOG
+
+#include "base/basictypes.h"
+#include "testing/gtest/include/gtest/gtest.h"
 
 // If CALCULATE_MD5_SUMS is not defined, then this test decodes a handful of
 // image files and compares their MD5 sums to the stored sums on disk.
@@ -77,3 +82,4 @@ class ImageDecoderTest : public testing::Test {
   DISALLOW_EVIL_CONSTRUCTORS(ImageDecoderTest);
 };
 
+#endif  // WEBKIT_TOOLS_TEST_SHELL_IMAGE_DECODER_UNITTEST_H_

@@ -76,9 +76,9 @@ class TestAutocompleteEditDelegate : public AutocompleteEditDelegate {
 class TestAutocompleteInputListener : public AutocompleteInputListener {
  public:
   TestAutocompleteInputListener(AutocompleteEditDelegate* d)
-      : blurred_(false),
-        did_request_inline_autocomplete_(false),
-        AutocompleteInputListener(d) {
+      : AutocompleteInputListener(d),
+        blurred_(false),
+        did_request_inline_autocomplete_(false) {
   }
 
   void ResetTestState() {

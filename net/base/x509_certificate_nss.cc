@@ -16,6 +16,16 @@ X509Certificate::~X509Certificate() {
   X509Certificate::Cache::GetInstance()->Remove(this);
 }
 
+// static
+X509Certificate* X509Certificate::CreateFromPickle(const Pickle& pickle,
+                                                   void** pickle_iter) {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+void X509Certificate::Persist(Pickle* pickle) {
+  NOTIMPLEMENTED();
+}
 
 }  // namespace net
 

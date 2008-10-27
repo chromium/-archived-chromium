@@ -35,12 +35,12 @@ using webkit_glue::HTMLInputDelegate;
 
 class TestHTMLInputDelegate : public HTMLInputDelegate {
  public:
-  TestHTMLInputDelegate() : did_call_on_finish_(false),
+  TestHTMLInputDelegate() : HTMLInputDelegate(NULL),
+                            did_call_on_finish_(false),
                             did_set_value_(false),
                             did_set_selection_(false),
                             selection_start_(0),
-                            selection_end_(0),
-                            HTMLInputDelegate(NULL) {
+                            selection_end_(0) {
   }
 
   // Override those methods we implicitly invoke in the tests.
@@ -163,7 +163,7 @@ TEST_F(PasswordManagerAutocompleteTests, OnInlineAutocompleteNeeded) {
   EXPECT_EQ(username1_, username_delegate->GetValue());
   EXPECT_EQ(password1_, password_delegate->GetValue());
   // And the selection should have been set to 'lice', the last 4 letters.
-  EXPECT_EQ(1, username_delegate->selection_start());
+  EXPECT_EQ(1U, username_delegate->selection_start());
   EXPECT_EQ(username1_.length(), username_delegate->selection_end());
   // And both fields should have observed OnFinishedAutocompleting.
   EXPECT_TRUE(username_delegate->did_call_on_finish());
@@ -175,7 +175,7 @@ TEST_F(PasswordManagerAutocompleteTests, OnInlineAutocompleteNeeded) {
   // different start value.
   EXPECT_EQ(username1_, username_delegate->GetValue());
   EXPECT_EQ(password1_, password_delegate->GetValue());
-  EXPECT_EQ(2, username_delegate->selection_start());
+  EXPECT_EQ(2U, username_delegate->selection_start());
   EXPECT_EQ(username1_.length(), username_delegate->selection_end());
 
   // Now lets say the user goes astray from the stored username and types
@@ -202,7 +202,7 @@ TEST_F(PasswordManagerAutocompleteTests, OnInlineAutocompleteNeeded) {
   // The username and password fields should match the 'bob' entry.
   EXPECT_EQ(username2_, username_delegate->GetValue());
   EXPECT_EQ(password2_, password_delegate->GetValue());
-  EXPECT_EQ(1, username_delegate->selection_start());
+  EXPECT_EQ(1U, username_delegate->selection_start());
   EXPECT_EQ(username2_.length(), username_delegate->selection_end());
 
   // The End.
