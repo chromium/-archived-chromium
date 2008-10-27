@@ -97,10 +97,10 @@ class MessageLoop : public base::MessagePump::Delegate {
   //
   // NOTE: These methods may be called on any thread.  The Task will be invoked
   // on the thread that executes MessageLoop::Run().
-  
+
   void PostTask(
       const tracked_objects::Location& from_here, Task* task);
-  
+
   void PostDelayedTask(
       const tracked_objects::Location& from_here, Task* task, int delay_ms);
 
@@ -247,7 +247,7 @@ class MessageLoop : public base::MessagePump::Delegate {
 
   class AutoRunState : RunState {
    public:
-    AutoRunState(MessageLoop* loop);
+    explicit AutoRunState(MessageLoop* loop);
     ~AutoRunState();
    private:
     MessageLoop* loop_;
@@ -264,7 +264,7 @@ class MessageLoop : public base::MessagePump::Delegate {
     PendingTask(Task* task, bool nestable)
         : task(task), sequence_num(0), nestable(nestable) {
     }
-    
+
     // Used to support sorting.
     bool operator<(const PendingTask& other) const;
   };
@@ -354,7 +354,7 @@ class MessageLoop : public base::MessagePump::Delegate {
   // A list of tasks that need to be processed by this instance.  Note that
   // this queue is only accessed (push/pop) by our current thread.
   TaskQueue work_queue_;
-  
+
   // Contains delayed tasks, sorted by their 'delayed_run_time' property.
   DelayedTaskQueue delayed_work_queue_;
 
@@ -476,7 +476,7 @@ class MessageLoopForIO : public MessageLoop {
   typedef base::MessagePumpLibevent::Watcher Watcher;
 
   // Please see MessagePumpLibevent for definitions of these methods.
-  void WatchSocket(int socket, short interest_mask, 
+  void WatchSocket(int socket, short interest_mask,
                    struct event* e, Watcher* watcher);
   void UnwatchSocket(struct event* e);
 #endif  // defined(OS_POSIX)
