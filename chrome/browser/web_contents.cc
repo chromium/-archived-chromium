@@ -688,9 +688,13 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
   // Need to update MIME type here because it's referred to in 
   // UpdateNavigationCommands() called by RendererDidNavigate() to
   // determine whether or not to enable the encoding menu. 
+  // It's updated only for the main frame. For a subframe, 
+  // RenderView::UpdateURL does not set params.contents_mime_type.
+  // (see http://code.google.com/p/chromium/issues/detail?id=2929 )
   // TODO(jungshik): Add a test for the encoding menu to avoid 
   // regressing it again. 
-  contents_mime_type_ = params.contents_mime_type;
+  if (PageTransition::IsMainFrame(params.transition))
+    contents_mime_type_ = params.contents_mime_type;
 
   NavigationController::LoadCommittedDetails details;
   if (!controller()->RendererDidNavigate(
