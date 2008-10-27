@@ -133,6 +133,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // This method is called to open a URL in the specified manner.
   virtual void OpenURL(WebView* webview, const GURL& url,
+                       const GURL& referrer,
                        WindowOpenDisposition disposition) {
   }
 

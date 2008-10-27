@@ -109,7 +109,7 @@ TEST_F(DownloadRequestManagerTest, Allow) {
 }
 
 TEST_F(DownloadRequestManagerTest, ResetOnNavigation) {
-  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar"), 0);
+  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar"), GURL(), 0);
 
   // Do two downloads, allowing the second so that we end up with allow all.
   CanDownload();
@@ -122,7 +122,8 @@ TEST_F(DownloadRequestManagerTest, ResetOnNavigation) {
 
   // Navigate to a new URL with the same host, which shouldn't reset the allow
   // all state.
-  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar2"), 0);
+  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar2"),
+                       GURL(), 0);
   CanDownload();
   ASSERT_EQ(1, continue_count_);
   ASSERT_EQ(0, cancel_count_);
@@ -140,14 +141,14 @@ TEST_F(DownloadRequestManagerTest, ResetOnNavigation) {
                 controller_->active_contents()));
 
   // Navigate to a completely different host, which should reset the state.
-  controller_->LoadURL(GURL(factory_->scheme() + "://fooey.com"), 0);
+  controller_->LoadURL(GURL(factory_->scheme() + "://fooey.com"), GURL(), 0);
   ASSERT_EQ(DownloadRequestManager::ALLOW_ONE_DOWNLOAD,
             download_request_manager_->GetDownloadStatus(
                 controller_->active_contents()));
 }
 
 TEST_F(DownloadRequestManagerTest, ResetOnUserGesture) {
-  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar"), 0);
+  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar"), GURL(), 0);
 
   // Do one download, which should change to prompt before download.
   CanDownload();

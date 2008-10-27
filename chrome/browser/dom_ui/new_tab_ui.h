@@ -300,7 +300,7 @@ class NewTabUIContents : public DOMUIHost {
   virtual bool ShouldDisplayURL() { return false; }
   virtual bool SupportsURL(GURL* url);
   // Clicking a URL on the page should count as an autobookmark click.
-  virtual void RequestOpenURL(const GURL& url,
+  virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition);
  private:
   // The message id that should be displayed in this NewTabUIContents

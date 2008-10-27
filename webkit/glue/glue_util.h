@@ -44,6 +44,7 @@ WebCore::String StdStringToString(const std::string& str);
 
 GURL KURLToGURL(const WebCore::KURL& url);
 WebCore::KURL GURLToKURL(const GURL& url);
+GURL StringToGURL(const WebCore::String& spec);
 
 gfx::Rect FromIntRect(const WebCore::IntRect& r);
 WebCore::IntRect ToIntRect(const gfx::Rect& r);

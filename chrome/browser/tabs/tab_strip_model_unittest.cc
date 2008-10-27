@@ -108,7 +108,7 @@ class TabStripModelTest : public testing::Test {
   // Forwards a URL "load" request through to our dummy TabContents
   // implementation.
   void LoadURL(TabContents* contents, const std::wstring& url) {
-    contents->controller()->LoadURL(GURL(url), PageTransition::LINK);
+    contents->controller()->LoadURL(GURL(url), GURL(), PageTransition::LINK);
   }
 
   void GoBack(TabContents* contents) {
@@ -997,6 +997,7 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   virtual int GetDragActions() const { return 0; }
   virtual TabContents* CreateTabContentsForURL(
       const GURL& url,
+      const GURL& referrer,
       Profile* profile,
       PageTransition::Type transition,
       bool defer_load,

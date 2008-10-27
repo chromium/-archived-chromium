@@ -41,6 +41,10 @@ struct ViewMsg_Navigate_Params {
   // The URL to load.
   GURL url;
 
+  // The URL to send in the "Referer" header field. Can be empty if there is
+  // no referrer.
+  GURL referrer;
+
   // The type of transition.
   PageTransition::Type transition;
 
@@ -749,6 +753,7 @@ struct ParamTraits<ViewMsg_Navigate_Params> {
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.page_id);
     WriteParam(m, p.url);
+    WriteParam(m, p.referrer);
     WriteParam(m, p.transition);
     WriteParam(m, p.state);
     WriteParam(m, p.reload);
@@ -757,6 +762,7 @@ struct ParamTraits<ViewMsg_Navigate_Params> {
     return
       ReadParam(m, iter, &p->page_id) &&
       ReadParam(m, iter, &p->url) &&
+      ReadParam(m, iter, &p->referrer) &&
       ReadParam(m, iter, &p->transition) &&
       ReadParam(m, iter, &p->state) &&
       ReadParam(m, iter, &p->reload);

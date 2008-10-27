@@ -146,10 +146,11 @@ static void CreateNavigationEntriesFromTabNavigations(
 
     NavigationEntry* entry = new NavigationEntry(
         type,
-        NULL,  // The site instance for restored tabs is sent on naviagion
+        NULL,  // The site instance for restored tabs is sent on naviagtion
                // (WebContents::GetSiteInstanceForEntry).
         static_cast<int>(i - navigations.begin()),
         real_url,
+        GURL(), // TODO(eroman): should pass actual referrer.
         navigation.title,
         // Use a transition type of reload so that we don't incorrectly
         // increase the typed count.
@@ -408,7 +409,7 @@ void NavigationController::RemoveEntryAtIndex(int index,
     } else {
       // If there is nothing to show, show a default page.
       LoadURL(default_url.is_empty() ? GURL("about:blank") : default_url,
-              PageTransition::START_PAGE);
+              GURL(), PageTransition::START_PAGE);
     }
   } else if (last_committed_entry_index_ > index) {
     last_committed_entry_index_--;
@@ -477,7 +478,7 @@ void NavigationController::TabContentsWasDestroyed(TabContentsType type) {
 }
 
 NavigationEntry* NavigationController::CreateNavigationEntry(
-    const GURL& url, PageTransition::Type transition) {
+    const GURL& url, const GURL& referrer, PageTransition::Type transition) {
   GURL real_url = url;
   TabContentsType type;
 
@@ -490,6 +491,7 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
     type = TabContents::TypeForURL(&real_url);
 
   NavigationEntry* entry = new NavigationEntry(type, NULL, -1, real_url,
+                                               referrer,
                                                std::wstring(), transition);
   entry->set_display_url(url);
   entry->set_user_typed_url(url);
@@ -512,21 +514,22 @@ void NavigationController::AddTransientEntry(NavigationEntry* entry) {
       TabContents::INVALIDATE_EVERYTHING);
 }
 
-void NavigationController::LoadURL(const GURL& url,
+void NavigationController::LoadURL(const GURL& url, const GURL& referrer,
                                    PageTransition::Type transition) {
   // The user initiated a load, we don't need to reload anymore.
   needs_reload_ = false;
 
-  NavigationEntry* entry = CreateNavigationEntry(url, transition);
+  NavigationEntry* entry = CreateNavigationEntry(url, referrer, transition);
 
   LoadEntry(entry);
 }
 
 void NavigationController::LoadURLLazily(const GURL& url,
+                                         const GURL& referrer,
                                          PageTransition::Type type,
                                          const std::wstring& title,
                                          SkBitmap* icon) {
-  NavigationEntry* entry = CreateNavigationEntry(url, type);
+  NavigationEntry* entry = CreateNavigationEntry(url, referrer, type);
   entry->set_title(title);
   if (icon)
     entry->favicon().set_bitmap(*icon);

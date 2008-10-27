@@ -96,7 +96,7 @@ class NativeRootView : public views::RootView {
     std::wstring title;
     if (!event.GetData().GetURLAndTitle(&url, &title) || !url.is_valid())
       return DragDropTypes::DRAG_NONE;
-    host_->controller()->LoadURL(url, PageTransition::GENERATED);
+    host_->controller()->LoadURL(url, GURL(), PageTransition::GENERATED);
     return OnDragUpdated(event);
   }
 

@@ -983,9 +983,9 @@ void WebContents::DidDownloadImage(
     web_app_->SetImage(image_url, image);
 }
 
-void WebContents::RequestOpenURL(const GURL& url,
+void WebContents::RequestOpenURL(const GURL& url, const GURL& referrer,
                                  WindowOpenDisposition disposition) {
-  OpenURL(url, disposition, PageTransition::LINK);
+  OpenURL(url, referrer, disposition, PageTransition::LINK);
 }
 
 void WebContents::DomOperationResponse(const std::string& json_string,

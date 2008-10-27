@@ -437,7 +437,8 @@ class RenderViewHost : public RenderWidgetHost {
                              bool errored,
                              const SkBitmap& image_data);
   void OnMsgContextMenu(const ViewHostMsg_ContextMenu_Params& params);
-  void OnMsgOpenURL(const GURL& url, WindowOpenDisposition disposition);
+  void OnMsgOpenURL(const GURL& url, const GURL& referrer,
+                    WindowOpenDisposition disposition);
   void OnMsgDomOperationResponse(const std::string& json_string,
                                  int automation_id);
   void OnMsgDOMUISend(const std::string& message,

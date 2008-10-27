@@ -524,7 +524,7 @@ void Browser::ProcessPendingUIUpdates() {
 // TabContentsDelegate
 
 void Browser::OpenURLFromTab(TabContents* source,
-                             const GURL& url,
+                             const GURL& url, const GURL& referrer,
                              WindowOpenDisposition disposition,
                              PageTransition::Type transition) {
   // No code for these yet
@@ -573,7 +573,7 @@ void Browser::OpenURLFromTab(TabContents* source,
     if (b->tab_count() == 0 && disposition == NEW_BACKGROUND_TAB)
       disposition = NEW_FOREGROUND_TAB;
 
-    b->OpenURL(url, disposition, transition);
+    b->OpenURL(url, referrer, disposition, transition);
     b->Show();
     b->MoveToFront(true);
     return;
@@ -585,7 +585,8 @@ void Browser::OpenURLFromTab(TabContents* source,
   if (disposition == NEW_WINDOW) {
     Browser* new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
                                        BrowserType::TABBED_BROWSER, L"");
-    new_contents = new_browser->AddTabWithURL(url, transition, true, instance);
+    new_contents = new_browser->AddTabWithURL(url, referrer, transition, true,
+                                              instance);
     new_browser->Show();
   } else if ((disposition == CURRENT_TAB) && current_tab) {
     if (transition == PageTransition::TYPED ||
@@ -617,7 +618,7 @@ void Browser::OpenURLFromTab(TabContents* source,
         tabstrip_model_.ForgetGroup(current_tab);
       }
     }
-    current_tab->controller()->LoadURL(url, transition);
+    current_tab->controller()->LoadURL(url, referrer, transition);
     // The TabContents might have changed as part of the navigation (ex: new tab
     // page can become WebContents).
     new_contents = current_tab->controller()->active_contents();
@@ -632,8 +633,8 @@ void Browser::OpenURLFromTab(TabContents* source,
     return;
   } else if (disposition != SUPPRESS_OPEN) {
     new_contents =
-        AddTabWithURL(url, transition, disposition != NEW_BACKGROUND_TAB,
-                      instance);
+        AddTabWithURL(url, referrer, transition,
+                      disposition != NEW_BACKGROUND_TAB, instance);
   }
 
   if (disposition != NEW_BACKGROUND_TAB && source_tab_was_frontmost) {
@@ -1210,8 +1211,8 @@ void Browser::OnWindowClosing() {
 // Tab Creation Functions
 
 TabContents* Browser::AddTabWithURL(
-    const GURL& url, PageTransition::Type transition, bool foreground,
-    SiteInstance* instance) {
+    const GURL& url, const GURL& referrer, PageTransition::Type transition,
+    bool foreground, SiteInstance* instance) {
   if (type_ == BrowserType::APPLICATION && tabstrip_model_.count() == 1) {
     NOTREACHED() << "Cannot add a tab in a mono tab application.";
     return NULL;
@@ -1221,8 +1222,8 @@ TabContents* Browser::AddTabWithURL(
   if (url_to_load.is_empty())
     url_to_load = GetHomePage();
   TabContents* contents =
-      CreateTabContentsForURL(url_to_load, profile_, transition, false,
-                              instance);
+      CreateTabContentsForURL(url_to_load, referrer, profile_, transition,
+                              false, instance);
   tabstrip_model_.AddTabContents(contents, -1, transition, foreground);
   // By default, content believes it is not hidden.  When adding contents
   // in the background, tell it that it's hidden.
@@ -1239,14 +1240,14 @@ TabContents* Browser::AddWebApplicationTab(Profile* profile,
   // TODO(acw): Do we need an "application launched" transition type?
   // TODO(creis): Should we reuse the current instance (ie. process) here?
   TabContents* contents =
-      CreateTabContentsForURL(web_app->url(), profile, PageTransition::LINK,
-                              lazy, NULL);
+      CreateTabContentsForURL(web_app->url(), GURL(), profile,
+                              PageTransition::LINK, lazy, NULL);
   if (contents->AsWebContents())
     contents->AsWebContents()->SetWebApp(web_app);
 
   if (lazy) {
     contents->controller()->LoadURLLazily(
-        web_app->url(), PageTransition::LINK, web_app->name(), NULL);
+        web_app->url(), GURL(), PageTransition::LINK, web_app->name(), NULL);
   }
   tabstrip_model_.AddTabContents(contents, -1, PageTransition::LINK, !lazy);
   return contents;
@@ -1333,8 +1334,9 @@ int Browser::GetDragActions() const {
 }
 
 TabContents* Browser::CreateTabContentsForURL(
-    const GURL& url, Profile* profile, PageTransition::Type transition,
-    bool defer_load, SiteInstance* instance) const {
+    const GURL& url, const GURL& referrer, Profile* profile,
+    PageTransition::Type transition, bool defer_load,
+    SiteInstance* instance) const {
   // Create an appropriate tab contents.
   GURL real_url = url;
   TabContentsType type = TabContents::TypeForURL(&real_url);
@@ -1347,7 +1349,7 @@ TabContents* Browser::CreateTabContentsForURL(
   if (!defer_load) {
     // Load the initial URL before adding the new tab contents to the tab strip
     // so that the tab contents has navigation state.
-    contents->controller()->LoadURL(url, transition);
+    contents->controller()->LoadURL(url, referrer, transition);
   }
 
   return contents;
@@ -1615,7 +1617,7 @@ void Browser::ShowNativeUI(const GURL& url) {
     }
   }
 
-  TabContents* contents = CreateTabContentsForURL(url, profile_,
+  TabContents* contents = CreateTabContentsForURL(url, GURL(), profile_,
                                                   PageTransition::LINK, false,
                                                   NULL);
   AddNewContents(NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(), true);
@@ -1639,7 +1641,7 @@ NavigationController* Browser::BuildRestoredNavigationController(
   } else {
     // No navigations. Create a tab with about:blank.
     TabContents* contents =
-        CreateTabContentsForURL(GURL("about:blank"), profile_,
+        CreateTabContentsForURL(GURL("about:blank"), GURL(), profile_,
                                 PageTransition::START_PAGE, false, NULL);
     return new NavigationController(contents, profile_);
   }
@@ -1654,7 +1656,8 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
     browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, off_the_record_profile,
                           BrowserType::TABBED_BROWSER, L"");
   }
-  browser->AddTabWithURL(url, PageTransition::LINK, true, NULL);
+  // TODO(eroman): should we have referrer here?
+  browser->AddTabWithURL(url, GURL(), PageTransition::LINK, true, NULL);
   browser->Show();
   browser->MoveToFront(true);
 }

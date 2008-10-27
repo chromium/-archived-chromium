@@ -143,13 +143,15 @@ bool DraggedTabController::IsDragSourceTab(Tab* tab) const {
 
 void DraggedTabController::OpenURLFromTab(TabContents* source,
                                           const GURL& url,
+                                          const GURL& referrer,
                                           WindowOpenDisposition disposition,
                                           PageTransition::Type transition) {
   if (original_delegate_) {
     if (disposition == CURRENT_TAB)
       disposition = NEW_WINDOW;
 
-    original_delegate_->OpenURLFromTab(source, url, disposition, transition);
+    original_delegate_->OpenURLFromTab(source, url, referrer,
+                                       disposition, transition);
   }
 }
 

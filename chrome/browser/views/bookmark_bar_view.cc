@@ -453,7 +453,7 @@ class MenuRunner : public views::MenuDelegate,
     DCHECK(menu_id_to_node_map_.find(id) != menu_id_to_node_map_.end());
     url = menu_id_to_node_map_[id]->GetURL();
     view_->GetPageNavigator()->OpenURL(
-        url, event_utils::DispositionFromEventFlags(mouse_event_flags),
+        url, GURL(), event_utils::DispositionFromEventFlags(mouse_event_flags),
         PageTransition::AUTO_BOOKMARK);
   }
 
@@ -1418,7 +1418,7 @@ void BookmarkBarView::ButtonPressed(views::BaseButton* sender) {
   DCHECK(page_navigator_);
   if (node->is_url()) {
     page_navigator_->OpenURL(
-        node->GetURL(),
+        node->GetURL(), GURL(),
         event_utils::DispositionFromEventFlags(sender->mouse_event_flags()),
         PageTransition::AUTO_BOOKMARK);
   } else {

@@ -588,7 +588,7 @@ void HistoryItemRenderer::LinkActivated(views::Link* link,
     if (navigator && !url.is_empty()) {
       UserMetrics::RecordAction(L"Destination_History_OpenURL",
                                 model_->profile());
-      navigator->OpenURL(url,
+      navigator->OpenURL(url, GURL(),
                          event_utils::DispositionFromEventFlags(event_flags),
                          PageTransition::AUTO_BOOKMARK);
       // WARNING: call to OpenURL likely deleted us.

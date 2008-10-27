@@ -167,6 +167,7 @@ class NavigationEntry {
                   SiteInstance* instance,
                   int page_id,
                   const GURL& url,
+                  const GURL& referrer,
                   const std::wstring& title,
                   PageTransition::Type transition_type);
   ~NavigationEntry() {
@@ -223,6 +224,14 @@ class NavigationEntry {
   }
   const GURL& url() const {
     return url_;
+  }
+
+  // The referring URL. Can be empty.
+  void set_referrer(const GURL& referrer) {
+    referrer_ = referrer;
+  }
+  const GURL& referrer() const {
+    return referrer_;
   }
 
   // The display URL, when nonempty, will override the actual URL of the page
@@ -362,6 +371,11 @@ class NavigationEntry {
   scoped_refptr<SiteInstance> site_instance_;
   PageType page_type_;
   GURL url_;
+
+  // TODO(eroman): Add referrer to session restore.
+  // http://code.google.com/p/chromium/issues/detail?id=3774
+  GURL referrer_;
+
   std::wstring url_as_string_;
   GURL display_url_;
   std::wstring title_;

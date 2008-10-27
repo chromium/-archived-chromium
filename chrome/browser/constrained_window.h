@@ -41,6 +41,7 @@ class ConstrainedTabContentsDelegate {
   // Called to open a URL in a the specified manner.
   virtual void OpenURL(ConstrainedWindow* window,
                        const GURL& url,
+                       const GURL& referrer,
                        WindowOpenDisposition disposition,
                        PageTransition::Type transition) = 0;
 

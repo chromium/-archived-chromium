@@ -75,6 +75,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     std::string* actual_mime_type);
   virtual void OpenURL(WebView* webview,
                        const GURL& url,
+                       const GURL& referrer,
                        WindowOpenDisposition disposition);
   virtual void RunJavaScriptAlert(WebView* webview,
                                   const std::wstring& message);

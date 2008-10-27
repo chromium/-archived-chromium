@@ -101,7 +101,8 @@ void DebuggerView::OnInit() {
   web_contents_->render_view_host()->AllowDOMUIBindings();
 
   GURL contents("chrome-resource://debugger/");
-  web_contents_->controller()->LoadURL(contents, PageTransition::START_PAGE);
+  web_contents_->controller()->LoadURL(contents, GURL(),
+                                       PageTransition::START_PAGE);
 }
 
 void DebuggerView::OnShow() {
@@ -123,9 +124,11 @@ void DebuggerView::SetDebuggerBreak(bool is_broken) {
 
 void DebuggerView::OpenURLFromTab(TabContents* source,
                                const GURL& url,
+                               const GURL& referrer,
                                WindowOpenDisposition disposition,
                                PageTransition::Type transition) {
-  BrowserList::GetLastActive()->OpenURL(url, disposition, transition);
+  BrowserList::GetLastActive()->OpenURL(url, referrer, disposition,
+                                        transition);
 }
 
 void DebuggerView::ExecuteJavascript(const std::string& js) {

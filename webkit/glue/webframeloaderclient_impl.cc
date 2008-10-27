@@ -917,8 +917,12 @@ void WebFrameLoaderClient::dispatchDecidePolicyForNavigationAction(
         } else if (disposition == SAVE_TO_DISK) {
           policy_action = PolicyDownload;
         } else {
+          GURL referrer = webkit_glue::StringToGURL(
+              request.httpHeaderField("Referer"));
+
           d->OpenURL(webframe_->webview_impl(),
                      webkit_glue::KURLToGURL(request.url()),
+                     referrer,
                      disposition);
           policy_action = PolicyIgnore;
         }

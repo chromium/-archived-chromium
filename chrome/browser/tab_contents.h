@@ -264,7 +264,7 @@ class TabContents : public PageNavigator,
   // Commands ------------------------------------------------------------------
 
   // Implementation of PageNavigator.
-  virtual void OpenURL(const GURL& url,
+  virtual void OpenURL(const GURL& url, const GURL& referrer,
                        WindowOpenDisposition disposition,
                        PageTransition::Type transition);
 
@@ -420,6 +420,7 @@ class TabContents : public PageNavigator,
                               bool user_gesture);
   virtual void OpenURL(ConstrainedWindow* window,
                        const GURL& url,
+                       const GURL& referrer,
                        WindowOpenDisposition disposition,
                        PageTransition::Type transition);
   virtual void WillClose(ConstrainedWindow* window);

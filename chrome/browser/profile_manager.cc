@@ -126,7 +126,8 @@ void ProfileManager::NewWindowWithProfile(Profile* profile) {
 
   Browser* new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile,
                                      BrowserType::TABBED_BROWSER, L"");
-  new_browser->AddTabWithURL(GURL(), PageTransition::TYPED, true, NULL);
+  new_browser->AddTabWithURL(GURL(), GURL(), PageTransition::TYPED, true,
+                             NULL);
   new_browser->Show();
 }
 

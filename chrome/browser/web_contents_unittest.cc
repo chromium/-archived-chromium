@@ -322,7 +322,7 @@ TEST_F(WebContentsTest, SimpleNavigation) {
 
   // Navigate to URL
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_TRUE(orig_rvh->is_loading);
   EXPECT_EQ(instance1, orig_rvh->site_instance());
@@ -355,7 +355,7 @@ TEST_F(WebContentsTest, ShowInterstitialDontProceed) {
 
   // Navigate to URL
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_TRUE(orig_rvh->is_loading);
 
@@ -396,7 +396,7 @@ TEST_F(WebContentsTest, ShowInterstitialProceed) {
 
   // Navigate to URL
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
 
   // Show interstitial
   const GURL interstitial_url("http://interstitial");
@@ -442,7 +442,7 @@ TEST_F(WebContentsTest, ShowInterstitialThenNavigate) {
 
   // Navigate to URL
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
 
   // Show interstitial
   const GURL interstitial_url("http://interstitial");
@@ -459,7 +459,7 @@ TEST_F(WebContentsTest, ShowInterstitialThenNavigate) {
 
   // While interstitial showing, navigate to a new URL.
   const GURL url2("http://www.yahoo.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   EXPECT_TRUE(contents->state_is_leaving_interstitial());
   EXPECT_EQ(interstitial_rvh, contents->render_view_host());
   EXPECT_TRUE(orig_rvh->is_loading);
@@ -487,7 +487,7 @@ TEST_F(WebContentsTest, ShowInterstitialIFrameNavigate) {
 
   // Navigate to URL.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_TRUE(orig_rvh->is_loading);
   ViewHostMsg_FrameNavigate_Params params1;
@@ -529,14 +529,14 @@ TEST_F(WebContentsTest, VisitInterstitialURLTwice) {
 
   // Navigate to URL
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
 
   // Now navigate to an interstitial-inducing URL
   const GURL url2("https://www.google.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   const GURL interstitial_url("http://interstitial");
   InterstitialPage* interstitial = new InterstitialPage(contents,
                                                         true,
@@ -555,7 +555,7 @@ TEST_F(WebContentsTest, VisitInterstitialURLTwice) {
   EXPECT_EQ(interstitial_rvh, contents->render_view_host());
 
   // While interstitial showing, navigate to the same URL.
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   EXPECT_TRUE(contents->state_is_leaving_interstitial());
   EXPECT_EQ(interstitial_rvh, contents->render_view_host());
 
@@ -609,7 +609,7 @@ TEST_F(WebContentsTest, CrossSiteBoundaries) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
@@ -621,7 +621,7 @@ TEST_F(WebContentsTest, CrossSiteBoundaries) {
 
   // Navigate to new site
   const GURL url2("http://www.yahoo.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   EXPECT_TRUE(contents->state_is_pending());
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
   int pending_rvh_delete_count = 0;
@@ -666,7 +666,7 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
@@ -681,7 +681,7 @@ TEST_F(WebContentsTest, CrossSiteBoundariesAfterCrash) {
 
   // Navigate to new site.  We should not go into PENDING.
   const GURL url2("http://www.yahoo.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   TestRenderViewHost* new_rvh = contents->rvh();
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_TRUE(contents->pending_rvh() == NULL);
@@ -713,7 +713,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialDontProceed) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
@@ -723,7 +723,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialDontProceed) {
 
   // Navigate to new site
   const GURL url2("https://www.google.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   EXPECT_TRUE(contents->state_is_pending());
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
 
@@ -768,14 +768,14 @@ TEST_F(WebContentsTest, CrossSiteInterstitialProceed) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
 
   // Navigate to new site
   const GURL url2("https://www.google.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
   int pending_rvh_delete_count = 0;
   pending_rvh->set_delete_counter(&pending_rvh_delete_count);
@@ -845,7 +845,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialThenNavigate) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
@@ -869,7 +869,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialThenNavigate) {
 
   // Navigate to a new page.
   const GURL url2("http://www.yahoo.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
 
   TestRenderViewHost* new_rvh = contents->pending_rvh();
   ASSERT_TRUE(new_rvh != NULL);
@@ -898,14 +898,14 @@ TEST_F(WebContentsTest, CrossSiteInterstitialCrashThenNavigate) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
 
   // Navigate to new site
   const GURL url2("https://www.google.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
   int pending_rvh_delete_count = 0;
   pending_rvh->set_delete_counter(&pending_rvh_delete_count);
@@ -935,7 +935,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialCrashThenNavigate) {
   // Navigate to a new page.  Since interstitial RVH is dead, we should clean
   // it up and go to a new PENDING state, showing the orig_rvh.
   const GURL url3("http://www.yahoo.com");
-  contents->controller()->LoadURL(url3, PageTransition::TYPED);
+  contents->controller()->LoadURL(url3, GURL(), PageTransition::TYPED);
   TestRenderViewHost* new_rvh = contents->pending_rvh();
   ASSERT_TRUE(new_rvh != NULL);
   EXPECT_TRUE(contents->state_is_pending());
@@ -965,14 +965,14 @@ TEST_F(WebContentsTest, CrossSiteInterstitialCrashesThenNavigate) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
 
   // Navigate to new site
   const GURL url2("https://www.google.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
   int pending_rvh_delete_count = 0;
   pending_rvh->set_delete_counter(&pending_rvh_delete_count);
@@ -1003,7 +1003,7 @@ TEST_F(WebContentsTest, CrossSiteInterstitialCrashesThenNavigate) {
   // Navigate to a new page.  Since both the interstitial and original RVHs are
   // dead, we should create a new RVH, jump back to NORMAL, and navigate.
   const GURL url3("http://www.yahoo.com");
-  contents->controller()->LoadURL(url3, PageTransition::TYPED);
+  contents->controller()->LoadURL(url3, GURL(), PageTransition::TYPED);
   TestRenderViewHost* new_rvh = contents->rvh();
   ASSERT_TRUE(new_rvh != NULL);
   EXPECT_TRUE(contents->state_is_normal());
@@ -1031,7 +1031,7 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
@@ -1043,12 +1043,12 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
                         // this a new page.
   contents2->transition_cross_site = true;
   contents2->SetupController(profile.get());
-  contents2->controller()->LoadURL(url, PageTransition::TYPED);
+  contents2->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   contents2->TestDidNavigate(contents2->rvh(), params1);
 
   // Navigate first tab to a new site
   const GURL url2a("http://www.yahoo.com");
-  contents->controller()->LoadURL(url2a, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2a, GURL(), PageTransition::TYPED);
   TestRenderViewHost* pending_rvh_a = contents->pending_rvh();
   ViewHostMsg_FrameNavigate_Params params2a;
   InitNavigateParams(&params2a, 1, url2a);
@@ -1058,7 +1058,7 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
 
   // Navigate second tab to the same site as the first tab
   const GURL url2b("http://mail.yahoo.com");
-  contents2->controller()->LoadURL(url2b, PageTransition::TYPED);
+  contents2->controller()->LoadURL(url2b, GURL(), PageTransition::TYPED);
   TestRenderViewHost* pending_rvh_b = contents2->pending_rvh();
   EXPECT_TRUE(pending_rvh_b != NULL);
   EXPECT_TRUE(contents2->state_is_pending());
@@ -1088,7 +1088,7 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
 
   // Navigate to URL.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
@@ -1098,7 +1098,7 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   contents2->transition_cross_site = true;
   contents2->SetupController(profile.get());
   const GURL url2("http://www.yahoo.com");
-  contents2->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents2->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   // The first RVH in contents2 isn't live yet, so we shortcut the PENDING
   // state and go straight to NORMAL.
   TestRenderViewHost* rvh2 = contents2->rvh();
@@ -1122,7 +1122,7 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   // Navigate to the new site.  Doesn't switch SiteInstancees, because we
   // compare against the current URL, not the SiteInstance's site.
   const GURL url3("http://mail.yahoo.com");
-  contents->controller()->LoadURL(url3, PageTransition::TYPED);
+  contents->controller()->LoadURL(url3, GURL(), PageTransition::TYPED);
   EXPECT_TRUE(contents->state_is_normal());
   ViewHostMsg_FrameNavigate_Params params4;
   InitNavigateParams(&params4, 3, url3);
@@ -1142,7 +1142,7 @@ TEST_F(WebContentsTest, CrossSiteUnloadHandlers) {
 
   // Navigate to URL.  First URL should use first RenderViewHost.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   ViewHostMsg_FrameNavigate_Params params1;
   InitNavigateParams(&params1, 1, url);
   contents->TestDidNavigate(orig_rvh, params1);
@@ -1152,13 +1152,13 @@ TEST_F(WebContentsTest, CrossSiteUnloadHandlers) {
   // Navigate to new site, but simulate an onbeforeunload denial.
   const GURL url2("http://www.yahoo.com");
   orig_rvh->immediate_before_unload = false;
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   orig_rvh->TestOnMsgShouldClose(false);
   EXPECT_TRUE(contents->state_is_normal());
   EXPECT_EQ(orig_rvh, contents->render_view_host());
 
   // Navigate again, but simulate an onbeforeunload approval.
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   orig_rvh->TestOnMsgShouldClose(true);
   EXPECT_TRUE(contents->state_is_pending());
   TestRenderViewHost* pending_rvh = contents->pending_rvh();
@@ -1187,7 +1187,7 @@ TEST_F(WebContentsTest, NavigationEntryContentState) {
 
   // Navigate to URL.  There should be no committed entry yet.
   const GURL url("http://www.google.com");
-  contents->controller()->LoadURL(url, PageTransition::TYPED);
+  contents->controller()->LoadURL(url, GURL(), PageTransition::TYPED);
   NavigationEntry* entry = contents->controller()->GetLastCommittedEntry();
   EXPECT_TRUE(entry == NULL);
 
@@ -1200,7 +1200,7 @@ TEST_F(WebContentsTest, NavigationEntryContentState) {
 
   // Navigate to same site.
   const GURL url2("http://images.google.com");
-  contents->controller()->LoadURL(url2, PageTransition::TYPED);
+  contents->controller()->LoadURL(url2, GURL(), PageTransition::TYPED);
   entry = contents->controller()->GetLastCommittedEntry();
   EXPECT_FALSE(entry->content_state().empty());
 

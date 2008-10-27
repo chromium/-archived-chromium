@@ -118,6 +118,7 @@ class TabStripModelDelegate {
   // If |instance| is not null, its process is used to render the tab.
   virtual TabContents* CreateTabContentsForURL(
       const GURL& url,
+      const GURL& referrer,
       Profile* profile,
       PageTransition::Type transition,
       bool defer_load,

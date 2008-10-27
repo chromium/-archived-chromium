@@ -105,7 +105,7 @@ class BackFwdMenuModelTest : public testing::Test {
   void LoadURLAndUpdateState(TabContents* contents,
                              const std::wstring& url,
                              const std::wstring& title) {
-    contents->controller()->LoadURL(GURL(url), PageTransition::LINK);
+    contents->controller()->LoadURL(GURL(url), GURL(), PageTransition::LINK);
     BackFwdMenuModelTestTabContents* rsmttc =
       static_cast<BackFwdMenuModelTestTabContents*>(contents);
     rsmttc->UpdateState(title);

@@ -47,7 +47,7 @@ void RenderViewContextMenuController::OpenURL(
     const GURL& url,
     WindowOpenDisposition disposition,
     PageTransition::Type transition) {
-  source_web_contents_->OpenURL(url, disposition, transition);
+  source_web_contents_->OpenURL(url, GURL(), disposition, transition);
 }
 
 void RenderViewContextMenuController::CopyImageAt(int x, int y) {

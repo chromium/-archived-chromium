@@ -229,6 +229,7 @@ class RenderViewHostDelegate {
 
   // The page wants to open a URL with the specified disposition.
   virtual void RequestOpenURL(const GURL& url,
+                              const GURL& referrer,
                               WindowOpenDisposition disposition) { }
 
   // A DOM automation operation completed. The result of the operation is

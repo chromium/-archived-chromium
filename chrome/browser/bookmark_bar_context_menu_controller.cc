@@ -53,7 +53,7 @@ void OpenAllImpl(BookmarkNode* node,
       disposition = NEW_BACKGROUND_TAB;
     else
       disposition = initial_disposition;
-    (*navigator)->OpenURL(node->GetURL(), disposition,
+    (*navigator)->OpenURL(node->GetURL(), GURL(), disposition,
                           PageTransition::AUTO_BOOKMARK);
     if (!*opened_url) {
       *opened_url = true;
@@ -284,7 +284,8 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_OpenInIncognito",
                                 profile);
 
-      view_->GetPageNavigator()->OpenURL(node_->GetURL(), OFF_THE_RECORD,
+      view_->GetPageNavigator()->OpenURL(node_->GetURL(), GURL(),
+                                         OFF_THE_RECORD,
                                          PageTransition::AUTO_BOOKMARK);
       break;
 
@@ -292,7 +293,7 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_OpenInNewWindow",
                                 profile);
 
-      view_->GetPageNavigator()->OpenURL(node_->GetURL(), NEW_WINDOW,
+      view_->GetPageNavigator()->OpenURL(node_->GetURL(), GURL(), NEW_WINDOW,
                                          PageTransition::AUTO_BOOKMARK);
       break;
 
@@ -300,7 +301,8 @@ void BookmarkBarContextMenuController::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_OpenInNewTab",
                                 profile);
 
-      view_->GetPageNavigator()->OpenURL(node_->GetURL(), NEW_FOREGROUND_TAB,
+      view_->GetPageNavigator()->OpenURL(node_->GetURL(), GURL(),
+                                         NEW_FOREGROUND_TAB,
                                          PageTransition::AUTO_BOOKMARK);
       break;
 

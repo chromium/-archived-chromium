@@ -334,7 +334,7 @@ bool TabStripModel::ShouldResetGroupOnSelect(TabContents* contents) const {
 TabContents* TabStripModel::AddBlankTab(bool foreground) {
   DCHECK(delegate_);
   TabContents* contents = delegate_->CreateTabContentsForURL(
-      NewTabUIURL(), profile_, PageTransition::TYPED, false, NULL);
+      NewTabUIURL(), GURL(), profile_, PageTransition::TYPED, false, NULL);
   AddTabContents(contents, -1, PageTransition::TYPED, foreground);
   return contents;
 }
@@ -342,7 +342,7 @@ TabContents* TabStripModel::AddBlankTab(bool foreground) {
 TabContents* TabStripModel::AddBlankTabAt(int index, bool foreground) {
   DCHECK(delegate_);
   TabContents* contents = delegate_->CreateTabContentsForURL(
-      NewTabUIURL(), profile_, PageTransition::LINK, false, NULL);
+      NewTabUIURL(), GURL(), profile_, PageTransition::LINK, false, NULL);
   AddTabContents(contents, index, PageTransition::LINK, foreground);
   return contents;
 }

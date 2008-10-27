@@ -735,8 +735,9 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_ContextMenu, ViewHostMsg_ContextMenu_Params)
 
   // Request that the given URL be opened in the specified manner.
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_OpenURL,
+  IPC_MESSAGE_ROUTED3(ViewHostMsg_OpenURL,
                       GURL /* url */,
+                      GURL /* referrer */,
                       WindowOpenDisposition /* disposition */)
 
   // Following message is used to communicate the values received by the

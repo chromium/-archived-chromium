@@ -264,7 +264,7 @@ class WebContents : public TabContents,
                                 const GURL& image_url,
                                 bool errored,
                                 const SkBitmap& image);
-  virtual void RequestOpenURL(const GURL& url,
+  virtual void RequestOpenURL(const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition);
   virtual void DomOperationResponse(const std::string& json_string,
                                     int automation_id);

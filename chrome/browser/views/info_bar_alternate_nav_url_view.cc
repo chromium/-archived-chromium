@@ -60,7 +60,8 @@ void InfoBarAlternateNavURLView::LinkActivated(views::Link* source,
 
   BeginClose();
 
-  navigator->OpenURL(gurl, event_utils::DispositionFromEventFlags(event_flags),
+  navigator->OpenURL(gurl, GURL(),
+                     event_utils::DispositionFromEventFlags(event_flags),
                      // Pretend the user typed this URL, so that navigating to
                      // it will be the default action when it's typed again in
                      // the future.

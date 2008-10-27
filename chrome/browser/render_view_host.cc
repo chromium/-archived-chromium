@@ -553,6 +553,7 @@ void RenderViewHost::MakeNavigateParams(const NavigationEntry& entry,
                                         ViewMsg_Navigate_Params* params) {
   params->page_id = entry.page_id();
   params->url = entry.url();
+  params->referrer = entry.referrer();
   params->transition = entry.transition_type();
   params->state = entry.content_state();
   params->reload = reload;
@@ -974,12 +975,13 @@ void RenderViewHost::OnMsgContextMenu(
 }
 
 void RenderViewHost::OnMsgOpenURL(const GURL& url,
+                                  const GURL& referrer,
                                   WindowOpenDisposition disposition) {
   GURL validated_url(url);
   FilterURL(RendererSecurityPolicy::GetInstance(),
             process()->host_id(), &validated_url);
 
-  delegate_->RequestOpenURL(validated_url, disposition);
+  delegate_->RequestOpenURL(validated_url, referrer, disposition);
 }
 
 void RenderViewHost::OnMsgDomOperationResponse(

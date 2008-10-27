@@ -980,10 +980,11 @@ void ConstrainedWindowImpl::ActivateContents(TabContents* contents) {
 
 void ConstrainedWindowImpl::OpenURLFromTab(TabContents* source,
                                            const GURL& url,
+                                           const GURL& referrer,
                                            WindowOpenDisposition disposition,
                                            PageTransition::Type transition) {
   // We ignore source right now.
-  owner_->OpenURL(this, url, disposition, transition);
+  owner_->OpenURL(this, url, referrer, disposition, transition);
 }
 
 void ConstrainedWindowImpl::LoadingStateChanged(TabContents* source) {

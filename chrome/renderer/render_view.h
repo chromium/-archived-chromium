@@ -206,6 +206,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
       std::string* actual_mime_type);
   virtual void OnMissingPluginStatus(WebPluginDelegate* delegate, int status);
   virtual void OpenURL(WebView* webview, const GURL& url,
+                       const GURL& referrer,
                        WindowOpenDisposition disposition);
   virtual void DidDownloadImage(int id,
                                 const GURL& image_url,

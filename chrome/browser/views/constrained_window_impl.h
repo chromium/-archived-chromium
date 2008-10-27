@@ -54,6 +54,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
   // Overridden from PageNavigator (TabContentsDelegate's base interface):
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,
+                              const GURL& referrer,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition);
 

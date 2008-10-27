@@ -26,15 +26,15 @@ class TabContentsDelegate : public PageNavigator {
   // Opens a new URL inside the passed in TabContents, if source is 0 open
   // in the current front-most tab.
   virtual void OpenURLFromTab(TabContents* source,
-                              const GURL& url,
+                              const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition) = 0;
 
-  virtual void OpenURL(const GURL& url,
+  virtual void OpenURL(const GURL& url, const GURL& referrer,
                        WindowOpenDisposition disposition,
                        PageTransition::Type transition)
   {
-    OpenURLFromTab(NULL, url, disposition, transition);
+    OpenURLFromTab(NULL, url, referrer, disposition, transition);
   }
 
   // Called to inform the delegate that the tab content's navigation state

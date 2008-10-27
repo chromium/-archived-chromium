@@ -898,7 +898,7 @@ void TaskManagerContents::LinkActivated(views::Link* source,
   DCHECK(source == about_memory_link_);
   Browser* browser = BrowserList::GetLastActive();
   DCHECK(browser);
-  browser->OpenURL(GURL("about:memory"), NEW_FOREGROUND_TAB,
+  browser->OpenURL(GURL("about:memory"), GURL(), NEW_FOREGROUND_TAB,
                    PageTransition::LINK);
 }
 

@@ -18,7 +18,7 @@ class PageNavigator {
  public:
   // Opens a URL with the given disposition.  The transition specifies how this
   // navigation should be recorded in the history system (for example, typed).
-  virtual void OpenURL(const GURL& url,
+  virtual void OpenURL(const GURL& url, const GURL& referrer,
                        WindowOpenDisposition disposition,
                        PageTransition::Type transition) = 0;
 };

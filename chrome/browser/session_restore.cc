@@ -343,8 +343,8 @@ class SessionRestoreImpl {
 
   void AppendURLsToBrowser(Browser* browser, const std::vector<GURL>& urls) {
     for (size_t i = 0; i < urls.size(); ++i) {
-      browser->AddTabWithURL(urls[i], PageTransition::START_PAGE, (i == 0),
-                             NULL);
+      browser->AddTabWithURL(urls[i], GURL(), PageTransition::START_PAGE,
+                            (i == 0), NULL);
     }
   }
 

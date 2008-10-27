@@ -35,7 +35,7 @@ bool DOMView::Init(Profile* profile, SiteInstance* instance) {
 
   views::HWNDView::Attach(host_->GetContainerHWND());
   host_->SetupController(profile);
-  host_->controller()->LoadURL(contents_, PageTransition::START_PAGE);
+  host_->controller()->LoadURL(contents_, GURL(), PageTransition::START_PAGE);
   return true;
 }
 

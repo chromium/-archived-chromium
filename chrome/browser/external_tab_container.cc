@@ -135,6 +135,7 @@ LRESULT ExternalTabContainer::OnSize(UINT, WPARAM, LPARAM, BOOL& handled) {
 
 void ExternalTabContainer::OpenURLFromTab(TabContents* source,
                            const GURL& url,
+                           const GURL& referrer,
                            WindowOpenDisposition disposition,
                            PageTransition::Type transition) {
   switch (disposition) {

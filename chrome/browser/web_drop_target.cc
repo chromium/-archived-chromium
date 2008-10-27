@@ -58,7 +58,7 @@ class InterstitialDropTarget {
       std::wstring url;
       std::wstring title;
       ClipboardUtil::GetUrl(data_object, &url, &title);
-      web_contents_->OpenURL(GURL(url), CURRENT_TAB,
+      web_contents_->OpenURL(GURL(url), GURL(), CURRENT_TAB,
                              PageTransition::AUTO_BOOKMARK);
       return GetPreferredDropEffect(effect);
     }

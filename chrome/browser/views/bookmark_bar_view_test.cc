@@ -21,7 +21,7 @@ namespace {
 // PageNavigator implementation that records the URL.
 class TestingPageNavigator : public PageNavigator {
  public:
-  virtual void OpenURL(const GURL& url,
+  virtual void OpenURL(const GURL& url, const GURL& referrer,
                        WindowOpenDisposition disposition,
                        PageTransition::Type transition) {
     url_ = url;

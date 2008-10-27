@@ -457,6 +457,7 @@ void PrivacySection::LinkActivated(views::Link* source, int event_flags) {
                                    std::wstring());
     browser->OpenURL(
         GURL(l10n_util::GetString(IDS_LEARN_MORE_HELPMAKECHROMEBETTER_URL)),
+        GURL(),
         NEW_WINDOW,
         PageTransition::LINK);
   }

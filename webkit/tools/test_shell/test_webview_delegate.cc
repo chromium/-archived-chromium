@@ -112,6 +112,7 @@ WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
 }
 
 void TestWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
+                                  const GURL& referrer,
                                   WindowOpenDisposition disposition) {
   DCHECK_NE(disposition, CURRENT_TAB);  // No code for this
   if (disposition == SUPPRESS_OPEN)

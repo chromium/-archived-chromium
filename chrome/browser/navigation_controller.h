@@ -256,11 +256,13 @@ class NavigationController {
   // New navigations -----------------------------------------------------------
 
   // Loads the specified URL.
-  void LoadURL(const GURL& url, PageTransition::Type type);
+  void LoadURL(const GURL& url, const GURL& referrer,
+               PageTransition::Type type);
 
   // Load the specified URL the next time it becomes active.
-  void LoadURLLazily(const GURL& url, PageTransition::Type type,
-                     const std::wstring& title, SkBitmap* icon);
+  void LoadURLLazily(const GURL& url, const GURL& referrer,
+                     PageTransition::Type type, const std::wstring& title,
+                     SkBitmap* icon);
 
   // Loads the current page if this NavigationController was restored from
   // history and the current page has not loaded yet.
@@ -445,7 +447,7 @@ class NavigationController {
   // was restored from a previous session.
   void set_max_restored_page_id(int max_id) { max_restored_page_id_ = max_id; }
 
-  NavigationEntry* CreateNavigationEntry(const GURL& url,
+  NavigationEntry* CreateNavigationEntry(const GURL& url, const GURL& referrer,
                                          PageTransition::Type transition);
 
   // Invokes ScheduleTabContentsCollection for all TabContents but the active

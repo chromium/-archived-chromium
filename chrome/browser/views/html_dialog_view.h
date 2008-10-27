@@ -56,6 +56,7 @@ class HtmlDialogView
   // Overridden from TabContentsDelegate:
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url,
+                              const GURL& referrer,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition);
   virtual void NavigationStateChanged(const TabContents* source,

@@ -75,6 +75,7 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
   EXPECT_EQ(0, siteDeleteCounter);
 
   NavigationEntry* e1 = new NavigationEntry(TAB_CONTENTS_WEB, instance, 0, url,
+                                            GURL(),
                                             std::wstring(),
                                             PageTransition::LINK);
 
@@ -84,7 +85,7 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
 
   // Add a second reference
   NavigationEntry* e2 = new NavigationEntry(TAB_CONTENTS_WEB, instance, 0, url,
-                                            std::wstring(),
+                                            GURL(), std::wstring(), 
                                             PageTransition::LINK);
 
   // Now delete both entries and be sure the SiteInstance goes away.
@@ -135,7 +136,7 @@ TEST_F(SiteInstanceTest, CloneNavigationEntry) {
                                                &browsingDeleteCounter);
 
   NavigationEntry* e1 = new NavigationEntry(TAB_CONTENTS_WEB, instance1, 0,
-                                            url,
+                                            url, GURL(),
                                             std::wstring(),
                                             PageTransition::LINK);
   // Clone the entry

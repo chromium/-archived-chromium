@@ -150,7 +150,7 @@ void SafeBrowsingBlockingPage::CommandReceived(const std::string& command) {
     } else {
       NOTREACHED();
     }
-    web->OpenURL(url, CURRENT_TAB, PageTransition::LINK);
+    web->OpenURL(url, GURL(), CURRENT_TAB, PageTransition::LINK);
     return;
   }
   if (command == "3") {
@@ -162,7 +162,7 @@ void SafeBrowsingBlockingPage::CommandReceived(const std::string& command) {
         safe_browsing_util::GeneratePhishingReportUrl(kSbReportPhishingUrl,
                                                       url().spec());
     web->HideInterstitialPage(false, false);
-    web->OpenURL(report_url, CURRENT_TAB, PageTransition::LINK);
+    web->OpenURL(report_url, GURL(), CURRENT_TAB, PageTransition::LINK);
     return;
   }
   if (command == "4") {
@@ -174,7 +174,7 @@ void SafeBrowsingBlockingPage::CommandReceived(const std::string& command) {
     diagnostic_url = google_util::AppendGoogleLocaleParam(diagnostic_url);
     DCHECK(result_ == SafeBrowsingService::URL_MALWARE);
     web->HideInterstitialPage(false, false);
-    web->OpenURL(diagnostic_url, CURRENT_TAB, PageTransition::LINK);
+    web->OpenURL(diagnostic_url, GURL(), CURRENT_TAB, PageTransition::LINK);
     return;
   }
 
