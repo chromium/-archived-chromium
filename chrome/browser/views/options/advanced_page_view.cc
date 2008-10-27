@@ -119,6 +119,7 @@ void AdvancedPageView::ResetToDefaults() {
     prefs::kPasswordManagerEnabled,
     prefs::kRestoreOnStartup,
     prefs::kSafeBrowsingEnabled,
+    prefs::kSearchSuggestEnabled,
     prefs::kShowHomeButton,
     prefs::kSpellCheckDictionary,
     prefs::kURLsToRestoreOnStartup,

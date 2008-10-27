@@ -3103,8 +3103,8 @@ each locale. -->
       </message>
       
       <!-- Advanced Section Titles -->
-      <message name="IDS_OPTIONS_ADVANCED_SECTION_TITLE_GENERAL">
-        General
+      <message name="IDS_OPTIONS_ADVANCED_SECTION_TITLE_PRIVACY">
+        Privacy
       </message>
       <message name="IDS_OPTIONS_ADVANCED_SECTION_TITLE_CONTENT">
         Web Content

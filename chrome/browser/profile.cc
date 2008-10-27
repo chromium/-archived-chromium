@@ -49,6 +49,7 @@ URLRequestContext* Profile::default_request_context_;
 
 //static
 void Profile::RegisterUserPrefs(PrefService* prefs) {
+  prefs->RegisterBooleanPref(prefs::kSearchSuggestEnabled, true);
   prefs->RegisterBooleanPref(prefs::kSessionExitedCleanly, true);
   prefs->RegisterBooleanPref(prefs::kSafeBrowsingEnabled, true);
 }

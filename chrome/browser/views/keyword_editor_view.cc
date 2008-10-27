@@ -317,11 +317,6 @@ void TemplateURLTableModel::FavIconAvailable(ModelEntry* entry) {
 static views::Window* open_window = NULL;
 
 // static
-void KeywordEditorView::RegisterUserPrefs(PrefService* prefs) {
-  prefs->RegisterBooleanPref(prefs::kSearchSuggestEnabled, true);
-}
-
-// static
 void KeywordEditorView::Show(Profile* profile) {
   if (!profile->GetTemplateURLModel())
     return;
@@ -498,18 +493,6 @@ void KeywordEditorView::Init() {
   make_default_button_->SetEnabled(false);
   make_default_button_->SetListener(this);
 
-  enable_suggest_checkbox_ = new views::CheckBox(
-      l10n_util::GetString(IDS_OPTIONS_SUGGEST_PREF));
-  enable_suggest_checkbox_->SetMultiLine(true);
-  // Enable the Suggest checkbox only if the default provider has Suggest
-  // capability.
-  const TemplateURL* default_provider = url_model_->GetDefaultSearchProvider();
-  enable_suggest_checkbox_->SetEnabled(default_provider &&
-      (default_provider->suggestions_url() != NULL));
-  enable_suggest_checkbox_->SetIsSelected(
-      profile_->GetPrefs()->GetBoolean(prefs::kSearchSuggestEnabled));
-  enable_suggest_checkbox_->SetListener(this);
-
   InitLayoutManager();
 }
 
@@ -547,9 +530,6 @@ void KeywordEditorView::InitLayoutManager() {
   contents_layout->AddView(make_default_button_);
 
   contents_layout->AddPaddingRow(1, 0);
-
-  contents_layout->StartRowWithPadding(0, 0, 0, related_y);
-  contents_layout->AddView(enable_suggest_checkbox_, 3, 1);
 }
 
 void KeywordEditorView::OnSelectionChanged() {
@@ -601,17 +581,6 @@ void KeywordEditorView::ButtonPressed(views::NativeButton* sender) {
     if (last_view_row >= 0)
       table_view_->Select(table_view_->view_to_model(last_view_row));
     url_model_->AddObserver(this);
-
-    // We may have removed the default provider.  Enable the Suggest checkbox
-    // only if the default provider has Suggest capability.
-    const TemplateURL* default_provider =
-        url_model_->GetDefaultSearchProvider();
-    enable_suggest_checkbox_->SetEnabled(default_provider &&
-        (default_provider->suggestions_url() != NULL));
-    // TODO(pkasting): http://b/1156120 If the template URL model auto-sets a
-    // new default, ensure that the table model is notified of the change on the
-    // relevant row.
-
     UserMetrics::RecordAction(L"KeywordEditor_RemoveKeyword", profile_);
   } else if (sender == edit_button_) {
     const int selected_row = table_view_->FirstSelectedRow();
@@ -621,9 +590,6 @@ void KeywordEditorView::ButtonPressed(views::NativeButton* sender) {
         new EditKeywordController(GetContainer()->GetHWND(), template_url,
                                   this, profile_);
     controller->Show();
-  } else if (sender == enable_suggest_checkbox_) {
-    profile_->GetPrefs()->SetBoolean(prefs::kSearchSuggestEnabled,
-                                     enable_suggest_checkbox_->IsSelected());
   } else if (sender == make_default_button_) {
     MakeDefaultSearchProvider();
   } else {
@@ -634,12 +600,6 @@ void KeywordEditorView::ButtonPressed(views::NativeButton* sender) {
 void KeywordEditorView::OnTemplateURLModelChanged() {
   table_model_->Reload();
   add_button_->SetEnabled(url_model_->loaded());
-
-  // Enable the Suggest checkbox only if the default provider has Suggest
-  // capability.
-  const TemplateURL* default_provider = url_model_->GetDefaultSearchProvider();
-  enable_suggest_checkbox_->SetEnabled(default_provider &&
-      (default_provider->suggestions_url() != NULL));
 }
 
 void KeywordEditorView::MakeDefaultSearchProvider() {
@@ -659,9 +619,6 @@ void KeywordEditorView::MakeDefaultSearchProvider(int index) {
   url_model_->RemoveObserver(this);
   url_model_->SetDefaultSearchProvider(keyword);
   url_model_->AddObserver(this);
-
-  // Enable the Suggest checkbox only if this engine has Suggest capability.
-  enable_suggest_checkbox_->SetEnabled(keyword->suggestions_url() != NULL);
 
   // The formatting of the default engine is different; notify the table that
   // both old and new entries have changed.

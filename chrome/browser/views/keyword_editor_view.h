@@ -123,8 +123,6 @@ class KeywordEditorView : public views::View,
   friend class KeywordEditorViewTest;
   FRIEND_TEST(KeywordEditorViewTest, MakeDefault);
  public:
-  static void RegisterUserPrefs(PrefService* prefs);
-
   // Shows the KeywordEditorView for the specified profile. If there is a
   // KeywordEditorView already open, it is closed and a new one is shown.
   static void Show(Profile* profile);
@@ -200,7 +198,6 @@ class KeywordEditorView : public views::View,
   views::NativeButton* edit_button_;
   views::NativeButton* remove_button_;
   views::NativeButton* make_default_button_;
-  views::CheckBox* enable_suggest_checkbox_;
 
   DISALLOW_COPY_AND_ASSIGN(KeywordEditorView);
 };
