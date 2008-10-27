@@ -2167,11 +2167,14 @@ each locale. -->
         Below is the original error message
       </message>
 
-      <message name="IDS_ERRORPAGES_SUGGESTION_RELOAD" desc="Suggest reloading to the user">
+      <message name="IDS_ERRORPAGES_SUGGESTION_RELOAD" desc="When a page fails to load, we provide a suggestion that the user try reloading the page later">
         &lt;a jsvalues="href:reloadUrl"&gt;Reload&lt;/a&gt; this web page later.
       </message>
-      <message name="IDS_ERRORPAGES_SUGGESTION_HOMEPAGE" desc="String suggesting to try just the hostname of the site.">
+      <message name="IDS_ERRORPAGES_SUGGESTION_HOMEPAGE" desc="When a page fails to load, sometimes we provide a suggesting of trying just the hostname of the site.">
         Go to the homepage of the site:
+      </message>
+      <message name="IDS_ERRORPAGES_SUGGESTION_LEARNMORE" desc="When a web page fails to load, we provide a link to the help center to learn more about the failure.">
+        <ph name="BEGIN_LINK">&lt;a jsvalues="href:learnMoreUrl"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph> about this problem.
       </message>
 
       <message name="IDS_ERRORPAGES_TITLE_NOT_AVAILABLE" desc="Title of the error page when we can't connect to a site.">
