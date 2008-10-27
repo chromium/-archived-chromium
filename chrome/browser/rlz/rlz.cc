@@ -22,9 +22,8 @@
 #include "chrome/browser/template_url_model.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/env_vars.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/installer/util/google_update_settings.h"
-//#include "chrome/common/pref_names.h"
-//#include "chrome/common/pref_service.h"
 
 namespace {
 
@@ -34,7 +33,6 @@ const DWORD kMaxRlzLength = 64;
 // The RLZ is a DLL that might not be present in the system. We load it
 // as needed but never unload it.
 volatile HMODULE rlz_dll = NULL;
-
 
 enum {
   ACCESS_VALUES_STALE,      // Possibly new values available.
@@ -67,7 +65,7 @@ typedef bool (*SendFinancialPingFn)(RLZTracker::Product product,
                                     const WCHAR* product_lang,
                                     bool exclude_id,
                                     void* reserved);
-}  // extern "C"
+}  // extern "C".
 
 RecordProductEventFn record_event = NULL;
 GetAccessPointRlzFn get_access_point = NULL;
@@ -109,6 +107,59 @@ bool LoadRLZLibrary(int directory_key) {
   return false;
 }
 
+bool SendFinancialPing(const wchar_t* brand, const wchar_t* lang,
+                       bool exclude_id) {
+  RLZTracker::AccessPoint points[] = {RLZTracker::CHROME_OMNIBOX, 
+                                      RLZTracker::CHROME_HOME_PAGE,
+                                      RLZTracker::NO_ACCESS_POINT};
+  if (!send_ping)
+    return false; 
+  return send_ping(RLZTracker::CHROME, points, L"chrome", brand, NULL, lang,
+                   exclude_id, NULL);
+}
+
+// This class leverages the AutocompleteController notification to know when
+// the user first interacted with the omnibox and set a global accordingly.
+class OmniBoxUsageObserver : public NotificationObserver {
+ public:
+  OmniBoxUsageObserver() {
+    NotificationService::current()->AddObserver(this,
+        NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
+        NotificationService::AllSources());
+    omnibox_used_ = false;
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    // Try to record event now, else set the flag to try later when we
+    // attempt the ping.
+    if (!RLZTracker::RecordProductEvent(RLZTracker::CHROME,
+                                        RLZTracker::CHROME_OMNIBOX,
+                                        RLZTracker::FIRST_SEARCH))       
+      omnibox_used_ = true;
+    delete this;
+  }
+
+  static bool used() {
+    return omnibox_used_;
+  }
+
+ private:
+  // Dtor is private so the object cannot be created on the stack.
+  ~OmniBoxUsageObserver() {
+    NotificationService::current()->RemoveObserver(this,
+        NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED, 
+        NotificationService::AllSources());
+  }
+
+  static bool omnibox_used_;
+};
+
+bool OmniBoxUsageObserver::omnibox_used_ = false;
+
+// This task is run in the file thread, so to not block it for a long time
+// we use a throwaway thread to do the blocking url request.
 class DailyPingTask : public Task {
  public:
   virtual ~DailyPingTask() {
@@ -129,12 +180,13 @@ class DailyPingTask : public Task {
       lang = L"en";
     std::wstring brand;
     GoogleUpdateSettings::GetBrand(&brand);
-    if (brand.empty())
-      brand = L"GGCM";
-    if (RLZTracker::SendFinancialPing(RLZTracker::CHROME, L"chrome",
-                                      brand.c_str(), NULL, lang.c_str())) {
+    if (SendFinancialPing(brand.c_str(), lang.c_str(), is_organic(brand)))
       access_values_state = ACCESS_VALUES_STALE;
-    }
+  }
+
+  // Organic brands all start with GG, such as GGCM.
+  static bool is_organic(const std::wstring brand) {
+    return (brand.size() < 2) ? false : (brand.substr(0,2) == L"GG");
   }
 };
 
@@ -173,6 +225,12 @@ class DelayedInitTask : public Task {
                                        RLZTracker::CHROME_OMNIBOX,
                                        RLZTracker::SET_TO_GOOGLE);
       }
+      // Record first user interaction with the omnibox.
+      if (OmniBoxUsageObserver::used()) {
+        RLZTracker::RecordProductEvent(RLZTracker::CHROME,
+                                       RLZTracker::CHROME_OMNIBOX,
+                                       RLZTracker::FIRST_SEARCH);       
+      }
     }
     // Schedule the daily RLZ ping.
     base::Thread* thread = g_browser_process->file_thread();
@@ -210,6 +268,7 @@ bool RLZTracker::InitRlz(int directory_key) {
 }
 
 bool RLZTracker::InitRlzDelayed(int directory_key, bool first_run) {
+  new OmniBoxUsageObserver();
   // Schedule the delayed init items.
   const int kTwentySeconds = 20 * 1000;
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
@@ -248,15 +307,5 @@ bool RLZTracker::GetAccessPointRlz(AccessPoint point, std::wstring* rlz) {
   }
   *rlz = str_rlz;
   return true;
-}
-
-bool RLZTracker::SendFinancialPing(Product product,
-                                   const wchar_t* product_signature,
-                                   const wchar_t* product_brand,
-                                   const wchar_t* product_id,
-                                   const wchar_t* product_lang) {
-  AccessPoint points[] = {CHROME_OMNIBOX, CHROME_HOME_PAGE, NO_ACCESS_POINT};
-  return (send_ping) ? send_ping(product, points, product_signature,
-      product_brand, product_id, product_lang, false, NULL) : false;
 }
 

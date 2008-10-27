@@ -9,12 +9,15 @@
 
 #include "base/basictypes.h"
 
-// RLZ is a library which is used to measure partner distribution deals.
+// RLZ is a library which is used to measure distribution scenarios.
 // Its job is to record certain lifetime events in the registry and to send
 // them encoded as a compact string at most once per day. The sent data does
 // not contain information that can be used to identify a user or to infer
 // browsing habits. The API in this file is a wrapper to rlz.dll which can be
 // removed of the system with no adverse effects on chrome.
+// For partner or bundled installs, the RLZ might send more information
+// according to the terms disclosed in the EULA. In the Chromium build the
+// rlz.dll is not present so all the functionality becomes no-ops.
 
 class RLZTracker {
 
@@ -85,17 +88,6 @@ class RLZTracker {
   // Clear all events reported by this product. In Chrome this will be called
   // when it is un-installed.
   static bool ClearAllProductEvents(Product product);
-
-  // Called once a day to report the events to the server and to get updated
-  // RLZs for the different access points. This call uses Wininet to perform
-  // the http request. Returns true if the transaction succeeded and returns
-  // false if the transaction failed OR if a previous ping request was done
-  // in the last 24 hours.
-  static bool SendFinancialPing(Product product,
-                                const wchar_t* product_signature,
-                                const wchar_t* product_brand,
-                                const wchar_t* product_id,
-                                const wchar_t* product_lang);
 
  private:
   DISALLOW_IMPLICIT_CONSTRUCTORS(RLZTracker);
