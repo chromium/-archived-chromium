@@ -467,11 +467,6 @@ void KeywordEditorView::Init() {
   table_view_ = new views::TableView(table_model_.get(), columns,
       views::ICON_AND_TEXT, false, true, true);
   table_view_->SetObserver(this);
-  // Make the table initially sorted by name.
-  views::TableView::SortDescriptors sort;
-  sort.push_back(views::TableView::SortDescriptor(
-      IDS_SEARCH_ENGINES_EDITOR_DESCRIPTION_COLUMN, true));
-  table_view_->SetSortDescriptors(sort);
 
   add_button_ = new views::NativeButton(
       l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_NEW_BUTTON));

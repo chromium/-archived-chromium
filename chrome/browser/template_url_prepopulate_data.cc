@@ -45,7 +45,7 @@ struct PrepopulatedEngine {
   // to appear for one country (e.g. Live Search U.S. English and Spanish), we
   // must use two different unique IDs (and different keywords).
   //
-  // The following unique IDs are available: 92, 93, 103+
+  // The following unique IDs are available: 66, 93, 103+
   // NOTE: CHANGE THE ABOVE NUMBERS IF YOU ADD A NEW ENGINE; ID conflicts = bad!
   const int id;
 };
@@ -469,6 +469,16 @@ const PrepopulatedEngine go = {
   40,
 };
 
+const PrepopulatedEngine goo = {
+  L"goo",
+  L"goo.ne.jp",
+  L"http://goo.ne.jp/gooicon.ico",
+  L"http://search.goo.ne.jp/web.jsp?MT={searchTerms}&IE={inputEncoding}",
+  "UTF-8",
+  NULL,
+  92,
+};
+
 const PrepopulatedEngine google = {
   L"Google",
   NULL,
@@ -520,16 +530,6 @@ const PrepopulatedEngine in = {
   "ISO-8859-7",
   NULL,
   54,
-};
-
-const PrepopulatedEngine infoseek = {
-  L"Infoseek",
-  L"infoseek.co.jp",
-  L"http://search.www.infoseek.co.jp/favicon.ico",
-  L"http://search.www.infoseek.co.jp/Web?qt={searchTerms}&enc={inputEncoding}",
-  "EUC-JP",
-  NULL,
-  66,
 };
 
 const PrepopulatedEngine jabse = {
@@ -1603,7 +1603,7 @@ const PrepopulatedEngine t_online = {
   L"T-Online",
   L"suche.t-online.de",
   L"http://suche.t-online.de/favicon.ico",
-  L"http://suche.t-online.de/fast-cgi/tsc?q={searchTerms}",
+  L"http://suche.t-online.de/fast-cgi/tsc?sr=chrome&q={searchTerms}",
   "UTF-8",
   NULL,
   49,
@@ -2425,7 +2425,7 @@ const PrepopulatedEngine* engines_JO[] =
 
 // Japan
 const PrepopulatedEngine* engines_JP[] =
-    { &google, &yahoo_jp, &msn_ja_JP, &biglobe, &nifty, &infoseek, };
+    { &google, &yahoo_jp, &msn_ja_JP, &biglobe, &goo, &nifty, };
 
 // Kenya
 const PrepopulatedEngine* engines_KE[] = { &google, &yahoo, &msn, };
@@ -3006,7 +3006,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 16;  // Increment this if you change the above data in ways that mean
+  return 17;  // Increment this if you change the above data in ways that mean
               // users with existing data should get a new version.
 }
 
