@@ -440,6 +440,7 @@
 		B5599D130E95942900E2A85A /* SVGDocumentExtensions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D120E95942900E2A85A /* SVGDocumentExtensions.cpp */; };
 		B5599D160E9594E800E2A85A /* SVGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5599D140E9594E800E2A85A /* SVGImage.cpp */; };
 		B57635F80E96C13D008A7ABC /* ResourceResponseBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B57635F70E96C13D008A7ABC /* ResourceResponseBase.cpp */; };
+		B58533D80EB658D7007104C1 /* FileChooserChromiumMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = B58533A40EB6543C007104C1 /* FileChooserChromiumMac.mm */; };
 		B58831090E9BD5B000CEC344 /* RenderReplica.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831070E9BD5B000CEC344 /* RenderReplica.cpp */; };
 		B58831140E9BD61F00CEC344 /* TextControlInnerElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831130E9BD61F00CEC344 /* TextControlInnerElements.cpp */; };
 		B588312A0E9BD6D800CEC344 /* StringBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831290E9BD6D800CEC344 /* StringBuilder.cpp */; };
@@ -3855,6 +3856,8 @@
 		B5599D140E9594E800E2A85A /* SVGImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGImage.cpp; sourceTree = "<group>"; };
 		B5599D150E9594E800E2A85A /* SVGImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGImage.h; sourceTree = "<group>"; };
 		B57635F70E96C13D008A7ABC /* ResourceResponseBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceResponseBase.cpp; sourceTree = "<group>"; };
+		B58533A40EB6543C007104C1 /* FileChooserChromiumMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FileChooserChromiumMac.mm; path = platform/chromium/FileChooserChromiumMac.mm; sourceTree = "<group>"; };
+		B58533B90EB65626007104C1 /* FileChooserChromiumMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileChooserChromiumMac.h; path = platform/chromium/FileChooserChromiumMac.h; sourceTree = "<group>"; };
 		B58831070E9BD5B000CEC344 /* RenderReplica.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderReplica.cpp; sourceTree = "<group>"; };
 		B58831080E9BD5B000CEC344 /* RenderReplica.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderReplica.h; sourceTree = "<group>"; };
 		B58831120E9BD61F00CEC344 /* TextControlInnerElements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextControlInnerElements.h; sourceTree = "<group>"; };
@@ -7226,6 +7229,8 @@
 				E473F63A0EADFF8E006C2098 /* DragDataRef.h */,
 				E473F63B0EADFF8E006C2098 /* DragImageChromium.cpp */,
 				E473F63E0EADFFB5006C2098 /* FileChooserChromium.cpp */,
+				B58533A40EB6543C007104C1 /* FileChooserChromiumMac.mm */,
+				B58533B90EB65626007104C1 /* FileChooserChromiumMac.h */,
 				E473F6400EADFFC6006C2098 /* FileSystemPosix.cpp */,
 				E473F6410EADFFC6006C2098 /* FramelessScrollView.cpp */,
 				E473F6420EADFFC6006C2098 /* FramelessScrollView.h */,
@@ -8699,6 +8704,7 @@
 				E473F6860EAE01F5006C2098 /* EventHandlerChromium.cpp in Sources */,
 				4D11C4E10E9ABEA900EF7617 /* ExceptionContextV8.cpp in Sources */,
 				E473F63F0EADFFB5006C2098 /* FileChooserChromium.cpp in Sources */,
+				B58533D80EB658D7007104C1 /* FileChooserChromiumMac.mm in Sources */,
 				E473F6430EADFFC6006C2098 /* FileSystemPosix.cpp in Sources */,
 				4DB044260EB161E800A5633C /* FontCacheMacPending.cpp in Sources */,
 				E473F6880EAE021B006C2098 /* FrameChromium.cpp in Sources */,

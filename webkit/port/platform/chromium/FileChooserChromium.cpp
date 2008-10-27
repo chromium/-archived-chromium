@@ -33,6 +33,9 @@
 #include "Document.h"
 #include "Frame.h"
 #include "FileChooser.h"
+#if PLATFORM(DARWIN)
+#include "FileChooserChromiumMac.h"
+#endif
 #include "LocalizedStrings.h"
 #include "NotImplemented.h"
 #include "Page.h"
@@ -68,6 +71,8 @@ String FileChooser::basenameForWidth(const Font& font, int width) const
         // Apple's code has a LPTSTR here, which will compile and run, but is wrong.
         wchar_t* basename = PathFindFileName(tmpFilename.charactersWithNullTermination());
         string = String(basename);
+#elif PLATFORM(DARWIN)
+        string = FileChooserGetBaseNameFromPath(m_filename);
 #else
         notImplemented();
         string = "fixme";
