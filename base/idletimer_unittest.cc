@@ -173,7 +173,8 @@ TEST_F(IdleTimerTest, Repeat) {
   EXPECT_LE(test_task.get_idle_counter(), 10);
 }
 
-TEST_F(IdleTimerTest, RepeatIdleReset) {
+// TODO(darin):  http://code.google.com/p/chromium/issues/detail?id=3780
+TEST_F(IdleTimerTest, DISABLED_RepeatIdleReset) {
   // Create an IdleTimer, which should fire repeatedly after 100ms.
   // Create a Quit timer which will fire after 1s.
   // Create a reset timer, which fires after 550ms
