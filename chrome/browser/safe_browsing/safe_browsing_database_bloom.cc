@@ -43,7 +43,6 @@ static const int kMaxStalenessMinutes = 45;
 
 SafeBrowsingDatabaseBloom::SafeBrowsingDatabaseBloom()
     : db_(NULL),
-      transaction_count_(0),
       init_(false),
       chunk_inserted_callback_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(reset_factory_(this)),
@@ -110,25 +109,10 @@ bool SafeBrowsingDatabaseBloom::Close() {
   if (!db_)
     return true;
 
-  if (!pending_add_del_.empty()) {
-    while (!pending_add_del_.empty())
-      pending_add_del_.pop();
-
-    EndTransaction();
-  }
-
-  while (!pending_chunks_.empty()) {
-    std::deque<SBChunk>* chunks = pending_chunks_.front();
-    safe_browsing_util::FreeChunks(chunks);
-    delete chunks;
-    pending_chunks_.pop();
-    EndTransaction();
-  }
-
   statement_cache_.reset();  // Must free statements before closing DB.
-  transaction_.reset();
   bool result = sqlite3_close(db_) == SQLITE_OK;
   db_ = NULL;
+
   return result;
 }
 
@@ -251,9 +235,7 @@ bool SafeBrowsingDatabaseBloom::CreateTables() {
 // running are queued up and run once the reset is done.
 bool SafeBrowsingDatabaseBloom::ResetDatabase() {
   hash_cache_.clear();
-  add_chunk_cache_.clear();
-  sub_chunk_cache_.clear();
-  prefix_miss_cache_.clear();
+  ClearUpdateCaches();
 
   bool rv = Close();
   DCHECK(rv);
@@ -286,6 +268,14 @@ bool SafeBrowsingDatabaseBloom::CheckCompatibleVersion() {
     return false;
 
   return statement->column_int(0) == kDatabaseVersion;
+}
+
+void SafeBrowsingDatabaseBloom::ClearUpdateCaches() {
+  add_del_cache_.clear();
+  sub_del_cache_.clear();
+  add_chunk_cache_.clear();
+  sub_chunk_cache_.clear();
+  prefix_miss_cache_.clear();
 }
 
 bool SafeBrowsingDatabaseBloom::ContainsUrl(
@@ -363,14 +353,6 @@ bool SafeBrowsingDatabaseBloom::NeedToCheckUrl(const GURL& url) {
   return true;
 }
 
-void SafeBrowsingDatabaseBloom::ProcessPendingWork() {
-  BeginTransaction();
-  prefix_miss_cache_.clear();
-  ProcessChunks();
-  ProcessAddDel();
-  EndTransaction();
-}
-
 void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
                                              std::deque<SBChunk>* chunks) {
   // We've going to be updating the bloom filter, so delete the on-disk
@@ -381,23 +363,50 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
   // I think we need some way to indicate that the bloom filter is out of date
   // and needs to be rebuilt, but we shouldn't delete it.
   // DeleteBloomFilter();
+  if (chunks->empty())
+    return;
 
   int list_id = GetListID(list_name);
-  std::deque<SBChunk>::iterator i = chunks->begin();
-  for (; i != chunks->end(); ++i) {
-    SBChunk& chunk = (*i);
+  ChunkType chunk_type = chunks->front().is_add ? ADD_CHUNK : SUB_CHUNK;
+
+  while (!chunks->empty()) {
+    SBChunk& chunk = chunks->front();
     chunk.list_id = list_id;
-    std::deque<SBChunkHost>::iterator j = chunk.hosts.begin();
-    for (; j != chunk.hosts.end(); ++j) {
-      j->entry->set_list_id(list_id);
-      if (j->entry->IsAdd())
-        j->entry->set_chunk_id(chunk.chunk_number);
+    int chunk_id = chunk.chunk_number;
+
+    // The server can give us a chunk that we already have because it's part of
+    // a range.  Don't add it again.
+    if (!ChunkExists(list_id, chunk_type, chunk_id)) {
+      while (!chunk.hosts.empty()) {
+        // Read the existing record for this host, if it exists.
+        SBPrefix host = chunk.hosts.front().host;
+        SBEntry* entry = chunk.hosts.front().entry;
+        entry->set_list_id(list_id);
+        if (chunk_type == ADD_CHUNK) {
+          entry->set_chunk_id(chunk_id);
+          AddEntry(host, entry);
+        } else {
+          AddSub(chunk_id, host, entry);
+        }
+
+        entry->Destroy();
+        chunk.hosts.pop_front();
+      }
+
+      int encoded = EncodeChunkId(chunk_id, list_id);
+      if (chunk_type == ADD_CHUNK)
+        add_chunk_cache_.insert(encoded);
+      else
+        sub_chunk_cache_.insert(encoded);
     }
+
+    chunks->pop_front();
   }
 
-  pending_chunks_.push(chunks);
+  delete chunks;
 
-  ProcessPendingWork();
+  if (chunk_inserted_callback_)
+    chunk_inserted_callback_->Run();
 }
 
 void SafeBrowsingDatabaseBloom::UpdateFinished(bool update_succeeded) {
@@ -406,57 +415,8 @@ void SafeBrowsingDatabaseBloom::UpdateFinished(bool update_succeeded) {
 
   // We won't need the chunk caches until the next update (which will read them
   // from the database), so free their memory as they may contain thousands of
-  // chunk numbers.
-  add_chunk_cache_.clear();
-  sub_chunk_cache_.clear();
-}
-
-void SafeBrowsingDatabaseBloom::ProcessChunks() {
-  if (pending_chunks_.empty())
-    return;
-
-  while (!pending_chunks_.empty()) {
-    std::deque<SBChunk>* chunks = pending_chunks_.front();
-    if (chunks->front().is_add) {
-      ProcessAddChunks(chunks);
-    } else {
-      ProcessSubChunks(chunks);
-    }
-
-    delete chunks;
-    pending_chunks_.pop();
-  }
-
-  if (chunk_inserted_callback_)
-    chunk_inserted_callback_->Run();
-}
-
-void SafeBrowsingDatabaseBloom::ProcessAddChunks(std::deque<SBChunk>* chunks) {
-  while (!chunks->empty()) {
-    SBChunk& chunk = chunks->front();
-    int list_id = chunk.list_id;
-    int chunk_id = chunk.chunk_number;
-
-    // The server can give us a chunk that we already have because it's part of
-    // a range.  Don't add it again.
-    if (!ChunkExists(list_id, ADD_CHUNK, chunk_id)) {
-      while (!chunk.hosts.empty()) {
-        WaitAfterResume();
-        // Read the existing record for this host, if it exists.
-        SBPrefix host = chunk.hosts.front().host;
-        SBEntry* entry = chunk.hosts.front().entry;
-
-        AddEntry(host, entry);
-
-        entry->Destroy();
-        chunk.hosts.pop_front();
-      }
-      int encoded = EncodeChunkId(chunk_id, list_id);
-      add_chunk_cache_.insert(encoded);
-    }
-
-    chunks->pop_front();
-  }
+  // entries.
+  ClearUpdateCaches();
 }
 
 void SafeBrowsingDatabaseBloom::AddEntry(SBPrefix host, SBEntry* entry) {
@@ -615,128 +575,27 @@ int SafeBrowsingDatabaseBloom::GetAddPrefixCount() {
   return add_count;
 }
 
-void SafeBrowsingDatabaseBloom::ProcessSubChunks(std::deque<SBChunk>* chunks) {
-  while (!chunks->empty()) {
-    SBChunk& chunk = chunks->front();
-    int list_id = chunk.list_id;
-    int chunk_id = chunk.chunk_number;
-
-    if (!ChunkExists(list_id, SUB_CHUNK, chunk_id)) {
-      while (!chunk.hosts.empty()) {
-        WaitAfterResume();
-
-        SBPrefix host = chunk.hosts.front().host;
-        SBEntry* entry = chunk.hosts.front().entry;
-        AddSub(chunk_id, host, entry);
-
-        entry->Destroy();
-        chunk.hosts.pop_front();
-      }
-
-      int encoded = EncodeChunkId(chunk_id, list_id);
-      sub_chunk_cache_.insert(encoded);
-    }
-
-    chunks->pop_front();
-  }
-}
-
 void SafeBrowsingDatabaseBloom::DeleteChunks(
     std::vector<SBChunkDelete>* chunk_deletes) {
-  BeginTransaction();
-  bool pending_add_del_were_empty = pending_add_del_.empty();
+  if (chunk_deletes->empty())
+    return;
+
+  int list_id = GetListID(chunk_deletes->front().list_name);
 
   for (size_t i = 0; i < chunk_deletes->size(); ++i) {
     const SBChunkDelete& chunk = (*chunk_deletes)[i];
     std::vector<int> chunk_numbers;
     RangesToChunks(chunk.chunk_del, &chunk_numbers);
     for (size_t del = 0; del < chunk_numbers.size(); ++del) {
-      if (chunk.is_sub_del) {
-        SubDel(chunk.list_name, chunk_numbers[del]);
-      } else {
-        AddDel(chunk.list_name, chunk_numbers[del]);
-      }
+      int encoded_chunk = EncodeChunkId(chunk_numbers[del], list_id);
+      if (chunk.is_sub_del)
+        sub_del_cache_.insert(encoded_chunk);
+      else
+        add_del_cache_.insert(encoded_chunk);
     }
   }
 
-  if (pending_add_del_were_empty && !pending_add_del_.empty()) {
-    ProcessPendingWork();
-  }
-
   delete chunk_deletes;
-  EndTransaction();
-}
-
-void SafeBrowsingDatabaseBloom::AddDel(const std::string& list_name,
-                                       int add_chunk_id) {
-  int list_id = GetListID(list_name);
-  AddDel(list_id, add_chunk_id);
-}
-
-// TODO(paulg): Change this from a database scan to an in-memory operation done
-// while building the bloom filter.
-void SafeBrowsingDatabaseBloom::AddDel(int list_id,
-                                       int add_chunk_id) {
-  STATS_COUNTER(L"SB.ChunkDelete", 1);
-  // Find all the prefixes that came from the given add_chunk_id.
-  SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
-      "DELETE FROM add_prefix WHERE chunk=?");
-  if (!statement.is_valid()) {
-    NOTREACHED();
-    return;
-  }
-
-  int encoded = EncodeChunkId(add_chunk_id, list_id);
-  statement->bind_int(0, encoded);
-  int rv = statement->step();
-  if (rv == SQLITE_CORRUPT) {
-    HandleCorruptDatabase();
-  } else {
-    DCHECK(rv == SQLITE_DONE);
-  }
-  add_chunk_cache_.erase(encoded);
-}
-
-void SafeBrowsingDatabaseBloom::SubDel(const std::string& list_name,
-                                       int sub_chunk_id) {
-  int list_id = GetListID(list_name);
-  SubDel(list_id, sub_chunk_id);
-}
-
-// TODO(paulg): Change this from a database scan to an in-memory operation done
-// while building the bloom filter.
-void SafeBrowsingDatabaseBloom::SubDel(int list_id,
-                                       int sub_chunk_id) {
-  STATS_COUNTER(L"SB.ChunkDelete", 1);
-  // Find all the prefixes that came from the given add_chunk_id.
-  SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
-      "DELETE FROM sub_prefix WHERE chunk=?");
-  if (!statement.is_valid()) {
-    NOTREACHED();
-    return;
-  }
-
-  int encoded = EncodeChunkId(sub_chunk_id, list_id);
-  statement->bind_int(0, encoded);
-  int rv = statement->step();
-  if (rv == SQLITE_CORRUPT) {
-    HandleCorruptDatabase();
-  } else {
-    DCHECK(rv == SQLITE_DONE);
-  }
-  sub_chunk_cache_.erase(encoded);
-}
-
-void SafeBrowsingDatabaseBloom::ProcessAddDel() {
-  if (pending_add_del_.empty())
-    return;
-
-  while (!pending_add_del_.empty()) {
-    AddDelWork& add_del_work = pending_add_del_.front();
-    ClearCachedHashesForChunk(add_del_work.list_id, add_del_work.add_chunk_id);
-    AddDel(add_del_work.list_id, add_del_work.add_chunk_id);
-    pending_add_del_.pop();
-  }
 }
 
 bool SafeBrowsingDatabaseBloom::ChunkExists(int list_id,
@@ -920,18 +779,18 @@ void SafeBrowsingDatabaseBloom::ReadChunkNumbers() {
 }
 
 // Write all the chunk numbers to the add_chunks and sub_chunks tables.
-void SafeBrowsingDatabaseBloom::WriteChunkNumbers() {
+bool SafeBrowsingDatabaseBloom::WriteChunkNumbers() {
   // Delete the contents of the add chunk table.
   SQLITE_UNIQUE_STATEMENT(del_add_chunk, *statement_cache_,
                           "DELETE FROM add_chunks");
   if (!del_add_chunk.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
   int rv = del_add_chunk->step();
   if (rv == SQLITE_CORRUPT) {
     HandleCorruptDatabase();
-    return;
+    return false;
   }
   DCHECK(rv == SQLITE_DONE);
 
@@ -939,21 +798,22 @@ void SafeBrowsingDatabaseBloom::WriteChunkNumbers() {
                           "INSERT INTO add_chunks (chunk) VALUES (?)");
   if (!write_adds.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
 
   // Write all the add chunks from the cache to the database.
   std::set<int>::const_iterator it = add_chunk_cache_.begin();
-  while (it != add_chunk_cache_.end()) {
+  for (; it != add_chunk_cache_.end(); ++it) {
+    if (add_del_cache_.find(*it) != add_del_cache_.end())
+      continue;  // This chunk has been deleted.
     write_adds->bind_int(0, *it);
     rv = write_adds->step();
     if (rv == SQLITE_CORRUPT) {
       HandleCorruptDatabase();
-      return;
+      return false;
     }
     DCHECK(rv == SQLITE_DONE);
     write_adds->reset();
-    ++it;
   }
 
   // Delete the contents of the sub chunk table.
@@ -961,12 +821,12 @@ void SafeBrowsingDatabaseBloom::WriteChunkNumbers() {
                           "DELETE FROM sub_chunks");
   if (!del_sub_chunk.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
   rv = del_sub_chunk->step();
   if (rv == SQLITE_CORRUPT) {
     HandleCorruptDatabase();
-    return;
+    return false;
   }
   DCHECK(rv == SQLITE_DONE);
 
@@ -974,31 +834,28 @@ void SafeBrowsingDatabaseBloom::WriteChunkNumbers() {
                           "INSERT INTO sub_chunks (chunk) VALUES (?)");
   if (!write_subs.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
 
   // Write all the sub chunks from the cache to the database.
   it = sub_chunk_cache_.begin();
-  while (it != sub_chunk_cache_.end()) {
+  for (; it != sub_chunk_cache_.end(); ++it) {
+    if (sub_del_cache_.find(*it) != sub_del_cache_.end())
+      continue;  // This chunk has been deleted.
     write_subs->bind_int(0, *it);
     rv = write_subs->step();
     if (rv == SQLITE_CORRUPT) {
       HandleCorruptDatabase();
-      return;
+      return false;
     }
     DCHECK(rv == SQLITE_DONE);
     write_subs->reset();
-    ++it;
   }
+
+  return true;
 }
 
-// Helper struct and compare function for building the bloom filter.
-typedef struct {
-  int chunk_id;
-  SBPrefix prefix;
-} SBPair;
-
-static int pair_compare(const void* arg1, const void* arg2) {
+int SafeBrowsingDatabaseBloom::PairCompare(const void* arg1, const void* arg2) {
   const SBPair* p1 = reinterpret_cast<const SBPair*>(arg1);
   const SBPair* p2 = reinterpret_cast<const SBPair*>(arg2);
   int delta = p1->chunk_id - p2->chunk_id;
@@ -1007,34 +864,16 @@ static int pair_compare(const void* arg1, const void* arg2) {
   return delta;
 }
 
-// TODO(erikkay): should we call WaitAfterResume() inside any of the loops here?
-// This is a pretty fast operation and it would be nice to let it finish.
-// TODO(erikkay, paulg): Break this into smaller functions.
-void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
-  Time before = Time::Now();
-
-  add_count_ = GetAddPrefixCount();
-  if (add_count_ == 0) {
-    bloom_filter_ = NULL;
-    return;
-  }
-
-  scoped_array<SBPair> adds_array(new SBPair[add_count_]);
-  SBPair* adds = adds_array.get();
-
-  // Used to track which adds have been subbed out. The vector<bool> is actually
-  // a bitvector so the size is as small as we can get.
-  std::vector<bool> adds_removed;
-  adds_removed.resize(add_count_, false);
-
+bool SafeBrowsingDatabaseBloom::BuildAddList(SBPair* adds) {
   // Read add_prefix into memory and sort it.
   STATS_COUNTER(L"SB.HostSelectForBloomFilter", 1);
   SQLITE_UNIQUE_STATEMENT(add_prefix, *statement_cache_,
       "SELECT chunk, prefix FROM add_prefix");
   if (!add_prefix.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
+
   SBPair* add = adds;
   while (true) {
     int rv = add_prefix->step();
@@ -1050,21 +889,20 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
       break;
   }
   DCHECK(add_count_ == (add - adds));
-  qsort(adds, add_count_, sizeof(SBPair), pair_compare);
+  qsort(adds, add_count_, sizeof(SBPair),
+        &SafeBrowsingDatabaseBloom::PairCompare);
 
+  return true;
+}
+
+bool SafeBrowsingDatabaseBloom::RemoveSubs(SBPair* adds,
+                                           std::vector<bool>* adds_removed) {
   // Read through sub_prefix and zero out add_prefix entries that match.
   SQLITE_UNIQUE_STATEMENT(sub_prefix, *statement_cache_,
       "SELECT chunk, add_chunk, prefix FROM sub_prefix");
   if (!sub_prefix.is_valid()) {
     NOTREACHED();
-    return;
-  }
-
-  scoped_ptr<SQLTransaction> update_transaction;
-  update_transaction.reset(new SQLTransaction(db_));
-  if (update_transaction->Begin() != SQLITE_OK) {
-    NOTREACHED();
-    return;
+    return false;
   }
 
   // Create a temporary sub prefix table. We add entries to it as we scan the
@@ -1076,7 +914,7 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
                    "add_chunk INTEGER,"
                    "prefix INTEGER)",
                    NULL, NULL, NULL) != SQLITE_OK) {
-    return;
+    return false;
   }
 
   SQLITE_UNIQUE_STATEMENT(
@@ -1085,48 +923,64 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
       "INSERT INTO sub_prefix_tmp (chunk,add_chunk,prefix) VALUES (?,?,?)");
   if (!sub_prefix_tmp.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
 
   SBPair sub;
   while (true) {
     int rv = sub_prefix->step();
     if (rv != SQLITE_ROW) {
-      if (rv == SQLITE_CORRUPT)
+      if (rv == SQLITE_CORRUPT) {
         HandleCorruptDatabase();
+        return false;
+      }
       break;
     }
+
+    int sub_chunk = sub_prefix->column_int(0);
     sub.chunk_id = sub_prefix->column_int(1);
     sub.prefix = sub_prefix->column_int(2);
-    void* match = bsearch(&sub, adds, add_count_, sizeof(SBPair), pair_compare);
+
+    // See if this sub chunk has been deleted via a SubDel, and skip doing the
+    // search or write if so.
+    if (sub_del_cache_.find(sub_chunk) != sub_del_cache_.end())
+      continue;
+
+    void* match = bsearch(&sub, adds, add_count_, sizeof(SBPair), 
+                          &SafeBrowsingDatabaseBloom::PairCompare);
     if (match) {
       SBPair* subbed = reinterpret_cast<SBPair*>(match);
-      adds_removed[subbed - adds] = true;
+      (*adds_removed)[subbed - adds] = true;
     } else {
       // This sub_prefix entry did not match any add, so we keep it around.
-      sub_prefix_tmp->bind_int(0, sub_prefix->column_int(0));
+      sub_prefix_tmp->bind_int(0, sub_chunk);
       sub_prefix_tmp->bind_int(1, sub.chunk_id);
       sub_prefix_tmp->bind_int(2, sub.prefix);
       int rv = sub_prefix_tmp->step();
       if (rv == SQLITE_CORRUPT) {
         HandleCorruptDatabase();
-        return;
+        return false;
       }
       DCHECK(rv == SQLITE_DONE);
       sub_prefix_tmp->reset();
     }
   }
+  
+  return true;
+}
 
+bool SafeBrowsingDatabaseBloom::UpdateTables() {
   // Delete the old sub_prefix table and rename the temporary table.
   SQLITE_UNIQUE_STATEMENT(del_sub, *statement_cache_, "DROP TABLE sub_prefix");
   if (!del_sub.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
+
   int rv = del_sub->step();
   if (rv == SQLITE_CORRUPT) {
     HandleCorruptDatabase();
-    return;
+    return false;
   }
   DCHECK(rv == SQLITE_DONE);
 
@@ -1134,12 +988,12 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
                           "ALTER TABLE sub_prefix_tmp RENAME TO sub_prefix");
   if (!rename_sub.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
   rv = rename_sub->step();
   if (rv == SQLITE_CORRUPT) {
     HandleCorruptDatabase();
-    return;
+    return false;
   }
   DCHECK(rv == SQLITE_DONE);
 
@@ -1148,36 +1002,55 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
   SQLITE_UNIQUE_STATEMENT(del_add, *statement_cache_, "DELETE FROM add_prefix");
   if (!del_add.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
   rv = del_add->step();
   if (rv == SQLITE_CORRUPT) {
     HandleCorruptDatabase();
-    return;
+    return false;
   }
   DCHECK(rv == SQLITE_DONE);
+
+  return true;
+}
+
+bool SafeBrowsingDatabaseBloom::WritePrefixes(
+    SBPair* adds,
+    const std::vector<bool>& adds_removed,
+    int* new_add_count,
+    BloomFilter** filter) {
+  *filter = NULL;
+  *new_add_count = 0;
 
   SQLITE_UNIQUE_STATEMENT(insert, *statement_cache_,
                           "INSERT INTO add_prefix VALUES (?,?)");
   if (!insert.is_valid()) {
     NOTREACHED();
-    return;
+    return false;
   }
+
   int number_of_keys = std::max(add_count_, kBloomFilterMinSize);
   int filter_size = number_of_keys * kBloomFilterSizeRatio;
-  BloomFilter* filter = new BloomFilter(filter_size);
-  add = adds;
+  BloomFilter* new_filter = new BloomFilter(filter_size);
+  SBPair* add = adds;
   int new_count = 0;
+
   while (add - adds < add_count_) {
     if (!adds_removed[add - adds]) {
-      filter->Insert(add->prefix);
+      // Check to see if we have an AddDel for this chunk and skip writing it
+      // if there is.
+      if (add_del_cache_.find(add->chunk_id) != add_del_cache_.end()) {
+        add++;
+        continue;
+      }
+      new_filter->Insert(add->prefix);
       insert->bind_int(0, add->chunk_id);
       insert->bind_int(1, add->prefix);
-      rv = insert->step();
+      int rv = insert->step();
       if (rv == SQLITE_CORRUPT) {
         HandleCorruptDatabase();
-        delete filter;  // TODO(paulg): scoped.
-        return;
+        delete new_filter;  // TODO(paulg): scoped.
+        return false;
       }
       DCHECK(rv == SQLITE_DONE);
       insert->reset();
@@ -1186,41 +1059,76 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
     add++;
   }
 
-  update_transaction->Commit();
+  *new_add_count = new_count;
+  *filter = new_filter;
+
+  return true;
+}
+
+// TODO(erikkay): should we call WaitAfterResume() inside any of the loops here?
+// This is a pretty fast operation and it would be nice to let it finish.
+void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
+  Time before = Time::Now();
+
+  add_count_ = GetAddPrefixCount();
+  if (add_count_ == 0) {
+    bloom_filter_ = NULL;
+    return;
+  }
+
+  scoped_array<SBPair> adds_array(new SBPair[add_count_]);
+  SBPair* adds = adds_array.get();
+
+  if (!BuildAddList(adds))
+    return;
+
+  // Protect the remaining operations on the database with a transaction.
+  scoped_ptr<SQLTransaction> update_transaction;
+  update_transaction.reset(new SQLTransaction(db_));
+  if (update_transaction->Begin() != SQLITE_OK) {
+    NOTREACHED();
+    return;
+  }
+
+  // Used to track which adds have been subbed out. The vector<bool> is actually
+  // a bitvector so the size is as small as we can get.
+  std::vector<bool> adds_removed;
+  adds_removed.resize(add_count_, false);
+
+  // Flag any add as removed if there is a matching sub.
+  if (!RemoveSubs(adds, &adds_removed))
+    return;
+
+  // Prepare the database for writing out our remaining add and sub prefixes.
+  if (!UpdateTables())
+    return;
+
+  // Write out the remaining adds to the filter and database.
+  int new_count;
+  BloomFilter* filter;
+  if (!WritePrefixes(adds, adds_removed, &new_count, &filter))
+    return;
 
   // If there were any matching subs, the size will be smaller.
   add_count_ = new_count;
   bloom_filter_ = filter;
 
   TimeDelta bloom_gen = Time::Now() - before;
-  SB_DLOG(INFO) << "SafeBrowsingDatabaseImpl built bloom filter in " <<
-      bloom_gen.InMilliseconds() << " ms total.  prefix count: " <<
-      add_count_;
+  SB_DLOG(INFO) << "SafeBrowsingDatabaseImpl built bloom filter in "
+                << bloom_gen.InMilliseconds()
+                << " ms total.  prefix count: "<< add_count_;
   UMA_HISTOGRAM_LONG_TIMES(L"SB.BuildBloom", bloom_gen);
 
+  // Save the chunk numbers we've received to the database for reporting in
+  // future update requests.
+  if (!WriteChunkNumbers())
+    return;
+
+  // We've made it this far without errors, so commit the changes.
+  update_transaction->Commit();
+
+  // Persist the bloom filter to disk.
   WriteBloomFilter();
-  WriteChunkNumbers();
-}
-
-void SafeBrowsingDatabaseBloom::BeginTransaction() {
-  transaction_count_++;
-  if (transaction_.get() == NULL) {
-    transaction_.reset(new SQLTransaction(db_));
-    if (transaction_->Begin() != SQLITE_OK) {
-      DCHECK(false) << "Safe browsing database couldn't start transaction";
-      transaction_.reset();
-    }
-  }
-}
-
-void SafeBrowsingDatabaseBloom::EndTransaction() {
-  if (--transaction_count_ == 0) {
-    if (transaction_.get() != NULL) {
-      STATS_COUNTER(L"SB.TransactionCommit", 1);
-      transaction_->Commit();
-      transaction_.reset();
-    }
-  }
 }
 
 void SafeBrowsingDatabaseBloom::GetCachedFullHashes(
