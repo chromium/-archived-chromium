@@ -48,7 +48,7 @@ class RegistryEntry {
     std::wstring icon_path(chrome_exe);
     ShellUtil::GetChromeIcon(icon_path);
     std::wstring quoted_exe_path = L"\"" + chrome_exe + L"\"";
-    std::wstring open_cmd = quoted_exe_path + L" \"%1\"";
+    std::wstring open_cmd = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
 
     entries.push_front(new RegistryEntry(L"Software\\Classes\\ChromeHTML",
                                          L"Chrome HTML"));
@@ -191,7 +191,7 @@ bool CreateChromeRegKeysForXP(HKEY root_key, const std::wstring& chrome_exe) {
   std::wstring classes_path(ShellUtil::kRegClasses);
 
   std::wstring exe_name = file_util::GetFilenameFromPath(chrome_exe);
-  std::wstring chrome_open = L"\"" + chrome_exe + L"\" \"%1\"";
+  std::wstring chrome_open = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
   std::wstring chrome_icon(chrome_exe);
   ShellUtil::GetChromeIcon(chrome_icon);
 
@@ -366,6 +366,10 @@ bool ShellUtil::GetChromeIcon(std::wstring& chrome_icon) {
 
   chrome_icon.append(L",0");
   return true;
+}
+
+std::wstring ShellUtil::GetChromeShellOpenCmd(const std::wstring& chrome_exe) {
+  return L"\"" + chrome_exe + L"\" -- \"%1\"";
 }
 
 bool ShellUtil::GetChromeShortcutName(std::wstring* shortcut) {

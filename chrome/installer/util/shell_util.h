@@ -122,6 +122,11 @@ class ShellUtil {
   // chrome_icon: full path to chrome.exe.
   static bool GetChromeIcon(std::wstring& chrome_icon);
 
+  // This method returns the command to open URLs/files using chrome. Typically
+  // this command is written to the registry under shell\open\command key.
+  // chrome_exe: the full path to chrome.exe
+  static std::wstring GetChromeShellOpenCmd(const std::wstring& chrome_exe);
+
   // Returns the localized name of Chrome shortcut.
   static bool GetChromeShortcutName(std::wstring* shortcut);
 
