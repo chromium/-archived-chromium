@@ -1,0 +1,100 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$GTEST_DIR/../using_gtest.scons',
+], {'env':env})
+
+# Some of the sandbox sources include "gtest.h", so we need it
+# in the base env here, not just in env_tests.
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+    CPPDEFINES = [
+        'CHROMIUM_BUILD',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CPPDEFINES = [
+          '_SECURE_ATL',
+          '_WINDOWS',
+      ],
+      CCFLAGS = [
+          '/TP',
+          '/WX',          # treat warnings as errors
+      ],
+  )
+
+input_files = [
+    'Wow64.cc',
+    'acl.cc',
+    'broker_services.cc',
+    'crosscall_server.cc',
+    'dep.cc',
+    'eat_resolver.cc',
+    'filesystem_dispatcher.cc',
+    'filesystem_interception.cc',
+    'filesystem_policy.cc',
+    'interception.cc',
+    'interception_agent.cc',
+    'job.cc',
+    'named_pipe_dispatcher.cc',
+    'named_pipe_interception.cc',
+    'named_pipe_policy.cc',
+    'pe_image.cc',
+    'policy_broker.cc',
+    'policy_engine_opcodes.cc',
+    'policy_engine_processor.cc',
+    'policy_low_level.cc',
+    'policy_target.cc',
+    'process_thread_dispatcher.cc',
+    'process_thread_interception.cc',
+    'process_thread_policy.cc',
+    'registry_dispatcher.cc',
+    'registry_interception.cc',
+    'registry_policy.cc',
+    'resolver.cc',
+    'restricted_token.cc',
+    'restricted_token_utils.cc',
+    'sandbox.cc',
+    'sandbox_nt_util.cc',
+    'sandbox_policy_base.cc',
+    'sandbox_utils.cc',
+    'service_resolver.cc',
+    'shared_handles.cc',
+    'sharedmem_ipc_client.cc',
+    'sharedmem_ipc_server.cc',
+    'sid.cc',
+    'sidestep/ia32_modrm_map.cpp',
+    'sidestep/ia32_opcode_map.cpp',
+    'sidestep/mini_disassembler.cpp',
+    'sidestep/preamble_patcher_with_stub.cpp',
+    'sidestep_resolver.cc',
+    'sync_dispatcher.cc',
+    'sync_interception.cc',
+    'sync_policy.cc',
+    'target_interceptions.cc',
+    'target_process.cc',
+    'target_services.cc',
+    'win2k_threadpool.cc',
+    'win_utils.cc',
+]
+
+# TODO(bradnelson): This step generates sandbox.pch.ib_tag
+#                   SCons doesn't know.
+env_p = env.Clone()
+env_p.Append(CCFLAGS='/Ylsandbox')
+pch, obj = env_p.PCH(['sandbox.pch', 'stdafx.obj'], 'stdafx.cc')
+env['PCH'] = pch
+env['PCHSTOP'] = 'stdafx.h'
+env.Append(CCPCHFLAGS = ['/FIstdafx.h'])
+
+env.ChromeStaticLibrary('sandbox', input_files + [obj])

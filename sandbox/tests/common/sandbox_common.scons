@@ -1,0 +1,29 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+    CPPDEFINES = [
+        'CHROMIUM_BUILD',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CPPDEFINES = [
+          '_SECURE_ATL',
+          '_WINDOWS',
+      ],
+      CCFLAGS = [
+          '/WX',          # treat warnings as errors
+      ],
+  )
+
+env.StaticObject('controller.cc')

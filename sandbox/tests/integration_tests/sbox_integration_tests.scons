@@ -1,0 +1,81 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$BASE_DIR/using_base.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$SANDBOX_DIR/using_sandbox.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+    CPPDEFINES = [
+        'CHROMIUM_BUILD',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CPPDEFINES = [
+          '_SECURE_ATL',
+          '_WINDOWS',
+      ],
+      CCFLAGS = [
+          '/TP',
+          '/WX',          # treat warnings as errors
+      ],
+  )
+
+env.Prepend(
+    LINKFLAGS = [
+        '/DELAYLOAD:dwmapi.dll',
+        '/DELAYLOAD:uxtheme.dll',
+        '/MACHINE:X86',
+        '/FIXED:No',
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+    ],
+)
+
+
+
+# TODO(bradnelson): This step generates integration_tests.pch.ib_tag
+#                   SCons doesn't know.
+env_p = env.Clone()
+pch, obj = env_p.PCH(['integration_tests.pch', 'integration_tests.obj'],
+                     'integration_tests.cc')
+env['PCH'] = pch
+env['PCHSTOP'] = 'stdafx.h'
+env.Append(CCPCHFLAGS = ['/FIstdafx.h'])
+
+
+input_files = [
+    obj,
+    'integration_tests_test.cc',
+
+#    '$SANDBOX_DIR/src/dep_test.cc',
+    '$SANDBOX_DIR/src/file_policy_test.cc',
+    '$SANDBOX_DIR/src/integrity_level_test.cc',
+    '$SANDBOX_DIR/src/ipc_ping_test.cc',
+    '$SANDBOX_DIR/src/named_pipe_policy_test.cc',
+    '$SANDBOX_DIR/src/policy_target_test.cc',
+    '$SANDBOX_DIR/src/process_policy_test.cc',
+    '$SANDBOX_DIR/src/registry_policy_test.cc',
+    '$SANDBOX_DIR/src/sync_policy_test.cc',
+    '$SANDBOX_DIR/src/unload_dll_test.cc',
+
+    '../common/controller$OBJSUFFIX',
+]
+
+integration_tests = env.ChromeTestProgram('sbox_integration_tests', input_files)
+i = env.Install('$TARGET_ROOT', integration_tests)
+env.Alias('sandbox', i)

@@ -489,7 +489,7 @@ if LoadComponent('rlz'):
   sconscripts.append('$RLZ_DIR/SConscript')
 
 if LoadComponent('sandbox'):
-  sconscripts.append('$SANDBOX_DIR/src/SConscript')
+  sconscripts.append('$SANDBOX_DIR/sandbox.scons')
 
 if LoadComponent('sdch'):
   sconscripts.append('$SDCH_DIR/SConscript')

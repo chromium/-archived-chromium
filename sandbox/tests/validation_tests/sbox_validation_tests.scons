@@ -1,0 +1,74 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$BASE_DIR/using_base.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$SANDBOX_DIR/using_sandbox.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+    CPPDEFINES = [
+        'CHROMIUM_BUILD',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      CPPDEFINES = [
+          '_SECURE_ATL',
+          '_WINDOWS',
+      ],
+      CCFLAGS = [
+          '/TP',
+          '/WX',          # treat warnings as errors
+      ],
+  )
+
+env.Prepend(
+    LINKFLAGS = [
+        '/DELAYLOAD:dwmapi.dll',
+        '/DELAYLOAD:uxtheme.dll',
+        '/MACHINE:X86',
+        '/FIXED:No',
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+    ],
+    LIBS = [
+        'shlwapi',
+    ],
+)
+
+
+# TODO(bradnelson): This step generates unittests_tests.pch.ib_tag
+#                   SCons doesn't know.
+env_p = env.Clone()
+pch, obj = env_p.PCH(['unit_tests.pch', 'unit_tests.obj'],
+                     'unit_tests.cc')
+env['PCH'] = pch
+env['PCHSTOP'] = 'stdafx.h'
+env.Append(CCPCHFLAGS = ['/FIstdafx.h'])
+
+
+input_files = [
+    obj,
+
+    'suite.cc',
+    'commands.cc',
+
+    '../common/controller$OBJSUFFIX',
+]
+
+validation_tests = env.ChromeTestProgram('sbox_validation_tests', input_files)
+i = env.Install('$TARGET_ROOT', validation_tests)
+env.Alias('sandbox', i)
