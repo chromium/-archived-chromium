@@ -1,3 +1,4 @@
+<!DOCTYPE HTML>
 <html id="t" jsvalues="dir:textdirection;firstview:firstview">
 <!--
  This page is optimized for perceived performance. Our enemies are the time
@@ -124,6 +125,7 @@ function handleDOMContentLoaded() {
 logEvent('log start');
 </script>
 <head>
+<meta charset="utf-8">
 <title jscontent="title"></title>
 <style type="text/css">
 body {
@@ -144,9 +146,6 @@ html[firstview='true'] #main.visible {
   margin-left:auto;
   margin-right:auto;
   margin-top:10px;
-}
-td {
-  font-size:84%;
 }
 form {
   padding: 0;
@@ -250,7 +249,6 @@ a.manage {
   color:#77c;
   margin-left: 5px;
   margin-right: 5px;
-  font-size:84%;
   line-height:19pt;
   text-decoration:underline;
 }
@@ -268,14 +266,14 @@ html[dir='rtl'] #managesearcheslink {
 }
 #recentlyBookmarked {
   background-color:#e1ecfe;
-} 
+}
 #searches input {
   border:1px solid #7f9db9;
   background-repeat: no-repeat;
   background-position:4px center;
   padding-left: 23px;
   min-height:24px;
-  width:206px;
+  width:182px;
   margin-bottom:8px;
   display:block;
 }
@@ -352,7 +350,7 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
   </td>
   <td valign="top" width="230">
     <div align="right">
-        <img src="../../app/theme/%DISTRIBUTION%/product_logo.png" 
+        <img src="../../app/theme/%DISTRIBUTION%/product_logo.png"
              width="145" height="52" style="padding-bottom:8px;" />
     </div>
     <div id="searches" class="sidebar">
@@ -409,7 +407,6 @@ function makeMostVisitedDOM(page) {
     // Something went wrong; don't make it clickable.
     root = DOM('span');
   }
-  
 
   /* Create the thumbnail */
   var img_thumbnail = DOM('img', {className:'thumbnail'});
