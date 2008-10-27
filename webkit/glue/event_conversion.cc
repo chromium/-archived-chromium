@@ -110,8 +110,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
 // MakePlatformWheelEvent -----------------------------------------------------
 
 MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
-                                               const WebMouseWheelEvent& e)
-  {
+                                               const WebMouseWheelEvent& e) {
   m_position = widget->convertFromContainingWindow(IntPoint(e.x, e.y));
   m_globalPosition = IntPoint(e.global_x, e.global_y);
   m_deltaX = static_cast<float>(e.delta_x);
@@ -256,7 +255,6 @@ static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
 
 MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   {
-#if defined(OS_WIN) || defined(OS_LINUX)
   m_type = ToPlatformKeyboardEventType(e.type);
   if (m_type == Char || m_type == KeyDown)
     m_text = m_unmodifiedText = ToSingleCharacterString(e.key_code);
@@ -268,7 +266,6 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   } else {
     m_windowsVirtualKeyCode = 0;
   }
-#endif
   m_autoRepeat = (e.modifiers & WebInputEvent::IS_AUTO_REPEAT) != 0;
   m_isKeypad = (e.modifiers & WebInputEvent::IS_KEYPAD) != 0;
   m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
