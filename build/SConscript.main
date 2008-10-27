@@ -79,6 +79,16 @@ env = Environment(
                              '__env__, RDirs, TARGET, SOURCE)}'),
 )
 
+# We pre-resolve some common targets.  We end up spending lots of time
+# resolving these over and over again.
+env.Replace(
+    CHROME_SRC_DIR        = str(env.Dir('$CHROME_SRC_DIR')),
+    DESTINATION_ROOT      = str(env.Dir('$DESTINATION_ROOT')),
+    TARGET_ROOT           = str(env.Dir('$TARGET_ROOT')),
+    OBJ_ROOT              = str(env.Dir('$OBJ_ROOT')),
+    WEBKIT_DIR            = str(env.Dir('$WEBKIT_DIR')),
+)
+
 env.Append(LIBPATH = ['$LIBS_DIR'])
 
 
