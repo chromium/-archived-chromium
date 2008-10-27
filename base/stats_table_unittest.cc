@@ -17,9 +17,8 @@
 using base::TimeTicks;
 
 namespace {
-  class StatsTableTest : public MultiProcessTest {
-  };
-}
+class StatsTableTest : public MultiProcessTest {
+};
 
 // Open a StatsTable and verify that we can write to each of the
 // locations in the table.
@@ -379,3 +378,4 @@ TEST_F(StatsTableTest, StatsScope) {
   EXPECT_EQ(2, table.GetCounterValue(L"c:bar"));
 }
 
+}  // namespace

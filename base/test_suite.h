@@ -23,6 +23,8 @@
 #elif defined(OS_LINUX)
 #include <dlfcn.h>
 #include <gtk/gtk.h>
+#elif defined(OS_MACOSX)
+#include <dlfcn.h>
 #endif
 
 class TestSuite {
@@ -39,7 +41,6 @@ class TestSuite {
 
   int Run() {
     Initialize();
-#if defined(OS_WIN) || defined(OS_LINUX)
     std::wstring client_func = CommandLine().GetSwitchValue(kRunClientProcess);
     // Check to see if we are being run as a client process.
     if (!client_func.empty()) {
@@ -57,13 +58,16 @@ class TestSuite {
       MultiProcessTest::ChildFunctionPtr func =
             reinterpret_cast<MultiProcessTest::ChildFunctionPtr>(
                 dlsym(exobj, func_name.c_str()));
-#endif  // defined(OS_LINUX)
+#elif defined(OS_MACOSX)
+      MultiProcessTest::ChildFunctionPtr func =
+      reinterpret_cast<MultiProcessTest::ChildFunctionPtr>(
+                dlsym(RTLD_SELF, func_name.c_str()));
+#endif  // defined(OS_MACOSX)
 
       if (func)
         return (*func)();
       return -1;
     }
-#endif  // defined(OS_WIN) || defined(OS_LINUX)
     int result = RUN_ALL_TESTS();
 
     Shutdown();

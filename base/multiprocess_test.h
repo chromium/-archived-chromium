@@ -6,6 +6,7 @@
 #define BASE_MULTIPROCESS_TEST_H__
 
 #include "base/command_line.h"
+#include "base/platform_test.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -30,11 +31,11 @@ static const wchar_t kRunClientProcess[] = L"client";
 // 3) Create a mainline function for the child processes
 // 4) Call SpawnChild("foo"), where "foo" is the name of
 //    the function you wish to run in the child processes.
-// 5) On posix, add the function's name to the list in the file
+// 5) On Linux, add the function's name to the list in the file
 //    base_unittests_exported_symbols.version
 // That's it!
 //
-class MultiProcessTest : public testing::Test {
+class MultiProcessTest : public PlatformTest {
  public:
   // Prototype function for a client function.  Multi-process
   // clients must provide a callback with this signature to run.
