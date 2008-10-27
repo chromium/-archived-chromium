@@ -286,7 +286,7 @@ ChromeFont OpaqueNonClientView::title_font_;
 
 // The distance between the top of the window and the top of the window
 // controls when the window is restored.
-static const int kWindowControlsTopOffset = 0;
+static const int kWindowControlsTopOffset = 1;
 // The distance between the right edge of the window and the right edge of the
 // right-most window control when the window is restored.
 static const int kWindowControlsRightOffset = 4;
