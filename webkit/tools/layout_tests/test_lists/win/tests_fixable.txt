@@ -885,7 +885,6 @@ V8 | KJS # LayoutTests/fast/gradients/border-image-gradient.html = FAIL
 V8 | KJS # LayoutTests/fast/gradients/generated-gradients.html = FAIL
 V8 | KJS # LayoutTests/fast/gradients/list-item-gradient.html = FAIL
 V8 | KJS # LayoutTests/fast/gradients/simple-gradients.html = FAIL
-V8 | KJS # LayoutTests/fast/html/marquee-scroll.html = FAIL
 V8 | KJS # LayoutTests/fast/media/implicit-media-all.html = FAIL
 V8 | KJS # LayoutTests/fast/media/monochrome.html = FAIL
 V8 | KJS # LayoutTests/fast/media/viewport-media-query.html = FAIL
@@ -1033,14 +1032,10 @@ V8 | KJS # LayoutTests/svg/custom/stroked-pattern.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
 V8 | KJS # LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/text-dom-removal.svg = FAIL
-V8 | KJS # LayoutTests/svg/custom/text-linking.svg = FAIL
-V8 | KJS # LayoutTests/svg/custom/text-xy-updates.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 V8 | KJS # LayoutTests/svg/custom/width-full-percentage.svg = FAIL
 V8 | KJS # LayoutTests/svg/dom/SVGRectElement/rect-modify-rx.svg = FAIL
 V8 | KJS # LayoutTests/svg/hixie/dynamic/005.xml = FAIL
-V8 | KJS # LayoutTests/svg/text/kerning.svg = FAIL
-V8 | KJS # LayoutTests/svg/text/multichar-glyph.svg = FAIL
 V8 | KJS # LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 V8 | KJS # LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
 V8 | KJS # LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
@@ -1055,6 +1050,9 @@ V8 | KJS # pending/dom/html/level2/html/HTMLIFrameElement11.html = PASS | CRASH
 
 // This test seems to fail on the builders but not locally.
 V8 | KJS # LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
+
+// TODO(eroman): passed for me locally, need to see why failed on buildbot...
+V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-6.html = PASS | FAIL
 
 // Post-merge Timeouts: Definitely need to be fixed one day
 V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
