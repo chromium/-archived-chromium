@@ -925,10 +925,6 @@ V8 | KJS # LayoutTests/fast/canvas/fillrect_gradient.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 // Flaky
 V8 | KJS # LayoutTests/fast/canvas/patternfill-repeat.html = FAIL | CRASH
-V8 | KJS # LayoutTests/fast/css-generated-content/table-row-group-to-inline.html = FAIL
-V8 | KJS # LayoutTests/fast/css-generated-content/table-row-group-with-before.html = FAIL
-V8 | KJS # LayoutTests/fast/css-generated-content/table-row-with-before.html = FAIL
-V8 | KJS # LayoutTests/fast/css-generated-content/table-with-before.html = FAIL
 V8 | KJS # LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/form-hides-table.html = FAIL
