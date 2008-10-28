@@ -83,6 +83,7 @@ input_files = [
     'clipboard_unittest.cc',
     'command_line_unittest.cc',
     'condition_variable_unittest.cc',
+    'field_trial_unittest.cc',
     'file_path_unittest.cc',
     'file_util_unittest.cc',
     'histogram_unittest.cc',
