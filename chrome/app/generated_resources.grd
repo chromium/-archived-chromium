@@ -3141,7 +3141,7 @@ each locale. -->
         Blocked Pop-up
       </message>
       <message name="IDS_POPUPS_BLOCKED_COUNT" desc="Message on the blocked popup window">
-        <ph name="COUNT">$1<ex>2</ex></ph> Pop-up(s) Blocked
+        Pop-ups Blocked: <ph name="COUNT">$1<ex>2</ex></ph>
       </message>
 
       <!-- Multiple download warning-->
