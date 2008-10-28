@@ -1228,12 +1228,6 @@ each locale. -->
         &amp;Remove
       </message>
 
-      <!-- Download Preferences -->
-      <message name="IDS_DOWNLOAD_DIRECTORY"
-               desc="Directory under the profile for storing downloads">
-        Downloads
-      </message>
-
       <!-- Gears shortcut strings -->
       <message name="IDS_DEFAULT_INSTALL_SITE_LABEL" desc="Default installation menu label">
         Create application &amp;shortcuts...

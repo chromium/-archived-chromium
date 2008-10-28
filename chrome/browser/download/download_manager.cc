@@ -294,11 +294,10 @@ void DownloadManager::RegisterUserPrefs(PrefService* prefs) {
 
   // The default download path is userprofile\download.
   std::wstring default_download_path;
-  if (!PathService::Get(chrome::DIR_USER_DOCUMENTS, &default_download_path)) {
+  if (!PathService::Get(chrome::DIR_DEFAULT_DOWNLOADS,
+                        &default_download_path)) {
     NOTREACHED();
   }
-  file_util::AppendToPath(&default_download_path,
-                          l10n_util::GetString(IDS_DOWNLOAD_DIRECTORY));
   prefs->RegisterStringPref(prefs::kDownloadDefaultDirectory,
                             default_download_path);
 

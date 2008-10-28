@@ -86,6 +86,20 @@ bool PathProvider(int key, std::wstring* result) {
       if (!GetUserDirectory(CSIDL_MYDOCUMENTS, &cur))
         return false;
       break;
+    case chrome::DIR_DEFAULT_DOWNLOADS:
+      // On Vista, we can get the download path using a Win API
+      // (http://msdn.microsoft.com/en-us/library/bb762584(VS.85).aspx),
+      // but it can be set to Desktop, which is dangerous. Instead,
+      // we just use 'Downloads' under DIR_USER_DOCUMENTS. Localizing
+      // 'downloads' is not a good idea because Chrome's UI language
+      // can be changed. 
+      if (!PathService::Get(chrome::DIR_USER_DOCUMENTS, &cur))
+        return false;
+      file_util::AppendToPath(&cur, L"Downloads");
+      // TODO(port): This will fail on other platforms unless we 
+      // implement DIR_USER_DOCUMENTS or use xdg-user-dirs to 
+      // get the download directory independently of DIR_USER_DOCUMENTS.
+      break;
     case chrome::DIR_CRASH_DUMPS:
       // The crash reports are always stored relative to the default user data
       // directory.  This avoids the problem of having to re-initialize the
