@@ -11,7 +11,7 @@
 #include <windows.h>
 #elif defined(OS_MACOSX)
 #include <vector>
-#include "wtf/RetainPtr.h"
+#include <wtf/RetainPtr.h>
 #ifdef __OBJC__
 @class NSEvent;
 @class NSView;
