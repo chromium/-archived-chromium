@@ -3181,6 +3181,24 @@ each locale. -->
       <message name="IDS_BOOKMARK_MANAGER_TITLE" desc="Title of the bookmark manager window.">
         Bookmark Manager
       </message>
+      <message name="IDS_BOOKMARK_MANAGER" desc="The label of the menu item that shows the bookmark manager">
+        &amp;Bookmark manager
+      </message>
+      <message name="IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER" desc="The label of the menu item in the bookmark manager context menu that changes the selection in the tree to match the folder of the selected item in the table.">
+        Show in folder
+      </message>
+      <message name="IDS_BOOKMARK_MANAGER_ORGANIZE_MENU" desc="Title of the organize menu in the bookmark manager.">
+        Organize
+      </message>
+      <message name="IDS_BOOKMARK_MANAGER_TOOLS_MENU" desc="Title of the tools menu in the bookmark manager.">
+        Tools
+      </message>
+      <message name="IDS_BOOKMARK_MANAGER_IMPORT_MENU" desc="Title of the import menu item in the bookmark manager.">
+        Import bookmarks...
+      </message>
+      <message name="IDS_BOOKMARK_MANAGER_EXPORT_MENU" desc="Title of the export menu item in the bookmark manager.">
+        Export bookmarks...
+      </message>
 
     </messages>
   </release>
