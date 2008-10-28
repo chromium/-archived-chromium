@@ -126,8 +126,7 @@ class CommonNameInvalidPolicy : public SSLPolicy {
 
   void OnCertError(const GURL& main_frame_url,
                    SSLManager::CertError* error) {
-    // We need to ask the user to approve this certificate.
-    ShowBlockingPage(this, error);
+    OnOverridableCertError(main_frame_url, error);
   }
 };
 
@@ -139,8 +138,7 @@ class DateInvalidPolicy : public SSLPolicy {
 
   void OnCertError(const GURL& main_frame_url,
                    SSLManager::CertError* error) {
-    // We need to ask the user to approve this certificate.
-    ShowBlockingPage(this, error);
+    OnOverridableCertError(main_frame_url, error);
   }
 };
 
@@ -152,8 +150,7 @@ class AuthorityInvalidPolicy : public SSLPolicy {
 
   void OnCertError(const GURL& main_frame_url,
                    SSLManager::CertError* error) {
-    // We need to ask the user to approve this certificate.
-    ShowBlockingPage(this, error);
+    OnOverridableCertError(main_frame_url, error);
   }
 };
 
@@ -165,9 +162,7 @@ class ContainsErrorsPolicy : public SSLPolicy {
 
   void OnCertError(const GURL& main_frame_url,
                    SSLManager::CertError* error) {
-    error->CancelRequest();
-    ShowErrorPage(this, error);
-    // No need to degrade our security indicators because we didn't continue.
+    OnFatalCertError(main_frame_url, error);
   }
 };
 
@@ -207,10 +202,7 @@ class RevokedPolicy : public SSLPolicy {
 
   void OnCertError(const GURL& main_frame_url,
                    SSLManager::CertError* error) {
-    error->CancelRequest();
-    DCHECK(error->GetTabContents()->type() == TAB_CONTENTS_WEB);
-    ShowErrorPage(this, error);
-    // No need to degrade our security indicators because we didn't continue.
+    OnFatalCertError(main_frame_url, error);
   }
 };
 
@@ -222,10 +214,7 @@ class InvalidPolicy : public SSLPolicy {
 
   void OnCertError(const GURL& main_frame_url,
                    SSLManager::CertError* error) {
-    error->CancelRequest();
-    DCHECK(error->GetTabContents()->type() == TAB_CONTENTS_WEB);
-    ShowErrorPage(this, error);
-    // No need to degrade our security indicators because we didn't continue.
+    OnFatalCertError(main_frame_url, error);
   }
 };
 
@@ -283,14 +272,6 @@ class DefaultPolicy : public SSLPolicy {
         // For now we handle the DENIED as the UNKNOWN, which means a blocking
         // page is shown to the user every time he comes back to the page.
       case net::X509Certificate::Policy::UNKNOWN:
-        if (error->resource_type() != ResourceType::MAIN_FRAME) {
-          // A sub-resource has a certificate error.  The user doesn't really
-          // have a context for making the right decision, so block the
-          // request hard, without an info bar to allow showing the insecure
-          // content.
-          error->DenyRequest();
-          break;
-        }
         // We don't know how to handle this error.  Ask our sub-policies.
         sub_policies_[index]->OnCertError(main_frame_url, error);
         break;
@@ -479,3 +460,28 @@ void SSLPolicy::OnAllowCertificate(SSLManager::CertError* error) {
                                      error->request_url().host());
 }
 
+void SSLPolicy::OnOverridableCertError(const GURL& main_frame_url,
+                                       SSLManager::CertError* error) {
+  if (error->resource_type() != ResourceType::MAIN_FRAME) {
+    // A sub-resource has a certificate error.  The user doesn't really
+    // have a context for making the right decision, so block the
+    // request hard, without an info bar to allow showing the insecure
+    // content.
+    error->DenyRequest();
+    return;
+  }
+  // We need to ask the user to approve this certificate.
+  ShowBlockingPage(this, error);
+}
+
+void SSLPolicy::OnFatalCertError(const GURL& main_frame_url,
+                                 SSLManager::CertError* error) {
+  if (error->resource_type() != ResourceType::MAIN_FRAME) {
+    error->DenyRequest();
+    return;
+  }
+  error->CancelRequest();
+  DCHECK(error->GetTabContents()->type() == TAB_CONTENTS_WEB);
+  ShowErrorPage(this, error);
+  // No need to degrade our security indicators because we didn't continue.
+}

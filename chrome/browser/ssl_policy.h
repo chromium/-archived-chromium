@@ -50,9 +50,20 @@ class SSLPolicy : public SSLManager::Delegate,
   // Allow our subclasses to construct us.
   SSLPolicy();
 
+  // Helper method for derived classes handling certificate errors that can be
+  // overridden by the user.
+  // Show a blocking page and let the user continue or cancel the request.
+  void OnOverridableCertError(const GURL& main_frame_url,
+                              SSLManager::CertError* error);
+
+  // Helper method for derived classes handling fatal certificate errors.
+  // Cancel the request and show an error page.
+  void OnFatalCertError(const GURL& main_frame_url,
+                        SSLManager::CertError* error);
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(SSLPolicy);
 };
 
-#endif // CHROME_BROWSER_SSL_POLICY_H__
+#endif  // CHROME_BROWSER_SSL_POLICY_H__
 
