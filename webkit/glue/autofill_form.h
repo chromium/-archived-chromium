@@ -8,10 +8,17 @@
 #include <string>
 #include <vector>
 
+#include "webkit/glue/autofill_form.h"
+
+namespace WebCore {
+  class HTMLFormElement;
+}
+
 // The AutofillForm struct represents a single HTML form together with the
 // values entered in the fields.
 
-struct AutofillForm {
+class AutofillForm {
+ public:
   // Struct for storing name/value pairs.
   struct Element {
     Element() {}
@@ -22,6 +29,8 @@ struct AutofillForm {
     std::wstring name;
     std::wstring value;
   };
+
+  static AutofillForm* CreateAutofillForm(WebCore::HTMLFormElement* form);
 
   // A vector of all the input fields in the form.
   std::vector<Element> elements;
