@@ -12,6 +12,7 @@
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "webkit/glue/weberror.h"
+#include "webkit/glue/webkit_glue.h"
 
 #include "generated_resources.h"
 
@@ -178,10 +179,15 @@ void GetLocalizedErrorValues(const WebError& error,
       default:
         break;
     }
-    // TODO(tc): Move browser/google_util.* to common and uncomment:
-    // learn_more_url = google_util::AppendGoogleLocaleParam(learn_more_url);
 
     if (learn_more_url.is_valid()) {
+      // Add the language parameter to the URL.
+      std::string query = learn_more_url.query() + "&hl=" +
+          WideToASCII(webkit_glue::GetWebKitLocale());
+      GURL::Replacements repl;
+      repl.SetQueryStr(query);
+      learn_more_url = learn_more_url.ReplaceComponents(repl);
+
       DictionaryValue* suggest_learn_more = new DictionaryValue;
       suggest_learn_more->SetString(L"msg",
           l10n_util::GetString(IDS_ERRORPAGES_SUGGESTION_LEARNMORE));
