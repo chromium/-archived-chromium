@@ -40,7 +40,7 @@ namespace WebCore {
 
 PassRefPtr<Image> Image::loadPlatformResource(const char* name)
 {
-    return NULL;
+    return Image::nullImage();
 }
 
 void BitmapImage::initPlatformData()
