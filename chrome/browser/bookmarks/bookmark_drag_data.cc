@@ -5,6 +5,7 @@
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 
 #include "base/pickle.h"
+#include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/os_exchange_data.h"
@@ -82,8 +83,13 @@ void BookmarkDragData::Write(Profile* profile, OSExchangeData* data) const {
 
   // If there is only one element and it is a URL, write the URL to the
   // clipboard.
-  if (elements.size() == 1 && elements[0].is_url)
-    data->SetURL(elements[0].url, elements[0].title);
+  if (elements.size() == 1 && elements[0].is_url) {
+    if (elements[0].url.SchemeIs("javascript")) {
+      data->SetString(ASCIIToWide(elements[0].url.spec()));
+    } else {
+      data->SetURL(elements[0].url, elements[0].title);
+    }
+  }
 
   Pickle data_pickle;
   data_pickle.WriteWString(profile->GetPath());

@@ -6,6 +6,7 @@
 
 #include <windows.h>
 
+#include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_request_manager.h"
@@ -94,15 +95,31 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
 
   // We set the file contents before the URL because the URL also sets file
   // contents (to a .URL shortcut).  We want to prefer file content data over a
-  // shortcut.
+  // shortcut so we add it first.
   if (!drop_data.file_contents.empty()) {
     data->SetFileContents(drop_data.file_description_filename,
                           drop_data.file_contents);
   }
   if (!drop_data.cf_html.empty())
     data->SetCFHtml(drop_data.cf_html);
-  if (drop_data.url.is_valid())
-    data->SetURL(drop_data.url, drop_data.url_title);
+  if (drop_data.url.is_valid()) {
+    if (drop_data.url.SchemeIs("javascript")) {
+      // We don't want to allow javascript URLs to be dragged to the desktop,
+      // but we do want to allow them to be added to the bookmarks bar
+      // (bookmarklets).
+      BookmarkDragData::Element bm_elt;
+      bm_elt.is_url = true;
+      bm_elt.url = drop_data.url;
+      bm_elt.title = drop_data.url_title;
+
+      BookmarkDragData bm_drag_data;
+      bm_drag_data.elements.push_back(bm_elt);
+
+      bm_drag_data.Write(web_contents_->profile(), data);
+    } else {
+      data->SetURL(drop_data.url, drop_data.url_title);
+    }
+  }
   if (!drop_data.plain_text.empty())
     data->SetString(drop_data.plain_text);
 
