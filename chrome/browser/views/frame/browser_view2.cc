@@ -284,7 +284,7 @@ void BrowserView2::Init() {
 
   status_bubble_.reset(new StatusBubble(GetContainer()));
 
-#ifdef CHROME_PERSONALIZATION    
+#ifdef CHROME_PERSONALIZATION
   EnablePersonalization(CommandLine().HasSwitch(switches::kEnableP13n));
   if (IsPersonalizationEnabled()) {
     personalization_ = Personalization::CreateFramePersonalization(
@@ -390,8 +390,10 @@ void BrowserView2::SetAcceleratorTable(
 }
 
 void BrowserView2::ValidateThrobber() {
-  if (ShouldShowWindowIcon())
-    frame_->UpdateThrobber(browser_->GetSelectedTabContents()->is_loading());
+  if (ShouldShowWindowIcon()) {
+    TabContents* tab_contents = browser_->GetSelectedTabContents();
+    frame_->UpdateThrobber(tab_contents ? tab_contents->is_loading() : false);
+  }
 }
 
 gfx::Rect BrowserView2::GetNormalBounds() {
@@ -716,7 +718,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
     // The top few pixels of the TabStrip are a drop-shadow - as we're pretty
     // starved of dragable area, let's give it to window dragging (this also
     // makes sense visually).
-    if (!window->IsMaximized() && 
+    if (!window->IsMaximized() &&
         (point_in_view_coords.y() < tabstrip_->y() + kTabShadowSize)) {
       // We return HTNOWHERE as this is a signal to our containing
       // NonClientView that it should figure out what the correct hit-test
@@ -942,7 +944,7 @@ int BrowserView2::LayoutBookmarkBar(int top) {
       top -= kSeparationLineHeight;
     active_bookmark_bar_->SetBounds(0, top, width(), ps.height());
     top += ps.height();
-  }  
+  }
   return top;
 }
 int BrowserView2::LayoutInfoBar(int top) {
