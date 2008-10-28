@@ -58,7 +58,7 @@ bool SafeBrowsingDatabaseBloom::Init(const std::wstring& filename,
                                      Callback0::Type* chunk_inserted_callback) {
   DCHECK(!init_ && filename_.empty());
 
-  filename_ = filename;
+  filename_ = filename + L" Bloom";
   if (!Open())
     return false;
 
