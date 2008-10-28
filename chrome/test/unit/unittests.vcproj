@@ -186,6 +186,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\test_tab_contents.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\test_tab_contents.h"
+				>
+			</File>
+			<File
 				RelativePath="..\testing_browser_process.h"
 				>
 			</File>
@@ -195,14 +203,6 @@
 			</File>
 			<File
 				RelativePath="..\testing_profile.h"
-				>
-			</File>
-			<File
-				RelativePath="..\test_tab_contents.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\test_tab_contents.h"
 				>
 			</File>
 			<File
@@ -999,6 +999,14 @@
 			>
 			<File
 				RelativePath="..\..\renderer\render_widget_unittest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestGreasemonkeyMaster"
+			>
+			<File
+				RelativePath="..\..\browser\greasemonkey_master_unittest.cc"
 				>
 			</File>
 		</Filter>

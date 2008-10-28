@@ -5,6 +5,7 @@
 #include "chrome/browser/profile.h"
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/lock.h"
 #include "base/path_service.h"
@@ -15,6 +16,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/greasemonkey_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/profile_manager.h"
@@ -378,6 +380,10 @@ class OffTheRecordProfileImpl : public Profile,
     return profile_->GetVisitedLinkMaster();
   }
 
+  virtual GreasemonkeyMaster* GetGreasemonkeyMaster() {
+    return profile_->GetGreasemonkeyMaster();
+  }
+
   virtual HistoryService* GetHistoryService(ServiceAccessType sat) {
     if (sat == EXPLICIT_ACCESS) {
       return profile_->GetHistoryService(sat);
@@ -668,6 +674,19 @@ VisitedLinkMaster* ProfileImpl::GetVisitedLinkMaster() {
   }
 
   return visited_link_master_.get();
+}
+
+GreasemonkeyMaster* ProfileImpl::GetGreasemonkeyMaster() {
+  if (!greasemonkey_master_.get()) {
+    std::wstring script_dir_str;
+    PathService::Get(chrome::DIR_USER_SCRIPTS, &script_dir_str);
+    FilePath script_dir(script_dir_str);
+    greasemonkey_master_ =
+        new GreasemonkeyMaster(g_browser_process->file_thread()->message_loop(),
+                               script_dir);
+  }
+
+  return greasemonkey_master_.get();
 }
 
 PrefService* ProfileImpl::GetPrefs() {

@@ -469,14 +469,15 @@ void RenderProcessHost::InitGreasemonkeyScripts(HANDLE target_process) {
   // - File IO should be asynchronous (see VisitedLinkMaster), but how do we
   //   get scripts to the first renderer without blocking startup? Should we
   //   cache some information across restarts?
-  GreasemonkeyMaster* greasemonkey_master =
-      Singleton<GreasemonkeyMaster>::get();
+  GreasemonkeyMaster* greasemonkey_master = profile_->GetGreasemonkeyMaster();
   if (!greasemonkey_master) {
     return;
   }
 
-  // TODO(aa): This does blocking IO. Move to background thread.
-  greasemonkey_master->UpdateScripts();
+  if (!greasemonkey_master->ScriptsReady()) {
+    // No scripts ready.  :(
+    return;
+  }
 
   SharedMemoryHandle handle_for_process = NULL;
   greasemonkey_master->ShareToProcess(target_process, &handle_for_process);

@@ -5,20 +5,23 @@
 #ifndef CHROME_BROWSER_GREASEMONKEY_MASTER_H__
 #define CHROME_BROWSER_GREASEMONKEY_MASTER_H__
 
+#include "base/directory_watcher.h"
 #include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 
-// Manages a segment of shared memory that contains the Greasemonkey scripts the
-// user has installed.
-class GreasemonkeyMaster {
- public:
-  GreasemonkeyMaster()
-      : shared_memory_serial_(0) {}
+class MessageLoop;
 
-  // Reloads scripts from disk into a new chunk of shared memory and notifies
-  // renderers.
-  bool UpdateScripts();
+// Manages a segment of shared memory that contains the Greasemonkey scripts the
+// user has installed.  Lives on the UI thread.
+class GreasemonkeyMaster : public base::RefCounted<GreasemonkeyMaster>,
+                           public DirectoryWatcher::Delegate {
+ public:
+  // For testability, the constructor takes the MessageLoop to run the
+  // script-reloading worker on as well as the path the scripts live in.
+  // These are normally the file thread and DIR_USER_SCRIPTS.
+  GreasemonkeyMaster(MessageLoop* worker, const FilePath& script_dir);
+  ~GreasemonkeyMaster();
 
   // Creates a handle to the shared memory that can be used in the specified
   // process.
@@ -29,15 +32,43 @@ class GreasemonkeyMaster {
     return shared_memory_.get();
   }
 
+  // Called by the script reloader when new scripts have been loaded.
+  void NewScriptsAvailable(SharedMemory* handle);
+
+  // Return true if we have any scripts ready.
+  bool ScriptsReady() const { return shared_memory_.get() != NULL; }
+
  private:
-  // Contains the scripts that were found the last time UpdateScripts() was
-  // called.
+  class ScriptReloader;
+
+  // DirectoryWatcher::Delegate implementation.
+  virtual void OnDirectoryChanged(const FilePath& path);
+
+  // Kicks off a process on the file thread to reload scripts from disk
+  // into a new chunk of shared memory and notify renderers.
+  void StartScan();
+
+  // The directory containing user scripts.
+  scoped_ptr<FilePath> user_script_dir_;
+
+  // The watcher watches the profile's user scripts directory for new scripts.
+  scoped_ptr<DirectoryWatcher> dir_watcher_;
+
+  // The MessageLoop that the scanner worker runs on.
+  // Typically the file thread; configurable for testing.
+  MessageLoop* worker_loop_;
+
+  // ScriptReloader (in another thread) reloads script off disk.
+  // We hang on to our pointer to know if we've already got one running.
+  scoped_refptr<ScriptReloader> script_reloader_;
+
+  // Contains the scripts that were found the last time scripts were updated.
   scoped_ptr<SharedMemory> shared_memory_;
 
-  // A counter that is incremented each time a new shared memory segment is
-  // created. This is used to uniquely identify segments created at different
-  // times by this class.
-  int shared_memory_serial_;
+  // If the script directory is modified while we're rescanning it, we note
+  // that we're currently mid-scan and then start over again once the scan
+  // finishes.  This boolean tracks whether another scan is pending.
+  bool pending_scan_;
 
   DISALLOW_COPY_AND_ASSIGN(GreasemonkeyMaster);
 };

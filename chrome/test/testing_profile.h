@@ -66,6 +66,9 @@ class TestingProfile : public Profile {
   virtual VisitedLinkMaster* GetVisitedLinkMaster() {
     return NULL;
   }
+  virtual GreasemonkeyMaster* GetGreasemonkeyMaster() {
+    return NULL;
+  }
   virtual HistoryService* GetHistoryService(ServiceAccessType access) {
     return history_service_.get();
   }
