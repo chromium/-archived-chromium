@@ -97,9 +97,7 @@ std::vector<std::wstring> ImageDecoderTest::GetImageFiles() const {
     if (!MatchPattern(next_file_name, pattern)) {
       continue;
     }
-    std::wstring image_path = data_dir_;
-    file_util::AppendToPath(&image_path, next_file_name);
-    image_files.push_back(image_path);
+    image_files.push_back(next_file_name);
   }
 
   return image_files;
