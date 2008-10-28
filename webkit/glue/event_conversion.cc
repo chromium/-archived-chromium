@@ -256,10 +256,40 @@ static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
 MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   {
   m_type = ToPlatformKeyboardEventType(e.type);
-  if (m_type == Char || m_type == KeyDown)
+  if (m_type == Char || m_type == KeyDown) {
+#if defined(OS_MACOSX)
+    m_text = &e.text[0];
+    m_unmodifiedText = &e.unmodified_text[0];
+    m_keyIdentifier = &e.key_identifier[0];
+
+    // Always use 13 for Enter/Return -- we don't want to use AppKit's 
+    // different character for Enter.
+    if (m_windowsVirtualKeyCode == '\r') {
+        m_text = "\r";
+        m_unmodifiedText = "\r";
+    }
+
+    // The adjustments below are only needed in backward compatibility mode, 
+    // but we cannot tell what mode we are in from here.
+
+    // Turn 0x7F into 8, because backspace needs to always be 8.
+    if (m_text == "\x7F")
+        m_text = "\x8";
+    if (m_unmodifiedText == "\x7F")
+        m_unmodifiedText = "\x8";
+    // Always use 9 for tab -- we don't want to use AppKit's different character for shift-tab.
+    if (m_windowsVirtualKeyCode == 9) {
+        m_text = "\x9";
+        m_unmodifiedText = "\x9";
+    }
+#else
     m_text = m_unmodifiedText = ToSingleCharacterString(e.key_code);
+#endif
+  }
+#if defined(OS_WIN) || defined(OS_LINUX)
   if (m_type != Char)
     m_keyIdentifier = GetKeyIdentifierForWindowsKeyCode(e.key_code);
+#endif
   if (m_type == Char || m_type == KeyDown || m_type == KeyUp ||
       m_type == RawKeyDown) {
     m_windowsVirtualKeyCode = e.key_code;

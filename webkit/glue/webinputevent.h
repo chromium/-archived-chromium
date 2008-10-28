@@ -10,7 +10,8 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #elif defined(OS_MACOSX)
-#include <wtf/RetainPtr.h>
+#include <vector>
+#include "wtf/RetainPtr.h"
 #ifdef __OBJC__
 @class NSEvent;
 @class NSView;
@@ -127,7 +128,13 @@ class WebMouseWheelEvent : public WebMouseEvent {
 class WebKeyboardEvent : public WebInputEvent {
  public:
   int key_code;
-#if defined(OS_WIN)
+#if defined(OS_MACOSX)
+  // text arrays extracted from the native event. On Mac, there may be
+  // multiple keys sent as a single event if the flags don't change.
+  std::vector<unsigned short> text;
+  std::vector<unsigned short> unmodified_text;
+  std::vector<unsigned short> key_identifier;
+#elif defined(OS_WIN)
   bool system_key;  // Set if we receive a SYSKEYDOWN/WM_SYSKEYUP message.
   MSG actual_message; // Set to the current keyboard message.
 #endif
