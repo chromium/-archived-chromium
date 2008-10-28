@@ -468,7 +468,7 @@ mac_env.Append(
 AddOption('--clobber', action='store_true', dest='clobber', default=False,
           help='Delete build directory before building.')
 if GetOption('clobber'):
-  shutil.rmtree(env.Dir('$TARGET_ROOT').abspath, True)
+  shutil.rmtree(root_env.Dir('$DESTINATION_ROOT').abspath, True)
 
 
 
