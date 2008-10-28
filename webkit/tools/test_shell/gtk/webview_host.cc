@@ -13,19 +13,15 @@
 #include "webkit/glue/webview.h"
 
 /*static*/
-WebViewHost* WebViewHost::Create(GtkWidget* box,
+WebViewHost* WebViewHost::Create(GtkWidget* parent_window,
                                  WebViewDelegate* delegate,
                                  const WebPreferences& prefs) {
-  // TODO(agl):
-  // /usr/local/google/agl/src/chrome/src/webkit/tools/test_shell/gtk/webview_host.cc:19: error: no matching function for call to 'WebWidgetHost::Create(GtkWidget*&, WebViewDelegate*&)'
-  WebViewHost* host = reinterpret_cast<WebViewHost *>(WebWidgetHost::Create(box, NULL));
+  WebViewHost* host = new WebViewHost();
 
   // TODO(erg):
   // - Set "host->view_"
   // - Call "host->webwidget_->Resize"
   host->webwidget_ = WebView::Create(delegate, prefs);
-  host->webwidget_->Resize(gfx::Size(640, 480));
-  host->webwidget_->Layout();
 
   return host;
 }

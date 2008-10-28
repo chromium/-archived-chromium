@@ -70,8 +70,7 @@ input_files = [
 ]
 
 if env['PLATFORM'] == 'posix':
-  # TODO(port): until we have plugin support for Linux, these files aren't
-  # built.
+  # TODO(port): until we have plugin support for Linux, these files aren't built.
   remove_files = [
     'plugins/plugin_host.cc',
     'plugins/plugin_instance.cc',

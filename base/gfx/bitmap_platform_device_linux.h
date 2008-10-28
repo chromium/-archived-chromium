@@ -8,22 +8,10 @@
 #include "base/gfx/platform_device_linux.h"
 #include "base/ref_counted.h"
 
-#include "gdk-pixbuf/gdk-pixbuf.h"
-
 namespace gfx {
 
-// -----------------------------------------------------------------------------
-// This is the Linux bitmap backing for Skia. It's a GdkPixbuf of the correct
-// size and we implement a SkPixelRef in order that Skia can write directly to
-// the pixel memory backing the Pixbuf.
-//
-// We then provide an accessor for getting the pixbuf object and that can be
-// drawn to a GDK drawing area to display the rendering result.
-//
-// This is all quite ok for test_shell. In the future we will want to use
-// shared memory between the renderer and the main process at least. In this
-// case we'll probably create the pixbuf from a precreated region of memory.
-// -----------------------------------------------------------------------------
+// I'm trying to get away with defining as little as possible on this. Right
+// now, we don't do anything.
 class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
  public:
   /// Static constructor. I don't understand this, it's just a copy of the mac
@@ -34,7 +22,7 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   /// you should probably be using Create(). This may become private later if
   /// we ever have to share state between some native drawing UI and Skia, like
   /// the Windows and Mac versions of this class do.
-  BitmapPlatformDeviceLinux(const SkBitmap& other, GdkPixbuf* pixbuf);
+  BitmapPlatformDeviceLinux(const SkBitmap& other);
   virtual ~BitmapPlatformDeviceLinux();
 
   // A stub copy constructor.  Needs to be properly implemented.
@@ -42,11 +30,6 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
 
   // Bitmaps aren't vector graphics.
   virtual bool IsVectorial() { return false; }
-
-  GdkPixbuf* pixbuf() const { return pixbuf_; }
-
- private:
-  GdkPixbuf* pixbuf_;
 };
 
 }  // namespace gfx

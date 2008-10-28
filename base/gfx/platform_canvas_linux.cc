@@ -4,7 +4,6 @@
 
 #include "base/gfx/platform_canvas_linux.h"
 
-#include "base/gfx/platform_device_linux.h"
 #include "base/gfx/bitmap_platform_device_linux.h"
 #include "base/logging.h"
 
