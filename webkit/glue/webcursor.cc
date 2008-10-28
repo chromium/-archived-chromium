@@ -127,7 +127,7 @@ HCURSOR WebCursor::GetCustomCursor() const {
   HBITMAP bitmap_handle = CreateDIBSection(dc, &cursor_bitmap_info, 
                                            DIB_RGB_COLORS, 0, 0, 0);
   SkAutoLockPixels bitmap_lock(bitmap_); 
-  SetDIBits(0, bitmap_handle, 0, bitmap_.width(), 
+  SetDIBits(0, bitmap_handle, 0, bitmap_.height(), 
             bitmap_.getPixels(), &cursor_bitmap_info, DIB_RGB_COLORS);
 
   HBITMAP old_bitmap = reinterpret_cast<HBITMAP>(SelectObject(workingDC, 
