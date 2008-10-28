@@ -7,16 +7,18 @@
 
 #include <vector>
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/webdata/web_data_service.h"
+#include "chrome/common/stl_util-inl.h"
 #include "chrome/common/gfx/url_elider.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/label.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/table_view.h"
 #include "chrome/views/window.h"
+#include "webkit/glue/password_form.h"
 
 class Profile;
-struct PasswordForm;
 
 class PasswordManagerTableModel : public views::TableModel,
                                   public WebDataServiceConsumer {
@@ -51,13 +53,15 @@ class PasswordManagerTableModel : public views::TableModel,
   // Wraps the PasswordForm from the database and caches the display URL for
   // quick sorting.
   struct PasswordRow {
-    ~PasswordRow();
+    PasswordRow(const gfx::SortedDisplayURL& url, PasswordForm* password_form)
+        : display_url(url), form(password_form) {
+    }
 
     // Contains the URL that is displayed along with the 
     gfx::SortedDisplayURL display_url;
 
     // The underlying PasswordForm. We own this.
-    PasswordForm* form;
+    scoped_ptr<PasswordForm> form;
   };
 
   // Cancel any pending login query involving a callback.
@@ -75,8 +79,9 @@ class PasswordManagerTableModel : public views::TableModel,
   WebDataService::Handle pending_login_query_;
 
   // The set of passwords we're showing.
-  typedef std::vector<PasswordRow> PasswordRows;
+  typedef std::vector<PasswordRow*> PasswordRows;
   PasswordRows saved_signons_;
+  STLElementDeleter<PasswordRows> saved_signons_cleanup_;
 
   Profile* profile_;
 

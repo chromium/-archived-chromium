@@ -12,7 +12,6 @@
 #include "chrome/views/background.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/native_button.h"
-#include "webkit/glue/password_form.h"
 
 #include "generated_resources.h"
 
@@ -52,17 +51,13 @@ gfx::Size MultiLabelButtons::GetPreferredSize() {
   return gfx::Size(pref_size_.width(), pref_size_.height());
 }
 
-////////////////////////////////////////////////////////////////////
-// PasswordManagerTableModel::PasswordRow
-PasswordManagerTableModel::PasswordRow::~PasswordRow() {
-  delete form;
-}
 
 ////////////////////////////////////////////////////////////////////
 // PasswordManagerTableModel
 PasswordManagerTableModel::PasswordManagerTableModel(Profile* profile)
     : observer_(NULL),
       pending_login_query_(NULL),
+      saved_signons_cleanup_(&saved_signons_),
       profile_(profile) {
   DCHECK(profile && profile->GetWebDataService(Profile::EXPLICIT_ACCESS));
 }
@@ -79,7 +74,7 @@ std::wstring PasswordManagerTableModel::GetText(int row,
                                                 int col_id) {
   switch (col_id) {
     case IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN:  // Site.
-      return saved_signons_[row].display_url.display_url();
+      return saved_signons_[row]->display_url.display_url();
     case IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN:  // Username.
       return GetPasswordFormAt(row)->username_value;
     default:
@@ -91,8 +86,8 @@ std::wstring PasswordManagerTableModel::GetText(int row,
 int PasswordManagerTableModel::CompareValues(int row1, int row2,
                                              int column_id) {
   if (column_id == IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN) {
-    return saved_signons_[row1].display_url.Compare(
-        saved_signons_[row2].display_url, GetCollator());
+    return saved_signons_[row1]->display_url.Compare(
+        saved_signons_[row2]->display_url, GetCollator());
   }
   return TableModel::CompareValues(row1, row2, column_id);
 }
@@ -122,14 +117,13 @@ void PasswordManagerTableModel::OnWebDataServiceRequestDone(
   const WDResult<std::vector<PasswordForm*> >* r =
       static_cast<const WDResult<std::vector<PasswordForm*> >*>(result);
   std::vector<PasswordForm*> rows = r->GetValue();
-  saved_signons_.clear();
-  saved_signons_.resize(rows.size());
+  STLDeleteElements<PasswordRows>(&saved_signons_);
+  saved_signons_.resize(rows.size(), NULL);
   std::wstring languages =
       profile_->GetPrefs()->GetString(prefs::kAcceptLanguages);
   for (size_t i = 0; i < rows.size(); ++i) {
-    saved_signons_[i].form = rows[i];
-    saved_signons_[i].display_url =
-        gfx::SortedDisplayURL(rows[i]->origin, languages);
+    saved_signons_[i] = new PasswordRow(
+        gfx::SortedDisplayURL(rows[i]->origin, languages), rows[i]);
   }
   if (observer_)
     observer_->OnModelChanged();
@@ -144,14 +138,16 @@ void PasswordManagerTableModel::CancelLoginsQuery() {
 
 PasswordForm* PasswordManagerTableModel::GetPasswordFormAt(int row) {
   DCHECK(row >= 0 && row < RowCount());
-  return saved_signons_[row].form;
+  return saved_signons_[row]->form.get();
 }
 
 void PasswordManagerTableModel::ForgetAndRemoveSignon(int row) {
   DCHECK(row >= 0 && row < RowCount());
   PasswordRows::iterator target_iter = saved_signons_.begin() + row;
   // Remove from DB, memory, and vector.
-  web_data_service()->RemoveLogin(*(target_iter->form));
+  PasswordRow* password_row = *target_iter;
+  web_data_service()->RemoveLogin(*(password_row->form.get()));
+  delete password_row;
   saved_signons_.erase(target_iter);
   if (observer_)
     observer_->OnItemsRemoved(row, 1);
@@ -160,7 +156,10 @@ void PasswordManagerTableModel::ForgetAndRemoveSignon(int row) {
 void PasswordManagerTableModel::ForgetAndRemoveAllSignons() {
   PasswordRows::iterator iter = saved_signons_.begin();
   while (iter != saved_signons_.end()) {
-    web_data_service()->RemoveLogin(*(iter->form));
+    // Remove from DB, memory, and vector.
+    PasswordRow* row = *iter;
+    web_data_service()->RemoveLogin(*(row->form.get()));
+    delete row;
     iter = saved_signons_.erase(iter);
   }
   if (observer_)
