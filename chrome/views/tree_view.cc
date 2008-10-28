@@ -599,6 +599,20 @@ LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
   DCHECK(wrapper);
   TreeView* tree = wrapper->tree_view;
   switch (message) {
+    case WM_ERASEBKGND:
+      return 1;
+
+    case WM_PAINT: {
+      ChromeCanvasPaint canvas(window);
+      if (canvas.isEmpty())
+        return 0;
+
+      SendMessage(window, WM_PRINTCLIENT,
+                  reinterpret_cast<WPARAM>(canvas.beginPlatformPaint()), 0);
+      canvas.endPlatformPaint();
+      return 0;
+    }
+
     case WM_RBUTTONDOWN:
       if (tree->select_on_right_mouse_down_) {
         TVHITTESTINFO hit_info;
