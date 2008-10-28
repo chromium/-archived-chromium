@@ -786,9 +786,13 @@ void WebPluginImpl::handleEvent(WebCore::Event* event) {
 void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
 #if defined(OS_WIN)
   DCHECK(parent()->isFrameView());
+  // We cache the parent FrameView here as the plugin widget could be deleted
+  // in the call to HandleEvent. See http://b/issue?id=1362948
+  WebCore::FrameView* parent_view = static_cast<WebCore::FrameView*>(parent());
+
   WebCore::IntPoint p =
-      static_cast<WebCore::FrameView*>(parent())->contentsToWindow(
-          WebCore::IntPoint(event->pageX(), event->pageY()));
+      parent_view->contentsToWindow(WebCore::IntPoint(event->pageX(),
+                                                      event->pageY()));
   NPEvent np_event;
   np_event.lParam = static_cast<uint32>(MAKELPARAM(p.x(), p.y()));
   np_event.wParam = 0;
@@ -867,7 +871,7 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   // A windowless plugin can change the cursor in response to the WM_MOUSEMOVE
   // event. We need to reflect the changed cursor in the frame view as the
   // the mouse is moved in the boundaries of the windowless plugin.
-  parent()->setCursor(WebCore::PlatformCursor(current_web_cursor));
+  parent_view->setCursor(WebCore::PlatformCursor(current_web_cursor));
 #else
   NOTIMPLEMENTED();
 #endif
