@@ -159,6 +159,7 @@ void TabRestoreService::PopulateTabFromController(
         controller->GetPendingEntry() : controller->GetEntryAtIndex(i);
     TabNavigation& tab_nav = tab->navigations[i];
     tab_nav.url = entry->display_url();
+    tab_nav.referrer = entry->referrer();
     tab_nav.title = entry->title();
     tab_nav.state = entry->content_state();
     tab_nav.transition = entry->transition_type();

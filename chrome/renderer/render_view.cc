@@ -842,7 +842,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   if (!is_reload)
     request->SetHistoryState(params.state);
 
-  if (!params.referrer.is_empty()) {
+  if (params.referrer.is_valid()) {
     request->SetHttpHeaderValue(L"Referer",
                                 UTF8ToWide(params.referrer.spec()));
   }

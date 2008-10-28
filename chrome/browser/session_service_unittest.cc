@@ -47,6 +47,7 @@ class SessionServiceTest : public testing::Test {
                         bool select) {
     NavigationEntry entry(TAB_CONTENTS_UNKNOWN_TYPE);
     entry.set_url(navigation.url);
+    entry.set_referrer(navigation.referrer);
     entry.set_title(navigation.title);
     entry.set_content_state(navigation.state);
     entry.set_transition_type(navigation.transition);
@@ -83,7 +84,8 @@ TEST_F(SessionServiceTest, Basic) {
   SessionID tab_id;
   ASSERT_NE(window_id.id(), tab_id.id());
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"),
+                     GURL("http://www.referrer.com"), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -111,7 +113,7 @@ TEST_F(SessionServiceTest, PrunePostData1) {
   SessionID tab_id;
   ASSERT_NE(window_id.id(), tab_id.id());
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
   nav1.type_mask = TabNavigation::HAS_POST_DATA;
 
@@ -130,10 +132,11 @@ TEST_F(SessionServiceTest, PrunePostData2) {
   SessionID tab_id;
   ASSERT_NE(window_id.id(), tab_id.id());
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"),
+                     GURL("http://www.referrer.com"), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
   nav1.type_mask = TabNavigation::HAS_POST_DATA;
-  TabNavigation nav2(0, GURL("http://google2.com"), L"abc", "def",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -157,9 +160,9 @@ TEST_F(SessionServiceTest, ClosingTabStaysClosed) {
   SessionID tab2_id;
   ASSERT_NE(tab_id.id(), tab2_id.id());
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -186,9 +189,9 @@ TEST_F(SessionServiceTest, ClosingTabStaysClosed) {
 TEST_F(SessionServiceTest, Pruning) {
   SessionID tab_id;
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -220,9 +223,9 @@ TEST_F(SessionServiceTest, TwoWindows) {
   SessionID tab1_id;
   SessionID tab2_id;
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab1_id, 0, true);
@@ -273,7 +276,7 @@ TEST_F(SessionServiceTest, WindowWithNoTabsGetsPruned) {
   SessionID tab1_id;
   SessionID tab2_id;
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
 
   helper_.PrepareTabInWindow(window_id, tab1_id, 0, true);
@@ -302,9 +305,9 @@ TEST_F(SessionServiceTest, ClosingWindowDoesntCloseTabs) {
   SessionID tab2_id;
   ASSERT_NE(tab_id.id(), tab2_id.id());
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -341,9 +344,9 @@ TEST_F(SessionServiceTest, WindowCloseCommittedAfterNavigate) {
   service()->SetWindowType(window2_id, BrowserType::TABBED_BROWSER);
   service()->SetWindowBounds(window2_id, window_bounds, false);
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -379,9 +382,9 @@ TEST_F(SessionServiceTest, IgnorePopups) {
   service()->SetWindowType(window2_id, BrowserType::BROWSER);
   service()->SetWindowBounds(window2_id, window_bounds, false);
 
-  TabNavigation nav1(0, GURL("http://google.com"), L"abc", "def",
+  TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
                      PageTransition::QUALIFIER_MASK);
-  TabNavigation nav2(0, GURL("http://google2.com"), L"abcd", "defg",
+  TabNavigation nav2(0, GURL("http://google2.com"), GURL(), L"abcd", "defg",
                      PageTransition::AUTO_BOOKMARK);
 
   helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
@@ -412,7 +415,7 @@ TEST_F(SessionServiceTest, PruneFromFront) {
 
   // Add 5 navigations, with the 4th selected.
   for (int i = 0; i < 5; ++i) {
-    TabNavigation nav(0, GURL(base_url + IntToString(i)),
+    TabNavigation nav(0, GURL(base_url + IntToString(i)), GURL(),
                       L"a", "b", PageTransition::QUALIFIER_MASK);
     UpdateNavigation(window_id, tab_id, nav, i, (i == 3));
   }
@@ -447,7 +450,7 @@ TEST_F(SessionServiceTest, PruneToEmpty) {
 
   // Add 5 navigations, with the 4th selected.
   for (int i = 0; i < 5; ++i) {
-    TabNavigation nav(0, GURL(base_url + IntToString(i)),
+    TabNavigation nav(0, GURL(base_url + IntToString(i)), GURL(),
                       L"a", "b", PageTransition::QUALIFIER_MASK);
     UpdateNavigation(window_id, tab_id, nav, i, (i == 3));
   }

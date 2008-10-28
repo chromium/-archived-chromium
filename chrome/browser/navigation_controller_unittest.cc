@@ -1230,7 +1230,7 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
   // Create a NavigationController with a restored set of tabs.
   GURL url(scheme1() + ":foo");
   std::vector<TabNavigation> navigations;
-  navigations.push_back(TabNavigation(0, url, L"Title", "state",
+  navigations.push_back(TabNavigation(0, url, GURL(), L"Title", "state",
                                       PageTransition::LINK));
   NavigationController* controller =
       new NavigationController(profile, navigations, 0, NULL);
@@ -1507,7 +1507,7 @@ TEST_F(NavigationControllerHistoryTest, Basic) {
 
   helper_.AssertSingleWindowWithSingleTab(windows_, 1);
   helper_.AssertTabEquals(0, 0, 1, *(windows_[0]->tabs[0]));
-  TabNavigation nav1(0, url0, std::wstring(), std::string(),
+  TabNavigation nav1(0, url0, GURL(), std::wstring(), std::string(),
                      PageTransition::LINK);
   helper_.AssertNavigationEquals(nav1, windows_[0]->tabs[0]->navigations[0]);
 }
@@ -1527,7 +1527,7 @@ TEST_F(NavigationControllerHistoryTest, NavigationThenBack) {
   helper_.AssertSingleWindowWithSingleTab(windows_, 3);
   helper_.AssertTabEquals(0, 1, 3, *(windows_[0]->tabs[0]));
 
-  TabNavigation nav(0, url0, std::wstring(), std::string(),
+  TabNavigation nav(0, url0, GURL(), std::wstring(), std::string(),
                     PageTransition::LINK);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[0]);
   nav.url = url1;
@@ -1557,7 +1557,7 @@ TEST_F(NavigationControllerHistoryTest, NavigationPruning) {
   helper_.AssertSingleWindowWithSingleTab(windows_, 2);
   helper_.AssertTabEquals(0, 1, 2, *(windows_[0]->tabs[0]));
 
-  TabNavigation nav(0, url0, std::wstring(), std::string(),
+  TabNavigation nav(0, url0, GURL(), std::wstring(), std::string(),
                     PageTransition::LINK);
   helper_.AssertNavigationEquals(nav, windows_[0]->tabs[0]->navigations[0]);
   nav.url = url2;

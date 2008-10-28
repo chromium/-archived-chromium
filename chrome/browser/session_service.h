@@ -46,10 +46,12 @@ struct TabNavigation {
   }
   TabNavigation(int index,
                 const GURL& url,
+                const GURL& referrer,
                 const std::wstring& title,
                 const std::string& state,
                 PageTransition::Type transition)
       : url(url),
+        referrer(referrer),
         title(title),
         state(state),
         transition(transition),
@@ -58,6 +60,8 @@ struct TabNavigation {
 
 
   GURL url;
+  GURL referrer;
+
   // The title of the page.
   std::wstring title;
   std::string state;

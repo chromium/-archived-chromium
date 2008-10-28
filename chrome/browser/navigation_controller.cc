@@ -150,7 +150,7 @@ static void CreateNavigationEntriesFromTabNavigations(
                // (WebContents::GetSiteInstanceForEntry).
         static_cast<int>(i - navigations.begin()),
         real_url,
-        GURL(), // TODO(eroman): should pass actual referrer.
+        navigation.referrer,
         navigation.title,
         // Use a transition type of reload so that we don't incorrectly
         // increase the typed count.
