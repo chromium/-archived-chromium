@@ -5,8 +5,8 @@
 // A proxy for NPObject that sends all calls to the object to an NPObjectStub
 // running in a different process.
 
-#ifndef CHROME_PLUGIN_NPOBJECT_PROXY_H__
-#define CHROME_PLUGIN_NPOBJECT_PROXY_H__
+#ifndef CHROME_PLUGIN_NPOBJECT_PROXY_H_
+#define CHROME_PLUGIN_NPOBJECT_PROXY_H_
 
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
@@ -112,5 +112,4 @@ class NPObjectProxy : public IPC::Channel::Listener,
   HANDLE modal_dialog_event_;
 };
 
-#endif  // CHROME_PLUGIN_NPOBJECT_PROXY_H__
-
+#endif  // CHROME_PLUGIN_NPOBJECT_PROXY_H_
