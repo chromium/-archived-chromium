@@ -16,6 +16,8 @@ TEST(HttpAuthHandlerBasicTest, GenerateCredentials) {
     const char* expected_credentials;
   } tests[] = {
     { L"foo", L"bar", "Basic Zm9vOmJhcg==" },
+    // Empty username
+    { L"", L"foobar", "Basic OmZvb2Jhcg==" },
     // Empty password
     { L"anon", L"", "Basic YW5vbjo=" },
   };
