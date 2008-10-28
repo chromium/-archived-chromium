@@ -7,6 +7,7 @@
 #include "base/process_util.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/render_process_host.h"
@@ -16,6 +17,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/views/accelerator.h"
 #include "chrome/views/background.h"
 #include "chrome/views/link.h"
@@ -212,7 +214,13 @@ int TaskManagerTableModel::GetStatsValue(TaskManager::Resource* resource,
 
 SkBitmap TaskManagerTableModel::GetIcon(int row) {
   DCHECK(row < RowCount());
-  return resources_[row]->GetIcon();
+  SkBitmap icon = resources_[row]->GetIcon();
+  if (!icon.isNull())
+    return icon;
+
+  static SkBitmap* default_icon = ResourceBundle::GetSharedInstance().
+      GetBitmapNamed(IDR_DEFAULT_FAVICON);
+  return *default_icon;
 }
 
 void TaskManagerTableModel::GetGroupRangeForItem(int item,
