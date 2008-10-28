@@ -280,39 +280,3 @@ TEST_F(NPAPIVisiblePluginTester, OpenPopupWindowWithPlugin) {
                 kTestCompleteCookie, kTestCompleteSuccess,
                 kShortWaitTimeout);
 }
-
-// Tests if a plugin executing a self deleting script in the context of 
-// a synchronous mousemove works correctly
-TEST_F(NPAPIVisiblePluginTester, SelfDeletePluginInvokeInSynchronousMouseMove) {
-  if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
-    scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
-    HWND tab_window = NULL;
-    tab_proxy->GetHWND(&tab_window);
-    
-    EXPECT_TRUE(IsWindow(tab_window));
-
-    show_window_ = true;
-    std::wstring test_case = L"execute_script_delete_in_mouse_move.html";
-    GURL url = GetTestUrl(L"npapi", test_case);
-    NavigateToURL(url);
-
-    POINT cursor_position = {130, 130};
-    ClientToScreen(tab_window, &cursor_position);
-
-    double screen_width = ::GetSystemMetrics( SM_CXSCREEN ) - 1; 
-    double screen_height = ::GetSystemMetrics( SM_CYSCREEN ) - 1; 
-    double location_x =  cursor_position.x * (65535.0f / screen_width);
-    double location_y =  cursor_position.y * (65535.0f / screen_height);
-
-    INPUT input_info = {0};
-    input_info.type = INPUT_MOUSE;
-    input_info.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
-    input_info.mi.dx = static_cast<long>(location_x);
-    input_info.mi.dy = static_cast<long>(location_y);
-    ::SendInput(1, &input_info, sizeof(INPUT));
-
-    WaitForFinish("execute_script_delete_in_mouse_move", "1", url,
-                  kTestCompleteCookie, kTestCompleteSuccess,
-                  kShortWaitTimeout);
-  }
-}
