@@ -250,6 +250,7 @@ class HttpNetworkTransaction : public HttpTransaction {
     STATE_WRITE_BODY,
     STATE_WRITE_BODY_COMPLETE,
     STATE_READ_HEADERS,
+    STATE_UNUSED,  // TODO(wtc): temporary, for debugging issue 3772.
     STATE_READ_HEADERS_COMPLETE,
     STATE_READ_BODY,
     STATE_READ_BODY_COMPLETE,
