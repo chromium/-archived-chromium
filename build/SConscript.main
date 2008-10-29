@@ -630,7 +630,7 @@ if GetOption('help'):
 
 
 Import('build_component')
-Default(build_component)
+Default(Alias(build_component))
 
 # -------------------------------------------------------------------------
 
