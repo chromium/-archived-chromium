@@ -17,9 +17,8 @@
 namespace {
 class ProcessUtilTest : public MultiProcessTest {
 };
-}
 
-extern "C" int DYNAMIC_EXPORT SimpleChildProcess() {
+MULTIPROCESS_TEST_MAIN(SimpleChildProcess) {
   return 0;
 }
 
@@ -99,3 +98,4 @@ TEST_F(ProcessUtilTest, CalcFreeMemory) {
 }
 #endif  // defined(OS_WIN)
 
+}  // namespace

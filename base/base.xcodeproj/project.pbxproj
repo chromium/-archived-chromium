@@ -171,6 +171,9 @@
 		B57E4D780E9C26340090055D /* idletimer_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B57E4D770E9C26340090055D /* idletimer_unittest.cc */; };
 		B5D544AB0EAFB7E000272A1C /* sys_string_conversions_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D544AA0EAFB7E000272A1C /* sys_string_conversions_unittest.cc */; };
 		B5EF235C0E89ABF500E1E114 /* platform_canvas_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABE1BA0C0E756EC4009041DA /* platform_canvas_unittest.cc */; };
+		B5F7AFD20EB77ACA00EDB165 /* stats_table_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5F7AFD10EB77ACA00EDB165 /* stats_table_unittest.cc */; };
+		B5F7AFD80EB77B1600EDB165 /* process_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5F7AFD70EB77B1600EDB165 /* process_util_mac.mm */; };
+		B5F7B1F30EB7B3DA00EDB165 /* process_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BD8F4A00E65AA2400034DE9 /* process_util_unittest.cc */; };
 		BA0F69870E79D7980079A8A1 /* thread_local_storage_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA0F69860E79D7980079A8A1 /* thread_local_storage_unittest.cc */; };
 		BA5CC5840E788093004EDD45 /* shared_memory_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA5CC5830E788093004EDD45 /* shared_memory_unittest.cc */; };
 		BA739A020E5E3242009842A7 /* tracked_objects_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA739A000E5E3242009842A7 /* tracked_objects_unittest.cc */; };
@@ -627,6 +630,8 @@
 		B52C916B0E9428F500208D01 /* clipboard_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clipboard_unittest.cc; sourceTree = "<group>"; };
 		B57E4D770E9C26340090055D /* idletimer_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idletimer_unittest.cc; sourceTree = "<group>"; };
 		B5D544AA0EAFB7E000272A1C /* sys_string_conversions_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sys_string_conversions_unittest.cc; sourceTree = "<group>"; };
+		B5F7AFD10EB77ACA00EDB165 /* stats_table_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stats_table_unittest.cc; sourceTree = "<group>"; };
+		B5F7AFD70EB77B1600EDB165 /* process_util_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = process_util_mac.mm; sourceTree = "<group>"; };
 		BA0F69860E79D7980079A8A1 /* thread_local_storage_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_local_storage_unittest.cc; sourceTree = "<group>"; };
 		BA5CC5830E788093004EDD45 /* shared_memory_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shared_memory_unittest.cc; sourceTree = "<group>"; };
 		BA739A000E5E3242009842A7 /* tracked_objects_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracked_objects_unittest.cc; sourceTree = "<group>"; };
@@ -940,6 +945,7 @@
 				820EB4F10E3A6127009668FC /* process.cc */,
 				820EB4F20E3A6127009668FC /* process.h */,
 				825403510D92D24D0006B936 /* process_util.h */,
+				B5F7AFD70EB77B1600EDB165 /* process_util_mac.mm */,
 				7BD8F49F0E65AA2400034DE9 /* process_util_posix.cc */,
 				7BD8F4A00E65AA2400034DE9 /* process_util_unittest.cc */,
 				8254034B0D92D23C0006B936 /* prtime.cc */,
@@ -988,6 +994,7 @@
 				825403780D92D2CF0006B936 /* stats_counters.h */,
 				825403790D92D2CF0006B936 /* stats_table.cc */,
 				8254037A0D92D2CF0006B936 /* stats_table.h */,
+				B5F7AFD10EB77ACA00EDB165 /* stats_table_unittest.cc */,
 				7BD8F7730E65E89800034DE9 /* string16.cc */,
 				821B91680DAABD7F00F350D7 /* string16.h */,
 				E4A133420E37A3C400110AA2 /* string_escape.cc */,
@@ -1383,6 +1390,7 @@
 				824654A60DC25CD7007C2BAA /* pickle.cc in Sources */,
 				7BF164F30E660CA500AA999E /* platform_thread_mac.mm in Sources */,
 				93E703170E5D63E00046259B /* platform_thread_posix.cc in Sources */,
+				B5F7AFD80EB77B1600EDB165 /* process_util_mac.mm in Sources */,
 				7BD8F4A10E65AA4600034DE9 /* process_util_posix.cc in Sources */,
 				824654DF0DC26521007C2BAA /* prtime.cc in Sources */,
 				4D11B59A0E91730200EF7617 /* rand_util.cc in Sources */,
@@ -1466,6 +1474,7 @@
 				7B78D3970E54FE0100609465 /* pickle_unittest.cc in Sources */,
 				B5EF235C0E89ABF500E1E114 /* platform_canvas_unittest.cc in Sources */,
 				A5CB82980E5C74E300FD6825 /* platform_test_mac.mm in Sources */,
+				B5F7B1F30EB7B3DA00EDB165 /* process_util_unittest.cc in Sources */,
 				7B8505D50E5B441000730B43 /* png_codec_unittest.cc in Sources */,
 				7B78D3980E54FE0100609465 /* pr_time_unittest.cc in Sources */,
 				4D11B59C0E91730500EF7617 /* rand_util_unittest.cc in Sources */,
@@ -1478,6 +1487,7 @@
 				7BAE30E60E6D939F00C3F750 /* simple_thread_unittest.cc in Sources */,
 				7B78D39C0E54FE0100609465 /* singleton_unittest.cc in Sources */,
 				7B78D39D0E54FE0100609465 /* stack_container_unittest.cc in Sources */,
+				B5F7AFD20EB77ACA00EDB165 /* stats_table_unittest.cc in Sources */,
 				7B78D39E0E54FE0100609465 /* string_escape_unittest.cc in Sources */,
 				7B78D39F0E54FE0100609465 /* string_piece_unittest.cc in Sources */,
 				7B78D3A00E54FE0100609465 /* string_tokenizer_unittest.cc in Sources */,

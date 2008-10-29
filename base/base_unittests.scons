@@ -60,18 +60,9 @@ if env['PLATFORM'] == 'win32':
   )
 
 if env['PLATFORM'] == 'posix':
-  # Explicity list the functions we want to export from the base_unittest
-  # executable in the following file.
-  env['EXPORTED_SYMBOLS_FILE'] = \
-      env.File('$CHROME_SRC_DIR/base/base_unittest_exported_symbols.version')
-
   env.Append(
       LIBS = [
           'event',
-      ],
-      LINKFLAGS = [
-          '-Xlinker',
-          '--dynamic-list=$EXPORTED_SYMBOLS_FILE'
       ],
   )
 

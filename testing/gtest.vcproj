@@ -184,6 +184,10 @@
 			RelativePath="gtest\include\gtest\gtest_prod.h"
 			>
 		</File>
+		<File
+			RelativePath="multiprocess_func_list.cc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

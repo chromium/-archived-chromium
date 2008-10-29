@@ -8,6 +8,7 @@
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/multiprocess_func_list.h"
 
 #if defined(OS_WIN)
 #include <process.h>
@@ -151,7 +152,7 @@ TEST_F(StatsTableTest, MultipleThreads) {
 
 const std::wstring kTableName = L"MultipleProcessStatTable";
 
-extern "C" int DYNAMIC_EXPORT StatsTableMultipleProcessMain() {
+MULTIPROCESS_TEST_MAIN(StatsTableMultipleProcessMain) {
   // Each process will open the shared memory and set counters
   // concurrently in a loop.  We'll use some pauses to
   // mixup the scheduling.

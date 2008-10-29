@@ -28,6 +28,7 @@ input_files = [
     'gtest/src/gtest-filepath.cc',
     'gtest/src/gtest-port.cc',
     'gtest/src/gtest.cc',
+    'multiprocess_func_list.cc',
 ]
 
 env.ChromeStaticLibrary('gtest', input_files)

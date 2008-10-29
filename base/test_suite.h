@@ -16,15 +16,12 @@
 #include "base/logging.h"
 #include "base/multiprocess_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "testing/multiprocess_func_list.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
-#include "base/multiprocess_test.h"
 #elif defined(OS_LINUX)
-#include <dlfcn.h>
 #include <gtk/gtk.h>
-#elif defined(OS_MACOSX)
-#include <dlfcn.h>
 #endif
 
 class TestSuite {
@@ -47,26 +44,7 @@ class TestSuite {
       // Convert our function name to a usable string for GetProcAddress.
       std::string func_name(client_func.begin(), client_func.end());
 
-#if defined(OS_WIN)
-      // Get our module handle and search for an exported function
-      // which we can use as our client main.
-      MultiProcessTest::ChildFunctionPtr func =
-          reinterpret_cast<MultiProcessTest::ChildFunctionPtr>(
-              GetProcAddress(GetModuleHandle(NULL), func_name.c_str()));
-#elif defined(OS_LINUX)
-      void* exobj = dlopen(0, RTLD_LAZY);
-      MultiProcessTest::ChildFunctionPtr func =
-            reinterpret_cast<MultiProcessTest::ChildFunctionPtr>(
-                dlsym(exobj, func_name.c_str()));
-#elif defined(OS_MACOSX)
-      MultiProcessTest::ChildFunctionPtr func =
-      reinterpret_cast<MultiProcessTest::ChildFunctionPtr>(
-                dlsym(RTLD_SELF, func_name.c_str()));
-#endif  // defined(OS_MACOSX)
-
-      if (func)
-        return (*func)();
-      return -1;
+      return multi_process_function_list::InvokeChildProcessTest(func_name);
     }
     int result = RUN_ALL_TESTS();
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B593AFF90EB7D41B00B72887 /* multiprocess_func_list.cc in Sources */ = {isa = PBXBuildFile; fileRef = B593AFF70EB7D41B00B72887 /* multiprocess_func_list.cc */; };
 		E45A2BBC0E47A20200DB1196 /* gtest_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BB60E47A20200DB1196 /* gtest_main.cc */; };
 		E45A2BBD0E47A20200DB1196 /* gtest-death-test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BB70E47A20200DB1196 /* gtest-death-test.cc */; };
 		E45A2BBE0E47A20200DB1196 /* gtest-filepath.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45A2BB80E47A20200DB1196 /* gtest-filepath.cc */; };
@@ -20,6 +21,8 @@
 		7B836C760E55C8CC00F6AD31 /* release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = release.xcconfig; sourceTree = "<group>"; };
 		7BED30DF0E59F69A00A747DB /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
 		7BED30E00E59F69A00A747DB /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
+		B593AFF70EB7D41B00B72887 /* multiprocess_func_list.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = multiprocess_func_list.cc; sourceTree = SOURCE_ROOT; };
+		B593AFF80EB7D41B00B72887 /* multiprocess_func_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multiprocess_func_list.h; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libgtest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libgtest.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45A2BB60E47A20200DB1196 /* gtest_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gtest_main.cc; sourceTree = "<group>"; };
 		E45A2BB70E47A20200DB1196 /* gtest-death-test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "gtest-death-test.cc"; sourceTree = "<group>"; };
@@ -59,6 +62,8 @@
 				E45A2BBA0E47A20200DB1196 /* gtest-port.cc */,
 				E45A2BBB0E47A20200DB1196 /* gtest.cc */,
 				E45A2BB60E47A20200DB1196 /* gtest_main.cc */,
+				B593AFF70EB7D41B00B72887 /* multiprocess_func_list.cc */,
+				B593AFF80EB7D41B00B72887 /* multiprocess_func_list.h */,
 			);
 			name = Source;
 			path = gtest/src;
@@ -131,6 +136,7 @@
 				E45A2BC00E47A20200DB1196 /* gtest-port.cc in Sources */,
 				E45A2BC10E47A20200DB1196 /* gtest.cc in Sources */,
 				E45A2BBC0E47A20200DB1196 /* gtest_main.cc in Sources */,
+				B593AFF90EB7D41B00B72887 /* multiprocess_func_list.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
