@@ -172,22 +172,13 @@ class HttpTransactionWinHttp::Session
                                  WINHTTP_FLAG_SECURE_PROTOCOL_TLS1
   };
 
-  Session()
-      : internet_(NULL),
-        internet_no_tls_(NULL),
-        message_loop_(NULL),
-        handle_closing_event_(NULL),
-        quit_event_(NULL),
-        session_callback_ref_count_(0),
-        quitting_(false),
-        rev_checking_enabled_(false),
-        secure_protocols_(SECURE_PROTOCOLS_SSL3_TLS1) {
-  }
+  Session();
 
-  bool Init();
+  // Opens the primary WinHttp session handle.
+  bool Init(const std::string& user_agent);
 
   // Opens the alternative WinHttp session handle for TLS-intolerant servers.
-  bool InitNoTLS();
+  bool InitNoTLS(const std::string& user_agent);
 
   void AddRefBySessionCallback();
 
@@ -240,10 +231,11 @@ class HttpTransactionWinHttp::Session
   // Called by the destructor only.
   void WaitUntilCallbacksAllDone();
 
-  HINTERNET OpenWinHttpSession();
+  HINTERNET OpenWinHttpSession(const std::string& user_agent);
 
-  // Get the SSL configuration settings and apply them to the session handle.
-  void ConfigureSSL();
+  // Get the SSL configuration settings and save them in rev_checking_enabled_
+  // and secure_protocols_.
+  void GetSSLConfig();
 
   HINTERNET internet_;
   HINTERNET internet_no_tls_;
@@ -304,6 +296,30 @@ class HttpTransactionWinHttp::Session
   WinHttpRequestThrottle request_throttle_;
 };
 
+HttpTransactionWinHttp::Session::Session()
+    : internet_(NULL),
+      internet_no_tls_(NULL),
+      session_callback_ref_count_(0),
+      quitting_(false) {
+  proxy_resolver_.reset(new ProxyResolverWinHttp());
+  proxy_service_.reset(new ProxyService(proxy_resolver_.get()));
+
+  GetSSLConfig();
+
+  // Save the current message loop for callback notifications.
+  message_loop_ = MessageLoop::current();
+
+  handle_closing_event_ = CreateEvent(NULL,
+                                      FALSE,  // auto-reset
+                                      FALSE,  // initially nonsignaled
+                                      NULL);  // unnamed
+
+  quit_event_ = CreateEvent(NULL,
+                            FALSE,  // auto-reset
+                            FALSE,  // initially nonsignaled
+                            NULL);  // unnamed
+}
+
 HttpTransactionWinHttp::Session::~Session() {
   // It is important to shutdown the proxy service before closing the WinHTTP
   // session handle since the proxy service uses the WinHTTP session handle.
@@ -328,41 +344,30 @@ HttpTransactionWinHttp::Session::~Session() {
     CloseHandle(quit_event_);
 }
 
-bool HttpTransactionWinHttp::Session::Init() {
+bool HttpTransactionWinHttp::Session::Init(const std::string& user_agent) {
   DCHECK(!internet_);
 
-  internet_ = OpenWinHttpSession();
+  internet_ = OpenWinHttpSession(user_agent);
 
   if (!internet_)
     return false;
 
-  proxy_resolver_.reset(new ProxyResolverWinHttp());
-  proxy_service_.reset(new ProxyService(proxy_resolver_.get()));
-
-  ConfigureSSL();
-
-  // Save the current message loop for callback notifications.
-  message_loop_ = MessageLoop::current();
-
-  handle_closing_event_ = CreateEvent(NULL,
-                                      FALSE,  // auto-reset
-                                      FALSE,  // initially nonsignaled
-                                      NULL);  // unnamed
-
-  quit_event_ = CreateEvent(NULL,
-                            FALSE,  // auto-reset
-                            FALSE,  // initially nonsignaled
-                            NULL);  // unnamed
+  if (secure_protocols_ != SECURE_PROTOCOLS_SSL3_TLS1) {
+    BOOL rv = WinHttpSetOption(internet_, WINHTTP_OPTION_SECURE_PROTOCOLS,
+                               &secure_protocols_, sizeof(secure_protocols_));
+    DCHECK(rv);
+  }
 
   return true;
 }
 
-bool HttpTransactionWinHttp::Session::InitNoTLS() {
+bool HttpTransactionWinHttp::Session::InitNoTLS(
+    const std::string& user_agent) {
   DCHECK(tls_enabled());
   DCHECK(internet_);
   DCHECK(!internet_no_tls_);
 
-  internet_no_tls_ = OpenWinHttpSession();
+  internet_no_tls_ = OpenWinHttpSession(user_agent);
 
   if (!internet_no_tls_)
     return false;
@@ -409,9 +414,14 @@ void HttpTransactionWinHttp::Session::WaitUntilCallbacksAllDone() {
   DCHECK(session_callback_ref_count_ == 0);
 }
 
-HINTERNET HttpTransactionWinHttp::Session::OpenWinHttpSession() {
-  // UA string and proxy config will be set explicitly for each request
-  HINTERNET internet = WinHttpOpen(NULL,
+HINTERNET HttpTransactionWinHttp::Session::OpenWinHttpSession(
+    const std::string& user_agent) {
+  // Proxy config will be set explicitly for each request.
+  //
+  // Although UA string will also be set explicitly for each request, HTTP
+  // CONNECT requests use the UA string of the session handle, so we have to
+  // pass a UA string to WinHttpOpen.
+  HINTERNET internet = WinHttpOpen(ASCIIToWide(user_agent).c_str(),
                                    WINHTTP_ACCESS_TYPE_NO_PROXY,
                                    WINHTTP_NO_PROXY_NAME,
                                    WINHTTP_NO_PROXY_BYPASS,
@@ -429,25 +439,17 @@ HINTERNET HttpTransactionWinHttp::Session::OpenWinHttpSession() {
   return internet;
 }
 
-void HttpTransactionWinHttp::Session::ConfigureSSL() {
-  DCHECK(internet_);
-
+void HttpTransactionWinHttp::Session::GetSSLConfig() {
   SSLConfig ssl_config;
   SSLConfigService::GetSSLConfigNow(&ssl_config);
   rev_checking_enabled_ = ssl_config.rev_checking_enabled;
-  DWORD protocols = 0;
+  secure_protocols_ = 0;
   if (ssl_config.ssl2_enabled)
-    protocols |= WINHTTP_FLAG_SECURE_PROTOCOL_SSL2;
+    secure_protocols_ |= WINHTTP_FLAG_SECURE_PROTOCOL_SSL2;
   if (ssl_config.ssl3_enabled)
-    protocols |= WINHTTP_FLAG_SECURE_PROTOCOL_SSL3;
+    secure_protocols_ |= WINHTTP_FLAG_SECURE_PROTOCOL_SSL3;
   if (ssl_config.tls1_enabled)
-    protocols |= WINHTTP_FLAG_SECURE_PROTOCOL_TLS1;
-  if (protocols != secure_protocols_) {
-    BOOL rv = WinHttpSetOption(internet_, WINHTTP_OPTION_SECURE_PROTOCOLS,
-                               &protocols, sizeof(protocols));
-    DCHECK(rv);
-    secure_protocols_ = protocols;
-  }
+    secure_protocols_ |= WINHTTP_FLAG_SECURE_PROTOCOL_TLS1;
 }
 
 // SessionCallback ------------------------------------------------------------
@@ -742,12 +744,6 @@ HttpTransaction* HttpTransactionWinHttp::Factory::CreateTransaction() {
   if (!session_) {
     session_ = new Session();
     session_->AddRef();
-    if (!session_->Init()) {
-      DLOG(ERROR) << "unable to create the internet";
-      session_->Release();
-      session_ = NULL;
-      return NULL;
-    }
   }
   return new HttpTransactionWinHttp(session_, proxy_info_.get());
 }
@@ -1062,9 +1058,14 @@ bool HttpTransactionWinHttp::OpenRequest() {
   // Since the SSL protocol versions enabled are an option of a session
   // handle, supporting TLS-intolerant servers unfortunately requires opening
   // an alternative session in which TLS 1.0 is disabled.
+  if (!session_->internet() && !session_->Init(request_->user_agent)) {
+    DLOG(ERROR) << "unable to create the internet";
+    return false;
+  }
   HINTERNET internet = session_->internet();
   if (is_tls_intolerant_) {
-    if (!session_->internet_no_tls() && !session_->InitNoTLS()) {
+    if (!session_->internet_no_tls() &&
+        !session_->InitNoTLS(request_->user_agent)) {
       DLOG(ERROR) << "unable to create the no-TLS alternative internet";
       return false;
     }
