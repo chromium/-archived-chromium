@@ -321,6 +321,18 @@ each locale. -->
       <message name="IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY" desc="The name of the Add to dictionary command in the content area context menu">
         &amp;Add to dictionary
       </message>
+      <message name="IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS" desc="The name of the No Spelling Suggestions display in the content area context menu">
+        &amp;No spelling suggestions
+      </message>
+      <message name="IDS_CONTENT_CONTEXT_SPELLCHECK_OPTIONS" desc="The name of the Spellcheck Options display in the content area context menu">
+        &amp;Spellcheck options
+      </message>
+      <message name="IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS" desc="The name of the Language Settings command in the content area context menu">
+        &amp;Language settings...
+      </message>
+      <message name="IDS_CONTENT_CONTEXT_CHECK_SPELLING_OF_THIS_FIELD" desc="The name of the Check the spelling of this field command in the content area context menu">
+        &amp;Check the spelling of this field
+      </message>
       <message name="IDS_CONTENT_CONTEXT_SELECTALL" desc="The name of the Select All command in the content area context menu">
         Select &amp;all
       </message>
