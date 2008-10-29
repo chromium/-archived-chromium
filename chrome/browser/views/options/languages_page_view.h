@@ -100,6 +100,7 @@ class LanguagesPageView : public OptionsPageView,
   int spellcheck_language_index_selected_;
 
   bool language_table_edited_;
+  bool language_warning_shown_;
 
   DISALLOW_EVIL_CONSTRUCTORS(LanguagesPageView);
 };

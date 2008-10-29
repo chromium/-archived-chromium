@@ -484,6 +484,7 @@ LanguagesPageView::LanguagesPageView(Profile* profile)
       dictionary_language_label_(NULL),
       OptionsPageView(profile),
       language_table_edited_(false),
+      language_warning_shown_(false),
       spellcheck_language_index_selected_(-1) {
   accept_languages_.Init(prefs::kAcceptLanguages,
       profile->GetPrefs(), NULL);
@@ -710,14 +711,19 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
 void LanguagesPageView::ItemChanged(views::ComboBox* sender,
                                     int prev_index,
                                     int new_index) {
+  if (prev_index == new_index)
+    return;
+
   if (sender == change_ui_language_combobox_) {
     UserMetricsRecordAction(L"Options_AppLanguage",
                             g_browser_process->local_state());
     app_locale_.SetValue(ui_language_model_->GetLocaleFromIndex(new_index));
-    RestartMessageBox::ShowMessageBox(GetRootWindow());
+    if (!language_warning_shown_) {
+      RestartMessageBox::ShowMessageBox(GetRootWindow());
+      language_warning_shown_ = true;
+    }
   } else if (sender == change_dictionary_language_combobox_) {
-    if (new_index != prev_index)
-      spellcheck_language_index_selected_ = new_index;
+    spellcheck_language_index_selected_ = new_index;
   }
 }
 
