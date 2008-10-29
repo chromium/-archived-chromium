@@ -41,7 +41,7 @@
 #define MAX_LOADSTRING 100
 
 #define BUTTON_WIDTH 72
-#define URLBAR_HEIGHT  24
+#define URLBAR_HEIGHT  32
 
 // Global Variables:
 
@@ -484,9 +484,12 @@ void TestShell::SizeToDefault() {
 }
 
 void TestShell::SizeTo(int width, int height) {
+  // WebViewHost::Create() sets the HTML content rect to start 32 pixels below
+  // the top of the window to account for the "toolbar". We need to match that
+  // here otherwise the HTML content area will be too short.
   NSRect r = [m_mainWnd contentRectForFrameRect:[m_mainWnd frame]];
   r.size.width = width;
-  r.size.height = height;
+  r.size.height = height + URLBAR_HEIGHT;
   [m_mainWnd setFrame:[m_mainWnd frameRectForContentRect:r] display:YES];
 }
 
