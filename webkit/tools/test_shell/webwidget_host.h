@@ -42,6 +42,7 @@ class WebWidgetHost {
 #endif
 
   void DiscardBackingStore();
+  void Paint();
 
  protected:
   WebWidgetHost();
@@ -51,7 +52,6 @@ class WebWidgetHost {
   // Per-class wndproc.  Returns true if the event should be swallowed.
   virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam);
 
-  void Paint();
   void Resize(LPARAM lparam);
   void MouseEvent(UINT message, WPARAM wparam, LPARAM lparam);
   void WheelEvent(WPARAM wparam, LPARAM lparam);
@@ -63,13 +63,16 @@ class WebWidgetHost {
 #elif defined(OS_MACOSX)
   // These need to be called from a non-subclass, so they need to be public.
  public:
-  void Paint();
   void Resize(const gfx::Rect& rect);
   void MouseEvent(NSEvent *);
   void WheelEvent(NSEvent *);
   void KeyEvent(NSEvent *);
   void SetFocus(bool enable);
  protected:
+#elif defined(OS_LINUX)
+ public:
+  void WindowDestroyed();
+  void Resize(const gfx::Size& size);
 #endif
 
   void TrackMouseLeave(bool enable);

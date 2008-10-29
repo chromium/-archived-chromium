@@ -4,9 +4,10 @@
 
 #include "base/gfx/bitmap_platform_device_linux.h"
 
-#include "base/logging.h"
+#include <gdk/gdk.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 
-#include <time.h>
+#include "base/logging.h"
 
 namespace gfx {
 
@@ -16,26 +17,39 @@ namespace gfx {
 // data.
 BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
     int width, int height, bool is_opaque) {
+  GdkPixbuf* pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, width, height);
+  if (!pixbuf)
+    return NULL;
+
+  DCHECK_EQ(gdk_pixbuf_get_colorspace(pixbuf), GDK_COLORSPACE_RGB);
+  DCHECK_EQ(gdk_pixbuf_get_bits_per_sample(pixbuf), 8);
+  DCHECK(gdk_pixbuf_get_has_alpha(pixbuf));
+  DCHECK_EQ(gdk_pixbuf_get_n_channels(pixbuf), 4);
+  DCHECK_EQ(gdk_pixbuf_get_width(pixbuf), width);
+  DCHECK_EQ(gdk_pixbuf_get_height(pixbuf), height);
+
   SkBitmap bitmap;
-  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
+  bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height,
+                   gdk_pixbuf_get_rowstride(pixbuf));
+  bitmap.setPixels(gdk_pixbuf_get_pixels(pixbuf));
   bitmap.setIsOpaque(is_opaque);
 
-  if (is_opaque) {
 #ifndef NDEBUG
-    // To aid in finding bugs, we set the background color to something
-    // obviously wrong so it will be noticable when it is not cleared
+  if (is_opaque) {
     bitmap.eraseARGB(255, 0, 255, 128);  // bright bluish green
-#endif
   }
+#endif
 
   // The device object will take ownership of the graphics context.
-  return new BitmapPlatformDeviceLinux(bitmap);
+  return new BitmapPlatformDeviceLinux(bitmap, pixbuf);
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel
 // data. Therefore, we do not transfer ownership to the SkDevice's bitmap.
-BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(const SkBitmap& bitmap)
-    : PlatformDeviceLinux(bitmap) {
+BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(const SkBitmap& bitmap,
+                                                     GdkPixbuf* pixbuf)
+    : PlatformDeviceLinux(bitmap),
+      pixbuf_(pixbuf) {
 }
 
 BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
@@ -45,6 +59,10 @@ BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
 }
 
 BitmapPlatformDeviceLinux::~BitmapPlatformDeviceLinux() {
+  if (pixbuf_) {
+    g_object_unref(pixbuf_);
+    pixbuf_ = NULL;
+  }
 }
 
 }  // namespace gfx
