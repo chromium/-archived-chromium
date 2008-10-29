@@ -20,6 +20,8 @@ TEST(HttpAuthHandlerBasicTest, GenerateCredentials) {
     { L"", L"foobar", "Basic OmZvb2Jhcg==" },
     // Empty password
     { L"anon", L"", "Basic YW5vbjo=" },
+    // Empty username and empty password.
+    { L"", L"", "Basic Og==" },
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::string challenge = "Basic realm=\"Atlantis\"";

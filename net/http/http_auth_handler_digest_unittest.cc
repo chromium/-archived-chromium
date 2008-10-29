@@ -157,6 +157,48 @@ TEST(HttpAuthHandlerDigestTest, AssembleCredentials) {
       "qop=auth, nc=00000001, cnonce=\"082c875dcb2ca740\""
     },
 
+    { // MD5 with no username.
+      "GET",
+      "/test/drealm1/",
+
+      // Challenge
+      "Digest realm=\"DRealm1\", "
+      "nonce=\"7thGplhaBAA=41fb92453c49799cf353c8cd0aabee02d61a98a8\", "
+      "algorithm=MD5, qop=\"auth\"",
+
+      "", "pass", // Username/password
+      "6509bc74daed8263", // cnonce
+      1, // nc
+
+      // Authorization
+      "Digest username=\"\", realm=\"DRealm1\", "
+      "nonce=\"7thGplhaBAA=41fb92453c49799cf353c8cd0aabee02d61a98a8\", "
+      "uri=\"/test/drealm1/\", algorithm=MD5, "
+      "response=\"bc597110f41a62d07f8b70b6977fcb61\", "
+      "qop=auth, nc=00000001, cnonce=\"6509bc74daed8263\""
+    },
+
+    { // MD5 with no username and no password.
+      "GET",
+      "/test/drealm1/",
+
+      // Challenge
+      "Digest realm=\"DRealm1\", "
+      "nonce=\"s3MzvFhaBAA=4c520af5acd9d8d7ae26947529d18c8eae1e98f4\", "
+      "algorithm=MD5, qop=\"auth\"",
+
+      "", "", // Username/password
+      "1522e61005789929", // cnonce
+      1, // nc
+
+      // Authorization
+      "Digest username=\"\", realm=\"DRealm1\", "
+      "nonce=\"s3MzvFhaBAA=4c520af5acd9d8d7ae26947529d18c8eae1e98f4\", "
+      "uri=\"/test/drealm1/\", algorithm=MD5, "
+      "response=\"22cfa2b30cb500a9591c6d55ec5590a8\", "
+      "qop=auth, nc=00000001, cnonce=\"1522e61005789929\""
+    },
+
     { // No algorithm, and no qop.
       "GET",
       "/",
