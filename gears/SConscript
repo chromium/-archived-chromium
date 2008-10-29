@@ -138,13 +138,15 @@ env.Replace(
 )
 
 # Add our tools to the PATH.
-if os.path.exists(env.Dir('#/$PRIVATE_THIRD_PARTY_DIR').abspath):
-  paths = []
-  if env['OS'] in ['win32', 'wince']:
-    # Clear out our environment so we don't accidentally use the system's libs.
+if env['OS'] in ['win32', 'wince']:
+  if os.path.exists(env.Dir('#/$PRIVATE_THIRD_PARTY_DIR').abspath):
+    # Clear out our environment so we don't accidentally use the system's
+    # libs.
     env['ENV']['PATH'] = ''
     env['ENV']['LIB'] = ''
     env['ENV']['INCLUDE'] = ''
+
+    paths = []
 
     # Keep system32 for 'xcopy'.
     paths += [env.subst('${ENV["SYSTEMROOT"]}/system32')]
@@ -170,21 +172,25 @@ if os.path.exists(env.Dir('#/$PRIVATE_THIRD_PARTY_DIR').abspath):
           env.subst('$VC80/smartdevices/sdktools'),
       ]
 
-    paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath]
+    paths += [
+        env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath]
 
-  paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath]
-  paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath]
+    paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath]
+    paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath]
 
-  # Prepend them so our tools come first.
-  for each in reversed(paths):
-    env.PrependENVPath('PATH', each)
-else:
-  # If we don't have a private third_party dir, we expect the system
-  # environment to be set up correctly to point to tool paths.
-  env['ENV']['PATH'] = os.environ['PATH']
-  env['ENV']['LIB'] = os.environ['LIB']
-  env['ENV']['INCLUDE'] = os.environ['INCLUDE']
+    # Prepend them so our tools come first.
+    for each in reversed(paths):
+      env.PrependENVPath('PATH', each)
+  else:
+    # If we don't have a private third_party dir, we expect the system
+    # environment to be set up correctly to point to tool paths.
+    env['ENV']['PATH'] = os.environ['PATH']
+    env['ENV']['LIB'] = os.environ['LIB']
+    env['ENV']['INCLUDE'] = os.environ['INCLUDE']
 
+  # HACK to disable manifest creation, since it breaks all the time.
+  env['LINKCOM'] = env['LINKCOM'][0]
+  env['SHLINKCOM'] = env['SHLINKCOM'][0]
 
 # Building M4 files
 env.Tool('m4')
@@ -257,12 +263,10 @@ env.Replace(
         '.',
         '$COMMON_OUTDIR',
     ],
-    LIBPATH = [
-        '$LIBS_DIR',
-    ],
     CFLAGS = [],
     CCFLAGS = [],
     CXXFLAGS = [],
+    CCPDBFLAGS = [],
     CPPDEFINES = [
     # SpiderMonkey (the Firefox JS engine)'s JS_GET_CLASS macro in jsapi.h needs
     # this defined to work with the gecko SDK that we've built.
@@ -408,7 +412,6 @@ if env['OS'] in ['win32', 'wince']:
       ],
       CPPFLAGS = [
           '/nologo',
-          '/Zi',  # TODO: Chrome defines /Z7, no idea what these are.
           '/Zc:wchar_t-',
           '/c',
           '/W3',
@@ -423,6 +426,9 @@ if env['OS'] in ['win32', 'wince']:
       CPPPATH = [
           '$VC80_CPPPATH',
           '$THIRD_PARTY_DIR/breakpad/src',
+      ],
+      CCPDBFLAGS = [
+          '/Zi',  # TODO: Chrome defines /Z7, no idea what these are.
       ],
       LIBPATH = [
           '$VC80_LIBPATH',
@@ -683,13 +689,10 @@ elif env['OS'] == 'osx':
 
 # TODO(mpcomplete): fix this and properly separate our DLL flags from EXE
 # flags.
-env.Append(
-    SHLINKFLAGS = [
-        '$LINKFLAGS',
-        '/DLL',
-    ],
-)
-    
+env.Append(SHLINKFLAGS = ['$LINKFLAGS'])
+if env['OS'] in ['wince', 'win32']:
+  env.Append(SHLINKFLAGS = ['/DLL'])
+
 # Load all the components
 
 sconscripts = [

@@ -20,7 +20,7 @@ env.Replace(
 
 if env['OS'] in ['osx', 'linux']:
   env.Append(
-      CFLAGS = [
+      CCFLAGS = [
           '-Wno-main',
       ],
   )

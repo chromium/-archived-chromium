@@ -75,7 +75,7 @@ elif env['OS'] == 'linux':
   )
 elif env['OS'] == 'osx':
   env.Append(
-      CFLAGS = [
+      CCFLAGS = [
           '-Wno-uninitialized',
           '-Wno-pointer-sign',
       ],

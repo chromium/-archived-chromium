@@ -147,13 +147,13 @@ common_targets['src'] = [env.SharedObject(bin) for bin in bins]
 
 Export('common_targets')
 
-env.Program('ipc_test', ipc_test_srcs)
+env.ChromeProgram('ipc_test', ipc_test_srcs)
 
 # Note: crash_sender.exe name needs to stay in sync with name used in
 # exception_handler_win32.cc and exception_handler_osx/google_breakpad.mm.
 crash_sender = None
 if env['OS'] == 'win32':
-  crash_sender = env.Program('crash_sender', crash_sender_srcs,
+  crash_sender = env.ChromeProgram('crash_sender', crash_sender_srcs,
       LIBS = Split('advapi32.lib shell32.lib wininet.lib'))
 elif env['OS'] == 'osx':
   pass

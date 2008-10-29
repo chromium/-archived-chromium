@@ -1324,8 +1324,17 @@ if env['OS'] in ['win32', 'wince']:
   env.Depends(ui_res, html_m4s)
   env.Depends(module_res, m4s)
 
-module = env.ChromeSharedLibrary('gears',
-    srcs['all'] + libs + dll_resources + browser_specific_objects)
+# HACK: gears and vista_broker share some inputs, but ChromeSharedLibrary
+# and ChromeProgram use slightly different environments, so SCons complains if
+# we try to compile those inputs differently.  So we compile them using a
+# common environment here first.
+common_srcs = [src for src in srcs['all'] if str(src) in vista_broker_srcs]
+gears_srcs = [src for src in srcs['all'] if str(src) not in vista_broker_srcs]
+common_objs = env.SharedObject(common_srcs)
+vista_broker_objs = env.SharedObject(vista_broker_srcs)
+module = env.ChromeSharedLibrary('gears-$OS-$ARCH-$MODE-${BROWSER}',
+    common_objs + gears_srcs + libs + dll_resources + browser_specific_objects)
+module = env.InstallAs('${SHLIBPREFIX}gears${SHLIBSUFFIX}', module)
 env.Alias('gears', module)
 
 if env['OS'] == 'wince':
@@ -1337,6 +1346,6 @@ if env['OS'] == 'win32' and env['BROWSER'] == 'IE':
 # Note: vista_broker.exe needs to stay in sync with name used in
 # desktop_win32.cc.
 # TODO(aa): This can move to common_outdir like crash_sender.exe
-  vista_broker = env.Program('vista_broker',
-      vista_broker_srcs + vista_broker_resources)
+  vista_broker = env.ChromeProgram('vista_broker',
+      vista_broker_objs + vista_broker_resources)
   env.Alias('gears', vista_broker)
