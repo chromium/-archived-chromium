@@ -1032,6 +1032,9 @@ bool WebViewImpl::FocusedFrameNeedsSpellchecking() {
   const WebCore::Frame* frame = GetFocusedWebCoreFrame();
   if (!frame)
     return false;
+  const WebCore::Editor* editor = frame->editor();
+  if (!editor)
+    return false;
   const WebCore::Document* document = frame->document();
   if (!document)
     return false;
@@ -1044,7 +1047,7 @@ bool WebViewImpl::FocusedFrameNeedsSpellchecking() {
   // We should also retrieve the contenteditable attribute of this element to
   // determine if this element needs spell-checking.
   const WebCore::EUserModify user_modify = renderer->style()->userModify();
-  return renderer->isTextArea() ||
+  return (renderer->isTextArea() && editor->canEdit()) ||
          user_modify == WebCore::READ_WRITE ||
          user_modify == WebCore::READ_WRITE_PLAINTEXT_ONLY;
 }
