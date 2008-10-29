@@ -203,7 +203,7 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   std::wstring filename_;
 
   // Called after an add/sub chunk is processed.
-  Callback0::Type* chunk_inserted_callback_;
+  scoped_ptr<Callback0::Type> chunk_inserted_callback_;
 
   // Used to schedule resetting the database because of corruption.
   ScopedRunnableMethodFactory<SafeBrowsingDatabaseBloom> reset_factory_;

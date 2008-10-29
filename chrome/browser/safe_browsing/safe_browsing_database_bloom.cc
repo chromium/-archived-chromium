@@ -44,7 +44,6 @@ static const int kMaxStalenessMinutes = 45;
 SafeBrowsingDatabaseBloom::SafeBrowsingDatabaseBloom()
     : db_(NULL),
       init_(false),
-      chunk_inserted_callback_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(reset_factory_(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(resume_factory_(this)),
       did_resume_(false) {
@@ -87,7 +86,7 @@ bool SafeBrowsingDatabaseBloom::Init(const std::wstring& filename,
   }
 
   init_ = true;
-  chunk_inserted_callback_ = chunk_inserted_callback;
+  chunk_inserted_callback_.reset(chunk_inserted_callback);
 
   return true;
 }
@@ -405,7 +404,7 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
 
   delete chunks;
 
-  if (chunk_inserted_callback_)
+  if (chunk_inserted_callback_.get())
     chunk_inserted_callback_->Run();
 }
 

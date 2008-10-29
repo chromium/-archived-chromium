@@ -64,7 +64,6 @@ SafeBrowsingDatabaseImpl::SafeBrowsingDatabaseImpl()
       transaction_count_(0),
       init_(false),
       asynchronous_(true),
-      chunk_inserted_callback_(NULL),
       ALLOW_THIS_IN_INITIALIZER_LIST(process_factory_(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(bloom_read_factory_(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(bloom_write_factory_(this)),
@@ -109,7 +108,7 @@ bool SafeBrowsingDatabaseImpl::Init(const std::wstring& filename,
   }
 
   init_ = true;
-  chunk_inserted_callback_ = chunk_inserted_callback;
+  chunk_inserted_callback_.reset(chunk_inserted_callback);
   return true;
 }
 
@@ -543,7 +542,7 @@ bool SafeBrowsingDatabaseImpl::ProcessChunks() {
     }
   }
 
-  if (chunk_inserted_callback_)
+  if (chunk_inserted_callback_.get())
     chunk_inserted_callback_->Run();
 
   return true;

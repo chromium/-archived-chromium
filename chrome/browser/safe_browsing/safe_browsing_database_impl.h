@@ -242,7 +242,7 @@ class SafeBrowsingDatabaseImpl : public SafeBrowsingDatabase {
   std::queue<AddDelWork> pending_add_del_;
 
   // Called after an add/sub chunk is processed.
-  Callback0::Type* chunk_inserted_callback_;
+  scoped_ptr<Callback0::Type> chunk_inserted_callback_;
 
   // Used to schedule small bits of work when writing to the database.
   ScopedRunnableMethodFactory<SafeBrowsingDatabaseImpl> process_factory_;
