@@ -277,8 +277,15 @@ def BuildEnvironments(environments):
         c_script = ec.File(c)
         c_dir = c_script.dir
 
+      # TODO(bradnelson): this hack is not in mainline.
+      #     Need to unify how to do this sort of thing.
+      c_dir = str(c_dir)
+      if c_dir[0] in ['\\', '/']:
+        build_dir = None
+      else:
+        build_dir = '$OBJ_ROOT/' + c_dir
       ec.SConscript(c_script,
-                    build_dir='$OBJ_ROOT/' + str(c_dir),
+                    build_dir=build_dir,
                     exports={'env': ec},
                     duplicate=0)
 
