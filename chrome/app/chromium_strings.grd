@@ -245,6 +245,9 @@ be available for now. -->
       <message name="IDS_OPTIONS_DISABLE_SERVICES" desc="The text in the options panel that describes how we use web services to improve browsing experience.">
         Chromium may use web services to improve your browsing experience - you may optionally disable these services.
       </message>
+      <message name="IDS_IMPORT_BOOKMARKS" desc="Explanatory text for the importing progress dialog when importing a bookmarks.html file from the bookmark manager">
+        Chromium is now importing <ph name="bookmarks">$1<ex>Favorites/Bookmarks</ex></ph>.
+      </message>
     </messages>
   </release>
 </grit>
