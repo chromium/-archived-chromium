@@ -79,7 +79,7 @@ input_files = [
     '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
     '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     'view_event_test_base.cc',
-    '$CHROME_DIR/test/ui/npapi_test_helper.cc',
+    '$CHROME_DIR/test/ui/npapi_test_helper$OBJSUFFIX',
     '$CHROME_DIR/test/interactive_ui/npapi_interactive_test.cc',
 ]
 

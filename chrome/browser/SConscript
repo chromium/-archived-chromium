@@ -172,8 +172,6 @@ if env['PLATFORM'] == 'win32':
       'external_protocol_handler.cc',
       'external_tab_container.cc',
       'fav_icon_helper.cc',
-      'find_in_page_controller.cc',
-      'find_in_page_view.cc',
       'first_run.cc',
       'frame_util.cc',
       'gears_integration.cc',
@@ -311,4 +309,3 @@ if env['PLATFORM'] in ('posix', 'win32'):
 if env['PLATFORM'] == 'win32':
   # TODO: Port this.
   SConscript('debugger/SConscript', exports=['env'])
-
