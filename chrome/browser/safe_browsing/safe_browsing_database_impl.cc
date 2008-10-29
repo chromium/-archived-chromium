@@ -396,12 +396,12 @@ void SafeBrowsingDatabaseImpl::WriteInfo(int host_key,
                                          int id) {
   SQLITE_UNIQUE_STATEMENT(statement1, *statement_cache_,
       "INSERT OR REPLACE INTO hosts"
-      "(host,entries)"
+      "(host, entries)"
       "VALUES (?,?)");
 
   SQLITE_UNIQUE_STATEMENT(statement2, *statement_cache_,
       "INSERT OR REPLACE INTO hosts"
-      "(id,host,entries)"
+      "(id, host, entries)"
       "VALUES (?,?,?)");
 
   SqliteCompiledStatement& statement = id == 0 ? statement1 : statement2;
@@ -766,8 +766,7 @@ void SafeBrowsingDatabaseImpl::AddChunkInformation(
     int list_id, ChunkType type, int chunk_id, const std::string& hostkeys) {
   STATS_COUNTER(L"SB.ChunkInsert", 1);
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
-      "INSERT INTO chunks"
-      "(list_id,chunk_type,chunk_id,hostkeys)"
+      "INSERT INTO chunks (list_id, chunk_type, chunk_id, hostkeys) "
       "VALUES (?,?,?,?)");
   if (!statement.is_valid()) {
     NOTREACHED();
@@ -892,8 +891,7 @@ void SafeBrowsingDatabaseImpl::RemoveChunkId(int list_id,
 
 int SafeBrowsingDatabaseImpl::AddList(const std::string& name) {
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
-      "INSERT INTO list_names"
-      "(id,name)"
+      "INSERT INTO list_names (id, name) "
       "VALUES (NULL,?)");
   if (!statement.is_valid()) {
     NOTREACHED();

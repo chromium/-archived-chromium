@@ -101,9 +101,9 @@ void VisitDatabase::FillVisitVector(SQLStatement& statement,
 
 VisitID VisitDatabase::AddVisit(VisitRow* visit) {
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
-      "INSERT INTO visits("
-        "url,visit_time,from_visit,transition,segment_id,is_indexed)"
-      "VALUES(?,?,?,?,?,?)");
+      "INSERT INTO visits "
+      "(url, visit_time, from_visit, transition, segment_id, is_indexed) "
+      "VALUES (?,?,?,?,?,?)");
   if (!statement.is_valid())
     return 0;
 

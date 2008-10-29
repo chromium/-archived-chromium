@@ -919,7 +919,7 @@ bool SafeBrowsingDatabaseBloom::RemoveSubs(SBPair* adds,
   SQLITE_UNIQUE_STATEMENT(
       sub_prefix_tmp,
       *statement_cache_,
-      "INSERT INTO sub_prefix_tmp (chunk,add_chunk,prefix) VALUES (?,?,?)");
+      "INSERT INTO sub_prefix_tmp (chunk, add_chunk, prefix) VALUES (?,?,?)");
   if (!sub_prefix_tmp.is_valid()) {
     NOTREACHED();
     return false;

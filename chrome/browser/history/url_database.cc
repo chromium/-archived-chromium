@@ -113,9 +113,9 @@ URLID URLDatabase::AddURLInternal(const history::URLRow& info,
   // HISTORY_URL_ROW_FIELDS because that specifies the table name which is
   // invalid in the insert syntax.
   #define ADDURL_COMMON_SUFFIX \
-      "(url,title,visit_count,typed_count,"\
-       "last_visit_time,hidden,favicon_id)"\
-      "VALUES(?,?,?,?,?,?,?)"
+      " (url, title, visit_count, typed_count, "\
+      "last_visit_time, hidden, favicon_id) "\
+      "VALUES (?,?,?,?,?,?,?)"
   const char* statement_name;
   const char* statement_sql;
   if (is_temporary) {
