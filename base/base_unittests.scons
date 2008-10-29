@@ -174,9 +174,6 @@ if env['PLATFORM'] == 'darwin':
 
 base_unittests = env.ChromeTestProgram('base_unittests', input_files)
 
-if env['PLATFORM'] == 'posix':
-  env.Depends(base_unittests, '$EXPORTED_SYMBOLS_FILE')
-
 # Install up a level to allow unit test path assumptions to be valid.
 installed_base_unittests = env.Install('$TARGET_ROOT', base_unittests)
 
