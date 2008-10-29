@@ -516,6 +516,7 @@ bool TableView::GetCellColors(int model_row,
   return false;
 }
 
+// static
 LRESULT CALLBACK TableView::TableWndProc(HWND window,
                                          UINT message,
                                          WPARAM w_param,
@@ -535,6 +536,22 @@ LRESULT CALLBACK TableView::TableWndProc(HWND window,
                                       message, w_param, l_param);
       table_view->PostPaint();
       return result;
+    }
+
+    case WM_KEYDOWN: {
+      if (!table_view->single_selection_ && w_param == 'A' &&
+          GetKeyState(VK_CONTROL) < 0 && table_view->RowCount() > 0) {
+        // Select everything.
+        ListView_SetItemState(window, -1, LVIS_SELECTED, LVIS_SELECTED);
+        // And make the first row focused.
+        ListView_SetItemState(window, 0, LVIS_FOCUSED, LVIS_FOCUSED);
+        return 0;
+      } else if (w_param == VK_DELETE && table_view->table_view_observer_) {
+        table_view->table_view_observer_->OnTableViewDelete(table_view);
+        return 0;
+      }
+      // else case: fall through to default processing.
+      break;
     }
 
     default:

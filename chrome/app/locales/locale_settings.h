@@ -165,3 +165,8 @@
 
 // The HTML for the about:terms page
 #define IDR_TERMS_HTML 1061
+
+// The width and height of the bookmark manager in characters and lines
+// (See above).
+#define IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS 1062
+#define IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES 1063

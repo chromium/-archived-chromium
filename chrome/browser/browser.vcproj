@@ -722,11 +722,11 @@
 			Name="Bookmarks"
 			>
 			<File
-				RelativePath=".\bookmark_bar_context_menu_controller.cc"
+				RelativePath=".\bookmarks\bookmark_context_menu.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\bookmark_bar_context_menu_controller.h"
+				RelativePath=".\bookmarks\bookmark_context_menu.h"
 				>
 			</File>
 			<File
@@ -743,14 +743,6 @@
 			</File>
 			<File
 				RelativePath=".\bookmarks\bookmark_drag_data.h"
-				>
-			</File>
-			<File
-				RelativePath=".\bookmarks\bookmark_drag_utils.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\bookmarks\bookmark_drag_utils.h"
 				>
 			</File>
 			<File
@@ -787,6 +779,14 @@
 			</File>
 			<File
 				RelativePath=".\bookmarks\bookmark_table_model.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_utils.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_utils.h"
 				>
 			</File>
 		</Filter>

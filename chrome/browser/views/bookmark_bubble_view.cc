@@ -358,7 +358,8 @@ void BookmarkBubbleView::ShowEditor() {
   Close();
 
   if (node)
-    BookmarkEditorView::Show(parent, profile_, NULL, node);
+    BookmarkEditorView::Show(parent, profile_, NULL, node,
+                             BookmarkEditorView::SHOW_TREE);
 }
 
 void BookmarkBubbleView::SetNodeTitleFromTextField() {

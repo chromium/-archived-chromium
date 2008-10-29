@@ -202,8 +202,21 @@ const wchar_t kDeleteCookies[] = L"browser.clear_data.cookies";
 const wchar_t kDeletePasswords[] = L"browser.clear_data.passwords";
 const wchar_t kDeleteTimePeriod[] = L"browser.clear_data.time_period";
 
+// Integer prefs giving the widths of the columns in the bookmark table. Two
+// configs are saved, one with the path column and one without.
+const wchar_t kBookmarkTableNameWidth1[] = L"bookmark_table.name_width_1";
+const wchar_t kBookmarkTableURLWidth1[] = L"bookmark_table.url_width_1";
+const wchar_t kBookmarkTableNameWidth2[] = L"bookmark_table.name_width_2";
+const wchar_t kBookmarkTableURLWidth2[] = L"bookmark_table.url_width_2";
+const wchar_t kBookmarkTablePathWidth[] = L"bookmark_table.path_width";
+
 // Boolean pref to define the default values for using spellchecker.
 const wchar_t kEnableSpellCheck[] = L"browser.enable_spellchecking";
+
+// Bounds of the bookmark manager.
+const wchar_t kBookmarkManagerPlacement[] =
+    L"bookmark_manager.window_placement";
+
 
 // *************** LOCAL STATE ***************
 // These are attached to the machine/installation
@@ -432,4 +445,3 @@ const wchar_t kNumFoldersInOtherBookmarkFolder[] =
 const wchar_t kNumKeywords[] = L"user_experience_metrics.num_keywords";
 
 }  // namespace prefs
-

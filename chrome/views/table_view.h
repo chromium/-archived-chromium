@@ -279,6 +279,9 @@ class TableViewObserver {
 
   // Optional method invoked when the user hits a key with the table in focus.
   virtual void OnKeyDown(unsigned short virtual_keycode) {}
+
+  // Invoked when the user presses the delete key.
+  virtual void OnTableViewDelete(TableView* table_view) {}
 };
 
 class TableView : public NativeControl,
@@ -387,6 +390,7 @@ class TableView : public NativeControl,
   void SetObserver(TableViewObserver* observer) {
     table_view_observer_ = observer;
   }
+  TableViewObserver* observer() const { return table_view_observer_; }
 
   // Replaces the set of known columns without changing the current visible
   // columns.

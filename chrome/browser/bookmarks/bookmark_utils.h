@@ -2,21 +2,25 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_UTILS_H_
-#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_UTILS_H_
+#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_UTILS_H_
+#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_UTILS_H_
+
+#include <vector>
 
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "webkit/glue/window_open_disposition.h"
 
 class BookmarkNode;
+class PageNavigator;
 class Profile;
 
 namespace views {
 class DropTargetEvent;
 }
 
-// Functions used in managing bookmark drag and drop. These functions are
-// used by both the bookmark bar and bookmark manager.
-namespace bookmark_drag_utils {
+// A collection of bookmark utility functions used by various parts of the UI
+// that show bookmarks: bookmark manager, bookmark bar view ...
+namespace bookmark_utils {
 
 // Calculates the drop operation given the event and supported set of
 // operations. This prefers the following ordering: COPY, LINK then MOVE.
@@ -40,6 +44,24 @@ void CloneDragData(BookmarkModel* model,
                    BookmarkNode* parent,
                    int index_to_add_at);
 
-}
+// Recursively opens all bookmarks. |initial_disposition| dictates how the
+// first URL is opened, all subsequent URLs are opened as background tabs.
+// |navigator| is used to open the URLs. If |navigator| is NULL the last
+// tabbed browser with the profile |profile| is used. If there is no browser
+// with the specified profile a new one is created.
+void OpenAll(HWND parent,
+             Profile* profile,
+             PageNavigator* navigator,
+             const std::vector<BookmarkNode*>& nodes,
+             WindowOpenDisposition initial_disposition);
 
-#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_DRAG_UTILS_H_
+// Convenience for opening a single BookmarkNode.
+void OpenAll(HWND parent,
+             Profile* profile,
+             PageNavigator* navigator,
+             BookmarkNode* node,
+             WindowOpenDisposition initial_disposition);
+
+}  // namespace bookmark_utils
+
+#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_UTILS_H_

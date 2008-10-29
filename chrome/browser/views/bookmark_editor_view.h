@@ -47,17 +47,28 @@ class BookmarkEditorView : public views::View,
   FRIEND_TEST(BookmarkEditorViewTest, ModelsMatch);
   FRIEND_TEST(BookmarkEditorViewTest, MoveToNewParent);
   FRIEND_TEST(BookmarkEditorViewTest, NewURL);
+  FRIEND_TEST(BookmarkEditorViewTest, ChangeURLNoTree);
+  FRIEND_TEST(BookmarkEditorViewTest, ChangeTitleNoTree);
  public:
+  // An enumeration of the possible configurations offered.
+  enum Configuration {
+    SHOW_TREE,
+    NO_TREE
+  };
+
   // Shows the BookmarkEditorView editing |node|. If |node| is NULL a new entry
-  // is created initially parented to |parent|.
+  // is created initially parented to |parent|. If |show_tree| is false the
+  // tree is not shown.
   static void Show(HWND parent_window,
                    Profile* profile,
                    BookmarkNode* parent,
-                   BookmarkNode* node);
+                   BookmarkNode* node,
+                   Configuration configuration);
 
   BookmarkEditorView(Profile* profile,
                      BookmarkNode* parent,
-                     BookmarkNode* node);
+                     BookmarkNode* node,
+                     Configuration configuration);
 
   virtual ~BookmarkEditorView();
 
@@ -148,7 +159,8 @@ class BookmarkEditorView : public views::View,
                                  int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
                                    BookmarkNode* parent,
-                                   int index);
+                                   int index,
+                                   BookmarkNode* node);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
                                    BookmarkNode* node) {}
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
@@ -222,10 +234,10 @@ class BookmarkEditorView : public views::View,
   scoped_ptr<EditorTreeModel> tree_model_;
 
   // Displays star groups.
-  views::TreeView tree_view_;
+  views::TreeView* tree_view_;
 
   // Used to create a new group.
-  views::NativeButton new_group_button_;
+  scoped_ptr<views::NativeButton> new_group_button_;
 
   // Used for editing the URL.
   views::TextField url_tf_;
@@ -248,6 +260,9 @@ class BookmarkEditorView : public views::View,
   // If true, we're running the menu for the bookmark bar or other bookmarks
   // nodes.
   bool running_menu_for_root_;
+
+  // Is the tree shown?
+  bool show_tree_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkEditorView);
 };

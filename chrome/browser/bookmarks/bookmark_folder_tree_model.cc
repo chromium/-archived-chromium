@@ -33,6 +33,8 @@ BookmarkFolderTreeModel::NodeType BookmarkFolderTreeModel::GetNodeType(
     return RECENTLY_BOOKMARKED;
   if (node == search_node_)
     return SEARCH;
+  if (node == GetRoot())
+    return NONE;
   return BOOKMARK;
 }
 

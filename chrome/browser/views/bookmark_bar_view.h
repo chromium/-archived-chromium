@@ -72,6 +72,10 @@ class BookmarkBarView : public views::View,
   explicit BookmarkBarView(Profile* profile, Browser* browser);
   virtual ~BookmarkBarView();
 
+  // Toggles whether the bookmark bar is shown only on the new tab page or on
+  // all tabs.
+  static void ToggleWhenVisible(Profile* profile);
+
   static void RegisterUserPrefs(PrefService* prefs);
 
   // Resets the profile. This removes any buttons for the current profile and
@@ -80,6 +84,9 @@ class BookmarkBarView : public views::View,
 
   // Returns the current profile.
   Profile* GetProfile() { return profile_; }
+
+  // Returns the current browser.
+  Browser* browser() const { return browser_; }
 
   // Sets the PageNavigator that is used when the user selects an entry on
   // the bookmark bar.
@@ -121,10 +128,6 @@ class BookmarkBarView : public views::View,
 
   // Returns the model.
   BookmarkModel* GetModel() { return model_; }
-
-  // Toggles whether the bookmark bar is shown only on the new tab page or on
-  // all tabs.
-  void ToggleWhenVisible();
 
   // Returns true if the bookmarks bar preference is set to 'always show', we
   // use this as a shorthand way of knowing what style of bar to draw (if the
