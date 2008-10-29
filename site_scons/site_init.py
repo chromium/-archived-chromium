@@ -37,6 +37,7 @@ for the target environment.
 """
 
 import __builtin__
+import os
 import sys
 import SCons
 
@@ -280,7 +281,7 @@ def BuildEnvironments(environments):
       # TODO(bradnelson): this hack is not in mainline.
       #     Need to unify how to do this sort of thing.
       c_dir = str(c_dir)
-      if c_dir[0] in ['\\', '/']:
+      if os.path.isabs(c_dir):
         build_dir = None
       else:
         build_dir = '$OBJ_ROOT/' + c_dir
