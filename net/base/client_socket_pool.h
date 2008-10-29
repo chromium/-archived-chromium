@@ -71,11 +71,9 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
 
   ~ClientSocketPool();
 
-  // Closes all idle sockets if |only_if_disconnected| is false.  Else, only
-  // idle sockets that are disconnected get closed.  "Maybe" refers to the
-  // fact that it doesn't close all idle sockets if |only_if_disconnected| is
-  // true.
-  void MaybeCloseIdleSockets(bool only_if_disconnected);
+  // Closes all idle sockets if |force| is true.  Else, only closes idle
+  // sockets that are disconnected or timed out.
+  void CleanupIdleSockets(bool force);
 
   // Called when the number of idle sockets changes.
   void IncrementIdleCount();
@@ -84,9 +82,11 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   // Called via PostTask by ReleaseSocket.
   void DoReleaseSocket(const std::string& group_name, ClientSocketPtr* ptr);
 
-  // Called when timer_ fires.  This method scans the idle sockets checking to
-  // see if any have been disconnected.
-  void DoTimeout();
+  // Called when timer_ fires.  This method scans the idle sockets removing
+  // sockets that are disconnected or timed out.
+  void OnCleanupTimerFired() {
+    CleanupIdleSockets(false);
+  }
 
   // A Request is allocated per call to RequestSocket that results in
   // ERR_IO_PENDING.
@@ -95,11 +95,21 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
     CompletionCallback* callback;
   };
 
+  // Entry for a persistent socket which became idle at time |start_time|.
+  struct IdleSocket {
+    ClientSocketPtr* ptr;
+    base::TimeTicks start_time;
+
+    // An idle socket should be removed if it is disconnected, or has been idle
+    // for too long. |now| is the current time value (TimeTicks::Now()).
+    bool ShouldCleanup(base::TimeTicks now) const;
+  };
+
   // A Group is allocated per group_name when there are idle sockets or pending
   // requests.  Otherwise, the Group object is removed from the map.
   struct Group {
     Group() : active_socket_count(0) {}
-    std::deque<ClientSocketPtr*> idle_sockets;
+    std::deque<IdleSocket> idle_sockets;
     std::deque<Request> pending_requests;
     int active_socket_count;
   };
@@ -107,7 +117,8 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   typedef std::map<std::string, Group> GroupMap;
   GroupMap group_map_;
 
-  // Timer used to periodically prune sockets that have been disconnected.
+  // Timer used to periodically prune idle sockets that are disconnected or
+  // timed out.
   base::RepeatingTimer<ClientSocketPool> timer_;
 
   // The total number of idle sockets in the system.
