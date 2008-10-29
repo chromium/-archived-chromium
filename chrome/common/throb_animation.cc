@@ -43,8 +43,8 @@ void ThrobAnimation::Hide() {
   SlideAnimation::Hide();
 }
 
-void ThrobAnimation::Run() {
-  SlideAnimation::Run();
+void ThrobAnimation::Step() {
+  Animation::Step();
   if (!IsAnimating() && throbbing_) {
     // Were throbbing a finished a cycle. Start the next cycle unless we're at
     // the end of the cycles, in which case we stop.
