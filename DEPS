@@ -14,17 +14,8 @@ deps = {
   "src/third_party/WebKit":
     "/trunk/deps/third_party/WebKit@4091",
 
-  "src/third_party/cygwin":
-    "/trunk/deps/third_party/cygwin@3248",
-
   "src/third_party/icu38":
     "/trunk/deps/third_party/icu38@4040",
-
-  "src/third_party/python_24":
-    "/trunk/deps/third_party/python_24@3247",
-
-  "src/third_party/svn":
-    "/trunk/deps/third_party/svn@3230",
 
   "src/v8":
     "http://v8.googlecode.com/svn/trunk@618",
@@ -32,6 +23,21 @@ deps = {
   "src/webkit/data/layout_tests/LayoutTests":
     "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@36102",
 }
+
+
+deps_os = {
+  "win": {
+    "src/third_party/cygwin":
+      "/trunk/deps/third_party/cygwin@3248",
+
+    "src/third_party/python_24":
+      "/trunk/deps/third_party/python_24@3247",
+
+    "src/third_party/svn":
+      "/trunk/deps/third_party/svn@3230",
+  },
+}
+
 
 include_rules = [
   # Everybody can use some things.
@@ -42,6 +48,7 @@ include_rules = [
   # this should probably change.
   "+unicode"
 ]
+
 
 # checkdeps.py shouldn't check include paths for files in these dirs:
 skip_child_includes = [
