@@ -8,7 +8,7 @@
 #include "base/gfx/platform_device_linux.h"
 #include "base/ref_counted.h"
 
-#include "gdk-pixbuf/gdk-pixbuf.h"
+#include <gdk-pixbuf/gdk-pixbuf.h>
 
 namespace gfx {
 
