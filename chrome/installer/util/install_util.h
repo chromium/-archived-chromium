@@ -42,9 +42,10 @@ class InstallUtil {
 
   // This function sets installer error information in registry so that Google
   // Update can read it and display to the user.
-  static void SetInstallerError(bool system_install,
-                               installer_util::InstallStatus status,
-                               int string_resource_id);
+  static void WriteInstallerResult(bool system_install,
+                                   installer_util::InstallStatus status,
+                                   int string_resource_id,
+                                   const std::wstring* const launch_cmd);
  private:
   DISALLOW_EVIL_CONSTRUCTORS(InstallUtil);
 };

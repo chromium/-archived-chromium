@@ -14,6 +14,9 @@ const wchar_t kCreateAllShortcuts[] = L"create-all-shortcuts";
 // Disable logging
 const wchar_t kDisableLogging[] = L"disable-logging";
 
+// Prevent installer from launching Chrome after a successful first install.
+const wchar_t kDoNotLaunchChrome[] = L"do-not-launch-chrome";
+
 // By default we remove all shared (between users) files, registry entries etc
 // during uninstall. If this option is specified together with kUninstall option
 // we do not clean up shared entries otherwise this option is ignored.
@@ -32,16 +35,16 @@ const wchar_t kInstallArchive[] = L"install-archive";
 // If present, specify file path to write logging info.
 const wchar_t kLogFile[] = L"log-file";
 
-// Register Chrome as a valid browser on the current sytem. This option
-// requires that setup.exe is running as admin. If this option is specified,
-// options kInstallArchive and kUninstall are ignored.
-const wchar_t kRegisterChromeBrowser[] = L"register-chrome-browser";
-
 // Register Chrome as default browser on the system. Usually this will require
 // that setup is running as admin. If running as admin we try to register
 // as default browser at system level, if running as non-admin we try to
 // register as default browser only for the current user. 
 const wchar_t kMakeChromeDefault[] = L"make-chrome-default";
+
+// Register Chrome as a valid browser on the current sytem. This option
+// requires that setup.exe is running as admin. If this option is specified,
+// options kInstallArchive and kUninstall are ignored.
+const wchar_t kRegisterChromeBrowser[] = L"register-chrome-browser";
 
 // Install Chrome to system wise location. The default is per user install.
 const wchar_t kSystemLevel[] = L"system-level";

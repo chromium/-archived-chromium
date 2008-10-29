@@ -36,13 +36,14 @@ enum InstallStatus {
 namespace switches {
 extern const wchar_t kCreateAllShortcuts[];
 extern const wchar_t kDisableLogging[];
+extern const wchar_t kDoNotLaunchChrome[];
 extern const wchar_t kDoNotRemoveSharedItems[];
 extern const wchar_t kEnableLogging[];
 extern const wchar_t kForceUninstall[];
 extern const wchar_t kInstallArchive[];
 extern const wchar_t kLogFile[];
-extern const wchar_t kRegisterChromeBrowser[];
 extern const wchar_t kMakeChromeDefault[];
+extern const wchar_t kRegisterChromeBrowser[];
 extern const wchar_t kSystemLevel[];
 extern const wchar_t kUninstall[];
 extern const wchar_t kVerboseLogging[];

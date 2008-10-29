@@ -83,20 +83,29 @@ bool InstallUtil::IsOSSupported() {
   return false;
 }
 
-void InstallUtil::SetInstallerError(bool system_install,
-                                    installer_util::InstallStatus status,
-                                    int string_resource_id) {
+void InstallUtil::WriteInstallerResult(bool system_install,
+                                       installer_util::InstallStatus status,
+                                       int string_resource_id,
+                                       const std::wstring* const launch_cmd) {
   HKEY root = system_install ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
-  std::wstring key(google_update::kRegPathClients);
-  key.append(L"\\");
-  key.append(google_update::kChromeGuid);
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+  std::wstring key = dist->GetVersionKey();
+  int installer_result = (dist->GetInstallReturnCode(status) == 0) ? 0 : 1;
   scoped_ptr<WorkItemList> install_list(WorkItem::CreateWorkItemList());
-  install_list->AddSetRegValueWorkItem(root, key, L"InstallerResult", 1, true);
+  install_list->AddSetRegValueWorkItem(root, key, L"InstallerResult",
+                                       installer_result, true);
   install_list->AddSetRegValueWorkItem(root, key, L"InstallerError",
                                        status, true);
-  std::wstring msg = installer_util::GetLocalizedString(string_resource_id);
-  install_list->AddSetRegValueWorkItem(root, key, L"InstallerResultUIString",
-                                       msg, true);
+  if (string_resource_id != 0) {
+    std::wstring msg = installer_util::GetLocalizedString(string_resource_id);
+    install_list->AddSetRegValueWorkItem(root, key, L"InstallerResultUIString",
+                                         msg, true);
+  }
+  if (launch_cmd != NULL) {
+    install_list->AddSetRegValueWorkItem(root, key,
+                                         L"InstallerSuccessLaunchCmdLine",
+                                         *launch_cmd, true);
+  }
   if (!install_list->Do())
     LOG(ERROR) << "Failed to record installer error information in registry.";
 }

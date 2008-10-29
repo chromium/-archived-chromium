@@ -180,9 +180,10 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
   if (!file_util::CreateNewTempDirectory(std::wstring(L"chrome_"),
                                          &temp_path)) {
     LOG(ERROR) << "Could not create temporary path.";
-    InstallUtil::SetInstallerError(system_install,
-                                   installer_util::TEMP_DIR_FAILED,
-                                   IDS_INSTALL_TEMP_DIR_FAILED_BASE);
+    InstallUtil::WriteInstallerResult(system_install,
+                                      installer_util::TEMP_DIR_FAILED,
+                                      IDS_INSTALL_TEMP_DIR_FAILED_BASE,
+                                      NULL);
     return installer_util::TEMP_DIR_FAILED;
   }
   LOG(INFO) << "created path " << temp_path;
@@ -195,8 +196,9 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
   if (UnPackArchive(archive, system_install, installed_version,
                     temp_path, unpack_path, incremental_install)) {
     install_status = installer_util::UNCOMPRESSION_FAILED;
-    InstallUtil::SetInstallerError(system_install, install_status,
-                                   IDS_INSTALL_UNCOMPRESSION_FAILED_BASE);
+    InstallUtil::WriteInstallerResult(system_install, install_status,
+                                      IDS_INSTALL_UNCOMPRESSION_FAILED_BASE,
+                                      NULL);
   } else {
     LOG(INFO) << "unpacked to " << unpack_path;
     std::wstring src_path(unpack_path);
@@ -207,16 +209,16 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
     if (!installer_version.get()) {
       LOG(ERROR) << "Did not find any valid version in installer.";
       install_status = installer_util::INVALID_ARCHIVE;
-      InstallUtil::SetInstallerError(system_install, install_status,
-                                     IDS_INSTALL_INVALID_ARCHIVE_BASE);
+      InstallUtil::WriteInstallerResult(system_install, install_status,
+                                        IDS_INSTALL_INVALID_ARCHIVE_BASE, NULL);
     } else {
       LOG(INFO) << "version to install: " << installer_version->GetString();
       if (installed_version &&
           installed_version->IsHigherThan(installer_version.get())) {
         LOG(ERROR) << "Higher version is already installed.";
         install_status = installer_util::HIGHER_VERSION_EXISTS;
-        InstallUtil::SetInstallerError(system_install, install_status,
-                                       IDS_INSTALL_HIGHER_VERSION_BASE);
+        InstallUtil::WriteInstallerResult(system_install, install_status,
+                                          IDS_INSTALL_HIGHER_VERSION_BASE, NULL);
       } else {
         // We want to keep uncompressed archive (chrome.7z) that we get after
         // uncompressing and binary patching. Get the location for this file.
@@ -227,8 +229,16 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
             cmd_line.program(), archive_to_copy, temp_path, system_install,
             *installer_version, installed_version);
         if (install_status == installer_util::FIRST_INSTALL_SUCCESS) {
-          LOG(INFO) << "First install successful. Launching Chrome.";
-          installer::LaunchChrome(system_install);
+          LOG(INFO) << "First install successful.";
+          if (cmd_line.HasSwitch(
+              installer_util::switches::kDoNotLaunchChrome)) {
+            std::wstring chrome_exe =
+                installer::GetChromeInstallPath(system_install);
+            InstallUtil::WriteInstallerResult(system_install, install_status,
+                                              0, &chrome_exe);
+          } else {
+            installer::LaunchChrome(system_install);
+          }
         } else if (install_status == installer_util::NEW_VERSION_UPDATED) {
 #if defined(GOOGLE_CHROME_BUILD)
           // TODO(kuchhal): This is just temporary until all users move to the
@@ -269,9 +279,9 @@ installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
   LOG(INFO) << "Uninstalling Chome";
   if (!version) {
     LOG(ERROR) << "No Chrome installation found for uninstall.";
-    InstallUtil::SetInstallerError(system_install,
-                                   installer_util::CHROME_NOT_INSTALLED,
-                                   IDS_UNINSTALL_FAILED_BASE);
+    InstallUtil::WriteInstallerResult(system_install,
+                                      installer_util::CHROME_NOT_INSTALLED,
+                                      IDS_UNINSTALL_FAILED_BASE, NULL);
     return installer_util::CHROME_NOT_INSTALLED;
   }
 
@@ -298,18 +308,18 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // error message and get out.
   if (!InstallUtil::IsOSSupported()) {
     LOG(ERROR) << "Chrome only supports Windows XP or later.";
-    InstallUtil::SetInstallerError(system_install,
-                                   installer_util::OS_NOT_SUPPORTED,
-                                   IDS_INSTALL_OS_NOT_SUPPORTED_BASE);
+    InstallUtil::WriteInstallerResult(system_install,
+                                      installer_util::OS_NOT_SUPPORTED,
+                                      IDS_INSTALL_OS_NOT_SUPPORTED_BASE, NULL);
     return installer_util::OS_NOT_SUPPORTED;
   }
 
   // Initialize COM for use later.
   if (CoInitializeEx(NULL, COINIT_APARTMENTTHREADED) != S_OK) {
     LOG(ERROR) << "COM initialization failed.";
-    InstallUtil::SetInstallerError(system_install,
-                                   installer_util::OS_ERROR,
-                                   IDS_INSTALL_OS_ERROR_BASE);
+    InstallUtil::WriteInstallerResult(system_install,
+                                      installer_util::OS_ERROR,
+                                      IDS_INSTALL_OS_ERROR_BASE, NULL);
     return installer_util::OS_ERROR;
   }
 
@@ -324,7 +334,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
         installer_util::SYSTEM_LEVEL_INSTALL_EXISTS;
     int str_id = system_install ? IDS_INSTALL_USER_LEVEL_EXISTS_BASE :
                                   IDS_INSTALL_SYSTEM_LEVEL_EXISTS_BASE;
-    InstallUtil::SetInstallerError(system_install, status, str_id);
+    InstallUtil::WriteInstallerResult(system_install, status, str_id, NULL);
     return status;
   }
 
