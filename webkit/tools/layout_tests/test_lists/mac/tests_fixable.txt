@@ -1160,11 +1160,6 @@ V8 | KJS # LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | 
 // we're still getting our bearings.
 // -----------------------------------------------------------------
 
-// Skip all the svg tests until we're rendering correctly. We can't correctly
-// process the events sent by the test to drive the test forward because the
-// objects are in the wrong place (ie, the click "misses" every time).
-V8 # SKIP : LayoutTests/svg/ = TIMEOUT
-
 // These tests hang for an unknown reason. Need to debug why the watchdog
 // thread doesn't kill the app correctly.
 V8 # SKIP : LayoutTests/fast/regex/ = TIMEOUT
