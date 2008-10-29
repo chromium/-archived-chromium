@@ -28,7 +28,7 @@ class HttpdNotStarted(Exception):
   pass
 
 class Lighttpd:
-  # Webkit tests 
+  # Webkit tests
   _webkit_tests = PathFromBase('webkit', 'data', 'layout_tests',
                                'LayoutTests', 'http', 'tests')
   # New tests for Chrome
@@ -53,12 +53,16 @@ class Lighttpd:
     {'port': 8081, 'docroot': _all_tests}
   ]
 
-  def __init__(self, output_dir, background=False):
+  def __init__(self, output_dir, background=False, port=None, root=None):
     """Args:
       output_dir: the absolute path to the layout test result directory
     """
     self._output_dir = output_dir
     self._process = None
+    self._port = port
+    self._root = root
+    if self._port:
+      self._port = int(self._port)
 
   def IsRunning(self):
     return self._process != None
@@ -95,7 +99,11 @@ class Lighttpd:
              'accesslog.filename = "%s"\n\n') % (error_log, access_log))
 
     # dump out of virtual host config at the bottom.
-    for mapping in self.VIRTUALCONFIG:
+    if self._port and self._root:
+      mappings = [{'port': self._port, 'docroot': self._root}]
+    else:
+      mappings = self.VIRTUALCONFIG
+    for mapping in mappings:
       ssl_setup = ''
       if 'sslcert' in mapping:
         ssl_setup = ('  ssl.engine = "enable"\n'
@@ -126,11 +134,12 @@ class Lighttpd:
     self._process = subprocess.Popen(start_cmd, env=env)
 
     # Ensure that the server is running on all the desired ports.
-    for mapping in self.VIRTUALCONFIG:
+    for mapping in mappings:
       url = 'http%s://127.0.0.1:%d/' % ('sslcert' in mapping and 's' or '',
                                         mapping['port'])
       if not self._UrlIsAlive(url):
-        raise HttpdNotStarted('Failed to start httpd on port %s' % str(port))
+        raise HttpdNotStarted('Failed to start httpd on port %s' %
+                               str(mapping['port']))
 
     # Our process terminated already
     if self._process.returncode != None:
@@ -184,12 +193,18 @@ if '__main__' == __name__:
   # manually.
   option_parser = optparse.OptionParser()
   option_parser.add_option('-k', '--server', help='Server action (start|stop)')
+  option_parser.add_option('-p', '--port',
+      help='Port to listen on (overrides layout test ports)')
+  option_parser.add_option('-r', '--root',
+      help='Absolute path to DocumentRoot (overrides layout test roots)')
   options, args = option_parser.parse_args()
-  
+
   if not options.server:
     print "Usage: %s --server {start|stop} [--apache2]" % sys.argv[0]
   else:
-    httpd = Lighttpd('c:/cygwin/tmp')
+    if (options.root is None) != (options.port is None):
+      raise 'Either port or root is missing (need both, or neither)'
+    httpd = Lighttpd('c:/cygwin/tmp', port=options.port, root=options.root)
   if 'start' == options.server:
     httpd.Start()
   else:
