@@ -214,6 +214,7 @@ void DownloadItem::Cancel(bool update_history) {
 void DownloadItem::Finished(int64 size) {
   state_ = COMPLETE;
   UpdateSize(size);
+  UpdateObservers();
   StopProgressTimer();
 }
 
