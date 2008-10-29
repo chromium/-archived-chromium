@@ -944,6 +944,10 @@ StatusBubble* Browser::GetStatusBubble() {
 // of any WS_POPUP HWNDs.
 void Browser::WindowMoved() {
   DCHECK(!g_browser_process->IsUsingNewFrames());
+  // Cancel any tabstrip animations, some of them may be invalidated by the
+  // window being repositioned.
+  window_->GetTabStrip()->DestroyDragController();  
+
   GetStatusBubble()->Reposition();
 
   // Close the omnibox popup, if any.
