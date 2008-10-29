@@ -27,7 +27,7 @@ env_test.Prepend(
         '$GTEST_DIR/include',
         'third_party/wtl/include',
         'tools/build/win',
-        '..',
+        '$CHROME_SRC_DIR',
     ],
     CPPDEFINES = [
         'USE_HUNSPELL',
