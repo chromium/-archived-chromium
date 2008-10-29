@@ -106,6 +106,7 @@ if env['PLATFORM'] == 'win32':
       'event_sending_controller.cc',
       'layout_test_controller.cc',
       'test_shell.cc',
+      'test_shell_win.cc',
       'test_webview_delegate.cc',
       'text_input_controller.cc',
       'webview_host.cc',

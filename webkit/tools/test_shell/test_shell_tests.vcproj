@@ -219,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\test_shell_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\resources\test_shell.ico"
 				>
 			</File>

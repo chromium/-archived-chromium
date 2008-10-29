@@ -224,6 +224,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\test_shell_win.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\test_shell_request_context.cc"
 			>
 		</File>

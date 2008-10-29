@@ -80,6 +80,10 @@ public:
 
     static bool interactive() { return interactive_; }
 
+    // Called from the destructor to let each platform do any necessary
+    // cleanup.
+    void PlatformCleanUp();
+
     WebView* webView() {
       return m_webViewHost.get() ? m_webViewHost->webview() : NULL;
     }
