@@ -268,6 +268,24 @@ class HistoryHandler : public DOMMessageHandler {
   DISALLOW_EVIL_CONSTRUCTORS(HistoryHandler);
 };
 
+// Let the page contents record UMA actions. Only use when you can't do it from
+// C++. For example, we currently use it to let the NTP log the postion of the
+// Most Visited or Bookmark the user clicked on, as we don't get that 
+// information through RequestOpenURL. You will need to update the metrics 
+// dashboard with the action names you use, as our processor won't catch that
+// information (treat it as RecordComputedMetrics)
+class MetricsHandler : public DOMMessageHandler {
+ public:
+  explicit MetricsHandler(DOMUIHost* dom_ui_host);
+
+  // Callback which records a user action.
+  void HandleMetrics(const Value* content);
+
+ private:
+  DOMUIHost* dom_ui_host_;
+  DISALLOW_EVIL_CONSTRUCTORS(MetricsHandler);
+};
+
 // The TabContents used for the New Tab page.
 class NewTabUIContents : public DOMUIHost {
  public:

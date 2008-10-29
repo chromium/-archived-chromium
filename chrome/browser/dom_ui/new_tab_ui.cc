@@ -49,6 +49,9 @@ const int kMostVisitedScope = 90;
 // The number of recent bookmarks we show.
 static const int kRecentBookmarks = 9;
 
+// The number of search URLs to show.
+static const int kSearchURLs = 3;
+
 // Strings sent to the page via jstemplates used to set the direction of the
 // HTML document based on locale.
 static const wchar_t kRTLHtmlTextDirection[] = L"rtl";
@@ -150,6 +153,9 @@ void SetURLAndTitle(DictionaryValue* dictionary, std::wstring title,
 
 }  // end anonymous namespace
 
+///////////////////////////////////////////////////////////////////////////////
+// NewTabHTMLSource
+
 NewTabHTMLSource::NewTabHTMLSource()
     : DataSource("new-tab", MessageLoop::current()) {
 }
@@ -204,6 +210,9 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   SendResponse(request_id, html_bytes);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// IncognitoTabHTMLSource
+
 IncognitoTabHTMLSource::IncognitoTabHTMLSource()
     : DataSource("new-tab", MessageLoop::current()) {
 }
@@ -234,6 +243,9 @@ void IncognitoTabHTMLSource::StartDataRequest(const std::string& path,
 
   SendResponse(request_id, html_bytes);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// ThumbnailSource
 
 ThumbnailSource::ThumbnailSource(Profile* profile)
     : DataSource(kThumbnailPath, MessageLoop::current()), profile_(profile) {}
@@ -273,6 +285,9 @@ void ThumbnailSource::OnThumbnailDataAvailable(
     SendResponse(request_id, default_thumbnail_);
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// FavIconSource
 
 FavIconSource::FavIconSource(Profile* profile)
     : DataSource(kFavIconPath, MessageLoop::current()), profile_(profile) {}
@@ -322,6 +337,10 @@ void FavIconSource::OnFavIconDataAvailable(
     SendResponse(request_id, default_favicon_);
   }
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+// MostVisitedHandler
 
 MostVisitedHandler::MostVisitedHandler(DOMUIHost* dom_ui_host)
     : dom_ui_host_(dom_ui_host) {
@@ -391,6 +410,8 @@ void MostVisitedHandler::Observe(NotificationType type,
   HandleGetMostVisited(NULL);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// TemplateURLHandler
 
 TemplateURLHandler::TemplateURLHandler(DOMUIHost* dom_ui_host)
     : dom_ui_host_(dom_ui_host), template_url_model_(NULL) {
@@ -417,6 +438,13 @@ void TemplateURLHandler::HandleGetMostSearched(const Value* content) {
   } else {
     template_url_model_->Load();
   }
+}
+
+// A helper function for sorting TemplateURLs where the most used ones show up
+// first.
+static bool TemplateURLSortByUsage(const TemplateURL* a,
+                                   const TemplateURL* b) {
+  return a->usage_count() > b->usage_count();
 }
 
 void TemplateURLHandler::HandleDoSearch(const Value* content) {
@@ -457,27 +485,44 @@ void TemplateURLHandler::HandleDoSearch(const Value* content) {
   std::wstring url = url_ref->ReplaceSearchTerms(*template_url, search,
       TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring());
 
-  // Load the URL.
   if (!url.empty()) {
+  // Load the URL.
     dom_ui_host_->OpenURL(GURL(WideToUTF8(url)), GURL(), CURRENT_TAB,
                           PageTransition::LINK);
-  }
-}
 
-// A helper function for sorting TemplateURLs where the most used ones show up
-// first.
-static bool TemplateURLSortByUsage(const TemplateURL* a,
-                                   const TemplateURL* b) {
-  return a->usage_count() > b->usage_count();
+    // Record the user action
+    std::vector<const TemplateURL*> urls =
+        template_url_model_->GetTemplateURLs();
+    sort(urls.begin(), urls.end(), TemplateURLSortByUsage);
+    ListValue urls_value;
+    int item_number = 0;
+    for (size_t i = 0;
+         i < std::min<size_t>(urls.size(), kSearchURLs); ++i) {
+      if (urls[i]->usage_count() == 0)
+        break;  // The remainder would be no good.
+
+      const TemplateURLRef* urlref = urls[i]->url();
+      if (!urlref)
+        continue;
+
+      if (urls[i] == template_url) {
+        UserMetrics::RecordComputedAction(
+            StringPrintf(L"NTP_SearchURL%d", item_number),
+            dom_ui_host_->profile());
+        break;
+      }
+
+      item_number++;
+    }
+  }
 }
 
 void TemplateURLHandler::OnTemplateURLModelChanged() {
   // We've loaded some template URLs.  Send them to the page.
-  const int kMaxURLs = 3;  // The maximum number of URLs we're willing to send.
   std::vector<const TemplateURL*> urls = template_url_model_->GetTemplateURLs();
   sort(urls.begin(), urls.end(), TemplateURLSortByUsage);
   ListValue urls_value;
-  for (size_t i = 0; i < std::min<size_t>(urls.size(), kMaxURLs); ++i) {
+  for (size_t i = 0; i < std::min<size_t>(urls.size(), kSearchURLs); ++i) {
     if (urls[i]->usage_count() == 0)
       break;  // urls is sorted by usage count; the remainder would be no good.
 
@@ -494,8 +539,12 @@ void TemplateURLHandler::OnTemplateURLModelChanged() {
 
     urls_value.Append(entry_value);
   }
+  UMA_HISTOGRAM_COUNTS(L"NewTabPage.SearchURLs.Total", urls_value.GetSize());
   dom_ui_host_->CallJavascriptFunction(L"searchURLs", urls_value);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// RecentlyBookmarkedHandler
 
 RecentlyBookmarkedHandler::RecentlyBookmarkedHandler(DOMUIHost* dom_ui_host)
     : dom_ui_host_(dom_ui_host),
@@ -555,6 +604,9 @@ void RecentlyBookmarkedHandler::BookmarkNodeChanged(BookmarkModel* model,
   SendBookmarksToPage();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// RecentlyClosedTabsHandler
+
 RecentlyClosedTabsHandler::RecentlyClosedTabsHandler(DOMUIHost* dom_ui_host)
     : dom_ui_host_(dom_ui_host),
       tab_restore_service_(NULL) {
@@ -571,9 +623,6 @@ RecentlyClosedTabsHandler::~RecentlyClosedTabsHandler() {
 }
 
 void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
-  UserMetrics::RecordAction(L"NewTabPage_ReopenTab",
-                            dom_ui_host_->profile());
-
   NavigationController* controller = dom_ui_host_->controller();
   Browser* browser = Browser::GetBrowserForController(
       controller, NULL);
@@ -600,6 +649,10 @@ void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
         for (TabRestoreService::Tabs::const_iterator it = tabs.begin();
              it != tabs.end(); ++it) {
           if (it->id == session_to_restore) {
+            UserMetrics::RecordComputedAction(
+                StringPrintf(L"NTP_TabRestored%d", session_to_restore),
+                dom_ui_host_->profile());
+
             TabRestoreService* tab_restore_service = tab_restore_service_;
             browser->ReplaceRestoredTab(
                  it->navigations, it->current_navigation_index);
@@ -662,6 +715,9 @@ void RecentlyClosedTabsHandler::TabRestoreServiceDestroyed(
   tab_restore_service_ = NULL;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// HistoryHandler
+
 HistoryHandler::HistoryHandler(DOMUIHost* dom_ui_host)
     : dom_ui_host_(dom_ui_host) {
   dom_ui_host->RegisterMessageCallback("showHistoryPage",
@@ -672,8 +728,11 @@ HistoryHandler::HistoryHandler(DOMUIHost* dom_ui_host)
 
 void HistoryHandler::HandleShowHistoryPage(const Value*) {
   NavigationController* controller = dom_ui_host_->controller();
-  if (controller)
+  if (controller) {
     controller->LoadURL(HistoryTabUI::GetURL(), GURL(), PageTransition::LINK);
+    UserMetrics::RecordAction(L"NTP_ShowHistory",
+        dom_ui_host_->profile());
+  }
 }
 
 void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
@@ -686,6 +745,9 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
           static_cast<const StringValue*>(list_member);
       std::wstring wstring_value;
       if (string_value->GetAsString(&wstring_value)) {
+        UserMetrics::RecordAction(L"NTP_SearchHistory",
+            dom_ui_host_->profile());
+
         NavigationController* controller = dom_ui_host_->controller();
         controller->LoadURL(
             HistoryTabUI::GetHistoryURLWithSearchText(wstring_value),
@@ -696,6 +758,34 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// MetricsHandler
+
+MetricsHandler::MetricsHandler(DOMUIHost* dom_ui_host)
+    : dom_ui_host_(dom_ui_host) {
+  dom_ui_host->RegisterMessageCallback("metrics",
+      NewCallback(this, &MetricsHandler::HandleMetrics));
+}
+
+void MetricsHandler::HandleMetrics(const Value* content) {
+  if (content && content->GetType() == Value::TYPE_LIST) {
+    const ListValue* list_value = static_cast<const ListValue*>(content);
+    Value* list_member;
+    if (list_value->Get(0, &list_member) &&
+        list_member->GetType() == Value::TYPE_STRING) {
+      const StringValue* string_value =
+          static_cast<const StringValue*>(list_member);
+      std::wstring wstring_value;
+      if (string_value->GetAsString(&wstring_value)) {
+        UserMetrics::RecordComputedAction(wstring_value,
+            dom_ui_host_->profile());
+      }
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// NewTabUIContents
 
 // This is the top-level URL handler for chrome-internal: URLs, and exposed in
 // our header file.
@@ -728,7 +818,7 @@ NewTabUIContents::NewTabUIContents(Profile* profile,
   if (profile->IsOffTheRecord())
     incognito_ = true;
 
-  if (NewTabHTMLSource::first_view() && 
+  if (NewTabHTMLSource::first_view() &&
       (profile->GetPrefs()->GetInteger(prefs::kRestoreOnStartup) != 0 ||
        !profile->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
      ) {
@@ -766,6 +856,7 @@ void NewTabUIContents::AttachMessageHandlers() {
     AddMessageHandler(new RecentlyBookmarkedHandler(this));
     AddMessageHandler(new RecentlyClosedTabsHandler(this));
     AddMessageHandler(new HistoryHandler(this));
+    AddMessageHandler(new MetricsHandler(this));
 
     NewTabHTMLSource* html_source = new NewTabHTMLSource();
 
@@ -816,16 +907,4 @@ void NewTabUIContents::RequestOpenURL(const GURL& url,
   // Note this means we're including clicks on not only most visited thumbnails,
   // but also clicks on recently bookmarked.
   OpenURL(url, GURL(), disposition, PageTransition::AUTO_BOOKMARK);
-
-  // Figure out if this was a click on a MostVisited entry, and log it if so.
-  if (most_visited_handler_) {
-    const std::vector<GURL>& urls = most_visited_handler_->most_visited_urls();
-    for (size_t i = 0; i < urls.size(); ++i) {
-      if (url == urls[i]) {
-        UserMetrics::RecordComputedAction(StringPrintf(L"MostVisited%d", i),
-                                          profile());
-        break;
-      }
-    }
-  }
 }

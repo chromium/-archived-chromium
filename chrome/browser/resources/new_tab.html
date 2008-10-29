@@ -393,7 +393,7 @@ function DOM(elem, attrs) {
 
 /* Return the DOM element for a "most visited" entry.
    |page| should be an object with "title" and "url" fields. */
-function makeMostVisitedDOM(page) {
+function makeMostVisitedDOM(page, number) {
   /* The HTML we want looks like this:
     <a class="most-visited-item" href="URL" title="gmail.com">
       <div class="thumbnail-title" style="background-image:url(faviconurl);">gmail.com</div>
@@ -402,7 +402,11 @@ function makeMostVisitedDOM(page) {
   */
   var root;
   if (page.url) {
-    root = DOM('a', {href:page.url, title:page.title});
+    root = DOM('a', {href:page.url, 
+                     title:page.title});
+    root.addEventListener("mousedown", function(event) {
+        chrome.send("metrics", ["NTP_MostVisited" + number])
+        }, false);
   } else {
     // Something went wrong; don't make it clickable.
     root = DOM('span');
@@ -457,7 +461,7 @@ function renderMostVisitedPages(pages) {
       rows[rowNum] = DOM('tr', {});
     }
 
-    var dom = makeMostVisitedDOM(page);
+    var dom = makeMostVisitedDOM(page, i);
 
     var cell = DOM('td');
     cell.appendChild(dom);
@@ -543,7 +547,12 @@ function renderRecentlyBookmarked(entries) {
   if (entries.length > 0) {
     section.style.display = 'block';
     for (var i = 0, entry = entries[0]; entry = entries[i]; ++i) {
-      var link = DOM('a', {href: entry.url, className:'recent-bookmark', title:entry.title});
+      var link = DOM('a', {href: entry.url, 
+                           className:'recent-bookmark', 
+                           title:entry.title});
+      link.addEventListener("mousedown", function(event) {
+          chrome.send("metrics", ["NTP_Bookmark" + i])
+          }, false);
       link.style.backgroundImage =
           'url("chrome-resource://favicon/' + entry.url + '")';
       link.appendChild(document.createTextNode(entry.title));
