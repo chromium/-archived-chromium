@@ -82,7 +82,7 @@ bool SharedMemory::CreateOrOpen(const std::wstring &name, int posix_flags) {
   
   name_ = L"/" + name;
   
-  int posix_mode = 0600;  // owner read/write
+  mode_t posix_mode = S_IRUSR | S_IWUSR;  // owner read/write
   std::string posix_name(WideToUTF8(name_));
   mapped_file_ = shm_open(posix_name.c_str(), posix_flags, posix_mode);
   if (mapped_file_ < 0)
@@ -143,7 +143,7 @@ void SharedMemory::Close() {
   }
 
   std::string posix_name(WideToUTF8(name_));
-  if (mapped_file_) {
+  if (mapped_file_ > 0) {
     close(mapped_file_);
     shm_unlink(posix_name.c_str());
     mapped_file_ = -1;
