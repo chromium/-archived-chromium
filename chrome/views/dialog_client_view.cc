@@ -135,13 +135,6 @@ void DialogClientView::ShowDialogButtons() {
     cancel_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
     AddChildView(cancel_button_);
   }
-
-  View* extra_view = dd->GetExtraView();
-  if (extra_view && !extra_view_) {
-    extra_view_ = extra_view;
-    extra_view_->SetGroup(kButtonGroup);
-    AddChildView(extra_view_);
-  }
   if (!buttons) {
     // Register the escape key as an accelerator which will close the window
     // if there are no dialog buttons.
@@ -222,13 +215,17 @@ void DialogClientView::Layout() {
   LayoutContentsView();
 }
 
-void DialogClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
+void DialogClientView::ViewHierarchyChanged(bool is_add, View* parent,
+                                            View* child) {
   if (is_add && child == this) {
     // Can only add and update the dialog buttons _after_ they are added to the
     // view hierarchy since they are native controls and require the
     // Container's HWND.
     ShowDialogButtons();
     ClientView::ViewHierarchyChanged(is_add, parent, child);
+    // The "extra view" must be created and installed after the contents view
+    // has been inserted into the view hierarchy.
+    CreateExtraView();
     UpdateDialogButtons();
     Layout();
   }
@@ -354,6 +351,15 @@ void DialogClientView::LayoutContentsView() {
   lb.set_height(std::max(0, lb.height() - GetButtonsHeight()));
   contents_view()->SetBounds(lb);
   contents_view()->Layout();
+}
+
+void DialogClientView::CreateExtraView() {
+  View* extra_view = GetDialogDelegate()->GetExtraView();
+  if (extra_view && !extra_view_) {
+    extra_view_ = extra_view;
+    extra_view_->SetGroup(kButtonGroup);
+    AddChildView(extra_view_);
+  }
 }
 
 DialogDelegate* DialogClientView::GetDialogDelegate() const {

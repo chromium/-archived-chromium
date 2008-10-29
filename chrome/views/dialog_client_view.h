@@ -79,6 +79,9 @@ class DialogClientView : public ClientView,
 
   bool has_dialog_buttons() const { return ok_button_ || cancel_button_; }
 
+  // Create and add the extra view, if supplied by the delegate.
+  void CreateExtraView();
+
   // Returns the DialogDelegate for the window.
   DialogDelegate* GetDialogDelegate() const;
 
