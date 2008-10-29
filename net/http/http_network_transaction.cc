@@ -688,7 +688,8 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
   }
 
   // And, we are done with the Start or the SSL tunnel CONNECT sequence.
-  return DidReadResponseHeaders();
+  int bug_3772_storage = 0;
+  return DidReadResponseHeaders(&bug_3772_storage);
 }
 
 int HttpNetworkTransaction::DoReadBody() {
@@ -769,17 +770,27 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   return result;
 }
 
-int HttpNetworkTransaction::DidReadResponseHeaders() {
+void Bug3772Set(int* storage, int x) {
+  *storage = 0xdeadbeef + x;
+}
+
+int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
+  Bug3772Set(bug_3772_state, 0);
+
   scoped_refptr<HttpResponseHeaders> headers;
   if (has_found_status_line_start()) {
+    Bug3772Set(bug_3772_state, 1);
     headers = new HttpResponseHeaders(
         HttpUtil::AssembleRawHeaders(
             header_buf_.get(), header_buf_body_offset_));
   } else {
+    Bug3772Set(bug_3772_state, 2);
     // Fabricate a status line to to preserve the HTTP/0.9 version.
     // (otherwise HttpResponseHeaders will default it to HTTP/1.0).
     headers = new HttpResponseHeaders(std::string("HTTP/0.9 200 OK"));
   }
+
+  Bug3772Set(bug_3772_state, 3);
 
   if (headers->GetParsedHttpVersion() < HttpVersion(1, 0)) {
     // Require the "HTTP/1.x" status line for SSL CONNECT.
@@ -793,10 +804,13 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
       return ERR_METHOD_NOT_SUPPORTED;
   }
 
+  Bug3772Set(bug_3772_state, 4);
+
   // Check for an intermediate 100 Continue response.  An origin server is
   // allowed to send this response even if we didn't ask for it, so we just
   // need to skip over it.
   if (headers->response_code() == 100) {
+    Bug3772Set(bug_3772_state, 5);
     header_buf_len_ -= header_buf_body_offset_;
     // If we've already received some bytes after the 100 Continue response,
     // move them to the beginning of header_buf_.
@@ -809,7 +823,10 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     return OK;
   }
 
+  Bug3772Set(bug_3772_state, 6);
+
   if (establishing_tunnel_ && headers->response_code() == 200) {
+    Bug3772Set(bug_3772_state, 7);
     if (header_buf_body_offset_ != header_buf_len_) {
       // The proxy sent extraneous data after the headers.
       return ERR_TUNNEL_CONNECTION_FAILED;
@@ -824,14 +841,20 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     return OK;
   }
 
+  Bug3772Set(bug_3772_state, 8);
+
   response_.headers = headers;
   response_.vary_data.Init(*request_, *response_.headers);
+
+  Bug3772Set(bug_3772_state, 9);
 
   int rv = PopulateAuthChallenge();
   if (rv != OK)
     return rv;
 
   // Figure how to determine EOF:
+
+  Bug3772Set(bug_3772_state, 10);
 
   // For certain responses, we know the content length is always 0.
   switch (response_.headers->response_code()) {
@@ -843,6 +866,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   }
 
   if (content_length_ == -1) {
+    Bug3772Set(bug_3772_state, 11);
     // Ignore spurious chunked responses from HTTP/1.0 servers and proxies.
     // Otherwise "Transfer-Encoding: chunked" trumps "Content-Length: N"
     if (response_.headers->GetHttpVersion() >= HttpVersion(1, 1) &&
@@ -855,11 +879,16 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
     }
   }
 
+  Bug3772Set(bug_3772_state, 12);
+
   if (using_ssl_ && !establishing_tunnel_) {
+    Bug3772Set(bug_3772_state, 13);
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
   }
+
+  Bug3772Set(bug_3772_state, 14);
 
   return OK;
 }

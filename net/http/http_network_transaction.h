@@ -78,7 +78,7 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoReadBodyComplete(int result);
 
   // Called when header_buf_ contains the complete response headers.
-  int DidReadResponseHeaders();
+  int DidReadResponseHeaders(int* /*temp hack*/);
 
   // Called to handle a certificate error.  Returns OK if the error should be
   // ignored.  Otherwise, stores the certificate in response_.ssl_info and
