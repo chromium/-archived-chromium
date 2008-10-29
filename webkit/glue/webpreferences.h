@@ -35,7 +35,6 @@ struct WebPreferences {
   bool shrinks_standalone_images_to_fit;
   bool uses_universal_detector;
   bool text_areas_are_resizable;
-  bool dashboard_compatibility_mode;
   bool java_enabled;
   bool allow_scripts_to_close_windows;
   bool uses_page_cache;

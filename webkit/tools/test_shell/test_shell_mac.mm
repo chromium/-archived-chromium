@@ -189,7 +189,6 @@ void TestShell::ResetWebPreferences() {
     web_prefs_->shrinks_standalone_images_to_fit = false;
     web_prefs_->uses_universal_detector = false;
     web_prefs_->text_areas_are_resizable = false;
-    web_prefs_->dashboard_compatibility_mode = false;
     web_prefs_->java_enabled = true;
   }
 }

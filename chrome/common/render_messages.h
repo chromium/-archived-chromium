@@ -1582,7 +1582,6 @@ struct ParamTraits<WebPreferences> {
     WriteParam(m, p.shrinks_standalone_images_to_fit);
     WriteParam(m, p.uses_universal_detector);
     WriteParam(m, p.text_areas_are_resizable);
-    WriteParam(m, p.dashboard_compatibility_mode);
     WriteParam(m, p.java_enabled);
     WriteParam(m, p.user_style_sheet_enabled);
     WriteParam(m, p.user_style_sheet_location);
@@ -1610,7 +1609,6 @@ struct ParamTraits<WebPreferences> {
         ReadParam(m, iter, &p->shrinks_standalone_images_to_fit) &&
         ReadParam(m, iter, &p->uses_universal_detector) &&
         ReadParam(m, iter, &p->text_areas_are_resizable) &&
-        ReadParam(m, iter, &p->dashboard_compatibility_mode) &&
         ReadParam(m, iter, &p->java_enabled) &&
         ReadParam(m, iter, &p->user_style_sheet_enabled) &&
         ReadParam(m, iter, &p->user_style_sheet_location) &&
