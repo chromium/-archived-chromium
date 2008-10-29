@@ -43,8 +43,6 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
                URLRequestContext* request_context,
                const std::wstring& custom_dictionary_file_name);
 
-  static void RegisterUserPrefs(PrefService* prefs);
-
   // Only delete on the I/O thread (see above).
   ~SpellChecker();
 

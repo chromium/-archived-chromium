@@ -641,114 +641,27 @@ ClipboardService* ResourceMessageFilter::GetClipboardService() {
 // the spellcheck dictionaries into the browser process, and all renderers ask
 // the browsers to do SpellChecking.
 //
-// Requests to do SpellCheck come in on the IO thread.  Unfortunately, the
-// first spell check requires loading of the spell check tables, which is an
-// expensive operation, both in terms of disk access and memory usage.  Even
-// though initialization only happens once, we don't want to do it on the IO
-// thread to keep the browser snappy.
+// This filter should not try to initialize the spellchecker. It is up to the 
+// profile to initialize it when required, and send it here. If |spellchecker_|
+// is made NULL, it corresponds to spellchecker turned off - i.e., all
+// spellings are correct.
 //
-// To implement:
-// If SpellCheck has not been initialized, we send a request to the
-// browser's file_thread to do the initialization.  Once completed, it
-// requests back to the IO thread to send the response to the renderer.
-// If SpellCheck has been initialized, we go ahead and do the lookup
-// directly on the IO thread, as this operation is fairly quick.
-//
-
-// The SpellCheckReplyTask replies to a Renderer for a pending SpellCheck
-// request.  The task is created on the Browser's file_thread, and
-// executes on the io_thread.
-class SpellCheckReplyTask : public Task {
- public:
-  explicit SpellCheckReplyTask(ResourceMessageFilter* filter,
-                               IPC::Message* reply_msg,
-                               int misspell_location,
-                               int misspell_length) :
-     filter_(filter),
-     misspell_location_(misspell_location),
-     misspell_length_(misspell_length),
-     reply_msg_(reply_msg) {
-  }
-
-  void Run() {
-    ViewHostMsg_SpellCheck::WriteReplyParams(reply_msg_, misspell_location_,
-                                             misspell_length_);
-    filter_->Send(reply_msg_);
-  }
-
- private:
-  scoped_refptr<ResourceMessageFilter> filter_;
-  IPC::Message* reply_msg_;
-  int misspell_location_;
-  int misspell_length_;
-};
-
-// The SpellCheckTask initializes the SpellCheck library and does a
-// a SpellCheck Lookup.  The task is initiated from the io_thread
-// but executes on the browser's file_thread.
-class SpellCheckTask : public Task {
- public:
-  SpellCheckTask(ResourceMessageFilter *filter,
-                 const std::wstring& word,
-                 IPC::Message* reply_msg) :
-    filter_(filter),
-    word_(word),
-    reply_msg_(reply_msg) {
-  }
-  void Run() {
-    SpellChecker *checker = filter_->spellchecker();
-    int misspell_location = 0;
-    int misspell_length = 0;
-    if (checker)
-      checker->SpellCheckWord(word_.c_str(), static_cast<int>(word_.length()),
-                              &misspell_location, &misspell_length, NULL);
-    base::Thread* io_thread = g_browser_process->io_thread();
-    if (io_thread) {
-      io_thread->message_loop()->PostTask(FROM_HERE,
-          new SpellCheckReplyTask(filter_, reply_msg_,
-              misspell_location, misspell_length));
-    } else {
-      // If the io_thread is NULL, we're tearing down.  This shouldn't happen,
-      // but if it does, just leave this request pending and let things go down
-      // on their own.
-      // We can't send the reply from this thread, so there is nothing we can
-      // do.
-    }
-  }
-
- private:
-  scoped_refptr<ResourceMessageFilter> filter_;
-  const std::wstring word_;
-  IPC::Message* reply_msg_;
-};
-
+// Note: This is called in the IO thread.
 void ResourceMessageFilter::OnSpellCheck(const std::wstring& word,
                                          IPC::Message* reply_msg) {
-  // Get the SpellChecker.  If initialized, do the work on this thread.
-  if (spellchecker_ != NULL) {
-    int misspell_location;
-    int misspell_length;
+ int misspell_location = 0;
+ int misspell_length = 0;
+
+ if (spellchecker_ != NULL) {
     spellchecker_->SpellCheckWord(word.c_str(),
                                   static_cast<int>(word.length()),
                                   &misspell_location, &misspell_length, NULL);
-    ViewHostMsg_SpellCheck::WriteReplyParams(reply_msg, misspell_location,
-                                             misspell_length);
-    Send(reply_msg);
-    return;
   }
 
-  // The SpellChecker is not initialized.  We can't run this on the IO
-  // thread.  Sent it over to the file thread and let it do the dirty work.
-  MessageLoop* file_loop = ChromeThread::GetMessageLoop(ChromeThread::FILE);
-  if (file_loop) {
-    // TODO(abarth): What if the file thread is being destroyed on the UI?
-    file_loop->PostTask(FROM_HERE, new SpellCheckTask(this, word, reply_msg));
-  } else {
-    // If the file_loop is NULL, we're tearing down.  This shouldn't happen,
-    // but if it does, just leave this request pending and let things go down
-    // on their own.
-    // We could send a reply, but it doesn't seem necessary.
-  }
+  ViewHostMsg_SpellCheck::WriteReplyParams(reply_msg, misspell_location,
+                                             misspell_length);
+  Send(reply_msg);
+  return;
 }
 
 void ResourceMessageFilter::Observe(NotificationType type, 

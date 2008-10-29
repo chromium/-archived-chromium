@@ -480,11 +480,14 @@ LanguagesPageView::LanguagesPageView(Profile* profile)
       ui_language_label_(NULL),
       change_ui_language_combobox_(NULL),
       change_dictionary_language_combobox_(NULL),
+      enable_spellchecking_checkbox_(NULL),
       dictionary_language_label_(NULL),
       OptionsPageView(profile),
       language_table_edited_(false),
       spellcheck_language_index_selected_(-1) {
   accept_languages_.Init(prefs::kAcceptLanguages,
+      profile->GetPrefs(), NULL);
+  enable_spellcheck_.Init(prefs::kEnableSpellCheck, 
       profile->GetPrefs(), NULL);
 }
 
@@ -509,6 +512,11 @@ void LanguagesPageView::ButtonPressed(views::NativeButton* sender) {
         gfx::Rect(),
         new AddLanguageWindowView(this, profile()))->Show();
     language_table_edited_ = true;
+  } else if (sender == enable_spellchecking_checkbox_) {
+    if (enable_spellchecking_checkbox_->IsSelected())
+      enable_spellcheck_.SetValue(true);
+    else
+      enable_spellcheck_.SetValue(false);
   }
 }
 
@@ -622,8 +630,12 @@ void LanguagesPageView::InitControlLayout() {
   dictionary_language_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CHROME_DICTIONARY_LANGUAGE));
   dictionary_language_label_->SetHorizontalAlignment(
-      views::Label::ALIGN_LEFT);
-
+      views::Label::ALIGN_LEFT);  
+  enable_spellchecking_checkbox_ = new views::CheckBox(
+      l10n_util::GetString(IDS_OPTIONS_ENABLE_SPELLCHECK));
+  enable_spellchecking_checkbox_->SetListener(this);
+  enable_spellchecking_checkbox_->SetMultiLine(true);
+  
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(language_info_label_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
@@ -651,6 +663,10 @@ void LanguagesPageView::InitControlLayout() {
   layout->AddView(change_ui_language_combobox_);
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
 
+  // SpellChecker settings.
+  layout->StartRow(0, single_column_view_set_id);
+  layout->AddView(enable_spellchecking_checkbox_);
+  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
   layout->StartRow(0, double_column_view_set_2_id);
   layout->AddView(dictionary_language_label_);
   layout->AddView(change_dictionary_language_combobox_);
@@ -684,6 +700,10 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
         prefs::kSpellCheckDictionary);
     change_dictionary_language_combobox_->SetSelectedItem(index);
     spellcheck_language_index_selected_ = -1;
+  }
+  if (!pref_name || *pref_name == prefs::kEnableSpellCheck) {
+    enable_spellchecking_checkbox_->SetIsSelected(
+        enable_spellcheck_.GetValue());
   }
 }
 
@@ -756,10 +776,5 @@ void LanguagesPageView::SaveChanges() {
                             profile()->GetPrefs());
     dictionary_language_.SetValue(dictionary_language_model_->
         GetLocaleFromIndex(spellcheck_language_index_selected_));
-
-    // Initialize spellchecker. Keeping with the tradition, spellchecker is
-    // being initialized in this UI thread. However, it must be USED in the IO
-    // thread.
-    profile()->InitializeSpellChecker();
   }
 }

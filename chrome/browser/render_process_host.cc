@@ -780,8 +780,10 @@ void RenderProcessHost::WidgetHidden() {
 
 void RenderProcessHost::AddWord(const std::wstring& word) {
   base::Thread* io_thread = g_browser_process->io_thread();
-  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      profile_->GetSpellChecker(), &SpellChecker::AddWord, word));
+  if (profile_->GetSpellChecker()) {
+    io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        profile_->GetSpellChecker(), &SpellChecker::AddWord, word));
+  }
 }
 
 // NotificationObserver implementation.

@@ -3080,7 +3080,10 @@ each locale. -->
       <message name="IDS_OPTIONS_CHROME_DICTIONARY_LANGUAGE" desc="The documentation string of the 'Spell check dictionary language' preference">
         Spell-checker language:
       </message>
-
+      <message name="IDS_OPTIONS_ENABLE_SPELLCHECK" desc="The documentation string of the 'Enable spellcheck' option">
+        Enable spellcheck:
+      </message>
+      
       <message name="IDS_OPTIONS_RESET" desc="The label of the 'Reset all settings to defaults' button">
         Reset to defaults
       </message>

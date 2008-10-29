@@ -147,7 +147,7 @@ class TestingProfile : public Profile {
   }
   virtual void ResetTabRestoreService() {
   }
-  virtual void InitializeSpellChecker() {
+  virtual void ReinitializeSpellChecker() {
   }
   virtual SpellChecker* GetSpellChecker() {
     return NULL;

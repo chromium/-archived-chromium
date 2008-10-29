@@ -202,6 +202,9 @@ const wchar_t kDeleteCookies[] = L"browser.clear_data.cookies";
 const wchar_t kDeletePasswords[] = L"browser.clear_data.passwords";
 const wchar_t kDeleteTimePeriod[] = L"browser.clear_data.time_period";
 
+// Boolean pref to define the default values for using spellchecker.
+const wchar_t kEnableSpellCheck[] = L"browser.enable_spellchecking";
+
 // *************** LOCAL STATE ***************
 // These are attached to the machine/installation
 

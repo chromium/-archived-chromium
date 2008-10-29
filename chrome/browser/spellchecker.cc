@@ -190,12 +190,6 @@ void SpellChecker::set_file_is_downloading(bool value) {
 // This part of the code is used for spell checking.
 // ################################################################
 
-// static
-void SpellChecker::RegisterUserPrefs(PrefService* prefs) {
-  prefs->RegisterLocalizedStringPref(prefs::kSpellCheckDictionary,
-      IDS_SPELLCHECK_DICTIONARY);
-}
-
 std::wstring SpellChecker::GetVersionedFileName(const std::wstring& language,
                                                 const std::wstring& dict_dir) {
   // The default version string currently in use.

@@ -18,6 +18,9 @@
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
+#include "chrome/common/notification_service.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 
 class BookmarkModel;
 class DownloadManager;
@@ -200,12 +203,9 @@ class Profile {
 
   virtual void ResetTabRestoreService() = 0;
 
-  // Initializes the spellchecker. If the spellchecker already exsts, then
-  // it is released, and initialized again. This model makes sure that 
-  // spellchecker language can be changed without restarting the browser.
-  // NOTE: This is being currently called in the UI thread, which is OK as long
-  // as the spellchecker object is USED in the IO thread.
-  virtual void InitializeSpellChecker() = 0;
+  // This reinitializes the spellchecker according to the current dictionary 
+  // language, and enable spell check option, in the prefs.
+  virtual void ReinitializeSpellChecker() = 0;
 
   // Returns the spell checker object for this profile. THIS OBJECT MUST ONLY
   // BE USED ON THE I/O THREAD! This pointer is retrieved from the profile and
@@ -231,7 +231,8 @@ class Profile {
 class OffTheRecordProfileImpl;
 
 // The default profile implementation.
-class ProfileImpl : public Profile {
+class ProfileImpl : public Profile,
+                    public NotificationObserver {
  public:
   virtual ~ProfileImpl();
 
@@ -263,12 +264,16 @@ class ProfileImpl : public Profile {
   virtual base::Time GetStartTime() const;
   virtual TabRestoreService* GetTabRestoreService();
   virtual void ResetTabRestoreService();
-  virtual void InitializeSpellChecker();
+  virtual void ReinitializeSpellChecker();
   virtual SpellChecker* GetSpellChecker();
   virtual void MarkAsCleanShutdown();
 #ifdef CHROME_PERSONALIZATION
   virtual ProfilePersonalization* GetProfilePersonalization();
 #endif
+  // NotificationObserver implementation.
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);  
 
  private:
   class RequestContext;
@@ -286,6 +291,15 @@ class ProfileImpl : public Profile {
     GetSessionService();
   }
 
+  // Initializes the spellchecker. If the spellchecker already exsts, then
+  // it is released, and initialized again. This model makes sure that 
+  // spellchecker language can be changed without restarting the browser.
+  // NOTE: This is being currently called in the UI thread, which is OK as long
+  // as the spellchecker object is USED in the IO thread.
+  // The |need_to_broadcast| parameter tells it whether to broadcast the new
+  // spellchecker to the resource message filters.
+  void InitializeSpellChecker(bool need_to_broadcast);
+  
   std::wstring path_;
   bool off_the_record_;
   scoped_ptr<VisitedLinkMaster> visited_link_master_;

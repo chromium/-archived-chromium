@@ -68,6 +68,7 @@ extern const wchar_t kDeleteDownloadHistory[];
 extern const wchar_t kDeleteCache[];
 extern const wchar_t kDeleteCookies[];
 extern const wchar_t kDeletePasswords[];
+extern const wchar_t kEnableSpellCheck[];
 extern const wchar_t kDeleteTimePeriod[];
 
 // Local state
