@@ -48,7 +48,7 @@
 #include "base/file_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/automation/tab_proxy.h"
-#include "chrome/test/ui/ui_test.h"
+#include "chrome/test/ui/npapi_test_helper.h"
 #include "net/base/net_util.h"
 
 const char kTestCompleteCookie[] = "status";
@@ -65,44 +65,6 @@ std::ostream& operator<<(std::ostream& out, const CComBSTR &str)
   _stprintf_s(szFinal, _T("%s"), (LPCTSTR)bstrIntermediate);
   return out << szFinal;
 }
-
-class NPAPITester : public UITest {
- protected:
-  NPAPITester() : UITest()
-  {
-  }
-
-  virtual void SetUp()
-  {
-    // We need to copy our test-plugin into the plugins directory so that
-    // the browser can load it.
-    std::wstring plugins_directory = browser_directory_ + L"\\plugins";
-    std::wstring plugin_src = browser_directory_ + L"\\npapi_test_plugin.dll";
-    plugin_dll_ = plugins_directory + L"\\npapi_test_plugin.dll";
-    
-    CreateDirectory(plugins_directory.c_str(), NULL);
-    CopyFile(plugin_src.c_str(), plugin_dll_.c_str(), FALSE);
-
-    UITest::SetUp();
-  }
-
-  virtual void TearDown()
-  {
-    DeleteFile(plugin_dll_.c_str());
-    UITest::TearDown();
-  }
-
-private:
-  std::wstring plugin_dll_;
-};
-
-class NPAPIVisiblePluginTester : public NPAPITester {
-  protected:
-  virtual void SetUp() {
-    show_window_ = true;
-    NPAPITester::SetUp();
-  }
-};
 
 // Test passing arguments to a plugin.
 TEST_F(NPAPITester, Arguments) {

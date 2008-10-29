@@ -129,6 +129,7 @@ ui_test_files = [
     'test/ui/ui_test.cc',
     'test/ui/ui_test_suite.cc',
     'test/ui/history_uitest.cc',
+    'test/ui/npapi_test_helper.cc',
     '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
 ]

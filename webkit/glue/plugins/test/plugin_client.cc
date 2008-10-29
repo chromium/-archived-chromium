@@ -102,7 +102,7 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   } else if (base::strcasecmp(argv[name_index],
              "execute_script_delete_in_paint") == 0) {
     new_test = new NPAPIClient::ExecuteScriptDeleteTest(instance,
-      NPAPIClient::PluginClient::HostFunctions());
+      NPAPIClient::PluginClient::HostFunctions(), argv[name_index]);
     windowless_plugin = true;
   } else if (base::strcasecmp(argv[name_index], "getjavascripturl") == 0) {
     new_test = new NPAPIClient::ExecuteGetJavascriptUrlTest(instance,
@@ -137,6 +137,11 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
              "plugin_popup_with_plugin_target") == 0) {
     new_test = new NPAPIClient::ExecuteJavascriptPopupWindowTargetPluginTest(
         instance, NPAPIClient::PluginClient::HostFunctions());
+  } else if (base::strcasecmp(argv[name_index],
+                              "execute_script_delete_in_mouse_move") == 0) {
+    new_test = new NPAPIClient::ExecuteScriptDeleteTest(instance,
+      NPAPIClient::PluginClient::HostFunctions(), argv[name_index]);
+    windowless_plugin = true;
   } else {
     // If we don't have a test case for this, create a
     // generic one which basically never fails.
