@@ -164,7 +164,8 @@ GreasemonkeyMaster::GreasemonkeyMaster(MessageLoop* worker_loop,
                                        const FilePath& script_dir)
     : user_script_dir_(new FilePath(script_dir)),
       dir_watcher_(new DirectoryWatcher),
-      worker_loop_(worker_loop) {
+      worker_loop_(worker_loop),
+      pending_scan_(false) {
   // Watch our scripts directory for modifications.
   bool ok = dir_watcher_->Watch(script_dir, this);
   DCHECK(ok);
