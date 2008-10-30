@@ -77,7 +77,7 @@ TEST_F(NPAPITester, Arguments) {
 
 
 // Test invoking many plugins within a single page.
-TEST_F(NPAPITester, ManyPlugins) {
+TEST_F(NPAPITester, DISABLED_ManyPlugins) {
   std::wstring test_case = L"many_plugins.html";
   GURL url(GetTestUrl(L"npapi", test_case));
   NavigateToURL(url);
@@ -203,7 +203,7 @@ TEST_F(NPAPIVisiblePluginTester, VerifyPluginWindowRect) {
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
-TEST_F(NPAPIVisiblePluginTester, VerifyNPObjectLifetimeTest) {
+TEST_F(NPAPIVisiblePluginTester, DISABLED_VerifyNPObjectLifetimeTest) {
   if (!UITest::in_process_plugins() && !UITest::in_process_renderer()) {
     show_window_ = true;
     std::wstring test_case = L"npobject_lifetime_test.html";
