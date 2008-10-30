@@ -55,6 +55,9 @@ class ChromeMiniInstaller {
   // This method verifies Chrome shortcut.
   void FindChromeShortcut();
 
+  // Get path for mini_installer.exe.
+  std::wstring GetMiniInstallerExePath();
+
   // Get path for uninstall.
   std::wstring GetUninstallPath();
 

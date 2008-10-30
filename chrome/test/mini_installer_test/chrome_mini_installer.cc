@@ -18,14 +18,15 @@
 
 // Installs the Chrome mini-installer, checks the registry and shortcuts.
 void ChromeMiniInstaller::InstallMiniInstaller(bool over_install) {
+  std::wstring mini_installer_path = GetMiniInstallerExePath();
   // If need to do clean installation, uninstall chrome if exists.
   if (!over_install) {
     UnInstall();
   }
   printf("Will proceed with the test only if mini_installer.exe exists\n");
-  ASSERT_TRUE(file_util::PathExists(
-              mini_installer_constants::kChromeMiniInstallerExecutable));
-  LaunchExe(mini_installer_constants::kChromeMiniInstallerExecutable,
+  printf("Checking for its path %ls\n",  mini_installer_path.c_str());
+  ASSERT_TRUE(file_util::PathExists(mini_installer_path));
+  LaunchExe(mini_installer_path,
             mini_installer_constants::kChromeMiniInstallerExecutable);
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   ASSERT_TRUE(CheckRegistryKey(dist->GetVersionKey()));
@@ -44,9 +45,6 @@ void ChromeMiniInstaller::InstallMiniInstaller(bool over_install) {
 // Installs chromesetup.exe, waits for the install to finish and then
 // checks the registry and shortcuts.
 void ChromeMiniInstaller::InstallMetaInstaller() {
-  printf("Will proceed with the test only if mini_installer.exe exists\n");
-  ASSERT_TRUE(file_util::PathExists(
-              mini_installer_constants::kChromeMiniInstallerExecutable));
   // Uninstall chrome, if already installed.
   UnInstall();
   // Install Google Chrome through meta installer.
@@ -76,13 +74,17 @@ void ChromeMiniInstaller::OverInstall() {
     // gets the registry key value before overinstall.
     std::wstring reg_key_value_returned = GetRegistryKey();
     printf("\n\nPreparing to overinstall...\n");
-    printf("\nOverinstall path is %ls\n",
-           mini_installer_constants::kChromeMiniInstallerExecutable);
-    InstallMiniInstaller(true);
-    // Get the registry key value after over install
-    std::wstring reg_key_value_after_overinstall = GetRegistryKey();
-    ASSERT_TRUE(VerifyOverInstall(
-        reg_key_value_returned, reg_key_value_after_overinstall));
+    std::wstring mini_installer_path = GetMiniInstallerExePath();
+    printf("\nOverinstall path is %ls\n",  mini_installer_path.c_str());
+    if (file_util::PathExists(mini_installer_path)) {
+      InstallMiniInstaller(true);
+      // Get the registry key value after over install
+      std::wstring reg_key_value_after_overinstall = GetRegistryKey();
+      ASSERT_TRUE(VerifyOverInstall(
+          reg_key_value_returned, reg_key_value_after_overinstall));
+    } else {
+      UnInstall();
+    }
   } else {
     printf("This test doesn't run on a chromium build\n");
   }
@@ -205,6 +207,15 @@ void ChromeMiniInstaller::FindChromeShortcut() {
            path_name.c_str(), uninstall_lnk.c_str());
   else
     printf("Chrome shortcuts not found\n");
+}
+
+// Get path for mini_installer.exe.
+std::wstring ChromeMiniInstaller::GetMiniInstallerExePath() {
+  std::wstring mini_installer_path;
+  PathService::Get(base::DIR_EXE, &mini_installer_path);
+  file_util::AppendToPath(&mini_installer_path,
+             mini_installer_constants::kChromeMiniInstallerExecutable);
+  return mini_installer_path;
 }
 
 // Gets the path for uninstall.
