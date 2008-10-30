@@ -302,7 +302,7 @@ static std::string CanonPath(const GURL& url,
   // How would this work for a cookie on /?  We will include it then.
   const std::string& url_path = url.path();
 
-  std::string::size_type idx = url_path.find_last_of('/');
+  size_t idx = url_path.find_last_of('/');
 
   // The cookie path was invalid or a single '/'.
   if (idx == 0 || idx == std::string::npos)
@@ -406,9 +406,7 @@ bool CookieMonster::SetCookieWithCreationTime(const GURL& url,
     return false;
   }
 
-  // We should have only purged at most one matching cookie.
-  int num_deleted = DeleteEquivalentCookies(cookie_domain, *cc);
-  DCHECK(num_deleted <= 1);
+  DeleteAnyEquivalentCookie(cookie_domain, *cc);
 
   COOKIE_DLOG(INFO) << "SetCookie() cc: " << cc->DebugString();
 
@@ -452,84 +450,34 @@ void CookieMonster::InternalDeleteCookie(CookieMap::iterator it,
   delete cc;
 }
 
-int CookieMonster::DeleteEquivalentCookies(const std::string& key,
-                                           const CanonicalCookie& ecc) {
-  int num_deleted = 0;
+void CookieMonster::DeleteAnyEquivalentCookie(const std::string& key,
+                                              const CanonicalCookie& ecc) {
+  bool found_equivalent_cookie = false;
   for (CookieMapItPair its = cookies_.equal_range(key);
        its.first != its.second; ) {
     CookieMap::iterator curit = its.first;
     CanonicalCookie* cc = curit->second;
     ++its.first;
 
-    // TODO while we're here, we might as well purge expired cookies too.
-
     if (ecc.IsEquivalent(*cc)) {
+      // We should never have more than one equivalent cookie, since they should
+      // overwrite each other.
+      DCHECK(!found_equivalent_cookie) <<
+          "Duplicate equivalent cookies found, cookie store is corrupted.";
       InternalDeleteCookie(curit, true);
-      ++num_deleted;
+      found_equivalent_cookie = true;
 #ifdef NDEBUG
-      // We should only ever find a single equivalent cookie
+      // Speed optimization: No point looping through the rest of the cookies
+      // since we're only doing it as a consistency check.
       break;
 #endif
     }
   }
-
-  // Our internal state should be consistent, we should never have more
-  // than one equivalent cookie, since they should overwrite each other.
-  DCHECK(num_deleted <= 1);
-
-  return num_deleted;
 }
 
-// TODO we should be sorting by last access time, however, right now
-// we're not saving an access time, so we're sorting by creation time.
-static bool OldestCookieSorter(const CookieMonster::CookieMap::iterator& it1,
-                               const CookieMonster::CookieMap::iterator& it2) {
-  return it1->second->CreationDate() < it2->second->CreationDate();
-}
-
-// is vector::size_type always going to be size_t?
-int CookieMonster::GarbageCollectRange(const Time& current,
-                                       const CookieMapItPair& itpair,
-                                       size_t num_max, size_t num_purge) {
-  int num_deleted = 0;
-
-  // First, walk through and delete anything that's expired.
-  // Save a list of iterators to the ones that weren't expired
-  std::vector<CookieMap::iterator> cookie_its;
-  for (CookieMap::iterator it = itpair.first, end = itpair.second; it != end;) {
-    CookieMap::iterator curit = it;
-    CanonicalCookie* cc = curit->second;
-    ++it;
-
-    if (cc->IsExpired(current)) {
-      InternalDeleteCookie(curit, true);
-      ++num_deleted;
-    } else {
-      cookie_its.push_back(curit);
-    }
-  }
-
-  if (cookie_its.size() > num_max) {
-    COOKIE_DLOG(INFO) << "GarbageCollectRange() Deep Garbage Collect.";
-    num_purge += cookie_its.size() - num_max;
-    // Sort the top N we want to purge.
-    std::partial_sort(cookie_its.begin(), cookie_its.begin() + num_purge,
-                      cookie_its.end(), OldestCookieSorter);
-
-    // TODO should probably use an iterator and not an index.
-    for (size_t i = 0; i < num_purge; ++i) {
-      InternalDeleteCookie(cookie_its[i], true);
-      ++num_deleted;
-    }
-  }
-
-  return num_deleted;
-}
-
-// TODO Whenever we delete, check last_cur_utc_...
 int CookieMonster::GarbageCollect(const Time& current,
                                   const std::string& key) {
-  // Based off of the Mozilla defaults
+  // Based off of the Mozilla defaults.
   // It might seem scary to have a high purge value, but really it's not.  You
   // just make sure that you increase the max to cover the increase in purge,
   // and we would have been purging the same amount of cookies.  We're just
@@ -545,17 +493,68 @@ int CookieMonster::GarbageCollect(const Time& current,
   if (cookies_.count(key) > kNumCookiesPerHost) {
     COOKIE_DLOG(INFO) << "GarbageCollect() key: " << key;
     num_deleted += GarbageCollectRange(current, cookies_.equal_range(key),
-                                       kNumCookiesPerHost,
-                                       kNumCookiesPerHostPurge);
+        kNumCookiesPerHost, kNumCookiesPerHostPurge);
   }
 
   // Collect garbage for everything.
   if (cookies_.size() > kNumCookiesTotal) {
     COOKIE_DLOG(INFO) << "GarbageCollect() everything";
     num_deleted += GarbageCollectRange(current,
-                                       CookieMapItPair(cookies_.begin(),
-                                                       cookies_.end()),
-                                       kNumCookiesTotal, kNumCookiesTotalPurge);
+        CookieMapItPair(cookies_.begin(), cookies_.end()), kNumCookiesTotal,
+        kNumCookiesTotalPurge);
+  }
+
+  return num_deleted;
+}
+
+// TODO we should be sorting by last access time, however, right now
+// we're not saving an access time, so we're sorting by creation time.
+static bool OldestCookieSorter(const CookieMonster::CookieMap::iterator& it1,
+                               const CookieMonster::CookieMap::iterator& it2) {
+  return it1->second->CreationDate() < it2->second->CreationDate();
+}
+
+int CookieMonster::GarbageCollectRange(const Time& current,
+                                       const CookieMapItPair& itpair,
+                                       size_t num_max,
+                                       size_t num_purge) {
+  // First, delete anything that's expired.
+  std::vector<CookieMap::iterator> cookie_its;
+  int num_deleted = GarbageCollectExpired(current, itpair, &cookie_its);
+
+  // If the range still has too many cookies, delete the oldest.
+  if (cookie_its.size() > num_max) {
+    COOKIE_DLOG(INFO) << "GarbageCollectRange() Deep Garbage Collect.";
+    // Purge down to (|num_max| - |num_purge|) total cookies.
+    DCHECK(num_purge <= num_max);
+    num_purge += cookie_its.size() - num_max;
+
+    std::partial_sort(cookie_its.begin(), cookie_its.begin() + num_purge,
+                      cookie_its.end(), OldestCookieSorter);
+    for (size_t i = 0; i < num_purge; ++i)
+      InternalDeleteCookie(cookie_its[i], true);
+
+    num_deleted += num_purge;
+  }
+
+  return num_deleted;
+}
+
+int CookieMonster::GarbageCollectExpired(
+    const Time& current,
+    const CookieMapItPair& itpair,
+    std::vector<CookieMap::iterator>* cookie_its) {
+  int num_deleted = 0;
+  for (CookieMap::iterator it = itpair.first, end = itpair.second; it != end;) {
+    CookieMap::iterator curit = it;
+    ++it;
+
+    if (curit->second->IsExpired(current)) {
+      InternalDeleteCookie(curit, true);
+      ++num_deleted;
+    } else if (cookie_its) {
+      cookie_its->push_back(curit);
+    }
   }
 
   return num_deleted;
@@ -676,22 +675,25 @@ std::string CookieMonster::GetCookiesWithOptions(const GURL& url,
   return cookie_line;
 }
 
-// TODO(deanm): We could have expired cookies that haven't been purged yet,
-// and exporting these would be inaccurate, for example in the cookie manager
-// it might show cookies that are actually expired already.  We should do
-// a full garbage collection before ...  There actually isn't a way to do
-// this right now (a forceful full GC), so we'll have to live with the
-// possibility of showing the user expired cookies.  This shouldn't be very
-// common since most persistent cookies have a long lifetime.
 CookieMonster::CookieList CookieMonster::GetAllCookies() {
   AutoLock autolock(lock_);
   InitIfNecessary();
 
-  CookieList cookie_list;
+  // This function is being called to scrape the cookie list for management UI
+  // or similar.  We shouldn't show expired cookies in this list since it will
+  // just be confusing to users, and this function is called rarely enough (and
+  // is already slow enough) that it's OK to take the time to garbage collect
+  // the expired cookies now.
+  //
+  // Note that this does not prune cookies to be below our limits (if we've
+  // exceeded them) the way that calling GarbageCollect() would.
+  GarbageCollectExpired(Time::Now(),
+                        CookieMapItPair(cookies_.begin(), cookies_.end()),
+                        NULL);
 
-  for (CookieMap::iterator it = cookies_.begin(); it != cookies_.end(); ++it) {
+  CookieList cookie_list;
+  for (CookieMap::iterator it = cookies_.begin(); it != cookies_.end(); ++it)
     cookie_list.push_back(CookieListPair(it->first, *it->second));
-  }
 
   return cookie_list;
 }
@@ -836,8 +838,8 @@ void CookieMonster::ParsedCookie::ParseTokenValuePairs(
 
   // TODO Make sure we're stripping \r\n in the network code.  Then we
   // can log any unexpected terminators.
-  std::string::size_type term_pos = cookie_line.find_first_of(
-      std::string(kTerminator, kTerminatorLen));
+  size_t term_pos =
+      cookie_line.find_first_of(std::string(kTerminator, kTerminatorLen));
   if (term_pos != std::string::npos) {
     // We found a character we should treat as an end of string.
     end = start + term_pos;

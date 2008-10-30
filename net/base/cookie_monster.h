@@ -142,8 +142,8 @@ class CookieMonster {
                          const base::Time& current,
                          std::vector<CanonicalCookie*>* cookies);
 
-  int DeleteEquivalentCookies(const std::string& key,
-                              const CanonicalCookie& ecc);
+  void DeleteAnyEquivalentCookie(const std::string& key,
+                                 const CanonicalCookie& ecc);
 
   void InternalInsertCookie(const std::string& key,
                             CanonicalCookie* cc,
@@ -151,12 +151,32 @@ class CookieMonster {
 
   void InternalDeleteCookie(CookieMap::iterator it, bool sync_to_store);
 
-  // Enforce cookie maximum limits, purging expired and old cookies if needed
+  // If the number of cookies for host |key|, or globally, are over preset
+  // maximums, garbage collects, first for the host and then globally, as
+  // described by GarbageCollectRange().  The limits can be found as constants
+  // at the top of the function body.
+  //
+  // Returns the number of cookies deleted (useful for debugging).
   int GarbageCollect(const base::Time& current, const std::string& key);
+
+  // Deletes all expired cookies in |itpair|;
+  // then, if the number of remaining cookies is greater than |num_max|,
+  // collects the oldest cookies until (|num_max| - |num_purge|) cookies remain.
+  //
+  // Returns the number of cookies deleted.
   int GarbageCollectRange(const base::Time& current,
                           const CookieMapItPair& itpair,
                           size_t num_max,
                           size_t num_purge);
+
+  // Helper for GarbageCollectRange(); can be called directly as well.  Deletes
+  // all expired cookies in |itpair|.  If |cookie_its| is non-NULL, it is
+  // populated with all the non-expired cookies from |itpair|.
+  //
+  // Returns the number of cookies deleted.
+  int GarbageCollectExpired(const base::Time& current,
+                            const CookieMapItPair& itpair,
+                            std::vector<CookieMap::iterator>* cookie_its);
 
   CookieMap cookies_;
 
@@ -235,10 +255,14 @@ class CookieMonster::ParsedCookie {
 
 class CookieMonster::CanonicalCookie {
  public:
-  CanonicalCookie(const std::string& name, const std::string& value,
-                  const std::string& path, bool secure,
-                  bool httponly, const base::Time& creation,
-                  bool has_expires, const base::Time& expires)
+  CanonicalCookie(const std::string& name,
+                  const std::string& value,
+                  const std::string& path,
+                  bool secure,
+                  bool httponly,
+                  const base::Time& creation,
+                  bool has_expires,
+                  const base::Time& expires)
       : name_(name),
         value_(value),
         path_(path),
