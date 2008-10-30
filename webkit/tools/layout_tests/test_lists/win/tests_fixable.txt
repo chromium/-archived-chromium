@@ -1045,6 +1045,10 @@ V8 | KJS # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PA
 // Got flakey (both debug and release) around r3581 (ananta).
 V8 | KJS # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
 
+// Crash in DEBUG only
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH | PASS
+V8 | KJS # LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH | PASS
+
 // NEW FOR MERGE 36102:37604
 V8 | KJS # LayoutTests/animations/matrix-anim.html = FAIL
 V8 | KJS # LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
@@ -1253,7 +1257,7 @@ V8 | KJS # LayoutTests/svg/text/text-text-07-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // MERGE REGRESSIONS 36102:37604
-V8 | KJS # LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL
+V8 | KJS # LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL | PASS
 V8 | KJS # LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
@@ -1275,7 +1279,7 @@ V8 | KJS # LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/select-initial-position.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/select-item-background-clip.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
+V8 | KJS # LayoutTests/fast/forms/select-visual-hebrew.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/invalid.html = FAIL
@@ -1321,6 +1325,26 @@ V8 | KJS # LayoutTests/fast/events/no-blur-on-page-leave.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 V8 | KJS # pending/plugins/destroy-stream-twice.html = TIMEOUT
+V8 | KJS # LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS
 V8 | KJS # LayoutTests/animations/big-rotation.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/css/continuationCrash.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/css/font-face-default-font.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/dynamic/float-in-trailing-whitespace-after-last-line-break.html = FAIL | PASS
+V8 | KJS # LayoutTests/tables/mozilla_expected_failures/core/captions1.html = FAIL | PASS
+V8 | KJS # LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL | PASS
+V8 | KJS # LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_style_reflow_table_caption.html = FAIL | PASS
+V8 | KJS # pending/fast/text/international/hindi-spacing.html = FAIL | PASS
+V8 | KJS # pending/fast/text/international/ideo_punc.html = FAIL | PASS
+V8 | KJS # pending/fast/text/wbr-in-pre-crash.html = FAIL | PASS
+V8 | KJS # pending/fast/text/wbr-styled.html = FAIL | PASS
+V8 | KJS # LayoutTests/editing/selection/14971.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/005.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/007.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/008.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/009.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/010.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/011.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/013.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/014.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/015.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css-generated-content/016.html = FAIL | PASS
