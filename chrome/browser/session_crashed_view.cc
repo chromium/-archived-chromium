@@ -29,7 +29,7 @@ SessionCrashedView::~SessionCrashedView() {
 
 void SessionCrashedView::OKButtonPressed() {
   // Restore the session.
-  SessionRestore::RestoreSession(profile_, false, true, false,
+  SessionRestore::RestoreSession(profile_, NULL, false, true, false,
                                  std::vector<GURL>());
 
   // Close the info bar.

@@ -70,9 +70,24 @@ BOOL CALLBACK BrowserWindowEnumeration(HWND window, LPARAM param) {
   return !*result;
 }
 
+SessionStartupPref GetSessionStartupPref(Profile* profile,
+                                         const CommandLine& command_line) {
+  SessionStartupPref pref = SessionStartupPref::GetStartupPref(profile);
+  if (command_line.HasSwitch(switches::kRestoreLastSession))
+    pref.type = SessionStartupPref::LAST;
+  return pref;
+}
+
 }  // namespace
 
 // MessageWindow --------------------------------------------------------------
+
+static bool in_startup = false;
+
+// static
+bool BrowserInit::InProcessStartup() {
+  return in_startup;
+}
 
 BrowserInit::MessageWindow::MessageWindow(const std::wstring& user_data_dir)
     : window_(NULL),
@@ -478,12 +493,13 @@ bool BrowserInit::LaunchWithProfile::OpenStartupURLs(
     bool is_process_startup,
     const CommandLine& command_line,
     const std::vector<GURL>& urls_to_open) {
-  SessionStartupPref pref = SessionStartupPref::GetStartupPref(profile_);
-  if (command_line.HasSwitch(switches::kRestoreLastSession))
-    pref.type = SessionStartupPref::LAST;
+  SessionStartupPref pref = GetSessionStartupPref(profile_, command_line);
   switch (pref.type) {
     case SessionStartupPref::LAST:
-      if (is_process_startup && !profile_->DidLastSessionExitCleanly() &&
+      if (!is_process_startup)
+        return false;
+
+      if (!profile_->DidLastSessionExitCleanly() &&
           !command_line.HasSwitch(switches::kRestoreLastSession)) {
         // The last session crashed. It's possible automatically loading the
         // page will trigger another crash, locking the user out of chrome.
@@ -491,29 +507,8 @@ bool BrowserInit::LaunchWithProfile::OpenStartupURLs(
         // infobar.
         return false;
       }
-      if (!is_process_startup) {
-        SessionService* service = profile_->GetSessionService();
-        if (service) {
-          if (service->has_open_tabbed_browsers()) {
-            // There are tabbed browsers open. Don't restore the session.
-            return false;
-          }
-          if (service->tabbed_browser_created()) {
-            // The user created at least one tabbed browser (but none are open
-            // now), make the 'current' session the last and restore from it.
-            service->MoveCurrentSessionToLastSession();
-          }  // else case, user never created a tabbed browser (most likely they
-             // launched an app and then double clicked on chrome), fall through
-             // to restore from last session.
-        }
-      }
-      if (is_process_startup) {
-        SessionRestore::RestoreSessionSynchronously(
-            profile_, false, show_command_, urls_to_open);
-      } else {
-        SessionRestore::RestoreSession(profile_, false, false, true,
-                                       urls_to_open);
-      }
+      SessionRestore::RestoreSessionSynchronously(
+          profile_, false, show_command_, urls_to_open);
       return true;
 
     case SessionStartupPref::URLS:
@@ -670,6 +665,34 @@ bool BrowserInit::LaunchBrowser(const CommandLine& parsed_command_line,
                                 Profile* profile,
                                 int show_command, const std::wstring& cur_dir,
                                 bool process_startup, int* return_code) {
+  in_startup = process_startup;
+  bool result = LaunchBrowserImpl(parsed_command_line, profile, show_command,
+                                  cur_dir, process_startup, return_code);
+  in_startup = false;
+  return result;
+}
+
+template <class AutomationProviderClass>
+void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
+                                           Profile* profile,
+                                           size_t expected_tabs) {
+  scoped_refptr<AutomationProviderClass> automation =
+      new AutomationProviderClass(profile);
+  automation->ConnectToChannel(channel_id);
+  automation->SetExpectedTabCount(expected_tabs);
+
+  AutomationProviderList* list =
+      g_browser_process->InitAutomationProviderList();
+  DCHECK(list);
+  list->AddProvider(automation);
+}
+
+bool BrowserInit::LaunchBrowserImpl(const CommandLine& parsed_command_line,
+                                    Profile* profile,
+                                    int show_command,
+                                    const std::wstring& cur_dir,
+                                    bool process_startup,
+                                    int* return_code) {
   DCHECK(profile);
 
   // Continue with the off-the-record profile from here on if --incognito
@@ -704,19 +727,3 @@ bool BrowserInit::LaunchBrowser(const CommandLine& parsed_command_line,
 
   return true;
 }
-
-template <class AutomationProviderClass>
-void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
-                                           Profile* profile,
-                                           size_t expected_tabs) {
-  scoped_refptr<AutomationProviderClass> automation =
-      new AutomationProviderClass(profile);
-  automation->ConnectToChannel(channel_id);
-  automation->SetExpectedTabCount(expected_tabs);
-
-  AutomationProviderList* list =
-      g_browser_process->InitAutomationProviderList();
-  DCHECK(list);
-  list->AddProvider(automation);
-}
-

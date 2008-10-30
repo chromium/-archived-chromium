@@ -13,6 +13,7 @@
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 
 namespace {
@@ -176,9 +177,10 @@ void TabLoader::RemoveListeners(NavigationController* controller) {
 // SessionRestoreImpl is responsible for fetching the set of tabs to create
 // from SessionService. SessionRestoreImpl deletes itself when done.
 
-class SessionRestoreImpl {
+class SessionRestoreImpl : public NotificationObserver {
  public:
   SessionRestoreImpl(Profile* profile,
+                     Browser* browser,
                      bool use_saved_session,
                      int show_command,
                      bool synchronous,
@@ -186,6 +188,7 @@ class SessionRestoreImpl {
                      bool always_create_tabbed_browser,
                      const std::vector<GURL>& urls_to_open)
       : profile_(profile),
+        browser_(browser),
         show_command_(show_command),
         use_saved_session_(use_saved_session),
         synchronous_(synchronous),
@@ -209,9 +212,22 @@ class SessionRestoreImpl {
       delete this;
       return;
     }
+
+    if (browser_)
+      registrar_.Add(this, NOTIFY_BROWSER_CLOSED, Source<Browser>(browser_));
   }
 
   ~SessionRestoreImpl() {
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    if (type != NOTIFY_BROWSER_CLOSED) {
+      NOTREACHED();
+      return;
+    }
+    delete this;
   }
 
  private:
@@ -265,7 +281,8 @@ class SessionRestoreImpl {
 
     tab_loader_.reset(new TabLoader());
 
-    Browser* current_browser = BrowserList::GetLastActive();
+    Browser* current_browser =
+        browser_ ? browser_ : BrowserList::GetLastActive();
     // After the for loop this contains the last TABBED_BROWSER. Is null if no
     // tabbed browsers exist.
     Browser* last_browser = NULL;
@@ -326,13 +343,21 @@ class SessionRestoreImpl {
           std::min(selected_index,
                    static_cast<int>(tab.navigations.size() - 1)));
       tab_loader_->AddTab(
-          browser->AddRestoredTab(tab.navigations, selected_index, false));
+          browser->AddRestoredTab(tab.navigations,
+                                  static_cast<int>(i - window.tabs.begin()),
+                                  selected_index,
+                                  false));
     }
   }
 
   void ShowBrowser(Browser* browser,
                    int initial_tab_count,
                    int selected_session_index) {
+    if (browser_ == browser) {
+      browser->SelectTabContentsAt(browser->tab_count() - 1, true);
+      return;
+    }
+
     DCHECK(browser);
     DCHECK(browser->tab_count());
     browser->SelectTabContentsAt(
@@ -358,6 +383,9 @@ class SessionRestoreImpl {
 
   // The profile to create the sessions for.
   Profile* profile_;
+
+  // The first browser to restore to, may be null.
+  Browser* browser_;
 
   // Used when creating windows. Passed to the window.
   const int show_command_;
@@ -385,6 +413,8 @@ class SessionRestoreImpl {
 
   // Responsible for loading the tabs.
   scoped_ptr<TabLoader> tab_loader_;
+
+  NotificationRegistrar registrar_;
 };
 
 }  // namespace
@@ -395,6 +425,7 @@ class SessionRestoreImpl {
 size_t SessionRestore::num_tabs_to_load_ = 0;
 
 static void Restore(Profile* profile,
+                    Browser* browser,
                     bool use_saved_session,
                     int show_command,
                     bool synchronous,
@@ -406,7 +437,7 @@ static void Restore(Profile* profile,
     return;
   // SessionRestoreImpl takes care of deleting itself when done.
   SessionRestoreImpl* restorer =
-      new SessionRestoreImpl(profile, use_saved_session, show_command,
+      new SessionRestoreImpl(profile, browser, use_saved_session, show_command,
                              synchronous, clobber_existing_window,
                              always_create_tabbed_browser,
                              urls_to_open);
@@ -415,11 +446,12 @@ static void Restore(Profile* profile,
 
 // static
 void SessionRestore::RestoreSession(Profile* profile,
+                                    Browser* browser,
                                     bool use_saved_session,
                                     bool clobber_existing_window,
                                     bool always_create_tabbed_browser,
                                     const std::vector<GURL>& urls_to_open) {
-  Restore(profile, use_saved_session, SW_SHOW, false,
+  Restore(profile, browser, use_saved_session, SW_SHOW, false,
           clobber_existing_window, always_create_tabbed_browser, urls_to_open);
 }
 
@@ -429,6 +461,6 @@ void SessionRestore::RestoreSessionSynchronously(
     bool use_saved_session,
     int show_command,
     const std::vector<GURL>& urls_to_open) {
-  Restore(profile, use_saved_session, SW_SHOW, true, false, true, urls_to_open);
+  Restore(profile, NULL, use_saved_session, SW_SHOW, true, false, true,
+          urls_to_open);
 }
-

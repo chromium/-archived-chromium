@@ -19,6 +19,7 @@ class Profile;
 class SessionRestore {
  public:
   // Asnchronously restores the specified session.
+  // If |browser| is non-null the tabs for the first window are added to it.
   // If clobber_existing_window is true and there is an open browser window,
   // it is closed after restoring.
   // If always_create_tabbed_browser is true at least one tabbed browser is
@@ -28,6 +29,7 @@ class SessionRestore {
   //
   // If urls_to_open is non-empty, a tab is added for each of the URLs.
   static void RestoreSession(Profile* profile,
+                             Browser* browser,
                              bool use_saved_session,
                              bool clobber_existing_window,
                              bool always_create_tabbed_browser,

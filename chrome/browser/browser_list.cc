@@ -178,7 +178,7 @@ Browser* BrowserList::GetLastActive() {
 // static
 Browser* BrowserList::FindBrowserWithType(Profile* p, BrowserType::Type t) {
   Browser* last_active = GetLastActive();
-  if (last_active->profile() == p && last_active->GetType() == t)
+  if (last_active && last_active->profile() == p && last_active->GetType() == t)
     return last_active;
 
   BrowserList::const_iterator i;

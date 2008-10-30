@@ -165,15 +165,22 @@ struct SessionWindow {
 // SessionService ------------------------------------------------------------
 
 // SessionService is responsible for maintaining the state of open windows
-// and tabs so that they can be restored at a later date.
+// and tabs so that they can be restored at a later date. The state of the
+// currently open browsers is referred to as the current session.
 //
-// SessionService supports restoring from two distinct points:
-// . The last run of the browser.
+// SessionService supports restoring from two distinct points (or sessions):
+// . The previous or last session. The previous session typically corresponds
+//   to the last run of the browser, but not always. For example, if the user
+//   has a tabbed browser and app window running, closes the tabbed browser,
+//   then creates a new tabbed browser the current session is made the last
+//   session and the current session reset. This is done to provide the
+//   illusion that app windows run in separate processes.
 // . A user defined point. That is, any time CreateSavedSession is invoked
 //   the save session is reset from the current state of the browser.
 //
 // Additionally the current session can be made the 'last' session at any point
-// by way of MoveCurrentSessionToLastSession.
+// by way of MoveCurrentSessionToLastSession. This may be done at certain points
+// during the browser that are viewed as changing the 
 //
 // SessionService itself maintains a set of SessionCommands that allow
 // SessionService to rebuild the open state of the browser (as
@@ -193,12 +200,6 @@ class SessionService : public CancelableRequestProvider,
   explicit SessionService(const std::wstring& save_path);
 
   ~SessionService();
-
-  // Returns true if there are any open tabbed browser windows.
-  bool has_open_tabbed_browsers() const { return has_open_tabbed_browsers_; }
-
-  // Returns true if a tabbed browser has ever been created.
-  bool tabbed_browser_created() const { return tabbed_browser_created_; }
 
   // Resets the contents of the file from the current state of all open
   // browsers whose profile matches our profile.
@@ -547,7 +548,7 @@ class SessionService : public CancelableRequestProvider,
   // Used to invoke Save.
   ScopedRunnableMethodFactory<SessionService> save_factory_;
 
-  // When the user closes the last window, where the last window is the the
+  // When the user closes the last window, where the last window is the
   // last tabbed browser and no more tabbed browsers are open with the same
   // profile, the window ID is added here. These IDs are only committed (which
   // marks them as closed) if the user creates a new tabbed browser.
@@ -579,8 +580,11 @@ class SessionService : public CancelableRequestProvider,
   // Are there any open open tabbed browsers?
   bool has_open_tabbed_browsers_;
 
-  // Was a tabbed browser ever created?
-  bool tabbed_browser_created_;
+  // If true and a new tabbed browser is created and there are no opened tabbed
+  // browser (has_open_tabbed_browsers_ is false), then the current session
+  // is made the previous session. See description above class for details on
+  // current/previou session.
+  bool move_on_new_browser_;
 };
 
 #endif  // CHROME_BROWSER_SESSION_SERVICE_H__

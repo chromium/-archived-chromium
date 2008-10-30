@@ -24,6 +24,9 @@ class TabContents;
 // and initialize the profile.
 class BrowserInit {
  public:
+  // Returns true if the browser is coming up.
+  static bool InProcessStartup();
+
   // MessageWindow -------------------------------------------------------------
   //
   // Class for dealing with the invisible global message window for IPC. This
@@ -174,6 +177,12 @@ class BrowserInit {
                                        size_t expected_tabs);
 
  private:
+  // Does the work of LaunchBrowser returning the result.
+  static bool LaunchBrowserImpl(const CommandLine& parsed_command_line,
+                                Profile* profile, int show_command,
+                                const std::wstring& cur_dir,
+                                bool process_startup, int* return_code);
+
   // This class is for scoping purposes.
   BrowserInit();
   DISALLOW_EVIL_CONSTRUCTORS(BrowserInit);

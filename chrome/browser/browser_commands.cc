@@ -699,7 +699,8 @@ void Browser::ExecuteCommand(int id) {
         break;
 
       const TabRestoreService::HistoricalTab& tab = tabs.front();
-      AddRestoredTab(tab.navigations, tab.current_navigation_index, true);
+      AddRestoredTab(tab.navigations, tab_count(), tab.current_navigation_index,
+                     true);
       service->RemoveHistoricalTabById(tab.id);
       break;
     }

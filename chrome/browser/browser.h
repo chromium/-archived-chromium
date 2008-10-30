@@ -211,9 +211,12 @@ class Browser : public TabStripModelDelegate,
 
   // Add a tab with its session history restored from the SessionRestore
   // system. If select is true, the tab is selected. Returns the created
-  // NavigationController.
+  // NavigationController. |tab_index| gives the index to insert the tab at.
+  // |selected_navigation| is the index of the TabNavigation in |navigations| to
+  // select.
   NavigationController* AddRestoredTab(
       const std::vector<TabNavigation>& navigations,
+      int tab_index,
       int selected_navigation,
       bool select);
 
