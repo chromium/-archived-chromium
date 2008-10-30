@@ -109,9 +109,8 @@ bool SingleSplitView::IsPointInDivider(int x) {
   if (GetChildViewCount() < 2)
     return false;
 
-  View* leading = GetChildViewAt(0);
   int divider_relative_x =
-      x - MirroredXCoordinateInsideView(leading->width());
+      x - GetChildViewAt(UILayoutIsRightToLeft() ? 1 : 0)->width();
   return (divider_relative_x >= 0 && divider_relative_x < kDividerSize);
 }
 
