@@ -88,15 +88,14 @@ void PasswordManager::ProvisionallySavePassword(PasswordForm form) {
 void PasswordManager::DidNavigate() {
   // As long as this navigation isn't due to a currently pending
   // password form submit, we're ready to reset and move on.
-  // Rest assured that if a navigation happens due to a redirect between submit
-  // and landing at a destination page after successful login we don't mess
-  // anything up, because either the credentials have already been saved or it
-  // is now the responsibility of the SavePasswordBar to deal with the lingering
-  // PasswordFormManager.
   if (!pending_save_manager_.get() && !pending_login_managers_.empty()) {
     STLDeleteElements(&pending_login_managers_);
     pending_login_managers_.clear();
   }
+}
+
+void PasswordManager::ClearProvisionalSave() {
+  pending_save_manager_.reset();
 }
 
 void PasswordManager::DidStopLoading() {

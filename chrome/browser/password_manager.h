@@ -37,8 +37,8 @@ class PasswordManager : public views::LoginModel {
   // Closes any visible password manager UI
   void CloseBars();
 
-  // Notification that the user initiated a navigation away from the current
-  // page. Unless this is a password form submission, for our purposes this
+  // Notification that the user navigated away from the current page. 
+  // Unless this is a password form submission, for our purposes this
   // means we're done with the current page, so we can clean-up.
   void DidNavigate();
 
@@ -53,6 +53,9 @@ class PasswordManager : public views::LoginModel {
   // until we decide the user has successfully logged in. This is step 1
   // of 2 (see SavePassword).
   void ProvisionallySavePassword(PasswordForm form);
+
+  // Clear any pending saves
+  void ClearProvisionalSave();
 
   // LoginModel implementation.
   virtual void SetObserver(views::LoginModelObserver* observer) {

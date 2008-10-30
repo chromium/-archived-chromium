@@ -371,6 +371,11 @@ bool WebContents::NavigateToPendingEntry(bool reload) {
       return false;
   }
 
+  // Clear any provisional password saves - this stops password infobars
+  // showing up on pages the user navigates to while the right page is 
+  // loading.
+  GetPasswordManager()->ClearProvisionalSave();
+
   if (reload && !profile()->IsOffTheRecord()) {
     HistoryService* history =
         profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
