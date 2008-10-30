@@ -27,7 +27,7 @@ Common PDF Builder definition for various other Tool modules that use it.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/pdf.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Tool/pdf.py 3603 2008/10/10 05:46:45 scons"
 
 import SCons.Builder
 import SCons.Tool
@@ -41,7 +41,7 @@ def generate(env):
         global PDFBuilder
         if PDFBuilder is None:
             PDFBuilder = SCons.Builder.Builder(action = {},
-                                               source_scanner = SCons.Tool.LaTeXScanner,
+                                               source_scanner = SCons.Tool.PDFLaTeXScanner,
                                                prefix = '$PDFPREFIX',
                                                suffix = '$PDFSUFFIX',
                                                emitter = {},

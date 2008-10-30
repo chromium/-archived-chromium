@@ -31,13 +31,28 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/dvips.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Tool/dvips.py 3603 2008/10/10 05:46:45 scons"
 
 import SCons.Action
 import SCons.Builder
+import SCons.Tool.dvipdf
 import SCons.Util
 
+def DviPsFunction(target = None, source= None, env=None):
+    result = SCons.Tool.dvipdf.DviPdfPsFunction(PSAction,target,source,env)
+    return result
+
+def DviPsStrFunction(target = None, source= None, env=None):
+    """A strfunction for dvipdf that returns the appropriate
+    command string for the no_exec options."""
+    if env.GetOption("no_exec"):
+        result = env.subst('$PSCOM',0,target,source)
+    else:
+        result = ''
+    return result
+
 PSAction = None
+DVIPSAction = None
 PSBuilder = None
 
 def generate(env):
@@ -45,6 +60,10 @@ def generate(env):
     global PSAction
     if PSAction is None:
         PSAction = SCons.Action.Action('$PSCOM', '$PSCOMSTR')
+
+    global DVIPSAction
+    if DVIPSAction is None:
+        DVIPSAction = SCons.Action.Action(DviPsFunction, strfunction = DviPsStrFunction)
 
     global PSBuilder
     if PSBuilder is None:

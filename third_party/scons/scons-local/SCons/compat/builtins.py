@@ -55,7 +55,7 @@ the FUNCTIONS or DATA output, that means those names are already built in
 to this version of Python and we don't need to add them from this module.
 """
 
-__revision__ = "src/engine/SCons/compat/builtins.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/compat/builtins.py 3603 2008/10/10 05:46:45 scons"
 
 import __builtin__
 
@@ -134,6 +134,12 @@ except NameError:
     __builtin__.True = not 0
     # Assign to True in this module namespace so it shows up in pydoc output.
     True = True
+
+try:
+    file
+except NameError:
+    # Pre-2.2 Python has no file() function.
+    __builtin__.file = open
 
 #
 try:

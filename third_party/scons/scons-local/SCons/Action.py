@@ -95,7 +95,7 @@ way for wrapping up the functions.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Action.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Action.py 3603 2008/10/10 05:46:45 scons"
 
 import cPickle
 import dis
@@ -518,7 +518,9 @@ def _subproc(env, cmd, error = 'ignore', **kw):
     is_String = SCons.Util.is_String
     for key, value in ENV.items():
         if is_String(value):
-            new_env[key] = value
+            # Call str() even though it's a "string" because it might be
+            # a *Unicode* string, which makes subprocess.Popen() gag.
+            new_env[key] = str(value)
         elif SCons.Util.is_List(value):
             # If the value is a list, then we assume it is a
             # path list, because that's a pretty common list-like
@@ -541,8 +543,8 @@ def _subproc(env, cmd, error = 'ignore', **kw):
         # return a dummy Popen instance that only returns error
         class popen:
             def __init__(self, e): self.exception = e
-            def communicate(): return ('','')
-            def wait(): return -self.exception.errno
+            def communicate(self): return ('','')
+            def wait(self): return -self.exception.errno
             stdin = None
             class f:
                 def read(self): return ''

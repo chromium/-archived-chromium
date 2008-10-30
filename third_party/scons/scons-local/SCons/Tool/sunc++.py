@@ -31,9 +31,9 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/sunc++.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Tool/sunc++.py 3603 2008/10/10 05:46:45 scons"
 
-import SCons.Util
+import SCons
 
 import os.path
 

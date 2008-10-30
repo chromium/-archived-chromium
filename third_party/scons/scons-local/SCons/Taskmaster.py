@@ -48,7 +48,7 @@ interface and the SCons build engine.  There are two key classes here:
         target(s) that it decides need to be evaluated and/or built.
 """
 
-__revision__ = "src/engine/SCons/Taskmaster.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Taskmaster.py 3603 2008/10/10 05:46:45 scons"
 
 from itertools import chain
 import operator
@@ -595,14 +595,14 @@ class Taskmaster:
                 self.ready_exc = (SCons.Errors.ExplicitExit, e)
                 if T: T.write('Taskmaster:        SystemExit\n')
                 return node
-            except:
+            except Exception, e:
                 # We had a problem just trying to figure out the
                 # children (like a child couldn't be linked in to a
                 # VariantDir, or a Scanner threw something).  Arrange to
                 # raise the exception when the Task is "executed."
                 self.ready_exc = sys.exc_info()
                 if S: S.problem = S.problem + 1
-                if T: T.write('Taskmaster:        exception while scanning children.\n')
+                if T: T.write('Taskmaster:        exception %s while scanning children.\n'%s)
                 return node
 
             children_not_visited = []

@@ -36,7 +36,7 @@ tool definition.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/__init__.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Tool/__init__.py 3603 2008/10/10 05:46:45 scons"
 
 import imp
 import sys
@@ -55,6 +55,7 @@ DefaultToolpath=[]
 CScanner = SCons.Scanner.C.CScanner()
 DScanner = SCons.Scanner.D.DScanner()
 LaTeXScanner = SCons.Scanner.LaTeX.LaTeXScanner()
+PDFLaTeXScanner = SCons.Scanner.LaTeX.PDFLaTeXScanner()
 ProgramScanner = SCons.Scanner.Prog.ProgramScanner()
 SourceFileScanner = SCons.Scanner.Base({}, name='SourceFileScanner')
 
@@ -76,8 +77,13 @@ for suffix in CSuffixes:
 for suffix in DSuffixes:
     SourceFileScanner.add_scanner(suffix, DScanner)
 
+# FIXME: what should be done here? Two scanners scan the same extensions,
+# but look for different files, e.g., "picture.eps" vs. "picture.pdf".
+# The builders for DVI and PDF explicitly reference their scanners
+# I think that means this is not needed???
 for suffix in LaTeXSuffixes:
-     SourceFileScanner.add_scanner(suffix, LaTeXScanner)
+    SourceFileScanner.add_scanner(suffix, LaTeXScanner)
+    SourceFileScanner.add_scanner(suffix, PDFLaTeXScanner)
 
 class Tool:
     def __init__(self, name, toolpath=[], **kw):

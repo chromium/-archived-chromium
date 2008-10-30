@@ -31,14 +31,55 @@ selection method.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/dvipdf.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Tool/dvipdf.py 3603 2008/10/10 05:46:45 scons"
 
 import SCons.Action
 import SCons.Defaults
 import SCons.Tool.pdf
+import SCons.Tool.tex
 import SCons.Util
 
+_null = SCons.Tool.tex._Null
+
+def DviPdfPsFunction(XXXDviAction, target = None, source= None, env=None):
+    """A builder for DVI files that sets the TEXPICTS environment
+       variable before running dvi2ps or dvipdf."""
+
+    try:
+        abspath = source[0].attributes.path
+    except AttributeError :
+        abspath =  ''
+
+    saved_env = {}
+    saved_env['TEXPICTS'] = SCons.Tool.tex.modify_env_var(env, 'TEXPICTS', abspath)
+
+    result = XXXDviAction(target, source, env)
+
+    if saved_env['TEXPICTS'] is _null:
+        try:
+            del env['ENV']['TEXPICTS']
+        except KeyError:
+            pass # was never set
+    else:
+        env['ENV']['TEXPICTS'] = saved_env['TEXPICTS']
+
+    return result
+
+def DviPdfFunction(target = None, source= None, env=None):
+    result = DviPdfPsFunction(PDFAction,target,source,env)
+    return result
+
+def DviPdfStrFunction(target = None, source= None, env=None):
+    """A strfunction for dvipdf that returns the appropriate
+    command string for the no_exec options."""
+    if env.GetOption("no_exec"):
+        result = env.subst('$DVIPDFCOM',0,target,source)
+    else:
+        result = ''
+    return result
+
 PDFAction = None
+DVIPDFAction = None
 
 def PDFEmitter(target, source, env):
     """Strips any .aux or .log files from the input source list.
@@ -57,11 +98,15 @@ def generate(env):
     if PDFAction is None:
         PDFAction = SCons.Action.Action('$DVIPDFCOM', '$DVIPDFCOMSTR')
 
+    global DVIPDFAction
+    if DVIPDFAction is None:
+        DVIPDFAction = SCons.Action.Action(DviPdfFunction, strfunction = DviPdfStrFunction)
+
     import pdf
     pdf.generate(env)
 
     bld = env['BUILDERS']['PDF']
-    bld.add_action('.dvi', PDFAction)
+    bld.add_action('.dvi', DVIPDFAction)
     bld.add_emitter('.dvi', PDFEmitter)
 
     env['DVIPDF']      = 'dvipdf'

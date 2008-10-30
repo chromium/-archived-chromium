@@ -98,7 +98,7 @@ There are the following methods for internal use within this module:
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Builder.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Builder.py 3603 2008/10/10 05:46:45 scons"
 
 import UserDict
 import UserList
@@ -505,7 +505,7 @@ class BuilderBase:
                 tlist = [ t_from_s(pre, suf, splitext) ]
         else:
             target = self._adjustixes(target, pre, suf, self.ensure_suffix)
-            tlist = env.arg2nodes(target, target_factory)
+            tlist = env.arg2nodes(target, target_factory, target=target, source=source)
 
         if self.emitter:
             # The emitter is going to do str(node), but because we're

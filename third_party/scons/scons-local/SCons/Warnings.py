@@ -27,7 +27,7 @@ This file implements the warnings framework for SCons.
 
 """
 
-__revision__ = "src/engine/SCons/Warnings.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Warnings.py 3603 2008/10/10 05:46:45 scons"
 
 import string
 import sys

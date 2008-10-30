@@ -1,3 +1,10 @@
+"""SCons.Scanner.RC
+
+This module implements the depenency scanner for RC (Interface
+Definition Language) files.
+
+"""
+
 #
 # Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008 The SCons Foundation
 #
@@ -21,15 +28,22 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Options/ListOption.py 3603 2008/10/10 05:46:45 scons"
+__revision__ = "src/engine/SCons/Scanner/RC.py 3603 2008/10/10 05:46:45 scons"
 
-__doc__ = """Place-holder for the old SCons.Options module hierarchy
+import SCons.Node.FS
+import SCons.Scanner
+import re
 
-This is for backwards compatibility.  The new equivalent is the Variables/
-class hierarchy.  These will have deprecation warnings added (some day),
-and will then be removed entirely (some day).
-"""
-
-import SCons.Variables
-
-ListOption = SCons.Variables.ListVariable
+def RCScan():
+    """Return a prototype Scanner instance for scanning RC source files"""
+ 
+    res_re= r'^(?:\s*#\s*(?:include)|' \
+            '.*?\s+(?:ICON|BITMAP|CURSOR|HTML|FONT|MESSAGETABLE|TYPELIB|REGISTRY|D3DFX)' \
+            '\s*.*?)' \
+            '\s*(<|"| )([^>"\s]+)(?:[>" ])*$'
+    resScanner = SCons.Scanner.ClassicCPP( "ResourceScanner",
+                                           "$RCSUFFIXES",
+                                           "CPPPATH",
+                                           res_re )
+    
+    return resScanner

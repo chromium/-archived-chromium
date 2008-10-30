@@ -54,7 +54,7 @@ Lib tool variables:
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Tool/dmd.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Tool/dmd.py 3603 2008/10/10 05:46:45 scons"
 
 import os
 import string

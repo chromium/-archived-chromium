@@ -34,7 +34,7 @@ it goes here.
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/engine/SCons/Script/Main.py 3424 2008/09/15 11:22:20 scons"
+__revision__ = "src/engine/SCons/Script/Main.py 3603 2008/10/10 05:46:45 scons"
 
 import os
 import os.path
@@ -965,6 +965,9 @@ def _main(parser):
     fs.set_max_drift(options.max_drift)
 
     SCons.Job.explicit_stack_size = options.stack_size
+
+    if options.md5_chunksize:
+        SCons.Node.FS.File.md5_chunksize = options.md5_chunksize
 
     platform = SCons.Platform.platform_module()
 
