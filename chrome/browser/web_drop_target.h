@@ -9,6 +9,7 @@
 #include "base/scoped_ptr.h"
 
 class InterstitialDropTarget;
+class RenderViewHost;
 class WebContents;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,13 +53,19 @@ class WebDropTarget : public BaseDropTarget {
   // Our associated WebContents.
   WebContents* web_contents_;
 
-  // A special drop target handler for when we try to d&d while an interstitial
-  // page is showing.
-  scoped_ptr<InterstitialDropTarget> interstitial_drop_target_;
+  // We keep track of the render view host we're dragging over.  If it changes
+  // during a drag, we need to re-send the DragEnter message.  WARNING:
+  // this pointer should never be dereferenced.  We only use it for comparing
+  // pointers.
+  RenderViewHost* current_rvh_;
 
   // Used to determine what cursor we should display when dragging over web
   // content area.  This can be updated async during a drag operation.
   bool is_drop_target_;
+
+  // A special drop target handler for when we try to d&d while an interstitial
+  // page is showing.
+  scoped_ptr<InterstitialDropTarget> interstitial_drop_target_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebDropTarget);
 };

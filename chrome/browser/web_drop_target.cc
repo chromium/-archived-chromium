@@ -9,6 +9,7 @@
 
 #include "base/clipboard_util.h"
 #include "base/gfx/point.h"
+#include "chrome/browser/render_view_host.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/common/os_exchange_data.h"
 #include "googleurl/src/gurl.h"
@@ -77,6 +78,7 @@ class InterstitialDropTarget {
 WebDropTarget::WebDropTarget(HWND source_hwnd, WebContents* web_contents)
     : BaseDropTarget(source_hwnd),
       web_contents_(web_contents),
+      current_rvh_(NULL),
       is_drop_target_(false),
       interstitial_drop_target_(new InterstitialDropTarget(web_contents)) {
 }
@@ -88,14 +90,16 @@ DWORD WebDropTarget::OnDragEnter(IDataObject* data_object,
                                  DWORD key_state,
                                  POINT cursor_position,
                                  DWORD effect) {
+  current_rvh_ = web_contents_->render_view_host();
+
   // Don't pass messages to the renderer if an interstitial page is showing
   // because we don't want the interstitial page to navigate.  Instead,
   // pass the messages on to a separate interstitial DropTarget handler.
   if (web_contents_->showing_interstitial_page())
     return interstitial_drop_target_->OnDragEnter(data_object, effect);
 
-  // TODO(tc): PopulateWebDropData is kind of slow, maybe we can do this in a
-  // background thread.
+  // TODO(tc): PopulateWebDropData can be slow depending on what is in the
+  // IDataObject.  Maybe we can do this in a background thread.
   WebDropData drop_data;
   WebDropData::PopulateWebDropData(data_object, &drop_data);
 
@@ -119,6 +123,10 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
                                 DWORD key_state,
                                 POINT cursor_position,
                                 DWORD effect) {
+  DCHECK(current_rvh_);
+  if (current_rvh_ != web_contents_->render_view_host())
+    OnDragEnter(data_object, key_state, cursor_position, effect);
+
   if (web_contents_->showing_interstitial_page())
     return interstitial_drop_target_->OnDragOver(data_object, effect);
 
@@ -135,6 +143,10 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
 }
 
 void WebDropTarget::OnDragLeave(IDataObject* data_object) {
+  DCHECK(current_rvh_);
+  if (current_rvh_ != web_contents_->render_view_host())
+    return;
+
   if (web_contents_->showing_interstitial_page()) {
     interstitial_drop_target_->OnDragLeave(data_object);
   } else {
@@ -142,11 +154,17 @@ void WebDropTarget::OnDragLeave(IDataObject* data_object) {
   }
 }
 
-
 DWORD WebDropTarget::OnDrop(IDataObject* data_object,
                             DWORD key_state,
                             POINT cursor_position,
                             DWORD effect) {
+  DCHECK(current_rvh_);
+  if (current_rvh_ != web_contents_->render_view_host())
+    OnDragEnter(data_object, key_state, cursor_position, effect);
+
+  if (web_contents_->showing_interstitial_page())
+    interstitial_drop_target_->OnDragOver(data_object, effect);
+
   if (web_contents_->showing_interstitial_page())
     return interstitial_drop_target_->OnDrop(data_object, effect);
 
@@ -156,8 +174,9 @@ DWORD WebDropTarget::OnDrop(IDataObject* data_object,
       gfx::Point(client_pt.x, client_pt.y),
       gfx::Point(cursor_position.x, cursor_position.y));
 
+  current_rvh_ = NULL;
+
   // We lie and always claim that the drop operation didn't happen because we
   // don't want to wait for the renderer to respond.
   return DROPEFFECT_NONE;
 }
-
