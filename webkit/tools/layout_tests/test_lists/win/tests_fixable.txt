@@ -75,8 +75,6 @@ V8 | KJS # LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 V8 | KJS # LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL
 V8 | KJS # LayoutTests/http/tests/xmlhttprequest/upload-onprogress-event.html = FAIL
 V8 | KJS # LayoutTests/http/tests/xmlhttprequest/upload-progress-events.html = FAIL
-// http://crbug.com/2978 : Need to implement XMLHttpRequest.dispatchEvent.
-V8 | KJS # LayoutTests/http/tests/xmlhttprequest/event-target.html = FAIL
 
 # Bug 1341582
 V8 | KJS # LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
@@ -287,11 +285,6 @@ V8 | KJS # LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL
 // Plugin creation is delayed until after first layout, so
 // setwindow isn't being called.
 V8 | KJS # LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
-
-// gc-6.html failed because the loop in the test didn't allocate enough
-// garbage objects to trigger a GC. It was passing before. The code
-// for triggering GC is unreliable.
-V8 | KJS # LayoutTests/fast/dom/gc-6.html = TIMEOUT
 
 // Bug: 894476
 // It is flaky on V8 build, we need to investigate it.
@@ -615,20 +608,8 @@ V8 # LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 // Following tests are failing because Chrome does not allow file url
 // to access non-file urls.
 V8 | KJS # LayoutTests/editing/selection/4960137.html = FAIL
-V8 | KJS # LayoutTests/editing/selection/cleared-by-relayout.html = FAIL
-V8 | KJS # LayoutTests/editing/selection/inactive-selection.html = FAIL
-V8 | KJS # LayoutTests/fast/dom/Element/offsetLeft-offsetTop-body-quirk.html = FAIL
-V8 | KJS # LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-V8 | KJS # LayoutTests/fast/dom/wrapper-classes.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/frame-src-attribute.html = FAIL
-V8 | KJS # LayoutTests/fast/leaks/002.html = FAIL
-V8 | KJS # LayoutTests/fast/dom/gc-7.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/frames/frame-set-same-location.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/frames/frame-set-same-src.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/frames/hover-timer-crash.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/loader/data-url-encoding-html.html = FAIL
-V8 | KJS # LayoutTests/fast/loader/data-url-encoding-svg.html = FAIL
 
 // Bug: 1045048
 // We haven't implemented GCController in test shell
@@ -726,13 +707,6 @@ V8 # pending/http/tests/security/cross-frame-access-protocol.html = PASS | TIMEO
 V8 # LayoutTests/fast/js/date-DST-time-cusps.html = FAIL | PASS
 V8 # LayoutTests/fast/js/date-big-setdate.html = FAIL | PASS
 
-# These three tests have their results changed on WebKit trunk that matches our
-# current results: http://trac.webkit.org/changeset/36652
-# When we pick up that revision of WebKit, we can remove these exceptions.
-V8 # LayoutTests/fast/events/onunload.html = FAIL
-V8 # LayoutTests/fast/events/onunload-window-property.html = FAIL
-V8 # LayoutTests/fast/forms/button-state-restore.html = FAIL
-
 # V8 doesn't stable sort. This is not required and may never be fixed. It is
 # tracked by: http://code.google.com/p/v8/issues/detail?id=90
 V8 # LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
@@ -810,10 +784,6 @@ V8 | KJS # LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAI
 V8 | KJS # LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
 V8 | KJS # LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
 
-# This test times out for an unknown reason
-# http://code.google.com/p/chromium/issues/detail?id=3005
-V8 | KJS # LayoutTests/fast/events/tabindex-focus-blur-all.html = TIMEOUT
-
 # Regression from the webkit merge submitting forms to reference fragments.
 # http://code.google.com/p/chromium/issues/detail?id=3008
 V8 | KJS # LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL
@@ -841,11 +811,8 @@ V8 | KJS # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html 
 V8 | KJS # LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
 
-# These two are fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.
-# The WebKit only mentions svg/custom/invalid-fill-hex.svg but the changes to
-# the CSS grammar also fixes editing/execCommand/16049.html. They should
-# therefore be fixed with the next merge.
-V8 | KJS # LayoutTests/editing/execCommand/16049.html = FAIL
+# This was fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.
+# Unclear why it wasn't fixed when we merged in that revision.
 V8 | KJS # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL
 
 # This test finishes while in the middle of a CSS animation. This is
@@ -871,7 +838,6 @@ V8 | KJS # LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 V8 | KJS # LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
-V8 | KJS # LayoutTests/fast/dom/SelectorAPI/resig-SelectorsAPI-test.xhtml = FAIL
 V8 | KJS # LayoutTests/fast/text/align-center-rtl-spill.html = FAIL
 V8 | KJS # LayoutTests/fast/text/apply-start-width-after-skipped-text.html = FAIL
 V8 | KJS # LayoutTests/fast/text/fixed-pitch-control-characters.html = FAIL
@@ -953,8 +919,6 @@ V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
-// The following test only crashes in debug builds.
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = FAIL | CRASH
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
@@ -1082,7 +1046,6 @@ V8 | KJS # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PA
 V8 | KJS # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
 
 // NEW FOR MERGE 36102:37604
-V8 | KJS # LayoutTests/animations/big-rotation.html = FAIL
 V8 | KJS # LayoutTests/animations/matrix-anim.html = FAIL
 V8 | KJS # LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
 V8 | KJS # LayoutTests/fast/block/basic/quirk-percent-height-grandchild.html = FAIL
@@ -1175,13 +1138,7 @@ V8 | KJS # LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
 V8 | KJS # LayoutTests/transforms/2d/compound-transforms-vs-containers.html = FAIL
 V8 | KJS # LayoutTests/transforms/2d/transform-borderbox.html = FAIL
 V8 | KJS # LayoutTests/transforms/2d/transform-origin-borderbox.html = FAIL
-V8 | KJS # LayoutTests/fast/events/message-channel-gc-2.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/events/message-channel-gc.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/events/message-port-deleted-document.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/events/message-port-deleted-frame.html = TIMEOUT
 V8 | KJS # LayoutTests/fast/events/message-port-inactive-document.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/events/message-port.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/frameNavigation/not-opener.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/frameNavigation/opener.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/MessagePort/event-listener-context.html = CRASH
@@ -1306,7 +1263,6 @@ V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
 V8 | KJS # LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/svg-as-border-image.html = FAIL
-V8 | KJS # LayoutTests/fast/css/font-family-initial.html = FAIL
 V8 | KJS # LayoutTests/fast/css/line-height-overflow.html = FAIL
 V8 | KJS # LayoutTests/fast/css/rtl-ordering.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
@@ -1314,7 +1270,6 @@ V8 | KJS # LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
 V8 | KJS # LayoutTests/fast/dom/Window/window-open-pending-url.html = FAIL
 V8 | KJS # LayoutTests/fast/events/mouse-click-events.html = FAIL
 V8 | KJS # LayoutTests/fast/events/onclick-list-marker.html = FAIL
-V8 | KJS # LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 V8 | KJS # LayoutTests/fast/flexbox/009.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/form-element-geometry.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
@@ -1340,18 +1295,10 @@ V8 | KJS # LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 V8 | KJS # LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
 V8 | KJS # LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 V8 | KJS # LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
-V8 | KJS # LayoutTests/fast/repaint/layer-child-outline.html = FAIL
-V8 | KJS # LayoutTests/fast/repaint/line-flow-with-floats-7.html = FAIL
 V8 | KJS # LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 V8 | KJS # LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
-V8 | KJS # LayoutTests/fast/repaint/selection-after-delete.html = FAIL
-V8 | KJS # LayoutTests/fast/replaced/image-sizing.html = FAIL
-V8 | KJS # LayoutTests/fast/replaced/image-solid-color-with-alpha.html = FAIL
-V8 | KJS # LayoutTests/fast/replaced/inline-box-wrapper-handover.html = FAIL
 V8 | KJS # LayoutTests/fast/replaced/percent-height-in-anonymous-block.html = FAIL
 V8 | KJS # LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
-V8 | KJS # LayoutTests/fast/table/cell-width-auto.html = FAIL
-V8 | KJS # LayoutTests/fast/table/cellindex.html = FAIL
 V8 | KJS # LayoutTests/fast/table/form-in-table-before-misnested-text-crash-css.html = FAIL
 V8 | KJS # LayoutTests/fast/table/form-in-tbody-before-misnested-text-crash-css.html = FAIL
 V8 | KJS # LayoutTests/fast/text/drawBidiText.html = FAIL
@@ -1363,51 +1310,16 @@ V8 | KJS # LayoutTests/http/tests/plugins/post-url-file.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 V8 | KJS # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-sub-frame.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/bugs/bug24627.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/bugs/bug24661.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/bugs/bug2479-1.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/bugs/bug2479-3.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/bugs/bug24880.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/bugs/bug25004.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/bugs/bug25074.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/bugs/bug25086.html = FAIL
-V8 | KJS # LayoutTests/tables/mozilla/dom/deleteCol1.html = FAIL
 V8 | KJS # chrome/fast/dom/Window/window-lookup-precedence.html = FAIL
 V8 | KJS # chrome/fast/dom/xmlhttprequest-gc.html = FAIL
 V8 | KJS # chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 V8 | KJS # chrome/fast/forms/basic-textareas.html = FAIL
 V8 | KJS # chrome/fast/forms/lazy-event-listener-scope-chain.html = FAIL
 V8 | KJS # pending/security/block-test.html = FAIL
+V8 | KJS # LayoutTests/editing/execCommand/19089.html = FAIL
+V8 | KJS # LayoutTests/fast/forms/button-cannot-be-nested.html = FAIL
+V8 | KJS # LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
 V8 | KJS # LayoutTests/fast/events/no-blur-on-page-leave.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/messaging/cross-domain-message-send.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-DOMImplementation.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-delete.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/cross-frame-access-location-put.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/frameNavigation/xss-ALLOWED-targeted-subframe-navigation-change.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/frameNavigation/xss-DENIED-plugin-navigation.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/frameNavigation/xss-DENIED-targeted-link-navigation.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/host-compare-case-insensitive.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-frame-location-htmldom.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-frame-src-getAttribute-value.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-frame-src-htmldom.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-frame-src-setAttribute.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-frame-src-setAttributeNS.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-frame-src-setAttributeNode.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-frame-src-setAttributeNodeNS.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-iframe-src-getAttribute-value.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-iframe-src-htmldom.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-iframe-src-setAttribute.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-iframe-src-setAttributeNS.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-iframe-src-setAttributeNode.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/javascriptURL/javascriptURL-execution-context-iframe-src-setAttributeNodeNS.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/object-literals.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/postMessage/delivery-order.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/postMessage/origin-unaffected-by-base-tag.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/postMessage/origin-unaffected-by-document-domain.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/postMessage/target-origin.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-access-control-origin-header-data-url.html = TIMEOUT
-V8 | KJS # chrome/http/tests/security/listener/xss-inactive-closure.html = TIMEOUT
+V8 | KJS # LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 V8 | KJS # pending/plugins/destroy-stream-twice.html = TIMEOUT
-V8 | KJS # LayoutTests/fast/xpath/nsresolver-exception.xhtml = CRASH
