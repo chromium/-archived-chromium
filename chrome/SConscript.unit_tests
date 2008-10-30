@@ -165,7 +165,7 @@ if env_test['PLATFORM'] == 'win32':
       'browser/autocomplete/history_url_provider_unittest.cc',
       'browser/autocomplete/keyword_provider_unittest.cc',
       'browser/back_forward_menu_model_unittest.cc',
-      'browser/bookmarks/bookmark_context_menu_controller_test.cc',
+      'browser/bookmarks/bookmark_context_menu_test.cc',
       'browser/bookmarks/bookmark_drag_data_unittest.cc',
       'browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
       'browser/bookmarks/bookmark_model_unittest.cc',
