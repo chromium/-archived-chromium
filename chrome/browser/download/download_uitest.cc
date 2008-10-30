@@ -73,7 +73,7 @@ class DownloadTest : public UITest {
     // Find the path on the client.
     std::wstring file_on_client(download_prefix_);
     file_on_client.append(client_filename);
-    EXPECT_PRED1(file_util::PathExists, file_on_client);
+    EXPECT_TRUE(file_util::PathExists(file_on_client));
 
     // Find the path on the server.
     std::wstring file_on_server;
@@ -84,14 +84,15 @@ class DownloadTest : public UITest {
     ASSERT_TRUE(file_util::PathExists(file_on_server));
 
     // Check that we downloaded the file correctly.
-    EXPECT_PRED2(file_util::ContentsEqual, file_on_server, file_on_client);
+    EXPECT_TRUE(file_util::ContentsEqual(file_on_server,
+                                         file_on_client));
 
     // Check if the Zone Identifier is correclty set.
     if (VolumeSupportsADS(file_on_client))
       CheckZoneIdentifier(file_on_client);
 
     // Delete the client copy of the file.
-    EXPECT_PRED2(file_util::Delete, file_on_client, false);
+    EXPECT_TRUE(file_util::Delete(file_on_client, false));
   }
 
   void CleanUpDownload(const std::wstring& file) {
@@ -131,7 +132,7 @@ class DownloadTest : public UITest {
     }
 
     std::wstring filename = file_util::GetFilenameFromPath(url);
-    EXPECT_PRED1(file_util::PathExists, download_prefix_ + filename);
+    EXPECT_TRUE(file_util::PathExists(download_prefix_ + filename));
 
     // Delete the file we just downloaded.
     for (int i = 0; i < 10; ++i) {

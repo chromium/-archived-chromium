@@ -145,6 +145,20 @@ class FilePath {
   // platforms, an absolute path begins with a separator character.
   bool IsAbsolute() const;
 
+  // Older Chromium code assumes that paths are always wstrings.
+  // This function converts a wstring to a FilePath, and is useful to smooth
+  // porting that old code to the FilePath API.
+  // It has "Hack" in its name so people feel bad about using it.
+  // TODO(port): remove these functions.
+  static FilePath FromWStringHack(const std::wstring& wstring);
+
+  // Older Chromium code assumes that paths are always wstrings.
+  // This function produces a wstring from a FilePath, and is useful to smooth
+  // porting that old code to the FilePath API.
+  // It has "Hack" in its name so people feel bad about using it.
+  // TODO(port): remove these functions.
+  std::wstring ToWStringHack() const;
+
  private:
   // If this FilePath contains a drive letter specification, returns the
   // position of the last character of the drive letter specification,

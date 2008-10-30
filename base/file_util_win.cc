@@ -10,6 +10,7 @@
 #include <time.h>
 #include <string>
 
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
@@ -32,11 +33,11 @@ std::wstring GetDirectoryFromPath(const std::wstring& path) {
   return directory;
 }
 
-bool AbsolutePath(std::wstring* path) {
+bool AbsolutePath(FilePath* path) {
   wchar_t file_path_buf[MAX_PATH];
-  if (!_wfullpath(file_path_buf, path->c_str(), MAX_PATH))
+  if (!_wfullpath(file_path_buf, path->value().c_str(), MAX_PATH))
     return false;
-  *path = file_path_buf;
+  *path = FilePath(file_path_buf);
   return true;
 }
   
@@ -66,14 +67,14 @@ int CountFilesCreatedAfter(const std::wstring& path,
   return file_count;
 }
 
-bool Delete(const std::wstring& path, bool recursive) {
-  if (path.length() >= MAX_PATH)
+bool Delete(const FilePath& path, bool recursive) {
+  if (path.value().length() >= MAX_PATH)
     return false;
 
   // If we're not recursing use DeleteFile; it should be faster. DeleteFile
   // fails if passed a directory though, which is why we fall through on
   // failure to the SHFileOperation.
-  if (!recursive && DeleteFile(path.c_str()) != 0)
+  if (!recursive && DeleteFile(path.value().c_str()) != 0)
     return true;
 
   // SHFILEOPSTRUCT wants the path to be terminated with two NULLs,
@@ -81,7 +82,7 @@ bool Delete(const std::wstring& path, bool recursive) {
   // into the rest of the buffer.
   wchar_t double_terminated_path[MAX_PATH + 1] = {0};
 #pragma warning(suppress:4996)  // don't complain about wcscpy deprecation
-  wcscpy(double_terminated_path, path.c_str());
+  wcscpy(double_terminated_path, path.value().c_str());
 
   SHFILEOPSTRUCT file_operation = {0};
   file_operation.wFunc = FO_DELETE;
@@ -92,29 +93,36 @@ bool Delete(const std::wstring& path, bool recursive) {
   return (SHFileOperation(&file_operation) == 0);
 }
 
-bool Move(const std::wstring& from_path, const std::wstring& to_path) {
+bool Move(const FilePath& from_path, const FilePath& to_path) {
   // NOTE: I suspect we could support longer paths, but that would involve
   // analyzing all our usage of files.
-  if (from_path.length() >= MAX_PATH || to_path.length() >= MAX_PATH)
+  if (from_path.value().length() >= MAX_PATH ||
+      to_path.value().length() >= MAX_PATH) {
     return false;
-  return (MoveFileEx(from_path.c_str(), to_path.c_str(),
+  }
+  return (MoveFileEx(from_path.value().c_str(), to_path.value().c_str(),
                      MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING) != 0);
 }
 
-bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
+bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
   // NOTE: I suspect we could support longer paths, but that would involve
   // analyzing all our usage of files.
-  if (from_path.length() >= MAX_PATH || to_path.length() >= MAX_PATH)
+  if (from_path.value().length() >= MAX_PATH ||
+      to_path.value().length() >= MAX_PATH) {
     return false;
-  return (::CopyFile(from_path.c_str(), to_path.c_str(), false) != 0);
+  }
+  return (::CopyFile(from_path.value().c_str(), to_path.value().c_str(),
+                     false) != 0);
 }
 
-bool ShellCopy(const std::wstring& from_path, const std::wstring& to_path,
+bool ShellCopy(const FilePath& from_path, const FilePath& to_path,
                bool recursive) {
   // NOTE: I suspect we could support longer paths, but that would involve
   // analyzing all our usage of files.
-  if (from_path.length() >= MAX_PATH || to_path.length() >= MAX_PATH)
+  if (from_path.value().length() >= MAX_PATH ||
+      to_path.value().length() >= MAX_PATH) {
     return false;
+  }
 
   // SHFILEOPSTRUCT wants the path to be terminated with two NULLs,
   // so we have to use wcscpy because wcscpy_s writes non-NULLs
@@ -122,9 +130,9 @@ bool ShellCopy(const std::wstring& from_path, const std::wstring& to_path,
   wchar_t double_terminated_path_from[MAX_PATH + 1] = {0};
   wchar_t double_terminated_path_to[MAX_PATH + 1] = {0};
 #pragma warning(suppress:4996)  // don't complain about wcscpy deprecation
-  wcscpy(double_terminated_path_from, from_path.c_str());
+  wcscpy(double_terminated_path_from, from_path.value().c_str());
 #pragma warning(suppress:4996)  // don't complain about wcscpy deprecation
-  wcscpy(double_terminated_path_to, to_path.c_str());
+  wcscpy(double_terminated_path_to, to_path.value().c_str());
 
   SHFILEOPSTRUCT file_operation = {0};
   file_operation.wFunc = FO_COPY;
@@ -138,7 +146,7 @@ bool ShellCopy(const std::wstring& from_path, const std::wstring& to_path,
   return (SHFileOperation(&file_operation) == 0);
 }
 
-bool CopyDirectory(const std::wstring& from_path, const std::wstring& to_path,
+bool CopyDirectory(const FilePath& from_path, const FilePath& to_path,
                    bool recursive) {
   if (recursive)
     return ShellCopy(from_path, to_path, true);
@@ -154,13 +162,12 @@ bool CopyDirectory(const std::wstring& from_path, const std::wstring& to_path,
       ShellCopy(from_path, to_path, false);
   }
 
-  std::wstring directory(from_path);
-  AppendToPath(&directory, L"*.*");
+  FilePath directory = from_path.Append(L"*.*");
   return ShellCopy(directory, to_path, false);
 }
 
-bool PathExists(const std::wstring& path) {
-  return (GetFileAttributes(path.c_str()) != INVALID_FILE_ATTRIBUTES);
+bool PathExists(const FilePath& path) {
+  return (GetFileAttributes(path.value().c_str()) != INVALID_FILE_ATTRIBUTES);
 }
 
 bool PathIsWritable(const std::wstring& path) {
@@ -176,8 +183,8 @@ bool PathIsWritable(const std::wstring& path) {
   return true;
 }
 
-bool DirectoryExists(const std::wstring& path) {
-  DWORD fileattr = GetFileAttributes(path.c_str());
+bool DirectoryExists(const FilePath& path) {
+  DWORD fileattr = GetFileAttributes(path.value().c_str());
   if (fileattr != INVALID_FILE_ATTRIBUTES)
     return (fileattr & FILE_ATTRIBUTE_DIRECTORY) != 0;
   return false;
@@ -372,13 +379,17 @@ bool IsDirectoryEmpty(const std::wstring& dir_path) {
   return false;
 }
 
-bool GetTempDir(std::wstring* path) {
+bool GetTempDir(FilePath* path) {
   wchar_t temp_path[MAX_PATH + 1];
   DWORD path_len = ::GetTempPath(MAX_PATH, temp_path);
   if (path_len >= MAX_PATH || path_len <= 0)
     return false;
-  path->assign(temp_path);
-  TrimTrailingSeparator(path);
+  // TODO(evanm): the old behavior of this function was to always strip the
+  // trailing slash.  We duplicate this here, but it shouldn't be necessary
+  // when everyone is using the appropriate FilePath APIs.
+  std::wstring path_str(temp_path);
+  TrimTrailingSeparator(&path_str);
+  *path = FilePath(path_str);
   return true;
 }
 
@@ -438,10 +449,10 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
   return true;
 }
 
-bool CreateDirectory(const std::wstring& full_path) {
+bool CreateDirectory(const FilePath& full_path) {
   if (DirectoryExists(full_path))
     return true;
-  int err = SHCreateDirectoryEx(NULL, full_path.c_str(), NULL);
+  int err = SHCreateDirectoryEx(NULL, full_path.value().c_str(), NULL);
   return err == ERROR_SUCCESS;
 }
 
@@ -460,6 +471,15 @@ bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
   return true;
 }
 
+FILE* OpenFile(const FilePath& filename, const char* mode) {
+  std::wstring w_mode = ASCIIToWide(std::string(mode));
+  FILE* file;
+  if (_wfopen_s(&file, filename.value().c_str(), w_mode.c_str()) != 0) {
+    return NULL;
+  }
+  return file;
+}
+
 FILE* OpenFile(const std::string& filename, const char* mode) {
   FILE* file;
   if (fopen_s(&file, filename.c_str(), mode) != 0) {
@@ -469,12 +489,7 @@ FILE* OpenFile(const std::string& filename, const char* mode) {
 }
 
 FILE* OpenFile(const std::wstring& filename, const char* mode) {
-  std::wstring w_mode = ASCIIToWide(std::string(mode));
-  FILE* file;
-  if (_wfopen_s(&file, filename.c_str(), w_mode.c_str()) != 0) {
-    return NULL;
-  }
-  return file;
+  return OpenFile(FilePath(filename), mode);
 }
 
 int ReadFile(const std::wstring& filename, char* data, int size) {
@@ -556,14 +571,18 @@ bool RenameFileAndResetSecurityDescriptor(
 }
 
 // Gets the current working directory for the process.
-bool GetCurrentDirectory(std::wstring* dir) {
+bool GetCurrentDirectory(FilePath* dir) {
   wchar_t system_buffer[MAX_PATH];
   system_buffer[0] = 0;
   DWORD len = ::GetCurrentDirectory(MAX_PATH, system_buffer);
   if (len == 0 || len > MAX_PATH)
     return false;
-  *dir = system_buffer;
-  file_util::TrimTrailingSeparator(dir);
+  // TODO(evanm): the old behavior of this function was to always strip the
+  // trailing slash.  We duplicate this here, but it shouldn't be necessary
+  // when everyone is using the appropriate FilePath APIs.
+  std::wstring dir_str(system_buffer);
+  file_util::TrimTrailingSeparator(&dir_str);
+  *dir = FilePath(dir_str);
   return true;
 }
 

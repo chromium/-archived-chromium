@@ -4,6 +4,7 @@
 
 #include "base/trace_event.h"
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
@@ -21,7 +22,8 @@ static const char* kEventTypeNames[] = {
   "INSTANT"
 };
 
-static const wchar_t* kLogFileName = L"trace_%d.log";
+static const FilePath::CharType* kLogFileName =
+    FILE_PATH_LITERAL("trace_%d.log");
 
 TraceLog::TraceLog() : enabled_(false), log_file_(NULL) {
   ProcessHandle proc = process_util::GetCurrentProcessHandle();
@@ -83,15 +85,16 @@ void TraceLog::CloseLogFile() {
 }
 
 bool TraceLog::OpenLogFile() {
-  std::wstring pid_filename =
-    StringPrintf(kLogFileName, process_util::GetCurrentProcId());
-  std::wstring log_file_name;
-  PathService::Get(base::DIR_EXE, &log_file_name);
-  file_util::AppendToPath(&log_file_name, pid_filename);
-  log_file_ = file_util::OpenFile(log_file_name, "a");
+  FilePath::StringType pid_filename =
+      StringPrintf(kLogFileName, process_util::GetCurrentProcId());
+  FilePath log_file_path;
+  if (!PathService::Get(base::DIR_EXE, &log_file_path))
+    return false;
+  log_file_path = log_file_path.Append(pid_filename);
+  log_file_ = file_util::OpenFile(log_file_path, "a");
   if (!log_file_) {
     // try the current directory
-    log_file_ = file_util::OpenFile(pid_filename, "a");
+    log_file_ = file_util::OpenFile(FilePath(pid_filename), "a");
     if (!log_file_) {
       return false;
     }

@@ -6,6 +6,7 @@
 
 #include <unistd.h>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -15,7 +16,7 @@
 namespace base {
 
 bool PathProviderLinux(int key, std::wstring* result) {
-  std::wstring cur;
+  FilePath path;
   switch (key) {
     case base::FILE_EXE:
     case base::FILE_MODULE: { // TODO(evanm): is this correct?
@@ -32,10 +33,11 @@ bool PathProviderLinux(int key, std::wstring* result) {
     case base::DIR_SOURCE_ROOT:
       // On linux, unit tests execute two levels deep from the source root.
       // For example:  chrome/{Debug|Hammer}/net_unittest
-      PathService::Get(base::DIR_EXE, &cur);
-      file_util::UpOneDirectory(&cur);
-      file_util::UpOneDirectory(&cur);
-      *result = cur;
+      if (!PathService::Get(base::DIR_EXE, &path))
+        return false;
+      path = path.Append(FilePath::kParentDirectory)
+                 .Append(FilePath::kParentDirectory);
+      *result = path.ToWStringHack();
       return true;
   }
   return false;

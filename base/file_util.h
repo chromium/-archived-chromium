@@ -24,6 +24,8 @@
 
 #include "base/basictypes.h"
 
+class FilePath;
+
 namespace file_util {
 
 //-----------------------------------------------------------------------------
@@ -83,6 +85,8 @@ void AppendToPath(std::wstring* path, const std::wstring& new_ending);
 
 // Convert provided relative path into an absolute path.  Returns false on
 // error.
+bool AbsolutePath(FilePath* path);
+// Deprecated temporary compatibility function.
 bool AbsolutePath(std::wstring* path);
 
 // Inserts |suffix| after the file name portion of |path| but before the
@@ -127,13 +131,19 @@ int CountFilesCreatedAfter(const std::wstring& path,
 //
 // WARNING: USING THIS WITH recursive==true IS EQUIVALENT
 //          TO "rm -rf", SO USE WITH CAUTION.
+bool Delete(const FilePath& path, bool recursive);
+// Deprecated temporary compatibility function.
 bool Delete(const std::wstring& path, bool recursive);
 
 // Moves the given path, whether it's a file or a directory.
 // Returns true if successful, false otherwise.
+bool Move(const FilePath& from_path, const FilePath& to_path);
+// Deprecated temporary compatibility function.
 bool Move(const std::wstring& from_path, const std::wstring& to_path);
 
 // Copies a single file. Use CopyDirectory to copy directories.
+bool CopyFile(const FilePath& from_path, const FilePath& to_path);
+// Deprecated temporary compatibility function.
 bool CopyFile(const std::wstring& from_path, const std::wstring& to_path);
 
 // Copies the given path, and optionally all subdirectories and their contents
@@ -143,17 +153,24 @@ bool CopyFile(const std::wstring& from_path, const std::wstring& to_path);
 // Dont't use wildcards on the names, it may stop working without notice.
 //
 // If you only need to copy a file use CopyFile, it's faster.
+bool CopyDirectory(const FilePath& from_path, const FilePath& to_path,
+                   bool recursive);
+// Deprecated temporary compatibility function.
 bool CopyDirectory(const std::wstring& from_path, const std::wstring& to_path,
                    bool recursive);
 
 // Returns true if the given path exists on the local filesystem,
 // false otherwise.
+bool PathExists(const FilePath& path);
+// Deprecated temporary compatibility function.
 bool PathExists(const std::wstring& path);
 
 // Returns true if the given path is writable by the user, false otherwise.
 bool PathIsWritable(const std::wstring& path);
 
 // Returns true if the given path exists and is a directory, false otherwise.
+bool DirectoryExists(const FilePath& path);
+// Deprecated temporary compatibility function.
 bool DirectoryExists(const std::wstring& path);
 
 #if defined(OS_WIN)
@@ -170,6 +187,9 @@ bool GetFileCreationLocalTimeFromHandle(HANDLE file_handle,
 
 // Returns true if the contents of the two files given are equal, false
 // otherwise.  If either file can't be read, returns false.
+bool ContentsEqual(const FilePath& filename1,
+                   const FilePath& filename2);
+// Deprecated temporary compatibility function.
 bool ContentsEqual(const std::wstring& filename1,
                    const std::wstring& filename2);
 
@@ -216,6 +236,8 @@ bool IsDirectoryEmpty(const std::wstring& dir_path);
 
   
 // Get the temporary directory provided by the system.
+bool GetTempDir(FilePath* path);
+// Deprecated temporary compatibility function.
 bool GetTempDir(std::wstring* path);
 
 // Creates a temporary file. The full path is placed in 'temp_file', and the
@@ -237,6 +259,8 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
 // Creates a directory, as well as creating any parent directories, if they
 // don't exist. Returns 'true' on successful creation, or if the directory
 // already exists.
+bool CreateDirectory(const FilePath& full_path);
+// Deprecated temporary compatibility function.
 bool CreateDirectory(const std::wstring& full_path);
 
 // Returns the file size. Returns true on success.
@@ -257,6 +281,8 @@ struct FileInfo {
 bool GetFileInfo(const std::wstring& file_path, FileInfo* info);
 
 // Wrapper for fopen-like calls. Returns non-NULL FILE* on success.
+FILE* OpenFile(const FilePath& filename, const char* mode);
+// Deprecated temporary compatibility functions.
 FILE* OpenFile(const std::string& filename, const char* mode);
 FILE* OpenFile(const std::wstring& filename, const char* mode);
 
@@ -272,6 +298,8 @@ int ReadFile(const std::wstring& filename, char* data, int size);
 int WriteFile(const std::wstring& filename, const char* data, int size);
 
 // Gets the current working directory for the process.
+bool GetCurrentDirectory(FilePath* path);
+// Deprecated temporary compatibility function.
 bool GetCurrentDirectory(std::wstring* path);
 
 // Sets the current working directory for the process.

@@ -19,6 +19,8 @@
 
 #include "base/base_paths.h"
 
+class FilePath;
+
 // The path service is a global table mapping keys to file system paths.  It is
 // OK to use this service from multiple threads.
 //
@@ -31,6 +33,9 @@ class PathService {
   //
   // Returns true if the directory or file was successfully retrieved. On
   // failure, 'path' will not be changed.
+  static bool Get(int key, FilePath* path);
+  // This version, producing a wstring, is deprecated and only kept around
+  // until we can fix all callers.
   static bool Get(int key, std::wstring* path);
 
   // Overrides the path to a special directory or file.  This cannot be used to
@@ -66,8 +71,8 @@ class PathService {
                                int key_start,
                                int key_end);
  private:
-  static bool GetFromCache(int key, std::wstring* path);
-  static void AddToCache(int key, const std::wstring& path);
+  static bool GetFromCache(int key, FilePath* path);
+  static void AddToCache(int key, const FilePath& path);
   
 };
 

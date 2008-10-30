@@ -12,8 +12,9 @@
 
 #include "base/icu_util.h"
 
-#include "base/logging.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/logging.h"
 #include "base/path_service.h"
 #include "base/sys_string_conversions.h"
 #include "unicode/putil.h"
@@ -76,10 +77,10 @@ bool Initialize() {
   // For now, expect the data file to be alongside the executable.
   // This is sufficient while we work on unit tests, but will eventually
   // likely live in a data directory.
-  std::wstring data_path;
+  FilePath data_path;
   bool path_ok = PathService::Get(base::DIR_EXE, &data_path);
   DCHECK(path_ok);
-  u_setDataDirectory(base::SysWideToNativeMB(data_path).c_str());
+  u_setDataDirectory(data_path.value().c_str());
   // Only look for the packaged data file;
   // the default behavior is to look for individual files.
   UErrorCode err = U_ZERO_ERROR;

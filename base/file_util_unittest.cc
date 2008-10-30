@@ -15,6 +15,7 @@
 #include <set>
 
 #include "base/base_paths.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -32,11 +33,11 @@ class FileUtilTest : public PlatformTest {
     PlatformTest::SetUp();
     // Name a subdirectory of the temp directory.
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-    file_util::AppendToPath(&test_dir_, L"FileUtilTest");
+    test_dir_ = test_dir_.Append(FILE_PATH_LITERAL("FileUtilTest"));
 
     // Create a fresh, empty copy of this directory.
     file_util::Delete(test_dir_, true);
-    file_util::CreateDirectory(test_dir_.c_str());
+    file_util::CreateDirectory(test_dir_);
   }
   virtual void TearDown() {
     PlatformTest::TearDown();
@@ -46,7 +47,7 @@ class FileUtilTest : public PlatformTest {
   }
 
   // the path to temporary directory used to contain the test operations
-  std::wstring test_dir_;
+  FilePath test_dir_;
 };
 
 // Collects all the results from the given file enumerator, and provides an
@@ -56,43 +57,44 @@ class FindResultCollector {
   FindResultCollector(file_util::FileEnumerator& enumerator) {
     std::wstring cur_file;
     while (!(cur_file = enumerator.Next()).empty()) {
+      FilePath::StringType path = FilePath::FromWStringHack(cur_file).value();
       // The file should not be returned twice.
-      EXPECT_TRUE(files_.end() == files_.find(cur_file))
+      EXPECT_TRUE(files_.end() == files_.find(path))
           << "Same file returned twice";
 
       // Save for later.
-      files_.insert(cur_file);
+      files_.insert(path);
     }
   }
 
   // Returns true if the enumerator found the file.
-  bool HasFile(const std::wstring& file) const {
-    return files_.find(file) != files_.end();
+  bool HasFile(const FilePath& file) const {
+    return files_.find(file.value()) != files_.end();
   }
-  
+
   int size() {
     return static_cast<int>(files_.size());
   }
 
  private:
-  std::set<std::wstring> files_;
+  std::set<FilePath::StringType> files_;
 };
 
 // Simple function to dump some text into a new file.
-void CreateTextFile(const std::wstring& filename,
+void CreateTextFile(const FilePath& filename,
                     const std::wstring& contents) {
   std::ofstream file;
-  file.open(WideToUTF8(filename).c_str());
+  file.open(WideToUTF8(filename.ToWStringHack()).c_str());
   ASSERT_TRUE(file.is_open());
   file << contents;
   file.close();
 }
 
 // Simple function to take out some text from a file.
-std::wstring ReadTextFile(const std::wstring& filename) {
+std::wstring ReadTextFile(const FilePath& filename) {
   wchar_t contents[64];
   std::wifstream file;
-  file.open(WideToUTF8(filename).c_str());
+  file.open(WideToUTF8(filename.ToWStringHack()).c_str());
   EXPECT_TRUE(file.is_open());
   file.getline(contents, 64);
   file.close();
@@ -310,8 +312,7 @@ TEST_F(FileUtilTest, GetDirectoryFromPath) {
 #if defined OS_WIN
 TEST_F(FileUtilTest, CountFilesCreatedAfter) {
   // Create old file (that we don't want to count)
-  std::wstring old_file_name = test_dir_;
-  file_util::AppendToPath(&old_file_name, L"Old File.txt");
+  FilePath old_file_name = test_dir_.Append(L"Old File.txt");
   CreateTextFile(old_file_name, L"Just call me Mr. Creakybits");
 
   // Age to perfection
@@ -320,19 +321,21 @@ TEST_F(FileUtilTest, CountFilesCreatedAfter) {
   // Establish our cutoff time
   FILETIME test_start_time;
   GetSystemTimeAsFileTime(&test_start_time);
-  EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_, test_start_time));
+  EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_.value(),
+                                                 test_start_time));
 
   // Create a new file (that we do want to count)
-  std::wstring new_file_name = test_dir_;
-  file_util::AppendToPath(&new_file_name, L"New File.txt");
+  FilePath new_file_name = test_dir_.Append(L"New File.txt");
   CreateTextFile(new_file_name, L"Waaaaaaaaaaaaaah.");
 
   // We should see only the new file.
-  EXPECT_EQ(1, file_util::CountFilesCreatedAfter(test_dir_, test_start_time));
+  EXPECT_EQ(1, file_util::CountFilesCreatedAfter(test_dir_.value(),
+                                                 test_start_time));
 
   // Delete new file, we should see no files after cutoff now
   EXPECT_TRUE(file_util::Delete(new_file_name, false));
-  EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_, test_start_time));
+  EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_.value(),
+                                                 test_start_time));
 }
 #endif
 
@@ -340,23 +343,20 @@ TEST_F(FileUtilTest, CountFilesCreatedAfter) {
 // the recursion flag.  Also coincidentally tests PathExists.
 TEST_F(FileUtilTest, Delete) {
   // Create a file
-  std::wstring file_name = test_dir_;
-  file_util::AppendToPath(&file_name, L"Test File.txt");
+  FilePath file_name = test_dir_.Append(FILE_PATH_LITERAL("Test File.txt"));
   CreateTextFile(file_name, L"I'm cannon fodder.");
 
   ASSERT_TRUE(file_util::PathExists(file_name));
 
-  std::wstring subdir_path = test_dir_;
-  file_util::AppendToPath(&subdir_path, L"Subdirectory");
-  file_util::CreateDirectory(subdir_path.c_str());
+  FilePath subdir_path = test_dir_.Append(FILE_PATH_LITERAL("Subdirectory"));
+  file_util::CreateDirectory(subdir_path);
 
   ASSERT_TRUE(file_util::PathExists(subdir_path));
 
-  std::wstring directory_contents = test_dir_;
+  FilePath directory_contents = test_dir_;
 #if defined(OS_WIN)
   // TODO(erikkay): see if anyone's actually using this feature of the API
-  file_util::AppendToPath(&directory_contents, L"*");
-
+  directory_contents = directory_contents.Append(FILE_PATH_LITERAL("*"));
   // Delete non-recursively and check that only the file is deleted
   ASSERT_TRUE(file_util::Delete(directory_contents, false));
   EXPECT_FALSE(file_util::PathExists(file_name));
@@ -371,22 +371,21 @@ TEST_F(FileUtilTest, Delete) {
 
 TEST_F(FileUtilTest, Move) {
   // Create a directory
-  std::wstring dir_name_from(test_dir_);
-  file_util::AppendToPath(&dir_name_from, L"Move_From_Subdir");
-  file_util::CreateDirectory(dir_name_from.c_str());
+  FilePath dir_name_from =
+      test_dir_.Append(FILE_PATH_LITERAL("Move_From_Subdir"));
+  file_util::CreateDirectory(dir_name_from);
   ASSERT_TRUE(file_util::PathExists(dir_name_from));
 
   // Create a file under the directory
-  std::wstring file_name_from(dir_name_from);
-  file_util::AppendToPath(&file_name_from, L"Move_Test_File.txt");
+  FilePath file_name_from =
+      dir_name_from.Append(FILE_PATH_LITERAL("Move_Test_File.txt"));
   CreateTextFile(file_name_from, L"Gooooooooooooooooooooogle");
   ASSERT_TRUE(file_util::PathExists(file_name_from));
 
   // Move the directory
-  std::wstring dir_name_to(test_dir_);
-  file_util::AppendToPath(&dir_name_to, L"Move_To_Subdir");
-  std::wstring file_name_to(dir_name_to);
-  file_util::AppendToPath(&file_name_to, L"Move_Test_File.txt");
+  FilePath dir_name_to = test_dir_.Append(FILE_PATH_LITERAL("Move_To_Subdir"));
+  FilePath file_name_to =
+      dir_name_to.Append(FILE_PATH_LITERAL("Move_Test_File.txt"));
 
   ASSERT_FALSE(file_util::PathExists(dir_name_to));
 
@@ -401,38 +400,38 @@ TEST_F(FileUtilTest, Move) {
 
 TEST_F(FileUtilTest, CopyDirectoryRecursively) {
   // Create a directory.
-  std::wstring dir_name_from(test_dir_);
-  file_util::AppendToPath(&dir_name_from, L"Copy_From_Subdir");
-  file_util::CreateDirectory(dir_name_from.c_str());
+  FilePath dir_name_from =
+      test_dir_.Append(FILE_PATH_LITERAL("Copy_From_Subdir"));
+  file_util::CreateDirectory(dir_name_from);
   ASSERT_TRUE(file_util::PathExists(dir_name_from));
 
   // Create a file under the directory.
-  std::wstring file_name_from(dir_name_from);
-  file_util::AppendToPath(&file_name_from, L"Copy_Test_File.txt");
+  FilePath file_name_from =
+      dir_name_from.Append(FILE_PATH_LITERAL("Copy_Test_File.txt"));
   CreateTextFile(file_name_from, L"Gooooooooooooooooooooogle");
   ASSERT_TRUE(file_util::PathExists(file_name_from));
 
   // Create a subdirectory.
-  std::wstring subdir_name_from(dir_name_from);
-  file_util::AppendToPath(&subdir_name_from, L"Subdir");
-  file_util::CreateDirectory(subdir_name_from.c_str());
+  FilePath subdir_name_from =
+      dir_name_from.Append(FILE_PATH_LITERAL("Subdir"));
+  file_util::CreateDirectory(subdir_name_from);
   ASSERT_TRUE(file_util::PathExists(subdir_name_from));
 
   // Create a file under the subdirectory.
-  std::wstring file_name2_from(subdir_name_from);
-  file_util::AppendToPath(&file_name2_from, L"Copy_Test_File.txt");
+  FilePath file_name2_from =
+      subdir_name_from.Append(FILE_PATH_LITERAL("Copy_Test_File.txt"));
   CreateTextFile(file_name2_from, L"Gooooooooooooooooooooogle");
   ASSERT_TRUE(file_util::PathExists(file_name2_from));
 
   // Copy the directory recursively.
-  std::wstring dir_name_to(test_dir_);
-  file_util::AppendToPath(&dir_name_to, L"Copy_To_Subdir");
-  std::wstring file_name_to(dir_name_to);
-  file_util::AppendToPath(&file_name_to, L"Copy_Test_File.txt");
-  std::wstring subdir_name_to(dir_name_to);
-  file_util::AppendToPath(&subdir_name_to, L"Subdir");
-  std::wstring file_name2_to(subdir_name_to);
-  file_util::AppendToPath(&file_name2_to, L"Copy_Test_File.txt");
+  FilePath dir_name_to =
+      test_dir_.Append(FILE_PATH_LITERAL("Copy_To_Subdir"));
+  FilePath file_name_to =
+      dir_name_to.Append(FILE_PATH_LITERAL("Copy_Test_File.txt"));
+  FilePath subdir_name_to =
+      dir_name_to.Append(FILE_PATH_LITERAL("Subdir"));
+  FilePath file_name2_to =
+      subdir_name_to.Append(FILE_PATH_LITERAL("Copy_Test_File.txt"));
 
   ASSERT_FALSE(file_util::PathExists(dir_name_to));
 
@@ -451,36 +450,36 @@ TEST_F(FileUtilTest, CopyDirectoryRecursively) {
 
 TEST_F(FileUtilTest, CopyDirectory) {
   // Create a directory.
-  std::wstring dir_name_from(test_dir_);
-  file_util::AppendToPath(&dir_name_from, L"Copy_From_Subdir");
-  file_util::CreateDirectory(dir_name_from.c_str());
+  FilePath dir_name_from =
+      test_dir_.Append(FILE_PATH_LITERAL("Copy_From_Subdir"));
+  file_util::CreateDirectory(dir_name_from);
   ASSERT_TRUE(file_util::PathExists(dir_name_from));
 
   // Create a file under the directory.
-  std::wstring file_name_from(dir_name_from);
-  file_util::AppendToPath(&file_name_from, L"Copy_Test_File.txt");
+  FilePath file_name_from =
+      dir_name_from.Append(FILE_PATH_LITERAL("Copy_Test_File.txt"));
   CreateTextFile(file_name_from, L"Gooooooooooooooooooooogle");
   ASSERT_TRUE(file_util::PathExists(file_name_from));
 
   // Create a subdirectory.
-  std::wstring subdir_name_from(dir_name_from);
-  file_util::AppendToPath(&subdir_name_from, L"Subdir");
-  file_util::CreateDirectory(subdir_name_from.c_str());
+  FilePath subdir_name_from =
+      dir_name_from.Append(FILE_PATH_LITERAL("Subdir"));
+  file_util::CreateDirectory(subdir_name_from);
   ASSERT_TRUE(file_util::PathExists(subdir_name_from));
 
   // Create a file under the subdirectory.
-  std::wstring file_name2_from(subdir_name_from);
-  file_util::AppendToPath(&file_name2_from, L"Copy_Test_File.txt");
+  FilePath file_name2_from =
+      subdir_name_from.Append(FILE_PATH_LITERAL("Copy_Test_File.txt"));
   CreateTextFile(file_name2_from, L"Gooooooooooooooooooooogle");
   ASSERT_TRUE(file_util::PathExists(file_name2_from));
 
   // Copy the directory not recursively.
-  std::wstring dir_name_to(test_dir_);
-  file_util::AppendToPath(&dir_name_to, L"Copy_To_Subdir");
-  std::wstring file_name_to(dir_name_to);
-  file_util::AppendToPath(&file_name_to, L"Copy_Test_File.txt");
-  std::wstring subdir_name_to(dir_name_to);
-  file_util::AppendToPath(&subdir_name_to, L"Subdir");
+  FilePath dir_name_to =
+      test_dir_.Append(FILE_PATH_LITERAL("Copy_To_Subdir"));
+  FilePath file_name_to =
+      dir_name_to.Append(FILE_PATH_LITERAL("Copy_Test_File.txt"));
+  FilePath subdir_name_to =
+      dir_name_to.Append(FILE_PATH_LITERAL("Subdir"));
 
   ASSERT_FALSE(file_util::PathExists(dir_name_to));
 
@@ -498,29 +497,29 @@ TEST_F(FileUtilTest, CopyDirectory) {
 
 TEST_F(FileUtilTest, CopyFile) {
   // Create a directory
-  std::wstring dir_name_from(test_dir_);
-  file_util::AppendToPath(&dir_name_from, L"Copy_From_Subdir");
-  file_util::CreateDirectory(dir_name_from.c_str());
+  FilePath dir_name_from =
+      test_dir_.Append(FILE_PATH_LITERAL("Copy_From_Subdir"));
+  file_util::CreateDirectory(dir_name_from);
   ASSERT_TRUE(file_util::PathExists(dir_name_from));
 
   // Create a file under the directory
-  std::wstring file_name_from(dir_name_from);
-  file_util::AppendToPath(&file_name_from, L"Copy_Test_File.txt");
+  FilePath file_name_from =
+      dir_name_from.Append(FILE_PATH_LITERAL("Copy_Test_File.txt"));
   const std::wstring file_contents(L"Gooooooooooooooooooooogle");
   CreateTextFile(file_name_from, file_contents);
   ASSERT_TRUE(file_util::PathExists(file_name_from));
 
   // Copy the file.
-  std::wstring dest_file(dir_name_from);
-  file_util::AppendToPath(&dest_file, L"DestFile.txt");
+  FilePath dest_file = dir_name_from.Append(FILE_PATH_LITERAL("DestFile.txt"));
   ASSERT_TRUE(file_util::CopyFile(file_name_from, dest_file));
 
   // Copy the file to another location using '..' in the path.
-  std::wstring dest_file2(dir_name_from);
+  std::wstring dest_file2(dir_name_from.ToWStringHack());
   file_util::AppendToPath(&dest_file2, L"..");
   file_util::AppendToPath(&dest_file2, L"DestFile.txt");
-  ASSERT_TRUE(file_util::CopyFile(file_name_from, dest_file2));
-  std::wstring dest_file2_test(dir_name_from);
+  ASSERT_TRUE(file_util::CopyFile(file_name_from,
+                                  FilePath::FromWStringHack(dest_file2)));
+  std::wstring dest_file2_test(dir_name_from.ToWStringHack());
   file_util::UpOneDirectory(&dest_file2_test);
   file_util::AppendToPath(&dest_file2_test, L"DestFile.txt");
 
@@ -529,15 +528,15 @@ TEST_F(FileUtilTest, CopyFile) {
   EXPECT_TRUE(file_util::PathExists(dest_file));
   const std::wstring read_contents = ReadTextFile(dest_file);
   EXPECT_EQ(file_contents, read_contents);
-  EXPECT_TRUE(file_util::PathExists(dest_file2_test));
-  EXPECT_TRUE(file_util::PathExists(dest_file2));
+  EXPECT_TRUE(file_util::PathExists(
+      FilePath::FromWStringHack(dest_file2_test)));
+  EXPECT_TRUE(file_util::PathExists(FilePath::FromWStringHack(dest_file2)));
 }
 
 // TODO(erikkay): implement
 #if defined(OS_WIN)
 TEST_F(FileUtilTest, GetFileCreationLocalTime) {
-  std::wstring file_name = test_dir_;
-  file_util::AppendToPath(&file_name, L"Test File.txt");
+  FilePath file_name = test_dir_.Append(L"Test File.txt");
 
   SYSTEMTIME start_time;
   GetLocalTime(&start_time);
@@ -548,7 +547,7 @@ TEST_F(FileUtilTest, GetFileCreationLocalTime) {
   GetLocalTime(&end_time);
 
   SYSTEMTIME file_creation_time;
-  file_util::GetFileCreationLocalTime(file_name, &file_creation_time);
+  file_util::GetFileCreationLocalTime(file_name.value(), &file_creation_time);
 
   FILETIME start_filetime;
   SystemTimeToFileTime(&start_time, &start_filetime);
@@ -565,46 +564,46 @@ TEST_F(FileUtilTest, GetFileCreationLocalTime) {
     "creation time: " << FileTimeAsUint64(file_creation_filetime) << ", " <<
     "end time: " << FileTimeAsUint64(end_filetime);
 
-  ASSERT_TRUE(DeleteFile(file_name.c_str()));
+  ASSERT_TRUE(DeleteFile(file_name.value().c_str()));
 }
 #endif
 
 // file_util winds up using autoreleased objects on the Mac, so this needs
-// to be a PlatformTest
+// to be a PlatformTest.
 typedef PlatformTest ReadOnlyFileUtilTest;
 
 TEST_F(ReadOnlyFileUtilTest, ContentsEqual) {
-  std::wstring data_dir;
+  FilePath data_dir;
   ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &data_dir));
-  file_util::AppendToPath(&data_dir, L"base");
-  file_util::AppendToPath(&data_dir, L"data");
-  file_util::AppendToPath(&data_dir, L"file_util_unittest");
+  data_dir = data_dir.Append(FILE_PATH_LITERAL("base"))
+                     .Append(FILE_PATH_LITERAL("data"))
+                     .Append(FILE_PATH_LITERAL("file_util_unittest"));
   ASSERT_TRUE(file_util::PathExists(data_dir));
 
-  std::wstring original_file = data_dir;
-  file_util::AppendToPath(&original_file, L"original.txt");
-  std::wstring same_file = data_dir;
-  file_util::AppendToPath(&same_file, L"same.txt");
-  std::wstring same_length_file = data_dir;
-  file_util::AppendToPath(&same_length_file, L"same_length.txt");
-  std::wstring different_file = data_dir;
-  file_util::AppendToPath(&different_file, L"different.txt");
-  std::wstring different_first_file = data_dir;
-  file_util::AppendToPath(&different_first_file, L"different_first.txt");
-  std::wstring different_last_file = data_dir;
-  file_util::AppendToPath(&different_last_file, L"different_last.txt");
-  std::wstring empty1_file = data_dir;
-  file_util::AppendToPath(&empty1_file, L"empty1.txt");
-  std::wstring empty2_file = data_dir;
-  file_util::AppendToPath(&empty2_file, L"empty2.txt");
-  std::wstring shortened_file = data_dir;
-  file_util::AppendToPath(&shortened_file, L"shortened.txt");
-  std::wstring binary_file = data_dir;
-  file_util::AppendToPath(&binary_file, L"binary_file.bin");
-  std::wstring binary_file_same = data_dir;
-  file_util::AppendToPath(&binary_file_same, L"binary_file_same.bin");
-  std::wstring binary_file_diff = data_dir;
-  file_util::AppendToPath(&binary_file_diff, L"binary_file_diff.bin");
+  FilePath original_file =
+      data_dir.Append(FILE_PATH_LITERAL("original.txt"));
+  FilePath same_file =
+      data_dir.Append(FILE_PATH_LITERAL("same.txt"));
+  FilePath same_length_file =
+      data_dir.Append(FILE_PATH_LITERAL("same_length.txt"));
+  FilePath different_file =
+      data_dir.Append(FILE_PATH_LITERAL("different.txt"));
+  FilePath different_first_file =
+      data_dir.Append(FILE_PATH_LITERAL("different_first.txt"));
+  FilePath different_last_file =
+      data_dir.Append(FILE_PATH_LITERAL("different_last.txt"));
+  FilePath empty1_file =
+      data_dir.Append(FILE_PATH_LITERAL("empty1.txt"));
+  FilePath empty2_file =
+      data_dir.Append(FILE_PATH_LITERAL("empty2.txt"));
+  FilePath shortened_file =
+      data_dir.Append(FILE_PATH_LITERAL("shortened.txt"));
+  FilePath binary_file =
+      data_dir.Append(FILE_PATH_LITERAL("binary_file.bin"));
+  FilePath binary_file_same =
+      data_dir.Append(FILE_PATH_LITERAL("binary_file_same.bin"));
+  FilePath binary_file_diff =
+      data_dir.Append(FILE_PATH_LITERAL("binary_file_diff.bin"));
 
   EXPECT_TRUE(file_util::ContentsEqual(original_file, original_file));
   EXPECT_TRUE(file_util::ContentsEqual(original_file, same_file));
@@ -623,12 +622,10 @@ TEST_F(ReadOnlyFileUtilTest, ContentsEqual) {
 // We don't need equivalent functionality outside of Windows.
 #if defined(OS_WIN)
 TEST_F(FileUtilTest, ResolveShortcutTest) {
-  std::wstring target_file = test_dir_;
-  file_util::AppendToPath(&target_file, L"Target.txt");
+  FilePath target_file = test_dir_.Append(L"Target.txt");
   CreateTextFile(target_file, L"This is the target.");
 
-  std::wstring link_file = test_dir_;
-  file_util::AppendToPath(&link_file, L"Link.lnk");
+  FilePath link_file = test_dir_.Append(L"Link.lnk");
 
   HRESULT result;
   IShellLink *shell = NULL;
@@ -643,11 +640,11 @@ TEST_F(FileUtilTest, ResolveShortcutTest) {
   result = shell->QueryInterface(IID_IPersistFile,
                              reinterpret_cast<LPVOID*>(&persist));
   EXPECT_TRUE(SUCCEEDED(result));
-  result = shell->SetPath(target_file.c_str());
+  result = shell->SetPath(target_file.value().c_str());
   EXPECT_TRUE(SUCCEEDED(result));
   result = shell->SetDescription(L"ResolveShortcutTest");
   EXPECT_TRUE(SUCCEEDED(result));
-  result = persist->Save(link_file.c_str(), TRUE);
+  result = persist->Save(link_file.value().c_str(), TRUE);
   EXPECT_TRUE(SUCCEEDED(result));
   if (persist)
     persist->Release();
@@ -655,38 +652,37 @@ TEST_F(FileUtilTest, ResolveShortcutTest) {
     shell->Release();
 
   bool is_solved;
-  is_solved = file_util::ResolveShortcut(&link_file);
+  std::wstring link_file_str = link_file.value();
+  is_solved = file_util::ResolveShortcut(&link_file_str);
   EXPECT_TRUE(is_solved);
   std::wstring contents;
-  contents = ReadTextFile(link_file);
+  contents = ReadTextFile(FilePath(link_file_str));
   EXPECT_EQ(L"This is the target.", contents);
 
   // Cleaning
-  DeleteFile(target_file.c_str());
-  DeleteFile(link_file.c_str());
+  DeleteFile(target_file.value().c_str());
+  DeleteFile(link_file_str.c_str());
   CoUninitialize();
 }
 
 TEST_F(FileUtilTest, CreateShortcutTest) {
   const wchar_t file_contents[] = L"This is another target.";
-  std::wstring target_file = test_dir_;
-  file_util::AppendToPath(&target_file, L"Target1.txt");
+  FilePath target_file = test_dir_.Append(L"Target1.txt");
   CreateTextFile(target_file, file_contents);
 
-  std::wstring link_file = test_dir_;
-  file_util::AppendToPath(&link_file, L"Link1.lnk");
+  FilePath link_file = test_dir_.Append(L"Link1.lnk");
 
   CoInitialize(NULL);
-  EXPECT_TRUE(file_util::CreateShortcutLink(target_file.c_str(),
-                                            link_file.c_str(),
+  EXPECT_TRUE(file_util::CreateShortcutLink(target_file.value().c_str(),
+                                            link_file.value().c_str(),
                                             NULL, NULL, NULL, NULL, 0));
-  std::wstring resolved_name = link_file;
+  std::wstring resolved_name = link_file.value();
   EXPECT_TRUE(file_util::ResolveShortcut(&resolved_name));
-  std::wstring read_contents = ReadTextFile(resolved_name);
+  std::wstring read_contents = ReadTextFile(FilePath(resolved_name));
   EXPECT_EQ(file_contents, read_contents);
 
-  DeleteFile(target_file.c_str());
-  DeleteFile(link_file.c_str());
+  DeleteFile(target_file.value().c_str());
+  DeleteFile(link_file.value().c_str());
   CoUninitialize();
 }
 #endif
@@ -706,13 +702,14 @@ TEST_F(FileUtilTest, CreateNewTempDirectoryTest) {
 }
 
 TEST_F(FileUtilTest, CreateDirectoryTest) {
-  std::wstring test_root = test_dir_;
-  file_util::AppendToPath(&test_root, L"create_directory_test");
-  std::wstring test_path(test_root);
+  FilePath test_root =
+      test_dir_.Append(FILE_PATH_LITERAL("create_directory_test"));
 #if defined(OS_WIN)
-  file_util::AppendToPath(&test_path, L"dir\\tree\\likely\\doesnt\\exist\\");
+  FilePath test_path =
+      test_root.Append(FILE_PATH_LITERAL("dir\\tree\\likely\\doesnt\\exist\\"));
 #elif defined(OS_POSIX)
-  file_util::AppendToPath(&test_path, L"dir/tree/likely/doesnt/exist/");
+  FilePath test_path =
+      test_root.Append(FILE_PATH_LITERAL("dir/tree/likely/doesnt/exist/"));
 #endif
 
   EXPECT_FALSE(file_util::PathExists(test_path));
@@ -722,7 +719,7 @@ TEST_F(FileUtilTest, CreateDirectoryTest) {
   EXPECT_TRUE(file_util::CreateDirectory(test_path));
 
   // Doesn't work to create it on top of a non-dir
-  file_util::AppendToPath(&test_path, L"foobar.txt");
+  test_path = test_path.Append(FILE_PATH_LITERAL("foobar.txt"));
   EXPECT_FALSE(file_util::PathExists(test_path));
   CreateTextFile(test_path, L"test file");
   EXPECT_TRUE(file_util::PathExists(test_path));
@@ -735,16 +732,16 @@ TEST_F(FileUtilTest, CreateDirectoryTest) {
 
 TEST_F(FileUtilTest, DetectDirectoryTest) {
   // Check a directory
-  std::wstring test_root = test_dir_;
-  file_util::AppendToPath(&test_root, L"detect_directory_test");
+  FilePath test_root =
+      test_dir_.Append(FILE_PATH_LITERAL("detect_directory_test"));
   EXPECT_FALSE(file_util::PathExists(test_root));
   EXPECT_TRUE(file_util::CreateDirectory(test_root));
   EXPECT_TRUE(file_util::PathExists(test_root));
   EXPECT_TRUE(file_util::DirectoryExists(test_root));
 
   // Check a file
-  std::wstring test_path(test_root);
-  file_util::AppendToPath(&test_path, L"foobar.txt");
+  FilePath test_path =
+      test_root.Append(FILE_PATH_LITERAL("foobar.txt"));
   EXPECT_FALSE(file_util::PathExists(test_path));
   CreateTextFile(test_path, L"test file");
   EXPECT_TRUE(file_util::PathExists(test_path));
@@ -833,41 +830,34 @@ TEST_F(FileUtilTest, ReplaceExtensionTestWithPathSeparators) {
 
 TEST_F(FileUtilTest, FileEnumeratorTest) {
   // Test an empty directory.
-  file_util::FileEnumerator f0(test_dir_, true,
+  file_util::FileEnumerator f0(test_dir_.ToWStringHack(), true,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
   EXPECT_EQ(f0.Next(), L"");
   EXPECT_EQ(f0.Next(), L"");
 
   // create the directories
-  std::wstring dir1 = test_dir_;
-  file_util::AppendToPath(&dir1, L"dir1");
+  FilePath dir1 = test_dir_.Append(FILE_PATH_LITERAL("dir1"));
   EXPECT_TRUE(file_util::CreateDirectory(dir1));
-  std::wstring dir2 = test_dir_;
-  file_util::AppendToPath(&dir2, L"dir2");
+  FilePath dir2 = test_dir_.Append(FILE_PATH_LITERAL("dir2"));
   EXPECT_TRUE(file_util::CreateDirectory(dir2));
-  std::wstring dir2inner = dir2;
-  file_util::AppendToPath(&dir2inner, L"inner");
+  FilePath dir2inner = dir2.Append(FILE_PATH_LITERAL("inner"));
   EXPECT_TRUE(file_util::CreateDirectory(dir2inner));
-  
+
   // create the files
-  std::wstring dir2file = dir2;
-  file_util::AppendToPath(&dir2file, L"dir2file.txt");
+  FilePath dir2file = dir2.Append(FILE_PATH_LITERAL("dir2file.txt"));
   CreateTextFile(dir2file, L"");
-  std::wstring dir2innerfile = dir2inner;
-  file_util::AppendToPath(&dir2innerfile, L"innerfile.txt");
+  FilePath dir2innerfile = dir2inner.Append(FILE_PATH_LITERAL("innerfile.txt"));
   CreateTextFile(dir2innerfile, L"");
-  std::wstring file1 = test_dir_;
-  file_util::AppendToPath(&file1, L"file1.txt");
+  FilePath file1 = test_dir_.Append(FILE_PATH_LITERAL("file1.txt"));
   CreateTextFile(file1, L"");
-  std::wstring file2_rel = dir2;
-  file_util::AppendToPath(&file2_rel, L"..");
-  file_util::AppendToPath(&file2_rel, L"file2.txt");
+  FilePath file2_rel =
+      dir2.Append(FilePath::kParentDirectory)
+          .Append(FILE_PATH_LITERAL("file2.txt"));
   CreateTextFile(file2_rel, L"");
-  std::wstring file2_abs = test_dir_;
-  file_util::AppendToPath(&file2_abs, L"file2.txt");
+  FilePath file2_abs = test_dir_.Append(FILE_PATH_LITERAL("file2.txt"));
 
   // Only enumerate files.
-  file_util::FileEnumerator f1(test_dir_, true,
+  file_util::FileEnumerator f1(test_dir_.ToWStringHack(), true,
                                file_util::FileEnumerator::FILES);
   FindResultCollector c1(f1);
   EXPECT_TRUE(c1.HasFile(file1));
@@ -877,7 +867,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_EQ(c1.size(), 4);
 
   // Only enumerate directories.
-  file_util::FileEnumerator f2(test_dir_, true,
+  file_util::FileEnumerator f2(test_dir_.ToWStringHack(), true,
                                file_util::FileEnumerator::DIRECTORIES);
   FindResultCollector c2(f2);
   EXPECT_TRUE(c2.HasFile(dir1));
@@ -887,14 +877,14 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
 
   // Only enumerate directories non-recursively.
   file_util::FileEnumerator f2_non_recursive(
-      test_dir_, false, file_util::FileEnumerator::DIRECTORIES);
+      test_dir_.ToWStringHack(), false, file_util::FileEnumerator::DIRECTORIES);
   FindResultCollector c2_non_recursive(f2_non_recursive);
   EXPECT_TRUE(c2_non_recursive.HasFile(dir1));
   EXPECT_TRUE(c2_non_recursive.HasFile(dir2));
   EXPECT_EQ(c2_non_recursive.size(), 2);
 
   // Enumerate files and directories.
-  file_util::FileEnumerator f3(test_dir_, true,
+  file_util::FileEnumerator f3(test_dir_.ToWStringHack(), true,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
   FindResultCollector c3(f3);
   EXPECT_TRUE(c3.HasFile(dir1));
@@ -907,7 +897,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_EQ(c3.size(), 7);
 
   // Non-recursive operation.
-  file_util::FileEnumerator f4(test_dir_, false,
+  file_util::FileEnumerator f4(test_dir_.ToWStringHack(), false,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
   FindResultCollector c4(f4);
   EXPECT_TRUE(c4.HasFile(dir2));
@@ -917,7 +907,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
   EXPECT_EQ(c4.size(), 4);
 
   // Enumerate with a pattern.
-  file_util::FileEnumerator f5(test_dir_, true,
+  file_util::FileEnumerator f5(test_dir_.ToWStringHack(), true,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES, L"dir*");
   FindResultCollector c5(f5);
   EXPECT_TRUE(c5.HasFile(dir1));
@@ -929,7 +919,7 @@ TEST_F(FileUtilTest, FileEnumeratorTest) {
 
   // Make sure the destructor closes the find handle while in the middle of a
   // query to allow TearDown to delete the directory.
-  file_util::FileEnumerator f6(test_dir_, true,
+  file_util::FileEnumerator f6(test_dir_.ToWStringHack(), true,
       file_util::FileEnumerator::FILES_AND_DIRECTORIES);
   EXPECT_FALSE(f6.Next().empty());  // Should have found something
                                     // (we don't care what).

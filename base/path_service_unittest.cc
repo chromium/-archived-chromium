@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/path_service.h"
+
 #include "base/basictypes.h"
 #include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/logging.h"
-#include "base/path_service.h"
 #include "base/platform_test.h"
 #if defined(OS_WIN)
 #include "base/win_util.h"
@@ -18,9 +20,9 @@ namespace {
 // Returns true if PathService::Get returns true and sets the path parameter
 // to non-empty for the given PathService::DirType enumeration value.
 bool ReturnsValidPath(int dir_type) {
-  std::wstring path;
+  FilePath path;
   bool result = PathService::Get(dir_type, &path);
-  return result && !path.empty() && file_util::PathExists(path);
+  return result && !path.value().empty() && file_util::PathExists(path);
 }
 
 #if defined(OS_WIN)

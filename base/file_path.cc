@@ -4,6 +4,11 @@
 
 #include "base/file_path.h"
 
+// These includes are just for the *Hack functions, and should be removed
+// when those functions are removed.
+#include "base/string_piece.h"
+#include "base/sys_string_conversions.h"
+
 #if defined(FILE_PATH_USES_WIN_SEPARATORS)
 const FilePath::CharType FilePath::kSeparators[] = FILE_PATH_LITERAL("\\/");
 #else  // FILE_PATH_USES_WIN_SEPARATORS
@@ -151,6 +156,29 @@ bool FilePath::IsAbsolute() const {
   return path_.length() > 0 && IsSeparator(path_[0]);
 #endif  // FILE_PATH_USES_DRIVE_LETTERS
 }
+
+#if defined(OS_POSIX)
+// See file_path.h for a discussion of the encoding of paths on POSIX
+// platforms.  These *Hack() functions are not quite correct, but they're
+// only temporary while we fix the remainder of the code.
+// Remember to remove the #includes at the top when you remove these.
+
+// static
+FilePath FilePath::FromWStringHack(const std::wstring& wstring) {
+  return FilePath(base::SysWideToNativeMB(wstring));
+}
+std::wstring FilePath::ToWStringHack() const {
+  return base::SysNativeMBToWide(path_);
+}
+#elif defined(OS_WIN)
+// static
+FilePath FilePath::FromWStringHack(const std::wstring& wstring) {
+  return FilePath(wstring);
+}
+std::wstring FilePath::ToWStringHack() const {
+  return path_;
+}
+#endif
 
 void FilePath::StripTrailingSeparators() {
   // If there is no drive letter, start will be 1, which will prevent stripping

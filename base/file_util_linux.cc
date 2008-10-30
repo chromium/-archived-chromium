@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 
@@ -16,21 +17,21 @@ namespace file_util {
 
 const wchar_t kPathSeparator = L'/';
 
-bool GetTempDir(std::wstring* path) {
+bool GetTempDir(FilePath* path) {
   const char* tmp = getenv("TMPDIR");
   if (tmp)
-    *path = UTF8ToWide(tmp);
+    *path = FilePath(tmp);
   else
-    *path = L"/tmp";
+    *path = FilePath("/tmp");
   return true;
 }
 
-bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
-  int infile = open(WideToUTF8(from_path).c_str(), O_RDONLY);
+bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
+  int infile = open(from_path.value().c_str(), O_RDONLY);
   if (infile < 0)
     return false;
   
-  int outfile = creat(WideToUTF8(to_path).c_str(), 0666);
+  int outfile = creat(to_path.value().c_str(), 0666);
   if (outfile < 0) {
     close(infile);
     return false;

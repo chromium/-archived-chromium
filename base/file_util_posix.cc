@@ -18,6 +18,7 @@
 #include <fstream>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 
@@ -37,11 +38,11 @@ std::wstring GetDirectoryFromPath(const std::wstring& path) {
   }
 }
   
-bool AbsolutePath(std::wstring* path) {
+bool AbsolutePath(FilePath* path) {
   char full_path[PATH_MAX];
-  if (realpath(WideToUTF8(*path).c_str(), full_path) == NULL)
+  if (realpath(path->value().c_str(), full_path) == NULL)
     return false;
-  *path = UTF8ToWide(full_path);
+  *path = FilePath(full_path);
   return true;
 }
 
@@ -49,25 +50,24 @@ bool AbsolutePath(std::wstring* path) {
 // which works both with and without the recursive flag.  I'm not sure we need
 // that functionality. If not, remove from file_util_win.cc, otherwise add it
 // here.
-bool Delete(const std::wstring& path, bool recursive) {
-  std::string utf8_path_string = WideToUTF8(path);
-  const char* utf8_path = utf8_path_string.c_str();
+bool Delete(const FilePath& path, bool recursive) {
+  const char* path_str = path.value().c_str();
   struct stat64 file_info;
-  int test = stat64(utf8_path, &file_info);
+  int test = stat64(path_str, &file_info);
   if (test != 0) {
     // The Windows version defines this condition as success.
     bool ret = (errno == ENOENT || errno == ENOTDIR); 
     return ret;
   }
   if (!S_ISDIR(file_info.st_mode))
-    return (unlink(utf8_path) == 0);
+    return (unlink(path_str) == 0);
   if (!recursive)
-    return (rmdir(utf8_path) == 0);
+    return (rmdir(path_str) == 0);
 
   bool success = true;
   int ftsflags = FTS_PHYSICAL | FTS_NOSTAT;
   char top_dir[PATH_MAX];
-  if (base::strlcpy(top_dir, utf8_path,
+  if (base::strlcpy(top_dir, path_str,
                     arraysize(top_dir)) >= arraysize(top_dir)) {
     return false;
   }
@@ -105,26 +105,23 @@ bool Delete(const std::wstring& path, bool recursive) {
   return success;
 }
 
-bool Move(const std::wstring& from_path, const std::wstring& to_path) {
-  return (rename(WideToUTF8(from_path).c_str(),
-                 WideToUTF8(to_path).c_str()) == 0);
+bool Move(const FilePath& from_path, const FilePath& to_path) {
+  return (rename(from_path.value().c_str(),
+                 to_path.value().c_str()) == 0);
 }
 
-bool CopyDirectory(const std::wstring& from_path_wide,
-                   const std::wstring& to_path_wide,
+bool CopyDirectory(const FilePath& from_path,
+                   const FilePath& to_path,
                    bool recursive) {
-  const std::string to_path = WideToUTF8(to_path_wide);
-  const std::string from_path = WideToUTF8(from_path_wide);
-
   // Some old callers of CopyDirectory want it to support wildcards.
   // After some discussion, we decided to fix those callers.
   // Break loudly here if anyone tries to do this.
   // TODO(evanm): remove this once we're sure it's ok.
-  DCHECK(to_path.find('*') == std::string::npos);
-  DCHECK(from_path.find('*') == std::string::npos);
+  DCHECK(to_path.value().find('*') == std::string::npos);
+  DCHECK(from_path.value().find('*') == std::string::npos);
 
   char top_dir[PATH_MAX];
-  if (base::strlcpy(top_dir, from_path.c_str(),
+  if (base::strlcpy(top_dir, from_path.value().c_str(),
                     arraysize(top_dir)) >= arraysize(top_dir)) {
     return false;
   }
@@ -141,7 +138,8 @@ bool CopyDirectory(const std::wstring& from_path_wide,
   while (!error && (ent = fts_read(fts)) != NULL) {
     // ent->fts_path is the source path, including from_path, so paste
     // the suffix after from_path onto to_path to create the target_path.
-    const std::string target_path = to_path + &ent->fts_path[from_path.size()];
+    const std::string target_path =
+        to_path.value() + &ent->fts_path[from_path.value().size()];
     switch (ent->fts_info) {
       case FTS_D:  // Preorder directory.
         // If we encounter a subdirectory in a non-recursive copy, prune it
@@ -211,14 +209,14 @@ bool CopyDirectory(const std::wstring& from_path_wide,
   return true;
 }
 
-bool PathExists(const std::wstring& path) {
+bool PathExists(const FilePath& path) {
   struct stat64 file_info;
-  return (stat64(WideToUTF8(path).c_str(), &file_info) == 0);
+  return (stat64(path.value().c_str(), &file_info) == 0);
 }
 
-bool DirectoryExists(const std::wstring& path) {
+bool DirectoryExists(const FilePath& path) {
   struct stat64 file_info;
-  if (stat64(WideToUTF8(path).c_str(), &file_info) == 0)
+  if (stat64(path.value().c_str(), &file_info) == 0)
     return S_ISDIR(file_info.st_mode);
   return false;
 }
@@ -290,18 +288,23 @@ bool CreateNewTempDirectory(const std::wstring& prefix,
   return true;
 }
 
-bool CreateDirectory(const std::wstring& full_path) {
-  std::vector<std::wstring> components;
-  PathComponents(full_path, &components);
-  std::wstring path;
-  std::vector<std::wstring>::iterator i = components.begin();
-  for (; i != components.end(); ++i) {
-    if (path.length() == 0)
-      path = *i;
-    else
-      AppendToPath(&path, *i);
-    if (!DirectoryExists(path)) {
-      if (mkdir(WideToUTF8(path).c_str(), 0777) != 0)
+bool CreateDirectory(const FilePath& full_path) {
+  std::vector<FilePath> subpaths;
+
+  // Collect a list of all parent directories.
+  FilePath last_path = full_path;
+  subpaths.push_back(full_path);
+  for (FilePath path = full_path.DirName();
+       path.value() != last_path.value(); path = path.DirName()) {
+    subpaths.push_back(path);
+    last_path = path;
+  }
+
+  // Iterate through the parents and create the missing ones.
+  for (std::vector<FilePath>::reverse_iterator i = subpaths.rbegin();
+       i != subpaths.rend(); ++i) {
+    if (!DirectoryExists(*i)) {
+      if (mkdir(i->value().c_str(), 0777) != 0)
         return false;
     }
   }
@@ -358,10 +361,13 @@ int WriteFile(const std::wstring& filename, const char* data, int size) {
 }
 
 // Gets the current working directory for the process.
-bool GetCurrentDirectory(std::wstring* dir) {
+bool GetCurrentDirectory(FilePath* dir) {
   char system_buffer[PATH_MAX] = "";
-  getcwd(system_buffer, sizeof(system_buffer));
-  *dir = UTF8ToWide(system_buffer);
+  if (!getcwd(system_buffer, sizeof(system_buffer))) {
+    NOTREACHED();
+    return false;
+  }
+  *dir = FilePath(system_buffer);
   return true;
 }
 

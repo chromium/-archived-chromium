@@ -7,6 +7,7 @@
 #import <Cocoa/Cocoa.h>
 #include <copyfile.h>
 
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 
@@ -14,18 +15,17 @@ namespace file_util {
 
 const wchar_t kPathSeparator = L'/';
 
-bool GetTempDir(std::wstring* path) {
+bool GetTempDir(FilePath* path) {
   NSString* tmp = NSTemporaryDirectory();
   if (tmp == nil)
     return false;
-  *path = reinterpret_cast<const wchar_t*>(
-      [tmp cStringUsingEncoding:NSUTF32StringEncoding]);
+  *path = FilePath([tmp fileSystemRepresentation]);
   return true;
 }
 
-bool CopyFile(const std::wstring& from_path, const std::wstring& to_path) {
-  return (copyfile(WideToUTF8(from_path).c_str(),
-                   WideToUTF8(to_path).c_str(), NULL, COPYFILE_ALL) == 0);
+bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
+  return (copyfile(from_path.value().c_str(),
+                   to_path.value().c_str(), NULL, COPYFILE_ALL) == 0);
 }
 
 }  // namespace
