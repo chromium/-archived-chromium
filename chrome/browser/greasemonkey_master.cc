@@ -179,15 +179,6 @@ GreasemonkeyMaster::~GreasemonkeyMaster() {
     script_reloader_->DisownMaster();
 }
 
-bool GreasemonkeyMaster::ShareToProcess(ProcessHandle process,
-                                        SharedMemoryHandle* new_handle) {
-  if (shared_memory_.get())
-    return shared_memory_->ShareToProcess(process, new_handle);
-
-  NOTREACHED();
-  return false;
-}
-
 void GreasemonkeyMaster::NewScriptsAvailable(SharedMemory* handle) {
   // Ensure handle is deleted or released.
   scoped_ptr<SharedMemory> handle_deleter(handle);

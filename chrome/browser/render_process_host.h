@@ -84,12 +84,6 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // the process has been created, it should just call Init().
   bool Init();
 
-  // Send the child process its initial visited link database.
-  void InitVisitedLinks(HANDLE target_process);
-
-  // Send the child process its initial greasemonkey scripts.
-  void InitGreasemonkeyScripts(HANDLE target_process);
-
   // Used for refcounting, each holder of this object must Attach and Release
   // just like it would for a COM object. This object should be allocated on
   // the heap; when no listeners own it any more, it will delete itself.
@@ -210,6 +204,21 @@ class RenderProcessHost : public IPC::Channel::Listener,
   void OnClipboardReadAsciiText(std::string* result);
   void OnClipboardReadHTML(std::wstring* markup, GURL* src_url);
   void OnUpdatedCacheStats(const CacheManager::UsageStats& stats);
+
+  // Initialize support for visited links. Send the renderer process its initial
+  // set of visited links.
+  void InitVisitedLinks();
+
+  // Initialize support for Greasemonkey scripts. Send the renderer process its
+  // initial set of scripts and listen for updates to scripts.
+  void InitGreasemonkeyScripts();
+
+  // Sends the renderer process a new set of Greasemonkey scripts.
+  void SendGreasemonkeyScriptsUpdate(SharedMemory* shared_memory);
+
+  // Gets a handle to the renderer process, normalizing the case where we were
+  // started with --single-process.
+  HANDLE GetRendererProcessHandle();
 
   // Callers can reduce the RenderProcess' priority.
   // Returns true if the priority is backgrounded; false otherwise.

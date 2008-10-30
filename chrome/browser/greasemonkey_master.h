@@ -23,10 +23,6 @@ class GreasemonkeyMaster : public base::RefCounted<GreasemonkeyMaster>,
   GreasemonkeyMaster(MessageLoop* worker, const FilePath& script_dir);
   ~GreasemonkeyMaster();
 
-  // Creates a handle to the shared memory that can be used in the specified
-  // process.
-  bool ShareToProcess(ProcessHandle process, SharedMemoryHandle* new_handle);
-
   // Gets the segment of shared memory for the scripts.
   SharedMemory* GetSharedMemory() const {
     return shared_memory_.get();
