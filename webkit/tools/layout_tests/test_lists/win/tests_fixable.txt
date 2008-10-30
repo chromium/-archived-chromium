@@ -916,7 +916,7 @@ V8 | KJS # LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exc
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL | CRASH | PASS
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
@@ -1348,4 +1348,3 @@ V8 | KJS # LayoutTests/fast/css-generated-content/013.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/css-generated-content/014.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/css-generated-content/015.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/css-generated-content/016.html = FAIL | PASS
-V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = CRASH | PASS
