@@ -10,6 +10,7 @@
 #include "base/icu_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "base/message_loop.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
@@ -53,13 +54,14 @@ int main(int argc, char* argv[]) {
     uri = *iter;
   }
 
+  MessageLoopForUI main_message_loop;
+
   TestShell* shell;
   if (TestShell::CreateNewWindow(uri, &shell)) {
     // TODO(port): the rest of this.  :)
   }
 
-  // TODO(port): use MessageLoop instead.
-  gtk_main();
+  main_message_loop.Run();
 
   return 0;
 }

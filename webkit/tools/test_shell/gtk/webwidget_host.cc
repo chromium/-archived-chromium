@@ -92,6 +92,10 @@ WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle box,
   return host;
 }
 
+void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
+  NOTIMPLEMENTED();
+}
+
 WebWidgetHost* FromWindow(gfx::WindowHandle view) {
   const gpointer p = g_object_get_data(G_OBJECT(view), "webwidgethost");
   return (WebWidgetHost* ) p;
