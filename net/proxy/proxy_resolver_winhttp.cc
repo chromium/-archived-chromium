@@ -8,6 +8,7 @@
 #include <winhttp.h>
 
 #include "base/histogram.h"
+#include "base/string_tokenizer.h"
 #include "net/base/net_errors.h"
 
 #pragma comment(lib, "winhttp.lib")
@@ -70,8 +71,18 @@ int ProxyResolverWinHttp::GetProxyConfig(ProxyConfig* config) {
     config->auto_detect = true;
   if (ie_config.lpszProxy)
     config->proxy_server = WideToASCII(ie_config.lpszProxy);
-  if (ie_config.lpszProxyBypass)
-    config->proxy_bypass = WideToASCII(ie_config.lpszProxyBypass);
+  if (ie_config.lpszProxyBypass) {
+    std::string proxy_bypass = WideToASCII(ie_config.lpszProxyBypass);
+    
+    StringTokenizer proxy_server_bypass_list(proxy_bypass, "; \t\n\r");
+    while (proxy_server_bypass_list.GetNext()) {
+      std::string bypass_url_domain = proxy_server_bypass_list.token();
+      if (bypass_url_domain == "<local>")
+        config->proxy_bypass_local_names = true;
+      else
+        config->proxy_bypass.push_back(bypass_url_domain);
+    }
+  }
   if (ie_config.lpszAutoConfigUrl)
     config->pac_url = WideToASCII(ie_config.lpszAutoConfigUrl);
 

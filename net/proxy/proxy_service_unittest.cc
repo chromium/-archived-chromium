@@ -301,7 +301,7 @@ TEST(ProxyServiceTest, ProxyBypassList) {
   MockProxyResolver resolver;
   resolver.config->proxy_server = "foopy1:8080;foopy2:9090";
   resolver.config->auto_detect = false;
-  resolver.config->proxy_bypass = "<local>";
+  resolver.config->proxy_bypass_local_names = true;
 
   net::ProxyService service(&resolver);
   GURL url("http://www.google.com/");
@@ -318,7 +318,9 @@ TEST(ProxyServiceTest, ProxyBypassList) {
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info1.is_direct());
 
-  resolver.config->proxy_bypass = "<local>;*.org";
+  resolver.config->proxy_bypass.clear();
+  resolver.config->proxy_bypass.push_back("*.org");
+  resolver.config->proxy_bypass_local_names = true;
   net::ProxyService service2(&resolver);
   GURL test_url2("http://www.webkit.org");
   net::ProxyInfo info2;
@@ -326,7 +328,10 @@ TEST(ProxyServiceTest, ProxyBypassList) {
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info2.is_direct());
 
-  resolver.config->proxy_bypass = "<local>;*.org;7*";
+  resolver.config->proxy_bypass.clear();
+  resolver.config->proxy_bypass.push_back("*.org");
+  resolver.config->proxy_bypass.push_back("7*");
+  resolver.config->proxy_bypass_local_names = true;
   net::ProxyService service3(&resolver);
   GURL test_url3("http://74.125.19.147");
   net::ProxyInfo info3;
@@ -334,7 +339,9 @@ TEST(ProxyServiceTest, ProxyBypassList) {
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info3.is_direct());
 
-  resolver.config->proxy_bypass = "<local>;*.org;";
+  resolver.config->proxy_bypass.clear();
+  resolver.config->proxy_bypass.push_back("*.org");
+  resolver.config->proxy_bypass_local_names = true;
   net::ProxyService service4(&resolver);
   GURL test_url4("http://www.msn.com");
   net::ProxyInfo info4;
@@ -342,7 +349,9 @@ TEST(ProxyServiceTest, ProxyBypassList) {
   EXPECT_EQ(rv, net::OK);
   EXPECT_FALSE(info4.is_direct());
 
-  resolver.config->proxy_bypass = "<local>;*.MSN.COM;";
+  resolver.config->proxy_bypass.clear();
+  resolver.config->proxy_bypass.push_back("*.MSN.COM");
+  resolver.config->proxy_bypass_local_names = true;
   net::ProxyService service5(&resolver);
   GURL test_url5("http://www.msnbc.msn.com");
   net::ProxyInfo info5;
@@ -350,7 +359,9 @@ TEST(ProxyServiceTest, ProxyBypassList) {
   EXPECT_EQ(rv, net::OK);
   EXPECT_TRUE(info5.is_direct());
 
-  resolver.config->proxy_bypass = "<local>;*.msn.com;";
+  resolver.config->proxy_bypass.clear();
+  resolver.config->proxy_bypass.push_back("*.msn.com");
+  resolver.config->proxy_bypass_local_names = true;
   net::ProxyService service6(&resolver);
   GURL test_url6("HTTP://WWW.MSNBC.MSN.COM");
   net::ProxyInfo info6;

@@ -89,7 +89,6 @@ input_files = [
     'http/http_vary_data.cc',
     'http/winhttp_request_throttle.cc',
     'proxy/proxy_resolver_fixed.cc',
-    'proxy/proxy_resolver_winhttp.cc',
     'proxy/proxy_service.cc',
     'url_request/mime_sniffer_proxy.cc',
     'url_request/url_request.cc',
@@ -123,7 +122,6 @@ if env['PLATFORM'] in ('posix', 'darwin'):
       'base/winsock_init.cc',
       'http/http_transaction_winhttp.cc',
       'http/winhttp_request_throttle.cc',
-      'proxy/proxy_resolver_winhttp.cc',
       'url_request/url_request_file_dir_job.cc',
       'url_request/url_request_ftp_job.cc',
       'url_request/url_request_inet_job.cc',
@@ -142,12 +140,15 @@ if env['PLATFORM'] == 'win32':
       'disk_cache/file_win.cc',
       'disk_cache/mapped_file_win.cc',
       'disk_cache/os_file_win.cc',
+      'proxy/proxy_resolver_winhttp.cc',
   ])
 
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
       'base/platform_mime_util_mac.mm',
+      'base/ssl_client_socket_mac.cc',
       'base/x509_certificate_mac.cc',
+      'proxy/proxy_resolver_mac.cc',
   ])
 
 if env['PLATFORM'] == 'posix':
