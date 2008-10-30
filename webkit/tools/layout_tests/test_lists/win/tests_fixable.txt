@@ -1348,3 +1348,4 @@ V8 | KJS # LayoutTests/fast/css-generated-content/013.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/css-generated-content/014.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/css-generated-content/015.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/css-generated-content/016.html = FAIL | PASS
+V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = CRASH | PASS
