@@ -38,7 +38,8 @@ namespace history {
 
 namespace {
 
-const int kCurrentVersionNumber = 1;
+static const int kCurrentVersionNumber = 1;
+static const int kCompatibleVersionNumber = 1;
 
 // Snippet computation relies on the index of the columns in the original
 // create statement. These are the 0-based indices (as strings) of the
@@ -161,7 +162,8 @@ bool TextDatabase::Init() {
   sqlite3_exec(db_, "PRAGMA locking_mode=EXCLUSIVE", NULL, NULL, NULL);
 
   // Meta table tracking version information.
-  if (!meta_table_.Init(std::string(), kCurrentVersionNumber, db_))
+  if (!meta_table_.Init(std::string(), kCurrentVersionNumber,
+                        kCompatibleVersionNumber, db_))
     return false;
   if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber) {
     // This version is too new. We don't bother notifying the user on this
@@ -170,6 +172,7 @@ bool TextDatabase::Init() {
     // here. If that's not the case, since this is only indexed data, it's
     // probably better to just not give FTS results than strange errors when
     // everything else is working OK.
+    LOG(WARNING) << "Text database is too new.";
     return false;
   }
 

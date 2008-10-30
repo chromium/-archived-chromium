@@ -26,13 +26,16 @@ class MetaTableHelper {
   ~MetaTableHelper();
 
   // Initializes the MetaTableHelper, creating the meta table if necessary. For
-  // new tables, it will initialize the version number to |version| and will
-  // set the optional |is_new| out var to true.
+  // new tables, it will initialize the version number to |version| and the
+  // compatible version number to |compatible_version|.
   //
   // The name of the database in the sqlite connection (for tables named with
   // the "db_name.table_name" scheme is given in |db_name|. If empty, it is
   // assumed there is no database name.
-  bool Init(const std::string& db_name, int version, sqlite3* db);
+  bool Init(const std::string& db_name,
+            int version,
+            int compatible_version,
+            sqlite3* db);
 
   // Version number. This should be the version number of the creator of the
   // file. GetVersionNumber will return 0 if there is no version number.

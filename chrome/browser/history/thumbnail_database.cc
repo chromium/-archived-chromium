@@ -19,6 +19,7 @@ namespace history {
 
 // Version number of the database.
 static const int kCurrentVersionNumber = 3;
+static const int kCompatibleVersionNumber = 3;
 
 ThumbnailDatabase::ThumbnailDatabase()
     : db_(NULL),
@@ -64,7 +65,8 @@ InitStatus ThumbnailDatabase::Init(const std::wstring& db_name) {
   transaction.Begin();
 
   // Create the tables.
-  if (!meta_table_.Init(std::string(), kCurrentVersionNumber, db_) ||
+  if (!meta_table_.Init(std::string(), kCurrentVersionNumber,
+                        kCompatibleVersionNumber, db_) ||
       !InitThumbnailTable() ||
       !InitFavIconsTable(false))
     return INIT_FAILURE;
@@ -72,16 +74,22 @@ InitStatus ThumbnailDatabase::Init(const std::wstring& db_name) {
 
   // Version check. We should not encounter a database too old for us to handle
   // in the wild, so we try to continue in that case.
-  if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber)
+  if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber) {
+    LOG(WARNING) << "Thumbnail database is too new.";
     return INIT_TOO_NEW;
-  int cur_version = meta_table_.GetVersionNumber();
-  if (cur_version == 2) {
-    UpgradeToVersion3();
-    cur_version = meta_table_.GetVersionNumber();
   }
 
-  DLOG_IF(WARNING, cur_version < kCurrentVersionNumber) <<
-    "Thumbnail database version " << cur_version << " is too old for us.";
+  int cur_version = meta_table_.GetVersionNumber();
+  if (cur_version == 2) {
+    if (!UpgradeToVersion3()) {
+      LOG(WARNING) << "Unable to update to thumbnail database to version 3.";
+      return INIT_FAILURE;
+    }
+    ++cur_version;
+  }
+
+  LOG_IF(WARNING, cur_version < kCurrentVersionNumber) <<
+      "Thumbnail database version " << cur_version << " is too old to handle.";
 
   // Initialization is complete.
   if (transaction.Commit() != SQLITE_OK)
@@ -132,7 +140,7 @@ bool ThumbnailDatabase::InitThumbnailTable() {
   return true;
 }
 
-void ThumbnailDatabase::UpgradeToVersion3() {
+bool ThumbnailDatabase::UpgradeToVersion3() {
   // sqlite doesn't like the "ALTER TABLE xxx ADD (column_one, two,
   // three)" syntax, so list out the commands we need to execute:
   const char* alterations[] = {
@@ -146,12 +154,14 @@ void ThumbnailDatabase::UpgradeToVersion3() {
   for (int i = 0; alterations[i] != NULL; ++i) {
     if (sqlite3_exec(db_, alterations[i],
                      NULL, NULL, NULL) != SQLITE_OK) {
-      NOTREACHED() << "Failed to update to v3.";
-      return;
+      NOTREACHED();
+      return false;
     }
   }
 
-  meta_table_.SetVersionNumber(kCurrentVersionNumber);
+  meta_table_.SetVersionNumber(3);
+  meta_table_.SetCompatibleVersionNumber(std::min(3, kCompatibleVersionNumber));
+  return true;
 }
 
 bool ThumbnailDatabase::RecreateThumbnailTable() {
@@ -294,7 +304,7 @@ bool ThumbnailDatabase::ThumbnailScoreForId(
   // aren't replacing a good thumbnail with one that's worse.
   SQLITE_UNIQUE_STATEMENT(
       select_statement, *statement_cache_,
-      "SELECT boring_score,good_clipping,at_top,last_updated "
+      "SELECT boring_score, good_clipping, at_top, last_updated "
       "FROM thumbnails WHERE url_id=?");
   if (!select_statement.is_valid()) {
     NOTREACHED() << "Couldn't build select statement!";
@@ -321,7 +331,7 @@ bool ThumbnailDatabase::SetFavIcon(URLID icon_id,
   if (icon_data.size()) {
     SQLITE_UNIQUE_STATEMENT(
         statement, *statement_cache_,
-        "UPDATE favicons SET image_data=?,last_updated=? WHERE id=?");
+        "UPDATE favicons SET image_data=?, last_updated=? WHERE id=?");
     if (!statement.is_valid())
       return 0;
 
@@ -333,7 +343,7 @@ bool ThumbnailDatabase::SetFavIcon(URLID icon_id,
   } else {
     SQLITE_UNIQUE_STATEMENT(
         statement, *statement_cache_,
-        "UPDATE favicons SET image_data=NULL,last_updated=? WHERE id=?");
+        "UPDATE favicons SET image_data=NULL, last_updated=? WHERE id=?");
     if (!statement.is_valid())
       return 0;
 
@@ -377,7 +387,7 @@ bool ThumbnailDatabase::GetFavIcon(
   DCHECK(icon_id);
 
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
-      "SELECT last_updated,image_data,url FROM favicons WHERE id=?");
+      "SELECT last_updated, image_data, url FROM favicons WHERE id=?");
   if (!statement.is_valid())
     return 0;
 
@@ -420,10 +430,9 @@ bool ThumbnailDatabase::DeleteFavIcon(FavIconID id) {
 
 FavIconID ThumbnailDatabase::CopyToTemporaryFavIconTable(FavIconID source) {
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
-                          "INSERT INTO temp_favicons("
-                              "url, last_updated, image_data)"
-                          "SELECT url, last_updated, image_data "
-                          "FROM favicons WHERE id = ?");
+      "INSERT INTO temp_favicons (url, last_updated, image_data)"
+      "SELECT url, last_updated, image_data "
+      "FROM favicons WHERE id = ?");
   if (!statement.is_valid())
     return 0;
   statement->bind_int64(0, source);

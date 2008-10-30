@@ -10,6 +10,7 @@ namespace history {
 namespace {
 
 static const int kCurrentVersionNumber = 2;
+static const int kCompatibleVersionNumber = 2;
 
 }  // namespace
 
@@ -48,7 +49,8 @@ bool ArchivedDatabase::Init(const std::wstring& file_name) {
   BeginTransaction();
 
   // Version check.
-  if (!meta_table_.Init(std::string(), kCurrentVersionNumber, db_))
+  if (!meta_table_.Init(std::string(), kCurrentVersionNumber,
+                        kCompatibleVersionNumber, db_))
     return false;
 
   // Create the tables.
@@ -98,8 +100,10 @@ SqliteStatementCache& ArchivedDatabase::GetStatementCache() {
 
 InitStatus ArchivedDatabase::EnsureCurrentVersion() {
   // We can't read databases newer than we were designed for.
-  if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber)
+  if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber) {
+    LOG(WARNING) << "Archived database is too new.";
     return INIT_TOO_NEW;
+  }
 
   // NOTICE: If you are changing structures for things shared with the archived
   // history file like URLs, visits, or downloads, that will need migration as
@@ -107,20 +111,22 @@ InitStatus ArchivedDatabase::EnsureCurrentVersion() {
   // in the corresponding file (url_database.cc, etc.) and called from here and
   // from the archived_database.cc.
 
-  // When the version is too old, we just try to continue anyway, there should
-  // not be a released product that makes a database too old for us to handle.
   int cur_version = meta_table_.GetVersionNumber();
-
-  // Put migration code here
-
   if (cur_version == 1) {
-    if (!DropStarredIDFromURLs())
+    if (!DropStarredIDFromURLs()) {
+      LOG(WARNING) << "Unable to update archived database to version 2.";
       return INIT_FAILURE;
-    cur_version = 2;
+    }
+    ++cur_version;
     meta_table_.SetVersionNumber(cur_version);
-    meta_table_.SetCompatibleVersionNumber(cur_version);
+    meta_table_.SetCompatibleVersionNumber(
+        std::min(cur_version, kCompatibleVersionNumber));
   }
 
+  // Put future migration cases here.
+
+  // When the version is too old, we just try to continue anyway, there should
+  // not be a released product that makes a database too old for us to handle.
   LOG_IF(WARNING, cur_version < kCurrentVersionNumber) <<
       "Archived database version " << cur_version << " is too old to handle.";
 

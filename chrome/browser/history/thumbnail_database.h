@@ -139,7 +139,7 @@ class ThumbnailDatabase {
   bool InitFavIconsTable(bool is_temporary);
 
   // Adds support for the new metadata on web page thumbnails.
-  void UpgradeToVersion3();
+  bool UpgradeToVersion3();
 
   // Creates the index over the favicon table. This will be called during
   // initialization after the table is created. This is a separate function

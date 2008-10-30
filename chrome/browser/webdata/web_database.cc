@@ -77,6 +77,7 @@ using base::Time;
 
 // Current version number.
 static const int kCurrentVersionNumber = 21;
+static const int kCompatibleVersionNumber = 21;
 
 // Keys used in the meta table.
 static const char* kDefaultSearchProviderKey = "Default Search Provider ID";
@@ -150,10 +151,11 @@ bool WebDatabase::Init(const std::wstring& db_name) {
   transaction.Begin();
 
   // Version check.
-  if (!meta_table_.Init(std::string(), kCurrentVersionNumber, db_))
+  if (!meta_table_.Init(std::string(), kCurrentVersionNumber,
+                        kCompatibleVersionNumber, db_))
     return false;
   if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber) {
-    LOG(WARNING) << "Web database is too new";
+    LOG(WARNING) << "Web database is too new.";
     return false;
   }
 
@@ -870,11 +872,13 @@ void WebDatabase::MigrateOldVersionsAsNeeded() {
                        "ALTER TABLE keywords ADD COLUMN autogenerate_keyword "
                        "INTEGER DEFAULT 0", NULL, NULL, NULL) != SQLITE_OK) {
         NOTREACHED();
+        LOG(WARNING) << "Unable to update web database to version 21.";
         return;
       }
-      ++current_version;
-      meta_table_.SetVersionNumber(current_version);
-      meta_table_.SetCompatibleVersionNumber(current_version);
+      meta_table_.SetVersionNumber(21);
+      meta_table_.SetCompatibleVersionNumber(
+          std::min(21, kCompatibleVersionNumber));
+      // FALL THROUGH
 
     // Add successive versions here.  Each should set the version number and
     // compatible version number as appropriate, then fall through to the next

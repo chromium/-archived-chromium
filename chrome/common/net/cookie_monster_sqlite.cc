@@ -156,6 +156,7 @@ void SQLitePersistentCookieStore::Backend::Commit() {
     NOTREACHED();
     return;
   }
+
   SQLITE_UNIQUE_STATEMENT(del_smt, *cache_,
                           "DELETE FROM cookies WHERE creation_utc=?");
   if (!del_smt.is_valid()) {
@@ -241,6 +242,7 @@ SQLitePersistentCookieStore::~SQLitePersistentCookieStore() {
 
 // Version number of the database.
 static const int kCurrentVersionNumber = 2;
+static const int kCompatibleVersionNumber = 2;
 
 namespace {
 
@@ -338,14 +340,23 @@ bool SQLitePersistentCookieStore::Load(
 
 bool SQLitePersistentCookieStore::EnsureDatabaseVersion(sqlite3* db) {
   // Version check.
-  if (!meta_table_.Init(std::string(), kCurrentVersionNumber, db))
+  if (!meta_table_.Init(std::string(), kCurrentVersionNumber,
+                        kCompatibleVersionNumber, db))
     return false;
 
-  int compat_version = meta_table_.GetCompatibleVersionNumber();
-  if (compat_version > kCurrentVersionNumber) {
-    DLOG(WARNING) << "Cookie DB version from the future: " << compat_version;
+  if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber) {
+    LOG(WARNING) << "Cookie database is too new.";
     return false;
   }
+
+  int cur_version = meta_table_.GetVersionNumber();
+
+  // Put future migration cases here.
+
+  // When the version is too old, we just try to continue anyway, there should
+  // not be a released product that makes a database too old for us to handle.
+  LOG_IF(WARNING, cur_version < kCurrentVersionNumber) <<
+      "Cookie database version " << cur_version << " is too old to handle.";
 
   return true;
 }

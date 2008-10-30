@@ -35,7 +35,6 @@ class SQLitePersistentCookieStore
 
   // Database upgrade statements.
   bool EnsureDatabaseVersion(sqlite3* db);
-  bool UpdateSchemaToVersion2(sqlite3* db);
 
   std::wstring path_;
   scoped_refptr<Backend> backend_;
