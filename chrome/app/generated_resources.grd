@@ -2040,7 +2040,10 @@ each locale. -->
       <message name="IDS_BOOKMARK_GROUP_FROM_FIREFOX" desc="The group name of bookmarks from Firefox">
         Imported From Firefox
       </message>
-       
+      <message name="IDS_BOOKMARK_GROUP" desc="The group name of bookmarks imported from a file">
+        Imported
+      </message>
+
       <!-- bookmark editor messages-->
       <message name="IDS_BOOMARK_EDITOR_NAME_LABEL" desc="Label shown before the title/name of the URL.">
         Name:
