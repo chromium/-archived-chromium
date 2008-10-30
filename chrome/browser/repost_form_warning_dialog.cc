@@ -55,7 +55,7 @@ bool RepostFormWarningDialog::Cancel() {
 
 bool RepostFormWarningDialog::Accept() {
   if (navigation_controller_)
-    navigation_controller_->ReloadDontCheckForRepost();
+    navigation_controller_->Reload(false);
   return true;
 }
 

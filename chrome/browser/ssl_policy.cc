@@ -63,7 +63,7 @@ void ShowUnsafeContentTask::Run() {
   // Reload the page.
   DCHECK(error_handler_->GetTabContents()->type() == TAB_CONTENTS_WEB);
   WebContents* tab = error_handler_->GetTabContents()->AsWebContents();
-  tab->controller()->Reload();
+  tab->controller()->Reload(true);
 }
 
 static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {

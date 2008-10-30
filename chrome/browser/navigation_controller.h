@@ -283,12 +283,10 @@ class NavigationController {
   // the offset is out of bounds.
   void GoToOffset(int offset);
 
-  // Reloads the current entry. The user will be prompted if the URL has POST
-  // data and the active WebContents isn't showing the POST interstitial page.
-  void Reload();
-
-  // Same as Reload, but doesn't check if current entry has POST data.
-  void ReloadDontCheckForRepost();
+  // Reloads the current entry. If |check_for_repost| is true and the current
+  // entry has POST data the user is prompted to see if they really want to
+  // reload the page. In nearly all cases pass in true.
+  void Reload(bool check_for_repost);
 
   // Removing of entries -------------------------------------------------------
 

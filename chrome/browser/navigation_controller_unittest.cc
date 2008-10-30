@@ -483,7 +483,7 @@ TEST_F(NavigationControllerTest, Reload) {
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  contents->controller()->Reload();
+  contents->controller()->Reload(true);
   EXPECT_EQ(0, notifications.size());
 
   // The reload is pending.
@@ -520,7 +520,7 @@ TEST_F(NavigationControllerTest, Reload_GeneratesNewPage) {
   contents->CompleteNavigationAsRenderer(0, url1);
   EXPECT_TRUE(notifications.Check1AndReset(NOTIFY_NAV_ENTRY_COMMITTED));
 
-  contents->controller()->Reload();
+  contents->controller()->Reload(true);
   EXPECT_EQ(0, notifications.size());
 
   contents->CompleteNavigationAsRenderer(1, url2);

@@ -276,7 +276,7 @@ void RenderViewContextMenuController::ExecuteCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_RELOAD:
-      source_web_contents_->controller()->Reload();
+      source_web_contents_->controller()->Reload(true);
       break;
 
     case IDS_CONTENT_CONTEXT_PRINT:

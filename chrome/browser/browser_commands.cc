@@ -771,7 +771,7 @@ void Browser::Reload() {
   if (current_tab) {
     // As this is caused by a user action, give the focus to the page.
     current_tab->Focus();
-    current_tab->controller()->Reload();
+    current_tab->controller()->Reload(true);
   }
 }
 

@@ -451,7 +451,7 @@ void TabStripModel::ExecuteContextMenuCommand(
       break;
     case CommandReload:
       UserMetrics::RecordAction(L"TabContextMenu_Reload", profile_);
-      GetContentsAt(context_index)->controller()->Reload();
+      GetContentsAt(context_index)->controller()->Reload(true);
       break;
     case CommandDuplicate:
       if (delegate_) {
