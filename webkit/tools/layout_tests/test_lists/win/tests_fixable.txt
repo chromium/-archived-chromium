@@ -175,7 +175,7 @@ V8 | KJS # LayoutTests/plugins/destroy-stream-twice.html = FAIL | TIMEOUT
 
 // This test has been modified and placed in pending, so we ignore the original
 // until we get our modification into WebKit.
-V8 | KJS # LayoutTests/security/block-test.html = PASS | FAIL
+V8 | KJS # LayoutTests/security/block-test.html = PASS | FAIL | TIMEOUT
 
 // Bug 1124522
 // Test forked into pending and fixed.
@@ -811,10 +811,10 @@ V8 | KJS # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html 
 V8 | KJS # LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
 V8 | KJS # LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
 
-# This was fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.
-# Unclear why it wasn't fixed when we merged in that revision.
-V8 | KJS # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL
-
+# This was fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.	
+# For chromium, it got flaky once we pulled 36103 in.
+V8 | KJS # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL | PASS
+  
 # This test finishes while in the middle of a CSS animation. This is
 # intentional, but it makes pixel results unreliable.
 # http://bugs.webkit.org/show_bug.cgi?id=21491
@@ -1139,8 +1139,6 @@ V8 | KJS # LayoutTests/transforms/2d/compound-transforms-vs-containers.html = FA
 V8 | KJS # LayoutTests/transforms/2d/transform-borderbox.html = FAIL
 V8 | KJS # LayoutTests/transforms/2d/transform-origin-borderbox.html = FAIL
 V8 | KJS # LayoutTests/fast/events/message-port-inactive-document.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/frameNavigation/not-opener.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/frameNavigation/opener.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/MessagePort/event-listener-context.html = CRASH
 // missing expected results
 V8 | KJS # SKIP LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
@@ -1283,7 +1281,7 @@ V8 | KJS # LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/invalid.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/valid.html = FAIL
-V8 | KJS # LayoutTests/fast/history/go-back-to-changed-name.html = FAIL
+V8 | KJS # LayoutTests/fast/history/go-back-to-changed-name.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/html/keygen.html = FAIL
 V8 | KJS # LayoutTests/fast/images/svg-as-background.html = FAIL
 V8 | KJS # LayoutTests/fast/images/svg-as-image.html = FAIL
@@ -1315,11 +1313,14 @@ V8 | KJS # chrome/fast/dom/xmlhttprequest-gc.html = FAIL
 V8 | KJS # chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 V8 | KJS # chrome/fast/forms/basic-textareas.html = FAIL
 V8 | KJS # chrome/fast/forms/lazy-event-listener-scope-chain.html = FAIL
-V8 | KJS # pending/security/block-test.html = FAIL
-V8 | KJS # LayoutTests/editing/execCommand/19089.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/button-cannot-be-nested.html = FAIL
-V8 | KJS # LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
+V8 | KJS # pending/security/block-test.html = FAIL | TIMEOUT
+V8 | KJS # LayoutTests/editing/execCommand/19089.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/forms/button-cannot-be-nested.html = FAIL | PASS
+V8 | KJS # LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/events/no-blur-on-page-leave.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
 V8 | KJS # LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 V8 | KJS # pending/plugins/destroy-stream-twice.html = TIMEOUT
+V8 | KJS # LayoutTests/animations/big-rotation.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css/continuationCrash.html = FAIL | PASS
+V8 | KJS # LayoutTests/fast/css/font-face-default-font.html = FAIL | PASS
