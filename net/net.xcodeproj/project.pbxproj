@@ -127,8 +127,6 @@
 		7BED34450E5A1A9600A747DB /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED324A0E5A17C000A747DB /* libbase.a */; };
 		7BED34520E5A1ABC00A747DB /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BED32530E5A17C300A747DB /* libgtest.a */; };
 		8200F2030E5F741E005A3C44 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8200F2020E5F741E005A3C44 /* CoreServices.framework */; };
-		820701040EB6611F005CD9E7 /* proxy_resolver_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 820701020EB6611F005CD9E7 /* proxy_resolver_mac.cc */; };
-		820706940EB8D9D4005CD9E7 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 820706930EB8D9D4005CD9E7 /* SystemConfiguration.framework */; };
 		82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */; };
 		82113A280E84360200E3848F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82113A270E84360200E3848F /* Security.framework */; };
 		82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */ = {isa = PBXBuildFile; fileRef = 82113BBC0E892E5800E3848F /* x509_certificate.cc */; };
@@ -657,9 +655,6 @@
 		7BED33BB0E5A198600A747DB /* url_request_inet_job.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = url_request_inet_job.cc; sourceTree = "<group>"; };
 		7BED33BC0E5A198600A747DB /* url_request_http_job.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = url_request_http_job.h; sourceTree = "<group>"; };
 		8200F2020E5F741E005A3C44 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = "<group>"; };
-		820701020EB6611F005CD9E7 /* proxy_resolver_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proxy_resolver_mac.cc; path = proxy/proxy_resolver_mac.cc; sourceTree = "<group>"; };
-		820701030EB6611F005CD9E7 /* proxy_resolver_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy_resolver_mac.h; path = proxy/proxy_resolver_mac.h; sourceTree = "<group>"; };
-		820706930EB8D9D4005CD9E7 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		82113A1C0E8434EE00E3848F /* x509_certificate_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x509_certificate_unittest.cc; sourceTree = "<group>"; };
 		82113A270E84360200E3848F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = "<group>"; };
 		82113BBC0E892E5800E3848F /* x509_certificate.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x509_certificate.cc; sourceTree = "<group>"; };
@@ -710,7 +705,6 @@
 				7BA362C40E8C3D4C0023C8B9 /* libsdch.a in Frameworks */,
 				7BA0169E0E5A1EAE00044150 /* libzlib.a in Frameworks */,
 				82113A280E84360200E3848F /* Security.framework in Frameworks */,
-				820706940EB8D9D4005CD9E7 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -822,7 +816,6 @@
 				8200F2020E5F741E005A3C44 /* CoreServices.framework */,
 				7BA0157A0E5A1C9100044150 /* Foundation.framework */,
 				82113A270E84360200E3848F /* Security.framework */,
-				820706930EB8D9D4005CD9E7 /* SystemConfiguration.framework */,
 			);
 			name = Frameworks;
 			sourceTree = SDKROOT;
@@ -1144,8 +1137,6 @@
 			children = (
 				E49DD33A0E8933C0003C7A87 /* proxy_resolver_fixed.h */,
 				E49DD33B0E8933C0003C7A87 /* proxy_resolver_fixed.cc */,
-				820701030EB6611F005CD9E7 /* proxy_resolver_mac.h */,
-				820701020EB6611F005CD9E7 /* proxy_resolver_mac.cc */,
 				04AC41720EA941AE0063A0AB /* proxy_resolver_null.h */,
 				E49DD3350E8933A2003C7A87 /* proxy_service.h */,
 				E49DD3360E8933A2003C7A87 /* proxy_service.cc */,
@@ -1477,7 +1468,6 @@
 				7B85043B0E5B2E6400730B43 /* os_file_posix.cc in Sources */,
 				7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.mm in Sources */,
 				E49DD33C0E8933C0003C7A87 /* proxy_resolver_fixed.cc in Sources */,
-				820701040EB6611F005CD9E7 /* proxy_resolver_mac.cc in Sources */,
 				E49DD3370E8933A2003C7A87 /* proxy_service.cc in Sources */,
 				7B85043D0E5B2E6400730B43 /* rankings.cc in Sources */,
 				7B8B5B560E5CEADE002F9A97 /* registry_controlled_domain.cc in Sources */,

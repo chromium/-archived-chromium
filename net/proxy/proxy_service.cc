@@ -30,7 +30,6 @@ ProxyConfig::ID ProxyConfig::last_id_ = ProxyConfig::INVALID_ID;
 
 ProxyConfig::ProxyConfig()
     : auto_detect(false),
-      proxy_bypass_local_names(false),
       id_(++last_id_) {
 }
 
@@ -40,8 +39,7 @@ bool ProxyConfig::Equals(const ProxyConfig& other) const {
   return auto_detect == other.auto_detect &&
          pac_url == other.pac_url &&
          proxy_server == other.proxy_server &&
-         proxy_bypass == other.proxy_bypass &&
-         proxy_bypass_local_names == other.proxy_bypass_local_names;
+         proxy_bypass == other.proxy_bypass;
 }
 
 // ProxyList ------------------------------------------------------------------
@@ -447,18 +445,17 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
     url_domain += "://";
 
   url_domain += url.host();
-  // This isn't superfluous; GURL case canonicalization doesn't hit the embedded
-  // percent-encoded characters.
   StringToLowerASCII(&url_domain);
 
-  if (config_.proxy_bypass_local_names) {
-    if (url.host().find('.') == std::string::npos)
-      return true;
-  }
-  
-  for(std::vector<std::string>::const_iterator i = config_.proxy_bypass.begin();
-      i != config_.proxy_bypass.end(); ++i) {
-    std::string bypass_url_domain = *i;
+  StringTokenizer proxy_server_bypass_list(config_.proxy_bypass, ";");
+  while (proxy_server_bypass_list.GetNext()) {
+    std::string bypass_url_domain = proxy_server_bypass_list.token();
+    if (bypass_url_domain == "<local>") {
+      // Any name without a DOT (.) is considered to be local.
+      if (url.host().find('.') == std::string::npos)
+        return true;
+      continue;
+    }
 
     // The proxy server bypass list can contain entities with http/https
     // If no scheme is specified then it indicates that all schemes are
@@ -476,12 +473,6 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
 
     if (MatchPattern(url_domain, bypass_url_domain))
       return true;
-      
-    // Some systems (the Mac, for example) allow CIDR-style specification of
-    // proxy bypass for IP-specified hosts (e.g.  "10.0.0.0/8"; see
-    // http://www.tcd.ie/iss/internet/osx_proxy.php for a real-world example).
-    // That's kinda cool so we'll provide that for everyone.
-    // TODO(avi): implement here
   }
 
   return false;

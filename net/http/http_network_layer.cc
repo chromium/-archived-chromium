@@ -13,8 +13,6 @@
 #if defined(OS_WIN)
 #include "net/http/http_transaction_winhttp.h"
 #include "net/proxy/proxy_resolver_winhttp.h"
-#elif defined(OS_MACOSX)
-#include "net/proxy/proxy_resolver_mac.h"
 #endif
 
 namespace net {
@@ -53,8 +51,6 @@ HttpNetworkLayer::HttpNetworkLayer(const ProxyInfo* pi)
   } else {
 #if defined(OS_WIN)
     proxy_resolver_.reset(new ProxyResolverWinHttp());
-#elif defined(OS_MACOSX)
-    proxy_resolver_.reset(new ProxyResolverMac());
 #else
     NOTIMPLEMENTED();
     proxy_resolver_.reset(new ProxyResolverNull());

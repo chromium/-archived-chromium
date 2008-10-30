@@ -47,16 +47,12 @@ class ProxyConfig {
   std::string pac_url;
 
   // If non-empty, indicates the proxy server to use (of the form host:port).
-  // If proxies depend on the scheme, a string of the format
-  // "scheme1=url[:port];scheme2=url[:port]" may be provided here.
   std::string proxy_server;
 
-  // Indicates a list of hosts that should bypass any proxy configuration.  For
-  // these hosts, a direct connection should always be used.
-  std::vector<std::string> proxy_bypass;
-  
-  // Indicates whether local names (no dots) bypass proxies.
-  bool proxy_bypass_local_names;
+  // If non-empty, indicates a comma-delimited list of hosts that should bypass
+  // any proxy configuration.  For these hosts, a direct connection should
+  // always be used.
+  std::string proxy_bypass;
 
   // Returns true if the given config is equivalent to this config.
   bool Equals(const ProxyConfig& other) const;
