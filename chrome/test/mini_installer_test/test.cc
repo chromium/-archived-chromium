@@ -18,15 +18,13 @@ class MiniInstallTest : public testing::Test {
   };
 };
 
-// This test is disabled. See bug 1199175.
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerCleanInstallTest) {
+TEST_F(MiniInstallTest, MiniInstallerCleanInstallTest) {
   ChromeMiniInstaller installer;
   installer.InstallMiniInstaller();
   installer.UnInstall();
 }
 
-// This test is disabled. See bug 1199175.
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerOverChromeSetupDevTest) {
+TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
   ChromeMiniInstaller installer;
   installer.OverInstall();
   installer.UnInstall();

@@ -22,6 +22,9 @@ void ChromeMiniInstaller::InstallMiniInstaller(bool over_install) {
   if (!over_install) {
     UnInstall();
   }
+  printf("Will proceed with the test only if mini_installer.exe exists\n");
+  ASSERT_TRUE(file_util::PathExists(
+              mini_installer_constants::kChromeMiniInstallerExecutable));
   LaunchExe(mini_installer_constants::kChromeMiniInstallerExecutable,
             mini_installer_constants::kChromeMiniInstallerExecutable);
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
@@ -29,8 +32,8 @@ void ChromeMiniInstaller::InstallMiniInstaller(bool over_install) {
   FindChromeShortcut();
   WaitUntilProcessStartsRunning(installer_util::kChromeExe);
   if (!over_install) {
-    ASSERT_TRUE(CloseWindow(
-        mini_installer_constants::kFirstChromeUI, WM_CLOSE));
+    ASSERT_TRUE(CloseWindow(mini_installer_constants::kChromeFirstRunUI,
+                            WM_CLOSE));
   } else {
     ASSERT_TRUE(CloseWindow(
         mini_installer_constants::kBrowserTabName, WM_CLOSE));
@@ -38,14 +41,16 @@ void ChromeMiniInstaller::InstallMiniInstaller(bool over_install) {
   VerifyChromeLaunch();
 }
 
-// Installs chromesetupdev.exe, waits for the install to finish and then
+// Installs chromesetup.exe, waits for the install to finish and then
 // checks the registry and shortcuts.
-void ChromeMiniInstaller::InstallChromeSetupDev() {
+void ChromeMiniInstaller::InstallMetaInstaller() {
+  printf("Will proceed with the test only if mini_installer.exe exists\n");
+  ASSERT_TRUE(file_util::PathExists(
+              mini_installer_constants::kChromeMiniInstallerExecutable));
   // Uninstall chrome, if already installed.
   UnInstall();
-
-  // Install older/dev version of chrome.
-  LaunchExe(mini_installer_constants::kChromeSetupDevExeLocation,
+  // Install Google Chrome through meta installer.
+  LaunchExe(mini_installer_constants::kChromeMetaInstallerExeLocation,
             mini_installer_constants::kChromeSetupExecutable);
   WaitUntilProcessStopsRunning(
       mini_installer_constants::kChromeMiniInstallerExecutable);
@@ -58,25 +63,29 @@ void ChromeMiniInstaller::InstallChromeSetupDev() {
   ASSERT_TRUE(CheckRegistryKey(dist->GetVersionKey()));
   FindChromeShortcut();
   WaitUntilProcessStartsRunning(installer_util::kChromeExe);
-  ASSERT_TRUE(CloseWindow(mini_installer_constants::kFirstChromeUI, WM_CLOSE));
+  ASSERT_TRUE(CloseWindow(mini_installer_constants::kChromeFirstRunUI,
+                          WM_CLOSE));
 }
 
-// Accepts mini/dev as parameters. If mini, installs mini_installer first.
-// if dev, installs ChromeSetupDev.exe first and
-// then over installs with mini_installer.
-// Also, verifies if Chrome can be launched sucessfully after overinstall.
+// If the build type is Google Chrome, then it first installs meta installer
+// and then over installs with mini_installer. It also verifies if Chrome can
+// be launched successfully after overinstall.
 void ChromeMiniInstaller::OverInstall() {
-  InstallChromeSetupDev();
-  // gets the registry key value before overinstall.
-  std::wstring reg_key_value_returned = GetRegistryKey();
-  printf("\n\nPreparing to overinstall...\n");
-  printf("\nOverinstall path is %ls\n",
-         mini_installer_constants::kChromeMiniInstallerExecutable);
-  InstallMiniInstaller(true);
-  // Get the registry key value after over install
-  std::wstring reg_key_value_after_overinstall = GetRegistryKey();
-  ASSERT_TRUE(VerifyOverInstall(
-      reg_key_value_returned, reg_key_value_after_overinstall));
+  if (!IsChromiumBuild()) {
+    InstallMetaInstaller();
+    // gets the registry key value before overinstall.
+    std::wstring reg_key_value_returned = GetRegistryKey();
+    printf("\n\nPreparing to overinstall...\n");
+    printf("\nOverinstall path is %ls\n",
+           mini_installer_constants::kChromeMiniInstallerExecutable);
+    InstallMiniInstaller(true);
+    // Get the registry key value after over install
+    std::wstring reg_key_value_after_overinstall = GetRegistryKey();
+    ASSERT_TRUE(VerifyOverInstall(
+        reg_key_value_returned, reg_key_value_after_overinstall));
+  } else {
+    printf("This test doesn't run on a chromium build\n");
+  }
 }
 
 // This method first checks if Chrome is running.
@@ -105,8 +114,8 @@ void ChromeMiniInstaller::UnInstall() {
   process_util::LaunchApp(L"\"" + uninstall_path + L"\"" + L" -uninstall",
                           false, false, NULL);
   printf("\nLaunched setup.exe -uninstall....\n");
-  ASSERT_TRUE(CloseWindow(
-      mini_installer_constants::kConfirmDialog, WM_COMMAND));
+  ASSERT_TRUE(CloseWindow(mini_installer_constants::kChromeBuildType,
+                          WM_COMMAND));
   WaitUntilProcessStopsRunning(
       mini_installer_constants::kChromeSetupExecutable);
   ASSERT_FALSE(CheckRegistryKey(dist->GetVersionKey()));
@@ -168,7 +177,7 @@ bool ChromeMiniInstaller::CheckRegistryKey(std::wstring key_path) {
 void ChromeMiniInstaller::DeleteAppFolder() {
   std::wstring path;
   ASSERT_TRUE(PathService::Get(base::DIR_LOCAL_APP_DATA, &path));
-  file_util::AppendToPath(&path, mini_installer_constants::kAppDir);
+  file_util::AppendToPath(&path, mini_installer_constants::kChromeAppDir);
   file_util::UpOneDirectory(&path);
   printf("Deleting this path after uninstall%ls\n",  path.c_str());
   ASSERT_TRUE(file_util::Delete(path.c_str(), true));
@@ -179,13 +188,15 @@ void ChromeMiniInstaller::FindChromeShortcut() {
   std::wstring username, path_name, append_path, uninstall_lnk, shortcut_path;
   bool return_val = false;
   ASSERT_TRUE(PathService::Get(base::DIR_START_MENU, &path_name));
-  file_util::AppendToPath(&path_name, L"Google Chrome");
+  file_util::AppendToPath(&path_name, mini_installer_constants::kChromeBuildType);
   // Verify if path exists.
   if (file_util::PathExists(path_name)) {
     return_val = true;
     uninstall_lnk = path_name;
-    file_util::AppendToPath(&path_name, L"Google Chrome.lnk");
-    file_util::AppendToPath(&uninstall_lnk, L"Uninstall Google Chrome.lnk");
+    file_util::AppendToPath(&path_name,
+                            mini_installer_constants::kChromeLaunchShortcut);
+    file_util::AppendToPath(&uninstall_lnk,
+                            mini_installer_constants::kChromeUninstallShortcut);
     ASSERT_TRUE(file_util::PathExists(path_name));
     ASSERT_TRUE(file_util::PathExists(uninstall_lnk));
   }
@@ -201,7 +212,7 @@ std::wstring ChromeMiniInstaller::GetUninstallPath() {
   std::wstring username, append_path, path;
   std::wstring build_key_value = GetRegistryKey();
   PathService::Get(base::DIR_LOCAL_APP_DATA, &path);
-  file_util::AppendToPath(&path, mini_installer_constants::kAppDir);
+  file_util::AppendToPath(&path, mini_installer_constants::kChromeAppDir);
   file_util::AppendToPath(&path, build_key_value);
   file_util::AppendToPath(&path, installer::kInstallerDir);
   file_util::AppendToPath(&path,
@@ -220,6 +231,15 @@ std::wstring ChromeMiniInstaller::GetRegistryKey() {
   return build_key_value;
 }
 
+// This method checks if the build is Google Chrome or Chromium.
+bool ChromeMiniInstaller::IsChromiumBuild() {
+  #if defined(GOOGLE_CHROME_BUILD)
+     return false;
+  #else
+     return true;
+  #endif
+}
+
 // Launches a given executable and waits until it is done.
 void ChromeMiniInstaller::LaunchExe(std::wstring path,
                                     const wchar_t process_name[]) {
@@ -235,8 +255,7 @@ void ChromeMiniInstaller::LaunchExe(std::wstring path,
 void ChromeMiniInstaller::VerifyChromeLaunch() {
   std::wstring username, path, append_path;
   ASSERT_TRUE(PathService::Get(base::DIR_LOCAL_APP_DATA, &path));
-  file_util::AppendToPath(&path,
-      mini_installer_constants::kAppDir);
+  file_util::AppendToPath(&path, mini_installer_constants::kChromeAppDir);
   file_util::AppendToPath(&path, installer_util::kChromeExe);
   process_util::LaunchApp(L"\"" + path + L"\"", false, false, NULL);
   WaitUntilProcessStartsRunning(installer_util::kChromeExe);
