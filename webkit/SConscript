@@ -166,6 +166,7 @@ env.Append(
     CPPPATH = [
         '$WEBCORE_DIR/rendering',
         '$WEBCORE_DIR/rendering/style',
+        '$WEBCORE_DIR/inspector',
     ],
 
     CPPDEFINES = [

@@ -54,6 +54,11 @@ class V8Custom {
   static const int kXMLHttpRequestInternalFieldCount =
                       kDefaultWrapperInternalFieldCount + 1;
 
+  static const int kMessagePortRequestCacheIndex =
+                      kDefaultWrapperInternalFieldCount + 0;
+  static const int kMessagePortInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 1;
+
   static const int kDOMWindowLocationIndex =
                       kDefaultWrapperInternalFieldCount + 0;
   static const int kDOMWindowNavigatorIndex =
@@ -172,6 +177,10 @@ DECLARE_PROPERTY_ACCESSOR_SETTER(AttrValue)
 // Customized setter of HTMLOptionsCollection length
 DECLARE_PROPERTY_ACCESSOR_SETTER(HTMLOptionsCollectionLength)
 
+// Customized accessors for HTMLInputElement
+DECLARE_PROPERTY_ACCESSOR_GETTER(HTMLInputElementSelectionStart)
+DECLARE_PROPERTY_ACCESSOR_GETTER(HTMLInputElementSelectionEnd)
+
 DECLARE_NAMED_ACCESS_CHECK(Location)
 DECLARE_INDEXED_ACCESS_CHECK(History)
 
@@ -217,6 +226,7 @@ DECLARE_CALLBACK(DOMWindowShowModalDialog)
 DECLARE_CALLBACK(DOMWindowOpen)
 
 DECLARE_CALLBACK(DOMParserConstructor)
+DECLARE_CALLBACK(MessageChannelConstructor)
 DECLARE_CALLBACK(XMLHttpRequestConstructor)
 DECLARE_CALLBACK(XMLSerializerConstructor)
 DECLARE_CALLBACK(XPathEvaluatorConstructor)
@@ -258,6 +268,8 @@ DECLARE_CALLBACK(ConsoleProfile)
 DECLARE_CALLBACK(ConsoleProfileEnd)
 DECLARE_CALLBACK(ConsoleTimeEnd)
 DECLARE_CALLBACK(ConsoleWarn)
+DECLARE_CALLBACK(ConsoleDirxml)
+DECLARE_CALLBACK(ConsoleTrace)
 
 // Implementation of Clipboard attributes and methods.
 DECLARE_PROPERTY_ACCESSOR_GETTER(ClipboardTypes)
@@ -360,8 +372,12 @@ DECLARE_NAMED_PROPERTY_GETTER(HTMLCollection)
 DECLARE_INDEXED_PROPERTY_GETTER(CanvasPixelArray)
 DECLARE_INDEXED_PROPERTY_SETTER(CanvasPixelArray)
 
-// NSResolver
-DECLARE_CALLBACK(NSResolverLookupNamespaceURI)
+// MessagePort
+DECLARE_PROPERTY_ACCESSOR(MessagePortOnmessage)
+DECLARE_PROPERTY_ACCESSOR(MessagePortOnclose)
+DECLARE_CALLBACK(MessagePortStartConversation)
+DECLARE_CALLBACK(MessagePortAddEventListener)
+DECLARE_CALLBACK(MessagePortRemoveEventListener)
 
 // SVG custom properties and callbacks
 #if ENABLE(SVG)
@@ -369,6 +385,8 @@ DECLARE_PROPERTY_ACCESSOR_GETTER(SVGLengthValue)
 DECLARE_CALLBACK(SVGLengthConvertToSpecifiedUnits)
 DECLARE_CALLBACK(SVGMatrixInverse)
 DECLARE_CALLBACK(SVGMatrixRotateFromVector)
+DECLARE_CALLBACK(SVGElementInstanceAddEventListener)
+DECLARE_CALLBACK(SVGElementInstanceRemoveEventListener)
 #endif
 
 #undef DECLARE_INDEXED_ACCESS_CHECK

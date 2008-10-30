@@ -36,8 +36,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 using namespace WebCore;
-
 String WebCore::signedPublicKeyAndChallengeString(unsigned, const String&, const KURL&) { notImplemented(); return String(); }
+void WebCore::getSupportedKeySizes(Vector<String>&) { notImplemented(); }
 
 String KURL::fileSystemPath() const { notImplemented(); return String(); }
 

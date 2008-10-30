@@ -37,8 +37,10 @@
 #include "Document.h"
 #include "Font.h"
 #include "Frame.h"
+#include "FrameView.h"
 #include "FontSelector.h"
 #include "FramelessScrollView.h"
+#include "FramelessScrollViewClient.h"
 #include "GraphicsContext.h"
 #include "IntRect.h"
 #include "NotImplemented.h"
@@ -46,13 +48,12 @@
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformScreen.h"
-#include "PlatformScrollBar.h"
 #include "PlatformWheelEvent.h"
-#include "SystemTime.h"
 #include "RenderBlock.h"
 #include "RenderTheme.h"
+#include "ScrollbarTheme.h"
+#include "SystemTime.h"
 #include "Widget.h"
-#include "WidgetClientChromium.h"
 
 #if !PLATFORM(WIN_OS)
 #include "KeyboardCodes.h"
@@ -77,10 +78,12 @@ static const TimeStamp kTypeAheadTimeoutMs = 1000;
 
 class PopupListBox;
 
+// TODO(darin): Our FramelessScrollView classes need to implement HostWindow!
+
 // This class holds a PopupListBox.  Its sole purpose is to be able to draw
 // a border around its child.  All its paint/event handling is just forwarded
 // to the child listBox (with the appropriate transforms).
-class PopupContainer : public FramelessScrollView {
+class PopupContainer : public FramelessScrollView, public RefCounted<PopupContainer> {
 public:
     static PassRefPtr<PopupContainer> create(PopupMenuClient* client);
 
@@ -107,6 +110,8 @@ public:
     PopupListBox* listBox() const { return m_listBox.get(); }
 
 private:
+    friend class RefCounted<PopupContainer>;
+
     PopupContainer(PopupMenuClient* client);
     ~PopupContainer();
 
@@ -118,7 +123,7 @@ private:
 
 // This class uses WebCore code to paint and handle events for a drop-down list
 // box ("combobox" on Windows).
-class PopupListBox : public FramelessScrollView {
+class PopupListBox : public FramelessScrollView, public RefCounted<PopupListBox> {
 public:
     // FramelessScrollView
     virtual void paint(GraphicsContext* gc, const IntRect& rect);
@@ -127,6 +132,9 @@ public:
     virtual bool handleMouseReleaseEvent(const PlatformMouseEvent& event);
     virtual bool handleWheelEvent(const PlatformWheelEvent& event);
     virtual bool handleKeyEvent(const PlatformKeyboardEvent& event);
+
+    // ScrollView
+    virtual HostWindow* hostWindow() const;
 
     // PopupListBox methods
 
@@ -168,6 +176,7 @@ public:
 
 private:
     friend class PopupContainer;
+    friend class RefCounted<PopupListBox>;
 
     // A type of List Item
     enum ListItemType {
@@ -194,7 +203,7 @@ private:
         , m_repeatingChar(0)
         , m_lastCharTime(0)
     {
-        setScrollbarsMode(ScrollbarAlwaysOff);
+        setScrollbarModes(ScrollbarAlwaysOff, ScrollbarAlwaysOff);
     }
 
     ~PopupListBox()
@@ -273,10 +282,10 @@ private:
 
     // The scrollbar which has mouse capture.  Mouse events go straight to this
     // if non-NULL.
-    RefPtr<PlatformScrollbar> m_capturingScrollbar;
+    RefPtr<Scrollbar> m_capturingScrollbar;
 
     // The last scrollbar that the mouse was over.  Used for mouseover highlights.
-    RefPtr<PlatformScrollbar> m_lastScrollbarUnderMouse;
+    RefPtr<Scrollbar> m_lastScrollbarUnderMouse;
 
     // The string the user has typed so far into the popup. Used for typeAheadFind.
     String m_typedString;
@@ -289,12 +298,12 @@ private:
 };
 
 static PlatformMouseEvent constructRelativeMouseEvent(const PlatformMouseEvent& e,
-                                                      FrameView* parent,
-                                                      FrameView* child)
+                                                      FramelessScrollView* parent,
+                                                      FramelessScrollView* child)
 {
     IntPoint pos = parent->convertSelfToChild(child, e.pos());
 
-    // FIXME(beng): This is a horrible hack since PlatformWheelEvent has no setters for x/y.
+    // FIXME(beng): This is a horrible hack since PlatformMouseEvent has no setters for x/y.
     //              Need to add setters and get patch back upstream to webkit source. 
     PlatformMouseEvent relativeEvent = e;
     IntPoint& relativePos = const_cast<IntPoint&>(relativeEvent.pos());
@@ -304,8 +313,8 @@ static PlatformMouseEvent constructRelativeMouseEvent(const PlatformMouseEvent& 
 }
 
 static PlatformWheelEvent constructRelativeWheelEvent(const PlatformWheelEvent& e,
-                                                      FrameView* parent,
-                                                      FrameView* child)
+                                                      FramelessScrollView* parent,
+                                                      FramelessScrollView* child)
 {
     IntPoint pos = parent->convertSelfToChild(child, e.pos());
 
@@ -334,7 +343,7 @@ PopupContainer::PopupContainer(PopupMenuClient* client)
     // assign it to a RefPtr.
     m_listBox->deref();
 
-    setScrollbarsMode(ScrollbarAlwaysOff);
+    setScrollbarModes(ScrollbarAlwaysOff, ScrollbarAlwaysOff);
 }
 
 PopupContainer::~PopupContainer()
@@ -346,25 +355,23 @@ PopupContainer::~PopupContainer()
 void PopupContainer::showPopup(FrameView* view)
 {
     // Pre-layout, our size matches the <select> dropdown control.
-    int selectHeight = frameGeometry().height();
+    int selectHeight = frameRect().height();
 
     // Lay everything out to figure out our preferred size, then tell the view's
     // WidgetClient about it.  It should assign us a client.
     layout();
 
-    WidgetClientChromium* widgetClient = static_cast<WidgetClientChromium*>(
-        view->client());
     ChromeClientChromium* chromeClient = static_cast<ChromeClientChromium*>(
         view->frame()->page()->chrome()->client());
-    if (widgetClient && chromeClient) {
+    if (chromeClient) {
         // If the popup would extend past the bottom of the screen, open upwards
         // instead.
         FloatRect screen = screenRect(view);
-        IntRect widgetRect = chromeClient->windowToScreen(frameGeometry());
+        IntRect widgetRect = chromeClient->windowToScreen(frameRect());
         if (widgetRect.bottom() > static_cast<int>(screen.bottom()))
             widgetRect.move(0, -(widgetRect.height() + selectHeight));
 
-        widgetClient->popupOpened(this, widgetRect);
+        chromeClient->popupOpened(this, widgetRect);
     }
 
     // Must get called after we have a client and containingWindow.
@@ -372,7 +379,7 @@ void PopupContainer::showPopup(FrameView* view)
 
     // Enable scrollbars after the listbox is inserted into the hierarchy, so
     // it has a proper WidgetClient.
-    m_listBox->setVScrollbarMode(ScrollbarAuto);
+    m_listBox->setVerticalScrollbarMode(ScrollbarAuto);
 
     m_listBox->scrollToRevealSelection();
 
@@ -385,9 +392,10 @@ void PopupContainer::hidePopup()
 
     m_listBox->disconnectClient();
     removeChild(m_listBox.get());
-
+    m_listBox = 0;
+    
     if (client())
-        static_cast<WidgetClientChromium*>(client())->popupClosed(this);
+        client()->popupClosed(this);
 }
 
 void PopupContainer::layout()
@@ -439,7 +447,7 @@ void PopupContainer::hide() {
 void PopupContainer::paint(GraphicsContext* gc, const IntRect& rect)
 {
     // adjust coords for scrolled frame
-    IntRect r = intersection(rect, frameGeometry());
+    IntRect r = intersection(rect, frameRect());
     int tx = x();
     int ty = y();
 
@@ -476,10 +484,10 @@ void PopupContainer::paintBorder(GraphicsContext* gc, const IntRect& rect)
 
 bool PopupListBox::handleMouseDownEvent(const PlatformMouseEvent& event)
 {
-    PlatformScrollbar* scrollbar = scrollbarUnderMouse(event);
+    Scrollbar* scrollbar = scrollbarUnderMouse(event);
     if (scrollbar) {
         m_capturingScrollbar = scrollbar;
-        m_capturingScrollbar->handleMousePressEvent(event);
+        m_capturingScrollbar->mouseDown(event);
         return true;
     }
 
@@ -492,20 +500,20 @@ bool PopupListBox::handleMouseDownEvent(const PlatformMouseEvent& event)
 bool PopupListBox::handleMouseMoveEvent(const PlatformMouseEvent& event)
 {
     if (m_capturingScrollbar) {
-        m_capturingScrollbar->handleMouseMoveEvent(event);
+        m_capturingScrollbar->mouseMoved(event);
         return true;
     }
 
-    PlatformScrollbar* scrollbar = scrollbarUnderMouse(event);
+    Scrollbar* scrollbar = scrollbarUnderMouse(event);
     if (m_lastScrollbarUnderMouse != scrollbar) {
         // Send mouse exited to the old scrollbar.
         if (m_lastScrollbarUnderMouse)
-            m_lastScrollbarUnderMouse->handleMouseOutEvent(event);
+            m_lastScrollbarUnderMouse->mouseExited();
         m_lastScrollbarUnderMouse = scrollbar;
     }
 
     if (scrollbar) {
-        scrollbar->handleMouseMoveEvent(event);
+        scrollbar->mouseMoved(event);
         return true;
     }
 
@@ -519,7 +527,7 @@ bool PopupListBox::handleMouseMoveEvent(const PlatformMouseEvent& event)
 bool PopupListBox::handleMouseReleaseEvent(const PlatformMouseEvent& event)
 {
     if (m_capturingScrollbar) {
-        m_capturingScrollbar->handleMouseReleaseEvent(event);
+        m_capturingScrollbar->mouseUp();
         m_capturingScrollbar = 0;
         return true;
     }
@@ -598,6 +606,13 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
     return true;
 }
 
+HostWindow* PopupListBox::hostWindow() const
+{
+    // Our parent is the root ScrollView, so it is the one that has a
+    // HostWindow.  FrameView::hostWindow() works similarly.
+    return parent() ? parent()->hostWindow() : 0;
+}
+
 // From HTMLSelectElement.cpp
 static String stripLeadingWhiteSpace(const String& string)
 {
@@ -655,9 +670,9 @@ void PopupListBox::typeAheadFind(const PlatformKeyboardEvent& event)
 void PopupListBox::paint(GraphicsContext* gc, const IntRect& rect)
 {
     // adjust coords for scrolled frame
-    IntRect r = intersection(rect, frameGeometry());
-    int tx = x() - contentsX();
-    int ty = y() - contentsY();
+    IntRect r = intersection(rect, frameRect());
+    int tx = x() - scrollX();
+    int ty = y() - scrollY();
 
     r.move(-tx, -ty);
 
@@ -680,12 +695,8 @@ void PopupListBox::paint(GraphicsContext* gc, const IntRect& rect)
     ScrollView::paint(gc, rect);
 }
 
-static RenderStyle* getPopupClientStyleForRow(PopupMenuClient* client, int rowIndex) {
-    RenderStyle* style = client->itemStyle(rowIndex);
-    if (!style)
-        style = client->clientStyle();
-    return style;
-}
+static const int separatorPadding = 4;
+static const int separatorHeight = 1;
 
 void PopupListBox::paintRow(GraphicsContext* gc, const IntRect& rect, int rowIndex)
 {
@@ -695,7 +706,7 @@ void PopupListBox::paintRow(GraphicsContext* gc, const IntRect& rect, int rowInd
     if (!rowRect.intersects(rect))
         return;
 
-    RenderStyle* style = getPopupClientStyleForRow(m_popupClient, rowIndex);
+    PopupMenuStyle style = m_popupClient->itemStyle(rowIndex);
 
     // Paint background
     Color backColor, textColor;
@@ -703,16 +714,26 @@ void PopupListBox::paintRow(GraphicsContext* gc, const IntRect& rect, int rowInd
         backColor = theme()->activeListBoxSelectionBackgroundColor();
         textColor = theme()->activeListBoxSelectionForegroundColor();
     } else {
-        backColor = m_popupClient->itemBackgroundColor(rowIndex);
-        textColor = style->color();
+        backColor = style.backgroundColor();
+        textColor = style.foregroundColor();
     }
 
     // If we have a transparent background, make sure it has a color to blend
     // against.
     if (backColor.hasAlpha())
-      gc->fillRect(rowRect, Color::white);
+        gc->fillRect(rowRect, Color::white);
 
     gc->fillRect(rowRect, backColor);
+    
+    if (m_popupClient->itemIsSeparator(rowIndex)) {
+        IntRect separatorRect(
+            rowRect.x() + separatorPadding,
+            rowRect.y() + (rowRect.height() - separatorHeight) / 2,
+            rowRect.width() - 2 * separatorPadding, separatorHeight);
+        gc->fillRect(separatorRect, textColor);
+        return;
+    }
+    
     gc->setFillColor(textColor);
 
     Font itemFont = getRowFont(rowIndex);
@@ -723,22 +744,22 @@ void PopupListBox::paintRow(GraphicsContext* gc, const IntRect& rect, int rowInd
     unsigned length = itemText.length();
     const UChar* str = itemText.characters();
 
-    TextRun textRun(str, length, false, 0, 0, style->direction() == RTL, style->unicodeBidi() == Override);
+    TextRun textRun(str, length, false, 0, 0, itemText.defaultWritingDirection() == WTF::Unicode::RightToLeft);
+
+    // TODO(ojan): http://b/1210481 We should get the padding of individual
+    // option elements.  This probably implies changes to PopupMenuClient.
 
     // Draw the item text
-    // TODO(ojan): http://b/1210481 We should get the padding of individual option elements.
-    rowRect.move(theme()->popupInternalPaddingLeft(style), itemFont.ascent());
-    if (style->direction() == RTL) {
-        // Right-justify the text for RTL style.
-        rowRect.move(rowRect.width() - itemFont.width(textRun) -
-                     2 * theme()->popupInternalPaddingLeft(style), 0);
+    if (style.isVisible()) {
+        int textX = max(0, m_popupClient->clientPaddingLeft() - m_popupClient->clientInsetLeft());
+        int textY = rowRect.y() + itemFont.ascent() + (rowRect.height() - itemFont.height()) / 2;
+        gc->drawBidiText(textRun, IntPoint(textX, textY));
     }
-    gc->drawBidiText(textRun, rowRect.location());
 }
 
 Font PopupListBox::getRowFont(int rowIndex)
 {
-    Font itemFont = m_popupClient->itemStyle(rowIndex)->font();
+    Font itemFont = m_popupClient->itemStyle(rowIndex).font();
     if (m_popupClient->itemIsLabel(rowIndex)) {
         // Bold-ify labels (ie, an <optgroup> heading).
         FontDescription d = itemFont.fontDescription();
@@ -767,7 +788,7 @@ void PopupListBox::abandon()
 
 int PopupListBox::pointToRowIndex(const IntPoint& point)
 {
-    int y = contentsY() + point.y();
+    int y = scrollY() + point.y();
 
     // TODO(mpcomplete): binary search if perf matters.
     for (int i = 0; i < numItems(); ++i) {
@@ -818,10 +839,7 @@ void PopupListBox::setOriginalIndex(int index)
 
 int PopupListBox::getRowHeight(int index)
 {
-    RenderStyle* style;
-    if ((index < 0) || (!(style = m_popupClient->itemStyle(index))))
-        style = m_popupClient->clientStyle();
-    return style->font().height();
+    return m_popupClient->itemStyle(index).font().height();
 }
 
 IntRect PopupListBox::getRowBounds(int index)
@@ -838,7 +856,7 @@ void PopupListBox::invalidateRow(int index)
     if (index < 0)
         return;
 
-    updateContents(getRowBounds(index));
+    invalidateRect(getRowBounds(index));
 }
 
 void PopupListBox::scrollToRevealRow(int index)
@@ -848,12 +866,12 @@ void PopupListBox::scrollToRevealRow(int index)
 
     IntRect rowRect = getRowBounds(index);
  
-    if (rowRect.y() < contentsY()) {
+    if (rowRect.y() < scrollY()) {
         // Row is above current scroll position, scroll up.
-        ScrollView::setContentsPos(0, rowRect.y());
-    } else if (rowRect.bottom() > contentsY() + visibleHeight()) {
+        ScrollView::setScrollPosition(IntPoint(0, rowRect.y()));
+    } else if (rowRect.bottom() > scrollY() + visibleHeight()) {
         // Row is below current scroll position, scroll down.
-        ScrollView::setContentsPos(0, rowRect.bottom() - visibleHeight());
+        ScrollView::setScrollPosition(IntPoint(0, rowRect.bottom() - visibleHeight()));
     }
 }
 
@@ -946,10 +964,9 @@ void PopupListBox::layout()
             int width = itemFont.width(TextRun(text));
             baseWidth = max(baseWidth, width);
         }
-        RenderStyle* style = getPopupClientStyleForRow(m_popupClient, i);
         // TODO(ojan): http://b/1210481 We should get the padding of individual option elements.
         paddingWidth = max(paddingWidth, 
-            theme()->popupInternalPaddingLeft(style) + theme()->popupInternalPaddingRight(style));
+            m_popupClient->clientPaddingLeft() + m_popupClient->clientPaddingRight());
     }
 
     int windowHeight = 0;
@@ -970,7 +987,7 @@ void PopupListBox::layout()
     // Set our widget and scrollable contents sizes.
     int scrollbarWidth = 0;
     if (m_visibleRows < numItems())
-        scrollbarWidth = PlatformScrollbar::verticalScrollbarWidth();
+        scrollbarWidth = ScrollbarTheme::nativeTheme()->scrollbarThickness();
 
     int windowWidth = baseWidth + scrollbarWidth + paddingWidth;
     int contentWidth = baseWidth;
@@ -983,8 +1000,10 @@ void PopupListBox::layout()
     }
 
     resize(windowWidth, windowHeight);
-    resizeContents(contentWidth, getRowBounds(numItems() - 1).bottom());
-    scrollToRevealSelection();
+    setContentsSize(IntSize(contentWidth, getRowBounds(numItems() - 1).bottom()));
+    
+    if (hostWindow())
+        scrollToRevealSelection();
 
     invalidate();
 }
@@ -1042,7 +1061,7 @@ void PopupMenu::show(const IntRect& r, FrameView* v, int index)
     location.move(0, r.height());
 
     IntRect popupRect(location, r.size());
-    p.m_popup->setFrameGeometry(popupRect);
+    p.m_popup->setFrameRect(popupRect);
     p.m_popup->showPopup(v);
 }
 

@@ -43,7 +43,6 @@
 #include "V8HTMLImageElement.h"
 #include "V8HTMLOptionElement.h"
 #include "V8Node.h"
-#include "V8NSResolver.h"
 #include "V8XPathNSResolver.h"
 #include "V8XPathResult.h"
 
@@ -80,15 +79,17 @@
 #include "HTMLFrameSetElement.h"
 #include "HTMLIFrameElement.h"
 #include "HTMLImageElement.h"
+#include "HTMLInputElement.h"
 #include "HTMLNames.h"
 #include "HTMLOptionElement.h"
 #include "HTMLOptionsCollection.h"
 #include "HTMLSelectElement.h"
 #include "History.h"
-#include "JSNSResolver.h"
 #include "JSXPathNSResolver.h"
 #include "KURL.h"
 #include "Location.h"
+#include "MessageChannel.h"
+#include "MessagePort.h"
 #include "MouseEvent.h"
 #include "NodeIterator.h"
 #include "Page.h"
@@ -110,6 +111,7 @@
 
 #if ENABLE(SVG)
 #include "V8SVGPODTypeWrapper.h"
+#include "SVGElementInstance.h"
 #include "SVGException.h"
 #include "SVGPathSeg.h"
 #endif
@@ -258,6 +260,33 @@ CALLBACK_FUNC_DECL(DOMParserConstructor) {
   INC_STATS(L"DOM.DOMParser.Contructor");
   return V8Proxy::ConstructDOMObject<V8ClassIndex::DOMPARSER,
                                      DOMParser>(args);
+}
+
+// TODO(mbelshe): merge this with the XHR Constructor.
+//   The only difference is that this one takes an argument to its
+//   create call, the XHR does not.
+CALLBACK_FUNC_DECL(MessageChannelConstructor) {
+  INC_STATS(L"DOM.MessageChannel.Constructor");
+  if (!args.IsConstructCall()) {
+    V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
+        "DOM object constructor cannot be called as a function.");
+    return v8::Undefined();
+  }
+
+  // Get the document.
+  Frame* frame = V8Proxy::retrieveFrame();
+  if (!frame)
+    return v8::Undefined();
+  Document* document = frame->document();
+
+  // Note: it's OK to let this RefPtr go out of scope because we also call
+  // SetDOMWrapper(), which effectively holds a reference to obj.
+  RefPtr<MessageChannel> obj = MessageChannel::create(document);
+  V8Proxy::SetDOMWrapper(args.Holder(), V8ClassIndex::MESSAGECHANNEL,
+      obj.get());
+  V8Proxy::SetJSWrapperForDOMObject(
+      obj.get(), v8::Persistent<v8::Object>::New(args.Holder()));
+  return args.Holder();
 }
 
 
@@ -859,18 +888,30 @@ CALLBACK_FUNC_DECL(DOMWindowPostMessage) {
   v8::TryCatch try_catch;
 
   String message = ToWebCoreString(args[0]);
-  String domain = ToWebCoreString(args[1]);
+  MessagePort* port = NULL;
+  String domain;
+
+  // This function has variable arguments and can either be:
+  //   postMessage(message, port, domain);
+  // or
+  //   postMessage(message, domain);
+  if (args.Length() > 2) {
+    port = V8Proxy::ToNativeObject<MessagePort>(
+        V8ClassIndex::MESSAGEPORT, args[1]);
+    domain = valueToStringWithNullOrUndefinedCheck(args[2]);
+  } else {
+    domain = valueToStringWithNullOrUndefinedCheck(args[1]);
+  }
 
   if (try_catch.HasCaught()) return v8::Undefined();
 
-  ExceptionCode ec;
-  window->postMessage(message, domain, source, ec);
+  ExceptionCode ec = 0;
+  window->postMessage(message, port, domain, source, ec);
   if (ec)
     V8Proxy::SetDOMException(ec);
 
   return v8::Undefined();
 }
-
 
 static bool canShowModalDialogNow(const Frame* frame) {
   // A frame can out live its page. See bug 1219613.
@@ -2324,6 +2365,18 @@ CALLBACK_FUNC_DECL(ConsoleWarn) {
   return v8::Undefined();
 }
 
+CALLBACK_FUNC_DECL(ConsoleDirxml) {
+  INC_STATS(L"DOM.Console.dirxml()");
+  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
+  return v8::Undefined();
+}
+
+CALLBACK_FUNC_DECL(ConsoleTrace) {
+  INC_STATS(L"DOM.Console.trace()");
+  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
+  return v8::Undefined();
+}
+
 
 // Clipboard -------------------------------------------------------------------
 
@@ -2487,69 +2540,6 @@ static bool AllowSettingFrameSrcToJavascriptUrl(HTMLFrameElementBase* frame,
 
 
 // Element ---------------------------------------------------------------------
-
-CALLBACK_FUNC_DECL(ElementQuerySelector) {
-  INC_STATS(L"DOM.Element.querySelector()");
-  Element* element = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
-
-  ExceptionCode ec = 0;
-
-  String selectors = valueToStringWithNullOrUndefinedCheck(args[0]);
-
-  NSResolver* resolver = 0;
-  if (V8NSResolver::HasInstance(args[1])) {
-    resolver = V8Proxy::ToNativeObject<NSResolver>(
-      V8ClassIndex::NSRESOLVER, args[1]);
-  } else if  (args[1]->IsObject()) {
-    resolver = new JSNSResolver(args[1]->ToObject());
-  } else if (!args[1]->IsNull() && !args[1]->IsUndefined()) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Handle<v8::Value>();
-  }
-  OwnPtr<ExceptionContext> context(new ExceptionContext());
-  RefPtr<Element> result = WTF::getPtr(
-      element->querySelector(selectors, resolver, ec, context.get()));
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  if (context->hadException()) {
-    v8::ThrowException(context->exception());
-    return v8::Undefined();
-  }
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, WTF::getPtr(result));
-}
-
-CALLBACK_FUNC_DECL(ElementQuerySelectorAll) {
-  INC_STATS(L"DOM.Element.querySelectorAll()");
-  Element* element = V8Proxy::DOMWrapperToNode<Element>(args.Holder());
-  ExceptionCode ec = 0;
-
-  String selectors = valueToStringWithNullOrUndefinedCheck(args[0]);
-
-  NSResolver* resolver = 0;
-  if (V8NSResolver::HasInstance(args[1])) {
-    resolver = V8Proxy::ToNativeObject<NSResolver>(
-      V8ClassIndex::NSRESOLVER, args[1]);
-  } else if (args[1]->IsObject()) {
-    resolver = new JSNSResolver(args[1]->ToObject());
-  } else if (!args[1]->IsNull() && !args[1]->IsUndefined()) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Handle<v8::Value>();
-  }
-  OwnPtr<ExceptionContext> context(new ExceptionContext());
-  RefPtr<NodeList> result = WTF::getPtr(
-      element->querySelectorAll(selectors, resolver, ec, context.get()));
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  if (context->hadException()) {
-    v8::ThrowException(context->exception());
-    return v8::Undefined();
-  }
-  return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, WTF::getPtr(result));
-}
 
 CALLBACK_FUNC_DECL(ElementSetAttribute) {
   INC_STATS(L"DOM.Element.setAttribute()");
@@ -2857,140 +2847,17 @@ CALLBACK_FUNC_DECL(DocumentEvaluate) {
     inResult = V8Proxy::ToNativeObject<XPathResult>(
         V8ClassIndex::XPATHRESULT, args[4]);
   }
+
+  v8::TryCatch try_catch;
   RefPtr<XPathResult> result =
       imp->evaluate(expression, contextNode, resolver, type, inResult, ec);
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
+  if (try_catch.HasCaught() || ec != 0) {
+    if (!try_catch.HasCaught())
+      V8Proxy::SetDOMException(ec);
     return v8::Handle<v8::Value>();
   }
   return V8Proxy::ToV8Object(V8ClassIndex::XPATHRESULT,
                              static_cast<Peerable*>(result.get()));
-}
-
-CALLBACK_FUNC_DECL(DocumentQuerySelector) {
-  INC_STATS(L"DOM.Document.querySelector()");
-  Document* document = V8Proxy::DOMWrapperToNode<Document>(args.Holder());
-  ExceptionCode ec = 0;
-
-  String selectors = valueToStringWithNullOrUndefinedCheck(args[0]);
-
-  NSResolver* resolver = 0;
-  if (V8NSResolver::HasInstance(args[1])) {
-    resolver = V8Proxy::ToNativeObject<NSResolver>(
-      V8ClassIndex::NSRESOLVER, args[1]);
-  } else if (args[1]->IsObject()) {
-    resolver = new JSNSResolver(args[1]->ToObject());
-  } else if (!args[1]->IsNull() && !args[1]->IsUndefined()) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Handle<v8::Value>();
-  }
-  OwnPtr<ExceptionContext> context(new ExceptionContext());
-  RefPtr<Element> result = WTF::getPtr(
-      document->querySelector(selectors, resolver, ec, context.get()));
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  if (context->hadException()) {
-    v8::ThrowException(context->exception());
-    return v8::Undefined();
-  }
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, WTF::getPtr(result));
-}
-
-CALLBACK_FUNC_DECL(DocumentQuerySelectorAll) {
-  INC_STATS(L"DOM.Document.querySelectorAll()");
-  Document* document = V8Proxy::DOMWrapperToNode<Document>(args.Holder());
-  ExceptionCode ec = 0;
-
-  String selectors = valueToStringWithNullOrUndefinedCheck(args[0]);
-
-  NSResolver* resolver = 0;
-  if (V8NSResolver::HasInstance(args[1])) {
-    resolver = V8Proxy::ToNativeObject<NSResolver>(
-      V8ClassIndex::NSRESOLVER, args[1]);
-  } else if (args[1]->IsObject()) {
-    resolver = new JSNSResolver(args[1]->ToObject());
-  } else if (!args[1]->IsNull() && !args[1]->IsUndefined()) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Handle<v8::Value>();
-  }
-  OwnPtr<ExceptionContext> context(new ExceptionContext());
-  RefPtr<NodeList> result = WTF::getPtr(
-      document->querySelectorAll(selectors, resolver, ec, context.get()));
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  if (context->hadException()) {
-    v8::ThrowException(context->exception());
-    return v8::Undefined();
-  }
-  return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, WTF::getPtr(result));
-}
-
-CALLBACK_FUNC_DECL(DocumentFragmentQuerySelector) {
-  INC_STATS(L"DOM.DocumentFragment.querySelector()");
-  DocumentFragment* fragment = 
-      V8Proxy::DOMWrapperToNode<DocumentFragment>(args.Holder());
-  ExceptionCode ec = 0;
-
-  String selectors = valueToStringWithNullOrUndefinedCheck(args[0]);
-
-  NSResolver* resolver = 0;
-  if (V8NSResolver::HasInstance(args[1])) {
-    resolver = V8Proxy::ToNativeObject<NSResolver>(
-      V8ClassIndex::NSRESOLVER, args[1]);
-  } else if (args[1]->IsObject()) {
-    resolver = new JSNSResolver(args[1]->ToObject());
-  } else if (!args[1]->IsNull() && !args[1]->IsUndefined()) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Handle<v8::Value>();
-  }
-  OwnPtr<ExceptionContext> context(new ExceptionContext());
-  RefPtr<Element> result = WTF::getPtr(
-      fragment->querySelector(selectors, resolver, ec, context.get()));
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  if (context->hadException()) {
-    v8::ThrowException(context->exception());
-    return v8::Undefined();
-  }
-  return V8Proxy::ToV8Object(V8ClassIndex::NODE, WTF::getPtr(result));
-}
-
-CALLBACK_FUNC_DECL(DocumentFragmentQuerySelectorAll) {
-  INC_STATS(L"DOM.DocumentFragment.querySelectorAll()");
-  DocumentFragment* fragment = 
-      V8Proxy::DOMWrapperToNode<DocumentFragment>(args.Holder());
-  ExceptionCode ec = 0;
-
-  String selectors = valueToStringWithNullOrUndefinedCheck(args[0]);
-
-  NSResolver* resolver = 0;
-  if (V8NSResolver::HasInstance(args[1])) {
-    resolver = V8Proxy::ToNativeObject<NSResolver>(
-      V8ClassIndex::NSRESOLVER, args[1]);
-  } else if (args[1]->IsObject()) {
-    resolver = new JSNSResolver(args[1]->ToObject());
-  } else if (!args[1]->IsNull() && !args[1]->IsUndefined()) {
-    V8Proxy::SetDOMException(TYPE_MISMATCH_ERR);
-    return v8::Handle<v8::Value>();
-  }
-  OwnPtr<ExceptionContext> context(new ExceptionContext());
-  RefPtr<NodeList> result = WTF::getPtr(
-      fragment->querySelectorAll(selectors, resolver, ec, context.get()));
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  if (context->hadException()) {
-    v8::ThrowException(context->exception());
-    return v8::Undefined();
-  }
-  return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, WTF::getPtr(result));
 }
 
 // DOMWindow -------------------------------------------------------------------
@@ -3291,14 +3158,6 @@ CALLBACK_FUNC_DECL(NodeFilterAcceptNode) {
   return v8::Undefined();
 }
 
-// NSResolver
-CALLBACK_FUNC_DECL(NSResolverLookupNamespaceURI) {
-  INC_STATS(L"DOM.NSResolver.lookupNamespaceURI()");
-  V8Proxy::SetDOMException(NOT_SUPPORTED_ERR);
-  return v8::Undefined();
-}
-
-
 static String EventNameFromAttributeName(const String& name) {
   ASSERT(name.startsWith("on"));
   String event_type = name.substring(2);
@@ -3345,7 +3204,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
  
   if (value->IsNull()) {
     // Clear the event listener
-    doc->removeHTMLWindowEventListener(event_type);
+    doc->removeWindowEventListenerForType(event_type);
   } else {
     V8Proxy* proxy = V8Proxy::retrieve(imp->frame());
     if (!proxy)
@@ -3354,7 +3213,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
     RefPtr<EventListener> listener =
       proxy->FindOrCreateV8EventListener(value, true);
     if (listener) {
-      doc->setHTMLWindowEventListener(event_type, listener);
+      doc->setWindowEventListenerForType(event_type, listener);
     }
   }
 }
@@ -3378,7 +3237,7 @@ ACCESSOR_GETTER(DOMWindowEventHandler) {
   String key = ToWebCoreString(name);
   String event_type = EventNameFromAttributeName(key);
 
-  EventListener* listener = doc->getHTMLWindowEventListener(event_type);
+  EventListener* listener = doc->windowEventListenerForType(event_type);
   return V8Proxy::EventListenerToV8Object(listener);
 }
 
@@ -3406,10 +3265,10 @@ ACCESSOR_SETTER(ElementEventHandler) {
     RefPtr<EventListener> listener =
       proxy->FindOrCreateV8EventListener(value, true);
     if (listener) {
-      node->setHTMLEventListener(event_type, listener);
+      node->setEventListenerForType(event_type, listener);
     }
   } else {
-    node->removeHTMLEventListener(event_type);
+    node->removeEventListenerForType(event_type);
   }
 }
 
@@ -3423,7 +3282,7 @@ ACCESSOR_GETTER(ElementEventHandler) {
   ASSERT(key.startsWith("on"));
   String event_type = key.substring(2);
 
-  EventListener* listener = node->getHTMLEventListener(event_type);
+  EventListener* listener = node->eventListenerForType(event_type);
   return V8Proxy::EventListenerToV8Object(listener);
 }
 
@@ -3446,6 +3305,30 @@ ACCESSOR_SETTER(HTMLOptionsCollectionLength) {
   }
   if (!ec) imp->setLength(value->Uint32Value(), ec);
   V8Proxy::SetDOMException(ec);
+}
+
+ACCESSOR_GETTER(HTMLInputElementSelectionStart) {
+  INC_STATS(L"DOM.HTMLInputElement.selectionStart._get");
+  v8::Handle<v8::Object> holder = info.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection())
+    return v8::Undefined();
+
+  int v = imp->selectionStart();
+  return v8::Integer::New(v);
+}
+
+ACCESSOR_GETTER(HTMLInputElementSelectionEnd) {
+  INC_STATS(L"DOM.HTMLInputElement.selectionEnd._get");
+  v8::Handle<v8::Object> holder = info.Holder();
+  HTMLInputElement* imp = V8Proxy::DOMWrapperToNode<HTMLInputElement>(holder);
+
+  if (!imp->canHaveSelection())
+    return v8::Undefined();
+
+  int v = imp->selectionEnd();
+  return v8::Integer::New(v);
 }
 
 #if ENABLE(SVG)
@@ -3508,6 +3391,48 @@ CALLBACK_FUNC_DECL(SVGMatrixRotateFromVector) {
   Peerable* peer = static_cast<Peerable*>(
       new V8SVGStaticPODTypeWrapper<AffineTransform>(result));
   return V8Proxy::ToV8Object(V8ClassIndex::SVGMATRIX, peer);
+}
+
+CALLBACK_FUNC_DECL(SVGElementInstanceAddEventListener) {
+  INC_STATS(L"DOM.SVGElementInstance.AddEventListener()");
+  SVGElementInstance* instance =
+      V8Proxy::DOMWrapperToNative<SVGElementInstance>(args.Holder());
+
+  V8Proxy* proxy = V8Proxy::retrieve(instance->associatedFrame());
+  if (!proxy)
+    return v8::Undefined();
+
+  RefPtr<EventListener> listener =
+    proxy->FindOrCreateV8EventListener(args[1], false);
+  if (listener) {
+    String type = ToWebCoreString(args[0]);
+    bool useCapture = args[2]->BooleanValue();
+    instance->addEventListener(type, listener, useCapture);
+  }
+  return v8::Undefined();
+}
+
+CALLBACK_FUNC_DECL(SVGElementInstanceRemoveEventListener) {
+  INC_STATS(L"DOM.SVGElementInstance.RemoveEventListener()");
+  SVGElementInstance* instance =
+      V8Proxy::DOMWrapperToNative<SVGElementInstance>(args.Holder());
+
+  V8Proxy* proxy = V8Proxy::retrieve(instance->associatedFrame());
+  // It is possbile that the owner document of the node is detached
+  // from the frame, return immediately in this case.
+  // See issue 878909
+  if (!proxy)
+    return v8::Undefined();
+
+  RefPtr<EventListener> listener =
+    proxy->FindV8EventListener(args[1], false);
+  if (listener) {
+    String type = ToWebCoreString(args[0]);
+    bool useCapture = args[2]->BooleanValue();
+    instance->removeEventListener(type, listener.get(), useCapture);
+  }
+
+  return v8::Undefined();
 }
 
 #endif  // ENABLE(SVG)

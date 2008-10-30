@@ -54,6 +54,7 @@
 #include "FrameTree.h"
 #include "FrameView.h"
 #include "GraphicsContext.h"
+#include "HitTestResult.h"
 #include "HTMLFrameOwnerElement.h"
 #include "InspectorClient.h"
 #include "v8_proxy.h"
@@ -622,6 +623,10 @@ InspectorController::InspectorController(Page* page, InspectorClient* client)
     , m_showAfterVisible(ElementsPanel)
     , m_nextIdentifier(-2)
     , m_groupLevel(0)
+    , m_searchingForNode(false)
+    , m_currentUserInitiatedProfileNumber(-1)
+    , m_nextUserInitiatedProfileNumber(1)
+    , m_previousMessage(0)
 {
     ASSERT_ARG(page, page);
     ASSERT_ARG(client, client);
@@ -892,6 +897,41 @@ void InspectorController::setAttachedWindowHeight(unsigned height)
 {
     notImplemented();
 }
+
+void InspectorController::toggleSearchForNodeInPage()
+{
+    if (!enabled())
+        return;
+
+    m_searchingForNode = !m_searchingForNode;
+    if (!m_searchingForNode)
+        hideHighlight();
+}
+
+void InspectorController::mouseDidMoveOverElement(const HitTestResult& result, unsigned modifierFlags)
+{
+    if (!enabled() || !m_searchingForNode)
+        return;
+
+    Node* node = result.innerNode();
+    if (node)
+        highlight(node);
+}
+
+void InspectorController::handleMousePressOnNode(Node* node)
+{
+    if (!enabled())
+        return;
+
+    ASSERT(m_searchingForNode);
+    ASSERT(node);
+    if (!node)
+        return;
+
+    // inspect() will implicitly call ElementsPanel's focusedNodeChanged() and the hover feedback will be stopped there.
+    inspect(node);
+}
+
 
 void InspectorController::windowScriptObjectAvailable()
 {

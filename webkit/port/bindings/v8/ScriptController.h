@@ -34,6 +34,7 @@
 #define ScriptController_h
 
 #include "HashMap.h"
+#include "SecurityOrigin.h"
 
 #include "bindings/npruntime.h"
 

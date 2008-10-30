@@ -107,20 +107,19 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "HistoryItem.h"
 #include "markup.h"
 #include "Page.h"
-#include "PlatformScrollBar.h"
 #include "RenderFrame.h"
 #include "RenderWidget.h"
 #include "ReplaceSelectionCommand.h"
 #include "ResourceHandle.h"
 #include "ResourceRequest.h"
 #include "ScriptController.h"
+#include "ScrollbarTheme.h"
 #include "SelectionController.h"
 #include "Settings.h"
 #include "SkiaUtils.h"
 #include "SubstituteData.h"
 #include "TextIterator.h"
 #include "TextAffinity.h"
-#include "WidgetClientChromium.h"
 #include "XPathResult.h"
 
 MSVC_POP_WARNING();
@@ -174,7 +173,6 @@ using WebCore::HTMLFrameElementBase;
 using WebCore::IntRect;
 using WebCore::KURL;
 using WebCore::Node;
-using WebCore::PlatformScrollbar;
 using WebCore::Range;
 using WebCore::ReloadIgnoringCacheData;
 using WebCore::RenderObject;
@@ -187,8 +185,12 @@ using WebCore::String;
 using WebCore::SubstituteData;
 using WebCore::TextIterator;
 using WebCore::VisiblePosition;
-using WebCore::WidgetClientChromium;
 using WebCore::XPathResult;
+
+// TODO(darin): This used to be defined on WidgetClientChromium, but that
+// interface no longer exists.  We'll need to come up with something better
+// once we figure out how to make tickmark support work again!
+static const size_t kNoTickmark = size_t(-1);
 
 static const wchar_t* const kWebFrameActiveCount = L"WebFrameActiveCount";
 
@@ -286,7 +288,7 @@ MSVC_POP_WARNING()
     margin_height_(-1),
     inspected_node_(NULL),
     active_tickmark_frame_(NULL),
-    active_tickmark_(WidgetClientChromium::kNoTickmark),
+    active_tickmark_(kNoTickmark),
     locating_active_rect_(false),
     last_active_range_(NULL),
     last_match_count_(-1),
@@ -536,7 +538,7 @@ void WebFrameImpl::LoadDocumentData(const KURL& base_url,
   StopLoading();
 
   // Reset any pre-existing scroll offset
-  frameview()->setContentsPos(0, 0);
+  frameview()->setScrollPosition(WebCore::IntPoint());
 
   // Make sure the correct document type is constructed.
   frame_->loader()->setResponseMIMEType(mime_type);
@@ -754,23 +756,21 @@ void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
   FrameView* view = frame()->view();
 
   if ((area & INVALIDATE_ALL) == INVALIDATE_ALL) {
-    view->addToDirtyRegion(view->frameGeometry());
+    view->invalidateRect(view->frameRect());
   } else {
     if ((area & INVALIDATE_CONTENT_AREA) == INVALIDATE_CONTENT_AREA) {
-      IntRect content_area(view->x(),
-                           view->y(),
-                           view->visibleWidth(),
-                           view->visibleHeight());
-      view->addToDirtyRegion(content_area);
+      IntRect content_area(
+          view->x(), view->y(), view->visibleWidth(), view->visibleHeight());
+      view->invalidateRect(content_area);
     }
 
     if ((area & INVALIDATE_SCROLLBAR) == INVALIDATE_SCROLLBAR) {
       // Invalidate the vertical scroll bar region for the view.
-      IntRect scroll_bar_vert(view->x() + view->visibleWidth(),
-                              view->y(),
-                              PlatformScrollbar::verticalScrollbarWidth(),
-                              view->visibleHeight());
-      view->addToDirtyRegion(scroll_bar_vert);
+      IntRect scroll_bar_vert(
+          view->x() + view->visibleWidth(), view->y(),
+          WebCore::ScrollbarTheme::nativeTheme()->scrollbarThickness(),
+          view->visibleHeight());
+      view->invalidateRect(scroll_bar_vert);
     }
   }
 #endif
@@ -783,8 +783,8 @@ void WebFrameImpl::InvalidateTickmark(RefPtr<WebCore::Range> tickmark) {
   FrameView* view = frame()->view();
 
   IntRect pos = tickmark->boundingBox();
-  pos.move(-view->contentsX(), -view->contentsY());
-  view->addToDirtyRegion(pos);
+  pos.move(-view->scrollX(), -view->scrollY());
+  view->invalidateRect(pos);
 #endif
 }
 
@@ -913,7 +913,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   WebFrameImpl* const active_frame = main_frame_impl->active_tickmark_frame_;
   RefPtr<WebCore::Range> old_tickmark = NULL;
   if (active_frame &&
-      (active_frame->active_tickmark_ != WidgetClientChromium::kNoTickmark)) {
+      (active_frame->active_tickmark_ != kNoTickmark)) {
     // When we get a reference to |old_tickmark| we can be in a state where
     // the |active_tickmark_| points outside the tickmark vector, possibly
     // during teardown of the frame. This doesn't reproduce normally, so if you
@@ -929,7 +929,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   // See if we have another match to select, and select it.
   if (request.forward) {
     const bool at_end = (active_tickmark_ == (tickmarks_.size() - 1));
-    if ((active_tickmark_ == WidgetClientChromium::kNoTickmark) ||
+    if ((active_tickmark_ == kNoTickmark) ||
         (at_end && wrap_within_frame)) {
       // Wrapping within a frame is only done for single frame pages. So when we
       // reach the end we go back to the beginning (or back to the end if
@@ -943,7 +943,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
     }
   } else {
     const bool at_end = (active_tickmark_ == 0);
-    if ((active_tickmark_ == WidgetClientChromium::kNoTickmark) ||
+    if ((active_tickmark_ == kNoTickmark) ||
         (at_end && wrap_within_frame)) {
       // Wrapping within a frame is not done for multi-frame pages, but if no
       // tickmark is active we still need to set the index to the end so that
@@ -960,7 +960,7 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   if (active_frame != this) {
     // If we are jumping between frames, reset the active tickmark in the old
     // frame and invalidate the area.
-    active_frame->active_tickmark_ = WidgetClientChromium::kNoTickmark;
+    active_frame->active_tickmark_ = kNoTickmark;
     active_frame->InvalidateArea(INVALIDATE_CONTENT_AREA);
     main_frame_impl->active_tickmark_frame_ = this;
   } else {
@@ -1250,7 +1250,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
 
 void WebFrameImpl::CancelPendingScopingEffort() {
   scope_matches_factory_.RevokeAll();
-  active_tickmark_ = WidgetClientChromium::kNoTickmark;
+  active_tickmark_ = kNoTickmark;
 }
 
 void WebFrameImpl::SetFindEndstateFocusAndSelection() {
@@ -1258,7 +1258,7 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
       static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
 
   if (this == main_frame_impl->active_tickmark_frame() &&
-      active_tickmark_ != WidgetClientChromium::kNoTickmark) {
+      active_tickmark_ != kNoTickmark) {
     RefPtr<Range> range = tickmarks_[active_tickmark_];
 
     // Set the selection to what the active match is.
@@ -1424,54 +1424,39 @@ void WebFrameImpl::CreateFrameView() {
 
   DCHECK(page->mainFrame() != NULL);
 
-#if defined(OS_WIN)
-  // TODO(pinkerton): figure out view show/hide like win
-  // Detach the current view. This ensures that UI widgets like plugins,
-  // etc are detached(hidden)
-  if (frame_->view())
-    frame_->view()->detachFromWindow();
-#endif
+  bool is_main_frame = frame_ == page->mainFrame();
+  if (is_main_frame && frame_->view())
+    frame_->view()->setParentVisible(false);
 
   frame_->setView(0);
 
-  WebCore::FrameView* view = new FrameView(frame_.get());
+  WebCore::FrameView* view;
+  if (is_main_frame) {
+    IntSize initial_size(
+        webview_impl_->size().width(), webview_impl_->size().height());
+    view = new FrameView(frame_.get(), initial_size);
+  } else {
+    view = new FrameView(frame_.get());
+  }
 
   frame_->setView(view);
-
-#if defined(OS_WIN)
-  // Attaching the view ensures that UI widgets like plugins, display/hide
-  // correctly.
-  frame_->view()->attachToWindow();
-#endif
-
-  if (margin_width_ >= 0)
-    view->setMarginWidth(margin_width_);
-  if (margin_height_ >= 0)
-    view->setMarginHeight(margin_height_);
-  if (!allows_scrolling_)
-    view->setScrollbarsMode(WebCore::ScrollbarAlwaysOff);
 
   // TODO(darin): The Mac code has a comment about this possibly being
   // unnecessary.  See installInFrame in WebCoreFrameBridge.mm
   if (frame_->ownerRenderer())
     frame_->ownerRenderer()->setWidget(view);
 
-  view->initScrollbars();
+  if (HTMLFrameOwnerElement* owner = frame_->ownerElement()) {
+    view->setCanHaveScrollbars(
+        owner->scrollingMode() != WebCore::ScrollbarAlwaysOff);
+  }
+
+  if (is_main_frame)
+    view->setParentVisible(true);
 
   // FrameViews are created with a refcount of 1 so it needs releasing after we
   // assign it to a RefPtr.
   view->deref();
-
-  WebFrameImpl* parent = static_cast<WebFrameImpl*>(GetParent());
-  if (parent) {
-    parent->frameview()->addChild(view);
-  } else {
-    view->setClient(webview_impl_);
-
-    IntRect geom(0, 0, webview_impl_->size().width(),
-                       webview_impl_->size().height());
-    view->setFrameGeometry(geom);
-  }
 }
 
 // static
@@ -1799,10 +1784,7 @@ gfx::Size WebFrameImpl::ScrollOffset() const {
 
 void WebFrameImpl::SetAllowsScrolling(bool flag) {
   allows_scrolling_ = flag;
-#if defined(OS_WIN)
-  // TODO(pinkerton): fix when we figure out scrolling apis
-  frame_->view()->setAllowsScrolling(flag);
-#endif
+  frame_->view()->setCanHaveScrollbars(flag);
 }
 
 bool WebFrameImpl::SetPrintingMode(bool printing,
@@ -1817,9 +1799,11 @@ bool WebFrameImpl::SetPrintingMode(bool printing,
   }
   printing_ = printing;
   if (printing) {
-    view->setScrollbarsMode(WebCore::ScrollbarAlwaysOff);
+    view->setScrollbarModes(WebCore::ScrollbarAlwaysOff,
+                            WebCore::ScrollbarAlwaysOff);
   } else {
-    view->setScrollbarsMode(WebCore::ScrollbarAuto);
+    view->setScrollbarModes(WebCore::ScrollbarAuto,
+                            WebCore::ScrollbarAuto);
   }
   DCHECK_EQ(frame()->isFrameSet(), false);
 
@@ -1862,7 +1846,7 @@ void WebFrameImpl::GetPageRect(int page, gfx::Rect* page_size) const {
 }
 
 bool WebFrameImpl::SpoolPage(int page,
-                            PlatformContextSkia* context) {
+                             PlatformContextSkia* context) {
   // Ensure correct state.
   if (!context ||
       !printing_ ||
@@ -1881,7 +1865,7 @@ bool WebFrameImpl::SpoolPage(int page,
   DCHECK(pages_[page].x() == 0);
   // Offset to get the right square.
   spool.translate(0, -static_cast<float>(pages_[page].y()));
-  frame()->paint(&spool, pages_[page]);
+  frame()->view()->paint(&spool, pages_[page]);
   return true;
 }
 

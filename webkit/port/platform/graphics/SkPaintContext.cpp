@@ -209,7 +209,7 @@ void SkPaintContext::setup_paint_fill(SkPaint* paint) const {
 
 int SkPaintContext::setup_paint_stroke(SkPaint* paint,
                                        SkRect* rect,
-                                       int length) {
+                                       int length) const {
   setup_paint_common(paint);
   float width = state_->mStrokeThickness;
 
@@ -313,7 +313,7 @@ void SkPaintContext::addPath(const SkPath& path) {
   path_.addPath(path);
 }
 
-SkPath* SkPaintContext::currentPath() {
+const SkPath* SkPaintContext::currentPath() const {
   return &path_;
 }
 

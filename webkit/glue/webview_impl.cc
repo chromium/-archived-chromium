@@ -686,13 +686,13 @@ void WebViewImpl::Layout() {
     // they need to be told that we are updating the screen.  The problem is
     // that the native widgets need to recalculate their clip region and not
     // overlap any of our non-native widgets.  To force the resizing, call
-    // setFrameGeometry().  This will be a quick operation for most frames, but
+    // setFrameRect().  This will be a quick operation for most frames, but
     // the NativeWindowWidgets will update a proper clipping region.
     FrameView* frameview = main_frame_->frameview();
     if (frameview)
-      frameview->setFrameGeometry(frameview->frameGeometry());
+      frameview->setFrameRect(frameview->frameRect());
 
-    // setFrameGeometry may have the side-effect of causing existing page
+    // setFrameRect may have the side-effect of causing existing page
     // layout to be invalidated, so layout needs to be called last.
 
     main_frame_->Layout();
@@ -1126,6 +1126,9 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
   settings->setFontRenderingMode(NormalRenderingMode);
   settings->setJavaEnabled(preferences.java_enabled);
 
+  // Turn this on to cause WebCore to paint the resize corner for us.
+  settings->setShouldPaintCustomScrollbars(true);
+
 #if defined(OS_WIN)
   // RenderTheme is a singleton that needs to know the default font size to
   // draw some form controls.  We let it know each time the size changes.
@@ -1372,52 +1375,10 @@ void WebViewImpl::ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
 //-----------------------------------------------------------------------------
 // WebCore::WidgetClientWin
 
+// TODO(darin): Figure out what to do with these methods.
+#if 0
 gfx::ViewHandle WebViewImpl::containingWindow() {
   return delegate_ ? delegate_->GetContainingWindow(this) : NULL;
-}
-
-void WebViewImpl::invalidateRect(const IntRect& damaged_rect) {
-  if (delegate_)
-    delegate_->DidInvalidateRect(this, gfx::Rect(damaged_rect.x(),
-                                                 damaged_rect.y(),
-                                                 damaged_rect.width(),
-                                                 damaged_rect.height()));
-}
-
-void WebViewImpl::scrollRect(int dx, int dy, const IntRect& clip_rect) {
-  if (delegate_)
-    delegate_->DidScrollRect(this, dx, dy, gfx::Rect(clip_rect.x(),
-                                                     clip_rect.y(),
-                                                     clip_rect.width(),
-                                                     clip_rect.height()));
-}
-
-void WebViewImpl::popupOpened(WebCore::Widget* widget,
-                              const WebCore::IntRect& bounds) {
-  if (!delegate_)
-    return;
-
-  WebWidgetImpl* webwidget =
-      static_cast<WebWidgetImpl*>(delegate_->CreatePopupWidget(this));
-  webwidget->Init(widget, gfx::Rect(bounds.x(), bounds.y(),
-                                    bounds.width(), bounds.height()));
-}
-
-void WebViewImpl::popupClosed(WebCore::Widget* widget) {
-  NOTREACHED() << "popupClosed called on a non-popup";
-}
-
-void WebViewImpl::setCursor(const WebCore::Cursor& cursor) {
-#if defined(OS_WIN)
-  // TODO(pinkerton): figure out the cursor delegate methods
-  if (delegate_)
-    delegate_->SetCursor(this, cursor.impl());
-#endif
-}
-
-void WebViewImpl::setFocus() {
-  if (delegate_)
-    delegate_->Focus(this);
 }
 
 const SkBitmap* WebViewImpl::getPreloadedResourceBitmap(int resource_id) {
@@ -1462,6 +1423,7 @@ bool WebViewImpl::isHidden() {
 
   return delegate_->IsHidden();
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // WebCore::BackForwardListClient

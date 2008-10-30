@@ -314,6 +314,7 @@ module window {
 	// KJS adds these to the window object in kjs_window.cpp.
 	attribute XMLHttpRequestConstructor XMLHttpRequest;
 	attribute XSLTProcessorConstructor XSLTProcessor;
+	attribute MessageChannelConstructor MessageChannel;
 #endif
 
 #if ENABLE_DOM_STORAGE

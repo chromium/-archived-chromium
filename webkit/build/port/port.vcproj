@@ -719,7 +719,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\win\ScreenWin.cpp"
+					RelativePath="..\..\port\platform\win\PlatformScreenWin.cpp"
 					>
 				</File>
 				<File
@@ -763,6 +763,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\chromium\FileSystemChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\FileSystemChromiumWin.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\chromium\FramelessScrollView.cpp"
 					>
 				</File>
@@ -783,19 +791,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\chromium\PlatformScrollBar.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\chromium\PlatformScrollBarChromium.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\chromium\PopupMenuChromium.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\chromium\ScrollViewChromium.cpp"
+					RelativePath="..\..\port\platform\chromium\ScrollbarThemeChromiumWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ScrollbarThemeChromiumWin.h"
 					>
 				</File>
 				<File

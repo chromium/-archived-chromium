@@ -72,7 +72,7 @@ class V8AbstractEventListener : public EventListener {
   int m_columnNumber;
 
   friend class V8EventListener;
-  friend class V8XHREventListener;
+  friend class V8ObjectEventListener;
   friend class V8LazyEventListener;
 };
 
@@ -102,16 +102,16 @@ class V8EventListener : public V8AbstractEventListener {
 };
 
 
-// V8XHREventListener is a special listener wrapper for XMLHttpRequest object.
-// It keeps JS listener week.
-class V8XHREventListener : public V8EventListener {
+// V8ObjectEventListener is a special listener wrapper for objects not
+// in the DOM.  It keeps the JS listener as a weak pointer.
+class V8ObjectEventListener : public V8EventListener {
  public:
-  static PassRefPtr<V8XHREventListener> create(Frame* frame, 
+  static PassRefPtr<V8ObjectEventListener> create(Frame* frame, 
       v8::Local<v8::Object> listener, bool html) {
-    return adoptRef(new V8XHREventListener(frame, listener, html));
+    return adoptRef(new V8ObjectEventListener(frame, listener, html));
   }
-  V8XHREventListener(Frame* frame, v8::Local<v8::Object> listener, bool html);
-  virtual ~V8XHREventListener();
+  V8ObjectEventListener(Frame* frame, v8::Local<v8::Object> listener, bool html);
+  virtual ~V8ObjectEventListener();
 };
 
 

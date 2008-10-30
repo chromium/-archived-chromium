@@ -1,0 +1,103 @@
+/*
+ * Copyright (C) 2007, 2008 Nikolas Zimmermann <zimmermann@kde.org>
+ * Copyright (C) 2008 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+module svg {
+
+    interface [
+        Conditional=SVG,
+        ObjCCustomInternalImpl,
+        CustomListeners,
+        CustomPushEventHandlerScope,
+        GenerateToJS,
+        GenerateNativeConverter
+    ] SVGElementInstance
+#if defined(LANGUAGE_OBJECTIVE_C)
+        : Object, EventTarget
+#endif /* defined(LANGUAGE_OBJECTIVE_C) */
+    {
+        readonly attribute SVGElement correspondingElement;
+        readonly attribute SVGUseElement correspondingUseElement;
+        readonly attribute SVGElementInstance parentNode;
+        readonly attribute SVGElementInstanceList childNodes;
+        readonly attribute SVGElementInstance firstChild;
+        readonly attribute SVGElementInstance lastChild;
+        readonly attribute SVGElementInstance previousSibling;
+        readonly attribute SVGElementInstance nextSibling;
+
+        // EventTarget
+#if !defined(LANGUAGE_OBJECTIVE_C)
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onabort;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onblur;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onchange;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onclick;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString oncontextmenu;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString ondblclick;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onerror;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onfocus;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString oninput;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onkeydown;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onkeypress;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onkeyup;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onload;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onmousedown;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onmousemove;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onmouseout;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onmouseover;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onmouseup;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onmousewheel;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onbeforecut;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString oncut;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onbeforecopy;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString oncopy;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onbeforepaste;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onpaste;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString ondragenter;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString ondragover;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString ondragleave;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString ondrop;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString ondragstart;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString ondrag;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString ondragend;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onreset;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onresize;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onscroll;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onsearch;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onselect;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onselectstart;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onsubmit;
+        attribute [DontEnum, Custom=ElementEventHandler] DOMString onunload;
+
+        [Custom] void addEventListener(in DOMString type, 
+                                       in EventListener listener, 
+                                       in boolean useCapture);
+        [Custom] void removeEventListener(in DOMString type, 
+                                          in EventListener listener, 
+                                          in boolean useCapture);
+        boolean dispatchEvent(in Event event)
+            raises(EventException);
+#endif /* defined(LANGUAGE_OBJECTIVE_C) */
+    };
+}

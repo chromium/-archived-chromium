@@ -33,6 +33,7 @@
 #include "Element.h"
 #include "EventHandler.h"
 #include "FrameView.h"
+#include "HostWindow.h"
 #include "HTMLNames.h"
 #include "HTMLFrameElementBase.h"
 #include "HTMLInputElement.h"
@@ -114,7 +115,7 @@ HRESULT STDMETHODCALLTYPE AccessibleBase::get_accParent(IDispatch** parent)
 		if (!procPtr)
 		    return E_FAIL;
 
-		return procPtr(m_object->topDocumentFrameView()->containingWindow(), OBJID_WINDOW, __uuidof(IAccessible), reinterpret_cast<void**>(parent));
+		return procPtr(m_object->topDocumentFrameView()->hostWindow()->platformWindow(), OBJID_WINDOW, __uuidof(IAccessible), reinterpret_cast<void**>(parent));
 }
 
 HRESULT STDMETHODCALLTYPE AccessibleBase::get_accChildCount(long* count)

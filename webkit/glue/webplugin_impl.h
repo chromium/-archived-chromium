@@ -55,16 +55,16 @@ class WebPluginContainer : public WebCore::Widget {
   WebPluginContainer(WebPluginImpl* impl);
   virtual ~WebPluginContainer();
   NPObject* GetPluginScriptableObject();
-  virtual WebCore::IntRect windowClipRect() const;
-  virtual void geometryChanged() const;
-  virtual void setFrameGeometry(const WebCore::IntRect& rect);
+  
+  // Widget methods:
+  virtual void setFrameRect(const WebCore::IntRect& rect);
   virtual void paint(WebCore::GraphicsContext*, const WebCore::IntRect& rect);
+  virtual void invalidateRect(const WebCore::IntRect&);
   virtual void setFocus();
   virtual void show();
   virtual void hide();
   virtual void handleEvent(WebCore::Event* event);
-  virtual void attachToWindow();
-  virtual void detachFromWindow();
+  virtual void frameRectsChanged() const {}
 
 #if USE(JSC)
   virtual bool isPluginView() const;
@@ -203,7 +203,7 @@ class WebPluginImpl : public WebPlugin,
 
   // Override for when our window changes size or position.
   // Used to notify the plugin when the size or position changes.
-  virtual void setFrameGeometry(const WebCore::IntRect& rect);
+  virtual void setFrameRect(const WebCore::IntRect& rect);
 
   // Overrides paint so we can notify the underlying widget to repaint.
   virtual void paint(WebCore::GraphicsContext*, const WebCore::IntRect& rect);

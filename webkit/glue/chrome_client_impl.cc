@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "Cursor.h"
 #include "FloatRect.h"
 #include "FileChooser.h"
 #include "FrameLoadRequest.h"
@@ -29,6 +30,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
+#include "webkit/glue/webwidget_impl.h"
 
 struct IWebURLResponse;
 
@@ -356,23 +358,52 @@ WebCore::IntRect ChromeClientImpl::windowResizerRect() const {
   return rv;
 }
 
-void ChromeClientImpl::addToDirtyRegion(const WebCore::IntRect& damaged_rect) {
-  ASSERT_NOT_REACHED();
+void ChromeClientImpl::repaint(
+    const WebCore::IntRect& paint_rect, bool content_changed, bool immediate,
+    bool repaint_content_only) {
+  WebViewDelegate* d = webview_->delegate();
+  if (d)
+    d->DidInvalidateRect(webview_, webkit_glue::FromIntRect(paint_rect));
 }
 
-void ChromeClientImpl::scrollBackingStore(int dx, int dy,
-                                          const WebCore::IntRect& scroll_rect,
-                                          const WebCore::IntRect& clip_rect) {
-  ASSERT_NOT_REACHED();
+void ChromeClientImpl::scroll(
+    const WebCore::IntSize& scroll_delta, const WebCore::IntRect& scroll_rect,
+    const WebCore::IntRect& clip_rect) {
+  WebViewDelegate* d = webview_->delegate();
+  if (d) {
+    int dx = scroll_delta.width();
+    int dy = scroll_delta.height();
+    d->DidScrollRect(webview_, dx, dy, webkit_glue::FromIntRect(clip_rect));
+  }
 }
 
-void ChromeClientImpl::updateBackingStore() {
-  ASSERT_NOT_REACHED();
+WebCore::IntPoint ChromeClientImpl::screenToWindow(
+    const WebCore::IntPoint&) const {
+  NOTIMPLEMENTED();
+  return WebCore::IntPoint();
 }
 
-void ChromeClientImpl::mouseDidMoveOverElement(const WebCore::HitTestResult& result,
-                                               unsigned modifierFlags) {
+WebCore::IntRect ChromeClientImpl::windowToScreen(
+    const WebCore::IntRect& rect) const {
+  WebCore::IntRect screen_rect(rect);
 
+  WebViewDelegate* d = webview_->delegate();
+  if (d) {
+    gfx::Rect window_rect;
+    d->GetWindowRect(webview_, &window_rect);
+    screen_rect.move(window_rect.x(), window_rect.y());
+  }
+
+  return screen_rect;
+}
+
+PlatformWidget ChromeClientImpl::platformWindow() const {
+  // We have no native widget.
+  return NULL;
+}
+
+void ChromeClientImpl::mouseDidMoveOverElement(
+    const WebCore::HitTestResult& result, unsigned modifierFlags) {
   // Find out if the mouse is over a link, and if so, let our UI know... somehow
   WebViewDelegate* d = webview_->delegate();
   if (d) {
@@ -392,30 +423,6 @@ void ChromeClientImpl::setToolTip(const WebCore::String& tooltip_text) {
   }
 }
 
-void ChromeClientImpl::runFileChooser(const WebCore::String& default_path,
-                                      PassRefPtr<WebCore::FileChooser> fileChooser) {
-  WebViewDelegate* delegate = webview_->delegate();
-  if (!delegate)
-    return;
-
-  std::wstring suggestion = webkit_glue::StringToStdWString(default_path);
-  WebFileChooserCallbackImpl* chooser = new WebFileChooserCallbackImpl(fileChooser);
-  delegate->RunFileChooser(suggestion, chooser);
-}
-
-WebCore::IntRect ChromeClientImpl::windowToScreen(const WebCore::IntRect& rect) {
-  WebCore::IntRect screen_rect(rect);
-
-  WebViewDelegate* d = webview_->delegate();
-  if (d) {
-    gfx::Rect window_rect;
-    d->GetWindowRect(webview_, &window_rect);
-    screen_rect.move(window_rect.x(), window_rect.y());
-  }
-
-  return screen_rect;
-}
-
 void ChromeClientImpl::print(WebCore::Frame* frame) {
   WebViewDelegate* d = webview_->delegate();
   if (d) {
@@ -428,3 +435,32 @@ void ChromeClientImpl::exceededDatabaseQuota(WebCore::Frame* frame,
   // TODO(tc): If we enable the storage API, we need to implement this function.
 }
 
+void ChromeClientImpl::runFileChooser(const WebCore::String& default_path,
+                                      PassRefPtr<WebCore::FileChooser> fileChooser) {
+  WebViewDelegate* delegate = webview_->delegate();
+  if (!delegate)
+    return;
+
+  std::wstring suggestion = webkit_glue::StringToStdWString(default_path);
+  WebFileChooserCallbackImpl* chooser = new WebFileChooserCallbackImpl(fileChooser);
+  delegate->RunFileChooser(suggestion, chooser);
+}
+
+void ChromeClientImpl::popupOpened(
+    WebCore::FramelessScrollView* popup_view, const WebCore::IntRect& bounds) {
+  WebViewDelegate* d = webview_->delegate();
+  if (d) {
+    WebWidgetImpl* webwidget =
+        static_cast<WebWidgetImpl*>(d->CreatePopupWidget(webview_));
+    webwidget->Init(popup_view, webkit_glue::FromIntRect(bounds));
+  }
+}
+
+void ChromeClientImpl::setCursor(const WebCore::Cursor& cursor) {
+#if defined(OS_WIN)
+  // TODO(pinkerton): figure out the cursor delegate methods
+  WebViewDelegate* d = webview_->delegate();
+  if (d)
+    d->SetCursor(webview_, cursor.impl());
+#endif
+}

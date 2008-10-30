@@ -38,8 +38,8 @@
 #include "Logging.h"
 #include "NativeImageSkia.h"
 #include "NotImplemented.h"
-#include "PlatformScrollBar.h"
 #include "PlatformString.h"
+#include "ScrollbarTheme.h"
 
 #include "SkiaUtils.h"
 #include "SkShader.h"
@@ -93,20 +93,19 @@ void TransformDimensions(const SkMatrix& matrix,
 static PassRefPtr<Image> GetTextAreaResizeCorner()
 {
     // Get the size of the resizer.
-    const int width = PlatformScrollbar::verticalScrollbarWidth();
-    const int height = PlatformScrollbar::horizontalScrollbarHeight();
+    const int thickness = ScrollbarTheme::nativeTheme()->scrollbarThickness();
 
     // Setup a memory buffer.
-    gfx::PlatformCanvasWin canvas(width, height, false);
+    gfx::PlatformCanvasWin canvas(thickness, thickness, false);
     gfx::PlatformDeviceWin& device = canvas.getTopPlatformDevice();
-    device.prepareForGDI(0, 0, width, height);
+    device.prepareForGDI(0, 0, thickness, thickness);
     HDC hdc = device.getBitmapDC();
-    RECT widgetRect = { 0, 0, width, height };
+    RECT widgetRect = { 0, 0, thickness, thickness };
 
     // Do the drawing.
     gfx::NativeTheme::instance()->PaintStatusGripper(hdc, SP_GRIPPER, 0, 0,
                                                      &widgetRect);
-    device.postProcessGDI(0, 0, width, height);
+    device.postProcessGDI(0, 0, thickness, thickness);
     return BitmapImageSingleFrameSkia::create(device.accessBitmap(false));
 }
 #endif

@@ -125,7 +125,6 @@ int main(int argc, char* argv[]) {
   CommandLine parsed_command_line;
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
       MessageBox(NULL, L"attach to me?", L"test_shell", MB_OK);
-  //webkit_glue::SetLayoutTestMode(true);
 
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.
@@ -139,6 +138,9 @@ int main(int argc, char* argv[]) {
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);
 
   TestShell::InitLogging(suppress_error_dialogs, layout_test_mode);
+
+  // Set this early before we start using WebCore.
+  webkit_glue::SetLayoutTestMode(layout_test_mode);
 
   // Suppress abort message in v8 library in debugging mode.
   // V8 calls abort() when it hits assertion errors.
@@ -299,8 +301,6 @@ int main(int argc, char* argv[]) {
 
     // See if we need to run the tests.
     if (layout_test_mode) {
-      webkit_glue::SetLayoutTestMode(true);
-
       // Set up for the kind of test requested.
       TestShell::TestParams params;
       if (parsed_command_line.HasSwitch(test_shell::kDumpPixels)) {

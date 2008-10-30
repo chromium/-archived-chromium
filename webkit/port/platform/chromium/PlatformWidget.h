@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef PlatformWidget_h__
-#define PlatformWidget_h__
+#ifndef PlatformWidget_h
+#define PlatformWidget_h
 
 #include "base/gfx/native_widget_types.h"
 

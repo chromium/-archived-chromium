@@ -18,8 +18,7 @@
 #include "webkit/glue/webview.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "webkit/port/history/BackForwardList.h"
-#include "webkit/port/platform/chromium/WidgetClientChromium.h"
+#include "BackForwardList.h"
 MSVC_POP_WARNING();
 
 namespace WebCore {
@@ -41,9 +40,7 @@ class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebViewDelegate;
 
-class WebViewImpl : public WebView,
-                    public WebCore::WidgetClientChromium,
-                    public WebCore::BackForwardListClient {
+class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
  public:
   // WebView
   virtual bool ShouldClose();
@@ -189,21 +186,17 @@ class WebViewImpl : public WebView,
                        WebCore::Frame* frame,
                        const WebCore::PlatformKeyboardEvent& e);
 
+  // TODO(darin): Figure out what happens to these methods.
+#if 0
   // WebCore::WidgetClientWin
   virtual gfx::ViewHandle containingWindow();
-  virtual void invalidateRect(const WebCore::IntRect& damaged_rect);
-  virtual void scrollRect(int dx, int dy, const WebCore::IntRect& clip_rect);
-  virtual void popupOpened(WebCore::Widget* widget,
-                           const WebCore::IntRect& bounds);
-  virtual void popupClosed(WebCore::Widget* widget);
-  virtual void setCursor(const WebCore::Cursor& cursor);
-  virtual void setFocus();
   virtual const SkBitmap* getPreloadedResourceBitmap(int resource_id);
   virtual void onScrollPositionChanged(WebCore::Widget* widget);
   virtual const WTF::Vector<RefPtr<WebCore::Range> >* getTickmarks(
       WebCore::Frame* frame);
   virtual size_t getActiveTickmarkIndex(WebCore::Frame* frame);
   virtual bool isHidden();
+#endif
 
   // WebCore::BackForwardListClient
   virtual void didAddHistoryItem(WebCore::HistoryItem* item);

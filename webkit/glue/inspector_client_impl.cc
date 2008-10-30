@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "DOMWindow.h"
 #include "FloatRect.h"
 #include "InspectorController.h"
 #include "Page.h"

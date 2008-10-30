@@ -180,3 +180,6 @@ KJS # SKIP : chrome/fast/dom/set-table-head-no-crash.html = FAIL
 
 // Dashboard-related test
 KJS | V8 # SKIP : LayoutTests/fast/css/dashboard-region-parser.html = FAIL
+
+// Not a test?
+KJS | V8 # SKIP : LayoutTests/http/tests/incremental/pause-in-script-element.pl = FAIL

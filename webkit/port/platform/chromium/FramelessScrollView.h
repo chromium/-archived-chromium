@@ -5,34 +5,55 @@
 #ifndef FramelessScrollView_h
 #define FramelessScrollView_h
 
-#include "FrameView.h"
+#include "ScrollView.h"
 
 namespace WebCore {
-    
+    class FramelessScrollViewClient;
     class PlatformKeyboardEvent;
+    class PlatformMouseEvent;
+    class PlatformWheelEvent;
 
     // A FramelessScrollView is a ScrollView that can be used to render custom
-    // content, which does not have an associated Frame.  This extends from
-    // FrameView because much of WebCore unfortunately assumes that a
-    // ScrollView is a FrameView.
+    // content, which does not have an associated Frame.
     //
     // TODO: It may be better to just develop a custom subclass of Widget that
     // can have scroll bars for this instead of trying to reuse ScrollView.
     //
-    class FramelessScrollView : public FrameView {
+    class FramelessScrollView : public ScrollView {
     public:
-        FramelessScrollView() : FrameView(0) {}
+        FramelessScrollView() : m_client(0) {}
+        ~FramelessScrollView();
 
-        virtual IntRect windowClipRect() const;
+        FramelessScrollViewClient* client() const { return m_client; }
+        void setClient(FramelessScrollViewClient* client) { m_client = client; }
 
-        // Event handlers
+        // Event handlers that subclasses must implement.
         virtual bool handleMouseDownEvent(const PlatformMouseEvent&) = 0;
         virtual bool handleMouseMoveEvent(const PlatformMouseEvent&) = 0;
         virtual bool handleMouseReleaseEvent(const PlatformMouseEvent&) = 0;
         virtual bool handleWheelEvent(const PlatformWheelEvent&) = 0;
         virtual bool handleKeyEvent(const PlatformKeyboardEvent&) = 0;
+
+        // ScrollbarClient public methods:
+        virtual void invalidateScrollbarRect(Scrollbar*, const IntRect&);
+        virtual bool isActive() const;
+
+        // Widget public methods:
+        virtual void invalidateRect(const IntRect&);
+
+        // ScrollView public methods:
+        virtual HostWindow* hostWindow() const;
+        virtual IntRect windowClipRect(bool clipToContents = true) const;
+
+    protected:
+        // ScrollView protected methods:
+        virtual void paintContents(GraphicsContext*, const IntRect& damageRect);
+        virtual void contentsResized();
+        virtual void visibleContentsResized();
+
+    private:
+        FramelessScrollViewClient* m_client;
     };
 }
 
 #endif // FramelessScrollView_h
-

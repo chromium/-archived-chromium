@@ -140,7 +140,6 @@ inputs = [
     '$DERIVED_DIR/V8HTMLQuoteElement.cpp',
     '$DERIVED_DIR/V8HTMLScriptElement.cpp',
     '$DERIVED_DIR/V8HTMLSelectElement.cpp',
-    '$DERIVED_DIR/V8HTMLSelectionInputElement.cpp',
     '$DERIVED_DIR/V8HTMLStyleElement.cpp',
     '$DERIVED_DIR/V8HTMLTableCaptionElement.cpp',
     '$DERIVED_DIR/V8HTMLTableCellElement.cpp',
@@ -168,7 +167,6 @@ inputs = [
     '$DERIVED_DIR/V8NodeIterator.cpp',
     '$DERIVED_DIR/V8NodeList.cpp',
     '$DERIVED_DIR/V8Notation.cpp',
-    '$DERIVED_DIR/V8NSResolver.cpp',
     '$DERIVED_DIR/V8OverflowEvent.cpp',
     '$DERIVED_DIR/V8Plugin.cpp',
     '$DERIVED_DIR/V8PluginArray.cpp',
@@ -313,7 +311,6 @@ inputs = [
     '$DERIVED_DIR/V8XPathResult.cpp',
     '$DERIVED_DIR/V8XSLTProcessor.cpp',
 
-    '$PORT_DIR/bindings/v8/JSNSResolver.cpp',
     '$PORT_DIR/bindings/v8/JSXPathNSResolver.cpp',
     '$PORT_DIR/bindings/v8/np_v8object.cpp',
     '$PORT_DIR/bindings/v8/npruntime.cpp',

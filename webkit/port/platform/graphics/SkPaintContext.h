@@ -51,7 +51,7 @@ class SkPaintContext {
   // the pen, or 1 if the pen's width is 0 if a non-zero length is provided,
   // the number of dashes/dots on a dashed/dotted line will be adjusted to
   // start and end that length with a dash/dot.
-  int setup_paint_stroke(SkPaint* paint, SkRect* rect, int length);
+  int setup_paint_stroke(SkPaint* paint, SkRect* rect, int length) const;
 
   // State proxying functions
   SkDrawLooper* setDrawLooper(SkDrawLooper* dl);
@@ -69,7 +69,7 @@ class SkPaintContext {
 
   void beginPath();
   void addPath(const SkPath& path);
-  SkPath* currentPath();
+  const SkPath* currentPath() const;
 
   void setGradient(SkShader*);
   void setPattern(SkShader*);

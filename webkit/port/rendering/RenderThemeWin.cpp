@@ -31,7 +31,7 @@
 #include "Document.h"
 #include "FontSelector.h"
 #include "GraphicsContext.h"
-#include "PlatformScrollBar.h"
+#include "ScrollbarTheme.h"
 #include "SkiaUtils.h"
 
 #include "base/gfx/native_theme.h"
@@ -706,7 +706,7 @@ int RenderThemeWin::menuListInternalPadding(RenderStyle* style, int paddingType)
     // we don't draw a button, so don't reserve space for it.
     const int bar_type = style->direction() == LTR ? RightPadding : LeftPadding;
     if (paddingType == bar_type && style->appearance() != NoAppearance)
-        padding += PlatformScrollbar::verticalScrollbarWidth();
+        padding += ScrollbarTheme::nativeTheme()->scrollbarThickness();
 
     return padding;
 }

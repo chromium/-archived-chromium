@@ -903,44 +903,48 @@ PassRefPtr<V8EventListener> V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::V
 }
 
 
-// XMLHttpRequest(XHR) event listeners are different from listeners
-// on DOM nodes. A XHR event listener wrapper only hold a weak reference
-// to the JS function. A strong reference can create a cycle.
+// Object event listeners (such as XmlHttpRequest and MessagePort) are
+// different from listeners on DOM nodes. An object event listener wrapper
+// only holds a weak reference to the JS function. A strong reference can
+// create a cycle.
 //
-// The lifetime of a XHR object is bounded by the life time of its JS_XHR
-// object. So we can create a hidden reference from JS_XHR to JS function.
+// The lifetime of these objects is bounded by the life time of its JS
+// wrapper. So we can create a hidden reference from the JS wrapper to
+// to its JS function.
 //
 //                         (peer)
-//              XHR      <----------  JS_XHR
+//              XHR      <----------  JS_wrapper
 //               |             (hidden) :  ^
 //               V                      V  : (may reachable by closure)
 //           V8_listener  --------> JS_function
 //                         (weak)  <-- may create a cycle if it is strong
 //
 // The persistent reference is made weak in the constructor
-// of V8XHREventListener.
+// of V8ObjectEventListener.
 
-PassRefPtr<V8EventListener> V8Proxy::FindXHREventListener(
+PassRefPtr<V8EventListener> V8Proxy::FindObjectEventListener(
     v8::Local<v8::Value> listener, bool html)
 {
   return FindEventListenerInList(m_xhr_listeners, listener, html);
 }
 
 
-PassRefPtr<V8EventListener> V8Proxy::FindOrCreateXHREventListener(
+PassRefPtr<V8EventListener> V8Proxy::FindOrCreateObjectEventListener(
     v8::Local<v8::Value> obj, bool html)
 {
   ASSERT(v8::Context::InContext());
 
-  if (!obj->IsObject()) return 0;
+  if (!obj->IsObject())
+    return 0;
 
   V8EventListener* wrapper =
       FindEventListenerInList(m_xhr_listeners, obj, html);
-  if (wrapper) return wrapper;
+  if (wrapper)
+    return wrapper;
 
   // Create a new one, and add to cache.
   RefPtr<V8EventListener> new_listener =
-    V8XHREventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), html);
+    V8ObjectEventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), html);
   m_xhr_listeners.push_back(new_listener.get());
 
   return new_listener.release();
@@ -967,7 +971,7 @@ void V8Proxy::RemoveV8EventListener(V8EventListener* listener)
 }
 
 
-void V8Proxy::RemoveXHREventListener(V8XHREventListener* listener)
+void V8Proxy::RemoveObjectEventListener(V8ObjectEventListener* listener)
 {
   RemoveEventListenerFromList(m_xhr_listeners, listener);
 }
@@ -1120,7 +1124,8 @@ v8::Local<v8::Value> V8Proxy::CallFunction(v8::Handle<v8::Function> function,
   // of recursion that stems from calling functions. This is in
   // contrast to the script evaluations.
   v8::Local<v8::Value> result;
-  { ConsoleMessageScope scope;
+  { 
+    ConsoleMessageScope scope;
 
     // Evaluating the JavaScript could cause the frame to be deallocated,
     // so we start the keep alive timer here.
@@ -1145,7 +1150,8 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
 {
   v8::Persistent<v8::FunctionTemplate>* cache_cell =
       V8ClassIndex::GetCache(type);
-  if (!(*cache_cell).IsEmpty()) return *cache_cell;
+  if (!(*cache_cell).IsEmpty())
+    return *cache_cell;
 
   // not found
   FunctionTemplateFactory factory = V8ClassIndex::GetFactory(type);
@@ -1377,6 +1383,18 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     }
 
+    case V8ClassIndex::MESSAGECHANNEL:
+      desc->SetCallHandler(USE_CALLBACK(MessageChannelConstructor));
+      break;
+    case V8ClassIndex::MESSAGEPORT: {
+      // Reserve one more internal field for keeping event listeners.
+        v8::Local<v8::ObjectTemplate> instance_template =
+            desc->InstanceTemplate();
+        instance_template->SetInternalFieldCount(
+            V8Custom::kMessagePortInternalFieldCount);
+        break;
+    }
+
     // DOMParser, XMLSerializer, and XMLHttpRequest objects are created from
     // JS world, but we setup the constructor function lazily in
     // WindowNamedPropertyHandler::get.
@@ -1388,12 +1406,12 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     case V8ClassIndex::XMLHTTPREQUEST: {
       // Reserve one more internal field for keeping event listeners.
-      v8::Local<v8::ObjectTemplate> instance_template =
-          desc->InstanceTemplate();
-      instance_template->SetInternalFieldCount(
-          V8Custom::kXMLHttpRequestInternalFieldCount);
-      desc->SetCallHandler(USE_CALLBACK(XMLHttpRequestConstructor));
-      break;
+        v8::Local<v8::ObjectTemplate> instance_template =
+            desc->InstanceTemplate();
+        instance_template->SetInternalFieldCount(
+            V8Custom::kXMLHttpRequestInternalFieldCount);
+        desc->SetCallHandler(USE_CALLBACK(XMLHttpRequestConstructor));
+        break;
     }
     case V8ClassIndex::XMLHTTPREQUESTUPLOAD: {
       // Reserve one more internal field for keeping event listeners.
@@ -1702,7 +1720,11 @@ static void GenerateSecurityToken(v8::Local<v8::Context> context)
   // Ask the document's SecurityOrigin to generate a security token.
   // If two tokens are equal, then the SecurityOrigins canAccess each other.
   // If two tokens are not equal, then we have to call canAccess.
-  String token = document->securityOrigin()->securityToken();
+  // Note: we can't use the HTTPOrigin if it was set from the DOM.
+  SecurityOrigin* origin = document->securityOrigin();
+  String token;
+  if (!origin->domainWasSetInDOM())
+    token = document->securityOrigin()->toString();
 
   // An empty token means we always have to call canAccess.  In this case, we
   // use the global object as the security token to avoid calling canAccess
@@ -2118,13 +2140,6 @@ v8::Local<v8::Object> V8Proxy::InstantiateV8Object(
   if (desc_type == V8ClassIndex::HTMLCOLLECTION &&
       static_cast<HTMLCollection*>(imp)->type() == HTMLCollection::DocAll) {
     desc_type = V8ClassIndex::UNDETECTABLEHTMLCOLLECTION;
-  }
-
-  // Special case for HTMLInputElements that support selection.
-  if (desc_type == V8ClassIndex::HTMLINPUTELEMENT) {
-    HTMLInputElement* element = static_cast<HTMLInputElement*>(imp);
-    if (element->canHaveSelection())
-      desc_type = V8ClassIndex::HTMLSELECTIONINPUTELEMENT;
   }
 
   v8::Persistent<v8::FunctionTemplate> desc = GetTemplate(desc_type);

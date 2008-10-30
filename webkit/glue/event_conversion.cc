@@ -115,18 +115,12 @@ MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
   m_globalPosition = IntPoint(e.global_x, e.global_y);
   m_deltaX = static_cast<float>(e.delta_x);
   m_deltaY = static_cast<float>(e.delta_y);
-  m_charsToScrollPerDelta = 1;
-  m_linesToScrollPerDelta = 1;
-  m_pageXScrollMode = false;
-  m_pageYScrollMode = false;
   m_isAccepted = false;
+  m_granularity = ScrollByLineWheelEvent;
   m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
   m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
   m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;
   m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
-  m_isContinuous = false;
-  m_continuousDeltaX = 0;
-  m_continuousDeltaY = 0;
 }
 
 // MakePlatformKeyboardEvent --------------------------------------------------

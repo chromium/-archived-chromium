@@ -61,7 +61,6 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(HTMLIFRAMEELEMENT, HTMLIFrameElement)                               \
   V(HTMLIMAGEELEMENT, HTMLImageElement)                                 \
   V(HTMLINPUTELEMENT, HTMLInputElement)                                 \
-  V(HTMLSELECTIONINPUTELEMENT, HTMLSelectionInputElement)               \
   V(HTMLISINDEXELEMENT, HTMLIsIndexElement)                             \
   V(HTMLLABELELEMENT, HTMLLabelElement)                                 \
   V(HTMLLEGENDELEMENT, HTMLLegendElement)                               \
@@ -251,7 +250,9 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(KEYBOARDEVENT, KeyboardEvent)                                       \
   V(LOCATION, Location)                                                 \
   V(MEDIALIST, MediaList)                                               \
+  V(MESSAGECHANNEL, MessageChannel)                                     \
   V(MESSAGEEVENT, MessageEvent)                                         \
+  V(MESSAGEPORT, MessagePort)                                           \
   V(MIMETYPE, MimeType)                                                 \
   V(MIMETYPEARRAY, MimeTypeArray)                                       \
   V(MOUSEEVENT, MouseEvent)                                             \
@@ -261,7 +262,6 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(NODEFILTER, NodeFilter)                                             \
   V(NODEITERATOR, NodeIterator)                                         \
   V(NODELIST, NodeList)                                                 \
-  V(NSRESOLVER, NSResolver)                                             \
   V(OVERFLOWEVENT, OverflowEvent)                                       \
   V(PLUGIN, Plugin)                                                     \
   V(PLUGINARRAY, PluginArray)                                           \

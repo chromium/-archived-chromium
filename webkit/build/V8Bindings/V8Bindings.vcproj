@@ -920,14 +920,6 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\V8HTMLSelectionInputElement.cpp"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\V8HTMLSelectionInputElement.h"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\V8HTMLStyleElement.cpp"
 				>
 			</File>
@@ -1048,11 +1040,27 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8MessageChannel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8MessageChannel.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8MessageEvent.cpp"
 				>
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8MessageEvent.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8MessagePort.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8MessagePort.h"
 				>
 			</File>
 			<File
@@ -1141,14 +1149,6 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8Notation.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\V8NSResolver.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\V8NSResolver.cpp"
 				>
 			</File>
 			<File
@@ -2393,14 +2393,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\JSNSResolver.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\JSNSResolver.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\port\bindings\v8\JSXPathNSResolver.cpp"
 			>
 		</File>
@@ -2410,6 +2402,10 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\V8MessagePortCustom.cpp"
 			>
 		</File>
 		<File

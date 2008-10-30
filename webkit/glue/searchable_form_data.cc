@@ -268,24 +268,24 @@ WebCore::HTMLInputElement* GetTextElement(
           text_element = static_cast<WebCore::HTMLInputElement*>(form_element);
         }
         for (int j = 0, max = static_cast<int>(lst.list().size()); j < max; ++j) {
-          const WebCore::FormDataListItem& item = lst.list()[j];
+          const WebCore::FormDataList::Item& item = lst.list()[j];
           // handle ISINDEX / <input name=isindex> special
           // but only if its the first entry
-          if (enc_string->isEmpty() && item.m_data == "isindex") {
+          if (enc_string->isEmpty() && item.data() == "isindex") {
             if (form_element == text_element)
               appendString(*enc_string, "{searchTerms}");
             else
-              appendEncodedString(*enc_string, (lst.list()[j + 1].m_data));
+              appendEncodedString(*enc_string, (lst.list()[j + 1].data()));
             ++j;
           } else {
             if (!enc_string->isEmpty())
               enc_string->append('&');
-            appendEncodedString(*enc_string, item.m_data);
+            appendEncodedString(*enc_string, item.data());
             enc_string->append('=');
             if (form_element == text_element)
               appendString(*enc_string, "{searchTerms}");
             else
-              appendEncodedString(*enc_string, lst.list()[j + 1].m_data);
+              appendEncodedString(*enc_string, lst.list()[j + 1].data());
             ++j;
           }
         }

@@ -1029,10 +1029,6 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\JSKeyboardEvent.cpp"
-				>
-			</File>
-			<File
 				RelativePath="$(IntDir)\DerivedSources\JSKeyboardEvent.h"
 				>
 			</File>
@@ -2568,10 +2564,6 @@
 		<Filter
 			Name="page"
 			>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\InspectorController.cpp"
-				>
-			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfile.cpp"
 				>

@@ -70,7 +70,7 @@ class SVGElementInstance;
 #endif
 
 class V8EventListener;
-class V8XHREventListener;
+class V8ObjectEventListener;
 typedef std::list<V8EventListener*>  V8EventListenerList;
 
 // TODO(fqian): use standard logging facilities in WebCore.
@@ -197,13 +197,13 @@ class V8Proxy {
   PassRefPtr<V8EventListener> FindOrCreateV8EventListener(v8::Local<v8::Value> listener,
                                                bool html);
 
-  PassRefPtr<V8EventListener> FindXHREventListener(v8::Local<v8::Value> listener,
+  PassRefPtr<V8EventListener> FindObjectEventListener(v8::Local<v8::Value> listener,
                                         bool html);
-  PassRefPtr<V8EventListener> FindOrCreateXHREventListener(v8::Local<v8::Value> listener,
+  PassRefPtr<V8EventListener> FindOrCreateObjectEventListener(v8::Local<v8::Value> listener,
                                                 bool html);
 
   void RemoveV8EventListener(V8EventListener* listener);
-  void RemoveXHREventListener(V8XHREventListener* listener);
+  void RemoveObjectEventListener(V8ObjectEventListener* listener);
 
   // Protect/Unprotect JS wrappers of a DOM object.
   static void GCProtect(Peerable* dom_object);

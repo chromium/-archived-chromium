@@ -10,10 +10,13 @@
 #include "ChromeClient.h"
 
 namespace WebCore {
-
+    class Cursor;
     class FileChooser;
     class Frame;
+    class FramelessScrollView;
+    class IntRect;
     class String;
+    class Widget;
     
     class ChromeClientChromium : public ChromeClient {
     public:
@@ -21,9 +24,12 @@ namespace WebCore {
         virtual void runFileChooser(const String& defaultFileName,
                                     PassRefPtr<FileChooser> file_chooser) = 0;
 
-        // Given a rect in main frame coordinates, returns a new rect relative
-        // to the screen.
-        virtual IntRect windowToScreen(const IntRect& rect) = 0;
+        // Notifies the client of a new popup widget.  The client should place
+        // and size the widget with the given bounds, relative to the screen.
+        virtual void popupOpened(FramelessScrollView* popupView, const IntRect& bounds) = 0;
+
+        // Set the current cursor.
+        virtual void setCursor(const Cursor& cursor) = 0;
     };
 }
 

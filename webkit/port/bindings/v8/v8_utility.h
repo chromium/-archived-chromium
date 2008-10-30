@@ -33,7 +33,8 @@ class SafeAllocation {
 
 v8::Local<v8::Object> SafeAllocation::NewInstance(
     v8::Handle<v8::Function> fun) {
-  if (fun.IsEmpty()) return v8::Local<v8::Object>();
+  if (fun.IsEmpty())
+    return v8::Local<v8::Object>();
   AllowAllocation allow;
   return fun->NewInstance();
 }

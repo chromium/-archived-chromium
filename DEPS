@@ -12,7 +12,7 @@ deps = {
     "http://googletest.googlecode.com/svn/trunk@63",
 
   "src/third_party/WebKit":
-    "/trunk/deps/third_party/WebKit@4091",
+    "/trunk/deps/third_party/WebKit@4220",
 
   "src/third_party/icu38":
     "/trunk/deps/third_party/icu38@4040",
@@ -21,7 +21,7 @@ deps = {
     "http://v8.googlecode.com/svn/trunk@660",
 
   "src/webkit/data/layout_tests/LayoutTests":
-    "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@36102",
+    "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@37604",
 }
 
 

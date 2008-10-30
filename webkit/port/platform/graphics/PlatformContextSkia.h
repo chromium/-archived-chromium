@@ -10,7 +10,6 @@
 namespace WebCore {
 class GraphicsContext;
 class GraphicsContextPlatformPrivate;
-class PlatformScrollbar;
 class ScrollView;
 }
 

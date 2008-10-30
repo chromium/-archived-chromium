@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Apple Inc.  All rights reserved.
+ * Copyright (C) 2006, 2007 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,93 +26,41 @@
 #include "config.h"
 #include "Widget.h"
 
-#include "Cursor.h"
-#include "Document.h"
-#include "Element.h"
+#include "Assertions.h"
+#include "ChromeClientChromium.h"
 #include "Frame.h"
 #include "FrameView.h"
-#include "GraphicsContext.h"
-#include "IntRect.h"
-#include "WidgetClientChromium.h"
+#include "Page.h"
+#include "NotImplemented.h"
 
 namespace WebCore {
 
-class WidgetPrivate
+ChromeClientChromium* chromeClientChromium(Widget* widget)
 {
-public:
-    WidgetClientChromium* client;
-    ScrollView* parent;
-    IntRect frameRect;
-    bool enabled;
-    bool suppressInvalidation;
-};
+    FrameView* view;
+    if (widget->isFrameView()) {
+        view = static_cast<FrameView*>(widget);
+    } else if (widget->parent() && widget->parent()->isFrameView()) {
+        view = static_cast<FrameView*>(widget->parent());
+    } else {
+        return 0;
+    }
 
-Widget::Widget()
-    : data(new WidgetPrivate)
+    Page* page = view->frame() ? view->frame()->page() : 0;
+    if (!page)
+        return 0;
+
+    return static_cast<ChromeClientChromium*>(page->chrome()->client());
+}
+
+Widget::Widget(PlatformWidget widget)
 {
-    data->client = 0;
-    data->parent = 0;
-    data->enabled = true;
-    data->suppressInvalidation = false;
+    init(widget);
 }
 
 Widget::~Widget() 
 {
-    if (parent())
-        parent()->removeChild(this);
-    delete data;
-}
-
-void Widget::setContainingWindow(PlatformWidget containingWindow)
-{
-    ASSERT_NOT_REACHED();
-}
-
-PlatformWidget Widget::containingWindow() const
-{
-    if (!data->client)
-        return NULL;
-    return data->client->containingWindow();
-}
-
-void Widget::setClient(WidgetClient* c)
-{
-    data->client = static_cast<WidgetClientChromium*>(c);
-}
-
-WidgetClient* Widget::client() const
-{
-    return data->client;
-}
-
-IntRect Widget::frameGeometry() const
-{
-    return data->frameRect;
-}
-
-void Widget::setFrameGeometry(const IntRect &rect)
-{
-    data->frameRect = rect;
-}
-
-void Widget::setParent(ScrollView* v)
-{
-    if (!v || !v->isAttachedToWindow())
-        detachFromWindow();
-    data->parent = v;
-    if (v && v->isAttachedToWindow())
-        attachToWindow();
-}
-
-ScrollView* Widget::parent() const
-{
-    return data->parent;
-}
-
-void Widget::removeFromParent()
-{
-    if (parent())
-        parent()->removeChild(this);
+    ASSERT(!parent());
 }
 
 void Widget::show()
@@ -125,104 +73,34 @@ void Widget::hide()
 
 void Widget::setCursor(const Cursor& cursor)
 {
-    if (data->client)
-        data->client->setCursor(cursor);
-}
-
-IntPoint Widget::convertToContainingWindow(const IntPoint& point) const
-{
-    IntPoint windowPoint = point;
-    for (const Widget *parentWidget = parent(), *childWidget = this;
-         parentWidget;
-         childWidget = parentWidget, parentWidget = parentWidget->parent())
-        windowPoint = parentWidget->convertChildToSelf(childWidget, windowPoint);
-    return windowPoint;
-}
-
-IntPoint Widget::convertFromContainingWindow(const IntPoint& point) const
-{
-    IntPoint widgetPoint = point;
-    for (const Widget *parentWidget = parent(), *childWidget = this;
-         parentWidget;
-         childWidget = parentWidget, parentWidget = parentWidget->parent())
-        widgetPoint = parentWidget->convertSelfToChild(childWidget, widgetPoint);
-    return widgetPoint;
-}
-
-IntRect Widget::convertToContainingWindow(const IntRect& rect) const
-{
-    IntRect convertedRect = rect;
-    convertedRect.setLocation(convertToContainingWindow(convertedRect.location()));
-    return convertedRect;
-}
-
-IntPoint Widget::convertChildToSelf(const Widget* child, const IntPoint& point) const
-{
-    return IntPoint(point.x() + child->x(), point.y() + child->y());
-}
-
-IntPoint Widget::convertSelfToChild(const Widget* child, const IntPoint& point) const
-{
-    return IntPoint(point.x() - child->x(), point.y() - child->y());
+    ChromeClientChromium* client = chromeClientChromium(this);
+    if (client)
+        client->setCursor(cursor);
 }
 
 void Widget::paint(GraphicsContext*, const IntRect&)
 {
 }
 
-bool Widget::isEnabled() const
-{
-    return data->enabled;
-}
-
-void Widget::setEnabled(bool e)
-{
-    if (e != data->enabled) {
-        data->enabled = e;
-        invalidate();
-    }
-}
-
-bool Widget::suppressInvalidation() const
-{
-    return data->suppressInvalidation;
-}
-
-void Widget::setSuppressInvalidation(bool suppress)
-{
-    data->suppressInvalidation = suppress;
-}
-
-void Widget::invalidate()
-{
-    invalidateRect(IntRect(0, 0, width(), height()));
-}
-
-void Widget::invalidateRect(const IntRect& r)
-{
-    if (data->suppressInvalidation)
-        return;
-
-    if (!data->client)
-        return;
-
-    IntRect windowRect = convertToContainingWindow(r);
-
-    // Get our clip rect and intersect with it to ensure we don't invalidate too much.
-    IntRect clipRect = windowClipRect();
-    windowRect.intersect(clipRect);
-
-    data->client->invalidateRect(windowRect);
-}
-
 void Widget::setFocus()
 {
-    if (data->client)
-        data->client->setFocus();
+    ChromeClientChromium* client = chromeClientChromium(this);
+    if (client)
+        client->focus();
 }
 
 void Widget::setIsSelected(bool)
 {
+}
+
+IntRect Widget::frameRect() const
+{
+    return m_frame;
+}
+
+void Widget::setFrameRect(const IntRect& rect)
+{
+    m_frame = rect;
 }
 
 } // namespace WebCore

@@ -22,6 +22,7 @@ MSVC_POP_WARNING();
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "webkit/glue/event_conversion.h"
+#include "webkit/glue/glue_util.h"
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webwidget_impl.h"
@@ -45,15 +46,13 @@ WebWidgetImpl::WebWidgetImpl(WebWidgetDelegate* delegate)
 }
 
 WebWidgetImpl::~WebWidgetImpl() {
-  if (widget_) {
+  if (widget_)
     widget_->setClient(NULL);
-  }
 }
 
-void WebWidgetImpl::Init(WebCore::Widget* widget, const gfx::Rect& bounds) {
-  DCHECK(widget->isFrameView());
-  widget_ = static_cast<FramelessScrollView*>(widget);
-
+void WebWidgetImpl::Init(WebCore::FramelessScrollView* widget,
+                         const gfx::Rect& bounds) {
+  widget_ = widget;
   widget_->setClient(this);
 
   if (delegate_) {
@@ -109,7 +108,7 @@ void WebWidgetImpl::Resize(const gfx::Size& new_size) {
 
   if (widget_) {
     IntRect new_geometry(0, 0, size_.width(), size_.height());
-    widget_->setFrameGeometry(new_geometry);
+    widget_->setFrameRect(new_geometry);
   }
 
   if (delegate_) {
@@ -197,8 +196,69 @@ bool WebWidgetImpl::ImeUpdateStatus(bool* enable_ime, const void** id,
   return false;
 }
 
+//-----------------------------------------------------------------------------
+// WebCore::HostWindow
+
+void WebWidgetImpl::repaint(const WebCore::IntRect& paint_rect,
+                            bool content_changed,
+                            bool immediate,
+                            bool repaint_content_only) {
+  if (delegate_)
+    delegate_->DidInvalidateRect(this, webkit_glue::FromIntRect(paint_rect));
+}
+
+void WebWidgetImpl::scroll(const WebCore::IntSize& scroll_delta,
+                           const WebCore::IntRect& scroll_rect,
+                           const WebCore::IntRect& clip_rect) {
+  if (delegate_) {
+    int dx = scroll_delta.width();
+    int dy = scroll_delta.height();
+    delegate_->DidScrollRect(this, dx, dy, webkit_glue::FromIntRect(clip_rect));
+  }
+}
+
+WebCore::IntPoint WebWidgetImpl::screenToWindow(
+    const WebCore::IntPoint& point) const {
+  NOTIMPLEMENTED();
+  return WebCore::IntPoint();
+}
+
+WebCore::IntRect WebWidgetImpl::windowToScreen(
+    const WebCore::IntRect& rect) const {
+  NOTIMPLEMENTED();
+  return WebCore::IntRect();
+}
+
+PlatformWidget WebWidgetImpl::platformWindow() const {
+  return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// WebCore::FramelessScrollViewClient
+
+void WebWidgetImpl::popupClosed(WebCore::FramelessScrollView* widget) {
+  DCHECK(widget == widget_);
+  if (widget_) {
+    widget_->setClient(NULL);
+    widget_ = NULL;
+  }
+  delegate_->CloseWidgetSoon(this);
+}
+
+//-----------------------------------------------------------------------------
+// WebCore::WidgetClientWin
+
+// TODO(darin): Figure out what happens to these methods.
+#if 0
+gfx::ViewHandle WebWidgetImpl::containingWindow() {
+  return delegate_ ? delegate_->GetContainingWindow(this) : NULL;
+}
+
 const SkBitmap* WebWidgetImpl::getPreloadedResourceBitmap(int resource_id) {
   return NULL;
+}
+
+void WebWidgetImpl::onScrollPositionChanged(Widget* widget) {
 }
 
 const WTF::Vector<RefPtr<WebCore::Range> >* WebWidgetImpl::getTickmarks(
@@ -210,61 +270,10 @@ size_t WebWidgetImpl::getActiveTickmarkIndex(WebCore::Frame* frame) {
   return kNoTickmark;
 }
 
-void WebWidgetImpl::onScrollPositionChanged(Widget* widget) {
-}
-
-//-----------------------------------------------------------------------------
-// WebCore::WidgetClientWin
-
-gfx::ViewHandle WebWidgetImpl::containingWindow() {
-  return delegate_ ? delegate_->GetContainingWindow(this) : NULL;
-}
-
-void WebWidgetImpl::invalidateRect(const IntRect& damaged_rect) {
-  if (delegate_)
-    delegate_->DidInvalidateRect(this, gfx::Rect(damaged_rect.x(),
-                                                 damaged_rect.y(),
-                                                 damaged_rect.width(),
-                                                 damaged_rect.height()));
-}
-
-void WebWidgetImpl::scrollRect(int dx, int dy, const IntRect& clip_rect) {
-  if (delegate_)
-    delegate_->DidScrollRect(this, dx, dy, gfx::Rect(clip_rect.x(),
-                                                     clip_rect.y(),
-                                                     clip_rect.width(),
-                                                     clip_rect.height()));
-}
-
-void WebWidgetImpl::popupOpened(WebCore::Widget* widget,
-                                const WebCore::IntRect& bounds) {
-  NOTREACHED() << "popupOpened called on a popup";
-}
-
-void WebWidgetImpl::popupClosed(WebCore::Widget* widget) {
-  DCHECK(widget == widget_);
-  if (widget_) {
-    widget_->setClient(NULL);
-    widget_ = NULL;
-  }
-  delegate_->CloseWidgetSoon(this);
-}
-
-void WebWidgetImpl::setCursor(const WebCore::Cursor& cursor) {
-#if defined(OS_WIN)
-  // TODO(pinkerton): re-enable when WebCursor is ported
-  if (delegate_)
-    delegate_->SetCursor(this, cursor.impl());
-#endif
-}
-
-void WebWidgetImpl::setFocus() {
-  delegate_->Focus(this);
-}
-
 bool WebWidgetImpl::isHidden() {
   if (!delegate_)
     return true;
 
   return delegate_->IsHidden();
 }
+#endif

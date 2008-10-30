@@ -61,8 +61,8 @@ V8AbstractEventListener::V8AbstractEventListener(Frame* frame, bool html)
 
 void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
   // EventListener could be disconnected from the frame.
-  ASSERT(m_frame);
-  if (!m_frame) return;
+  if (!m_frame)
+    return;
 
   // The callback function on XMLHttpRequest can clear the event listener
   // and destroys 'this' object. Keep a local reference of it.
@@ -72,7 +72,8 @@ void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
   v8::HandleScope handle_scope;
 
   v8::Handle<v8::Context> context = V8Proxy::GetContext(m_frame);
-  if (context.IsEmpty()) return;
+  if (context.IsEmpty())
+    return;
   v8::Context::Scope scope(context);
 
   // m_frame can removed by the callback function,
@@ -227,6 +228,11 @@ v8::Local<v8::Object> V8EventListener::GetThisObject(Event* event,
     v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
         V8ClassIndex::XMLHTTPREQUESTUPLOAD, target->toXMLHttpRequestUpload());
     return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
+  
+  } else if (target->toMessagePort()) {
+    v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
+        V8ClassIndex::MESSAGEPORT, target->toMessagePort());
+    return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
 
   } else {
     ASSERT(false);
@@ -237,16 +243,16 @@ v8::Local<v8::Object> V8EventListener::GetThisObject(Event* event,
 
 // ------- V 8 X H R E v e n t L i s t e n e r -----------------
 
-static void WeakXHRListenerCallback(v8::Persistent<v8::Value> obj,
+static void WeakObjectEventListenerCallback(v8::Persistent<v8::Value> obj,
                                     void* para) {
-  V8XHREventListener* listener = static_cast<V8XHREventListener*>(para);
+  V8ObjectEventListener* listener = static_cast<V8ObjectEventListener*>(para);
 
   // Remove the wrapper
   Frame* frame = listener->frame();
   if (frame) {
     V8Proxy* proxy = V8Proxy::retrieve(frame);
     if (proxy)
-      proxy->RemoveXHREventListener(listener);
+      proxy->RemoveObjectEventListener(listener);
 
     // Because the listener is no longer in the list, it must
     // be disconnected from the frame to avoid dangling frame pointer
@@ -259,21 +265,21 @@ static void WeakXHRListenerCallback(v8::Persistent<v8::Value> obj,
 }
 
 
-V8XHREventListener::V8XHREventListener(Frame* frame,
+V8ObjectEventListener::V8ObjectEventListener(Frame* frame,
                                        v8::Local<v8::Object> listener,
                                        bool html)
     : V8EventListener(frame, listener, html) {
   // make m_listener weak.
-  m_listener.MakeWeak(this, WeakXHRListenerCallback);
+  m_listener.MakeWeak(this, WeakObjectEventListenerCallback);
 }
 
 
-V8XHREventListener::~V8XHREventListener() {
+V8ObjectEventListener::~V8ObjectEventListener() {
   if (m_frame) {
     ASSERT(!m_listener.IsEmpty());
     V8Proxy* proxy = V8Proxy::retrieve(m_frame);
     if (proxy)
-      proxy->RemoveXHREventListener(this);
+      proxy->RemoveObjectEventListener(this);
   }
 
   DisposeListenerObject();

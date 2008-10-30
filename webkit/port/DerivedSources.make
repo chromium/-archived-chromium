@@ -32,6 +32,7 @@ VPATH = \
     $(PORTROOT)/html \
     $(PORTROOT)/page \
     $(PORTROOT)/page/inspector \
+    $(PORTROOT)/svg \
     $(PORTROOT)/xml \
     $(PORTROOT)/ksvg2/svg \
     $(PORTROOT)/ksvg2/events \
@@ -733,7 +734,9 @@ all : \
     V8ImageData.h \
     V8KeyboardEvent.h \
     V8MediaList.h \
+    V8MessageChannel.h \
     V8MessageEvent.h \
+    V8MessagePort.h \
     V8MouseEvent.h \
     V8MutationEvent.h \
     V8NamedNodeMap.h \
@@ -742,7 +745,6 @@ all : \
     V8NodeIterator.h \
     V8NodeList.h \
     V8Notation.h \
-    V8NSResolver.h \
     V8OverflowEvent.h \
     V8ProcessingInstruction.h \
     V8ProgressEvent.h \
@@ -918,7 +920,6 @@ all : \
     XPathGrammar.cpp \
     tokenizer.cpp \
     V8Clipboard.h \
-    V8HTMLSelectionInputElement.h \
     V8InspectorController.h \
     V8Location.h \
     V8Navigator.h \

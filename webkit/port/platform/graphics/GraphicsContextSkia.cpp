@@ -936,6 +936,27 @@ void GraphicsContext::setLineCap(LineCap cap)
     }
 }
 
+void GraphicsContext::setLineDash(const DashArray& dashes, float dashOffset)
+{
+    // TODO(dglazkov): This is lifted directly off SkiaSupport, lines 49-74
+    // so it is not guaranteed to work correctly. I made some minor cosmetic
+    // refactoring, but not much else. Please fix this?
+    size_t dashLength = dashes.size();
+    if (!dashLength)
+        return;
+
+    size_t count = (dashLength % 2) == 0 ? dashLength : dashLength * 2;
+    SkScalar* intervals = new SkScalar[count];
+
+    for(unsigned int i = 0; i < count; i++)
+        intervals[i] = dashes[i % dashLength];
+
+    m_data->setDashPathEffect(new SkDashPathEffect(intervals,
+                                                   count, dashOffset));
+
+    delete[] intervals;
+}
+
 void GraphicsContext::setLineJoin(LineJoin join)
 {
     switch (join) {
@@ -1094,24 +1115,6 @@ void GraphicsContext::clipToImageBuffer(const FloatRect& rect, const ImageBuffer
 void GraphicsContext::setImageInterpolationQuality(InterpolationQuality)
 {
     notImplemented();
-}
-
-// Skia platform gradients and patterns are handled at draw time
-// Upstream is considering removing these methods anyway
-void GraphicsContext::setPlatformStrokePattern(Pattern* pattern)
-{
-}
-
-void GraphicsContext::setPlatformFillPattern(Pattern* pattern)
-{
-}
-
-void GraphicsContext::setPlatformStrokeGradient(Gradient*)
-{
-}
-
-void GraphicsContext::setPlatformFillGradient(Gradient*)
-{
 }
 
 }
