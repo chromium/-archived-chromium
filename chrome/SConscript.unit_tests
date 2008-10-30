@@ -27,7 +27,6 @@ env_test.Prepend(
         '$GTEST_DIR/include',
         'third_party/wtl/include',
         'tools/build/win',
-        '$CHROME_DIR/app/resources',
         '$CHROME_SRC_DIR',
     ],
     CPPDEFINES = [
@@ -43,28 +42,19 @@ env_test.Prepend(
     # base must come after net, bzip2 must come before base, etc.
     LIBS = [
         'net',        # On Linux, dependencies must follow dependents.
-
+        'bzip2',
         'base',
         'base_gfx',
-        'browser',
-        'bzip2',
         'googleurl',
         'gtest',
-        'hunspell',
         env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libjpeg',
         'libpng',
         'libxml',
         'libxslt',
         'modp_b64',
-        'plugin',
-        'renderer',
         'skia',
-        'sqlite',
-        'test_chrome_plugin',
-        'util',
         'v8',
-        'v8_snapshot',
         'zlib',
 
         'WTF',
@@ -73,7 +63,6 @@ env_test.Prepend(
         'glue',
         'JavaScriptCore_pcre',
         'port',
-        'WebCore',
     ],
 )
 
@@ -81,13 +70,8 @@ if env_test['PLATFORM'] == 'win32':
   # TODO(port): Port or mark as Windows-specific.
   env_test.Prepend(
       LIBS = [
-          # TODO(port):  to be ported to Mac and Linux, or else
-          # moved to real Windows-specific lists
-          'browser_views',
-          'debugger',
-          'jscre',
+          # TODO(sgk):  to be ported to Mac and Linux
           'sdch',
-          'views',
 
           'WebCore',
       ],
@@ -121,6 +105,22 @@ if env_test['PLATFORM'] == 'win32':
           'comsupp.lib',
       ],
   )
+
+  libs = [
+      'snapshotv8.lib',
+
+      'browser/browser.lib',
+      'browser/views/browser_views.lib',
+      'browser/debugger/debugger.lib',
+      'installer/util/util.lib',
+      'libjscre.lib',
+      'plugin/plugin.lib',
+      'renderer/renderer.lib',
+      'test/chrome_plugin/test_chrome_plugin.lib',
+      'third_party/hunspell/hunspell.lib',
+      'third_party/sqlite/sqlite.lib',
+      'views/views.lib',
+  ]
 
 unit_test_files = []
 
@@ -173,7 +173,6 @@ if env_test['PLATFORM'] == 'win32':
       'browser/cache_manager_host_unittest.cc',
       'browser/controller_unittest.cc',
       'browser/download/download_manager_unittest.cc',
-      'browser/download/download_request_manager_unittest.cc',
       'browser/download/save_package_unittest.cc',
       'browser/encryptor_unittest.cc',
       'browser/google_url_tracker_unittest.cc',
@@ -200,13 +199,13 @@ if env_test['PLATFORM'] == 'win32':
       'browser/profile_manager_unittest.cc',
       'browser/renderer_security_policy_unittest.cc',
       'browser/resource_dispatcher_host_unittest.cc',
+      'browser/download_request_manager_unittest.cc',
       'browser/rlz/rlz_unittest.cc',
       'browser/safe_browsing/protocol_manager_unittest.cc',
       'browser/session_backend_unittest.cc',
       'browser/session_service_test_helper.cc',
       'browser/session_service_unittest.cc',
       'browser/site_instance_unittest.cc',
-      'browser/spellcheck_unittest.cc',
       'browser/tabs/tab_strip_model_unittest.cc',
       'browser/template_url_model_unittest.cc',
       'browser/template_url_parser_unittest.cc',
@@ -237,6 +236,7 @@ if env_test['PLATFORM'] == 'win32':
       'common/win_util_unittest.cc',
       'renderer/net/render_dns_master_unittest.cc',
       'renderer/net/render_dns_queue_unittest.cc',
+      'renderer/spellcheck_unittest.cc',
       'test/test_notification_tracker.cc',
       'test/test_tab_contents.cc',
       'test/testing_profile.cc',
@@ -256,7 +256,11 @@ if env_test['PLATFORM'] == 'win32':
 if env_test['PLATFORM'] in ('posix', 'win32'):
   # TODO(port): This should work on all platforms.
 
-  unit_tests = env_test.ChromeTestProgram('unit_tests', unit_test_files)
+  test_program_files = unit_test_files
+  if env_test['PLATFORM'] == 'win32':
+    # This is probably Windows-specific.
+    test_program_files.extend(libs)
+  unit_tests = env_test.ChromeTestProgram('unit_tests', test_program_files)
 
   i = env_test.Install('$TARGET_ROOT', unit_tests)
   Alias('chrome', i)

@@ -32,8 +32,6 @@ env_test.Prepend(
         'browser_views',
         'base',
         'automation',
-        'modp_b64',
-        'net',
     ],
 )
 

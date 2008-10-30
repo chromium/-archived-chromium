@@ -68,7 +68,6 @@ input_files = [
     'edit_keyword_controller.cc',
     'event_utils.cc',
     'external_protocol_dialog.cc',
-    'find_bar_view.cc',
     'first_run_bubble.cc',
     'first_run_customize_view.cc',
     'first_run_view.cc',
@@ -136,10 +135,5 @@ input_files = [
     'toolbar_view.cc',
     'user_data_dir_dialog.cc',
 ]
-
-if env['PLATFORM'] == 'win32':
-  input_files.extend([
-      'find_bar_win.cc',
-  ])
 
 env.ChromeStaticLibrary('browser_views', input_files)

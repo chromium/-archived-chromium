@@ -61,6 +61,7 @@ env.Prepend(
         '/nxcompat',
 
         '/PDB:${TARGETS[1]}',
+        '/MAP:${TARGETS[2]}',
     ],
     LIBS = [
         'msi.lib',

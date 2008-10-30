@@ -22,27 +22,22 @@ env_test.Prepend(
         '$CHROME_SRC_DIR',
     ],
     LIBS = [
-        'automation',
-        'base',
+        'googleurl',
+        'skia',
+        'libpng',
+        'gtest',
         'base_gfx',
+        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
+        'common',
+        'zlib',
         'browser',
         'browser_views',
-        'common',
-        'googleurl',
-        'gtest',
-        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
-        'libpng',
-        'modp_b64',
-        'net',
-        'skia',
-        'zlib',
-
-        'comsupp',
-        'oleacc',
-        'psapi',
-        'rpcrt4',
-        'winmm',
+        'base',
+        'automation',
     ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
         '/DEBUG',
@@ -57,6 +52,13 @@ env_test.Prepend(
         '/dynamicbase',
         '/ignore:4199',
         '/nxcompat',
+    ],
+    LIBS = [
+        'comsupp.lib',
+        'oleacc.lib',
+        'psapi.lib',
+        'rpcrt4.lib',
+        'winmm.lib',
     ],
 )
 

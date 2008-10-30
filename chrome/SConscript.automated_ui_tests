@@ -24,27 +24,19 @@ env_test.Prepend(
         'LIBXML_STATIC',
     ],
     LIBS = [
-        'automation',
-        'base',
-        'base_gfx',
-        'browser',
-        'browser_views',
-        'common',
-        'googleurl',
-        'gtest',
-        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
-        'libpng',
         'libxml',
-        'modp_b64',
-        'net',
+        'googleurl',
         'skia',
+        'libpng',
+        'gtest',
+        'base_gfx',
+        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'zlib',
-
-        'comsupp',
-        'oleacc',
-        'psapi',
-        'rpcrt4',
+        'base',
     ],
+)
+
+env_test.Prepend(
     LINKFLAGS = [
         '/INCREMENTAL',
 
@@ -62,7 +54,20 @@ env_test.Prepend(
         '/MACHINE:X86',
         '/FIXED:No',
     ],
+    LIBS = [
+        'comsupp.lib',
+        'oleacc.lib',
+        'psapi.lib',
+        'rpcrt4.lib',
+    ],
 )
+
+libs = [
+    'common/common.lib',
+    'browser/browser.lib',
+    'browser/views/browser_views.lib',
+    'test/automation/automation.lib',
+]
 
 test_files = [
     'test/automated_ui_tests/automated_ui_tests.cc',
@@ -73,7 +78,7 @@ test_files = [
     '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
 ]
 
-exe = env_test.ChromeTestProgram('automated_ui_tests',  test_files)
+exe = env_test.ChromeTestProgram('automated_ui_tests',  test_files + libs)
 
 i = env_test.Install('$TARGET_ROOT', exe)
 Alias('chrome', i)

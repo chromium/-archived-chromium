@@ -33,21 +33,13 @@ env_test.Prepend(
         'browser_views',
         'bzip2',
         'common',
-        'debugger',
-        'glue',
         'googleurl',
         'gtest',
-        'hunspell',
         env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'libpng',
         'modp_b64',
         'net',
-        'renderer',
         'skia',
-        'sqlite',
-        'views',
-        'v8',
-        'WebCore',
         'zlib',
     ],
 )
@@ -82,14 +74,13 @@ input_files = [
     '$CHROME_DIR/browser/views/bookmark_bar_view_test.cc',
     '$CHROME_DIR/browser/views/constrained_window_impl_interactive_uitest.cc',
     '$CHROME_DIR/browser/views/tabs/tab_dragging_test.cc',
-    '$CHROME_DIR/test/ui/npapi_test_helper$OBJSUFFIX',
     '$CHROME_DIR/test/ui/run_all_unittests$OBJSUFFIX',
     '$CHROME_DIR/test/ui/ui_test$OBJSUFFIX',
     '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
-    '$CHROME_DIR/test/interactive_ui/npapi_interactive_test.cc',
     '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
-
     'view_event_test_base.cc',
+    '$CHROME_DIR/test/ui/npapi_test_helper$OBJSUFFIX',
+    '$CHROME_DIR/test/interactive_ui/npapi_interactive_test.cc',
 ]
 
 exe = env_test.ChromeTestProgram('interactive_ui_tests', input_files)

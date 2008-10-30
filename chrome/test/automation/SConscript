@@ -30,5 +30,5 @@ input_files = [
 lib = env.ChromeStaticLibrary('automation', input_files)
 
 i = env.Install('$TARGET_ROOT', lib)
-#env.Alias('chrome', i)
+env.Alias('chrome', i)
 
