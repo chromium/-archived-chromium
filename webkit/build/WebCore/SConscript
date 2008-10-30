@@ -345,6 +345,7 @@ input_files = [
     '$WEBCORE_DIR/loader/archive/ArchiveResourceCollection.cpp',
 
     '$WEBCORE_DIR/page/AccessibilityImageMapLink.cpp',
+    '$WEBCORE_DIR/page/AccessibilityList.cpp',
     '$WEBCORE_DIR/page/AccessibilityListBox.cpp',
     '$WEBCORE_DIR/page/AccessibilityListBoxOption.cpp',
     '$WEBCORE_DIR/page/AccessibilityObject.cpp',
@@ -481,6 +482,7 @@ input_files = [
     '$WEBCORE_DIR/rendering/InlineFlowBox.cpp',
     '$WEBCORE_DIR/rendering/InlineTextBox.cpp',
     '$WEBCORE_DIR/rendering/LayoutState.cpp',
+    '$WEBCORE_DIR/rendering/Length.cpp',
     '$WEBCORE_DIR/rendering/ListMarkerBox.cpp',
     '$WEBCORE_DIR/rendering/MediaControlElements.cpp',
     '$WEBCORE_DIR/rendering/PointerEventsHitRules.cpp',
@@ -789,6 +791,7 @@ if env['PLATFORM'] in ('darwin'):
 if env['PLATFORM'] == 'posix':
   input_files.extend([
     '$WEBCORE_DIR/platform/posix/FileSystemPOSIX.cpp',
+    '$WEBCORE_DIR/platform/gtk/ScrollbarThemeGtk.cpp',
   ])
 
 # Windows specific files.

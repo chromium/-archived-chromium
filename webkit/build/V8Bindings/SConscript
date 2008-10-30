@@ -155,7 +155,9 @@ inputs = [
     '$DERIVED_DIR/V8KeyboardEvent.cpp',
     '$DERIVED_DIR/V8Location.cpp',
     '$DERIVED_DIR/V8MediaList.cpp',
+    '$DERIVED_DIR/V8MessageChannel.cpp',
     '$DERIVED_DIR/V8MessageEvent.cpp',
+    '$DERIVED_DIR/V8MessagePort.cpp',
     '$DERIVED_DIR/V8MimeType.cpp',
     '$DERIVED_DIR/V8MimeTypeArray.cpp',
     '$DERIVED_DIR/V8MouseEvent.cpp',
@@ -324,6 +326,7 @@ inputs = [
     '$PORT_DIR/bindings/v8/v8_npobject.cpp',
     '$PORT_DIR/bindings/v8/v8_proxy.cpp',
     '$PORT_DIR/bindings/v8/v8_vectornodelist.cpp',
+    '$PORT_DIR/bindings/v8/V8MessagePortCustom.cpp',
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
     '$PORT_DIR/page/inspector/InspectorController.cpp',
 ]
