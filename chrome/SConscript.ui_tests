@@ -136,8 +136,8 @@ ui_test_files = [
 
 if env_test['PLATFORM'] == 'win32':
   ui_test_files.extend([
-      'find_bar_win_interactive_uitest.cc',
-      'find_bar_win_uitest.cc',
+      'browser/views/find_bar_win_interactive_uitest.cc',
+      'browser/views/find_bar_win_uitest.cc',
   ])
 
 ui_tests = env_test.ChromeTestProgram('ui_tests',  ui_test_files + libs)

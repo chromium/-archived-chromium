@@ -52,7 +52,7 @@ env.Prepend(
         '/DYNAMICBASE:NO',
 
         '/PDB:${TARGETS[1]}',
-        '/MAP:${TARGETS[2]}',
+        #'/MAP:${TARGETS[2]}',
     ],
     LIBS = [
         'shlwapi.lib',
@@ -64,7 +64,8 @@ env['CCFLAGS'].remove('/RTC1')
 components = [
     "$VISUAL_STUDIO/VC/crt/src/intel/mt_lib/memset.obj",
     "$VISUAL_STUDIO/VC/crt/src/intel/mt_lib/P4_memset.obj",
-    "$TARGET_ROOT/chrome_dll.lib",
+    #"$TARGET_ROOT/chrome_dll.lib",
+    "$TARGET_ROOT/chrome.lib",
 ]
 
 input_files = [
