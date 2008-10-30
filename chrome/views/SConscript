@@ -21,6 +21,8 @@ env.Prepend(
 env.Append(
     CPPPATH = [
         '$CHROME_DIR/app/resources',
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
         '$SKIA_DIR/include',
         '$SKIA_DIR/include/corecg',
         '$SKIA_DIR/include/platform',
