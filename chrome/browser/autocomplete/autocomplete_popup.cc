@@ -624,7 +624,7 @@ AutocompletePopupView::DrawLineInfo::DrawLineInfo(const ChromeFont& font) {
   static const int kTotalLinePadding = 5;
   font_height = std::max(regular_font.height(), bold_font.height());
   line_height = font_height + kTotalLinePadding;
-  ave_char_width = regular_font.ave_char_width();
+  ave_char_width = regular_font.GetExpectedTextWidth(1);
   ellipsis_width = std::max(regular_font.GetStringWidth(ellipsis_str),
                             bold_font.GetStringWidth(ellipsis_str));
 

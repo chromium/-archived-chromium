@@ -251,7 +251,7 @@ gfx::Size Window::GetLocalizedContentsSize(int col_resource_id,
   double chars = _wtof(l10n_util::GetString(col_resource_id).c_str());
   double lines = _wtof(l10n_util::GetString(row_resource_id).c_str());
 
-  int width = static_cast<int>(font.ave_char_width() * chars);
+  int width = font.GetExpectedTextWidth(static_cast<int>(chars));
   int height = static_cast<int>(font.height() * lines);
 
   DCHECK(width > 0 && height > 0);

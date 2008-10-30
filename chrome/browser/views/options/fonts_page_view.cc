@@ -172,7 +172,7 @@ void FontDisplayView::Layout() {
 gfx::Size FontDisplayView::GetPreferredSize() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   ChromeFont font = rb.GetFont(ResourceBundle::BaseFont);
-  return gfx::Size(font.ave_char_width() * kFontDisplayMaxWidthChars,
+  return gfx::Size(font.GetExpectedTextWidth(kFontDisplayMaxWidthChars),
                    font.height() * kFontDisplayMaxHeightChars
                        + 2 * kFontDisplayLabelPadding);
 }
@@ -405,9 +405,8 @@ void FontsPageView::InitFontLayout() {
   const int triple_column_view_set_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(triple_column_view_set_id);
 
-  int label_width =
-      _wtoi(l10n_util::GetString(IDS_FONTSLANG_LABEL_WIDTH).c_str()) *
-          ChromeFont().ave_char_width();
+  int label_width = ChromeFont().GetExpectedTextWidth(
+      _wtoi(l10n_util::GetString(IDS_FONTSLANG_LABEL_WIDTH).c_str()));
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 0,
                         GridLayout::FIXED, label_width, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);

@@ -65,6 +65,13 @@ class ChromeFont {
   // string.
   int GetStringWidth(const std::wstring& text) const;
 
+  // Returns the expected number of horizontal pixels needed to display
+  // the specified length of characters.
+  // Call the GetStringWidth() function to retrieve the actual number.
+  int GetExpectedTextWidth(int length) const {
+    return length * font_ref_->dlu_base_x();
+  }
+
   // Returns the style of the font.
   int style() const { return font_ref_->style(); }
 

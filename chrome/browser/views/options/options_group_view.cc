@@ -96,7 +96,7 @@ void OptionsGroupView::Init() {
   std::wstring left_column_chars =
       l10n_util::GetString(IDS_OPTIONS_DIALOG_LEFT_COLUMN_WIDTH_CHARS);
   int left_column_width =
-      font.ave_char_width() * _wtoi(left_column_chars.c_str());
+      font.GetExpectedTextWidth(_wtoi(left_column_chars.c_str()));
 
   const int two_column_layout_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(two_column_layout_id);
