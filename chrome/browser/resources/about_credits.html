@@ -1,18 +1,88 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>Acknowledgements</title>
+<meta charset="utf-8">
+<title>Credits</title>
 <style type="text/css">
 body {
   font-family:arial;
   background-color:white;
   font-size:84%;
+  max-width:1020px;
+}
+.page-title {
+  font-size:164%;
+  font-weight:bold;
+}
+.product {
+  background-color:#c3d9ff;
+  overflow:auto;
+  padding:2px;
+  margin-top:16px;
+  -webkit-border-radius:5px;
+}
+.product .title {
+  font-size:110%;
+  font-weight:bold;
+  float:left;
+  margin:3px;
+}
+.product .homepage {
+  text-align:right;
+  float:right;
+  margin:3px;
+}
+.product .homepage:after {
+  content:" - ";
+}
+.product .show {
+  text-align:right;
+  float:right;
+  margin:3px;
+}
+.licence {
+  clear:both;
+  background-color:#e8eef7;
+  padding:16px;
+  -webkit-border-radius:3px;
+  display:none;
+}
+.licence h3 {
+  margin-top:0px;
 }
 </style>
+<script type="text/javascript">
+function $(o) {return document.getElementById(o);}
+function toggle(o) {
+  var licence = o.nextSibling;
+  
+  while (licence.className != 'licence') {
+    if (!licence) return false;
+    licence = licence.nextSibling;
+  }
+  
+  if (licence.style && licence.style.display == 'block') {
+    licence.style.display = 'none';
+    o.innerHTML = 'show license';
+  } else {
+    licence.style.display = 'block';
+    o.innerHTML = 'hide license';
+  }
+  return false;
+}
+</script>
 </head>
 <body>
-<h1>Third-party software licenses</h1>
-<a href="javascript:window.print();">Print</a>
+<span class="page-title" style="float:left;">Credits</span>
+<a href="javascript:window.print();" style="float:right;">Print</a>
+<div style="clear:both; overflow:auto;"><!-- Chromium <3s the following projects --></div>
+
+<!-- BSDIFF -->
+<div class="product">
+<span class="title">bsdiff and bspatch</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="http://www.daemonology.net/bsdiff/">homepage</a></span>
+<div class="licence">
 <h3>bsdiff and bspatch are licensed as follows:</h3>
 <strong>BSD PROTECTION LICENSE<br>
 TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION, AND MODIFICATION</strong>
@@ -38,13 +108,12 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION, AND MODIFICATION</strong>
   <li>
   <h4 style="display:inline;">Modification and redistribution under closed license.</h4>
   </li>
-  <p>You may modify your copy or copies of the Program, and distribute the resulting derivative works, provided that you meet the following conditions:
+  <p>You may modify your copy or copies of the Program, and distribute the resulting derivative works, provided that you meet the following conditions:</p>
   <ul style="list-style:lower-alpha">
   <li>The copyright notice and disclaimer on the Program must be reproduced and included in the source code, documentation, and/or other materials provided in a manner in which such notices are normally distributed.</li>
   <li>The derivative work must be clearly identified as such, in order that it may not be confused with the original work.</li>
   <li>The license under which the derivative work is distributed must expressly prohibit the distribution of further derivative works.</li>
   </ul>
-  </p>
   <li>
   <h4 style="display:inline;">Modification and redistribution under open license.</h4>
   <p> You may modify your copy or copies of the Program, and distribute the resulting derivative works, provided that you meet the following conditions:</p>
@@ -65,8 +134,16 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION, AND MODIFICATION</strong>
   <p> THIS SOFTWARE IS PROVIDED &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT, EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. </p>
   </li>
 </ol>
+</div>
+</div>
+
+<!-- BZIP2 --->
+<div class="product">
+<span class="title">bzip2</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="http://www.bzip.org/">homepage</a></span>
+<div class="licence">
 <h3>bzip2 is licensed as follows:</h3>
-<hr>
 <p>This program, &quot;bzip2&quot;, the associated library &quot;libbzip2&quot;, and all documentation, are copyright (C) 1996-2007 Julian R Seward. All rights reserved.</p>
 <p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
 <ol>
@@ -76,7 +153,7 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION, AND MODIFICATION</strong>
   <li>The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.</li>
 </ol>
 <p>THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
-<p>Julian Seward, jseward@bzip.org<br>
+<p>Julian Seward, <a href="mailto:jseward@bzip.org">jseward@bzip.org</a><br>
   bzip2/libbzip2 version 1.0.5 of 10 December 2007</p>
 <p>This software is based in part on the work of the Independent JPEG Group libjpeg is licensed as follows:</p>
 <p>The authors make NO WARRANTY or representation, either express or implied, with respect to this software, its quality, accuracy, merchantability, or fitness for a particular purpose. This software is provided &quot;AS IS&quot;, and you, its user, assume the entire risk as to its quality and accuracy.</p>
@@ -97,8 +174,16 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION, AND MODIFICATION</strong>
 <p>The IJG distribution formerly included code to read and write GIF files. To avoid entanglement with the Unisys LZW patent, GIF reading support has been removed altogether, and the GIF writer has been simplified to produce
   &quot;uncompressed GIFs&quot;. This technique does not use the LZW algorithm; the resulting GIF files are larger than usual, but are readable by all standard GIF decoders.</p>
 <p>We are required to state that &quot;The Graphics Interchange Format(c) is the Copyright property of CompuServe Incorporated. GIF(sm) is a Service Mark property of CompuServe Incorporated.&quot;</p>
+</div>
+</div>
+
+<!-- LIBPNG --->
+<div class="product">
+<span class="title">libpng</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="http://www.libpng.org/pub/png/libpng.html">homepage</a></span>
+<div class="licence">
 <h3>libpng is licensed as follows:</h3>
-<hr>
 <p>This copy of the libpng notices is provided for your convenience. In case of any discrepancy between this copy and the notices in the file png.h that is included in the libpng distribution, the latter shall prevail.</p>
 <p>COPYRIGHT NOTICE, DISCLAIMER, and LICENSE:</p>
 <p>If you modify libpng you may insert additional notices immediately following
@@ -218,16 +303,30 @@ TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION, AND MODIFICATION</strong>
   WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
   MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE AUTHORS AND
   CONTRIBUTORS ACCEPT NO RESPONSIBILITY IN ANY CONCEIVABLE MANNER.</p>
+</div>
+</div>
+
+<!-- ICU38 --->
+<div class="product">
+<span class="title">icu38</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<div class="licence">
 <h3>icu38 is licensed as follows:</h3>
-<hr>
 <p>COPYRIGHT AND PERMISSION NOTICE</p>
 <p>Copyright (c) 1995-2008 International Business Machines Corporation and others</p>
 <p>All rights reserved.</p>
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, provided that the above copyright notice(s) and this permission notice appear in all copies of the Software and that both the above copyright notice(s) and this permission notice appear in supporting documentation.</p>
 <p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE BE LIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.</p>
 <p>Except as contained in this notice, the name of a copyright holder shall not be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization of the copyright holder. </p>
-<h3>'Chinese and Japanese word frequency list - cjdict.txt (used in icu38)</h3>
-<hr>
+</div>
+</div>
+
+<!-- cjdict.txt --->
+<div class="product">
+<span class="title">Chinese and Japanese word frequency list</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<div class="licence">
+<h3>Chinese and Japanese word frequency list - cjdict.txt (used in icu38)</h3>
 The Google Chrome software developed by Google is licensed under the BSD license. Other software included in this distribution is provided under other licenses, as set forth below.
 <p><strong> The BSD License </strong></p>
 <p> <a href="http://opensource.org/licenses/bsd-license.php" target="_blank">http://opensource.org/licenses/bsd-license.php</a><br>
@@ -266,13 +365,12 @@ The Google Chrome software developed by Google is licensed under the BSD license
 <p>Copyrighy (c) 1999 TaBE Project.<br>
   Copyright (c) 1999 Pai-Hsiang Hsiao. <br>
   All rights reserved.</p>
-<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+<p>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</p>
 <ul>
   <li>Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</li>
   <li>Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.</li>
   <li>Neither the name of the TaBE Project nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission. </li>
 </ul>
-</p>
 <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. </p>
 <p>Copyright (c) 1999 Computer Systems and Communication Lab, Institute of Information Science, Academia Sinica.<br>
   All rights reserved.</p>
@@ -284,7 +382,7 @@ The Google Chrome software developed by Google is licensed under the BSD license
 </ul>
 <p> THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. </p>
 <p>Copyright 1996 Chih-Hao Tsai @ Beckman Institute, University of Illinois<br>
-  c-tsai4@uiuc.edu <br>
+  <a href="mailto:c-tsai4@uiuc.edu">c-tsai4@uiuc.edu</a> <br>
   <a href="http://casper.beckman.uiuc.edu/~c-tsai4" target="_blank">http://casper.beckman.uiuc.edu/~c-tsai4 </a> </p>
 <p> ---------------COPYING.libtabe-----END------------------------------------ </p>
 <p> ---------------COPYING.ipadic-----BEGIN------------------------------------ </p>
@@ -300,8 +398,16 @@ The Google Chrome software developed by Google is licensed under the BSD license
 </p>
 <p> In the case where the program, whether in its original form or modified, was distributed or delivered to or received by a user from any person, organization or entity other than ICOT, unless it makes or grants independently of ICOT any specific warranty to the user in writing, such person, organization or entity, will also be exempted from and not be held liable to the user for any such damages as noted above as far as the program is concerned. </p>
 <p> ---------------COPYING.ipadic-----END------------------------------------</p>
+</div>
+</div>
+
+<!-- LIBXSLT -->
+<div class="product">
+<span class="title">libxslt</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="xmlsoft.org/XSLT/">homepage</a></span>
+<div class="licence">
 <h3>libxslt is licensed as follows:</h3>
-<hr>
 <p><strong>Licence for libxslt except libexslt </strong></p>
 <p> Copyright (C) 2001-2002 Daniel Veillard. All Rights Reserved.</p>
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -333,12 +439,25 @@ The Google Chrome software developed by Google is licensed under the BSD license
   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <p>Except as contained in this notice, the name of the authors shall not
   be used in advertising or otherwise to promote the sale, use or other dealings in this Software without prior written authorization from him. </p>
+</div>
+</div>
+
+<!-- LZMA_SDK -->
+<div class="product">
+<span class="title">lzma_sdk</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<div class="licence">
 <h3>lzma_sdk is licensed as follows:</h3>
-<hr>
 Igor Pavlov, as the author of this code, expressly permit you statically or dynamically to link your code (or bind by name) to the files from LZMA SDK without subjecting your linked code to the terms of the CPL or GNU LGPL. Any modification or addition to any file in the LZMA SDK, however, is subject to the GNU LGPL or CPL terms.
-</p>
+</div>
+</div>
+
+<!-- MODP_B64 -->
+<div class="product">
+<span class="title">modp_b64</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<div class="licence">
 <h3>modp_b64 is licensed as follows:</h3>
-<hr>
 <p>Copyright &amp;copy; 2005, 2006 Nick Galbreath -- nickg [at] modp [dot] com<br>
   All rights reserved.</p>
 <p>Redistribution and use in source and binary forms, with or without
@@ -390,8 +509,16 @@ Igor Pavlov, as the author of this code, expressly permit you statically or dyna
   and other provisions required by the GPL or the LGPL. If you do not delete
   the provisions above, a recipient may use your version of this file under
   the terms of any one of the MPL, the GPL or the LGPL.</p>
+</div>
+</div>
+
+<!-- PTHREADS -->
+<div class="product">
+<span class="title">pthreads-win32</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="http://sourceware.org/pthreads-win32/">homepage</a></span>
+<div class="licence">
 <h3>pthreads for Win32 is licensed as follows:</h3>
-<hr>
 <p> Pthreads-win32 is open software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public License</p>
 <p> as published by the Free Software Foundation version 2.1 of the
@@ -417,13 +544,30 @@ Igor Pavlov, as the author of this code, expressly permit you statically or dyna
 <p> Web: <a href="http://sources.redhat.com/pthreads-win32" target="_blank">http://sources.redhat.com/pthreads-win32</a><br>
   Email: Ross Johnson<br>
   Please use: Firstname.Lastname@homemail.com.au</p>
+</div>
+</div>
+
+<!-- TLSLITE -->
+<div class="product">
+<span class="title">tlslite</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="http://www.trevp.com/tlslite/">homepage</a></span>
+<div class="licence">
 <h3>tlslite is licensed as follows:</h3>
-<hr>
 <p>2 Licenses/Acknowledgements </p>
 <p>All code here is public domain.</p>
 <p>Thanks to Bram Cohen for his public domain Rijndael implementation. </p>
 <p>Thanks to Edward Loper for Epydoc, which generated the API docs.</p>
-<h3>zlib is licensed as follows: </h3><hr>
+</div>
+</div>
+
+<!-- ZLIB -->
+<div class="product">
+<span class="title">zlib</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="http://www.zlib.net/">homepage</a></span>
+<div class="licence">
+<h3>zlib is licensed as follows: </h3>
 <p> Copyright (C) 1995-2005 Jean-loup Gailly and Mark Adler</p>
 <p> This software is provided 'as-is', without any express or implied
   warranty. In no event will the authors be held liable for any damages arising from the use of this software.</p>
@@ -437,14 +581,44 @@ Igor Pavlov, as the author of this code, expressly permit you statically or dyna
   <li>This notice may not be removed or altered from any source distribution.</li>
 </ol>
 <p> Jean-loup Gailly<br>
-  jloup@gzip.org </p>
+  <a href="mailto:jloup@gzip.org">jloup@gzip.org</a> </p>
 <p>Mark Adler<br>
-  madler@alumni.caltech.edu</p>
+  <a href="mailto:madler@alumni.caltech.edu">madler@alumni.caltech.edu</a></p>
 <p> The data format used by the zlib library is described by RFCs (Request for
   Comments) 1950 to 1952 in the files <a href="http://www.ietf.org/rfc/rfc1950.txt" target="_blank">http://www.ietf.org/rfc/rfc1950.txt </a> (zlib format), rfc1951.txt (deflate format) and rfc1952.txt (gzip format). </p>
+</div>
+</div>
+
+<!-- WEBKIT -->
+<div class="product">
+<span class="title">webkit</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="http://www.webkit.org/">homepage</a></span>
+<div class="licence">
 <h3>webkit is licensed as follows:</h3>
-<hr>
-<p>Copyright (C) 2003, 2004, 2005, 2006 Apple Computer, Inc. All rights reserved. </p>
+<p>Copyright (c) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
+2006, 2007  Alexander Kellett, Alexey Proskuryakov, Alex Mathews,
+Allan Sandfeld Jensen, Alp Toker, Anders Carlsson, Andrew Wellington,
+Antti Koivisto, Apple Inc., Arthur Langereis, Baron Schwartz, Bjoern
+Graf, Brent Fulgham, Cameron Zwarich, Charles Samuels, Christian
+Dywan, Collabora Ltd., Cyrus Patel, Daniel Molkentin, Dave Maclachlan,
+David Smith, Dawit Alemayehu, Dirk Mueller, Dirk Schulze, Don Gibson,
+Enrico Ros, Eric Seidel, Frederik Holljen, Frerich Raabe, Friedmann
+Kleint, George Staikos, Google Inc., Graham Dennis, Harri Porten,
+Henry Mason, Hiroyuki Ikezoe, Holger Hans Peter Freyther, IBM, James
+G. Speth, Jan Alonzo, Jean-Loup Gailly, John Reis, Jonas Witt, Jon
+Shier, Jonas Witt, Julien Chaffraix, Justin Haygoo, Kevin Ollivier,
+Kevin Watters, Kimmo Kinnunen, Kouhei Sutou, Krzysztof Kowalczyk, Lars
+Knoll, Luca Bruno, Maks Orlovich, Malte Starostik, Mark Adler, Martin
+Jones, Marvin Decker, Matt Lilek, Michael Emmel, Mitz Pettel,
+mozilla.org, Netscape Communications Corporation, Nicholas Shanks,
+Nikolas Zimmermann, Nokia, Oliver Hunt, Opened Hand, Paul Johnston,
+Peter Kelly, Pioneer Research Center USA, Rich Moore, Rob Buis, Robin
+Dunn, Ronald Tschal&auml;r, Samuel Weinig, Simon Hausmann, Staikos
+Computing Services Inc., Stefan Schimanski, Symantec Corporation, The
+Dojo Foundation, The Karbon Developers, Thomas Boyer, Tim Copperfield,
+Tobias Anton, Torben Weis, Trolltech, University of Cambridge, Vaclav
+Slavik, Waldo Bastian, Xan Lopez, Zack Rusin</p>
 <p>Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
@@ -996,11 +1170,18 @@ Igor Pavlov, as the author of this code, expressly permit you statically or dyna
 <p> &lt;signature of Ty Coon&gt;, 1 April 1990</p>
 <p> Ty Coon, President of Vice</p>
 <p>That's all there is to it!</p>
+</div>
+</div>
+
+<!-- WTL -->
+<div class="product">
+<span class="title">WTL</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<span class="homepage"><a href="http://wtl.sourceforge.net/ ">homepage</a></span>
+<div class="licence">
 <h3>WTL is licensed as follows:</h3>
-<hr>
 Microsoft Permissive License (Ms-PL)<br>
 Published: October 12, 2006
-</p>
 <p>This license governs use of the accompanying software. If you use the software,
   you accept this license. If you do not accept the license, do not use the
   software. </p>
@@ -1054,8 +1235,15 @@ Published: October 12, 2006
   </ul>
   </li>
 </ol>
+</div>
+</div>
+
+<!-- V8ASSEMBLER -->
+<div class="product">
+<span class="title">V8 assembler</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<div class="licence">
 <h3>V8 assembler is licensed as follows:</h3>
-<hr>
 <p>Copyright (c) 1994-2006 Sun Microsystems Inc.<br />
   All Rights Reserved.</p>
 <p>Redistribution and use in source and binary forms, with or without
@@ -1082,8 +1270,15 @@ Published: October 12, 2006
   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</div>
+</div>
+
+<!-- DTOA -->
+<div class="product">
+<span class="title">DTOA</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<div class="licence">
 <h3>DTOA is licensed as follows:</h3>
-<hr>
 <p> The author of this software is David M. Gay.<br />
   Copyright (c) 1991, 2000, 2001 by Lucent Technologies.</p>
 <p> Permission to use, copy, modify, and distribute this software for any
@@ -1095,8 +1290,15 @@ Published: October 12, 2006
   WARRANTY. IN PARTICULAR, NEITHER THE AUTHOR NOR LUCENT MAKES ANY
   REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
   OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.</p>
+</div>
+</div>
+
+<!-- JSCRE -->
+<div class="product">
+<span class="title">JSCRE</span>
+<a class="show" href="#" onclick="return toggle(this);">show license</a>
+<div class="licence">
 <h3>JSCRE is licensed as follows:</h3>
-<hr>
 <p>Copyright (C) 2007, 2008 Apple Inc. All rights reserved.</p>
 <p>Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -1124,7 +1326,8 @@ Published: October 12, 2006
 <p> Originally written by Philip Hazel<br />
   Copyright (c) 1997-2006 University of Cambridge<br />
   Copyright (C) 2002, 2004, 2006, 2007 Apple Inc. All rights reserved.<br />
-  Copyright (C) 2007 Eric Seidel &lt;eric@webkit.org&gt;</p>
+  Copyright (C) 2007 Eric Seidel &lt;<a href="mailto:eric@webkit.org">eric@webkit.org</a>&gt;</p>
+</p>
 <hr>
 <p>Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:</p>
@@ -1149,5 +1352,7 @@ Published: October 12, 2006
   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.</p>
+</div>
+</div>
 </body>
 </html>
