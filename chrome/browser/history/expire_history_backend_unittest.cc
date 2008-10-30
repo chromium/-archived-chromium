@@ -118,7 +118,8 @@ class ExpireHistoryTest : public testing::Test,
     if (thumb_db_->Init(thumb_name) != INIT_OK)
       thumb_db_.reset();
 
-    text_db_.reset(new TextDatabaseManager(dir_, main_db_.get()));
+    text_db_.reset(new TextDatabaseManager(dir_,
+                                           main_db_.get(), main_db_.get()));
     if (!text_db_->Init())
       text_db_.reset();
 
@@ -398,7 +399,7 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
   // it just like the test set-up did.
   text_db_.reset();
   EXPECT_TRUE(IsStringInFile(fts_filename, "goats"));
-  text_db_.reset(new TextDatabaseManager(dir_, main_db_.get()));
+  text_db_.reset(new TextDatabaseManager(dir_, main_db_.get(), main_db_.get()));
   ASSERT_TRUE(text_db_->Init());
   expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),
                         text_db_.get());
@@ -410,7 +411,7 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
   // doesn't remove it from the file, we want to be sure we're doing the latter.
   text_db_.reset();
   EXPECT_FALSE(IsStringInFile(fts_filename, "goats"));
-  text_db_.reset(new TextDatabaseManager(dir_, main_db_.get()));
+  text_db_.reset(new TextDatabaseManager(dir_, main_db_.get(), main_db_.get()));
   ASSERT_TRUE(text_db_->Init());
   expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),
                         text_db_.get());

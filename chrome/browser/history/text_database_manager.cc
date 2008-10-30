@@ -67,9 +67,11 @@ bool TextDatabaseManager::PageInfo::Expired(TimeTicks now) const {
 // TextDatabaseManager ---------------------------------------------------------
 
 TextDatabaseManager::TextDatabaseManager(const std::wstring& dir,
+                                         URLDatabase* url_database,
                                          VisitDatabase* visit_database)
     : dir_(dir),
       db_(NULL),
+      url_database_(url_database),
       visit_database_(visit_database),
       recent_changes_(RecentChangeList::NO_AUTO_EVICT),
       transaction_nesting_(0),
@@ -170,8 +172,38 @@ void TextDatabaseManager::AddPageURL(const GURL& url,
 void TextDatabaseManager::AddPageTitle(const GURL& url,
                                        const std::wstring& title) {
   RecentChangeList::iterator found = recent_changes_.Peek(url);
-  if (found == recent_changes_.end())
+  if (found == recent_changes_.end()) {
+    // This page is not in our cache of recent pages. This is very much an edge
+    // case as normally a title will come in <20 seconds after the page commits,
+    // and WebContents will avoid spamming us with >1 title per page. However,
+    // it could come up if your connection is unhappy, and we don't want to
+    // miss anything.
+    //
+    // To solve this problem, we'll just associate the most recent visit with
+    // the new title and index that using the regular code path.
+    URLRow url_row;
+    if (!url_database_->GetRowForURL(url, &url_row))
+      return;  // URL is unknown, give up.
+    VisitRow visit;
+    if (!visit_database_->GetMostRecentVisitForURL(url_row.id(), &visit))
+      return;  // No recent visit, give up.
+
+    if (visit.is_indexed) {
+      // If this page was already indexed, we could have a body that came in
+      // first and we don't want to overwrite it. We could go query for the
+      // current body, or have a special setter for only the title, but this is
+      // not worth it for this edge case.
+      //
+      // It will be almost impossible for the title to take longer than
+      // kExpirationSec yet we got a body in less than that time, since the
+      // title should always come in first.
+      return;
+    }
+
+    AddPageData(url, url_row.id(), visit.visit_id, visit.visit_time,
+                title, std::wstring());
     return;  // We don't know about this page, give up.
+  }
 
   PageInfo& info = found->second;
   if (info.has_body()) {
@@ -188,8 +220,26 @@ void TextDatabaseManager::AddPageTitle(const GURL& url,
 void TextDatabaseManager::AddPageContents(const GURL& url,
                                           const std::wstring& body) {
   RecentChangeList::iterator found = recent_changes_.Peek(url);
-  if (found == recent_changes_.end())
-    return;  // We don't know about this page, give up.
+  if (found == recent_changes_.end()) {
+    // This page is not in our cache of recent pages. This means that the page
+    // took more than kExpirationSec to load. Often, this will be the result of
+    // a very slow iframe or other resource on the page that makes us think its
+    // still loading.
+    //    
+    // As a fallback, set the most recent visit's contents using the input, and
+    // use the last set title in the URL table as the title to index.
+    URLRow url_row;
+    if (!url_database_->GetRowForURL(url, &url_row))
+      return;  // URL is unknown, give up.
+    VisitRow visit;
+    if (!visit_database_->GetMostRecentVisitForURL(url_row.id(), &visit))
+      return;  // No recent visit, give up.
+
+    // Use the title from the URL row as the title for the indexing.
+    AddPageData(url, url_row.id(), visit.visit_id, visit.visit_time,
+                url_row.title(), body);
+    return;
+  }
 
   PageInfo& info = found->second;
   if (info.has_title()) {

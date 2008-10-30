@@ -56,17 +56,18 @@ class TextDatabaseManagerTest : public testing::Test {
   std::wstring dir_;
 };
 
-// This provides a simple implementation of a VisitDatabase using an in-memory
-// sqlite connection. The text database manager expects to be able to update
-// the visit database to keep in sync.
-class InMemVisitDB : public VisitDatabase {
+// This provides a simple implementation of a URL+VisitDatabase using an
+// in-memory sqlite connection. The text database manager expects to be able to
+// update the visit database to keep in sync.
+class InMemDB : public URLDatabase, public VisitDatabase {
  public:
-  InMemVisitDB() {
+  InMemDB() {
     sqlite3_open(":memory:", &db_);
     statement_cache_ = new SqliteStatementCache(db_);
+    CreateURLTable(false);
     InitVisitTable();
   }
-  ~InMemVisitDB() {
+  ~InMemDB() {
     delete statement_cache_;
     sqlite3_close(db_);
   }
@@ -80,7 +81,7 @@ class InMemVisitDB : public VisitDatabase {
   sqlite3* db_;
   SqliteStatementCache* statement_cache_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(InMemVisitDB);
+  DISALLOW_EVIL_CONSTRUCTORS(InMemDB);
 };
 
 // Adds all the pages once, and the first page once more in the next month.
@@ -166,8 +167,8 @@ bool ResultsHaveURL(const std::vector<TextDatabase::Match>& results,
 // Tests basic querying.
 TEST_F(TextDatabaseManagerTest, InsertQuery) {
   ASSERT_TRUE(Init());
-  InMemVisitDB visit_db;
-  TextDatabaseManager manager(dir_, &visit_db);
+  InMemDB visit_db;
+  TextDatabaseManager manager(dir_, &visit_db, &visit_db);
   ASSERT_TRUE(manager.Init());
 
   std::vector<Time> times;
@@ -198,8 +199,8 @@ TEST_F(TextDatabaseManagerTest, InsertQuery) {
 // tests right now, but we test it anyway.
 TEST_F(TextDatabaseManagerTest, InsertCompleteNoVisit) {
   ASSERT_TRUE(Init());
-  InMemVisitDB visit_db;
-  TextDatabaseManager manager(dir_, &visit_db);
+  InMemDB visit_db;
+  TextDatabaseManager manager(dir_, &visit_db, &visit_db);
   ASSERT_TRUE(manager.Init());
 
   // First add one without a visit.
@@ -222,8 +223,8 @@ TEST_F(TextDatabaseManagerTest, InsertCompleteNoVisit) {
 // visit was updated properly.
 TEST_F(TextDatabaseManagerTest, InsertCompleteVisit) {
   ASSERT_TRUE(Init());
-  InMemVisitDB visit_db;
-  TextDatabaseManager manager(dir_, &visit_db);
+  InMemDB visit_db;
+  TextDatabaseManager manager(dir_, &visit_db, &visit_db);
   ASSERT_TRUE(manager.Init());
 
   // First add a visit to a page. We can just make up a URL ID since there is
@@ -261,8 +262,8 @@ TEST_F(TextDatabaseManagerTest, InsertCompleteVisit) {
 // Tests that partial inserts that expire are added to the database.
 TEST_F(TextDatabaseManagerTest, InsertPartial) {
   ASSERT_TRUE(Init());
-  InMemVisitDB visit_db;
-  TextDatabaseManager manager(dir_, &visit_db);
+  InMemDB visit_db;
+  TextDatabaseManager manager(dir_, &visit_db, &visit_db);
   ASSERT_TRUE(manager.Init());
 
   // Add the first one with just a URL.
@@ -305,6 +306,57 @@ TEST_F(TextDatabaseManagerTest, InsertPartial) {
   EXPECT_TRUE(ResultsHaveURL(results, kURL3));
 }
 
+// Tests that partial inserts (due to timeouts) will still get updated if the
+// data comes in later.
+TEST_F(TextDatabaseManagerTest, PartialComplete) {
+  ASSERT_TRUE(Init());
+  InMemDB visit_db;
+  TextDatabaseManager manager(dir_, &visit_db, &visit_db);
+  ASSERT_TRUE(manager.Init());
+
+  Time added_time = Time::Now();
+  GURL url(kURL1);
+
+  // We have to have the URL in the URL and visit databases for this test to
+  // work.
+  URLRow url_row(url);
+  url_row.set_title(L"chocolate");
+  URLID url_id = visit_db.AddURL(url_row);
+  ASSERT_TRUE(url_id);
+  VisitRow visit_row;
+  visit_row.url_id = url_id;
+  visit_row.visit_time = added_time;
+  visit_db.AddVisit(&visit_row);
+
+  // Add a URL with no title or body, and say that it expired.
+  manager.AddPageURL(url, 0, 0, added_time);
+  TimeTicks expire_time = TimeTicks::Now() + TimeDelta::FromDays(1);
+  manager.FlushOldChangesForTime(expire_time);
+
+  // Add the title. We should be able to query based on that. The title in the
+  // URL row we set above should not come into the picture.
+  manager.AddPageTitle(url, L"Some unique title");
+  Time first_time_searched;
+  QueryOptions options;
+  std::vector<TextDatabase::Match> results;
+  manager.GetTextMatches(L"unique", options, &results, &first_time_searched);
+  EXPECT_EQ(1, results.size());
+  manager.GetTextMatches(L"chocolate", options, &results, &first_time_searched);
+  EXPECT_EQ(0, results.size());
+
+  // Now add the body, which should be queryable.
+  manager.AddPageContents(url, L"Very awesome body");
+  manager.GetTextMatches(L"awesome", options, &results, &first_time_searched);
+  EXPECT_EQ(1, results.size());
+
+  // Adding the body will actually copy the title from the URL table rather
+  // than the previously indexed row (we made them not match above). This isn't
+  // necessarily what we want, but it's how it's implemented, and we don't want
+  // to regress it.
+  manager.GetTextMatches(L"chocolate", options, &results, &first_time_searched);
+  EXPECT_EQ(1, results.size());
+}
+
 // Tests that changes get properly committed to disk.
 TEST_F(TextDatabaseManagerTest, Writing) {
   ASSERT_TRUE(Init());
@@ -313,11 +365,11 @@ TEST_F(TextDatabaseManagerTest, Writing) {
   std::vector<TextDatabase::Match> results;
   Time first_time_searched;
 
-  InMemVisitDB visit_db;
+  InMemDB visit_db;
 
   // Create the manager and write some stuff to it.
   {
-    TextDatabaseManager manager(dir_, &visit_db);
+    TextDatabaseManager manager(dir_, &visit_db, &visit_db);
     ASSERT_TRUE(manager.Init());
 
     std::vector<Time> times;
@@ -331,7 +383,7 @@ TEST_F(TextDatabaseManagerTest, Writing) {
 
   // Recreate the manager and make sure it finds the written stuff.
   {
-    TextDatabaseManager manager(dir_, &visit_db);
+    TextDatabaseManager manager(dir_, &visit_db, &visit_db);
     ASSERT_TRUE(manager.Init());
 
     // We should have matched every page again.
@@ -349,11 +401,11 @@ TEST_F(TextDatabaseManagerTest, WritingTransaction) {
   std::vector<TextDatabase::Match> results;
   Time first_time_searched;
 
-  InMemVisitDB visit_db;
+  InMemDB visit_db;
 
   // Create the manager and write some stuff to it.
   {
-    TextDatabaseManager manager(dir_, &visit_db);
+    TextDatabaseManager manager(dir_, &visit_db, &visit_db);
     ASSERT_TRUE(manager.Init());
 
     std::vector<Time> times;
@@ -369,7 +421,7 @@ TEST_F(TextDatabaseManagerTest, WritingTransaction) {
 
   // Recreate the manager and make sure it finds the written stuff.
   {
-    TextDatabaseManager manager(dir_, &visit_db);
+    TextDatabaseManager manager(dir_, &visit_db, &visit_db);
     ASSERT_TRUE(manager.Init());
 
     // We should have matched every page again.
@@ -381,8 +433,8 @@ TEST_F(TextDatabaseManagerTest, WritingTransaction) {
 // Tests querying where the maximum number of items is met.
 TEST_F(TextDatabaseManagerTest, QueryMax) {
   ASSERT_TRUE(Init());
-  InMemVisitDB visit_db;
-  TextDatabaseManager manager(dir_, &visit_db);
+  InMemDB visit_db;
+  TextDatabaseManager manager(dir_, &visit_db, &visit_db);
   ASSERT_TRUE(manager.Init());
 
   std::vector<Time> times;
@@ -418,8 +470,8 @@ TEST_F(TextDatabaseManagerTest, QueryMax) {
 // Tests querying backwards in time in chunks.
 TEST_F(TextDatabaseManagerTest, QueryBackwards) {
   ASSERT_TRUE(Init());
-  InMemVisitDB visit_db;
-  TextDatabaseManager manager(dir_, &visit_db);
+  InMemDB visit_db;
+  TextDatabaseManager manager(dir_, &visit_db, &visit_db);
   ASSERT_TRUE(manager.Init());
 
   std::vector<Time> times;

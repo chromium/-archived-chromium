@@ -71,6 +71,7 @@ class TextDatabaseManager {
   // (of recent visits). The visit database will be updated to refer to the
   // added text database entries.
   explicit TextDatabaseManager(const std::wstring& dir,
+                               URLDatabase* url_database,
                                VisitDatabase* visit_database);
   ~TextDatabaseManager();
 
@@ -154,6 +155,7 @@ class TextDatabaseManager {
  private:
   // These tests call ExpireRecentChangesForTime to force expiration.
   FRIEND_TEST(TextDatabaseManagerTest, InsertPartial);
+  FRIEND_TEST(TextDatabaseManagerTest, PartialComplete);
   FRIEND_TEST(ExpireHistoryTest, DeleteURLAndFavicon);
   FRIEND_TEST(ExpireHistoryTest, FlushRecentURLsUnstarred);
 
@@ -244,6 +246,7 @@ class TextDatabaseManager {
   DBCloseScoper db_close_scoper_;
 
   // Non-owning pointers to the recent history databases for URLs and visits.
+  URLDatabase* url_database_;
   VisitDatabase* visit_database_;
 
   // Lists recent additions that we have not yet filled out with the title and

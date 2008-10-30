@@ -533,7 +533,8 @@ void HistoryBackend::InitImpl() {
 
   // Full-text database. This has to be first so we can pass it to the
   // HistoryDatabase for migration.
-  text_database_.reset(new TextDatabaseManager(history_dir_, db_.get()));
+  text_database_.reset(new TextDatabaseManager(history_dir_,
+                                               db_.get(), db_.get()));
   if (!text_database_->Init()) {
     LOG(WARNING) << "Text database initialization failed, running without it.";
     text_database_.reset();
