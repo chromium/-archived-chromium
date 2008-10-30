@@ -1911,6 +1911,9 @@ each locale. -->
       <message name="IDS_DEL_PASSWORDS_CHKBOX" desc="Checkbox for deleting Passwords">
         Clear saved passwords
       </message>
+      <message name="IDS_DEL_FORM_DATA_CHKBOX" desc="Checkbox for deleting form data saved for autofill">
+        Clear saved form data
+      </message>
       <message name="IDS_CLEAR_BROWSING_DATA_COMMIT" desc="Text for OK button on dialog">
         Clear Browsing Data
       </message>
@@ -2404,6 +2407,14 @@ each locale. -->
       </message>
       <message name="IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_ADD_BUTTON_LABEL" desc="Button label for Add languages">
         Add
+      </message>
+
+      <!-- Advanced autofill settings -->
+      <message name="IDS_AUTOFILL_SETTING_WINDOWS_TITLE" desc="Title that appears in the dialogue title bar for advanced autofill settings">
+        Form autofill
+      </message>
+      <message name="IDS_AUTOFILL_SAVEFORMS" desc="The autofill checkbox label">
+        Save and show text typed in similar fields
       </message>
 
       <!-- HTTP POST Warning -->
