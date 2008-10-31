@@ -36,7 +36,6 @@
 #include "RenderPath.h"
 #include "SkiaSupport.h"
 
-#include <SkPaintContext.h>
 #include "SkiaUtils.h"
 
 namespace WebCore {
