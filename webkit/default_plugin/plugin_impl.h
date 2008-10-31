@@ -337,6 +337,8 @@ class PluginInstallerImpl : public CWindowImpl<PluginInstallerImpl> {
   std::wstring plugin_name_;
   // The actual download URL.
   std::string plugin_download_url_;
+  // Indicates if the plugin download URL points to an exe.
+  bool plugin_download_url_for_display_;
   // The current state of the plugin installer.
   PluginInstallerState plugin_installer_state_;
   // Used to display the UI for plugin installation.

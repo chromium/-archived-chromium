@@ -40,7 +40,8 @@ PluginInstallerImpl::PluginInstallerImpl(int16 mode)
       underline_font_(NULL),
       tooltip_(NULL),
       activex_installer_(NULL),
-      plugin_database_handler_(*this) {
+      plugin_database_handler_(*this),
+      plugin_download_url_for_display_(false) {
 }
 
 PluginInstallerImpl::~PluginInstallerImpl() {
@@ -253,7 +254,8 @@ void PluginInstallerImpl::URLNotify(const char* url, NPReason reason) {
       plugin_database_handler_.ParsePluginList();
       if (plugin_database_handler_.GetPluginDetailsForMimeType(
               mime_type_.c_str(), desired_language_.c_str(),
-              &plugin_download_url_, &plugin_name_)) {
+              &plugin_download_url_, &plugin_name_,
+              &plugin_download_url_for_display_)) {
         plugin_available = true;
       } else {
         set_plugin_installer_state(PluginListDownloadedPluginNotFound);
@@ -361,7 +363,17 @@ void PluginInstallerImpl::DownloadPlugin() {
     activex_installer_->StartDownload(activex_clsid_, activex_codebase_, m_hWnd,
                                       kActivexInstallResult);
   } else {
-    webkit_glue::DownloadUrl(plugin_download_url_, m_hWnd);
+    if (!plugin_download_url_for_display_) {
+      webkit_glue::DownloadUrl(plugin_download_url_, m_hWnd);
+    } else {
+      default_plugin::g_browser->geturl(instance(),
+                                        plugin_download_url_.c_str(),
+                                        "_blank");
+      set_plugin_installer_state(PluginInstallerLaunchSuccess);
+      DisplayStatus(IDS_DEFAULT_PLUGIN_REFRESH_PLUGIN_MSG);
+      enable_click_ = true;
+      RefreshDisplay();
+    }
   }
 }
 

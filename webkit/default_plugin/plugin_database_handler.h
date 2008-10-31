@@ -14,10 +14,17 @@
 
 // Individual plugin details
 struct PluginDetail {
-  std::string mime_type;
+  // List of mime types supported by the plugin.
+  std::vector<std::string> mime_types;
+  // The URL where the plugin can be downloaded from.
   std::string download_url;
+  // The display name for the plugin.
   std::wstring display_name;
+  // Language of the plugin installer. (en-us, etc).
   std::string language;
+  // Indicates if the download URL points to an exe or to a URL which
+  // needs to be displayed in a tab.
+  bool download_url_for_display;
 };
 
 typedef std::vector<PluginDetail> PluginList;
@@ -31,9 +38,12 @@ struct _xmlNode;
 // The format of the plugins databse file is as below:-
 // <plugins>
 //    <plugin>
-//      <mime> </mime> (Mime type of the plugin)
+//      <mime_types> </mime_types> (semicolon separated list of mime types 
+//                                  supported by the plugin)
 //      <lang> </lang> (Supported language)
 //      <url> </url>   (Link to the plugin installer)
+//      <displayurl> 0 </displayurl> (Indicates if the URL is a display URL.
+//                                    defaults to 0.
 //    </plugin>
 //    <plugin>
 //  </plugins>
@@ -90,11 +100,15 @@ class PluginDatabaseHandler {
   // display_name
   //   Output parameter which contains the display name of the plugin on
   //   success.
+  // download_url_for_display
+  //   Output parameter which indicates if the plugin URL points to an exe
+  //   or not.
   // Returns true if the plugin details were found.
   bool GetPluginDetailsForMimeType(const char* mime_type,
                                    const char* language,
                                    std::string* download_url,
-                                   std::wstring* display_name);
+                                   std::wstring* display_name,
+                                   bool* download_url_for_display);
 
   // Closes the handle to the plugin database file.
   //
