@@ -189,8 +189,6 @@ PrintingContext::Result PrintingContext::AskUserForSettings(HWND window,
   }
 
   {
-    CallbackHandler handler(*this, window);
-    dialog_options.lpCallback = handler.ToIUnknown();
     if (PrintDlgEx(&dialog_options) != S_OK) {
       ResetSettings();
       return FAILED;
