@@ -729,10 +729,6 @@ bool EnsureFontLoaded(HFONT font) {
   return true;
 }
 
-MONITORINFOEX GetMonitorInfoForWindow(HWND window) {
-  return webkit_glue::GetMonitorInfoForWindowHelper(window);
-}
-
 bool DownloadUrl(const std::string& url, HWND caller_window) {
   return false;
 }

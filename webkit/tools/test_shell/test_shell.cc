@@ -394,8 +394,12 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   return NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
 }
 
-bool webkit_glue::IsPluginRunningInRendererProcess() {
+bool IsPluginRunningInRendererProcess() {
   return true;
+}
+
+ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+  return GetScreenInfoHelper(window);
 }
 
 bool GetPluginFinderURL(std::string* plugin_finder_url) {
