@@ -38,27 +38,7 @@
 #include "SkPath.h"
 
 #include "GraphicsContext.h"
-#include "ThemeData.h"
-
-#if defined(OS_WIN)
-typedef HICON IconHandle;
-typedef HFONT FontHandle;
-#elif defined(OS_MACOSX)
-typedef CGImageRef IconHandle;
-typedef CTFontRef FontHandle;
-#elif defined(OS_LINUX)
-// TODO(erg): Type needs to be defined for half the rest of the stack to
-// compile. When the corresponding implementation to this file gets written,
-// these void pointers need to be replaced with whatever we end up using.
-typedef void* IconHandle;
-typedef void* FontHandle;
-#endif
-
-class UniscribeStateTextRun;
-
-namespace gfx {
-class NativeTheme;
-}
+#include "wtf/Vector.h"
 
 // This class holds the platform-specific state for GraphicsContext. We put
 // most of our Skia wrappers on this class. In theory, a lot of this stuff could
@@ -79,20 +59,6 @@ class NativeTheme;
 // state to be pushed and popped along with the bitmap.
 class PlatformContextSkia {
 public:
-    // Used by computeResamplingMode to tell how bitmaps should be resampled.
-    enum ResamplingMode {
-        // Nearest neighbor resampling. Used when we detect that the page is
-        // trying to make a pattern by stretching a small bitmap very large.
-        RESAMPLE_NONE,
-
-        // Default skia resampling. Used for large growing of images where high
-        // quality resampling doesn't get us very much except a slowdown.
-        RESAMPLE_LINEAR,
-
-        // High quality resampling.
-        RESAMPLE_AWESOME,
-    };
-
     // For printing, there shouldn't be any canvas. canvas can be NULL.
     PlatformContextSkia(gfx::PlatformCanvas* canvas);
     ~PlatformContextSkia();
@@ -150,59 +116,8 @@ public:
     // TODO(brettw) why is this in this class?
     void drawRect(SkRect rect);
 
-    // Gets the default theme.
-    static const gfx::NativeTheme* nativeTheme();
-
-    void paintIcon(IconHandle icon, const SkIRect& rect);
-    // TODO(brettw) these functions should not have to take GraphicsContext
-    // pointers! This is cureently required because our theme drawing code
-    // requires GraphicsContexts, but this class doesn't know about it. This
-    // class's purpose seems no longer necessary, so everything can be moved to
-    // GraphicsContext or ThemeWin, and these parameters can be removed.
-    void paintButton(const SkIRect& widgetRect,
-                     const ThemeData& themeData);
-    void paintTextField(const SkIRect& widgetRect,
-                        const ThemeData& themeData,
-                        SkColor c,
-                        bool drawEdges);
-    void paintMenuListArrowButton(const SkIRect& widgetRect,
-                                  unsigned state,
-                                  unsigned classicState);
-    void paintComplexText(UniscribeStateTextRun& state,
-                          const SkPoint& point,
-                          int from,
-                          int to,
-                          int ascent);
-
-    // Draws the given glyphs at the given |origin|. |origin| is on the baseline
-    // of the text, and the |ascender_height| must be given for some code paths
-    // since Windows draws text from the upper left.
-    bool paintText(FontHandle hfont,
-                   int number_glyph,
-                   const uint16* glyphs,
-                   const int* advances,
-                   const SkPoint& origin);
-
     // TODO(maruel): I'm still unsure how I will serialize this call.
     void paintSkPaint(const SkRect& rect, const SkPaint& paint);
-
-    // Draws the given bitmap in the canvas at the location specified in
-    // |dest_rect|. It will be resampled as necessary to fill that rectangle.
-    // The |src_rect| indicates the subset of the bitmap to draw.
-    void paintSkBitmap(const NativeImageSkia& bitmap,
-                       const SkIRect& srcRect,
-                       const SkRect& destRect,
-                       const SkPorterDuff::Mode& compositeOp);
-
-    // Returns true if the given bitmap subset should be resampled before being
-    // painted into a rectangle of the given size. This is used to indicate
-    // whether bitmap painting should be optimized by not resampling, or given
-    // higher quality by resampling.
-    static ResamplingMode computeResamplingMode(const NativeImageSkia& bitmap,
-                                                int srcWidth,
-                                                int srcHeight,
-                                                float destWidth,
-                                                float destHeight);
 
     const SkBitmap* bitmap() const;
 
@@ -227,7 +142,7 @@ private:
 
     // States stack. Enables local drawing state change with save()/restore()
     // calls.
-    SkDeque m_stateStack;
+    WTF::Vector<State> m_stateStack;
     // Pointer to the current drawing state. This is a cached value of
     // mStateStack.back().
     State* m_state;

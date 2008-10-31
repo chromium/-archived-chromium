@@ -36,6 +36,7 @@
 
 #include "base/gfx/native_theme.h"
 #include "base/gfx/font_utils.h"
+#include "base/gfx/skia_utils.h"
 #include "base/win_util.h"
 #include "webkit/glue/webkit_glue.h"
 
@@ -475,10 +476,26 @@ ThemeData RenderThemeWin::getThemeData(RenderObject* o)
     return result;
 }
 
-bool RenderThemeWin::paintButton(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r)
+bool RenderThemeWin::paintButton(RenderObject* o,
+                                 const RenderObject::PaintInfo& i,
+                                 const IntRect& r)
 {
-    // Get the correct theme data for a button and paint the button.
-    i.context->platformContext()->paintButton(r, getThemeData(o));
+    const ThemeData& themeData = getThemeData(o);
+
+    RECT rect;
+    rect.left = r.x();
+    rect.top = r.y();
+    rect.right = r.right();
+    rect.bottom = r.bottom();
+
+    HDC hdc = i.context->platformContext()->canvas()->beginPlatformPaint();
+    int state = themeData.m_state;
+    gfx::NativeTheme::instance()->PaintButton(hdc,
+                                              themeData.m_part,
+                                              state,
+                                              themeData.m_classicState,
+                                              &rect);
+    i.context->platformContext()->canvas()->endPlatformPaint();
     return false;
 }
 
@@ -541,18 +558,39 @@ bool RenderThemeWin::paintTextField(RenderObject* o, const RenderObject::PaintIn
     return paintTextFieldInternal(o, i, r, true);
 }
 
-bool RenderThemeWin::paintTextFieldInternal(RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& r, bool drawEdges)
+bool RenderThemeWin::paintTextFieldInternal(RenderObject* o,
+                                            const RenderObject::PaintInfo& i,
+                                            const IntRect& r,
+                                            bool drawEdges)
 {
-    // Nasty hack to make us not paint the border on text fields with a border-radius.
-    // Webkit paints elements with border-radius for us.
-    // TODO(ojan): Get rid of this if-check once we can properly clip rounded borders
-    // http://b/1112604 and http://b/1108635
-    // TODO(ojan): make sure we do the right thing if css background-clip is set.
+    // Nasty hack to make us not paint the border on text fields with a
+    // border-radius. Webkit paints elements with border-radius for us.
+    // TODO(ojan): Get rid of this if-check once we can properly clip rounded
+    // borders: http://b/1112604 and http://b/1108635
+    // TODO(ojan): make sure we do the right thing if css background-clip is
+    // set.
     if (o->style()->hasBorderRadius())
-      return false;
+        return false;
 
-    // Get the correct theme data for a textfield and paint the text field.
-    i.context->platformContext()->paintTextField(r, getThemeData(o), o->style()->backgroundColor().rgb(), drawEdges);
+    const ThemeData& themeData = getThemeData(o);
+
+    RECT rect;
+    rect.left = r.x();
+    rect.top = r.y();
+    rect.right = r.right();
+    rect.bottom = r.bottom();
+
+    HDC hdc = i.context->platformContext()->canvas()->beginPlatformPaint();
+    COLORREF clr = gfx::SkColorToCOLORREF(o->style()->backgroundColor().rgb());
+    gfx::NativeTheme::instance()->PaintTextField(hdc,
+                                                 themeData.m_part,
+                                                 themeData.m_state,
+                                                 themeData.m_classicState,
+                                                 &rect,
+                                                 clr,
+                                                 true,
+                                                 drawEdges);
+    i.context->platformContext()->canvas()->endPlatformPaint();
     return false;
 }
 
@@ -619,17 +657,26 @@ bool RenderThemeWin::paintMenuList(RenderObject* o, const RenderObject::PaintInf
 
     int buttonX;
     if (r.right() - r.x() < buttonWidth) {
-      buttonX = r.x();
+        buttonX = r.x();
     } else {
-      buttonX = o->style()->direction() == LTR ? r.right() - spacingRight - buttonWidth : r.x() + spacingLeft;
+        buttonX = o->style()->direction() == LTR ? r.right() - spacingRight - buttonWidth : r.x() + spacingLeft;
     }
-    IntRect buttonRect(buttonX,
-                       r.y() + spacingTop,
-                       std::min(buttonWidth, r.right() - r.x()),
-                       r.height() - (spacingTop + spacingBottom));
+
+    // Compute the Windows rectangle of the button.
+    RECT rect;
+    rect.left = buttonX;
+    rect.top = r.y() + spacingTop;
+    rect.right = rect.left + std::min(buttonWidth, r.right() - r.x());
+    rect.bottom = rect.top + r.height() - (spacingTop + spacingBottom);
 
     // Get the correct theme data for a textfield and paint the menu.
-    i.context->platformContext()->paintMenuListArrowButton(buttonRect, determineState(o), determineClassicState(o));
+    HDC hdc = i.context->platformContext()->canvas()->beginPlatformPaint();
+    gfx::NativeTheme::instance()->PaintMenuList(hdc,
+                                                CP_DROPDOWNBUTTON,
+                                                determineState(o),
+                                                determineClassicState(o),
+                                                &rect);
+    i.context->platformContext()->canvas()->endPlatformPaint();
     return false;
 }
 

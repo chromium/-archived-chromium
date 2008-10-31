@@ -54,12 +54,15 @@ PassRefPtr<Icon> Icon::newIconForFile(const String& filename)
     return adoptRef(new Icon(sfi.hIcon));
 }
 
-void Icon::paint(GraphicsContext* context, const IntRect& r)
+void Icon::paint(GraphicsContext* context, const IntRect& rect)
 {
     if (context->paintingDisabled())
         return;
 
-    context->platformContext()->paintIcon(m_icon, r);
+    HDC hdc = context->platformContext()->canvas()->beginPlatformPaint();
+    DrawIconEx(hdc, rect.x(), rect.y(), m_icon, rect.width(), rect.height(),
+               0, 0, DI_NORMAL);
+    context->platformContext()->canvas()->endPlatformPaint();
 }
 
 } // namespace WebCore

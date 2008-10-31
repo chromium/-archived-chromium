@@ -60,6 +60,218 @@ namespace WebCore {
 
 namespace {
 
+// Used by computeResamplingMode to tell how bitmaps should be resampled.
+enum ResamplingMode {
+    // Nearest neighbor resampling. Used when we detect that the page is
+    // trying to make a pattern by stretching a small bitmap very large.
+    RESAMPLE_NONE,
+
+    // Default skia resampling. Used for large growing of images where high
+    // quality resampling doesn't get us very much except a slowdown.
+    RESAMPLE_LINEAR,
+
+    // High quality resampling.
+    RESAMPLE_AWESOME,
+};
+
+// static
+ResamplingMode computeResamplingMode(const NativeImageSkia& bitmap,
+                                     int srcWidth, int srcHeight,
+                                     float destWidth, float destHeight)
+{
+    int destIWidth = static_cast<int>(destWidth);
+    int destIHeight = static_cast<int>(destHeight);
+
+    // The percent change below which we will not resample. This usually means
+    // an off-by-one error on the web page, and just doing nearest neighbor
+    // sampling is usually good enough.
+    const float kFractionalChangeThreshold = 0.025f;
+
+    // Images smaller than this in either direction are considered "small" and
+    // are not resampled ever (see below).
+    const int kSmallImageSizeThreshold = 8;
+
+    // The amount an image can be stretched in a single direction before we
+    // say that it is being stretched so much that it must be a line or
+    // background that doesn't need resampling.
+    const float kLargeStretch = 3.0f;
+
+    // Figure out if we should resample this image. We try to prune out some
+    // common cases where resampling won't give us anything, since it is much
+    // slower than drawing stretched.
+    if (srcWidth == destIWidth && srcHeight == destIHeight) {
+        // We don't need to resample if the source and destination are the same.
+        return RESAMPLE_NONE;
+    }
+    
+    if (srcWidth <= kSmallImageSizeThreshold ||
+        srcHeight <= kSmallImageSizeThreshold ||
+        destWidth <= kSmallImageSizeThreshold ||
+        destHeight <= kSmallImageSizeThreshold) {
+        // Never resample small images. These are often used for borders and
+        // rules (think 1x1 images used to make lines).
+        return RESAMPLE_NONE;
+    }
+    
+    if (srcHeight * kLargeStretch <= destHeight ||
+        srcWidth * kLargeStretch <= destWidth) {
+        // Large image detected.
+
+        // Don't resample if it is being stretched a lot in only one direction.
+        // This is trying to catch cases where somebody has created a border
+        // (which might be large) and then is stretching it to fill some part
+        // of the page.
+        if (srcWidth == destWidth || srcHeight == destHeight)
+            return RESAMPLE_NONE;
+
+        // The image is growing a lot and in more than one direction. Resampling
+        // is slow and doesn't give us very much when growing a lot.
+        return RESAMPLE_LINEAR;
+    }
+    
+    if ((fabs(destWidth - srcWidth) / srcWidth <
+         kFractionalChangeThreshold) &&
+       (fabs(destHeight - srcHeight) / srcHeight <
+        kFractionalChangeThreshold)) {
+        // It is disappointingly common on the web for image sizes to be off by
+        // one or two pixels. We don't bother resampling if the size difference
+        // is a small fraction of the original size.
+        return RESAMPLE_NONE;
+    }
+
+    // When the image is not yet done loading, use linear. We don't cache the
+    // partially resampled images, and as they come in incrementally, it causes
+    // us to have to resample the whole thing every time.
+    if (!bitmap.isDataComplete())
+        return RESAMPLE_LINEAR;
+
+    // Everything else gets resampled.
+    return RESAMPLE_AWESOME;
+}
+
+// Draws the given bitmap to the given canvas. The subset of the source bitmap
+// identified by src_rect is drawn to the given destination rect. The bitmap
+// will be resampled to resample_width * resample_height (this is the size of
+// the whole image, not the subset). See shouldResampleBitmap for more.
+//
+// This does a lot of computation to resample only the portion of the bitmap
+// that will only be drawn. This is critical for performance since when we are
+// scrolling, for example, we are only drawing a small strip of the image.
+// Resampling the whole image every time is very slow, so this speeds up things
+// dramatically.
+void drawResampledBitmap(SkCanvas& canvas,
+                         SkPaint& paint,
+                         const NativeImageSkia& bitmap,
+                         const SkIRect& srcIRect,
+                         const SkRect& destRect)
+{
+    // First get the subset we need. This is efficient and does not copy pixels.
+    SkBitmap subset;
+    bitmap.extractSubset(&subset, srcIRect);
+    SkRect srcRect;
+    srcRect.set(srcIRect);
+
+    // Whether we're doing a subset or using the full source image.
+    bool srcIsFull = srcIRect.fLeft == 0 && srcIRect.fTop == 0 &&
+        srcIRect.width() == bitmap.width() &&
+        srcIRect.height() == bitmap.height();
+
+    // We will always draw in integer sizes, so round the destination rect.
+    SkIRect destRectRounded;
+    destRect.round(&destRectRounded);
+    SkIRect resizedImageRect;  // Represents the size of the resized image.
+    resizedImageRect.set(0, 0,
+                         destRectRounded.width(), destRectRounded.height());
+
+    if (srcIsFull &&
+        bitmap.hasResizedBitmap(destRectRounded.width(),
+                                destRectRounded.height())) {
+        // Yay, this bitmap frame already has a resized version.
+        SkBitmap resampled = bitmap.resizedBitmap(destRectRounded.width(),
+                                                  destRectRounded.height());
+        canvas.drawBitmapRect(resampled, 0, destRect, &paint);
+        return;
+    }
+
+    // Compute the visible portion of our rect.
+    SkRect destBitmapSubsetSk;
+    ClipRectToCanvas(canvas, destRect, &destBitmapSubsetSk);
+    destBitmapSubsetSk.offset(-destRect.fLeft, -destRect.fTop);
+
+    // The matrix inverting, etc. could have introduced rounding error which
+    // causes the bounds to be outside of the resized bitmap. We round outward
+    // so we always lean toward it being larger rather than smaller than we
+    // need, and then clamp to the bitmap bounds so we don't get any invalid
+    // data.
+    SkIRect destBitmapSubsetSkI;
+    destBitmapSubsetSk.roundOut(&destBitmapSubsetSkI);
+    if (!destBitmapSubsetSkI.intersect(resizedImageRect))
+        return;  // Resized image does not intersect.
+
+    if (srcIsFull && bitmap.shouldCacheResampling(
+            resizedImageRect.width(),
+            resizedImageRect.height(),
+            destBitmapSubsetSkI.width(),
+            destBitmapSubsetSkI.height())) {
+        // We're supposed to resize the entire image and cache it, even though
+        // we don't need all of it.
+        SkBitmap resampled = bitmap.resizedBitmap(destRectRounded.width(),
+                                                  destRectRounded.height());
+        canvas.drawBitmapRect(resampled, 0, destRect, &paint);
+    } else {
+        // We should only resize the exposed part of the bitmap to do the
+        // minimal possible work.
+        gfx::Rect destBitmapSubset(destBitmapSubsetSkI.fLeft,
+                                   destBitmapSubsetSkI.fTop,
+                                   destBitmapSubsetSkI.width(),
+                                   destBitmapSubsetSkI.height());
+
+        // Resample the needed part of the image.
+        SkBitmap resampled = gfx::ImageOperations::Resize(subset,
+            gfx::ImageOperations::RESIZE_LANCZOS3,
+            gfx::Size(destRectRounded.width(), destRectRounded.height()),
+            destBitmapSubset);
+
+        // Compute where the new bitmap should be drawn. Since our new bitmap
+        // may be smaller than the original, we have to shift it over by the
+        // same amount that we cut off the top and left.
+        SkRect offsetDestRect = {
+            destBitmapSubset.x() + destRect.fLeft,
+            destBitmapSubset.y() + destRect.fTop,
+            destBitmapSubset.right() + destRect.fLeft,
+            destBitmapSubset.bottom() + destRect.fTop };
+
+        canvas.drawBitmapRect(resampled, 0, offsetDestRect, &paint);
+    }
+}
+
+void paintSkBitmap(PlatformContextSkia* platformContext,
+                   const NativeImageSkia& bitmap,
+                   const SkIRect& srcRect,
+                   const SkRect& destRect,
+                   const SkPorterDuff::Mode& compOp)
+{
+    SkPaint paint;
+    paint.setPorterDuffXfermode(compOp);
+
+    gfx::PlatformCanvas* canvas = platformContext->canvas();
+
+    ResamplingMode resampling = platformContext->IsPrinting() ? RESAMPLE_NONE :
+        computeResamplingMode(bitmap, srcRect.width(), srcRect.height(),
+                              SkScalarToFloat(destRect.width()),
+                              SkScalarToFloat(destRect.height()));
+    if (resampling == RESAMPLE_AWESOME) {
+        paint.setFilterBitmap(false);
+        drawResampledBitmap(*canvas, paint, bitmap, srcRect, destRect);
+    } else {
+        // No resampling necessary, we can just draw the bitmap.
+        // Note: for serialization, we will want to subset the bitmap first so
+        // we don't send extra pixels.
+        paint.setFilterBitmap(resampling == RESAMPLE_LINEAR);
+        canvas->drawBitmapRect(bitmap, &srcRect, destRect, &paint);
+    }
+}
+
 // Transforms the given dimensions with the given matrix. Used to see how big
 // images will be once transformed.
 void TransformDimensions(const SkMatrix& matrix,
@@ -185,20 +397,19 @@ void Image::drawPattern(GraphicsContext* context,
                         &dest_bitmap_width, &dest_bitmap_height);
 
     // Compute the resampling mode.
-    PlatformContextSkia::ResamplingMode resampling;
+    ResamplingMode resampling;
     if (context->platformContext()->IsPrinting())
-      resampling = PlatformContextSkia::RESAMPLE_LINEAR;
+      resampling = RESAMPLE_LINEAR;
     else {
-      resampling = PlatformContextSkia::computeResamplingMode(
-          *bitmap,
-          srcRect.width(), srcRect.height(),
-          dest_bitmap_width, dest_bitmap_height);
+      resampling = computeResamplingMode(*bitmap,
+                                         srcRect.width(), srcRect.height(),
+                                         dest_bitmap_width, dest_bitmap_height);
     }
 
     // Load the transform WebKit requested.
     SkMatrix matrix(patternTransform);
 
-    if (resampling == PlatformContextSkia::RESAMPLE_AWESOME) {
+    if (resampling == RESAMPLE_AWESOME) {
         // Do nice resampling.
         SkBitmap resampled = gfx::ImageOperations::Resize(src_subset,
             gfx::ImageOperations::RESIZE_LANCZOS3,
@@ -228,7 +439,7 @@ void Image::drawPattern(GraphicsContext* context,
     SkPaint paint;
     paint.setShader(shader)->unref();
     paint.setPorterDuffXfermode(WebCoreCompositeToSkiaComposite(compositeOp));
-    paint.setFilterBitmap(resampling == PlatformContextSkia::RESAMPLE_LINEAR);
+    paint.setFilterBitmap(resampling == RESAMPLE_LINEAR);
 
     context->platformContext()->paintSkPaint(destRect, paint);
 }
@@ -267,8 +478,11 @@ void BitmapImage::draw(GraphicsContext* ctxt, const FloatRect& dstRect,
     if (srcRect.isEmpty() || dstRect.isEmpty())
         return;  // Nothing to draw.
 
-    ctxt->platformContext()->paintSkBitmap(*bm, enclosingIntRect(srcRect),
-        enclosingIntRect(dstRect), WebCoreCompositeToSkiaComposite(compositeOp));
+    paintSkBitmap(ctxt->platformContext(),
+                  *bm,
+                  enclosingIntRect(srcRect),
+                  enclosingIntRect(dstRect),
+                  WebCoreCompositeToSkiaComposite(compositeOp));
 
     startAnimation();
 }
@@ -281,11 +495,11 @@ void BitmapImageSingleFrameSkia::draw(GraphicsContext* ctxt,
     if (srcRect.isEmpty() || dstRect.isEmpty())
         return;  // Nothing to draw.
 
-    ctxt->platformContext()->paintSkBitmap(
-        m_nativeImage,
-        enclosingIntRect(srcRect),
-        enclosingIntRect(dstRect),
-        WebCoreCompositeToSkiaComposite(compositeOp));
+    paintSkBitmap(ctxt->platformContext(),
+                  m_nativeImage,
+                  enclosingIntRect(srcRect),
+                  enclosingIntRect(dstRect),
+                  WebCoreCompositeToSkiaComposite(compositeOp));
 }
 
 PassRefPtr<BitmapImageSingleFrameSkia> BitmapImageSingleFrameSkia::create(
