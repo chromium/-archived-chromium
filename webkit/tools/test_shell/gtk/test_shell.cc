@@ -543,6 +543,11 @@ bool IsPluginRunningInRendererProcess() {
   return true;
 }
 
+ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+  NOTIMPLEMENTED();
+  return ScreenInfo();
+}
+
 bool GetPluginFinderURL(std::string* plugin_finder_url) {
   return false;
 }
