@@ -32,6 +32,7 @@
 #include "PlatformContextSkia.h"
 #undef LOG
 #include "SkiaUtils.h"
+#include "WTF/MathExtras.h"
 
 #include "base/gfx/image_operations.h"
 #include "base/gfx/platform_canvas.h"
@@ -51,13 +52,6 @@
 
 namespace {
 
-int RoundToInt(float x) {
-  // Android uses roundf which VC doesn't have, emulate that function.
-  if (fmodf(x, 1.0f) >= 0.5f)
-    return (int)ceilf(x);
-  return (int)floorf(x);
-}
-
 // Draws the given bitmap to the given canvas. The subset of the source bitmap
 // identified by src_rect is drawn to the given destination rect. The bitmap
 // will be resampled to resample_width * resample_height (this is the size of
@@ -71,644 +65,695 @@ int RoundToInt(float x) {
 void DrawResampledBitmap(SkCanvas& canvas,
                          SkPaint& paint,
                          const NativeImageSkia& bitmap,
-                         const SkIRect& src_irect,
-                         const SkRect& dest_rect) {
-  // First get the subset we need. This is efficient and does not copy pixels.
-  SkBitmap subset;
-  bitmap.extractSubset(&subset, src_irect);
-  SkRect src_rect;
-  src_rect.set(src_irect);
+                         const SkIRect& srcIRect,
+                         const SkRect& destRect)
+{
+    // First get the subset we need. This is efficient and does not copy pixels.
+    SkBitmap subset;
+    bitmap.extractSubset(&subset, srcIRect);
+    SkRect srcRect;
+    srcRect.set(srcIRect);
 
-  // Whether we're doing a subset or using the full source image.
-  bool src_is_full = src_irect.fLeft == 0 && src_irect.fTop == 0 &&
-      src_irect.width() == bitmap.width() &&
-      src_irect.height() == bitmap.height();
+    // Whether we're doing a subset or using the full source image.
+    bool srcIsFull = srcIRect.fLeft == 0 && srcIRect.fTop == 0 &&
+        srcIRect.width() == bitmap.width() &&
+        srcIRect.height() == bitmap.height();
 
-  // We will always draw in integer sizes, so round the destination rect.
-  SkIRect dest_rect_rounded;
-  dest_rect.round(&dest_rect_rounded);
-  SkIRect resized_image_rect;  // Represents the size of the resized image.
-  resized_image_rect.set(0, 0,
-                         dest_rect_rounded.width(), dest_rect_rounded.height());
+    // We will always draw in integer sizes, so round the destination rect.
+    SkIRect destRectRounded;
+    destRect.round(&destRectRounded);
+    SkIRect resizedImageRect;  // Represents the size of the resized image.
+    resizedImageRect.set(0, 0,
+                         destRectRounded.width(), destRectRounded.height());
 
-  if (src_is_full &&
-      bitmap.hasResizedBitmap(dest_rect_rounded.width(),
-                              dest_rect_rounded.height())) {
-    // Yay, this bitmap frame already has a resized version appropriate for us.
-    SkBitmap resampled = bitmap.resizedBitmap(dest_rect_rounded.width(),
-                                              dest_rect_rounded.height());
-    canvas.drawBitmapRect(resampled, NULL, dest_rect, &paint);
-    return;
-  }
+    if (srcIsFull &&
+        bitmap.hasResizedBitmap(destRectRounded.width(),
+                                destRectRounded.height())) {
+        // Yay, this bitmap frame already has a resized version.
+        SkBitmap resampled = bitmap.resizedBitmap(destRectRounded.width(),
+                                                  destRectRounded.height());
+        canvas.drawBitmapRect(resampled, 0, destRect, &paint);
+        return;
+    }
 
-  // Compute the visible portion of our rect.
-  SkRect dest_bitmap_subset_sk;
-  ClipRectToCanvas(canvas, dest_rect, &dest_bitmap_subset_sk);
-  dest_bitmap_subset_sk.offset(-dest_rect.fLeft, -dest_rect.fTop);
+    // Compute the visible portion of our rect.
+    SkRect destBitmapSubsetSk;
+    ClipRectToCanvas(canvas, destRect, &destBitmapSubsetSk);
+    destBitmapSubsetSk.offset(-destRect.fLeft, -destRect.fTop);
 
-  // The matrix inverting, etc. could have introduced rounding error which
-  // causes the bounds to be outside of the resized bitmap. We round outward so
-  // we always lean toward it being larger rather than smaller than we need,
-  // and then clamp to the bitmap bounds so we don't get any invalid data.
-  SkIRect dest_bitmap_subset_sk_i;
-  dest_bitmap_subset_sk.roundOut(&dest_bitmap_subset_sk_i);
-  if (!dest_bitmap_subset_sk_i.intersect(resized_image_rect))
-    return;  // Resized image does not intersect.
+    // The matrix inverting, etc. could have introduced rounding error which
+    // causes the bounds to be outside of the resized bitmap. We round outward
+    // so we always lean toward it being larger rather than smaller than we
+    // need, and then clamp to the bitmap bounds so we don't get any invalid
+    // data.
+    SkIRect destBitmapSubsetSkI;
+    destBitmapSubsetSk.roundOut(&destBitmapSubsetSkI);
+    if (!destBitmapSubsetSkI.intersect(resizedImageRect))
+        return;  // Resized image does not intersect.
 
-  if (src_is_full && bitmap.shouldCacheResampling(
-          resized_image_rect.width(),
-          resized_image_rect.height(),
-          dest_bitmap_subset_sk_i.width(),
-          dest_bitmap_subset_sk_i.height())) {
-    // We're supposed to resize the entire image and cache it, even though we
-    // don't need all of it.
-    SkBitmap resampled = bitmap.resizedBitmap(dest_rect_rounded.width(),
-                                              dest_rect_rounded.height());
-    canvas.drawBitmapRect(resampled, NULL, dest_rect, &paint);
-  } else {
-    // We should only resize the exposed part of the bitmap to do the minimal
-    // possible work.
-    gfx::Rect dest_bitmap_subset(dest_bitmap_subset_sk_i.fLeft,
-                                 dest_bitmap_subset_sk_i.fTop,
-                                 dest_bitmap_subset_sk_i.width(),
-                                 dest_bitmap_subset_sk_i.height());
+    if (srcIsFull && bitmap.shouldCacheResampling(
+            resizedImageRect.width(),
+            resizedImageRect.height(),
+            destBitmapSubsetSkI.width(),
+            destBitmapSubsetSkI.height())) {
+        // We're supposed to resize the entire image and cache it, even though
+        // we don't need all of it.
+        SkBitmap resampled = bitmap.resizedBitmap(destRectRounded.width(),
+                                                  destRectRounded.height());
+        canvas.drawBitmapRect(resampled, 0, destRect, &paint);
+    } else {
+        // We should only resize the exposed part of the bitmap to do the
+        // minimal possible work.
+        gfx::Rect destBitmapSubset(destBitmapSubsetSkI.fLeft,
+                                   destBitmapSubsetSkI.fTop,
+                                   destBitmapSubsetSkI.width(),
+                                   destBitmapSubsetSkI.height());
 
-    // Resample the needed part of the image.
-    SkBitmap resampled = gfx::ImageOperations::Resize(subset,
-        gfx::ImageOperations::RESIZE_LANCZOS3,
-        gfx::Size(dest_rect_rounded.width(), dest_rect_rounded.height()),
-        dest_bitmap_subset);
+        // Resample the needed part of the image.
+        SkBitmap resampled = gfx::ImageOperations::Resize(subset,
+            gfx::ImageOperations::RESIZE_LANCZOS3,
+            gfx::Size(destRectRounded.width(), destRectRounded.height()),
+            destBitmapSubset);
 
-    // Compute where the new bitmap should be drawn. Since our new bitmap may be
-    // smaller than the original, we have to shift it over by the same amount
-    // that we cut off the top and left.
-    SkRect offset_dest_rect = {
-        dest_bitmap_subset.x() + dest_rect.fLeft,
-        dest_bitmap_subset.y() + dest_rect.fTop,
-        dest_bitmap_subset.right() + dest_rect.fLeft,
-        dest_bitmap_subset.bottom() + dest_rect.fTop };
+        // Compute where the new bitmap should be drawn. Since our new bitmap
+        // may be smaller than the original, we have to shift it over by the
+        // same amount that we cut off the top and left.
+        SkRect offsetDestRect = {
+            destBitmapSubset.x() + destRect.fLeft,
+            destBitmapSubset.y() + destRect.fTop,
+            destBitmapSubset.right() + destRect.fLeft,
+            destBitmapSubset.bottom() + destRect.fTop };
 
-    canvas.drawBitmapRect(resampled, NULL, offset_dest_rect, &paint);
-  }
+        canvas.drawBitmapRect(resampled, 0, offsetDestRect, &paint);
+    }
 }
 
-}
+}  // namespace
 
 // State -----------------------------------------------------------------------
 
+// Encapsulates the additional painting state information we store for each
+// pushed graphics state.
 struct PlatformContextSkia::State {
-  float               mMiterLimit;
-  float               mAlpha;
-  SkDrawLooper*       mLooper;
-  SkPaint::Cap        mLineCap;
-  SkPaint::Join       mLineJoin;
-  SkPorterDuff::Mode  mPorterDuffMode;
-  // Ratio of the length of a dash to its width.
-  int                 mDashRatio;
-  SkColor             mFillColor;
-  WebCore::StrokeStyle mStrokeStyle;
-  SkColor             mStrokeColor;
-  float               mStrokeThickness;
-  int                 mTextDrawingMode;  // See GraphicsContext.h
-  bool                mUseAntialiasing;
+    State();
+    State(const State&);
+    ~State();
 
-  SkDashPathEffect*   mDash;
-  SkShader*           mGradient;
-  SkShader*           mPattern;
+    // Common shader state.
+    float m_alpha;
+    SkPorterDuff::Mode m_porterDuffMode;
+    SkShader* m_gradient;
+    SkShader* m_pattern;
+    bool m_useAntialiasing;
+    SkDrawLooper* m_looper;
 
-  // Note: Keep theses default values in sync with GraphicsContextState.
-  State()
-      : mMiterLimit(4),
-        mAlpha(1),
-        mLooper(NULL),
-        mLineCap(SkPaint::kDefault_Cap),
-        mLineJoin(SkPaint::kDefault_Join),
-        mPorterDuffMode(SkPorterDuff::kSrcOver_Mode),
-        mDashRatio(3),
-        mFillColor(0xFF000000),
-        mStrokeStyle(WebCore::SolidStroke),
-        mStrokeColor(0x0FF000000),
-        mStrokeThickness(0),
-        mTextDrawingMode(WebCore::cTextFill),
-        mUseAntialiasing(true),
-        mDash(NULL),
-        mGradient(NULL),
-        mPattern(NULL) {
-  }
+    // Fill.
+    SkColor m_fillColor;
 
-  State(const State& other) {
-    other.mLooper->safeRef();
+    // Stroke.
+    WebCore::StrokeStyle m_strokeStyle;
+    SkColor m_strokeColor;
+    float m_strokeThickness;
+    int m_dashRatio;  // Ratio of the length of a dash to its width.
+    float m_miterLimit;
+    SkPaint::Cap m_lineCap;
+    SkPaint::Join m_lineJoin;
+    SkDashPathEffect* m_dash;
+
+    // Text. (See cTextFill & friends in GraphicsContext.h.)
+    int m_textDrawingMode;
+
+    // Helper function for applying the state's alpha value to the given input
+    // color to produce a new output color.
+    SkColor applyAlpha(SkColor c) const;
+
+private:
+    // Not supported.
+    void operator=(const State&);
+};
+
+// Note: Keep theses default values in sync with GraphicsContextState.
+PlatformContextSkia::State::State()
+    : m_miterLimit(4)
+    , m_alpha(1)
+    , m_looper(0)
+    , m_lineCap(SkPaint::kDefault_Cap)
+    , m_lineJoin(SkPaint::kDefault_Join)
+    , m_porterDuffMode(SkPorterDuff::kSrcOver_Mode)
+    , m_dashRatio(3)
+    , m_fillColor(0xFF000000)
+    , m_strokeStyle(WebCore::SolidStroke)
+    , m_strokeColor(0x0FF000000)
+    , m_strokeThickness(0)
+    , m_textDrawingMode(WebCore::cTextFill)
+    , m_useAntialiasing(true)
+    , m_dash(0)
+    , m_gradient(0)
+    , m_pattern(0)
+{
+}
+
+PlatformContextSkia::State::State(const State& other)
+{
+    other.m_looper->safeRef();
     memcpy(this, &other, sizeof(State));
 
-    mDash->safeRef();
-    mGradient->safeRef();
-    mPattern->safeRef();
-  }
+    m_dash->safeRef();
+    m_gradient->safeRef();
+    m_pattern->safeRef();
+}
 
-  ~State() {
-    mLooper->safeUnref();
-    mDash->safeUnref();
-    mGradient->safeUnref();
-    mPattern->safeUnref();
-  }
+PlatformContextSkia::State::~State()
+{
+    m_looper->safeUnref();
+    m_dash->safeUnref();
+    m_gradient->safeUnref();
+    m_pattern->safeUnref();
+}
 
-  SkDrawLooper* setDrawLooper(SkDrawLooper* dl) {
-    SkRefCnt_SafeAssign(mLooper, dl);
-    return dl;
-  }
-
-  SkColor applyAlpha(SkColor c) const {
-    int s = RoundToInt(mAlpha * 256);
+SkColor PlatformContextSkia::State::applyAlpha(SkColor c) const
+{
+    int s = roundf(m_alpha * 256);
     if (s >= 256)
-      return c;           
+        return c;
     if (s < 0)
-      return 0;
+        return 0;
 
     int a = SkAlphaMul(SkColorGetA(c), s);
     return (c & 0x00FFFFFF) | (a << 24);
-  }
+}
 
- private:
-  // Not supported yet.
-  void operator=(const State&);
-};
+// PlatformContextSkia ---------------------------------------------------------
 
 PlatformContextSkia::PlatformContextSkia(gfx::PlatformCanvas* canvas)
-    : canvas_(canvas)
-    , state_stack_(sizeof(State))
+    : m_canvas(canvas)
+    , m_stateStack(sizeof(State))
 {
-    State* state = reinterpret_cast<State*>(state_stack_.push_back());
+    State* state = reinterpret_cast<State*>(m_stateStack.push_back());
     new (state) State();
-    state_ = state;
+    m_state = state;
 }
 
 PlatformContextSkia::~PlatformContextSkia()
 {
-    // we force restores so we don't leak any subobjects owned by our
+    // We force restores so we don't leak any subobjects owned by our
     // stack of State records.
-    while (state_stack_.count() > 0) {
-        reinterpret_cast<State*>(state_stack_.back())->~State();
-        state_stack_.pop_back();
+    while (m_stateStack.count() > 0) {
+        reinterpret_cast<State*>(m_stateStack.back())->~State();
+        m_stateStack.pop_back();
     }
 }
 
+void PlatformContextSkia::save()
+{
+    State* newState = reinterpret_cast<State*>(m_stateStack.push_back());
+    new (newState) State(*m_state);
+    m_state = newState;
 
-void PlatformContextSkia::save() {
-  State* newState = reinterpret_cast<State*>(state_stack_.push_back());
-  new (newState) State(*state_);
-  state_ = newState;
-
-  // Save our native canvas.
-  canvas()->save();
+    // Save our native canvas.
+    canvas()->save();
 }
 
-void PlatformContextSkia::restore() {
-  // Restore our native canvas.
-  canvas()->restore();
+void PlatformContextSkia::restore()
+{
+    // Restore our native canvas.
+    canvas()->restore();
 
-  state_->~State();
-  state_stack_.pop_back();
+    m_state->~State();
+    m_stateStack.pop_back();
 
-  state_ = reinterpret_cast<State*>(state_stack_.back());
+    m_state = reinterpret_cast<State*>(m_stateStack.back());
 }
 
-void PlatformContextSkia::drawRect(SkRect rect) {
-  SkPaint paint;
-  int fillcolor_not_transparent = state_->mFillColor & 0xFF000000;
-  if (fillcolor_not_transparent) {
-    setup_paint_fill(&paint);
-    canvas()->drawRect(rect, paint);
-  }
-
-  if (state_->mStrokeStyle != WebCore::NoStroke &&
-      (state_->mStrokeColor & 0xFF000000)) {
-    if (fillcolor_not_transparent) {
-      // This call is expensive so don't call it unnecessarily.
-      paint.reset();
+void PlatformContextSkia::drawRect(SkRect rect)
+{
+    SkPaint paint;
+    int fillcolorNotTransparent = m_state->m_fillColor & 0xFF000000;
+    if (fillcolorNotTransparent) {
+        setupPaintForFilling(&paint);
+        canvas()->drawRect(rect, paint);
     }
-    setup_paint_stroke(&paint, &rect, 0);
-    canvas()->drawRect(rect, paint);
-  }
+
+    if (m_state->m_strokeStyle != WebCore::NoStroke &&
+        (m_state->m_strokeColor & 0xFF000000)) {
+        if (fillcolorNotTransparent) {
+            // This call is expensive so don't call it unnecessarily.
+            paint.reset();
+        }
+        setupPaintForStroking(&paint, &rect, 0);
+        canvas()->drawRect(rect, paint);
+    }
 }
 
-void PlatformContextSkia::setup_paint_common(SkPaint* paint) const {
+void PlatformContextSkia::setupPaintCommon(SkPaint* paint) const
+{
 #ifdef SK_DEBUGx
-  {
-    SkPaint defaultPaint;
-    SkASSERT(*paint == defaultPaint);
-  }
+    {
+        SkPaint defaultPaint;
+        SkASSERT(*paint == defaultPaint);
+    }
 #endif
 
-  paint->setAntiAlias(state_->mUseAntialiasing);
-  paint->setPorterDuffXfermode(state_->mPorterDuffMode);
-  paint->setLooper(state_->mLooper);
+    paint->setAntiAlias(m_state->m_useAntialiasing);
+    paint->setPorterDuffXfermode(m_state->m_porterDuffMode);
+    paint->setLooper(m_state->m_looper);
 
-  if(state_->mGradient) {
-    paint->setShader(state_->mGradient);
-  } else if (state_->mPattern) {
-    paint->setShader(state_->mPattern);
-  }
+    if (m_state->m_gradient)
+        paint->setShader(m_state->m_gradient);
+    else if (m_state->m_pattern)
+        paint->setShader(m_state->m_pattern);
 }
 
-void PlatformContextSkia::setup_paint_fill(SkPaint* paint) const {
-  setup_paint_common(paint);
-  paint->setColor(state_->applyAlpha(state_->mFillColor));
+void PlatformContextSkia::setupPaintForFilling(SkPaint* paint) const
+{
+    setupPaintCommon(paint);
+    paint->setColor(m_state->applyAlpha(m_state->m_fillColor));
 }
 
-int PlatformContextSkia::setup_paint_stroke(SkPaint* paint,
-                                       SkRect* rect,
-                                       int length) const {
-  setup_paint_common(paint);
-  float width = state_->mStrokeThickness;
+float PlatformContextSkia::setupPaintForStroking(SkPaint* paint,
+                                                 SkRect* rect,
+                                                 int length) const
+{
+    setupPaintCommon(paint);
+    float width = m_state->m_strokeThickness;
 
-  //this allows dashing and dotting to work properly for hairline strokes
-  if (0 == width)
-    width = 1;
+    // This allows dashing and dotting to work properly for hairline strokes.
+    if (width == 0)
+        width = 1;
 
-  paint->setColor(state_->applyAlpha(state_->mStrokeColor));
-  paint->setStyle(SkPaint::kStroke_Style);
-  paint->setStrokeWidth(SkFloatToScalar(width));
-  paint->setStrokeCap(state_->mLineCap);
-  paint->setStrokeJoin(state_->mLineJoin);
-  paint->setStrokeMiter(SkFloatToScalar(state_->mMiterLimit));
+    paint->setColor(m_state->applyAlpha(m_state->m_strokeColor));
+    paint->setStyle(SkPaint::kStroke_Style);
+    paint->setStrokeWidth(SkFloatToScalar(width));
+    paint->setStrokeCap(m_state->m_lineCap);
+    paint->setStrokeJoin(m_state->m_lineJoin);
+    paint->setStrokeMiter(SkFloatToScalar(m_state->m_miterLimit));
 
-  if (rect != NULL && (RoundToInt(width) & 1)) {
-    rect->inset(-SK_ScalarHalf, -SK_ScalarHalf);
-  }
+    if (rect != 0 && (static_cast<int>(roundf(width)) & 1))
+        rect->inset(-SK_ScalarHalf, -SK_ScalarHalf);
 
-  if (state_->mDash) {
-    paint->setPathEffect(state_->mDash);
-  } else {
-    switch (state_->mStrokeStyle) {
-    case WebCore::NoStroke:
-    case WebCore::SolidStroke:
-      break;
-    case WebCore::DashedStroke:
-      width = state_->mDashRatio * width;
-      /* no break */
-    case WebCore::DottedStroke:
-      SkScalar dashLength;
-      if (length) {
-        //determine about how many dashes or dots we should have
-        int numDashes = length/RoundToInt(width);
-        if (!(numDashes & 1))
-          numDashes++;    //make it odd so we end on a dash/dot
-        //use the number of dashes to determine the length of a dash/dot, which will be approximately width
-        dashLength = SkScalarDiv(SkIntToScalar(length), SkIntToScalar(numDashes));
-      } else {
-        dashLength = SkFloatToScalar(width);
-      }
-      SkScalar intervals[2] = { dashLength, dashLength };
-      paint->setPathEffect(new SkDashPathEffect(intervals, 2, 0))->unref();
+    if (m_state->m_dash) {
+        paint->setPathEffect(m_state->m_dash);
+    } else {
+        switch (m_state->m_strokeStyle) {
+        case WebCore::NoStroke:
+        case WebCore::SolidStroke:
+            break;
+        case WebCore::DashedStroke:
+            width = m_state->m_dashRatio * width;
+            // Fall through.
+        case WebCore::DottedStroke:
+            SkScalar dashLength;
+            if (length) {
+                // Determine about how many dashes or dots we should have.
+                int numDashes = length / roundf(width);
+                if (!(numDashes & 1))
+                    numDashes++;    // Make it odd so we end on a dash/dot.
+                // Use the number of dashes to determine the length of a
+                // dash/dot, which will be approximately width
+                dashLength = SkScalarDiv(SkIntToScalar(length),
+                                         SkIntToScalar(numDashes));
+            } else {
+                dashLength = SkFloatToScalar(width);
+            }
+            SkScalar intervals[2] = { dashLength, dashLength };
+            paint->setPathEffect(
+                new SkDashPathEffect(intervals, 2, 0))->unref();
+        }
     }
-  }
-  return RoundToInt(width);
+    return width;
 }
 
-SkDrawLooper* PlatformContextSkia::setDrawLooper(SkDrawLooper* dl) {
-  return state_->setDrawLooper(dl);
+void PlatformContextSkia::setDrawLooper(SkDrawLooper* dl)
+{
+    SkRefCnt_SafeAssign(m_state->m_looper, dl);
 }
 
-void PlatformContextSkia::setMiterLimit(float ml) {
-  state_->mMiterLimit = ml;
+void PlatformContextSkia::setMiterLimit(float ml)
+{
+    m_state->m_miterLimit = ml;
 }
 
-void PlatformContextSkia::setAlpha(float alpha) {
-  state_->mAlpha = alpha;
+void PlatformContextSkia::setAlpha(float alpha)
+{
+    m_state->m_alpha = alpha;
 }
 
-void PlatformContextSkia::setLineCap(SkPaint::Cap lc) {
-  state_->mLineCap = lc;
+void PlatformContextSkia::setLineCap(SkPaint::Cap lc)
+{
+    m_state->m_lineCap = lc;
 }
 
-void PlatformContextSkia::setLineJoin(SkPaint::Join lj) {
-  state_->mLineJoin = lj;
+void PlatformContextSkia::setLineJoin(SkPaint::Join lj)
+{
+    m_state->m_lineJoin = lj;
 }
 
-void PlatformContextSkia::setPorterDuffMode(SkPorterDuff::Mode pdm) {
-  state_->mPorterDuffMode = pdm;
+void PlatformContextSkia::setPorterDuffMode(SkPorterDuff::Mode pdm)
+{
+    m_state->m_porterDuffMode = pdm;
 }
 
-void PlatformContextSkia::setFillColor(SkColor color) {
-  state_->mFillColor = color;
+void PlatformContextSkia::setFillColor(SkColor color)
+{
+    m_state->m_fillColor = color;
 }
 
-WebCore::StrokeStyle PlatformContextSkia::getStrokeStyle() const {
-  return state_->mStrokeStyle;
+WebCore::StrokeStyle PlatformContextSkia::getStrokeStyle() const
+{
+    return m_state->m_strokeStyle;
 }
 
-void PlatformContextSkia::setStrokeStyle(WebCore::StrokeStyle strokestyle) {
-  state_->mStrokeStyle = strokestyle;
+void PlatformContextSkia::setStrokeStyle(WebCore::StrokeStyle strokestyle)
+{
+    m_state->m_strokeStyle = strokestyle;
 }
 
-void PlatformContextSkia::setStrokeColor(SkColor strokecolor) {
-  state_->mStrokeColor = strokecolor;
+void PlatformContextSkia::setStrokeColor(SkColor strokecolor)
+{
+    m_state->m_strokeColor = strokecolor;
 }
 
-float PlatformContextSkia::getStrokeThickness() const {
-  return state_->mStrokeThickness;
+float PlatformContextSkia::getStrokeThickness() const
+{
+    return m_state->m_strokeThickness;
 }
 
-void PlatformContextSkia::setStrokeThickness(float thickness) {
-  state_->mStrokeThickness = thickness;
+void PlatformContextSkia::setStrokeThickness(float thickness)
+{
+    m_state->m_strokeThickness = thickness;
 }
 
-int PlatformContextSkia::getTextDrawingMode() const {
-  return state_->mTextDrawingMode;
+int PlatformContextSkia::getTextDrawingMode() const
+{
+    return m_state->m_textDrawingMode;
 }
 
-void PlatformContextSkia::setTextDrawingMode(int mode) {
+void PlatformContextSkia::setTextDrawingMode(int mode)
+{
   // cTextClip is never used, so we assert that it isn't set:
   // https://bugs.webkit.org/show_bug.cgi?id=21898
   ASSERT((mode & WebCore::cTextClip) == 0);
-  state_->mTextDrawingMode = mode;
+  m_state->m_textDrawingMode = mode;
 }
 
-void PlatformContextSkia::setUseAntialiasing(bool enable) {
-  state_->mUseAntialiasing = enable;
+void PlatformContextSkia::setUseAntialiasing(bool enable)
+{
+    m_state->m_useAntialiasing = enable;
 }
 
-SkColor PlatformContextSkia::fillColor() const {
-  return state_->mFillColor;
+SkColor PlatformContextSkia::fillColor() const
+{
+    return m_state->m_fillColor;
 }
 
-void PlatformContextSkia::beginPath() {
-  path_.reset();
+void PlatformContextSkia::beginPath()
+{
+    m_path.reset();
 }
 
-void PlatformContextSkia::addPath(const SkPath& path) {
-  path_.addPath(path);
+void PlatformContextSkia::addPath(const SkPath& path)
+{
+    m_path.addPath(path);
 }
 
-const SkPath* PlatformContextSkia::currentPath() const {
-  return &path_;
+void PlatformContextSkia::setFillRule(SkPath::FillType fr)
+{
+    m_path.setFillType(fr);
 }
 
-void PlatformContextSkia::setFillRule(SkPath::FillType fr) {
-  path_.setFillType(fr);
+void PlatformContextSkia::setGradient(SkShader* gradient)
+{
+    if (gradient != m_state->m_gradient) {
+        m_state->m_gradient->safeUnref();
+        m_state->m_gradient = gradient;
+    }
 }
 
-void PlatformContextSkia::setGradient(SkShader* gradient) {
-  if (gradient != state_->mGradient) {
-    state_->mGradient->safeUnref();
-    state_->mGradient=gradient;
-  }
+void PlatformContextSkia::setPattern(SkShader* pattern)
+{
+    if (pattern != m_state->m_pattern) {
+        m_state->m_pattern->safeUnref();
+        m_state->m_pattern = pattern;
+    }
 }
 
-void PlatformContextSkia::setPattern(SkShader* pattern) {
-  if (pattern != state_->mPattern) {
-    state_->mPattern->safeUnref();
-    state_->mPattern=pattern;
-  }
-}
-
-void PlatformContextSkia::setDashPathEffect(SkDashPathEffect* dash) {
-  if (dash != state_->mDash) {
-    state_->mDash->safeUnref();
-    state_->mDash=dash;
-  }
+void PlatformContextSkia::setDashPathEffect(SkDashPathEffect* dash)
+{
+    if (dash != m_state->m_dash) {
+        m_state->m_dash->safeUnref();
+        m_state->m_dash = dash;
+    }
 }
 
 // TODO(brettw) all this platform stuff should be moved out of this class into
 // platform-specific files for that type of thing (e.g. to FontWin).
 #if PLATFORM(WIN_OS)
 
-const gfx::NativeTheme* PlatformContextSkia::nativeTheme() {
-  return gfx::NativeTheme::instance();
+const gfx::NativeTheme* PlatformContextSkia::nativeTheme()
+{
+    return gfx::NativeTheme::instance();
 }
 
-void PlatformContextSkia::paintIcon(HICON icon, const SkIRect& rect) {
-  HDC hdc = canvas_->beginPlatformPaint();
-  DrawIconEx(hdc, rect.fLeft, rect.fTop, icon, rect.width(), rect.height(),
-             0, 0, DI_NORMAL);
-  canvas_->endPlatformPaint();
+// TODO(brettw) move to a platform-specific file.
+void PlatformContextSkia::paintIcon(HICON icon, const SkIRect& rect)
+{
+    HDC hdc = m_canvas->beginPlatformPaint();
+    DrawIconEx(hdc, rect.fLeft, rect.fTop, icon, rect.width(), rect.height(),
+               0, 0, DI_NORMAL);
+    m_canvas->endPlatformPaint();
 }
 
 // RenderThemeWin.cpp
 void PlatformContextSkia::paintButton(const SkIRect& widgetRect,
-                                      const ThemeData& themeData) {
-  RECT rect(gfx::SkIRectToRECT(widgetRect));
-  HDC hdc = canvas_->beginPlatformPaint();
-  int state = themeData.m_state;
-  nativeTheme()->PaintButton(hdc,
-                             themeData.m_part,
-                             state,
-                             themeData.m_classicState,
-                             &rect);
-  canvas_->endPlatformPaint();
+                                      const ThemeData& themeData)
+{
+    RECT rect(gfx::SkIRectToRECT(widgetRect));
+    HDC hdc = m_canvas->beginPlatformPaint();
+    int state = themeData.m_state;
+    nativeTheme()->PaintButton(hdc,
+                               themeData.m_part,
+                               state,
+                               themeData.m_classicState,
+                               &rect);
+    m_canvas->endPlatformPaint();
 }
 
 void PlatformContextSkia::paintTextField(const SkIRect& widgetRect,
                                          const ThemeData& themeData,
                                          SkColor c, 
-                                         bool drawEdges) {
-  RECT rect(gfx::SkIRectToRECT(widgetRect));
-  HDC hdc = canvas_->beginPlatformPaint();
-  nativeTheme()->PaintTextField(hdc,
-                                themeData.m_part,
-                                themeData.m_state,
-                                themeData.m_classicState,
-                                &rect,
-                                gfx::SkColorToCOLORREF(c),
-                                true,
-                                drawEdges);
-  canvas_->endPlatformPaint();
+                                         bool drawEdges)
+{
+    RECT rect(gfx::SkIRectToRECT(widgetRect));
+    HDC hdc = m_canvas->beginPlatformPaint();
+    nativeTheme()->PaintTextField(hdc,
+                                  themeData.m_part,
+                                  themeData.m_state,
+                                  themeData.m_classicState,
+                                  &rect,
+                                  gfx::SkColorToCOLORREF(c),
+                                  true,
+                                  drawEdges);
+    m_canvas->endPlatformPaint();
 }
 
 void PlatformContextSkia::paintMenuListArrowButton(const SkIRect& widgetRect,
-                                                 unsigned state,
-                                                 unsigned classic_state) {
-  RECT rect(gfx::SkIRectToRECT(widgetRect));
-  HDC hdc = canvas_->beginPlatformPaint();
-  nativeTheme()->PaintMenuList(hdc,
-                               CP_DROPDOWNBUTTON,
-                               state,
-                               classic_state,
-                               &rect);
-  canvas_->endPlatformPaint();
+                                                   unsigned state,
+                                                   unsigned classicState)
+{
+    RECT rect(gfx::SkIRectToRECT(widgetRect));
+    HDC hdc = m_canvas->beginPlatformPaint();
+    nativeTheme()->PaintMenuList(hdc,
+                                 CP_DROPDOWNBUTTON,
+                                 state,
+                                 classicState,
+                                 &rect);
+    m_canvas->endPlatformPaint();
 }
 
 void PlatformContextSkia::paintComplexText(UniscribeStateTextRun& state,
-                                         const SkPoint& point,
-                                         int from,
-                                         int to,
-                                         int ascent) {
-  SkColor color(fillColor());
-  uint8 alpha = SkColorGetA(color);
-  // Skip 100% transparent text; no need to draw anything.
-  if (!alpha)
-    return;
+                                           const SkPoint& point,
+                                           int from,
+                                           int to,
+                                           int ascent)
+{
+    SkColor color(fillColor());
+    uint8 alpha = SkColorGetA(color);
+    // Skip 100% transparent text; no need to draw anything.
+    if (!alpha)
+        return;
 
-  HDC hdc = canvas_->beginPlatformPaint();
+    HDC hdc = m_canvas->beginPlatformPaint();
 
-  // TODO(maruel): http://b/700464 SetTextColor doesn't support transparency.
-  // Enforce non-transparent color.
-  color = SkColorSetRGB(SkColorGetR(color),
-                        SkColorGetG(color),
-                        SkColorGetB(color));
-  SetTextColor(hdc, gfx::SkColorToCOLORREF(color));
-  SetBkMode(hdc, TRANSPARENT);
+    // TODO(maruel): http://b/700464 SetTextColor doesn't support transparency.
+    // Enforce non-transparent color.
+    color = SkColorSetRGB(SkColorGetR(color),
+                          SkColorGetG(color),
+                          SkColorGetB(color));
+    SetTextColor(hdc, gfx::SkColorToCOLORREF(color));
+    SetBkMode(hdc, TRANSPARENT);
 
-  // Uniscribe counts the coordinates from the upper left, while WebKit uses
-  // the baseline, so we have to subtract off the ascent.
-  state.Draw(hdc,
-             static_cast<int>(point.fX),
-             static_cast<int>(point.fY - ascent),
-             from,
-             to);
-  canvas_->endPlatformPaint();
+    // Uniscribe counts the coordinates from the upper left, while WebKit uses
+    // the baseline, so we have to subtract off the ascent.
+    state.Draw(hdc,
+               static_cast<int>(point.fX),
+               static_cast<int>(point.fY - ascent),
+               from,
+               to);
+    m_canvas->endPlatformPaint();
 }
 
+// TODO(brettw) move to FontWin
 bool PlatformContextSkia::paintText(FontHandle hfont,
-                                    int number_glyph,
+                                    int numberGlyph,
                                     const uint16* glyphs,
                                     const int* advances,
-                                    const SkPoint& origin) {
-  SkColor color(fillColor());
-  uint8 alpha = SkColorGetA(color);
-  // Skip 100% transparent text; no need to draw anything.
-  if (!alpha)
-    return true;
+                                    const SkPoint& origin)
+{
+    SkColor color(fillColor());
+    uint8 alpha = SkColorGetA(color);
+    // Skip 100% transparent text; no need to draw anything.
+    if (!alpha)
+        return true;
 
-  bool success = false;
-  HDC hdc = canvas_->beginPlatformPaint();
-  HGDIOBJ old_font = SelectObject(hdc, hfont);
+    bool success = false;
+    HDC hdc = m_canvas->beginPlatformPaint();
+    HGDIOBJ oldFont = SelectObject(hdc, hfont);
 
-  // TODO(maruel): http://b/700464 SetTextColor doesn't support transparency.
-  // Enforce non-transparent color.
-  color = SkColorSetRGB(SkColorGetR(color),
-                        SkColorGetG(color),
-                        SkColorGetB(color));
-  SetTextColor(hdc, gfx::SkColorToCOLORREF(color));
-  SetBkMode(hdc, TRANSPARENT);
+    // TODO(maruel): http://b/700464 SetTextColor doesn't support transparency.
+    // Enforce non-transparent color.
+    color = SkColorSetRGB(SkColorGetR(color),
+                          SkColorGetG(color),
+                          SkColorGetB(color));
+    SetTextColor(hdc, gfx::SkColorToCOLORREF(color));
+    SetBkMode(hdc, TRANSPARENT);
 
-  // The 'origin' represents the baseline, so we need to move it up to the
-  // top of the bounding square by subtracting the ascent
-  success = !!ExtTextOut(hdc, static_cast<int>(origin.fX),
-                         static_cast<int>(origin.fY),
-                         ETO_GLYPH_INDEX, NULL,
-                         reinterpret_cast<const wchar_t*>(glyphs), number_glyph,
-                         advances);
-  SelectObject(hdc, old_font);
-  canvas_->endPlatformPaint();
-  return success;
+    // The 'origin' represents the baseline, so we need to move it up to the
+    // top of the bounding square by subtracting the ascent
+    success = !!ExtTextOut(hdc, static_cast<int>(origin.fX),
+                           static_cast<int>(origin.fY),
+                           ETO_GLYPH_INDEX, 0,
+                           reinterpret_cast<const wchar_t*>(glyphs),
+                           numberGlyph,
+                           advances);
+    SelectObject(hdc, oldFont);
+    m_canvas->endPlatformPaint();
+    return success;
 }
 
 #endif  // PLATFORM(WIN_OS);
 
 void PlatformContextSkia::paintSkPaint(const SkRect& rect,
-                                       const SkPaint& paint) {
-  canvas_->drawRect(rect, paint);
+                                       const SkPaint& paint)
+{
+    m_canvas->drawRect(rect, paint);
 }
 
 // static
 PlatformContextSkia::ResamplingMode PlatformContextSkia::computeResamplingMode(
     const NativeImageSkia& bitmap,
-    int src_width, int src_height,
-    float dest_width, float dest_height) {
-  int dest_iwidth = static_cast<int>(dest_width);
-  int dest_iheight = static_cast<int>(dest_height);
+    int srcWidth, int srcHeight,
+    float destWidth, float destHeight)
+{
+    int destIWidth = static_cast<int>(destWidth);
+    int destIHeight = static_cast<int>(destHeight);
 
-  // The percent change below which we will not resample. This usually means
-  // an off-by-one error on the web page, and just doing nearest neighbor
-  // sampling is usually good enough.
-  const float kFractionalChangeThreshold = 0.025f;
+    // The percent change below which we will not resample. This usually means
+    // an off-by-one error on the web page, and just doing nearest neighbor
+    // sampling is usually good enough.
+    const float kFractionalChangeThreshold = 0.025f;
 
-  // Images smaller than this in either direction are considered "small" and
-  // are not resampled ever (see below).
-  const int kSmallImageSizeThreshold = 8;
+    // Images smaller than this in either direction are considered "small" and
+    // are not resampled ever (see below).
+    const int kSmallImageSizeThreshold = 8;
 
-  // The amount an image can be stretched in a single direction before we
-  // say that it is being stretched so much that it must be a line or
-  // background that doesn't need resampling.
-  const float kLargeStretch = 3.0f;
+    // The amount an image can be stretched in a single direction before we
+    // say that it is being stretched so much that it must be a line or
+    // background that doesn't need resampling.
+    const float kLargeStretch = 3.0f;
 
-  // Figure out if we should resample this image. We try to prune out some
-  // common cases where resampling won't give us anything, since it is much
-  // slower than drawing stretched.
-  if (src_width == dest_iwidth && src_height == dest_iheight) {
-    // We don't need to resample if the source and destination are the same.
-    return RESAMPLE_NONE;
-  }
-  
-  if (src_width <= kSmallImageSizeThreshold ||
-    src_height <= kSmallImageSizeThreshold ||
-    dest_width <= kSmallImageSizeThreshold ||
-    dest_height <= kSmallImageSizeThreshold) {
-    // Never resample small images. These are often used for borders and
-    // rules (think 1x1 images used to make lines).
-    return RESAMPLE_NONE;
-  }
-  
-  if (src_height * kLargeStretch <= dest_height ||
-    src_width * kLargeStretch <= dest_width) {
-    // Large image detected.
+    // Figure out if we should resample this image. We try to prune out some
+    // common cases where resampling won't give us anything, since it is much
+    // slower than drawing stretched.
+    if (srcWidth == destIWidth && srcHeight == destIHeight) {
+        // We don't need to resample if the source and destination are the same.
+        return RESAMPLE_NONE;
+    }
+    
+    if (srcWidth <= kSmallImageSizeThreshold ||
+        srcHeight <= kSmallImageSizeThreshold ||
+        destWidth <= kSmallImageSizeThreshold ||
+        destHeight <= kSmallImageSizeThreshold) {
+        // Never resample small images. These are often used for borders and
+        // rules (think 1x1 images used to make lines).
+        return RESAMPLE_NONE;
+    }
+    
+    if (srcHeight * kLargeStretch <= destHeight ||
+        srcWidth * kLargeStretch <= destWidth) {
+        // Large image detected.
 
-    // Don't resample if it is being stretched a lot in only one direction.
-    // This is trying to catch cases where somebody has created a border
-    // (which might be large) and then is stretching it to fill some part
-    // of the page.
-    if (src_width == dest_width || src_height == dest_height)
-      return RESAMPLE_NONE;
+        // Don't resample if it is being stretched a lot in only one direction.
+        // This is trying to catch cases where somebody has created a border
+        // (which might be large) and then is stretching it to fill some part
+        // of the page.
+        if (srcWidth == destWidth || srcHeight == destHeight)
+            return RESAMPLE_NONE;
 
-    // The image is growing a lot and in more than one direction. Resampling
-    // is slow and doesn't give us very much when growing a lot.
-    return RESAMPLE_LINEAR;
-  }
-  
-  if ((fabs(dest_width - src_width) / src_width <
-       kFractionalChangeThreshold) &&
-     (fabs(dest_height - src_height) / src_height <
-      kFractionalChangeThreshold)) {
-    // It is disappointingly common on the web for image sizes to be off by
-    // one or two pixels. We don't bother resampling if the size difference
-    // is a small fraction of the original size.
-    return RESAMPLE_NONE;
-  }
+        // The image is growing a lot and in more than one direction. Resampling
+        // is slow and doesn't give us very much when growing a lot.
+        return RESAMPLE_LINEAR;
+    }
+    
+    if ((fabs(destWidth - srcWidth) / srcWidth <
+         kFractionalChangeThreshold) &&
+       (fabs(destHeight - srcHeight) / srcHeight <
+        kFractionalChangeThreshold)) {
+        // It is disappointingly common on the web for image sizes to be off by
+        // one or two pixels. We don't bother resampling if the size difference
+        // is a small fraction of the original size.
+        return RESAMPLE_NONE;
+    }
 
-  // When the image is not yet done loading, use linear. We don't cache the
-  // partially resampled images, and as they come in incrementally, it causes
-  // us to have to resample the whole thing every time.
-  if (!bitmap.isDataComplete())
-    return RESAMPLE_LINEAR;
+    // When the image is not yet done loading, use linear. We don't cache the
+    // partially resampled images, and as they come in incrementally, it causes
+    // us to have to resample the whole thing every time.
+    if (!bitmap.isDataComplete())
+        return RESAMPLE_LINEAR;
 
-  // Everything else gets resampled.
-  return RESAMPLE_AWESOME;
+    // Everything else gets resampled.
+    return RESAMPLE_AWESOME;
 }
 
 void PlatformContextSkia::paintSkBitmap(const NativeImageSkia& bitmap,
-                                      const SkIRect& src_rect,
-                                      const SkRect& dest_rect,
-                                      const SkPorterDuff::Mode& comp_op) {
-  SkPaint paint;
-  paint.setPorterDuffXfermode(comp_op);
+                                        const SkIRect& srcRect,
+                                        const SkRect& destRect,
+                                        const SkPorterDuff::Mode& compOp)
+{
+    SkPaint paint;
+    paint.setPorterDuffXfermode(compOp);
 
-  ResamplingMode resampling = IsPrinting() ? RESAMPLE_NONE :
-      computeResamplingMode(bitmap, src_rect.width(), src_rect.height(),
-                            SkScalarToFloat(dest_rect.width()),
-                            SkScalarToFloat(dest_rect.height()));
-  if (resampling == RESAMPLE_AWESOME) {
-    paint.setFilterBitmap(false);
-    DrawResampledBitmap(*canvas_, paint, bitmap, src_rect, dest_rect);
-  } else {
-    // No resampling necessary, we can just draw the bitmap.
-    // Note: for serialization, we will want to subset the bitmap first so
-    // we don't send extra pixels.
-    paint.setFilterBitmap(resampling == RESAMPLE_LINEAR);
-    canvas_->drawBitmapRect(bitmap, &src_rect, dest_rect, &paint);
-  }
+    ResamplingMode resampling = IsPrinting() ? RESAMPLE_NONE :
+        computeResamplingMode(bitmap, srcRect.width(), srcRect.height(),
+                              SkScalarToFloat(destRect.width()),
+                              SkScalarToFloat(destRect.height()));
+    if (resampling == RESAMPLE_AWESOME) {
+        paint.setFilterBitmap(false);
+        DrawResampledBitmap(*m_canvas, paint, bitmap, srcRect, destRect);
+    } else {
+        // No resampling necessary, we can just draw the bitmap.
+        // Note: for serialization, we will want to subset the bitmap first so
+        // we don't send extra pixels.
+        paint.setFilterBitmap(resampling == RESAMPLE_LINEAR);
+        m_canvas->drawBitmapRect(bitmap, &srcRect, destRect, &paint);
+    }
 }
 
 const SkBitmap* PlatformContextSkia::bitmap() const
 {
-  return &canvas_->getDevice()->accessBitmap(false);
+    return &m_canvas->getDevice()->accessBitmap(false);
 }
 
-gfx::PlatformCanvas* PlatformContextSkia::canvas() const
+bool PlatformContextSkia::IsPrinting()
 {
-  return canvas_;
-}
-
-bool PlatformContextSkia::IsPrinting() {
-  return canvas_->getTopPlatformDevice().IsVectorial();
+    return m_canvas->getTopPlatformDevice().IsVectorial();
 }

@@ -101,20 +101,23 @@ public:
 
     void restore();
 
-    void drawRect(SkRect rect);
+    // Sets up the common flags on a paint for antialiasing, effects, etc.
+    // This is implicitly called by setupPaintFill and setupPaintStroke, but
+    // you may wish to call it directly sometimes if you don't want that other
+    // behavior.
+    void setupPaintCommon(SkPaint* paint) const;
 
-    void setup_paint_common(SkPaint* paint) const;
-
-    void setup_paint_fill(SkPaint* paint) const;
+    // Sets up the paint for the current fill style.
+    void setupPaintForFilling(SkPaint* paint) const;
 
     // Sets up the paint for stroking. Returns an int representing the width of
     // the pen, or 1 if the pen's width is 0 if a non-zero length is provided,
     // the number of dashes/dots on a dashed/dotted line will be adjusted to
     // start and end that length with a dash/dot.
-    int setup_paint_stroke(SkPaint* paint, SkRect* rect, int length) const;
+    float setupPaintForStroking(SkPaint* paint, SkRect* rect, int length) const;
 
-    // State proxying functions
-    SkDrawLooper* setDrawLooper(SkDrawLooper* dl);
+    // State setting functions.
+    void setDrawLooper(SkDrawLooper* dl);  // Note: takes an additional ref.
     void setMiterLimit(float ml);
     void setAlpha(float alpha);
     void setLineCap(SkPaint::Cap lc);
@@ -127,24 +130,25 @@ public:
     void setStrokeThickness(float thickness);
     void setTextDrawingMode(int mode);
     void setUseAntialiasing(bool enable);
+    void setGradient(SkShader*);
+    void setPattern(SkShader*);
+    void setDashPathEffect(SkDashPathEffect*);
 
     WebCore::StrokeStyle getStrokeStyle() const;
     float getStrokeThickness() const;
     int getTextDrawingMode() const;
 
+    // Paths.
     void beginPath();
     void addPath(const SkPath& path);
-    const SkPath* currentPath() const;
-
-    void setGradient(SkShader*);
-    void setPattern(SkShader*);
-    void setDashPathEffect(SkDashPathEffect*);
+    const SkPath* currentPath() const { return &m_path; }
 
     SkColor fillColor() const;
 
-    gfx::PlatformCanvas* canvas() {
-      return canvas_;
-    }
+    gfx::PlatformCanvas* canvas() { return m_canvas; }
+
+    // TODO(brettw) why is this in this class?
+    void drawRect(SkRect rect);
 
     // Gets the default theme.
     static const gfx::NativeTheme* nativeTheme();
@@ -163,7 +167,7 @@ public:
                         bool drawEdges);
     void paintMenuListArrowButton(const SkIRect& widgetRect,
                                   unsigned state,
-                                  unsigned classic_state);
+                                  unsigned classicState);
     void paintComplexText(UniscribeStateTextRun& state,
                           const SkPoint& point,
                           int from,
@@ -186,19 +190,19 @@ public:
     // |dest_rect|. It will be resampled as necessary to fill that rectangle.
     // The |src_rect| indicates the subset of the bitmap to draw.
     void paintSkBitmap(const NativeImageSkia& bitmap,
-                       const SkIRect& src_rect,
-                       const SkRect& dest_rect,
-                       const SkPorterDuff::Mode& composite_op);
+                       const SkIRect& srcRect,
+                       const SkRect& destRect,
+                       const SkPorterDuff::Mode& compositeOp);
 
     // Returns true if the given bitmap subset should be resampled before being
     // painted into a rectangle of the given size. This is used to indicate
     // whether bitmap painting should be optimized by not resampling, or given
     // higher quality by resampling.
     static ResamplingMode computeResamplingMode(const NativeImageSkia& bitmap,
-                                                int src_width,
-                                                int src_height,
-                                                float dest_width,
-                                                float dest_height);
+                                                int srcWidth,
+                                                int srcHeight,
+                                                float destWidth,
+                                                float destHeight);
 
     const SkBitmap* bitmap() const;
 
@@ -219,17 +223,17 @@ private:
     struct State;
 
     // NULL indicates painting is disabled. Never delete this object.
-    gfx::PlatformCanvas* canvas_;
+    gfx::PlatformCanvas* m_canvas;
 
     // States stack. Enables local drawing state change with save()/restore()
     // calls.
-    SkDeque state_stack_;
+    SkDeque m_stateStack;
     // Pointer to the current drawing state. This is a cached value of
     // mStateStack.back().
-    State* state_;
+    State* m_state;
 
     // Current path.
-    SkPath path_;
+    SkPath m_path;
 
     // Disallow these.
     PlatformContextSkia(const PlatformContextSkia&);
