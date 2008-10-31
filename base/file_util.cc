@@ -298,7 +298,7 @@ bool CloseFile(FILE* file) {
 // Deprecated functions ----------------------------------------------------
 
 bool AbsolutePath(std::wstring* path_str) {
-  FilePath path(*path_str);
+  FilePath path(FilePath::FromWStringHack(*path_str));
   if (!AbsolutePath(&path))
     return false;
   *path_str = path.ToWStringHack();
