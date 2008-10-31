@@ -46,6 +46,9 @@ int main(int argc, char* argv[]) {
     file_util::AppendToPath(&uri, L"data");
     file_util::AppendToPath(&uri, L"test_shell");
     file_util::AppendToPath(&uri, L"index.html");
+    // For now, loading from disk doesn't work so we set the URI to the
+    // homepage.
+    uri = L"http://www.google.com";
   }
 
   if (parsed_command_line.GetLooseValueCount() > 0) {

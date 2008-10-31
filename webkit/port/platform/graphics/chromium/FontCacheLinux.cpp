@@ -4,16 +4,20 @@
 
 #include "config.h"
 #include "FontCache.h"
-#include "AtomicString.h"
 
+#include "AtomicString.h"
+#include "FontDescription.h"
+#include "FontPlatformData.h"
+#include "Logging.h"
 #include "NotImplemented.h"
 
 namespace WebCore {
 
-// TODO(agl): stubs only
-
-
-void FontCache::platformInit() { }
+void FontCache::platformInit()
+{
+    if (!FontPlatformData::init())
+        ASSERT_NOT_REACHED();
+}
 
 const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
                                                           const UChar* characters, 
@@ -35,13 +39,14 @@ const AtomicString& FontCache::alternateFamilyName(const AtomicString& familyNam
 
 FontPlatformData* FontCache::getSimilarFontPlatformData(const Font& font)
 {
+    notImplemented();
     return 0;
 }
 
 FontPlatformData* FontCache::getLastResortFallbackFont(const FontDescription& description)
 {
-    notImplemented();
-    return 0;
+    static AtomicString arialStr("Arial");
+    return getCachedFontPlatformData(description, arialStr);
 }
 
 void FontCache::getTraitsInFamily(const AtomicString& familyName,
@@ -53,8 +58,7 @@ void FontCache::getTraitsInFamily(const AtomicString& familyName,
 FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontDescription,
                                                     const AtomicString& family)
 {
-    notImplemented();
-    return 0;
+    return new FontPlatformData(fontDescription, family);
 }
 
 AtomicString FontCache::getGenericFontForScript(UScriptCode script,

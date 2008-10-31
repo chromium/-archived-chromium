@@ -490,6 +490,7 @@ if ARGUMENTS.get('COVERAGE') == '1':
 if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
   linux_env.ParseConfig('pkg-config --cflags --libs nss')
   linux_env.ParseConfig('pkg-config --cflags --libs gtk+-2.0')
+  linux_env.ParseConfig('pkg-config --cflags --libs pangoft2')
 
 
 # --------------------------------------------------------------------------

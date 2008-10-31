@@ -71,6 +71,16 @@ class WebWidgetHost {
  protected:
 #elif defined(OS_LINUX)
  public:
+  // ---------------------------------------------------------------------------
+  // This is needed on Linux because the GtkWidget creation is the same between
+  // both web view hosts and web widget hosts. The Windows code manages this by
+  // reusing the WndProc function (static, above). However, GTK doesn't use a
+  // single big callback function like that so we have a static function that
+  // sets up a GtkWidget correctly.
+  //   parent: a GtkBox to pack the new widget at the end of
+  //   host: a pointer to a WebWidgetHost (or subclass thereof)
+  // ---------------------------------------------------------------------------
+  static gfx::WindowHandle CreateWindow(gfx::WindowHandle parent, void* host);
   void WindowDestroyed();
   void Resize(const gfx::Size& size);
 #endif

@@ -28,19 +28,46 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
+#include "GlyphPageTreeNode.h"
+
+// This PANGO_ENABLE_BACKEND define lets us get at some of the internal Pango
+// call which we need. This include must be here otherwise we include pango.h
+// via another route (without the define) and that sets the include guard.
+// Then, when we try to include it in the future the guard stops us getting the
+// functions that we need.
+#define PANGO_ENABLE_BACKEND
+#include <pango/pango.h>
+#include <pango/pangofc-font.h>
 
 #include "Font.h"
-#include "GlyphPageTreeNode.h"
 #include "NotImplemented.h"
 #include "SimpleFontData.h"
 
 namespace WebCore
 {
 
-bool GlyphPage::fill(unsigned offset, unsigned length, UChar* characterBuffer, unsigned bufferLength, const SimpleFontData* fontData)
+bool GlyphPage::fill(unsigned offset, unsigned length, UChar* buffer, unsigned bufferLength, const SimpleFontData* fontData)
 {
-    notImplemented();
-    return false;
+    // The bufferLength will be greater than the glyph page size if the buffer has Unicode supplementary characters.
+    // We won't support this for now.
+    if (bufferLength > GlyphPage::size)
+        return false;
+
+    if (!fontData->m_font.m_font || fontData->m_font.m_font == reinterpret_cast<PangoFont*>(-1))
+        return false;
+
+    bool haveGlyphs = false;
+    for (unsigned i = 0; i < length; i++) {
+        Glyph glyph = pango_fc_font_get_glyph(PANGO_FC_FONT(fontData->m_font.m_font), buffer[i]);
+        if (!glyph)
+            setGlyphDataForIndex(offset + i, 0, 0);
+        else {
+            setGlyphDataForIndex(offset + i, glyph, fontData);
+            haveGlyphs = true;
+        }
+    }
+
+    return haveGlyphs;
 }
 
 }  // namespace WebCore

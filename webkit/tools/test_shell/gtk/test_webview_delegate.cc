@@ -576,7 +576,9 @@ gfx::ViewHandle TestWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {
 
 void TestWebViewDelegate::DidInvalidateRect(WebWidget* webwidget,
                                             const gfx::Rect& rect) {
-  NOTIMPLEMENTED();
+  WebWidgetHost* host = GetHostForWidget(webwidget);
+  if (host)
+    host->DidInvalidateRect(rect);
 }
 
 void TestWebViewDelegate::DidScrollRect(WebWidget* webwidget, int dx, int dy,
@@ -668,6 +670,7 @@ void TestWebViewDelegate::UpdateAddressBar(WebView* webView) {
     return;
 
   std::string frameURL = dataSource->GetRequest().GetMainDocumentURL().spec();
+  LOG(INFO) << "  -- Address bar " << frameURL;
   NOTIMPLEMENTED();
 }
 

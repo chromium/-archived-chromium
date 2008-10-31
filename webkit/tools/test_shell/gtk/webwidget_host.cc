@@ -66,30 +66,47 @@ gboolean FocusOut(GtkWidget* widget, GdkEventFocus* focus, gpointer userdata) {
 
 // -----------------------------------------------------------------------------
 
+gfx::WindowHandle WebWidgetHost::CreateWindow(gfx::WindowHandle box,
+                                              void* host) {
+  GtkWidget* widget = gtk_drawing_area_new();
+  gtk_box_pack_start(GTK_BOX(box), widget, TRUE, TRUE, 0);
+
+  gtk_widget_add_events(widget, GDK_EXPOSURE_MASK |
+                                GDK_POINTER_MOTION_MASK |
+                                GDK_BUTTON_PRESS_MASK |
+                                GDK_BUTTON_RELEASE_MASK |
+                                GDK_KEY_PRESS_MASK |
+                                GDK_KEY_RELEASE_MASK);
+  // TODO(agl): set GTK_CAN_FOCUS flag
+  g_signal_connect(widget, "configure-event", G_CALLBACK(ConfigureEvent), host);
+  g_signal_connect(widget, "expose-event", G_CALLBACK(ExposeEvent), host);
+  g_signal_connect(widget, "destroy-event", G_CALLBACK(DestroyEvent), host);
+  g_signal_connect(widget, "key-press-event", G_CALLBACK(KeyPressEvent), host);
+  g_signal_connect(widget, "focus-in-event", G_CALLBACK(FocusIn), host);
+  g_signal_connect(widget, "focus-out-event", G_CALLBACK(FocusOut), host);
+
+  return widget;
+}
+
 WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle box,
                                      WebWidgetDelegate* delegate) {
+  LOG(INFO) << "In WebWidgetHost::Create";
+
   WebWidgetHost* host = new WebWidgetHost();
-  host->view_ = gtk_drawing_area_new();
-  gtk_widget_add_events(host->view_, GDK_EXPOSURE_MASK |
-                                     GDK_POINTER_MOTION_MASK |
-                                     GDK_BUTTON_PRESS_MASK |
-                                     GDK_BUTTON_RELEASE_MASK |
-                                     GDK_KEY_PRESS_MASK |
-                                     GDK_KEY_RELEASE_MASK);
-  // TODO(agl): set GTK_CAN_FOCUS flag
+  host->view_ = CreateWindow(box, host);
   host->webwidget_ = WebWidget::Create(delegate);
-  g_object_set_data(G_OBJECT(host->view_), "webwidgethost", host);
-
-  g_signal_connect(host->view_, "configure-event", G_CALLBACK(ConfigureEvent), host);
-  g_signal_connect(host->view_, "expose-event", G_CALLBACK(ExposeEvent), host);
-  g_signal_connect(host->view_, "destroy-event", G_CALLBACK(DestroyEvent), host);
-  g_signal_connect(host->view_, "key-press-event", G_CALLBACK(KeyPressEvent), host);
-  g_signal_connect(host->view_, "focus-in-event", G_CALLBACK(FocusIn), host);
-  g_signal_connect(host->view_, "focus-out-event", G_CALLBACK(FocusOut), host);
-
-  gtk_box_pack_start(GTK_BOX(box), host->view_, TRUE, TRUE, 0);
 
   return host;
+}
+
+void WebWidgetHost::DidInvalidateRect(const gfx::Rect& rect) {
+  LOG(INFO) << "  -- Invalidate " << rect.x() << " "
+            << rect.y() << " "
+            << rect.width() << " "
+            << rect.height() << " ";
+
+  gtk_widget_queue_draw_area(GTK_WIDGET(view_), rect.x(), rect.y(), rect.width(),
+                             rect.height());
 }
 
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
@@ -167,7 +184,6 @@ void WebWidgetHost::Paint() {
   LOG(INFO) << "Using pixel data at " << (void *) gdk_pixbuf_get_pixels(bitdev->pixbuf());
   gdk_draw_pixbuf(view_->window, NULL, bitdev->pixbuf(),
                   0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
-  gdk_pixbuf_save(bitdev->pixbuf(), "output.png", "png", NULL, NULL);
 }
 
 void WebWidgetHost::PaintRect(const gfx::Rect& rect) {

@@ -8,7 +8,10 @@
 #include "config.h"
 #include "build/build_config.h"
 
+#include <pango/pango.h>
+
 #include "StringImpl.h"
+#include "NotImplemented.h"
 #include <wtf/PassRefPtr.h>
 #include <wtf/RefCounted.h>
 
@@ -16,20 +19,55 @@ namespace WebCore {
 
 class FontDescription;
 
-// TODO(agl): stubs only
-
 class FontPlatformData {
 public:
-    FontPlatformData();
-    FontPlatformData(WTF::HashTableDeletedValueType);
+    // Used for deleted values in the font cache's hash tables. The hash table
+    // will create us with this structure, and it will compare other values
+    // to this "Deleted" one. It expects the Deleted one to be differentiable
+    // from the NULL one (created with the empty constructor), so we can't just
+    // set everything to NULL.
+    FontPlatformData(WTF::HashTableDeletedValueType)
+        : m_context(0)
+        , m_font(hashTableDeletedFontValue())
+        { }
+
+    FontPlatformData()
+        : m_context(0)
+        , m_font(0)
+        { }
+
     FontPlatformData(const FontDescription&, const AtomicString& family);
+
     FontPlatformData(float size, bool bold, bool oblique);
+
     ~FontPlatformData();
 
-    bool isHashTableDeletedValue() const;
-    unsigned hash() const;
+    static bool init();
+
+    bool isFixedPitch() const;
+    float size() const { return m_size; }
+
+    unsigned hash() const
+    {
+        notImplemented();
+        return 0;
+    }
+
     bool operator==(const FontPlatformData& other) const;
-    float size() const;
+    bool isHashTableDeletedValue() const { return m_font == hashTableDeletedFontValue(); }
+
+    static PangoFontMap* m_fontMap;
+    static GHashTable* m_hashTable;
+
+    PangoContext* m_context;
+    PangoFont* m_font;
+
+    float m_size;
+    bool m_syntheticBold;
+    bool m_syntheticOblique;
+
+private:
+    static PangoFont* hashTableDeletedFontValue() { return reinterpret_cast<PangoFont*>(-1); }
 };
 
 }  // namespace WebCore

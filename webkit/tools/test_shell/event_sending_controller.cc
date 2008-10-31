@@ -21,6 +21,7 @@
 #endif
 #include <queue>
 
+#include "base/logging.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "base/time.h"
@@ -399,6 +400,11 @@ int EventSendingController::GetButtonNumberFromSingleArg(
       code = 0x7E;
     } else if (L"delete" == code_str) {
       code = 0x33;
+    }
+#elif defined(OS_LINUX)
+    // TODO(agl): We obviously need to do something about keycodes here
+    if (true) {
+      NOTIMPLEMENTED();
     }
 #endif
     else {
