@@ -114,10 +114,10 @@ if env['PLATFORM'] == 'win32':
   ])
 elif env['PLATFORM'] == 'posix':
   input_files.extend([
-      'gtk/test_shell.cc',
       'gtk/webwidget_host.cc',
       'gtk/webview_host.cc',
       'gtk/test_webview_delegate.cc',
+      'test_shell_gtk.cc',
   ])
 
 lib = env.ChromeStaticLibrary('test_shell', input_files)

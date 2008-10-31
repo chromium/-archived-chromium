@@ -243,7 +243,7 @@ void TestShell::ResizeSubViews() {
         printf("%s", WideToUTF8(bfDump).c_str());
       }
     }
-    
+
     if (params.dump_pixels && !should_dump_as_text) {
       // Image output: we write the image data to the file given on the
       // command line (for the dump pixels argument), and the MD5 sum to
