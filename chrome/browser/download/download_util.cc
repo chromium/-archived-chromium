@@ -222,8 +222,12 @@ DownloadDestinationContextMenu::~DownloadDestinationContextMenu() {
 // Download opening ------------------------------------------------------------
 
 bool CanOpenDownload(DownloadItem* download) {
+  std::wstring file_to_use = download->full_path();
+  if (!download->original_name().empty())
+    file_to_use = download->original_name();
+
   const std::wstring extension =
-      file_util::GetFileExtensionFromPath(download->full_path());
+      file_util::GetFileExtensionFromPath(file_to_use);
   return !download->manager()->IsExecutable(extension);
 }
 
