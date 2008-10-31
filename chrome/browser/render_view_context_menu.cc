@@ -8,6 +8,7 @@
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/template_url_model.h"
+#include "chrome/common/l10n_util.h"
 #include "webkit/glue/context_node_types.h"
 
 #include "generated_resources.h"
@@ -126,6 +127,10 @@ void RenderViewContextMenu::AppendEditableItems() {
   
   // If word is misspelled, give option for "Add to dictionary"
   if (!misspelled_word_.empty()) {
+    if (misspelled_word_suggestions_.size() == 0) {
+      AppendMenuItemWithLabel(0, 
+          l10n_util::GetString(IDS_CONTENT_CONTEXT_NO_SPELLING_SUGGESTIONS));
+    }
     AppendDelegateMenuItem(IDS_CONTENT_CONTEXT_ADD_TO_DICTIONARY);
     AppendSeparator();
   }
