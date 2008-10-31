@@ -521,8 +521,11 @@ void DraggedTabController::Detach() {
   if (!photobooth_.get())
     photobooth_.reset(new HWNDPhotobooth(dragged_contents_->GetContainerHWND()));
 
-  // Update the View.
-  view_->Detach(photobooth_.get());
+  // Update the View. This NULL check is necessary apparently in some
+  // conditions during automation where the view_ is destroyed inside a
+  // function call preceding this point but after it is created.
+  if (view_.get())
+    view_->Detach(photobooth_.get());
 
   // We need to be the delegate so we receive messages about stuff,
   // otherwise our dragged_contents() may be replaced and subsequently
