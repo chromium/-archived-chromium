@@ -25,12 +25,6 @@ if env['PLATFORM'] == 'win32':
   )
 
 if env['PLATFORM'] in ('darwin', 'posix'):
-  env.Append(
-    # HTMLInputElement.cpp has a dependency on glue (see bug 1076026)
-    CPPDEFINES = [
-      'GOOGLE_WEBKIT_WITHOUT_GLUE_DEPENDENCY',
-    ]
-  )
   if '-Wall' in env['CXXFLAGS'] and '-Werror' in env['CXXFLAGS']:
     # It'd be nice to fix these warnings upstream, but we're not going to
     # block on it.
