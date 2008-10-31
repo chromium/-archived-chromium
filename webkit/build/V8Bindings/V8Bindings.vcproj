@@ -544,6 +544,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8HTMLAudioElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8HTMLAudioElement.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8HTMLBaseElement.cpp"
 				>
 			</File>
@@ -808,6 +816,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8HTMLMediaElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8HTMLMediaElement.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8HTMLMenuElement.cpp"
 				>
 			</File>
@@ -920,6 +936,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8HTMLSourceElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8HTMLSourceElement.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8HTMLStyleElement.cpp"
 				>
 			</File>
@@ -1000,6 +1024,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8HTMLVideoElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8HTMLVideoElement.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8ImageData.cpp"
 				>
 			</File>
@@ -1029,6 +1061,14 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8Location.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8MediaError.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8MediaError.h"
 				>
 			</File>
 			<File
@@ -2133,6 +2173,14 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8TextMetrics.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8TimeRanges.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8TimeRanges.h"
 				>
 			</File>
 			<File

@@ -26,6 +26,7 @@
 #include "config.h"
 #include "CString.h"
 #include "MIMETypeRegistry.h"
+#include "MediaPlayer.h"
 #include "StringHash.h"
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
@@ -102,6 +103,13 @@ bool MIMETypeRegistry::isSupportedNonImageMIMEType(const String& mimeType)
    return !mimeType.isEmpty()
        && net::IsSupportedNonImageMimeType(mimeType.latin1().data()); 
 }
+
+#if ENABLE(VIDEO)
+bool MIMETypeRegistry::isSupportedMediaMIMEType(const String& mimeType)
+{
+    return MediaPlayer::supportsType(mimeType);
+}
+#endif
 
 bool MIMETypeRegistry::isJavaAppletMIMEType(const String& mimeType)
 {

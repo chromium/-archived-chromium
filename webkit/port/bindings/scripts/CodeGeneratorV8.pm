@@ -254,6 +254,8 @@ sub GenerateHeader
     # - Add header protection
     if ($className =~ /^V8SVG/) {
         push(@headerContent, "\n#if ENABLE(SVG)\n");
+    } elsif (IsVideoClassName($className)) {
+        push(@headerContent, "\n#if ENABLE(VIDEO)\n");
     }
     
     push(@headerContent, "\n#ifndef $className" . "_H");
@@ -290,6 +292,8 @@ END
 
     if ($className =~ /^V8SVG/) {
         push(@headerContent, "\n#endif // ENABLE(SVG)\n");
+    } elsif (IsVideoClassName($className)) {
+        push(@headerContent, "\n#endif // ENABLE(VIDEO)\n");
     }
 }
 
@@ -849,6 +853,8 @@ sub GenerateImplementation
  
     if ($className =~ /^V8SVG/) {
         push(@implFixedHeader, "#if ENABLE(SVG)\n\n");
+    } elsif (IsVideoClassName($className)) {
+        push(@implFixedHeader, "#if ENABLE(VIDEO)\n\n");
     }
     
     if ($className =~ /^V8SVGAnimated/) {
@@ -1211,6 +1217,8 @@ END
 
     if ($className =~ /^V8SVG/) {
         push(@implContent, "\n#endif // ENABLE(SVG)\n");
+    } elsif (IsVideoClassName($className)) {
+        push(@implContent, "\n#endif // ENABLE(VIDEO)\n");
     }
 }
 
@@ -1431,6 +1439,7 @@ sub IsRefPtrType
     return 1 if $type eq "HTMLElement";
     return 1 if $type eq "HTMLOptionsCollection";
     return 1 if $type eq "ImageData";
+    return 1 if $type eq "MediaError";
     return 1 if $type eq "MimeType";
     return 1 if $type eq "Node";
     return 1 if $type eq "NodeList";
@@ -1442,6 +1451,7 @@ sub IsRefPtrType
     return 1 if $type eq "Range";
     return 1 if $type eq "Text";
     return 1 if $type eq "TextMetrics";
+    return 1 if $type eq "TimeRanges";
     return 1 if $type eq "TreeWalker";
     return 1 if $type eq "XPathExpression";
     return 1 if $type eq "XPathNSResolver";
@@ -1453,6 +1463,19 @@ sub IsRefPtrType
     return 1 if $type =~ /^SVGPathSeg/;
     
     return 1 if $type =~ /^SVGAnimated/;
+
+    return 0;
+}
+
+sub IsVideoClassName
+{
+    my $class = shift;
+    return 1 if $class eq "V8HTMLAudioElement";
+    return 1 if $class eq "V8HTMLMediaElement";
+    return 1 if $class eq "V8HTMLSourceElement";
+    return 1 if $class eq "V8HTMLVideoElement";
+    return 1 if $class eq "V8MediaError";
+    return 1 if $class eq "V8TimeRanges";
 
     return 0;
 }

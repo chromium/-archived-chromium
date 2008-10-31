@@ -2225,6 +2225,14 @@ bool V8Proxy::IsWrapperOfType(v8::Handle<v8::Value> value,
   return V8ClassIndex::FromInt(type->Int32Value()) == classType;
 }
 
+#if ENABLE(VIDEO)
+#define FOR_EACH_VIDEO_TAG(macro)                \
+  macro(audio, AUDIO)                            \
+  macro(source, SOURCE)                          \
+  macro(video, VIDEO)
+#else
+#define FOR_EACH_VIDEO_TAG(macro)
+#endif
 
 #define FOR_EACH_TAG(macro)                      \
   macro(a, ANCHOR)                               \
@@ -2296,7 +2304,8 @@ bool V8Proxy::IsWrapperOfType(v8::Handle<v8::Value> value,
   macro(textarea, TEXTAREA)                      \
   macro(title, TITLE)                            \
   macro(ul, ULIST)                               \
-  macro(xmp, PRE)
+  macro(xmp, PRE)                                \
+  FOR_EACH_VIDEO_TAG(macro)
 
 V8ClassIndex::V8WrapperType V8Proxy::GetHTMLElementType(HTMLElement* element)
 {

@@ -673,6 +673,7 @@ all : \
     V8HTMLAnchorElement.h \
     V8HTMLAppletElement.h \
     V8HTMLAreaElement.h \
+    V8HTMLAudioElement.h \
     V8HTMLBaseElement.h \
     V8HTMLBaseFontElement.h \
     V8HTMLBlockquoteElement.h \
@@ -706,6 +707,7 @@ all : \
     V8HTMLLinkElement.h \
     V8HTMLMapElement.h \
     V8HTMLMarqueeElement.h \
+    V8HTMLMediaElement.h \
     V8HTMLMenuElement.h \
     V8HTMLMetaElement.h \
     V8HTMLModElement.h \
@@ -720,6 +722,7 @@ all : \
     V8HTMLQuoteElement.h \
     V8HTMLScriptElement.h \
     V8HTMLSelectElement.h \
+    V8HTMLSourceElement.h \
     V8HTMLStyleElement.h \
     V8HTMLTableCaptionElement.h \
     V8HTMLTableCellElement.h \
@@ -730,9 +733,11 @@ all : \
     V8HTMLTextAreaElement.h \
     V8HTMLTitleElement.h \
     V8HTMLUListElement.h \
+    V8HTMLVideoElement.h \
     V8History.h \
     V8ImageData.h \
     V8KeyboardEvent.h \
+    V8MediaError.h \
     V8MediaList.h \
     V8MessageChannel.h \
     V8MessageEvent.h \
@@ -891,6 +896,7 @@ all : \
     V8Text.h \
     V8TextMetrics.h \
     V8TextEvent.h \
+    V8TimeRanges.h \
     V8TreeWalker.h \
     V8UIEvent.h \
     V8VoidCallback.h \

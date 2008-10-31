@@ -343,6 +343,15 @@
 #include "V8SVGZoomEvent.h"
 #endif
 
+#if ENABLE(VIDEO)
+#include "V8HTMLAudioElement.h"
+#include "V8HTMLMediaElement.h"
+#include "V8HTMLSourceElement.h"
+#include "V8HTMLVideoElement.h"
+#include "V8MediaError.h"
+#include "V8TimeRanges.h"
+#endif
+
 namespace WebCore {
 
 FunctionTemplateFactory V8ClassIndex::GetFactory(V8WrapperType type) {
