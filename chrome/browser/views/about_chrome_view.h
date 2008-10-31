@@ -100,13 +100,16 @@ class AboutChromeView : public views::View,
                               const ChromeFont& font);
 
   // A helper function for DrawTextAndPositionUrl, which simply draws the text
-  // from a certain starting point |position| and wraps within bounds. For
-  // details on the parameters, see DrawTextAndPositionUrl.
+  // from a certain starting point |position| and wraps within bounds.
+  // |word_for_word| specifies whether to draw the text word for word or wheter
+  // to treat the text as one blurb (similar to the way url's are treated inside
+  // RTL text. For details on the other parameters, see DrawTextAndPositionUrl.
   void DrawTextStartingFrom(ChromeCanvas* canvas,
                             const std::wstring& text,
                             gfx::Size* position,
                             const gfx::Rect& bounds,
-                            const ChromeFont& font);
+                            const ChromeFont& font,
+                            bool word_for_word);
 
   // A simply utility function that calculates whether a word of width
   // |word_width| fits at position |position| within the |bounds| rectangle. If
@@ -161,6 +164,9 @@ class AboutChromeView : public views::View,
 
   // The version Google Update reports is available to us.
   std::wstring new_version_available_;
+
+  // Whether text direction is left-to-right or right-to-left.
+  bool text_direction_is_rtl_;
 
   DISALLOW_COPY_AND_ASSIGN(AboutChromeView);
 };

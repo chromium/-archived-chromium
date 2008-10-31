@@ -26,67 +26,6 @@ namespace {
 const int kStarPadding = 4;
 };
 
-// A simple wrapper class for the bidirectional iterator of ICU.
-// This class uses the bidirctional iterator of ICU to split a line of
-// bidirectional texts into visual runs in its display order.
-class BiDiLineIterator {
- public:
-  BiDiLineIterator() : bidi_(NULL) { }
-  ~BiDiLineIterator();
-
-  // Initializes the bidirectional iterator with the specified text.  Returns
-  // whether initialization succeeded.
-  UBool Open(const std::wstring& text, bool right_to_left, bool url);
-
-  // Returns the number of visual runs in the text, or zero on error.
-  int CountRuns();
-
-  // Gets the logical offset, length, and direction of the specified visual run.
-  UBiDiDirection GetVisualRun(int index, int* start, int* length);
-
- private:
-  UBiDi* bidi_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(BiDiLineIterator);
-};
-
-BiDiLineIterator::~BiDiLineIterator() {
-  if (bidi_) {
-    ubidi_close(bidi_);
-    bidi_ = NULL;
-  }
-}
-
-UBool BiDiLineIterator::Open(const std::wstring& text,
-                             bool right_to_left,
-                             bool url) {
-  DCHECK(bidi_ == NULL);
-  UErrorCode error = U_ZERO_ERROR;
-  bidi_ = ubidi_openSized(static_cast<int>(text.length()), 0, &error);
-  if (U_FAILURE(error))
-    return false;
-  if (right_to_left && url)
-    ubidi_setReorderingMode(bidi_, UBIDI_REORDER_RUNS_ONLY);
-  ubidi_setPara(bidi_, text.data(), static_cast<int>(text.length()),
-                right_to_left ? UBIDI_DEFAULT_RTL : UBIDI_DEFAULT_LTR,
-                NULL, &error);
-  return U_SUCCESS(error);
-}
-
-int BiDiLineIterator::CountRuns() {
-  DCHECK(bidi_ != NULL);
-  UErrorCode error = U_ZERO_ERROR;
-  const int runs = ubidi_countRuns(bidi_, &error);
-  return U_SUCCESS(error) ? runs : 0;
-}
-
-UBiDiDirection BiDiLineIterator::GetVisualRun(int index,
-                                              int* start,
-                                              int* length) {
-  DCHECK(bidi_ != NULL);
-  return ubidi_getVisualRun(bidi_, index, start, length);
-}
-
 // This class implements a utility used for mirroring x-coordinates when the
 // application language is a right-to-left one.
 class MirroringContext {
@@ -464,7 +403,7 @@ void AutocompletePopupView::DrawMatchFragments(
   // Initialize a bidirectional line iterator of ICU and split the text into
   // visual runs. (A visual run is consecutive characters which have the same
   // display direction and should be displayed at once.)
-  BiDiLineIterator bidi_line;
+  l10n_util::BiDiLineIterator bidi_line;
   if (!bidi_line.Open(text, mirroring_context_->enabled(), url))
     return;
   const int runs = bidi_line.CountRuns();

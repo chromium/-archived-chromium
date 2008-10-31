@@ -5,14 +5,15 @@
 // This file contains utility functions for dealing with localized
 // content.
 
-#ifndef CHROME_COMMON_L10N_UTIL_H__
-#define CHROME_COMMON_L10N_UTIL_H__
+#ifndef CHROME_COMMON_L10N_UTIL_H_
+#define CHROME_COMMON_L10N_UTIL_H_
 
 #include <windows.h>
 #include <string>
 #include <vector>
 
 #include "base/basictypes.h"
+#include "third_party/icu38/public/common/unicode/ubidi.h"
 
 class PrefService;
 
@@ -167,7 +168,33 @@ void SortStrings(const std::wstring& locale,
 // en-US, es, fr, fi, pt-PT, pt-BR, etc.
 const std::vector<std::wstring>& GetAvailableLocales();
 
+// A simple wrapper class for the bidirectional iterator of ICU.
+// This class uses the bidirectional iterator of ICU to split a line of
+// bidirectional texts into visual runs in its display order.
+class BiDiLineIterator {
+ public:
+  BiDiLineIterator() : bidi_(NULL) { }
+  ~BiDiLineIterator();
+
+  // Initializes the bidirectional iterator with the specified text.  Returns
+  // whether initialization succeeded.
+  UBool Open(const std::wstring& text, bool right_to_left, bool url);
+
+  // Returns the number of visual runs in the text, or zero on error.
+  int CountRuns();
+
+  // Gets the logical offset, length, and direction of the specified visual run.
+  UBiDiDirection GetVisualRun(int index, int* start, int* length);
+
+  // Given a start position, figure out where the run ends (and the BiDiLevel).
+  void GetLogicalRun(int start, int* end, UBiDiLevel* level);
+
+ private:
+  UBiDi* bidi_;
+
+  DISALLOW_COPY_AND_ASSIGN(BiDiLineIterator);
+};
+
 }
 
-#endif // CHROME_COMMON_L10N_UTIL_H__
-
+#endif  // CHROME_COMMON_L10N_UTIL_H_

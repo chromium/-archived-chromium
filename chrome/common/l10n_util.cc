@@ -125,7 +125,7 @@ bool IsDuplicateName(const std::string& locale_name) {
   // Skip all 'es_RR'. Currently, we use 'es' for es-ES (Spanish in Spain).
   // 'es-419' (Spanish in Latin America) is not available in ICU so that it
   // has to be added manually in GetAvailableLocales().
-  if (LowerCaseEqualsASCII(locale_name.substr(0,3),  "es_"))
+  if (LowerCaseEqualsASCII(locale_name.substr(0, 3),  "es_"))
     return true;
   for (int i = 0; i < arraysize(kDuplicateNames); ++i) {
     if (_stricmp(kDuplicateNames[i], locale_name.c_str()) == 0)
@@ -185,7 +185,7 @@ bool CheckAndResolveLocale(const std::wstring& locale,
   }
 
   // Google updater uses no, iw and en for our nb, he, and en-US.
-  // We need to map them to our codes. 
+  // We need to map them to our codes.
   struct {
     const char* source;
     const wchar_t* dest;} alias_map[] = {
@@ -572,5 +572,48 @@ const std::vector<std::wstring>& GetAvailableLocales() {
   return locales;
 }
 
+BiDiLineIterator::~BiDiLineIterator() {
+  if (bidi_) {
+    ubidi_close(bidi_);
+    bidi_ = NULL;
+  }
 }
 
+UBool BiDiLineIterator::Open(const std::wstring& text,
+                             bool right_to_left,
+                             bool url) {
+  DCHECK(bidi_ == NULL);
+  UErrorCode error = U_ZERO_ERROR;
+  bidi_ = ubidi_openSized(static_cast<int>(text.length()), 0, &error);
+  if (U_FAILURE(error))
+    return false;
+  if (right_to_left && url)
+    ubidi_setReorderingMode(bidi_, UBIDI_REORDER_RUNS_ONLY);
+  ubidi_setPara(bidi_, text.data(), static_cast<int>(text.length()),
+                right_to_left ? UBIDI_DEFAULT_RTL : UBIDI_DEFAULT_LTR,
+                NULL, &error);
+  return U_SUCCESS(error);
+}
+
+int BiDiLineIterator::CountRuns() {
+  DCHECK(bidi_ != NULL);
+  UErrorCode error = U_ZERO_ERROR;
+  const int runs = ubidi_countRuns(bidi_, &error);
+  return U_SUCCESS(error) ? runs : 0;
+}
+
+UBiDiDirection BiDiLineIterator::GetVisualRun(int index,
+                                              int* start,
+                                              int* length) {
+  DCHECK(bidi_ != NULL);
+  return ubidi_getVisualRun(bidi_, index, start, length);
+}
+
+void BiDiLineIterator::GetLogicalRun(int start,
+                                     int* end,
+                                     UBiDiLevel* level) {
+  DCHECK(bidi_ != NULL);
+  ubidi_getLogicalRun(bidi_, start, end, level);
+}
+
+}
