@@ -71,7 +71,6 @@ input_files = [
     '$PORT_DIR/platform/graphics/FloatRectSkia.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/GradientSkia.cpp',
-    '$PORT_DIR/platform/graphics/GraphicsContextPlatformPrivate.cpp',
     '$PORT_DIR/platform/graphics/GraphicsContextSkia.cpp',
     '$PORT_DIR/platform/graphics/ImageBufferSkia.cpp',
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
@@ -82,9 +81,7 @@ input_files = [
     '$PORT_DIR/platform/graphics/PathSkia.cpp',
     '$PORT_DIR/platform/graphics/PatternSkia.cpp',
     '$PORT_DIR/platform/graphics/PlatformContextSkia.cpp',
-    '$PORT_DIR/platform/graphics/SkGraphicsContext.cpp',
     '$PORT_DIR/platform/graphics/SkiaUtils.cpp',
-    '$PORT_DIR/platform/graphics/SkPaintContext.cpp',
 
     '$PORT_DIR/platform/graphics/svg/RenderPathSkia.cpp',
     '$PORT_DIR/platform/graphics/svg/SkiaSupport.cpp',
@@ -141,7 +138,6 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
-    '$PORT_DIR/platform/graphics/SkGraphicsContext.cpp',
   ]
   for remove in remove_files:
     input_files.remove(remove)
