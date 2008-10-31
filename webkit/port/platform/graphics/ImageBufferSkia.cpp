@@ -50,6 +50,7 @@ ImageBufferData::ImageBufferData(const IntSize& size)
 
 ImageBuffer::ImageBuffer(const IntSize& size, bool grayScale, bool& success)
     : m_data(size)
+    , m_size(size)
 {
     m_context.set(new GraphicsContext(&m_data.m_platformContext));
 
