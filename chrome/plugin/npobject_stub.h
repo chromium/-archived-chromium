@@ -5,8 +5,8 @@
 // A class that receives IPC messages from an NPObjectProxy and calls the real
 // NPObject.
 
-#ifndef CHROME_PLUGIN_NPOBJECT_STUB_H__
-#define CHROME_PLUGIN_NPOBJECT_STUB_H__
+#ifndef CHROME_PLUGIN_NPOBJECT_STUB_H_
+#define CHROME_PLUGIN_NPOBJECT_STUB_H_
 
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
@@ -79,5 +79,4 @@ class NPObjectStub : public IPC::Channel::Listener,
   WebPluginDelegateProxy* web_plugin_delegate_proxy_;
 };
 
-#endif  // CHROME_PLUGIN_NPOBJECT_STUB_H__
-
+#endif  // CHROME_PLUGIN_NPOBJECT_STUB_H_
