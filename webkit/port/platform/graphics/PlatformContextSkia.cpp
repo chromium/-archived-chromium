@@ -34,7 +34,6 @@
 #include "SkiaUtils.h"
 
 #include "base/gfx/image_operations.h"
-#include "base/gfx/native_theme.h"
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/skia_utils.h"
 
@@ -43,7 +42,7 @@
 #include "SkShader.h"
 #include "SkDashPathEffect.h"
 
-#if defined(OS_WIN)
+#if PLATFORM(WIN_OS)
 #include <vssym32.h>
 #include "base/gfx/native_theme.h"
 #include "ThemeData.h"
