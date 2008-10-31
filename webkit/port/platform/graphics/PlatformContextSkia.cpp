@@ -194,22 +194,22 @@ private:
 
 // Note: Keep theses default values in sync with GraphicsContextState.
 PlatformContextSkia::State::State()
-    : m_miterLimit(4)
-    , m_alpha(1)
-    , m_looper(0)
-    , m_lineCap(SkPaint::kDefault_Cap)
-    , m_lineJoin(SkPaint::kDefault_Join)
+    : m_alpha(1)
     , m_porterDuffMode(SkPorterDuff::kSrcOver_Mode)
-    , m_dashRatio(3)
+    , m_gradient(0)
+    , m_pattern(0)
+    , m_useAntialiasing(true)
+    , m_looper(0)
     , m_fillColor(0xFF000000)
     , m_strokeStyle(WebCore::SolidStroke)
     , m_strokeColor(0x0FF000000)
     , m_strokeThickness(0)
-    , m_textDrawingMode(WebCore::cTextFill)
-    , m_useAntialiasing(true)
+    , m_dashRatio(3)
+    , m_miterLimit(4)
+    , m_lineCap(SkPaint::kDefault_Cap)
+    , m_lineJoin(SkPaint::kDefault_Join)
     , m_dash(0)
-    , m_gradient(0)
-    , m_pattern(0)
+    , m_textDrawingMode(WebCore::cTextFill)
 {
 }
 
