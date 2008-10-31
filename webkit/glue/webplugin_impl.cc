@@ -188,6 +188,26 @@ void WebPluginContainer::handleEvent(WebCore::Event* event) {
   impl_->handleEvent(event);
 }
 
+void WebPluginContainer::frameRectsChanged() const {
+  WebCore::Widget::frameRectsChanged();
+  // This is a hack to tickle re-positioning of the plugin in the case where
+  // our parent view was scrolled.
+  impl_->setFrameRect(frameRect());
+}
+
+// We override this function, to make sure that geometry updates are sent
+// over to the plugin. For e.g. when a plugin is instantiated it does
+// not have a valid parent. As a result the first geometry update from
+// webkit is ignored. This function is called when the plugin eventually
+// gets a parent.
+void WebPluginContainer::setParentVisible(bool visible) {
+  WebCore::Widget::setParentVisible(visible);
+  if (visible)
+    show();
+  else
+    hide();
+}
+
 void WebPluginContainer::windowCutoutRects(const WebCore::IntRect& bounds,
                                            WTF::Vector<WebCore::IntRect>*
                                            cutouts) const {
@@ -588,16 +608,6 @@ void WebPluginImpl::windowCutoutRects(
       }
     }
   }
-}
-
-void WebPluginImpl::geometryChanged() const {
-  if (!widget_)
-    return;
-
-  // This is a hack to tickle re-positioning of the plugin in the case where
-  // our parent view was scrolled.
-  const_cast<WebPluginImpl*>(this)->widget_->setFrameRect(
-      widget_->frameRect());
 }
 
 void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
