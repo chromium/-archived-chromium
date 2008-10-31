@@ -73,8 +73,7 @@ class ResetDefaultsConfirmBox : public views::DialogDelegate {
         l10n_util::GetString(IDS_OPTIONS_RESET_MESSAGE).c_str(),
         std::wstring(),
         kDialogWidth);
-    views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
-                                            this)->Show();
+    views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), this)->Show();
   }
   virtual ~ResetDefaultsConfirmBox() { }
 
@@ -112,6 +111,7 @@ void AdvancedPageView::ResetToDefaults() {
     prefs::kDnsPrefetchingEnabled,
     prefs::kDownloadDefaultDirectory,
     prefs::kDownloadExtensionsToOpen,
+    prefs::kFormAutofillEnabled,
     prefs::kHomePage,
     prefs::kHomePageIsNewTabPage,
     prefs::kMixedContentFiltering,

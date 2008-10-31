@@ -107,6 +107,11 @@ void BrowsingDataRemover::Remove(int remove_mask) {
     web_data_service->RemoveLoginsCreatedBetween(delete_begin_, delete_end_);
   }
 
+  if (remove_mask & REMOVE_FORM_DATA) {
+    // TODO(jcampan): bug #3870 hook-up Peterson's code here.
+    NOTREACHED() << "to be implemented";
+  }
+
   if (remove_mask & REMOVE_CACHE) {
     // Invoke ClearBrowsingDataView::ClearCache on the IO thread.
     base::Thread* thread = g_browser_process->io_thread();

@@ -2412,14 +2412,6 @@ each locale. -->
         Add
       </message>
 
-      <!-- Advanced autofill settings -->
-      <message name="IDS_AUTOFILL_SETTING_WINDOWS_TITLE" desc="Title that appears in the dialogue title bar for advanced autofill settings">
-        Form autofill
-      </message>
-      <message name="IDS_AUTOFILL_SAVEFORMS" desc="The autofill checkbox label">
-        Save and show text typed in similar fields
-      </message>
-
       <!-- HTTP POST Warning -->
       <message name="IDS_HTTP_POST_WARNING_TITLE" desc="Title for dialog that warns users about a navigation that results in a repost">
         Confirm Form Resubmission
@@ -2679,7 +2671,14 @@ each locale. -->
       <message name="IDS_OPTIONS_PASSWORDS_SHOWPASSWORDS" desc="The label of the 'Show passwords' button">
         Show saved passwords
       </message>
-      
+
+      <message name="IDS_AUTOFILL_SETTING_WINDOWS_GROUP_NAME" desc="The title of the form autofill group">
+        Form autofill:
+      </message>
+      <message name="IDS_AUTOFILL_SAVEFORMS" desc="The autofill checkbox label">
+        Save and show text typed in similar fields
+      </message>
+
       <message name="IDS_OPTIONS_FONTSANDLANGUAGES_GROUP_NAME" desc="The label of the 'Fonts and Languages' group">
         Fonts and Languages:
       </message>

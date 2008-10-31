@@ -50,6 +50,7 @@ class ContentPageView : public OptionsPageView,
   // Init all the dialog controls.
   void InitDownloadLocation();
   void InitPasswordSavingGroup();
+  void InitFormAutofillGroup();
   void InitFontsLangGroup();
 
   // Updates the directory displayed in the default download location view with
@@ -69,6 +70,10 @@ class ContentPageView : public OptionsPageView,
   views::RadioButton* passwords_neversave_radio_;
   views::NativeButton* passwords_show_passwords_button_;
 
+  // Controls for the Form Autofill group
+  OptionsGroupView* form_autofill_group_;
+  views::CheckBox* form_autofill_checkbox_;
+
   // Controls for the Popup Blocking group.
   OptionsGroupView* popups_group_;
   views::RadioButton* popups_show_minimized_radio_;
@@ -82,6 +87,7 @@ class ContentPageView : public OptionsPageView,
   StringPrefMember default_download_location_;
   BooleanPrefMember ask_for_save_location_;
   BooleanPrefMember ask_to_save_passwords_;
+  BooleanPrefMember form_autofill_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ContentPageView);
 };
