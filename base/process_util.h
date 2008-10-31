@@ -10,9 +10,13 @@
 
 #include "base/basictypes.h"
 
-#ifdef OS_WIN
+#if defined(OS_WIN)
 #include <windows.h>
 #include <tlhelp32.h>
+#elif defined(OS_LINUX)
+#include <dirent.h>
+#include <limits.h>
+#include <sys/types.h>
 #endif
 
 #include <string>
@@ -24,7 +28,12 @@
 typedef PROCESSENTRY32 ProcessEntry;
 typedef IO_COUNTERS IoCounters;
 #elif defined(OS_POSIX)
-typedef int ProcessEntry;
+struct ProcessEntry {
+  int pid;
+  int ppid;
+  char szExeFile[NAME_MAX+1];
+};
+
 struct IoCounters {
   unsigned long long ReadOperationCount;
   unsigned long long WriteOperationCount;
@@ -172,10 +181,16 @@ class NamedProcessIterator {
   void InitProcessEntry(ProcessEntry* entry);
 
   std::wstring executable_name_;
-#ifdef OS_WIN
+
+#if defined(OS_WIN)
   HANDLE snapshot_;
-#endif
   bool started_iteration_;
+#elif defined(OS_LINUX)
+  DIR *procfs_dir_;
+#elif defined(OS_MACOSX)
+  // probably kvm_t *kvmd_;
+#endif
+
   ProcessEntry entry_;
   const ProcessFilter* filter_;
 

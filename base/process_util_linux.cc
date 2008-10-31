@@ -4,6 +4,8 @@
 
 #include "base/process_util.h"
 
+#include <ctype.h>
+#include <dirent.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -12,6 +14,7 @@
 #include "base/logging.h"
 #include "base/string_tokenizer.h"
 #include "base/string_util.h"
+#include "base/time.h"
 
 namespace {
 
@@ -35,7 +38,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
   }
   argv_copy[argv.size()] = NULL;
 
-  int pid = vfork();
+  int pid = fork();
   if (pid == 0) {
     execv(argv_copy[0], argv_copy);
   } else if (pid < 0) {
@@ -59,10 +62,224 @@ bool LaunchApp(const CommandLine& cl,
   return LaunchApp(cl.argv(), wait, process_handle);
 }
 
+// Attempts to kill the process identified by the given process
+// entry structure.  Ignores specified exit_code; linux can't force that.
+// Returns true if this is successful, false otherwise.
+bool KillProcess(int process_id, int exit_code, bool wait) {
+  bool result = false;
+
+  int status = kill(process_id, SIGTERM);
+  if (!status && wait) {
+    int tries = 60;
+    // The process may not end immediately due to pending I/O
+    while (tries-- > 0) {
+      int pid = waitpid(process_id, &status, WNOHANG);
+      if (pid == process_id) {
+        result = true;
+        break;
+      }
+      sleep(1);
+    }
+  }
+  if (!result)
+    DLOG(ERROR) << "Unable to terminate process.";
+  return result;
+}
+
+bool DidProcessCrash(ProcessHandle handle) {
+  int status;
+  if (waitpid(handle, &status, WNOHANG)) {
+    // I feel like dancing!
+    return false;
+  }
+
+  if (WIFSIGNALED(status)) {
+    int signum = WTERMSIG(status);
+    return (signum == SIGSEGV || signum == SIGILL || signum == SIGABRT || signum == SIGFPE);
+  }
+
+  if (WIFEXITED(status)) {
+    int exitcode = WEXITSTATUS(status);
+    return (exitcode != 0);
+  }
+
+  return false;
+}
+
+NamedProcessIterator::NamedProcessIterator(const std::wstring& executable_name,
+                                           const ProcessFilter* filter) 
+    :
+       executable_name_(executable_name),
+       filter_(filter) {
+    procfs_dir_ = opendir("/proc");
+  }
+
+NamedProcessIterator::~NamedProcessIterator() {
+  if (procfs_dir_) {
+    closedir(procfs_dir_);
+    procfs_dir_ = 0;
+  }
+}
+
+const ProcessEntry* NamedProcessIterator::NextProcessEntry() {
+  bool result = false;
+  do {
+    result = CheckForNextProcess();
+  } while (result && !IncludeEntry());
+
+  if (result)
+    return &entry_;
+
+  return NULL;
+}
+
+bool NamedProcessIterator::CheckForNextProcess() {
+  // TODO(port): skip processes owned by different UID
+
+  dirent* slot = 0;
+  const char* openparen;
+  const char* closeparen;
+
+  // Arbitrarily guess that there will never be more than 200 non-process files in /proc.
+  // (Hardy has 53.)
+  int skipped = 0;
+  const int kSkipLimit = 200;
+  while (skipped < kSkipLimit) {
+    slot = readdir(procfs_dir_);
+    // all done looking through /proc?
+    if (!slot)
+      return false;
+
+    // If not a process, keep looking for one.
+    bool notprocess = false;
+    int i;
+    for (i=0; i < NAME_MAX && slot->d_name[i]; ++i) {
+       if (!isdigit(slot->d_name[i])) {
+         notprocess = true;
+         break;
+       }
+    }
+    if (i == NAME_MAX || notprocess) {
+      skipped++;
+      continue;
+    }
+
+    // Read the process's status.
+    char buf[NAME_MAX + 12];
+    sprintf(buf, "/proc/%s/stat", slot->d_name);
+    FILE *fp = fopen(buf, "r");
+    if (!fp)
+      return false;
+    const char* result = fgets(buf, sizeof(buf), fp);
+    fclose(fp);
+    if (!result)
+      return false;
+
+    // Parse the status.  It is formatted like this:
+    // %d (%s) %c %d ...
+    // pid (name) runstate ppid
+    // To avoid being fooled by names containing a closing paren, scan backwards.
+    openparen = strchr(buf, '(');
+    closeparen = strrchr(buf, ')');
+    if (!openparen || !closeparen)
+      return false;
+    char runstate = closeparen[2];
+
+    // Is the process in 'Zombie' state, i.e. dead but waiting to be reaped?
+    // Allowed values: D R S T Z
+    if (runstate != 'Z')
+      break;
+
+    // Nope, it's a zombie; somebody isn't cleaning up after their children.
+    // (e.g. WaitForProcessesToExit doesn't clean up after dead children yet.)
+    // There could be a lot of zombies, can't really decrement i here.
+  }
+  if (skipped >= kSkipLimit) {
+    NOTREACHED();
+    return false;
+  }
+
+  entry_.pid = atoi(slot->d_name);
+  entry_.ppid = atoi(closeparen+3);
+
+  // TODO(port): read pid's commandline's $0, like killall does.
+  // Using the short name between openparen and closeparen won't work for long names!
+  int len = closeparen - openparen - 1;
+  if (len > NAME_MAX)
+    len = NAME_MAX;
+  memcpy(entry_.szExeFile, openparen + 1, len);
+  entry_.szExeFile[len] = 0;
+
+  return true;
+}
+
+bool NamedProcessIterator::IncludeEntry() {
+  // TODO(port): make this also work for non-ASCII filenames
+  bool result = strcmp(WideToASCII(executable_name_).c_str(), entry_.szExeFile) == 0 &&
+      (!filter_ || filter_->Includes(entry_.pid, entry_.ppid));
+  return result;
+}
+
+int GetProcessCount(const std::wstring& executable_name,
+                    const ProcessFilter* filter) {
+  int count = 0;
+
+  NamedProcessIterator iter(executable_name, filter);
+  while (iter.NextProcessEntry())
+    ++count;
+  return count;
+}
+
+bool KillProcesses(const std::wstring& executable_name, int exit_code,
+                   const ProcessFilter* filter) {
+  bool result = true;
+  const ProcessEntry* entry;
+
+  NamedProcessIterator iter(executable_name, filter);
+  while ((entry = iter.NextProcessEntry()) != NULL)
+    result = KillProcess((*entry).pid, exit_code, true) && result;
+
+  return result;
+}
+
+bool WaitForProcessesToExit(const std::wstring& executable_name,
+                            int wait_milliseconds,
+                            const ProcessFilter* filter) {
+  bool result = false;
+
+  // TODO(port): This is inefficient, but works if there are multiple procs.
+  // TODO(port): use waitpid to avoid leaving zombies around
+
+  base::Time end_time = base::Time::Now() + base::TimeDelta::FromMilliseconds(wait_milliseconds);
+  do {
+    NamedProcessIterator iter(executable_name, filter);
+    if (!iter.NextProcessEntry()) {
+      result = true;
+      break;
+    }
+    // TODO(port): Improve resolution
+    sleep(1);
+  } while ((base::Time::Now() - end_time) > base::TimeDelta());
+
+  return result;
+}
+
 bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
   int status;
   waitpid(handle, &status, 0);
   return WIFEXITED(status);
+}
+
+bool CleanupProcesses(const std::wstring& executable_name,
+                      int wait_milliseconds,
+                      int exit_code,
+                      const ProcessFilter* filter) {
+  bool exited_cleanly =
+    process_util::WaitForProcessesToExit(executable_name, wait_milliseconds,
+                                         filter);
+  if (!exited_cleanly)
+    process_util::KillProcesses(executable_name, exit_code, filter);
+  return exited_cleanly;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

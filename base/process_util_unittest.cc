@@ -5,6 +5,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "base/multiprocess_test.h"
+#include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -27,6 +28,46 @@ TEST_F(ProcessUtilTest, SpawnChild) {
 
   ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
   EXPECT_TRUE(process_util::WaitForSingleProcess(handle, 1000));
+}
+
+MULTIPROCESS_TEST_MAIN(SlowChildProcess) {
+  // Sleep until file "SlowChildProcess.die" is created.
+  FILE *fp;
+  do {
+    PlatformThread::Sleep(100);
+    fp = fopen("SlowChildProcess.die", "r");
+  } while (!fp);
+  fclose(fp);
+  remove("SlowChildProcess.die");
+  exit(0);
+  return 0;
+}
+
+#if defined(OS_WIN)
+#define EXE_SUFFIX ".exe"
+#else
+#define EXE_SUFFIX ""
+#endif
+
+// TODO(port): finish port on Mac
+#if defined(OS_MACOSX)
+TEST_F(ProcessUtilTest, DISABLED_KillSlowChild) 
+#else
+TEST_F(ProcessUtilTest, KillSlowChild)
+#endif
+{
+  remove("SlowChildProcess.die");
+  int oldcount = process_util::GetProcessCount(L"base_unittests" EXE_SUFFIX, 0);
+
+  ProcessHandle handle = this->SpawnChild(L"SlowChildProcess");
+
+  ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
+  EXPECT_EQ(oldcount+1, process_util::GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
+  FILE *fp = fopen("SlowChildProcess.die", "w");
+  fclose(fp);
+  // TODO(port): do something less racy here
+  PlatformThread::Sleep(1000);
+  EXPECT_EQ(oldcount, process_util::GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
 }
 
 // TODO(estade): if possible, port these 2 tests.
