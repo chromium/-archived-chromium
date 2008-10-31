@@ -169,3 +169,6 @@
 // (See above).
 #define IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS 1062
 #define IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES 1063
+
+// The language dependent download view size.
+#define IDS_DOWNLOAD_BIG_PROGRESS_SIZE 1064

@@ -157,6 +157,9 @@ class DownloadTabView : public views::View,
   // The destination view's search box text has changed.
   void SetSearchText(const std::wstring& search_text);
 
+  inline int big_icon_size() const { return big_icon_size_; }
+  inline int big_icon_offset() const { return big_icon_offset_; }
+
  private:
   // Creates and attaches to the view the floating view at |index|.
   views::View* CreateFloatingViewForIndex(int index);
@@ -199,6 +202,10 @@ class DownloadTabView : public views::View,
   // Keeps track of the downloads we are an observer for as a consequence of
   // being a dangerous download.
   base::hash_set<DownloadItem*> dangerous_downloads_;
+
+  // Cache the language specific large icon positional information.
+  int big_icon_size_;
+  int big_icon_offset_;
 
   // Provide a start position for downloads with no known size.
   int start_angle_;

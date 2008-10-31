@@ -136,14 +136,17 @@ const int kProgressRateMs = 150;
 const int kSmallIconSize = 16;
 const int kBigIconSize = 32;
 
-// Our progress halo around the icon
+// Our progress halo around the icon.
+int GetBigProgressIconSize();
+
 const int kSmallProgressIconSize = 39;
 const int kBigProgressIconSize = 52;
 
 // The offset required to center the icon in the progress bitmaps.
+int GetBigProgressIconOffset();
+
 const int kSmallProgressIconOffset =
     (kSmallProgressIconSize - kSmallIconSize) / 2;
-const int kBigProgressIconOffset = (kBigProgressIconSize - kBigIconSize) / 2;
 
 enum PaintDownloadProgressSize {
   SMALL = 0,

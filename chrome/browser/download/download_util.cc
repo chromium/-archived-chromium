@@ -11,6 +11,8 @@
 #include "base/base_drag_source.h"
 #include "base/file_util.h"
 #include "base/gfx/image_operations.h"
+#include "base/string_util.h"
+#include "chrome/app/locales/locale_settings.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_manager.h"
@@ -387,6 +389,27 @@ void PaintDownloadComplete(ChromeCanvas* canvas,
   canvas->drawARGB(0, 255, 255, 255, SkPorterDuff::kClear_Mode);
   canvas->DrawBitmapInt(*complete, complete_bounds.x(), complete_bounds.y());
   canvas->restore();
+}
+
+// Load a language dependent height so that the dangerous download confirmation
+// message doesn't overlap with the download link label.
+int GetBigProgressIconSize() {
+  static int big_progress_icon_size = 0;
+  if (big_progress_icon_size == 0) {
+    std::wstring locale_size_str =
+        l10n_util::GetString(IDS_DOWNLOAD_BIG_PROGRESS_SIZE);
+    bool rc = StringToInt(locale_size_str, &big_progress_icon_size);
+    if (!rc || big_progress_icon_size < kBigProgressIconSize) {
+      NOTREACHED();
+      big_progress_icon_size = kBigProgressIconSize;
+    }
+  }
+
+  return big_progress_icon_size;
+}
+
+int GetBigProgressIconOffset() {
+  return (GetBigProgressIconSize() - kBigIconSize) / 2;
 }
 
 // Download dragging
