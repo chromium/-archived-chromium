@@ -246,7 +246,7 @@ be available for now. -->
         Chromium may use web services to improve your browsing experience - you may optionally disable these services.
       </message>
       <message name="IDS_IMPORT_BOOKMARKS" desc="Explanatory text for the importing progress dialog when importing a bookmarks.html file from the bookmark manager">
-        Chromium is now importing <ph name="bookmarks">$1<ex>Favorites/Bookmarks</ex></ph>.
+        Chromium is now importing Favorites/Bookmarks.
       </message>
     </messages>
   </release>
