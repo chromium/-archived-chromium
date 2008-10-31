@@ -160,7 +160,7 @@ void GoogleChromeDistribution::UpdateDiffInstallStatus(bool system_install,
   reg_key.append(L"\\");
   reg_key.append(google_update::kChromeGuid);
   if (!key.Open(reg_root, reg_key.c_str(), KEY_ALL_ACCESS) || 
-      !key.ReadValue(google_update::kRegApFieldName, &ap_key_value)) {
+      !key.ReadValue(google_update::kRegApField, &ap_key_value)) {
     LOG(INFO) << "Application key not found.";
     if (!incremental_install || !GetInstallReturnCode(install_status)) {
       LOG(INFO) << "Returning without changing application key.";
@@ -180,9 +180,9 @@ void GoogleChromeDistribution::UpdateDiffInstallStatus(bool system_install,
   std::wstring new_value = GoogleChromeDistribution::GetNewGoogleUpdateApKey(
       incremental_install, install_status, ap_key_value);
   if ((new_value.compare(ap_key_value) != 0) &&
-      !key.WriteValue(google_update::kRegApFieldName, new_value.c_str())) {
+      !key.WriteValue(google_update::kRegApField, new_value.c_str())) {
     LOG(ERROR) << "Failed to write value " << new_value
-               << " to the registry field " << google_update::kRegApFieldName;
+               << " to the registry field " << google_update::kRegApField;
   }
   key.Close();
 }

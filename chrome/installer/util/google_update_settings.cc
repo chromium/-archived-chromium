@@ -5,44 +5,49 @@
 #include "chrome/installer/util/google_update_settings.h"
 
 #include "base/registry.h"
-
-namespace {
-
-const wchar_t kRegistryBase[] =
-    L"Software\\Google\\Update\\ClientState\\{8A69D345-D564-463c-AFF1-A69D9E530F96}";
-const wchar_t kUsageStatsFlag[] = L"usagestats";
-const wchar_t kBrowserUsed[] = L"browser";
-const wchar_t kSelectedLang[] = L"lang";
-const wchar_t kRLZBrand[] = L"brand";
-
-}  // namespace
+#include "chrome/installer/util/google_update_constants.h"
 
 bool GoogleUpdateSettings::GetCollectStatsConsent() {
-  RegKey key(HKEY_CURRENT_USER, kRegistryBase, KEY_READ);
+  std::wstring reg_path(google_update::kRegPathClientState);
+  reg_path.append(L"\\");
+  reg_path.append(google_update::kChromeGuid);
+  RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ);
   DWORD value;
-  if (!key.ReadValueDW(kUsageStatsFlag, &value))
+  if (!key.ReadValueDW(google_update::kRegUsageStatsField, &value))
     return false;
   return (1 == value);
 }
 
 bool GoogleUpdateSettings::SetCollectStatsConsent(bool consented) {
-  RegKey key(HKEY_CURRENT_USER, kRegistryBase, KEY_READ | KEY_WRITE);
+  std::wstring reg_path(google_update::kRegPathClientState);
+  reg_path.append(L"\\");
+  reg_path.append(google_update::kChromeGuid);
+  RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ | KEY_WRITE);
   DWORD value = consented ? 1 : 0;
-  return key.WriteValue(kUsageStatsFlag, value);
+  return key.WriteValue(google_update::kRegUsageStatsField, value);
 }
 
 bool GoogleUpdateSettings::GetBrowser(std::wstring* browser) {
-  RegKey key(HKEY_CURRENT_USER, kRegistryBase, KEY_READ);
-  return key.ReadValue(kBrowserUsed, browser);
+  std::wstring reg_path(google_update::kRegPathClientState);
+  reg_path.append(L"\\");
+  reg_path.append(google_update::kChromeGuid);
+  RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ);
+  return key.ReadValue(google_update::kRegBrowserField, browser);
 }
 
 bool GoogleUpdateSettings::GetLanguage(std::wstring* language) {
-  RegKey key(HKEY_CURRENT_USER, kRegistryBase, KEY_READ);
-  return key.ReadValue(kSelectedLang, language);
+  std::wstring reg_path(google_update::kRegPathClientState);
+  reg_path.append(L"\\");
+  reg_path.append(google_update::kChromeGuid);
+  RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ);
+  return key.ReadValue(google_update::kRegLangField, language);
 }
 
 bool GoogleUpdateSettings::GetBrand(std::wstring* brand) {
-  RegKey key(HKEY_CURRENT_USER, kRegistryBase, KEY_READ);
-  return key.ReadValue(kRLZBrand, brand);
+  std::wstring reg_path(google_update::kRegPathClientState);
+  reg_path.append(L"\\");
+  reg_path.append(google_update::kChromeGuid);
+  RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ);
+  return key.ReadValue(google_update::kRegRLZBrandField, brand);
 }
 

@@ -8,14 +8,9 @@
 #include <strsafe.h>
 
 #include "chrome/app/client_util.h"
+#include "chrome/installer/util/google_update_constants.h"
 
 namespace {
-const wchar_t kRegistryClients[] = L"Software\\Google\\Update\\Clients\\";
-const wchar_t kRegistryClientState[] =
-    L"Software\\Google\\Update\\ClientState\\";
-const wchar_t kRequestParamDidRun[] = L"dr";
-const wchar_t kRegistryUpdate[] = L"Software\\Google\\Update\\";
-const wchar_t kRegistryValueCrashReportPath[] = L"CrashReportPath";
 const wchar_t kEnvProductVersionKey[] = L"CHROME_VERSION";
 
 // Allocates the out param on success.
@@ -86,12 +81,12 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance,
   if (NULL != entry) {
     // record did_run "dr" in client state
     HKEY reg_root = (user_mode_) ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
-    std::wstring key_path = kRegistryClientState + guid_;
+    std::wstring key_path = google_update::kRegPathClientState + guid_;
     HKEY reg_key;
     if (::RegOpenKeyEx(reg_root, key_path.c_str(), 0,
                        KEY_WRITE, &reg_key) == ERROR_SUCCESS) {
       const wchar_t kVal[] = L"1";
-      ::RegSetValueEx(reg_key, kRequestParamDidRun, 0, REG_SZ,
+      ::RegSetValueEx(reg_key, google_update::kRegDidRunField, 0, REG_SZ,
                       reinterpret_cast<const BYTE *>(kVal), sizeof(kVal));
       ::RegCloseKey(reg_key);
     }
@@ -122,7 +117,7 @@ bool GoogleUpdateClient::Init(const wchar_t* client_guid,
     if (GoogleUpdateEnvQueryStr(kEnvProductVersionKey, &version_)) {
       ret = true;
     } else {
-      std::wstring key(kRegistryClients);
+      std::wstring key(google_update::kRegPathClients);
       key.append(guid_);
       if (client_util::GetChromiumVersion(dll_path_, key.c_str(), &version_))
         ret = true;
