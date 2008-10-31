@@ -23,6 +23,7 @@ input_files = [
   'autocomplete_input_listener.cc',
   'cache_manager.cc',
   'chrome_client_impl.cc',
+  'chromium_bridge_impl.cc',
   'context_menu_client_impl.cc',
   'cpp_binding_example.cc',
   'cpp_bound_class.cc',
@@ -98,7 +99,10 @@ if env['PLATFORM'] == 'win32':
   ])
 
 if env['PLATFORM'] == 'win32':
-  input_files.append('webinputevent_win.cc')
+  input_files.extend([
+    'webinputevent_win.cc',
+    'webkit_glue_win.cc',
+  [)
 elif env['PLATFORM'] == 'posix':
   input_files.append('webinputevent_linux.cc')
 

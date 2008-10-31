@@ -230,7 +230,9 @@ WebCore::IntRect WebWidgetImpl::windowToScreen(
 }
 
 PlatformWidget WebWidgetImpl::platformWindow() const {
-  return NULL;
+  if (!delegate_)
+	return NULL;
+  return delegate_->GetContainingWindow(const_cast<WebWidgetImpl*>(this));
 }
 
 //-----------------------------------------------------------------------------
@@ -250,10 +252,6 @@ void WebWidgetImpl::popupClosed(WebCore::FramelessScrollView* widget) {
 
 // TODO(darin): Figure out what happens to these methods.
 #if 0
-gfx::ViewHandle WebWidgetImpl::containingWindow() {
-  return delegate_ ? delegate_->GetContainingWindow(this) : NULL;
-}
-
 const SkBitmap* WebWidgetImpl::getPreloadedResourceBitmap(int resource_id) {
   return NULL;
 }

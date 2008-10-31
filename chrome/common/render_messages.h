@@ -24,6 +24,7 @@
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/resource_loader_bridge.h"
+#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webpreferences.h"
@@ -1646,6 +1647,30 @@ struct ParamTraits<WebDropData> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<WebDropData>");
+  }
+};
+
+// Traits for ScreenInfo
+template <>
+struct ParamTraits<webkit_glue::ScreenInfo> {
+  typedef webkit_glue::ScreenInfo param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.depth);
+    WriteParam(m, p.depth_per_component);
+    WriteParam(m, p.is_monochrome);
+    WriteParam(m, p.rect);
+    WriteParam(m, p.available_rect);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->depth) &&
+      ReadParam(m, iter, &p->depth_per_component) &&
+      ReadParam(m, iter, &p->is_monochrome) &&
+      ReadParam(m, iter, &p->rect) &&
+      ReadParam(m, iter, &p->available_rect);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<webkit_glue::ScreenInfo>");
   }
 };
 

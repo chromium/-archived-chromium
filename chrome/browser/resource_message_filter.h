@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
 
 #include "base/gfx/rect.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
 #include "chrome/browser/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
@@ -21,6 +22,10 @@ struct WebPluginInfo;
 namespace printing {
 class PrinterQuery;
 class PrintJobManager;
+}
+
+namespace webkit_glue {
+struct ScreenInfo;
 }
 
 // This class filters out incoming IPC messages for network requests and
@@ -95,7 +100,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // Cache fonts for the renderer. See ResourceMessageFilter::OnLoadFont
   // implementation for more details
   void OnLoadFont(LOGFONT font);
-  void OnGetMonitorInfoForWindow(HWND window, MONITORINFOEX* monitor_info);
+  void OnGetScreenInfo(gfx::ViewHandle window,
+                       webkit_glue::ScreenInfo* results);
   void OnGetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
   void OnGetPluginPath(const GURL& url,
                        const std::string& mime_type,

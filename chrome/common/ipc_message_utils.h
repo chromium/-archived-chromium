@@ -313,30 +313,6 @@ struct ParamTraits<SkBitmap> {
 };
 
 template <>
-struct ParamTraits<MONITORINFOEX> {
-  typedef MONITORINFOEX param_type;
-  static void Write(Message* m, const param_type& p) {
-    m->WriteData(reinterpret_cast<const char*>(&p), sizeof(MONITORINFOEX));
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    const char *data;
-    int data_size = 0;
-    bool result = m->ReadData(iter, &data, &data_size);
-    if (result && data_size == sizeof(MONITORINFOEX)) {
-      memcpy(r, data, sizeof(MONITORINFOEX));
-    } else {
-      result = false;
-      NOTREACHED();
-    }
-
-    return result;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"<MONITORINFOEX>"));
-  }
-};
-
-template <>
 struct ParamTraits<std::string> {
   typedef std::string param_type;
   static void Write(Message* m, const param_type& p) {

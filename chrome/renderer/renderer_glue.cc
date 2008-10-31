@@ -234,13 +234,12 @@ bool webkit_glue::EnsureFontLoaded(HFONT font) {
   return RenderThread::current()->Send(new ViewHostMsg_LoadFont(logfont));
 }
 
-MONITORINFOEX webkit_glue::GetMonitorInfoForWindow(HWND window) {
-  MONITORINFOEX monitor_info;
+webkit_glue::ScreenInfo webkit_glue::GetScreenInfo(gfx::ViewHandle window) {
+  webkit_glue::ScreenInfo results;
   RenderThread::current()->Send(
-      new ViewHostMsg_GetMonitorInfoForWindow(window, &monitor_info));
-  return monitor_info;
+      new ViewHostMsg_GetScreenInfo(window, &results));
+  return results;
 }
-
 
 #ifndef USING_SIMPLE_RESOURCE_LOADER_BRIDGE
 

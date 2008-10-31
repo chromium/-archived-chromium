@@ -1377,10 +1377,6 @@ void WebViewImpl::ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
 
 // TODO(darin): Figure out what to do with these methods.
 #if 0
-gfx::ViewHandle WebViewImpl::containingWindow() {
-  return delegate_ ? delegate_->GetContainingWindow(this) : NULL;
-}
-
 const SkBitmap* WebViewImpl::getPreloadedResourceBitmap(int resource_id) {
   if (!delegate_)
     return NULL;

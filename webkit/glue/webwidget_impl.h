@@ -89,7 +89,6 @@ class WebWidgetImpl : public WebWidget,
   // TODO(darin): Figure out what happens to these methods.
 #if 0
   // WebCore::WidgetClientWin
-  virtual gfx::ViewHandle containingWindow();
   virtual const SkBitmap* getPreloadedResourceBitmap(int resource_id);
   virtual void onScrollPositionChanged(WebCore::Widget* widget);
   virtual const WTF::Vector<RefPtr<WebCore::Range> >* getTickmarks(

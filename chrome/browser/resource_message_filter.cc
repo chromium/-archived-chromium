@@ -25,56 +25,8 @@
 #include "chrome/common/render_messages.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/mime_util.h"
+#include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
-
-void ResourceMessageFilter::OnGetMonitorInfoForWindow(
-    HWND window, MONITORINFOEX* monitor_info) {
-  HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY);
-  monitor_info->cbSize = sizeof(MONITORINFOEX);
-  GetMonitorInfo(monitor, monitor_info);
-}
-
-void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
-  // If renderer is running in a sandbox, GetTextMetrics
-  // can sometimes fail. If a font has not been loaded
-  // previously, GetTextMetrics will try to load the font
-  // from the font file. However, the sandboxed renderer does
-  // not have permissions to access any font files and
-  // the call fails. So we make the browser pre-load the
-  // font for us by using a dummy call to GetTextMetrics of
-  // the same font.
-
-  // Maintain a circular queue for the fonts and DCs to be cached.
-  // font_index maintains next available location in the queue.
-  static const int kFontCacheSize = 32;
-  static HFONT fonts[kFontCacheSize] = {0};
-  static HDC hdcs[kFontCacheSize] = {0};
-  static size_t font_index = 0;
-
-  UMA_HISTOGRAM_COUNTS_100(L"Memory.CachedFontAndDC",
-      fonts[kFontCacheSize-1] ? kFontCacheSize : static_cast<int>(font_index));
-
-  HDC hdc = GetDC(NULL);
-  HFONT font_handle = CreateFontIndirect(&font);
-  DCHECK(NULL != font_handle);
-
-  HGDIOBJ old_font = SelectObject(hdc, font_handle);
-  DCHECK(NULL != old_font);
-
-  TEXTMETRIC tm;
-  BOOL ret = GetTextMetrics(hdc, &tm);
-  DCHECK(ret);
-
-  if (fonts[font_index] || hdcs[font_index]) {
-    // We already have too many fonts, we will delete one and take it's place.
-    DeleteObject(fonts[font_index]);
-    ReleaseDC(NULL, hdcs[font_index]);
-  }
-
-  fonts[font_index] = font_handle;
-  hdcs[font_index] = hdc;
-  font_index = (font_index + 1) % kFontCacheSize;
-}
 
 ResourceMessageFilter::ResourceMessageFilter(
     ResourceDispatcherHost* resource_dispatcher_host,
@@ -161,8 +113,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_PluginMessage, OnPluginMessage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PluginSyncMessage, OnPluginSyncMessage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_LoadFont, OnLoadFont)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetMonitorInfoForWindow,
-                        OnGetMonitorInfoForWindow)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_GetScreenInfo, OnGetScreenInfo)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetPlugins, OnGetPlugins)
     IPC_MESSAGE_HANDLER(ViewHostMsg_GetPluginPath, OnGetPluginPath)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DownloadUrl, OnDownloadUrl)
@@ -398,6 +349,53 @@ void ResourceMessageFilter::OnPluginSyncMessage(const std::wstring& dll_path,
       CPB_Free(retval_buffer);
     }
   }
+}
+
+void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
+  // If renderer is running in a sandbox, GetTextMetrics
+  // can sometimes fail. If a font has not been loaded
+  // previously, GetTextMetrics will try to load the font
+  // from the font file. However, the sandboxed renderer does
+  // not have permissions to access any font files and
+  // the call fails. So we make the browser pre-load the
+  // font for us by using a dummy call to GetTextMetrics of
+  // the same font.
+
+  // Maintain a circular queue for the fonts and DCs to be cached.
+  // font_index maintains next available location in the queue.
+  static const int kFontCacheSize = 32;
+  static HFONT fonts[kFontCacheSize] = {0};
+  static HDC hdcs[kFontCacheSize] = {0};
+  static size_t font_index = 0;
+
+  UMA_HISTOGRAM_COUNTS_100(L"Memory.CachedFontAndDC",
+      fonts[kFontCacheSize-1] ? kFontCacheSize : static_cast<int>(font_index));
+
+  HDC hdc = GetDC(NULL);
+  HFONT font_handle = CreateFontIndirect(&font);
+  DCHECK(NULL != font_handle);
+
+  HGDIOBJ old_font = SelectObject(hdc, font_handle);
+  DCHECK(NULL != old_font);
+
+  TEXTMETRIC tm;
+  BOOL ret = GetTextMetrics(hdc, &tm);
+  DCHECK(ret);
+
+  if (fonts[font_index] || hdcs[font_index]) {
+    // We already have too many fonts, we will delete one and take it's place.
+    DeleteObject(fonts[font_index]);
+    ReleaseDC(NULL, hdcs[font_index]);
+  }
+
+  fonts[font_index] = font_handle;
+  hdcs[font_index] = hdc;
+  font_index = (font_index + 1) % kFontCacheSize;
+}
+
+void ResourceMessageFilter::OnGetScreenInfo(
+	gfx::ViewHandle window, webkit_glue::ScreenInfo* results) {
+  *results = webkit_glue::GetScreenInfoHelper(window);
 }
 
 void ResourceMessageFilter::OnGetPlugins(bool refresh,

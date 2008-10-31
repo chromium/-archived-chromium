@@ -398,8 +398,8 @@ WebCore::IntRect ChromeClientImpl::windowToScreen(
 }
 
 PlatformWidget ChromeClientImpl::platformWindow() const {
-  // We have no native widget.
-  return NULL;
+  WebViewDelegate* d = webview_->delegate();
+  return d ? d->GetContainingWindow(webview_) : NULL;
 }
 
 void ChromeClientImpl::mouseDidMoveOverElement(

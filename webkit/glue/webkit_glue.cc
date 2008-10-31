@@ -75,14 +75,6 @@ bool IsLayoutTestMode() {
 }
 
 #if defined(OS_WIN)
-MONITORINFOEX GetMonitorInfoForWindowHelper(HWND window) {
-  HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY);
-  MONITORINFOEX monitorInfo;
-  monitorInfo.cbSize = sizeof(MONITORINFOEX);
-  GetMonitorInfo(monitor, &monitorInfo);
-  return monitorInfo;
-}
-
 IMLangFontLink2* GetLangFontLinkHelper() {
   // TODO(hbono): http://b/1072298 Experimentally disabled this code to
   // prevent registry leaks caused by this IMLangFontLink2 interface.

@@ -719,10 +719,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\win\PlatformScreenWin.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\win\SoundWin.cpp"
 					>
 				</File>
@@ -738,6 +734,10 @@
 			<Filter
 				Name="chromium"
 				>
+				<File
+					RelativePath="..\..\port\platform\chromium\ChromiumBridge.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\port\platform\chromium\ContextMenuChromium.cpp"
 					>
@@ -788,6 +788,10 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\chromium\PlatformKeyboardEventChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\PlatformScreenChromium.cpp"
 					>
 				</File>
 				<File

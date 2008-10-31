@@ -15,6 +15,7 @@
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/context_node_types.h"
+#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webinputevent.h"
@@ -813,10 +814,10 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_SYNC_MESSAGE_CONTROL1_0(ViewHostMsg_LoadFont,
                               LOGFONT /* font data */)
 
-  // Returns the monitor information corresponding to the HWND.
-  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetMonitorInfoForWindow,
-                              HWND /* In: Window handle */,
-                              MONITORINFOEX /* Out: Monitor information */)
+  // Returns ScreenInfo corresponding to the given window.
+  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetScreenInfo,
+                              gfx::ViewHandle /* window */,
+                              webkit_glue::ScreenInfo /* results */)
 
   // Send the tooltip text for the current mouse position to the browser.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_SetTooltipText,

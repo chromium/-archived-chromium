@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_H__
-#define WEBKIT_GLUE_H__
+#ifndef WEBKIT_GLUE_WEBKIT_GLUE_H_
+#define WEBKIT_GLUE_WEBKIT_GLUE_H_
 
 #include "base/basictypes.h"
 
@@ -14,7 +14,9 @@
 #include <string>
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/string16.h"
+#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webplugin.h"
 
 // We do not include the header files for these interfaces since this header
@@ -29,16 +31,15 @@ class GURL;
 struct _NPNetscapeFuncs;
 typedef _NPNetscapeFuncs NPNetscapeFuncs;
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 struct IMLangFontLink2;
 #endif
 
+// TODO(darin): This file should not be dealing in WebCore types!!
 namespace WebCore {
-
 class Document;
 class Frame;
-
-}  // namespace WebCore
+}
 
 class SkBitmap;
 
@@ -69,11 +70,11 @@ bool IsLayoutTestMode();
 // default way to do this operation. It can be called directly from
 // GetLangFontLink.
 IMLangFontLink2* GetLangFontLinkHelper();
-
-// Returns the monitor information corresponding to the window.
-// This is the default implementation.
-MONITORINFOEX GetMonitorInfoForWindowHelper(HWND window);
 #endif
+
+// Returns screen information corresponding to the given window.  This is the
+// default implementation.
+ScreenInfo GetScreenInfoHelper(gfx::ViewHandle window);
 
 // Returns the text of the document element.
 std::wstring DumpDocumentText(WebFrame* web_frame);
@@ -151,7 +152,7 @@ bool GetMimeTypeFromFile(const std::wstring& file_path, std::string* mime_type);
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
                                       std::wstring* ext);
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 // Returns the com object pointer for the FontLink interface
 IMLangFontLink2* GetLangFontLink();
 #endif
@@ -186,7 +187,7 @@ std::string GetDataResource(int resource_id);
 // specified as BINDATA in the relevant .rc file.
 GlueBitmap GetBitmapResource(int resource_id);
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 // Loads and returns a cursor.
 HCURSOR LoadCursor(int cursor_id);
 #endif
@@ -252,13 +253,13 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
 // false otherwise.
 bool IsPluginRunningInRendererProcess();
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 // Asks the browser to load the font.
 bool EnsureFontLoaded(HFONT font);
-
-// Returns the monitor information corresponding to the window.
-MONITORINFOEX GetMonitorInfoForWindow(HWND window);
 #endif
+
+// Returns screen information corresponding to the given window.
+ScreenInfo GetScreenInfo(gfx::ViewHandle window);
 
 // Functions implemented by webkit_glue for WebKit ----------------------------
 
@@ -270,7 +271,7 @@ void NotifyFormStateChanged(const WebCore::Document* document);
 // Returns a bool indicating if the Null plugin should be enabled or not.
 bool IsDefaultPluginEnabled();
 
-#ifdef _WIN32
+#if defined(OS_WIN)
 // Downloads the file specified by the URL. On sucess a WM_COPYDATA message
 // will be sent to the caller_window.
 bool DownloadUrl(const std::string& url, HWND caller_window);
@@ -296,4 +297,4 @@ bool ShouldForcefullyTerminatePluginProcess();
 
 } // namespace webkit_glue
 
-#endif  // WEBKIT_GLUE_H__
+#endif  // WEBKIT_GLUE_WEBKIT_GLUE_H_
