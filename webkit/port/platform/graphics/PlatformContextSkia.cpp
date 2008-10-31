@@ -32,7 +32,7 @@
 #include "PlatformContextSkia.h"
 #undef LOG
 #include "SkiaUtils.h"
-#include "WTF/MathExtras.h"
+#include "wtf/MathExtras.h"
 
 #include "base/gfx/image_operations.h"
 #include "base/gfx/platform_canvas.h"
