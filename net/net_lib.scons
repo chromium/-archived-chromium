@@ -145,7 +145,7 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] == 'darwin':
   input_files.extend([
-      'base/platform_mime_util_mac.mm',
+      'base/platform_mime_util_mac.cc',
       'base/ssl_client_socket_mac.cc',
       'base/x509_certificate_mac.cc',
       'proxy/proxy_resolver_mac.cc',

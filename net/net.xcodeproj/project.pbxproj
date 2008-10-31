@@ -81,7 +81,7 @@
 		7B8504350E5B2E4900730B43 /* mem_rankings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32F00E5A190600A747DB /* mem_rankings.cc */; };
 		7B8504390E5B2E5700730B43 /* net_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32A50E5A181C00A747DB /* net_module.cc */; };
 		7B85043B0E5B2E6400730B43 /* os_file_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32DE0E5A190600A747DB /* os_file_posix.cc */; };
-		7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329D0E5A181C00A747DB /* platform_mime_util_mac.mm */; };
+		7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329D0E5A181C00A747DB /* platform_mime_util_mac.cc */; };
 		7B85043D0E5B2E6400730B43 /* rankings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32DC0E5A190600A747DB /* rankings.cc */; };
 		7B8504410E5B2E9600730B43 /* stats.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32DA0E5A190600A747DB /* stats.cc */; };
 		7B8504450E5B2E9600730B43 /* trace.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32D70E5A190600A747DB /* trace.cc */; };
@@ -502,7 +502,7 @@
 		7BED32990E5A181C00A747DB /* registry_controlled_domain_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = registry_controlled_domain_unittest.cc; sourceTree = "<group>"; };
 		7BED329A0E5A181C00A747DB /* registry_controlled_domain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = registry_controlled_domain.h; sourceTree = "<group>"; };
 		7BED329B0E5A181C00A747DB /* registry_controlled_domain.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = registry_controlled_domain.cc; sourceTree = "<group>"; };
-		7BED329D0E5A181C00A747DB /* platform_mime_util_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_mime_util_mac.mm; sourceTree = "<group>"; };
+		7BED329D0E5A181C00A747DB /* platform_mime_util_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = platform_mime_util_mac.cc; sourceTree = "<group>"; };
 		7BED329E0E5A181C00A747DB /* platform_mime_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_mime_util.h; sourceTree = "<group>"; };
 		7BED329F0E5A181C00A747DB /* net_util_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_util_unittest.cc; sourceTree = "<group>"; };
 		7BED32A00E5A181C00A747DB /* net_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_util.h; sourceTree = "<group>"; };
@@ -946,7 +946,7 @@
 				533102E60E5E3EBF00FF8E32 /* net_util_posix.cc */,
 				7BED329F0E5A181C00A747DB /* net_util_unittest.cc */,
 				7BED329E0E5A181C00A747DB /* platform_mime_util.h */,
-				7BED329D0E5A181C00A747DB /* platform_mime_util_mac.mm */,
+				7BED329D0E5A181C00A747DB /* platform_mime_util_mac.cc */,
 				7BED329B0E5A181C00A747DB /* registry_controlled_domain.cc */,
 				7BED329A0E5A181C00A747DB /* registry_controlled_domain.h */,
 				7BED32990E5A181C00A747DB /* registry_controlled_domain_unittest.cc */,
@@ -1475,7 +1475,7 @@
 				7B8B5AE30E5CDC00002F9A97 /* net_util.cc in Sources */,
 				533102E70E5E3EBF00FF8E32 /* net_util_posix.cc in Sources */,
 				7B85043B0E5B2E6400730B43 /* os_file_posix.cc in Sources */,
-				7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.mm in Sources */,
+				7B85043C0E5B2E6400730B43 /* platform_mime_util_mac.cc in Sources */,
 				E49DD33C0E8933C0003C7A87 /* proxy_resolver_fixed.cc in Sources */,
 				820701040EB6611F005CD9E7 /* proxy_resolver_mac.cc in Sources */,
 				E49DD3370E8933A2003C7A87 /* proxy_service.cc in Sources */,
