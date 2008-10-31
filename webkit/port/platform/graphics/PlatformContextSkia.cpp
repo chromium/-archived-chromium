@@ -470,6 +470,10 @@ void PlatformContextSkia::setDashPathEffect(SkDashPathEffect* dash) {
   }
 }
 
+// TODO(brettw) all this platform stuff should be moved out of this class into
+// platform-specific files for that type of thing (e.g. to FontWin).
+#if PLATFORM(WIN_OS)
+
 const gfx::NativeTheme* PlatformContextSkia::nativeTheme() {
   return gfx::NativeTheme::instance();
 }
@@ -590,6 +594,8 @@ bool PlatformContextSkia::paintText(FontHandle hfont,
   canvas_->endPlatformPaint();
   return success;
 }
+
+#endif  // PLATFORM(WIN_OS);
 
 void PlatformContextSkia::paintSkPaint(const SkRect& rect,
                                        const SkPaint& paint) {
