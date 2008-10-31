@@ -4456,7 +4456,7 @@ int sqlite3PagerMovepage(Pager *pPager, DbPage *pPg, Pgno pgno){
 ** the allocation will be large, go directly to the OS instead of the heap.
 **/
 static void* allocLarge(size_t size) {
-#ifdef OS_WIN
+#if OS_WIN
   return VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 #else
   return sqliteMallocRaw(size);
@@ -4464,7 +4464,7 @@ static void* allocLarge(size_t size) {
 }
 
 static void freeLarge(void* ptr) {
-#ifdef OS_WIN
+#if OS_WIN
   VirtualFree(ptr, 0, MEM_RELEASE);
 #else
   sqliteFree(ptr);
