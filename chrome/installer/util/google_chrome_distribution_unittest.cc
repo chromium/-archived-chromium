@@ -32,7 +32,7 @@ class GoogleChromeDistributionTest : public testing::Test {
     std::wstring reg_key = GetApKeyPath();
     work_item_list->AddCreateRegKeyWorkItem(reg_root, reg_key);
     work_item_list->AddSetRegValueWorkItem(reg_root, reg_key,
-        google_update::kRegApFieldName, value.c_str(), true);
+        google_update::kRegApField, value.c_str(), true);
     if (!work_item_list->Do()) {
       work_item_list->Rollback();
       return false;
@@ -54,7 +54,7 @@ class GoogleChromeDistributionTest : public testing::Test {
     std::wstring ap_key_value;
     std::wstring reg_key = GetApKeyPath();
     if (key.Open(HKEY_CURRENT_USER, reg_key.c_str(), KEY_ALL_ACCESS) && 
-        key.ReadValue(google_update::kRegApFieldName, &ap_key_value)) {
+        key.ReadValue(google_update::kRegApField, &ap_key_value)) {
       return ap_key_value;
     }
     return std::wstring();
