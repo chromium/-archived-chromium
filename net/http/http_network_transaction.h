@@ -234,6 +234,9 @@ class HttpNetworkTransaction : public HttpTransaction {
   char* read_buf_;
   int read_buf_len_;
 
+  // TODO(eroman): temp instrumentation to track down a bug.
+  int bug_3772_state_;
+
   enum State {
     STATE_RESOLVE_PROXY,
     STATE_RESOLVE_PROXY_COMPLETE,
@@ -250,7 +253,6 @@ class HttpNetworkTransaction : public HttpTransaction {
     STATE_WRITE_BODY,
     STATE_WRITE_BODY_COMPLETE,
     STATE_READ_HEADERS,
-    STATE_UNUSED,  // TODO(wtc): temporary, for debugging issue 3772.
     STATE_READ_HEADERS_COMPLETE,
     STATE_READ_BODY,
     STATE_READ_BODY_COMPLETE,

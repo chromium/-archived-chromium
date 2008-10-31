@@ -32,6 +32,24 @@ using base::Time;
 
 namespace net {
 
+// TODO(eroman): temporary for debugging.
+enum Bug3772 {
+  // |this| is a valid HttpNetworkTransaction.
+  BUG_3772_CONSTRUCTED = 0x5CA1AB1E,
+
+  // |this| is a deleted HttpNetworkTransaction.
+  BUG_3772_DELETED = 0xBA5EBA11,
+
+  // Bits set when the corresponding member variable is set.
+  BUG_3772_USING_SSL =           0xA0000000,
+  BUG_3772_ESTABLISHING_TUNNEL = 0x0B000000,
+  BUG_3772_USING_TUNNEL =        0x00C00000,
+  BUG_3772_USING_PROXY =         0x000D0000,
+
+  // Bits to set when the url scheme is SSL.
+  BUG_3772_USING_SSL_SCHEME =    0x0000E000,
+};
+
 //-----------------------------------------------------------------------------
 
 HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
@@ -58,6 +76,7 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       content_read_(0),
       read_buf_(NULL),
       read_buf_len_(0),
+      bug_3772_state_(BUG_3772_CONSTRUCTED),
       next_state_(STATE_NONE) {
 #if defined(OS_WIN)
   // TODO(port): Port the SSLConfigService class to Linux and Mac OS X.
@@ -173,6 +192,8 @@ uint64 HttpNetworkTransaction::GetUploadProgress() const {
 }
 
 HttpNetworkTransaction::~HttpNetworkTransaction() {
+  bug_3772_state_ = BUG_3772_DELETED;
+
   // If we still have an open socket, then make sure to close it so we don't
   // try to reuse it later on.
   if (connection_.is_initialized())
@@ -687,9 +708,29 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
     }
   }
 
+  
+  // TODO(eroman): temp instrumentation for bug hunting.
+  int bug_3772_state = this->bug_3772_state_;
+  if (bug_3772_state == BUG_3772_CONSTRUCTED) {
+    bug_3772_state = 0;
+
+    // Copy some member variables onto the stack so we can view them in
+    // mini-dump.
+    if (using_ssl_)
+      bug_3772_state |=  BUG_3772_USING_SSL;
+    if (establishing_tunnel_)
+      bug_3772_state |=  BUG_3772_ESTABLISHING_TUNNEL;
+    if (using_tunnel_)
+      bug_3772_state |=  BUG_3772_USING_TUNNEL;
+    if (using_proxy_)
+      bug_3772_state |=  BUG_3772_USING_PROXY;
+
+    if (request_->url.SchemeIs("https"))
+      bug_3772_state |=  BUG_3772_USING_SSL_SCHEME;
+  }
+
   // And, we are done with the Start or the SSL tunnel CONNECT sequence.
-  int bug_3772_storage = 0;
-  return DidReadResponseHeaders(&bug_3772_storage);
+  return DidReadResponseHeaders(&bug_3772_state);
 }
 
 int HttpNetworkTransaction::DoReadBody() {
@@ -770,27 +811,21 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   return result;
 }
 
-void Bug3772Set(int* storage, int x) {
-  *storage = 0xdeadbeef + x;
-}
-
 int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
-  Bug3772Set(bug_3772_state, 0);
+  // Make sure compiler doesn't optimize away the variable.
+  if (*bug_3772_state == 0x11)
+    *bug_3772_state++;
 
   scoped_refptr<HttpResponseHeaders> headers;
   if (has_found_status_line_start()) {
-    Bug3772Set(bug_3772_state, 1);
     headers = new HttpResponseHeaders(
         HttpUtil::AssembleRawHeaders(
             header_buf_.get(), header_buf_body_offset_));
   } else {
-    Bug3772Set(bug_3772_state, 2);
     // Fabricate a status line to to preserve the HTTP/0.9 version.
     // (otherwise HttpResponseHeaders will default it to HTTP/1.0).
     headers = new HttpResponseHeaders(std::string("HTTP/0.9 200 OK"));
   }
-
-  Bug3772Set(bug_3772_state, 3);
 
   if (headers->GetParsedHttpVersion() < HttpVersion(1, 0)) {
     // Require the "HTTP/1.x" status line for SSL CONNECT.
@@ -804,13 +839,10 @@ int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
       return ERR_METHOD_NOT_SUPPORTED;
   }
 
-  Bug3772Set(bug_3772_state, 4);
-
   // Check for an intermediate 100 Continue response.  An origin server is
   // allowed to send this response even if we didn't ask for it, so we just
   // need to skip over it.
   if (headers->response_code() == 100) {
-    Bug3772Set(bug_3772_state, 5);
     header_buf_len_ -= header_buf_body_offset_;
     // If we've already received some bytes after the 100 Continue response,
     // move them to the beginning of header_buf_.
@@ -823,10 +855,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
     return OK;
   }
 
-  Bug3772Set(bug_3772_state, 6);
-
   if (establishing_tunnel_ && headers->response_code() == 200) {
-    Bug3772Set(bug_3772_state, 7);
     if (header_buf_body_offset_ != header_buf_len_) {
       // The proxy sent extraneous data after the headers.
       return ERR_TUNNEL_CONNECTION_FAILED;
@@ -841,20 +870,14 @@ int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
     return OK;
   }
 
-  Bug3772Set(bug_3772_state, 8);
-
   response_.headers = headers;
   response_.vary_data.Init(*request_, *response_.headers);
-
-  Bug3772Set(bug_3772_state, 9);
 
   int rv = PopulateAuthChallenge();
   if (rv != OK)
     return rv;
 
   // Figure how to determine EOF:
-
-  Bug3772Set(bug_3772_state, 10);
 
   // For certain responses, we know the content length is always 0.
   switch (response_.headers->response_code()) {
@@ -866,7 +889,6 @@ int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
   }
 
   if (content_length_ == -1) {
-    Bug3772Set(bug_3772_state, 11);
     // Ignore spurious chunked responses from HTTP/1.0 servers and proxies.
     // Otherwise "Transfer-Encoding: chunked" trumps "Content-Length: N"
     if (response_.headers->GetHttpVersion() >= HttpVersion(1, 1) &&
@@ -879,16 +901,11 @@ int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
     }
   }
 
-  Bug3772Set(bug_3772_state, 12);
-
   if (using_ssl_ && !establishing_tunnel_) {
-    Bug3772Set(bug_3772_state, 13);
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
   }
-
-  Bug3772Set(bug_3772_state, 14);
 
   return OK;
 }
