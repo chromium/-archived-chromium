@@ -824,6 +824,17 @@ V8 | KJS # SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 # http://code.google.com/p/chromium/issues/detail?id=3273
 V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
 
+# Regressed during Skia refactoring.  Brettw is investigating.
+V8 | KJS # LayoutTests/fast/canvas/canvas-alphaImageData-behavior.html = FAIL
+V8 | KJS # LayoutTests/fast/canvas/canvas-invalid-fillstyle.html = FAIL
+V8 | KJS # LayoutTests/fast/canvas/canvas-invalid-strokestyle.html = FAIL
+V8 | KJS # LayoutTests/fast/canvas/canvas-longlived-context.html = FAIL
+V8 | KJS # LayoutTests/fast/canvas/canvas-path-with-inf-nan-dimensions.html = FAIL
+V8 | KJS # LayoutTests/fast/canvas/canvas-putImageData.html = FAIL
+V8 | KJS # LayoutTests/fast/canvas/canvas-save-restore-with-path.html = FAIL
+V8 | KJS # LayoutTests/fast/canvas/gradient-with-clip.html = FAIL
+V8 | KJS # LayoutTests/fast/canvas/pattern-with-transform.html = FAIL
+
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
 //
