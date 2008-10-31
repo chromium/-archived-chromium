@@ -996,21 +996,29 @@ void GraphicsContext::setURLForRect(const KURL& link, const IntRect& destRect)
 
 void GraphicsContext::setPlatformFillColor(const Color& color)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setFillColor(color.rgb());
 }
 
 void GraphicsContext::setPlatformStrokeColor(const Color& strokecolor)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setStrokeColor(strokecolor.rgb());
 }
 
 void GraphicsContext::setPlatformStrokeThickness(float thickness)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setStrokeThickness(thickness);
 }
 
 void GraphicsContext::setPlatformTextDrawingMode(int mode)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setTextDrawingMode(mode);
 }
 
