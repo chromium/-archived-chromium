@@ -99,16 +99,16 @@ input_files = [
     'test_navigation_controller.cc',
     'test_shell_request_context.cc',
     'test_shell_switches.cc',
+    'test_shell.cc',
+    'text_input_controller.cc',
 ]
 if env['PLATFORM'] == 'win32':
   # TODO(port): put portable files in above test_files declaration.
   input_files.extend([
       'drag_delegate.cc',
       'drop_delegate.cc',
-      'test_shell.cc',
       'test_shell_win.cc',
       'test_webview_delegate.cc',
-      'text_input_controller.cc',
       'webview_host.cc',
       'webwidget_host.cc',
   ])

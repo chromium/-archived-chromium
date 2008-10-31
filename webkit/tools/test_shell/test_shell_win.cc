@@ -26,6 +26,7 @@
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
+#include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
@@ -725,12 +726,20 @@ HCURSOR LoadCursor(int cursor_id) {
   return NULL;
 }
 
+bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
+  return NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
+}
+
 bool EnsureFontLoaded(HFONT font) {
   return true;
 }
 
 bool DownloadUrl(const std::string& url, HWND caller_window) {
   return false;
+}
+
+ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+  return GetScreenInfoHelper(window);
 }
 
 }  // namespace webkit_glue

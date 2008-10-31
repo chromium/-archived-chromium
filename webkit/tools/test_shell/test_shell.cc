@@ -6,6 +6,7 @@
 
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/bitmap_platform_device.h"
 #include "base/gfx/size.h"
@@ -14,6 +15,7 @@
 #include "base/path_service.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
+#include "build/build_config.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/mime_util.h"
 #include "net/url_request/url_request_file_job.h"
@@ -27,7 +29,6 @@
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/webwidget.h"
-#include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
 #include "webkit_strings.h"
@@ -78,7 +79,9 @@ TestShell::TestShell()
       m_webViewHost(NULL),
       m_popupHost(NULL),
       m_focusedWidgetHost(NULL),
+#if defined(OS_WIN)
       default_edit_wnd_proc_(0),
+#endif
       test_is_preparing_(false),
       test_is_pending_(false),
       is_modal_(false),
@@ -97,7 +100,6 @@ TestShell::TestShell()
 
 
 TestShell::~TestShell() {
-
     // Call GC twice to clean up garbage.
     CallJSGC();
     CallJSGC();
@@ -122,14 +124,17 @@ TestShell::~TestShell() {
     }
 }
 
+#if defined(OS_WIN)
 // All fatal log messages (e.g. DCHECK failures) imply unit test failures
 static void UnitTestAssertHandler(const std::string& str) {
     FAIL() << str;
 }
+#endif
 
 // static
 void TestShell::InitLogging(bool suppress_error_dialogs,
                             bool running_layout_tests) {
+#if defined(OS_WIN)
     if (!IsDebuggerPresent() && suppress_error_dialogs) {
         UINT new_flags = SEM_FAILCRITICALERRORS |
                          SEM_NOGPFAULTERRORBOX |
@@ -140,6 +145,7 @@ void TestShell::InitLogging(bool suppress_error_dialogs,
 
         logging::SetLogAssertHandler(UnitTestAssertHandler);
     }
+#endif
 
     // Only log to a file if we're running layout tests. This prevents debugging
     // output from disrupting whether or not we pass.
@@ -149,10 +155,10 @@ void TestShell::InitLogging(bool suppress_error_dialogs,
       destination = logging::LOG_ONLY_TO_FILE;
 
     // We might have multiple test_shell processes going at once
-    std::wstring log_filename;
+    FilePath log_filename;
     PathService::Get(base::DIR_EXE, &log_filename);
-    file_util::AppendToPath(&log_filename, L"test_shell.log");
-    logging::InitLogging(log_filename.c_str(),
+    log_filename.Append(FILE_PATH_LITERAL("test_shell.log"));
+    logging::InitLogging(log_filename.value().c_str(),
                          destination,
                          logging::LOCK_LOG_FILE,
                          logging::DELETE_OLD_LOG_FILE);
@@ -250,7 +256,6 @@ WebView* TestShell::CreateWebView(WebView* webview) {
 void TestShell::SizeToDefault() {
    SizeTo(kTestWindowWidth, kTestWindowHeight);
 }
-
 
 void TestShell::LoadURL(const wchar_t* url) {
     LoadURLForFrame(url, NULL);
@@ -390,16 +395,8 @@ bool SpellCheckWord(const wchar_t* word, int word_len,
   return true;
 }
 
-bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  return NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
-}
-
 bool IsPluginRunningInRendererProcess() {
   return true;
-}
-
-ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
-  return GetScreenInfoHelper(window);
 }
 
 bool GetPluginFinderURL(std::string* plugin_finder_url) {

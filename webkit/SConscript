@@ -210,6 +210,7 @@ sconscript_dirs = [
   'SConscript.javascriptcore_pcre',
   'build/JSConfig/SConscript',
   'build/JavaScriptCore/SConscript',
+  'build/localized_strings/SConscript',
   'build/port/SConscript',
   'build/V8Bindings/SConscript',
   'build/WebCore/SConscript',
@@ -225,7 +226,6 @@ if env['PLATFORM'] == 'win32':
   sconscript_dirs.extend([
     'activex_shim/SConscript',
     'activex_shim_dll/SConscript',
-    'build/localized_strings/SConscript',
   ])
 
   env.Append(

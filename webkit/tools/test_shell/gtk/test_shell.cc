@@ -25,22 +25,6 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
-WebPreferences* TestShell::web_prefs_ = NULL;
-
-WindowList* TestShell::window_list_;
-
-TestShell::TestShell()
-    : delegate_(new TestWebViewDelegate(this)) {
-  layout_test_controller_.reset(new LayoutTestController(this));
-  event_sending_controller_.reset(new EventSendingController(this));
-  navigation_controller_.reset(new TestNavigationController(this));
-}
-
-TestShell::~TestShell() {
-}
-
-bool TestShell::interactive_ = false;
-
 // static
 void TestShell::InitializeTestShell(bool interactive) {
   window_list_ = new WindowList;
@@ -60,42 +44,7 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
   return true;
 }
 
-void TestShell::ResetWebPreferences() {
-    DCHECK(web_prefs_);
-
-    // Match the settings used by Mac DumpRenderTree.
-    if (web_prefs_) {
-        *web_prefs_ = WebPreferences();
-        web_prefs_->standard_font_family = L"Times";
-        web_prefs_->fixed_font_family = L"Courier";
-        web_prefs_->serif_font_family = L"Times";
-        web_prefs_->sans_serif_font_family = L"Helvetica";
-        // These two fonts are picked from the intersection of
-        // Win XP font list and Vista font list :
-        //   http://www.microsoft.com/typography/fonts/winxp.htm 
-        //   http://blogs.msdn.com/michkap/archive/2006/04/04/567881.aspx
-        // Some of them are installed only with CJK and complex script
-        // support enabled on Windows XP and are out of consideration here. 
-        // (although we enabled both on our buildbots.)
-        // They (especially Impact for fantasy) are not typical cursive
-        // and fantasy fonts, but it should not matter for layout tests
-        // as long as they're available.
-        web_prefs_->cursive_font_family = L"Comic Sans MS";
-        web_prefs_->fantasy_font_family = L"Impact";
-        web_prefs_->default_encoding = L"ISO-8859-1";
-        web_prefs_->default_font_size = 16;
-        web_prefs_->default_fixed_font_size = 13;
-        web_prefs_->minimum_font_size = 1;
-        web_prefs_->minimum_logical_font_size = 9;
-        web_prefs_->javascript_can_open_windows_automatically = true;
-        web_prefs_->dom_paste_enabled = true;
-        web_prefs_->developer_extras_enabled = interactive_;
-        web_prefs_->shrinks_standalone_images_to_fit = false;
-        web_prefs_->uses_universal_detector = false;
-        web_prefs_->text_areas_are_resizable = false;
-        web_prefs_->java_enabled = true;
-        web_prefs_->allow_scripts_to_close_windows = false;
-    }
+void TestShell::PlatformCleanUp() {
 }
 
 bool TestShell::Initialize(const std::wstring& startingURL) {
@@ -145,23 +94,23 @@ void TestShell::TestFinished() {
   NOTIMPLEMENTED();
 }
 
-void TestShell::WaitTestFinished() {
-    DCHECK(!test_is_pending_) << "cannot be used recursively";
-
-    test_is_pending_ = true;
-
-    // TODO(agl): Here windows forks a watchdog thread, but I'm punting on that
-    // for the moment. On POSIX systems we probably want to install a signal
-    // handler and use alarm(2).
-
-    // TestFinished() will post a quit message to break this loop when the page
-    // finishes loading.
-    while (test_is_pending_)
-        MessageLoop::current()->Run();
+void TestShell::SizeTo(int width, int height) {
+  NOTIMPLEMENTED();
 }
 
-void TestShell::Show(WebView* webview, WindowOpenDisposition disposition) {
-  delegate_->Show(webview, disposition);
+void TestShell::WaitTestFinished() {
+  DCHECK(!test_is_pending_) << "cannot be used recursively";
+
+  test_is_pending_ = true;
+
+  // TODO(agl): Here windows forks a watchdog thread, but I'm punting on that
+  // for the moment. On POSIX systems we probably want to install a signal
+  // handler and use alarm(2).
+
+  // TestFinished() will post a quit message to break this loop when the page
+  // finishes loading.
+  while (test_is_pending_)
+    MessageLoop::current()->Run();
 }
 
 void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
@@ -169,17 +118,8 @@ void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
   NOTIMPLEMENTED();
 }
 
-void TestShell::BindJSObjectsToWindow(WebFrame* frame) {
-  NOTIMPLEMENTED();
-}
-
 void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
   NOTIMPLEMENTED();
-}
-
-WebView* TestShell::CreateWebView(WebView* webview) {
-  NOTIMPLEMENTED();
-  return NULL;
 }
 
 WebWidget* TestShell::CreatePopupWidget(WebView* webview) {
@@ -320,11 +260,6 @@ void TestShell::ResizeSubViews() {
   return true;
 }
 
-void TestShell::LoadURL(const wchar_t* url)
-{
-    LoadURLForFrame(url, NULL);
-}
-
 void TestShell::LoadURLForFrame(const wchar_t* url,
                                 const wchar_t* frame_name) {
     if (!url)
@@ -339,49 +274,6 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
 
     navigation_controller_->LoadEntry(new TestNavigationEntry(
         -1, GURL(WideToUTF8(url)), std::wstring(), frame_string));
-}
-
-bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
-  WebRequestCachePolicy cache_policy;
-  if (reload) {
-    cache_policy = WebRequestReloadIgnoringCacheData;
-  } else if (entry.GetPageID() != -1) {
-    cache_policy = WebRequestReturnCacheDataElseLoad;
-  } else {
-    cache_policy = WebRequestUseProtocolCachePolicy;
-  }
-
-  scoped_ptr<WebRequest> request(WebRequest::Create(entry.GetURL()));
-  request->SetCachePolicy(cache_policy);
-  // If we are reloading, then WebKit will use the state of the current page.
-  // Otherwise, we give it the state to navigate to.
-  if (!reload)
-    request->SetHistoryState(entry.GetContentState());
-    
-  request->SetExtraData(
-      new TestShellExtraRequestData(entry.GetPageID()));
-
-  // Get the right target frame for the entry.
-  WebFrame* frame = webView()->GetMainFrame();
-  if (!entry.GetTargetFrame().empty())
-      frame = webView()->GetFrameWithName(entry.GetTargetFrame());
-  // TODO(mpcomplete): should we clear the target frame, or should
-  // back/forward navigations maintain the target frame?
-
-  frame->LoadRequest(request.get());
-  // Restore focus to the main frame prior to loading new request.
-  // This makes sure that we don't have a focused iframe. Otherwise, that
-  // iframe would keep focus when the SetFocus called immediately after
-  // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
-  // for more details).
-  webView()->SetFocusedFrame(frame);
-  SetFocus(webViewHost(), true);
-
-  return true;
-}
-
-void TestShell::GoBackOrForward(int offset) {
-    navigation_controller_->GoToOffset(offset);
 }
 
 static void WriteTextToFile(const std::wstring& data,
@@ -402,11 +294,6 @@ static void WriteTextToFile(const std::wstring& data,
   close(fd);
 }
 
-
-std::wstring TestShell::GetDocumentText()
-{
-  return webkit_glue::DumpDocumentText(webView()->GetMainFrame());
-}
 
 // TODO(agl):
 // This version of PromptForSaveFile uses FilePath, which is what the real
@@ -443,10 +330,6 @@ void TestShell::DumpRenderTree()
                   file_path);
 }
 
-void TestShell::Reload() {
-    navigation_controller_->Reload();
-}
-
 std::string TestShell::RewriteLocalUrl(const std::string& url) {
   // Convert file:///tmp/LayoutTests urls to the actual location on disk.
   const char kPrefix[] = "file:///tmp/LayoutTests/";
@@ -473,91 +356,19 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 
 namespace webkit_glue {
 
-void PrefetchDns(const std::string& hostname) {}
-
-void PrecacheUrl(const char16* url, int url_length) {}
-
-void AppendToLog(const char* file, int line, const char* msg) {
-  logging::LogMessage(file, line).stream() << msg;
-}
-
-bool GetMimeTypeFromExtension(const std::wstring &ext, std::string *mime_type) {
-  return net::GetMimeTypeFromExtension(ext, mime_type);
-}
-
-bool GetMimeTypeFromFile(const std::wstring &file_path,
-                         std::string *mime_type) {
-  return net::GetMimeTypeFromFile(file_path, mime_type);
-}
-
-bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      std::wstring* ext) {
-  return net::GetPreferredExtensionForMimeType(mime_type, ext);
-}
-
 std::wstring GetLocalizedString(int message_id) {
   NOTREACHED();
   return L"No string for this identifier!";
 }
 
-std::string GetDataResource(int resource_id) {
-  NOTREACHED();
-  return std::string();
-}
-
-SkBitmap* GetBitmapResource(int resource_id) {
-  return NULL;
-}
-
-bool GetApplicationDirectory(std::wstring *path) {
-  return PathService::Get(base::DIR_EXE, path);
-}
-
-GURL GetInspectorURL() {
-  return GURL("test-shell-resource://inspector/inspector.html");
-}
-
-std::string GetUIResourceProtocol() {
-  return "test-shell-resource";
-}
-
-bool GetExeDirectory(std::wstring *path) {
-  return PathService::Get(base::DIR_EXE, path);
-}
-
-bool SpellCheckWord(const wchar_t* word, int word_len,
-                    int* misspelling_start, int* misspelling_len) {
-  // Report all words being correctly spelled.
-  *misspelling_start = 0;
-  *misspelling_len = 0;
-  return true;
-}
-
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  //return NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
   NOTIMPLEMENTED();
   return false;
-}
-
-bool IsPluginRunningInRendererProcess() {
-  return true;
 }
 
 ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
   NOTIMPLEMENTED();
   return ScreenInfo();
-}
-
-bool GetPluginFinderURL(std::string* plugin_finder_url) {
-  return false;
-}
-
-bool IsDefaultPluginEnabled() {
-  return false;
-}
-
-std::wstring GetWebKitLocale() {
-  return L"en-US";
 }
 
 }  // namespace webkit_glue
