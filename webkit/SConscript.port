@@ -44,8 +44,8 @@ input_files = [
 
     '$PORT_DIR/platform/GKURL.cpp',
 
-    '$PORT_DIR/platform/chromium/ContextMenuItemChromium.cpp',
     '$PORT_DIR/platform/chromium/ContextMenuChromium.cpp',
+    '$PORT_DIR/platform/chromium/ContextMenuItemChromium.cpp',
     '$PORT_DIR/platform/chromium/CursorChromium.cpp',
     '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
     '$PORT_DIR/platform/chromium/DragImageChromium.cpp',
@@ -56,9 +56,9 @@ input_files = [
     '$PORT_DIR/platform/chromium/MimeTypeRegistryChromium.cpp',
     '$PORT_DIR/platform/chromium/PlatformKeyboardEventChromium.cpp',
     '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
-    '$PORT_DIR/platform/chromium/SSLKeyGeneratorChromium.cpp',
     '$PORT_DIR/platform/chromium/SearchPopupMenuChromium.cpp',
     '$PORT_DIR/platform/chromium/SharedTimerChromium.cpp',
+    '$PORT_DIR/platform/chromium/SSLKeyGeneratorChromium.cpp',
     '$PORT_DIR/platform/chromium/SystemTimeChromium.cpp',
     '$PORT_DIR/platform/chromium/TemporaryLinkStubs.cpp',
     '$PORT_DIR/platform/chromium/TextBoundariesChromium.cpp',
@@ -145,6 +145,9 @@ if env['PLATFORM'] == 'darwin':
 if env['PLATFORM'] == 'win32':
   # These are win32 specific and will never be ported.
   input_files.extend([
+    '$PORT_DIR/platform/chromium/FileSystemChromiumWin.cpp',
+    '$PORT_DIR/platform/chromium/ScrollBarThemeChromiumWin.cpp',
+    '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
     '$PORT_DIR/platform/win/BString.cpp',
     '$PORT_DIR/platform/win/ClipboardUtilitiesWin.cpp',
     '$PORT_DIR/platform/win/ClipboardWin.cpp',
@@ -152,7 +155,6 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/win/PasteboardWin.cpp',
     '$PORT_DIR/platform/win/PlatformScreenWin.cpp',
     '$PORT_DIR/platform/win/SoundWin.cpp',
-    '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
     '$PORT_DIR/platform/win/WCDataObject.cpp',
     '$PORT_DIR/platform/graphics/FontCacheWin.cpp',
     '$PORT_DIR/platform/graphics/FontPlatformDataWin.cpp',

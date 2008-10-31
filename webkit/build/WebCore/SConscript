@@ -794,12 +794,6 @@ if env['PLATFORM'] == 'posix':
     '$WEBCORE_DIR/platform/gtk/ScrollbarThemeGtk.cpp',
   ])
 
-# Windows specific files.
-if env['PLATFORM'] == 'win32':
-  input_files.extend([
-    '$WEBCORE_DIR/platform/win/FileSystemWin.cpp',
-  ])
-
 # Precompiled headers only work under MSVC in scons.
 if env['PLATFORM'] == 'win32':
   env_p = env.Clone()
