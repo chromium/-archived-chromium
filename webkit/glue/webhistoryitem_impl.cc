@@ -27,6 +27,7 @@
 #include "webkit/glue/webhistoryitem_impl.h"
 
 #include "webkit/glue/glue_serialize.h"
+#include "webkit/glue/glue_util.h"
 
 #include "base/compiler_specific.h"
 
@@ -72,7 +73,15 @@ WebCore::HistoryItem* WebHistoryItemImpl::GetHistoryItem() const {
   if (history_item_)
     return history_item_.get();
 
-  history_item_ = webkit_glue::HistoryItemFromString(history_state_);
+  if (history_state_.size() > 0) {
+    history_item_ = webkit_glue::HistoryItemFromString(history_state_);
+  } else {
+    history_item_ = WebCore::HistoryItem::create(
+      webkit_glue::StdStringToString(url_.spec()),
+      webkit_glue::StdWStringToString(title_),
+      0.0);
+  }
+
   return history_item_.get();
 }
 

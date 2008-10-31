@@ -102,6 +102,8 @@ static const int kMaximumNumberOfUnacknowledgedPopups = 25;
 static const char* const kUnreachableWebDataURL =
     "chrome-resource://chromewebdata/";
 
+static const char* const kBackForwardNavigationScheme = "history";
+
 namespace {
 
 // Associated with browser-initiated navigations to hold tracking data.
@@ -1529,6 +1531,13 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
           url.SchemeIs("view-source")) {
         OpenURL(webview, url, GURL(), disposition);
         return IGNORE_ACTION;  // Suppress the load here.
+      } else if (url.SchemeIs(kBackForwardNavigationScheme)) {
+        std::string offset_str = url.ExtractFileName();
+        int offset;
+        if (StringToInt(offset_str, &offset)) {
+          GoToEntryAtOffsetAsync(offset);
+          return IGNORE_ACTION;  // The browser process handles this one.
+        }
       }
     }
   }
@@ -2275,9 +2284,16 @@ void RenderView::OnPasswordFormsSeen(WebView* webview,
 }
 
 WebHistoryItem* RenderView::GetHistoryEntryAtOffset(int offset) {
-  // This doesn't work in the multi-process case because we don't want to
-  // hang, as it might lead to deadlocks.  Use GoToEntryAtOffsetAsync.
-  return NULL;
+  // Our history list is kept in the browser process on the UI thread.  Since
+  // we can't make a sync IPC call to that thread without risking deadlock,
+  // we use a trick: construct a fake history item of the form:
+  //   history://go/OFFSET
+  // When WebCore tells us to navigate to it, we tell the browser process to
+  // do a back/forward navigation instead.
+
+  GURL url(StringPrintf("%s://go/%d", kBackForwardNavigationScheme, offset));
+  history_navigation_item_ = WebHistoryItem::Create(url, L"", "", NULL);
+  return history_navigation_item_.get();
 }
 
 void RenderView::GoToEntryAtOffsetAsync(int offset) {
