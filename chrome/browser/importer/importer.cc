@@ -308,7 +308,8 @@ ImporterHost::ImporterHost()
       file_loop_(g_browser_process->file_thread()->message_loop()),
       waiting_for_bookmarkbar_model_(false),
       waiting_for_template_url_model_(false),
-      is_source_readable_(true) {
+      is_source_readable_(true),
+      headless_(false) {
   DetectSourceProfiles();
 }
 
@@ -319,7 +320,8 @@ ImporterHost::ImporterHost(MessageLoop* file_loop)
       file_loop_(file_loop),
       waiting_for_bookmarkbar_model_(false),
       waiting_for_template_url_model_(false),
-      is_source_readable_(true) {
+      is_source_readable_(true),
+      headless_(false) {
   DetectSourceProfiles();
 }
 
@@ -346,8 +348,11 @@ void ImporterHost::Observe(NotificationType type,
 }
 
 void ImporterHost::ShowWarningDialog() {
-  views::Window::CreateChromeWindow(GetActiveWindow(), gfx::Rect(),
-                                    new ImporterLockView(this))->Show();
+  if (headless_)
+    OnLockViewEnd(false);
+  else
+    views::Window::CreateChromeWindow(GetActiveWindow(), gfx::Rect(),
+                                      new ImporterLockView(this))->Show();
 }
 
 void ImporterHost::OnLockViewEnd(bool is_continue) {

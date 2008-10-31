@@ -26,6 +26,7 @@
 #include "chrome/browser/views/first_run_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/json_value_serializer.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/installer/util/shell_util.h"
 #include "chrome/views/accelerator_handler.h"
@@ -131,6 +132,18 @@ bool FirstRun::CreateSentinel() {
   return true;
 }
 
+DictionaryValue* ReadJSONPrefs(const std::wstring& file) {
+  JSONFileValueSerializer json(file);
+  Value* root;
+  if (!json.Deserialize(&root))
+    return NULL;
+  if (!root->IsType(Value::TYPE_DICTIONARY)) {
+    delete root;
+    return NULL;
+  }
+  return static_cast<DictionaryValue*>(root);
+}
+
 FirstRun::MasterPrefResult FirstRun::ProcessMasterPreferences(
       const std::wstring& user_data_dir,
       const std::wstring& master_prefs_path) {
@@ -142,8 +155,6 @@ FirstRun::MasterPrefResult FirstRun::ProcessMasterPreferences(
     if (!PathService::Get(base::DIR_EXE, &master_path))
       return MASTER_PROFILE_ERROR;
     file_util::AppendToPath(&master_path, kDefaultMasterPrefs);
-    if (!file_util::PathExists(master_path))
-      return MASTER_PROFILE_NOT_FOUND;
     master_prefs = master_path;
   } else {
     master_prefs = master_prefs_path;
@@ -153,13 +164,26 @@ FirstRun::MasterPrefResult FirstRun::ProcessMasterPreferences(
   if (user_prefs.empty())
     return MASTER_PROFILE_ERROR;
 
+  scoped_ptr<DictionaryValue> json_root(ReadJSONPrefs(master_prefs));
+  if (!json_root.get())
+    return MASTER_PROFILE_ERROR;
+  
+  bool skip_first_run_ui = false;
+  json_root->GetBoolean(L"skip_first_run_ui", &skip_first_run_ui);
+  
   // The master prefs are regular prefs so we can just copy the file
   // to the default place and they just work.
   if (!file_util::CopyFile(master_prefs, user_prefs))
     return MASTER_PROFILE_ERROR;
 
-  // TODO (cpu): Process the 'distribution' dictionary and return the
-  // appropriate values.
+  if (!skip_first_run_ui)
+    return MASTER_PROFILE_DO_FIRST_RUN_UI;
+
+  // Automatically import search provider. This launches the importer
+  // process and blocks until done or until it fails. The second parameter
+  // in zero means to use the default browser.
+  FirstRun::ImportSettings(NULL, 0, SEARCH_ENGINES, NULL);
+
   return MASTER_PROFILE_NO_FIRST_RUN_UI;
 }
 
@@ -285,13 +309,14 @@ class HungImporterMonitor : public WorkerThreadTicker::Callback {
   DISALLOW_EVIL_CONSTRUCTORS(HungImporterMonitor);
 };
 
-// This class is used by FirstRun::ImportWithUI to get notified of the outcome
-// of the import operation. It differs from ImportProcessRunner in that this
+// This class is used by FirstRun::ImportNow to get notified of the outcome of
+// the import operation. It differs from ImportProcessRunner in that this
 // class executes in the context of importing child process.
 // The values that it handles are meant to be used as the process exit code.
 class FirstRunImportObserver : public ImportObserver {
  public:
-  FirstRunImportObserver() : import_result_(ResultCodes::NORMAL_EXIT) {
+  FirstRunImportObserver()
+      : loop_running_(false), import_result_(ResultCodes::NORMAL_EXIT) {
   }
   int import_result() const {
     return import_result_;
@@ -304,11 +329,19 @@ class FirstRunImportObserver : public ImportObserver {
     import_result_ = ResultCodes::NORMAL_EXIT;
     Finish();
   }
- private:
-  void Finish() {
-    MessageLoop::current()->Quit();
+  
+  void RunLoop() {
+    loop_running_ = true;
+    MessageLoop::current()->Run();
   }
 
+ private:
+  void Finish() {
+    if (loop_running_)
+      MessageLoop::current()->Quit();
+  }
+
+  bool loop_running_;
   int import_result_;
   DISALLOW_EVIL_CONSTRUCTORS(FirstRunImportObserver);
 };
@@ -357,7 +390,8 @@ bool FirstRun::ImportSettings(Profile* profile, int browser,
 
   // Activate the importer monitor. It awakes periodically in another thread
   // and checks that the importer UI is still pumping messages.
-  HungImporterMonitor hang_monitor(parent_window, import_process);
+  if (parent_window)
+    HungImporterMonitor hang_monitor(parent_window, import_process);
 
   // We block inside the import_runner ctor, pumping messages until the
   // importer process ends. This can happen either by completing the import
@@ -366,11 +400,13 @@ bool FirstRun::ImportSettings(Profile* profile, int browser,
 
   // Import process finished. Reload the prefs, because importer may set
   // the pref value.
-  profile->GetPrefs()->ReloadPersistentPrefs();
+  if (profile)
+    profile->GetPrefs()->ReloadPersistentPrefs();
+
   return (import_runner.exit_code() == ResultCodes::NORMAL_EXIT);
 }
 
-int FirstRun::ImportWithUI(Profile* profile, const CommandLine& cmdline) {
+int FirstRun::ImportNow(Profile* profile, const CommandLine& cmdline) {
   std::wstring import_info = cmdline.GetSwitchValue(switches::kImport);
   if (import_info.empty()) {
     NOTREACHED();
@@ -386,6 +422,13 @@ int FirstRun::ImportWithUI(Profile* profile, const CommandLine& cmdline) {
   }
   scoped_refptr<ImporterHost> importer_host = new ImporterHost();
   FirstRunImportObserver observer;
+
+  // If there is no parent window, we run in headless mode which amounts
+  // to having the windows hidden and if there is user action required the
+  // import is automatically canceled.
+  if (!parent_window)
+    importer_host->set_headless();
+
   StartImportingWithUI(
       parent_window,
       items_to_import,
@@ -394,7 +437,7 @@ int FirstRun::ImportWithUI(Profile* profile, const CommandLine& cmdline) {
       profile,
       &observer,
       true);
-  MessageLoop::current()->Run();
+  observer.RunLoop();
   return observer.import_result();
 }
 

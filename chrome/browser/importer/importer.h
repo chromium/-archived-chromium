@@ -164,6 +164,16 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
   // Cancel
   void Cancel();
 
+  // When in headless mode, the importer will not show the warning dialog and
+  // the outcome is as if the user had canceled the import operation.
+  void set_headless() {
+    headless_ = true;
+  }
+
+  bool is_headless() const {
+    return headless_;
+  }
+
   // An interface which an object can implement to be notified of events during
   // the import process.
   class Observer {
@@ -240,6 +250,9 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
 
   // True if source profile is readable.
   bool is_source_readable_;
+
+  // True if UI is not to be shown.
+  bool headless_;
 
   // Firefox profile lock.
   scoped_ptr<FirefoxProfileLock> firefox_lock_;

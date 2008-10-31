@@ -433,7 +433,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   // Importing other browser settings is done in a browser-like process
   // that exits when this task has finished.
   if (parsed_command_line.HasSwitch(switches::kImport))
-    return FirstRun::ImportWithUI(profile, parsed_command_line);
+    return FirstRun::ImportNow(profile, parsed_command_line);
 
   // When another process is running, use it instead of starting us.
   if (message_window.NotifyOtherProcess(show_command))

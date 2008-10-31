@@ -278,7 +278,14 @@ void StartImportingWithUI(HWND parent_window,
   DCHECK(items != 0);
   ImportingProgressView* v = new ImportingProgressView(
       source_profile.description, items, coordinator, observer, parent_window);
-  views::Window::CreateChromeWindow(parent_window, gfx::Rect(), v)->Show();
+  views::Window* window =
+    views::Window::CreateChromeWindow(parent_window, gfx::Rect(), v);
+
+  // In headless mode it means that we don't show the progress window, but it
+  // still need it to exist. No user interaction will be required.
+  if (!coordinator->is_headless())
+    window->Show();
+ 
   coordinator->StartImportSettings(source_profile, items,
                                    new ProfileWriter(target_profile),
                                    first_run);
