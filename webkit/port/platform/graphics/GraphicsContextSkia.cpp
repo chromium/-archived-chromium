@@ -182,7 +182,7 @@ GraphicsContext::GraphicsContext(PlatformGraphicsContext *gc)
     : m_common(createGraphicsContextPrivate())
     , m_data(new GraphicsContextPlatformPrivate(gc))
 {
-    setPaintingDisabled(!platformContext()->canvas());
+    setPaintingDisabled(!gc || !platformContext()->canvas());
 }
 
 GraphicsContext::~GraphicsContext()
