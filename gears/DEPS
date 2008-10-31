@@ -1,8 +1,8 @@
-# We pull 3 components from the Chrome tree at this revision.
-chrome_rev = '@4086'
+# We pull 3 components from the Chrome tree at the trunk.
+chrome_rev = ''
 
 # We pull 2 components from the Gears tree at this revision.
-gears_rev = '@2951'
+gears_rev = '@2955'
 
 deps = {
   "src/build":

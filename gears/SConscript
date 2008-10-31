@@ -252,6 +252,7 @@ env.Replace(
 # current build as closely as possible until we switch everyone to SCons, then
 # gradually integrate.
 env.Replace(
+    ARFLAGS = [],
     CPPPATH = [
         '$OPEN_DIR',
         '$OPEN_DIR/..',
@@ -276,8 +277,10 @@ env.Replace(
     FRAMEWORKPATH = [],
     FRAMEWORKS = [],
     LIBS = [],
+    LIBPATH = ['$COMPONENT_LIBRARY_DIR'],
     LINKFLAGS = [],
     SHLINKFLAGS = [],
+    COMPONENT_LIBRARY_DIR = '$COMMON_OUTDIR/lib',
 )
 
 if env['MODE'] == 'dbg':
@@ -493,7 +496,7 @@ if env['OS'] in ['win32', 'wince']:
             '_WIN32_WCE=0x501',
             'WINVER=_WIN32_WCE',
             'UNDER_CE=0x501',
-            'WINCE',
+            'OS_WINCE',
             'WIN32_PLATFORM_PSPC',
             'ARM',
             '_ARM_',
