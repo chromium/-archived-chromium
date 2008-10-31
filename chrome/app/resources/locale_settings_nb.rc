@@ -59,7 +59,9 @@ BEGIN
   IDS_STATIC_ENCODING_LIST "ISO-8859-1,windows-1252"
   IDS_WELCOME_PAGE_URL "http://tools.google.com/chrome/intl/no/welcome.html"
   IDS_LEARN_MORE_INCOGNITO_URL "http://www.google.com/support/chrome/bin/answer.py?answer=95464&hl=nb"
-  IDS_LEARN_MORE_HELPMAKECHROMEBETTER_URL "http://www.google.com/support/chrome/bin/answer.py?answer=96817&hl=nb"
+  IDS_LEARN_MORE_PRIVACY_URL "http://www.google.com/support/chrome/bin/answer.py?answer=114836&hl=nb"
+  IDS_BOOKMARK_MANAGER_DIALOG_WIDTH_CHARS "150"
+  IDS_BOOKMARK_MANAGER_DIALOG_HEIGHT_LINES "40"
 END
 
 #if defined(GOOGLE_CHROME_BUILD)

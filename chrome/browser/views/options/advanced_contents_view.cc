@@ -45,6 +45,9 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+using views::GridLayout;
+using views::ColumnSet;
+
 namespace {
 
 // A background object that paints the scrollable list background,
@@ -67,7 +70,7 @@ class ListBackground : public views::Background {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(ListBackground);
+  DISALLOW_COPY_AND_ASSIGN(ListBackground);
 };
 
 }  // namespace
@@ -90,6 +93,10 @@ class AdvancedSection : public OptionsPageView {
   void AddWrappingColumnSet(views::GridLayout* layout, int id);
   void AddDependentTwoColumnSet(views::GridLayout* layout, int id);
   void AddTwoColumnSet(views::GridLayout* layout, int id);
+  // Similar to AddTwoColumnSet, except the first column is resizable and
+  // the second one has the text on the bottom (to add a trailing link after
+  // text, for example).
+  void AddTwoColumnSetLabelAndLink(views::GridLayout* layout, int id);
   void AddIndentedColumnSet(views::GridLayout* layout, int id);
 
   // Convenience helpers for adding controls to specific layouts in an
@@ -129,7 +136,7 @@ class AdvancedSection : public OptionsPageView {
   // The section title.
   views::Label* title_label_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AdvancedSection);
+  DISALLOW_COPY_AND_ASSIGN(AdvancedSection);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,8 +168,6 @@ void AdvancedSection::DidChangeBounds(const gfx::Rect& previous,
 // AdvancedSection, protected:
 
 void AdvancedSection::AddWrappingColumnSet(views::GridLayout* layout, int id) {
-  using views::GridLayout;
-  using views::ColumnSet;
   ColumnSet* column_set = layout->AddColumnSet(id);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
                         GridLayout::USE_PREF, 0, 0);
@@ -170,8 +175,6 @@ void AdvancedSection::AddWrappingColumnSet(views::GridLayout* layout, int id) {
 
 void AdvancedSection::AddDependentTwoColumnSet(views::GridLayout* layout,
                                                int id) {
-  using views::GridLayout;
-  using views::ColumnSet;
   ColumnSet* column_set = layout->AddColumnSet(id);
   column_set->AddPaddingColumn(0, views::CheckBox::GetTextIndent());
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
@@ -183,8 +186,6 @@ void AdvancedSection::AddDependentTwoColumnSet(views::GridLayout* layout,
 }
 
 void AdvancedSection::AddTwoColumnSet(views::GridLayout* layout, int id) {
-  using views::GridLayout;
-  using views::ColumnSet;
   ColumnSet* column_set = layout->AddColumnSet(id);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
@@ -193,9 +194,17 @@ void AdvancedSection::AddTwoColumnSet(views::GridLayout* layout, int id) {
                         GridLayout::USE_PREF, 0, 0);
 }
 
+void AdvancedSection::AddTwoColumnSetLabelAndLink(views::GridLayout* layout,
+                                                  int id) {
+  ColumnSet* column_set = layout->AddColumnSet(id);
+  column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
+                        GridLayout::USE_PREF, 0, 0);
+  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+  column_set->AddColumn(GridLayout::FILL, GridLayout::TRAILING, 0,
+                        GridLayout::USE_PREF, 0, 0);
+}
+
 void AdvancedSection::AddIndentedColumnSet(views::GridLayout* layout, int id) {
-  using views::GridLayout;
-  using views::ColumnSet;
   ColumnSet* column_set = layout->AddColumnSet(id);
   column_set->AddPaddingColumn(0, views::CheckBox::GetTextIndent());
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
@@ -245,7 +254,6 @@ void AdvancedSection::AddLeadingControl(views::GridLayout* layout,
                                         views::View* control,
                                         int id,
                                         bool related_follows) {
-  using views::GridLayout;
   layout->StartRow(0, id);
   layout->AddView(control, 1, 1, GridLayout::LEADING, GridLayout::CENTER);
   AddSpacing(layout, related_follows);
@@ -262,9 +270,6 @@ void AdvancedSection::AddSpacing(views::GridLayout* layout,
 
 void AdvancedSection::InitControlLayout() {
   contents_ = new views::View;
-
-  using views::GridLayout;
-  using views::ColumnSet;
 
   GridLayout* layout = new GridLayout(this);
   SetLayoutManager(layout);
@@ -324,7 +329,7 @@ class CookieBehaviorComboModel : public views::ComboBox::Model {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(CookieBehaviorComboModel);
+  DISALLOW_COPY_AND_ASSIGN(CookieBehaviorComboModel);
 };
 
 class PrivacySection : public AdvancedSection,
@@ -380,7 +385,7 @@ class PrivacySection : public AdvancedSection,
 
   void ResolveMetricsReportingEnabled();
 
-  DISALLOW_EVIL_CONSTRUCTORS(PrivacySection);
+  DISALLOW_COPY_AND_ASSIGN(PrivacySection);
 };
 
 PrivacySection::PrivacySection(Profile* profile)
@@ -456,7 +461,7 @@ void PrivacySection::LinkActivated(views::Link* source, int event_flags) {
                                    BrowserType::TABBED_BROWSER,
                                    std::wstring());
     browser->OpenURL(
-        GURL(l10n_util::GetString(IDS_LEARN_MORE_HELPMAKECHROMEBETTER_URL)),
+        GURL(l10n_util::GetString(IDS_LEARN_MORE_PRIVACY_URL)),
         GURL(),
         NEW_WINDOW,
         PageTransition::LINK);
@@ -527,8 +532,6 @@ void PrivacySection::InitControlLayout() {
       l10n_util::GetString(IDS_OPTIONS_COOKIES_SHOWCOOKIES));
   show_cookies_button_->SetListener(this);
 
-  using views::GridLayout;
-  using views::ColumnSet;
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
@@ -540,11 +543,14 @@ void PrivacySection::InitControlLayout() {
   AddIndentedColumnSet(layout, indented_view_set_id);
   const int indented_column_set_id = 3;
   AddIndentedColumnSet(layout, indented_column_set_id);
+  const int two_column_label_and_link_id = 4;
+  AddTwoColumnSetLabelAndLink(layout, two_column_label_and_link_id);
 
   // The description label at the top and label.
-  AddWrappingLabelRow(layout, section_description_label_,
-                      single_column_view_set_id, true);
-  AddLeadingControl(layout, learn_more_link_, indented_view_set_id, false);
+  section_description_label_->SetMultiLine(true);
+  AddTwoColumnRow(layout, section_description_label_, learn_more_link_, false,
+                  two_column_label_and_link_id, false);
+
   // Link doctor.
   AddWrappingCheckboxRow(layout, enable_link_doctor_checkbox_,
                          single_column_view_set_id, false);
@@ -662,7 +668,7 @@ class WebContentSection : public AdvancedSection,
 
   BooleanPrefMember disable_popup_blocked_notification_pref_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WebContentSection);
+  DISALLOW_COPY_AND_ASSIGN(WebContentSection);
 };
 
 WebContentSection::WebContentSection(Profile* profile)
@@ -704,8 +710,6 @@ void WebContentSection::InitControlLayout() {
       l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_CONFIGUREGEARS_BUTTON));
   gears_settings_button_->SetListener(this);
 
-  using views::GridLayout;
-  using views::ColumnSet;
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
@@ -769,7 +773,7 @@ class MixedContentComboModel : public views::ComboBox::Model {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(MixedContentComboModel);
+  DISALLOW_COPY_AND_ASSIGN(MixedContentComboModel);
 };
 
 class SecuritySection : public AdvancedSection,
@@ -810,7 +814,7 @@ class SecuritySection : public AdvancedSection,
   StringPrefMember auto_open_files_;
   IntegerPrefMember filter_mixed_content_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SecuritySection);
+  DISALLOW_COPY_AND_ASSIGN(SecuritySection);
 };
 
 SecuritySection::SecuritySection(Profile* profile)
@@ -904,8 +908,6 @@ void SecuritySection::InitControlLayout() {
       l10n_util::GetString(IDS_OPTIONS_CERTIFICATES_MANAGE_BUTTON));
   manage_certificates_button_->SetListener(this);
 
-  using views::GridLayout;
-  using views::ColumnSet;
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
@@ -1014,7 +1016,7 @@ class OpenConnectionDialogTask : public Task {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(OpenConnectionDialogTask);
+  DISALLOW_COPY_AND_ASSIGN(OpenConnectionDialogTask);
 };
 
 }  // namespace
@@ -1038,7 +1040,7 @@ class NetworkSection : public AdvancedSection,
   views::Label* change_proxies_label_;
   views::NativeButton* change_proxies_button_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(NetworkSection);
+  DISALLOW_COPY_AND_ASSIGN(NetworkSection);
 };
 
 NetworkSection::NetworkSection(Profile* profile)
@@ -1066,8 +1068,6 @@ void NetworkSection::InitControlLayout() {
       l10n_util::GetString(IDS_OPTIONS_PROXIES_CONFIGURE_BUTTON));
   change_proxies_button_->SetListener(this);
 
-  using views::GridLayout;
-  using views::ColumnSet;
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
 
@@ -1114,7 +1114,7 @@ class AdvancedContentsView : public OptionsPageView {
 
   static int line_height_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(AdvancedContentsView);
+  DISALLOW_COPY_AND_ASSIGN(AdvancedContentsView);
 };
 
 // static
@@ -1167,9 +1167,6 @@ void AdvancedContentsView::DidChangeBounds(const gfx::Rect& previous,
 // AdvancedContentsView, OptionsPageView implementation:
 
 void AdvancedContentsView::InitControlLayout() {
-  using views::GridLayout;
-  using views::ColumnSet;
-
   GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);
 
