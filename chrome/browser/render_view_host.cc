@@ -180,8 +180,6 @@ void RenderViewHost::NavigateToEntry(const NavigationEntry& entry,
       process()->host_id(), params.url);
 
   DoNavigate(new ViewMsg_Navigate(routing_id_, params));
-
-  UpdateBackForwardListCount();
 }
 
 void RenderViewHost::NavigateToURL(const GURL& url) {

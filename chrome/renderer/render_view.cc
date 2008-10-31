@@ -2641,6 +2641,21 @@ void RenderView::TransitionToCommittedForNewPage() {
 }
 
 void RenderView::DidAddHistoryItem() {
+  // We don't want to update the history length for the start page
+  // navigation.
+  WebFrame* main_frame = webview()->GetMainFrame();
+  DCHECK(main_frame != NULL);
+
+  WebDataSource* ds = main_frame->GetDataSource();
+  DCHECK(ds != NULL);
+
+  const WebRequest& request = ds->GetRequest();
+  RenderViewExtraRequestData* extra_data =
+      static_cast<RenderViewExtraRequestData*>(request.GetExtraData());
+
+  if (extra_data && extra_data->transition_type == PageTransition::START_PAGE)
+    return;
+
   history_back_list_count_++;
   history_forward_list_count_ = 0;
 }

@@ -11,13 +11,12 @@ History test2....
 
 <SCRIPT type="text/javascript">
 function onLoad() {
- setTimeout(OnValidateHistoryLength, 100);
+  setTimeout(OnValidateHistoryLength, 100);
 }
 
 function OnValidateHistoryLength() {
  if (window.history.length != 3) {
-   onFailure("History_Length_Test", 1, "History length mismatch");
-   alert(window.history.length);
+   onFailure("History_Length_Test", 1, "History length mismatch in second page OnLoad");
    return false;
  }
 

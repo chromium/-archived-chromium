@@ -23,7 +23,7 @@ function onLoad() {
     return true;
   }
   
-  setTimeout(OnNavigateToPage2, 100);  
+  setTimeout(OnNavigateToPage2, 100);
   return true;
 }
 
@@ -42,7 +42,7 @@ function OnValidateHistoryForSecondRun() {
 
 function OnMoveForwardInHistory() {
   if (window.history.length != 2) {
-    onFailure("History_Length_Test", 1, "History length mismatch");
+    onFailure("History_Length_Test", 1, "History length mismatch in MoveForward navigation");
     return false;
   }
 
@@ -53,7 +53,7 @@ function OnMoveForwardInHistory() {
 
 function OnNavigateToPage2() {
   if (window.history.length != 2) {
-    onFailure("History_Length_Test", 1, "History length mismatch");
+    onFailure("History_Length_Test", 1, "History length mismatch in initial navigation");
     return false;
   }
   
