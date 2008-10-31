@@ -12,6 +12,11 @@
 #include "FontPlatformDataWin.h"
 #elif defined(OS_LINUX)
 #include "FontPlatformDataLinux.h"
+#elif defined(OS_MACOSX)
+// TODO(port): This #include isn't strictly kosher, but we're currently using
+// the Mac font code from upstream WebKit, and we need to pick up their header.
+#undef FontPlatformData_h
+#include "third_party/WebKit/WebCore/platform/graphics/mac/FontPlatformData.h"
 #endif
 
 #endif  // ifndef FontPlatformData_h

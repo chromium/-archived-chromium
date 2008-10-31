@@ -1207,7 +1207,6 @@
 		E456270E0E268F03005E4685 /* webhistoryitem_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405410D92E3DA0006B936 /* webhistoryitem_impl.cc */; };
 		E45627100E268F03005E4685 /* password_form_dom_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254051F0D92E3DA0006B936 /* password_form_dom_manager.cc */; };
 		E45627160E268F26005E4685 /* resource_handle_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405290D92E3DA0006B936 /* resource_handle_impl.cc */; };
-		E45627E70E2694B8005E4685 /* SkPaintContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260450DCB9A66005CFE91 /* SkPaintContext.cpp */; };
 		E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260670DCBA013005CFE91 /* BMPImageReader.cpp */; };
 		E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260690DCBA013005CFE91 /* BMPImageDecoder.cpp */; };
 		E45627EB0E2694B8005E4685 /* ICOImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82C260710DCBA02A005CFE91 /* ICOImageDecoder.cpp */; };
@@ -1249,7 +1248,6 @@
 		E4D08FDB0EAE7A5F0022CE54 /* EditorMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4D08FDA0EAE7A5F0022CE54 /* EditorMac.mm */; };
 		E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */; };
 		E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */; };
-		E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
 /* End PBXBuildFile section */
 
@@ -3708,7 +3706,6 @@
 		820A61930DE7592C00871E2D /* WebCoreURLResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCoreURLResponse.h; sourceTree = "<group>"; };
 		820A61940DE7592C00871E2D /* WebCoreURLResponse.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebCoreURLResponse.mm; sourceTree = "<group>"; };
 		822B1BEC0DC7793F005C9A96 /* PlatformContextSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformContextSkia.h; sourceTree = "<group>"; };
-		822B1BFD0DC77A08005C9A96 /* SkGraphicsContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkGraphicsContext.h; sourceTree = "<group>"; };
 		825404EB0D92E3DA0006B936 /* alt_404_page_resource_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = alt_404_page_resource_fetcher.cc; sourceTree = "<group>"; };
 		825404EC0D92E3DA0006B936 /* alt_404_page_resource_fetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = alt_404_page_resource_fetcher.h; sourceTree = "<group>"; };
 		825404ED0D92E3DA0006B936 /* alt_error_page_resource_fetcher.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = alt_error_page_resource_fetcher.cc; sourceTree = "<group>"; };
@@ -3840,8 +3837,6 @@
 		825405EE0D92E3FF0006B936 /* webplugin_delegate_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webplugin_delegate_impl.h; sourceTree = "<group>"; };
 		82761F810E3FAC700030D324 /* AccessibilityObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityObject.cpp; sourceTree = "<group>"; };
 		82761F820E3FAC700030D324 /* AccessibilityObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilityObject.h; sourceTree = "<group>"; };
-		82C260440DCB9A66005CFE91 /* SkPaintContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkPaintContext.h; sourceTree = "<group>"; };
-		82C260450DCB9A66005CFE91 /* SkPaintContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkPaintContext.cpp; sourceTree = "<group>"; };
 		82C2604A0DCB9AC1005CFE91 /* ImageSourceSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageSourceSkia.cpp; sourceTree = "<group>"; };
 		82C2604B0DCB9AC1005CFE91 /* ImageSourceSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageSourceSkia.h; sourceTree = "<group>"; };
 		82C260660DCBA013005CFE91 /* BMPImageReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BMPImageReader.h; sourceTree = "<group>"; };
@@ -4134,7 +4129,6 @@
 		E4D08FDA0EAE7A5F0022CE54 /* EditorMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = EditorMac.mm; path = mac/EditorMac.mm; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
 		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
-		E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGraphicsContextMac.cpp; sourceTree = "<group>"; };
 		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontCacheMacPending.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -7192,10 +7186,6 @@
 				E48A07230E3F95A000172919 /* NativeImageSkia.h */,
 				E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */,
 				822B1BEC0DC7793F005C9A96 /* PlatformContextSkia.h */,
-				E4E4C88E0E783E49009A687C /* SkGraphicsContextMac.cpp */,
-				822B1BFD0DC77A08005C9A96 /* SkGraphicsContext.h */,
-				82C260440DCB9A66005CFE91 /* SkPaintContext.h */,
-				82C260450DCB9A66005CFE91 /* SkPaintContext.cpp */,
 				E45062DF0E40B5420025A81A /* SkiaUtils.cpp */,
 				E45062E00E40B5420025A81A /* SkiaUtils.h */,
 			);
@@ -9100,9 +9090,7 @@
 				E473F6620EAE00D5006C2098 /* ScrollView.cpp in Sources */,
 				E473F6640EAE00E4006C2098 /* SearchPopupMenuChromium.cpp in Sources */,
 				E473F6660EAE00F4006C2098 /* SharedTimerChromium.cpp in Sources */,
-				E4E4C88F0E783E49009A687C /* SkGraphicsContextMac.cpp in Sources */,
 				E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */,
-				E45627E70E2694B8005E4685 /* SkPaintContext.cpp in Sources */,
 				E473F6680EAE0109006C2098 /* SoundPosix.cpp in Sources */,
 				E473F66E0EAE012D006C2098 /* SSLKeyGeneratorChromium.cpp in Sources */,
 				E473F6700EAE016A006C2098 /* SystemTimeChromium.cpp in Sources */,
@@ -9317,7 +9305,9 @@
 					"$(DIR_PORT)/page",
 					"$(DIR_PORT)/page/chromium",
 					"$(DIR_PORT)/page/inspector",
+					"$(DIR_PORT)/platform",
 					"$(DIR_PORT)/platform/chromium",
+					"$(DIR_PORT)/platform/graphics",
 					"$(DIR_PORT)/platform/graphics/chromium",
 					"$(DIR_PORT)/platform/image-decoders",
 					"$(DIR_PORT)/platform/image-decoders/bmp",
@@ -9442,7 +9432,9 @@
 					"$(DIR_PORT)/page",
 					"$(DIR_PORT)/page/chromium",
 					"$(DIR_PORT)/page/inspector",
+					"$(DIR_PORT)/platform",
 					"$(DIR_PORT)/platform/chromium",
+					"$(DIR_PORT)/platform/graphics",
 					"$(DIR_PORT)/platform/graphics/chromium",
 					"$(DIR_PORT)/platform/image-decoders",
 					"$(DIR_PORT)/platform/image-decoders/bmp",
@@ -9644,8 +9636,6 @@
 				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
-					"$(DIR_PORT)/platform",
-					"$(DIR_PORT)/platform/graphics",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
@@ -9662,8 +9652,6 @@
 				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
-					"$(DIR_PORT)/platform",
-					"$(DIR_PORT)/platform/graphics",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
@@ -9694,8 +9682,6 @@
 				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
-					"$(DIR_PORT)/platform",
-					"$(DIR_PORT)/platform/graphics",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",
@@ -9715,8 +9701,6 @@
 				GCC_PREFIX_HEADER = ../third_party/WebKit/WebCore/WebCorePrefix.h;
 				HEADER_SEARCH_PATHS = (
 					"$(HEADER_SEARCH_PATHS)",
-					"$(DIR_PORT)/platform",
-					"$(DIR_PORT)/platform/graphics",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/bindings",
 					"$(CONFIGURATION_TEMP_DIR)/generated/DerivedSources/v8/WebCore",
 					"$(CONFIGURATION_TEMP_DIR)/generated/include/v8",

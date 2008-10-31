@@ -43,6 +43,9 @@
 #if defined(OS_WIN)
 typedef HICON IconHandle;
 typedef HFONT FontHandle;
+#elif defined(OS_MACOSX)
+typedef CGImageRef IconHandle;
+typedef CTFontRef FontHandle;
 #elif defined(OS_LINUX)
 // TODO(erg): Type needs to be defined for half the rest of the stack to
 // compile. When the corresponding implementation to this file gets written,

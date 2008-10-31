@@ -1859,8 +1859,14 @@ bool WebFrameImpl::SpoolPage(int page, gfx::PlatformCanvas* canvas) {
     return false;
   }
 
+#if defined(OS_WIN) || defined(OS_LINUX)
   PlatformContextSkia context(canvas);
   GraphicsContext spool(&context);
+#elif defined(OS_MACOSX)
+  CGContextRef context = canvas->beginPlatformPaint();
+  GraphicsContext spool(context);
+#endif
+
   DCHECK(pages_[page].x() == 0);
   // Offset to get the right square.
   spool.translate(0, -static_cast<float>(pages_[page].y()));

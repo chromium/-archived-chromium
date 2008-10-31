@@ -26,6 +26,13 @@
 #ifndef ImageBufferData_h
 #define ImageBufferData_h
 
+#if PLATFORM(DARWIN)
+// TODO(port): This #include isn't strictly kosher, but we're currently using
+// the Mac font code from upstream WebKit, and we need to pick up their header.
+#undef ImageBufferData_h
+#include "third_party/WebKit/WebCore/platform/graphics/cg/ImageBufferData.h"
+#else
+
 #include "PlatformContextSkia.h"
 
 #include "base/gfx/platform_canvas.h"
@@ -44,5 +51,6 @@ public:
 
 }  // namespace WebCore
 
-#endif  // ImageBufferData_h
+#endif
 
+#endif  // ImageBufferData_h
