@@ -652,14 +652,10 @@ void RenderWidget::GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
 }
 
 void RenderWidget::OnImeSetInputMode(bool is_active) {
-  // A renderer process may move its input focus and the caret position
-  // while a browser process stop receiving IPC messages.
-  // Thus, when a browser process requests for a renderer process to send
-  // IPC messages, it has to check whether or not a renderer process moves
-  // its input focus and send an IPC message if they are updated.
+  // To prevent this renderer process from sending unnecessary IPC messages to
+  // a browser process, we permit the renderer process to send IPC messages
+  // only during the IME attached to the browser process is active.
   ime_is_active_ = is_active;
-  ime_control_updated_ = true;
-  ime_control_new_state_ = true;
 }
 
 void RenderWidget::OnImeSetComposition(int string_type,
