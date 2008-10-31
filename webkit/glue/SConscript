@@ -102,7 +102,7 @@ if env['PLATFORM'] == 'win32':
   input_files.extend([
     'webinputevent_win.cc',
     'webkit_glue_win.cc',
-  [)
+  ])
 elif env['PLATFORM'] == 'posix':
   input_files.append('webinputevent_linux.cc')
 
