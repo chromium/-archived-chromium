@@ -60,6 +60,26 @@ class ThreadSafeDisrupter : public Foo {
   Foo* doomed_;
 };
 
+class AddInObserve : public Foo {
+ public:
+  AddInObserve(ObserverList<Foo>* observer_list)
+      : added(false),
+        observer_list(observer_list),
+        adder(1) {
+  }
+  virtual void Observe(int x) {
+    if (!added) {
+      added = true;
+      observer_list->AddObserver(&adder);
+    }
+  }
+
+  bool added;
+  ObserverList<Foo>* observer_list;
+  Adder adder;
+};
+
+
 class ObserverListThreadSafeTest : public testing::Test {
 };
 
@@ -261,4 +281,24 @@ TEST(ObserverListThreadSafeTest, CrossThreadNotifications) {
   // Use 3 observer threads.  Notifications will fire from
   // the main thread and all 3 observer threads.
   ThreadSafeObserverHarness(3, true);
+}
+
+TEST(ObserverListTest, Existing) {
+  ObserverList<Foo> observer_list(ObserverList<Foo>::NOTIFY_EXISTING_ONLY);
+  Adder a(1);
+  AddInObserve b(&observer_list);
+
+  observer_list.AddObserver(&a);
+  observer_list.AddObserver(&b);
+
+  FOR_EACH_OBSERVER(Foo, observer_list, Observe(1));
+
+  EXPECT_TRUE(b.added);
+  // B's adder should not have been notified because it was added during
+  // notificaiton.
+  EXPECT_EQ(0, b.adder.total);
+
+  // Notify again to make sure b's adder is notified.
+  FOR_EACH_OBSERVER(Foo, observer_list, Observe(1));
+  EXPECT_EQ(1, b.adder.total);
 }

@@ -77,6 +77,7 @@ BookmarkModel::BookmarkModel(Profile* profile)
       root_(this, GURL()),
       bookmark_bar_node_(NULL),
       other_node_(NULL),
+      observers_(ObserverList<BookmarkModelObserver>::NOTIFY_EXISTING_ONLY),
       waiting_for_history_load_(false),
       loaded_signal_(CreateEvent(NULL, TRUE, FALSE, NULL)) {
   // Create the bookmark bar and other bookmarks folders. These always exist.

@@ -5,8 +5,9 @@
 #ifndef BASE_OBSERVER_LIST_H__
 #define BASE_OBSERVER_LIST_H__
 
-#include <vector>
 #include <algorithm>
+#include <limits>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
@@ -52,12 +53,25 @@
 //     ObserverList<Observer> observer_list_;
 //   };
 //
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 template <class ObserverType, bool check_empty = false>
 class ObserverList {
  public:
-  ObserverList() : notify_depth_(0) {}
+  // Enumeration of which observers are notified.
+  enum NotificationType {
+    // Specifies that any observers added during notification are notified.
+    // This is the default type if non type is provided to the constructor.
+    NOTIFY_ALL,
+
+    // Specifies that observers added while sending out notification are not
+    // notified.
+    NOTIFY_EXISTING_ONLY
+  };
+
+  ObserverList() : notify_depth_(0), type_(NOTIFY_ALL) {}
+  ObserverList(NotificationType type) : notify_depth_(0), type_(type) {}
   ~ObserverList() {
     // When check_empty is true, assert that the list is empty on destruction.
     if (check_empty) {
@@ -98,7 +112,12 @@ class ObserverList {
   // also the FOREACH_OBSERVER macro defined below.
   class Iterator {
    public:
-    Iterator(const ObserverList<ObserverType>& list) : list_(list), index_(0) {
+    Iterator(const ObserverList<ObserverType>& list)
+        : list_(list),
+          index_(0),
+          max_index_(list.type_ == NOTIFY_ALL ?
+                     std::numeric_limits<size_t>::max() :
+                     list.observers_.size()) {
       ++list_.notify_depth_;
     }
 
@@ -110,14 +129,16 @@ class ObserverList {
     ObserverType* GetNext() {
       ListType& observers = list_.observers_;
       // Advance if the current element is null
-      while (index_ < observers.size() && !observers[index_])
+      size_t max_index = std::min(max_index_, observers.size());
+      while (index_ < max_index && !observers[index_])
         ++index_;
-      return index_ < observers.size() ? observers[index_++] : NULL;
+      return index_ < max_index ? observers[index_++] : NULL;
     }
 
    private:
     const ObserverList<ObserverType>& list_;
     size_t index_;
+    size_t max_index_;
   };
 
  private:
@@ -137,6 +158,7 @@ class ObserverList {
   // These are marked mutable to facilitate having NotifyAll be const.
   mutable ListType observers_;
   mutable int notify_depth_;
+  NotificationType type_;
 
   friend class ObserverList::Iterator;
 
