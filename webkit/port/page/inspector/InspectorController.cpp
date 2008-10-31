@@ -799,7 +799,7 @@ void InspectorController::addMessageToConsole(MessageSource source, MessageLevel
     if (!enabled())
         return;
 
-    addConsoleMessage(new ConsoleMessage(source, level, context, m_groupLevel));
+    addConsoleMessage(context, new ConsoleMessage(source, level, context, m_groupLevel));
 }
 
 void InspectorController::addMessageToConsole(MessageSource source, MessageLevel level, const String& message, unsigned lineNumber, const String& sourceID)
@@ -807,10 +807,10 @@ void InspectorController::addMessageToConsole(MessageSource source, MessageLevel
     if (!enabled())
         return;
 
-    addConsoleMessage(new ConsoleMessage(source, level, message, lineNumber, sourceID, m_groupLevel));
+    addConsoleMessage(0, new ConsoleMessage(source, level, message, lineNumber, sourceID, m_groupLevel));
 }
 
-void InspectorController::addConsoleMessage(ConsoleMessage* consoleMessage)
+void InspectorController::addConsoleMessage(ScriptCallContext* context, ConsoleMessage* consoleMessage)
 {
     ASSERT(enabled());
     ASSERT_ARG(consoleMessage, consoleMessage);
@@ -843,7 +843,7 @@ void InspectorController::startGroup(MessageSource source, ScriptCallContext* co
 {    
     ++m_groupLevel;
 
-    addConsoleMessage(new ConsoleMessage(source, StartGroupMessageLevel, context, m_groupLevel));
+    addConsoleMessage(context, new ConsoleMessage(source, StartGroupMessageLevel, context, m_groupLevel));
 }
 
 void InspectorController::endGroup(MessageSource source, unsigned lineNumber, const String& sourceURL)
@@ -853,7 +853,7 @@ void InspectorController::endGroup(MessageSource source, unsigned lineNumber, co
 
     --m_groupLevel;
 
-    addConsoleMessage(new ConsoleMessage(source, EndGroupMessageLevel, String(), lineNumber, sourceURL, m_groupLevel));
+    addConsoleMessage(0, new ConsoleMessage(source, EndGroupMessageLevel, String(), lineNumber, sourceURL, m_groupLevel));
 }
 
 void InspectorController::attachWindow()

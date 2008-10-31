@@ -477,6 +477,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\JSEventTargetNode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSEventTargetNode.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\JSFile.cpp"
 				>
 			</File>
@@ -1029,6 +1037,10 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\JSKeyboardEvent.cpp"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\JSKeyboardEvent.h"
 				>
 			</File>
@@ -1057,11 +1069,27 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\JSMessageChannel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSMessageChannel.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\JSMessageEvent.cpp"
 				>
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\JSMessageEvent.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSMessagePort.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSMessagePort.h"
 				>
 			</File>
 			<File
@@ -2521,11 +2549,11 @@
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\UserAgentStyleSheetsData.cpp"
+				RelativePath="$(IntDir)\DerivedSources\UserAgentStyleSheets.h"
 				>
 			</File>
 			<File
-				RelativePath="$(IntDir)\DerivedSources\UserAgentStyleSheets.h"
+				RelativePath="$(IntDir)\DerivedSources\UserAgentStyleSheetsData.cpp"
 				>
 			</File>
 			<File
@@ -2562,22 +2590,54 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="page"
+			Name="inspector"
 			>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfile.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorClient.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfile.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfileNode.cpp"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\page\JavaScriptProfileNode.h"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptCallFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptCallFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptDebugListener.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptDebugServer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptDebugServer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptProfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptProfile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptProfileNode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\JavaScriptProfileNode.h"
 				>
 			</File>
 		</Filter>
@@ -2722,10 +2782,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCanvasPixelArrayCustom.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCanvasRenderingContext2DCustom.cpp"
 			>
 		</File>
@@ -2858,23 +2914,23 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTargetBase.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTarget.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTargetBase.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTarget.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTargetNode.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTargetNode.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTargetNodeCustom.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHistoryCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLAllCollection.cpp"
 			>
 		</File>
 		<File
@@ -2918,11 +2974,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLInputElementBase.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLInputElementCustom.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLInputElementBase.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLInputElementCustom.h"
 			>
 		</File>
 		<File
@@ -2958,6 +3014,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSImageDataCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSInspectedObjectWrapper.cpp"
 			>
 		</File>
@@ -2975,6 +3035,22 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSLocationCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSMessageChannelConstructor.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSMessageChannelConstructor.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSMessageChannelCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSMessagePortCustom.cpp"
 			>
 		</File>
 		<File
@@ -3022,14 +3098,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSNSResolver.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSNSResolver.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSPluginArrayCustom.cpp"
 			>
 		</File>
@@ -3070,11 +3138,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGLazyEventListener.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGLazyEventListener.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSVGElementInstanceCustom.cpp"
 			>
 		</File>
 		<File
@@ -3194,7 +3258,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\ScriptControllerWin.cpp"
+			RelativePath="..\..\port\bindings\js\ScriptControllerChromium.cpp"
 			>
 		</File>
 		<File

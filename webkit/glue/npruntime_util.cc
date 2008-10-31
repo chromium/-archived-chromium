@@ -11,7 +11,7 @@
 #include "webkit/port/bindings/v8/np_v8object.h"
 #elif USE(JAVASCRIPTCORE_BINDINGS)
 #include "bridge/c/c_utility.h"
-using KJS::Bindings::PrivateIdentifier;
+using JSC::Bindings::PrivateIdentifier;
 #endif
 
 #include "base/pickle.h"

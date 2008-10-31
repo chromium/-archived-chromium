@@ -361,14 +361,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\IndexToNameMap.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\IndexToNameMap.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\InitializeThreading.cpp"
 				>
 			</File>
@@ -1025,6 +1017,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\CTI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\CTI.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\ExceptionHelpers.cpp"
 				>
 			</File>
@@ -1090,6 +1090,26 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\SegmentedVector.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="wrec"
+			>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wrec\CharacterClassConstructor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wrec\CharacterClassConstructor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wrec\WREC.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wrec\WREC.h"
 				>
 			</File>
 		</Filter>

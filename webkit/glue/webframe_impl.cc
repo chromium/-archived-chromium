@@ -715,14 +715,14 @@ void WebFrameImpl::BindToWindowObject(const std::wstring& name,
 #endif
 
 #if USE(JSC)
-  KJS::JSGlobalObject* window = frame_->script()->globalObject();
-  KJS::ExecState* exec = window->globalExec();
-  KJS::Bindings::RootObject* root = frame_->script()->bindingRootObject();
+  JSC::JSGlobalObject* window = frame_->script()->globalObject();
+  JSC::ExecState* exec = window->globalExec();
+  JSC::Bindings::RootObject* root = frame_->script()->bindingRootObject();
   ASSERT(exec);
-  KJS::RuntimeObjectImp* instance = KJS::Bindings::Instance::createRuntimeObject(
-      exec, KJS::Bindings::CInstance::create(object, root));
-  KJS::Identifier id(exec, key.latin1().data());
-  KJS::PutPropertySlot slot;
+  JSC::RuntimeObjectImp* instance = JSC::Bindings::Instance::createRuntimeObject(
+      exec, JSC::Bindings::CInstance::create(object, root));
+  JSC::Identifier id(exec, key.latin1().data());
+  JSC::PutPropertySlot slot;
   window->put(exec, id, instance, slot);
 #endif
 }

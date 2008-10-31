@@ -36,7 +36,7 @@
 #include "ScriptController.h"
 
 #if USE(JSC)
-namespace KJS {
+namespace JSC {
 class ExecState;
 }
 #endif
@@ -58,8 +58,8 @@ public:
 #if USE(V8)
     ExceptionContext();
 #elif USE(JSC)
-    ExceptionContext(KJS::ExecState* exec) : m_exec(exec) {}
-    KJS::ExecState* exec() const { return m_exec; }
+    ExceptionContext(JSC::ExecState* exec) : m_exec(exec) {}
+    JSC::ExecState* exec() const { return m_exec; }
 #endif
     ~ExceptionContext() {}
 
@@ -77,7 +77,7 @@ private:
     JSException m_exception;
     ExceptionCatcher* m_exceptionCatcher;
 #elif USE(JSC)
-    KJS::ExecState* m_exec;
+    JSC::ExecState* m_exec;
 #endif
 };
 
