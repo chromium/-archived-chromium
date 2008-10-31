@@ -1274,7 +1274,6 @@ V8 | KJS # LayoutTests/fast/forms/select-initial-position.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/select-item-background-clip.html = FAIL
 V8 | KJS # LayoutTests/fast/forms/select-visual-hebrew.html = FAIL | PASS
 V8 | KJS # LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
-V8 | KJS # LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/invalid.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 V8 | KJS # LayoutTests/fast/frames/valid.html = FAIL

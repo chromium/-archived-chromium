@@ -414,22 +414,17 @@ bool RenderThemeWin::supportsFocusRing(const RenderStyle* style) const
 unsigned RenderThemeWin::determineState(RenderObject* o)
 {
     unsigned result = TS_NORMAL;
-    if (!isEnabled(o)) {
+    EAppearance appearance = o->style()->appearance();
+    if (!isEnabled(o))
         result = TS_DISABLED;
-    } else if (isReadOnlyControl(o)) {
-        if (o->style()->appearance() == CheckboxAppearance ||
-            o->style()->appearance() == RadioAppearance) {
-            result = TS_DISABLED;
-        } else if (o->style()->appearance() == TextFieldAppearance) {
-            result = ETS_READONLY; // Readonly is supported on textfields.
-        }
-    } else if (isPressed(o)) { // Active overrides hover and focused.
+    else if (isReadOnlyControl(o) && (TextFieldAppearance == appearance || TextAreaAppearance == appearance))
+        result = ETS_READONLY; // Readonly is supported on textfields.
+    else if (isPressed(o)) // Active overrides hover and focused.
         result = TS_PRESSED;
-    } else if (supportsFocus(o->style()->appearance()) && isFocused(o)) {
+    else if (supportsFocus(appearance) && isFocused(o))
         result = ETS_FOCUSED;
-    } else if (isHovered(o)) {
+    else if (isHovered(o))
         result = TS_HOT;
-    }
     if (isChecked(o))
         result += 4; // 4 unchecked states, 4 checked states.
     return result;
@@ -438,7 +433,7 @@ unsigned RenderThemeWin::determineState(RenderObject* o)
 unsigned RenderThemeWin::determineClassicState(RenderObject* o)
 {
     unsigned result = 0;
-    if (!isEnabled(o) || isReadOnlyControl(o))
+    if (!isEnabled(o))
         result = DFCS_INACTIVE;
     else if (isPressed(o)) // Active supersedes hover
         result = DFCS_PUSHED;
