@@ -76,11 +76,6 @@ class StatsTable {
   // returns 0.
   int RegisterThread(const std::wstring& name);
 
-  // Returns the space occupied by a thread in the table.  Generally used
-  // if a thread terminates but the process continues.  This function
-  // does not zero out the thread's counters.
-  void UnregisterThread();
-
   // Returns the number of threads currently registered.  This is really not
   // useful except for diagnostics and debugging.
   int CountThreadsRegistered() const;
@@ -137,6 +132,20 @@ class StatsTable {
   static int* FindLocation(const wchar_t *name);
 
  private:
+  // Returns the space occupied by a thread in the table.  Generally used
+  // if a thread terminates but the process continues.  This function
+  // does not zero out the thread's counters.
+  // Cannot be used inside a posix tls destructor.
+  void UnregisterThread();
+
+  // This variant expects the tls data to be passed in, so it is safe to
+  // call from inside a posix tls destructor (see doc for pthread_key_create).
+  void UnregisterThread(StatsTableTLSData* tls_data);
+
+  // The SlotReturnFunction is called at thread exit for each thread
+  // which used the StatsTable.
+  static void SlotReturnFunction(void* data);
+
   // Locates a free slot in the table.  Returns a number > 0 on success,
   // or 0 on failure.  The caller must hold the shared_memory lock when
   // calling this function.

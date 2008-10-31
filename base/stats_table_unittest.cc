@@ -66,13 +66,17 @@ const std::wstring kCounterMixed = L"CounterMixed";
 // The number of thread loops that we will do.
 const int kThreadLoops = 1000;
 
-// TODO(estade): port this test
-#if defined(OS_WIN)
-unsigned __stdcall StatsTableMultipleThreadMain(void* param) {
+class StatsTableThread : public PlatformThread::Delegate {
+public:
+  void ThreadMain();
+  PlatformThreadHandle thread_;
+  int id_;
+};
+
+void StatsTableThread::ThreadMain() {
   // Each thread will open the shared memory and set counters
   // concurrently in a loop.  We'll use some pauses to
   // mixup the thread scheduling.
-  int16 id = reinterpret_cast<int16>(param);
 
   StatsCounter zero_counter(kCounterZero);
   StatsCounter lucky13_counter(kCounter1313);
@@ -84,13 +88,12 @@ unsigned __stdcall StatsTableMultipleThreadMain(void* param) {
     lucky13_counter.Set(1313);
     increment_counter.Increment();
     decrement_counter.Decrement();
-    if (id % 2)
+    if (id_ % 2)
       mixed_counter.Decrement();
     else
       mixed_counter.Increment();
     PlatformThread::Sleep(index % 10);   // short wait
   }
-  return 0;
 }
 
 // Create a few threads and have them poke on their counters.
@@ -107,22 +110,20 @@ TEST_F(StatsTableTest, MultipleThreads) {
   // Spin up a set of threads to go bang on the various counters.
   // After we join the threads, we'll make sure the counters
   // contain the values we expected.
-  HANDLE threads[kMaxThreads];
+  StatsTableThread threads[kMaxThreads];
 
   // Spawn the threads.
-  for (int16 index = 0; index < kMaxThreads; index++) {
-    void* argument = reinterpret_cast<void*>(index);
-    unsigned thread_id;
-    threads[index] = reinterpret_cast<HANDLE>(
-      _beginthreadex(NULL, 0, StatsTableMultipleThreadMain, argument, 0,
-        &thread_id));
-    EXPECT_NE((HANDLE)NULL, threads[index]);
+  for (int index = 0; index < kMaxThreads; index++) {
+    threads[index].id_ = index; 
+    bool created = 
+        PlatformThread::Create(0, &threads[index], &threads[index].thread_);
+    EXPECT_EQ(true, created);
+    EXPECT_NE(static_cast<PlatformThreadHandle>(0), threads[index].thread_);
   }
 
   // Wait for the threads to finish.
   for (int index = 0; index < kMaxThreads; index++) {
-    DWORD rv = WaitForSingleObject(threads[index], 60 * 1000);
-    EXPECT_EQ(rv, WAIT_OBJECT_0);  // verify all threads finished
+    PlatformThread::Join(threads[index].thread_);
   }
   StatsCounter zero_counter(kCounterZero);
   StatsCounter lucky13_counter(kCounter1313);
@@ -148,7 +149,6 @@ TEST_F(StatsTableTest, MultipleThreads) {
       table.GetCounterValue(name));
   EXPECT_EQ(0, table.CountThreadsRegistered());
 }
-#endif  // defined(OS_WIN)
 
 const std::wstring kTableName = L"MultipleProcessStatTable";
 

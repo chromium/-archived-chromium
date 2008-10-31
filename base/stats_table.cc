@@ -6,6 +6,7 @@
 
 #include "base/logging.h"
 #include "base/platform_thread.h"
+#include "base/process_util.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
 #include "base/thread_local_storage.h"
@@ -90,16 +91,6 @@ struct StatsTableTLSData {
   StatsTable* table;
   int slot;
 };
-
-// The SlotReturnFunction is called at thread exit for each thread
-// which used the StatsTable.
-static void SlotReturnFunction(void* data) {
-  StatsTableTLSData* tls_data = static_cast<StatsTableTLSData*>(data);
-  if (tls_data) {
-    DCHECK(tls_data->table);
-    tls_data->table->UnregisterThread();
-  }
-}
 
 }  // namespace
 
@@ -313,12 +304,7 @@ int StatsTable::RegisterThread(const std::wstring& name) {
     base::wcslcpy(impl_->thread_name(slot), thread_name.c_str(),
                   kMaxThreadNameLength);
     *(impl_->thread_tid(slot)) = PlatformThread::CurrentId();
-    // TODO(pinkerton): these should go into process_utils when it's ported
-#if defined(OS_WIN)
-    *(impl_->thread_pid(slot)) = GetCurrentProcessId();
-#elif defined(OS_POSIX)
-    *(impl_->thread_pid(slot)) = getpid();
-#endif  
+    *(impl_->thread_pid(slot)) = process_util::GetCurrentProcId();
   }
 
   // Set our thread local storage.
@@ -341,7 +327,10 @@ StatsTableTLSData* StatsTable::GetTLSData() const {
 }
 
 void StatsTable::UnregisterThread() {
-  StatsTableTLSData* data = GetTLSData();
+  UnregisterThread(GetTLSData());
+}
+
+void StatsTable::UnregisterThread(StatsTableTLSData* data) {
   if (!data)
     return;
   DCHECK(impl_);
@@ -353,6 +342,14 @@ void StatsTable::UnregisterThread() {
   // Remove the calling thread's TLS so that it cannot use the slot.
   tls_index_.Set(NULL);
   delete data;
+}
+
+void StatsTable::SlotReturnFunction(void* data) {
+  StatsTableTLSData* tls_data = static_cast<StatsTableTLSData*>(data);
+  if (tls_data) {
+    DCHECK(tls_data->table);
+    tls_data->table->UnregisterThread(tls_data);
+  }
 }
 
 int StatsTable::CountThreadsRegistered() const {
