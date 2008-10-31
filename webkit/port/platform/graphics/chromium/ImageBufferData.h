@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Google Inc. All rights reserved.
+ * Copyright (C) 2008 Google Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -20,34 +20,29 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef GraphicsContextPlatformPrivate_h
-#define GraphicsContextPlatformPrivate_h
+#ifndef ImageBufferData_h
+#define ImageBufferData_h
 
-class PlatformContextSkia;
+#include "PlatformContextSkia.h"
+
+#include "base/gfx/platform_canvas.h"
 
 namespace WebCore {
 
-// This class just holds onto a PlatformContextSkia for GraphicsContext.
-class GraphicsContextPlatformPrivate {
+class ImageBufferData {
 public:
-    GraphicsContextPlatformPrivate(PlatformContextSkia* platformContext)
-        : m_context(platformContext) { }
+    ImageBufferData(const IntSize&);
 
-    PlatformContextSkia* context() { return m_context; }
+    gfx::PlatformCanvas m_canvas;
 
-private:
-    // Non-owning pointer to the PlatformContext.
-    PlatformContextSkia* m_context;
-
-    // We don't support copy or assign.
-    GraphicsContextPlatformPrivate(const GraphicsContextPlatformPrivate& other);
-    GraphicsContextPlatformPrivate& operator=(
-        const GraphicsContextPlatformPrivate& other);
+    // Must be second since this will refer to m_canvas.
+    PlatformContextSkia m_platformContext;
 };
 
 }  // namespace WebCore
 
-#endif  // GraphicsContextPlatformPrivate_h
+#endif  // ImageBufferData_h
+

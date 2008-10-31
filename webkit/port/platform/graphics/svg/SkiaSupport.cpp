@@ -35,6 +35,7 @@
 #if ENABLE(SVG)
 #include "SkiaSupport.h"
 
+#include "ImageBuffer.h"
 #include "GraphicsContext.h"
 #include "RenderStyle.h"
 #include "RenderPath.h"
@@ -77,14 +78,16 @@ void applyStrokeStyleToContext(GraphicsContext* context, const RenderStyle* styl
 
 GraphicsContext* scratchContext()
 {
-    static GraphicsContext* scratch = NULL;
+    static ImageBuffer* scratch = NULL;
     if (!scratch)
-        scratch = GraphicsContext::createOffscreenContext(1, 1);
-    return scratch;
+        scratch = ImageBuffer::create(IntSize(1, 1), false).release();
+    // We don't bother checking for failure creating the ImageBuffer, since our
+    // ImageBuffer initializer won't fail.
+    return scratch->context();
 }
 
 FloatRect strokeBoundingBox(const Path& path, RenderStyle* style, const RenderObject* object)
- {
+{ 
      GraphicsContext* scratch = scratchContext();
 
      scratch->save();

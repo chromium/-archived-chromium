@@ -57,7 +57,7 @@
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
-#include "webkit/port/platform/graphics/PlatformContextSkia.h"
+//#include "webkit/port/platform/graphics/PlatformContextSkia.h"
 
 #include "generated_resources.h"
 
@@ -550,12 +550,11 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
 #else
   // 100% GDI based.
   gfx::VectorCanvas canvas(hdc, src_size_x, src_size_y);
-  PlatformContextSkia context(&canvas);
   // Set the clipping region to be sure to not overflow.
   SkRect clip_rect;
   clip_rect.set(0, 0, SkIntToScalar(src_size_x), SkIntToScalar(src_size_y));
   canvas.clipRect(clip_rect);
-  if (!frame->SpoolPage(params.page_number, &context)) {
+  if (!frame->SpoolPage(params.page_number, &canvas)) {
     NOTREACHED() << "Printing page " << params.page_number << " failed.";
     return;
   }

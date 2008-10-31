@@ -895,10 +895,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\GraphicsContextPlatformPrivate.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\graphics\GraphicsContextPlatformPrivate.h"
 					>
 				</File>
@@ -978,14 +974,6 @@
 					RelativePath="..\..\port\platform\graphics\SkiaUtils.h"
 					>
 				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\SkPaintContext.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\SkPaintContext.h"
-					>
-				</File>
 				<Filter
 					Name="svg"
 					>
@@ -1033,6 +1021,10 @@
 				<Filter
 					Name="chromium"
 					>
+					<File
+						RelativePath="..\..\port\platform\graphics\chromium\ImageBufferData.h"
+						>
+					</File>
 					<File
 						RelativePath="..\..\port\platform\graphics\chromium\PlatformIcon.h"
 						>

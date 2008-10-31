@@ -169,8 +169,7 @@ class WebFrameImpl : public WebFrame {
                                int* width);
   virtual int ComputePageRects(const gfx::Size& page_size_px);
   virtual void GetPageRect(int page, gfx::Rect* page_size) const;
-  virtual bool SpoolPage(int page,
-                         PlatformContextSkia* context);
+  virtual bool SpoolPage(int page, gfx::PlatformCanvas* canvas);
 
   // Reformats this frame for printing or for screen display, depending on
   // |printing| flag. Acts recursively on inner frames.

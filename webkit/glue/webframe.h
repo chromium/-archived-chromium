@@ -10,6 +10,7 @@
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "base/gfx/bitmap_platform_device.h"
+#include "base/gfx/platform_canvas.h"
 #include "base/gfx/size.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/find_in_page_request.h"
@@ -24,8 +25,8 @@ class WebTextInput;
 struct NPObject;
 
 namespace gfx {
-class Size;
 class Rect;
+class Size;
 }
 
 // TODO(darin): use GURL everywhere a URL string appears
@@ -349,8 +350,7 @@ class WebFrame : public base::RefCounted<WebFrame> {
   virtual void GetPageRect(int page, gfx::Rect* page_size) const = 0;
 
   // Prints one page. |page| is 0-based.
-  virtual bool SpoolPage(int page,
-                         PlatformContextSkia* context) = 0;
+  virtual bool SpoolPage(int page, gfx::PlatformCanvas* canvas) = 0;
 
   // Does this frame have an onunload or unbeforeunload event listener?
   virtual bool HasUnloadListener() = 0;

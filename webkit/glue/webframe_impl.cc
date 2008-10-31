@@ -1845,11 +1845,9 @@ void WebFrameImpl::GetPageRect(int page, gfx::Rect* page_size) const {
   *page_size = webkit_glue::FromIntRect(pages_[page]);
 }
 
-bool WebFrameImpl::SpoolPage(int page,
-                             PlatformContextSkia* context) {
+bool WebFrameImpl::SpoolPage(int page, gfx::PlatformCanvas* canvas) {
   // Ensure correct state.
-  if (!context ||
-      !printing_ ||
+  if (!printing_ ||
       page < 0 ||
       page >= static_cast<int>(pages_.size())) {
     NOTREACHED();
@@ -1861,7 +1859,8 @@ bool WebFrameImpl::SpoolPage(int page,
     return false;
   }
 
-  GraphicsContext spool(reinterpret_cast<PlatformGraphicsContext*>(context));
+  PlatformContextSkia context(canvas);
+  GraphicsContext spool(&context);
   DCHECK(pages_[page].x() == 0);
   // Offset to get the right square.
   spool.translate(0, -static_cast<float>(pages_[page].y()));
