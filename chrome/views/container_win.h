@@ -198,6 +198,8 @@ class ContainerWin : public Container,
     MSG_WM_INITMENUPOPUP(OnInitMenuPopup)
     MSG_WM_KEYDOWN(OnKeyDown)
     MSG_WM_KEYUP(OnKeyUp)
+    MSG_WM_SYSKEYDOWN(OnKeyDown)
+    MSG_WM_SYSKEYUP(OnKeyUp)
     MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
     MSG_WM_LBUTTONDOWN(OnLButtonDown)
     MSG_WM_LBUTTONUP(OnLButtonUp)

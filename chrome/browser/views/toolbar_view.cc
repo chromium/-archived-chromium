@@ -315,7 +315,7 @@ void BrowserToolbarView::Layout() {
     // Make sure the Page menu never overlaps the location bar.
     int page_x = go_->x() + go_->width() + kMenuButtonOffset;
     sz = page_menu_->GetPreferredSize();
-    page_menu_->SetBounds(page_x, kControlVertOffset, sz.width(), 
+    page_menu_->SetBounds(page_x, kControlVertOffset, sz.width(),
                           go_->height());
     sz = app_menu_->GetPreferredSize();
     app_menu_->SetBounds(page_menu_->x() + page_menu_->width(),
@@ -339,7 +339,7 @@ void BrowserToolbarView::DidGainFocus() {
   // Set hot-tracking for child, and update focused_view for MSAA focus event.
   if (acc_focused_view_) {
     acc_focused_view_->SetHotTracked(true);
-    
+
     // Show the tooltip for the view that got the focus.
     if (GetContainer()->GetTooltipManager()) {
       GetContainer()->GetTooltipManager()->
@@ -638,6 +638,11 @@ int BrowserToolbarView::GetNextAccessibleViewIndex(int view_index,
   // Returns the next available button index, or if no button is available in
   // the specified direction, remains where it was.
   return view_index;
+}
+
+void BrowserToolbarView::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
+  if (GetAccFocusedChildView())
+    GetAccFocusedChildView()->ShowContextMenu(x, y, is_mouse_gesture);
 }
 
 int BrowserToolbarView::GetDragOperations(views::View* sender, int x, int y) {

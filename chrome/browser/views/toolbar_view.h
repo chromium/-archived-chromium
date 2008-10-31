@@ -135,6 +135,11 @@ class BrowserToolbarView : public views::View,
   // Show the app menu.
   void RunAppMenu(const CPoint& pt, HWND hwnd);
 
+  // Overridden from View, to pass keyboard triggering of the right-click
+  // context menu on to the toolbar child view that currently has the
+  // accessibility focus.
+  virtual void ShowContextMenu(int x, int y, bool is_mouse_gesture);
+
   // Types of display mode this toolbar can have.
   enum DisplayMode {
     DISPLAYMODE_NORMAL,

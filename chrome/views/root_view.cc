@@ -797,7 +797,20 @@ bool RootView::IsViewFocusableCandidate(View* v, int skip_group_id) {
 void RootView::ProcessKeyEvent(const KeyEvent& event) {
   View* v;
   bool consumed = false;
+
   if (GetFocusedView()) {
+    // Special case to handle right-click context menus triggered by the
+    // keyboard.
+    if ((event.GetCharacter() == VK_APPS) ||
+        (event.GetCharacter() == VK_F10 && event.IsShiftDown())) {
+      v = GetFocusedView();
+      if (v->IsEnabled()) {
+        v->ShowContextMenu(v->x() + (v->width() / 2),
+                           v->y() + (v->height() / 2), false);
+        return;
+      }
+    }
+
     for (v = GetFocusedView();
          v && v != this && !consumed; v = v->GetParent()) {
       if (event.GetType() == Event::ET_KEY_PRESSED)

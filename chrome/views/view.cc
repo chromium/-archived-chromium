@@ -477,6 +477,13 @@ void View::SetContextMenuController(ContextMenuController* menu_controller) {
   context_menu_controller_ = menu_controller;
 }
 
+void View::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
+  if (!context_menu_controller_)
+    return;
+
+  context_menu_controller_->ShowContextMenu(this, x, y, is_mouse_gesture); 
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // View - tree

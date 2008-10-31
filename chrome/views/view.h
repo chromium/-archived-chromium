@@ -864,6 +864,16 @@ class View : public AcceleratorTarget {
     return context_menu_controller_;
   }
 
+  // Provides default implementation for context menu handling. The default
+  // implementation calls the ShowContextMenu of the current
+  // ContextMenuController (if it is not NULL). Overridden in subclassed views
+  // to provide right-click menu display triggerd by the keyboard (i.e. for the
+  // Chrome toolbar Back and Forward buttons). No source needs to be specified,
+  // as it is always equal to the current View.
+  virtual void ShowContextMenu(int x,
+                               int y,
+                               bool is_mouse_gesture);
+
   // Set the background. The background is owned by the view after this call.
   virtual void SetBackground(Background* b);
 

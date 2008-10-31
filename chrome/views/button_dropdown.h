@@ -47,6 +47,13 @@ class ButtonDropDown : public Button {
   virtual void OnMouseReleased(const MouseEvent& e, bool canceled);
   virtual bool OnMouseDragged(const MouseEvent& e);
 
+  // Overridden from View. Used to display the right-click menu, as triggered
+  // by the keyboard, for instance. Using the member function ShowDropDownMenu
+  // for the actual display.
+  virtual void ShowContextMenu(int x,
+                               int y,
+                               bool is_mouse_gesture);
+
   // Internal function to show the dropdown menu
   void ShowDropDownMenu(HWND window);
 

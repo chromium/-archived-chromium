@@ -104,6 +104,18 @@ bool ButtonDropDown::OnMouseDragged(const MouseEvent& e) {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+void ButtonDropDown::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
+  show_menu_factory_.RevokeAll();
+  // Make the button look depressed while the menu is open.
+  // NOTE: SetState() schedules a paint, but it won't occur until after the
+  //       context menu message loop has terminated, so we PaintNow() to
+  //       update the appearance synchronously.
+  SetState(BS_PUSHED);
+  PaintNow();
+  ShowDropDownMenu(GetContainer()->GetHWND());
+  SetState(BS_HOT);
+}
+
 void ButtonDropDown::ShowDropDownMenu(HWND window) {
   if (menu_delegate_) {
     gfx::Rect lb = GetLocalBounds(true);
