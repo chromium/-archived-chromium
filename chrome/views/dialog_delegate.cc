@@ -9,12 +9,31 @@
 namespace views {
 
 // Overridden from WindowDelegate:
-View* DialogDelegate::GetInitiallyFocusedView() const {
-  // Try to focus the OK then the Cancel button if present.
-  DialogClientView* dcv = GetDialogClientView();
+
+int DialogDelegate::GetDefaultDialogButton() const {
   if (GetDialogButtons() & DIALOGBUTTON_OK)
-    return dcv->ok_button();
+    return DIALOGBUTTON_OK;
   if (GetDialogButtons() & DIALOGBUTTON_CANCEL)
+    return DIALOGBUTTON_CANCEL;
+  return DIALOGBUTTON_NONE;
+}
+
+View* DialogDelegate::GetInitiallyFocusedView() const {
+  // Focus the default button if any.
+  DialogClientView* dcv = GetDialogClientView();
+  int default_button = GetDefaultDialogButton();
+  if (default_button == DIALOGBUTTON_NONE)
+    return NULL;
+
+  if ((default_button & GetDialogButtons()) == 0) {
+    // The default button is a button we don't have.
+    NOTREACHED();
+    return NULL;
+  }
+
+  if (default_button & DIALOGBUTTON_OK)
+    return dcv->ok_button();
+  if (default_button & DIALOGBUTTON_CANCEL)
     return dcv->cancel_button();
   return NULL;
 }

@@ -80,23 +80,11 @@ void MessageBoxView::ViewHierarchyChanged(bool is_add,
   if (child == this && is_add) {
     if (prompt_field_)
       prompt_field_->SelectAll();
-    MessageLoop::current()->PostTask(FROM_HERE,
-        focus_grabber_factory_.NewRunnableMethod(
-            &MessageBoxView::FocusFirstFocusableControl));
   }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // MessageBoxView, private:
-
-void MessageBoxView::FocusFirstFocusableControl() {
-  if (prompt_field_)
-    prompt_field_->RequestFocus();
-  else if (check_box_)
-    check_box_->RequestFocus();
-  else
-    RequestFocus();
-}
 
 void MessageBoxView::Init(int dialog_flags,
                           const std::wstring& default_prompt) {

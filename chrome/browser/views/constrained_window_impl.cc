@@ -868,8 +868,13 @@ void ConstrainedWindowImpl::ActivateConstrainedWindow() {
       // better find whether the inner window should get focus.
       ::SetFocus(constrained_contents_->GetContainerHWND());
     } else {
-      // Give our window the focus so we get keyboard messages.
-      ::SetFocus(GetHWND());
+      views::View* view_to_focus = NULL;
+      if (window_delegate()) 
+        view_to_focus = window_delegate()->GetInitiallyFocusedView();
+      if (view_to_focus)
+        view_to_focus->RequestFocus();
+      else  // Give our window the focus so we get keyboard messages.
+        ::SetFocus(GetHWND());
     }
   }
 }

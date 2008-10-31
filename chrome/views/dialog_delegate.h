@@ -63,10 +63,10 @@ class DialogDelegate : public WindowDelegate {
 
   // Returns the default dialog button. This should not be a mask as only one
   // button should ever be the default button. Return DIALOGBUTTON_NONE if
-  // there is no default.
-  virtual int GetDefaultDialogButton() const {
-    return DIALOGBUTTON_OK;
-  }
+  // there is no default.  Default behavior is to return DIALOGBUTTON_OK or
+  // DIALOGBUTTON_CANCEL (in that order) if they are present, DIALOGBUTTON_NONE
+  // otherwise.
+  virtual int GetDefaultDialogButton() const;
 
   // Returns whether the specified dialog button is enabled.
   virtual bool IsDialogButtonEnabled(DialogButton button) const {

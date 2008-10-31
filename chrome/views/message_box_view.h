@@ -66,10 +66,6 @@ class MessageBoxView : public views::View {
                                     views::View* child);
 
  private:
-  // Called after ViewHierarchyChanged's call stack unwinds and returns to the
-  // message loop to focus the first focusable element in the dialog box.
-  void FocusFirstFocusableControl();
-
   // Sets up the layout manager and initializes the prompt field. This should
   // only be called once, from the constructor.
   void Init(int dialog_flags, const std::wstring& default_prompt);
