@@ -93,7 +93,7 @@ public:
 
   void set_hotspot(int hotspot_x, int hotspot_y) {
     hotspot_x_ = hotspot_x;
-    hotspot_y_ = hotspot_x;
+    hotspot_y_ = hotspot_y;
   }
 
 #if defined(OS_WIN)
