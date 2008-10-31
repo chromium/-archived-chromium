@@ -959,14 +959,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\graphics\SkGraphicsContext.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\graphics\SkGraphicsContext.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\graphics\SkiaUtils.cpp"
 					>
 				</File>
