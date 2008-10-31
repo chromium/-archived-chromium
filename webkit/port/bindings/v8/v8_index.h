@@ -207,7 +207,9 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(SVGELEMENT, SVGElement)
 #endif
 
-
+// NOTE: NONNODE_WRAPPER_TYPES is split into two halves because 
+//       Visual Studio's Intellinonsense crashes when macros get 
+//       too large.  10-29-08
 #define NONNODE_WRAPPER_TYPES(V)                                        \
   V(BARINFO, BarInfo)                                                   \
   V(CANVASGRADIENT, CanvasGradient)                                     \
@@ -249,7 +251,9 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   V(INSPECTORCONTROLLER, InspectorController)                           \
   V(KEYBOARDEVENT, KeyboardEvent)                                       \
   V(LOCATION, Location)                                                 \
-  V(MEDIALIST, MediaList)                                               \
+  V(MEDIALIST, MediaList)
+
+#define NONNODE_WRAPPER_TYPES_2(V)                                      \
   V(MESSAGECHANNEL, MessageChannel)                                     \
   V(MESSAGEEVENT, MessageEvent)                                         \
   V(MESSAGEPORT, MessagePort)                                           \
@@ -369,6 +373,7 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
     NODE_WRAPPER_TYPES(V)                               \
     HTMLELEMENT_TYPES(V)                                \
     NONNODE_WRAPPER_TYPES(V)                            \
+    NONNODE_WRAPPER_TYPES_2(V)                          \
     SVGNODE_WRAPPER_TYPES(V)                            \
     SVGELEMENT_TYPES(V)                                 \
     SVGNONNODE_WRAPPER_TYPES(V)
@@ -376,7 +381,8 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
 #define WRAPPER_TYPES(V)                                \
     NODE_WRAPPER_TYPES(V)                               \
     HTMLELEMENT_TYPES(V)                                \
-    NONNODE_WRAPPER_TYPES(V)
+    NONNODE_WRAPPER_TYPES(V)                            \
+    NONNODE_WRAPPER_TYPES_2(V)
 #endif
 
 #define ALL_WRAPPER_TYPES(V)                            \
