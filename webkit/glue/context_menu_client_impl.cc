@@ -70,16 +70,11 @@ std::wstring GetMisspelledWord(const WebCore::ContextMenu* default_menu,
       !IsASingleWord(misspelled_word_string))
     return L"";
 
-  // Expand around the click to see if we clicked a word.
-  WebCore::Node* inner_node = default_menu->hitTestResult().innerNode();
-  if (inner_node->renderer()->isTextArea()) {
-    WebCore::HitTestResult real_result = selected_frame->eventHandler()->
-        hitTestResultAtPoint(default_menu->hitTestResult().localPoint(), true);
-    inner_node = real_result.innerNode();
-  }
-
-  WebCore::VisiblePosition pos(inner_node->renderer()->
-      positionForPoint(default_menu->hitTestResult().localPoint()));
+  WebCore::HitTestResult hit_test_result = selected_frame->eventHandler()->
+      hitTestResultAtPoint(default_menu->hitTestResult().point(), true);
+  WebCore::Node* inner_node = hit_test_result.innerNode();
+  WebCore::VisiblePosition pos(inner_node->renderer()->positionForPoint(
+      hit_test_result.localPoint()));
 
   WebCore::Selection selection;
   if (pos.isNotNull()) {
