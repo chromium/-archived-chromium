@@ -305,6 +305,10 @@ void AutocompleteEditModel::SendOpenNotification(size_t selected_line,
 
 void AutocompleteEditModel::AcceptKeyword() {
   view_->OnBeforePossibleChange();
+  // NOTE: We don't need the IME composition hack in SetWindowTextAndCaretPos()
+  // here, because any active IME composition will eat <tab> characters,
+  // preventing the user from using tab-to-search until the composition is
+  // ended.
   view_->SetWindowText(L"");
   is_keyword_hint_ = false;
   keyword_ui_state_ = KEYWORD;
@@ -897,6 +901,19 @@ void AutocompleteEditView::SetUserText(const std::wstring& text,
 
 void AutocompleteEditView::SetWindowTextAndCaretPos(const std::wstring& text,
                                                     size_t caret_pos) {
+  HIMC imm_context = ImmGetContext(m_hWnd);
+  if (imm_context) {
+    // In Windows Vista, SetWindowText() automatically completes any ongoing
+    // IME composition, and updates the text of the underlying edit control.
+    // In Windows XP, however, SetWindowText() gets applied to the IME
+    // composition string if it exists, and doesn't update the underlying edit
+    // control. To avoid this, we force the IME to complete any outstanding
+    // compositions here.  This is harmless in Vista and in cases where the IME
+    // isn't composing.
+    ImmNotifyIME(imm_context, NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
+    ImmReleaseContext(m_hWnd, imm_context);
+  }
+
   SetWindowText(text.c_str());
   PlaceCaretAt(caret_pos);
 }
@@ -1044,6 +1061,9 @@ bool AutocompleteEditView::OnInlineAutocompleteTextMaybeChanged(
     return false;
 
   ScopedFreeze freeze(this, GetTextObjectModel());
+  // NOTE: We don't need the IME composition hack in SetWindowTextAndCaretPos()
+  // here, because UpdatePopup() disables inline autocomplete when a
+  // composition is in progress, thus preventing us from reaching this code.
   SetWindowText(display_text.c_str());
   // Set a reversed selection to keep the caret in the same position, which
   // avoids scrolling the user's text.
