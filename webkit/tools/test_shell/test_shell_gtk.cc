@@ -47,10 +47,42 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
 void TestShell::PlatformCleanUp() {
 }
 
+// GTK callbacks ------------------------------------------------------
+namespace {
+
+// Callback for when the main window is destroyed.
+void MainWindowDestroyed(GtkWindow* window, TestShell* shell) {
+  // TODO(evanm): make WindowList a list of GtkWindow*, so this
+  // reinterpret_cast isn't necessary.
+  WindowList::iterator entry =
+      std::find(TestShell::windowList()->begin(),
+                TestShell::windowList()->end(),
+                GTK_WIDGET(window));
+  if (entry != TestShell::windowList()->end())
+    TestShell::windowList()->erase(entry);
+
+  if (TestShell::windowList()->empty() || shell->is_modal()) {
+    MessageLoop::current()->PostTask(FROM_HERE,
+                                     new MessageLoop::QuitTask());
+  }
+
+  delete shell;
+}
+
+// Callback for when you press enter in the URL box.
+void URLEntryActivate(GtkEntry* entry, TestShell* shell) {
+  const gchar* url = gtk_entry_get_text(entry);
+  shell->LoadURL(UTF8ToWide(url).c_str());
+}
+
+};
+
 bool TestShell::Initialize(const std::wstring& startingURL) {
   m_mainWnd = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(m_mainWnd), "Test Shell");
   gtk_window_set_default_size(GTK_WINDOW(m_mainWnd), 640, 480);
+  g_signal_connect(G_OBJECT(m_mainWnd), "destroy",
+                   G_CALLBACK(MainWindowDestroyed), this);
 
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
 
@@ -69,6 +101,8 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
                      -1 /* append */);
 
   m_editWnd = gtk_entry_new();
+  g_signal_connect(G_OBJECT(m_editWnd), "activate",
+                   G_CALLBACK(URLEntryActivate), this);
   gtk_entry_set_text(GTK_ENTRY(m_editWnd), WideToUTF8(startingURL).c_str());
 
   GtkToolItem* tool_item = gtk_tool_item_new();
