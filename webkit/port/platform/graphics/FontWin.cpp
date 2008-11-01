@@ -77,13 +77,17 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
     Vector<WORD, kDefaultBufferLength> glyphs;
     Vector<int, kDefaultBufferLength> advances;
 
+    // Compute the coordinate. The 'origin' represents the baseline, so we need
+    // to move it up to the top of the bounding square.
+    int x = static_cast<int>(point.x());
+    int lineTop = static_cast<int>(point.y()) - font->ascent();
+
     // We draw the glyphs in chunks to avoid having to do a heap allocation for
     // the arrays of characters and advances. Since ExtTextOut is the
     // lowest-level text output function on Windows, there should be little
     // penalty for splitting up the text. On the other hand, the buffer cannot
     // be bigger than 4094 or the function will fail.
     int glyphIndex = 0;
-    int chunkX = 0;  // x offset of this span from the point
     while (glyphIndex < numGlyphs) {
         // how many chars will be in this chunk?
         int curLen = std::min(kMaxBufferLength, numGlyphs - glyphIndex);
@@ -99,16 +103,9 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
             curWidth += advances[i];
         }
 
-        SkPoint origin2 = point;
-        origin2.fX += chunkX;
-
         bool success = false;
         for (int executions = 0; executions < 2; ++executions) {
-            // The 'origin' represents the baseline, so we need to move it up
-            // to the top of the bounding square by subtracting the ascent
-            success = !!ExtTextOut(hdc, static_cast<int>(origin2.fX),
-                                   static_cast<int>(origin2.fY) - ascent(),
-                                   ETO_GLYPH_INDEX, NULL,
+            success = !!ExtTextOut(hdc, x, lineTop, ETO_GLYPH_INDEX, NULL,
                                    reinterpret_cast<const wchar_t*>(&glyphs[0]),
                                    curLen,
                                    &advances[0]);
@@ -123,7 +120,7 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
 
         ASSERT(success);
 
-        chunkX += curWidth;
+        x += curWidth;
     }
 
     SelectObject(hdc, oldFont);
