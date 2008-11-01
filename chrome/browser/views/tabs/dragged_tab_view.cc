@@ -39,6 +39,7 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
   renderer_->UpdateData(datasource);
 
   container_.reset(new views::ContainerWin);
+  container_->set_delete_on_destroy(false);
   container_->set_window_style(WS_POPUP);
   container_->set_window_ex_style(
     WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW);
