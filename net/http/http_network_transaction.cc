@@ -32,24 +32,6 @@ using base::Time;
 
 namespace net {
 
-// TODO(eroman): temporary for debugging.
-enum Bug3772 {
-  // |this| is a valid HttpNetworkTransaction.
-  BUG_3772_CONSTRUCTED = 0x5CA1AB1E,
-
-  // |this| is a deleted HttpNetworkTransaction.
-  BUG_3772_DELETED = 0xBA5EBA11,
-
-  // Bits set when the corresponding member variable is set.
-  BUG_3772_USING_SSL =           0xA0000000,
-  BUG_3772_ESTABLISHING_TUNNEL = 0x0B000000,
-  BUG_3772_USING_TUNNEL =        0x00C00000,
-  BUG_3772_USING_PROXY =         0x000D0000,
-
-  // Bits to set when the url scheme is SSL.
-  BUG_3772_USING_SSL_SCHEME =    0x0000E000,
-};
-
 //-----------------------------------------------------------------------------
 
 HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
@@ -76,7 +58,6 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       content_read_(0),
       read_buf_(NULL),
       read_buf_len_(0),
-      bug_3772_state_(BUG_3772_CONSTRUCTED),
       next_state_(STATE_NONE) {
 #if defined(OS_WIN)
   // TODO(port): Port the SSLConfigService class to Linux and Mac OS X.
@@ -192,8 +173,6 @@ uint64 HttpNetworkTransaction::GetUploadProgress() const {
 }
 
 HttpNetworkTransaction::~HttpNetworkTransaction() {
-  bug_3772_state_ = BUG_3772_DELETED;
-
   // If we still have an open socket, then make sure to close it so we don't
   // try to reuse it later on.
   if (connection_.is_initialized())
@@ -514,9 +493,12 @@ int HttpNetworkTransaction::DoConnectComplete(int result) {
 
   if (result == OK) {
     next_state_ = STATE_WRITE_HEADERS;
-    if (using_tunnel_)
+    if (using_tunnel_) {
       establishing_tunnel_ = true;
+      bug_3772_.true_count++;
+    }
   } else {
+    bug_3772_.connect_result = result;
     result = HandleSSLHandshakeError(result);
     if (result != OK)
       result = ReconsiderProxyAfterError(result);
@@ -707,30 +689,13 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
       header_buf_body_offset_ = 0;
     }
   }
-
   
   // TODO(eroman): temp instrumentation for bug hunting.
-  int bug_3772_state = this->bug_3772_state_;
-  if (bug_3772_state == BUG_3772_CONSTRUCTED) {
-    bug_3772_state = 0;
-
-    // Copy some member variables onto the stack so we can view them in
-    // mini-dump.
-    if (using_ssl_)
-      bug_3772_state |=  BUG_3772_USING_SSL;
-    if (establishing_tunnel_)
-      bug_3772_state |=  BUG_3772_ESTABLISHING_TUNNEL;
-    if (using_tunnel_)
-      bug_3772_state |=  BUG_3772_USING_TUNNEL;
-    if (using_proxy_)
-      bug_3772_state |=  BUG_3772_USING_PROXY;
-
-    if (request_->url.SchemeIs("https"))
-      bug_3772_state |=  BUG_3772_USING_SSL_SCHEME;
-  }
+  Bug3772 bug_3772 = this->bug_3772_;
+  bug_3772.reused_socket = reused_socket_;
 
   // And, we are done with the Start or the SSL tunnel CONNECT sequence.
-  return DidReadResponseHeaders(&bug_3772_state);
+  return DidReadResponseHeaders(&bug_3772);
 }
 
 int HttpNetworkTransaction::DoReadBody() {
@@ -811,10 +776,10 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   return result;
 }
 
-int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
+int HttpNetworkTransaction::DidReadResponseHeaders(Bug3772* bug_3772) {
   // Make sure compiler doesn't optimize away the variable.
-  if (*bug_3772_state == 0x11)
-    *bug_3772_state++;
+  if (bug_3772 == reinterpret_cast<Bug3772*>(11))
+    *reinterpret_cast<int*>(bug_3772) += 11;
 
   scoped_refptr<HttpResponseHeaders> headers;
   if (has_found_status_line_start()) {
@@ -866,6 +831,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders(int* bug_3772_state) {
     request_headers_bytes_sent_ = 0;
     header_buf_len_ = 0;
     header_buf_body_offset_ = 0;
+    bug_3772_.false_count++;
     establishing_tunnel_ = false;
     return OK;
   }
