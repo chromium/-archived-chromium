@@ -325,7 +325,7 @@ each locale. -->
         &amp;No spelling suggestions
       </message>
       <message name="IDS_CONTENT_CONTEXT_SPELLCHECK_OPTIONS" desc="The name of the Spellcheck Options display in the content area context menu">
-        &amp;Spellcheck options
+        &amp;Spell-checker options
       </message>
       <message name="IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS" desc="The name of the Language Settings command in the content area context menu">
         &amp;Language settings...
@@ -3106,7 +3106,7 @@ each locale. -->
         Spell-checker language:
       </message>
       <message name="IDS_OPTIONS_ENABLE_SPELLCHECK" desc="The documentation string of the 'Enable spellcheck' option">
-        Enable spellcheck:
+        Check spelling:
       </message>
       
       <message name="IDS_OPTIONS_RESET" desc="The label of the 'Reset all settings to defaults' button">
