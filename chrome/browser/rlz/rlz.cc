@@ -118,13 +118,13 @@ bool SendFinancialPing(const wchar_t* brand, const wchar_t* lang,
                    exclude_id, NULL);
 }
 
-// This class leverages the AutocompleteController notification to know when
+// This class leverages the AutocompleteEditModel notification to know when
 // the user first interacted with the omnibox and set a global accordingly.
 class OmniBoxUsageObserver : public NotificationObserver {
  public:
   OmniBoxUsageObserver() {
     NotificationService::current()->AddObserver(this,
-        NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED,
+        NOTIFY_OMNIBOX_OPENED_URL,
         NotificationService::AllSources());
     omnibox_used_ = false;
   }
@@ -149,7 +149,7 @@ class OmniBoxUsageObserver : public NotificationObserver {
   // Dtor is private so the object cannot be created on the stack.
   ~OmniBoxUsageObserver() {
     NotificationService::current()->RemoveObserver(this,
-        NOTIFY_AUTOCOMPLETE_CONTROLLER_RESULT_UPDATED, 
+        NOTIFY_OMNIBOX_OPENED_URL, 
         NotificationService::AllSources());
   }
 
