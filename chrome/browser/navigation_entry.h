@@ -220,7 +220,6 @@ class NavigationEntry {
   // the user.
   void set_url(const GURL& url) {
     url_ = url;
-    url_as_string_ = UTF8ToWide(url_.spec());
   }
   const GURL& url() const {
     return url_;
@@ -373,7 +372,6 @@ class NavigationEntry {
   GURL url_;
   GURL referrer_;
 
-  std::wstring url_as_string_;
   GURL display_url_;
   std::wstring title_;
   FaviconStatus favicon_;

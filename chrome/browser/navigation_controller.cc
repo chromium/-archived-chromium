@@ -491,10 +491,6 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
                                                std::wstring(), transition);
   entry->set_display_url(url);
   entry->set_user_typed_url(url);
-  if (url.SchemeIsFile()) {
-    entry->set_title(file_util::GetFilenameFromPath(UTF8ToWide(url.host() +
-                                                               url.path())));
-  }
   return entry;
 }
 
