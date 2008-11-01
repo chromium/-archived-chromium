@@ -346,6 +346,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\views\label_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\views\view_unittest.cc"
 				>
 			</File>

@@ -8,7 +8,8 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/view.h"
 #include "googleurl/src/gurl.h"
-#include "SkColor.h"
+#include "skia/include/SkColor.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 namespace views {
 
@@ -139,11 +140,21 @@ class Label : public View {
   virtual bool GetAccessibleState(VARIANT* state);
 
  private:
+  // These tests call CalculateDrawStringParams in order to verify the
+  // calculations done for drawing text.
+  FRIEND_TEST(LabelTest, DrawSingleLineString);
+  FRIEND_TEST(LabelTest, DrawMultiLineString);
+
   static ChromeFont GetDefaultFont();
+
+  // Returns parameters to be used for the DrawString call.
+  void CalculateDrawStringParams(std::wstring* paint_text,
+                                 gfx::Rect* text_bounds,
+                                 int* flags);
 
   // If the mouse is over the text, SetContainsMouse(true) is invoked, otherwise
   // SetContainsMouse(false) is invoked.
-  void Label::UpdateContainsMouse(const MouseEvent& event);
+  void UpdateContainsMouse(const MouseEvent& event);
 
   // Updates whether the mouse is contained in the Label. If the new value
   // differs from the current value, and a mouse over background is specified,
@@ -174,4 +185,3 @@ class Label : public View {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_VIEW_H__
-

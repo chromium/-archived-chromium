@@ -279,6 +279,10 @@ void ChromeCanvas::SizeStringInt(const std::wstring& text,
   b.left = 0;
   b.top = 0;
   b.right = *width;
+  if (b.right == 0 && !text.empty()) {
+    // Width needs to be at least 1 or else DoDrawText will not resize it.
+    b.right = 1;
+  }
   b.bottom = *height;
   DoDrawText(dc, text, &b, ComputeFormatFlags(flags) | DT_CALCRECT);
   endPlatformPaint();
@@ -388,4 +392,3 @@ SkBitmap ChromeCanvas::ExtractBitmap() {
   device_bitmap.copyTo(&result, SkBitmap::kARGB_8888_Config);
   return result;
 }
-

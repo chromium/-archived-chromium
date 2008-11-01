@@ -62,8 +62,7 @@ gfx::Size Label::GetPreferredSize() {
   }
 
   gfx::Insets insets = GetInsets();
-  prefsize.Enlarge(insets.left() + insets.right(),
-                   insets.top() + insets.bottom());
+  prefsize.Enlarge(insets.width(), insets.height());
   return prefsize;
 }
 
@@ -83,14 +82,14 @@ int Label::ComputeMultiLineFlags() {
   return flags;
 }
 
-void Label::Paint(ChromeCanvas* canvas) {
-  PaintBackground(canvas);
-  std::wstring paint_text;
+void Label::CalculateDrawStringParams(
+    std::wstring* paint_text, gfx::Rect* text_bounds, int* flags) {
+  DCHECK(paint_text && text_bounds && flags);
 
   if (url_set_) {
     // TODO(jungshik) : Figure out how to get 'intl.accept_languages'
     // preference and use it when calling ElideUrl.
-    paint_text = gfx::ElideUrl(url_, font_, width(), std::wstring());
+    *paint_text = gfx::ElideUrl(url_, font_, width(), std::wstring());
 
     // An URLs is always treated as an LTR text and therefore we should
     // explicitly mark it as such if the locale is RTL so that URLs containing
@@ -102,26 +101,43 @@ void Label::Paint(ChromeCanvas* canvas) {
     // as an LTR string, even if its containing view does not use an RTL UI
     // layout.
     if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
-      l10n_util::WrapStringWithLTRFormatting(&paint_text);
+      l10n_util::WrapStringWithLTRFormatting(paint_text);
   } else {
-    paint_text = text_;
+    *paint_text = text_;
   }
 
   if (is_multi_line_) {
-    canvas->DrawStringInt(paint_text, font_, color_, 0, 0, width(),
-                          height(), ComputeMultiLineFlags());
+    gfx::Insets insets = GetInsets();
+    text_bounds->SetRect(insets.left(),
+                         insets.top(),
+                         width() - insets.width(),
+                         height() - insets.height());
+    *flags = ComputeMultiLineFlags();
+  } else {
+    *text_bounds = GetTextBounds();
+    *flags = 0;
+  }
+}
+
+void Label::Paint(ChromeCanvas* canvas) {
+  PaintBackground(canvas);
+  std::wstring paint_text;
+  gfx::Rect text_bounds;
+  int flags = 0;
+  CalculateDrawStringParams(&paint_text, &text_bounds, &flags);
+  canvas->DrawStringInt(paint_text,
+                        font_,
+                        color_,
+                        text_bounds.x(),
+                        text_bounds.y(),
+                        text_bounds.width(),
+                        text_bounds.height(),
+                        flags);
+
+  if (is_multi_line_) {
     PaintFocusBorder(canvas);
   } else {
-    gfx::Rect text_bounds = GetTextBounds();
-
-    canvas->DrawStringInt(paint_text,
-                          font_,
-                          color_,
-                          text_bounds.x(),
-                          text_bounds.y(),
-                          text_bounds.width(),
-                          text_bounds.height());
-    // We'll draw the focus border ourselves so it is around the text.
+    // We'll draw the focus border ourselves, so it is around the text.
     if (HasFocus())
       canvas->DrawFocusRect(text_bounds.x(),
                             text_bounds.y(),
@@ -190,10 +206,12 @@ gfx::Size Label::GetTextSize() {
 
 int Label::GetHeightForWidth(int w) {
   if (is_multi_line_) {
+    gfx::Insets insets = GetInsets();
+    w = std::max<int>(0, w - insets.width());
     int h = 0;
     ChromeCanvas cc(0, 0, true);
     cc.SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
-    return h;
+    return h + insets.height();
   }
 
   return View::GetHeightForWidth(w);
@@ -311,12 +329,12 @@ void Label::SetContainsMouse(bool contains_mouse) {
 gfx::Rect Label::GetTextBounds() {
   gfx::Size text_size = GetTextSize();
   gfx::Insets insets = GetInsets();
-  int avail_width = width() - insets.left() - insets.right();
+  int avail_width = width() - insets.width();
   // Respect the size set by the owner view
   text_size.set_width(std::min(avail_width, text_size.width()));
 
   int text_y = insets.top() +
-      (height() - text_size.height() - insets.top() - insets.bottom()) / 2;
+      (height() - text_size.height() - insets.height()) / 2;
   int text_x;
   switch (horiz_alignment_) {
     case ALIGN_LEFT:
@@ -346,6 +364,9 @@ void Label::SizeToFit(int max_width) {
     label_width = std::max(label_width, font_.GetStringWidth(*iter));
   }
 
+  gfx::Insets insets = GetInsets();
+  label_width += insets.width();
+
   if (max_width > 0)
     label_width = std::min(label_width, max_width);
 
@@ -374,4 +395,3 @@ bool Label::GetAccessibleState(VARIANT* state) {
 }
 
 }  // namespace views
-
