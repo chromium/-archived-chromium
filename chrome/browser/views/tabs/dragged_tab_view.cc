@@ -38,7 +38,7 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
 
   renderer_->UpdateData(datasource);
 
-  container_ = new views::ContainerWin;
+  container_.reset(new views::ContainerWin);
   container_->set_window_style(WS_POPUP);
   container_->set_window_ex_style(
     WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW);
@@ -51,7 +51,7 @@ DraggedTabView::~DraggedTabView() {
   if (close_animation_.IsAnimating())
     close_animation_.Stop();
   GetParent()->RemoveChildView(this);
-  container_->Close();
+  container_->CloseNow();
 }
 
 void DraggedTabView::MoveTo(const gfx::Point& screen_point) {

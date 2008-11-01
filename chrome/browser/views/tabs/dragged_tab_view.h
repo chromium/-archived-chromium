@@ -76,7 +76,7 @@ class DraggedTabView : public views::View,
   int ScaleValue(int value);
 
   // The window that contains the DraggedTabView.
-  views::ContainerWin* container_;
+  scoped_ptr<views::ContainerWin> container_;
 
   // The renderer that paints the Tab shape.
   scoped_ptr<TabRenderer> renderer_;
