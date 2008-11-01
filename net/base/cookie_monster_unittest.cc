@@ -6,9 +6,10 @@
 
 #include <string>
 
+#include "base/basictypes.h"
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "base/time.h"
-#include "base/basictypes.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/cookie_monster.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -738,7 +739,7 @@ TEST(CookieMonsterTest, TestLastAccess) {
   EXPECT_TRUE(last_access_date == GetFirstCookieAccessDate(&cm));
 
   // Reading after a short wait should update the access date.
-  Sleep(1500);
+  PlatformThread::Sleep(1500);
   EXPECT_EQ("A=B", cm.GetCookies(url_google));
   EXPECT_FALSE(last_access_date == GetFirstCookieAccessDate(&cm));
 }
@@ -780,7 +781,8 @@ TEST(CookieMonsterTest, TestTotalGarbageCollection) {
     // Keep touching the first cookie to ensure it's not purged (since it will
     // always have the most recent access time).
     if (!(i % 500)) {
-      Sleep(1500);  // Ensure the timestamps will be different enough to update.
+      PlatformThread::Sleep(1500);  // Ensure the timestamps will be different
+                                    // enough to update.
       EXPECT_EQ("a=b", cm.GetCookies(sticky_cookie));
     }
   }

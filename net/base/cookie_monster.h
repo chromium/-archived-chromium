@@ -66,7 +66,7 @@ class CookieMonster {
   CookieMonster(PersistentCookieStore* store);
 
 #ifdef UNIT_TEST
-  CookieMonster::CookieMonster(int last_access_threshold_seconds)
+  CookieMonster(int last_access_threshold_seconds)
       : initialized_(false),
         store_(NULL),
         last_access_threshold_(
