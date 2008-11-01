@@ -718,6 +718,31 @@ TEST(CookieMonsterTest, TestSecure) {
   EXPECT_EQ("D=E; A=B", cm.GetCookies(url_google_secure));
 }
 
+static Time GetFirstCookieAccessDate(net::CookieMonster* cm) {
+  const net::CookieMonster::CookieList all_cookies(cm->GetAllCookies());
+  return all_cookies.front().second.LastAccessDate();
+}
+
+static const int kLastAccessThresholdSeconds = 1;
+
+TEST(CookieMonsterTest, TestLastAccess) {
+  GURL url_google(kUrlGoogle);
+  net::CookieMonster cm(kLastAccessThresholdSeconds);
+
+  EXPECT_TRUE(cm.SetCookie(url_google, "A=B"));
+  const Time last_access_date(GetFirstCookieAccessDate(&cm));
+
+  // Reading the cookie again immediately shouldn't update the access date,
+  // since we're inside the threshold.
+  EXPECT_EQ("A=B", cm.GetCookies(url_google));
+  EXPECT_TRUE(last_access_date == GetFirstCookieAccessDate(&cm));
+
+  // Reading after a short wait should update the access date.
+  Sleep(1500);
+  EXPECT_EQ("A=B", cm.GetCookies(url_google));
+  EXPECT_FALSE(last_access_date == GetFirstCookieAccessDate(&cm));
+}
+
 static int CountInString(const std::string& str, char c) {
   int count = 0;
   for (std::string::const_iterator it = str.begin();
@@ -744,23 +769,31 @@ TEST(CookieMonsterTest, TestHostGarbageCollection) {
 }
 
 TEST(CookieMonsterTest, TestTotalGarbageCollection) {
-  net::CookieMonster cm;
+  net::CookieMonster cm(kLastAccessThresholdSeconds);
   // Add a bunch of cookies on a bunch of host, some should get purged.
+  const GURL sticky_cookie("http://a0000.izzle");
   for (int i = 0; i < 2000; ++i) {
     GURL url(StringPrintf("http://a%04d.izzle", i));
     EXPECT_TRUE(cm.SetCookie(url, "a=b"));
     EXPECT_EQ("a=b", cm.GetCookies(url));
+
+    // Keep touching the first cookie to ensure it's not purged (since it will
+    // always have the most recent access time).
+    if (!(i % 500)) {
+      Sleep(1500);  // Ensure the timestamps will be different enough to update.
+      EXPECT_EQ("a=b", cm.GetCookies(sticky_cookie));
+    }
   }
 
   // Check that cookies that still exist.
   for (int i = 0; i < 2000; ++i) {
     GURL url(StringPrintf("http://a%04d.izzle", i));
-    if (i < 900) {
-      // Cookies should have gotten purged.
-      EXPECT_TRUE(cm.GetCookies(url).empty());
-    } else if (i > 1100) {
+    if ((i == 0) || (i > 1101)) {
       // Cookies should still be around.
       EXPECT_FALSE(cm.GetCookies(url).empty());
+    } else if (i < 901) {
+      // Cookies should have gotten purged.
+      EXPECT_TRUE(cm.GetCookies(url).empty());
     }
   }
 }

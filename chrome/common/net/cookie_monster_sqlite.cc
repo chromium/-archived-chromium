@@ -37,12 +37,17 @@ class SQLitePersistentCookieStore::Backend
     DCHECK(num_pending_ == 0 && pending_.empty());
   }
 
-  // Batch a cookie add
+  // Batch a cookie addition.
   void AddCookie(const std::string& key,
                  const net::CookieMonster::CanonicalCookie& cc);
-  // Batch a cookie delete
+
+  // Batch a cookie access time update.
+  void UpdateCookieAccessTime(const net::CookieMonster::CanonicalCookie& cc);
+
+  // Batch a cookie deletion.
   void DeleteCookie(const net::CookieMonster::CanonicalCookie& cc);
-  // Commit and pending operations and close the database, must be called
+
+  // Commit any pending operations and close the database.  This must be called
   // before the object is destructed.
   void Close();
 
@@ -51,6 +56,7 @@ class SQLitePersistentCookieStore::Backend
    public:
     typedef enum {
       COOKIE_ADD,
+      COOKIE_UPDATEACCESS,
       COOKIE_DELETE,
     } OperationType;
 
@@ -95,6 +101,11 @@ void SQLitePersistentCookieStore::Backend::AddCookie(
     const std::string& key,
     const net::CookieMonster::CanonicalCookie& cc) {
   BatchOperation(PendingOperation::COOKIE_ADD, key, cc);
+}
+
+void SQLitePersistentCookieStore::Backend::UpdateCookieAccessTime(
+    const net::CookieMonster::CanonicalCookie& cc) {
+  BatchOperation(PendingOperation::COOKIE_UPDATEACCESS, std::string(), cc);
 }
 
 void SQLitePersistentCookieStore::Backend::DeleteCookie(
@@ -150,9 +161,17 @@ void SQLitePersistentCookieStore::Backend::Commit() {
 
   SQLITE_UNIQUE_STATEMENT(add_smt, *cache_,
       "INSERT INTO cookies (creation_utc, host_key, name, value, path, "
-      "expires_utc, secure, httponly) "
-      "VALUES (?,?,?,?,?,?,?,?)");
+      "expires_utc, secure, httponly, last_access_utc) "
+      "VALUES (?,?,?,?,?,?,?,?,?)");
   if (!add_smt.is_valid()) {
+    NOTREACHED();
+    return;
+  }
+
+  SQLITE_UNIQUE_STATEMENT(update_access_smt, *cache_,
+                          "UPDATE cookies SET last_access_utc=? "
+                          "WHERE creation_utc=?");
+  if (!update_access_smt.is_valid()) {
     NOTREACHED();
     return;
   }
@@ -181,8 +200,20 @@ void SQLitePersistentCookieStore::Backend::Commit() {
         add_smt->bind_int64(5, po->cc().ExpiryDate().ToInternalValue());
         add_smt->bind_int(6, po->cc().IsSecure());
         add_smt->bind_int(7, po->cc().IsHttpOnly());
+        add_smt->bind_int64(8, po->cc().LastAccessDate().ToInternalValue());
         if (add_smt->step() != SQLITE_DONE) {
           NOTREACHED() << "Could not add a cookie to the DB.";
+        }
+        break;
+
+      case PendingOperation::COOKIE_UPDATEACCESS:
+        update_access_smt->reset();
+        update_access_smt->bind_int64(0,
+            po->cc().LastAccessDate().ToInternalValue());
+        update_access_smt->bind_int64(1,
+            po->cc().CreationDate().ToInternalValue());
+        if (update_access_smt->step() != SQLITE_DONE) {
+          NOTREACHED() << "Could not update cookie last access time in the DB.";
         }
         break;
 
@@ -241,8 +272,8 @@ SQLitePersistentCookieStore::~SQLitePersistentCookieStore() {
 }
 
 // Version number of the database.
-static const int kCurrentVersionNumber = 2;
-static const int kCompatibleVersionNumber = 2;
+static const int kCurrentVersionNumber = 3;
+static const int kCompatibleVersionNumber = 3;
 
 namespace {
 
@@ -258,7 +289,8 @@ bool InitTable(sqlite3* db) {
                          // We only store persistent, so we know it expires
                          "expires_utc INTEGER NOT NULL,"
                          "secure INTEGER NOT NULL,"
-                         "httponly INTEGER NOT NULL)",
+                         "httponly INTEGER NOT NULL,"
+                         "last_access_utc INTEGER NOT NULL)",
                          NULL, NULL, NULL) != SQLITE_OK)
       return false;
   }
@@ -292,7 +324,7 @@ bool SQLitePersistentCookieStore::Load(
   SQLStatement smt;
   if (smt.prepare(db,
       "SELECT creation_utc, host_key, name, value, path, expires_utc, secure, "
-      "httponly FROM cookies") != SQLITE_OK) {
+      "httponly, last_access_utc FROM cookies") != SQLITE_OK) {
     NOTREACHED() << "select statement prep failed";
     sqlite3_close(db);
     return false;
@@ -319,6 +351,7 @@ bool SQLitePersistentCookieStore::Load(
             smt.column_int(6) != 0,                          // secure
             smt.column_int(7) != 0,                          // httponly
             Time::FromInternalValue(smt.column_int64(0)),    // creation_utc
+            Time::FromInternalValue(smt.column_int64(8)),    // last_access_utc
             true,                                            // has_expires
             Time::FromInternalValue(smt.column_int64(5))));  // expires_utc
     // Memory allocation failed.
@@ -350,6 +383,24 @@ bool SQLitePersistentCookieStore::EnsureDatabaseVersion(sqlite3* db) {
   }
 
   int cur_version = meta_table_.GetVersionNumber();
+  if (cur_version == 2) {
+    SQLTransaction transaction(db);
+    transaction.Begin();
+    if ((sqlite3_exec(db,
+                      "ALTER TABLE cookies ADD COLUMN last_access_utc "
+                      "INTEGER DEFAULT 0", NULL, NULL, NULL) != SQLITE_OK) ||
+        (sqlite3_exec(db,
+                      "UPDATE cookies SET last_access_utc = creation_utc",
+                      NULL, NULL, NULL) != SQLITE_OK)) {
+      LOG(WARNING) << "Unable to update cookie database to version 3.";
+      return false;
+    }
+    ++cur_version;
+    meta_table_.SetVersionNumber(cur_version);
+    meta_table_.SetCompatibleVersionNumber(
+        std::min(cur_version, kCompatibleVersionNumber));
+    transaction.Commit();
+  }
 
   // Put future migration cases here.
 
@@ -366,6 +417,12 @@ void SQLitePersistentCookieStore::AddCookie(
     const net::CookieMonster::CanonicalCookie& cc) {
   if (backend_.get())
     backend_->AddCookie(key, cc);
+}
+
+void SQLitePersistentCookieStore::UpdateCookieAccessTime(
+    const net::CookieMonster::CanonicalCookie& cc) {
+  if (backend_.get())
+    backend_->UpdateCookieAccessTime(cc);
 }
 
 void SQLitePersistentCookieStore::DeleteCookie(

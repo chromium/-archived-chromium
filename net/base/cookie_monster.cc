@@ -68,6 +68,10 @@ using base::TimeDelta;
 
 namespace net {
 
+// Default minimum delay after updating a cookie's LastAccessDate before we
+// will update it again.
+static const int kDefaultAccessUpdateThresholdSeconds = 60;
+
 // static
 bool CookieMonster::enable_file_scheme_ = false;
 
@@ -78,12 +82,16 @@ void CookieMonster::EnableFileScheme() {
 
 CookieMonster::CookieMonster()
     : initialized_(false),
-      store_(NULL) {
+      store_(NULL),
+      last_access_threshold_(
+          TimeDelta::FromSeconds(kDefaultAccessUpdateThresholdSeconds)) {
 }
 
 CookieMonster::CookieMonster(PersistentCookieStore* store)
     : initialized_(false),
-      store_(store) {
+      store_(store),
+      last_access_threshold_(
+          TimeDelta::FromSeconds(kDefaultAccessUpdateThresholdSeconds)) {
 }
 
 CookieMonster::~CookieMonster() {
@@ -398,8 +406,8 @@ bool CookieMonster::SetCookieWithCreationTime(const GURL& url,
 
   cc.reset(new CanonicalCookie(pc.Name(), pc.Value(), cookie_path,
                                pc.IsSecure(), pc.IsHttpOnly(),
-                               creation_time, !cookie_expires.is_null(),
-                               cookie_expires));
+                               creation_time, creation_time,
+                               !cookie_expires.is_null(), cookie_expires));
 
   if (!cc.get()) {
     COOKIE_DLOG(WARNING) << "Failed to allocate CanonicalCookie";
@@ -438,6 +446,20 @@ void CookieMonster::InternalInsertCookie(const std::string& key,
   if (cc->IsPersistent() && store_ && sync_to_store)
     store_->AddCookie(key, *cc);
   cookies_.insert(CookieMap::value_type(key, cc));
+}
+
+void CookieMonster::InternalUpdateCookieAccessTime(CanonicalCookie* cc) {
+  // Based off the Mozilla code.  When a cookie has been accessed recently,
+  // don't bother updating its access time again.  This reduces the number of
+  // updates we do during pageload, which in turn reduces the chance our storage
+  // backend will hit its batch thresholds and be forced to update.
+  const Time current = Time::Now();
+  if ((current - cc->LastAccessDate()) < last_access_threshold_)
+    return;
+
+  cc->SetLastAccessDate(current);
+  if (cc->IsPersistent() && store_)
+    store_->UpdateCookieAccessTime(*cc);
 }
 
 void CookieMonster::InternalDeleteCookie(CookieMap::iterator it,
@@ -507,10 +529,15 @@ int CookieMonster::GarbageCollect(const Time& current,
   return num_deleted;
 }
 
-// TODO we should be sorting by last access time, however, right now
-// we're not saving an access time, so we're sorting by creation time.
-static bool OldestCookieSorter(const CookieMonster::CookieMap::iterator& it1,
-                               const CookieMonster::CookieMap::iterator& it2) {
+static bool LRUCookieSorter(const CookieMonster::CookieMap::iterator& it1,
+                            const CookieMonster::CookieMap::iterator& it2) {
+  // Cookies accessed less recently should be deleted first.
+  if (it1->second->LastAccessDate() != it2->second->LastAccessDate())
+    return it1->second->LastAccessDate() < it2->second->LastAccessDate();
+
+  // In rare cases we might have two cookies with identical last access times.
+  // To preserve the stability of the sort, in these cases prefer to delete
+  // older cookies over newer ones.  CreationDate() is guaranteed to be unique.
   return it1->second->CreationDate() < it2->second->CreationDate();
 }
 
@@ -522,7 +549,7 @@ int CookieMonster::GarbageCollectRange(const Time& current,
   std::vector<CookieMap::iterator> cookie_its;
   int num_deleted = GarbageCollectExpired(current, itpair, &cookie_its);
 
-  // If the range still has too many cookies, delete the oldest.
+  // If the range still has too many cookies, delete the least recently used.
   if (cookie_its.size() > num_max) {
     COOKIE_DLOG(INFO) << "GarbageCollectRange() Deep Garbage Collect.";
     // Purge down to (|num_max| - |num_purge|) total cookies.
@@ -530,7 +557,7 @@ int CookieMonster::GarbageCollectRange(const Time& current,
     num_purge += cookie_its.size() - num_max;
 
     std::partial_sort(cookie_its.begin(), cookie_its.begin() + num_purge,
-                      cookie_its.end(), OldestCookieSorter);
+                      cookie_its.end(), LRUCookieSorter);
     for (size_t i = 0; i < num_purge; ++i)
       InternalDeleteCookie(cookie_its[i], true);
 
@@ -763,7 +790,9 @@ void CookieMonster::FindCookiesForKey(
     if (!cc->IsOnPath(url.path()))
       continue;
 
-    // Congratulations Charlie, you passed the test!
+    // Add this cookie to the set of matching cookies.  Since we're reading the
+    // cookie, update its last access time.
+    InternalUpdateCookieAccessTime(cc);
     cookies->push_back(cc);
   }
 }
