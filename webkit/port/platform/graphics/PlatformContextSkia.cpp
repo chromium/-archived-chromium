@@ -152,7 +152,7 @@ PlatformContextSkia::~PlatformContextSkia()
 
 void PlatformContextSkia::save()
 {
-    m_stateStack.append(State());
+    m_stateStack.append(*m_state);
     m_state = &m_stateStack.last();
 
     // Save our native canvas.
