@@ -5,7 +5,6 @@
 #include "chrome/browser/navigation_entry.h"
 
 #include "chrome/common/resource_bundle.h"
-#include "net/base/escape.h"
 
 // Use this to get a new unique ID for a NavigationEntry during construction.
 // The returned ID is guaranteed to be nonzero (which is the "no ID" indicator).
@@ -59,12 +58,7 @@ NavigationEntry::NavigationEntry(TabContentsType type,
 }
 
 const std::wstring& NavigationEntry::GetTitleForDisplay() {
-  if (title_.empty()) {
-    std::string filename = url_.ExtractFileName();
-    title_ = UTF8ToWide(filename.empty() ? 
-        url_.spec() : 
-        UnescapeURLComponent(filename, UnescapeRule::SPACES | 
-                                       UnescapeRule::URL_SPECIAL_CHARS));
-  }
+  if (title_.empty())
+    return url_as_string_;
   return title_;
 }
