@@ -64,6 +64,9 @@ class ObserverListThreadSafe :
   void AddObserver(ObserverType* obs) {
     ObserverList<ObserverType>* list = NULL;
     MessageLoop* loop = MessageLoop::current();
+    // TODO(mbelshe): Get rid of this check.  Its needed right now because
+    //                Time currently triggers usage of the ObserverList.
+    //                And unittests use time without a MessageLoop.
     if (!loop)
       return;  // Some unittests may access this without a message loop.
     {
