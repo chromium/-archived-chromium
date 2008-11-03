@@ -48,6 +48,7 @@ env.Append(
         'libxslt',
         'modp_b64',
         'zlib',
+        'sqlite',
         'v8',
         'JavaScriptCore_pcre',
         'default_plugin',

@@ -397,7 +397,6 @@ input_files = [
     '$WEBCORE_DIR/platform/Timer.cpp',
     '$WEBCORE_DIR/platform/Widget.cpp',
 
-
     '$WEBCORE_DIR/platform/graphics/AffineTransform.cpp',
     '$WEBCORE_DIR/platform/graphics/BitmapImage.cpp',
     '$WEBCORE_DIR/platform/graphics/Color.cpp',
@@ -440,6 +439,12 @@ input_files = [
     #'$WEBCORE_DIR/platform/network/ResourceHandle.cpp',
     '$WEBCORE_DIR/platform/network/ResourceRequestBase.cpp',
     '$WEBCORE_DIR/platform/network/ResourceResponseBase.cpp',
+
+    '$WEBCORE_DIR/platform/sql/SQLiteAuthorizer.cpp',
+    '$WEBCORE_DIR/platform/sql/SQLiteDatabase.cpp',
+    '$WEBCORE_DIR/platform/sql/SQLiteStatement.cpp',
+    '$WEBCORE_DIR/platform/sql/SQLiteTransaction.cpp',
+    '$WEBCORE_DIR/platform/sql/SQLValue.cpp',
 
     '$WEBCORE_DIR/platform/text/AtomicString.cpp',
     '$WEBCORE_DIR/platform/text/Base64.cpp',
@@ -557,7 +562,6 @@ input_files = [
     '$WEBCORE_DIR/rendering/SVGRootInlineBox.cpp',
     '$WEBCORE_DIR/rendering/TextControlInnerElements.cpp',
 
-
     '$WEBCORE_DIR/rendering/style/Animation.cpp',
     '$WEBCORE_DIR/rendering/style/AnimationList.cpp',
     '$WEBCORE_DIR/rendering/style/BindingURI.cpp',
@@ -589,6 +593,19 @@ input_files = [
     '$WEBCORE_DIR/rendering/style/SVGRenderStyleDefs.cpp',
     '$WEBCORE_DIR/rendering/style/TransformOperations.cpp',
     '$WEBCORE_DIR/rendering/style/TranslateTransformOperation.cpp',
+
+    '$WEBCORE_DIR/storage/ChangeVersionWrapper.cpp',
+    '$WEBCORE_DIR/storage/Database.cpp',
+    '$WEBCORE_DIR/storage/DatabaseAuthorizer.cpp',
+    '$WEBCORE_DIR/storage/DatabaseTask.cpp',
+    '$WEBCORE_DIR/storage/DatabaseThread.cpp',
+    '$WEBCORE_DIR/storage/DatabaseTracker.cpp',
+    '$WEBCORE_DIR/storage/OriginQuotaManager.cpp',
+    '$WEBCORE_DIR/storage/OriginUsageRecord.cpp',
+    '$WEBCORE_DIR/storage/SQLResultSet.cpp',
+    '$WEBCORE_DIR/storage/SQLResultSetRowList.cpp',
+    '$WEBCORE_DIR/storage/SQLStatement.cpp',
+    '$WEBCORE_DIR/storage/SQLTransaction.cpp',
 
     '$WEBCORE_DIR/svg/ColorDistance.cpp',
     '$WEBCORE_DIR/svg/Filter.cpp',
