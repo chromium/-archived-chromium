@@ -345,6 +345,9 @@ void StatsTable::UnregisterThread(StatsTableTLSData* data) {
 }
 
 void StatsTable::SlotReturnFunction(void* data) {
+  // This is called by the TLS destructor, which on some platforms has 
+  // already cleared the TLS info, so use the tls_data argument
+  // rather than trying to fetch it ourselves.
   StatsTableTLSData* tls_data = static_cast<StatsTableTLSData*>(data);
   if (tls_data) {
     DCHECK(tls_data->table);

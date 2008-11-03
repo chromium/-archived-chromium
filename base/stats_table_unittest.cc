@@ -4,6 +4,7 @@
 
 #include "base/multiprocess_test.h"
 #include "base/platform_thread.h"
+#include "base/simple_thread.h"
 #include "base/stats_table.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
@@ -66,14 +67,16 @@ const std::wstring kCounterMixed = L"CounterMixed";
 // The number of thread loops that we will do.
 const int kThreadLoops = 1000;
 
-class StatsTableThread : public PlatformThread::Delegate {
+class StatsTableThread : public base::SimpleThread {
 public:
-  void ThreadMain();
-  PlatformThreadHandle thread_;
+  StatsTableThread(std::string name, int id)
+      : base::SimpleThread(name), id_(id) { }
+  virtual void Run();
+private:
   int id_;
 };
 
-void StatsTableThread::ThreadMain() {
+void StatsTableThread::Run() {
   // Each thread will open the shared memory and set counters
   // concurrently in a loop.  We'll use some pauses to
   // mixup the thread scheduling.
@@ -110,21 +113,20 @@ TEST_F(StatsTableTest, MultipleThreads) {
   // Spin up a set of threads to go bang on the various counters.
   // After we join the threads, we'll make sure the counters
   // contain the values we expected.
-  StatsTableThread threads[kMaxThreads];
+  StatsTableThread* threads[kMaxThreads];
 
   // Spawn the threads.
   for (int index = 0; index < kMaxThreads; index++) {
-    threads[index].id_ = index; 
-    bool created = 
-        PlatformThread::Create(0, &threads[index], &threads[index].thread_);
-    EXPECT_EQ(true, created);
-    EXPECT_NE(static_cast<PlatformThreadHandle>(0), threads[index].thread_);
+    threads[index] = new StatsTableThread("MultipleThreadsTest", index);
+    threads[index]->Start();
   }
 
   // Wait for the threads to finish.
   for (int index = 0; index < kMaxThreads; index++) {
-    PlatformThread::Join(threads[index].thread_);
+    threads[index]->Join();
+    delete threads[index];
   }
+
   StatsCounter zero_counter(kCounterZero);
   StatsCounter lucky13_counter(kCounter1313);
   StatsCounter increment_counter(kCounterIncrement);
