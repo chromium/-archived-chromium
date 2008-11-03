@@ -223,7 +223,7 @@ int FileStream::Write(
     const char* buf, int buf_len, CompletionCallback* callback) {
   if (!IsOpen())
     return ERR_UNEXPECTED;
-  DCHECK(open_flags_ & base::PLATFORM_FILE_READ);
+  DCHECK(open_flags_ & base::PLATFORM_FILE_WRITE);
   
   OVERLAPPED* overlapped = NULL;
   if (async_context_.get()) {
