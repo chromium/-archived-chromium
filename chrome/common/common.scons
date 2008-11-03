@@ -2,49 +2,42 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-Import('env', 'env_test')
+Import('env')
 
 env = env.Clone()
+
+env.SConscript([
+    '$BREAKPAD_DIR/using_breakpad.scons',
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBJPEG_DIR/using_libjpeg.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$NPAPI_DIR/using_npapi.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+], {'env':env})
 
 env.Prepend(
     CPPPATH = [
         '$CHROME_DIR/app/resources',
-        '/chrome/tools/build/win',
+        '$CHROME_DIR/app',
         '$CHROME_SRC_DIR',
     ],
-    CPPDEFINES = [
-        'U_STATIC_IMPLEMENTATION',
+)
+
+env.Append(
+    CPPPATH = [
+        '$WEBKIT_DIR/build/localized_strings',
     ],
 )
 
 if env['PLATFORM'] == 'win32':
   env.Prepend(
-      CCFLAGS = [
-          '/TP',
+      CPPPATH = [
+          '$CHROME_DIR/tools/build/win',
       ],
   )
-
-env.Append(
-    CPPPATH = [
-        'third_party/wtl/include',
-        '$NPAPI_DIR',
-        '$LIBXML_DIR/DerivedSources/include',
-        '$LIBXML_DIR/include',
-
-        'app',
-        '$WEBKIT_DIR/build/localized_strings',
-
-        '$SKIA_DIR/include',
-        '$SKIA_DIR/include/corecg',
-        '$SKIA_DIR/platform',
-        '$LIBPNG_DIR',
-        '$ZLIB_DIR',
-        '$BREAKPAD_DIR/src',
-        '$LIBJPEG_DIR',
-        '$ICU38_DIR/public/common',
-        '$ICU38_DIR/public/i18n',
-    ],
-)
 
 input_files = []
 
@@ -122,63 +115,3 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] in ('posix', 'win32'):
   # TODO(port): This should be enabled for all platforms.
   env.ChromeStaticLibrary('common', input_files)
-
-
-env_test = env_test.Clone()
-
-env_test.Append(
-    CPPPATH = [
-        '$SKIA_DIR/include',
-        '$SKIA_DIR/include/corecg',
-        '$SKIA_DIR/platform',
-        '$CHROME_SRC_DIR',
-        '$GTEST_DIR/include',
-    ],
-    LIBS = [
-        'base',
-        'gtest',
-        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
-    ],
-)
-
-if env_test['PLATFORM'] == 'win32':
-  env_test.Append(
-      LINKFLAGS = [
-          '/INCREMENTAL',
-
-          '/safeseh',
-          '/dynamicbase',
-          '/ignore:4199',
-          '/nxcompat',
-
-          '/DELAYLOAD:"dwmapi.dll"',
-          '/DELAYLOAD:"uxtheme.dll"',
-
-          '/DEBUG',
-          '/MACHINE:X86',
-          '/FIXED:No',
-      ],
-      LIBS = [
-          'rpcrt4.lib',
-          'shlwapi.lib',
-          'winmm.lib',
-      ],
-  )
-
-if env_test['PLATFORM'] == 'win32':
-  # TODO(port): Port this.
-  ipc_tests_files = [
-      '$BASE_DIR/perftimer$OBJSUFFIX',
-      'ipc_fuzzing_tests.cc',
-      'ipc_tests.cc',
-  ]
-
-  libs = [
-      'common.lib',
-  ]
-
-  ipc_tests = env_test.ChromeTestProgram('ipc_tests', ipc_tests_files + libs)
-
-  i = env_test.Install('$TARGET_ROOT', ipc_tests)
-  Alias('chrome', i)
-

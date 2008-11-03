@@ -13,6 +13,8 @@ sconscript_files = [
 
     'browser/browser.scons',
     'test/unit/unit_tests.scons',
+    'common/common.scons',
+    'common/ipc_tests.scons',
 ]
 
 SConscript(sconscript_files, exports=['env'])

@@ -1,0 +1,83 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env', 'env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$BASE_DIR/using_base.scons',
+    '$BREAKPAD_DIR/using_breakpad.scons',
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBJPEG_DIR/using_libjpeg.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$NPAPI_DIR/using_npapi.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+], {'env':env})
+
+# TODO(sgk):  convert into a using_*.scons pattern when we update WebKit.
+env.Append(
+    CPPPATH = [
+        '$WEBKIT_DIR/build/localized_strings',
+    ],
+)
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_DIR/app/resources',
+        '$CHROME_DIR/app',
+        '$CHROME_SRC_DIR',
+    ],
+    LIBS = [
+        'common',
+    ]
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CPPPATH = [
+          '$CHROME_DIR/tools/build/win',
+      ],
+  )
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+      LINKFLAGS = [
+          '/INCREMENTAL',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+
+          '/DEBUG',
+          '/MACHINE:X86',
+          '/FIXED:No',
+      ],
+      LIBS = [
+          'rpcrt4',
+          'shlwapi',
+          'winmm',
+      ],
+  )
+
+if env['PLATFORM'] == 'win32':
+  # TODO(port): Port this.
+  input_files = [
+      'ipc_fuzzing_tests.cc',
+      'ipc_tests.cc',
+
+      '$BASE_DIR/perftimer$OBJSUFFIX',
+  ]
+
+  ipc_tests = env.ChromeTestProgram('ipc_tests', input_files)
+  i = env.Install('$TARGET_ROOT', ipc_tests)
+  Alias('chrome', i)
