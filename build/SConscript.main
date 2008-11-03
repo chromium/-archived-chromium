@@ -164,7 +164,7 @@ if LoadComponent('breakpad'):
   sconscripts.append('$BREAKPAD_DIR/SConscript')
 
 if LoadComponent('chrome'):
-  sconscripts.append('$CHROME_DIR/SConscript')
+  sconscripts.append('$CHROME_DIR/chrome.scons')
 
 if LoadComponent('gears'):
   sconscripts.append('$GEARS_DIR/SConscript')

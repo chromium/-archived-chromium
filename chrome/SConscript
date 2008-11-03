@@ -390,7 +390,6 @@ if env_flat['PLATFORM'] == 'win32':
                   CPPPATH=['..'] + env['CPPPATH'])
 
 test_sconscript_files = [
-    'SConscript.unit_tests',
 ]
 
 # TODO(port)
