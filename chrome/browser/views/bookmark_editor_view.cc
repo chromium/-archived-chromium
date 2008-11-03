@@ -40,29 +40,19 @@ static const int kTreeWidth = 300;
 // ID for various children.
 static const int kNewGroupButtonID             = 1002;
 
-// static
-void BookmarkEditorView::Show(HWND parent_hwnd,
-                              Profile* profile,
-                              BookmarkNode* parent,
-                              BookmarkNode* node,
-                              Configuration configuration) {
-  DCHECK(profile);
-  BookmarkEditorView* editor =
-      new BookmarkEditorView(profile, parent, node, configuration);
-  editor->Show(parent_hwnd);
-}
-
 BookmarkEditorView::BookmarkEditorView(Profile* profile,
                                        BookmarkNode* parent,
                                        BookmarkNode* node,
-                                       Configuration configuration)
+                                       Configuration configuration,
+                                       Handler* handler)
     : profile_(profile),
       tree_view_(NULL),
       new_group_button_(NULL),
       parent_(parent),
       node_(node),
       running_menu_for_root_(false),
-      show_tree_(configuration == SHOW_TREE) {
+      show_tree_(configuration == SHOW_TREE),
+      handler_(handler) {
   DCHECK(profile);
   Init();
 }
@@ -73,6 +63,19 @@ BookmarkEditorView::~BookmarkEditorView() {
   if (tree_view_)
     tree_view_->SetModel(NULL);
   bb_model_->RemoveObserver(this);
+}
+
+// static
+void BookmarkEditorView::Show(HWND parent_hwnd,
+                              Profile* profile,
+                              BookmarkNode* parent,
+                              BookmarkNode* node,
+                              Configuration configuration,
+                              Handler* handler) {
+  DCHECK(profile);
+  BookmarkEditorView* editor =
+      new BookmarkEditorView(profile, parent, node, configuration, handler);
+  editor->Show(parent_hwnd);
 }
 
 bool BookmarkEditorView::IsDialogButtonEnabled(DialogButton button) const {
@@ -480,7 +483,11 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
 
   if (!show_tree_ ) {
     if (!node_) {
-      bb_model_->AddURL(parent_, parent_->GetChildCount(), new_title, new_url);
+      BookmarkNode* node =
+          bb_model_->AddURL(parent_, parent_->GetChildCount(), new_title,
+                            new_url);
+      if (handler_.get())
+        handler_->NodeCreated(node);
       return;
     }
     // If we're not showing the tree we only need to modify the node.
@@ -535,8 +542,11 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
     }
   } else {
     // We're adding a new URL.
-    bb_model_->AddURL(new_parent, new_parent->GetChildCount(), new_title,
-                      new_url);
+    BookmarkNode* node =
+        bb_model_->AddURL(new_parent, new_parent->GetChildCount(), new_title,
+                          new_url);
+    if (handler_.get())
+      handler_->NodeCreated(node);
   }
 }
 

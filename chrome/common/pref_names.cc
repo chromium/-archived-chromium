@@ -216,13 +216,16 @@ const wchar_t kBookmarkTableNameWidth2[] = L"bookmark_table.name_width_2";
 const wchar_t kBookmarkTableURLWidth2[] = L"bookmark_table.url_width_2";
 const wchar_t kBookmarkTablePathWidth[] = L"bookmark_table.path_width";
 
-// Boolean pref to define the default values for using spellchecker.
-const wchar_t kEnableSpellCheck[] = L"browser.enable_spellchecking";
-
 // Bounds of the bookmark manager.
 const wchar_t kBookmarkManagerPlacement[] =
     L"bookmark_manager.window_placement";
 
+// Integer location of the split bar in the bookmark manager.
+const wchar_t kBookmarkManagerSplitLocation[] =
+    L"bookmark_manager.split_location";
+
+// Boolean pref to define the default values for using spellchecker.
+const wchar_t kEnableSpellCheck[] = L"browser.enable_spellchecking";
 
 // *************** LOCAL STATE ***************
 // These are attached to the machine/installation

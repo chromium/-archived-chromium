@@ -20,78 +20,6 @@ namespace {
 // Number of bookmarks shown in recently bookmarked.
 const int kRecentlyBookmarkedCount = 50;
 
-// FolderBookmarkTableModel ----------------------------------------------------
-
-class FolderBookmarkTableModel : public BookmarkTableModel {
- public:
-  FolderBookmarkTableModel(BookmarkModel* model, BookmarkNode* root_node)
-      : BookmarkTableModel(model),
-        root_node_(root_node) {
-  }
-
-  virtual int RowCount() {
-    return root_node_ ? root_node_->GetChildCount() : 0;
-  }
-
-  virtual BookmarkNode* GetNodeForRow(int row) {
-    DCHECK(root_node_);
-    return root_node_->GetChild(row);
-  }
-
-  virtual void BookmarkNodeMoved(BookmarkModel* model,
-                                 BookmarkNode* old_parent,
-                                 int old_index,
-                                 BookmarkNode* new_parent,
-                                 int new_index) {
-    if (observer() && (old_parent == root_node_ || new_parent == root_node_))
-      observer()->OnModelChanged();
-  }
-
-  virtual void BookmarkNodeAdded(BookmarkModel* model,
-                                 BookmarkNode* parent,
-                                 int index) {
-    if (root_node_ == parent && observer())
-      observer()->OnItemsAdded(index, 1);
-  }
-
-  virtual void BookmarkNodeRemoved(BookmarkModel* model,
-                                   BookmarkNode* parent,
-                                   int index,
-                                   BookmarkNode* node) {
-    if (root_node_->HasAncestor(node)) {
-      // We, our one of our ancestors was removed.
-      root_node_ = NULL;
-      if (observer())
-        observer()->OnModelChanged();
-      return;
-    }
-    if (root_node_ == parent && observer())
-      observer()->OnItemsRemoved(index, 1);
-  }
-
-  virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {
-    NotifyChanged(node);
-  }
-
-  virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {
-    NotifyChanged(node);
-  }
-
- private:
-  void NotifyChanged(BookmarkNode* node) {
-    if (node->GetParent() == root_node_ && observer())
-      observer()->OnItemsChanged(node->GetParent()->IndexOfChild(node), 1);
-  }
-
-  // The node we're showing the children of. This is set to NULL if the node
-  // (or one of its ancestors) is removed from the model.
-  BookmarkNode* root_node_;
-
-  DISALLOW_COPY_AND_ASSIGN(FolderBookmarkTableModel);
-};
-
 // VectorBackedBookmarkTableModel ----------------------------------------------
 
 class VectorBackedBookmarkTableModel : public BookmarkTableModel {
@@ -137,10 +65,97 @@ class VectorBackedBookmarkTableModel : public BookmarkTableModel {
   }
 
   typedef std::vector<BookmarkNode*> Nodes;
-  Nodes nodes_;
+  Nodes& nodes() { return nodes_; }
 
  private:
+  Nodes nodes_;
+
   DISALLOW_COPY_AND_ASSIGN(VectorBackedBookmarkTableModel);
+};
+
+// FolderBookmarkTableModel ----------------------------------------------------
+
+// FolderBookmarkTableModel is a TableModel implementation backed by the
+// contents of a bookmark folder. FolderBookmarkTableModel caches the contents
+// of the folder so that it can send out the correct events when a bookmark
+// node is moved.
+class FolderBookmarkTableModel : public VectorBackedBookmarkTableModel {
+ public:
+  FolderBookmarkTableModel(BookmarkModel* model, BookmarkNode* root_node)
+      : VectorBackedBookmarkTableModel(model),
+        root_node_(root_node) {
+    for (int i = 0; i < root_node->GetChildCount(); ++i)
+      nodes().push_back(root_node->GetChild(i));
+  }
+
+  virtual void BookmarkNodeMoved(BookmarkModel* model,
+                                 BookmarkNode* old_parent,
+                                 int old_index,
+                                 BookmarkNode* new_parent,
+                                 int new_index) {
+    if (old_parent == root_node_) {
+      nodes().erase(nodes().begin() + old_index);
+      if (observer())
+        observer()->OnItemsRemoved(old_index, 1);
+    }
+    if (new_parent == root_node_) {
+      nodes().insert(nodes().begin() + new_index,
+                     root_node_->GetChild(new_index));
+      if (observer())
+        observer()->OnItemsAdded(new_index, 1);
+    }
+  }
+
+  virtual void BookmarkNodeAdded(BookmarkModel* model,
+                                 BookmarkNode* parent,
+                                 int index) {
+    if (root_node_ == parent) {
+      nodes().insert(nodes().begin() + index, parent->GetChild(index));
+      if (observer())
+        observer()->OnItemsAdded(index, 1);
+    }
+  }
+
+  virtual void BookmarkNodeRemoved(BookmarkModel* model,
+                                   BookmarkNode* parent,
+                                   int index,
+                                   BookmarkNode* node) {
+    if (root_node_->HasAncestor(node)) {
+      // We, or one of our ancestors was removed.
+      root_node_ = NULL;
+      nodes().clear();
+      if (observer())
+        observer()->OnModelChanged();
+      return;
+    }
+    if (root_node_ == parent) {
+      nodes().erase(nodes().begin() + index);
+      if (observer())
+        observer()->OnItemsRemoved(index, 1);
+    }
+  }
+
+  virtual void BookmarkNodeChanged(BookmarkModel* model,
+                                   BookmarkNode* node) {
+    NotifyChanged(node);
+  }
+
+  virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                         BookmarkNode* node) {
+    NotifyChanged(node);
+  }
+
+ private:
+  void NotifyChanged(BookmarkNode* node) {
+    if (node->GetParent() == root_node_ && observer())
+      observer()->OnItemsChanged(node->GetParent()->IndexOfChild(node), 1);
+  }
+
+  // The node we're showing the children of. This is set to NULL if the node
+  // (or one of its ancestors) is removed from the model.
+  BookmarkNode* root_node_;
+
+  DISALLOW_COPY_AND_ASSIGN(FolderBookmarkTableModel);
 };
 
 // RecentlyBookmarkedTableModel ------------------------------------------------
@@ -169,8 +184,8 @@ class RecentlyBookmarkedTableModel : public VectorBackedBookmarkTableModel {
 
  private:
   void UpdateRecentlyBookmarked() {
-    nodes_.clear();
-    model()->GetMostRecentlyAddedEntries(kRecentlyBookmarkedCount, &nodes_);
+    nodes().clear();
+    model()->GetMostRecentlyAddedEntries(kRecentlyBookmarkedCount, &nodes());
     if (observer())
       observer()->OnModelChanged();
   }
@@ -190,7 +205,7 @@ class BookmarkSearchTableModel : public VectorBackedBookmarkTableModel {
     model->GetBookmarksMatchingText(search_text,
                                     std::numeric_limits<int>::max(), &matches);
     for (size_t i = 0; i < matches.size(); ++i)
-      nodes_.push_back(matches[i].node);
+      nodes().push_back(matches[i].node);
   }
 
   virtual void BookmarkNodeAdded(BookmarkModel* model,
@@ -198,9 +213,9 @@ class BookmarkSearchTableModel : public VectorBackedBookmarkTableModel {
                                  int index) {
     BookmarkNode* node = parent->GetChild(index);
     if (model->DoesBookmarkMatchText(search_text_, node)) {
-      nodes_.push_back(node);
+      nodes().push_back(node);
       if (observer())
-        observer()->OnItemsAdded(static_cast<int>(nodes_.size() - 1), 1);
+        observer()->OnItemsAdded(static_cast<int>(nodes().size() - 1), 1);
     }
   }
 
@@ -212,7 +227,7 @@ class BookmarkSearchTableModel : public VectorBackedBookmarkTableModel {
     if (internal_index == -1)
       return;
 
-    nodes_.erase(nodes_.begin() + static_cast<int>(internal_index));
+    nodes().erase(nodes().begin() + static_cast<int>(internal_index));
     if (observer())
       observer()->OnItemsRemoved(internal_index, 1);
   }

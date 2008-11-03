@@ -23,7 +23,8 @@ class BookmarkContextMenu : public views::MenuDelegate,
   enum ConfigurationType {
     BOOKMARK_BAR,
     BOOKMARK_MANAGER_TABLE,
-    BOOKMARK_MANAGER_TREE
+    BOOKMARK_MANAGER_TREE,
+    BOOKMARK_MANAGER_ORGANIZE_MENU
   };
 
   // Creates the bookmark context menu.

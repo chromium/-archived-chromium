@@ -50,27 +50,39 @@ class BookmarkEditorView : public views::View,
   FRIEND_TEST(BookmarkEditorViewTest, ChangeURLNoTree);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeTitleNoTree);
  public:
+  // Handler is notified when the BookmarkEditorView creates a new bookmark.
+  // Handler is owned by the BookmarkEditorView and deleted when it is deleted.
+  class Handler {
+   public:
+    virtual ~Handler() {}
+    virtual void NodeCreated(BookmarkNode* new_node) = 0;
+  };
+
   // An enumeration of the possible configurations offered.
   enum Configuration {
     SHOW_TREE,
     NO_TREE
   };
 
+  BookmarkEditorView(Profile* profile,
+                     BookmarkNode* parent,
+                     BookmarkNode* node,
+                     Configuration configuration,
+                     Handler* handler);
+
+  virtual ~BookmarkEditorView();
+
   // Shows the BookmarkEditorView editing |node|. If |node| is NULL a new entry
   // is created initially parented to |parent|. If |show_tree| is false the
-  // tree is not shown.
+  // tree is not shown. BookmarkEditorView takes ownership of |handler| and
+  // deletes it when done. |handler| may be null. See description of Handler
+  // for details.
   static void Show(HWND parent_window,
                    Profile* profile,
                    BookmarkNode* parent,
                    BookmarkNode* node,
-                   Configuration configuration);
-
-  BookmarkEditorView(Profile* profile,
-                     BookmarkNode* parent,
-                     BookmarkNode* node,
-                     Configuration configuration);
-
-  virtual ~BookmarkEditorView();
+                   Configuration configuration,
+                   Handler* handler);
 
   // DialogDelegate methods:
   virtual bool IsDialogButtonEnabled(DialogButton button) const;
@@ -263,6 +275,8 @@ class BookmarkEditorView : public views::View,
 
   // Is the tree shown?
   bool show_tree_;
+
+  scoped_ptr<Handler> handler_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkEditorView);
 };

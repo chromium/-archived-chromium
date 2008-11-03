@@ -80,7 +80,7 @@ class BookmarkEditorViewTest : public testing::Test {
 // Makes sure the tree model matches that of the bookmark bar model.
 TEST_F(BookmarkEditorViewTest, ModelsMatch) {
   BookmarkEditorView editor(profile_.get(), NULL, NULL,
-                            BookmarkEditorView::SHOW_TREE);
+                            BookmarkEditorView::SHOW_TREE, NULL);
   BookmarkEditorView::EditorNode* editor_root = editor.tree_model_->GetRoot();
   // The root should have two children, one for the bookmark bar node,
   // the other for the 'other bookmarks' folder.
@@ -105,7 +105,7 @@ TEST_F(BookmarkEditorViewTest, ModelsMatch) {
 // Changes the title and makes sure parent/visual order doesn't change.
 TEST_F(BookmarkEditorViewTest, EditTitleKeepsPosition) {
   BookmarkEditorView editor(profile_.get(), NULL, GetNode("a"),
-                            BookmarkEditorView::SHOW_TREE);
+                            BookmarkEditorView::SHOW_TREE, NULL);
   editor.title_tf_.SetText(L"new_a");
 
   editor.ApplyEdits(editor.tree_model_->GetRoot()->GetChild(0));
@@ -121,7 +121,7 @@ TEST_F(BookmarkEditorViewTest, EditURLKeepsPosition) {
   Time node_time = Time::Now() + TimeDelta::FromDays(2);
   GetNode("a")->date_added_ = node_time;
   BookmarkEditorView editor(profile_.get(), NULL, GetNode("a"),
-                            BookmarkEditorView::SHOW_TREE);
+                            BookmarkEditorView::SHOW_TREE, NULL);
 
   editor.url_tf_.SetText(UTF8ToWide(GURL(base_path() + "new_a").spec()));
 
@@ -137,7 +137,7 @@ TEST_F(BookmarkEditorViewTest, EditURLKeepsPosition) {
 // Moves 'a' to be a child of the other node.
 TEST_F(BookmarkEditorViewTest, ChangeParent) {
   BookmarkEditorView editor(profile_.get(), NULL, GetNode("a"),
-                            BookmarkEditorView::SHOW_TREE);
+                            BookmarkEditorView::SHOW_TREE, NULL);
 
   editor.ApplyEdits(editor.tree_model_->GetRoot()->GetChild(1));
 
@@ -151,7 +151,7 @@ TEST_F(BookmarkEditorViewTest, ChangeParentAndURL) {
   Time node_time = Time::Now() + TimeDelta::FromDays(2);
   GetNode("a")->date_added_ = node_time;
   BookmarkEditorView editor(profile_.get(), NULL, GetNode("a"),
-                            BookmarkEditorView::SHOW_TREE);
+                            BookmarkEditorView::SHOW_TREE, NULL);
 
   editor.url_tf_.SetText(UTF8ToWide(GURL(base_path() + "new_a").spec()));
 
@@ -166,7 +166,7 @@ TEST_F(BookmarkEditorViewTest, ChangeParentAndURL) {
 // Creates a new folder and moves a node to it.
 TEST_F(BookmarkEditorViewTest, MoveToNewParent) {
   BookmarkEditorView editor(profile_.get(), NULL, GetNode("a"),
-                            BookmarkEditorView::SHOW_TREE);
+                            BookmarkEditorView::SHOW_TREE, NULL);
 
   // Create two nodes: "F21" as a child of "F2" and "F211" as a child of "F21".
   BookmarkEditorView::EditorNode* f2 =
@@ -198,7 +198,7 @@ TEST_F(BookmarkEditorViewTest, MoveToNewParent) {
 // Brings up the editor, creating a new URL on the bookmark bar.
 TEST_F(BookmarkEditorViewTest, NewURL) {
   BookmarkEditorView editor(profile_.get(), NULL, NULL,
-                            BookmarkEditorView::SHOW_TREE);
+                            BookmarkEditorView::SHOW_TREE, NULL);
 
   editor.url_tf_.SetText(UTF8ToWide(GURL(base_path() + "a").spec()));
   editor.title_tf_.SetText(L"new_a");
@@ -218,7 +218,7 @@ TEST_F(BookmarkEditorViewTest, NewURL) {
 TEST_F(BookmarkEditorViewTest, ChangeURLNoTree) {
   BookmarkEditorView editor(profile_.get(), NULL,
                             model_->other_node()->GetChild(0),
-                            BookmarkEditorView::NO_TREE);
+                            BookmarkEditorView::NO_TREE, NULL);
 
   editor.url_tf_.SetText(UTF8ToWide(GURL(base_path() + "a").spec()));
   editor.title_tf_.SetText(L"new_a");
@@ -238,7 +238,7 @@ TEST_F(BookmarkEditorViewTest, ChangeURLNoTree) {
 TEST_F(BookmarkEditorViewTest, ChangeTitleNoTree) {
   BookmarkEditorView editor(profile_.get(), NULL,
                             model_->other_node()->GetChild(0),
-                            BookmarkEditorView::NO_TREE);
+                            BookmarkEditorView::NO_TREE, NULL);
 
   editor.title_tf_.SetText(L"new_a");
 

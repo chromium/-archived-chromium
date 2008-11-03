@@ -6,11 +6,13 @@
 #define CHROME_BROWSER_VIEWS_BOOKMARK_MANAGER_VIEW_H_
 
 #include "base/task.h"
+#include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/views/table_view.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/tree_view.h"
 #include "chrome/views/view.h"
+#include "chrome/views/view_menu_delegate.h"
 #include "chrome/views/window_delegate.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -21,6 +23,9 @@ class BookmarkTableView;
 class PrefService;
 class Profile;
 
+namespace views {
+class SingleSplitView;
+}
 // A view that lets the user manage their bookmarks. The bookmark manager
 // shows a tree on the left with a table on the right. The tree shows the
 // folder nodes and the table the contents of the selected tree node. The
@@ -33,7 +38,8 @@ class BookmarkManagerView : public views::View,
                             public views::TableViewObserver,
                             public views::TextField::Controller,
                             public BookmarkModelObserver,
-                            public views::ContextMenuController {
+                            public views::ContextMenuController,
+                            public views::ViewMenuDelegate {
  public:
   explicit BookmarkManagerView(Profile* profile);
   virtual ~BookmarkManagerView();
@@ -50,6 +56,9 @@ class BookmarkManagerView : public views::View,
   // selected and node is selected in the table.
   void SelectInTree(BookmarkNode* node);
 
+  // Returns the selected folder, which may be null.
+  BookmarkNode* GetSelectedFolder();
+
   // Returns the selection of the table.
   std::vector<BookmarkNode*> GetSelectedTableNodes();
 
@@ -57,7 +66,7 @@ class BookmarkManagerView : public views::View,
 
   virtual gfx::Size GetPreferredSize();
 
-  // WindowDelegate.
+  // WindowDelegate methods.
   virtual bool CanResize() const { return true; }
   virtual bool CanMaximize() const { return true; }
   virtual std::wstring GetWindowTitle() const;
@@ -71,6 +80,9 @@ class BookmarkManagerView : public views::View,
   // TODO(sky): implement these when we have an icon.
   //virtual SkBitmap GetWindowIcon();
   //virtual bool ShouldShowWindowIcon() const { return true; }
+  virtual void WindowClosing();
+
+  Profile* profile() const { return profile_; }
 
  private:
   // TableViewObserver methods.
@@ -78,6 +90,7 @@ class BookmarkManagerView : public views::View,
   // Overriden to open the selected table nodes in the current browser.
   virtual void OnDoubleClick();
   virtual void OnTableViewDelete(views::TableView* table);
+  virtual void OnKeyDown(unsigned short virtual_keycode);
 
   // TreeViewController method.
   virtual void OnTreeViewSelectionChanged(views::TreeView* tree_view);
@@ -121,6 +134,9 @@ class BookmarkManagerView : public views::View,
                                int y,
                                bool is_mouse_gesture);
 
+  // ViewMenuDelegate.
+  virtual void RunMenu(views::View* source, const CPoint& pt, HWND hwnd);
+
   // Creates the table model to use when searching. This returns NULL if there
   // is no search text.
   BookmarkTableModel* CreateSearchTableModel();
@@ -144,12 +160,20 @@ class BookmarkManagerView : public views::View,
   // Returns the BookmarkModel.
   BookmarkModel* GetBookmarkModel() const;
 
+  // Shows the menu. This is invoked to show the context menu for table/tree
+  // as well as to show the menu from the organize button.
+  void ShowMenu(HWND host,
+                int x,
+                int y,
+                BookmarkContextMenu::ConfigurationType config);
+
   Profile* profile_;
   BookmarkTableView* table_view_;
   BookmarkFolderTreeView* tree_view_;
   scoped_ptr<BookmarkTableModel> table_model_;
   scoped_ptr<BookmarkFolderTreeModel> tree_model_;
   views::TextField* search_tf_;
+  views::SingleSplitView* split_view_;
 
   // Factory used for delaying search.
   ScopedRunnableMethodFactory<BookmarkManagerView> search_factory_;

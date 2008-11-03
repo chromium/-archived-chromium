@@ -56,10 +56,11 @@ class EditFolderController : public InputWindowDelegate,
   static void Show(Profile* profile,
                    HWND hwnd,
                    BookmarkNode* node,
-                   bool is_new) {
+                   bool is_new,
+                   bool show_in_manager) {
     // EditFolderController deletes itself when done.
     EditFolderController* controller =
-        new EditFolderController(profile, hwnd, node, is_new);
+        new EditFolderController(profile, hwnd, node, is_new, show_in_manager);
     controller->Show();
   }
 
@@ -67,11 +68,13 @@ class EditFolderController : public InputWindowDelegate,
   EditFolderController(Profile* profile,
                        HWND hwnd,
                        BookmarkNode* node,
-                       bool is_new)
+                       bool is_new,
+                       bool show_in_manager)
       : profile_(profile),
         model_(profile->GetBookmarkModel()),
         node_(node),
-        is_new_(is_new) {
+        is_new_(is_new),
+        show_in_manager_(show_in_manager) {
     DCHECK(is_new_ || node);
     window_ = CreateInputWindow(hwnd, this);
     model_->AddObserver(this);
@@ -97,10 +100,17 @@ class EditFolderController : public InputWindowDelegate,
   }
 
   virtual void InputAccepted(const std::wstring& text) {
-    if (is_new_)
-      model_->AddGroup(node_, node_->GetChildCount(), text);
-    else
+    if (is_new_) {
+      BookmarkNode* node =
+          model_->AddGroup(node_, node_->GetChildCount(), text);
+      if (show_in_manager_) {
+        BookmarkManagerView* manager = BookmarkManagerView::current();
+        if (manager && manager->profile() == profile_)
+          manager->SelectInTree(node);
+      }
+    } else {
       model_->SetTitle(node_, text);
+    }
   }
 
   virtual void InputCanceled() {
@@ -164,9 +174,36 @@ class EditFolderController : public InputWindowDelegate,
   BookmarkNode* node_;
 
   bool is_new_;
+
+  // If is_new_ is true and a new node is created, it is selected in the
+  // bookmark manager.
+  bool show_in_manager_;
   views::Window* window_;
 
   DISALLOW_COPY_AND_ASSIGN(EditFolderController);
+};
+
+// SelectOnCreationHandler ----------------------------------------------------
+
+// Used when adding a new bookmark. If a new bookmark is created it is selected
+// in the bookmark manager.
+class SelectOnCreationHandler : public BookmarkEditorView::Handler {
+ public:
+  explicit SelectOnCreationHandler(Profile* profile) : profile_(profile) {
+  }
+
+  virtual void NodeCreated(BookmarkNode* new_node) {
+    BookmarkManagerView* manager = BookmarkManagerView::current();
+    if (!manager || manager->profile() != profile_)
+      return;  // Manager no longer showing, or showing a different profile.
+
+    manager->SelectInTree(new_node);
+  }
+
+ private:
+  Profile* profile_;
+
+  DISALLOW_COPY_AND_ASSIGN(SelectOnCreationHandler);
 };
 
 }  // namespace
@@ -192,36 +229,39 @@ BookmarkContextMenu::BookmarkContextMenu(
   DCHECK(profile_);
   DCHECK(model_->IsLoaded());
   menu_.reset(new views::MenuItemView(this));
-  if (selection.size() == 1 && selection[0]->is_url()) {
-    menu_->AppendMenuItemWithLabel(
-        IDS_BOOMARK_BAR_OPEN_ALL,
-        l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_IN_NEW_TAB));
-    menu_->AppendMenuItemWithLabel(
-        IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW,
-        l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_IN_NEW_WINDOW));
-    menu_->AppendMenuItemWithLabel(
-        IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO,
-        l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_INCOGNITO));
-  } else {
-    menu_->AppendMenuItemWithLabel(
-        IDS_BOOMARK_BAR_OPEN_ALL,
-        l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL));
-    menu_->AppendMenuItemWithLabel(
-        IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW,
-        l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW));
-    menu_->AppendMenuItemWithLabel(
-        IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO,
-        l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO));
+  if (configuration != BOOKMARK_MANAGER_ORGANIZE_MENU) {
+    if (selection.size() == 1 && selection[0]->is_url()) {
+      menu_->AppendMenuItemWithLabel(
+          IDS_BOOMARK_BAR_OPEN_ALL,
+          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_IN_NEW_TAB));
+      menu_->AppendMenuItemWithLabel(
+          IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW,
+          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_IN_NEW_WINDOW));
+      menu_->AppendMenuItemWithLabel(
+          IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO,
+          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_INCOGNITO));
+    } else {
+      menu_->AppendMenuItemWithLabel(
+          IDS_BOOMARK_BAR_OPEN_ALL,
+          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL));
+      menu_->AppendMenuItemWithLabel(
+          IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW,
+          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW));
+      menu_->AppendMenuItemWithLabel(
+          IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO,
+          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO));
+    }
+    menu_->AppendSeparator();
   }
-  menu_->AppendSeparator();
 
   menu_->AppendMenuItemWithLabel(IDS_BOOKMARK_BAR_EDIT,
-                                l10n_util::GetString(IDS_BOOKMARK_BAR_EDIT));
+                                 l10n_util::GetString(IDS_BOOKMARK_BAR_EDIT));
   menu_->AppendMenuItemWithLabel(
       IDS_BOOKMARK_BAR_REMOVE,
       l10n_util::GetString(IDS_BOOKMARK_BAR_REMOVE));
  
-  if (configuration != BOOKMARK_BAR) {
+  if (configuration == BOOKMARK_MANAGER_TABLE ||
+      configuration == BOOKMARK_MANAGER_ORGANIZE_MENU) {
     menu_->AppendMenuItemWithLabel(
         IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER,
         l10n_util::GetString(IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER));
@@ -239,10 +279,10 @@ BookmarkContextMenu::BookmarkContextMenu(
   if (configuration == BOOKMARK_BAR) {
     menu_->AppendSeparator();
     menu_->AppendMenuItemWithLabel(IDS_BOOKMARK_MANAGER,
-                                  l10n_util::GetString(IDS_BOOKMARK_MANAGER));
+                                   l10n_util::GetString(IDS_BOOKMARK_MANAGER));
     menu_->AppendMenuItem(IDS_BOOMARK_BAR_ALWAYS_SHOW,
-                         l10n_util::GetString(IDS_BOOMARK_BAR_ALWAYS_SHOW),
-                         views::MenuItemView::CHECKBOX);
+                          l10n_util::GetString(IDS_BOOMARK_BAR_ALWAYS_SHOW),
+                          views::MenuItemView::CHECKBOX);
   }
   model_->AddObserver(this);
 }
@@ -304,9 +344,10 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
         else
           editor_config = BookmarkEditorView::NO_TREE;
         BookmarkEditorView::Show(hwnd_, profile_, NULL, selection_[0],
-                                 editor_config);
+                                 editor_config, NULL);
       } else {
-        EditFolderController::Show(profile_, hwnd_, selection_[0], false);
+        EditFolderController::Show(profile_, hwnd_, selection_[0], false,
+                                   false);
       }
       break;
 
@@ -326,12 +367,16 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Add", profile_);
 
       BookmarkEditorView::Configuration editor_config;
-      if (configuration_ == BOOKMARK_BAR)
+      BookmarkEditorView::Handler* handler = NULL;
+      if (configuration_ == BOOKMARK_BAR) {
         editor_config = BookmarkEditorView::SHOW_TREE;
-      else
+      } else {
         editor_config = BookmarkEditorView::NO_TREE;
+        // This is owned by the BookmarkEditorView.
+        handler = new SelectOnCreationHandler(profile_);
+      }
       BookmarkEditorView::Show(hwnd_, profile_, GetParentForNewNodes(), NULL,
-                               editor_config);
+                               editor_config, handler);
       break;
     }
 
@@ -340,7 +385,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
                                 profile_);
 
       EditFolderController::Show(profile_, hwnd_, GetParentForNewNodes(),
-                                 true);
+                                 true, (configuration_ != BOOKMARK_BAR));
       break;
     }
 
@@ -359,6 +404,10 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
 
       if (BookmarkManagerView::current())
         BookmarkManagerView::current()->SelectInTree(selection_[0]);
+      break;
+
+    case IDS_BOOKMARK_MANAGER:
+      BookmarkManagerView::Show(profile_);
       break;
 
     default:
@@ -393,7 +442,8 @@ bool BookmarkContextMenu::IsCommandEnabled(int id) const {
       return !selection_.empty() && !is_root_node;
 
     case IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER:
-      return configuration_ == BOOKMARK_MANAGER_TABLE &&
+      return (configuration_ == BOOKMARK_MANAGER_TABLE ||
+              configuration_ == BOOKMARK_MANAGER_ORGANIZE_MENU) &&
              selection_.size() == 1;
 
     case IDS_BOOMARK_BAR_NEW_FOLDER:
