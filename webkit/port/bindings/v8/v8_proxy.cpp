@@ -851,7 +851,7 @@ PassRefPtr<EventListener> V8Proxy::createSVGEventHandler(const String& functionN
 
 static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
                                                 v8::Local<v8::Value> listener,
-                                                bool html)
+                                                bool isInline)
 {
   ASSERT(v8::Context::InContext());
 
@@ -868,7 +868,7 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
     // check using the == operator on the handles. This is much,
     // much faster than calling StrictEquals through the API in 
     // the negative case.
-    if (el->isHTMLEventListener() == html && listener == wrapper)
+    if (el->isAttachedToEventTargetNode() == isInline && listener == wrapper)
         return el;
     ++p;
   }
@@ -877,12 +877,12 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
 
 // Find an existing wrapper for a JS event listener in the map.
 PassRefPtr<V8EventListener> V8Proxy::FindV8EventListener(v8::Local<v8::Value> listener,
-                                              bool html)
+                                              bool isInline)
 {
-    return FindEventListenerInList(m_event_listeners, listener, html);
+    return FindEventListenerInList(m_event_listeners, listener, isInline);
 }
 
-PassRefPtr<V8EventListener> V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::Value> obj, bool html)
+PassRefPtr<V8EventListener> V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::Value> obj, bool isInline)
 {
   ASSERT(v8::Context::InContext());
 
@@ -890,13 +890,13 @@ PassRefPtr<V8EventListener> V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::V
       return 0;
 
   V8EventListener* wrapper =
-      FindEventListenerInList(m_event_listeners, obj, html);
+      FindEventListenerInList(m_event_listeners, obj, isInline);
   if (wrapper)
       return wrapper;
 
   // Create a new one, and add to cache.
   RefPtr<V8EventListener> new_listener =
-    V8EventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), html);
+    V8EventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), isInline);
   m_event_listeners.push_back(new_listener.get());
 
   return new_listener;
@@ -923,14 +923,14 @@ PassRefPtr<V8EventListener> V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::V
 // of V8ObjectEventListener.
 
 PassRefPtr<V8EventListener> V8Proxy::FindObjectEventListener(
-    v8::Local<v8::Value> listener, bool html)
+    v8::Local<v8::Value> listener, bool isInline)
 {
-  return FindEventListenerInList(m_xhr_listeners, listener, html);
+  return FindEventListenerInList(m_xhr_listeners, listener, isInline);
 }
 
 
 PassRefPtr<V8EventListener> V8Proxy::FindOrCreateObjectEventListener(
-    v8::Local<v8::Value> obj, bool html)
+    v8::Local<v8::Value> obj, bool isInline)
 {
   ASSERT(v8::Context::InContext());
 
@@ -938,13 +938,13 @@ PassRefPtr<V8EventListener> V8Proxy::FindOrCreateObjectEventListener(
     return 0;
 
   V8EventListener* wrapper =
-      FindEventListenerInList(m_xhr_listeners, obj, html);
+      FindEventListenerInList(m_xhr_listeners, obj, isInline);
   if (wrapper)
     return wrapper;
 
   // Create a new one, and add to cache.
   RefPtr<V8EventListener> new_listener =
-    V8ObjectEventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), html);
+    V8ObjectEventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), isInline);
   m_xhr_listeners.push_back(new_listener.get());
 
   return new_listener.release();

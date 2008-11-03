@@ -45,7 +45,7 @@ class V8AbstractEventListener : public EventListener {
   void DisposeListenerObject();
 
  private:
-  V8AbstractEventListener(Frame* frame, bool html);
+  V8AbstractEventListener(Frame* frame, bool isInline);
 
 
   // Call listener function.
@@ -65,7 +65,7 @@ class V8AbstractEventListener : public EventListener {
   v8::Persistent<v8::Object> m_listener;
 
   // Flags this is a HTML type listener.
-  bool m_html;
+  bool m_isInline;
 
   // Position in the HTML source for HTML event listeners.
   int m_lineNumber;
@@ -82,13 +82,13 @@ class V8AbstractEventListener : public EventListener {
 class V8EventListener : public V8AbstractEventListener {
  public:
   static PassRefPtr<V8EventListener> create(Frame* frame, 
-      v8::Local<v8::Object> listener, bool html) {
-    return adoptRef(new V8EventListener(frame, listener, html));
+      v8::Local<v8::Object> listener, bool isInline) {
+    return adoptRef(new V8EventListener(frame, listener, isInline));
   }
 
-  V8EventListener(Frame* frame, v8::Local<v8::Object> listener, bool html);
+  V8EventListener(Frame* frame, v8::Local<v8::Object> listener, bool isInline);
   virtual ~V8EventListener();
-  virtual bool isHTMLEventListener() const { return m_html; }
+  virtual bool isAttachedToEventTargetNode() const { return m_isInline; }
 
   // Detach the listener from its owner frame.
   void disconnectFrame() { m_frame = 0; }
@@ -107,10 +107,11 @@ class V8EventListener : public V8AbstractEventListener {
 class V8ObjectEventListener : public V8EventListener {
  public:
   static PassRefPtr<V8ObjectEventListener> create(Frame* frame, 
-      v8::Local<v8::Object> listener, bool html) {
-    return adoptRef(new V8ObjectEventListener(frame, listener, html));
+      v8::Local<v8::Object> listener, bool isInline) {
+    return adoptRef(new V8ObjectEventListener(frame, listener, isInline));
   }
-  V8ObjectEventListener(Frame* frame, v8::Local<v8::Object> listener, bool html);
+  V8ObjectEventListener(Frame* frame, v8::Local<v8::Object> listener,
+                        bool isInline);
   virtual ~V8ObjectEventListener();
 };
 
@@ -127,7 +128,7 @@ class V8LazyEventListener : public V8AbstractEventListener {
   V8LazyEventListener(Frame *frame, const String& code,
                       const String& func_name);
   virtual ~V8LazyEventListener();
-  virtual bool isHTMLEventListener() const { return true; }
+  virtual bool isAttachedToEventTargetNode() const { return true; }
 
   // For lazy event listener, the listener object is the same as its listener
   // function without additional scope chains.

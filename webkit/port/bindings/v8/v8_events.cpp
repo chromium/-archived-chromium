@@ -45,15 +45,15 @@
 namespace WebCore {
 
 
-V8AbstractEventListener::V8AbstractEventListener(Frame* frame, bool html)
-    : m_frame(frame), m_html(html) {
+V8AbstractEventListener::V8AbstractEventListener(Frame* frame, bool isInline)
+    : m_frame(frame), m_isInline(isInline) {
   ASSERT(m_frame);
   if (!m_frame) return;
 
   // Get the position in the source if any.
   m_lineNumber = 0;
   m_columnNumber = 0;
-  if (m_html && m_frame->document()->tokenizer()) {
+  if (m_isInline && m_frame->document()->tokenizer()) {
     m_lineNumber = m_frame->document()->tokenizer()->lineNumber();
     m_columnNumber = m_frame->document()->tokenizer()->columnNumber();
   }
@@ -121,7 +121,7 @@ void V8AbstractEventListener::handleEvent(Event* event, bool isWindowEvent) {
     }
     // Prevent default action if the return value is false;
     // TODO(fqian): example, and reference to buganizer entry
-    if (m_html) {
+    if (m_isInline) {
       if (ret->IsBoolean() && !ret->BooleanValue()) {
         event->preventDefault();
       }
@@ -147,8 +147,8 @@ void V8AbstractEventListener::DisposeListenerObject() {
 
 
 V8EventListener::V8EventListener(Frame* frame, v8::Local<v8::Object> listener,
-                                 bool html)
-  : V8AbstractEventListener(frame, html) {
+                                 bool isInline)
+  : V8AbstractEventListener(frame, isInline) {
   m_listener = v8::Persistent<v8::Object>::New(listener);
 #ifndef NDEBUG
   V8Proxy::RegisterGlobalHandle(EVENT_LISTENER, this, m_listener);
@@ -267,8 +267,8 @@ static void WeakObjectEventListenerCallback(v8::Persistent<v8::Value> obj,
 
 V8ObjectEventListener::V8ObjectEventListener(Frame* frame,
                                        v8::Local<v8::Object> listener,
-                                       bool html)
-    : V8EventListener(frame, listener, html) {
+                                       bool isInline)
+    : V8EventListener(frame, listener, isInline) {
   // make m_listener weak.
   m_listener.MakeWeak(this, WeakObjectEventListenerCallback);
 }
