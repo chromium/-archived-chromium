@@ -357,6 +357,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\JSDatabase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSDatabase.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\JSDocument.cpp"
 				>
 			</File>
@@ -1254,6 +1262,38 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\JSScreen.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSQLError.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSQLError.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSQLResultSet.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSQLResultSet.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSQLResultSetRowList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSQLResultSetRowList.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSQLTransaction.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSSQLTransaction.h"
 				>
 			</File>
 			<File
@@ -2854,6 +2894,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDatabaseCustom.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDocumentCustom.cpp"
 			>
 		</File>
@@ -3127,6 +3171,14 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSRGBColor.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSQLResultSetRowListCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSSQLTransactionCustom.cpp"
 			>
 		</File>
 		<File

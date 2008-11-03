@@ -61,4 +61,22 @@ String directoryName(const String&)
     return String();
 }
 
+String pathByAppendingComponent(const String& path, const String& component)
+{
+    notImplemented();
+    return String();
+}
+
+bool makeAllDirectories(const String& path)
+{
+    notImplemented();
+    return false;
+}
+
+bool fileExists(const String&)
+{
+    notImplemented();
+    return false;
+}
+
 } // namespace WebCore

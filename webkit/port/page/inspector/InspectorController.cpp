@@ -74,7 +74,9 @@
 
 #if ENABLE(DATABASE)
 #include "Database.h"
+#if USE(JSC)
 #include "JSDatabase.h"
+#endif
 #endif
 
 #if ENABLE(JAVASCRIPT_DEBUGGER)
@@ -371,25 +373,15 @@ struct InspectorDatabaseResource : public RefCounted<InspectorDatabaseResource> 
         return adoptRef(new InspectorDatabaseResource(database, domain, name, version));
     }
 
-    void setScriptObject(JSContextRef context, JSObjectRef newScriptObject)
+    void setScriptObject()
     {
-        if (scriptContext && scriptObject)
-            JSValueUnprotect(scriptContext, scriptObject);
-
-        scriptObject = newScriptObject;
-        scriptContext = context;
-
-        ASSERT((context && newScriptObject) || (!context && !newScriptObject));
-        if (context && newScriptObject)
-            JSValueProtect(context, newScriptObject);
+        // TODO(aa): Implement this.
     }
 
     RefPtr<Database> database;
     String domain;
     String name;
     String version;
-    JSContextRef scriptContext;
-    JSObjectRef scriptObject;
    
 private:
     InspectorDatabaseResource(Database* database, const String& domain, const String& name, const String& version)
@@ -397,8 +389,6 @@ private:
         , domain(domain)
         , name(name)
         , version(version)
-        , scriptContext(0)
-        , scriptObject(0)
     {
     }
 };
@@ -534,6 +524,7 @@ void InspectorController::search(Node* node, const String& target) {
 }
 
 #if ENABLE(DATABASE)
+#if USE(JSC)
 static JSValueRef databaseTableNames(JSContextRef ctx, JSObjectRef /*function*/, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
 {
     InspectorController* controller = reinterpret_cast<InspectorController*>(JSObjectGetPrivate(thisObject));
@@ -587,6 +578,9 @@ static JSValueRef databaseTableNames(JSContextRef ctx, JSObjectRef /*function*/,
 
     return result;
 }
+#elif USE(V8)
+// TODO(aa): Implement inspector database support
+#endif
 #endif
 
 DOMWindow* InspectorController::inspectedWindow() {
@@ -792,6 +786,11 @@ void InspectorController::enableTrackResources(bool trackResources)
     m_mainResource = NULL;
     m_frameResources.clear();
     m_resources.clear();
+}
+
+void InspectorController::addDatabaseScriptResource(InspectorDatabaseResource*)
+{
+    // TODO(aa): Implement database support for inspector.
 }
 
 void InspectorController::addMessageToConsole(MessageSource source, MessageLevel level, ScriptCallContext* context)
@@ -1357,7 +1356,7 @@ void InspectorController::resetScriptObjects()
     DatabaseResourcesSet::iterator databasesEnd = m_databaseResources.end();
     for (DatabaseResourcesSet::iterator it = m_databaseResources.begin(); it != databasesEnd; ++it) {
         InspectorDatabaseResource* resource = (*it).get();
-        resource->setScriptObject(0, 0);
+        resource->setScriptObject();
     }
 #endif
 
