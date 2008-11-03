@@ -29,7 +29,7 @@ PlatformFile CreatePlatformFile(const std::wstring& name,
       !(flags & PLATFORM_FILE_OPEN_ALWAYS)) {
     NOTREACHED();
     errno = ENOTSUP;
-    return INVALID_HANDLE_VALUE;
+    return kInvalidPlatformFileValue;
   }
 
   if (flags & PLATFORM_FILE_WRITE && flags & PLATFORM_FILE_READ) {
