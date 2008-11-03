@@ -117,7 +117,6 @@
 		824653450DC1230B007C2BAA /* lock.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403250D92D2090006B936 /* lock.cc */; };
 		824653680DC12CEC007C2BAA /* condition_variable_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824653670DC12CEC007C2BAA /* condition_variable_posix.cc */; };
 		824653740DC12D0E007C2BAA /* shared_memory_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824653730DC12D0E007C2BAA /* shared_memory_posix.cc */; };
-		824654530DC25633007C2BAA /* time_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB81490D9B0F33009BA8DD /* time_mac.cc */; };
 		8246548C0DC259DB007C2BAA /* revocable_store.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254035E0D92D27C0006B936 /* revocable_store.cc */; };
 		824654910DC25A8C007C2BAA /* time.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824654900DC25A8C007C2BAA /* time.cc */; };
 		824654A60DC25CD7007C2BAA /* pickle.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254033E0D92D2210006B936 /* pickle.cc */; };
@@ -148,6 +147,7 @@
 		A5A0270B0E4A630D00498DA9 /* file_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5A0270A0E4A630D00498DA9 /* file_util_mac.mm */; };
 		A5CB82980E5C74E300FD6825 /* platform_test_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5CB82970E5C74E300FD6825 /* platform_test_mac.mm */; };
 		A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5A0282D0E4CFA8500498DA9 /* file_util_unittest.cc */; };
+		AB14B6070EBFA74C00FB3807 /* time_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB14B6060EBFA74C00FB3807 /* time_posix.cc */; };
 		AB956DFD0E5DDB5D00BBE9D8 /* platform_canvas_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F990DBFD76300819EBF /* platform_canvas_mac.cc */; };
 		AB956DFE0E5DDB6000BBE9D8 /* platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F9D0DBFD76F00819EBF /* platform_device_mac.cc */; };
 		AB956DFF0E5DDB6900BBE9D8 /* bitmap_platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F940DBFD74B00819EBF /* bitmap_platform_device_mac.cc */; };
@@ -615,6 +615,7 @@
 		A5A0282D0E4CFA8500498DA9 /* file_util_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_util_unittest.cc; sourceTree = "<group>"; };
 		A5CB82960E5C74E300FD6825 /* platform_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_test.h; sourceTree = "<group>"; };
 		A5CB82970E5C74E300FD6825 /* platform_test_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_test_mac.mm; sourceTree = "<group>"; };
+		AB14B6060EBFA74C00FB3807 /* time_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = time_posix.cc; sourceTree = "<group>"; };
 		AB6BC1ED0E54E836006436D5 /* bitmap_platform_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitmap_platform_device.h; sourceTree = "<group>"; };
 		AB6BC1F10E54E900006436D5 /* platform_canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_canvas.h; sourceTree = "<group>"; };
 		AB6BC1F50E54E97B006436D5 /* platform_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_device.h; sourceTree = "<group>"; };
@@ -1032,6 +1033,7 @@
 				82D094540E5B892600FEC05C /* time_format.cc */,
 				82D094530E5B892600FEC05C /* time_format.h */,
 				7BEB81490D9B0F33009BA8DD /* time_mac.cc */,
+				AB14B6060EBFA74C00FB3807 /* time_posix.cc */,
 				E4AFA4EF0E50F7B000201347 /* time_unittest.cc */,
 				825403850D92D2CF0006B936 /* timer.cc */,
 				825403860D92D2CF0006B936 /* timer.h */,
@@ -1413,7 +1415,6 @@
 				829E36730DC0FBAD00819EBF /* thread_local_storage_posix.cc in Sources */,
 				824654910DC25A8C007C2BAA /* time.cc in Sources */,
 				82D094550E5B892600FEC05C /* time_format.cc in Sources */,
-				824654530DC25633007C2BAA /* time_mac.cc in Sources */,
 				E49357220E422A36008F8B09 /* timer.cc in Sources */,
 				7BF882800E71929B000BAF8A /* trace_event.cc in Sources */,
 				820EB5020E3A618B009668FC /* tracked.cc in Sources */,
@@ -1423,6 +1424,7 @@
 				824655DD0DC659B8007C2BAA /* word_iterator.cc in Sources */,
 				7BF1658D0E663B4800AA999E /* worker_pool_mac.mm in Sources */,
 				A573F5D90EBB78260055A84A /* platform_file_posix.cc in Sources */,
+				AB14B6070EBFA74C00FB3807 /* time_posix.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

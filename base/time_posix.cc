@@ -4,6 +4,9 @@
 
 #include "base/time.h"
 
+#ifdef OS_MACOSX	
+#include <mach/mach_time.h>	
+#endif
 #include <sys/time.h>
 #include <time.h>
 
@@ -89,7 +92,32 @@ void Time::Explode(bool is_local, Exploded* exploded) const {
 TimeTicks TimeTicks::Now() {
   uint64_t absolute_micro;
 
-#if defined(OS_POSIX) && \
+#if defined(OS_MACOSX)
+  static mach_timebase_info_data_t timebase_info;	
+  if (timebase_info.denom == 0) {	
+    // Zero-initialization of statics guarantees that denom will be 0 before	
+    // calling mach_timebase_info.  mach_timebase_info will never set denom to	
+    // 0 as that would be invalid, so the zero-check can be used to determine	
+    // whether mach_timebase_info has already been called.  This is	
+    // recommended by Apple's QA1398.	
+    kern_return_t kr = mach_timebase_info(&timebase_info);	
+    DCHECK(kr == KERN_SUCCESS);	
+  }	
+
+  // mach_absolute_time is it when it comes to ticks on the Mac.  Other calls	
+  // with less precision (such as TickCount) just call through to	
+  // mach_absolute_time.	
+	
+  // timebase_info converts absolute time tick units into nanoseconds.  Convert	
+  // to microseconds up front to stave off overflows.	
+  absolute_micro = mach_absolute_time() / Time::kNanosecondsPerMicrosecond *	
+                   timebase_info.numer / timebase_info.denom;	
+	
+  // Don't bother with the rollover handling that the Windows version does.	
+  // With numer and denom = 1 (the expected case), the 64-bit absolute time	
+  // reported in nanoseconds is enough to last nearly 585 years.	
+	
+#elif defined(OS_POSIX) && \
       defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK >= 0
 
   struct timespec ts;
