@@ -226,8 +226,8 @@ if env['PLATFORM'] == 'win32':
       #'$GOOGLEURL_DIR/googleurl_tests.lib',
       '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
 
-      env['BROWSER_RES'],
-      env['TEST_DATA_RES'],
+      '$CHROME_DIR/browser/browser_resources.res',
+      '$CHROME_DIR/test/data/resource.res',
   ])
 
 if env['PLATFORM'] in ('posix', 'win32'):

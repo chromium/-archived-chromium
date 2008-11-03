@@ -59,9 +59,6 @@ if env_res['PLATFORM'] == 'win32':
       webkit_res,
   ]
 
-  env_test['BROWSER_RES'] = browser_res[0]
-  env_test['TEST_DATA_RES'] = test_data_res[0]
-
 env_dll = env.Clone()
 
 env_dll.Prepend(
