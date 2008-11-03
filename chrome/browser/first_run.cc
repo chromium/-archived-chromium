@@ -45,6 +45,15 @@ const wchar_t kChromeBackupExe[] = L"old_chrome.exe";
 // values in the user profile at first run.
 const wchar_t kDefaultMasterPrefs[] = L"master_preferences";
 
+// Boolean pref that triggers skipping the first run dialogs.
+const wchar_t kDistroSkipFirstRunPref[] = L"distribution.skip_first_run_ui";
+// Boolean pref that triggers silent import of the default search engine.
+const wchar_t kDistroImportSearchPref[] = L"distribution.import_search_engine";
+// Boolean pref that triggers silent import of the browse history.
+const wchar_t kDistroImportHistoryPref[] = L"distribution.import_history";
+// Boolean pref that triggers loading the welcome page.
+const wchar_t kDistroShowWelcomePage[] = L"distribution.show_welcome_page";
+
 // Gives the full path to the sentinel file. The file might not exist.
 bool GetFirstRunSentinelFilePath(std::wstring* path) {
   std::wstring first_run_sentinel;
@@ -80,6 +89,24 @@ std::wstring GetDefaultPrefFilePath(bool create_profile_dir,
     }
   }
   return ProfileManager::GetDefaultProfilePath(default_pref_dir);
+}
+
+DictionaryValue* ReadJSONPrefs(const std::string& data) {
+  JSONStringValueSerializer json(data);
+  Value* root;
+  if (!json.Deserialize(&root))
+    return NULL;
+  if (!root->IsType(Value::TYPE_DICTIONARY)) {
+    delete root;
+    return NULL;
+  }
+  return static_cast<DictionaryValue*>(root);
+}
+
+bool GetBooleanPref(const DictionaryValue* prefs, const std::wstring& name) {
+  bool value = false;
+  prefs->GetBoolean(name, &value);
+  return value;
 }
 
 }  // namespace
@@ -132,18 +159,6 @@ bool FirstRun::CreateSentinel() {
   return true;
 }
 
-DictionaryValue* ReadJSONPrefs(const std::wstring& file) {
-  JSONFileValueSerializer json(file);
-  Value* root;
-  if (!json.Deserialize(&root))
-    return NULL;
-  if (!root->IsType(Value::TYPE_DICTIONARY)) {
-    delete root;
-    return NULL;
-  }
-  return static_cast<DictionaryValue*>(root);
-}
-
 FirstRun::MasterPrefResult FirstRun::ProcessMasterPreferences(
       const std::wstring& user_data_dir,
       const std::wstring& master_prefs_path) {
@@ -160,30 +175,46 @@ FirstRun::MasterPrefResult FirstRun::ProcessMasterPreferences(
     master_prefs = master_prefs_path;
   }
 
+  std::string json_data;
+  if (!file_util::ReadFileToString(master_prefs, &json_data))
+    return MASTER_PROFILE_NOT_FOUND;
+
+  LOG(INFO) << "master profile found"; 
+
   std::wstring user_prefs = GetDefaultPrefFilePath(true, user_data_dir);
   if (user_prefs.empty())
     return MASTER_PROFILE_ERROR;
 
-  scoped_ptr<DictionaryValue> json_root(ReadJSONPrefs(master_prefs));
+  scoped_ptr<DictionaryValue> json_root(ReadJSONPrefs(json_data));
   if (!json_root.get())
     return MASTER_PROFILE_ERROR;
-  
-  bool skip_first_run_ui = false;
-  json_root->GetBoolean(L"skip_first_run_ui", &skip_first_run_ui);
-  
+
   // The master prefs are regular prefs so we can just copy the file
   // to the default place and they just work.
   if (!file_util::CopyFile(master_prefs, user_prefs))
     return MASTER_PROFILE_ERROR;
 
-  if (!skip_first_run_ui)
+  if (!GetBooleanPref(json_root.get(), kDistroSkipFirstRunPref))
     return MASTER_PROFILE_DO_FIRST_RUN_UI;
 
-  // Automatically import search provider. This launches the importer
-  // process and blocks until done or until it fails. The second parameter
-  // in zero means to use the default browser.
-  FirstRun::ImportSettings(NULL, 0, SEARCH_ENGINES, NULL);
+  FirstRun::SetShowFirstRunBubblePref();
 
+  if (GetBooleanPref(json_root.get(), kDistroShowWelcomePage))
+    FirstRun::SetShowWelcomePagePref();
+
+  int import_items = 0;
+  if (GetBooleanPref(json_root.get(), kDistroImportSearchPref))
+    import_items += SEARCH_ENGINES;
+  if (GetBooleanPref(json_root.get(), kDistroImportHistoryPref))
+    import_items += HISTORY;
+
+  if (import_items) {
+    // There is something to import from the default browser. This launches
+    // the importer process and blocks until done or until it fails.
+    if (!FirstRun::ImportSettings(NULL, 0, import_items, NULL)) {
+      LOG(WARNING) << "silent import failed";
+    }
+  }
   return MASTER_PROFILE_NO_FIRST_RUN_UI;
 }
 
@@ -440,4 +471,27 @@ int FirstRun::ImportNow(Profile* profile, const CommandLine& cmdline) {
   observer.RunLoop();
   return observer.import_result();
 }
+
+bool FirstRun::SetShowFirstRunBubblePref() {
+  PrefService* local_state = g_browser_process->local_state();
+  if (!local_state)
+    return false;
+  if (!local_state->IsPrefRegistered(prefs::kShouldShowFirstRunBubble)) {
+    local_state->RegisterBooleanPref(prefs::kShouldShowFirstRunBubble, false);
+    local_state->SetBoolean(prefs::kShouldShowFirstRunBubble, true);
+  }
+  return true;
+}
+
+bool FirstRun::SetShowWelcomePagePref() {
+  PrefService* local_state = g_browser_process->local_state();
+  if (!local_state)
+    return false;
+  if (!local_state->IsPrefRegistered(prefs::kShouldShowWelcomePage)) {
+    local_state->RegisterBooleanPref(prefs::kShouldShowWelcomePage, false);
+    local_state->SetBoolean(prefs::kShouldShowWelcomePage, true);
+  }
+  return true;
+}
+
 

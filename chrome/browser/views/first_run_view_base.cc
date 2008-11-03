@@ -45,18 +45,8 @@ FirstRunViewBase::FirstRunViewBase(Profile* profile)
 }
 
 FirstRunViewBase::~FirstRunViewBase() {
-  // Register and set the "show first run information bubble" state so that the
-  // browser can read it later.
-  PrefService* local_state = g_browser_process->local_state();
-  if (!local_state->IsPrefRegistered(prefs::kShouldShowFirstRunBubble)) {
-    local_state->RegisterBooleanPref(prefs::kShouldShowFirstRunBubble, false);
-    local_state->SetBoolean(prefs::kShouldShowFirstRunBubble, true);
-  }
-
-  if (!local_state->IsPrefRegistered(prefs::kShouldShowWelcomePage)) {
-    local_state->RegisterBooleanPref(prefs::kShouldShowWelcomePage, false);
-    local_state->SetBoolean(prefs::kShouldShowWelcomePage, true);
-  }
+  FirstRun::SetShowFirstRunBubblePref();
+  FirstRun::SetShowWelcomePagePref();
 }
 
 void FirstRunViewBase::SetupControls() {

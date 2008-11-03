@@ -61,36 +61,49 @@ class FirstRun {
   // which is '<path to chrome.exe>\master_preferences', and process it
   // so it becomes the default preferences in profile pointed by user_data_dir.
   //
-  // Since this function destroys any existing prefs file, it is meant to be
-  // invoked only on first run. The current use of this function is to set the
-  // following 3 properties:
-  // - default home page
-  // - show bookmark bar
-  // - show home page button
+  // This function destroys any existing prefs file and it is meant to be
+  // invoked only on first run.
   //
   // A prototypical 'master_preferences' file looks like this:
   //
   // {
+  //   "distribution": {
+  //      "skip_first_run_ui": true,
+  //      "show_welcome_page": true,
+  //      "import_search_engine": true,
+  //      "import_history": false
+  //   },
   //   "browser": {
   //      "show_home_button": true
   //   },
   //   "bookmark_bar": {
   //      "show_on_all_tabs": true
   //   },
-  //   "homepage": "http://slashdot.org",
+  //   "homepage": "http://example.org",
   //   "homepage_is_newtabpage": false
   // }
   //
-  // A reserved "distribution" entry in the file will be used to group
-  // other installation properties such as the EULA display. This entry will
-  // be ignored at other times.
+  // A reserved "distribution" entry in the file is used to group related
+  // installation properties. This entry will be ignored at other times.
+  //
   // Currently only the following return values are used:
   // MASTER_PROFILE_NOT_FOUND : Typical outcome for organic installs.
   // MASTER_PROFILE_ERROR : A critical error processing the master profile.
-  // MASTER_PROFILE_SHOW_FIRST_RUN_UI : master profile processed ok.
+  // MASTER_PROFILE_NO_FIRST_RUN_UI : skip first run dialogs.
+  // MASTER_PROFILE_DO_FIRST_RUN_UI : show the first run dialogs.
   static MasterPrefResult ProcessMasterPreferences(
       const std::wstring& user_data_dir,
       const std::wstring& master_prefs_path);
+
+  // Sets the kShouldShowFirstRunBubble local state pref so that the browser
+  // shows the bubble once the main message loop gets going. Returns false if
+  // the pref could not be set.
+  static bool SetShowFirstRunBubblePref();
+
+  // Sets the kShouldShowWelcomePage local state pref so that the browser
+  // loads the welcome tab once the message loop gets going. Returns false
+  // if the pref could not be set.
+  static bool SetShowWelcomePagePref();
 
  private:
   // This class is for scoping purposes.
