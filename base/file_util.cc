@@ -90,13 +90,21 @@ std::wstring GetFilenameFromPath(const std::wstring& path) {
   // TODO(erikkay): fix this - it's not using kPathSeparator, but win unit test
   // are exercising '/' as a path separator as well.
   std::wstring::size_type pos = path.find_last_of(L"\\/");
-  return std::wstring(path, pos == std::wstring::npos ? 0 : pos+1);
+  return std::wstring(path, pos == std::wstring::npos ? 0 : pos + 1);
 }
 
 std::wstring GetFileExtensionFromPath(const std::wstring& path) {
   std::wstring file_name = GetFilenameFromPath(path);
   std::wstring::size_type last_dot = file_name.rfind(L'.');
-  return std::wstring(last_dot == std::wstring::npos? L"" : file_name, last_dot+1);
+  return std::wstring(last_dot == std::wstring::npos ? 
+      L"" : 
+      file_name, last_dot+1);
+}
+
+std::wstring GetFilenameWithoutExtensionFromPath(const std::wstring& path) {
+  std::wstring file_name = GetFilenameFromPath(path);
+  std::wstring::size_type last_dot = file_name.rfind(L'.');
+  return file_name.substr(0, last_dot);
 }
 
 void AppendToPath(std::wstring* path, const std::wstring& new_ending) {

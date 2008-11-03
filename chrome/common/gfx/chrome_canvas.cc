@@ -232,10 +232,13 @@ int ChromeCanvas::ComputeFormatFlags(int flags) {
   else if ((flags & SHOW_PREFIX) == 0)
     f |= DT_NOPREFIX;
 
-  if (flags & MULTI_LINE)
+  if (flags & MULTI_LINE) {
     f |= DT_WORDBREAK;
-  else
-    f |= DT_SINGLELINE | DT_END_ELLIPSIS | DT_VCENTER;
+  } else {
+    f |= DT_SINGLELINE | DT_VCENTER;
+    if (!(flags & NO_ELLIPSIS))
+      f |= DT_END_ELLIPSIS;
+  }
 
   // vertical alignment
   if (flags & TEXT_VALIGN_TOP)

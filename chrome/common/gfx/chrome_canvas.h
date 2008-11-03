@@ -52,6 +52,9 @@ class ChromeCanvas : public gfx::PlatformCanvasWin {
   static const int SHOW_PREFIX = 128;
   static const int HIDE_PREFIX = 256;
 
+  // Prevent ellipsizing
+  static const int NO_ELLIPSIS = 512;
+
   // Creates an empty ChromeCanvas. Callers must use initialize before using
   // the canvas.
   ChromeCanvas();

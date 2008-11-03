@@ -69,6 +69,9 @@ std::wstring GetFilenameFromPath(const std::wstring& path);
 // the file has no extension.
 std::wstring GetFileExtensionFromPath(const std::wstring& path);
 
+// Returns 'jojo' for path "C:\pics\jojo.jpg".
+std::wstring GetFilenameWithoutExtensionFromPath(const std::wstring& path);
+
 // Returns the directory component of a path, without the trailing
 // path separator, or an empty string on error. The function does not
 // check for the existence of the path, so if it is passed a directory
