@@ -123,8 +123,7 @@ TEST_F(IdleTimerTest, NoRepeatFlipIdleOnce) {
   EXPECT_EQ(test_task.get_idle_counter(), 2);
 }
 
-// TODO(darin): http://crbug.com/3704
-TEST_F(IdleTimerTest, DISABLED_NoRepeatNotIdle) {
+TEST_F(IdleTimerTest, NoRepeatNotIdle) {
   // Create an IdleTimer, which should fire once after 500ms.
   // Create a Quit timer which will fire after 5s.
   // Create a timer to reset idle every 50ms.
@@ -181,7 +180,6 @@ TEST_F(IdleTimerTest, Repeat) {
   EXPECT_LE(test_task.get_idle_counter(), 3);
 }
 
-// TODO(darin):  http://crbug.com/3780
 TEST_F(IdleTimerTest, RepeatIdleReset) {
   // Create an IdleTimer, which should fire repeatedly after 500ms.
   // Create a Quit timer which will fire after 5s.
@@ -211,8 +209,7 @@ TEST_F(IdleTimerTest, RepeatIdleReset) {
   EXPECT_LE(test_task.get_idle_counter(), 10);
 }
 
-// TODO(darin): http://crbug.com/3704
-TEST_F(IdleTimerTest, DISABLED_RepeatNotIdle) {
+TEST_F(IdleTimerTest, RepeatNotIdle) {
   // Create an IdleTimer, which should fire repeatedly after 500ms.
   // Create a Quit timer which will fire after 4s.
   // Create a timer to reset idle every 50ms.
