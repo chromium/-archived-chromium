@@ -131,7 +131,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
-      'base/file_input_stream_win.cc',
+      'base/file_stream_win.cc',
       'base/net_util_win.cc',
       'base/platform_mime_util_win.cc',
       'base/ssl_client_socket_win.cc',
@@ -139,7 +139,6 @@ if env['PLATFORM'] == 'win32':
       'disk_cache/cache_util_win.cc',
       'disk_cache/file_win.cc',
       'disk_cache/mapped_file_win.cc',
-      'disk_cache/os_file_win.cc',
       'proxy/proxy_resolver_winhttp.cc',
   ])
 
@@ -162,13 +161,12 @@ if env['PLATFORM'] == 'posix':
 
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
-      'base/file_input_stream_posix.cc',
+      'base/file_stream_posix.cc',
       'base/net_util_posix.cc',
       'base/tcp_client_socket_libevent.cc',
       'disk_cache/cache_util_posix.cc',
       'disk_cache/file_posix.cc',
       'disk_cache/mapped_file_posix.cc',
-      'disk_cache/os_file_posix.cc',
   ])
 
 if env['PLATFORM'] == 'win32':

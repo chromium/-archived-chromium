@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/disk_cache/os_file.h"
+#include "base/platform_file.h"
 
 #include <fcntl.h>
 #include <errno.h>
@@ -10,30 +10,33 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 
-namespace disk_cache {
+namespace base {
 
-OSFile CreateOSFile(const std::wstring& name, int flags, bool* created) {
+// TODO(erikkay): does it make sense to support PLATFORM_FILE_EXCLUSIVE_* here?
+PlatformFile CreatePlatformFile(const std::wstring& name,
+                                int flags,
+                                bool* created) {
   int open_flags = 0;
-  if (flags & OS_FILE_CREATE)
+  if (flags & PLATFORM_FILE_CREATE)
     open_flags = O_CREAT | O_EXCL;
 
-  if (flags & OS_FILE_CREATE_ALWAYS) {
+  if (flags & PLATFORM_FILE_CREATE_ALWAYS) {
     DCHECK(!open_flags);
     open_flags = O_CREAT | O_TRUNC;
   }
 
-  if (!open_flags && !(flags & OS_FILE_OPEN) &&
-      !(flags & OS_FILE_OPEN_ALWAYS)) {
+  if (!open_flags && !(flags & PLATFORM_FILE_OPEN) &&
+      !(flags & PLATFORM_FILE_OPEN_ALWAYS)) {
     NOTREACHED();
     errno = ENOTSUP;
     return INVALID_HANDLE_VALUE;
   }
 
-  if (flags & OS_FILE_WRITE && flags & OS_FILE_READ) {
+  if (flags & PLATFORM_FILE_WRITE && flags & PLATFORM_FILE_READ) {
     open_flags |= O_RDWR;
-  } else if (flags & OS_FILE_WRITE) {
+  } else if (flags & PLATFORM_FILE_WRITE) {
     open_flags |= O_WRONLY;
-  } else if (!(flags & OS_FILE_READ)) {
+  } else if (!(flags & PLATFORM_FILE_READ)) {
     NOTREACHED();
   }
 
@@ -42,7 +45,7 @@ OSFile CreateOSFile(const std::wstring& name, int flags, bool* created) {
   int descriptor = open(WideToUTF8(name).c_str(), open_flags,
                         S_IRUSR | S_IWUSR);
 
-  if (flags & OS_FILE_OPEN_ALWAYS) {
+  if (flags & PLATFORM_FILE_OPEN_ALWAYS) {
     if (descriptor > 0) {
       if (created)
         *created = false;
@@ -58,4 +61,4 @@ OSFile CreateOSFile(const std::wstring& name, int flags, bool* created) {
   return descriptor;
 }
 
-}  // namespace disk_cache
+}  // namespace base

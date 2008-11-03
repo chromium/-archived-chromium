@@ -196,10 +196,12 @@ std::wstring BlockFiles::Name(int index) {
 
 bool BlockFiles::CreateBlockFile(int index, FileType file_type, bool force) {
   std::wstring name = Name(index);
-  int flags = force ? OS_FILE_CREATE_ALWAYS : OS_FILE_CREATE;
-  flags |= OS_FILE_WRITE | OS_FILE_SHARE_READ;
+  int flags =
+      force ? base::PLATFORM_FILE_CREATE_ALWAYS : base::PLATFORM_FILE_CREATE;
+  flags |= base::PLATFORM_FILE_WRITE | base::PLATFORM_FILE_EXCLUSIVE_WRITE;
 
-  scoped_refptr<File> file(new File(CreateOSFile(name.c_str(), flags, NULL)));
+  scoped_refptr<File> file(new File(
+      base::CreatePlatformFile(name.c_str(), flags, NULL)));
   if (!file->IsValid())
     return false;
 

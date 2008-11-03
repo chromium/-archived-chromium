@@ -20,7 +20,7 @@ void* MappedFile::Init(const std::wstring name, size_t size) {
     size = GetLength();
 
   buffer_ = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED,
-                 os_file(), 0);
+                 platform_file(), 0);
   init_ = true;
   DCHECK(reinterpret_cast<int>(buffer_) != -1);
   if (reinterpret_cast<int>(buffer_) == -1)

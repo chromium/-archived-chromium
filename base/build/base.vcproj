@@ -530,6 +530,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\platform_file.h"
+			>
+		</File>
+		<File
+			RelativePath="..\platform_file_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\platform_thread.h"
 			>
 		</File>

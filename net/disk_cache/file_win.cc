@@ -88,9 +88,9 @@ void CALLBACK IoCompletion(DWORD error, DWORD actual_bytes,
   }
 }
 
-File::File(OSFile file)
-    : init_(true), mixed_(true), os_file_(INVALID_HANDLE_VALUE),
-      sync_os_file_(file) {
+File::File(base::PlatformFile file)
+    : init_(true), mixed_(true), platform_file_(INVALID_HANDLE_VALUE),
+      sync_platform_file_(file) {
 }
 
 bool File::Init(const std::wstring& name) {
@@ -98,23 +98,23 @@ bool File::Init(const std::wstring& name) {
   if (init_)
     return false;
 
-  os_file_ = CreateFile(name.c_str(), GENERIC_READ | GENERIC_WRITE,
+  platform_file_ = CreateFile(name.c_str(), GENERIC_READ | GENERIC_WRITE,
                         FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
                         FILE_FLAG_OVERLAPPED, NULL);
 
-  if (INVALID_HANDLE_VALUE == os_file_)
+  if (INVALID_HANDLE_VALUE == platform_file_)
     return false;
 
   init_ = true;
   if (mixed_) {
-    sync_os_file_  = CreateFile(name.c_str(), GENERIC_READ | GENERIC_WRITE,
+    sync_platform_file_ = CreateFile(name.c_str(), GENERIC_READ | GENERIC_WRITE,
                                 FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                                 OPEN_EXISTING, 0, NULL);
 
-    if (INVALID_HANDLE_VALUE == sync_os_file_)
+    if (INVALID_HANDLE_VALUE == sync_platform_file_)
       return false;
   } else {
-    sync_os_file_ = INVALID_HANDLE_VALUE;
+    sync_platform_file_ = INVALID_HANDLE_VALUE;
   }
 
   return true;
@@ -124,22 +124,23 @@ File::~File() {
   if (!init_)
     return;
 
-  if (INVALID_HANDLE_VALUE != os_file_)
-    CloseHandle(os_file_);
-  if (mixed_ && INVALID_HANDLE_VALUE != sync_os_file_)
-    CloseHandle(sync_os_file_);
+  if (INVALID_HANDLE_VALUE != platform_file_)
+    CloseHandle(platform_file_);
+  if (mixed_ && INVALID_HANDLE_VALUE != sync_platform_file_)
+    CloseHandle(sync_platform_file_);
 }
 
-OSFile File::os_file() const {
+base::PlatformFile File::platform_file() const {
   DCHECK(init_);
-  return (INVALID_HANDLE_VALUE == os_file_) ? sync_os_file_ : os_file_;
+  return (INVALID_HANDLE_VALUE == platform_file_) ? sync_platform_file_ : 
+                                                    platform_file_;
 }
 
 bool File::IsValid() const {
   if (!init_)
     return false;
-  return (INVALID_HANDLE_VALUE != os_file_ ||
-          INVALID_HANDLE_VALUE != sync_os_file_);
+  return (INVALID_HANDLE_VALUE != platform_file_ ||
+          INVALID_HANDLE_VALUE != sync_platform_file_);
 }
 
 bool File::Read(void* buffer, size_t buffer_len, size_t offset) {
@@ -147,14 +148,16 @@ bool File::Read(void* buffer, size_t buffer_len, size_t offset) {
   if (!mixed_ || buffer_len > ULONG_MAX || offset > LONG_MAX)
     return false;
 
-  DWORD ret = SetFilePointer(sync_os_file_, static_cast<LONG>(offset), NULL,
+  DWORD ret = SetFilePointer(sync_platform_file_, 
+                             static_cast<LONG>(offset), 
+                             NULL,
                              FILE_BEGIN);
   if (INVALID_SET_FILE_POINTER == ret)
     return false;
 
   DWORD actual;
   DWORD size = static_cast<DWORD>(buffer_len);
-  if (!ReadFile(sync_os_file_, buffer, size, &actual, NULL))
+  if (!ReadFile(sync_platform_file_, buffer, size, &actual, NULL))
     return false;
   return actual == size;
 }
@@ -164,14 +167,16 @@ bool File::Write(const void* buffer, size_t buffer_len, size_t offset) {
   if (!mixed_ || buffer_len > ULONG_MAX || offset > ULONG_MAX)
     return false;
 
-  DWORD ret = SetFilePointer(sync_os_file_, static_cast<LONG>(offset), NULL,
+  DWORD ret = SetFilePointer(sync_platform_file_, 
+                             static_cast<LONG>(offset), 
+                             NULL,
                              FILE_BEGIN);
   if (INVALID_SET_FILE_POINTER == ret)
     return false;
 
   DWORD actual;
   DWORD size = static_cast<DWORD>(buffer_len);
-  if (!WriteFile(sync_os_file_, buffer, size, &actual, NULL))
+  if (!WriteFile(sync_platform_file_, buffer, size, &actual, NULL))
     return false;
   return actual == size;
 }
@@ -196,7 +201,8 @@ bool File::Read(void* buffer, size_t buffer_len, size_t offset,
   DWORD size = static_cast<DWORD>(buffer_len);
   AddRef();
 
-  if (!ReadFileEx(os_file_, buffer, size, &data->overlapped, &IoCompletion)) {
+  if (!ReadFileEx(platform_file_, buffer, size, &data->overlapped, 
+                  &IoCompletion)) {
     Release();
     delete data;
     return false;
@@ -260,7 +266,8 @@ bool File::AsyncWrite(const void* buffer, size_t buffer_len, size_t offset,
   DWORD size = static_cast<DWORD>(buffer_len);
   AddRef();
 
-  if (!WriteFileEx(os_file_, buffer, size, &data->overlapped, &IoCompletion)) {
+  if (!WriteFileEx(platform_file_, buffer, size, &data->overlapped,
+                   &IoCompletion)) {
     Release();
     delete data;
     return false;
@@ -295,7 +302,7 @@ bool File::SetLength(size_t length) {
     return false;
 
   DWORD size = static_cast<DWORD>(length);
-  HANDLE file = os_file();
+  HANDLE file = platform_file();
   if (INVALID_SET_FILE_POINTER == SetFilePointer(file, size, NULL, FILE_BEGIN))
     return false;
 
@@ -305,7 +312,7 @@ bool File::SetLength(size_t length) {
 size_t File::GetLength() {
   DCHECK(init_);
   LARGE_INTEGER size;
-  HANDLE file = os_file();
+  HANDLE file = platform_file();
   if (!GetFileSizeEx(file, &size))
     return 0;
   if (size.HighPart)

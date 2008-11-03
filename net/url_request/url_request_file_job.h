@@ -7,7 +7,7 @@
 
 #include "base/file_util.h"
 #include "net/base/completion_callback.h"
-#include "net/base/file_input_stream.h"
+#include "net/base/file_stream.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 
@@ -34,7 +34,7 @@ class URLRequestFileJob : public URLRequestJob {
   void DidRead(int result);
 
   net::CompletionCallbackImpl<URLRequestFileJob> io_callback_;
-  net::FileInputStream stream_;
+  net::FileStream stream_;
   bool is_directory_;
 
 #if defined(OS_WIN)

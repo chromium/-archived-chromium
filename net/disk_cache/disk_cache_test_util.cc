@@ -50,10 +50,12 @@ std::wstring GetCachePath() {
 
 bool CreateCacheTestFile(const wchar_t* name) {
   using namespace disk_cache;
-  int flags = OS_FILE_CREATE_ALWAYS | OS_FILE_READ | OS_FILE_WRITE |
-              OS_FILE_SHARE_READ | OS_FILE_SHARE_WRITE;
+  int flags = base::PLATFORM_FILE_CREATE_ALWAYS | 
+              base::PLATFORM_FILE_READ | 
+              base::PLATFORM_FILE_WRITE;
 
-  scoped_refptr<File> file(new File(CreateOSFile(name, flags, NULL)));
+  scoped_refptr<File> file(new File(
+      base::CreatePlatformFile(name, flags, NULL)));
   if (!file->IsValid())
     return false;
 

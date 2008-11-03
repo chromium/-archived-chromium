@@ -5,7 +5,7 @@
 #ifndef NET_BASE_UPLOAD_DATA_STREAM_H_
 #define NET_BASE_UPLOAD_DATA_STREAM_H_
 
-#include "net/base/file_input_stream.h"
+#include "net/base/file_stream.h"
 #include "net/base/upload_data.h"
 
 namespace net {
@@ -53,7 +53,7 @@ class UploadDataStream {
 
   // A stream to the currently open file, for next_element_ if the next element
   // is a TYPE_FILE element.
-  FileInputStream next_element_stream_;
+  FileStream next_element_stream_;
 
   // The number of bytes remaining to be read from the currently open file
   // if the next element is of TYPE_FILE.

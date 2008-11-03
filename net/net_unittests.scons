@@ -70,7 +70,7 @@ input_files = [
     'base/cookie_policy_unittest.cc',
     'base/data_url_unittest.cc',
     'base/escape_unittest.cc',
-    'base/file_input_stream_unittest.cc',
+    'base/file_stream_unittest.cc',
     'base/gzip_filter_unittest.cc',
     'base/host_resolver_unittest.cc',
     'base/mime_sniffer_unittest.cc',

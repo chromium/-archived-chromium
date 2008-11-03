@@ -550,9 +550,12 @@ bool BackendImpl::CreateExternalFile(Addr* address) {
       continue;
     }
     std::wstring name = GetFileName(file_address);
-    scoped_refptr<disk_cache::File> file(
-        new disk_cache::File(CreateOSFile(name.c_str(), OS_FILE_READ |
-            OS_FILE_WRITE |OS_FILE_SHARE_READ | OS_FILE_CREATE, NULL)));
+    int flags = base::PLATFORM_FILE_READ |
+                base::PLATFORM_FILE_WRITE | 
+                base::PLATFORM_FILE_CREATE | 
+                base::PLATFORM_FILE_EXCLUSIVE_WRITE;
+    scoped_refptr<disk_cache::File> file(new disk_cache::File(
+        base::CreatePlatformFile(name.c_str(), flags, NULL)));
     if (!file->IsValid())
       continue;
 
@@ -748,9 +751,12 @@ bool BackendImpl::InitBackingStore(bool* file_created) {
   std::wstring index_name(path_);
   file_util::AppendToPath(&index_name, kIndexName);
 
+  int flags = base::PLATFORM_FILE_READ |
+              base::PLATFORM_FILE_WRITE | 
+              base::PLATFORM_FILE_OPEN_ALWAYS | 
+              base::PLATFORM_FILE_EXCLUSIVE_WRITE;
   scoped_refptr<disk_cache::File> file(new disk_cache::File(
-      CreateOSFile(index_name.c_str(), OS_FILE_READ | OS_FILE_WRITE |
-          OS_FILE_SHARE_READ | OS_FILE_OPEN_ALWAYS, file_created)));
+      base::CreatePlatformFile(index_name.c_str(), flags, file_created)));
 
   if (!file->IsValid())
     return false;

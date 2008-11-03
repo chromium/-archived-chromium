@@ -9,8 +9,8 @@
 
 #include <string>
 
+#include "base/platform_file.h"
 #include "base/ref_counted.h"
-#include "net/disk_cache/os_file.h"
 
 namespace disk_cache {
 
@@ -35,14 +35,14 @@ class File : public base::RefCounted<File> {
   // Initializes the object to use the passed in file instead of opening it with
   // the Init() call. No asynchronous operations can be performed with this
   // object.
-  explicit File(OSFile file);
+  explicit File(base::PlatformFile file);
 
   // Initializes the object to point to a given file. The file must aready exist
   // on disk, and allow shared read and write.
   bool Init(const std::wstring& name);
 
   // Returns the handle or file descriptor.
-  OSFile os_file() const;
+  base::PlatformFile platform_file() const;
 
   // Returns true if the file was opened properly.
   bool IsValid() const;
@@ -78,8 +78,8 @@ class File : public base::RefCounted<File> {
  private:
   bool init_;
   bool mixed_;
-  OSFile os_file_;  // Regular, asynchronous IO handle.
-  OSFile sync_os_file_;  // Synchronous IO hanlde.
+  base::PlatformFile platform_file_;  // Regular, asynchronous IO handle.
+  base::PlatformFile sync_platform_file_;  // Synchronous IO handle.
 
   DISALLOW_COPY_AND_ASSIGN(File);
 };

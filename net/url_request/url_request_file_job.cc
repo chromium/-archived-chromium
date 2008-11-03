@@ -177,7 +177,10 @@ void URLRequestFileJob::DidResolve(
   if (!exists) {
     rv = net::ERR_FILE_NOT_FOUND;
   } else if (!is_directory_) {
-    rv = stream_.Open(file_path_, true);
+    int flags = base::PLATFORM_FILE_OPEN | 
+                base::PLATFORM_FILE_READ |
+                base::PLATFORM_FILE_ASYNC;
+    rv = stream_.Open(file_path_, flags);
   }
 
   if (rv == net::OK) {

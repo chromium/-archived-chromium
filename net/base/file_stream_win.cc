@@ -2,7 +2,7 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-#include "net/base/file_input_stream.h"
+#include "net/base/file_stream.h"
 
 #include <windows.h>
 
@@ -45,11 +45,11 @@ static int MapErrorCode(DWORD err) {
   }
 }
 
-// FileInputStream::AsyncContext ----------------------------------------------
+// FileStream::AsyncContext ----------------------------------------------
 
-class FileInputStream::AsyncContext : public MessageLoopForIO::IOHandler {
+class FileStream::AsyncContext : public MessageLoopForIO::IOHandler {
  public:
-  AsyncContext(FileInputStream* owner)
+  AsyncContext(FileStream* owner)
       : owner_(owner), overlapped_(), callback_(NULL) {
     overlapped_.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
   }
@@ -67,15 +67,15 @@ class FileInputStream::AsyncContext : public MessageLoopForIO::IOHandler {
 
  private:
   // MessageLoopForIO::IOHandler implementation:
-  virtual void OnIOCompleted(OVERLAPPED* context, DWORD bytes_read,
+  virtual void OnIOCompleted(OVERLAPPED* context, DWORD num_bytes,
                              DWORD error);
 
-  FileInputStream* owner_;
+  FileStream* owner_;
   OVERLAPPED overlapped_;
   CompletionCallback* callback_;
 };
 
-void FileInputStream::AsyncContext::IOCompletionIsPending(
+void FileStream::AsyncContext::IOCompletionIsPending(
     CompletionCallback* callback) {
   DCHECK(!callback_);
   callback_ = callback;
@@ -83,82 +83,73 @@ void FileInputStream::AsyncContext::IOCompletionIsPending(
   MessageLoopForIO::current()->RegisterIOContext(&overlapped_, this);
 }
 
-void FileInputStream::AsyncContext::OnIOCompleted(OVERLAPPED* context,
-                                                  DWORD bytes_read,
+void FileStream::AsyncContext::OnIOCompleted(OVERLAPPED* context,
+                                                  DWORD num_bytes,
                                                   DWORD error) {
   DCHECK(&overlapped_ == context);
   DCHECK(callback_);
 
   MessageLoopForIO::current()->RegisterIOContext(&overlapped_, NULL);
 
-  HANDLE handle = owner_->handle_;
+  HANDLE handle = owner_->file_;
 
-  int result = static_cast<int>(bytes_read);
+  int result = static_cast<int>(num_bytes);
   if (error && error != ERROR_HANDLE_EOF)
     result = MapErrorCode(error);
   
-  if (bytes_read)
-    IncrementOffset(&overlapped_, bytes_read);
+  if (num_bytes)
+    IncrementOffset(&overlapped_, num_bytes);
 
   CompletionCallback* temp = NULL;
   std::swap(temp, callback_);
   temp->Run(result);
 }
 
-// FileInputStream ------------------------------------------------------------
+// FileStream ------------------------------------------------------------
 
-FileInputStream::FileInputStream() : handle_(INVALID_HANDLE_VALUE) {
+FileStream::FileStream() : file_(INVALID_HANDLE_VALUE) {
 }
 
-FileInputStream::~FileInputStream() {
+FileStream::~FileStream() {
   Close();
 }
 
-void FileInputStream::Close() {
-  if (handle_ != INVALID_HANDLE_VALUE) {
-    CloseHandle(handle_);
-    handle_ = INVALID_HANDLE_VALUE;
+void FileStream::Close() {
+  if (file_ != INVALID_HANDLE_VALUE) {
+    CloseHandle(file_);
+    file_ = INVALID_HANDLE_VALUE;
   }
   async_context_.reset();
 }
 
-int FileInputStream::Open(const std::wstring& path, bool asynchronous_mode) {
+int FileStream::Open(const std::wstring& path, int open_flags) {
   if (IsOpen()) {
     DLOG(FATAL) << "File is already open!";
     return ERR_UNEXPECTED;
   }
 
-  // Optimize for streaming, not seeking.  If someone does a lot of random
-  // access operations, then we should consider revising this.
-  DWORD create_file_flags = FILE_FLAG_SEQUENTIAL_SCAN;
-
-  if (asynchronous_mode)
-    create_file_flags |= FILE_FLAG_OVERLAPPED;
-
-  handle_ =
-      CreateFile(path.c_str(), GENERIC_READ | SYNCHRONIZE,
-                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                 NULL, OPEN_EXISTING, create_file_flags, NULL);
-  if (handle_ == INVALID_HANDLE_VALUE) {
+  open_flags_ = open_flags;
+  file_ = base::CreatePlatformFile(path, open_flags_, NULL);
+  if (file_ == INVALID_HANDLE_VALUE) {
     DWORD error = GetLastError();
     LOG(WARNING) << "Failed to open file: " << error;
     return MapErrorCode(error);
   }
 
-  if (asynchronous_mode) {
+  if (open_flags_ & base::PLATFORM_FILE_ASYNC) {
     async_context_.reset(new AsyncContext(this));
-    MessageLoopForIO::current()->RegisterIOHandler(handle_,
+    MessageLoopForIO::current()->RegisterIOHandler(file_,
                                                    async_context_.get());
   }
 
   return OK;
 }
 
-bool FileInputStream::IsOpen() const {
-  return handle_ != INVALID_HANDLE_VALUE;
+bool FileStream::IsOpen() const {
+  return file_ != INVALID_HANDLE_VALUE;
 }
 
-int64 FileInputStream::Seek(Whence whence, int64 offset) {
+int64 FileStream::Seek(Whence whence, int64 offset) {
   if (!IsOpen())
     return ERR_UNEXPECTED;
   DCHECK(!async_context_.get() || !async_context_->callback());
@@ -166,7 +157,7 @@ int64 FileInputStream::Seek(Whence whence, int64 offset) {
   LARGE_INTEGER distance, result;
   distance.QuadPart = offset;
   DWORD move_method = static_cast<DWORD>(whence);
-  if (!SetFilePointerEx(handle_, distance, &result, move_method)) {
+  if (!SetFilePointerEx(file_, distance, &result, move_method)) {
     DWORD error = GetLastError();
     LOG(WARNING) << "SetFilePointerEx failed: " << error;
     return MapErrorCode(error);
@@ -176,7 +167,7 @@ int64 FileInputStream::Seek(Whence whence, int64 offset) {
   return result.QuadPart;
 }
 
-int64 FileInputStream::Available() {
+int64 FileStream::Available() {
   if (!IsOpen())
     return ERR_UNEXPECTED;
 
@@ -185,7 +176,7 @@ int64 FileInputStream::Available() {
     return cur_pos;
 
   LARGE_INTEGER file_size;
-  if (!GetFileSizeEx(handle_, &file_size)) {
+  if (!GetFileSizeEx(file_, &file_size)) {
     DWORD error = GetLastError();
     LOG(WARNING) << "GetFileSizeEx failed: " << error;
     return MapErrorCode(error);
@@ -194,10 +185,11 @@ int64 FileInputStream::Available() {
   return file_size.QuadPart - cur_pos;
 }
 
-int FileInputStream::Read(
+int FileStream::Read(
     char* buf, int buf_len, CompletionCallback* callback) {
   if (!IsOpen())
     return ERR_UNEXPECTED;
+  DCHECK(open_flags_ & base::PLATFORM_FILE_READ);
 
   OVERLAPPED* overlapped = NULL;
   if (async_context_.get()) {
@@ -208,7 +200,7 @@ int FileInputStream::Read(
   int rv;
 
   DWORD bytes_read;
-  if (!ReadFile(handle_, buf, buf_len, &bytes_read, overlapped)) {
+  if (!ReadFile(file_, buf, buf_len, &bytes_read, overlapped)) {
     DWORD error = GetLastError();
     if (async_context_.get() && error == ERROR_IO_PENDING) {
       async_context_->IOCompletionIsPending(callback);
@@ -227,4 +219,36 @@ int FileInputStream::Read(
   return rv;
 }
 
+int FileStream::Write(
+    const char* buf, int buf_len, CompletionCallback* callback) {
+  if (!IsOpen())
+    return ERR_UNEXPECTED;
+  DCHECK(open_flags_ & base::PLATFORM_FILE_READ);
+  
+  OVERLAPPED* overlapped = NULL;
+  if (async_context_.get()) {
+    DCHECK(!async_context_->callback());
+    overlapped = async_context_->overlapped();
+  }
+
+  int rv;
+  DWORD bytes_written;
+  if (!WriteFile(file_, buf, buf_len, &bytes_written, overlapped)) {
+    DWORD error = GetLastError();
+    if (async_context_.get() && error == ERROR_IO_PENDING) {
+      async_context_->IOCompletionIsPending(callback);
+      rv = ERR_IO_PENDING;
+    } else {
+      LOG(WARNING) << "WriteFile failed: " << error;
+      rv = MapErrorCode(error);
+    }
+  } else {
+    if (overlapped)
+      IncrementOffset(overlapped, bytes_written);
+    rv = static_cast<int>(bytes_written);
+  }
+  return rv;
+}
+
 }  // namespace net
+

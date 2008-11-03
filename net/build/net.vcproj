@@ -269,11 +269,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\base\file_input_stream.h"
+				RelativePath="..\base\file_stream.h"
 				>
 			</File>
 			<File
-				RelativePath="..\base\file_input_stream_win.cc"
+				RelativePath="..\base\file_stream_win.cc"
 				>
 			</File>
 			<File
@@ -950,14 +950,6 @@
 			</File>
 			<File
 				RelativePath="..\disk_cache\mem_rankings.h"
-				>
-			</File>
-			<File
-				RelativePath="..\disk_cache\os_file.h"
-				>
-			</File>
-			<File
-				RelativePath="..\disk_cache\os_file_win.cc"
 				>
 			</File>
 			<File

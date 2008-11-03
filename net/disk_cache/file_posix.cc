@@ -11,18 +11,20 @@
 
 namespace disk_cache {
 
-File::File(OSFile file)
-    : init_(true), os_file_(file) {
+File::File(base::PlatformFile file)
+    : init_(true), platform_file_(file) {
 }
 
 bool File::Init(const std::wstring& name) {
   if (init_)
     return false;
 
-  os_file_ = CreateOSFile(name, OS_FILE_OPEN | OS_FILE_READ | OS_FILE_WRITE,
-                          NULL);
-  if (os_file_ < 0) {
-    os_file_ = 0;
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
+              base::PLATFORM_FILE_WRITE;
+  platform_file_ = base::CreatePlatformFile(name, flags, NULL);
+  if (platform_file_ < 0) {
+    platform_file_ = 0;
     return false;
   }
 
@@ -31,18 +33,18 @@ bool File::Init(const std::wstring& name) {
 }
 
 File::~File() {
-  if (os_file_)
-    close(os_file_);
+  if (platform_file_)
+    close(platform_file_);
 }
 
-OSFile File::os_file() const {
-  return os_file_;
+base::PlatformFile File::platform_file() const {
+  return platform_file_;
 }
 
 bool File::IsValid() const {
   if (!init_)
     return false;
-  return (INVALID_HANDLE_VALUE != os_file_);
+  return (base::kInvalidPlatformFileValue != platform_file_);
 }
 
 bool File::Read(void* buffer, size_t buffer_len, size_t offset) {
@@ -50,7 +52,7 @@ bool File::Read(void* buffer, size_t buffer_len, size_t offset) {
   if (buffer_len > ULONG_MAX || offset > LONG_MAX)
     return false;
 
-  int ret = pread(os_file_, buffer, buffer_len, offset);
+  int ret = pread(platform_file_, buffer, buffer_len, offset);
   return (static_cast<size_t>(ret) == buffer_len);
 }
 
@@ -59,7 +61,7 @@ bool File::Write(const void* buffer, size_t buffer_len, size_t offset) {
   if (buffer_len > ULONG_MAX || offset > ULONG_MAX)
     return false;
 
-  int ret = pwrite(os_file_, buffer, buffer_len, offset);
+  int ret = pwrite(platform_file_, buffer, buffer_len, offset);
   return (static_cast<size_t>(ret) == buffer_len);
 }
 
@@ -114,12 +116,12 @@ bool File::SetLength(size_t length) {
   if (length > ULONG_MAX)
     return false;
 
-  return 0 == ftruncate(os_file_, length);
+  return 0 == ftruncate(platform_file_, length);
 }
 
 size_t File::GetLength() {
   DCHECK(init_);
-  size_t ret = lseek(os_file_, 0, SEEK_END);
+  size_t ret = lseek(platform_file_, 0, SEEK_END);
   return ret;
 }
 

@@ -323,7 +323,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\base\file_input_stream_unittest.cc"
+					RelativePath="..\base\file_stream_unittest.cc"
 					>
 				</File>
 				<File
