@@ -8,7 +8,10 @@
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
 #include "base/string_piece.h"
+#include "base/string_util.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/webframe.h"
+
 
 // Parsed representation of a Greasemonkey script.
 class GreasemonkeyScript {
@@ -16,21 +19,40 @@ class GreasemonkeyScript {
   GreasemonkeyScript(const StringPiece& script_url)
     : url_(script_url) {}
 
+  // Gets the script body that should be injected into matching content.
   const StringPiece& GetBody() const {
     return body_;
   }
 
+  // Gets a URL where this script can be found.
   const StringPiece& GetURL() const {
     return url_;
   }
 
-  bool Parse(const StringPiece& script_text) {
-    // TODO(aa): Parse out includes, convert to regexes.
-    body_ = script_text;
-    return true;
-  }
+  // Parses the text content of a user script file.
+  void Parse(const StringPiece& script_text);
+
+  // Returns true if the script should be applied to the specified URL, false
+  // otherwise.
+  bool MatchesUrl(const GURL& url);
 
  private:
+  FRIEND_TEST(GreasemonkeySlaveTest, EscapeGlob);
+  FRIEND_TEST(GreasemonkeySlaveTest, Parse1);
+  FRIEND_TEST(GreasemonkeySlaveTest, Parse2);
+  FRIEND_TEST(GreasemonkeySlaveTest, Parse3);
+
+  // Helper function to convert the Greasemonkey glob format to the patterns
+  // used internally to test URLs.
+  static std::string EscapeGlob(const std::string& glob);
+
+  // Parses the metadata block from the script.
+  void ParseMetadata(const StringPiece& script_text);
+
+  // Adds an include pattern that will be checked to determine whether to
+  // include a script on a given page.
+  void AddInclude(const std::string &glob_pattern);
+
   // The body of the script, which will be injected into content pages. This
   // references shared_memory_, and is valid until that memory is either
   // deleted or Unmap()'d.
@@ -39,6 +61,11 @@ class GreasemonkeyScript {
   // The url of the file the script came from. This references shared_memory_,
   // and is valid until that memory is either deleted or Unmap()'d.
   StringPiece url_;
+
+  // List of patterns to test URLs against for this script. These patterns have
+  // been escaped for use with MatchPattern() in string_utils ('?' and '\' are
+  // escaped).
+  std::vector<std::string> include_patterns_;
 };
 
 

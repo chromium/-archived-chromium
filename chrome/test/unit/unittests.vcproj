@@ -1007,10 +1007,14 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="TestGreasemonkeyMaster"
+			Name="TestGreasemonkey"
 			>
 			<File
 				RelativePath="..\..\browser\greasemonkey_master_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\renderer\greasemonkey_slave_unittest.cc"
 				>
 			</File>
 		</Filter>
