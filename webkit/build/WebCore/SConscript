@@ -30,6 +30,12 @@ if env['PLATFORM'] in ('darwin', 'posix'):
     # block on it.
     env['CXXFLAGS'].remove('-Werror')
 
+env.Append(
+    CPPPATH = [
+        '$THIRD_PARTY_DIR/sqlite'
+    ]
+)
+
 input_files = [
     '$WEBCORE_DIR/css/CSSBorderImageValue.cpp',
     '$WEBCORE_DIR/css/CSSCanvasValue.cpp',
