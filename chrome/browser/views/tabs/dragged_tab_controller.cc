@@ -107,8 +107,7 @@ DraggedTabController::~DraggedTabController() {
   // contents to NULL, otherwise if the view is animating to its destination
   // bounds, it won't be able to clean up properly since its cleanup routine
   // uses GetIndexForDraggedContents, which will be invalid.
-  //Commenting out for one cycle to see if this fixes dist tests.
-  //view_.reset(NULL);
+  view_.reset(NULL);
   ChangeDraggedContents(NULL); // This removes our observer.
 }
 
