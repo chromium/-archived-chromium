@@ -16,6 +16,7 @@ sconscript_files = [
     'common/common.scons',
     'common/ipc_tests.scons',
     'plugin/plugin.scons',
+    'renderer/renderer.scons',
 ]
 
 SConscript(sconscript_files, exports=['env'])

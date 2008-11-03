@@ -1,0 +1,109 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$NPAPI_DIR/using_npapi.scons',
+    '$SKIA_DIR/using_skia.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_DIR/app/resources',
+        '$CHROME_SRC_DIR',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CPPPATH = [
+          '$CHROME_DIR/tools/build/win',
+      ],
+  )
+
+input_files = [
+    'about_handler.cc',
+    'chrome_plugin_host.cc',
+    'debug_message_handler.cc',
+    'dom_ui_bindings.cc',
+    'external_host_bindings.cc',
+    'external_js_object.cc',
+    'greasemonkey_slave.cc',
+    'localized_error.cc',
+    'plugin_channel_host.cc',
+    'render_process.cc',
+    'render_thread.cc',
+    'render_view.cc',
+    'render_widget.cc',
+    'renderer_glue.cc',
+    'renderer_main.cc',
+    'visitedlink_slave.cc',
+    'webplugin_delegate_proxy.cc',
+
+    'automation/dom_automation_controller.cc',
+
+    'net/render_dns_master.cc',
+    'net/render_dns_queue.cc',
+]
+
+# TODO(port): Port these to Linux
+if env['PLATFORM'] == 'posix':
+  to_be_ported_files = [
+      'automation/dom_automation_controller.cc',
+      'chrome_plugin_host.cc',
+      'debug_message_handler.cc',
+      'dom_ui_bindings.cc',
+      'external_js_object.cc',
+      'external_host_bindings.cc',
+      'greasemonkey_slave.cc',
+      'localized_error.cc',
+      'net/render_dns_master.cc',
+      'plugin_channel_host.cc',
+      'render_process.cc',
+      'render_thread.cc',
+      'render_view.cc',
+      'render_widget.cc',
+      'renderer_glue.cc',
+      'renderer_main.cc',
+      'webplugin_delegate_proxy.cc',
+  ]
+  for remove in to_be_ported_files:
+    input_files.remove(remove)
+
+# TODO(port): Port these to Mac
+if env['PLATFORM'] == 'darin':
+  to_be_ported_files = [
+      'about_handler.cc',
+      'chrome_plugin_host.cc',
+      'debug_message_handler.cc',
+      'dom_ui_bindings.cc',
+      'external_host_bindings.cc',
+      'external_js_object.cc',
+      'greasemonkey_slave.cc',
+      'localized_error.cc',
+      'plugin_channel_host.cc',
+      'render_process.cc',
+      'render_thread.cc',
+      'render_view.cc',
+      'render_widget.cc',
+      'renderer_glue.cc',
+      'renderer_main.cc',
+      'visitedlink_slave.cc',
+      'webplugin_delegate_proxy.cc',
+      'automation/dom_automation_controller.cc',
+      'net/render_dns_master.cc',
+      'net/render_dns_queue.cc',
+  ]
+  for remove in to_be_ported_files:
+    input_files.remove(remove)
+
+
+# TODO(port): Enable for Mac.
+if env['PLATFORM'] in ('posix', 'win32'):
+  env.ChromeStaticLibrary('renderer', input_files)
