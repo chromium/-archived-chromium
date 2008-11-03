@@ -95,8 +95,7 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest) {
   // Let's check the XMLHttpRequest ran successfully.
   bool success = false;
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(DidSyncRequestSucceed());",
+      L"window.domAutomationController.send(DidSyncRequestSucceed());",
       &success));
   EXPECT_TRUE(success);
 }

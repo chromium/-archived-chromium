@@ -503,10 +503,10 @@ class AutomationProxyTest4 : public UITest {
   }
 };
 
-std::wstring SynthesizeJSURL(const std::wstring& value) {
+std::wstring CreateJSString(const std::wstring& value) {
   std::wstring jscript;
   SStringPrintf(&jscript,
-      L"javascript:void(window.domAutomationController.send(%ls));",
+      L"window.domAutomationController.send(%ls);",
       value.c_str());
   return jscript;
 }
@@ -519,7 +519,7 @@ TEST_F(AutomationProxyTest4, StringValueIsEchoedByDomAutomationController) {
   ASSERT_TRUE(tab.get());
 
   std::wstring expected(L"string");
-  std::wstring jscript = SynthesizeJSURL(L"\"" + expected + L"\"");
+  std::wstring jscript = CreateJSString(L"\"" + expected + L"\"");
   std::wstring actual;
   ASSERT_TRUE(tab->ExecuteAndExtractString(L"", jscript, &actual));
   ASSERT_STREQ(expected.c_str(), actual.c_str());
@@ -541,7 +541,7 @@ TEST_F(AutomationProxyTest4, BooleanValueIsEchoedByDomAutomationController) {
   ASSERT_TRUE(tab.get());
 
   bool expected = true;
-  std::wstring jscript = SynthesizeJSURL(BooleanToString(expected));
+  std::wstring jscript = CreateJSString(BooleanToString(expected));
   bool actual = false;
   ASSERT_TRUE(tab->ExecuteAndExtractBool(L"", jscript, &actual));
   ASSERT_EQ(expected, actual);
@@ -558,7 +558,7 @@ TEST_F(AutomationProxyTest4, NumberValueIsEchoedByDomAutomationController) {
   int actual = 0;
   std::wstring expected_string;
   SStringPrintf(&expected_string, L"%d", expected);
-  std::wstring jscript = SynthesizeJSURL(expected_string);
+  std::wstring jscript = CreateJSString(expected_string);
   ASSERT_TRUE(tab->ExecuteAndExtractInt(L"", jscript, &actual));
   ASSERT_EQ(expected, actual);
 }
@@ -580,12 +580,10 @@ class AutomationProxyTest3 : public UITest {
   std::wstring document1_;
 };
 
-std::wstring SynthesizeJSURLForDOMQuery(const std::wstring& id) {
-  std::wstring jscript;
-  SStringPrintf(&jscript,
-      L"javascript:void(window.domAutomationController)");
+std::wstring CreateJSStringForDOMQuery(const std::wstring& id) {
+  std::wstring jscript(L"window.domAutomationController");
   StringAppendF(&jscript, L".send(document.getElementById('%ls').nodeName);",
-      id.c_str());
+                id.c_str());
   return jscript;
 }
 
@@ -598,17 +596,17 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
 
   std::wstring actual;
   std::wstring xpath1 = L"";  // top level frame
-  std::wstring jscript1 = SynthesizeJSURLForDOMQuery(L"myinput");
+  std::wstring jscript1 = CreateJSStringForDOMQuery(L"myinput");
   ASSERT_TRUE(tab->ExecuteAndExtractString(xpath1, jscript1, &actual));
   ASSERT_EQ(L"INPUT", actual);
 
   std::wstring xpath2 = L"/html/body/iframe";
-  std::wstring jscript2 = SynthesizeJSURLForDOMQuery(L"myspan");
+  std::wstring jscript2 = CreateJSStringForDOMQuery(L"myspan");
   ASSERT_TRUE(tab->ExecuteAndExtractString(xpath2, jscript2, &actual));
   ASSERT_EQ(L"SPAN", actual);
 
   std::wstring xpath3 = L"/html/body/iframe\n/html/body/iframe";
-  std::wstring jscript3 = SynthesizeJSURLForDOMQuery(L"mydiv");
+  std::wstring jscript3 = CreateJSStringForDOMQuery(L"mydiv");
   ASSERT_TRUE(tab->ExecuteAndExtractString(xpath3, jscript3, &actual));
   ASSERT_EQ(L"DIV", actual);
 

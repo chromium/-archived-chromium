@@ -304,8 +304,7 @@ TEST_F(BrowserFocusTest, FocusTraversal) {
       // Let's make sure the focus is on the expected element in the page.
       std::wstring actual;
       ASSERT_TRUE(tab->ExecuteAndExtractString(L"",
-          L"javascript:void(window.domAutomationController)"
-          L".send(getFocusedElement());",
+          L"window.domAutomationController.send(getFocusedElement());",
           &actual));
       ASSERT_STREQ(kExpElementIDs[j], actual.c_str());
 
@@ -329,8 +328,7 @@ TEST_F(BrowserFocusTest, FocusTraversal) {
       // Let's make sure the focus is on the expected element in the page.
       std::wstring actual;
       ASSERT_TRUE(tab->ExecuteAndExtractString(L"",
-          L"javascript:void(window.domAutomationController)"
-          L".send(getFocusedElement());",
+          L"window.domAutomationController.send(getFocusedElement());",
           &actual));
       ASSERT_STREQ(kExpElementIDs[6 - j], actual.c_str());
     }

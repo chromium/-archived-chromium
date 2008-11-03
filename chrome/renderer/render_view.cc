@@ -2337,19 +2337,18 @@ WebFrame* RenderView::GetChildFrame(const std::wstring& frame_xpath) const {
   return web_frame;
 }
 
-void RenderView::EvaluateScriptUrl(const std::wstring& frame_xpath,
-                                   const std::wstring& js_url) {
+void RenderView::EvaluateScript(const std::wstring& frame_xpath,
+                                const std::wstring& script) {
   WebFrame* web_frame = GetChildFrame(frame_xpath);
   if (!web_frame)
     return;
 
-  scoped_ptr<WebRequest> request(WebRequest::Create(GURL(js_url)));
-  web_frame->LoadRequest(request.get());
+  web_frame->ExecuteJavaScript(WideToUTF8(script), "");
 }
 
 void RenderView::OnScriptEvalRequest(const std::wstring& frame_xpath,
                                      const std::wstring& jscript) {
-  EvaluateScriptUrl(frame_xpath, jscript);
+  EvaluateScript(frame_xpath, jscript);
 }
 
 void RenderView::OnAddMessageToConsole(const std::wstring& frame_xpath,

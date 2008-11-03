@@ -17,12 +17,12 @@ DebugMessageHandler::DebugMessageHandler(RenderView* view) :
 DebugMessageHandler::~DebugMessageHandler() {
 }
 
-void DebugMessageHandler::EvaluateScriptUrl(const std::wstring& url) {
+void DebugMessageHandler::EvaluateScript(const std::wstring& script) {
   DCHECK(MessageLoop::current() == view_loop_);
   // It's possible that this will get cleared out from under us.
   RenderView* view = view_;
   if (view) {
-    view->EvaluateScriptUrl(L"", url);
+    view->EvaluateScript(L"", script);
   }
 }
 
@@ -37,7 +37,7 @@ void DebugMessageHandler::OnBreak(bool force) {
   debugger_->Break(force);
   if (force && view_loop_) {
     view_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &DebugMessageHandler::EvaluateScriptUrl,
+        this, &DebugMessageHandler::EvaluateScript,
         std::wstring(L"javascript:void(0)")));
   }
 }

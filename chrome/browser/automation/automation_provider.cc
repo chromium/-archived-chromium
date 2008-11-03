@@ -1605,13 +1605,13 @@ void AutomationProvider::ExecuteJavascript(const IPC::Message& message,
     // This routing id needs to be remembered for the reverse
     // communication while sending back the response of
     // this javascript execution.
-    std::wstring url;
-    SStringPrintf(&url,
-      L"javascript:void(window.domAutomationController.setAutomationId(%d));",
+    std::wstring set_automation_id;
+    SStringPrintf(&set_automation_id,
+      L"window.domAutomationController.setAutomationId(%d);",
       message.routing_id());
 
     web_contents->render_view_host()->ExecuteJavascriptInWebFrame(
-        frame_xpath, url);
+        frame_xpath, set_automation_id);
     web_contents->render_view_host()->ExecuteJavascriptInWebFrame(
         frame_xpath, script);
     succeeded = true;

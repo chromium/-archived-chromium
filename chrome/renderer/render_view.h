@@ -289,9 +289,9 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // periodic timer so we don't send too many messages.
   void SyncNavigationState();
 
-  // Evaluates a javascript: URL
-  void EvaluateScriptUrl(const std::wstring& frame_xpath,
-                         const std::wstring& jscript);
+  // Evaluates a string of JavaScript in a particular frame.
+  void EvaluateScript(const std::wstring& frame_xpath,
+                      const std::wstring& jscript);
 
   // Called when the Javascript debugger is no longer attached.
   // This is called from within the renderer, not via an IPC message.

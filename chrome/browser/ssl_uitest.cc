@@ -236,8 +236,7 @@ TEST_F(SSLUITest, TestMixedContents) {
   // The image should be filtered.
   int img_width;
   EXPECT_TRUE(tab->ExecuteAndExtractInt(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(ImageWidth());",
+      L"window.domAutomationController.send(ImageWidth());",
       &img_width));
   // In order to check that the image was not loaded, we check its width.
   // The actual image (Google logo) is 114 pixels wide, we assume the broken
@@ -261,8 +260,7 @@ TEST_F(SSLUITest, TestMixedContents) {
 
   // The image should show now.
   EXPECT_TRUE(tab->ExecuteAndExtractInt(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(ImageWidth());",
+      L"window.domAutomationController.send(ImageWidth());",
       &img_width));
   EXPECT_LT(100, img_width);
 
@@ -314,8 +312,7 @@ TEST_F(SSLUITest, TestUnsafeContents) {
 
   int img_width;
   EXPECT_TRUE(tab->ExecuteAndExtractInt(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(ImageWidth());",
+      L"window.domAutomationController.send(ImageWidth());",
       &img_width));
   // In order to check that the image was not loaded, we check its width.
   // The actual image (Google logo) is 114 pixels wide, we assume the broken
@@ -324,8 +321,7 @@ TEST_F(SSLUITest, TestUnsafeContents) {
 
   bool js_result = false;
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(IsFooSet());",
+      L"window.domAutomationController.send(IsFooSet());",
       &js_result));
   EXPECT_FALSE(js_result);
 }
@@ -355,7 +351,7 @@ TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
   // Load the insecure image.
   bool js_result = false;
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-                                         L"javascript:loadBadImage();",
+                                         L"loadBadImage();",
                                          &js_result));
   EXPECT_TRUE(js_result);
 
@@ -741,8 +737,7 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
   int64 last_nav_time = 0;
   EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(clickLink('goodHTTPSLink'));",
+      L"window.domAutomationController.send(clickLink('goodHTTPSLink'));",
       &success));
   EXPECT_TRUE(success);
   EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
@@ -757,8 +752,7 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
   // Now let's hit a bad page.
   EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(clickLink('badHTTPSLink'));",
+      L"window.domAutomationController.send(clickLink('badHTTPSLink'));",
       &success));
   EXPECT_TRUE(success);
   EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
@@ -774,7 +768,7 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
   bool is_content_evil = true;
   std::wstring content_frame_xpath(L"html/frameset/frame[2]");
   std::wstring is_frame_evil_js(
-      L"javascript:void(window.domAutomationController)"
+      L"window.domAutomationController"
       L".send(document.getElementById('evilDiv') != null);");
   EXPECT_TRUE(tab->ExecuteAndExtractBool(content_frame_xpath,
                                          is_frame_evil_js,
@@ -792,8 +786,7 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
   // Navigate to a page served over HTTP.
   EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(clickLink('HTTPLink'));",
+      L"window.domAutomationController.send(clickLink('HTTPLink'));",
       &success));
   EXPECT_TRUE(success);
   EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
@@ -845,8 +838,7 @@ TEST_F(SSLUITest, TestBadFrameNavigation) {
   int64 last_nav_time = 0;
   EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(clickLink('goodHTTPSLink'));",
+      L"window.domAutomationController.send(clickLink('goodHTTPSLink'));",
       &success));
   EXPECT_TRUE(success);
   EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
@@ -887,8 +879,7 @@ TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
   int64 last_nav_time = 0;
   EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(clickLink('goodHTTPSLink'));",
+      L"window.domAutomationController.send(clickLink('goodHTTPSLink'));",
       &success));
   EXPECT_TRUE(success);
   EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
@@ -903,8 +894,7 @@ TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
   // Now navigate to a bad HTTPS frame.
   EXPECT_TRUE(tab->GetLastNavigationTime(&last_nav_time));
   EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
-      L"javascript:void(window.domAutomationController)"
-      L".send(clickLink('badHTTPSLink'));",
+      L"window.domAutomationController.send(clickLink('badHTTPSLink'));",
       &success));
   EXPECT_TRUE(success);
   EXPECT_TRUE(tab->WaitForNavigation(last_nav_time));
@@ -920,7 +910,7 @@ TEST_F(SSLUITest, TestUnauthenticatedFrameNavigation) {
   bool is_content_evil = true;
   std::wstring content_frame_xpath(L"html/frameset/frame[2]");
   std::wstring is_frame_evil_js(
-      L"javascript:void(window.domAutomationController)"
+      L"window.domAutomationController"
       L".send(document.getElementById('evilDiv') != null);");
   EXPECT_TRUE(tab->ExecuteAndExtractBool(content_frame_xpath,
                                          is_frame_evil_js,

@@ -132,9 +132,8 @@ void DebuggerView::OpenURLFromTab(TabContents* source,
 }
 
 void DebuggerView::ExecuteJavascript(const std::string& js) {
-  const std::string url = StringPrintf("javascript:void(%s)", js.c_str());
   web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(L"", 
-      UTF8ToWide(url));
+      UTF8ToWide(js));
 }
 
 void DebuggerView::LoadingStateChanged(TabContents* source) {
