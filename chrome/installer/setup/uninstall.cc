@@ -12,6 +12,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/process_util.h"
 #include "base/registry.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
@@ -35,6 +36,34 @@
 #include "installer_util_strings.h"
 
 namespace {
+
+// This functions checks for any Chrome instances that are
+// running and first asks them to close politely by sending a Windows message.
+// If there is an error while sending message or if there are still Chrome
+// procesess active after the message has been sent, this function will try
+// to kill them.
+void CloseAllChromeProcesses() {
+  for (int j = 0; j < 4; ++j) {
+    std::wstring wnd_class(L"Chrome_ContainerWin_");
+    wnd_class.append(IntToWString(j));
+    HWND window = FindWindowEx(NULL, NULL, wnd_class.c_str(), NULL);
+    while (window) {
+      HWND tmpWnd = window;
+      window = FindWindowEx(NULL, window, wnd_class.c_str(), NULL);
+      if (!SendMessageTimeout(tmpWnd, WM_CLOSE, 0, 0, SMTO_BLOCK, 3000, NULL) &&
+          (GetLastError() == ERROR_TIMEOUT)) {
+        process_util::CleanupProcesses(installer_util::kChromeExe, 0,
+                                       ResultCodes::HUNG, NULL);
+        return;
+      }
+    }
+  }
+
+  // If asking politely didn't work, wait for 15 seconds and then kill all
+  // chrome.exe. This check is just in case Chrome is ignoring WM_CLOSE messages.
+  process_util::CleanupProcesses(installer_util::kChromeExe, 15000,
+                                 ResultCodes::HUNG, NULL);
+}
 
 // This method deletes Chrome shortcut folder from Windows Start menu. It
 // checks system_uninstall to see if the shortcut is in all users start menu
@@ -183,6 +212,10 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
         IsChromeActiveOrUserCancelled(system_uninstall);
     if (status != installer_util::UNINSTALL_CONFIRMED)
       return status;
+  } else {
+    // Since --force-uninstall command line option is used, we are going to
+    // do silent uninstall. Try to close all running Chrome instances.
+    CloseAllChromeProcesses();
   }
 
 #if defined(GOOGLE_CHROME_BUILD)
