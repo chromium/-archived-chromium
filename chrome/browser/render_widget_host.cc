@@ -788,7 +788,7 @@ void RenderWidgetHost::ScrollRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
   // the same size as the advertised view?  maybe we just assume there is a
   // full paint on its way?
   BackingStore* backing_store = BackingStoreManager::Lookup(this);
-  if (backing_store && backing_store->size() != view_size)
+  if (!backing_store || (backing_store->size() != view_size))
     return;
 
   RECT damaged_rect, r = clip_rect.ToRECT();
