@@ -146,42 +146,54 @@ SkBitmap* ResourceBundle::LoadBitmap(HINSTANCE dll_inst, int resource_id) {
 }
 
 SkBitmap* ResourceBundle::GetBitmapNamed(int resource_id) {
-  AutoLock lock_scope(lock_);
-
-  SkImageMap::const_iterator found = skia_images_.find(resource_id);
-  SkBitmap* bitmap = NULL;
-
-  // If not found load and store the image
-  if (found == skia_images_.end()) {
-    // Try to load the bitmap from the theme dll.
-    if (theme_dll_)
-      bitmap = LoadBitmap(theme_dll_, resource_id);
-    // We did not find the bitmap in the theme DLL, try the current one.
-    if (!bitmap)
-      bitmap = LoadBitmap(_AtlBaseModule.GetModuleInstance(), resource_id);
-    skia_images_[resource_id] = bitmap;
-  } else {
-    bitmap = found->second;
+  // Check to see if we already have the Skia image in the cache.
+  {
+    AutoLock lock_scope(lock_);
+    SkImageMap::const_iterator found = skia_images_.find(resource_id);
+    if (found != skia_images_.end())
+      return found->second;
   }
 
-  // This bitmap will be returned when a bitmap is requested that can not be
-  // found. The data inside is lazily initialized, so users must lock and
-  static SkBitmap* empty_bitmap = NULL;
+  scoped_ptr<SkBitmap> bitmap;
 
-  // Handle the case where loading the bitmap failed.
-  if (!bitmap) {
+  // Try to load the bitmap from the theme dll.
+  if (theme_dll_)
+    bitmap.reset(LoadBitmap(theme_dll_, resource_id));
+
+  // If we did not find the bitmap in the theme DLL, try the current one.
+  if (!bitmap.get())
+    bitmap.reset(LoadBitmap(_AtlBaseModule.GetModuleInstance(), resource_id));
+
+  // We loaded successfully.  Cache the Skia version of the bitmap.
+  if (bitmap.get()) {
+    AutoLock lock_scope(lock_);
+
+    // Another thread raced us, and has already cached the skia image.
+    if (skia_images_.count(resource_id))
+      return skia_images_[resource_id];
+
+    skia_images_[resource_id] = bitmap.get();
+    return bitmap.release();
+  }
+
+  // We failed to retrieve the bitmap, show a debugging red square.
+  {
     LOG(WARNING) << "Unable to load bitmap with id " << resource_id;
-    NOTREACHED(); // Want to assert in debug mode.
+    NOTREACHED();  // Want to assert in debug mode.
+
+    AutoLock lock_scope(lock_);  // Guard empty_bitmap initialization.
+
+    static SkBitmap* empty_bitmap = NULL;
     if (!empty_bitmap) {
-      // The placeholder bitmap is bright red so people notice the problem.	
-      empty_bitmap = new SkBitmap();	
+      // The placeholder bitmap is bright red so people notice the problem.
+      // This bitmap will be leaked, but this code should never be hit.
+      empty_bitmap = new SkBitmap();
       empty_bitmap->setConfig(SkBitmap::kARGB_8888_Config, 32, 32);	
       empty_bitmap->allocPixels();	
       empty_bitmap->eraseARGB(255, 255, 0, 0);
     }
     return empty_bitmap;
   }
-  return bitmap;
 }
 
 bool ResourceBundle::LoadImageResourceBytes(int resource_id,
