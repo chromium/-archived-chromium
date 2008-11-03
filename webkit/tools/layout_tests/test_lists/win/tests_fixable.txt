@@ -1136,7 +1136,7 @@ V8 | KJS # LayoutTests/transforms/2d/compound-transforms-vs-containers.html = FA
 V8 | KJS # LayoutTests/transforms/2d/transform-borderbox.html = FAIL
 V8 | KJS # LayoutTests/transforms/2d/transform-origin-borderbox.html = FAIL
 V8 | KJS # LayoutTests/fast/events/message-port-inactive-document.html = TIMEOUT
-V8 | KJS # LayoutTests/http/tests/security/MessagePort/event-listener-context.html = CRASH
+V8 | KJS # LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
 // missing expected results
 V8 | KJS # SKIP LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 V8 | KJS # SKIP LayoutTests/fast/frames/frame-length-fractional.html = FAIL
