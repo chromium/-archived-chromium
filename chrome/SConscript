@@ -399,7 +399,6 @@ if env['PLATFORM'] == 'win32':
 env.SConscript(test_sconscript_files, exports=['env_test'])
 
 sconscript_files = [
-    'plugin/SConscript',
     'renderer/SConscript',
     'test/chrome_plugin/SConscript',
     'third_party/hunspell/SConscript',

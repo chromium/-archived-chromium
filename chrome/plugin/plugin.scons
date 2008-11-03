@@ -6,30 +6,41 @@ Import('env')
 
 env = env.Clone()
 
+env.SConscript([
+    '$NPAPI_DIR/using_npapi.scons',
+    '$SKIA_DIR/using_skia.scons',
+], {'env':env})
 
 env.Prepend(
     CPPPATH = [
-        '$NPAPI_DIR',
-        '$CHROME_DIR/tools/build/win',
-        '$SKIA_DIR/include',
-        '$SKIA_DIR/include/corecg',
-        '$SKIA_DIR/platform',
         '$CHROME_SRC_DIR',
     ],
 )
 
-input_files = [
-]
-
 if env['PLATFORM'] == 'win32':
   env.Prepend(
-      CCFLAGS = [
-          '/TP',
+      CPPPATH = [
+          '$CHROME_DIR/tools/build/win',
       ],
   )
 
+input_files = [
+    'chrome_plugin_host.cc',
+    'npobject_proxy.cc',
+    'npobject_stub.cc',
+    'npobject_util.cc',
+    'plugin_channel.cc',
+    'plugin_channel_base.cc',
+    'plugin_main.cc',
+    'plugin_process.cc',
+    'plugin_thread.cc',
+    'webplugin_delegate_stub.cc',
+    'webplugin_proxy.cc',
+]
+
+if env['PLATFORM'] in ('posix', 'darwin'):
   # TODO(port)
-  input_files.extend([
+  to_be_ported_files = [
       'chrome_plugin_host.cc',
       'npobject_proxy.cc',
       'npobject_stub.cc',
@@ -41,7 +52,9 @@ if env['PLATFORM'] == 'win32':
       'plugin_thread.cc',
       'webplugin_delegate_stub.cc',
       'webplugin_proxy.cc',
-  ])
+  ]
+  for remove in to_be_ported_files:
+    input_files.remove(remove)
 
 env.ChromeStaticLibrary('plugin', input_files)
 

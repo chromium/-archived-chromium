@@ -15,6 +15,7 @@ sconscript_files = [
     'test/unit/unit_tests.scons',
     'common/common.scons',
     'common/ipc_tests.scons',
+    'plugin/plugin.scons',
 ]
 
 SConscript(sconscript_files, exports=['env'])
