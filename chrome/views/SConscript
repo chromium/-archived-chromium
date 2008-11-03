@@ -78,6 +78,7 @@ input_files = [
     'scroll_bar.cc',
     'scroll_view.cc',
     'separator.cc',
+    'single_split_view.cc',
     'tabbed_pane.cc',
     'table_view.cc',
     'text_button.cc',
