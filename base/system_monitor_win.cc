@@ -10,13 +10,13 @@ void SystemMonitor::ProcessWmPowerBroadcastMessage(int event_id) {
   PowerEvent power_event;
   switch (event_id) {
     case PBT_APMPOWERSTATUSCHANGE:
-      power_event = PowerStateEvent;
+      power_event = POWER_STATE_EVENT;
       break;
     case PBT_APMRESUMEAUTOMATIC:
-      power_event = ResumeEvent;
+      power_event = RESUME_EVENT;
       break;
     case PBT_APMSUSPEND:
-      power_event = SuspendEvent;
+      power_event = SUSPEND_EVENT;
       break;
     default:
       DCHECK(false);

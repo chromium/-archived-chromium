@@ -233,7 +233,9 @@ class NowSingleton : public base::SystemMonitor::PowerObserver {
 
   ~NowSingleton() {
     UseHiResClock(false);
-    base::SystemMonitor::Get()->RemoveObserver(this);
+    base::SystemMonitor* monitor = base::SystemMonitor::Get();
+    if (monitor)
+      monitor->RemoveObserver(this);
   }
 
   TimeDelta Now() {

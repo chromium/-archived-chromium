@@ -5,13 +5,12 @@
 #ifndef BASE_SYSTEM_MONITOR_H_
 #define BASE_SYSTEM_MONITOR_H_
 
-#include "base/logging.h"
-#include "base/observer_list.h"
+#include "base/observer_list_threadsafe.h"
 #include "base/singleton.h"
 
 namespace base {
 
-// Singleton class for monitoring various system-related subsystems
+// Class for monitoring various system-related subsystems
 // such as power management, network status, etc.
 // TODO(mbelshe):  Add support beyond just power management.
 class SystemMonitor {
@@ -21,25 +20,33 @@ class SystemMonitor {
     return Singleton<SystemMonitor>::get();
   }
 
+  // To start the System Monitor within an application
+  // use this call.
+  static void Start();
+
   //
   // Power-related APIs
   //
 
   // Is the computer currently on battery power.
-  bool BatteryPower() { return battery_in_use_; }
+  // Can be called on any thread.
+  bool BatteryPower() { 
+    // Using a lock here is not necessary for just a bool.
+    return battery_in_use_;
+  }
 
   // Normalized list of power events.
   enum PowerEvent {
-    // The Power status of the system has changed.
-    PowerStateEvent,
-
-    // The system is being suspended.
-    SuspendEvent,
-
-    // The system is being resumed.
-    ResumeEvent
+    POWER_STATE_EVENT,  // The Power status of the system has changed.
+    SUSPEND_EVENT,      // The system is being suspended.
+    RESUME_EVENT        // The system is being resumed.
   };
 
+  // Callbacks will be called on the thread which creates the SystemMonitor.
+  // During the callback, Add/RemoveObserver will block until the callbacks
+  // are finished. Observers should implement quick callback functions; if
+  // lengthy operations are needed, the observer should take care to invoke
+  // the operation on an appropriate thread.
   class PowerObserver {
   public:
     // Notification of a change in power status of the computer, such
@@ -53,32 +60,15 @@ class SystemMonitor {
     virtual void OnResume(SystemMonitor*) = 0;
   };
 
-  void AddObserver(PowerObserver* obs) {
-    observer_list_.AddObserver(obs);
-  }
+  // Add a new observer.
+  // Can be called from any thread.
+  // Must not be called from within a notification callback.
+  void AddObserver(PowerObserver* obs);
 
-  void RemoveObserver(PowerObserver* obs) {
-    observer_list_.RemoveObserver(obs);
-  }
-
-  void NotifyPowerStateChange() {
-    LOG(INFO) << L"PowerStateChange: " 
-             << (BatteryPower() ? L"On" : L"Off") << L" battery";
-    FOR_EACH_OBSERVER(PowerObserver, observer_list_,
-      OnPowerStateChange(this));
-  }
-
-  void NotifySuspend() {
-    FOR_EACH_OBSERVER(PowerObserver, observer_list_, OnSuspend(this));
-  }
-
-  void NotifyResume() {
-    FOR_EACH_OBSERVER(PowerObserver, observer_list_, OnResume(this));
-  }
-
-  // Constructor.  
-  // Don't use this; access SystemMonitor via the Singleton.
-  SystemMonitor();
+  // Remove an existing observer.
+  // Can be called from any thread.
+  // Must not be called from within a notification callback.
+  void RemoveObserver(PowerObserver* obs);
 
 #if defined(OS_WIN)
   // Windows-specific handling of a WM_POWERBROADCAST message.
@@ -88,8 +78,11 @@ class SystemMonitor {
 #endif
 
   // Cross-platform handling of a power event.
-  // This is only exposed for testing.
   void ProcessPowerMessage(PowerEvent event_id);
+
+  // Constructor.  
+  // Don't use this; access SystemMonitor via the Singleton.
+  SystemMonitor();
 
  private:
   // Platform-specific method to check whether the system is currently
@@ -97,9 +90,20 @@ class SystemMonitor {
   // false otherwise.
   bool IsBatteryPower();
 
-  ObserverList<PowerObserver> observer_list_;
+  // Checks the battery status and notifies observers if the battery
+  // status has changed.
+  void BatteryCheck();
+
+  // Functions to trigger notifications.
+  void NotifyPowerStateChange();
+  void NotifySuspend();
+  void NotifyResume();
+
+  scoped_refptr<ObserverListThreadSafe<PowerObserver> > observer_list_;
   bool battery_in_use_;
   bool suspended_;
+
+  base::OneShotTimer<SystemMonitor> delayed_battery_check_;
 
   DISALLOW_COPY_AND_ASSIGN(SystemMonitor);
 };

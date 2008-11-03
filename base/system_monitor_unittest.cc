@@ -32,35 +32,37 @@ class PowerTest : public base::SystemMonitor::PowerObserver {
 };
 
 TEST(SystemMonitor, PowerNotifications) {
+  const int kObservers = 5;
   base::SystemMonitor* monitor = base::SystemMonitor::Get();
-  PowerTest test;
-  monitor->AddObserver(&test);
+  PowerTest test[kObservers];
+  for (int index = 0; index < kObservers; ++index)
+    monitor->AddObserver(&test[index]);
 
   // Send a bunch of power changes.  Since the battery power hasn't
   // actually changed, we shouldn't get notifications.
   for (int index = 0; index < 5; index++) {
-    monitor->ProcessPowerMessage(base::SystemMonitor::PowerStateEvent);
-    EXPECT_EQ(test.power_state_changes(), 0);
+    monitor->ProcessPowerMessage(base::SystemMonitor::POWER_STATE_EVENT);
+    EXPECT_EQ(test[0].power_state_changes(), 0);
   }
 
   // Sending resume when not suspended should have no effect.
-  monitor->ProcessPowerMessage(base::SystemMonitor::ResumeEvent);
-  EXPECT_EQ(test.resumes(), 0);
+  monitor->ProcessPowerMessage(base::SystemMonitor::RESUME_EVENT);
+  EXPECT_EQ(test[0].resumes(), 0);
 
   // Pretend we suspended.
-  monitor->ProcessPowerMessage(base::SystemMonitor::SuspendEvent);
-  EXPECT_EQ(test.suspends(), 1);
+  monitor->ProcessPowerMessage(base::SystemMonitor::SUSPEND_EVENT);
+  EXPECT_EQ(test[0].suspends(), 1);
 
   // Send a second suspend notification.  This should be suppressed.
-  monitor->ProcessPowerMessage(base::SystemMonitor::SuspendEvent);
-  EXPECT_EQ(test.suspends(), 1);
+  monitor->ProcessPowerMessage(base::SystemMonitor::SUSPEND_EVENT);
+  EXPECT_EQ(test[0].suspends(), 1);
 
   // Pretend we were awakened.
-  monitor->ProcessPowerMessage(base::SystemMonitor::ResumeEvent);
-  EXPECT_EQ(test.resumes(), 1);
+  monitor->ProcessPowerMessage(base::SystemMonitor::RESUME_EVENT);
+  EXPECT_EQ(test[0].resumes(), 1);
 
   // Send a duplicate resume notification.  This should be suppressed.
-  monitor->ProcessPowerMessage(base::SystemMonitor::ResumeEvent);
-  EXPECT_EQ(test.resumes(), 1);
+  monitor->ProcessPowerMessage(base::SystemMonitor::RESUME_EVENT);
+  EXPECT_EQ(test[0].resumes(), 1);
 }
 
