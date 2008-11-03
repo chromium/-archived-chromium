@@ -33,6 +33,12 @@ class PowerTest : public base::SystemMonitor::PowerObserver {
 
 TEST(SystemMonitor, PowerNotifications) {
   const int kObservers = 5;
+
+  // Initialize a message loop for this to run on.
+  MessageLoop loop;
+  // Initialize time() since it registers as a SystemMonitor observer.
+  base::Time now = base::Time::Now();
+
   base::SystemMonitor* monitor = base::SystemMonitor::Get();
   PowerTest test[kObservers];
   for (int index = 0; index < kObservers; ++index)
@@ -47,22 +53,27 @@ TEST(SystemMonitor, PowerNotifications) {
 
   // Sending resume when not suspended should have no effect.
   monitor->ProcessPowerMessage(base::SystemMonitor::RESUME_EVENT);
+  loop.RunAllPending();
   EXPECT_EQ(test[0].resumes(), 0);
 
   // Pretend we suspended.
   monitor->ProcessPowerMessage(base::SystemMonitor::SUSPEND_EVENT);
+  loop.RunAllPending();
   EXPECT_EQ(test[0].suspends(), 1);
 
   // Send a second suspend notification.  This should be suppressed.
   monitor->ProcessPowerMessage(base::SystemMonitor::SUSPEND_EVENT);
+  loop.RunAllPending();
   EXPECT_EQ(test[0].suspends(), 1);
 
   // Pretend we were awakened.
   monitor->ProcessPowerMessage(base::SystemMonitor::RESUME_EVENT);
+  loop.RunAllPending();
   EXPECT_EQ(test[0].resumes(), 1);
 
   // Send a duplicate resume notification.  This should be suppressed.
   monitor->ProcessPowerMessage(base::SystemMonitor::RESUME_EVENT);
+  loop.RunAllPending();
   EXPECT_EQ(test[0].resumes(), 1);
 }
 
