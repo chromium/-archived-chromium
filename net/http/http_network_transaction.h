@@ -77,19 +77,11 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoReadBody();
   int DoReadBodyComplete(int result);
 
-  // TODO(eroman): temp instrumentation to track down a bug.
-  struct Bug3772 {
-    unsigned char true_count;
-    unsigned char false_count;
-    int connect_result;
-    bool reused_socket;
-    Bug3772() : true_count(0), false_count(0), connect_result(0),
-        reused_socket(false) { }
-  };
-  Bug3772 bug_3772_;
+  // TODO(eroman): Temporary for 3772 bug investigation.
+  void CrashFor3772();
 
   // Called when header_buf_ contains the complete response headers.
-  int DidReadResponseHeaders(Bug3772* /*temp hack*/);
+  int DidReadResponseHeaders();
 
   // Called to handle a certificate error.  Returns OK if the error should be
   // ignored.  Otherwise, stores the certificate in response_.ssl_info and
