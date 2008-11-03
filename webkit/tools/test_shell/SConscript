@@ -153,6 +153,7 @@ if env['PLATFORM'] == 'win32':
 
 test_files = [
     'image_decoder_unittest.cc',
+    'keyboard_unittest.cc',
     'run_all_tests.cc',
     'layout_test_controller_unittest.cc',
     '$WEBKIT_DIR/glue/autocomplete_input_listener_unittest.cc',
@@ -168,10 +169,8 @@ test_files = [
 if env['PLATFORM'] == 'win32':
   # TODO(port): put portable files in above test_files declaration.
   test_files.extend([
-      'keyboard_unittest.cc',
       'node_leak_test.cc',
       'plugin_tests.cc',
-      'run_all_tests.cc',
       'test_shell_test.cc',
       'text_input_controller_unittest.cc',
       '$WEBKIT_DIR/glue/bookmarklet_unittest.cc',

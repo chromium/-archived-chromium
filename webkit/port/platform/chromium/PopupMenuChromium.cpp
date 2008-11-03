@@ -43,6 +43,7 @@
 #include "FramelessScrollViewClient.h"
 #include "GraphicsContext.h"
 #include "IntRect.h"
+#include "KeyboardCodes.h"
 #include "NotImplemented.h"
 #include "Page.h"
 #include "PlatformKeyboardEvent.h"
@@ -54,11 +55,6 @@
 #include "ScrollbarTheme.h"
 #include "SystemTime.h"
 #include "Widget.h"
-
-#if !PLATFORM(WIN_OS)
-#include "KeyboardCodes.h"
-#endif
-
 #pragma warning(pop)
 
 using namespace WTF;
@@ -557,32 +553,32 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
     if (event.type() == PlatformKeyboardEvent::KeyUp)
         return true;
 
-    if (numItems() == 0 && event.windowsVirtualKeyCode() != VK_ESCAPE)
+    if (numItems() == 0 && event.windowsVirtualKeyCode() != VKEY_ESCAPE)
         return true;
 
     switch (event.windowsVirtualKeyCode()) {
-    case VK_ESCAPE:
+    case VKEY_ESCAPE:
         abandon();  // may delete this
         return true;
-    case VK_RETURN:
+    case VKEY_RETURN:
         acceptIndex(m_selectedIndex);  // may delete this
         return true;
-    case VK_UP:
+    case VKEY_UP:
         adjustSelectedIndex(-1);
         break;
-    case VK_DOWN:
+    case VKEY_DOWN:
         adjustSelectedIndex(1);
         break;
-    case VK_PRIOR:
+    case VKEY_PRIOR:
         adjustSelectedIndex(-m_visibleRows);
         break;
-    case VK_NEXT:
+    case VKEY_NEXT:
         adjustSelectedIndex(m_visibleRows);
         break;
-    case VK_HOME:
+    case VKEY_HOME:
         adjustSelectedIndex(-m_selectedIndex);
         break;
-    case VK_END:
+    case VKEY_END:
         adjustSelectedIndex(m_items.size());
         break;
     default:

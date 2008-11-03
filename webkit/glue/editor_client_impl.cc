@@ -15,11 +15,9 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Editor.h"
 #include "EventHandler.h"
 #include "EventNames.h"
+#include "KeyboardCodes.h"
 #include "HTMLInputElement.h"
 #include "Frame.h"
-#if defined(OS_MACOSX) || defined(OS_LINUX)
-#include "KeyboardCodes.h"
-#endif 
 #include "KeyboardEvent.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformString.h"
@@ -400,109 +398,114 @@ namespace key_lookup_table {
 using namespace WebCore;
   
 static const KeyDownEntry keyDownEntries[] = {
-  { VK_LEFT,   0,                  "MoveLeft"                                    },
-  { VK_LEFT,   ShiftKey,           "MoveLeftAndModifySelection"                  },
-#if defined(OS_WIN)
-  { VK_LEFT,   CtrlKey,            "MoveWordLeft"                                },
-  { VK_LEFT,   CtrlKey | ShiftKey, "MoveWordLeftAndModifySelection"              },
-#elif defined(OS_MACOSX)
-  { VK_LEFT,   OptionKey,            "MoveWordLeft"                              },
-  { VK_LEFT,   OptionKey | ShiftKey, "MoveWordLeftAndModifySelection"            },
-#endif
-  { VK_RIGHT,  0,                  "MoveRight"                                   },
-  { VK_RIGHT,  ShiftKey,           "MoveRightAndModifySelection"                 },
-#if defined(OS_WIN)
-  { VK_RIGHT,  CtrlKey,            "MoveWordRight"                               },
-  { VK_RIGHT,  CtrlKey | ShiftKey, "MoveWordRightAndModifySelection"             },
-#elif defined(OS_MACOSX)
-  { VK_RIGHT,  OptionKey,            "MoveWordRight"                             },
-  { VK_RIGHT,  OptionKey | ShiftKey, "MoveWordRightAndModifySelection"           },
-#endif
-  
-  { VK_UP,     0,                  "MoveUp"                                      },
-  { VK_UP,     ShiftKey,           "MoveUpAndModifySelection"                    },
-  { VK_PRIOR,  ShiftKey,           "MovePageUpAndModifySelection"                },
-  { VK_DOWN,   0,                  "MoveDown"                                    },
-  { VK_DOWN,   ShiftKey,           "MoveDownAndModifySelection"                  },
-  { VK_NEXT,   ShiftKey,           "MovePageDownAndModifySelection"              },
-  { VK_PRIOR,  0,                  "MovePageUp"                                  },
-  { VK_NEXT,   0,                  "MovePageDown"                                },
-  { VK_HOME,   0,                  "MoveToBeginningOfLine"                       },
-  { VK_HOME,   ShiftKey,           "MoveToBeginningOfLineAndModifySelection"     },
+  { WebCore::VKEY_LEFT,   0,                  "MoveLeft"                      },
+  { WebCore::VKEY_LEFT,   ShiftKey,           "MoveLeftAndModifySelection"    },
 #if defined(OS_MACOSX)
-  { VK_LEFT,   CommandKey,            "MoveToBeginningOfLine"                    },
-  { VK_LEFT,   CommandKey | ShiftKey, "MoveToBeginningOfLineAndModifySelection"  },
+  { WebCore::VKEY_LEFT,   OptionKey,          "MoveWordLeft"                  },
+  { WebCore::VKEY_LEFT,   OptionKey | ShiftKey, 
+        "MoveWordLeftAndModifySelection"                                      },
+#else
+  { WebCore::VKEY_LEFT,   CtrlKey,            "MoveWordLeft"                  },
+  { WebCore::VKEY_LEFT,   CtrlKey | ShiftKey, "MoveWordLeftAndModifySelection"},
 #endif
-  
-#if defined(OS_WIN)
-  { VK_HOME,   CtrlKey,            "MoveToBeginningOfDocument"                   },
-  { VK_HOME,   CtrlKey | ShiftKey, "MoveToBeginningOfDocumentAndModifySelection" },
-#elif defined(OS_MACOSX)
-  { VK_UP,   CommandKey,            "MoveToBeginningOfDocument"                   },
-  { VK_UP,   CommandKey | ShiftKey, "MoveToBeginningOfDocumentAndModifySelection" },  
-#endif
-	
-  { VK_END,    0,                  "MoveToEndOfLine"                             },
-  { VK_END,    ShiftKey,           "MoveToEndOfLineAndModifySelection"           },
+  { WebCore::VKEY_RIGHT,  0,                  "MoveRight"                     },
+  { WebCore::VKEY_RIGHT,  ShiftKey,           "MoveRightAndModifySelection"   },
 #if defined(OS_MACOSX)
-  { VK_RIGHT,    CommandKey,            "MoveToEndOfLine"                        },
-  { VK_RIGHT,    CommandKey | ShiftKey, "MoveToEndOfLineAndModifySelection"      },
+  { WebCore::VKEY_RIGHT,  OptionKey,          "MoveWordRight"                 },
+  { WebCore::VKEY_RIGHT,  OptionKey | ShiftKey,
+        "MoveWordRightAndModifySelection"                                     },
+#else
+  { WebCore::VKEY_RIGHT,  CtrlKey,            "MoveWordRight"                 },
+  { WebCore::VKEY_RIGHT,  CtrlKey | ShiftKey,
+        "MoveWordRightAndModifySelection"                                     },
 #endif
-  
-#if defined(OS_WIN)
-  { VK_END,    CtrlKey,            "MoveToEndOfDocument"                         },
-  { VK_END,    CtrlKey | ShiftKey, "MoveToEndOfDocumentAndModifySelection"       },
-#elif defined(OS_MACOSX)
-  { VK_DOWN,    CommandKey,            "MoveToEndOfDocument"                     },
-  { VK_DOWN,    CommandKey | ShiftKey, "MoveToEndOfDocumentAndModifySelection"   },
+  { WebCore::VKEY_UP,     0,                  "MoveUp"                        },
+  { WebCore::VKEY_UP,     ShiftKey,           "MoveUpAndModifySelection"      },
+  { WebCore::VKEY_PRIOR,  ShiftKey,           "MovePageUpAndModifySelection"  },
+  { WebCore::VKEY_DOWN,   0,                  "MoveDown"                      },
+  { WebCore::VKEY_DOWN,   ShiftKey,           "MoveDownAndModifySelection"    },
+  { WebCore::VKEY_NEXT,   ShiftKey,           "MovePageDownAndModifySelection"},
+  { WebCore::VKEY_PRIOR,  0,                  "MovePageUp"                    },
+  { WebCore::VKEY_NEXT,   0,                  "MovePageDown"                  },
+  { WebCore::VKEY_HOME,   0,                  "MoveToBeginningOfLine"         },
+  { WebCore::VKEY_HOME,   ShiftKey,
+        "MoveToBeginningOfLineAndModifySelection"                             },
+#if defined(OS_MACOSX)
+  { WebCore::VKEY_LEFT,   CommandKey,         "MoveToBeginningOfLine"         },
+  { WebCore::VKEY_LEFT,   CommandKey | ShiftKey,
+        "MoveToBeginningOfLineAndModifySelection"                             },
 #endif
-	
-  { VK_BACK,   0,                  "DeleteBackward"                              },
-  { VK_BACK,   ShiftKey,           "DeleteBackward"                              },
-  { VK_DELETE, 0,                  "DeleteForward"                               },
-#if defined(OS_WIN)
-  { VK_BACK,   CtrlKey,            "DeleteWordBackward"                          },
-  { VK_DELETE, CtrlKey,            "DeleteWordForward"                           },
-#elif defined(OS_MACOSX)
-  { VK_BACK,   OptionKey,            "DeleteWordBackward"                        },
-  { VK_DELETE, OptionKey,            "DeleteWordForward"                         },
+#if defined(OS_MACOSX)
+  { WebCore::VKEY_UP,     CommandKey,         "MoveToBeginningOfDocument"     },
+  { WebCore::VKEY_UP,     CommandKey | ShiftKey,
+        "MoveToBeginningOfDocumentAndModifySelection"                         },  
+#else
+  { WebCore::VKEY_HOME,   CtrlKey,            "MoveToBeginningOfDocument"     },
+  { WebCore::VKEY_HOME,   CtrlKey | ShiftKey,
+        "MoveToBeginningOfDocumentAndModifySelection"                         },
 #endif
-	   
-  { 'B',       CtrlKey,            "ToggleBold"                                  },
-  { 'I',       CtrlKey,            "ToggleItalic"                                },
-  { 'U',       CtrlKey,            "ToggleUnderline"                             },
-
-
-  { VK_ESCAPE, 0,                  "Cancel"                                      },
-  { VK_OEM_PERIOD, CtrlKey,        "Cancel"                                      },
-  { VK_TAB,    0,                  "InsertTab"                                   },
-  { VK_TAB,    ShiftKey,           "InsertBacktab"                               },
-  { VK_RETURN, 0,                  "InsertNewline"                               },
-  { VK_RETURN, CtrlKey,            "InsertNewline"                               },
-  { VK_RETURN, AltKey,             "InsertNewline"                               },
-  { VK_RETURN, AltKey | ShiftKey,  "InsertNewline"                               },
-  { VK_RETURN, ShiftKey,           "InsertLineBreak"                             },
-
-#if defined(OS_WIN)
-  { VK_INSERT, CtrlKey,            "Copy"                                        },	
-  { VK_INSERT, ShiftKey,           "Paste"                                       },	
-  { VK_DELETE, ShiftKey,           "Cut"                                         },	
-  { 'C',       CtrlKey,            "Copy"                                        },
-  { 'V',       CtrlKey,            "Paste"                                       },
-  { 'V',       CtrlKey | ShiftKey, "PasteAndMatchStyle"                          },
-  { 'X',       CtrlKey,            "Cut"                                         },
-  { 'A',       CtrlKey,            "SelectAll"                                   },
-  { 'Z',       CtrlKey,            "Undo"                                        },
-  { 'Z',       CtrlKey | ShiftKey, "Redo"                                        },
-  { 'Y',       CtrlKey,            "Redo"                                        },
-#elif defined(OS_MACOSX)
-  { 'C',       CommandKey,            "Copy"                                     },
-  { 'V',       CommandKey,            "Paste"                                    },
-  { 'V',       CommandKey | ShiftKey, "PasteAndMatchStyle"                       },
-  { 'X',       CommandKey,            "Cut"                                      },
-  { 'A',       CommandKey,            "SelectAll"                                },
-  { 'Z',       CommandKey,            "Undo"                                     },
-  { 'Z',       CommandKey | ShiftKey, "Redo"                                     },  
+  { WebCore::VKEY_END,    0,                  "MoveToEndOfLine"               },
+  { WebCore::VKEY_END,    ShiftKey,
+        "MoveToEndOfLineAndModifySelection"                                   },
+#if defined(OS_MACOSX)
+  { WebCore::VKEY_DOWN,   CommandKey,         "MoveToEndOfDocument"           },
+  { WebCore::VKEY_DOWN,   CommandKey | ShiftKey,
+        "MoveToEndOfDocumentAndModifySelection"                               },
+#else
+  { WebCore::VKEY_END,    CtrlKey,            "MoveToEndOfDocument"           },
+  { WebCore::VKEY_END,    CtrlKey | ShiftKey,
+        "MoveToEndOfDocumentAndModifySelection"                               },
+#endif
+#if defined(OS_MACOSX)
+  { WebCore::VKEY_RIGHT,  CommandKey,            "MoveToEndOfLine"            },
+  { WebCore::VKEY_RIGHT,  CommandKey | ShiftKey,
+        "MoveToEndOfLineAndModifySelection"                                   },
+#endif
+  { WebCore::VKEY_BACK,   0,                  "DeleteBackward"                },
+  { WebCore::VKEY_BACK,   ShiftKey,           "DeleteBackward"                },
+  { WebCore::VKEY_DELETE, 0,                  "DeleteForward"                 },
+#if defined(OS_MACOSX)
+  { WebCore::VKEY_BACK,   OptionKey,          "DeleteWordBackward"            },
+  { WebCore::VKEY_DELETE, OptionKey,          "DeleteWordForward"             },
+#else
+  { WebCore::VKEY_BACK,   CtrlKey,            "DeleteWordBackward"            },
+  { WebCore::VKEY_DELETE, CtrlKey,            "DeleteWordForward"             },
+#endif
+  { 'B',                  CtrlKey,            "ToggleBold"                    },
+  { 'I',                  CtrlKey,            "ToggleItalic"                  },
+  { 'U',                  CtrlKey,            "ToggleUnderline"               },
+  { WebCore::VKEY_ESCAPE, 0,                  "Cancel"                        },
+  { WebCore::VKEY_OEM_PERIOD, CtrlKey,        "Cancel"                        },
+  { WebCore::VKEY_TAB,    0,                  "InsertTab"                     },
+  { WebCore::VKEY_TAB,    ShiftKey,           "InsertBacktab"                 },
+  { WebCore::VKEY_RETURN, 0,                  "InsertNewline"                 },
+  { WebCore::VKEY_RETURN, CtrlKey,            "InsertNewline"                 },
+  { WebCore::VKEY_RETURN, AltKey,             "InsertNewline"                 },
+  { WebCore::VKEY_RETURN, AltKey | ShiftKey,  "InsertNewline"                 },
+  { WebCore::VKEY_RETURN, ShiftKey,           "InsertLineBreak"               },
+  { WebCore::VKEY_INSERT, CtrlKey,            "Copy"                          },	
+  { WebCore::VKEY_INSERT, ShiftKey,           "Paste"                         },	
+  { WebCore::VKEY_DELETE, ShiftKey,           "Cut"                           },	
+#if defined(OS_MACOSX)
+  { 'C',                  CommandKey,         "Copy"                          },
+  { 'V',                  CommandKey,         "Paste"                         },
+  { 'V',                  CommandKey | ShiftKey,
+        "PasteAndMatchStyle"                                                  },
+  { 'X',                  CommandKey,         "Cut"                           },
+  { 'A',                  CommandKey,         "SelectAll"                     },
+  { 'Z',                  CommandKey,         "Undo"                          },
+  { 'Z',                  CommandKey | ShiftKey,
+        "Redo"                                                                },
+  { 'Y',                  CommandKey,         "Redo"                          },
+#else
+  { 'C',                  CtrlKey,            "Copy"                          },
+  { 'V',                  CtrlKey,            "Paste"                         },
+  { 'V',                  CtrlKey | ShiftKey, "PasteAndMatchStyle"            },
+  { 'X',                  CtrlKey,            "Cut"                           },
+  { 'A',                  CtrlKey,            "SelectAll"                     },
+  { 'Z',                  CtrlKey,            "Undo"                          },
+  { 'Z',                  CtrlKey | ShiftKey, "Redo"                          },
+  { 'Y',                  CtrlKey,            "Redo"                          },
 #endif
 };
 

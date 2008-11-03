@@ -6,13 +6,7 @@
 
 #include "base/compiler_specific.h"
 
-#if defined(OS_WIN)
-#include <windows.h>
-#else
-// This file defines all the windows VK_ key codes in the WebCore namespace.
 #include "KeyboardCodes.h"
-#endif
-
 #include "StringImpl.h"  // This is so that the KJS build works
 
 MSVC_PUSH_WARNING_LEVEL(0);
@@ -146,101 +140,101 @@ static inline String ToSingleCharacterString(UChar c) {
 
 static String GetKeyIdentifierForWindowsKeyCode(unsigned short keyCode) {
   switch (keyCode) {
-    case VK_MENU:
+    case VKEY_MENU:
       return "Alt";
-    case VK_CONTROL:
+    case VKEY_CONTROL:
       return "Control";
-    case VK_SHIFT:
+    case VKEY_SHIFT:
       return "Shift";
-    case VK_CAPITAL:
+    case VKEY_CAPITAL:
       return "CapsLock";
-    case VK_LWIN:
-    case VK_RWIN:
+    case VKEY_LWIN:
+    case VKEY_RWIN:
       return "Win";
-    case VK_CLEAR:
+    case VKEY_CLEAR:
       return "Clear";
-    case VK_DOWN:
+    case VKEY_DOWN:
       return "Down";
     // "End"
-    case VK_END:
+    case VKEY_END:
       return "End";
     // "Enter"
-    case VK_RETURN:
+    case VKEY_RETURN:
       return "Enter";
-    case VK_EXECUTE:
+    case VKEY_EXECUTE:
       return "Execute";
-    case VK_F1:
+    case VKEY_F1:
       return "F1";
-    case VK_F2:
+    case VKEY_F2:
       return "F2";
-    case VK_F3:
+    case VKEY_F3:
       return "F3";
-    case VK_F4:
+    case VKEY_F4:
       return "F4";
-    case VK_F5:
+    case VKEY_F5:
       return "F5";
-    case VK_F6:
+    case VKEY_F6:
       return "F6";
-    case VK_F7:
+    case VKEY_F7:
       return "F7";
-    case VK_F8:
+    case VKEY_F8:
       return "F8";
-    case VK_F9:
+    case VKEY_F9:
       return "F9";
-    case VK_F10:
+    case VKEY_F10:
       return "F11";
-    case VK_F12:
+    case VKEY_F12:
       return "F12";
-    case VK_F13:
+    case VKEY_F13:
       return "F13";
-    case VK_F14:
+    case VKEY_F14:
       return "F14";
-    case VK_F15:
+    case VKEY_F15:
       return "F15";
-    case VK_F16:
+    case VKEY_F16:
       return "F16";
-    case VK_F17:
+    case VKEY_F17:
       return "F17";
-    case VK_F18:
+    case VKEY_F18:
       return "F18";
-    case VK_F19:
+    case VKEY_F19:
       return "F19";
-    case VK_F20:
+    case VKEY_F20:
       return "F20";
-    case VK_F21:
+    case VKEY_F21:
       return "F21";
-    case VK_F22:
+    case VKEY_F22:
       return "F22";
-    case VK_F23:
+    case VKEY_F23:
       return "F23";
-    case VK_F24:
+    case VKEY_F24:
       return "F24";
-    case VK_HELP:
+    case VKEY_HELP:
       return "Help";
-    case VK_HOME:
+    case VKEY_HOME:
       return "Home";
-    case VK_INSERT:
+    case VKEY_INSERT:
       return "Insert";
-    case VK_LEFT:
+    case VKEY_LEFT:
       return "Left";
-    case VK_NEXT:
+    case VKEY_NEXT:
       return "PageDown";
-    case VK_PRIOR:
+    case VKEY_PRIOR:
       return "PageUp";
-    case VK_PAUSE:
+    case VKEY_PAUSE:
       return "Pause";
-    case VK_SNAPSHOT:
+    case VKEY_SNAPSHOT:
       return "PrintScreen";
-    case VK_RIGHT:
+    case VKEY_RIGHT:
       return "Right";
-    case VK_SCROLL:
+    case VKEY_SCROLL:
       return "Scroll";
-    case VK_SELECT:
+    case VKEY_SELECT:
       return "Select";
-    case VK_UP:
+    case VKEY_UP:
       return "Up";
     // Standard says that DEL becomes U+007F.
-    case VK_DELETE:
+    case VKEY_DELETE:
       return "U+007F";
     default:
       return String::format("U+%04X", toupper(keyCode));
@@ -323,10 +317,8 @@ void MakePlatformKeyboardEvent::SetKeyType(Type type) {
 // which don't have associated character events. 
 bool MakePlatformKeyboardEvent::IsCharacterKey() const {
   switch (windowsVirtualKeyCode()) {
-#if defined(OS_WIN)
-    case VK_BACK:
-    case VK_ESCAPE:
-#endif
+    case VKEY_BACK:
+    case VKEY_ESCAPE:
       return false;
 
     default:

@@ -4,11 +4,14 @@
 
 #include "config.h"
 
-#pragma warning(push, 0)
+#include "base/compiler_specific.h"
+
+MSVC_PUSH_WARNING_LEVEL(0);
 #include "EventNames.h"
 #include "EventTarget.h"
+#include "KeyboardCodes.h"
 #include "KeyboardEvent.h"
-#pragma warning(pop)
+MSVC_POP_WARNING();
 
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/event_conversion.h"
@@ -76,7 +79,7 @@ TEST(KeyboardUnitTestKeyDown, TestCtrlV) {
 
 TEST(KeyboardUnitTestKeyDown, TestEscape) {
   WebKeyboardEvent keyboard_event;
-  SetupKeyDownEvent(keyboard_event, VK_ESCAPE, no_modifiers);
+  SetupKeyDownEvent(keyboard_event, WebCore::VKEY_ESCAPE, no_modifiers);
 
   const char* result = InterpretKeyEvent(keyboard_event,
                                          PlatformKeyboardEvent::RawKeyDown);
