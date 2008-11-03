@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D1638790EBFA714008F024E /* libsqlite.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D1638760EBFA6F7008F024E /* libsqlite.a */; };
 		4DB687D70EAFE7C800AB2128 /* libxslt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB687D40EAFE79200AB2128 /* libxslt.a */; };
 		4DB7FA6F0E9BF33B00C66CE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FA6E0E9BF33B00C66CE0 /* SystemConfiguration.framework */; };
 		4DB7FEA40E9BF92100C66CE0 /* libwebcoresysteminterface.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FE760E9BF6CB00C66CE0 /* libwebcoresysteminterface.a */; };
@@ -90,6 +91,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4D1638750EBFA6F7008F024E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D16386E0EBFA6F7008F024E /* sqlite.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4D7B007F0E9D5538009A6919 /* libsqlite.a */;
+			remoteInfo = sqlite;
+		};
+		4D1638770EBFA706008F024E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D16386E0EBFA6F7008F024E /* sqlite.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D7B007E0E9D5538009A6919 /* sqlite */;
+			remoteInfo = sqlite;
+		};
 		4DB687D30EAFE79200AB2128 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4DB687CA0EAFE79200AB2128 /* libxslt.xcodeproj */;
@@ -555,6 +570,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* TestShell_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestShell_Prefix.pch; sourceTree = "<group>"; };
+		4D16386E0EBFA6F7008F024E /* sqlite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sqlite.xcodeproj; path = third_party/sqlite/sqlite.xcodeproj; sourceTree = "<group>"; };
 		4DB687CA0EAFE79200AB2128 /* libxslt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxslt.xcodeproj; path = third_party/libxslt/libxslt.xcodeproj; sourceTree = "<group>"; };
 		4DB7FA6E0E9BF33B00C66CE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<group>"; };
 		4DB7FEA70E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = ../../../../third_party/WebKit/WebKitLibraries/libWebKitSystemInterfaceLeopard.a; sourceTree = SOURCE_ROOT; };
@@ -672,6 +688,7 @@
 				82F39D0F0E7EFA5600785E15 /* libport.a in Frameworks */,
 				7BA363BD0E8C40C30023C8B9 /* libsdch.a in Frameworks */,
 				82F39D2B0E7EFC2600785E15 /* libskia.a in Frameworks */,
+				4D1638790EBFA714008F024E /* libsqlite.a in Frameworks */,
 				82F39D4A0E7EFDAA00785E15 /* libv8.a in Frameworks */,
 				82F39D110E7EFA5A00785E15 /* libwebcore.a in Frameworks */,
 				4DB7FEA40E9BF92100C66CE0 /* libwebcoresysteminterface.a in Frameworks */,
@@ -738,6 +755,14 @@
 			name = Frameworks;
 			sourceTree = SDKROOT;
 		};
+		4D16386F0EBFA6F7008F024E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4D1638760EBFA6F7008F024E /* libsqlite.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		4DB687CB0EAFE79200AB2128 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -784,6 +809,7 @@
 				E45629460E26B5A7005E4685 /* net.xcodeproj */,
 				7BA363B50E8C409A0023C8B9 /* sdch.xcodeproj */,
 				828CFDC30DD1073D0069AC37 /* skia.xcodeproj */,
+				4D16386E0EBFA6F7008F024E /* sqlite.xcodeproj */,
 				7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */,
 				829E2E250DBE7DE200819EBF /* webkit.xcodeproj */,
 				ABC8C4180DC7F7D000B59C21 /* zlib.xcodeproj */,
@@ -1046,6 +1072,7 @@
 				82F39A1A0E7EF82B00785E15 /* PBXTargetDependency */,
 				7BA363BC0E8C40A30023C8B9 /* PBXTargetDependency */,
 				82F39D2D0E7EFC2D00785E15 /* PBXTargetDependency */,
+				4D1638780EBFA706008F024E /* PBXTargetDependency */,
 				82F39D150E7EFA6800785E15 /* PBXTargetDependency */,
 				82F39D170E7EFA6800785E15 /* PBXTargetDependency */,
 				82F39D190E7EFA6800785E15 /* PBXTargetDependency */,
@@ -1131,6 +1158,10 @@
 					ProjectRef = 828CFDC30DD1073D0069AC37 /* skia.xcodeproj */;
 				},
 				{
+					ProductGroup = 4D16386F0EBFA6F7008F024E /* Products */;
+					ProjectRef = 4D16386E0EBFA6F7008F024E /* sqlite.xcodeproj */;
+				},
+				{
 					ProductGroup = 7B8205930E770291008F45CF /* Products */;
 					ProjectRef = 7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */;
 				},
@@ -1151,6 +1182,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		4D1638760EBFA6F7008F024E /* libsqlite.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libsqlite.a;
+			remoteRef = 4D1638750EBFA6F7008F024E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		4DB687D40EAFE79200AB2128 /* libxslt.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1493,6 +1531,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4D1638780EBFA706008F024E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = sqlite;
+			targetProxy = 4D1638770EBFA706008F024E /* PBXContainerItemProxy */;
+		};
 		4DB687D60EAFE7B100AB2128 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = xslt;
