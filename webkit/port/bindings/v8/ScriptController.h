@@ -232,7 +232,7 @@ public:
 
     void clearWindowShell();
     void updateDocument();
-    void notifyDOMWindowReady() { m_proxy->domWindowReady(); }
+    void windowObjectAvailable() { m_proxy->domWindowReady(); }
 
     void pauseTimeouts(OwnPtr<PausedTimeouts>&);
     void resumeTimeouts(OwnPtr<PausedTimeouts>&);
