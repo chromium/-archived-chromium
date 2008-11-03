@@ -117,7 +117,7 @@
 		824653450DC1230B007C2BAA /* lock.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403250D92D2090006B936 /* lock.cc */; };
 		824653680DC12CEC007C2BAA /* condition_variable_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824653670DC12CEC007C2BAA /* condition_variable_posix.cc */; };
 		824653740DC12D0E007C2BAA /* shared_memory_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824653730DC12D0E007C2BAA /* shared_memory_posix.cc */; };
-		824654530DC25633007C2BAA /* time_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB81490D9B0F33009BA8DD /* time_posix.cc */; };
+		824654530DC25633007C2BAA /* time_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB81490D9B0F33009BA8DD /* time_mac.cc */; };
 		8246548C0DC259DB007C2BAA /* revocable_store.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254035E0D92D27C0006B936 /* revocable_store.cc */; };
 		824654910DC25A8C007C2BAA /* time.cc in Sources */ = {isa = PBXBuildFile; fileRef = 824654900DC25A8C007C2BAA /* time.cc */; };
 		824654A60DC25CD7007C2BAA /* pickle.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8254033E0D92D2210006B936 /* pickle.cc */; };
@@ -439,7 +439,7 @@
 		7BD8F7730E65E89800034DE9 /* string16.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string16.cc; sourceTree = "<group>"; };
 		7BD9E84E0DA447F800FC7A01 /* singleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = singleton.h; sourceTree = "<group>"; };
 		7BEB81100D9AD288009BA8DD /* prcpucfg_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = prcpucfg_mac.h; path = third_party/nspr/prcpucfg_mac.h; sourceTree = "<group>"; };
-		7BEB81490D9B0F33009BA8DD /* time_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = time_posix.cc; sourceTree = "<group>"; };
+		7BEB81490D9B0F33009BA8DD /* time_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = time_mac.cc; sourceTree = "<group>"; };
 		7BED30C60E59F63000A747DB /* executable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = executable.xcconfig; sourceTree = "<group>"; };
 		7BED30C70E59F63000A747DB /* staticlib.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = staticlib.xcconfig; sourceTree = "<group>"; };
 		7BEFC29C0D99832D000829AD /* lock_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lock_impl.h; sourceTree = "<group>"; };
@@ -1031,7 +1031,7 @@
 				825403840D92D2CF0006B936 /* time.h */,
 				82D094540E5B892600FEC05C /* time_format.cc */,
 				82D094530E5B892600FEC05C /* time_format.h */,
-				7BEB81490D9B0F33009BA8DD /* time_posix.cc */,
+				7BEB81490D9B0F33009BA8DD /* time_mac.cc */,
 				E4AFA4EF0E50F7B000201347 /* time_unittest.cc */,
 				825403850D92D2CF0006B936 /* timer.cc */,
 				825403860D92D2CF0006B936 /* timer.h */,
@@ -1413,7 +1413,7 @@
 				829E36730DC0FBAD00819EBF /* thread_local_storage_posix.cc in Sources */,
 				824654910DC25A8C007C2BAA /* time.cc in Sources */,
 				82D094550E5B892600FEC05C /* time_format.cc in Sources */,
-				824654530DC25633007C2BAA /* time_posix.cc in Sources */,
+				824654530DC25633007C2BAA /* time_mac.cc in Sources */,
 				E49357220E422A36008F8B09 /* timer.cc in Sources */,
 				7BF882800E71929B000BAF8A /* trace_event.cc in Sources */,
 				820EB5020E3A618B009668FC /* tracked.cc in Sources */,
