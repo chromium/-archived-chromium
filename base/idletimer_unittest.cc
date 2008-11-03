@@ -115,7 +115,8 @@ TEST_F(IdleTimerTest, NoRepeatFlipIdleOnce) {
   EXPECT_EQ(test_task.get_idle_counter(), 2);
 }
 
-TEST_F(IdleTimerTest, NoRepeatNotIdle) {
+// TODO(darin): http://crbug.com/3704
+TEST_F(IdleTimerTest, DISABLED_NoRepeatNotIdle) {
   // Create an IdleTimer, which should fire once after 100ms.
   // Create a Quit timer which will fire after 1s.
   // Create a timer to reset idle every 50ms.
@@ -173,7 +174,7 @@ TEST_F(IdleTimerTest, Repeat) {
   EXPECT_LE(test_task.get_idle_counter(), 10);
 }
 
-// TODO(darin):  http://code.google.com/p/chromium/issues/detail?id=3780
+// TODO(darin):  http://crbug.com/3780
 TEST_F(IdleTimerTest, DISABLED_RepeatIdleReset) {
   // Create an IdleTimer, which should fire repeatedly after 100ms.
   // Create a Quit timer which will fire after 1s.
@@ -203,7 +204,8 @@ TEST_F(IdleTimerTest, DISABLED_RepeatIdleReset) {
   EXPECT_LE(test_task.get_idle_counter(), 9);
 }
 
-TEST_F(IdleTimerTest, RepeatNotIdle) {
+// TODO(darin): http://crbug.com/3704
+TEST_F(IdleTimerTest, DISABLED_RepeatNotIdle) {
   // Create an IdleTimer, which should fire repeatedly after 100ms.
   // Create a Quit timer which will fire after 1s.
   // Create a timer to reset idle every 50ms.
