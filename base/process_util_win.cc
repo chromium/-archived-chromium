@@ -187,10 +187,9 @@ bool DidProcessCrash(ProcessHandle handle) {
   // Warning, this is not generic code; it heavily depends on the way
   // the rest of the code kills a process.
   
-  if (exitcode == 0 ||              // Normal termination.
-      exitcode == 1 ||              // Killed by task manager.
-      exitcode == 14 ||             // Killed because of a bad message.
-      exitcode == 16 ||             // Killed by hung detector (see ResultCodes)
+  if (exitcode == PROCESS_END_NORMAL_TERMINATON ||
+      exitcode == PROCESS_END_KILLED_BY_USER ||
+      exitcode == PROCESS_END_PROCESS_WAS_HUNG ||
       exitcode == 0xC0000354 ||     // STATUS_DEBUGGER_INACTIVE.
       exitcode == 0xC000013A ||     // Control-C/end session.
       exitcode == 0x40010004) {     // Debugger terminated process/end session.

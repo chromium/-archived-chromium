@@ -46,13 +46,22 @@ struct IoCounters {
 
 namespace process_util {
 
+// A minimalistic but hopefully cross-platform set of exit codes.
+// Do not change the enumeration values or you will break third-party
+// installers.
+enum {
+  PROCESS_END_NORMAL_TERMINATON = 0,
+  PROCESS_END_KILLED_BY_USER    = 1,
+  PROCESS_END_PROCESS_WAS_HUNG  = 2
+};
+
 // Returns the id of the current process.
 int GetCurrentProcId();
 
 // Returns the ProcessHandle of the current process.
 ProcessHandle GetCurrentProcessHandle();
 
-// Returns the unique ID for the specified process.  This is functionally the
+// Returns the unique ID for the specified process. This is functionally the
 // same as Windows' GetProcessId(), but works on versions of Windows before
 // Win XP SP1 as well.
 int GetProcId(ProcessHandle process);

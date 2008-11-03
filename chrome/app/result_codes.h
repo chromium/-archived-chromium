@@ -5,6 +5,8 @@
 #ifndef CHROME_APP_RESULT_CODES_H__
 #define CHROME_APP_RESULT_CODES_H__
 
+#include "base/process_util.h"
+
 // This file consolidates all the return codes for the browser and renderer
 // process. The return code is the value that:
 // a) is returned by main() or winmain(), or
@@ -18,7 +20,9 @@
 class ResultCodes {
  public:
   enum ExitCode {
-    NORMAL_EXIT = 0,            // Normal termination. Keep it *always* zero.
+    NORMAL_EXIT = process_util::PROCESS_END_NORMAL_TERMINATON,
+    TASKMAN_KILL = process_util::PROCESS_END_KILLED_BY_USER,
+    HUNG = process_util::PROCESS_END_PROCESS_WAS_HUNG,
     INVALID_CMDLINE_URL,        // An invalid command line url was given.
     SBOX_INIT_FAILED,           // The sandbox could not be initialized.
     GOOGLE_UPDATE_INIT_FAILED,  // The Google Update client stub init failed.
@@ -35,7 +39,6 @@ class ResultCodes {
     UNSUPPORTED_PARAM,          // Command line parameter is not supported.
     KILLED_BAD_MESSAGE,         // A bad message caused the process termination.
     IMPORTER_CANCEL,            // The user canceled the browser import.
-    HUNG,                       // Browser was hung and killed.
     IMPORTER_HUNG,              // Browser import hung and was killed.
     EXIT_LAST_CODE              // Last return code (keep it last).
   };
