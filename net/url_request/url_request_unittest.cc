@@ -331,6 +331,7 @@ TEST(URLRequestTest, PostFileTest) {
 
     MessageLoop::current()->Run();
 
+#if defined(OS_WIN)
     HANDLE file = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
                              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     ASSERT_NE(INVALID_HANDLE_VALUE, file);
@@ -352,6 +353,9 @@ TEST(URLRequestTest, PostFileTest) {
 
     ASSERT_EQ(size, d.bytes_received());
     EXPECT_EQ(0, memcmp(d.data_received().c_str(), buf.get(), size));
+#else
+    NOTIMPLEMENTED();
+#endif
   }
 #ifndef NDEBUG
   DCHECK_EQ(url_request_metrics.object_count,0);
@@ -696,7 +700,7 @@ TEST(URLRequestTest, VaryHeader) {
 
   // Make sure that the response time of a future response will be in the
   // future!
-  Sleep(10);
+  PlatformThread::Sleep(10);
 
   // expect a cache hit
   {
@@ -748,7 +752,7 @@ TEST(URLRequestTest, BasicAuth) {
 
   // Let some time pass so we can ensure that a future response will have a
   // response time value in the future.
-  Sleep(10 /* milliseconds */);
+  PlatformThread::Sleep(10 /* milliseconds */);
 
   // repeat request with end-to-end validation.  since auth-basic results in a
   // cachable page, we expect this test to result in a 304.  in which case, the

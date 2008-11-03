@@ -119,6 +119,11 @@ if env['PLATFORM'] == 'darwin':
       '../base/platform_test_mac$OBJSUFFIX',
   ])
 
+if env['PLATFORM'] == 'posix':
+  input_files.extend([
+      'url_request/url_request_unittest.cc',
+  ])
+
 if env['PLATFORM'] in ('darwin', 'posix'):
   input_files.extend([
       'base/ssl_client_socket_unittest.cc',

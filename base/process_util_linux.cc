@@ -40,7 +40,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
 
   int pid = fork();
   if (pid == 0) {
-    execv(argv_copy[0], argv_copy);
+    execvp(argv_copy[0], argv_copy);
   } else if (pid < 0) {
     retval = false;
   } else {
