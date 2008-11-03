@@ -1863,6 +1863,8 @@ void V8Proxy::initContextIfNeeded()
   // Setup security origin and security token
   GenerateSecurityToken(context);
 
+  m_frame->loader()->dispatchWindowObjectAvailable();
+
   if (ScriptController::RecordPlaybackMode()) {
     // Inject code which overrides a few common JS functions for implementing
     // randomness.  In order to implement effective record & playback of
