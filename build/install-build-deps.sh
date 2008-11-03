@@ -1,5 +1,8 @@
 #!/bin/sh
 # Script to install everything needed to build chromium (well, ideally, anyway)
+# See http://code.google.com/p/chromium/wiki/LinuxBuildInstructions
+# and http://code.google.com/p/chromium/wiki/LinuxBuild64Bit
+set -ex
 
 download() {
   dir=$1
@@ -23,11 +26,15 @@ download_deb() {
 }
 
 install_hardy() {
-  sudo apt-get install g++ libnss3-dev libgtk2.0-dev git-svn bison gperf flex libnspr4 libsqlite3
+  sudo apt-get install subversion pkg-config python perl g++ g++-multilib \
+       bison flex gperf libnss3-dev libglib2.0-dev libgtk2.0-dev \
+       libnspr4-0d libnspr4-dev
 }
 
 install_hardy_64() {
-  sudo apt-get install g++ libnss3-dev libgtk2.0-dev git-svn bison gperf flex
+  sudo apt-get install subversion pkg-config python perl g++ g++-multilib \
+       bison flex gperf libnss3-dev libglib2.0-dev libgtk2.0-dev \
+       libnspr4-0d libnspr4-dev
 
   # The packages libnspr4, libnss3, and libsqlite don't have 32
   # bit compabibility versions on 64 bit ubuntu hardy,
@@ -44,7 +51,7 @@ install_hardy_64() {
   download_deb pool/main/n/nss libnss3-1d_3.12.0~beta3-0ubuntu1_i386.deb
   download_deb pool/main/s/sqlite3 libsqlite3-0_3.4.2-2_i386.deb
 
-  sudo mv usr/lib/* /usr/lib32/
+  sudo rsync -v -a usr/lib/* /usr/lib32/
   sudo ldconfig
 
   # Make missing symlinks as described by 
@@ -52,14 +59,22 @@ install_hardy_64() {
   # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=492453 
   # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=497087
   cd /usr/lib32
-  for lib in gdk-x11-2.0 atk-1.0 gdk_pixbuf-2.0 pangocairo-1.0 pango-1.0 \
-	     gobject-2.0 gmodule-2.0 glib-2.0 gtk-x11-2.0
-  do
+  for lib in gdk-x11-2.0 atk-1.0 gdk_pixbuf-2.0 \
+           pangocairo-1.0 pango-1.0 pangoft2-1.0 \
+           gobject-2.0 gmodule-2.0 glib-2.0 gtk-x11-2.0; do
     sudo ln -s -f lib$lib.so.0 lib$lib.so
+  done
+  for lib in z fontconfig
+  do
+    sudo ln -s -f lib$lib.so.1 lib$lib.so
   done
   for lib in cairo
   do
     sudo ln -s -f lib$lib.so.2 lib$lib.so
+  done
+  for lib in freetype
+  do
+    sudo ln -s -f lib$lib.so.6 lib$lib.so
   done
   for lib in plds4 plc4 nspr4
   do
@@ -72,10 +87,10 @@ install_hardy_64() {
   done
 }
 
-if grep -q "Ubuntu 8.04" /etc/issue && test `uname -m` = i386
+if grep -q "Ubuntu 8.04" /etc/issue && test `uname -m` = i686
 then
   install_hardy
-elsif grep -q "Ubuntu 8.04" /etc/issue && test `uname -m` = x86_64
+elif grep -q "Ubuntu 8.04" /etc/issue && test `uname -m` = x86_64
 then
   install_hardy_64
 else
