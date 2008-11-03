@@ -64,6 +64,8 @@ class ObserverListThreadSafe :
   void AddObserver(ObserverType* obs) {
     ObserverList<ObserverType>* list = NULL;
     MessageLoop* loop = MessageLoop::current();
+    if (!loop)
+      return;  // Some unittests may access this without a message loop.
     {
       AutoLock lock(list_lock_);
       if (observer_lists_.find(loop) == observer_lists_.end())
