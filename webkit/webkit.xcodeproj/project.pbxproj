@@ -40,6 +40,13 @@
 /* Begin PBXBuildFile section */
 		4D11C4E10E9ABEA900EF7617 /* ExceptionContextV8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D11C4D90E9ABE9200EF7617 /* ExceptionContextV8.cpp */; };
 		4D11C5520E9AC23100EF7617 /* RenderThemeMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E49E50DE0E65E33200AD47F7 /* RenderThemeMac.mm */; };
+		4D2A63EB0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A63E90EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp */; };
+		4D2A64400EBBC0A700B55603 /* V8HTMLVideoElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A643A0EBBC0A700B55603 /* V8HTMLVideoElement.cpp */; };
+		4D2A64410EBBC0A700B55603 /* V8MediaError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A643C0EBBC0A700B55603 /* V8MediaError.cpp */; };
+		4D2A64420EBBC0A700B55603 /* V8TimeRanges.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A643E0EBBC0A700B55603 /* V8TimeRanges.cpp */; };
+		4D2A64490EBBC16700B55603 /* V8HTMLAudioElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A64430EBBC16700B55603 /* V8HTMLAudioElement.cpp */; };
+		4D2A644A0EBBC16700B55603 /* V8HTMLMediaElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A64450EBBC16700B55603 /* V8HTMLMediaElement.cpp */; };
+		4D2A644B0EBBC16700B55603 /* V8HTMLSourceElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D2A64470EBBC16700B55603 /* V8HTMLSourceElement.cpp */; };
 		4D329F8C0EB908A40041FB7E /* V8MessageChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D329F8A0EB908A40041FB7E /* V8MessageChannel.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
@@ -1390,6 +1397,20 @@
 /* Begin PBXFileReference section */
 		046192AA0EA5476500FB37B0 /* BitmapImageSingleFrameSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitmapImageSingleFrameSkia.h; sourceTree = "<group>"; };
 		4D11C4D90E9ABE9200EF7617 /* ExceptionContextV8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExceptionContextV8.cpp; sourceTree = "<group>"; };
+		4D2A63E90EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MediaPlayerPrivateChromium.cpp; sourceTree = "<group>"; };
+		4D2A63EA0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MediaPlayerPrivateChromium.h; sourceTree = "<group>"; };
+		4D2A643A0EBBC0A700B55603 /* V8HTMLVideoElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLVideoElement.cpp; sourceTree = "<group>"; };
+		4D2A643B0EBBC0A700B55603 /* V8HTMLVideoElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8HTMLVideoElement.h; sourceTree = "<group>"; };
+		4D2A643C0EBBC0A700B55603 /* V8MediaError.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8MediaError.cpp; sourceTree = "<group>"; };
+		4D2A643D0EBBC0A700B55603 /* V8MediaError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8MediaError.h; sourceTree = "<group>"; };
+		4D2A643E0EBBC0A700B55603 /* V8TimeRanges.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8TimeRanges.cpp; sourceTree = "<group>"; };
+		4D2A643F0EBBC0A700B55603 /* V8TimeRanges.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8TimeRanges.h; sourceTree = "<group>"; };
+		4D2A64430EBBC16700B55603 /* V8HTMLAudioElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLAudioElement.cpp; sourceTree = "<group>"; };
+		4D2A64440EBBC16700B55603 /* V8HTMLAudioElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8HTMLAudioElement.h; sourceTree = "<group>"; };
+		4D2A64450EBBC16700B55603 /* V8HTMLMediaElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLMediaElement.cpp; sourceTree = "<group>"; };
+		4D2A64460EBBC16700B55603 /* V8HTMLMediaElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8HTMLMediaElement.h; sourceTree = "<group>"; };
+		4D2A64470EBBC16700B55603 /* V8HTMLSourceElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8HTMLSourceElement.cpp; sourceTree = "<group>"; };
+		4D2A64480EBBC16700B55603 /* V8HTMLSourceElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8HTMLSourceElement.h; sourceTree = "<group>"; };
 		4D329F8A0EB908A40041FB7E /* V8MessageChannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = V8MessageChannel.cpp; sourceTree = "<group>"; };
 		4D329F8B0EB908A40041FB7E /* V8MessageChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = V8MessageChannel.h; sourceTree = "<group>"; };
 		4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphicsContextStub.cpp; sourceTree = "<group>"; };
@@ -4185,6 +4206,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4D2A63E80EBBBEC700B55603 /* chromium */ = {
+			isa = PBXGroup;
+			children = (
+				4D2A63E90EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp */,
+				4D2A63EA0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.h */,
+			);
+			path = chromium;
+			sourceTree = "<group>";
+		};
 		4DB044090EB161B600A5633C /* mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -5778,6 +5808,7 @@
 		7B5E95150D7F3E94001ECF42 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				B5C180A00E958E85006EAF87 /* style */,
 				ABBD24950EB7BFC500BEC658 /* Length.cpp */,
 				ABBD24960EB7BFC500BEC658 /* RenderScrollbar.cpp */,
 				ABBD24970EB7BFC500BEC658 /* RenderScrollbar.h */,
@@ -5786,7 +5817,6 @@
 				ABBD249A0EB7BFC500BEC658 /* RenderScrollbarTheme.cpp */,
 				ABBD249B0EB7BFC500BEC658 /* RenderScrollbarTheme.h */,
 				ABBD249C0EB7BFC500BEC658 /* RenderTheme.h */,
-				B5C180A00E958E85006EAF87 /* style */,
 				7B5E95160D7F3E94001ECF42 /* AutoTableLayout.cpp */,
 				7B5E95170D7F3E94001ECF42 /* AutoTableLayout.h */,
 				B5C180950E958D23006EAF87 /* bidi.cpp */,
@@ -6626,6 +6656,8 @@
 				7B0091920DAFEFE300F72082 /* V8HTMLAppletElement.h */,
 				7B0091930DAFEFE300F72082 /* V8HTMLAreaElement.cpp */,
 				7B0091940DAFEFE300F72082 /* V8HTMLAreaElement.h */,
+				4D2A64430EBBC16700B55603 /* V8HTMLAudioElement.cpp */,
+				4D2A64440EBBC16700B55603 /* V8HTMLAudioElement.h */,
 				7B0091970DAFEFE300F72082 /* V8HTMLBaseElement.cpp */,
 				7B0091980DAFEFE300F72082 /* V8HTMLBaseElement.h */,
 				7B0091990DAFEFE300F72082 /* V8HTMLBaseFontElement.cpp */,
@@ -6692,6 +6724,8 @@
 				7B0091D60DAFEFE300F72082 /* V8HTMLMapElement.h */,
 				7B0091D70DAFEFE300F72082 /* V8HTMLMarqueeElement.cpp */,
 				7B0091D80DAFEFE300F72082 /* V8HTMLMarqueeElement.h */,
+				4D2A64450EBBC16700B55603 /* V8HTMLMediaElement.cpp */,
+				4D2A64460EBBC16700B55603 /* V8HTMLMediaElement.h */,
 				7B0091DB0DAFEFE300F72082 /* V8HTMLMenuElement.cpp */,
 				7B0091DC0DAFEFE300F72082 /* V8HTMLMenuElement.h */,
 				7B0091DD0DAFEFE300F72082 /* V8HTMLMetaElement.cpp */,
@@ -6720,6 +6754,8 @@
 				7B0091F40DAFEFE300F72082 /* V8HTMLScriptElement.h */,
 				7B0091F50DAFEFE300F72082 /* V8HTMLSelectElement.cpp */,
 				7B0091F60DAFEFE300F72082 /* V8HTMLSelectElement.h */,
+				4D2A64470EBBC16700B55603 /* V8HTMLSourceElement.cpp */,
+				4D2A64480EBBC16700B55603 /* V8HTMLSourceElement.h */,
 				7B0091FB0DAFEFE300F72082 /* V8HTMLStyleElement.cpp */,
 				7B0091FC0DAFEFE300F72082 /* V8HTMLStyleElement.h */,
 				7B0091FD0DAFEFE300F72082 /* V8HTMLTableCaptionElement.cpp */,
@@ -6740,6 +6776,8 @@
 				7B00920C0DAFEFE300F72082 /* V8HTMLTitleElement.h */,
 				7B00920D0DAFEFE300F72082 /* V8HTMLUListElement.cpp */,
 				7B00920E0DAFEFE300F72082 /* V8HTMLUListElement.h */,
+				4D2A643A0EBBC0A700B55603 /* V8HTMLVideoElement.cpp */,
+				4D2A643B0EBBC0A700B55603 /* V8HTMLVideoElement.h */,
 				4DB7EF860E9B9F6300C66CE0 /* V8ImageData.cpp */,
 				4DB7EF870E9B9F6300C66CE0 /* V8ImageData.h */,
 				7B0092110DAFEFE300F72082 /* V8InspectorController.cpp */,
@@ -6748,6 +6786,8 @@
 				7B0092140DAFEFE400F72082 /* V8KeyboardEvent.h */,
 				7B0092150DAFEFE400F72082 /* V8Location.cpp */,
 				7B0092160DAFEFE400F72082 /* V8Location.h */,
+				4D2A643C0EBBC0A700B55603 /* V8MediaError.cpp */,
+				4D2A643D0EBBC0A700B55603 /* V8MediaError.h */,
 				7B0092190DAFEFE400F72082 /* V8MediaList.cpp */,
 				7B00921A0DAFEFE400F72082 /* V8MediaList.h */,
 				4D329F8A0EB908A40041FB7E /* V8MessageChannel.cpp */,
@@ -7076,6 +7116,8 @@
 				7B0093600DAFEFE500F72082 /* V8TextEvent.h */,
 				4DB7EF9D0E9B9FBE00C66CE0 /* V8TextMetrics.cpp */,
 				4DB7EF9E0E9B9FBE00C66CE0 /* V8TextMetrics.h */,
+				4D2A643E0EBBC0A700B55603 /* V8TimeRanges.cpp */,
+				4D2A643F0EBBC0A700B55603 /* V8TimeRanges.h */,
 				7B0093630DAFEFE500F72082 /* V8TreeWalker.cpp */,
 				7B0093640DAFEFE500F72082 /* V8TreeWalker.h */,
 				7B0093650DAFEFE500F72082 /* V8UIEvent.cpp */,
@@ -7178,6 +7220,7 @@
 		822B1BE70DC77910005C9A96 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
+				4D2A63E80EBBBEC700B55603 /* chromium */,
 				4DB044090EB161B600A5633C /* mac */,
 				046192AA0EA5476500FB37B0 /* BitmapImageSingleFrameSkia.h */,
 				82C2604A0DCB9AC1005CFE91 /* ImageSourceSkia.cpp */,
@@ -7951,6 +7994,7 @@
 				7B0093D10DAFEFE600F72082 /* V8HTMLAnchorElement.cpp in Sources */,
 				7B0093D30DAFEFE600F72082 /* V8HTMLAppletElement.cpp in Sources */,
 				7B0093D50DAFEFE600F72082 /* V8HTMLAreaElement.cpp in Sources */,
+				4D2A64490EBBC16700B55603 /* V8HTMLAudioElement.cpp in Sources */,
 				7B0093D90DAFEFE600F72082 /* V8HTMLBaseElement.cpp in Sources */,
 				7B0093DB0DAFEFE600F72082 /* V8HTMLBaseFontElement.cpp in Sources */,
 				7B0093DD0DAFEFE600F72082 /* V8HTMLBlockquoteElement.cpp in Sources */,
@@ -7984,6 +8028,7 @@
 				7B0094150DAFEFE600F72082 /* V8HTMLLinkElement.cpp in Sources */,
 				7B0094170DAFEFE600F72082 /* V8HTMLMapElement.cpp in Sources */,
 				7B0094190DAFEFE600F72082 /* V8HTMLMarqueeElement.cpp in Sources */,
+				4D2A644A0EBBC16700B55603 /* V8HTMLMediaElement.cpp in Sources */,
 				7B00941D0DAFEFE600F72082 /* V8HTMLMenuElement.cpp in Sources */,
 				7B00941F0DAFEFE600F72082 /* V8HTMLMetaElement.cpp in Sources */,
 				7B0094210DAFEFE600F72082 /* V8HTMLModElement.cpp in Sources */,
@@ -7998,6 +8043,7 @@
 				7B0094330DAFEFE600F72082 /* V8HTMLQuoteElement.cpp in Sources */,
 				7B0094350DAFEFE600F72082 /* V8HTMLScriptElement.cpp in Sources */,
 				7B0094370DAFEFE600F72082 /* V8HTMLSelectElement.cpp in Sources */,
+				4D2A644B0EBBC16700B55603 /* V8HTMLSourceElement.cpp in Sources */,
 				7B00943D0DAFEFE600F72082 /* V8HTMLStyleElement.cpp in Sources */,
 				7B00943F0DAFEFE600F72082 /* V8HTMLTableCaptionElement.cpp in Sources */,
 				7B0094410DAFEFE600F72082 /* V8HTMLTableCellElement.cpp in Sources */,
@@ -8008,10 +8054,12 @@
 				7B00944B0DAFEFE600F72082 /* V8HTMLTextAreaElement.cpp in Sources */,
 				7B00944D0DAFEFE600F72082 /* V8HTMLTitleElement.cpp in Sources */,
 				7B00944F0DAFEFE600F72082 /* V8HTMLUListElement.cpp in Sources */,
+				4D2A64400EBBC0A700B55603 /* V8HTMLVideoElement.cpp in Sources */,
 				4DB7EF950E9B9F6300C66CE0 /* V8ImageData.cpp in Sources */,
 				7B0094530DAFEFE600F72082 /* V8InspectorController.cpp in Sources */,
 				7B0094550DAFEFE600F72082 /* V8KeyboardEvent.cpp in Sources */,
 				7B0094570DAFEFE600F72082 /* V8Location.cpp in Sources */,
+				4D2A64410EBBC0A700B55603 /* V8MediaError.cpp in Sources */,
 				7B00945B0DAFEFE600F72082 /* V8MediaList.cpp in Sources */,
 				4D329F8C0EB908A40041FB7E /* V8MessageChannel.cpp in Sources */,
 				7B00945D0DAFEFE600F72082 /* V8MessageEvent.cpp in Sources */,
@@ -8153,6 +8201,7 @@
 				7B00959F0DAFEFE600F72082 /* V8Text.cpp in Sources */,
 				7B0095A10DAFEFE600F72082 /* V8TextEvent.cpp in Sources */,
 				4DB7EFA20E9B9FBE00C66CE0 /* V8TextMetrics.cpp in Sources */,
+				4D2A64420EBBC0A700B55603 /* V8TimeRanges.cpp in Sources */,
 				7B0095A50DAFEFE600F72082 /* V8TreeWalker.cpp in Sources */,
 				7B0095A70DAFEFE600F72082 /* V8UIEvent.cpp in Sources */,
 				7B0095A90DAFEFE600F72082 /* V8UndetectableHTMLCollection.cpp in Sources */,
@@ -9074,6 +9123,7 @@
 				E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */,
 				7B2B0A630E3143EC00D4C6B7 /* JPEGImageDecoder.cpp in Sources */,
 				E473F64B0EADFFF8006C2098 /* Language.cpp in Sources */,
+				4D2A63EB0EBBBEDF00B55603 /* MediaPlayerPrivateChromium.cpp in Sources */,
 				E473F64E0EAE0005006C2098 /* MimeTypeRegistryChromium.cpp in Sources */,
 				E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */,
 				93BF8E9C0EA6B0F30030F05C /* NetworkStateNotifierChromium.cpp in Sources */,
@@ -9271,7 +9321,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 HAVE_ACCESSIBILITY=0";
+				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 HAVE_ACCESSIBILITY=0";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",
@@ -9398,7 +9448,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 HAVE_ACCESSIBILITY=0";
+				FEATURE_DEFINES = "ENABLE_DATABASE=0 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 HAVE_ACCESSIBILITY=0";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",
