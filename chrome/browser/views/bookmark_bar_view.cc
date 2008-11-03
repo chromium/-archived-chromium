@@ -57,7 +57,7 @@ using views::View;
 static const int kTopMargin = 2;
 static const int kBottomMargin = 3;
 static const int kLeftMargin = 1;
-static const int kRightMargin = 0;
+static const int kRightMargin = 1;
 
 // Preferred height of the bookmarks bar.
 static const int kBarHeight = 29;
@@ -835,14 +835,14 @@ void BookmarkBarView::Layout() {
       (GetBookmarkButtonCount() == 0 ||
        GetChildViewAt(GetBookmarkButtonCount() - 1)->IsVisible());
 
-  // Layout the recently bookmarked button.
+  // Layout the right side buttons.
   x = max_x + kButtonPadding;
 
   // The overflow button.
   overflow_button_->SetBounds(x, y, overflow_pref.width(), height);
   overflow_button_->SetVisible(!all_visible);
 
-  x += overflow_pref.height();
+  x += overflow_pref.width();
 
   // Separator.
   bookmarks_separator_view_->SetBounds(x,
@@ -852,6 +852,7 @@ void BookmarkBarView::Layout() {
                                        separator_margin);
   x += bookmarks_separator_pref.width();
 
+  // The other bookmarks button.
   other_bookmarked_button_->SetBounds(x, y, other_bookmarked_pref.width(),
                                       height);
   x += other_bookmarked_pref.width() + kButtonPadding;
