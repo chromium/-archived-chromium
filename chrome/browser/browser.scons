@@ -6,54 +6,43 @@ Import('env')
 
 env = env.Clone()
 
+env.SConscript([
+    '$CHROME_DIR/third_party/hunspell/using_hunspell.scons',
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$GOOGLE_UPDATE_DIR/using_google_update.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$NPAPI_DIR/using_npapi.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+], {'env':env})
+
+# TODO(sgk):  convert into a using_*.scons pattern when we update WebKit.
+env.Append(
+    CPPPATH = [
+        '$WEBKIT_DIR/build/localized_strings',
+    ],
+)
 
 env.Prepend(
     CPPPATH = [
         '$CHROME_DIR/app/resources',
-        #'$OBJ_ROOT/google_update',
-        '/chrome/tools/build/win',
+        '$CHROME_DIR/app',
         '$CHROME_SRC_DIR',
     ],
     CPPDEFINES = [
-        'U_STATIC_IMPLEMENTATION',
-        'USE_HUNSPELL',
-        'HUNSPELL_CHROME_CLIENT',
-        'LIBXML_STATIC',
-        'PNG_USER_CONFIG',
-        'CHROME_PNG_WRITE_SUPPORT',
         'GOOGLE_CHROME_BUILD',
     ],
 )
 
 if env['PLATFORM'] == 'win32':
   env.Prepend(
-      CCFLAGS = [
-          '/TP',
+      CPPPATH = [
+          '$CHROME_DIR/tools/build/win',
       ],
   )
-
-env.Append(
-    CPPPATH = [
-        '$GTEST_DIR/include',
-
-        '$GOOGLE_UPDATE_DIR',
-        '$CHROME_DIR/third_party/hunspell/src/hunspell',
-        '$CHROME_DIR/third_party/wtl/include',
-        '$NPAPI_DIR',
-        '$LIBXML_DIR/DerivedSources/include',
-        '$LIBXML_DIR/include',
-        '$ICU38_DIR/public/common',
-        '$ICU38_DIR/public/i18n',
-        '$CHROME_DIR/app',
-        '$WEBKIT_DIR/build/localized_strings',
-        '$ZLIB_DIR',
-        '$SKIA_DIR/include',
-        '$SKIA_DIR/include/corecg',
-        '$SKIA_DIR/platform',
-        '$LIBPNG_DIR',
-        '$BREAKPAD_DIR/src',
-    ],
-)
 
 input_files = []
 
@@ -310,8 +299,3 @@ if env['PLATFORM'] == 'win32':
 if env['PLATFORM'] in ('posix', 'win32'):
   # TODO: This should work for all platforms.
   env.ChromeStaticLibrary('browser', input_files)
-
-
-if env['PLATFORM'] == 'win32':
-  # TODO: Port this.
-  SConscript('debugger/SConscript', exports=['env'])

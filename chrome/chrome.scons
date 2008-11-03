@@ -11,6 +11,7 @@ Import('env')
 sconscript_files = [
     'SConscript',
 
+    'browser/browser.scons',
     'test/unit/unit_tests.scons',
 ]
 

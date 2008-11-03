@@ -399,7 +399,6 @@ if env['PLATFORM'] == 'win32':
 env.SConscript(test_sconscript_files, exports=['env_test'])
 
 sconscript_files = [
-    'browser/SConscript',
     'common/SConscript',
     'plugin/SConscript',
     'renderer/SConscript',
@@ -413,6 +412,7 @@ if env['PLATFORM'] == 'win32':
   sconscript_files.extend([
       'app/resources/SConscript',
       'app/theme/SConscript',
+      'browser/debugger/SConscript',
       'browser/views/SConscript',
       'installer/mini_installer/SConscript',
       'installer/setup/SConscript',
