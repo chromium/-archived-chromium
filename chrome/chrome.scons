@@ -21,4 +21,12 @@ sconscript_files = [
     'renderer/renderer.scons',
 ]
 
+if env['PLATFORM'] != 'win32':
+  remove_files = [
+      'browser/debugger/debugger.scons',
+      'test/interactive_ui/interactive_ui_tests.scons',
+  ]
+  for remove in remove_files:
+    sconscript_files.remove(remove)
+
 SConscript(sconscript_files, exports=['env'])
