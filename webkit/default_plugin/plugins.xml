@@ -1,0 +1,653 @@
+<plugins>
+  <plugin>
+  	<mime>application/x-java-applet</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+   </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+   </plugin>
+
+  <plugin>
+  	<mime>application/x-java-vm</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+   </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.1.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+   </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.1.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+   </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+   </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.2</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.2</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.1.3</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.1.3</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.1.2</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.1.2</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.3</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.3</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.2.2</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.2.2</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.2.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.2.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.3.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.3.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.4</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.4</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.4.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.4.1</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.4.2</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.4.2</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.5</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.5</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-applet,version=1.6</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-java-bean,version=1.6</mime>
+	  <lang>en-us</lang>
+  	<name>Java(TM) Platform SE6 U10 (Beta)</name>
+  	<url>http://javadl.sun.com/webapps/download/GetFile/1.6.0_10-b33/windows-i586/jre-6u10-windows-i586-p-iftw.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>audio/x-pn-realaudio-plugin</mime>
+	  <lang>en-us</lang>
+  	<name>Real player</name>
+  	<url>http://software-dl.real.com/free/windows/installer/R41R02F/RealPlayer11GOLD.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>audio/x-pn-realaudio</mime>
+	  <lang>en-us</lang>
+  	<name>Real player</name>
+  	<url>http://software-dl.real.com/free/windows/installer/R41R02F/RealPlayer11GOLD.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>audio/vnd.rn-realaudio</mime>
+	  <lang>en-us</lang>
+  	<name>Real player</name>
+  	<url>http://software-dl.real.com/free/windows/installer/R41R02F/RealPlayer11GOLD.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>video/vnd.rn-realvideo</mime>
+	  <lang>en-us</lang>
+  	<name>Real player</name>
+  	<url>http://software-dl.real.com/free/windows/installer/R41R02F/RealPlayer11GOLD.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-shockwave-flash</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe Flash Movie</name>
+  	<url>http://fpdownload.macromedia.com/get/flashplayer/current/install_flash_player.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/futuresplash</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe FutureSpash Movie</name>
+  	<url>http://fpdownload.macromedia.com/get/flashplayer/current/install_flash_player.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/x-director</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe Shockwave Movie</name>
+  	<url>http://fpdownload.macromedia.com/get/shockwave/default/english/win95nt/10.2.0.023/Shockwave_Installer_Slim.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/pdf</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe Acrobat</name>
+  	<url>http://ardownload.adobe.com/pub/adobe/reader/win/8.x/8.1.2/enu/AdbeRdr812_en_US.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/vnd.adobe.x-mars</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe Acrobat</name>
+  	<url>http://ardownload.adobe.com/pub/adobe/reader/win/8.x/8.1.2/enu/AdbeRdr812_en_US.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/vnd.fdf</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe Acrobat</name>
+  	<url>http://ardownload.adobe.com/pub/adobe/reader/win/8.x/8.1.2/enu/AdbeRdr812_en_US.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/vnd.adobe.xfdf</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe Acrobat</name>
+  	<url>http://ardownload.adobe.com/pub/adobe/reader/win/8.x/8.1.2/enu/AdbeRdr812_en_US.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/vnd.adobe.xdp+xml</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe Acrobat</name>
+  	<url>http://ardownload.adobe.com/pub/adobe/reader/win/8.x/8.1.2/enu/AdbeRdr812_en_US.exe</url>
+  </plugin>
+
+  <plugin>
+  	<mime>application/vnd.adobe.xfd+xml</mime>
+	  <lang>en-us</lang>
+  	<name>Adobe Acrobat</name>
+  	<url>http://ardownload.adobe.com/pub/adobe/reader/win/8.x/8.1.2/enu/AdbeRdr812_en_US.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/quicktime</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>application/sdp</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>application/x-sdp</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>application/x-rtsp</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/flc</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-wav</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/wav</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/aiff</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-aiff</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/basic</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/mid</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-midi</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/midi</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/vnd.qcelp</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-gsm</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/amr</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/aac</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-aac</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-caf</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/ac3</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-ac3</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/x-mpeg</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/mpeg</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/mpeg</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-mpeg</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/3ggp</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/3ggp</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/3ggp2</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/3ggp2</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/sd-video</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>application/x-mpeg</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/mp4</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/mp4</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-m4a</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-m4p</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>audio/x-m4b</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>video/x-m4v</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/x-macpaint</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/pict</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/x-pict</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/png</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/x-png</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/x-quicktime</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/x-sgi</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/x-targa</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/jp2</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/jpeg2000</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/jpeg2000-image</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+  <plugin>
+	  <mime>image/x-jpeg2000-image</mime>
+	  <lang>en-us</lang>
+	  <name>Quicktime player</name>
+	  <url>http://wsidecar.apple.com/cgi-bin/nph-reg3rdpty2.pl/product=19502&amp;cat=59&amp;platform=osx&amp;method=sa/QuickTimeInstaller.exe</url>
+  </plugin>
+
+</plugins>
