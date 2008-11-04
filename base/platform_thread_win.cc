@@ -4,8 +4,6 @@
 
 #include "base/platform_thread.h"
 
-#include <process.h>
-
 #include "base/logging.h"
 #include "base/win_util.h"
 
@@ -22,7 +20,7 @@ typedef struct tagTHREADNAME_INFO {
   DWORD dwFlags;  // Reserved for future use, must be zero.
 } THREADNAME_INFO;
 
-unsigned __stdcall ThreadFunc(void* closure) {
+DWORD __stdcall ThreadFunc(void* closure) {
   PlatformThread::Delegate* delegate =
       static_cast<PlatformThread::Delegate*>(closure);
   delegate->ThreadMain(); 
@@ -76,8 +74,13 @@ bool PlatformThread::Create(size_t stack_size, Delegate* delegate,
     stack_size = 0;
   }
 
-  *thread_handle = reinterpret_cast<PlatformThreadHandle>(_beginthreadex(
-      NULL, stack_size, ThreadFunc, delegate, flags, NULL));
+  // Using CreateThread here vs _beginthreadex makes thread creation a bit
+  // faster and doesn't require the loader lock to be available.  Our code will
+  // have to work running on CreateThread() threads anyway, since we run code
+  // on the Windows thread pool, etc.  For some background on the difference:
+  //   http://www.microsoft.com/msj/1099/win32/win321099.aspx
+  *thread_handle = CreateThread(
+      NULL, stack_size, ThreadFunc, delegate, flags, NULL);
   return *thread_handle != NULL;
 }
 
@@ -92,4 +95,3 @@ void PlatformThread::Join(PlatformThreadHandle thread_handle) {
 
   CloseHandle(thread_handle);
 }
-
