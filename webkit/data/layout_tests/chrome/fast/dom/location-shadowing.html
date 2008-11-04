@@ -1,0 +1,49 @@
+<html>
+<body onload="test()">
+<script>
+// This tests that the location property on the window object 
+// cannot be overwritten by using accessors defined using 
+// __defineGetter__ and __defineSetter__ and that functions 
+//on location objects are read-only.
+
+if (window.layoutTestController) {
+  layoutTestController.dumpAsText();
+}
+
+function check(passed) {
+  if (passed) {
+    document.write("PASS<br>");
+  } else {
+    document.write("FAIL<br>");
+  }
+}
+
+var locationFunctions = ["reload", "replace", "assign", "toString"];
+
+function overwrite() { return 'overwrite'; };
+
+function testFunctionOverwrite() {
+  for (var i = 0; i < locationFunctions.length; i++) {
+    location[locationFunctions[i]] = overwrite;
+    check(location[locationFunctions[i]] != overwrite);
+  }
+}
+
+function failIfCalled() { check(false); }
+
+function testAccessorOverwrite() {
+  __defineGetter__("location", failIfCalled);
+  var l = location;
+  window.__defineGetter__("location", failIfCalled);
+  l = window.location;
+  this.__defineGetter__("location", failIfCalled);
+  l = this.location;
+}
+
+function test() {
+  testFunctionOverwrite();
+  testAccessorOverwrite();
+}
+</script>
+</body>
+</html>

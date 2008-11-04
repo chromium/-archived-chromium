@@ -958,15 +958,20 @@ sub GenerateImplementation
 
       my $accessControl = "v8::DEFAULT";
       if ($attrExt->{"DoNotCheckDomainSecurityOnGet"}) {
-         $accessControl = "v8::ALL_CAN_READ";
+        $accessControl = "v8::ALL_CAN_READ";
       } elsif ($attrExt->{"DoNotCheckDomainSecurityOnSet"}) {
-         $accessControl = "v8::ALL_CAN_WRITE";
+        $accessControl = "v8::ALL_CAN_WRITE";
       } elsif ($attrExt->{"DoNotCheckDomainSecurity"}) {
-         $accessControl = "v8::ALL_CAN_READ";
+        $accessControl = "v8::ALL_CAN_READ";
          if (!($attribute->type =~ /^readonly/)) {
-           $accessControl = "(v8::AccessControl)(v8::ALL_CAN_READ | v8::ALL_CAN_WRITE)";
+           $accessControl .= "|v8::ALL_CAN_WRITE";
          }
       }
+      if ($attrExt->{"v8ProhibitsOverwriting"}) {
+        $accessControl .= "|v8::PROHIBITS_OVERWRITING";
+      }
+      $accessControl = "static_cast<v8::AccessControl>(" . $accessControl . ")";
+
 
       my $customAccessor = $attrExt->{"Custom"} || $attrExt->{"CustomSetter"} || $attrExt->{"CustomGetter"} || "";
       if ($customAccessor eq 1) {
@@ -1108,9 +1113,17 @@ END
       if ($attrExt->{"DontEnum"}) {
         $property_attributes .= "|v8::DontEnum";
       }
+      if ($attrExt->{"ReadOnly"}) {
+        $property_attributes .= "|v8::ReadOnly";
+      }
 
       my $commentInfo = "Function '$name' (ExtAttr: '" . join(' ', keys(%{$attrExt})) . "')";
  
+      my $template = "proto";
+      if ($attrExt->{"v8OnInstance"}) {
+        $template = "instance";
+      }
+
       if ($attrExt->{"DoNotCheckDomainSecurity"} &&
           ($dataNode->extendedAttributes->{"CheckDomainSecurity"} || $interfaceName eq "DOMWindow")) {
         # Mark the accessor as ReadOnly and set it on the proto object so
@@ -1126,13 +1139,13 @@ END
         #   accessing '__proto__'
         #
         # The solution is very hacky and fragile, it really needs to be replaced
-        # by a better solution.        
+        # by a better solution.
 
         $property_attributes .= "|v8::ReadOnly";
         push(@implContent, <<END);
 
   // $commentInfo
-  proto->SetAccessor(
+  $template->SetAccessor(
       v8::String::New("$name"),
       ${interfaceName}Internal::${name}AttrGetter,
       0,
@@ -1143,7 +1156,6 @@ END
         next;
       }
 
-      my $template = "proto";
       my $signature = "default_signature";
       if ($attrExt->{"v8DoNotCheckSignature"}){
         $signature = "v8::Local<v8::Signature>()";

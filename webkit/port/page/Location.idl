@@ -13,10 +13,12 @@ module core {
     attribute DOMString protocol;
     attribute DOMString search;
 
-    [DoNotCheckDomainSecurity] void reload(in boolean forceget);
-    [DoNotCheckDomainSecurity] void replace(in DOMString url);
-    [DoNotCheckDomainSecurity] void assign(in DOMString url);
-
-    [DontEnum] DOMString toString();
+    // For security reasons, these functions are on the instance
+    // instead of on the prototype object to insure that they cannot
+    // be overwritten.
+    [DoNotCheckDomainSecurity, v8OnInstance] void reload(in boolean forceget);
+    [DoNotCheckDomainSecurity, v8OnInstance] void replace(in DOMString url);
+    [DoNotCheckDomainSecurity, v8OnInstance] void assign(in DOMString url);
+    [ReadOnly, DontEnum, v8OnInstance] DOMString toString();
   };
 }
