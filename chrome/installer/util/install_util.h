@@ -10,6 +10,7 @@
 #define CHROME_INSTALLER_UTIL_INSTALL_UTIL_H__
 
 #include <string>
+#include <tchar.h>
 #include <windows.h>
 
 #include "base/basictypes.h"
@@ -46,6 +47,12 @@ class InstallUtil {
                                    installer_util::InstallStatus status,
                                    int string_resource_id,
                                    const std::wstring* const launch_cmd);
+
+  // Returns true if this installation path is per user, otherwise returns
+  // false (per machine install, meaning: the exe_path contains path to
+  // Program Files).
+  static bool IsPerUserInstall(const wchar_t* const exe_path);
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(InstallUtil);
 };

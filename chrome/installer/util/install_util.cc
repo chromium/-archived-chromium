@@ -7,12 +7,15 @@
 
 #include "install_util.h"
 
+#include <algorithm>
 #include <shellapi.h>
+#include <shlobj.h>
 
 #include "base/logging.h"
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
+
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/l10n_string_util.h"
@@ -108,4 +111,23 @@ void InstallUtil::WriteInstallerResult(bool system_install,
   }
   if (!install_list->Do())
     LOG(ERROR) << "Failed to record installer error information in registry.";
+}
+
+bool InstallUtil::IsPerUserInstall(const wchar_t* const exe_path) {
+  std::wstring exe_path_copy = exe_path;
+
+  wchar_t program_files_path[MAX_PATH] = {0};
+  if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL,
+                                SHGFP_TYPE_CURRENT, program_files_path))) {
+    std::wstring program_files_path_copy = program_files_path;
+
+    if (std::equal(program_files_path_copy.begin(),
+                   program_files_path_copy.end(), exe_path_copy.begin(),
+                   CaseInsensitiveCompare<wchar_t>())) {
+      return false;
+    }
+  } else {
+    NOTREACHED();
+  }
+  return true;
 }

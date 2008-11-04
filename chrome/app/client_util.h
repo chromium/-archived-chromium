@@ -40,9 +40,6 @@ std::wstring GetDLLPath(const std::wstring dll_name,
 // function. The buffer should already be allocated (ideally of MAX_PATH size).
 void GetExecutablePath(wchar_t* exe_path);
 
-// Returns false if this is system level install (exe_path is same as
-// Program Files path) else returns true.
-bool IsUserModeInstall(const wchar_t* const exe_path);
 }  // namespace client_util
 
 #endif  // CHROME_APP_CLIENT_UTIL_H_

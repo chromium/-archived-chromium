@@ -9,40 +9,73 @@
 
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/string_util.h"
 #include "base/task.h"
 #include "base/thread.h"
+#include "base/win_util.h"
+
+#include "chrome/app/client_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/helper.h"
+#include "chrome/installer/util/install_util.h"
 #include "google_update_idl_i.c"
 
 namespace {
 // Check if the currently running Chrome can be updated by Google Update by
 // checking if it is running from the standard location. Return true if running
 // from the standard location, otherwise return false.
-bool CanUpdateCurrentChrome() {
-  std::wstring current_exe_path;
-  if (PathService::Get(base::DIR_EXE, &current_exe_path)) {
-    std::wstring user_exe_path = installer::GetChromeInstallPath(false);
-    std::wstring machine_exe_path = installer::GetChromeInstallPath(true);
-    std::transform(current_exe_path.begin(), current_exe_path.end(),
-                   current_exe_path.begin(), tolower);
-    std::transform(user_exe_path.begin(), user_exe_path.end(),
-                   user_exe_path.begin(), tolower);
-    std::transform(machine_exe_path.begin(), machine_exe_path.end(),
-                   machine_exe_path.begin(), tolower);
-    if (current_exe_path != user_exe_path && 
-        current_exe_path != machine_exe_path ) {
-      LOG(ERROR) << L"Google Update cannot update Chrome installed in a "
-                 << L"non-standard location: " << current_exe_path.c_str()
-                 << L". The standard location is: " << user_exe_path.c_str()
-                 << L" or " << machine_exe_path.c_str() << L".";
-      return false;
-    }
+bool CanUpdateCurrentChrome(const std::wstring& chrome_exe_path) {
+  std::wstring user_exe_path = installer::GetChromeInstallPath(false);
+  std::wstring machine_exe_path = installer::GetChromeInstallPath(true);
+  std::transform(user_exe_path.begin(), user_exe_path.end(),
+                 user_exe_path.begin(), tolower);
+  std::transform(machine_exe_path.begin(), machine_exe_path.end(),
+                 machine_exe_path.begin(), tolower);
+  if (chrome_exe_path != user_exe_path && 
+      chrome_exe_path != machine_exe_path ) {
+    LOG(ERROR) << L"Google Update cannot update Chrome installed in a "
+               << L"non-standard location: " << chrome_exe_path.c_str()
+               << L". The standard location is: " << user_exe_path.c_str()
+               << L" or " << machine_exe_path.c_str() << L".";
+    return false;
   }
 
   return true;
 }
+
+// Creates an instance of a COM Local Server class using either plain vanilla
+// CoCreateInstance, or using the Elevation moniker if running on Vista.
+HRESULT CoCreateInstanceAsAdmin(REFCLSID class_id, REFIID interface_id,
+                                void** interface_ptr) {
+  if (!interface_ptr)
+    return E_POINTER;
+
+  // For Vista we need to instantiate the COM server via the elevation
+  // moniker. This ensures that the UAC dialog shows up.
+  if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
+    wchar_t class_id_as_string[MAX_PATH] = {0};
+    StringFromGUID2(class_id, class_id_as_string,
+                    arraysize(class_id_as_string));
+
+    std::wstring elevation_moniker_name =
+        StringPrintf(L"Elevation:Administrator!new:%s", class_id_as_string);
+
+    BIND_OPTS3 bind_opts;
+    memset(&bind_opts, 0, sizeof(bind_opts));
+
+    bind_opts.cbStruct = sizeof(bind_opts);
+    bind_opts.dwClassContext = CLSCTX_LOCAL_SERVER;
+    return CoGetObject(elevation_moniker_name.c_str(), &bind_opts,
+                       interface_id, reinterpret_cast<void**>(interface_ptr));
+  }
+
+  return CoCreateInstance(class_id, NULL, CLSCTX_LOCAL_SERVER,
+                          interface_id,
+                          reinterpret_cast<void**>(interface_ptr));
+}
+
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,12 +221,23 @@ void GoogleUpdate::RemoveStatusChangeListener() {
 
 bool GoogleUpdate::InitiateGoogleUpdateCheck(bool install_if_newer,
                                              MessageLoop* main_loop) {
-  if (!CanUpdateCurrentChrome()) {
+
+  std::wstring chrome_exe_path;
+  if (!PathService::Get(base::DIR_EXE, &chrome_exe_path)) {
+    NOTREACHED();
+    return false;
+  }
+
+  std::transform(chrome_exe_path.begin(), chrome_exe_path.end(),
+                 chrome_exe_path.begin(), tolower);
+
+  if (!CanUpdateCurrentChrome(chrome_exe_path)) {
     main_loop->PostTask(FROM_HERE, NewRunnableMethod(this,
         &GoogleUpdate::ReportResults, UPGRADE_ERROR,
         CANNOT_UPGRADE_CHROME_IN_THIS_DIRECTORY));
     return false;
   }
+
   CComObject<GoogleUpdateJobObserver>* job_observer;
   HRESULT hr =
       CComObject<GoogleUpdateJobObserver>::CreateInstance(&job_observer);
@@ -205,7 +249,22 @@ bool GoogleUpdate::InitiateGoogleUpdateCheck(bool install_if_newer,
   CComPtr<IJobObserver> job_holder(job_observer);
 
   CComPtr<IGoogleUpdate> on_demand;
-  hr = on_demand.CoCreateInstance(CLSID_OnDemandUserAppsClass);
+
+  if (InstallUtil::IsPerUserInstall(chrome_exe_path.c_str())) {
+    hr = on_demand.CoCreateInstance(CLSID_OnDemandUserAppsClass);
+  } else {
+    // The Update operation needs Admin privileges for writing
+    // to %ProgramFiles%. On Vista we need to elevate before instantiating
+    // the updater instance.
+    if (!install_if_newer) {
+      hr = on_demand.CoCreateInstance(CLSID_OnDemandMachineAppsClass);
+    } else {
+      hr = CoCreateInstanceAsAdmin(CLSID_OnDemandMachineAppsClass,
+                                   IID_IGoogleUpdate,
+                                   reinterpret_cast<void**>(&on_demand));
+    }
+  }
+
   if (hr != S_OK)
     return ReportFailure(hr, GOOGLE_UPDATE_ONDEMAND_CLASS_NOT_FOUND, main_loop);
 
