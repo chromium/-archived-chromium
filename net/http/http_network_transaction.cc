@@ -747,8 +747,8 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
       done = true;
       keep_alive = response_.headers->IsKeepAlive();
       // We can't reuse the connection if we read more than the advertised
-      // content length.
-      if (unfiltered_eof ||
+      // content length, or if the tunnel was not established.
+      if (establishing_tunnel_ || unfiltered_eof ||
           (content_length_ != -1 && content_read_ > content_length_))
         keep_alive = false;
     }
