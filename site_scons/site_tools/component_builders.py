@@ -37,13 +37,13 @@ import SCons
 __component_list = {}
 
 
-def _InitializeComponentBuilders(self):
+def _InitializeComponentBuilders(env):
   """Re-initializes component builders module.
 
   Args:
-    self: Parent environment.
+    env: Environment context
   """
-  self = self     # Silence gpylint
+  env = env     # Silence gpylint
 
   __component_list.clear()
 
@@ -187,6 +187,9 @@ def ComponentPackage(self, package_name, dest_dir, **kwargs):
   # Store list of components for this program
   env._StoreComponents(package_name)
 
+  # Let component_targets know this target is available in the current mode
+  env.SetTargetProperty(package_name, TARGET_PATH=dest_dir)
+
   # Set up deferred call to replicate resources
   env.Defer(ComponentPackageDeferred)
 
@@ -267,7 +270,7 @@ def ComponentLibrary(self, lib_name, *args, **kwargs):
 
   # Install library in intermediate directory, so other libs and programs can
   # link against it
-  all_outputs += env.Replicate('$COMPONENT_LIBRARY_DIR', need_for_link)
+  all_outputs += env.Replicate('$LIB_DIR', need_for_link)
 
   # Publish output
   env.Publish(lib_name, 'run', need_for_run)
@@ -280,6 +283,9 @@ def ComponentLibrary(self, lib_name, *args, **kwargs):
 
   # Store list of components for this library
   env._StoreComponents(lib_name)
+
+  # Let component_targets know this target is available in the current mode.
+  env.SetTargetProperty(lib_name, TARGET_PATH=lib_outputs[0])
 
   # If library should publish itself, publish as if it was a program
   if env.get('COMPONENT_LIBRARY_PUBLISH'):
@@ -343,6 +349,17 @@ def ComponentTestProgramDeferred(env):
     env.Depends(test_out, all_outputs)
     env.ComponentTestOutput('run_' + prog_name, test_out)
 
+    # Add target properties
+    env.SetTargetProperty(
+        prog_name,
+        # The copy of the program we care about is the one in the tests dir
+        EXE='$TESTS_DIR/$PROGRAM_NAME',
+        RUN_TARGET='run_' + prog_name,
+        RUN_CMDLINE='$COMPONENT_TEST_CMDLINE',
+        RUN_DIR='$TESTS_DIR',
+        TARGET_PATH='$TESTS_DIR/$PROGRAM_NAME',
+    )
+
 
 def ComponentTestProgram(self, prog_name, *args, **kwargs):
   """Pseudo-builder for test program to handle platform-dependent type.
@@ -381,6 +398,9 @@ def ComponentTestProgram(self, prog_name, *args, **kwargs):
 
   # Store list of components for this program
   env._StoreComponents(prog_name)
+
+  # Let component_targets know this target is available in the current mode
+  env.SetTargetProperty(prog_name, TARGET_PATH=out_nodes[0])
 
   # Set up deferred call to replicate resources and run test
   env.Defer(ComponentTestProgramDeferred)
@@ -446,6 +466,9 @@ def ComponentProgram(self, prog_name, *args, **kwargs):
   # Store list of components for this program
   env._StoreComponents(prog_name)
 
+  # Let component_targets know this target is available in the current mode
+  env.SetTargetProperty(prog_name)
+
   # Set up deferred call to replicate resources
   env.Defer(ComponentProgramDeferred)
 
@@ -485,6 +508,9 @@ def ComponentTestOutput(self, test_name, nodes):
   for group in groups:
     SCons.Script.Alias(group, a)
 
+  # Let component_targets know this target is available in the current mode
+  self.SetTargetProperty(test_name, TARGET_PATH=nodes[0])
+
   # Return the output node
   return a
 
@@ -496,7 +522,10 @@ def generate(env):
   """SCons entry point for this tool."""
 
   env.Replace(
-      COMPONENT_LIBRARY_DIR='$TARGET_ROOT/lib',
+      LIB_DIR='$TARGET_ROOT/lib',
+      # TODO(rspangler): Remove legacy COMPONENT_LIBRARY_DIR, once all users
+      # have transitioned to LIB_DIR
+      COMPONENT_LIBRARY_DIR='$LIB_DIR',
       STAGING_DIR='$TARGET_ROOT/staging',
       TESTS_DIR='$TARGET_ROOT/tests',
       TEST_OUTPUT_DIR='$TARGET_ROOT/test_output',
@@ -508,7 +537,7 @@ def generate(env):
       # Default test size is large
       COMPONENT_TEST_SIZE='large',
       # Default timeouts for component tests
-      COMPONENT_TEST_TIMEOUT={'large':900, 'medium':450, 'small':180},
+      COMPONENT_TEST_TIMEOUT={'large': 900, 'medium': 450, 'small': 180},
       # Tests are enabled by default
       COMPONENT_TEST_ENABLED=True,
       # Static linking is a sensible default
@@ -517,8 +546,8 @@ def generate(env):
       COMPONENT_LIBRARY_PUBLISH=False,
   )
   env.Append(
-      LIBPATH=['$COMPONENT_LIBRARY_DIR'],
-      RPATH=['$COMPONENT_LIBRARY_DIR'],
+      LIBPATH=['$LIB_DIR'],
+      RPATH=['$LIB_DIR'],
 
       # Default alias groups for component builders
       COMPONENT_PACKAGE_GROUPS=['all_packages'],
@@ -557,8 +586,11 @@ def generate(env):
   SCons.Script.Help('  --retest                    '
                     'Rerun specified tests, ignoring cached results.\n')
 
+  # Defer per-environment initialization, but do before building SConscripts
+  env.Defer(_InitializeComponentBuilders)
+  env.Defer('BuildEnvironmentSConscripts', after=_InitializeComponentBuilders)
+
   # Add our pseudo-builder methods
-  env.AddMethod(_InitializeComponentBuilders)
   env.AddMethod(_StoreComponents)
   env.AddMethod(ComponentPackage)
   env.AddMethod(ComponentObject)

@@ -63,6 +63,18 @@ def InstallUsingLink(target, source, env):
   # Need to force the target and source to be lists of nodes
   return SCons.Node.FS.LinkFunc([env.Entry(target)], [env.Entry(source)], env)
 
+
+def PreEvaluateVariables(env):
+  """Deferred function to pre-evaluate SCons varables for each build mode.
+
+  Args:
+    env: Environment for the current build mode.
+  """
+  # Convert directory variables to strings
+  for var in env.SubstList2('PRE_EVALUATE_DIRS'):
+    env[var] = str(env.Dir('$' + var))
+
+
 #------------------------------------------------------------------------------
 
 
@@ -108,10 +120,6 @@ def generate(env):
       new_lookup_list.append(func)
   env.lookup_list = new_lookup_list
 
-  # Add other default tools from our toolkit
-  for t in component_setup_tools:
-    env.Tool(t)
-
   # Cover part of the environment
   env.Replace(
       # Add a reference to our python executable, so subprocesses can find and
@@ -129,16 +137,29 @@ def generate(env):
 
       # Use install function above, which uses links in preference to copying.
       INSTALL = InstallUsingLink,
+  )
 
+  # Specify defaults for variables where we don't need to force replacement
+  env.SetDefault(
       # Environments are in the 'all' group by default
       BUILD_GROUPS=['all'],
 
+      # Directories
       DESTINATION_ROOT='$MAIN_DIR/scons-out$HOST_PLATFORM_SUFFIX',
       TARGET_ROOT='$DESTINATION_ROOT/$BUILD_TYPE',
       OBJ_ROOT='$TARGET_ROOT/obj',
       ARTIFACTS_DIR='$TARGET_ROOT/artifacts',
-      CPPDEFINES=[],
   )
+
+  # Add default list of variables we should pre-evaluate for each build mode
+  env.Append(PRE_EVALUATE_DIRS = [
+      'ARTIFACTS_DIR',
+      'DESTINATION_ROOT',
+      'OBJ_ROOT',
+      'SOURCE_ROOT',
+      'TARGET_ROOT',
+      'TOOL_ROOT',
+  ])
 
   # If a host platform was specified, need to put the SCons output in its own
   # destination directory.  Different host platforms compile the same files
@@ -146,26 +167,6 @@ def generate(env):
   force_host_platform = SCons.Script.GetOption('host_platform')
   if force_host_platform:
     env['HOST_PLATFORM_SUFFIX'] = '-' + force_host_platform
-
-  # The following environment replacements use env.Dir() to force immediate
-  # evaluation/substitution of SCons variables.  They can't be part of the
-  # preceding env.Replace() since they they may rely indirectly on variables
-  # defined there, and the env.Dir() calls would be evaluated before the
-  # env.Replace().
-
-  # Set default SOURCE_ROOT if there is none, assuming we're in a local
-  # site_scons directory for the project.
-  source_root_relative = os.path.normpath(
-      os.path.join(os.path.dirname(__file__), '../..'))
-  source_root = env.get('SOURCE_ROOT', source_root_relative)
-  env['SOURCE_ROOT'] = env.Dir(source_root)
-
-  # Make tool root separate from source root so it can be overridden when we
-  # have a common location for tools outside of the current clientspec.  Need
-  # to check if it's defined already, so it can be set prior to this tool
-  # being included.
-  tool_root = env.get('TOOL_ROOT', '$SOURCE_ROOT')
-  env['TOOL_ROOT'] = env.Dir(tool_root)
 
   # Put the .sconsign.dblite file in our destination root directory, so that we
   # don't pollute the source tree. Use the '_' + sys.platform suffix to prevent
@@ -193,3 +194,35 @@ def generate(env):
   # Note that this currently forces projects which want to override the
   # default to do so after including the component_setup tool.
   env.Default('$DESTINATION_ROOT')
+
+  # Add other default tools from our toolkit
+  # TODO(rspangler): Currently this needs to be before SOURCE_ROOT in case a
+  # tool needs to redefine it.  Need a better way to handle order-dependency
+  # in tool setup.
+  for t in component_setup_tools:
+    env.Tool(t)
+
+  # The following environment replacements use env.Dir() to force immediate
+  # evaluation/substitution of SCons variables.  They can't be part of the
+  # preceding env.Replace() since they they may rely indirectly on variables
+  # defined there, and the env.Dir() calls would be evaluated before the
+  # env.Replace().
+
+  # Set default SOURCE_ROOT if there is none, assuming we're in a local
+  # site_scons directory for the project.
+  source_root_relative = os.path.normpath(
+      os.path.join(os.path.dirname(__file__), '../..'))
+  source_root = env.get('SOURCE_ROOT', source_root_relative)
+  env['SOURCE_ROOT'] = env.Dir(source_root).abspath
+
+  # Make tool root separate from source root so it can be overridden when we
+  # have a common location for tools outside of the current clientspec.  Need
+  # to check if it's defined already, so it can be set prior to this tool
+  # being included.
+  tool_root = env.get('TOOL_ROOT', '$SOURCE_ROOT')
+  env['TOOL_ROOT'] = env.Dir(tool_root).abspath
+
+  # Defer pre-evaluating some environment variables, but do before building
+  # SConscripts.
+  env.Defer(PreEvaluateVariables)
+  env.Defer('BuildEnvironmentSConscripts', after=PreEvaluateVariables)

@@ -113,6 +113,9 @@ def BundlePseudoBuilder(env, target, **kwargs):
 
   return env.Dir(target)
 
+#------------------------------------------------------------------------------
+
+
 def generate(env):
   # NOTE: SCons requires the use of this name, which fails gpylint.
   """SCons entry point for this tool."""
@@ -140,7 +143,6 @@ def generate(env):
   env.Append(
       HOST_PLATFORMS=['MAC'],
       CPPDEFINES=['OS_MACOSX=OS_MACOSX'],
-      BITS=['mac', 'posix'],
 
       # Settings for debug
       CCFLAGS_DEBUG=['-g'],

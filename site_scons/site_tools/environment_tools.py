@@ -35,6 +35,7 @@ will automatically be included by the component_setup tool.
 """
 
 
+import os
 import SCons
 
 
@@ -61,14 +62,15 @@ def FilterOut(self, **kw):
       continue
 
     for vremove in val:
-      if vremove in envval:
+      # Use while not if, so we can handle duplicates.
+      while vremove in envval:
         envval.remove(vremove)
 
     self[key] = envval
 
     # TODO(sgk): SCons.Environment.Append() has much more logic to deal
     # with various types of values.  We should handle all those cases in here
-    # too.
+    # too.  (If variable is a dict, etc.)
 
 #------------------------------------------------------------------------------
 
@@ -83,22 +85,14 @@ def Overlap(self, values1, values2):
 
   Returns:
     The list of values in common after substitution, or an empty list if
-    the values do no overlap.
+    the values do not overlap.
 
-  Converts the values to a set of plain strings via self.subst() before
+  Converts the values to a set of plain strings via self.SubstList2() before
   comparison, so SCons $ variables are evaluated.
   """
-
-  set1 = set()
-  for v in self.Flatten(values1):
-    set1.add(self.subst(v))
-
-  set2 = set()
-  for v in self.Flatten(values2):
-    set2.add(self.subst(v))
-
+  set1 = set(self.SubstList2(values1))
+  set2 = set(self.SubstList2(values2))
   return list(set1.intersection(set2))
-
 
 #------------------------------------------------------------------------------
 
@@ -137,7 +131,7 @@ def ApplySConscript(self, sconscript_file):
   If you need to export multiple variables to the called SConscript, or return
   variables from it, use the existing SConscript() function.
   """
-  return SCons.Script.SConscript(sconscript_file, exports={'env':self})
+  return SCons.Script.SConscript(sconscript_file, exports={'env': self})
 
 #------------------------------------------------------------------------------
 
@@ -194,7 +188,85 @@ def BuildSConscript(self, sconscript_file):
   else:
     script_file = sconscript_file
 
-  self.SConscript(script_file, exports={'env':self.Clone()})
+  self.SConscript(script_file, exports={'env': self.Clone()})
+
+#------------------------------------------------------------------------------
+
+
+def SubstList2(self, *args):
+  """Replacement subst_list designed for flags/parameters, not command lines.
+
+  Args:
+    self: Environment context.
+    args: One or more strings or lists of strings.
+
+  Returns:
+    A flattened, substituted list of strings.
+
+  SCons's built-in subst_list evaluates (substitutes) variables in its
+  arguments, and returns a list of lists (one per positional argument).  Since
+  it is designed for use in command line expansion, the list items are
+  SCons.Subst.CmdStringHolder instances.  These instances can't be passed into
+  env.File() (or subsequent calls to env.subst(), either).  The returned
+  nested lists also need to be flattened via env.Flatten() before the caller
+  can iterate over the contents.
+
+  SubstList2() does a subst_list, flattens the result, then maps the flattened
+  list to strings.
+
+  It is better to do:
+    for x in env.SubstList2('$MYPARAMS'):
+  than to do:
+    for x in env.get('MYPARAMS', []):
+  and definitely better than:
+    for x in env['MYPARAMS']:
+  which will throw an exception if MYPARAMS isn't defined.
+  """
+  return map(str, self.Flatten(self.subst_list(args)))
+
+
+#------------------------------------------------------------------------------
+
+
+def RelativePath(self, source, target, sep=os.sep, source_is_file=False):
+  """Calculates the relative path from source to target.
+
+  Args:
+    self: Environment context.
+    source: Source path or node.
+    target: Target path or node.
+    sep: Path separator to use in returned relative path.
+    source_is_file: If true, calculates the relative path from the directory
+        containing the source, rather than the source itself.  Note that if
+        source is a node, you can pass in source.dir instead, which is shorter.
+
+  Returns:
+    The relative path from source to target.
+  """
+  # Split source and target into list of directories
+  source = self.Entry(str(source))
+  if source_is_file:
+    source = source.dir
+  source = source.abspath.split(os.sep)
+  target = self.Entry(str(target)).abspath.split(os.sep)
+
+  # Handle source and target identical
+  if source == target:
+    if source_is_file:
+      return source[-1]         # Bare filename
+    else:
+      return '.'                # Directory pointing to itself
+
+  # TODO(rspangler): Handle UNC paths and drive letters (fine if they're the
+  # same, but if they're different, there IS no relative path)
+
+  # Remove common elements
+  while source and target and source[0] == target[0]:
+    source.pop(0)
+    target.pop(0)
+  # Join the remaining elements
+  return sep.join(['..'] * len(source) + target)
+
 
 #------------------------------------------------------------------------------
 
@@ -208,3 +280,5 @@ def generate(env):
   env.AddMethod(BuildSConscript)
   env.AddMethod(FilterOut)
   env.AddMethod(Overlap)
+  env.AddMethod(RelativePath)
+  env.AddMethod(SubstList2)

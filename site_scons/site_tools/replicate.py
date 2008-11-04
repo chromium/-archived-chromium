@@ -105,9 +105,12 @@ def Replicate(env, target, source, **kw):
             target_name = re.sub(r[0], r[1], target_name)
           target = env.File(target_name)
           if (target.has_builder()
+              and hasattr(target.get_builder(), 'name')
               and target.get_builder().name == 'InstallBuilder'
               and target.sources == [s]):
             # Already installed that file, so pass through the destination node
+            # TODO(rspangler): Is there a better way to determine if this is a
+            # duplicate install?
             dest_nodes += [target]
           else:
             dest_nodes += env.InstallAs(target_name, s)

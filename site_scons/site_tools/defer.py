@@ -36,33 +36,115 @@ import sys
 import types
 import SCons.Errors
 
-__defer_groups = {}
+
+class DeferGroup:
+  """Named list of functions to be deferred."""
+  # If we derive DeferGroup from object, instances of it return type
+  # <class 'defer.DeferGroup'>, which prevents SCons.Util.semi_deepcopy()
+  # from calling its __semi_deepcopy__ function.
+  # TODO(sgk): Make semi_deepcopy() capable of handling classes derived from
+  # object.
+
+  def __init__(self):
+    """Initialize deferred function object."""
+    self.func_env_cwd = []
+    self.after = set()
+
+  def __semi_deepcopy__(self):
+    """Makes a semi-deep-copy of this object.
+
+    Returns:
+      A semi-deep-copy of this object.
+
+    This means it copies the sets and lists contained by this object, but
+    doesn't make copies of the function pointers and environments pointed to by
+    those lists.
+
+    Needed so env.Clone() makes a copy of the defer list, so that functions
+    and after-relationships subsequently added to the clone are not added to
+    the parent.
+    """
+    c = DeferGroup()
+    c.func_env_cwd = self.func_env_cwd[:]
+    c.after = self.after.copy()
+    return c
 
 
-def _InitializeDefer(self):
-  """Re-initializes deferred function handling.
+def SetDeferRoot(self):
+  """Sets the current environment as the root environment for defer.
 
   Args:
-    self: Parent environment
+    self: Current environment context.
+
+  Functions deferred by environments cloned from the root environment (that is,
+  function deferred by children of the root environment) will be executed when
+  ExecuteDefer() is called from the root environment.
+
+  Functions deferred by environments from which the root environment was cloned
+  (that is, functions deferred by parents of the root environment) will be
+  passed the root environment instead of the original parent environment.
+  (Otherwise, they would have no way to determine the root environment.)
   """
-  # Clear the list of deferred groups
-  __defer_groups.clear()
+  # Set the current environment as the root for holding defer groups
+  self['_DEFER_ROOT_ENV'] = self
+
+  # Deferred functions this environment got from its parents will be run in the
+  # new root context.
+  for group in GetDeferGroups(self).values():
+    new_list = [(func, self, cwd) for (func, env, cwd) in group.func_env_cwd]
+    group.func_env_cwd = new_list
 
 
-def _ExecuteDefer(self):
+def GetDeferRoot(self):
+  """Returns the root environment for defer.
+
+  Args:
+    self: Current environment context.
+
+  Returns:
+    The root environment for defer.  If one of this environment's parents
+    called SetDeferRoot(), returns that environment.  Otherwise returns the
+    current environment.
+  """
+  return self.get('_DEFER_ROOT_ENV', self)
+
+
+def GetDeferGroups(env):
+  """Returns the dict of defer groups from the root defer environment.
+
+  Args:
+    env: Environment context.
+
+  Returns:
+    The dict of defer groups from the root defer environment.
+  """
+  return env.GetDeferRoot()['_DEFER_GROUPS']
+
+
+def ExecuteDefer(self):
   """Executes deferred functions.
 
   Args:
-    self: Parent environment
+    self: Current environment context.
   """
   # Save directory, so SConscript functions can occur in the right subdirs
   oldcwd = os.getcwd()
 
+  # If defer root is set and isn't this environment, we're being called from a
+  # sub-environment.  That's not where we should be called.
+  if self.GetDeferRoot() != self:
+    print ('Warning: Ignoring call to ExecuteDefer() from child of the '
+           'environment passed to SetDeferRoot().')
+    return
+
+  # Get list of defer groups from ourselves.
+  defer_groups = GetDeferGroups(self)
+
   # Loop through deferred functions
-  while __defer_groups:
+  while defer_groups:
     did_work = False
-    for name, group in __defer_groups.items():
-      if group.after.intersection(__defer_groups.keys()):
+    for name, group in defer_groups.items():
+      if group.after.intersection(defer_groups.keys()):
         continue        # Still have dependencies
       if group.func_env_cwd:
         # Run all the functions in our named group
@@ -70,11 +152,11 @@ def _ExecuteDefer(self):
           os.chdir(cwd)
           func(env)
       did_work = True
-      del __defer_groups[name]
+      del defer_groups[name]
       break
     if not did_work:
-      errmsg = 'Error in _ExecuteDefer: dependency cycle detected.\n'
-      for name, group in __defer_groups.items():
+      errmsg = 'Error in ExecuteDefer: dependency cycle detected.\n'
+      for name, group in defer_groups.items():
         errmsg += '   %s after: %s\n' % (name, group.after)
       raise SCons.Errors.UserError(errmsg)
 
@@ -82,14 +164,31 @@ def _ExecuteDefer(self):
   os.chdir(oldcwd)
 
 
-class DeferFunc(object):
-  """Named list of functions to be deferred."""
+def PrintDefer(self, print_functions=True):
+  """Prints the current defer dependency graph.
 
-  def __init__(self):
-    """Initialize deferred function object."""
-    object.__init__(self)
-    self.func_env_cwd = []
-    self.after = set()
+  Args:
+    self: Environment in which PrintDefer() was called.
+    print_functions: Print individual functions in defer groups.
+  """
+  # Get the defer dict
+  # Get list of defer groups from ourselves.
+  defer_groups = GetDeferGroups(self)
+  dgkeys = defer_groups.keys()
+  dgkeys.sort()
+  for k in dgkeys:
+    print ' +- %s' % k
+    group = defer_groups[k]
+    after = list(group.after)
+    if after:
+      print ' |  after'
+      after.sort()
+      for a in after:
+        print ' |   +- %s' % a
+    if print_functions and group.func_env_cwd:
+      print '    functions'
+      for func, env, cwd in group.func_env_cwd:
+        print ' |   +- %s %s' % (func.__name__, cwd)
 
 
 def Defer(self, *args, **kwargs):
@@ -102,6 +201,9 @@ def Defer(self, *args, **kwargs):
 
   The deferred function will be passed the environment used to call Defer(),
   and will be executed in the same working directory as the calling SConscript.
+  (Exception: if this environment is cloned and the clone calls SetDeferRoot()
+  and then ExecuteDefer(), the function will be passed the root environment,
+  instead of the environment used to call Defer().)
 
   All deferred functions run after all SConscripts.  Additional dependencies
   may be specified with the after= keyword.
@@ -142,10 +244,14 @@ def Defer(self, *args, **kwargs):
   if func and not name:
     name = func.__name__
 
+  # TODO(rspangler): Why not allow multiple functions?  Should be ok
+
   # Get list of names and/or functions this function should defer until after
   after = []
   for a in self.Flatten(kwargs.get('after')):
     if isinstance(a, str):
+      # TODO(rspangler): Should check if '$' in a, and if so, subst() it and
+      # recurse into it.
       after.append(a)
     elif isinstance(a, types.FunctionType):
       after.append(a.__name__)
@@ -154,9 +260,10 @@ def Defer(self, *args, **kwargs):
       raise ValueError('Defer after=%r is not a function or name' % a)
 
   # Find the deferred function
-  if name not in __defer_groups:
-    __defer_groups[name] = DeferFunc()
-  group = __defer_groups[name]
+  defer_groups = GetDeferGroups(self)
+  if name not in defer_groups:
+    defer_groups[name] = DeferGroup()
+  group = defer_groups[name]
 
   # If we were given a function, also save environment and current directory
   if func:
@@ -169,7 +276,10 @@ def Defer(self, *args, **kwargs):
 def generate(env):
   # NOTE: SCons requires the use of this name, which fails gpylint.
   """SCons entry point for this tool."""
+  env.Append(_DEFER_GROUPS={})
 
-  env.AddMethod(_InitializeDefer)
-  env.AddMethod(_ExecuteDefer)
   env.AddMethod(Defer)
+  env.AddMethod(ExecuteDefer)
+  env.AddMethod(GetDeferRoot)
+  env.AddMethod(PrintDefer)
+  env.AddMethod(SetDeferRoot)

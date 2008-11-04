@@ -71,7 +71,7 @@ def Solution(env, solution_name,
   build_targets = [e.subst('$TARGET_ROOT') for e in environments]
   # pick out sources, headers, and resources
   sources, headers, resources, others = env.GatherInputs(
-      env.Dir('$DESTINATION_ROOT'),
+      [SCons.Script.Dir('$DESTINATION_ROOT')],
       ['.+\\.(c|cc|m|mm|cpp)$',  # source files
        '.+\\.(h|hh|hpp)$',       # header files
        '.+\\.(rc)$',             # resource files
@@ -79,18 +79,19 @@ def Solution(env, solution_name,
       exclude_pattern=exclude_pattern,
   )
   # Build main Visual Studio Project file
-  project_list = env.MSVSProject(
-      target=solution_name + env['MSVSPROJECTSUFFIX'],
-      srcs=sources + headers + others + resources,
-      incs=[],
-      misc=[],
-      resources=[],
-      auto_build_solution=0,
-      MSVSCLEANCOM='hammer.bat -c MODE=all',
-      MSVSBUILDCOM='hammer.bat MODE=all',
-      MSVSREBUILD='hammer.bat -c MODE=all; hammer.bat MODE=all',
-      buildtarget=build_targets,
-      variant=variants)
+  project_list = env.MSVSProject(target=solution_name +
+                                 env['MSVSPROJECTSUFFIX'],
+                                 srcs=sources + headers + others + resources,
+                                 incs=[],
+                                 misc=[],
+                                 resources=[],
+                                 auto_build_solution=0,
+                                 MSVSCLEANCOM='hammer.bat -c MODE=all',
+                                 MSVSBUILDCOM='hammer.bat MODE=all',
+                                 MSVSREBUILD='hammer.bat -c MODE=all;'
+                                     'hammer.bat MODE=all',
+                                 buildtarget=build_targets,
+                                 variant=variants)
   # Collect other projects
   for e in extra_build_targets:
     # Explicitly create a node for target, so SCons will expand env variables.

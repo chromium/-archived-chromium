@@ -37,14 +37,8 @@ for the target environment.
 """
 
 import __builtin__
-import os
 import sys
 import SCons
-
-
-# List of target groups for printing help; modified by AddTargetGroup(); used
-# by BuildEnvironments().
-__target_groups = {}
 
 
 def _HostPlatform():
@@ -118,29 +112,17 @@ def _CheckBuildModes(build_modes, environments, host_platform):
       all_build_groups[g].append(e['BUILD_TYPE'])
 
   # Add help for build types
-  xml_help = SCons.Script.GetOption('xml_help')
-  if xml_help:
-    help_mode_format = '  <build_mode name="%s"><![CDATA[%s]]></build_mode>\n'
-    help_text = '<mode_list>\n'
-  else:
-    help_text = '''
+  help_text = '''
 Use --mode=type to specify the type of build to perform.  The following types
 may be specified:
 '''
-    help_mode_format = '    %-16s %s\n'
 
   for build_type in all_build_types:
     if build_type not in all_build_groups:
-      help_text += help_mode_format % (
+      help_text += '    %-16s %s\n' % (
           build_type, build_desc.get(build_type, ''))
 
-  if xml_help:
-    help_group_format = ('  <build_group name="%s"><![CDATA[%s]]>'
-                         '</build_group>\n')
-    help_text += '</mode_list>\n<group_list>\n'
-  else:
-    help_group_format = '    %-16s %s\n'
-    help_text += '''
+  help_text += '''
 The following build groups may also be specified via --mode.  Build groups
 build one or more of the other build types.  The available build groups are:
 '''
@@ -148,12 +130,9 @@ build one or more of the other build types.  The available build groups are:
   groups_sorted = all_build_groups.keys()
   groups_sorted.sort()
   for g in groups_sorted:
-    help_text += help_group_format % (g, ','.join(all_build_groups[g]))
+    help_text += '    %-16s %s\n' % (g, ','.join(all_build_groups[g]))
 
-  if xml_help:
-    help_text += '</group_list>\n'
-  else:
-    help_text += '''
+  help_text += '''
 Multiple modes may be specified, separated by commas: --mode=mode1,mode2.  If
 no mode is specified, the default group will be built.  This is equivalent to
 specifying --mode=default.
@@ -168,39 +147,62 @@ specifying --mode=default.
              'platform.' % mode)
 
 
-def _AddTargetHelp():
-  """Adds help for the target groups from the global __target_groups."""
-  xml_help = SCons.Script.GetOption('xml_help')
-  help_text = ''
-
-  for alias, description in __target_groups.items():
-    items = map(str, SCons.Script.Alias(alias)[0].sources)
-    # Remove duplicates from multiple environments
-    items = list(set(items))
-
-    if items:
-      colwidth = max(map(len, items)) + 2
-      cols = 77 / colwidth
-      if cols < 1:
-          cols = 1      # If target names are really long, one per line
-      rows = (len(items) + cols - 1) / cols
-      items.sort()
-      if xml_help:
-        help_text += '<target_group name="%s">\n' % alias
-        for i in items:
-          help_text += '  <build_target name="%s"/>\n' % i
-        help_text += '</target_group>\n'
-      else:
-        help_text += '\nThe following %s:' % description
-        for row in range(0, rows):
-          help_text += '\n  '
-          for i in range(row, len(items), rows):
-            help_text += '%-*s' % (colwidth, items[i])
-        help_text += '\n  %s (do all of the above)\n' % alias
-
-  SCons.Script.Help(help_text)
-
 #------------------------------------------------------------------------------
+
+
+def BuildEnvironmentSConscripts(env):
+  """Evaluates SConscripts for the environment.
+
+  Called by BuildEnvironments().
+  """
+  # Read SConscript for each component
+  # TODO(rspangler): Remove BUILD_COMPONENTS once all projects have
+  # transitioned to the BUILD_SCONSCRIPTS nomenclature.
+  for c in env.SubstList2('$BUILD_SCONSCRIPTS', '$BUILD_COMPONENTS'):
+    # Clone the environment so components can't interfere with each other
+    ec = env.Clone()
+
+    if ec.Entry(c).isdir():
+      # The component is a directory, so assume it contains a SConscript
+      # file.
+      c_dir = ec.Dir(c)
+
+      # Use 'build.scons' as the default filename, but if that doesn't
+      # exist, fall back to 'SConscript'.
+      c_script = c_dir.File('build.scons')
+      if not c_script.exists():
+        c_script = c_dir.File('SConscript')
+    else:
+      # The component is a SConscript file.
+      c_script = ec.File(c)
+      c_dir = c_script.dir
+
+    # Make c_dir a string.
+    c_dir = str(c_dir)
+
+    # Use build_dir differently depending on where the SConscript is.
+    if not ec.RelativePath('$TARGET_ROOT', c_dir).startswith('..'):
+      # The above expression means: if c_dir is $TARGET_ROOT or anything
+      # under it. Going from c_dir to $TARGET_ROOT and dropping the not fails
+      # to include $TARGET_ROOT.
+      # We want to be able to allow people to use addRepository to back things
+      # under $TARGET_ROOT/$OBJ_ROOT with things from above the current
+      # directory. When we are passed a SConscript that is already under
+      # $TARGET_ROOT, we should not use build_dir.
+      ec.SConscript(c_script, exports={'env': ec}, duplicate=0)
+    elif not ec.RelativePath('$MAIN_DIR', c_dir).startswith('..'):
+      # The above expression means: if c_dir is $MAIN_DIR or anything
+      # under it. Going from c_dir to $TARGET_ROOT and dropping the not fails
+      # to include $MAIN_DIR.
+      # Also, if we are passed a SConscript that
+      # is not under $MAIN_DIR, we should fail loudly, because it is unclear how
+      # this will correspond to things under $OBJ_ROOT.
+      ec.SConscript(c_script, build_dir='$OBJ_ROOT/' + c_dir,
+                    exports={'env': ec}, duplicate=0)
+    else:
+      raise SCons.Error.UserError(
+          'Bad location for a SConscript. "%s" is not under '
+          '\$TARGET_ROOT or \$MAIN_DIR' % c_script)
 
 
 def BuildEnvironments(environments):
@@ -223,7 +225,6 @@ def BuildEnvironments(environments):
     List of environments which were actually evaluated (built).
   """
   # Get options
-  xml_help = SCons.Script.GetOption('xml_help')
   build_modes = SCons.Script.GetOption('build_mode')
   # TODO(rspangler): Remove support legacy MODE= argument, once everyone has
   # transitioned to --mode.
@@ -239,9 +240,6 @@ def BuildEnvironments(environments):
   # Check build modes
   _CheckBuildModes(build_modes, environments, host_platform)
 
-  if xml_help:
-    SCons.Script.Help('<help_from_sconscripts>\n<![CDATA[\n')
-
   environments_to_evaluate = []
   for e in environments:
     if not e.Overlap(e['HOST_PLATFORMS'], [host_platform, '*']):
@@ -251,56 +249,19 @@ def BuildEnvironments(environments):
       environments_to_evaluate.append(e)
 
   for e in environments_to_evaluate:
-    # Set up for deferred functions and published resources
-    e._InitializeComponentBuilders()
-    e._InitializeDefer()
-    e._InitializePublish()
+    # Make this the root environment for deferred functions, so they don't
+    # execute until our call to ExecuteDefer().
+    e.SetDeferRoot()
 
-    # Read SConscript for each component
-    # TODO(rspangler): Remove BUILD_COMPONENTS once all projects have
-    # transitioned to the BUILD_SCONSCRIPTS nomenclature.
-    for c in e.get('BUILD_COMPONENTS', []) + e.get('BUILD_SCONSCRIPTS', []):
-      # Clone the environment so components can't interfere with each other
-      ec = e.Clone()
-
-      if ec.Entry(c).isdir():
-        # The component is a directory, so assume it contains a SConscript
-        # file.
-        c_dir = ec.Dir(c)
-
-        # Use 'build.scons' as the default filename, but if that doesn't
-        # exist, fall back to 'SConscript'.
-        c_script = c_dir.File('build.scons')
-        if not c_script.exists():
-          c_script = c_dir.File('SConscript')
-      else:
-        # The component is a SConscript file.
-        c_script = ec.File(c)
-        c_dir = c_script.dir
-
-      # TODO(bradnelson): this hack is not in mainline.
-      #     Need to unify how to do this sort of thing.
-      c_dir = str(c_dir)
-      if os.path.isabs(c_dir):
-        build_dir = None
-      else:
-        build_dir = '$OBJ_ROOT/' + c_dir
-      ec.SConscript(c_script,
-                    build_dir=build_dir,
-                    exports={'env': ec},
-                    duplicate=0)
+    # Defer building the SConscripts, so that other tools can do
+    # per-environment setup first.
+    e.Defer(BuildEnvironmentSConscripts)
 
     # Execute deferred functions
-    e._ExecuteDefer()
+    e.ExecuteDefer()
 
-  if xml_help:
-    SCons.Script.Help(']]>\n</help_from_sconscripts>\n')
-
-  _AddTargetHelp()
-
-  # End final help tag
-  if xml_help:
-    SCons.Script.Help('</help>\n')
+  # Add help on targets.
+  AddTargetHelp()
 
   # Return list of environments actually evaluated
   return environments_to_evaluate
@@ -353,17 +314,6 @@ def AddSiteDir(site_dir):
       SCons.Node.FS.get_default_fs().SConstruct_dir, site_dir)
 
 
-def AddTargetGroup(target_group, description):
-  """Adds a target group, used for printing help.
-
-  Args:
-    target_group: Name of target group.  This should be the name of an alias
-        which points to other aliases for the specific targets.
-    description: Description of the target group.
-  """
-
-  __target_groups[target_group] = description
-
 #------------------------------------------------------------------------------
 
 
@@ -380,7 +330,6 @@ Additional options for SCons:
   --site-path=DIRLIST         Comma-separated list of additional site
                               directory paths; each is processed as if passed
                               to --site-dir.
-  --xml-help                  Print help in XML format.
 '''
 
 def SiteInitMain():
@@ -394,7 +343,6 @@ def SiteInitMain():
   # Let people use new global methods directly.
   __builtin__.AddSiteDir = AddSiteDir
   __builtin__.BuildEnvironments = BuildEnvironments
-  __builtin__.AddTargetGroup = AddTargetGroup
   # Legacy method names
   # TODO(rspangler): Remove these once they're no longer used anywhere.
   __builtin__.BuildComponents = BuildEnvironments
@@ -402,11 +350,16 @@ def SiteInitMain():
 
   # Set list of default tools for component_setup
   __builtin__.component_setup_tools = [
+      # Defer must be first so other tools can register environment
+      # setup/cleanup functions.
+      'defer',
+      # Component_targets must precede component_builders so builders can
+      # define target groups.
+      'component_targets',
       'command_output',
       'component_bits',
       'component_builders',
       'concat_source',
-      'defer',
       'environment_tools',
       'publish',
       'replicate',
@@ -442,16 +395,8 @@ def SiteInitMain():
       action='store',
       metavar='PATH',
       help='comma-separated list of site directories')
-  SCons.Script.AddOption(
-      '--xml-help',
-      dest='xml_help',
-      action='store_true',
-      help='print help in XML format')
 
-  if SCons.Script.GetOption('xml_help'):
-    SCons.Script.Help('<?xml version="1.0" encoding="UTF-8" ?>\n<help>\n')
-  else:
-    SCons.Script.Help(_new_options_help)
+  SCons.Script.Help(_new_options_help)
 
   # Check for site path.  This is a list of site directories which each are
   # processed as if they were passed to --site-dir.

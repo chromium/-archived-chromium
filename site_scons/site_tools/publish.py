@@ -31,7 +31,10 @@
 """Publish tool for SCons."""
 
 
-__published = {}        # List of published resources
+# List of published resources.  This is a dict indexed by group name.  Each
+# item in this dict is a dict indexed by resource type.  Items in that dict
+# are lists of files for that resource.
+__published = {}
 
 #------------------------------------------------------------------------------
 
@@ -54,13 +57,13 @@ class PublishItem(object):
 #------------------------------------------------------------------------------
 
 
-def _InitializePublish(self):
+def _InitializePublish(env):
   """Re-initializes published resources.
 
   Args:
-    self: Parent environment
+    env: Parent environment
   """
-  self=self     # Silence gpylint
+  env=env     # Silence gpylint
 
   # Clear the dict of published resources
   __published.clear()
@@ -87,10 +90,10 @@ def ReplicatePublished(self, target, group_name, resource_type):
   target_path = self.Dir(target).abspath
 
   dest_nodes = []
-  for group in self.Flatten(group_name):
-    for resource in self.Flatten(resource_type):
+  for group in self.SubstList2(group_name):
+    for resource in self.SubstList2(resource_type):
       # Get items for publish group and resource type
-      items = __published.get(self.subst(group), {}).get(resource, [])
+      items = __published.get(group, {}).get(resource, [])
       for i in items:
         if i.subdir:
           dest_nodes += self.Replicate(target_path + '/' + i.subdir, i.source)
@@ -113,10 +116,10 @@ def GetPublished(self, group_name, resource_type):
         no matching resources.
   """
   source_list = []
-  for group in self.Flatten(group_name):
+  for group in self.SubstList2(group_name):
     # Get items for publish group and resource type
-    for resource in self.Flatten(resource_type):
-      items = __published.get(self.subst(group), {}).get(resource, [])
+    for resource in self.SubstList2(resource_type):
+      items = __published.get(group, {}).get(resource, [])
       for i in items:
         source_list.append(i.source)
 
@@ -141,13 +144,17 @@ def Publish(self, group_name, resource_type, source, subdir=None):
     subdir = ''         # Make string so we can append to it
 
   # Evaluate SCons variables in group name
+  # TODO(rspangler): Should Publish() be able to take a list of group names
+  # and publish the resource to all of them?
   group_name = self.subst(group_name)
 
   # Get list of sources
   items = []
   for source_entry in self.Flatten(source):
-    if type(source_entry) == str:
+    if isinstance(source_entry, str):
       # Search for matches for each source entry
+      # TODO(rspangler): If there are no wildcard chars in the source entry,
+      # should generate an error if there were no matches?
       source_nodes = self.Glob(source_entry)
     else:
       # Source entry is already a file or directory node; no need to glob it
@@ -179,7 +186,10 @@ def generate(env):
   # NOTE: SCons requires the use of this name, which fails gpylint.
   """SCons entry point for this tool."""
 
-  env.AddMethod(_InitializePublish)
+  # Defer initializing publish, but do before building SConscripts
+  env.Defer(_InitializePublish)
+  env.Defer('BuildEnvironmentSConscripts', after=_InitializePublish)
+
   env.AddMethod(GetPublished)
   env.AddMethod(Publish)
   env.AddMethod(ReplicatePublished)
