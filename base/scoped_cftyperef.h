@@ -27,8 +27,9 @@ class scoped_cftyperef {
   }
 
   void reset(CFT object = NULL) {
-    if (object_ && object_ != object) {
-      CFRelease(object_);
+    if (object_ != object) {
+      if (object_)
+        CFRelease(object_);
       object_ = object;
     }
   }
@@ -71,4 +72,3 @@ class scoped_cftyperef {
 };
 
 #endif  // BASE_SCOPED_CFTYPEREF_H_
-
