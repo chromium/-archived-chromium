@@ -119,7 +119,7 @@ void BookmarkManagerView::Show(Profile* profile) {
     return;
 
   if (open_window != NULL) {
-    open_window->MoveToFront(true);
+    open_window->Activate();
     return;
   }
 
@@ -132,6 +132,9 @@ void BookmarkManagerView::Show(Profile* profile) {
   manager->PrepareForShow();
   // And show it.
   open_window->Show();
+
+  // Give initial focus to the search field.
+  manager->search_tf_->RequestFocus();
 }
 
 // static
