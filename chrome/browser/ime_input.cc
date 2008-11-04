@@ -196,15 +196,23 @@ void ImeInput::GetCaret(HIMC imm_context, LPARAM lparam,
         if (attribute_data.get()) {
           ::ImmGetCompositionString(imm_context, GCS_COMPATTR,
                                     attribute_data.get(), attribute_size);
-          int i = 0;
-          for (; i < attribute_size; i++) {
-            if (IsTargetAttribute(attribute_data[i])) break;
+          for (target_start = 0; target_start < attribute_size;
+               ++target_start) {
+            if (IsTargetAttribute(attribute_data[target_start]))
+              break;
           }
-          target_start = i;
-          for (; i < attribute_size; i++) {
-            if (!IsTargetAttribute(attribute_data[i])) break;
+          for (target_end = target_start; target_end < attribute_size;
+               ++target_end) {
+            if (!IsTargetAttribute(attribute_data[target_end]))
+              break;
           }
-          target_end = i;
+          if (target_start == attribute_size) {
+            // This composition clause does not contain any target clauses,
+            // i.e. this clauses is an input clause.
+            // We treat whole this clause as a target clause.
+            target_end = target_start;
+            target_start = 0;
+          }
         }
       }
     }

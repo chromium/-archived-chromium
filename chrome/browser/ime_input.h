@@ -236,8 +236,7 @@ class ImeInput {
   // Determines whether or not the given attribute represents a target
   // (a.k.a. a selection).
   bool IsTargetAttribute(char attribute) const {
-    return (attribute == ATTR_INPUT ||
-            attribute == ATTR_TARGET_CONVERTED ||
+    return (attribute == ATTR_TARGET_CONVERTED ||
             attribute == ATTR_TARGET_NOTCONVERTED);
   }
 
