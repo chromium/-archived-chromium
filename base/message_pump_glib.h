@@ -8,6 +8,7 @@
 #include <glib.h>
 
 #include "base/message_pump.h"
+#include "base/scoped_ptr.h"
 #include "base/time.h"
 
 namespace base {
@@ -91,6 +92,8 @@ class MessagePumpForUI : public MessagePump {
   // The work source.  It is shared by all calls to Run and destroyed when
   // the message pump is destroyed.
   GSource* work_source_;
+  // The GLib poll structure needs to be owned and freed by us.
+  scoped_ptr<GPollFD> work_source_poll_fd_;
 
   DISALLOW_COPY_AND_ASSIGN(MessagePumpForUI);
 };

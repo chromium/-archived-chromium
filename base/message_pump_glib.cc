@@ -54,7 +54,8 @@ static int GetTimeIntervalMilliseconds(Time from) {
 
 MessagePumpForUI::MessagePumpForUI()
     : state_(NULL),
-      context_(g_main_context_default()) {
+      context_(g_main_context_default()),
+      work_source_poll_fd_(new GPollFD) {
   // Create a pipe with a non-blocking read end for use by ScheduleWork to
   // break us out of a poll.  Create the work source and attach the file
   // descriptor to it.
@@ -67,10 +68,10 @@ MessagePumpForUI::MessagePumpForUI()
     flags = 0;
   CHECK(0 == fcntl(read_fd_work_scheduled_, F_SETFL, flags | O_NONBLOCK)) <<
       "Could not set file descriptor to non-blocking!";
-  GPollFD poll_fd;
-  poll_fd.fd = read_fd_work_scheduled_;
-  poll_fd.events = G_IO_IN | G_IO_HUP | G_IO_ERR;
-  work_source_ = AddSource(&WorkSourceFuncs, G_PRIORITY_DEFAULT, &poll_fd);
+  work_source_poll_fd_->fd = read_fd_work_scheduled_;
+  work_source_poll_fd_->events = G_IO_IN | G_IO_HUP | G_IO_ERR;
+  work_source_ = AddSource(&WorkSourceFuncs, G_PRIORITY_DEFAULT,
+                           work_source_poll_fd_.get());
 }
 
 MessagePumpForUI::~MessagePumpForUI() {
