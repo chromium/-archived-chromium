@@ -151,7 +151,7 @@ void BrowsingDataRemover::Observe(NotificationType type,
   // them to complete before continuing.
   DCHECK(type == TEMPLATE_URL_MODEL_LOADED);
   TemplateURLModel* model = Source<TemplateURLModel>(source).ptr();
-  if (model->profile() == profile_) {
+  if (model->profile() == profile_->GetOriginalProfile()) {
     NotificationService::current()->RemoveObserver(
         this, TEMPLATE_URL_MODEL_LOADED,
         Source<TemplateURLModel>(model));
