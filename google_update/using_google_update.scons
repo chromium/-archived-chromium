@@ -12,4 +12,7 @@ env.Append(
     CPPPATH = [
         '$GOOGLE_UPDATE_DIR',
     ],
+    LIBS = [
+        'google_update',
+    ],
 )

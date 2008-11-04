@@ -12,6 +12,8 @@ sconscript_files = [
     'SConscript',
 
     'browser/browser.scons',
+    'browser/debugger/debugger.scons',
+    'test/interactive_ui/interactive_ui_tests.scons',
     'test/unit/unit_tests.scons',
     'common/common.scons',
     'common/ipc_tests.scons',

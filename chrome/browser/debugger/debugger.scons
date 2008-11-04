@@ -1,0 +1,39 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$BREAKPAD_DIR/using_breakpad.scons',
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$NPAPI_DIR/using_npapi.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_DIR/app/resources',
+        '$CHROME_DIR/app',
+        '$CHROME_SRC_DIR',
+    ],
+)
+
+input_files = [
+    'debugger_contents.cc',
+    'debugger_io_socket.cc',
+    'debugger_node.cc',
+    'debugger_shell.cc',
+    'debugger_view.cc',
+    'debugger_window.cc',
+    'debugger_wrapper.cc',
+]
+
+env.ChromeStaticLibrary('debugger', input_files)
+
