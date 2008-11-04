@@ -43,11 +43,6 @@ class ClientSocket : public Socket {
   // connection wasn't established or the connection is dead.
   virtual bool IsConnected() const = 0;
 
-  // TODO(eroman): Temporary for 3772 bug investigation.
-  virtual bool IsSSL() const {
-    return false;
-  }
-
 #if defined(OS_LINUX)
   // Identical to posix system call getpeername().
   // Needed by ssl_client_socket_nss.

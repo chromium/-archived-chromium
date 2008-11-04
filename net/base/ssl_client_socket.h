@@ -22,11 +22,6 @@ class SSLClientSocket : public ClientSocket {
  public:
   // Gets the SSL connection information of the socket.
   virtual void GetSSLInfo(SSLInfo* ssl_info) = 0;
-
-  // TODO(eroman): Temporary for 3772 bug investigation.
-  virtual bool IsSSL() const {
-    return true;
-  }
 };
 
 }  // namespace net

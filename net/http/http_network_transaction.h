@@ -77,9 +77,6 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoReadBody();
   int DoReadBodyComplete(int result);
 
-  // TODO(eroman): Temporary for 3772 bug investigation.
-  void CrashFor3772();
-
   // Called when header_buf_ contains the complete response headers.
   int DidReadResponseHeaders();
 
