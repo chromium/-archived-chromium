@@ -188,7 +188,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     bool is_redirect);
   void SetCustomPolicyDelegate(bool isCustom);
   virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
-  virtual void GoToEntryAtOffsetAsync(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
 

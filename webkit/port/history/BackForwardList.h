@@ -62,7 +62,6 @@ public:
     virtual void didAddHistoryItem(HistoryItem* item) = 0;
     virtual void willGoToHistoryItem(HistoryItem* item) = 0;
     virtual HistoryItem* itemAtIndex(int index) = 0;
-    virtual void goToItemAtIndexAsync(int index) = 0;
     virtual int backListCount() = 0;
     virtual int forwardListCount() = 0;
 };
@@ -88,7 +87,6 @@ public:
     HistoryItem* forwardItem();
     HistoryItem* previousItem();
     HistoryItem* itemAtIndex(int);
-    void goToItemAtIndexAsync(int);
 
     // Returns an iterable container of all history items, which will be
     // traversed in order to clear the page cache when it's disabled (see

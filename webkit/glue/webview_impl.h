@@ -201,7 +201,6 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
   virtual void didAddHistoryItem(WebCore::HistoryItem* item);
   virtual void willGoToHistoryItem(WebCore::HistoryItem* item);
   virtual WebCore::HistoryItem* itemAtIndex(int index);
-  virtual void goToItemAtIndexAsync(int index);
   virtual int backListCount();
   virtual int forwardListCount();
 

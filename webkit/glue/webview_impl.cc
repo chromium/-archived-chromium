@@ -1459,11 +1459,6 @@ WebCore::HistoryItem* WebViewImpl::itemAtIndex(int index) {
   return pending_history_item_->GetHistoryItem();
 }
 
-void WebViewImpl::goToItemAtIndexAsync(int index) {
-  if (delegate_)
-    delegate_->GoToEntryAtOffsetAsync(index);
-}
-
 int WebViewImpl::backListCount() {
   if (!delegate_)
     return 0;

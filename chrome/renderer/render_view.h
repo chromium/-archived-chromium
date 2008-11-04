@@ -234,7 +234,6 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   virtual void JSOutOfMemory();
 
   virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
-  virtual void GoToEntryAtOffsetAsync(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
   virtual void OnNavStateChanged(WebView* webview);
@@ -363,6 +362,10 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   // Adds search provider from the given OpenSearch description URL as a
   // keyword search.
   void AddGURLSearchProvider(const GURL& osd_url, bool autodetected);
+
+  // Tells the browser process to navigate to a back/forward entry at the given
+  // offset from current.
+  void GoToEntryAtOffset(int offset);
 
   // RenderView IPC message handlers
   void OnCreatingNewAck(HWND parent);

@@ -661,10 +661,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return NULL;
   }
 
-  // Asynchronously navigates to the history entry at the given offset.
-  virtual void GoToEntryAtOffsetAsync(int offset) {
-  }
-
   // Returns how many entries are in the back and forward lists, respectively.
   virtual int GetHistoryBackListCount() {
     return 0;

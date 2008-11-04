@@ -1535,7 +1535,7 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
         std::string offset_str = url.ExtractFileName();
         int offset;
         if (StringToInt(offset_str, &offset)) {
-          GoToEntryAtOffsetAsync(offset);
+          GoToEntryAtOffset(offset);
           return IGNORE_ACTION;  // The browser process handles this one.
         }
       }
@@ -2296,7 +2296,7 @@ WebHistoryItem* RenderView::GetHistoryEntryAtOffset(int offset) {
   return history_navigation_item_.get();
 }
 
-void RenderView::GoToEntryAtOffsetAsync(int offset) {
+void RenderView::GoToEntryAtOffset(int offset) {
   history_back_list_count_ += offset;
   history_forward_list_count_ -= offset;
 

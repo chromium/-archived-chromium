@@ -160,11 +160,6 @@ HistoryItem* BackForwardList::itemAtIndex(int index)
     return m_client->itemAtIndex(index);
 }
 
-void BackForwardList::goToItemAtIndexAsync(int index)
-{
-    m_client->goToItemAtIndexAsync(index);
-}
-
 void BackForwardList::close()
 {
     m_closed = true;
