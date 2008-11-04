@@ -19,46 +19,66 @@ namespace {
 // Callback functions to proxy to host...
 
 gboolean ConfigureEvent(GtkWidget* widget, GdkEventConfigure* config,
-                        gpointer userdata) {
-  WebWidgetHost* host = (WebWidgetHost* ) userdata;
+                        WebWidgetHost* host) {
   DLOG(INFO) << "  -- Resize " << config->width << " " << config->height;
   host->Resize(gfx::Size(config->width, config->height));
   return FALSE;
 }
 
 gboolean ExposeEvent(GtkWidget* widget, GdkEventExpose* expose,
-                     gpointer userdata) {
-  WebWidgetHost* host = (WebWidgetHost* ) userdata;
+                     WebWidgetHost* host) {
   DLOG(INFO) << "  -- Expose";
   host->Paint();
   return FALSE;
 }
 
-gboolean DestroyEvent(GtkWidget* widget, GdkEvent* event, gpointer userdata) {
-  WebWidgetHost* host = (WebWidgetHost* ) userdata;
+gboolean DestroyEvent(GtkWidget* widget, GdkEvent* event,
+                      WebWidgetHost* host) {
   DLOG(INFO) << "  -- Destroy";
   host->WindowDestroyed();
   return FALSE;
 }
 
-gboolean KeyPressEvent(GtkWidget* widget, GdkEventKey* event,
-                       gpointer userdata) {
-  WebWidgetHost* host = (WebWidgetHost* ) userdata;
-  DLOG(INFO) << "  -- Key press";
+gboolean KeyPressReleaseEvent(GtkWidget* widget, GdkEventKey* event,
+                              WebWidgetHost* host) {
+  DLOG(INFO) << "  -- Key press or release";
   WebKeyboardEvent wke(event);
   host->webwidget()->HandleInputEvent(&wke);
   return FALSE;
 }
 
-gboolean FocusIn(GtkWidget* widget, GdkEventFocus* focus, gpointer userdata) {
-  WebWidgetHost* host = (WebWidgetHost* ) userdata;
+gboolean FocusIn(GtkWidget* widget, GdkEventFocus* focus,
+                 WebWidgetHost* host) {
   host->webwidget()->SetFocus(true);
   return FALSE;
 }
 
-gboolean FocusOut(GtkWidget* widget, GdkEventFocus* focus, gpointer userdata) {
-  WebWidgetHost* host = (WebWidgetHost* ) userdata;
+gboolean FocusOut(GtkWidget* widget, GdkEventFocus* focus,
+                  WebWidgetHost* host) {
   host->webwidget()->SetFocus(false);
+  return FALSE;
+}
+
+gboolean ButtonPressReleaseEvent(GtkWidget* widget, GdkEventButton* event,
+                                 WebWidgetHost* host) {
+  DLOG(INFO) << "  -- mouse button press or release";
+  WebMouseEvent wme(event);
+  host->webwidget()->HandleInputEvent(&wme);
+  return FALSE;
+}
+
+gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
+                        WebWidgetHost* host) {
+  WebMouseEvent wme(event);
+  host->webwidget()->HandleInputEvent(&wme);
+  return FALSE;
+}
+
+gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
+                          WebWidgetHost* host) {
+  WebMouseWheelEvent wmwe(event);
+  DLOG(INFO) << "  -- mouse wheel scroll event";
+  host->webwidget()->HandleInputEvent(&wmwe);
   return FALSE;
 }
 
@@ -81,9 +101,20 @@ gfx::WindowHandle WebWidgetHost::CreateWindow(gfx::WindowHandle box,
   g_signal_connect(widget, "configure-event", G_CALLBACK(ConfigureEvent), host);
   g_signal_connect(widget, "expose-event", G_CALLBACK(ExposeEvent), host);
   g_signal_connect(widget, "destroy-event", G_CALLBACK(DestroyEvent), host);
-  g_signal_connect(widget, "key-press-event", G_CALLBACK(KeyPressEvent), host);
+  g_signal_connect(widget, "key-press-event", G_CALLBACK(KeyPressReleaseEvent),
+                   host);
+  g_signal_connect(widget, "key-release-event",
+                   G_CALLBACK(KeyPressReleaseEvent), host);
   g_signal_connect(widget, "focus-in-event", G_CALLBACK(FocusIn), host);
   g_signal_connect(widget, "focus-out-event", G_CALLBACK(FocusOut), host);
+  g_signal_connect(widget, "button-press-event",
+                   G_CALLBACK(ButtonPressReleaseEvent), host);
+  g_signal_connect(widget, "button-release-event",
+                   G_CALLBACK(ButtonPressReleaseEvent), host);
+  g_signal_connect(widget, "motion-notify-event", G_CALLBACK(MouseMoveEvent),
+                   host);
+  g_signal_connect(widget, "scroll-event", G_CALLBACK(MouseScrollEvent),
+                   host);
 
   return widget;
 }
