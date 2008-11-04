@@ -314,4 +314,3 @@
 #define IDR_PRODUCT_LOGO                                 9306
 #define IDR_DISTRIBUTOR_LOGO                             9307
 #define IDR_DISTRIBUTOR_LOGO_LIGHT                       9308
-#define IDR_MENU_DROPARROW                               9309

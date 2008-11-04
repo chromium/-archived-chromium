@@ -8,7 +8,6 @@
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/browser/views/download_started_animation.h"
-#include "chrome/browser/views/blocked_popup_container.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/common/l10n_util.h"
@@ -44,7 +43,6 @@ TabContents::TabContents(TabContentsType type)
       saved_location_bar_state_(NULL),
       shelf_visible_(false),
       max_page_id_(-1),
-      blocked_popups_(NULL),
       capturing_contents_(false) {
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
@@ -292,25 +290,25 @@ void TabContents::AddNewContents(TabContents* new_contents,
 
 void TabContents::AddConstrainedPopup(TabContents* new_contents,
                                       const gfx::Rect& initial_pos) {
-  if (!blocked_popups_) {
-    CRect client_rect;
-    GetClientRect(GetContainerHWND(), &client_rect);
-    gfx::Point anchor_position(
-        client_rect.Width() -
-          views::NativeScrollBar::GetVerticalScrollBarWidth(),
-        client_rect.Height());
+  ConstrainedWindow* window =
+      ConstrainedWindow::CreateConstrainedPopup(
+          this, initial_pos, new_contents);
+  child_windows_.push_back(window);
 
-    blocked_popups_ = BlockedPopupContainer::Create(
-        this, profile(), anchor_position);
-    child_windows_.push_back(blocked_popups_);
-  }
-
-  blocked_popups_->AddTabContents(new_contents, initial_pos);
+  CRect client_rect;
+  GetClientRect(GetContainerHWND(), &client_rect);
+  gfx::Size new_size(client_rect.Width(), client_rect.Height());
+  RepositionSupressedPopupsToFit(new_size);
 }
 
 void TabContents::CloseAllSuppressedPopups() {
-  if (blocked_popups_)
-    blocked_popups_->CloseAllPopups();
+  // Close all auto positioned child windows to "clean up" the workspace.
+  int count = static_cast<int>(child_windows_.size());
+  for (int i = count - 1; i >= 0; --i) {
+    ConstrainedWindow* window = child_windows_.at(i);
+    if (window->IsSuppressedConstrainedWindow())
+      window->CloseConstrainedWindow();
+  }
 }
 
 void TabContents::Focus() {
@@ -446,20 +444,46 @@ void TabContents::MigrateShelfViewFrom(TabContents* tab_contents) {
   tab_contents->ReleaseDownloadShelfView();
 }
 
+void TabContents::AddNewContents(ConstrainedWindow* window,
+                                 TabContents* new_contents,
+                                 WindowOpenDisposition disposition,
+                                 const gfx::Rect& initial_pos,
+                                 bool user_gesture) {
+  AddNewContents(new_contents, disposition, initial_pos, user_gesture);
+}
+
+void TabContents::OpenURL(ConstrainedWindow* window,
+                          const GURL& url,
+                          const GURL& referrer,
+                          WindowOpenDisposition disposition,
+                          PageTransition::Type transition) {
+  OpenURL(url, referrer, disposition, transition);
+}
+
 void TabContents::WillClose(ConstrainedWindow* window) {
   ConstrainedWindowList::iterator it =
       find(child_windows_.begin(), child_windows_.end(), window);
   if (it != child_windows_.end())
     child_windows_.erase(it);
 
-  if (window == blocked_popups_)
-    blocked_popups_ = NULL;
-
   if (::IsWindow(GetContainerHWND())) {
     CRect client_rect;
     GetClientRect(GetContainerHWND(), &client_rect);
     RepositionSupressedPopupsToFit(
         gfx::Size(client_rect.Width(), client_rect.Height()));
+  }
+}
+
+void TabContents::DetachContents(ConstrainedWindow* window,
+                                 TabContents* contents,
+                                 const gfx::Rect& contents_bounds,
+                                 const gfx::Point& mouse_pt,
+                                 int frame_component) {
+  WillClose(window);
+  if (delegate_) {
+    contents->DisassociateFromPopupCount();
+    delegate_->StartDraggingDetachedContents(
+        this, contents, contents_bounds, mouse_pt, frame_component);
   }
 }
 
@@ -508,9 +532,12 @@ void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
       new_size.width() -
           views::NativeScrollBar::GetVerticalScrollBarWidth(),
       new_size.height());
-
-  if (blocked_popups_)
-    blocked_popups_->RepositionConstrainedWindowTo(anchor_position);
+  int window_count = static_cast<int>(child_windows_.size());
+  for (int i = window_count - 1; i >= 0; --i) {
+    ConstrainedWindow* window = child_windows_.at(i);
+    if (window->IsSuppressedConstrainedWindow())
+      window->RepositionConstrainedWindowTo(anchor_position);
+  }
 }
 
 void TabContents::ReleaseDownloadShelfView() {

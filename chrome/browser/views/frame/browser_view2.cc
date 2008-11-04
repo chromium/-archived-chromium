@@ -351,6 +351,40 @@ void BrowserView2::FlashFrame() {
   FlashWindowEx(&fwi);
 }
 
+void BrowserView2::ContinueDetachConstrainedWindowDrag(
+    const gfx::Point& mouse_point,
+    int frame_component) {
+  HWND vc_hwnd = GetContainer()->GetHWND();
+  if (frame_component == HTCLIENT) {
+    // If the user's mouse was over the content area of the popup when they
+    // clicked down, we need to re-play the mouse down event so as to actually
+    // send the click to the renderer. If we don't do this, the user needs to
+    // click again once the window is detached to interact.
+    HWND inner_hwnd = browser_->GetSelectedTabContents()->GetContentHWND();
+    POINT window_point = mouse_point.ToPOINT();
+    MapWindowPoints(HWND_DESKTOP, inner_hwnd, &window_point, 1);
+    PostMessage(inner_hwnd, WM_LBUTTONDOWN, MK_LBUTTON,
+                MAKELPARAM(window_point.x, window_point.y));
+  } else if (frame_component != HTNOWHERE) {
+    // The user's mouse is already moving, and the left button is down, but we
+    // need to start moving this frame, so we _post_ it a NCLBUTTONDOWN message
+    // with the corresponding frame component as supplied by the constrained
+    // window where the user clicked. This tricks Windows into believing the
+    // user just started performing that operation on the newly created window.
+    // All the frame moving and sizing is then handled automatically by
+    // Windows. We use PostMessage because we need to return to the message
+    // loop first for Windows' built in moving/sizing to be triggered.
+    POINTS pts;
+    pts.x = mouse_point.x();
+    pts.y = mouse_point.y();
+    PostMessage(vc_hwnd, WM_NCLBUTTONDOWN, frame_component,
+                reinterpret_cast<LPARAM>(&pts));
+    // Also make sure the right cursor for the action is set.
+    PostMessage(vc_hwnd, WM_SETCURSOR, reinterpret_cast<WPARAM>(vc_hwnd),
+                frame_component);
+  }
+}
+
 void BrowserView2::SizeToContents(const gfx::Rect& contents_bounds) {
   frame_->SizeToContents(contents_bounds);
 }
@@ -1158,3 +1192,4 @@ void BrowserView2::InitClass() {
     initialized = true;
   }
 }
+

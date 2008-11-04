@@ -141,6 +141,9 @@ class BrowserView2 : public BrowserWindow,
   virtual void UpdateTitleBar();
   virtual void Activate();
   virtual void FlashFrame();
+  virtual void ContinueDetachConstrainedWindowDrag(
+      const gfx::Point& mouse_point,
+      int frame_component);
   virtual void SizeToContents(const gfx::Rect& contents_bounds);
   virtual void SetAcceleratorTable(
       std::map<views::Accelerator, int>* accelerator_table);
@@ -368,3 +371,4 @@ class BrowserView2 : public BrowserWindow,
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW2_H_
+

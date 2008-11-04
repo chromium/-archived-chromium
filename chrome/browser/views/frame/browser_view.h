@@ -48,6 +48,9 @@ class BrowserView : public BrowserWindow,
   virtual void Activate();
   virtual void FlashFrame();
   virtual void ShowTabContents(TabContents* contents);
+  virtual void ContinueDetachConstrainedWindowDrag(
+      const gfx::Point& mouse_pt,
+      int frame_component);
   virtual void SizeToContents(const gfx::Rect& contents_bounds);
   virtual void SetAcceleratorTable(
       std::map<views::Accelerator, int>* accelerator_table);
@@ -102,3 +105,4 @@ class BrowserView : public BrowserWindow,
 };
 
 #endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
+

@@ -3165,9 +3165,6 @@ each locale. -->
       <message name="IDS_POPUPS_BLOCKED_COUNT" desc="Message on the blocked popup window">
         Pop-ups Blocked: <ph name="COUNT">$1<ex>2</ex></ph>
       </message>
-      <message name="IDS_POPUP_TITLE_FORMAT" desc="Order of URL - Title on the popup">
-        <ph name="URL">$1</ph> - <ph name="Window Title">$2</ph>
-      </message>
 
       <!-- Multiple download warning-->
       <message name="IDS_MULTI_DOWNLOAD_WARNING" desc="Warning invoked if multiple downloads are attempted without user interaction.">

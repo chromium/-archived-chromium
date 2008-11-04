@@ -462,14 +462,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\blocked_popup_container.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\blocked_popup_container.h"
-			>
-		</File>
-		<File
 			RelativePath=".\bookmark_bar_view.cc"
 			>
 		</File>
@@ -531,6 +523,14 @@
 		</File>
 		<File
 			RelativePath=".\clear_browsing_data.h"
+			>
+		</File>
+		<File
+			RelativePath=".\constrained_window_animation.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\constrained_window_animation.h"
 			>
 		</File>
 		<File

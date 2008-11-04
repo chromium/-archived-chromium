@@ -170,6 +170,13 @@ void ExternalTabContainer::AddNewContents(TabContents* source,
                             bool user_gesture) {
 }
 
+void ExternalTabContainer::StartDraggingDetachedContents(
+    TabContents* source,
+    TabContents* new_contents,
+    const gfx::Rect& contents_bounds,
+    const gfx::Point& mouse_pt) {
+}
+
 void ExternalTabContainer::ActivateContents(TabContents* contents) {
 }
 
@@ -329,3 +336,4 @@ ExternalTabContainer* ExternalTabContainer::GetContainerForTab(
       GetProp(parent_window, kWindowObjectKey));
   return container;
 }
+
