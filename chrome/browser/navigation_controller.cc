@@ -146,7 +146,7 @@ static void CreateNavigationEntriesFromTabNavigations(
 
     NavigationEntry* entry = new NavigationEntry(
         type,
-        NULL,  // The site instance for restored tabs is sent on naviagtion
+        NULL,  // The site instance for restored tabs is sent on navigation
                // (WebContents::GetSiteInstanceForEntry).
         static_cast<int>(i - navigations.begin()),
         real_url,
