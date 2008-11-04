@@ -10,6 +10,7 @@
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
 #include "base/process_util.h"
+#include "base/win_util.h"
 #include "chrome/app/breakpad.h"
 #include "chrome/app/client_util.h"
 #include "chrome/app/google_update_client.h"
@@ -25,25 +26,12 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // The exit manager is in charge of calling the dtors of singletons.
   base::AtExitManager exit_manager;
 
-  // Note that std::wstring and CommandLine got linked anyway because of
-  // breakpad.
-  CommandLine parsed_command_line;
-  std::wstring process_type =
-    parsed_command_line.GetSwitchValue(switches::kProcessType);
-
-  const wchar_t* dll_name = L"chrome.dll";
-  if (process_type == switches::kPluginProcess) {
-    // Plugin process.
-    // For plugins, we enable ATL7 thunking support because we saw old activex
-    // built with VC2002 in the wild still being used.
-    sandbox::SetCurrentProcessDEP(sandbox::DEP_ENABLED_ATL7_COMPAT);
-  } else if (process_type == switches::kRendererProcess) {
-    // Renderer process.
-    // For the processes we control, we enforce strong DEP support.
-    sandbox::SetCurrentProcessDEP(sandbox::DEP_ENABLED);
-  } else {
-    // Browser process.
-    // For the processes we control, we enforce strong DEP support.
+  win_util::WinVersion win_version = win_util::GetWinVersion();
+  if (win_version == win_util::WINVERSION_XP ||
+      win_version == win_util::WINVERSION_SERVER_2003) {
+    // On Vista, this is unnecessary since it is controlled through the
+    // /NXCOMPAT linker flag.
+    // Enforces strong DEP support.
     sandbox::SetCurrentProcessDEP(sandbox::DEP_ENABLED);
   }
 
@@ -54,6 +42,7 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   if (!sandbox_info.broker_services)
     sandbox_info.target_services = sandbox::SandboxFactory::GetTargetServices();
 
+  const wchar_t* dll_name = L"chrome.dll";
 #if defined(GOOGLE_CHROME_BUILD)
   google_update::GoogleUpdateClient client;
 

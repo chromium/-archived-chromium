@@ -23,8 +23,6 @@ namespace {
 // SetProcessDEPPolicy is declared in the Windows 2008 SDK.
 typedef BOOL (WINAPI *FnSetProcessDEPPolicy)(DWORD dwFlags);
 
-// Completely undocumented from Microsoft. You can find this information by
-// disassembling Vista's SP1 kernel32.dll with your favorite disassembler.
 enum PROCESS_INFORMATION_CLASS {
   ProcessExecuteFlags = 0x22,
 };
@@ -49,38 +47,8 @@ bool SetCurrentProcessDEP(DepEnforcement enforcement) {
   // DEP is always on in x64.
   return enforcement != DEP_DISABLED;
 #endif
-
-  // Try documented ways first.
-  // Only available on Vista SP1 and Windows 2008.
-  // http://msdn.microsoft.com/en-us/library/bb736299.aspx
-  FnSetProcessDEPPolicy SetProcDEP =
-      reinterpret_cast<FnSetProcessDEPPolicy>(
-          GetProcAddress(GetModuleHandle(L"kernel32.dll"),
-                                         "SetProcessDEPPolicy"));
-
-  if (SetProcDEP) {
-    ULONG dep_flags;
-    switch (enforcement) {
-      case DEP_DISABLED:
-        dep_flags = 0;
-        break;
-      case DEP_ENABLED:
-        dep_flags = PROCESS_DEP_ENABLE |
-                    PROCESS_DEP_DISABLE_ATL_THUNK_EMULATION;
-        break;
-      case DEP_ENABLED_ATL7_COMPAT:
-        dep_flags = PROCESS_DEP_ENABLE;
-        break;
-      default:
-        NOTREACHED();
-        return false;
-    }
-    return 0 != SetProcDEP(dep_flags);
-  }
-
-  // Go in darker areas.
   // Only available on Windows XP SP2 and Windows Server 2003 SP1.
-  // http://www.uninformed.org/?v=2&a=4
+  // For reference: http://www.uninformed.org/?v=2&a=4
   FnNtSetInformationProcess NtSetInformationProc =
       reinterpret_cast<FnNtSetInformationProcess>(
           GetProcAddress(GetModuleHandle(L"ntdll.dll"),
