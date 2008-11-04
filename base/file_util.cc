@@ -289,7 +289,7 @@ bool ReadFileToString(const std::wstring& path, std::string* contents) {
   return true;
 }
 
-bool GetFileSize(const std::wstring& file_path, int64* file_size) {
+bool GetFileSize(const FilePath& file_path, int64* file_size) {
   FileInfo info;
   if (!GetFileInfo(file_path, &info))
     return false;
@@ -349,6 +349,12 @@ bool GetCurrentDirectory(std::wstring* path_str) {
     return false;
   *path_str = path.ToWStringHack();
   return true;
+}
+bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
+  return GetFileInfo(FilePath::FromWStringHack(file_path), results);
+}
+bool GetFileSize(const std::wstring& file_path, int64* file_size) {
+  return GetFileSize(FilePath::FromWStringHack(file_path), file_size);
 }
 bool GetTempDir(std::wstring* path_str) {
   FilePath path;

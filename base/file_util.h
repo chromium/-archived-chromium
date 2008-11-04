@@ -267,6 +267,8 @@ bool CreateDirectory(const FilePath& full_path);
 bool CreateDirectory(const std::wstring& full_path);
 
 // Returns the file size. Returns true on success.
+bool GetFileSize(const FilePath& file_path, int64* file_size);
+// Deprecated temporary compatibility function.
 bool GetFileSize(const std::wstring& file_path, int64* file_size);
 
 // Used to hold information about a given file path.  See GetFileInfo below.
@@ -281,7 +283,10 @@ struct FileInfo {
 };
 
 // Returns information about the given file path.
+bool GetFileInfo(const FilePath& file_path, FileInfo* info);
+// Deprecated temporary compatibility function.
 bool GetFileInfo(const std::wstring& file_path, FileInfo* info);
+
 
 // Wrapper for fopen-like calls. Returns non-NULL FILE* on success.
 FILE* OpenFile(const FilePath& filename, const char* mode);

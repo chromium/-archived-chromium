@@ -311,9 +311,9 @@ bool CreateDirectory(const FilePath& full_path) {
   return true;
 }
 
-bool GetFileInfo(const std::wstring& file_path, FileInfo* results) {
+bool GetFileInfo(const FilePath& file_path, FileInfo* results) {
   struct stat64 file_info;
-  if (stat64(WideToUTF8(file_path).c_str(), &file_info) != 0)
+  if (stat64(file_path.value().c_str(), &file_info) != 0)
     return false;
   results->is_directory = S_ISDIR(file_info.st_mode);
   results->size = file_info.st_size;

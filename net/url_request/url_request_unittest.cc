@@ -331,20 +331,12 @@ TEST(URLRequestTest, PostFileTest) {
 
     MessageLoop::current()->Run();
 
-#if defined(OS_WIN)
-    HANDLE file = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
-                             OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    ASSERT_NE(INVALID_HANDLE_VALUE, file);
-
-    DWORD size = GetFileSize(file, NULL);
+    int64 size;
+    ASSERT_EQ(true, file_util::GetFileSize(path, &size));
     scoped_array<char> buf(new char[size]);
 
-    DWORD size_read;
-    EXPECT_TRUE(ReadFile(file, buf.get(), size, &size_read, NULL));
-
-    CloseHandle(file);
-
-    EXPECT_EQ(size, size_read);
+    int64 size_read = file_util::ReadFile(path, buf.get(), size);
+    ASSERT_EQ(size, size_read);
 
     ASSERT_EQ(1, d.response_started_count()) << "request failed: " <<
         (int) r.status().status() << ", os error: " << r.status().os_error();
@@ -353,9 +345,6 @@ TEST(URLRequestTest, PostFileTest) {
 
     ASSERT_EQ(size, d.bytes_received());
     EXPECT_EQ(0, memcmp(d.data_received().c_str(), buf.get(), size));
-#else
-    NOTIMPLEMENTED();
-#endif
   }
 #ifndef NDEBUG
   DCHECK_EQ(url_request_metrics.object_count,0);
