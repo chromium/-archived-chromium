@@ -331,11 +331,12 @@ TEST(URLRequestTest, PostFileTest) {
 
     MessageLoop::current()->Run();
 
-    int64 size;
-    ASSERT_EQ(true, file_util::GetFileSize(path, &size));
+    int64 longsize;
+    ASSERT_EQ(true, file_util::GetFileSize(path, &longsize));
+    int size = static_cast<int>(longsize);
     scoped_array<char> buf(new char[size]);
 
-    int64 size_read = file_util::ReadFile(path, buf.get(), size);
+    int size_read = static_cast<int>(file_util::ReadFile(path, buf.get(), size));
     ASSERT_EQ(size, size_read);
 
     ASSERT_EQ(1, d.response_started_count()) << "request failed: " <<
