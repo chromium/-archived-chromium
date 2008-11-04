@@ -66,10 +66,6 @@ class ExternalTabContainer : public TabContentsDelegate,
                               WindowOpenDisposition disposition,
                               const gfx::Rect& initial_pos,
                               bool user_gesture);
-  virtual void StartDraggingDetachedContents(TabContents* source,
-                                             TabContents* new_contents,
-                                             const gfx::Rect& contents_bounds,
-                                             const gfx::Point& mouse_pt);
   virtual void ActivateContents(TabContents* contents);
   virtual void LoadingStateChanged(TabContents* source);
   virtual void CloseContents(TabContents* source);
@@ -147,4 +143,3 @@ class ExternalTabContainer : public TabContentsDelegate,
 };
 
 #endif  // CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H__
-

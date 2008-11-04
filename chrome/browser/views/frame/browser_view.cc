@@ -113,12 +113,6 @@ void BrowserView::ShowTabContents(TabContents* contents) {
   frame_->ShowTabContents(contents);
 }
 
-void BrowserView::ContinueDetachConstrainedWindowDrag(
-    const gfx::Point& mouse_pt,
-    int frame_component) {
-  frame_->ContinueDetachConstrainedWindowDrag(mouse_pt, frame_component);
-}
-
 void BrowserView::SizeToContents(const gfx::Rect& contents_bounds) {
   frame_->SizeToContents(contents_bounds);
 }
@@ -231,4 +225,3 @@ void BrowserView::ViewHierarchyChanged(bool is_add,
     initialized_ = true;
   }
 }
-

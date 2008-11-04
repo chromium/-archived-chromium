@@ -165,9 +165,6 @@ class VistaFrame : public BrowserWindow,
   virtual void* GetPlatformID();
   virtual void ShowTabContents(TabContents* contents);
   virtual TabStrip* GetTabStrip() const;
-  virtual void ContinueDetachConstrainedWindowDrag(
-      const gfx::Point& mouse_pt,
-      int frame_component);
   virtual void SizeToContents(const gfx::Rect& contents_bounds);
   virtual void SetAcceleratorTable(
       std::map<views::Accelerator, int>* accelerator_table);
@@ -411,4 +408,3 @@ class VistaFrame : public BrowserWindow,
   DISALLOW_EVIL_CONSTRUCTORS(VistaFrame);
 };
 #endif  // CHROME_BROWSER_VIEWS_OLD_FRAMES_VISTA_FRAME_H__
-
