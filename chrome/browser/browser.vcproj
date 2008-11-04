@@ -746,6 +746,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmarks\bookmark_drop_info.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_drop_info.h"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmarks\bookmark_folder_tree_model.cc"
 				>
 			</File>

@@ -146,9 +146,8 @@ bool ShouldOpenAll(HWND parent, const std::vector<BookmarkNode*>& nodes) {
 
 namespace bookmark_utils {
 
-int PreferredDropOperation(const views::DropTargetEvent& event,
-                           int operation) {
-  int common_ops = (event.GetSourceOperations() & operation);
+int PreferredDropOperation(int source_operations, int operations) {
+  int common_ops = (source_operations & operations);
   if (!common_ops)
     return 0;
   if (DragDropTypes::DRAG_COPY & common_ops)

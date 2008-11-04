@@ -610,6 +610,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\view_constants.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\view_constants.h"
+			>
+		</File>
+		<File
 			RelativePath=".\view_menu_delegate.h"
 			>
 		</File>

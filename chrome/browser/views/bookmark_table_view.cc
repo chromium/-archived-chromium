@@ -13,7 +13,7 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/chrome_menu.h"
+#include "chrome/views/view_constants.h"
 
 #include "generated_resources.h"
 
@@ -34,6 +34,10 @@ int GetWidthOfColumn(const std::vector<views::TableColumn>& columns,
 }
 
 }  // namespace
+
+void BookmarkTableView::DropInfo::Scrolled() {
+  view_->UpdateDropInfo();
+}
 
 BookmarkTableView::BookmarkTableView(Profile* profile,
                                      BookmarkTableModel* model)
@@ -57,17 +61,20 @@ bool BookmarkTableView::CanDrop(const OSExchangeData& data) {
   if (!parent_node_ || !profile_->GetBookmarkModel()->IsLoaded())
     return false;
 
-  drop_info_.reset(new DropInfo());
-  if (!drop_info_->drag_data.Read(data))
+  BookmarkDragData drag_data;
+  if (!drag_data.Read(data))
     return false;
 
   // Don't allow the user to drop an ancestor of the parent node onto the
   // parent node. This would create a cycle, which is definitely a no-no.
-  std::vector<BookmarkNode*> nodes = drop_info_->drag_data.GetNodes(profile_);
+  std::vector<BookmarkNode*> nodes = drag_data.GetNodes(profile_);
   for (size_t i = 0; i < nodes.size(); ++i) {
     if (parent_node_->HasAncestor(nodes[i]))
       return false;
   }
+
+  drop_info_.reset(new DropInfo(this));
+  drop_info_->SetData(drag_data);
   return true;
 }
 
@@ -75,40 +82,24 @@ void BookmarkTableView::OnDragEntered(const views::DropTargetEvent& event) {
 }
 
 int BookmarkTableView::OnDragUpdated(const views::DropTargetEvent& event) {
-  if (!parent_node_)
+  if (!parent_node_ || !drop_info_.get()) {
+    drop_info_.reset(NULL);
     return false;
-
-  LVHITTESTINFO hit_info = {0};
-  hit_info.pt.x = event.x();
-  hit_info.pt.y = event.y();
-  // TODO(sky): need to support auto-scroll and all that good stuff.
-
-  int drop_index;
-  bool drop_on;
-  drop_index = CalculateDropIndex(event.y(), &drop_on);
-
-  drop_info_->drop_operation =
-      CalculateDropOperation(event, drop_index, drop_on);
-
-  if (drop_info_->drop_operation == DragDropTypes::DRAG_NONE) {
-    drop_index = -1;
-    drop_on = false;
   }
 
-  SetDropIndex(drop_index, drop_on);
-
-  return drop_info_->drop_operation;
+  drop_info_->Update(event);
+  return UpdateDropInfo();
 }
 
 void BookmarkTableView::OnDragExited() {
-  SetDropIndex(-1, false);
+  SetDropPosition(DropPosition());
   drop_info_.reset();
 }
 
 int BookmarkTableView::OnPerformDrop(const views::DropTargetEvent& event) {
   OnPerformDropImpl();
-  int drop_operation = drop_info_->drop_operation;
-  SetDropIndex(-1, false);
+  int drop_operation = drop_info_->drop_operation();
+  SetDropPosition(DropPosition());
   drop_info_.reset();
   return drop_operation;
 }
@@ -148,12 +139,12 @@ void BookmarkTableView::SetShowPathColumn(bool show_path_column) {
 }
 
 void BookmarkTableView::PostPaint() {
-  if (!drop_info_.get() || drop_info_->drop_index == -1 ||
-      drop_info_->drop_on) {
+  if (!drop_info_.get() || drop_info_->position().index == -1 ||
+      drop_info_->position().on) {
     return;
   }
 
-  RECT bounds = GetDropBetweenHighlightRect(drop_info_->drop_index);
+  RECT bounds = GetDropBetweenHighlightRect(drop_info_->position().index);
   HDC dc = GetDC(GetNativeControlHWND());
   HBRUSH brush = CreateSolidBrush(GetSysColor(COLOR_WINDOWTEXT));
   FillRect(dc, &bounds, brush);
@@ -171,6 +162,19 @@ LRESULT BookmarkTableView::OnNotify(int w_param, LPNMHDR l_param) {
   return TableView::OnNotify(w_param, l_param);
 }
 
+int BookmarkTableView::UpdateDropInfo() {
+  DropPosition position = CalculateDropPosition(drop_info_->last_y());
+
+  drop_info_->set_drop_operation(CalculateDropOperation(position));
+
+  if (drop_info_->drop_operation() == DragDropTypes::DRAG_NONE)
+    position = DropPosition();
+
+  SetDropPosition(position);
+
+  return drop_info_->drop_operation();
+}
+
 void BookmarkTableView::BeginDrag() {
   std::vector<BookmarkNode*> nodes_to_drag;
   for (TableView::iterator i = SelectionBegin(); i != SelectionEnd(); ++i)
@@ -186,21 +190,18 @@ void BookmarkTableView::BeginDrag() {
              DROPEFFECT_LINK | DROPEFFECT_COPY | DROPEFFECT_MOVE, &effects);
 }
 
-int BookmarkTableView::CalculateDropOperation(
-    const views::DropTargetEvent& event,
-    int drop_index,
-    bool drop_on) {
-  if (drop_info_->drag_data.IsFromProfile(profile_)) {
+int BookmarkTableView::CalculateDropOperation(const DropPosition& position) {
+  if (drop_info_->data().IsFromProfile(profile_)) {
     // Data from the same profile. Prefer move, but do copy if the user wants
     // that.
-    if (event.IsControlDown())
+    if (drop_info_->is_control_down())
       return DragDropTypes::DRAG_COPY;
 
     int real_drop_index;
-    BookmarkNode* drop_parent = GetDropParentAndIndex(drop_index, drop_on,
+    BookmarkNode* drop_parent = GetDropParentAndIndex(position,
                                                       &real_drop_index);
     if (!bookmark_utils::IsValidDropLocation(
-        profile_, drop_info_->drag_data, drop_parent, real_drop_index)) {
+        profile_, drop_info_->data(), drop_parent, real_drop_index)) {
       return DragDropTypes::DRAG_NONE;
     }
     return DragDropTypes::DRAG_MOVE;
@@ -208,28 +209,29 @@ int BookmarkTableView::CalculateDropOperation(
   // We're going to copy, but return an operation compatible with the source
   // operations so that the user can drop.
   return bookmark_utils::PreferredDropOperation(
-      event, DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK);
+      drop_info_->source_operations(),
+      DragDropTypes::DRAG_COPY | DragDropTypes::DRAG_LINK);
 }
 
 void BookmarkTableView::OnPerformDropImpl() {
   int drop_index;
   BookmarkNode* drop_parent = GetDropParentAndIndex(
-      drop_info_->drop_index, drop_info_->drop_on, &drop_index);
+      drop_info_->position(), &drop_index);
   BookmarkModel* model = profile_->GetBookmarkModel();
   int min_selection;
   int max_selection;
   // If the data is not from this profile we return an operation compatible
   // with the source. As such, we need to need to check the data here too.
-  if (!drop_info_->drag_data.IsFromProfile(profile_) ||
-      drop_info_->drop_operation == DragDropTypes::DRAG_COPY) {
-    bookmark_utils::CloneDragData(model, drop_info_->drag_data.elements,
+  if (!drop_info_->data().IsFromProfile(profile_) ||
+      drop_info_->drop_operation() == DragDropTypes::DRAG_COPY) {
+    bookmark_utils::CloneDragData(model, drop_info_->data().elements,
                                   drop_parent, drop_index);
     min_selection = drop_index;
     max_selection = drop_index +
-        static_cast<int>(drop_info_->drag_data.elements.size());
+        static_cast<int>(drop_info_->data().elements.size());
   } else {
     // else, move.
-    std::vector<BookmarkNode*> nodes = drop_info_->drag_data.GetNodes(profile_);
+    std::vector<BookmarkNode*> nodes = drop_info_->data().GetNodes(profile_);
     if (nodes.empty())
       return;
 
@@ -241,7 +243,12 @@ void BookmarkTableView::OnPerformDropImpl() {
     min_selection = drop_parent->IndexOfChild(nodes[0]);
     max_selection = min_selection + static_cast<int>(nodes.size());
   }
-  if (min_selection < RowCount() && max_selection < RowCount()) {
+  if (drop_info_->position().on) {
+    // The user dropped on a folder, select it.
+    int index = parent_node_->IndexOfChild(drop_parent);
+    if (index != -1)
+      Select(index);
+  } else if (min_selection < RowCount() && max_selection <= RowCount()) {
     // Select the moved/copied rows.
     Select(min_selection);
     if (min_selection + 1 < max_selection) {
@@ -254,70 +261,69 @@ void BookmarkTableView::OnPerformDropImpl() {
   }
 }
 
-void BookmarkTableView::SetDropIndex(int index, bool drop_on) {
-  if (drop_info_->drop_index == index && drop_info_->drop_on == drop_on)
+void BookmarkTableView::SetDropPosition(const DropPosition& position) {
+  if (drop_info_->position().equals(position))
     return;
 
-  UpdateDropIndex(drop_info_->drop_index, drop_info_->drop_on, false);
+  UpdateDropIndicator(drop_info_->position(), false);
 
-  drop_info_->drop_index = index;
-  drop_info_->drop_on = drop_on;
+  drop_info_->set_position(position);
 
-  UpdateDropIndex(drop_info_->drop_index, drop_info_->drop_on, true);
+  UpdateDropIndicator(drop_info_->position(), true);
 }
 
-void BookmarkTableView::UpdateDropIndex(int index, bool drop_on, bool turn_on) {
-  if (index == -1)
+void BookmarkTableView::UpdateDropIndicator(const DropPosition& position,
+                                            bool turn_on) {
+  if (position.index == -1)
     return;
 
-  if (drop_on) {
-    ListView_SetItemState(GetNativeControlHWND(), index,
+  if (position.on) {
+    ListView_SetItemState(GetNativeControlHWND(), position.index,
                           turn_on ? LVIS_DROPHILITED : 0, LVIS_DROPHILITED);
   } else {
-    RECT bounds = GetDropBetweenHighlightRect(index);
+    RECT bounds = GetDropBetweenHighlightRect(position.index);
     InvalidateRect(GetNativeControlHWND(), &bounds, FALSE);
   }
 }
 
-int BookmarkTableView::CalculateDropIndex(int y, bool* drop_on) {
-  *drop_on = false;
+BookmarkTableView::DropPosition
+    BookmarkTableView::CalculateDropPosition(int y) {
   HWND hwnd = GetNativeControlHWND();
   int row_count = RowCount();
   int top_index = ListView_GetTopIndex(hwnd);
   if (row_count == 0 || top_index < 0)
-    return 0;
+    return DropPosition(0, false);
 
   for (int i = top_index; i < row_count; ++i) {
     RECT bounds;
     ListView_GetItemRect(hwnd, i, &bounds, LVIR_BOUNDS);
     if (y < bounds.top)
-      return i;
+      return DropPosition(i, false);
     if (y < bounds.bottom) {
       if (bookmark_table_model()->GetNodeForRow(i)->is_folder()) {
-        if (y < bounds.top + views::MenuItemView::kDropBetweenPixels)
-          return i;
-        if (y >= bounds.bottom - views::MenuItemView::kDropBetweenPixels)
-          return i + 1;
-        *drop_on = true;
-        return i;
+        if (y < bounds.top + views::kDropBetweenPixels)
+          return DropPosition(i, false);
+        if (y >= bounds.bottom - views::kDropBetweenPixels)
+          return DropPosition(i + 1, false);
+        return DropPosition(i, true);
       }
       if (y < (bounds.bottom - bounds.top) / 2 + bounds.top)
-        return i;
-      return i + 1;
+        return DropPosition(i, false);
+      return DropPosition(i + 1, false);
     }
   }
-  return row_count;
+  return DropPosition(row_count, false);
 }
 
-BookmarkNode* BookmarkTableView::GetDropParentAndIndex(int visual_drop_index,
-                                                       bool drop_on,
-                                                       int* index) {
-  if (drop_on) {
-    BookmarkNode* parent = parent_node_->GetChild(visual_drop_index);
+BookmarkNode* BookmarkTableView::GetDropParentAndIndex(
+    const DropPosition& position,
+    int* index) {
+  if (position.on) {
+    BookmarkNode* parent = parent_node_->GetChild(position.index);
     *index = parent->GetChildCount();
     return parent;
   }
-  *index = visual_drop_index;
+  *index = position.index;
   return parent_node_;
 }
 
@@ -338,6 +344,7 @@ RECT BookmarkTableView::GetDropBetweenHighlightRect(int index) {
   bounds.bottom = bounds.top + kDropHighlightHeight;
   return bounds;
 }
+
 void BookmarkTableView::UpdateColumns() {
   PrefService* prefs = profile_->GetPrefs();
   views::TableColumn name_column =

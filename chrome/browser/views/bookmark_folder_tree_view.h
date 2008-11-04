@@ -5,7 +5,9 @@
 #ifndef CHROME_BROWSER_VIEWS_BOOKMARK_FOLDER_TREE_VIEW_H_
 #define CHROME_BROWSER_VIEWS_BOOKMARK_FOLDER_TREE_VIEW_H_
 
+#include "base/timer.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_drop_info.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/views/tree_view.h"
 
@@ -37,61 +39,77 @@ class BookmarkFolderTreeView : public views::TreeView {
   virtual LRESULT OnNotify(int w_param, LPNMHDR l_param);
 
  private:
-  // Provides information used during a drop.
-  struct DropInfo {
-    DropInfo()
-        : drop_parent(NULL),
-          only_folders(true),
-          drop_index(-1),
-          drop_operation(0),
-          drop_on(false) {}
+  // DropPosition identifies where the drop should occur. A DropPosition
+  // consists of the following: the parent FolderNode the drop is to occur at,
+  // whether the drop is on the parent, and the index into the parent the drop
+  // should occur at.
+  //
+  // WARNING: the index is in terms of the BookmarkFolderTreeModel, which is
+  // not the same as the BookmarkModel.
+  struct DropPosition {
+    DropPosition() : parent(NULL), index(-1), on(false) {}
+    DropPosition(FolderNode* parent, int index, bool on)
+        : parent(parent),
+          index(index),
+          on(on) {}
 
-    // Parent the mouse is over.
-    FolderNode* drop_parent;
+    // Returns true if |position| equals this.
+    bool equals(const DropPosition& position) const {
+      return (position.parent == parent && position.index == index &&
+              position.on == on);
+    }
 
-    // Drag data.
-    BookmarkDragData drag_data;
-
-    // Does drag_data consists of folders only.
-    bool only_folders;
-
-    // If drop_on is false, this is the index to add the child.
-    // WARNING: this index is in terms of the BookmarkFolderTreeModel, which is
-    // not the same as the BookmarkModel.
-    int drop_index;
-
-    // Operation for the drop.
-    int drop_operation;
-
-    // Is the user dropping on drop_parent? If false, the mouse is positioned
-    // such that the drop should insert the data at position drop_index in
-    // drop_parent.
-    bool drop_on;
+    FolderNode* parent;
+    int index;
+    bool on;
   };
+
+  // Provides information used during a drop.
+  class DropInfo : public BookmarkDropInfo {
+   public:
+    explicit DropInfo(BookmarkFolderTreeView* view)
+        : BookmarkDropInfo(view->GetNativeControlHWND(), 0),
+          view_(view),
+          only_folders_(true) {}
+
+    virtual void Scrolled();
+
+    // Does drag_data consists of folders only?
+    void set_only_folders(bool only_folders) { only_folders_ = only_folders; }
+    bool only_folders() const { return only_folders_; }
+
+    // Position of the drop.
+    void set_position(const DropPosition& position) { position_ = position; }
+    const DropPosition& position() const { return position_; }
+
+   private:
+    BookmarkFolderTreeView* view_;
+    DropPosition position_;
+    bool only_folders_;
+
+    DISALLOW_COPY_AND_ASSIGN(DropInfo);
+  };
+  friend class DropInfo;
+
+  // Updates drop info. This is invoked both from OnDragUpdated and when we
+  // autoscroll during a drop.
+  int UpdateDropInfo();
 
   // Starts a drag operation for the specified node.
   void BeginDrag(BookmarkNode* node);
 
-  // Calculates the drop parent. Returns NULL if not over a valid drop
-  // location. See DropInfos documentation for a description of |drop_index|
-  // and |drop_on|.
-  FolderNode* CalculateDropParent(int y,
-                                  bool only_folders,
-                                  int* drop_index,
-                                  bool* drop_on);
+  // Calculates the drop position.
+  DropPosition CalculateDropPosition(int y, bool only_folders);
 
   // Determines the appropriate drop operation. This returns DRAG_NONE
-  // if the location is not valid.
-  int CalculateDropOperation(const views::DropTargetEvent& event,
-                             FolderNode* drop_parent,
-                             int drop_index,
-                             bool drop_on);
+  // if the position is not valid.
+  int CalculateDropOperation(const DropPosition& position);
 
   // Performs the drop operation.
   void OnPerformDropImpl();
 
-  // Sets the parent of the drop operation.
-  void SetDropParent(FolderNode* node, int drop_index, bool drop_on);
+  // Sets the drop position.
+  void SetDropPosition(const DropPosition& position);
 
   // Returns the model as a BookmarkFolderTreeModel.
   BookmarkFolderTreeModel* folder_model() const;
@@ -99,9 +117,10 @@ class BookmarkFolderTreeView : public views::TreeView {
   // Converts FolderNode into a BookmarkNode.
   BookmarkNode* TreeNodeAsBookmarkNode(FolderNode* node);
 
-  // Converts an index in terms of the BookmarkFolderTreeModel to an index
-  // in terms of the BookmarkModel.
-  int FolderIndexToBookmarkIndex(FolderNode* node, int index, bool drop_on);
+  // Converts the position in terms of the BookmarkFolderTreeModel to an index
+  // in terms of the BookmarkModel. The returned index is the index the drop
+  // should occur at in terms of the BookmarkModel.
+  int FolderIndexToBookmarkIndex(const DropPosition& position);
 
   Profile* profile_;
 

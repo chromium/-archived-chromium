@@ -14,18 +14,14 @@ class BookmarkNode;
 class PageNavigator;
 class Profile;
 
-namespace views {
-class DropTargetEvent;
-}
-
 // A collection of bookmark utility functions used by various parts of the UI
 // that show bookmarks: bookmark manager, bookmark bar view ...
 namespace bookmark_utils {
 
-// Calculates the drop operation given the event and supported set of
-// operations. This prefers the following ordering: COPY, LINK then MOVE.
-int PreferredDropOperation(const views::DropTargetEvent& event,
-                           int operation);
+// Calculates the drop operation given |source_operations| and the ideal
+// set of drop operations (|operations|). This prefers the following ordering:
+// COPY, LINK then MOVE.
+int PreferredDropOperation(int source_operations, int operations);
 
 // Returns true if the bookmark data can be dropped on |drop_parent| at
 // |index|. A drop from a separate profile is always allowed, where as

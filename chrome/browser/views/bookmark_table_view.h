@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_VIEWS_BOOKMARK_TABLE_VIEW_H_
 
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
+#include "chrome/browser/bookmarks/bookmark_drop_info.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/table_view.h"
 
@@ -54,49 +55,75 @@ class BookmarkTableView : public views::TableView {
   virtual LRESULT OnNotify(int w_param, LPNMHDR l_param);
 
  private:
-  // Information used when we're the drop target of a drag and drop operation.
-  struct DropInfo {
-    DropInfo() : drop_index(-1), drop_operation(0), drop_on(false) {}
+  // DropPosition identifies where the drop should occur.
+  struct DropPosition {
+    DropPosition() : index(-1), on(false) {}
+    DropPosition(int index, bool on) : index(index), on(on) {}
 
-    BookmarkDragData drag_data;
+    bool equals(const DropPosition& position) const {
+      return index == position.index && on == position.on;
+    }
 
-    // Index into the table model of where the drop should occur.
-    int drop_index;
+    // The index into the table model as to where the drop should occur. This
+    // may == the row count of the table.
+    int index;
 
-    // The drop operation that should occur.
-    int drop_operation;
-
-    // Whether the drop is on drop_index or before it.
-    bool drop_on;
+    // Whether drop is on the item at the specified index. If false, the drop
+    // is at the specified index.
+    bool on;
   };
+
+  // Information used when we're the drop target of a drag and drop operation.
+  class DropInfo : public BookmarkDropInfo {
+   public:
+    explicit DropInfo(BookmarkTableView* view)
+        : BookmarkDropInfo(view->GetNativeControlHWND(),
+                           view->content_offset()),
+          view_(view) {}
+
+    // Overriden to invoke UpdateDropInfo.
+    virtual void Scrolled();
+
+    // The position the drop is to occur at.
+    void set_position(const DropPosition& position) {
+      position_ = position;
+    }
+    const DropPosition& position() { return position_; }
+
+   private:
+    DropPosition position_;
+    BookmarkTableView* view_;
+
+    DISALLOW_COPY_AND_ASSIGN(DropInfo);
+  };
+  friend class DropInfo;
+
+  // Updates drop info. This is invoked both from OnDragUpdated and when we
+  // autoscroll during a drop.
+  int UpdateDropInfo();
 
   // Starts a drop operation.
   void BeginDrag();
 
-  // Returns the drop operation for the specified index.
-  int CalculateDropOperation(const views::DropTargetEvent& event,
-                             int drop_index,
-                             bool drop_on);
+  // Returns the drop operation for the specified position.
+  int CalculateDropOperation(const DropPosition& position);
 
   // Performs the drop operation.
   void OnPerformDropImpl();
 
-  // Sets the drop index. If index differs from the current drop index
-  // UpdateDropIndex is invoked for the old and new values.
-  void SetDropIndex(int index, bool drop_on);
+  // Sets the position of the drop. If this differs from the current position
+  // UpdateDropIndicator is invoked for old and new values.
+  void SetDropPosition(const DropPosition& position);
 
-  // Invoked from SetDropIndex to update the state for the specified index
-  // and schedule a paint. If |turn_on| is true the highlight is being turned
-  // on for the specified index, otherwise it is being turned off.
-  void UpdateDropIndex(int index, bool drop_on, bool turn_on);
+  // Invoked from SetDropPosition to update the visual indicator. |turn_on|
+  // indicates whether the indicator is to be turned on or off.
+  void UpdateDropIndicator(const DropPosition& position, bool turn_on);
 
-  // Determines the drop index for the specified location.
-  int CalculateDropIndex(int y, bool* drop_on);
+  // Determines the drop position for the specified location.
+  DropPosition CalculateDropPosition(int y);
 
-  // Returns the BookmarkNode the drop should occur on, or NULL if not over
-  // a valid location.
-  BookmarkNode* GetDropParentAndIndex(int visual_drop_index,
-                                      bool drop_on,
+  // Returns the BookmarkNode the drop should occur on.
+  BookmarkNode* GetDropParentAndIndex(const DropPosition& position,
                                       int* index);
 
   // Returns the bounds of drop indicator shown when the drop is to occur

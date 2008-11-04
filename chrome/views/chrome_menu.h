@@ -207,11 +207,6 @@ class MenuItemView : public View {
   // ID used to identify menu items.
   static const int kMenuItemViewID;
 
-  // Used to determine whether a drop is on an item or before/after it. If
-  // a drop occurs kDropBetweenPixels from the top/bottom it is considered
-  // before/after the menu item, otherwise it is on the item.
-  static const int kDropBetweenPixels;
-
   // If true SetNestableTasksAllowed(true) is invoked before MessageLoop::Run
   // is invoked. This is only useful for testing and defaults to false.
   static bool allow_task_nesting_during_run_;
