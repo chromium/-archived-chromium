@@ -10,6 +10,8 @@
 #include <sys/time.h>
 #include <time.h>
 
+#include <limits>
+
 #include "base/basictypes.h"
 #include "base/logging.h"
 
@@ -21,8 +23,8 @@ namespace base {
 
 // Time -----------------------------------------------------------------------
 
-// The internal representation of Time uses time_t directly, so there is no
-// offset.  The epoch is 1970-01-01 00:00:00 UTC.
+// Some functions in time.cc use time_t directly, so we provide a zero offset
+// for them.  The epoch is 1970-01-01 00:00:00 UTC.
 // static
 const int64 Time::kTimeTToMicrosecondsOffset = GG_INT64_C(0);
 
@@ -58,16 +60,47 @@ Time Time::FromExploded(bool is_local, const Exploded& exploded) {
     seconds = mktime(&timestruct);
   else
     seconds = timegm(&timestruct);
-  DCHECK(seconds >= 0) << "mktime/timegm could not convert from exploded";
 
-  uint64 milliseconds = seconds * kMillisecondsPerSecond + exploded.millisecond;
+  int64 milliseconds;
+  // Handle overflow.  Clamping the range to what mktime and timegm might
+  // return is the best that can be done here.  It's not ideal, but it's better
+  // than failing here or ignoring the overflow case and treating each time
+  // overflow as one second prior to the epoch.
+  if (seconds == -1 &&
+      (exploded.year < 1969 || exploded.year > 1970)) {
+    // If exploded.year is 1969 or 1970, take -1 as correct, with the
+    // time indicating 1 second prior to the epoch.  (1970 is allowed to handle
+    // time zone and DST offsets.)  Otherwise, return the most future or past
+    // time representable.  Assumes the time_t epoch is 1970-01-01 00:00:00 UTC.
+    //
+    // The minimum and maximum representible times that mktime and timegm could
+    // return are used here instead of values outside that range to allow for
+    // proper round-tripping between exploded and counter-type time
+    // representations in the presence of possible truncation to time_t by
+    // division and use with other functions that accept time_t.
+    //
+    // When representing the most distant time in the future, add in an extra
+    // 999ms to avoid the time being less than any other possible value that
+    // this function can return.
+    if (exploded.year < 1969) {
+      milliseconds = std::numeric_limits<time_t>::min() *
+                     kMillisecondsPerSecond;
+    } else {
+      milliseconds = (std::numeric_limits<time_t>::max() *
+                      kMillisecondsPerSecond) +
+                     kMillisecondsPerSecond - 1;
+    }
+  } else {
+    milliseconds = seconds * kMillisecondsPerSecond + exploded.millisecond;
+  }
+
   return Time(milliseconds * kMicrosecondsPerMillisecond);
 }
 
 void Time::Explode(bool is_local, Exploded* exploded) const {
   // Time stores times with microsecond resolution, but Exploded only carries
   // millisecond resolution, so begin by being lossy.
-  uint64 milliseconds = us_ / kMicrosecondsPerMillisecond;
+  int64 milliseconds = us_ / kMicrosecondsPerMillisecond;
   time_t seconds = milliseconds / kMillisecondsPerSecond;
 
   struct tm timestruct;
