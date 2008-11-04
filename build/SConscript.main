@@ -639,7 +639,8 @@ if GetOption('help'):
 
 
 Import('build_component')
-Default(Alias(build_component))
+Default(None)  # Reset default target to empty.
+Default(Alias(build_component))  # Set default target based on where built.
 
 # -------------------------------------------------------------------------
 
