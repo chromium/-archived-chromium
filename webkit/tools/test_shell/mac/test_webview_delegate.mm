@@ -589,10 +589,6 @@ WebHistoryItem* TestWebViewDelegate::GetHistoryEntryAtOffset(int offset) {
   return entry->GetHistoryItem();
 }
 
-void TestWebViewDelegate::GoToEntryAtOffsetAsync(int offset) {
-  shell_->navigation_controller()->GoToOffset(offset);
-}
-
 int TestWebViewDelegate::GetHistoryBackListCount() {
   int current_index =
       shell_->navigation_controller()->GetLastCommittedEntryIndex();
