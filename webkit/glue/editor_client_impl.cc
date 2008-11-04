@@ -385,18 +385,6 @@ struct KeyPressEntry {
   const char* name;
 };
 
-// On Linux & OS X, the Windows virtual keycode constants are defined in the
-// WebCore namespace. In order not to import all of the WebCore namespace into
-// this file we need to wrap the keyDownEntries definition in it's own 
-// namespace.
-namespace key_lookup_table {
-  
-// On non-windows platforms, native key codes are translated into their Windows
-// counterparts.
-// We define the editor commands in terms of the Windows key codes on all 
-// platforms so we can reuse the dispatch table.
-using namespace WebCore;
-  
 static const KeyDownEntry keyDownEntries[] = {
   { WebCore::VKEY_LEFT,   0,                  "MoveLeft"                      },
   { WebCore::VKEY_LEFT,   ShiftKey,           "MoveLeftAndModifySelection"    },
@@ -509,8 +497,6 @@ static const KeyDownEntry keyDownEntries[] = {
 #endif
 };
 
-}  // namespace key_lookup_table
-  
 static const KeyPressEntry keyPressEntries[] = {
   { '\t',   0,                  "InsertTab"                                   },
   { '\t',   ShiftKey,           "InsertBacktab"                               },
@@ -534,7 +520,6 @@ const char* EditorClientImpl::interpretKeyEvent(
     keyDownCommandsMap = new HashMap<int, const char*>;
     keyPressCommandsMap = new HashMap<int, const char*>;
 
-    using key_lookup_table::keyDownEntries;
     for (unsigned i = 0; i < arraysize(keyDownEntries); i++) {
       keyDownCommandsMap->set(
         keyDownEntries[i].modifiers << 16 | keyDownEntries[i].virtualKey,
