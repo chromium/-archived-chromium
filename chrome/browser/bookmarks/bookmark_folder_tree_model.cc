@@ -4,7 +4,9 @@
 
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 
+#include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/resource_bundle.h"
 
 #include "generated_resources.h"
 
@@ -127,6 +129,22 @@ void BookmarkFolderTreeModel::BookmarkNodeChanged(BookmarkModel* model,
   folder_node->SetTitle(node->GetTitle());
   if (GetObserver())
     GetObserver()->TreeNodeChanged(this, folder_node);
+}
+
+void BookmarkFolderTreeModel::GetIcons(std::vector<SkBitmap>* icons) {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  icons->push_back(*rb.GetBitmapNamed(IDR_BOOKMARK_MANAGER_RECENT_ICON));
+  icons->push_back(*rb.GetBitmapNamed(IDR_BOOKMARK_MANAGER_SEARCH_ICON));
+}
+
+int BookmarkFolderTreeModel::GetIconIndex(views::TreeModelNode* node) {
+  if (node == recently_bookmarked_node_)
+    return 0;
+  if (node == search_node_)
+    return 1;
+
+  // Return -1 to use the default.
+  return -1;
 }
 
 void BookmarkFolderTreeModel::AddRootChildren() {

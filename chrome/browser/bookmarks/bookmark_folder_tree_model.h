@@ -68,7 +68,12 @@ class BookmarkFolderTreeModel : public views::TreeNodeModel<FolderNode>,
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                          BookmarkNode* node) {}
 
- private:
+  // The following are overriden to return custom icons for the recently
+  // bookmarked and search nodes.
+  virtual void GetIcons(std::vector<SkBitmap>* icons);
+  virtual int GetIconIndex(views::TreeModelNode* node);
+
+private:
   // Invoked from the constructor to create the children of the root node.
   void AddRootChildren();
 

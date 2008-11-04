@@ -72,6 +72,15 @@ class TreeModel {
                         const std::wstring& title) {
     NOTREACHED();
   }
+
+  // Returns the set of icons for the nodes in the tree. You only need override
+  // this if you don't want to use the default folder icons.
+  virtual void GetIcons(std::vector<SkBitmap>* icons) {}
+
+  // Returns the index of the icon to use for |node|. Return -1 to use the
+  // default icon. The index is relative to the list of icons returned from
+  // GetIcons.
+  virtual int GetIconIndex(TreeModelNode* node) { return -1; }
 };
 
 // TreeViewController ---------------------------------------------------------
@@ -284,6 +293,9 @@ class TreeView : public NativeControl, TreeModelObserver {
   // Returns the NodeDetails by HTREEITEM.
   NodeDetails* GetNodeDetailsByTreeItem(HTREEITEM tree_item);
 
+  // Creates the image list to use for the tree.
+  HIMAGELIST CreateImageList();
+
   // The window function installed on the treeview.
   static LRESULT CALLBACK TreeWndProc(HWND window,
                                       UINT message,
@@ -334,6 +346,11 @@ class TreeView : public NativeControl, TreeModelObserver {
   WNDPROC original_handler_;
 
   bool drag_enabled_;
+
+  // Did the model return a non-empty set of icons from GetIcons?
+  bool has_custom_icons_;
+
+  HIMAGELIST image_list_;
 
   DISALLOW_COPY_AND_ASSIGN(TreeView);
 };

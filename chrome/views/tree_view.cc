@@ -18,36 +18,6 @@
 
 namespace views {
 
-static HIMAGELIST tree_image_list_ = NULL;
-
-// Creates the default image list used for trees. The image list is populated
-// from the shell's icons.
-static HIMAGELIST CreateDefaultImageList(bool rtl) {
-  SkBitmap* closed_icon =
-      ResourceBundle::GetSharedInstance().GetBitmapNamed(
-          (rtl ? IDR_FOLDER_CLOSED_RTL : IDR_FOLDER_CLOSED));
-  SkBitmap* opened_icon =
-      ResourceBundle::GetSharedInstance().GetBitmapNamed(
-          (rtl ? IDR_FOLDER_OPEN_RTL : IDR_FOLDER_OPEN));
-  int width = closed_icon->width();
-  int height = closed_icon->height();
-  DCHECK(opened_icon->width() == width && opened_icon->height() == height);
-  HIMAGELIST image_list = ImageList_Create(width, height, ILC_COLOR32, 2, 2);
-  if (image_list) {
-    // NOTE: the order the images are added in effects the selected
-    // image index when adding items to the tree. If you change the
-    // order you'll undoubtedly need to update itemex.iSelectedImage
-    // when the item is added.
-    HICON h_closed_icon = IconUtil::CreateHICONFromSkBitmap(*closed_icon);
-    HICON h_opened_icon = IconUtil::CreateHICONFromSkBitmap(*opened_icon);
-    ImageList_AddIcon(image_list, h_closed_icon);
-    ImageList_AddIcon(image_list, h_opened_icon);
-    DestroyIcon(h_closed_icon);
-    DestroyIcon(h_opened_icon);
-  }
-  return image_list;
-}
-
 TreeView::TreeView()
     : tree_view_(NULL),
       model_(NULL),
@@ -61,7 +31,9 @@ TreeView::TreeView()
       select_on_right_mouse_down_(true),
       wrapper_(this),
       original_handler_(NULL),
-      drag_enabled_(false) {
+      drag_enabled_(false),
+      has_custom_icons_(false),
+      image_list_(NULL) {
 }
 
 TreeView::~TreeView() {
@@ -71,6 +43,8 @@ TreeView::~TreeView() {
   // as such only need to delete from one.
   STLDeleteContainerPairSecondPointers(id_to_details_map_.begin(),
                                        id_to_details_map_.end());
+  if (image_list_)
+    ImageList_Destroy(image_list_);
 }
 
 void TreeView::SetModel(TreeModel* model) {
@@ -84,6 +58,11 @@ void TreeView::SetModel(TreeModel* model) {
   if (tree_view_ && model_) {
     CreateRootItems();
     model_->SetObserver(this);
+    HIMAGELIST last_image_list = image_list_;
+    image_list_ = CreateImageList();
+    TreeView_SetImageList(tree_view_, image_list_, TVSIL_NORMAL);
+    if (last_image_list)
+      ImageList_Destroy(last_image_list);
   }
 }
 
@@ -309,16 +288,11 @@ HWND TreeView::CreateNativeControl(HWND parent_container) {
                    reinterpret_cast<LONG_PTR>(&wrapper_));
   original_handler_ = win_util::SetWindowProc(tree_view_,
                                               &TreeWndProc);
-  // Tree-View doesn't render icons by default. Use an image list that is
-  // populated with icons from the shell.
-  if (!tree_image_list_)
-    tree_image_list_ = CreateDefaultImageList(UILayoutIsRightToLeft());
-  if (tree_image_list_)
-    TreeView_SetImageList(tree_view_, tree_image_list_, TVSIL_NORMAL);
-
   if (model_) {
     CreateRootItems();
     model_->SetObserver(this);
+    image_list_ = CreateImageList();
+    TreeView_SetImageList(tree_view_, image_list_, TVSIL_NORMAL);
   }
 
   // Bug 964884: detach the IME attached to this window.
@@ -541,13 +515,22 @@ void TreeView::CreateItem(HTREEITEM parent_item,
   insert_struct.hParent = parent_item;
   insert_struct.hInsertAfter = after;
   insert_struct.itemex.mask = TVIF_PARAM | TVIF_CHILDREN | TVIF_TEXT |
-                              TVIF_SELECTEDIMAGE;
+                              TVIF_SELECTEDIMAGE | TVIF_IMAGE;
   // Call us back for the text.
   insert_struct.itemex.pszText = LPSTR_TEXTCALLBACK;
   // And the number of children.
   insert_struct.itemex.cChildren = I_CHILDRENCALLBACK;
-  // Index in the image list for the image when the node is selected.
-  insert_struct.itemex.iSelectedImage = 1;
+  // Set the index of the icons to use. These are relative to the imagelist
+  // created in CreateImageList.
+  int icon_index = model_->GetIconIndex(node);
+  if (icon_index == -1) {
+    insert_struct.itemex.iImage = 0;
+    insert_struct.itemex.iSelectedImage = 1;
+  } else {
+    // The first two images are the default ones.
+    insert_struct.itemex.iImage = icon_index + 2;
+    insert_struct.itemex.iSelectedImage = icon_index + 2;
+  }
   int node_id = next_id_++;
   insert_struct.itemex.lParam = node_id;
 
@@ -588,6 +571,44 @@ TreeView::NodeDetails* TreeView::GetNodeDetailsByTreeItem(HTREEITEM tree_item) {
   if (TreeView_GetItem(tree_view_, &tv_item))
     return GetNodeDetailsByID(static_cast<int>(tv_item.lParam));
   return NULL;
+}
+
+HIMAGELIST TreeView::CreateImageList() {
+  std::vector<SkBitmap> model_images;
+  model_->GetIcons(&model_images);
+
+  bool rtl = UILayoutIsRightToLeft();
+  // Creates the default image list used for trees.
+  SkBitmap* closed_icon =
+      ResourceBundle::GetSharedInstance().GetBitmapNamed(
+          (rtl ? IDR_FOLDER_CLOSED_RTL : IDR_FOLDER_CLOSED));
+  SkBitmap* opened_icon =
+      ResourceBundle::GetSharedInstance().GetBitmapNamed(
+          (rtl ? IDR_FOLDER_OPEN_RTL : IDR_FOLDER_OPEN));
+  int width = closed_icon->width();
+  int height = closed_icon->height();
+  DCHECK(opened_icon->width() == width && opened_icon->height() == height);
+  HIMAGELIST image_list =
+      ImageList_Create(width, height, ILC_COLOR32, model_images.size() + 2,
+                       model_images.size() + 2);
+  if (image_list) {
+    // NOTE: the order the images are added in effects the selected
+    // image index when adding items to the tree. If you change the
+    // order you'll undoubtedly need to update itemex.iSelectedImage
+    // when the item is added.
+    HICON h_closed_icon = IconUtil::CreateHICONFromSkBitmap(*closed_icon);
+    HICON h_opened_icon = IconUtil::CreateHICONFromSkBitmap(*opened_icon);
+    ImageList_AddIcon(image_list, h_closed_icon);
+    ImageList_AddIcon(image_list, h_opened_icon);
+    DestroyIcon(h_closed_icon);
+    DestroyIcon(h_opened_icon);
+    for (size_t i = 0; i < model_images.size(); ++i) {
+      HICON model_icon = IconUtil::CreateHICONFromSkBitmap(model_images[i]);
+      ImageList_AddIcon(image_list, model_icon);
+      DestroyIcon(model_icon);
+    }
+  }
+  return image_list;
 }
 
 LRESULT CALLBACK TreeView::TreeWndProc(HWND window,

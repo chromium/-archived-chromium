@@ -314,3 +314,5 @@
 #define IDR_PRODUCT_LOGO                                 9306
 #define IDR_DISTRIBUTOR_LOGO                             9307
 #define IDR_DISTRIBUTOR_LOGO_LIGHT                       9308
+#define IDR_BOOKMARK_MANAGER_RECENT_ICON                 9309
+#define IDR_BOOKMARK_MANAGER_SEARCH_ICON                 9310
