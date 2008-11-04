@@ -1070,6 +1070,13 @@ void MenuItemView::RunMenuAt(HWND parent,
   int mouse_event_flags;
 
   MenuController* controller = MenuController::GetActiveInstance();
+  if (controller && !controller->IsBlockingRun()) {
+    // A menu is already showing, but it isn't a blocking menu. Cancel it.
+    // We can get here during drag and drop if the user right clicks on the
+    // menu quickly after the drop.
+    controller->Cancel(true);
+    controller = NULL;
+  }
   bool owns_controller = false;
   if (!controller) {
     // No menus are showing, show one.
