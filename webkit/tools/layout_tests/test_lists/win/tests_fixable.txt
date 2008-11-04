@@ -936,7 +936,7 @@ V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
 V8 | KJS # LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
-V8 | KJS # LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL
+V8 | KJS # LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL | CRASH
 V8 | KJS # LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL | CRASH
 V8 | KJS # LayoutTests/svg/batik/paints/patternRegions.svg = FAIL | CRASH
 V8 | KJS # LayoutTests/svg/batik/text/textEffect.svg = FAIL
@@ -1019,6 +1019,9 @@ V8 | KJS # LayoutTests/fast/dom/gc-1.html = CRASH | PASS
 // Post-merge flakey on debug builds (passes consistently on release)
 V8 | KJS # LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
 V8 | KJS # LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
+
+// Bug 4079, also flakey after merge. Debug builds only.
+V8 # LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL | PASS
 
 // Started timing out with r3615 (mbelshe)
 V8 | KJS # LayoutTests/fast/dom/null-document-location-assign-crash.html = TIMEOUT
