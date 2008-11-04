@@ -85,6 +85,11 @@ root_env = Environment(
 root_env.Append(LIBPATH = ['$V8_DIR'])
 
 
+# Declare a bit to gate solution generation.
+# The actual generation must be at the end.
+DeclareBit('solution', 'Generate a solution file')
+root_env.SetBitFromOption('solution', False)
+
 
 def ChromeProgram(env, *args, **kw):
   return env.ComponentProgram(*args, **kw)
@@ -183,7 +188,10 @@ if LoadComponent('net'):
 if LoadComponent('rlz'):
   sconscripts.append('$RLZ_DIR/SConscript')
 
-if LoadComponent('sandbox'):
+# TODO(bradnelson): fix solution generation for sandbox.
+# The solution generator blows up on some of the tests in sandbox.
+# For now, disable sandbox for solution generation.
+if LoadComponent('sandbox') and not root_env.Bit('solution'):
   sconscripts.append('$SANDBOX_DIR/sandbox.scons')
 
 if LoadComponent('sdch'):
@@ -211,7 +219,7 @@ if LoadComponent('third_party'):
   ])
 
 if LoadComponent('v8') and root_env.Dir('$CHROME_SRC_DIR/v8').exists():
-  sconscripts.append('build/SConscript.v8')
+  sconscripts.append('$OBJ_ROOT/build/SConscript.v8')
 
 if LoadComponent('webkit'):
   sconscripts.append('$WEBKIT_DIR/SConscript')
@@ -233,8 +241,8 @@ windows_env.Tool('midl')
 windows_env.Replace(
     BUILD_TYPE = 'debug-windows',
     BUILD_TYPE_DESCRIPTION = 'Windows debug build',
-    BUILD_GROUPS = ['default'],
 )
+windows_env.Append(BUILD_GROUPS = ['default'])
 
 # TODO(bradnelson): this is needed for now because target_platform_windows
 # has OS_WINDOWS defined in a weird way.
@@ -401,8 +409,8 @@ linux_env.Tool('yacc')
 linux_env.Replace(
     BUILD_TYPE = 'debug-linux',
     BUILD_TYPE_DESCRIPTION = 'Linux debug build',
-    BUILD_GROUPS = ['default'],
 )
+linux_env.Append(BUILD_GROUPS = ['default'])
 
 
 # TODO(bradnelson): this is needed for now because target_platform_linux has
@@ -503,8 +511,8 @@ mac_env.Tool('target_debug')
 mac_env.Replace(
     BUILD_TYPE = 'debug-mac',
     BUILD_TYPE_DESCRIPTION = 'Mac debug build',
-    BUILD_GROUPS = ['default'],
 )
+mac_env.Append(BUILD_GROUPS = ['default'])
 
 mac_env.Replace(
     # Reproduce XCode's behavior of using gcc even to link C++,
@@ -638,5 +646,18 @@ Default(Alias(build_component))
 # Invoke all the SConscripts in each of the environments that make sense on
 # this host-platform.
 BuildComponents(environment_list)
+
+# -------------------------------------------------------------------------
+
+# This must occur after BuildComponents so that the dependency graph
+# will be populated.
+if root_env.Bit('solution'):
+  solution_env = root_env.Clone(tools = ['visual_studio_solution'])
+  solution = solution_env.Solution(
+      '$MAIN_DIR/chrome_scons', [windows_env],
+      exclude_pattern = '.*(Program Files|platformsdk_vista_6_0|cygwin).*',
+  )
+  Default(None)  # Delete all other default targets.
+  Default(solution)  # Build just the solution.
 
 # -------------------------------------------------------------------------

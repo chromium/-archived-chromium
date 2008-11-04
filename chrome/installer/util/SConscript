@@ -73,4 +73,3 @@ env_x.Command(['$CHROME_DIR/installer/util/installer_util_strings.rc',
                '$CHROME_DIR/app/generated_resources.grd'] +
                env.Glob('$CHROME_DIR/app/resources/*.xtb'),
               "$PYTHON ${SOURCES[0]} ${TARGET.dir}")
-

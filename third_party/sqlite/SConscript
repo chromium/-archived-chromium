@@ -11,7 +11,7 @@ env.Prepend(
     CPPPATH = [
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
-        '..',
+        '$CHROME_SRC_DIR',
     ],
 )
 
