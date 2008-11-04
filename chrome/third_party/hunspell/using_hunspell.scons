@@ -16,4 +16,7 @@ env.Append(
     CPPPATH = [
         '$CHROME_DIR/third_party/hunspell/src/hunspell',
     ],
+    LIBS = [
+        'hunspell',
+    ],
 )
