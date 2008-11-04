@@ -442,6 +442,7 @@
 		7BF891EB0E7311B1000BAF8A /* pcre_xclass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF891E50E7311B1000BAF8A /* pcre_xclass.cpp */; };
 		7BF892080E7314E9000BAF8A /* pcre_exec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF891E10E7311B1000BAF8A /* pcre_exec.cpp */; };
 		82761E970E3FA26F0030D324 /* TextCodecMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */; };
+		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
 		93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */; };
 		93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */; };
 		93BF8E9B0EA6B0EF0030F05C /* DNSChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E620EA6AED30030F05C /* DNSChromium.cpp */; };
@@ -2221,7 +2222,6 @@
 		7B0095ED0DAFF0DD00F72082 /* v8_vectornodelist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = v8_vectornodelist.cpp; sourceTree = "<group>"; };
 		7B0095EE0DAFF0DD00F72082 /* v8_vectornodelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v8_vectornodelist.h; sourceTree = "<group>"; };
 		7B0096150DAFF19C00F72082 /* Location.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Location.cpp; sourceTree = "<group>"; };
-		7B0096160DAFF19C00F72082 /* Location.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Location.h; sourceTree = "<group>"; };
 		7B00961D0DAFF19C00F72082 /* ScheduledAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScheduledAction.h; sourceTree = "<group>"; };
 		7B0096290DAFF1D000F72082 /* InspectorController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InspectorController.cpp; path = port/page/inspector/InspectorController.cpp; sourceTree = "<group>"; };
 		7B0E595B0DB3D195007D4907 /* IconDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IconDatabase.h; path = icon/IconDatabase.h; sourceTree = "<group>"; };
@@ -3949,6 +3949,7 @@
 		82C260710DCBA02A005CFE91 /* ICOImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ICOImageDecoder.cpp; sourceTree = "<group>"; };
 		82C260760DCBA03E005CFE91 /* XBMImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBMImageDecoder.h; sourceTree = "<group>"; };
 		82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XBMImageDecoder.cpp; sourceTree = "<group>"; };
+		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
 		93BF8E5F0EA6AED30030F05C /* AuthenticationChallenge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthenticationChallenge.h; path = chromium/AuthenticationChallenge.h; sourceTree = "<group>"; };
 		93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuthenticationChallengeChromium.cpp; path = chromium/AuthenticationChallengeChromium.cpp; sourceTree = "<group>"; };
 		93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CookieJarChromium.cpp; path = chromium/CookieJarChromium.cpp; sourceTree = "<group>"; };
@@ -7404,6 +7405,7 @@
 				825404F00D92E3DA0006B936 /* cache_manager.h */,
 				825404F10D92E3DA0006B936 /* chrome_client_impl.cc */,
 				825404F20D92E3DA0006B936 /* chrome_client_impl.h */,
+				934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */,
 				825404F30D92E3DA0006B936 /* context_menu_client_impl.cc */,
 				825404F40D92E3DA0006B936 /* context_menu_client_impl.h */,
 				825404F50D92E3DA0006B936 /* context_menu_unittest.cc */,
@@ -7773,7 +7775,6 @@
 				93BF8E5D0EA6AE880030F05C /* chromium */,
 				7B5E8EFF0D7F3C48001ECF42 /* EventHandlerMac.mm */,
 				7B0096150DAFF19C00F72082 /* Location.cpp */,
-				7B0096160DAFF19C00F72082 /* Location.h */,
 			);
 			path = page;
 			sourceTree = "<group>";
@@ -9228,6 +9229,7 @@
 				E45627000E268F03005E4685 /* alt_404_page_resource_fetcher.cc in Sources */,
 				E45626F70E268F03005E4685 /* alt_error_page_resource_fetcher.cc in Sources */,
 				E456270D0E268F03005E4685 /* chrome_client_impl.cc in Sources */,
+				934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */,
 				E45626FD0E268F03005E4685 /* context_menu_client_impl.cc in Sources */,
 				E45627070E268F03005E4685 /* cpp_bound_class.cc in Sources */,
 				E45627060E268F03005E4685 /* cpp_variant.cc in Sources */,
