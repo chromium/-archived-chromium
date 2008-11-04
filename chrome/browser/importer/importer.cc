@@ -11,12 +11,16 @@
 #include "base/gfx/png_encoder.h"
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/first_run.h"
 #include "chrome/browser/importer/firefox2_importer.h"
 #include "chrome/browser/importer/firefox3_importer.h"
 #include "chrome/browser/importer/firefox_importer_utils.h"
 #include "chrome/browser/importer/firefox_profile_lock.h"
 #include "chrome/browser/importer/ie_importer.h"
+#include "chrome/browser/importer/toolbar_importer.h"
 #include "chrome/browser/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/webdata/web_data_service.h"
@@ -24,6 +28,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/win_util.h"
 #include "chrome/views/window.h"
 #include "webkit/glue/image_decoder.h"
 
@@ -245,7 +250,8 @@ void ProfileWriter::AddKeywords(const std::vector<TemplateURL*>& template_urls,
     }
     if (t_url->url() && t_url->url()->IsValid()) {
       model->Add(t_url);
-      if (default_keyword && t_url->url() && t_url->url()->SupportsReplacement())
+      if (default_keyword && t_url->url() && 
+          t_url->url()->SupportsReplacement())
         model->SetDefaultSearchProvider(t_url);
     } else {
       // Don't add invalid TemplateURLs to the model.
@@ -327,6 +333,7 @@ ImporterHost::ImporterHost(MessageLoop* file_loop)
 
 ImporterHost::~ImporterHost() {
   STLDeleteContainerPointers(source_profiles_.begin(), source_profiles_.end());
+  if (NULL != importer_)  importer_->Release();
 }
 
 void ImporterHost::Loaded(BookmarkModel* model) {
@@ -386,6 +393,7 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
   // will be notified.
   writer_ = writer;
   importer_ = CreateImporterByType(profile_info.browser_type);
+  importer_->AddRef();
   importer_->set_first_run(first_run);
   task_ = NewRunnableMethod(importer_, &Importer::StartImport,
       profile_info, items, writer_.get(), this);
@@ -399,6 +407,27 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
       // show a warning dialog.
       is_source_readable_ = false;
       ShowWarningDialog();
+    }
+  }
+
+  if (profile_info.browser_type == GOOGLE_TOOLBAR5) {
+    if (!ToolbarImporterUtils::IsGoogleGAIACookieInstalled()) {
+      win_util::MessageBox(
+          NULL,
+          l10n_util::GetString(IDS_IMPORTER_GOOGLE_LOGIN_TEXT).c_str(),
+          L"",
+          MB_OK | MB_TOPMOST);
+
+      GURL url("https://www.google.com/accounts/ServiceLogin");
+      BrowsingInstance* instance = new BrowsingInstance(writer_->GetProfile());
+      SiteInstance* site = instance->GetSiteInstanceForURL(url);
+      Browser* browser = BrowserList::GetLastActive();
+      browser->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, site);
+
+      MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &ImporterHost::OnLockViewEnd, false));
+
+      is_source_readable_ = false;
     }
   }
 
@@ -469,6 +498,8 @@ Importer* ImporterHost::CreateImporterByType(ProfileType type) {
       return new Firefox2Importer();
     case FIREFOX3:
       return new Firefox3Importer();
+    case GOOGLE_TOOLBAR5:
+      return new Toolbar5Importer();
   }
   NOTREACHED();
   return NULL;
@@ -489,6 +520,8 @@ const ProfileInfo& ImporterHost::GetSourceProfileInfoAt(int index) const {
 }
 
 void ImporterHost::DetectSourceProfiles() {
+  // The order in which detect is called determines the order
+  // in which the options appear in the dropdown combo-box
   if (ShellIntegration::IsFirefoxDefaultBrowser()) {
     DetectFirefoxProfiles();
     DetectIEProfiles();
@@ -496,6 +529,8 @@ void ImporterHost::DetectSourceProfiles() {
     DetectIEProfiles();
     DetectFirefoxProfiles();
   }
+
+  if (!FirstRun::IsChromeFirstRun()) DetectGoogleToolbarProfiles();
 }
 
 void ImporterHost::DetectIEProfiles() {
@@ -505,6 +540,8 @@ void ImporterHost::DetectIEProfiles() {
   ie->browser_type = MS_IE;
   ie->source_path.clear();
   ie->app_path.clear();
+  ie->services_supported = HISTORY | FAVORITES | COOKIES | PASSWORDS |
+      SEARCH_ENGINES;
   source_profiles_.push_back(ie);
 }
 
@@ -568,7 +605,32 @@ void ImporterHost::DetectFirefoxProfiles() {
     firefox->browser_type = firefox_type;
     firefox->source_path = source_path;
     firefox->app_path = GetFirefoxInstallPath();
+    firefox->services_supported = HISTORY | FAVORITES | COOKIES | PASSWORDS |
+        SEARCH_ENGINES;
     source_profiles_.push_back(firefox);
   }
 }
 
+void ImporterHost::DetectGoogleToolbarProfiles() {
+  if (ToolbarImporterUtils::IsToolbarInstalled()) {
+    TOOLBAR_VERSION version = ToolbarImporterUtils::GetToolbarVersion();
+    if (DEPRECATED != version) {
+      ProfileInfo* google_toolbar = new ProfileInfo();
+      switch (version) {
+        // TODO(brg): Support other toolbar version after 1.0.
+        case VERSION_5:
+          google_toolbar->browser_type = GOOGLE_TOOLBAR5;
+          break;
+        default:
+          NOTREACHED() << "Supported Google Toolbar version not implemented.";
+          break;
+      }
+      google_toolbar->description = l10n_util::GetString(
+                                    IDS_IMPORT_FROM_GOOGLE_TOOLBAR);
+      google_toolbar->source_path.clear();
+      google_toolbar->app_path.clear();
+      google_toolbar->services_supported = FAVORITES;
+      source_profiles_.push_back(google_toolbar);
+    }
+  }
+}

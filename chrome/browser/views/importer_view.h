@@ -26,6 +26,7 @@ class Profile;
 class ImporterView : public views::View,
                      public views::DialogDelegate,
                      public views::ComboBox::Model,
+                     public views::ComboBox::Listener,
                      public ImportObserver {
  public:
   explicit ImporterView(Profile* profile);
@@ -46,6 +47,11 @@ class ImporterView : public views::View,
   virtual int GetItemCount(views::ComboBox* source);
   virtual std::wstring GetItemAt(views::ComboBox* source, int index);
 
+  // Overridden from ChromeViews::ComboBox::Listener
+  virtual void ItemChanged(views::ComboBox* combo_box, 
+                           int prev_index, 
+                           int new_index);
+
   // Overridden from ImportObserver:
   virtual void ImportCanceled();
   virtual void ImportComplete();
@@ -57,6 +63,15 @@ class ImporterView : public views::View,
   // Creates and initializes a new check-box.
   views::CheckBox* InitCheckbox(const std::wstring& text, bool checked);
 
+  // Create a bitmap from the checkboxes of the view.
+  uint16 GetCheckedItems();
+  
+  // Enables/Disables all the checked items for the given state
+  void SetCheckedItemsState(uint16 items);
+  
+  // Sets all checked items in the given state
+  void SetCheckedItems(uint16 items);
+
   views::Label* import_from_label_;
   views::ComboBox* profile_combobox_;
   views::Label* import_items_label_;
@@ -66,6 +81,10 @@ class ImporterView : public views::View,
   views::CheckBox* search_engines_checkbox_;
 
   scoped_refptr<ImporterHost> importer_host_;
+
+  // Stores the state of the checked items associated with the position of the 
+  // selected item in the combo-box.
+  std::vector<uint16> checkbox_items_;
 
   Profile* profile_;
 

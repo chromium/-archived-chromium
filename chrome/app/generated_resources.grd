@@ -1768,6 +1768,9 @@ each locale. -->
       <message name="IDS_IMPORT_FROM_FIREFOX" desc="browser combo box: Mozilla Firefox">
         Mozilla Firefox
       </message>
+      <message name="IDS_IMPORT_FROM_GOOGLE_TOOLBAR" desc="browser combo box: Google Toolbar">
+        Google Toolbar
+      </message>
       <message name="IDS_IMPORT_ITEMS_LABEL" desc="Label before item select checkboxes">
         Select items to import:
       </message>
@@ -1789,6 +1792,10 @@ each locale. -->
 
       <message name="IDS_IMPORT_COMMIT" desc="Text for OK button on dialog">
         Import
+      </message>
+
+      <message name="IDS_IMPORTER_GOOGLE_LOGIN_TEXT" desc="The message to be displayed on dialog">
+        In order to import Toolbar bookmarks into Chrome, you must be logged into your Google account.  Please log in and try to import again.
       </message>
 
       <!-- Import progress popup -->
@@ -2032,7 +2039,7 @@ each locale. -->
       <message name="IDS_BOOKMARKS_NO_ITEMS" desc="Text shown when the user has no bookmarks">
         For quick access, place your bookmarks here in the bookmarks bar.
       </message>
-      
+
       <!-- The location for special bookmark groups -->
       <message name="IDS_BOOKMARK_GROUP_FROM_IE" desc="The group name of bookmarks from Internet Explorer">
         Imported From IE
@@ -2040,11 +2047,14 @@ each locale. -->
       <message name="IDS_BOOKMARK_GROUP_FROM_FIREFOX" desc="The group name of bookmarks from Firefox">
         Imported From Firefox
       </message>
+      <message name="IDS_BOOKMARK_GROUP_FROM_GOOGLE_TOOLBAR" desc="The group name of bookmarks from Google Toolbar">
+        Imported From Google Toolbar
+      </message>
       <message name="IDS_BOOKMARK_GROUP" desc="The group name of bookmarks imported from a file">
         Imported
       </message>
 
-      <!-- bookmark editor messages-->
+  <!-- bookmark editor messages-->
       <message name="IDS_BOOMARK_EDITOR_NAME_LABEL" desc="Label shown before the title/name of the URL.">
         Name:
       </message>

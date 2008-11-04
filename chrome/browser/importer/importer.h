@@ -26,7 +26,8 @@
 enum ProfileType {
   MS_IE = 0,
   FIREFOX2,
-  FIREFOX3
+  FIREFOX3,
+  GOOGLE_TOOLBAR5
 };
 
 // An enumeration of the type of data we want to import.
@@ -38,6 +39,7 @@ enum ImportItem {
   PASSWORDS      = 0x0008,
   SEARCH_ENGINES = 0x0010,
   HOME_PAGE      = 0x0020,
+  ALL            = 0x003f
 };
 
 typedef struct {
@@ -45,6 +47,7 @@ typedef struct {
   ProfileType browser_type;
   std::wstring source_path;
   std::wstring app_path;
+  uint16 services_supported;  // bitmap of ImportItem
 } ProfileInfo;
 
 class FirefoxProfileLock;
@@ -102,6 +105,8 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
 
   // Shows the bookmarks toolbar.
   void ShowBookmarkBar();
+
+  Profile* GetProfile() const { return profile_; }
 
  private:
   Profile* profile_;
@@ -228,6 +233,7 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
   // Helper methods for detecting available profiles.
   void DetectIEProfiles();
   void DetectFirefoxProfiles();
+  void DetectGoogleToolbarProfiles();
 
   // The list of profiles with the default one first.
   std::vector<ProfileInfo*> source_profiles_;

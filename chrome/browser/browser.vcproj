@@ -722,19 +722,19 @@
 			Name="Bookmarks"
 			>
 			<File
-				RelativePath=".\bookmarks\bookmark_context_menu.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\bookmarks\bookmark_context_menu.h"
-				>
-			</File>
-			<File
 				RelativePath=".\bookmarks\bookmark_codec.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\bookmarks\bookmark_codec.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_context_menu.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_context_menu.h"
 				>
 			</File>
 			<File
@@ -1575,6 +1575,14 @@
 			</File>
 			<File
 				RelativePath=".\importer\mork_reader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\toolbar_importer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\importer\toolbar_importer.h"
 				>
 			</File>
 		</Filter>
