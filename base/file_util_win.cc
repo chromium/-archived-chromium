@@ -458,8 +458,10 @@ bool CreateDirectory(const FilePath& full_path) {
 
 bool GetFileInfo(const FilePath& file_path, FileInfo* results) {
   WIN32_FILE_ATTRIBUTE_DATA attr;
-  if (!GetFileAttributesEx(file_path.ToWstringHack().c_str(), GetFileExInfoStandard, &attr))
+  if (!GetFileAttributesEx(file_path.ToWStringHack().c_str(),
+                           GetFileExInfoStandard, &attr)) {
     return false;
+  }
 
   ULARGE_INTEGER size;
   size.HighPart = attr.nFileSizeHigh;
