@@ -149,30 +149,32 @@ WebPluginDelegateProxy::WebPluginDelegateProxy(const std::string& mime_type,
 }
 
 WebPluginDelegateProxy::~WebPluginDelegateProxy() {
-  if (npobject_)
-    NPN_ReleaseObject(npobject_);
-
-  if (window_script_object_) {
-    window_script_object_->set_proxy(NULL);
-    window_script_object_->set_invalid();
-  }
 }
 
 void WebPluginDelegateProxy::PluginDestroyed() {
   plugin_ = NULL;
 
-  if (channel_host_) {
-    if (npobject_) {
-      // When we destroy the plugin instance, the NPObjectStub NULLs out its
-      // pointer to the npobject (see NPObjectStub::OnChannelError).  Therefore,
-      // we release the object before destroying the instance to avoid leaking.
-      NPN_ReleaseObject(npobject_);
-      npobject_ = NULL;
-    }
+  if (npobject_) {
+    // When we destroy the plugin instance, the NPObjectStub NULLs out its
+    // pointer to the npobject (see NPObjectStub::OnChannelError).  Therefore,
+    // we release the object before destroying the instance to avoid leaking.
+    NPN_ReleaseObject(npobject_);
+    npobject_ = NULL;
+  }
 
+  if (window_script_object_) {
+    // The ScriptController deallocates this object independent of its ref count
+    // to avoid leaks if the plugin forgets to release it.  So mark the object
+    // invalid to avoid accessing it past this point.
+    window_script_object_->set_proxy(NULL);
+    window_script_object_->set_invalid();
+  }
+
+  if (channel_host_) {
     channel_host_->RemoveRoute(instance_id_);
     Send(new PluginMsg_DestroyInstance(instance_id_));
   }
+
   render_view_->PluginDestroyed(this);
   MessageLoop::current()->DeleteSoon(FROM_HERE, this);
 }
