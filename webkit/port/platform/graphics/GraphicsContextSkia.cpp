@@ -193,12 +193,18 @@ GraphicsContext::~GraphicsContext()
 
 void GraphicsContext::savePlatformState()
 {
+    if (paintingDisabled())
+        return;
+
     // Save our private State.
     platformContext()->save();
 }
 
 void GraphicsContext::restorePlatformState()
 {
+    if (paintingDisabled())
+        return;
+
     // Restore our private State.
     platformContext()->restore();
 }
@@ -589,7 +595,11 @@ FloatRect GraphicsContext::getBoundingBoxForCurrentPath(bool includeStroke) cons
 bool GraphicsContext::strokeContains(const Path& path, const FloatPoint& point) const
 {
     SkPaint paint;
-    platformContext()->setupPaintForStroking(&paint, 0, 0);
+    // The SkPaint state is not kept since platformContext() is NULL.
+    // If there is a non-identity matrix setup, the path won't be transformed
+    // correctly which may result in inconsistencies.
+    if (!paintingDisabled())
+      platformContext()->setupPaintForStroking(&paint, 0, 0);
 
     SkPath strokePath;
     paint.getFillPath(*path.platformPath(), &strokePath);
@@ -760,6 +770,8 @@ void GraphicsContext::endTransparencyLayer()
 
 void GraphicsContext::setPlatformStrokeStyle(const StrokeStyle& stroke)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setStrokeStyle(stroke);
 }
 
@@ -788,6 +800,8 @@ void GraphicsContext::setPlatformShadow(const IntSize& size, int blur, const Col
 
 void GraphicsContext::clearPlatformShadow()
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setDrawLooper(0);
 }
 
@@ -828,16 +842,22 @@ PlatformGraphicsContext* GraphicsContext::platformContext() const
 
 void GraphicsContext::setMiterLimit(float limit)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setMiterLimit(limit);
 }
 
 void GraphicsContext::setAlpha(float alpha)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setAlpha(alpha);
 }
 
 void GraphicsContext::setCompositeOperation(CompositeOperator op)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->setPorterDuffMode(WebCoreCompositeToSkiaComposite(op));
 }
 
@@ -858,6 +878,8 @@ void GraphicsContext::clearRect(const FloatRect& rect)
 
 void GraphicsContext::setLineCap(LineCap cap)
 {
+    if (paintingDisabled())
+        return;
     switch (cap) {
     case ButtCap:
         platformContext()->setLineCap(SkPaint::kButt_Cap);
@@ -876,6 +898,8 @@ void GraphicsContext::setLineCap(LineCap cap)
 
 void GraphicsContext::setLineDash(const DashArray& dashes, float dashOffset)
 {
+    if (paintingDisabled())
+        return;
     // TODO(dglazkov): This is lifted directly off SkiaSupport, lines 49-74
     // so it is not guaranteed to work correctly. I made some minor cosmetic
     // refactoring, but not much else. Please fix this?
@@ -897,6 +921,8 @@ void GraphicsContext::setLineDash(const DashArray& dashes, float dashOffset)
 
 void GraphicsContext::setLineJoin(LineJoin join)
 {
+    if (paintingDisabled())
+        return;
     switch (join) {
     case MiterJoin:
         platformContext()->setLineJoin(SkPaint::kMiter_Join);
@@ -936,6 +962,8 @@ void GraphicsContext::translate(float w, float h)
 
 void GraphicsContext::concatCTM(const AffineTransform& xform)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->canvas()->concat(xform);
 }
 
@@ -1024,11 +1052,15 @@ void GraphicsContext::setPlatformTextDrawingMode(int mode)
 
 void GraphicsContext::addPath(const Path& path)
 {
+    if (paintingDisabled())
+        return;
     platformContext()->addPath(*path.platformPath());
 }
 
 void GraphicsContext::beginPath()
 {
+    if (paintingDisabled())
+        return;
     platformContext()->beginPath();
 }
 
