@@ -1220,9 +1220,6 @@ if env['OS'] in ['win32', 'wince']:
     dll_resources += [module_res, string_res]
     # TODO: string_res seems to break the wince build for some magical reason!
 
-    if env['OS'] == 'wince':
-      dll_resources += [env_res.RES('$GENFILES_DIR/setup.rc')]
-
   vista_broker_resources = env_res.RES(
       '$GENFILES_DIR/vista_broker_string_table.res',
       '$GENFILES_DIR/string_table.rc',
