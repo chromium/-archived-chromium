@@ -311,8 +311,13 @@ void PrintedDocument::PrintHeaderFooter(HDC context,
       break;
   }
 
-  if (string_size.width() > bounding.width())
-    output = gfx::ElideText(output, font, bounding.width());
+  if (string_size.width() > bounding.width()) {
+    if (line == PageOverlays::kUrl) {
+      output = gfx::ElideUrl(url(), font, bounding.width(), std::wstring());
+    } else {
+      output = gfx::ElideText(output, font, bounding.width());
+    }
+  }
 
   // Save the state (again) for the clipping region.
   int saved_state = SaveDC(context);
