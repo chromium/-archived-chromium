@@ -96,7 +96,7 @@ class SSLClientSocketWin : public SSLClientSocket {
   PCCERT_CONTEXT server_cert_;
   int server_cert_status_;
 
-  CredHandle creds_;
+  CredHandle* creds_;
   CtxtHandle ctxt_;
   SecBuffer send_buffer_;
   scoped_array<char> payload_send_buffer_;

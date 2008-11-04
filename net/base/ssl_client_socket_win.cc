@@ -6,6 +6,7 @@
 
 #include <schnlsp.h>
 
+#include "base/lock.h"
 #include "base/singleton.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
@@ -48,6 +49,8 @@ static int MapSecurityError(SECURITY_STATUS err) {
       return ERR_SSL_PROTOCOL_ERROR;
     case SEC_E_ALGORITHM_MISMATCH:
       return ERR_SSL_VERSION_OR_CIPHER_MISMATCH;
+    case SEC_E_INVALID_HANDLE:
+      return ERR_UNEXPECTED;
     case SEC_E_OK:
       return OK;
     default:
@@ -169,6 +172,138 @@ static int MapCertChainErrorStatusToCertStatus(DWORD error_status) {
 
 //-----------------------------------------------------------------------------
 
+// A bitmask consisting of these bit flags encodes which versions of the SSL
+// protocol (SSL 2.0, SSL 3.0, and TLS 1.0) are enabled.
+enum {
+  SSL2 = 1 << 0,
+  SSL3 = 1 << 1,
+  TLS1 = 1 << 2,
+  SSL_VERSION_MASKS = 1 << 3  // The number of SSL version bitmasks.
+};
+
+// A table of CredHandles for all possible combinations of SSL versions.
+class CredHandleTable {
+ public:
+  CredHandleTable() {
+    memset(creds_, 0, sizeof(creds_));
+  }
+
+  // Frees the CredHandles.
+  ~CredHandleTable() {
+    for (int i = 0; i < arraysize(creds_); ++i) {
+      if (creds_[i].dwLower || creds_[i].dwUpper)
+        FreeCredentialsHandle(&creds_[i]);
+    }
+  }
+
+  CredHandle* GetHandle(int ssl_version_mask) {
+    DCHECK(0 < ssl_version_mask && ssl_version_mask < arraysize(creds_));
+    CredHandle* handle = &creds_[ssl_version_mask];
+    {
+      AutoLock lock(lock_);
+      if (!handle->dwLower && !handle->dwUpper)
+        InitializeHandle(handle, ssl_version_mask);
+    }
+    return handle;
+  }
+
+ private:
+  static void InitializeHandle(CredHandle* handle, int ssl_version_mask);
+
+  Lock lock_;
+  CredHandle creds_[SSL_VERSION_MASKS];
+};
+
+// static
+void CredHandleTable::InitializeHandle(CredHandle* handle,
+                                       int ssl_version_mask) {
+  SCHANNEL_CRED schannel_cred = {0};
+  schannel_cred.dwVersion = SCHANNEL_CRED_VERSION;
+
+  // The global system registry settings take precedence over the value of
+  // schannel_cred.grbitEnabledProtocols.
+  schannel_cred.grbitEnabledProtocols = 0;
+  if (ssl_version_mask & SSL2)
+    schannel_cred.grbitEnabledProtocols |= SP_PROT_SSL2;
+  if (ssl_version_mask & SSL3)
+    schannel_cred.grbitEnabledProtocols |= SP_PROT_SSL3;
+  if (ssl_version_mask & TLS1)
+    schannel_cred.grbitEnabledProtocols |= SP_PROT_TLS1;
+
+  // The default session lifetime is 36000000 milliseconds (ten hours).  Set
+  // schannel_cred.dwSessionLifespan to change the number of milliseconds that
+  // Schannel keeps the session in its session cache.
+
+  // We can set the key exchange algorithms (RSA or DH) in
+  // schannel_cred.{cSupportedAlgs,palgSupportedAlgs}.
+
+  // Although SCH_CRED_AUTO_CRED_VALIDATION is convenient, we have to use
+  // SCH_CRED_MANUAL_CRED_VALIDATION for three reasons.
+  // 1. SCH_CRED_AUTO_CRED_VALIDATION doesn't allow us to get the certificate
+  //    context if the certificate validation fails.
+  // 2. SCH_CRED_AUTO_CRED_VALIDATION returns only one error even if the
+  //    certificate has multiple errors.
+  // 3. SCH_CRED_AUTO_CRED_VALIDATION doesn't allow us to ignore untrusted CA
+  //    and expired certificate errors.  There are only flags to ignore the
+  //    name mismatch and unable-to-check-revocation errors.
+  //
+  // TODO(wtc): Look into undocumented or poorly documented flags:
+  //   SCH_CRED_RESTRICTED_ROOTS
+  //   SCH_CRED_REVOCATION_CHECK_CACHE_ONLY
+  //   SCH_CRED_CACHE_ONLY_URL_RETRIEVAL
+  //   SCH_CRED_MEMORY_STORE_CERT
+  schannel_cred.dwFlags |= SCH_CRED_NO_DEFAULT_CREDS |
+                           SCH_CRED_MANUAL_CRED_VALIDATION;
+  TimeStamp expiry;
+  SECURITY_STATUS status;
+
+  status = AcquireCredentialsHandle(
+      NULL,  // Not used
+      UNISP_NAME,  // Microsoft Unified Security Protocol Provider
+      SECPKG_CRED_OUTBOUND,
+      NULL,  // Not used
+      &schannel_cred,
+      NULL,  // Not used
+      NULL,  // Not used
+      handle,
+      &expiry);  // Optional
+  if (status != SEC_E_OK) {
+    DLOG(ERROR) << "AcquireCredentialsHandle failed: " << status;
+    // GetHandle will return a pointer to an uninitialized CredHandle, which
+    // will cause InitializeSecurityContext to fail with SEC_E_INVALID_HANDLE.
+  }
+}
+
+// For the SSL sockets to share SSL sessions by session resumption handshakes,
+// they need to use the same CredHandle.  The GetCredHandle function creates
+// and returns a shared CredHandle.
+//
+// The versions of the SSL protocol enabled are a property of the CredHandle.
+// So we need a separate CredHandle for each combination of SSL versions.
+// Most of the time Chromium will use only one or two combinations of SSL
+// versions (for example, SSL3 | TLS1 for normal use, plus SSL3 when visiting
+// TLS-intolerant servers).  These CredHandles are initialized only when
+// needed.
+//
+// NOTE: Since the client authentication certificate is also a property of the
+// CredHandle, SSL sockets won't be able to use the shared CredHandles when we
+// support SSL client authentication.  So we will need to refine the way we
+// share SSL sessions.  For now the simple solution of using shared
+// CredHandles is good enough.
+
+static CredHandle* GetCredHandle(int ssl_version_mask) {
+  // It doesn't matter whether GetCredHandle returns NULL or a pointer to an
+  // uninitialized CredHandle on failure.  Both of them cause
+  // InitializeSecurityContext to fail with SEC_E_INVALID_HANDLE.
+  if (ssl_version_mask <= 0 || ssl_version_mask >= SSL_VERSION_MASKS) {
+    NOTREACHED();
+    return NULL;
+  }
+  return Singleton<CredHandleTable>::get()->GetHandle(ssl_version_mask);
+}
+
+//-----------------------------------------------------------------------------
+
 // Size of recv_buffer_
 //
 // Ciphertext is decrypted one SSL record at a time, so recv_buffer_ needs to
@@ -193,6 +328,7 @@ SSLClientSocketWin::SSLClientSocketWin(ClientSocket* transport_socket,
       next_state_(STATE_NONE),
       server_cert_(NULL),
       server_cert_status_(0),
+      creds_(NULL),
       payload_send_buffer_len_(0),
       bytes_sent_(0),
       decrypted_ptr_(NULL),
@@ -205,7 +341,6 @@ SSLClientSocketWin::SSLClientSocketWin(ClientSocket* transport_socket,
       no_client_cert_(false) {
   memset(&stream_sizes_, 0, sizeof(stream_sizes_));
   memset(&send_buffer_, 0, sizeof(send_buffer_));
-  memset(&creds_, 0, sizeof(creds_));
   memset(&ctxt_, 0, sizeof(ctxt_));
 }
 
@@ -243,6 +378,19 @@ int SSLClientSocketWin::Connect(CompletionCallback* callback) {
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
 
+  int ssl_version_mask = 0;
+  if (ssl_config_.ssl2_enabled)
+    ssl_version_mask |= SSL2;
+  if (ssl_config_.ssl3_enabled)
+    ssl_version_mask |= SSL3;
+  if (ssl_config_.tls1_enabled)
+    ssl_version_mask |= TLS1;
+  // If we pass 0 to GetCredHandle, we will let Schannel select the protocols,
+  // rather than enabling no protocols.  So we have to fail here.
+  if (ssl_version_mask == 0)
+    return ERR_NO_SSL_VERSIONS_ENABLED;
+  creds_ = GetCredHandle(ssl_version_mask);
+
   next_state_ = STATE_CONNECT;
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
@@ -264,10 +412,6 @@ void SSLClientSocketWin::Disconnect() {
   if (send_buffer_.pvBuffer) {
     FreeContextBuffer(send_buffer_.pvBuffer);
     memset(&send_buffer_, 0, sizeof(send_buffer_));
-  }
-  if (creds_.dwLower || creds_.dwUpper) {
-    FreeCredentialsHandle(&creds_);
-    memset(&creds_, 0, sizeof(creds_));
   }
   if (ctxt_.dwLower || ctxt_.dwUpper) {
     DeleteSecurityContext(&ctxt_);
@@ -422,66 +566,6 @@ int SSLClientSocketWin::DoConnectComplete(int result) {
     return result;
 
   memset(&ctxt_, 0, sizeof(ctxt_));
-  memset(&creds_, 0, sizeof(creds_));
-
-  SCHANNEL_CRED schannel_cred = {0};
-  schannel_cred.dwVersion = SCHANNEL_CRED_VERSION;
-
-  // The global system registry settings take precedence over the value of
-  // schannel_cred.grbitEnabledProtocols.
-  schannel_cred.grbitEnabledProtocols = 0;
-  if (ssl_config_.ssl2_enabled)
-    schannel_cred.grbitEnabledProtocols |= SP_PROT_SSL2;
-  if (ssl_config_.ssl3_enabled)
-    schannel_cred.grbitEnabledProtocols |= SP_PROT_SSL3;
-  if (ssl_config_.tls1_enabled)
-    schannel_cred.grbitEnabledProtocols |= SP_PROT_TLS1;
-  // The default (0) means Schannel selects the protocol, rather than no
-  // protocols are selected.  So we have to fail here.
-  if (schannel_cred.grbitEnabledProtocols == 0)
-    return ERR_NO_SSL_VERSIONS_ENABLED;
-
-  // The default session lifetime is 36000000 milliseconds (ten hours).  Set
-  // schannel_cred.dwSessionLifespan to change the number of milliseconds that
-  // Schannel keeps the session in its session cache.
-
-  // We can set the key exchange algorithms (RSA or DH) in
-  // schannel_cred.{cSupportedAlgs,palgSupportedAlgs}.
-
-  // Although SCH_CRED_AUTO_CRED_VALIDATION is convenient, we have to use
-  // SCH_CRED_MANUAL_CRED_VALIDATION for three reasons.
-  // 1. SCH_CRED_AUTO_CRED_VALIDATION doesn't allow us to get the certificate
-  //    context if the certificate validation fails.
-  // 2. SCH_CRED_AUTO_CRED_VALIDATION returns only one error even if the
-  //    certificate has multiple errors.
-  // 3. SCH_CRED_AUTO_CRED_VALIDATION doesn't allow us to ignore untrusted CA
-  //    and expired certificate errors.  There are only flags to ignore the
-  //    name mismatch and unable-to-check-revocation errors.
-  //
-  // TODO(wtc): Look into undocumented or poorly documented flags:
-  //   SCH_CRED_RESTRICTED_ROOTS
-  //   SCH_CRED_REVOCATION_CHECK_CACHE_ONLY
-  //   SCH_CRED_CACHE_ONLY_URL_RETRIEVAL
-  //   SCH_CRED_MEMORY_STORE_CERT
-  schannel_cred.dwFlags |= SCH_CRED_NO_DEFAULT_CREDS |
-                           SCH_CRED_MANUAL_CRED_VALIDATION;
-  TimeStamp expiry;
-  SECURITY_STATUS status;
-
-  status = AcquireCredentialsHandle(
-      NULL,  // Not used
-      UNISP_NAME,  // Microsoft Unified Security Protocol Provider
-      SECPKG_CRED_OUTBOUND,
-      NULL,  // Not used
-      &schannel_cred,
-      NULL,  // Not used
-      NULL,  // Not used
-      &creds_,
-      &expiry);  // Optional
-  if (status != SEC_E_OK) {
-    DLOG(ERROR) << "AcquireCredentialsHandle failed: " << status;
-    return MapSecurityError(status);
-  }
 
   SecBufferDesc buffer_desc;
   DWORD out_flags;
@@ -500,8 +584,11 @@ int SSLClientSocketWin::DoConnectComplete(int result) {
   buffer_desc.pBuffers = &send_buffer_;
   buffer_desc.ulVersion = SECBUFFER_VERSION;
 
+  TimeStamp expiry;
+  SECURITY_STATUS status;
+
   status = InitializeSecurityContext(
-      &creds_,
+      creds_,
       NULL,  // NULL on the first call
       const_cast<wchar_t*>(ASCIIToWide(hostname_).c_str()),
       flags,
@@ -595,7 +682,7 @@ int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
   send_buffer_.cbBuffer = 0;
 
   status = InitializeSecurityContext(
-      &creds_,
+      creds_,
       &ctxt_,
       NULL,
       flags,
