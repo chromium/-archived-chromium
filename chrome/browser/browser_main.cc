@@ -345,10 +345,9 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
       local_state->SetBoolean(prefs::kMetricsReportingEnabled, true);
     // On first run, we  need to process the master preferences before the
     // browser's profile_manager object is created.
-    FirstRun::MasterPrefResult master_pref_res =
-        FirstRun::ProcessMasterPreferences(user_data_dir, std::wstring());
     first_run_ui_bypass =
-        (master_pref_res == FirstRun::MASTER_PROFILE_NO_FIRST_RUN_UI);
+        !FirstRun::ProcessMasterPreferences(user_data_dir,
+                                            std::wstring(), NULL);
   }
 
   ResourceBundle::InitSharedInstance(
@@ -608,4 +607,3 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
 
   return result_code;
 }
-

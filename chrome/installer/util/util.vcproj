@@ -145,6 +145,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\master_preferences.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\master_preferences.h"
+			>
+		</File>
+		<File
 			RelativePath="set_reg_value_work_item.cc"
 			>
 		</File>
