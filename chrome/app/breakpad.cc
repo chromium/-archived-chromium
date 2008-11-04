@@ -5,7 +5,6 @@
 #include "chrome/app/breakpad.h"
 
 #include <windows.h>
-#include <process.h>
 #include <tchar.h>
 
 #include "base/base_switches.h"
@@ -153,7 +152,7 @@ bool ShowRestartDialogIfCrashed(bool* exit_now) {
   return true;
 }
 
-unsigned __stdcall InitCrashReporterThread(void* param)  {
+static DWORD __stdcall InitCrashReporterThread(void* param) {
   CrashReporterInfo* info = reinterpret_cast<CrashReporterInfo*>(param);
 
   CommandLine command;
@@ -242,15 +241,16 @@ void InitCrashReporter(std::wstring dll_path) {
     // If this is not the browser, we can't be sure that we will be able to
     // initialize the crash_handler in another thread, so we run it right away.
     // This is important to keep the thread for the browser process because
-    // it may take some times to initialize the crash_service process.
+    // it may take some times to initialize the crash_service process.  We use
+    // the Windows worker pool to make better reuse of the thread.
     if (info->process_type != L"browser") {
       InitCrashReporterThread(info);
     } else {
-      uintptr_t thread = _beginthreadex(NULL, 0, &InitCrashReporterThread,
-                                        info, 0, NULL);
-      HANDLE thread_handle = reinterpret_cast<HANDLE>(thread);
-      if (thread_handle != INVALID_HANDLE_VALUE)
-        ::CloseHandle(thread_handle);
+      if (QueueUserWorkItem(
+              &InitCrashReporterThread, info, WT_EXECUTELONGFUNCTION) == 0) {
+        // We failed to queue to the worker pool, initialize in this thread.
+        InitCrashReporterThread(info);
+      }
     }
   }
 }

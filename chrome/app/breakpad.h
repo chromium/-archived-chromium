@@ -16,9 +16,6 @@ void InitCrashReporter(std::wstring dll_path);
 // the browser or not.
 void InitDefaultCrashCallback();
 
-// Initializes the crash reporter in chrome.
-unsigned __stdcall InitCrashReporterThread(void* param);
-
 // If chrome has been restarted because it crashed, this function will display
 // a dialog asking for permission to continue execution or to exit now.
 bool ShowRestartDialogIfCrashed(bool* exit_now);
