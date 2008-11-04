@@ -1348,6 +1348,8 @@ def SplitSrcs(srcs):
 module = env.ChromeSharedLibrary('gears-$OS-$ARCH-$MODE-${BROWSER}',
     SplitSrcs(srcs['all']) + libs + dll_resources + browser_specific_objects)
 module = env.InstallAs('${SHLIBPREFIX}gears${SHLIBSUFFIX}', module)
+if env['OS'] in ['win32', 'wince'] and env['MODE'] == 'dbg':
+  module += env.InstallAs('gears.pdb', 'gears-$OS-$ARCH-$MODE-${BROWSER}.pdb')
 env.Alias('gears', module)
 
 if env['OS'] == 'wince':
