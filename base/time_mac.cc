@@ -28,7 +28,7 @@ namespace base {
 // from 1970-01-01 00:00:00 UTC.  Core Foundation uses a double second count
 // since 2001-01-01 00:00:00 UTC.
 
-// Some functions in time.c use time_t directly, so we provide a zero offset
+// Some functions in time.cc use time_t directly, so we provide a zero offset
 // for them.  The epoch is 1970-01-01 00:00:00 UTC.
 // static
 const int64 Time::kTimeTToMicrosecondsOffset = GG_INT64_C(0);
@@ -51,9 +51,8 @@ Time Time::FromExploded(bool is_local, const Exploded& exploded) {
   date.month = exploded.month;
   date.year = exploded.year;
 
-  scoped_cftyperef<CFTimeZoneRef> time_zone;
-  if (is_local)
-    time_zone.reset(CFTimeZoneCopySystem());
+  scoped_cftyperef<CFTimeZoneRef>
+      time_zone(is_local ? CFTimeZoneCopySystem() : NULL);
   CFAbsoluteTime seconds = CFGregorianDateGetAbsoluteTime(date, time_zone) +
       kCFAbsoluteTimeIntervalSince1970;
   return Time(static_cast<int64>(seconds * kMicrosecondsPerSecond));
@@ -64,9 +63,8 @@ void Time::Explode(bool is_local, Exploded* exploded) const {
       (static_cast<double>(us_) / kMicrosecondsPerSecond) -
       kCFAbsoluteTimeIntervalSince1970;
   
-  scoped_cftyperef<CFTimeZoneRef> time_zone;
-  if (is_local)
-    time_zone.reset(CFTimeZoneCopySystem());
+  scoped_cftyperef<CFTimeZoneRef>
+      time_zone(is_local ? CFTimeZoneCopySystem() : NULL);
   CFGregorianDate date = CFAbsoluteTimeGetGregorianDate(seconds, time_zone);
   
   exploded->year = date.year;
