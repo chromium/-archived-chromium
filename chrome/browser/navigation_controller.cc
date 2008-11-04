@@ -929,23 +929,6 @@ void NavigationController::DiscardNonCommittedEntries() {
   NavigationEntry* last_entry = GetLastCommittedEntry();
   if (last_entry && last_entry->tab_type() != active_contents_->type()) {
     TabContents* from_contents = active_contents_;
-    if (from_contents->type() == active_contents_->type()) {
-      // EVIL HACK ALERT! This condition is a wallpaper patch around bug
-      // http://code.google.com/p/chromium/issues/detail?id=2855
-      // See the bug for more, but the short answer is that an old render view
-      // host's "cancel" message will get received by a newer one that happens
-      // to be navigated to the same URL, which will trigger improperly
-      // discarding the pending entry. This will in turn trigger tab contents
-      // collection and other bad things.
-      //
-      // This early return doesn't fix the problem at all, but does prevent the
-
-      // immediate crash. There are very likely to be problems as a result of
-      // the confused state that this generates, so the underlying bug really
-      // needs to be fixed!
-      return;
-    }
-
     from_contents->set_is_active(false);
 
     // Switch back to the previous tab contents.
