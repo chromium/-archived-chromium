@@ -237,7 +237,6 @@ windows_env = root_env.Clone()
 environment_list.append(windows_env)
 windows_env.Tool('target_platform_windows')
 windows_env.Tool('target_debug')
-windows_env.Tool('component_targets_msvs')  # Per target project support.
 windows_env.Tool('midl')
 windows_env.Replace(
     BUILD_TYPE = 'debug-windows',
@@ -655,25 +654,11 @@ BuildComponents(environment_list)
 # will be populated.
 if root_env.Bit('solution'):
   solution_env = root_env.Clone(tools = ['visual_studio_solution'])
-  src_solution = solution_env.Solution(
-      '$MAIN_DIR/chrome_scons_src', [windows_env],
+  solution = solution_env.Solution(
+      '$MAIN_DIR/chrome_scons', [windows_env],
       exclude_pattern = '.*(Program Files|platformsdk_vista_6_0|cygwin).*',
   )
-
-  solution = windows_env.ComponentVSSolution('chrome_scons',
-      [
-           'all_libraries',
-           'all_programs',
-           'all_test_programs',
-      ],
-      projects = [windows_env.File('$MAIN_DIR/chrome_scons_src.vcproj')],
-      COMPONENT_VS_SOLUTION_DIR='$MAIN_DIR',
-      COMPONENT_VS_PROJECT_DIR='$MAIN_DIR/projects',
-      COMPONENT_VS_PROJECT_SCRIPT_PATH=(
-        'cd $$(ProjectDir)/$VS_PROJECT_TO_MAIN_DIR && hammer.bat'),
-  )
-
   Default(None)  # Delete all other default targets.
-  Default([src_solution, solution])  # Build just the solution.
+  Default(solution)  # Build just the solution.
 
 # -------------------------------------------------------------------------
