@@ -74,6 +74,5 @@ input_files = [
     '../common/controller$OBJSUFFIX',
 ]
 
-sbox_unittests = env.ChromeTestProgram('sbox_unittests', input_files)
-i = env.Install('$TARGET_ROOT', sbox_unittests)
-env.Alias('sandbox', i)
+env.ChromeTestProgram('sbox_unittests', input_files,
+                      COMPONENT_PLATFORM_SETUP=None)
