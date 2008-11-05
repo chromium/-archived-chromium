@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <math.h> // ceil
 #include "base/compiler_specific.h"
 #include "base/platform_test.h"
 #include "net/base/client_socket_factory.h"

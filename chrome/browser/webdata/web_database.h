@@ -14,7 +14,9 @@
 #include "chrome/common/sqlite_utils.h"
 #include "skia/include/SkBitmap.h"
 
-class base::Time;
+namespace base {
+  class Time;
+}
 struct PasswordForm;
 struct IE7PasswordInfo;
 

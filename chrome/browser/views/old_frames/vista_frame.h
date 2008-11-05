@@ -28,9 +28,12 @@ class BookmarkBarView;
 class Browser;
 class BrowserView;
 class TabContentsContainerView;
-class views::FocusManager;
 class SkBitmap;
 class TabStrip;
+
+namespace views {
+  class FocusManager;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
