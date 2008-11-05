@@ -391,7 +391,7 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 namespace webkit_glue {
 
 std::wstring GetLocalizedString(int message_id) {
-  NOTREACHED();
+  NOTIMPLEMENTED();
   return L"No string for this identifier!";
 }
 

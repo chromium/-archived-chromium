@@ -26,8 +26,10 @@
 #include "AffineTransform.h"
 #include "GraphicsContext.h"
 #include "NotImplemented.h"
+#include "PlatformContextSkia.h"
 #include "RenderObject.h"
 #include "gtkdrawing.h"
+#include "gdkskiadrawable.h"
 
 #include <gdk/gdk.h>
 
@@ -119,8 +121,6 @@ static void adjustMozStyle(RenderStyle* style, GtkThemeWidgetType type)
     style->setPaddingBottom(Length(ypadding + bottom, Fixed));
 }
 
-// Disabled until paintMozWidget is fixed which means that we have everything working w.r.t. GtkDrawable.
-/*
 static void setMozState(RenderTheme* theme, GtkWidgetState* state, RenderObject* o)
 {
     state->active = theme->isPressed(o);
@@ -132,21 +132,9 @@ static void setMozState(RenderTheme* theme, GtkWidgetState* state, RenderObject*
     state->canDefault = false;
     state->depressed = false;
 }
-*/
 
 static bool paintMozWidget(RenderTheme* theme, GtkThemeWidgetType type, RenderObject* o, const RenderObject::PaintInfo& i, const IntRect& rect)
 {
-  // TODO(port): Fail on all drawing. Specifically, a lot of this drawing code
-  // appears to depend heavily on the cairo graphics context. All of this needs
-  // to be ported to skia.
-  notImplemented();
-  return false;
-
-  /*
-    // No GdkWindow to render to, so return true to fall back
-    if (!i.context->gdkDrawable())
-        return true;
-
     // Painting is disabled so just claim to have succeeded
     if (i.context->paintingDisabled())
         return false;
@@ -173,25 +161,36 @@ static bool paintMozWidget(RenderTheme* theme, GtkThemeWidgetType type, RenderOb
     AffineTransform ctm = i.context->getCTM();
 
     IntPoint pos = ctm.mapPoint(rect.location());
-    GdkRectangle gdkRect = IntRect(pos.x(), pos.y(), rect.width(), rect.height());
+    GdkRectangle gdkRect;
+    gdkRect.x = pos.x();
+    gdkRect.y = pos.y();
+    gdkRect.width = rect.width();
+    gdkRect.height = rect.height();
     GtkTextDirection direction = gtkTextDirection(o->style()->direction());
 
-    // Find the clip rectangle
-    cairo_t *cr = i.context->platformContext();
-    double clipX1, clipX2, clipY1, clipY2;
-    cairo_clip_extents(cr, &clipX1, &clipY1, &clipX2, &clipY2);
+    PlatformContextSkia* pcs = i.context->platformContext();
+    SkCanvas* canvas = pcs->canvas();
+    if (!canvas)
+        return false;
+
+    const SkIRect clip_region = canvas->getTotalClip().getBounds();
 
     GdkRectangle gdkClipRect;
-    gdkClipRect.width = clipX2 - clipX1;
-    gdkClipRect.height = clipY2 - clipY1;
-    IntPoint clipPos = ctm.mapPoint(IntPoint(clipX1, clipY1));
-    gdkClipRect.x = clipPos.x();
-    gdkClipRect.y = clipPos.y();
+    gdkClipRect.x = clip_region.fLeft;
+    gdkClipRect.y = clip_region.fTop;
+    gdkClipRect.width = clip_region.width();
+    gdkClipRect.height = clip_region.height();
 
     gdk_rectangle_intersect(&gdkRect, &gdkClipRect, &gdkClipRect);
 
-    return moz_gtk_widget_paint(type, i.context->gdkDrawable(), &gdkRect, &gdkClipRect, &mozState, flags, direction) != MOZ_GTK_SUCCESS;
-  */
+    // TODO(agl): we should look at not creating this anew every time.
+    GdkSkia* skiadrawable = gdk_skia_new(canvas);
+
+    const gint r =
+      moz_gtk_widget_paint(type, skiadrawable, &gdkRect, &gdkClipRect, &mozState, flags, direction) != MOZ_GTK_SUCCESS;
+
+    g_object_unref(skiadrawable);
+    return r;
 }
 
 static void setButtonPadding(RenderStyle* style)

@@ -175,6 +175,7 @@ if env['PLATFORM'] == 'posix':
     '$PORT_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
     '$PORT_DIR/platform/chromium/gtk2drawing.c',
+    '$PORT_DIR/platform/chromium/gdkskiadrawable.cc',
     '$PORT_DIR/platform/chromium/RenderThemeGtk.cpp'
   ])
 
