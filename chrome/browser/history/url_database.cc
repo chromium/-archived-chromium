@@ -44,8 +44,8 @@ std::string URLDatabase::GURLToDatabaseURL(const GURL& gurl) {
 void URLDatabase::FillURLRow(SQLStatement& s, history::URLRow* i) {
   DCHECK(i);
   i->id_ = s.column_int64(0);
-  i->url_ = GURL(s.column_text(1));
-  i->title_.assign(s.column_text16(2));
+  i->url_ = GURL(s.column_string(1));
+  i->title_ = s.column_string16(2);
   i->visit_count_ = s.column_int(3);
   i->typed_count_ = s.column_int(4);
   i->last_visit_ = Time::FromInternalValue(s.column_int64(5));

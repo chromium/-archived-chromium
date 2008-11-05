@@ -402,7 +402,7 @@ bool ThumbnailDatabase::GetFavIcon(
   if (statement->column_bytes(1) > 0)
     statement->column_blob_as_vector(1, png_icon_data);
   if (icon_url)
-    *icon_url = GURL(statement->column_text(2));
+    *icon_url = GURL(statement->column_string(2));
 
   return true;
 }

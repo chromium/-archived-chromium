@@ -50,9 +50,9 @@ bool DoesSqliteColumnExist(sqlite3* db,
     return false;
 
   while (s.step() == SQLITE_ROW) {
-    if (!strcmp(column_name, s.column_text(1))) {
+    if (!s.column_string(1).compare(column_name)) {
       if (column_type && column_type[0])
-        return !strcmp(column_type, s.column_text(2));
+        return !s.column_string(2).compare(column_type);
       return true;
     }
   }
