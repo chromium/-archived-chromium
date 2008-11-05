@@ -64,6 +64,11 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   // Called to close any idle connections held by the connection manager.
   void CloseIdleSockets();
 
+  // The total number of idle sockets in the pool.
+  int idle_socket_count() const {
+    return idle_socket_count_;
+  }
+
  private:
   friend class base::RefCounted<ClientSocketPool>;
 
