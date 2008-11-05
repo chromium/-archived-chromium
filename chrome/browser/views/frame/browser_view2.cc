@@ -116,8 +116,7 @@ BrowserView2::~BrowserView2() {
 void BrowserView2::WindowMoved() {
   // Cancel any tabstrip animations, some of them may be invalidated by the
   // window being repositioned.
-  // Comment out for one cycle to see if this fixes dist tests.
-  //tabstrip_->DestroyDragController();
+  tabstrip_->DestroyDragController();
 
   status_bubble_->Reposition();
 
