@@ -87,6 +87,7 @@ input_files = [
     'tooltip_manager.cc',
     'tree_view.cc',
     'view.cc',
+    'view_constants.cc',
     'view_storage.cc',
     'window.cc',
     'window_delegate.cc',
