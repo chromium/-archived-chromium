@@ -937,6 +937,29 @@ void WebContents::DidFailProvisionalLoadWithError(
     return;
 
   if (net::ERR_ABORTED == error_code) {
+    // EVIL HACK ALERT! Ignore failed loads when we're showing interstitials.
+    // This means that the interstitial won't be torn down properly, which is
+    // bad. But if we have an interstitial, go back to another tab type, and
+    // then load the same interstitial again, we could end up getting the first
+    // interstitial's "failed" message (as a result of the cancel) when we're on
+    // the second one.
+    //
+    // We can't tell this apart, so we think we're tearing down the current page
+    // which will cause a crash later one. There is also some code in
+    // RenderViewHostManager::RendererAbortedProvisionalLoad that is commented
+    // out because of this problem.
+    //
+    // http://code.google.com/p/chromium/issues/detail?id=2855
+    // Because this will not tear down the interstitial properly, if "back" is
+    // back to another tab type, the interstitial will still be somewhat alive
+    // in the previous tab type. If you navigate somewhere that activates the
+    // tab with the interstitial again, you'll see a flash before the new load
+    // commits of the interstitial page.
+    if (render_manager_.showing_interstitial_page()) {
+      LOG(WARNING) << "Discarding message during interstitial.";
+      return;
+    }
+
     // This will discard our pending entry if we cancelled the load (e.g., if we
     // decided to download the file instead of load it). Only discard the
     // pending entry if the URLs match, otherwise the user initiated a navigate
