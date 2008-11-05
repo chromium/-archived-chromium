@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "config.h"
+
 #include "webkit/glue/form_autocomplete_listener.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
