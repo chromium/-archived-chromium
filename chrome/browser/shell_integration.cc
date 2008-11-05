@@ -55,7 +55,7 @@ bool VerifyApplicationKey() {
   std::wstring app_path;
   if (!PathService::Get(base::FILE_EXE, &app_path))
     return false;
-  app_path.append(L" \"%1\"");
+  app_path.append(L" -- \"%1\"");
   return key.WriteValue(NULL, app_path.c_str());
 }
 

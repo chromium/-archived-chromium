@@ -160,6 +160,37 @@ installer::Version* GetVersionFromDir(const std::wstring& chrome_path) {
   return version;
 }
 
+// This method is temporary and only called by UpdateChromeOpenCmd() below.
+void ReplaceRegistryValue(const std::wstring& reg_key,
+                          const std::wstring& old_val,
+                          const std::wstring& new_val) {
+  RegKey key;
+  std::wstring value;
+  if (key.Open(HKEY_CLASSES_ROOT, reg_key.c_str(), KEY_READ) &&
+      key.ReadValue(NULL, &value) && (old_val == value)) {
+    std::wstring key_path = L"Software\\Classes\\" + reg_key;
+    if (key.Open(HKEY_CURRENT_USER, key_path.c_str(), KEY_WRITE))
+      key.WriteValue(NULL, new_val.c_str());
+    if (key.Open(HKEY_LOCAL_MACHINE, key_path.c_str(), KEY_WRITE))
+      key.WriteValue(NULL, new_val.c_str());
+  }
+}
+
+// This method is only temporary to update Chrome open cmd for existing users
+// of Chrome. This can be deleted once we make one release including this patch
+// to every user.
+void UpdateChromeOpenCmd(bool system_install) {
+  std::wstring chrome_exe =  installer::GetChromeInstallPath(system_install);
+  file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
+  std::wstring old_open_cmd = L"\"" + chrome_exe + L"\" \"%1\"";
+  std::wstring new_open_cmd = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
+  std::wstring reg_key[] = { L"ChromeHTML\\shell\\open\\command",
+                             L"http\\shell\\open\\command",
+                             L"https\\shell\\open\\command" };
+  for (int i = 0; i < _countof(reg_key); i++)
+    ReplaceRegistryValue(reg_key[i], old_open_cmd, new_open_cmd);
+}
+
 installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
     const installer::Version* installed_version, bool system_install) {
   // For install the default location for chrome.packed.7z is in current
@@ -234,12 +265,18 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
               installer_util::switches::kDoNotLaunchChrome)) {
             std::wstring chrome_exe =
                 installer::GetChromeInstallPath(system_install);
-            InstallUtil::WriteInstallerResult(system_install, install_status,
-                                              0, &chrome_exe);
+            if (!chrome_exe.empty()) {
+              file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
+              InstallUtil::WriteInstallerResult(system_install, install_status,
+                                                0, &chrome_exe);
+            }
           } else {
             installer::LaunchChrome(system_install);
           }
         } else if (install_status == installer_util::NEW_VERSION_UPDATED) {
+          // This is temporary hack and will be deleted after one release.
+          UpdateChromeOpenCmd(system_install);
+
 #if defined(GOOGLE_CHROME_BUILD)
           // TODO(kuchhal): This is just temporary until all users move to the
           // new Chromium version which ships with gears.dll.
