@@ -67,9 +67,10 @@ void ConvertV8ObjectToNPVariant(v8::Local<v8::Value> object, NPObject *owner,
 
   } else if (object->IsString()) {
     v8::Handle<v8::String> str = object->ToString();
-    uint16_t *buf = new uint16_t[str->Length()+1];
+    uint16_t* buf = new uint16_t[str->Length() + 1];
     str->Write(buf);
-    std::string utf8 = WideToUTF8(reinterpret_cast<wchar_t*>(buf));
+    std::string utf8;
+    UTF16ToUTF8(reinterpret_cast<char16*>(buf), str->Length(), &utf8);
     char* utf8_chars = strdup(utf8.c_str());
     STRINGN_TO_NPVARIANT(utf8_chars, utf8.length(), *result);
     delete[] buf;

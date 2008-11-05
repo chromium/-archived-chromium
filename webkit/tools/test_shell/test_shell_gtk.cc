@@ -120,16 +120,22 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
 
   gtk_container_add(GTK_CONTAINER(m_mainWnd), vbox);
   gtk_widget_show_all(m_mainWnd);
+  toolbar_height_ = toolbar->allocation.height +
+      gtk_box_get_spacing(GTK_BOX(vbox));
 
   return true;
 }
 
 void TestShell::TestFinished() {
-  NOTIMPLEMENTED();
+  if(!test_is_pending_)
+    return;
+
+  test_is_pending_ = false;
+  MessageLoop::current()->Quit();
 }
 
 void TestShell::SizeTo(int width, int height) {
-  NOTIMPLEMENTED();
+  gtk_window_resize(GTK_WINDOW(m_mainWnd), width, height + toolbar_height_);
 }
 
 void TestShell::WaitTestFinished() {
@@ -147,9 +153,16 @@ void TestShell::WaitTestFinished() {
     MessageLoop::current()->Run();
 }
 
-void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
-  // TODO(agl): port the body of this function
-  NOTIMPLEMENTED();
+void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
+  GtkWidget* widget = GTK_WIDGET(host->window_handle());
+
+  if (enable) {
+    gtk_widget_grab_focus(widget);
+  } else if (gtk_widget_is_focus(widget)) {
+    GtkWidget *toplevel = gtk_widget_get_toplevel(widget);
+    if (GTK_WIDGET_TOPLEVEL(toplevel))
+      gtk_window_set_focus(GTK_WINDOW(toplevel), NULL);
+  }
 }
 
 void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {

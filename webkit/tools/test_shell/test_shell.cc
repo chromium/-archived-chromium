@@ -312,6 +312,26 @@ void TestShell::Reload() {
     navigation_controller_->Reload();
 }
 
+void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
+  if (interactive_) {
+    InteractiveSetFocus(host, enable);
+  } else {
+    if (enable) {
+      if (m_focusedWidgetHost != host) {
+        if (m_focusedWidgetHost)
+            m_focusedWidgetHost->webwidget()->SetFocus(false);
+        host->webwidget()->SetFocus(enable);
+        m_focusedWidgetHost = host;
+      }
+    } else {
+      if (m_focusedWidgetHost == host) {
+        host->webwidget()->SetFocus(enable);
+        m_focusedWidgetHost = NULL;
+      }
+    }
+  }
+}
+
 //-----------------------------------------------------------------------------
 
 namespace webkit_glue {

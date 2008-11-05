@@ -435,29 +435,11 @@ void TestShell::WaitTestFinished() {
   WaitForSingleObject(thread_handle, 1000);  
 }
 
-void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
-  if (interactive_) {
-    if (enable) {
-      ::SetFocus(host->window_handle());
-    } else {
-      if (GetFocus() == host->window_handle())
-        ::SetFocus(NULL);
-    }
-  } else {
-    if (enable) {
-      if (m_focusedWidgetHost != host) {
-        if (m_focusedWidgetHost)
-            m_focusedWidgetHost->webwidget()->SetFocus(false);
-         host->webwidget()->SetFocus(enable);
-         m_focusedWidgetHost = host;
-      }
-    } else {
-      if (m_focusedWidgetHost == host) {
-        host->webwidget()->SetFocus(enable);
-        m_focusedWidgetHost = NULL;
-      }
-    }
-  }
+void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
+  if (enable)
+    ::SetFocus(host->window_handle());
+  else if (::GetFocus() == host->window_handle())
+    ::SetFocus(NULL);
 }
 
 WebWidget* TestShell::CreatePopupWidget(WebView* webview) {

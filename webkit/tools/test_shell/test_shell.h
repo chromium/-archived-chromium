@@ -233,6 +233,9 @@ protected:
     void SizeTo(int width, int height);
     void ResizeSubViews();
 
+    // Set the focus in interactive mode (pass through to relevant system call).
+    void InteractiveSetFocus(WebWidgetHost* host, bool enable);
+
 #if defined(OS_WIN)
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
     static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -297,6 +300,11 @@ private:
 
     // Dump the stats table counters on exit.
     bool dump_stats_table_on_exit_;
+
+#if defined(OS_LINUX)
+    // The height of the non-rendering area of the main window, in pixels.
+    int toolbar_height_;
+#endif
 };
 
 #endif // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H_

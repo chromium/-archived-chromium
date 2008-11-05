@@ -6,6 +6,8 @@
 
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
+#include <gtk/gtk.h>
+
 #include "base/gfx/point.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
@@ -667,7 +669,8 @@ void TestWebViewDelegate::UpdateAddressBar(WebView* webView) {
 
   std::string frameURL = dataSource->GetRequest().GetMainDocumentURL().spec();
   LOG(INFO) << "  -- Address bar " << frameURL;
-  NOTIMPLEMENTED();
+
+  gtk_entry_set_text(GTK_ENTRY(shell_->editWnd()), frameURL.c_str());
 }
 
 void TestWebViewDelegate::LocationChangeDone(WebDataSource* data_source) {
