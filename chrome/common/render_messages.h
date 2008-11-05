@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
@@ -18,6 +19,7 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/upload_data.h"
 #include "net/url_request/url_request_status.h"
+#include "webkit/glue/autofill_form.h"
 #include "webkit/glue/cache_manager.h"
 #include "webkit/glue/context_node_types.h"
 #include "webkit/glue/form_data.h"
@@ -820,6 +822,37 @@ struct ParamTraits<PasswordForm> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"<PasswordForm>");
+  }
+};
+
+// Traits for AutofillForm_Params structure to pack/unpack.
+template <>
+struct ParamTraits<AutofillForm> {
+  typedef AutofillForm param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.elements.size());
+    for (std::vector<AutofillForm::Element>::const_iterator itr =
+        p.elements.begin();
+        itr != p.elements.end();
+        itr++) {
+      WriteParam(m, itr->name);
+      WriteParam(m, itr->value);
+    }
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+      bool result = true;
+      size_t elements_size = 0;
+      result = result && ReadParam(m, iter, &elements_size);
+      p->elements.resize(elements_size);
+      for (size_t i = 0; i < elements_size; i++) {
+        std::wstring s;
+        result = result && ReadParam(m, iter, &(p->elements[i].name));
+        result = result && ReadParam(m, iter, &(p->elements[i].value));
+      }
+      return result;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<AutofillForm>");
   }
 };
 

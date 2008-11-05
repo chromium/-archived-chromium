@@ -9,6 +9,7 @@
 #include "base/file_version_info.h"
 #include "base/process_util.h"
 #include "chrome/app/locales/locale_settings.h"
+#include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -268,6 +269,12 @@ void WebContents::RegisterUserPrefs(PrefService* prefs) {
                                       IDS_USES_UNIVERSAL_DETECTOR);
   prefs->RegisterLocalizedStringPref(prefs::kStaticEncodings,
                                      IDS_STATIC_ENCODING_LIST);
+}
+
+AutofillManager* WebContents::GetAutofillManager() {
+  if (autofill_manager_.get() == NULL)
+    autofill_manager_.reset(new AutofillManager(this));
+  return autofill_manager_.get();
 }
 
 PasswordManager* WebContents::GetPasswordManager() {
@@ -1111,6 +1118,11 @@ void WebContents::ShowModalHTMLDialog(const GURL& url, int width, int height,
 void WebContents::PasswordFormsSeen(
     const std::vector<PasswordForm>& forms) {
   GetPasswordManager()->PasswordFormsSeen(forms);
+}
+
+void WebContents::AutofillFormSubmitted(
+    const AutofillForm& form) {
+  GetAutofillManager()->AutofillFormSubmitted(form);
 }
 
 // Checks to see if we should generate a keyword based on the OSDD, and if

@@ -43,6 +43,7 @@ namespace gfx {
 struct PasswordForm;
 struct WebDropData;
 struct WebPreferences;
+class AutofillForm;
 class SkBitmap;
 class WebError;
 class WebFrame;
@@ -445,6 +446,12 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // the password manager
   virtual void OnPasswordFormsSeen(WebView* webview,
                                    const std::vector<PasswordForm>& forms) {
+  }
+
+  // Notification of the submission of a form so that its contents can be
+  // recorded for future autofilling.
+  virtual void OnAutofillFormSubmitted(WebView* webview,
+                                       const AutofillForm& form) {
   }
 
   //

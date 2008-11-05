@@ -15,6 +15,7 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/web_app.h"
 
+class AutofillManager;
 class InterstitialPageDelegate;
 class PasswordManager;
 class PluginInstaller;
@@ -46,6 +47,9 @@ class WebContents : public TabContents,
   static void RegisterUserPrefs(PrefService* prefs);
 
   // Getters -------------------------------------------------------------------
+
+  // Returns the AutofillManager, creating it if necessary.
+  AutofillManager* GetAutofillManager();
 
   // Returns the PasswordManager, creating it if necessary.
   PasswordManager* GetPasswordManager();
@@ -284,6 +288,7 @@ class WebContents : public TabContents,
                                    const std::string& json_arguments,
                                    IPC::Message* reply_msg);
   virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms);
+  virtual void AutofillFormSubmitted(const AutofillForm& form);
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& url, bool autodetected);
   virtual void InspectElementReply(int num_resources);
@@ -513,6 +518,9 @@ class WebContents : public TabContents,
   // equivalent constrained window).  Plugin processes check this to know if
   // they should pump messages then.
   ScopedHandle message_box_active_;
+
+  // AutofillManager, lazily created.
+  scoped_ptr<AutofillManager> autofill_manager_;
 
   // PasswordManager, lazily created.
   scoped_ptr<PasswordManager> password_manager_;

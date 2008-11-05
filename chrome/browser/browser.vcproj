@@ -2126,6 +2126,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Autofill"
+			>
+			<File
+				RelativePath=".\autofill_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\autofill_manager.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\browser_trial.cc"
 			>

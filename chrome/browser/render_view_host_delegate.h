@@ -282,6 +282,9 @@ class RenderViewHostDelegate {
 
   // Password forms have been detected in the page.
   virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms) { }
+  
+  // Forms fillable by autofill have been detected in the page.
+  virtual void AutofillFormSubmitted(const AutofillForm& form) { }
 
   // Notification that the page has an OpenSearch description document.
   virtual void PageHasOSDD(RenderViewHost* render_view_host,

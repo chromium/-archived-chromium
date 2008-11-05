@@ -651,6 +651,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ShowModalHTMLDialog,
                                     OnMsgShowModalHTMLDialog)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PasswordFormsSeen, OnMsgPasswordFormsSeen)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_AutofillFormSubmitted,
+                        OnMsgAutofillFormSubmitted)
     IPC_MESSAGE_HANDLER(ViewHostMsg_StartDragging, OnMsgStartDragging)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateDragCursor, OnUpdateDragCursor)
     IPC_MESSAGE_HANDLER(ViewHostMsg_TakeFocus, OnTakeFocus)
@@ -1062,6 +1064,11 @@ void RenderViewHost::OnMsgShowModalHTMLDialog(
 void RenderViewHost::OnMsgPasswordFormsSeen(
     const std::vector<PasswordForm>& forms) {
   delegate_->PasswordFormsSeen(forms);
+}
+
+void RenderViewHost::OnMsgAutofillFormSubmitted(
+    const AutofillForm& form) {
+  delegate_->AutofillFormSubmitted(form);
 }
 
 void RenderViewHost::OnMsgStartDragging(

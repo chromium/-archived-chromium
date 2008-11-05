@@ -838,6 +838,10 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_PasswordFormsSeen,
                       std::vector<PasswordForm> /* forms */)
 
+  // Notification that a form has been submitted.  The user hit the button.
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_AutofillFormSubmitted,
+                      AutofillForm /* form */)
+
   // Used to tell the parent the user started dragging in the content area. The
   // WebDropData struct contains contextual information about the pieces of the
   // page the user dragged. The parent uses this notification to initiate a
