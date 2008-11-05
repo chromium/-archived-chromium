@@ -90,6 +90,8 @@ void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
   paint_rect_ = paint_rect_.Union(damaged_rect);
 
   NSRect r = NSRectFromCGRect(damaged_rect.ToCGRect());
+  // flip to cocoa coordinates
+  r.origin.y = [view_ frame].size.height - r.size.height - r.origin.y;
   [view_ setNeedsDisplayInRect:r];
 }
 
@@ -110,6 +112,8 @@ void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
   scroll_dy_ = dy;
 
   NSRect r = NSRectFromCGRect(clip_rect.ToCGRect());
+  // flip to cocoa coordinates
+  r.origin.y = [view_ frame].size.height - r.size.height - r.origin.y;
   [view_ setNeedsDisplayInRect:r];
 }
 
@@ -175,7 +179,7 @@ void WebWidgetHost::Paint() {
   // first time we call it.  This is necessary because some WebCore rendering
   // objects update their layout only when painted.
   for (int i = 0; i < 2; ++i) {
-    paint_rect_ = client_rect;//.Intersect(paint_rect_);
+    paint_rect_ = client_rect.Intersect(paint_rect_);
     if (!paint_rect_.IsEmpty()) {
       gfx::Rect rect(paint_rect_);
       paint_rect_ = gfx::Rect();
@@ -201,9 +205,6 @@ void WebWidgetHost::Paint() {
     
     [view_ unlockFocus];
   }
-
-  // Draw children
-  // UpdateWindow(hwnd_);
 }
 
 void WebWidgetHost::Resize(const gfx::Rect& rect) {

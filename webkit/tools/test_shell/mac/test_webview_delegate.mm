@@ -624,8 +624,8 @@ gfx::ViewHandle TestWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {
 
 void TestWebViewDelegate::DidInvalidateRect(WebWidget* webwidget,
                                             const gfx::Rect& rect) {
-  if (shell_ && shell_->webViewHost() && shell_->webViewHost()->window_handle())
-    [shell_->webViewHost()->window_handle() setNeedsDisplay:YES];
+  if (WebWidgetHost* host = GetHostForWidget(webwidget))
+    host->DidInvalidateRect(rect);
 }
 
 void TestWebViewDelegate::DidScrollRect(WebWidget* webwidget, int dx, int dy,
