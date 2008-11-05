@@ -450,6 +450,7 @@
 		93BF8F520EA6BD870030F05C /* AccessibilityObjectChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8F510EA6BD870030F05C /* AccessibilityObjectChromium.cpp */; };
 		AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
 		AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB332F4B0E95497E0020F882 /* AnimationController.cpp */; };
+		AB451D9D0EC21EDE0037A496 /* ColorSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90050D7F3CC1001ECF42 /* ColorSkia.cpp */; };
 		AB8FE8A50E9BCD3E0051E7B4 /* GKURL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */; };
 		ABBD23820EB7A8D200BEC658 /* StyleInheritedData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23810EB7A8D200BEC658 /* StyleInheritedData.cpp */; };
 		ABBD23A20EB7A95B00BEC658 /* StyleMarqueeData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23930EB7A95B00BEC658 /* StyleMarqueeData.cpp */; };
@@ -854,7 +855,6 @@
 		E45624CF0E268E87005E4685 /* GraphicsTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FE20D7F3CC1001ECF42 /* GraphicsTypes.cpp */; };
 		E45624D00E268E87005E4685 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FF70D7F3CC1001ECF42 /* Image.cpp */; };
 		E45624D10E268E87005E4685 /* IntRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FFF0D7F3CC1001ECF42 /* IntRect.cpp */; };
-		E45624D20E268E87005E4685 /* ColorMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90050D7F3CC1001ECF42 /* ColorMac.mm */; };
 		E45624D60E268E87005E4685 /* FontCacheMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90090D7F3CC1001ECF42 /* FontCacheMac.mm */; };
 		E45624D70E268E87005E4685 /* FontCustomPlatformData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E900A0D7F3CC1001ECF42 /* FontCustomPlatformData.cpp */; };
 		E45624D80E268E87005E4685 /* FontMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E900C0D7F3CC1001ECF42 /* FontMac.mm */; };
@@ -3014,7 +3014,7 @@
 		7B5E90010D7F3CC1001ECF42 /* IntSize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntSize.h; sourceTree = "<group>"; };
 		7B5E90020D7F3CC1001ECF42 /* IntSizeHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntSizeHash.h; sourceTree = "<group>"; };
 		7B5E90040D7F3CC1001ECF42 /* ColorMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorMac.h; sourceTree = "<group>"; };
-		7B5E90050D7F3CC1001ECF42 /* ColorMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ColorMac.mm; sourceTree = "<group>"; };
+		7B5E90050D7F3CC1001ECF42 /* ColorSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ColorSkia.cpp; path = port/platform/graphics/ColorSkia.cpp; sourceTree = SOURCE_ROOT; };
 		7B5E90060D7F3CC1001ECF42 /* FloatPointMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FloatPointMac.mm; sourceTree = "<group>"; };
 		7B5E90070D7F3CC1001ECF42 /* FloatRectMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FloatRectMac.mm; sourceTree = "<group>"; };
 		7B5E90080D7F3CC1001ECF42 /* FloatSizeMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FloatSizeMac.mm; sourceTree = "<group>"; };
@@ -5615,6 +5615,7 @@
 			children = (
 				7B5E8FB30D7F3CC1001ECF42 /* cg */,
 				7B5E90030D7F3CC1001ECF42 /* mac */,
+				AB6A3CE40EC2202B00159689 /* skia */,
 				7B5E8FA30D7F3CC1001ECF42 /* AffineTransform.cpp */,
 				7B5E8FA40D7F3CC1001ECF42 /* AffineTransform.h */,
 				7B5E8FA50D7F3CC1001ECF42 /* BitmapImage.cpp */,
@@ -5723,7 +5724,6 @@
 			isa = PBXGroup;
 			children = (
 				7B5E90040D7F3CC1001ECF42 /* ColorMac.h */,
-				7B5E90050D7F3CC1001ECF42 /* ColorMac.mm */,
 				ABBD24D50EB7C29F00BEC658 /* CoreTextController.cpp */,
 				ABBD24D60EB7C29F00BEC658 /* CoreTextController.h */,
 				7B5E90060D7F3CC1001ECF42 /* FloatPointMac.mm */,
@@ -7630,6 +7630,14 @@
 			name = animation;
 			sourceTree = "<group>";
 		};
+		AB6A3CE40EC2202B00159689 /* skia */ = {
+			isa = PBXGroup;
+			children = (
+				7B5E90050D7F3CC1001ECF42 /* ColorSkia.cpp */,
+			);
+			name = skia;
+			sourceTree = "<group>";
+		};
 		B53CCC6B0E9BD0A700D51C9A /* cf */ = {
 			isa = PBXGroup;
 			children = (
@@ -8459,8 +8467,8 @@
 				E45624EE0E268E87005E4685 /* ClipboardMac.mm in Sources */,
 				E45624C20E268E87005E4685 /* Color.cpp in Sources */,
 				E45626820E268E87005E4685 /* ColorCG.cpp in Sources */,
+				AB451D9D0EC21EDE0037A496 /* ColorSkia.cpp in Sources */,
 				E456259C0E268E87005E4685 /* ColorDistance.cpp in Sources */,
-				E45624D20E268E87005E4685 /* ColorMac.mm in Sources */,
 				E45623B70E268E87005E4685 /* Comment.cpp in Sources */,
 				4DB7EFE60E9BA1E400C66CE0 /* CompositeAnimation.cpp in Sources */,
 				E45623EF0E268E87005E4685 /* CompositeEditCommand.cpp in Sources */,
