@@ -71,7 +71,7 @@ def Solution(env, solution_name,
   build_targets = [e.subst('$TARGET_ROOT') for e in environments]
   # pick out sources, headers, and resources
   sources, headers, resources, others = env.GatherInputs(
-      [SCons.Script.Dir('$DESTINATION_ROOT')],
+      [env.Dir('$DESTINATION_ROOT')],
       ['.+\\.(c|cc|m|mm|cpp)$',  # source files
        '.+\\.(h|hh|hpp)$',       # header files
        '.+\\.(rc)$',             # resource files
