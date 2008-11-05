@@ -1011,7 +1011,7 @@ void TabStrip::MaybeStartDrag(Tab* tab, const views::MouseEvent& event) {
   // mouse is down... during an animation tabs are being resized automatically,
   // so the View system can misinterpret this easily if the mouse is down that
   // the user is dragging.
-  if (IsAnimating() || tab->closing())
+  if (IsAnimating() || tab->closing() || !HasAvailableDragActions())
     return;
   drag_controller_.reset(new DraggedTabController(tab, this));
   drag_controller_->CaptureDragInfo(gfx::Point(event.x(), event.y()));

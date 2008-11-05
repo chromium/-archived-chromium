@@ -1324,15 +1324,20 @@ void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
     Browser* browser = browser_tracker_->GetResource(handle);
     DCHECK(browser);
     HWND top_level_hwnd = browser->GetTopLevelHWND();
-    SetCursorPos(drag_path[0].x, drag_path[0].y);
+    POINT temp = drag_path[0];
+    MapWindowPoints(top_level_hwnd, HWND_DESKTOP, &temp, 1);
+    SetCursorPos(temp.x, temp.y);
     SendMessage(top_level_hwnd, down_message, wparam_flags,
                 MAKELPARAM(drag_path[0].x, drag_path[0].y));
     for (int i = 1; i < static_cast<int>(drag_path.size()); ++i) {
-      SetCursorPos(drag_path[i].x, drag_path[i].y);
+      temp = drag_path[i];
+      MapWindowPoints(top_level_hwnd, HWND_DESKTOP, &temp, 1);
+      SetCursorPos(temp.x, temp.y);
       SendMessage(top_level_hwnd, WM_MOUSEMOVE, wparam_flags,
                   MAKELPARAM(drag_path[i].x, drag_path[i].y));
     }
     POINT end = drag_path[drag_path.size() - 1];
+    MapWindowPoints(top_level_hwnd, HWND_DESKTOP, &end, 1);
     SetCursorPos(end.x, end.y);
 
     if (press_escape_en_route) {
