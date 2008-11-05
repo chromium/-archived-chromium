@@ -57,8 +57,4 @@ input_files = [
 
 if env['PLATFORM'] in ('posix', 'win32'):
 
-  crash_cache = env.ChromeTestProgram('crash_cache', input_files)
-
-  installed_test = env.Install('$TARGET_ROOT', crash_cache)
-
-  env.Alias('net', installed_test)
+  env.ChromeTestProgram('crash_cache', input_files)

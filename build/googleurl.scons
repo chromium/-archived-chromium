@@ -14,5 +14,3 @@ sconscript_files = [
 ]
 
 SConscript(sconscript_files, exports=['env'])
-
-env.Alias('base', '.')

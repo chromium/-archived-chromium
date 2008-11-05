@@ -129,8 +129,4 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'base/ssl_client_socket_unittest.cc',
   ])
 
-net_unittests = env.ChromeTestProgram('net_unittests', input_files)
-
-installed_test = env.Install('$TARGET_ROOT', net_unittests)
-
-env.Alias('net', installed_test)
+env.ChromeTestProgram('net_unittests', input_files)

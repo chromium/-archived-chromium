@@ -69,8 +69,4 @@ input_files = [
 
 if env['PLATFORM'] in ('posix', 'win32'):
 
-  net_perftests = env.ChromeTestProgram('net_perftests', input_files)
-
-  installed_test = env.Install('$TARGET_ROOT', net_perftests)
-
-  env.Alias('net', installed_test)
+  env.ChromeTestProgram('net_perftests', input_files)

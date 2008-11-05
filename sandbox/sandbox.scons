@@ -8,11 +8,10 @@ Master configuration for building base components (including base_gfx).
 
 Import('env')
 
-env = env.Clone(
-    #TESTS_DIR = '../tests',
-    #INTEGRATION_TESTS_DIR = '$TESTS_DIR/integration_tests',
-    #UNIT_TESTS_DIR = '$TESTS_DIR/unit_tests',
-    #VALIDATION_TESTS_DIR = '$TESTS_DIR/validation_tests',
+# Arrange for Hammer to add all programs to the 'sandbox' Alias.
+env.Append(
+    COMPONENT_PROGRAM_GROUPS = ['sandbox'],
+    COMPONENT_TEST_PROGRAM_GROUPS = ['sandbox'],
 )
 
 sconscript_files = [

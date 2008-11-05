@@ -36,6 +36,4 @@ rc = env.Command('net_resources.rc',
 
 env.Depends(rc, tld_names_clean)
 
-net_resources = env.RES(rc)
-
-env.Alias('net', net_resources)
+env.RES(rc)

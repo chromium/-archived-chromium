@@ -49,6 +49,4 @@ input_files = [
     'tld_cleanup.cc',
 ]
 
-tld_cleanup = env.ChromeProgram('tld_cleanup', input_files)
-i = env.Install('$TARGET_ROOT', tld_cleanup)
-env.Alias('net', i)
+env.ChromeProgram('tld_cleanup', input_files)

@@ -8,6 +8,12 @@ Master configuration for building base components (including base_gfx).
 
 Import('env')
 
+# Arrange for Hammer to add all programs to the 'base' Alias.
+env.Append(
+    COMPONENT_PROGRAM_GROUPS = ['base'],
+    COMPONENT_TEST_PROGRAM_GROUPS = ['base'],
+)
+
 sconscript_files = [
     'base_lib.scons',
     'base_unittests.scons',

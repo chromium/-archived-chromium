@@ -192,5 +192,4 @@ if env['PLATFORM'] == 'posix':
       'worker_pool.cc',
   ])
 
-base_lib = env.ChromeStaticLibrary('base', input_files)
-env.Alias('base', base_lib)
+env.ChromeStaticLibrary('base', input_files)

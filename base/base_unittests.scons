@@ -172,12 +172,7 @@ if env['PLATFORM'] == 'darwin':
       'platform_test_mac.mm',
   ])
 
-base_unittests = env.ChromeTestProgram('base_unittests', input_files)
-
-# Install up a level to allow unit test path assumptions to be valid.
-installed_base_unittests = env.Install('$TARGET_ROOT', base_unittests)
-
-env.Alias('base', installed_base_unittests)
+env.ChromeTestProgram('base_unittests', input_files)
 
 # TODO(sgk) should this be moved into base.lib like everything else?  This will
 # require updating a bunch of other SConscripts which link directly against

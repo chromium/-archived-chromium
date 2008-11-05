@@ -28,11 +28,24 @@ else:
 
 root_env = Environment(
     tools = ['component_setup'],
+
     CHROME_SRC_DIR = '$MAIN_DIR/..',
     DESTINATION_ROOT = '$MAIN_DIR/Hammer',
     TARGET_ROOT = '$DESTINATION_ROOT',
 
+    # Where ComponentTestProgram() will build test executables.
+    TESTS_DIR = '$TARGET_ROOT',
+
+    # Where ComponentProgram() will build program executables.
+    STAGING_DIR = '$TARGET_ROOT',
+
+    # Where ComponentLibrary() will build libraries.
     LIBS_DIR              = '$COMPONENT_LIBRARY_DIR',
+
+    # TODO(hammer):  when Hammer supports this...
+    # Have Hammer prefix all Library aliases with lib_ (to avoid
+    # collisions with the component names themselves).
+    #COMPONENT_LIBRARY_ALIAS = 'lib_$LIBNAME',
 
     # Disable running of tests thru scons for now.
     COMPONENT_TEST_CMDLINE = '',

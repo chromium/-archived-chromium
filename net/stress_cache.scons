@@ -55,8 +55,4 @@ input_files = [
 ]
 
 if env['PLATFORM'] == 'win32':
-  stress_cache = env.ChromeTestProgram('stress_cache', input_files)
-
-  installed_test = env.Install('$TARGET_ROOT', stress_cache)
-
-  env.Alias('net', installed_test)
+  env.ChromeTestProgram('stress_cache', input_files)

@@ -8,6 +8,12 @@ Master configuration for building net components.
 
 Import('env')
 
+# Arrange for Hammer to add all programs to the 'net' Alias.
+env.Append(
+    COMPONENT_PROGRAM_GROUPS = ['net'],
+    COMPONENT_TEST_PROGRAM_GROUPS = ['net'],
+)
+
 sconscript_files = [
     'crash_cache.scons',
     'net_lib.scons',
@@ -35,5 +41,3 @@ if env['PLATFORM'] == 'win32':
   ])
 
 SConscript(sconscript_files, exports=['env'])
-
-env.Alias('net', '.')
