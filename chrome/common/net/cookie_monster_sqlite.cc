@@ -303,6 +303,19 @@ bool InitTable(sqlite3* db) {
   return true;
 }
 
+void PrimeCache(sqlite3* db) {
+  // A statement must be open for the preload command to work. If the meta
+  // table can't be read, it probably means this is a new database and there
+  // is nothing to preload (so it's OK we do nothing).
+  SQLStatement dummy;
+  if (dummy.prepare(db, "SELECT * from meta") != SQLITE_OK)
+    return;
+  if (dummy.step() != SQLITE_ROW)
+    return;
+
+  sqlite3Preload(db);
+}
+
 }  // namespace
 
 bool SQLitePersistentCookieStore::Load(
@@ -320,6 +333,8 @@ bool SQLitePersistentCookieStore::Load(
     return false;
   }
 
+  PrimeCache(db);
+
   // Slurp all the cookies into the out-vector.
   SQLStatement smt;
   if (smt.prepare(db,
@@ -329,17 +344,6 @@ bool SQLitePersistentCookieStore::Load(
     sqlite3_close(db);
     return false;
   }
-
-  // Step the statement and do the preload operation. Preload() requires that a
-  // statement be open on the database, so we oblige. We don't bother keeping
-  // this and reset the statement so we can read all the rows.
-  //
-  // The Preload call makes the read faster, since we will be reading most of
-  // the database, it's better to read it in one chunk than have a lot of seeks
-  // bringing it in organically.
-  if (smt.step() != SQLITE_ROW)
-    sqlite3Preload(db);
-  smt.reset();
 
   while (smt.step() == SQLITE_ROW) {
     std::string key = smt.column_string(1);
