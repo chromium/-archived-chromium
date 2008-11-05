@@ -659,6 +659,19 @@ bool StartsWithASCII(const std::string& str,
     return base::strncasecmp(str.c_str(), search.c_str(), search.length()) == 0;
 }
 
+bool StartsWith(const std::wstring& str,
+                const std::wstring& search,
+                bool case_sensitive) {
+  if (case_sensitive)
+    return str.compare(0, search.length(), search) == 0;
+  else {
+    if (search.size() > str.size())
+      return false;
+    return std::equal(search.begin(), search.end(), str.begin(),
+                      CaseInsensitiveCompare<wchar_t>());
+  }
+}
+
 DataUnits GetByteDisplayUnits(int64 bytes) {
   // The byte thresholds at which we display amounts.  A byte count is displayed
   // in unit U when kUnitThresholds[U] <= bytes < kUnitThresholds[U+1].

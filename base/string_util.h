@@ -274,10 +274,12 @@ bool LowerCaseEqualsASCII(const wchar_t* a_begin,
                           const char* b);
 
 // Returns true if str starts with search, or false otherwise.
-// This only works on ASCII strings.
 bool StartsWithASCII(const std::string& str,
                      const std::string& search,
                      bool case_sensitive);
+bool StartsWith(const std::wstring& str,
+                const std::wstring& search,
+                bool case_sensitive);
 
 // Determines the type of ASCII character, independent of locale (the C
 // library versions will change based on locale).

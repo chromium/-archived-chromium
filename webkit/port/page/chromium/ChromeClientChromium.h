@@ -26,7 +26,9 @@ namespace WebCore {
 
         // Notifies the client of a new popup widget.  The client should place
         // and size the widget with the given bounds, relative to the screen.
-        virtual void popupOpened(FramelessScrollView* popupView, const IntRect& bounds) = 0;
+        virtual void popupOpened(FramelessScrollView* popupView,
+                                 const IntRect& bounds,
+                                 bool focus_on_show) = 0;
 
         // Set the current cursor.
         virtual void setCursor(const Cursor& cursor) = 0;

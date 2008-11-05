@@ -1219,11 +1219,27 @@ TEST(StringUtilTest, SplitString) {
 }
 
 TEST(StringUtilTest, StartsWith) {
-  EXPECT_EQ(true, StartsWithASCII("javascript:url", "javascript", true));
-  EXPECT_EQ(true, StartsWithASCII("javascript:url", "javascript", false));
-  EXPECT_EQ(true, StartsWithASCII("JavaScript:url", "javascript", false));
-  EXPECT_EQ(false, StartsWithASCII("java", "javascript", true));
-  EXPECT_EQ(false, StartsWithASCII("java", "javascript", false));
+  EXPECT_TRUE(StartsWithASCII("javascript:url", "javascript", true));
+  EXPECT_FALSE(StartsWithASCII("JavaScript:url", "javascript", true));
+  EXPECT_TRUE(StartsWithASCII("javascript:url", "javascript", false));
+  EXPECT_TRUE(StartsWithASCII("JavaScript:url", "javascript", false));
+  EXPECT_FALSE(StartsWithASCII("java", "javascript", true));
+  EXPECT_FALSE(StartsWithASCII("java", "javascript", false));
+  EXPECT_FALSE(StartsWithASCII("", "javascript", false));
+  EXPECT_FALSE(StartsWithASCII("", "javascript", true));
+  EXPECT_TRUE(StartsWithASCII("java", "", false));
+  EXPECT_TRUE(StartsWithASCII("java", "", true));
+
+  EXPECT_TRUE(StartsWith(L"javascript:url", L"javascript", true));
+  EXPECT_FALSE(StartsWith(L"JavaScript:url", L"javascript", true));
+  EXPECT_TRUE(StartsWith(L"javascript:url", L"javascript", false));
+  EXPECT_TRUE(StartsWith(L"JavaScript:url", L"javascript", false));
+  EXPECT_FALSE(StartsWith(L"java", L"javascript", true));
+  EXPECT_FALSE(StartsWith(L"java", L"javascript", false));
+  EXPECT_FALSE(StartsWith(L"", L"javascript", false));
+  EXPECT_FALSE(StartsWith(L"", L"javascript", true));
+  EXPECT_TRUE(StartsWith(L"java", L"", false));
+  EXPECT_TRUE(StartsWith(L"java", L"", true));
 }
 
 TEST(StringUtilTest, GetStringFWithOffsets) {

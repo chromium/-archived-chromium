@@ -69,7 +69,8 @@ DeferredCloses* DeferredCloses::current_ = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-RenderWidget::RenderWidget(RenderThreadBase* render_thread)
+RenderWidget::RenderWidget(RenderThreadBase* render_thread,
+                           bool focus_on_show)
     : routing_id_(MSG_ROUTING_NONE),
       opener_id_(MSG_ROUTING_NONE),
       render_thread_(render_thread),
@@ -88,7 +89,8 @@ RenderWidget::RenderWidget(RenderThreadBase* render_thread)
       ime_control_x_(-1),
       ime_control_y_(-1),
       ime_control_new_state_(false),
-      ime_control_updated_(false) {
+      ime_control_updated_(false),
+      focus_on_show_(focus_on_show) {
   RenderProcess::AddRefProcess();
   DCHECK(render_thread_);
 }
@@ -107,9 +109,11 @@ RenderWidget::~RenderWidget() {
 
 /*static*/
 RenderWidget* RenderWidget::Create(int32 opener_id,
-                                   RenderThreadBase* render_thread) {
+                                   RenderThreadBase* render_thread,
+                                   bool focus_on_show) {
   DCHECK(opener_id != MSG_ROUTING_NONE);
-  scoped_refptr<RenderWidget> widget = new RenderWidget(render_thread);
+  scoped_refptr<RenderWidget> widget = new RenderWidget(render_thread,
+                                                        focus_on_show);
   widget->Init(opener_id);  // adds reference
   return widget;
 }
@@ -125,7 +129,7 @@ void RenderWidget::Init(int32 opener_id) {
   webwidget_.swap(&webwidget);
 
   bool result = render_thread_->Send(
-      new ViewHostMsg_CreateWidget(opener_id, &routing_id_));
+      new ViewHostMsg_CreateWidget(opener_id, focus_on_show_, &routing_id_));
   if (result) {
     render_thread_->AddRoute(routing_id_, this);
     // Take a reference on behalf of the RenderThread.  This will be balanced

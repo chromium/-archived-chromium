@@ -4,6 +4,9 @@
 
 #include "config.h"
 
+#include "wtf/ASCIICType.h"
+
+#undef LOG
 #include "webkit/glue/webplugin_impl.h"
 
 // TODO(pinkerton): all of this needs to be filled in. webplugin_impl.cc has

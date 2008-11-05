@@ -65,10 +65,8 @@ RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostViewWin, public:
 
-RenderWidgetHostViewWin::RenderWidgetHostViewWin(
-    RenderWidgetHost* widget)
-    : RenderWidgetHostView(),
-      render_widget_host_(widget),
+RenderWidgetHostViewWin::RenderWidgetHostViewWin(RenderWidgetHost* widget)
+    : render_widget_host_(widget),
       real_cursor_(LoadCursor(NULL, IDC_ARROW)),
       real_cursor_type_(WebCursor::ARROW),
       track_mouse_leave_(false),
@@ -79,7 +77,8 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(
       tooltip_showing_(false),
       shutdown_factory_(this),
       parent_hwnd_(NULL),
-      is_loading_(false) {
+      is_loading_(false),
+      focus_on_show_(true) {
   render_widget_host_->set_view(this);
   renderer_accessible_ =
       CommandLine().HasSwitch(switches::kEnableRendererAccessibility);

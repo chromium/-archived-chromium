@@ -172,7 +172,8 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // the Show functions rather than the route ID.
   virtual WebContents* CreateNewWindowInternal(int route_id,
                                                HANDLE modal_dialog_event) = 0;
-  virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id) = 0;
+  virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
+                                                        bool focus_on_show) = 0;
   virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
                                          WindowOpenDisposition disposition,
                                          const gfx::Rect& initial_pos,
@@ -185,7 +186,8 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // do some book-keeping associated with the request. The request is then
   // forwarded to *Internal which does platform-specific work.
   virtual void CreateNewWindow(int route_id, HANDLE modal_dialog_event);
-  virtual void CreateNewWidget(int route_id);
+  virtual void CreateNewWidget(int route_id,
+                               bool focus_on_show);
   virtual void ShowCreatedWindow(int route_id,
                                  WindowOpenDisposition disposition,
                                  const gfx::Rect& initial_pos,

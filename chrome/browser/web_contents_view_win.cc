@@ -378,7 +378,8 @@ WebContents* WebContentsViewWin::CreateNewWindowInternal(
 }
 
 RenderWidgetHostView* WebContentsViewWin::CreateNewWidgetInternal(
-    int route_id) {
+    int route_id,
+    bool focus_on_show) {
   // Create the widget and its associated view.
   // TODO(brettw) can widget creation be cross-platform?
   RenderWidgetHost* widget_host =
@@ -394,6 +395,7 @@ RenderWidgetHostView* WebContentsViewWin::CreateNewWidgetInternal(
   widget_view->set_parent_hwnd(
       web_contents_->render_widget_host_view()->GetPluginHWND());
   widget_view->set_close_on_deactivate(true);
+  widget_view->set_focus_on_show(focus_on_show);
 
   return widget_view;
 }
@@ -438,7 +440,8 @@ void WebContentsViewWin::ShowCreatedWidgetInternal(
   widget_host_view_win->MoveWindow(initial_pos.x(), initial_pos.y(),
                                    initial_pos.width(), initial_pos.height(),
                                    TRUE);
-  widget_host_view_win->ShowWindow(SW_SHOW);
+  widget_host_view_win->ShowWindow(widget_host_view_win->focus_on_show() ?
+                                   SW_SHOW : SW_SHOWNOACTIVATE);
   widget_host->Init();
 }
 

@@ -27,10 +27,12 @@ class HistoryItem;
 class KeyboardEvent;
 class Page;
 class PlatformKeyboardEvent;
+class PopupContainer;
 class Range;
 class Widget;
 }
 
+class AutocompletePopupMenuClient;
 class ImageResourceFetcher;
 class SearchableFormData;
 struct WebDropData;
@@ -96,6 +98,10 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
   virtual void DragTargetDragLeave();
   virtual void DragTargetDrop(
       int client_x, int client_y, int screen_x, int screen_y);
+  virtual void AutofillSuggestionsForNode(
+      int64 node_id,
+      const std::vector<std::wstring>& suggestions,
+      int default_suggestion_index);
 
   // WebViewImpl
 
@@ -175,6 +181,9 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
   void ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
                                  bool errored,
                                  const SkBitmap& image);
+
+  // Hides the autocomplete popup if it is showing.
+  void HideAutoCompletePopup();
 
  protected:
   friend class WebView;  // So WebView::Create can call our constructor
@@ -284,6 +293,13 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
 
   // Represents whether or not this object should process incoming IME events.
   bool ime_accept_events_;
+
+  // The currently shown autocomplete popup.
+  RefPtr<WebCore::PopupContainer> autocomplete_popup_;
+
+  // The popup client of the currently shown autocomplete popup.  Necessary for
+  // managing the life of the client.
+  RefPtr<AutocompletePopupMenuClient> autocomplete_popup_client_;
 
   // HACK: current_input_event is for ChromeClientImpl::show(), until we can fix
   // WebKit to pass enough information up into ChromeClient::show() so we can
