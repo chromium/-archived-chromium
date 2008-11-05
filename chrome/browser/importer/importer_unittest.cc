@@ -597,6 +597,10 @@ TEST_F(ImporterTest, Firefox2Importer) {
   std::wstring data_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox2_profile\\*");
+  if (!file_util::PathExists(data_path)) {
+    LOG(ERROR) << L"Missing internal test data";
+    return;
+  }
   file_util::CopyDirectory(data_path, profile_path_, true);
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox2_nss");
@@ -792,6 +796,10 @@ TEST_F(ImporterTest, Firefox3Importer) {
   std::wstring data_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox3_profile\\*");
+  if (!file_util::PathExists(data_path)) {
+    LOG(ERROR) << L"Missing internal test data";
+    return;
+  }
   file_util::CopyDirectory(data_path, profile_path_, true);
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox3_nss");
