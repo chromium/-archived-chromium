@@ -94,8 +94,6 @@ env.Prepend(
         '$WEBKIT_DIR/WebCore/JavaScriptHeaders',
         '$WEBKIT_DIR/WebCore/JavaScriptHeaders/JavaScriptCore',
         '$WEBKIT_DIR/pending',
-        '$WEBKIT_DIR/pending/kjs',
-        '$WEBKIT_DIR/pending/wtf',
         '$WEBKIT_DIR/port/bridge',
         '$WEBKIT_DIR/port/css',
         '$WEBKIT_DIR/port/dom',

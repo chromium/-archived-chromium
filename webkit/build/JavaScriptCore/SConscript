@@ -107,7 +107,6 @@ env = env.Clone(
         '$JAVASCRIPTCORE_DIR/bindings/c',
         '$JAVASCRIPTCORE_DIR/bindings/jni',
         '$WEBKIT_DIR/pending',
-        '$WEBKIT_DIR/pending/wtf',
         '$JAVASCRIPTCORE_DIR/wtf',
         '$ICU38_DIR/public/common',
         '$ICU38_DIR/public/i18n',
