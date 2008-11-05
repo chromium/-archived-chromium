@@ -105,7 +105,9 @@ def ComponentVSProjectBuilder(target, source, env):
   project_file = target[0].path
   project_to_main = env.RelativePath(target[0].dir, env.Dir('$MAIN_DIR'),
                                      sep='/')
-  hammer_bat = '$(ProjectDir)/%s/hammer.bat' % project_to_main
+
+  env_hammer_bat = env.Clone(VS_PROJECT_TO_MAIN_DIR=project_to_main)
+  hammer_bat = env_hammer_bat.subst('$COMPONENT_VS_PROJECT_SCRIPT_PATH', raw=1)
 
   # Project header
   xml_impl = xml.dom.getDOMImplementation()
@@ -433,6 +435,10 @@ def generate(env):
       COMPONENT_VS_PROJECT_DIR='$COMPONENT_VS_SOLUTION_DIR/projects',
       COMPONENT_VS_SOLUTION_SUFFIX='.sln',
       COMPONENT_VS_PROJECT_SUFFIX='.vcproj',
+      COMPONENT_VS_PROJECT_SCRIPT_NAME = 'hammer.bat',
+      COMPONENT_VS_PROJECT_SCRIPT_PATH = (
+          '$$(ProjectDir)/$VS_PROJECT_TO_MAIN_DIR/'
+          '$COMPONENT_VS_PROJECT_SCRIPT_NAME'),
   )
 
   AddTargetGroup('all_solutions', 'solutions can be built')
@@ -441,6 +447,7 @@ def generate(env):
   vcprojaction = SCons.Script.Action(ComponentVSProjectBuilder, varlist=[
       'TARGET_NAME',
       'TARGET_PATH',
+      'COMPONENT_VS_PROJECT_SCRIPT_PATH',
   ])
   vcprojbuilder = SCons.Script.Builder(
       action=vcprojaction,
