@@ -32,10 +32,6 @@ bool HungPluginAction::OnHungWindowDetected(HWND hung_window,
 
   bool continue_hang_detection = true;
 
-  if (WebPluginDelegateImpl::IsDummyActivationWindow(hung_window)) {
-    return continue_hang_detection;
-  }
-
   DWORD hung_window_process_id = 0;
   DWORD top_level_window_process_id = 0;
   GetWindowThreadProcessId(hung_window, &hung_window_process_id);
