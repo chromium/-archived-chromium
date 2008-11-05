@@ -29,6 +29,7 @@
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/webwidget.h"
+#include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
 #include "webkit_strings.h"
@@ -98,7 +99,6 @@ TestShell::TestShell()
     url_util::AddStandardScheme("test-shell-resource");
 }
 
-
 TestShell::~TestShell() {
     // Call GC twice to clean up garbage.
     CallJSGC();
@@ -124,26 +124,35 @@ TestShell::~TestShell() {
     }
 }
 
+void TestShell::ShutdownTestShell() {
 #if defined(OS_WIN)
+    OleUninitialize();
+#endif
+    SimpleResourceLoaderBridge::Shutdown();
+    delete window_list_;
+    delete TestShell::web_prefs_;
+}
+
 // All fatal log messages (e.g. DCHECK failures) imply unit test failures
 static void UnitTestAssertHandler(const std::string& str) {
     FAIL() << str;
 }
-#endif
 
 // static
 void TestShell::InitLogging(bool suppress_error_dialogs,
                             bool running_layout_tests) {
+    if (suppress_error_dialogs)
+        logging::SetLogAssertHandler(UnitTestAssertHandler);
+
 #if defined(OS_WIN)
-    if (!IsDebuggerPresent() && suppress_error_dialogs) {
+    if (!IsDebuggerPresent()) {
         UINT new_flags = SEM_FAILCRITICALERRORS |
                          SEM_NOGPFAULTERRORBOX |
                          SEM_NOOPENFILEERRORBOX;
-        // Preserve existing error mode, as discussed at http://t/dmea
+        // Preserve existing error mode, as discussed at
+        // http://blogs.msdn.com/oldnewthing/archive/2004/07/27/198410.aspx
         UINT existing_flags = SetErrorMode(new_flags);
         SetErrorMode(existing_flags | new_flags);
-
-        logging::SetLogAssertHandler(UnitTestAssertHandler);
     }
 #endif
 
