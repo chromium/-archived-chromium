@@ -72,6 +72,8 @@ static const wchar_t* const g_executables[] = {
   L"fxp",
   L"hlp",
   L"hta",
+  L"htm",
+  L"html",
   L"inf",
   L"ins",
   L"isp",
@@ -115,6 +117,8 @@ static const wchar_t* const g_executables[] = {
   L"sct",
   L"shb",
   L"shs",
+  L"shtm",
+  L"shtml",
   L"url",
   L"vb",
   L"vbe",
@@ -127,7 +131,10 @@ static const wchar_t* const g_executables[] = {
   L"ws",
   L"wsc",
   L"wsf",
-  L"wsh"
+  L"wsh",
+  L"xht",
+  L"xhtm",
+  L"xhtml"
 };
 
 void InitializeExeTypes(std::set<std::wstring>* exe_extensions) {

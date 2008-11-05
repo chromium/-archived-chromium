@@ -201,8 +201,8 @@ TEST_F(DownloadTest, NoDownload) {
 // download tab opened and the file exists as the filename specified in the
 // header.  This also ensures we properly handle empty file downloads.
 TEST_F(DownloadTest, ContentDisposition) {
-  wstring file = L"download-test3.html";
-  wstring download_file = L"download-test3-attachment.html";
+  wstring file = L"download-test3.gif";
+  wstring download_file = L"download-test3-attachment.gif";
   wstring expected_title = L"100% - " + download_file;
 
   EXPECT_EQ(1, GetTabCount());
