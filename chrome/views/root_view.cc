@@ -910,7 +910,7 @@ void RootView::ClearPaintRect() {
 
 void RootView::OnPaint(HWND hwnd) {
   RECT original_dirty_region = GetScheduledPaintRectConstrainedToSize();
-  if (!!IsRectEmpty(&original_dirty_region)) {
+  if (!IsRectEmpty(&original_dirty_region)) {
     // Invoke InvalidateRect so that the dirty region of the window includes the
     // region we need to paint. If we didn't do this and the region didn't
     // include the dirty region, ProcessPaint would incorrectly mark everything
