@@ -203,6 +203,9 @@ void WebWidgetImpl::repaint(const WebCore::IntRect& paint_rect,
                             bool content_changed,
                             bool immediate,
                             bool repaint_content_only) {
+  // Ignore spurious calls.
+  if (!content_changed || paint_rect.isEmpty())
+    return;
   if (delegate_)
     delegate_->DidInvalidateRect(this, webkit_glue::FromIntRect(paint_rect));
 }
