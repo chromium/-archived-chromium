@@ -136,9 +136,6 @@ each locale. -->
         Did you mean to go to <ph name="SITE">$1<ex>http://intranetsite/</ex></ph>?
       </message>
 
-      <message name="IDS_AUTOCOMPLETE_NO_ACTION" desc="Description for the dummy match displayed when no action is possible.">
-        (No action possible)
-      </message>
       <message name="IDS_AUTOCOMPLETE_KEYWORD_DESCRIPTION" desc="Description for a keyword match.">
         (Keyword: <ph name="KEYWORD">$1</ph>)
       </message>
