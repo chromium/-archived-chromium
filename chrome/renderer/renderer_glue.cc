@@ -7,6 +7,8 @@
 #include <windows.h>
 #include <wininet.h>
 
+#include "base/clipboard.h"
+#include "base/scoped_clipboard_writer.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/plugin/npobject_util.h"
@@ -14,8 +16,11 @@
 #include "chrome/renderer/visitedlink_slave.h"
 #include "googleurl/src/url_util.h"
 #include "net/base/mime_util.h"
+#include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
+
+#include <vector>
 
 #include "SkBitmap.h"
 
@@ -65,6 +70,66 @@ class ResizableStackArray {
   T* cur_buffer_;
   size_t cur_capacity_;
 };
+
+#if defined(OS_WIN)
+// This definition of WriteBitmap uses shared memory to communicate across
+// processes.
+void ScopedClipboardWriterGlue::WriteBitmap(const SkBitmap& bitmap) {
+  // do not try to write a bitmap more than once
+  if (shared_buf_)
+    return;
+
+  size_t buf_size = bitmap.getSize();
+  gfx::Size size(bitmap.width(), bitmap.height());
+
+  // Allocate a shared memory buffer to hold the bitmap bits
+  shared_buf_ = RenderProcess::AllocSharedMemory(buf_size);
+  if (!shared_buf_ || !shared_buf_->Map(buf_size)) {
+    NOTREACHED();
+    return;
+  }
+
+  // Copy the bits into shared memory
+  SkAutoLockPixels bitmap_lock(bitmap);
+  memcpy(shared_buf_->memory(), bitmap.getPixels(), buf_size);
+  shared_buf_->Unmap();
+
+  Clipboard::ObjectMapParam param1, param2;
+  SharedMemoryHandle smh = shared_buf_->handle();
+
+  const char* shared_handle = reinterpret_cast<const char*>(&smh);
+  for (size_t i = 0; i < sizeof SharedMemoryHandle; i++)
+    param1.push_back(shared_handle[i]);
+
+  const char* size_data = reinterpret_cast<const char*>(&size);
+  for (size_t i = 0; i < sizeof gfx::Size; i++)
+    param2.push_back(size_data[i]);
+
+  Clipboard::ObjectMapParams params;
+  params.push_back(param1);
+  params.push_back(param2);
+  objects_[Clipboard::CBF_SMBITMAP] = params;
+}
+#endif
+
+// Define a destructor that makes IPCs to flush the contents to the
+// system clipboard.
+ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
+  if (objects_.empty())
+    return;
+
+#if defined(OS_WIN)
+  if (shared_buf_) {
+    RenderThread::current()->Send(
+        new ViewHostMsg_ClipboardWriteObjectsSync(objects_));
+    RenderProcess::FreeSharedMemory(shared_buf_);
+    return;
+  }
+#endif
+
+  RenderThread::current()->Send(
+      new ViewHostMsg_ClipboardWriteObjectsAsync(objects_));
+}
 
 namespace webkit_glue {
 
@@ -141,58 +206,8 @@ HCURSOR webkit_glue::LoadCursor(int cursor_id) {
 
 // Clipboard glue
 
-void webkit_glue::ClipboardClear() {
-  RenderThread::current()->Send(new ViewHostMsg_ClipboardClear());
-}
-
-void webkit_glue::ClipboardWriteText(const std::wstring& text) {
-  RenderThread::current()->Send(new ViewHostMsg_ClipboardWriteText(text));
-}
-
-void webkit_glue::ClipboardWriteHTML(const std::wstring& html,
-                                     const GURL& url) {
-  RenderThread::current()->Send(new ViewHostMsg_ClipboardWriteHTML(html, url));
-}
-
-void webkit_glue::ClipboardWriteBookmark(const std::wstring& title,
-                                         const GURL& url) {
-  RenderThread::current()->Send(
-      new ViewHostMsg_ClipboardWriteBookmark(title, url));
-}
-
-// Here we need to do some work to marshal the bitmap through shared memory
-void webkit_glue::ClipboardWriteBitmap(const SkBitmap& bitmap) {
-  size_t buf_size = bitmap.getSize();
-  gfx::Size size(bitmap.width(), bitmap.height());
-
-  // Allocate a shared memory buffer to hold the bitmap bits
-  SharedMemory* shared_buf =
-      RenderProcess::AllocSharedMemory(buf_size);
-  if (!shared_buf) {
-    NOTREACHED();
-    return;
-  }
-  if (!shared_buf->Map(buf_size)) {
-    NOTREACHED();
-    return;
-  }
-
-  // Copy the bits into shared memory
-  SkAutoLockPixels bitmap_lock(bitmap);
-  memcpy(shared_buf->memory(), bitmap.getPixels(), buf_size);
-  shared_buf->Unmap();
-
-  // Send the handle over synchronous IPC
-  RenderThread::current()->Send(
-      new ViewHostMsg_ClipboardWriteBitmap(shared_buf->handle(), size));
-
-  // The browser should be done with the bitmap now.  It's our job to free
-  // the shared memory.
-  RenderProcess::FreeSharedMemory(shared_buf);
-}
-
-void webkit_glue::ClipboardWriteWebSmartPaste() {
-  RenderThread::current()->Send(new ViewHostMsg_ClipboardWriteWebSmartPaste());
+Clipboard* webkit_glue::ClipboardGetClipboard(){
+  return NULL;
 }
 
 bool webkit_glue::ClipboardIsFormatAvailable(unsigned int format) {

@@ -11,6 +11,7 @@
 #include "base/gfx/skia_utils.h"
 #include "base/iat_patch.h"
 #include "base/ref_counted.h"
+#include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/autocomplete/autocomplete_popup.h"
@@ -1405,9 +1406,8 @@ void AutocompleteEditView::OnCopy() {
   if (text.empty())
     return;
 
-  ClipboardService* clipboard = g_browser_process->clipboard_service();
-  clipboard->Clear();
-  clipboard->WriteText(text);
+  ScopedClipboardWriter scw(g_browser_process->clipboard_service());
+  scw.WriteText(text);
 
   // Check if the user is copying the whole address bar.  If they are, we
   // assume they are trying to copy a URL and write this to the clipboard as a
@@ -1421,7 +1421,7 @@ void AutocompleteEditView::OnCopy() {
   // which will screw up our calculation of the desired_tld.
   GURL url;
   if (model_->GetURLForText(text, &url))
-    clipboard->WriteHyperlink(text, url.spec());
+    scw.WriteHyperlink(text, url.spec());
 }
 
 void AutocompleteEditView::OnCut() {

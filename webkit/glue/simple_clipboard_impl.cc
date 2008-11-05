@@ -7,46 +7,32 @@
 #include <string>
 
 #include "base/clipboard.h"
+#include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "googleurl/src/gurl.h"
 
 #include "SkBitmap.h"
 
 // Clipboard glue
-// Basically just proxy the calls off to the clipboard
+
+#if defined(OS_WIN)
+// The call is being made within the current process.
+void ScopedClipboardWriterGlue::WriteBitmap(const SkBitmap& bitmap) {
+  SkAutoLockPixels bitmap_lock(bitmap);
+  WriteBitmapFromPixels(bitmap.getPixels(), gfx::Size(bitmap.width(),
+                        bitmap.height()));
+}
+#endif  // defined(OS_WIN)
+
+ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
+}
 
 namespace webkit_glue {
 
 Clipboard clipboard;
 
-void ClipboardClear() {
-  clipboard.Clear();
+Clipboard* ClipboardGetClipboard() {
+  return &clipboard;
 }
-
-void ClipboardWriteText(const std::wstring& text) {
-  clipboard.WriteText(text);
-}
-
-void ClipboardWriteHTML(const std::wstring& html,
-                                     const GURL& url) {
-  clipboard.WriteHTML(html, url.spec());
-}
-
-void ClipboardWriteBookmark(const std::wstring& title,
-                                         const GURL& url) {
-  clipboard.WriteBookmark(title, url.spec());
-}
-
-#if defined(OS_WIN)
-void ClipboardWriteBitmap(const SkBitmap& bitmap) {
-  SkAutoLockPixels bitmap_lock(bitmap); 
-  clipboard.WriteBitmap(bitmap.getPixels(),
-                        gfx::Size(bitmap.width(), bitmap.height()));
-}
-
-void ClipboardWriteWebSmartPaste() {
-  clipboard.WriteWebSmartPaste();
-}
-#endif
 
 bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
   return clipboard.IsFormatAvailable(format);
@@ -68,4 +54,3 @@ void ClipboardReadHTML(std::wstring* markup, GURL* url) {
 }
 
 }  // namespace webkit_glue
-

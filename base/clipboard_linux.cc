@@ -32,18 +32,44 @@ void GetData(GtkClipboard* clipboard,
     return;
 
   gtk_selection_data_set(selection_data, selection_data->target, 8,
-                         iter->second.first,
+                         reinterpret_cast<guchar*>(iter->second.first),
                          iter->second.second);
 }
 
 // GtkClipboardClearFunc callback.
-// GTK will call this when new data is set on the clipboard (whether or not we
-// retain ownership) or when gtk_clipboard_clear() is called. We don't do
-// anything because we don't want to clear the clipboard_data_ map if we call
-// set data several times in a row. Instead we manually clear the
-// clipboard_data_ map on Clear() and on Clipboard destruction.
+// We are guaranteed this will be called exactly once for each call to
+// gtk_clipboard_set_with_data
 void ClearData(GtkClipboard* clipboard,
                gpointer user_data) {
+  Clipboard::TargetMap* map =
+      reinterpret_cast<Clipboard::TargetMap*>(user_data);
+  std::set<char*> ptrs;
+
+  for (Clipboard::TargetMap::iterator iter = map->begin();
+       iter != map->end(); ++iter)
+    ptrs.insert(iter->second.first);
+
+  for (std::set<char*>::iterator iter = ptrs.begin();
+       iter != ptrs.end(); ++iter)
+    delete[] *iter;
+
+  delete map;
+}
+
+// Frees the pointers in the given map and clears the map.
+// Does not double-free any pointers.
+void FreeTargetMap(Clipboard::TargetMap map) {
+  std::set<char*> ptrs;
+
+  for (Clipboard::TargetMap::iterator iter = map.begin();
+       iter != map.end(); ++iter)
+    ptrs.insert(iter->second.first);
+
+  for (std::set<char*>::iterator iter = ptrs.begin();
+       iter != ptrs.end(); ++iter)
+    delete[] *iter;
+
+  map.clear();
 }
 
 }  // namespace
@@ -56,46 +82,62 @@ Clipboard::~Clipboard() {
   // TODO(estade): do we want to save clipboard data after we exit?
   // gtk_clipboard_set_can_store and gtk_clipboard_store work
   // but have strangely awful performance.
-  Clear();
 }
 
-void Clipboard::Clear() {
-  gtk_clipboard_clear(clipboard_);
-  FreeTargetMap();
-}
+void Clipboard::WriteObjects(const ObjectMap& objects) {
+  clipboard_data_ = new TargetMap();
 
-void Clipboard::WriteText(const std::wstring& text) {
-  std::string utf8_text = WideToUTF8(text);
-  size_t text_len = utf8_text.size() + 1;
-  uint8* text_data = new uint8[text_len];
-  memcpy(text_data, utf8_text.c_str(), text_len);
+  for (ObjectMap::const_iterator iter = objects.begin();
+       iter != objects.end(); ++iter) {
+    DispatchObject(static_cast<ObjectType>(iter->first), iter->second);
+  }
 
-  uint8* old_data = InsertOrOverwrite(kMimeText, text_data, text_len);
-  InsertOrOverwrite("TEXT", text_data, text_len);
-  InsertOrOverwrite("STRING", text_data, text_len);
-  InsertOrOverwrite("UTF8_STRING", text_data, text_len);
-  InsertOrOverwrite("COMPOUND_TEXT", text_data, text_len);
-
-  if (old_data)
-    delete[] old_data;
-              
   SetGtkClipboard();
 }
 
-void Clipboard::WriteHTML(const std::wstring& markup,
-                          const std::string& src_url) {
-  // TODO(estade): might not want to ignore src_url
-  std::string html = WideToUTF8(markup);
-  size_t data_len = html.size() + 1;
-  uint8* html_data = new uint8[data_len];
-  memcpy(html_data, html.c_str(), data_len);
+// Take ownership of the GTK clipboard and inform it of the targets we support.
+void Clipboard::SetGtkClipboard() {
+  GtkTargetEntry targets[clipboard_data_->size()];
 
-  uint8* old_data = InsertOrOverwrite(kMimeHtml, html_data, data_len);
+  int i = 0;
+  for (Clipboard::TargetMap::iterator iter = clipboard_data_->begin();
+       iter != clipboard_data_->end(); ++iter, ++i) {
+    char* target_string = new char[iter->first.size() + 1];
+    strcpy(target_string, iter->first.c_str());
+    targets[i].target = target_string;
+    targets[i].flags = 0;
+    targets[i].info = i;
+  }
 
-  if (old_data)
-    delete[] old_data;
+  gtk_clipboard_set_with_data(clipboard_, targets,
+                              clipboard_data_->size(),
+                              GetData, ClearData,
+                              clipboard_data_);
 
-  SetGtkClipboard();
+  for (size_t i = 0; i < clipboard_data_->size(); i++)
+    delete[] targets[i].target;
+}
+
+void Clipboard::WriteText(const char* text_data, size_t text_len) {
+  char* data = new char[text_len];
+  memcpy(data, text_data, text_len);
+
+  InsertMapping(kMimeText, data, text_len);
+  InsertMapping("TEXT", data, text_len);
+  InsertMapping("STRING", data, text_len);
+  InsertMapping("UTF8_STRING", data, text_len);
+  InsertMapping("COMPOUND_TEXT", data, text_len);
+}
+
+void Clipboard::WriteHTML(const char* markup_data,
+                          size_t markup_len,
+                          const char* url_data,
+                          size_t url_len) {
+  // TODO(estade): might not want to ignore |url_data|
+  char* data = new char[markup_len];
+  memcpy(data, markup_data, markup_len);
+
+  InsertMapping(kMimeHtml, data, markup_len);
 }
 
 // We do not use gtk_clipboard_wait_is_target_available because of
@@ -185,62 +227,18 @@ Clipboard::FormatType Clipboard::GetHtmlFormatType() {
   return gdk_atom_intern(kMimeHtml, false);
 }
 
-// Take ownership of the GTK clipboard and inform it of the targets we support.
-void Clipboard::SetGtkClipboard() {
-  GtkTargetEntry targets[clipboard_data_.size()];
+// Insert the key/value pair in the clipboard_data structure. If
+// the mapping already exists, it frees the associated data. Don't worry
+// about double freeing because if the same key is inserted into the
+// map twice, it must have come from different Write* functions and the
+// data pointer cannot be the same.
+void Clipboard::InsertMapping(const char* key,
+                              char* data,
+                              size_t data_len) {
+  TargetMap::iterator iter = clipboard_data_->find(key);
 
-  int i = 0;
-  for (Clipboard::TargetMap::iterator iter = clipboard_data_.begin();
-       iter != clipboard_data_.end(); iter++, i++) {
-    char* target_string = new char[iter->first.size() + 1];
-    strcpy(target_string, iter->first.c_str());
-    targets[i].target = target_string;
-    targets[i].flags = 0;
-    targets[i].info = i;
-  }
+  if (iter != clipboard_data_->end())
+    delete[] iter->second.first;
 
-  gtk_clipboard_set_with_data(clipboard_, targets,
-                              clipboard_data_.size(),
-                              GetData, ClearData,
-                              &clipboard_data_);
-
-  for (size_t i = 0; i < clipboard_data_.size(); i++)
-    delete[] targets[i].target;
+  (*clipboard_data_)[key] = std::make_pair(data, data_len);
 }
-
-// Free the pointers in the clipboard_data_ map and reset the map.
-void Clipboard::FreeTargetMap() {
-  std::set<uint8*> ptrs;
-
-  for (Clipboard::TargetMap::iterator iter = clipboard_data_.begin();
-       iter != clipboard_data_.end(); iter++)
-    ptrs.insert(iter->second.first);
-
-  for (std::set<uint8*>::iterator iter = ptrs.begin();
-       iter != ptrs.end(); iter++)
-    delete[] *iter;
-
-  clipboard_data_.clear();
-}
-
-// Insert the key/value pair in the clipboard_data structure. Overwrite
-// and any old value that might have had that key. If we overwrote something,
-// return the pointer to that something. Otherwise return null.
-uint8* Clipboard::InsertOrOverwrite(std::string key,
-                                    uint8* data, size_t data_len) {
-  std::pair<std::string, std::pair<uint8*, size_t> > mapping =
-      std::make_pair(key, std::make_pair(data, data_len));
-
-  Clipboard::TargetMap::iterator iter = clipboard_data_.find(key);
-  uint8* retval = NULL;
-
-  if (iter == clipboard_data_.end()) {
-    clipboard_data_.insert(mapping);
-  } else {
-    retval = iter->second.first;
-    iter->second = mapping.second;
-  }
-
-  return retval;
-}
-

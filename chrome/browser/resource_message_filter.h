@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
 #define CHROME_BROWSER_RENDERER_RESOURCE_MSG_FILTER_H__
 
+#include "base/clipboard.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
@@ -121,9 +122,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnDnsPrefetch(const std::vector<std::string>& hostnames);
   void OnReceiveContextMenuMsg(const IPC::Message& msg);
   // Clipboard messages
-  void OnClipboardWriteHTML(const std::wstring& markup, const GURL& src_url);
-  void OnClipboardWriteBookmark(const std::wstring& title, const GURL& url);
-  void OnClipboardWriteBitmap(SharedMemoryHandle bitmap, gfx::Size size);
+  void OnClipboardWriteObjects(const Clipboard::ObjectMap& objects);
   void OnClipboardIsFormatAvailable(unsigned int format, bool* result);
   void OnClipboardReadText(std::wstring* result);
   void OnClipboardReadAsciiText(std::string* result);

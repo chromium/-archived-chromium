@@ -12,6 +12,7 @@
 #include <vsstyle.h>
 
 #include "base/gfx/native_theme.h"
+#include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/browser/browser_process.h"
@@ -371,10 +372,8 @@ void TextField::Edit::OnCopy() {
   const std::wstring text(GetSelectedText());
 
   if (!text.empty()) {
-    ClipboardService* clipboard = g_browser_process->clipboard_service();
-
-    clipboard->Clear();
-    clipboard->WriteText(text);
+    ScopedClipboardWriter scw(g_browser_process->clipboard_service());
+    scw.WriteText(text);
   }
 }
 

@@ -6,6 +6,7 @@
 
 #include "base/command_line.h"
 #include "base/path_service.h"
+#include "base/scoped_clipboard_writer.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_paths.h"
@@ -65,8 +66,8 @@ void RenderViewContextMenuController::WriteTextToClipboard(
   if (!clipboard)
     return;
 
-  clipboard->Clear();
-  clipboard->WriteText(text);
+  ScopedClipboardWriter scw(clipboard);
+  scw.WriteText(text);
 }
 
 void RenderViewContextMenuController::WriteURLToClipboard(const GURL& url) {

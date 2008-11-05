@@ -42,6 +42,7 @@ class Frame;
 }
 
 class SkBitmap;
+class Clipboard;
 
 #if defined(OS_MACOSX)
 typedef struct CGImage* CGImageRef;
@@ -194,25 +195,8 @@ HCURSOR LoadCursor(int cursor_id);
 
 // Glue to access the clipboard.
 
-// Clear the clipboard.  It is usually a good idea to clear the clipboard
-// before writing content to the clipboard.
-void ClipboardClear();
-
-// Adds UNICODE and ASCII text to the clipboard.
-void ClipboardWriteText(const std::wstring& text);
-
-// Adds HTML to the clipboard.  The url parameter is optional, but especially
-// useful if the HTML fragment contains relative links
-void ClipboardWriteHTML(const std::wstring& html, const GURL& url);
-
-// Adds a bookmark to the clipboard
-void ClipboardWriteBookmark(const std::wstring& title, const GURL& url);
-
-// Adds a bitmap to the clipboard
-void ClipboardWriteBitmap(const SkBitmap& bitmap);
-
-// Used by WebKit to determine whether WebKit wrote the clipboard last
-void ClipboardWriteWebSmartPaste();
+// Get a clipboard that can be used to construct a ScopedClipboardWriterGlue.
+Clipboard* ClipboardGetClipboard();
 
 // Tests whether the clipboard contains a certain format
 bool ClipboardIsFormatAvailable(unsigned int format);

@@ -45,6 +45,7 @@
 
 #include "base/clipboard_util.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webkit_glue.h"
 
 namespace WebCore {
@@ -70,35 +71,34 @@ Pasteboard::Pasteboard()
 
 void Pasteboard::clear()
 {
-    webkit_glue::ClipboardClear();
+    // The ScopedClipboardWriter class takes care of clearing the clipboard's
+    // previous contents.
 }
 
 void Pasteboard::writeSelection(Range* selectedRange, bool canSmartCopyOrDelete, Frame* frame)
 {
-    clear();
+    ScopedClipboardWriterGlue scw(webkit_glue::ClipboardGetClipboard());
     
     ExceptionCode ec = 0;
-    webkit_glue::ClipboardWriteHTML(
+    scw.WriteHTML(
         webkit_glue::StringToStdWString(
             createMarkup(selectedRange, 0, AnnotateForInterchange)),
         GURL(webkit_glue::StringToStdWString(
-            selectedRange->startContainer(ec)->document()->url())));
+            selectedRange->startContainer(ec)->document()->url())).spec());
     
     // Put plain string on the pasteboard. CF_UNICODETEXT covers CF_TEXT as well
     String str = frame->selectedText();
     replaceNewlinesWithWindowsStyleNewlines(str);
     replaceNBSPWithSpace(str);
-    webkit_glue::ClipboardWriteText(webkit_glue::StringToStdWString(str));
+    scw.WriteText(webkit_glue::StringToStdWString(str));
 
     if (canSmartCopyOrDelete)
-        webkit_glue::ClipboardWriteWebSmartPaste();
+        scw.WriteWebSmartPaste();
 }
 
 void Pasteboard::writeURL(const KURL& url, const String& titleStr, Frame* frame)
 {
     ASSERT(!url.isEmpty());
-
-    clear();
 
     String title(titleStr);
     if (title.isEmpty()) {
@@ -107,17 +107,19 @@ void Pasteboard::writeURL(const KURL& url, const String& titleStr, Frame* frame)
             title = url.host();
     }
 
+    ScopedClipboardWriterGlue scw(webkit_glue::ClipboardGetClipboard());
+
     // write to clipboard in format com.apple.safari.bookmarkdata to be able to paste into the bookmarks view with appropriate title
-    webkit_glue::ClipboardWriteBookmark(webkit_glue::StringToStdWString(titleStr),
-                                        webkit_glue::KURLToGURL(url));
+    scw.WriteBookmark(webkit_glue::StringToStdWString(titleStr),
+                      webkit_glue::KURLToGURL(url).spec());
 
     // write to clipboard in format CF_HTML to be able to paste into contenteditable areas as a link
     std::wstring link(webkit_glue::StringToStdWString(urlToMarkup(url, title)));
-    webkit_glue::ClipboardWriteHTML(link, GURL());
+    scw.WriteHTML(link, GURL().spec());
 
     // bare-bones CF_UNICODETEXT support
     std::wstring spec(webkit_glue::StringToStdWString(url));
-    webkit_glue::ClipboardWriteText(spec);
+    scw.WriteText(spec);
 }
 
 void Pasteboard::writeImage(Node* node, const KURL& url, const String& title)
@@ -129,24 +131,23 @@ void Pasteboard::writeImage(Node* node, const KURL& url, const String& title)
     Image* image = cachedImage->image();
     ASSERT(image);
 
-    clear();
     NativeImageSkia* bitmap = image->nativeImageForCurrentFrame();
+    ScopedClipboardWriterGlue scw(webkit_glue::ClipboardGetClipboard());
+
     if (bitmap)
-      webkit_glue::ClipboardWriteBitmap(*bitmap);
+        scw.WriteBitmap(*bitmap);
     if (!url.isEmpty()) {
-        webkit_glue::ClipboardWriteBookmark(webkit_glue::StringToStdWString(title),
-                                            webkit_glue::KURLToGURL(url));
         // write to clipboard in format com.apple.safari.bookmarkdata to be able to paste into the bookmarks view with appropriate title
-        webkit_glue::ClipboardWriteBookmark(webkit_glue::StringToStdWString(title),
-                                            webkit_glue::KURLToGURL(url));
+        scw.WriteBookmark(webkit_glue::StringToStdWString(title),
+                          webkit_glue::KURLToGURL(url).spec());
 
         // write to clipboard in format CF_HTML to be able to paste into contenteditable areas as a an image
         std::wstring markup(webkit_glue::StringToStdWString(urlToImageMarkup(url, title)));
-        webkit_glue::ClipboardWriteHTML(markup, GURL());
+        scw.WriteHTML(markup, GURL().spec());
 
         // bare-bones CF_UNICODETEXT support
         std::wstring spec(webkit_glue::StringToStdWString(url.string()));
-        webkit_glue::ClipboardWriteText(spec);
+        scw.WriteText(spec);
     }
 }
 

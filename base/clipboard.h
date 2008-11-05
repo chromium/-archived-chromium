@@ -31,58 +31,66 @@ class Clipboard {
 #elif defined(OS_LINUX)
   typedef struct _GdkAtom* FormatType;
   typedef struct _GtkClipboard GtkClipboard;
-  // A mapping from target (format) string to the relevant data (usually a
-  // string, but potentially arbitrary data).
-  typedef std::map<std::string, std::pair<uint8*, size_t> > TargetMap;
+  typedef std::map<std::string, std::pair<char*, size_t> > TargetMap;
 #endif
+
+  // ObjectType designates the type of data to be stored in the clipboard. This
+  // designation is shared across all OSes. The system-specific designation
+  // is defined by FormatType. A single ObjectType might be represented by
+  // several system-specific FormatTypes. For example, on Linux the CBF_TEXT
+  // ObjectType maps to "text/plain", "STRING", and several other formats. On
+  // windows it maps to CF_UNICODETEXT.
+  enum ObjectType {
+    CBF_TEXT,
+    CBF_HTML,
+    CBF_BOOKMARK,
+    CBF_LINK,
+    CBF_FILES,
+    CBF_WEBKIT,
+    CBF_BITMAP,
+    CBF_SMBITMAP // bitmap from shared memory
+  };
+
+  // ObjectMap is a map from ObjectType to associated data.
+  // The data is organized differently for each ObjectType. The following
+  // table summarizes what kind of data is stored for each key.
+  // * indicates an optional argument.
+  //
+  // Key           Arguments    Type
+  // -------------------------------------
+  // CBF_TEXT      text         char array
+  // CBF_HTML      html         char array
+  //               url*         char array
+  // CBF_BOOKMARK  html         char array
+  //               url          char array
+  // CBF_LINK      html         char array
+  //               url          char array 
+  // CBF_FILES     files        char array representing multiple files.
+  //                            Filenames are separated by null characters and
+  //                            the final filename is double null terminated.
+  // CBF_WEBKIT    none         empty vector
+  // CBF_BITMAP    pixels       byte array
+  //               size         gfx::Size struct
+  // CBF_SMBITMAP  shared_mem   shared memory handle
+  //               size         gfx::Size struct
+  typedef std::vector<char> ObjectMapParam;
+  typedef std::vector<ObjectMapParam> ObjectMapParams;
+  typedef std::map<int /* ObjectType */, ObjectMapParams> ObjectMap;
 
   Clipboard();
   ~Clipboard();
 
-  // Clears the clipboard.  It is usually a good idea to clear the clipboard
-  // before writing content to the clipboard.
-  void Clear();
+  // Write a bunch of objects to the system clipboard. Copies are made of the
+  // contents of |objects|. On Windows they are copied to the system clipboard.
+  // On linux they are copied into a structure owned by the Clipboard object and
+  // kept until the system clipboard is set again.
+  void WriteObjects(const ObjectMap& objects);
 
-  // Adds UNICODE and ASCII text to the clipboard.
-  void WriteText(const std::wstring& text);
-
-  // Adds HTML to the clipboard.  The url parameter is optional, but especially
-  // useful if the HTML fragment contains relative links
-  void WriteHTML(const std::wstring& markup, const std::string& src_url);
-
-  // Adds a bookmark to the clipboard
-  void WriteBookmark(const std::wstring& title, const std::string& url);
-
-  // Adds both a bookmark and an HTML hyperlink to the clipboard.  It is a
-  // convenience wrapper around WriteBookmark and WriteHTML.
-  void WriteHyperlink(const std::wstring& title, const std::string& url);
-
-#if defined(OS_WIN)
-  // Adds a bitmap to the clipboard
-  // This is the slowest way to copy a bitmap to the clipboard as we must first
-  // memcpy the pixels into GDI and the blit the bitmap to the clipboard.
-  // Pixel format is assumed to be 32-bit BI_RGB.
-  void WriteBitmap(const void* pixels, const gfx::Size& size);
-
-  // Adds a bitmap to the clipboard
-  // This function requires read and write access to the bitmap, but does not
-  // actually modify the shared memory region.
-  // Pixel format is assumed to be 32-bit BI_RGB.
-  void WriteBitmapFromSharedMemory(const SharedMemory& bitmap,
-                                   const gfx::Size& size);
-
-  // Adds a bitmap to the clipboard
-  // This is the fastest way to copy a bitmap to the clipboard.  The HBITMAP
-  // may either be device-dependent or device-independent.
-  void WriteBitmapFromHandle(HBITMAP hbitmap, const gfx::Size& size);
-
-  // Used by WebKit to determine whether WebKit wrote the clipboard last
-  void WriteWebSmartPaste();
-#endif
-
-  // Adds a file or group of files to the clipboard.
-  void WriteFile(const std::wstring& file);
-  void WriteFiles(const std::vector<std::wstring>& files);
+  // Behaves as above. If there is some shared memory handle passed as one of
+  // the objects, it came from the process designated by |process|. This will
+  // assist in turning it into a shared memory region that the current process
+  // can use.
+  void WriteObjects(const ObjectMap& objects, ProcessHandle process);
 
   // Tests whether the clipboard contains a certain format
   bool IsFormatAvailable(FormatType format) const;
@@ -125,8 +133,42 @@ class Clipboard {
 #endif
 
  private:
+  void WriteText(const char* text_data, size_t text_len);
+
+  void WriteHTML(const char* markup_data,
+                 size_t markup_len,
+                 const char* url_data,
+                 size_t url_len);
+
+  void WriteBookmark(const char* title_data,
+                     size_t title_len,
+                     const char* url_data,
+                     size_t url_len);
+
+  void WriteHyperlink(const char* title_data,
+                      size_t title_len,
+                      const char* url_data,
+                      size_t url_len);
+
+  void WriteWebSmartPaste();
+
+  void WriteFiles(const char* file_data, size_t file_len);
+
+  void DispatchObject(ObjectType type, const ObjectMapParams& params);
 #if defined(OS_WIN)
-  static void MarkupToHTMLClipboardFormat(const std::wstring& markup,
+  void WriteBitmap(const char* pixel_data, const char* size_data);
+
+  void WriteBitmapFromSharedMemory(const char* bitmap_data,
+                                   const char* size_data,
+                                   ProcessHandle handle);
+
+  void WriteBitmapFromHandle(HBITMAP source_hbitmap,
+                             const gfx::Size& size);
+
+  // Safely write to system clipboard. Free |handle| on failure.
+  void WriteToClipboard(FormatType format, HANDLE handle);
+
+  static void MarkupToHTMLClipboardFormat(const std::string& markup,
                                           const std::string& src_url,
                                           std::string* html_fragment);
 
@@ -138,25 +180,26 @@ class Clipboard {
                                            std::wstring* title,
                                            std::string* url);
 
+  // Free a handle depending on its type (as intuited from format)
+  static void FreeData(FormatType format, HANDLE data);
+
   HWND clipboard_owner_;
 #elif defined(OS_LINUX)
+  // Data is stored in the |clipboard_data_| map until it is saved to the system
+  // clipboard. The Store* functions save data to the |clipboard_data_| map. The
+  // SetGtkClipboard function replaces whatever is on the system clipboard with
+  // the contents of |clipboard_data_|.
+  // The Write* functions make a deep copy of the data passed to them an store
+  // it in |clipboard_data_|.
+
   // Write changes to gtk clipboard.
   void SetGtkClipboard();
   // Free pointers in clipboard_data_ and clear() the map.
   void FreeTargetMap();
-  // Insert a mapping into clipboard_data_, or change an existing mapping.
-  uint8* InsertOrOverwrite(std::string target, uint8* data, size_t data_len);
+  // Insert a mapping into clipboard_data_.
+  void InsertMapping(const char* key, char* data, size_t data_len);
 
-  // We have to be able to store multiple formats on the clipboard
-  // simultaneously. The Chrome Clipboard class accomplishes this by
-  // expecting that consecutive calls to Write* (WriteHTML, WriteText, etc.)
-  // The GTK clipboard interface does not naturally support consecutive calls
-  // building on one another. So we keep all data in a map, and always pass the
-  // map when we are setting the gtk clipboard. Consecutive calls to Write*
-  // will write to the map and set the GTK clipboard, then add to the same
-  // map and set the GTK clipboard again. GTK thinks it is wiping out the
-  // clipboard but we are actually keeping the previous data.
-  TargetMap clipboard_data_;
+  TargetMap* clipboard_data_;
   GtkClipboard* clipboard_;
 #endif
 

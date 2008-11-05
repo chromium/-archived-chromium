@@ -32,39 +32,59 @@ Clipboard::Clipboard() {
 Clipboard::~Clipboard() {
 }
 
-void Clipboard::Clear() {
+void Clipboard::WriteObjects(const ObjectMap& objects) {
   NSPasteboard* pb = GetPasteboard();
   [pb declareTypes:[NSArray array] owner:nil];
+
+  for (ObjectMap::const_iterator iter = objects.begin();
+       iter != objects.end(); ++iter) {
+    DispatchObject(static_cast<ObjectType>(iter->first), iter->second);
+  }
+
 }
 
-void Clipboard::WriteText(const std::wstring& text) {
+void Clipboard::WriteText(const char* text_data, size_t text_len) {
+  std::string text_str(text_data, text_len);
+  NSString *text = base::SysUTF8ToNSString(text_str);
   NSPasteboard* pb = GetPasteboard();
   [pb addTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
-  [pb setString:base::SysWideToNSString(text) forType:NSStringPboardType];
+  [pb setString:text forType:NSStringPboardType];
 }
 
-void Clipboard::WriteHTML(const std::wstring& markup,
-                          const std::string& src_url) {
-  // TODO(avi): src_url?
+void Clipboard::WriteHTML(const char* markup_data,
+                          size_t markup_len,
+                          const char* url_data,
+                          size_t url_len) {
+  std::string html_fragment_str(markup_data, markup_len);
+  NSString *html_fragment = base::SysUTF8ToNSString(html_fragment_str);
+
+  // TODO(avi): url_data?
   NSPasteboard* pb = GetPasteboard();
   [pb addTypes:[NSArray arrayWithObject:NSHTMLPboardType] owner:nil];
-  [pb setString:base::SysWideToNSString(markup) forType:NSHTMLPboardType];
+  [pb setString:html_fragment forType:NSHTMLPboardType];
 }
 
-void Clipboard::WriteBookmark(const std::wstring& title,
-                              const std::string& url) {
-  WriteHyperlink(title, url);
+void Clipboard::WriteBookmark(const char* title_data,
+                              size_t title_len,
+                              const char* url_data,
+                              size_t url_len) {
+  WriteHyperlink(title_data, title_len, url_data, url_len);
 }
 
-void Clipboard::WriteHyperlink(const std::wstring& title,
-                               const std::string& url) {
+void Clipboard::WriteHyperlink(const char* title_data,
+                               size_t title_len,
+                               const char* url_data,
+                               size_t url_len) {
+  std::string title_str(title_data, title_len);
+  NSString *title =  base::SysUTF8ToNSString(title_str);
+  std::string url_str(url_data, url_len);
+  NSString *url =  base::SysUTF8ToNSString(url_str);
+
   // TODO(playmobil): In the Windows version of this function, an HTML
   // representation of the bookmark is also added to the clipboard, to support
   // drag and drop of web shortcuts.  I don't think we need to do this on the
   // Mac, but we should double check later on.
-  NSURL* nsurl = [NSURL URLWithString:
-                  [NSString stringWithUTF8String:url.c_str()]];
-  NSString* nstitle = base::SysWideToNSString(title);
+  NSURL* nsurl = [NSURL URLWithString:url];
 
   NSPasteboard* pb = GetPasteboard();
   // passing UTIs into the pasteboard methods is valid >= 10.5
@@ -73,19 +93,27 @@ void Clipboard::WriteHyperlink(const std::wstring& title,
                                          nil]
          owner:nil];
   [nsurl writeToPasteboard:pb];
-  [pb setString:nstitle forType:kUTTypeURLName];
+  [pb setString:title forType:kUTTypeURLName];
 }
 
-void Clipboard::WriteFile(const std::wstring& file) {
-  std::vector<std::wstring> files;
-  files.push_back(file);
-  WriteFiles(files);
-}
+void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
+  NSMutableArray* fileList = [NSMutableArray arrayWithCapacity:1];
 
-void Clipboard::WriteFiles(const std::vector<std::wstring>& files) {
-  NSMutableArray* fileList = [NSMutableArray arrayWithCapacity:files.size()];
-  for (size_t i = 0; i < files.size(); ++i) {
-    [fileList addObject:base::SysWideToNSString(files[i])];
+  // Offset of current filename from start of file_data array.
+  size_t current_filename_offset = 0;
+
+  // file_data is double null terminated (see table at top of clipboard.h).
+  // So this loop can ignore the second null terminator, thus file_len - 1.
+  // TODO(playmobil): If we need a loop like this on other platforms then split
+  // this out into a common function that outputs a std::vector<const char*>.
+  for (size_t i = 0; i < file_len - 1; ++i) {
+    if (file_data[i] == '\0') {
+      const char* filename = &file_data[current_filename_offset];
+      [fileList addObject:[NSString stringWithUTF8String:filename]];
+
+      current_filename_offset = i + 1;
+      continue;
+    }
   }
 
   NSPasteboard* pb = GetPasteboard();

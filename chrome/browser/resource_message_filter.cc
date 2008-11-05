@@ -4,6 +4,7 @@
 
 #include "chrome/browser/resource_message_filter.h"
 
+#include "base/clipboard.h"
 #include "base/histogram.h"
 #include "base/thread.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
@@ -125,22 +126,10 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_DnsPrefetch, OnDnsPrefetch)
     IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_PaintRect,
         render_widget_helper_->DidReceivePaintMsg(message))
-    IPC_MESSAGE_FORWARD(ViewHostMsg_ClipboardClear,
-                        static_cast<Clipboard*>(GetClipboardService()),
-                        Clipboard::Clear)
-    IPC_MESSAGE_FORWARD(ViewHostMsg_ClipboardWriteText,
-                        static_cast<Clipboard*>(GetClipboardService()),
-                        Clipboard::WriteText)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteHTML,
-                        OnClipboardWriteHTML)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteBookmark,
-                        OnClipboardWriteBookmark)
-    // We need to do more work to marshall around bitmaps
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteBitmap,
-                        OnClipboardWriteBitmap)
-    IPC_MESSAGE_FORWARD(ViewHostMsg_ClipboardWriteWebSmartPaste,
-                        static_cast<Clipboard*>(GetClipboardService()),
-                        Clipboard::WriteWebSmartPaste)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteObjectsAsync,
+                        OnClipboardWriteObjects)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteObjectsSync,
+                        OnClipboardWriteObjects)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardIsFormatAvailable,
                         OnClipboardIsFormatAvailable)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadText, OnClipboardReadText)
@@ -431,26 +420,12 @@ void ResourceMessageFilter::OnDownloadUrl(const IPC::Message& message,
                                            request_context_);
 }
 
-void ResourceMessageFilter::OnClipboardWriteHTML(const std::wstring& markup,
-                                                 const GURL& src_url) {
-  GetClipboardService()->WriteHTML(markup, src_url.spec());
-}
-
-void ResourceMessageFilter::OnClipboardWriteBookmark(const std::wstring& title,
-                                                     const GURL& url) {
-  GetClipboardService()->WriteBookmark(title, url.spec());
-}
-
-void ResourceMessageFilter::OnClipboardWriteBitmap(
-    SharedMemoryHandle bitmap_buf, gfx::Size size) {
-  // hbitmap here is only valid in the context of the renderer.  We need to
-  // import it into our process using SharedMemory in order to get a handle
-  // that is valid.
-  //
-  // We need to ask for write permission to the shared memory in order to
-  // call WriteBitmapFromSharedMemory
-  SharedMemory shared_mem(bitmap_buf, false, render_handle_);
-  GetClipboardService()->WriteBitmapFromSharedMemory(shared_mem, size);
+void ResourceMessageFilter::OnClipboardWriteObjects(
+    const Clipboard::ObjectMap& objects) {
+  // We pass the render_handle_ to assist the clipboard with using shared
+  // memory objects. render_handle_ is a handle to the process that would
+  // own any shared memory that might be in the object list.
+  GetClipboardService()->WriteObjects(objects, render_handle_);
 }
 
 void ResourceMessageFilter::OnClipboardIsFormatAvailable(unsigned int format,

@@ -390,10 +390,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\clipboard_service.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\clipboard_service.h"
 			>
 		</File>
