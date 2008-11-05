@@ -1,0 +1,132 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.SConscript([
+    '$BASE_DIR/using_base.scons',
+    '$BASE_DIR/gfx/using_base_gfx.scons',
+    '$BZIP2_DIR/using_bzip2.scons',
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$LIBXSLT_DIR/using_libxslt.scons',
+    '$MODP_B64_DIR/using_modp_b64.scons',
+    '$NET_DIR/using_net.scons',
+    #'$NPAPI_DIR/using_npapi.scons',
+    '$SDCH_DIR/using_sdch.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+], {'env':env})
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_DIR/app/resources',
+        '$CHROME_SRC_DIR',
+    ],
+    CPPDEFINES = [
+        'UI_TEST',
+    ],
+    LIBS = [
+        'automation',
+        'browser',
+        'browser_views',
+        'common',
+        'npapi_layout_test_plugin',
+        'npapi_test_plugin',
+        'security_tests',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      CPPPATH = [
+          '$CHROME_DIR/tools/build/win',
+      ],
+      LINKFLAGS = [
+          '/INCREMENTAL',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+
+          '/MANIFEST',
+          '/DELAYLOAD:"ws2_32.dll"',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+
+          '/DEBUG',
+          '/MACHINE:X86',
+          '/FIXED:No',
+      ],
+      LIBS = [
+          'comsupp',
+          'oleacc',
+          'rpcrt4',
+          'winmm',
+      ],
+  )
+
+ui_test_files = [
+    'inspector_controller_uitest.cc',
+    'layout_plugin_uitest.cpp',
+    'npapi_uitest.cpp',
+    'omnibox_uitest.cc',
+    'run_all_unittests.cc',
+    'sandbox_uitests.cc',
+    'ui_test.cc',
+    'ui_test_suite.cc',
+    'history_uitest.cc',
+    'npapi_test_helper.cc',
+
+    '$CHROME_DIR/app/chrome_main_uitest.cc',
+    '$CHROME_DIR/browser/browser_uitest.cc',
+    '$CHROME_DIR/browser/crash_recovery_uitest.cc',
+    '$CHROME_DIR/browser/download/download_uitest.cc',
+    '$CHROME_DIR/browser/download/save_page_uitest.cc',
+    '$CHROME_DIR/browser/errorpage_uitest.cc',
+    '$CHROME_DIR/browser/history/redirect_uitest.cc',
+    '$CHROME_DIR/browser/iframe_uitest.cc',
+    '$CHROME_DIR/browser/images_uitest.cc',
+    '$CHROME_DIR/browser/interstitial_page_uitest.cc',
+    '$CHROME_DIR/browser/locale_tests_uitest.cc',
+    '$CHROME_DIR/browser/login_prompt_uitest.cc',
+    '$CHROME_DIR/browser/metrics_service_uitest.cc',
+    '$CHROME_DIR/browser/printing/printing_layout_uitest.cc',
+    '$CHROME_DIR/browser/resource_dispatcher_host_uitest.cc',
+    '$CHROME_DIR/browser/sanity_uitest.cc',
+    '$CHROME_DIR/browser/session_history_uitest.cc',
+    '$CHROME_DIR/browser/session_restore_uitest.cc',
+    '$CHROME_DIR/browser/ssl_uitest.cc',
+    '$CHROME_DIR/browser/tab_restore_uitest.cc',
+    '$CHROME_DIR/browser/view_source_uitest.cc',
+    '$CHROME_DIR/common/logging_chrome_uitest.cc',
+    '$CHROME_DIR/common/net/cache_uitest.cc',
+    '$CHROME_DIR/common/pref_service_uitest.cc',
+    '$CHROME_DIR/test/accessibility/accessibility_tests.cc',
+    '$CHROME_DIR/test/accessibility/accessibility_util.cc',
+    '$CHROME_DIR/test/accessibility/browser_impl.cc',
+    '$CHROME_DIR/test/accessibility/keyboard_util.cc',
+    '$CHROME_DIR/test/accessibility/registry_util.cc',
+    '$CHROME_DIR/test/accessibility/tab_impl.cc',
+    '$CHROME_DIR/test/automation/automation_proxy_uitest.cc',
+    '$CHROME_DIR/test/perf/mem_usage.cc',
+    '$CHROME_DIR/test/reliability/page_load_test$OBJSUFFIX',
+    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
+    '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
+]
+
+if env['PLATFORM'] == 'win32':
+  ui_test_files.extend([
+      '$CHROME_DIR/browser/views/find_bar_win_interactive_uitest.cc',
+      '$CHROME_DIR/browser/views/find_bar_win_uitest.cc',
+  ])
+
+env.ChromeTestProgram('ui_tests',  ui_test_files)

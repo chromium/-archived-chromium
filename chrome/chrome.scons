@@ -13,18 +13,22 @@ sconscript_files = [
 
     'browser/browser.scons',
     'browser/debugger/debugger.scons',
-    'test/interactive_ui/interactive_ui_tests.scons',
-    'test/unit/unit_tests.scons',
     'common/common.scons',
     'common/ipc_tests.scons',
     'plugin/plugin.scons',
     'renderer/renderer.scons',
+    'test/automated_ui_tests/automated_ui_tests.scons',
+    'test/interactive_ui/interactive_ui_tests.scons',
+    'test/ui/ui_tests.scons',
+    'test/unit/unit_tests.scons',
 ]
 
 if env['PLATFORM'] != 'win32':
   remove_files = [
       'browser/debugger/debugger.scons',
+      'test/automated_ui_tests/automated_ui_tests.scons',
       'test/interactive_ui/interactive_ui_tests.scons',
+      'test/ui/ui_tests.scons',
   ]
   for remove in remove_files:
     sconscript_files.remove(remove)
