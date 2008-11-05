@@ -77,7 +77,6 @@ if env['PLATFORM'] == 'win32':
       'chrome_plugin_util.cc',
       'chrome_process_filter.cc',
       'classfactory.cc',
-      'clipboard_service.cc',
       'common_glue.cc',
       'drag_drop_types.cc',
       'gfx/chrome_canvas.cc',
