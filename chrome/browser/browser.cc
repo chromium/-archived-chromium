@@ -908,7 +908,8 @@ void Browser::WindowMoved() {
   DCHECK(!g_browser_process->IsUsingNewFrames());
   // Cancel any tabstrip animations, some of them may be invalidated by the
   // window being repositioned.
-  window_->GetTabStrip()->DestroyDragController();  
+  // Comment out for one cycle to see if this fixes dist tests.
+  //window_->GetTabStrip()->DestroyDragController();  
 
   GetStatusBubble()->Reposition();
 
