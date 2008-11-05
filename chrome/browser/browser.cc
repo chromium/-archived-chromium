@@ -732,42 +732,6 @@ void Browser::AddNewContents(TabContents* source,
   }
 }
 
-void Browser::StartDraggingDetachedContents(TabContents* source,
-                                            TabContents* new_contents,
-                                            const gfx::Rect& contents_bounds,
-                                            const gfx::Point& mouse_pt,
-                                            int frame_component) {
-  if (!g_browser_process->IsUsingNewFrames()) {
-    BrowserType::Type new_type = BrowserType::BROWSER;
-
-    // If this is a minimal chrome browser, propagate to detached contents to
-    // avoid having URL fields in popups.
-    if (type_ == BrowserType::APPLICATION)
-      new_type = type_;
-
-    Browser* browser = new Browser(contents_bounds, SIZE_TO_CONTENTS, profile_,
-                                   new_type, L"");
-    browser->AddNewContents(
-        source, new_contents, NEW_FOREGROUND_TAB, contents_bounds, true);
-    browser->Show();
-    browser->window_->ContinueDetachConstrainedWindowDrag(
-        mouse_pt, frame_component);
-  } else {
-    // If we're inside an application frame, preserve that type (i.e. don't
-    // show a location bar on the new window), otherwise open a tab-less
-    // browser window with a location bar.
-    BrowserType::Type new_type =
-        type_ == BrowserType::APPLICATION ? type_ : BrowserType::BROWSER;
-    Browser* browser = new Browser(contents_bounds, SW_SHOWNORMAL, profile_,
-                                   BrowserType::BROWSER, std::wstring());
-    browser->AddNewContents(source, new_contents,
-                            NEW_FOREGROUND_TAB, gfx::Rect(), true);
-    browser->Show();
-    browser->window()->ContinueDetachConstrainedWindowDrag(mouse_pt,
-                                                           frame_component);
-  }
-}
-
 void Browser::ActivateContents(TabContents* contents) {
   tabstrip_model_.SelectTabContentsAt(
       tabstrip_model_.GetIndexOfTabContents(contents), false);
@@ -1877,4 +1841,3 @@ void Browser::FormatTitleForDisplay(std::wstring* title) {
     current_index = match_index;
   }
 }
-

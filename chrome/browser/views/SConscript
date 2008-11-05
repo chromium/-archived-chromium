@@ -52,6 +52,7 @@ env.Append(
 
 input_files = [
     'about_chrome_view.cc',
+    'blocked_popup_container.cc',
     'bookmark_bar_view.cc',
     'bookmark_bubble_view.cc',
     'bookmark_editor_view.cc',
@@ -60,7 +61,6 @@ input_files = [
     'bookmark_table_view.cc',
     'bug_report_view.cc',
     'clear_browsing_data.cc',
-    'constrained_window_animation.cc',
     'constrained_window_impl.cc',
     'delay_view.cc',
     'dom_view.cc',

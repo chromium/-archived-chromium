@@ -59,21 +59,6 @@ class TabContentsDelegate : public PageNavigator {
                               const gfx::Rect& initial_pos,
                               bool user_gesture) = 0;
 
-  // Called when while dragging constrained TabContents, the mouse pointer
-  // moves outside the bounds of the constraining contents. The delegate can
-  // use this as an opportunity to continue the drag in a detached window.
-  // |contents_bounds| is the bounds of the constrained TabContents in screen
-  // coordinates.
-  // |mouse_pt| is the position of the mouse pointer in screen coordinates.
-  // |frame_component| is the part of the constrained window frame that
-  // corresponds to |mouse_pt| as returned by WM_NCHITTEST.
-  virtual void StartDraggingDetachedContents(
-      TabContents* source,
-      TabContents* new_contents,
-      const gfx::Rect& contents_bounds,
-      const gfx::Point& mouse_pt,
-      int frame_component) { }
-
   // Selects the specified contents, bringing its container to the front.
   virtual void ActivateContents(TabContents* contents) = 0;
 
@@ -160,4 +145,3 @@ class TabContentsDelegate : public PageNavigator {
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_DELEGATE_H_
-

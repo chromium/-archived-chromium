@@ -176,8 +176,6 @@ class XPFrame : public BrowserWindow,
 
   virtual void ShowTabContents(TabContents* contents);
   virtual TabStrip* GetTabStrip() const;
-  virtual void ContinueDetachConstrainedWindowDrag(const gfx::Point& mouse_pt,
-                                                   int frame_component);
   void SizeToContents(const gfx::Rect& contents_bounds);
 
   // Returns true if the frame should be rendered in an active state.
@@ -525,4 +523,3 @@ class XPFrame : public BrowserWindow,
 };
 
 #endif  // CHROME_BROWSER_VIEWS_OLD_FRAMES_XP_FRAME_H__
-

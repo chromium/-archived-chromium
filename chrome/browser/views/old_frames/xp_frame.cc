@@ -2385,35 +2385,6 @@ gfx::Rect XPFrame::GetNormalBounds() {
   return gfx::Rect(wp.rcNormalPosition);
 }
 
-void XPFrame::ContinueDetachConstrainedWindowDrag(const gfx::Point& mouse_pt,
-                                                  int frame_component) {
-  // Need to force a paint at this point so that the newly created window looks
-  // correct. (Otherwise parts of the tabstrip are clipped).
-  CRect cr;
-  GetClientRect(&cr);
-  PaintNow(gfx::Rect(cr));
-
-  // The user's mouse is already moving, and the left button is down, but we
-  // need to start moving this frame, so we _post_ it a NCLBUTTONDOWN message
-  // with the HTCAPTION flag to trick windows into believing the user just
-  // started dragging on the title bar. All the frame moving is then handled
-  // automatically by windows. Note that we use PostMessage here since we need
-  // to return to the message loop first otherwise Windows' built in move code
-  // will not be able to be triggered.
-  POINTS pts;
-  pts.x = mouse_pt.x();
-  pts.y = mouse_pt.y();
-  if (frame_component == HTCAPTION) {
-    // XPFrame uses windows' standard move code, so this works.
-    PostMessage(WM_NCLBUTTONDOWN, HTCAPTION, reinterpret_cast<LPARAM>(&pts));
-  } else {
-    // Because xpframe does its own resizing, and does not respond properly to
-    // WM_NCHITTEST, there's no reliable way for us to handle other frame
-    // component types. Alas. This will be corrected when XPFrame subclasses
-    // views::CustomFrameWindow, some day.
-  }
-}
-
 void XPFrame::SizeToContents(const gfx::Rect& contents_bounds) {
   // First we need to ensure everything has an initial size. Currently, the
   // window has the wrong size, but that's OK, doing this will allow us to

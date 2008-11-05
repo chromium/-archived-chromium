@@ -23,6 +23,7 @@ namespace views {
 class WindowDelegate;
 }
 
+class BlockedPopupContainer;
 class DOMUIHost;
 class DownloadItem;
 class DownloadShelfView;
@@ -52,8 +53,7 @@ class WebContents;
 // the NavigationController makes the active TabContents inactive, notifies the
 // TabContentsDelegate that the TabContents is being replaced, and then
 // activates the new TabContents.
-class TabContents : public PageNavigator,
-                    public ConstrainedTabContentsDelegate {
+class TabContents : public PageNavigator {
  public:
   // Flags passed to the TabContentsDelegate.NavigationStateChanged to tell it
   // what has changed. Combine them to update more than one thing.
@@ -411,25 +411,11 @@ class TabContents : public PageNavigator,
   // want to generalize this if we need to migrate some other state.
   static void MigrateShelfView(TabContents* from, TabContents* to);
 
-  // ConstrainedTabContentsDelegate --------------------------------------------
+  // Called when a ConstrainedWindow we own is about to be closed.
+  void WillClose(ConstrainedWindow* window);
 
-  virtual void AddNewContents(ConstrainedWindow* window,
-                              TabContents* contents,
-                              WindowOpenDisposition disposition,
-                              const gfx::Rect& initial_pos,
-                              bool user_gesture);
-  virtual void OpenURL(ConstrainedWindow* window,
-                       const GURL& url,
-                       const GURL& referrer,
-                       WindowOpenDisposition disposition,
-                       PageTransition::Type transition);
-  virtual void WillClose(ConstrainedWindow* window);
-  virtual void DetachContents(ConstrainedWindow* window,
-                              TabContents* contents,
-                              const gfx::Rect& contents_bounds,
-                              const gfx::Point& mouse_pt,
-                              int frame_component);
-  virtual void DidMoveOrResize(ConstrainedWindow* window);
+  // Called when a ConstrainedWindow we own is moved or resized.
+  void DidMoveOrResize(ConstrainedWindow* window);
 
  protected:
   friend class NavigationController;
@@ -516,6 +502,11 @@ class TabContents : public PageNavigator,
 
   // See capturing_contents() above.
   bool capturing_contents_;
+
+  // ConstrainedWindow with additional methods for managing blocked
+  // popups. This pointer alsog goes in |child_windows_| for ownership,
+  // repositioning, etc.
+  BlockedPopupContainer* blocked_popups_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContents);
 };

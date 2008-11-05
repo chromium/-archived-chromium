@@ -54,7 +54,7 @@ MenuButton::MenuButton(const std::wstring& text,
       show_menu_marker_(show_menu_marker) {
   if (kMenuMarker == NULL) {
     kMenuMarker = ResourceBundle::GetSharedInstance()
-        .GetBitmapNamed(IDR_MENU_MARKER);
+        .GetBitmapNamed(IDR_MENU_DROPARROW);
   }
   SetTextAlignment(TextButton::ALIGN_LEFT);
 }
@@ -257,4 +257,3 @@ void MenuButton::OnMouseExited(const MouseEvent& event) {
 }
 
 }  // namespace views
-

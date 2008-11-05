@@ -92,18 +92,6 @@ class BrowserWindow {
   // TODO(beng): REMOVE
   virtual void ShowTabContents(TabContents* contents) {}
 
-  // Continue a drag gesture that began with a constrained window. When the
-  // user drags a constrained window such that their mouse pointer leaves the
-  // bounds of the constraining HWND, the window is detached and the drag
-  // gesture continues except for this top level frame.
-  // |mouse_pt| is the position of the cursor in screen coordinates.
-  // |frame_component| is the component returned by WM_NCHITTEST for |mouse_pt|
-  // on the constrained window. This is passed to ensure we initiate the
-  // correct action (move, resize, etc).
-  virtual void ContinueDetachConstrainedWindowDrag(
-      const gfx::Point& mouse_pt,
-      int frame_component) = 0;
-
   // Sizes the frame to match the specified desired bounds for the contents.
   // |contents_bounds| are in screen coordinates.
   // TODO(beng): REMOVE
@@ -189,4 +177,3 @@ class BrowserWindow {
 };
 
 #endif  // CHROME_BROWSER_BROWSER_WINDOW_H__
-
