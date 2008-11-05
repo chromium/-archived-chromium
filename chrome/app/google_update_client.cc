@@ -81,10 +81,9 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance,
       ::GetProcAddress(dll_handle, entry_name));
   if (NULL != entry) {
     // record did_run "dr" in client state
-    HKEY reg_root = (user_mode_) ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
     std::wstring key_path = google_update::kRegPathClientState + guid_;
     HKEY reg_key;
-    if (::RegOpenKeyEx(reg_root, key_path.c_str(), 0,
+    if (::RegOpenKeyEx(HKEY_CURRENT_USER, key_path.c_str(), 0,
                        KEY_WRITE, &reg_key) == ERROR_SUCCESS) {
       const wchar_t kVal[] = L"1";
       ::RegSetValueEx(reg_key, google_update::kRegDidRunField, 0, REG_SZ,
@@ -109,8 +108,6 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance,
 bool GoogleUpdateClient::Init(const wchar_t* client_guid,
                               const wchar_t* client_dll) {
   client_util::GetExecutablePath(dll_path_);
-  user_mode_ = InstallUtil::IsPerUserInstall(dll_path_);
-
   guid_.assign(client_guid);
   dll_.assign(client_dll);
   bool ret = false;

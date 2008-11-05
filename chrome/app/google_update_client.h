@@ -72,8 +72,6 @@ class GoogleUpdateClient {
   wchar_t* version_;
   // The location of current chrome.dll.
   wchar_t dll_path_[MAX_PATH];
-  // Are we running in user mode or admin mode
-  bool user_mode_;
 };
 
 }  // namespace google_update
