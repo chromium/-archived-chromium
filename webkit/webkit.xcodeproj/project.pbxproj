@@ -535,6 +535,7 @@
 		E40060DB0EA69E0B0055B38E /* ScriptController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40060DA0EA69E0B0055B38E /* ScriptController.cpp */; };
 		E40063610EA907510055B38E /* ScriptCallContextV8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E40063600EA907510055B38E /* ScriptCallContextV8.cpp */; };
 		E40064540EA90AA10055B38E /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8E3D0D7F3C48001ECF42 /* Console.cpp */; };
+		E4006ABA0EC235870055B38E /* AXObjectCacheChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */; };
 		E40FB28F0EAFF0BC006F380A /* PlatformScreenMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */; };
 		E43CE13C0E68621500D8C5B9 /* PausedTimeouts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */; };
 		E45062E10E40B5420025A81A /* SkiaUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E45062DF0E40B5420025A81A /* SkiaUtils.cpp */; };
@@ -4184,6 +4185,7 @@
 		E40060DA0EA69E0B0055B38E /* ScriptController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptController.cpp; sourceTree = "<group>"; };
 		E40063600EA907510055B38E /* ScriptCallContextV8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScriptCallContextV8.cpp; sourceTree = "<group>"; };
 		E40063760EA908220055B38E /* ScriptCallContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScriptCallContext.cpp; path = ../third_party/WebKit/WebCore/bindings/js/ScriptCallContext.cpp; sourceTree = SOURCE_ROOT; };
+		E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AXObjectCacheChromium.cpp; path = chromium/AXObjectCacheChromium.cpp; sourceTree = "<group>"; };
 		E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PlatformScreenMac.mm; path = mac/PlatformScreenMac.mm; sourceTree = "<group>"; };
 		E43CE1390E68621500D8C5B9 /* PausedTimeouts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PausedTimeouts.h; path = WebCore/bindings/js/PausedTimeouts.h; sourceTree = "<group>"; };
 		E43CE13A0E68621500D8C5B9 /* PausedTimeouts.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PausedTimeouts.cpp; path = WebCore/bindings/js/PausedTimeouts.cpp; sourceTree = "<group>"; };
@@ -7596,6 +7598,7 @@
 			isa = PBXGroup;
 			children = (
 				93BF8F510EA6BD870030F05C /* AccessibilityObjectChromium.cpp */,
+				E4006AB90EC235870055B38E /* AXObjectCacheChromium.cpp */,
 				E4A9708A0E36150500E8EF3B /* ChromeClientChromium.h */,
 				E473F6890EAE0230006C2098 /* DragControllerChromium.cpp */,
 				E473F6850EAE01F5006C2098 /* EventHandlerChromium.cpp */,
@@ -9287,6 +9290,7 @@
 			files = (
 				93BF8F520EA6BD870030F05C /* AccessibilityObjectChromium.cpp in Sources */,
 				93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */,
+				E4006ABA0EC235870055B38E /* AXObjectCacheChromium.cpp in Sources */,
 				E45627EF0E2694B8005E4685 /* BackForwardList.cpp in Sources */,
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
@@ -9517,7 +9521,7 @@
 				DIR_V8 = "$(XCODEPROJ_DEPTH)/v8";
 				DIR_WEBCORE = "$(DIR_WEBKIT)/WebCore";
 				DIR_WEBKIT = "$(DIR_THIRD_PARTY)/WebKit";
-				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 HAVE_ACCESSIBILITY=0";
+				FEATURE_DEFINES = "ENABLE_DATABASE=1 ENABLE_DASHBOARD_SUPPORT=0 ENABLE_JAVASCRIPT_DEBUGGER=0 ENABLE_JSC_MULTIPLE_THREADS=0 ENABLE_ICONDATABASE=0 ENABLE_XSLT=1 ENABLE_XPATH=1 ENABLE_SVG=1 ENABLE_SVG_ANIMATION=1 ENABLE_SVG_AS_IMAGE=1 ENABLE_SVG_USE=1 ENABLE_SVG_FOREIGN_OBJECT=1 ENABLE_SVG_FONTS=1 ENABLE_VIDEO=0 WEBCORE_NAVIGATOR_PLATFORM_=\"FixMeAndRemoveTrailingUnderscore\" USE_GOOGLE_URL_LIBRARY USE_SYSTEM_MALLOC=1 ";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Frameworks",
