@@ -36,13 +36,10 @@ typedef pthread_mutex_t* MutexHandle;
 #include "base/command_line.h"
 #include "base/debug_util.h"
 #include "base/lock_impl.h"
-#include "base/platform_thread.h"
-#include "base/process_util.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
-#include "base/time.h"
-
+  
 namespace logging {
 
 bool g_enable_dcheck = false;
@@ -108,6 +105,36 @@ pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 // Helper functions to wrap platform differences.
+
+int32 CurrentProcessId() {
+#if defined(OS_WIN)
+  return GetCurrentProcessId();
+#elif defined(OS_POSIX)
+  return getpid();
+#endif
+}
+
+int32 CurrentThreadId() {
+#if defined(OS_WIN)
+  return GetCurrentThreadId();
+#elif defined(OS_MACOSX)
+  return mach_thread_self();
+#else
+  NOTIMPLEMENTED();
+  return 0;
+#endif
+}
+
+uint64 TickCount() {
+#if defined(OS_WIN)
+  return GetTickCount();
+#elif defined(OS_MACOSX)
+  return mach_absolute_time();
+#else
+  NOTIMPLEMENTED();
+  return 0;
+#endif
+}
 
 void CloseFile(FileHandle log) {
 #if defined(OS_WIN)
@@ -335,9 +362,9 @@ void LogMessage::Init(const char* file, int line) {
 
   stream_ <<  '[';
   if (log_process_id)
-    stream_ << process_util::GetCurrentProcId() << ':';
+    stream_ << CurrentProcessId() << ':';
   if (log_thread_id)
-    stream_ << PlatformThread::CurrentId() << ':';
+    stream_ << CurrentThreadId() << ':';
   if (log_timestamp) {
      time_t t = time(NULL);
 #if _MSC_VER >= 1400
@@ -357,7 +384,7 @@ void LogMessage::Init(const char* file, int line) {
             << ':';
   }
   if (log_tickcount)
-    stream_ << base::TimeTicks::Now().ToInternalValue() << ':';
+    stream_ << TickCount() << ':';
   stream_ << log_severity_names[severity_] << ":" << file << "(" << line << ")] ";
 
   message_start_ = stream_.tellp();

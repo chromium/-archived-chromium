@@ -125,7 +125,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 #undef LOG
-#include "base/basictypes.h"
 #include "base/gfx/bitmap_platform_device.h"
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
@@ -224,7 +223,7 @@ static void FrameContentAsPlainText(int max_chars, Frame* frame,
     // size and also copy the results directly into a wstring, avoiding the
     // string conversion.
     for (TextIterator it(range.get()); !it.atEnd(); it.advance()) {
-      const uint16* chars = reinterpret_cast<const uint16*>(it.characters());
+      const wchar_t* chars = reinterpret_cast<const wchar_t*>(it.characters());
       if (!chars) {
         if (it.length() != 0) {
           // It appears from crash reports that an iterator can get into a state
@@ -247,9 +246,7 @@ static void FrameContentAsPlainText(int max_chars, Frame* frame,
       }
       int to_append = std::min(it.length(),
                                max_chars - static_cast<int>(output->size()));
-      std::wstring wstr;
-      UTF16ToWide(reinterpret_cast<const char16*>(chars), to_append, &wstr);
-      output->append(wstr.c_str(), to_append);
+      output->append(chars, to_append);
       if (output->size() >= static_cast<size_t>(max_chars))
         return;  // Filled up the buffer.
     }

@@ -27,6 +27,7 @@
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
+#include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
 #define MAX_LOADSTRING 100
@@ -72,6 +73,13 @@ void TestShell::InitializeTestShell(bool interactive) {
   web_prefs_ = new WebPreferences;
 
   ResetWebPreferences();
+}
+
+void TestShell::ShutdownTestShell() {
+  delete window_list_;
+  SimpleResourceLoaderBridge::Shutdown();
+  delete TestShell::web_prefs_;
+  OleUninitialize();
 }
 
 bool TestShell::CreateNewWindow(const std::wstring& startingURL,
