@@ -574,39 +574,6 @@ void GraphicsContext::strokeRect(const FloatRect& rect, float lineWidth)
     platformContext()->canvas()->drawRect(rect, paint);
 }
 
-FloatRect GraphicsContext::getBoundingBoxForCurrentPath(bool includeStroke) const
-{
-    SkPath boundingPath;
-
-    if (includeStroke) {
-        SkPaint paint;
-        platformContext()->setupPaintForStroking(&paint, 0, 0);
-        paint.getFillPath(*platformContext()->currentPath(), &boundingPath);
-    } else
-        boundingPath = *platformContext()->currentPath();
-
-    SkRect r;
-    boundingPath.computeBounds(&r, SkPath::kExact_BoundsType);
-
-    return r;
-}
-
-
-bool GraphicsContext::strokeContains(const Path& path, const FloatPoint& point) const
-{
-    SkPaint paint;
-    // The SkPaint state is not kept since platformContext() is NULL.
-    // If there is a non-identity matrix setup, the path won't be transformed
-    // correctly which may result in inconsistencies.
-    if (!paintingDisabled())
-      platformContext()->setupPaintForStroking(&paint, 0, 0);
-
-    SkPath strokePath;
-    paint.getFillPath(*path.platformPath(), &strokePath);
-
-    return SkPathContainsPoint(&strokePath, point, SkPath::kWinding_FillType);
-}
-
 void GraphicsContext::fillRect(const FloatRect& rect, const Color& color)
 {
     if (paintingDisabled())

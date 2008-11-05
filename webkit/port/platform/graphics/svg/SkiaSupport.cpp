@@ -86,18 +86,30 @@ GraphicsContext* scratchContext()
     return scratch->context();
 }
 
-FloatRect strokeBoundingBox(const Path& path, RenderStyle* style, const RenderObject* object)
+FloatRect boundingBoxForCurrentStroke(const GraphicsContext* context)
+{
+    SkPaint paint;
+    context->platformContext()->setupPaintForStroking(&paint, 0, 0);
+    SkPath boundingPath;
+    paint.getFillPath(*context->platformContext()->currentPath(),
+                      &boundingPath);
+    SkRect r;
+    boundingPath.computeBounds(&r, SkPath::kExact_BoundsType);
+    return r;
+}
+
+FloatRect strokeBoundingBox(const Path& path, RenderStyle* style,
+                            const RenderObject* object)
 { 
-     GraphicsContext* scratch = scratchContext();
+    GraphicsContext* scratch = scratchContext();
+    scratch->save();
+    scratch->beginPath();
+    scratch->addPath(path);
+    applyStrokeStyleToContext(scratch, style, object);
 
-     scratch->save();
-     scratch->beginPath();
-     scratch->addPath(path);
-     applyStrokeStyleToContext(scratch, style, object);
-     FloatRect bbox = scratch->getBoundingBoxForCurrentPath(true);
-     scratch->restore();
-
-     return bbox;
+    FloatRect r = boundingBoxForCurrentStroke(scratch);
+    scratch->restore();
+    return r;
 }
 
 }

@@ -29,11 +29,13 @@
 
 #include "config.h"
 #include "GraphicsContext.h"
+#include "PlatformContextSkia.h"
 #include "RenderPath.h"
-#include "SVGPaintServer.h"
-#include "SkPath.h"
-
 #include "SkiaSupport.h"
+#include "SkiaUtils.h"
+#include "SkPaint.h"
+#include "SkPath.h"
+#include "SVGPaintServer.h"
 
 #if ENABLE(SVG)
 
@@ -50,9 +52,15 @@ bool RenderPath::strokeContains(const FloatPoint& point, bool requiresStroke) co
     GraphicsContext* scratch = scratchContext();
     scratch->save();
     applyStrokeStyleToContext(scratch, style(), this);
-    bool contains = scratch->strokeContains(path(), point);
-    scratch->restore();
 
+    SkPaint paint;
+    scratch->platformContext()->setupPaintForStroking(&paint, 0, 0);
+    SkPath strokePath;
+    paint.getFillPath(*path().platformPath(), &strokePath);
+    bool contains = SkPathContainsPoint(&strokePath, point,
+                                        SkPath::kWinding_FillType);
+
+    scratch->restore();
     return contains;
 }
 

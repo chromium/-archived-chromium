@@ -22,7 +22,17 @@ class GraphicsContext;
 void applyStrokeStyleToContext(GraphicsContext*, const RenderStyle*, const RenderObject*);
 void applyFillStyleToContext(GraphicsContext*, const RenderStyle*, const RenderObject*);
 
+// Returns a statically allocated 1x1 GraphicsContext intended for temporary
+// operations. Please save() the state and restore() it when you're done with
+// the context.
 GraphicsContext* scratchContext();
+
+// Computes the bounding box for the stroke and style currently selected into
+// the given bounding box. This also takes into account the stroke width.
+FloatRect boundingBoxForCurrentStroke(const GraphicsContext* context);
+
+// Returns the bounding box for the given path of the given style, including the
+// stroke width.
 FloatRect strokeBoundingBox(const Path& path, RenderStyle*, const RenderObject*);
 
 }
