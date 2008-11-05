@@ -12,7 +12,7 @@ namespace net {
 
 class UploadDataStream {
  public:
-  UploadDataStream(const UploadData* data);
+  explicit UploadDataStream(const UploadData* data);
   ~UploadDataStream();
 
   // Returns the stream's buffer and buffer length.
@@ -23,9 +23,6 @@ class UploadDataStream {
   // call modifies the stream's buffer so that it contains the next segment of
   // the upload data to be consumed.
   void DidConsume(size_t num_bytes);
-
-  // Call to reset the stream position to the beginning.
-  void Reset();
 
   // Returns the total size of the data stream and the current position.
   uint64 size() const { return total_size_; }

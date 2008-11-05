@@ -964,9 +964,13 @@ bool HttpNetworkTransaction::ShouldResendRequest() {
   }
   connection_.set_socket(NULL);
   connection_.Reset();
+  // There are two reasons we need to clear request_headers_.  1) It contains
+  // the real request headers, but we may need to resend the CONNECT request
+  // first to recreate the SSL tunnel.  2) An empty request_headers_ causes
+  // BuildRequestHeaders to be called, which rewinds request_body_stream_ to
+  // the beginning of request_->upload_data.
+  request_headers_.clear();
   request_headers_bytes_sent_ = 0;
-  if (request_body_stream_.get())
-    request_body_stream_->Reset();
   next_state_ = STATE_INIT_CONNECTION;  // Resend the request.
   return true;
 }

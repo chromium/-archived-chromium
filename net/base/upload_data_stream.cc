@@ -11,8 +11,12 @@ namespace net {
 
 UploadDataStream::UploadDataStream(const UploadData* data)
     : data_(data),
-      total_size_(data->GetContentLength()) {
-  Reset();
+      buf_len_(0),
+      next_element_(data->elements().begin()),
+      next_element_offset_(0),
+      next_element_remaining_(0),
+      total_size_(data->GetContentLength()),
+      current_position_(0) {
   FillBuf();
 }
 
@@ -29,15 +33,6 @@ void UploadDataStream::DidConsume(size_t num_bytes) {
   FillBuf();
 
   current_position_ += num_bytes;
-}
-
-void UploadDataStream::Reset() {
-  next_element_stream_.Close();
-  buf_len_ = 0;
-  next_element_ = data_->elements().begin();
-  next_element_offset_ = 0;
-  next_element_remaining_ = 0;
-  current_position_ = 0;
 }
 
 void UploadDataStream::FillBuf() {
@@ -68,7 +63,7 @@ void UploadDataStream::FillBuf() {
       DCHECK(element.type() == UploadData::TYPE_FILE);
 
       if (!next_element_stream_.IsOpen()) {
-        int flags = base::PLATFORM_FILE_OPEN | 
+        int flags = base::PLATFORM_FILE_OPEN |
                     base::PLATFORM_FILE_READ;
         int rv = next_element_stream_.Open(element.file_path(), flags);
         // If the file does not exist, that's technically okay.. we'll just

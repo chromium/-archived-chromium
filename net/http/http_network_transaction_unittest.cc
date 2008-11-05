@@ -32,7 +32,7 @@ struct MockRead {
       data_len(0) { }
 
   // Asynchronous read success (inferred data length).
-  MockRead(const char* data) : async(true),  result(0), data(data),
+  explicit MockRead(const char* data) : async(true),  result(0), data(data),
       data_len(strlen(data)) { }
 
   // Read success (inferred data length).
@@ -76,7 +76,7 @@ int mock_sockets_index;
 
 class MockTCPClientSocket : public net::ClientSocket {
  public:
-  MockTCPClientSocket(const net::AddressList& addresses)
+  explicit MockTCPClientSocket(const net::AddressList& addresses)
       : data_(mock_sockets[mock_sockets_index++]),
         ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)),
         callback_(NULL),
@@ -135,6 +135,8 @@ class MockTCPClientSocket : public net::ClientSocket {
   }
   virtual int Write(const char* buf, int buf_len,
                     net::CompletionCallback* callback) {
+    DCHECK(buf);
+    DCHECK(buf_len > 0);
     DCHECK(!callback_);
     // Not using mock writes; succeed synchronously.
     if (!data_->writes)
@@ -142,7 +144,7 @@ class MockTCPClientSocket : public net::ClientSocket {
 
     // Check that what we are writing matches the expectation.
     // Then give the mocked return value.
-    MockWrite& w = data_->writes[write_index_];
+    MockWrite& w = data_->writes[write_index_++];
     int result = w.result;
     if (w.data) {
       std::string expected_data(w.data, w.data_len);
@@ -279,7 +281,7 @@ void FillLargeHeadersString(std::string* str, int size) {
   const int sizeof_data = num_rows * sizeof_row;
   DCHECK(sizeof_data >= size);
   str->reserve(sizeof_data);
-  
+
   for (int i = 0; i < num_rows; ++i)
     str->append(row, sizeof_row);
 }
@@ -925,4 +927,93 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   trans.reset();
   // Make sure that the socket didn't get recycled after calling the destructor.
   EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
+}
+
+TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
+  net::HttpRequestInfo request[2];
+  // Transaction 1: a GET request that succeeds.  The socket is recycled
+  // after use.
+  request[0].method = "GET";
+  request[0].url = GURL("http://www.google.com/");
+  request[0].load_flags = 0;
+  // Transaction 2: a POST request.  Reuses the socket kept alive from
+  // transaction 1.  The first attempts fails when writing the POST data.
+  // This causes the transaction to retry with a new socket.  The second
+  // attempt succeeds.
+  request[1].method = "POST";
+  request[1].url = GURL("http://www.google.com/login.cgi");
+  request[1].upload_data = new net::UploadData;
+  request[1].upload_data->AppendBytes("foo", 3);
+  request[1].load_flags = 0;
+
+  scoped_refptr<net::HttpNetworkSession> session = CreateSession();
+
+  // The first socket is used for transaction 1 and the first attempt of
+  // transaction 2.
+
+  // The response of transaction 1.
+  MockRead data_reads1[] = {
+    MockRead("HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\n"),
+    MockRead("hello world"),
+    MockRead(false, net::OK),
+  };
+  // The mock write results of transaction 1 and the first attempt of
+  // transaction 2.
+  MockWrite data_writes1[] = {
+    MockWrite(false, 64),  // GET
+    MockWrite(false, 93),  // POST
+    MockWrite(false, net::ERR_CONNECTION_ABORTED),  // POST data
+  };
+  MockSocket data1;
+  data1.reads = data_reads1;
+  data1.writes = data_writes1;
+
+  // The second socket is used for the second attempt of transaction 2.
+
+  // The response of transaction 2.
+  MockRead data_reads2[] = {
+    MockRead("HTTP/1.1 200 OK\r\nContent-Length: 7\r\n\r\n"),
+    MockRead("welcome"),
+    MockRead(false, net::OK),
+  };
+  // The mock write results of the second attempt of transaction 2.
+  MockWrite data_writes2[] = {
+    MockWrite(false, 93),  // POST
+    MockWrite(false, 3),  // POST data
+  };
+  MockSocket data2;
+  data2.reads = data_reads2;
+  data2.writes = data_writes2;
+
+  mock_sockets[0] = &data1;
+  mock_sockets[1] = &data2;
+  mock_sockets[2] = NULL;
+
+  const char* kExpectedResponseData[] = {
+    "hello world", "welcome"
+  };
+
+  for (int i = 0; i < 2; ++i) {
+    scoped_ptr<net::HttpTransaction> trans(
+        new net::HttpNetworkTransaction(session, &mock_socket_factory));
+
+    TestCompletionCallback callback;
+
+    int rv = trans->Start(&request[i], &callback);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    EXPECT_TRUE(response != NULL);
+
+    EXPECT_TRUE(response->headers != NULL);
+    EXPECT_EQ("HTTP/1.1 200 OK", response->headers->GetStatusLine());
+
+    std::string response_data;
+    rv = ReadTransaction(trans.get(), &response_data);
+    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(kExpectedResponseData[i], response_data);
+  }
 }
