@@ -261,7 +261,9 @@ BookmarkContextMenu::BookmarkContextMenu(
       l10n_util::GetString(IDS_BOOKMARK_BAR_REMOVE));
  
   if (configuration == BOOKMARK_MANAGER_TABLE ||
-      configuration == BOOKMARK_MANAGER_ORGANIZE_MENU) {
+      configuration == BOOKMARK_MANAGER_TABLE_OTHER ||
+      configuration == BOOKMARK_MANAGER_ORGANIZE_MENU ||
+      configuration == BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER) {
     menu_->AppendMenuItemWithLabel(
         IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER,
         l10n_util::GetString(IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER));
@@ -442,8 +444,8 @@ bool BookmarkContextMenu::IsCommandEnabled(int id) const {
       return !selection_.empty() && !is_root_node;
 
     case IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER:
-      return (configuration_ == BOOKMARK_MANAGER_TABLE ||
-              configuration_ == BOOKMARK_MANAGER_ORGANIZE_MENU) &&
+      return (configuration_ == BOOKMARK_MANAGER_TABLE_OTHER ||
+              configuration_ == BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER) &&
              selection_.size() == 1;
 
     case IDS_BOOMARK_BAR_NEW_FOLDER:

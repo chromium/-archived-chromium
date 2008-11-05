@@ -269,3 +269,22 @@ TEST_F(BookmarkContextMenuTest, DisabledItemsWithOtherNode) {
   EXPECT_FALSE(controller.IsCommandEnabled(IDS_BOOKMARK_BAR_EDIT));
   EXPECT_FALSE(controller.IsCommandEnabled(IDS_BOOKMARK_BAR_REMOVE));
 }
+
+// Tests the enabled state of the menus when supplied an empty vector and null
+// parent.
+TEST_F(BookmarkContextMenuTest, EmptyNodesNullParent) {
+  BookmarkContextMenu controller(
+      NULL, profile_.get(), NULL, NULL, NULL, std::vector<BookmarkNode*>(),
+      BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU);
+  EXPECT_FALSE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL));
+  EXPECT_FALSE(
+      controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW));
+  EXPECT_FALSE(controller.IsCommandEnabled(IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO));
+  EXPECT_FALSE(controller.IsCommandEnabled(IDS_BOOKMARK_BAR_REMOVE));
+  EXPECT_FALSE(
+      controller.IsCommandEnabled(IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER));
+  EXPECT_FALSE(
+      controller.IsCommandEnabled(IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK));
+  EXPECT_FALSE(
+      controller.IsCommandEnabled(IDS_BOOMARK_BAR_NEW_FOLDER));
+}

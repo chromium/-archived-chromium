@@ -23,8 +23,14 @@ class BookmarkContextMenu : public views::MenuDelegate,
   enum ConfigurationType {
     BOOKMARK_BAR,
     BOOKMARK_MANAGER_TABLE,
+    // Used when the source is the table in the bookmark manager and the table
+    // is showing recently bookmarked or searched.
+    BOOKMARK_MANAGER_TABLE_OTHER,
     BOOKMARK_MANAGER_TREE,
-    BOOKMARK_MANAGER_ORGANIZE_MENU
+    BOOKMARK_MANAGER_ORGANIZE_MENU,
+    // Used when the source is the bookmark manager and the table is showing
+    // recently bookmarked or searched.
+    BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER
   };
 
   // Creates the bookmark context menu.
