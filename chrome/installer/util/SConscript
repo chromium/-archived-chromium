@@ -51,6 +51,7 @@ input_files = [
     'l10n_string_util.cc',
     'logging_installer.cc',
     'lzma_util.cc',
+    'master_preferences.cc',
     'set_reg_value_work_item.cc',
     'shell_util.cc',
     'util_constants.cc',
