@@ -16,6 +16,59 @@
 #include "chrome/common/win_util.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
+namespace {
+
+// The DLLs listed here are known (or under strong suspicion) of causing crashes
+// when they are loaded in the renderer.
+const wchar_t* const kTroublesomeDlls[] = {
+  L"adialhk.dll",                 // Kaspersky Internet Security.
+  L"acpiz.dll",                   // Unknown.
+  L"avgrsstx.dll",                // AVG 8.
+  L"btkeyind.dll",                // Widcomm Bluetooth.
+  L"cmcsyshk.dll",                // CMC Internet Security.
+  L"dockshellhook.dll",           // Stardock Objectdock.
+  L"GoogleDesktopNetwork3.DLL",   // Google Desktop Search v5.
+  L"fwhook.dll",                  // PC Tools Firewall Plus.
+  L"hookprocesscreation.dll",     // Blumentals Program protector.
+  L"hookterminateapis.dll",       // Blumentals and Cyberprinter.
+  L"hookprintapis.dll",           // Cyberprinter.
+  L"imon.dll",                    // NOD32 Antivirus.
+  L"ioloHL.dll",                  // Iolo (System Mechanic).
+  L"kloehk.dll",                  // Kaspersky Internet Security.
+  L"lawenforcer.dll",             // Spyware-Browser AntiSpyware (Spybro).
+  L"libdivx.dll",                 // DivX.
+  L"lvprcinj01.dll",              // Logitech QuickCam.
+  L"madchook.dll",                // Madshi (generic hooking library).
+  L"mdnsnsp.dll",                 // Bonjour.
+  L"moonsysh.dll",                // Moon Secure Antivirus.
+  L"npdivx32.dll",                // DivX.
+  L"npggNT.des",                  // GameGuard 2008.
+  L"npggNT.dll",                  // GameGuard (older).
+  L"oawatch.dll",                 // Online Armor.
+  L"pavhook.dll",                 // Panda Internet Security.
+  L"pavshook.dll",                // Panda Antivirus.
+  L"pctavhook.dll",               // PC Tools Antivirus.
+  L"prntrack.dll",                // Pharos Systems.
+  L"radhslib.dll",                // Radiant Naomi Internet Filter.
+  L"radprlib.dll",                // Radiant Naomi Internet Filter.
+  L"rlhook.dll",                  // Trustware Bufferzone.
+  L"r3hook.dll",                  // Kaspersky Internet Security.
+  L"sahook.dll",                  // McAfee Site Advisor.
+  L"sbrige.dll",                  // Unknown.
+  L"sc2hook.dll",                 // Supercopier 2.
+  L"sguard.dll",                  // Iolo (System Guard).
+  L"smumhook.dll",                // Spyware Doctor version 5 and above.
+  L"ssldivx.dll",                 // DivX.
+  L"syncor11.dll",                // SynthCore Midi interface.
+  L"systools.dll",                // Panda Antivirus.
+  L"tfwah.dll",                   // Threatfire (PC tools).
+  L"wblind.dll",                  // Stardock Object desktop.
+  L"wbhelp.dll",                  // Stardock Object desktop.
+  L"winstylerthemehelper.dll"     // Tuneup utilities 2006.
+};
+
+}  // namespace
+
 PluginPolicyCategory GetPolicyCategoryForPlugin(
     const std::wstring& dll,
     const std::wstring& clsid,
@@ -27,7 +80,7 @@ PluginPolicyCategory GetPolicyCategoryForPlugin(
 
   size_t pos = 0;
   size_t end_item = 0;
-  while(end_item != std::wstring::npos) {
+  while (end_item != std::wstring::npos) {
     end_item = list.find(L",", pos);
 
     size_t size_item = (end_item == std::wstring::npos) ? end_item :
@@ -92,51 +145,15 @@ bool AddKeyAndSubkeys(std::wstring key,
   return true;
 }
 
-// Eviction of injected DLLs is done by the sandbox. An interception on a
-// system call is added such that the blacklisted dll, don't fully load so
-// the injected module does not get a chance to execute any code.
-//
-// The DLLs listed here are known (or under strong suspicion) of
-// causing crashes when they are loaded in the render process.
+// Eviction of injected DLLs is done by the sandbox so that the injected module
+// does not get a chance to execute any code.
 bool AddDllEvictionPolicy(sandbox::TargetPolicy* policy) {
-  // List of dlls to unmap.
-  const wchar_t* troublesome_dlls[] = {
-      L"adialhk.dll",  // Kaspersky Internet Security.
-      L"avgrsstx.dll",  // AVG 8.
-      L"awatch.dll",  // Online Armor.
-      L"cmcsyshk.dll",  // CMC Internet Security.
-      L"dockshellhook.dll",  // Stardock Objectdock.
-      L"GoogleDesktopNetwork3.DLL",  // Google Desktop Search v5.
-      L"hookprocesscreation.dll",  // Blumentals Program protector.
-      L"hookterminateapis.dll",  // Blumentals and Cyberprinter.
-      L"hookprintapis.dll",  // Cyberprinter.
-      L"ioloHL.dll",  // Iolo (System Mechanic)
-      L"kloehk.dll",  // Kaspersky Internet Security.
-      L"lawenforcer.dll",  // Spyware-Browser AntiSpyware (Spybro).
-      L"madchook.dll",  // Madshi (generic hooking library).
-      L"moonsysh.dll",  // Moon Secure Antivirus.
-      L"npggNT.des",  // GameGuard 2008.
-      L"npggNT.dll",  // GameGuard (older).
-      L"pavhook.dll",  // Panda Internet Security.
-      L"pavshook.dll",  // Panda Anti-virus.
-      L"pctavhook.dll",  // PC Tools Antivirus.
-      L"rlhook.dll",  // Trustware Bufferzone.
-      L"r3hook.dll",  // Kaspersky Internet Security.
-      L"sc2hook.dll",  // Supercopier 2.
-      L"sguard.dll",  // Iolo (System Guard).
-      L"smumhook.dll",  // Spyware Doctor version 5 and above.
-      L"tfwah.dll",  // Threatfire (PC tools).
-      L"wblind.dll",  // Stardock Object desktop.
-      L"wbhelp.dll",  // Stardock Object desktop.
-      L"winstylerthemehelper.dll"  // Tuneup utilities 2006.
-  };
-
-  for(int ix = 0; ix != arraysize(troublesome_dlls); ++ix) {
+  for (int ix = 0; ix != arraysize(kTroublesomeDlls); ++ix) {
     // To minimize the list we only add an unload policy if the dll is also
     // loaded in this process. All the injected dlls of interest do this.
-    if (::GetModuleHandleW(troublesome_dlls[ix])) {
-      LOG(WARNING) << "dll to unload found: " << troublesome_dlls[ix];
-      if (sandbox::SBOX_ALL_OK != policy->AddDllToUnload(troublesome_dlls[ix]))
+    if (::GetModuleHandleW(kTroublesomeDlls[ix])) {
+      LOG(WARNING) << "dll to unload found: " << kTroublesomeDlls[ix];
+      if (sandbox::SBOX_ALL_OK != policy->AddDllToUnload(kTroublesomeDlls[ix]))
         return false;
     }
   }
