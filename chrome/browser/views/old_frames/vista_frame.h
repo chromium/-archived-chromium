@@ -108,6 +108,7 @@ class VistaFrame : public BrowserWindow,
     MSG_WM_ACTIVATE(OnActivate)
     MSG_WM_PAINT(OnPaint)
     MSG_WM_ERASEBKGND(OnEraseBkgnd)
+    MSG_WM_GETMINMAXINFO(OnMinMaxInfo)
     MSG_WM_NCHITTEST(OnNCHitTest)
     MSG_WM_NCCALCSIZE(OnNCCalcSize)
     MSG_WM_CAPTURECHANGED(OnCaptureChanged)
@@ -146,6 +147,7 @@ class VistaFrame : public BrowserWindow,
   void OnFinalMessage(HWND hwnd);
   void OnPaint(HDC dc);
   LRESULT OnEraseBkgnd(HDC dc);
+  void OnMinMaxInfo(LPMINMAXINFO mm_info);
 
   void ArmOnMouseLeave();
   void OnCaptureChanged(HWND hwnd);
