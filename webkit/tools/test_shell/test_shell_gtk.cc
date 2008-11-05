@@ -69,6 +69,26 @@ void MainWindowDestroyed(GtkWindow* window, TestShell* shell) {
   delete shell;
 }
 
+// Callback for when you click the back button.
+void BackButtonClicked(GtkButton* button, TestShell* shell) {
+  shell->GoBackOrForward(-1);
+}
+
+// Callback for when you click the forward button.
+void ForwardButtonClicked(GtkButton* button, TestShell* shell) {
+  shell->GoBackOrForward(1);
+}
+
+// Callback for when you click the stop button.
+void StopButtonClicked(GtkButton* button, TestShell* shell) {
+  shell->webView()->StopLoading();
+}
+
+// Callback for when you click the reload button.
+void ReloadButtonClicked(GtkButton* button, TestShell* shell) {
+  shell->Reload();
+}
+
 // Callback for when you press enter in the URL box.
 void URLEntryActivate(GtkEntry* entry, TestShell* shell) {
   const gchar* url = gtk_entry_get_text(entry);
@@ -87,18 +107,26 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
 
   GtkWidget* toolbar = gtk_toolbar_new();
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),
-                     gtk_tool_button_new_from_stock(GTK_STOCK_GO_BACK),
-                     -1 /* append */);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),
-                     gtk_tool_button_new_from_stock(GTK_STOCK_GO_FORWARD),
-                     -1 /* append */);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),
-                     gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH),
-                     -1 /* append */);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),
-                     gtk_tool_button_new_from_stock(GTK_STOCK_STOP),
-                     -1 /* append */);
+
+  GtkToolItem* back = gtk_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
+  g_signal_connect(G_OBJECT(back), "clicked",
+                   G_CALLBACK(BackButtonClicked), this);
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), back, -1 /* append */);
+
+  GtkToolItem* forward = gtk_tool_button_new_from_stock(GTK_STOCK_GO_FORWARD);
+  g_signal_connect(G_OBJECT(forward), "clicked",
+                   G_CALLBACK(ForwardButtonClicked), this);
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), forward, -1 /* append */);
+
+  GtkToolItem* reload = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
+  g_signal_connect(G_OBJECT(reload), "clicked",
+                   G_CALLBACK(ReloadButtonClicked), this);
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), reload, -1 /* append */);
+
+  GtkToolItem* stop = gtk_tool_button_new_from_stock(GTK_STOCK_STOP);
+  g_signal_connect(G_OBJECT(stop), "clicked",
+                   G_CALLBACK(StopButtonClicked), this);
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), stop, -1 /* append */);
 
   m_editWnd = gtk_entry_new();
   g_signal_connect(G_OBJECT(m_editWnd), "activate",
@@ -108,9 +136,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   GtkToolItem* tool_item = gtk_tool_item_new();
   gtk_container_add(GTK_CONTAINER(tool_item), m_editWnd);
   gtk_tool_item_set_expand(tool_item, TRUE);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),
-                     tool_item,
-                     -1 /* append */);
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tool_item, -1 /* append */);
 
   gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 0);
   m_webViewHost.reset(WebViewHost::Create(vbox, delegate_, *TestShell::web_prefs_));
