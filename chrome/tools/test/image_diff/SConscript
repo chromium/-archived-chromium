@@ -27,25 +27,26 @@ env_test.Prepend(
     ],
 )
 
-env_test.Prepend(
-    LINKFLAGS = [
-        '/INCREMENTAL',
-        '/DEBUG',
+if env_test['PLATFORM'] == 'win32':
+    env_test.Prepend(
+        LINKFLAGS = [
+            '/INCREMENTAL',
+            '/DEBUG',
 
-        '/DELAYLOAD:"dwmapi.dll"',
-        '/DELAYLOAD:"uxtheme.dll"',
+            '/DELAYLOAD:"dwmapi.dll"',
+            '/DELAYLOAD:"uxtheme.dll"',
 
-        '/SUBSYSTEM:CONSOLE',
+            '/SUBSYSTEM:CONSOLE',
 
-        '/MACHINE:X86',
-        '/FIXED:No',
+            '/MACHINE:X86',
+            '/FIXED:No',
 
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
-    ],
-)
+            '/safeseh',
+            '/dynamicbase',
+            '/ignore:4199',
+            '/nxcompat',
+        ],
+    )
 
 input_files = [
     'image_diff.cc',

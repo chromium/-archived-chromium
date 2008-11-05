@@ -234,7 +234,11 @@ int CompareImages(const char* file1, const char* file2) {
 
 int main(int argc, const char* argv[]) {
   process_util::EnableTerminationOnHeapCorruption();
+#if defined(OS_WIN)
   CommandLine parsed_command_line;
+#elif defined(OS_POSIX)
+  CommandLine parsed_command_line(argc, argv);
+#endif
   if (parsed_command_line.HasSwitch(kOptionPollStdin)) {
     // Watch stdin for filenames.
     std::string stdin_buffer;
