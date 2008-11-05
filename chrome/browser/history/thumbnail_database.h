@@ -15,8 +15,8 @@
 
 struct sqlite3;
 struct ThumbnailScore;
-  namespace base {
-class Time;
+namespace base {
+  class Time;
 }
 
 namespace history {
