@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Many of these functions are based on those found in
-// webkit/port/platform/PasteboardWin.cpp
-
 #include "base/clipboard.h"
 
 #include "base/logging.h"
@@ -53,3 +50,4 @@ void Clipboard::DispatchObject(ObjectType type, const ObjectMapParams& params) {
       NOTREACHED();
   }
 }
+
