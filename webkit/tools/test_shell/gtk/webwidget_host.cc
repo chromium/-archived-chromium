@@ -27,7 +27,6 @@ gboolean ConfigureEvent(GtkWidget* widget, GdkEventConfigure* config,
 
 gboolean ExposeEvent(GtkWidget* widget, GdkEventExpose* expose,
                      WebWidgetHost* host) {
-  DLOG(INFO) << "  -- Expose";
   host->Paint();
   return FALSE;
 }
@@ -77,7 +76,6 @@ gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
 gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
                           WebWidgetHost* host) {
   WebMouseWheelEvent wmwe(event);
-  DLOG(INFO) << "  -- mouse wheel scroll event";
   host->webwidget()->HandleInputEvent(&wmwe);
   return FALSE;
 }
@@ -130,18 +128,39 @@ WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle box,
   return host;
 }
 
-void WebWidgetHost::DidInvalidateRect(const gfx::Rect& rect) {
-  LOG(INFO) << "  -- Invalidate " << rect.x() << " "
-            << rect.y() << " "
-            << rect.width() << " "
-            << rect.height() << " ";
+void WebWidgetHost::DidInvalidateRect(const gfx::Rect& damaged_rect) {
+  DLOG_IF(WARNING, painting_) << "unexpected invalidation while painting";
 
-  gtk_widget_queue_draw_area(GTK_WIDGET(view_), rect.x(), rect.y(), rect.width(),
-                             rect.height());
+  // If this invalidate overlaps with a pending scroll, then we have to
+  // downgrade to invalidating the scroll rect.
+  if (damaged_rect.Intersects(scroll_rect_)) {
+    paint_rect_ = paint_rect_.Union(scroll_rect_);
+    ResetScrollRect();
+  }
+  paint_rect_ = paint_rect_.Union(damaged_rect);
+
+  gtk_widget_queue_draw_area(GTK_WIDGET(view_), damaged_rect.x(),
+      damaged_rect.y(), damaged_rect.width(), damaged_rect.height());
 }
 
 void WebWidgetHost::DidScrollRect(int dx, int dy, const gfx::Rect& clip_rect) {
-  NOTIMPLEMENTED();
+  DCHECK(dx || dy);
+
+  // If we already have a pending scroll operation or if this scroll operation
+  // intersects the existing paint region, then just failover to invalidating.
+  if (!scroll_rect_.IsEmpty() || paint_rect_.Intersects(clip_rect)) {
+    paint_rect_ = paint_rect_.Union(scroll_rect_);
+    ResetScrollRect();
+    paint_rect_ = paint_rect_.Union(clip_rect);
+  }
+
+  // We will perform scrolling lazily, when requested to actually paint.
+  scroll_rect_ = clip_rect;
+  scroll_dx_ = dx;
+  scroll_dy_ = dy;
+
+  gtk_widget_queue_draw_area(GTK_WIDGET(view_), clip_rect.x(), clip_rect.y(),
+                             clip_rect.width(), clip_rect.height());
 }
 
 WebWidgetHost* FromWindow(gfx::WindowHandle view) {
@@ -174,10 +193,11 @@ void WebWidgetHost::Resize(const gfx::Size &newsize) {
 void WebWidgetHost::Paint() {
   gint width, height;
   gtk_widget_get_size_request(GTK_WIDGET(view_), &width, &height);
-
   gfx::Rect client_rect(width, height);
 
+  // Allocate a canvas if necessary
   if (!canvas_.get()) {
+    ResetScrollRect();
     paint_rect_ = client_rect;
     canvas_.reset(new gfx::PlatformCanvas(width, height, true));
     if (!canvas_.get()) {
@@ -190,12 +210,12 @@ void WebWidgetHost::Paint() {
   // This may result in more invalidation
   webwidget_->Layout();
 
-  // TODO(agl): scrolling code
+  // TODO(agl): Optimized scrolling code would go here.
+  ResetScrollRect();
 
   // Paint the canvas if necessary.  Allow painting to generate extra rects the
   // first time we call it.  This is necessary because some WebCore rendering
   // objects update their layout only when painted.
-  
   for (int i = 0; i < 2; ++i) {
     paint_rect_ = client_rect.Intersect(paint_rect_);
     if (!paint_rect_.IsEmpty()) {
@@ -212,9 +232,14 @@ void WebWidgetHost::Paint() {
   gfx::PlatformDeviceLinux &platdev = canvas_->getTopPlatformDevice();
   gfx::BitmapPlatformDeviceLinux* const bitdev =
     static_cast<gfx::BitmapPlatformDeviceLinux* >(&platdev);
-  LOG(INFO) << "Using pixel data at " << (void *) gdk_pixbuf_get_pixels(bitdev->pixbuf());
   gdk_draw_pixbuf(view_->window, NULL, bitdev->pixbuf(),
                   0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
+}
+
+void WebWidgetHost::ResetScrollRect() {
+  scroll_rect_ = gfx::Rect();
+  scroll_dx_ = 0;
+  scroll_dy_ = 0;
 }
 
 void WebWidgetHost::PaintRect(const gfx::Rect& rect) {
