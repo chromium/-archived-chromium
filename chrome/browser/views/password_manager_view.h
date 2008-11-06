@@ -10,7 +10,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/stl_util-inl.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/label.h"
 #include "chrome/views/native_button.h"

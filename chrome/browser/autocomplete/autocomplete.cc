@@ -16,7 +16,7 @@
 #include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/url_fixer_upper.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

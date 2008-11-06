@@ -747,10 +747,10 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="TestURLElider"
+			Name="TestTextElider"
 			>
 			<File
-				RelativePath="..\..\common\gfx\url_elider_unittest.cc"
+				RelativePath="..\..\common\gfx\text_elider_unittest.cc"
 				>
 			</File>
 		</Filter>

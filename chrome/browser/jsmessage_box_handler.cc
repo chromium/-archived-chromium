@@ -7,7 +7,7 @@
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/web_contents.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_types.h"

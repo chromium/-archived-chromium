@@ -20,6 +20,7 @@
 #include "chrome/browser/user_metrics.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
@@ -281,8 +282,13 @@ void DownloadItemTabView::LayoutComplete() {
            parent_->big_icon_size() + kInfoPadding;
 
   // File name and URL
-  file_name_->SetText(model_->GetFileName());
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  ChromeFont font = rb.GetFont(ResourceBundle::WebFont);
+  file_name_->SetText(
+    gfx::ElideFilename(model_->GetFileName(), font, kFilenameSize));
+
   gfx::Size file_name_size = file_name_->GetPreferredSize();
+
   file_name_->SetBounds(dx, parent_->big_icon_offset(),
                         std::min(kFilenameSize,
                                  static_cast<int>(file_name_size.width())),
@@ -331,7 +337,11 @@ void DownloadItemTabView::LayoutCancelled() {
            parent_->big_icon_size() + kInfoPadding;
 
   // File name and URL, truncated to show cancelled status
-  file_name_->SetText(model_->GetFileName());
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  ChromeFont font = rb.GetFont(ResourceBundle::WebFont);
+  file_name_->SetText(gfx::ElideFilename(model_->GetFileName(), 
+                                         font, 
+                                         kFilenameSize));
   gfx::Size file_name_size = file_name_->GetPreferredSize();
   file_name_->SetBounds(dx, parent_->big_icon_offset(),
                         kFilenameSize - kProgressSize - kSpacer,
@@ -418,7 +428,11 @@ void DownloadItemTabView::LayoutInProgress() {
            parent_->big_icon_size() + kInfoPadding;
 
   // File name and URL, truncated to show progress status
-  file_name_->SetText(model_->GetFileName());
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  ChromeFont font = rb.GetFont(ResourceBundle::WebFont);
+  file_name_->SetText(gfx::ElideFilename(model_->GetFileName(),
+                                         font,
+                                         kFilenameSize));
   gfx::Size file_name_size = file_name_->GetPreferredSize();
   file_name_->SetBounds(dx, parent_->big_icon_offset(),
                         kFilenameSize - kProgressSize - kSpacer,

@@ -16,7 +16,7 @@
 #include "chrome/browser/printing/units.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/emf.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/time_format.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"

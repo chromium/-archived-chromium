@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_GFX_URL_ELIDER_H_
-#define CHROME_COMMON_GFX_URL_ELIDER_H_
+#ifndef CHROME_COMMON_GFX_TEXT_ELIDER_H_
+#define CHROME_COMMON_GFX_TEXT_ELIDER_H_
 
 #include <unicode/coll.h>
 #include <unicode/uchar.h>
@@ -31,6 +31,13 @@ std::wstring ElideUrl(const GURL& url,
 std::wstring ElideText(const std::wstring& text,
                        const ChromeFont& font,
                        int available_pixel_width);
+
+// Elide a filename to fit a given pixel width, with an emphasis on not hiding
+// the extension unless we have to. If filename contains a path, the path will
+// be removed if filename doesn't fit into available_pixel_width.
+std::wstring ElideFilename(const std::wstring& filename,
+                           const ChromeFont& font,
+                           int available_pixel_width);
 
 // SortedDisplayURL maintains a string from a URL suitable for display to the
 // use. SortedDisplayURL also provides a function used for comparing two
@@ -66,4 +73,4 @@ class SortedDisplayURL {
 
 } // namespace gfx.
 
-#endif  // #ifndef CHROME_COMMON_GFX_URL_ELIDER_H_
+#endif  // CHROME_COMMON_GFX_TEXT_ELIDER_H_

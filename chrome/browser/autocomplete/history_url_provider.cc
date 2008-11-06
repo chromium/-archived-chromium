@@ -14,7 +14,7 @@
 #include "chrome/browser/history/history_database.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/url_fixer_upper.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/sqlite_utils.h"

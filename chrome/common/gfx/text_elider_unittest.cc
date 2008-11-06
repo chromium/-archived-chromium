@@ -4,7 +4,7 @@
 
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/views/label.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -40,7 +40,7 @@ void RunTest(Testcase* testcases, size_t num_testcases) {
 }  // namespace
 
 // Test eliding of commonplace URLs.
-TEST(URLEliderTest, TestGeneralEliding) {
+TEST(TextEliderTest, TestGeneralEliding) {
   const std::wstring kEllipsisStr(kEllipsis);
   Testcase testcases[] = {
     {"http://www.google.com/intl/en/ads/",
@@ -66,7 +66,7 @@ TEST(URLEliderTest, TestGeneralEliding) {
 }
 
 // Test eliding of empty strings, URLs with ports, passwords, queries, etc.
-TEST(URLEliderTest, TestMoreEliding) {
+TEST(TextEliderTest, TestMoreEliding) {
   const std::wstring kEllipsisStr(kEllipsis);
   Testcase testcases[] = {
     {"http://www.google.com/foo?bar", L"http://www.google.com/foo?bar"},
@@ -104,7 +104,7 @@ TEST(URLEliderTest, TestMoreEliding) {
 }
 
 // Test eliding of file: URLs.
-TEST(URLEliderTest, TestFileURLEliding) {
+TEST(TextEliderTest, TestFileURLEliding) {
   const std::wstring kEllipsisStr(kEllipsis);
   Testcase testcases[] = {
     {"file:///C:/path1/path2/path3/filename",
@@ -125,7 +125,39 @@ TEST(URLEliderTest, TestFileURLEliding) {
   RunTest(testcases, arraysize(testcases));
 }
 
-TEST(URLEliderTest, ElideTextLongStrings) {
+TEST(TextEliderTest, TestFilenameEliding) {
+  const std::wstring kEllipsisStr(kEllipsis);
+
+  WideTestcase testcases[] = {
+    {L"", L""},
+    {L".", L"."},
+    {L"filename.exe", L"filename.exe"},
+    {L".longext", L".longext"},
+    {L"pie", L"pie"},
+    {L"c:\\path\\filename.pie", L"filename.pie"},
+    {L"c:\\path\\longfilename.pie", L"long" + kEllipsisStr + L".pie"},
+    {L"http://path.com/filename.pie", L"filename.pie"},
+    {L"http://path.com/longfilename.pie", L"long" + kEllipsisStr + L".pie"},
+    {L"piesmashingtacularpants", L"pie" + kEllipsisStr},
+    {L".piesmashingtacularpants", L".pie" + kEllipsisStr},
+    {L"cheese.", L"cheese."},
+    {L"file name.longext", L"file" + kEllipsisStr + L".longext"},
+    {L"fil ename.longext", L"fil " + kEllipsisStr + L".longext"},
+    {L"filename.longext", L"file" + kEllipsisStr + L".longext"},
+    {L"filename.middleext.longext", 
+     L"filename.mid" + kEllipsisStr + L".longext"}
+  };
+
+  static const ChromeFont font;
+  for (size_t i = 0; i < arraysize(testcases); ++i) {
+    const std::wstring filename(testcases[i].input);
+    EXPECT_EQ(testcases[i].output, ElideFilename(filename, 
+        font,
+        font.GetStringWidth(testcases[i].output)));
+  }
+}
+
+TEST(TextEliderTest, ElideTextLongStrings) {
   const std::wstring kEllipsisStr(kEllipsis);
   std::wstring data_scheme(L"data:text/plain,");
 
@@ -163,13 +195,13 @@ TEST(URLEliderTest, ElideTextLongStrings) {
 }
 
 // Verifies display_url is set correctly.
-TEST(URLEliderTest, SortedDisplayURL) {
+TEST(TextEliderTest, SortedDisplayURL) {
   gfx::SortedDisplayURL d_url(GURL("http://www.google.com/"), std::wstring());
   EXPECT_EQ(L"http://www.google.com/", d_url.display_url());
 }
 
 // Verifies DisplayURL::Compare works correctly.
-TEST(URLEliderTest, SortedDisplayURLCompare) {
+TEST(TextEliderTest, SortedDisplayURLCompare) {
   UErrorCode create_status = U_ZERO_ERROR;
   scoped_ptr<Collator> collator(Collator::createInstance(create_status));
   if (!U_SUCCESS(create_status))

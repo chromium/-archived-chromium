@@ -30,7 +30,7 @@
 #include "chrome/browser/views/input_window.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_types.h"

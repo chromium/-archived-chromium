@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_util.h"
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/label.h"
@@ -278,6 +279,34 @@ std::wstring ElideUrl(const GURL& url,
     final_elided_url_string += url_path;
 
   return ElideText(final_elided_url_string, font, available_pixel_width);
+}
+
+std::wstring ElideFilename(const std::wstring& filename,
+                           const ChromeFont& font,
+                           int available_pixel_width) {
+  int full_width = font.GetStringWidth(filename);
+  if (full_width <= available_pixel_width) 
+    return filename;
+
+  std::wstring extension = 
+      file_util::GetFileExtensionFromPath(filename);
+  std::wstring rootname = 
+      file_util::GetFilenameWithoutExtensionFromPath(filename);
+
+  if (rootname.empty() || extension.empty())
+    return ElideText(filename, font, available_pixel_width);
+
+  extension = L"." + extension;
+
+  int ext_width = font.GetStringWidth(extension);
+  int root_width = font.GetStringWidth(rootname);
+
+  // We may have trimmed the path.
+  if (root_width + ext_width <= available_pixel_width)
+    return rootname + extension;
+
+  int available_root_width = available_pixel_width - ext_width;
+  return gfx::ElideText(rootname, font, available_root_width) + extension;
 }
 
 // This function adds an ellipsis at the end of the text if the text

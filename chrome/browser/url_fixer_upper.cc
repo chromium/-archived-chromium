@@ -10,7 +10,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "googleurl/src/gurl.h"
 #include "googleurl/src/url_canon.h"
 #include "googleurl/src/url_file.h"

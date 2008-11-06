@@ -8,7 +8,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/printing/printed_document.h"
 #include "chrome/browser/printing/printed_page.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 
 namespace {
 

@@ -84,7 +84,7 @@ if env['PLATFORM'] == 'win32':
       'gfx/emf.cc',
       'gfx/icon_util.cc',
       'gfx/path.cc',
-      'gfx/url_elider.cc',
+      'gfx/text_elider.cc',
       'ipc_channel.cc',
       'ipc_channel_proxy.cc',
       'ipc_logging.cc',

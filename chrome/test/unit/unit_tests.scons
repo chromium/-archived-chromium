@@ -200,7 +200,7 @@ if env['PLATFORM'] == 'win32':
       '$CHROME_DIR/common/chrome_plugin_unittest.cc',
       '$CHROME_DIR/common/gfx/emf_unittest.cc',
       '$CHROME_DIR/common/gfx/icon_util_unittest.cc',
-      '$CHROME_DIR/common/gfx/url_elider_unittest.cc',
+      '$CHROME_DIR/common/gfx/text_elider_unittest.cc',
       '$CHROME_DIR/common/ipc_message_unittest.cc',
       '$CHROME_DIR/common/ipc_sync_channel_unittest.cc',
       '$CHROME_DIR/common/ipc_sync_message_unittest.cc',

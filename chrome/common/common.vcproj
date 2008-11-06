@@ -205,11 +205,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\url_elider.cc"
+				RelativePath=".\gfx\text_elider.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\gfx\url_elider.h"
+				RelativePath=".\gfx\text_elider.h"
 				>
 			</File>
 			<File

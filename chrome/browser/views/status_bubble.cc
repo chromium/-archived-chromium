@@ -11,7 +11,7 @@
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/gfx/url_elider.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/label.h"
