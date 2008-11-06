@@ -245,6 +245,9 @@ class TestRunner:
       if self._options.startup_dialog:
         shell_args.append('--testshell-startup-dialog')
         
+      if self._options.winhttp:
+        shell_args.append('--winhttp')
+
       # larger timeout if page heap is enabled.
       if self._options.time_out_ms:
         shell_args.append('--time-out-ms=' + self._options.time_out_ms)
@@ -600,6 +603,9 @@ if '__main__' == __name__:
   option_parser.add_option("", "--startup-dialog", action="store_true",
                            default=False, 
                            help="create a dialog on test_shell.exe startup")
+  option_parser.add_option("", "--winhttp", action="store_true",
+                           default=False, 
+                           help="Use WinHTTP stack")
   option_parser.add_option("", "--test-list", action="append",
                            help="read list of tests to run from file",
                            metavar="FILE")
