@@ -399,7 +399,7 @@ class RenderViewHost : public RenderWidgetHost {
 
   // IPC message handlers:
   void OnMsgCreateWindow(int route_id, HANDLE modal_dialog_event);
-  void OnMsgCreateWidget(int route_id, bool focus_on_show);
+  void OnMsgCreateWidget(int route_id);
   void OnMsgShowView(int route_id,
                      WindowOpenDisposition disposition,
                      const gfx::Rect& initial_pos,
@@ -498,10 +498,7 @@ class RenderViewHost : public RenderWidgetHost {
                                const webkit_glue::WebApplicationInfo& info);
   void OnMsgShouldCloseACK(bool proceed);
   void OnUnloadListenerChanged(bool has_handler);
-  void OnQueryFormFieldAutofill(const std::wstring& field_name,
-                                const std::wstring& user_text,
-                                int64 node_id,
-                                int request_id);
+
   virtual void NotifyRendererUnresponsive();
   virtual void NotifyRendererResponsive();
 

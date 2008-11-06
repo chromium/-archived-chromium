@@ -381,14 +381,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\glue\form_autocomplete_listener.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\glue\form_autocomplete_listener.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\glue\glue_accessibility.cc"
 				>
 			</File>

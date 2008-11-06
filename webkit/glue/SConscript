@@ -35,7 +35,6 @@ input_files = [
   'editor_client_impl.cc',
   'entity_map.cc',
   'event_conversion.cc',
-  'form_autocomplete_listener.cc',
   'feed_preview.cc',
   'glue_util.cc',
   'glue_serialize.cc',

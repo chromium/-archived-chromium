@@ -80,7 +80,7 @@ public:
                                    const WebCore::String& message,
                                    const WebCore::String& defaultValue,
                                    WebCore::String& result);
-  
+
   virtual void setStatusbarText(const WebCore::String&);
   virtual bool shouldInterruptJavaScript();
 
@@ -92,7 +92,7 @@ public:
   virtual bool tabsToLinks() const;
 
   virtual WebCore::IntRect windowResizerRect() const;
-  
+
   virtual void repaint(const WebCore::IntRect&, bool contentChanged,
                        bool immediate = false, bool repaintContentOnly = false);
   virtual void scroll(const WebCore::IntSize& scrollDelta,
@@ -101,7 +101,7 @@ public:
   virtual WebCore::IntPoint screenToWindow(const WebCore::IntPoint&) const;
   virtual WebCore::IntRect windowToScreen(const WebCore::IntRect&) const;
   virtual PlatformWidget platformWindow() const;
-  
+
   virtual void mouseDidMoveOverElement(const WebCore::HitTestResult& result,
                                        unsigned modifierFlags);
 
@@ -115,9 +115,8 @@ public:
   virtual void runFileChooser(const WebCore::String&,
                               PassRefPtr<WebCore::FileChooser>);
   virtual void popupOpened(WebCore::FramelessScrollView* popup_view,
-                           const WebCore::IntRect& bounds,
-                           bool focus_on_show);
-                           
+                           const WebCore::IntRect& bounds);
+
   void SetCursor(const WebCursor& cursor);
 
 private:

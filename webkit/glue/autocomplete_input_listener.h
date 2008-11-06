@@ -16,6 +16,7 @@
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "EventListener.h"
 MSVC_POP_WARNING();
+#undef LOG
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"

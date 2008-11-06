@@ -36,9 +36,9 @@
 #include "ChromeClientChromium.h"
 #include "Document.h"
 #include "Font.h"
+#include "Frame.h"
 #include "FrameView.h"
 #include "FontSelector.h"
-#include "Frame.h"
 #include "FramelessScrollView.h"
 #include "FramelessScrollViewClient.h"
 #include "GraphicsContext.h"
@@ -57,8 +57,6 @@
 #include "Widget.h"
 #pragma warning(pop)
 
-#include "webkit/port/platform/chromium/PopupMenuChromium.h"
-
 using namespace WTF;
 using namespace Unicode;
 
@@ -73,6 +71,51 @@ static const int kMaxVisibleRows = 20;
 static const int kMaxHeight = 500;
 static const int kBorderSize = 1;
 static const TimeStamp kTypeAheadTimeoutMs = 1000;
+
+class PopupListBox;
+
+// TODO(darin): Our FramelessScrollView classes need to implement HostWindow!
+
+// This class holds a PopupListBox.  Its sole purpose is to be able to draw
+// a border around its child.  All its paint/event handling is just forwarded
+// to the child listBox (with the appropriate transforms).
+class PopupContainer : public FramelessScrollView, public RefCounted<PopupContainer> {
+public:
+    static PassRefPtr<PopupContainer> create(PopupMenuClient* client);
+
+    // FramelessScrollView
+    virtual void paint(GraphicsContext* gc, const IntRect& rect);
+    virtual void hide();
+    virtual bool handleMouseDownEvent(const PlatformMouseEvent& event);
+    virtual bool handleMouseMoveEvent(const PlatformMouseEvent& event);
+    virtual bool handleMouseReleaseEvent(const PlatformMouseEvent& event);
+    virtual bool handleWheelEvent(const PlatformWheelEvent& event);
+    virtual bool handleKeyEvent(const PlatformKeyboardEvent& event);
+
+    // PopupContainer methods
+
+    // Show the popup
+    void showPopup(FrameView* view);
+
+    // Hide the popup.  Do not call this directly: use client->hidePopup().
+    void hidePopup();
+
+    // Compute size of widget and children.
+    void layout();
+
+    PopupListBox* listBox() const { return m_listBox.get(); }
+
+private:
+    friend class RefCounted<PopupContainer>;
+
+    PopupContainer(PopupMenuClient* client);
+    ~PopupContainer();
+
+    // Paint the border.
+    void paintBorder(GraphicsContext* gc, const IntRect& rect);
+
+    RefPtr<PopupListBox> m_listBox;
+};
 
 // This class uses WebCore code to paint and handle events for a drop-down list
 // box ("combobox" on Windows).
@@ -126,9 +169,6 @@ public:
 
     // Compute size of widget and children.
     void layout();
-
-    // Returns whether the popup wants to process events for the passed key.
-    bool isInterestedInEventForKey(int key_code);
 
 private:
     friend class PopupContainer;
@@ -287,15 +327,13 @@ static PlatformWheelEvent constructRelativeWheelEvent(const PlatformWheelEvent& 
 // PopupContainer implementation
 
 // static
-PassRefPtr<PopupContainer> PopupContainer::create(PopupMenuClient* client,
-                                                  bool focusOnShow)
+PassRefPtr<PopupContainer> PopupContainer::create(PopupMenuClient* client)
 {
-    return adoptRef(new PopupContainer(client, focusOnShow));
+    return adoptRef(new PopupContainer(client));
 }
 
-PopupContainer::PopupContainer(PopupMenuClient* client, bool focusOnShow)
-    : m_listBox(new PopupListBox(client)),
-      m_focusOnShow(focusOnShow)
+PopupContainer::PopupContainer(PopupMenuClient* client)
+    : m_listBox(new PopupListBox(client))
 {
     // FrameViews are created with a refcount of 1 so it needs releasing after we
     // assign it to a RefPtr.
@@ -329,7 +367,7 @@ void PopupContainer::showPopup(FrameView* view)
         if (widgetRect.bottom() > static_cast<int>(screen.bottom()))
             widgetRect.move(0, -(widgetRect.height() + selectHeight));
 
-        chromeClient->popupOpened(this, widgetRect, m_focusOnShow);
+        chromeClient->popupOpened(this, widgetRect);
     }
 
     // Must get called after we have a client and containingWindow.
@@ -436,33 +474,6 @@ void PopupContainer::paintBorder(GraphicsContext* gc, const IntRect& rect)
     gc->drawRect(IntRect(tx + width() - kBorderSize, ty, kBorderSize, height()));
 }
 
-bool PopupContainer::isInterestedInEventForKey(int key_code) {
-    return m_listBox->isInterestedInEventForKey(key_code);
-}
-
-void PopupContainer::show(const IntRect& r, FrameView* v, int index) {
-    // The rect is the size of the select box. It's usually larger than we need.
-    // subtract border size so that usually the container will be displayed 
-    // exactly the same width as the select box.
-    listBox()->setBaseWidth(max(r.width() - kBorderSize * 2, 0));
-
-    listBox()->updateFromElement();
-
-    // We set the selected item in updateFromElement(), and disregard the
-    // index passed into this function (same as Webkit's PopupMenuWin.cpp)
-    // TODO(ericroman): make sure this is correct, and add an assertion.
-    // DCHECK(popupWindow(popup)->listBox()->selectedIndex() == index);
-
-    // Convert point to main window coords.
-    IntPoint location = v->contentsToWindow(r.location());
-
-    // Move it below the select widget.
-    location.move(0, r.height());
-
-    IntRect popupRect(location, r.size());
-    setFrameRect(popupRect);
-    showPopup(v);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // PopupListBox implementation
@@ -535,23 +546,6 @@ bool PopupListBox::handleWheelEvent(const PlatformWheelEvent& event)
     // Sadly, WebCore devs don't understand the whole "const" thing.
     wheelEvent(const_cast<PlatformWheelEvent&>(event));
     return true;
-}
-
-// Should be kept in sync with handleKeyEvent().
-bool PopupListBox::isInterestedInEventForKey(int key_code) {
-  switch (key_code) {
-    case VKEY_ESCAPE:
-    case VKEY_RETURN:
-    case VKEY_UP:
-    case VKEY_DOWN:
-    case VKEY_PRIOR:
-    case VKEY_NEXT:
-    case VKEY_HOME:
-    case VKEY_END:
-      return true;
-    default:
-      return false;
-  }
 }
 
 bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
@@ -1042,8 +1036,29 @@ PopupMenu::~PopupMenu()
 
 void PopupMenu::show(const IntRect& r, FrameView* v, int index) 
 {
-    p.m_popup = PopupContainer::create(client(), true);
-    p.m_popup->show(r, v, index);
+    p.m_popup = PopupContainer::create(client());
+
+    // The rect is the size of the select box. It's usually larger than we need.
+    // subtract border size so that usually the container will be displayed 
+    // exactly the same width as the select box.
+    p.m_popup->listBox()->setBaseWidth(max(r.width() - kBorderSize * 2, 0));
+
+    updateFromElement();
+
+    // We set the selected item in updateFromElement(), and disregard the
+    // index passed into this function (same as Webkit's PopupMenuWin.cpp)
+    // TODO(ericroman): make sure this is correct, and add an assertion.
+    // DCHECK(popupWindow(m_popup)->listBox()->selectedIndex() == index);
+
+    // Convert point to main window coords.
+    IntPoint location = v->contentsToWindow(r.location());
+
+    // Move it below the select widget.
+    location.move(0, r.height());
+
+    IntRect popupRect(location, r.size());
+    p.m_popup->setFrameRect(popupRect);
+    p.m_popup->showPopup(v);
 }
 
 void PopupMenu::hide()

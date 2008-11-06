@@ -5,8 +5,6 @@
 #ifndef WEBKIT_GLUE_WEBFRAMELOADERCLIENT_IMPL_H__
 #define WEBKIT_GLUE_WEBFRAMELOADERCLIENT_IMPL_H__
 
-#include <set>
-
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
@@ -20,7 +18,6 @@ MSVC_POP_WARNING();
 
 namespace WebCore {
 class Frame;
-class HTMLFormElement;
 class Widget;
 }
 
@@ -211,11 +208,6 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   // Returns NavigationGestureAuto if the last load was not user initiated,
   // otherwise returns NavigationGestureUnknown.
   NavigationGesture NavigationGestureForLastLoad();
-
-  // Registers the text input fields in the passed form for autofill, with the
-  // exclusion of any field whose name is contained in |excluded_fields|.
-  void RegisterAutofillListeners(WebCore::HTMLFormElement* form,
-                                 const std::set<std::wstring>& excluded_fields);
 
   // The WebFrame that owns this object and manages its lifetime. Therefore,
   // the web frame object is guaranteed to exist.

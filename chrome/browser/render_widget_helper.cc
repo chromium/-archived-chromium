@@ -218,11 +218,9 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
       this, &RenderWidgetHelper::OnSimulateReceivedMessage, msg));
 }
 
-void RenderWidgetHelper::CreateNewWidget(int opener_id,
-                                         bool focus_on_show,
-                                         int* route_id) {
+void RenderWidgetHelper::CreateNewWidget(int opener_id, int* route_id) {
   *route_id = GetNextRoutingID();
-  ViewHostMsg_CreateWidgetWithRoute msg(opener_id, *route_id, focus_on_show);
+  ViewHostMsg_CreateWidgetWithRoute msg(opener_id, *route_id);
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &RenderWidgetHelper::OnSimulateReceivedMessage, msg));
 }

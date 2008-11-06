@@ -463,14 +463,6 @@ IPC_BEGIN_MESSAGES(View, 1)
   // into a full window).
   IPC_MESSAGE_ROUTED0(ViewMsg_DisassociateFromPopupCount)
 
-  // Reply to the ViewHostMsg_QueryFormFieldAutofill message with the autofill
-  // suggestions.
-  IPC_MESSAGE_ROUTED4(ViewMsg_AutofillSuggestions,
-                      int64 /* id of the text input field */,
-                      int /* id of the request message */,
-                      std::vector<std::wstring> /* suggestions */,
-                      int /* index of default suggestion */)
-
 IPC_END_MESSAGES(View)
 
 
@@ -492,9 +484,8 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   // Similar to ViewHostMsg_CreateView, except used for sub-widgets, like
   // <select> dropdowns.  This message is sent to the WebContents that
   // contains the widget being created.
-  IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_CreateWidget,
+  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_CreateWidget,
                               int /* opener_id */,
-                              bool /* focus on show */,
                               int /* route_id */)
 
   // These two messages are sent as a result of the above two, in the browser
@@ -503,9 +494,8 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
                       int /* route_id */,
                       HANDLE /* modal_dialog_event */)
 
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateWidgetWithRoute,
-                      int /* route_id */,
-                      bool /* focus on show */)
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_CreateWidgetWithRoute,
+                      int /* route_id */)
 
   // These two messages are sent to the parent RenderViewHost to display the
   // page/widget that was created by CreateView/CreateWidget.  routing_id
@@ -1073,12 +1063,5 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetRootWindowRect,
                              HWND /* window */,
                              gfx::Rect /* Out: Window location */)
-
-  // Queries the browser for suggestion for autofill in a form input field.
-  IPC_MESSAGE_ROUTED4(ViewHostMsg_QueryFormFieldAutofill,
-                      std::wstring /* field name */,
-                      std::wstring /* user entered text */,
-                      int64 /* id of the text input field */,
-                      int /* id of this message */)
 
 IPC_END_MESSAGES(ViewHost)

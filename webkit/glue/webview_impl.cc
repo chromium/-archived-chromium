@@ -35,7 +35,6 @@
 
 #include "base/compiler_specific.h"
 MSVC_PUSH_WARNING_LEVEL(0);
-#include "CSSStyleSelector.h"
 #if defined(OS_WIN)
 #include "Cursor.h"
 #endif
@@ -51,8 +50,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "FrameTree.h"
 #include "FrameView.h"
 #include "GraphicsContext.h"
-#include "HTMLNames.h"
-#include "HTMLInputElement.h"
 #include "HitTestResult.h"
 #include "Image.h"
 #include "InspectorController.h"
@@ -65,11 +62,9 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformMouseEvent.h"
 #include "PlatformWheelEvent.h"
 #include "PluginInfoStore.h"
-#include "PopupMenuClient.h"
 #if defined(OS_WIN)
 #include "RenderThemeWin.h"
 #endif
-#include "RenderView.h"
 #include "ResourceHandle.h"
 #include "SelectionController.h"
 #include "Settings.h"
@@ -100,7 +95,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"
-#include "webkit/port/platform/chromium/PopupMenuChromium.h"
 #include "webkit/port/platform/graphics/PlatformContextSkia.h"
 
 // Get rid of WTF's pow define so we can use std::pow.
@@ -121,126 +115,6 @@ static const double kMaxTextSizeMultiplier = 3.0;
 // the webview.  These values are taken from Apple's windows port.
 static const WebCore::DragOperation kDropTargetOperation =
     static_cast<WebCore::DragOperation>(DragOperationCopy | DragOperationLink);
-
-// AutocompletePopupMenuClient
-class AutocompletePopupMenuClient
-    : public RefCounted<AutocompletePopupMenuClient>,
-      public WebCore::PopupMenuClient {
- public:
-  AutocompletePopupMenuClient(WebViewImpl* webview,
-                              WebCore::HTMLInputElement* text_field,
-                              const std::vector<std::wstring>& suggestions,
-                              int default_suggestion_index)
-      : text_field_(text_field),
-        selected_index_(default_suggestion_index),
-        webview_(webview) {
-    for (std::vector<std::wstring>::const_iterator iter = suggestions.begin();
-         iter != suggestions.end(); ++iter) {
-      suggestions_.push_back(webkit_glue::StdWStringToString(*iter));
-    }
-  }
-  virtual ~AutocompletePopupMenuClient() {
-  }
-
-  virtual void valueChanged(unsigned listIndex, bool fireEvents = true) {
-    text_field_->setValue(suggestions_[listIndex]);
-  }  
-
-  virtual WebCore::String itemText(unsigned list_index) const {
-    return suggestions_[list_index];
-  }
-  
-  virtual bool itemIsEnabled(unsigned listIndex) const {
-    return true;
-  }
-
-  virtual PopupMenuStyle itemStyle(unsigned listIndex) const {
-    return menuStyle();
-  }
-
-  virtual PopupMenuStyle menuStyle() const {
-    RenderStyle* style = text_field_->renderStyle() ?
-                            text_field_->renderStyle() :
-                            text_field_->computedStyle();
-    return PopupMenuStyle(style->color(), Color::white, style->font(),
-                          style->visibility() == VISIBLE);
-  }
-
-  virtual int clientInsetLeft() const {
-    return 0;
-  }
-  virtual int clientInsetRight() const {
-    return 0;
-  }
-  virtual int clientPaddingLeft() const {
-#if defined(OS_WIN)
-    return theme()->popupInternalPaddingLeft(text_field_->computedStyle());
-#else
-    NOTIMPLEMENTED();
-    return 0;
-#endif
-  }
-  virtual int clientPaddingRight() const {
-#if defined(OS_WIN)
-    return theme()->popupInternalPaddingRight(text_field_->computedStyle());
-#else
-    NOTIMPLEMENTED();
-    return 0;
-#endif
-  }
-  virtual int listSize() const {
-    return suggestions_.size();
-  }
-  virtual int selectedIndex() const {
-    return selected_index_;
-  }
-  virtual void hidePopup() {
-    webview_->HideAutoCompletePopup();
-  }
-  virtual bool itemIsSeparator(unsigned listIndex) const {
-    return false;
-  }
-  virtual bool itemIsLabel(unsigned listIndex) const {
-    return false;
-  }
-  virtual bool itemIsSelected(unsigned listIndex) const {
-    return false;
-  }
-  virtual bool shouldPopOver() const {
-    return false;
-  }
-  virtual bool valueShouldChangeOnHotTrack() const {
-    return false;
-  }
-
-  virtual FontSelector* fontSelector() const {
-    return text_field_->document()->styleSelector()->fontSelector();
-  }
-
-  virtual void setTextFromItem(unsigned listIndex) {
-    text_field_->setValue(suggestions_[listIndex]);
-  }
-
-  virtual HostWindow* hostWindow() const {
-    return text_field_->document()->view()->hostWindow();
-  }
-
-  virtual PassRefPtr<Scrollbar> createScrollbar(
-      ScrollbarClient* client,
-      ScrollbarOrientation orientation,
-      ScrollbarControlSize size) {
-    RefPtr<Scrollbar> widget = Scrollbar::createNativeScrollbar(client, 
-                                                                orientation,
-                                                                size);
-    return widget.release();
-  }
-
- private:
-  RefPtr<WebCore::HTMLInputElement> text_field_;
-  std::vector<WebCore::String> suggestions_;
-  int selected_index_;
-  WebViewImpl* webview_;
-};
 
 // WebView ----------------------------------------------------------------
 
@@ -418,18 +292,6 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
   // event and a keyUp event. We reset this flag here as this is a new keyDown
   // event.
   suppress_next_keypress_event_ = false;
-
-  // Give autocomplete a chance to consume the key events it is interested in.
-  if (autocomplete_popup_ &&
-      autocomplete_popup_->isInterestedInEventForKey(event.key_code)) {
-    if (autocomplete_popup_->handleKeyEvent(MakePlatformKeyboardEvent(event)))
-      return true;
-    return false;
-  }
-
-  // A new key being pressed should hide the popup.
-  if (event.type == WebInputEvent::KEY_DOWN)
-    HideAutoCompletePopup();
 
   Frame* frame = GetFocusedWebCoreFrame();
   if (!frame)
@@ -853,6 +715,7 @@ bool WebViewImpl::HandleInputEvent(const WebInputEvent* input_event) {
   // we're done.
   if (doing_drag_and_drop_)
     return true;
+
   // TODO(eseidel): Remove g_current_input_event.
   // This only exists to allow ChromeClient::show() to know which mouse button
   // triggered a window.open event.
@@ -920,14 +783,6 @@ void WebViewImpl::SetBackForwardListSize(int size) {
 
 void WebViewImpl::SetFocus(bool enable) {
   if (enable) {
-    // Hide the popup menu if any.
-    // TODO(jcampan): bug #3844: we should do that when we lose focus.  The
-    // reason we are not doing it is because when clicking on the autofill
-    // popup, the page first loses focus before the mouse click is sent to the
-    // popup.  So if we close when the focus is lost, the mouse click does not
-    // do anything.
-    HideAutoCompletePopup();
-
     // Getting the focused frame will have the side-effect of setting the main
     // frame as the focused frame if it is not already focused.  Otherwise, if
     // there is already a focused frame, then this does nothing.
@@ -948,6 +803,8 @@ void WebViewImpl::SetFocus(bool enable) {
     // Clear out who last had focus. If someone has focus, the refs will be
     // updated below.
     ReleaseFocusReferences();
+
+    // Clear focus on the currently focused frame if any.
 
     if (!main_frame_)
       return;
@@ -1162,8 +1019,7 @@ void WebViewImpl::SetInitialFocus(bool reverse) {
     // We have to set the key type explicitly to avoid an assert in the
     // KeyboardEvent constructor.
     platform_event.SetKeyType(PlatformKeyboardEvent::RawKeyDown);
-    RefPtr<KeyboardEvent> webkit_event = KeyboardEvent::create(platform_event,
-                                                               NULL);
+    RefPtr<KeyboardEvent> webkit_event = KeyboardEvent::create(platform_event, NULL);
     page()->focusController()->setInitialFocus(
         reverse ? WebCore::FocusDirectionBackward :
                   WebCore::FocusDirectionForward,
@@ -1476,59 +1332,6 @@ SearchableFormData* WebViewImpl::CreateSearchableFormDataForFocusedNode() {
   return NULL;
 }
 
-void WebViewImpl::AutofillSuggestionsForNode(
-      int64 node_id,
-      const std::vector<std::wstring>& suggestions,
-      int default_suggestion_index) {
-  if (!main_frame_ || suggestions.empty())
-    return;
-
-  DCHECK(default_suggestion_index < static_cast<int>(suggestions.size()));
-
-  Frame* frame = main_frame_->frame();
-  if (!frame)
-    return;
-
-  if (RefPtr<Frame> focused =
-      frame->page()->focusController()->focusedFrame()) {
-    RefPtr<Document> document = focused->document();
-    if (!document.get())
-      return;
-
-    RefPtr<Node> focused_node = document->focusedNode();
-    // If the node for which we queried the autofill suggestions is not the
-    // focused node, then we have nothing to do.
-    // TODO(jcampan): also check the carret is at the end and that the text has
-    // not changed.
-    if (!focused_node.get() ||
-        reinterpret_cast<int64>(focused_node.get()) != node_id)
-      return;
-
-    if (!focused_node->hasTagName(WebCore::HTMLNames::inputTag)) {
-      NOTREACHED();
-      return;
-    }
-
-    WebCore::HTMLInputElement* input_elem =
-        static_cast<WebCore::HTMLInputElement*>(focused_node.get());
-    // Hide any current autocomplete popup.
-    HideAutoCompletePopup();
-
-    if (suggestions.size() > 0) {
-      autocomplete_popup_client_ =
-          adoptRef(new AutocompletePopupMenuClient(this, input_elem,
-                                                   suggestions,
-                                                   default_suggestion_index));
-      // Autocomplete popup does not get focused.  We need the page to still
-      // have focus so the user can keep typing when the popup is showing.
-      autocomplete_popup_ =
-          WebCore::PopupContainer::create(autocomplete_popup_client_.get(),
-                                          false);
-      autocomplete_popup_->show(focused_node->getRect(), frame->view(), 0);
-    }
-  }
-}
-
 void WebViewImpl::DidCommitLoad(bool* is_new_navigation) {
   if (is_new_navigation)
     *is_new_navigation = observed_new_navigation_;
@@ -1676,12 +1479,4 @@ void WebViewImpl::DeleteImageResourceFetcher(ImageResourceFetcher* fetcher) {
   // We're in the callback from the ImageResourceFetcher, best to delay
   // deletion.
   MessageLoop::current()->DeleteSoon(FROM_HERE, fetcher);
-}
-
-void WebViewImpl::HideAutoCompletePopup() {
-  if (autocomplete_popup_) {
-    autocomplete_popup_->hidePopup();
-    autocomplete_popup_.clear();
-    autocomplete_popup_client_.clear();
-  }
 }

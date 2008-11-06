@@ -10,11 +10,9 @@ void WebContentsView::CreateNewWindow(int route_id, HANDLE modal_dialog_event) {
                                                         modal_dialog_event);
 }
 
-void WebContentsView::CreateNewWidget(int route_id,
-                                      bool focus_on_show) {
+void WebContentsView::CreateNewWidget(int route_id) {
   // Save the created widget associated with the route so we can show it later.
-  pending_widget_views_[route_id] = CreateNewWidgetInternal(route_id,
-                                                            focus_on_show);
+  pending_widget_views_[route_id] = CreateNewWidgetInternal(route_id);
 }
 
 void WebContentsView::ShowCreatedWindow(int route_id,

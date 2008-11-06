@@ -6,7 +6,6 @@
 // component.
 
 #include "webkit/glue/password_autocomplete_listener.h"
-#undef LOG
 #include "base/logging.h"
 
 namespace webkit_glue {
