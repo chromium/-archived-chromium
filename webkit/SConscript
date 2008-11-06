@@ -21,7 +21,7 @@ env_res = env.Clone()
 #
 #   webkit/Hammer/port/
 #   webkit/port/
-#   third_party/WebKit/WebCore
+#   third_party/WebKit/WebCore/
 #
 # SCons will replicate the compiler and linker -I and -L options so
 # that the tools will find the right .h and library files.  This comes
@@ -29,6 +29,13 @@ env_res = env.Clone()
 # line, but with the benefit that the build should "just work"
 # regardless of which tree the file lives in, and regardless of whether
 # or not the file involved is a generated file or checked-in source.
+#
+# (Note that because the build/SConscript.main file also calls
+# addRepository() for the entire $OBJ_ROOT tree, that adds an
+# extra -I or -L option for the webkit/port/ subdirectory, after the
+# third_party/WebKit/WebCore/ in the above list.  We'd like to
+# eliminate that in the future, but that will require some
+# deeper magic, and maybe a SCons modification.)
 
 port_dir = env.Dir('$WEBKIT_DIR/port')
 port_dir.addRepository(env.Dir('$CHROME_SRC_DIR/webkit/port'))

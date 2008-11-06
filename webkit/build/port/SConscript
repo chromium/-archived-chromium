@@ -479,13 +479,6 @@ idl_files = [
     'xml/XSLTProcessor.idl',
 ]
 
-for subdir in set([os.path.dirname(n) for n in idl_files]):
-  dir = env.Dir('$OBJ_ROOT/webkit/port/' + subdir)
-
-  dir.addRepository(env.Dir('$CHROME_SRC_DIR/webkit/pending'))
-  dir.addRepository(env.Dir('$CHROME_SRC_DIR/webkit/port/' + subdir))
-  dir.addRepository(env.Dir('$CHROME_SRC_DIR/third_party/WebKit/WebCore/' + subdir))
-
 for name in idl_files:
   env.Bindings('$WEBKIT_DIR/port/' + name)
 

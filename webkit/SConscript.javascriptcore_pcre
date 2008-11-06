@@ -29,10 +29,17 @@ if env['PLATFORM'] == 'win32':
                 ],
         )
 
-dir = env.Dir('$PCRE_DIR')
+# Map Hammer/webkit/port/JavaScriptCore/pcre so it's backed by
+# third_party/WebKit/JavaScriptCore/pcre.
+#
+# TODO(sgk): This can be refactored to work more naturally if we just
+# mirror third_party directory structure under webkit/port, instead of
+# mapping Javascript => Javascript (here) and Webkit/WebCore => port
+# (over in ../build/SConscript.main).
 
-dir.addRepository(env.Dir('$CHROME_SRC_DIR/webkit/pending'))
-dir.addRepository(env.Dir('$CHROME_SRC_DIR/third_party/WebKit/JavaScriptCore/pcre'))
+obj_dir = env.Dir('$PCRE_DIR')
+src_dir = env.Dir('$CHROME_SRC_DIR/third_party/WebKit/JavaScriptCore/pcre')
+obj_dir.addRepository(src_dir)
 
 input_files = [
      '$PCRE_DIR/pcre_compile.cpp',
