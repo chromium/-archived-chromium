@@ -619,11 +619,27 @@ LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
       GetWindowLongPtr(window, GWLP_USERDATA));
   DCHECK(wrapper);
   TreeView* tree = wrapper->tree_view;
+
+  // We handle the messages WM_ERASEBKGND and WM_PAINT such that we paint into
+  // a DIB first and then perform a BitBlt from the DIB into the underlying
+  // window's DC. This double buffering code prevents the tree view from
+  // flickering during resize. This double buffering code doesn't work for RTL
+  // locales because the DIB created by ChromeCanvasPaint is not flipped and
+  // that's causing the text to be incorrectly mirrored after the BitBlt call.
+  // Thus, we disable the double buffering for RTL locales until this problem is
+  // fixed.
   switch (message) {
     case WM_ERASEBKGND:
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+        break;
+      }
       return 1;
 
     case WM_PAINT: {
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+        break;
+      }
+
       ChromeCanvasPaint canvas(window);
       if (canvas.isEmpty())
         return 0;
