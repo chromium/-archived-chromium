@@ -68,6 +68,16 @@ using base::TimeDelta;
 
 namespace net {
 
+// Cookie garbage collection thresholds.  Based off of the Mozilla defaults.
+// It might seem scary to have a high purge value, but really it's not.  You
+// just make sure that you increase the max to cover the increase in purge,
+// and we would have been purging the same amount of cookies.  We're just
+// going through the garbage collection process less often.
+static const size_t kNumCookiesPerHost      = 70;  // ~50 cookies
+static const size_t kNumCookiesPerHostPurge = 20;
+static const size_t kNumCookiesTotal        = 1100;  // ~1000 cookies
+static const size_t kNumCookiesTotalPurge   = 100;
+
 // Default minimum delay after updating a cookie's LastAccessDate before we
 // will update it again.
 static const int kDefaultAccessUpdateThresholdSeconds = 60;
@@ -105,6 +115,9 @@ void CookieMonster::InitStore() {
   // care if it's expired, insert it so it can be garbage collected, removed,
   // and sync'd.
   std::vector<KeyedCanonicalCookie> cookies;
+  // Reserve space for the maximum amount of cookies a database should have.
+  // This prevents multiple vector growth / copies as we append cookies.
+  cookies.reserve(kNumCookiesTotal);
   store_->Load(&cookies);
   for (std::vector<KeyedCanonicalCookie>::const_iterator it = cookies.begin();
        it != cookies.end(); ++it) {
@@ -499,16 +512,6 @@ void CookieMonster::DeleteAnyEquivalentCookie(const std::string& key,
 
 int CookieMonster::GarbageCollect(const Time& current,
                                   const std::string& key) {
-  // Based off of the Mozilla defaults.
-  // It might seem scary to have a high purge value, but really it's not.  You
-  // just make sure that you increase the max to cover the increase in purge,
-  // and we would have been purging the same amount of cookies.  We're just
-  // going through the garbage collection process less often.
-  static const size_t kNumCookiesPerHost      = 70;  // ~50 cookies
-  static const size_t kNumCookiesPerHostPurge = 20;
-  static const size_t kNumCookiesTotal        = 1100;  // ~1000 cookies
-  static const size_t kNumCookiesTotalPurge   = 100;
-
   int num_deleted = 0;
 
   // Collect garbage for this key.
