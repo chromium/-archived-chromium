@@ -171,7 +171,7 @@ void WebWidgetHost::Paint() {
   scroll_rect_ = client_rect.Intersect(scroll_rect_);
   if (!scroll_rect_.IsEmpty()) {
     // add to invalidate rect, since there's no equivalent of ScrollDC.
-    paint_rect_.Union(scroll_rect_);
+    paint_rect_ = paint_rect_.Union(scroll_rect_);
   }
   ResetScrollRect();
 
