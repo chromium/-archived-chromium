@@ -933,6 +933,13 @@ bool IsPluginRunningInRendererProcess() {
   return true;
 }
 
+ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+  // This should call GetScreenInfoHelper, which should be implemented in
+  // webkit_glue_mac.mm
+  NOTIMPLEMENTED();
+  return ScreenInfo();
+}
+
 bool DownloadUrl(const std::string& url, NSWindow* caller_window) {
   return false;
 }
