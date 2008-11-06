@@ -363,9 +363,9 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
         actions.push_back(*data);
         // Let's remember the names of password related fields so we do not
         // autofill them with the regular form autofill.
-        DCHECK(!data->username_element.empty());
+        if (!data->username_element.empty())
+          password_related_fields.insert(data->username_element);
         DCHECK(!data->password_element.empty());
-        password_related_fields.insert(data->username_element);
         password_related_fields.insert(data->password_element);
         if (!data->old_password_element.empty())
           password_related_fields.insert(data->old_password_element);
