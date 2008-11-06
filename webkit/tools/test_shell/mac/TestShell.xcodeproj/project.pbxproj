@@ -95,14 +95,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D16386E0EBFA6F7008F024E /* sqlite.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 4D7B007F0E9D5538009A6919 /* libsqlite.a */;
+			remoteGlobalIDString = 4D7B007F0E9D5538009A6919;
 			remoteInfo = sqlite;
 		};
 		4D1638770EBFA706008F024E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D16386E0EBFA6F7008F024E /* sqlite.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 4D7B007E0E9D5538009A6919 /* sqlite */;
+			remoteGlobalIDString = 4D7B007E0E9D5538009A6919;
 			remoteInfo = sqlite;
 		};
 		4DB687D30EAFE79200AB2128 /* PBXContainerItemProxy */ = {
