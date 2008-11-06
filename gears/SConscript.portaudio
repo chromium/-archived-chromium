@@ -104,4 +104,4 @@ elif env['OS'] == 'osx':
     '$PA_DIR/src/os/unix/pa_unix_util.c',
   ]
 
-env.ChromeStaticLibrary('portaudio', input_files)
+env.GearsStaticLibrary('portaudio', input_files)

@@ -38,6 +38,7 @@ env = env.Clone(
     OPEN_DIR = "gears",
     THIRD_PARTY_DIR = "third_party",
     PRIVATE_THIRD_PARTY_DIR = "third_party_internal",
+    SYMBIAN_DIR = "symbian_internal",
 )
 
 if not os.path.exists(env.Dir('#/$OPEN_DIR').abspath):
@@ -60,6 +61,7 @@ os_browsers_map = {
     'linux': ['FF2', 'FF3'],
     'osx': ['SF', 'FF2', 'FF3'],
     'android': ['NPAPI'],
+    'symbian': ['NPAPI'],
 }
 
 vars = Variables(None, ARGUMENTS)
@@ -695,6 +697,16 @@ elif env['OS'] == 'osx':
 env.Append(SHLINKFLAGS = ['$LINKFLAGS'])
 if env['OS'] in ['wince', 'win32']:
   env.Append(SHLINKFLAGS = ['/DLL'])
+
+# Custom builder to work around a scons and/or hammer bug.  ComponentLibrary
+# tries to install the library to COMPONENT_LIBRARY_DIR, but since we overrode
+# that value, scons gets confused.  I'm not sure who is at fault here.
+# See http://code.google.com/p/chromium/issues/detail?id=4177.
+def GearsStaticLibrary(env, *args, **kw):
+  lib = env.ChromeStaticLibrary(*args, **kw)
+  env.Install('$COMPONENT_LIBRARY_DIR', lib[0])
+  return lib
+env.AddMethod(GearsStaticLibrary)
 
 # Load all the components
 

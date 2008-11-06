@@ -347,120 +347,107 @@ if env['OS'] == 'win32':
   # TODO: move to breakpad
   env.Append(CPPFLAGS = ['/wd4018'])
 
-# Extra per-browser files
-browser_specific_objects = []
-
-if env['BROWSER'] == 'SF':
-  mozjs_sources = [
-      '$MOZJS_DIR/gears_npapi_bindings/mozjs_npruntime.cc',
-      '$MOZJS_DIR/gears_npapi_bindings/mozjs_npruntime_utils.cc',
-      '$OPEN_DIR/base/common/js_standalone_engine_mozjs.cc',
-      '$MOZJS_DIR/gears_npapi_bindings/mozjs_npapi_storage.cc'
-	]
-  mozjs_objects = env.SharedObject(
-                      mozjs_sources, 
-                      CPPPATH = env['CPPPATH'] + env['MOZJS_INCLUDE_PATHS'])
-  browser_specific_objects += mozjs_objects
-  
 # TODO(playmobil): Create builder to generate required header files.
 #  browser_specific_objects += \
 #      env.SharedObject('$OPEN_DIR/base/safari/resource_archive.cc')
+
 # Input file lists
 
-def NewInputs():
-  """Returns a new dictionary of input file lists.
+types = ['CPPSRCS', 'M4SRCS', 'HTML_M4SRCS', 'I18N_M4SRCS', 'STABSRCS',
+         'IDLSRCS', 'LINKSRCS']
 
-  Browser-specific inputs are referenced by the browser name.  All browsers
-  include inputs from the 'all' list."""
+# Set up $BROWSER_XXXSRC = $${BROWSER}_XXXSRC and $FF2_XXXSRC = $FF3_XXXSRC
+for type in types:
+  env['BROWSER_' + type] = ['$' + env['BROWSER'] + '_' + type]
+  env['FF2_' + type] = ['$FF3_' + type]
 
-  return {
-      'all': [],
-      'IE': [],
-      'FF2': [],
-      'FF3': [],
-      'NPAPI': [],
-      'SF': [],
-  }
+#-----------------------------------------------------------------------------
+# mozjs bindings
 
-srcs = NewInputs()
-m4srcs = NewInputs()
-html_m4srcs = NewInputs()
-i18n_m4srcs = NewInputs()
-stabsrcs = NewInputs()
-idlsrcs = NewInputs()
+mozjs_sources = [
+    '$MOZJS_DIR/gears_npapi_bindings/mozjs_npruntime.cc',
+    '$MOZJS_DIR/gears_npapi_bindings/mozjs_npruntime_utils.cc',
+    '$OPEN_DIR/base/common/js_standalone_engine_mozjs.cc',
+    '$MOZJS_DIR/gears_npapi_bindings/mozjs_npapi_storage.cc'
+]
+
+env.Append(SF_LINKSRCS =
+    env.SharedObject(
+        mozjs_sources, CPPPATH = env['CPPPATH'] + env['MOZJS_INCLUDE_PATHS'])
+)
 
 #-----------------------------------------------------------------------------
 # third_party/breakpad
 
 if env['OS'] == 'win32':
-  srcs['NPAPI'] += [
+  env.Append(NPAPI_CPPSRCS = [
       '$THIRD_PARTY_DIR/breakpad/src/client/exception_handler_stub.cc',
-  ]
+  ])
 
-  srcs['IE'] += [
+  env.Append(IE_CPPSRCS = [
       '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
       '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
       '$OPEN_DIR/base/common/exception_handler_win32.cc',
-  ]
+  ])
 
-  srcs['FF3'] += [
+  env.Append(FF3_CPPSRCS = [
       '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
       '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
       '$OPEN_DIR/base/common/exception_handler_win32.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # third_party/breakpad_osx
-srcs['SF'] += [
+env.Append(SF_CPPSRCS = [
      '$OPEN_DIR/base/common/exception_handler_osx.mm',
      '$OPEN_DIR/base/common/exception_handler_osx/google_breakpad.mm',
      '$OPEN_DIR/base/common/exception_handler_osx/mach_ipc.mm',
      '$OPEN_DIR/base/common/exception_handler_osx/on_demand_server.mm',
      '$OPEN_DIR/base/common/exception_handler_osx/simple_string_dictionary.mm'
-]
+])
 
 #-----------------------------------------------------------------------------
 # third_party/v8/bindings
 
-srcs['NPAPI'] += [
+env.Append(NPAPI_CPPSRCS = [
     '$THIRD_PARTY_DIR/v8/bindings_local/npruntime.cc',
     '$THIRD_PARTY_DIR/v8/bindings_local/np_v8object.cc',
     '$THIRD_PARTY_DIR/v8/bindings_local/v8_helpers.cc',
     '$THIRD_PARTY_DIR/v8/bindings_local/v8_np_utils.cc',
     '$THIRD_PARTY_DIR/v8/bindings_local/v8_npobject.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # third_party/convert_utf
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
-]
+])
 
 #-----------------------------------------------------------------------------
 # third_party/jsoncpp
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$THIRD_PARTY_DIR/jsoncpp/json_reader.cc',
     '$THIRD_PARTY_DIR/jsoncpp/json_value.cc',
     '$THIRD_PARTY_DIR/jsoncpp/json_writer.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # third_party/modp_b64
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$THIRD_PARTY_DIR/modp_b64/modp_b64.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # base/common
 
-m4srcs['all'] = [
+env.Append(BROWSER_M4SRCS = [
     '$OPEN_DIR/base/common/product_version.rc.m4'
-]
+])
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/base/common/async_router.cc',
     '$OPEN_DIR/base/common/base_class.cc',
     '$OPEN_DIR/base/common/base64.cc',
@@ -525,27 +512,27 @@ srcs['all'] += [
     '$OPEN_DIR/base/common/user_config.cc',
     '$OPEN_DIR/base/common/vista_utils.cc',
     '$OPEN_DIR/base/common/wince_compatibility.cc',
-]
+])
 
 if env['OS'] == 'osx':
-  srcs['all'] += [
+  env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/base/common/common_osx.mm',
       '$OPEN_DIR/base/safari/nsstring_utils.mm',
       '$OPEN_DIR/base/common/user_config_osx.cc'
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # base/firefox
 
-m4srcs['FF3'] += [
+env.Append(FF3_M4SRCS = [
     '$OPEN_DIR/base/firefox/install.rdf.m4',
-]
+])
 
-idlsrcs['FF3'] += [
+env.Append(FF3_IDLSRCS = [
     '$OPEN_DIR/base/firefox/interfaces.idl',
-]
+])
 
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/base/common/file_posix.cc',
     '$OPEN_DIR/base/common/file_win32.cc',
     '$OPEN_DIR/base/common/html_event_monitor_ff.cc',
@@ -564,22 +551,22 @@ srcs['FF3'] += [
     '$OPEN_DIR/base/firefox/module.cc',
     '$OPEN_DIR/base/firefox/ns_file_utils.cc',
     '$OPEN_DIR/base/firefox/xpcom_dynamic_load.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # base/ie
 
-m4srcs['IE'] += [
+env.Append(IE_M4SRCS = [
     '$OPEN_DIR/base/ie/bho.rgs.m4',
     '$OPEN_DIR/base/ie/interfaces.idl.m4',
     '$OPEN_DIR/base/ie/module.rgs.m4',
-]
+])
 
-idlsrcs['IE'] += [
+env.Append(IE_IDLSRCS = [
     '$GENFILES_DIR/interfaces.idl',
-]
+])
 
-srcs['IE'] += [
+env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/base/ie/activex_utils.cc',
     '$OPEN_DIR/base/ie/bho.cc',
     '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
@@ -594,25 +581,25 @@ srcs['IE'] += [
     '$OPEN_DIR/base/ie/module_wrapper.cc',
     '$OPEN_DIR/base/common/paths_ie.cc',
     '$OPEN_DIR/base/common/time_utils_win32.cc',
-]
+])
 
 if env['OS'] == 'win32':
-  srcs['IE'] += [
+  env.Append(IE_CPPSRCS = [
       '$OPEN_DIR/base/common/file_win32.cc',
       '$OPEN_DIR/base/common/html_event_monitor_ie.cc',
       '$OPEN_DIR/base/ie/browser_listener.cc',
       '$OPEN_DIR/base/ie/ie_version.cc',
-  ]
+  ])
 elif env['OS'] == 'wince':
-  srcs['IE'] += [
+  env.Append(IE_CPPSRCS = [
       '$OPEN_DIR/base/common/file_wince.cc',
       '$OPEN_DIR/base/common/html_event_monitor_iemobile.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # base/chrome + npapi
 
-srcs['NPAPI'] += [
+env.Append(NPAPI_CPPSRCS = [
     '$OPEN_DIR/base/chrome/module_cr.cc',
     '$OPEN_DIR/base/common/js_runner_cr.cc',
     '$OPEN_DIR/base/common/html_event_monitor_np.cc',
@@ -629,20 +616,20 @@ srcs['NPAPI'] += [
     '$OPEN_DIR/base/npapi/npn_bindings.cc',
     '$OPEN_DIR/base/npapi/npp_bindings.cc',
     '$OPEN_DIR/base/npapi/plugin.cc',
-]
+])
 
 if env['OS'] == 'win32':
-  srcs['NPAPI'] += [
+  env.Append(NPAPI_CPPSRCS = [
       '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
       '$OPEN_DIR/base/common/file_win32.cc',
       '$OPEN_DIR/base/common/message_queue_cr.cc',
       '$OPEN_DIR/base/common/time_utils_win32.cc',
       '$OPEN_DIR/base/ie/ie_version.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # base/safari
-srcs['SF'] += [
+env.Append(SF_CPPSRCS = [
     '$OPEN_DIR/base/common/common_sf.mm',
     '$OPEN_DIR/base/common/detect_version_collision_osx.cc',
     '$OPEN_DIR/base/common/file_posix.cc',
@@ -665,42 +652,42 @@ srcs['SF'] += [
     '$OPEN_DIR/base/safari/curl_downloader.mm',
     '$OPEN_DIR/base/safari/messagebox.mm',
     '$OPEN_DIR/base/safari/safari_workarounds.m',
-]
+])
 
 #-----------------------------------------------------------------------------
 # console
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/console/console.cc',
     '$OPEN_DIR/console/js_callback_logging_backend.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # canvas
 
 # The Canvas API is not yet enabled in official builds.
 if not env['OFFICIAL_BUILD']  and env['OS'] in ['win32', 'osx']:
-  srcs['all'] += [
+  env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/canvas/blob_backed_skia_input_stream.cc',
       '$OPEN_DIR/canvas/blob_backed_skia_output_stream.cc',
       '$OPEN_DIR/canvas/canvas.cc',
       '$OPEN_DIR/canvas/canvas_rendering_context_2d.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # database
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/database/database.cc',
     '$OPEN_DIR/database/database_utils.cc',
     '$OPEN_DIR/database/database_utils_test.cc',
     '$OPEN_DIR/database/result_set.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # database2
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/database2/connection.cc',
     '$OPEN_DIR/database2/commands.cc',
     '$OPEN_DIR/database2/database2.cc',
@@ -711,12 +698,12 @@ srcs['all'] += [
     '$OPEN_DIR/database2/result_set2.cc',
     '$OPEN_DIR/database2/statement.cc',
     '$OPEN_DIR/database2/transaction.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # desktop
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/desktop/desktop.cc',
     '$OPEN_DIR/desktop/desktop_linux.cc',
     '$OPEN_DIR/desktop/desktop_osx.cc',
@@ -727,21 +714,21 @@ srcs['all'] += [
     '$OPEN_DIR/desktop/drop_target_registration.cc',
     '$OPEN_DIR/desktop/notification_message_orderer.cc',
     '$OPEN_DIR/desktop/shortcut_utils_win32.cc',
-]
+])
 
-srcs['NPAPI'] += [
+env.Append(NPAPI_CPPSRCS = [
     '$OPEN_DIR/desktop/desktop_cr.cc',
-]
+])
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/desktop/file_dialog.cc',
     '$OPEN_DIR/desktop/file_dialog_gtk.cc',
     '$OPEN_DIR/desktop/file_dialog_osx.cc',
     '$OPEN_DIR/desktop/file_dialog_win32.cc',
-]
+])
 
 # The browser module also needs these files, to communicate with the notifier.
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/notifier/const_notifier.cc',
     '$OPEN_DIR/notifier/notifier_process_linux.cc',
     '$OPEN_DIR/notifier/notifier_process_posix.cc',
@@ -749,20 +736,20 @@ srcs['all'] += [
     '$OPEN_DIR/notifier/notifier_proxy.cc',
     '$OPEN_DIR/notifier/notifier_utils_win32.cc',
     '$OPEN_DIR/notifier/notification.cc',
-]
+])
 
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/desktop/drop_target_ff.cc',
-]
+])
 
-srcs['IE'] += [
+env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/desktop/drop_target_ie.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # localserver/common
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/localserver/common/async_task_test.cc',
     '$OPEN_DIR/localserver/common/blob_store.cc',
     '$OPEN_DIR/localserver/common/capture_task.cc',
@@ -780,24 +767,24 @@ srcs['all'] += [
     '$OPEN_DIR/localserver/localserver_module.cc',
     '$OPEN_DIR/localserver/managed_resource_store_module.cc',
     '$OPEN_DIR/localserver/resource_store_module.cc',
-]
+])
 
-srcs['IE'] += [
+env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/localserver/common/http_cookies.cc',
-]
+])
 
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/localserver/common/http_cookies.cc',
-]
+])
 
-srcs['SF'] += [
+env.Append(SF_CPPSRCS = [
     '$OPEN_DIR/localserver/common/http_cookies.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # localserver/chrome + npapi
 
-srcs['NPAPI'] += [
+env.Append(NPAPI_CPPSRCS = [
     '$OPEN_DIR/localserver/chrome/gears_protocol_handler.cc',
     '$OPEN_DIR/localserver/chrome/network_intercept_cr.cc',
     '$OPEN_DIR/localserver/chrome/http_cookies_cr.cc',
@@ -805,12 +792,12 @@ srcs['NPAPI'] += [
     '$OPEN_DIR/localserver/chrome/update_task_cr.cc',
     '$OPEN_DIR/localserver/common/safe_http_request.cc',
     '$OPEN_DIR/localserver/npapi/async_task_np.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # localserver/safari
 
-srcs['SF'] += [
+env.Append(SF_CPPSRCS = [
     '$OPEN_DIR/localserver/safari/async_task_sf.mm',
      '$OPEN_DIR/localserver/safari/http_cookies_sf.mm',
      '$OPEN_DIR/localserver/safari/http_handler.mm',
@@ -821,24 +808,24 @@ srcs['SF'] += [
      '$OPEN_DIR/localserver/safari/progress_input_stream.mm',
      '$OPEN_DIR/localserver/common/safe_http_request.cc',
      '$OPEN_DIR/localserver/safari/ui_thread.cc'
-]
+])
 
 #-----------------------------------------------------------------------------
 # localserver/firefox
 
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/localserver/common/progress_event.cc',
     '$OPEN_DIR/localserver/common/safe_http_request.cc',
     '$OPEN_DIR/localserver/firefox/async_task_ff.cc',
     '$OPEN_DIR/localserver/firefox/cache_intercept.cc',
     '$OPEN_DIR/localserver/firefox/http_request_ff.cc',
     '$OPEN_DIR/localserver/firefox/progress_input_stream.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # localserver/ie
 
-srcs['IE'] += [
+env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/localserver/ie/async_task_ie.cc',
     '$OPEN_DIR/localserver/ie/file_submit_behavior.cc',
     '$OPEN_DIR/localserver/ie/http_handler_ie.cc',
@@ -847,22 +834,22 @@ srcs['IE'] += [
     '$OPEN_DIR/localserver/ie/progress_input_stream.cc',
     '$OPEN_DIR/localserver/ie/update_task_ie.cc',
     '$OPEN_DIR/localserver/ie/urlmon_utils.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # dummy_module
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/dummy/dummy_module.cc',
-]
+])
 
 
 #-----------------------------------------------------------------------------
 # test
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/cctests/test.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # ui/generated
@@ -870,180 +857,180 @@ srcs['all'] += [
 # Anything with the _I18N suffix will be expanded for each language in
 # I18N_LANGS
 
-html_m4srcs['all'] += [
+env.Append(BROWSER_HTML_M4SRCS = [
     '$OPEN_DIR/ui/common/alert_dialog.html_m4',
     '$OPEN_DIR/ui/common/permissions_dialog.html_m4',
     '$OPEN_DIR/ui/common/settings_dialog.html_m4',
     '$OPEN_DIR/ui/common/shortcuts_dialog.html_m4',
-]
+])
 
-i18n_m4srcs['FF3'] += [
+env.Append(FF3_I18N_M4SRCS = [
     '$OPEN_DIR/ui/generated/' + lang + '/i18n.dtd.m4'
     for lang in env['I18N_LANGS']
-]
+])
 
 #TODO: $(IE_OUTDIR)/string_table.res
 
 #-----------------------------------------------------------------------------
 # ui/common (built for all browsers)
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/ui/common/alert_dialog.cc',
     '$OPEN_DIR/ui/common/html_dialog.cc',
     '$OPEN_DIR/ui/common/i18n_strings.cc',
     '$OPEN_DIR/ui/common/permissions_dialog.cc',
     '$OPEN_DIR/ui/common/window_utils.cc',
-]
+])
 
-srcs['IE'] += [
+env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/ui/common/settings_dialog.cc',
-]
+])
 
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/ui/common/settings_dialog.cc',
-]
+])
 
-srcs['SF'] += [
+env.Append(SF_CPPSRCS = [
     '$OPEN_DIR/ui/common/settings_dialog.cc',
-]
+])
 
-stabsrcs['all'] = [
+env.Append(BROWSER_STABSRCS = [
     '$OPEN_DIR/ui/common/alert_dialog.js.stab',
     '$OPEN_DIR/ui/common/permissions_dialog.js.stab',
     '$OPEN_DIR/ui/common/settings_dialog.js.stab',
     '$OPEN_DIR/ui/common/shortcuts_dialog.js.stab',
-]
+])
 
 #-----------------------------------------------------------------------------
 # ui/npapi
 
-m4srcs['all'] += [
+env.Append(NPAPI_M4SRCS = [
     '$OPEN_DIR/ui/ie/ui_resources.rc.m4',
-]
+])
 
 #-----------------------------------------------------------------------------
 # ui/chrome
 
-srcs['NPAPI'] += [
+env.Append(NPAPI_CPPSRCS = [
     '$OPEN_DIR/ui/chrome/settings_dialog_cr.cc',
     '$OPEN_DIR/ui/chrome/html_dialog_cr.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # ui/safari
 
-srcs['SF'] += [
+env.Append(SF_CPPSRCS = [
     '$OPEN_DIR/ui/safari/html_dialog_sf.mm',
     '$OPEN_DIR/ui/safari/html_modeless_dialog_sf.mm',
     '$OPEN_DIR/ui/safari/native_dialogs_osx.mm',
     '$OPEN_DIR/ui/safari/settings_menu.mm',
-]
+])
 
 #-----------------------------------------------------------------------------
 # ui/factory
 
-m4srcs['FF3'] += [
+env.Append(FF3_M4SRCS = [
     '$OPEN_DIR/ui/firefox/browser-overlay.js.m4',
     '$OPEN_DIR/ui/firefox/browser-overlay.xul.m4',
     '$OPEN_DIR/ui/firefox/chrome.manifest.m4',
-]
+])
 
-idlsrcs['FF3'] += [
+env.Append(FF3_IDLSRCS = [
     '$OPEN_DIR/ui/firefox/ui_utils.idl',
-]
+])
 
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/ui/firefox/html_dialog_ff.cc',
     '$OPEN_DIR/ui/firefox/ui_utils.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # ui/ie
 
-m4srcs['IE'] += [
+env.Append(IE_M4SRCS = [
     '$OPEN_DIR/ui/ie/tools_menu_item.rgs.m4',
     '$OPEN_DIR/ui/ie/ui_resources.rc.m4',
-]
+])
 
-idlsrcs['IE'] += [
+env.Append(IE_IDLSRCS = [
     '$OPEN_DIR/ui/ie/html_dialog_host.idl',
-]
+])
 
-srcs['IE'] += [
+env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/ui/ie/html_dialog_ie.cc',
     '$OPEN_DIR/ui/ie/tools_menu_item.cc',
-]
+])
 
-stabsrcs['IE'] += [
+env.Append(IE_STABSRCS = [
     '$OPEN_DIR/ui/ie/string_table.rc.stab',
-]
+])
 
 # Additional files specific to Win32 or WinCE.
 if env['OS'] == 'win32':
-  srcs['IE'] += [
+  env.Append(IE_CPPSRCS = [
       '$OPEN_DIR/ui/ie/html_dialog_host.cc',
-  ]
+  ])
 elif env['OS'] == 'wince':
-  m4srcs['IE'] += [
+  env.Append(IE_M4SRCS = [
       '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.rgs.m4',
-  ]
+  ])
 
-  idlsrcs['IE'] += [
+  env.Append(IE_IDLSRCS = [
       '$OPEN_DIR/ui/ie/html_dialog_host_iemobile.idl',
       '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.idl',
-  ]
+  ])
 
-  srcs['IE'] += [
+  env.Append(IE_CPPSRCS = [
       '$OPEN_DIR/ui/ie/html_dialog_host_iemobile.cc',
       '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # workerpool/npapi
 if env['USING_NPAPI']:
-  srcs['all'] += [
+  env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
       '$OPEN_DIR/workerpool/npapi/pool_threads_manager.cc',
       '$OPEN_DIR/workerpool/workerpool.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # workerpool/firefox
 
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
     '$OPEN_DIR/workerpool/firefox/pool_threads_manager.cc',
     '$OPEN_DIR/workerpool/workerpool.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # workerpool/ie
 
-srcs['IE'] += [
+env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
     '$OPEN_DIR/workerpool/ie/pool_threads_manager.cc',
     '$OPEN_DIR/workerpool/workerpool.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # timer
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/timer/timer.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # httprequest
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/httprequest/httprequest.cc',
     '$OPEN_DIR/httprequest/httprequest_upload.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # blob
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/blob/blob.cc',
     '$OPEN_DIR/blob/blob_builder.cc',
     '$OPEN_DIR/blob/blob_builder_module.cc',
@@ -1055,96 +1042,99 @@ srcs['all'] += [
     '$OPEN_DIR/blob/file_blob.cc',
     '$OPEN_DIR/blob/join_blob.cc',
     '$OPEN_DIR/blob/slice_blob.cc',
-]
+])
 
 # TODO(bpm): Make this cross-browser, not Firefox- or Safari-specific.
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/blob/blob_input_stream_ff.cc',
     '$OPEN_DIR/blob/blob_input_stream_ff_test.cc',
-]
+])
 
-srcs['SF'] += [
+env.Append(SF_CPPSRCS = [
     '$OPEN_DIR/blob/blob_input_stream_sf.mm',
     '$OPEN_DIR/blob/blob_input_stream_sf_test.mm',
-]
+])
 
 #-----------------------------------------------------------------------------
 # inspector
 
 if not env['OFFICIAL_BUILD']:
-  srcs['all'] += [
+  env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/inspector/inspector_resources.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # installer/wince
 
 if env['OS'] == 'wince':
-  srcs['IE'] += [
+  env.Append(IE_CPPSRCS = [
       '$OPEN_DIR/installer/common/cab_updater.cc',
       '$OPEN_DIR/installer/common/download_task.cc',
       '$OPEN_DIR/installer/common/installer_utils.cc',
       '$OPEN_DIR/installer/common/periodic_checker.cc',
       '$OPEN_DIR/installer/common/process_restarter.cc',
-  ]
+  ])
 
-  stabsrcs['IE'] += [
+  env.Append(IE_STABSRCS = [
       '$OPEN_DIR/installer/iemobile/setup.rc.stab',
-  ]
+  ])
 
-  wince_setup_srcs = [
+  env.Append(WINCE_SETUP_CPPSRCS = [
       '$OPEN_DIR/installer/common/process_restarter.cc',
       '$OPEN_DIR/installer/iemobile/setup.cc',
+  ])
+
+  env.Append(WINCE_SETUP_LINKSRCS = [
       env_res.RES('$GENFILES_DIR/setup.rc'),
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # image
 
 # The Image API is not yet enabled in official builds.
 if not env['OFFICIAL_BUILD'] and env['OS'] != 'wince':
-  srcs['all'] += [
+  env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/image/backing_image.cc',
       '$OPEN_DIR/image/image.cc',
       '$OPEN_DIR/image/image_loader.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # factory/npapi
 
 if env['USING_NPAPI']:
-  srcs['all'] += [
+  env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/factory/factory_impl.cc',
       '$OPEN_DIR/factory/factory_np.cc',
       '$OPEN_DIR/factory/factory_utils.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # factory/firefox
 
-srcs['FF3'] += [
+env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/factory/factory_impl.cc',
     '$OPEN_DIR/factory/factory_ff.cc',
     '$OPEN_DIR/factory/factory_utils.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # factory/ie
 
-m4srcs['IE'] += [
+env.Append(IE_M4SRCS = [
     '$OPEN_DIR/factory/factory_ie.rgs.m4',
-]
+])
 
-srcs['IE'] += [
+env.Append(IE_CPPSRCS = [
     '$OPEN_DIR/factory/factory_impl.cc',
     '$OPEN_DIR/factory/factory_ie.cc',
     '$OPEN_DIR/factory/factory_utils.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # geolocation
 
-srcs['all'] += [
+env.Append(BROWSER_CPPSRCS = [
     '$OPEN_DIR/geolocation/access_token_manager.cc',
     '$OPEN_DIR/geolocation/backoff_manager.cc',
     '$OPEN_DIR/geolocation/empty_device_data_provider.cc',
@@ -1167,14 +1157,14 @@ srcs['all'] += [
     '$OPEN_DIR/geolocation/wifi_data_provider_win32.cc',
     '$OPEN_DIR/geolocation/wifi_data_provider_wince.cc',
     '$OPEN_DIR/geolocation/wifi_data_provider_windows_common.cc',
-]
+])
 
 #-----------------------------------------------------------------------------
 # media
 
 # The Audio API has not been finalized for official builds.
 if not env['OFFICIAL_BUILD']:
-  srcs['all'] += [
+  env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/media/audio.cc',
       '$OPEN_DIR/media/audio_recorder.cc',
       '$OPEN_DIR/media/audio_recorder_test.cc',
@@ -1184,69 +1174,63 @@ if not env['OFFICIAL_BUILD']:
       '$OPEN_DIR/media/mock_audio_recorder.cc',
       '$OPEN_DIR/media/pa_audio_recorder.cc',
       '$OPEN_DIR/media/time_ranges.cc',
-  ]
+  ])
 
 #-----------------------------------------------------------------------------
 # vista_broker
 
-vista_broker_srcs = [
+env.Append(VISTA_BROKER_CPPSRCS = [
     '$OPEN_DIR/base/common/process_utils_win32.cc',
     '$OPEN_DIR/base/common/string16.cc',
     '$OPEN_DIR/base/common/string_utils.cc',
     '$OPEN_DIR/desktop/shortcut_utils_win32.cc',
     '$OPEN_DIR/vista_broker/vista_broker.cc',
-]
 
-vista_broker_srcs += [
     '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
-]
+])
 
 #-----------------------------------------------------------------------------
 # resources
 
-dll_resources = []
-
 if env['OS'] in ['win32', 'wince']:
-  ui_res =  env_res.RES('$GENFILES_DIR/ui_resources.rc'),
-  dll_resources += [ui_res]
+  if env['BROWSER'] in ['IE', 'NPAPI']:
+    ui_res = env_res.RES('$GENFILES_DIR/ui_resources.rc')
+    env.Append(BROWSER_LINKSRCS = ui_res)
 
-  module_res = None
-  if env['BROWSER'] == 'NPAPI':
-    module_res = env_res.RES('$OPEN_DIR/base/npapi/module.rc')
-    dll_resources += [module_res]
-  elif env['BROWSER'] == 'IE':
-    module_res = env_res.RES('$OPEN_DIR/base/ie/module.rc')
-    string_res = env_res.RES('$GENFILES_DIR/string_table.rc')
-    dll_resources += [module_res, string_res]
-    # TODO: string_res seems to break the wince build for some magical reason!
+    if env['BROWSER'] == 'NPAPI':
+      module_res = env_res.RES('$OPEN_DIR/base/npapi/module.rc')
+      env.Append(NPAPI_LINKSRCS = module_res)
+    elif env['BROWSER'] == 'IE':
+      module_res = env_res.RES('$OPEN_DIR/base/ie/module.rc')
+      string_res = env_res.RES('$GENFILES_DIR/string_table.rc')
+      env.Append(IE_LINKSRCS = [module_res, string_res])
 
-  vista_broker_resources = env_res.RES(
-      '$GENFILES_DIR/vista_broker_string_table.res',
-      '$GENFILES_DIR/string_table.rc',
-      EXTRA_DEFINES = 'VISTA_BROKER=1')
-  vista_broker_resources += env_res.RES(
-      '$OPEN_DIR/vista_broker/vista_broker.rc',
-      EXTRA_DEFINES = 'VISTA_BROKER=1')
+  env.Append(VISTA_BROKER_LINKSRCS = [
+      env_res.RES(
+          '$GENFILES_DIR/vista_broker_string_table.res',
+          '$GENFILES_DIR/string_table.rc',
+          EXTRA_DEFINES = 'VISTA_BROKER=1'),
+      env_res.RES(
+          '$OPEN_DIR/vista_broker/vista_broker.rc',
+          EXTRA_DEFINES = 'VISTA_BROKER=1'),
+  ])
 
 #-----------------------------------------------------------------------------
 # libs
 
-libs = []
-
 if env['OS'] == 'win32':
-  libs += [
+  env.Append(BROWSER_LINKSRCS = [
       '$THIRD_PARTY_DIR/skia/skia-${MODE}-${OS}-${ARCH}.lib',
-  ]
-
-if env['BROWSER'] == 'NPAPI':
-  libs += [
+  ])
+  env.Append(NPAPI_LINKSRCS = [
       '$THIRD_PARTY_DIR/v8/bin-${MODE}/libv8core.lib',
       '$THIRD_PARTY_DIR/v8/bin-${MODE}/no_snapshotv8.lib',
       '$THIRD_PARTY_DIR/v8/bin-${MODE}/libjscre.lib',
-      '$OPEN_DIR/base/chrome/module.def'
-  ]
-elif env['BROWSER'] == 'IE':
-  libs += ['$OPEN_DIR/tools/mscom.def']
+      '$OPEN_DIR/base/chrome/module.def',
+  ])
+  env.Append(IE_LINKSRCS = [
+      '$OPEN_DIR/tools/mscom.def',
+  ])
 
 # TODO: all the other ports, including third-party libs
 # - SAFARI, android, symbian
@@ -1262,33 +1246,22 @@ elif env['BROWSER'] == 'IE':
 # Now build the dependency tree.
 def PatternRule(t, s): return utils.PatternRule(t, s, env)
 
-# Add any hard-coded "FF3_" sources to the FF2_ sources.
-srcs['FF2'] += srcs['FF3']
-m4srcs['FF2'] += m4srcs['FF3']
-html_m4srcs['FF2'] += html_m4srcs['FF3']
-i18n_m4srcs['FF2'] += i18n_m4srcs['FF3']
-stabsrcs['FF2'] += stabsrcs['FF3']
-idlsrcs['FF2'] += idlsrcs['FF3']
-
-# Add the target browser's inputs to the list files to build.
-srcs['all'] += srcs[env['BROWSER']]
-m4srcs['all'] += m4srcs[env['BROWSER']]
-html_m4srcs['all'] += html_m4srcs[env['BROWSER']]
-i18n_m4srcs['all'] += i18n_m4srcs[env['BROWSER']]
-stabsrcs['all'] += stabsrcs[env['BROWSER']]
-idlsrcs['all'] += idlsrcs[env['BROWSER']]
+def GetInputs(var):
+  """Expands an env substitution variable and returns it as a list of
+  strings."""
+  return [str(v) for v in env.subst_list(var)[0]]
 
 # Include the common targets generated by SConscript.common.
 Import('common_targets')
 
 # genfiles/%: %.m4
 m4s = [env.M4(*PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
-        for src in m4srcs['all']]
+       for src in GetInputs('$BROWSER_M4SRCS')]
 
 # genfiles/%.html: %.html_m4
 html_m4s = [env.M4(
                 *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.html', src))
-            for src in html_m4srcs['all']]
+            for src in GetInputs('$BROWSER_HTML_M4SRCS')]
 
 # genfiles/i18n/%: %.m4
 # This magic grabs the last *2* components from the path ("en-US/foo.m4")
@@ -1300,12 +1273,12 @@ def PathEnd(path, n):
 env['PathEnd'] = PathEnd
 tmp_pattern = '$GENFILES_DIR/i18n/${PathEnd(str(SOURCE.base), 2)}'
 i18n_m4s = [env.M4(*PatternRule(tmp_pattern, src))
-            for src in i18n_m4srcs['all']]
+            for src in GetInputs('$BROWSER_I18N_M4SRCS')]
 
 # genfiles/%.js: %.js.stab
 stabs = [env.Stab(
              *PatternRule('$GENFILES_DIR/${SOURCE.filebase}', src))
-         for src in stabsrcs['all']]
+         for src in GetInputs('$BROWSER_STABSRCS')]
 
 # genfiles/%.html: %.js
 for stab in stabs:
@@ -1313,21 +1286,21 @@ for stab in stabs:
 
 # genfiles/%.tlb: %.idl
 xptsrcs = []
-for src in idlsrcs['all']:
+for src in GetInputs('$BROWSER_IDLSRCS'):
   idl = env.TypeLibrary(
             *PatternRule('$GENFILES_DIR/${SOURCE.filebase}.tlb', src))
-  srcs['all'] += [x for x in idl if str(x).endswith('_i.c')]
+  env.Append(BROWSER_CPPSRCS = [x for x in idl if str(x).endswith('_i.c')])
   if env['BROWSER'] in ['FF2', 'FF3']:
     xptsrcs += [x for x in idl if str(x).endswith('.xpt')]
 
 if env['BROWSER'] in ['FF2', 'FF3']:
   env.XptLink('gears.xpt', xptsrcs)
 
-# Add common sources.
-srcs['all'] += common_targets['src']
+# Add common sources        .
+env.Append(BROWSER_CPPSRCS = common_targets['src'])
 
 # TODO: figure out why the .rc scanner doesn't notice these dependencies.
-if env['OS'] in ['win32', 'wince']:
+if env['BROWSER'] in ['NPAPI', 'IE']:
   env.Depends(ui_res, html_m4s)
   env.Depends(module_res, m4s)
 
@@ -1338,19 +1311,22 @@ if env['OS'] in ['win32', 'wince']:
 # are shared.
 def SplitSrcs(srcs):
   def IsCFile(src): return str(src).endswith('.c') or str(src).endswith('.cc')
-  c_srcs = [src for src in srcs if IsCFile(src)]
-  nonc_srcs = [src for src in srcs if not IsCFile(src)]
+  c_srcs = [str(src) for src in srcs if IsCFile(src)]
+  nonc_srcs = [str(src) for src in srcs if not IsCFile(src)]
   return env.SharedObject(c_srcs) + nonc_srcs
 
 module = env.ChromeSharedLibrary('gears-$OS-$ARCH-$MODE-${BROWSER}',
-    SplitSrcs(srcs['all']) + libs + dll_resources + browser_specific_objects)
+    SplitSrcs(GetInputs('$BROWSER_CPPSRCS')) +
+    GetInputs('$BROWSER_LINKSRCS'))
 module = env.InstallAs('${SHLIBPREFIX}gears${SHLIBSUFFIX}', module)
 if env['OS'] in ['win32', 'wince'] and env['MODE'] == 'dbg':
   module += env.InstallAs('gears.pdb', 'gears-$OS-$ARCH-$MODE-${BROWSER}.pdb')
 env.Alias('gears', module)
 
 if env['OS'] == 'wince':
-  wince_setup = env.ChromeSharedLibrary('setup', SplitSrcs(wince_setup_srcs))
+  wince_setup = env.ChromeSharedLibrary('setup',
+      SplitSrcs(GetInputs('$WINCE_SETUP_CPPSRCS')) +
+      GetInputs('$WINCE_SETUP_LINKSRCS'))
 
 if env['OS'] == 'win32' and env['BROWSER'] == 'IE':
 # Note: We use IE_OUTDIR so that relative path from gears.dll is same in
@@ -1359,5 +1335,6 @@ if env['OS'] == 'win32' and env['BROWSER'] == 'IE':
 # desktop_win32.cc.
 # TODO(aa): This can move to common_outdir like crash_sender.exe
   vista_broker = env.ChromeProgram('vista_broker',
-      SplitSrcs(vista_broker_srcs) + vista_broker_resources)
+      SplitSrcs(GetInputs('$VISTA_BROKER_CPPSRCS')) +
+      GetInputs('$VISTA_BROKER_LINKSRCS'))
   env.Alias('gears', vista_broker)

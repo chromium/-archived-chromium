@@ -74,4 +74,4 @@ input_files = [
     '$LIBJPEG_DIR/jmemnobs.c',
 ]
 
-env.ChromeStaticLibrary('jpeg-gears', input_files)
+env.GearsStaticLibrary('jpeg-gears', input_files)

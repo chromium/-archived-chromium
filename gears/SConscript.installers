@@ -231,10 +231,21 @@ def Win32Installer(env):
       StripOutdir(['$COMMON_GENFILES_DIR/win32_msi.wxiobj']),
       StripOutdir(['$COMMON_GENFILES_DIR/win32_msi.wxs']),
       '$CANDLECOM')
+  # TODO(mpcomplete): remove this if/when the notifier goes away.  This
+  # creates fake targets to satisfy the installer build.
+  notifier = env.Command(
+      StripOutdir([
+          '$COMMON_OUTDIR/notifier.exe',
+          '$COMMON_OUTDIR/notifier.dll',
+          '$COMMON_OUTDIR/notifier_test.exe'
+      ]), [],
+      'touch $TARGETS')
   # light.exe must be run from $OPEN_DIR
   msi = env.Command(
       '$WIN32_INSTALLER_MSI',
-      [wxiobj, '$FF_XPI', StripOutdir(['$IE_OUTDIR/$MODULE'])],
+      [wxiobj, notifier, '$FF_XPI',
+       StripOutdir(['$IE_OUTDIR/$MODULE']),
+       StripOutdir(['$NPAPI_OUTDIR/$MODULE'])],
       'cd $OPEN_DIR && light.exe -out ${TARGET.abspath} ${SOURCES[0].abspath}')
   return msi
 env.AddMethod(Win32Installer, 'Win32Installer')

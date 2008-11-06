@@ -45,4 +45,4 @@ if not env['OFFICIAL_BUILD']:
       '$ZLIB_DIR/trees.c',
   ]
 
-env.ChromeStaticLibrary('zlib-gears', input_files)
+env.GearsStaticLibrary('zlib-gears', input_files)

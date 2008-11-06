@@ -161,4 +161,7 @@ input_files = [
     '$SQLITE_DIR/src/where.c',
 ]
 
-env.ChromeStaticLibrary('sqlite-gears', input_files)
+if env['OS'] == 'symbian':
+  input_files += ['os_symbian.cc']
+
+env.GearsStaticLibrary('sqlite-gears', input_files)

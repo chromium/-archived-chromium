@@ -24,4 +24,4 @@ input_files = [
   '$THIRD_PARTY_DIR/breakpad_osx/src/common/mac/string_utilities.cc',
 ]
 
-env.ChromeStaticLibrary('breakpad_osx-gears', input_files)
+env.GearsStaticLibrary('breakpad_osx-gears', input_files)

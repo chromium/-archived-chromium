@@ -85,4 +85,4 @@ input_files = [
         '$LIBGD_DIR/wbmp.c',
 ]
 
-env.ChromeStaticLibrary('gd', input_files)
+env.GearsStaticLibrary('gd', input_files)

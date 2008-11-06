@@ -110,4 +110,4 @@ input_files = [
     '$MOZJS_DIR/nspr/pr/src/md/unix/os_Darwin_x86.s',
 ]
 
-env.ChromeStaticLibrary('mozjs-gears', input_files)
+env.GearsStaticLibrary('mozjs-gears', input_files)

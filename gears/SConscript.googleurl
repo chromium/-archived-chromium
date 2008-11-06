@@ -58,7 +58,7 @@ input_files += [
     '$ICU38_DIR/source/common/utf_impl.cc',
 ]
 
-env.ChromeStaticLibrary('googleurl-gears', input_files)
+env.GearsStaticLibrary('googleurl-gears', input_files)
 
 #env_tests = env.Clone()
 #
