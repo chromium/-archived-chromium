@@ -757,6 +757,7 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
 
   // Clean up the HttpConnection if we are done.
   if (done) {
+    LogTransactionMetrics();
     if (!keep_alive)
       connection_.set_socket(NULL);
     connection_.Reset();
@@ -768,6 +769,17 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   read_buf_len_ = 0;
 
   return result;
+}
+
+void HttpNetworkTransaction::LogTransactionMetrics() const {
+  base::TimeDelta duration = base::Time::Now() - response_.request_time;
+  if (60 < duration.InMinutes())
+    return;
+  UMA_HISTOGRAM_LONG_TIMES(L"Net.Transaction_Latency", duration);
+  if (!duration.InMilliseconds())
+    return;
+  UMA_HISTOGRAM_COUNTS(L"Net.Transaction_Bandwidth",
+      static_cast<int> (content_read_ / duration.InMilliseconds()));
 }
 
 int HttpNetworkTransaction::DidReadResponseHeaders() {

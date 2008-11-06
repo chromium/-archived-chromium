@@ -77,6 +77,10 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoReadBody();
   int DoReadBodyComplete(int result);
 
+  // Record histogram of latency (first byte sent till last byte received) as
+  // well as effective bandwidth used.
+  void LogTransactionMetrics() const;
+
   // Called when header_buf_ contains the complete response headers.
   int DidReadResponseHeaders();
 
