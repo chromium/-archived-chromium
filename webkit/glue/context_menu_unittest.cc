@@ -36,7 +36,7 @@ TEST_F(ContextMenuCapturing, ContextMenuCapturing) {
   WebViewDelegate* raw_delegate = test_shell_->webView()->GetDelegate();
   TestWebViewDelegate* test_delegate = static_cast<TestWebViewDelegate*>(raw_delegate);
   test_delegate->clear_captured_context_menu_events();
-  EXPECT_EQ(0, test_delegate->captured_context_menu_events().size());
+  EXPECT_EQ(0U, test_delegate->captured_context_menu_events().size());
 
   std::wstring test_url = GetTestURL(iframes_data_dir_, L"testiframe.html");
   test_shell_->LoadURL(test_url.c_str());
@@ -62,6 +62,6 @@ TEST_F(ContextMenuCapturing, ContextMenuCapturing) {
   mouse_event.type = WebInputEvent::MOUSE_UP;  
   webview->HandleInputEvent(&mouse_event);
 
-  EXPECT_EQ(1, test_delegate->captured_context_menu_events().size());
+  EXPECT_EQ(1U, test_delegate->captured_context_menu_events().size());
 }
 

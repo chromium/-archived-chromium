@@ -21,6 +21,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "HTMLInputElement.h"
 #include "HTMLLinkElement.h"
 #include "HTMLMetaElement.h"
+#include "HTMLOptionElement.h"
 #include "HTMLNames.h"
 #include "KURL.h"
 MSVC_POP_WARNING();
@@ -30,9 +31,8 @@ MSVC_POP_WARNING();
 // first.
 #include "webkit/glue/autocomplete_input_listener.h"
 
-#include "webkit/glue/dom_operations.h"
-
 #include "base/string_util.h"
+#include "webkit/glue/dom_operations.h"
 #include "webkit/glue/form_data.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/password_autocomplete_listener.h"
@@ -150,6 +150,16 @@ void GetAllSavableResourceLinksForFrame(WebFrameImpl* current_frame,
                                      unique_check,
                                      result);
   }
+}
+
+template <class HTMLNodeType>
+HTMLNodeType* CastHTMLElement(WebCore::Node* node,
+                              const WebCore::QualifiedName& name) {
+  if (node->isHTMLElement() &&
+      static_cast<typename WebCore::HTMLElement*>(node)->hasTagName(name)) {
+    return static_cast<HTMLNodeType*>(node);
+  }
+  return NULL;
 }
 
 }  // namespace
@@ -441,6 +451,21 @@ void FillPasswordForm(WebView* view,
                                     new HTMLInputDelegate(password_element),
                                     data));
   }
+}
+
+WebCore::HTMLLinkElement* CastToHTMLLinkElement(WebCore::Node* node) {
+  return CastHTMLElement<WebCore::HTMLLinkElement>(node,
+      WebCore::HTMLNames::linkTag);
+}
+
+WebCore::HTMLMetaElement* CastToHTMLMetaElement(WebCore::Node* node) {
+  return CastHTMLElement<WebCore::HTMLMetaElement>(node,
+      WebCore::HTMLNames::metaTag);
+}
+
+WebCore::HTMLOptionElement* CastToHTMLOptionElement(WebCore::Node* node) {
+  return CastHTMLElement<WebCore::HTMLOptionElement>(node,
+      WebCore::HTMLNames::optionTag);
 }
 
 WebFrameImpl* GetWebFrameImplFromElement(WebCore::Element* element,

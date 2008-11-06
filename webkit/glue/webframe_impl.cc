@@ -103,7 +103,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "GraphicsContext.h"
 #include "HTMLHeadElement.h"
 #include "HTMLLinkElement.h"
-#include "HTMLNames.h"
 #include "HistoryItem.h"
 #include "markup.h"
 #include "Page.h"
@@ -125,6 +124,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 #undef LOG
+
 #include "base/gfx/bitmap_platform_device.h"
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
@@ -134,9 +134,9 @@ MSVC_POP_WARNING();
 #include "base/string_util.h"
 #include "base/time.h"
 #include "net/base/net_errors.h"
+#include "webkit/glue/alt_error_page_resource_fetcher.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/glue_serialize.h"
-#include "webkit/glue/alt_error_page_resource_fetcher.h"
 #include "webkit/glue/webdocumentloader_impl.h"
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframe_impl.h"
@@ -470,8 +470,7 @@ GURL WebFrameImpl::GetOSDDURL() const {
       for (Node* child = children->firstItem(); child != NULL;
            child = children->nextItem()) {
         WebCore::HTMLLinkElement* link_element =
-            webkit_glue::CastHTMLElement<WebCore::HTMLLinkElement>(
-                child, WebCore::HTMLNames::linkTag);
+            webkit_glue::CastToHTMLLinkElement(child);
         if (link_element && link_element->type() == kOSDType &&
             link_element->rel() == kOSDRel && !link_element->href().isEmpty()) {
           return webkit_glue::KURLToGURL(link_element->href());

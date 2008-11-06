@@ -55,7 +55,7 @@ void DomOperationsTests::GetSavableResourceLinksForPage(
                                              &referrers_list,
                                              &frames_list);
 
-  GURL main_page_gurl(file_wurl);
+  GURL main_page_gurl(WideToUTF8(file_wurl));
   ASSERT_TRUE(webkit_glue::GetAllSavableResourceLinksForCurrentPage(
       test_shell_->webView(), main_page_gurl, &result));
   // Check all links of sub-resource
@@ -80,20 +80,20 @@ TEST_F(DomOperationsTests, GetSavableResourceLinksWithPageHasValidLinks) {
   std::wstring page_file_path = data_dir_;
   file_util::AppendToPath(&page_file_path, L"dom_serializer");
 
-  const wchar_t* expected_sub_resource_links[] = {
-    L"file:///c:/yt/css/base_all-vfl36460.css",
-    L"file:///c:/yt/js/base_all_with_bidi-vfl36451.js",
-    L"file:///c:/yt/img/pixel-vfl73.gif"
+  const char* expected_sub_resource_links[] = {
+    "file:///c:/yt/css/base_all-vfl36460.css",
+    "file:///c:/yt/js/base_all_with_bidi-vfl36451.js",
+    "file:///c:/yt/img/pixel-vfl73.gif"
   };
   const wchar_t* expected_frame_links[] = {
     L"youtube_1.htm",
     L"youtube_2.htm"
   };
   // Add all expected links of sub-resource to expected set.
-  for (int i = 0; i < arraysize(expected_sub_resource_links); ++i)
+  for (size_t i = 0; i < arraysize(expected_sub_resource_links); ++i)
     expected_resources_set.insert(GURL(expected_sub_resource_links[i]));
   // Add all expected links of frame to expected set.
-  for (int i = 0; i < arraysize(expected_frame_links); ++i) {
+  for (size_t i = 0; i < arraysize(expected_frame_links); ++i) {
     std::wstring expected_frame_url = page_file_path;
     file_util::AppendToPath(&expected_frame_url, expected_frame_links[i]);
     expected_resources_set.insert(
@@ -116,7 +116,7 @@ TEST_F(DomOperationsTests, GetSavableResourceLinksWithPageHasInvalidLinks) {
     L"youtube_2.htm"
   };
   // Add all expected links of frame to expected set.
-  for (int i = 0; i < arraysize(expected_frame_links); ++i) {
+  for (size_t i = 0; i < arraysize(expected_frame_links); ++i) {
     std::wstring expected_frame_url = page_file_path;
     file_util::AppendToPath(&expected_frame_url, expected_frame_links[i]);
     expected_resources_set.insert(
@@ -133,7 +133,7 @@ TEST_F(DomOperationsTests, ParseIconSizes) {
     const std::wstring input;
     const bool expected_result;
     const bool is_any;
-    const int expected_size_count;
+    const size_t expected_size_count;
     const int width1;
     const int height1;
     const int width2;
@@ -160,7 +160,7 @@ TEST_F(DomOperationsTests, ParseIconSizes) {
     { L" 10x11 ",    true, false, 1, 10, 11, 0, 0 },
     { L" 10x11 1x2", true, false, 2, 10, 11, 1, 2 },
   };
-  for (size_t i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     bool is_any;
     std::vector<gfx::Size> sizes;
     const bool result =

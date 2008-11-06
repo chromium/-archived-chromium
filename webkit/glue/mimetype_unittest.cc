@@ -49,7 +49,7 @@ TEST_F(MimeTypeTests, MimeTypeTests) {
     "text/rtf",
     "application/x-javascript",
   };
-  for (int i = 0; i < arraysize(plain_text); ++i) {
+  for (size_t i = 0; i < arraysize(plain_text); ++i) {
     CheckMimeType(plain_text[i], expected_src);
   }
 
@@ -60,7 +60,7 @@ TEST_F(MimeTypeTests, MimeTypeTests) {
     "text/xsl",
     "application/xhtml+xml",
   };
-  for (int i = 0; i < arraysize(html_src); ++i) {
+  for (size_t i = 0; i < arraysize(html_src); ++i) {
     CheckMimeType(html_src[i], L"HTML text");
   }
 
@@ -72,7 +72,7 @@ TEST_F(MimeTypeTests, MimeTypeTests) {
     "image/jpeg",
     "image/bmp",
   };
-  for (int i = 0; i < arraysize(not_text); ++i) {
+  for (size_t i = 0; i < arraysize(not_text); ++i) {
     CheckMimeType(not_text[i], L"");
     test_shell_->webView()->StopLoading();
   }

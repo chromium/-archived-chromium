@@ -22,17 +22,17 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 #undef LOG
 
-#include "base/hash_tables.h"
 #include "base/file_util.h"
+#include "base/hash_tables.h"
 #include "base/string_util.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
 #include "webkit/glue/dom_serializer_delegate.h"
-#include "webkit/glue/webview.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webframe_impl.h"
+#include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
 
@@ -134,7 +134,7 @@ class DomSerializerTests : public TestShellTest,
     // Find corresponding WebFrameImpl according to page_url.
     WebFrameImpl* web_frame =
       webkit_glue::GetWebFrameImplFromWebViewForSpecificURL(
-          test_shell_->webView(), GURL(page_url));
+          test_shell_->webView(), GURL(WideToUTF8(page_url)));
     ASSERT_TRUE(web_frame != NULL);
     // Add input file URl to links_.
     links_.push_back(page_url);
@@ -258,7 +258,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithDocType) {
   ASSERT_TRUE(HasSerializedFrame(page_url));
   const std::string& serialized_contents =
       GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(page_url),
+  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
                web_frame->frame()->loader()->encoding());
   // Make sure serialized contents still have document type.
   web_frame =
@@ -290,7 +290,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithoutDocType) {
   ASSERT_TRUE(HasSerializedFrame(page_url));
   const std::string& serialized_contents =
       GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(page_url),
+  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
                web_frame->frame()->loader()->encoding());
   // Make sure serialized contents do not have document type.
   web_frame =
@@ -391,7 +391,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithNoMetaCharsetInOriginalDoc) {
   ASSERT_TRUE(HasSerializedFrame(page_url));
   const std::string& serialized_contents =
       GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(page_url),
+  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
                web_frame->frame()->loader()->encoding());
   // Make sure the first child of HEAD element is META which has charset
   // declaration in serialized contents.
@@ -459,7 +459,7 @@ TEST_F(DomSerializerTests,
   ASSERT_TRUE(HasSerializedFrame(page_url));
   const std::string& serialized_contents =
       GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(page_url),
+  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
                web_frame->frame()->loader()->encoding());
   // Make sure only first child of HEAD element is META which has charset
   // declaration in serialized contents.
@@ -614,7 +614,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
       }
       // Each link is relative link.
       if (value) {
-        GURL link(webkit_glue::StringToStdWString(value->string()).c_str());
+        GURL link(WideToUTF8(webkit_glue::StringToStdWString(value->string())));
         ASSERT_TRUE(link.scheme().empty());
       }
     }
@@ -623,7 +623,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   // Make sure in original document, the base URL is not equal with the
   // |path_dir_url|.
   GURL original_base_url(
-      webkit_glue::StringToStdWString(doc->baseURL()).c_str());
+      WideToUTF8(webkit_glue::StringToStdWString(doc->baseURL())));
   ASSERT_TRUE(original_base_url != path_dir_url);
 
   // Do serialization.
@@ -633,7 +633,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   ASSERT_TRUE(HasSerializedFrame(page_url));
   const std::string& serialized_contents =
       GetSerializedContentForFrame(page_url);
-  LoadContents(serialized_contents, GURL(page_url),
+  LoadContents(serialized_contents, GURL(WideToUTF8(page_url)),
                web_frame->frame()->loader()->encoding());
 
   // Make sure all links are absolute URLs and doc there are some number of
@@ -665,7 +665,7 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
       }
       // Each link is absolute link.
       if (value) {
-        GURL link(webkit_glue::StringToStdWString(value->string()).c_str());
+        GURL link(WideToUTF8(webkit_glue::StringToStdWString(value->string())));
         ASSERT_FALSE(link.scheme().empty());
       }
     }
@@ -674,6 +674,6 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   ASSERT_TRUE(new_base_tag_count == original_base_tag_count + 1);
   // Make sure in new document, the base URL is equal with the |path_dir_url|.
   GURL new_base_url(
-    webkit_glue::StringToStdWString(doc->baseURL()).c_str());
+    WideToUTF8(webkit_glue::StringToStdWString(doc->baseURL())));
   ASSERT_TRUE(new_base_url == path_dir_url);
 }

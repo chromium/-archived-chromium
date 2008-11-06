@@ -154,8 +154,7 @@ bool IsSelectInDefaultState(WebCore::HTMLSelectElement* select) {
     HTMLOptionElement* initial_selected = NULL;
     while (node) {
       HTMLOptionElement* option_element =
-          webkit_glue::CastHTMLElement<HTMLOptionElement>(
-              node, WebCore::HTMLNames::optionTag);
+          webkit_glue::CastToHTMLOptionElement(node);
       if (option_element) {
         if (!initial_selected)
           initial_selected = option_element;
@@ -172,8 +171,7 @@ bool IsSelectInDefaultState(WebCore::HTMLSelectElement* select) {
   } else {
     while (node) {
       HTMLOptionElement* option_element =
-          webkit_glue::CastHTMLElement<HTMLOptionElement>(
-              node, WebCore::HTMLNames::optionTag);
+          webkit_glue::CastToHTMLOptionElement(node);
       if (option_element &&
           option_element->selected() != option_element->defaultSelected()) {
         return false;

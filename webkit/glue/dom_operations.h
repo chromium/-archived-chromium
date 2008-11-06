@@ -20,6 +20,9 @@ namespace WebCore {
 class AtomicString;
 class Document;
 class Element;
+class HTMLLinkElement;
+class HTMLMetaElement;
+class HTMLOptionElement;
 class Node;
 class QualifiedName;
 class String;
@@ -60,18 +63,11 @@ bool FillForm(WebView* view, const FormData& data);
 void FillPasswordForm(WebView* view,
                       const PasswordFormDomManager::FillData& data);
 
-// If node is an HTML node with a tag name of name it is casted to HTMLNodeType
-// and returned. If node is not an HTML node or the tag name is not name
-// NULL is returned.
-template <class HTMLNodeType>
-HTMLNodeType* CastHTMLElement(WebCore::Node* node,
-                              const WebCore::QualifiedName& name) {
-  if (node->isHTMLElement() &&
-      static_cast<WebCore::HTMLElement*>(node)->hasTagName(name)) {
-    return static_cast<HTMLNodeType*>(node);
-  }
-  return NULL;
-}
+// If node is an HTML node with a tag name of name it is casted and returned.
+// If node is not an HTML node or the tag name is not name NULL is returned.
+WebCore::HTMLLinkElement* CastToHTMLLinkElement(WebCore::Node* node);
+WebCore::HTMLMetaElement* CastToHTMLMetaElement(WebCore::Node* node);
+WebCore::HTMLOptionElement* CastToHTMLOptionElement(WebCore::Node* node);
 
 // If element is HTML:IFrame or HTML:Frame, then return the WebFrameImpl
 // object corresponding to the content frame, otherwise return NULL.

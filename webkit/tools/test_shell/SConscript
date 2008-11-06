@@ -156,9 +156,11 @@ test_files = [
     'image_decoder_unittest.cc',
     'keyboard_unittest.cc',
     'layout_test_controller_unittest.cc',
+    'node_leak_test.cc',
     'run_all_tests.cc',
     'test_shell_test.cc',
     '$WEBKIT_DIR/glue/autocomplete_input_listener_unittest.cc',
+    '$WEBKIT_DIR/glue/bookmarklet_unittest.cc',
     '$WEBKIT_DIR/glue/cpp_bound_class_unittest.cc',
     '$WEBKIT_DIR/glue/cpp_variant_unittest.cc',
     '$WEBKIT_DIR/glue/glue_serialize_unittest.cc',
@@ -172,10 +174,8 @@ test_files = [
 if env['PLATFORM'] == 'win32':
   # TODO(port): put portable files in above test_files declaration.
   test_files.extend([
-      'node_leak_test.cc',
       'plugin_tests.cc',
       'text_input_controller_unittest.cc',
-      '$WEBKIT_DIR/glue/bookmarklet_unittest.cc',
       '$WEBKIT_DIR/glue/context_menu_unittest.cc',
       '$WEBKIT_DIR/glue/dom_operations_unittest.cc',
       '$WEBKIT_DIR/glue/dom_serializer_unittest.cc',
