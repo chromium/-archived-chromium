@@ -29,7 +29,7 @@ class PlatformCanvasWin : public SkCanvas {
   virtual ~PlatformCanvasWin();
 
   // For two-part init, call if you use the no-argument constructor above
-  void initialize(int width, int height, bool is_opaque, HANDLE shared_section);
+  bool initialize(int width, int height, bool is_opaque, HANDLE shared_section);
 
   // These calls should surround calls to platform drawing routines, the DC
   // returned by beginPlatformPaint is the DC that can be used to draw into.
@@ -93,11 +93,14 @@ class PlatformCanvasWin : public SkCanvas {
 template <class T>
 class CanvasPaintT : public T {
  public:
-  CanvasPaintT(HWND hwnd) : hwnd_(hwnd), for_paint_(true) {
+  CanvasPaintT(HWND hwnd) : hwnd_(hwnd), paint_dc_(NULL), for_paint_(true) {
+    memset(&ps_, 0, sizeof(ps_));
     initPaint(true);
   }
 
-  CanvasPaintT(HWND hwnd, bool opaque) : hwnd_(hwnd), for_paint_(true) {
+  CanvasPaintT(HWND hwnd, bool opaque) : hwnd_(hwnd), paint_dc_(NULL),
+      for_paint_(true) {
+    memset(&ps_, 0, sizeof(ps_));
     initPaint(opaque);
   }
 
@@ -163,8 +166,12 @@ class CanvasPaintT : public T {
     // painting by one pixel so that the boundaries will be correct (ClearType
     // text can depend on the adjacent pixel). Then we would paint just the
     // inset pixels to the screen.
-    initialize(ps_.rcPaint.right - ps_.rcPaint.left,
-               ps_.rcPaint.bottom - ps_.rcPaint.top, opaque, NULL);
+    const int width = ps_.rcPaint.right - ps_.rcPaint.left;
+    const int height = ps_.rcPaint.bottom - ps_.rcPaint.top;
+    if (!initialize(width, height, opaque, NULL)) {
+      // Cause a deliberate crash;
+      *(char*) 0 = 0;
+    }
 
     // This will bring the canvas into the screen coordinate system for the
     // dirty rect

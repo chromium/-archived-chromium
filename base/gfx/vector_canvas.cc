@@ -13,16 +13,21 @@ VectorCanvas::VectorCanvas() {
 }
 
 VectorCanvas::VectorCanvas(HDC dc, int width, int height) {
-  initialize(dc, width, height);
+  bool initialized = initialize(dc, width, height);
+  CHECK(initialized);
 }
 
 VectorCanvas::~VectorCanvas() {
 }
 
-void VectorCanvas::initialize(HDC context, int width, int height) {
+bool VectorCanvas::initialize(HDC context, int width, int height) {
   SkDevice* device = createPlatformDevice(width, height, true, context);
+  if (!device)
+    return false;
+
   setDevice(device);
   device->unref();  // was created with refcount 1, and setDevice also refs
+  return true;
 }
 
 SkBounder* VectorCanvas::setBounder(SkBounder* bounder) {

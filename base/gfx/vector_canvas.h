@@ -21,7 +21,7 @@ class VectorCanvas : public PlatformCanvasWin {
   virtual ~VectorCanvas();
 
   // For two-part init, call if you use the no-argument constructor above
-  void initialize(HDC context, int width, int height);
+  bool initialize(HDC context, int width, int height);
 
   virtual SkBounder* setBounder(SkBounder*);
   virtual SkDevice* createDevice(SkBitmap::Config config,

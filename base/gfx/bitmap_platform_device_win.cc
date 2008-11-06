@@ -6,7 +6,6 @@
 
 #include "base/gfx/gdi_util.h"
 #include "base/logging.h"
-#include "base/process_util.h"
 #include "SkMatrix.h"
 #include "SkRegion.h"
 #include "SkUtils.h"
@@ -97,33 +96,6 @@ void FixupAlphaBeforeCompositing(uint32_t* pixel) {
     *pixel = 0;
   else
     *pixel |= 0xFF000000;
-}
-
-// Crashes the process. This is called when a bitmap allocation fails, and this
-// function tries to determine why it might have failed, and crash on different
-// lines. This allows us to see in crash dumps the most likely reason for the
-// failure. It takes the size of the bitmap we were trying to allocate as its
-// arguments so we can check that as well.
-void CrashForBitmapAllocationFailure(int w, int h) {
-  // The maximum number of GDI objects per process is 10K. If we're very close
-  // to that, it's probably the problem.
-  const int kLotsOfGDIObjs = 9990;
-  CHECK(GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS) < kLotsOfGDIObjs);
-
-  // If the bitmap is ginormous, then we probably can't allocate it.
-  // We use 64M pixels = 256MB @ 4 bytes per pixel.
-  const int64 kGinormousBitmapPxl = 64000000;
-  CHECK(static_cast<int64>(w) * static_cast<int64>(h) < kGinormousBitmapPxl);
-
-  // If we're using a crazy amount of virtual address space, then maybe there
-  // isn't enough for our bitmap.
-  const int64 kLotsOfMem = 1500000000;  // 1.5GB.
-  scoped_ptr<process_util::ProcessMetrics> process_metrics(
-      process_util::ProcessMetrics::CreateProcessMetrics(GetCurrentProcess()));
-  CHECK(process_metrics->GetPagefileUsage() < kLotsOfMem);
-
-  // Everything else.
-  CHECK(0);
 }
 
 }  // namespace
@@ -263,16 +235,16 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
   SkBitmap bitmap;
 
   // CreateDIBSection appears to get unhappy if we create an empty bitmap, so
-  // we just expand it here.
-  if (width == 0)
+  // just create a minimal bitmap
+  if ((width == 0) || (height == 0)) {
     width = 1;
-  if (height == 0)
     height = 1;
+  }
 
-  BITMAPINFOHEADER hdr;
+  BITMAPINFOHEADER hdr = {0};
   CreateBitmapHeader(width, height, &hdr);
 
-  void* data;
+  void* data = NULL;
   HBITMAP hbitmap = CreateDIBSection(screen_dc,
                                      reinterpret_cast<BITMAPINFO*>(&hdr), 0,
                                      &data,
@@ -282,8 +254,11 @@ BitmapPlatformDeviceWin* BitmapPlatformDeviceWin::create(HDC screen_dc,
   // bitmap here. This will cause us to crash later because the data pointer is
   // NULL. To make sure that we can assign blame for those crashes to this code,
   // we deliberately crash here, even in release mode.
-  if (!hbitmap)
-    CrashForBitmapAllocationFailure(width, height);
+  if (!hbitmap) {
+    DWORD error = GetLastError();
+    LOG(ERROR) << "CreateDIBSection Failed. Error: " << error << "\n";
+    return NULL;
+  }
 
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
   bitmap.setPixels(data);
