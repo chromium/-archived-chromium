@@ -15,6 +15,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "net/base/mime_util.h"
+#include "net/base/net_util.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/webdatasource.h"
@@ -335,18 +336,26 @@ void TestShell::ResizeSubViews() {
 
 void TestShell::LoadURLForFrame(const wchar_t* url,
                                 const wchar_t* frame_name) {
-    if (!url)
-        return;
+  if (!url)
+    return;
 
-    std::wstring frame_string;
-    if (frame_name)
-        frame_string = frame_name;
+  std::wstring frame_string;
+  if (frame_name)
+    frame_string = frame_name;
 
-    LOG(INFO) << "Loading " << WideToUTF8(url) << " in frame '"
-              << WideToUTF8(frame_string) << "'";
+  LOG(INFO) << "Loading " << WideToUTF8(url) << " in frame '"
+          << WideToUTF8(frame_string) << "'";
 
-    navigation_controller_->LoadEntry(new TestNavigationEntry(
-        -1, GURL(WideToUTF8(url)), std::wstring(), frame_string));
+  GURL gurl;
+  // PathExists will reject any string with no leading '/'
+  // as well as empty strings.
+  if (file_util::PathExists(url))
+    gurl = net::FilePathToFileURL(url);
+  else
+    gurl = GURL(WideToUTF8(url));
+
+  navigation_controller_->LoadEntry(new TestNavigationEntry(
+    -1, gurl, std::wstring(), frame_string));
 }
 
 static void WriteTextToFile(const std::wstring& data,
