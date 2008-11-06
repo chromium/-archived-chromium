@@ -33,6 +33,7 @@
 #include "GraphicsContext.h"
 #include "ScrollbarTheme.h"
 #include "SkiaUtils.h"
+#include "ThemeHelperWin.h"
 
 #include "base/gfx/native_theme.h"
 #include "base/gfx/font_utils.h"
@@ -482,20 +483,19 @@ bool RenderThemeWin::paintButton(RenderObject* o,
 {
     const ThemeData& themeData = getThemeData(o);
 
-    RECT rect;
-    rect.left = r.x();
-    rect.top = r.y();
-    rect.right = r.right();
-    rect.bottom = r.bottom();
+    WebCore::ThemeHelperWin helper(i.context, r);
+    gfx::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
 
-    HDC hdc = i.context->platformContext()->canvas()->beginPlatformPaint();
+    HDC hdc = canvas->beginPlatformPaint();
     int state = themeData.m_state;
+    RECT renderRect = helper.rect();
+
     gfx::NativeTheme::instance()->PaintButton(hdc,
                                               themeData.m_part,
                                               state,
                                               themeData.m_classicState,
-                                              &rect);
-    i.context->platformContext()->canvas()->endPlatformPaint();
+                                              &renderRect);
+    canvas->endPlatformPaint();
     return false;
 }
 
@@ -574,23 +574,22 @@ bool RenderThemeWin::paintTextFieldInternal(RenderObject* o,
 
     const ThemeData& themeData = getThemeData(o);
 
-    RECT rect;
-    rect.left = r.x();
-    rect.top = r.y();
-    rect.right = r.right();
-    rect.bottom = r.bottom();
+    WebCore::ThemeHelperWin helper(i.context, r);
+    gfx::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
 
-    HDC hdc = i.context->platformContext()->canvas()->beginPlatformPaint();
+    HDC hdc = canvas->beginPlatformPaint();
     COLORREF clr = gfx::SkColorToCOLORREF(o->style()->backgroundColor().rgb());
+    RECT renderRect = helper.rect();
+
     gfx::NativeTheme::instance()->PaintTextField(hdc,
                                                  themeData.m_part,
                                                  themeData.m_state,
                                                  themeData.m_classicState,
-                                                 &rect,
+                                                 &renderRect,
                                                  clr,
                                                  true,
                                                  drawEdges);
-    i.context->platformContext()->canvas()->endPlatformPaint();
+    canvas->endPlatformPaint();
     return false;
 }
 
@@ -662,21 +661,23 @@ bool RenderThemeWin::paintMenuList(RenderObject* o, const RenderObject::PaintInf
         buttonX = o->style()->direction() == LTR ? r.right() - spacingRight - buttonWidth : r.x() + spacingLeft;
     }
 
-    // Compute the Windows rectangle of the button.
-    RECT rect;
-    rect.left = buttonX;
-    rect.top = r.y() + spacingTop;
-    rect.right = rect.left + std::min(buttonWidth, r.right() - r.x());
-    rect.bottom = rect.top + r.height() - (spacingTop + spacingBottom);
+    // Compute the rectangle of the button in the destination image.
+    IntRect rect(buttonX,
+                 r.y() + spacingTop,
+                 std::min(buttonWidth, r.right() - r.x()),
+                 r.height() - (spacingTop + spacingBottom));
 
     // Get the correct theme data for a textfield and paint the menu.
-    HDC hdc = i.context->platformContext()->canvas()->beginPlatformPaint();
+    WebCore::ThemeHelperWin helper(i.context, rect);
+    gfx::PlatformCanvas* canvas = helper.context()->platformContext()->canvas();
+    HDC hdc = canvas->beginPlatformPaint();
+    RECT renderRect = helper.rect();
     gfx::NativeTheme::instance()->PaintMenuList(hdc,
                                                 CP_DROPDOWNBUTTON,
                                                 determineState(o),
                                                 determineClassicState(o),
-                                                &rect);
-    i.context->platformContext()->canvas()->endPlatformPaint();
+                                                &renderRect);
+    canvas->endPlatformPaint();
     return false;
 }
 

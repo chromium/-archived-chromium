@@ -974,6 +974,14 @@
 					RelativePath="..\..\port\platform\graphics\SkiaUtils.h"
 					>
 				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\ThemeHelperWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\ThemeHelperWin.h"
+					>
+				</File>
 				<Filter
 					Name="svg"
 					>
