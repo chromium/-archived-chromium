@@ -4,6 +4,7 @@
 
 #include "webkit/tools/test_shell/webwidget_host.h"
 
+#include <cairo/cairo.h>
 #include <gtk/gtk.h>
 
 #include "base/logging.h"
@@ -232,8 +233,11 @@ void WebWidgetHost::Paint() {
   gfx::PlatformDeviceLinux &platdev = canvas_->getTopPlatformDevice();
   gfx::BitmapPlatformDeviceLinux* const bitdev =
     static_cast<gfx::BitmapPlatformDeviceLinux* >(&platdev);
-  gdk_draw_pixbuf(view_->window, NULL, bitdev->pixbuf(),
-                  0, 0, 0, 0, width, height, GDK_RGB_DITHER_NONE, 0, 0);
+  
+  cairo_t* cairo_drawable = gdk_cairo_create(view_->window);
+  cairo_set_source_surface(cairo_drawable, bitdev->surface(), 0, 0);
+  cairo_paint(cairo_drawable);
+  cairo_destroy(cairo_drawable);
 }
 
 void WebWidgetHost::ResetScrollRect() {

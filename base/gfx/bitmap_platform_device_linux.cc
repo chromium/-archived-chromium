@@ -4,8 +4,7 @@
 
 #include "base/gfx/bitmap_platform_device_linux.h"
 
-#include <gdk/gdk.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <cairo/cairo.h>
 
 #include "base/logging.h"
 
@@ -17,21 +16,14 @@ namespace gfx {
 // data.
 BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
     int width, int height, bool is_opaque) {
-  GdkPixbuf* pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, true, 8, width, height);
-  if (!pixbuf)
-    return NULL;
-
-  DCHECK_EQ(gdk_pixbuf_get_colorspace(pixbuf), GDK_COLORSPACE_RGB);
-  DCHECK_EQ(gdk_pixbuf_get_bits_per_sample(pixbuf), 8);
-  DCHECK(gdk_pixbuf_get_has_alpha(pixbuf));
-  DCHECK_EQ(gdk_pixbuf_get_n_channels(pixbuf), 4);
-  DCHECK_EQ(gdk_pixbuf_get_width(pixbuf), width);
-  DCHECK_EQ(gdk_pixbuf_get_height(pixbuf), height);
+  cairo_surface_t* surface =
+      cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+                                 width, height);
 
   SkBitmap bitmap;
   bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height,
-                   gdk_pixbuf_get_rowstride(pixbuf));
-  bitmap.setPixels(gdk_pixbuf_get_pixels(pixbuf));
+                   cairo_image_surface_get_stride(surface));
+  bitmap.setPixels(cairo_image_surface_get_data(surface));
   bitmap.setIsOpaque(is_opaque);
 
 #ifndef NDEBUG
@@ -41,15 +33,15 @@ BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
 #endif
 
   // The device object will take ownership of the graphics context.
-  return new BitmapPlatformDeviceLinux(bitmap, pixbuf);
+  return new BitmapPlatformDeviceLinux(bitmap, surface);
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel
 // data. Therefore, we do not transfer ownership to the SkDevice's bitmap.
 BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(const SkBitmap& bitmap,
-                                                     GdkPixbuf* pixbuf)
+                                                     cairo_surface_t* surface)
     : PlatformDeviceLinux(bitmap),
-      pixbuf_(pixbuf) {
+      surface_(surface) {
 }
 
 BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
@@ -59,9 +51,9 @@ BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
 }
 
 BitmapPlatformDeviceLinux::~BitmapPlatformDeviceLinux() {
-  if (pixbuf_) {
-    g_object_unref(pixbuf_);
-    pixbuf_ = NULL;
+  if (surface_) {
+    cairo_surface_destroy(surface_);
+    surface_ = NULL;
   }
 }
 
