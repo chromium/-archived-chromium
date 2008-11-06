@@ -5,6 +5,7 @@
 #include "base/file_util.h"
 
 #include "chrome/browser/automation/url_request_mock_http_job.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/url_request/url_request_unittest.h"
@@ -66,7 +67,11 @@ class UnloadTest : public UITest {
 // Navigate to a page with an infinite unload handler.
 // Then two two async crosssite requests to ensure
 // we don't get confused and think we're closing the tab.
-TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteUnloadAsync) {
+TEST_F(UnloadTest, CrossSiteInfiniteUnloadAsync) {
+  // Tests makes no sense in single-process mode since the renderer is hung.
+  if (CommandLine().HasSwitch(switches::kSingleProcess))
+    return;
+
   NavigateToUnloadFileUsingTestServer(L"unloadlooping.html", L"unloadlooping");
   NavigateToNolistenersFileTwiceAsync();
   ASSERT_TRUE(IsBrowserRunning());
@@ -75,7 +80,11 @@ TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteUnloadAsync) {
 // Navigate to a page with an infinite unload handler.
 // Then two two sync crosssite requests to ensure
 // we correctly nav to each one. 
-TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteUnloadSync) {
+TEST_F(UnloadTest, CrossSiteInfiniteUnloadSync) {
+  // Tests makes no sense in single-process mode since the renderer is hung.
+  if (CommandLine().HasSwitch(switches::kSingleProcess))
+    return;
+
   NavigateToUnloadFileUsingTestServer(L"unloadlooping.html", L"unloadlooping");
   NavigateToNolistenersFileTwice();
   ASSERT_TRUE(IsBrowserRunning());
@@ -84,7 +93,11 @@ TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteUnloadSync) {
 // Navigate to a page with an infinite beforeunload handler.
 // Then two two async crosssite requests to ensure
 // we don't get confused and think we're closing the tab.
-TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteBeforeUnloadAsync) {
+TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadAsync) {
+  // Tests makes no sense in single-process mode since the renderer is hung.
+  if (CommandLine().HasSwitch(switches::kSingleProcess))
+    return;
+
   NavigateToUnloadFileUsingTestServer(L"beforeunloadlooping.html", 
                                       L"beforeunloadlooping");
   NavigateToNolistenersFileTwiceAsync();
@@ -94,7 +107,11 @@ TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteBeforeUnloadAsync) {
 // Navigate to a page with an infinite beforeunload handler.
 // Then two two sync crosssite requests to ensure
 // we correctly nav to each one. 
-TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteBeforeUnloadSync) {
+TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadSync) {
+  // Tests makes no sense in single-process mode since the renderer is hung.
+  if (CommandLine().HasSwitch(switches::kSingleProcess))
+    return;
+
   NavigateToUnloadFileUsingTestServer(L"beforeunloadlooping.html", 
                                       L"beforeunloadlooping");
   NavigateToNolistenersFileTwice();
