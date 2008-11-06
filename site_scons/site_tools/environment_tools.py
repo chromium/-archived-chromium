@@ -131,7 +131,7 @@ def ApplySConscript(self, sconscript_file):
   If you need to export multiple variables to the called SConscript, or return
   variables from it, use the existing SConscript() function.
   """
-  return SCons.Script.SConscript(sconscript_file, exports={'env': self})
+  return self.SConscript(sconscript_file, exports={'env': self})
 
 #------------------------------------------------------------------------------
 
