@@ -4,8 +4,22 @@
 
 #include "base/idle_timer.h"
 
+// We may not want to port idle_timer to Linux, but we have implemented it
+// anyway.  Define this to 1 to enable the Linux idle timer and then add the
+// libs that need to be linked (Xss).
+#define ENABLE_XSS_SUPPORT 0
+
 #if defined(OS_MACOSX)
 #include <ApplicationServices/ApplicationServices.h>
+#endif
+
+#if defined(OS_LINUX) && ENABLE_XSS_SUPPORT
+// We may not want to port idle_timer to Linux, but we have implemented it
+// anyway.  Remove the 0 above if we want it.
+#include <gdk/gdkx.h>
+#include <X11/extensions/scrnsaver.h>
+#include "base/lazy_instance.h"
+#include "base/thread_local.h"
 #endif
 
 #include "base/message_loop.h"
@@ -39,6 +53,50 @@ bool OSIdleTimeSource(int32 *milliseconds_interval_since_last_event) {
           kCGEventSourceStateCombinedSessionState, 
           kCGAnyInputEventType) * 1000.0;
   return true;
+}
+#elif defined(OS_LINUX) && ENABLE_XSS_SUPPORT
+class IdleState {
+ public:
+  IdleState() {
+    int event_base, error_base;
+    have_idle_info_ = XScreenSaverQueryExtension(GDK_DISPLAY(), &event_base,
+                                                 &error_base);
+    if (have_idle_info_)
+      *idle_info_.Get() = XScreenSaverAllocInfo();
+  }
+
+  ~IdleState() {
+    if (*idle_info_.Get()) {
+      XFree(*idle_info_.Get());
+      idle_info_.~ThreadLocalPointer();
+    }
+  }
+
+  int32 IdleTime() {
+    if (have_idle_info_ && idle_info_.Get()) {
+      XScreenSaverQueryInfo(GDK_DISPLAY(), GDK_ROOT_WINDOW(),
+                            *idle_info_.Get());
+      return (*idle_info_.Get())->idle;
+    }
+    return -1;
+  }
+
+ private:
+  bool have_idle_info_;
+  ThreadLocalPointer<XScreenSaverInfo*> idle_info_;
+
+  DISALLOW_COPY_AND_ASSIGN(IdleState);
+};
+
+bool OSIdleTimeSource(int32* milliseconds_interval_since_last_event) {
+  static LazyInstance<IdleState> state_instance(base::LINKER_INITIALIZED);
+  IdleState* state = state_instance.Pointer();
+  int32 idle_time = state->IdleTime();
+  if (0 < idle_time) {
+    *milliseconds_interval_since_last_event = idle_time;
+    return true;
+  }
+  return false;
 }
 #endif
 

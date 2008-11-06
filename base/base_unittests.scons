@@ -61,6 +61,7 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] == 'posix':
   env.Append(
+      # We need 'Xss' (X Screen Saver) in LIBS if we want idletimer_unittest
       LIBS = [
           'event',
       ],
@@ -133,7 +134,10 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [
+      # We have an implementation of idle_timer, but it's unclear if we want it
+      # yet, so it's commented out for now.  Leave this 'unported'.
       'idletimer_unittest.cc',
+
       'watchdog_unittest.cc',
       'gfx/native_theme_unittest.cc',
       'gfx/uniscribe_unittest.cc',

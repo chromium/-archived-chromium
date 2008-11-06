@@ -96,7 +96,11 @@ if env['PLATFORM'] in ('posix', 'darwin'):
     'file_version_info.cc',
 
     # This group all depends on MessageLoop.
+
+    # We have an implementation of idle_timer, but it's unclear if we want it
+    # yet, so it's commented out for now.  Leave this 'unported'.
     'idle_timer.cc',
+
     'object_watcher.cc',
     'watchdog.cc',
 
