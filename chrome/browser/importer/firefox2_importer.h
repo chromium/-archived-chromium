@@ -19,6 +19,7 @@ class Firefox2Importer : public Importer {
   virtual void StartImport(ProfileInfo profile_info,
                            uint16 items,
                            ProfileWriter* writer,
+                           MessageLoop* delagate_loop,
                            ImporterHost* host);
 
   // Loads the default bookmarks in the Firefox installed at |firefox_app_path|,

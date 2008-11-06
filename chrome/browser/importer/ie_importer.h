@@ -16,6 +16,7 @@ class IEImporter : public Importer {
   virtual void StartImport(ProfileInfo browser_info,
                            uint16 items,
                            ProfileWriter* writer,
+                           MessageLoop* delagate_loop,
                            ImporterHost* host);
 
  private:

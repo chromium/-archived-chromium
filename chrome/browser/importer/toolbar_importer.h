@@ -2,6 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// The functionality provided here allows the user to import their bookmarks 
+// (favorites) from Google Toolbar.  
+//
+// Currently the only configuration information we need is to check whether or 
+// not the user currently has their GAIA cookie.  This is done by the functions
+// exposed through the ToolbarImportUtils namespace.
+//
+// Toolbar5Importer is a class which exposes the functionality needed to
+// communicate with the Google Toolbar v5 front-end, negotiate the download of
+// Toolbar bookmarks, parse them, and install them on the client.
+
 #ifndef CHROME_BROWSER_IMPORTER_TOOLBAR_IMPROTER_H__
 #define CHROME_BROWSER_IMPORTER_TOOLBAR_IMPROTER_H__
 
@@ -13,30 +24,10 @@
 
 class XmlReader;
 
-enum TOOLBAR_VERSION {
-  NO_VERSION = -1,
-  DEPRECATED,
-  VERSION_4,
-  VERSION_5
-};
+namespace ToolbarImporterUtils {
 
-class ToolbarImporterUtils {
- public:
+bool IsGoogleGAIACookieInstalled();
 
-  static bool IsToolbarInstalled();
-  static bool IsGoogleGAIACookieInstalled();
-  static TOOLBAR_VERSION GetToolbarVersion();
-
- private:
-  static const HKEY kToolbarInstallRegistryRoots[2];
-  static const TCHAR* kToolbarRootRegistryFolder;
-  static const TCHAR* kToolbarVersionRegistryFolder;
-  static const TCHAR* kToolbarVersionRegistryKey;
-
-  ToolbarImporterUtils() {}
-  ~ToolbarImporterUtils() {}
-
-  DISALLOW_COPY_AND_ASSIGN(ToolbarImporterUtils);
 };
 
 class Toolbar5Importer : public URLFetcher::Delegate,
@@ -49,9 +40,15 @@ class Toolbar5Importer : public URLFetcher::Delegate,
   virtual void StartImport(ProfileInfo profile_info,
                            uint16 items,
                            ProfileWriter* writer,
+                           MessageLoop* delegate_loop,
                            ImporterHost* host);
 
-  // URLFetcher::Delegate method
+  // Importer view call this method when the user clicks the cancel button
+  // in the ImporterView UI.  We need to post a message to our loop
+  // to cancel network retrieval.
+  virtual void Cancel();
+
+  // URLFetcher::Delegate method called back from the URLFetcher object.
   void OnURLFetchComplete(const URLFetcher* source,
                           const GURL& url,
                           const URLRequestStatus& status,
@@ -60,19 +57,23 @@ class Toolbar5Importer : public URLFetcher::Delegate,
                           const std::string& data);
 
  private:
+  FRIEND_TEST(Toolbar5ImporterTest, BookmarkParse);
+ 
   // Internal state
   enum INTERNAL_STATE {
     NOT_USED = -1,
     INITIALIZED,
     GET_AUTHORIZATION_TOKEN,
     GET_BOOKMARKS,
+    PARSE_BOOKMARKS,
     DONE
   };
+
+  typedef std::vector<std::wstring> BOOKMARK_FOLDER;
 
   // URLs for connecting to the toolbar front end
   static const std::string kT5AuthorizationTokenUrl;
   static const std::string kT5FrontEndUrlTemplate;
-  static const std::string kT4FrontEndUrlTemplate;
 
   // Token replacement tags
   static const std::string kRandomNumberToken;
@@ -90,12 +91,9 @@ class Toolbar5Importer : public URLFetcher::Delegate,
   static const std::string kUrlXmlTag;
   static const std::string kTimestampXmlTag;
   static const std::string kLabelsXmlTag;
+  static const std::string kLabelsXmlCloseTag;
   static const std::string kLabelXmlTag;
   static const std::string kAttributesXmlTag;
-  static const std::string kAttributeXmlTag;
-  static const std::string kNameXmlTag;
-  static const std::string kValueXmlTag;
-  static const std::string kFaviconAttributeXmlName;
 
   // Flow control
   void ContinueImport();
@@ -111,39 +109,38 @@ class Toolbar5Importer : public URLFetcher::Delegate,
   // XML Parsing
   bool ParseAuthenticationTokenResponse(const std::string& response,
                                         std::string* token);
-  void ConstructFEConnectionString(const std::string& token,
-                                   std::string* conn_string);
 
-  bool ParseBookmarksFromReader(
+  static bool ParseBookmarksFromReader(
       XmlReader* reader,
-      std::vector< ProfileWriter::BookmarkEntry >* bookmarks,
-      std::vector< history::ImportedFavIconUsage >* favicons);
+      std::vector< ProfileWriter::BookmarkEntry >* bookmarks);
 
-  bool LocateNextTagByName(XmlReader* reader, const std::string& tag);
+  static bool LocateNextOpenTag(XmlReader* reader);
+  static bool LocateNextTagByName(XmlReader* reader, const std::string& tag);
+  static bool LocateNextTagWithStopByName(
+      XmlReader* reader, 
+      const std::string& tag, 
+      const std::string& stop);
 
-  bool ExtractBookmarkInformation(XmlReader* reader,
-                                  ProfileWriter::BookmarkEntry* bookmark_entry,
-                                  history::ImportedFavIconUsage* favicon_entry);
-  bool ExtractNamedValueFromXmlReader(XmlReader* reader,
-                                      const std::string& name,
-                                      std::string* buffer);
-  bool ExtractTitleFromXmlReader(XmlReader* reader,
-                                 ProfileWriter::BookmarkEntry* entry);
-  bool ExtractUrlFromXmlReader(XmlReader* reader,
-                               ProfileWriter::BookmarkEntry* entry);
-  bool ExtractTimeFromXmlReader(XmlReader* reader,
-                                ProfileWriter::BookmarkEntry* entry);
-  bool ExtractFolderFromXmlReader(XmlReader* reader,
-                                  ProfileWriter::BookmarkEntry* entry);
-  bool ExtractFaviconFromXmlReader(
+  static bool ExtractBookmarkInformation(
       XmlReader* reader,
       ProfileWriter::BookmarkEntry* bookmark_entry,
-      history::ImportedFavIconUsage* favicon_entry);
+      std::vector<BOOKMARK_FOLDER>* bookmark_folders);
+  static bool ExtractNamedValueFromXmlReader(XmlReader* reader,
+                                             const std::string& name,
+                                             std::string* buffer);
+  static bool ExtractTitleFromXmlReader(XmlReader* reader,
+                                        ProfileWriter::BookmarkEntry* entry);
+  static bool ExtractUrlFromXmlReader(XmlReader* reader,
+                                      ProfileWriter::BookmarkEntry* entry);
+  static bool ExtractTimeFromXmlReader(XmlReader* reader,
+                                       ProfileWriter::BookmarkEntry* entry);
+  static bool ExtractFoldersFromXmlReader(
+      XmlReader* reader,
+      std::vector<BOOKMARK_FOLDER>* bookmark_folders);
 
   // Bookmark creation
   void AddBookMarksToChrome(
-    const std::vector< ProfileWriter::BookmarkEntry >& bookmarks,
-    const std::vector< history::ImportedFavIconUsage >& favicons);
+      const std::vector<ProfileWriter::BookmarkEntry>& bookmarks);
 
   // Hosts the writer used in this importer.
   ProfileWriter* writer_;

@@ -56,6 +56,7 @@ const GUID IEImporter::kUnittestGUID = { 0xa79029d6, 0x753e, 0x4e27,
 void IEImporter::StartImport(ProfileInfo profile_info,
                              uint16 items,
                              ProfileWriter* writer,
+                             MessageLoop* delagate_loop,
                              ImporterHost* host) {
   writer_ = writer;
   source_path_ = profile_info.source_path;
@@ -108,7 +109,7 @@ void IEImporter::ImportFavorites() {
 
   if (!bookmarks.empty() && !cancelled()) {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
-        &ProfileWriter::AddBookmarkEntry, bookmarks));
+        &ProfileWriter::AddBookmarkEntry, bookmarks, false));
   }
 }
 

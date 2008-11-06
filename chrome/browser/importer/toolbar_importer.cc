@@ -8,6 +8,7 @@
 #include "base/string_util.h"
 #include "base/rand_util.h"
 #include "base/registry.h"
+#include "chrome/browser/first_run.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/libxml_utils.h"
 #include "net/base/data_url.h"
@@ -15,85 +16,34 @@
 
 #include "generated_resources.h"
 
-
 //
 // ToolbarImporterUtils
 //
-const HKEY ToolbarImporterUtils::kToolbarInstallRegistryRoots[] =
-    {HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE};
-const TCHAR* ToolbarImporterUtils::kToolbarRootRegistryFolder =
-    L"Software\\Google\\Google Toolbar";
-const TCHAR* ToolbarImporterUtils::kToolbarVersionRegistryFolder =
-    L"SOFTWARE\\Google\\Google Toolbar\\Component";
-const TCHAR* ToolbarImporterUtils::kToolbarVersionRegistryKey =
-    L"CurrentVersion";
-
-
-bool ToolbarImporterUtils::IsToolbarInstalled() {
-  for (int index = 0;
-      index < arraysize(kToolbarInstallRegistryRoots);
-      ++index) {
-    RegKey key(kToolbarInstallRegistryRoots[index],
-               kToolbarRootRegistryFolder);
-    if (key.Valid())
-      return true;
-  }
-  return false;
-}
+static const std::string kGoogleDomainUrl = "http://.google.com/";
+static const wchar_t kSplitStringToken = L';';
+static const std::string kGoogleDomainSecureCookieId = "SID=";
 
 bool ToolbarImporterUtils::IsGoogleGAIACookieInstalled() {
   URLRequestContext* context = Profile::GetDefaultRequestContext();
   net::CookieMonster* store= context->cookie_store();
-  GURL url("http://.google.com/");
+  GURL url(kGoogleDomainUrl);
   net::CookieMonster::CookieOptions options = net::CookieMonster::NORMAL;
   std::string cookies = store->GetCookiesWithOptions(url, options);
   std::vector<std::string> cookie_list;
-  SplitString(cookies, L';', &cookie_list);
+  SplitString(cookies, kSplitStringToken, &cookie_list);
   for (std::vector<std::string>::iterator current = cookie_list.begin();
        current != cookie_list.end();
        ++current) {
-    size_t position = (*current).find("SID=");
+    size_t position = (*current).find(kGoogleDomainSecureCookieId);
     if (0 == position)
         return true;
   }
   return false;
 }
 
-TOOLBAR_VERSION ToolbarImporterUtils::GetToolbarVersion() {
-  TOOLBAR_VERSION toolbar_version = NO_VERSION;
-  for (int index = 0;
-       (index < arraysize(kToolbarInstallRegistryRoots)) &&
-       NO_VERSION == toolbar_version;
-       ++index) {
-    RegKey key(kToolbarInstallRegistryRoots[index],
-               kToolbarVersionRegistryFolder);
-    if (key.Valid() && key.ValueExists(kToolbarVersionRegistryKey)) {
-      TCHAR version_buffer[128];
-      DWORD version_buffer_length = sizeof(version_buffer);
-      if (key.ReadValue(kToolbarVersionRegistryKey,
-                        &version_buffer,
-                        &version_buffer_length)) {
-        int version_value = _wtoi(version_buffer);
-        switch (version_value) {
-          case 5: {
-            toolbar_version = VERSION_5;
-            break;
-           }
-          default: {
-            toolbar_version = DEPRECATED;
-            break;
-          }
-        }
-      }
-    }
-  }
-  return toolbar_version;
-}
-
 //
 // Toolbar5Importer
 //
-
 const std::string Toolbar5Importer::kXmlApiReplyXmlTag = "xml_api_reply";
 const std::string Toolbar5Importer::kBookmarksXmlTag = "bookmarks";
 const std::string Toolbar5Importer::kBookmarkXmlTag = "bookmark";
@@ -101,12 +51,9 @@ const std::string Toolbar5Importer::kTitleXmlTag = "title";
 const std::string Toolbar5Importer::kUrlXmlTag = "url";
 const std::string Toolbar5Importer::kTimestampXmlTag = "timestamp";
 const std::string Toolbar5Importer::kLabelsXmlTag = "labels";
+const std::string Toolbar5Importer::kLabelsXmlCloseTag = "/labels";
 const std::string Toolbar5Importer::kLabelXmlTag = "label";
 const std::string Toolbar5Importer::kAttributesXmlTag = "attributes";
-const std::string Toolbar5Importer::kAttributeXmlTag = "attribute";
-const std::string Toolbar5Importer::kNameXmlTag = "name";
-const std::string Toolbar5Importer::kValueXmlTag = "favicon";
-const std::string Toolbar5Importer::kFaviconAttributeXmlName = "favicon_url";
 
 const std::string Toolbar5Importer::kRandomNumberToken = "{random_number}";
 const std::string Toolbar5Importer::kAuthorizationToken = "{auth_token}";
@@ -120,9 +67,6 @@ const std::string Toolbar5Importer::kT5AuthorizationTokenUrl =
 const std::string Toolbar5Importer::kT5FrontEndUrlTemplate =
     "http://www.google.com/notebook/toolbar?cmd=list&tok={auth_token}& "
     "num={max_num}&min={max_timestamp}&all=0&zx={random_number}";
-const std::string Toolbar5Importer::kT4FrontEndUrlTemplate =
-    "http://www.google.com/bookmarks/?output=xml&num={max_num}&"
-    "min={max_timestamp}&all=0&zx={random_number}";
 
 // Importer methods.
 Toolbar5Importer::Toolbar5Importer() : writer_(NULL),
@@ -140,17 +84,41 @@ Toolbar5Importer::~Toolbar5Importer() {
 void Toolbar5Importer::StartImport(ProfileInfo profile_info,
                                    uint16 items,
                                    ProfileWriter* writer,
+                                   MessageLoop* delagate_loop,
                                    ImporterHost* host) {
   DCHECK(writer);
   DCHECK(host);
 
   importer_host_ = host;
+  delagate_loop_ = delagate_loop;
   writer_ = writer;
   items_to_import_ = items;
   state_ = INITIALIZED;
 
   NotifyStarted();
   ContinueImport();
+}
+
+// The public cancel method servers two functions, as a callback from the UI
+// as well as an internal callback in case of cancel.  An internal callback
+// is required since the URLFetcher must be destroyed from the thread it was
+// created.
+void Toolbar5Importer::Cancel() {
+  // In the case when the thread is not importing messages we are to
+  // cancel as soon as possible.
+  Importer::Cancel();
+  
+  // If we are conducting network operations, post a message to the importer 
+  // thread for synchronization.
+  if (NULL != delagate_loop_) {
+    if (delagate_loop_ != MessageLoop::current()) {
+      delagate_loop_->PostTask(
+          FROM_HERE, 
+          NewRunnableMethod(this, &Toolbar5Importer::Cancel));
+    } else {
+      EndImport();
+    }
+  }
 }
 
 void Toolbar5Importer::OnURLFetchComplete(
@@ -160,6 +128,11 @@ void Toolbar5Importer::OnURLFetchComplete(
     int response_code,
     const ResponseCookies& cookies,
     const std::string& data) {
+  if (cancelled()) {
+    EndImport();
+    return;
+  }
+  
   if (200 != response_code) {  // HTTP/Ok
     // Display to the user an error dialog and cancel the import
     EndImportBookmarks(false);
@@ -198,20 +171,23 @@ void Toolbar5Importer::ContinueImport() {
 }
 
 void Toolbar5Importer::EndImport() {
-  // By spec the fetcher's must be destroyed within the same
-  // thread they are created.  The importer is destroyed in the ui_thread
-  // so when we complete in the file_thread we destroy them first.
-  if (NULL != token_fetcher_) {
-    delete token_fetcher_;
-    token_fetcher_ = NULL;
-  }
+  if (state_ != DONE) {
+    state_ = DONE;
+    // By spec the fetcher's must be destroyed within the same
+    // thread they are created.  The importer is destroyed in the ui_thread
+    // so when we complete in the file_thread we destroy them first.
+    if (NULL != token_fetcher_) {
+      delete token_fetcher_;
+      token_fetcher_ = NULL;
+    }
 
-  if (NULL != data_fetcher_) {
-    delete data_fetcher_;
-    data_fetcher_ = NULL;
-  }
+    if (NULL != data_fetcher_) {
+      delete data_fetcher_;
+      data_fetcher_ = NULL;
+    }
 
-  NotifyEnded();
+    NotifyEnded();
+  }
 }
 
 void Toolbar5Importer::BeginImportBookmarks() {
@@ -227,6 +203,11 @@ void Toolbar5Importer::EndImportBookmarks(bool success) {
 
 // Notebook FE connection managers.
 void Toolbar5Importer::GetAuthenticationFromServer() {
+  if (cancelled()) {
+    EndImport();
+    return;
+  }
+      
   // Authentication is a token string retreived from the authentication server
   // To access it we call the url below with a random number replacing the
   // value in the string.
@@ -249,6 +230,11 @@ void Toolbar5Importer::GetAuthenticationFromServer() {
 }
 
 void Toolbar5Importer::GetBookmarkDataFromServer(const std::string& response) {
+  if (cancelled()) {
+    EndImport();
+    return;
+  }
+  
   state_ = GET_BOOKMARKS;
 
   // Parse and verify the authorization token from the response.
@@ -278,16 +264,20 @@ void Toolbar5Importer::GetBookmarkDataFromServer(const std::string& response) {
 
 void Toolbar5Importer::GetBookmarsFromServerDataResponse(
     const std::string& response) {
+  if (cancelled()) {
+    EndImport();
+    return;
+  }
+  
+  state_ = PARSE_BOOKMARKS;
+  
   bool retval = false;
   XmlReader reader;
   if (reader.Load(response) && !cancelled()) {
     // Construct Bookmarks
-    std::vector< ProfileWriter::BookmarkEntry > bookmarks;
-    std::vector< history::ImportedFavIconUsage > favicons;
-    retval = ParseBookmarksFromReader(&reader, &bookmarks, &favicons);
-    if (retval && !cancelled()) {
-      AddBookMarksToChrome(bookmarks, favicons);
-    }
+    std::vector<ProfileWriter::BookmarkEntry> bookmarks;
+    retval = ParseBookmarksFromReader(&reader, &bookmarks);
+    if (retval) AddBookMarksToChrome(bookmarks);
   }
   EndImportBookmarks(retval);
 }
@@ -295,7 +285,7 @@ void Toolbar5Importer::GetBookmarsFromServerDataResponse(
 bool Toolbar5Importer::ParseAuthenticationTokenResponse(
     const std::string& response,
     std::string* token) {
-  DCHECK(token);
+  DCHECK(token);  
 
   *token = response;
   size_t position = token->find(kAuthorizationTokenPrefix);
@@ -314,11 +304,9 @@ bool Toolbar5Importer::ParseAuthenticationTokenResponse(
 // Parsing
 bool Toolbar5Importer::ParseBookmarksFromReader(
     XmlReader* reader,
-    std::vector< ProfileWriter::BookmarkEntry >* bookmarks,
-    std::vector< history::ImportedFavIconUsage >* favicons) {
+    std::vector<ProfileWriter::BookmarkEntry>* bookmarks) {
   DCHECK(reader);
   DCHECK(bookmarks);
-  DCHECK(favicons);
 
   // The XML blob returned from the server is described in the
   // Toolbar-Notebook/Bookmarks Protocol document located at
@@ -334,25 +322,64 @@ bool Toolbar5Importer::ParseBookmarksFromReader(
     return false;
 
   // Parse each |bookmark| blob
-  while (LocateNextTagByName(reader, kBookmarkXmlTag)) {
+  while (LocateNextTagWithStopByName(reader, kBookmarkXmlTag, 
+                                     kBookmarksXmlTag)) {
     ProfileWriter::BookmarkEntry bookmark_entry;
-    history::ImportedFavIconUsage favicon_entry;
-    if (ExtractBookmarkInformation(reader, &bookmark_entry, &favicon_entry)) {
-      bookmarks->push_back(bookmark_entry);
-      if (!favicon_entry.favicon_url.is_empty())
-        favicons->push_back(favicon_entry);
+    std::vector<BOOKMARK_FOLDER> folders;
+    if (ExtractBookmarkInformation(reader, &bookmark_entry, &folders)) {
+      // For each folder we create a new bookmark entry.  Duplicates will
+      // be detected whence we attempt to creaete the bookmark in the profile.
+      for(std::vector<BOOKMARK_FOLDER>::iterator folder = folders.begin();
+          folder != folders.end();
+          ++folder) {
+        bookmark_entry.path = *folder;
+        bookmarks->push_back(bookmark_entry);
+      }
     }
   }
 
+  if (0 == bookmarks->size())
+    return false;
+
+  return true;
+}
+
+bool Toolbar5Importer::LocateNextOpenTag(XmlReader* reader) {
+  DCHECK(reader);
+
+  while(!reader->SkipToElement()) {
+    if (!reader->Read())
+      return false;
+  }
   return true;
 }
 
 bool Toolbar5Importer::LocateNextTagByName(XmlReader* reader,
                                            const std::string& tag) {
+  DCHECK(reader);
+
   // Locate the |tag| blob.
   while (tag != reader->NodeName()) {
-    if (!reader->Read())
+    if (!reader->Read() || !LocateNextOpenTag(reader))
       return false;
+  }
+  return true;
+}
+
+bool Toolbar5Importer::LocateNextTagWithStopByName(XmlReader* reader,
+                                                   const std::string& tag,
+                                                   const std::string& stop) {
+  DCHECK(reader);
+
+  DCHECK_NE(tag, stop);
+  // Locate the |tag| blob.
+  while (tag != reader->NodeName()) {
+   // move to the next open tag
+   if (!reader->Read() || !LocateNextOpenTag(reader))
+     return false;
+   // if we encounter the stop word return false
+   if (stop == reader->NodeName())
+     return false;
   }
   return true;
 }
@@ -360,10 +387,10 @@ bool Toolbar5Importer::LocateNextTagByName(XmlReader* reader,
 bool Toolbar5Importer::ExtractBookmarkInformation(
     XmlReader* reader,
     ProfileWriter::BookmarkEntry* bookmark_entry,
-    history::ImportedFavIconUsage* favicon_entry) {
+    std::vector<BOOKMARK_FOLDER>* bookmark_folders) {
   DCHECK(reader);
   DCHECK(bookmark_entry);
-  DCHECK(favicon_entry);
+  DCHECK(bookmark_folders);
 
   // The following is a typical bookmark entry.
   // The reader should be pointing to the <title> tag at the moment.
@@ -397,13 +424,11 @@ bool Toolbar5Importer::ExtractBookmarkInformation(
   // <name>section_name</name>
   // <value>My section 0</value>
   // </attribute>
-  // <attribute>
   // </attributes>
   // </bookmark>
   //
   // We parse the blob in order, title->url->timestamp etc.  Any failure
-  // causes us to skip this bookmark.  Note Favicons are optional so failure
-  // to find them is not a failure to parse the blob.
+  // causes us to skip this bookmark.
 
   if (!ExtractTitleFromXmlReader(reader, bookmark_entry))
     return false;
@@ -411,9 +436,8 @@ bool Toolbar5Importer::ExtractBookmarkInformation(
     return false;
   if (!ExtractTimeFromXmlReader(reader, bookmark_entry))
     return false;
-  if (!ExtractFolderFromXmlReader(reader, bookmark_entry))
+  if (!ExtractFoldersFromXmlReader(reader, bookmark_folders))
     return false;
-  ExtractFaviconFromXmlReader(reader, bookmark_entry, favicon_entry);
 
   return true;
 }
@@ -437,7 +461,7 @@ bool Toolbar5Importer::ExtractTitleFromXmlReader(
   DCHECK(reader);
   DCHECK(entry);
 
-  if (!LocateNextTagByName(reader, kTitleXmlTag))
+  if (!LocateNextTagWithStopByName(reader, kTitleXmlTag, kUrlXmlTag))
     return false;
   std::string buffer;
   if (!ExtractNamedValueFromXmlReader(reader, kTitleXmlTag, &buffer)) {
@@ -453,7 +477,7 @@ bool Toolbar5Importer::ExtractUrlFromXmlReader(
   DCHECK(reader);
   DCHECK(entry);
 
-  if (!LocateNextTagByName(reader, kUrlXmlTag))
+  if (!LocateNextTagWithStopByName(reader, kUrlXmlTag, kTimestampXmlTag))
     return false;
   std::string buffer;
   if (!ExtractNamedValueFromXmlReader(reader, kUrlXmlTag, &buffer)) {
@@ -468,7 +492,7 @@ bool Toolbar5Importer::ExtractTimeFromXmlReader(
     ProfileWriter::BookmarkEntry* entry) {
   DCHECK(reader);
   DCHECK(entry);
-  if (!LocateNextTagByName(reader, kTimestampXmlTag))
+  if (!LocateNextTagWithStopByName(reader, kTimestampXmlTag, kLabelsXmlTag))
     return false;
   std::string buffer;
   if (!ExtractNamedValueFromXmlReader(reader, kTimestampXmlTag, &buffer)) {
@@ -482,97 +506,69 @@ bool Toolbar5Importer::ExtractTimeFromXmlReader(
   return true;
 }
 
-bool Toolbar5Importer::ExtractFolderFromXmlReader(
+bool Toolbar5Importer::ExtractFoldersFromXmlReader(
     XmlReader* reader,
-    ProfileWriter::BookmarkEntry* entry) {
+    std::vector<BOOKMARK_FOLDER>* bookmark_folders) {
   DCHECK(reader);
-  DCHECK(entry);
+  DCHECK(bookmark_folders);
 
-  if (!LocateNextTagByName(reader, kLabelsXmlTag))
+  // Read in the labels for this bookmark from the xml.  There may be many
+  // labels for any one bookmark.
+  if (!LocateNextTagWithStopByName(reader, kLabelsXmlTag, kAttributesXmlTag))
     return false;
-  if (!LocateNextTagByName(reader, kLabelXmlTag))
+    
+  // It is within scope to have an empty labels section, so we do not
+  // return false if the labels are empty.
+  if (!reader->Read() || !LocateNextOpenTag(reader))
     return false;
-
+      
   std::vector<std::wstring> label_vector;
-  std::string label_buffer;
-  while (kLabelXmlTag == reader->NodeName() &&
-         false != reader->ReadElementContent(&label_buffer)) {
+  while (kLabelXmlTag == reader->NodeName()) {
+    std::string label_buffer;
+    if (!reader->ReadElementContent(&label_buffer)) {
+      label_buffer = "";
+    }
     label_vector.push_back(UTF8ToWide(label_buffer));
+    LocateNextOpenTag(reader);
   }
 
-  // if this is the first run then we place favorites with no labels
-  // in the title bar.  Else they are placed in the "Google Toolbar" folder.
-  if (first_run() && 0 == label_vector.size()) {
-    entry->in_toolbar = true;
-  } else {
-    entry->in_toolbar = false;
-    entry->path.push_back(l10n_util::GetString(
-                                      IDS_BOOKMARK_GROUP_FROM_GOOGLE_TOOLBAR));
+  if (0 == label_vector.size()) {
+    if (!FirstRun::IsChromeFirstRun()) {
+      bookmark_folders->resize(1);
+      (*bookmark_folders)[0].push_back(
+          l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_GOOGLE_TOOLBAR));
+    }    
+    return true;
   }
 
-  // If there is only one label and it is in the form "xxx:yyy:zzz" this
-  // was created from a Firefox folder.  We undo the label creation and
-  // recreate the correct folder.
-  if (1 == label_vector.size()) {
-    std::vector< std::wstring > folder_names;
-    SplitString(label_vector[0], L':', &folder_names);
-    entry->path.insert(entry->path.end(),
-                       folder_names.begin(), folder_names.end());
-  } else if (0 != label_vector.size()) {
-    std::wstring folder_name = label_vector[0];
-    entry->path.push_back(folder_name);
+  // We will be making one bookmark folder for each label.
+  bookmark_folders->resize(label_vector.size());
+
+  for (size_t index = 0; index < label_vector.size(); ++index) {
+    // If this is the first run then we place favorites with no labels
+    // in the title bar.  Else they are placed in the "Google Toolbar" folder.    
+    if (!FirstRun::IsChromeFirstRun() || !label_vector[index].empty()) {
+      (*bookmark_folders)[index].push_back(
+          l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_GOOGLE_TOOLBAR));
+    }
+    
+    // If the label and is in the form "xxx:yyy:zzz" this was created from an 
+    // IE or Firefox folder.  We undo the label creation and recreate the correct
+    // folder.
+    std::vector<std::wstring> folder_names;
+    SplitString(label_vector[index], L':', &folder_names);
+    (*bookmark_folders)[index].insert((*bookmark_folders)[index].end(),
+        folder_names.begin(), folder_names.end());
   }
-
-  return true;
-}
-
-bool Toolbar5Importer::ExtractFaviconFromXmlReader(
-    XmlReader* reader,
-    ProfileWriter::BookmarkEntry* bookmark_entry,
-    history::ImportedFavIconUsage* favicon_entry) {
-  DCHECK(reader);
-  DCHECK(bookmark_entry);
-  DCHECK(favicon_entry);
-
-  if (!LocateNextTagByName(reader, kAttributesXmlTag))
-    return false;
-  if (!LocateNextTagByName(reader, kAttributeXmlTag))
-    return false;
-  if (!LocateNextTagByName(reader, kNameXmlTag))
-    return false;
-
-  // Attributes are <name>...</name><value>...</value> pairs.  The first
-  // attribute should be the favicon name tage, and the value is the url.
-  std::string buffer;
-  if (!ExtractNamedValueFromXmlReader(reader, kNameXmlTag, &buffer))
-    return false;
-  if (kFaviconAttributeXmlName != buffer)
-    return false;
-  if (!ExtractNamedValueFromXmlReader(reader, kValueXmlTag, &buffer))
-    return false;
-
-  // Validate the url
-  GURL favicon = GURL(buffer);
-  if (!favicon.is_valid())
-    return false;
-
-  favicon_entry->favicon_url = favicon;
-  favicon_entry->urls.insert(bookmark_entry->url);
 
   return true;
 }
 
 // Bookmark creation
 void  Toolbar5Importer::AddBookMarksToChrome(
-    const std::vector< ProfileWriter::BookmarkEntry >& bookmarks,
-    const std::vector< history::ImportedFavIconUsage >& favicons) {
+    const std::vector<ProfileWriter::BookmarkEntry>& bookmarks) {
   if (!bookmarks.empty() && !cancelled()) {
       main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
-          &ProfileWriter::AddBookmarkEntry, bookmarks));
-  }
-
-  if (!favicons.empty()) {
-    main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
-        &ProfileWriter::AddFavicons, favicons));
+          &ProfileWriter::AddBookmarkEntry, bookmarks, true));
   }
 }

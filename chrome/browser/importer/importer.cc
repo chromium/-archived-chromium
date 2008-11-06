@@ -80,7 +80,8 @@ void ProfileWriter::AddHomepage(const GURL& home_page) {
 }
 
 void ProfileWriter::AddBookmarkEntry(
-    const std::vector<BookmarkEntry>& bookmark) {
+    const std::vector<BookmarkEntry>& bookmark,
+    bool check_uniqueness) {
   BookmarkModel* model = profile_->GetBookmarkModel();
   DCHECK(model->IsLoaded());
 
@@ -91,6 +92,50 @@ void ProfileWriter::AddBookmarkEntry(
     // Don't insert this url if it isn't valid.
     if (!it->url.is_valid())
       continue;
+      
+    // We suppose that bookmarks are unique by Title, URL, and Folder.  Since
+    // checking for uniqueness may not be always the user's intention we have
+    // this as an option.
+    if (check_uniqueness) {
+      std::vector<BookmarkModel::TitleMatch> matches;
+      model->GetBookmarksMatchingText((*it).title, 32, &matches); // 32 enough?
+      if (!matches.empty()) {
+        bool found_match = false;
+        for (std::vector<BookmarkModel::TitleMatch>::iterator match_it =
+                matches.begin();
+             match_it != matches.end() && !found_match;
+             ++match_it) {
+          if ((*it).title != (*match_it).node->GetTitle())
+            continue;
+          if ((*it).url != (*match_it).node->GetURL())
+            continue;
+
+          // Check the folder path for uniqueness as well
+          found_match = true;
+          BookmarkNode* node = (*match_it).node->GetParent();
+          for(std::vector<std::wstring>::const_reverse_iterator path_it =
+                  (*it).path.rbegin();
+              (path_it != (*it).path.rend()) && found_match;
+              ++path_it) {
+            if (NULL == node || (*path_it != node->GetTitle()))
+              found_match = false;
+            if (found_match)
+              node = node->GetParent();
+          }
+
+          // We need a post test to differentiate checks such as
+          // /home/hello and /hello.  Note that here the current parent
+          // should be the "Other bookmarks" node, its parent should be the
+          // root with title "", and it's parent is finally NULL.
+          if (NULL == node->GetParent() ||
+              NULL != node->GetParent()->GetParent())
+            found_match = false;
+        }
+
+        if (found_match)
+          continue;
+      }      
+    }
 
     // Set up groups in BookmarkModel in such a way that path[i] is
     // the subgroup of path[i-1]. Finally they construct a path in the
@@ -396,7 +441,7 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
   importer_->AddRef();
   importer_->set_first_run(first_run);
   task_ = NewRunnableMethod(importer_, &Importer::StartImport,
-      profile_info, items, writer_.get(), this);
+      profile_info, items, writer_.get(), file_loop_, this);
 
   // We should lock the Firefox profile directory to prevent corruption.
   if (profile_info.browser_type == FIREFOX2 ||
@@ -612,25 +657,14 @@ void ImporterHost::DetectFirefoxProfiles() {
 }
 
 void ImporterHost::DetectGoogleToolbarProfiles() {
-  if (ToolbarImporterUtils::IsToolbarInstalled()) {
-    TOOLBAR_VERSION version = ToolbarImporterUtils::GetToolbarVersion();
-    if (DEPRECATED != version) {
-      ProfileInfo* google_toolbar = new ProfileInfo();
-      switch (version) {
-        // TODO(brg): Support other toolbar version after 1.0.
-        case VERSION_5:
-          google_toolbar->browser_type = GOOGLE_TOOLBAR5;
-          break;
-        default:
-          NOTREACHED() << "Supported Google Toolbar version not implemented.";
-          break;
-      }
-      google_toolbar->description = l10n_util::GetString(
-                                    IDS_IMPORT_FROM_GOOGLE_TOOLBAR);
-      google_toolbar->source_path.clear();
-      google_toolbar->app_path.clear();
-      google_toolbar->services_supported = FAVORITES;
-      source_profiles_.push_back(google_toolbar);
-    }
+  if (!FirstRun::IsChromeFirstRun()) {
+    ProfileInfo* google_toolbar = new ProfileInfo();
+    google_toolbar->browser_type = GOOGLE_TOOLBAR5;
+    google_toolbar->description = l10n_util::GetString(
+                                  IDS_IMPORT_FROM_GOOGLE_TOOLBAR);
+    google_toolbar->source_path.clear();
+    google_toolbar->app_path.clear();
+    google_toolbar->services_supported = FAVORITES;
+    source_profiles_.push_back(google_toolbar);
   }
 }

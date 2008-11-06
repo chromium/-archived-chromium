@@ -26,6 +26,7 @@ class Firefox3Importer : public Importer {
   virtual void StartImport(ProfileInfo profile_info,
                            uint16 items,
                            ProfileWriter* writer,
+                           MessageLoop* delagate_loop_,
                            ImporterHost* host);
 
  private:

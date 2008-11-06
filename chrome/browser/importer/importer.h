@@ -86,7 +86,9 @@ class ProfileWriter : public base::RefCounted<ProfileWriter> {
   virtual void AddIE7PasswordInfo(const IE7PasswordInfo& info);
   virtual void AddHistoryPage(const std::vector<history::URLRow>& page);
   virtual void AddHomepage(const GURL& homepage);
-  virtual void AddBookmarkEntry(const std::vector<BookmarkEntry>& bookmark);
+  virtual void AddBookmarkEntry(
+      const std::vector<BookmarkEntry>& bookmark, 
+      bool check_uniqueness);
   virtual void AddFavicons(
       const std::vector<history::ImportedFavIconUsage>& favicons);
   // Add the TemplateURLs in |template_urls| to the local store and make the
@@ -280,16 +282,18 @@ class Importer : public base::RefCounted<Importer> {
   virtual void StartImport(ProfileInfo profile_info,
                            uint16 items,
                            ProfileWriter* writer,
+                           MessageLoop* delegate_loop,
                            ImporterHost* host) = 0;
 
   // Cancels the import process.
-  void Cancel() { cancelled_ = true; }
+  virtual void Cancel() { cancelled_ = true; }
 
   void set_first_run(bool first_run) { first_run_ = first_run; }
 
  protected:
   Importer()
       : main_loop_(MessageLoop::current()),
+        delagate_loop_(NULL),
         importer_host_(NULL),
         cancelled_(false) {}
 
@@ -332,6 +336,9 @@ class Importer : public base::RefCounted<Importer> {
   // The importer should know the main thread so that ProfileWriter
   // will be invoked in thread instead.
   MessageLoop* main_loop_;
+  
+  // The message loop in which the importer operates.
+  MessageLoop* delagate_loop_;
 
   // The coordinator host for this importer.
   ImporterHost* importer_host_;
