@@ -425,6 +425,20 @@ TEST(MultipartResponseTest, MultipartByteRangeParsingTest) {
       response3, &multipart_boundary);
   EXPECT_EQ(result, false);
   EXPECT_EQ(multipart_boundary.length(), 0U);
+
+  ResourceResponse response4(KURL(), "multipart/byteranges", 0, "en-US",
+                             String());
+  response4.setHTTPHeaderField(String("Content-Length"), String("200"));
+  response4.setHTTPHeaderField(
+      String("Content-type"),
+      String("multipart/byteranges; boundary=--bound--; charSet=utf8"));
+
+  multipart_boundary.clear();
+
+  result = MultipartResponseDelegate::ReadMultipartBoundary(
+      response4, &multipart_boundary);
+  EXPECT_EQ(result, true);
+  EXPECT_EQ(string("--bound--"), multipart_boundary);
 }
 
 TEST(MultipartResponseTest, MultipartContentRangesTest) {

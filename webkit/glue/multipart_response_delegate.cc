@@ -247,7 +247,12 @@ bool MultipartResponseDelegate::ReadMultipartBoundary(
   }
 
   boundary_start_offset += strlen("boundary=");
-  size_t boundary_end_offset = content_type.length();
+
+  size_t boundary_end_offset =
+      content_type_as_string.find(';', boundary_start_offset);
+
+  if (boundary_end_offset == std::string::npos)
+    boundary_end_offset = content_type_as_string.length(); 
 
   size_t boundary_length = boundary_end_offset - boundary_start_offset;
 
