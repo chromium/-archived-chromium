@@ -56,7 +56,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "IntRect.h"
 #include "KeyboardEvent.h"
 #include "MIMETypeRegistry.h"
-#include "NodeRenderStyle.h"
 #include "Page.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
