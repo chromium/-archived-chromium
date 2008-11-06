@@ -29,8 +29,7 @@ std::wstring GetInstallerPathUnderChrome(const std::wstring& install_path,
 // install_temp_path: working directory used during install/update. It should
 //                    also has a sub dir source that contains a complete
 //                    and unpacked Chrome package.
-// system_install: if true, the function performs a system wide install/update.
-//                 Otherwise it installs/updates Chrome for the current user.
+// options: install options. See chrome/installer/util/util_constants.h.
 // new_version: new Chrome version that needs to be installed
 // installed_version: currently installed version of Chrome, if any, or
 //                    NULL otherwise
@@ -39,7 +38,7 @@ std::wstring GetInstallerPathUnderChrome(const std::wstring& install_path,
 // is responsible for cleaning up install_temp_path.
 installer_util::InstallStatus InstallOrUpdateChrome(
     const std::wstring& exe_path, const std::wstring& archive_path,
-    const std::wstring& install_temp_path, bool system_install,
+    const std::wstring& install_temp_path, int options,
     const Version& new_version, const Version* installed_version);
 
 // This function installs a new version of Chrome to the specified location.
@@ -77,4 +76,3 @@ bool InstallNewVersion(const std::wstring& exe_path,
 }
 
 #endif  // CHROME_INSTALLER_SETUP_SETUP_H__
-

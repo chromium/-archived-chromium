@@ -33,6 +33,25 @@ enum InstallStatus {
   UNKNOWN_STATUS,        // Unknown status (this should never happen)
 };
 
+// These are distibution related install options specified through command
+// line switches (see below) or master preference file (see
+// chrome/installer/util/master_preference.h). The options can be combined,
+// so they are bit flags.
+enum InstallOption {
+  // A master profile file is provided to installer.
+  MASTER_PROFILE_PRESENT  = 0x1,
+  // The master profile file provided is valid.
+  MASTER_PROFILE_VALID    = 0x1 << 1,
+  // Create Desktop and QuickLaunch shortcuts.
+  CREATE_ALL_SHORTCUTS    = 0x1 << 2,
+  // Prevent installer from launching Chrome after a successful first install.
+  DO_NOT_LAUNCH_CHROME    = 0x1 << 3,
+  // Register Chrome as default browser on the system.
+  MAKE_CHROME_DEFAULT     = 0x1 << 4,
+  // Install Chrome to system wise location.
+  SYSTEM_LEVEL            = 0x1 << 5,
+};
+
 namespace switches {
 extern const wchar_t kCreateAllShortcuts[];
 extern const wchar_t kDisableLogging[];
@@ -41,6 +60,7 @@ extern const wchar_t kDoNotRemoveSharedItems[];
 extern const wchar_t kEnableLogging[];
 extern const wchar_t kForceUninstall[];
 extern const wchar_t kInstallArchive[];
+extern const wchar_t kInstallerData[];
 extern const wchar_t kLogFile[];
 extern const wchar_t kMakeChromeDefault[];
 extern const wchar_t kRegisterChromeBrowser[];
@@ -59,4 +79,3 @@ extern const wchar_t kUninstallDisplayNameField[];
 }  // namespace installer_util
 
 #endif  // CHROME_INSTALLER_UTIL_UTIL_CONSTANTS_H__
-

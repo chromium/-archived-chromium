@@ -16,15 +16,6 @@ namespace installer_util {
 // values in the user profile at first run.
 const wchar_t kDefaultMasterPrefs[] = L"master_preferences";
 
-// Boolean pref that triggers skipping the first run dialogs.
-const wchar_t kDistroSkipFirstRunPref[] = L"distribution.skip_first_run_ui";
-// Boolean pref that triggers loading the welcome page.
-const wchar_t kDistroShowWelcomePage[] = L"distribution.show_welcome_page";
-// Boolean pref that triggers silent import of the default search engine.
-const wchar_t kDistroImportSearchPref[] = L"distribution.import_search_engine";
-// Boolean pref that triggers silent import of the browse history.
-const wchar_t kDistroImportHistoryPref[] = L"distribution.import_history";
-
 // These are the possible results of calling ParseDistributionPreferences.
 // Some of the results can be combined, so they are bit flags.
 enum MasterPrefResult {
@@ -39,6 +30,18 @@ enum MasterPrefResult {
   MASTER_PROFILE_IMPORT_SEARCH_ENGINE = 0x1 << 4,
   // Improt history from the default browser.
   MASTER_PROFILE_IMPORT_HISTORY       = 0x1 << 5,
+  // The following boolean prefs have the same semantics as the corresponding
+  // setup command line switches. See chrome/installer/util/util_constants.cc
+  // for more info.
+  // Create Desktop and QuickLaunch shortcuts.
+  MASTER_PROFILE_CREATE_ALL_SHORTCUTS = 0x1 << 6,
+  // Prevent installer from launching Chrome after a successful first install.
+  MASTER_PROFILE_DO_NOT_LAUNCH_CHROME = 0x1 << 7,
+  // Register Chrome as default browser on the system.
+  MASTER_PROFILE_MAKE_CHROME_DEFAULT  = 0x1 << 8,
+  // Install Chrome to system wise location.
+  MASTER_PROFILE_SYSTEM_LEVEL         = 0x1 << 9,
+
 };
 
 // The master preferences is a JSON file with the same entries as the
@@ -53,6 +56,10 @@ enum MasterPrefResult {
 //      "show_welcome_page": true,
 //      "import_search_engine": true,
 //      "import_history": false
+//      "create_all_shortcuts": true,
+//      "do_not_launch_chrome": false,
+//      "make_chrome_default", false,
+//      "system_level", false,
 //   },
 //   "browser": {
 //      "show_home_button": true

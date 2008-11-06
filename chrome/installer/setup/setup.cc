@@ -40,7 +40,8 @@ void AddChromeToMediaPlayerList() {
 
 }
 
-void DoFirstInstallTasks(std::wstring install_path, bool system_level) {
+void DoFirstInstallTasks(std::wstring install_path, int options) {
+  bool system_level = (options & installer_util::SYSTEM_LEVEL) != 0;
   // Try to add Chrome to Media Player shim inclusion list. We don't do any
   // error checking here because this operation will fail if user doesn't
   // have admin rights and we want to ignore the error.
@@ -53,7 +54,7 @@ void DoFirstInstallTasks(std::wstring install_path, bool system_level) {
   CommandLine cmd_line;
   LOG(INFO) << "Registering Chrome as browser";
   ShellUtil::RegisterStatus ret = ShellUtil::FAILURE;
-  if (cmd_line.HasSwitch(installer_util::switches::kMakeChromeDefault)) {
+  if (options & installer_util::MAKE_CHROME_DEFAULT) {
     ret = ShellUtil::AddChromeToSetAccessDefaults(chrome_exe, false);
     if (ret == ShellUtil::SUCCESS) {
       if (system_level) {
@@ -84,10 +85,11 @@ void DoFirstInstallTasks(std::wstring install_path, bool system_level) {
 // If the shortcuts do not exist, the function does not recreate them during
 // update.
 bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
-                                   bool system_install,
+                                   int options,
                                    installer_util::InstallStatus install_status,
                                    const std::wstring& install_path,
                                    const std::wstring& new_version) {
+  bool system_install = (options & installer_util::SYSTEM_LEVEL) != 0;
   std::wstring shortcut_path;
   int dir_enum = (system_install) ? base::DIR_COMMON_START_MENU :
                                     base::DIR_START_MENU;
@@ -161,10 +163,7 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   // Update Desktop and Quick Launch shortcuts. If --create-new-shortcuts
   // is specified we want to create them, otherwise we update them only if
   // they exist.
-  bool create = false;  // Only update; do not create, if they do not exist
-  CommandLine cmd_line;
-  if (cmd_line.HasSwitch(installer_util::switches::kCreateAllShortcuts))
-    create = true;
+  bool create = (options & installer_util::CREATE_ALL_SHORTCUTS) != 0;
   if (system_install) {
     ret = ret && ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
         ShellUtil::SYSTEM_LEVEL, create);
@@ -193,9 +192,9 @@ std::wstring installer::GetInstallerPathUnderChrome(
 
 installer_util::InstallStatus installer::InstallOrUpdateChrome(
     const std::wstring& exe_path, const std::wstring& archive_path,
-    const std::wstring& install_temp_path, bool system_install,
+    const std::wstring& install_temp_path, int options,
     const Version& new_version, const Version* installed_version) {
-
+  bool system_install = (options & installer_util::SYSTEM_LEVEL) != 0;
   std::wstring install_path(GetChromeInstallPath(system_install));
   if (install_path.empty()) {
     LOG(ERROR) << "Could not get installation destination path.";
@@ -236,13 +235,13 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
       NOTREACHED();
     }
 
-    if (!CreateOrUpdateChromeShortcuts(exe_path, system_install, result,
+    if (!CreateOrUpdateChromeShortcuts(exe_path, options, result,
                                        install_path, new_version.GetString()))
       LOG(WARNING) << "Failed to create/update start menu shortcut.";
 
     if (result == installer_util::FIRST_INSTALL_SUCCESS ||
         result == installer_util::INSTALL_REPAIRED) {
-      DoFirstInstallTasks(install_path, system_install);
+      DoFirstInstallTasks(install_path, options);
     } else {
       RemoveOldVersionDirs(install_path, new_version.GetString());
     }
@@ -250,4 +249,3 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
 
   return result;
 }
-

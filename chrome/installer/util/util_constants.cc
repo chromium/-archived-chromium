@@ -32,6 +32,9 @@ const wchar_t kForceUninstall[] = L"force-uninstall";
 // Specify the file path of Chrome archive for install.
 const wchar_t kInstallArchive[] = L"install-archive";
 
+// Specify the file path of Chrome master preference file.
+const wchar_t kInstallerData[] = L"installerdata";
+
 // If present, specify file path to write logging info.
 const wchar_t kLogFile[] = L"log-file";
 
@@ -65,4 +68,3 @@ const wchar_t kSetupExe[] = L"setup.exe";
 const wchar_t kUninstallStringField[] = L"UninstallString";
 const wchar_t kUninstallDisplayNameField[] = L"DisplayName";
 }  // namespace installer_util
-
