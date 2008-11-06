@@ -117,8 +117,7 @@ bool GoogleUpdateClient::Init(const wchar_t* client_guid,
       ret = true;
     } else {
       std::wstring key(google_update::kRegPathClients);
-      key.append(L"\\");
-      key.append(guid_);
+      key.append(L"\\" + guid_);
       if (client_util::GetChromiumVersion(dll_path_, key.c_str(), &version_))
         ret = true;
     }
@@ -130,4 +129,3 @@ bool GoogleUpdateClient::Init(const wchar_t* client_guid,
   return ret;
 }
 }  // namespace google_update
-
