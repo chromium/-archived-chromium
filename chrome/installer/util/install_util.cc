@@ -114,18 +114,11 @@ void InstallUtil::WriteInstallerResult(bool system_install,
 }
 
 bool InstallUtil::IsPerUserInstall(const wchar_t* const exe_path) {
-  std::wstring exe_path_copy = exe_path;
 
   wchar_t program_files_path[MAX_PATH] = {0};
   if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL,
                                 SHGFP_TYPE_CURRENT, program_files_path))) {
-    std::wstring program_files_path_copy = program_files_path;
-
-    if (std::equal(program_files_path_copy.begin(),
-                   program_files_path_copy.end(), exe_path_copy.begin(),
-                   CaseInsensitiveCompare<wchar_t>())) {
-      return false;
-    }
+    return !StartsWith(exe_path, program_files_path, false);
   } else {
     NOTREACHED();
   }
