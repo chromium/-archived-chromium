@@ -81,7 +81,8 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance,
       ::GetProcAddress(dll_handle, entry_name));
   if (NULL != entry) {
     // record did_run "dr" in client state
-    std::wstring key_path = google_update::kRegPathClientState + guid_;
+    std::wstring key_path(google_update::kRegPathClientState);
+    key_path.append(L"\\" + guid_);
     HKEY reg_key;
     if (::RegOpenKeyEx(HKEY_CURRENT_USER, key_path.c_str(), 0,
                        KEY_WRITE, &reg_key) == ERROR_SUCCESS) {
@@ -116,6 +117,7 @@ bool GoogleUpdateClient::Init(const wchar_t* client_guid,
       ret = true;
     } else {
       std::wstring key(google_update::kRegPathClients);
+      key.append(L"\\");
       key.append(guid_);
       if (client_util::GetChromiumVersion(dll_path_, key.c_str(), &version_))
         ret = true;
