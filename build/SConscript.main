@@ -510,9 +510,18 @@ if ARGUMENTS.get('COVERAGE') == '1':
 
 # Build with system-provided NSS and GTK.
 if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
-  linux_env.ParseConfig('pkg-config --cflags --libs nss')
-  linux_env.ParseConfig('pkg-config --cflags --libs gtk+-2.0')
-  linux_env.ParseConfig('pkg-config --cflags --libs pangoft2')
+  try:
+    linux_env.ParseConfig('pkg-config --cflags --libs nss')
+    linux_env.ParseConfig('pkg-config --cflags --libs gtk+-2.0')
+    linux_env.ParseConfig('pkg-config --cflags --libs pangoft2')
+  except OSError, e:
+    print ('\n'
+        'Failed to find a package dependency.  Please install all the\n'
+        'packages listed at\n'
+        'http://code.google.com/p/chromium/wiki/LinuxBuildInstructions'
+        '#Software_Requirements')
+
+    sys.exit(1)
 
 
 # --------------------------------------------------------------------------
