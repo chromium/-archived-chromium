@@ -15,6 +15,8 @@
 
 #include <string>
 
+#include "googleurl/src/gurl.h"
+
 namespace net {
 
 class DnsResolutionObserver {
@@ -30,8 +32,10 @@ class DnsResolutionObserver {
   // Once a matching pair of notifications has been provided (i.e., a pair with
   // identical context values), and the notification methods (below) have
   // returned, the context values *might* be reused.
-  virtual void OnStartResolution(const std::string& name, void* context) = 0;
+  virtual void OnStartResolution(const std::string& host_name,
+                                 void* context) = 0;
   virtual void OnFinishResolutionWithStatus(bool was_resolved,
+                                            const GURL& referrer,
                                             void* context) = 0;
 };
 
@@ -51,8 +55,11 @@ DnsResolutionObserver* RemoveDnsResolutionObserver();
 // The following functions are expected to be called only by network stack
 // implementations.  This above observer class will relay the notifications
 // to any registered observer.
-void DidStartDnsResolution(const std::string& name, void* context);
-void DidFinishDnsResolutionWithStatus(bool was_resolved, void* context);
+void DidStartDnsResolution(const std::string& name,
+                           void* context);
+void DidFinishDnsResolutionWithStatus(bool was_resolved,
+                                      const GURL& url,
+                                      void* context);
 }  // namspace net
 
 #endif  // NET_BASE_DNS_RESOLUTION_OBSERVER_H_

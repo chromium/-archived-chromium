@@ -64,10 +64,11 @@ void DnsHostInfo::set_cache_expiration(TimeDelta time) {
   kCacheExpirationDuration = time;
 }
 
-void DnsHostInfo::SetQueuedState() {
+void DnsHostInfo::SetQueuedState(ResolutionMotivation motivation) {
   DCHECK(PENDING == state_ || FOUND == state_ || NO_SUCH_NAME == state_);
   state_ = QUEUED;
   queue_duration_ = resolve_duration_ = kNullDuration;
+  SetMotivation(motivation);
   GetDuration();  // Set time_
   DLogResultsStats("DNS Prefetch in queue");
 }
@@ -117,6 +118,7 @@ void DnsHostInfo::SetStartedState() {
   DCHECK(PENDING == state_);
   state_ = STARTED;
   queue_duration_ = resolve_duration_ = TimeDelta();  // 0ms.
+  SetMotivation(NO_PREFETCH_MOTIVATION);
   GetDuration();  // Set time.
 }
 
@@ -126,6 +128,13 @@ void DnsHostInfo::SetFinishedState(bool was_resolved) {
   resolve_duration_ = GetDuration();
   // TODO(jar): Sequence number should be incremented in prefetched HostInfo.
   DLogResultsStats("DNS HTTP Finished");
+}
+
+void DnsHostInfo::SetHostname(const std::string& hostname) {
+  if (hostname != hostname_) {
+    DCHECK(hostname_.size() == 0);  // Not yet initialized.
+    hostname_ = hostname;
+  }
 }
 
 // IsStillCached() guesses if the DNS cache still has IP data,
@@ -153,21 +162,34 @@ bool DnsHostInfo::IsStillCached() const {
   return time_since_resolution < kCacheExpirationDuration;
 }
 
-// Compare the later results, to the previously prefetched info.
-DnsBenefit DnsHostInfo::AcruePrefetchBenefits(DnsHostInfo* later_host_info) {
-  DCHECK(FINISHED == later_host_info->state_
-         || FINISHED_UNRESOLVED == later_host_info->state_);
-  DCHECK(0 == later_host_info->hostname_.compare(hostname_.data()));
+// Compare the actual navigation DNS latency found in navigation_info, to the
+// previously prefetched info.
+DnsBenefit DnsHostInfo::AccruePrefetchBenefits(DnsHostInfo* navigation_info) {
+  DCHECK(FINISHED == navigation_info->state_ ||
+         FINISHED_UNRESOLVED == navigation_info->state_);
+  DCHECK(0 == navigation_info->hostname_.compare(hostname_.data()));
+
   if ((0 == benefits_remaining_.InMilliseconds()) ||
       (FOUND != state_ && NO_SUCH_NAME != state_)) {
+    if (FINISHED == navigation_info->state_)
+      UMA_HISTOGRAM_LONG_TIMES(L"DNS.IndependentNavigation",
+                               navigation_info->resolve_duration_);
+    else
+      UMA_HISTOGRAM_LONG_TIMES(L"DNS.IndependentFailedNavigation",
+                               navigation_info->resolve_duration_);
     return PREFETCH_NO_BENEFIT;
   }
 
-  TimeDelta benefit = benefits_remaining_ - later_host_info->resolve_duration_;
-  later_host_info->benefits_remaining_ = benefits_remaining_;
-  benefits_remaining_ = TimeDelta();  // zero ms.
+  TimeDelta benefit = benefits_remaining_ - navigation_info->resolve_duration_;
+  navigation_info->benefits_remaining_ = benefits_remaining_;
+  benefits_remaining_ = TimeDelta();  // We used up all our benefits here.
 
-  if (later_host_info->resolve_duration_ > kMaxNonNetworkDnsLookupDuration) {
+  navigation_info->motivation_ = motivation_;
+  if (LEARNED_REFERAL_MOTIVATED == motivation_ ||
+      STATIC_REFERAL_MOTIVATED == motivation_)
+    navigation_info->referring_hostname_ = referring_hostname_;
+
+  if (navigation_info->resolve_duration_ > kMaxNonNetworkDnsLookupDuration) {
     // Our precache effort didn't help since HTTP stack hit the network.
     UMA_HISTOGRAM_TIMES(L"DNS.PrefetchCacheEviction", resolve_duration_);
     DLogResultsStats("DNS PrefetchCacheEviction");
@@ -181,8 +203,14 @@ DnsBenefit DnsHostInfo::AcruePrefetchBenefits(DnsHostInfo* later_host_info) {
   }
 
   DCHECK_EQ(FOUND, state_);
-  UMA_HISTOGRAM_LONG_TIMES(L"DNS.PrefetchPositiveHitL", benefit);
-  DLogResultsStats("DNS PrefetchPositiveHit");
+  if (LEARNED_REFERAL_MOTIVATED == motivation_ ||
+      STATIC_REFERAL_MOTIVATED == motivation_) {
+    UMA_HISTOGRAM_TIMES(L"DNS.PrefetchReferredPositiveHit", benefit);
+    DLogResultsStats("DNS PrefetchReferredPositiveHit");
+  } else {
+    UMA_HISTOGRAM_LONG_TIMES(L"DNS.PrefetchPositiveHitL", benefit);
+    DLogResultsStats("DNS PrefetchPositiveHit");
+  }
   return PREFETCH_NAME_FOUND;
 }
 
@@ -208,7 +236,7 @@ static std::string RemoveJs(const std::string& text) {
   size_t length = output.length();
   for (size_t i = 0; i < length; i++) {
     char next = output[i];
-    if (isalnum(next) || isspace(next) || '.' == next)
+    if (isalnum(next) || isspace(next) || '.' == next || '-' == next)
       continue;
     output[i] = '?';
   }
@@ -284,12 +312,14 @@ void DnsHostInfo::GetHtmlTable(const DnsInfoTable host_infos,
   }
 
   const char* row_format = "<tr align=right><td>%s</td>"
-                           "<td>%d</td><td>%d</td><td>%s</td></tr>";
+                           "<td>%d</td><td>%d</td><td>%s</td><td>%s</td></tr>";
 
   output->append("<br><table border=1>");
-  StringAppendF(output, "<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>",
-                "Host name", "Applicable Prefetch<br>Time (ms)",
-                "Recent Resolution<br>Time(ms)", "How long ago<br>(HH:MM:SS)");
+  StringAppendF(output,
+      "<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>",
+      "Host name", "Applicable Prefetch<br>Time (ms)",
+      "Recent Resolution<br>Time(ms)", "How long ago<br>(HH:MM:SS)",
+      "Motivation");
 
   // Print bulk of table, and gather stats at same time.
   MinMaxAverage queue, resolve, preresolve, when;
@@ -302,7 +332,8 @@ void DnsHostInfo::GetHtmlTable(const DnsInfoTable host_infos,
                   preresolve.sample((it->benefits_remaining_.InMilliseconds())),
                   resolve.sample((it->resolve_duration_.InMilliseconds())),
                   HoursMinutesSeconds(when.sample(
-                      (current_time - it->time_).InSeconds())).c_str());
+                      (current_time - it->time_).InSeconds())).c_str(),
+                  it->GetAsciiMotivation().c_str());
   }
   // Write min, max, and average summary lines.
   if (host_infos.size() > 2) {
@@ -310,22 +341,22 @@ void DnsHostInfo::GetHtmlTable(const DnsInfoTable host_infos,
     StringAppendF(output, row_format,
                   "<b>---minimum---</b>",
                   preresolve.minimum(), resolve.minimum(),
-                  HoursMinutesSeconds(when.minimum()).c_str());
+                  HoursMinutesSeconds(when.minimum()).c_str(), "");
     StringAppendF(output, row_format,
                   "<b>---average---</b>",
                   preresolve.average(), resolve.average(),
-                  HoursMinutesSeconds(when.average()).c_str());
+                  HoursMinutesSeconds(when.average()).c_str(), "");
     StringAppendF(output, row_format,
                   "<b>standard deviation</b>",
                   preresolve.standard_deviation(),
-                  resolve.standard_deviation(), "n/a");
+                  resolve.standard_deviation(), "n/a", "");
     StringAppendF(output, row_format,
                   "<b>---maximum---</b>",
                   preresolve.maximum(), resolve.maximum(),
-                  HoursMinutesSeconds(when.maximum()).c_str());
+                  HoursMinutesSeconds(when.maximum()).c_str(), "");
     StringAppendF(output, row_format,
                   "<b>-----SUM-----</b>",
-                  preresolve.sum(), resolve.sum(), "n/a");
+                  preresolve.sum(), resolve.sum(), "n/a", "");
   }
   output->append("</table>");
 
@@ -337,5 +368,40 @@ void DnsHostInfo::GetHtmlTable(const DnsInfoTable host_infos,
 
   output->append("<br>");
 }
+
+void DnsHostInfo::SetMotivation(ResolutionMotivation motivation) {
+  motivation_ = motivation;
+  if (motivation < LINKED_MAX_MOTIVATED)
+    was_linked_ = true;
+}
+
+std::string DnsHostInfo::GetAsciiMotivation() const {
+  switch (motivation_) {
+    case MOUSE_OVER_MOTIVATED:
+      return "[mouse-over]";
+
+    case PAGE_SCAN_MOTIVATED:
+      return "[page scan]";
+
+    case OMNIBOX_MOTIVATED:
+      return "[omnibox]";
+
+    case STARTUP_LIST_MOTIVATED:
+      return "[startup list]";
+
+    case NO_PREFETCH_MOTIVATION:
+      return "n/a";
+
+    case STATIC_REFERAL_MOTIVATED:
+      return RemoveJs(referring_hostname_) + "*";
+
+    case LEARNED_REFERAL_MOTIVATED:
+      return RemoveJs(referring_hostname_);
+
+    default:
+      return "";
+  }
+}
+
 }  // namespace chrome_browser_net
 

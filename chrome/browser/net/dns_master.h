@@ -24,6 +24,7 @@
 #include "base/condition_variable.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/net/dns_host_info.h"
+#include "chrome/browser/net/referrer.h"
 #include "chrome/common/net/dns.h"
 #include "googleurl/src/url_canon.h"
 
@@ -63,12 +64,28 @@ class DnsMaster {
   void DiscardAllResults();
 
   // Add hostname(s) to the queue for processing by slaves
-  void ResolveList(const NameList& hostnames);
-  void Resolve(const std::string& hostname);
+  void ResolveList(const NameList& hostnames,
+                   DnsHostInfo::ResolutionMotivation motivation);
+  void Resolve(const std::string& hostname,
+               DnsHostInfo::ResolutionMotivation motivation);
 
   // Get latency benefit of the prefetch that we are navigating to.
-  bool AcruePrefetchBenefits(DnsHostInfo* host_info);
+  bool AccruePrefetchBenefits(const GURL& referrer,
+                              DnsHostInfo* navigation_info);
 
+  // Instigate prefetch of any domains we predict will be needed after this
+  // navigation.
+  void NavigatingTo(const std::string& host_name);
+
+  // Record details of a navigation so that we can preresolve the host name
+  // ahead of time the next time the users navigates to the indicated host.
+  void NonlinkNavigation(const GURL& referrer, DnsHostInfo* navigation_info);
+
+  // Dump HTML table containing list of referrers for about:dns.
+  void GetHtmlReferrerLists(std::string* output);
+
+  // Dump the list of currently know referrer domains and related prefetchable
+  // domains.
   void GetHtmlInfo(std::string* output);
 
   // For testing only...
@@ -120,24 +137,35 @@ class DnsMaster {
   void SetSlaveHasTerminated(int slave_index);
 
  private:
-  //----------------------------------------------------------------------------
-  // Internal helper functions
+  // A map that is keyed with the hostnames that we've learned were the cause
+  // of loading additional hostnames.  The list of additional hostnames in held
+  // in a Referrer instance, which is found in this type.
+  typedef std::map<std::string, Referrer> Referrers;
 
   // "PreLocked" means that the caller has already Acquired lock_ in the
   // following method names.
-  void PreLockedResolve(const std::string& hostname);
+  // Queue hostname for resolution.  If queueing was done, return the pointer
+  // to the queued instance, otherwise return NULL.
+  DnsHostInfo* PreLockedResolve(const std::string& hostname,
+                                DnsHostInfo::ResolutionMotivation motivation);
   bool PreLockedCreateNewSlaveIfNeeded();  // Lazy slave processes creation.
 
   // Number of slave processes started early (to help with startup prefetch).
   static const int kSlaveCountMin = 4;
 
+  // Synchronize access to results_, referrers_, and slave control data.
   Lock lock_;
 
   // name_buffer_ holds a list of names we need to look up.
   std::queue<std::string> name_buffer_;
 
-  // results_ contains information progress for existing/prior prefetches.
+  // results_ contains information for existing/prior prefetches.
   Results results_;
+
+  // For each hostname that we might navigate to (that we've "learned about")
+  // we have a Referrer list. Each Referrer list has all hostnames we need to
+  // pre-resolve when there is a navigation to the orginial hostname.
+  Referrers referrers_;
 
   // Signaling slaves to process elements in the queue, or to terminate,
   // is done using ConditionVariables.

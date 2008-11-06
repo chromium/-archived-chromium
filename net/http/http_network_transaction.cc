@@ -461,7 +461,7 @@ int HttpNetworkTransaction::DoResolveHost() {
 
 int HttpNetworkTransaction::DoResolveHostComplete(int result) {
   bool ok = (result == OK);
-  DidFinishDnsResolutionWithStatus(ok, this);
+  DidFinishDnsResolutionWithStatus(ok, this->request_->referrer, this);
   if (ok) {
     next_state_ = STATE_CONNECT;
   } else {

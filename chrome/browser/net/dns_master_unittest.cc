@@ -197,7 +197,7 @@ TEST(DnsMasterTest, BenefitLookupTest) {
 
   // First only cause a minimal set of threads to start up.
   // Currently we actually start 4 threads when we get called with an array
-  testing_master.ResolveList(names);
+  testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
 
   // Wait for some resoultion for each google.
   SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
@@ -223,16 +223,16 @@ TEST(DnsMasterTest, BenefitLookupTest) {
 
   // Simulate actual navigation, and acrue the benefit for "helping" the DNS
   // part of the navigation.
-  EXPECT_TRUE(testing_master.AcruePrefetchBenefits(&goog_info));
-  EXPECT_TRUE(testing_master.AcruePrefetchBenefits(&goog2_info));
-  EXPECT_TRUE(testing_master.AcruePrefetchBenefits(&goog3_info));
-  EXPECT_TRUE(testing_master.AcruePrefetchBenefits(&goog4_info));
+  EXPECT_TRUE(testing_master.AccruePrefetchBenefits(GURL(), &goog_info));
+  EXPECT_TRUE(testing_master.AccruePrefetchBenefits(GURL(), &goog2_info));
+  EXPECT_TRUE(testing_master.AccruePrefetchBenefits(GURL(), &goog3_info));
+  EXPECT_TRUE(testing_master.AccruePrefetchBenefits(GURL(), &goog4_info));
 
   // Benefits can ONLY be reported once (for the first navigation).
-  EXPECT_FALSE(testing_master.AcruePrefetchBenefits(&goog_info));
-  EXPECT_FALSE(testing_master.AcruePrefetchBenefits(&goog2_info));
-  EXPECT_FALSE(testing_master.AcruePrefetchBenefits(&goog3_info));
-  EXPECT_FALSE(testing_master.AcruePrefetchBenefits(&goog4_info));
+  EXPECT_FALSE(testing_master.AccruePrefetchBenefits(GURL(), &goog_info));
+  EXPECT_FALSE(testing_master.AccruePrefetchBenefits(GURL(), &goog2_info));
+  EXPECT_FALSE(testing_master.AccruePrefetchBenefits(GURL(), &goog3_info));
+  EXPECT_FALSE(testing_master.AccruePrefetchBenefits(GURL(), &goog4_info));
 
   // Ensure a clean shutdown.
   EXPECT_TRUE(testing_master.ShutdownSlaves());
@@ -260,7 +260,7 @@ TEST(DnsMasterTest, DISABLED_SingleSlaveLookupTest) {
   names.insert(names.end(), bad2);
 
   // First only cause a single thread to start up
-  testing_master.ResolveList(names);
+  testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
 
   // Wait for some resoultion for google.
   SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
@@ -320,7 +320,7 @@ TEST(DnsMasterTest, DISABLED_MultiThreadedLookupTest) {
 
   // Get all 8 threads running by calling many times before queue is handled.
   for (int i = 0; i < 10; i++) {
-    testing_master.ResolveList(names);
+    testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
   }
 
   Sleep(10);  // Allow time for async DNS to get answers.
@@ -363,7 +363,7 @@ TEST(DnsMasterTest, DISABLED_MultiThreadedSpeedupTest) {
   names.insert(names.end(), goog4);
 
   // First cause a lookup using a single thread.
-  testing_master.ResolveList(names);
+  testing_master.ResolveList(names, DnsHostInfo::PAGE_SCAN_MOTIVATED);
 
   // Wait for some resoultion for google.
   SPIN_FOR_1_SECOND_OR_UNTIL_TRUE(0 <=
@@ -383,7 +383,8 @@ TEST(DnsMasterTest, DISABLED_MultiThreadedSpeedupTest) {
   // Get all 8 threads running by calling many times before queue is handled.
   names.clear();
   for (int i = 0; i < 10; i++)
-    testing_master.Resolve(GetNonexistantDomain());
+    testing_master.Resolve(GetNonexistantDomain(),
+                           DnsHostInfo::PAGE_SCAN_MOTIVATED);
 
   // Wait long enough for all the goog's to be resolved.
   // They should all take about the same time, and run in parallel.

@@ -10,6 +10,7 @@
 
 #include "base/histogram.h"
 #include "base/stats_counters.h"
+#include "base/string_util.h"
 #include "base/thread.h"
 #include "base/win_util.h"
 #include "chrome/browser/net/dns_slave.h"
@@ -18,9 +19,6 @@ using base::TimeDelta;
 
 namespace chrome_browser_net {
 
-//------------------------------------------------------------------------------
-// This section contains methods for the DnsMaster class.
-//------------------------------------------------------------------------------
 DnsMaster::DnsMaster(TimeDelta shutdown_wait_time)
   : slave_count_(0),
     shutdown_(false),
@@ -35,7 +33,9 @@ DnsMaster::DnsMaster(TimeDelta shutdown_wait_time)
 }
 
 // Overloaded Resolve() to take a vector of names.
-void DnsMaster::ResolveList(const NameList& hostnames) {
+void DnsMaster::ResolveList(const NameList& hostnames,
+                            DnsHostInfo::ResolutionMotivation motivation) {
+  bool need_to_signal = false;
   {
     AutoLock auto_lock(lock_);
     if (shutdown_) return;
@@ -52,62 +52,122 @@ void DnsMaster::ResolveList(const NameList& hostnames) {
     for (NameList::const_iterator it = hostnames.begin();
       it < hostnames.end();
          it++) {
-      PreLockedResolve(*it);
+      if (PreLockedResolve(*it, motivation))
+        need_to_signal = true;
     }
   }
-  slaves_have_work_.Signal();
+  if (need_to_signal)
+    slaves_have_work_.Signal();
 }
 
 // Basic Resolve() takes an invidual name, and adds it
 // to the queue.
-void DnsMaster::Resolve(const std::string& hostname) {
+void DnsMaster::Resolve(const std::string& hostname,
+                        DnsHostInfo::ResolutionMotivation motivation) {
   if (0 == hostname.length())
     return;
+  bool need_to_signal = false;
   {
     AutoLock auto_lock(lock_);
     if (shutdown_) return;
     PreLockedCreateNewSlaveIfNeeded();  // Allocate one at a time.
-    PreLockedResolve(hostname);
+    if (PreLockedResolve(hostname, motivation))
+      need_to_signal = true;
   }
-  slaves_have_work_.Signal();
+  if (need_to_signal)
+    slaves_have_work_.Signal();
 }
 
-bool DnsMaster::AcruePrefetchBenefits(DnsHostInfo* host_info) {
-  std::string hostname = host_info->hostname();
-  DnsBenefit benefit;
-  DnsHostInfo prefetched_host_info;
+bool DnsMaster::AccruePrefetchBenefits(const GURL& referrer,
+                                      DnsHostInfo* navigation_info) {
+  std::string hostname = navigation_info->hostname();
+
+  AutoLock auto_lock(lock_);
+  Results::iterator it = results_.find(hostname);
+  if (it == results_.end()) {
+    // Remain under lock to assure static HISTOGRAM constructor is safely run.
+    // Use UMA histogram to quantify potential future gains here.
+    UMA_HISTOGRAM_LONG_TIMES(L"DNS.UnexpectedResolutionL",
+                             navigation_info->resolve_duration());
+    navigation_info->DLogResultsStats("DNS UnexpectedResolution");
+
+    NonlinkNavigation(referrer, navigation_info);
+    return false;
+  }
+  DnsHostInfo& prefetched_host_info(it->second);
+
+  // Sometimes a host is used as a subresource by several referrers, so it is
+  // in our list, but was never motivated by a page-link-scan.  In that case, it
+  // really is an "unexpected" navigation, and we should tally it, and augment
+  // our referrers_.
+  bool referrer_based_prefetch = !prefetched_host_info.was_linked();
+  if (referrer_based_prefetch) {
+    // This wasn't the first time this host refered to *some* referrer.
+    NonlinkNavigation(referrer, navigation_info);
+  }
+
+  DnsBenefit benefit = prefetched_host_info.AccruePrefetchBenefits(
+      navigation_info);
+  switch (benefit) {
+    case PREFETCH_NAME_FOUND:
+    case PREFETCH_NAME_NONEXISTANT:
+      // Remain under lock to push data.
+      cache_hits_.push_back(*navigation_info);
+      if (referrer_based_prefetch) {
+        std::string& motivating_referrer(
+            prefetched_host_info.referring_hostname());
+        if (!motivating_referrer.empty()) {
+          referrers_[motivating_referrer].AccrueValue(
+              navigation_info->benefits_remaining(), hostname);
+        }
+      }
+      return true;
+
+    case PREFETCH_CACHE_EVICTION:
+      // Remain under lock to push data.
+      cache_eviction_map_[hostname] = *navigation_info;
+      return false;
+
+    case PREFETCH_NO_BENEFIT:
+      // Prefetch never hit the network. Name was pre-cached.
+      return false;
+
+    default:
+      DCHECK(false);
+      return false;
+  }
+}
+
+void DnsMaster::NonlinkNavigation(const GURL& referrer,
+                                  DnsHostInfo* navigation_info) {
+  std::string referring_host = referrer.host();
+  if (referring_host.empty() || referring_host == navigation_info->hostname())
+    return;
+
+  referrers_[referring_host].SuggestHost(navigation_info->hostname());
+}
+
+void DnsMaster::NavigatingTo(const std::string& host_name) {
+  bool need_to_signal = false;
   {
     AutoLock auto_lock(lock_);
-    if (results_.find(hostname) == results_.end()) {
-      // Remain under lock to assure static HISTOGRAM constructor is safely run.
-      // Use UMA histogram to quantify potential future gains here.
-      UMA_HISTOGRAM_LONG_TIMES(L"DNS.UnexpectedResolutionL",
-                          host_info->resolve_duration());
-      SIMPLE_STATS_COUNTER(L"DNS.PrefetchCacheOblivious");
-      host_info->DLogResultsStats("DNS PrefetchCacheOblivious");
-      return false;
-    }
-    benefit = results_[hostname].AcruePrefetchBenefits(host_info);
-    switch (benefit) {
-      case PREFETCH_NAME_FOUND:
-      case PREFETCH_NAME_NONEXISTANT:
-        // Remain under lock to push data.
-        cache_hits_.push_back(*host_info);
-        return true;
-
-      case PREFETCH_CACHE_EVICTION:
-        // Remain under lock to push data.
-        cache_eviction_map_[hostname] = *host_info;
-        return false;
-      case PREFETCH_NO_BENEFIT:
-        // Prefetch never hit the network. Name was pre-cached.
-        return false;
-
-      default:
-        DCHECK(false);
-        return false;
+    Referrers::iterator it = referrers_.find(host_name);
+    if (referrers_.end() == it)
+      return;
+    Referrer* referrer = &(it->second);
+    for (Referrer::iterator future_host = referrer->begin();
+         future_host != referrer->end(); ++future_host) {
+      DnsHostInfo* queued_info = PreLockedResolve(
+          future_host->first,
+          DnsHostInfo::LEARNED_REFERAL_MOTIVATED);
+      if (queued_info) {
+        need_to_signal = true;
+        queued_info->SetReferringHostname(host_name);
+      }
     }
   }
+  if (need_to_signal)
+    slaves_have_work_.Signal();
 }
 
 static char* PluralOptionalHostname(size_t count) {
@@ -119,23 +179,92 @@ static char* PluralOptionalHostname(size_t count) {
 // Provide sort order so all .com's are together, etc.
 struct RightToLeftStringSorter {
   bool operator()(const std::string& left, const std::string& right) const {
-    size_t left_length = left.length();
-    size_t right_length = right.length();
-    const char* left_data = left.data();
-    const char* right_data = right.data();
-    while (true) {
-      if (0 == right_length)
-        return false;
-      if (0 == left_length)
+    if (left == right) return true;
+    size_t left_already_matched = left.size();
+    size_t right_already_matched = right.size();
+
+    // Ensure both strings have characters.
+    if (!left_already_matched) return true;
+    if (!right_already_matched) return false;
+
+    // Watch for trailing dot, so we'll always be safe to go one beyond dot.
+    if ('.' == left[left.size() - 1]) {
+      if ('.' != right[right.size() - 1])
         return true;
-      left_length--;
-      right_length--;
-      int difference = left_data[left_length] - right_data[right_length];
-      if (difference)
-        return difference < 0;
+      // Both have dots at end of string.
+      --left_already_matched;
+      --right_already_matched;
+    } else {
+      if ('.' == right[right.size() - 1])
+        return false;
+    }
+
+    while (1) {
+      if (!left_already_matched) return true;
+      if (!right_already_matched) return false;
+
+      size_t left_length, right_length;
+      size_t left_start = left.find_last_of('.', left_already_matched - 1);
+      if (std::string::npos == left_start) {
+        left_length = left_already_matched;
+        left_already_matched = left_start = 0;
+      } else {
+        left_length = left_already_matched - left_start;
+        left_already_matched = left_start;
+        ++left_start;  // Don't compare the dot.
+      }
+      size_t right_start = right.find_last_of('.', right_already_matched - 1);
+      if (std::string::npos == right_start) {
+        right_length = right_already_matched;
+        right_already_matched = right_start = 0;
+      } else {
+        right_length = right_already_matched - right_start;
+        right_already_matched = right_start;
+        ++right_start;  // Don't compare the dot.
+      }
+
+      int diff = left.compare(left_start, left.size(),
+                              right, right_start, right.size());
+      if (diff > 0) return false;
+      if (diff < 0) return true;
     }
   }
 };
+
+void DnsMaster::GetHtmlReferrerLists(std::string* output) {
+  AutoLock auto_lock(lock_);
+  if (referrers_.empty())
+    return;
+
+  // TODO(jar): Remove any plausible JavaScript from names before displaying.
+
+  typedef std::set<std::string, struct RightToLeftStringSorter> SortedNames;
+  SortedNames sorted_names;
+
+  for (Referrers::iterator it = referrers_.begin();
+       referrers_.end() != it; ++it)
+    sorted_names.insert(it->first);
+
+  output->append("<br><table border>");
+  StringAppendF(output,
+      "<tr><th>%s</th><th>%s</th></tr>",
+      "Host for Page", "Host(s) in Page<br>(benefits in ms)");
+
+  for (SortedNames::iterator it = sorted_names.begin();
+       sorted_names.end() != it; ++it) {
+    Referrer* referrer = &(referrers_[*it]);
+    StringAppendF(output, "<tr align=right><td>%s</td><td>", it->c_str());
+    output->append("<table>");
+    for (Referrer::iterator future_host = referrer->begin();
+         future_host != referrer->end(); ++future_host) {
+      StringAppendF(output, "<tr align=right><td>(%dms)</td><td>%s</td></tr>",
+          static_cast<int>(future_host->second.latency().InMilliseconds()),
+          future_host->first.c_str());
+    }
+    output->append("</table></td></tr>");
+  }
+  output->append("</table>");
+}
 
 void DnsMaster::GetHtmlInfo(std::string* output) {
   // Local lists for calling DnsHostInfo
@@ -206,7 +335,9 @@ void DnsMaster::GetHtmlInfo(std::string* output) {
       "Prefetching DNS records revealed non-existance for ", brief, output);
 }
 
-void DnsMaster::PreLockedResolve(const std::string& hostname) {
+DnsHostInfo* DnsMaster::PreLockedResolve(
+    const std::string& hostname,
+    DnsHostInfo::ResolutionMotivation motivation) {
   // DCHECK(We have the lock);
   DCHECK(0 != slave_count_);
   DCHECK(0 != hostname.length());
@@ -218,16 +349,14 @@ void DnsMaster::PreLockedResolve(const std::string& hostname) {
 
   DCHECK(info->HasHostname(hostname));
 
-  static StatsCounter count(L"DNS.PrefetchContemplated");
-  count.Increment();
-
   if (!info->NeedsDnsUpdate(hostname)) {
     info->DLogResultsStats("DNS PrefetchNotUpdated");
-    return;
+    return NULL;
   }
 
-  info->SetQueuedState();
+  info->SetQueuedState(motivation);
   name_buffer_.push(hostname);
+  return info;
 }
 
 // GetNextAssignment() is executed on the thread associated with
@@ -364,7 +493,7 @@ bool DnsMaster::ShutdownSlaves() {
     while (0 < slave_count_--) {
       if (0 == thread_ids_[slave_count_]) {  // Thread terminated.
         int result = CloseHandle(thread_handles_[slave_count_]);
-        CHECK(0 != result);
+        CHECK(result);
         thread_handles_[slave_count_] = 0;
         delete slaves_[slave_count_];
         slaves_[slave_count_] = NULL;
@@ -379,6 +508,7 @@ void DnsMaster::DiscardAllResults() {
   // Delete anything listed so far in this session that shows in about:dns.
   cache_eviction_map_.clear();
   cache_hits_.clear();
+  referrers_.clear();
 
 
   // Try to delete anything in our work queue.

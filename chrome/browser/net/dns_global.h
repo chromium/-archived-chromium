@@ -23,21 +23,25 @@ namespace chrome_browser_net {
 void InitDnsPrefetch(PrefService* user_prefs);
 void ShutdownDnsPrefetch();
 
-// Global API relating to Prefetching in browser
+//------------------------------------------------------------------------------
+// Global APIs relating to Prefetching in browser
 void EnableDnsPrefetch(bool enable);
 void RegisterPrefs(PrefService* local_state);
 void RegisterUserPrefs(PrefService* user_prefs);
+// Renderer bundles up list and sends to this browser API via IPC.
 void DnsPrefetchList(const NameList& hostnames);
+// This API is used by the autocomplete popup box (as user types).
 void DnsPrefetchUrlString(const url_canon::UTF16String& url_string);
-void DnsPrefetch(const std::string& hostname);
 void DnsPrefetchGetHtmlInfo(std::string* output);
 
+//------------------------------------------------------------------------------
 // Save the hostnames actually used at the start of this session to prefetch
 // during the next startup.
 void SaveHostNamesForNextStartup(PrefService* local_state);
 void DnsPrefetchHostNamesAtStartup(PrefService* user_prefs,
                                    PrefService* local_state);
 
+//------------------------------------------------------------------------------
 // Helper class to handle global init and shutdown.
 class DnsPrefetcherInit {
  public:

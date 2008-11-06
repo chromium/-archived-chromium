@@ -702,6 +702,7 @@ void HttpTransactionWinHttp::StatusCallback(HINTERNET handle,
       if (API_SEND_REQUEST == result->dwResult &&
           ERROR_WINHTTP_NAME_NOT_RESOLVED == result->dwError)
         DidFinishDnsResolutionWithStatus(false,
+                                         GURL(),  // null referrer URL.
                                          reinterpret_cast<void*>(context));
       break;
     }
@@ -725,7 +726,9 @@ void HttpTransactionWinHttp::StatusCallback(HINTERNET handle,
     }
     // Successfully found the IP address of the server.
     case WINHTTP_CALLBACK_STATUS_NAME_RESOLVED:
-      DidFinishDnsResolutionWithStatus(true, reinterpret_cast<void*>(context));
+      DidFinishDnsResolutionWithStatus(true,
+                                       GURL(),  // null referer URL.
+                                       reinterpret_cast<void*>(context));
       break;
   }
 }

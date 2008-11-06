@@ -16,6 +16,7 @@
 
 #include "base/logging.h"
 #include "base/time.h"
+#include "googleurl/src/gurl.h"
 
 namespace chrome_browser_net {
 
@@ -32,18 +33,36 @@ enum DnsBenefit {
 
 class DnsHostInfo {
  public:
+  // Reasons for a domain to be resolved.
+  enum ResolutionMotivation {
+    MOUSE_OVER_MOTIVATED,  // Mouse-over link induced resolution.
+    PAGE_SCAN_MOTIVATED,   // Scan of rendered page induced resolution.
+    UNIT_TEST_MOTIVATED,
+    LINKED_MAX_MOTIVATED,    // enum demarkation above motivation from links.
+    OMNIBOX_MOTIVATED,       // Omni-box suggested resolving this.
+    STARTUP_LIST_MOTIVATED,  // Startup list caused this resolution.
+
+    NO_PREFETCH_MOTIVATION,  // Browser navigation info (not prefetch related).
+
+    // The following involve predictive prefetching, triggered by a navigation.
+    // The referring_hostname_ is also set when these are used.
+    // TODO(jar): Support STATIC_REFERAL_MOTIVATED API and integration.
+    STATIC_REFERAL_MOTIVATED,  // External database suggested this resolution.
+    LEARNED_REFERAL_MOTIVATED,  // Prior navigation taught us this resolution.
+  };
+
   enum DnsProcessingState {
-      // When processed by our prefetching system, there are 4 states:
+      // When processed by our prefetching system, the states are:
       PENDING,       // Constructor has completed.
       QUEUED,        // In prefetch queue but not yet assigned to a slave.
       ASSIGNED,      // Currently being processed by a slave.
       ASSIGNED_BUT_MARKED,  // Needs to be deleted as soon as slave is done.
       FOUND,         // DNS prefetch search completed.
       NO_SUCH_NAME,  // DNS prefetch search completed.
-      // When processed by the HTTP network stack, there are 3 states:
-      STARTED,               // Resolution has begun.
-      FINISHED,              // Resolution has completed.
-      FINISHED_UNRESOLVED};  // No resolution found.
+      // When processed by the network stack during navigation, the states are:
+      STARTED,               // Resolution has begun for a navigation.
+      FINISHED,              // Resolution has completed for a navigation.
+      FINISHED_UNRESOLVED};  // No resolution found, so navigation will fail.
   static const base::TimeDelta kMaxNonNetworkDnsLookupDuration;
   // The number of OS cache entries we can guarantee(?) before cache eviction
   // might likely take place.
@@ -60,7 +79,8 @@ class DnsHostInfo {
         resolve_duration_(kNullDuration),
         queue_duration_(kNullDuration),
         benefits_remaining_(),
-        sequence_number_(0) {
+        sequence_number_(0),
+        was_linked_(false) {
   }
 
   ~DnsHostInfo() {}
@@ -74,7 +94,7 @@ class DnsHostInfo {
   static void set_cache_expiration(base::TimeDelta time);
 
   // The prefetching lifecycle.
-  void SetQueuedState();
+  void SetQueuedState(ResolutionMotivation motivation);
   void SetAssignedState();
   void SetPendingDeleteState();
   void SetFoundState();
@@ -83,11 +103,14 @@ class DnsHostInfo {
   void SetStartedState();
   void SetFinishedState(bool was_resolved);
 
-  void SetHostname(const std::string& hostname) {
-    if (hostname != hostname_) {
-      DCHECK(hostname_.size() == 0);  // Not yet initialized.
-      hostname_ = hostname;
-    }
+  // Finish initialization. Must only be called once.
+  void SetHostname(const std::string& hostname);
+
+  bool was_linked() const { return was_linked_; }
+
+  std::string referring_hostname() const { return referring_hostname_; }
+  void SetReferringHostname(const std::string& hostname) {
+    referring_hostname_ = hostname;
   }
 
   bool was_found() const { return FOUND == state_; }
@@ -106,7 +129,7 @@ class DnsHostInfo {
   base::TimeDelta queue_duration() const { return queue_duration_;}
   base::TimeDelta benefits_remaining() const { return benefits_remaining_; }
 
-  DnsBenefit AcruePrefetchBenefits(DnsHostInfo* later_host_info);
+  DnsBenefit AccruePrefetchBenefits(DnsHostInfo* navigation_info);
 
   void DLogResultsStats(const char* message) const;
 
@@ -116,6 +139,22 @@ class DnsHostInfo {
                            std::string* output);
 
  private:
+  base::TimeDelta GetDuration() {
+    base::TimeTicks old_time = time_;
+    time_ = base::TimeTicks::Now();
+    return time_ - old_time;
+  }
+
+  // IsStillCached() guesses if the DNS cache still has IP data.
+  bool IsStillCached() const;
+
+  // Record why we created, or have updated (reqested pre-resolution) of this
+  // instance.
+  void SetMotivation(ResolutionMotivation motivation);
+
+  // Helper function for about:dns printing.
+  std::string GetAsciiMotivation() const;
+
   // The next declaration is non-const to facilitate testing.
   static base::TimeDelta kCacheExpirationDuration;
 
@@ -134,14 +173,16 @@ class DnsHostInfo {
   int sequence_number_;  // Used to calculate potential of cache eviction.
   static int sequence_counter;  // Used to allocate sequence_number_'s.
 
-  base::TimeDelta GetDuration() {
-    base::TimeTicks old_time = time_;
-    time_ = base::TimeTicks::Now();
-    return time_ - old_time;
-  }
+  // Motivation for creation of this instance.
+  ResolutionMotivation motivation_;
 
-  // IsStillCached() guesses if the DNS cache still has IP data.
-  bool IsStillCached() const;
+  // Record if the motivation for prefetching was ever a page-link-scan.
+  bool was_linked_;
+
+  // If this instance holds data about a navigation, we store the referrer.
+  // If this instance hold data about a prefetch, and the prefetch was
+  // instigated by a referrer, we store it here (for use in about:dns).
+  std::string referring_hostname_;
 
   // We put these objects into a std::map, and hence we
   // need some "evil" constructors.

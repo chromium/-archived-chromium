@@ -1902,6 +1902,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\net\referrer.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\net\referrer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\net\sdch_dictionary_fetcher.cc"
 				>
 			</File>

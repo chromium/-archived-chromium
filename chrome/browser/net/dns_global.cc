@@ -10,9 +10,10 @@
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "base/values.h"
-#include "chrome/browser/net/dns_host_info.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/net/dns_host_info.h"
+#include "chrome/browser/net/referrer.h"
 #include "chrome/browser/session_startup_pref.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/common/notification_service.h"
@@ -26,6 +27,11 @@ using base::TimeDelta;
 namespace chrome_browser_net {
 
 static void DiscardAllPrefetchState();
+static void DnsMotivatedPrefetch(const std::string& hostname,
+                                 DnsHostInfo::ResolutionMotivation motivation);
+static void DnsPrefetchMotivatedList(
+    const NameList& hostnames,
+    DnsHostInfo::ResolutionMotivation motivation);
 
 //------------------------------------------------------------------------------
 // This section contains all the globally accessable API entry points for the
@@ -64,12 +70,22 @@ void RegisterUserPrefs(PrefService* user_prefs) {
 static DnsMaster* dns_master;
 
 // This API is only used in the browser process.
+// It is called from an IPC message originating in the renderer.  It currently
+// includes both Page-Scan, and Link-Hover prefetching.
+// TODO(jar): Separate out link-hover prefetching, and histogram results
+// separately.
 void DnsPrefetchList(const NameList& hostnames) {
+  DnsPrefetchMotivatedList(hostnames, DnsHostInfo::PAGE_SCAN_MOTIVATED);
+}
+
+static void DnsPrefetchMotivatedList(
+    const NameList& hostnames,
+    DnsHostInfo::ResolutionMotivation motivation) {
   if (!dns_prefetch_enabled)
     return;
   DCHECK(NULL != dns_master);
   if (NULL != dns_master)
-    dns_master->ResolveList(hostnames);
+    dns_master->ResolveList(hostnames, motivation);
 }
 
 // This API is used by the autocomplete popup box (wher URLs are typed).
@@ -78,15 +94,15 @@ void DnsPrefetchUrlString(const url_canon::UTF16String& url_string) {
     return;
   GURL gurl(url_string);
   if (gurl.is_valid()) {
-    DnsPrefetch(gurl.host());
+    DnsMotivatedPrefetch(gurl.host(), DnsHostInfo::OMNIBOX_MOTIVATED);
   }
 }
 
-// This API currently used after translating a url_string.
-void DnsPrefetch(const std::string& hostname) {
+static void DnsMotivatedPrefetch(const std::string& hostname,
+                                 DnsHostInfo::ResolutionMotivation motivation) {
   if (!dns_prefetch_enabled || NULL == dns_master || !hostname.size())
     return;
-  dns_master->Resolve(hostname);
+  dns_master->Resolve(hostname, motivation);
 }
 
 //------------------------------------------------------------------------------
@@ -97,11 +113,20 @@ void DnsPrefetch(const std::string& hostname) {
 //------------------------------------------------------------------------------
 
 // This function determines if there was a saving by prefetching the hostname
-// for which the host_info is supplied.
-static bool AcruePrefetchBenefits(DnsHostInfo* host_info) {
+// for which the navigation_info is supplied.
+static bool AccruePrefetchBenefits(const GURL& referrer,
+                                   DnsHostInfo* navigation_info) {
   if (!dns_prefetch_enabled || NULL == dns_master)
     return false;
-  return dns_master->AcruePrefetchBenefits(host_info);
+  return dns_master->AccruePrefetchBenefits(referrer, navigation_info);
+}
+
+// When we navigate, we may know in advance some other domains that will need to
+// be resolved.  This function initiates those side effects.
+static void NavigatingTo(const std::string& host_name) {
+  if (!dns_prefetch_enabled || NULL == dns_master)
+    return;
+  dns_master->NavigatingTo(host_name);
 }
 
 // The observer class needs to connect starts and finishes of HTTP network
@@ -116,14 +141,17 @@ class PrefetchObserver : public net::DnsResolutionObserver {
   PrefetchObserver();
   ~PrefetchObserver();
 
-  virtual void OnStartResolution(const std::string& name, void* context);
-  virtual void OnFinishResolutionWithStatus(bool was_resolved, void* context);
+  virtual void OnStartResolution(const std::string& host_name,
+                                 void* context);
+  virtual void OnFinishResolutionWithStatus(bool was_resolved,
+                                            const GURL& referrer,
+                                            void* context);
 
   static void DnsGetFirstResolutionsHtml(std::string* output);
   static void SaveStartupListAsPref(PrefService* local_state);
 
  private:
-  static void StartupListAppend(const DnsHostInfo& host_info);
+  static void StartupListAppend(const DnsHostInfo& navigation_info);
 
   // We avoid using member variables to better comply with the style guide.
   // We had permission to instantiate only a very minimal class as a global
@@ -159,49 +187,56 @@ PrefetchObserver::~PrefetchObserver() {
   lock = NULL;
 }
 
-void PrefetchObserver::OnStartResolution(const std::string& name,
+void PrefetchObserver::OnStartResolution(const std::string& host_name,
                                          void* context) {
-  DCHECK_NE(0, name.length());
-  DnsHostInfo host_info;
-  host_info.SetHostname(name);
-  host_info.SetStartedState();
+  DCHECK_NE(0, host_name.length());
+  DnsHostInfo navigation_info;
+  navigation_info.SetHostname(host_name);
+  navigation_info.SetStartedState();
+
+  NavigatingTo(host_name);
 
   AutoLock auto_lock(*lock);
-  (*resolutions)[context] = host_info;
+  (*resolutions)[context] = navigation_info;
 }
 
 void PrefetchObserver::OnFinishResolutionWithStatus(bool was_resolved,
+                                                    const GURL& referrer,
                                                     void* context) {
-  DnsHostInfo host_info;
+  DnsHostInfo navigation_info;
   size_t startup_count;
   {
     AutoLock auto_lock(*lock);
     ObservedResolutionMap::iterator it = resolutions->find(context);
     if (resolutions->end() == it) {
+      DCHECK(false);
       return;
     }
-    host_info = it->second;
+    navigation_info = it->second;
     resolutions->erase(it);
     startup_count = first_resolutions->size();
   }
-  host_info.SetFinishedState(was_resolved);  // Get timing info
-  AcruePrefetchBenefits(&host_info);  // Update prefetch benefit (if any).
+  navigation_info.SetFinishedState(was_resolved);  // Get timing info
+  AccruePrefetchBenefits(referrer, &navigation_info);
   if (kStartupResolutionCount <= startup_count || !was_resolved)
     return;
-  StartupListAppend(host_info);
+  // TODO(jar): Don't add host to our list if it is a non-linked lookup, and
+  // instead rely on Referrers to pull this in automatically with the enclosing
+  // page load.
+  StartupListAppend(navigation_info);
 }
 
 // static
-void PrefetchObserver::StartupListAppend(const DnsHostInfo& host_info) {
+void PrefetchObserver::StartupListAppend(const DnsHostInfo& navigation_info) {
   if (!on_the_record_switch || NULL == dns_master)
     return;
   AutoLock auto_lock(*lock);
   if (kStartupResolutionCount <= first_resolutions->size())
     return;  // Someone just added the last item.
-  std::string host_name = host_info.hostname();
+  std::string host_name = navigation_info.hostname();
   if (first_resolutions->find(host_name) != first_resolutions->end())
     return;  // We already have this hostname listed.
-  (*first_resolutions)[host_name] = host_info;
+  (*first_resolutions)[host_name] = navigation_info;
 }
 
 // static
@@ -327,6 +362,7 @@ void DnsPrefetchGetHtmlInfo(std::string* output) {
     } else {
       dns_master->GetHtmlInfo(output);
       PrefetchObserver::DnsGetFirstResolutionsHtml(output);
+      dns_master->GetHtmlReferrerLists(output);
     }
   }
   output->append("</body></html>");
@@ -425,9 +461,10 @@ void DnsPrefetchHostNamesAtStartup(PrefService* user_prefs,
   }
 
   if (hostnames.size() > 0)
-    DnsPrefetchList(hostnames);
-  else
-    DnsPrefetch(std::string("www.google.com"));  // Start a thread.
+    DnsPrefetchMotivatedList(hostnames, DnsHostInfo::STARTUP_LIST_MOTIVATED);
+  else  // Start a thread.
+    DnsMotivatedPrefetch(std::string("www.google.com"),
+                         DnsHostInfo::STARTUP_LIST_MOTIVATED);
 }
 
 
