@@ -1692,6 +1692,7 @@
 		4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginArray.cpp; sourceTree = "<group>"; };
 		4DDC62B50EAD142D00FB5EBE /* PluginArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginArray.h; sourceTree = "<group>"; };
 		53E8BE470EC36DD700B3F8B0 /* autocomplete_input_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = autocomplete_input_listener.cc; sourceTree = "<group>"; };
+		53E8BE8D0EC36F4B00B3F8B0 /* autocomplete_input_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = autocomplete_input_listener.h; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
 		7B00912C0DAFEFBE00F72082 /* CSSGrammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSSGrammar.h; sourceTree = "<group>"; };
 		7B00912D0DAFEFBE00F72082 /* HTMLNames.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLNames.cpp; sourceTree = "<group>"; };
@@ -7411,6 +7412,7 @@
 				825404ED0D92E3DA0006B936 /* alt_error_page_resource_fetcher.cc */,
 				825404EE0D92E3DA0006B936 /* alt_error_page_resource_fetcher.h */,
 				53E8BE470EC36DD700B3F8B0 /* autocomplete_input_listener.cc */,
+				53E8BE8D0EC36F4B00B3F8B0 /* autocomplete_input_listener.h */,
 				825404EF0D92E3DA0006B936 /* cache_manager.cc */,
 				825404F00D92E3DA0006B936 /* cache_manager.h */,
 				825404F10D92E3DA0006B936 /* chrome_client_impl.cc */,

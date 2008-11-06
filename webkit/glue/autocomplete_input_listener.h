@@ -8,8 +8,8 @@
 #ifndef WEBKIT_GLUE_AUTOCOMPLETE_INPUT_LISTENER_H__
 #define WEBKIT_GLUE_AUTOCOMPLETE_INPUT_LISTENER_H__
 
-#include <string>
 #include "config.h"
+#include <string>
 
 #include "base/compiler_specific.h"
 
