@@ -86,7 +86,7 @@
 // The width and height of the About dialog box in characters and lines (See
 // above).
 #define IDS_ABOUT_DIALOG_WIDTH_CHARS 1031
-#define IDS_ABOUT_DIALOG_HEIGHT_LINES 1032
+#define IDS_ABOUT_DIALOG_MINIMUM_HEIGHT_LINES 1032
 
 // The width and height of the Fonts and Languages dialog box in characters and
 // lines (See above).

@@ -122,7 +122,7 @@ class AboutChromeView : public views::View,
   Profile* profile_;
 
   // UI elements on the dialog.
-  views::ImageView* about_dlg_background_;
+  views::ImageView* about_dlg_background_logo_;
   views::Label* about_title_label_;
   views::TextField* version_label_;
   views::Label* copyright_label_;
@@ -140,6 +140,9 @@ class AboutChromeView : public views::View,
   views::ImageView update_available_indicator_;
   views::ImageView timeout_indicator_;
   views::Label update_label_;
+
+  // The dialog dimensions.
+  gfx::Size dialog_dimensions_;
 
   // Keeps track of the visible state of the Check For Updates button.
   CheckButtonStatus check_button_status_;

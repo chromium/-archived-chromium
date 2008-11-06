@@ -51,6 +51,10 @@ const wchar_t* kBeginLinkOss = L"BEGIN_LINK_OSS";
 const wchar_t* kEndLinkChr = L"END_LINK_CHR";
 const wchar_t* kEndLinkOss = L"END_LINK_OSS";
 
+// The background bitmap used to draw the background color for the About box
+// and the separator line (this is the image we will draw the logo on top of).
+static const SkBitmap* kBackgroundBmp = NULL;
+
 // Returns a substring from |text| between start and end.
 std::wstring StringSubRange(const std::wstring& text, size_t start,
                             size_t end) {
@@ -65,7 +69,7 @@ std::wstring StringSubRange(const std::wstring& text, size_t start,
 
 AboutChromeView::AboutChromeView(Profile* profile)
     : profile_(profile),
-      about_dlg_background_(NULL),
+      about_dlg_background_logo_(NULL),
       about_title_label_(NULL),
       version_label_(NULL),
       copyright_label_(NULL),
@@ -82,6 +86,11 @@ AboutChromeView::AboutChromeView(Profile* profile)
 
   google_updater_ = new GoogleUpdate();
   google_updater_->AddStatusChangeListener(this);
+
+  if (kBackgroundBmp == NULL) {
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    kBackgroundBmp = rb.GetBitmapNamed(IDR_ABOUT_BACKGROUND_COLOR);
+  }
 }
 
 AboutChromeView::~AboutChromeView() {
@@ -130,15 +139,15 @@ void AboutChromeView::Init() {
   // image for the dialog. We have two different background bitmaps, one for
   // LTR UIs and one for RTL UIs. We load the correct bitmap based on the UI
   // layout of the view.
-  about_dlg_background_ = new views::ImageView();
-  SkBitmap* about_background;
+  about_dlg_background_logo_ = new views::ImageView();
+  SkBitmap* about_background_logo;
   if (UILayoutIsRightToLeft())
-    about_background = rb.GetBitmapNamed(IDR_ABOUT_BACKGROUND_RTL);
+    about_background_logo = rb.GetBitmapNamed(IDR_ABOUT_BACKGROUND_RTL);
   else
-    about_background = rb.GetBitmapNamed(IDR_ABOUT_BACKGROUND);
+    about_background_logo = rb.GetBitmapNamed(IDR_ABOUT_BACKGROUND);
 
-  about_dlg_background_->SetImage(*about_background);
-  AddChildView(about_dlg_background_);
+  about_dlg_background_logo_->SetImage(*about_background_logo);
+  AddChildView(about_dlg_background_logo_);
 
   // Add the dialog labels.
   about_title_label_ = new views::Label(
@@ -198,6 +207,31 @@ void AboutChromeView::Init() {
   AddChildView(open_source_url_);
   open_source_url_->SetController(this);
 
+  // Add together all the strings in the dialog for the purpose of calculating
+  // the height of the dialog. The space for the Terms of Service string is not
+  // included (it is added later, if needed).
+  std::wstring full_text = main_label_chunk1_ + chromium_url_->GetText() +
+                           main_label_chunk2_ + open_source_url_->GetText() +
+                           main_label_chunk3_;
+
+  dialog_dimensions_ = views::Window::GetLocalizedContentsSize(
+      IDS_ABOUT_DIALOG_WIDTH_CHARS,
+      IDS_ABOUT_DIALOG_MINIMUM_HEIGHT_LINES);
+
+  // Create a label and add the full text so we can query it for the height.
+  views::Label dummy_text(full_text);
+  dummy_text.SetMultiLine(true);
+  ChromeFont font =
+      ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::BaseFont);
+
+  // Add up the height of the various elements on the page.
+  int height = about_background_logo->height() +
+               kRelatedControlVerticalSpacing +
+               font.height() +                // Copyright line.
+               dummy_text.GetHeightForWidth(  // Main label.
+                   dialog_dimensions_.width() - (2 * kPanelHorizMargin)) +
+               kRelatedControlVerticalSpacing;
+
 #if defined(GOOGLE_CHROME_BUILD)
   std::vector<size_t> url_offsets;
   text = l10n_util::GetStringF(IDS_ABOUT_TERMS_OF_SERVICE,
@@ -213,35 +247,32 @@ void AboutChromeView::Init() {
       new views::Link(l10n_util::GetString(IDS_TERMS_OF_SERVICE));
   AddChildView(terms_of_service_url_);
   terms_of_service_url_->SetController(this);
+
+  // Add the Terms of Service line and some whitespace.
+  height += font.height() + kRelatedControlVerticalSpacing;
 #endif
+
+  // Use whichever is greater (the calculated height or the specified minimum
+  // height).
+  dialog_dimensions_.set_height(std::max(height, dialog_dimensions_.height()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // AboutChromeView, views::View implementation:
 
 gfx::Size AboutChromeView::GetPreferredSize() {
-  gfx::Size prefsize(views::Window::GetLocalizedContentsSize(
-      IDS_ABOUT_DIALOG_WIDTH_CHARS,
-      IDS_ABOUT_DIALOG_HEIGHT_LINES));
-  // We compute the height of the dialog based on the size of the image (it
-  // would be nice to not hard code this), the text in the about dialog and the
-  // margins around the text.
-  prefsize.Enlarge(0, 145 + (kPanelVertMargin * 2));
-  // TODO(beng): Eventually the image should be positioned such that hard-
-  //             coding the width isn't necessary.  This breaks with fonts
-  //             that are large and cause wrapping.
-  prefsize.set_width(422);
-  return prefsize;
+  return dialog_dimensions_;
 }
 
 void AboutChromeView::Layout() {
   gfx::Size panel_size = GetPreferredSize();
 
   // Background image for the dialog.
-  gfx::Size sz = about_dlg_background_->GetPreferredSize();
-  // used to position main text below.
+  gfx::Size sz = about_dlg_background_logo_->GetPreferredSize();
+  // Used to position main text below.
   int background_image_height = sz.height();
-  about_dlg_background_->SetBounds(0, 0, sz.width(), sz.height());
+  about_dlg_background_logo_->SetBounds(panel_size.width() - sz.width(), 0,
+                                        sz.width(), sz.height());
 
   // First label goes to the top left corner.
   sz = about_title_label_->GetPreferredSize();
@@ -317,6 +348,12 @@ void AboutChromeView::Layout() {
 
 void AboutChromeView::Paint(ChromeCanvas* canvas) {
   views::View::Paint(canvas);
+
+  // Draw the background image color (and the separator) across the dialog.
+  // This will become the background for the logo image at the top of the
+  // dialog.
+  canvas->TileImageInt(*kBackgroundBmp, 0, 0,
+                       dialog_dimensions_.width(), kBackgroundBmp->height());
 
   ChromeFont font =
     ResourceBundle::GetSharedInstance().GetFont(ResourceBundle::BaseFont);

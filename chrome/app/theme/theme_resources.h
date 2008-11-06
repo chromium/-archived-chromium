@@ -317,3 +317,4 @@
 #define IDR_BOOKMARK_MANAGER_RECENT_ICON                 9309
 #define IDR_BOOKMARK_MANAGER_SEARCH_ICON                 9310
 #define IDR_MENU_DROPARROW                               9311
+#define IDR_ABOUT_BACKGROUND_COLOR                       9312
