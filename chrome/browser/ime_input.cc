@@ -20,8 +20,7 @@ ImeInput::ImeInput()
       input_language_id_(LANG_USER_DEFAULT),
       is_composing_(false),
       system_caret_(false),
-      caret_x_(-1),
-      caret_y_(-1) {
+      caret_rect_(-1, -1, 0, 0) {
 }
 
 ImeInput::~ImeInput() {
@@ -48,7 +47,10 @@ void ImeInput::CreateImeWindow(HWND window_handle) {
   // retrieve the position of their IME candidate window.
   // Therefore, we create a temporary system caret for Chinese IMEs and use
   // it during this input context.
-  if (PRIMARYLANGID(input_language_id_) == LANG_CHINESE) {
+  // Since some third-party Japanese IME also uses ::GetCaretPos() to determine
+  // their window position, we also create a caret for Japanese IMEs.
+  if (PRIMARYLANGID(input_language_id_) == LANG_CHINESE ||
+      PRIMARYLANGID(input_language_id_) == LANG_JAPANESE) {
     if (!system_caret_) {
       if (::CreateCaret(window_handle, NULL, 1, 1)) {
         system_caret_ = true;
@@ -84,8 +86,8 @@ void ImeInput::DestroyImeWindow(HWND window_handle) {
 }
 
 void ImeInput::MoveImeWindow(HWND window_handle, HIMC imm_context) {
-  int x = caret_x_;
-  int y = caret_y_;
+  int x = caret_rect_.x();
+  int y = caret_rect_.y();
   const int kCaretMargin = 1;
   // As written in a comment in ImeInput::CreateImeWindow(),
   // Chinese IMEs ignore function calls to ::ImmSetCandidateWindow()
@@ -101,7 +103,14 @@ void ImeInput::MoveImeWindow(HWND window_handle, HIMC imm_context) {
                                       {0, 0, 0, 0}};
   ::ImmSetCandidateWindow(imm_context, &candidate_position);
   if (system_caret_) {
-    ::SetCaretPos(x, y);
+    switch (PRIMARYLANGID(input_language_id_)) {
+      case LANG_JAPANESE:
+        ::SetCaretPos(x, y + caret_rect_.height());
+        break;
+      default:
+        ::SetCaretPos(x, y);
+        break;
+    }
   }
   if (PRIMARYLANGID(input_language_id_) == LANG_KOREAN) {
     // Chinese IMEs and Japanese IMEs require the upper-left corner of
@@ -115,13 +124,13 @@ void ImeInput::MoveImeWindow(HWND window_handle, HIMC imm_context) {
   // to move their candidate windows when a user disables TSF and CUAS.
   // Therefore, we also set this parameter here.
   CANDIDATEFORM exclude_rectangle = {0, CFS_EXCLUDE, {x, y},
-                                     {x, y, x, y + kCaretMargin}};
+      {x, y, x + caret_rect_.width(), y + caret_rect_.height()}};
   ::ImmSetCandidateWindow(imm_context, &exclude_rectangle);
 }
 
 void ImeInput::UpdateImeWindow(HWND window_handle) {
   // Just move the IME window attached to the given window.
-  if (caret_x_ >= 0 && caret_y_ >= 0) {
+  if (caret_rect_.x() >= 0 && caret_rect_.y() >= 0) {
     HIMC imm_context = ::ImmGetContext(window_handle);
     if (imm_context) {
       MoveImeWindow(window_handle, imm_context);
@@ -185,8 +194,6 @@ void ImeInput::GetCaret(HIMC imm_context, LPARAM lparam,
     // is scanning the attribute of the latest composition string and
     // retrieving the begining and the end of the target clause, i.e.
     // a clause being converted.
-    size_t composition_length = composition->ime_string.length();
-    composition->cursor_position = static_cast<int>(composition_length);
     if (lparam & GCS_COMPATTR) {
       int attribute_size = ::ImmGetCompositionString(imm_context,
                                                      GCS_COMPATTR,
@@ -297,7 +304,9 @@ void ImeInput::DisableIME(HWND window_handle) {
   ::ImmAssociateContextEx(window_handle, NULL, 0);
 }
 
-void ImeInput::EnableIME(HWND window_handle, int x, int y, bool complete) {
+void ImeInput::EnableIME(HWND window_handle,
+                         const gfx::Rect& caret_rect,
+                         bool complete) {
   // Load the default IME context.
   // NOTE(hbono)
   //   IMM ignores this call if the IME context is loaded. Therefore, we do
@@ -318,9 +327,9 @@ void ImeInput::EnableIME(HWND window_handle, int x, int y, bool complete) {
     // Save the caret position, and Update the position of the IME window.
     // This update is used for moving an IME window when a renderer process
     // resize/moves the input caret.
-    if (x >= 0 && y >= 0) {
-      caret_x_ = x;
-      caret_y_ = y;
+    if (caret_rect.x() >= 0 && caret_rect.y() >= 0) {
+      caret_rect_.SetRect(caret_rect.x(), caret_rect.y(), caret_rect.width(),
+                          caret_rect.height());
       MoveImeWindow(window_handle, imm_context);
     }
     ::ImmReleaseContext(window_handle, imm_context);

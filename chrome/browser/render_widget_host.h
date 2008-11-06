@@ -221,7 +221,8 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   void OnMsgFocus();
   void OnMsgBlur();
   void OnMsgSetCursor(const WebCursor& cursor);
-  void OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control, int x, int y);
+  void OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control,
+                            const gfx::Rect& caret_rect);
 
   void MovePluginWindows(
       const std::vector<WebPluginGeometry>& plugin_window_moves);

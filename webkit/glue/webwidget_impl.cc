@@ -185,14 +185,17 @@ void WebWidgetImpl::MouseCaptureLost() {
 void WebWidgetImpl::SetFocus(bool enable) {
 }
 
-void WebWidgetImpl::ImeSetComposition(int string_type, int cursor_position,
-                                      int target_start, int target_end,
-                                      int string_length,
-                                      const wchar_t *string_data) {
+bool WebWidgetImpl::ImeSetComposition(int string_type,
+                                      int cursor_position,
+                                      int target_start,
+                                      int target_end,
+                                      const std::wstring& ime_string) {
+  return false;
 }
 
-bool WebWidgetImpl::ImeUpdateStatus(bool* enable_ime, const void** id,
-                                    int* x, int* y) {
+bool WebWidgetImpl::ImeUpdateStatus(bool* enable_ime,
+                                    const void** node,
+                                    gfx::Rect* caret_rect) {
   return false;
 }
 

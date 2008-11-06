@@ -1013,23 +1013,24 @@ void WebViewImpl::StoreFocusForFrame(WebFrame* frame) {
   }
 }
 
-void WebViewImpl::ImeSetComposition(int string_type, int cursor_position,
-                                    int target_start, int target_end,
-                                    int string_length,
-                                    const wchar_t *string_data) {
+bool WebViewImpl::ImeSetComposition(int string_type,
+                                    int cursor_position,
+                                    int target_start,
+                                    int target_end,
+                                    const std::wstring& ime_string) {
   Frame* focused = GetFocusedWebCoreFrame();
   if (!focused || !ime_accept_events_) {
-    return;
+    return false;
   }
   Editor* editor = focused->editor();
   if (!editor)
-    return;
+    return false;
   if (!editor->canEdit()) {
     // The input focus has been moved to another WebWidget object.
     // We should use this |editor| object only to complete the ongoing
     // composition.
     if (!editor->hasComposition())
-      return;
+      return false;
   }
 
   if (string_type == 0) {
@@ -1053,11 +1054,11 @@ void WebViewImpl::ImeSetComposition(int string_type, int cursor_position,
     // (I have not been able to find good methods for re-activating it.)
     // Therefore, I have to prevent from calling Editor::setComposition()
     // with its first argument an empty string.
-    if (string_length > 0) {
+    if (ime_string.length() > 0) {
       if (target_start < 0) target_start = 0;
-      if (target_end < 0) target_end = string_length;
-      std::wstring temp(string_data, string_length);
-      WebCore::String composition_string(webkit_glue::StdWStringToString(temp));
+      if (target_end < 0) target_end = static_cast<int>(ime_string.length());
+      WebCore::String composition_string(
+          webkit_glue::StdWStringToString(ime_string));
       // Create custom underlines.
       // To emphasize the selection, the selected region uses a solid black
       // for its underline while other regions uses a pale gray for theirs.
@@ -1071,7 +1072,7 @@ void WebViewImpl::ImeSetComposition(int string_type, int cursor_position,
       underlines[1].thick = true;
       underlines[1].color.setRGB(0x00, 0x00, 0x00);
       underlines[2].startOffset = target_end;
-      underlines[2].endOffset = string_length;
+      underlines[2].endOffset = static_cast<int>(ime_string.length());
       underlines[2].thick = true;
       underlines[2].color.setRGB(0xd3, 0xd3, 0xd3);
       // When we use custom underlines, WebKit ("InlineTextBox.cpp" Line 282)
@@ -1091,24 +1092,20 @@ void WebViewImpl::ImeSetComposition(int string_type, int cursor_position,
     }
 #endif
   }
+
+  return editor->hasComposition();
 }
 
-bool WebViewImpl::ImeUpdateStatus(bool* enable_ime, const void **id,
-                                  int* x, int* y) {
-  // Initialize the return values so that we can disable the IME attached
-  // to a browser process when an error occurs while retrieving information
-  // of the focused edit control.
-  *enable_ime = false;
-  *id = NULL;
-  *x = -1;
-  *y = -1;
-  // Store the position of the bottom-left corner of the caret.
+bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
+                                  const void** new_node,
+                                  gfx::Rect* caret_rect) {
+  // Store whether the selected node needs IME and the caret rectangle.
   // This process consists of the following four steps:
   //  1. Retrieve the selection controller of the focused frame;
   //  2. Retrieve the caret rectangle from the controller;
   //  3. Convert the rectangle, which is relative to the parent view, to the
   //     one relative to the client window, and;
-  //  4. Store the position of its bottom-left corner.
+  //  4. Store the converted rectangle.
   const Frame* focused = GetFocusedWebCoreFrame();
   if (!focused)
     return false;
@@ -1121,12 +1118,13 @@ bool WebViewImpl::ImeUpdateStatus(bool* enable_ime, const void **id,
   const Node* node = controller->start().node();
   if (!node)
     return false;
+  *enable_ime = node->shouldUseInputMethod() &&
+      !controller->isInPasswordField();
   const FrameView* view = node->document()->view();
   if (!view)
     return false;
-  IntRect rect = view->contentsToWindow(controller->caretRect());
-  *x = rect.x();
-  *y = rect.bottom();
+  const IntRect rect(view->contentsToWindow(controller->caretRect()));
+  caret_rect->SetRect(rect.x(), rect.y(), rect.width(), rect.height());
   return true;
 }
 

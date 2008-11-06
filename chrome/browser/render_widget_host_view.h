@@ -89,8 +89,7 @@ class RenderWidgetHostView {
 
   // Enable or disable IME for the view.
   virtual void IMEUpdateStatus(ViewHostMsg_ImeControl control,
-                               int x,
-                               int y) = 0;
+                               const gfx::Rect& caret_rect) = 0;
 
   // Informs the view that a portion of the widget's backing store was painted.
   virtual void DidPaintRect(const gfx::Rect& rect) = 0;

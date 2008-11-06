@@ -10,6 +10,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/gfx/Rect.h"
 
 // This header file defines a struct and a class used for encapsulating IMM32
 // APIs, controls IMEs attached to a window, and enables the 'on-the-spot'
@@ -209,9 +210,9 @@ class ImeInput {
   // Parameters
   //   * window_handle [in] (HWND)
   //     Represents the window handle of the caller.
-  //   * x [in] (int)
-  //   * y [in] (int)
-  //     Represent the position of the upper-left corner of IME windows.
+  //   * caret_rect [in] (const gfx::Rect&)
+  //     Represent the rectangle of the input caret.
+  //     This rectangle is used for controlling the positions of IME windows.
   //   * complete [in] (bool)
   //     Represents whether or not to complete the ongoing composition.
   //     + true
@@ -221,7 +222,9 @@ class ImeInput {
   //     + false
   //       Just move the IME windows of the ongoing composition to the given
   //       position without finishing it.
-  void EnableIME(HWND window_handle, int x, int y, bool complete);
+  void EnableIME(HWND window_handle,
+                 const gfx::Rect& caret_rect,
+                 bool complete);
 
   // Disable the IME attached to the given window, i.e. prohibits any user-input
   // events from being dispatched to the IME.
@@ -294,9 +297,8 @@ class ImeInput {
   //   * false: it does not create a system caret.
   bool system_caret_;
 
-  // The position of the input caret retrieved from a renderer process.
-  int caret_x_;
-  int caret_y_;
+  // The rectangle of the input caret retrieved from a renderer process.
+  gfx::Rect caret_rect_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ImeInput);
 };

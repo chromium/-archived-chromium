@@ -263,11 +263,12 @@ void RenderWidgetHostViewWin::SetIsLoading(bool is_loading) {
 }
 
 void RenderWidgetHostViewWin::IMEUpdateStatus(ViewHostMsg_ImeControl control,
-                                              int x, int y) {
+                                              const gfx::Rect& caret_rect) {
   if (control == IME_DISABLE) {
     ime_input_.DisableIME(m_hWnd);
   } else {
-    ime_input_.EnableIME(m_hWnd, x, y, control == IME_COMPLETE_COMPOSITION);
+    ime_input_.EnableIME(m_hWnd, caret_rect,
+                         control == IME_COMPLETE_COMPOSITION);
   }
 }
 

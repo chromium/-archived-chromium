@@ -667,11 +667,9 @@ void RenderWidget::OnImeSetComposition(int string_type,
                                        int target_start, int target_end,
                                        const std::wstring& ime_string) {
   if (webwidget_) {
-    int string_length = static_cast<int>(ime_string.length());
-    const wchar_t* string_data = ime_string.data();
     webwidget_->ImeSetComposition(string_type, cursor_position,
                                   target_start, target_end,
-                                  string_length, string_data);
+                                  ime_string);
   }
 }
 
@@ -693,17 +691,20 @@ void RenderWidget::UpdateIME() {
   if (!ime_is_active_) {
     return;
   }
-  // Retrieve the caret position from the focused widget.
-  bool enable_ime;
-  int x, y;
-  const void *id;
-  if (!webwidget_ || !webwidget_->ImeUpdateStatus(&enable_ime, &id, &x, &y)) {
+  // Retrieve the caret position from the focused widget and verify we should
+  // enabled IMEs attached to the browser process.
+  bool enable_ime = false;
+  const void* node = NULL;
+  gfx::Rect caret_rect;
+  if (!webwidget_ ||
+      !webwidget_->ImeUpdateStatus(&enable_ime, &node, &caret_rect)) {
     // There are not any editable widgets attached to this process.
     // We should disable the IME to prevent it from sending CJK strings to
     // non-editable widgets.
     ime_control_updated_ = true;
     ime_control_new_state_ = false;
   }
+  ime_control_new_state_ = enable_ime;
   if (ime_control_updated_) {
     // The input focus has been changed.
     // Compare the current state with the updated state and choose actions.
@@ -711,20 +712,22 @@ void RenderWidget::UpdateIME() {
       if (ime_control_new_state_) {
         // Case 1: a text input -> another text input
         // Complete the current composition and notify the caret position.
-        enum ViewHostMsg_ImeControl control = IME_COMPLETE_COMPOSITION;
-        Send(new ViewHostMsg_ImeUpdateStatus(routing_id(), control, x, y));
+        Send(new ViewHostMsg_ImeUpdateStatus(routing_id(),
+                                             IME_COMPLETE_COMPOSITION,
+                                             caret_rect));
       } else {
         // Case 2: a text input -> a password input (or a static control)
         // Complete the current composition and disable the IME.
-        enum ViewHostMsg_ImeControl control = IME_DISABLE;
-        Send(new ViewHostMsg_ImeUpdateStatus(routing_id(), control, x, y));
+        Send(new ViewHostMsg_ImeUpdateStatus(routing_id(), IME_DISABLE,
+                                             caret_rect));
       }
     } else {
       if (ime_control_new_state_) {
         // Case 3: a password input (or a static control) -> a text input
         // Enable the IME and notify the caret position.
-        enum ViewHostMsg_ImeControl control = IME_COMPLETE_COMPOSITION;
-        Send(new ViewHostMsg_ImeUpdateStatus(routing_id(), control, x, y));
+        Send(new ViewHostMsg_ImeUpdateStatus(routing_id(),
+                                             IME_COMPLETE_COMPOSITION,
+                                             caret_rect));
       } else {
         // Case 4: a password input (or a static contol) -> another password
         //         input (or another static control).
@@ -735,17 +738,18 @@ void RenderWidget::UpdateIME() {
     // The input focus is not changed.
     // Notify the caret position to a browser process only if it is changed.
     if (ime_control_enable_ime_) {
-      if (x != ime_control_x_ || y != ime_control_y_) {
-        enum ViewHostMsg_ImeControl control = IME_MOVE_WINDOWS;
-        Send(new ViewHostMsg_ImeUpdateStatus(routing_id(), control, x, y));
+      if (caret_rect.x() != ime_control_x_ ||
+          caret_rect.y() != ime_control_y_) {
+        Send(new ViewHostMsg_ImeUpdateStatus(routing_id(), IME_MOVE_WINDOWS,
+                                             caret_rect));
       }
     }
   }
   // Save the updated IME status to prevent from sending the same IPC messages.
   ime_control_updated_ = false;
   ime_control_enable_ime_ = ime_control_new_state_;
-  ime_control_x_ = x;
-  ime_control_y_ = y;
+  ime_control_x_ = caret_rect.x();
+  ime_control_y_ = caret_rect.y();
 }
 
 void RenderWidget::DidMove(WebWidget* webwidget,

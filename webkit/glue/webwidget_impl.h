@@ -41,12 +41,14 @@ class WebWidgetImpl : public WebWidget,
   virtual bool HandleInputEvent(const WebInputEvent* input_event);
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);
-  virtual void ImeSetComposition(int string_type, int cursor_position,
-                                 int target_start, int target_end,
-                                 int string_length,
-                                 const wchar_t *string_data);
-  virtual bool ImeUpdateStatus(bool* enable_ime, const void** id,
-                               int* x, int* y);
+  virtual bool ImeSetComposition(int string_type,
+                                 int cursor_position,
+                                 int target_start,
+                                 int target_end,
+                                 const std::wstring& ime_string);
+  virtual bool ImeUpdateStatus(bool* enable_ime,
+                               const void** node,
+                               gfx::Rect* caret_rect);
 
   // WebWidgetImpl
   void Init(WebCore::FramelessScrollView* widget, const gfx::Rect& bounds);

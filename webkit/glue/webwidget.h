@@ -59,14 +59,13 @@ class WebWidget : public base::RefCounted<WebWidget> {
 
   // Called to inform the webwidget of a composition event from IMM
   // (Input Method Manager).
-  virtual void ImeSetComposition(int string_type, int cursor_position,
+  virtual bool ImeSetComposition(int string_type, int cursor_position,
                                  int target_start, int target_end,
-                                 int string_length,
-                                 const wchar_t *string_data) = 0;
+                                 const std::wstring& ime_string) = 0;
 
   // Retrieve the status of this widget required by IME APIs.
   virtual bool ImeUpdateStatus(bool* enable_ime, const void** node,
-                               int* x, int* y) = 0;
+                               gfx::Rect* caret_rect) = 0;
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebWidget);

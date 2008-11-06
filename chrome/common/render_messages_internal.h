@@ -890,8 +890,8 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   //         - Notifying a renderer process moves its input focus from a
   //           password input to an editable control which is NOT a password
   //           input.
-  //           A renderer process also has to set caret_x and caret_y and
-  //           specify the new caret position.
+  //           A renderer process also has to set caret_rect and
+  //           specify the new caret rectangle.
   //     + IME_COMPLETE_COMPOSITION
   //       Finish the current composition.
   //       This code is used for notifying a renderer process moves its
@@ -899,13 +899,11 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   //       which is NOT a password input. A browser process closes its IME
   //       windows without changing the activation status of its IME, i.e. it
   //       keeps activating its IME.
-  // * caret_x (int)
-  // * caret_y (int)
-  //   They specify the position of the input caret.
-  IPC_MESSAGE_ROUTED3(ViewHostMsg_ImeUpdateStatus,
+  // * caret_rect (gfx::Rect)
+  //   They specify the rectangle of the input caret.
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_ImeUpdateStatus,
                       ViewHostMsg_ImeControl, /* control */
-                      int, /* caret_x */
-                      int  /* caret_y */)
+                      gfx::Rect /* caret_rect */)
 
   // Response for InspectElement request. Returns the number of resources
   // identified by InspectorController.

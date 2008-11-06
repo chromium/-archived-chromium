@@ -526,9 +526,9 @@ void RenderWidgetHost::OnMsgSetCursor(const WebCursor& cursor) {
 }
 
 void RenderWidgetHost::OnMsgImeUpdateStatus(ViewHostMsg_ImeControl control,
-                                            int x, int y) {
+                                            const gfx::Rect& caret_rect) {
   if (view_) {
-    view_->IMEUpdateStatus(control, x, y);
+    view_->IMEUpdateStatus(control, caret_rect);
   }
 }
 
