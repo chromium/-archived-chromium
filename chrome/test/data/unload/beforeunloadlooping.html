@@ -1,10 +1,10 @@
 ﻿<html>
 <head>
-<title>unloadlooping</title>
+<title>beforeunloadlooping</title>
 </head>
 <body>
 <script>
-window.onunload = function(e) {
+window.onbeforeunload = function(e) {
   while(true) {}
 }
 </script>

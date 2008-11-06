@@ -155,7 +155,12 @@ class RenderViewHost : public RenderWidgetHost {
   // for which another renderer will need to run an onunload event handler.
   // This is called before the first navigation event for this RenderViewHost,
   // and again after the corresponding OnCrossSiteResponse.
-  void SetHasPendingCrossSiteRequest(bool has_pending_request);
+  void SetHasPendingCrossSiteRequest(bool has_pending_request, int request_id);
+
+  // Returns the request_id for the pending cross-site request.
+  // This is just needed in case the unload of the current page
+  // hangs, in which case we need to swap to the pending RenderViewHost.
+  int GetPendingRequestId();
 
   // Called by ResourceDispatcherHost when a response for a pending cross-site
   // request is received.  The ResourceDispatcherHost will pause the response
@@ -539,6 +544,13 @@ class RenderViewHost : public RenderWidgetHost {
   // True if we've been told to set up the the Javascript bindings for
   // sending messages back to the browser.
   bool enable_dom_ui_bindings_;
+
+  // The request_id for the pending cross-site request. Set to -1 if
+  // there is a pending request, but we have not yet started the unload
+  // for the current page. Set to the request_id value of the pending
+  // request once we have gotten the some data for the pending page
+  // and thus started the unload process.
+  int pending_request_id_;
 
   // True if javascript access to the external host (through
   // automation) is allowed.

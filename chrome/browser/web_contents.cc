@@ -1333,7 +1333,25 @@ bool WebContents::CanBlur() const {
   return delegate() ? delegate()->CanBlur() : true;
 }
 
-void WebContents::RendererUnresponsive(RenderViewHost* rvh) {
+void WebContents::RendererUnresponsive(RenderViewHost* rvh, 
+                                       bool is_during_unload) {
+  if (is_during_unload) {
+    // Hang occurred while firing the beforeunload/unload handler.
+    // Pretend the handler fired so tab closing continues as if it had.
+    rvh->UnloadListenerHasFired();
+
+    if (!render_manager_.ShouldCloseTabOnUnresponsiveRenderer()) {
+      return;
+    }
+
+    // If the tab hangs in the beforeunload/unload handler there's really
+    // nothing we can do to recover. Pretend the unload listeners have
+    // all fired and close the tab. If the hang is in the beforeunload handler
+    // then the user will not have the option of cancelling the close.
+    Close(rvh);
+    return;
+  }
+
   if (render_view_host() && render_view_host()->IsRenderViewLive())
     HungRendererWarning::ShowForWebContents(this);
 }

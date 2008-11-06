@@ -106,6 +106,11 @@ class RenderViewHostManager {
   // don't know which one so we tell them all.
   void SetIsLoading(bool is_loading);
 
+  // Whether to close the tab or not when there is a hang during an unload
+  // handler. If we are mid-crosssite navigation, then we should proceed
+  // with the navigation instead of closing the tab.
+  bool ShouldCloseTabOnUnresponsiveRenderer();
+
   // Called when a renderer's main frame navigates. This handles all the logic
   // associated with interstitial management.
   void DidNavigateMainFrame(RenderViewHost* render_view_host);

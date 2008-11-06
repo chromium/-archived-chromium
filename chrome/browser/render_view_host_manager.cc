@@ -157,6 +157,25 @@ void RenderViewHostManager::SetIsLoading(bool is_loading) {
     original_render_view_host_->SetIsLoading(is_loading);
 }
 
+bool RenderViewHostManager::ShouldCloseTabOnUnresponsiveRenderer() {
+  if (renderer_state_ != PENDING)
+    return true;
+
+  // If the tab becomes unresponsive during unload while doing a
+  // crosssite navigation, proceed with the navigation.
+  int pending_request_id = pending_render_view_host_->GetPendingRequestId();
+  if (pending_request_id == -1) {
+    // Haven't gotten around to starting the request. 
+    pending_render_view_host_->SetNavigationsSuspended(false);
+  } else {
+    current_host()->process()->CrossSiteClosePageACK(
+        pending_render_view_host_->site_instance()->process_host_id(), 
+        pending_request_id);
+    DidNavigateMainFrame(pending_render_view_host_);
+  }
+  return false;
+}
+
 void RenderViewHostManager::DidNavigateMainFrame(
     RenderViewHost* render_view_host) {
   if (renderer_state_ == NORMAL) {
@@ -292,7 +311,8 @@ void RenderViewHostManager::OnCrossSiteResponse(int new_render_process_host_id,
   // means it is not a download or unsafe page, and we are going to perform the
   // navigation.  Thus, we no longer need to remember that the RenderViewHost
   // is part of a pending cross-site request.
-  pending_render_view_host_->SetHasPendingCrossSiteRequest(false);
+  pending_render_view_host_->SetHasPendingCrossSiteRequest(false, 
+                                                           new_request_id);
 }
 
 void RenderViewHostManager::RendererAbortedProvisionalLoad(
@@ -873,7 +893,7 @@ RenderViewHost* RenderViewHostManager::UpdateRendererStateNavigate(
     // Tell the CrossSiteRequestManager that this RVH has a pending cross-site
     // request, so that ResourceDispatcherHost will know to tell us to run the
     // old page's onunload handler before it sends the response.
-    pending_render_view_host_->SetHasPendingCrossSiteRequest(true);
+    pending_render_view_host_->SetHasPendingCrossSiteRequest(true, -1);
 
     // We now have a pending RVH.  If we were in NORMAL, we should now be in
     // PENDING.  If we were in LEAVING_INTERSTITIAL, we should stay there.

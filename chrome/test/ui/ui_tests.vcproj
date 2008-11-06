@@ -323,6 +323,14 @@
 			</File>
 		</Filter>
 		<Filter
+			Name="TestUnload"
+			>
+			<File
+				RelativePath="..\..\browser\unload_uitest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="TestAuthentication"
 			>
 			<File

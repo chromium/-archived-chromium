@@ -342,6 +342,15 @@ TabProxy* UITest::GetActiveTab() {
   return window_proxy->GetTab(active_tab_index);
 }
 
+void UITest::NavigateToURLAsync(const GURL& url) {
+  scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+  ASSERT_TRUE(tab_proxy.get());
+  if (!tab_proxy.get())
+    return;
+
+  tab_proxy->NavigateToURLAsync(url);
+}
+
 void UITest::NavigateToURL(const GURL& url) {
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());

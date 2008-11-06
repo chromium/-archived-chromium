@@ -67,6 +67,11 @@ class UITest : public testing::Test {
   // Exits out browser instance.
   void QuitBrowser();
 
+  // Tells the browser to navigato to the givne URL in the active tab
+  // of the first app window.
+  // Does not wait for the navigation to complete to return.
+  void NavigateToURLAsync(const GURL& url);
+
   // Tells the browser to navigate to the given URL in the active tab
   // of the first app window.
   // This method doesn't return until the navigation is complete.

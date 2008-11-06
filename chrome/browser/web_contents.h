@@ -311,7 +311,8 @@ class WebContents : public TabContents,
                                         new_request_id);
   }
   virtual bool CanBlur() const;
-  virtual void RendererUnresponsive(RenderViewHost* render_view_host);
+  virtual void RendererUnresponsive(RenderViewHost* render_view_host, 
+                                    bool is_during_unload);
   virtual void RendererResponsive(RenderViewHost* render_view_host);
   virtual void LoadStateChanged(const GURL& url, net::LoadState load_state);
   virtual void OnDidGetApplicationInfo(
