@@ -826,7 +826,7 @@ V8 | KJS # LayoutTests/editing/selection/move-left-right.html = FAIL
 
 # This test needs to be rebaselined but said rebaselining didn't work and after
 # over an hour wasted, I'm giving up. -brettw
-V8 | KJS # LayoutTests/svg/custom/foreign-object-skew.svg
+V8 | KJS # LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
