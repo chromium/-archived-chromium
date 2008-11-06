@@ -47,9 +47,9 @@ int main(int argc, char* argv[]) {
   CommandLine::SetArgcArgv(argc, argv);
 #endif
 
-#if defined(OS_WIN)
   TestShell::InitLogging(true, false);  // suppress error dialogs
 
+#if defined(OS_WIN)
   // Some of the individual tests wind up calling TestShell::WaitTestFinished
   // which has a timeout in it.  For these tests, we don't care about a timeout
   // so just set it to be a really large number.  This is necessary because
@@ -80,10 +80,8 @@ int main(int argc, char* argv[]) {
   testing::InitGoogleTest(&argc, argv);
   int result = RUN_ALL_TESTS();
 
-#if defined(OS_WIN)
   TestShell::ShutdownTestShell();
   TestShell::CleanupLogging();
-#endif
 
   return result;
 }
