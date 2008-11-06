@@ -490,9 +490,14 @@ LogMessage::~LogMessage() {
         // make a copy of the string for the handler out of paranoia
         log_assert_handler(std::string(stream_.str()));
       } else {
-        // don't use the string with the newline, get a fresh version to send to
-        // the debug message process
+        // Don't use the string with the newline, get a fresh version to send to
+        // the debug message process. We also don't display assertions to the
+        // user in release mode. The enduser can't do anything with this
+        // information, and displaying message boxes when the application is
+        // hosed can cause additional problems.
+#ifndef NDEBUG
         DisplayDebugMessage(stream_.str());
+#endif
         // Crash the process to generate a dump.
         DebugUtil::BreakDebugger();
         // TODO(mmentovai): when we have breakpad support, generate a breakpad
@@ -515,4 +520,3 @@ void CloseLogFile() {
 std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
   return out << base::SysWideToUTF8(std::wstring(wstr));
 }
-
