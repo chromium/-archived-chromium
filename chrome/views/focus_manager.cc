@@ -590,6 +590,11 @@ void FocusManager::FocusHWND(HWND hwnd) {
 
 void FocusManager::StoreFocusedView() {
   ViewStorage* view_storage = ViewStorage::GetSharedInstance();
+  if (!view_storage) {
+    // This should never happen but bug 981648 seems to indicate it could.
+    NOTREACHED();
+    return;
+  }
 
   // TODO (jcampan): when a WebContents containing a popup is closed, the focus
   // is stored twice causing an assert. We should find a better alternative than
@@ -610,6 +615,11 @@ void FocusManager::StoreFocusedView() {
 
 void FocusManager::RestoreFocusedView() {
   ViewStorage* view_storage = ViewStorage::GetSharedInstance();
+  if (!view_storage) {
+    // This should never happen but bug 981648 seems to indicate it could.
+    NOTREACHED();
+    return;
+  }
 
   View* view = view_storage->RetrieveView(stored_focused_view_storage_id_);
   if (view) {
@@ -623,7 +633,13 @@ void FocusManager::RestoreFocusedView() {
 }
 
 void FocusManager::ClearStoredFocusedView() {
-  ViewStorage::GetSharedInstance()->RemoveView(stored_focused_view_storage_id_);
+  ViewStorage* view_storage = ViewStorage::GetSharedInstance();
+  if (!view_storage) {
+    // This should never happen but bug 981648 seems to indicate it could.
+    NOTREACHED();
+    return;
+  }
+  view_storage->RemoveView(stored_focused_view_storage_id_);
 }
 
 FocusManager* FocusManager::GetParentFocusManager() const {
