@@ -67,8 +67,8 @@ RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
 
 RenderWidgetHostViewWin::RenderWidgetHostViewWin(RenderWidgetHost* widget)
     : render_widget_host_(widget),
-      real_cursor_(LoadCursor(NULL, IDC_ARROW)),
-      real_cursor_type_(WebCursor::ARROW),
+      cursor_(LoadCursor(NULL, IDC_ARROW)),
+      cursor_is_custom_(false),
       track_mouse_leave_(false),
       ime_notification_(false),
       is_hidden_(false),
@@ -85,8 +85,8 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(RenderWidgetHost* widget)
 }
 
 RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {
-  if (real_cursor_type_ == WebCursor::CUSTOM)
-    DestroyIcon(real_cursor_);
+  if (cursor_is_custom_)
+    DestroyIcon(cursor_);
   ResetTooltip();
 }
 
@@ -222,35 +222,33 @@ void RenderWidgetHostViewWin::UpdateCursor(const WebCursor& cursor) {
 
   // If the last active cursor was a custom cursor, we need to destroy
   // it before setting the new one.
-  if (real_cursor_type_ == WebCursor::CUSTOM)
-    DestroyIcon(real_cursor_);
+  if (cursor_is_custom_)
+    DestroyIcon(cursor_);
 
-  real_cursor_type_ = cursor.type();
-  if (real_cursor_type_ == cursor.WebCursor::CUSTOM) {
-    real_cursor_ = cursor.GetCustomCursor();
+  cursor_is_custom_ = cursor.IsCustom();
+  if (cursor_is_custom_) {
+    cursor_ = cursor.GetCustomCursor();
   } else {
     // We cannot pass in NULL as the module handle as this would only
     // work for standard win32 cursors. We can also receive cursor
     // types which are defined as webkit resources. We need to specify
     // the module handle of chrome.dll while loading these cursors.
-    real_cursor_ = cursor.GetCursor(module_handle);
+    cursor_ = cursor.GetCursor(module_handle);
   }
 
   UpdateCursorIfOverSelf();
 }
 
 void RenderWidgetHostViewWin::UpdateCursorIfOverSelf() {
-  static HINSTANCE module_handle =
-      GetModuleHandle(chrome::kBrowserResourcesDll);
+  static HCURSOR kCursorArrow = LoadCursor(NULL, IDC_ARROW);
+  static HCURSOR kCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
 
-  HCURSOR display_cursor = real_cursor_;
+  HCURSOR display_cursor = cursor_;
   // If a page is in the loading state, we want to show the Arrow+Hourglass
   // cursor only when the current cursor is the ARROW cursor. In all other
   // cases we should continue to display the current cursor.
-  if (is_loading_ && (real_cursor_type_ == WebCursor::ARROW)) {
-    WebCursor page_loading_cursor(WebCursor::APPSTARTING);
-    display_cursor = page_loading_cursor.GetCursor(module_handle);
-  }
+  if (is_loading_ && display_cursor == kCursorArrow)
+    display_cursor = kCursorAppStarting;
 
   // If the mouse is over our HWND, then update the cursor state immediately.
   CPoint pt;

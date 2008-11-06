@@ -27,22 +27,80 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef PlatformCursor_h__
-#define PlatformCursor_h__
+#ifndef PlatformCursor_h
+#define PlatformCursor_h
 
-#include "webkit/glue/webcursor.h"
+#include "Image.h"
+#include "IntPoint.h"
+#include "RefPtr.h"
 
 namespace WebCore {
+    class PlatformCursor {
+    public:
+        enum Type {
+            typePointer,
+            typeCross,
+            typeHand,
+            typeIBeam,
+            typeWait,
+            typeHelp,
+            typeEastResize,
+            typeNorthResize,
+            typeNorthEastResize,
+            typeNorthWestResize,
+            typeSouthResize,
+            typeSouthEastResize,
+            typeSouthWestResize,
+            typeWestResize,
+            typeNorthSouthResize,
+            typeEastWestResize,
+            typeNorthEastSouthWestResize,
+            typeNorthWestSouthEastResize,
+            typeColumnResize,
+            typeRowResize,
+            typeMiddlePanning,
+            typeEastPanning,
+            typeNorthPanning,
+            typeNorthEastPanning,
+            typeNorthWestPanning,
+            typeSouthPanning,
+            typeSouthEastPanning,
+            typeSouthWestPanning,
+            typeWestPanning,
+            typeMove,
+            typeVerticalText,
+            typeCell,
+            typeContextMenu,
+            typeAlias,
+            typeProgress,
+            typeNoDrop,
+            typeCopy,
+            typeNone,
+            typeNotAllowed,
+            typeZoomIn,
+            typeZoomOut,
+            typeCustom
+        };
 
-struct PlatformCursor : WebCursor {
-  explicit PlatformCursor(int type = 0)
-      : WebCursor(static_cast<WebCursor::Type>(type)) {
-  }
-  explicit PlatformCursor(const WebCursor& c)
-      : WebCursor(c) {
-  }
-};
+        // Cursor.h assumes that it can initialize us to 0.
+        explicit PlatformCursor(int type = 0) : m_type(typePointer) {}
+        
+        PlatformCursor(Type type) : m_type(type) {}
 
+        PlatformCursor(Image* image, const IntPoint& hotSpot)
+            : m_image(image)
+            , m_hotSpot(hotSpot)
+            , m_type(typeCustom) {}
+
+        PassRefPtr<Image> customImage() const { return m_image; }
+        const IntPoint& hotSpot() const { return m_hotSpot; }
+        Type type() const { return m_type; }
+
+    private:
+        RefPtr<Image> m_image;
+        IntPoint m_hotSpot;
+        Type m_type;
+    };
 }
 
 #endif

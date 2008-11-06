@@ -16,12 +16,12 @@
 #include "webkit/glue/cache_manager.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/find_in_page_request.h"
+#include "webkit/glue/webcursor.h"
 #include "webkit/glue/window_open_disposition.h"
 
 // Forward declarations.
 class GURL;
 class SkBitmap;
-class WebCursor;
 
 namespace gfx {
 class Point;
@@ -750,9 +750,15 @@ struct ParamTraits<XFORM> {
 template <>
 struct ParamTraits<WebCursor> {
   typedef WebCursor param_type;
-  static void Write(Message* m, const param_type& p);
-  static bool Read(const Message* m, void** iter, param_type* r);
-  static void Log(const param_type& p, std::wstring* l);
+  static void Write(Message* m, const param_type& p) {
+    p.Serialize(m);
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    return r->Deserialize(m, iter);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<WebCursor>");
+  }
 };
 
 struct LogData {

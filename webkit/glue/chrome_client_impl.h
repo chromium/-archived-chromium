@@ -11,10 +11,12 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ChromeClientChromium.h"
 MSVC_POP_WARNING();
 
+class WebCursor;
 class WebViewImpl;
+
 namespace WebCore {
-    class SecurityOrigin;
-    struct WindowFeatures;
+class SecurityOrigin;
+struct WindowFeatures;
 }
 
 // Handles window-level notifications from WebCore on behalf of a WebView.
@@ -22,6 +24,8 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
 public:
   ChromeClientImpl(WebViewImpl* webview);
   virtual ~ChromeClientImpl();
+
+  WebViewImpl* webview() { return webview_; }
 
   virtual void chromeDestroyed();
 
@@ -113,7 +117,8 @@ public:
   virtual void popupOpened(WebCore::FramelessScrollView* popup_view,
                            const WebCore::IntRect& bounds,
                            bool focus_on_show);
-  virtual void setCursor(const WebCore::Cursor&);
+                           
+  void SetCursor(const WebCursor& cursor);
 
 private:
   WebViewImpl* webview_;  // weak pointer

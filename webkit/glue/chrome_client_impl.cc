@@ -461,11 +461,8 @@ void ChromeClientImpl::popupOpened(WebCore::FramelessScrollView* popup_view,
   }
 }
 
-void ChromeClientImpl::setCursor(const WebCore::Cursor& cursor) {
-#if defined(OS_WIN)
-  // TODO(pinkerton): figure out the cursor delegate methods
+void ChromeClientImpl::SetCursor(const WebCursor& cursor) {
   WebViewDelegate* d = webview_->delegate();
   if (d)
-    d->SetCursor(webview_, cursor.impl());
-#endif
+    d->SetCursor(webview_, cursor);
 }

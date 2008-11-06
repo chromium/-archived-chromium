@@ -31,6 +31,7 @@
 #define ChromiumBridge_h
 
 namespace WebCore {
+    class Cursor;
     class IntRect;
     class Widget;
 
@@ -39,12 +40,16 @@ namespace WebCore {
 
     class ChromiumBridge {
     public:
-        // Screen information -------------------------------------------------
+        // Screen -------------------------------------------------------------
         static int screenDepth(Widget*);
         static int screenDepthPerComponent(Widget*);
         static bool screenIsMonochrome(Widget*);
         static IntRect screenRect(Widget*);
         static IntRect screenAvailableRect(Widget*);
+
+        // Widget -------------------------------------------------------------
+        static void widgetSetCursor(Widget*, const Cursor&);
+        static void widgetSetFocus(Widget*);
     };
 }
 

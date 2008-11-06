@@ -165,10 +165,6 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   // Closes down and destroys our plugin instance.
   void DestroyInstance();
 
-  // Returns the cursor type.
-  // TODO(iyengar) Add support for custom cursors.
-  WebCursor::Type GetCursorType(HCURSOR cursor) const;
-
   // used for windowed plugins
   HWND windowed_handle_;
   bool windowed_did_set_window_;

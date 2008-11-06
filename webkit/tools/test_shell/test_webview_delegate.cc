@@ -714,7 +714,7 @@ void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
       DestroyIcon(custom_cursor_);
       custom_cursor_ = NULL;
     }
-    if (cursor.type() == WebCursor::CUSTOM) {
+    if (cursor.IsCustom()) {
       custom_cursor_ = cursor.GetCustomCursor();
       host->SetCursor(custom_cursor_);
     } else {

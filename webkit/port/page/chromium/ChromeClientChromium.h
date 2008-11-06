@@ -29,9 +29,6 @@ namespace WebCore {
         virtual void popupOpened(FramelessScrollView* popupView,
                                  const IntRect& bounds,
                                  bool focus_on_show) = 0;
-
-        // Set the current cursor.
-        virtual void setCursor(const Cursor& cursor) = 0;
     };
 }
 

@@ -2,172 +2,83 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "webkit/glue/webcursor.h"
-#include "webkit/glue/webkit_resources.h"
+#include "config.h"
+#include "PlatformCursor.h"
 
-#if defined(OS_WIN)
-#include "base/gfx/gdi_util.h"
-#endif
+#undef LOG
+#include "base/logging.h"
+#include "base/pickle.h"
+#include "webkit/glue/webcursor.h"
 
 WebCursor::WebCursor()
-    : type_(ARROW),
-      hotspot_x_(0),
-      hotspot_y_(0),
-      bitmap_() {
+    : type_(WebCore::PlatformCursor::typePointer) {
 }
 
-WebCursor::WebCursor(Type cursor_type)
-    : type_(cursor_type),
-      hotspot_x_(0),
-      hotspot_y_(0),
-      bitmap_() {
+WebCursor::WebCursor(const WebCore::PlatformCursor& platform_cursor)
+    : type_(platform_cursor.type()),
+      hotspot_(platform_cursor.hotSpot().x(), platform_cursor.hotSpot().y()) {
+  if (IsCustom())
+    SetCustomData(platform_cursor.customImage().get());
 }
 
-WebCursor::WebCursor(const WebCursorBitmapPtr bitmap,
-                     int hotspot_x,
-                     int hotspot_y)
-    : type_(ARROW),
-      hotspot_x_(0),
-      hotspot_y_(0) {
-  if (bitmap) {
-    type_ = CUSTOM;
-    hotspot_x_ = hotspot_x;
-    hotspot_y_ = hotspot_y;
-#if defined(OS_MACOSX)
-    CGImageRetain(bitmap_ = bitmap);
-#else
-    bitmap_ = *bitmap;
-#endif
-  } else {
-#if defined(OS_MACOSX)
-    bitmap_ = NULL;
-#else
-    memset(&bitmap_, 0, sizeof(bitmap_));
-#endif
+bool WebCursor::Deserialize(const Pickle* pickle, void** iter) {
+  int type, hotspot_x, hotspot_y, size_x, size_y, data_len;
+  const char* data;
+
+  // Leave |this| unmodified unless we are going to return success.
+  if (!pickle->ReadInt(iter, &type) ||
+      !pickle->ReadInt(iter, &hotspot_x) ||
+      !pickle->ReadInt(iter, &hotspot_y) ||
+      !pickle->ReadInt(iter, &size_x) ||
+      !pickle->ReadInt(iter, &size_y) ||
+      !pickle->ReadData(iter, &data, &data_len))
+    return false;
+
+  type_ = type;
+  hotspot_.set_x(hotspot_x);
+  hotspot_.set_y(hotspot_y);
+  custom_size_.set_width(size_x);
+  custom_size_.set_height(size_y);
+
+  custom_data_.clear();
+  if (data_len > 0) {
+    custom_data_.resize(data_len);
+    memcpy(&custom_data_[0], data, data_len);
   }
+
+  return true;
 }
 
-WebCursor::~WebCursor() {
-#if defined(OS_MACOSX)
-  CGImageRelease(bitmap_);
-#endif
+bool WebCursor::Serialize(Pickle* pickle) const {
+  if (!pickle->WriteInt(type_) ||
+      !pickle->WriteInt(hotspot_.x()) ||
+      !pickle->WriteInt(hotspot_.y()) ||
+      !pickle->WriteInt(custom_size_.width()) ||
+      !pickle->WriteInt(custom_size_.height()))
+    return false;
+
+  const char* data = NULL;
+  if (!custom_data_.empty())
+    data = &custom_data_[0];
+  return pickle->WriteData(data, custom_data_.size());
 }
 
-WebCursor::WebCursor(const WebCursor& other) {
-  type_ = other.type_;
-  hotspot_x_ = other.hotspot_x_;
-  hotspot_y_ = other.hotspot_y_;
-#if defined(OS_MACOSX)
-  bitmap_ = NULL;  // set_bitmap releases bitmap_.
-#endif
-  set_bitmap(other.bitmap_);
-}
-
-WebCursor& WebCursor::operator=(const WebCursor& other) {
-  if (this != &other) {
-    type_ = other.type_;
-    hotspot_x_ = other.hotspot_x_;
-    hotspot_y_ = other.hotspot_y_;
-    set_bitmap(other.bitmap_);
-  }
-  return *this;
-}
-
-#if defined(OS_WIN)
-HCURSOR WebCursor::GetCursor(HINSTANCE module_handle) const {
-  if (type_ == CUSTOM) 
-    return NULL;
-
-  static LPCWSTR cursor_resources[] = {
-    IDC_ARROW,
-    IDC_IBEAM,
-    IDC_WAIT,
-    IDC_CROSS,
-    IDC_UPARROW,
-    IDC_SIZE,
-    IDC_ICON,
-    IDC_SIZENWSE,
-    IDC_SIZENESW,
-    IDC_SIZEWE,
-    IDC_SIZENS,
-    IDC_SIZEALL,
-    IDC_NO,
-    IDC_HAND,
-    IDC_APPSTARTING,
-    IDC_HELP,
-    // webkit resources
-    MAKEINTRESOURCE(IDC_ALIAS),
-    MAKEINTRESOURCE(IDC_CELL),
-    MAKEINTRESOURCE(IDC_COLRESIZE),
-    MAKEINTRESOURCE(IDC_COPYCUR),
-    MAKEINTRESOURCE(IDC_ROWRESIZE),
-    MAKEINTRESOURCE(IDC_VERTICALTEXT),
-    MAKEINTRESOURCE(IDC_ZOOMIN),
-    MAKEINTRESOURCE(IDC_ZOOMOUT)
-  };
-
-  HINSTANCE instance_to_use = NULL;
-  if (type_ > HELP)
-    instance_to_use = module_handle;
-
-  HCURSOR cursor_handle = LoadCursor(instance_to_use, 
-                                     cursor_resources[type_]);
-  return cursor_handle;
-}
-
-HCURSOR WebCursor::GetCustomCursor() const {
-  if (type_ != CUSTOM)
-    return NULL;
-
-  BITMAPINFO cursor_bitmap_info = {0};
-  gfx::CreateBitmapHeader(bitmap_.width(), bitmap_.height(), 
-                          reinterpret_cast<BITMAPINFOHEADER*>(&cursor_bitmap_info));
-  HDC dc = ::GetDC(0);
-  HDC workingDC = CreateCompatibleDC(dc);
-  HBITMAP bitmap_handle = CreateDIBSection(dc, &cursor_bitmap_info, 
-                                           DIB_RGB_COLORS, 0, 0, 0);
-  SkAutoLockPixels bitmap_lock(bitmap_); 
-  SetDIBits(0, bitmap_handle, 0, bitmap_.height(), 
-            bitmap_.getPixels(), &cursor_bitmap_info, DIB_RGB_COLORS);
-
-  HBITMAP old_bitmap = reinterpret_cast<HBITMAP>(SelectObject(workingDC, 
-                                                              bitmap_handle));
-  SetBkMode(workingDC, TRANSPARENT);
-  SelectObject(workingDC, old_bitmap);
-
-  HBITMAP mask = CreateBitmap(bitmap_.width(), bitmap_.height(),
-                              1, 1, NULL);
-  ICONINFO ii = {0};
-  ii.fIcon = FALSE;
-  ii.xHotspot = hotspot_x_;
-  ii.yHotspot = hotspot_y_;
-  ii.hbmMask = mask;
-  ii.hbmColor = bitmap_handle;
-
-  HCURSOR cursor_handle = CreateIconIndirect(&ii);
-
-  DeleteObject(mask); 
-  DeleteObject(bitmap_handle); 
-  DeleteDC(workingDC);
-  ::ReleaseDC(0, dc);
-  return cursor_handle;
-}
-#endif
-
-#if !defined(OS_MACOSX)
-bool WebCursor::IsSameBitmap(const WebCursorBitmap& bitmap) const {
-  SkAutoLockPixels new_bitmap_lock(bitmap);
-  SkAutoLockPixels bitmap_lock(bitmap_); 
-  return (memcmp(bitmap_.getPixels(), bitmap.getPixels(), 
-                 bitmap_.getSize()) == 0);
+bool WebCursor::IsCustom() const {
+  return type_ == WebCore::PlatformCursor::typeCustom;
 }
 
 bool WebCursor::IsEqual(const WebCursor& other) const {
-  if (type_ != other.type_)
-    return false;
+  if (!IsCustom())
+    return type_ == other.type_;
 
-  if(type_ == CUSTOM)
-    return IsSameBitmap(other.bitmap_);
-  return true;
+  return hotspot_ == other.hotspot_ &&
+         custom_size_ == other.custom_size_ &&
+         custom_data_ == other.custom_data_;
+}
+
+#if !defined(OS_WIN)
+void WebCursor::SetCustomData(WebCore::Image* image) {
+  // Please create webcursor_{$platform}.cc for your port.
+  NOTIMPLEMENTED();
 }
 #endif

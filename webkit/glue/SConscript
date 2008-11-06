@@ -101,6 +101,7 @@ if env['PLATFORM'] == 'win32':
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
+    'webcursor_win.cc',
     'webinputevent_win.cc',
     'webkit_glue_win.cc',
   ])

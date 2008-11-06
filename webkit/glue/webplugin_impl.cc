@@ -46,8 +46,10 @@ MSVC_POP_WARNING();
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "net/base/escape.h"
+#include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/multipart_response_delegate.h"
+#include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/plugins/plugin_host.h"
@@ -869,13 +871,14 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   // TODO(pkasting): http://b/1119691 This conditional seems exactly backwards,
   // but it matches Safari's code, and if I reverse it, giving focus to a
   // transparent (windowless) plugin fails.
-  WebCursor current_web_cursor;
-  if (!delegate_->HandleEvent(&np_event, &current_web_cursor))
+  WebCursor cursor;
+  if (!delegate_->HandleEvent(&np_event, &cursor))
     event->setDefaultHandled();
   // A windowless plugin can change the cursor in response to the WM_MOUSEMOVE
   // event. We need to reflect the changed cursor in the frame view as the
-  // the mouse is moved in the boundaries of the windowless plugin.
-  parent_view->setCursor(WebCore::PlatformCursor(current_web_cursor));
+  // mouse is moved in the boundaries of the windowless plugin.
+  static_cast<ChromeClientImpl*>(
+      parent_view->frame()->page()->chrome()->client())->SetCursor(cursor);
 #else
   NOTIMPLEMENTED();
 #endif

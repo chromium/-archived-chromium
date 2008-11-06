@@ -973,6 +973,14 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
 
   bool ret = instance()->NPP_HandleEvent(event) != 0;
 
+  // Snag a reference to the current cursor ASAP in case the plugin modified
+  // it.  There is a nasty race condition here with the multiprocess browser
+  // as someone might be setting the cursor in the main process as well.
+  HCURSOR last_cursor;
+  if (WM_MOUSEMOVE == event->event) {
+    last_cursor = ::GetCursor();
+  }
+
   if (pop_user_gesture) {
     instance()->PopPopupsEnabledState();
   }
@@ -1000,41 +1008,10 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
   }
 
   if (WM_MOUSEMOVE == event->event) {
-    HCURSOR actual_cursor = ::GetCursor();
-    *cursor = GetCursorType(actual_cursor);
+    cursor->InitFromCursor(last_cursor);
   }
 
   return ret;
-}
-
-WebCursor::Type WebPluginDelegateImpl::GetCursorType(
-    HCURSOR cursor) const {
-  static HCURSOR standard_cursors[] = {
-    LoadCursor(NULL, IDC_ARROW),
-    LoadCursor(NULL, IDC_IBEAM),
-    LoadCursor(NULL, IDC_WAIT),
-    LoadCursor(NULL, IDC_CROSS),
-    LoadCursor(NULL, IDC_UPARROW),
-    LoadCursor(NULL, IDC_SIZE),
-    LoadCursor(NULL, IDC_ICON),
-    LoadCursor(NULL, IDC_SIZENWSE),
-    LoadCursor(NULL, IDC_SIZENESW),
-    LoadCursor(NULL, IDC_SIZEWE),
-    LoadCursor(NULL, IDC_SIZENS),
-    LoadCursor(NULL, IDC_SIZEALL),
-    LoadCursor(NULL, IDC_NO),
-    LoadCursor(NULL, IDC_HAND),
-    LoadCursor(NULL, IDC_APPSTARTING),
-    LoadCursor(NULL, IDC_HELP),
-  };
-
-  for (int cursor_index = 0; cursor_index < arraysize(standard_cursors);
-      cursor_index++) {
-    if (cursor == standard_cursors[cursor_index])
-      return static_cast<WebCursor::Type>(cursor_index);
-  }
-
-  return WebCursor::ARROW;
 }
 
 WebPluginResourceClient* WebPluginDelegateImpl::CreateResourceClient(

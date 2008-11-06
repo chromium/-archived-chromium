@@ -521,6 +521,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\webcursor_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\webdatasource_impl.cc"
 				>
 			</File>

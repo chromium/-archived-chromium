@@ -210,11 +210,11 @@ class RenderWidgetHostViewWin :
   // The associated Model.
   RenderWidgetHost* render_widget_host_;
 
-  // The real cursor type for the page.
-  WebCursor::Type real_cursor_type_;
+  // The cursor for the page.  This is passed up from the renderer.
+  HCURSOR cursor_;
 
-  // The real cursor for the page. This is passed down from the renderer
-  HCURSOR real_cursor_;
+  // True if cursor_ is a custom cursor that needs to be destroyed later.
+  bool cursor_is_custom_;
 
   // Indicates if the page is loading.
   bool is_loading_;
