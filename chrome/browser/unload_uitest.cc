@@ -66,7 +66,7 @@ class UnloadTest : public UITest {
 // Navigate to a page with an infinite unload handler.
 // Then two two async crosssite requests to ensure
 // we don't get confused and think we're closing the tab.
-TEST_F(UnloadTest, CrossSiteInfiniteUnloadAsync) {
+TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteUnloadAsync) {
   NavigateToUnloadFileUsingTestServer(L"unloadlooping.html", L"unloadlooping");
   NavigateToNolistenersFileTwiceAsync();
   ASSERT_TRUE(IsBrowserRunning());
@@ -75,7 +75,7 @@ TEST_F(UnloadTest, CrossSiteInfiniteUnloadAsync) {
 // Navigate to a page with an infinite unload handler.
 // Then two two sync crosssite requests to ensure
 // we correctly nav to each one. 
-TEST_F(UnloadTest, CrossSiteInfiniteUnloadSync) {
+TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteUnloadSync) {
   NavigateToUnloadFileUsingTestServer(L"unloadlooping.html", L"unloadlooping");
   NavigateToNolistenersFileTwice();
   ASSERT_TRUE(IsBrowserRunning());
@@ -84,7 +84,7 @@ TEST_F(UnloadTest, CrossSiteInfiniteUnloadSync) {
 // Navigate to a page with an infinite beforeunload handler.
 // Then two two async crosssite requests to ensure
 // we don't get confused and think we're closing the tab.
-TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadAsync) {
+TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteBeforeUnloadAsync) {
   NavigateToUnloadFileUsingTestServer(L"beforeunloadlooping.html", 
                                       L"beforeunloadlooping");
   NavigateToNolistenersFileTwiceAsync();
@@ -94,7 +94,7 @@ TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadAsync) {
 // Navigate to a page with an infinite beforeunload handler.
 // Then two two sync crosssite requests to ensure
 // we correctly nav to each one. 
-TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadSync) {
+TEST_F(UnloadTest, DISABLED_CrossSiteInfiniteBeforeUnloadSync) {
   NavigateToUnloadFileUsingTestServer(L"beforeunloadlooping.html", 
                                       L"beforeunloadlooping");
   NavigateToNolistenersFileTwice();
