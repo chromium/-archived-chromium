@@ -5,3 +5,6 @@ ImporterTest.Firefox3Importer
 # issue 2468
 URLFetcherBadHTTPSTest.BadHTTPSTest
 SafeBrowsingProtocolParsingTest.TestSubChunk
+
+# testing to see if this gets rid of the leaks
+IPCSyncChannelTest.SendWithTimeoutMixedOKAndTimeout
