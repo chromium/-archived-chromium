@@ -363,9 +363,9 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
         actions.push_back(*data);
         // Let's remember the names of password related fields so we do not
         // autofill them with the regular form autofill.
-        DCHECK(!data->username_element.empty());
+        if (!data->username_element.empty())
+          password_related_fields.insert(data->username_element);
         DCHECK(!data->password_element.empty());
-        password_related_fields.insert(data->username_element);
         password_related_fields.insert(data->password_element);
         if (!data->old_password_element.empty())
           password_related_fields.insert(data->old_password_element);
@@ -374,8 +374,7 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
       // Now let's register for any text input.
       // TODO(jcampan): bug #3847 merge password and form autofill so we
       // traverse the form elements only once.
-      // Disabling the autofill to investigate the perf regression on build bot.
-      // RegisterAutofillListeners(form, password_related_fields);
+      RegisterAutofillListeners(form, password_related_fields);
     }
   }
 
@@ -731,6 +730,7 @@ void WebFrameLoaderClient::RegisterAutofillListeners(
     if (excluded_fields.find(name) != excluded_fields.end())
       continue;
 
+/* Disabling this temporarily to investigate perf regressions
 #if !defined(OS_MACOSX)
     // FIXME on Mac
     webkit_glue::FormAutocompleteListener* listener =
@@ -738,6 +738,7 @@ void WebFrameLoaderClient::RegisterAutofillListeners(
                                                   input_element);
     webkit_glue::AttachForInlineAutocomplete(input_element, listener);
 #endif
+    */
   }
 }
 
