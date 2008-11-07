@@ -42,6 +42,8 @@ V8 | KJS # LayoutTests/fast/dom/Window/window-resize.html = FAIL
 
 // Chrome uses different keyboard accelerators from those used by Safari, so
 // these tests will always fail.
+// TODO(pinkerton): these should probably pass since we want Emacs keybindings
+// but they currently do not. 
 V8 | KJS # LayoutTests/editing/pasteboard/emacs-cntl-y-001.html = FAIL
 V8 | KJS # LayoutTests/editing/pasteboard/emacs-ctrl-a-k-y.html = FAIL
 V8 | KJS # LayoutTests/editing/pasteboard/emacs-ctrl-k-y-001.html = FAIL
@@ -84,6 +86,7 @@ V8 | KJS # LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
 
 // Mac-specific stuff
 // Don't run the platform/mac* tests
+// TODO(pinkerton): 6/47 pass, some of these we may want, but most we don't.
 V8 | KJS # LayoutTests/platform = FAIL | PASS
 
 // Ignored because we do not have OBJC bindings
@@ -188,3 +191,6 @@ KJS # SKIP : chrome/fast/dom/set-table-head-no-crash.html = FAIL
 
 // Dashboard-related test
 KJS | V8 # SKIP : LayoutTests/fast/css/dashboard-region-parser.html = FAIL
+
+// Not a test?
+KJS | V8 # SKIP : LayoutTests/http/tests/incremental/pause-in-script-element.pl = FAIL
