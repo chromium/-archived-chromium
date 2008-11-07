@@ -59,12 +59,16 @@
 // state to be pushed and popped along with the bitmap.
 class PlatformContextSkia {
 public:
-    // For printing, there shouldn't be any canvas. canvas can be NULL.
+    // For printing, there shouldn't be any canvas. canvas can be NULL. If you
+    // supply a NULL canvas, you can also call setCanvas later.
     PlatformContextSkia(gfx::PlatformCanvas* canvas);
     ~PlatformContextSkia();
 
-    void save();
+    // Sets the canvas associated with this context. Use when supplying NULL
+    // to the constructor.
+    void setCanvas(gfx::PlatformCanvas* canvas);
 
+    void save();
     void restore();
 
     // Sets up the common flags on a paint for antialiasing, effects, etc.

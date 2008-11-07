@@ -138,9 +138,7 @@ SkColor PlatformContextSkia::State::applyAlpha(SkColor c) const
 
 // PlatformContextSkia ---------------------------------------------------------
 
-// Danger: the canvas is not guaranteed to be initialized yet, so we can't use
-// it in the constructor. In ImageBufferSkia, we pass a canvas in here that will
-// be initialized at a later phase.
+// Danger: canvas can be NULL.
 PlatformContextSkia::PlatformContextSkia(gfx::PlatformCanvas* canvas)
     : m_canvas(canvas)
     , m_stateStack(sizeof(State))
@@ -151,6 +149,11 @@ PlatformContextSkia::PlatformContextSkia(gfx::PlatformCanvas* canvas)
 
 PlatformContextSkia::~PlatformContextSkia()
 {
+}
+
+void PlatformContextSkia::setCanvas(gfx::PlatformCanvas* canvas)
+{
+    m_canvas = canvas;
 }
 
 void PlatformContextSkia::save()

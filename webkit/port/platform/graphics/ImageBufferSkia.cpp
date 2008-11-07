@@ -48,7 +48,7 @@ namespace WebCore {
 // the ownership easier to manage.
 ImageBufferData::ImageBufferData(const IntSize& size)
     : m_canvas()
-    , m_platformContext(&m_canvas)
+    , m_platformContext(NULL)  // Canvas is set in ImageBuffer constructor.
 {
 }
 
@@ -61,6 +61,7 @@ ImageBuffer::ImageBuffer(const IntSize& size, bool grayScale, bool& success)
         return;
     }
 
+    m_data.m_platformContext.setCanvas(&m_data.m_canvas);
     m_context.set(new GraphicsContext(&m_data.m_platformContext));
 
     // Make the background transparent. It would be nice if this wasn't
