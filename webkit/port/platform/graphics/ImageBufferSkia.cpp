@@ -42,8 +42,12 @@ using namespace std;
 
 namespace WebCore {
 
+// We pass a technically-uninitialized canvas to the platform context here since
+// the canvas initialization completes in ImageBuffer::ImageBuffer. But
+// PlatformContext doesn't actually need to use the object, and this makes all
+// the ownership easier to manage.
 ImageBufferData::ImageBufferData(const IntSize& size)
-    : m_canvas(size.width(), size.height(), false)
+    : m_canvas()
     , m_platformContext(&m_canvas)
 {
 }
@@ -52,6 +56,11 @@ ImageBuffer::ImageBuffer(const IntSize& size, bool grayScale, bool& success)
     : m_data(size)
     , m_size(size)
 {
+    if (!m_data.m_canvas.initialize(size.width(), size.height(), false, NULL)) {
+        success = false;
+        return;
+    }
+
     m_context.set(new GraphicsContext(&m_data.m_platformContext));
 
     // Make the background transparent. It would be nice if this wasn't
@@ -73,6 +82,13 @@ GraphicsContext* ImageBuffer::context() const
 Image* ImageBuffer::image() const
 {
     if (!m_image) {
+        // This creates a COPY of the image and will cache that copy. This means
+        // that if subsequent operations take place on the context, neither the
+        // currently-returned image, nor the results of future image() calls,
+        // will contain that operation.
+        //
+        // This seems silly, but is the way the CG port works: image() is
+        // intended to be used only when rendering is "complete."
         m_image = BitmapImageSingleFrameSkia::create(
             *m_data.m_platformContext.bitmap());
     }
