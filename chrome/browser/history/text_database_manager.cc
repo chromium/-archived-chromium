@@ -78,8 +78,8 @@ TextDatabaseManager::TextDatabaseManager(const std::wstring& dir,
       transaction_nesting_(0),
       db_cache_(DBCache::NO_AUTO_EVICT),
       present_databases_loaded_(false),
-      history_publisher_(NULL),
-      ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(factory_(this)),
+      history_publisher_(NULL) {
 }
 
 TextDatabaseManager::~TextDatabaseManager() {
