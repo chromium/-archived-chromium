@@ -698,7 +698,8 @@ void BookmarkManagerView::ShowImportBookmarksFileChooser() {
 
   // TODO(sky): need a textual description here once we can add new
   // strings.
-  std::wstring filter_string(L"*.html\0*.html\0\0");
+  const wchar_t filter_c_str[] = L"*.html\0*.html\0\0\0";
+  std::wstring filter_string(filter_c_str, arraysize(filter_c_str));
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
       SelectFileDialog::SELECT_OPEN_FILE, std::wstring(), std::wstring(),
