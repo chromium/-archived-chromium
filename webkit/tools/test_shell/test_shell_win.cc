@@ -88,6 +88,7 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
 
 void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
   // Do we want to tear down some of the machinery behind the scenes too?
+  RemoveWindowFromList(windowHandle);
   ::DestroyWindow(windowHandle);
 }
 
@@ -561,11 +562,7 @@ LRESULT CALLBACK TestShell::WndProc(HWND hwnd, UINT message, WPARAM wParam,
       // debugging has been enabled.
       base::MemoryDebug::DumpAllMemoryInUse();
 
-      WindowList::iterator entry =
-          std::find(TestShell::windowList()->begin(),
-                    TestShell::windowList()->end(), hwnd);
-      if (entry != TestShell::windowList()->end())
-        TestShell::windowList()->erase(entry);
+      RemoveWindowFromList(hwnd);
 
       if (TestShell::windowList()->empty() || shell->is_modal()) {
         MessageLoop::current()->PostTask(FROM_HERE,

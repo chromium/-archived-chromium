@@ -225,7 +225,21 @@ void TestShell::ResetWebPreferences() {
         web_prefs_->allow_scripts_to_close_windows = false;
     }
 }
-	
+
+// static
+bool TestShell::RemoveWindowFromList(gfx::WindowHandle window) {
+  WindowList::iterator entry =
+      std::find(TestShell::windowList()->begin(),
+                TestShell::windowList()->end(),
+                window);
+  if (entry != TestShell::windowList()->end()) {
+    TestShell::windowList()->erase(entry);
+    return true;
+  }
+
+  return false;
+}
+
 void TestShell::Show(WebView* webview, WindowOpenDisposition disposition) {
   delegate_->Show(webview, disposition);
 }

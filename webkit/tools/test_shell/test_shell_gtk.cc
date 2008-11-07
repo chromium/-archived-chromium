@@ -53,14 +53,7 @@ namespace {
 
 // Callback for when the main window is destroyed.
 void MainWindowDestroyed(GtkWindow* window, TestShell* shell) {
-  // TODO(evanm): make WindowList a list of GtkWindow*, so this
-  // reinterpret_cast isn't necessary.
-  WindowList::iterator entry =
-      std::find(TestShell::windowList()->begin(),
-                TestShell::windowList()->end(),
-                GTK_WIDGET(window));
-  if (entry != TestShell::windowList()->end())
-    TestShell::windowList()->erase(entry);
+  TestShell::RemoveWindowFromList(GTK_WIDGET(window));
 
   if (TestShell::windowList()->empty() || shell->is_modal()) {
     MessageLoop::current()->PostTask(FROM_HERE,
@@ -193,7 +186,8 @@ void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
 }
 
 void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
-  NOTIMPLEMENTED();
+  RemoveWindowFromList(windowHandle);
+  gtk_widget_destroy(windowHandle);
 }
 
 WebWidget* TestShell::CreatePopupWidget(WebView* webview) {

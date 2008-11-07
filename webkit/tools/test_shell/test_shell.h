@@ -167,6 +167,10 @@ public:
     
     static void DestroyWindow(gfx::WindowHandle windowHandle);
 
+    // Remove the given window from window_list_, return true if it was in the
+    // list and was removed and false otherwise.
+    static bool RemoveWindowFromList(gfx::WindowHandle window);
+
     // Implements CreateWebView for TestWebViewDelegate, which in turn
     // is called as a WebViewDelegate.
     WebView* CreateWebView(WebView* webview);
