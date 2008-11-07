@@ -723,6 +723,10 @@ V8 # LayoutTests/fast/js/date-set-to-nan.html = FAIL
 # http://crbug.com/2844
 V8 | KJS # SKIP : LayoutTests/http/tests/appcache = TIMEOUT | FAIL
 
+# GC issue with MessageChannels.
+# http://code.google.com/p/chromium/issues/detail?id=4195
+V8 # LayoutTests/fast/events/message-channel-gc.html = PASS | FAIL
+
 # Depends on postMessage in a way we don't support:
 # http://code.google.com/p/chromium/issues/detail?id=2857
 V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-uppercase.html = FAIL
