@@ -584,6 +584,7 @@
 			buildPhases = (
 				7B12F54B0D8EE8E400CB6E8F /* Sources */,
 				7B12F54C0D8EE8E400CB6E8F /* Frameworks */,
+				4D3D54570EC3A4AA00650CA0 /* Strip If Needed */,
 			);
 			buildRules = (
 			);
@@ -604,6 +605,7 @@
 			buildPhases = (
 				7B12F58C0D8EEB2F00CB6E8F /* Sources */,
 				7B12F58D0D8EEB2F00CB6E8F /* Frameworks */,
+				4D3D54590EC3A4B700650CA0 /* Strip If Needed */,
 			);
 			buildRules = (
 			);
@@ -710,6 +712,36 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4D3D54570EC3A4AA00650CA0 /* Strip If Needed */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Strip If Needed";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec \"${XCODEPROJ_DEPTH}/build/mac/strip_from_xcode\"\n";
+			showEnvVarsInLog = 0;
+		};
+		4D3D54590EC3A4B700650CA0 /* Strip If Needed */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Strip If Needed";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec \"${XCODEPROJ_DEPTH}/build/mac/strip_from_xcode\"\n";
+			showEnvVarsInLog = 0;
+		};
 		7BE970520D872DC200F86D4B /* Pre-Build */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

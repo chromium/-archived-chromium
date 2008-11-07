@@ -420,6 +420,7 @@
 			buildPhases = (
 				7BA018DF0E5A2AFF00044150 /* Sources */,
 				7BA018E00E5A2AFF00044150 /* Frameworks */,
+				4D3D54390EC3A46900650CA0 /* Strip If Needed */,
 			);
 			buildRules = (
 			);
@@ -551,6 +552,20 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4D3D54390EC3A46900650CA0 /* Strip If Needed */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Strip If Needed";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec \"${XCODEPROJ_DEPTH}/build/mac/strip_from_xcode\"\n";
+		};
 		7B8500180E5A2F6400730B43 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

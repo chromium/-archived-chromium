@@ -145,7 +145,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 4D7BF2E90E9D46A4009A6919 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 4D640CEA0EAE86BD00EBCFC0 /* renderer */;
+			remoteGlobalIDString = 4D640CEA0EAE86BD00EBCFC0;
 			remoteInfo = renderer;
 		};
 		4D7B00320E9D5459009A6919 /* PBXContainerItemProxy */ = {
@@ -2345,6 +2345,7 @@
 			buildPhases = (
 				4D7BFB2A0E9D4BE5009A6919 /* Sources */,
 				4D7BFB2B0E9D4BE5009A6919 /* Frameworks */,
+				4D3D54770EC3A4D800650CA0 /* Strip If Needed */,
 			);
 			buildRules = (
 			);
@@ -2646,6 +2647,21 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4D3D54770EC3A4D800650CA0 /* Strip If Needed */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Strip If Needed";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "exec \"${XCODEPROJ_DEPTH}/build/mac/strip_from_xcode\"\n";
+			showEnvVarsInLog = 0;
+		};
 		4D7B014B0E9D572C009A6919 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
