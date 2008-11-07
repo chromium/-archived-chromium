@@ -243,7 +243,7 @@ void TestWebViewDelegate::DidReceiveTitle(WebView* webview,
   if (shell_->ShouldDumpTitleChanges()) {
     printf("TITLE CHANGED: %S\n", title.c_str());
   }
-  NOTIMPLEMENTED();
+  gtk_window_set_title(GTK_WINDOW(shell_->mainWnd()), WideToUTF8(title).c_str()); 
 }
 
 void TestWebViewDelegate::DidFinishLoadForFrame(WebView* webview,
