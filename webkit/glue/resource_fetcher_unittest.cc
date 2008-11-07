@@ -11,6 +11,10 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 #undef LOG
 
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
+
 #include "webkit/glue/unittest_test_server.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/webframe_impl.h"
@@ -21,7 +25,6 @@ MSVC_POP_WARNING();
 using WebCore::ResourceResponse;
 
 namespace {
-
 
 class ResourceFetcherTests : public TestShellTest {
  public:
@@ -43,16 +46,15 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
     // Start a repeating timer waiting for the download to complete.  The
     // callback has to be a static function, so we hold on to our instance.
     FetcherDelegate::instance_ = this;
-    timer_id_ = SetTimer(NULL, NULL, kWaitIntervalMs,
-                         &FetcherDelegate::TimerCallback);
+    CreateTimer(kWaitIntervalMs);
   }
-  
+
   virtual void OnURLFetchComplete(const ResourceResponse& response,
                                   const std::string& data) {
     response_ = response;
     data_ = data;
     completed_ = true;
-    KillTimer(NULL, timer_id_);
+    DestroyTimer();
     MessageLoop::current()->Quit();
   }
 
@@ -71,18 +73,41 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
       MessageLoop::current()->Run();
   }
 
+  void CreateTimer(int interval) {
+#if defined(OS_WIN)
+    timer_id_ = ::SetTimer(NULL, NULL, interval,
+                           &FetcherDelegate::TimerCallback);
+#elif defined(OS_LINUX)
+    timer_id_ = g_timeout_add(interval, &FetcherDelegate::TimerCallback, NULL);
+#endif
+  }
+
+  void DestroyTimer() {
+#if defined(OS_WIN)
+    ::KillTimer(NULL, timer_id_);
+#elif defined(OS_LINUX)
+    g_source_remove(timer_id_);
+#endif
+  }
+
+#if defined(OS_WIN)
   // Static timer callback, just passes through to instance version.
   static VOID CALLBACK TimerCallback(HWND hwnd, UINT msg, UINT_PTR timer_id,
                                      DWORD ms) {
-    instance_->TimerFired(hwnd, timer_id);
+    instance_->TimerFired();
   }
-  
-  void TimerFired(HWND hwnd, UINT_PTR timer_id) {
+#elif defined(OS_LINUX)
+  static gboolean TimerCallback(gpointer data) {
+    instance_->TimerFired();
+    return true;
+  }
+#endif
+
+  void TimerFired() {
     ASSERT_FALSE(completed_);
 
     if (timed_out()) {
-      printf("timer fired\n");
-      KillTimer(hwnd, timer_id);
+      DestroyTimer();
       MessageLoop::current()->Quit();
       FAIL() << "fetch timed out";
       return;
@@ -94,7 +119,11 @@ class FetcherDelegate : public ResourceFetcher::Delegate {
   static FetcherDelegate* instance_;
 
  private:
+#if defined(OS_WIN)
   UINT_PTR timer_id_;
+#elif defined(OS_LINUX)
+  guint timer_id_;
+#endif
   bool completed_;
   int time_elapsed_ms_;
   ResourceResponse response_;

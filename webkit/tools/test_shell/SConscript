@@ -170,6 +170,7 @@ test_files = [
     '$WEBKIT_DIR/glue/multipart_response_delegate_unittest.cc',
     '$WEBKIT_DIR/glue/password_autocomplete_listener_unittest.cc',
     '$WEBKIT_DIR/glue/regular_expression_unittest.cc',
+    '$WEBKIT_DIR/glue/resource_fetcher_unittest.cc',
     '$WEBKIT_DIR/glue/webframe_unittest.cc',
     '$WEBKIT_DIR/port/platform/GKURL_unittest.cpp',
     '$V8_DIR/snapshot-empty$OBJSUFFIX',
@@ -182,7 +183,6 @@ if env['PLATFORM'] == 'win32':
       'text_input_controller_unittest.cc',
       '$WEBKIT_DIR/glue/context_menu_unittest.cc',
       '$WEBKIT_DIR/glue/mimetype_unittest.cc',
-      '$WEBKIT_DIR/glue/resource_fetcher_unittest.cc',
       # Commented out until a regression is fixed and this file is restored.
       #'$WEBKIT_DIR/glue/stringimpl_unittest.cc',
       '$WEBKIT_DIR/glue/webplugin_impl_unittest.cc',
