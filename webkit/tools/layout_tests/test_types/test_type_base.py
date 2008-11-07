@@ -171,10 +171,9 @@ class TestTypeBase(object):
 
     if wdiff:
       # Shell out to wdiff to get colored inline diffs.
-      # TODO(evanm): make this work on other platforms.
-      cmd = [google.path_utils.FindUpward(path_utils.WebKitRoot(),
-                                          'third_party', 'cygwin', 'bin',
-                                          'wdiff.exe'),
+      platform_util = platform_utils.PlatformUtility('')
+      executable = platform_util.WDiffExecutablePath()
+      cmd = [executable,
              '--start-delete=##WDIFF_DEL##', '--end-delete=##WDIFF_END##',
              '--start-insert=##WDIFF_ADD##', '--end-insert=##WDIFF_END##',
              actual_filename, expected_win_filename]

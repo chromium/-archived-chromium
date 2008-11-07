@@ -115,7 +115,13 @@ class PlatformUtility(object):
     subprocess.Popen(('kill', '-TERM', '%d' % server_process.pid),
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE).wait()
-  
+
+  def WDiffExecutablePath(self):
+    """Path to the WDiff executable, which we assume is already installed and
+        in the user's $PATH.
+    """
+    return 'wdiff'
+
   def TestShellBinary(self):
     """The name of the binary for TestShell."""
     return 'TestShell'

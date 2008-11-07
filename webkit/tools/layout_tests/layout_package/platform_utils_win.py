@@ -171,6 +171,10 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE).wait()
 
+  def WDiffExecutablePath(self):
+    """Path to the WDiff executable, whose binary is checked in on Win"""
+    return PathFromBase('third_party', 'cygwin', 'bin', 'wdiff.exe')
+
   def TestShellBinary(self):
     """The name of the binary for TestShell."""
     return 'test_shell.exe'
