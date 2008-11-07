@@ -631,29 +631,26 @@ LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
   // We handle the messages WM_ERASEBKGND and WM_PAINT such that we paint into
   // a DIB first and then perform a BitBlt from the DIB into the underlying
   // window's DC. This double buffering code prevents the tree view from
-  // flickering during resize. This double buffering code doesn't work for RTL
-  // locales because the DIB created by ChromeCanvasPaint is not flipped and
-  // that's causing the text to be incorrectly mirrored after the BitBlt call.
-  // Thus, we disable the double buffering for RTL locales until this problem is
-  // fixed.
+  // flickering during resize.
   switch (message) {
     case WM_ERASEBKGND:
-      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-        break;
-      }
       return 1;
 
     case WM_PAINT: {
-      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-        break;
-      }
-
       ChromeCanvasPaint canvas(window);
       if (canvas.isEmpty())
         return 0;
 
-      SendMessage(window, WM_PRINTCLIENT,
-                  reinterpret_cast<WPARAM>(canvas.beginPlatformPaint()), 0);
+      HDC dc =  canvas.beginPlatformPaint();
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+        // ChromeCanvas ends up configuring the DC with a mode of GM_ADVANCED.
+        // For some reason a graphics mode of ADVANCED triggers all the text
+        // to be mirrored when RTL. Set the mode back to COMPATIBLE and
+        // explicitly set the layout.
+        SetGraphicsMode(dc, GM_COMPATIBLE);
+        SetLayout(dc, LAYOUT_RTL);
+      }
+      SendMessage(window, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(dc), 0);
       canvas.endPlatformPaint();
       return 0;
     }
