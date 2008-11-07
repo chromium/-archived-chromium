@@ -6,6 +6,29 @@
 #include "chrome/installer/util/install_util.h"
 
 #include "chrome/installer/util/google_update_constants.h"
+#include "chrome/installer/util/util_constants.h"
+
+namespace {
+bool ReadStrValueFromRegistry(const HKEY reg_key,
+                              const wchar_t* const value_name,
+                              wchar_t** value) {
+  DWORD size = 0;
+  if (::RegQueryValueEx(reg_key, value_name, NULL, NULL, NULL,
+                        &size) != ERROR_SUCCESS) {
+    return false;
+  }
+
+  *value = new wchar_t[1 + (size / sizeof(wchar_t))];
+  if (::RegQueryValueEx(reg_key, value_name, NULL, NULL,
+                        reinterpret_cast<BYTE*>(*value),
+                        &size) != ERROR_SUCCESS) {
+    delete[] *value;
+    return false;
+  }
+
+  return true;
+}
+}
 
 namespace client_util {
 bool FileExists(const wchar_t* const file_path) {
@@ -17,39 +40,25 @@ bool GetChromiumVersion(const wchar_t* const exe_path,
                         const wchar_t* const reg_key_path,
                         wchar_t** version) {
   HKEY reg_root = InstallUtil::IsPerUserInstall(exe_path) ? HKEY_CURRENT_USER :
-                                                HKEY_LOCAL_MACHINE;
+                                                            HKEY_LOCAL_MACHINE;
   HKEY reg_key;
   if (::RegOpenKeyEx(reg_root, reg_key_path, 0,
                      KEY_READ, &reg_key) != ERROR_SUCCESS) {
     return false;
   }
-  DWORD size = 0;
-  bool ret = false;
-  if (::RegQueryValueEx(reg_key, google_update::kRegOldVersionField, NULL, NULL,
-                        NULL, &size) == ERROR_SUCCESS) {
-    *version = new wchar_t[1 + (size / sizeof(wchar_t))];
-    if (::RegQueryValueEx(reg_key, google_update::kRegOldVersionField,
-                          NULL, NULL, reinterpret_cast<BYTE*>(*version),
-                          &size) == ERROR_SUCCESS) {
-      ret = true;
-    } else {
-      delete[] *version;
-    }
+
+  std::wstring new_chrome_exe(exe_path);
+  new_chrome_exe.append(installer_util::kChromeNewExe);
+  if (FileExists(new_chrome_exe.c_str()) &&
+      ReadStrValueFromRegistry(reg_key, google_update::kRegOldVersionField,
+                               version)) {
     ::RegCloseKey(reg_key);
-    return ret;
+    return true;
   }
 
-  if (::RegQueryValueEx(reg_key, google_update::kRegVersionField, NULL, NULL,
-                        NULL, &size) == ERROR_SUCCESS) {
-    *version = new wchar_t[1 + (size / sizeof(wchar_t))];
-    if (::RegQueryValueEx(reg_key, google_update::kRegVersionField,
-                          NULL, NULL, reinterpret_cast<BYTE*>(*version),
-                          &size) == ERROR_SUCCESS) {
-      ret = true;
-    } else {
-      delete[] *version;
-    }
-  }
+  bool ret = ReadStrValueFromRegistry(reg_key,
+                                      google_update::kRegVersionField,
+                                      version);
   ::RegCloseKey(reg_key);
   return ret;
 }

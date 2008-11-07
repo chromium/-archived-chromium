@@ -160,13 +160,13 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
   std::wstring new_chrome_exe = AppendPath(install_path,
                                            installer_util::kChromeNewExe);
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
-  RegKey chrome_key(reg_root, dist->GetVersionKey().c_str(),
-                    KEY_READ | KEY_WRITE);
+  RegKey chrome_key(reg_root, dist->GetVersionKey().c_str(), KEY_READ);
   std::wstring current_version;
   if (file_util::PathExists(new_chrome_exe))
     chrome_key.ReadValue(google_update::kRegOldVersionField, &current_version);
   if (current_version.empty())
     chrome_key.ReadValue(google_update::kRegVersionField, &current_version);
+  chrome_key.Close();
 
   install_list->AddDeleteTreeWorkItem(new_chrome_exe, std::wstring());
   install_list->AddCopyTreeWorkItem(
@@ -250,11 +250,17 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
         }
       }
     } else {
-      if (chrome_key.ValueExists(google_update::kRegOldVersionField) &&
-          !chrome_key.DeleteValue(google_update::kRegOldVersionField)) {
-        LOG(ERROR) << "New chrome.exe doesn't exist but failed to delete "
-                   << "old version value in registry.";
+      scoped_ptr<WorkItemList> inuse_list(WorkItem::CreateWorkItemList());
+      inuse_list->AddDeleteRegValueWorkItem(reg_root, version_key, 
+                                            google_update::kRegOldVersionField,
+                                            true);
+      inuse_list->AddDeleteRegValueWorkItem(reg_root, version_key, 
+                                            google_update::kRegRenameCmdField,
+                                            true);
+      if (!inuse_list->Do()) {
+        LOG(ERROR) << "Couldn't write old version/rename value to registry.";
         success = false;
+        inuse_list->Rollback();
       }
     }
   }

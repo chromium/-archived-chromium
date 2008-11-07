@@ -47,7 +47,7 @@ class WorkItemList : public WorkItem {
   // Add a DeleteRegValueWorkItem that deletes registry value of type REG_SZ
   // or REG_DWORD.
   bool AddDeleteRegValueWorkItem(HKEY predefined_root, std::wstring key_path,
-                                 std::wstring value_name, bool it_str_type);
+                                 std::wstring value_name, bool is_str_type);
 
   // Add a DeleteTreeWorkItem that recursively deletes a file system
   // hierarchy at the given root path. A key file can be optionally specified
