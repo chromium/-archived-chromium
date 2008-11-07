@@ -95,8 +95,6 @@ root_env = Environment(
                              '__env__, RDirs, TARGET, SOURCE)}'),
 )
 
-root_env.Append(LIBPATH = ['$V8_DIR'])
-
 
 # Declare a bit to gate solution generation.
 # The actual generation must be at the end.
@@ -135,6 +133,8 @@ elif root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
   # TODO(evanm): this is Linux-specific, not posix.
   # Parse /proc/cpuinfo for processor count.
   cpus = len([l for l in open('/proc/cpuinfo') if l.startswith('processor\t')])
+else:
+  cpus = 1
 SetOption('num_jobs', cpus + 1)
 
 
