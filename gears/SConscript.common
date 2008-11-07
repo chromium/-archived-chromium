@@ -35,92 +35,11 @@ env.Prepend(
     ]
 )
 
-#-----------------------------------------------------------------------------
-# crash_sender
+# Include the input file list.
+env.SConscript('SConscript.inputs', exports={'env': env, 'env_res': None})
+Import('env_inputs')
+env = env_inputs
 
-if env['OS'] == 'win32':
-  env.Append(CRASH_SENDER_CPPSRCS = [
-      '$OPEN_DIR/crash_sender/crash_sender_win32.cc',
-      '$THIRD_PARTY_DIR/breakpad/src/client/windows/sender/crash_report_sender.cc',
-      '$THIRD_PARTY_DIR/breakpad/src/common/windows/http_upload.cc',
-  ])
-elif env['OS'] == 'osx':
-  print 'TODO: crash_sender'
-
-#-----------------------------------------------------------------------------
-# ipc_test
-
-env.Append(COMMON_M4SRCS = [
-    '$OPEN_DIR/base/common/product_constants.h.m4',
-])
-
-env.Append(IPC_TEST_CPPSRCS = [
-    '$OPEN_DIR/base/common/event.cc',
-    '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
-    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
-    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
-    '$OPEN_DIR/base/common/ipc_message_queue_test_linux.cc',
-    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
-    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
-    '$OPEN_DIR/base/common/mutex.cc',
-    '$OPEN_DIR/base/common/mutex_posix.cc',
-    '$OPEN_DIR/base/common/mutex_win32.cc',
-    '$OPEN_DIR/base/common/serialization.cc',
-    '$OPEN_DIR/base/common/stopwatch.cc',
-    '$OPEN_DIR/base/common/stopwatch_posix.cc',
-    '$OPEN_DIR/base/common/stopwatch_win32.cc',
-    '$OPEN_DIR/base/common/string16.cc',
-    '$OPEN_DIR/base/common/string_utils.cc',
-    '$OPEN_DIR/base/common/string_utils_osx.cc',
-    '$OPEN_DIR/base/common/thread.cc',
-    '$OPEN_DIR/base/common/thread_posix.cc',
-    '$OPEN_DIR/base/common/thread_win32.cc',
-    '$OPEN_DIR/base/common/time_utils_win32.cc',
-])
-
-if env['OS'] == 'osx':
-  env.Append(IPC_TEST_CPPSRCS = [
-    '$OPEN_DIR/base/common/common_osx.mm',
-    '$OPEN_DIR/base/common/ipc_message_queue_test_osx.mm',
-  ])
-
-env.Append(IPC_TEST_CPPSRCS = [
-    '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
-])
-
-#-----------------------------------------------------------------------------
-# inspector
-
-if not env['OFFICIAL_BUILD']:
-  env.Append(COMMON_BINSRCS = [
-      '$OPEN_DIR/inspector/console.html',
-      '$OPEN_DIR/inspector/database.html',
-      '$OPEN_DIR/inspector/index.html',
-      '$OPEN_DIR/inspector/localserver.html',
-      '$OPEN_DIR/inspector/common/alert-35.png',
-      '$OPEN_DIR/inspector/common/database.gif',
-      '$OPEN_DIR/inspector/common/error-35.png',
-      '$OPEN_DIR/inspector/common/ie6hacks.css',
-      '$OPEN_DIR/inspector/common/inspector_links.js',
-      '$OPEN_DIR/inspector/common/lightbulb-35.png',
-      '$OPEN_DIR/inspector/common/localserver.gif',
-      '$OPEN_DIR/inspector/common/question-35.png',
-      '$OPEN_DIR/inspector/common/styles.css',
-      '$OPEN_DIR/inspector/common/workerpool.gif',
-      '$OPEN_DIR/sdk/gears_init.js',
-      '$OPEN_DIR/ui/common/base.js',
-      '$OPEN_DIR/ui/common/dom.js',
-      '$OPEN_DIR/ui/common/icon_32x32.png',
-  ])
-
-#-----------------------------------------------------------------------------
-# installer
-
-env.Append(COMMON_M4SRCS = [
-    '$OPEN_DIR/installer/npapi_msi.wxs.m4',
-    '$OPEN_DIR/installer/win32_msi.wxs.m4',
-    '$OPEN_DIR/installer/wince_cab.inf.m4',
-])
 
 #-----------------------------------------------------------------------------
 # Generate the dependency tree.
@@ -144,7 +63,7 @@ if GetInputs('$COMMON_BINSRCS'):
   bins = [env.Bin2cpp(*PatternRule(
               '$COMMON_GENFILES_DIR/${SOURCE.file}.from_bin.cc', src))
          for src in GetInputs('$COMMON_BINSRCS')]
-  common_targets['src'] = [env.SharedObject(bin) for bin in bins]
+  common_targets['link'] = [env.SharedObject(bin) for bin in bins]
 
 Export('common_targets')
 

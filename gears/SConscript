@@ -739,9 +739,9 @@ for each in sconscripts:
 # Must come before SConscript.dll because it Imports targets from this
 # SConscript.
 env.SConscript('SConscript.common',
-             exports=['env'],
-             variant_dir='$COMMON_OUTDIR',
-             duplicate=0)
+               exports=['env'],
+               variant_dir='$COMMON_OUTDIR',
+               duplicate=0)
 
 browsers = [env['BROWSER']]
 if browsers[0] == 'all':
