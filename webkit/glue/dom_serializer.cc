@@ -227,8 +227,8 @@ WebCore::String DomSerializer::PreActionBeforeSerializeOpenTag(
         xml_encoding = WebCore::UTF8Encoding().name();
       std::wstring str_xml_declaration =
           StringPrintf(kXMLDeclaration,
-                       param->doc->xmlVersion().charactersWithNullTermination(),
-                       xml_encoding.charactersWithNullTermination(),
+                       StringToStdWString(param->doc->xmlVersion()).c_str(),
+                       StringToStdWString(xml_encoding).c_str(),
                        param->doc->xmlStandalone() ? L" standalone=\"yes\"" :
                                                      L"");
       result += StdWStringToString(str_xml_declaration);
