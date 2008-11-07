@@ -810,7 +810,7 @@ V8 # LayoutTests/http/tests/misc/acid3.html = FAIL
 V8 # DEFER : LayoutTests/http/tests/misc/frame-default-enc-same-domain.html = FAIL
 V8 # LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 V8 # LayoutTests/http/tests/security/cross-frame-access-object-prototype.html = FAIL | TIMEOUT
-// V8 # LayoutTests/http/tests/security/cross-origin-xsl-BLOCKED.html = FAIL
+V8 # LayoutTests/http/tests/security/cross-origin-xsl-BLOCKED.html = FAIL
 V8 # LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL | TIMEOUT
 V8 # LayoutTests/http/tests/security/xss-eval.html = FAIL | TIMEOUT
 V8 # LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
@@ -981,6 +981,11 @@ V8 # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
 V8 # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
+
+// Some of the keyframe animation tests are flaky.  This one is 
+// failing now on the buildbot, but it passes when run alone.  Some of
+// the other keyframe animation tests also occasionally timeout.
+V8 # LayoutTests/animations/multiple-keyframes.html = PASS | TIMEOUT
 
 // Crash in DEBUG only
 V8 # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH | PASS
