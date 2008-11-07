@@ -254,7 +254,6 @@ env.Replace(
 # current build as closely as possible until we switch everyone to SCons, then
 # gradually integrate.
 env.Replace(
-    ARFLAGS = [],
     CPPPATH = [
         '$OPEN_DIR',
         '$OPEN_DIR/..',
@@ -382,6 +381,7 @@ env['I18N_LANGS'] = [
 # Platform-specific flags follow.
 
 if env['OS'] in ['win32', 'wince']:
+  env.Replace(ARFLAGS = [])
   env.Append(
       CPPDEFINES = [
           'STRICT',

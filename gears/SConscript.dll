@@ -306,52 +306,55 @@ elif env['BROWSER'] == 'NPAPI':
 
 
 # Building resources.
-env_res = env.Clone()
-env_res.Replace(
-    CPPDEFINES = [
-        '_UNICODE',
-        'UNICODE',
-        '$EXTRA_DEFINES',
-    ],
-    EXTRA_DEFINES = [
-        'BROWSER_${BROWSER}=1',
-    ],
-    CPPPATH = [
-        '$COMMON_GENFILES_DIR/..',
-        '$GENFILES_DIR/..',
-        '$OPEN_DIR',
-        '$VC80_CPPPATH',
-    ],
-)
-
-if env['MODE'] == 'dbg':
-  env_res.Append(CPPDEFINES = 'DEBUG=1')
-else:
-  env_res.Append(CPPDEFINES = 'NDEBUG=1')
-
-env_res.Append(RCFLAGS = [('/l', '0x409')])
-if env['OS'] == 'win32':
-  env_res.Append(
-      CPPPATH = [
-          '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
-      ],
-  )
-elif env['OS'] == 'wince':
-  env_res.Append(
+if env['OS'] in ['win32', 'wince']:
+  env_res = env.Clone()
+  env_res.Replace(
       CPPDEFINES = [
-          'OS_WINCE',
-          '_WIN32',
-          '_WIN32_WCE',
-          'UNDER_CE',
+          '_UNICODE',
+          'UNICODE',
+          '$EXTRA_DEFINES',
+      ],
+      EXTRA_DEFINES = [
+          'BROWSER_${BROWSER}=1',
       ],
       CPPPATH = [
-          '$OPEN_DIR/..',
-          '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80ce/files/include',
+          '$COMMON_GENFILES_DIR/..',
+          '$GENFILES_DIR/..',
+          '$OPEN_DIR',
+          '$VC80_CPPPATH',
       ],
-      RCFLAGS = [
-          '-N',
-      ]
   )
+
+  if env['MODE'] == 'dbg':
+    env_res.Append(CPPDEFINES = 'DEBUG=1')
+  else:
+    env_res.Append(CPPDEFINES = 'NDEBUG=1')
+
+  env_res.Append(RCFLAGS = [('/l', '0x409')])
+  if env['OS'] == 'win32':
+    env_res.Append(
+        CPPPATH = [
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
+        ],
+    )
+  elif env['OS'] == 'wince':
+    env_res.Append(
+        CPPDEFINES = [
+            'OS_WINCE',
+            '_WIN32',
+            '_WIN32_WCE',
+            'UNDER_CE',
+        ],
+        CPPPATH = [
+            '$OPEN_DIR/..',
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80ce/files/include',
+        ],
+        RCFLAGS = [
+            '-N',
+        ]
+    )
+else:
+  env_res = None
 
 if env['OS'] == 'win32':
   # TODO: move to breakpad
