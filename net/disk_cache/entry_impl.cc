@@ -16,25 +16,8 @@ using base::TimeDelta;
 
 namespace {
 
-// This is a simple Task to execute the callback (from the message loop instead
-// of the APC).
-class InvokeCallback : public Task {
- public:
-  InvokeCallback(net::CompletionCallback* callback, int argument)
-      : callback_(callback), argument_(argument) {}
-
-  virtual void Run() {
-    callback_->Run(argument_);
-  }
-
- private:
-  net::CompletionCallback* callback_;
-  int argument_;
-  DISALLOW_EVIL_CONSTRUCTORS(InvokeCallback);
-};
-
-// This class implements FileIOCallback to buffer the callback from an IO
-// operation from the actual IO class.
+// This class implements FileIOCallback to buffer the callback from a file IO
+// operation from the actual net class.
 class SyncCallback: public disk_cache::FileIOCallback {
  public:
   SyncCallback(disk_cache::EntryImpl* entry,
@@ -57,10 +40,8 @@ class SyncCallback: public disk_cache::FileIOCallback {
 void SyncCallback::OnFileIOComplete(int bytes_copied) {
   entry_->DecrementIoCount();
   entry_->Release();
-  if (callback_) {
-    InvokeCallback* task = new InvokeCallback(callback_, bytes_copied);
-    MessageLoop::current()->PostTask(FROM_HERE, task);
-  }
+  if (callback_)
+    callback_->Run(bytes_copied);
   delete this;
 }
 
@@ -556,9 +537,11 @@ void EntryImpl::DeleteData(Addr address, int index) {
     if (files_[index])
       files_[index] = NULL;  // Releases the object.
 
-    if (!DeleteCacheFile(backend_->GetFileName(address)))
+    if (!DeleteCacheFile(backend_->GetFileName(address))) {
+      UMA_HISTOGRAM_COUNTS(L"DiskCache.DeleteFailed", 1);
       LOG(ERROR) << "Failed to delete " << backend_->GetFileName(address) <<
                     " from the cache.";
+    }
   } else {
     backend_->DeleteBlock(address, true);
   }
@@ -711,7 +694,6 @@ bool EntryImpl::ImportSeparateFile(int index, int offset, int buf_len) {
   return true;
 }
 
-
 // The common scenario is that this is called from the destructor of the entry,
 // to write to disk what we have buffered. We don't want to hold the destructor
 // until the actual IO finishes, so we'll send an asynchronous write that will
@@ -744,6 +726,13 @@ bool EntryImpl::Flush(int index, int size, bool async) {
   if (!file)
     return false;
 
+  // TODO(rvargas): figure out if it's worth to re-enable posting operations.
+  // Right now it is only used from GrowUserBuffer, not the destructor, and
+  // it is not accounted for from the point of view of the total number of
+  // pending operations of the cache. It is also racing with the actual write
+  // on the GrowUserBuffer path because there is no code to exclude the range
+  // that is going to be written.
+  async = false;
   if (async) {
     if (!file->PostWrite(user_buffers_[index].get(), len, offset))
       return false;

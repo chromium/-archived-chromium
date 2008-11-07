@@ -50,55 +50,55 @@ static int MapErrorCode(DWORD err) {
 class FileStream::AsyncContext : public MessageLoopForIO::IOHandler {
  public:
   AsyncContext(FileStream* owner)
-      : owner_(owner), overlapped_(), callback_(NULL) {
-    overlapped_.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+      : owner_(owner), context_(), callback_(NULL) {
+    context_.handler = this;
   }
-
-  ~AsyncContext() {
-    if (callback_)
-      MessageLoopForIO::current()->RegisterIOContext(&overlapped_, NULL);
-    CloseHandle(overlapped_.hEvent);
-  }
+  ~AsyncContext();
 
   void IOCompletionIsPending(CompletionCallback* callback);
-  
-  OVERLAPPED* overlapped() { return &overlapped_; }
+
+  OVERLAPPED* overlapped() { return &context_.overlapped; }
   CompletionCallback* callback() const { return callback_; }
 
  private:
-  // MessageLoopForIO::IOHandler implementation:
-  virtual void OnIOCompleted(OVERLAPPED* context, DWORD num_bytes,
-                             DWORD error);
+  virtual void OnIOCompleted(MessageLoopForIO::IOContext* context,
+                             DWORD bytes_read, DWORD error);
 
   FileStream* owner_;
-  OVERLAPPED overlapped_;
+  MessageLoopForIO::IOContext context_;
   CompletionCallback* callback_;
 };
+
+FileStream::AsyncContext::~AsyncContext() {
+  bool waited = false;
+  base::Time start = base::Time::Now();
+  while (callback_) {
+    waited = true;
+    MessageLoopForIO::current()->WaitForIOCompletion(INFINITE, this);
+  }
+  if (waited) {
+    // We want to see if we block the message loop for too long.
+    UMA_HISTOGRAM_TIMES(L"AsyncIO.FileStreamClose", base::Time::Now() - start);
+  }
+}
 
 void FileStream::AsyncContext::IOCompletionIsPending(
     CompletionCallback* callback) {
   DCHECK(!callback_);
   callback_ = callback;
-
-  MessageLoopForIO::current()->RegisterIOContext(&overlapped_, this);
 }
 
-void FileStream::AsyncContext::OnIOCompleted(OVERLAPPED* context,
-                                                  DWORD num_bytes,
-                                                  DWORD error) {
-  DCHECK(&overlapped_ == context);
+void FileStream::AsyncContext::OnIOCompleted(
+    MessageLoopForIO::IOContext* context, DWORD bytes_read, DWORD error) {
+  DCHECK(&context_ == context);
   DCHECK(callback_);
 
-  MessageLoopForIO::current()->RegisterIOContext(&overlapped_, NULL);
-
-  HANDLE handle = owner_->file_;
-
-  int result = static_cast<int>(num_bytes);
+  int result = static_cast<int>(bytes_read);
   if (error && error != ERROR_HANDLE_EOF)
     result = MapErrorCode(error);
-  
-  if (num_bytes)
-    IncrementOffset(&overlapped_, num_bytes);
+
+  if (bytes_read)
+    IncrementOffset(&context->overlapped, bytes_read);
 
   CompletionCallback* temp = NULL;
   std::swap(temp, callback_);
@@ -115,11 +115,14 @@ FileStream::~FileStream() {
 }
 
 void FileStream::Close() {
+  if (file_ != INVALID_HANDLE_VALUE)
+    CancelIo(file_);
+
+  async_context_.reset();
   if (file_ != INVALID_HANDLE_VALUE) {
     CloseHandle(file_);
     file_ = INVALID_HANDLE_VALUE;
   }
-  async_context_.reset();
 }
 
 int FileStream::Open(const std::wstring& path, int open_flags) {
@@ -211,9 +214,10 @@ int FileStream::Read(
       LOG(WARNING) << "ReadFile failed: " << error;
       rv = MapErrorCode(error);
     }
+  } else if (overlapped) {
+    async_context_->IOCompletionIsPending(callback);
+    rv = ERR_IO_PENDING;
   } else {
-    if (overlapped)
-      IncrementOffset(overlapped, bytes_read);
     rv = static_cast<int>(bytes_read);
   }
   return rv;
@@ -224,7 +228,7 @@ int FileStream::Write(
   if (!IsOpen())
     return ERR_UNEXPECTED;
   DCHECK(open_flags_ & base::PLATFORM_FILE_WRITE);
-  
+
   OVERLAPPED* overlapped = NULL;
   if (async_context_.get()) {
     DCHECK(!async_context_->callback());
@@ -242,9 +246,10 @@ int FileStream::Write(
       LOG(WARNING) << "WriteFile failed: " << error;
       rv = MapErrorCode(error);
     }
+  } else if (overlapped) {
+    async_context_->IOCompletionIsPending(callback);
+    rv = ERR_IO_PENDING;
   } else {
-    if (overlapped)
-      IncrementOffset(overlapped, bytes_written);
     rv = static_cast<int>(bytes_written);
   }
   return rv;

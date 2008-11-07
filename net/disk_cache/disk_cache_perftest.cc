@@ -9,6 +9,7 @@
 #include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/perftimer.h"
+#include "base/platform_test.h"
 #if defined(OS_WIN)
 #include "base/scoped_handle.h"
 #endif
@@ -17,7 +18,6 @@
 #include "net/base/net_errors.h"
 #include "net/disk_cache/block_files.h"
 #include "net/disk_cache/disk_cache.h"
-#include "net/disk_cache/disk_cache_test_base.h"
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "net/disk_cache/hash.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -27,6 +27,8 @@ using base::Time;
 extern int g_cache_tests_max_id;
 extern volatile int g_cache_tests_received;
 extern volatile bool g_cache_tests_error;
+
+typedef PlatformTest DiskCacheTest;
 
 namespace {
 
@@ -226,6 +228,7 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
   int ret = TimeWrite(num_entries, cache, &entries);
   EXPECT_EQ(ret, g_cache_tests_received);
 
+  MessageLoop::current()->RunAllPending();
   delete cache;
 
   std::wstring filename(path);
@@ -257,6 +260,7 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
   ret = TimeRead(num_entries, cache, entries, false);
   EXPECT_EQ(ret, g_cache_tests_received);
 
+  MessageLoop::current()->RunAllPending();
   delete cache;
 }
 
@@ -266,6 +270,7 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
 // fragmented, or if we have multiple files. This test measures that scenario,
 // by using multiple, highly fragmented files.
 TEST_F(DiskCacheTest, BlockFilesPerformance) {
+  MessageLoopForIO message_loop;
   std::wstring path = GetCachePath();
   ASSERT_TRUE(DeleteCache(path.c_str()));
 
@@ -303,4 +308,5 @@ TEST_F(DiskCacheTest, BlockFilesPerformance) {
   }
 
   timer2.Done();
+  MessageLoop::current()->RunAllPending();
 }

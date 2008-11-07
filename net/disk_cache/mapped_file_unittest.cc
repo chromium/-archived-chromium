@@ -95,6 +95,8 @@ TEST_F(DiskCacheTest, MappedFile_AsyncIO) {
   g_cache_tests_max_id = 0;
   g_cache_tests_received = 0;
 
+  MessageLoopHelper helper;
+
   char buffer1[20];
   char buffer2[20];
   CacheTestFillBuffer(buffer1, sizeof(buffer1), false);
@@ -105,14 +107,14 @@ TEST_F(DiskCacheTest, MappedFile_AsyncIO) {
   int expected = completed ? 0 : 1;
 
   g_cache_tests_max_id = 1;
-  WaitForCallbacks(expected);
+  helper.WaitUntilCacheIoFinished(expected);
 
   EXPECT_TRUE(file->Read(buffer2, sizeof(buffer2), 1024 * 1024, &callback,
               &completed));
   if (!completed)
     expected++;
 
-  WaitForCallbacks(expected);
+  helper.WaitUntilCacheIoFinished(expected);
 
   EXPECT_EQ(expected, g_cache_tests_received);
   EXPECT_FALSE(g_cache_tests_error);

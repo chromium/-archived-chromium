@@ -104,7 +104,7 @@ class Worker : public Channel::Listener, public Message::Sender {
     channel_->Close();
   }
   void Start() {
-    StartThread(&listener_thread_);
+    StartThread(&listener_thread_, MessageLoop::TYPE_DEFAULT);
     ListenerThread()->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
         this, &Worker::OnStart));
   }
@@ -149,7 +149,7 @@ class Worker : public Channel::Listener, public Message::Sender {
   // Called on the listener thread to create the sync channel.
   void OnStart() {
     // Link ipc_thread_, listener_thread_ and channel_ altogether.
-    StartThread(&ipc_thread_);
+    StartThread(&ipc_thread_, MessageLoop::TYPE_IO);
     channel_.reset(new SyncChannel(
         channel_name_, mode_, this, NULL, ipc_thread_.message_loop(), true,
         TestProcess::GetShutDownEvent()));
@@ -178,9 +178,9 @@ class Worker : public Channel::Listener, public Message::Sender {
     IPC_END_MESSAGE_MAP()
   }
 
-  void StartThread(base::Thread* thread) {
+  void StartThread(base::Thread* thread, MessageLoop::Type type) {
     base::Thread::Options options;
-    options.message_loop_type = MessageLoop::TYPE_IO;
+    options.message_loop_type = type;
     thread->StartWithOptions(options);
   }
 

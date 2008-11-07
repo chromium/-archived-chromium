@@ -99,12 +99,14 @@ class Channel : public MessageLoopForIO::IOHandler,
   const std::wstring PipeName(const std::wstring& channel_id) const;
   bool CreatePipe(const std::wstring& channel_id, Mode mode);
   bool ProcessConnection();
-  bool ProcessIncomingMessages(OVERLAPPED* context, DWORD bytes_read);
-  bool ProcessOutgoingMessages(OVERLAPPED* context, DWORD bytes_written);
+  bool ProcessIncomingMessages(MessageLoopForIO::IOContext* context,
+                               DWORD bytes_read);
+  bool ProcessOutgoingMessages(MessageLoopForIO::IOContext* context,
+                               DWORD bytes_written);
 
   // MessageLoop::IOHandler implementation.
-  virtual void OnIOCompleted(OVERLAPPED* context, DWORD bytes_transfered,
-                             DWORD error);
+  virtual void OnIOCompleted(MessageLoopForIO::IOContext* context,
+                             DWORD bytes_transfered, DWORD error);
 
  private:
   enum {
@@ -112,9 +114,9 @@ class Channel : public MessageLoopForIO::IOHandler,
   };
 
   struct State {
-    State();
+    explicit State(Channel* channel);
     ~State();
-    OVERLAPPED overlapped;
+    MessageLoopForIO::IOContext context;
     bool is_pending;
   };
 

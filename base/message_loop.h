@@ -426,7 +426,7 @@ class MessageLoopForUI : public MessageLoop {
 
  protected:
   // TODO(rvargas): Make this platform independent.
-  base::MessagePumpWin* pump_ui() {
+  base::MessagePumpForUI* pump_ui() {
     return static_cast<base::MessagePumpForUI*>(pump_.get());
   }
 #endif  // defined(OS_WIN)
@@ -458,13 +458,12 @@ class MessageLoopForIO : public MessageLoop {
   }
 
 #if defined(OS_WIN)
-  typedef base::MessagePumpForIO::Watcher Watcher;
   typedef base::MessagePumpForIO::IOHandler IOHandler;
+  typedef base::MessagePumpForIO::IOContext IOContext;
 
   // Please see MessagePumpWin for definitions of these methods.
-  void WatchObject(HANDLE object, Watcher* watcher);
   void RegisterIOHandler(HANDLE file_handle, IOHandler* handler);
-  void RegisterIOContext(OVERLAPPED* context, IOHandler* handler);
+  bool WaitForIOCompletion(DWORD timeout, IOHandler* filter);
 
  protected:
   // TODO(rvargas): Make this platform independent.

@@ -4,62 +4,39 @@
 
 #include "net/disk_cache/file.h"
 
+#include "base/message_loop.h"
+#include "base/singleton.h"
 #include "net/disk_cache/disk_cache.h"
 
 namespace {
 
-// This class implements FileIOCallback to perform IO operations
-// when the callback parameter of the operation is NULL.
-class SyncCallback: public disk_cache::FileIOCallback {
- public:
-  SyncCallback() : called_(false) {}
-  ~SyncCallback() {}
-
-  virtual void OnFileIOComplete(int bytes_copied);
-  void WaitForResult(int* bytes_copied);
- private:
-  bool called_;
-  int actual_;
-};
-
-void SyncCallback::OnFileIOComplete(int bytes_copied) {
-  actual_ = bytes_copied;
-  called_ = true;
-}
-
-// Waits for the IO operation to complete.
-void SyncCallback::WaitForResult(int* bytes_copied) {
-  for (;;) {
-    SleepEx(INFINITE, TRUE);
-    if (called_)
-      break;
-  }
-  *bytes_copied = actual_;
-}
-
 // Structure used for asynchronous operations.
 struct MyOverlapped {
-  OVERLAPPED overlapped;
-  disk_cache::File* file;
-  disk_cache::FileIOCallback* callback;
-  const void* buffer;
-  DWORD actual_bytes;
-  bool async;  // Invoke the callback form the completion.
-  bool called;  // Completion received.
-  bool delete_buffer;  // Delete the user buffer at completion.
+  MyOverlapped(disk_cache::File* file, size_t offset,
+               disk_cache::FileIOCallback* callback);
+  ~MyOverlapped();
+  OVERLAPPED* overlapped() {
+    return &context_.overlapped;
+  }
+
+  MessageLoopForIO::IOContext context_;
+  scoped_refptr<disk_cache::File> file_;
+  disk_cache::FileIOCallback* callback_;
+  const void* buffer_;
+  bool delete_buffer_;  // Delete the user buffer at completion.
 };
 
-COMPILE_ASSERT(!offsetof(MyOverlapped, overlapped), starts_with_overlapped);
+COMPILE_ASSERT(!offsetof(MyOverlapped, context_), starts_with_overlapped);
 
-}  // namespace
+// Helper class to handle the IO completion notifications from the message loop.
+class CompletionHandler : public MessageLoopForIO::IOHandler {
+  virtual void OnIOCompleted(MessageLoopForIO::IOContext* context,
+                             DWORD actual_bytes, DWORD error);
+};
 
-namespace disk_cache {
-
-// SyncCallback to be invoked as an APC when the asynchronous operation
-// completes.
-void CALLBACK IoCompletion(DWORD error, DWORD actual_bytes,
-                           OVERLAPPED* overlapped) {
-  MyOverlapped* data = reinterpret_cast<MyOverlapped*>(overlapped);
+void CompletionHandler::OnIOCompleted(MessageLoopForIO::IOContext* context,
+                                      DWORD actual_bytes, DWORD error) {
+  MyOverlapped* data = reinterpret_cast<MyOverlapped*>(context);
 
   if (error) {
     DCHECK(!actual_bytes);
@@ -67,29 +44,39 @@ void CALLBACK IoCompletion(DWORD error, DWORD actual_bytes,
     NOTREACHED();
   }
 
-  if (data->delete_buffer) {
-    DCHECK(!data->callback);
-    data->file->Release();
-    delete data->buffer;
-    delete data;
-    return;
-  }
+  if (data->callback_)
+    data->callback_->OnFileIOComplete(static_cast<int>(actual_bytes));
 
-  if (data->async) {
-    data->callback->OnFileIOComplete(static_cast<int>(actual_bytes));
-    data->file->Release();
-    delete data;
-  } else {
-    // Somebody is waiting for this so don't delete data and instead notify
-    // that we were called.
-    data->actual_bytes = actual_bytes;
-    data->file->Release();
-    data->called = true;
+  delete data;
+}
+
+MyOverlapped::MyOverlapped(disk_cache::File* file, size_t offset,
+                           disk_cache::FileIOCallback* callback) {
+  memset(this, 0, sizeof(*this));
+  context_.handler = Singleton<CompletionHandler>::get();
+  context_.overlapped.Offset = static_cast<DWORD>(offset);
+  file_ = file;
+  callback_ = callback;
+}
+
+MyOverlapped::~MyOverlapped() {
+  if (delete_buffer_) {
+    DCHECK(!callback_);
+    delete buffer_;
   }
 }
 
+}  // namespace
+
+namespace disk_cache {
+
+// Used from WaitForPendingIO() when the cache is being destroyed.
+MessageLoopForIO::IOHandler* GetFileIOHandler() {
+  return Singleton<CompletionHandler>::get();
+}
+
 File::File(base::PlatformFile file)
-    : init_(true), mixed_(true), platform_file_(INVALID_HANDLE_VALUE),
+    : init_(true), platform_file_(INVALID_HANDLE_VALUE),
       sync_platform_file_(file) {
 }
 
@@ -99,23 +86,22 @@ bool File::Init(const std::wstring& name) {
     return false;
 
   platform_file_ = CreateFile(name.c_str(), GENERIC_READ | GENERIC_WRITE,
-                        FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
-                        FILE_FLAG_OVERLAPPED, NULL);
+                              FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                              OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 
   if (INVALID_HANDLE_VALUE == platform_file_)
     return false;
 
-  init_ = true;
-  if (mixed_) {
-    sync_platform_file_ = CreateFile(name.c_str(), GENERIC_READ | GENERIC_WRITE,
-                                FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                                OPEN_EXISTING, 0, NULL);
+  MessageLoopForIO::current()->RegisterIOHandler(
+      platform_file_, Singleton<CompletionHandler>::get());
 
-    if (INVALID_HANDLE_VALUE == sync_platform_file_)
-      return false;
-  } else {
-    sync_platform_file_ = INVALID_HANDLE_VALUE;
-  }
+  init_ = true;
+  sync_platform_file_  = CreateFile(name.c_str(), GENERIC_READ | GENERIC_WRITE,
+                                    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                                    OPEN_EXISTING, 0, NULL);
+
+  if (INVALID_HANDLE_VALUE == sync_platform_file_)
+    return false;
 
   return true;
 }
@@ -126,13 +112,13 @@ File::~File() {
 
   if (INVALID_HANDLE_VALUE != platform_file_)
     CloseHandle(platform_file_);
-  if (mixed_ && INVALID_HANDLE_VALUE != sync_platform_file_)
+  if (INVALID_HANDLE_VALUE != sync_platform_file_)
     CloseHandle(sync_platform_file_);
 }
 
 base::PlatformFile File::platform_file() const {
   DCHECK(init_);
-  return (INVALID_HANDLE_VALUE == platform_file_) ? sync_platform_file_ : 
+  return (INVALID_HANDLE_VALUE == platform_file_) ? sync_platform_file_ :
                                                     platform_file_;
 }
 
@@ -145,13 +131,11 @@ bool File::IsValid() const {
 
 bool File::Read(void* buffer, size_t buffer_len, size_t offset) {
   DCHECK(init_);
-  if (!mixed_ || buffer_len > ULONG_MAX || offset > LONG_MAX)
+  if (buffer_len > ULONG_MAX || offset > LONG_MAX)
     return false;
 
-  DWORD ret = SetFilePointer(sync_platform_file_, 
-                             static_cast<LONG>(offset), 
-                             NULL,
-                             FILE_BEGIN);
+  DWORD ret = SetFilePointer(sync_platform_file_, static_cast<LONG>(offset),
+                             NULL, FILE_BEGIN);
   if (INVALID_SET_FILE_POINTER == ret)
     return false;
 
@@ -164,13 +148,11 @@ bool File::Read(void* buffer, size_t buffer_len, size_t offset) {
 
 bool File::Write(const void* buffer, size_t buffer_len, size_t offset) {
   DCHECK(init_);
-  if (!mixed_ || buffer_len > ULONG_MAX || offset > ULONG_MAX)
+  if (buffer_len > ULONG_MAX || offset > ULONG_MAX)
     return false;
 
-  DWORD ret = SetFilePointer(sync_platform_file_, 
-                             static_cast<LONG>(offset), 
-                             NULL,
-                             FILE_BEGIN);
+  DWORD ret = SetFilePointer(sync_platform_file_, static_cast<LONG>(offset),
+                             NULL, FILE_BEGIN);
   if (INVALID_SET_FILE_POINTER == ret)
     return false;
 
@@ -187,55 +169,38 @@ bool File::Write(const void* buffer, size_t buffer_len, size_t offset) {
 bool File::Read(void* buffer, size_t buffer_len, size_t offset,
                 FileIOCallback* callback, bool* completed) {
   DCHECK(init_);
+  if (!callback)
+    return Read(buffer, buffer_len, offset);
+
   if (buffer_len > ULONG_MAX || offset > ULONG_MAX)
     return false;
 
-  MyOverlapped* data = new MyOverlapped;
-  memset(data, 0, sizeof(*data));
-
-  SyncCallback local_callback;
-  data->overlapped.Offset = static_cast<DWORD>(offset);
-  data->callback = callback ? callback : &local_callback;
-  data->file = this;
-
+  MyOverlapped* data = new MyOverlapped(this, offset, callback);
   DWORD size = static_cast<DWORD>(buffer_len);
-  AddRef();
 
-  if (!ReadFileEx(platform_file_, buffer, size, &data->overlapped, 
-                  &IoCompletion)) {
-    Release();
+  DWORD actual;
+  if (!ReadFile(platform_file_, buffer, size, &actual, data->overlapped())) {
+    *completed = false;
+    if (GetLastError() == ERROR_IO_PENDING)
+      return true;
     delete data;
     return false;
   }
 
-  if (callback) {
-    *completed = false;
-    // Let's check if the operation is already finished.
-    SleepEx(0, TRUE);
-    if (data->called) {
-      *completed = (data->actual_bytes == size);
-      DCHECK(data->actual_bytes == size);
-      delete data;
-      return *completed;
-    }
-    data->async = true;
-  } else {
-    // Invoke the callback and perform cleanup on the APC.
-    data->async = true;
-    int bytes_copied;
-    local_callback.WaitForResult(&bytes_copied);
-    if (static_cast<int>(buffer_len) != bytes_copied) {
-      NOTREACHED();
-      return false;
-    }
-  }
-
-  return true;
+  // The operation completed already. We'll be called back anyway.
+  *completed = (actual == size);
+  DCHECK(actual == size);
+  data->callback_ = NULL;
+  data->file_ = NULL;  // There is no reason to hold on to this anymore.
+  return *completed;
 }
 
 bool File::Write(const void* buffer, size_t buffer_len, size_t offset,
                  FileIOCallback* callback, bool* completed) {
   DCHECK(init_);
+  if (!callback)
+    return Write(buffer, buffer_len, offset);
+
   return AsyncWrite(buffer, buffer_len, offset, true, callback, completed);
 }
 
@@ -250,50 +215,32 @@ bool File::AsyncWrite(const void* buffer, size_t buffer_len, size_t offset,
   if (buffer_len > ULONG_MAX || offset > ULONG_MAX)
     return false;
 
-  MyOverlapped* data = new MyOverlapped;
-  memset(data, 0, sizeof(*data));
-
-  SyncCallback local_callback;
-  data->overlapped.Offset = static_cast<DWORD>(offset);
-  data->callback = callback ? callback : &local_callback;
-  data->file = this;
-  if (!callback && !notify) {
-    data->delete_buffer = true;
-    data->callback = NULL;
-    data->buffer = buffer;
+  MyOverlapped* data = new MyOverlapped(this, offset, callback);
+  bool dummy_completed;
+  if (!callback) {
+    DCHECK(!notify);
+    data->delete_buffer_ = true;
+    data->buffer_ = buffer;
+    completed = &dummy_completed;
   }
 
   DWORD size = static_cast<DWORD>(buffer_len);
-  AddRef();
 
-  if (!WriteFileEx(platform_file_, buffer, size, &data->overlapped,
-                   &IoCompletion)) {
-    Release();
+  DWORD actual;
+  if (!WriteFile(platform_file_, buffer, size, &actual, data->overlapped())) {
+    *completed = false;
+    if (GetLastError() == ERROR_IO_PENDING)
+      return true;
     delete data;
     return false;
   }
 
-  if (callback) {
-    *completed = false;
-    SleepEx(0, TRUE);
-    if (data->called) {
-      *completed = (data->actual_bytes == size);
-      DCHECK(data->actual_bytes == size);
-      delete data;
-      return *completed;
-    }
-    data->async = true;
-  } else if (notify) {
-    data->async = true;
-    int bytes_copied;
-    local_callback.WaitForResult(&bytes_copied);
-    if (static_cast<int>(buffer_len) != bytes_copied) {
-      NOTREACHED();
-      return false;
-    }
-  }
-
-  return true;
+  // The operation completed already. We'll be called back anyway.
+  *completed = (actual == size);
+  DCHECK(actual == size);
+  data->callback_ = NULL;
+  data->file_ = NULL;  // There is no reason to hold on to this anymore.
+  return *completed;
 }
 
 bool File::SetLength(size_t length) {

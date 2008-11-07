@@ -7,6 +7,7 @@
 #include <windows.h>
 
 #include "base/logging.h"
+#include "base/message_loop.h"
 #include "base/scoped_handle.h"
 #include "base/file_util.h"
 
@@ -38,6 +39,9 @@ void DeleteFiles(const wchar_t* path, const wchar_t* search_name) {
 
 namespace disk_cache {
 
+// Implemented in file_win.cc.
+MessageLoopForIO::IOHandler* GetFileIOHandler();
+
 bool MoveCache(const std::wstring& from_path, const std::wstring& to_path) {
   // I don't want to use the shell version of move because if something goes
   // wrong, that version will attempt to move file by file and fail at the end.
@@ -63,12 +67,8 @@ bool DeleteCacheFile(const std::wstring& name) {
 void WaitForPendingIO(int* num_pending_io) {
   while (*num_pending_io) {
     // Asynchronous IO operations may be in flight and the completion may end
-    // up calling us back so let's wait for them (we need an alertable wait).
-    // The idea is to let other threads do usefull work and at the same time
-    // allow more than one IO to finish... 20 mS later, we process all queued
-    // APCs and see if we have to repeat the wait.
-    Sleep(20);
-    SleepEx(0, TRUE);
+    // up calling us back so let's wait for them.
+    MessageLoopForIO::current()->WaitForIOCompletion(100, GetFileIOHandler());
   }
 }
 

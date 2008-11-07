@@ -8,6 +8,10 @@
 #include "net/disk_cache/disk_cache_test_util.h"
 #include "net/disk_cache/mem_backend_impl.h"
 
+void DiskCacheTest::TearDown() {
+  MessageLoop::current()->RunAllPending();
+}
+
 void DiskCacheTestWithCache::SetMaxSize(int size) {
   size_ = size;
   if (cache_impl_)
@@ -73,6 +77,7 @@ void DiskCacheTestWithCache::InitDiskCache() {
 
 
 void DiskCacheTestWithCache::TearDown() {
+  MessageLoop::current()->RunAllPending();
   delete cache_;
 
   if (!memory_only_) {

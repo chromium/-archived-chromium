@@ -573,7 +573,7 @@ void MessageLoopForUI::DidProcessMessage(const MSG& message) {
   pump_win()->DidProcessMessage(message);
 }
 void MessageLoopForUI::PumpOutPendingPaintMessages() {
-  pump_win()->PumpOutPendingPaintMessages();
+  pump_ui()->PumpOutPendingPaintMessages();
 }
 
 #endif  // defined(OS_WIN)
@@ -583,17 +583,12 @@ void MessageLoopForUI::PumpOutPendingPaintMessages() {
 
 #if defined(OS_WIN)
 
-void MessageLoopForIO::WatchObject(HANDLE object, Watcher* watcher) {
-  pump_io()->WatchObject(object, watcher);
-}
-
 void MessageLoopForIO::RegisterIOHandler(HANDLE file, IOHandler* handler) {
   pump_io()->RegisterIOHandler(file, handler);
 }
 
-void MessageLoopForIO::RegisterIOContext(OVERLAPPED* context,
-                                         IOHandler* handler) {
-  pump_io()->RegisterIOContext(context, handler);
+bool MessageLoopForIO::WaitForIOCompletion(DWORD timeout, IOHandler* filter) {
+  return pump_io()->WaitForIOCompletion(timeout, filter);
 }
 
 #elif defined(OS_POSIX)
