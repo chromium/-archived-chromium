@@ -91,13 +91,14 @@ def GatherInputs(env, target, groups=['.*'], exclude_pattern=None):
         _FindSources(ptrns, lst, all)
         return
 
+      # Get real file (backed by repositories).
+      rfile = tgt.rfile()
+      rfile_is_file = rfile.isfile()
       # See who it matches
       for pattern, lst in ptrns.items():
-        # Get real file (backed by repositories).
-        rfile = tgt.rfile()
         # Add files to the list for the first pattern that matches (implicitly,
         # don't add directories).
-        if rfile.isfile() and pattern.match(rfile.path):
+        if rfile_is_file and pattern.match(rfile.path):
           lst.append(rfile.abspath)
           break
 

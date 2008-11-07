@@ -111,9 +111,9 @@ def Solution(env, solution_name,
                                     variant=variants[0])
 
   # Build Visual Studio Solution file.
-  solution =env.MSVSSolution(target=solution_name + env['MSVSSOLUTIONSUFFIX'],
-                             projects=project_list,
-                             variant=variants)
+  solution = env.MSVSSolution(target=solution_name + env['MSVSSOLUTIONSUFFIX'],
+                              projects=project_list,
+                              variant=variants)
   # Explicitly add dependencies.
   env.Depends(solution, project_list)
 
