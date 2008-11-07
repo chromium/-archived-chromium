@@ -516,3 +516,8 @@ void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
 void TabContents::ReleaseDownloadShelfView() {
   download_shelf_view_.release();
 }
+
+bool TabContents::ShowingBlockedPopupNotification() const {
+  return blocked_popups_ != NULL &&
+      blocked_popups_->GetTabContentsCount() != 0;
+}

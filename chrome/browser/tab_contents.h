@@ -465,6 +465,11 @@ class TabContents : public PageNavigator {
   typedef std::vector<ConstrainedWindow*> ConstrainedWindowList;
   ConstrainedWindowList child_windows_;
 
+  // Whether we have a notification AND the notification owns popups windows.
+  // (We keep the notification object around even when it's not shown since it
+  // determines whether to show itself).
+  bool ShowingBlockedPopupNotification() const;
+
  private:
   // Data ----------------------------------------------------------------------
 
