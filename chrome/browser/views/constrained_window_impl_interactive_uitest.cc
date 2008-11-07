@@ -7,13 +7,17 @@
 #include "base/file_util.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/test/automation/constrained_window_proxy.h"
+#include "chrome/common/l10n_util.h"
+#include "chrome/test/automation/automation_constants.h"
 #include "chrome/test/automation/browser_proxy.h"
+#include "chrome/test/automation/constrained_window_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/views/event.h"
 #include "net/base/net_util.h"
+
+#include "generated_resources.h"
 
 const int kRightCloseButtonOffset = 55;
 const int kBottomCloseButtonOffset = 20;
@@ -92,9 +96,30 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
   ASSERT_LT(rect.height(), 200);
 }
 
+// Helper function used to get the number of blocked popups out of the window
+// title.
+bool ParseCountOutOfTitle(const std::wstring& title, int* output)
+{
+  // Since we will be reading the number of popup windows open by grabbing the
+  // number out of the window title, and that format string is localized, we
+  // need to find out the offset into that string.
+  const wchar_t* placeholder = L"XXXX";
+  size_t offset =
+      l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT, placeholder).
+      find(placeholder);
+
+  std::wstring number;
+  while (offset < title.size() && iswdigit(title[offset])) {
+    number += title[offset];
+    offset++;
+  }
+
+  return StringToInt(number, output);
+}
+
 // Tests that in the window.open() equivalent of a fork bomb, we stop building
 // windows.
-TEST_F(InteractiveConstrainedWindowTest, DISABLED_DontSpawnEndlessPopups) {
+TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
 
@@ -129,20 +154,42 @@ TEST_F(InteractiveConstrainedWindowTest, DISABLED_DontSpawnEndlessPopups) {
   scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
   ASSERT_TRUE(popup_tab.get());
 
-  // And now we spin on this, waiting to make sure that we don't spawn popup
-  // windows endlessly. The current limit is 25, so allowing for possible race
-  // conditions and one off errors, don't break out until we go over 35 popup
-  // windows (in which case we are bork bork bork).
-  const int kMaxPopupWindows = 35;
   int constrained_window_count = 0;
-  int new_constrained_window_count;
+  ASSERT_TRUE(popup_tab->WaitForChildWindowCountToChange(
+                  0, &constrained_window_count, 10000));
+  ASSERT_EQ(1, constrained_window_count);
+  scoped_ptr<ConstrainedWindowProxy> constrained_window(
+      popup_tab->GetConstrainedWindow(0));
+  ASSERT_TRUE(constrained_window.get());
+
+  // And now we spin, waiting to make sure that we don't spawn popup
+  // windows endlessly. The current limit is 25, so allowing for possible race
+  // conditions and one off errors, don't break out until we go over 30 popup
+  // windows (in which case we are bork bork bork).
+  const int kMaxPopupWindows = 30;
+
+  int popup_window_count = 0;
+  int new_popup_window_count = 0;
+  int times_slept = 0;
   bool continuing = true;
-  while (continuing && constrained_window_count < kMaxPopupWindows) {
-    continuing = popup_tab->WaitForChildWindowCountToChange(
-        constrained_window_count, &new_constrained_window_count,
-        100000);
-    EXPECT_GE(new_constrained_window_count, constrained_window_count);
-    EXPECT_LE(new_constrained_window_count, kMaxPopupWindows);
-    constrained_window_count = new_constrained_window_count;
+  while (continuing && popup_window_count < kMaxPopupWindows) {
+    std::wstring title;
+    ASSERT_TRUE(constrained_window->GetTitle(&title));
+    ASSERT_TRUE(ParseCountOutOfTitle(title, &new_popup_window_count));
+    if (new_popup_window_count == popup_window_count) {
+      if (times_slept == 10) {
+        continuing = false;
+      } else {
+        // Nothing intereseting is going on wait it out.
+        Sleep(automation::kSleepTime);
+        times_slept++;
+      }
+    } else {
+      times_slept = 0;
+    }
+
+    EXPECT_GE(new_popup_window_count, popup_window_count);
+    EXPECT_LE(new_popup_window_count, kMaxPopupWindows);
+    popup_window_count = new_popup_window_count;
   }
 }
