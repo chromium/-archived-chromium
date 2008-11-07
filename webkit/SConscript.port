@@ -44,11 +44,14 @@ input_files = [
 
     '$PORT_DIR/platform/GKURL.cpp',
 
+    '$PORT_DIR/platform/chromium/ChromiumDataObject.cpp',
+    '$PORT_DIR/platform/chromium/ClipboardChromium.cpp',
     '$PORT_DIR/platform/chromium/ContextMenuChromium.cpp',
     '$PORT_DIR/platform/chromium/ContextMenuItemChromium.cpp',
     '$PORT_DIR/platform/chromium/CursorChromium.cpp',
     '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
     '$PORT_DIR/platform/chromium/DragImageChromium.cpp',
+    '$PORT_DIR/platform/chromium/EditorChromium.cpp',
     '$PORT_DIR/platform/chromium/FileChooserChromium.cpp',
     '$PORT_DIR/platform/chromium/FileSystemChromium.cpp',
     '$PORT_DIR/platform/chromium/FramelessScrollView.cpp',
@@ -122,7 +125,6 @@ if env['PLATFORM'] == 'posix':
   # Linux specific implementations
   input_files.extend([
     '$PORT_DIR/platform/chromium/ScreenLinux.cpp',
-    '$PORT_DIR/platform/chromium/EditorLinux.cpp',
     '$PORT_DIR/platform/chromium/IconLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$PORT_DIR/platform/chromium/PasteboardLinux.cpp',
@@ -151,11 +153,8 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
     '$PORT_DIR/platform/win/BString.cpp',
     '$PORT_DIR/platform/win/ClipboardUtilitiesWin.cpp',
-    '$PORT_DIR/platform/win/ClipboardWin.cpp',
-    '$PORT_DIR/platform/win/EditorWin.cpp',
     '$PORT_DIR/platform/win/PasteboardWin.cpp',
     '$PORT_DIR/platform/win/SoundWin.cpp',
-    '$PORT_DIR/platform/win/WCDataObject.cpp',
     '$PORT_DIR/platform/graphics/FontCacheWin.cpp',
     '$PORT_DIR/platform/graphics/FontPlatformDataWin.cpp',
     '$PORT_DIR/platform/graphics/FontWin.cpp',

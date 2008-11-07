@@ -26,7 +26,10 @@
 #ifndef ClipboardUtilitiesWin_h
 #define ClipboardUtilitiesWin_h
 
-#include "DragData.h"
+#include "DocumentFragment.h"
+#include <wtf/RefPtr.h>
+#include <wtf/Vector.h>
+
 #include <windows.h>
 #include <objidl.h>
 

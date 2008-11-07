@@ -159,7 +159,11 @@
 		4DDC62B70EAD142D00FB5EBE /* MimeTypeArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B00EAD142D00FB5EBE /* MimeTypeArray.cpp */; };
 		4DDC62B80EAD142D00FB5EBE /* Plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B20EAD142D00FB5EBE /* Plugin.cpp */; };
 		4DDC62B90EAD142D00FB5EBE /* PluginArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */; };
+		535EE0B60EC4CDEE00939D54 /* ClipboardChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 535EE0B40EC4CDEE00939D54 /* ClipboardChromium.cpp */; };
+		535EE0B80EC4CE0300939D54 /* EditorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 535EE0B70EC4CE0300939D54 /* EditorChromium.cpp */; };
+		535EE0C00EC4D10E00939D54 /* clipboard_conversion.cc in Sources */ = {isa = PBXBuildFile; fileRef = 535EE0BE0EC4D10E00939D54 /* clipboard_conversion.cc */; };
 		538D819B0EC371EA00278C31 /* password_autocomplete_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = 538D81990EC371EA00278C31 /* password_autocomplete_listener.cc */; };
+		53BECCC80EC4FF0500DC1DCD /* ChromiumDataObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53BECCC60EC4FF0500DC1DCD /* ChromiumDataObject.cpp */; };
 		53E8BE100EC36A4E00B3F8B0 /* dom_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405050D92E3DA0006B936 /* dom_operations.cc */; };
 		53E8BE480EC36DD700B3F8B0 /* autocomplete_input_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = 53E8BE470EC36DD700B3F8B0 /* autocomplete_input_listener.cc */; };
 		7B0091350DAFEFBE00F72082 /* CSSGrammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */; };
@@ -1279,7 +1283,6 @@
 		E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E48A07220E3F95A000172919 /* NativeImageSkia.cpp */; };
 		E4A134090E37C47E00110AA2 /* v8_proxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B0095EA0DAFF0DD00F72082 /* v8_proxy.cpp */; };
 		E4A238C70E3FA19C002BDE14 /* image_decoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A238C50E3FA19C002BDE14 /* image_decoder.cc */; };
-		E4D08FDB0EAE7A5F0022CE54 /* EditorMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4D08FDA0EAE7A5F0022CE54 /* EditorMac.mm */; };
 		E4E4C7F90E781B5B009A687C /* webplugin_impl_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */; };
 		E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */; };
 		E4E4C94A0E797648009A687C /* ImageSourceCG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E8FBD0D7F3CC1001ECF42 /* ImageSourceCG.cpp */; };
@@ -1692,8 +1695,15 @@
 		4DDC62B30EAD142D00FB5EBE /* Plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plugin.h; sourceTree = "<group>"; };
 		4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginArray.cpp; sourceTree = "<group>"; };
 		4DDC62B50EAD142D00FB5EBE /* PluginArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginArray.h; sourceTree = "<group>"; };
+		535EE0B40EC4CDEE00939D54 /* ClipboardChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClipboardChromium.cpp; sourceTree = "<group>"; };
+		535EE0B50EC4CDEE00939D54 /* ClipboardChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipboardChromium.h; sourceTree = "<group>"; };
+		535EE0B70EC4CE0300939D54 /* EditorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorChromium.cpp; sourceTree = "<group>"; };
+		535EE0BE0EC4D10E00939D54 /* clipboard_conversion.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clipboard_conversion.cc; sourceTree = "<group>"; };
+		535EE0BF0EC4D10E00939D54 /* clipboard_conversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = clipboard_conversion.h; sourceTree = "<group>"; };
 		538D81990EC371EA00278C31 /* password_autocomplete_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = password_autocomplete_listener.cc; sourceTree = "<group>"; };
 		538D819A0EC371EA00278C31 /* password_autocomplete_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = password_autocomplete_listener.h; sourceTree = "<group>"; };
+		53BECCC60EC4FF0500DC1DCD /* ChromiumDataObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChromiumDataObject.cpp; sourceTree = "<group>"; };
+		53BECCC70EC4FF0500DC1DCD /* ChromiumDataObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChromiumDataObject.h; sourceTree = "<group>"; };
 		53E8BE470EC36DD700B3F8B0 /* autocomplete_input_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = autocomplete_input_listener.cc; sourceTree = "<group>"; };
 		53E8BE8D0EC36F4B00B3F8B0 /* autocomplete_input_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = autocomplete_input_listener.h; sourceTree = "<group>"; };
 		7B00912B0DAFEFBE00F72082 /* CSSGrammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CSSGrammar.cpp; sourceTree = "<group>"; };
@@ -4242,7 +4252,6 @@
 		E4A238C50E3FA19C002BDE14 /* image_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image_decoder.cc; sourceTree = "<group>"; };
 		E4A238C60E3FA19C002BDE14 /* image_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = image_decoder.h; sourceTree = "<group>"; };
 		E4A9708A0E36150500E8EF3B /* ChromeClientChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChromeClientChromium.h; path = chromium/ChromeClientChromium.h; sourceTree = "<group>"; };
-		E4D08FDA0EAE7A5F0022CE54 /* EditorMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = EditorMac.mm; path = mac/EditorMac.mm; sourceTree = "<group>"; };
 		E4E4C7F80E781B5B009A687C /* webplugin_impl_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webplugin_impl_mac.mm; sourceTree = "<group>"; };
 		E4E4C8530E7832DC009A687C /* PlatformContextSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlatformContextSkia.cpp; sourceTree = "<group>"; };
 		E4E4CA190E80208A009A687C /* FontCacheMacPending.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontCacheMacPending.cpp; sourceTree = "<group>"; };
@@ -7374,7 +7383,6 @@
 				82C260620DCB9FFE005CFE91 /* image-decoders */,
 				822B1BE70DC77910005C9A96 /* graphics */,
 				E45628270E269688005E4685 /* network */,
-				E4D08FDA0EAE7A5F0022CE54 /* EditorMac.mm */,
 				AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */,
 				E40FB28E0EAFF0BC006F380A /* PlatformScreenMac.mm */,
 				B507F51B0E9BE98B00D16D77 /* PluginStubsMac.cpp */,
@@ -7421,6 +7429,8 @@
 				825404F10D92E3DA0006B936 /* chrome_client_impl.cc */,
 				825404F20D92E3DA0006B936 /* chrome_client_impl.h */,
 				934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */,
+				535EE0BE0EC4D10E00939D54 /* clipboard_conversion.cc */,
+				535EE0BF0EC4D10E00939D54 /* clipboard_conversion.h */,
 				825404F30D92E3DA0006B936 /* context_menu_client_impl.cc */,
 				825404F40D92E3DA0006B936 /* context_menu_client_impl.h */,
 				825404F50D92E3DA0006B936 /* context_menu_unittest.cc */,
@@ -7768,6 +7778,10 @@
 		E473F6310EADFEBC006C2098 /* chromium */ = {
 			isa = PBXGroup;
 			children = (
+				53BECCC60EC4FF0500DC1DCD /* ChromiumDataObject.cpp */,
+				53BECCC70EC4FF0500DC1DCD /* ChromiumDataObject.h */,
+				535EE0B40EC4CDEE00939D54 /* ClipboardChromium.cpp */,
+				535EE0B50EC4CDEE00939D54 /* ClipboardChromium.h */,
 				E473F6320EADFF61006C2098 /* ContextMenuItemChromium.cpp */,
 				E473F6330EADFF61006C2098 /* ContextMenuChromium.cpp */,
 				E473F6360EADFF84006C2098 /* CursorChromium.cpp */,
@@ -7775,6 +7789,7 @@
 				E473F6390EADFF8E006C2098 /* DragDataChromium.cpp */,
 				E473F63A0EADFF8E006C2098 /* DragDataRef.h */,
 				E473F63B0EADFF8E006C2098 /* DragImageChromium.cpp */,
+				535EE0B70EC4CE0300939D54 /* EditorChromium.cpp */,
 				E473F63E0EADFFB5006C2098 /* FileChooserChromium.cpp */,
 				B556C33C0EB9035B00418C57 /* FileSystemChromium.cpp */,
 				B556C24E0EB8FCD800418C57 /* FileSystemChromiumMac.mm */,
@@ -9260,6 +9275,7 @@
 				53E8BE480EC36DD700B3F8B0 /* autocomplete_input_listener.cc in Sources */,
 				E456270D0E268F03005E4685 /* chrome_client_impl.cc in Sources */,
 				934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */,
+				535EE0C00EC4D10E00939D54 /* clipboard_conversion.cc in Sources */,
 				E45626FD0E268F03005E4685 /* context_menu_client_impl.cc in Sources */,
 				E45627070E268F03005E4685 /* cpp_bound_class.cc in Sources */,
 				E45627060E268F03005E4685 /* cpp_variant.cc in Sources */,
@@ -9309,6 +9325,8 @@
 				E45627EA0E2694B8005E4685 /* BMPImageDecoder.cpp in Sources */,
 				E45627E90E2694B8005E4685 /* BMPImageReader.cpp in Sources */,
 				E45627EE0E2694B8005E4685 /* CachedPage.cpp in Sources */,
+				53BECCC80EC4FF0500DC1DCD /* ChromiumDataObject.cpp in Sources */,
+				535EE0B60EC4CDEE00939D54 /* ClipboardChromium.cpp in Sources */,
 				E473F6350EADFF61006C2098 /* ContextMenuChromium.cpp in Sources */,
 				E473F6340EADFF61006C2098 /* ContextMenuItemChromium.cpp in Sources */,
 				93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */,
@@ -9317,7 +9335,7 @@
 				E473F68A0EAE0230006C2098 /* DragControllerChromium.cpp in Sources */,
 				E473F63C0EADFF8E006C2098 /* DragDataChromium.cpp in Sources */,
 				E473F63D0EADFF8E006C2098 /* DragImageChromium.cpp in Sources */,
-				E4D08FDB0EAE7A5F0022CE54 /* EditorMac.mm in Sources */,
+				535EE0B80EC4CE0300939D54 /* EditorChromium.cpp in Sources */,
 				E473F6860EAE01F5006C2098 /* EventHandlerChromium.cpp in Sources */,
 				4D11C4E10E9ABEA900EF7617 /* ExceptionContextV8.cpp in Sources */,
 				E473F63F0EADFFB5006C2098 /* FileChooserChromium.cpp in Sources */,

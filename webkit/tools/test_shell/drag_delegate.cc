@@ -32,10 +32,10 @@ void TestDragDelegate::OnDragSourceDrop() {
   GetCursorPositions(source_hwnd_, &client, &screen);
   webview_->DragSourceEndedAt(client.x, client.y, screen.x, screen.y);
 }
+
 void TestDragDelegate::OnDragSourceMove() {
   CPoint client;
   CPoint screen;
   GetCursorPositions(source_hwnd_, &client, &screen);
   webview_->DragSourceMovedTo(client.x, client.y, screen.x, screen.y);
 }
-

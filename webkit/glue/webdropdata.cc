@@ -24,8 +24,5 @@ void WebDropData::PopulateWebDropData(IDataObject* data_object,
   ClipboardUtil::GetTextHtml(data_object, &drop_data->text_html);
   ClipboardUtil::GetFileContents(data_object,
       &drop_data->file_description_filename, &drop_data->file_contents);
-
-  // data_object used by the test_shell.
-  drop_data->data_object = data_object;
 }
 

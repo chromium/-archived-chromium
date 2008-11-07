@@ -22,6 +22,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 namespace WebCore {
+class ChromiumDataObject;
 class Frame;
 class HistoryItem;
 class KeyboardEvent;
@@ -251,7 +252,7 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
   WebPreferences webprefs_;
 
   // A copy of the web drop data object we received from the browser.
-  scoped_ptr<WebDropData> current_drop_data_;
+  RefPtr<WebCore::ChromiumDataObject> current_drop_data_;
 
  private:
   // Returns true if the event was actually processed.

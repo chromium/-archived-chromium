@@ -1,10 +1,10 @@
 // Copyright (c) 2008, Google Inc.
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
 //     * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,15 +27,43 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DragDataRef_h
-#define DragDataRef_h
+// A data object for holding data that would be in a clipboard or moved
+// during a drag&drop operation.  This is the data that webkit is aware
+// of and is not specific to a platform.
 
-#include "ChromiumDataObject.h"
+#ifndef ChromiumDataObject_h
+#define ChromiumDataObject_h
+
+#include "KURL.h"
+#include "PlatformString.h"
+#include <wtf/RefPtr.h>
+#include <wtf/Vector.h>
 
 namespace WebCore {
+    class ChromiumDataObject : public RefCounted<ChromiumDataObject> {
+    public:
+        static PassRefPtr<ChromiumDataObject> create() {
+            return adoptRef(new ChromiumDataObject);
+        }
 
-typedef ChromiumDataObject* DragDataRef;
+        void clear();
+        bool hasData();
 
+        KURL url;
+        String url_title;
+
+        Vector<String> filenames;
+
+        String plain_text;
+
+        String text_html;
+
+        String file_content_filename;
+        RefPtr<SharedBuffer> file_content;
+    private:
+        ChromiumDataObject() {}
+
+    };
 }
 
-#endif
+#endif  // ChromiumDataObject_h

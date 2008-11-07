@@ -26,7 +26,8 @@
 #include "config.h"
 #include "EventHandler.h"
 
-#include "Clipboard.h"
+#include "ChromiumDataObject.h"
+#include "ClipboardChromium.h"
 #include "Cursor.h"
 #include "FloatPoint.h"
 #include "FocusController.h"
@@ -41,11 +42,6 @@
 #include "RenderWidget.h"
 #include "SelectionController.h"
 #include "NotImplemented.h"
-
-#if PLATFORM(WIN_OS)
-#include "ClipboardWin.h"
-#include "WCDataObject.h"
-#endif
 
 namespace WebCore {
 
@@ -132,13 +128,8 @@ bool EventHandler::eventActivatedView(const PlatformMouseEvent& event) const
 
 PassRefPtr<Clipboard> EventHandler::createDraggingClipboard() const
 {
-#if PLATFORM(WIN_OS)
-    COMPtr<WCDataObject> dataObject;
-    WCDataObject::createInstance(&dataObject);
-    return ClipboardWin::create(true, dataObject.get(), ClipboardWritable);
-#else
-    return PassRefPtr<Clipboard>(0);
-#endif
+    RefPtr<ChromiumDataObject> dataObject = ChromiumDataObject::create();
+    return ClipboardChromium::create(true, dataObject.get(), ClipboardWritable);
 }
 
 void EventHandler::focusDocumentView()

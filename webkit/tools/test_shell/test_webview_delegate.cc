@@ -48,25 +48,8 @@ std::wstring UrlSuitableForTestResult(const std::wstring& url) {
 
 // Adds a file called "DRTFakeFile" to |data_object| (CF_HDROP).  Use to fake
 // dragging a file.
-void AddDRTFakeFileToDataObject(IDataObject* data_object) {
-  STGMEDIUM medium = {0};
-  medium.tymed = TYMED_HGLOBAL;
-
-  const char filename[] = "DRTFakeFile";
-  const int filename_len = arraysize(filename);
-
-  // Allocate space for the DROPFILES struct, filename, and 2 null characters.
-  medium.hGlobal = GlobalAlloc(GPTR, sizeof(DROPFILES) + filename_len + 2);
-  DCHECK(medium.hGlobal);
-  DROPFILES* drop_files = static_cast<DROPFILES*>(GlobalLock(medium.hGlobal));
-  drop_files->pFiles = sizeof(DROPFILES);
-  drop_files->fWide = 0;  // Filenames are ascii
-  strcpy_s(reinterpret_cast<char*>(drop_files) + sizeof(DROPFILES),
-           filename_len, filename);
-  GlobalUnlock(medium.hGlobal);
-
-  FORMATETC file_desc_fmt = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
-  data_object->SetData(&file_desc_fmt, &medium, TRUE);
+void AddDRTFakeFileToDataObject(WebDropData* drop_data) {
+  drop_data->filenames.push_back(L"DRTFakeFile");
 }
 
 }  // namespace
@@ -466,20 +449,23 @@ void TestWebViewDelegate::StartDragging(WebView* webview,
     drag_delegate_ = new TestDragDelegate(shell_->webViewWnd(),
                                           shell_->webView());
   if (webkit_glue::IsLayoutTestMode()) {
+    WebDropData mutable_drop_data = drop_data;
     if (shell_->layout_test_controller()->ShouldAddFileToPasteboard()) {
       // Add a file called DRTFakeFile to the drag&drop clipboard.
-      AddDRTFakeFileToDataObject(drop_data.data_object);
+      AddDRTFakeFileToDataObject(&mutable_drop_data);
     }
 
     // When running a test, we need to fake a drag drop operation otherwise
     // Windows waits for real mouse events to know when the drag is over.
-    EventSendingController::DoDragDrop(drop_data.data_object);
+    EventSendingController::DoDragDrop(mutable_drop_data);
   } else {
-    const DWORD ok_effect = DROPEFFECT_COPY | DROPEFFECT_LINK | DROPEFFECT_MOVE;
-    DWORD effect;
-    HRESULT res = DoDragDrop(drop_data.data_object, drag_delegate_.get(),
-                             ok_effect, &effect);
-    DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
+    // TODO(tc): Drag and drop is disabled in the test shell because we need
+    // to be able to convert from WebDragData to an IDataObject.
+    //const DWORD ok_effect = DROPEFFECT_COPY | DROPEFFECT_LINK | DROPEFFECT_MOVE;
+    //DWORD effect;
+    //HRESULT res = DoDragDrop(drop_data.data_object, drag_delegate_.get(),
+    //                         ok_effect, &effect);
+    //DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
   }
   webview->DragSourceSystemDragEnded();
 }

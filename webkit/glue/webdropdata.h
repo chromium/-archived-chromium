@@ -6,8 +6,8 @@
 // union of all the types of data that can be dropped in a platform neutral
 // way.
 
-#ifndef WEBKIT_GLUE_WEBDROPDATA_H__
-#define WEBKIT_GLUE_WEBDROPDATA_H__
+#ifndef WEBKIT_GLUE_WEBDROPDATA_H_
+#define WEBKIT_GLUE_WEBDROPDATA_H_
 
 #include <string>
 #include <vector>
@@ -27,6 +27,9 @@ struct WebDropData {
   std::wstring plain_text;
 
   // User is dragging MS HTML into the webview (e.g., out of IE).
+  // TODO(tc): We should remove this from webdropdata because not all platforms
+  // have cf_html. On the browser side, we should do the necessary conversions
+  // so we still support cf_html.
   std::wstring cf_html;
 
   // User is dragging text/html into the webview (e.g., out of Firefox).
@@ -36,15 +39,11 @@ struct WebDropData {
   std::wstring file_description_filename;
   std::string file_contents;
 
-  // A reference to the underlying IDataObject.  This is a Windows drag and
-  // drop specific object.  This should only be used by the test shell.
-  IDataObject* data_object;
-
   // Helper method for converting Window's specific IDataObject to a WebDropData
-  // object.
+  // object.  TODO(tc): Move this to the browser side since it's Windows
+  // specific and no longer used in webkit.
   static void PopulateWebDropData(IDataObject* data_object,
                                   WebDropData* drop_data);
 };
 
-#endif  // WEBKIT_GLUE_WEBDROPDATA_H__
-
+#endif  // WEBKIT_GLUE_WEBDROPDATA_H_

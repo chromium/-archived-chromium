@@ -83,6 +83,7 @@ MSVC_POP_WARNING();
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "webkit/glue/chrome_client_impl.h"
+#include "webkit/glue/clipboard_conversion.h"
 #include "webkit/glue/context_menu_client_impl.h"
 #include "webkit/glue/dragclient_impl.h"
 #include "webkit/glue/editor_client_impl.h"
@@ -1413,14 +1414,10 @@ bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(!current_drop_data_.get());
 
-  // Copy drop_data into current_drop_data_.
-  WebDropData* drop_data_copy = new WebDropData;
-  *drop_data_copy = drop_data;
-  current_drop_data_.reset(drop_data_copy);
+  current_drop_data_ = webkit_glue::WebDropDataToChromiumDataObject(drop_data);
 
-  DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
-      IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
-      kDropTargetOperation);
+  DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
+      IntPoint(screen_x, screen_y), kDropTargetOperation);
   DragOperation effect = page_->dragController()->dragEntered(&drag_data);
   return effect != DragOperationNone;
 }
@@ -1428,29 +1425,27 @@ bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
 bool WebViewImpl::DragTargetDragOver(
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(current_drop_data_.get());
-  DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
-      IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
-      kDropTargetOperation);
+  DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
+      IntPoint(screen_x, screen_y), kDropTargetOperation);
   DragOperation effect = page_->dragController()->dragUpdated(&drag_data);
   return effect != DragOperationNone;
 }
 
 void WebViewImpl::DragTargetDragLeave() {
   DCHECK(current_drop_data_.get());
-  DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
-      IntPoint(), IntPoint(), DragOperationNone);
+  DragData drag_data(current_drop_data_.get(), IntPoint(), IntPoint(),
+                     DragOperationNone);
   page_->dragController()->dragExited(&drag_data);
-  current_drop_data_.reset(NULL);
+  current_drop_data_ = NULL;
 }
 
 void WebViewImpl::DragTargetDrop(
     int client_x, int client_y, int screen_x, int screen_y) {
   DCHECK(current_drop_data_.get());
-  DragData drag_data(reinterpret_cast<DragDataRef>(current_drop_data_.get()),
-      IntPoint(client_x, client_y), IntPoint(screen_x, screen_y),
-      kDropTargetOperation);
+  DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
+      IntPoint(screen_x, screen_y), kDropTargetOperation);
   page_->dragController()->performDrag(&drag_data);
-  current_drop_data_.reset(NULL);
+  current_drop_data_ = NULL;
 }
 
 SearchableFormData* WebViewImpl::CreateSearchableFormDataForFocusedNode() {

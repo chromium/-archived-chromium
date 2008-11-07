@@ -16,9 +16,6 @@
 
 #include "webkit/tools/test_shell/event_sending_controller.h"
 
-#if defined(OS_WIN)
-#include <objidl.h>
-#endif
 #include <queue>
 
 #include "base/logging.h"
@@ -43,12 +40,7 @@ int EventSendingController::last_button_number_ = -1;
 
 namespace {
 
-#if defined(OS_WIN)
-static scoped_refptr<IDataObject> drag_data_object;
-#elif defined(OS_MACOSX)
-// Throughout this file, drag support is #ifdef-ed out. TODO(port): Add it in
-// for the Mac.
-#endif
+static scoped_ptr<WebDropData> drag_data_object;
 static bool replaying_saved_events = false;
 static std::queue<WebMouseEvent> mouse_event_queue;
 
@@ -155,10 +147,8 @@ EventSendingController::EventSendingController(TestShell* shell) {
 
 void EventSendingController::Reset() {
   // The test should have finished a drag and the mouse button state.
-#if defined(OS_WIN)
-  DCHECK(!drag_data_object);
-  drag_data_object = NULL;
-#endif
+  DCHECK(!drag_data_object.get());
+  drag_data_object.reset();
   pressed_button_ = WebMouseEvent::BUTTON_NONE;
   dragMode.Set(true);
   last_click_time_sec = 0;
@@ -170,20 +160,16 @@ void EventSendingController::Reset() {
   return shell_->webView();
 }
 
-#if defined(OS_WIN)
-/* static */ void EventSendingController::DoDragDrop(IDataObject* data_obj) {
-  drag_data_object = data_obj;
+/* static */ void EventSendingController::DoDragDrop(const WebDropData& data_obj) {
+  WebDropData* drop_data_copy = new WebDropData;
+  *drop_data_copy = data_obj;
+  drag_data_object.reset(drop_data_copy);
 
-  DWORD effect = 0;
-  POINTL screen_ptl = {0, 0};
-  TestWebViewDelegate* delegate = shell_->delegate();
-  delegate->drop_delegate()->DragEnter(drag_data_object, MK_LBUTTON,
-                                       screen_ptl, &effect);
+  webview()->DragTargetDragEnter(data_obj, 0, 0, 0, 0);
 
   // Finish processing events.
   ReplaySavedEvents();
 }
-#endif
 
 WebMouseEvent::Button EventSendingController::GetButtonTypeFromButtonNumber(
     int button_code) {
@@ -271,29 +257,19 @@ int EventSendingController::GetButtonNumberFromSingleArg(
   webview()->HandleInputEvent(&e);
   pressed_button_ = WebMouseEvent::BUTTON_NONE;
 
-#if defined(OS_WIN)
   // If we're in a drag operation, complete it.
-  if (drag_data_object) {
-    TestWebViewDelegate* delegate = shell_->delegate();
-    // Get screen mouse position.
-    POINT screen_pt = { static_cast<LONG>(e.x),
-                        static_cast<LONG>(e.y) };
-    ClientToScreen(shell_->webViewWnd(), &screen_pt);
-    POINTL screen_ptl = { screen_pt.x, screen_pt.y };
-    
-    DWORD effect = 0;
-    delegate->drop_delegate()->DragOver(0, screen_ptl, &effect);
-    HRESULT hr = delegate->drag_delegate()->QueryContinueDrag(0, 0);
-    if (hr == DRAGDROP_S_DROP && effect != DROPEFFECT_NONE) {
-      DWORD effect = 0;
-      delegate->drop_delegate()->Drop(drag_data_object.get(), 0, screen_ptl,
-                                      &effect);
+  if (drag_data_object.get()) {
+    bool valid = webview()->DragTargetDragOver(e.x, e.y, e.global_x,
+                                               e.global_y);
+    if (valid) {
+      webview()->DragSourceEndedAt(e.x, e.y, e.global_x, e.global_y);
+      webview()->DragTargetDrop(e.x, e.y, e.global_x, e.global_y);
     } else {
-      delegate->drop_delegate()->DragLeave();
+      webview()->DragSourceEndedAt(e.x, e.y, e.global_x, e.global_y);
+      webview()->DragTargetDragLeave();
     }
-    drag_data_object = NULL;
+    drag_data_object.reset();
   }
-#endif
 }
 
  void EventSendingController::mouseMoveTo(
@@ -320,22 +296,10 @@ int EventSendingController::GetButtonNumberFromSingleArg(
 /* static */ void EventSendingController::DoMouseMove(const WebMouseEvent& e) {
   webview()->HandleInputEvent(&e);
 
-#if defined(OS_WIN)
-  if (pressed_button_ != WebMouseEvent::BUTTON_NONE && drag_data_object) {
-    TestWebViewDelegate* delegate = shell_->delegate();
-    // Get screen mouse position.
-    POINT screen_pt = { static_cast<LONG>(e.x),
-                        static_cast<LONG>(e.y) };
-    ClientToScreen(shell_->webViewWnd(), &screen_pt);
-    POINTL screen_ptl = { screen_pt.x, screen_pt.y };
-
-    HRESULT hr = delegate->drag_delegate()->QueryContinueDrag(0, MK_LBUTTON);
-    DWORD effect = 0;
-    delegate->drop_delegate()->DragOver(MK_LBUTTON, screen_ptl, &effect);
-
-    delegate->drag_delegate()->GiveFeedback(effect);
+  if (pressed_button_ != WebMouseEvent::BUTTON_NONE && drag_data_object.get()) {
+    webview()->DragSourceMovedTo(e.x, e.y, e.global_x, e.global_y);
+    webview()->DragTargetDragOver(e.x, e.y, e.global_x, e.global_y);
   }
-#endif
 }
 
  void EventSendingController::keyDown(

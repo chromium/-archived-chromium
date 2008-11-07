@@ -20,64 +20,61 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ClipboardWin_h
-#define ClipboardWin_h
+#ifndef ClipboardChromium_h
+#define ClipboardChromium_h
 
 #include "Clipboard.h"
 
 #include "CachedResourceClient.h"
-#include "IntPoint.h"
-#include "COMPtr.h"
-
-struct IDataObject;
 
 namespace WebCore {
 
     class CachedImage;
+    class ChromiumDataObject;
     class IntPoint;
-    class WCDataObject;
 
-    // State available during IE's events for drag and drop and copy/paste
-    class ClipboardWin : public Clipboard, public CachedResourceClient {
+    class ClipboardChromium : public Clipboard, public CachedResourceClient {
     public:
-        ~ClipboardWin();
+        ~ClipboardChromium() {}
 
-        static PassRefPtr<ClipboardWin> create(bool isForDragging, IDataObject*, ClipboardAccessPolicy);
-        static PassRefPtr<ClipboardWin> create(bool isForDragging, WCDataObject*, ClipboardAccessPolicy);
-    
-        void clearData(const String& type);
+        static PassRefPtr<ClipboardChromium> create(bool, ChromiumDataObject*,
+                                                    ClipboardAccessPolicy);
+
+        virtual void clearData(const String& type);
         void clearAllData();
         String getData(const String& type, bool& success) const;
         bool setData(const String& type, const String& data);
-    
+
         // extensions beyond IE's API
         HashSet<String> types() const;
-    
+
         void setDragImage(CachedImage*, const IntPoint&);
         void setDragImageElement(Node*, const IntPoint&);
 
+        PassRefPtr<ChromiumDataObject> dataObject() {
+            return m_dataObject;
+        }
+
         virtual DragImageRef createDragImage(IntPoint& dragLoc) const;
-        virtual void declareAndWriteDragImage(Element*, const KURL&, const String& title, Frame*);
+        virtual void declareAndWriteDragImage(Element*, const KURL&,
+                                              const String& title, Frame*);
         virtual void writeURL(const KURL&, const String&, Frame*);
         virtual void writeRange(Range*, Frame*);
 
         virtual bool hasData();
 
-        COMPtr<IDataObject> dataObject() { return m_dataObject; }
     private:
-        ClipboardWin(bool isForDragging, IDataObject*, ClipboardAccessPolicy);
-        ClipboardWin(bool isForDragging, WCDataObject*, ClipboardAccessPolicy);
+        ClipboardChromium(bool, ChromiumDataObject*, ClipboardAccessPolicy);
 
         void resetFromClipboard();
         void setDragImage(CachedImage*, Node*, const IntPoint&);
-        COMPtr<IDataObject> m_dataObject;
-        COMPtr<WCDataObject> m_writableDataObject;
+        RefPtr<ChromiumDataObject> m_dataObject;
         Frame* m_frame;
     };
 
 } // namespace WebCore
 
-#endif // ClipboardWin_h
+#endif // ClipboardChromium_h

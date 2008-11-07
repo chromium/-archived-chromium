@@ -26,15 +26,15 @@
 #include "config.h"
 
 #include "Editor.h"
-#include "Clipboard.h"
-#include "NotImplemented.h"
+#include "ChromiumDataObject.h"
+#include "ClipboardChromium.h"
 
 namespace WebCore {
 
 PassRefPtr<Clipboard> Editor::newGeneralClipboard(ClipboardAccessPolicy policy)
 {
-    notImplemented();
-    return NULL;
+    RefPtr<ChromiumDataObject> dataObject = ChromiumDataObject::create();
+    return ClipboardChromium::create(false, dataObject.get(), policy);
 }
 
 } // namespace WebCore

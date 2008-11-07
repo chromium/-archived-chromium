@@ -293,6 +293,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\clipboard_conversion.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\clipboard_conversion.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\context_menu_client_impl.cc"
 				>
 			</File>

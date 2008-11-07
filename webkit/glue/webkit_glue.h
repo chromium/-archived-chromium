@@ -196,7 +196,8 @@ HCURSOR LoadCursor(int cursor_id);
 // Glue to access the clipboard.
 
 // Get a clipboard that can be used to construct a ScopedClipboardWriterGlue.
-Clipboard* ClipboardGetClipboard();
+// TODO(tc): Move base/clipboard.h into the base:: namespace.
+::Clipboard* ClipboardGetClipboard();
 
 // Tests whether the clipboard contains a certain format
 bool ClipboardIsFormatAvailable(unsigned int format);

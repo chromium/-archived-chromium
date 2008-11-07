@@ -19,12 +19,9 @@
 #include "build/build_config.h"
 #include "base/gfx/point.h"
 #include "webkit/glue/cpp_bound_class.h"
+#include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webinputevent.h"
 
-#if defined(OS_WIN)
-struct IDataObject;
-struct IDropSource;
-#endif
 class TestShell;
 class WebView;
 
@@ -37,10 +34,8 @@ class EventSendingController : public CppBoundClass {
   // Resets some static variable state.
   void Reset();
 
-#if defined(OS_WIN)
-  // Simulate Windows' drag&drop system call.
-  static void DoDragDrop(IDataObject* drag_data);
-#endif
+  // Simulate drag&drop system call.
+  static void DoDragDrop(const WebDropData& drag_data);
 
   // JS callback methods.
   void mouseDown(const CppArgumentList& args, CppVariant* result);

@@ -24,6 +24,7 @@ input_files = [
   'cache_manager.cc',
   'chrome_client_impl.cc',
   'chromium_bridge_impl.cc',
+  'clipboard_conversion.cc',
   'context_menu_client_impl.cc',
   'cpp_binding_example.cc',
   'cpp_bound_class.cc',

@@ -29,33 +29,18 @@
 #include "config.h"
 #include "DragData.h"
 
-#if PLATFORM(WIN_OS)
-#include "ClipboardWin.h"
-#include "ClipboardUtilitiesWin.h"
-#include "WCDataObject.h"
-#else
-#include "Clipboard.h"  // This and ClipboardWin.h should be ClipboardChromium.h
-#endif
-
+#include "ChromiumDataObject.h"
+#include "Clipboard.h"
+#include "ClipboardChromium.h"
 #include "DocumentFragment.h"
 #include "KURL.h"
 #include "PlatformString.h"
 #include "markup.h"
 
-#undef LOG
-#include "base/file_util.h"
-#include "base/string_util.h"
-#include "net/base/base64.h"
-#include "webkit/glue/glue_util.h"
-#include "webkit/glue/webdropdata.h"
-#include "webkit/glue/webkit_glue.h"
-
 namespace {
 
-bool containsHTML(const WebDropData& drop_data) {
-    std::wstring html;
-    return drop_data.cf_html.length() > 0
-        || drop_data.text_html.length() > 0;
+bool containsHTML(const WebCore::ChromiumDataObject* drop_data) {
+    return drop_data->text_html.length() > 0;
 }
 
 }
@@ -64,57 +49,47 @@ namespace WebCore {
 
 PassRefPtr<Clipboard> DragData::createClipboard(ClipboardAccessPolicy policy) const
 {
-// TODO(darin): Invent ClipboardChromium and use that instead.
-#if PLATFORM(WIN_OS)
-    WCDataObject* data;
-    WCDataObject::createInstance(&data);
-    RefPtr<ClipboardWin> clipboard = ClipboardWin::create(true, data, policy);
-    // The clipboard keeps a reference to the WCDataObject, so we can release
-    // our reference to it.
-    data->Release();
+    RefPtr<ClipboardChromium> clipboard = ClipboardChromium::create(true,
+        m_platformDragData, policy);
 
     return clipboard.release();
-#else
-    return PassRefPtr<Clipboard>(0);
-#endif
 }
 
 bool DragData::containsURL() const
 {
-    return m_platformDragData->url.is_valid();
+    return m_platformDragData->url.isValid();
 }
 
 String DragData::asURL(String* title) const
 {
-    if (!m_platformDragData->url.is_valid())
+    if (!m_platformDragData->url.isValid())
         return String();
  
     // |title| can be NULL
     if (title)
-        *title = webkit_glue::StdWStringToString(m_platformDragData->url_title);
-    return webkit_glue::StdStringToString(m_platformDragData->url.spec());
+        *title = m_platformDragData->url_title;
+    return m_platformDragData->url.string();
 }
 
 bool DragData::containsFiles() const
 {
-    return !m_platformDragData->filenames.empty();
+    return !m_platformDragData->filenames.isEmpty();
 }
 
 void DragData::asFilenames(Vector<String>& result) const
 {
     for (size_t i = 0; i < m_platformDragData->filenames.size(); ++i)
-        result.append(webkit_glue::StdWStringToString(m_platformDragData->filenames[i]));
+        result.append(m_platformDragData->filenames[i]);
 }
 
 bool DragData::containsPlainText() const
 {
-    return !m_platformDragData->plain_text.empty();
+    return !m_platformDragData->plain_text.isEmpty();
 }
 
 String DragData::asPlainText() const
 {
-    return webkit_glue::StdWStringToString(
-        m_platformDragData->plain_text);
+    return m_platformDragData->plain_text;
 }
 
 bool DragData::containsColor() const
@@ -128,15 +103,14 @@ bool DragData::canSmartReplace() const
     // This is allowed whenever the drag data contains a 'range' (ie.,
     // ClipboardWin::writeRange is called).  For example, dragging a link
     // should not result in a space being added.
-    return !m_platformDragData->cf_html.empty() &&
-           !m_platformDragData->plain_text.empty() &&
-           !m_platformDragData->url.is_valid();
+    return !m_platformDragData->plain_text.isEmpty() &&
+           !m_platformDragData->url.isValid();
 }
 
 bool DragData::containsCompatibleContent() const
 {
     return containsPlainText() || containsURL()
-        || ::containsHTML(*m_platformDragData)
+        || ::containsHTML(m_platformDragData)
         || containsColor();
 }
 
@@ -159,19 +133,10 @@ PassRefPtr<DocumentFragment> DragData::asFragment(Document* doc) const
      //    if (PassRefPtr<DocumentFragment> fragment = fragmentFromFilenames(doc, m_platformDragData))
      //        return fragment;
 
-#if PLATFORM(WIN_OS)
-     // fragmentFromCF_HTML comes from ClipboardUtilitiesWin.
-     if (!m_platformDragData->cf_html.empty()) {
-         RefPtr<DocumentFragment> fragment = fragmentFromCF_HTML(doc,
-             webkit_glue::StdWStringToString(m_platformDragData->cf_html));
-         return fragment;
-     }
-#endif
-
-     if (!m_platformDragData->text_html.empty()) {
+     if (!m_platformDragData->text_html.isEmpty()) {
          String url;
          RefPtr<DocumentFragment> fragment = createFragmentFromMarkup(doc,
-             webkit_glue::StdWStringToString(m_platformDragData->text_html), url);
+             m_platformDragData->text_html, url);
          return fragment;
      }
 
