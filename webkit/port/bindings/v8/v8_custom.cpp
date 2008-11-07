@@ -262,9 +262,6 @@ CALLBACK_FUNC_DECL(DOMParserConstructor) {
                                      DOMParser>(args);
 }
 
-// TODO(mbelshe): merge this with the XHR Constructor.
-//   The only difference is that this one takes an argument to its
-//   create call, the XHR does not.
 CALLBACK_FUNC_DECL(MessageChannelConstructor) {
   INC_STATS(L"DOM.MessageChannel.Constructor");
   if (!args.IsConstructCall()) {
@@ -282,11 +279,32 @@ CALLBACK_FUNC_DECL(MessageChannelConstructor) {
   // Note: it's OK to let this RefPtr go out of scope because we also call
   // SetDOMWrapper(), which effectively holds a reference to obj.
   RefPtr<MessageChannel> obj = MessageChannel::create(document);
-  V8Proxy::SetDOMWrapper(args.Holder(), V8ClassIndex::MESSAGECHANNEL,
-      obj.get());
+  
+  // Create wrappers for the two associated MessagePorts.
+  v8::Handle<v8::Value> port1_wrapper =
+    V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT,
+                        static_cast<Peerable*>(obj->port1()));
+  v8::Handle<v8::Value> port2_wrapper =
+    V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT,
+                        static_cast<Peerable*>(obj->port2()));
+  
+  v8::Handle<v8::Object> wrapper_object = args.Holder();
+
+  // Setup the standard wrapper object internal fields.
+  V8Proxy::SetDOMWrapper(
+      wrapper_object, V8ClassIndex::MESSAGECHANNEL, obj.get());
   V8Proxy::SetJSWrapperForDOMObject(
-      obj.get(), v8::Persistent<v8::Object>::New(args.Holder()));
-  return args.Holder();
+      obj.get(), v8::Persistent<v8::Object>::New(wrapper_object));  
+
+  // Create references from the MessageChannel wrapper to the two
+  // MessagePort wrappers to make sure that the MessagePort wrappers
+  // stay alive as long as the MessageChannel wrapper is around.
+  wrapper_object->SetInternalField(kMessageChannelPort1Index, port1_wrapper);
+  wrapper_object->SetInternalField(kMessageChannelPort2Index, port2_wrapper);
+
+  // Return the wrapper object which will be the result of the call to
+  // new.
+  return wrapper_object;
 }
 
 

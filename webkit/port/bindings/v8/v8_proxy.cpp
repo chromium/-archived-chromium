@@ -1384,11 +1384,20 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     }
 
-    case V8ClassIndex::MESSAGECHANNEL:
-      desc->SetCallHandler(USE_CALLBACK(MessageChannelConstructor));
-      break;
+    case V8ClassIndex::MESSAGECHANNEL: {
+        // Reserve two more internal fields for referencing the port1
+        // and port2 wrappers.  This ensures that the port wrappers are
+        // kept alive when the channel wrapper is.
+        desc->SetCallHandler(USE_CALLBACK(MessageChannelConstructor));
+        v8::Local<v8::ObjectTemplate> instance_template =
+          desc->InstanceTemplate();
+        instance_template->SetInternalFieldCount(
+            V8Custom::kMessageChannelInternalFieldCount);
+        break;
+    }
+
     case V8ClassIndex::MESSAGEPORT: {
-      // Reserve one more internal field for keeping event listeners.
+        // Reserve one more internal field for keeping event listeners.
         v8::Local<v8::ObjectTemplate> instance_template =
             desc->InstanceTemplate();
         instance_template->SetInternalFieldCount(
