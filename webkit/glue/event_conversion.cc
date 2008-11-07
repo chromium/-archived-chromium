@@ -294,6 +294,8 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(const WebKeyboardEvent& e)
   m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
 #if defined(OS_WIN)
   m_isSystemKey = e.system_key;
+#else
+  m_isSystemKey = false;  // TODO(port): make this proper.
 #endif
 } 
 
