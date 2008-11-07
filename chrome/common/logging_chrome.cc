@@ -2,7 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -10,6 +14,7 @@
 #include "chrome/common/logging_chrome.h"
 
 #include "base/command_line.h"
+#include "base/debug_util.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -31,7 +36,7 @@ static bool chrome_logging_initialized_ = false;
 // with that error in the str parameter.
 #pragma optimize("", off)
 static void SilentRuntimeAssertHandler(const std::string& str) {
-  __debugbreak();
+  DebugUtil::BreakDebugger();
 }
 #pragma optimize("", on)
 
@@ -43,6 +48,7 @@ static void SuppressDialogs() {
 
   logging::SetLogAssertHandler(SilentRuntimeAssertHandler);
 
+#if defined(OS_WIN)
   UINT new_flags = SEM_FAILCRITICALERRORS |
                    SEM_NOGPFAULTERRORBOX |
                    SEM_NOOPENFILEERRORBOX;
@@ -50,6 +56,7 @@ static void SuppressDialogs() {
   // Preserve existing error mode, as discussed at http://t/dmea
   UINT existing_flags = SetErrorMode(new_flags);
   SetErrorMode(existing_flags | new_flags);
+#endif
 
   dialogs_are_suppressed_ = true;
 }
@@ -84,7 +91,13 @@ void InitChromeLogging(const CommandLine& command_line,
     log_mode = logging::LOG_NONE;
   }
 
-  logging::InitLogging(GetLogFileName().c_str(),
+#if defined(OS_POSIX)
+  std::string log_file_name = WideToUTF8(GetLogFileName());
+#elif defined(OS_WIN)
+  std::wstring log_file_name = GetLogFileName();
+#endif
+
+  logging::InitLogging(log_file_name.c_str(),
                        log_mode,
                        logging::LOCK_LOG_FILE,
                        delete_old_log_file);
@@ -130,11 +143,9 @@ void CleanupChromeLogging() {
 }
 
 std::wstring GetLogFileName() {
-  wchar_t filename[MAX_PATH];
-  unsigned status = GetEnvironmentVariable(env_vars::kLogFileName,
-                                           filename, MAX_PATH);
-  if (status && (status <= MAX_PATH))
-    return std::wstring(filename);
+  std::wstring filename = base::SysInfo::GetEnvVar(env_vars::kLogFileName);
+  if (filename != L"")
+    return filename;
 
   const std::wstring log_filename(L"chrome_debug.log");
   std::wstring log_path;
@@ -160,7 +171,11 @@ size_t GetFatalAssertions(AssertionList* assertions) {
   size_t assertion_count = 0;
 
   std::ifstream log_file;
+#if defined(OS_WIN)
   log_file.open(GetLogFileName().c_str());
+#elif defined(OS_POSIX)
+  log_file.open(WideToUTF8(GetLogFileName()).c_str());
+#endif
   if (!log_file.is_open())
     return 0;
 
