@@ -42,6 +42,7 @@ input_files = [
     'copy_tree_work_item.cc',
     'create_dir_work_item.cc',
     'create_reg_key_work_item.cc',
+    'delete_reg_value_work_item.cc',
     'delete_tree_work_item.cc',
     'google_chrome_distribution.cc',
     'google_update_constants.cc',

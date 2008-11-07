@@ -140,6 +140,7 @@ input_files = [
     '../util/copy_tree_work_item_unittest.cc',
     '../util/create_dir_work_item_unittest.cc',
     '../util/create_reg_key_work_item_unittest.cc',
+    '../util/delete_reg_value_work_item_unittest.cc',
     '../util/delete_tree_work_item_unittest.cc',
     '../util/google_chrome_distribution_unittest.cc',
     '../util/helper_unittest.cc',
