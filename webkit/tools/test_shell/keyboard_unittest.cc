@@ -39,6 +39,9 @@ static inline void SetupKeyDownEvent(WebKeyboardEvent& keyboard_event,
   keyboard_event.key_code = key_code;
   keyboard_event.modifiers = modifiers;
   keyboard_event.type = WebInputEvent::KEY_DOWN;
+#if defined(OS_LINUX)
+  keyboard_event.text = key_code;
+#endif
 }
 
 static inline const char* InterpretCtrlKeyPress(char key_code) {
