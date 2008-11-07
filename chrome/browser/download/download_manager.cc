@@ -954,10 +954,11 @@ void DownloadManager::RemoveDownload(int64 download_handle) {
   it = dangerous_finished_.find(download->id());
   if (it != dangerous_finished_.end())
     dangerous_finished_.erase(it);
-  delete download;
 
   // Tell observers to refresh their views.
   FOR_EACH_OBSERVER(Observer, observers_, ModelChanged());
+
+  delete download;
 }
 
 int DownloadManager::RemoveDownloadsBetween(const Time remove_begin,

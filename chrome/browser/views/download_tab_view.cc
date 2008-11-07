@@ -955,8 +955,13 @@ void DownloadTabView::OnDownloadUpdated(DownloadItem* download) {
       if (d != in_progress_.end()) {
         // If this is a dangerous download not yet validated by the user, we
         // still need to be notified when the validation happens.
-        if (download->safety_state() != DownloadItem::DANGEROUS)
+        if (download->safety_state() != DownloadItem::DANGEROUS) {
           (*d)->RemoveObserver(this);
+        } else {
+          // Add the download to dangerous_downloads_ so we call RemoveObserver
+          // on ClearDangerousDownloads().
+          dangerous_downloads_.insert(download);
+        }
         in_progress_.erase(d);
       }
       if (in_progress_.empty())
