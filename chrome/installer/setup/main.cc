@@ -318,7 +318,9 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
         if (install_status == installer_util::FIRST_INSTALL_SUCCESS) {
           LOG(INFO) << "First install successful.";
           CopyPreferenceFileForFirstRun(options, cmd_line);
-          if (options & installer_util::DO_NOT_LAUNCH_CHROME) {
+          // We never want to launch Chrome in system level install mode.
+          if ((options & installer_util::DO_NOT_LAUNCH_CHROME) ||
+              (options & installer_util::SYSTEM_LEVEL)) {
             std::wstring chrome_exe =
                 installer::GetChromeInstallPath(system_install);
             if (!chrome_exe.empty()) {
