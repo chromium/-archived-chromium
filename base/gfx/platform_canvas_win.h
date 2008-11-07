@@ -28,8 +28,11 @@ class PlatformCanvasWin : public SkCanvas {
                     HANDLE shared_section);
   virtual ~PlatformCanvasWin();
 
-  // For two-part init, call if you use the no-argument constructor above
-  bool initialize(int width, int height, bool is_opaque, HANDLE shared_section);
+  // For two-part init, call if you use the no-argument constructor above. Note
+  // that we want this to optionally match the Linux initialize if you only
+  // pass 3 arguments, hence the evil default argument.
+  bool initialize(int width, int height, bool is_opaque,
+                  HANDLE shared_section = NULL);
 
   // These calls should surround calls to platform drawing routines, the DC
   // returned by beginPlatformPaint is the DC that can be used to draw into.

@@ -56,7 +56,7 @@ ImageBuffer::ImageBuffer(const IntSize& size, bool grayScale, bool& success)
     : m_data(size)
     , m_size(size)
 {
-    if (!m_data.m_canvas.initialize(size.width(), size.height(), false, NULL)) {
+    if (!m_data.m_canvas.initialize(size.width(), size.height(), false)) {
         success = false;
         return;
     }
