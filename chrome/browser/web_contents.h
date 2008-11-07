@@ -281,7 +281,8 @@ class WebContents : public TabContents,
   virtual void RunJavaScriptMessage(const std::wstring& message,
                                     const std::wstring& default_prompt,
                                     const int flags,
-                                    IPC::Message* reply_msg);
+                                    IPC::Message* reply_msg,
+                                    bool* did_suppress_message);
   virtual void RunBeforeUnloadConfirm(const std::wstring& message,
                                       IPC::Message* reply_msg);
   virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,

@@ -582,6 +582,8 @@ class RenderViewHost : public RenderWidgetHost {
 
   bool is_waiting_for_unload_ack_;
 
+  bool are_javascript_messages_suppressed_;
+
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
 };
 
