@@ -1,5 +1,0 @@
-domListEnumeration-expected.txt
--------------------------------
-We pulled in a newer revision of webkit than the 3.1 branch
-and pulled in this change with it. We can unfork
-when we merge to trunk webkit.
