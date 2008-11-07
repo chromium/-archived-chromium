@@ -159,20 +159,26 @@ test_files = [
     'node_leak_test.cc',
     'run_all_tests.cc',
     'test_shell_test.cc',
+    'text_input_controller_unittest.cc',
     '$WEBKIT_DIR/glue/autocomplete_input_listener_unittest.cc',
     '$WEBKIT_DIR/glue/bookmarklet_unittest.cc',
+    '$WEBKIT_DIR/glue/context_menu_unittest.cc',
     '$WEBKIT_DIR/glue/cpp_bound_class_unittest.cc',
     '$WEBKIT_DIR/glue/cpp_variant_unittest.cc',
     '$WEBKIT_DIR/glue/dom_operations_unittest.cc',
     '$WEBKIT_DIR/glue/dom_serializer_unittest.cc',
     '$WEBKIT_DIR/glue/glue_serialize_unittest.cc',
     '$WEBKIT_DIR/glue/iframe_redirect_unittest.cc',
+    '$WEBKIT_DIR/glue/mimetype_unittest.cc',
     '$WEBKIT_DIR/glue/multipart_response_delegate_unittest.cc',
     '$WEBKIT_DIR/glue/password_autocomplete_listener_unittest.cc',
     '$WEBKIT_DIR/glue/regular_expression_unittest.cc',
     '$WEBKIT_DIR/glue/resource_fetcher_unittest.cc',
     '$WEBKIT_DIR/glue/webframe_unittest.cc',
     '$WEBKIT_DIR/port/platform/GKURL_unittest.cpp',
+    '$WEBKIT_DIR/port/platform/image-decoders/bmp/BMPImageDecoder_unittest.cpp',
+    '$WEBKIT_DIR/port/platform/image-decoders/ico/ICOImageDecoder_unittest.cpp',
+    '$WEBKIT_DIR/port/platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp',
     '$V8_DIR/snapshot-empty$OBJSUFFIX',
 ]
 
@@ -180,15 +186,9 @@ if env['PLATFORM'] == 'win32':
   # TODO(port): put portable files in above test_files declaration.
   test_files.extend([
       'plugin_tests.cc',
-      'text_input_controller_unittest.cc',
-      '$WEBKIT_DIR/glue/context_menu_unittest.cc',
-      '$WEBKIT_DIR/glue/mimetype_unittest.cc',
       # Commented out until a regression is fixed and this file is restored.
       #'$WEBKIT_DIR/glue/stringimpl_unittest.cc',
       '$WEBKIT_DIR/glue/webplugin_impl_unittest.cc',
-      '$WEBKIT_DIR/port/platform/image-decoders/bmp/BMPImageDecoder_unittest.cpp',
-      '$WEBKIT_DIR/port/platform/image-decoders/ico/ICOImageDecoder_unittest.cpp',
-      '$WEBKIT_DIR/port/platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp',
   ])
 
 test_shell_tests = env.ChromeTestProgram('test_shell_tests',

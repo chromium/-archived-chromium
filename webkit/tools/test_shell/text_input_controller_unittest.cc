@@ -19,9 +19,9 @@ class TestTextInputController : public TextInputController {
 
 TEST(TextInputControllerTest, MethodMapIsInitialized) {
   TestTextInputController text_input_controller;
-  
-  EXPECT_EQ(14, text_input_controller.MethodCount());
-  
+
+  EXPECT_EQ(14U, text_input_controller.MethodCount());
+
   EXPECT_TRUE(text_input_controller.IsMethodRegistered(
       "insertText"));
   EXPECT_TRUE(text_input_controller.IsMethodRegistered(
@@ -50,7 +50,7 @@ TEST(TextInputControllerTest, MethodMapIsInitialized) {
       "validAttributesForMarkedText"));
   EXPECT_TRUE(text_input_controller.IsMethodRegistered(
       "makeAttributedString"));
-      
+
   // Negative test.
   EXPECT_FALSE(text_input_controller.IsMethodRegistered(
       "momeRathsOutgrabe"));
