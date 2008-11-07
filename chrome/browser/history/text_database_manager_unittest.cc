@@ -169,7 +169,7 @@ TEST_F(TextDatabaseManagerTest, InsertQuery) {
   ASSERT_TRUE(Init());
   InMemDB visit_db;
   TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-  ASSERT_TRUE(manager.Init());
+  ASSERT_TRUE(manager.Init(NULL));
 
   std::vector<Time> times;
   AddAllPages(manager, &visit_db, &times);
@@ -201,7 +201,7 @@ TEST_F(TextDatabaseManagerTest, InsertCompleteNoVisit) {
   ASSERT_TRUE(Init());
   InMemDB visit_db;
   TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-  ASSERT_TRUE(manager.Init());
+  ASSERT_TRUE(manager.Init(NULL));
 
   // First add one without a visit.
   const GURL url(kURL1);
@@ -225,7 +225,7 @@ TEST_F(TextDatabaseManagerTest, InsertCompleteVisit) {
   ASSERT_TRUE(Init());
   InMemDB visit_db;
   TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-  ASSERT_TRUE(manager.Init());
+  ASSERT_TRUE(manager.Init(NULL));
 
   // First add a visit to a page. We can just make up a URL ID since there is
   // not actually any URL database around.
@@ -264,7 +264,7 @@ TEST_F(TextDatabaseManagerTest, InsertPartial) {
   ASSERT_TRUE(Init());
   InMemDB visit_db;
   TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-  ASSERT_TRUE(manager.Init());
+  ASSERT_TRUE(manager.Init(NULL));
 
   // Add the first one with just a URL.
   GURL url1(kURL1);
@@ -312,7 +312,7 @@ TEST_F(TextDatabaseManagerTest, PartialComplete) {
   ASSERT_TRUE(Init());
   InMemDB visit_db;
   TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-  ASSERT_TRUE(manager.Init());
+  ASSERT_TRUE(manager.Init(NULL));
 
   Time added_time = Time::Now();
   GURL url(kURL1);
@@ -370,7 +370,7 @@ TEST_F(TextDatabaseManagerTest, Writing) {
   // Create the manager and write some stuff to it.
   {
     TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-    ASSERT_TRUE(manager.Init());
+    ASSERT_TRUE(manager.Init(NULL));
 
     std::vector<Time> times;
     AddAllPages(manager, &visit_db, &times);
@@ -384,7 +384,7 @@ TEST_F(TextDatabaseManagerTest, Writing) {
   // Recreate the manager and make sure it finds the written stuff.
   {
     TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-    ASSERT_TRUE(manager.Init());
+    ASSERT_TRUE(manager.Init(NULL));
 
     // We should have matched every page again.
     manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
@@ -406,7 +406,7 @@ TEST_F(TextDatabaseManagerTest, WritingTransaction) {
   // Create the manager and write some stuff to it.
   {
     TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-    ASSERT_TRUE(manager.Init());
+    ASSERT_TRUE(manager.Init(NULL));
 
     std::vector<Time> times;
     manager.BeginTransaction();
@@ -422,7 +422,7 @@ TEST_F(TextDatabaseManagerTest, WritingTransaction) {
   // Recreate the manager and make sure it finds the written stuff.
   {
     TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-    ASSERT_TRUE(manager.Init());
+    ASSERT_TRUE(manager.Init(NULL));
 
     // We should have matched every page again.
     manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
@@ -435,7 +435,7 @@ TEST_F(TextDatabaseManagerTest, QueryMax) {
   ASSERT_TRUE(Init());
   InMemDB visit_db;
   TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-  ASSERT_TRUE(manager.Init());
+  ASSERT_TRUE(manager.Init(NULL));
 
   std::vector<Time> times;
   AddAllPages(manager, &visit_db, &times);
@@ -472,7 +472,7 @@ TEST_F(TextDatabaseManagerTest, QueryBackwards) {
   ASSERT_TRUE(Init());
   InMemDB visit_db;
   TextDatabaseManager manager(dir_, &visit_db, &visit_db);
-  ASSERT_TRUE(manager.Init());
+  ASSERT_TRUE(manager.Init(NULL));
 
   std::vector<Time> times;
   AddAllPages(manager, &visit_db, &times);

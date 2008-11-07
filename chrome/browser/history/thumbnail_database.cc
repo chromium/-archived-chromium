@@ -7,6 +7,7 @@
 #include "base/file_util.h"
 #include "base/time.h"
 #include "base/string_util.h"
+#include "chrome/browser/history/history_publisher.h"
 #include "chrome/browser/history/url_database.h"
 #include "chrome/common/jpeg_codec.h"
 #include "chrome/common/sqlite_utils.h"
@@ -24,14 +25,18 @@ static const int kCompatibleVersionNumber = 3;
 ThumbnailDatabase::ThumbnailDatabase()
     : db_(NULL),
       statement_cache_(NULL),
-      transaction_nesting_(0) {
+      transaction_nesting_(0),
+      history_publisher_(NULL) {
 }
 
 ThumbnailDatabase::~ThumbnailDatabase() {
   // The DBCloseScoper will delete the DB and the cache.
 }
 
-InitStatus ThumbnailDatabase::Init(const std::wstring& db_name) {
+InitStatus ThumbnailDatabase::Init(const std::wstring& db_name,
+                                   const HistoryPublisher* history_publisher) {
+  history_publisher_ = history_publisher;
+
   // Open the thumbnail database, using the narrow version of open so that
   // the DB is in UTF-8.
   if (sqlite3_open(WideToUTF8(db_name).c_str(), &db_) != SQLITE_OK)
@@ -222,9 +227,11 @@ void ThumbnailDatabase::Vacuum() {
 }
 
 void ThumbnailDatabase::SetPageThumbnail(
+    const GURL& url,
     URLID id,
     const SkBitmap& thumbnail,
-    const ThumbnailScore& score) {
+    const ThumbnailScore& score,
+    const Time& time) {
   if (!thumbnail.isNull()) {
     bool add_thumbnail = true;
     ThumbnailScore current_score;
@@ -264,6 +271,11 @@ void ThumbnailDatabase::SetPageThumbnail(
         if (statement->step() != SQLITE_DONE)
           DLOG(WARNING) << "Unable to insert thumbnail";
       }
+
+      // Publish the thumbnail to any indexers listening to us.
+      // The tests may send an invalid url. Hence avoid publishing those.
+      if (url.is_valid() && history_publisher_ != NULL)
+        history_publisher_->PublishPageThumbnail(jpeg_data, url, time);
     }
   } else {
     if ( !DeleteThumbnail(id) )

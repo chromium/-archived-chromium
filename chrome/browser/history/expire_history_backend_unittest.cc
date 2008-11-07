@@ -115,12 +115,12 @@ class ExpireHistoryTest : public testing::Test,
     std::wstring thumb_name(dir_);
     file_util::AppendToPath(&thumb_name, L"Thumbnails");
     thumb_db_.reset(new ThumbnailDatabase);
-    if (thumb_db_->Init(thumb_name) != INIT_OK)
+    if (thumb_db_->Init(thumb_name, NULL) != INIT_OK)
       thumb_db_.reset();
 
     text_db_.reset(new TextDatabaseManager(dir_,
                                            main_db_.get(), main_db_.get()));
-    if (!text_db_->Init())
+    if (!text_db_->Init(NULL))
       text_db_.reset();
 
     expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),
@@ -199,9 +199,12 @@ void ExpireHistoryTest::AddExampleData(URLID url_ids[3], Time visit_times[4]) {
   scoped_ptr<SkBitmap> thumbnail(
       JPEGCodec::Decode(kGoogleThumbnail, sizeof(kGoogleThumbnail)));
   ThumbnailScore score(0.25, true, true, Time::Now());
-  thumb_db_->SetPageThumbnail(url_ids[0], *thumbnail, score);
-  thumb_db_->SetPageThumbnail(url_ids[1], *thumbnail, score);
-  thumb_db_->SetPageThumbnail(url_ids[2], *thumbnail, score);
+
+  Time time;
+  GURL gurl;
+  thumb_db_->SetPageThumbnail(gurl, url_ids[0], *thumbnail, score, time);
+  thumb_db_->SetPageThumbnail(gurl, url_ids[1], *thumbnail, score, time);
+  thumb_db_->SetPageThumbnail(gurl, url_ids[2], *thumbnail, score, time);
 
   // Four visits.
   VisitRow visit_row1;
@@ -400,7 +403,7 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
   text_db_.reset();
   EXPECT_TRUE(IsStringInFile(fts_filename, "goats"));
   text_db_.reset(new TextDatabaseManager(dir_, main_db_.get(), main_db_.get()));
-  ASSERT_TRUE(text_db_->Init());
+  ASSERT_TRUE(text_db_->Init(NULL));
   expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),
                         text_db_.get());
 
@@ -412,7 +415,7 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
   text_db_.reset();
   EXPECT_FALSE(IsStringInFile(fts_filename, "goats"));
   text_db_.reset(new TextDatabaseManager(dir_, main_db_.get(), main_db_.get()));
-  ASSERT_TRUE(text_db_->Init());
+  ASSERT_TRUE(text_db_->Init(NULL));
   expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),
                         text_db_.get());
 

@@ -22,6 +22,8 @@ struct sqlite3;
 
 namespace history {
 
+class HistoryPublisher;
+
 // Manages a set of text databases representing different time periods. This
 // will page them in and out as necessary, and will manage queries for times
 // spanning multiple databases.
@@ -77,7 +79,7 @@ class TextDatabaseManager {
 
   // Must call before using other functions. If it returns false, no other
   // functions should be called.
-  bool Init();
+  bool Init(const HistoryPublisher* history_publisher);
 
   // Allows scoping updates. This also allows things to go faster since every
   // page add doesn't need to be committed to disk (slow). Note that files will
@@ -292,6 +294,12 @@ class TextDatabaseManager {
 
   // Generates tasks for our periodic checking of expired "recent changes".
   ScopedRunnableMethodFactory<TextDatabaseManager> factory_;
+
+  // This object is created and managed by the history backend. We maintain an
+  // opaque pointer to the object for our use.
+  // This can be NULL if there are no indexers registered to receive indexing
+  // data from us.
+  const HistoryPublisher* history_publisher_;
 
   DISALLOW_EVIL_CONSTRUCTORS(TextDatabaseManager);
 };

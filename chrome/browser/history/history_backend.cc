@@ -15,6 +15,7 @@
 #include "chrome/browser/autocomplete/history_url_provider.h"
 #include "chrome/browser/bookmarks/bookmark_service.h"
 #include "chrome/browser/history/download_types.h"
+#include "chrome/browser/history/history_publisher.h"
 #include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/history/page_usage_data.h"
 #include "chrome/common/chrome_constants.h"
@@ -531,18 +532,28 @@ void HistoryBackend::InitImpl() {
     delete mem_backend;  // Error case, run without the in-memory DB.
   db_->BeginExclusiveMode();  // Must be after the mem backend read the data.
 
+  // Create the history publisher which needs to be passed on to the text and
+  // thumbnail databases for publishing history.
+  history_publisher_.reset(new HistoryPublisher());
+  if (!history_publisher_->Init()) {
+    // The init may fail when there are no indexers wanting our history.
+    // Hence no need to log the failure.
+    history_publisher_.reset();
+  }
+
   // Full-text database. This has to be first so we can pass it to the
   // HistoryDatabase for migration.
   text_database_.reset(new TextDatabaseManager(history_dir_,
                                                db_.get(), db_.get()));
-  if (!text_database_->Init()) {
+  if (!text_database_->Init(history_publisher_.get())) {
     LOG(WARNING) << "Text database initialization failed, running without it.";
     text_database_.reset();
   }
 
   // Thumbnail database.
   thumbnail_db_.reset(new ThumbnailDatabase());
-  if (thumbnail_db_->Init(thumbnail_name) != INIT_OK) {
+  if (thumbnail_db_->Init(thumbnail_name,
+                          history_publisher_.get()) != INIT_OK) {
     // Unlike the main database, we don't error out when the database is too
     // new because this error is much less severe. Generally, this shouldn't
     // happen since the thumbnail and main datbase versions should be in sync.
@@ -1185,9 +1196,13 @@ void HistoryBackend::SetPageThumbnail(
   if (!db_.get() || !thumbnail_db_.get())
     return;
 
-  URLID url_id = db_->GetRowForURL(url, NULL);
-  if (url_id)
-    thumbnail_db_->SetPageThumbnail(url_id, thumbnail, score);
+  URLRow url_row;
+  URLID url_id = db_->GetRowForURL(url, &url_row);
+  if (url_id) {
+    thumbnail_db_->SetPageThumbnail(url, url_id, thumbnail, score,
+                                    url_row.last_visit());
+  }
+
   ScheduleCommit();
 }
 
@@ -1617,6 +1632,9 @@ void HistoryBackend::ExpireHistoryBetween(
   }
 
   request->ForwardResult(ExpireHistoryRequest::TupleType());
+
+  if (history_publisher_.get())
+    history_publisher_->DeleteUserHistoryBetween(begin_time, end_time);
 }
 
 void HistoryBackend::URLsNoLongerBookmarked(const std::set<GURL>& urls) {

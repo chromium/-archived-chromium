@@ -22,6 +22,7 @@ namespace base {
 namespace history {
 
 class ExpireHistoryBackend;
+class HistoryPublisher;
 
 // This database interface is owned by the history backend and runs on the
 // history thread. It is a totally separate component from history partially
@@ -37,7 +38,8 @@ class ThumbnailDatabase {
 
   // Must be called after creation but before any other methods are called.
   // When not INIT_OK, no other functions should be called.
-  InitStatus Init(const std::wstring& db_name);
+  InitStatus Init(const std::wstring& db_name,
+                  const HistoryPublisher* history_publisher);
 
   // Transactions on the database.
   void BeginTransaction();
@@ -55,9 +57,11 @@ class ThumbnailDatabase {
   // Sets the given data to be the thumbnail for the given URL,
   // overwriting any previous data. If the SkBitmap contains no pixel
   // data, the thumbnail will be deleted.
-  void SetPageThumbnail(URLID id,
+  void SetPageThumbnail(const GURL& url,
+                        URLID id,
                         const SkBitmap& thumbnail,
-                        const ThumbnailScore& score);
+                        const ThumbnailScore& score,
+                        const base::Time& time);
 
   // Retrieves thumbnail data for the given URL, returning true on success,
   // false if there is no such thumbnail or there was some other error.
@@ -160,6 +164,12 @@ class ThumbnailDatabase {
   int transaction_nesting_;
 
   MetaTableHelper meta_table_;
+
+  // This object is created and managed by the history backend. We maintain an
+  // opaque pointer to the object for our use.
+  // This can be NULL if there are no indexers registered to receive indexing
+  // data from us.
+  const HistoryPublisher* history_publisher_;
 };
 
 }  // namespace history

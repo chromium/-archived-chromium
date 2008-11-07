@@ -31,6 +31,7 @@ struct ThumbnailScore;
 namespace history {
 
 class CommitLaterTask;
+class HistoryPublisher;
 
 // *See the .cc file for more information on the design.*
 //
@@ -483,6 +484,10 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // Use GetBookmarkService to access this, which makes sure the service is
   // loaded.
   BookmarkService* bookmark_service_;
+
+  // Publishes the history to all indexers which are registered to receive
+  // history data from us. Can be NULL if there are no listeners.
+  scoped_ptr<HistoryPublisher> history_publisher_;
 
   DISALLOW_EVIL_CONSTRUCTORS(HistoryBackend);
 };

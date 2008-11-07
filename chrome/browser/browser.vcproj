@@ -1326,11 +1326,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\history\history_indexer.idl"
+				>
+			</File>
+			<File
 				RelativePath=".\history\history_marshaling.h"
 				>
 			</File>
 			<File
 				RelativePath=".\history\history_notifications.h"
+				>
+			</File>
+			<File
+				RelativePath=".\history\history_publisher.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\history\history_publisher.h"
 				>
 			</File>
 			<File
