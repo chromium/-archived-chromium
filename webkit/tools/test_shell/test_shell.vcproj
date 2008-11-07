@@ -12,6 +12,8 @@
 			Name="Win32"
 		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
@@ -147,6 +149,42 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\resources\pan_east.cur"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\resources\pan_middle.cur"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\resources\pan_north.cur"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\resources\pan_north_east.cur"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\resources\pan_north_west.cur"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\resources\pan_south.cur"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\resources\pan_south_east.cur"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\resources\pan_south_west.cur"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\resources\pan_west.cur"
+				>
+			</File>
+			<File
 				RelativePath=".\resource.h"
 				>
 			</File>
@@ -160,6 +198,10 @@
 			</File>
 			<File
 				RelativePath=".\resources\test_shell.rc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\glue\webkit_resources.rc"
 				>
 			</File>
 			<File
@@ -224,10 +266,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\test_shell_win.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\test_shell_request_context.cc"
 			>
 		</File>
@@ -241,6 +279,10 @@
 		</File>
 		<File
 			RelativePath=".\test_shell_switches.h"
+			>
+		</File>
+		<File
+			RelativePath=".\test_shell_win.cc"
 			>
 		</File>
 		<File

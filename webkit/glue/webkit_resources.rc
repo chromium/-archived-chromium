@@ -17,15 +17,6 @@
 IDR_BROKENIMAGE            BINDATA "webkit\\glue\\resources\\broken-image.gif"
 IDR_TICKMARK_DASH          BINDATA "webkit\\glue\\resources\\dash.png"
 IDR_FEED_PREVIEW           BINDATA "webkit\\glue\\resources\\feed.html"
-IDC_PAN_MIDDLE             BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panIcon.png"
-IDC_PAN_NORTH              BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panNorthCursor.png"
-IDC_PAN_NORTH_EAST         BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panNorthEastCursor.png"
-IDC_PAN_EAST               BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panEastCursor.png"
-IDC_PAN_SOUTH_EAST         BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panSouthEastCursor.png"
-IDC_PAN_SOUTH              BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panSouthCursor.png"
-IDC_PAN_SOUTH_WEST         BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panSouthWestCursor.png"
-IDC_PAN_WEST               BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panWestCursor.png"
-IDC_PAN_NORTH_WEST         BINDATA "third_party\\WebKit\\WebKit\\win\\WebKit.vcproj\\panNorthWestCursor.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -40,6 +31,15 @@ IDC_ROWRESIZE           CURSOR    "webkit\\glue\\resources\\row_resize.cur"
 IDC_VERTICALTEXT        CURSOR    "webkit\\glue\\resources\\vertical_text.cur"
 IDC_ZOOMIN              CURSOR    "webkit\\glue\\resources\\zoom_in.cur"
 IDC_ZOOMOUT             CURSOR    "webkit\\glue\\resources\\zoom_out.cur"
+IDC_PAN_MIDDLE          CURSOR    "webkit\\glue\\resources\\pan_middle.cur"
+IDC_PAN_NORTH           CURSOR    "webkit\\glue\\resources\\pan_north.cur"
+IDC_PAN_NORTH_EAST      CURSOR    "webkit\\glue\\resources\\pan_north_east.cur"
+IDC_PAN_EAST            CURSOR    "webkit\\glue\\resources\\pan_east.cur"
+IDC_PAN_SOUTH_EAST      CURSOR    "webkit\\glue\\resources\\pan_south_east.cur"
+IDC_PAN_SOUTH           CURSOR    "webkit\\glue\\resources\\pan_south.cur"
+IDC_PAN_SOUTH_WEST      CURSOR    "webkit\\glue\\resources\\pan_south_west.cur"
+IDC_PAN_WEST            CURSOR    "webkit\\glue\\resources\\pan_west.cur"
+IDC_PAN_NORTH_WEST      CURSOR    "webkit\\glue\\resources\\pan_north_west.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //
