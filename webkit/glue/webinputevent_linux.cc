@@ -6,10 +6,15 @@
 
 #include "webkit/glue/webinputevent.h"
 
-#include "webkit/glue/event_conversion.h"
-
 #include "KeyboardCodes.h"
 #include "KeyCodeConversion.h"
+
+#include "webkit/glue/event_conversion.h"
+
+// This header is out of alphabetical order, but event_conversion.h pulls
+// in more webkit headers that redefine LOG so I need to undef afterwards.
+#undef LOG
+#include "base/logging.h"
 
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
@@ -134,6 +139,11 @@ WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
 WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event) {
   modifiers = GdkStateToWebEventModifiers(event->state);
 
+  // GDK only exposes key press and release events.  By contrast,
+  // WebKeyboardEvent matches Windows and wants key down/up events along with a
+  // separate CHAR event.
+  // We require the caller to simulate the CHAR event manually.  See
+  // test_shell's webwidget_host for an example.
   switch (event->type) {
     case GDK_KEY_RELEASE:
       type = KEY_UP;
@@ -142,9 +152,16 @@ WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event) {
       type = KEY_DOWN;
       break;
     default:
+      NOTREACHED();
       break;
   }
   key_code = WebCore::windowsKeyCodeForKeyEvent(event->keyval);
+
+  // GDK keys within the ASCII range are just ASCII.
+  if (event->keyval >= 0x20 && event->keyval < 0x7F)
+    text = event->keyval;
+  else
+    text = 0;
 
   // TODO(tc): Do we need to set IS_AUTO_REPEAT or IS_KEYPAD?
 }

@@ -44,6 +44,17 @@ gboolean KeyPressReleaseEvent(GtkWidget* widget, GdkEventKey* event,
   DLOG(INFO) << "  -- Key press or release";
   WebKeyboardEvent wke(event);
   host->webwidget()->HandleInputEvent(&wke);
+
+  // The WebKeyboardEvent model, when holding down a key, is:
+  //   KEY_DOWN, CHAR, (repeated CHAR as key repeats,) KEY_UP
+  // The GDK model for the same sequence is just:
+  //   KEY_PRESS, (repeated KEY_PRESS as key repeats,) KEY_RELEASE
+  // So we must simulate a CHAR event for every key press.
+  if (event->type == GDK_KEY_PRESS) {
+    wke.type = WebKeyboardEvent::CHAR;
+    host->webwidget()->HandleInputEvent(&wke);
+  }
+
   return FALSE;
 }
 
@@ -96,7 +107,7 @@ gfx::WindowHandle WebWidgetHost::CreateWindow(gfx::WindowHandle box,
                                 GDK_BUTTON_RELEASE_MASK |
                                 GDK_KEY_PRESS_MASK |
                                 GDK_KEY_RELEASE_MASK);
-  // TODO(agl): set GTK_CAN_FOCUS flag
+  GTK_WIDGET_SET_FLAGS(widget, GTK_CAN_FOCUS);
   g_signal_connect(widget, "configure-event", G_CALLBACK(ConfigureEvent), host);
   g_signal_connect(widget, "expose-event", G_CALLBACK(ExposeEvent), host);
   g_signal_connect(widget, "destroy-event", G_CALLBACK(DestroyEvent), host);

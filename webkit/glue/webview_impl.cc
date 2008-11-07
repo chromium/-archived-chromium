@@ -312,7 +312,7 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 
   MakePlatformKeyboardEvent evt(event);
 
-#if defined(OS_WIN)
+#if !defined(OS_MACOSX)
   if (WebInputEvent::KEY_DOWN == event.type) {
     MakePlatformKeyboardEvent evt_rawkeydown = evt;
     evt_rawkeydown.SetKeyType(WebCore::PlatformKeyboardEvent::RawKeyDown);
@@ -325,7 +325,7 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
       return true;
     }
   }
-#elif defined(OS_MACOSX)
+#else
   // Windows and Cocoa handle events in rather different ways. On Windows,
   // you get two events: WM_KEYDOWN/WM_KEYUP and WM_CHAR. In
   // PlatformKeyboardEvent, RawKeyDown represents the raw messages. When
