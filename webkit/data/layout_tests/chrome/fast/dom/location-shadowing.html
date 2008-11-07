@@ -39,6 +39,11 @@ function testFunctionOverwrite() {
   for (var i = 0; i < locationFunctions.length; i++) {
     location[locationFunctions[i]] = overwrite;
     check(location[locationFunctions[i]] != overwrite);
+    delete location[locationFunctions[i]];
+    location[locationFunctions[i]] = overwrite;
+    check(location[locationFunctions[i]] != overwrite);
+    location.__defineGetter__(locationFunctions[i], failIfCalled);
+    location[locationFunctions[i]];
   }
 }
 
@@ -51,10 +56,16 @@ function testAccessorOverwrite() {
   window.location;
   this.__defineGetter__("location", failIfCalled);
   this.location;
+  delete location;
+  __defineGetter__("location", failIfCalled);
+  location;
 }
 
 
 function testHrefOverwrite() {
+  location.__defineGetter__("href", failIfCalled);
+  location.href;
+  delete location.href;
   location.__defineGetter__("href", failIfCalled);
   location.href;
 }

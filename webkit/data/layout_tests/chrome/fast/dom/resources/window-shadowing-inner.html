@@ -4,6 +4,8 @@
 var overwrite = {};
 var window = overwrite;
 top.check(window != overwrite);
+var top = overwrite;
+top.check(top != overwrite);
 top.notifyDone();
 </script>
 </body>

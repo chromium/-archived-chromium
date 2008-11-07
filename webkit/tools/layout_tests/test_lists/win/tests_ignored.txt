@@ -165,13 +165,18 @@ V8 # LayoutTests/fast/js/date-proto-generic-invocation.html = FAIL
 V8 # LayoutTests/fast/js/kde/function.html = FAIL
 V8 # LayoutTests/fast/js/kde/inbuilt_function_tostring.html = FAIL
 
+
+// These tests have been rewritten, with the original being ignored,
+// because they rely on being able to shadow the 'top' variable on the
+// global object.  For security we disallow shadowing of top.
+V8 # LayoutTests/editing/selection/click-before-and-after-table.html = FAIL
+
 // Bug 849085: we're taking a different approach on this test than 
 // Webkit does.
 KJS | V8 # SKIP : LayoutTests/plugins/get-url-with-blank-target.html = FAIL
 
 // This test doesn't work on the bbot.  Works locally.
 KJS | V8 # SKIP : chrome/http/tests/plugins/get-file-url.html = FAIL | PASS | TIMEOUT
-
 
 // These tests tests V8 bindings only, KJS needs to re-baseline the output.
 // See Bug 1205552

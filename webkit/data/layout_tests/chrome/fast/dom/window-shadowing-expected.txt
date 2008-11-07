@@ -1,4 +1,5 @@
-Test that the window attribute cannot be overwritten by var declarations or accessors defined using __defineGetter__ and __defineSetter__.
+Test that the window and top attributes cannot be overwritten by var declarations or accessors defined using __defineGetter__ and __defineSetter__. Flash accesses top.location and window.location and for security needs to see the actual location.
 
+PASS
 PASS
 

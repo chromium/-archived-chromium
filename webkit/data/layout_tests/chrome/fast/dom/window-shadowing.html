@@ -2,7 +2,10 @@
 <body onload="test()">
 <div id='result'>
 <p>
-Test that the window attribute cannot be overwritten by var declarations or accessors defined using __defineGetter__ and __defineSetter__.
+Test that the window and top attributes cannot be overwritten by var
+declarations or accessors defined using __defineGetter__ and
+__defineSetter__.  Flash accesses top.location and window.location and
+for security needs to see the actual location.
 </p>
 </div>
 <iframe id="testFrame"></iframe>
@@ -32,7 +35,7 @@ var overwrite = { location: 'ick' };
 
 function failIfCalled() { check(false); }
 
-function testAccessorOverwrite() {
+function testWindowAccessorOverwrite() {
   __defineGetter__("window", failIfCalled);
   window;
   window.__defineGetter__("window", failIfCalled);
@@ -45,6 +48,28 @@ function testAccessorOverwrite() {
   window.window = overwrite;
   this.__defineSetter__("window", failIfCalled);
   this.window = overwrite;
+  delete window;
+  __defineGetter__("window", failIfCalled);
+  window;
+}
+
+function testTopAccessorOverwrite() {
+  __defineGetter__("top", failIfCalled);
+  top;
+  window.__defineGetter__("top", failIfCalled);
+  window.top;
+  this.__defineGetter__("top", failIfCalled);
+  this.top;
+  __defineSetter__("top", failIfCalled);
+  top = overwrite;
+  window.__defineSetter__("top", failIfCalled);
+  window.top = overwrite;
+  this.__defineSetter__("top", failIfCalled);
+  this.top = overwrite;
+  delete top;
+  __defineGetter__("top", failIfCalled);
+  top;
+
 }
 
 function testVarShadowing() {
@@ -52,7 +77,8 @@ function testVarShadowing() {
 }
 
 function test() {
-  testAccessorOverwrite();
+  testWindowAccessorOverwrite();
+  testTopAccessorOverwrite();
   testVarShadowing();
 }
 </script>

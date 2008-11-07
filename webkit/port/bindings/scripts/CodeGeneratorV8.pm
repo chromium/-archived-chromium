@@ -874,9 +874,12 @@ sub GenerateBatchedAttributeData
     my $setter;
     my $propAttr = "v8::None";
 
-    # Check enumerability.
-    if ($attribute->signature->extendedAttributes->{"DontEnum"}) {
+    # Check attributes.
+    if ($attrExt->{"DontEnum"}) {
       $propAttr .= "|v8::DontEnum";
+    }
+    if ($attrExt->{"DontDelete"}) {
+      $propAttr .= "|v8::DontDelete";
     }
 
     my $on_proto = "0 /* on instance */";
@@ -1159,10 +1162,7 @@ END
       my $attrExt = $function->signature->extendedAttributes;
       my $name = $function->signature->name;
 
-      my $property_attributes = "v8::None";
-      if (!$attrExt->{"DontDelete"}) {
-        $property_attributes .= "|v8::DontDelete";
-      }
+      my $property_attributes = "v8::DontDelete";
       if ($attrExt->{"DontEnum"}) {
         $property_attributes .= "|v8::DontEnum";
       }
@@ -1193,7 +1193,6 @@ END
         #
         # The solution is very hacky and fragile, it really needs to be replaced
         # by a better solution.
-
         $property_attributes .= "|v8::ReadOnly";
         push(@implContent, <<END);
 
@@ -1214,7 +1213,6 @@ END
         $signature = "v8::Local<v8::Signature>()";
       }
 
-
       if (RequiresCustomSignature($function)) {
         $signature = "${name}_signature";
         push(@implContent, "\n  // Custom Signature '$name'\n", CreateCustomSignature($function));
@@ -1222,6 +1220,8 @@ END
 
       # Normal function call is a template
       my $templateFunction = GenerateNewFunctionTemplate($function, $dataNode, $signature);
+
+
       push(@implContent, <<END);
 
   // $commentInfo

@@ -7,7 +7,7 @@ module core {
     attribute DOMString hash;
     attribute DOMString host;
     attribute DOMString hostname;
-    attribute [DoNotCheckDomainSecurityOnSet, v8DisallowShadowing] DOMString href;
+    attribute [DoNotCheckDomainSecurityOnSet, DontDelete, v8DisallowShadowing] DOMString href;
     attribute DOMString pathname;
     attribute DOMString port;
     attribute DOMString protocol;
