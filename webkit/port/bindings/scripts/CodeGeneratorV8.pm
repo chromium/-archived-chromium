@@ -859,7 +859,6 @@ sub GenerateBatchedAttributeData
        }
     }
     if ($attrExt->{"v8DisallowShadowing"}) {
-      $interfaceName eq "DOMWindow" || die "v8DisallowShadowing can only be used on the DOMWindow interface.";
       $accessControl .= "|v8::PROHIBITS_OVERWRITING";
     }
     $accessControl = "static_cast<v8::AccessControl>(" . $accessControl . ")";

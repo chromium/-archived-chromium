@@ -53,6 +53,12 @@ function testAccessorOverwrite() {
   this.location;
 }
 
+
+function testHrefOverwrite() {
+  location.__defineGetter__("href", failIfCalled);
+  location.href;
+}
+
 function testVarShadowing() {
   testFrame.location = "resources/location-shadowing-inner.html";
 }
@@ -60,6 +66,7 @@ function testVarShadowing() {
 function test() {
   testFunctionOverwrite();
   testAccessorOverwrite();
+  testHrefOverwrite();
   testVarShadowing();
 }
 </script>
