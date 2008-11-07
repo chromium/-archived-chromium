@@ -70,6 +70,8 @@ public:
   // work is done on the file thread, with the callbacks running on the UI
   // thread. The return value is the 'request_id' that will be passed to the
   // client in the callback.
+  //
+  // WATCH OUT: The returned bitmap pointer may be NULL if decoding failed.
   typedef CancelableRequestProvider::Handle Handle;
   typedef Callback2<Handle, SkBitmap*>::Type IconRequestCallback;
 

@@ -489,6 +489,11 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   SkBitmap* icon = IsDangerousMode() ? warning_icon_ :
       im->LookupIcon(download_->full_path(), IconLoader::SMALL);
 
+  // We count on the fact that the icon manager will cache the icons and if one
+  // is available, it will be cached here. We *don't* want to request the icon
+  // to be loaded here, since this will also get called if the icon can't be
+  // loaded, in which case LookupIcon will always be NULL. The loading will be
+  // triggered only when we think the status might change.
   if (icon) {
     if (!IsDangerousMode()) {
       if (download_->state() == DownloadItem::IN_PROGRESS) {
@@ -739,7 +744,8 @@ void DownloadItemView::OpenDownload() {
 
 void DownloadItemView::OnExtractIconComplete(IconManager::Handle handle,
                                              SkBitmap* icon_bitmap) {
-  GetParent()->SchedulePaint();
+  if (icon_bitmap)
+    GetParent()->SchedulePaint();
 }
 
 void DownloadItemView::LoadIcon() {
