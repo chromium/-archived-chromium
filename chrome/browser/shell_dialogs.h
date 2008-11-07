@@ -73,17 +73,30 @@ class SelectFileDialog
   // the dialog. This only works for SELECT_SAVEAS_FILE and SELECT_OPEN_FILE.
   // Can be an empty string to indicate Windows should choose the default to
   // show.
+  // |filter| is a null (\0) separated list of alternating filter description
+  // and filters and terminated with two nulls.
   // |owning_hwnd| is the window the dialog is modal to, or NULL for a modeless
   // dialog.
   // |params| is data from the calling context which will be passed through to
   // the listener. Can be NULL.
   // NOTE: only one instance of any shell dialog can be shown per owning_hwnd
   //       at a time (for obvious reasons).
+  // TODO: convert all callers to this and rip out the old.
   virtual void SelectFile(Type type,
                           const std::wstring& title,
                           const std::wstring& default_path,
+                          const std::wstring& filter,
                           HWND owning_hwnd,
                           void* params) = 0;
+
+  void SelectFile(Type type,
+                  const std::wstring& title,
+                  const std::wstring& default_path,
+                  HWND owning_hwnd,
+                  void* params) {
+    SelectFile(type, title, default_path, std::wstring(),
+               owning_hwnd, params);
+  }
 };
 
 // Shows a dialog box for selecting a font.
@@ -137,4 +150,3 @@ class SelectFontDialog
 };
 
 #endif  // #ifndef CHROME_BROWSER_SHELL_DIALOGS_H_
-

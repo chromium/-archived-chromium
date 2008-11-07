@@ -30,6 +30,7 @@ void AppendEscapedCharForHTML(char c, std::string* output);
 
 // Escape chars that might cause this text to be interpretted as HTML tags.
 std::string EscapeForHTML(const std::string& text);
+std::wstring EscapeForHTML(const std::wstring& text);
 
 // Unescaping ------------------------------------------------------------------
 

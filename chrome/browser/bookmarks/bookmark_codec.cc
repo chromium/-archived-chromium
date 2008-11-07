@@ -14,21 +14,18 @@
 
 using base::Time;
 
-// Key names.
-static const wchar_t* kRootsKey = L"roots";
-static const wchar_t* kRootFolderNameKey = L"bookmark_bar";
-static const wchar_t* kOtherBookmarFolderNameKey = L"other";
-static const wchar_t* kVersionKey = L"version";
-static const wchar_t* kTypeKey = L"type";
-static const wchar_t* kNameKey = L"name";
-static const wchar_t* kDateAddedKey = L"date_added";
-static const wchar_t* kURLKey = L"url";
-static const wchar_t* kDateModifiedKey = L"date_modified";
-static const wchar_t* kChildrenKey = L"children";
-
-// Possible values for kTypeKey.
-static const wchar_t* kTypeURL = L"url";
-static const wchar_t* kTypeFolder = L"folder";
+const wchar_t* BookmarkCodec::kRootsKey = L"roots";
+const wchar_t* BookmarkCodec::kRootFolderNameKey = L"bookmark_bar";
+const wchar_t* BookmarkCodec::kOtherBookmarFolderNameKey = L"other";
+const wchar_t* BookmarkCodec::kVersionKey = L"version";
+const wchar_t* BookmarkCodec::kTypeKey = L"type";
+const wchar_t* BookmarkCodec::kNameKey = L"name";
+const wchar_t* BookmarkCodec::kDateAddedKey = L"date_added";
+const wchar_t* BookmarkCodec::kURLKey = L"url";
+const wchar_t* BookmarkCodec::kDateModifiedKey = L"date_modified";
+const wchar_t* BookmarkCodec::kChildrenKey = L"children";
+const wchar_t* BookmarkCodec::kTypeURL = L"url";
+const wchar_t* BookmarkCodec::kTypeFolder = L"folder";
 
 // Current version of the file.
 static const int kCurrentVersion = 1;

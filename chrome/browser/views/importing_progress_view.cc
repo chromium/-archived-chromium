@@ -22,14 +22,13 @@ ImportingProgressView::ImportingProgressView(const std::wstring& source_name,
                                              int16 items,
                                              ImporterHost* coordinator,
                                              ImportObserver* observer,
-                                             HWND parent_window)
+                                             HWND parent_window,
+                                             bool bookmarks_import)
     : state_bookmarks_(new views::CheckmarkThrobber),
       state_searches_(new views::CheckmarkThrobber),
       state_passwords_(new views::CheckmarkThrobber),
       state_history_(new views::CheckmarkThrobber),
       state_cookies_(new views::CheckmarkThrobber),
-      label_info_(new views::Label(l10n_util::GetStringF(
-          IDS_IMPORT_PROGRESS_INFO, source_name))),
       label_bookmarks_(new views::Label(
           l10n_util::GetString(IDS_IMPORT_PROGRESS_STATUS_BOOKMARKS))),
       label_searches_(new views::Label(
@@ -44,7 +43,12 @@ ImportingProgressView::ImportingProgressView(const std::wstring& source_name,
       coordinator_(coordinator),
       import_observer_(observer),
       items_(items),
-      importing_(true) {
+      importing_(true),
+      bookmarks_import_(bookmarks_import) {
+  std::wstring info_text = bookmarks_import ?
+      l10n_util::GetString(IDS_IMPORT_BOOKMARKS) :
+      l10n_util::GetStringF(IDS_IMPORT_PROGRESS_INFO, source_name);
+  label_info_ = new views::Label(info_text);
   coordinator_->SetObserver(this);
   label_info_->SetMultiLine(true);
   label_info_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
@@ -78,6 +82,17 @@ ImportingProgressView::~ImportingProgressView() {
   RemoveChildView(label_passwords_.get());
   RemoveChildView(label_history_.get());
   RemoveChildView(label_cookies_.get());
+
+  if (importing_) {
+    // We're being deleted while importing, clean up state so that the importer
+    // doesn't have a reference to us and cancel the import. We can get here
+    // if our parent window is closed, which closes our window and deletes us.
+    importing_ = false;
+    coordinator_->SetObserver(NULL);
+    coordinator_->Cancel();
+    if (import_observer_)
+      import_observer_->ImportComplete();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,6 +232,11 @@ void ImportingProgressView::InitControlLayout() {
 
   const int single_column_view_set_id = 0;
   ColumnSet* column_set = layout->AddColumnSet(single_column_view_set_id);
+  if (bookmarks_import_) {
+    column_set->AddColumn(GridLayout::CENTER, GridLayout::CENTER, 0,
+                          GridLayout::FIXED, ps.width(), 0);
+    column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+  }
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,
                         GridLayout::USE_PREF, 0, 0);
   const int double_column_view_set_id = 1;
@@ -230,10 +250,12 @@ void ImportingProgressView::InitControlLayout() {
   column_set->AddPaddingColumn(0, kUnrelatedControlLargeHorizontalSpacing);
 
   layout->StartRow(0, single_column_view_set_id);
+  if (bookmarks_import_)
+    layout->AddView(state_bookmarks_.get());
   layout->AddView(label_info_);
   layout->AddPaddingRow(0, kUnrelatedControlVerticalSpacing);
 
-  if (items_ & FAVORITES) {
+  if (items_ & FAVORITES && !bookmarks_import_) {
     layout->StartRow(0, double_column_view_set_id);
     layout->AddView(state_bookmarks_.get());
     layout->AddView(label_bookmarks_.get());
@@ -277,7 +299,8 @@ void StartImportingWithUI(HWND parent_window,
                           bool first_run) {
   DCHECK(items != 0);
   ImportingProgressView* v = new ImportingProgressView(
-      source_profile.description, items, coordinator, observer, parent_window);
+      source_profile.description, items, coordinator, observer, parent_window,
+      source_profile.browser_type == BOOKMARKS_HTML);
   views::Window* window =
     views::Window::CreateChromeWindow(parent_window, gfx::Rect(), v);
 

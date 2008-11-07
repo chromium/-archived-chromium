@@ -22,7 +22,7 @@ using base::Time;
 
 // Firefox2Importer.
 
-Firefox2Importer::Firefox2Importer() {
+Firefox2Importer::Firefox2Importer() : parsing_bookmarks_html_file_(false) {
 }
 
 Firefox2Importer::~Firefox2Importer() {
@@ -36,6 +36,8 @@ void Firefox2Importer::StartImport(ProfileInfo profile_info,
   source_path_ = profile_info.source_path;
   app_path_ = profile_info.app_path;
   importer_host_ = host;
+
+  parsing_bookmarks_html_file_ = (profile_info.browser_type == BOOKMARKS_HTML);
 
   // The order here is important!
   NotifyStarted();
@@ -120,30 +122,29 @@ TemplateURL* Firefox2Importer::CreateTemplateURL(const std::wstring& title,
   return t_url;
 }
 
-void Firefox2Importer::ImportBookmarks() {
-  // Read the whole file.
-  std::wstring file = source_path_;
-  file_util::AppendToPath(&file, L"bookmarks.html");
+// static
+void Firefox2Importer::ImportBookmarksFile(
+    const std::wstring& file_path,
+    const std::set<GURL>& default_urls,
+    bool first_run,
+    const std::wstring& first_folder_name,
+    Importer* importer,
+    std::vector<ProfileWriter::BookmarkEntry>* bookmarks,
+    std::vector<TemplateURL*>* template_urls,
+    std::vector<history::ImportedFavIconUsage>* favicons) {
   std::string content;
-  file_util::ReadFileToString(file, &content);
+  file_util::ReadFileToString(file_path, &content);
   std::vector<std::string> lines;
   SplitString(content, '\n', &lines);
-
-  // Load the default bookmarks.
-  std::set<GURL> default_urls;
-  LoadDefaultBookmarks(app_path_, &default_urls);
-
-  // Parse the bookmarks.html file.
-  std::vector<ProfileWriter::BookmarkEntry> bookmarks, toolbar_bookmarks;
-  std::vector<TemplateURL*> template_urls;
-  std::vector<history::ImportedFavIconUsage> favicons;
-  std::wstring last_folder
-      = l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_FIREFOX);
+  
+  std::vector<ProfileWriter::BookmarkEntry> toolbar_bookmarks;
+  std::wstring last_folder = first_folder_name;
   bool last_folder_on_toolbar = false;
   std::vector<std::wstring> path;
   size_t toolbar_folder = 0;
   std::string charset;
-  for (size_t i = 0; i < lines.size() && !cancelled(); ++i) {
+  for (size_t i = 0; i < lines.size() && (!importer || !importer->cancelled());
+       ++i) {
     std::string line;
     TrimString(lines[i], " ", &line);
 
@@ -179,7 +180,7 @@ void Firefox2Importer::ImportBookmarks() {
       entry.url = url;
       entry.title = title;
 
-      if (first_run() && toolbar_folder) {
+      if (first_run && toolbar_folder) {
         // Flatten the items in toolbar.
         entry.in_toolbar = true;
         entry.path.assign(path.begin() + toolbar_folder, path.end());
@@ -188,20 +189,23 @@ void Firefox2Importer::ImportBookmarks() {
         // Insert the item into the "Imported from Firefox" folder after
         // the first run.
         entry.path.assign(path.begin(), path.end());
-        if (first_run())
+        if (first_run)
           entry.path.erase(entry.path.begin());
-        bookmarks.push_back(entry);
+        bookmarks->push_back(entry);
       }
 
       // Save the favicon. DataURLToFaviconUsage will handle the case where
       // there is no favicon.
-      DataURLToFaviconUsage(url, favicon, &favicons);
+      if (favicons)
+        DataURLToFaviconUsage(url, favicon, favicons);
 
-      // If there is a SHORTCUT attribute for this bookmark, we
-      // add it as our keywords.
-      TemplateURL* t_url = CreateTemplateURL(title, shortcut, url);
-      if (t_url)
-        template_urls.push_back(t_url);
+      if (template_urls) {
+        // If there is a SHORTCUT attribute for this bookmark, we
+        // add it as our keywords.
+        TemplateURL* t_url = CreateTemplateURL(title, shortcut, url);
+        if (t_url)
+          template_urls->push_back(t_url);
+      }
 
       continue;
     }
@@ -221,14 +225,42 @@ void Firefox2Importer::ImportBookmarks() {
     }
   }
 
+  bookmarks->insert(bookmarks->begin(), toolbar_bookmarks.begin(),
+                    toolbar_bookmarks.end());
+}
+
+void Firefox2Importer::ImportBookmarks() {
+  // Load the default bookmarks.
+  std::set<GURL> default_urls;
+  if (!parsing_bookmarks_html_file_)
+    LoadDefaultBookmarks(app_path_, &default_urls);
+
+  // Parse the bookmarks.html file.
+  std::vector<ProfileWriter::BookmarkEntry> bookmarks, toolbar_bookmarks;
+  std::vector<TemplateURL*> template_urls;
+  std::vector<history::ImportedFavIconUsage> favicons;
+  std::wstring file = source_path_;
+  if (!parsing_bookmarks_html_file_)
+    file_util::AppendToPath(&file, L"bookmarks.html");
+  std::wstring first_folder_name;
+  if (parsing_bookmarks_html_file_)
+    first_folder_name = l10n_util::GetString(IDS_BOOKMARK_GROUP);
+  else
+    first_folder_name = l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_FIREFOX);
+
+  ImportBookmarksFile(file, default_urls, first_run(),
+                      first_folder_name, this, &bookmarks, &template_urls,
+                      &favicons);
+
   // Write data into profile.
-  bookmarks.insert(bookmarks.begin(), toolbar_bookmarks.begin(),
-                   toolbar_bookmarks.end());
   if (!bookmarks.empty() && !cancelled()) {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
-        &ProfileWriter::AddBookmarkEntry, bookmarks, false));
+        &ProfileWriter::AddBookmarkEntry, bookmarks,
+        first_folder_name,
+        first_run() ? ProfileWriter::FIRST_RUN : 0));
   }
-  if (!template_urls.empty() && !cancelled()) {
+  if (!parsing_bookmarks_html_file_ && !template_urls.empty() &&
+      !cancelled()) {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
         &ProfileWriter::AddKeywords, template_urls, -1, false));
   } else {

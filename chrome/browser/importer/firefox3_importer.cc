@@ -247,7 +247,9 @@ void Firefox3Importer::ImportBookmarks() {
   // Write into profile.
   if (!bookmarks.empty() && !cancelled()) {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
-        &ProfileWriter::AddBookmarkEntry, bookmarks, false));
+        &ProfileWriter::AddBookmarkEntry, bookmarks,
+        l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_FIREFOX),
+        first_run() ? ProfileWriter::FIRST_RUN : 0));
   }
   if (!template_urls.empty() && !cancelled()) {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,

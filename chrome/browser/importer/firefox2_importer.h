@@ -33,6 +33,19 @@ class Firefox2Importer : public Importer {
                                         const std::wstring& keyword,
                                         const GURL& url);
 
+  // Imports the bookmarks from the specified file. |template_urls| and
+  // |favicons| may be null, in which case TemplateURLs and favicons are
+  // not parsed. Any bookmarks in |default_urls| are ignored.
+  static void ImportBookmarksFile(
+      const std::wstring& file_path,
+      const std::set<GURL>& default_urls,
+      bool first_run,
+      const std::wstring& first_folder_name,
+      Importer* importer,
+      std::vector<ProfileWriter::BookmarkEntry>* bookmarks,
+      std::vector<TemplateURL*>* template_urls,
+      std::vector<history::ImportedFavIconUsage>* favicons);
+
  private:
   FRIEND_TEST(FirefoxImporterTest, Firefox2BookmarkParse);
   FRIEND_TEST(FirefoxImporterTest, Firefox2CookesParse);
@@ -105,9 +118,10 @@ class Firefox2Importer : public Importer {
   ProfileWriter* writer_;
   std::wstring source_path_;
   std::wstring app_path_;
+  // If true, we only parse the bookmarks.html file specified as source_path_.
+  bool parsing_bookmarks_html_file_;
 
   DISALLOW_EVIL_CONSTRUCTORS(Firefox2Importer);
 };
 
 #endif  // CHROME_BROWSER_IMPORTER_FIREFOX2_IMPORTER_H_
-

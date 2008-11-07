@@ -192,7 +192,9 @@ class SelectFileDialogImpl : public SelectFileDialog,
 
   // SelectFileDialog implementation:
   virtual void SelectFile(Type type, const std::wstring& title,
-                          const std::wstring& default_path, HWND owning_hwnd,
+                          const std::wstring& default_path,
+                          const std::wstring& filter,
+                          HWND owning_hwnd,
                           void* params);
   virtual bool IsRunning(HWND owning_hwnd) const;
   virtual void ListenerDestroyed();
@@ -203,6 +205,7 @@ class SelectFileDialogImpl : public SelectFileDialog,
   void ExecuteSelectFile(Type type,
                          const std::wstring& title,
                          const std::wstring& default_path,
+                         const std::wstring& filter,
                          RunState run_state,
                          void* params);
 
@@ -225,6 +228,7 @@ class SelectFileDialogImpl : public SelectFileDialog,
   // Runs an Open file dialog box, with similar semantics for input paramaters
   // as RunSelectFolderDialog.
   bool RunOpenFileDialog(const std::wstring& title,
+                         const std::wstring& filters,
                          HWND owner,
                          std::wstring* path);
 
@@ -245,12 +249,13 @@ SelectFileDialogImpl::~SelectFileDialogImpl() {
 void SelectFileDialogImpl::SelectFile(Type type,
                                       const std::wstring& title,
                                       const std::wstring& default_path,
+                                      const std::wstring& filter,
                                       HWND owner,
                                       void* params) {
   RunState run_state = BeginRun(owner);
   run_state.dialog_thread->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &SelectFileDialogImpl::ExecuteSelectFile, type,
-                        title, default_path, run_state, params));
+                        title, default_path, filter, run_state, params));
 }
 
 bool SelectFileDialogImpl::IsRunning(HWND owning_hwnd) const {
@@ -263,11 +268,13 @@ void SelectFileDialogImpl::ListenerDestroyed() {
   listener_ = NULL;
 }
 
-void SelectFileDialogImpl::ExecuteSelectFile(Type type,
-                                             const std::wstring& title,
-                                             const std::wstring& default_path,
-                                             RunState run_state,
-                                             void* params) {
+void SelectFileDialogImpl::ExecuteSelectFile(
+    Type type,
+    const std::wstring& title,
+    const std::wstring& default_path,
+    const std::wstring& filter,
+    RunState run_state,
+    void* params) {
   std::wstring path = default_path;
   bool success = false;
   if (type == SELECT_FOLDER) {
@@ -276,7 +283,7 @@ void SelectFileDialogImpl::ExecuteSelectFile(Type type,
     success = win_util::SaveFileAs(run_state.owner, default_path, &path);
     DisableOwner(run_state.owner);
   } else if (type == SELECT_OPEN_FILE) {
-    success = RunOpenFileDialog(title, run_state.owner, &path);
+    success = RunOpenFileDialog(title, filter, run_state.owner, &path);
   }
 
   if (success) {
@@ -331,9 +338,11 @@ bool SelectFileDialogImpl::RunSelectFolderDialog(const std::wstring& title,
   return false;
 }
 
-bool SelectFileDialogImpl::RunOpenFileDialog(const std::wstring& title,
-                                             HWND owner,
-                                             std::wstring* path) {
+bool SelectFileDialogImpl::RunOpenFileDialog(
+    const std::wstring& title,
+    const std::wstring& filter,
+    HWND owner,
+    std::wstring* path) {
   OPENFILENAME ofn;
   // We must do this otherwise the ofn's FlagsEx may be initialized to random
   // junk in release builds which can cause the Places Bar not to show up!
@@ -350,8 +359,9 @@ bool SelectFileDialogImpl::RunOpenFileDialog(const std::wstring& title,
   // without having to close Chrome first.
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
-  // TODO(beng): (http://b/issue?id=1126563) edit the filter options in the
-  //             dropdown list.
+  if (!filter.empty()) {
+    ofn.lpstrFilter = filter.c_str();
+  }
   bool success = !!GetOpenFileName(&ofn);
   DisableOwner(owner);
   if (success)
@@ -527,4 +537,3 @@ void SelectFontDialogImpl::FontNotSelected(void* params, RunState run_state) {
 SelectFontDialog* SelectFontDialog::Create(Listener* listener) {
   return new SelectFontDialogImpl(listener);
 }
-

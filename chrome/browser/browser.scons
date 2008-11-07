@@ -119,6 +119,7 @@ if env['PLATFORM'] == 'win32':
       'bookmarks/bookmark_drag_data.cc',
       'bookmarks/bookmark_drop_info.cc',
       'bookmarks/bookmark_folder_tree_model.cc',
+      'bookmarks/bookmark_html_writer.cc',
       'bookmarks/bookmark_model.cc',
       'bookmarks/bookmark_storage.cc',
       'bookmarks/bookmark_table_model.cc',

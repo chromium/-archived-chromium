@@ -766,6 +766,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmarks\bookmark_html_writer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bookmarks\bookmark_html_writer.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmarks\bookmark_model.h"
 				>
 			</File>

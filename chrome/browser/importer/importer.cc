@@ -5,6 +5,7 @@
 #include "chrome/browser/importer/importer.h"
 
 #include <map>
+#include <set>
 
 #include "base/file_util.h"
 #include "base/gfx/image_operations.h"
@@ -81,9 +82,14 @@ void ProfileWriter::AddHomepage(const GURL& home_page) {
 
 void ProfileWriter::AddBookmarkEntry(
     const std::vector<BookmarkEntry>& bookmark,
-    bool check_uniqueness) {
+    const std::wstring& first_folder_name,
+    int options) {
   BookmarkModel* model = profile_->GetBookmarkModel();
   DCHECK(model->IsLoaded());
+
+  bool first_run = (options & FIRST_RUN) != 0;
+  std::wstring real_first_folder = first_run ? first_folder_name :
+      GenerateUniqueFolderName(model, first_folder_name);
 
   bool show_bookmark_toolbar = false;
   std::set<BookmarkNode*> groups_added_to;
@@ -92,49 +98,13 @@ void ProfileWriter::AddBookmarkEntry(
     // Don't insert this url if it isn't valid.
     if (!it->url.is_valid())
       continue;
-      
+
     // We suppose that bookmarks are unique by Title, URL, and Folder.  Since
     // checking for uniqueness may not be always the user's intention we have
     // this as an option.
-    if (check_uniqueness) {
-      std::vector<BookmarkModel::TitleMatch> matches;
-      model->GetBookmarksMatchingText((*it).title, 32, &matches); // 32 enough?
-      if (!matches.empty()) {
-        bool found_match = false;
-        for (std::vector<BookmarkModel::TitleMatch>::iterator match_it =
-                matches.begin();
-             match_it != matches.end() && !found_match;
-             ++match_it) {
-          if ((*it).title != (*match_it).node->GetTitle())
-            continue;
-          if ((*it).url != (*match_it).node->GetURL())
-            continue;
-
-          // Check the folder path for uniqueness as well
-          found_match = true;
-          BookmarkNode* node = (*match_it).node->GetParent();
-          for(std::vector<std::wstring>::const_reverse_iterator path_it =
-                  (*it).path.rbegin();
-              (path_it != (*it).path.rend()) && found_match;
-              ++path_it) {
-            if (NULL == node || (*path_it != node->GetTitle()))
-              found_match = false;
-            if (found_match)
-              node = node->GetParent();
-          }
-
-          // We need a post test to differentiate checks such as
-          // /home/hello and /hello.  Note that here the current parent
-          // should be the "Other bookmarks" node, its parent should be the
-          // root with title "", and it's parent is finally NULL.
-          if (NULL == node->GetParent() ||
-              NULL != node->GetParent()->GetParent())
-            found_match = false;
-        }
-
-        if (found_match)
-          continue;
-      }      
+    if (options & ADD_IF_UNIQUE &&
+        DoesBookmarkExist(model, *it, real_first_folder, first_run)) {
+      continue;
     }
 
     // Set up groups in BookmarkModel in such a way that path[i] is
@@ -146,17 +116,21 @@ void ProfileWriter::AddBookmarkEntry(
     for (std::vector<std::wstring>::const_iterator i = it->path.begin();
          i != it->path.end(); ++i) {
       BookmarkNode* child = NULL;
+      const std::wstring& folder_name =
+          (!first_run && !it->in_toolbar && (i == it->path.begin())) ?
+          real_first_folder : *i;
+
       for (int index = 0; index < parent->GetChildCount(); ++index) {
         BookmarkNode* node = parent->GetChild(index);
         if ((node->GetType() == history::StarredEntry::BOOKMARK_BAR ||
              node->GetType() == history::StarredEntry::USER_GROUP) &&
-            node->GetTitle() == *i) {
+            node->GetTitle() == folder_name) {
           child = node;
           break;
         }
       }
       if (child == NULL)
-        child = model->AddGroup(parent, parent->GetChildCount(), *i);
+        child = model->AddGroup(parent, parent->GetChildCount(), folder_name);
       parent = child;
     }
     groups_added_to.insert(parent);
@@ -319,6 +293,79 @@ void ProfileWriter::ShowBookmarkBar() {
         NOTIFY_BOOKMARK_BAR_VISIBILITY_PREF_CHANGED, source,
         NotificationService::NoDetails());
   }
+}
+
+std::wstring ProfileWriter::GenerateUniqueFolderName(
+    BookmarkModel* model,
+    const std::wstring& folder_name) {
+  // Build a set containing the folder names of the other folder.
+  std::set<std::wstring> other_folder_names;
+  BookmarkNode* other = model->other_node();
+  for (int i = 0; i < other->GetChildCount(); ++i) {
+    BookmarkNode* node = other->GetChild(i);
+    if (node->is_folder())
+      other_folder_names.insert(node->GetTitle());
+  }
+
+  if (other_folder_names.find(folder_name) == other_folder_names.end())
+    return folder_name;  // Name is unique, use it.
+
+  // Otherwise iterate until we find a unique name.
+  for (int i = 1; i < 100; ++i) {
+    std::wstring name = folder_name + StringPrintf(L" (%d)", i);
+    if (other_folder_names.find(name) == other_folder_names.end())
+      return name;
+  }
+
+  return folder_name;
+}
+
+bool ProfileWriter::DoesBookmarkExist(
+    BookmarkModel* model,
+    const BookmarkEntry& entry,
+    const std::wstring& first_folder_name,
+    bool first_run) {
+  std::vector<BookmarkNode*> nodes_with_same_url;
+  model->GetNodesByURL(entry.url, &nodes_with_same_url);
+  if (nodes_with_same_url.empty())
+    return false;
+  
+  for (size_t i = 0; i < nodes_with_same_url.size(); ++i) {
+    BookmarkNode* node = nodes_with_same_url[i];
+    if (entry.title != node->GetTitle())
+      continue;
+
+    // Does the path match?
+    bool found_match = true;
+    BookmarkNode* parent = node->GetParent();
+    for (std::vector<std::wstring>::const_reverse_iterator path_it =
+             entry.path.rbegin();
+         (path_it != entry.path.rend()) && found_match; ++path_it) {
+      const std::wstring& folder_name =
+          (!first_run && path_it + 1 == entry.path.rend()) ?
+          first_folder_name : *path_it;
+      if (NULL == parent || *path_it != folder_name)
+        found_match = false;
+      else
+        parent = parent->GetParent();
+    }
+
+    // We need a post test to differentiate checks such as
+    // /home/hello and /hello. The parent should either by the other folder
+    // node, or the bookmarks bar, depending upon first_run and
+    // entry.in_toolbar.
+    if (found_match &&
+        ((first_run && entry.in_toolbar && parent !=
+          model->GetBookmarkBarNode()) ||
+         ((!first_run || !entry.in_toolbar) &&
+           parent != model->other_node()))) {
+      found_match = false;
+    }
+
+    if (found_match)
+      return true;  // Found a match with the same url path and title.
+  }
+  return false;
 }
 
 // Importer.
@@ -539,6 +586,7 @@ Importer* ImporterHost::CreateImporterByType(ProfileType type) {
   switch (type) {
     case MS_IE:
       return new IEImporter();
+    case BOOKMARKS_HTML:
     case FIREFOX2:
       return new Firefox2Importer();
     case FIREFOX3:

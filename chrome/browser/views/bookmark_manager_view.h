@@ -5,9 +5,11 @@
 #ifndef CHROME_BROWSER_VIEWS_BOOKMARK_MANAGER_VIEW_H_
 #define CHROME_BROWSER_VIEWS_BOOKMARK_MANAGER_VIEW_H_
 
+#include "base/ref_counted.h"
 #include "base/task.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/shell_dialogs.h"
 #include "chrome/views/table_view.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/tree_view.h"
@@ -39,7 +41,9 @@ class BookmarkManagerView : public views::View,
                             public views::TextField::Controller,
                             public BookmarkModelObserver,
                             public views::ContextMenuController,
-                            public views::ViewMenuDelegate {
+                            public views::ViewMenuDelegate,
+                            public views::MenuDelegate,
+                            public SelectFileDialog::Listener {
  public:
   explicit BookmarkManagerView(Profile* profile);
   virtual ~BookmarkManagerView();
@@ -55,6 +59,9 @@ class BookmarkManagerView : public views::View,
   // Selects the specified node in the tree. If node is a URL it's parent is
   // selected and node is selected in the table.
   void SelectInTree(BookmarkNode* node);
+
+  // Expands all the children of the selected folder.
+  void ExpandAll(BookmarkNode* node);
 
   // Returns the selected folder, which may be null.
   BookmarkNode* GetSelectedFolder();
@@ -137,6 +144,13 @@ class BookmarkManagerView : public views::View,
   // ViewMenuDelegate.
   virtual void RunMenu(views::View* source, const CPoint& pt, HWND hwnd);
 
+  // MenuDelegate.
+  virtual void ExecuteCommand(int id);
+
+  // SelectFileDialog::Listener.
+  virtual void FileSelected(const std::wstring& path, void* params);
+  virtual void FileSelectionCanceled(void* params);
+
   // Creates the table model to use when searching. This returns NULL if there
   // is no search text.
   BookmarkTableModel* CreateSearchTableModel();
@@ -167,6 +181,14 @@ class BookmarkManagerView : public views::View,
                 int y,
                 BookmarkContextMenu::ConfigurationType config);
 
+  // Shows the tools menu.
+  void ShowToolsMenu(HWND host, int x, int y);
+
+  // Shows the import/export file chooser. These invoke
+  // FileSelected/FileSelectionCanceled when done.
+  void ShowImportBookmarksFileChooser();
+  void ShowExportBookmarksFileChooser();
+
   Profile* profile_;
   BookmarkTableView* table_view_;
   BookmarkFolderTreeView* tree_view_;
@@ -174,6 +196,9 @@ class BookmarkManagerView : public views::View,
   scoped_ptr<BookmarkFolderTreeModel> tree_model_;
   views::TextField* search_tf_;
   views::SingleSplitView* split_view_;
+
+  // Import/export file dialog.
+  scoped_refptr<SelectFileDialog> select_file_dialog_;
 
   // Factory used for delaying search.
   ScopedRunnableMethodFactory<BookmarkManagerView> search_factory_;

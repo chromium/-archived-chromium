@@ -568,7 +568,11 @@ bool Toolbar5Importer::ExtractFoldersFromXmlReader(
 void  Toolbar5Importer::AddBookMarksToChrome(
     const std::vector<ProfileWriter::BookmarkEntry>& bookmarks) {
   if (!bookmarks.empty() && !cancelled()) {
-      main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
-          &ProfileWriter::AddBookmarkEntry, bookmarks, true));
+    int options = ProfileWriter::ADD_IF_UNIQUE |
+        (first_run() ? ProfileWriter::FIRST_RUN : 0);
+    main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
+        &ProfileWriter::AddBookmarkEntry, bookmarks,
+        l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_GOOGLE_TOOLBAR),
+        options));
   }
 }

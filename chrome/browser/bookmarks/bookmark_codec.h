@@ -43,6 +43,22 @@ class BookmarkCodec {
   // nodes.
   bool Decode(BookmarkModel* model, const Value& value);
 
+  // Names of the various keys written to the Value.
+  static const wchar_t* kRootsKey;
+  static const wchar_t* kRootFolderNameKey;
+  static const wchar_t* kOtherBookmarFolderNameKey;
+  static const wchar_t* kVersionKey;
+  static const wchar_t* kTypeKey;
+  static const wchar_t* kNameKey;
+  static const wchar_t* kDateAddedKey;
+  static const wchar_t* kURLKey;
+  static const wchar_t* kDateModifiedKey;
+  static const wchar_t* kChildrenKey;
+
+  // Possible values for kTypeKey.
+  static const wchar_t* kTypeURL;
+  static const wchar_t* kTypeFolder;
+
  private:
   // Encodes node and all its children into a Value object and returns it.
   // The caller takes ownership of the returned object.

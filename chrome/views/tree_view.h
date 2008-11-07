@@ -147,6 +147,10 @@ class TreeView : public NativeControl, TreeModelObserver {
   // Convenience to expand ALL nodes in the tree.
   void ExpandAll();
 
+  // Invoked from ExpandAll(). Expands the supplied node and recursively
+  // invokes itself with all children.
+  void ExpandAll(TreeModelNode* node);
+
   // Returns true if the specified node is expanded.
   bool IsExpanded(TreeModelNode* node);
 
@@ -252,10 +256,6 @@ class TreeView : public NativeControl, TreeModelObserver {
     // Whether the children have been loaded.
     bool loaded_children;
   };
-
-  // Invoked from ExpandAll(). Expands the supplied node and recursively
-  // invokes itself with all children.
-  void ExpandAll(TreeModelNode* node);
 
   // Deletes the root items from the treeview. This is used when the model
   // changes.

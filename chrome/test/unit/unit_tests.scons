@@ -146,6 +146,7 @@ if env['PLATFORM'] == 'win32':
       '$CHROME_DIR/browser/bookmarks/bookmark_context_menu_test.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_drag_data_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
+      '$CHROME_DIR/browser/bookmarks/bookmark_html_writer_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_model_unittest.cc',
       '$CHROME_DIR/browser/bookmarks/bookmark_table_model_unittest.cc',
       '$CHROME_DIR/browser/cache_manager_host_unittest.cc',

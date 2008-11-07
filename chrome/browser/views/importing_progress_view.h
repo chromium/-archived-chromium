@@ -19,11 +19,15 @@ class ImportingProgressView : public views::View,
                               public views::DialogDelegate,
                               public ImporterHost::Observer {
  public:
+  // |items| is a bitmask of ImportItems being imported.
+  // |bookmark_import| is true if we're importing bookmarks from a
+  // bookmarks.html file.
   ImportingProgressView(const std::wstring& source_name,
                         int16 items,
                         ImporterHost* coordinator,
                         ImportObserver* observer,
-                        HWND parent_window);
+                        HWND parent_window,
+                        bool bookmarks_import);
   virtual ~ImportingProgressView();
 
  protected:
@@ -78,6 +82,9 @@ class ImportingProgressView : public views::View,
 
   // True if the import operation is in progress.
   bool importing_;
+
+  // Are we importing a bookmarks.html file?
+  bool bookmarks_import_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ImportingProgressView);
 };

@@ -9,12 +9,15 @@
 #include "base/gfx/skia_utils.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
+#include "chrome/browser/bookmarks/bookmark_html_writer.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_table_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/importer/importer.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/bookmark_folder_tree_view.h"
 #include "chrome/browser/views/bookmark_table_view.h"
@@ -40,6 +43,53 @@ static BookmarkManagerView* manager = NULL;
 // Delay, in ms, between when the user types and when we run the search.
 static const int kSearchDelayMS = 200;
 
+static const int kOrganizeMenuButtonID = 1;
+static const int kToolsMenuButtonID = 2;
+
+namespace {
+
+// Observer installed on the importer. When done importing the newly created
+// folder is selected in the bookmark manager.
+class ImportObserverImpl : public ImportObserver {
+ public:
+  explicit ImportObserverImpl(Profile* profile) : profile_(profile) {
+    BookmarkModel* model = profile->GetBookmarkModel();
+    initial_other_count_ = model->other_node()->GetChildCount();
+  }
+
+  virtual void ImportCanceled() {
+    delete this;
+  }
+
+  virtual void ImportComplete() {
+    // We aren't needed anymore.
+    MessageLoop::current()->DeleteSoon(FROM_HERE, this);
+
+    BookmarkManagerView* manager = BookmarkManagerView::current();
+    if (!manager || manager->profile() != profile_)
+      return;
+
+    BookmarkModel* model = profile_->GetBookmarkModel();
+    int other_count = model->other_node()->GetChildCount();
+    if (other_count == initial_other_count_ + 1) {
+      BookmarkNode* imported_node =
+          model->other_node()->GetChild(initial_other_count_);
+      manager->SelectInTree(imported_node);
+      manager->ExpandAll(imported_node);
+    }
+  }
+
+ private:
+  Profile* profile_;
+  // Number of children in the other bookmarks folder at the time we were
+  // created.
+  int initial_other_count_;
+
+  DISALLOW_COPY_AND_ASSIGN(ImportObserverImpl);
+};
+
+}  // namespace
+
 BookmarkManagerView::BookmarkManagerView(Profile* profile)
     : profile_(profile->GetOriginalProfile()),
       table_view_(NULL),
@@ -59,6 +109,12 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   views::MenuButton* organize_menu_button = new views::MenuButton(
       l10n_util::GetString(IDS_BOOKMARK_MANAGER_ORGANIZE_MENU),
       this, true);
+  organize_menu_button->SetID(kOrganizeMenuButtonID);
+
+  views::MenuButton* tools_menu_button = new views::MenuButton(
+      l10n_util::GetString(IDS_BOOKMARK_MANAGER_TOOLS_MENU),
+      this, true);
+  tools_menu_button->SetID(kToolsMenuButtonID);
 
   split_view_ = new views::SingleSplitView(tree_view_, table_view_);
 
@@ -66,10 +122,13 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   SetLayoutManager(layout);
   const int top_id = 1;
   const int split_cs_id = 2;
-  layout->SetInsets(kPanelVertMargin, 0, 0, 0);
+  layout->SetInsets(2, 0, 0, 0);
   views::ColumnSet* column_set = layout->AddColumnSet(top_id);
   column_set->AddColumn(views::GridLayout::LEADING, views::GridLayout::CENTER,
-                        1, views::GridLayout::USE_PREF, 0, 0);
+                        0, views::GridLayout::USE_PREF, 0, 0);
+  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
+  column_set->AddColumn(views::GridLayout::LEADING, views::GridLayout::CENTER,
+                        0, views::GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(1, kUnrelatedControlHorizontalSpacing);
   column_set->AddColumn(views::GridLayout::TRAILING, views::GridLayout::CENTER,
                         1, views::GridLayout::USE_PREF, 0, 0);
@@ -81,6 +140,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
 
   layout->StartRow(0, top_id);
   layout->AddView(organize_menu_button);
+  layout->AddView(tools_menu_button);
   layout->AddView(search_tf_);
 
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
@@ -94,6 +154,9 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
 }
 
 BookmarkManagerView::~BookmarkManagerView() {
+  if (select_file_dialog_.get())
+    select_file_dialog_->ListenerDestroyed();
+
   if (!GetBookmarkModel()->IsLoaded()) {
     GetBookmarkModel()->RemoveObserver(this);
   } else {
@@ -162,6 +225,16 @@ void BookmarkManagerView::SelectInTree(BookmarkNode* node) {
     // TODO(sky): this doesn't work when invoked from add page.
     table_view_->RequestFocus();
   }
+}
+
+void BookmarkManagerView::ExpandAll(BookmarkNode* node) {
+  BookmarkNode* parent = node->is_url() ? node->GetParent() : node;
+  FolderNode* folder_node = tree_model_->GetFolderNodeForBookmarkNode(parent);
+  if (!folder_node) {
+    NOTREACHED();
+    return;
+  }
+  tree_view_->ExpandAll(folder_node);
 }
 
 BookmarkNode* BookmarkManagerView::GetSelectedFolder() {
@@ -339,8 +412,62 @@ void BookmarkManagerView::RunMenu(views::View* source,
   // TODO(glen): when you change the buttons around and what not, futz with
   // this to make it look good. If you end up keeping padding numbers make them
   // constants.
-  ShowMenu(hwnd, pt.x - source->width() + 5, pt.y + 2,
-           BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU);
+  if (!GetBookmarkModel()->IsLoaded())
+    return;
+
+  if (source->GetID() == kOrganizeMenuButtonID) {
+    ShowMenu(hwnd, pt.x - source->width() + 5, pt.y + 2,
+             BookmarkContextMenu::BOOKMARK_MANAGER_ORGANIZE_MENU);
+  } else if (source->GetID() == kToolsMenuButtonID) {
+    ShowToolsMenu(hwnd, pt.x - source->width() + 5, pt.y + 2);
+  } else {
+    NOTREACHED();
+  }
+}
+
+void BookmarkManagerView::ExecuteCommand(int id) {
+  switch (id) {
+    case IDS_BOOKMARK_MANAGER_IMPORT_MENU:
+      UserMetrics::RecordAction(L"BookmarkManager_Import", profile_);
+      ShowImportBookmarksFileChooser();
+      break;
+
+    case IDS_BOOKMARK_MANAGER_EXPORT_MENU:
+      UserMetrics::RecordAction(L"BookmarkManager_Export", profile_);
+      ShowExportBookmarksFileChooser();
+      break;
+
+    default:
+      NOTREACHED();
+      break;
+  }
+}
+
+void BookmarkManagerView::FileSelected(const std::wstring& path,
+                                       void* params) {
+  int id = reinterpret_cast<int>(params);
+  if (id == IDS_BOOKMARK_MANAGER_IMPORT_MENU) {
+    // ImporterHost is ref counted and will delete itself when done.
+    ImporterHost* host = new ImporterHost();
+    ProfileInfo profile_info;
+    profile_info.browser_type = BOOKMARKS_HTML;
+    profile_info.source_path = path;
+    StartImportingWithUI(GetContainer()->GetHWND(), FAVORITES, host,
+                         profile_info, profile_,
+                         new ImportObserverImpl(profile()), false);
+  } else if (id == IDS_BOOKMARK_MANAGER_EXPORT_MENU) {
+    if (g_browser_process->io_thread()) {
+      bookmark_html_writer::WriteBookmarks(
+          g_browser_process->io_thread()->message_loop(), GetBookmarkModel(),
+          path);
+    }
+  } else {
+    NOTREACHED();
+  }
+}
+
+void BookmarkManagerView::FileSelectionCanceled(void* params) {
+  select_file_dialog_ = NULL;
 }
 
 BookmarkTableModel* BookmarkManagerView::CreateSearchTableModel() {
@@ -455,4 +582,41 @@ void BookmarkManagerView::ShowMenu(
                              node, nodes, config);
     menu.RunMenuAt(x, y);
   }
+}
+
+void BookmarkManagerView::ShowToolsMenu(HWND host, int x, int y) {
+  views::MenuItemView menu(this);
+  menu.AppendMenuItemWithLabel(
+          IDS_BOOKMARK_MANAGER_IMPORT_MENU,
+          l10n_util::GetString(IDS_BOOKMARK_MANAGER_IMPORT_MENU));
+  menu.AppendMenuItemWithLabel(
+          IDS_BOOKMARK_MANAGER_EXPORT_MENU,
+          l10n_util::GetString(IDS_BOOKMARK_MANAGER_EXPORT_MENU));
+  menu.RunMenuAt(GetContainer()->GetHWND(), gfx::Rect(x, y, 0, 0),
+                 views::MenuItemView::TOPLEFT, true);
+}
+
+void BookmarkManagerView::ShowImportBookmarksFileChooser() {
+  if (select_file_dialog_.get())
+    select_file_dialog_->ListenerDestroyed();
+
+  // TODO(sky): need a textual description here once we can add new
+  // strings.
+  std::wstring filter_string(L"*.html\0*.html\0\0");
+  select_file_dialog_ = SelectFileDialog::Create(this);
+  select_file_dialog_->SelectFile(
+      SelectFileDialog::SELECT_OPEN_FILE, std::wstring(), std::wstring(),
+      filter_string, GetContainer()->GetHWND(),
+      reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_IMPORT_MENU));
+}
+
+void BookmarkManagerView::ShowExportBookmarksFileChooser() {
+  if (select_file_dialog_.get())
+    select_file_dialog_->ListenerDestroyed();
+
+  select_file_dialog_ = SelectFileDialog::Create(this);
+  select_file_dialog_->SelectFile(
+      SelectFileDialog::SELECT_SAVEAS_FILE, std::wstring(), std::wstring(),
+      std::wstring(), GetContainer()->GetHWND(),
+      reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_EXPORT_MENU));
 }

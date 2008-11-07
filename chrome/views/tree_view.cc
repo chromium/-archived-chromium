@@ -157,6 +157,18 @@ void TreeView::ExpandAll() {
   ExpandAll(model_->GetRoot());
 }
 
+void TreeView::ExpandAll(TreeModelNode* node) {
+  DCHECK(node);
+  // Expand the node.
+  if (node != model_->GetRoot() || root_shown_)
+    TreeView_Expand(tree_view_, GetNodeDetails(node)->tree_item, TVE_EXPAND);
+  // And recursively expand all the children.
+  for (int i = model_->GetChildCount(node) - 1; i >= 0; --i) {
+    TreeModelNode* child = model_->GetChild(node, i);
+    ExpandAll(child);
+  }
+}
+
 bool TreeView::IsExpanded(TreeModelNode* node) {
   TreeModelNode* parent = model_->GetParent(node);
   if (!parent)
@@ -468,18 +480,6 @@ TreeModelNode* TreeView::GetNodeForTreeItem(HTREEITEM tree_item) {
 HTREEITEM TreeView::GetTreeItemForNode(TreeModelNode* node) {
   NodeDetails* details = GetNodeDetails(node);
   return details ? details->tree_item : NULL;
-}
-
-void TreeView::ExpandAll(TreeModelNode* node) {
-  DCHECK(node);
-  // Expand the node.
-  if (node != model_->GetRoot() || root_shown_)
-    TreeView_Expand(tree_view_, GetNodeDetails(node)->tree_item, TVE_EXPAND);
-  // And recursively expand all the children.
-  for (int i = model_->GetChildCount(node) - 1; i >= 0; --i) {
-    TreeModelNode* child = model_->GetChild(node, i);
-    ExpandAll(child);
-  }
 }
 
 void TreeView::DeleteRootItems() {

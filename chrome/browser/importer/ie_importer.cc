@@ -109,7 +109,9 @@ void IEImporter::ImportFavorites() {
 
   if (!bookmarks.empty() && !cancelled()) {
     main_loop_->PostTask(FROM_HERE, NewRunnableMethod(writer_,
-        &ProfileWriter::AddBookmarkEntry, bookmarks, false));
+        &ProfileWriter::AddBookmarkEntry, bookmarks,
+        l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_IE),
+        first_run() ? ProfileWriter::FIRST_RUN : 0));
   }
 }
 
@@ -552,4 +554,3 @@ int IEImporter::CurrentIEVersion() const {
   }
   return version;
 }
-
