@@ -15,16 +15,21 @@ PlatformCanvasLinux::PlatformCanvasLinux() : SkCanvas() {
 
 PlatformCanvasLinux::PlatformCanvasLinux(int width, int height, bool is_opaque)
     : SkCanvas() {
-  initialize(width, height, is_opaque);
+  if (!initialize(width, height, is_opaque))
+    CHECK(false);
 }
 
 PlatformCanvasLinux::~PlatformCanvasLinux() {
 }
 
-void PlatformCanvasLinux::initialize(int width, int height, bool is_opaque) {
+bool PlatformCanvasLinux::initialize(int width, int height, bool is_opaque) {
   SkDevice* device = createPlatformDevice(width, height, is_opaque);
+  if (!device)
+    return false;
+
   setDevice(device);
   device->unref(); // was created with refcount 1, and setDevice also refs
+  return true;
 }
 
 PlatformDeviceLinux& PlatformCanvasLinux::getTopPlatformDevice() const {

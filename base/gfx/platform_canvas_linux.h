@@ -27,7 +27,7 @@ class PlatformCanvasLinux : public SkCanvas {
   virtual ~PlatformCanvasLinux();
 
   // For two-part init, call if you use the no-argument constructor above
-  void initialize(int width, int height, bool is_opaque);
+  bool initialize(int width, int height, bool is_opaque);
 
   // Returns the platform device pointer of the topmost rect with a non-empty
   // clip. Both the windows and mac versions have an equivalent of this method;
