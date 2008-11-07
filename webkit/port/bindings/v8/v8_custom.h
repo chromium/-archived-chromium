@@ -286,6 +286,9 @@ DECLARE_CALLBACK(ElementSetAttributeNode)
 DECLARE_CALLBACK(ElementSetAttributeNS)
 DECLARE_CALLBACK(ElementSetAttributeNodeNS)
 
+// Implementation of custom Location methods.
+DECLARE_CALLBACK(LocationValueOf)
+
 // Implementation of EventTarget::addEventListener
 // and EventTarget::removeEventListener
 DECLARE_CALLBACK(EventTargetNodeAddEventListener)

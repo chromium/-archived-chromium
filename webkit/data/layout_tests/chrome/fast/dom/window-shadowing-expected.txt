@@ -1,0 +1,4 @@
+Test that the window attribute cannot be overwritten by var declarations or accessors defined using __defineGetter__ and __defineSetter__.
+
+PASS
+

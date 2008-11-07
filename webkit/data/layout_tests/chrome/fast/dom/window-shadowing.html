@@ -1,0 +1,60 @@
+<html>
+<body onload="test()">
+<div id='result'>
+<p>
+Test that the window attribute cannot be overwritten by var declarations or accessors defined using __defineGetter__ and __defineSetter__.
+</p>
+</div>
+<iframe id="testFrame"></iframe>
+<script>
+if (window.layoutTestController) {
+  layoutTestController.dumpAsText();
+  layoutTestController.waitUntilDone();
+}
+
+function notifyDone() {
+  if (window.layoutTestController) {
+    layoutTestController.notifyDone();
+  }
+}
+
+var resultDiv = document.getElementById("result");
+
+function check(passed) {
+  if (passed) {
+    resultDiv.innerHTML += "PASS<br>";
+  } else {
+    resultDiv.innerHTML += "FAIL<br>";
+  }
+}
+
+var overwrite = { location: 'ick' };
+
+function failIfCalled() { check(false); }
+
+function testAccessorOverwrite() {
+  __defineGetter__("window", failIfCalled);
+  window;
+  window.__defineGetter__("window", failIfCalled);
+  window.window;
+  this.__defineGetter__("window", failIfCalled);
+  this.window;
+  __defineSetter__("window", failIfCalled);
+  window = overwrite;
+  window.__defineSetter__("window", failIfCalled);
+  window.window = overwrite;
+  this.__defineSetter__("window", failIfCalled);
+  this.window = overwrite;
+}
+
+function testVarShadowing() {
+  testFrame.location = "resources/window-shadowing-inner.html";
+}
+
+function test() {
+  testAccessorOverwrite();
+  testVarShadowing();
+}
+</script>
+</body>
+</html>

@@ -2626,6 +2626,16 @@ CALLBACK_FUNC_DECL(ElementSetAttributeNodeNS) {
   return V8Proxy::NodeToV8Object(result.get());
 }
 
+// Location --------------------------------------------------------------------
+
+CALLBACK_FUNC_DECL(LocationValueOf) {
+  // Just return the this object the way the normal valueOf function
+  // on the Object prototype would.  The valueOf function is only
+  // added to make sure that it cannot be overwritten on location
+  // objects, since that would provide a hook to change the string
+  // conversion behavior of location objects.
+  return args.This();
+}
 
 // Attr ------------------------------------------------------------------------
 

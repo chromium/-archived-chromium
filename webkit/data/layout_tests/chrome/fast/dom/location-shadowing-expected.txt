@@ -1,3 +1,7 @@
+This tests that the location property on the window object cannot be shadowed by using 'var' declarations or accessors defined using __defineGetter__ and __defineSetter__ and that functions on location objects are read-only.
+
+PASS
+PASS
 PASS
 PASS
 PASS

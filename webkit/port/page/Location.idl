@@ -20,5 +20,6 @@ module core {
     [DoNotCheckDomainSecurity, v8OnInstance] void replace(in DOMString url);
     [DoNotCheckDomainSecurity, v8OnInstance] void assign(in DOMString url);
     [ReadOnly, DontEnum, v8OnInstance] DOMString toString();
+    [Custom, ReadOnly, DontEnum, v8OnInstance] DOMObject valueOf();
   };
 }

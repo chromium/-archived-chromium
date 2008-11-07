@@ -52,7 +52,7 @@ module window {
         attribute [Replaceable] BarInfo toolbar;
         attribute [Replaceable] Navigator navigator;
         attribute [Replaceable, v8referenceattr=navigator] Navigator clientInformation;
-        attribute [DoNotCheckDomainSecurity, CustomSetter, v8ProhibitsOverwriting] Location location;
+        attribute [DoNotCheckDomainSecurity, CustomSetter, v8DisallowShadowing] Location location;
 
         DOMSelection getSelection();
 
@@ -116,7 +116,7 @@ module window {
 
         // Self referential attributes
         attribute [Replaceable, DoNotCheckDomainSecurityOnGet] DOMWindow self;
-        readonly attribute [DoNotCheckDomainSecurity] DOMWindow window;
+        readonly attribute [DoNotCheckDomainSecurity, v8DisallowShadowing] DOMWindow window;
         attribute [Replaceable, DoNotCheckDomainSecurityOnGet] DOMWindow frames;
 
 #if defined(V8_BINDING)

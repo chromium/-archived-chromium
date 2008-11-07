@@ -1,24 +1,37 @@
 <html>
 <body onload="test()">
+<div id="result">
+<p>
+This tests that the location property on the window object cannot be
+shadowed by using 'var' declarations or accessors defined using
+__defineGetter__ and __defineSetter__ and that functions on location
+objects are read-only.
+</p>
+</div>
+<iframe id="testFrame"></iframe>
 <script>
-// This tests that the location property on the window object 
-// cannot be overwritten by using accessors defined using 
-// __defineGetter__ and __defineSetter__ and that functions 
-//on location objects are read-only.
-
 if (window.layoutTestController) {
   layoutTestController.dumpAsText();
+  layoutTestController.waitUntilDone();
 }
 
-function check(passed) {
-  if (passed) {
-    document.write("PASS<br>");
-  } else {
-    document.write("FAIL<br>");
+function notifyDone() {
+  if (window.layoutTestController) {
+    layoutTestController.notifyDone();
   }
 }
 
-var locationFunctions = ["reload", "replace", "assign", "toString"];
+var resultDiv = document.getElementById("result");
+
+function check(passed) {
+  if (passed) {
+    resultDiv.innerHTML += "PASS<br>";
+  } else {
+    resultDiv.innerHTML += "FAIL<br>";
+  }
+}
+
+var locationFunctions = ["reload", "replace", "assign", "toString", "valueOf"];
 
 function overwrite() { return 'overwrite'; };
 
@@ -33,16 +46,21 @@ function failIfCalled() { check(false); }
 
 function testAccessorOverwrite() {
   __defineGetter__("location", failIfCalled);
-  var l = location;
+  location;
   window.__defineGetter__("location", failIfCalled);
-  l = window.location;
+  window.location;
   this.__defineGetter__("location", failIfCalled);
-  l = this.location;
+  this.location;
+}
+
+function testVarShadowing() {
+  testFrame.location = "resources/location-shadowing-inner.html";
 }
 
 function test() {
   testFunctionOverwrite();
   testAccessorOverwrite();
+  testVarShadowing();
 }
 </script>
 </body>
