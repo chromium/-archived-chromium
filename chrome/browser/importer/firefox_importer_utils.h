@@ -13,7 +13,8 @@ class TemplateURL;
 
 // Detects which version of Firefox is installed. Returns its
 // major version, and drops the minor version. Returns 0 if
-// failed.
+// failed. If there are indicators of both FF2 and FF3 it is
+// biased to return the biggest version.
 int GetCurrentFirefoxMajorVersion();
 
 // Gets the full path of the profiles.ini file. This file records

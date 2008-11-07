@@ -4,6 +4,7 @@
 
 #include "chrome/browser/importer/firefox_importer_utils.h"
 
+#include <algorithm>
 #include <shlobj.h>
 
 #include "base/file_util.h"
@@ -78,6 +79,7 @@ class SetDllDirectoryCaller {
 int GetCurrentFirefoxMajorVersion() {
   TCHAR ver_buffer[128];
   DWORD ver_buffer_length = sizeof(ver_buffer);
+  int highest_version = 0;
   // When installing Firefox with admin account, the product keys will be
   // written under HKLM\Mozilla. Otherwise it the keys will be written under
   // HKCU\Mozilla.
@@ -87,9 +89,9 @@ int GetCurrentFirefoxMajorVersion() {
         L"CurrentVersion", ver_buffer, &ver_buffer_length);
     if (!result)
       continue;
-    return _wtoi(ver_buffer);
+    highest_version = std::max(highest_version, _wtoi(ver_buffer));
   }
-  return 0;
+  return highest_version;
 }
 
 std::wstring GetProfilesINI() {
