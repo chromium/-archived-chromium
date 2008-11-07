@@ -4,6 +4,8 @@
 
 #include "chrome/browser/frame_util.h"
 
+#include "base/base_switches.h"
+#include "base/command_line.h"
 #include "base/message_loop.h"
 #include "base/win_util.h"
 #include "chrome/app/result_codes.h"
@@ -179,4 +181,3 @@ void FrameUtil::EndSession() {
   // down. If any messages are processed we'll likely crash. Exit now.
   ExitProcess(ResultCodes::NORMAL_EXIT);
 }
-
