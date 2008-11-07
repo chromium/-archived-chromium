@@ -575,7 +575,7 @@ void RenderWidgetHost::WasRestored() {
 }
 
 void RenderWidgetHost::WasResized() {
-  if (resize_ack_pending_ || !process_->channel())
+  if (resize_ack_pending_ || !process_->channel() || !view_)
     return;
 
   gfx::Rect view_bounds = view_->GetViewBounds();
