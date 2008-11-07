@@ -161,6 +161,55 @@ installer::Version* GetVersionFromDir(const std::wstring& chrome_path) {
   return version;
 }
 
+// This function is called when --rename-chrome-exe option is specified on
+// setup.exe command line. This function assumes an in-use update has happened
+// for Chrome so there should be a file called new_chrome.exe on the file
+// system and a key called 'opv' in the registry. This function will move
+// new_chrome.exe to chrome.exe and delete 'opv' key in one atomic operation.
+installer_util::InstallStatus RenameChromeExecutables(bool system_install) {
+  std::wstring chrome_path(installer::GetChromeInstallPath(system_install));
+
+  std::wstring chrome_exe(chrome_path);
+  file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
+  std::wstring chrome_old_exe(chrome_path);
+  file_util::AppendToPath(&chrome_old_exe, installer_util::kChromeOldExe);
+  std::wstring chrome_new_exe(chrome_path);
+  file_util::AppendToPath(&chrome_new_exe, installer_util::kChromeNewExe);
+
+  scoped_ptr<WorkItemList> install_list(WorkItem::CreateWorkItemList());
+  install_list->AddDeleteTreeWorkItem(chrome_old_exe, std::wstring());
+  std::wstring temp_path;
+  if (!file_util::CreateNewTempDirectory(std::wstring(L"chrome_"),
+                                         &temp_path)) {
+    LOG(ERROR) << "Failed to create Temp directory " << temp_path;
+    return installer_util::RENAME_FAILED;
+  }
+  install_list->AddCopyTreeWorkItem(chrome_new_exe,
+                                    chrome_exe,
+                                    temp_path,
+                                    WorkItem::IF_DIFFERENT,
+                                    std::wstring());
+  HKEY reg_root = system_install ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+  BrowserDistribution *dist = BrowserDistribution::GetDistribution();
+  install_list->AddDeleteRegValueWorkItem(reg_root,
+                                          dist->GetVersionKey(),
+                                          google_update::kRegOldVersionField,
+                                          true);
+  install_list->AddDeleteTreeWorkItem(chrome_new_exe, std::wstring());
+  install_list->AddDeleteRegValueWorkItem(reg_root,
+                                          dist->GetVersionKey(),
+                                          google_update::kRegRenameCmdField,
+                                          true);
+  installer_util::InstallStatus ret = installer_util::RENAME_SUCCESSFUL;
+  if (!install_list->Do()) {
+    LOG(ERROR) << "Renaming of executables failed. Rolling back any changes.";
+    install_list->Rollback();
+    ret = installer_util::RENAME_FAILED;
+  }
+  file_util::Delete(temp_path, true);
+  return ret;
+}
+
 // Parse command line and read master profile, if present, to get distribution
 // related install options.
 int GetInstallOptions(const CommandLine& cmd_line) {
@@ -450,6 +499,11 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     std::wstring chrome_exe(parsed_command_line.GetSwitchValue(
         installer_util::switches::kRegisterChromeBrowser));
     return ShellUtil::AddChromeToSetAccessDefaults(chrome_exe, true);
+  // If --rename-chrome-exe is specified, we want to rename the executables
+  // and exit.
+  } else if (parsed_command_line.HasSwitch(
+      installer_util::switches::kRenameChromeExe)) {
+    return RenameChromeExecutables(system_install);
   }
 
   if (system_install &&

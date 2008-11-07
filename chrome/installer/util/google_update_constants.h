@@ -23,6 +23,8 @@ extern const wchar_t kRegDidRunField[];
 extern const wchar_t kRegLangField[];
 extern const wchar_t kRegLastCheckedField[];
 extern const wchar_t kRegNameField[];
+extern const wchar_t kRegOldVersionField[];
+extern const wchar_t kRegRenameCmdField[];
 extern const wchar_t kRegRLZBrandField[];
 extern const wchar_t kRegUsageStatsField[];
 extern const wchar_t kRegVersionField[];

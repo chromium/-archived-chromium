@@ -307,7 +307,7 @@ TEST_F(CopyTreeWorkItemTest, CopyFileInUse) {
 
   // Create an executable in destination path by copying ourself to it.
   wchar_t exe_full_path_str[MAX_PATH];
-  ::GetModuleFileNameW(NULL, exe_full_path_str, MAX_PATH);
+  ::GetModuleFileName(NULL, exe_full_path_str, MAX_PATH);
   std::wstring exe_full_path(exe_full_path_str);
 
   std::wstring dir_name_to(test_dir_);
@@ -326,7 +326,7 @@ TEST_F(CopyTreeWorkItemTest, CopyFileInUse) {
   STARTUPINFOW si = {sizeof(si)};
   PROCESS_INFORMATION pi = {0};
   ASSERT_TRUE(
-      ::CreateProcessW(NULL, const_cast<wchar_t*>(file_name_to.c_str()),
+      ::CreateProcess(NULL, const_cast<wchar_t*>(file_name_to.c_str()),
                        NULL, NULL, FALSE, CREATE_NO_WINDOW | CREATE_SUSPENDED,
                        NULL, NULL, &si, &pi));
 
@@ -361,16 +361,18 @@ TEST_F(CopyTreeWorkItemTest, CopyFileInUse) {
 
   TerminateProcess(pi.hProcess, 0);
   // make sure the handle is closed.
-  WaitForSingleObject(pi.hProcess, INFINITE);
+  EXPECT_TRUE(WaitForSingleObject(pi.hProcess, 10000) == WAIT_OBJECT_0);
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
 }
 
-// Test overwrite option RENAME_IF_IN_USE:
+// Test overwrite option NEW_NAME_IF_IN_USE:
 // 1. If destination file is in use, the source should be copied with the
 //    new name after Do() and this new name file should be deleted
 //    after rollback.
 // 2. If destination file is not in use, the source should be copied in the
 //    destination folder after Do() and should be rolled back after Rollback().
-TEST_F(CopyTreeWorkItemTest, RenameAndCopyTest) {
+TEST_F(CopyTreeWorkItemTest, NewNameAndCopyTest) {
   // Create source file
   std::wstring file_name_from(test_dir_);
   file_util::AppendToPath(&file_name_from, L"File_From");
@@ -379,7 +381,7 @@ TEST_F(CopyTreeWorkItemTest, RenameAndCopyTest) {
 
   // Create an executable in destination path by copying ourself to it.
   wchar_t exe_full_path_str[MAX_PATH];
-  ::GetModuleFileNameW(NULL, exe_full_path_str, MAX_PATH);
+  ::GetModuleFileName(NULL, exe_full_path_str, MAX_PATH);
   std::wstring exe_full_path(exe_full_path_str);
 
   std::wstring dir_name_to(test_dir_);
@@ -399,7 +401,7 @@ TEST_F(CopyTreeWorkItemTest, RenameAndCopyTest) {
   STARTUPINFOW si = {sizeof(si)};
   PROCESS_INFORMATION pi = {0};
   ASSERT_TRUE(
-      ::CreateProcessW(NULL, const_cast<wchar_t*>(file_name_to.c_str()),
+      ::CreateProcess(NULL, const_cast<wchar_t*>(file_name_to.c_str()),
                        NULL, NULL, FALSE, CREATE_NO_WINDOW | CREATE_SUSPENDED,
                        NULL, NULL, &si, &pi));
 
@@ -410,7 +412,7 @@ TEST_F(CopyTreeWorkItemTest, RenameAndCopyTest) {
   // test Do().
   scoped_ptr<CopyTreeWorkItem> work_item(
       WorkItem::CreateCopyTreeWorkItem(file_name_from, file_name_to,
-                                       temp_dir_, WorkItem::RENAME_IF_IN_USE,
+                                       temp_dir_, WorkItem::NEW_NAME_IF_IN_USE,
                                        alternate_to));
 
   EXPECT_TRUE(work_item->Do());
@@ -436,11 +438,13 @@ TEST_F(CopyTreeWorkItemTest, RenameAndCopyTest) {
 
   TerminateProcess(pi.hProcess, 0);
   // make sure the handle is closed.
-  WaitForSingleObject(pi.hProcess, INFINITE);
+  EXPECT_TRUE(WaitForSingleObject(pi.hProcess, 10000) == WAIT_OBJECT_0);
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
 
   // Now the process has terminated, lets try overwriting the file again
   work_item.reset(WorkItem::CreateCopyTreeWorkItem(
-      file_name_from, file_name_to, temp_dir_, WorkItem::RENAME_IF_IN_USE,
+      file_name_from, file_name_to, temp_dir_, WorkItem::NEW_NAME_IF_IN_USE,
       alternate_to));
   EXPECT_TRUE(work_item->Do());
 
@@ -478,7 +482,7 @@ TEST_F(CopyTreeWorkItemTest, IfNotPresentTest) {
 
   // Create an executable in destination path by copying ourself to it.
   wchar_t exe_full_path_str[MAX_PATH];
-  ::GetModuleFileNameW(NULL, exe_full_path_str, MAX_PATH);
+  ::GetModuleFileName(NULL, exe_full_path_str, MAX_PATH);
   std::wstring exe_full_path(exe_full_path_str);
   std::wstring dir_name_to(test_dir_);
   file_util::AppendToPath(&dir_name_to, L"Copy_To_Subdir");
@@ -554,7 +558,7 @@ TEST_F(CopyTreeWorkItemTest, CopyFileInUseAndCleanup) {
 
   // Create an executable in destination path by copying ourself to it.
   wchar_t exe_full_path_str[MAX_PATH];
-  ::GetModuleFileNameW(NULL, exe_full_path_str, MAX_PATH);
+  ::GetModuleFileName(NULL, exe_full_path_str, MAX_PATH);
   std::wstring exe_full_path(exe_full_path_str);
 
   std::wstring dir_name_to(test_dir_);
@@ -573,7 +577,7 @@ TEST_F(CopyTreeWorkItemTest, CopyFileInUseAndCleanup) {
   STARTUPINFOW si = {sizeof(si)};
   PROCESS_INFORMATION pi = {0};
   ASSERT_TRUE(
-      ::CreateProcessW(NULL, const_cast<wchar_t*>(file_name_to.c_str()),
+      ::CreateProcess(NULL, const_cast<wchar_t*>(file_name_to.c_str()),
                        NULL, NULL, FALSE, CREATE_NO_WINDOW | CREATE_SUSPENDED,
                        NULL, NULL, &si, &pi));
 
@@ -604,7 +608,9 @@ TEST_F(CopyTreeWorkItemTest, CopyFileInUseAndCleanup) {
 
   TerminateProcess(pi.hProcess, 0);
   // make sure the handle is closed.
-  WaitForSingleObject(pi.hProcess, INFINITE);
+  EXPECT_TRUE(WaitForSingleObject(pi.hProcess, 10000) == WAIT_OBJECT_0);
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
 }
 
 // Copy a tree from source to destination.

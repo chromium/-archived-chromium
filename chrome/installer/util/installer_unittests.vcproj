@@ -164,6 +164,10 @@
 				>
 			</File>
 			<File
+				RelativePath="delete_reg_value_work_item_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="delete_tree_work_item_unittest.cc"
 				>
 			</File>

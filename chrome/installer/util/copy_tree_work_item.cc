@@ -36,7 +36,7 @@ bool CopyTreeWorkItem::Do() {
   }
 
   bool dest_exist = file_util::PathExists(dest_path_);
-  // handle overwrite_option_ = IF_DIFFERENT case
+  // handle overwrite_option_ = IF_DIFFERENT case.
   if ((dest_exist) &&
       (overwrite_option_ == WorkItem::IF_DIFFERENT) && // only for single file
       (!PathIsDirectory(source_path_.c_str())) &&
@@ -46,14 +46,12 @@ bool CopyTreeWorkItem::Do() {
               << " and destination file " << dest_path_
               << " are exactly same. Returning true.";
     return true;
-  }
-
-  // handle overwrite_option_ = RENAME_IF_IN_USE case
-  if ((dest_exist) &&
-      (overwrite_option_ == WorkItem::RENAME_IF_IN_USE) && // only for a file
-      (!PathIsDirectory(source_path_.c_str())) &&
-      (!PathIsDirectory(dest_path_.c_str())) &&
-      (IsFileInUse(dest_path_))) {
+  } else if ((dest_exist) &&
+             (overwrite_option_ == WorkItem::NEW_NAME_IF_IN_USE) &&
+             (!PathIsDirectory(source_path_.c_str())) &&
+             (!PathIsDirectory(dest_path_.c_str())) &&
+             (IsFileInUse(dest_path_))) {
+    // handle overwrite_option_ = NEW_NAME_IF_IN_USE case.
     if (alternative_path_.empty() ||
         file_util::PathExists(alternative_path_) ||
         !file_util::CopyFile(source_path_, alternative_path_)) {
@@ -66,15 +64,13 @@ bool CopyTreeWorkItem::Do() {
                 << " to alternative path " << alternative_path_;
       return true;
     }
-  }
-
-  // handle overwrite_option_ = IF_NOT_PRESENT case
-  if ((dest_exist) &&
-      (overwrite_option_ == WorkItem::IF_NOT_PRESENT)) {
+  } else if ((dest_exist) &&
+             (overwrite_option_ == WorkItem::IF_NOT_PRESENT)) {
+    // handle overwrite_option_ = IF_NOT_PRESENT case.
     return true;
-  }
+  } 
 
-  // All other cases where we move dest if it exists, and copy the files
+  // In all cases that reach here, move dest to a backup path.
   if (dest_exist) {
     if (!GetBackupPath())
       return false;
@@ -89,6 +85,7 @@ bool CopyTreeWorkItem::Do() {
     }
   }
 
+  // In all cases that reach here, copy source to destination.
   if (file_util::CopyDirectory(source_path_, dest_path_, true)) {
     copied_to_dest_path_ = true;
     LOG(INFO) << "Copied source " << source_path_

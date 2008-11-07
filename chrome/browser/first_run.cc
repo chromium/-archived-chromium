@@ -13,7 +13,9 @@
 #include "base/logging.h"
 #include "base/object_watcher.h"
 #include "base/path_service.h"
+#include "base/process.h"
 #include "base/process_util.h"
+#include "base/registry.h"
 #include "base/string_util.h"
 #include "chrome/app/result_codes.h"
 #include "chrome/common/chrome_constants.h"
@@ -27,8 +29,12 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/installer/util/browser_distribution.h"
+#include "chrome/installer/util/google_update_constants.h"
+#include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/master_preferences.h"
 #include "chrome/installer/util/shell_util.h"
+#include "chrome/installer/util/util_constants.h"
 #include "chrome/views/accelerator_handler.h"
 #include "chrome/views/window.h"
 
@@ -36,10 +42,6 @@ namespace {
 
 // The kSentinelFile file absence will tell us it is a first run.
 const wchar_t kSentinelFile[] = L"First Run";
-
-// These two names are used for upgrades in-place of the chrome exe.
-const wchar_t kChromeUpgradeExe[] = L"new_chrome.exe";
-const wchar_t kChromeBackupExe[] = L"old_chrome.exe";
 
 // Gives the full path to the sentinel file. The file might not exist.
 bool GetFirstRunSentinelFilePath(std::wstring* path) {
@@ -54,14 +56,14 @@ bool GetFirstRunSentinelFilePath(std::wstring* path) {
 bool GetNewerChromeFile(std::wstring* path) {
   if (!PathService::Get(base::DIR_EXE, path))
     return false;
-  file_util::AppendToPath(path, kChromeUpgradeExe);
+  file_util::AppendToPath(path, installer_util::kChromeNewExe);
   return true;
 }
 
 bool GetBackupChromeFile(std::wstring* path) {
   if (!PathService::Get(base::DIR_EXE, path))
     return false;
-  file_util::AppendToPath(path, kChromeBackupExe);
+  file_util::AppendToPath(path, installer_util::kChromeOldExe);
   return true;
 }
 
@@ -197,6 +199,22 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
   std::wstring old_chrome_exe;
   if (!PathService::Get(base::FILE_EXE, &old_chrome_exe))
     return false;
+  RegKey key;
+  HKEY reg_root = InstallUtil::IsPerUserInstall(old_chrome_exe.c_str()) ?
+      HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
+  BrowserDistribution *dist = BrowserDistribution::GetDistribution();
+  std::wstring rename_cmd;
+  if (key.Open(reg_root, dist->GetVersionKey().c_str(), KEY_READ) &&
+      key.ReadValue(google_update::kRegRenameCmdField, &rename_cmd)) {
+    ProcessHandle handle;
+    if (process_util::LaunchApp(rename_cmd, true, true, &handle)) {
+      DWORD exit_code;
+      ::GetExitCodeProcess(handle, &exit_code);
+      ::CloseHandle(handle);
+      if (exit_code == installer_util::RENAME_SUCCESSFUL)
+        return true;
+    }
+  }
   std::wstring backup_exe;
   if (!GetBackupChromeFile(&backup_exe))
     return false;

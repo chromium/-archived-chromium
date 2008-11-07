@@ -441,10 +441,10 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   // Sometimes we end up killing browser process (http://b/1308130) so make
   // sure we recreate unique event to indicate running browser process.
   message_window.HuntForZombieChromeProcesses();
-  CreateUniqueChromeEvent();
+  already_running = (already_running && CreateUniqueChromeEvent());
 
   // Do the tasks if chrome has been upgraded while it was last running.
-  if (DoUpgradeTasks(parsed_command_line)) {
+  if (!already_running && DoUpgradeTasks(parsed_command_line)) {
     return ResultCodes::NORMAL_EXIT;
   }
 

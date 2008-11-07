@@ -5,9 +5,9 @@
 #include "chrome/app/client_util.h"
 #include "chrome/installer/util/install_util.h"
 
-namespace client_util {
-const wchar_t kProductVersionKey[] = L"pv";
+#include "chrome/installer/util/google_update_constants.h"
 
+namespace client_util {
 bool FileExists(const wchar_t* const file_path) {
   WIN32_FILE_ATTRIBUTE_DATA attrs;
   return ::GetFileAttributesEx(file_path, GetFileExInfoStandard, &attrs) != 0;
@@ -25,10 +25,24 @@ bool GetChromiumVersion(const wchar_t* const exe_path,
   }
   DWORD size = 0;
   bool ret = false;
-  if (::RegQueryValueEx(reg_key, client_util::kProductVersionKey, NULL, NULL,
+  if (::RegQueryValueEx(reg_key, google_update::kRegOldVersionField, NULL, NULL,
                         NULL, &size) == ERROR_SUCCESS) {
     *version = new wchar_t[1 + (size / sizeof(wchar_t))];
-    if (::RegQueryValueEx(reg_key, client_util::kProductVersionKey,
+    if (::RegQueryValueEx(reg_key, google_update::kRegOldVersionField,
+                          NULL, NULL, reinterpret_cast<BYTE*>(*version),
+                          &size) == ERROR_SUCCESS) {
+      ret = true;
+    } else {
+      delete[] *version;
+    }
+    ::RegCloseKey(reg_key);
+    return ret;
+  }
+
+  if (::RegQueryValueEx(reg_key, google_update::kRegVersionField, NULL, NULL,
+                        NULL, &size) == ERROR_SUCCESS) {
+    *version = new wchar_t[1 + (size / sizeof(wchar_t))];
+    if (::RegQueryValueEx(reg_key, google_update::kRegVersionField,
                           NULL, NULL, reinterpret_cast<BYTE*>(*version),
                           &size) == ERROR_SUCCESS) {
       ret = true;

@@ -3,10 +3,12 @@
 // found in the LICENSE file.
 
 #include "chrome/installer/util/work_item.h"
+
 #include "chrome/installer/util/copy_tree_work_item.h"
 #include "chrome/installer/util/create_dir_work_item.h"
 #include "chrome/installer/util/create_reg_key_work_item.h"
 #include "chrome/installer/util/delete_tree_work_item.h"
+#include "chrome/installer/util/delete_reg_value_work_item.h"
 #include "chrome/installer/util/set_reg_value_work_item.h"
 #include "chrome/installer/util/work_item_list.h"
 
@@ -30,6 +32,13 @@ CreateDirWorkItem* WorkItem::CreateCreateDirWorkItem(std::wstring path) {
 CreateRegKeyWorkItem* WorkItem::CreateCreateRegKeyWorkItem(
     HKEY predefined_root, std::wstring path) {
   return new CreateRegKeyWorkItem(predefined_root, path);
+}
+
+DeleteRegValueWorkItem* WorkItem::CreateDeleteRegValueWorkItem(
+    HKEY predefined_root, std::wstring key_path,
+    std::wstring value_name, bool is_str_type) {
+  return new DeleteRegValueWorkItem(predefined_root, key_path,
+                                    value_name, is_str_type);
 }
 
 DeleteTreeWorkItem* WorkItem::CreateDeleteTreeWorkItem(std::wstring root_path,

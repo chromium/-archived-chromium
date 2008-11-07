@@ -6,8 +6,8 @@
 // out during install/update/uninstall. Supports rollback of actions if this
 // process fails.
 
-#ifndef CHROME_INSTALLER_UTIL_WORK_ITEM_H__
-#define CHROME_INSTALLER_UTIL_WORK_ITEM_H__
+#ifndef CHROME_INSTALLER_UTIL_WORK_ITEM_H_
+#define CHROME_INSTALLER_UTIL_WORK_ITEM_H_
 
 #include <string>
 #include <windows.h>
@@ -16,6 +16,7 @@ class CopyTreeWorkItem;
 class CreateDirWorkItem;
 class CreateRegKeyWorkItem;
 class DeleteTreeWorkItem;
+class DeleteRegValueWorkItem;
 class SetRegValueWorkItem;
 class WorkItemList;
 
@@ -29,16 +30,17 @@ class WorkItem {
     NEVER,  // Not used currently.
     IF_DIFFERENT,  // Overwrite if different. Currently only applies to file.
     IF_NOT_PRESENT,  // Copy only if file/directory do not exist already.
-    RENAME_IF_IN_USE  // Copy to a new path instead of overwriting (only files).
+    NEW_NAME_IF_IN_USE  // Copy to a new path if dest is in use(only files).
   };
 
   virtual ~WorkItem();
 
   // Create a CopyTreeWorkItem that recursively copies a file system hierarchy
-  // from source path to destination path. If overwrite_option is ALWAYS, the
-  // created CopyTreeWorkItem always overwrites files. If overwrite_option is
-  // RENAME_IF_IN_USE, file is copied with an alternate name specified by
-  // alternative_path.
+  // from source path to destination path.
+  // * If overwrite_option is ALWAYS, the created CopyTreeWorkItem always
+  //   overwrites files.
+  // * If overwrite_option is NEW_NAME_IF_IN_USE, file is copied with an
+  //   alternate name specified by alternative_path.
   static CopyTreeWorkItem* CreateCopyTreeWorkItem(std::wstring source_path,
       std::wstring dest_path, std::wstring temp_dir,
       CopyOverWriteOption overwrite_option,
@@ -51,6 +53,11 @@ class WorkItem {
   // path.
   static CreateRegKeyWorkItem* CreateCreateRegKeyWorkItem(
       HKEY predefined_root, std::wstring path);
+
+  // Create a DeleteRegValueWorkItem that deletes a registry value
+  static DeleteRegValueWorkItem* CreateDeleteRegValueWorkItem(
+      HKEY predefined_root, std::wstring key_path,
+      std::wstring value_name, bool is_str_type);
 
   // Create a DeleteTreeWorkItem that recursively deletes a file system
   // hierarchy at the given root path. A key file can be optionally specified
@@ -97,5 +104,5 @@ class WorkItem {
   WorkItem();
 };
 
-#endif  // CHROME_INSTALLER_UTIL_WORK_ITEM_H__
+#endif  // CHROME_INSTALLER_UTIL_WORK_ITEM_H_
 

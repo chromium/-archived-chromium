@@ -6,8 +6,6 @@
 
 namespace installer {
 // Elements that makes up install target path.
-const wchar_t kChromeOldExe[] = L"old_chrome.exe";
-const wchar_t kChromeNewExe[] = L"new_chrome.exe";
 const wchar_t kWowHelperExe[] = L"wow_helper.exe";
 const wchar_t kDictionaries[] = L"Dictionaries";
 const wchar_t kChromeArchive[] = L"chrome.7z";

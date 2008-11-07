@@ -87,6 +87,16 @@ bool WorkItemList::AddCreateRegKeyWorkItem(HKEY predefined_root,
   return AddWorkItem(item);
 }
 
+bool WorkItemList::AddDeleteRegValueWorkItem(HKEY predefined_root,
+                                             std::wstring key_path,
+                                             std::wstring value_name,
+                                             bool is_str_type) {
+  WorkItem* item = reinterpret_cast<WorkItem*>(
+      WorkItem::CreateDeleteRegValueWorkItem(predefined_root, key_path,
+                                             value_name, is_str_type));
+  return AddWorkItem(item);
+}
+
 bool WorkItemList::AddDeleteTreeWorkItem(std::wstring root_path,
                                          std::wstring key_path) {
   WorkItem* item = reinterpret_cast<WorkItem*>(

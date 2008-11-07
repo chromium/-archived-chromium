@@ -31,6 +31,8 @@ enum InstallStatus {
   UNINSTALL_FAILED,      // Chrome uninstallation failed
   UNINSTALL_CANCELLED,   // User cancelled Chrome uninstallation
   UNKNOWN_STATUS,        // Unknown status (this should never happen)
+  RENAME_SUCCESSFUL,     // Rename of new_chrome.exe to chrome.exe worked
+  RENAME_FAILED          // Rename of new_chrome.exe failed
 };
 
 // These are distibution related install options specified through command
@@ -64,6 +66,7 @@ extern const wchar_t kInstallerData[];
 extern const wchar_t kLogFile[];
 extern const wchar_t kMakeChromeDefault[];
 extern const wchar_t kRegisterChromeBrowser[];
+extern const wchar_t kRenameChromeExe[];
 extern const wchar_t kSystemLevel[];
 extern const wchar_t kUninstall[];
 extern const wchar_t kVerboseLogging[];
@@ -71,6 +74,8 @@ extern const wchar_t kVerboseLogging[];
 
 extern const wchar_t kInstallBinaryDir[];
 extern const wchar_t kChromeExe[];
+extern const wchar_t kChromeOldExe[];
+extern const wchar_t kChromeNewExe[];
 extern const wchar_t kChromeDll[];
 extern const wchar_t kSetupExe[];
 

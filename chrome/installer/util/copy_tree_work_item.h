@@ -56,7 +56,7 @@ class CopyTreeWorkItem : public WorkItem {
   // Controls the behavior for overwriting.
   CopyOverWriteOption overwrite_option_;
 
-  // If overwrite_option_ = RENAME_IF_IN_USE, this variables stores the path
+  // If overwrite_option_ = NEW_NAME_IF_IN_USE, this variables stores the path
   // to be used if the file is in use and hence we want to copy it to a
   // different path.
   std::wstring alternative_path_;

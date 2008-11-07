@@ -9,8 +9,6 @@
 
 namespace installer {
 
-extern const wchar_t kChromeOldExe[];
-extern const wchar_t kChromeNewExe[];
 extern const wchar_t kWowHelperExe[];
 extern const wchar_t kDictionaries[];
 extern const wchar_t kChromeArchive[];
