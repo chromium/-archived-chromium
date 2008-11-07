@@ -58,6 +58,23 @@ void OpenAll(HWND parent,
              BookmarkNode* node,
              WindowOpenDisposition initial_disposition);
 
+// Copies nodes onto the clipboard. If |remove_nodes| is true the nodes are
+// removed after copied to the clipboard. The nodes are copied in such a way
+// that if pasted again copies are made.
+void CopyToClipboard(BookmarkModel* model,
+                     const std::vector<BookmarkNode*>& nodes,
+                     bool remove_nodes);
+
+// Pastes from the clipboard. The new nodes are added to |parent|, unless
+// |parent| is null in which case this does nothing. The nodes are inserted
+// at |index|. If |index| is -1 the nodes are added to the end.
+void PasteFromClipboard(BookmarkModel* model,
+                        BookmarkNode* parent,
+                        int index);
+
+// Returns true if the user can copy from the pasteboard.
+bool CanPasteFromClipboard(BookmarkNode* node);
+
 }  // namespace bookmark_utils
 
 #endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_UTILS_H_

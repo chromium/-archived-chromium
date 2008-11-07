@@ -395,6 +395,14 @@ LRESULT TreeView::OnNotify(int w_param, LPNMHDR l_param) {
       return 0;
     }
 
+    case TVN_KEYDOWN:
+      if (controller_) {
+        NMTVKEYDOWN* key_down_message =
+            reinterpret_cast<NMTVKEYDOWN*>(l_param);
+        controller_->OnTreeViewKeyDown(key_down_message->wVKey);
+      }
+      break;
+
     default:
       break;
   }

@@ -88,6 +88,42 @@ class ImportObserverImpl : public ImportObserver {
   DISALLOW_COPY_AND_ASSIGN(ImportObserverImpl);
 };
 
+// Converts a virtual keycode into the CutCopyPasteType.
+BookmarkManagerView::CutCopyPasteType KeyCodeToCutCopyPaste(
+    unsigned short virtual_keycode) {
+  switch (virtual_keycode) {
+    case VK_INSERT:
+      if (GetKeyState(VK_CONTROL) < 0)
+        return BookmarkManagerView::COPY;
+      if (GetKeyState(VK_SHIFT) < 0)
+        return BookmarkManagerView::PASTE;
+      return BookmarkManagerView::NONE;
+
+    case VK_DELETE:
+      if (GetKeyState(VK_SHIFT) < 0)
+        return BookmarkManagerView::CUT;
+      return BookmarkManagerView::NONE;
+
+    case 'C':
+      if (GetKeyState(VK_CONTROL) < 0)
+        return BookmarkManagerView::COPY;
+      return BookmarkManagerView::NONE;
+
+    case 'V':
+      if (GetKeyState(VK_CONTROL) < 0)
+        return BookmarkManagerView::PASTE;
+      return BookmarkManagerView::NONE;
+
+    case 'X':
+      if (GetKeyState(VK_CONTROL) < 0)
+        return BookmarkManagerView::CUT;
+      return BookmarkManagerView::NONE;
+
+    default:
+      return BookmarkManagerView::NONE;
+  }
+}
+
 }  // namespace
 
 BookmarkManagerView::BookmarkManagerView(Profile* profile)
@@ -320,8 +356,13 @@ void BookmarkManagerView::OnKeyDown(unsigned short virtual_keycode) {
   switch (virtual_keycode) {
     case VK_RETURN: {
       std::vector<BookmarkNode*> selected_nodes = GetSelectedTableNodes();
-      if (selected_nodes.size() == 1 && selected_nodes[0]->is_folder())
+      if (selected_nodes.size() == 1 && selected_nodes[0]->is_folder()) {
         SelectInTree(selected_nodes[0]);
+      } else {
+        bookmark_utils::OpenAll(
+            GetContainer()->GetHWND(), profile_, NULL, selected_nodes,
+            CURRENT_TAB);
+      }
       break;
     }
 
@@ -333,6 +374,10 @@ void BookmarkManagerView::OnKeyDown(unsigned short virtual_keycode) {
       }
       break;
     }
+
+    default:
+      OnCutCopyPaste(KeyCodeToCutCopyPaste(virtual_keycode), true);
+      break;
   }
 }
 
@@ -372,6 +417,24 @@ void BookmarkManagerView::OnTreeViewSelectionChanged(
   SetTableModel(new_table_model, table_parent_node);
 }
 
+void BookmarkManagerView::OnTreeViewKeyDown(unsigned short virtual_keycode) {
+  switch (virtual_keycode) {
+    case VK_DELETE: {
+      BookmarkNode* node = GetSelectedFolder();
+      if (!node || node->GetParent() == GetBookmarkModel()->root_node())
+        return;
+
+      BookmarkNode* parent = node->GetParent();
+      GetBookmarkModel()->Remove(parent, parent->IndexOfChild(node));
+      break;
+    }
+
+    default:
+      OnCutCopyPaste(KeyCodeToCutCopyPaste(virtual_keycode), false);
+      break;
+  }
+}
+
 void BookmarkManagerView::Loaded(BookmarkModel* model) {
   model->RemoveObserver(this);
   LoadedImpl();
@@ -401,6 +464,14 @@ void BookmarkManagerView::ShowContextMenu(views::View* source,
                                           bool is_mouse_gesture) {
   DCHECK(source == table_view_ || source == tree_view_);
   bool is_table = (source == table_view_);
+  if (is_table && x == -1 && y == -1) {
+    // TODO(sky): promote code to tableview that determines the location based
+    // on the selection. This is temporary until I fix that.
+    gfx::Point location(table_view_->width() / 2, table_view_->height() / 2);
+    View::ConvertPointToScreen(table_view_, &location);
+    x = location.x();
+    y = location.y();
+  }
   ShowMenu(GetContainer()->GetHWND(), x, y,
            is_table ? BookmarkContextMenu::BOOKMARK_MANAGER_TABLE :
                       BookmarkContextMenu::BOOKMARK_MANAGER_TREE);
@@ -581,6 +652,31 @@ void BookmarkManagerView::ShowMenu(
     BookmarkContextMenu menu(GetContainer()->GetHWND(), profile_, NULL, NULL,
                              node, nodes, config);
     menu.RunMenuAt(x, y);
+  }
+}
+
+void BookmarkManagerView::OnCutCopyPaste(CutCopyPasteType type,
+                                         bool from_table) {
+  if (type == CUT || type == COPY) {
+    std::vector<BookmarkNode*> nodes;
+    if (from_table) {
+      nodes = GetSelectedTableNodes();
+    } else {
+      BookmarkNode* node = GetSelectedFolder();
+      if (!node || node->GetParent() == GetBookmarkModel()->root_node())
+        return;
+      nodes.push_back(node);
+    }
+    if (nodes.empty())
+      return;
+
+    bookmark_utils::CopyToClipboard(GetBookmarkModel(), nodes, type == CUT);
+  } else if (type == PASTE) {
+    int index = from_table ? table_view_->FirstSelectedRow() : -1;
+    if (index != -1)
+      index++;
+    bookmark_utils::PasteFromClipboard(GetBookmarkModel(), GetSelectedFolder(),
+                                       index);
   }
 }
 

@@ -92,7 +92,7 @@ void BookmarkDragData::Write(Profile* profile, OSExchangeData* data) const {
   }
 
   Pickle data_pickle;
-  data_pickle.WriteWString(profile->GetPath());
+  data_pickle.WriteWString(profile ? profile->GetPath() : std::wstring());
   data_pickle.WriteSize(elements.size());
 
   for (size_t i = 0; i < elements.size(); ++i)
@@ -162,5 +162,6 @@ BookmarkNode* BookmarkDragData::GetFirstNode(Profile* profile) const {
 }
 
 bool BookmarkDragData::IsFromProfile(Profile* profile) const {
-  return (profile->GetPath() == profile_path_);
+  // An empty path means the data is not associated with any profile.
+  return (!profile_path_.empty() && profile->GetPath() == profile_path_);
 }

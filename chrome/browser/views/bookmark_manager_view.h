@@ -45,6 +45,13 @@ class BookmarkManagerView : public views::View,
                             public views::MenuDelegate,
                             public SelectFileDialog::Listener {
  public:
+  enum CutCopyPasteType {
+    CUT,
+    COPY,
+    PASTE,
+    NONE
+  };
+
   explicit BookmarkManagerView(Profile* profile);
   virtual ~BookmarkManagerView();
 
@@ -63,7 +70,7 @@ class BookmarkManagerView : public views::View,
   // Expands all the children of the selected folder.
   void ExpandAll(BookmarkNode* node);
 
-  // Returns the selected folder, which may be null.
+  // Returns the selected folder in the tree, which may be null.
   BookmarkNode* GetSelectedFolder();
 
   // Returns the selection of the table.
@@ -99,8 +106,9 @@ class BookmarkManagerView : public views::View,
   virtual void OnTableViewDelete(views::TableView* table);
   virtual void OnKeyDown(unsigned short virtual_keycode);
 
-  // TreeViewController method.
+  // TreeViewController methods.
   virtual void OnTreeViewSelectionChanged(views::TreeView* tree_view);
+  virtual void OnTreeViewKeyDown(unsigned short virtual_keycode);
 
   // BookmarkModelObserver. We're only installed as an observer until the
   // bookmarks are loaded.
@@ -180,6 +188,10 @@ class BookmarkManagerView : public views::View,
                 int x,
                 int y,
                 BookmarkContextMenu::ConfigurationType config);
+
+  // Invoked to handle cut/copy/paste from the table or tree. If |from_table|
+  // is true the source is the table.
+  void OnCutCopyPaste(CutCopyPasteType type, bool from_table);
 
   // Shows the tools menu.
   void ShowToolsMenu(HWND host, int x, int y);

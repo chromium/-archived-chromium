@@ -97,6 +97,9 @@ class TreeViewController {
   virtual bool CanEdit(TreeView* tree_view, TreeModelNode* node) {
     return true;
   }
+
+  // Invoked when a key is pressed on the tree view.
+  virtual void OnTreeViewKeyDown(unsigned short virtual_keycode) {}
 };
 
 // TreeView -------------------------------------------------------------------

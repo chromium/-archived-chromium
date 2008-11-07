@@ -74,6 +74,8 @@ struct BookmarkDragData {
   // Writes elements to data. If there is only one element and it is a URL
   // the URL and title are written to the clipboard in a format other apps can
   // use.
+  // |profile| is used to identify which profile the data came from. Use a
+  // value of null to indicate the data is not associated with any profile.
   void Write(Profile* profile, OSExchangeData* data) const;
 
   // Restores this data from the clipboard, returning true on success.

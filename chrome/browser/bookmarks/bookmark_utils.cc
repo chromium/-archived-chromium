@@ -12,6 +12,7 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/os_exchange_data.h"
 #include "chrome/views/event.h"
 
 #include "chromium_strings.h"
@@ -235,6 +236,58 @@ void OpenAll(HWND parent,
   std::vector<BookmarkNode*> nodes;
   nodes.push_back(node);
   OpenAll(parent, profile, navigator, nodes, initial_disposition);
+}
+
+void CopyToClipboard(BookmarkModel* model,
+                     const std::vector<BookmarkNode*>& nodes,
+                     bool remove_nodes) {
+  if (nodes.empty())
+    return;
+
+  OSExchangeData* data = new OSExchangeData();
+  BookmarkDragData(nodes).Write(NULL, data);
+  OleSetClipboard(data);
+  // OLE takes ownership of OSExchangeData.
+
+  if (remove_nodes) {
+    for (size_t i = 0; i < nodes.size(); ++i) {
+      model->Remove(nodes[i]->GetParent(),
+                    nodes[i]->GetParent()->IndexOfChild(nodes[i]));
+    }
+  }
+}
+
+void PasteFromClipboard(BookmarkModel* model,
+                        BookmarkNode* parent,
+                        int index) {
+  if (!parent)
+    return;
+
+  IDataObject* data;
+  if (OleGetClipboard(&data) != S_OK)
+    return;
+
+  OSExchangeData data_wrapper(data);
+  BookmarkDragData bookmark_data;
+  if (!bookmark_data.Read(data_wrapper))
+    return;
+
+  if (index == -1)
+    index = parent->GetChildCount();
+  bookmark_utils::CloneDragData(model, bookmark_data.elements, parent, index);
+}
+
+bool CanPasteFromClipboard(BookmarkNode* node) {
+  if (!node)
+    return false;
+
+  IDataObject* data;
+  if (OleGetClipboard(&data) != S_OK)
+    return false;
+
+  OSExchangeData data_wrapper(data);
+  BookmarkDragData bookmark_data;
+  return bookmark_data.Read(data_wrapper);
 }
 
 }  // namespace bookmark_utils

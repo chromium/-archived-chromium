@@ -269,6 +269,20 @@ BookmarkContextMenu::BookmarkContextMenu(
         l10n_util::GetString(IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER));
   }
 
+  if (configuration == BOOKMARK_MANAGER_TABLE ||
+      configuration == BOOKMARK_MANAGER_TABLE_OTHER ||
+      configuration == BOOKMARK_MANAGER_TREE ||
+      configuration == BOOKMARK_MANAGER_ORGANIZE_MENU ||
+      configuration == BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER) {
+    menu_->AppendSeparator();
+    menu_->AppendMenuItemWithLabel(
+        IDS_CUT, l10n_util::GetString(IDS_CUT));
+    menu_->AppendMenuItemWithLabel(
+        IDS_COPY, l10n_util::GetString(IDS_COPY));
+    menu_->AppendMenuItemWithLabel(
+        IDS_PASTE, l10n_util::GetString(IDS_PASTE));
+  }
+
   menu_->AppendSeparator();
 
   menu_->AppendMenuItemWithLabel(
@@ -413,6 +427,26 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       BookmarkManagerView::Show(profile_);
       break;
 
+    case IDS_COPY:
+    case IDS_CUT:
+      bookmark_utils::CopyToClipboard(profile_->GetBookmarkModel(),
+                                      selection_, id == IDS_CUT);
+      break;
+
+    case IDS_PASTE: {
+      // Always paste to parent.
+      if (!parent_)
+        return;
+
+      int index = (selection_.size() == 1) ?
+          parent_->IndexOfChild(selection_[0]) : -1;
+      if (index != -1)
+        index++;
+      bookmark_utils::PasteFromClipboard(profile_->GetBookmarkModel(),
+                                         parent_, index);
+      break;
+    }
+
     default:
       NOTREACHED();
   }
@@ -452,6 +486,14 @@ bool BookmarkContextMenu::IsCommandEnabled(int id) const {
     case IDS_BOOMARK_BAR_NEW_FOLDER:
     case IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK:
       return GetParentForNewNodes() != NULL;
+
+    case IDS_COPY:
+    case IDS_CUT:
+      return selection_.size() > 0 && !is_root_node;
+
+    case IDS_PASTE:
+      // Always paste to parent.
+      return bookmark_utils::CanPasteFromClipboard(parent_);
   }
   return true;
 }
