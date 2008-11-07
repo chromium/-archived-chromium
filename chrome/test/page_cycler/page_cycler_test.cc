@@ -113,36 +113,44 @@ class PageCyclerTest : public UITest {
         std::wstring chrome_name =
             (pid == chrome_filter.browser_process_id()) ? L"_b" : L"_r";
 
-        PrintResult(L"read_op", chrome_name, chrome_name + test_name,
+        PrintResult(L"read_op", chrome_name,
+                    L"r_op" + chrome_name + test_name,
                     static_cast<size_t>(io_counters.ReadOperationCount), L"",
                     false /* not important */);
-        PrintResult(L"write_op", chrome_name, chrome_name + test_name,
+        PrintResult(L"write_op", chrome_name,
+                    L"w_op" + chrome_name + test_name,
                     static_cast<size_t>(io_counters.WriteOperationCount), L"",
                     false /* not important */);
-        PrintResult(L"other_op", chrome_name, chrome_name + test_name,
+        PrintResult(L"other_op", chrome_name,
+                    L"o_op" + chrome_name + test_name,
                     static_cast<size_t>(io_counters.OtherOperationCount), L"",
                     false /* not important */);
 
         size_t total = static_cast<size_t>(io_counters.ReadOperationCount +
                                            io_counters.WriteOperationCount +
                                            io_counters.OtherOperationCount);
-        PrintResult(L"total_op", chrome_name, chrome_name + test_name,
+        PrintResult(L"total_op", chrome_name,
+                    L"IO_op" + chrome_name + test_name,
                     total, L"", true /* important */);
 
-        PrintResult(L"read_byte", chrome_name, chrome_name + test_name,
+        PrintResult(L"read_byte", chrome_name,
+                    L"r_b" + chrome_name + test_name,
                     static_cast<size_t>(io_counters.ReadTransferCount / 1024),
                     L"kb", false /* not important */);
-        PrintResult(L"write_byte", chrome_name, chrome_name + test_name,
+        PrintResult(L"write_byte", chrome_name,
+                    L"w_b" + chrome_name + test_name,
                     static_cast<size_t>(io_counters.WriteTransferCount / 1024),
                     L"kb", false /* not important */);
-        PrintResult(L"other_byte", chrome_name, chrome_name + test_name,
+        PrintResult(L"other_byte", chrome_name,
+                    L"o_b" + chrome_name + test_name,
                     static_cast<size_t>(io_counters.OtherTransferCount / 1024),
                     L"kb", false /* not important */);
 
         total = static_cast<size_t>((io_counters.ReadTransferCount +
                                      io_counters.WriteTransferCount +
                                      io_counters.OtherTransferCount) / 1024);
-        PrintResult(L"total_byte", chrome_name, chrome_name + test_name,
+        PrintResult(L"total_byte", chrome_name,
+                    L"IO_b" + chrome_name + test_name,
                     total, L"kb", true /* important */);
 
 
