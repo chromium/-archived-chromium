@@ -107,13 +107,13 @@ void Toolbar5Importer::Cancel() {
   // In the case when the thread is not importing messages we are to
   // cancel as soon as possible.
   Importer::Cancel();
-  
-  // If we are conducting network operations, post a message to the importer 
+
+  // If we are conducting network operations, post a message to the importer
   // thread for synchronization.
   if (NULL != delagate_loop_) {
     if (delagate_loop_ != MessageLoop::current()) {
       delagate_loop_->PostTask(
-          FROM_HERE, 
+          FROM_HERE,
           NewRunnableMethod(this, &Toolbar5Importer::Cancel));
     } else {
       EndImport();
@@ -132,7 +132,7 @@ void Toolbar5Importer::OnURLFetchComplete(
     EndImport();
     return;
   }
-  
+
   if (200 != response_code) {  // HTTP/Ok
     // Display to the user an error dialog and cancel the import
     EndImportBookmarks(false);
@@ -207,7 +207,7 @@ void Toolbar5Importer::GetAuthenticationFromServer() {
     EndImport();
     return;
   }
-      
+
   // Authentication is a token string retreived from the authentication server
   // To access it we call the url below with a random number replacing the
   // value in the string.
@@ -234,7 +234,7 @@ void Toolbar5Importer::GetBookmarkDataFromServer(const std::string& response) {
     EndImport();
     return;
   }
-  
+
   state_ = GET_BOOKMARKS;
 
   // Parse and verify the authorization token from the response.
@@ -268,9 +268,9 @@ void Toolbar5Importer::GetBookmarsFromServerDataResponse(
     EndImport();
     return;
   }
-  
+
   state_ = PARSE_BOOKMARKS;
-  
+
   bool retval = false;
   XmlReader reader;
   if (reader.Load(response) && !cancelled()) {
@@ -285,7 +285,7 @@ void Toolbar5Importer::GetBookmarsFromServerDataResponse(
 bool Toolbar5Importer::ParseAuthenticationTokenResponse(
     const std::string& response,
     std::string* token) {
-  DCHECK(token);  
+  DCHECK(token);
 
   *token = response;
   size_t position = token->find(kAuthorizationTokenPrefix);
@@ -322,14 +322,14 @@ bool Toolbar5Importer::ParseBookmarksFromReader(
     return false;
 
   // Parse each |bookmark| blob
-  while (LocateNextTagWithStopByName(reader, kBookmarkXmlTag, 
+  while (LocateNextTagWithStopByName(reader, kBookmarkXmlTag,
                                      kBookmarksXmlTag)) {
     ProfileWriter::BookmarkEntry bookmark_entry;
     std::vector<BOOKMARK_FOLDER> folders;
     if (ExtractBookmarkInformation(reader, &bookmark_entry, &folders)) {
       // For each folder we create a new bookmark entry.  Duplicates will
       // be detected whence we attempt to creaete the bookmark in the profile.
-      for(std::vector<BOOKMARK_FOLDER>::iterator folder = folders.begin();
+      for (std::vector<BOOKMARK_FOLDER>::iterator folder = folders.begin();
           folder != folders.end();
           ++folder) {
         bookmark_entry.path = *folder;
@@ -347,7 +347,7 @@ bool Toolbar5Importer::ParseBookmarksFromReader(
 bool Toolbar5Importer::LocateNextOpenTag(XmlReader* reader) {
   DCHECK(reader);
 
-  while(!reader->SkipToElement()) {
+  while (!reader->SkipToElement()) {
     if (!reader->Read())
       return false;
   }
@@ -374,12 +374,12 @@ bool Toolbar5Importer::LocateNextTagWithStopByName(XmlReader* reader,
   DCHECK_NE(tag, stop);
   // Locate the |tag| blob.
   while (tag != reader->NodeName()) {
-   // move to the next open tag
-   if (!reader->Read() || !LocateNextOpenTag(reader))
-     return false;
-   // if we encounter the stop word return false
-   if (stop == reader->NodeName())
-     return false;
+    // Move to the next open tag.
+    if (!reader->Read() || !LocateNextOpenTag(reader))
+      return false;
+    // If we encounter the stop word return false.
+    if (stop == reader->NodeName())
+      return false;
   }
   return true;
 }
@@ -516,12 +516,12 @@ bool Toolbar5Importer::ExtractFoldersFromXmlReader(
   // labels for any one bookmark.
   if (!LocateNextTagWithStopByName(reader, kLabelsXmlTag, kAttributesXmlTag))
     return false;
-    
+
   // It is within scope to have an empty labels section, so we do not
   // return false if the labels are empty.
   if (!reader->Read() || !LocateNextOpenTag(reader))
     return false;
-      
+
   std::vector<std::wstring> label_vector;
   while (kLabelXmlTag == reader->NodeName()) {
     std::string label_buffer;
@@ -537,7 +537,7 @@ bool Toolbar5Importer::ExtractFoldersFromXmlReader(
       bookmark_folders->resize(1);
       (*bookmark_folders)[0].push_back(
           l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_GOOGLE_TOOLBAR));
-    }    
+    }
     return true;
   }
 
@@ -546,15 +546,15 @@ bool Toolbar5Importer::ExtractFoldersFromXmlReader(
 
   for (size_t index = 0; index < label_vector.size(); ++index) {
     // If this is the first run then we place favorites with no labels
-    // in the title bar.  Else they are placed in the "Google Toolbar" folder.    
+    // in the title bar.  Else they are placed in the "Google Toolbar" folder.
     if (!FirstRun::IsChromeFirstRun() || !label_vector[index].empty()) {
       (*bookmark_folders)[index].push_back(
           l10n_util::GetString(IDS_BOOKMARK_GROUP_FROM_GOOGLE_TOOLBAR));
     }
-    
-    // If the label and is in the form "xxx:yyy:zzz" this was created from an 
-    // IE or Firefox folder.  We undo the label creation and recreate the correct
-    // folder.
+
+    // If the label and is in the form "xxx:yyy:zzz" this was created from an
+    // IE or Firefox folder.  We undo the label creation and recreate the
+    // correct folder.
     std::vector<std::wstring> folder_names;
     SplitString(label_vector[index], L':', &folder_names);
     (*bookmark_folders)[index].insert((*bookmark_folders)[index].end(),

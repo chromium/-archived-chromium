@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// The functionality provided here allows the user to import their bookmarks 
-// (favorites) from Google Toolbar.  
+// The functionality provided here allows the user to import their bookmarks
+// (favorites) from Google Toolbar.
 //
-// Currently the only configuration information we need is to check whether or 
+// Currently the only configuration information we need is to check whether or
 // not the user currently has their GAIA cookie.  This is done by the functions
 // exposed through the ToolbarImportUtils namespace.
 //
@@ -13,8 +13,8 @@
 // communicate with the Google Toolbar v5 front-end, negotiate the download of
 // Toolbar bookmarks, parse them, and install them on the client.
 
-#ifndef CHROME_BROWSER_IMPORTER_TOOLBAR_IMPROTER_H__
-#define CHROME_BROWSER_IMPORTER_TOOLBAR_IMPROTER_H__
+#ifndef CHROME_BROWSER_IMPORTER_TOOLBAR_IMPORTER_H__
+#define CHROME_BROWSER_IMPORTER_TOOLBAR_IMPORTER_H__
 
 #include <string>
 #include <vector>
@@ -25,10 +25,8 @@
 class XmlReader;
 
 namespace ToolbarImporterUtils {
-
 bool IsGoogleGAIACookieInstalled();
-
-};
+}  // namespace ToolbarImporterUtils
 
 class Toolbar5Importer : public URLFetcher::Delegate,
                          public Importer {
@@ -58,7 +56,7 @@ class Toolbar5Importer : public URLFetcher::Delegate,
 
  private:
   FRIEND_TEST(Toolbar5ImporterTest, BookmarkParse);
- 
+
   // Internal state
   enum INTERNAL_STATE {
     NOT_USED = -1,
@@ -117,8 +115,8 @@ class Toolbar5Importer : public URLFetcher::Delegate,
   static bool LocateNextOpenTag(XmlReader* reader);
   static bool LocateNextTagByName(XmlReader* reader, const std::string& tag);
   static bool LocateNextTagWithStopByName(
-      XmlReader* reader, 
-      const std::string& tag, 
+      XmlReader* reader,
+      const std::string& tag,
       const std::string& stop);
 
   static bool ExtractBookmarkInformation(
@@ -158,4 +156,4 @@ class Toolbar5Importer : public URLFetcher::Delegate,
   DISALLOW_COPY_AND_ASSIGN(Toolbar5Importer);
 };
 
-#endif  // CHROME_BROWSER_IMPORTER_TOOLBAR_IMPROTER_H__
+#endif  // CHROME_BROWSER_IMPORTER_TOOLBAR_IMPORTER_H__

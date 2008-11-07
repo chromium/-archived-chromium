@@ -289,7 +289,7 @@ static const std::string kBadBookMarkNoLabels =
     "<attribute> <name>section_name</name> <value>My section 0 "
     "</value> </attribute> </attributes> "
     "</bookmark> </bookmarks>";
-}
+}  // namespace toolbar_importer_unittest
 
 // Since the above is very dense to read I enumerate the test cases here.
 // 1. Correct bookmark structure with one label
@@ -326,12 +326,12 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
     &bookmarks));
 
   // verificaiton
-  EXPECT_TRUE(bookmarks.size() == 1);
+  EXPECT_EQ(bookmarks.size(), 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
-  EXPECT_TRUE(toolbar_importer_unittest::kTitle == bookmarks[0].title);
-  EXPECT_TRUE(url == bookmarks[0].url);
-  EXPECT_TRUE(2 == bookmarks[0].path.size());
-  EXPECT_TRUE(toolbar_importer_unittest::kFolder == bookmarks[0].path[1]);
+  EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
+  EXPECT_EQ(url, bookmarks[0].url);
+  EXPECT_EQ(2, bookmarks[0].path.size());
+  EXPECT_EQ(toolbar_importer_unittest::kFolder, bookmarks[0].path[1]);
 
   // Test case 2 - No labels
   bookmarks.clear();
@@ -341,11 +341,11 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
     &bookmarks));
 
   // verificaiton
-  EXPECT_TRUE(bookmarks.size() == 1);
+  EXPECT_EQ(bookmarks.size(), 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
-  EXPECT_TRUE(toolbar_importer_unittest::kTitle == bookmarks[0].title);
-  EXPECT_TRUE(bookmarks[0].url == url);
-  EXPECT_TRUE(1 == bookmarks[0].path.size());
+  EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
+  EXPECT_EQ(bookmarks[0].url, url);
+  EXPECT_EQ(1, bookmarks[0].path.size());
 
   // Test case 3 - Two labels
   bookmarks.clear();
@@ -355,15 +355,15 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
     &bookmarks));
 
   // verificaiton
-  EXPECT_TRUE(2 == bookmarks.size());
+  EXPECT_EQ(2, bookmarks.size());
   EXPECT_FALSE(bookmarks[0].in_toolbar);
   EXPECT_FALSE(bookmarks[1].in_toolbar);
-  EXPECT_TRUE(toolbar_importer_unittest::kTitle == bookmarks[0].title);
-  EXPECT_TRUE(toolbar_importer_unittest::kTitle == bookmarks[1].title);
-  EXPECT_TRUE(bookmarks[0].url == url);
-  EXPECT_TRUE(bookmarks[1].url == url);
-  EXPECT_TRUE(toolbar_importer_unittest::kFolder == bookmarks[0].path[1]);
-  EXPECT_TRUE(toolbar_importer_unittest::kFolder2 == bookmarks[1].path[1]);
+  EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
+  EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[1].title);
+  EXPECT_EQ(bookmarks[0].url, url);
+  EXPECT_EQ(bookmarks[1].url, url);
+  EXPECT_EQ(toolbar_importer_unittest::kFolder, bookmarks[0].path[1]);
+  EXPECT_EQ(toolbar_importer_unittest::kFolder2, bookmarks[1].path[1]);
 
   // Test case 4 - Label with a colon (file name translation).
   bookmarks.clear();
@@ -373,11 +373,11 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
     &bookmarks));
 
   // verificaiton
-  EXPECT_TRUE(bookmarks.size() == 1);
+  EXPECT_EQ(bookmarks.size(), 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
-  EXPECT_TRUE(toolbar_importer_unittest::kTitle == bookmarks[0].title);
-  EXPECT_TRUE(bookmarks[0].url == url);
-  EXPECT_TRUE(4 == bookmarks[0].path.size());
+  EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
+  EXPECT_EQ(bookmarks[0].url, url);
+  EXPECT_EQ(4, bookmarks[0].path.size());
   EXPECT_TRUE(toolbar_importer_unittest::kFolderArray[0] ==
       bookmarks[0].path[1]);
   EXPECT_TRUE(toolbar_importer_unittest::kFolderArray[1] ==
@@ -393,12 +393,12 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
     &bookmarks));
 
   // verificaiton
-  EXPECT_TRUE(1 == bookmarks.size());
+  EXPECT_EQ(1, bookmarks.size());
   EXPECT_FALSE(bookmarks[0].in_toolbar);
-  EXPECT_TRUE(toolbar_importer_unittest::kTitle == bookmarks[0].title);
-  EXPECT_TRUE(bookmarks[0].url == url);
-  EXPECT_TRUE(2 == bookmarks[0].path.size());
-  EXPECT_TRUE(toolbar_importer_unittest::kFolder == bookmarks[0].path[1]);
+  EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
+  EXPECT_EQ(bookmarks[0].url, url);
+  EXPECT_EQ(2, bookmarks[0].path.size());
+  EXPECT_EQ(toolbar_importer_unittest::kFolder, bookmarks[0].path[1]);
 
   // Test case 6 - Two bookmarks
   bookmarks.clear();
@@ -408,17 +408,17 @@ TEST(Toolbar5ImporterTest, BookmarkParse) {
     &bookmarks));
 
   // verificaiton
-  EXPECT_TRUE(2 == bookmarks.size());
+  EXPECT_EQ(2, bookmarks.size());
   EXPECT_FALSE(bookmarks[0].in_toolbar);
   EXPECT_FALSE(bookmarks[1].in_toolbar);
-  EXPECT_TRUE(toolbar_importer_unittest::kTitle == bookmarks[0].title);
-  EXPECT_TRUE(toolbar_importer_unittest::kOtherTitle == bookmarks[1].title);
-  EXPECT_TRUE(bookmarks[0].url == url);
-  EXPECT_TRUE(bookmarks[1].url == other_url);
-  EXPECT_TRUE(2 == bookmarks[0].path.size());
-  EXPECT_TRUE(toolbar_importer_unittest::kFolder == bookmarks[0].path[1]);
-  EXPECT_TRUE(2 == bookmarks[0].path.size());
-  EXPECT_TRUE(toolbar_importer_unittest::kOtherFolder == bookmarks[1].path[1]);
+  EXPECT_EQ(toolbar_importer_unittest::kTitle, bookmarks[0].title);
+  EXPECT_EQ(toolbar_importer_unittest::kOtherTitle, bookmarks[1].title);
+  EXPECT_EQ(bookmarks[0].url, url);
+  EXPECT_EQ(bookmarks[1].url, other_url);
+  EXPECT_EQ(2, bookmarks[0].path.size());
+  EXPECT_EQ(toolbar_importer_unittest::kFolder, bookmarks[0].path[1]);
+  EXPECT_EQ(2, bookmarks[0].path.size());
+  EXPECT_EQ(toolbar_importer_unittest::kOtherFolder, bookmarks[1].path[1]);
 
   // Test case 7 - Empty string
   bookmarks.clear();
