@@ -99,6 +99,12 @@ class MyChannelListener : public IPC::Channel::Listener {
     }
   }
 
+  virtual void OnChannelError() {
+    // There is a race when closing the channel so the last message may be lost.
+    EXPECT_LE(messages_left_, 1);
+    MessageLoop::current()->Quit();
+  }
+
   void Init(IPC::Message::Sender* s) {
     sender_ = s;
     messages_left_ = 50;
