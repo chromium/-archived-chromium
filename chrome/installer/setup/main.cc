@@ -533,7 +533,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   } else {
     install_status = InstallChrome(parsed_command_line,
                                    installed_version.get(),
-                                   system_install);
+                                   options);
   }
 
   CoUninitialize();
