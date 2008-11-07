@@ -441,11 +441,10 @@ class PageInfoContentView : public views::View {
   }
 
   // views::View overrides:
-  virtual void GetPreferredSize(CSize *out) {
-    DCHECK(out);
-    *out = views::Window::GetLocalizedContentsSize(
+  virtual gfx::Size GetPreferredSize() {
+    return gfx::Size(views::Window::GetLocalizedContentsSize(
         IDS_PAGEINFO_DIALOG_WIDTH_CHARS,
-        IDS_PAGEINFO_DIALOG_HEIGHT_LINES).ToSIZE();
+        IDS_PAGEINFO_DIALOG_HEIGHT_LINES));
   }
 
   virtual void Layout() {
@@ -616,10 +615,23 @@ void PageInfoWindow::SaveWindowPosition(const CRect& bounds,
 bool PageInfoWindow::RestoreWindowPosition(CRect* bounds,
                                            bool* maximized,
                                            bool* always_on_top) {
-  return window()->RestoreWindowPositionFromPrefService(
+  bool restore = window()->RestoreWindowPositionFromPrefService(
       g_browser_process->local_state(),
       prefs::kPageInfoWindowPlacement,
       bounds, maximized, always_on_top);
+
+  if (restore) {
+    // Force the correct width and height in case we've changed it
+    // or the pref got messed up (we know that some users will have
+    // the wrong preference if they ran into bug 3509). This isn't 
+    // a resizable dialog, so overriding the saved width and height
+    // shouldn't be noticable.
+    gfx::Size size = contents_->GetPreferredSize();
+    bounds->right = bounds->left + size.width();
+    bounds->bottom = bounds->top + size.height();
+  }
+
+  return restore;
 }
 
 views::View* PageInfoWindow::GetContentsView() {

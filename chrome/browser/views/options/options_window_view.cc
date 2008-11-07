@@ -23,9 +23,6 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
-static const int kDefaultWindowWidthChars = 85;
-static const int kDefaultWindowHeightLines = 29;
-
 ///////////////////////////////////////////////////////////////////////////////
 // OptionsWindowView
 //
