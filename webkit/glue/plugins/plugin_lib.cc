@@ -59,7 +59,7 @@ PluginLib* PluginLib::CreatePluginLib(const std::wstring& filename) {
     activex_shim::ActiveX_Shim_NP_Shutdown
   };
 
-  static const InternalPluginInfo activex_shim_windows_media_player = {
+  static const InternalPluginInfo activex_shim_wmplayer = {
     {kActivexShimFileNameForMediaPlayer,
      kActivexShimFileNameForMediaPlayer,
      L"Windows Media Player",
@@ -75,7 +75,7 @@ PluginLib* PluginLib::CreatePluginLib(const std::wstring& filename) {
     activex_shim::ActiveX_Shim_NP_Shutdown
   };
 
-  static const InternalPluginInfo default_null_plugin_info = {
+  static const InternalPluginInfo default_plugin_info = {
     {kDefaultPluginDllName,
      L"Default Plug-in",
      L"Provides functionality for installing third-party plug-ins",
@@ -91,16 +91,19 @@ PluginLib* PluginLib::CreatePluginLib(const std::wstring& filename) {
 
   WebPluginInfo* info = NULL;
   const InternalPluginInfo* internal_plugin_info = NULL;
-  if (filename == activex_shim_info_generic.version_info.file_name) {
+  if (!_wcsicmp(filename.c_str(),
+                activex_shim_info_generic.version_info.file_name.c_str())) {
     info = CreateWebPluginInfo(activex_shim_info_generic.version_info);
     internal_plugin_info = &activex_shim_info_generic;
-  } else if (filename ==
-             activex_shim_windows_media_player.version_info.file_name) {
-    info = CreateWebPluginInfo(activex_shim_windows_media_player.version_info);
-    internal_plugin_info = &activex_shim_windows_media_player;
-  } else if (filename == default_null_plugin_info.version_info.file_name) {
-    info = CreateWebPluginInfo(default_null_plugin_info.version_info);
-    internal_plugin_info = &default_null_plugin_info;
+  } else if (!_wcsicmp(filename.c_str(),
+                       activex_shim_wmplayer.version_info.file_name.c_str())) {
+    info = CreateWebPluginInfo(activex_shim_wmplayer.version_info);
+    internal_plugin_info = &activex_shim_wmplayer;
+  } else if (!_wcsicmp(
+                 filename.c_str(),
+                 default_plugin_info.version_info.file_name.c_str())) {
+    info = CreateWebPluginInfo(default_plugin_info.version_info);
+    internal_plugin_info = &default_plugin_info;
   } else {
     info = ReadWebPluginInfo(filename);
     if (!info) {

@@ -28,7 +28,8 @@ namespace NPAPI
 // Internal file name for activex shim, used as a unique identifier.
 #define kActiveXShimFileName L"activex-shim"
 // Internal file name for windows media player.
-#define kActivexShimFileNameForMediaPlayer L"windows media"
+#define kActivexShimFileNameForMediaPlayer \
+    L"Microsoft® Windows Media Player Firefox Plugin"
 
 #define kDefaultPluginDllName L"default_plugin"
 
