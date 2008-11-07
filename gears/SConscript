@@ -736,7 +736,7 @@ for each in sconscripts:
                  variant_dir='$COMMON_OUTDIR',
                  duplicate=0)
 
-# Must come before SConscript.dll because it Imports targets from this
+# Must come before SConscript.browser because it Imports targets from this
 # SConscript.
 env.SConscript('SConscript.common',
                exports=['env'],
@@ -750,7 +750,7 @@ print 'Building:', browsers
 
 for each in browsers:
   env.Replace(BROWSER = each)
-  env.SConscript('SConscript.dll',
+  env.SConscript('SConscript.browser',
                  exports=['env'],
                  variant_dir='$BROWSER_OUTDIR',
                  duplicate=0)
