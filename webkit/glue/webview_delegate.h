@@ -108,7 +108,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   // This method is called to create a new WebWidget to act as a popup
   // (like a drop-down menu).
-  virtual WebWidget* CreatePopupWidget(WebView* webview) {
+  virtual WebWidget* CreatePopupWidget(WebView* webview,
+                                       bool focus_on_show) {
     return NULL;
   }
 
@@ -455,6 +456,14 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
 
   //
   virtual void OnUnloadListenerChanged(WebView* webview, WebFrame* webframe) {
+  }
+
+  // Queries the browser for suggestions to be shown for the form text field
+  // named |field_name|.  |text| is the text entered by the user so far and
+  // |node_id| is the id of the node of the input field.
+  virtual void QueryFormFieldAutofill(const std::wstring& field_name,
+                                      const std::wstring& text,
+                                      int64 node_id) {
   }
 
   // UIDelegate --------------------------------------------------------------

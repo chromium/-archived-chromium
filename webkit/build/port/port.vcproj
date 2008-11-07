@@ -807,6 +807,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\chromium\PopupMenuChromium.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\chromium\SearchPopupMenuChromium.cpp"
 					>
 				</File>

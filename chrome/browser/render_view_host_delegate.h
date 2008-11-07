@@ -60,7 +60,10 @@ class RenderViewHostDelegate {
     // The page is trying to open a new widget (e.g. a select popup). The
     // widget should be created associated with the given route, but it should
     // not be shown yet. That should happen in response to ShowCreatedWidget.
-    virtual void CreateNewWidget(int route_id) = 0;
+    // If |focus_on_show| is true, the focus is given to the widget when shown,
+    // otherwise the focus is not changed.
+    virtual void CreateNewWidget(int route_id,
+                                 bool focus_on_show) = 0;
 
     // Show a previously created page with the specified disposition and bounds.
     // The window is identified by the route_id passed to CreateNewWindow.

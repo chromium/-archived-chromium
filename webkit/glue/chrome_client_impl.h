@@ -115,7 +115,8 @@ public:
   virtual void runFileChooser(const WebCore::String&,
                               PassRefPtr<WebCore::FileChooser>);
   virtual void popupOpened(WebCore::FramelessScrollView* popup_view,
-                           const WebCore::IntRect& bounds);
+                           const WebCore::IntRect& bounds,
+                           bool focus_on_show);
 
   void SetCursor(const WebCursor& cursor);
 

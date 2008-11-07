@@ -114,7 +114,9 @@ class MockRenderThread : public RenderThreadBase {
   }
 
   // The Widget expects to be returned valid route_id.
-  void OnMsgCreateWidget(int opener_id, int* route_id) {
+  void OnMsgCreateWidget(int opener_id,
+                         bool focus_on_show,
+                         int* route_id) {
     opener_id_ = opener_id;
     *route_id = routing_id_;
   }
@@ -141,7 +143,7 @@ TEST(RenderWidgetTest, CreateAndCloseWidget) {
 
   {
   scoped_refptr<RenderWidget> rw =
-      RenderWidget::Create(kOpenerId, &render_thread);
+      RenderWidget::Create(kOpenerId, &render_thread, true);
   ASSERT_TRUE(rw != NULL);
 
   // After the RenderWidget it must have sent a message to the render thread

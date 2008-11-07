@@ -77,7 +77,8 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(RenderWidgetHost* widget)
       tooltip_showing_(false),
       shutdown_factory_(this),
       parent_hwnd_(NULL),
-      is_loading_(false) {
+      is_loading_(false),
+      focus_on_show_(true) {
   render_widget_host_->set_view(this);
   renderer_accessible_ =
       CommandLine().HasSwitch(switches::kEnableRendererAccessibility);

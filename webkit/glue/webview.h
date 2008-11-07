@@ -6,6 +6,7 @@
 #define WEBKIT_GLUE_WEBVIEW_H__
 
 #include <string>
+#include <vector>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
@@ -194,6 +195,12 @@ class WebView : public WebWidget {
   virtual void DragTargetDragLeave() = 0;
   virtual void DragTargetDrop(
       int client_x, int client_y, int screen_x, int screen_y) = 0;
+
+  // Notifies the webview that autofill suggestions are available for a node.
+  virtual void AutofillSuggestionsForNode(
+      int64 node_id,
+      const std::vector<std::wstring>& suggestions,
+      int default_suggestion_index) = 0;
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebView);
