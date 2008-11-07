@@ -22,7 +22,8 @@ SdchFilter::SdchFilter()
       dest_buffer_excess_(),
       dest_buffer_excess_index_(0),
       source_bytes_(0),
-      output_bytes_(0) {
+      output_bytes_(0),
+      time_of_last_read_() {
 }
 
 SdchFilter::~SdchFilter() {
@@ -35,6 +36,24 @@ SdchFilter::~SdchFilter() {
   if (vcdiff_streaming_decoder_.get()) {
     if (!vcdiff_streaming_decoder_->FinishDecoding())
       decoding_status_ = DECODING_ERROR;
+  }
+
+  if (base::Time() != connect_time() && base::Time() != time_of_last_read_) {
+    base::TimeDelta duration = time_of_last_read_ - connect_time();
+    // Note: connect_time may be somewhat incorrect if this is cached data, as
+    // it will reflect the time the connect was done for the original read :-(.
+    // To avoid any chances of overflow (and since SDCH is meant to primarilly
+    // handle short downloads, we'll restrict what results we log to effectively
+    // discard bogus large numbers.  Note that IF the number is large enough, it
+    // would DCHECK in histogram as the square of the value is summed.  The
+    // relatively precise histogram only properly covers the range 1ms to 10
+    // seconds, so the discarded data would not be that readable anyway.
+    if (30 >= duration.InSeconds()) {
+      if (DECODING_IN_PROGRESS == decoding_status_)
+        UMA_HISTOGRAM_TIMES(L"Sdch.Transit_Latency", duration);
+      if (PASS_THROUGH == decoding_status_)
+        UMA_HISTOGRAM_TIMES(L"Sdch.Transit_Pass-through_Latency", duration);
+    }
   }
 
   UMA_HISTOGRAM_COUNTS(L"Sdch.Bytes read", source_bytes_);
@@ -71,6 +90,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   if (!dest_buffer || available_space <= 0)
     return FILTER_ERROR;
 
+  time_of_last_read_ = base::Time::Now();
 
   if (WAITING_FOR_DICTIONARY_SELECTION == decoding_status_) {
     FilterStatus status = InitializeDictionary();

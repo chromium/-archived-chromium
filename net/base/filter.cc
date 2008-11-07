@@ -201,6 +201,7 @@ Filter::Filter()
       next_stream_data_(NULL),
       stream_data_len_(0),
       url_(),
+      connect_time_(),
       mime_type_(),
       next_filter_(NULL),
       last_status_(FILTER_NEED_MORE_DATA) {
@@ -307,3 +308,8 @@ void Filter::SetMimeType(const std::string& mime_type) {
     next_filter_->SetMimeType(mime_type);
 }
 
+void Filter::SetConnectTime(const base::Time& time) {
+  connect_time_ = time;
+  if (next_filter_.get())
+    next_filter_->SetConnectTime(time);
+}

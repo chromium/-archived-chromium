@@ -99,6 +99,8 @@ class SdchFilter : public Filter {
   size_t source_bytes_;
   size_t output_bytes_;
 
+  base::Time time_of_last_read_;
+
   DISALLOW_COPY_AND_ASSIGN(SdchFilter);
 };
 

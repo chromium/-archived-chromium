@@ -58,6 +58,10 @@ void URLRequestJob::SetupFilter() {
       GetMimeType(&mime_type);
       filter_->SetURL(request_->url());
       filter_->SetMimeType(mime_type);
+      // Approximate connect time with request_time. If it is not cached, then
+      // this is a good approximation for when the first bytes went on the
+      // wire.
+      filter_->SetConnectTime(request_->response_info_.request_time);
     }
   }
 }

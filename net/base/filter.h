@@ -34,6 +34,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "base/time.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
@@ -120,6 +121,8 @@ class Filter {
   void SetMimeType(const std::string& mime_type);
   const std::string& mime_type() const { return mime_type_; }
 
+  void SetConnectTime(const base::Time& time);
+
   // Translate the text of a filter name (from Content-Encoding header) into a
   // FilterType.
   static FilterType ConvertEncodingToType(const std::string& filter_type);
@@ -168,6 +171,8 @@ class Filter {
 
   FilterStatus last_status() const { return last_status_; }
 
+  base::Time connect_time() const { return connect_time_; }
+
   // Buffer to hold the data to be filtered.
   scoped_array<char> stream_buffer_;
 
@@ -184,6 +189,10 @@ class Filter {
   // This is used by SDCH filters which need to restrict use of a dictionary to
   // a specific URL or path.
   GURL url_;
+
+  // To facilitate histogramming by individual filters, we store the connect
+  // time for the corresponding HTTP transaction.
+  base::Time connect_time_;
 
   // To facilitate error recovery in SDCH filters, allow filter to know if
   // content is text/html by checking within this mime type (SDCH filter may
