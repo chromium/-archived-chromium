@@ -4,6 +4,8 @@
 
 #include "base/logging.h"
 #include "chrome/views/client_view.h"
+#include "chrome/views/window.h"
+#include "chrome/views/window_delegate.h"
 
 namespace views {
 
@@ -17,6 +19,10 @@ ClientView::ClientView(Window* window, View* contents_view)
 
 int ClientView::NonClientHitTest(const gfx::Point& point) {
   return bounds().Contains(point) ? HTCLIENT : HTNOWHERE;
+}
+
+void ClientView::WindowClosing() {
+  window_->window_delegate()->WindowClosing();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

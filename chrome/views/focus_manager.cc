@@ -697,6 +697,22 @@ AcceleratorTarget* FocusManager::RegisterAccelerator(
   return previous_target;
 }
 
+void FocusManager::UnregisterAccelerator(const Accelerator& accelerator,
+                                         AcceleratorTarget* target) {
+  AcceleratorMap::iterator iter = accelerators_.find(accelerator);
+  if (iter == accelerators_.end()) {
+    NOTREACHED() << "Unregistering non-existing accelerator";
+    return;
+  }
+  
+  if (iter->second != target) {
+    NOTREACHED() << "Unregistering accelerator for wrong target";
+    return;
+  }
+
+  accelerators_.erase(iter);
+}
+
 void FocusManager::UnregisterAccelerators(AcceleratorTarget* target) {
   for (AcceleratorMap::iterator iter = accelerators_.begin();
        iter != accelerators_.end();) {

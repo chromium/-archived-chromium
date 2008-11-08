@@ -988,6 +988,33 @@ void View::AddAccelerator(const Accelerator& accelerator) {
   RegisterAccelerators();
 }
 
+void View::RemoveAccelerator(const Accelerator& accelerator) {
+  std::vector<Accelerator>::iterator iter;
+  if (!accelerators_.get() ||
+      ((iter = std::find(accelerators_->begin(), accelerators_->end(),
+          accelerator)) == accelerators_->end())) {
+    NOTREACHED() << "Removing non-existing accelerator";
+    return;
+  }
+
+  accelerators_->erase(iter);
+  RootView* root_view = GetRootView();
+  if (!root_view) {
+    // We are not part of a view hierarchy, so there is nothing to do as we
+    // removed ourselves from accelerators_, we won't be registered when added
+    // to one.
+    return;
+  }
+
+  FocusManager* focus_manager = GetFocusManager();
+  if (focus_manager) {
+    // We may not have a FocusManager if the window containing us is being
+    // closed, in which case the FocusManager is being deleted so there is
+    // nothing to unregister.
+    focus_manager->UnregisterAccelerator(accelerator, this);
+  }
+}
+
 void View::ResetAccelerators() {
   if (accelerators_.get()) {
     UnregisterAccelerators();

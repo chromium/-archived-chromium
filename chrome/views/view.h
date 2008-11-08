@@ -504,6 +504,9 @@ class View : public AcceleratorTarget {
   // method several times.
   virtual void AddAccelerator(const Accelerator& accelerator);
 
+  // Removes the specified accelerator for this view.
+  virtual void RemoveAccelerator(const Accelerator& accelerator);
+
   // Removes all the keyboard accelerators for this view.
   virtual void ResetAccelerators();
 

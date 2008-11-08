@@ -5,6 +5,8 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/views/background.h"
+#include "chrome/views/checkbox.h"
+#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/event.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
@@ -579,4 +581,77 @@ TEST_F(ViewTest, HitTestMasks) {
   EXPECT_EQ(v2, root_view->GetViewForPoint(v2_centerpoint));
   EXPECT_EQ(v1, root_view->GetViewForPoint(v1_origin));
   EXPECT_EQ(root_view, root_view->GetViewForPoint(v2_origin));
+}
+
+class TestDialogView : public views::View,
+                       public views::DialogDelegate {
+ public:
+  TestDialogView() {
+  }
+  
+  // views::DialogDelegate implementation:
+  virtual int GetDialogButtons() const {
+    return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
+  }
+
+  virtual int GetDefaultDialogButton() const {
+    return DIALOGBUTTON_OK;
+  }
+
+  virtual View* GetContentsView() {
+    views::View* container = new views::View();
+    button1_ = new views::NativeButton(L"Button1");
+    button2_ = new views::NativeButton(L"Button2");
+    checkbox_ = new views::CheckBox(L"My checkbox");
+    container->AddChildView(button1_);
+    container->AddChildView(button2_);
+    container->AddChildView(checkbox_);
+    return container;
+  }
+  views::NativeButton* button1_;
+  views::NativeButton* button2_;
+  views::NativeButton* checkbox_;
+};
+
+TEST_F(ViewTest, DialogDefaultButtonTest) {
+  TestDialogView* dialog_view_ = new TestDialogView();
+  views::Window* window =
+      views::Window::CreateChromeWindow(NULL, gfx::Rect(0, 0, 100, 100),
+                                        dialog_view_);
+  views::DialogClientView* client_view =
+      static_cast<views::DialogClientView*>(window->client_view());
+  views::NativeButton* ok_button = client_view->ok_button();
+  views::NativeButton* cancel_button = client_view->cancel_button();
+
+  EXPECT_TRUE(ok_button->IsDefaultButton());
+
+  // Simualte focusing another button, it should become the default button.
+  client_view->FocusWillChange(ok_button, dialog_view_->button1_);
+  EXPECT_FALSE(ok_button->IsDefaultButton());
+  EXPECT_TRUE(dialog_view_->button1_->IsDefaultButton());
+
+  // Now select something that is not a button, the OK should become the default
+  // button again.
+  client_view->FocusWillChange(dialog_view_->button1_, dialog_view_->checkbox_);
+  EXPECT_TRUE(ok_button->IsDefaultButton());
+  EXPECT_FALSE(dialog_view_->button1_->IsDefaultButton());
+
+  // Select yet another button.
+  client_view->FocusWillChange(dialog_view_->checkbox_, dialog_view_->button2_);
+  EXPECT_FALSE(ok_button->IsDefaultButton());
+  EXPECT_FALSE(dialog_view_->button1_->IsDefaultButton());
+  EXPECT_TRUE(dialog_view_->button2_->IsDefaultButton());
+
+  // Focus nothing.
+  client_view->FocusWillChange(dialog_view_->button2_, NULL);
+  EXPECT_TRUE(ok_button->IsDefaultButton());
+  EXPECT_FALSE(dialog_view_->button1_->IsDefaultButton());
+  EXPECT_FALSE(dialog_view_->button2_->IsDefaultButton());
+
+  // Focus the cancel button.
+  client_view->FocusWillChange(NULL, cancel_button);
+  EXPECT_FALSE(ok_button->IsDefaultButton());
+  EXPECT_TRUE(cancel_button->IsDefaultButton());
+  EXPECT_FALSE(dialog_view_->button1_->IsDefaultButton());
+  EXPECT_FALSE(dialog_view_->button2_->IsDefaultButton());
 }

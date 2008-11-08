@@ -34,6 +34,8 @@ class NativeButton : public NativeControl {
   void SetLabel(const std::wstring& l);
   const std::wstring GetLabel() const;
 
+  std::string GetClassName() const;
+
   class Listener {
    public:
     //
@@ -52,6 +54,11 @@ class NativeButton : public NativeControl {
   // Adds some internal padding to the button.  The |size| specified is applied
   // on both sides of the button for each directions
   void SetPadding(CSize size);
+
+  // Sets/unsets this button as the default button.  The default button is the
+  // one triggered when enter is pressed.  It is displayed with a blue border.
+  void SetDefaultButton(bool is_default_button);
+  bool IsDefaultButton() const { return is_default_; }
 
   virtual LRESULT OnNotify(int w_param, LPNMHDR l_param);
   virtual LRESULT OnCommand(UINT code, int id, HWND source);
@@ -82,6 +89,9 @@ class NativeButton : public NativeControl {
   // Sets whether the min size of this button should follow the Windows
   // guidelines.  Default is true.  Set this to false if you want slim buttons.
   void set_enforce_dlu_min_size(bool value) { enforce_dlu_min_size_ = value; }
+
+  // The view class name.
+  static const char kViewClassName[];
 
  protected:
 

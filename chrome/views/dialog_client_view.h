@@ -7,6 +7,7 @@
 
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/client_view.h"
+#include "chrome/views/focus_manager.h"
 #include "chrome/views/native_button.h"
 
 namespace views {
@@ -24,7 +25,8 @@ class Window;
 //  buttons.
 //
 class DialogClientView : public ClientView,
-                         public NativeButton::Listener {
+                         public NativeButton::Listener,
+                         public FocusChangeListener {
  public:
   DialogClientView(Window* window, View* contents_view);
   virtual ~DialogClientView();
@@ -49,8 +51,12 @@ class DialogClientView : public ClientView,
 
   // Overridden from ClientView:
   virtual bool CanClose() const;
+  virtual void WindowClosing();
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual DialogClientView* AsDialogClientView() { return this; }
+
+  // FocusChangeListener implementation:
+  virtual void FocusWillChange(View* focused_before, View* focused_now);
 
  protected:
   // View overrides:
@@ -77,6 +83,9 @@ class DialogClientView : public ClientView,
   void LayoutDialogButtons();
   void LayoutContentsView();
 
+  // Makes the specified button the default button.
+  void SetDefaultButton(NativeButton* button);
+
   bool has_dialog_buttons() const { return ok_button_ || cancel_button_; }
 
   // Create and add the extra view, if supplied by the delegate.
@@ -88,6 +97,9 @@ class DialogClientView : public ClientView,
   // The dialog buttons.
   NativeButton* ok_button_;
   NativeButton* cancel_button_;
+  
+  // The button that is currently the default button if any.
+  NativeButton* default_button_;
 
   // The button-level extra view, NULL unless the dialog delegate supplies one.
   View* extra_view_;

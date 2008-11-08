@@ -38,6 +38,10 @@ class ClientView : public View {
   // dialog, etc.
   virtual bool CanClose() const { return true; }
 
+  // Notification that the window is closing.  The default implementation
+  // forwards the notification to the delegate.
+  virtual void WindowClosing();
+
   // Tests to see if the specified point (in view coordinates) is within the 
   // bounds of this view. If so, it returns HTCLIENT in this default
   // implementation. If it is outside the bounds of this view, this must return

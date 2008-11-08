@@ -12,6 +12,8 @@
 
 namespace views {
 
+const char NativeButton::kViewClassName[] = "chrome/views/NativeButton";
+
 NativeButton::NativeButton(const std::wstring& label) 
     : enforce_dlu_min_size_(true) {
   Init(label, false);
@@ -23,6 +25,10 @@ NativeButton::NativeButton(const std::wstring& label, bool is_default)
 }
 
 NativeButton::~NativeButton() {
+}
+
+std::string NativeButton::GetClassName() const {
+  return kViewClassName;
 }
 
 void NativeButton::SetListener(Listener *l) {
@@ -114,6 +120,18 @@ void NativeButton::UpdateNativeButton() {
 
 void NativeButton::ConfigureNativeButton(HWND hwnd) {
   ::SetWindowText(hwnd, label_.c_str());
+}
+
+void NativeButton::SetDefaultButton(bool is_default_button) {
+  if (is_default_button == is_default_)
+    return;
+  is_default_ = is_default_button;
+  if (is_default_button)
+    AddAccelerator(Accelerator(VK_RETURN, false, false, false));
+  else
+    RemoveAccelerator(Accelerator(VK_RETURN, false, false, false));
+  SendMessage(GetNativeControlHWND(), BM_SETSTYLE,
+              is_default_button ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON, true);
 }
 
 bool NativeButton::AcceleratorPressed(const Accelerator& accelerator) {

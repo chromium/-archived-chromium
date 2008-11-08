@@ -239,6 +239,10 @@ class FocusManager : public NotificationObserver {
   AcceleratorTarget* RegisterAccelerator(const Accelerator& accelerator,
                                          AcceleratorTarget* target);
 
+  // Unregister the specified keyboard accelerator for the specified target.
+  void UnregisterAccelerator(const Accelerator& accelerator,
+                             AcceleratorTarget* target);
+
   // Unregister all keyboard accelerator for the specified target.
   void UnregisterAccelerators(AcceleratorTarget* target);
 

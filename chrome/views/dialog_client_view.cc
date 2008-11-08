@@ -43,7 +43,7 @@ void FillViewWithSysColor(ChromeCanvas* canvas, View* view, COLORREF color) {
 // DialogButton ----------------------------------------------------------------
 
 // DialogButtons is used for the ok/cancel buttons of the window. DialogButton
-// forwrds AcceleratorPressed to the delegate.
+// forwards AcceleratorPressed to the delegate.
 
 class DialogButton : public NativeButton {
  public:
@@ -90,7 +90,8 @@ DialogClientView::DialogClientView(Window* owner, View* contents_view)
       ok_button_(NULL),
       cancel_button_(NULL),
       extra_view_(NULL),
-      accepted_(false) {
+      accepted_(false),
+      default_button_(NULL) {
   InitClass();
 }
 
@@ -105,12 +106,14 @@ void DialogClientView::ShowDialogButtons() {
         dd->GetDialogButtonLabel(DialogDelegate::DIALOGBUTTON_OK);
     if (label.empty())
       label = l10n_util::GetString(IDS_OK);
-    ok_button_ = new DialogButton(
-        window(), DialogDelegate::DIALOGBUTTON_OK,
-        label,
-        (dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_OK) != 0);
+    bool is_default_button =
+        (dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_OK) != 0;
+    ok_button_ = new DialogButton(window(), DialogDelegate::DIALOGBUTTON_OK,
+                                  label, is_default_button);
     ok_button_->SetListener(this);
     ok_button_->SetGroup(kButtonGroup);
+    if (is_default_button)
+      default_button_ = ok_button_;
     if (!cancel_button_)
       ok_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
     AddChildView(ok_button_);
@@ -125,14 +128,17 @@ void DialogClientView::ShowDialogButtons() {
         label = l10n_util::GetString(IDS_CLOSE);
       }
     }
-    cancel_button_ = new DialogButton(
-        window(), DialogDelegate::DIALOGBUTTON_CANCEL,
-        label,
+    bool is_default_button =
         (dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_CANCEL)
-        != 0);
+        != 0;
+    cancel_button_ = new DialogButton(window(),
+                                      DialogDelegate::DIALOGBUTTON_CANCEL,
+                                      label, is_default_button);
     cancel_button_->SetListener(this);
     cancel_button_->SetGroup(kButtonGroup);
     cancel_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
+    if (is_default_button)
+      default_button_ = ok_button_;
     AddChildView(cancel_button_);
   }
   if (!buttons) {
@@ -140,6 +146,37 @@ void DialogClientView::ShowDialogButtons() {
     // if there are no dialog buttons.
     AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
   }
+}
+
+void DialogClientView::SetDefaultButton(NativeButton* new_default_button) {
+  if (default_button_ && default_button_ != new_default_button) {
+    default_button_->SetDefaultButton(false);
+    default_button_ = NULL;
+  }
+
+  if (new_default_button) {
+    default_button_ = new_default_button;
+    default_button_->SetDefaultButton(true);
+  }
+}
+
+void DialogClientView::FocusWillChange(View* focused_before,
+                                       View* focused_now) {
+  NativeButton* new_default_button = NULL;
+  if (focused_now &&
+      focused_now->GetClassName() == NativeButton::kViewClassName) {
+    new_default_button = static_cast<NativeButton*>(focused_now);
+  } else {
+    // The focused view is not a button, get the default button from the
+    // delegate.
+    DialogDelegate* dd = GetDialogDelegate();
+    if ((dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_OK) != 0)
+      new_default_button = ok_button_;
+    if ((dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_CANCEL)
+        != 0)
+      new_default_button = cancel_button_;
+  }
+  SetDefaultButton(new_default_button);
 }
 
 // Changing dialog labels will change button widths.
@@ -190,6 +227,14 @@ bool DialogClientView::CanClose() const {
   return true;
 }
 
+void DialogClientView::WindowClosing() {
+  FocusManager* focus_manager = GetFocusManager();
+  DCHECK(focus_manager);
+  if (focus_manager)
+     focus_manager->RemoveFocusChangeListener(this);
+  ClientView::WindowClosing();
+}
+
 int DialogClientView::NonClientHitTest(const gfx::Point& point) {
   if (size_box_bounds_.Contains(point.x() - x(), point.y() - y()))
     return HTBOTTOMRIGHT;
@@ -223,6 +268,14 @@ void DialogClientView::ViewHierarchyChanged(bool is_add, View* parent,
     // Container's HWND.
     ShowDialogButtons();
     ClientView::ViewHierarchyChanged(is_add, parent, child);
+
+    FocusManager* focus_manager = GetFocusManager();
+    // Listen for focus change events so we can update the default button.
+    DCHECK(focus_manager);  // bug #1291225: crash reports seem to indicate it
+                            // can be NULL.
+    if (focus_manager)   
+      focus_manager->AddFocusChangeListener(this);
+
     // The "extra view" must be created and installed after the contents view
     // has been inserted into the view hierarchy.
     CreateExtraView();
