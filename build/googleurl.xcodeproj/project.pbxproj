@@ -565,6 +565,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "exec \"${XCODEPROJ_DEPTH}/build/mac/strip_from_xcode\"\n";
+			showEnvVarsInLog = 0;
 		};
 		7B8500180E5A2F6400730B43 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
