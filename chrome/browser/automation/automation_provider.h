@@ -118,8 +118,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                            bool screen_coordinates);
   void WindowSimulateDrag(const IPC::Message& message,
                           int handle,
-                          const POINT& start_point,
-                          const POINT& end_point,
+                          std::vector<POINT> drag_path,
                           int flags,
                           bool press_escape_en_route);
   void WindowSimulateClick(const IPC::Message& message,
