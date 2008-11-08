@@ -97,6 +97,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
 if env['PLATFORM'] == 'win32':
   # TODO: Port these.
   input_files.extend([
+      'autofill_manager.cc',
       'about_internets_status_view.cc',
       'alternate_nav_url_fetcher.cc',
       'app_modal_dialog_queue.cc',
@@ -211,6 +212,7 @@ if env['PLATFORM'] == 'win32':
       'net/dns_global.cc',
       'net/dns_master.cc',
       'net/dns_slave.cc',
+      'net/referrer.cc',
       'net/sdch_dictionary_fetcher.cc',
       'network_status_view.cc',
       'google_update.cc',
