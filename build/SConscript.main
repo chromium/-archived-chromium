@@ -48,7 +48,7 @@ root_env = Environment(
     #COMPONENT_LIBRARY_ALIAS = 'lib_$LIBNAME',
 
     # Disable running of tests thru scons for now.
-    COMPONENT_TEST_CMDLINE = '',
+    COMPONENT_TEST_RUNNABLE = False,
 
     BASE_DIR              = '$OBJ_ROOT/base',
     BREAKPAD_DIR          = '$OBJ_ROOT/breakpad',
@@ -94,12 +94,6 @@ root_env = Environment(
                              'PERL_INCLUDE_SUFFIX,'
                              '__env__, RDirs, TARGET, SOURCE)}'),
 )
-
-
-# Declare a bit to gate solution generation.
-# The actual generation must be at the end.
-DeclareBit('solution', 'Generate a solution file')
-root_env.SetBitFromOption('solution', False)
 
 
 def ChromeProgram(env, *args, **kw):
@@ -201,10 +195,7 @@ if LoadComponent('net'):
 if LoadComponent('rlz'):
   sconscripts.append('$RLZ_DIR/SConscript')
 
-# TODO(bradnelson): fix solution generation for sandbox.
-# The solution generator blows up on some of the tests in sandbox.
-# For now, disable sandbox for solution generation.
-if LoadComponent('sandbox') and not root_env.Bit('solution'):
+if LoadComponent('sandbox'):
   sconscripts.append('$SANDBOX_DIR/sandbox.scons')
 
 if LoadComponent('sdch'):
@@ -675,27 +666,56 @@ BuildComponents(environment_list)
 
 # This must occur after BuildComponents so that the dependency graph
 # will be populated.
-if root_env.Bit('solution'):
-  solution_env = root_env.Clone(tools = ['visual_studio_solution'])
-  src_solution = solution_env.Solution(
-      '$MAIN_DIR/chrome_scons_src', [windows_env],
-      exclude_pattern = '.*(Program Files|platformsdk_vista_6_0|cygwin).*',
-  )
+vs_env = windows_env.Clone()
+vs_env.Append(COMPONENT_VS_SOURCE_SUFFIXES = [
+    '.def',
+    '.ini',
+    '.txt',
+    '.ui',
+    '.xml',
+])
+# Source project
+p = vs_env.ComponentVSDirProject(
+    'chrome_src',
+    [
+        # TODO(bradnelson): need to make sure we can use $CHROME_SRC_DIR here
+        '$CHROME_SRC_DIR/base',
+        '$CHROME_SRC_DIR/breakpad',
+        '$CHROME_SRC_DIR/build',
+#        '$CHROME_SRC_DIR/chrome',
+        '.',
+        '$CHROME_SRC_DIR/data',
+        '$CHROME_SRC_DIR/gears',
+        '$CHROME_SRC_DIR/google_update',
+        '$CHROME_SRC_DIR/googleurl',
+        '$CHROME_SRC_DIR/net',
+        '$CHROME_SRC_DIR/rlz',
+        '$CHROME_SRC_DIR/sandbox',
+        '$CHROME_SRC_DIR/sdhc',
+        '$CHROME_SRC_DIR/site_scons',
+        '$CHROME_SRC_DIR/skia',
+        '$CHROME_SRC_DIR/testing',
+        '$CHROME_SRC_DIR/third_party',
+        '$CHROME_SRC_DIR/tools',
+        '$CHROME_SRC_DIR/v8',
+        '$CHROME_SRC_DIR/webkit',
+    ],
+    COMPONENT_VS_SOURCE_FOLDERS = [
+        (None, '$DESTINATION_ROOT'),
+        ('src', '$CHROME_SRC_DIR'),
+    ],
+)
 
-  solution = windows_env.ComponentVSSolution('chrome_scons',
-      [
-           'all_libraries',
-           'all_programs',
-           'all_test_programs',
-      ],
-      projects = [windows_env.File('$MAIN_DIR/chrome_scons_src.vcproj')],
-      COMPONENT_VS_SOLUTION_DIR='$MAIN_DIR',
-      COMPONENT_VS_PROJECT_DIR='$MAIN_DIR/projects',
-      COMPONENT_VS_PROJECT_SCRIPT_PATH=(
+vs_env.ComponentVSSolution(
+    'chrome_solution',
+    [
+        'all_libraries',
+        'all_languages',
+        'all_programs',
+        'all_test_programs',
+    ], projects = [p],
+    COMPONENT_VS_PROJECT_SCRIPT_PATH=(
         'cd $$(ProjectDir)/$VS_PROJECT_TO_MAIN_DIR && hammer.bat'),
-  )
-
-  Default(None)  # Delete all other default targets.
-  Default([src_solution, solution])  # Build just the solution.
+)
 
 # -------------------------------------------------------------------------

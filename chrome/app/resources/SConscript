@@ -4,7 +4,6 @@
 
 Import(['env', 'env_res'])
 
-env = env.Clone()
 env_res = env_res.Clone()
 
 env_res.Append(
@@ -95,6 +94,10 @@ extract_lang = re.compile(r'locale_settings_(.*)\.res')
 
 locale_dlls = []
 
+env_lang = env.Clone()
+AddTargetGroup('all_languages', 'resource dlls for languages can be built')
+env_lang['COMPONENT_LIBRARY_GROUPS'] = ['all_languages']
+
 for locale_settings_res in resources:
   s = str(locale_settings_res)
   #lang = '$CHROME_DIR/locales/' + extract_lang.match(s).group(1)
@@ -102,7 +105,7 @@ for locale_settings_res in resources:
   g_r_res = s.replace('locale_settings', 'generated_resources')
   w_s_res = s.replace('locale_settings',
                       '$WEBKIT_DIR/build/localized_strings/webkit_strings')
-  dll = env.ChromeSharedLibrary(
+  dll = env_lang.ChromeSharedLibrary(
       lang,
       [
           g_r_res,
@@ -114,4 +117,3 @@ for locale_settings_res in resources:
 
 i = env.Install('$TARGET_ROOT/locales/', locale_dlls)
 env.Alias('chrome', i)
-

@@ -317,11 +317,19 @@ def ComponentTestProgramDeferred(env):
   # Add installed program and resources to the alias
   env.Alias(prog_name, all_outputs)
 
-  # Add an alias for running the test in the test directory, if there's a test
-  # command line.
-  if env.get('COMPONENT_TEST_CMDLINE'):
-    # Test program is the first run resource we replicated.
-    test_program = env.ReplicatePublished('$TESTS_DIR', prog_name, 'run')
+  # Add target properties
+  env.SetTargetProperty(
+      prog_name,
+      # The copy of the program we care about is the one in the tests dir
+      EXE='$TESTS_DIR/$PROGRAM_NAME',
+      RUN_CMDLINE='$COMPONENT_TEST_CMDLINE',
+      RUN_DIR='$TESTS_DIR',
+      TARGET_PATH='$TESTS_DIR/$PROGRAM_NAME',
+  )
+
+  # Add an alias for running the test in the test directory, if the test is
+  # runnable and has a test command line.
+  if env.get('COMPONENT_TEST_RUNNABLE') and env.get('COMPONENT_TEST_CMDLINE'):
     env.Replace(
         COMMAND_OUTPUT_CMDLINE=env['COMPONENT_TEST_CMDLINE'],
         COMMAND_OUTPUT_RUN_DIR='$TESTS_DIR',
@@ -339,6 +347,11 @@ def ComponentTestProgramDeferred(env):
     if timeout:
       env['COMMAND_OUTPUT_TIMEOUT'] = timeout
 
+    # Test program is the first run resource we replicated.  (Duplicate
+    # replicate is not harmful, and is a handy way to pick out the correct
+    # file from all those we replicated above.)
+    test_program = env.ReplicatePublished('$TESTS_DIR', prog_name, 'run')
+
     # Run the test.  Note that we need to refer to the file by name, so that
     # SCons will recreate the file node after we've deleted it; if we used the
     # env.File() we created in the if statement above, SCons would still think
@@ -350,16 +363,7 @@ def ComponentTestProgramDeferred(env):
     env.ComponentTestOutput('run_' + prog_name, test_out)
 
     # Add target properties
-    env.SetTargetProperty(
-        prog_name,
-        # The copy of the program we care about is the one in the tests dir
-        EXE='$TESTS_DIR/$PROGRAM_NAME',
-        RUN_TARGET='run_' + prog_name,
-        RUN_CMDLINE='$COMPONENT_TEST_CMDLINE',
-        RUN_DIR='$TESTS_DIR',
-        TARGET_PATH='$TESTS_DIR/$PROGRAM_NAME',
-    )
-
+    env.SetTargetProperty(prog_name, RUN_TARGET='run_' + prog_name)
 
 def ComponentTestProgram(self, prog_name, *args, **kwargs):
   """Pseudo-builder for test program to handle platform-dependent type.
@@ -534,6 +538,8 @@ def generate(env):
       # COMPONENT_TEST_CMDLINE='${SOURCE.abspath}',
       # (it generates a SCons error)
       COMPONENT_TEST_CMDLINE='${PROGRAM_NAME}',
+      # Component tests are runnable by default.
+      COMPONENT_TEST_RUNNABLE=True,
       # Default test size is large
       COMPONENT_TEST_SIZE='large',
       # Default timeouts for component tests
