@@ -219,13 +219,10 @@ bool CreateUniqueChromeEvent() {
   PathService::Get(base::FILE_EXE, &exe);
   std::replace(exe.begin(), exe.end(), '\\', '!');
   std::transform(exe.begin(), exe.end(), exe.begin(), tolower);
+  exe = L"Global\\" + exe;
   HANDLE handle = CreateEvent(NULL, TRUE, TRUE, exe.c_str());
-  bool already_running = false;
-  if (GetLastError() == ERROR_ALREADY_EXISTS) {
-    already_running = true;
-    CloseHandle(handle);
-  }
-  return already_running;
+  int error = GetLastError();
+  return (error == ERROR_ALREADY_EXISTS || error == ERROR_ACCESS_DENIED);
 }
 
 // Check if there is any machine level Chrome installed on the current
@@ -438,10 +435,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   if (message_window.NotifyOtherProcess(show_command))
     return ResultCodes::NORMAL_EXIT;
 
-  // Sometimes we end up killing browser process (http://b/1308130) so make
-  // sure we recreate unique event to indicate running browser process.
   message_window.HuntForZombieChromeProcesses();
-  already_running = (already_running && CreateUniqueChromeEvent());
 
   // Do the tasks if chrome has been upgraded while it was last running.
   if (!already_running && DoUpgradeTasks(parsed_command_line)) {
