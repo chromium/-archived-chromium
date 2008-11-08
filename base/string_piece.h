@@ -15,8 +15,8 @@
 // conversions from "const char*" to "string" and back again.
 //
 
-#ifndef BASE_STRING_PIECE_H__
-#define BASE_STRING_PIECE_H__
+#ifndef BASE_STRING_PIECE_H_
+#define BASE_STRING_PIECE_H_
 
 #include <algorithm>
 #include <iosfwd>
@@ -181,5 +181,4 @@ inline bool operator>=(const StringPiece& x, const StringPiece& y) {
 // allow StringPiece to be logged (needed for unit testing).
 extern std::ostream& operator<<(std::ostream& o, const StringPiece& piece);
 
-#endif  // BASE_STRING_PIECE_H__
-
+#endif  // BASE_STRING_PIECE_H_

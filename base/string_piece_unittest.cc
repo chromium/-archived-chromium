@@ -538,4 +538,3 @@ TEST(StringPieceTest, HeterogenousStringPieceEquals) {
   ASSERT_TRUE(StringPiece("hello") == std::string("hello"));
   ASSERT_TRUE("hello" == StringPiece("hello"));
 }
-
