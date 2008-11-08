@@ -14,7 +14,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "Element.h"
-#include "EventNames.h"
 #include "HistoryItem.h"
 #include "HTMLFormElement.h"  // needed by FormState.h
 #include "HTMLFormControlElement.h"
@@ -336,11 +335,6 @@ void WebFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader,
   }
 }
 
-class TestBodyEventListener : public WebCore::EventListener {
-  virtual void handleEvent(Event* event, bool isWindowEvent) {
-  }
-};
-
 void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
   WebViewImpl* webview = webframe_->webview_impl();
   WebViewDelegate* d = webview->delegate();
@@ -348,18 +342,6 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
   // Scan for password forms to be sent to the browser
   PassRefPtr<WebCore::HTMLCollection> forms =
       webframe_->frame()->document()->forms();
-
-
-  // This is a temporary test to assess the performance impact of a body
-  // listener on the perf tests.
-  HTMLElement* body =  webframe_->frame()->document()->body();
-  TestBodyEventListener* body_listener = new TestBodyEventListener();
-  body->addEventListener(WebCore::EventNames::DOMFocusOutEvent,
-                         body_listener,
-                         false);
-  body->addEventListener(WebCore::EventNames::inputEvent,
-                         body_listener,
-                         false);
 
   std::vector<PasswordForm> actions;
   unsigned int form_count = forms->length();
