@@ -1681,7 +1681,7 @@ void RenderView::QueryFormFieldAutofill(const std::wstring& field_name,
 void RenderView::OnReceivedAutofillSuggestions(
     int64 node_id,
     int request_id,
-    const std::vector<std::wstring> suggestions,
+    const std::vector<std::wstring>& suggestions,
     int default_suggestion_index) {
   if (!webview() || request_id != form_field_autofill_request_id_)
     return;
@@ -2309,6 +2309,11 @@ void RenderView::OnSetPageEncoding(const std::wstring& encoding_name) {
 void RenderView::OnPasswordFormsSeen(WebView* webview,
                                      const std::vector<PasswordForm>& forms) {
   Send(new ViewHostMsg_PasswordFormsSeen(routing_id_, forms));
+}
+
+void RenderView::OnAutofillFormSubmitted(WebView* webview,
+                                         const AutofillForm& form) {
+  Send(new ViewHostMsg_AutofillFormSubmitted(routing_id_, form));
 }
 
 WebHistoryItem* RenderView::GetHistoryEntryAtOffset(int offset) {

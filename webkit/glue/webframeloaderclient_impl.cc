@@ -42,6 +42,7 @@ MSVC_POP_WARNING();
 #if defined(OS_WIN)
 #include "webkit/activex_shim/activex_shared.h"
 #endif
+#include "webkit/glue/autofill_form.h"
 #include "webkit/glue/alt_404_page_resource_fetcher.h"
 #include "webkit/glue/autocomplete_input_listener.h"
 #include "webkit/glue/form_autocomplete_listener.h"
@@ -343,7 +344,8 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
   PassRefPtr<WebCore::HTMLCollection> forms =
       webframe_->frame()->document()->forms();
 
-  std::vector<PasswordForm> actions;
+  std::vector<PasswordForm> passwordForms;
+
   unsigned int form_count = forms->length();
   for (unsigned int i = 0; i < form_count; ++i) {
     // Strange but true, sometimes item can be NULL.
@@ -357,18 +359,21 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
         continue;
 
       std::set<std::wstring> password_related_fields;
-      scoped_ptr<PasswordForm> data(
+      scoped_ptr<PasswordForm> passwordFormPtr(
           PasswordFormDomManager::CreatePasswordForm(form));
-      if (data.get()) {
-        actions.push_back(*data);
+
+      if (passwordFormPtr.get()) {
+        passwordForms.push_back(*passwordFormPtr);
+
         // Let's remember the names of password related fields so we do not
         // autofill them with the regular form autofill.
-        if (!data->username_element.empty())
-          password_related_fields.insert(data->username_element);
-        DCHECK(!data->password_element.empty());
-        password_related_fields.insert(data->password_element);
-        if (!data->old_password_element.empty())
-          password_related_fields.insert(data->old_password_element);
+
+        if (!passwordFormPtr->username_element.empty())
+          password_related_fields.insert(passwordFormPtr->username_element);
+        DCHECK(!passwordFormPtr->password_element.empty());
+        password_related_fields.insert(passwordFormPtr->password_element);
+        if (!passwordFormPtr->old_password_element.empty())
+          password_related_fields.insert(passwordFormPtr->old_password_element);
       }
 
       // Now let's register for any text input.
@@ -378,8 +383,8 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
     }
   }
 
-  if (d && (actions.size() > 0))
-    d->OnPasswordFormsSeen(webview, actions);
+  if (d && (passwordForms.size() > 0))
+    d->OnPasswordFormsSeen(webview, passwordForms);
   if (d)
     d->DidFinishDocumentLoadForFrame(webview, webframe_);
 }
@@ -1003,7 +1008,7 @@ void WebFrameLoaderClient::dispatchUnableToImplementPolicy(const ResourceError&)
 }
 
 void WebFrameLoaderClient::dispatchWillSubmitForm(FramePolicyFunction function,
-                                                  PassRefPtr<FormState> form_ref) {
+    PassRefPtr<FormState> form_ref) {
   SearchableFormData* form_data = SearchableFormData::Create(form_ref->form());
   WebDocumentLoaderImpl* loader = static_cast<WebDocumentLoaderImpl*>(
     webframe_->frame()->loader()->provisionalDocumentLoader());
@@ -1014,6 +1019,19 @@ void WebFrameLoaderClient::dispatchWillSubmitForm(FramePolicyFunction function,
       PasswordFormDomManager::CreatePasswordForm(form_ref->form());
   // Don't free the PasswordFormData, the loader will do that.
   loader->set_password_form_data(pass_data);
+
+  WebViewImpl* webview = webframe_->webview_impl();
+  WebViewDelegate* d = webview->delegate();
+
+  // Unless autocomplete=off, record what the user put in it for future
+  // autofilling.
+  if (form_ref->form()->autoComplete()) {
+    scoped_ptr<AutofillForm> autofill_form(
+        AutofillForm::CreateAutofillForm(form_ref->form()));
+    if (autofill_form.get()) {
+      d->OnAutofillFormSubmitted(webview, *autofill_form);
+    }
+  }
 
   loader->set_form_submit(true);
 

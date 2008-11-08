@@ -134,7 +134,12 @@ const wchar_t* kPrefsToObserve[] = {
   // no font is specified or a CSS generic family (serif or sans-serif)
   // is not specified.
 };
+
 const int kPrefsToObserveLength = arraysize(kPrefsToObserve);
+
+// Limit on the number of suggestions to appear in the pop-up menu under an
+// text input element in a form.
+const int kMaxAutofillMenuItems = 6;
 
 void InitWebContentsClass() {
   static bool web_contents_class_initialized = false;
@@ -1129,6 +1134,12 @@ void WebContents::PasswordFormsSeen(
 void WebContents::AutofillFormSubmitted(
     const AutofillForm& form) {
   GetAutofillManager()->AutofillFormSubmitted(form);
+}
+
+void WebContents::GetAutofillSuggestions(const std::wstring& field_name, 
+    const std::wstring& user_text, int64 node_id, int request_id) {
+  GetAutofillManager()->FetchValuesForName(field_name, user_text,
+      kMaxAutofillMenuItems, node_id, request_id);
 }
 
 // Checks to see if we should generate a keyword based on the OSDD, and if
