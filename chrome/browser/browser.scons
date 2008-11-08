@@ -31,6 +31,9 @@ env.Prepend(
         '$CHROME_DIR/app/resources',
         '$CHROME_DIR/app',
         '$CHROME_SRC_DIR',
+        # To get the #include of history_indexer.h,
+        # generated from history/history_indexer.idl.
+        'history',
     ],
     CPPDEFINES = [
         'GOOGLE_CHROME_BUILD',
@@ -178,6 +181,7 @@ if env['PLATFORM'] == 'win32':
       'history/history.cc',
       'history/history_backend.cc',
       'history/history_database.cc',
+      'history/history_publisher.cc',
       'history/query_parser.cc',
       'history/starred_url_database.cc',
       'history/url_database.cc',
@@ -292,6 +296,8 @@ if env['PLATFORM'] == 'win32':
       'webdata/web_database.cc',
       'window_sizer.cc',
   ])
+
+  env.TypeLibrary('history/history_indexer.idl')
 
   input_files.extend([
       'web_contents_view_win.cc',
