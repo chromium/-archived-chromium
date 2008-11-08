@@ -27,7 +27,7 @@ namespace {
 
 const wchar_t kTestPipeName[] = L"\\\\.\\pipe\\ChromeCrashServices";
 
-const wchar_t kCrashReportURL[] = L"https://www.google.com/cr/report";
+const wchar_t kCrashReportURL[] = L"https://clients2.google.com/cr/report";
 const wchar_t kCheckPointFile[] = L"crash_checkpoint.txt";
 
 typedef std::map<std::wstring, std::wstring> CrashMap;
