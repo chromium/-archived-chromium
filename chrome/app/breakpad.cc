@@ -155,6 +155,10 @@ bool ShowRestartDialogIfCrashed(bool* exit_now) {
 static DWORD __stdcall InitCrashReporterThread(void* param) {
   CrashReporterInfo* info = reinterpret_cast<CrashReporterInfo*>(param);
 
+  // GetCustomInfo can take a few milliseconds to get the file information, so
+  // we do it here so it can run in a separate thread.
+  info->custom_info = GetCustomInfo(info->dll_path, info->process_type);
+
   CommandLine command;
   bool full_dump = command.HasSwitch(switches::kFullMemoryCrashReport);
   bool use_crash_service = command.HasSwitch(switches::kNoErrorDialogs) ||
@@ -235,7 +239,6 @@ void InitCrashReporter(std::wstring dll_path) {
     if (info->process_type.empty())
       info->process_type = L"browser";
 
-    info->custom_info = GetCustomInfo(dll_path, info->process_type);
     info->dll_path = dll_path;
 
     // If this is not the browser, we can't be sure that we will be able to

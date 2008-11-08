@@ -80,11 +80,12 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     delete[] version;
   }
 
+  HINSTANCE dll_handle = ::LoadLibraryEx(dll_name, NULL,
+                                         LOAD_WITH_ALTERED_SEARCH_PATH);
+
   // Initialize the crash reporter.
   InitCrashReporter(client_util::GetDLLPath(dll_name, dll_path));
 
-  HINSTANCE dll_handle = ::LoadLibraryEx(dll_name, NULL,
-                                         LOAD_WITH_ALTERED_SEARCH_PATH);
   if (NULL != dll_handle) {
     client_util::DLL_MAIN entry = reinterpret_cast<client_util::DLL_MAIN>(
         ::GetProcAddress(dll_handle, "ChromeMain"));
