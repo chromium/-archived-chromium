@@ -392,12 +392,6 @@ class RenderViewHost : public RenderWidgetHost {
   // as a popup.
   void DisassociateFromPopupCount();
 
-  // Called by the AutofillManager when the list of suggestions is ready.
-  void AutofillSuggestionsReturned(const std::vector<std::wstring>& suggestions,
-                                   int64 node_id,
-                                   int request_id,
-                                   int default_suggestion_index);
-
  protected:
   // Overridden from RenderWidgetHost:
   virtual void UnhandledInputEvent(const WebInputEvent& event);

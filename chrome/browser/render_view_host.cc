@@ -1233,15 +1233,37 @@ void RenderViewHost::OnQueryFormFieldAutofill(const std::wstring& field_name,
                                               const std::wstring& user_text,
                                               int64 node_id,
                                               int request_id) {
-  delegate_->GetAutofillSuggestions(field_name, user_text, node_id, request_id);
-}
+  // TODO(jcampan): this is where the suggestions should be queried from the
+  // database.  The sample code commented below is left here in the meantime for
+  // testing purpose.
+#ifndef TEST_AUTOFILL
+  static std::vector<std::wstring>* suggestions = NULL;
+  if (!suggestions) {
+    suggestions = new std::vector<std::wstring>();
+    suggestions->push_back(L"Alice");
+    suggestions->push_back(L"Jay");
+    suggestions->push_back(L"Jason");
+    suggestions->push_back(L"Jasmine");
+    suggestions->push_back(L"Jamel");
+    suggestions->push_back(L"Jamelo");
+    suggestions->push_back(L"Volvo");
+    suggestions->push_back(L"Volswagen");
+  }
 
-void RenderViewHost::AutofillSuggestionsReturned(
-    const std::vector<std::wstring>& suggestions,
-    int64 node_id, int request_id, int default_suggestion_index) {
-  Send(new ViewMsg_AutofillSuggestions(routing_id_, node_id,
-      request_id, suggestions, -1));
-  // Default index -1 means no default suggestion.
+
+  std::vector<std::wstring> result;
+  for (std::vector<std::wstring>::iterator iter = suggestions->begin();
+       iter != suggestions->end(); ++iter) {
+    if (StartsWith(*iter, user_text, false))
+      result.push_back(*iter);
+  }
+  Send(new ViewMsg_AutofillSuggestions(routing_id_,
+                                       node_id, request_id, result, 0));
+#else
+  Send(new ViewMsg_AutofillSuggestions(routing_id_,
+                                       node_id, request_id,
+                                       std::vector<std::wstring>(), 0));
+#endif
 }
 
 void RenderViewHost::NotifyRendererUnresponsive() {

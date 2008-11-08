@@ -9,22 +9,22 @@
 #include <string>
 
 #include "chrome/browser/webdata/web_data_service.h"
-#include "chrome/common/pref_member.h"
+#include "chrome/browser/web_contents.h"
 #include "webkit/glue/autofill_form.h"
 
 class Profile;
-class WebContents;
 
 // Per-tab autofill manager. Handles receiving form data from the renderer and
 // the storing and retrieving of form data through WebDataService.
 class AutofillManager : public WebDataServiceConsumer {
  public:
-  explicit AutofillManager(WebContents* web_contents);
+  explicit AutofillManager(WebContents* web_contents)
+      : query_is_pending_(false), web_contents_(web_contents) {}
   virtual ~AutofillManager();
 
-  void CancelPendingQuery();
+  void ClearPendingQuery();
 
-  Profile* profile();
+  Profile* profile() { return web_contents_->profile(); }
 
   // Called when a form is submitted (i.e. when the user hits the submit button)
   // to store the form entries in the profile's sql database.
@@ -32,11 +32,8 @@ class AutofillManager : public WebDataServiceConsumer {
 
   // Starts a query into the database for the values corresponding to name.
   // OnWebDataServiceRequestDone gets called when the query completes.
-  void FetchValuesForName(const std::wstring& name,
-                          const std::wstring& prefix,
-                          int limit,
-                          int64 node_id,
-                          int request_id);
+  void FetchValuesForName(const std::wstring& name, const std::wstring& prefix,
+      int limit);
 
   // WebDataServiceConsumer implementation.
   virtual void OnWebDataServiceRequestDone(WebDataService::Handle h,
@@ -46,15 +43,14 @@ class AutofillManager : public WebDataServiceConsumer {
   void StoreFormEntriesInWebDatabase(const AutofillForm& form);
 
   WebContents* web_contents_;
-
-  BooleanPrefMember form_autofill_enabled_;
-
+  
   // When the manager makes a request from WebDataService, the database
-  // is queried on another thread, we record the query handle until we
+  // is queried on another thread, we record the query in this map until we
   // get called back.
+  bool query_is_pending_;
   WebDataService::Handle pending_query_handle_;
-  int64 node_id_;
-  int request_id_;
+  std::wstring pending_query_name_;
+  std::wstring pending_query_prefix_;
 
   DISALLOW_COPY_AND_ASSIGN(AutofillManager);
 };

@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "base/basictypes.h"
-#include "chrome/browser/autofill_manager.h"
 #include "chrome/common/render_messages.h"
 #include "webkit/glue/webpreferences.h"
 
@@ -284,20 +283,9 @@ class RenderViewHostDelegate {
 
   // Password forms have been detected in the page.
   virtual void PasswordFormsSeen(const std::vector<PasswordForm>& forms) { }
-
+  
   // Forms fillable by autofill have been detected in the page.
   virtual void AutofillFormSubmitted(const AutofillForm& form) { }
-
-  // Called to retrieve a list of suggestions from the web database given 
-  // the name of the field |field_name| and what the user has already typed in
-  // the field |user_text|.  Appeals to the database thead to perform the query.
-  // When the database thread is finished, the autofill manager retrieves the
-  // calling RenderViewHost and then passes the vector of suggestions to
-  // RenderViewHost::AutofillSuggestionsReturned.
-  virtual void GetAutofillSuggestions(const std::wstring& field_name, 
-                                      const std::wstring& user_text,
-                                      int64 node_id,
-                                      int request_id) { }
 
   // Notification that the page has an OpenSearch description document.
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
