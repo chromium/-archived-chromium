@@ -90,17 +90,17 @@ TEST(HttpAuthHandlerDigestTest, ParseChallenge) {
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
     std::string challenge(tests[i].challenge);
 
-    HttpAuthHandlerDigest auth;
-    bool ok = auth.ParseChallenge(challenge.begin(), challenge.end());
+    scoped_refptr<HttpAuthHandlerDigest> digest = new HttpAuthHandlerDigest;
+    bool ok = digest->ParseChallenge(challenge.begin(), challenge.end());
     
     EXPECT_EQ(tests[i].parsed_success, ok);
-    EXPECT_STREQ(tests[i].parsed_realm, auth.realm_.c_str());
-    EXPECT_STREQ(tests[i].parsed_nonce, auth.nonce_.c_str());
-    EXPECT_STREQ(tests[i].parsed_domain, auth.domain_.c_str());
-    EXPECT_STREQ(tests[i].parsed_opaque, auth.opaque_.c_str());
-    EXPECT_EQ(tests[i].parsed_stale, auth.stale_);
-    EXPECT_EQ(tests[i].parsed_algorithm, auth.algorithm_);
-    EXPECT_EQ(tests[i].parsed_qop, auth.qop_);
+    EXPECT_STREQ(tests[i].parsed_realm, digest->realm_.c_str());
+    EXPECT_STREQ(tests[i].parsed_nonce, digest->nonce_.c_str());
+    EXPECT_STREQ(tests[i].parsed_domain, digest->domain_.c_str());
+    EXPECT_STREQ(tests[i].parsed_opaque, digest->opaque_.c_str());
+    EXPECT_EQ(tests[i].parsed_stale, digest->stale_);
+    EXPECT_EQ(tests[i].parsed_algorithm, digest->algorithm_);
+    EXPECT_EQ(tests[i].parsed_qop, digest->qop_);
   }
 }
 
@@ -236,12 +236,12 @@ TEST(HttpAuthHandlerDigestTest, AssembleCredentials) {
     }
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
-    HttpAuthHandlerDigest digest;
+    scoped_refptr<HttpAuthHandlerDigest> digest = new HttpAuthHandlerDigest;
     std::string challenge = tests[i].challenge;
-    EXPECT_TRUE(digest.InitFromChallenge(
+    EXPECT_TRUE(digest->InitFromChallenge(
         challenge.begin(), challenge.end(), HttpAuth::AUTH_SERVER));
 
-    std::string creds = digest.AssembleCredentials(tests[i].req_method,
+    std::string creds = digest->AssembleCredentials(tests[i].req_method,
         tests[i].req_path, tests[i].username, tests[i].password,
         tests[i].cnonce, tests[i].nonce_count);
     

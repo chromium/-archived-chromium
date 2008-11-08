@@ -80,10 +80,6 @@ HttpCache* HttpNetworkLayer::GetCache() {
   return NULL;
 }
 
-AuthCache* HttpNetworkLayer::GetAuthCache() {
-  return session_->auth_cache();
-}
-
 void HttpNetworkLayer::Suspend(bool suspend) {
   suspended_ = suspend;
 

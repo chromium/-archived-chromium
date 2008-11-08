@@ -769,6 +769,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\http\http_auth_cache.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\http\http_auth_cache.h"
+				>
+			</File>
+			<File
 				RelativePath="..\http\http_auth_handler.h"
 				>
 			</File>

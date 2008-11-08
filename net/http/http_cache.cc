@@ -983,10 +983,6 @@ HttpCache* HttpCache::GetCache() {
   return this;
 }
 
-AuthCache* HttpCache::GetAuthCache() {
-  return network_layer_->GetAuthCache();
-}
-
 void HttpCache::Suspend(bool suspend) {
   network_layer_->Suspend(suspend);
 }

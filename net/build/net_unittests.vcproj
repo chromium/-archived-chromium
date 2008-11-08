@@ -227,6 +227,10 @@
 				Name="http"
 				>
 				<File
+					RelativePath="..\http\http_auth_cache_unittest.cc"
+                    >
+                </File>
+                <File
 					RelativePath="..\http\http_auth_handler_basic_unittest.cc"
 					>
 				</File>

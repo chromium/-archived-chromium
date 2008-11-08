@@ -76,6 +76,7 @@ input_files = [
     'disk_cache/trace.cc',
     'http/cert_status_cache.cc',
     'http/http_auth.cc',
+    'http/http_auth_cache.cc',
     'http/http_auth_handler.cc',
     'http/http_auth_handler_basic.cc',
     'http/http_auth_handler_digest.cc',

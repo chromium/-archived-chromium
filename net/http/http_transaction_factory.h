@@ -7,7 +7,6 @@
 
 namespace net {
 
-class AuthCache;
 class HttpCache;
 class HttpTransaction;
 
@@ -21,9 +20,6 @@ class HttpTransactionFactory {
 
   // Returns the associated cache if any (may be NULL).
   virtual HttpCache* GetCache() = 0;
-
-  // Returns the associated HTTP auth cache if any (may be NULL).
-  virtual AuthCache* GetAuthCache() = 0;
 
   // Suspends the creation of new transactions. If |suspend| is false, creation
   // of new transactions is resumed.

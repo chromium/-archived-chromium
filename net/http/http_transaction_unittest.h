@@ -292,10 +292,6 @@ class MockNetworkLayer : public net::HttpTransactionFactory {
     return NULL;
   }
 
-  virtual net::AuthCache* GetAuthCache() {
-    return NULL;
-  }
-
   virtual void Suspend(bool suspend) {}
 
   int transaction_count() const { return transaction_count_; }

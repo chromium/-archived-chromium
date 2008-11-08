@@ -5,6 +5,7 @@
 #ifndef NET_HTTP_HTTP_AUTH_H_
 #define NET_HTTP_HTTP_AUTH_H_
 
+#include "base/ref_counted.h"
 #include "net/http/http_util.h"
 
 namespace net {
@@ -23,6 +24,39 @@ class HttpAuth {
      AUTH_SERVER = 1,
    };
 
+   // Describes where the identity used for authentication came from.
+   enum IdentitySource {
+     // Came from nowhere -- the identity is not initialized.
+     IDENT_SRC_NONE,
+
+     // The identity came from the auth cache, by doing a path-based
+     // lookup (premptive authorization).
+     IDENT_SRC_PATH_LOOKUP,
+
+     // The identity was extracted from a URL of the form:
+     // http://<username>:<password>@host:port
+     IDENT_SRC_URL,
+
+     // The identity was retrieved from the auth cache, by doing a
+     // realm lookup.
+     IDENT_SRC_REALM_LOOKUP,
+
+     // The identity was provided by RestartWithAuth -- it likely
+     // came from a prompt (or maybe the password manager).
+     IDENT_SRC_EXTERNAL,
+   };
+
+   // Helper structure used by HttpNetworkTransaction to track 
+   // the current identity being used for authorization.
+   struct Identity {
+     Identity() : source(IDENT_SRC_NONE), invalid(true) { }
+
+     IdentitySource source;
+     bool invalid;
+     std::wstring username;
+     std::wstring password;
+   };
+
   // Get the name of the header containing the auth challenge
   // (either WWW-Authenticate or Proxy-Authenticate).
   static std::string GetChallengeHeaderName(Target target);
@@ -31,18 +65,20 @@ class HttpAuth {
   // (either Authorization or Proxy-Authorization).
   static std::string GetAuthorizationHeaderName(Target target);
 
-  // Create a handler to generate credentials for the challenge. If the
-  // challenge is unsupported or invalid, returns NULL.
-  // The caller owns the returned pointer.
-  static HttpAuthHandler* CreateAuthHandler(const std::string& challenge,
-                                            Target target);
+  // Create a handler to generate credentials for the challenge, and pass
+  // it back in |*handler|. If the challenge is unsupported or invalid
+  // |*handler| is set to NULL.
+  static void CreateAuthHandler(const std::string& challenge,
+                                Target target,
+                                scoped_refptr<HttpAuthHandler>* handler);
 
   // Iterate through the challenge headers, and pick the best one that
-  // we support. Returns the implementation class for handling the challenge.
-  // If no supported challenge was found, returns NULL.
-  // The caller owns the returned pointer.
-  static HttpAuthHandler* ChooseBestChallenge(
-      const HttpResponseHeaders* headers, Target target);
+  // we support. Obtains the implementation class for handling the challenge,
+  // and passes it back in |*handler|. If no supported challenge was found
+  // |*handler| is set to NULL.
+  static void ChooseBestChallenge(const HttpResponseHeaders* headers,
+                                  Target target,
+                                  scoped_refptr<HttpAuthHandler>* handler);
 
   // ChallengeTokenizer breaks up a challenge string into the the auth scheme
   // and parameter list, according to RFC 2617 Sec 1.2:

@@ -167,19 +167,32 @@ void URLRequestFtpJob::OnIOComplete(const AsyncResult& result) {
         // fall through
       case ERROR_INTERNET_INCORRECT_USER_NAME:
         // fall through
-      case ERROR_INTERNET_INCORRECT_PASSWORD:
+      case ERROR_INTERNET_INCORRECT_PASSWORD: {
+        // TODO(eroman): shouldn't the port be part of the key?
+        std::string cache_key = request_->url().host();
         if (server_auth_ != NULL &&
             server_auth_->state == net::AUTH_STATE_HAVE_AUTH) {
-          request_->context()->ftp_auth_cache()->Remove(request_->url().host());
+          request_->context()->ftp_auth_cache()->Remove(cache_key);
         } else {
           server_auth_ = new net::AuthData();
         }
-        // Try again, prompting for authentication.
         server_auth_->state = net::AUTH_STATE_NEED_AUTH;
-        // The io completed fine, the error was due to invalid auth.
-        SetStatus(URLRequestStatus());
-        NotifyHeadersComplete();
+
+        scoped_refptr<net::AuthData> cached_auth =
+            request_->context()->ftp_auth_cache()->Lookup(cache_key);
+
+        if (cached_auth) {
+          // Retry using cached auth data.
+          SetAuth(cached_auth->username, cached_auth->password);
+        } else {
+          // The io completed fine, the error was due to invalid auth.
+          SetStatus(URLRequestStatus());
+
+          // Prompt for a username/password.
+          NotifyHeadersComplete();
+        }
         return;
+      }
       case ERROR_SUCCESS:
         connection_handle_ = (HINTERNET)result.dwResult;
         OnConnect();
@@ -259,13 +272,6 @@ void URLRequestFtpJob::GetAuthChallengeInfo(
   auth_info->scheme = L"";
   auth_info->realm = L"";
   result->swap(auth_info);
-}
-
-void URLRequestFtpJob::GetCachedAuthData(
-    const net::AuthChallengeInfo& auth_info,
-    scoped_refptr<net::AuthData>* auth_data) {
-  *auth_data = request_->context()->ftp_auth_cache()->
-               Lookup(WideToUTF8(auth_info.host));
 }
 
 void URLRequestFtpJob::OnConnect() {

@@ -124,7 +124,10 @@ class HttpNetworkTransaction : public HttpTransaction {
     return header_buf_http_offset_ != -1;
   }
 
-  // Resets the members of the transaction, to rewinding next_state_.
+  // Sets up the state machine to restart the transaction with auth.
+  void PrepareForAuthRestart(HttpAuth::Target target);
+
+  // Resets the members of the transaction so it can be restarted.
   void ResetStateForRestart();
 
   // Attach any credentials needed for the proxy server or origin server.
@@ -134,20 +137,46 @@ class HttpNetworkTransaction : public HttpTransaction {
   // origin server auth header, as specified by |target|
   void AddAuthorizationHeader(HttpAuth::Target target);
 
-  // Handles HTTP status code 401 or 407. Populates response_.auth_challenge
-  // with the required information so that URLRequestHttpJob can prompt
-  // for a username/password.
-  int PopulateAuthChallenge();
+  // Handles HTTP status code 401 or 407.
+  // HandleAuthChallenge() returns a network error code, or OK, or
+  // WILL_RESTART_TRANSACTION. The latter indicates that the state machine has
+  // been updated to restart the transaction with a new auth attempt.
+  enum { WILL_RESTART_TRANSACTION = 1 };
+  int HandleAuthChallenge();
+
+  // Populates response_.auth_challenge with the challenge information, so that
+  // URLRequestHttpJob can prompt for a username/password.
+  void PopulateAuthChallenge(HttpAuth::Target target);
+
+  // Invalidates any auth cache entries after authentication has failed.
+  // The identity that was rejected is auth_identity_[target].
+  void InvalidateRejectedAuthFromCache(HttpAuth::Target target);
+
+  // Sets auth_identity_[target] to the next identity that the transaction
+  // should try. It chooses candidates by searching the auth cache
+  // and the URL for a username:password. Returns true if an identity
+  // was found.
+  bool SelectNextAuthIdentityToTry(HttpAuth::Target target);
+
+  // Searches the auth cache for an entry that encompasses the request's path.
+  // If such an entry is found, updates auth_identity_[target] and
+  // auth_handler_[target] with the cache entry's data and returns true.
+  bool SelectPreemptiveAuth(HttpAuth::Target target);
 
   bool NeedAuth(HttpAuth::Target target) const {
-    return auth_data_[target] &&
-        auth_data_[target]->state == AUTH_STATE_NEED_AUTH;
+    return auth_handler_[target].get() && auth_identity_[target].invalid;
   }
 
   bool HaveAuth(HttpAuth::Target target) const {
-    return auth_data_[target] &&
-        auth_data_[target]->state == AUTH_STATE_HAVE_AUTH;
+    return auth_handler_[target].get() && !auth_identity_[target].invalid;
   }
+
+  // Get the {scheme, host, port} for the authentication target
+  GURL AuthOrigin(HttpAuth::Target target) const;
+
+  // Get the absolute path of the resource needing authentication.
+  // For proxy authentication the path is always empty string.
+  std::string AuthPath(HttpAuth::Target target) const;
 
   // The following three auth members are arrays of size two -- index 0 is
   // for the proxy server, and index 1 is for the origin server.
@@ -156,16 +185,12 @@ class HttpNetworkTransaction : public HttpTransaction {
   // auth_handler encapsulates the logic for the particular auth-scheme.
   // This includes the challenge's parameters. If NULL, then there is no
   // associated auth handler.
-  scoped_ptr<HttpAuthHandler> auth_handler_[2];
+  scoped_refptr<HttpAuthHandler> auth_handler_[2];
 
-  // auth_data tracks the identity (username/password) that is to be
-  // applied to the proxy/origin server. The identify may have come
-  // from a login prompt, or from the auth cache. It is fed to us
-  // by URLRequestHttpJob, via RestartWithAuth().
-  scoped_refptr<AuthData> auth_data_[2];
-
-  // The key in the auth cache, for auth_data_.
-  std::string auth_cache_key_[2];
+  // auth_identity_ holds the (username/password) that should be used by
+  // the auth_handler_ to generate credentials. This identity can come from
+  // a number of places (url, cache, prompt).
+  HttpAuth::Identity auth_identity_[2];
 
   CompletionCallbackImpl<HttpNetworkTransaction> io_callback_;
   CompletionCallback* user_callback_;

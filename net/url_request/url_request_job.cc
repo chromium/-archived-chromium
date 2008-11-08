@@ -314,12 +314,6 @@ void URLRequestJob::NotifyHeadersComplete() {
     // Need to check for a NULL auth_info because the server may have failed
     // to send a challenge with the 401 response.
     if (auth_info) {
-      scoped_refptr<net::AuthData> auth_data;
-      GetCachedAuthData(*auth_info, &auth_data);
-      if (auth_data) {
-        SetAuth(auth_data->username, auth_data->password);
-        return;
-      }
       request_->delegate()->OnAuthRequired(request_, auth_info);
       // Wait for SetAuth or CancelAuth to be called.
       return;

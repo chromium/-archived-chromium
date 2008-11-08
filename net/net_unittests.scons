@@ -88,6 +88,7 @@ input_files = [
     'disk_cache/entry_unittest.cc',
     'disk_cache/mapped_file_unittest.cc',
     'disk_cache/storage_block_unittest.cc',
+    'http/http_auth_cache_unittest.cc',
     'http/http_auth_unittest.cc',
     'http/http_auth_handler_basic_unittest.cc',
     'http/http_auth_handler_digest_unittest.cc',

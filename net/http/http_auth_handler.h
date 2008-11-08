@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/ref_counted.h"
 #include "net/http/http_auth.h"
 
 namespace net {
@@ -18,15 +19,17 @@ class ProxyInfo;
 // (basic, digest, ...)
 // The registry mapping auth-schemes to implementations is hardcoded in 
 // HttpAuth::CreateAuthHandler().
-class HttpAuthHandler {
+class HttpAuthHandler : public base::RefCounted<HttpAuthHandler> {
  public:
+  virtual ~HttpAuthHandler() { }
+
   // Initialize the handler by parsing a challenge string.
   bool InitFromChallenge(std::string::const_iterator begin,
                          std::string::const_iterator end,
                          HttpAuth::Target target);
 
   // Lowercase name of the auth scheme
-  virtual std::string scheme() const {
+  std::string scheme() const {
     return scheme_;
   }
 

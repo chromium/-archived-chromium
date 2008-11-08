@@ -261,20 +261,6 @@ void URLRequestHttpJob::GetAuthChallengeInfo(
   *result = response_info_->auth_challenge;
 }
 
-void URLRequestHttpJob::GetCachedAuthData(
-    const net::AuthChallengeInfo& auth_info,
-    scoped_refptr<net::AuthData>* auth_data) {
-  net::AuthCache* auth_cache =
-      request_->context()->http_transaction_factory()->GetAuthCache();
-  if (!auth_cache) {
-    *auth_data = NULL;
-    return;
-  }
-  std::string auth_cache_key =
-      net::AuthCache::HttpKey(request_->url(), auth_info);
-  *auth_data = auth_cache->Lookup(auth_cache_key);
-}
-
 void URLRequestHttpJob::SetAuth(const std::wstring& username,
                                 const std::wstring& password) {
   DCHECK(transaction_.get());

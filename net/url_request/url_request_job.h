@@ -164,14 +164,6 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob> {
   virtual void GetAuthChallengeInfo(
       scoped_refptr<net::AuthChallengeInfo>* auth_info);
 
-  // Returns cached auth data for the auth challenge.  Returns NULL if there
-  // is no auth cache or if the auth cache doesn't have the auth data for
-  // the auth challenge.
-  virtual void GetCachedAuthData(const net::AuthChallengeInfo& auth_info,
-                                 scoped_refptr<net::AuthData>* auth_data) {
-    *auth_data = NULL;
-  }
-
   // Resend the request with authentication credentials.
   virtual void SetAuth(const std::wstring& username,
                        const std::wstring& password);

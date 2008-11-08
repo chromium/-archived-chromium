@@ -32,7 +32,6 @@ class HttpNetworkLayer : public HttpTransactionFactory {
   // HttpTransactionFactory methods:
   virtual HttpTransaction* CreateTransaction();
   virtual HttpCache* GetCache();
-  virtual AuthCache* GetAuthCache();
   virtual void Suspend(bool suspend);
 
  private:

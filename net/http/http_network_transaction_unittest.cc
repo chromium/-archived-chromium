@@ -618,6 +618,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
 
+  MockWrite data_writes1[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n\r\n"),
+  };
+
   MockRead data_reads1[] = {
     MockRead("HTTP/1.0 401 Unauthorized\r\n"),
     // Give a couple authenticate options (only the middle one is actually
@@ -650,6 +656,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
 
   MockSocket data1;
   data1.reads = data_reads1;
+  data1.writes = data_writes1;
   MockSocket data2;
   data2.reads = data_reads2;
   data2.writes = data_writes2;
@@ -707,6 +714,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
 
+  MockWrite data_writes1[] = {
+    MockWrite("GET http://www.google.com/ HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Proxy-Connection: keep-alive\r\n\r\n"),
+  };
+
   MockRead data_reads1[] = {
     MockRead("HTTP/1.0 407 Unauthorized\r\n"),
     // Give a couple authenticate options (only the middle one is actually
@@ -762,6 +775,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
 
   MockSocket data1;
   data1.reads = data_reads1;
+  data1.writes = data_writes1;
   MockSocket data2;
   data2.reads = data_reads2;
   data2.writes = data_writes2;
@@ -1015,5 +1029,479 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
     rv = ReadTransaction(trans.get(), &response_data);
     EXPECT_EQ(net::OK, rv);
     EXPECT_EQ(kExpectedResponseData[i], response_data);
+  }
+}
+
+// Test the request-challenge-retry sequence for basic auth when there is
+// an identity in the URL. The request should be sent as normal, but when
+// it fails the identity from the URL is used to answer the challenge.
+TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(), &mock_socket_factory));
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  // Note: the URL has a username:password in it.
+  request.url = GURL("http://foo:bar@www.google.com/");
+  request.load_flags = 0;
+
+  MockWrite data_writes1[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n\r\n"),
+  };
+
+  MockRead data_reads1[] = {
+    MockRead("HTTP/1.0 401 Unauthorized\r\n"),
+    MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+    MockRead("Content-Length: 10\r\n\r\n"),
+    MockRead(false, net::ERR_FAILED),
+  };
+
+  // After the challenge above, the transaction will be restarted using the
+  // identity from the url (foo, bar) to answer the challenge.
+  MockWrite data_writes2[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Authorization: Basic Zm9vOmJhcg==\r\n\r\n"),
+  };
+
+  MockRead data_reads2[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, net::OK),
+  };
+
+  MockSocket data1;
+  data1.reads = data_reads1;
+  data1.writes = data_writes1;
+  MockSocket data2;
+  data2.reads = data_reads2;
+  data2.writes = data_writes2;
+  mock_sockets[0] = &data1;
+  mock_sockets[1] = &data2;
+  mock_sockets[2] = NULL;
+
+  TestCompletionCallback callback1;
+
+  int rv = trans->Start(&request, &callback1);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback1.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+
+  // There is no challenge info, since the identity in URL worked.
+  EXPECT_TRUE(response->auth_challenge.get() == NULL);
+
+  EXPECT_EQ(100, response->headers->GetContentLength());
+
+  // Empty the current queue.
+  MessageLoop::current()->RunAllPending();
+}
+
+// Test that previously tried username/passwords for a realm get re-used.
+TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
+  scoped_refptr<net::HttpNetworkSession> session = CreateSession();
+
+  // Transaction 1: authenticate (foo, bar) on MyRealm1
+  {
+    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+        session, &mock_socket_factory));
+
+    net::HttpRequestInfo request;
+    request.method = "GET";
+    request.url = GURL("http://www.google.com/x/y/z");
+    request.load_flags = 0;
+
+    MockWrite data_writes1[] = {
+      MockWrite("GET /x/y/z HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n\r\n"),
+    };
+
+    MockRead data_reads1[] = {
+      MockRead("HTTP/1.0 401 Unauthorized\r\n"),
+      MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+      MockRead("Content-Length: 10000\r\n\r\n"),
+      MockRead(false, net::ERR_FAILED),
+    };
+
+    // Resend with authorization (username=foo, password=bar)
+    MockWrite data_writes2[] = {
+      MockWrite("GET /x/y/z HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n"
+                "Authorization: Basic Zm9vOmJhcg==\r\n\r\n"),
+    };
+
+    // Sever accepts the authorization.
+    MockRead data_reads2[] = {
+      MockRead("HTTP/1.0 200 OK\r\n"),
+      MockRead("Content-Length: 100\r\n\r\n"),
+      MockRead(false, net::OK),
+    };
+
+    MockSocket data1;
+    data1.reads = data_reads1;
+    data1.writes = data_writes1;
+    MockSocket data2;
+    data2.reads = data_reads2;
+    data2.writes = data_writes2;
+    mock_sockets_index = 0;
+    mock_sockets[0] = &data1;
+    mock_sockets[1] = &data2;
+    mock_sockets[2] = NULL;
+
+    TestCompletionCallback callback1;
+
+    int rv = trans->Start(&request, &callback1);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback1.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    EXPECT_FALSE(response == NULL);
+
+    // The password prompt info should have been set in
+    // response->auth_challenge.
+    EXPECT_FALSE(response->auth_challenge.get() == NULL);
+
+    // TODO(eroman): this should really include the effective port (80)
+    EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+    EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
+    EXPECT_EQ(L"basic", response->auth_challenge->scheme);
+
+    TestCompletionCallback callback2;
+
+    rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback2.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    response = trans->GetResponseInfo();
+    EXPECT_FALSE(response == NULL);
+    EXPECT_TRUE(response->auth_challenge.get() == NULL);
+    EXPECT_EQ(100, response->headers->GetContentLength());
+  }
+
+  // ------------------------------------------------------------------------
+
+  // Transaction 2: authenticate (foo2, bar2) on MyRealm2
+  {
+    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+        session, &mock_socket_factory));
+
+    net::HttpRequestInfo request;
+    request.method = "GET";
+    // Note that Transaction 1 was at /x/y/z, so this is in the same
+    // protection space as MyRealm1.
+    request.url = GURL("http://www.google.com/x/y/a/b");
+    request.load_flags = 0;
+
+    MockWrite data_writes1[] = {
+      MockWrite("GET /x/y/a/b HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n"
+                // Send preemptive authorization for MyRealm1
+                "Authorization: Basic Zm9vOmJhcg==\r\n\r\n"),
+    };
+
+    // The server didn't like the preemptive authorization, and
+    // challenges us for a different realm (MyRealm2).
+    MockRead data_reads1[] = {
+      MockRead("HTTP/1.0 401 Unauthorized\r\n"),
+      MockRead("WWW-Authenticate: Basic realm=\"MyRealm2\"\r\n"),
+      MockRead("Content-Length: 10000\r\n\r\n"),
+      MockRead(false, net::ERR_FAILED),
+    };
+
+    // Resend with authorization for MyRealm2 (username=foo2, password=bar2)
+    MockWrite data_writes2[] = {
+      MockWrite("GET /x/y/a/b HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n"
+                "Authorization: Basic Zm9vMjpiYXIy\r\n\r\n"),
+    };
+
+    // Sever accepts the authorization.
+    MockRead data_reads2[] = {
+      MockRead("HTTP/1.0 200 OK\r\n"),
+      MockRead("Content-Length: 100\r\n\r\n"),
+      MockRead(false, net::OK),
+    };
+
+    MockSocket data1;
+    data1.reads = data_reads1;
+    data1.writes = data_writes1;
+    MockSocket data2;
+    data2.reads = data_reads2;
+    data2.writes = data_writes2;
+    mock_sockets_index = 0;
+    mock_sockets[0] = &data1;
+    mock_sockets[1] = &data2;
+    mock_sockets[2] = NULL;
+
+    TestCompletionCallback callback1;
+
+    int rv = trans->Start(&request, &callback1);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback1.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    EXPECT_FALSE(response == NULL);
+
+    // The password prompt info should have been set in
+    // response->auth_challenge.
+    EXPECT_FALSE(response->auth_challenge.get() == NULL);
+
+    // TODO(eroman): this should really include the effective port (80)
+    EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+    EXPECT_EQ(L"MyRealm2", response->auth_challenge->realm);
+    EXPECT_EQ(L"basic", response->auth_challenge->scheme);
+
+    TestCompletionCallback callback2;
+
+    rv = trans->RestartWithAuth(L"foo2", L"bar2", &callback2);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback2.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    response = trans->GetResponseInfo();
+    EXPECT_FALSE(response == NULL);
+    EXPECT_TRUE(response->auth_challenge.get() == NULL);
+    EXPECT_EQ(100, response->headers->GetContentLength());
+  }
+
+  // ------------------------------------------------------------------------
+
+  // Transaction 3: Resend a request in MyRealm's protection space --
+  // succeed with preemptive authorization.
+  {
+    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+        session, &mock_socket_factory));
+
+    net::HttpRequestInfo request;
+    request.method = "GET";
+    request.url = GURL("http://www.google.com/x/y/z2");
+    request.load_flags = 0;
+
+    MockWrite data_writes1[] = {
+      MockWrite("GET /x/y/z2 HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n"
+                // The authorization for MyRealm1 gets sent preemptively
+                // (since the url is in the same protection space)
+                "Authorization: Basic Zm9vOmJhcg==\r\n\r\n"),
+    };
+
+    // Sever accepts the preemptive authorization
+    MockRead data_reads1[] = {
+      MockRead("HTTP/1.0 200 OK\r\n"),
+      MockRead("Content-Length: 100\r\n\r\n"),
+      MockRead(false, net::OK),
+    };
+
+    MockSocket data1;
+    data1.reads = data_reads1;
+    data1.writes = data_writes1;
+    mock_sockets_index = 0;
+    mock_sockets[0] = &data1;
+    mock_sockets[1] = NULL;
+
+    TestCompletionCallback callback1;
+
+    int rv = trans->Start(&request, &callback1);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback1.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    EXPECT_FALSE(response == NULL);
+
+    EXPECT_TRUE(response->auth_challenge.get() == NULL);
+    EXPECT_EQ(100, response->headers->GetContentLength());
+  }
+
+  // ------------------------------------------------------------------------
+
+  // Transaction 4: request another URL in MyRealm (however the
+  // url is not known to belong to the protection space, so no pre-auth).
+  {
+    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+        session, &mock_socket_factory));
+
+    net::HttpRequestInfo request;
+    request.method = "GET";
+    request.url = GURL("http://www.google.com/x/1");
+    request.load_flags = 0;
+
+    MockWrite data_writes1[] = {
+      MockWrite("GET /x/1 HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n\r\n"),
+    };
+
+    MockRead data_reads1[] = {
+      MockRead("HTTP/1.0 401 Unauthorized\r\n"),
+      MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+      MockRead("Content-Length: 10000\r\n\r\n"),
+      MockRead(false, net::ERR_FAILED),
+    };
+
+    // Resend with authorization from MyRealm's cache.
+    MockWrite data_writes2[] = {
+      MockWrite("GET /x/1 HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n"
+                "Authorization: Basic Zm9vOmJhcg==\r\n\r\n"),
+    };
+
+    // Sever accepts the authorization.
+    MockRead data_reads2[] = {
+      MockRead("HTTP/1.0 200 OK\r\n"),
+      MockRead("Content-Length: 100\r\n\r\n"),
+      MockRead(false, net::OK),
+    };
+
+    MockSocket data1;
+    data1.reads = data_reads1;
+    data1.writes = data_writes1;
+    MockSocket data2;
+    data2.reads = data_reads2;
+    data2.writes = data_writes2;
+    mock_sockets_index = 0;
+    mock_sockets[0] = &data1;
+    mock_sockets[1] = &data2;
+    mock_sockets[2] = NULL;
+
+    TestCompletionCallback callback1;
+
+    int rv = trans->Start(&request, &callback1);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback1.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    EXPECT_FALSE(response == NULL);
+    EXPECT_TRUE(response->auth_challenge.get() == NULL);
+    EXPECT_EQ(100, response->headers->GetContentLength());
+  }
+
+  // ------------------------------------------------------------------------
+
+  // Transaction 5: request a URL in MyRealm, but the server rejects the
+  // cached identity. Should invalidate and re-prompt.
+  {
+    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+        session, &mock_socket_factory));
+
+    net::HttpRequestInfo request;
+    request.method = "GET";
+    request.url = GURL("http://www.google.com/p/q/t");
+    request.load_flags = 0;
+
+    MockWrite data_writes1[] = {
+      MockWrite("GET /p/q/t HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n\r\n"),
+    };
+
+    MockRead data_reads1[] = {
+      MockRead("HTTP/1.0 401 Unauthorized\r\n"),
+      MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+      MockRead("Content-Length: 10000\r\n\r\n"),
+      MockRead(false, net::ERR_FAILED),
+    };
+
+    // Resend with authorization from cache for MyRealm.
+    MockWrite data_writes2[] = {
+      MockWrite("GET /p/q/t HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n"
+                "Authorization: Basic Zm9vOmJhcg==\r\n\r\n"),
+    };
+
+    // Sever rejects the authorization.
+    MockRead data_reads2[] = {
+      MockRead("HTTP/1.0 401 Unauthorized\r\n"),
+      MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
+      MockRead("Content-Length: 10000\r\n\r\n"),
+      MockRead(false, net::ERR_FAILED),
+    };
+
+    // At this point we should prompt for new credentials for MyRealm.
+    // Restart with username=foo3, password=foo4.
+    MockWrite data_writes3[] = {
+      MockWrite("GET /p/q/t HTTP/1.1\r\n"
+                "Host: www.google.com\r\n"
+                "Connection: keep-alive\r\n"
+                "Authorization: Basic Zm9vMzpiYXIz\r\n\r\n"),
+    };
+
+    // Sever accepts the authorization.
+    MockRead data_reads3[] = {
+      MockRead("HTTP/1.0 200 OK\r\n"),
+      MockRead("Content-Length: 100\r\n\r\n"),
+      MockRead(false, net::OK),
+    };
+
+    MockSocket data1;
+    data1.reads = data_reads1;
+    data1.writes = data_writes1;
+    MockSocket data2;
+    data2.reads = data_reads2;
+    data2.writes = data_writes2;
+    MockSocket data3;
+    data3.reads = data_reads3;
+    data3.writes = data_writes3;
+    mock_sockets_index = 0;
+    mock_sockets[0] = &data1;
+    mock_sockets[1] = &data2;
+    mock_sockets[2] = &data3;
+    mock_sockets[3] = NULL;
+
+    TestCompletionCallback callback1;
+
+    int rv = trans->Start(&request, &callback1);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback1.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    EXPECT_FALSE(response == NULL);
+
+    // The password prompt info should have been set in
+    // response->auth_challenge.
+    EXPECT_FALSE(response->auth_challenge.get() == NULL);
+
+    // TODO(eroman): this should really include the effective port (80)
+    EXPECT_EQ(L"www.google.com", response->auth_challenge->host);
+    EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
+    EXPECT_EQ(L"basic", response->auth_challenge->scheme);
+
+    TestCompletionCallback callback2;
+
+    rv = trans->RestartWithAuth(L"foo3", L"bar3", &callback2);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+    rv = callback2.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+
+    response = trans->GetResponseInfo();
+    EXPECT_FALSE(response == NULL);
+    EXPECT_TRUE(response->auth_challenge.get() == NULL);
+    EXPECT_EQ(100, response->headers->GetContentLength());
   }
 }

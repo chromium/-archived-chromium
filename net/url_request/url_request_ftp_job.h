@@ -33,8 +33,6 @@ class URLRequestFtpJob : public URLRequestInetJob {
   virtual void OnSetAuth();
   virtual bool NeedsAuth();
   virtual void GetAuthChallengeInfo(scoped_refptr<net::AuthChallengeInfo>*);
-  virtual void GetCachedAuthData(const net::AuthChallengeInfo& auth_info,
-                                 scoped_refptr<net::AuthData>* auth_data);
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
 
  private:

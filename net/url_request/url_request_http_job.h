@@ -48,8 +48,6 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual bool IsSafeRedirect(const GURL& location);
   virtual bool NeedsAuth();
   virtual void GetAuthChallengeInfo(scoped_refptr<net::AuthChallengeInfo>*);
-  virtual void GetCachedAuthData(const net::AuthChallengeInfo& auth_info,
-                                 scoped_refptr<net::AuthData>* auth_data);
   virtual void SetAuth(const std::wstring& username,
                        const std::wstring& password);
   virtual void CancelAuth();

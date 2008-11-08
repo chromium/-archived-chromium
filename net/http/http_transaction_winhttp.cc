@@ -755,10 +755,6 @@ HttpCache* HttpTransactionWinHttp::Factory::GetCache() {
   return NULL;
 }
 
-AuthCache* HttpTransactionWinHttp::Factory::GetAuthCache() {
-  return session_->auth_cache();
-}
-
 void HttpTransactionWinHttp::Factory::Suspend(bool suspend) {
   is_suspended_ = suspend;
 
@@ -1490,7 +1486,9 @@ int HttpTransactionWinHttp::DidReceiveHeaders() {
     return ERR_FILE_TOO_BIG;
 
   response_.vary_data.Init(*request_, *response_.headers);
-  PopulateAuthChallenge();
+  int rv = PopulateAuthChallenge();
+  if (rv != OK)
+    return rv;
 
   // Unfortunately, WinHttp does not close the connection when a non-keepalive
   // response is _not_ followed by the server closing the connection.  So, we
@@ -1502,12 +1500,12 @@ int HttpTransactionWinHttp::DidReceiveHeaders() {
 }
 
 // Populates response_.auth_challenge with the authentication challenge info.
-void HttpTransactionWinHttp::PopulateAuthChallenge() {
+int HttpTransactionWinHttp::PopulateAuthChallenge() {
   DCHECK(response_.headers);
 
   int status = response_.headers->response_code();
   if (status != 401 && status != 407)
-    return;
+    return OK;
 
   scoped_refptr<AuthChallengeInfo> auth_info = new AuthChallengeInfo;
 
@@ -1529,7 +1527,7 @@ void HttpTransactionWinHttp::PopulateAuthChallenge() {
   std::string header_name = auth_info->is_proxy ?
       "Proxy-Authenticate" : "WWW-Authenticate";
   if (!response_.headers->EnumerateHeader(NULL, header_name, &header_value))
-    return;
+    return OK;
 
   // TODO(darin): Need to support RFC 2047 encoded realm strings.  For now, we
   // limit our support to ASCII and "native code page" realm strings.
@@ -1564,9 +1562,19 @@ void HttpTransactionWinHttp::PopulateAuthChallenge() {
   if (auth->state == AUTH_STATE_HAVE_AUTH) {
     session_->auth_cache()->Remove(*auth_cache_key);
     auth->state = AUTH_STATE_NEED_AUTH;
+  } else {
+    AuthData* cached_auth = session_->auth_cache()->Lookup(*auth_cache_key);
+    if (cached_auth) {
+      CompletionCallback* callback = callback_;
+      callback_ = NULL;
+      return RestartWithAuth(cached_auth->username,
+                             cached_auth->password,
+                             callback);
+    }
   }
 
   response_.auth_challenge.swap(auth_info);
+  return OK;
 }
 
 static DWORD StringToAuthScheme(const std::wstring& scheme) {

@@ -40,7 +40,6 @@ class HttpTransactionWinHttp : public HttpTransaction {
 
     virtual HttpTransaction* CreateTransaction();
     virtual HttpCache* GetCache();
-    virtual AuthCache* GetAuthCache();
     virtual void Suspend(bool suspend);
 
    private:
@@ -95,7 +94,7 @@ class HttpTransactionWinHttp : public HttpTransaction {
   int DidReadData(DWORD num_bytes);
   int DidReceiveHeaders();
 
-  void PopulateAuthChallenge();
+  int PopulateAuthChallenge();
   void ApplyAuth();
 
   std::string GetRequestHeaders() const;
