@@ -161,6 +161,7 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/graphics/GlyphPageTreeNodeWin.cpp',
     '$PORT_DIR/platform/graphics/IconWin.cpp',
     '$PORT_DIR/platform/graphics/SimpleFontDataWin.cpp',
+    '$PORT_DIR/platform/graphics/ThemeHelperWin.cpp',
     '$PORT_DIR/rendering/RenderThemeWin.cpp',
   ])
 
