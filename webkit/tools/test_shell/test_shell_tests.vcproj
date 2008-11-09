@@ -263,6 +263,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\test_webview_delegate_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\text_input_controller.cc"
 				>
 			</File>
