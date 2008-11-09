@@ -19,8 +19,6 @@ WebViewHost* WebViewHost::Create(GtkWidget* box,
                                  const WebPreferences& prefs) {
   WebViewHost* host = new WebViewHost();
 
-  LOG(INFO) << "In WebViewHost::Create";
-
   host->view_ = WebWidgetHost::CreateWindow(box, host);
   g_object_set_data(G_OBJECT(host->view_), "webwidgethost", host);
 

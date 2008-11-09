@@ -236,7 +236,22 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   void RegisterDragDrop();
 
  protected:
+  // Called the title of the page changes.
+  // Can be used to update the title of the window.
+  void SetPageTitle(const std::wstring& title);
+
+  // Called when the URL of the page changes.
+  // Extracts the URL and forwards on to SetAddressBarURL().
   void UpdateAddressBar(WebView* webView);
+
+  // Called when the URL of the page changes.
+  // Should be used to update the text of the URL bar.
+  void SetAddressBarURL(const GURL& url);
+
+  // Show a JavaScript alert as a popup message.
+  // The caller should test whether we're in interactive mode and only
+  // call this function when we really want a message to pop up.
+  void ShowJavaScriptAlert(const std::wstring& message);
 
   // In the Mac code, this is called to trigger the end of a test after the
   // page has finished loading.  From here, we can generate the dump for the

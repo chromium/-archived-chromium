@@ -101,6 +101,7 @@ input_files = [
     'test_shell_request_context.cc',
     'test_shell_switches.cc',
     'test_shell.cc',
+    'test_webview_delegate.cc',
     'text_input_controller.cc',
 ]
 if env['PLATFORM'] == 'win32':
@@ -109,7 +110,7 @@ if env['PLATFORM'] == 'win32':
       'drag_delegate.cc',
       'drop_delegate.cc',
       'test_shell_win.cc',
-      'test_webview_delegate.cc',
+      'test_webview_delegate_win.cc',
       'webview_host.cc',
       'webwidget_host.cc',
   ])

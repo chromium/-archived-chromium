@@ -8,10 +8,7 @@
 
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
-#include <objidl.h>
-#include <shlobj.h>
-#include <shlwapi.h>
-
+#include "base/file_util.h"
 #include "base/gfx/point.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
@@ -26,16 +23,20 @@
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
-#include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/window_open_disposition.h"
-#include "webkit/tools/test_shell/drag_delegate.h"
-#include "webkit/tools/test_shell/drop_delegate.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
+#if defined(OS_WIN)
+// TODO(port): make these files work everywhere.
+#include "webkit/glue/plugins/webplugin_delegate_impl.h"
+#include "webkit/tools/test_shell/drag_delegate.h"
+#include "webkit/tools/test_shell/drop_delegate.h"
+#endif
+
 namespace {
 
-static int next_page_id_ = 1;
+int next_page_id_ = 1;
 
 // Used to write a platform neutral file:/// URL by only taking the filename
 // (e.g., converts "file:///tmp/foo.txt" to just "foo.txt").
@@ -43,7 +44,7 @@ std::wstring UrlSuitableForTestResult(const std::wstring& url) {
   if (url.empty() || std::wstring::npos == url.find(L"file://"))
     return url;
 
-  return PathFindFileNameW(url.c_str());
+  return file_util::GetFilenameFromPath(url);
 }
 
 // Adds a file called "DRTFakeFile" to |data_object| (CF_HDROP).  Use to fake
@@ -56,12 +57,6 @@ void AddDRTFakeFileToDataObject(WebDropData* drop_data) {
 
 // WebViewDelegate -----------------------------------------------------------
 
-TestWebViewDelegate::~TestWebViewDelegate() {
-  if (custom_cursor_)
-    DestroyIcon(custom_cursor_);
-  RevokeDragDrop(shell_->webViewWnd());
-}
-
 WebView* TestWebViewDelegate::CreateWebView(WebView* webview,
                                             bool user_gesture) {
   return shell_->CreateWebView(webview);
@@ -71,36 +66,13 @@ WebWidget* TestWebViewDelegate::CreatePopupWidget(WebView* webview) {
   return shell_->CreatePopupWidget(webview);
 }
 
-WebPluginDelegate* TestWebViewDelegate::CreatePluginDelegate(
-    WebView* webview,
-    const GURL& url,
-    const std::string& mime_type,
-    const std::string& clsid,
-    std::string* actual_mime_type) {
-  HWND hwnd = GetContainingWindow(webview);
-  if (!hwnd)
-    return NULL;
-
-  bool allow_wildcard = true;
-  WebPluginInfo info;
-  if (!NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, clsid,
-                                                     allow_wildcard, &info,
-                                                     actual_mime_type))
-    return NULL;
-
-  if (actual_mime_type && !actual_mime_type->empty())
-    return WebPluginDelegateImpl::Create(info.file, *actual_mime_type, hwnd);
-  else
-    return WebPluginDelegateImpl::Create(info.file, mime_type, hwnd);
-}
-
 void TestWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
                                   const GURL& referrer,
                                   WindowOpenDisposition disposition) {
   DCHECK_NE(disposition, CURRENT_TAB);  // No code for this
   if (disposition == SUPPRESS_OPEN)
     return;
-  TestShell* shell;
+  TestShell* shell = NULL;
   if (TestShell::CreateNewWindow(UTF8ToWide(url.spec()), &shell))
     shell->Show(shell->webView(), disposition);
 }
@@ -135,7 +107,7 @@ WindowOpenDisposition TestWebViewDelegate::DispositionForNavigationAction(
   if (is_custom_policy_delegate_) {
     std::wstring frame_name = frame->GetName();
     printf("Policy delegate: attempt to load %s\n",
-        request->GetURL().spec().c_str());
+           request->GetURL().spec().c_str());
     return IGNORE_ACTION;
   } else {
     return WebViewDelegate::DispositionForNavigationAction(
@@ -288,6 +260,8 @@ void TestWebViewDelegate::DidReceiveTitle(WebView* webview,
   if (shell_->ShouldDumpTitleChanges()) {
     printf("TITLE CHANGED: %S\n", title.c_str());
   }
+
+  SetPageTitle(title);
 }
 
 void TestWebViewDelegate::DidFinishLoadForFrame(WebView* webview,
@@ -407,10 +381,7 @@ void TestWebViewDelegate::AddMessageToConsole(WebView* webview,
 void TestWebViewDelegate::RunJavaScriptAlert(WebView* webview,
                                              const std::wstring& message) {
   if (shell_->interactive()) {
-    MessageBox(shell_->mainWnd(),
-               message.c_str(), 
-               L"JavaScript Alert", 
-               MB_OK);
+    ShowJavaScriptAlert(message);
   } else {
     std::string utf8 = WideToUTF8(message);
     printf("ALERT: %s\n", utf8.c_str());
@@ -444,7 +415,8 @@ bool TestWebViewDelegate::RunJavaScriptPrompt(WebView* webview,
 
 void TestWebViewDelegate::StartDragging(WebView* webview,
                                         const WebDropData& drop_data) {
-  
+#if defined(OS_WIN)
+  // TODO(port): make this work on all platforms.
   if (!drag_delegate_)
     drag_delegate_ = new TestDragDelegate(shell_->webViewWnd(),
                                           shell_->webView());
@@ -468,6 +440,7 @@ void TestWebViewDelegate::StartDragging(WebView* webview,
     //DCHECK(DRAGDROP_S_DROP == res || DRAGDROP_S_CANCEL == res);
   }
   webview->DragSourceSystemDragEnded();
+#endif
 }
 
 void TestWebViewDelegate::ShowContextMenu(WebView* webview,
@@ -646,7 +619,7 @@ void TestWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 
 // WebWidgetDelegate ---------------------------------------------------------
 
-HWND TestWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {
+gfx::ViewHandle TestWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     return host->window_handle();
 
@@ -665,24 +638,6 @@ void TestWebViewDelegate::DidScrollRect(WebWidget* webwidget, int dx, int dy,
     host->DidScrollRect(dx, dy, clip_rect);
 }
 
-void TestWebViewDelegate::Show(WebWidget* webwidget, WindowOpenDisposition) {
-  if (webwidget == shell_->webView()) {
-    ShowWindow(shell_->mainWnd(), SW_SHOW);
-    UpdateWindow(shell_->mainWnd());
-  } else if (webwidget == shell_->popup()) {
-    ShowWindow(shell_->popupWnd(), SW_SHOW);
-    UpdateWindow(shell_->popupWnd());
-  }
-}
-
-void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
-  if (webwidget == shell_->webView()) {
-    PostMessage(shell_->mainWnd(), WM_CLOSE, 0, 0);
-  } else if (webwidget == shell_->popup()) {
-    shell_->ClosePopup();
-  }
-}
-
 void TestWebViewDelegate::Focus(WebWidget* webwidget) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     shell_->SetFocus(host, true);
@@ -693,73 +648,15 @@ void TestWebViewDelegate::Blur(WebWidget* webwidget) {
     shell_->SetFocus(host, false);
 }
 
-void TestWebViewDelegate::SetCursor(WebWidget* webwidget, 
-                                    const WebCursor& cursor) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    if (custom_cursor_) {
-      DestroyIcon(custom_cursor_);
-      custom_cursor_ = NULL;
-    }
-    if (cursor.IsCustom()) {
-      custom_cursor_ = cursor.GetCustomCursor();
-      host->SetCursor(custom_cursor_);
-    } else {
-      HINSTANCE mod_handle = GetModuleHandle(NULL);
-      host->SetCursor(cursor.GetCursor(mod_handle));
-    }
-  }
-}
-
-void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
-                                        gfx::Rect* out_rect) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    RECT rect;
-    ::GetWindowRect(host->window_handle(), &rect);
-    *out_rect = gfx::Rect(rect);
-  }
-}
-
-void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
-                                        const gfx::Rect& rect) {
-  if (webwidget == shell_->webView()) {
-    // ignored
-  } else if (webwidget == shell_->popup()) {
-    MoveWindow(shell_->popupWnd(),
-               rect.x(), rect.y(), rect.width(), rect.height(), FALSE);
-  }
-}
-
-void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
-                                            gfx::Rect* out_rect) {
-  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    RECT rect;
-    HWND root_window = ::GetAncestor(host->window_handle(), GA_ROOT);
-    ::GetWindowRect(root_window, &rect);
-    *out_rect = gfx::Rect(rect);
-  }
-}
 
 void TestWebViewDelegate::DidMove(WebWidget* webwidget,
                                   const WebPluginGeometry& move) {
+#if defined(OS_WIN)
+  // TODO(port): add me once plugins work.
   WebPluginDelegateImpl::MoveWindow(
       move.window, move.window_rect, move.clip_rect, move.cutout_rects,
       move.visible);
-}
-
-void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
-  Show(webwidget, NEW_WINDOW);
-
-  WindowList* wl = TestShell::windowList();
-  for (WindowList::const_iterator i = wl->begin(); i != wl->end(); ++i) {
-    if (*i != shell_->mainWnd())
-      EnableWindow(*i, FALSE);
-  }
-
-  shell_->set_is_modal(true);
-  MessageLoop::current()->Run();
-
-  for (WindowList::const_iterator i = wl->begin(); i != wl->end(); ++i)
-    EnableWindow(*i, TRUE);
+#endif
 }
 
 bool TestWebViewDelegate::IsHidden() {
@@ -767,9 +664,12 @@ bool TestWebViewDelegate::IsHidden() {
 }
 
 void TestWebViewDelegate::RegisterDragDrop() {
+#if defined(OS_WIN)
+  // TODO(port): add me once drag and drop works.
   DCHECK(!drop_delegate_);
   drop_delegate_ = new TestDropDelegate(shell_->webViewWnd(),
                                         shell_->webView());
+#endif
 }
 
 // Private methods -----------------------------------------------------------
@@ -783,10 +683,7 @@ void TestWebViewDelegate::UpdateAddressBar(WebView* webView) {
   if (!dataSource)
     return;
 
-  std::wstring frameURL =
-      UTF8ToWide(dataSource->GetRequest().GetMainDocumentURL().spec());
-  SendMessage(shell_->editWnd(), WM_SETTEXT, 0,
-              reinterpret_cast<LPARAM>(frameURL.c_str()));
+  SetAddressBarURL(dataSource->GetRequest().GetMainDocumentURL());
 }
 
 void TestWebViewDelegate::LocationChangeDone(WebDataSource* data_source) {
@@ -839,11 +736,6 @@ void TestWebViewDelegate::UpdateURL(WebFrame* frame) {
   DCHECK(ds);
 
   const WebRequest& request = ds->GetRequest();
-
-  // We don't hold a reference to the extra data. The request's reference will
-  // be sufficient because we won't modify it during our call. MAY BE NULL.
-  TestShellExtraRequestData* extra_data =
-      static_cast<TestShellExtraRequestData*>(request.GetExtraData());
 
   // Type is unused.
   scoped_ptr<TestNavigationEntry> entry(new TestNavigationEntry);
