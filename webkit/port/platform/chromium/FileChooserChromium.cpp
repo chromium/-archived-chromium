@@ -39,29 +39,16 @@
 
 namespace WebCore {
 
-void FileChooser::openFileChooser(Document* document)
-{
-    Frame* frame = document->frame();
-    if (!frame)
-        return;
-
-    ChromeClientChromium* client =
-        static_cast<ChromeClientChromium*>(frame->page()->chrome()->client());
-
-    String result;
-    client->runFileChooser(m_filename, &*this);
-}
-
 String FileChooser::basenameForWidth(const Font& font, int width) const
 {
     if (width <= 0)
         return String();
 
     String string;
-    if (m_filename.isEmpty())
+    if (!m_filenames.size())
         string = fileButtonNoFileSelectedLabel();
     else
-        string = pathGetFileName(m_filename);
+        string = pathGetFileName(m_filenames[0]);
 
     return StringTruncator::centerTruncate(string, static_cast<float>(width), font, false);
 }

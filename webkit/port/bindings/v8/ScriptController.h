@@ -157,7 +157,7 @@ public:
     void disposeJSResult(JSResult result);
     void collectGarbage();
 
-    PassRefPtr<EventListener> createHTMLEventHandler(const String& functionName, const String& code, Node*);
+    PassRefPtr<EventListener> createInlineEventListener(const String& functionName, const String& code, Node*);
 #if ENABLE(SVG)
     PassRefPtr<EventListener> createSVGEventHandler(const String& functionName, const String& code, Node*);
 #endif

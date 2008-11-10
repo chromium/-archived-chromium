@@ -1053,7 +1053,7 @@ CALLBACK_FUNC_DECL(DOMWindowShowModalDialog) {
       V8ClassIndex::DOMWINDOW, args.Holder());
   Frame* frame = window->frame();
 
-  if (!frame)
+  if (!frame || !V8Proxy::CanAccessFrame(frame, true)) 
     return v8::Undefined();
 
   if (!canShowModalDialogNow(frame) || !allowPopUp())
@@ -3232,7 +3232,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
  
   if (value->IsNull()) {
     // Clear the event listener
-    doc->removeWindowEventListenerForType(event_type);
+    doc->removeWindowInlineEventListenerForType(event_type);
   } else {
     V8Proxy* proxy = V8Proxy::retrieve(imp->frame());
     if (!proxy)
@@ -3241,7 +3241,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
     RefPtr<EventListener> listener =
       proxy->FindOrCreateV8EventListener(value, true);
     if (listener) {
-      doc->setWindowEventListenerForType(event_type, listener);
+      doc->setWindowInlineEventListenerForType(event_type, listener);
     }
   }
 }
@@ -3265,7 +3265,7 @@ ACCESSOR_GETTER(DOMWindowEventHandler) {
   String key = ToWebCoreString(name);
   String event_type = EventNameFromAttributeName(key);
 
-  EventListener* listener = doc->windowEventListenerForType(event_type);
+  EventListener* listener = doc->windowInlineEventListenerForType(event_type);
   return V8Proxy::EventListenerToV8Object(listener);
 }
 
@@ -3293,10 +3293,10 @@ ACCESSOR_SETTER(ElementEventHandler) {
     RefPtr<EventListener> listener =
       proxy->FindOrCreateV8EventListener(value, true);
     if (listener) {
-      node->setEventListenerForType(event_type, listener);
+      node->setInlineEventListenerForType(event_type, listener);
     }
   } else {
-    node->removeEventListenerForType(event_type);
+    node->removeInlineEventListenerForType(event_type);
   }
 }
 
@@ -3310,7 +3310,7 @@ ACCESSOR_GETTER(ElementEventHandler) {
   ASSERT(key.startsWith("on"));
   String event_type = key.substring(2);
 
-  EventListener* listener = node->eventListenerForType(event_type);
+  EventListener* listener = node->inlineEventListenerForType(event_type);
   return V8Proxy::EventListenerToV8Object(listener);
 }
 
@@ -3426,7 +3426,7 @@ CALLBACK_FUNC_DECL(SVGElementInstanceAddEventListener) {
   SVGElementInstance* instance =
       V8Proxy::DOMWrapperToNative<SVGElementInstance>(args.Holder());
 
-  V8Proxy* proxy = V8Proxy::retrieve(instance->associatedFrame());
+  V8Proxy* proxy = V8Proxy::retrieve(instance->scriptExecutionContext());
   if (!proxy)
     return v8::Undefined();
 
@@ -3445,7 +3445,7 @@ CALLBACK_FUNC_DECL(SVGElementInstanceRemoveEventListener) {
   SVGElementInstance* instance =
       V8Proxy::DOMWrapperToNative<SVGElementInstance>(args.Holder());
 
-  V8Proxy* proxy = V8Proxy::retrieve(instance->associatedFrame());
+  V8Proxy* proxy = V8Proxy::retrieve(instance->scriptExecutionContext());
   // It is possbile that the owner document of the node is detached
   // from the frame, return immediately in this case.
   // See issue 878909

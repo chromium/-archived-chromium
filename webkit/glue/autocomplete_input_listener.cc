@@ -172,9 +172,9 @@ void AutocompleteInputListener::handleEvent(WebCore::Event* event,
                                             bool /*is_window_event*/) {
   const WebCore::AtomicString& webcore_type = event->type();
   const std::wstring& user_input = edit_delegate_->GetValue();
-  if (webcore_type == WebCore::EventNames::DOMFocusOutEvent) {
+  if (webcore_type == WebCore::eventNames().DOMFocusOutEvent) {
     OnBlur(user_input);
-  } else if (webcore_type == WebCore::EventNames::inputEvent) {
+  } else if (webcore_type == WebCore::eventNames().inputEvent) {
     // Perform inline autocomplete if it is safe to do so.
     if (ShouldInlineAutocomplete(user_input))
       OnInlineAutocompleteNeeded(user_input);
@@ -186,10 +186,10 @@ void AutocompleteInputListener::handleEvent(WebCore::Event* event,
 void AttachForInlineAutocomplete(
     WebCore::HTMLInputElement* target,
     AutocompleteInputListener* listener) {
-  target->addEventListener(WebCore::EventNames::DOMFocusOutEvent,
+  target->addEventListener(WebCore::eventNames().DOMFocusOutEvent,
                            listener,
                            false);
-  target->addEventListener(WebCore::EventNames::inputEvent,
+  target->addEventListener(WebCore::eventNames().inputEvent,
                            listener,
                            false);
 }

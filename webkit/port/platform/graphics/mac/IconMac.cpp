@@ -38,7 +38,12 @@
  
 namespace WebCore {
 
-PassRefPtr<Icon> Icon::newIconForFile(const String& filename)
+PassRefPtr<Icon> Icon::createIconForFile(const String& filename)
+{
+    return NULL;
+}
+
+PassRefPtr<Icon> Icon::createIconForFiles(const Vector<String>& filenames)
 {
     return NULL;
 }

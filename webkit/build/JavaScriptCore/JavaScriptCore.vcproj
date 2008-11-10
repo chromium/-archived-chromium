@@ -125,71 +125,71 @@
 			Name="KJS"
 			>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ArgList.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ArgList.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ArgList.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ArgList.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\Arguments.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Arguments.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\Arguments.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Arguments.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ArrayConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ArrayConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ArrayConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ArrayConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ArrayPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ArrayPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ArrayPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ArrayPrototype.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\BooleanConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\BooleanConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\BooleanConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\BooleanConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\BooleanObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\BooleanObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\BooleanObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\BooleanObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\BooleanPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\BooleanPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\BooleanPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\BooleanPrototype.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\CallData.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\CallData.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\CallData.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\CallData.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ClassInfo.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ClassInfo.h"
 				>
 			</File>
 			<File
@@ -201,11 +201,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\CommonIdentifiers.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\CollectorHeapIntrospector.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\CommonIdentifiers.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\CommonIdentifiers.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\CommonIdentifiers.h"
 				>
 			</File>
 			<File
@@ -217,59 +221,59 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ConstructData.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ConstructData.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ConstructData.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ConstructData.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DateConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\DateConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DateConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\DateConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DateInstance.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\DateInstance.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DateInstance.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\DateInstance.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DateMath.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\DateMath.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DateMath.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\DateMath.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DatePrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\DatePrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DatePrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\DatePrototype.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\debugger.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\debugger\debugger.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\debugger.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\debugger\debugger.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DebuggerCallFrame.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\debugger\DebuggerCallFrame.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\DebuggerCallFrame.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\debugger\DebuggerCallFrame.h"
 				>
 			</File>
 			<File
@@ -281,75 +285,75 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\Error.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Error.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\Error.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Error.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ErrorConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ErrorConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ErrorConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ErrorConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ErrorInstance.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ErrorInstance.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ErrorInstance.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ErrorInstance.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ErrorPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ErrorPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ErrorPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ErrorPrototype.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ExecState.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ExecState.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ExecState.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ExecState.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\FunctionConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\FunctionConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\FunctionConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\FunctionConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\FunctionPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\FunctionPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\FunctionPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\FunctionPrototype.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\GetterSetter.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\GetterSetter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\GetterSetter.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\GetterSetter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\GlobalEvalFunction.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\GlobalEvalFunction.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\GlobalEvalFunction.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\GlobalEvalFunction.h"
 				>
 			</File>
 			<File
@@ -361,19 +365,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\InitializeThreading.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\InitializeThreading.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\InitializeThreading.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\InitializeThreading.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\InternalFunction.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\InternalFunction.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\InternalFunction.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\InternalFunction.h"
 				>
 			</File>
 			<File
@@ -385,147 +389,143 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSActivation.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSActivation.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSActivation.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSActivation.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSArray.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSArray.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSArray.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSArray.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSCell.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSCell.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSCell.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSCell.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSFunction.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSFunction.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSFunction.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSFunction.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSGlobalData.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSGlobalData.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSGlobalData.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSGlobalData.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSGlobalObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSGlobalObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSGlobalObjectFunctions.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSGlobalObjectFunctions.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSGlobalObjectFunctions.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSGlobalObjectFunctions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSImmediate.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSImmediate.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSImmediate.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSImmediate.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSLock.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSLock.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSLock.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSLock.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSNotAnObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSNotAnObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSNotAnObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSNotAnObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSNumberCell.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSNumberCell.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSNumberCell.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSNumberCell.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\jsobject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSStaticScopeObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSStaticScopeObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSStaticScopeObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSStaticScopeObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSString.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSString.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSString.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSString.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSType.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSType.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSValue.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSValue.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSValue.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSValue.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSVariableObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSVariableObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSVariableObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSVariableObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSWrapperObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSWrapperObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\JSWrapperObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSWrapperObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\LabelStack.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\LabelStack.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\LabelScope.h"
 				>
 			</File>
 			<File
@@ -545,27 +545,27 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\MathObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\MathObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\MathObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\MathObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NativeErrorConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NativeErrorConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NativeErrorConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NativeErrorConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NativeErrorPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NativeErrorPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NativeErrorPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NativeErrorPrototype.h"
 				>
 			</File>
 			<File
@@ -585,43 +585,43 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NumberConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NumberConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NumberConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NumberConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NumberObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NumberObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NumberObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NumberObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NumberPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NumberPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NumberPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NumberPrototype.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ObjectConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ObjectConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ObjectConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ObjectConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ObjectPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ObjectPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ObjectPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ObjectPrototype.h"
 				>
 			</File>
 			<File
@@ -641,27 +641,23 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PropertyMap.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\PropertyMapHashTable.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PropertyMap.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\PropertyNameArray.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PropertyNameArray.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\PropertyNameArray.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PropertyNameArray.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\PropertySlot.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PropertySlot.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PropertySlot.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\PropertySlot.h"
 				>
 			</File>
 			<File
@@ -669,11 +665,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PrototypeFunction.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\PrototypeFunction.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\PrototypeFunction.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\PrototypeFunction.h"
 				>
 			</File>
 			<File
@@ -685,47 +681,47 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\RegExpConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\RegExpConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\RegExpObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\RegExpObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\RegExpPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\RegExpPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\RegExpPrototype.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ScopeChain.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ScopeChain.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ScopeChain.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ScopeChain.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ScopeChainMark.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ScopeChainMark.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SmallStrings.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\SmallStrings.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SmallStrings.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\SmallStrings.h"
 				>
 			</File>
 			<File
@@ -733,47 +729,59 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SourceRange.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SourceCode.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringConstructor.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StringConstructor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringConstructor.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StringConstructor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringObject.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StringObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringObject.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StringObject.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringObjectThatMasqueradesAsUndefined.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StringObjectThatMasqueradesAsUndefined.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringPrototype.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StringPrototype.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StringPrototype.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StringPrototype.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StructureID.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StructureID.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\StructureID.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StructureID.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SymbolTable.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StructureIDChain.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StructureIDChain.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\StructureIDTransitionTable.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\SymbolTable.h"
 				>
 			</File>
 			<File
@@ -1037,11 +1045,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\JSPropertyNameIterator.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSPropertyNameIterator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\JSPropertyNameIterator.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\JSPropertyNameIterator.h"
 				>
 			</File>
 			<File

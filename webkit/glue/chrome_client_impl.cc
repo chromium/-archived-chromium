@@ -438,13 +438,15 @@ void ChromeClientImpl::exceededDatabaseQuota(WebCore::Frame* frame,
   // TODO(tc): If we enable the storage API, we need to implement this function.
 }
 
-void ChromeClientImpl::runFileChooser(const WebCore::String& default_path,
-                                      PassRefPtr<WebCore::FileChooser> fileChooser) {
+void ChromeClientImpl::runOpenPanel(WebCore::Frame* frame,
+  PassRefPtr<WebCore::FileChooser> fileChooser) {
   WebViewDelegate* delegate = webview_->delegate();
   if (!delegate)
     return;
 
-  std::wstring suggestion = webkit_glue::StringToStdWString(default_path);
+  std::wstring suggestion = webkit_glue::StringToStdWString(
+      fileChooser->filenames()[0]);
+
   WebFileChooserCallbackImpl* chooser = new WebFileChooserCallbackImpl(fileChooser);
   delegate->RunFileChooser(suggestion, chooser);
 }

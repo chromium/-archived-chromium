@@ -131,7 +131,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnabort) {
     // Clear the listener
     imp->setOnabort(0);
   } else {
-    V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -172,7 +172,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnerror) {
     // Clear the listener
     imp->setOnerror(0);
   } else {
-    V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -213,7 +213,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnload)
     imp->setOnload(0);
 
   } else {
-    V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -254,7 +254,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnloadstart) {
     // Clear the listener
     imp->setOnloadstart(0);
   } else {
-    V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -295,7 +295,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnprogress) {
     // Clear the listener
     imp->setOnprogress(0);
   } else {
-    V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -337,7 +337,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnreadystatechange)
     // Clear the listener
     imp->setOnreadystatechange(0);
   } else {
-    V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -356,7 +356,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestAddEventListener)
   XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
 
-  V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+  V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
   if (!proxy)
     return v8::Undefined();
 
@@ -377,7 +377,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestRemoveEventListener) {
   XMLHttpRequest* imp = V8Proxy::ToNativeObject<XMLHttpRequest>(
       V8ClassIndex::XMLHTTPREQUEST, args.Holder());
 
-  V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+  V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
   if (!proxy)
     return v8::Undefined();  // probably leaked
 
@@ -569,7 +569,8 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnabort) {
     imp->setOnabort(0);
   } else {
     XMLHttpRequest* xmlhttprequest = imp->associatedXMLHttpRequest();
-    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->document()->frame());
+    V8Proxy* proxy =
+        V8Proxy::retrieve(xmlhttprequest->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -611,7 +612,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnerror) {
     imp->setOnerror(0);
   } else {
     XMLHttpRequest* xmlhttprequest = imp->associatedXMLHttpRequest();
-    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -653,7 +654,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnload) {
     imp->setOnload(0);
   } else {
     XMLHttpRequest* xmlhttprequest = imp->associatedXMLHttpRequest();
-    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -695,7 +696,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnloadstart) {
     imp->setOnloadstart(0);
   } else {
     XMLHttpRequest* xmlhttprequest = imp->associatedXMLHttpRequest();
-    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -737,7 +738,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnprogress) {
     imp->setOnprogress(0);
   } else {
     XMLHttpRequest* xmlhttprequest = imp->associatedXMLHttpRequest();
-    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -756,7 +757,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestUploadAddEventListener) {
       V8ClassIndex::XMLHTTPREQUESTUPLOAD, args.Holder());
 
   XMLHttpRequest* xmlhttprequest = imp->associatedXMLHttpRequest();
-  V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->document()->frame());
+  V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->scriptExecutionContext());
   if (!proxy)
     return v8::Undefined();
 
@@ -778,7 +779,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestUploadRemoveEventListener) {
       V8ClassIndex::XMLHTTPREQUESTUPLOAD, args.Holder());
 
   XMLHttpRequest* xmlhttprequest = imp->associatedXMLHttpRequest();
-  V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->document()->frame());
+  V8Proxy* proxy = V8Proxy::retrieve(xmlhttprequest->scriptExecutionContext());
   if (!proxy)
     return v8::Undefined();  // probably leaked
 

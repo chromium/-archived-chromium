@@ -808,9 +808,9 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   if (event->shiftKey())
     np_event.wParam |= MK_SHIFT;
 
-  if ((event->type() == WebCore::EventNames::mousemoveEvent) ||
-      (event->type() == WebCore::EventNames::mouseoutEvent) ||
-      (event->type() == WebCore::EventNames::mouseoverEvent)) {
+  if ((event->type() == WebCore::eventNames().mousemoveEvent) ||
+      (event->type() == WebCore::eventNames().mouseoutEvent) ||
+      (event->type() == WebCore::eventNames().mouseoverEvent)) {
     np_event.event = WM_MOUSEMOVE;
     if (event->buttonDown()) {
       switch (event->button()) {
@@ -825,7 +825,7 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
           break;
       }
     }
-  } else if (event->type() == WebCore::EventNames::mousedownEvent) {
+  } else if (event->type() == WebCore::eventNames().mousedownEvent) {
     // Ensure that the frame containing the plugin has focus.
     WebCore::Frame* containing_frame = webframe_->frame();
     if (WebCore::Page* current_page = containing_frame->page()) {
@@ -851,7 +851,7 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
         np_event.wParam |= MK_RBUTTON;
         break;
     }
-  } else if (event->type() == WebCore::EventNames::mouseupEvent) {
+  } else if (event->type() == WebCore::eventNames().mouseupEvent) {
     switch (event->button()) {
       case WebCore::LeftButton:
         np_event.event = WM_LBUTTONUP;
@@ -889,10 +889,10 @@ void WebPluginImpl::handleKeyboardEvent(WebCore::KeyboardEvent* event) {
   NPEvent np_event;
   np_event.wParam = event->keyCode();
 
-  if (event->type() == WebCore::EventNames::keydownEvent) {
+  if (event->type() == WebCore::eventNames().keydownEvent) {
     np_event.event = WM_KEYDOWN;
     np_event.lParam = 0;
-  } else if (event->type() == WebCore::EventNames::keyupEvent) {
+  } else if (event->type() == WebCore::eventNames().keyupEvent) {
     np_event.event = WM_KEYUP;
     np_event.lParam = 0x8000;
   } else {

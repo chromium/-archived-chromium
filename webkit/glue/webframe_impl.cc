@@ -32,22 +32,18 @@
 // WebView (for the toplevel frame only)
 //    O
 //    |
-//    O
-// WebFrame <-------------------------- FrameLoader
-//        O  (via WebFrameLoaderClient)     ||
-//        |                                 ||
-//        +------------------------------+  ||
-//                                       |  ||
-// FrameView O-------------------------O Frame
+//   Page O------- Frame (m_mainFrame) O-------O FrameView
+//                   ||
+//                   ||
+//               FrameLoader O-------- WebFrame (via FrameLoaderClient)
 //
 // FrameLoader and Frame are formerly one object that was split apart because
 // it got too big. They basically have the same lifetime, hence the double line.
 //
-// WebFrame is refcounted and has one ref on behalf of the FrameLoader/Frame
-// and, in the case of the toplevel frame, one more for the WebView. This is
-// not a normal reference counted pointer because that would require changing
-// WebKit code that we don't control. Instead, it is created with this ref
-// initially and it is removed when the FrameLoader is getting destroyed.
+// WebFrame is refcounted and has one ref on behalf of the FrameLoader/Frame.
+// This is not a normal reference counted pointer because that would require
+// changing WebKit code that we don't control. Instead, it is created with this
+// ref initially and it is removed when the FrameLoader is getting destroyed.
 //
 // WebFrames are created in two places, first in WebViewImpl when the root
 // frame is created, and second in WebFrame::CreateChildFrame when sub-frames
@@ -57,23 +53,16 @@
 // How frames are destroyed
 // ------------------------
 //
-// The main frame is never destroyed and is re-used. The FrameLoader is
-// re-used and a reference is also kept by the WebView, so the root frame will
-// generally have a refcount of 2.
+// The main frame is never destroyed and is re-used. The FrameLoader is re-used
+// and a reference to the main frame is kept by the Page.
 //
 // When frame content is replaced, all subframes are destroyed. This happens
-// in FrameLoader::detachFromParent for each suframe. Here, we first clear
-// the view in the Frame, breaking the circular cycle between Frame and
-// FrameView. Then it calls detachedFromParent4 on the FrameLoaderClient.
-//
-// The FrameLoaderClient is implemented by WebFrameLoaderClient, which is
-// an object owned by WebFrame. It calls WebFrame::Closing which causes
-// WebFrame to release its references to Frame, generally releasing it.
+// in FrameLoader::detachFromParent for each subframe.
 //
 // Frame going away causes the FrameLoader to get deleted. In FrameLoader's
-// destructor it notifies its client with frameLoaderDestroyed. This derefs
-// WebView and will cause it to be deleted (unless an external someone is also
-// holding a reference).
+// destructor, it notifies its client with frameLoaderDestroyed. This calls
+// WebFrame::Closing and then derefs the WebFrame and will cause it to be
+// deleted (unless an external someone is also holding a reference).
 
 #include "config.h"
 
@@ -286,9 +275,6 @@ MSVC_PUSH_DISABLE_WARNING(4355)
 MSVC_POP_WARNING()
     currently_loading_request_(NULL),
     plugin_delegate_(NULL),
-    allows_scrolling_(true),
-    margin_width_(-1),
-    margin_height_(-1),
     inspected_node_(NULL),
     active_tickmark_frame_(NULL),
     active_tickmark_(kNoTickmark),
@@ -314,9 +300,11 @@ WebFrameImpl::~WebFrameImpl() {
 // WebFrame -------------------------------------------------------------------
 
 void WebFrameImpl::InitMainFrame(WebViewImpl* webview_impl) {
-  webview_impl_ = webview_impl;  // owning ref
+  webview_impl_ = webview_impl;
 
-  frame_ = Frame::create(webview_impl_->page(), 0, &frame_loader_client_);
+  RefPtr<Frame> frame =
+      Frame::create(webview_impl_->page(), 0, &frame_loader_client_);
+  frame_ = frame.get();
 
   // Add reference on behalf of FrameLoader.  See comments in
   // WebFrameLoaderClient::frameLoaderDestroyed for more info.
@@ -713,7 +701,7 @@ void WebFrameImpl::BindToWindowObject(const std::wstring& name,
 
   String key = webkit_glue::StdWStringToString(name);
 #if USE(V8)
-  frame_->script()->BindToWindowObject(frame_.get(), key, object);
+  frame_->script()->BindToWindowObject(frame_, key, object);
 #endif
 
 #if USE(JSC)
@@ -748,7 +736,7 @@ void WebFrameImpl::GetContentAsPlainText(int max_chars,
   if (!frame_)
     return;
 
-  FrameContentAsPlainText(max_chars, frame_.get(), text);
+  FrameContentAsPlainText(max_chars, frame_, text);
 }
 
 void WebFrameImpl::InvalidateArea(AreaToInvalidate area) {
@@ -1436,9 +1424,9 @@ void WebFrameImpl::CreateFrameView() {
   if (is_main_frame) {
     IntSize initial_size(
         webview_impl_->size().width(), webview_impl_->size().height());
-    view = new FrameView(frame_.get(), initial_size);
+    view = new FrameView(frame_, initial_size);
   } else {
-    view = new FrameView(frame_.get());
+    view = new FrameView(frame_);
   }
 
   frame_->setView(view);
@@ -1537,16 +1525,9 @@ bool WebFrameImpl::IsLoading() {
 }
 
 void WebFrameImpl::Closing() {
-  // let go of our references, this breaks reference cycles and will
-  // usually eventually lead to us being destroyed.
-  if (frameview())
-    frameview()->clear();
-  if (frame_) {
-    StopLoading();
-    frame_ = NULL;
-  }
   alt_error_page_fetcher_.reset();
   webview_impl_ = NULL;
+  frame_ = NULL;
 }
 
 void WebFrameImpl::DidReceiveData(DocumentLoader* loader,
@@ -1639,12 +1620,8 @@ bool WebFrameImpl::Visible() {
          frame()->view()->visibleHeight() > 0;
 }
 
-void WebFrameImpl::CreateChildFrame(const FrameLoadRequest& r,
-                                    HTMLFrameOwnerElement* owner_element,
-                                    bool allows_scrolling,
-                                    int margin_height,
-                                    int margin_width,
-                                    Frame*& result) {
+PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
+    const FrameLoadRequest& request, HTMLFrameOwnerElement* owner_element) {
   // TODO(darin): share code with initWithName()
 
   scoped_refptr<WebFrameImpl> webframe = new WebFrameImpl();
@@ -1654,23 +1631,14 @@ void WebFrameImpl::CreateChildFrame(const FrameLoadRequest& r,
   // of this file for more info.
   webframe->AddRef();
 
-  webframe->allows_scrolling_ = allows_scrolling;
-  webframe->margin_width_ = margin_width;
-  webframe->margin_height_ = margin_height;
+  RefPtr<Frame> child_frame = Frame::create(
+      frame_->page(), owner_element, &webframe->frame_loader_client_);
+  webframe->frame_ = child_frame.get();
+  webframe->webview_impl_ = webview_impl_;
 
-  webframe->frame_ =
-    Frame::create(frame_->page(), owner_element, &webframe->frame_loader_client_);
-  webframe->frame_->tree()->setName(r.frameName());
+  child_frame->tree()->setName(request.frameName());
 
-  webframe->webview_impl_ = webview_impl_;  // owning ref
-
-  // We wait until loader()->load() returns before deref-ing the Frame.
-  // Otherwise the danger is that the onload handler can cause
-  // the Frame to be dealloc-ed, and subsequently trash memory.
-  // (b:1055700)
-  WTF::RefPtr<Frame> protector(webframe->frame_.get());
-
-  frame_->tree()->appendChild(webframe->frame_);
+  frame_->tree()->appendChild(child_frame);
 
   // Frame::init() can trigger onload event in the parent frame,
   // which may detach this frame and trigger a null-pointer access
@@ -1681,56 +1649,58 @@ void WebFrameImpl::CreateChildFrame(const FrameLoadRequest& r,
   // it is necessary to check the value after calling init() and
   // return without loading URL.
   // (b:791612)
-  webframe->frame_->init();      // create an empty document
-  if (!webframe->frame_.get())
-    return;
+  child_frame->init();      // create an empty document
+  if (!child_frame->tree()->parent())
+    return NULL;
 
   // The following code was pulled from WebFrame.mm:_loadURL, with minor
   // modifications.  The purpose is to ensure we load the right HistoryItem for
   // this child frame.
-  HistoryItem* parentItem = frame_->loader()->currentHistoryItem();
-  FrameLoadType loadType = frame_->loader()->loadType();
-  FrameLoadType childLoadType = WebCore::FrameLoadTypeRedirectWithLockedHistory;
-  KURL new_url = r.resourceRequest().url();
+  HistoryItem* parent_item = frame_->loader()->currentHistoryItem();
+  FrameLoadType load_type = frame_->loader()->loadType();
+  FrameLoadType child_load_type = WebCore::FrameLoadTypeRedirectWithLockedHistory;
+  KURL new_url = request.resourceRequest().url();
 
   // If we're moving in the backforward list, we might want to replace the
   // content of this child frame with whatever was there at that point.
   // Reload will maintain the frame contents, LoadSame will not.
-  if (parentItem && parentItem->children().size() != 0 &&
-      (isBackForwardLoadType(loadType) ||
-       loadType == WebCore::FrameLoadTypeReloadAllowingStaleData)) {
-    HistoryItem* childItem = parentItem->childItemWithName(r.frameName());
-    if (childItem) {
+  if (parent_item && parent_item->children().size() != 0 &&
+      (isBackForwardLoadType(load_type) ||
+       load_type == WebCore::FrameLoadTypeReloadAllowingStaleData)) {
+    HistoryItem* child_item = parent_item->childItemWithName(request.frameName());
+    if (child_item) {
       // Use the original URL to ensure we get all the side-effects, such as
       // onLoad handlers, of any redirects that happened. An example of where
       // this is needed is Radar 3213556.
-      new_url = KURL(KURL(""),
-                     childItem->originalURLString());
+      new_url = child_item->originalURL();
 
       // These behaviors implied by these loadTypes should apply to the child
       // frames
-      childLoadType = loadType;
+      child_load_type = load_type;
 
-      if (isBackForwardLoadType(loadType)) {
+      if (isBackForwardLoadType(load_type)) {
         // For back/forward, remember this item so we can traverse any child
         // items as child frames load.
-        webframe->frame_->loader()->setProvisionalHistoryItem(childItem);
+        child_frame->loader()->setProvisionalHistoryItem(child_item);
       } else {
         // For reload, just reinstall the current item, since a new child frame
         // was created but we won't be creating a new BF item
-        webframe->frame_->loader()->setCurrentHistoryItem(childItem);
+        child_frame->loader()->setCurrentHistoryItem(child_item);
       }
     }
   }
-
-  webframe->frame_->loader()->loadURLIntoChildFrame(new_url,
-        r.resourceRequest().httpReferrer(),
-        webframe->frame_.get());
+  
+  child_frame->loader()->loadURL(
+      new_url, request.resourceRequest().httpReferrer(), request.frameName(),
+      child_load_type, 0, 0);
 
   // A synchronous navigation (about:blank) would have already processed
   // onload, so it is possible for the frame to have already been destroyed by
   // script in the page.
-  result = webframe->frame_.get();
+  if (!child_frame->tree()->parent())
+    return NULL;
+
+  return child_frame.release();
 }
 
 bool WebFrameImpl::ExecuteCoreCommandByName(const std::string& name,
@@ -1785,7 +1755,6 @@ gfx::Size WebFrameImpl::ScrollOffset() const {
 }
 
 void WebFrameImpl::SetAllowsScrolling(bool flag) {
-  allows_scrolling_ = flag;
   frame_->view()->setCanHaveScrollbars(flag);
 }
 

@@ -23,6 +23,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "EventNames.h"
 #include "Event.h"
 #include "EventListener.h"
+#include "wtf/Threading.h"
 MSVC_POP_WARNING();
 
 #undef LOG
@@ -107,11 +108,12 @@ namespace {
 class DomAutocompleteTests : public testing::Test {
  public:
   void SetUp() {
+    WTF::initializeThreading();
     WebCore::EventNames::init();
   }
 
   void FireAndHandleInputEvent(AutocompleteInputListener* listener) {
-    RefPtr<Event> event(Event::create(WebCore::EventNames::inputEvent,
+    RefPtr<Event> event(Event::create(WebCore::eventNames().inputEvent,
                                       false, false));
     listener->handleEvent(event.get(), false);
   }
@@ -130,7 +132,7 @@ TEST_F(DomAutocompleteTests, OnBlur) {
   // Simulate a blur event and ensure it is properly dispatched.
   // Listener takes ownership of its delegate.
   TestAutocompleteInputListener listener(new TestAutocompleteEditDelegate());
-  RefPtr<Event> event(Event::create(WebCore::EventNames::DOMFocusOutEvent,
+  RefPtr<Event> event(Event::create(WebCore::eventNames().DOMFocusOutEvent,
                                     false, false));
   listener.handleEvent(event.get(), false);
   EXPECT_TRUE(listener.blurred());

@@ -55,7 +55,6 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   virtual void detachedFromParent2();
   virtual void detachedFromParent3();
-  virtual void detachedFromParent4();
 
   virtual void assignIdentifierToInitialRequest(unsigned long identifier, WebCore::DocumentLoader*, const WebCore::ResourceRequest&);
 

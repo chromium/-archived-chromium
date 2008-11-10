@@ -183,6 +183,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\page\chromium\ChromeClientChromium.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\page\chromium\DragControllerChromium.cpp"
 					>
 				</File>

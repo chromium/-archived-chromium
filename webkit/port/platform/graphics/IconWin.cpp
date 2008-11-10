@@ -42,7 +42,7 @@ Icon::~Icon()
         DestroyIcon(m_icon);
 }
 
-PassRefPtr<Icon> Icon::newIconForFile(const String& filename)
+PassRefPtr<Icon> Icon::createIconForFile(const String& filename)
 {
     SHFILEINFO sfi;
     memset(&sfi, 0, sizeof(sfi));
@@ -52,6 +52,16 @@ PassRefPtr<Icon> Icon::newIconForFile(const String& filename)
         return 0;
 
     return adoptRef(new Icon(sfi.hIcon));
+}
+
+PassRefPtr<Icon> Icon::createIconForFiles(const Vector<String>& filenames)
+{
+    // TODO: support multiple files.
+    // http://code.google.com/p/chromium/issues/detail?id=4092
+    if (!filenames.size())
+        return 0;
+
+    return createIconForFile(filenames[0]);
 }
 
 void Icon::paint(GraphicsContext* context, const IntRect& rect)

@@ -177,10 +177,9 @@ class WebFrameImpl : public WebFrame {
   // child frame failed to load.
   void SetPrinting(bool printing, float page_width_min, float page_width_max);
 
-  void CreateChildFrame(const WebCore::FrameLoadRequest&,
-                        WebCore::HTMLFrameOwnerElement* owner_element,
-                        bool allows_scrolling, int margin_width,
-                        int margin_height, WebCore::Frame*& new_frame);
+  PassRefPtr<WebCore::Frame> CreateChildFrame(
+      const WebCore::FrameLoadRequest&,
+      WebCore::HTMLFrameOwnerElement* owner_element);
 
   // WebFrameImpl
   void Layout();
@@ -201,7 +200,7 @@ class WebFrameImpl : public WebFrame {
   }
 
   WebCore::Frame* frame() const {
-    return frame_.get();
+    return frame_;
   }
 
   static WebFrameImpl* FromFrame(WebCore::Frame* frame);
@@ -304,16 +303,12 @@ class WebFrameImpl : public WebFrame {
   // asynchronously in order to scope string matches during a find operation.
   ScopedRunnableMethodFactory<WebFrameImpl> scope_matches_factory_;
 
-  // Holding a reference back to the WebViewImpl is necessary to ensure that
-  // its HWND is not destroyed before all of the WebCore::Widgets, which refer
-  // to the WebViewImpl's HWND as their containingWindow.  However, this ref
-  // creates a cycle between the WebViewImpl and the top-most WebFrameImpl.  We
-  // break this cycle in our Closing method.
-  scoped_refptr<WebViewImpl> webview_impl_;
+  // This is a weak pointer to our containing WebViewImpl.
+  WebViewImpl* webview_impl_;
 
-  // The WebCore frame associated with this frame.  MAY BE NULL if the frame
-  // has been detached from the DOM.
-  WTF::RefPtr<WebCore::Frame> frame_;
+  // This is a weak pointer to our corresponding WebCore frame.  A reference to
+  // ourselves is held while frame_ is valid.  See our Closing method.
+  WebCore::Frame* frame_;
 
   // This holds the request passed to LoadRequest, for access by the
   // WebFrameLoaderClient.  Unfortunately we have no other way to pass this
@@ -327,11 +322,6 @@ class WebFrameImpl : public WebFrame {
   // Plugins sometimes need to be notified when loads are complete so we keep
   // a pointer back to the appropriate plugin.
   WebPluginDelegate* plugin_delegate_;
-
-  // Frame construction parameters
-  bool allows_scrolling_;
-  int margin_width_;
-  int margin_height_;
 
   // Handling requests from TextInputController on this frame.
   scoped_ptr<WebTextInputImpl> webtextinput_impl_;

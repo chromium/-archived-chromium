@@ -205,20 +205,20 @@ bool ScriptController::processingUserGesture() const
         const AtomicString& type = event->type();
         bool event_ok =
           // mouse events
-          type == EventNames::clickEvent ||
-          type == EventNames::mousedownEvent ||
-          type == EventNames::mouseupEvent ||
-          type == EventNames::dblclickEvent ||
+          type == eventNames().clickEvent ||
+          type == eventNames().mousedownEvent ||
+          type == eventNames().mouseupEvent ||
+          type == eventNames().dblclickEvent ||
           // keyboard events
-          type == EventNames::keydownEvent ||
-          type == EventNames::keypressEvent ||
-          type == EventNames::keyupEvent ||
+          type == eventNames().keydownEvent ||
+          type == eventNames().keypressEvent ||
+          type == eventNames().keyupEvent ||
           // other accepted events
-          type == EventNames::selectEvent ||
-          type == EventNames::changeEvent ||
-          type == EventNames::focusEvent ||
-          type == EventNames::blurEvent ||
-          type == EventNames::submitEvent;
+          type == eventNames().selectEvent ||
+          type == eventNames().changeEvent ||
+          type == eventNames().focusEvent ||
+          type == eventNames().blurEvent ||
+          type == eventNames().submitEvent;
 
         if (event_ok)
           return true;
@@ -299,10 +299,10 @@ void ScriptController::disposeJSResult(v8::Persistent<v8::Value> result)
     result.Clear();
 }
 
-PassRefPtr<EventListener> ScriptController::createHTMLEventHandler(
+PassRefPtr<EventListener> ScriptController::createInlineEventListener(
     const String& functionName, const String& code, Node* node)
 {
-    return m_proxy->createHTMLEventHandler(functionName, code, node);
+    return m_proxy->createInlineEventListener(functionName, code, node);
 }
 
 #if ENABLE(SVG)

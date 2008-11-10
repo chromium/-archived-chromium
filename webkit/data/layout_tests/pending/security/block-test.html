@@ -29,6 +29,7 @@
         testIMG.setAttribute("onError", "ftp21Test();");
         var newURL = "ftp://" + baseURL + "/test.jpg";
         testIMG.src = newURL;
+        finishTesting();
     }
     
     function ftp21Test() {

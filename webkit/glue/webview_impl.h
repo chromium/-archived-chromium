@@ -19,6 +19,7 @@
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "BackForwardList.h"
+#include "Page.h"
 MSVC_POP_WARNING();
 
 namespace WebCore {
@@ -118,18 +119,20 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
 
   static WebViewImpl* FromPage(WebCore::Page* page);
 
-  WebFrameImpl* main_frame() {
-    return main_frame_;
-  }
-
   WebViewDelegate* delegate() {
     return delegate_.get();
   }
 
-  // Returns the page object associated with this view. This may be NULL when
-  // the page is shutting down, but will be valid all other times.
+  // Returns the page object associated with this view.  This may be NULL when
+  // the page is shutting down, but will be valid at all other times.
   WebCore::Page* page() const {
     return page_.get();
+  }
+
+  // Returns the main frame associated with this view.  This may be NULL when
+  // the page is shutting down, but will be valid at all other times.
+  WebFrameImpl* main_frame() {
+    return page_.get() ? WebFrameImpl::FromFrame(page_->mainFrame()) : NULL;
   }
 
   WebHistoryItemImpl* pending_history_item() const {
@@ -224,7 +227,6 @@ class WebViewImpl : public WebView, public WebCore::BackForwardListClient {
   scoped_refptr<WebViewDelegate> delegate_;
   gfx::Size size_;
 
-  scoped_refptr<WebFrameImpl> main_frame_;
   gfx::Point last_mouse_position_;
   // Reference to the Frame that last had focus. This is set once when
   // we lose focus, and used when focus is gained to reinstall focus to

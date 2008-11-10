@@ -213,6 +213,7 @@ v8::Local<v8::Object> V8EventListener::GetThisObject(Event* event,
       return v8::Context::GetCurrent()->Global();
   }
 
+  // make sure to sync type conversions with V8Proxy::EventTargetToV8Object
   EventTarget* target = event->currentTarget();
   if (target->toNode()) {
     v8::Handle<v8::Value> value =
@@ -233,6 +234,13 @@ v8::Local<v8::Object> V8EventListener::GetThisObject(Event* event,
     v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
         V8ClassIndex::MESSAGEPORT, target->toMessagePort());
     return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
+
+#if ENABLE(SVG)
+  } else if (target->toSVGElementInstance()) {
+    v8::Handle<v8::Value> value = V8Proxy::ToV8Object(
+        V8ClassIndex::SVGELEMENTINSTANCE, target->toSVGElementInstance());
+    return v8::Local<v8::Object>::New(v8::Handle<v8::Object>::Cast(value));
+#endif
 
   } else {
     ASSERT(false);

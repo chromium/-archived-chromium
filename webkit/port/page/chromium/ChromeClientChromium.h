@@ -20,10 +20,6 @@ namespace WebCore {
 
     class ChromeClientChromium : public ChromeClient {
     public:
-        // Opens the file selection dialog.
-        virtual void runFileChooser(const String& defaultFileName,
-                                    PassRefPtr<FileChooser> file_chooser) = 0;
-
         // Notifies the client of a new popup widget.  The client should place
         // and size the widget with the given bounds, relative to the screen.
         virtual void popupOpened(FramelessScrollView* popupView, const IntRect& bounds, bool focus_on_show) = 0;

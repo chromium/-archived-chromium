@@ -251,7 +251,13 @@ WebView* WebView::Create(WebViewDelegate* delegate,
   WebViewImpl* instance = new WebViewImpl();
   instance->AddRef();
   instance->SetPreferences(prefs);
-  instance->main_frame_->InitMainFrame(instance);
+
+  // Here, we construct a new WebFrameImpl with a reference count of 0.  That
+  // is bumped up to 1 by InitMainFrame.  The reference count is decremented
+  // when the corresponding WebCore::Frame object is destroyed.
+  WebFrameImpl* main_frame = new WebFrameImpl();
+  main_frame->InitMainFrame(instance);
+
   // Set the delegate after initializing the main frame, to avoid trying to
   // respond to notifications before we're fully initialized.
   instance->delegate_ = delegate;
@@ -263,9 +269,7 @@ WebView* WebView::Create(WebViewDelegate* delegate,
 }
 
 WebViewImpl::WebViewImpl()
-    : delegate_(NULL),
-      pending_history_item_(NULL),
-      observed_new_navigation_(false),
+    : observed_new_navigation_(false),
 #ifndef NDEBUG
       new_navigation_loader_(NULL),
 #endif
@@ -295,17 +299,9 @@ WebViewImpl::WebViewImpl()
   // The group name identifies a namespace of pages.  I'm not sure how it's
   // intended to be used, but keeping all pages in the same group works for us.
   page_->setGroupName("default");
-
-  // This is created with a refcount of 1, and we assign it to a RefPtr,
-  // giving a refcount of 2. The ref is done on behalf of
-  // FrameWin/FrameLoaderWin which references the WebFrame via the
-  // FrameWinClient/FrameLoaderClient interfaces. See the comment at the
-  // top of webframe_impl.cc
-  main_frame_ = new WebFrameImpl();
 }
 
 WebViewImpl::~WebViewImpl() {
-  DCHECK(main_frame_ == NULL);
   DCHECK(page_ == NULL);
   ReleaseFocusReferences();
   for (std::set<ImageResourceFetcher*>::iterator i = image_fetchers_.begin();
@@ -329,7 +325,7 @@ void WebViewImpl::SetTabKeyCyclesThroughElements(bool value) {
 }
 
 void WebViewImpl::MouseMove(const WebMouseEvent& event) {
-  if (!main_frame_->frameview())
+  if (!main_frame() || !main_frame()->frameview())
     return;
 
   last_mouse_position_.SetPoint(event.x, event.y);
@@ -337,47 +333,50 @@ void WebViewImpl::MouseMove(const WebMouseEvent& event) {
   // We call mouseMoved here instead of handleMouseMovedEvent because we need
   // our ChromeClientImpl to receive changes to the mouse position and
   // tooltip text, and mouseMoved handles all of that.
-  main_frame_->frameview()->frame()->eventHandler()->mouseMoved(
-      MakePlatformMouseEvent(main_frame_->frameview(), event));
+  main_frame()->frame()->eventHandler()->mouseMoved(
+      MakePlatformMouseEvent(main_frame()->frameview(), event));
 }
 
 void WebViewImpl::MouseLeave(const WebMouseEvent& event) {
   // This event gets sent as the main frame is closing.  In that case, just
   // ignore it.
-  if (!main_frame_ || !main_frame_->frameview())
+  if (!main_frame() || !main_frame()->frameview())
     return;
 
   delegate_->UpdateTargetURL(this, GURL());
 
-  main_frame_->frameview()->frame()->eventHandler()->handleMouseMoveEvent(
-      MakePlatformMouseEvent(main_frame_->frameview(), event));
+  main_frame()->frame()->eventHandler()->handleMouseMoveEvent(
+      MakePlatformMouseEvent(main_frame()->frameview(), event));
 }
 
 void WebViewImpl::MouseDown(const WebMouseEvent& event) {
-  if (!main_frame_->frameview())
+  if (!main_frame() || !main_frame()->frameview())
     return;
 
   last_mouse_down_point_ = gfx::Point(event.x, event.y);
-  main_frame_->frame()->eventHandler()->handleMousePressEvent(
-      MakePlatformMouseEvent(main_frame_->frameview(), event));
+  main_frame()->frame()->eventHandler()->handleMousePressEvent(
+      MakePlatformMouseEvent(main_frame()->frameview(), event));
 }
 
 void WebViewImpl::MouseContextMenu(const WebMouseEvent& event) {
+  if (!main_frame() || !main_frame()->frameview())
+    return;
+
   page_->contextMenuController()->clearContextMenu();
 
-  MakePlatformMouseEvent pme(main_frame_->frameview(), event);
+  MakePlatformMouseEvent pme(main_frame()->frameview(), event);
 
   // Find the right target frame. See issue 1186900.
   IntPoint doc_point(
-      main_frame_->frame()->view()->windowToContents(pme.pos()));
+      page_->mainFrame()->view()->windowToContents(pme.pos()));
   HitTestResult result =
-      main_frame_->frame()->eventHandler()->hitTestResultAtPoint(doc_point,
-                                                                 false);
+      page_->mainFrame()->eventHandler()->hitTestResultAtPoint(
+          doc_point, false);
   Frame* target_frame;
   if (result.innerNonSharedNode())
-      target_frame = result.innerNonSharedNode()->document()->frame();
+    target_frame = result.innerNonSharedNode()->document()->frame();
   else
-      target_frame = page_->focusController()->focusedOrMainFrame();
+    target_frame = page_->focusController()->focusedOrMainFrame();
 
 #if defined(OS_WIN)
   target_frame->view()->setCursor(pointerCursor());
@@ -391,12 +390,12 @@ void WebViewImpl::MouseContextMenu(const WebMouseEvent& event) {
 }
 
 void WebViewImpl::MouseUp(const WebMouseEvent& event) {
-  if (!main_frame_->frameview())
+  if (!main_frame() || !main_frame()->frameview())
     return;
 
   MouseCaptureLost();
-  main_frame_->frameview()->frame()->eventHandler()->handleMouseReleaseEvent(
-      MakePlatformMouseEvent(main_frame_->frameview(), event));
+  main_frame()->frame()->eventHandler()->handleMouseReleaseEvent(
+      MakePlatformMouseEvent(main_frame()->frameview(), event));
 
   // Dispatch the contextmenu event regardless of if the click was swallowed.
   if (event.button == WebMouseEvent::BUTTON_RIGHT)
@@ -404,8 +403,8 @@ void WebViewImpl::MouseUp(const WebMouseEvent& event) {
 }
 
 void WebViewImpl::MouseWheel(const WebMouseWheelEvent& event) {
-  MakePlatformWheelEvent platform_event(main_frame_->frameview(), event);
-  main_frame_->frame()->eventHandler()->handleWheelEvent(platform_event);
+  MakePlatformWheelEvent platform_event(main_frame()->frameview(), event);
+  main_frame()->frame()->eventHandler()->handleWheelEvent(platform_event);
 }
 
 bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
@@ -718,11 +717,7 @@ bool WebViewImpl::ScrollViewWithKeyboard(int key_code) {
 }
 
 Frame* WebViewImpl::GetFocusedWebCoreFrame() {
-  if (!main_frame_ || !main_frame_->frame())
-    return NULL;
-
-  return
-    main_frame_->frame()->page()->focusController()->focusedOrMainFrame();
+  return page_.get() ? page_->focusController()->focusedOrMainFrame() : NULL;
 }
 
 // static
@@ -748,14 +743,13 @@ void WebViewImpl::Close() {
   // initiator of the close.
   delegate_ = NULL;
 
-  // Initiate shutdown for the entire frameset.
-  if (main_frame_) {
-    // This will cause a lot of notifications to be sent.
-    main_frame_->frame()->loader()->frameDetached();
-    main_frame_ = NULL;
+  if (page_.get()) {
+    // Initiate shutdown for the entire frameset.  This will cause a lot of
+    // notifications to be sent.
+    if (page_->mainFrame())
+      page_->mainFrame()->loader()->frameDetached();
+    page_.reset();
   }
-
-  page_.reset();
 }
 
 WebViewDelegate* WebViewImpl::GetDelegate() {
@@ -763,7 +757,7 @@ WebViewDelegate* WebViewImpl::GetDelegate() {
 }
 
 WebFrame* WebViewImpl::GetMainFrame() {
-  return main_frame_.get();
+  return main_frame();
 }
 
 WebFrame* WebViewImpl::GetFocusedFrame() {
@@ -786,7 +780,7 @@ void WebViewImpl::SetFocusedFrame(WebFrame* frame) {
 
 WebFrame* WebViewImpl::GetFrameWithName(const std::wstring& name) {
   String name_str = webkit_glue::StdWStringToString(name);
-  Frame* frame = main_frame_->frame()->tree()->find(name_str);
+  Frame* frame = page_->mainFrame()->tree()->find(name_str);
   return frame ? WebFrameImpl::FromFrame(frame) : NULL;
 }
 
@@ -809,9 +803,9 @@ void WebViewImpl::Resize(const gfx::Size& new_size) {
     return;
   size_ = new_size;
 
-  if (main_frame_->frameview()) {
-    main_frame_->frameview()->resize(size_.width(), size_.height());
-    main_frame_->frame()->sendResizeEvent();
+  if (main_frame()->frameview()) {
+    main_frame()->frameview()->resize(size_.width(), size_.height());
+    main_frame()->frame()->sendResizeEvent();
   }
 
   if (delegate_) {
@@ -821,27 +815,29 @@ void WebViewImpl::Resize(const gfx::Size& new_size) {
 }
 
 void WebViewImpl::Layout() {
-  if (main_frame_) {
+  WebFrameImpl* webframe = main_frame();
+  if (webframe) {
     // In order for our child HWNDs (NativeWindowWidgets) to update properly,
     // they need to be told that we are updating the screen.  The problem is
     // that the native widgets need to recalculate their clip region and not
     // overlap any of our non-native widgets.  To force the resizing, call
     // setFrameRect().  This will be a quick operation for most frames, but
     // the NativeWindowWidgets will update a proper clipping region.
-    FrameView* frameview = main_frame_->frameview();
-    if (frameview)
-      frameview->setFrameRect(frameview->frameRect());
+    FrameView* view = webframe->frameview();
+    if (view)
+      view->setFrameRect(view->frameRect());
 
     // setFrameRect may have the side-effect of causing existing page
     // layout to be invalidated, so layout needs to be called last.
 
-    main_frame_->Layout();
+    webframe->Layout();
   }
 }
 
 void WebViewImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
-  if (main_frame_)
-    main_frame_->Paint(canvas, rect);
+  WebFrameImpl* webframe = main_frame();
+  if (webframe)
+    webframe->Paint(canvas, rect);
 }
 
 // TODO(eseidel): g_current_input_event should be removed once
@@ -912,7 +908,7 @@ void WebViewImpl::MouseCaptureLost() {
 // TODO(darin): these navigation methods should be killed
 
 void WebViewImpl::StopLoading() {
-  main_frame_->StopLoading();
+  main_frame()->StopLoading();
 }
 
 void WebViewImpl::SetBackForwardListSize(int size) {
@@ -933,15 +929,14 @@ void WebViewImpl::SetFocus(bool enable) {
     // frame as the focused frame if it is not already focused.  Otherwise, if
     // there is already a focused frame, then this does nothing.
     GetFocusedFrame();
-    if (main_frame_ && main_frame_->frame()) {
-      Frame* frame = main_frame_->frame();
+    if (page_.get() && page_->mainFrame()) {
+      Frame* frame = page_->mainFrame();
       if (!frame->selection()->isFocusedAndActive()) {
         // No one has focus yet, try to restore focus.
         RestoreFocus();
-        frame->page()->focusController()->setActive(true);
+        page_->focusController()->setActive(true);
       }
-      Frame* focused_frame =
-          frame->page()->focusController()->focusedOrMainFrame();
+      Frame* focused_frame = page_->focusController()->focusedOrMainFrame();
       frame->selection()->setFocused(frame == focused_frame);
     }
     ime_accept_events_ = true;
@@ -950,14 +945,15 @@ void WebViewImpl::SetFocus(bool enable) {
     // updated below.
     ReleaseFocusReferences();
 
-    if (!main_frame_)
+    // Clear focus on the currently focused frame if any.
+    if (!page_.get())
       return;
 
-    Frame* frame = main_frame_->frame();
+    Frame* frame = page_->mainFrame();
     if (!frame)
       return;
 
-    RefPtr<Frame> focused = frame->page()->focusController()->focusedFrame();
+    RefPtr<Frame> focused = page_->focusController()->focusedFrame();
     if (focused.get()) {
       // Update the focus refs, this way we can give focus back appropriately.
       // It's entirely possible to have a focused document, but not a focused
@@ -974,7 +970,8 @@ void WebViewImpl::SetFocus(bool enable) {
           // document->setFocusedNode(NULL);
         }
       }
-      frame->page()->focusController()->setFocusedFrame(0);
+      page_->focusController()->setFocusedFrame(0);
+
       // Finish an ongoing composition to delete the composition node.
       Editor* editor = focused->editor();
       if (editor && editor->hasComposition())
@@ -1205,7 +1202,7 @@ void WebViewImpl::ReleaseFocusReferences() {
 }
 
 bool WebViewImpl::DownloadImage(int id, const GURL& image_url, int image_size) {
-  if (!main_frame_ || !main_frame_->frame())
+  if (!page_.get())
     return false;
   image_fetchers_.insert(
       new ImageResourceFetcher(this, id, image_url, image_size));
@@ -1287,23 +1284,23 @@ const WebPreferences& WebViewImpl::GetPreferences() {
 // Set the encoding of the current main frame to the one selected by
 // a user in the encoding menu.
 void WebViewImpl::SetPageEncoding(const std::wstring& encoding_name) {
-  if (!main_frame_)
+  if (!page_.get())
     return;
 
   if (!encoding_name.empty()) {
     // only change override encoding, don't change default encoding
     // TODO(brettw) use std::string for encoding names.
     String new_encoding_name(webkit_glue::StdWStringToString(encoding_name));
-    main_frame_->frame()->loader()->reloadAllowingStaleData(new_encoding_name);
+    page_->mainFrame()->loader()->reloadAllowingStaleData(new_encoding_name);
   }
 }
 
 // Return the canonical encoding name of current main webframe in webview.
 std::wstring WebViewImpl::GetMainFrameEncodingName() {
-  if (!main_frame_)
-    return std::wstring(L"");
+  if (!page_.get())
+    return std::wstring();
 
-  String encoding_name = main_frame_->frame()->loader()->encoding();
+  String encoding_name = page_->mainFrame()->loader()->encoding();
   return webkit_glue::StringToStdWString(encoding_name);
 }
 
@@ -1341,11 +1338,12 @@ void WebViewImpl::ResetZoom() {
 }
 
 void WebViewImpl::CopyImageAt(int x, int y) {
+  if (!page_.get())
+    return;
+
   IntPoint point = IntPoint(x, y);
 
-  Frame* frame = main_frame_->frame();
-  if (!frame)
-    return;
+  Frame* frame = page_->mainFrame();
 
   HitTestResult result =
       frame->eventHandler()->hitTestResultAtPoint(point, false);
@@ -1365,14 +1363,16 @@ void WebViewImpl::CopyImageAt(int x, int y) {
 }
 
 void WebViewImpl::InspectElement(int x, int y) {
+  if (!page_.get())
+    return;
+
   if (x == -1 || y == -1) {
     page_->inspectorController()->inspect(NULL);
   } else {
     IntPoint point = IntPoint(x, y);
     HitTestResult result(point);
 
-    if (Frame* frame = main_frame_->frame())
-      result = frame->eventHandler()->hitTestResultAtPoint(point, false);
+    result = page_->mainFrame()->eventHandler()->hitTestResultAtPoint(point, false);
 
     if (!result.innerNonSharedNode())
       return;
@@ -1391,8 +1391,7 @@ void WebViewImpl::DragSourceEndedAt(
                          IntPoint(screen_x, screen_y),
                          NoButton, MouseEventMoved, 0, false, false, false,
                          false, 0);
-  main_frame_->frame()->eventHandler()->dragSourceEndedAt(pme,
-      DragOperationCopy);
+  page_->mainFrame()->eventHandler()->dragSourceEndedAt(pme, DragOperationCopy);
 }
 
 void WebViewImpl::DragSourceMovedTo(
@@ -1401,7 +1400,7 @@ void WebViewImpl::DragSourceMovedTo(
                          IntPoint(screen_x, screen_y),
                          LeftButton, MouseEventMoved, 0, false, false, false,
                          false, 0);
-  main_frame_->frame()->eventHandler()->dragSourceMovedTo(pme);
+  page_->mainFrame()->eventHandler()->dragSourceMovedTo(pme);
 }
 
 void WebViewImpl::DragSourceSystemDragEnded() {
@@ -1449,15 +1448,10 @@ void WebViewImpl::DragTargetDrop(
 }
 
 SearchableFormData* WebViewImpl::CreateSearchableFormDataForFocusedNode() {
-  if (!main_frame_)
+  if (!page_.get())
     return NULL;
 
-  Frame* frame = main_frame_->frame();
-  if (!frame)
-    return NULL;
-
-  if (RefPtr<Frame> focused =
-      frame->page()->focusController()->focusedFrame()) {
+  if (RefPtr<Frame> focused = page_->focusController()->focusedFrame()) {
     RefPtr<Document> document = focused->document();
     if (document.get()) {
       RefPtr<Node> focused_node = document->focusedNode();
@@ -1475,17 +1469,12 @@ void WebViewImpl::AutofillSuggestionsForNode(
       int64 node_id,
       const std::vector<std::wstring>& suggestions,
       int default_suggestion_index) {
-  if (!main_frame_ || suggestions.empty())
+  if (!page_.get() || suggestions.empty())
     return;
 
   DCHECK(default_suggestion_index < static_cast<int>(suggestions.size()));
 
-  Frame* frame = main_frame_->frame();
-  if (!frame)
-    return;
-
-  if (RefPtr<Frame> focused =
-      frame->page()->focusController()->focusedFrame()) {
+  if (RefPtr<Frame> focused = page_->focusController()->focusedFrame()) {
     RefPtr<Document> document = focused->document();
     if (!document.get())
       return;
@@ -1519,7 +1508,8 @@ void WebViewImpl::AutofillSuggestionsForNode(
       autocomplete_popup_ =
           WebCore::PopupContainer::create(autocomplete_popup_client_.get(),
                                           false);
-      autocomplete_popup_->show(focused_node->getRect(), frame->view(), 0);
+      autocomplete_popup_->show(focused_node->getRect(), 
+                                page_->mainFrame()->view(), 0);
     }
   }
 }
@@ -1530,7 +1520,7 @@ void WebViewImpl::DidCommitLoad(bool* is_new_navigation) {
 
 #ifndef NDEBUG
   DCHECK(!observed_new_navigation_ ||
-    main_frame_->frame()->loader()->documentLoader() == new_navigation_loader_);
+    page_->mainFrame()->loader()->documentLoader() == new_navigation_loader_);
   new_navigation_loader_ = NULL;
 #endif
   observed_new_navigation_ = false;
@@ -1620,7 +1610,7 @@ void WebViewImpl::didAddHistoryItem(WebCore::HistoryItem* item) {
   // (ie, not a reload or back/forward).
   observed_new_navigation_ = true;
 #ifndef NDEBUG
-  new_navigation_loader_ = main_frame_->frame()->loader()->documentLoader();
+  new_navigation_loader_ = page_->mainFrame()->loader()->documentLoader();
 #endif
   delegate_->DidAddHistoryItem();
 }
@@ -1630,7 +1620,7 @@ void WebViewImpl::willGoToHistoryItem(WebCore::HistoryItem* item) {
     if (item == pending_history_item_->GetHistoryItem()) {
       // Let the main frame know this HistoryItem is loading, so it can cache
       // any ExtraData when the DataSource is created.
-      main_frame_->set_currently_loading_history_item(pending_history_item_);
+      main_frame()->set_currently_loading_history_item(pending_history_item_);
       pending_history_item_ = 0;
     }
   }

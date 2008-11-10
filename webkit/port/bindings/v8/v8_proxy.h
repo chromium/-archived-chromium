@@ -64,6 +64,7 @@ class CSSRule;
 class CSSRuleList;
 class CSSValueList;
 class NodeFilter;
+class ScriptExecutionContext;
 
 #if ENABLE(SVG)
 class SVGElementInstance;
@@ -210,11 +211,11 @@ class V8Proxy {
   static void GCUnprotect(Peerable* dom_object);
 
   // Create a lazy event listener.
-  PassRefPtr<EventListener> createHTMLEventHandler(const String& functionName,
-                                        const String& code, Node* node);
+  PassRefPtr<EventListener> createInlineEventListener(
+      const String& functionName, const String& code, Node* node);
 #if ENABLE(SVG)
-  PassRefPtr<EventListener> createSVGEventHandler(const String& functionName,
-                                        const String& code, Node* node);
+  PassRefPtr<EventListener> createSVGEventHandler(
+      const String& functionName, const String& code, Node* node);
 
   static void SetSVGContext(void* object, SVGElement* context);
   static SVGElement* GetSVGContext(void* object);
@@ -241,15 +242,20 @@ class V8Proxy {
 
   // Returns the window object of the currently executing context.
   static DOMWindow* retrieveWindow();
+  // Returns the window object associated with a context.
+  static DOMWindow* retrieveWindow(v8::Handle<v8::Context> context);
   // Returns V8Proxy object of the currently executing context.
   static V8Proxy* retrieve();
   // Returns V8Proxy object associated with a frame.
   static V8Proxy* retrieve(Frame* frame);
+  // Returns V8Proxy object associated with a script execution context.
+  static V8Proxy* retrieve(ScriptExecutionContext* context);
+
   // Returns the frame object of the window object associated
   // with the currently executing context.
   static Frame* retrieveFrame();
   // Returns the frame object of the window object associated with
-  // an context.
+  // a context.
   static Frame* retrieveFrame(v8::Handle<v8::Context> context);
   // Returns the frame that started JS execution.
   // NOTE: cannot declare retrieveActiveFrame as inline function,

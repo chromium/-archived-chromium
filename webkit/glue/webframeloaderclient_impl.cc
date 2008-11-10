@@ -85,13 +85,12 @@ WebFrameLoaderClient::~WebFrameLoaderClient() {
 }
 
 void WebFrameLoaderClient::frameLoaderDestroyed() {
-  // When the WebFrame was created, it had an extra ref() given to it on behalf
-  // of the FrameWin, which accesses it via the FrameWinClient interface.
-  // Since the WebFrame owns us, this extra ref also serves to keep us alive
-  // until the FrameLoader is done with us.  The FrameLoader calls this method
-  // when it's going away.  Therefore, we balance out that extra ref.
-  //
-  // May delete 'this'
+  // When the WebFrame was created, it had an extra reference given to it on
+  // behalf of the Frame.  Since the WebFrame owns us, this extra ref also
+  // serves to keep us alive until the FrameLoader is done with us.  The
+  // FrameLoader calls this method when it's going away.  Therefore, we balance
+  // out that extra reference, which may cause 'this' to be deleted.
+  webframe_->Closing();
   webframe_->Release();
 }
 
@@ -146,16 +145,11 @@ void WebFrameLoaderClient::setCopiesOnScroll() {
 }
 
 void WebFrameLoaderClient::detachedFromParent2() {
-  // FIXME
-}
-void WebFrameLoaderClient::detachedFromParent3() {
-  // FIXME
+  // Nothing to do here.
 }
 
-void WebFrameLoaderClient::detachedFromParent4() {
-  // Called during the last part of frame detaching, to indicate that we should
-  // destroy various objects (including the FrameWin).
-  webframe_->Closing();
+void WebFrameLoaderClient::detachedFromParent3() {
+  // Nothing to do here.
 }
 
 // This function is responsible for associating the |identifier| with a given
@@ -1328,12 +1322,7 @@ PassRefPtr<Frame> WebFrameLoaderClient::createFrame(
     int margin_width,
     int margin_height) {
   FrameLoadRequest frame_request(ResourceRequest(url, referrer), name);
-
-  Frame* new_frame = NULL;
-  if (webframe_)
-    webframe_->CreateChildFrame(frame_request, owner_element, allows_scrolling,
-                                margin_width, margin_height, new_frame);
-  return new_frame;
+  return webframe_->CreateChildFrame(frame_request, owner_element);
 }
 
 // Utility function to convert a vector to an array of char*'s.

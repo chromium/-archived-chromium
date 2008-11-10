@@ -114,7 +114,7 @@ private:
 
     unsigned determineState(RenderObject*);
     unsigned determineClassicState(RenderObject*);
-    bool supportsFocus(EAppearance);
+    bool supportsFocus(ControlPart);
 
     ThemeData getThemeData(RenderObject*);
 

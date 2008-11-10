@@ -88,7 +88,7 @@ class V8EventListener : public V8AbstractEventListener {
 
   V8EventListener(Frame* frame, v8::Local<v8::Object> listener, bool isInline);
   virtual ~V8EventListener();
-  virtual bool isAttachedToEventTargetNode() const { return m_isInline; }
+  virtual bool isInline() const { return m_isInline; }
 
   // Detach the listener from its owner frame.
   void disconnectFrame() { m_frame = 0; }
@@ -128,7 +128,7 @@ class V8LazyEventListener : public V8AbstractEventListener {
   V8LazyEventListener(Frame *frame, const String& code,
                       const String& func_name);
   virtual ~V8LazyEventListener();
-  virtual bool isAttachedToEventTargetNode() const { return true; }
+  virtual bool isInline() const { return true; }
 
   // For lazy event listener, the listener object is the same as its listener
   // function without additional scope chains.

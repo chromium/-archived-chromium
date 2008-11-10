@@ -354,6 +354,22 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Geolocation.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Geolocation.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Geoposition.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\Geoposition.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\History.cpp"
 				>
 			</File>
@@ -395,6 +411,22 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\page\PageGroup.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\PositionCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\PositionError.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\PositionErrorCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\page\PositionOptions.h"
 				>
 			</File>
 			<File
@@ -934,6 +966,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\GeolocationService.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\GeolocationService.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\HostWindow.h"
 				>
 			</File>
@@ -947,6 +987,22 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Language.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Length.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Length.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\LengthBox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\LengthSize.h"
 				>
 			</File>
 			<File
@@ -1087,6 +1143,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Threading.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\Theme.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\platform\ThemeTypes.h"
 				>
 			</File>
 			<File
@@ -1434,6 +1498,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\AtomicString.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\AtomicStringHash.h"
 					>
 				</File>
 				<File
@@ -2307,14 +2375,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\LayoutState.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\Length.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\Length.h"
 				>
 			</File>
 			<File
@@ -3442,6 +3502,14 @@
 			Name="dom"
 			>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ActiveDOMObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ActiveDOMObject.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\AtomicStringList.h"
 				>
 			</File>
@@ -3911,6 +3979,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ScriptElement.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ScriptExecutionContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ScriptExecutionContext.h"
 				>
 			</File>
 			<File

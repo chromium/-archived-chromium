@@ -85,7 +85,6 @@ copies = [
     '../WebCore/bridge/runtime_object.h',
     '../WebCore/bridge/runtime_root.h',
     'kjs/collector.h',
-    'kjs/JSLock.h',
     'kjs/interpreter.h',
     'wtf/HashCountedSet.h',
 ]

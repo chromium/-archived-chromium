@@ -144,11 +144,11 @@ bool SVGPaintServerGradient::setup(GraphicsContext*& context,
     switch(spreadMethod())
     {
     default:
-    case SPREADMETHOD_PAD:     
+    case SpreadMethodPad:
         tile_mode = SkShader::kClamp_TileMode; break;
-    case SPREADMETHOD_REFLECT: 
+    case SpreadMethodReflect:
         tile_mode = SkShader::kMirror_TileMode; break;
-    case SPREADMETHOD_REPEAT:  
+    case SpreadMethodRepeat:
         tile_mode = SkShader::kRepeat_TileMode; break;
     }
 

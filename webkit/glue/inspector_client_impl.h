@@ -34,6 +34,12 @@ public:
 
   virtual void inspectedURLChanged(const WebCore::String& newURL);
 
+  virtual void populateSetting(
+      const WebCore::String& key, WebCore::InspectorController::Setting&);
+  virtual void storeSetting(
+      const WebCore::String& key, const WebCore::InspectorController::Setting&);
+  virtual void removeSetting(const WebCore::String& key);
+
 private:
   ~WebInspectorClient();
 

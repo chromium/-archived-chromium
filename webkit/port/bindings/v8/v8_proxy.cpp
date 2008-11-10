@@ -80,18 +80,21 @@
 #include "CSSVariablesDeclaration.h"
 #include "FrameLoader.h"
 #include "FrameTree.h"
+#include "MessagePort.h"
 #include "MimeTypeArray.h"
 #include "NodeFilter.h"
 #include "Plugin.h"
 #include "PluginArray.h"
 #include "RangeException.h"
 #include "ScriptController.h"
+#include "ScriptExecutionContext.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"
 #include "StyleSheet.h"
 #include "StyleSheetList.h"
 #include "WebKitCSSTransformValue.h"
 #include "XMLHttpRequest.h"
+#include "XMLHttpRequestUpload.h"
 #include "XMLHttpRequestException.h"
 #include "XPathException.h"
 
@@ -780,10 +783,6 @@ static void ReportUnsafeJavaScriptAccess(v8::Local<v8::Object> host,
                                          v8::AccessType type,
                                          v8::Local<v8::Value> data)
 {
-    // Do not report error if the access type is HAS.
-    if (type == v8::ACCESS_HAS)
-        return;
-
     Frame* target = V8Custom::GetTargetFrame(host, data);
     if (target)
         ReportUnsafeAccessTo(target, REPORT_LATER);
@@ -832,7 +831,7 @@ void V8Proxy::SetJSWrapperForDOMNode(Node* node, v8::Persistent<v8::Object> wrap
     dom_node_map().set(node, wrapper);
 }
 
-PassRefPtr<EventListener> V8Proxy::createHTMLEventHandler(
+PassRefPtr<EventListener> V8Proxy::createInlineEventListener(
                                                const String& functionName,
                                                const String& code, Node* node)
 {
@@ -869,7 +868,7 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
     // check using the == operator on the handles. This is much,
     // much faster than calling StrictEquals through the API in 
     // the negative case.
-    if (el->isAttachedToEventTargetNode() == isInline && listener == wrapper)
+    if (el->isInline() == isInline && listener == wrapper)
         return el;
     ++p;
   }
@@ -1457,7 +1456,13 @@ DOMWindow* V8Proxy::retrieveWindow()
     // TODO: This seems very fragile. How do we know that the global object
     // from the current context is something sensible? Do we need to use the
     // last entered here? Who calls this?
-    v8::Handle<v8::Object> global = v8::Context::GetCurrent()->Global();
+    return retrieveWindow(v8::Context::GetCurrent());
+}
+
+
+DOMWindow* V8Proxy::retrieveWindow(v8::Handle<v8::Context> context)
+{
+    v8::Handle<v8::Object> global = context->Global();
     ASSERT(!global.IsEmpty());
     global = LookupDOMWrapper(V8ClassIndex::DOMWINDOW, global);
     ASSERT(!global.IsEmpty());
@@ -1467,11 +1472,7 @@ DOMWindow* V8Proxy::retrieveWindow()
 
 Frame* V8Proxy::retrieveFrame(v8::Handle<v8::Context> context)
 {
-    v8::Handle<v8::Object> global = context->Global();
-    global = LookupDOMWrapper(V8ClassIndex::DOMWINDOW, global);
-    ASSERT(!global.IsEmpty());
-    DOMWindow* window = ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, global);
-    return window->frame();
+    return retrieveWindow(context)->frame();
 }
 
 
@@ -1504,6 +1505,15 @@ V8Proxy* V8Proxy::retrieve(Frame* frame)
         return 0;
     return frame->script()->isEnabled() ? frame->script()->proxy() : 0;
 }
+
+
+V8Proxy* V8Proxy::retrieve(ScriptExecutionContext* context)
+{
+    if (!context->isDocument())
+        return 0;
+    return retrieve(static_cast<Document*>(context)->frame());
+}
+
 
 void V8Proxy::disconnectFrame()
 {
@@ -1614,6 +1624,9 @@ void V8Proxy::clearForNavigation()
         DOMWindow* domWindow =
             ToNativeObject<DOMWindow>(V8ClassIndex::DOMWINDOW, wrapper);
         domWindow->clearAllTimeouts();
+
+        // disconnect all event listeners
+        DisconnectEventListeners();
 
         // Separate the context from its global object.
         m_context->DetachGlobal();
@@ -2664,8 +2677,11 @@ void V8Proxy::UpdateDocumentHandle(v8::Local<v8::Object> handle)
 }
 
 
-// A JS object of type EventTarget can only be two possible types:
-// 1) EventTargetNode; 2) XMLHttpRequest;
+// A JS object of type EventTarget can only be five possible types:
+// 1) EventTargetNode; 2) XMLHttpRequest; 3) MessagePort; 4) SVGElementInstance;
+// 5) XMLHttpRequestUpload
+// check EventTarget.h for new type conversion methods
+// also make sure to sync with V8EventListener::GetThisObject (v8_events.cpp)
 v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
 {
   if (!target)
@@ -2685,6 +2701,21 @@ v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
   XMLHttpRequest* xhr = target->toXMLHttpRequest();
   if (xhr) {
     v8::Handle<v8::Object> peer = dom_object_map().get(xhr);
+    ASSERT(!peer.IsEmpty());
+    return peer;
+  }
+
+  // MessagePort is created within its JS counterpart
+  MessagePort* port = target->toMessagePort();
+  if (port) {
+    v8::Handle<v8::Object> peer = dom_object_map().get(port);
+    ASSERT(!peer.IsEmpty());
+    return peer;
+  }
+
+  XMLHttpRequestUpload* upload = target->toXMLHttpRequestUpload();
+  if (upload) {
+    v8::Handle<v8::Object> peer = dom_object_map().get(upload);
     ASSERT(!peer.IsEmpty());
     return peer;
   }

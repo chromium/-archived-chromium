@@ -509,6 +509,14 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\JSGeolocation.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSGeoposition.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\JSHistory.cpp"
 				>
 			</File>
@@ -1210,6 +1218,14 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\JSPluginArray.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSPositionError.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\JSPositionOptions.h"
 				>
 			</File>
 			<File
@@ -2846,6 +2862,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCustomPositionCallback.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCustomPositionErrorCallback.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSCustomSQLStatementCallback.cpp"
 			>
 		</File>
@@ -2918,6 +2942,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMGlobalObject.cpp"
+			>
+			</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMGlobalObject.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSDOMWindowBase.cpp"
 			>
 		</File>
@@ -2968,6 +3000,10 @@
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSEventTargetNodeCustom.cpp"
 			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSGeolocationCustom.cpp"
+		>
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHistoryCustom.cpp"
@@ -3027,14 +3063,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLObjectElementCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLOptionElementConstructor.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSHTMLOptionElementConstructor.h"
 			>
 		</File>
 		<File
@@ -3140,6 +3168,14 @@
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSNodeListCustom.cpp"
 			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSOptionConstructor.cpp"
+		>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSOptionConstructor.h"
+		>
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\js\JSPluginArrayCustom.cpp"

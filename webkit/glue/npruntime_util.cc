@@ -11,6 +11,7 @@
 #include "webkit/port/bindings/v8/np_v8object.h"
 #elif USE(JAVASCRIPTCORE_BINDINGS)
 #include "bridge/c/c_utility.h"
+#undef LOG
 using JSC::Bindings::PrivateIdentifier;
 #endif
 

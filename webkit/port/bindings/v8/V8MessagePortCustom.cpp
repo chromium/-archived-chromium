@@ -109,7 +109,7 @@ ACCESSOR_SETTER(MessagePortOnmessage) {
     imp->setOnmessage(0);
 
   } else {
-    V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -150,7 +150,7 @@ ACCESSOR_SETTER(MessagePortOnclose) {
     // Clear the listener
     imp->setOnclose(0);
   } else {
-    V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+    V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
     if (!proxy)
       return;
 
@@ -173,12 +173,13 @@ CALLBACK_FUNC_DECL(MessagePortStartConversation) {
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, args.Holder());
 
-  V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+  V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
   if (!proxy)
     return v8::Undefined();
 
-  RefPtr<MessagePort> port = imp->startConversation(imp->document(),
-      ToWebCoreString(args[0]));
+  RefPtr<MessagePort> port =
+      imp->startConversation(imp->scriptExecutionContext(),
+                             ToWebCoreString(args[0]));
   v8::Handle<v8::Value> wrapper = 
     V8Proxy::ToV8Object(V8ClassIndex::MESSAGEPORT, port.get());
   return wrapper;
@@ -189,7 +190,7 @@ CALLBACK_FUNC_DECL(MessagePortAddEventListener) {
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, args.Holder());
 
-  V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+  V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
   if (!proxy)
     return v8::Undefined();
 
@@ -210,7 +211,7 @@ CALLBACK_FUNC_DECL(MessagePortRemoveEventListener) {
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, args.Holder());
 
-  V8Proxy* proxy = V8Proxy::retrieve(imp->document()->frame());
+  V8Proxy* proxy = V8Proxy::retrieve(imp->scriptExecutionContext());
   if (!proxy)
     return v8::Undefined();  // probably leaked
 
