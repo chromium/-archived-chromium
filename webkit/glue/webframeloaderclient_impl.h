@@ -187,8 +187,6 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
 
   virtual void registerForIconNotification(bool listen = true);
 
-  virtual void unloadListenerChanged();
-
   // Callback function for download of alternate 404 pages.  If the server is
   // down or we take more than 1s to download the page, html will be an empty
   // string.

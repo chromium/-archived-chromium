@@ -107,13 +107,6 @@ void WebFrameLoaderClient::didPerformFirstNavigation() const {
 void WebFrameLoaderClient::registerForIconNotification(bool listen){
 }
 
-void WebFrameLoaderClient::unloadListenerChanged() {
-  WebViewImpl* webview = webframe_->webview_impl();
-  WebViewDelegate* d = webview->delegate();
-  if (d)
-    d->OnUnloadListenerChanged(webview, webframe_);
-}
-
 bool WebFrameLoaderClient::hasWebView() const {
   return webframe_->webview_impl() != NULL;
 }

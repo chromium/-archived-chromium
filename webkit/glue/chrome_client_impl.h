@@ -120,6 +120,9 @@ public:
 
   void SetCursor(const WebCursor& cursor);
 
+  virtual void enableSuddenTermination();
+  virtual void disableSuddenTermination();
+
 private:
   WebViewImpl* webview_;  // weak pointer
   bool toolbars_visible_;

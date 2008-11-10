@@ -468,3 +468,15 @@ void ChromeClientImpl::SetCursor(const WebCursor& cursor) {
   if (d)
     d->SetCursor(webview_, cursor);
 }
+
+void ChromeClientImpl::enableSuddenTermination() {
+  WebViewDelegate* d = webview_->delegate();
+  if (d)
+    d->EnableSuddenTermination();
+}
+
+void ChromeClientImpl::disableSuddenTermination() {
+  WebViewDelegate* d = webview_->delegate();
+  if (d)
+    d->DisableSuddenTermination();
+}

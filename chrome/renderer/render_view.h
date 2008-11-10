@@ -126,7 +126,8 @@ class RenderView : public RenderWidget, public WebViewDelegate,
                                    std::wstring* result);
   virtual bool RunBeforeUnloadConfirm(WebView* webview,
                                       const std::wstring& message);
-  virtual void OnUnloadListenerChanged(WebView* webview, WebFrame* webframe);
+  virtual void EnableSuddenTermination();
+  virtual void DisableSuddenTermination();
   virtual void QueryFormFieldAutofill(const std::wstring& field_name,
                                       const std::wstring& text,
                                       int64 node_id);

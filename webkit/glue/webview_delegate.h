@@ -454,8 +454,10 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
                                        const AutofillForm& form) {
   }
 
-  //
-  virtual void OnUnloadListenerChanged(WebView* webview, WebFrame* webframe) {
+  virtual void EnableSuddenTermination() {
+  }
+
+  virtual void DisableSuddenTermination() {
   }
 
   // Queries the browser for suggestions to be shown for the form text field

@@ -1845,14 +1845,6 @@ bool WebFrameImpl::SpoolPage(int page, gfx::PlatformCanvas* canvas) {
   return true;
 }
 
-bool WebFrameImpl::HasUnloadListener() {
-  if (frame() && frame()->document()) {
-    Document* doc = frame()->document();
-    return doc->hasUnloadEventListener();
-  }
-  return false;
-}
-
 bool WebFrameImpl::IsReloadAllowingStaleData() const {
   FrameLoader* loader = frame() ? frame()->loader() : NULL;
   if (loader) {

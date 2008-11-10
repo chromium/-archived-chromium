@@ -1647,24 +1647,12 @@ bool RenderView::RunBeforeUnloadConfirm(WebView* webview,
   return success;
 }
 
-void RenderView::OnUnloadListenerChanged(WebView* webview, WebFrame* webframe) {
-  bool has_listener = false;
-  if (!has_unload_listener_) {
-    has_listener = webframe->HasUnloadListener();
-  } else {
-    WebFrame* frame = webview->GetMainFrame();
-    while (frame != NULL) {
-      if (frame->HasUnloadListener()) {
-        has_listener = true;
-        break;
-      }
-      frame = webview->GetNextFrameAfter(frame, false);
-    }
-  }
-  if (has_listener != has_unload_listener_) {
-    has_unload_listener_ = has_listener;
-    Send(new ViewHostMsg_UnloadListenerChanged(routing_id_, has_listener));
-  }
+void RenderView::EnableSuddenTermination() {
+  Send(new ViewHostMsg_UnloadListenerChanged(routing_id_, false));
+}
+
+void RenderView::DisableSuddenTermination() {
+  Send(new ViewHostMsg_UnloadListenerChanged(routing_id_, true));
 }
 
 void RenderView::QueryFormFieldAutofill(const std::wstring& field_name,

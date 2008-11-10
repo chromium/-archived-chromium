@@ -267,7 +267,6 @@ class WebFrameImpl : public WebFrame {
   // Returns true if the frame CSS is in "printing" mode.
   bool printing() const { return printing_; }
 
-  virtual bool HasUnloadListener();
   virtual bool IsReloadAllowingStaleData() const;
 
  protected:
