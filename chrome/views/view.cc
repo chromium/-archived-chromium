@@ -680,6 +680,14 @@ bool View::IsProcessingPaint() const {
 }
 #endif
 
+gfx::Point View::GetKeyboardContextMenuLocation() {
+  gfx::Rect vis_bounds = GetVisibleBounds();
+  gfx::Point screen_point(vis_bounds.x() + vis_bounds.width() / 2,
+                          vis_bounds.y() + vis_bounds.height() / 2);
+  ConvertPointToScreen(this, &screen_point);
+  return screen_point;
+}
+
 bool View::HasHitTestMask() const {
   return false;
 }

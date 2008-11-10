@@ -805,8 +805,8 @@ void RootView::ProcessKeyEvent(const KeyEvent& event) {
         (event.GetCharacter() == VK_F10 && event.IsShiftDown())) {
       v = GetFocusedView();
       if (v->IsEnabled()) {
-        v->ShowContextMenu(v->x() + (v->width() / 2),
-                           v->y() + (v->height() / 2), false);
+        gfx::Point screen_loc = v->GetKeyboardContextMenuLocation();
+        v->ShowContextMenu(screen_loc.x(), screen_loc.y(), false);
         return;
       }
     }

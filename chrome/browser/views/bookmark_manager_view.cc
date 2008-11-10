@@ -463,14 +463,6 @@ void BookmarkManagerView::ShowContextMenu(views::View* source,
                                           bool is_mouse_gesture) {
   DCHECK(source == table_view_ || source == tree_view_);
   bool is_table = (source == table_view_);
-  if (is_table && x == -1 && y == -1) {
-    // TODO(sky): promote code to tableview that determines the location based
-    // on the selection. This is temporary until I fix that.
-    gfx::Point location(table_view_->width() / 2, table_view_->height() / 2);
-    View::ConvertPointToScreen(table_view_, &location);
-    x = location.x();
-    y = location.y();
-  }
   ShowMenu(GetContainer()->GetHWND(), x, y,
            is_table ? BookmarkContextMenu::BOOKMARK_MANAGER_TABLE :
                       BookmarkContextMenu::BOOKMARK_MANAGER_TREE);

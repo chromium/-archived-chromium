@@ -258,8 +258,16 @@ void NativeControl::OnContextMenu(const CPoint& location) {
   if (!GetContextMenuController())
     return;
 
-  GetContextMenuController()->ShowContextMenu(
-      this, location.x, location.y, true);
+  int x = location.x;
+  int y = location.y;
+  bool is_mouse = true;
+  if (x == -1 && y == -1) {
+    gfx::Point point = GetKeyboardContextMenuLocation();
+    x = point.x();
+    y = point.y();
+    is_mouse = false;
+  }
+  ShowContextMenu(x, y, is_mouse);
 }
 
 void NativeControl::Focus() {

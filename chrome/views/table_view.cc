@@ -504,6 +504,24 @@ bool TableView::HasColumn(int id) {
   return all_columns_.count(id) > 0;
 }
 
+gfx::Point TableView::GetKeyboardContextMenuLocation() {
+  int first_selected = FirstSelectedRow();
+  int y = height() / 2;
+  if (first_selected != -1) {
+    RECT cell_bounds;
+    RECT client_rect;
+    if (ListView_GetItemRect(GetNativeControlHWND(), first_selected,
+                             &cell_bounds, LVIR_BOUNDS) &&
+        GetClientRect(GetNativeControlHWND(), &client_rect) &&
+        cell_bounds.bottom >= 0 && cell_bounds.bottom < client_rect.bottom) {
+      y = cell_bounds.bottom;
+    }
+  }
+  gfx::Point screen_loc(0, y);
+  ConvertPointToScreen(this, &screen_loc);
+  return screen_loc;
+}
+
 void TableView::SetCustomColorsEnabled(bool custom_colors_enabled) {
   custom_colors_enabled_ = custom_colors_enabled;
 }

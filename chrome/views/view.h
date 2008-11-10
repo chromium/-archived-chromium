@@ -989,6 +989,14 @@ class View : public AcceleratorTarget {
   virtual bool IsProcessingPaint() const;
 #endif
 
+  // Returns the location, in screen coordinates, to show the context menu at
+  // when the context menu is shown from the keyboard. This implementation
+  // returns the middle of the visible region of this view.
+  //
+  // This method is invoked when the context menu is shown by way of the
+  // keyboard.
+  virtual gfx::Point GetKeyboardContextMenuLocation();
+
   // Called by HitTest to see if this View has a custom hit test mask. If the
   // return value is true, GetHitTestMask will be called to obtain the mask.
   // Default value is false, in which case the View will hit-test against its

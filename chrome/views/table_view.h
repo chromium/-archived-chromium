@@ -428,6 +428,9 @@ class TableView : public NativeControl,
   }
 
  protected:
+  // Overriden to return the position of the first selected row.
+  virtual gfx::Point GetKeyboardContextMenuLocation();
+
   // Subclasses that want to customize the colors of a particular row/column,
   // must invoke this passing in true. The default value is false, such that
   // GetCellColors is never invoked.

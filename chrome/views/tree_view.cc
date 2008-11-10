@@ -284,6 +284,24 @@ void TreeView::TreeNodeChanged(TreeModel* model, TreeModelNode* node) {
   TreeView_SetItem(tree_view_, &tv_item);
 }
 
+gfx::Point TreeView::GetKeyboardContextMenuLocation() {
+  int y = height() / 2;
+  if (GetSelectedNode()) {
+    RECT bounds;
+    RECT client_rect;
+    if (TreeView_GetItemRect(tree_view_,
+                             GetNodeDetails(GetSelectedNode())->tree_item,
+                             &bounds, TRUE) &&
+        GetClientRect(tree_view_, &client_rect) &&
+        bounds.bottom >= 0 && bounds.bottom < client_rect.bottom) {
+      y = bounds.bottom;
+    }
+  }
+  gfx::Point screen_loc(0, y);
+  ConvertPointToScreen(this, &screen_loc);
+  return screen_loc;
+}
+
 HWND TreeView::CreateNativeControl(HWND parent_container) {
   int style = WS_CHILD | TVS_HASBUTTONS | TVS_HASLINES | TVS_SHOWSELALWAYS;
   if (!drag_enabled_)
@@ -433,51 +451,34 @@ bool TreeView::OnKeyDown(int virtual_key_code) {
 }
 
 void TreeView::OnContextMenu(const CPoint& location) {
-  if (GetContextMenuController()) {
-    if (location.x == -1 && location.y == -1) {
-      // Indicates the user pressed the context menu key.
-      bool valid_loc = false;
-      int x, y;
-      if (GetSelectedNode()) {
-        RECT bounds;
-        if (TreeView_GetItemRect(tree_view_,
-                                 GetNodeDetails(GetSelectedNode())->tree_item,
-                                 &bounds, TRUE)) {
-          x = bounds.left;
-          y = bounds.top + (bounds.bottom - bounds.top) / 2;
-          valid_loc = true;
-        }
-      } else if (show_context_menu_only_when_node_selected_) {
-        return;
-      }
-      if (!valid_loc) {
-        x = width() / 2;
-        y = height() / 2;
-      }
-      gfx::Point screen_loc(x, y);
-      ConvertPointToScreen(this, &screen_loc);
-      GetContextMenuController()->ShowContextMenu(this, screen_loc.x(),
-                                                  screen_loc.y(), false);
-    } else if (!show_context_menu_only_when_node_selected_) {
-      GetContextMenuController()->ShowContextMenu(this, location.x, location.y,
-                                                  true);
-    } else if (GetSelectedNode()) {
-      // Make sure the mouse is over the selected node.
-      TVHITTESTINFO hit_info;
-      gfx::Point local_loc(location);
-      ConvertPointToView(NULL, this, &local_loc);
-      hit_info.pt.x = local_loc.x();
-      hit_info.pt.y = local_loc.y();
-      HTREEITEM hit_item = TreeView_HitTest(tree_view_, &hit_info);
-      if (hit_item &&
-          GetNodeDetails(GetSelectedNode())->tree_item == hit_item &&
-          (hit_info.flags & (TVHT_ONITEM | TVHT_ONITEMRIGHT |
-                            TVHT_ONITEMINDENT)) != 0) {
-        GetContextMenuController()->ShowContextMenu(this, location.x,
-                                                    location.y, true);
-      }
+  if (!GetContextMenuController())
+    return;
+
+  if (location.x == -1 && location.y == -1) {
+    // Let NativeControl's implementation handle keyboard gesture.
+    NativeControl::OnContextMenu(location);
+    return;
+  }
+  
+  if (show_context_menu_only_when_node_selected_) {
+    if (!GetSelectedNode())
+      return;
+
+    // Make sure the mouse is over the selected node.
+    TVHITTESTINFO hit_info;
+    gfx::Point local_loc(location);
+    ConvertPointToView(NULL, this, &local_loc);
+    hit_info.pt.x = local_loc.x();
+    hit_info.pt.y = local_loc.y();
+    HTREEITEM hit_item = TreeView_HitTest(tree_view_, &hit_info);
+    if (!hit_item ||
+        GetNodeDetails(GetSelectedNode())->tree_item != hit_item ||
+        (hit_info.flags & (TVHT_ONITEM | TVHT_ONITEMRIGHT |
+                          TVHT_ONITEMINDENT)) == 0) {
+      return;
     }
   }
+  ShowContextMenu(location.x, location.y, true);
 }
 
 TreeModelNode* TreeView::GetNodeForTreeItem(HTREEITEM tree_item) {

@@ -208,6 +208,8 @@ class TreeView : public NativeControl, TreeModelObserver {
   bool GetSelectOnRightMouseDown() { return select_on_right_mouse_down_; }
 
  protected:
+  // Overriden to return a location based on the selected node.
+  virtual gfx::Point GetKeyboardContextMenuLocation();
 
   // Creates and configures the tree_view.
   virtual HWND CreateNativeControl(HWND parent_container);
