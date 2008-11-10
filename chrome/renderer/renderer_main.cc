@@ -107,8 +107,9 @@ int RendererMain(CommandLine &parsed_command_line, int show_command,
       // message loop to use it when translating messages.
       MessageLoop::current()->Run();
     }
+
+    RenderProcess::GlobalCleanup();
   }
-  RenderProcess::GlobalCleanup();
 
   CoUninitialize();
   return 0;
