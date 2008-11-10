@@ -90,7 +90,7 @@ void MenuButton::Paint(ChromeCanvas* canvas, bool for_drag) {
     // manually mirror the position of the down arrow.
     gfx::Rect arrow_bounds(width() - insets.right() -
                            kMenuMarker->width() - kMenuMarkerPaddingRight,
-                           height() / 2,
+                           height() / 2 - kMenuMarker->height() / 2,
                            kMenuMarker->width(),
                            kMenuMarker->height());
     arrow_bounds.set_x(MirroredLeftPointForRect(arrow_bounds));

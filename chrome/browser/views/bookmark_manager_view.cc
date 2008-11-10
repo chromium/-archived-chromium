@@ -158,17 +158,16 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   SetLayoutManager(layout);
   const int top_id = 1;
   const int split_cs_id = 2;
-  layout->SetInsets(2, 0, 0, 0);
+  layout->SetInsets(2, 0, 0, 0); // 2px padding above content.
   views::ColumnSet* column_set = layout->AddColumnSet(top_id);
   column_set->AddColumn(views::GridLayout::LEADING, views::GridLayout::CENTER,
                         0, views::GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   column_set->AddColumn(views::GridLayout::LEADING, views::GridLayout::CENTER,
                         0, views::GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(1, kUnrelatedControlHorizontalSpacing);
   column_set->AddColumn(views::GridLayout::TRAILING, views::GridLayout::CENTER,
                         1, views::GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, kButtonHEdgeMargin);
+  column_set->AddPaddingColumn(0, 3); // 3px padding at end of row.
 
   column_set = layout->AddColumnSet(split_cs_id);
   column_set->AddColumn(views::GridLayout::FILL, views::GridLayout::FILL, 1,
@@ -179,7 +178,7 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   layout->AddView(tools_menu_button);
   layout->AddView(search_tf_);
 
-  layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
+  layout->AddPaddingRow(0, 3); // 3px padding between rows.
 
   layout->StartRow(1, split_cs_id);
   layout->AddView(split_view_);
