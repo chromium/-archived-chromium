@@ -74,7 +74,7 @@ V8 # LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL
 V8 # LayoutTests/http/tests/xmlhttprequest/upload-onprogress-event.html = FAIL
 V8 # LayoutTests/http/tests/xmlhttprequest/upload-progress-events.html = FAIL
 
-# Bug 1341582
+// Bug 1341582
 V8 # LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
 V8 # LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
  
@@ -653,29 +653,29 @@ V8 # pending/http/tests/security/cross-frame-access-protocol.html = PASS | TIMEO
 V8 # LayoutTests/fast/js/date-DST-time-cusps.html = FAIL | PASS
 V8 # LayoutTests/fast/js/date-big-setdate.html = FAIL | PASS
 
-# V8 doesn't stable sort. This is not required and may never be fixed. It is
-# tracked by: http://code.google.com/p/v8/issues/detail?id=90
+// V8 doesn't stable sort. This is not required and may never be fixed. It is
+// tracked by: http://code.google.com/p/v8/issues/detail?id=90
 V8 # LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
 V8 # LayoutTests/fast/js/sort-stability.html = FAIL
 
-# Apparently V8 date handling:
-# http://code.google.com/p/v8/issues/detail?id=91
+// Apparently V8 date handling:
+// http://code.google.com/p/v8/issues/detail?id=91
 V8 # LayoutTests/fast/js/date-set-to-nan.html = FAIL
 
-# These require application cache to be enabled.  Skip the tests because
-# they're all timing out.  TODO(tc): Upstream changes to the test so they
-# fail quickly if window.applicationCache is undefined (then we don't have to
-# skip them).
-# http://crbug.com/2844
+// These require application cache to be enabled.  Skip the tests because
+// they're all timing out.  TODO(tc): Upstream changes to the test so they
+// fail quickly if window.applicationCache is undefined (then we don't have to
+// skip them).
+// http://crbug.com/2844
 V8 # SKIP : LayoutTests/http/tests/appcache = TIMEOUT | FAIL
 
-# Depends on postMessage in a way we don't support:
-# http://code.google.com/p/chromium/issues/detail?id=2857
+// Depends on postMessage in a way we don't support:
+// http://code.google.com/p/chromium/issues/detail?id=2857
 V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-uppercase.html = FAIL
 V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame.html = FAIL
 
-# V8 failures as a result of the WebKit merge.
-# http://code.google.com/p/v8/issues/detail?id=92
+// V8 failures as a result of the WebKit merge.
+// http://code.google.com/p/v8/issues/detail?id=92
 V8 # LayoutTests/fast/js/constructor-attributes.html = FAIL
 V8 # LayoutTests/fast/js/eval-cross-window.html = FAIL
 V8 # LayoutTests/fast/js/eval-keyword-vs-function.html = FAIL
@@ -689,12 +689,12 @@ V8 # LayoutTests/fast/js/removing-Cf-characters.html = FAIL
 V8 # LayoutTests/fast/js/static-scope-object.html = FAIL
 V8 # LayoutTests/fast/js/delete-getters-setters.html = FAIL
 
-# Console output won't have line numbers until V8 gives us a way to get that
-# information. <http://crbug.com/2960>
+// Console output won't have line numbers until V8 gives us a way to get that
+// information. <http://crbug.com/2960>
 V8 # LayoutTests/fast/dom/Window/console-functions.html = FAIL
 
-# Shadows don't render correctly for these tests.
-# http://code.google.com/p/chromium/issues/detail?id=2969
+// Shadows don't render correctly for these tests.
+// http://code.google.com/p/chromium/issues/detail?id=2969
 V8 # LayoutTests/fast/canvas/shadow-offset-1.html = FAIL
 V8 # LayoutTests/fast/canvas/shadow-offset-2.html = FAIL
 V8 # LayoutTests/fast/canvas/shadow-offset-3.html = FAIL
@@ -704,74 +704,70 @@ V8 # LayoutTests/fast/canvas/shadow-offset-6.html = FAIL
 V8 # LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
 V8 # LayoutTests/fast/css/shadow-multiple.html = FAIL
 
-# There appears to be some parsing error. These tests give "successfullyParsed
-# should be true (of type boolean). Was undefined (of type undefined)."
-# http://code.google.com/p/chromium/issues/detail?id=2976
+// There appears to be some parsing error. These tests give "successfullyParsed
+// should be true (of type boolean). Was undefined (of type undefined)."
+// http://code.google.com/p/chromium/issues/detail?id=2976
 V8 # LayoutTests/fast/canvas/drawImage-with-negative-source-destination.html = FAIL
 
-# getImageData isn't supported on canvas.
-# http://code.google.com/p/chromium/issues/detail?id=2974
+// getImageData isn't supported on canvas.
+// http://code.google.com/p/chromium/issues/detail?id=2974
 V8 # LayoutTests/fast/canvas/canvas-pattern-behaviour.html = FAIL
 V8 # LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 
-# We don't implement toDataURL.
-# http://code.google.com/p/chromium/issues/detail?id=2972
+// We don't implement toDataURL.
+// http://code.google.com/p/chromium/issues/detail?id=2972
 V8 # LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
 
-# layoutTestController.setStopProvisionalFrameLoads needs implementing
-# http://code.google.com/p/chromium/issues/detail?id=2980
+// layoutTestController.setStopProvisionalFrameLoads needs implementing
+// http://code.google.com/p/chromium/issues/detail?id=2980
 V8 # LayoutTests/fast/loader/stop-provisional-loads.html = FAIL
 
-# Our shadows looks wrong. The text not having shadows is to be expected, but
-# it looks like we're missing a red shadow that Safari has.
-# http://code.google.com/p/chromium/issues/detail?id=2982
+// Our shadows looks wrong. The text not having shadows is to be expected, but
+// it looks like we're missing a red shadow that Safari has.
+// http://code.google.com/p/chromium/issues/detail?id=2982
 V8 # LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
 V8 # LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
 V8 # LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
 V8 # LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
 
-# Regression from the webkit merge submitting forms to reference fragments.
-# http://code.google.com/p/chromium/issues/detail?id=3008
+// Regression from the webkit merge submitting forms to reference fragments.
+// http://code.google.com/p/chromium/issues/detail?id=3008
 V8 # LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL
 
-# Many of the failures here are because V8 stringifies objects differently than
-# JSC. However, the missing position and totalSize properties seems genuine.
+// Many of the failures here are because V8 stringifies objects differently than
+// JSC. However, the missing position and totalSize properties seems genuine.
 V8 # SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
 
-# This fails because the CSSParser cannot handle the keyframe rule.
-# Picking up a new parser from webkit should fix the rest.
-V8 # LayoutTests/css3/keyframes-rule.html = FAIL
-
-# We don't render reflection masks properly.
-# http://code.google.com/p/chromium/issues/detail?id=3229
+// We don't render reflection masks properly.
+// http://code.google.com/p/chromium/issues/detail?id=3229
 V8 # LayoutTests/fast/reflections/reflection-masks.html = FAIL
 
-# http://crbug.com/3244 : SVG masks aren't quite working yet.
+// http://crbug.com/3244 : SVG masks aren't quite working yet.
 V8 # LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
 V8 # LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 
-# More tests that fail because of masks not working properly.
+// More tests that fail because of masks not working properly.
 V8 # LayoutTests/fast/backgrounds/mask-composite.html = FAIL
 V8 # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
 V8 # LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
 V8 # LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
 
-# This was fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.	
-# For chromium, it got flaky once we pulled 36103 in.
+// This was fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.	
+// For chromium, it got flaky once we pulled 36103 in.
 V8 # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL | PASS
   
-# This test finishes while in the middle of a CSS animation. This is
-# intentional, but it makes pixel results unreliable.
-# http://bugs.webkit.org/show_bug.cgi?id=21491
+// This test finishes while in the middle of a CSS animation. This is
+// intentional, but it makes pixel results unreliable.
+// http://bugs.webkit.org/show_bug.cgi?id=21491
 V8 # SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 
-# Issue 3273: TextInputController::firstRectForCharacterRange not implemented
-# http://code.google.com/p/chromium/issues/detail?id=3273
+// Issue 3273: TextInputController::firstRectForCharacterRange not implemented
+// http://code.google.com/p/chromium/issues/detail?id=3273
 V8 # LayoutTests/editing/selection/move-left-right.html = FAIL
 
-# This test needs to be rebaselined but said rebaselining didn't work and after
-# over an hour wasted, I'm giving up. -brettw
+// This test needs to be rebaselined but said rebaselining didn't work and after
+// over an hour wasted, I'm giving up. -brettw
 V8 | KJS # LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
 
 // ----------------------------------------------------------------------------
