@@ -16,29 +16,27 @@
 
 namespace {
 
-// A small object to ensure we close the clipboard after opening it.
-class ClipboardLock {
+// A scoper to manage acquiring and automatically releasing the clipboard.
+class ScopedClipboard {
  public:
-  ClipboardLock() : we_own_the_lock_(false) { }
+  ScopedClipboard() : opened_(false) { }
 
-  ~ClipboardLock() {
-    if (we_own_the_lock_)
+  ~ScopedClipboard() {
+    if (opened_)
       Release();
   }
 
   bool Acquire(HWND owner) {
-    // We shouldn't be calling this if we already own the clipboard lock.
-    DCHECK(!we_own_the_lock_);
-
-    // We already have the lock.  We don't want to stomp on the other use.
-    if (we_own_the_lock_)
-      return false;
-
     const int kMaxAttemptsToOpenClipboard = 5;
 
-    // Attempt to acquire the clipboard lock.  This may fail if another process
-    // currently holds the lock.  We're willing to try a few times in the hopes
-    // of acquiring it.
+    if (opened_) {
+      NOTREACHED();
+      return false;
+    }
+
+    // Attempt to open the clipboard, which will acquire the Windows clipboard
+    // lock.  This may fail if another process currently holds this lock.
+    // We're willing to try a few times in the hopes of acquiring it.
     //
     // This turns out to be an issue when using remote desktop because the
     // rdpclip.exe process likes to read what we've written to the clipboard and
@@ -48,18 +46,17 @@ class ClipboardLock {
     //
     // In fact, we believe we'll only spin this loop over remote desktop.  In
     // normal situations, the user is initiating clipboard operations and there
-    // shouldn't be lock contention.
+    // shouldn't be contention.
 
     for (int attempts = 0; attempts < kMaxAttemptsToOpenClipboard; ++attempts) {
-      if (::OpenClipboard(owner)) {
-        we_own_the_lock_ = true;
-        return we_own_the_lock_;
-      }
-
-      // Having failed, we yield our timeslice to other processes. ::Yield seems
-      // to be insufficient here, so we sleep for 5 ms.
-      if (attempts < (kMaxAttemptsToOpenClipboard - 1))
+      // If we didn't manage to open the clipboard, sleep a bit and be hopeful.
+      if (attempts != 0)
         ::Sleep(5);
+
+      if (::OpenClipboard(owner)) {
+        opened_ = true;
+        return true;
+      }
     }
 
     // We failed to acquire the clipboard.
@@ -67,19 +64,16 @@ class ClipboardLock {
   }
 
   void Release() {
-    // We should only be calling this if we already own the clipboard lock.
-    DCHECK(we_own_the_lock_);
-
-    // We we don't have the lock, there is nothing to release.
-    if (!we_own_the_lock_)
-      return;
-
-    ::CloseClipboard();
-    we_own_the_lock_ = false;
+    if (opened_) {
+      ::CloseClipboard();
+      opened_ = false;
+    } else {
+      NOTREACHED();
+    }
   }
 
  private:
-  bool we_own_the_lock_;
+  bool opened_;
 };
 
 LRESULT CALLBACK ClipboardOwnerWndProc(HWND hwnd,
@@ -154,8 +148,8 @@ void Clipboard::WriteObjects(const ObjectMap& objects) {
 }
 
 void Clipboard::WriteObjects(const ObjectMap& objects, ProcessHandle process) {
-  ClipboardLock lock;
-  if (!lock.Acquire(clipboard_owner_))
+  ScopedClipboard clipboard;
+  if (!clipboard.Acquire(clipboard_owner_))
     return;
 
   ::EmptyClipboard();
@@ -390,8 +384,8 @@ void Clipboard::ReadText(std::wstring* result) const {
   result->clear();
 
   // Acquire the clipboard.
-  ClipboardLock lock;
-  if (!lock.Acquire(clipboard_owner_))
+  ScopedClipboard clipboard;
+  if (!clipboard.Acquire(clipboard_owner_))
     return;
 
   HANDLE data = ::GetClipboardData(CF_UNICODETEXT);
@@ -411,8 +405,8 @@ void Clipboard::ReadAsciiText(std::string* result) const {
   result->clear();
 
   // Acquire the clipboard.
-  ClipboardLock lock;
-  if (!lock.Acquire(clipboard_owner_))
+  ScopedClipboard clipboard;
+  if (!clipboard.Acquire(clipboard_owner_))
     return;
 
   HANDLE data = ::GetClipboardData(CF_TEXT);
@@ -431,8 +425,8 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
     src_url->clear();
 
   // Acquire the clipboard.
-  ClipboardLock lock;
-  if (!lock.Acquire(clipboard_owner_))
+  ScopedClipboard clipboard;
+  if (!clipboard.Acquire(clipboard_owner_))
     return;
 
   HANDLE data = ::GetClipboardData(GetHtmlFormatType());
@@ -453,8 +447,8 @@ void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
     url->clear();
 
   // Acquire the clipboard.
-  ClipboardLock lock;
-  if (!lock.Acquire(clipboard_owner_))
+  ScopedClipboard clipboard;
+  if (!clipboard.Acquire(clipboard_owner_))
     return;
 
   HANDLE data = ::GetClipboardData(GetUrlWFormatType());
@@ -492,8 +486,8 @@ void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
 
   files->clear();
 
-  ClipboardLock lock;
-  if (!lock.Acquire(clipboard_owner_))
+  ScopedClipboard clipboard;
+  if (!clipboard.Acquire(clipboard_owner_))
     return;
 
   HDROP drop = static_cast<HDROP>(::GetClipboardData(CF_HDROP));
