@@ -67,6 +67,7 @@ class TextField::Edit
     MSG_WM_CONTEXTMENU(OnContextMenu)
     MSG_WM_COPY(OnCopy)
     MSG_WM_CUT(OnCut)
+    MESSAGE_HANDLER_EX(WM_IME_STARTCOMPOSITION, OnImeStartComposition)
     MESSAGE_HANDLER_EX(WM_IME_COMPOSITION, OnImeComposition)
     MSG_WM_KEYDOWN(OnKeyDown)
     MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
@@ -112,6 +113,7 @@ class TextField::Edit
   void OnContextMenu(HWND window, const CPoint& point);
   void OnCopy();
   void OnCut();
+  LRESULT OnImeStartComposition(UINT message, WPARAM wparam, LPARAM lparam);
   LRESULT OnImeComposition(UINT message, WPARAM wparam, LPARAM lparam);
   void OnKeyDown(TCHAR key, UINT repeat_count, UINT flags);
   void OnLButtonDblClk(UINT keys, const CPoint& point);
@@ -187,6 +189,13 @@ class TextField::Edit
   // This interface is useful for accessing the CRichEditCtrl at a low level.
   mutable CComQIPtr<ITextDocument> text_object_model_;
 
+  // The position and the length of the ongoing composition string.
+  // These values are used for removing a composition string from a search
+  // text to emulate Firefox.
+  bool ime_discard_composition_;
+  int ime_composition_start_;
+  int ime_composition_length_;
+
   DISALLOW_EVIL_CONSTRUCTORS(Edit);
 };
 
@@ -230,7 +239,10 @@ TextField::Edit::Edit(TextField* parent, bool draw_border)
       double_click_time_(0),
       can_discard_mousemove_(false),
       contains_mouse_(false),
-      draw_border_(draw_border) {
+      draw_border_(draw_border),
+      ime_discard_composition_(false),
+      ime_composition_start_(0),
+      ime_composition_length_(0) {
   if (!did_load_library_)
     did_load_library_ = !!LoadLibrary(L"riched20.dll");
 
@@ -388,11 +400,53 @@ void TextField::Edit::OnCut() {
   ReplaceSel(L"", true);
 }
 
+LRESULT TextField::Edit::OnImeStartComposition(UINT message,
+                                               WPARAM wparam,
+                                               LPARAM lparam) {
+  // Users may press alt+shift or control+shift keys to change their keyboard
+  // layouts. So, we retrieve the input locale identifier everytime we start
+  // an IME composition.
+  int language_id = PRIMARYLANGID(GetKeyboardLayout(0));
+  ime_discard_composition_ =
+      language_id == LANG_JAPANESE || language_id == LANG_CHINESE;
+  ime_composition_start_ = 0;
+  ime_composition_length_ = 0;
+
+  return DefWindowProc(message, wparam, lparam);
+}
+
 LRESULT TextField::Edit::OnImeComposition(UINT message,
                                           WPARAM wparam,
                                           LPARAM lparam) {
-  OnBeforePossibleChange();
+  text_before_change_.clear();
   LRESULT result = DefWindowProc(message, wparam, lparam);
+
+  ime_composition_start_ = 0;
+  ime_composition_length_ = 0;
+  if (ime_discard_composition_) {
+    // Call IMM32 functions to retrieve the position and the length of the
+    // ongoing composition string and notify the OnAfterPossibleChange()
+    // function that it should discard the composition string from a search
+    // string. We should not call IMM32 functions in the function because it
+    // is called when an IME is not composing a string.
+    HIMC imm_context = ImmGetContext(m_hWnd);
+    if (imm_context) {
+      CHARRANGE selection;
+      GetSel(selection);
+      const int cursor_position =
+          ImmGetCompositionString(imm_context, GCS_CURSORPOS, NULL, 0);
+      if (cursor_position >= 0)
+        ime_composition_start_ = selection.cpMin - cursor_position;
+
+      const int composition_size =
+          ImmGetCompositionString(imm_context, GCS_COMPSTR, NULL, 0);
+      if (composition_size >= 0)
+        ime_composition_length_ = composition_size / sizeof(wchar_t);
+
+      ImmReleaseContext(m_hWnd, imm_context);
+    }
+  }
+
   OnAfterPossibleChange();
   return result;
 }
@@ -462,6 +516,12 @@ void TextField::Edit::OnKeyDown(TCHAR key, UINT repeat_count, UINT flags) {
       return;
 
     case 0xbb:  // Ctrl-'='.  Triggers subscripting, even in plain text mode.
+      return;
+
+    case VK_PROCESSKEY:
+      // This key event is consumed by an IME.
+      // We ignore this event because an IME sends WM_IME_COMPOSITION messages
+      // when it updates the CRichEditCtrl text.
       return;
   }
 
@@ -715,8 +775,19 @@ void TextField::Edit::OnAfterPossibleChange() {
     SetSel(new_sel);
   }
 
-  const std::wstring new_text(GetText());
+  std::wstring new_text(GetText());
   if (new_text != text_before_change_) {
+    if (ime_discard_composition_ && ime_composition_start_ >= 0 &&
+        ime_composition_length_ > 0) {
+      // A string retrieved with a GetText() call contains a string being
+      // composed by an IME. We remove the composition string from this search
+      // string.
+      new_text.erase(ime_composition_start_, ime_composition_length_);
+      ime_composition_start_ = 0;
+      ime_composition_length_ = 0;
+      if (new_text.empty())
+        return;
+    }
     parent_->SyncText();
     if (parent_->GetController())
       parent_->GetController()->ContentsChanged(parent_, new_text);
