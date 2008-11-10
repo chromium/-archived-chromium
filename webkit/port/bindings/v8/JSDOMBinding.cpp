@@ -28,81 +28,26 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
-#include "ExceptionContext.h"
+#include "JSDOMBinding.h"
 
+#include <runtime/ExecState.h>
+#include "Document.h"
 #include "Node.h"
 
 namespace WebCore {
 
-// Unlike JSC, which stores exceptions in ExecState that is accessible from
-// ScriptController that is retrievable from Node*, V8 uses static chain of
-// handlers (encapsulated as v8::TryCatch and here as ExceptionCatcher)
-// to track exceptions, so it has no need for Node*.
-ExceptionContext::ExceptionContext(Node* node)
+void updateDOMNodeDocument(Node* node, Document* oldDocument,
+                           Document* newDocument)
 {
+    // We don't do anything here in V8 bindings
 }
 
-ExceptionContext::ExceptionContext()
-    : m_exception()
-    , m_exceptionCatcher(0)
+JSC::ExecState* execStateFromNode(Node* node)
 {
+    // This should be never reached with V8 bindings (WebKit only uses it
+    // for non-JS bindings)
+    ASSERT_NOT_REACHED();
+    return 0;
 }
 
-void ExceptionContext::setExceptionCatcher(ExceptionCatcher* exceptionCatcher)
-{
-    if (m_exceptionCatcher && exceptionCatcher)
-        m_exceptionCatcher->detachContext();
-
-    m_exceptionCatcher = exceptionCatcher;
-}
-
-bool ExceptionContext::hadException()
-{
-    if (m_exceptionCatcher)
-        m_exceptionCatcher->updateContext();
-
-    return !m_exception.IsEmpty();
-}
-
-JSException ExceptionContext::exception() const
-{
-    return m_exception;
-}
-
-JSException ExceptionContext::noException()
-{
-    return v8::Local<v8::Value>();
-}
-
-ExceptionCatcher::ExceptionCatcher(ExceptionContext* exceptionContext)
-    : m_context(exceptionContext)
-    , m_catcher()
-{
-    exceptionContext->setExceptionCatcher(this);
-}
-
-void ExceptionCatcher::detachContext()
-{
-    m_context = 0;
-}
-
-void ExceptionCatcher::updateContext()
-{
-    ASSERT(m_context);
-
-    if (m_catcher.HasCaught())
-        m_context->setException(m_catcher.Exception());
-    else
-        m_context->setException(ExceptionContext::noException());
-}
-
-ExceptionCatcher::~ExceptionCatcher()
-{
-    if (!m_context)
-        return;
-
-    updateContext();
-    m_context->setExceptionCatcher(0);
-}
-
-}  // namespace WebCore
+} // namespace WebCore

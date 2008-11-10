@@ -2432,12 +2432,32 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="runtime"
+			>
+		<File
+			RelativePath="..\..\port\bindings\v8\runtime\ExecState.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\runtime\JSLock.h"
+			>
+		</File>
+		</Filter>
 		<File
 			RelativePath="..\..\port\bindings\v8\dom_wrapper_map.h"
 			>
 		</File>
 		<File
 			RelativePath="..\..\port\page\inspector\InspectorController.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\JSDOMBinding.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\JSDOMBinding.cpp"
 			>
 		</File>
 		<File
@@ -2490,14 +2510,6 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\ScriptController.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\pending\ExceptionContext.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bridge\ExceptionContextV8.cpp"
 			>
 		</File>
 		<File

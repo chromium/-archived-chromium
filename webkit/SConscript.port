@@ -203,7 +203,6 @@ if env.get('KJS'):
 else:
   input_files.extend([
     '$PORT_DIR/bindings/v8/ScriptController.cpp',
-    '$PORT_DIR/bridge/ExceptionContextV8.cpp',
   ])
 
 env.ChromeStaticLibrary("port", input_files)

@@ -27,60 +27,24 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "config.h"
+#ifndef ExecState_h
+#define ExecState_h
 
-#include "v8_nodefilter.h"
-#include "v8_proxy.h"
-#include "NodeFilter.h"
-#include "Node.h"
-#include <runtime/ExecState.h>
+#include <v8.h>
 
-namespace WebCore {
+namespace JSC {
+    class ExecState {
+    public:
+        bool hadException() { return !m_exception.IsEmpty(); }
+        void setException(v8::Local<v8::Value> exception)
+        {
+            m_exception = exception;
+        }
+        v8::Local<v8::Value> exception() { return m_exception; }
 
-V8NodeFilterCondition::V8NodeFilterCondition(v8::Handle<v8::Value> filter) {
-  m_filter = v8::Persistent<v8::Value>::New(filter);
-#ifndef NDEBUG
-  V8Proxy::RegisterGlobalHandle(NODE_FILTER, this, m_filter);
-#endif
+    private:
+        v8::Local<v8::Value> m_exception;
+    };
 }
 
-V8NodeFilterCondition::~V8NodeFilterCondition() {
-#ifndef NDEBUG
-  V8Proxy::UnregisterGlobalHandle(this, m_filter);
-#endif
-  m_filter.Dispose();
-  m_filter.Clear();
-}
-
-short V8NodeFilterCondition::acceptNode(JSC::ExecState* exec,
-                                        Node* node) const {
-  ASSERT(v8::Context::InContext());
-
-  if (!m_filter->IsFunction()) return NodeFilter::FILTER_ACCEPT;
-
-  v8::TryCatch exception_catcher;
-
-  v8::Handle<v8::Object> this_obj = v8::Context::GetCurrent()->Global();
-  v8::Handle<v8::Function> callback =
-      v8::Handle<v8::Function>::Cast(m_filter);
-  v8::Handle<v8::Value>* args = new v8::Handle<v8::Value>[1];
-  args[0] = V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
-
-  V8Proxy* proxy = V8Proxy::retrieve();
-  ASSERT(proxy);
-
-  v8::Handle<v8::Value> result =
-      proxy->CallFunction(callback, this_obj, 1, args);
-  delete[] args;
-
-  if (exception_catcher.HasCaught()) {
-    exec->setException(exception_catcher.Exception());
-    return NodeFilter::FILTER_REJECT;
-  }
-
-  ASSERT(!result.IsEmpty());
-
-  return result->Int32Value();
-}
-
-}  // namespace WebCore
+#endif // ExecState_h
