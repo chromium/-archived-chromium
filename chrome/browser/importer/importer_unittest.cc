@@ -601,21 +601,22 @@ TEST_F(ImporterTest, Firefox2Importer) {
   std::wstring data_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox2_profile\\*");
-  if (!file_util::PathExists(data_path)) {
-    LOG(ERROR) << L"Missing internal test data";
-    return;
-  }
-  file_util::CopyDirectory(data_path, profile_path_, true);
+  ASSERT_TRUE(file_util::CopyDirectory(data_path, profile_path_, true));
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox2_nss");
-  file_util::CopyDirectory(data_path, profile_path_, false);
+  ASSERT_TRUE(file_util::CopyDirectory(data_path, profile_path_, false));
 
   std::wstring search_engine_path = app_path_;
   file_util::AppendToPath(&search_engine_path, L"searchplugins");
   CreateDirectory(search_engine_path.c_str(), NULL);
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox2_searchplugins");
-  file_util::CopyDirectory(data_path, search_engine_path, false);
+  if (!file_util::PathExists(data_path)) {
+    // TODO(maruel):  Create test data that we can open source!
+    LOG(ERROR) << L"Missing internal test data";
+    return;
+  }
+  ASSERT_TRUE(file_util::CopyDirectory(data_path, search_engine_path, false));
 
   MessageLoop* loop = MessageLoop::current();
   scoped_refptr<ImporterHost> host = new ImporterHost(loop);
@@ -802,21 +803,22 @@ TEST_F(ImporterTest, Firefox3Importer) {
   std::wstring data_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox3_profile\\*");
-  if (!file_util::PathExists(data_path)) {
-    LOG(ERROR) << L"Missing internal test data";
-    return;
-  }
-  file_util::CopyDirectory(data_path, profile_path_, true);
+  ASSERT_TRUE(file_util::CopyDirectory(data_path, profile_path_, true));
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox3_nss");
-  file_util::CopyDirectory(data_path, profile_path_, false);
+  ASSERT_TRUE(file_util::CopyDirectory(data_path, profile_path_, false));
 
   std::wstring search_engine_path = app_path_;
   file_util::AppendToPath(&search_engine_path, L"searchplugins");
   CreateDirectory(search_engine_path.c_str(), NULL);
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox3_searchplugins");
-  file_util::CopyDirectory(data_path, search_engine_path, false);
+  if (!file_util::PathExists(data_path)) {
+    // TODO(maruel):  Create test data that we can open source!
+    LOG(ERROR) << L"Missing internal test data";
+    return;
+  }
+  ASSERT_TRUE(file_util::CopyDirectory(data_path, search_engine_path, false));
 
   MessageLoop* loop = MessageLoop::current();
   ProfileInfo profile_info;
