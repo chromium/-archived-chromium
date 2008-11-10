@@ -22,10 +22,6 @@ V8 # LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
 // (rdar://5313536)
 V8 # LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL | TIMEOUT
 
-// Times out when using new http stack because of unsupported username:pass
-// in URL. http://code.google.com/p/chromium/issues/detail?id=3436
-V8 # SKIP : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT | PASS
-
 // -----------------------------------------------------------------
 // FLAKY TESTS
 // -----------------------------------------------------------------
