@@ -69,14 +69,14 @@ TEST(FilterTest, ApacheGzip) {
   encoding_types.clear();
   encoding_types.push_back(Filter::FILTER_TYPE_SDCH);
   Filter::FixupEncodingTypes(is_sdch_response, kGzipMime1, &encoding_types);
-  EXPECT_EQ(1, encoding_types.size());
+  EXPECT_EQ(1U, encoding_types.size());
   EXPECT_EQ(Filter::FILTER_TYPE_SDCH, encoding_types.front());
 
   // Check to be sure that gzip can survive with other mime types.
   encoding_types.clear();
   encoding_types.push_back(Filter::FILTER_TYPE_GZIP);
   Filter::FixupEncodingTypes(is_sdch_response, "other/mime", &encoding_types);
-  EXPECT_EQ(1, encoding_types.size());
+  EXPECT_EQ(1U, encoding_types.size());
   EXPECT_EQ(Filter::FILTER_TYPE_GZIP, encoding_types.front());
 }
 
@@ -91,7 +91,7 @@ TEST(FilterTest, SdchEncoding) {
   encoding_types.push_back(Filter::FILTER_TYPE_SDCH);
   encoding_types.push_back(Filter::FILTER_TYPE_GZIP);
   Filter::FixupEncodingTypes(is_sdch_response, kTextHtmlMime, &encoding_types);
-  EXPECT_EQ(2, encoding_types.size());
+  EXPECT_EQ(2U, encoding_types.size());
   EXPECT_EQ(Filter::FILTER_TYPE_SDCH, encoding_types[0]);
   EXPECT_EQ(Filter::FILTER_TYPE_GZIP, encoding_types[1]);
 
@@ -100,7 +100,7 @@ TEST(FilterTest, SdchEncoding) {
   encoding_types.push_back(Filter::FILTER_TYPE_SDCH);
   encoding_types.push_back(Filter::FILTER_TYPE_GZIP);
   Filter::FixupEncodingTypes(is_sdch_response, "other/type", &encoding_types);
-  EXPECT_EQ(2, encoding_types.size());
+  EXPECT_EQ(2U, encoding_types.size());
   EXPECT_EQ(Filter::FILTER_TYPE_SDCH, encoding_types[0]);
   EXPECT_EQ(Filter::FILTER_TYPE_GZIP, encoding_types[1]);
 
@@ -108,7 +108,7 @@ TEST(FilterTest, SdchEncoding) {
   encoding_types.clear();
   encoding_types.push_back(Filter::FILTER_TYPE_SDCH);
   Filter::FixupEncodingTypes(is_sdch_response, "other/type", &encoding_types);
-  EXPECT_EQ(2, encoding_types.size());
+  EXPECT_EQ(2U, encoding_types.size());
   EXPECT_EQ(Filter::FILTER_TYPE_SDCH, encoding_types[0]);
   EXPECT_EQ(Filter::FILTER_TYPE_GZIP_HELPING_SDCH, encoding_types[1]);
 }
@@ -122,7 +122,7 @@ TEST(FilterTest, MissingSdchEncoding) {
   // Loss of encoding, but it was an SDCH response with html type.
   encoding_types.clear();
   Filter::FixupEncodingTypes(is_sdch_response, kTextHtmlMime, &encoding_types);
-  EXPECT_EQ(2, encoding_types.size());
+  EXPECT_EQ(2U, encoding_types.size());
   EXPECT_EQ(Filter::FILTER_TYPE_SDCH, encoding_types[0]);
   EXPECT_EQ(Filter::FILTER_TYPE_GZIP_HELPING_SDCH, encoding_types[1]);
 

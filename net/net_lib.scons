@@ -55,12 +55,9 @@ input_files = [
     'base/sdch_filter.cc',
     'base/sdch_manager.cc',
     'base/ssl_config_service.cc',
-    'base/tcp_client_socket.cc',
     'base/telnet_server.cc',
     'base/upload_data.cc',
     'base/upload_data_stream.cc',
-    'base/wininet_util.cc',
-    'base/winsock_init.cc',
     'base/x509_certificate.cc',
     'disk_cache/backend_impl.cc',
     'disk_cache/block_files.cc',
@@ -100,7 +97,6 @@ input_files = [
     'url_request/url_request_filter.cc',
     'url_request/url_request_ftp_job.cc',
     'url_request/url_request_http_job.cc',
-    'url_request/url_request_inet_job.cc',
     'url_request/url_request_job.cc',
     'url_request/url_request_job_manager.cc',
     'url_request/url_request_job_metrics.cc',
@@ -117,15 +113,11 @@ if env['PLATFORM'] in ('posix', 'darwin'):
       'base/directory_lister.cc',
       'base/listen_socket.cc',
       'base/ssl_config_service.cc',
-      'base/tcp_client_socket.cc',
       'base/telnet_server.cc',
-      'base/wininet_util.cc',
-      'base/winsock_init.cc',
       'http/http_transaction_winhttp.cc',
       'http/winhttp_request_throttle.cc',
       'url_request/url_request_file_dir_job.cc',
       'url_request/url_request_ftp_job.cc',
-      'url_request/url_request_inet_job.cc',
   ]
   for remove in to_be_ported_files:
       input_files.remove(remove)
@@ -136,11 +128,15 @@ if env['PLATFORM'] == 'win32':
       'base/net_util_win.cc',
       'base/platform_mime_util_win.cc',
       'base/ssl_client_socket_win.cc',
+      'base/tcp_client_socket_win.cc',
+      'base/wininet_util.cc',
+      'base/winsock_init.cc',
       'base/x509_certificate_win.cc',
       'disk_cache/cache_util_win.cc',
       'disk_cache/file_win.cc',
       'disk_cache/mapped_file_win.cc',
       'proxy/proxy_resolver_winhttp.cc',
+      'url_request/url_request_inet_job.cc',
   ])
 
 if env['PLATFORM'] == 'darwin':

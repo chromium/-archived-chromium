@@ -461,11 +461,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\base\tcp_client_socket.cc"
+				RelativePath="..\base\tcp_client_socket.h"
 				>
 			</File>
 			<File
-				RelativePath="..\base\tcp_client_socket.h"
+				RelativePath="..\base\tcp_client_socket_win.cc"
 				>
 			</File>
 			<File
