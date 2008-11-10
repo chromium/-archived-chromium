@@ -129,8 +129,9 @@ std::wstring DumpFramesAsText(WebFrame* web_frame, bool recursive) {
   WebFrameImpl* webFrameImpl = static_cast<WebFrameImpl*>(web_frame);
   std::wstring result;
 
-  // Add header for all but the main frame.
-  if (webFrameImpl->GetParent()) {
+  // Add header for all but the main frame. Skip empty frames.
+  if (webFrameImpl->GetParent() &&
+      webFrameImpl->frame()->document()->documentElement()) {
     result.append(L"\n--------\nFrame: '");
     result.append(webFrameImpl->GetName());
     result.append(L"'\n--------\n");
