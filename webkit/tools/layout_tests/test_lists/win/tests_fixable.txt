@@ -1,56 +1,26 @@
 // These tests are expected to fail until we get around to fixing
 // them.
 
-
-// -----------------------------------------------------------------
-// DEBUG ONLY FAILURES!
-// Include both results for Debug and Release builds (i.e. PASS | FAIL)
-// -----------------------------------------------------------------
-
 // Bug 1124548: Copying with no selection is sometimes supposed to work
-// This test also crashes in debug due to an ASSERT. (see bug 1058654)
 // Also skipped by Apple on Windows (rdar://problem/5015941)
-V8 # LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
-
-// -----------------------------------------------------------------
-// HANGING TESTS
-// -----------------------------------------------------------------
+V8 # LayoutTests/editing/execCommand/copy-without-selection.html = FAIL
 
 // onload race condition due to poorly designed test.
 // Works fine when run stand-alone.  Not needed for Beta.
 // Also skipped by Apple on Windows, due to intermittent failure 
 // (rdar://5313536)
-V8 # LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL | TIMEOUT
+V8 # LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL
 
-// -----------------------------------------------------------------
-// FLAKY TESTS
-// -----------------------------------------------------------------
-
-// This test uses a -webkit-transition-duration and a set timeout, probably
-// just a small race in our timers.  Fails once in a while, only on v8.
-V8 # LayoutTests/fast/css/transition-color-unspecified.html = PASS | FAIL
-
-// Flaky tests, see bug 877986.
+// Bug 877986.
 // WebKit's CSS counters are somewhat broken, thus expected results are failures
 // Our high-precision timers make these tests flakey.
 // We could fork these tests, but we'll just unfork them as soon as
 // our high-precision timers are public.
-V8 # LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL | PASS
-
-// Bug 1143337
-// These tests are here because they fail on the buildbot, but not locally.
-// Seems to be due to one or more timing issues in the tests.
-// These only timeout on the v8-Debug buildbot it seems. (eseidel, 4/28)
-// I'm not seeing this fail locally in v8-Debug or v8-Release (eseidel, 4/25)
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-subframe-location-change.html = PASS | FAIL
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS | TIMEOUT
-
-// Bug 1332293: Sometimes times out for unknown reasons.
-V8 # LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS | TIMEOUT
+V8 # LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL
+V8 # LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL
+V8 # LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL
+V8 # LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL
+V8 # LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL
 
 // This are failing for different reasons under our new lighttpd configuration
 // TODO(deanm): Address all of these via lighttpd if possible, otherwise fork.
@@ -70,10 +40,6 @@ V8 # LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL
 V8 # LayoutTests/http/tests/xmlhttprequest/upload-onprogress-event.html = FAIL
 V8 # LayoutTests/http/tests/xmlhttprequest/upload-progress-events.html = FAIL
 
-// Bug 1341582
-V8 # LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
-V8 # LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
- 
 // -----------------------------------------------------------------
 // TEXT
 // -----------------------------------------------------------------
@@ -158,38 +124,29 @@ V8 # LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
 
 // Bug 972450: These tests don't work with fast timers due to setTimeout
 // races. Pending versions have these fixed.
-V8 # LayoutTests/fast/history/history_reload.html = PASS | FAIL
-V8 # LayoutTests/fast/repaint/bugzilla-6473.html = PASS | FAIL
+V8 # LayoutTests/fast/repaint/bugzilla-6473.html = FAIL
 
 // Bug 982608: test had a wrong result for one condition
-V8 # LayoutTests/plugins/destroy-stream-twice.html = FAIL | TIMEOUT | CRASH
+V8 # LayoutTests/plugins/destroy-stream-twice.html = FAIL
 
 // This test has been modified and placed in pending, so we ignore the original
 // until we get our modification into WebKit.
-V8 # LayoutTests/security/block-test.html = PASS | FAIL | TIMEOUT
+V8 # LayoutTests/security/block-test.html = TIMEOUT
 
 // Bug 1124522
 // Test forked into pending and fixed.
 V8 # LayoutTests/fast/js/function-toString-parentheses.html = FAIL
 
-// Bug 1132721.  Forked to pending/fast/encoding/script-in-head.html
-// Should get this change pushed upstream and then unfork.
-// Stopped failing
-// V8 # LayoutTests/fast/encoding/script-in-head.html = PASS | FAIL | TIMEOUT
-
 // Bug 1143337.  Forked to pending/http/tests/security/.
-V8 # LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-port-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-port.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-protocol.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/protocol-compare-case-insensitive.html = PASS | FAIL | TIMEOUT
+V8 # LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
+V8 # LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
+V8 # LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+V8 # LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
 // Bug 1199617.  Forked to pending/svg/carto.net/window.svg.
 // Test did not wait for all created functions to be called via
 // setTimeout.
-V8 # LayoutTests/svg/carto.net/window.svg = PASS | FAIL 
+V8 # LayoutTests/svg/carto.net/window.svg = FAIL 
 
 // Bug 1064038.  Image with border="1" drawn without the border.
 V8 # pending/fast/forms/image-border.html = FAIL
@@ -256,11 +213,7 @@ V8 # LayoutTests/fast/history/subframe-is-visited.html = FAIL
 // Bug 1027226
 // Bug 945322: test shell should dump text when
 // layoutTestController.notifyDone() is called
-// Not critical for beta.
-V8 # LayoutTests/editing/selection/drag-in-iframe.html = FAIL | TIMEOUT
-
-// BUG 938563: occasionally times out (performs about 50 HTTP CGI requests)
-V8 # LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS | TIMEOUT
+V8 # LayoutTests/editing/selection/drag-in-iframe.html = FAIL
 
 // Bug 849056
 // We don't support NPN_Enumerate, but don't know of any plugin
@@ -277,8 +230,7 @@ V8 # LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL
 // setwindow isn't being called.
 V8 # LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 
-// It is flaky on V8 build.
-V8 # LayoutTests/http/tests/security/cross-frame-access-put.html = PASS | FAIL
+V8 # LayoutTests/http/tests/security/cross-frame-access-put.html = FAIL
 
 // Bug 982602
 // We don't support support window.resizeTo (nor is it planned for Beta)
@@ -316,8 +268,8 @@ V8 # LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 // Bug 871718: These tests load data: URLs into frames and sets queries on then.
 // This is totally broken. This layout test should be rewitten so that the
 // subframes are not data URLs (probably we want files in the resources dir.).
-V8 # LayoutTests/fast/encoding/char-encoding.html = FAIL | TIMEOUT
-V8 # LayoutTests/fast/encoding/char-decoding.html = FAIL | TIMEOUT
+V8 # LayoutTests/fast/encoding/char-encoding.html = FAIL
+V8 # LayoutTests/fast/encoding/char-decoding.html = FAIL
 
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
@@ -356,13 +308,6 @@ V8 # LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 
 // Bug 941049: Function arguments object is copied for each access.
 V8 # LayoutTests/fast/js/kde/function_arguments.html = FAIL
-
-// Bug 1155674: Test sometimes fails on V8 in debug mode, because it's very 
-// timing dependent. We should consider rewriting the test case to give us
-// more wriggle room timing wise (especially for debug builds). Fixing the
-// issue now is not going to improve product quality for beta.
-V8 # LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
-
 
 // The following tests (up to the ---- line below) need to add new methods to
 // layoutTestController in test_shell since WebKit add those methods to its
@@ -427,10 +372,10 @@ V8 # LayoutTests/http/tests/security/local-user-CSS-from-remote.html = FAIL
 
 // Extra space at end of test results.  Since this is a crash test, a
 // FAIL here is just as good as running the test normally
-// Not sure why it passes (frequently on V8, rarely on KJS). See bug 1126050.
+// Bug 1126050.
 // FAIL results from an extra newline at the top of the results
 // the checked in results do not include the PASS text.
-V8 # LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = PASS | FAIL
+V8 # LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = FAIL
 
 // -----------------------------------------------------------------
 // SVG TESTS
@@ -556,12 +501,12 @@ V8 # LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL
 
 // Bug 1107191.  These flakily fail image diffs.  Punting on SVG for now.
 // Note that the "expected" images checked in are not necessarily correct.
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = PASS | FAIL
-V8 # LayoutTests/svg/batik/text/textDecoration2.svg = PASS | FAIL
-V8 # LayoutTests/svg/batik/text/textFeatures.svg = PASS | FAIL
-V8 # LayoutTests/svg/batik/text/textProperties.svg = PASS | FAIL
-V8 # LayoutTests/svg/batik/text/textStyles.svg = PASS | FAIL
-V8 # LayoutTests/svg/text/text-text-03-b.svg = PASS | FAIL
+V8 # LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = FAIL
+V8 # LayoutTests/svg/batik/text/textDecoration2.svg = FAIL
+V8 # LayoutTests/svg/batik/text/textFeatures.svg = FAIL
+V8 # LayoutTests/svg/batik/text/textProperties.svg = FAIL
+V8 # LayoutTests/svg/batik/text/textStyles.svg = FAIL
+V8 # LayoutTests/svg/text/text-text-03-b.svg = FAIL
 // These consistently fail with image diffs.
 V8 # LayoutTests/svg/text/text-deco-01-b.svg = FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
@@ -586,9 +531,9 @@ V8 # LayoutTests/fast/js/garbage-collect-after-string-appends.html = FAIL
 // Bug: 1115062
 // These fail the pixel tests in debug mode because they have
 // unpainted space (filled red in Debug but not in Release).
-// These have been filed upstream, and should be deferred from Beta
 // https://bugs.webkit.org/show_bug.cgi?id=8423
-V8 # LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = PASS | FAIL
+V8 # LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = FAIL
+// Passes release. Fails debug.
 V8 # LayoutTests/fast/flexbox/flex-hang.html = PASS | FAIL
 
 // Bug: 1166260
@@ -596,28 +541,15 @@ V8 # LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
 
 // Bug: 1166644
 // Fails on webkit windows as well. 
-V8 # LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL | TIMEOUT
+V8 # LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // Bug 1226853: Fails on v8-latest after const changes (r123300). Test
 // has been rebaselined (don't declare const x twice).
 V8 # LayoutTests/fast/js/const.html = FAIL
 
-// Bug 1237779
-// gc-2.html tests that a DOM tree out of document should be kept alive if
-// one of nodes is reachable from JS side. V8 binding fails because it does
-// not trace DOM objects not in a document.
-// Also the way to trigger GC is not reliable, that's why sometimes it is
-// passing and sometimes not.
-V8 # LayoutTests/fast/dom/gc-2.html = FAIL | PASS
-
 // Bug: 1344760
-V8 # LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL | PASS
-V8 # LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL | PASS
+V8 # LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
 V8 # LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL | PASS
-
-// These two appear to be flaky in debug mode only. Not sure when they started failing.
-V8 # LayoutTests/http/tests/navigation/post-goback2.html = FAIL | PASS
-V8 # LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL | PASS
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
@@ -625,29 +557,29 @@ V8 # chrome/fast/dom/java-applet-calls.html = FAIL
 
 // These tests don't work on the open source buildbot because no font covers
 // U+2798 (Heavy SE Arrow) and U+2799 (Heavy Rightwards Arrow). See bug #2304.
-V8 # LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL
+V8 # LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL
 
 // These tests don't work on the open source buildbot because there's no font
 // covering YinYang sign. See bug # 2304.
-V8 # LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL | PASS
+V8 # LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL
+V8 # LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL
+V8 # LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
 // No glyph for U+FFFD (Replacement Character : black diamond with question mark) in them
-V8 # LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL | PASS
+V8 # LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL
 // Zero width chars
-V8 # LayoutTests/fast/text/zero-width-characters.html = FAIL | PASS
+V8 # LayoutTests/fast/text/zero-width-characters.html = FAIL
 
 // HTTPS tests fail on the open source buildbot with error "cross-site not access allowed".
 // See bug # 2306
-V8 # LayoutTests/http/tests/ssl/verify-ssl-enabled.php = PASS | FAIL
-V8 # pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | TIMEOUT
-V8 # pending/http/tests/security/cross-frame-access-protocol.html = PASS | TIMEOUT
+V8 # LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
+V8 # pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = TIMEOUT
+V8 # pending/http/tests/security/cross-frame-access-protocol.html = TIMEOUT
 
 // Some tests playing with dates don't work on the open source buildbot.
 // See bug # 2307
-V8 # LayoutTests/fast/js/date-DST-time-cusps.html = FAIL | PASS
-V8 # LayoutTests/fast/js/date-big-setdate.html = FAIL | PASS
+V8 # LayoutTests/fast/js/date-DST-time-cusps.html = FAIL
+V8 # LayoutTests/fast/js/date-big-setdate.html = FAIL
 
 // V8 doesn't stable sort. This is not required and may never be fixed. It is
 // tracked by: http://code.google.com/p/v8/issues/detail?id=90
@@ -748,10 +680,6 @@ V8 # LayoutTests/fast/backgrounds/mask-composite.html = FAIL
 V8 # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
 V8 # LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
 V8 # LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
-
-// This was fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.	
-// For chromium, it got flaky once we pulled 36103 in.
-V8 # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL | PASS
   
 // This test finishes while in the middle of a CSS animation. This is
 // intentional, but it makes pixel results unreliable.
@@ -801,8 +729,8 @@ V8 # LayoutTests/fast/transforms/shadows.html = FAIL
 V8 # LayoutTests/http/tests/misc/acid3.html = FAIL
 V8 # DEFER : LayoutTests/http/tests/misc/frame-default-enc-same-domain.html = FAIL
 V8 # LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
-V8 # LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/xss-eval.html = FAIL | TIMEOUT
+V8 # LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
+V8 # LayoutTests/http/tests/security/xss-eval.html = FAIL
 V8 # LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
 V8 # LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
 V8 # LayoutTests/media/progress-event-total.html = FAIL
@@ -810,12 +738,12 @@ V8 # LayoutTests/media/video-click-dlbclick-standalone.html = FAIL
 V8 # LayoutTests/media/video-layer-crash.html = FAIL
 V8 # LayoutTests/media/video-source-type-params.html = FAIL
 V8 # LayoutTests/printing = FAIL
-V8 # LayoutTests/security/autocomplete-cleared-on-back.html = FAIL | TIMEOUT
+V8 # LayoutTests/security/autocomplete-cleared-on-back.html = TIMEOUT
 V8 # LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
 // Post-MERGE failures: these will all need to be fixed one day
 V8 # LayoutTests/editing/selection/caret-rtl-2.html = FAIL
-V8 # LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL | PASS
+V8 # LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL
 V8 # LayoutTests/fast/block/float/float-avoidance.html = FAIL
 V8 # LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
 V8 # LayoutTests/fast/canvas/drawImage.html = FAIL
@@ -830,17 +758,14 @@ V8 # LayoutTests/fast/forms/form-hides-table.html = FAIL
 V8 # LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 V8 # LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 V8 # LayoutTests/fast/table/text-field-baseline.html = FAIL
-V8 # LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS | TIMEOUT
-V8 # LayoutTests/http/tests/navigation/back-to-slow-frame.html = FAIL
+V8 # LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS
 V8 # LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
-V8 # LayoutTests/http/tests/navigation/post-basic.html = FAIL | PASS
 V8 # LayoutTests/http/tests/navigation/post-frames.html = FAIL | PASS
-V8 # LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL | TIMEOUT
+V8 # LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL | CRASH | PASS
+V8 # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL | CRASH
 V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
 V8 # LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
@@ -962,9 +887,6 @@ V8 # LayoutTests/http/tests/security/postMessage/javascript-page-still-sends-ori
 
 // Started crashing in DEBUG only with r2842 (mbelshe)
 V8 # LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH | PASS
-
-// Started failing in DEBUG only with one of the following revisions (all darin): 3587, 3588, 3589
-V8 # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
 V8 # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS | CRASH
@@ -1272,21 +1194,18 @@ V8 # LayoutTests/transforms/transform-value-types.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
 V8 # LayoutTests/svg/carto.net/combobox.svg = FAIL
-V8 # LayoutTests/fast/events/tabindex-focus-blur-all.html = CRASH
-V8 # LayoutTests/fast/events/message-channel-gc-2.html = TIMEOUT
-V8 # LayoutTests/http/tests/security/frameNavigation/xss-DENIED-targeted-link-navigation.html = CRASH
-V8 # LayoutTests/plugins/open-and-close-window-with-plugin.html = CRASH
-V8 # LayoutTests/plugins/plugin-remove-subframe.html = CRASH
-V8 # LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = CRASH
-V8 # pending/fast/events/tabindex-focus-blur-all.html = CRASH
-V8 # LayoutTests/fast/loader/onunload-form-submit-crash-2.html = FAIL
 V8 # LayoutTests/fast/dom/Window/get-set-properties.html = PASS | FAIL
 V8 # LayoutTests/fast/dom/Window/new-window-opener.html = PASS | FAIL
 V8 # LayoutTests/fast/forms/access-key.html = PASS | FAIL
 V8 # LayoutTests/http/tests/loading/gmail-assert-on-load.html = PASS | FAIL
 V8 # LayoutTests/http/tests/misc/iframe-invalid-source-crash.html = FAIL
-V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL
+V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL | PASS
 V8 # LayoutTests/svg/custom/class-baseValue.svg = FAIL
 V8 # LayoutTests/svg/custom/use-clipped-transform.svg = FAIL
 V8 # pending/security/block-test.html = FAIL
 V8 # LayoutTests/fast/events/message-port-inactive-document.html = TIMEOUT
+
+// Flaky in debug mode.
+V8 # LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH | PASS
+V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL | PASS
+V8 # LayoutTests/http/tests/navigation/redirect-cycle.html = FAIL | PASS
