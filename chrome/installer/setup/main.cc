@@ -374,6 +374,7 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
                 installer::GetChromeInstallPath(system_install);
             if (!chrome_exe.empty()) {
               file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
+              chrome_exe = L"\"" + chrome_exe + L"\"";
               InstallUtil::WriteInstallerResult(system_install, install_status,
                                                 0, &chrome_exe);
             }

@@ -95,6 +95,7 @@ void InstallUtil::WriteInstallerResult(bool system_install,
   std::wstring key = dist->GetVersionKey();
   int installer_result = (dist->GetInstallReturnCode(status) == 0) ? 0 : 1;
   scoped_ptr<WorkItemList> install_list(WorkItem::CreateWorkItemList());
+  install_list->AddCreateRegKeyWorkItem(root, key);
   install_list->AddSetRegValueWorkItem(root, key, L"InstallerResult",
                                        installer_result, true);
   install_list->AddSetRegValueWorkItem(root, key, L"InstallerError",
