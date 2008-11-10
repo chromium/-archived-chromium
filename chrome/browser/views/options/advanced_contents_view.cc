@@ -93,10 +93,6 @@ class AdvancedSection : public OptionsPageView {
   void AddWrappingColumnSet(views::GridLayout* layout, int id);
   void AddDependentTwoColumnSet(views::GridLayout* layout, int id);
   void AddTwoColumnSet(views::GridLayout* layout, int id);
-  // Similar to AddTwoColumnSet, except the first column is resizable and
-  // the second one has the text on the bottom (to add a trailing link after
-  // text, for example).
-  void AddTwoColumnSetLabelAndLink(views::GridLayout* layout, int id);
   void AddIndentedColumnSet(views::GridLayout* layout, int id);
 
   // Convenience helpers for adding controls to specific layouts in an
@@ -191,16 +187,6 @@ void AdvancedSection::AddTwoColumnSet(views::GridLayout* layout, int id) {
                         GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
-                        GridLayout::USE_PREF, 0, 0);
-}
-
-void AdvancedSection::AddTwoColumnSetLabelAndLink(views::GridLayout* layout,
-                                                  int id) {
-  ColumnSet* column_set = layout->AddColumnSet(id);
-  column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
-                        GridLayout::USE_PREF, 0, 0);
-  column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
-  column_set->AddColumn(GridLayout::FILL, GridLayout::TRAILING, 0,
                         GridLayout::USE_PREF, 0, 0);
 }
 
@@ -543,13 +529,14 @@ void PrivacySection::InitControlLayout() {
   AddIndentedColumnSet(layout, indented_view_set_id);
   const int indented_column_set_id = 3;
   AddIndentedColumnSet(layout, indented_column_set_id);
-  const int two_column_label_and_link_id = 4;
-  AddTwoColumnSetLabelAndLink(layout, two_column_label_and_link_id);
 
   // The description label at the top and label.
   section_description_label_->SetMultiLine(true);
-  AddTwoColumnRow(layout, section_description_label_, learn_more_link_, false,
-                  two_column_label_and_link_id, false);
+  AddWrappingLabelRow(layout, section_description_label_,
+                       single_column_view_set_id, true);
+  // Learn more link.
+  AddLeadingControl(layout, learn_more_link_,
+                    single_column_view_set_id, false);
 
   // Link doctor.
   AddWrappingCheckboxRow(layout, enable_link_doctor_checkbox_,
