@@ -172,22 +172,14 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
         break;
     }
 
-    // Windows sends the following messages for tilt-wheel events.
-    //  * Tilt a mousewheel (left)
-    //    message == WM_HSCROLL, wparam == SB_LINELEFT (== SB_LINEUP).
-    //  * Tilt a mousewheel (right)
-    //    message == WM_HSCROLL, wparam == SB_LINERIGHT (== SB_LINEDOWN).
-    // To convert these events to the shift + mousewheel ones, we do not only
-    // add a shift but also change the signs of their |wheel_delta| values.
-    if (WM_HSCROLL == message) {
-      key_state |= MK_SHIFT;
-      wheel_delta = -wheel_delta;
-    }
-
     // Use GetAsyncKeyState for key state since we are synthesizing 
     // the input
     get_key_state = GetAsyncKeyState;
   } else {
+    // TODO(hbono): we should add a new variable which indicates scroll
+    // direction and remove this key_state hack.
+    if (WM_MOUSEHWHEEL == message)
+      key_state |= MK_SHIFT;
 
     global_x = static_cast<short>(LOWORD(lparam));
     global_y = static_cast<short>(HIWORD(lparam));
