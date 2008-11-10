@@ -236,7 +236,6 @@ size_t MultipartResponseDelegate::FindBoundary() {
 bool MultipartResponseDelegate::ReadMultipartBoundary(
     const WebCore::ResourceResponse& response,
     std::string* multipart_boundary) {
-
   WebCore::String content_type = response.httpHeaderField("Content-Type");
   std::string content_type_as_string =
       webkit_glue::StringToStdString(content_type);
@@ -258,6 +257,10 @@ bool MultipartResponseDelegate::ReadMultipartBoundary(
 
   *multipart_boundary = 
       content_type_as_string.substr(boundary_start_offset, boundary_length);
+  // The byte range response can have quoted boundary strings. This is legal
+  // as per MIME specifications. Individual data fragements however don't
+  // contain quoted boundary strings.
+  TrimString(*multipart_boundary, "\"", multipart_boundary);
   return true;
 }
 
