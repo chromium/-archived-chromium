@@ -193,3 +193,56 @@ TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
     popup_window_count = new_popup_window_count;
   }
 }
+
+// Make sure that we refuse to close windows when a constrained popup is displayed.
+TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
+  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(browser.get());
+
+  scoped_ptr<WindowProxy> window(
+      automation()->GetWindowForBrowser(browser.get()));
+  ASSERT_TRUE(window.get());
+
+  scoped_ptr<TabProxy> tab(browser->GetTab(0));
+  ASSERT_TRUE(tab.get());
+
+  std::wstring filename(test_data_directory_);
+  file_util::AppendToPath(&filename, L"constrained_files");
+  file_util::AppendToPath(&filename, L"openclose_main.html");
+  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
+
+  gfx::Rect tab_view_bounds;
+  ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
+                                    &tab_view_bounds, true));
+
+  // Simulate a click of the actual link to force user_gesture to be
+  // true; if we don't, the resulting popup will be constrained, which
+  // isn't what we want to test.
+  POINT link_point(tab_view_bounds.CenterPoint().ToPOINT());
+  ASSERT_TRUE(window->SimulateOSClick(link_point,
+                                      views::Event::EF_LEFT_BUTTON_DOWN));
+
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 5000));
+
+  Sleep(1000);
+
+  // Make sure we have a blocked popup notification
+  scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
+  ASSERT_TRUE(popup_browser.get());
+  scoped_ptr<WindowProxy> popup_window(
+      automation()->GetWindowForBrowser(popup_browser.get()));
+  ASSERT_TRUE(popup_window.get());
+  scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
+  ASSERT_TRUE(popup_tab.get());
+  scoped_ptr<ConstrainedWindowProxy> popup_notification(
+      popup_tab->GetConstrainedWindow(0));
+  ASSERT_TRUE(popup_notification.get());
+  std::wstring title;
+  ASSERT_TRUE(popup_notification->GetTitle(&title));
+  int count = 0;
+  ASSERT_TRUE(ParseCountOutOfTitle(title, &count));
+  ASSERT_EQ(1, count);
+
+  // Ensure we didn't close the first popup window.
+  ASSERT_FALSE(automation()->WaitForWindowCountToBecome(1, 3000));
+}
