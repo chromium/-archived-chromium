@@ -26,14 +26,13 @@
 #include "config.h"
 #include "DNS.h"
 
-#include "webkit/glue/glue_util.h"
-#include "webkit/glue/webkit_glue.h"
+#include "ChromiumBridge.h"
 
 namespace WebCore {
 
 void prefetchDNS(const String& hostname)
 {
-    webkit_glue::PrefetchDns(webkit_glue::StringToStdString(hostname));
+    ChromiumBridge::prefetchDNS(hostname);
 }
 
 }

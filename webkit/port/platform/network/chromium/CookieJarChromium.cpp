@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Apple Inc.  All rights reserved.
+ * Copyright (C) 2008 Google, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,40 +24,23 @@
  */
 
 #include "config.h"
+#include "CookieJar.h"
 
-#pragma warning(push, 0)
+#include "ChromiumBridge.h"
 #include "Document.h"
-#include "KURL.h"
-#include "PlatformString.h"
-#include "CString.h"
-#include "Vector.h"
-#pragma warning(pop)
 
-#include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/glue_util.h"
-
-namespace WebCore
-{
+namespace WebCore {
 
 void setCookies(Document* document, const KURL& url, const KURL& policyURL, const String& value)
 {
     // We ignore the policyURL and compute it directly ourselves to ensure
     // consistency with the cookies() method below.
-    KURL policyBaseURL = document->policyBaseURL();
-    WebCore::CString utf8value = value.utf8();
-    webkit_glue::SetCookie(
-        webkit_glue::KURLToGURL(url),
-        webkit_glue::KURLToGURL(policyBaseURL),
-        std::string(utf8value.data(), utf8value.length()));
+    ChromiumBridge::setCookies(url, document->policyBaseURL(), value);
 }
 
 String cookies(const Document* document, const KURL& url)
 {
-    KURL policyBaseURL = document->policyBaseURL();
-    std::string result = 
-        webkit_glue::GetCookies(webkit_glue::KURLToGURL(url),
-                                webkit_glue::KURLToGURL(policyBaseURL));
-    return String(result.data(), result.size());
+    return ChromiumBridge::cookies(url, document->policyBaseURL());
 }
 
 bool cookiesEnabled(const Document*)

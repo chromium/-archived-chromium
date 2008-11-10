@@ -31,6 +31,7 @@
 #include "CString.h"
 #include "ResourceRequestBase.h"
 
+// TODO(darin): Eliminate this dependency on glue!
 #include "webkit/glue/resource_type.h"
 
 namespace WebCore {
@@ -81,46 +82,29 @@ namespace WebCore {
         {
         }
 
-        // provides context for the resource request
+        // Provides context for the resource request.
         Frame* frame() const { return m_frame; }
         void setFrame(Frame* frame) { m_frame = frame; }
 
         // What this request is for.
-        void setResourceType(ResourceType::Type type) {
-          m_resourceType = type;
-        }
-        ResourceType::Type resourceType() const {
-          return m_resourceType;
-        }
+        void setResourceType(ResourceType::Type type) { m_resourceType = type; }
+        ResourceType::Type resourceType() const { return m_resourceType; }
         
         // The origin pid is the process id of the process from which this
         // request originated. In the case of out-of-process plugins, this
         // allows to link back the request to the plugin process (as it is
         // processed through a render view process).
         int originPid() const { return m_originPid; }
-        void setOriginPid(int originPid) {
-          m_originPid = originPid;
-        }
+        void setOriginPid(int originPid) { m_originPid = originPid; }
 
-        // Opaque state that describes the security state (including SSL
-        // connection state) for that resource that should be reported when the
-        // resource has been loaded.  This is used to simulate secure connection
-        // for request (typically when showing error page, so the error page has
-        // the errors of the page that actually failed).
-        // Empty string if not a secure connection.
-        CString securityInfo() const {
-          return m_securityInfo;
-        }
-        void setSecurityInfo(const CString& value) {
-          m_securityInfo = value;
-        }
-
-#if PLATFORM(MAC)
-        // WebCore/loader/FrameLoader.cpp calls this on PLATFORM_MAC.
-        // TODO(mmentovai): Remove this when Chromium on the Mac no longer
-        // uses PLATFORM_MAC.
-        void applyWebArchiveHackForMail() {}
-#endif
+        // Opaque buffer that describes the security state (including SSL
+        // connection state) for the resource that should be reported when the
+        // resource has been loaded.  This is used to simulate secure
+        // connection for request (typically when showing error page, so the
+        // error page has the errors of the page that actually failed).  Empty
+        // string if not a secure connection.
+        CString securityInfo() const { return m_securityInfo; }
+        void setSecurityInfo(const CString& value) { m_securityInfo = value; }
 
     private:
         friend class ResourceRequestBase;
