@@ -145,14 +145,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\frame\browser_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\frame\browser_view.h"
-				>
-			</File>
-			<File
 				RelativePath=".\frame\browser_view2.cc"
 				>
 			</File>
@@ -382,58 +374,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Frame (Old)"
-			>
-			<File
-				RelativePath=".\old_frames\frame_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\frame_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\point_buffer.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\point_buffer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\simple_vista_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\simple_vista_frame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\simple_xp_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\simple_xp_frame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\vista_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\vista_frame.h"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\xp_frame.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\old_frames\xp_frame.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Find Bar"
 			>
 			<File
@@ -478,6 +418,22 @@
 			>
 		</File>
 		<File
+			RelativePath=".\bookmark_bubble_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\bookmark_bubble_view.h"
+			>
+		</File>
+		<File
+			RelativePath=".\bookmark_editor_view.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\bookmark_editor_view.h"
+			>
+		</File>
+		<File
 			RelativePath=".\bookmark_folder_tree_view.cc"
 			>
 		</File>
@@ -499,22 +455,6 @@
 		</File>
 		<File
 			RelativePath=".\bookmark_table_view.h"
-			>
-		</File>
-		<File
-			RelativePath=".\bookmark_bubble_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\bookmark_bubble_view.h"
-			>
-		</File>
-		<File
-			RelativePath=".\bookmark_editor_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\bookmark_editor_view.h"
 			>
 		</File>
 		<File

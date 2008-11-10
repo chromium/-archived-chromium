@@ -120,8 +120,6 @@ class TestingBrowserProcess : public BrowserProcess {
 
   virtual SuspendController* suspend_controller() { return NULL; }
 
-  virtual bool IsUsingNewFrames() { return false; }
-
   virtual HANDLE shutdown_event() { return shutdown_event_; }
 
  private:

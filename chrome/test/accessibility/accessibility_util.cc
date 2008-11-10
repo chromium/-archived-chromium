@@ -7,8 +7,6 @@
 #include "base/win_util.h"
 #include "chrome/common/win_util.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/browser/views/old_frames/xp_frame.h"
-#include "chrome/browser/views/old_frames/vista_frame.h"
 #include "chrome/test/accessibility/constants.h"
 
 #include "chromium_strings.h"
@@ -41,15 +39,6 @@ HWND GetChromeBrowserWnd(IAccessible** ppi_access) {
   const std::wstring product_name = l10n_util::GetString(IDS_PRODUCT_NAME);
 
   EnumWindows(WindowEnumProc, reinterpret_cast<LPARAM>(&hwnd));
-  if (!IsWindow(hwnd)) {
-    // Didn't find the window handle by looking for the new frames, assume the
-    // old frames are being used instead...
-    if (win_util::ShouldUseVistaFrame()) {
-      hwnd = FindWindow(VISTA_FRAME_CLASSNAME, NULL);
-    } else {
-      hwnd = FindWindow(XP_FRAME_CLASSNAME, NULL);
-    }
-  }
 
   if (NULL == hwnd) {
     if (ppi_access)

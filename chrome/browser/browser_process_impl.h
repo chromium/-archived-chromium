@@ -172,16 +172,6 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return suspend_controller_.get();
   }
 
-  // TODO(beng): remove once XPFrame/VistaFrame are gone.
-  virtual bool IsUsingNewFrames() {
-    DCHECK(CalledOnValidThread());
-    if (!checked_for_new_frames_) {
-      using_new_frames_ = !CommandLine().HasSwitch(L"use-old-frames");
-      checked_for_new_frames_ = true;
-    }
-    return using_new_frames_;
-  }
-
   virtual HANDLE shutdown_event() { return shutdown_event_; }
 
  private:

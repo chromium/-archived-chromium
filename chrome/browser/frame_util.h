@@ -7,37 +7,13 @@
 
 #include <windows.h>
 
-class Browser;
 class BrowserWindow;
-namespace views {
-class AcceleratorTarget;
-}
-namespace gfx {
-class Rect;
-}
 
 // Static helpers for frames. Basically shared code until Magic Browzr lands.
 class FrameUtil {
  public:
-  // Mark the frame such as it can be retrieved using GetChromeFrameForWindow()
-  static void RegisterBrowserWindow(BrowserWindow* frame);
-
   // Return a ChromeFrame instance given an hwnd.
   static BrowserWindow* GetBrowserWindowForHWND(HWND hwnd);
-
-  // Create a ChromeFrame for the given browser.
-  static BrowserWindow* CreateBrowserWindow(const gfx::Rect& bounds,
-                                            Browser* browser);
-
-  // Initialize the accelerators for that frame.
-  static bool LoadAccelerators(
-      BrowserWindow* frame,
-      HACCEL accelerator_table,
-      views::AcceleratorTarget* accelerator_target);
-
-  // Activate any app modal dialog that might be present. Returns true if one
-  // was present.
-  static bool ActivateAppModalDialog(Browser* browser);
 
   // Invoked when windows is shutting down (or the user is logging off). When
   // this method returns windows is going to kill our process. As such, this

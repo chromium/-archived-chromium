@@ -9,7 +9,6 @@
 #include "chrome/browser/frame_util.h"
 #include "chrome/browser/views/frame/aero_glass_frame.h"
 #include "chrome/browser/views/frame/browser_frame.h"
-#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/browser_view2.h"
 #include "chrome/browser/views/frame/opaque_frame.h"
 #include "chrome/common/win_util.h"
@@ -21,21 +20,10 @@
 BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser,
                                                   const gfx::Rect& bounds,
                                                   int show_command) {
-  // TODO(beng): fix this hack.
-  //             To get us off the ground and allow us to incrementally migrate
-  //             BrowserWindow functionality from XP/VistaFrame to BrowserView,
-  //             all objects need to implement the BrowserWindow interface.
-  //             However BrowserView is the one that Browser has a ref to, and
-  //             calls that BrowserView can't perform directly are passed on to
-  //             its frame. Eventually this will be better, I promise.
-  if (g_browser_process->IsUsingNewFrames()) {
-    BrowserView2* browser_view = new BrowserView2(browser);
-    BrowserFrame::CreateForBrowserView(BrowserFrame::GetActiveFrameType(),
-                                       browser_view, bounds, show_command);
-    return browser_view;
-  }
-  BrowserWindow* window = FrameUtil::CreateBrowserWindow(bounds, browser);
-  return window->GetBrowserView();
+  BrowserView2* browser_view = new BrowserView2(browser);
+  BrowserFrame::CreateForBrowserView(BrowserFrame::GetActiveFrameType(),
+                                     browser_view, bounds, show_command);
+  return browser_view;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

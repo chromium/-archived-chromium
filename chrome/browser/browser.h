@@ -280,7 +280,6 @@ class Browser : public TabStripModelDelegate,
   virtual bool IsPopup(TabContents* source);
   virtual void URLStarredChanged(TabContents* source, bool starred);
 
-  virtual void WindowMoved();
   virtual void ContentsMouseEvent(TabContents* source, UINT message);
   virtual void UpdateTargetURL(TabContents* source, const GURL& url);
 
@@ -397,11 +396,6 @@ class Browser : public TabStripModelDelegate,
   // this to return NULL if called before the toolbar has initialized.
   // TODO(beng): remove this.
   StatusBubble* GetStatusBubble();
-
-  // Syncs the window title with current_tab_.  This may be necessary because
-  // current_tab_'s title changed, or because current_tab_ itself has
-  // changed.
-  void SyncWindowTitle();
 
   // Saves the location of the window to the history database.
   void SaveWindowPlacementToDatabase();

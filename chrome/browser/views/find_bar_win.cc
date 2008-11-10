@@ -482,11 +482,7 @@ void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
   // Find the dimensions of the toolbar and the BookmarkBar.
   gfx::Rect toolbar_bounds, bookmark_bar_bounds;
   if (toolbar) {
-    if (!g_browser_process->IsUsingNewFrames()) {
-      toolbar_bounds = toolbar->bounds();
-    } else {
-      toolbar_bounds = toolbar->GetLocalBounds(false);
-    }
+    toolbar_bounds = toolbar->GetLocalBounds(false);
     // Need to convert toolbar bounds into Container coords because the toolbar
     // is the child of another view that isn't the top level view. This is
     // required to ensure correct positioning relative to the top,left of the
