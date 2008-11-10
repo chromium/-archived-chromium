@@ -1208,7 +1208,6 @@ V8 # LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
 V8 # LayoutTests/fast/borders/svg-as-border-image.html = FAIL
 V8 # LayoutTests/fast/css/line-height-overflow.html = FAIL
 V8 # LayoutTests/fast/css/rtl-ordering.html = FAIL
-V8 # LayoutTests/fast/dom/Window/get-set-properties.html = FAIL
 V8 # LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
 V8 # LayoutTests/fast/dom/Window/window-open-pending-url.html = FAIL
 V8 # LayoutTests/fast/events/mouse-click-events.html = FAIL

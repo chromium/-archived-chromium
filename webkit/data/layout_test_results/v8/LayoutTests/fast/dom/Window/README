@@ -16,6 +16,7 @@ so the output expects some failures. Firefox sometimes passes all tests
 and sometimes fails some. Use Chrome's output as the baseline.
 
 window-property-shadowing
+get-set-properties
 -------------------------
 For security reasons, we do not allow window.top to be shadowed.  This
 is because Flash accesses top.location and allowing the user to shadow
