@@ -16,7 +16,7 @@ download() {
 
 unpack_deb() {
   file=$1
-  7z x $file
+  ar x $file
   tar -xzvf data.tar.gz
   rm -f data.tar.gz control.tar.gz
 }
