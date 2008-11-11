@@ -516,12 +516,6 @@ bool TabStrip::HasAvailableDragActions() const {
   return model_->delegate()->GetDragActions() != 0;
 }
 
-void TabStrip::ShowApplicationMenu(const gfx::Point& p) {
-  TabStripModelDelegate* delegate = model_->delegate();
-  if (delegate)
-    delegate->ShowApplicationMenu(p);
-}
-
 bool TabStrip::CanProcessInputEvents() const {
   return IsAnimating() == NULL;
 }

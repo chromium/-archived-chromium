@@ -697,7 +697,7 @@ void Browser::ActivateContents(TabContents* contents) {
 }
 
 HWND Browser::GetTopLevelHWND() const {
-  return window_ ? reinterpret_cast<HWND>(window_->GetPlatformID()) : NULL;
+  return window_ ? reinterpret_cast<HWND>(window_->GetNativeHandle()) : NULL;
 }
 
 void Browser::LoadingStateChanged(TabContents* source) {
@@ -888,53 +888,6 @@ void Browser::ContentsStateChanged(TabContents* source) {
 
 bool Browser::ShouldDisplayURLField() {
   return !IsApplication();
-}
-
-void Browser::SaveWindowPlacementToDatabase() {
-  // We don't want to be the ones who cause lazy initialization of the session
-  // service. This function gets called during initial window showing, and we
-  // don't want to bring in the session service this early.
-  if (!profile()->HasSessionService())
-    return;
-  SessionService* session_service = profile()->GetSessionService();
-  if (!session_service)
-    return;
-
-  WINDOWPLACEMENT wp;
-  wp.length = sizeof(wp);
-
-  HWND hwnd = reinterpret_cast<HWND>(window_->GetPlatformID());
-  if (!::GetWindowPlacement(hwnd, &wp))
-    return;
-
-  session_service->SetWindowBounds(session_id_,
-                                   gfx::Rect(wp.rcNormalPosition),
-                                   (wp.showCmd & SW_MAXIMIZE) == SW_MAXIMIZE);
-}
-
-void Browser::SaveWindowPlacement() {
-  WINDOWPLACEMENT wp;
-  wp.length = sizeof(wp);
-
-  HWND hwnd = reinterpret_cast<HWND>(window_->GetPlatformID());
-  if (!::GetWindowPlacement(hwnd, &wp))
-    return;
-
-  PrefService* prefs = g_browser_process->local_state();
-  DCHECK(prefs);
-  std::wstring name(prefs::kBrowserWindowPlacement);
-  if (!app_name_.empty()) {
-    name.append(L"_");
-    name.append(app_name_);
-  }
-
-  DictionaryValue* win_pref = prefs->GetMutableDictionary(name.c_str());
-  DCHECK(win_pref);
-  win_pref->SetInteger(L"top", wp.rcNormalPosition.top);
-  win_pref->SetInteger(L"left", wp.rcNormalPosition.left);
-  win_pref->SetInteger(L"bottom", wp.rcNormalPosition.bottom);
-  win_pref->SetInteger(L"right", wp.rcNormalPosition.right);
-  win_pref->SetBoolean(L"maximized", wp.showCmd == SW_SHOWMAXIMIZED);
 }
 
 void Browser::FocusLocationBar() {
@@ -1194,8 +1147,10 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   DCHECK(type_ == BrowserType::TABBED_BROWSER);
 
   // Create an empty new browser window the same size as the old one.
+  // TODO(beng): move elsewhere
   CRect browser_rect;
-  GetWindowRect(reinterpret_cast<HWND>(window_->GetPlatformID()), &browser_rect);
+  GetWindowRect(reinterpret_cast<HWND>(window_->GetNativeHandle()),
+                &browser_rect);
   gfx::Rect rect(0, 0);
   if (drop_point.x() != 0 || drop_point.y() != 0) {
     rect.SetRect(drop_point.x(), drop_point.y(), browser_rect.Width(),
@@ -1249,14 +1204,6 @@ TabContents* Browser::CreateTabContentsForURL(
   }
 
   return contents;
-}
-
-void Browser::ShowApplicationMenu(const gfx::Point& p) {
-  if (!window_)
-    return;
-
-  HWND hwnd = reinterpret_cast<HWND>(window_->GetPlatformID());
-  RunSimpleFrameMenu(p, hwnd);
 }
 
 void Browser::ValidateLoadingAnimations() {
