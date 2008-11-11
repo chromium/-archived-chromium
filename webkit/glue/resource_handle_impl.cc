@@ -63,12 +63,28 @@ using base::Time;
 using base::TimeDelta;
 using net::HttpResponseHeaders;
 
-namespace {
+namespace WebCore {
+
+static ResourceType::Type FromTargetType(ResourceRequest::TargetType type) {
+  switch (type) {
+    case ResourceRequest::TargetIsMainFrame:
+      return ResourceType::MAIN_FRAME;
+    case ResourceRequest::TargetIsSubFrame:
+      return ResourceType::SUB_FRAME;
+    case ResourceRequest::TargetIsSubResource:
+      return ResourceType::SUB_RESOURCE;
+    case ResourceRequest::TargetIsObject:
+      return ResourceType::OBJECT;
+    default:
+      NOTREACHED();
+      return ResourceType::SUB_RESOURCE;
+  }
+}
 
 // Extracts the information from a data: url.
-bool GetInfoFromDataUrl(const GURL& url,
-                        ResourceLoaderBridge::ResponseInfo* info,
-                        std::string* data, URLRequestStatus* status) {
+static bool GetInfoFromDataUrl(const GURL& url,
+                               ResourceLoaderBridge::ResponseInfo* info,
+                               std::string* data, URLRequestStatus* status) {
   std::string mime_type;
   std::string charset;
   if (net::DataURL::Parse(url, &mime_type, &charset, data)) {
@@ -83,10 +99,6 @@ bool GetInfoFromDataUrl(const GURL& url,
   *status = URLRequestStatus(URLRequestStatus::FAILED, net::ERR_INVALID_URL);
   return false;
 }
-
-}  // namespace
-
-namespace WebCore {
 
 static void ExtractInfoFromHeaders(const HttpResponseHeaders* headers,
                                    HTTPHeaderMap* header_map,
@@ -317,7 +329,7 @@ bool ResourceHandleInternal::Start(
   // document, so we leave policyURL empty to indicate that the request is a
   // first-party request.
   GURL policy_url;
-  if (request_.resourceType() != ResourceType::MAIN_FRAME &&
+  if (request_.targetType() != ResourceRequest::TargetIsMainFrame &&
       request_.frame() && request_.frame()->document()) {
     policy_url = GURL(webkit_glue::StringToStdString(
         request_.frame()->document()->policyBaseURL()));
@@ -428,7 +440,7 @@ bool ResourceHandleInternal::Start(
       webkit_glue::CStringToStdString(headerBuf.latin1()),
       load_flags_,
       origin_pid,
-      request_.resourceType(),
+      FromTargetType(request_.targetType()),
       mixed_content));
   if (!bridge_.get())
     return false;

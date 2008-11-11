@@ -161,25 +161,25 @@ void WebFrameLoaderClient::assignIdentifierToInitialRequest(
   }
 }
 
-// Determines whether the request being loaded by |loader| is a frame
-// or a subresource. A subresource in this context is anything other
-// than a frame -- this includes images and xmlhttp requests.
-// It is important to note that a subresource is NOT limited to stuff
-// loaded through the frame's subresource loader. Synchronous xmlhttp
-// requests for example, do not go through the subresource loader,
-// but we still label them as SUB_RESOURCE.
+// Determines whether the request being loaded by |loader| is a frame or a
+// subresource. A subresource in this context is anything other than a frame --
+// this includes images and xmlhttp requests.  It is important to note that a
+// subresource is NOT limited to stuff loaded through the frame's subresource
+// loader. Synchronous xmlhttp requests for example, do not go through the
+// subresource loader, but we still label them as TargetIsSubResource.
 //
 // The important edge cases to consider when modifying this function are
 // how synchronous resource loads are treated during load/unload threshold.
-static ResourceType::Type DetermineResourceTypeFromLoader(DocumentLoader* loader) {
+static ResourceRequest::TargetType DetermineTargetTypeFromLoader(
+    DocumentLoader* loader) {
   if (loader == loader->frameLoader()->provisionalDocumentLoader()) {
     if (loader->frameLoader()->isLoadingMainFrame()) {
-      return ResourceType::MAIN_FRAME;
+      return ResourceRequest::TargetIsMainFrame;
     } else {
-      return ResourceType::SUB_FRAME;
+      return ResourceRequest::TargetIsSubFrame;
     }
   }
-  return ResourceType::SUB_RESOURCE;
+  return ResourceRequest::TargetIsSubResource;
 }
 
 void WebFrameLoaderClient::dispatchWillSendRequest(
@@ -191,7 +191,7 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
 
   // We want to distinguish between a request for a document to be loaded into
   // the main frame, a sub-frame, or the sub-objects in that document.
-  request.setResourceType(DetermineResourceTypeFromLoader(loader));
+  request.setTargetType(DetermineTargetTypeFromLoader(loader));
 
   // FrameLoader::loadEmptyDocumentSynchronously() creates an empty document
   // with no URL.  We don't like that, so we'll rename it to about:blank.
@@ -227,7 +227,7 @@ void WebFrameLoaderClient::dispatchDidReceiveResponse(DocumentLoader* loader,
 
   /* TODO(evanm): reenable this once we properly sniff XHTML from text/xml documents.
   // True if the request was for the page's main frame, or a subframe.
-  bool is_frame = ResourceType::IsFrame(DetermineResourceTypeFromLoader(loader));
+  bool is_frame = ResourceType::IsFrame(DetermineTargetTypeFromLoader(loader));
   if (is_frame &&
       response.httpStatusCode() == 200 &&
       mime_util::IsViewSourceMimeType(
@@ -245,8 +245,10 @@ void WebFrameLoaderClient::dispatchDidReceiveResponse(DocumentLoader* loader,
   // If it's a 404 page, we wait until we get 512 bytes of data before trying
   // to load the document.  This allows us to put up an alternate 404 page if
   // there's short text.
+  ResourceRequest::TargetType target_type =
+      DetermineTargetTypeFromLoader(loader);
   postpone_loading_data_ =
-      ResourceType::MAIN_FRAME == DetermineResourceTypeFromLoader(loader) &&
+      ResourceRequest::TargetIsMainFrame == target_type &&
       !is_substitute_data &&
       response.httpStatusCode() == 404 &&
       GetAlt404PageUrl(loader).is_valid();

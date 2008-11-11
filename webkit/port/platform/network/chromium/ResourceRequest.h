@@ -31,20 +31,24 @@
 #include "CString.h"
 #include "ResourceRequestBase.h"
 
-// TODO(darin): Eliminate this dependency on glue!
-#include "webkit/glue/resource_type.h"
-
 namespace WebCore {
 
     class Frame;
 
     class ResourceRequest : public ResourceRequestBase {
     public:
+        enum TargetType {
+            TargetIsMainFrame,
+            TargetIsSubFrame,
+            TargetIsSubResource,
+            TargetIsObject
+        };
+
         ResourceRequest(const String& url) 
             : ResourceRequestBase(KURL(url), UseProtocolCachePolicy)
             , m_frame(0)
             , m_originPid(0)
-            , m_resourceType(ResourceType::SUB_RESOURCE)
+            , m_targetType(TargetIsSubResource)
         {
         }
 
@@ -52,16 +56,16 @@ namespace WebCore {
             : ResourceRequestBase(url, UseProtocolCachePolicy)
             , m_frame(0)
             , m_originPid(0)
-            , m_resourceType(ResourceType::SUB_RESOURCE)
+            , m_targetType(TargetIsSubResource)
             , m_securityInfo(securityInfo)
         {
         }
 
         ResourceRequest(const KURL& url) 
-          : ResourceRequestBase(url, UseProtocolCachePolicy)
-          , m_frame(0)
-          , m_originPid(0)
-          , m_resourceType(ResourceType::SUB_RESOURCE)
+            : ResourceRequestBase(url, UseProtocolCachePolicy)
+            , m_frame(0)
+            , m_originPid(0)
+            , m_targetType(TargetIsSubResource)
         {
         }
 
@@ -69,7 +73,7 @@ namespace WebCore {
             : ResourceRequestBase(url, policy)
             , m_frame(0)
             , m_originPid(0)
-            , m_resourceType(ResourceType::SUB_RESOURCE)
+            , m_targetType(TargetIsSubResource)
         {
             setHTTPReferrer(referrer);
         }
@@ -78,7 +82,7 @@ namespace WebCore {
             : ResourceRequestBase(KURL(), UseProtocolCachePolicy)
             , m_frame(0)
             , m_originPid(0)
-            , m_resourceType(ResourceType::SUB_RESOURCE)
+            , m_targetType(TargetIsSubResource)
         {
         }
 
@@ -87,8 +91,8 @@ namespace WebCore {
         void setFrame(Frame* frame) { m_frame = frame; }
 
         // What this request is for.
-        void setResourceType(ResourceType::Type type) { m_resourceType = type; }
-        ResourceType::Type resourceType() const { return m_resourceType; }
+        void setTargetType(TargetType type) { m_targetType = type; }
+        TargetType targetType() const { return m_targetType; }
         
         // The origin pid is the process id of the process from which this
         // request originated. In the case of out-of-process plugins, this
@@ -114,7 +118,7 @@ namespace WebCore {
 
         Frame* m_frame;
         int m_originPid;
-        ResourceType::Type m_resourceType;
+        TargetType m_targetType;
         CString m_securityInfo;
     };
 

@@ -1227,7 +1227,7 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
   info.request.setFrame(frame());
   info.request.setURL(kurl);
   info.request.setOriginPid(delegate_->GetProcessId());
-  info.request.setResourceType(ResourceType::OBJECT);
+  info.request.setTargetType(WebCore::ResourceRequest::TargetIsObject);
   info.request.setHTTPMethod(method);
 
   if (range_info)
