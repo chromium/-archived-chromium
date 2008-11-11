@@ -1207,5 +1207,12 @@ V8 # LayoutTests/fast/events/message-port-inactive-document.html = TIMEOUT
 
 // Flaky in debug mode.
 V8 # LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH | PASS
-V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL | PASS
 V8 # LayoutTests/http/tests/navigation/redirect-cycle.html = FAIL | PASS
+
+// Bug 1341582	
+V8 # LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS	
+V8 # LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS	
+
+V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL | PASS	
+V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL | PASS	
+V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-get.html = FAIL | PASS	
