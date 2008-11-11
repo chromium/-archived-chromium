@@ -237,16 +237,17 @@ bool IsDirectoryEmpty(const std::wstring& dir_path);
 
 #endif
 
-  
 // Get the temporary directory provided by the system.
 bool GetTempDir(FilePath* path);
 // Deprecated temporary compatibility function.
 bool GetTempDir(std::wstring* path);
 
-// Creates a temporary file. The full path is placed in 'temp_file', and the
+// Creates a temporary file. The full path is placed in |path|, and the
 // function returns true if was successful in creating the file. The file will
 // be empty and all handles closed after this function returns.
 // TODO(erikkay): rename this function and track down all of the callers.
+bool CreateTemporaryFileName(FilePath* path);
+// Deprecated temporary compatibility function.
 bool CreateTemporaryFileName(std::wstring* temp_file);
 
 // Same as CreateTemporaryFileName but the file is created in |dir|.

@@ -689,14 +689,14 @@ TEST_F(FileUtilTest, CreateShortcutTest) {
 
 TEST_F(FileUtilTest, CreateTemporaryFileNameTest) {
   std::wstring temp_file;
-  file_util::CreateTemporaryFileName(&temp_file);
+  ASSERT_TRUE(file_util::CreateTemporaryFileName(&temp_file));
   EXPECT_TRUE(file_util::PathExists(temp_file));
   EXPECT_TRUE(file_util::Delete(temp_file, false));
 }
 
 TEST_F(FileUtilTest, CreateNewTempDirectoryTest) {
   std::wstring temp_dir;
-  file_util::CreateNewTempDirectory(std::wstring(), &temp_dir);
+  ASSERT_TRUE(file_util::CreateNewTempDirectory(std::wstring(), &temp_dir));
   EXPECT_TRUE(file_util::PathExists(temp_dir));
   EXPECT_TRUE(file_util::Delete(temp_dir, false));
 }

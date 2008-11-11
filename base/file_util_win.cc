@@ -393,13 +393,18 @@ bool GetTempDir(FilePath* path) {
   return true;
 }
 
-bool CreateTemporaryFileName(std::wstring* temp_file) {
-  std::wstring temp_path;
+bool CreateTemporaryFileName(FilePath* path) {
+  std::wstring temp_path, temp_file;
 
   if (!GetTempDir(&temp_path))
     return false;
 
-  return CreateTemporaryFileNameInDir(temp_path, temp_file);
+  if (CreateTemporaryFileNameInDir(temp_path, &temp_file)) {
+    *path = FilePath(temp_file);
+    return true;
+  }
+
+  return false; 
 }
 
 bool CreateTemporaryFileNameInDir(const std::wstring& dir,

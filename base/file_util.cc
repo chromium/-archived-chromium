@@ -343,6 +343,13 @@ bool ContentsEqual(const std::wstring& filename1,
 bool CreateDirectory(const std::wstring& full_path) {
   return CreateDirectory(FilePath::FromWStringHack(full_path));
 }
+bool CreateTemporaryFileName(std::wstring* temp_file) {
+  FilePath temp_file_path;
+  if (!CreateTemporaryFileName(&temp_file_path))
+    return false;
+  *temp_file = temp_file_path.ToWStringHack();
+  return true;
+}
 bool GetCurrentDirectory(std::wstring* path_str) {
   FilePath path;
   if (!GetCurrentDirectory(&path))

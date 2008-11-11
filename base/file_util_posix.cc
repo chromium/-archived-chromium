@@ -24,7 +24,7 @@
 
 namespace file_util {
 
-static const wchar_t* kTempFileName = L"com.google.chrome.XXXXXX";
+static const char* kTempFileName = "com.google.chrome.XXXXXX";
 
 std::wstring GetDirectoryFromPath(const std::wstring& path) {
   if (EndsWithSeparator(path)) {
@@ -249,19 +249,20 @@ bool GetFileCreationLocalTime(const std::string& filename,
 }
 #endif
 
-bool CreateTemporaryFileName(std::wstring* temp_file) {
-  std::wstring tmpdir;
-  if (!GetTempDir(&tmpdir))
+bool CreateTemporaryFileName(FilePath* path) {
+  if (!GetTempDir(path))
     return false;
-  AppendToPath(&tmpdir, kTempFileName);
-  std::string tmpdir_string = WideToUTF8(tmpdir);
+
+  *path = path->Append(kTempFileName);
+  std::string tmpdir_string = path->value();
   // this should be OK since mkstemp just replaces characters in place
   char* buffer = const_cast<char*>(tmpdir_string.c_str());
+
   int fd = mkstemp(buffer);
   if (fd < 0)
     return false;
-  *temp_file = UTF8ToWide(buffer);
-  close(fd); 
+
+  close(fd);
   return true;
 }
 
@@ -274,11 +275,11 @@ bool CreateTemporaryFileNameInDir(const std::wstring& dir,
 
 bool CreateNewTempDirectory(const std::wstring& prefix,
                             std::wstring* new_temp_path) {
-  std::wstring tmpdir;
+  FilePath tmpdir;
   if (!GetTempDir(&tmpdir))
     return false;
-  AppendToPath(&tmpdir, kTempFileName);
-  std::string tmpdir_string = WideToUTF8(tmpdir);
+  tmpdir = tmpdir.Append(kTempFileName);
+  std::string tmpdir_string = tmpdir.value();
   // this should be OK since mkdtemp just replaces characters in place
   char* buffer = const_cast<char*>(tmpdir_string.c_str());
   char* dtemp = mkdtemp(buffer);
