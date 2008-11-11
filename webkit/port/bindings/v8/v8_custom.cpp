@@ -1330,9 +1330,13 @@ NAMED_PROPERTY_GETTER(DOMWindow) {
   // It must return the value of property after initialization.
   static HashMap<String, String> kLazyInitMap;
   if (kLazyInitMap.isEmpty()) {
+    // "new Image()" does not appear to be well-defined in a spec, but Safari,
+    // Opera, and Firefox all consider it to always create an HTML image
+    // element, regardless of the current doctype.
     kLazyInitMap.set("Image",
                      "function Image() { \
-                        return document.createElement('image'); \
+                        return document.createElementNS( \
+                          'http://www.w3.org/1999/xhtml', 'img'); \
                       }; \
                       Image");
     kLazyInitMap.set("Option",
