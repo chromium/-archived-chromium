@@ -80,18 +80,18 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args):
 
   # If we had any stderr output, append that. This is not ideal, but at least
   # it'll catch errors.
-  line = proc.stderr.readline()
-  while line.rstrip() != "#EOF":
-    # TODO(pamg): We suppress this stderr message temporarily so we can run
-    # the tests deterministically until someone has a chance to fix the
-    # underlying problem.
-    # See http://code.google.com/p/chromium/issues/detail?id=4285
-    if (line != '' and
-        not line.endswith('alias ISO-8859-8-I maps to ISO-8859-8-I already, '
-                          'but someone is trying to make it map to '
-                          'ISO-8859-8')):
-      outlines.append(line)
-    line = proc.stderr.readline()
+#  line = proc.stderr.readline()
+#  while line.rstrip() != "#EOF":
+#    # TODO(pamg): We suppress this stderr message temporarily so we can run
+#    # the tests deterministically until someone has a chance to fix the
+#    # underlying problem.
+#    # See http://code.google.com/p/chromium/issues/detail?id=4285
+#    if (line != '' and
+#        not line.endswith('alias ISO-8859-8-I maps to ISO-8859-8-I already, '
+#                          'but someone is trying to make it map to '
+#                          'ISO-8859-8')):
+#      outlines.append(line)
+#    line = proc.stderr.readline()
 
   # Check the output and save the results.
   for test_type in test_types:
