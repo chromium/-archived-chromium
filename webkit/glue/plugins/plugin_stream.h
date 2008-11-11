@@ -8,9 +8,9 @@
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "third_party/npapi/bindings/npapi.h"
-
 
 class WebPluginResourceClient;
 
@@ -90,8 +90,11 @@ class PluginStream : public base::RefCounted<PluginStream> {
   // Closes the temporary file if it is open and deletes the file.
   void CleanupTempFile();
 
+  // Sends the data to the file. Called From WriteToFile.
+  size_t WriteBytes(const char *buf, size_t length);
+
   // Sends the data to the file if it's open.
-  bool WriteToFile(const char *buf, const int length);
+  bool WriteToFile(const char *buf, size_t length);
 
   // Sends the data to the plugin.  If it's not ready, handles buffering it
   // and retrying later.
@@ -103,6 +106,9 @@ class PluginStream : public base::RefCounted<PluginStream> {
 
   // The callback which calls TryWriteToPlugin.
   void OnDelayDelivery();
+
+  // Returns true if the temp file is valid and open for writing.
+  bool TempFileIsValid();
 
  private:
   NPStream                      stream_;
@@ -116,6 +122,9 @@ class PluginStream : public base::RefCounted<PluginStream> {
 #if defined(OS_WIN)
   char                          temp_file_name_[MAX_PATH];
   HANDLE                        temp_file_handle_;
+#elif defined(OS_POSIX)
+  FILE*                         temp_file_;
+  FilePath                      temp_file_path_;
 #endif
   std::vector<char>             delivery_data_;
   int                           data_offset_;

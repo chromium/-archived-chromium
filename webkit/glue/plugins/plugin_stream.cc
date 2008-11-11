@@ -16,35 +16,10 @@
 
 namespace NPAPI {
 
-PluginStream::PluginStream(
-    PluginInstance *instance,
-    const char *url,
-    bool need_notify,
-    void *notify_data)
-    : instance_(instance),
-      notify_needed_(need_notify),
-      notify_data_(notify_data),
-      close_on_write_data_(false),
-      opened_(false),
-      requested_plugin_mode_(NP_NORMAL),
-      temp_file_handle_(INVALID_HANDLE_VALUE),
-      seekable_stream_(false),
-      data_offset_(0) {
-  memset(&stream_, 0, sizeof(stream_));
-  stream_.url = _strdup(url);
-  temp_file_name_[0] = '\0';
-}
-
 PluginStream::~PluginStream() {
   // always cleanup our temporary files.
   CleanupTempFile();
   free(const_cast<char*>(stream_.url));
-}
-
-void PluginStream::UpdateUrl(const char* url) {
-  DCHECK(!opened_);
-  free(const_cast<char*>(stream_.url));
-  stream_.url = _strdup(url);
 }
 
 bool PluginStream::Open(const std::string &mime_type,
@@ -70,7 +45,7 @@ bool PluginStream::Open(const std::string &mime_type,
   const char *char_mime_type = "application/x-unknown-content-type";
   std::string temp_mime_type;
   if (!mime_type.empty()) {
-      char_mime_type = mime_type.c_str();
+    char_mime_type = mime_type.c_str();
   } else {
     GURL gurl(stream_.url);
     std::wstring path(UTF8ToWide(gurl.path()));
@@ -122,19 +97,17 @@ int PluginStream::Write(const char *buffer, const int length,
   return -1;
 }
 
-bool PluginStream::WriteToFile(const char *buf, const int length) {
+bool PluginStream::WriteToFile(const char *buf, size_t length) {
   // For ASFILEONLY, ASFILE, and SEEK modes, we need to write
   // to the disk
-  if (temp_file_handle_ != INVALID_HANDLE_VALUE &&
+  if (TempFileIsValid() &&
       (requested_plugin_mode_ == NP_ASFILE ||
        requested_plugin_mode_ == NP_ASFILEONLY) ) {
-    int totalBytesWritten = 0;
-    DWORD bytes;
+    size_t totalBytesWritten = 0, bytes;
     do {
-      if (WriteFile(temp_file_handle_, buf, length, &bytes, 0) == FALSE)
-        break;
+      bytes = WriteBytes(buf, length);
       totalBytesWritten += bytes;
-    } while (bytes > 0 && totalBytesWritten < length);
+    } while (bytes > 0U && totalBytesWritten < length);
 
     if (totalBytesWritten != length)
       return false;
@@ -188,7 +161,6 @@ void PluginStream::OnDelayDelivery() {
 
 int PluginStream::TryWriteToPlugin(const char *buf, const int length,
                                    const int data_offset) {
-  bool result = true;
   int byte_offset = 0;
 
   if (data_offset > 0)
@@ -229,12 +201,6 @@ int PluginStream::TryWriteToPlugin(const char *buf, const int length,
   return length;
 }
 
-void PluginStream::WriteAsFile() {
-  if (requested_plugin_mode_ == NP_ASFILE ||
-      requested_plugin_mode_ == NP_ASFILEONLY)
-    instance_->NPP_StreamAsFile(&stream_, temp_file_name_);
-}
-
 bool PluginStream::Close(NPReason reason) {
   if (opened_ == true) {
     opened_ = false;
@@ -252,7 +218,7 @@ bool PluginStream::Close(NPReason reason) {
 
     // If we have a temp file, be sure to close it.
     // Also, allow the plugin to access it now.
-    if (temp_file_handle_ != INVALID_HANDLE_VALUE) {
+    if (TempFileIsValid()) {
       CloseTempFile();
       WriteAsFile();
     }
@@ -266,54 +232,6 @@ bool PluginStream::Close(NPReason reason) {
 
   Notify(reason);
   return true;
-}
-
-bool PluginStream::OpenTempFile() {
-  DCHECK(temp_file_handle_ == INVALID_HANDLE_VALUE);
-
-  // The reason for using all the Ascii versions of these filesystem
-  // calls is that the filename which we pass back to the plugin
-  // via NPAPI is an ascii filename.  Otherwise, we'd use wide-chars.
-  //
-  // TODO:
-  // This is a bug in NPAPI itself, and it needs to be fixed.
-  // The case which will fail is if a user has a multibyte name,
-  // but has the system locale set to english.  GetTempPathA will
-  // return junk in this case, causing us to be unable to open the
-  // file.
-
-  char temp_directory[MAX_PATH];
-  if (GetTempPathA(MAX_PATH, temp_directory) == 0)
-    return false;
-  if (GetTempFileNameA(temp_directory, "npstream", 0, temp_file_name_) == 0)
-    return false;
-  temp_file_handle_ = CreateFileA(temp_file_name_,
-                                  FILE_ALL_ACCESS,
-                                  FILE_SHARE_READ,
-                                  0,
-                                  CREATE_ALWAYS,
-                                  FILE_ATTRIBUTE_NORMAL,
-                                  0);
-  if (temp_file_handle_ == INVALID_HANDLE_VALUE) {
-    temp_file_name_[0] = '\0';
-    return false;
-  }
-  return true;
-}
-
-void PluginStream::CloseTempFile() {
-  if (temp_file_handle_ != INVALID_HANDLE_VALUE) {
-    CloseHandle(temp_file_handle_);
-    temp_file_handle_ = INVALID_HANDLE_VALUE;
-  }
-}
-
-void PluginStream::CleanupTempFile() {
-  CloseTempFile();
-  if (temp_file_name_[0] != '\0') {
-    DeleteFileA(temp_file_name_);
-    temp_file_name_[0] = '\0';
-  }
 }
 
 void PluginStream::Notify(NPReason reason) {

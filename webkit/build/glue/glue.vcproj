@@ -717,6 +717,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\glue\plugins\plugin_stream_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\glue\plugins\plugin_string_stream.cc"
 				>
 			</File>
