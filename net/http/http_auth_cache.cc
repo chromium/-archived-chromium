@@ -55,13 +55,6 @@ struct IsEnclosedBy {
   const std::string& path;
 };
 
-// Prevent unbounded memory growth. These are safeguards for abuse; it is
-// not expected that the limits will be reached in ordinary usage.
-// This also defines the worst-case lookup times (which grow linearly
-// with number of elements in the cache).
-const size_t kMaxNumPathsPerRealmEntry = 10;
-const size_t kMaxNumRealmEntries = 10;
-
 } // namespace
 
 namespace net {

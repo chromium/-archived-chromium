@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/string_util.h"
 #include "net/http/http_auth_cache.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
@@ -12,7 +13,7 @@ namespace {
 
 class MockAuthHandler : public HttpAuthHandler {
  public:
-  MockAuthHandler(const char* scheme, const char* realm,
+  MockAuthHandler(const char* scheme, const std::string& realm,
                   HttpAuth::Target target) {
     // Can't use initializer list since these are members of the base class.
     scheme_ = scheme;
@@ -201,6 +202,103 @@ TEST(HttpAuthCacheTest, Remove) {
 
   // Fails because we just deleted the entry!
   EXPECT_FALSE(cache.Remove(origin, "Realm1", L"alice", L"123"));
+}
+
+// Test fixture class for eviction tests (contains helpers for bulk
+// insertion and existence testing).
+class HttpAuthCacheEvictionTest : public testing::Test {
+ protected:
+  HttpAuthCacheEvictionTest() : origin_("http://www.google.com") { }
+
+  std::string GenerateRealm(int realm_i) {
+    return StringPrintf("Realm %d", realm_i);
+  }
+
+  std::string GeneratePath(int realm_i, int path_i) {
+    return StringPrintf("/%d/%d/x/y", realm_i, path_i);
+  }
+
+  void AddRealm(int realm_i) {
+    AddPathToRealm(realm_i, 0);
+  }
+
+  void AddPathToRealm(int realm_i, int path_i) {
+    scoped_refptr<HttpAuthHandler> handler = new MockAuthHandler("basic",
+        GenerateRealm(realm_i), HttpAuth::AUTH_SERVER);
+    std::string path = GeneratePath(realm_i, path_i);
+    cache_.Add(origin_, handler, L"username", L"password", path);
+  }
+
+  void CheckRealmExistence(int realm_i, bool exists) {
+    const HttpAuthCache::Entry* entry =
+        cache_.LookupByRealm(origin_, GenerateRealm(realm_i));
+    if (exists) {
+      EXPECT_FALSE(entry == NULL);
+      EXPECT_EQ(GenerateRealm(realm_i), entry->realm());
+    } else {
+      EXPECT_TRUE(entry == NULL);
+    }
+  }
+
+  void CheckPathExistence(int realm_i, int path_i, bool exists) {
+    const HttpAuthCache::Entry* entry =
+        cache_.LookupByPath(origin_, GeneratePath(realm_i, path_i));
+    if (exists) {
+      EXPECT_FALSE(entry == NULL);
+      EXPECT_EQ(GenerateRealm(realm_i), entry->realm());
+    } else {
+      EXPECT_TRUE(entry == NULL);
+    }
+  }
+
+  GURL origin_;
+  HttpAuthCache cache_;
+
+  static const int kMaxPaths = HttpAuthCache::kMaxNumPathsPerRealmEntry;
+  static const int kMaxRealms = HttpAuthCache::kMaxNumRealmEntries;
+};
+
+// Add the maxinim number of realm entries to the cache. Each of these entries
+// must still be retrievable. Next add three more entries -- since the cache is
+// full this causes FIFO eviction of the first three entries.
+TEST_F(HttpAuthCacheEvictionTest, RealmEntryEviction) {
+  for (int i = 0; i < kMaxRealms; ++i)
+    AddRealm(i);
+
+  for (int i = 0; i < kMaxRealms; ++i)
+    CheckRealmExistence(i, true);
+
+  for (int i = 0; i < 3; ++i)
+    AddRealm(i + kMaxRealms);
+  
+  for (int i = 0; i < 3; ++i)
+    CheckRealmExistence(i, false);
+
+  for (int i = 0; i < kMaxRealms; ++i)
+    CheckRealmExistence(i + 3, true);
+}
+
+// Add the maximum number of paths to a single realm entry. Each of these
+// paths should be retrievable. Next add 3 more paths -- since the cache is
+// full this causes FIFO eviction of the first three paths.
+TEST_F(HttpAuthCacheEvictionTest, RealmPathEviction) {
+  for (int i = 0; i < kMaxPaths; ++i)
+    AddPathToRealm(0, i);
+
+  for (int i = 1; i < kMaxRealms; ++i)
+    AddRealm(i);
+
+  for (int i = 0; i < 3; ++i)
+    AddPathToRealm(0, i + kMaxPaths);
+
+  for (int i = 0; i < 3; ++i)
+    CheckPathExistence(0, i, false);
+
+  for (int i = 0; i < kMaxPaths; ++i)
+    CheckPathExistence(0, i + 3, true);
+
+  for (int i = 0; i < kMaxRealms; ++i)
+    CheckRealmExistence(i, true);
 }
 
 } // namespace net

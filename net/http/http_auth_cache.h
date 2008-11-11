@@ -74,6 +74,13 @@ class HttpAuthCache {
               const std::wstring& username,
               const std::wstring& password);
 
+  // Prevent unbounded memory growth. These are safeguards for abuse; it is
+  // not expected that the limits will be reached in ordinary usage.
+  // This also defines the worst-case lookup times (which grow linearly
+  // with number of elements in the cache).
+  enum { kMaxNumPathsPerRealmEntry = 10 };
+  enum { kMaxNumRealmEntries = 10 };
+
  private:
   typedef std::list<Entry> EntryList;
   EntryList entries_;
