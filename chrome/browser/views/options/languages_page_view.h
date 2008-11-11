@@ -87,6 +87,8 @@ class LanguagesPageView : public OptionsPageView,
   // The contents of the "user interface language" combobox.
   scoped_ptr<LanguageComboboxModel> ui_language_model_;
   StringPrefMember app_locale_;
+  int ui_language_index_selected_;
+  int starting_ui_language_index_;
 
   // The contents of the "dictionary language" combobox.
   scoped_ptr<LanguageComboboxModel> dictionary_language_model_;

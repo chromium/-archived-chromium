@@ -497,7 +497,9 @@ LanguagesPageView::LanguagesPageView(Profile* profile)
       OptionsPageView(profile),
       language_table_edited_(false),
       language_warning_shown_(false),
-      spellcheck_language_index_selected_(-1) {
+      spellcheck_language_index_selected_(-1),
+      ui_language_index_selected_(-1),
+      starting_ui_language_index_(-1) {
   accept_languages_.Init(prefs::kAcceptLanguages,
       profile->GetPrefs(), NULL);
   enable_spellcheck_.Init(prefs::kEnableSpellCheck, 
@@ -707,6 +709,7 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
     }
     DCHECK(-1 != index);
     change_ui_language_combobox_->SetSelectedItem(index);
+    starting_ui_language_index_ = index;
   }
   if (!pref_name || *pref_name == prefs::kSpellCheckDictionary) {
     int index = dictionary_language_model_->GetSelectedLanguageIndex(
@@ -727,9 +730,11 @@ void LanguagesPageView::ItemChanged(views::ComboBox* sender,
     return;
 
   if (sender == change_ui_language_combobox_) {
-    UserMetricsRecordAction(L"Options_AppLanguage",
-                            g_browser_process->local_state());
-    app_locale_.SetValue(ui_language_model_->GetLocaleFromIndex(new_index));
+    if (new_index == starting_ui_language_index_)
+      ui_language_index_selected_ = -1;
+    else
+      ui_language_index_selected_ = new_index;
+
     if (!language_warning_shown_) {
       RestartMessageBox::ShowMessageBox(GetRootWindow());
       language_warning_shown_ = true;
@@ -788,6 +793,13 @@ void LanguagesPageView::OnMoveUpLanguage() {
 void LanguagesPageView::SaveChanges() {
   if (language_order_table_model_.get() && language_table_edited_)
     accept_languages_.SetValue(language_order_table_model_->GetLanguageList());
+
+  if (ui_language_index_selected_ != -1) {
+    UserMetricsRecordAction(L"Options_AppLanguage",
+                            g_browser_process->local_state());
+    app_locale_.SetValue(ui_language_model_->
+        GetLocaleFromIndex(ui_language_index_selected_));
+  }
 
   if (spellcheck_language_index_selected_ != -1) {
     UserMetricsRecordAction(L"Options_DictionaryLanguage",
