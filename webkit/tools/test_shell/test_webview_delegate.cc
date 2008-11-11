@@ -44,7 +44,10 @@ std::wstring UrlSuitableForTestResult(const std::wstring& url) {
   if (url.empty() || std::wstring::npos == url.find(L"file://"))
     return url;
 
-  return file_util::GetFilenameFromPath(url);
+  std::wstring filename = file_util::GetFilenameFromPath(url);
+  if (filename.empty())
+    return L"file:";  // A WebKit test has this in its expected output.
+  return filename;
 }
 
 // Adds a file called "DRTFakeFile" to |data_object| (CF_HDROP).  Use to fake
@@ -369,7 +372,7 @@ void TestWebViewDelegate::AddMessageToConsole(WebView* webview,
       size_t file_protocol = new_message.find(L"file://");
       if (file_protocol != std::wstring::npos) {
         new_message = new_message.substr(0, file_protocol) +
-            UrlSuitableForTestResult(new_message);
+            UrlSuitableForTestResult(new_message.substr(file_protocol));
       }
     }
 
