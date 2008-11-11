@@ -131,6 +131,9 @@ bool IsPortAllowedByDefault(int port);
 // restricted.
 bool IsPortAllowedByFtp(int port);
 
+// Set socket to non-blocking mode
+int SetNonBlocking(int fd);
+
 }  // namespace net
 
 #endif  // NET_BASE_NET_UTIL_H__

@@ -152,6 +152,10 @@
 		827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32800E5A181C00A747DB /* x509_certificate_mac.cc */; };
 		82ECB3090E5B651D00A913E3 /* mime_sniffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AD0E5A181C00A747DB /* mime_sniffer.cc */; };
 		93D11DCE0E91463000C36437 /* file_stream_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = 93D11DCD0E91463000C36437 /* file_stream_posix.cc */; };
+		A50055BF0EBF7CB2007B0A90 /* telnet_server_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED328B0E5A181C00A747DB /* telnet_server_unittest.cc */; };
+		A50055C00EBF7CD6007B0A90 /* listen_socket_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32B10E5A181C00A747DB /* listen_socket_unittest.cc */; };
+		A50055FE0EBF800D007B0A90 /* telnet_server.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED328D0E5A181C00A747DB /* telnet_server.cc */; };
+		A50055FF0EBF8018007B0A90 /* listen_socket.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32B30E5A181C00A747DB /* listen_socket.cc */; };
 		A5AB7BFC0EB7DBA10070A7D3 /* file_stream_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5AB7BFB0EB7DBA10070A7D3 /* file_stream_unittest.cc */; };
 		B5F622260E805FC40076681A /* url_request_job_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33A30E5A198600A747DB /* url_request_job_manager.cc */; };
 		BAA46E3B0E5CE99A00E77460 /* net_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED329F0E5A181C00A747DB /* net_util_unittest.cc */; };
@@ -1525,6 +1529,8 @@
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 				82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */,
 				827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */,
+				A50055FE0EBF800D007B0A90 /* telnet_server.cc in Sources */,
+				A50055FF0EBF8018007B0A90 /* listen_socket.cc in Sources */,
 				04E7BD550EC4ECF60078FE58 /* http_auth_cache.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1573,6 +1579,8 @@
 				7BA361450E8C341F0023C8B9 /* test_completion_callback_unittest.cc in Sources */,
 				82113A1D0E8434EE00E3848F /* x509_certificate_unittest.cc in Sources */,
 				A5AB7BFC0EB7DBA10070A7D3 /* file_stream_unittest.cc in Sources */,
+				A50055BF0EBF7CB2007B0A90 /* telnet_server_unittest.cc in Sources */,
+				A50055C00EBF7CD6007B0A90 /* listen_socket_unittest.cc in Sources */,
 				042A4D480EC4F4500083281F /* http_auth_cache_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

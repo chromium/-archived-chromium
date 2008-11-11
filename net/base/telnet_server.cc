@@ -2,13 +2,32 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 // winsock2.h must be included first in order to ensure it is included before
 // windows.h.
 #include <winsock2.h>
+#elif defined(OS_POSIX)
+#include <errno.h>
+#include <sys/socket.h>
+#include "base/message_loop.h"
+#include "net/base/net_errors.h"
+#include "third_party/libevent/event.h"
+#include "base/message_pump_libevent.h"
+#endif
 
 #include "net/base/telnet_server.h"
 
-#define READ_BUF_SIZE 200
+#if defined(OS_POSIX)
+// Used same name as in Windows to avoid #ifdef where refrenced
+#define SOCKET int
+const int INVALID_SOCKET = -1; 
+const int SOCKET_ERROR = -1;
+struct event;  // From libevent
+#endif
+
+const int kReadBufSize = 200;
 
 // Telnet protocol constants.
 class TelnetProtocol {
@@ -109,7 +128,9 @@ void TelnetServer::Accept() {
   } else {
     scoped_refptr<TelnetServer> sock =
         new TelnetServer(conn, socket_delegate_);
-
+#if defined(OS_POSIX)
+    sock->WatchSocket(WAITING_READ);
+#endif
     // Setup the way we want to communicate
     sock->SendIAC(TelnetProtocol::DO, TelnetProtocol::ECHO);
     sock->SendIAC(TelnetProtocol::DO, TelnetProtocol::NAWS);
@@ -126,7 +147,7 @@ TelnetServer* TelnetServer::Listen(std::string ip, int port,
                                    ListenSocketDelegate *del) {
   SOCKET s = ListenSocket::Listen(ip, port);
   if (s == INVALID_SOCKET) {
-    // TODO
+    // TODO (ibrar): error handling
   } else {
     TelnetServer *serv = new TelnetServer(s, del);
     serv->Listen();
@@ -226,18 +247,23 @@ void TelnetServer::StateMachineStep(unsigned char c) {
 }
 
 void TelnetServer::Read() {
-  char buf[READ_BUF_SIZE];
+  char buf[kReadBufSize + 1];
   int len;
   do {
-    len = recv(socket_, buf, READ_BUF_SIZE, 0);
+    len = recv(socket_, buf, kReadBufSize, 0);
+
+#if defined(OS_WIN)
     if (len == SOCKET_ERROR) {
       int err = WSAGetLastError();
-      if (err == WSAEWOULDBLOCK) {
+      if (err == WSAEWOULDBLOCK)
         break;
-      } else {
-        // TODO - error
+#else
+    if (len == SOCKET_ERROR) {
+      if (errno == EWOULDBLOCK || errno == EAGAIN) 
         break;
-      }
+#endif
+    } else if (len == 0) {
+      Close();
     } else {
       const char *data = buf;
       for (int i = 0; i < len; ++i) {
@@ -246,6 +272,5 @@ void TelnetServer::Read() {
         data++;
       }
     }
-  } while (len == READ_BUF_SIZE);
+  } while (len == kReadBufSize);
 }
-

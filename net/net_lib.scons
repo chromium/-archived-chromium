@@ -55,7 +55,6 @@ input_files = [
     'base/sdch_filter.cc',
     'base/sdch_manager.cc',
     'base/ssl_config_service.cc',
-    'base/telnet_server.cc',
     'base/upload_data.cc',
     'base/upload_data_stream.cc',
     'base/x509_certificate.cc',
@@ -111,9 +110,7 @@ if env['PLATFORM'] in ('posix', 'darwin'):
   # TODO(port): delete files from this list as they get ported.
   to_be_ported_files = [
       'base/directory_lister.cc',
-      'base/listen_socket.cc',
       'base/ssl_config_service.cc',
-      'base/telnet_server.cc',
       'http/http_transaction_winhttp.cc',
       'http/winhttp_request_throttle.cc',
       'url_request/url_request_file_dir_job.cc',
@@ -161,6 +158,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
       'base/file_stream_posix.cc',
       'base/net_util_posix.cc',
       'base/tcp_client_socket_libevent.cc',
+      'base/telnet_server.cc',
       'disk_cache/cache_util_posix.cc',
       'disk_cache/file_posix.cc',
       'disk_cache/mapped_file_posix.cc',

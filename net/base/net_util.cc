@@ -10,8 +10,14 @@
 #include <unicode/uscript.h>
 #include <unicode/uset.h>
 
-#ifdef OS_WIN
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#include <winsock2.h>
+#elif defined(OS_POSIX)
+#include <sys/socket.h>
+#include <fcntl.h>
 #endif
 
 #include "net/base/net_util.h"
@@ -913,6 +919,18 @@ bool IsPortAllowedByFtp(int port) {
   }
   // Port not explicitly allowed by FTP, so return the default restrictions.
   return IsPortAllowedByDefault(port);
+}
+
+int SetNonBlocking(int fd) {
+#if defined(OS_WIN)
+  unsigned long no_block = 1;
+  return ioctlsocket(fd, FIONBIO, &no_block);
+#elif defined(OS_POSIX)
+  int flags = fcntl(fd, F_GETFL, 0);
+  if (-1 == flags)
+    flags = 0;
+  return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+#endif
 }
 
 }  // namespace net

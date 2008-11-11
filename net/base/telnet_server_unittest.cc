@@ -4,35 +4,30 @@
 
 // Tests TelnetServer.
 
+#include "base/platform_test.h"
 #include "net/base/listen_socket_unittest.h"
 #include "net/base/telnet_server.h"
 
-namespace {
-
-const std::string CRLF("\r\n");
+static const char* kCRLF = "\r\n";
 
 class TelnetServerTester : public ListenSocketTester {
 public:
   virtual ListenSocket* DoListen() {
-    return TelnetServer::Listen("127.0.0.1", TEST_PORT, this);
+    return TelnetServer::Listen("127.0.0.1", kTestPort, this);
   }
 
   virtual void SetUp() {
     ListenSocketTester::SetUp();
     // With TelnetServer, there's some control codes sent at connect time,
     // so we need to eat those to avoid affecting the subsequent tests.
-    // TODO(erikkay): Unfortunately, without the sleep, we don't seem to
-    // reliably get the 15 bytes without an EWOULDBLOCK.  It would be nice if
-    // there were a more reliable mechanism here.
-    Sleep(10);
-    ASSERT_EQ(ClearTestSocket(), 15);
+    EXPECT_EQ(ClearTestSocket(), 15);
   }
 
   virtual bool Send(SOCKET sock, const std::string& str) {
     if (ListenSocketTester::Send(sock, str)) {
       // TelnetServer currently calls DidRead after a CRLF, so we need to
       // append one to the end of the data that we send.
-      if (ListenSocketTester::Send(sock, CRLF)) {
+      if (ListenSocketTester::Send(sock, kCRLF)) {
         return true;
       }
     }
@@ -40,26 +35,26 @@ public:
   }
 };
 
-class TelnetServerTest: public testing::Test {
+class TelnetServerTest: public PlatformTest {
 protected:
   TelnetServerTest() {
     tester_ = NULL;
   }
 
   virtual void SetUp() {
+    PlatformTest::SetUp();
     tester_ = new TelnetServerTester();
     tester_->SetUp();
   }
 
   virtual void TearDown() {
+    PlatformTest::TearDown();
     tester_->TearDown();
     tester_ = NULL;
   }
 
   scoped_refptr<TelnetServerTester> tester_;
 };
-
-}  // namespace
 
 TEST_F(TelnetServerTest, ServerClientSend) {
   tester_->TestClientSend();

@@ -82,6 +82,8 @@ input_files = [
     'base/ssl_client_socket_unittest.cc',
     'base/tcp_client_socket_unittest.cc',
     'base/test_completion_callback_unittest.cc',
+    'base/listen_socket_unittest.cc',
+    'base/telnet_server_unittest.cc',
     'disk_cache/addr_unittest.cc',
     'disk_cache/backend_unittest.cc',
     'disk_cache/block_files_unittest.cc',
