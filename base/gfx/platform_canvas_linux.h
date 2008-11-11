@@ -8,8 +8,6 @@
 #include "base/gfx/platform_device_linux.h"
 #include "base/basictypes.h"
 
-#import "SkCanvas.h"
-
 namespace gfx {
 
 // This class is a specialization of the regular SkCanvas that is designed to

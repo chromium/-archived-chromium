@@ -43,6 +43,10 @@
 #include "SkShader.h"
 #include "SkDashPathEffect.h"
 
+#if defined(OS_LINUX)
+#include "GdkSkia.h"
+#endif
+
 // State -----------------------------------------------------------------------
 
 // Encapsulates the additional painting state information we store for each
@@ -145,10 +149,19 @@ PlatformContextSkia::PlatformContextSkia(gfx::PlatformCanvas* canvas)
 {
     m_stateStack.append(State());
     m_state = &m_stateStack.last();
+#if defined(OS_LINUX)
+    m_gdkskia = m_canvas ? gdk_skia_new(m_canvas) : NULL;
+#endif
 }
 
 PlatformContextSkia::~PlatformContextSkia()
 {
+#if defined(OS_LINUX)
+    if (m_gdkskia) {
+        g_object_unref(m_gdkskia);
+        m_gdkskia = NULL;
+    }
+#endif
 }
 
 void PlatformContextSkia::setCanvas(gfx::PlatformCanvas* canvas)

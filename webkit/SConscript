@@ -118,6 +118,7 @@ env.Prepend(
         '$WEBKIT_DIR/port/platform/chromium',
         '$WEBKIT_DIR/port/platform/graphics',
         '$WEBKIT_DIR/port/platform/graphics/chromium',
+        '$WEBKIT_DIR/port/platform/graphics/skia',
         '$WEBKIT_DIR/port/platform/$WEBKIT_PLATFORM_SUBDIR',
         '$WEBKIT_DIR/port/svg/graphics',
         '$WEBKIT_DIR/port/platform/network',

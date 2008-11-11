@@ -34,7 +34,7 @@
 #include <SkBitmap.h>
 #include <SkDevice.h>
 
-#include "gdkskiadrawable.h"
+#include "GdkSkia.h"
 
 static GdkGC *gdk_skia_create_gc      (GdkDrawable     *drawable,
                                        GdkGCValues     *values,

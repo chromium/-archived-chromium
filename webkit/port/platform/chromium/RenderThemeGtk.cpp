@@ -29,7 +29,7 @@
 #include "PlatformContextSkia.h"
 #include "RenderObject.h"
 #include "gtkdrawing.h"
-#include "gdkskiadrawable.h"
+#include "GdkSkia.h"
 
 #include <gdk/gdk.h>
 
@@ -183,13 +183,9 @@ static bool paintMozWidget(RenderTheme* theme, GtkThemeWidgetType type, RenderOb
 
     gdk_rectangle_intersect(&gdkRect, &gdkClipRect, &gdkClipRect);
 
-    // TODO(agl): we should look at not creating this anew every time.
-    GdkSkia* skiadrawable = gdk_skia_new(canvas);
-
     const gint r =
-      moz_gtk_widget_paint(type, skiadrawable, &gdkRect, &gdkClipRect, &mozState, flags, direction) != MOZ_GTK_SUCCESS;
+      moz_gtk_widget_paint(type, pcs->gdk_skia(), &gdkRect, &gdkClipRect, &mozState, flags, direction) != MOZ_GTK_SUCCESS;
 
-    g_object_unref(skiadrawable);
     return r;
 }
 

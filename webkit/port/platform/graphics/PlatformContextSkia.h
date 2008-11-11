@@ -40,6 +40,8 @@
 #include "GraphicsContext.h"
 #include "wtf/Vector.h"
 
+typedef struct _GdkDrawable GdkSkia;
+
 // This class holds the platform-specific state for GraphicsContext. We put
 // most of our Skia wrappers on this class. In theory, a lot of this stuff could
 // be moved to GraphicsContext directly, except that some code external to this
@@ -137,6 +139,10 @@ public:
     // possible quality.
     bool IsPrinting();
 
+#if defined(OS_LINUX)
+    GdkSkia* gdk_skia() const { return m_gdkskia; }
+#endif
+
 private:
     // Defines drawing style.
     struct State;
@@ -157,6 +163,11 @@ private:
     // Disallow these.
     PlatformContextSkia(const PlatformContextSkia&);
     void operator=(const PlatformContextSkia&);
+
+#if defined(OS_LINUX)
+    // A pointer to a GDK Drawable wrapping of this Skia canvas
+    GdkSkia* m_gdkskia;
+#endif
 };
 
 #endif  // PlatformContextSkia_h

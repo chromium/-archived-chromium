@@ -124,10 +124,11 @@ if env['PLATFORM'] == 'posix':
 
   # Linux specific implementations
   input_files.extend([
-    '$PORT_DIR/platform/chromium/ScreenLinux.cpp',
     '$PORT_DIR/platform/chromium/IconLinux.cpp',
-    '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$PORT_DIR/platform/chromium/PasteboardLinux.cpp',
+    '$PORT_DIR/platform/chromium/ScreenLinux.cpp',
+    '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
+    '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',
   ])
 
 if env['PLATFORM'] == 'darwin':
@@ -175,7 +176,6 @@ if env['PLATFORM'] == 'posix':
     '$PORT_DIR/platform/graphics/chromium/FontPlatformDataLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/SimpleFontDataLinux.cpp',
     '$PORT_DIR/platform/chromium/gtk2drawing.c',
-    '$PORT_DIR/platform/chromium/gdkskiadrawable.cc',
     '$PORT_DIR/platform/chromium/RenderThemeGtk.cpp'
   ])
 
