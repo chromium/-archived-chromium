@@ -381,15 +381,15 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
     chunk_inserted_callback_->Run();
 }
 
-void SafeBrowsingDatabaseBloom::UpdateStarted() {
+bool SafeBrowsingDatabaseBloom::UpdateStarted() {
   DCHECK(insert_transaction_.get() == NULL);
   insert_transaction_.reset(new SQLTransaction(db_));
   if (insert_transaction_->Begin() != SQLITE_OK) {
-    // TODO(paulg): We should abort the update, and possibly enter back off mode
-    // if we have a problem with the database.
     DCHECK(false) << "Safe browsing database couldn't start transaction";
     insert_transaction_.reset();
+    return false;
   }
+  return true;
 }
 
 void SafeBrowsingDatabaseBloom::UpdateFinished(bool update_succeeded) {

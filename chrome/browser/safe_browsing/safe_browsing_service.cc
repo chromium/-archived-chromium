@@ -465,24 +465,11 @@ void SafeBrowsingService::GetAllChunks() {
       this, &SafeBrowsingService::GetAllChunksFromDatabase));
 }
 
-void SafeBrowsingService::UpdateStarted() {
-  DCHECK(MessageLoop::current() == io_loop_);
-  DCHECK(enabled_);
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &SafeBrowsingService::DatabaseUpdateStarted));
-}
-
 void SafeBrowsingService::UpdateFinished(bool update_succeeded) {
   DCHECK(MessageLoop::current() == io_loop_);
   DCHECK(enabled_);
   db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::DatabaseUpdateFinished, update_succeeded));
-}
-
-void SafeBrowsingService::DatabaseUpdateStarted() {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
-  if (GetDatabase())
-    GetDatabase()->UpdateStarted();
 }
 
 void SafeBrowsingService::DatabaseUpdateFinished(bool update_succeeded) {
@@ -606,12 +593,11 @@ void SafeBrowsingService::DeleteChunks(
 // Database worker function.
 void SafeBrowsingService::GetAllChunksFromDatabase() {
   DCHECK(MessageLoop::current() == db_thread_->message_loop());
-  bool database_error = false;
+  bool database_error = true;
   std::vector<SBListChunkRanges> lists;
-  if (GetDatabase()) {
+  if (GetDatabase() && GetDatabase()->UpdateStarted()) {
     GetDatabase()->GetListsInfo(&lists);
-  } else {
-    database_error = true;
+    database_error = false;
   }
 
   io_loop_->PostTask(FROM_HERE, NewRunnableMethod(

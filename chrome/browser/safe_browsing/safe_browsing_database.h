@@ -82,7 +82,7 @@ class SafeBrowsingDatabase {
   // Called when the user's machine has resumed from a lower power state.
   virtual void HandleResume() = 0;
 
-  virtual void UpdateStarted() {}
+  virtual bool UpdateStarted() { return true; }
   virtual void UpdateFinished(bool update_succeeded) {}
 
   virtual std::wstring filename() const { return filename_; }

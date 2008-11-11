@@ -72,7 +72,8 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // Called when the user's machine has resumed from a lower power state.
   virtual void HandleResume();
 
-  virtual void UpdateStarted();
+  // Returns true if we have successfully started the update transaction.
+  virtual bool UpdateStarted();
   virtual void UpdateFinished(bool update_succeeded);
 
   virtual bool NeedToCheckUrl(const GURL& url);
