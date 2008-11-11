@@ -49,6 +49,9 @@ namespace WebCore {
         // DNS ----------------------------------------------------------------
         static void prefetchDNS(const String& hostname);
 
+        // Language -----------------------------------------------------------
+        static String computedDefaultLanguage();
+
         // Screen -------------------------------------------------------------
         static int screenDepth(Widget*);
         static int screenDepthPerComponent(Widget*);

@@ -67,6 +67,12 @@ void ChromiumBridge::prefetchDNS(const String& hostname) {
   webkit_glue::PrefetchDns(webkit_glue::StringToStdString(hostname));
 }
 
+// Language -------------------------------------------------------------------
+
+String ChromiumBridge::computedDefaultLanguage() {
+  return webkit_glue::StdWStringToString(webkit_glue::GetWebKitLocale());
+}
+
 // Screen ---------------------------------------------------------------------
 
 int ChromiumBridge::screenDepth(Widget* widget) {
