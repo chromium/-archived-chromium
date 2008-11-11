@@ -56,8 +56,9 @@ AutofillForm* AutofillForm::CreateAutofillForm(
       continue;
 
     // For each TEXT input field, store the name and value
-    std::wstring name = webkit_glue::StringToString16(input_element->name());
-    std::wstring value = webkit_glue::StringToString16(input_element->value());
+    std::wstring name = webkit_glue::StringToStdWString(input_element->name());
+    std::wstring value = webkit_glue::StringToStdWString(
+        input_element->value());
 
     result->elements.push_back(AutofillForm::Element(name, value));
   }

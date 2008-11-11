@@ -21,6 +21,7 @@ input_files = [
   'alt_404_page_resource_fetcher.cc',
   'alt_error_page_resource_fetcher.cc',
   'autocomplete_input_listener.cc',
+  'autofill_form.cc',
   'cache_manager.cc',
   'chrome_client_impl.cc',
   'chromium_bridge_impl.cc',
