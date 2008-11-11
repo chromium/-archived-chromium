@@ -72,10 +72,10 @@ InfoBubble* InfoBubble::Show(HWND parent_hwnd,
                              InfoBubbleDelegate* delegate) {
   InfoBubble* window = new InfoBubble();
   window->Init(parent_hwnd, position_relative_to, content);
-  views::Window* parent_window =
+  window->parent_ =
       reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
           parent_hwnd));
-  parent_window->DisableInactiveRendering(true);
+  window->parent_->DisableInactiveRendering(true);
   window->ShowWindow(SW_SHOW);
   window->delegate_ = delegate;
   return window;
@@ -144,10 +144,7 @@ void InfoBubble::Close() {
   // We don't fade out because it looks terrible.
   if (delegate_)
     delegate_->InfoBubbleClosing(this);
-  views::Window* parent_window =
-      reinterpret_cast<views::Window*>(
-          win_util::GetWindowUserData(GetAncestor(GetHWND(), GA_ROOT)));
-  parent_window->DisableInactiveRendering(false);
+  parent_->DisableInactiveRendering(false);
   ContainerWin::Close();
 }
 

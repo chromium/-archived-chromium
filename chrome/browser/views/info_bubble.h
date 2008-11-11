@@ -20,6 +20,9 @@
 
 class BrowserWindow;
 class InfoBubble;
+namespace views {
+class Window;
+}
 
 class InfoBubbleDelegate {
  public:
@@ -151,6 +154,9 @@ class InfoBubble : public views::ContainerWin,
  private:
   // The delegate notified when the InfoBubble is closed.
   InfoBubbleDelegate* delegate_;
+
+  // The window that this InfoBubble is parented to.
+  views::Window* parent_;
 
   // The content view contained by the infobubble.
   ContentView* content_view_;
