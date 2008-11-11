@@ -140,8 +140,7 @@ class DefaultStateProvider : public WindowSizer::StateProvider {
     BrowserList::const_reverse_iterator end = BrowserList::end_last_active();
     for (; it != end; ++it) {
       Browser* last_active = *it;
-      if (last_active &&
-          last_active->GetType() == BrowserType::TABBED_BROWSER) {
+      if (last_active && last_active->type() == BrowserType::TABBED_BROWSER) {
         BrowserWindow* frame = last_active->window();
         DCHECK(frame);
         *bounds = frame->GetNormalBounds();

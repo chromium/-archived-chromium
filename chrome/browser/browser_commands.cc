@@ -54,7 +54,7 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_STOP, true);
   controller_.UpdateCommandEnabled(IDC_RELOAD, true);
   controller_.UpdateCommandEnabled(IDC_HOME,
-                                   GetType() == BrowserType::TABBED_BROWSER);
+                                   type() == BrowserType::TABBED_BROWSER);
   controller_.UpdateCommandEnabled(IDC_GO, true);
   controller_.UpdateCommandEnabled(IDC_NEWTAB, true);
   controller_.UpdateCommandEnabled(IDC_CLOSETAB, true);
@@ -149,12 +149,12 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1258, true);
   controller_.UpdateCommandEnabled(IDC_OPTIONS, true);
   controller_.UpdateCommandEnabled(IDC_CLOSE_WEB_APP,
-                                   GetType() != BrowserType::TABBED_BROWSER);
+                                   type() != BrowserType::TABBED_BROWSER);
   controller_.UpdateCommandEnabled(IDC_SHOW_AS_TAB,
-                                   GetType() == BrowserType::BROWSER);
+                                   type() == BrowserType::BROWSER);
   controller_.UpdateCommandEnabled(
       IDC_RESTORE_TAB, (!profile_->IsOffTheRecord() &&
-                        GetType() == BrowserType::TABBED_BROWSER));
+                        type() == BrowserType::TABBED_BROWSER));
   controller_.UpdateCommandEnabled(IDC_EXIT, true);
   // the debugger doesn't work in single process mode
   controller_.UpdateCommandEnabled(IDC_DEBUGGER,
@@ -288,7 +288,7 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_NEWTAB:
       UserMetrics::RecordAction(L"NewTab", profile_);
-      if (GetType() == BrowserType::TABBED_BROWSER) {
+      if (type() == BrowserType::TABBED_BROWSER) {
         AddBlankTab(true);
       } else {
         Browser* b = GetOrCreateTabbedBrowser();
@@ -904,64 +904,6 @@ void Browser::OpenClearBrowsingDataDialog() {
         GetTopLevelHWND(),
         gfx::Rect(),
         new ClearBrowsingDataView(profile_))->Show();
-}
-
-void Browser::RunSimpleFrameMenu(const gfx::Point& pt, HWND hwnd) {
-  bool for_popup = !IsApplication();
-  EncodingMenuControllerDelegate d(this, &controller_);
-
-  // The menu's anchor point is different based on the UI layout.
-  Menu::AnchorPoint anchor;
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
-    anchor = Menu::TOPRIGHT;
-  else
-    anchor = Menu::TOPLEFT;
-
-  Menu m(&d, anchor, hwnd);
-  m.AppendMenuItemWithLabel(IDC_BACK,
-                            l10n_util::GetString(IDS_CONTENT_CONTEXT_BACK));
-  m.AppendMenuItemWithLabel(IDC_FORWARD,
-                            l10n_util::GetString(
-                                IDS_CONTENT_CONTEXT_FORWARD));
-  m.AppendMenuItemWithLabel(IDC_RELOAD,
-                            l10n_util::GetString(IDS_APP_MENU_RELOAD));
-  m.AppendSeparator();
-  m.AppendMenuItemWithLabel(IDC_DUPLICATE,
-                            l10n_util::GetString(IDS_APP_MENU_DUPLICATE));
-  m.AppendMenuItemWithLabel(IDC_COPY_URL,
-                            l10n_util::GetString(IDS_APP_MENU_COPY_URL));
-  if (for_popup) {
-    m.AppendMenuItemWithLabel(IDC_SHOW_AS_TAB,
-                              l10n_util::GetString(IDS_SHOW_AS_TAB));
-  }
-  m.AppendMenuItemWithLabel(IDC_NEWTAB,
-                            l10n_util::GetString(IDS_APP_MENU_NEW_WEB_PAGE));
-  m.AppendSeparator();
-  m.AppendMenuItemWithLabel(IDC_CUT, l10n_util::GetString(IDS_CUT));
-  m.AppendMenuItemWithLabel(IDC_COPY, l10n_util::GetString(IDS_COPY));
-  m.AppendMenuItemWithLabel(IDC_PASTE, l10n_util::GetString(IDS_PASTE));
-  m.AppendSeparator();
-  m.AppendMenuItemWithLabel(IDC_FIND, l10n_util::GetString(IDS_FIND_IN_PAGE));
-  m.AppendMenuItemWithLabel(IDC_SAVEPAGE, l10n_util::GetString(IDS_SAVEPAGEAS));
-  m.AppendMenuItemWithLabel(IDC_PRINT, l10n_util::GetString(IDS_PRINT));
-  m.AppendSeparator();
-  Menu* zoom_menu = m.AppendSubMenu(IDC_ZOOM,
-                                    l10n_util::GetString(IDS_ZOOM));
-  zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_PLUS,
-                                     l10n_util::GetString(IDS_ZOOM_PLUS));
-  zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_NORMAL,
-                                     l10n_util::GetString(IDS_ZOOM_NORMAL));
-  zoom_menu->AppendMenuItemWithLabel(IDC_ZOOM_MINUS,
-                                     l10n_util::GetString(IDS_ZOOM_MINUS));
-
-  // Create encoding menu.
-  Menu* encoding_menu = m.AppendSubMenu(IDC_ENCODING,
-                                        l10n_util::GetString(IDS_ENCODING));
-  EncodingMenuControllerDelegate::BuildEncodingMenu(profile_, encoding_menu);
-
-  m.AppendSeparator();
-  m.AppendMenuItemWithLabel(IDC_CLOSE_WEB_APP, l10n_util::GetString(IDS_CLOSE));
-  m.RunMenuAt(pt.x(), pt.y());
 }
 
 void Browser::CopyCurrentURLToClipBoard() {

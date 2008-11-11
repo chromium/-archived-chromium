@@ -36,17 +36,6 @@ class Browser : public TabStripModelDelegate,
                 public NotificationObserver,
                 public SelectFileDialog::Listener {
  public:
-  // TODO(beng): (Cleanup) This is a hack. Right now the |initial_bounds|
-  // parameter to Browser's ctor specifies the size of the frame, not the size
-  // of the contents that will be displayed within it. So this flag exists,
-  // which can be passed instead of a typical value for |show_command| that
-  // tells the Browser to create its window, and then use the |initial_bounds|
-  // parameter as the size of the contents, resizing the frame to fit. See
-  // SizeToContents method on chrome_frame.h
-  enum {
-    SIZE_TO_CONTENTS = 9999
-  };
-
   // Creates a new browser with the given bounds. If the bounds are empty, the
   // system will try to find a saved size from a previous session, if none
   // exists, the operating system will be allowed to size the window.
@@ -60,6 +49,8 @@ class Browser : public TabStripModelDelegate,
           BrowserType::Type browser_type,
           const std::wstring& app_name);
   ~Browser();
+
+  BrowserType::Type type() const { return type_; }
 
   // Shows the browser window. It is initially created hidden. It will be shown
   // with the show command passed to the constructor, or possibly another state
@@ -232,6 +223,9 @@ class Browser : public TabStripModelDelegate,
   virtual int GetDragActions() const;
   // Construct a TabContents for a given URL, profile and transition type.
   // If instance is not null, its process will be used to render the tab.
+  // TODO(beng): remove this from TabStripDelegate, it's only used by
+  //             TabStripModel::AddBlankTab*, which should really live here
+  //             on Browser.
   virtual TabContents* CreateTabContentsForURL(
       const GURL& url,
       const GURL& referrer,
@@ -288,13 +282,6 @@ class Browser : public TabStripModelDelegate,
   virtual void ContentsStateChanged(TabContents* source);
   virtual bool ShouldDisplayURLField();
 
-  // Return this browser type.
-  BrowserType::Type GetType() const;
-
-  // Invoke the menu we use for application and popup windows at the provided
-  // point and for the provided hwnd.
-  void RunSimpleFrameMenu(const gfx::Point& pt, HWND hwnd);
-
   // Show some native UI given a URL. If a tab with the same URL is already
   // visible in this browser, it becomes selected. Otherwise a new tab is
   // created.
@@ -318,10 +305,6 @@ class Browser : public TabStripModelDelegate,
   // window. Otherwise, create a new window with an off the record tab.
   static void OpenURLOffTheRecord(Profile* p, const GURL& url);
 
-  // Computes a title suitable for popups without a URL field.
-  static std::wstring ComputePopupTitle(const GURL& url,
-                                        const std::wstring& title);
-
   // Compute a deterministic name based on the URL. We use this pseudo name
   // as a key to store window location per application URLs.
   static std::wstring ComputeApplicationNameFromURL(const GURL& url);
@@ -336,8 +319,6 @@ class Browser : public TabStripModelDelegate,
 
   // Returns the location bar view for this browser.
   LocationBarView* GetLocationBarView() const;
-
-  void ConvertTabToApplication(TabContents* contents);
 
   // NEW FRAME METHODS BELOW THIS LINE ONLY... TODO(beng): clean up this file!
 
@@ -480,6 +461,7 @@ class Browser : public TabStripModelDelegate,
 
   // Removes the tab from the associated vector. Returns whether the tab
   // was in the vector in the first place.
+  // TODO(beng): this method needs a better name!
   bool RemoveFromVector(UnloadListenerVector* vector, TabContents* tab);
 
   // Cleans up state appropriately when we are trying to close the browser and
@@ -533,10 +515,6 @@ class Browser : public TabStripModelDelegate,
   // Tracks tabs that need there unload event fired before we can
   // close the browser. Only gets populated when we try to close the browser.
   UnloadListenerVector tabs_needing_unload_fired_;
-
-  // Whether we already handled the OnStripEmpty event - it can be called
-  // multiple times.
-  bool handled_strip_empty_;
 
   // Whether we are processing the beforeunload and unload events of each tab
   // in preparation for closing the browser.

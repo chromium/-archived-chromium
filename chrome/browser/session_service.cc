@@ -476,7 +476,7 @@ void SessionService::Observe(NotificationType type,
     case NOTIFY_BROWSER_OPENED: {
       Browser* browser = Source<Browser>(source).ptr();
       if (browser->profile() != profile_ ||
-          !should_track_changes_for_browser_type(browser->GetType())) {
+          !should_track_changes_for_browser_type(browser->type())) {
         return;
       }
 
@@ -494,7 +494,7 @@ void SessionService::Observe(NotificationType type,
               profile_, browser, false, false, false, std::vector<GURL>());
         }
       }
-      SetWindowType(browser->session_id(), browser->GetType());
+      SetWindowType(browser->session_id(), browser->type());
       break;
     }
 
@@ -1092,7 +1092,7 @@ void SessionService::BuildCommandsForBrowser(
                                    browser->window()->IsMaximized()));
 
   commands->push_back(CreateSetWindowTypeCommand(
-      browser->session_id(), browser->GetType()));
+      browser->session_id(), browser->type()));
 
   bool added_to_windows_to_track = false;
   for (int i = 0; i < browser->tab_count(); ++i) {
@@ -1119,7 +1119,7 @@ void SessionService::BuildCommandsFromBrowsers(
   DCHECK(commands);
   for (BrowserList::const_iterator i = BrowserList::begin();
        i != BrowserList::end(); ++i) {
-    if (should_track_changes_for_browser_type((*i)->GetType())) {
+    if (should_track_changes_for_browser_type((*i)->type())) {
       BuildCommandsForBrowser(*i, commands, tab_to_available_range,
                               windows_to_track);
     }
@@ -1258,7 +1258,7 @@ bool SessionService::IsOnlyOneTabLeft() {
   for (BrowserList::const_iterator i = BrowserList::begin();
        i != BrowserList::end(); ++i) {
     const SessionID::id_type window_id = (*i)->session_id().id();
-    if (should_track_changes_for_browser_type((*i)->GetType()) &&
+    if (should_track_changes_for_browser_type((*i)->type()) &&
         (*i)->profile()->GetOriginalProfile() == profile_ &&
         window_closing_ids_.find(window_id) == window_closing_ids_.end()) {
       if (++window_count > 1)
@@ -1286,7 +1286,7 @@ bool SessionService::HasOpenTabbedBrowsers(const SessionID& window_id) {
     const SessionID::id_type browser_id = browser->session_id().id();
     if (browser_id != window_id.id() &&
         window_closing_ids_.find(browser_id) == window_closing_ids_.end() &&
-        should_track_changes_for_browser_type(browser->GetType()) &&
+        should_track_changes_for_browser_type(browser->type()) &&
         browser->profile()->GetOriginalProfile() == profile_) {
       return true;
     }

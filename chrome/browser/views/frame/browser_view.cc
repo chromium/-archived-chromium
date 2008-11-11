@@ -154,8 +154,7 @@ bool BrowserView::IsOffTheRecord() const {
 }
 
 bool BrowserView::ShouldShowOffTheRecordAvatar() const {
-  return IsOffTheRecord() &&
-      browser_->GetType() == BrowserType::TABBED_BROWSER;
+  return IsOffTheRecord() && browser_->type() == BrowserType::TABBED_BROWSER;
 }
 
 bool BrowserView::AcceleratorPressed(const views::Accelerator& accelerator) {
@@ -246,7 +245,7 @@ void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
 }
 
 bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
-  return !!(FeaturesForBrowserType(browser_->GetType()) & feature);
+  return !!(FeaturesForBrowserType(browser_->type()) & feature);
 }
 
 // static
@@ -517,7 +516,7 @@ bool BrowserView::ShouldShowWindowTitle() const {
 }
 
 SkBitmap BrowserView::GetWindowIcon() {
-  if (browser_->GetType() == BrowserType::APPLICATION)
+  if (browser_->type() == BrowserType::APPLICATION)
     return browser_->GetCurrentPageIcon();
   return SkBitmap();
 }
@@ -553,7 +552,7 @@ bool BrowserView::RestoreWindowPosition(CRect* bounds,
   DCHECK(bounds && maximized && always_on_top);
   *always_on_top = false;
 
-  if (browser_->GetType() == BrowserType::BROWSER) {
+  if (browser_->type() == BrowserType::BROWSER) {
     // We are a popup window. The value passed in |bounds| represents two
     // pieces of information:
     // - the position of the window, in screen coordinates (outer position).
@@ -795,7 +794,7 @@ void BrowserView::InitSystemMenu() {
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
   // We add the menu items in reverse order so that insertion_index never needs
   // to change.
-  if (browser_->GetType() == BrowserType::TABBED_BROWSER) {
+  if (browser_->type() == BrowserType::TABBED_BROWSER) {
     system_menu_->AddSeparator(insertion_index);
     system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASKMANAGER,
                                        l10n_util::GetString(IDS_TASKMANAGER));

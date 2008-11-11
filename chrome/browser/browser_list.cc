@@ -178,7 +178,7 @@ Browser* BrowserList::GetLastActive() {
 // static
 Browser* BrowserList::FindBrowserWithType(Profile* p, BrowserType::Type t) {
   Browser* last_active = GetLastActive();
-  if (last_active && last_active->profile() == p && last_active->GetType() == t)
+  if (last_active && last_active->profile() == p && last_active->type() == t)
     return last_active;
 
   BrowserList::const_iterator i;
@@ -186,7 +186,7 @@ Browser* BrowserList::FindBrowserWithType(Profile* p, BrowserType::Type t) {
     if (*i == last_active)
       continue;
 
-    if ((*i)->profile() == p && (*i)->GetType() == t)
+    if ((*i)->profile() == p && (*i)->type() == t)
       return *i;
   }
   return NULL;
@@ -197,7 +197,7 @@ size_t BrowserList::GetBrowserCountForType(Profile* p, BrowserType::Type type) {
   BrowserList::const_iterator i;
   size_t result = 0;
   for (i = BrowserList::begin(); i != BrowserList::end(); ++i) {
-    if ((*i)->profile() == p && (*i)->GetType() == type)
+    if ((*i)->profile() == p && (*i)->type() == type)
       result++;
   }
   return result;

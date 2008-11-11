@@ -297,7 +297,7 @@ class SessionRestoreImpl : public NotificationObserver {
         // If there is an open tabbed browser window, use it. Otherwise fall
         // through and create a new one.
         browser = current_browser;
-        if (browser && (browser->GetType() != BrowserType::TABBED_BROWSER ||
+        if (browser && (browser->type() != BrowserType::TABBED_BROWSER ||
                         browser->profile()->IsOffTheRecord())) {
           browser = NULL;
         }
@@ -320,7 +320,7 @@ class SessionRestoreImpl : public NotificationObserver {
     // included at least one tabbed browser, then close the browser window
     // that was opened when the user clicked to restore the session.
     if (clobber_existing_window_ && current_browser && has_tabbed_browser &&
-        current_browser->GetType() == BrowserType::TABBED_BROWSER) {
+        current_browser->type() == BrowserType::TABBED_BROWSER) {
       current_browser->CloseAllTabs();
     }
     if (last_browser && !urls_to_open_.empty())

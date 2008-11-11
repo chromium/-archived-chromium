@@ -532,7 +532,7 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
     bool process_startup,
     const std::vector<GURL>& urls) {
   DCHECK(!urls.empty());
-  if (!browser || browser->GetType() != BrowserType::TABBED_BROWSER)
+  if (!browser || browser->type() != BrowserType::TABBED_BROWSER)
     browser = CreateTabbedBrowser();
 
   for (size_t i = 0; i < urls.size(); ++i) {

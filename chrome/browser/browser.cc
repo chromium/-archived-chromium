@@ -733,7 +733,7 @@ void Browser::CloseContents(TabContents* source) {
 }
 
 void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
-  if (GetType() != BrowserType::BROWSER) {
+  if (type() != BrowserType::BROWSER) {
     NOTREACHED() << "moving invalid browser type";
     return;
   }
@@ -745,7 +745,7 @@ void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
 
 bool Browser::IsPopup(TabContents* source) {
   // A non-tabbed BROWSER is an unconstrained popup.
-  return (GetType() == BrowserType::BROWSER);
+  return (type() == BrowserType::BROWSER);
 }
 
 void Browser::ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
@@ -1207,6 +1207,7 @@ TabContents* Browser::CreateTabContentsForURL(
 }
 
 void Browser::ValidateLoadingAnimations() {
+  // TODO(beng): Remove this, per http://crbug.com/3297
   if (window_)
     window_->ValidateThrobber();
 }
@@ -1340,10 +1341,6 @@ void Browser::TabStripEmpty() {
       method_factory_.NewRunnableMethod(&Browser::CloseFrame));
 }
 
-BrowserType::Type Browser::GetType() const {
-  return type_;
-}
-
 void Browser::InitHangMonitor() {
   PrefService* pref_service = g_browser_process->local_state();
   DCHECK(pref_service != NULL);
@@ -1449,7 +1446,7 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
 }
 
 void Browser::ConvertToTabbedBrowser() {
-  if (GetType() != BrowserType::BROWSER) {
+  if (type() != BrowserType::BROWSER) {
     NOTREACHED();
     return;
   }
@@ -1560,7 +1557,7 @@ NavigationController* Browser::GetSelectedNavigationController() const {
 
 void Browser::SaveWindowPosition(const gfx::Rect& bounds, bool maximized) {
   // We don't save window position for popups.
-  if (GetType() == BrowserType::BROWSER)
+  if (type() == BrowserType::BROWSER)
     return;
 
   // First save to local state, this is for remembering on subsequent starts.
