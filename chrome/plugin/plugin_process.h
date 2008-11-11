@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_PLUGIN_PLUGIN_PROCESS_H__
-#define CHROME_PLUGIN_PLUGIN_PROCESS_H__
+#ifndef CHROME_PLUGIN_PLUGIN_PROCESS_H_
+#define CHROME_PLUGIN_PLUGIN_PROCESS_H_
 
 #include "chrome/common/child_process.h"
 #include "chrome/plugin/plugin_thread.h"
@@ -48,5 +48,4 @@ class PluginProcess : public ChildProcess {
   DISALLOW_EVIL_CONSTRUCTORS(PluginProcess);
 };
 
-#endif  // CHROME_PLUGIN_PLUGIN_PROCESS_H__
-
+#endif  // CHROME_PLUGIN_PLUGIN_PROCESS_H_
