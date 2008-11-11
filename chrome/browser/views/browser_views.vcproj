@@ -145,11 +145,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\frame\browser_view2.cc"
+				RelativePath=".\frame\browser_view.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\frame\browser_view2.h"
+				RelativePath=".\frame\browser_view.h"
 				>
 			</File>
 			<File

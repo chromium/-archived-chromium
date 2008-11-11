@@ -8,7 +8,7 @@
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/views/custom_frame_window.h"
 
-class BrowserView2;
+class BrowserView;
 namespace views {
 class Window;
 }
@@ -26,7 +26,7 @@ class TabStrip;
 class OpaqueFrame : public BrowserFrame,
                     public views::CustomFrameWindow {
  public:
-  explicit OpaqueFrame(BrowserView2* browser_view);
+  explicit OpaqueFrame(BrowserView* browser_view);
   virtual ~OpaqueFrame();
 
  protected:
@@ -58,8 +58,8 @@ class OpaqueFrame : public BrowserFrame,
   // Return a pointer to the concrete type of our non-client view.
   OpaqueNonClientView* GetOpaqueNonClientView() const;
 
-  // The BrowserView2 is our ClientView. This is a pointer to it.
-  BrowserView2* browser_view_;
+  // The BrowserView is our ClientView. This is a pointer to it.
+  BrowserView* browser_view_;
 
   DISALLOW_EVIL_CONSTRUCTORS(OpaqueFrame);
 };

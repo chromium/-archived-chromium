@@ -8,7 +8,7 @@
 
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/frame_util.h"
-#include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/aero_glass_non_client_view.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/window_delegate.h"
@@ -29,7 +29,7 @@ HICON AeroGlassFrame::throbber_icons_[AeroGlassFrame::kThrobberIconCount];
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame, public:
 
-AeroGlassFrame::AeroGlassFrame(BrowserView2* browser_view)
+AeroGlassFrame::AeroGlassFrame(BrowserView* browser_view)
     : Window(browser_view),
       browser_view_(browser_view),
       frame_initialized_(false),

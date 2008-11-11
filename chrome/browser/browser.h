@@ -356,10 +356,7 @@ class Browser : public TabStripModelDelegate,
   static void FormatTitleForDisplay(std::wstring* title);
 
  private:
-  friend class XPFrame;
-  friend class VistaFrame;
-  friend class SimpleFrame;
-  friend class BrowserView2;
+  friend class BrowserView;
 
   // Tracks invalidates to the UI, see the declaration in the .cc file.
   struct UIUpdate;
@@ -517,7 +514,7 @@ class Browser : public TabStripModelDelegate,
   // After the first call to Show() succeeds, this is set to -1, indicating that
   // subsequent calls to Show() should be ignored.
   // TODO(beng): This should be removed (http://crbug.com/3557) and put into
-  //             BrowserView2, or some more likely place.
+  //             BrowserView, or some more likely place.
   int initial_show_command_;
 
   class BrowserToolbarModel : public ToolbarModel {

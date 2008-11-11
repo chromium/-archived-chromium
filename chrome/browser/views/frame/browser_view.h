@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW2_H_
-#define CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW2_H_
+#ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
+#define CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
 
 #include "chrome/browser/browser_type.h"
 #include "chrome/browser/browser_window.h"
@@ -25,31 +25,31 @@ class StatusBubble;
 class TabContentsContainerView;
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2
+// BrowserView
 //
 //  A ClientView subclass that provides the contents of a browser window,
 //  including the TabStrip, toolbars, download shelves, the content area etc.
 //
-class BrowserView2 : public BrowserWindow,
-                     public NotificationObserver,
-                     public TabStripModelObserver,
-                     public views::WindowDelegate,
-                     public views::ClientView {
+class BrowserView : public BrowserWindow,
+                    public NotificationObserver,
+                    public TabStripModelObserver,
+                    public views::WindowDelegate,
+                    public views::ClientView {
  public:
-  explicit BrowserView2(Browser* browser);
-  virtual ~BrowserView2();
+  explicit BrowserView(Browser* browser);
+  virtual ~BrowserView();
 
   void set_frame(BrowserFrame* frame) { frame_ = frame; }
 
-  // Called by the frame to notify the BrowserView2 that it was moved, and that
+  // Called by the frame to notify the BrowserView that it was moved, and that
   // any dependent popup windows should be repositioned.
   void WindowMoved();
 
-  // Returns the bounds of the toolbar, in BrowserView2 coordinates.
+  // Returns the bounds of the toolbar, in BrowserView coordinates.
   gfx::Rect GetToolbarBounds() const;
 
   // Returns the bounds of the content area, in the coordinates of the
-  // BrowserView2's parent.
+  // BrowserView's parent.
   gfx::Rect GetClientAreaBounds() const;
 
   // Returns the preferred height of the TabStrip. Used to position the OTR
@@ -108,7 +108,7 @@ class BrowserView2 : public BrowserWindow,
   // Retrieves the icon to use in the frame to indicate an OTR window.
   SkBitmap GetOTRAvatarIcon();
 
-  // Called right before displaying the system menu to allow the BrowserView2
+  // Called right before displaying the system menu to allow the BrowserView
   // to add or delete entries.
   void PrepareToRunSystemMenu(HMENU menu);
 
@@ -123,7 +123,7 @@ class BrowserView2 : public BrowserWindow,
     FEATURE_DOWNLOADSHELF = 64
   };
 
-  // Returns true if the Browser object associated with this BrowserView2
+  // Returns true if the Browser object associated with this BrowserView
   // supports the specified feature.
   bool SupportsWindowFeature(WindowFeature feature) const;
 
@@ -364,7 +364,7 @@ class BrowserView2 : public BrowserWindow,
   bool personalization_enabled_;
 #endif
 
-  DISALLOW_EVIL_CONSTRUCTORS(BrowserView2);
+  DISALLOW_EVIL_CONSTRUCTORS(BrowserView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW2_H_
+#endif  // #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_

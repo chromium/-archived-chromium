@@ -762,7 +762,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bookmarks\bookmark_model.cc"
+				RelativePath=".\bookmarks\bookmark_html_writer.cc"
 				>
 			</File>
 			<File
@@ -770,7 +770,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bookmarks\bookmark_html_writer.cc"
+				RelativePath=".\bookmarks\bookmark_model.cc"
 				>
 			</File>
 			<File

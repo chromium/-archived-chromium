@@ -10,7 +10,7 @@
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/button.h"
 
-class BrowserView2;
+class BrowserView;
 class OpaqueFrame;
 class TabContents;
 class TabStrip;
@@ -25,7 +25,7 @@ class OpaqueNonClientView : public views::NonClientView,
   // Constructs a non-client view for an OpaqueFrame. |is_otr| specifies if the
   // frame was created "off-the-record" and as such different bitmaps should be
   // used to render the frame.
-  OpaqueNonClientView(OpaqueFrame* frame, BrowserView2* browser_view);
+  OpaqueNonClientView(OpaqueFrame* frame, BrowserView* browser_view);
   virtual ~OpaqueNonClientView();
 
   // Retrieve the bounds of the window for the specified contents bounds.
@@ -124,7 +124,7 @@ class OpaqueNonClientView : public views::NonClientView,
   OpaqueFrame* frame_;
 
   // The BrowserView hosted within this View.
-  BrowserView2* browser_view_;
+  BrowserView* browser_view_;
 
   // The resources currently used to paint this view.
   views::WindowResources* current_active_resources_;

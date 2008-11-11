@@ -9,7 +9,7 @@
 #include "chrome/views/window.h"
 
 class AeroGlassNonClientView;
-class BrowserView2;
+class BrowserView;
 
 ///////////////////////////////////////////////////////////////////////////////
 // AeroGlassFrame
@@ -21,7 +21,7 @@ class BrowserView2;
 class AeroGlassFrame : public BrowserFrame,
                        public views::Window {
  public:
-  explicit AeroGlassFrame(BrowserView2* browser_view);
+  explicit AeroGlassFrame(BrowserView* browser_view);
   virtual ~AeroGlassFrame();
 
   void Init(const gfx::Rect& bounds);
@@ -69,8 +69,8 @@ class AeroGlassFrame : public BrowserFrame,
   // Displays the next throbber frame.
   void DisplayNextThrobberFrame();
 
-  // The BrowserView2 is our ClientView. This is a pointer to it.
-  BrowserView2* browser_view_;
+  // The BrowserView is our ClientView. This is a pointer to it.
+  BrowserView* browser_view_;
 
   bool frame_initialized_;
 

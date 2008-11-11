@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_H_
 #define CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_H_
 
-class BrowserView2;
+class BrowserView;
 namespace views {
 class Window;
 }
@@ -24,7 +24,7 @@ class TabStrip;
 class BrowserFrame {
  public:
   // TODO(beng): We should _not_ have to expose this method here... it's only
-  //             because BrowserView2 needs it to implement BrowserWindow
+  //             because BrowserView needs it to implement BrowserWindow
   //             because we're doing popup setup in browser.cc when we
   //             shouldn't be...
   virtual gfx::Rect GetWindowBoundsForClientBounds(
@@ -56,7 +56,7 @@ class BrowserFrame {
   // Creates a BrowserFrame instance for the specified FrameType and
   // BrowserView.
   static BrowserFrame* CreateForBrowserView(FrameType type,
-                                            BrowserView2* browser_view,
+                                            BrowserView* browser_view,
                                             const gfx::Rect& bounds,
                                             int show_command);
 

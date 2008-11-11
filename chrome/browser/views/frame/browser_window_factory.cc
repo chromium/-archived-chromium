@@ -9,7 +9,7 @@
 #include "chrome/browser/frame_util.h"
 #include "chrome/browser/views/frame/aero_glass_frame.h"
 #include "chrome/browser/views/frame/browser_frame.h"
-#include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/opaque_frame.h"
 #include "chrome/common/win_util.h"
 
@@ -20,7 +20,7 @@
 BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser,
                                                   const gfx::Rect& bounds,
                                                   int show_command) {
-  BrowserView2* browser_view = new BrowserView2(browser);
+  BrowserView* browser_view = new BrowserView(browser);
   BrowserFrame::CreateForBrowserView(BrowserFrame::GetActiveFrameType(),
                                      browser_view, bounds, show_command);
   return browser_view;
@@ -37,7 +37,7 @@ BrowserFrame::FrameType BrowserFrame::GetActiveFrameType() {
 
 // static
 BrowserFrame* BrowserFrame::CreateForBrowserView(BrowserFrame::FrameType type,
-                                                 BrowserView2* browser_view,
+                                                 BrowserView* browser_view,
                                                  const gfx::Rect& bounds,
                                                  int show_command) {
   if (type == FRAMETYPE_OPAQUE) {

@@ -5,7 +5,7 @@
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/path.h"
@@ -355,7 +355,7 @@ static const int kNewTabIconWindowControlsSpacing = 10;
 // OpaqueNonClientView, public:
 
 OpaqueNonClientView::OpaqueNonClientView(OpaqueFrame* frame,
-                                         BrowserView2* browser_view)
+                                         BrowserView* browser_view)
     : NonClientView(),
       minimize_button_(new views::Button),
       maximize_button_(new views::Button),

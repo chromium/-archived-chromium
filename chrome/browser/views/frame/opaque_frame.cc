@@ -5,7 +5,7 @@
 #include "chrome/browser/views/frame/opaque_frame.h"
 
 #include "chrome/browser/frame_util.h"
-#include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/views/window_delegate.h"
@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, public:
 
-OpaqueFrame::OpaqueFrame(BrowserView2* browser_view)
+OpaqueFrame::OpaqueFrame(BrowserView* browser_view)
     : CustomFrameWindow(browser_view, new OpaqueNonClientView(this,
                                                               browser_view)),
       browser_view_(browser_view) {

@@ -4,7 +4,7 @@
 
 #include "base/command_line.h"
 
-#include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/frame/browser_view.h"
 
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
@@ -38,8 +38,8 @@
 #include "generated_resources.h"
 
 // static
-SkBitmap BrowserView2::default_favicon_;
-SkBitmap BrowserView2::otr_avatar_;
+SkBitmap BrowserView::default_favicon_;
+SkBitmap BrowserView::otr_avatar_;
 // The vertical overlap between the TabStrip and the Toolbar.
 static const int kToolbarTabStripVerticalOverlap = 3;
 // The visible height of the shadow above the tabs. Clicks in this area are
@@ -85,9 +85,9 @@ static const struct { bool separator; int command; int label; } kMenuLayout[] = 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, public:
+// BrowserView, public:
 
-BrowserView2::BrowserView2(Browser* browser)
+BrowserView::BrowserView(Browser* browser)
     : ClientView(NULL, NULL),
       frame_(NULL),
       browser_(browser),
@@ -109,11 +109,11 @@ BrowserView2::BrowserView2(Browser* browser)
   browser_->tabstrip_model()->AddObserver(this);
 }
 
-BrowserView2::~BrowserView2() {
+BrowserView::~BrowserView() {
   browser_->tabstrip_model()->RemoveObserver(this);
 }
 
-void BrowserView2::WindowMoved() {
+void BrowserView::WindowMoved() {
   // Cancel any tabstrip animations, some of them may be invalidated by the
   // window being repositioned.
   // Comment out for one cycle to see if this fixes dist tests.
@@ -126,39 +126,39 @@ void BrowserView2::WindowMoved() {
     GetLocationBarView()->location_entry()->ClosePopup();
 }
 
-gfx::Rect BrowserView2::GetToolbarBounds() const {
+gfx::Rect BrowserView::GetToolbarBounds() const {
   return toolbar_->bounds();
 }
 
-gfx::Rect BrowserView2::GetClientAreaBounds() const {
+gfx::Rect BrowserView::GetClientAreaBounds() const {
   gfx::Rect container_bounds = contents_container_->bounds();
   container_bounds.Offset(x(), y());
   return container_bounds;
 }
 
-int BrowserView2::GetTabStripHeight() const {
+int BrowserView::GetTabStripHeight() const {
   return tabstrip_->GetPreferredHeight();
 }
 
-bool BrowserView2::IsToolbarVisible() const {
+bool BrowserView::IsToolbarVisible() const {
   return SupportsWindowFeature(FEATURE_TOOLBAR) ||
          SupportsWindowFeature(FEATURE_LOCATIONBAR);
 }
 
-bool BrowserView2::IsTabStripVisible() const {
+bool BrowserView::IsTabStripVisible() const {
   return SupportsWindowFeature(FEATURE_TABSTRIP);
 }
 
-bool BrowserView2::IsOffTheRecord() const {
+bool BrowserView::IsOffTheRecord() const {
   return browser_->profile()->IsOffTheRecord();
 }
 
-bool BrowserView2::ShouldShowOffTheRecordAvatar() const {
+bool BrowserView::ShouldShowOffTheRecordAvatar() const {
   return IsOffTheRecord() &&
       browser_->GetType() == BrowserType::TABBED_BROWSER;
 }
 
-bool BrowserView2::AcceleratorPressed(const views::Accelerator& accelerator) {
+bool BrowserView::AcceleratorPressed(const views::Accelerator& accelerator) {
   DCHECK(accelerator_table_.get());
   std::map<views::Accelerator, int>::const_iterator iter =
       accelerator_table_->find(accelerator);
@@ -173,8 +173,7 @@ bool BrowserView2::AcceleratorPressed(const views::Accelerator& accelerator) {
   return false;
 }
 
-bool BrowserView2::GetAccelerator(int cmd_id,
-                                  views::Accelerator* accelerator) {
+bool BrowserView::GetAccelerator(int cmd_id, views::Accelerator* accelerator) {
   std::map<views::Accelerator, int>::iterator it =
       accelerator_table_->begin();
   for (; it != accelerator_table_->end(); ++it) {
@@ -186,8 +185,8 @@ bool BrowserView2::GetAccelerator(int cmd_id,
   return false;
 }
 
-bool BrowserView2::SystemCommandReceived(UINT notification_code,
-                                         const gfx::Point& point) {
+bool BrowserView::SystemCommandReceived(UINT notification_code,
+                                        const gfx::Point& point) {
   bool handled = false;
 
   if (browser_->SupportsCommand(notification_code)) {
@@ -198,11 +197,11 @@ bool BrowserView2::SystemCommandReceived(UINT notification_code,
   return handled;
 }
 
-void BrowserView2::AddViewToDropList(views::View* view) {
+void BrowserView::AddViewToDropList(views::View* view) {
   dropable_views_.insert(view);
 }
 
-bool BrowserView2::ActivateAppModalDialog() const {
+bool BrowserView::ActivateAppModalDialog() const {
   // If another browser is app modal, flash and activate the modal browser.
   if (BrowserList::IsShowingAppModalDialog()) {
     Browser* active_browser = BrowserList::GetLastActive();
@@ -216,17 +215,17 @@ bool BrowserView2::ActivateAppModalDialog() const {
   return false;
 }
 
-void BrowserView2::ActivationChanged(bool activated) {
+void BrowserView::ActivationChanged(bool activated) {
   // The Browser wants to update the BrowserList to let it know it's now
   // active.
   browser_->WindowActivationChanged(activated);
 }
 
-TabContents* BrowserView2::GetSelectedTabContents() const {
+TabContents* BrowserView::GetSelectedTabContents() const {
   return browser_->GetSelectedTabContents();
 }
 
-SkBitmap BrowserView2::GetOTRAvatarIcon() {
+SkBitmap BrowserView::GetOTRAvatarIcon() {
   if (otr_avatar_.isNull()) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     otr_avatar_ = *rb.GetBitmapNamed(IDR_OTR_ICON);
@@ -234,7 +233,7 @@ SkBitmap BrowserView2::GetOTRAvatarIcon() {
   return otr_avatar_;
 }
 
-void BrowserView2::PrepareToRunSystemMenu(HMENU menu) {
+void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
   for (int i = 0; i < arraysize(kMenuLayout); ++i) {
     int command = kMenuLayout[i].command;
     // |command| can be zero on submenu items (IDS_ENCODING,
@@ -246,12 +245,12 @@ void BrowserView2::PrepareToRunSystemMenu(HMENU menu) {
   }
 }
 
-bool BrowserView2::SupportsWindowFeature(WindowFeature feature) const {
+bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
   return !!(FeaturesForBrowserType(browser_->GetType()) & feature);
 }
 
 // static
-unsigned int BrowserView2::FeaturesForBrowserType(BrowserType::Type type) {
+unsigned int BrowserView::FeaturesForBrowserType(BrowserType::Type type) {
   unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
   if (type == BrowserType::TABBED_BROWSER)
     features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR | FEATURE_BOOKMARKBAR;
@@ -263,9 +262,9 @@ unsigned int BrowserView2::FeaturesForBrowserType(BrowserType::Type type) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, BrowserWindow implementation:
+// BrowserView, BrowserWindow implementation:
 
-void BrowserView2::Init() {
+void BrowserView::Init() {
   // Stow a pointer to this object onto the window handle so that we can get
   // at it later when all we have is a HWND.
   SetProp(GetContainer()->GetHWND(), kBrowserWindowKey, this);
@@ -300,27 +299,27 @@ void BrowserView2::Init() {
   InitSystemMenu();
 }
 
-void BrowserView2::Show(int command, bool adjust_to_fit) {
+void BrowserView::Show(int command, bool adjust_to_fit) {
   frame_->GetWindow()->Show(command);
 }
 
-void BrowserView2::Close() {
+void BrowserView::Close() {
   frame_->GetWindow()->Close();
 }
 
-void* BrowserView2::GetPlatformID() {
+void* BrowserView::GetPlatformID() {
   return GetContainer()->GetHWND();
 }
 
-TabStrip* BrowserView2::GetTabStrip() const {
+TabStrip* BrowserView::GetTabStrip() const {
   return tabstrip_;
 }
 
-StatusBubble* BrowserView2::GetStatusBubble() {
+StatusBubble* BrowserView::GetStatusBubble() {
   return status_bubble_.get();
 }
 
-void BrowserView2::SelectedTabToolbarSizeChanged(bool is_animating) {
+void BrowserView::SelectedTabToolbarSizeChanged(bool is_animating) {
   if (is_animating) {
     contents_container_->set_fast_resize(true);
     UpdateUIForContents(browser_->GetSelectedTabContents());
@@ -331,17 +330,17 @@ void BrowserView2::SelectedTabToolbarSizeChanged(bool is_animating) {
   }
 }
 
-void BrowserView2::UpdateTitleBar() {
+void BrowserView::UpdateTitleBar() {
   frame_->GetWindow()->UpdateWindowTitle();
   if (ShouldShowWindowIcon())
     frame_->GetWindow()->UpdateWindowIcon();
 }
 
-void BrowserView2::Activate() {
+void BrowserView::Activate() {
   frame_->GetWindow()->Activate();
 }
 
-void BrowserView2::FlashFrame() {
+void BrowserView::FlashFrame() {
   FLASHWINFO fwi;
   fwi.cbSize = sizeof(fwi);
   fwi.hwnd = frame_->GetWindow()->GetHWND();
@@ -351,23 +350,23 @@ void BrowserView2::FlashFrame() {
   FlashWindowEx(&fwi);
 }
 
-void BrowserView2::SizeToContents(const gfx::Rect& contents_bounds) {
+void BrowserView::SizeToContents(const gfx::Rect& contents_bounds) {
   frame_->SizeToContents(contents_bounds);
 }
 
-void BrowserView2::SetAcceleratorTable(
+void BrowserView::SetAcceleratorTable(
     std::map<views::Accelerator, int>* accelerator_table) {
   accelerator_table_.reset(accelerator_table);
 }
 
-void BrowserView2::ValidateThrobber() {
+void BrowserView::ValidateThrobber() {
   if (ShouldShowWindowIcon()) {
     TabContents* tab_contents = browser_->GetSelectedTabContents();
     frame_->UpdateThrobber(tab_contents ? tab_contents->is_loading() : false);
   }
 }
 
-gfx::Rect BrowserView2::GetNormalBounds() {
+gfx::Rect BrowserView::GetNormalBounds() {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(wp);
   const bool ret = !!GetWindowPlacement(frame_->GetWindow()->GetHWND(), &wp);
@@ -375,36 +374,36 @@ gfx::Rect BrowserView2::GetNormalBounds() {
   return gfx::Rect(wp.rcNormalPosition);
 }
 
-bool BrowserView2::IsMaximized() {
+bool BrowserView::IsMaximized() {
   return frame_->GetWindow()->IsMaximized();
 }
 
-gfx::Rect BrowserView2::GetBoundsForContentBounds(
+gfx::Rect BrowserView::GetBoundsForContentBounds(
     const gfx::Rect content_rect) {
   return frame_->GetWindowBoundsForClientBounds(content_rect);
 }
 
-void BrowserView2::InfoBubbleShowing() {
+void BrowserView::InfoBubbleShowing() {
   frame_->GetWindow()->DisableInactiveRendering(true);
 }
 
-void BrowserView2::InfoBubbleClosing() {
+void BrowserView::InfoBubbleClosing() {
   frame_->GetWindow()->DisableInactiveRendering(false);
 }
 
-ToolbarStarToggle* BrowserView2::GetStarButton() const {
+ToolbarStarToggle* BrowserView::GetStarButton() const {
   return toolbar_->star_button();
 }
 
-LocationBarView* BrowserView2::GetLocationBarView() const {
+LocationBarView* BrowserView::GetLocationBarView() const {
   return toolbar_->GetLocationBarView();
 }
 
-GoButton* BrowserView2::GetGoButton() const {
+GoButton* BrowserView::GetGoButton() const {
   return toolbar_->GetGoButton();
 }
 
-BookmarkBarView* BrowserView2::GetBookmarkBarView() {
+BookmarkBarView* BrowserView::GetBookmarkBarView() {
   TabContents* current_tab = browser_->GetSelectedTabContents();
   if (!bookmark_bar_view_.get()) {
     bookmark_bar_view_.reset(new BookmarkBarView(current_tab->profile(),
@@ -417,20 +416,20 @@ BookmarkBarView* BrowserView2::GetBookmarkBarView() {
   return bookmark_bar_view_.get();
 }
 
-BrowserView* BrowserView2::GetBrowserView() const {
+BrowserView* BrowserView::GetBrowserView() const {
   return NULL;
 }
 
-void BrowserView2::UpdateToolbar(TabContents* contents,
-                                 bool should_restore_state) {
+void BrowserView::UpdateToolbar(TabContents* contents,
+                                bool should_restore_state) {
   toolbar_->Update(contents, should_restore_state);
 }
 
-void BrowserView2::FocusToolbar() {
+void BrowserView::FocusToolbar() {
   toolbar_->RequestFocus();
 }
 
-void BrowserView2::DestroyBrowser() {
+void BrowserView::DestroyBrowser() {
   // Explicitly delete the BookmarkBarView now. That way we don't have to
   // worry about the BookmarkBarView potentially outliving the Browser &
   // Profile.
@@ -438,7 +437,7 @@ void BrowserView2::DestroyBrowser() {
   browser_.reset();
 }
 
-bool BrowserView2::IsBookmarkBarVisible() const {
+bool BrowserView::IsBookmarkBarVisible() const {
   if (!bookmark_bar_view_.get())
     return false;
 
@@ -450,11 +449,11 @@ bool BrowserView2::IsBookmarkBarVisible() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, NotificationObserver implementation:
+// BrowserView, NotificationObserver implementation:
 
-void BrowserView2::Observe(NotificationType type,
-                           const NotificationSource& source,
-                           const NotificationDetails& details) {
+void BrowserView::Observe(NotificationType type,
+                          const NotificationSource& source,
+                          const NotificationDetails& details) {
   if (type == NOTIFY_PREF_CHANGED &&
       *Details<std::wstring>(details).ptr() == prefs::kShowBookmarkBar) {
     if (MaybeShowBookmarkBar(browser_->GetSelectedTabContents()))
@@ -465,9 +464,9 @@ void BrowserView2::Observe(NotificationType type,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, TabStripModelObserver implementation:
+// BrowserView, TabStripModelObserver implementation:
 
-void BrowserView2::TabDetachedAt(TabContents* contents, int index) {
+void BrowserView::TabDetachedAt(TabContents* contents, int index) {
   // We use index here rather than comparing |contents| because by this time
   // the model has already removed |contents| from its list, so
   // browser_->GetSelectedTabContents() will return NULL or something else.
@@ -479,10 +478,10 @@ void BrowserView2::TabDetachedAt(TabContents* contents, int index) {
   }
 }
 
-void BrowserView2::TabSelectedAt(TabContents* old_contents,
-                                 TabContents* new_contents,
-                                 int index,
-                                 bool user_gesture) {
+void BrowserView::TabSelectedAt(TabContents* old_contents,
+                                TabContents* new_contents,
+                                int index,
+                                bool user_gesture) {
   DCHECK(old_contents != new_contents);
 
   if (old_contents)
@@ -505,7 +504,7 @@ void BrowserView2::TabSelectedAt(TabContents* old_contents,
   UpdateUIForContents(new_contents);
 }
 
-void BrowserView2::TabStripEmpty() {
+void BrowserView::TabStripEmpty() {
   // Make sure all optional UI is removed before we are destroyed, otherwise
   // there will be consequences (since our view hierarchy will still have
   // references to freed views).
@@ -513,43 +512,43 @@ void BrowserView2::TabStripEmpty() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, views::WindowDelegate implementation:
+// BrowserView, views::WindowDelegate implementation:
 
-bool BrowserView2::CanResize() const {
+bool BrowserView::CanResize() const {
   return true;
 }
 
-bool BrowserView2::CanMaximize() const {
+bool BrowserView::CanMaximize() const {
   return true;
 }
 
-bool BrowserView2::IsModal() const {
+bool BrowserView::IsModal() const {
   return false;
 }
 
-std::wstring BrowserView2::GetWindowTitle() const {
+std::wstring BrowserView::GetWindowTitle() const {
   return browser_->GetCurrentPageTitle();
 }
 
-views::View* BrowserView2::GetInitiallyFocusedView() const {
+views::View* BrowserView::GetInitiallyFocusedView() const {
   return GetLocationBarView();
 }
 
-bool BrowserView2::ShouldShowWindowTitle() const {
+bool BrowserView::ShouldShowWindowTitle() const {
   return SupportsWindowFeature(FEATURE_TITLEBAR);
 }
 
-SkBitmap BrowserView2::GetWindowIcon() {
+SkBitmap BrowserView::GetWindowIcon() {
   if (browser_->GetType() == BrowserType::APPLICATION)
     return browser_->GetCurrentPageIcon();
   return SkBitmap();
 }
 
-bool BrowserView2::ShouldShowWindowIcon() const {
+bool BrowserView::ShouldShowWindowIcon() const {
   return SupportsWindowFeature(FEATURE_TITLEBAR);
 }
 
-bool BrowserView2::ExecuteWindowsCommand(int command_id) {
+bool BrowserView::ExecuteWindowsCommand(int command_id) {
   // Translate WM_APPCOMMAND command ids into a command id that the browser
   // knows how to handle.
   int command_id_from_app_command = GetCommandIDForAppCommandID(command_id);
@@ -564,15 +563,15 @@ bool BrowserView2::ExecuteWindowsCommand(int command_id) {
   return false;
 }
 
-void BrowserView2::SaveWindowPosition(const CRect& bounds,
-                                      bool maximized,
-                                      bool always_on_top) {
+void BrowserView::SaveWindowPosition(const CRect& bounds,
+                                     bool maximized,
+                                     bool always_on_top) {
   browser_->SaveWindowPosition(gfx::Rect(bounds), maximized);
 }
 
-bool BrowserView2::RestoreWindowPosition(CRect* bounds,
-                                         bool* maximized,
-                                         bool* always_on_top) {
+bool BrowserView::RestoreWindowPosition(CRect* bounds,
+                                        bool* maximized,
+                                        bool* always_on_top) {
   DCHECK(bounds && maximized && always_on_top);
   *always_on_top = false;
 
@@ -621,22 +620,22 @@ bool BrowserView2::RestoreWindowPosition(CRect* bounds,
   return true;
 }
 
-void BrowserView2::WindowClosing() {
+void BrowserView::WindowClosing() {
 }
 
-views::View* BrowserView2::GetContentsView() {
+views::View* BrowserView::GetContentsView() {
   return contents_container_;
 }
 
-views::ClientView* BrowserView2::CreateClientView(views::Window* window) {
+views::ClientView* BrowserView::CreateClientView(views::Window* window) {
   set_window(window);
   return this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, views::ClientView overrides:
+// BrowserView, views::ClientView overrides:
 
-bool BrowserView2::CanClose() const {
+bool BrowserView::CanClose() const {
   // You cannot close a frame for which there is an active originating drag
   // session.
   if (tabstrip_->IsDragSessionActive())
@@ -663,7 +662,7 @@ bool BrowserView2::CanClose() const {
   return true;
 }
 
-int BrowserView2::NonClientHitTest(const gfx::Point& point) {
+int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // Since the TabStrip only renders in some parts of the top of the window,
   // the un-obscured area is considered to be part of the non-client caption
   // area of the window. So we need to treat hit-tests in these regions as
@@ -712,7 +711,7 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
   // in the window caption (e.g. the area to the right of the tabstrip
   // underneath the window controls). However, note that we DO NOT return
   // HTCAPTION here, because when the window is maximized the window controls
-  // will fall into this space (since the BrowserView2 is sized to entire size
+  // will fall into this space (since the BrowserView is sized to entire size
   // of the window at that point), and the HTCAPTION value will cause the
   // window controls not to work. So we return HTNOWHERE so that the caller
   // will hit-test the window controls before finally falling back to
@@ -727,9 +726,9 @@ int BrowserView2::NonClientHitTest(const gfx::Point& point) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, views::View overrides:
+// BrowserView, views::View overrides:
 
-void BrowserView2::Layout() {
+void BrowserView::Layout() {
   int top = LayoutTabStrip();
   top = LayoutToolbar(top);
   top = LayoutBookmarkAndInfoBars(top);
@@ -747,9 +746,9 @@ void BrowserView2::Layout() {
   SchedulePaint();
 }
 
-void BrowserView2::ViewHierarchyChanged(bool is_add,
-                                        views::View* parent,
-                                        views::View* child) {
+void BrowserView::ViewHierarchyChanged(bool is_add,
+                                       views::View* parent,
+                                       views::View* child) {
   if (is_add && child == this && GetContainer() && !initialized_) {
     Init();
     initialized_ = true;
@@ -758,13 +757,13 @@ void BrowserView2::ViewHierarchyChanged(bool is_add,
     dropable_views_.erase(child);
 }
 
-bool BrowserView2::CanDrop(const OSExchangeData& data) {
+bool BrowserView::CanDrop(const OSExchangeData& data) {
   can_drop_ = (tabstrip_->IsVisible() && !tabstrip_->IsAnimating() &&
                data.HasURL());
   return can_drop_;
 }
 
-void BrowserView2::OnDragEntered(const views::DropTargetEvent& event) {
+void BrowserView::OnDragEntered(const views::DropTargetEvent& event) {
   if (can_drop_ && ShouldForwardToTabStrip(event)) {
     forwarding_to_tab_strip_ = true;
     scoped_ptr<views::DropTargetEvent> mapped_event(
@@ -773,7 +772,7 @@ void BrowserView2::OnDragEntered(const views::DropTargetEvent& event) {
   }
 }
 
-int BrowserView2::OnDragUpdated(const views::DropTargetEvent& event) {
+int BrowserView::OnDragUpdated(const views::DropTargetEvent& event) {
   if (can_drop_) {
     if (ShouldForwardToTabStrip(event)) {
       scoped_ptr<views::DropTargetEvent> mapped_event(
@@ -791,14 +790,14 @@ int BrowserView2::OnDragUpdated(const views::DropTargetEvent& event) {
   return DragDropTypes::DRAG_NONE;
 }
 
-void BrowserView2::OnDragExited() {
+void BrowserView::OnDragExited() {
   if (forwarding_to_tab_strip_) {
     forwarding_to_tab_strip_ = false;
     tabstrip_->OnDragExited();
   }
 }
 
-int BrowserView2::OnPerformDrop(const views::DropTargetEvent& event) {
+int BrowserView::OnPerformDrop(const views::DropTargetEvent& event) {
   if (forwarding_to_tab_strip_) {
     forwarding_to_tab_strip_ = false;
     scoped_ptr<views::DropTargetEvent> mapped_event(
@@ -810,9 +809,9 @@ int BrowserView2::OnPerformDrop(const views::DropTargetEvent& event) {
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// BrowserView2, private:
+// BrowserView, private:
 
-void BrowserView2::InitSystemMenu() {
+void BrowserView::InitSystemMenu() {
   HMENU system_menu = GetSystemMenu(frame_->GetWindow()->GetHWND(), FALSE);
   system_menu_.reset(new Menu(system_menu));
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
@@ -829,7 +828,7 @@ void BrowserView2::InitSystemMenu() {
   }
 }
 
-bool BrowserView2::ShouldForwardToTabStrip(
+bool BrowserView::ShouldForwardToTabStrip(
     const views::DropTargetEvent& event) {
   if (!tabstrip_->IsVisible())
     return false;
@@ -850,7 +849,7 @@ bool BrowserView2::ShouldForwardToTabStrip(
           dropable_views_.find(view_over_mouse) != dropable_views_.end());
 }
 
-views::DropTargetEvent* BrowserView2::MapEventToTabStrip(
+views::DropTargetEvent* BrowserView::MapEventToTabStrip(
     const views::DropTargetEvent& event) {
   gfx::Point tab_strip_loc(event.location());
   ConvertPointToView(this, tabstrip_, &tab_strip_loc);
@@ -859,7 +858,7 @@ views::DropTargetEvent* BrowserView2::MapEventToTabStrip(
                                     event.GetSourceOperations());
 }
 
-int BrowserView2::LayoutTabStrip() {
+int BrowserView::LayoutTabStrip() {
   if (IsTabStripVisible()) {
     gfx::Rect tabstrip_bounds = frame_->GetBoundsForTabStrip(tabstrip_);
     tabstrip_->SetBounds(tabstrip_bounds.x(), tabstrip_bounds.y(),
@@ -869,7 +868,7 @@ int BrowserView2::LayoutTabStrip() {
   return 0;
 }
 
-int BrowserView2::LayoutToolbar(int top) {
+int BrowserView::LayoutToolbar(int top) {
   if (IsToolbarVisible()) {
     gfx::Size ps = toolbar_->GetPreferredSize();
     int toolbar_y =
@@ -890,7 +889,7 @@ int BrowserView2::LayoutToolbar(int top) {
   return top;
 }
 
-int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
+int BrowserView::LayoutBookmarkAndInfoBars(int top) {
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR)) {
     // If we have an Info-bar showing, and we're showing the New Tab Page, and
     // the Bookmark bar isn't visible on all tabs, then we need to show the
@@ -908,7 +907,7 @@ int BrowserView2::LayoutBookmarkAndInfoBars(int top) {
   return LayoutInfoBar(top);
 }
 
-int BrowserView2::LayoutBookmarkBar(int top) {
+int BrowserView::LayoutBookmarkBar(int top) {
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_) {
     gfx::Size ps = active_bookmark_bar_->GetPreferredSize();
     if (!active_info_bar_ || show_bookmark_bar_pref_.GetValue())
@@ -918,7 +917,7 @@ int BrowserView2::LayoutBookmarkBar(int top) {
   }
   return top;
 }
-int BrowserView2::LayoutInfoBar(int top) {
+int BrowserView::LayoutInfoBar(int top) {
   if (SupportsWindowFeature(FEATURE_INFOBAR) && active_info_bar_) {
     gfx::Size ps = active_info_bar_->GetPreferredSize();
     active_info_bar_->SetBounds(0, top, width(), ps.height());
@@ -931,11 +930,11 @@ int BrowserView2::LayoutInfoBar(int top) {
   return top;
 }
 
-void BrowserView2::LayoutTabContents(int top, int bottom) {
+void BrowserView::LayoutTabContents(int top, int bottom) {
   contents_container_->SetBounds(0, top, width(), bottom - top);
 }
 
-int BrowserView2::LayoutDownloadShelf() {
+int BrowserView::LayoutDownloadShelf() {
   int bottom = height();
   if (SupportsWindowFeature(FEATURE_DOWNLOADSHELF) && active_download_shelf_) {
     gfx::Size ps = active_download_shelf_->GetPreferredSize();
@@ -947,14 +946,14 @@ int BrowserView2::LayoutDownloadShelf() {
   return bottom;
 }
 
-void BrowserView2::LayoutStatusBubble(int top) {
+void BrowserView::LayoutStatusBubble(int top) {
   int status_bubble_y =
       top - kStatusBubbleHeight + kStatusBubbleVerticalOffset + y();
   status_bubble_->SetBounds(kStatusBubbleHorizontalOffset, status_bubble_y,
                             width() / 3, kStatusBubbleHeight);
 }
 
-bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
+bool BrowserView::MaybeShowBookmarkBar(TabContents* contents) {
   views::View* new_bookmark_bar_view = NULL;
   if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && contents) {
     new_bookmark_bar_view = GetBookmarkBarView();
@@ -967,7 +966,7 @@ bool BrowserView2::MaybeShowBookmarkBar(TabContents* contents) {
                                   &active_bookmark_bar_);
 }
 
-bool BrowserView2::MaybeShowInfoBar(TabContents* contents) {
+bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
   views::View* new_info_bar = NULL;
   if (contents && contents->AsWebContents() &&
       contents->AsWebContents()->view()->IsInfoBarVisible())
@@ -975,14 +974,14 @@ bool BrowserView2::MaybeShowInfoBar(TabContents* contents) {
   return UpdateChildViewAndLayout(new_info_bar, &active_info_bar_);
 }
 
-bool BrowserView2::MaybeShowDownloadShelf(TabContents* contents) {
+bool BrowserView::MaybeShowDownloadShelf(TabContents* contents) {
   views::View* new_shelf = NULL;
   if (contents && contents->IsDownloadShelfVisible())
     new_shelf = contents->GetDownloadShelfView();
   return UpdateChildViewAndLayout(new_shelf, &active_download_shelf_);
 }
 
-void BrowserView2::UpdateUIForContents(TabContents* contents) {
+void BrowserView::UpdateUIForContents(TabContents* contents) {
   bool needs_layout = MaybeShowBookmarkBar(contents);
   needs_layout |= MaybeShowInfoBar(contents);
   needs_layout |= MaybeShowDownloadShelf(contents);
@@ -990,8 +989,8 @@ void BrowserView2::UpdateUIForContents(TabContents* contents) {
     Layout();
 }
 
-bool BrowserView2::UpdateChildViewAndLayout(views::View* new_view,
-                                            views::View** old_view) {
+bool BrowserView::UpdateChildViewAndLayout(views::View* new_view,
+                                           views::View** old_view) {
   DCHECK(old_view);
   if (*old_view == new_view) {
     // The views haven't changed, if the views pref changed schedule a layout.
@@ -1036,7 +1035,7 @@ bool BrowserView2::UpdateChildViewAndLayout(views::View* new_view,
   return changed;
 }
 
-void BrowserView2::LoadAccelerators() {
+void BrowserView::LoadAccelerators() {
   HACCEL accelerator_table = AtlLoadAccelerators(IDR_MAINFRAME);
   DCHECK(accelerator_table);
 
@@ -1072,8 +1071,8 @@ void BrowserView2::LoadAccelerators() {
   free(accelerators);
 }
 
-void BrowserView2::BuildMenuForTabStriplessWindow(Menu* menu,
-                                                  int insertion_index) {
+void BrowserView::BuildMenuForTabStriplessWindow(Menu* menu,
+                                                 int insertion_index) {
   encoding_menu_delegate_.reset(new EncodingMenuControllerDelegate(
       browser_.get(),
       browser_->controller()));
@@ -1111,7 +1110,7 @@ void BrowserView2::BuildMenuForTabStriplessWindow(Menu* menu,
   }
 }
 
-int BrowserView2::GetCommandIDForAppCommandID(int app_command_id) const {
+int BrowserView::GetCommandIDForAppCommandID(int app_command_id) const {
   switch (app_command_id) {
     case APPCOMMAND_BROWSER_BACKWARD:
       return IDC_BACK;
@@ -1150,7 +1149,7 @@ int BrowserView2::GetCommandIDForAppCommandID(int app_command_id) const {
 }
 
 // static
-void BrowserView2::InitClass() {
+void BrowserView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();

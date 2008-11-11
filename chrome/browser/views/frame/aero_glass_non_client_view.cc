@@ -5,7 +5,7 @@
 #include "chrome/browser/views/frame/aero_glass_non_client_view.h"
 
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/views/frame/browser_view2.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -126,7 +126,7 @@ static const int kNoTitleOTRZoomedTopSpacing = 3;
 // AeroGlassNonClientView, public:
 
 AeroGlassNonClientView::AeroGlassNonClientView(AeroGlassFrame* frame,
-                                               BrowserView2* browser_view)
+                                               BrowserView* browser_view)
     : frame_(frame),
       browser_view_(browser_view) {
   InitClass();
