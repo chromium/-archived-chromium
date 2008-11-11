@@ -340,12 +340,15 @@ bool BackendImpl::DoomEntry(const std::string& key) {
   if (disabled_)
     return false;
 
-  EntryImpl* entry;
-  if (!OpenEntry(key, reinterpret_cast<Entry**>(&entry)))
+  Entry* entry;
+  if (!OpenEntry(key, &entry))
     return false;
 
-  entry->Doom();
-  entry->Release();
+  // Note that you'd think you could just pass &entry_impl to OpenEntry,
+  // but that triggers strict aliasing problems with gcc.
+  EntryImpl* entry_impl = reinterpret_cast<EntryImpl*>(entry);
+  entry_impl->Doom();
+  entry_impl->Release();
   return true;
 }
 

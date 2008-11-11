@@ -444,7 +444,7 @@ linux_env.Append(
     BUILD_SCONSCRIPTS = [
         '$LIBEVENT_DIR/libevent.scons',
     ],
-    CCFLAGS = ['-m32', '-g', '-pthread'],
+    CCFLAGS = ['-m32', '-pthread'],
     CXXFLAGS = ['-Wall', '-Werror'] + excluded_warnings,
     LINKFLAGS = ['-m32', '-pthread'],
 )

@@ -98,7 +98,7 @@ public:
         /* Allocate and initialize JPEG decompression object */
         jpeg_create_decompress(&m_info);
   
-        decoder_source_mgr* src;
+        decoder_source_mgr* src = NULL;
         if (!m_info.src) {
             src = (decoder_source_mgr*)fastCalloc(sizeof(decoder_source_mgr), 1);
             if (!src) {

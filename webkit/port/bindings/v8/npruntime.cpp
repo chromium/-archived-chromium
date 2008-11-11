@@ -321,7 +321,9 @@ void _NPN_UnregisterObject(NPObject* obj) {
         ASSERT(g_root_objects.find(obj) != g_root_objects.end());
         NPObjectSet* set = g_root_objects[obj];
         while (set->size() > 0) {
+#ifndef NDEBUG
             size_t size = set->size();
+#endif
             NPObject* sub_object = *(set->begin());
             // The sub-object should not be a owner!
             ASSERT(g_root_objects.find(sub_object) == g_root_objects.end());

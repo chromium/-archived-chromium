@@ -753,7 +753,7 @@ void GraphicsContext::setPlatformShadow(const IntSize& size, int blur, const Col
         if (color.isValid())
             c = color.rgb();
         else
-            SkColorSetARGB(0xFF/3, 0, 0, 0);    // "std" apple shadow color
+            c = SkColorSetARGB(0xFF/3, 0, 0, 0);    // "std" apple shadow color
         
         SkDrawLooper* dl = new SkBlurDrawLooper(SkIntToScalar(blur),
                                                 SkIntToScalar(size.width()),

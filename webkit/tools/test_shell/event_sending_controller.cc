@@ -367,6 +367,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
     }
 #elif defined(OS_LINUX)
     // TODO(agl): We obviously need to do something about keycodes here
+    code = 0;  // Appease variable-used-without-initialization compiler warning.
     if (true) {
       NOTIMPLEMENTED();
     }

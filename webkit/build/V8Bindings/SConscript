@@ -26,10 +26,15 @@ if env['PLATFORM'] == 'win32':
 else:
   # We need to include the parts of icu and libxml that we want here:
   env.Append(
-    CPPPATH = [
-      '$ICU38_DIR/public/common',
-      '$LIBXML_DIR/include',
-      ])
+      CCFLAGS = [
+        # TODO(port): fix HTMLNames etc. generator and remove this.
+        '-fno-strict-aliasing',
+      ],
+      CPPPATH = [
+          '$ICU38_DIR/public/common',
+          '$LIBXML_DIR/include',
+      ]
+  )
 
 inputs = [
     '$SHARED_DIR/PausedTimeouts.cpp',
