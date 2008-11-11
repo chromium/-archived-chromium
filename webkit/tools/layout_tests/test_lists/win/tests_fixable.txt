@@ -155,7 +155,6 @@ V8 # LayoutTests/http/tests/misc/acid2-pixel.html = PASS
 V8 # LayoutTests/http/tests/misc/acid2.html = PASS
 V8 # LayoutTests/http/tests/misc/isindex-formdata.html = PASS
 V8 # LayoutTests/http/tests/misc/object-image-error-with-onload.html = PASS
-V8 # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = PASS
 V8 # LayoutTests/http/tests/misc/post-submit-button.html = PASS
 V8 # LayoutTests/http/tests/misc/redirect-to-about-blank.html = PASS
 V8 # LayoutTests/http/tests/misc/window-dot-stop.html = PASS
@@ -1054,7 +1053,10 @@ V8 # LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
 V8 # LayoutTests/fast/backgrounds/svg-as-background-6.html = PASS | FAIL
 
 // Post-merge Debug only Crashes
-V8 # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
+// This test also produces an unending stream of blank lines on stderr,
+// which makes it hang the test harness.
+V8 # SKIP : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
+
 // One of these svg tests sometimes crash in debug mode.  It seems to only
 // happen when all the dynamic-updates tests are run together.
 V8 # LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
