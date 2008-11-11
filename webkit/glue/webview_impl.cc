@@ -422,8 +422,15 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
   // Give autocomplete a chance to consume the key events it is interested in.
   if (autocomplete_popup_ &&
       autocomplete_popup_->isInterestedInEventForKey(event.key_code)) {
-    if (autocomplete_popup_->handleKeyEvent(MakePlatformKeyboardEvent(event)))
+    if (autocomplete_popup_->handleKeyEvent(MakePlatformKeyboardEvent(event))) {
+#if defined(OS_WIN)
+      // We need to ignore the next CHAR event after this otherwise pressing
+      // enter when selecting an item in the menu will go to the page.
+      if (WebInputEvent::KEY_DOWN == event.type)
+        suppress_next_keypress_event_ = true;
+#endif
       return true;
+    }
     return false;
   }
 
@@ -1508,6 +1515,7 @@ void WebViewImpl::AutofillSuggestionsForNode(
       autocomplete_popup_ =
           WebCore::PopupContainer::create(autocomplete_popup_client_.get(),
                                           false);
+      autocomplete_popup_->setTextOnIndexChange(false);
       autocomplete_popup_->show(focused_node->getRect(), 
                                 page_->mainFrame()->view(), 0);
     }

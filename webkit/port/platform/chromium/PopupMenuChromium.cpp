@@ -130,6 +130,10 @@ public:
     // Returns whether the popup wants to process events for the passed key.
     bool isInterestedInEventForKey(int key_code);
 
+    // Sets whether the PopupMenuClient should be told to change its text when a
+    // new item is selected (by using the arrow keys).  Default is true.
+    void setTextOnIndexChange(bool value) { m_setTextOnIndexChange = value; }
+
 private:
     friend class PopupContainer;
     friend class RefCounted<PopupListBox>;
@@ -158,6 +162,7 @@ private:
         , m_popupClient(client)
         , m_repeatingChar(0)
         , m_lastCharTime(0)
+        , m_setTextOnIndexChange(true)
     {
         setScrollbarModes(ScrollbarAlwaysOff, ScrollbarAlwaysOff);
     }
@@ -251,6 +256,8 @@ private:
 
     // The last time the user hit a key.  Used for typeAheadFind.
     TimeStamp m_lastCharTime;
+
+    bool m_setTextOnIndexChange;
 };
 
 static PlatformMouseEvent constructRelativeMouseEvent(const PlatformMouseEvent& e,
@@ -464,6 +471,10 @@ void PopupContainer::show(const IntRect& r, FrameView* v, int index) {
     showPopup(v);
 }
 
+void PopupContainer::setTextOnIndexChange(bool value) {
+  listBox()->setTextOnIndexChange(value);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // PopupListBox implementation
 
@@ -602,7 +613,8 @@ bool PopupListBox::handleKeyEvent(const PlatformKeyboardEvent& event)
         // popup is closed.
         m_acceptOnAbandon = true;
         setOriginalIndex(m_selectedIndex);
-        m_popupClient->setTextFromItem(m_selectedIndex);
+        if (m_setTextOnIndexChange)
+          m_popupClient->setTextFromItem(m_selectedIndex);
     }
 
     return true;

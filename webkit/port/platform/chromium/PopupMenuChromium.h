@@ -60,6 +60,10 @@ public:
     // Compute size of widget and children.
     void layout();
 
+    // Sets whether the PopupMenuClient should be told to change its text when a
+    // new item is selected (by using the arrow keys).  Default is true.
+    void setTextOnIndexChange(bool value);
+
     PopupListBox* listBox() const { return m_listBox.get(); }
 
 private:
