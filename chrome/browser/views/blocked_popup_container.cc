@@ -4,6 +4,8 @@
 
 #include "chrome/browser/views/blocked_popup_container.h"
 
+#include <math.h>
+
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents.h"
@@ -19,8 +21,9 @@
 
 #include "generated_resources.h"
 
-#include <math.h>
-
+// Menu item ID for the "Notify me when a popup is blocked" checkbox. (All
+// other menu IDs are positive and should be base 1 indexies into the vector of
+// blocked popups.)
 const int kNotifyMenuItem = -1;
 
 // A number larger than the internal popup count on the Renderer; meant for
@@ -28,11 +31,10 @@ const int kNotifyMenuItem = -1;
 // infinite windows.
 const int kImpossibleNumberOfPopups = 30;
 
-// A small border around all widgets
+// The minimal border around the edge of the notification.
 const int kSmallPadding = 2;
 
-// The background color of the blocked popup notification
-//static const SkColor kBackgroundColor = SkColorSetRGB(222, 234, 248);
+// The background color of the blocked popup notification.
 static const SkColor kBackgroundColorTop = SkColorSetRGB(255, 242, 183);
 static const SkColor kBackgroundColorBottom = SkColorSetRGB(250, 230, 145);
 
@@ -47,10 +49,11 @@ static const int kShowAnimationDurationMS = 200;
 static const int kHideAnimationDurationMS = 120;
 static const int kFramerate = 25;
 
-// Rounded corner radius (in pixels)
+// Rounded corner radius (in pixels).
 static const int kBackgroundCornerRadius = 4;
 
-// Rounded corner definition for the
+// Rounded corner definition so the top corners are rounded, and the bottom are
+// normal 90 degree angles.
 static const SkScalar kRoundedCornerRad[8] = {
   // Top left corner
   SkIntToScalar(kBackgroundCornerRadius),
@@ -104,7 +107,7 @@ class BlockedPopupContainerView : public views::View,
   // Our "X" button.
   views::Button* close_button_;
 
-  /// Popup menu shown to user.
+  // Popup menu shown to user.
   scoped_ptr<Menu> launch_menu_;
 };
 
@@ -147,8 +150,8 @@ void BlockedPopupContainerView::UpdatePopupCountLabel() {
 }
 
 void BlockedPopupContainerView::Paint(ChromeCanvas* canvas) {
+  // Draw the standard background.
   View::Paint(canvas);
-  // Draw the standard background
 
   SkRect rect;
   rect.set(0, 0, SkIntToScalar(width()), SkIntToScalar(height()));
@@ -200,7 +203,6 @@ gfx::Size BlockedPopupContainerView::GetPreferredSize() {
 
 void BlockedPopupContainerView::ButtonPressed(views::BaseButton* sender) {
   if (sender == popup_count_label_) {
-    // Menu goes here.
     launch_menu_.reset(new Menu(this, Menu::TOPLEFT, container_->GetHWND()));
 
     int item_count = container_->GetTabContentsCount();
@@ -275,7 +277,7 @@ void BlockedPopupContainer::ToggleBlockedPopupNotification() {
 }
 
 bool BlockedPopupContainer::GetShowBlockedPopupNotification() {
-  return ! block_popup_pref_.GetValue();
+  return !block_popup_pref_.GetValue();
 }
 
 void BlockedPopupContainer::AddTabContents(TabContents* blocked_contents,
@@ -339,7 +341,7 @@ void BlockedPopupContainer::CloseAllPopups() {
   HideSelf();
 }
 
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // Override from ConstrainedWindow:
 
 void BlockedPopupContainer::CloseConstrainedWindow() {
@@ -370,10 +372,11 @@ const gfx::Rect& BlockedPopupContainer::GetCurrentBounds() const {
   return bounds_;
 }
 
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // Override from TabContentsDelegate:
 void BlockedPopupContainer::OpenURLFromTab(TabContents* source,
-                                           const GURL& url, const GURL& referrer,
+                                           const GURL& url,
+                                           const GURL& referrer,
                                            WindowOpenDisposition disposition,
                                            PageTransition::Type transition) {
   owner_->OpenURL(url, referrer, disposition, transition);
@@ -442,7 +445,7 @@ TabContents* BlockedPopupContainer::GetConstrainingContents(
   return owner_;
 }
 
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // Override from Animation:
 void BlockedPopupContainer::AnimateToState(double state) {
   if (in_show_animation_)
@@ -453,7 +456,7 @@ void BlockedPopupContainer::AnimateToState(double state) {
   SetPosition();
 }
 
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // Override from views::ContainerWin:
 void BlockedPopupContainer::OnFinalMessage(HWND window) {
   owner_->WillClose(this);
@@ -520,7 +523,8 @@ void BlockedPopupContainer::SetPosition() {
     SetWindowPos(HWND_TOP, base_x, real_y, size.width(), real_height, 0);
     container_view_->SchedulePaint();
   } else {
-    SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
+    SetWindowPos(HWND_TOP, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
   }
 }
 

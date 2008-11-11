@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_H_
 #define CHROME_BROWSER_VIEWS_BLOCKED_POPUP_CONTAINER_H_
 
+#include <utility>
 #include <vector>
 
 #include "base/gfx/rect.h"
@@ -129,14 +130,15 @@ class BlockedPopupContainer : public ConstrainedWindow,
   // The TabContents that owns and constrains this BlockedPopupContainer.
   TabContents* owner_;
 
-  // TabContents.
+  // The TabContents and initial positions of all blocked popups.
   std::vector<std::pair<TabContents*, gfx::Rect> > blocked_popups_;
 
   // Our associated view object.
   BlockedPopupContainerView* container_view_;
 
-  // Link to the show blocked popup preference. Used to both determine whether
-  // we should show ourself to the user...
+  // Link to the block popups preference. Used to both determine whether we
+  // should show ourself to the user and to toggle whether we should show this
+  // notification to the user.
   BooleanPrefMember block_popup_pref_;
 
   // Once the container is hidden, this is set to prevent it from reappearing.
