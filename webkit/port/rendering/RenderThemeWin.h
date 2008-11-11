@@ -24,7 +24,6 @@
 #define RenderThemeWin_h
 
 #include "RenderTheme.h"
-#include "ThemeData.h"
 
 #if WIN32
 typedef void* HANDLE;
@@ -33,6 +32,14 @@ typedef HINSTANCE HMODULE;
 #endif
 
 namespace WebCore {
+
+struct ThemeData {
+    ThemeData() : m_part(0), m_state(0), m_classicState(0) {}
+
+    unsigned m_part;
+    unsigned m_state;
+    unsigned m_classicState;
+};
 
 class RenderThemeWin : public RenderTheme {
 public:
@@ -128,6 +135,6 @@ private:
     int menuListInternalPadding(RenderStyle* style, int paddingType) const;
 };
 
-};
+}
 
 #endif

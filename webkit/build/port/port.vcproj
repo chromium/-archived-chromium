@@ -672,10 +672,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\ThemeData.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\port\platform\UniscribeStateTextRun.cpp"
 				>
 			</File>
@@ -711,14 +707,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\chromium\ContextMenuChromium.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\chromium\ContextMenuItemChromium.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\chromium\ChromiumDataObject.cpp"
 					>
 				</File>
@@ -732,6 +720,14 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\chromium\ClipboardChromium.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ContextMenuChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ContextMenuItemChromium.cpp"
 					>
 				</File>
 				<File
