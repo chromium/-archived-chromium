@@ -290,7 +290,7 @@ void Browser::Show() {
     window_->Activate();
     return;
   }
-  window_->Show(initial_show_command_);
+  window_->Show(initial_show_command_, false);
   if ((initial_show_command_ == SW_SHOWNORMAL) ||
       (initial_show_command_ == SW_SHOWMAXIMIZED))
     window_->Activate();
