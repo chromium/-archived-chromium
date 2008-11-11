@@ -250,6 +250,9 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   virtual void OnPasswordFormsSeen(WebView* webview,
                                    const std::vector<PasswordForm>& forms);
 
+  virtual void OnAutofillFormSubmitted(WebView* webview,
+                                       const AutofillForm& form);
+
   virtual void ReportFindInPageMatchCount(int count, int request_id,
                                           bool final_update);
   virtual void ReportFindInPageSelection(int request_id,
@@ -466,8 +469,8 @@ class RenderView : public RenderWidget, public WebViewDelegate,
   void OnReceivedAutofillSuggestions(
       int64 node_id,
       int request_id,
-      const std::vector<std::wstring> suggestions,
-      int default_suggestion_index);
+      const std::vector<std::wstring>& suggestions,
+      int default_suggestions_index);
 
 #ifdef CHROME_PERSONALIZATION
   void OnPersonalizationEvent(std::string event_name, std::string event_args);

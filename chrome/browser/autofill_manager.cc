@@ -8,15 +8,21 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/web_contents.h"
 
-AutofillManager::~AutofillManager() {
-  ClearPendingQuery();
+AutofillManager::AutofillManager(WebContents* web_contents) :
+    web_contents_(web_contents),
+    pending_query_handle_(0),
+    node_id_(0),
+    request_id_(0) {
+  form_autofill_enabled_.Init(prefs::kFormAutofillEnabled,
+      profile()->GetPrefs(), NULL);
 }
 
-void AutofillManager::ClearPendingQuery() {
-  pending_query_name_.clear();
-  pending_query_prefix_.clear();
+AutofillManager::~AutofillManager() {
+  CancelPendingQuery();
+}
 
-  if (query_is_pending_) {
+void AutofillManager::CancelPendingQuery() {
+  if (pending_query_handle_) {
     WebDataService* web_data_service =
         profile()->GetWebDataService(Profile::EXPLICIT_ACCESS);
     if (!web_data_service) {
@@ -26,7 +32,10 @@ void AutofillManager::ClearPendingQuery() {
     web_data_service->CancelRequest(pending_query_handle_);
   }
   pending_query_handle_ = 0;
-  query_is_pending_ = false;
+}
+
+Profile* AutofillManager::profile() {
+  return web_contents_->profile();
 }
 
 void AutofillManager::AutofillFormSubmitted(const AutofillForm& form) {
@@ -35,7 +44,12 @@ void AutofillManager::AutofillFormSubmitted(const AutofillForm& form) {
 
 void AutofillManager::FetchValuesForName(const std::wstring& name,
                                          const std::wstring& prefix,
-                                         int limit) {
+                                         int limit,
+                                         int64 node_id,
+                                         int request_id) {
+  if (!*form_autofill_enabled_)
+    return;
+
   WebDataService* web_data_service =
       profile()->GetWebDataService(Profile::EXPLICIT_ACCESS);
   if (!web_data_service) {
@@ -43,17 +57,22 @@ void AutofillManager::FetchValuesForName(const std::wstring& name,
     return;
   }
 
-  ClearPendingQuery();
+  CancelPendingQuery();
+
+  node_id_ = node_id;
+  request_id_ = request_id;
 
   pending_query_handle_ = web_data_service->
       GetFormValuesForElementName(name, prefix, limit, this);
-  pending_query_name_ = name;
-  pending_query_prefix_ = prefix;
 }
 
 void AutofillManager::OnWebDataServiceRequestDone(WebDataService::Handle h,
     const WDTypedResult* result) {
-  DCHECK(query_is_pending_);
+  DCHECK(pending_query_handle_);
+  pending_query_handle_ = 0;
+
+  if (!*form_autofill_enabled_)
+    return;
 
   DCHECK(result);
   if (!result)
@@ -61,18 +80,27 @@ void AutofillManager::OnWebDataServiceRequestDone(WebDataService::Handle h,
 
   switch (result->GetType()) {
     case AUTOFILL_VALUE_RESULT: {
+      RenderViewHost* host = web_contents_->render_view_host();
+      if (!host)
+        return;
+      const WDResult<std::vector<std::wstring> >* r =
+          static_cast<const WDResult<std::vector<std::wstring> >*>(result);
+      std::vector<std::wstring> suggestions = r->GetValue();
+      host->AutofillSuggestionsReturned(suggestions, node_id_, request_id_, -1);
       break;
     }
+
     default:
       NOTREACHED();
       break;
   }
-
-  ClearPendingQuery();
 }
 
 void AutofillManager::StoreFormEntriesInWebDatabase(
     const AutofillForm& form) {
+  if (!*form_autofill_enabled_)
+    return;
+
   if (profile()->IsOffTheRecord())
     return;
 
