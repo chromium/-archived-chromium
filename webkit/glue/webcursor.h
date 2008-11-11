@@ -14,6 +14,9 @@
 typedef struct HINSTANCE__* HINSTANCE;
 typedef struct HICON__* HICON;
 typedef HICON HCURSOR;
+#elif defined(OS_LINUX)
+// GdkCursorType is an enum, which we can't forward-declare.  :(
+#include <gdk/gdkcursor.h>
 #endif
 
 class Pickle;
@@ -58,6 +61,10 @@ class WebCursor {
 
   // Initialize this from the given Windows cursor.
   void InitFromCursor(HCURSOR handle);
+#elif defined(OS_LINUX)
+  // Return the stock GdkCursorType for this cursor, or GDK_CURSOR_IS_PIXMAP
+  // if it's a custom cursor.
+  GdkCursorType GetCursorType() const;
 #endif
 
  private:

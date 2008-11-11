@@ -12,6 +12,7 @@
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "chrome/common/page_transition_types.h"
+#include "webkit/glue/webcursor.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
@@ -54,7 +55,19 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
 
 void TestWebViewDelegate::SetCursor(WebWidget* webwidget, 
                                     const WebCursor& cursor) {
-  NOTIMPLEMENTED();
+  GdkCursorType cursor_type = cursor.GetCursorType();
+  if (cursor_type_ == cursor_type)
+    return;
+
+  cursor_type_ = cursor_type;
+  if (cursor_type_ == GDK_CURSOR_IS_PIXMAP) {
+    NOTIMPLEMENTED();
+    cursor_type = GDK_ARROW;  // Just a hack for now.
+  }
+  GdkCursor* gdk_cursor = gdk_cursor_new(cursor_type);
+  gdk_window_set_cursor(shell_->webViewWnd()->window, gdk_cursor);
+  // The window now owns the cursor.
+  gdk_cursor_unref(gdk_cursor);
 }
 
 void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,

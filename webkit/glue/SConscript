@@ -108,6 +108,9 @@ if env['PLATFORM'] == 'win32':
     'webkit_glue_win.cc',
   ])
 elif env['PLATFORM'] == 'posix':
-  input_files.append('webinputevent_linux.cc')
+  input_files.extend([
+      'webcursor_gtk.cc',
+      'webinputevent_linux.cc',
+  ])
 
 env.ChromeStaticLibrary('glue', input_files)

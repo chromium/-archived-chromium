@@ -16,6 +16,10 @@
 #endif
 #include <map>
 
+#if defined(OS_LINUX)
+#include <gdk/gdkcursor.h>
+#endif
+
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "webkit/glue/webview_delegate.h"
@@ -59,6 +63,8 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
       last_page_id_updated_(-1)
 #if defined(OS_WIN)
       , custom_cursor_(NULL)
+#elif defined(OS_LINUX)
+      , cursor_type_(GDK_X_CURSOR)
 #endif
       { 
   }
@@ -299,6 +305,13 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   // Classes needed by drag and drop.
   scoped_refptr<TestDragDelegate> drag_delegate_;
   scoped_refptr<TestDropDelegate> drop_delegate_;
+#endif
+
+#if defined(OS_LINUX)
+  // The type of cursor the window is currently using.
+  // Used for judging whether a new SetCursor call is actually changing the
+  // cursor.
+  GdkCursorType cursor_type_;
 #endif
   
   CapturedContextMenuEvents captured_context_menu_events_;
