@@ -801,6 +801,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         WaitForNavigation)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetIntPreferenceRequest,
                         SetIntPreference)
+    IPC_MESSAGE_HANDLER(AutomationMsg_ShowingAppModalDialogRequest,
+                        GetShowingAppModalDialog)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -1061,6 +1063,12 @@ void AutomationProvider::GetActiveTabIndex(const IPC::Message& message,
 void AutomationProvider::GetBrowserWindowCount(const IPC::Message& message) {
   Send(new AutomationMsg_BrowserWindowCountResponse(
       message.routing_id(), static_cast<int>(BrowserList::size())));
+}
+
+void AutomationProvider::GetShowingAppModalDialog(const IPC::Message& message) {
+  Send(new AutomationMsg_ShowingAppModalDialogResponse(
+           message.routing_id(),
+           static_cast<bool>(BrowserList::IsShowingAppModalDialog())));
 }
 
 void AutomationProvider::GetBrowserWindow(const IPC::Message& message,

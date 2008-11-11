@@ -302,6 +302,53 @@ bool AutomationProxy::WaitForWindowCountToBecome(int count,
   return false;
 }
 
+bool AutomationProxy::GetShowingAppModalDialog(bool* showing_app_modal_dialog) {
+  if (!showing_app_modal_dialog) {
+    NOTREACHED();
+    return false;
+  }
+
+  IPC::Message* response = NULL;
+  bool is_timeout = true;
+  bool succeeded = SendAndWaitForResponseWithTimeout(
+      new AutomationMsg_ShowingAppModalDialogRequest(0), &response,
+      AutomationMsg_ShowingAppModalDialogResponse::ID,
+      kMaxCommandExecutionTime, &is_timeout);
+  if (!succeeded)
+    return false;
+
+  if (is_timeout) {
+    DLOG(ERROR) << "ShowingAppModalDialog did not complete in a timely fashion";
+    return false;
+  }
+
+  void* iter = NULL;
+  if (!response->ReadBool(&iter, showing_app_modal_dialog)) {
+    succeeded = false;
+  }
+
+  delete response;
+  return succeeded;
+}
+
+bool AutomationProxy::WaitForAppModalDialog(int wait_timeout) {
+  const TimeTicks start = TimeTicks::Now();
+  const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
+  while (TimeTicks::Now() - start < timeout) {
+    bool dialog_shown = false;
+    bool succeeded = GetShowingAppModalDialog(&dialog_shown);
+    if (!succeeded) {
+      // Try again next round, but log it.
+      DLOG(ERROR) << "GetShowingAppModalDialog returned false";
+    } else if (dialog_shown) {
+      return true;
+    }
+    Sleep(automation::kSleepTime);
+  }
+  // Dialog never shown.
+  return false;
+}
+
 bool AutomationProxy::SetFilteredInet(bool enabled) {
   return Send(new AutomationMsg_SetFilteredInet(0, enabled));
 }

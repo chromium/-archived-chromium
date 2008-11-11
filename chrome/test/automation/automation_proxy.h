@@ -108,6 +108,14 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Returns true on success.
   bool WaitForWindowCountToBecome(int target_count, int wait_timeout);
 
+  // Returns whether an app modal dialog window is showing right now (i.e., a
+  // javascript alert).
+  bool GetShowingAppModalDialog(bool* showing_app_modal_dialog);
+
+  // Block the thread until a modal dialog is displayed. Returns true on
+  // success.
+  bool WaitForAppModalDialog(int wait_timeout);
+
   // Returns the BrowserProxy for the browser window at the given index,
   // transferring ownership of the pointer to the caller.
   // On failure, returns NULL.
@@ -217,4 +225,3 @@ class AutomationProxy : public IPC::Channel::Listener,
 };
 
 #endif  // CHROME_TEST_AUTOMATION_AUTOMATION_PROXY_H__
-

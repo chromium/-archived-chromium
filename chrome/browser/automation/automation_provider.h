@@ -105,6 +105,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                  const std::string value,
                  int handle);
   void GetBrowserWindowCount(const IPC::Message& message);
+  void GetShowingAppModalDialog(const IPC::Message& message);
   void GetBrowserWindow(const IPC::Message& message, int index);
   void GetLastActiveBrowserWindow(const IPC::Message& message);
   void GetActiveWindow(const IPC::Message& message);
@@ -411,4 +412,3 @@ class TestingAutomationProvider : public AutomationProvider,
   void OnRemoveProvider();  // Called via PostTask
 };
 #endif  // CHROME_BROWSER_AUTOMATION_AUTOMATION_PROVIDER_H_
-

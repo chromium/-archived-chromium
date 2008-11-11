@@ -19,43 +19,53 @@
 
 #include "generated_resources.h"
 
-const int kRightCloseButtonOffset = 55;
-const int kBottomCloseButtonOffset = 20;
-
 class InteractiveConstrainedWindowTest : public UITest {
  protected:
   InteractiveConstrainedWindowTest() {
     show_window_ = true;
   }
+
+  virtual void SetUp() {
+    UITest::SetUp();
+
+    browser_.reset(automation()->GetBrowserWindow(0));
+    ASSERT_TRUE(browser_.get());
+
+    window_.reset(automation()->GetWindowForBrowser(browser_.get()));
+    ASSERT_TRUE(window_.get());
+
+    tab_.reset(browser_->GetTab(0));
+    ASSERT_TRUE(tab_.get());
+  }
+
+  void NavigateMainTabTo(const std::wstring& file_name) {
+    std::wstring filename(test_data_directory_);
+    file_util::AppendToPath(&filename, L"constrained_files");
+    file_util::AppendToPath(&filename, file_name);
+    ASSERT_TRUE(tab_->NavigateToURL(net::FilePathToFileURL(filename)));
+  }
+
+  void SimulateClickInCenterOf(const scoped_ptr<WindowProxy>& window) {
+    gfx::Rect tab_view_bounds;
+    ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
+                                      &tab_view_bounds, true));
+
+    // Simulate a click of the actual link to force user_gesture to be
+    // true; if we don't, the resulting popup will be constrained, which
+    // isn't what we want to test.
+    POINT link_point(tab_view_bounds.CenterPoint().ToPOINT());
+    ASSERT_TRUE(window->SimulateOSClick(link_point,
+                                        views::Event::EF_LEFT_BUTTON_DOWN));
+  }
+
+  scoped_ptr<BrowserProxy> browser_;
+  scoped_ptr<WindowProxy> window_;
+  scoped_ptr<TabProxy> tab_;
 };
 
 TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-  ASSERT_TRUE(browser.get());
-
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
-  ASSERT_TRUE(window.get());
-
-  scoped_ptr<TabProxy> tab(browser->GetTab(0));
-  ASSERT_TRUE(tab.get());
-
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"constrained_files");
-  file_util::AppendToPath(&filename,
-                          L"constrained_window_onload_resizeto.html");
-  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
-
-  gfx::Rect tab_view_bounds;
-  ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
-                                    &tab_view_bounds, true));
-
-  // Simulate a click of the actual link to force user_gesture to be
-  // true; if we don't, the resulting popup will be constrained, which
-  // isn't what we want to test.
-  POINT link_point(tab_view_bounds.CenterPoint().ToPOINT());
-  ASSERT_TRUE(window->SimulateOSClick(link_point,
-                                      views::Event::EF_LEFT_BUTTON_DOWN));
+  NavigateMainTabTo(L"constrained_window_onload_resizeto.html");
+  SimulateClickInCenterOf(window_);
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 1000));
 
@@ -74,12 +84,7 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
   ASSERT_EQ(300, rect.width());
   ASSERT_EQ(320, rect.height());
 
-  // Send a click to the popup window to test resizeTo.
-  ASSERT_TRUE(popup_window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
-                                          &tab_view_bounds, true));
-  POINT popup_link_point(tab_view_bounds.CenterPoint().ToPOINT());
-  ASSERT_TRUE(popup_window->SimulateOSClick(
-                  popup_link_point, views::Event::EF_LEFT_BUTTON_DOWN));
+  SimulateClickInCenterOf(popup_window);
 
   // No idea how to wait here other then sleeping. This timeout used to be
   // lower, then we started hitting it before it was done. :(
@@ -120,32 +125,8 @@ bool ParseCountOutOfTitle(const std::wstring& title, int* output)
 // Tests that in the window.open() equivalent of a fork bomb, we stop building
 // windows.
 TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-  ASSERT_TRUE(browser.get());
-
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
-  ASSERT_TRUE(window.get());
-
-  scoped_ptr<TabProxy> tab(browser->GetTab(0));
-  ASSERT_TRUE(tab.get());
-
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"constrained_files");
-  file_util::AppendToPath(&filename,
-                          L"infinite_popups.html");
-  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
-
-  gfx::Rect tab_view_bounds;
-  ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
-                                    &tab_view_bounds, true));
-
-  // Simulate a click of the actual link to force user_gesture to be
-  // true; if we don't, the resulting popup will be constrained, which
-  // isn't what we want to test.
-  POINT link_point(tab_view_bounds.CenterPoint().ToPOINT());
-  ASSERT_TRUE(window->SimulateOSClick(link_point,
-                                      views::Event::EF_LEFT_BUTTON_DOWN));
+  NavigateMainTabTo(L"infinite_popups.html");
+  SimulateClickInCenterOf(window_);
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 1000));
 
@@ -194,33 +175,11 @@ TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
   }
 }
 
-// Make sure that we refuse to close windows when a constrained popup is displayed.
+// Make sure that we refuse to close windows when a constrained popup is
+// displayed.
 TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
-  ASSERT_TRUE(browser.get());
-
-  scoped_ptr<WindowProxy> window(
-      automation()->GetWindowForBrowser(browser.get()));
-  ASSERT_TRUE(window.get());
-
-  scoped_ptr<TabProxy> tab(browser->GetTab(0));
-  ASSERT_TRUE(tab.get());
-
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"constrained_files");
-  file_util::AppendToPath(&filename, L"openclose_main.html");
-  ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
-
-  gfx::Rect tab_view_bounds;
-  ASSERT_TRUE(window->GetViewBounds(VIEW_ID_TAB_CONTAINER,
-                                    &tab_view_bounds, true));
-
-  // Simulate a click of the actual link to force user_gesture to be
-  // true; if we don't, the resulting popup will be constrained, which
-  // isn't what we want to test.
-  POINT link_point(tab_view_bounds.CenterPoint().ToPOINT());
-  ASSERT_TRUE(window->SimulateOSClick(link_point,
-                                      views::Event::EF_LEFT_BUTTON_DOWN));
+  NavigateMainTabTo(L"openclose_main.html");
+  SimulateClickInCenterOf(window_);
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 5000));
 
@@ -245,4 +204,46 @@ TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
 
   // Ensure we didn't close the first popup window.
   ASSERT_FALSE(automation()->WaitForWindowCountToBecome(1, 3000));
+}
+
+TEST_F(InteractiveConstrainedWindowTest, BlockAlertFromBlockedPopup) {
+  NavigateMainTabTo(L"block_alert.html");
+
+  // Wait for there to be an app modal dialog (and fail if it's shown).
+  ASSERT_FALSE(automation()->WaitForAppModalDialog(4000));
+
+  // Ensure one browser window.
+  int browser_window_count;
+  ASSERT_TRUE(automation()->GetBrowserWindowCount(&browser_window_count));
+  ASSERT_EQ(1, browser_window_count);
+
+  // Ensure one blocked popup window: the popup didn't escape.
+  scoped_ptr<ConstrainedWindowProxy> popup_notification(
+      tab_->GetConstrainedWindow(0));
+  ASSERT_TRUE(popup_notification.get());
+  std::wstring title;
+  ASSERT_TRUE(popup_notification->GetTitle(&title));
+  int popup_count = 0;
+  ASSERT_TRUE(ParseCountOutOfTitle(title, &popup_count));
+  ASSERT_EQ(1, popup_count);
+}
+
+TEST_F(InteractiveConstrainedWindowTest, ShowAlertFromNormalPopup) {
+  NavigateMainTabTo(L"show_alert.html");
+  SimulateClickInCenterOf(window_);
+
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 5000));
+
+  scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));
+  ASSERT_TRUE(popup_browser.get());
+  scoped_ptr<WindowProxy> popup_window(
+      automation()->GetWindowForBrowser(popup_browser.get()));
+  ASSERT_TRUE(popup_window.get());
+  scoped_ptr<TabProxy> popup_tab(popup_browser->GetTab(0));
+  ASSERT_TRUE(popup_tab.get());
+
+  SimulateClickInCenterOf(popup_window);
+
+  // Wait for there to be an app modal dialog.
+  ASSERT_TRUE(automation()->WaitForAppModalDialog(5000));
 }

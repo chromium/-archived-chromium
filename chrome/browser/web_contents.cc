@@ -1082,7 +1082,8 @@ void WebContents::RunJavaScriptMessage(
   // constrained window jail).
   bool suppress_this_message = suppress_javascript_messages_;
   if (delegate())
-    suppress_this_message |= delegate()->IsPopup(this);
+    suppress_this_message |=
+        (delegate()->GetConstrainingContents(this) != NULL);
 
   *did_suppress_message = suppress_this_message;
 

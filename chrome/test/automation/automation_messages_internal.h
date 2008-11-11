@@ -795,11 +795,16 @@ IPC_BEGIN_MESSAGES(Automation, 0)
 
   // This messages sets an int-value preference.
   IPC_MESSAGE_ROUTED3(AutomationMsg_SetIntPreferenceRequest,
-                      int /* browser handle */,                    
+                      int /* browser handle */,
                       std::wstring /* pref name */,
                       int /* value */)
   IPC_MESSAGE_ROUTED1(AutomationMsg_SetIntPreferenceResponse,
                       bool /* success */)
 
-IPC_END_MESSAGES(Automation)
+  // Queries whether an app modal dialog is currently being shown. (i.e. a
+  // javascript alert).
+  IPC_MESSAGE_ROUTED0(AutomationMsg_ShowingAppModalDialogRequest)
+  IPC_MESSAGE_ROUTED1(AutomationMsg_ShowingAppModalDialogResponse,
+                      bool /* showing dialog */)
 
+IPC_END_MESSAGES(Automation)
