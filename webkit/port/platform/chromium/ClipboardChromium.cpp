@@ -27,8 +27,10 @@
 
 #pragma warning(push, 0)
 #include "CachedImage.h"
+#include "ChromiumBridge.h"
 #include "ChromiumDataObject.h"
 #include "ClipboardChromium.h"
+#include "ClipboardUtilitiesChromium.h"
 #include "CSSHelper.h"
 #include "CString.h"
 #include "Document.h"
@@ -53,13 +55,6 @@
 #include <wtf/RefPtr.h>
 #pragma warning(pop)
 
-// TODO(tc): Once the clipboard methods get moved to the bridge,
-// we can get rid of our dependency on webkit_glue and base.
-#undef LOG
-#include "base/string_util.h"
-#include "webkit/glue/glue_util.h"
-#include "webkit/glue/webkit_glue.h"
-
 namespace WebCore {
 
 using namespace HTMLNames;
@@ -81,23 +76,6 @@ static ClipboardDataType clipboardTypeFromMIMEType(const String& type)
 
     return ClipboardDataTypeNone;
 }
-
-#if PLATFORM(WIN_OS)
-static void replaceNewlinesWithWindowsStyleNewlines(String& str)
-{
-    static const UChar Newline = '\n';
-    static const char* const WindowsNewline("\r\n");
-    str.replace(Newline, WindowsNewline);
-}
-#endif
-
-static void replaceNBSPWithSpace(String& str)
-{
-    static const UChar NonBreakingSpaceCharacter = 0xA0;
-    static const UChar SpaceCharacter = ' ';
-    str.replace(NonBreakingSpaceCharacter, SpaceCharacter);
-}
-
 
 ClipboardChromium::ClipboardChromium(bool isForDragging,
                                      ChromiumDataObject* dataObject,
@@ -145,38 +123,27 @@ String ClipboardChromium::getData(const String& type, bool& success) const
     }
 
     ClipboardDataType dataType = clipboardTypeFromMIMEType(type);
+    String text;
     if (dataType == ClipboardDataTypeText) {
-        String text;
         if (!isForDragging()) {
-#if PLATFORM(WIN_OS)
             // If this isn't for a drag, it's for a cut/paste event handler.
-            // In this case, we need to use our glue methods to access the
-            // clipboard contents.
-            std::wstring wideStr;
-            // TODO(tc): Once the clipboard methods get moved to the bridge,
-            // we can get rid of our dependency on webkit_glue.
-            webkit_glue::ClipboardReadText(&wideStr);
-            if (wideStr.empty()) {
-                std::string asciiText;
-                webkit_glue::ClipboardReadAsciiText(&asciiText);
-                wideStr = ASCIIToWide(asciiText);
-            }
-            success = !wideStr.empty();
-            text = webkit_glue::StdWStringToString(wideStr);
-#endif
+            // In this case, we need to check the clipboard.
+            text = ChromiumBridge::clipboardReadPlainText();
+            success = !text.isEmpty();
         } else if (!m_dataObject->plain_text.isEmpty()) {
             success = true;
             text = m_dataObject->plain_text;
         }
-        return text;
     } else if (dataType == ClipboardDataTypeURL) {
+        // TODO(tc): Handle the cut/paste event.  This requires adding
+        // a new IPC message to get the URL from the clipboard directly.
         if (!m_dataObject->url.isEmpty()) {
             success = true;
-            return m_dataObject->url.string();
+            text = m_dataObject->url.string();
         }
     }
 
-    return "";
+    return text;
 }
 
 bool ClipboardChromium::setData(const String& type, const String& data)
@@ -363,12 +330,7 @@ void ClipboardChromium::writeURL(const KURL& url, const String& title, Frame*)
     m_dataObject->plain_text = url.string();
 
     // The URL can also be used as an HTML fragment.
-    String markup("<a href=\"");
-    markup.append(url.string());
-    markup.append("\">");
-    markup.append(title);
-    markup.append("</a>");
-    m_dataObject->text_html = markup;
+    m_dataObject->text_html = urlToMarkup(url, title);
 }
 
 void ClipboardChromium::writeRange(Range* selectedRange, Frame* frame)

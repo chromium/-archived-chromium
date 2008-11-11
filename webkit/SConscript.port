@@ -46,6 +46,7 @@ input_files = [
 
     '$PORT_DIR/platform/chromium/ChromiumDataObject.cpp',
     '$PORT_DIR/platform/chromium/ClipboardChromium.cpp',
+    '$PORT_DIR/platform/chromium/ClipboardUtilitiesChromium.cpp',
     '$PORT_DIR/platform/chromium/ContextMenuChromium.cpp',
     '$PORT_DIR/platform/chromium/ContextMenuItemChromium.cpp',
     '$PORT_DIR/platform/chromium/CursorChromium.cpp',
@@ -57,6 +58,7 @@ input_files = [
     '$PORT_DIR/platform/chromium/FramelessScrollView.cpp',
     '$PORT_DIR/platform/chromium/Language.cpp',
     '$PORT_DIR/platform/chromium/MimeTypeRegistryChromium.cpp',
+    '$PORT_DIR/platform/chromium/PasteboardChromium.cpp',
     '$PORT_DIR/platform/chromium/PlatformKeyboardEventChromium.cpp',
     '$PORT_DIR/platform/chromium/PlatformScreenChromium.cpp',
     '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
@@ -125,7 +127,6 @@ if env['PLATFORM'] == 'posix':
   # Linux specific implementations
   input_files.extend([
     '$PORT_DIR/platform/chromium/IconLinux.cpp',
-    '$PORT_DIR/platform/chromium/PasteboardLinux.cpp',
     '$PORT_DIR/platform/chromium/ScreenLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',
@@ -153,8 +154,6 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/chromium/ScrollBarThemeChromiumWin.cpp',
     '$PORT_DIR/platform/UniscribeStateTextRun.cpp',
     '$PORT_DIR/platform/win/BString.cpp',
-    '$PORT_DIR/platform/win/ClipboardUtilitiesWin.cpp',
-    '$PORT_DIR/platform/win/PasteboardWin.cpp',
     '$PORT_DIR/platform/win/SoundWin.cpp',
     '$PORT_DIR/platform/graphics/FontCacheWin.cpp',
     '$PORT_DIR/platform/graphics/FontPlatformDataWin.cpp',
@@ -186,10 +185,8 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/page/WebCoreFrameBridge.mm',
     '$PORT_DIR/platform/GKURLMac.mm',
     '$PORT_DIR/platform/PluginStubsMac.cpp',
-    '$PORT_DIR/platform/mac/ClipboardMac.mm',
     '$PORT_DIR/platform/mac/DragDataMac.mm',
     '$PORT_DIR/platform/mac/IntRectMac.mm',
-    '$PORT_DIR/platform/mac/PasteboardMac.mm',
     '$PORT_DIR/platform/mac/ScrollViewMac.mm',
     '$PORT_DIR/platform/graphics/mac/FontCacheMacPending.cpp',
     '$PORT_DIR/rendering/RenderThemeMac.mm',

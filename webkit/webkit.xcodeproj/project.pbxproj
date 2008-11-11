@@ -164,6 +164,8 @@
 		4DDC62B70EAD142D00FB5EBE /* MimeTypeArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B00EAD142D00FB5EBE /* MimeTypeArray.cpp */; };
 		4DDC62B80EAD142D00FB5EBE /* Plugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B20EAD142D00FB5EBE /* Plugin.cpp */; };
 		4DDC62B90EAD142D00FB5EBE /* PluginArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */; };
+		532E35160ECA0EDE0097577C /* ClipboardUtilitiesChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 532E35140ECA0EDE0097577C /* ClipboardUtilitiesChromium.cpp */; };
+		532E351C0ECA0F290097577C /* PasteboardChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 532E351B0ECA0F290097577C /* PasteboardChromium.cpp */; };
 		535EE0B60EC4CDEE00939D54 /* ClipboardChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 535EE0B40EC4CDEE00939D54 /* ClipboardChromium.cpp */; };
 		535EE0B80EC4CE0300939D54 /* EditorChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 535EE0B70EC4CE0300939D54 /* EditorChromium.cpp */; };
 		535EE0C00EC4D10E00939D54 /* clipboard_conversion.cc in Sources */ = {isa = PBXBuildFile; fileRef = 535EE0BE0EC4D10E00939D54 /* clipboard_conversion.cc */; };
@@ -888,10 +890,8 @@
 		E45624EA0E268E87005E4685 /* KURL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90CC0D7F3CC2001ECF42 /* KURL.cpp */; };
 		E45624EB0E268E87005E4685 /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90D20D7F3CC2001ECF42 /* Logging.cpp */; };
 		E45624ED0E268E87005E4685 /* BlockExceptions.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90D70D7F3CC2001ECF42 /* BlockExceptions.mm */; };
-		E45624EE0E268E87005E4685 /* ClipboardMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90D90D7F3CC2001ECF42 /* ClipboardMac.mm */; };
 		E45624FC0E268E87005E4685 /* LocalCurrentGraphicsContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90E90D7F3CC2001ECF42 /* LocalCurrentGraphicsContext.mm */; };
 		E45624FE0E268E87005E4685 /* LoggingMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90EB0D7F3CC2001ECF42 /* LoggingMac.mm */; };
-		E45625000E268E87005E4685 /* PasteboardMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90EE0D7F3CC2001ECF42 /* PasteboardMac.mm */; };
 		E456250F0E268E87005E4685 /* WebCoreKeyGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91020D7F3CC2001ECF42 /* WebCoreKeyGenerator.m */; };
 		E45625100E268E87005E4685 /* WebCoreNSStringExtras.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91040D7F3CC2001ECF42 /* WebCoreNSStringExtras.mm */; };
 		E45625120E268E87005E4685 /* WebCoreSystemInterface.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91080D7F3CC2001ECF42 /* WebCoreSystemInterface.mm */; };
@@ -1732,6 +1732,9 @@
 		4DDC62B30EAD142D00FB5EBE /* Plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plugin.h; sourceTree = "<group>"; };
 		4DDC62B40EAD142D00FB5EBE /* PluginArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PluginArray.cpp; sourceTree = "<group>"; };
 		4DDC62B50EAD142D00FB5EBE /* PluginArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluginArray.h; sourceTree = "<group>"; };
+		532E35140ECA0EDE0097577C /* ClipboardUtilitiesChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClipboardUtilitiesChromium.cpp; sourceTree = "<group>"; };
+		532E35150ECA0EDE0097577C /* ClipboardUtilitiesChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipboardUtilitiesChromium.h; sourceTree = "<group>"; };
+		532E351B0ECA0F290097577C /* PasteboardChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PasteboardChromium.cpp; sourceTree = "<group>"; };
 		535EE0B40EC4CDEE00939D54 /* ClipboardChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClipboardChromium.cpp; sourceTree = "<group>"; };
 		535EE0B50EC4CDEE00939D54 /* ClipboardChromium.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipboardChromium.h; sourceTree = "<group>"; };
 		535EE0B70EC4CE0300939D54 /* EditorChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorChromium.cpp; sourceTree = "<group>"; };
@@ -7775,6 +7778,8 @@
 				53BECCC70EC4FF0500DC1DCD /* ChromiumDataObject.h */,
 				535EE0B40EC4CDEE00939D54 /* ClipboardChromium.cpp */,
 				535EE0B50EC4CDEE00939D54 /* ClipboardChromium.h */,
+				532E35140ECA0EDE0097577C /* ClipboardUtilitiesChromium.cpp */,
+				532E35150ECA0EDE0097577C /* ClipboardUtilitiesChromium.h */,
 				E473F6320EADFF61006C2098 /* ContextMenuItemChromium.cpp */,
 				E473F6330EADFF61006C2098 /* ContextMenuChromium.cpp */,
 				E473F6360EADFF84006C2098 /* CursorChromium.cpp */,
@@ -7792,6 +7797,7 @@
 				E473F64A0EADFFF8006C2098 /* Language.cpp */,
 				E473F64D0EAE0005006C2098 /* MimeTypeRegistryChromium.cpp */,
 				E473F6500EAE002F006C2098 /* PlatformKeyboardEventChromium.cpp */,
+				532E351B0ECA0F290097577C /* PasteboardChromium.cpp */,
 				E473F6510EAE002F006C2098 /* PasteboardPrivate.h */,
 				E473F6520EAE002F006C2098 /* PlatformCursor.h */,
 				E473F65D0EAE009A006C2098 /* PlatformWidget.h */,
@@ -8493,7 +8499,6 @@
 				E45623B40E268E87005E4685 /* ClassNodeList.cpp in Sources */,
 				E45623B50E268E87005E4685 /* Clipboard.cpp in Sources */,
 				E45623B60E268E87005E4685 /* ClipboardEvent.cpp in Sources */,
-				E45624EE0E268E87005E4685 /* ClipboardMac.mm in Sources */,
 				E45624C20E268E87005E4685 /* Color.cpp in Sources */,
 				E45626820E268E87005E4685 /* ColorCG.cpp in Sources */,
 				AB451D9D0EC21EDE0037A496 /* ColorSkia.cpp in Sources */,
@@ -8813,7 +8818,6 @@
 				E45624200E268E87005E4685 /* PageCache.cpp in Sources */,
 				4DB7F2060E9BAE2900C66CE0 /* PageGroup.cpp in Sources */,
 				E456247A0E268E87005E4685 /* PageURLRecord.cpp in Sources */,
-				E45625000E268E87005E4685 /* PasteboardMac.mm in Sources */,
 				E45624E40E268E87005E4685 /* Path.cpp in Sources */,
 				E456268C0E268E87005E4685 /* PathCG.cpp in Sources */,
 				E45624E50E268E87005E4685 /* PathTraversalState.cpp in Sources */,
@@ -9323,6 +9327,7 @@
 				E45627EE0E2694B8005E4685 /* CachedPage.cpp in Sources */,
 				53BECCC80EC4FF0500DC1DCD /* ChromiumDataObject.cpp in Sources */,
 				535EE0B60EC4CDEE00939D54 /* ClipboardChromium.cpp in Sources */,
+				532E35160ECA0EDE0097577C /* ClipboardUtilitiesChromium.cpp in Sources */,
 				E473F6350EADFF61006C2098 /* ContextMenuChromium.cpp in Sources */,
 				E473F6340EADFF61006C2098 /* ContextMenuItemChromium.cpp in Sources */,
 				93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */,
@@ -9355,6 +9360,7 @@
 				E473F64E0EAE0005006C2098 /* MimeTypeRegistryChromium.cpp in Sources */,
 				E48A07280E3F95A000172919 /* NativeImageSkia.cpp in Sources */,
 				93BF8E9C0EA6B0F30030F05C /* NetworkStateNotifierChromium.cpp in Sources */,
+				532E351C0ECA0F290097577C /* PasteboardChromium.cpp in Sources */,
 				E4E4C8560E7832E2009A687C /* PlatformContextSkia.cpp in Sources */,
 				E473F6530EAE002F006C2098 /* PlatformKeyboardEventChromium.cpp in Sources */,
 				E40FB28F0EAFF0BC006F380A /* PlatformScreenMac.mm in Sources */,

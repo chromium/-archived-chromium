@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include "base/clipboard.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string16.h"
 #include "webkit/glue/screen_info.h"
@@ -42,7 +43,6 @@ class Frame;
 }
 
 class SkBitmap;
-class Clipboard;
 
 #if defined(OS_MACOSX)
 typedef struct CGImage* CGImageRef;
@@ -196,11 +196,10 @@ HCURSOR LoadCursor(int cursor_id);
 // Glue to access the clipboard.
 
 // Get a clipboard that can be used to construct a ScopedClipboardWriterGlue.
-// TODO(tc): Move base/clipboard.h into the base:: namespace.
-::Clipboard* ClipboardGetClipboard();
+Clipboard* ClipboardGetClipboard();
 
 // Tests whether the clipboard contains a certain format
-bool ClipboardIsFormatAvailable(unsigned int format);
+bool ClipboardIsFormatAvailable(Clipboard::FormatType format);
 
 // Reads UNICODE text from the clipboard, if available.
 void ClipboardReadText(std::wstring* result);

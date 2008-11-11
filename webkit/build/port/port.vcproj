@@ -695,19 +695,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\win\ClipboardUtilitiesWin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\win\ClipboardUtilitiesWin.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\win\COMPtr.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\win\PasteboardWin.cpp"
 					>
 				</File>
 				<File
@@ -744,6 +732,14 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\chromium\ClipboardChromium.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ClipboardUtilitiesChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ClipboardUtilitiesChromium.h"
 					>
 				</File>
 				<File
@@ -791,6 +787,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\chromium\PasteboardChromium.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\chromium\PlatformKeyboardEventChromium.cpp"
 					>
 				</File>
@@ -803,15 +803,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\chromium\PopupMenuChromium.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\chromium\ScrollbarThemeChromiumWin.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\port\platform\chromium\ScrollbarThemeChromiumWin.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\chromium\PopupMenuChromium.h"
 					>
 				</File>
 				<File

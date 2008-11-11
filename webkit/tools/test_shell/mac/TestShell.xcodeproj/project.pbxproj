@@ -12,6 +12,7 @@
 		4DB7FA6F0E9BF33B00C66CE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FA6E0E9BF33B00C66CE0 /* SystemConfiguration.framework */; };
 		4DB7FEA40E9BF92100C66CE0 /* libwebcoresysteminterface.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FE760E9BF6CB00C66CE0 /* libwebcoresysteminterface.a */; };
 		4DB7FEA80E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FEA70E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a */; };
+		53E50D280ECA1B21001784B4 /* simple_clipboard_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 53E50D270ECA1B21001784B4 /* simple_clipboard_impl.cc */; };
 		7B779D510E83001A00C2971E /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B779D500E82FFAC00C2971E /* libevent.a */; };
 		7BA363BD0E8C40C30023C8B9 /* libsdch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA363BA0E8C409A0023C8B9 /* libsdch.a */; };
 		82F372150E82AE0500DF5AFE /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82F372140E82AE0500DF5AFE /* Security.framework */; };
@@ -574,6 +575,7 @@
 		4DB687CA0EAFE79200AB2128 /* libxslt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxslt.xcodeproj; path = third_party/libxslt/libxslt.xcodeproj; sourceTree = "<group>"; };
 		4DB7FA6E0E9BF33B00C66CE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<group>"; };
 		4DB7FEA70E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = ../../../../third_party/WebKit/WebKitLibraries/libWebKitSystemInterfaceLeopard.a; sourceTree = SOURCE_ROOT; };
+		53E50D270ECA1B21001784B4 /* simple_clipboard_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = simple_clipboard_impl.cc; path = ../../../glue/simple_clipboard_impl.cc; sourceTree = SOURCE_ROOT; };
 		7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = v8.xcodeproj; path = build/v8.xcodeproj; sourceTree = "<group>"; };
 		7B779D4B0E82FFAC00C2971E /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = third_party/libevent/libevent.xcodeproj; sourceTree = "<group>"; };
 		7B8200950E76FDA1008F45CF /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
@@ -1017,6 +1019,7 @@
 				AB8A77FE0DC54DD6005C27B8 /* layout_test_controller.h */,
 				AB8A77FD0DC54DD6005C27B8 /* layout_test_controller.cc */,
 				AB8A78540DC553BC005C27B8 /* node_leak_test.cc */,
+				53E50D270ECA1B21001784B4 /* simple_clipboard_impl.cc */,
 				E45629690E26B64D005E4685 /* simple_resource_loader_bridge.cc */,
 				E45629680E26B64D005E4685 /* simple_resource_loader_bridge.h */,
 				AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */,
@@ -1533,6 +1536,7 @@
 				E45629160E26B4FE005E4685 /* event_sending_controller.cc in Sources */,
 				E45629170E26B4FE005E4685 /* layout_test_controller.cc in Sources */,
 				E45629150E26B4FE005E4685 /* main.mm in Sources */,
+				53E50D280ECA1B21001784B4 /* simple_clipboard_impl.cc in Sources */,
 				E456296A0E26B64D005E4685 /* simple_resource_loader_bridge.cc in Sources */,
 				E45629190E26B4FE005E4685 /* test_navigation_controller.cc in Sources */,
 				E456291A0E26B4FE005E4685 /* test_shell_mac.mm in Sources */,

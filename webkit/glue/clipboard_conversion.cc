@@ -9,10 +9,10 @@
 #include "build/build_config.h"
 
 #include "ChromiumDataObject.h"
-#if defined(OS_WIN)
-#include "ClipboardUtilitiesWin.h"
-#endif
+#include "ClipboardUtilitiesChromium.h"
+#include "KURL.h"
 #include "SharedBuffer.h"
+#include <wtf/Vector.h>
 
 #include "webkit/glue/glue_util.h"
 
@@ -20,6 +20,66 @@ namespace {
 
 // TODO(tc): CF_HTML logic should move into the browser process since it only
 // makes sense on Windows.
+#if defined(OS_WIN)
+void append(WTF::Vector<char>& vector, const WebCore::CString& string) {
+  vector.append(string.data(), string.length());
+}
+// Documentation for the CF_HTML format is available at
+// http://msdn.microsoft.com/workshop/networking/clipboard/htmlclipboard.asp
+void markupToCF_HTML(const WebCore::String& markup,
+                     const WebCore::String& src_url,
+                     WTF::Vector<char>& result) {
+  if (markup.isEmpty())
+    return;
+
+  #define MAX_DIGITS 10
+  #define MAKE_NUMBER_FORMAT_1(digits) MAKE_NUMBER_FORMAT_2(digits)
+  #define MAKE_NUMBER_FORMAT_2(digits) "%0" #digits "u"
+  #define NUMBER_FORMAT MAKE_NUMBER_FORMAT_1(MAX_DIGITS)
+
+  static const char* header = "Version:0.9\n"
+      "StartHTML:" NUMBER_FORMAT "\n"
+      "EndHTML:" NUMBER_FORMAT "\n"
+      "StartFragment:" NUMBER_FORMAT "\n"
+      "EndFragment:" NUMBER_FORMAT "\n";
+  static const char* source_url_prefix = "SourceURL:";
+
+  static const char* start_markup = "<HTML>\n<BODY>\n<!--StartFragment-->\n";
+  static const char* end_markup = "\n<!--EndFragment-->\n</BODY>\n</HTML>";
+
+  WebCore::CString source_url_utf8 = (src_url == WebCore::blankURL()) ?
+      "" : src_url.utf8();
+  WebCore::CString markup_utf8 = markup.utf8();
+
+  // calculate offsets
+  size_t start_html_offset = strlen(header) - strlen(NUMBER_FORMAT) * 4 +
+      MAX_DIGITS * 4;
+  if (source_url_utf8.length()) {
+    start_html_offset += strlen(source_url_prefix) +
+        source_url_utf8.length() + 1;
+  }
+  size_t start_fragment_offset = start_html_offset + strlen(start_markup);
+  size_t end_fragment_offset = start_fragment_offset + markup_utf8.length();
+  size_t end_html_offset = end_fragment_offset + strlen(end_markup);
+
+  append(result, WebCore::String::format(header, start_html_offset,
+         end_html_offset, start_fragment_offset, end_fragment_offset).utf8());
+  if (source_url_utf8.length()) {
+    append(result, source_url_prefix);
+    append(result, source_url_utf8);
+    result.append('\n');
+  }
+  append(result, start_markup);
+  append(result, markup_utf8);
+  append(result, end_markup);
+
+  #undef MAX_DIGITS
+  #undef MAKE_NUMBER_FORMAT_1
+  #undef MAKE_NUMBER_FORMAT_2
+  #undef NUMBER_FORMAT
+}
+#endif
+
 std::wstring HTMLToCFHTML(const WebCore::String& html,
                           const WebCore::KURL& url) {
 #if defined(OS_WIN)
