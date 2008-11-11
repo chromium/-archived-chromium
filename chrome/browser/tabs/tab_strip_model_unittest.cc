@@ -1006,7 +1006,6 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
       return dummy_contents_;
     return NULL;
   }
-  virtual void ShowApplicationMenu(const gfx::Point& p) {}
   virtual bool CanDuplicateContentsAt(int index) { return false; }
   virtual void DuplicateContentsAt(int index) {}
   virtual void ValidateLoadingAnimations() {}

@@ -239,7 +239,6 @@ class Browser : public TabStripModelDelegate,
       PageTransition::Type transition,
       bool defer_load,
       SiteInstance* instance) const;
-  virtual void ShowApplicationMenu(const gfx::Point& p);
   virtual bool CanDuplicateContentsAt(int index);
   virtual void DuplicateContentsAt(int index);
   virtual void ValidateLoadingAnimations();
@@ -364,13 +363,8 @@ class Browser : public TabStripModelDelegate,
 
   typedef std::vector<TabContents*> UnloadListenerVector;
 
-  Browser();
-
   // Closes the frame.
   void CloseFrame();
-
-  // Returns the root view for this browser.
-  views::RootView* GetRootView() const;
 
   // Returns what the user's home page is, or the new tab page if the home page
   // has not been set.
@@ -393,11 +387,6 @@ class Browser : public TabStripModelDelegate,
   // this to return NULL if called before the toolbar has initialized.
   // TODO(beng): remove this.
   StatusBubble* GetStatusBubble();
-
-  // Saves the location of the window to the history database.
-  void SaveWindowPlacementToDatabase();
-  // Window placement memory across sessions.
-  void SaveWindowPlacement();
 
   // Notifies the history database of the index for all tabs whose index is
   // >= index.
@@ -442,11 +431,6 @@ class Browser : public TabStripModelDelegate,
 
   // Opens the Bug Report dialog.
   void OpenBugReportDialog();
-
-  // Removes the InfoBar and download shelf for the specified TabContents, if
-  // they are presently attached.
-  // TODO(beng): REMOVE
-  void RemoveShelvesForTabContents(TabContents* contents);
 
   // Copy the current page URL to the clipboard.
   void CopyCurrentURLToClipBoard();
@@ -517,6 +501,8 @@ class Browser : public TabStripModelDelegate,
   //             BrowserView, or some more likely place.
   int initial_show_command_;
 
+  // TODO(beng): should be combined with ToolbarModel now that this is the only
+  //             implementation.
   class BrowserToolbarModel : public ToolbarModel {
    public:
     explicit BrowserToolbarModel(Browser* browser) : browser_(browser) { }

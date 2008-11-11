@@ -307,7 +307,21 @@ void BrowserView::Close() {
   frame_->GetWindow()->Close();
 }
 
-void* BrowserView::GetPlatformID() {
+void BrowserView::Activate() {
+  frame_->GetWindow()->Activate();
+}
+
+void BrowserView::FlashFrame() {
+  FLASHWINFO fwi;
+  fwi.cbSize = sizeof(fwi);
+  fwi.hwnd = frame_->GetWindow()->GetHWND();
+  fwi.dwFlags = FLASHW_ALL;
+  fwi.uCount = 4;
+  fwi.dwTimeout = 0;
+  FlashWindowEx(&fwi);
+}
+
+void* BrowserView::GetNativeHandle() {
   return GetContainer()->GetHWND();
 }
 
@@ -336,29 +350,6 @@ void BrowserView::UpdateTitleBar() {
     frame_->GetWindow()->UpdateWindowIcon();
 }
 
-void BrowserView::Activate() {
-  frame_->GetWindow()->Activate();
-}
-
-void BrowserView::FlashFrame() {
-  FLASHWINFO fwi;
-  fwi.cbSize = sizeof(fwi);
-  fwi.hwnd = frame_->GetWindow()->GetHWND();
-  fwi.dwFlags = FLASHW_ALL;
-  fwi.uCount = 4;
-  fwi.dwTimeout = 0;
-  FlashWindowEx(&fwi);
-}
-
-void BrowserView::SizeToContents(const gfx::Rect& contents_bounds) {
-  frame_->SizeToContents(contents_bounds);
-}
-
-void BrowserView::SetAcceleratorTable(
-    std::map<views::Accelerator, int>* accelerator_table) {
-  accelerator_table_.reset(accelerator_table);
-}
-
 void BrowserView::ValidateThrobber() {
   if (ShouldShowWindowIcon()) {
     TabContents* tab_contents = browser_->GetSelectedTabContents();
@@ -376,19 +367,6 @@ gfx::Rect BrowserView::GetNormalBounds() {
 
 bool BrowserView::IsMaximized() {
   return frame_->GetWindow()->IsMaximized();
-}
-
-gfx::Rect BrowserView::GetBoundsForContentBounds(
-    const gfx::Rect content_rect) {
-  return frame_->GetWindowBoundsForClientBounds(content_rect);
-}
-
-void BrowserView::InfoBubbleShowing() {
-  frame_->GetWindow()->DisableInactiveRendering(true);
-}
-
-void BrowserView::InfoBubbleClosing() {
-  frame_->GetWindow()->DisableInactiveRendering(false);
 }
 
 ToolbarStarToggle* BrowserView::GetStarButton() const {

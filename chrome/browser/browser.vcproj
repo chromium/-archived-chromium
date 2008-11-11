@@ -994,10 +994,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\browser_window.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\browser_window.h"
 				>
 			</File>

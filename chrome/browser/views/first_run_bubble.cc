@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/first_run_bubble.h"
 
+#include "base/win_util.h"
 #include "chrome/app/locales/locale_settings.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
@@ -206,9 +207,11 @@ FirstRunBubble* FirstRunBubble::Show(HWND parent_hwnd,
   views::View* view = new FirstRunBubbleView(window);
   window->SetDelegate(window);
   window->Init(parent_hwnd, position_relative_to, view);
-  BrowserWindow* frame = window->GetHostingWindow();
-  DCHECK(frame);
-  frame->InfoBubbleShowing();
+
+  views::Window* parent_window =
+      reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
+          parent_hwnd));
+  parent_window->DisableInactiveRendering(true);
   window->ShowWindow(SW_SHOW);
   return window;
 }

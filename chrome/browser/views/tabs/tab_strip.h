@@ -53,10 +53,6 @@ class TabStrip : public views::View,
   // non drag-able Tab.
   bool HasAvailableDragActions() const;
 
-  // Ask the delegate to show the application menu at the provided point.
-  // The point is in screen coordinate system.
-  void ShowApplicationMenu(const gfx::Point& p);
-
   // Returns true if the TabStrip can accept input events. This returns false
   // when the TabStrip is animating to a new state and as such the user should
   // not be allowed to interact with the TabStrip.

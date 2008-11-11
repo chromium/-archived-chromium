@@ -134,22 +134,16 @@ class BrowserView : public BrowserWindow,
   virtual void Init();
   virtual void Show(int command, bool adjust_to_fit);
   virtual void Close();
-  virtual void* GetPlatformID();
+  virtual void Activate();
+  virtual void FlashFrame();
+  virtual void* GetNativeHandle();
   virtual TabStrip* GetTabStrip() const;
   virtual StatusBubble* GetStatusBubble();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
   virtual void UpdateTitleBar();
-  virtual void Activate();
-  virtual void FlashFrame();
-  virtual void SizeToContents(const gfx::Rect& contents_bounds);
-  virtual void SetAcceleratorTable(
-      std::map<views::Accelerator, int>* accelerator_table);
   virtual void ValidateThrobber();
   virtual gfx::Rect GetNormalBounds();
   virtual bool IsMaximized();
-  virtual gfx::Rect GetBoundsForContentBounds(const gfx::Rect content_rect);
-  virtual void InfoBubbleShowing();
-  virtual void InfoBubbleClosing();
   virtual ToolbarStarToggle* GetStarButton() const;
   virtual LocationBarView* GetLocationBarView() const;
   virtual GoButton* GetGoButton() const;
