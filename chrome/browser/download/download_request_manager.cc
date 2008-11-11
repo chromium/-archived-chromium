@@ -161,7 +161,7 @@ DownloadRequestManager::TabDownloadState::TabDownloadState(
       status_(DownloadRequestManager::ALLOW_ONE_DOWNLOAD),
       dialog_delegate_(NULL) {
   Source<NavigationController> notification_source(controller);
-  registrar_.Add(this, NOTIFY_NAV_ENTRY_COMMITTED, notification_source);
+  registrar_.Add(this, NOTIFY_NAV_ENTRY_PENDING, notification_source);
   registrar_.Add(this, NOTIFY_TAB_CLOSED, notification_source);
 
   NavigationEntry* active_entry = originating_controller ?
@@ -219,14 +219,29 @@ void DownloadRequestManager::TabDownloadState::Observe(
     NotificationType type,
     const NotificationSource& source,
     const NotificationDetails& details) {
-  if ((type != NOTIFY_NAV_ENTRY_COMMITTED && type != NOTIFY_TAB_CLOSED) ||
+  if ((type != NOTIFY_NAV_ENTRY_PENDING && type != NOTIFY_TAB_CLOSED) ||
        Source<NavigationController>(source).ptr() != controller_) {
     NOTREACHED();
     return;
   }
 
   switch(type) {
-    case NOTIFY_NAV_ENTRY_COMMITTED: {
+    case NOTIFY_NAV_ENTRY_PENDING: {
+      // NOTE: resetting state on a pending navigate isn't ideal. In particular
+      // it is possible that queued up downloads for the page before the
+      // pending navigate will be delivered to us after we process this
+      // request. If this happens we may let a download through that we
+      // shouldn't have. But this is rather rare, and it is difficult to get
+      // 100% right, so we don't deal with it.
+      NavigationEntry* entry = controller_->GetPendingEntry();
+      if (!entry)
+        return;
+
+      if (PageTransition::IsRedirect(entry->transition_type())) {
+        // Redirects don't count.
+        return;
+      }
+
       if (is_showing_prompt()) {
         // We're prompting the user and they navigated away. Close the popup and
         // cancel the downloads.
@@ -237,13 +252,8 @@ void DownloadRequestManager::TabDownloadState::Observe(
         // User has either allowed all downloads or canceled all downloads. Only
         // reset the download state if the user is navigating to a different
         // host (or host is empty).
-        NavigationController::LoadCommittedDetails* load_details =
-            Details<NavigationController::LoadCommittedDetails>(details).ptr();
-        NavigationEntry* entry = load_details->entry;
-        if (load_details->is_auto || !entry ||
-            (!initial_page_host_.empty() &&
-             !entry->url().host().empty() &&
-             entry->url().host() == initial_page_host_)) {
+        if (!initial_page_host_.empty() && !entry->url().host().empty() &&
+            entry->url().host() == initial_page_host_) {
           return;
         }
       }  // else case: we're not prompting user and user hasn't allowed or
