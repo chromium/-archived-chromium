@@ -79,7 +79,6 @@ WebMouseEvent::WebMouseEvent(NSEvent *event, NSView* view) {
   
   // set modifiers:
 
-  modifiers = 0;
   if ([event modifierFlags] & NSControlKeyMask)
     modifiers |= CTRL_KEY;
   if ([event modifierFlags] & NSShiftKeyMask)
@@ -125,7 +124,6 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
     delta_y = delta_lines;
   }
 
-  modifiers = 0;
   if ([event modifierFlags] & NSControlKeyMask)
     modifiers |= CTRL_KEY;
   if ([event modifierFlags] & NSShiftKeyMask)
@@ -943,7 +941,6 @@ static void FillVectorFromNSString(std::vector<unsigned short>* v,
 WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
   type = WebCore::isKeyUpEvent(event) ? KEY_UP : KEY_DOWN;
 
-  modifiers = 0;
   if ([event modifierFlags] & NSControlKeyMask)
     modifiers |= CTRL_KEY;
   if ([event modifierFlags] & NSShiftKeyMask)

@@ -96,7 +96,6 @@ WebMouseEvent::WebMouseEvent(HWND hwnd, UINT message, WPARAM wparam,
   
   // set modifiers:
 
-  modifiers = 0;
   if (wparam & MK_CONTROL)
     modifiers |= CTRL_KEY;
   if (wparam & MK_SHIFT)
@@ -249,7 +248,6 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
 
 WebKeyboardEvent::WebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam,
                                    LPARAM lparam) {
-  modifiers = 0;
   system_key = false;
 
   actual_message.hwnd = hwnd;

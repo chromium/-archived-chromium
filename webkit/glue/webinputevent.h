@@ -37,6 +37,8 @@ typedef struct _GdkEventKey GdkEventKey;
 
 class WebInputEvent {
  public:
+  WebInputEvent() : modifiers(0) { }
+
   enum Type {
     // WebMouseEvent
     MOUSE_DOWN,
