@@ -78,21 +78,6 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args):
       outlines.append(line)
     line = proc.stdout.readline()
 
-  # If we had any stderr output, append that. This is not ideal, but at least
-  # it'll catch errors.
-#  line = proc.stderr.readline()
-#  while line.rstrip() != "#EOF":
-#    # TODO(pamg): We suppress this stderr message temporarily so we can run
-#    # the tests deterministically until someone has a chance to fix the
-#    # underlying problem.
-#    # See http://code.google.com/p/chromium/issues/detail?id=4285
-#    if (line != '' and
-#        not line.endswith('alias ISO-8859-8-I maps to ISO-8859-8-I already, '
-#                          'but someone is trying to make it map to '
-#                          'ISO-8859-8')):
-#      outlines.append(line)
-#    line = proc.stderr.readline()
-
   # Check the output and save the results.
   for test_type in test_types:
     new_failures = test_type.CompareOutput(filename, proc,
@@ -109,13 +94,10 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args):
 def StartTestShell(binary, args):
   """Returns the process for a new test_shell started in layout-tests mode."""
   cmd = [binary, '--layout-tests'] + args
-  # We'd really like to combine stderr into stdout here by setting stderr to
-  # subprocess.STDOUT, but on Windows that's just dropping stderr output on
-  # the floor, at least in Python 2.4.1.
   return subprocess.Popen(cmd,
                           stdin=subprocess.PIPE,
                           stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE)
+                          stderr=subprocess.STDOUT)
 
 
 class SingleTestThread(threading.Thread):

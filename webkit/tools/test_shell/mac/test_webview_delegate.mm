@@ -85,13 +85,7 @@ void TestWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
 
 void TestWebViewDelegate::DidStartLoading(WebView* webview) {
   if (page_is_loading_) {
-    // When we started including stderr in layout-test output, a number of
-    // number of tests began failing. The vast majority of the new failures
-    // were due to either this error message or the one in DidStopLoading.
-    // This is being disabled temporarily so we can keep running the tests.
-    // See http://code.google.com/p/chromium/issues/detail?id=3937
-    // TODO(pamg): Remove this when the underlying bug is fixed.
-    //LOG(ERROR) << "DidStartLoading called while loading";
+    LOG(ERROR) << "DidStartLoading called while loading";
     return;
   }
   page_is_loading_ = true;
@@ -99,13 +93,7 @@ void TestWebViewDelegate::DidStartLoading(WebView* webview) {
 
 void TestWebViewDelegate::DidStopLoading(WebView* webview) {
   if (!page_is_loading_) {
-    // When we started including stderr in layout-test output, a number of
-    // number of tests began failing. The vast majority of the new failures
-    // were due to either this error message or the one in DidStartLoading.
-    // This is being disabled temporarily so we can keep running the tests.
-    // See http://code.google.com/p/chromium/issues/detail?id=3937
-    // TODO(pamg): Remove this when the underlying bug is fixed.
-    //LOG(ERROR) << "DidStopLoading called while not loading";
+    LOG(ERROR) << "DidStopLoading called while not loading";
     return;
   }
   page_is_loading_ = false;

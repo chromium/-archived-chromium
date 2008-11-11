@@ -250,12 +250,9 @@ bool TestShell::RunFileTest(const char *filename, const TestParams& params) {
       std::string md5sum = DumpImage(webFrame, params.pixel_file_name);
       printf("#MD5:%s\n", md5sum.c_str());
     }
-    if (dumped_anything) {
+    if (dumped_anything)
       printf("#EOF\n");
-      fprintf(stderr, "#EOF\n");
-    }
     fflush(stdout);
-    fflush(stderr);
   }
 
   return true;
@@ -387,11 +384,9 @@ unsigned int __stdcall WatchDogThread(void *arg) {
     // Print a warning to be caught by the layout-test script.
     // Note: the layout test driver may or may not recognize
     // this as a timeout.
-    printf("#TEST_TIMED_OUT\n");
-    printf("#EOF\n");
-    fprintf(stderr, "#EOF\n");
+    puts("#TEST_TIMED_OUT\n");
+    puts("#EOF\n");
     fflush(stdout);
-    fflush(stderr);
     TerminateProcess(GetCurrentProcess(), 0);
   }
   // Finished normally.
