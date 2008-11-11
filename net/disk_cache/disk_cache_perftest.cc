@@ -2,13 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <fcntl.h>
+
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/perftimer.h"
 #include "base/platform_test.h"
+#if defined(OS_WIN)
+#include "base/scoped_handle.h"
+#endif
 #include "base/string_util.h"
 #include "base/timer.h"
 #include "net/base/net_errors.h"
@@ -27,6 +31,62 @@ extern volatile bool g_cache_tests_error;
 typedef PlatformTest DiskCacheTest;
 
 namespace {
+
+bool EvictFileFromSystemCache(const wchar_t* name) {
+#if defined(OS_WIN)
+  // Overwrite it with no buffering.
+  ScopedHandle file(CreateFile(name, GENERIC_READ | GENERIC_WRITE,
+                               FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                               OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL));
+  if (!file.IsValid())
+    return false;
+
+  // Execute in chunks. It could be optimized. We want to do few of these since
+  // these opterations will be slow without the cache.
+  char buffer[128 * 1024];
+  int total_bytes = 0;
+  DWORD bytes_read;
+  for (;;) {
+    if (!ReadFile(file, buffer, sizeof(buffer), &bytes_read, NULL))
+      return false;
+    if (bytes_read == 0)
+      break;
+
+    bool final = false;
+    if (bytes_read < sizeof(buffer))
+      final = true;
+
+    DWORD to_write = final ? sizeof(buffer) : bytes_read;
+
+    DWORD actual;
+    SetFilePointer(file, total_bytes, 0, FILE_BEGIN);
+    if (!WriteFile(file, buffer, to_write, &actual, NULL))
+      return false;
+    total_bytes += bytes_read;
+
+    if (final) {
+      SetFilePointer(file, total_bytes, 0, FILE_BEGIN);
+      SetEndOfFile(file);
+      break;
+    }
+  }
+  return true;
+#elif defined(OS_LINUX)
+  int fd = open(WideToUTF8(std::wstring(name)).c_str(), O_RDONLY);
+  if (fd < 0)
+    return false;
+  if (fdatasync(fd) != 0)
+    return false;
+  if (posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED) != 0)
+    return false;
+  close(fd);
+  return true;
+#else
+  // TODO(port): Mac has its own way to do this.
+  NOTIMPLEMENTED();
+  return false;
+#endif
+}
 
 struct TestEntry {
   std::string key;
@@ -154,10 +214,9 @@ TEST_F(DiskCacheTest, Hash) {
 TEST_F(DiskCacheTest, CacheBackendPerformance) {
   MessageLoopForIO message_loop;
 
-  std::wstring path_wstring = GetCachePath();
-  ASSERT_TRUE(DeleteCache(path_wstring.c_str()));
-  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path_wstring,
-                                                              false, 0);
+  std::wstring path = GetCachePath();
+  ASSERT_TRUE(DeleteCache(path.c_str()));
+  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);
   ASSERT_TRUE(NULL != cache);
 
   int seed = static_cast<int>(Time::Now().ToInternalValue());
@@ -172,18 +231,25 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
   MessageLoop::current()->RunAllPending();
   delete cache;
 
-  FilePath path = FilePath::FromWStringHack(path_wstring);
+  std::wstring filename(path);
+  file_util::AppendToPath(&filename, L"index");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
 
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("index"))));
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("data_0"))));
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("data_1"))));
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("data_2"))));
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.Append(FILE_PATH_LITERAL("data_3"))));
+  filename = path;
+  file_util::AppendToPath(&filename, L"data_0");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
+
+  filename = path;
+  file_util::AppendToPath(&filename, L"data_1");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
+
+  filename = path;
+  file_util::AppendToPath(&filename, L"data_2");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
+
+  filename = path;
+  file_util::AppendToPath(&filename, L"data_3");
+  ASSERT_TRUE(EvictFileFromSystemCache(filename.c_str()));
 
   cache = disk_cache::CreateCacheBackend(path, false, 0);
   ASSERT_TRUE(NULL != cache);

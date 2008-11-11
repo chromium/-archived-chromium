@@ -2,14 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_TEST_TEST_FILE_UTIL_H_
-#define CHROME_TEST_TEST_FILE_UTIL_H_
+#ifndef CHROME_TEST_TEST_FILE_UTIL_H__
+#define CHROME_TEST_TEST_FILE_UTIL_H__
 
 // File utility functions used only by tests.
 
 #include <string>
 
 namespace file_util {
+
+// Clear a specific file from the system cache using a neat trick. After this
+// call, trying to access this file will result in a cold load from the hard
+// drive.
+bool EvictFileFromSystemCache(const wchar_t* file);
 
 // Like CopyFileNoCache but recursively copies all files and subdirectories
 // in the given input directory to the output directory. Any files in the
@@ -22,5 +27,5 @@ bool CopyRecursiveDirNoCache(const std::wstring& source_dir,
 
 }  // namespace file_util
 
-#endif  // CHROME_TEST_TEST_FILE_UTIL_H_
+#endif  // CHROME_TEST_TEST_FILE_UTIL_H__
 

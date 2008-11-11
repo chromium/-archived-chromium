@@ -389,10 +389,6 @@ bool RenameFileAndResetSecurityDescriptor(
     const std::wstring& source_file_path,
     const std::wstring& target_file_path);
 
-// Clear a specific file from the system cache. After this call, trying
-// to access this file will result in a cold load from the hard drive.
-bool EvictFileFromSystemCache(const FilePath path);
-
 }  // namespace file_util
 
 #endif  // BASE_FILE_UTIL_H_

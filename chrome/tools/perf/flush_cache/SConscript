@@ -16,26 +16,26 @@ env_test.Prepend(
     ],
 )
 
-if env_test['PLATFORM'] == 'win32':
-  env_test.Prepend(
-      LINKFLAGS = [
-          '/INCREMENTAL',
-          '/DEBUG',
+env_test.Prepend(
+    LINKFLAGS = [
+        '/INCREMENTAL',
+        '/DEBUG',
 
-          '/DELAYLOAD:"dwmapi.dll"',
-          '/DELAYLOAD:"uxtheme.dll"',
+        '/DELAYLOAD:"dwmapi.dll"',
+        '/DELAYLOAD:"uxtheme.dll"',
 
-          '/MACHINE:X86',
-          '/FIXED:No',
+        '/MACHINE:X86',
+        '/FIXED:No',
 
-          '/safeseh',
-          '/dynamicbase',
-          '/ignore:4199',
-          '/nxcompat',
-      ],
-  )
+        '/safeseh',
+        '/dynamicbase',
+        '/ignore:4199',
+        '/nxcompat',
+    ],
+)
 
 input_files = [
+    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
     'flush_cache.cc',
 ]
 
