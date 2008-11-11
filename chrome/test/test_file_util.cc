@@ -12,34 +12,6 @@
 
 namespace file_util {
 
-bool EvictFileFromSystemCache(const wchar_t* file) {
-  // Request exclusive access to the file and overwrite it with no buffering.
-  win_util::ScopedHandle hfile(
-      CreateFile(file, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-                 OPEN_EXISTING, FILE_FLAG_NO_BUFFERING,
-                 NULL));
-  if (!hfile)
-    return false;
-
-  // Execute in chunks. It could be optimized. We want to do few of these since
-  // these opterations will be slow without the cache.
-  char buffer[4096];
-  int total_bytes = 0;
-  DWORD bytes_read;
-  for (;;) {
-    bytes_read = 0;
-    ReadFile(hfile, buffer, sizeof(buffer), &bytes_read, NULL);
-    if (bytes_read == 0)
-      break;
-
-    SetFilePointer(hfile, total_bytes, 0, FILE_BEGIN);
-    if (!WriteFile(hfile, buffer, bytes_read, &bytes_read, NULL))
-      return false;
-    total_bytes += bytes_read;
-  }
-  return true;
-}
-
 // Like CopyFileNoCache but recursively copies all files and subdirectories
 // in the given input directory to the output directory.
 bool CopyRecursiveDirNoCache(const std::wstring& source_dir,
@@ -88,7 +60,7 @@ bool CopyRecursiveDirNoCache(const std::wstring& source_dir,
       // files that are in the repository, and they will have read-only set.
       // This will prevent us from evicting from the cache, but these don't
       // matter anyway.
-      EvictFileFromSystemCache(cur_dest_path.c_str());
+      file_util::EvictFileFromSystemCache(cur_dest_path.c_str());
     }
   } while (FindNextFile(fh, &fd));
 

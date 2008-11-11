@@ -72,4 +72,16 @@ bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
   return result;
 }
 
+bool EvictFileFromSystemCache(const FilePath path) {
+  int fd = open(path.value().c_str(), O_RDONLY);
+  if (fd < 0)
+    return false;
+  if (fdatasync(fd) != 0)
+    return false;
+  if (posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED) != 0)
+    return false;
+  close(fd);
+  return true;
+}
+
 }  // namespace file_util

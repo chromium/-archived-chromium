@@ -28,4 +28,10 @@ bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
                    to_path.value().c_str(), NULL, COPYFILE_ALL) == 0);
 }
 
+bool EvictFileFromSystemCache(const FilePath path) {
+  // TODO(port): Implement.
+  NOTIMPLEMENTED();
+  return false;
+}
+
 }  // namespace

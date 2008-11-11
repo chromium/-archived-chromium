@@ -692,4 +692,45 @@ std::wstring FileEnumerator::Next() {
   return (file_type_ & FileEnumerator::FILES) ? cur_file : Next();
 }
 
+bool EvictFileFromSystemCache(const FilePath path) {
+  // Overwrite it with no buffering.
+  ScopedHandle file(CreateFile(path.value().c_str(),
+                               GENERIC_READ | GENERIC_WRITE,
+                               FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+                               OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL));
+  if (!file.IsValid())
+    return false;
+
+  // Execute in chunks. It could be optimized. We want to do few of these since
+  // these operations will be slow without the cache.
+  char buffer[128 * 1024];
+  int total_bytes = 0;
+  DWORD bytes_read;
+  for (;;) {
+    if (!ReadFile(file, buffer, sizeof(buffer), &bytes_read, NULL))
+      return false;
+    if (bytes_read == 0)
+      break;
+
+    bool final = false;
+    if (bytes_read < sizeof(buffer))
+      final = true;
+
+    DWORD to_write = final ? sizeof(buffer) : bytes_read;
+
+    DWORD actual;
+    SetFilePointer(file, total_bytes, 0, FILE_BEGIN);
+    if (!WriteFile(file, buffer, to_write, &actual, NULL))
+      return false;
+    total_bytes += bytes_read;
+
+    if (final) {
+      SetFilePointer(file, total_bytes, 0, FILE_BEGIN);
+      SetEndOfFile(file);
+      break;
+    }
+  }
+  return true;
+}
+
 }  // namespace file_util

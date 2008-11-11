@@ -5,10 +5,13 @@
 // This little program attempts to flush the disk cache for some files.
 // It's useful for testing Chrome with a cold database.
 
+#include "build/build_config.h"
+
+#include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/string_piece.h"
 #include "base/process_util.h"
 #include "base/sys_string_conversions.h"
-#include "chrome/test/test_file_util.h"
 
 int main(int argc, const char* argv[]) {
   process_util::EnableTerminationOnHeapCorruption();
@@ -19,8 +22,12 @@ int main(int argc, const char* argv[]) {
   }
 
   for (int i = 1; i < argc; ++i) {
+#if defined(OS_POSIX)
+    std::string filename(argv[i]);
+#elif defined(OS_WIN)
     std::wstring filename = base::SysNativeMBToWide(argv[i]);
-    if (!file_util::EvictFileFromSystemCache(filename.c_str())) {
+#endif
+    if (!file_util::EvictFileFromSystemCache(FilePath(filename))) {
       fprintf(stderr, "Failed to evict %s from cache -- is it a directory?\n",
               argv[i]);
     }
