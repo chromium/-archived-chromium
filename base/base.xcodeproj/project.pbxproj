@@ -182,6 +182,8 @@
 		E45062A60E40A9BE0025A81A /* base_switches.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825402CB0D92D1390006B936 /* base_switches.cc */; };
 		E48A05F70E3F61B300172919 /* command_line.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133490E37A41D00110AA2 /* command_line.cc */; };
 		E48A06710E3F70E200172919 /* convolver.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06680E3F70B500172919 /* convolver.cc */; };
+		E48FB9990EC4ED850052B72B /* process_posix.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9980EC4ED850052B72B /* process_posix.cc */; };
+		E48FB9EA0EC4F53B0052B72B /* process_util_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = E48FB9E90EC4F53B0052B72B /* process_util_mac.mm */; };
 		E49115EF0E47B461001EE8C3 /* at_exit.cc in Sources */ = {isa = PBXBuildFile; fileRef = E49115EC0E47B461001EE8C3 /* at_exit.cc */; };
 		E49357220E422A36008F8B09 /* timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825403850D92D2CF0006B936 /* timer.cc */; };
 		E4A133440E37A3C400110AA2 /* string_escape.cc in Sources */ = {isa = PBXBuildFile; fileRef = E4A133420E37A3C400110AA2 /* string_escape.cc */; };
@@ -461,7 +463,6 @@
 		820EB4EB0E3A60FE009668FC /* idle_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idle_timer.cc; sourceTree = "<group>"; };
 		820EB4EC0E3A60FE009668FC /* idle_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_timer.h; sourceTree = "<group>"; };
 		820EB4EF0E3A610A009668FC /* linked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = linked_ptr.h; sourceTree = "<group>"; };
-		820EB4F10E3A6127009668FC /* process.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process.cc; sourceTree = "<group>"; };
 		820EB4F20E3A6127009668FC /* process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = process.h; sourceTree = "<group>"; };
 		820EB4F50E3A613F009668FC /* string_piece.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_piece.cc; sourceTree = "<group>"; };
 		820EB4F60E3A613F009668FC /* string_piece.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_piece.h; sourceTree = "<group>"; };
@@ -660,6 +661,8 @@
 		E48A06680E3F70B500172919 /* convolver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = convolver.cc; sourceTree = "<group>"; };
 		E48A06690E3F70B500172919 /* convolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convolver.h; sourceTree = "<group>"; };
 		E48A06790E3F714300172919 /* convolver_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = convolver_unittest.cc; sourceTree = "<group>"; };
+		E48FB9980EC4ED850052B72B /* process_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process_posix.cc; sourceTree = "<group>"; };
+		E48FB9E90EC4F53B0052B72B /* process_util_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = process_util_mac.mm; sourceTree = "<group>"; };
 		E49115EB0E47B461001EE8C3 /* at_exit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = at_exit.h; sourceTree = "<group>"; };
 		E49115EC0E47B461001EE8C3 /* at_exit.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = at_exit.cc; sourceTree = "<group>"; };
 		E49115F30E47B496001EE8C3 /* at_exit_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = at_exit_unittest.cc; sourceTree = "<group>"; };
@@ -949,10 +952,11 @@
 				E4AFA4B40E50D8B000201347 /* pr_time_unittest.cc */,
 				8254034C0D92D23C0006B936 /* prcpucfg.h */,
 				7BEB81100D9AD288009BA8DD /* prcpucfg_mac.h */,
-				820EB4F10E3A6127009668FC /* process.cc */,
+				E48FB9980EC4ED850052B72B /* process_posix.cc */,
 				820EB4F20E3A6127009668FC /* process.h */,
 				825403510D92D24D0006B936 /* process_util.h */,
 				7BD8F49F0E65AA2400034DE9 /* process_util_posix.cc */,
+				E48FB9E90EC4F53B0052B72B /* process_util_mac.mm */,
 				7BD8F4A00E65AA2400034DE9 /* process_util_unittest.cc */,
 				8254034B0D92D23C0006B936 /* prtime.cc */,
 				8254034A0D92D23C0006B936 /* prtime.h */,
@@ -1416,6 +1420,8 @@
 				A573F5D90EBB78260055A84A /* platform_file_posix.cc in Sources */,
 				7BF164F30E660CA500AA999E /* platform_thread_mac.mm in Sources */,
 				93E703170E5D63E00046259B /* platform_thread_posix.cc in Sources */,
+				E48FB9990EC4ED850052B72B /* process_posix.cc in Sources */,
+				E48FB9EA0EC4F53B0052B72B /* process_util_mac.mm in Sources */,
 				7BD8F4A10E65AA4600034DE9 /* process_util_posix.cc in Sources */,
 				824654DF0DC26521007C2BAA /* prtime.cc in Sources */,
 				4D11B59A0E91730200EF7617 /* rand_util.cc in Sources */,

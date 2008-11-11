@@ -58,4 +58,9 @@ bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
   return WIFEXITED(status);
 }
 
+bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) {
+  // TODO(pinkerton): can we implement this? On linux it relies on /proc.
+  return false;
+}
+
 }  // namespace process_util

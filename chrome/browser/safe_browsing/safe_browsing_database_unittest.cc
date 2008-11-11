@@ -928,7 +928,11 @@ struct ChunksInfo {
 void PeformUpdate(const std::wstring& initial_db,
                   const std::vector<ChunksInfo>& chunks,
                   std::vector<SBChunkDelete>* deletes) {
+// TODO(pinkerton): I don't think posix has any concept of IO counters, but
+// we can uncomment this when we implement ProcessMetrics::GetIOCounters
+#if defined(OS_WIN) || defined(OS_LINUX)
   IoCounters before, after;
+#endif
 
   std::wstring filename;
   PathService::Get(base::DIR_TEMP, &filename);
@@ -950,7 +954,9 @@ void PeformUpdate(const std::wstring& initial_db,
   ProcessHandle handle = Process::Current().handle();
   scoped_ptr<process_util::ProcessMetrics> metric(
       process_util::ProcessMetrics::CreateProcessMetrics(handle));
+#if defined(OS_WIN) || defined(OS_LINUX)
   CHECK(metric->GetIOCounters(&before));
+#endif
 
   database->UpdateStarted();
 
@@ -960,6 +966,7 @@ void PeformUpdate(const std::wstring& initial_db,
 
   database->UpdateFinished(true);
 
+#if defined(OS_WIN) || defined(OS_LINUX)
   CHECK(metric->GetIOCounters(&after));
 
   LOG(INFO) << StringPrintf("I/O Read Bytes: %d",
@@ -972,6 +979,7 @@ void PeformUpdate(const std::wstring& initial_db,
       after.WriteOperationCount - before.WriteOperationCount);
   LOG(INFO) << StringPrintf("Finished in %d ms",
       (Time::Now() - before_time).InMilliseconds());
+#endif
 
   PrintStat(L"c:SB.HostSelect");
   PrintStat(L"c:SB.HostSelectForBloomFilter");
