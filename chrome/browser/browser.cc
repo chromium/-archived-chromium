@@ -280,7 +280,9 @@ Browser::~Browser() {
     select_file_dialog_->ListenerDestroyed();
 }
 
-void Browser::ShowAndFit(bool resize_to_fit) {
+void Browser::Show() {
+  // TODO(beng): this entire function should move to BrowserWindow.
+
   // Only allow one call after the browser is created.
   if (initial_show_command_ < 0) {
     // The frame is already visible, we're being invoked again either by the

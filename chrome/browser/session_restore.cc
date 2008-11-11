@@ -363,7 +363,7 @@ class SessionRestoreImpl : public NotificationObserver {
     browser->SelectTabContentsAt(
         std::min(initial_tab_count + std::max(0, selected_session_index),
                  browser->tab_count() - 1), true);
-    browser->ShowAndFit(true);
+    browser->Show();
   }
 
   void AppendURLsToBrowser(Browser* browser, const std::vector<GURL>& urls) {

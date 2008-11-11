@@ -56,11 +56,7 @@ class Browser : public TabStripModelDelegate,
   //
   // Ideally, this function is called after everything in the window is
   // initialized so that we do not have to repaint again.
-  void Show() { ShowAndFit(false); }
-
-  // Like Show, but the window is optionally resized and moved to be on the
-  // default screen.
-  void ShowAndFit(bool resize_to_fit);
+  void Show();
 
   // Returns the Browser which contains the tab with the given
   // NavigationController, also filling in |index| (if valid) with the tab's
