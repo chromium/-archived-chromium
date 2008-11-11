@@ -86,8 +86,10 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args):
     # the tests deterministically until someone has a chance to fix the
     # underlying problem.
     # See http://code.google.com/p/chromium/issues/detail?id=4285
-    if not line.endswith('alias ISO-8859-8-I maps to ISO-8859-8-I already, but'
-                         ' someone is trying to make it map to ISO-8859-8'):
+    if (line != '' and
+        not line.endswith('alias ISO-8859-8-I maps to ISO-8859-8-I already, '
+                          'but someone is trying to make it map to '
+                          'ISO-8859-8')):
       outlines.append(line)
     line = proc.stderr.readline()
 
