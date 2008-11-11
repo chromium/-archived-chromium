@@ -70,12 +70,6 @@ static const int kBrowserReleaseMemoryInterval = 30;  // In seconds.
 // windows.
 static const int kWindowTilePixels = 20;
 
-// How frequently we check for hung plugin windows.
-static const int kDefaultHungPluginDetectFrequency = 2000;
-
-// How long do we wait before we consider a window hung (in ms).
-static const int kDefaultPluginMessageResponseTimeout = 30000;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // A task to reduce the working set of the plugins.
@@ -166,10 +160,6 @@ void Browser::OpenNewBrowserWindow(Profile* profile, int show_command) {
 
 // static
 void Browser::RegisterPrefs(PrefService* prefs) {
-  prefs->RegisterIntegerPref(prefs::kPluginMessageResponseTimeout,
-      kDefaultPluginMessageResponseTimeout);
-  prefs->RegisterIntegerPref(prefs::kHungPluginDetectFrequency,
-      kDefaultHungPluginDetectFrequency);
   prefs->RegisterDictionaryPref(prefs::kBrowserWindowPlacement);
   prefs->RegisterIntegerPref(prefs::kOptionsWindowLastTabIndex, 0);
 }
@@ -206,8 +196,6 @@ Browser::Browser(const gfx::Rect& initial_bounds,
       controller_(this),
       chrome_updater_factory_(this),
       method_factory_(this),
-      hung_window_detector_(&hung_plugin_action_),
-      ticker_(0),
       tabstrip_model_(this, profile),
       toolbar_model_(this),
       type_(type),
@@ -227,11 +215,6 @@ Browser::Browser(const gfx::Rect& initial_bounds,
     initial_show_command_ = SW_SHOWMAXIMIZED;
   window_ = BrowserWindow::CreateBrowserWindow(this, create_bounds,
                                                show_command);
-
-  // Start a hung plugin window detector for this browser object (as long as
-  // hang detection is not disabled).
-  if (!parsed_command_line.HasSwitch(switches::kDisableHangMonitor))
-    InitHangMonitor();
 
   NotificationService::current()->AddObserver(
       this, NOTIFY_SSL_STATE_CHANGED, NotificationService::AllSources());
@@ -279,10 +262,6 @@ Browser::~Browser() {
 
   NotificationService::current()->RemoveObserver(
       this, NOTIFY_SSL_STATE_CHANGED, NotificationService::AllSources());
-
-  // Stop hung plugin monitoring.
-  ticker_.Stop();
-  ticker_.UnregisterTickHandler(&hung_window_detector_);
 
   if (profile_->IsOffTheRecord() &&
       !BrowserList::IsOffTheRecordSessionActive()) {
@@ -1340,28 +1319,6 @@ void Browser::TabStripEmpty() {
   MessageLoop::current()->PostTask(FROM_HERE,
       method_factory_.NewRunnableMethod(&Browser::CloseFrame));
 }
-
-void Browser::InitHangMonitor() {
-  PrefService* pref_service = g_browser_process->local_state();
-  DCHECK(pref_service != NULL);
-  int plugin_message_response_timeout =
-      pref_service->GetInteger(prefs::kPluginMessageResponseTimeout);
-  int hung_plugin_detect_freq =
-      pref_service->GetInteger(prefs::kHungPluginDetectFrequency);
-  if ((hung_plugin_detect_freq > 0) &&
-      hung_window_detector_.Initialize(GetTopLevelHWND(),
-                                       plugin_message_response_timeout)) {
-    ticker_.set_tick_interval(hung_plugin_detect_freq);
-    ticker_.RegisterTickHandler(&hung_window_detector_);
-    ticker_.Start();
-
-    pref_service->SetInteger(prefs::kPluginMessageResponseTimeout,
-                             plugin_message_response_timeout);
-    pref_service->SetInteger(prefs::kHungPluginDetectFrequency,
-                             hung_plugin_detect_freq);
-  }
-}
-
 
 Browser* Browser::GetOrCreateTabbedBrowser() {
   Browser* browser = BrowserList::FindBrowserWithType(

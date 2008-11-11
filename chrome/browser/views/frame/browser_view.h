@@ -7,6 +7,8 @@
 
 #include "chrome/browser/browser_type.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/hang_monitor/hung_plugin_action.h"
+#include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/common/pref_member.h"
@@ -130,6 +132,9 @@ class BrowserView : public BrowserWindow,
   // Returns the set of WindowFeatures supported by the specified BrowserType.
   static unsigned int FeaturesForBrowserType(BrowserType::Type type);
 
+  // Register preferences specific to this view.
+  static void RegisterBrowserViewPrefs(PrefService* prefs);
+
   // Overridden from BrowserWindow:
   virtual void Init();
   virtual void Show(int command, bool adjust_to_fit);
@@ -201,8 +206,6 @@ class BrowserView : public BrowserWindow,
     personalization_enabled_ = enable_personalization;
   }
 #endif
-
-
 
  protected:
   // Overridden from views::View:
@@ -291,6 +294,9 @@ class BrowserView : public BrowserWindow,
   // Retrieves the command id for the specified Windows app command.
   int GetCommandIDForAppCommandID(int app_command_id) const;
 
+  // Initialize the hung plugin detector.
+  void InitHangMonitor();
+
   // Initialize class statics.
   static void InitClass();
 
@@ -351,6 +357,19 @@ class BrowserView : public BrowserWindow,
 
   // The delegate for the encoding menu.
   scoped_ptr<EncodingMenuControllerDelegate> encoding_menu_delegate_;
+
+  // This object is used to perform periodic actions in a worker
+  // thread. It is currently used to monitor hung plugin windows.
+  WorkerThreadTicker ticker_;
+
+  // This object is initialized with the frame window HWND. This
+  // object is also passed as a tick handler with the ticker_ object.
+  // It is used to periodically monitor for hung plugin windows
+  HungWindowDetector hung_window_detector_;
+
+  // This object is invoked by hung_window_detector_ when it detects a hung
+  // plugin window.
+  HungPluginAction hung_plugin_action_;
 
   // P13N stuff
 #ifdef CHROME_PERSONALIZATION

@@ -59,6 +59,10 @@ static const int kSeparationLineHeight = 1;
 static const wchar_t* kBrowserWindowKey = L"__BROWSER_WINDOW__";
 // The distance between tiled windows.
 static const int kWindowTilePixels = 10;
+// How frequently we check for hung plugin windows.
+static const int kDefaultHungPluginDetectFrequency = 2000;
+// How long do we wait before we consider a window hung (in ms).
+static const int kDefaultPluginMessageResponseTimeout = 30000;
 
 static const struct { bool separator; int command; int label; } kMenuLayout[] = {
   { true, 0, 0 },
@@ -98,6 +102,8 @@ BrowserView::BrowserView(Browser* browser)
       contents_container_(NULL),
       initialized_(false),
       can_drop_(false),
+      hung_window_detector_(&hung_plugin_action_),
+      ticker_(0),
 #ifdef CHROME_PERSONALIZATION
       personalization_enabled_(false),
       personalization_(NULL),
@@ -111,6 +117,10 @@ BrowserView::BrowserView(Browser* browser)
 
 BrowserView::~BrowserView() {
   browser_->tabstrip_model()->RemoveObserver(this);
+
+  // Stop hung plugin monitoring.
+  ticker_.Stop();
+  ticker_.UnregisterTickHandler(&hung_window_detector_);
 }
 
 void BrowserView::WindowMoved() {
@@ -260,6 +270,14 @@ unsigned int BrowserView::FeaturesForBrowserType(BrowserType::Type type) {
   return features;
 }
 
+// static
+void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
+  prefs->RegisterIntegerPref(prefs::kPluginMessageResponseTimeout,
+                             kDefaultPluginMessageResponseTimeout);
+  prefs->RegisterIntegerPref(prefs::kHungPluginDetectFrequency,
+                             kDefaultHungPluginDetectFrequency);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, BrowserWindow implementation:
 
@@ -267,6 +285,11 @@ void BrowserView::Init() {
   // Stow a pointer to this object onto the window handle so that we can get
   // at it later when all we have is a HWND.
   SetProp(GetContainer()->GetHWND(), kBrowserWindowKey, this);
+
+  // Start a hung plugin window detector for this browser object (as long as
+  // hang detection is not disabled).
+  if (!CommandLine().HasSwitch(switches::kDisableHangMonitor))
+    InitHangMonitor();
 
   LoadAccelerators();
   SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
@@ -1123,6 +1146,26 @@ int BrowserView::GetCommandIDForAppCommandID(int app_command_id) const {
       break;
   }
   return -1;
+}
+
+void BrowserView::InitHangMonitor() {
+  PrefService* pref_service = g_browser_process->local_state();
+  int plugin_message_response_timeout =
+      pref_service->GetInteger(prefs::kPluginMessageResponseTimeout);
+  int hung_plugin_detect_freq =
+      pref_service->GetInteger(prefs::kHungPluginDetectFrequency);
+  if ((hung_plugin_detect_freq > 0) &&
+      hung_window_detector_.Initialize(GetContainer()->GetHWND(),
+                                       plugin_message_response_timeout)) {
+    ticker_.set_tick_interval(hung_plugin_detect_freq);
+    ticker_.RegisterTickHandler(&hung_window_detector_);
+    ticker_.Start();
+
+    pref_service->SetInteger(prefs::kPluginMessageResponseTimeout,
+                             plugin_message_response_timeout);
+    pref_service->SetInteger(prefs::kHungPluginDetectFrequency,
+                             hung_plugin_detect_freq);
+  }
 }
 
 // static

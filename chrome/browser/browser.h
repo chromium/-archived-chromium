@@ -6,8 +6,6 @@
 #define CHROME_BROWSER_BROWSER_H_
 
 #include "chrome/browser/controller.h"
-#include "chrome/browser/hang_monitor/hung_plugin_action.h"
-#include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/browser_type.h"
 #include "chrome/browser/session_id.h"
@@ -525,19 +523,6 @@ class Browser : public TabStripModelDelegate,
 
   // The following factory is used to close the frame at a later time.
   ScopedRunnableMethodFactory<Browser> method_factory_;
-
-  // This object is used to perform periodic actions in a worker
-  // thread. It is currently used to monitor hung plugin windows.
-  WorkerThreadTicker ticker_;
-
-  // This object is initialized with the frame window HWND. This
-  // object is also passed as a tick handler with the ticker_ object.
-  // It is used to periodically monitor for hung plugin windows
-  HungWindowDetector hung_window_detector_;
-
-  // This object is invoked by hung_window_detector_ when it detects a hung
-  // plugin window.
-  HungPluginAction hung_plugin_action_;
 
   // This browser type.
   BrowserType::Type type_;

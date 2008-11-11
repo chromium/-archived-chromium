@@ -23,6 +23,7 @@
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/bookmark_table_view.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/page_info_window.h"
 #include "chrome/browser/web_contents.h"
@@ -33,6 +34,7 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   // Prefs in Local State
   BookmarkManagerView::RegisterPrefs(local_state);
   Browser::RegisterPrefs(local_state);
+  BrowserView::RegisterBrowserViewPrefs(local_state);
   CacheManagerHost::RegisterPrefs(local_state);
   chrome_browser_net::RegisterPrefs(local_state);
   GoogleURLTracker::RegisterPrefs(local_state);
