@@ -272,6 +272,7 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
       }
 
       last_update_ = Time::Now();
+      sb_service_->UpdateStarted();
 
       if (update_state_ == FIRST_REQUEST)
         update_state_ = SECOND_REQUEST;
@@ -477,22 +478,22 @@ void SafeBrowsingProtocolManager::OnGetChunksComplete(
   bool found_phishing = false;
   for (size_t i = 0; i < lists.size(); ++i) {
     list_data.append(FormatList(lists[i], use_mac));
-    if (lists[i].name == "goog-phish-shavar")
+    if (lists[i].name == safe_browsing_util::kPhishingList)
       found_phishing = true;
 
-    if (lists[i].name == "goog-malware-shavar")
+    if (lists[i].name == safe_browsing_util::kMalwareList)
       found_malware = true;
   }
 
   // If we have an empty database, let the server know we want data for these
   // lists.
   if (!found_phishing)
-    list_data.append(FormatList(SBListChunkRanges("goog-phish-shavar"),
-                                use_mac));
+    list_data.append(FormatList(
+        SBListChunkRanges(safe_browsing_util::kPhishingList), use_mac));
 
   if (!found_malware)
-    list_data.append(FormatList(SBListChunkRanges("goog-malware-shavar"),
-                                use_mac));
+    list_data.append(FormatList(
+        SBListChunkRanges(safe_browsing_util::kMalwareList), use_mac));
 
   std::string url = StringPrintf(kSbUpdateUrl,
                                  kSbClientName,

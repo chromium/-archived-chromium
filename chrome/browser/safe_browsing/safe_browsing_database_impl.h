@@ -21,8 +21,6 @@
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
 
-//class BloomFilter;
-
 // The reference implementation database using SQLite.
 class SafeBrowsingDatabaseImpl : public SafeBrowsingDatabase {
  public:
@@ -71,8 +69,6 @@ class SafeBrowsingDatabaseImpl : public SafeBrowsingDatabase {
   virtual void HandleResume();
 
  private:
-  friend class SafeBrowsingDatabaseImpl_HashCaching_Test;
-
   // Opens the database.
   bool Open();
 
@@ -212,8 +208,6 @@ class SafeBrowsingDatabaseImpl : public SafeBrowsingDatabase {
   // True iff the database has been opened successfully.
   bool init_;
 
-  std::wstring filename_;
-
   // Controls whether database writes are done synchronously in one go or
   // asynchronously in small chunks.
   bool asynchronous_;
@@ -258,21 +252,6 @@ class SafeBrowsingDatabaseImpl : public SafeBrowsingDatabase {
 
   // Used to schedule resuming from a lower power state.
   ScopedRunnableMethodFactory<SafeBrowsingDatabaseImpl> resume_factory_;
-
-  // Used for caching GetHash results.
-  typedef struct HashCacheEntry {
-    SBFullHash full_hash;
-    int list_id;
-    int add_chunk_id;
-    base::Time received;
-  } HashCacheEntry;
-
-  typedef std::list<HashCacheEntry> HashList;
-  typedef base::hash_map<SBPrefix, HashList> HashCache;
-  HashCache hash_cache_;
-
-  // Cache of prefixes that returned empty results (no full hash match).
-  std::set<SBPrefix> prefix_miss_cache_;
 
   // The amount of time, in milliseconds, to wait before the next disk write.
   int disk_delay_;

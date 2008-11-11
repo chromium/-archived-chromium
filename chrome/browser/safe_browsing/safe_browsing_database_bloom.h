@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "base/hash_tables.h"
+#include "base/lock.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "base/time.h"
@@ -57,7 +58,7 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // Returns the lists and their add/sub chunks.
   virtual void GetListsInfo(std::vector<SBListChunkRanges>* lists);
 
-  // Does nothing in this implementation.  Operations in this class are 
+  // Does nothing in this implementation.  Operations in this class are
   // always synchronous.
   virtual void SetSynchronous();
 
@@ -71,7 +72,9 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // Called when the user's machine has resumed from a lower power state.
   virtual void HandleResume();
 
+  virtual void UpdateStarted();
   virtual void UpdateFinished(bool update_succeeded);
+
   virtual bool NeedToCheckUrl(const GURL& url);
 
  private:
@@ -107,15 +110,14 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // the given list and chunk type.
   void GetChunkIds(int list_id, ChunkType type, std::string* list);
 
-  // Adds the given list to the database.  Returns its row id.
-  int AddList(const std::string& name);
-
-  // Given a list name, returns its internal id.  If we haven't seen it before,
-  // an id is created and stored in the database.  On error, returns 0.
-  int GetListID(const std::string& name);
-
-  // Given a list id, returns its name.
-  std::string GetListName(int id);
+  // Converts between the SafeBrowsing list names and their enumerated value.
+  // If the list names change, both of these methods must be updated.
+  enum ListType {
+    MALWARE = 0,
+    PHISH = 1,
+  };
+  static int GetListId(const std::string& name);
+  static std::string GetListName(int list_id);
 
   // Generate a bloom filter.
   virtual void BuildBloomFilter();
@@ -128,11 +130,19 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
 
   static int PairCompare(const void* arg1, const void* arg2);
 
-  bool BuildAddList(SBPair* adds);
-  bool RemoveSubs(SBPair* adds, std::vector<bool>* adds_removed);
+  bool BuildAddPrefixList(SBPair* adds);
+  bool BuildAddFullHashCache(HashCache* add_cache);
+  bool BuildSubFullHashCache(HashCache* sub_cache);
+  bool RemoveSubs(SBPair* adds,
+                  std::vector<bool>* adds_removed,
+                  HashCache* add_cache,
+                  HashCache* sub_cache);
+
   bool UpdateTables();
   bool WritePrefixes(SBPair* adds, const std::vector<bool>& adds_removed,
                      int* new_add_count, BloomFilter** filter);
+  void WriteFullHashes(HashCache* hash_cache, bool is_add);
+  void WriteFullHashList(const HashList& hash_list, bool is_add);
 
   // Looks up any cached full hashes we may have.
   void GetCachedFullHashes(const std::vector<SBPrefix>* prefix_hits,
@@ -140,10 +150,7 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
                            base::Time last_update);
 
   // Remove cached entries that have prefixes contained in the entry.
-  void ClearCachedHashes(const SBEntry* entry);
-
-  // Remove all GetHash entries that match the list and chunk id from an AddDel.
-  void ClearCachedHashesForChunk(int list_id, int add_chunk_id);
+  bool ClearCachedEntry(SBPrefix, int add_chunk_id, HashCache* hash_cache);
 
   void HandleCorruptDatabase();
   void OnHandleCorruptDatabase();
@@ -156,18 +163,32 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // flag.  This method should be called periodically inside of busy disk loops.
   void WaitAfterResume();
 
-  void AddEntry(SBPrefix host, SBEntry* entry);
-  void AddPrefix(SBPrefix prefix, int encoded_chunk);
-  void AddSub(int chunk, SBPrefix host, SBEntry* entry);
-  void AddSubPrefix(SBPrefix prefix, int encoded_chunk, int encoded_add_chunk);
+  // Adding add entries to the database.
+  void InsertAdd(SBPrefix host, SBEntry* entry);
+  void InsertAddPrefix(SBPrefix prefix, int encoded_chunk);
+  void InsertAddFullHash(SBPrefix prefix,
+                         int encoded_chunk,
+                         base::Time received_time,
+                         SBFullHash full_prefix);
+
+  // Adding sub entries to the database.
+  void InsertSub(int chunk, SBPrefix host, SBEntry* entry);
+  void InsertSubPrefix(SBPrefix prefix,
+                       int encoded_chunk,
+                       int encoded_add_chunk);
+  void InsertSubFullHash(SBPrefix prefix,
+                         int encoded_chunk,
+                         int encoded_add_chunk,
+                         SBFullHash full_prefix,
+                         bool use_temp_table);
+
+  // Used for reading full hashes from the database.
+  void ReadFullHash(SqliteCompiledStatement& statement,
+                    int column,
+                    SBFullHash* full_hash);
+
+  // Returns the number of chunk + prefix pairs in the add prefix table.
   int GetAddPrefixCount();
-  void AddFullPrefix(SBPrefix prefix,
-                     int encoded_chunk,
-                     SBFullHash full_prefix);
-  void SubFullPrefix(SBPrefix prefix,
-                     int encoded_chunk,
-                     int encoded_add_chunk,
-                     SBFullHash full_prefix);
 
   // Reads and writes chunk numbers to and from persistent store.
   void ReadChunkNumbers();
@@ -178,7 +199,6 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
 
   // Encode the list id in the lower bit of the chunk.
   static inline int EncodeChunkId(int chunk, int list_id) {
-    list_id--;
     DCHECK(list_id == 0 || list_id == 1);
     chunk = chunk << 1;
     chunk |= list_id;
@@ -187,7 +207,7 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
 
   // Split an encoded chunk id and return the original chunk id and list id.
   static inline void DecodeChunkId(int encoded, int* chunk, int* list_id) {
-    *list_id = 1 + (encoded & 0x1);
+    *list_id = encoded & 0x1;
     *chunk = encoded >> 1;
   }
 
@@ -200,8 +220,6 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // True iff the database has been opened successfully.
   bool init_;
 
-  std::wstring filename_;
-
   // Called after an add/sub chunk is processed.
   scoped_ptr<Callback0::Type> chunk_inserted_callback_;
 
@@ -210,21 +228,6 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
 
   // Used to schedule resuming from a lower power state.
   ScopedRunnableMethodFactory<SafeBrowsingDatabaseBloom> resume_factory_;
-
-  // Used for caching GetHash results.
-  typedef struct HashCacheEntry {
-    SBFullHash full_hash;
-    int list_id;
-    int add_chunk_id;
-    base::Time received;
-  } HashCacheEntry;
-
-  typedef std::list<HashCacheEntry> HashList;
-  typedef base::hash_map<SBPrefix, HashList> HashCache;
-  HashCache hash_cache_;
-
-  // Cache of prefixes that returned empty results (no full hash match).
-  std::set<SBPrefix> prefix_miss_cache_;
 
   // Caches for all of the existing add and sub chunks.
   std::set<int> add_chunk_cache_;
@@ -242,6 +245,15 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
   // we pause disk activity for some time to avoid thrashing the system while
   // it's presumably going to be pretty busy.
   bool did_resume_;
+
+  // Transaction for protecting database integrity during updates.
+  scoped_ptr<SQLTransaction> insert_transaction_;
+
+  // Lock for protecting access to the bloom filter and hash cache.
+  Lock lookup_lock_;
+
+  // A store for GetHash results that have not yet been written to the database.
+  HashList pending_full_hashes_;
 
   DISALLOW_COPY_AND_ASSIGN(SafeBrowsingDatabaseBloom);
 };

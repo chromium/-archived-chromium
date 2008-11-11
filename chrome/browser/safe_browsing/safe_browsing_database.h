@@ -6,9 +6,11 @@
 #define CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_DATABASE_H_
 
 #include <deque>
+#include <list>
 #include <string>
 #include <vector>
 
+#include "base/hash_tables.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
@@ -80,7 +82,10 @@ class SafeBrowsingDatabase {
   // Called when the user's machine has resumed from a lower power state.
   virtual void HandleResume() = 0;
 
-  virtual void UpdateFinished(bool update_succeeded) { }
+  virtual void UpdateStarted() {}
+  virtual void UpdateFinished(bool update_succeeded) {}
+
+  virtual std::wstring filename() const { return filename_; }
 
  protected:
   static std::wstring BloomFilterFilename(const std::wstring& db_filename);
@@ -98,8 +103,31 @@ class SafeBrowsingDatabase {
   virtual void BuildBloomFilter() = 0;
 
   // Measuring false positive rate. Call this each time we look in the filter.
-  virtual void IncrementBloomFilterReadCount() {};
+  virtual void IncrementBloomFilterReadCount() {}
 
+  // Full hash cache support.
+  friend class SafeBrowsingDatabase_HashCaching_Test;
+
+  typedef struct HashCacheEntry {
+    SBFullHash full_hash;
+    int list_id;
+    int add_chunk_id;
+    int sub_chunk_id;
+    base::Time received;
+  } HashCacheEntry;
+
+  typedef std::list<HashCacheEntry> HashList;
+  typedef base::hash_map<SBPrefix, HashList> HashCache;
+
+  scoped_ptr<HashCache> hash_cache_;
+  HashCache* hash_cache() { return hash_cache_.get(); }
+
+  // Cache of prefixes that returned empty results (no full hash match).
+  typedef std::set<SBPrefix> PrefixCache;
+  PrefixCache prefix_miss_cache_;
+  PrefixCache* prefix_miss_cache() { return &prefix_miss_cache_; }
+
+  std::wstring filename_;
   std::wstring bloom_filter_filename_;
   scoped_refptr<BloomFilter> bloom_filter_;
 };

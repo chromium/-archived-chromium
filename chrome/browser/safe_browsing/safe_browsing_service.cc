@@ -202,8 +202,8 @@ bool SafeBrowsingService::CheckUrlNew(const GURL& url, Client* client) {
   std::string list;
   std::vector<SBPrefix> prefix_hits;
   std::vector<SBFullHashResult> full_hits;
-  bool prefix_match = database_->ContainsUrl(url, &list, &prefix_hits, 
-                                             &full_hits, 
+  bool prefix_match = database_->ContainsUrl(url, &list, &prefix_hits,
+                                             &full_hits,
                                              protocol_manager_->last_update());
   if (!prefix_match)
     return true;  // URL is okay.
@@ -415,6 +415,7 @@ void SafeBrowsingService::HandleGetHashResults(
       db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
           this, &SafeBrowsingService::CacheHashResults, prefixes, full_hashes));
     } else if (database_) {
+      // Cache the GetHash results in memory:
       database_->CacheHashResults(prefixes, full_hashes);
     }
   }
@@ -464,11 +465,24 @@ void SafeBrowsingService::GetAllChunks() {
       this, &SafeBrowsingService::GetAllChunksFromDatabase));
 }
 
+void SafeBrowsingService::UpdateStarted() {
+  DCHECK(MessageLoop::current() == io_loop_);
+  DCHECK(enabled_);
+  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &SafeBrowsingService::DatabaseUpdateStarted));
+}
+
 void SafeBrowsingService::UpdateFinished(bool update_succeeded) {
   DCHECK(MessageLoop::current() == io_loop_);
   DCHECK(enabled_);
   db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::DatabaseUpdateFinished, update_succeeded));
+}
+
+void SafeBrowsingService::DatabaseUpdateStarted() {
+  DCHECK(MessageLoop::current() == db_thread_->message_loop());
+  if (GetDatabase())
+    GetDatabase()->UpdateStarted();
 }
 
 void SafeBrowsingService::DatabaseUpdateFinished(bool update_succeeded) {

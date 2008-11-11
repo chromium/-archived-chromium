@@ -126,7 +126,6 @@ if env['PLATFORM'] in ('posix', 'win32'):
       '$CHROME_DIR/browser/safe_browsing/bloom_filter_unittest.cc',
       '$CHROME_DIR/browser/safe_browsing/chunk_range_unittest.cc',
       '$CHROME_DIR/browser/safe_browsing/safe_browsing_database_unittest.cc',
-      '$CHROME_DIR/browser/safe_browsing/safe_browsing_database_impl_unittest.cc',
       '$CHROME_DIR/browser/safe_browsing/protocol_parser_unittest.cc',
       '$CHROME_DIR/browser/safe_browsing/safe_browsing_util_unittest.cc',
       '$CHROME_DIR/common/animation_unittest.cc',

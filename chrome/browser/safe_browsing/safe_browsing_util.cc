@@ -25,6 +25,9 @@ static const char kReportParams[] = "?tpl=generic&continue=%s&url=%s";
 
 namespace safe_browsing_util {
 
+const char kMalwareList[] = "goog-malware-shavar";
+const char kPhishingList[] = "goog-phish-shavar";
+
 void GenerateHostsToCheck(const GURL& url, std::vector<std::string>* hosts) {
   // Per Safe Browsing Protocol 2 spec, first we try the host.  Then we try up
   // to 4 hostnames starting with the last 5 components and successively

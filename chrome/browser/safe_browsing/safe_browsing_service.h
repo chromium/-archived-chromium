@@ -59,9 +59,9 @@ class SafeBrowsingService
     GURL url;
     bool proceed;
     UrlCheckResult result;
-	  Client* client;
-	  int render_process_host_id;
-	  int render_view_id;
+    Client* client;
+    int render_process_host_id;
+    int render_view_id;
     ResourceType::Type resource_type;
   };
 
@@ -135,6 +135,9 @@ class SafeBrowsingService
   void HandleChunk(const std::string& list, std::deque<SBChunk>* chunks);
   void HandleChunkDelete(std::vector<SBChunkDelete>* chunk_deletes);
   void GetAllChunks();
+
+  // Methods called to indicate the beginning and end of a complete update.
+  void UpdateStarted();
   void UpdateFinished(bool update_succeeded);
 
   // The blocking page on the UI thread has completed.
@@ -177,6 +180,9 @@ class SafeBrowsingService
   // threadsafe.
   SafeBrowsingDatabase* GetDatabase();
 
+  // Release the final reference to the database on the db thread.
+  void ReleaseDatabase(SafeBrowsingDatabase* database);
+
   // Called on the database thread to check a url.
   void CheckDatabase(SafeBrowsingCheck* info, base::Time last_update);
 
@@ -203,6 +209,7 @@ class SafeBrowsingService
 
   void NotifyClientBlockingComplete(Client* client, bool proceed);
 
+  void DatabaseUpdateStarted();
   void DatabaseUpdateFinished(bool update_succeeded);
 
   void Start();
@@ -215,7 +222,7 @@ class SafeBrowsingService
   // Runs on the io thread when the reset is complete.
   void OnResetComplete();
 
-  // Store the results of a GetHash request. Runs on the database thread.
+  // Store in-memory the GetHash response. Runs on the database thread.
   void CacheHashResults(const std::vector<SBPrefix>& prefixes,
                         const std::vector<SBFullHashResult>& full_hashes);
 

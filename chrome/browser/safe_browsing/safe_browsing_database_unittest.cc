@@ -4,6 +4,7 @@
 //
 // Unit tests for the SafeBrowsing storage system.
 
+#include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -14,12 +15,14 @@
 #include "base/time.h"
 #include "chrome/browser/safe_browsing/protocol_parser.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
+#include "chrome/common/chrome_switches.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::Time;
 
 static const wchar_t kSafeBrowsingTestDatabase[] = L"SafeBrowsingTestDatabase";
+static const wchar_t kBloomSuffix[] = L" Bloom";
 
 namespace {
   SBPrefix Sha256Prefix(const std::string& str) {
@@ -65,7 +68,9 @@ namespace {
 
   SafeBrowsingDatabase* SetupTestDatabase() {
     std::wstring filename = GetTestDatabaseName();
+
     // In case it existed from a previous run.
+    file_util::Delete(filename + kBloomSuffix, false);
     file_util::Delete(filename, false);
 
     SafeBrowsingDatabase* database = SafeBrowsingDatabase::Create();
@@ -76,11 +81,149 @@ namespace {
   }
 
   void TearDownTestDatabase(SafeBrowsingDatabase* database) {
-    file_util::Delete(GetTestDatabaseName(), false);
+    std::wstring filename = database->filename();
     delete database;
+    file_util::Delete(filename, false);
+    file_util::Delete(filename + L" Filter", false);
   }
 
 }  // namespace
+
+// Tests retrieving list name information.
+TEST(SafeBrowsingDatabase, ListName) {
+  SafeBrowsingDatabase* database = SetupTestDatabase();
+
+  // Insert some malware add chunks.
+  SBChunkHost host;
+  host.host = Sha256Prefix("www.evil.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 1);
+  host.entry->set_chunk_id(1);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.evil.com/malware.html"));
+  SBChunk chunk;
+  chunk.chunk_number = 1;
+  chunk.is_add = true;
+  chunk.hosts.push_back(host);
+  std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+
+  host.host = Sha256Prefix("www.foo.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 1);
+  host.entry->set_chunk_id(2);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.foo.com/malware.html"));
+  chunk.chunk_number = 2;
+  chunk.is_add = true;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+
+  host.host = Sha256Prefix("www.whatever.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 1);
+  host.entry->set_chunk_id(3);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.whatever.com/malware.html"));
+  chunk.chunk_number = 3;
+  chunk.is_add = true;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+  database->UpdateFinished(true);
+
+  std::vector<SBListChunkRanges> lists;
+  database->GetListsInfo(&lists);
+
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
+  EXPECT_EQ(lists[0].adds, "1-3");
+  EXPECT_TRUE(lists[0].subs.empty());
+  lists.clear();
+
+  // Insert a malware sub chunk.
+  host.host = Sha256Prefix("www.subbed.com/");
+  host.entry = SBEntry::Create(SBEntry::SUB_PREFIX, 1);
+  host.entry->set_chunk_id(7);
+  host.entry->SetChunkIdAtPrefix(0, 19);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.subbed.com/notevil1.html"));
+  chunk.chunk_number = 7;
+  chunk.is_add = false;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+  database->UpdateFinished(true);
+
+  database->GetListsInfo(&lists);
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
+  EXPECT_EQ(lists[0].adds, "1-3");
+  EXPECT_EQ(lists[0].subs, "7");
+  if (lists.size() == 2) {
+    // Old style database won't have the second entry since it creates the lists
+    // when it receives an update containing that list. The new bloom filter
+    // based database has these values hard coded.
+    EXPECT_TRUE(lists[1].name == safe_browsing_util::kPhishingList);
+    EXPECT_TRUE(lists[1].adds.empty());
+    EXPECT_TRUE(lists[1].subs.empty());
+  }
+  lists.clear();
+
+  // Add a phishing add chunk.
+  host.host = Sha256Prefix("www.evil.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 1);
+  host.entry->set_chunk_id(47);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.evil.com/phishing.html"));
+  chunk.chunk_number = 47;
+  chunk.is_add = true;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kPhishingList, chunks);
+
+  // Insert some phishing sub chunks.
+  host.host = Sha256Prefix("www.phishy.com/");
+  host.entry = SBEntry::Create(SBEntry::SUB_PREFIX, 1);
+  host.entry->set_chunk_id(200);
+  host.entry->SetChunkIdAtPrefix(0, 1999);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.phishy.com/notevil1.html"));
+  chunk.chunk_number = 200;
+  chunk.is_add = false;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->InsertChunks(safe_browsing_util::kPhishingList, chunks);
+
+  host.host = Sha256Prefix("www.phishy2.com/");
+  host.entry = SBEntry::Create(SBEntry::SUB_PREFIX, 1);
+  host.entry->set_chunk_id(201);
+  host.entry->SetChunkIdAtPrefix(0, 1999);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.phishy2.com/notevil1.html"));
+  chunk.chunk_number = 201;
+  chunk.is_add = false;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->InsertChunks(safe_browsing_util::kPhishingList, chunks);
+  database->UpdateFinished(true);
+
+  database->GetListsInfo(&lists);
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
+  EXPECT_EQ(lists[0].adds, "1-3");
+  EXPECT_EQ(lists[0].subs, "7");
+  EXPECT_TRUE(lists[1].name == safe_browsing_util::kPhishingList);
+  EXPECT_EQ(lists[1].adds, "47");
+  EXPECT_EQ(lists[1].subs, "200-201");
+
+  TearDownTestDatabase(database);
+}
 
 // Checks database reading and writing.
 TEST(SafeBrowsingDatabase, Database) {
@@ -101,7 +244,8 @@ TEST(SafeBrowsingDatabase, Database) {
 
   std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
-  database->InsertChunks("goog-malware", chunks);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
 
   // Add another chunk with two different hostkeys.
   host.host = Sha256Prefix("www.evil.com/");
@@ -125,7 +269,7 @@ TEST(SafeBrowsingDatabase, Database) {
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
 
-  database->InsertChunks("goog-malware", chunks);
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
 
   // and a chunk with an IP-based host
   host.host = Sha256Prefix("192.168.0.1/");
@@ -139,14 +283,13 @@ TEST(SafeBrowsingDatabase, Database) {
 
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
-  database->InsertChunks("goog-malware", chunks);
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   database->UpdateFinished(true);
 
   // Make sure they were added correctly.
   std::vector<SBListChunkRanges> lists;
   database->GetListsInfo(&lists);
-  EXPECT_EQ(lists.size(), 1U);
-  EXPECT_EQ(lists[0].name, "goog-malware");
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
   EXPECT_EQ(lists[0].adds, "1-3");
   EXPECT_TRUE(lists[0].subs.empty());
 
@@ -208,7 +351,8 @@ TEST(SafeBrowsingDatabase, Database) {
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
 
-  database->InsertChunks("goog-malware", chunks);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   database->UpdateFinished(true);
 
   EXPECT_TRUE(database->ContainsUrl(GURL("http://www.evil.com/phishing.html"),
@@ -235,12 +379,12 @@ TEST(SafeBrowsingDatabase, Database) {
                                     &full_hashes, now));
 
   database->GetListsInfo(&lists);
-  EXPECT_EQ(lists.size(), 1U);
-  EXPECT_EQ(lists[0].name, "goog-malware");
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
   EXPECT_EQ(lists[0].subs, "4");
 
   // Test removing all the prefixes from an add chunk.
-  AddDelChunk(database, "goog-malware", 2);
+  database->UpdateStarted();
+  AddDelChunk(database, safe_browsing_util::kMalwareList, 2);
   database->UpdateFinished(true);
 
   EXPECT_FALSE(database->ContainsUrl(GURL("http://www.evil.com/notevil2.html"),
@@ -256,8 +400,7 @@ TEST(SafeBrowsingDatabase, Database) {
                                      &full_hashes, now));
 
   database->GetListsInfo(&lists);
-  EXPECT_EQ(lists.size(), 1U);
-  EXPECT_EQ(lists[0].name, "goog-malware");
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
   EXPECT_EQ(lists[0].adds, "1,3");
   EXPECT_EQ(lists[0].subs, "4");
 
@@ -276,19 +419,19 @@ TEST(SafeBrowsingDatabase, Database) {
 
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
-  database->InsertChunks("goog-malware", chunks);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
 
   // Now remove the dummy entry.  If there are any problems with the
   // transactions, asserts will fire.
-  AddDelChunk(database, "goog-malware", 44);
+  AddDelChunk(database, safe_browsing_util::kMalwareList, 44);
 
   // Test the subdel command.
-  SubDelChunk(database, "goog-malware", 4);
+  SubDelChunk(database, safe_browsing_util::kMalwareList, 4);
   database->UpdateFinished(true);
 
   database->GetListsInfo(&lists);
-  EXPECT_EQ(lists.size(), 1U);
-  EXPECT_EQ(lists[0].name, "goog-malware");
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
   EXPECT_EQ(lists[0].adds, "1,3");
   EXPECT_EQ(lists[0].subs, "");
 
@@ -308,7 +451,8 @@ TEST(SafeBrowsingDatabase, Database) {
 
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
-  database->InsertChunks("goog-malware", chunks);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   database->UpdateFinished(true);
 
   EXPECT_FALSE(database->ContainsUrl(
@@ -328,7 +472,8 @@ TEST(SafeBrowsingDatabase, Database) {
 
   chunks = new std::deque<SBChunk>;
   chunks->push_back(chunk);
-  database->InsertChunks("goog-malware", chunks);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   database->UpdateFinished(true);
 
   EXPECT_FALSE(database->ContainsUrl(
@@ -373,7 +518,8 @@ TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
   chunk.hosts.push_back(host);
   chunks->push_back(chunk);
 
-  database->InsertChunks("goog-malware", chunks);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   database->UpdateFinished(true);
 
   // Add an empty ADD and SUB chunk.
@@ -386,12 +532,13 @@ TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
   empty_chunk.is_add = true;
   chunks = new std::deque<SBChunk>;
   chunks->push_back(empty_chunk);
-  database->InsertChunks("goog-malware", chunks);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   chunks = new std::deque<SBChunk>;
   empty_chunk.chunk_number = 7;
   empty_chunk.is_add = false;
   chunks->push_back(empty_chunk);
-  database->InsertChunks("goog-malware", chunks);
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   database->UpdateFinished(true);
 
   list_chunks_empty.clear();
@@ -427,7 +574,8 @@ TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
   empty_chunk.is_add = true;
   chunks->push_back(empty_chunk);
 
-  database->InsertChunks("goog-malware", chunks);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
   database->UpdateFinished(true);
 
   const Time now = Time::Now();
@@ -447,19 +595,305 @@ TEST(SafeBrowsingDatabase, ZeroSizeChunk) {
   EXPECT_EQ(list_chunks_empty[0].subs, "7");
 
   // Handle AddDel and SubDel commands for empty chunks.
-  AddDelChunk(database, "goog-malware", 21);
+  database->UpdateStarted();
+  AddDelChunk(database, safe_browsing_util::kMalwareList, 21);
   database->UpdateFinished(true);
   list_chunks_empty.clear();
   database->GetListsInfo(&list_chunks_empty);
   EXPECT_EQ(list_chunks_empty[0].adds, "1,10,19-20,22");
   EXPECT_EQ(list_chunks_empty[0].subs, "7");
 
-  SubDelChunk(database, "goog-malware", 7);
+  database->UpdateStarted();
+  SubDelChunk(database, safe_browsing_util::kMalwareList, 7);
   database->UpdateFinished(true);
   list_chunks_empty.clear();
   database->GetListsInfo(&list_chunks_empty);
   EXPECT_EQ(list_chunks_empty[0].adds, "1,10,19-20,22");
   EXPECT_EQ(list_chunks_empty[0].subs, "");
+
+  TearDownTestDatabase(database);
+}
+
+// Utility function for setting up the database for the caching test.
+void PopulateDatabaseForCacheTest(SafeBrowsingDatabase* database) {
+  // Add a simple chunk with one hostkey and cache it.
+  SBChunkHost host;
+  host.host = Sha256Prefix("www.evil.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 2);
+  host.entry->set_chunk_id(1);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.evil.com/phishing.html"));
+  host.entry->SetPrefixAt(1, Sha256Prefix("www.evil.com/malware.html"));
+
+  SBChunk chunk;
+  chunk.chunk_number = 1;
+  chunk.is_add = true;
+  chunk.hosts.push_back(host);
+
+  std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+  database->UpdateFinished(true);
+
+  // Add the GetHash results to the cache.
+  SBFullHashResult full_hash;
+  base::SHA256HashString("www.evil.com/phishing.html",
+                         &full_hash.hash, sizeof(SBFullHash));
+  full_hash.list_name = safe_browsing_util::kMalwareList;
+  full_hash.add_chunk_id = 1;
+
+  std::vector<SBFullHashResult> results;
+  results.push_back(full_hash);
+
+  base::SHA256HashString("www.evil.com/malware.html",
+                         &full_hash.hash, sizeof(SBFullHash));
+  results.push_back(full_hash);
+
+  std::vector<SBPrefix> prefixes;
+  database->CacheHashResults(prefixes, results);
+}
+
+TEST(SafeBrowsingDatabase, HashCaching) {
+  SafeBrowsingDatabase* database = SetupTestDatabase();
+
+  PopulateDatabaseForCacheTest(database);
+
+  // We should have both full hashes in the cache.
+  SafeBrowsingDatabase::HashCache* hash_cache = database->hash_cache();
+  EXPECT_EQ(hash_cache->size(), 2U);
+
+  // Test the cache lookup for the first prefix.
+  std::string list;
+  std::vector<SBPrefix> prefixes;
+  std::vector<SBFullHashResult> full_hashes;
+  database->ContainsUrl(GURL("http://www.evil.com/phishing.html"),
+                        &list, &prefixes, &full_hashes, Time::Now());
+  EXPECT_EQ(full_hashes.size(), 1U);
+
+  SBFullHashResult full_hash;
+  base::SHA256HashString("www.evil.com/phishing.html",
+                         &full_hash.hash, sizeof(SBFullHash));
+  EXPECT_EQ(memcmp(&full_hashes[0].hash,
+                   &full_hash.hash, sizeof(SBFullHash)), 0);
+
+  prefixes.clear();
+  full_hashes.clear();
+
+  // Test the cache lookup for the second prefix.
+  database->ContainsUrl(GURL("http://www.evil.com/malware.html"),
+                        &list, &prefixes, &full_hashes, Time::Now());
+  EXPECT_EQ(full_hashes.size(), 1U);
+  base::SHA256HashString("www.evil.com/malware.html",
+                         &full_hash.hash, sizeof(SBFullHash));
+  EXPECT_EQ(memcmp(&full_hashes[0].hash,
+                   &full_hash.hash, sizeof(SBFullHash)), 0);
+
+  prefixes.clear();
+  full_hashes.clear();
+
+  // Test removing a prefix via a sub chunk.
+  SBChunkHost host;
+  host.host = Sha256Prefix("www.evil.com/");
+  host.entry = SBEntry::Create(SBEntry::SUB_PREFIX, 1);
+  host.entry->set_chunk_id(1);
+  host.entry->SetChunkIdAtPrefix(0, 1);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.evil.com/phishing.html"));
+
+  SBChunk chunk;
+  chunk.chunk_number = 2;
+  chunk.is_add = false;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+  database->UpdateFinished(true);
+
+  // This prefix should still be there.
+  database->ContainsUrl(GURL("http://www.evil.com/malware.html"),
+                        &list, &prefixes, &full_hashes, Time::Now());
+  EXPECT_EQ(full_hashes.size(), 1U);
+  base::SHA256HashString("www.evil.com/malware.html",
+                         &full_hash.hash, sizeof(SBFullHash));
+  EXPECT_EQ(memcmp(&full_hashes[0].hash,
+                   &full_hash.hash, sizeof(SBFullHash)), 0);
+
+  prefixes.clear();
+  full_hashes.clear();
+
+  // This prefix should be gone.
+  database->ContainsUrl(GURL("http://www.evil.com/phishing.html"),
+                        &list, &prefixes, &full_hashes, Time::Now());
+  EXPECT_EQ(full_hashes.size(), 0U);
+
+  prefixes.clear();
+  full_hashes.clear();
+
+  // Test that an AddDel for the original chunk removes the last cached entry.
+  database->UpdateStarted();
+  AddDelChunk(database, safe_browsing_util::kMalwareList, 1);
+  database->UpdateFinished(true);
+  database->ContainsUrl(GURL("http://www.evil.com/malware.html"),
+                        &list, &prefixes, &full_hashes, Time::Now());
+  EXPECT_EQ(full_hashes.size(), 0U);
+  EXPECT_EQ(database->hash_cache()->size(), 0U);
+
+  prefixes.clear();
+  full_hashes.clear();
+
+  // Test that the cache won't return expired values. First we have to adjust
+  // the cached entries' received time to make them older, since the database
+  // cache insert uses Time::Now(). First, store some entries.
+  PopulateDatabaseForCacheTest(database);
+  hash_cache = database->hash_cache();
+  EXPECT_EQ(hash_cache->size(), 2U);
+
+  // Now adjust one of the entries times to be in the past.
+  base::Time expired = base::Time::Now() - base::TimeDelta::FromMinutes(60);
+  SBPrefix key;
+  memcpy(&key, &full_hash.hash, sizeof(SBPrefix));
+  SafeBrowsingDatabase::HashList& entries = (*hash_cache)[key];
+  SafeBrowsingDatabase::HashCacheEntry entry = entries.front();
+  entries.pop_front();
+  entry.received = expired;
+  entries.push_back(entry);
+
+  database->ContainsUrl(GURL("http://www.evil.com/malware.html"),
+                        &list, &prefixes, &full_hashes, expired);
+  EXPECT_EQ(full_hashes.size(), 0U);
+
+  // This entry should still exist.
+  database->ContainsUrl(GURL("http://www.evil.com/phishing.html"),
+                        &list, &prefixes, &full_hashes, expired);
+  EXPECT_EQ(full_hashes.size(), 1U);
+
+
+  // Testing prefix miss caching. First, we clear out the existing database,
+  // Since PopulateDatabaseForCacheTest() doesn't handle adding duplicate
+  // chunks.
+  database->UpdateStarted();
+  AddDelChunk(database, safe_browsing_util::kMalwareList, 1);
+  database->UpdateFinished(true);
+
+  std::vector<SBPrefix> prefix_misses;
+  std::vector<SBFullHashResult> empty_full_hash;
+  prefix_misses.push_back(Sha256Prefix("http://www.bad.com/malware.html"));
+  prefix_misses.push_back(Sha256Prefix("http://www.bad.com/phishing.html"));
+  database->CacheHashResults(prefix_misses, empty_full_hash);
+
+  // Prefixes with no full results are misses.
+  EXPECT_EQ(database->prefix_miss_cache()->size(), 2U);
+
+  // Update the database.
+  PopulateDatabaseForCacheTest(database);
+
+  // Prefix miss cache should be cleared.
+  EXPECT_EQ(database->prefix_miss_cache()->size(), 0U);
+
+  list.clear();
+  prefixes.clear();
+  full_hashes.clear();
+
+  // Test receiving a full add chunk. The old implementation doesn't support
+  // this test, so we bail here.
+  if (!CommandLine().HasSwitch(switches::kUseNewSafeBrowsing)) {
+    TearDownTestDatabase(database);
+    return;
+  }
+
+  host.host = Sha256Prefix("www.fullevil.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_FULL_HASH, 2);
+  host.entry->set_chunk_id(20);
+  SBFullHash full_add1;
+  base::SHA256HashString("www.fullevil.com/bad1.html",
+                         &full_add1.full_hash, sizeof(SBFullHash));
+  host.entry->SetFullHashAt(0, full_add1);
+  SBFullHash full_add2;
+  base::SHA256HashString("www.fullevil.com/bad2.html",
+                         &full_add2.full_hash, sizeof(SBFullHash));
+  host.entry->SetFullHashAt(1, full_add2);
+
+  chunk.chunk_number = 20;
+  chunk.is_add = true;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+  database->UpdateFinished(true);
+
+  EXPECT_TRUE(database->ContainsUrl(GURL("http://www.fullevil.com/bad1.html"),
+                                    &list, &prefixes, &full_hashes, 
+                                    Time::Now()));
+  EXPECT_EQ(full_hashes.size(), 1U);
+  EXPECT_EQ(0, memcmp(full_hashes[0].hash.full_hash,
+                      full_add1.full_hash,
+                      sizeof(SBFullHash)));
+  list.clear();
+  prefixes.clear();
+  full_hashes.clear();
+
+  EXPECT_TRUE(database->ContainsUrl(GURL("http://www.fullevil.com/bad2.html"),
+                                    &list, &prefixes, &full_hashes, 
+                                    Time::Now()));
+  EXPECT_EQ(full_hashes.size(), 1U);
+  EXPECT_EQ(0, memcmp(full_hashes[0].hash.full_hash,
+                      full_add2.full_hash,
+                      sizeof(SBFullHash)));
+  list.clear();
+  prefixes.clear();
+  full_hashes.clear();
+
+  // Test receiving a full sub chunk, which will remove one of the full adds.
+  host.host = Sha256Prefix("www.fullevil.com/");
+  host.entry = SBEntry::Create(SBEntry::SUB_FULL_HASH, 1);
+  host.entry->set_chunk_id(200);
+  host.entry->SetChunkIdAtPrefix(0, 20);
+  SBFullHash full_sub;
+  base::SHA256HashString("www.fullevil.com/bad1.html",
+                         &full_sub.full_hash, sizeof(SBFullHash));
+  host.entry->SetFullHashAt(0, full_sub);
+
+  chunk.chunk_number = 200;
+  chunk.is_add = false;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->UpdateStarted();
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+  database->UpdateFinished(true);
+
+  EXPECT_FALSE(database->ContainsUrl(GURL("http://www.fullevil.com/bad1.html"),
+                                     &list, &prefixes, &full_hashes, 
+                                     Time::Now()));
+  EXPECT_EQ(full_hashes.size(), 0U);
+
+  // There should be one remaining full add.
+  EXPECT_TRUE(database->ContainsUrl(GURL("http://www.fullevil.com/bad2.html"),
+                                    &list, &prefixes, &full_hashes, 
+                                    Time::Now()));
+  EXPECT_EQ(full_hashes.size(), 1U);
+  EXPECT_EQ(0, memcmp(full_hashes[0].hash.full_hash,
+                      full_add2.full_hash,
+                      sizeof(SBFullHash)));
+  list.clear();
+  prefixes.clear();
+  full_hashes.clear();
+
+  // Now test an AddDel for the remaining full add.
+  database->UpdateStarted();
+  AddDelChunk(database, safe_browsing_util::kMalwareList, 20);
+  database->UpdateFinished(true);
+
+  EXPECT_FALSE(database->ContainsUrl(GURL("http://www.fullevil.com/bad1.html"),
+                                     &list, &prefixes, &full_hashes, 
+                                     Time::Now()));
+  EXPECT_FALSE(database->ContainsUrl(GURL("http://www.fullevil.com/bad2.html"),
+                                     &list, &prefixes, &full_hashes, 
+                                     Time::Now()));
 
   TearDownTestDatabase(database);
 }
@@ -518,8 +952,9 @@ void PeformUpdate(const std::wstring& initial_db,
       process_util::ProcessMetrics::CreateProcessMetrics(handle));
   CHECK(metric->GetIOCounters(&before));
 
-  database->DeleteChunks(deletes);
+  database->UpdateStarted();
 
+  database->DeleteChunks(deletes);
   for (size_t i = 0; i < chunks.size(); ++i)
     database->InsertChunks(chunks[i].listname, chunks[i].chunks);
 
@@ -682,7 +1117,7 @@ TEST(SafeBrowsingDatabase, DISABLED_DatabaseOldLotsofDeletesIO) {
   std::vector<SBChunkDelete>* deletes = new std::vector<SBChunkDelete>;
   SBChunkDelete del;
   del.is_sub_del = false;
-  del.list_name = "goog-malware-shavar";
+  del.list_name = safe_browsing_util::kMalwareList;
   del.chunk_del.push_back(ChunkRange(3539, 3579));
   deletes->push_back(del);
   PeformUpdate(GetOldSafeBrowsingPath(), chunks, deletes);

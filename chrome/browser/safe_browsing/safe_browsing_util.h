@@ -273,6 +273,10 @@ class SBHostInfo {
 
 namespace safe_browsing_util {
 
+// SafeBrowsing list names.
+extern const char kMalwareList[];
+extern const char kPhishingList[];
+
 void FreeChunks(std::deque<SBChunk>* chunks);
 
 // Given a URL, returns all the hosts we need to check.  They are returned

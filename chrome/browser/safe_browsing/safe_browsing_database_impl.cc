@@ -109,6 +109,7 @@ bool SafeBrowsingDatabaseImpl::Init(const std::wstring& filename,
 
   init_ = true;
   chunk_inserted_callback_.reset(chunk_inserted_callback);
+
   return true;
 }
 
@@ -128,6 +129,8 @@ bool SafeBrowsingDatabaseImpl::Open() {
   process_factory_.RevokeAll();
   bloom_read_factory_.RevokeAll();
   bloom_write_factory_.RevokeAll();
+
+  hash_cache_.reset(new HashCache);
 
   return true;
 }
@@ -216,7 +219,7 @@ bool SafeBrowsingDatabaseImpl::CreateTables() {
 
 // The SafeBrowsing service assumes this operation is synchronous.
 bool SafeBrowsingDatabaseImpl::ResetDatabase() {
-  hash_cache_.clear();
+  hash_cache_->clear();
   prefix_miss_cache_.clear();
 
   bool rv = Close();
@@ -1091,8 +1094,8 @@ void SafeBrowsingDatabaseImpl::GetCachedFullHashes(
 
   for (std::vector<SBPrefix>::const_iterator it = prefix_hits->begin();
        it != prefix_hits->end(); ++it) {
-    HashCache::iterator hit = hash_cache_.find(*it);
-    if (hit != hash_cache_.end()) {
+    HashCache::iterator hit = hash_cache_->find(*it);
+    if (hit != hash_cache_->end()) {
       HashList& entries = hit->second;
       HashList::iterator eit = entries.begin();
       while (eit != entries.end()) {
@@ -1114,7 +1117,7 @@ void SafeBrowsingDatabaseImpl::GetCachedFullHashes(
       }
 
       if (entries.empty())
-        hash_cache_.erase(hit);
+        hash_cache_->erase(hit);
     }
   }
 }
@@ -1137,7 +1140,7 @@ void SafeBrowsingDatabaseImpl::CacheHashResults(
        it != full_hits.end(); ++it) {
     SBPrefix prefix;
     memcpy(&prefix, &it->hash.full_hash, sizeof(prefix));
-    HashList& entries = hash_cache_[prefix];
+    HashList& entries = (*hash_cache_)[prefix];
     HashCacheEntry entry;
     entry.received = now;
     entry.list_id = GetListID(it->list_name);
@@ -1155,9 +1158,9 @@ void SafeBrowsingDatabaseImpl::ClearCachedHashes(const SBEntry* entry) {
     else
       prefix = entry->PrefixAt(i);
 
-    HashCache::iterator it = hash_cache_.find(prefix);
-    if (it != hash_cache_.end())
-      hash_cache_.erase(it);
+    HashCache::iterator it = hash_cache_->find(prefix);
+    if (it != hash_cache_->end())
+      hash_cache_->erase(it);
   }
 }
 
@@ -1166,8 +1169,8 @@ void SafeBrowsingDatabaseImpl::ClearCachedHashes(const SBEntry* entry) {
 // during an update, so no user action is blocking on it.
 void SafeBrowsingDatabaseImpl::ClearCachedHashesForChunk(int list_id,
                                                          int add_chunk_id) {
-  HashCache::iterator it = hash_cache_.begin();
-  while (it != hash_cache_.end()) {
+  HashCache::iterator it = hash_cache_->begin();
+  while (it != hash_cache_->end()) {
     HashList& entries = it->second;
     HashList::iterator eit = entries.begin();
     while (eit != entries.end()) {
@@ -1177,7 +1180,7 @@ void SafeBrowsingDatabaseImpl::ClearCachedHashesForChunk(int list_id,
         ++eit;
     }
     if (entries.empty())
-      hash_cache_.erase(it++);
+      hash_cache_->erase(it++);
     else
       ++it;
   }
