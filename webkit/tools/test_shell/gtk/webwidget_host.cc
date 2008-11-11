@@ -34,14 +34,12 @@ gboolean ExposeEvent(GtkWidget* widget, GdkEventExpose* expose,
 
 gboolean DestroyEvent(GtkWidget* widget, GdkEvent* event,
                       WebWidgetHost* host) {
-  DLOG(INFO) << "  -- Destroy";
   host->WindowDestroyed();
   return FALSE;
 }
 
 gboolean KeyPressReleaseEvent(GtkWidget* widget, GdkEventKey* event,
                               WebWidgetHost* host) {
-  DLOG(INFO) << "  -- Key press or release";
   WebKeyboardEvent wke(event);
   host->webwidget()->HandleInputEvent(&wke);
 
@@ -72,7 +70,6 @@ gboolean FocusOut(GtkWidget* widget, GdkEventFocus* focus,
 
 gboolean ButtonPressReleaseEvent(GtkWidget* widget, GdkEventButton* event,
                                  WebWidgetHost* host) {
-  DLOG(INFO) << "  -- mouse button press or release";
   WebMouseEvent wme(event);
   host->webwidget()->HandleInputEvent(&wme);
   return FALSE;
@@ -131,8 +128,6 @@ gfx::WindowHandle WebWidgetHost::CreateWindow(gfx::WindowHandle box,
 
 WebWidgetHost* WebWidgetHost::Create(gfx::WindowHandle box,
                                      WebWidgetDelegate* delegate) {
-  LOG(INFO) << "In WebWidgetHost::Create";
-
   WebWidgetHost* host = new WebWidgetHost();
   host->view_ = CreateWindow(box, host);
   host->webwidget_ = WebWidget::Create(delegate);
