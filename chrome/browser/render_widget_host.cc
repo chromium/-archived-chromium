@@ -765,7 +765,7 @@ void RenderWidgetHost::PaintRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
   bool needs_full_paint = false;
   BackingStore* backing_store = 
       BackingStoreManager::PrepareBackingStore(this, view_rect,
-                                               process_->process(),
+                                               process_->process().handle(),
                                                bitmap, bitmap_rect,
                                                &needs_full_paint);
   DCHECK(backing_store != NULL);
@@ -800,7 +800,7 @@ void RenderWidgetHost::ScrollRect(HANDLE bitmap, const gfx::Rect& bitmap_rect,
   // We expect that damaged_rect should equal bitmap_rect.
   DCHECK(gfx::Rect(damaged_rect) == bitmap_rect);
 
-  backing_store->Refresh(process_->process(), bitmap, bitmap_rect);
+  backing_store->Refresh(process_->process().handle(), bitmap, bitmap_rect);
 }
 
 void RenderWidgetHost::RestartHangMonitorTimeout() {

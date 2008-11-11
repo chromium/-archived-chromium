@@ -868,7 +868,7 @@ void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
     if (entry) {
       scoped_ptr<process_util::ProcessMetrics> metrics(
           process_util::ProcessMetrics::CreateProcessMetrics(
-              process()->process()));
+              process()->process().handle()));
 
       TimeDelta elapsed = TimeTicks::Now() - current_load_start_;
 

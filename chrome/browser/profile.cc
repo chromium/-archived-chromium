@@ -663,7 +663,7 @@ static void BroadcastNewHistoryTable(SharedMemory* table_memory) {
       continue;
 
     SharedMemoryHandle new_table;
-    HANDLE process = i->second->process();
+    HANDLE process = i->second->process().handle();
     if (!process) {
       // process can be null if it's started with the --single-process flag.
       process = GetCurrentProcess();

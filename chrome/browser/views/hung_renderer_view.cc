@@ -303,7 +303,7 @@ views::View* HungRendererWarningView::GetContentsView() {
 void HungRendererWarningView::ButtonPressed(views::NativeButton* sender) {
   if (sender == kill_button_) {
     // Kill the process.
-    HANDLE process = contents_->process()->process();
+    HANDLE process = contents_->process()->process().handle();
     TerminateProcess(process, ResultCodes::HUNG);
   }
 }

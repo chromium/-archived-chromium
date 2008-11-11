@@ -5,7 +5,6 @@
 #include "chrome/browser/automation/automation_provider.h"
 
 #include "base/path_service.h"
-#include "base/process_util.h"
 #include "chrome/app/chrome_dll_resource.h" 
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/ui_controls.h"
@@ -1678,10 +1677,8 @@ void AutomationProvider::GetTabProcessID(
     NavigationController* tab = tab_tracker_->GetResource(handle);
     if (tab->active_contents()->AsWebContents()) {
       WebContents* web_contents = tab->active_contents()->AsWebContents();
-      if (web_contents->process()) {
-        process_id =
-            process_util::GetProcId(web_contents->process()->process());
-      }
+      if (web_contents->process())
+        process_id = web_contents->process()->process().pid();
     }
   }
 

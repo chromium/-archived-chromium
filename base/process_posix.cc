@@ -6,7 +6,7 @@
 #include "base/logging.h"
 #include "base/process_util.h"
 
-bool Process::IsProcessBackgrounded() {
+bool Process::IsProcessBackgrounded() const {
   return false;
 }
 

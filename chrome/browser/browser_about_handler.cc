@@ -538,7 +538,7 @@ void AboutMemoryHandler::AppendProcess(ListValue* renderers,
   RenderProcessHost::iterator renderer_iter;
   for (renderer_iter = RenderProcessHost::begin(); renderer_iter !=
        RenderProcessHost::end(); ++renderer_iter) {
-    if (renderer_iter->second->pid() == info->pid)
+    if (renderer_iter->second->process().pid() == info->pid)
       break;
   }
   if (renderer_iter != RenderProcessHost::end()) {

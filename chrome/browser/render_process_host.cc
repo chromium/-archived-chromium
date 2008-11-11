@@ -536,7 +536,7 @@ void RenderProcessHost::ReportExpectingClose(int32 listener_id) {
 }
 
 bool RenderProcessHost::FastShutdownIfPossible() {
-  HANDLE proc = process();
+  HANDLE proc = process().handle();
   if (!proc)
     return false;
   // If we're in single process mode, do nothing.

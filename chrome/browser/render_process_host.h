@@ -97,17 +97,13 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // goes away we'll know that it was intentional rather than a crash.
   void ReportExpectingClose(int32 listener_id);
 
-  // getters, these may return NULL if there is no connection
+  // May return NULL if there is no connection.
   IPC::SyncChannel* channel() {
     return channel_.get();
   }
-  HANDLE process() {
-    return process_.handle();
-  }
 
-  // Get the process id of this renderer.
-  int pid() const {
-    return process_.pid();
+  const Process& process() const {
+    return process_;
   }
 
   // Try to shutdown the associated renderer process as fast as possible.

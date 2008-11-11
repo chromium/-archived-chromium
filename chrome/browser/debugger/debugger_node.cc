@@ -326,7 +326,7 @@ v8::Handle<v8::Value> TabNode::Attach(const v8::Arguments& args,
   RenderViewHost* host = web->render_view_host();
   host->DebugAttach();
   RenderProcessHost* proc = host->process();
-  return v8::Int32::New(process_util::GetProcId(proc->process()));
+  return v8::Int32::New(proc->process().pid());
 }
 
 v8::Handle<v8::Value> TabNode::Detach(const v8::Arguments& args,
@@ -334,7 +334,7 @@ v8::Handle<v8::Value> TabNode::Detach(const v8::Arguments& args,
   RenderViewHost* host = web->render_view_host();
   host->DebugDetach();
   RenderProcessHost* proc = host->process();
-  return v8::Int32::New(process_util::GetProcId(proc->process()));
+  return v8::Int32::New(proc->process().pid());
 }
 
 v8::Handle<v8::Value> TabNode::Break(const v8::Arguments& args,

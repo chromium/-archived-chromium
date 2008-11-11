@@ -7,7 +7,7 @@
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
 
-bool Process::IsProcessBackgrounded() {
+bool Process::IsProcessBackgrounded() const {
   DCHECK(process_);
   DWORD priority = GetPriorityClass(process_);
   if (priority == 0)

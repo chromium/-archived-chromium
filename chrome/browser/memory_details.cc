@@ -181,7 +181,7 @@ void MemoryDetails::CollectRenderHostInformation() {
          RenderProcessHost::end(); ++renderer_iter) {
       DCHECK(renderer_iter->second);
       if (process_data_[CHROME_BROWSER].processes[index].pid ==
-          renderer_iter->second->pid()) {
+          renderer_iter->second->process().pid()) {
         // The RenderProcessHost may host multiple TabContents.  Any
         // of them which contain diagnostics information make the whole
         // process be considered a diagnostics process.

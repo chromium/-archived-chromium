@@ -129,7 +129,7 @@ bool RenderViewHost::CreateRenderView() {
   renderer_initialized_ = true;
 
   HANDLE modal_dialog_event;
-  HANDLE renderer_process_handle = process()->process();
+  HANDLE renderer_process_handle = process()->process().handle();
   if (renderer_process_handle == NULL)
     renderer_process_handle = GetCurrentProcess();
 

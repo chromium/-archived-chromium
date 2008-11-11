@@ -33,7 +33,7 @@ TaskManagerWebContentsResource::TaskManagerWebContentsResource(
     : web_contents_(web_contents) {
   // We cache the process as when the WebContents is closed the process
   // becomes NULL and the TaskManager still needs it.
-  process_ = web_contents_->process()->process();
+  process_ = web_contents_->process()->process().handle();
   pid_ = process_util::GetProcId(process_);
 }
 
@@ -93,14 +93,14 @@ TaskManager::Resource* TaskManagerWebContentsResourceProvider::GetResource(
   if (!web_contents)
     return NULL;
 
-  if (!web_contents->process()->process()) {
+  if (!web_contents->process()->process().handle()) {
     // We should not be holding on to a dead tab (it should have been removed
     // through the NOTIFY_WEB_CONTENTS_DISCONNECTED notification.
     NOTREACHED();
     return NULL;
   }
 
-  int pid = process_util::GetProcId(web_contents->process()->process());
+  int pid = web_contents->process()->process().pid();
   if (pid != origin_pid)
     return NULL;
 
@@ -121,7 +121,7 @@ void TaskManagerWebContentsResourceProvider::StartUpdating() {
   for (WebContentsIterator iterator; !iterator.done(); iterator++) {
     WebContents* web_contents = *iterator;
     // Don't add dead tabs or tabs that haven't yet connected.
-    if (web_contents->process()->process() &&
+    if (web_contents->process()->process().handle() &&
         web_contents->notify_disconnection())
       AddToTaskManager(web_contents);
   }
@@ -166,7 +166,7 @@ void TaskManagerWebContentsResourceProvider::Add(WebContents* web_contents) {
   if (!updating_)
     return;
 
-  if (!web_contents->process()->process()) {
+  if (!web_contents->process()->process().handle()) {
     // Don't add sad tabs, we would have no information to show for them since
     // they have no associated process.
     return;

@@ -32,8 +32,9 @@ class Process {
   // A handle to the current process.
   static Process Current();
 
-  // Get/Set the handle for this process.
-  ProcessHandle handle() { return process_; }
+  // Get/Set the handle for this process. The handle will be 0 if the process
+  // is no longer running.
+  ProcessHandle handle() const { return process_; }
   void set_handle(ProcessHandle handle) { process_ = handle; }
 
   // Get the PID for this process.
@@ -52,7 +53,7 @@ class Process {
 
   // A process is backgrounded when it's priority is lower than normal.
   // Return true if this process is backgrounded, false otherwise.
-  bool IsProcessBackgrounded();
+  bool IsProcessBackgrounded() const;
 
   // Set a prcess as backgrounded.  If value is true, the priority
   // of the process will be lowered.  If value is false, the priority
