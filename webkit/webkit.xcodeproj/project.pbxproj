@@ -530,6 +530,7 @@
 		B58831140E9BD61F00CEC344 /* TextControlInnerElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831130E9BD61F00CEC344 /* TextControlInnerElements.cpp */; };
 		B588312A0E9BD6D800CEC344 /* StringBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58831290E9BD6D800CEC344 /* StringBuilder.cpp */; };
 		B5B0D41B0EC8FE4900EA3314 /* JSDOMBinding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5B0D41A0EC8FE4900EA3314 /* JSDOMBinding.cpp */; };
+		B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */; };
 		B5C180770E9581B6006EAF87 /* TextCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180750E9581B6006EAF87 /* TextCodec.cpp */; };
 		B5C180790E9581CB006EAF87 /* TextCodecUTF16.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C180780E9581CB006EAF87 /* TextCodecUTF16.cpp */; };
 		B5C1807B0E9581DE006EAF87 /* TextDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5C1807A0E9581DE006EAF87 /* TextDecoder.cpp */; };
@@ -4214,6 +4215,8 @@
 		B5B0D41A0EC8FE4900EA3314 /* JSDOMBinding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSDOMBinding.cpp; sourceTree = "<group>"; };
 		B5B0D41D0EC8FE6300EA3314 /* ExecState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExecState.h; sourceTree = "<group>"; };
 		B5B0D41E0EC8FE6300EA3314 /* JSLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSLock.h; sourceTree = "<group>"; };
+		B5B0D6870EC91D3D00EA3314 /* autofill_form.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = autofill_form.h; sourceTree = "<group>"; };
+		B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = autofill_form.cc; sourceTree = "<group>"; };
 		B5C180740E95816D006EAF87 /* StringHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringHash.h; sourceTree = "<group>"; };
 		B5C180750E9581B6006EAF87 /* TextCodec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextCodec.cpp; sourceTree = "<group>"; };
 		B5C180760E9581B6006EAF87 /* TextCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextCodec.h; sourceTree = "<group>"; };
@@ -7500,6 +7503,8 @@
 				825404EE0D92E3DA0006B936 /* alt_error_page_resource_fetcher.h */,
 				53E8BE470EC36DD700B3F8B0 /* autocomplete_input_listener.cc */,
 				53E8BE8D0EC36F4B00B3F8B0 /* autocomplete_input_listener.h */,
+				B5B0D6880EC91D3D00EA3314 /* autofill_form.cc */,
+				B5B0D6870EC91D3D00EA3314 /* autofill_form.h */,
 				825404EF0D92E3DA0006B936 /* cache_manager.cc */,
 				825404F00D92E3DA0006B936 /* cache_manager.h */,
 				825404F10D92E3DA0006B936 /* chrome_client_impl.cc */,
@@ -9363,6 +9368,7 @@
 				E45627000E268F03005E4685 /* alt_404_page_resource_fetcher.cc in Sources */,
 				E45626F70E268F03005E4685 /* alt_error_page_resource_fetcher.cc in Sources */,
 				53E8BE480EC36DD700B3F8B0 /* autocomplete_input_listener.cc in Sources */,
+				B5B0D6890EC91D3D00EA3314 /* autofill_form.cc in Sources */,
 				E456270D0E268F03005E4685 /* chrome_client_impl.cc in Sources */,
 				934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */,
 				535EE0C00EC4D10E00939D54 /* clipboard_conversion.cc in Sources */,
