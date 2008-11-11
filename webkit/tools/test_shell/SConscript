@@ -118,8 +118,8 @@ elif env['PLATFORM'] == 'posix':
   input_files.extend([
       'gtk/webwidget_host.cc',
       'gtk/webview_host.cc',
-      'gtk/test_webview_delegate.cc',
       'test_shell_gtk.cc',
+      'test_webview_delegate_gtk.cc',
   ])
 
 lib = env.ChromeStaticLibrary('test_shell', input_files)
