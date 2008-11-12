@@ -537,8 +537,7 @@ void View::ProcessMouseReleased(const MouseEvent& e, bool canceled) {
     ConvertPointToScreen(this, &location);
     ContextMenuController* context_menu_controller = context_menu_controller_;
     OnMouseReleased(e, canceled);
-    context_menu_controller_->ShowContextMenu(this, location.x(), location.y(),
-                                              true);
+    ShowContextMenu(location.x(), location.y(), true);
   } else {
     OnMouseReleased(e, canceled);
   }

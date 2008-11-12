@@ -236,6 +236,17 @@ bool BaseButton::OnKeyReleased(const KeyEvent& e) {
   return false;
 }
 
+void BaseButton::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
+  if (GetContextMenuController()) {
+    // We're about to show the context menu. Showing the context menu likely
+    // means we won't get a mouse exited and reset state. Reset it now to be
+    // sure.
+    if (GetState() != BS_DISABLED)
+      SetState(BS_NORMAL);
+    View::ShowContextMenu(x, y, is_mouse_gesture);
+  }
+}
+
 bool BaseButton::AcceleratorPressed(const Accelerator& accelerator) {
   if (enabled_) {
     SetState(BS_NORMAL);

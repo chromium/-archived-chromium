@@ -86,6 +86,8 @@ class BaseButton : public View,
   virtual void OnMouseExited(const MouseEvent& e);
   virtual bool OnKeyPressed(const KeyEvent& e);
   virtual bool OnKeyReleased(const KeyEvent& e);
+  // Overriden to reset state then invoke super's implementation.
+  virtual void ShowContextMenu(int x, int y, bool is_mouse_gesture);
 
   class ButtonListener {
    public:
@@ -182,4 +184,3 @@ class BaseButton : public View,
 }  // namespace views
 
 #endif  // CHROME_VIEWS_BASE_BUTTON_H__
-
