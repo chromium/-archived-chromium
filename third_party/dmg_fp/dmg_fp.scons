@@ -18,10 +18,11 @@ env.Append(
 if env['PLATFORM'] == 'win32':
   env.Append(
       CCFLAGS = [
-          '/TC',
+          '/TP',
 
+          '/wd4503',
           '/wd4800',
-          '/wd4244',
+          '/wd4819',
       ],
   )
 
