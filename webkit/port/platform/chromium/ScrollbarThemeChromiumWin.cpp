@@ -29,6 +29,7 @@
 #include <windows.h>
 #include <vsstyle.h>
 
+#include "ChromiumBridge.h"
 #include "GraphicsContext.h"
 #include "PlatformContextSkia.h"
 #include "PlatformMouseEvent.h"
@@ -36,7 +37,6 @@
 
 #include "base/gfx/native_theme.h"
 #include "base/win_util.h"
-#include "webkit/glue/webkit_glue.h"
 
 namespace WebCore {
 
@@ -78,7 +78,7 @@ int ScrollbarThemeChromiumWin::scrollbarThickness(ScrollbarControlSize controlSi
 {
     static int thickness;
     if (!thickness) {
-        if (webkit_glue::IsLayoutTestMode())
+        if (ChromiumBridge::layoutTestMode())
             return kMacScrollbarSize[controlSize];
         thickness = GetSystemMetrics(SM_CXVSCROLL);
     }
@@ -265,7 +265,7 @@ IntSize ScrollbarThemeChromiumWin::buttonSize(Scrollbar* scrollbar)
     const int kLayoutTestModeGirth = 17;
 
     int thickness = scrollbarThickness();
-    int girth = webkit_glue::IsLayoutTestMode() ? kLayoutTestModeGirth : thickness;
+    int girth = ChromiumBridge::layoutTestMode() ? kLayoutTestModeGirth : thickness;
     if (scrollbar->orientation() == HorizontalScrollbar) {
         int width = scrollbar->width() < 2 * girth ? scrollbar->width() / 2 : girth;
         return IntSize(width, thickness);

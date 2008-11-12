@@ -202,6 +202,12 @@ String ChromiumBridge::computedDefaultLanguage() {
   return webkit_glue::StdWStringToString(webkit_glue::GetWebKitLocale());
 }
 
+// LayoutTestMode -------------------------------------------------------------
+
+bool ChromiumBridge::layoutTestMode() {
+  return webkit_glue::IsLayoutTestMode();
+}
+
 // Screen ---------------------------------------------------------------------
 
 int ChromiumBridge::screenDepth(Widget* widget) {

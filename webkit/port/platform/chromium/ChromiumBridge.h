@@ -67,6 +67,9 @@ namespace WebCore {
         // Language -----------------------------------------------------------
         static String computedDefaultLanguage();
 
+        // LayoutTestMode -----------------------------------------------------
+        static bool layoutTestMode();
+
         // Screen -------------------------------------------------------------
         static int screenDepth(Widget*);
         static int screenDepthPerComponent(Widget*);
@@ -77,6 +80,7 @@ namespace WebCore {
         // Widget -------------------------------------------------------------
         static void widgetSetCursor(Widget*, const Cursor&);
         static void widgetSetFocus(Widget*);
+
     };
 }
 

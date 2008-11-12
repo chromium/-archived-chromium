@@ -27,6 +27,7 @@
  */
 
 #include "config.h"
+#include "ChromiumBridge.h"
 #include "FontCache.h"
 #include "Font.h"
 #include "HashSet.h"
@@ -573,7 +574,7 @@ static LONG toGDIFontWeight(FontWeight fontWeight)
 // TODO in pending/FontCache.h.
 AtomicString FontCache::getGenericFontForScript(UScriptCode script, const FontDescription& description)
 {
-    if (webkit_glue::IsLayoutTestMode() && script == USCRIPT_LATIN)
+    if (ChromiumBridge::layoutTestMode() && script == USCRIPT_LATIN)
       return emptyAtom;
     FontDescription::GenericFamilyType generic = description.genericFamily();
     const wchar_t* scriptFont = gfx::GetFontFamilyForScript(
@@ -594,7 +595,7 @@ static void FillLogFont(const FontDescription& fontDescription, LOGFONT* winfont
     winfont->lfStrikeOut = false;
     winfont->lfCharSet = DEFAULT_CHARSET;
     winfont->lfOutPrecision = OUT_TT_ONLY_PRECIS;
-    winfont->lfQuality = webkit_glue::IsLayoutTestMode() ? NONANTIALIASED_QUALITY
+    winfont->lfQuality = ChromiumBridge::layoutTestMode() ? NONANTIALIASED_QUALITY
         : DEFAULT_QUALITY; // Honor user's desktop settings.
     winfont->lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
     winfont->lfItalic = fontDescription.italic();

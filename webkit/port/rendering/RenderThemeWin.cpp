@@ -27,6 +27,7 @@
 #include <uxtheme.h>
 #include <vssym32.h>
 
+#include "ChromiumBridge.h"
 #include "CSSValueKeywords.h"
 #include "Document.h"
 #include "FontSelector.h"
@@ -39,7 +40,6 @@
 #include "base/gfx/font_utils.h"
 #include "base/gfx/skia_utils.h"
 #include "base/win_util.h"
-#include "webkit/glue/webkit_glue.h"
 
 // These enums correspond to similarly named values defined by SafariTheme.h
 enum ControlSize {
@@ -143,7 +143,7 @@ RenderThemeWin::~RenderThemeWin()
 
 Color RenderThemeWin::platformActiveSelectionBackgroundColor() const
 {
-    if (webkit_glue::IsLayoutTestMode())
+    if (ChromiumBridge::layoutTestMode())
         return Color("#0000FF");  // Royal blue
     COLORREF color = GetSysColor(COLOR_HIGHLIGHT);
     return Color(GetRValue(color), GetGValue(color), GetBValue(color), 255);
@@ -151,7 +151,7 @@ Color RenderThemeWin::platformActiveSelectionBackgroundColor() const
 
 Color RenderThemeWin::platformInactiveSelectionBackgroundColor() const
 {
-    if (webkit_glue::IsLayoutTestMode())
+    if (ChromiumBridge::layoutTestMode())
         return Color("#999999");  // Medium grey
     COLORREF color = GetSysColor(COLOR_GRAYTEXT);
     return Color(GetRValue(color), GetGValue(color), GetBValue(color), 255);
@@ -159,7 +159,7 @@ Color RenderThemeWin::platformInactiveSelectionBackgroundColor() const
 
 Color RenderThemeWin::platformActiveSelectionForegroundColor() const
 {
-    if (webkit_glue::IsLayoutTestMode())
+    if (ChromiumBridge::layoutTestMode())
         return Color("#FFFFCC");  // Pale yellow
     COLORREF color = GetSysColor(COLOR_HIGHLIGHTTEXT);
     return Color(GetRValue(color), GetGValue(color), GetBValue(color), 255);
@@ -281,7 +281,7 @@ double RenderThemeWin::caretBlinkFrequency() const
 {
     // Disable the blinking caret in layout test mode, as it introduces
     // a race condition for the pixel tests. http://b/1198440
-    if (webkit_glue::IsLayoutTestMode())
+    if (ChromiumBridge::layoutTestMode())
         return 0;
 
     // TODO(ericroman): this should be using the platform's blink frequency.
@@ -298,7 +298,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
         case CSSValueSmallCaption:
             cachedDesc = &smallSystemFont;
             if (!smallSystemFont.isAbsoluteSize()) {
-                if (webkit_glue::IsLayoutTestMode()) {
+                if (ChromiumBridge::layoutTestMode()) {
                     fontSize = systemFontSizeForControlSize(SmallControlSize);
                 } else {
                     NONCLIENTMETRICS metrics;
@@ -311,7 +311,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
         case CSSValueMenu:
             cachedDesc = &menuFont;
             if (!menuFont.isAbsoluteSize()) {
-                if (webkit_glue::IsLayoutTestMode()) {
+                if (ChromiumBridge::layoutTestMode()) {
                     fontSize = systemFontSizeForControlSize(RegularControlSize);
                 } else {
                     NONCLIENTMETRICS metrics;
@@ -324,7 +324,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
         case CSSValueStatusBar:
             cachedDesc = &labelFont;
             if (!labelFont.isAbsoluteSize()) {
-                if (webkit_glue::IsLayoutTestMode()) {
+                if (ChromiumBridge::layoutTestMode()) {
                     fontSize = kLayoutTestStatusBarFontSize;
                 } else {
                     NONCLIENTMETRICS metrics;
@@ -335,7 +335,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
             }
             break;
         case CSSValueWebkitMiniControl:
-            if (webkit_glue::IsLayoutTestMode()) {
+            if (ChromiumBridge::layoutTestMode()) {
                 fontSize = systemFontSizeForControlSize(MiniControlSize);
             } else {
                 faceName = defaultGUIFont(document);
@@ -345,7 +345,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
             }
             break;
         case CSSValueWebkitSmallControl:
-              if (webkit_glue::IsLayoutTestMode()) {
+              if (ChromiumBridge::layoutTestMode()) {
                   fontSize = systemFontSizeForControlSize(SmallControlSize);
               } else {
                   faceName = defaultGUIFont(document);
@@ -353,7 +353,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
               }
             break;
         case CSSValueWebkitControl:
-            if (webkit_glue::IsLayoutTestMode()) {
+            if (ChromiumBridge::layoutTestMode()) {
                 fontSize = systemFontSizeForControlSize(RegularControlSize);
             } else {
                 faceName = defaultGUIFont(document);
@@ -361,7 +361,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
             }
             break;
         default:
-            if (webkit_glue::IsLayoutTestMode()) {
+            if (ChromiumBridge::layoutTestMode()) {
                 fontSize = kLayoutTestSystemFontSize;
             } else {
                 faceName = defaultGUIFont(document);
@@ -373,7 +373,7 @@ void RenderThemeWin::systemFont(int propId, Document* document, FontDescription&
         cachedDesc = &fontDescription;
 
     if (fontSize) {
-        if (webkit_glue::IsLayoutTestMode()) {
+        if (ChromiumBridge::layoutTestMode()) {
           cachedDesc->firstFamily().setFamily("Lucida Grande");
         } else {
           ASSERT(faceName);
@@ -510,7 +510,7 @@ static void setSizeIfAuto(RenderStyle* style, const IntSize& size)
 
 int RenderThemeWin::minimumMenuListSize(RenderStyle* style) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         return kLayoutTestMenuListMinimumWidth[controlSizeForFont(style)];
     } else {
         return 0;
@@ -539,14 +539,14 @@ void RenderThemeWin::setCheckboxSize(RenderStyle* style) const
     // At different DPI settings on Windows, querying the theme gives you a larger size that accounts for
     // the higher DPI.  Until our entire engine honors a DPI setting other than 96, we can't rely on the theme's
     // metrics.
-    const IntSize size = webkit_glue::IsLayoutTestMode() ?
+    const IntSize size = ChromiumBridge::layoutTestMode() ?
         layoutTestCheckboxSize(style) : IntSize(13, 13);
     setSizeIfAuto(style, size);
 }
 
 void RenderThemeWin::setRadioSize(RenderStyle* style) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         setSizeIfAuto(style, layoutTestRadioboxSize(style));
     } else {
         // Use same sizing for radio box as checkbox.
@@ -604,7 +604,7 @@ void RenderThemeWin::adjustMenuListStyle(CSSStyleSelector* selector, RenderStyle
     // Height is locked to auto on all browsers.
     style->setLineHeight(RenderStyle::initialLineHeight());
 
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         style->resetBorder();
         style->setHeight(Length(Auto));
         // Select one of the 3 fixed heights for controls
@@ -648,7 +648,7 @@ bool RenderThemeWin::paintMenuList(RenderObject* o, const RenderObject::PaintInf
     // If the MenuList is smaller than the size of a button, make sure to
     // shrink it appropriately and not put its x position to the left of 
     // the menulist.
-    const int buttonWidth = webkit_glue::IsLayoutTestMode() ?
+    const int buttonWidth = ChromiumBridge::layoutTestMode() ?
         kLayoutTestMenuListButtonWidth : GetSystemMetrics(SM_CXVSCROLL);
     int spacingLeft = borderLeft + o->paddingLeft();
     int spacingRight = borderRight + o->paddingRight();
@@ -735,7 +735,7 @@ static int layoutTestMenuListInternalPadding(RenderStyle* style, int paddingType
 
 int RenderThemeWin::menuListInternalPadding(RenderStyle* style, int paddingType) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         return layoutTestMenuListInternalPadding(style, paddingType);
     }
 
@@ -766,7 +766,7 @@ void RenderThemeWin::adjustButtonInnerStyle(RenderStyle* style) const
 
 void RenderThemeWin::setButtonPadding(RenderStyle* style) const
 {  
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         setFixedPadding(style, kLayoutTestButtonPadding);
 
     } else if (!style->width().isAuto()) {
@@ -798,7 +798,7 @@ void RenderThemeWin::setButtonPadding(RenderStyle* style) const
 
 void RenderThemeWin::adjustSliderThumbSize(RenderObject* o) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         if (o->style()->appearance() == SliderThumbHorizontalPart ||
             o->style()->appearance() == SliderThumbVerticalPart) {
             o->style()->setWidth(Length(kLayoutTestSliderThumbWidth, Fixed));
@@ -809,7 +809,7 @@ void RenderThemeWin::adjustSliderThumbSize(RenderObject* o) const
 
 void RenderThemeWin::adjustSearchFieldStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         // Override border.
         style->resetBorder();
         style->setBorderLeftWidth(kLayoutTestSearchFieldBorderWidth);
@@ -850,7 +850,7 @@ static const IntSize* layoutTestResultsButtonSizes()
 
 void RenderThemeWin::adjustSearchFieldCancelButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         IntSize size = layoutTestCancelButtonSizes()[controlSizeForFont(style)];
         style->setWidth(Length(size.width(), Fixed));
         style->setHeight(Length(size.height(), Fixed));
@@ -860,7 +860,7 @@ void RenderThemeWin::adjustSearchFieldCancelButtonStyle(CSSStyleSelector* select
 
 void RenderThemeWin::adjustSearchFieldDecorationStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         IntSize size = layoutTestResultsButtonSizes()[controlSizeForFont(style)];
         style->setWidth(Length(size.width() - kLayoutTestEmptyResultsOffset, Fixed));
         style->setHeight(Length(size.height(), Fixed));
@@ -870,7 +870,7 @@ void RenderThemeWin::adjustSearchFieldDecorationStyle(CSSStyleSelector* selector
 
 void RenderThemeWin::adjustSearchFieldResultsDecorationStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         IntSize size = layoutTestResultsButtonSizes()[controlSizeForFont(style)];
         style->setWidth(Length(size.width(), Fixed));
         style->setHeight(Length(size.height(), Fixed));
@@ -880,7 +880,7 @@ void RenderThemeWin::adjustSearchFieldResultsDecorationStyle(CSSStyleSelector* s
 
 void RenderThemeWin::adjustSearchFieldResultsButtonStyle(CSSStyleSelector* selector, RenderStyle* style, Element* e) const
 {
-    if (webkit_glue::IsLayoutTestMode()) {
+    if (ChromiumBridge::layoutTestMode()) {
         IntSize size = layoutTestResultsButtonSizes()[controlSizeForFont(style)];
         style->setWidth(Length(size.width() + kLayoutTestResultsArrowWidth, Fixed));
         style->setHeight(Length(size.height(), Fixed));
