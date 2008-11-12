@@ -360,11 +360,11 @@ void SearchProvider::ConvertResultsToAutocompleteMatches() {
   for (MatchMap::const_iterator i(map.begin()); i != map.end(); ++i)
     matches_.push_back(i->second);
 
-  if (navigation_results_.size()) {
+  if (!navigation_results_.empty()) {
     // TODO(kochi): http://b/1170574  We add only one results for navigational
     // suggestions. If we can get more useful information about the score,
     // consider adding more results.
-    matches_.push_back(NavigationToMatch(navigation_results_[0],
+    matches_.push_back(NavigationToMatch(navigation_results_.front(),
                                          CalculateRelevanceForNavigation(0)));
   }
 

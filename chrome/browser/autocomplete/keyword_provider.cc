@@ -227,7 +227,7 @@ int KeywordProvider::CalculateRelevance(AutocompleteInput::Type type,
 }
 
 AutocompleteMatch KeywordProvider::CreateAutocompleteMatch(
-    TemplateURLModel *model,
+    TemplateURLModel* model,
     const std::wstring keyword,
     const AutocompleteInput& input,
     size_t prefix_length,

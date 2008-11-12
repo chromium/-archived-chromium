@@ -22,6 +22,11 @@ const int kDaysToSearch = 30;
 // a single result. It allows the results to be sorted and processed without
 // modifying the larger and slower results structure.
 struct MatchReference {
+  MatchReference(const history::URLResult* result, int relevance)
+      : result(result),
+        relevance(relevance) {
+  }
+
   const history::URLResult* result;
   int relevance;  // Score of relevance computed by CalculateRelevance.
 };
@@ -144,9 +149,7 @@ void HistoryContentsProvider::ConvertResults() {
   std::vector<MatchReference> result_refs;
   result_refs.reserve(results_.size());
   for (size_t i = 0; i < results_.size(); i++) {
-    MatchReference ref;
-    ref.result = &results_[i];
-    ref.relevance = CalculateRelevance(*ref.result);
+    MatchReference ref(&results_[i], CalculateRelevance(results_[i]));
     result_refs.push_back(ref);
   }
 
@@ -178,6 +181,10 @@ void HistoryContentsProvider::ConvertResults() {
   // to fill them in with our other results.
   for (size_t i = max_for_provider; i < max_for_popup; i++)
       matches_[i].relevance = -matches_[i].relevance;
+}
+
+static bool MatchInTitle(const history::URLResult& result) {
+  return !result.title_match_positions().empty();
 }
 
 AutocompleteMatch HistoryContentsProvider::ResultToMatch(
@@ -227,8 +234,8 @@ void HistoryContentsProvider::ClassifyDescription(
 
 int HistoryContentsProvider::CalculateRelevance(
     const history::URLResult& result) {
-  bool in_title = !!result.title_match_positions().size();
-  bool is_starred =
+  const bool in_title = MatchInTitle(result);
+  const bool is_starred =
       (profile_->GetBookmarkModel() &&
        profile_->GetBookmarkModel()->IsBookmarked(result.url()));
 
@@ -236,22 +243,18 @@ int HistoryContentsProvider::CalculateRelevance(
     case AutocompleteInput::UNKNOWN:
     case AutocompleteInput::REQUESTED_URL:
       if (is_starred) {
-        return in_title ? 1000 + star_title_count_++ :
-                          550 + star_contents_count_++;
-      } else {
-        return in_title ? 700 + title_count_++ :
-                          500 + contents_count_++;
+        return in_title ?
+            (1000 + star_title_count_++) : (550 + star_contents_count_++);
       }
+      return in_title ? (700 + title_count_++) : (500 + contents_count_++);
 
     case AutocompleteInput::QUERY:
     case AutocompleteInput::FORCED_QUERY:
       if (is_starred) {
-        return in_title ? 1200 + star_title_count_++ :
-                          750 + star_contents_count_++;
-      } else {
-        return in_title ? 900 + title_count_++ :
-                          700 + contents_count_++;
+        return in_title ?
+            (1200 + star_title_count_++) : (750 + star_contents_count_++);
       }
+      return in_title ? (900 + title_count_++) : (700 + contents_count_++);
 
     default:
       NOTREACHED();

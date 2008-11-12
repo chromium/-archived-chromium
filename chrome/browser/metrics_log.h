@@ -44,8 +44,6 @@ class MetricsLog {
     WINDOW_DESTROY
   };
 
-  static const char* WindowEventTypeToString(WindowEventType type);
-
   void RecordWindowEvent(WindowEventType type, int window_id, int parent_id);
 
   // Records a page load.
@@ -128,6 +126,8 @@ class MetricsLog {
      MetricsLog* log_;
   };
   friend class ScopedElement;
+
+  static const char* WindowEventTypeToString(WindowEventType type);
 
   // Convenience versions of xmlWriter functions
   void StartElement(const char* name);

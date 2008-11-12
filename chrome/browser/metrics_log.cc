@@ -129,14 +129,13 @@ void MetricsLog::RecordUserAction(const wchar_t* key) {
     return;
   }
 
-  StartElement("uielement");
+  OPEN_ELEMENT_FOR_SCOPE("uielement");
   WriteAttribute("action", "command");
   WriteAttribute("targetidhash", command_hash);
 
   // TODO(jhughes): Properly track windows.
   WriteIntAttribute("window", 0);
   WriteCommonEventAttributes();
-  EndElement();
 
   ++num_events_;
 }
@@ -148,7 +147,7 @@ void MetricsLog::RecordLoadEvent(int window_id,
                                  TimeDelta load_time) {
   DCHECK(!locked_);
 
-  StartElement("document");
+  OPEN_ELEMENT_FOR_SCOPE("document");
   WriteAttribute("action", "load");
   WriteIntAttribute("docid", session_index);
   WriteIntAttribute("window", window_id);
@@ -197,30 +196,8 @@ void MetricsLog::RecordLoadEvent(int window_id,
     WriteAttribute("origin", origin_string);
 
   WriteCommonEventAttributes();
-  EndElement();
 
   ++num_events_;
-}
-
-// static
-const char* MetricsLog::WindowEventTypeToString(WindowEventType type) {
-  switch (type) {
-    case WINDOW_CREATE:
-      return "create";
-
-    case WINDOW_OPEN:
-      return "open";
-
-    case WINDOW_CLOSE:
-      return "close";
-
-    case WINDOW_DESTROY:
-      return "destroy";
-
-    default:
-      NOTREACHED();
-      return "unknown";
-  }
 }
 
 void MetricsLog::RecordWindowEvent(WindowEventType type,
@@ -228,13 +205,12 @@ void MetricsLog::RecordWindowEvent(WindowEventType type,
                                    int parent_id) {
   DCHECK(!locked_);
 
-  StartElement("window");
+  OPEN_ELEMENT_FOR_SCOPE("window");
   WriteAttribute("action", WindowEventTypeToString(type));
   WriteAttribute("windowid", IntToString(window_id));
   if (parent_id >= 0)
     WriteAttribute("parent", IntToString(parent_id));
   WriteCommonEventAttributes();
-  EndElement();
 
   ++num_events_;
 }
@@ -266,6 +242,21 @@ void MetricsLog::WriteIntAttribute(const std::string& name, int value) {
 
 void MetricsLog::WriteInt64Attribute(const std::string& name, int64 value) {
   WriteAttribute(name, Int64ToString(value));
+}
+
+// static
+const char* MetricsLog::WindowEventTypeToString(WindowEventType type) {
+  switch (type) {
+    case WINDOW_CREATE:  return "create";
+    case WINDOW_OPEN:    return "open";
+    case WINDOW_CLOSE:   return "close";
+    case WINDOW_DESTROY: return "destroy";
+
+    default:
+      NOTREACHED();
+      return "unknown";  // Can't return NULL as this is used in a required
+                         // attribute.
+  }
 }
 
 void MetricsLog::StartElement(const char* name) {
@@ -318,7 +309,7 @@ void MetricsLog::WriteStabilityElement() {
   // NOTE: This could lead to some data loss if this report isn't successfully
   //       sent, but that's true for all the metrics.
 
-  StartElement("stability");
+  OPEN_ELEMENT_FOR_SCOPE("stability");
 
   WriteIntAttribute("launchcount",
                     pref->GetInteger(prefs::kStabilityLaunchCount));
@@ -361,7 +352,7 @@ void MetricsLog::WriteStabilityElement() {
   const ListValue* plugin_stats_list = pref->GetList(
       prefs::kStabilityPluginStats);
   if (plugin_stats_list) {
-    StartElement("plugins");
+    OPEN_ELEMENT_FOR_SCOPE("plugins");
     for (ListValue::const_iterator iter = plugin_stats_list->begin();
          iter != plugin_stats_list->end(); ++iter) {
       if (!(*iter)->IsType(Value::TYPE_DICTIONARY)) {
@@ -378,7 +369,7 @@ void MetricsLog::WriteStabilityElement() {
         continue;
       }
 
-      StartElement("pluginstability");
+      OPEN_ELEMENT_FOR_SCOPE("pluginstability");
       WriteAttribute("filename", CreateBase64Hash(WideToUTF8(plugin_path)));
 
       int launches = 0;
@@ -392,25 +383,21 @@ void MetricsLog::WriteStabilityElement() {
       int crashes = 0;
       plugin_dict->GetInteger(prefs::kStabilityPluginCrashes, &crashes);
       WriteIntAttribute("crashcount", crashes);
-      EndElement();
     }
 
     pref->ClearPref(prefs::kStabilityPluginStats);
-    EndElement();
   }
-
-  EndElement();
 }
 
 void MetricsLog::WritePluginList(
          const std::vector<WebPluginInfo>& plugin_list) {
   DCHECK(!locked_);
 
-  StartElement("plugins");
+  OPEN_ELEMENT_FOR_SCOPE("plugins");
 
   for (std::vector<WebPluginInfo>::const_iterator iter = plugin_list.begin();
        iter != plugin_list.end(); ++iter) {
-    StartElement("plugin");
+    OPEN_ELEMENT_FOR_SCOPE("plugin");
 
     // Plugin name and filename are hashed for the privacy of those
     // testing unreleased new extensions.
@@ -419,11 +406,7 @@ void MetricsLog::WritePluginList(
     WriteAttribute("filename", CreateBase64Hash(WideToUTF8(filename)));
 
     WriteAttribute("version", WideToUTF8((*iter).version));
-
-    EndElement();
   }
-
-  EndElement();
 }
 
 void MetricsLog::RecordEnvironment(
@@ -433,14 +416,15 @@ void MetricsLog::RecordEnvironment(
 
   PrefService* pref = g_browser_process->local_state();
 
-  StartElement("profile");
+  OPEN_ELEMENT_FOR_SCOPE("profile");
   WriteCommonEventAttributes();
 
-  StartElement("install");
-  WriteAttribute("installdate", GetInstallDate());
-  WriteIntAttribute("buildid", 0);  // means that we're using appversion instead
-  WriteAttribute("appversion", GetVersionString());
-  EndElement();
+  {
+    OPEN_ELEMENT_FOR_SCOPE("install");
+    WriteAttribute("installdate", GetInstallDate());
+    WriteIntAttribute("buildid", 0);  // We're using appversion instead.
+    WriteAttribute("appversion", GetVersionString());
+  }
 
   WritePluginList(plugin_list);
 
@@ -519,8 +503,6 @@ void MetricsLog::RecordEnvironment(
 
   if (profile_metrics)
     WriteAllProfilesMetrics(*profile_metrics);
-
-  EndElement();  // profile
 }
 
 void MetricsLog::WriteAllProfilesMetrics(
@@ -588,31 +570,30 @@ void MetricsLog::WriteProfileMetrics(const std::wstring& profileidhash,
 void MetricsLog::RecordOmniboxOpenedURL(const AutocompleteLog& log) {
   DCHECK(!locked_);
 
-  StartElement("uielement");
+  OPEN_ELEMENT_FOR_SCOPE("uielement");
   WriteAttribute("action", "autocomplete");
   WriteAttribute("targetidhash", "");
   // TODO(kochi): Properly track windows.
   WriteIntAttribute("window", 0);
   WriteCommonEventAttributes();
 
-  StartElement("autocomplete");
+  {
+    OPEN_ELEMENT_FOR_SCOPE("autocomplete");
 
-  WriteIntAttribute("typedlength", static_cast<int>(log.text.length()));
-  WriteIntAttribute("completedlength",
-                    static_cast<int>(log.inline_autocompleted_length));
-  WriteIntAttribute("selectedindex", static_cast<int>(log.selected_index));
+    WriteIntAttribute("typedlength", static_cast<int>(log.text.length()));
+    WriteIntAttribute("selectedindex", static_cast<int>(log.selected_index));
+    WriteIntAttribute("completedlength",
+                      static_cast<int>(log.inline_autocompleted_length));
 
-  for (AutocompleteResult::const_iterator i(log.result.begin());
-       i != log.result.end(); ++i) {
-    StartElement("autocompleteitem");
-    if (i->provider)
-      WriteAttribute("provider", i->provider->name());
-    WriteIntAttribute("relevance", i->relevance);
-    WriteIntAttribute("isstarred", i->starred ? 1 : 0);
-    EndElement();  // autocompleteitem
+    for (AutocompleteResult::const_iterator i(log.result.begin());
+         i != log.result.end(); ++i) {
+      OPEN_ELEMENT_FOR_SCOPE("autocompleteitem");
+      if (i->provider)
+        WriteAttribute("provider", i->provider->name());
+      WriteIntAttribute("relevance", i->relevance);
+      WriteIntAttribute("isstarred", i->starred ? 1 : 0);
+    }
   }
-  EndElement();  // autocomplete
-  EndElement();  // uielement
 
   ++num_events_;
 }
