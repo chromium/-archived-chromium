@@ -14,7 +14,7 @@ except AttributeError:
   cpu_flag = ''
 
 env = env.Clone(
-    V8_MODE = 'release',
+    V8_MODE = 'debug',
     V8_MODE_DIR = '$V8_DIR/obj/$V8_MODE',
     V8_SCONS_COM = '$PYTHON $SCONS $SCONSFLAGS mode=$V8_MODE',
     SCONS='$CHROME_SRC_DIR/third_party/scons/scons.py',
@@ -37,8 +37,8 @@ if not os.path.exists(env.Dir('$OBJ_ROOT/v8').abspath):
 
 
 v8_scons_targets_off = [
-    '$V8_DIR/shell${PROGSUFFIX}',
-    '$V8_DIR/${LIBPREFIX}v8${LIBSUFFIX}',
+    '$V8_DIR/shell_g${PROGSUFFIX}',
+    '$V8_DIR/${LIBPREFIX}v8_g${LIBSUFFIX}',
     '$V8_MODE_DIR/mksnapshot${PROGSUFFIX}',
     '$V8_MODE_DIR/libraries${OBJSUFFIX}',
     '$V8_MODE_DIR/snapshot-empty${OBJSUFFIX}',
