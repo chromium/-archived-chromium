@@ -208,6 +208,44 @@ bool ChromiumBridge::layoutTestMode() {
   return webkit_glue::IsLayoutTestMode();
 }
 
+// MimeType -------------------------------------------------------------------
+
+String ChromiumBridge::mimeTypeFromExtension(const String& ext) {
+  if (ext.isEmpty())
+    return String();
+
+  std::string type;
+  webkit_glue::GetMimeTypeFromExtension(webkit_glue::StringToStdWString(ext),
+                                        &type);
+  return webkit_glue::StdStringToString(type);
+}
+
+String ChromiumBridge::mimeTypeFromFile(const String& file_path) {
+  if (file_path.isEmpty())
+    return String();
+
+  std::string type;
+  webkit_glue::GetMimeTypeFromFile(webkit_glue::StringToStdWString(file_path),
+                                   &type);
+  return webkit_glue::StdStringToString(type);
+}
+
+String ChromiumBridge::preferredExtensionForMimeType(const String& mime_type) {
+  if (mime_type.isEmpty())
+    return String();
+
+  std::wstring stdext;
+  webkit_glue::GetPreferredExtensionForMimeType(
+      webkit_glue::StringToStdString(mime_type), &stdext);
+  return webkit_glue::StdWStringToString(stdext);
+}
+
+// Protocol -------------------------------------------------------------------
+
+String ChromiumBridge::uiResourceProtocol() {
+  return webkit_glue::StdStringToString(webkit_glue::GetUIResourceProtocol());
+}
+
 // Screen ---------------------------------------------------------------------
 
 int ChromiumBridge::screenDepth(Widget* widget) {

@@ -43,6 +43,7 @@
 
 #include "RefCounted.h"  // for Peerable
 
+#include "ChromiumBridge.h"
 #include "DOMCoreException.h"
 #include "EventException.h"
 #include "ExceptionCode.h"
@@ -1550,7 +1551,7 @@ bool V8Proxy::isEnabled()
     if (origin->protocol() == "http" || origin->protocol() == "https")
         return false;  // Web site
 
-    if (origin->protocol() == webkit_glue::StdStringToString(webkit_glue::GetUIResourceProtocol()))
+    if (origin->protocol() == ChromiumBridge::uiResourceProtocol())
         return true;   // Embedder's scripts are ok to run
 
     // If the scheme is ftp: or file:, an empty file name indicates a directory
@@ -1674,7 +1675,7 @@ bool V8Proxy::CanAccessPrivate(DOMWindow* target_window)
     const SecurityOrigin* active_security_origin = origin_window->securityOrigin();
     const SecurityOrigin* target_security_origin = target_window->securityOrigin();
 
-    String ui_resource_protocol = webkit_glue::StdStringToString(webkit_glue::GetUIResourceProtocol());
+    String ui_resource_protocol = ChromiumBridge::uiResourceProtocol();
     if (active_security_origin->protocol() == ui_resource_protocol) {
         KURL inspector_url = webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
         ASSERT(inspector_url.protocol() == ui_resource_protocol);

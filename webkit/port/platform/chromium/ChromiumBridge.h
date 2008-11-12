@@ -70,6 +70,14 @@ namespace WebCore {
         // LayoutTestMode -----------------------------------------------------
         static bool layoutTestMode();
 
+        // MimeType -----------------------------------------------------------
+        static String mimeTypeFromExtension(const String& ext);
+        static String mimeTypeFromFile(const String& file_path);
+        static String preferredExtensionForMimeType(const String& mime_type);
+
+        // Protocol -----------------------------------------------------------
+        static String uiResourceProtocol();
+
         // Screen -------------------------------------------------------------
         static int screenDepth(Widget*);
         static int screenDepthPerComponent(Widget*);

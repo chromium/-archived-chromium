@@ -28,10 +28,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
+#include "ChromiumBridge.h"
 #include "MIMETypeRegistry.h"
-
-#include "webkit/glue/glue_util.h"
-#include "webkit/glue/webkit_glue.h"
 
 namespace WebCore 
 {
@@ -60,29 +58,16 @@ String MIMETypeRegistry::getPreferredExtensionForMIMEType(const String& type)
     // TODO(darin): Is this really necessary??
     String mimeType = type.substring(0, static_cast<unsigned>(type.find(';')));
 
-    if (mimeType.isEmpty())
-        return String();
+    String ext = ChromiumBridge::preferredExtensionForMimeType(type);
+    if (!ext.isEmpty() && ext[0] == L'.')
+        ext = ext.substring(1);
 
-    std::wstring ext;
-    webkit_glue::GetPreferredExtensionForMimeType(
-        std::string(type.characters(), type.characters() + type.length()),
-        &ext);
-    if (!ext.empty() && ext[0] == L'.')
-      ext = ext.substr(1);
-
-    return webkit_glue::StdWStringToString(ext);
+    return ext;
 }
 
 String MIMETypeRegistry::getMIMETypeForExtension(const String &ext)
 {
-    if (ext.isEmpty())
-        return String();
-
-    std::string mime_type;
-    webkit_glue::GetMimeTypeFromExtension(
-        webkit_glue::StringToStdWString(ext), &mime_type);
-
-    return String(mime_type.data(), mime_type.size());
+    return ChromiumBridge::mimeTypeFromExtension(ext);
 }
 
 }
