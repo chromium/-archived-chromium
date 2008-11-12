@@ -751,7 +751,10 @@ RenderProcessHost* RenderProcessHost::GetExistingProcessHost(Profile* profile) {
 void RenderProcessHost::SetBackgrounded(bool backgrounded) {
   // If the process_ is NULL, the process hasn't been created yet.
   if (process_.handle()) {
-    process_.SetProcessBackgrounded(backgrounded);
+    bool rv = process_.SetProcessBackgrounded(backgrounded);
+    if (!rv) {
+      return;
+    }
 
     // Now tune the memory footprint of the renderer.
     // If the OS needs to page, we'd rather it page idle renderers.
