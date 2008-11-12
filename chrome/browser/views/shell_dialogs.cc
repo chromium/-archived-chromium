@@ -194,6 +194,7 @@ class SelectFileDialogImpl : public SelectFileDialog,
   virtual void SelectFile(Type type, const std::wstring& title,
                           const std::wstring& default_path,
                           const std::wstring& filter,
+                          const std::wstring& default_extension,
                           HWND owning_hwnd,
                           void* params);
   virtual bool IsRunning(HWND owning_hwnd) const;
@@ -206,6 +207,7 @@ class SelectFileDialogImpl : public SelectFileDialog,
                          const std::wstring& title,
                          const std::wstring& default_path,
                          const std::wstring& filter,
+                         const std::wstring& default_extension,
                          RunState run_state,
                          void* params);
 
@@ -250,12 +252,14 @@ void SelectFileDialogImpl::SelectFile(Type type,
                                       const std::wstring& title,
                                       const std::wstring& default_path,
                                       const std::wstring& filter,
+                                      const std::wstring& default_extension,
                                       HWND owner,
                                       void* params) {
   RunState run_state = BeginRun(owner);
   run_state.dialog_thread->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &SelectFileDialogImpl::ExecuteSelectFile, type,
-                        title, default_path, filter, run_state, params));
+                        title, default_path, filter, default_extension,
+                        run_state, params));
 }
 
 bool SelectFileDialogImpl::IsRunning(HWND owning_hwnd) const {
@@ -273,6 +277,7 @@ void SelectFileDialogImpl::ExecuteSelectFile(
     const std::wstring& title,
     const std::wstring& default_path,
     const std::wstring& filter,
+    const std::wstring& default_extension,
     RunState run_state,
     void* params) {
   std::wstring path = default_path;
@@ -280,7 +285,10 @@ void SelectFileDialogImpl::ExecuteSelectFile(
   if (type == SELECT_FOLDER) {
     success = RunSelectFolderDialog(title, run_state.owner, &path);
   } else if (type == SELECT_SAVEAS_FILE) {
-    success = win_util::SaveFileAs(run_state.owner, default_path, &path);
+    const wchar_t* filter_string = filter.empty() ? NULL : filter.c_str();
+    unsigned index = 0;
+    success = win_util::SaveFileAsWithFilter(run_state.owner, default_path,
+        filter_string, default_extension, &index, &path);
     DisableOwner(run_state.owner);
   } else if (type == SELECT_OPEN_FILE) {
     success = RunOpenFileDialog(title, filter, run_state.owner, &path);

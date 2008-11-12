@@ -608,6 +608,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
         contents ? GetAncestor(contents->GetContainerHWND(), GA_ROOT) : NULL;
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
                                     std::wstring(), info->suggested_path,
+                                    std::wstring(), std::wstring(),
                                     owning_hwnd, info);
   } else {
     // No prompting for download, just continue with the suggested name.

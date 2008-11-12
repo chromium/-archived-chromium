@@ -1068,7 +1068,9 @@ void Browser::OpenFile() {
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
-                                  L"", L"", GetTopLevelHWND(), NULL);
+                                  std::wstring(), std::wstring(),
+                                  std::wstring(), std::wstring(),
+                                  GetTopLevelHWND(), NULL);
 }
 
 void Browser::OpenTaskManager() {
@@ -2477,4 +2479,3 @@ void Browser::RegisterAppPrefs(const std::wstring& app_name) {
 
   prefs->RegisterDictionaryPref(window_pref.c_str());
 }
-

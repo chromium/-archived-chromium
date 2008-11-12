@@ -1067,8 +1067,9 @@ void WebContents::RunFileChooser(const std::wstring& default_file) {
   HWND toplevel_hwnd = GetAncestor(GetContainerHWND(), GA_ROOT);
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
-  select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE, L"",
-                                  default_file, toplevel_hwnd, NULL);
+  select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
+                                  std::wstring(), default_file, std::wstring(),
+                                  std::wstring(), toplevel_hwnd, NULL);
 }
 
 void WebContents::RunJavaScriptMessage(

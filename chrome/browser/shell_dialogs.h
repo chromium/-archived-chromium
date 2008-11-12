@@ -77,26 +77,20 @@ class SelectFileDialog
   // and filters and terminated with two nulls.
   // |owning_hwnd| is the window the dialog is modal to, or NULL for a modeless
   // dialog.
+  // |default_extension| is the default extension to add to the file if the
+  // user doesn't type one. This should NOT include the '.'. If you specify
+  // this you must also specify a filter.
   // |params| is data from the calling context which will be passed through to
   // the listener. Can be NULL.
   // NOTE: only one instance of any shell dialog can be shown per owning_hwnd
   //       at a time (for obvious reasons).
-  // TODO: convert all callers to this and rip out the old.
   virtual void SelectFile(Type type,
                           const std::wstring& title,
                           const std::wstring& default_path,
                           const std::wstring& filter,
+                          const std::wstring& default_extension,
                           HWND owning_hwnd,
                           void* params) = 0;
-
-  void SelectFile(Type type,
-                  const std::wstring& title,
-                  const std::wstring& default_path,
-                  HWND owning_hwnd,
-                  void* params) {
-    SelectFile(type, title, default_path, std::wstring(),
-               owning_hwnd, params);
-  }
 };
 
 // Shows a dialog box for selecting a font.

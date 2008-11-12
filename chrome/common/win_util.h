@@ -125,6 +125,8 @@ bool OpenItemViaShellNoZoneCheck(const std::wstring& full_path,
 // Returns 'true' on successful open, 'false' otherwise.
 bool OpenItemWithExternalApp(const std::wstring& full_path);
 
+std::wstring GetFileFilterFromPath(const std::wstring& file_name);
+
 // Prompt the user for location to save a file. 'suggested_name' is a full path
 // that gives the dialog box a hint as to how to initialize itself.
 // For example, a 'suggested_name' of:
@@ -149,9 +151,12 @@ bool SaveFileAs(HWND owner,
 // The parameter |index| indicates the initial index of filter description
 // and filter pattern for the dialog box. If |index| is zero or greater than
 // the number of total filter types, the system uses the first filter in the
-// |filter| buffer. The parameter |final_name| returns the file name which
-// contains the drive designator, path, file name, and extension of the user
-// selected file name.
+// |filter| buffer. |index| is used to specify the initial selected extension,
+// and when done contains the extension the user chose. The parameter
+// |final_name| returns the file name which contains the drive designator,
+// path, file name, and extension of the user selected file name. |def_ext| is
+// the default extension to give to the file if the user did not enter an
+// extension.
 bool SaveFileAsWithFilter(HWND owner,
                           const std::wstring& suggested_name,
                           const wchar_t* filter,

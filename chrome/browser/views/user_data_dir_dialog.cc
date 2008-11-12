@@ -72,8 +72,8 @@ bool UserDataDirDialog::Accept() {
   HWND owning_hwnd =
       GetAncestor(message_box_view_->GetContainer()->GetHWND(), GA_ROOT);
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_FOLDER,
-                                  dialog_title, std::wstring(), owning_hwnd,
-                                  NULL);
+                                  dialog_title, std::wstring(), std::wstring(),
+                                  std::wstring(), owning_hwnd, NULL);
   return false;
 }
 

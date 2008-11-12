@@ -341,11 +341,9 @@ static void FormatSaveAsFilterForExtension(const std::wstring& file_ext,
   (*buffer)[offset] = L'\0';  // Double NULL required.
 }
 
-bool SaveFileAs(HWND owner,
-                const std::wstring& suggested_name,
-                std::wstring* final_name) {
+std::wstring GetFileFilterFromPath(const std::wstring& file_name) {
   std::wstring reg_description;
-  std::wstring file_ext = file_util::GetFileExtensionFromPath(suggested_name);
+  std::wstring file_ext = file_util::GetFileExtensionFromPath(file_name);
   if (!file_ext.empty()) {
     file_ext = L"." + file_ext;
     GetRegistryDescriptionFromExtension(file_ext, &reg_description);
@@ -353,11 +351,17 @@ bool SaveFileAs(HWND owner,
 
   std::vector<wchar_t> filter;
   FormatSaveAsFilterForExtension(file_ext, reg_description, true, &filter);
+  return std::wstring(&filter[0], filter.size());
+}
 
+bool SaveFileAs(HWND owner,
+                const std::wstring& suggested_name,
+                std::wstring* final_name) {
+  std::wstring filter = GetFileFilterFromPath(suggested_name);
   unsigned index = 1;
   return SaveFileAsWithFilter(owner,
                               suggested_name,
-                              &filter[0],
+                              filter.c_str(),
                               L"",
                               &index,
                               final_name);
@@ -390,7 +394,7 @@ bool SaveFileAsWithFilter(HWND owner,
   save_as.hwndOwner = owner;
   save_as.hInstance = NULL;
 
-  save_as.lpstrFilter = &filter[0];
+  save_as.lpstrFilter = filter;
 
   save_as.lpstrCustomFilter = NULL;
   save_as.nMaxCustFilter = 0;

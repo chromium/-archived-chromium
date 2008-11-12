@@ -26,6 +26,7 @@
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/win_util.h"
 #include "chrome/views/container_win.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/menu_button.h"
@@ -683,18 +684,20 @@ void BookmarkManagerView::ShowToolsMenu(HWND host, int x, int y) {
                  views::MenuItemView::TOPLEFT, true);
 }
 
+// The filter used when opening a file.
+// TODO(sky): need a textual description here once we can add new
+// strings.
+static const wchar_t KFilterString[] = L"*.html\0*.html\0";
+
 void BookmarkManagerView::ShowImportBookmarksFileChooser() {
   if (select_file_dialog_.get())
     select_file_dialog_->ListenerDestroyed();
 
-  // TODO(sky): need a textual description here once we can add new
-  // strings.
-  const wchar_t filter_c_str[] = L"*.html\0*.html\0\0\0";
-  std::wstring filter_string(filter_c_str, arraysize(filter_c_str));
+  std::wstring filter_string(KFilterString, arraysize(KFilterString));
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
-      SelectFileDialog::SELECT_OPEN_FILE, std::wstring(), std::wstring(),
-      filter_string, GetContainer()->GetHWND(),
+      SelectFileDialog::SELECT_OPEN_FILE, std::wstring(), L"bookmarks.html",
+      filter_string, std::wstring(), GetContainer()->GetHWND(),
       reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_IMPORT_MENU));
 }
 
@@ -704,7 +707,8 @@ void BookmarkManagerView::ShowExportBookmarksFileChooser() {
 
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
-      SelectFileDialog::SELECT_SAVEAS_FILE, std::wstring(), std::wstring(),
-      std::wstring(), GetContainer()->GetHWND(),
+      SelectFileDialog::SELECT_SAVEAS_FILE, std::wstring(), L"bookmarks.html",
+      win_util::GetFileFilterFromPath(L"bookmarks.html"), L"html",
+      GetContainer()->GetHWND(),
       reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_EXPORT_MENU));
 }

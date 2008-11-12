@@ -387,6 +387,20 @@ inline CancelableTask* NewRunnableMethod(T* object, Method method,
                                                                  f));
 }
 
+template <class T, class Method, class A, class B, class C, class D, class E,
+          class F, class G>
+inline CancelableTask* NewRunnableMethod(T* object, Method method,
+                                         const A& a, const B& b,
+                                         const C& c, const D& d, const E& e,
+                                         const F& f, const G& g) {
+  return new RunnableMethod<T,
+                            Method,
+                            Tuple7<A, B, C, D, E, F, G> >(object,
+                                                          method,
+                                                          MakeTuple(a, b, c, d,
+                                                                    e, f, g));
+}
+
 // RunnableFunction and NewRunnableFunction implementation ---------------------
 
 template <class Function, class Params>
