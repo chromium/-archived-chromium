@@ -83,6 +83,10 @@ class WebWidgetHost {
   static gfx::WindowHandle CreateWindow(gfx::WindowHandle parent, void* host);
   void WindowDestroyed();
   void Resize(const gfx::Size& size);
+  
+  // Allow clients to update the paint rect. For example, if we get a gdk
+  // expose event, we need to update the paint rect.
+  void UpdatePaintRect(const gfx::Rect& rect);
 #endif
 
   void TrackMouseLeave(bool enable);
