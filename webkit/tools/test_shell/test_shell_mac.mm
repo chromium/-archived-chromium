@@ -45,10 +45,6 @@
 
 // Global Variables:
 
-// Default timeout for page load when running non-interactive file
-// tests, in ms.
-const int kDefaultFileTestTimeoutMillisecs = 10 * 1000;
-
 // Content area size for newly created windows.
 const int kTestWindowWidth = 800;
 const int kTestWindowHeight = 600;
@@ -62,98 +58,14 @@ const int kSVGTestWindowHeight = 360;
 const int kTestWindowXLocation = -14000;
 const int kTestWindowYLocation = -14000;
 
-static const wchar_t* kStatsFile = L"testshell";
-static int kStatsFileThreads = 20;
-static int kStatsFileCounters = 100;
-
 // Define static member variables
-WindowList* TestShell::window_list_;
-WebPreferences* TestShell::web_prefs_;
-bool TestShell::interactive_ = true;
-int TestShell::file_test_timeout_ms_ = kDefaultFileTestTimeoutMillisecs;
 base::LazyInstance <std::map<gfx::WindowHandle, TestShell *> >
     TestShell::window_map_(base::LINKER_INITIALIZED);
 
+// Mac-specific stuff to do when the dtor is called. Nothing to do in our
+// case.
+void TestShell::PlatformCleanUp() {
 
-TestShell::TestShell() 
-    : m_mainWnd(NULL),
-      m_editWnd(NULL),
-      m_webViewHost(NULL),
-      m_popupHost(NULL),
-      m_focusedWidgetHost(NULL),
-      layout_test_controller_(new LayoutTestController(this)),
-      event_sending_controller_(new EventSendingController(this)),
-      text_input_controller_(new TextInputController(this)),
-      navigation_controller_(new TestNavigationController(this)),
-      delegate_(new TestWebViewDelegate(this)),
-      test_is_preparing_(false),
-      test_is_pending_(false),
-      dump_stats_table_on_exit_(false) {
-  // load and initialize the stats table (one per process, so that multiple
-  // instances don't interfere with each other)
-  wchar_t statsfile[64];
-  swprintf(statsfile, 64, L"%ls-%d", kStatsFile, getpid());
-  
-  StatsTable* table = new StatsTable(statsfile, kStatsFileThreads,
-                                     kStatsFileCounters);
-  StatsTable::set_current(table);
-}
-
-TestShell::~TestShell() {
-  window_map_.Get().erase(m_mainWnd);
-
-  if (dump_stats_table_on_exit_) {
-    // Dump the stats table.
-    printf("<stats>\n");
-    StatsTable* table = StatsTable::current();
-    if (table != NULL) {
-      int counter_max = table->GetMaxCounters();
-      for (int index = 0; index < counter_max; index++) {
-        std::string name(WideToUTF8(table->GetRowName(index)));
-        if (name.length() > 0) {
-          int value = table->GetRowValue(index);
-          printf("%s:\t%d\n", name.c_str(), value);
-        }
-      }
-    }
-    printf("</stats>\n");
-  }
-}
-
-// All fatal log messages (e.g. DCHECK failures) imply unit test failures
-static void UnitTestAssertHandler(const std::string& str) {
-  FAIL() << str;
-}
-
-// static
-void TestShell::InitLogging(bool suppress_error_dialogs,
-                            bool running_layout_tests) {
-  if (suppress_error_dialogs) {
-    logging::SetLogAssertHandler(UnitTestAssertHandler);
-  }
-
-  // Only log to a file if we're running layout tests. This prevents debugging
-  // output from disrupting whether or not we pass.
-  logging::LoggingDestination destination = 
-      logging::LOG_TO_BOTH_FILE_AND_SYSTEM_DEBUG_LOG;
-  if (running_layout_tests)
-    destination = logging::LOG_ONLY_TO_FILE;
-  
-  // We might have multiple test_shell processes going at once
-  char log_filename_template[] = "/tmp/test_shell_XXXXXX";
-  char* log_filename = mktemp(log_filename_template);
-  logging::InitLogging(log_filename,
-                       destination,
-                       logging::LOCK_LOG_FILE,
-                       logging::DELETE_OLD_LOG_FILE);
-  
-  // we want process and thread IDs because we may have multiple processes
-  logging::SetLogItems(true, true, false, true);
-}
-
-// static
-void TestShell::CleanupLogging() {
-  logging::CloseLogFile();
 }
 
 // static
@@ -164,39 +76,6 @@ void TestShell::InitializeTestShell(bool interactive) {
   web_prefs_ = new WebPreferences;
   
   ResetWebPreferences();
-}
-
-// static
-void TestShell::ResetWebPreferences() {
-  DCHECK(web_prefs_);
-  
-  // Match the settings used by Mac DumpRenderTree.
-  if (web_prefs_) {
-    web_prefs_->standard_font_family = L"Times";
-    web_prefs_->fixed_font_family = L"Courier";
-    web_prefs_->serif_font_family = L"Times";
-    web_prefs_->sans_serif_font_family = L"Helvetica";
-    web_prefs_->cursive_font_family = L"Apple Chancery";
-    web_prefs_->fantasy_font_family = L"Papyrus";
-    web_prefs_->default_encoding = L"ISO-8859-1";
-    web_prefs_->default_font_size = 16;
-    web_prefs_->default_fixed_font_size = 13;
-    web_prefs_->minimum_font_size = 1;
-    web_prefs_->minimum_logical_font_size = 9;
-    web_prefs_->javascript_can_open_windows_automatically = true;
-    web_prefs_->dom_paste_enabled = true;
-    web_prefs_->developer_extras_enabled = interactive_;
-    web_prefs_->shrinks_standalone_images_to_fit = false;
-    web_prefs_->uses_universal_detector = false;
-    web_prefs_->text_areas_are_resizable = false;
-    web_prefs_->java_enabled = true;
-  }
-}
-	
-// static
-void TestShell::ShutdownTestShell() {
-  delete window_list_;
-  delete TestShell::web_prefs_;
 }
 
 NSButton* MakeTestButton(NSRect* rect, NSString* title, NSView* parent) {
@@ -391,45 +270,13 @@ void TestShell::WaitTestFinished() {
   [thread release];
 }
 
-void TestShell::Show(WebView* webview, WindowOpenDisposition disposition) {
-  delegate_->Show(webview, disposition);
-}
-
-void TestShell::SetFocus(WebWidgetHost* host, bool enable) {
-  if (interactive_) {
-    if (enable) {
-      // ::SetFocus(host->window_handle());
-    } else {
-      // if (GetFocus() == host->window_handle())
-      //    ::SetFocus(NULL);
-    }
-  } else {
-    if (enable) {
-      if (m_focusedWidgetHost != host) {
-        if (m_focusedWidgetHost)
-          m_focusedWidgetHost->webwidget()->SetFocus(false);
-        host->webwidget()->SetFocus(enable);
-        m_focusedWidgetHost = host;
-      }
-    } else {
-      if (m_focusedWidgetHost == host) {
-        host->webwidget()->SetFocus(enable);
-        m_focusedWidgetHost = NULL;
-      }
-    }
-  }
-}
-
-void TestShell::BindJSObjectsToWindow(WebFrame* frame) {
-  // Only bind the test classes if we're running tests.
-  if (!interactive_) {
-    layout_test_controller_->BindToJavascript(frame, 
-                                              L"layoutTestController");
-    event_sending_controller_->BindToJavascript(frame,
-                                                L"eventSender");
-    text_input_controller_->BindToJavascript(frame,
-                                             L"textInputController");
-  }
+void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
+#if 0
+  if (enable)
+    ::SetFocus(host->window_handle());
+  else if (::GetFocus() == host->window_handle())
+    ::SetFocus(NULL);
+#endif
 }
 
 // static*
@@ -452,19 +299,6 @@ void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
   [windowHandle performClose:nil];
 }
 
-WebView* TestShell::CreateWebView(WebView* webview) {
-  // If we're running layout tests, only open a new window if the test has
-  // called layoutTestController.setCanOpenWindows()
-  if (!interactive_ && !layout_test_controller_->CanOpenWindows())
-    return NULL;
-  
-  TestShell* new_win;
-  if (!CreateNewWindow(std::wstring(), &new_win))
-    return NULL;
-  
-  return new_win->webView();
-}
-
 WebWidget* TestShell::CreatePopupWidget(WebView* webview) {
   DCHECK(!m_popupHost);
   m_popupHost = WebWidgetHost::Create(NULL, delegate_.get());
@@ -476,10 +310,6 @@ WebWidget* TestShell::CreatePopupWidget(WebView* webview) {
 void TestShell::ClosePopup() {
   // PostMessage(popupWnd(), WM_CLOSE, 0, 0);
   m_popupHost = NULL;
-}
-
-void TestShell::SizeToDefault() {
-  SizeTo(kTestWindowWidth, kTestWindowHeight);
 }
 
 void TestShell::SizeTo(int width, int height) {
@@ -650,11 +480,6 @@ void TestShell::ResizeSubViews() {
   return true;
 }
 
-void TestShell::LoadURL(const wchar_t* url)
-{
-  LoadURLForFrame(url, NULL);
-}
-
 void TestShell::LoadURLForFrame(const wchar_t* url,
                                 const wchar_t* frame_name) {
   if (!url)
@@ -682,51 +507,6 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
 
   navigation_controller_->LoadEntry(new TestNavigationEntry(
       -1, GURL(urlString), std::wstring(), frame_string));
-}
-
-bool TestShell::Navigate(const TestNavigationEntry& entry, bool reload) {
-  const TestNavigationEntry& test_entry =
-      *static_cast<const TestNavigationEntry*>(&entry);
-  
-  WebRequestCachePolicy cache_policy;
-  if (reload) {
-    cache_policy = WebRequestReloadIgnoringCacheData;
-  } else if (entry.GetPageID() != -1) {
-    cache_policy = WebRequestReturnCacheDataElseLoad;
-  } else {
-    cache_policy = WebRequestUseProtocolCachePolicy;
-  }
-  
-  scoped_ptr<WebRequest> request(WebRequest::Create(entry.GetURL()));
-  request->SetCachePolicy(cache_policy);
-  // If we are reloading, then WebKit will use the state of the current page.
-  // Otherwise, we give it the state to navigate to.
-  if (!reload)
-    request->SetHistoryState(entry.GetContentState());
-  
-  request->SetExtraData(new TestShellExtraRequestData(entry.GetPageID()));
-  
-  // Get the right target frame for the entry.
-  WebFrame* frame = webView()->GetMainFrame();
-  if (!test_entry.GetTargetFrame().empty())
-    frame = webView()->GetFrameWithName(test_entry.GetTargetFrame());
-  // TODO(mpcomplete): should we clear the target frame, or should
-  // back/forward navigations maintain the target frame?
-  
-  frame->LoadRequest(request.get());
-  // Restore focus to the main frame prior to loading new request.
-  // This makes sure that we don't have a focused iframe. Otherwise, that
-  // iframe would keep focus when the SetFocus called immediately after
-  // LoadRequest, thus making some tests fail (see http://b/issue?id=845337
-  // for more details).
-  webView()->SetFocusedFrame(frame);
-  SetFocus(webViewHost(), true);
-  
-  return true;
-}
-
-void TestShell::GoBackOrForward(int offset) {
-  navigation_controller_->GoToOffset(offset);
 }
 
 bool TestShell::PromptForSaveFile(const wchar_t* prompt_title,
@@ -758,11 +538,6 @@ static void WriteTextToFile(const std::string& data,
   fclose(fp);
 }
 
-std::wstring TestShell::GetDocumentText()
-{
-  return webkit_glue::DumpDocumentText(webView()->GetMainFrame());
-}
-
 void TestShell::DumpDocumentText()
 {
   std::wstring file_path;
@@ -783,10 +558,6 @@ void TestShell::DumpRenderTree()
   WriteTextToFile(
       WideToUTF8(webkit_glue::DumpRenderer(webView()->GetMainFrame())),
       WideToUTF8(file_path));
-}
-
-void TestShell::Reload() {
-  navigation_controller_->Reload();
 }
 
 /* static */
@@ -817,28 +588,6 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
 
 namespace webkit_glue {
 
-void PrefetchDns(const std::string& hostname) {}
-
-void PrecacheUrl(const char16* url, int url_length) {}
-
-void AppendToLog(const char* file, int line, const char* msg) {
-  logging::LogMessage(file, line).stream() << msg;
-}
-
-bool GetMimeTypeFromExtension(const std::wstring &ext, std::string* mime_type) {
-  return net::GetMimeTypeFromExtension(ext, mime_type);
-}
-
-bool GetMimeTypeFromFile(const std::string &file_path,
-                         std::string* mime_type) {
-  return net::GetMimeTypeFromFile(UTF8ToWide(file_path), mime_type);
-}
-
-bool GetPreferredExtensionForMimeType(const std::string& mime_type,
-                                      std::wstring* ext) {
-  return net::GetPreferredExtensionForMimeType(mime_type, ext);
-}
-
 std::wstring GetLocalizedString(int message_id) {
   NSString* idString = [NSString stringWithFormat:@"%d", message_id];
   NSString* localString = NSLocalizedString(idString, @"");
@@ -846,61 +595,9 @@ std::wstring GetLocalizedString(int message_id) {
   return UTF8ToWide([localString UTF8String]);
 }
 
-std::string GetDataResource(int resource_id) {
-  if (resource_id == IDR_BROKENIMAGE) {
-    // Use webkit's broken image icon (16x16)
-    static std::string broken_image_data;
-    if (broken_image_data.empty()) {
-      std::wstring path;
-      PathService::Get(base::DIR_SOURCE_ROOT, &path);
-      file_util::AppendToPath(&path, L"webkit");
-      file_util::AppendToPath(&path, L"tools");
-      file_util::AppendToPath(&path, L"test_shel");
-      file_util::AppendToPath(&path, L"resources");
-      file_util::AppendToPath(&path, L"missingImage.gif");
-      bool success = file_util::ReadFileToString(path, &broken_image_data);
-      if (!success) {
-        LOG(FATAL) << "Failed reading: " << path;
-      }
-    }
-    return broken_image_data;
-  } else if (resource_id == IDR_FEED_PREVIEW) {
-    // It is necessary to return a feed preview template that contains
-    // a {{URL}} substring where the feed URL should go; see the code 
-    // that computes feed previews in feed_preview.cc:MakeFeedPreview. 
-    // This fixes issue #932714.    
-    return std::string("Feed preview for {{URL}}");
-  } else {
-    return std::string();
-  }
-}
-
 NSCursor* LoadCursor(int cursor_id) {
   // TODO(port): add some more options here
   return [NSCursor arrowCursor];
-}
-
-CGImageRef GetBitmapResource(int resource_id) {
-  return NULL;
-}
-
-bool GetApplicationDirectory(std::string* path) {
-  NSString* bundle_path = [[NSBundle mainBundle] bundlePath];
-  if (!bundle_path)
-    return false;
-  bundle_path = [bundle_path stringByDeletingLastPathComponent];
-  *path = [bundle_path UTF8String];
-  return true;
-}
-
-GURL GetInspectorURL() {
-  // TODO(port): is this right?
-  NSLog(@"GetInspectorURL");
-  return GURL("test-shell-resource://inspector/inspector.html");
-}
-
-std::string GetUIResourceProtocol() {
-  return "test-shell-resource";
 }
 
 bool GetInspectorHTMLPath(std::string* path) {
@@ -912,28 +609,8 @@ bool GetInspectorHTMLPath(std::string* path) {
   return true;
 }
 
-bool GetExeDirectory(std::string* path) {
-  NSString* executable_path = [[NSBundle mainBundle] executablePath];
-  if (!executable_path)
-    return false;
-  *path = [executable_path UTF8String];
-  return true;
-}
-
-bool SpellCheckWord(const char* word, int word_len,
-                    int* misspelling_start, int* misspelling_len) {
-  // Report all words being correctly spelled.
-  *misspelling_start = 0;
-  *misspelling_len = 0;
-  return true;
-}
-
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
   return false; // NPAPI::PluginList::Singleton()->GetPlugins(refresh, plugins);
-}
-
-bool IsPluginRunningInRendererProcess() {
-  return true;
 }
 
 ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
@@ -947,18 +624,6 @@ bool DownloadUrl(const std::string& url, NSWindow* caller_window) {
   return false;
 }
 
-bool GetPluginFinderURL(std::string* plugin_finder_url) {
-  return false;
-}
-
-bool IsDefaultPluginEnabled() {
-  return false;
-}
-
-std::wstring GetWebKitLocale() {
-  return L"en-US";
-}
-
 void DidLoadPlugin(const std::string& filename) {
 }
 
@@ -966,31 +631,3 @@ void DidUnloadPlugin(const std::string& filename) {
 }
 
 }  // namespace webkit_glue
-
-// These are here ONLY to satisfy link errors until we reinstate the ObjC
-// bindings into WebCore.
-
-@interface DOMRange : NSObject
-@end
-@implementation DOMRange
-@end
-
-@interface DOMDocumentFragment : NSObject
-@end
-@implementation DOMDocumentFragment
-@end
-
-@interface DOMNode : NSObject
-@end
-@implementation DOMNode
-@end
-
-@interface DOMElement : NSObject
-@end
-@implementation DOMElement
-@end
-
-@interface DOMCSSStyleDeclaration : NSObject
-@end
-@implementation DOMCSSStyleDeclaration
-@end

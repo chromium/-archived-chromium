@@ -39,6 +39,7 @@
 		82F39D490E7EFDAA00785E15 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059A0E770291008F45CF /* libjscre.a */; };
 		82F39D4A0E7EFDAA00785E15 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059C0E770291008F45CF /* libv8.a */; };
 		E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E450637D0E4100740025A81A /* test_shell_request_context.cc */; };
+		E45449370EC9FD15000DFA6E /* test_shell.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45449360EC9FD15000DFA6E /* test_shell.cc */; };
 		E45628E70E26B4FE005E4685 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		E45628E80E26B4FE005E4685 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		E45628E90E26B4FE005E4685 /* test_shell in Resources */ = {isa = PBXBuildFile; fileRef = 824CB6100DAFEF14000C5DDE /* test_shell */; };
@@ -655,6 +656,7 @@
 		ABD16F700DC6CBDF0013D3AA /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = base/base.xcodeproj; sourceTree = "<group>"; };
 		E450637C0E4100740025A81A /* test_shell_request_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_request_context.h; sourceTree = "<group>"; };
 		E450637D0E4100740025A81A /* test_shell_request_context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_shell_request_context.cc; sourceTree = "<group>"; };
+		E45449360EC9FD15000DFA6E /* test_shell.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_shell.cc; sourceTree = "<group>"; };
 		E456293E0E26B4FE005E4685 /* TestShell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestShell.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45629460E26B5A7005E4685 /* net.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = net.xcodeproj; path = net/net.xcodeproj; sourceTree = "<group>"; };
 		E456295B0E26B5F8005E4685 /* bzip2.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = bzip2.xcodeproj; path = third_party/bzip2/bzip2.xcodeproj; sourceTree = "<group>"; };
@@ -1024,6 +1026,7 @@
 				E45629680E26B64D005E4685 /* simple_resource_loader_bridge.h */,
 				AB351E2E0DC7B290002F427A /* test_navigation_controller.cc */,
 				AB351E2F0DC7B290002F427A /* test_navigation_controller.h */,
+				E45449360EC9FD15000DFA6E /* test_shell.cc */,
 				ABA9CAE80DBC521D00CB1EFB /* test_shell.h */,
 				ABA9CAE90DBC521D00CB1EFB /* test_shell_mac.mm */,
 				E450637D0E4100740025A81A /* test_shell_request_context.cc */,
@@ -1539,6 +1542,7 @@
 				53E50D280ECA1B21001784B4 /* simple_clipboard_impl.cc in Sources */,
 				E456296A0E26B64D005E4685 /* simple_resource_loader_bridge.cc in Sources */,
 				E45629190E26B4FE005E4685 /* test_navigation_controller.cc in Sources */,
+				E45449370EC9FD15000DFA6E /* test_shell.cc in Sources */,
 				E456291A0E26B4FE005E4685 /* test_shell_mac.mm in Sources */,
 				E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */,
 				E456290C0E26B4FE005E4685 /* test_shell_switches.cc in Sources */,

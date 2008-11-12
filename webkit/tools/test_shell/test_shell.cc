@@ -32,7 +32,11 @@
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 
+#if defined(OS_MACOSX)
+#include "webkit/glue/bogus_webkit_strings.h"
+#elif defined(OS_WIN) || defined(OS_LINUX)
 #include "webkit_strings.h"
+#endif
 
 #include "SkBitmap.h"
 
@@ -208,8 +212,13 @@ void TestShell::ResetWebPreferences() {
         // They (especially Impact for fantasy) are not typical cursive
         // and fantasy fonts, but it should not matter for layout tests
         // as long as they're available.
+#if defined(OS_MACOSX)
+        web_prefs_->cursive_font_family = L"Apple Chancery";
+        web_prefs_->fantasy_font_family = L"Papyrus";
+#else
         web_prefs_->cursive_font_family = L"Comic Sans MS";
         web_prefs_->fantasy_font_family = L"Impact";
+#endif
         web_prefs_->default_encoding = L"ISO-8859-1";
         web_prefs_->default_font_size = 16;
         web_prefs_->default_fixed_font_size = 13;
@@ -410,7 +419,7 @@ std::string GetDataResource(int resource_id) {
   }
 }
 
-SkBitmap* GetBitmapResource(int resource_id) {
+GlueBitmap GetBitmapResource(int resource_id) {
   return NULL;
 }
 

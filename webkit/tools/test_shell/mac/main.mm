@@ -27,9 +27,13 @@
 
 static char g_currentTestName[PATH_MAX];
 
+static const wchar_t* kStatsFile = L"testshell";
+static int kStatsFileThreads = 20;
+static int kStatsFileCounters = 100;
+
 // Extracts the name of the test from the given path and sets the test name
 // global.
-void SetCurrentTestName(char* path) {
+static void SetCurrentTestName(char* path) {
   char* lastSlash = strrchr(path, '/');
   if (lastSlash) {
     ++lastSlash;
@@ -41,7 +45,49 @@ void SetCurrentTestName(char* path) {
   g_currentTestName[PATH_MAX-1] = '\0';
 }
 
+// The application delegate, used to hook application termination so that we
+// can kill the TestShell object and do some other app-wide cleanup. Once we
+// go into the run-loop, we never come back to main.
+@interface TestShellAppDelegate : NSObject {
+ @private
+  TestShell* shell_;  // strong
+}
+- (id)initWithShell:(TestShell*)shell;
+@end
 
+@implementation TestShellAppDelegate
+- (id)initWithShell:(TestShell*)shell {
+  if ((self = [super init])) {
+    shell_ = shell;
+  }
+  return self;
+}
+
+- (void)dealloc {
+  // Flush any remaining messages.  This ensures that any accumulated
+  // Task objects get destroyed before we exit, which avoids noise in
+  // purify leak-test results.
+  MessageLoop::current()->RunAllPending();
+  
+  StatsTable* table = StatsTable::current();
+  StatsTable::set_current(NULL);
+  delete table;
+  delete shell_;
+
+  TestShell::ShutdownTestShell();
+  TestShell::CleanupLogging();
+
+  [super dealloc];
+}
+
+// Called because we're the NSApp's delegate. Destroy ourselves which forces
+// shutdown cleanup to be called.
+- (void)applicationWillTerminate:(id)sender {
+  // commit suicide.
+  [self release];
+}
+
+@end
 
 int main(const int argc, const char *argv[]) {
   InitWebCoreSystemInterface();
@@ -114,6 +160,14 @@ int main(const int argc, const char *argv[]) {
   // Test shell always exposes the GC.
   CommandLine::AppendSwitch(&javascript_flags, L"expose-gc");
   webkit_glue::SetJavaScriptFlags(javascript_flags);
+
+  // Load and initialize the stats table (one per process, so that multiple
+  // instances don't interfere with each other)
+  wchar_t statsfile[64];
+  swprintf(statsfile, 64, L"%ls-%d", kStatsFile, getpid());
+  StatsTable *table = 
+      new StatsTable(kStatsFile, kStatsFileThreads, kStatsFileCounters);
+  StatsTable::set_current(table);
 
 #if NOT_YET
   //TODO: record/playback modes
@@ -210,6 +264,13 @@ int main(const int argc, const char *argv[]) {
       base::MemoryDebug::SetMemoryInUseEnabled(true);
       base::MemoryDebug::DumpAllMemoryInUse();
     }
+
+    // Set up our app delegate so we can tear down the TestShell object when
+    // necessary. |delegate| takes ownership of |shell|, and will clean itself
+    // up when it receives the notification that the app is terminating.
+    TestShellAppDelegate* delegate = [[TestShellAppDelegate alloc] 
+                                      initWithShell:shell];
+    [[NSApplication sharedApplication] setDelegate:delegate];
     
     if (layout_test_mode) {
       // If we die during tests, we don't want to be spamming the user's crash
@@ -267,8 +328,6 @@ int main(const int argc, const char *argv[]) {
       base::EventRecorder::current()->StopPlayback();
 #endif
   }
-  TestShell::ShutdownTestShell();
-  TestShell::CleanupLogging();
 
   [pool release];
   return 0;
