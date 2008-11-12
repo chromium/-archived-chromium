@@ -16,6 +16,7 @@
 #include "base/win_util.h"
 #include "chrome/app/google_update_client.h"
 #include "chrome/common/env_vars.h"
+#include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/google_update_settings.h"
 #include "breakpad/src/client/windows/handler/exception_handler.h"
 
@@ -23,6 +24,9 @@ namespace {
 
 const wchar_t kGoogleUpdatePipeName[] = L"\\\\.\\pipe\\GoogleCrashServices\\";
 const wchar_t kChromePipeName[] = L"\\\\.\\pipe\\ChromeCrashServices";
+
+// This is the well known SID for the system principal.
+const wchar_t kSystemPrincipalSid[] =L"S-1-5-18";
 
 google_breakpad::ExceptionHandler* g_breakpad = NULL;
 
@@ -174,6 +178,7 @@ static DWORD __stdcall InitCrashReporterThread(void* param) {
 
   std::wstring pipe_name;
   if (use_crash_service) {
+    // Crash reporting is done by crash_service.exe.
     pipe_name = kChromePipeName;
   } else {
     // We want to use the Google Update crash reporting. We need to check if the
@@ -186,11 +191,17 @@ static DWORD __stdcall InitCrashReporterThread(void* param) {
       return 0;
     }
 
-    // Build the pipe name.
+    // Build the pipe name. It can be either:
+    // System-wide install: "NamedPipe\GoogleCrashServices\S-1-5-18"
+    // Per-user install: "NamedPipe\GoogleCrashServices\<user SID>"
     std::wstring user_sid;
-    if (!win_util::GetUserSidString(&user_sid)) {
-      delete info;
-      return -1;
+    if (InstallUtil::IsPerUserInstall(info->dll_path.c_str())) {
+      if (!win_util::GetUserSidString(&user_sid)) {
+        delete info;
+        return -1;
+      }
+    } else {
+      user_sid = kSystemPrincipalSid;
     }
 
     pipe_name = kGoogleUpdatePipeName;
