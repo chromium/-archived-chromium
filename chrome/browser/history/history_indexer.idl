@@ -43,3 +43,15 @@ interface IChromeHistoryIndexer : IUnknown {
   HRESULT DeleteUserHistoryBetween([in] VARIANT begin_time,
                                    [in] VARIANT end_time);
 };
+
+
+// This dummy library statement enforces the creation of a history_indexer.tlb.
+// This is necessary since MSVC assumes a .idl always creates a .tlb. Otherwise,
+// this .idl is always recompiled, giving many engs a headache.
+[
+  uuid(A5C5B8BE-E7E5-4cb9-A13B-B063361E7B6D),
+  helpstring("Dummy library")
+]
+library history_indexerLib
+{
+};
