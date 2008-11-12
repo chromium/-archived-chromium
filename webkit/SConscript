@@ -132,7 +132,6 @@ env.Prepend(
         '$WEBKIT_DIR/port/rendering/style',
         '$WEBKIT_DIR/port/storage',
         '$WEBKIT_DIR/port/style',
-        '$WEBKIT_DIR/port/xml',
         '$WEBKIT_DIR',
         '$WEBKIT_DIR/build/port',
 
@@ -173,6 +172,7 @@ env.Append(
         '$WEBCORE_DIR/rendering',
         '$WEBCORE_DIR/rendering/style',
         '$WEBCORE_DIR/inspector',
+        '$WEBCORE_DIR/xml',
     ],
 
     CPPDEFINES = [

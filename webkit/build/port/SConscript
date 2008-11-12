@@ -71,7 +71,6 @@ env = env.Clone(
         '$PORTROOT/dom',
         '$PORTROOT/html',
         '$PORTROOT/page',
-        '$PORTROOT/xml',
         '$WEBCORE/css',
         '$WEBCORE/dom',
         '$WEBCORE/html',
