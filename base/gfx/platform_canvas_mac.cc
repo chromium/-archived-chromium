@@ -14,7 +14,7 @@ PlatformCanvasMac::PlatformCanvasMac() : SkCanvas() {
 
 PlatformCanvasMac::PlatformCanvasMac(int width, int height, bool is_opaque)
     : SkCanvas() {
-  initialize(width, height, is_opaque, NULL);
+  initialize(width, height, is_opaque);
 }
 
 PlatformCanvasMac::PlatformCanvasMac(int width,
@@ -22,20 +22,22 @@ PlatformCanvasMac::PlatformCanvasMac(int width,
                                      bool is_opaque,
                                      CGContextRef context)
     : SkCanvas() {
-  initialize(width, height, is_opaque, context);
+  initialize(width, height, is_opaque);
 }
 
 PlatformCanvasMac::~PlatformCanvasMac() {
 }
 
-void PlatformCanvasMac::initialize(int width,
+bool PlatformCanvasMac::initialize(int width,
                                    int height,
-                                   bool is_opaque,
-                                   CGContextRef context) {
-  SkDevice* device =
-      createPlatformDevice(width, height, is_opaque, context);
+                                   bool is_opaque) {
+  SkDevice* device = createPlatformDevice(width, height, is_opaque, NULL);
+  if (!device)
+    return false;
+
   setDevice(device);
   device->unref(); // was created with refcount 1, and setDevice also refs
+  return true;
 }
 
 CGContextRef PlatformCanvasMac::beginPlatformPaint() {

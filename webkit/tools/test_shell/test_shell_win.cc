@@ -116,8 +116,11 @@ ATOM TestShell::RegisterWindowClass() {
 // static
 std::string TestShell::DumpImage(WebFrame* web_frame,
     const std::wstring& file_name) {
-  gfx::BitmapPlatformDevice device(web_frame->CaptureImage(true));
-  const SkBitmap& src_bmp = device.accessBitmap(false);
+  scoped_ptr<gfx::BitmapPlatformDevice> device;
+  if (!web_frame->CaptureImage(&device, true))
+    return std::string();
+
+  const SkBitmap& src_bmp = device->accessBitmap(false);
 
   // Encode image.
   std::vector<unsigned char> png;

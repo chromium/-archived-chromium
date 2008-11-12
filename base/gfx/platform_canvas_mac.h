@@ -28,8 +28,7 @@ class PlatformCanvasMac : public SkCanvas {
   virtual ~PlatformCanvasMac();
 
   // For two-part init, call if you use the no-argument constructor above
-  void initialize(int width, int height, bool is_opaque, CGContextRef context);
-
+  bool initialize(int width, int height, bool is_opaque);
 
   // These calls should surround calls to platform drawing routines. The CG
   // context returned by beginPlatformPaint is the one that can be used to

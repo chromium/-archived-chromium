@@ -111,7 +111,8 @@ class WebFrameImpl : public WebFrame {
   virtual WebFrame* GetParent() const;
   virtual WebFrame* GetChildFrame(const std::wstring& xpath) const;
   virtual WebView* GetView() const;
-  virtual gfx::BitmapPlatformDevice CaptureImage(bool scroll_to_zero);
+  virtual bool CaptureImage(scoped_ptr<gfx::BitmapPlatformDevice>* image,
+                            bool scroll_to_zero);
 
   // This method calls createRuntimeObject (in KJS::Bindings::Instance), which
   // increments the refcount of the NPObject passed in.

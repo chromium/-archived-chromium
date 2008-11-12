@@ -400,12 +400,18 @@ bool WebPluginDelegateProxy::CreateBitmap(
     scoped_ptr<SharedMemory>* memory,
     scoped_ptr<gfx::PlatformCanvasWin>* canvas) {
   size_t size = GetPaintBufSize(plugin_rect_);
-  memory->reset(new SharedMemory());
-  if (!(*memory)->Create(L"", false, true, size))
+  scoped_ptr<SharedMemory> new_shared_memory(new SharedMemory());
+  if (!new_shared_memory->Create(L"", false, true, size))
     return false;
 
-  canvas->reset(new gfx::PlatformCanvasWin(
-      plugin_rect_.width(), plugin_rect_.height(), true, (*memory)->handle()));
+  scoped_ptr<gfx::PlatformCanvasWin> new_canvas(new gfx::PlatformCanvasWin);
+  if (!new_canvas->initialize(plugin_rect_.width(), plugin_rect_.height(),
+                              true, new_shared_memory->handle())) {
+    return false;
+  }
+
+  memory->swap(new_shared_memory);
+  canvas->swap(new_canvas);
   return true;
 }
 

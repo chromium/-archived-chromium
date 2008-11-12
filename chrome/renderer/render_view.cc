@@ -422,8 +422,10 @@ void RenderView::SendThumbnail() {
 
   ThumbnailScore score;
   SkBitmap thumbnail;
-  CaptureThumbnail(main_frame, kThumbnailWidth, kThumbnailHeight, &thumbnail,
-                   &score);
+  if (!CaptureThumbnail(main_frame, kThumbnailWidth, kThumbnailHeight,
+                        &thumbnail, &score))
+    return;
+
   // send the thumbnail message to the browser process
   IPC::Message* thumbnail_msg = new IPC::Message(routing_id_,
       ViewHostMsg_Thumbnail::ID, IPC::Message::PRIORITY_NORMAL);
@@ -739,7 +741,7 @@ void RenderView::CaptureText(WebFrame* frame, std::wstring* contents) {
   }
 }
 
-void RenderView::CaptureThumbnail(WebFrame* frame,
+bool RenderView::CaptureThumbnail(WebFrame* frame,
                                   int w,
                                   int h,
                                   SkBitmap* thumbnail,
@@ -748,8 +750,11 @@ void RenderView::CaptureThumbnail(WebFrame* frame,
   double begin = time_util::GetHighResolutionTimeNow();
 #endif
 
-  gfx::BitmapPlatformDeviceWin device(frame->CaptureImage(true));
-  const SkBitmap& src_bmp = device.accessBitmap(false);
+  scoped_ptr<gfx::BitmapPlatformDevice> device;
+  if (!frame->CaptureImage(&device, true))
+    return false;
+
+  const SkBitmap& src_bmp = device->accessBitmap(false);
 
   SkRect dest_rect;
   dest_rect.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
@@ -785,7 +790,7 @@ void RenderView::CaptureThumbnail(WebFrame* frame,
   score->at_top = (frame->ScrollOffset().height() == 0);
 
   SkBitmap subset;
-  device.accessBitmap(false).extractSubset(&subset, src_rect);
+  device->accessBitmap(false).extractSubset(&subset, src_rect);
 
   // Resample the subset that we want to get it the right size.
   *thumbnail = gfx::ImageOperations::Resize(
@@ -799,6 +804,7 @@ void RenderView::CaptureThumbnail(WebFrame* frame,
   sprintf_s(buf, "thumbnail in %gms\n", (end - begin) * 1000);
   OutputDebugStringA(buf);
 #endif
+  return true;
 }
 
 double RenderView::CalculateBoringScore(SkBitmap* bitmap) {

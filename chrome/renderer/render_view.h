@@ -352,7 +352,7 @@ class RenderView : public RenderWidget, public WebViewDelegate,
 
   // Creates a thumbnail of |frame|'s contents resized to (|w|, |h|)
   // and puts that in |thumbnail|. Thumbnail metadata goes in |score|.
-  void CaptureThumbnail(WebFrame* frame, int w, int h,
+  bool CaptureThumbnail(WebFrame* frame, int w, int h,
                         SkBitmap* thumbnail,
                         ThumbnailScore* score);
 

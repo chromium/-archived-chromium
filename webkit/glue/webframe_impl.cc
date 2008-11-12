@@ -1492,11 +1492,20 @@ void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
   }
 }
 
-gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
+bool WebFrameImpl::CaptureImage(scoped_ptr<gfx::BitmapPlatformDevice>* image,
+                                bool scroll_to_zero) {
+  if (!image) {
+    NOTREACHED();
+    return false;
+  }
+
   // Must layout before painting.
   Layout();
 
-  gfx::PlatformCanvas canvas(frameview()->width(), frameview()->height(), true);
+  gfx::PlatformCanvas canvas;
+  if (!canvas.initialize(frameview()->width(), frameview()->height(), true))
+    return false;
+
 #if defined(OS_WIN) || defined(OS_LINUX)
   PlatformContextSkia context(&canvas);
   GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
@@ -1516,7 +1525,9 @@ gfx::BitmapPlatformDevice WebFrameImpl::CaptureImage(bool scroll_to_zero) {
 #if defined(OS_WIN)
   device.fixupAlphaBeforeCompositing();
 #endif
-  return device;
+
+  image->reset(new gfx::BitmapPlatformDevice(device));
+  return true;
 }
 
 bool WebFrameImpl::IsLoading() {
