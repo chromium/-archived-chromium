@@ -29,47 +29,14 @@ class MessagePumpForUI : public MessagePump {
   // We may make recursive calls to Run, so we save state that needs to be
   // separate between them in this structure type.
   struct RunState {
-    // This is the delegate argument passed to Run.
     Delegate* delegate;
-    // This tells us when to exit the event pump.
-    bool keep_running;
-    // This tells our work source when to dispatch DoWork and DoDelayedWork.
-    bool should_do_work;
-    // This tells our idle source when to dispatch DoIdleWork.
-    bool should_do_idle_work;
-    // Unlike the work source, which is shared by all calls to Run, each Run
-    // call gets its own idle source because we need to destroy it when we have
-    // no idle work, and we don't want to destroy someone else's source.
-    GSource* idle_source;
+
+    // Used to flag that the current Run() invocation should return ASAP.
+    bool should_quit;
+
+    // Used to count how many Run() invocations are on the stack.
+    int run_depth;
   };
-
-  struct WorkSource : GSource {
-    MessagePumpForUI* self;
-  };
-
-  // The source with these callbacks remain in the main loop forever.  They
-  // will dispatch DoWork and DoDelayedWork, and calculate when and how long
-  // to block when GLib calls poll internally.
-  static GSourceFuncs WorkSourceFuncs;
-  static gboolean WorkSourcePrepare(GSource* source, gint* timeout_ms);
-  static gboolean WorkSourceCheck(GSource* source);
-  static gboolean WorkSourceDispatch(GSource* source, GSourceFunc unused_func,
-                                     gpointer unused_data);
-
-  // The source that uses these callbacks is added as an idle source, which
-  // means GLib will call it when there is no other work to do.  We continue
-  // doing work as long as DoIdleWork or the other work functions return true.
-  // Once no work remains, we remove the idle source so GLib will block instead
-  // of firing it.  Then we re-add it when we wake up.
-  static GSourceFuncs IdleSourceFuncs;
-  static gboolean IdleSourcePrepare(GSource* source, gint* timeout_ms);
-  static gboolean IdleSourceCheck(GSource* source);
-  static gboolean IdleSourceDispatch(GSource* source, GSourceFunc unused_func,
-                                     gpointer unused_data);
-
-  // This adds a GLib source to the main loop.
-  GSource* AddSource(GSourceFuncs* funcs, gint priority,
-                     GPollFD* optional_poll_fd);
 
   RunState* state_;
 
