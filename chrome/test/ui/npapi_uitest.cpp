@@ -48,6 +48,7 @@
 #include "base/file_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/test/automation/tab_proxy.h"
+#include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/npapi_test_helper.h"
 #include "net/base/net_util.h"
 
@@ -163,6 +164,24 @@ TEST_F(NPAPITester, SelfDeletePluginInvoke) {
   GURL url = GetTestUrl(L"npapi", test_case);
   NavigateToURL(url);
   WaitForFinish("self_delete_plugin_invoke", "1", url,
+                kTestCompleteCookie, kTestCompleteSuccess,
+                kShortWaitTimeout);
+}
+
+// Tests if a plugin executing a self deleting script using Invoke with
+// a modal dialog showing works without crashing or hanging
+TEST_F(NPAPITester, SelfDeletePluginInvokeAlert) {
+  std::wstring test_case = L"self_delete_plugin_invoke_alert.html";
+  GURL url = GetTestUrl(L"npapi", test_case);
+  NavigateToURL(url);
+
+  // Wait for the alert dialog and then close it.
+  automation()->WaitForAppModalDialog(5000);
+  scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
+  ASSERT_TRUE(window.get());
+  ASSERT_TRUE(window->SimulateOSKeyPress(VK_ESCAPE, 0));
+
+  WaitForFinish("self_delete_plugin_invoke_alert", "1", url,
                 kTestCompleteCookie, kTestCompleteSuccess,
                 kShortWaitTimeout);
 }

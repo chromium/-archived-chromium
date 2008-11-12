@@ -52,7 +52,7 @@ WebPluginDelegateStub::~WebPluginDelegateStub() {
   if (channel_->in_send()) {
     // The delegate or an npobject is in the callstack, so don't delete it
     // right away.
-    MessageLoop::current()->PostTask(FROM_HERE,
+    MessageLoop::current()->PostNonNestableTask(FROM_HERE,
         new FinishDestructionTask(delegate_, webplugin_));
   } else {
     // Safe to delete right away.
