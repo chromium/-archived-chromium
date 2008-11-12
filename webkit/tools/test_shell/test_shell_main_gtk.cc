@@ -11,6 +11,7 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/message_loop.h"
+#include "webkit/glue/webkit_glue.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
@@ -56,6 +57,12 @@ int main(int argc, char* argv[]) {
         parsed_command_line.GetLooseValuesBegin();
     uri = *iter;
   }
+
+  std::wstring js_flags =
+    parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
+  // Test shell always exposes the GC.
+  CommandLine::AppendSwitch(&js_flags, L"expose-gc");
+  webkit_glue::SetJavaScriptFlags(js_flags);
 
   MessageLoopForUI main_message_loop;
 
