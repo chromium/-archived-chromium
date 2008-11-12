@@ -21,7 +21,6 @@ namespace {
 
 gboolean ConfigureEvent(GtkWidget* widget, GdkEventConfigure* config,
                         WebWidgetHost* host) {
-  DLOG(INFO) << "  -- Resize " << config->width << " " << config->height;
   host->Resize(gfx::Size(config->width, config->height));
   return FALSE;
 }
@@ -179,13 +178,12 @@ void WebWidgetHost::Resize(const gfx::Size &newsize) {
   // The pixel buffer backing us is now the wrong size
   canvas_.reset();
 
-  gtk_widget_set_size_request(GTK_WIDGET(view_), newsize.width(), newsize.height());
   webwidget_->Resize(gfx::Size(newsize.width(), newsize.height()));
 }
 
 void WebWidgetHost::Paint() {
-  gint width, height;
-  gtk_widget_get_size_request(GTK_WIDGET(view_), &width, &height);
+  int width = view_->allocation.width;
+  int height = view_->allocation.height;
   gfx::Rect client_rect(width, height);
 
   // Allocate a canvas if necessary
