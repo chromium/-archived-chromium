@@ -171,6 +171,17 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd, UINT message, WPARAM wparam,
         break;
     }
 
+    // Touchpads (or trackpoints) send the following messages in scrolling
+    // horizontally.
+    //  * Scrolling left
+    //    message == WM_HSCROLL, wparam == SB_LINELEFT (== SB_LINEUP).
+    //  * Scrolling right
+    //    message == WM_HSCROLL, wparam == SB_LINERIGHT (== SB_LINEDOWN).
+    if (WM_HSCROLL == message) {	
+      key_state |= MK_SHIFT;	
+      wheel_delta = -wheel_delta;	
+    }
+
     // Use GetAsyncKeyState for key state since we are synthesizing 
     // the input
     get_key_state = GetAsyncKeyState;
