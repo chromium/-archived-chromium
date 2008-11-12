@@ -621,7 +621,6 @@ all : \
     CSSValueKeywords.h \
     ColorData.c \
     DocTypeStrings.cpp \
-    HTMLEntityCodes.c \
     HTMLEntityNames.c \
     V8Attr.h \
     V8BarInfo.h \
@@ -970,10 +969,6 @@ DocTypeStrings.cpp : html/DocTypeStrings.gperf
 	gperf -CEot -L ANSI-C -k "*" -N findDoctypeEntry -F ,PubIDInfo::eAlmostStandards,PubIDInfo::eAlmostStandards $< > $@
 
 # HTML entity names
-
-# This Google addition generates a reverse-mapping of entity codes back to entity names, for the DOM serialization code used by the Save page feature.
-HTMLEntityCodes.c : html/HTMLEntityNames.gperf
-	perl $(WebCore)/../../../webkit/build/WebCore/generate_entitycodes.pl $< > $@
 
 HTMLEntityNames.c : html/HTMLEntityNames.gperf
 	gperf -a -L ANSI-C -C -G -c -o -t -k '*' -N findEntity -D -s 2 $< > $@

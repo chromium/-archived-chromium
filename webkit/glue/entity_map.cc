@@ -4,17 +4,21 @@
 
 #include "webkit/glue/entity_map.h"
 
-#include "HTMLEntityCodes.c"
-
 #include "base/hash_tables.h"
 
 namespace webkit_glue {
+
+// Note that this file is also included by HTMLTokenizer.cpp so we are getting
+// two copies of the data in memory.  We can fix this by changing the script
+// that generated the array to create a static const that is its length, but
+// this is low priority since the data is less than 4K.
+#include "HTMLEntityNames.c"
 
 typedef base::hash_map<char16, const char*> EntityMapType;
 
 class EntityMapData {
  public:
-  EntityMapData(const EntityCode* entity_codes, int entity_codes_length,
+  EntityMapData(const Entity* entity_codes, int entity_codes_length,
                 bool user_number_entity_apos)
       : entity_codes_(entity_codes),
         entity_codes_length_(entity_codes_length),
@@ -27,7 +31,7 @@ class EntityMapData {
  private:
   // Data structure which saves all pairs of Unicode character and its
   // corresponding entity notation.
-  const EntityCode* entity_codes_;
+  const Entity* entity_codes_;
   const int entity_codes_length_;
   // IE does not support '&apos;'(html entity name for symbol ') as HTML entity
   // (but it does support &apos; as xml entity), so if user_number_entity_apos_
@@ -44,7 +48,7 @@ const EntityMapType* EntityMapData::GetEntityMapData() {
   if (!map_) {
     // lazily create the entity map.
     map_ = new EntityMapType;
-    const EntityCode* entity_code = &entity_codes_[0];
+    const Entity* entity_code = &entity_codes_[0];
     for (int i = 0; i < entity_codes_length_; ++i, ++entity_code)
       (*map_)[entity_code->code] = entity_code->name;
     if (user_number_entity_apos_)
@@ -53,23 +57,21 @@ const EntityMapType* EntityMapData::GetEntityMapData() {
   return map_;
 }
 
-static const EntityCode xml_built_in_entity_codes[] = {
-  {0x003c, "&lt;"},
-  {0x003e, "&gt;"},
-  {0x0026, "&amp;"},
-  {0x0027, "&apos;"},
-  {0x0022, "&quot;"}
+static const Entity xml_built_in_entity_codes[] = {
+  {"&lt;", 0x003c},
+  {"&gt;", 0x003e},
+  {"&amp;", 0x0026},
+  {"&apos;", 0x0027},
+  {"&quot;", 0x0022}
 };
 
 static const int xml_entity_codes_length =
     arraysize(xml_built_in_entity_codes);
 
-static EntityMapData html_entity_map_singleton(entity_codes,
-                                               entity_codes_length,
-                                               true);
-static EntityMapData xml_entity_map_singleton(xml_built_in_entity_codes,
-                                              xml_entity_codes_length,
-                                              false);
+static EntityMapData html_entity_map_singleton(
+    wordlist, sizeof(wordlist) / sizeof(Entity), true);
+static EntityMapData xml_entity_map_singleton(
+    xml_built_in_entity_codes, xml_entity_codes_length, false);
 
 const char* EntityMap::GetEntityNameByCode(char16 code, bool is_html) {
   const EntityMapType* entity_map;

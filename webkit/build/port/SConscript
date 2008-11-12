@@ -644,11 +644,6 @@ env.Command('$DERIVED_DIR/HTMLEntityNames.c',
             'gperf -a -L ANSI-C -C -G -c -o -t -k "*" -N findEntity ' + \
             '-D -s 2 $SOURCE > $TARGET')
 
-env.Command('$DERIVED_DIR/HTMLEntityCodes.c',
-            '$WEBKIT_PORT_DIR/html/HTMLEntityNames.gperf',
-            'perl $WEBKIT_BUILD/WebCore/generate_entitycodes.pl ' + \
-            '$SOURCE > $TARGET')
-
 # CSS tokenizer
 env.Command('$DERIVED_DIR/tokenizer.cpp',
             ['$WEBKIT_PORT_DIR/css/tokenizer.flex',
