@@ -1,0 +1,6 @@
+http://127.0.0.1:8000/incremental/slow-utf8-text.pl - willSendRequest <WebRequest URL "http://127.0.0.1:8000/incremental/slow-utf8-text.pl">
+http://127.0.0.1:8000/incremental/slow-utf8-text.pl - didFailLoadingWithError <WebError code -3, failing URL "http://127.0.0.1:8000/incremental/slow-utf8-text.pl">
+<unknown> - didFailLoadingWithError <WebError code -3, failing URL "http://127.0.0.1:8000/misc/window-dot-stop.html">
+This tests for the successful use of window.stop()
+
+
