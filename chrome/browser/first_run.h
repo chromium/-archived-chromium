@@ -84,13 +84,21 @@ class FirstRun {
 // the new browser.
 class Upgrade {
  public:
+  // Check if current chrome.exe is already running as a browser process by
+  // trying to create a Global event with name same as full path of chrome.exe.
+  // This method caches the handle to this event so on subsequent calls also
+  // it can first close the handle and check for any other process holding the
+  // handle to the event.
+  static bool IsBrowserAlreadyRunning();
+
+  // Launches chrome again simulating a 'user' launch. If chrome could not
+  // be launched the return is false.
+  static bool RelaunchChromeBrowser(const CommandLine& command_line);
+
   // If the new_chrome.exe exists (placed by the installer then is swapped
   // to chrome.exe and the old chrome is renamed to old_chrome.exe. If there
   // is no new_chrome.exe or the swap fails the return is false;
   static bool SwapNewChromeExeIfPresent();
-  // Launches chrome again simulating a 'user' launch. If chrome could not
-  // be launched the return is false.
-  static bool RelaunchChromeBrowser(const CommandLine& command_line);
 };
 
 // A subclass of BrowserProcessImpl that does not have a GoogleURLTracker

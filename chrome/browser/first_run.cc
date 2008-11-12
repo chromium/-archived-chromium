@@ -190,6 +190,26 @@ bool FirstRun::ProcessMasterPreferences(
   return false;
 }
 
+bool Upgrade::IsBrowserAlreadyRunning() {
+  static HANDLE handle = NULL;
+  std::wstring exe;
+  PathService::Get(base::FILE_EXE, &exe);
+  std::replace(exe.begin(), exe.end(), '\\', '!');
+  std::transform(exe.begin(), exe.end(), exe.begin(), tolower);
+  exe = L"Global\\" + exe;
+  if (handle != NULL)
+    CloseHandle(handle);
+  handle = CreateEvent(NULL, TRUE, TRUE, exe.c_str());
+  int error = GetLastError();
+  return (error == ERROR_ALREADY_EXISTS || error == ERROR_ACCESS_DENIED);
+}
+
+bool Upgrade::RelaunchChromeBrowser(const CommandLine& command_line) {
+  ::SetEnvironmentVariable(google_update::kEnvProductVersionKey, NULL);
+  return process_util::LaunchApp(command_line.command_line_string(),
+                                 false, false, NULL);
+}
+
 bool Upgrade::SwapNewChromeExeIfPresent() {
   std::wstring new_chrome_exe;
   if (!GetNewerChromeFile(&new_chrome_exe))
@@ -224,12 +244,6 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
     return true;
   }
   return false;
-}
-
-bool Upgrade::RelaunchChromeBrowser(const CommandLine& command_line) {
-  ::SetEnvironmentVariable(google_update::kEnvProductVersionKey, NULL);
-  return process_util::LaunchApp(command_line.command_line_string(),
-                                 false, false, NULL);
 }
 
 void OpenFirstRunDialog(Profile* profile) {

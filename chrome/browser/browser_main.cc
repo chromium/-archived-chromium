@@ -214,17 +214,6 @@ bool DoUpgradeTasks(const CommandLine& command_line) {
   return true;
 }
 
-bool CreateUniqueChromeEvent() {
-  std::wstring exe;
-  PathService::Get(base::FILE_EXE, &exe);
-  std::replace(exe.begin(), exe.end(), '\\', '!');
-  std::transform(exe.begin(), exe.end(), exe.begin(), tolower);
-  exe = L"Global\\" + exe;
-  HANDLE handle = CreateEvent(NULL, TRUE, TRUE, exe.c_str());
-  int error = GetLastError();
-  return (error == ERROR_ALREADY_EXISTS || error == ERROR_ACCESS_DENIED);
-}
-
 // Check if there is any machine level Chrome installed on the current
 // machine. If yes and the current Chrome process is user level, we do not
 // allow the user level Chrome to run. So we notify the user and uninstall
@@ -290,7 +279,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
   const char* thread_name = thread_name_string.c_str();
   PlatformThread::SetName(thread_name);
   main_message_loop.set_thread_name(thread_name);
-  bool already_running = CreateUniqueChromeEvent();
+  bool already_running = Upgrade::IsBrowserAlreadyRunning();
 
 #if defined(OS_WIN)
   // Make the selection of network stacks early on before any consumers try to
