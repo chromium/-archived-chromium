@@ -216,7 +216,7 @@ bool BrowserView::ActivateAppModalDialog() const {
     Browser* active_browser = BrowserList::GetLastActive();
     if (active_browser && (browser_ != active_browser)) {
       active_browser->window()->FlashFrame();
-      active_browser->MoveToFront(true);
+      active_browser->window()->Activate();
     }
     AppModalDialogQueue::ActivateModalDialog();
     return true;
@@ -225,9 +225,8 @@ bool BrowserView::ActivateAppModalDialog() const {
 }
 
 void BrowserView::ActivationChanged(bool activated) {
-  // The Browser wants to update the BrowserList to let it know it's now
-  // active.
-  browser_->WindowActivationChanged(activated);
+  if (activated)
+    BrowserList::SetLastActive(browser_.get());
 }
 
 TabContents* BrowserView::GetSelectedTabContents() const {

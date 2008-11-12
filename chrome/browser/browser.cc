@@ -330,14 +330,6 @@ GURL Browser::GetHomePage() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Event Handlers
-
-void Browser::WindowActivationChanged(bool is_active) {
-  if (is_active)
-    BrowserList::SetLastActive(this);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // Toolbar creation, management
 
 LocationBarView* Browser::GetLocationBarView() const {
@@ -512,7 +504,7 @@ void Browser::OpenURLFromTab(TabContents* source,
 
     b->OpenURL(url, referrer, disposition, transition);
     b->Show();
-    b->MoveToFront(true);
+    b->window()->Activate();
     return;
   }
 
@@ -651,7 +643,7 @@ void Browser::AddNewContents(TabContents* source,
       transition = PageTransition::START_PAGE;
     b->tabstrip_model()->AddTabContents(new_contents, -1, transition, true);
     b->Show();
-    b->MoveToFront(true);
+    b->window()->Activate();
     return;
   }
 
@@ -897,10 +889,6 @@ void Browser::ToolbarSizeChanged(TabContents* source, bool is_animating) {
     // This will refresh the shelf if needed.
     window_->SelectedTabToolbarSizeChanged(is_animating);
   }
-}
-
-void Browser::MoveToFront(bool should_activate) {
-  window_->Activate();
 }
 
 bool Browser::ShouldCloseWindow() {
@@ -1347,7 +1335,7 @@ void Browser::RemoveScheduledUpdatesFor(TabContents* contents) {
   }
 }
 
-void Browser::ShowNativeUI(const GURL& url) {
+void Browser::ShowNativeUITab(const GURL& url) {
   int i, c;
   TabContents* tc;
   for (i = 0, c = tabstrip_model_.count(); i < c; ++i) {
@@ -1401,7 +1389,7 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
   // TODO(eroman): should we have referrer here?
   browser->AddTabWithURL(url, GURL(), PageTransition::LINK, true, NULL);
   browser->Show();
-  browser->MoveToFront(true);
+  browser->window()->Activate();
 }
 
 void Browser::ConvertToTabbedBrowser() {

@@ -225,7 +225,7 @@ void BackForwardMenuModel::ExecuteCommand(int menu_id) {
   if (menu_id == GetItemCount()) {
     UserMetrics::RecordComputedAction(BuildActionName(L"ShowFullHistory", -1),
                                       controller->profile());
-    browser_->ShowNativeUI(HistoryTabUI::GetURL());
+    browser_->ShowNativeUITab(HistoryTabUI::GetURL());
     return;
   }
 

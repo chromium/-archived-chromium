@@ -34,6 +34,8 @@ class Browser : public TabStripModelDelegate,
                 public NotificationObserver,
                 public SelectFileDialog::Listener {
  public:
+  // Constructors, Creation, Showing //////////////////////////////////////////
+
   // Creates a new browser with the given bounds. If the bounds are empty, the
   // system will try to find a saved size from a previous session, if none
   // exists, the operating system will be allowed to size the window.
@@ -48,8 +50,6 @@ class Browser : public TabStripModelDelegate,
           const std::wstring& app_name);
   ~Browser();
 
-  BrowserType::Type type() const { return type_; }
-
   // Shows the browser window. It is initially created hidden. It will be shown
   // with the show command passed to the constructor, or possibly another state
   // if it was overridden in the preferences.
@@ -58,94 +58,68 @@ class Browser : public TabStripModelDelegate,
   // initialized so that we do not have to repaint again.
   void Show();
 
-  // Returns the Browser which contains the tab with the given
-  // NavigationController, also filling in |index| (if valid) with the tab's
-  // index in the tab strip.
-  // Returns NULL if not found.
-  // This call is O(N) in the number of tabs.
-  static Browser* GetBrowserForController(
-      const NavigationController* controller, int* index);
+  // Accessors ////////////////////////////////////////////////////////////////
 
+  BrowserType::Type type() const { return type_; }
+  Profile* profile() const { return profile_; }
+  BrowserWindow* window() const { return window_; }
+  ToolbarModel* toolbar_model() { return &toolbar_model_; }
+  const SessionID& session_id() const { return session_id_; }
+  CommandController* controller() { return &controller_; }
+
+  // Browser Creation Helpers /////////////////////////////////////////////////
+
+  // Opens a new browser window for the specified |profile|, shown according to
+  // |show_command|
   static void OpenNewBrowserWindow(Profile* profile, int show_command);
 
-  static void RegisterPrefs(PrefService* prefs);
-  static void RegisterUserPrefs(PrefService* prefs);
+  // Opens the specified URL in a new browser window in an incognito session.
+  // If there is already an existing active incognito session for the specified
+  // |profile|, that session is re-used.
+  static void OpenURLOffTheRecord(Profile* profile, const GURL& url);
 
-  void GoBack();
-  void GoForward();
-  void Stop();
-  void Reload();
-  void Home();
+  // Opens the a new application window for the specified WebApp.
+  static void OpenWebApplication(Profile* profile,
+                                 WebApp* app,
+                                 int show_command);
 
-  // "Stars" or (book)marks the contents of the current tab.
-  void StarCurrentTabContents();
-
-  // Opens the FindInPage window for the currently open tab.
-  void OpenFindInPageWindow();
-
-  // debugger shell
-  void OpenDebuggerWindow();
-
-  // Advance the find selection by one. Direction is either forward or backwards
-  // depending on parameter passed in.
-  void AdvanceFindSelection(bool forward_direction);
-
-  Profile* profile() const { return profile_; }
-
-  BrowserWindow* window() const { return window_; }
-
-  ToolbarModel* toolbar_model() { return &toolbar_model_; }
-
-  // Returns the HWND of the top-level system window for this Browser.
-  HWND GetTopLevelHWND() const;
-
-  // Update commands that drive the NavigationController to reflect changes in
-  // the NavigationController's state (Back, Forward, etc).
-  void UpdateNavigationCommands();
-
-  // CommandHandler interface method implementation
-  bool GetContextualLabel(int id, std::wstring* out) const;
-  void ExecuteCommand(int id);
+  // Command API //////////////////////////////////////////////////////////////
 
   // Please fix the incestuous nest that is */controller.h and eliminate the
   // need for this retarded hack.
   bool SupportsCommand(int id) const;
   bool IsCommandEnabled(int id) const;
 
-  // Sets focus on the location bar's text field.
-  void FocusLocationBar();
+  // DEPRECATED DEPRECATED DEPRECATED /////////////////////////////////////////
 
-  // Notification that some of our content has animated. If the source
-  // is the current tab, this invokes the same method on the frame.
-  void ToolbarSizeChanged(TabContents* source, bool is_animating);
+  // Returns the HWND of the top-level system window for this Browser.
+  HWND GetTopLevelHWND() const;
 
-  // Move the window to the front.
-  void MoveToFront(bool should_activate);
+  // State Storage and Retrieval for UI ///////////////////////////////////////
 
-  // Unique identifier for this window; used for session restore.
-  const SessionID& session_id() const { return session_id_; }
+  // Save and restore the window position.
+  void SaveWindowPosition(const gfx::Rect& bounds, bool maximized);
+  void RestoreWindowPosition(gfx::Rect* bounds, bool* maximized);
 
-  // Executes a Windows WM_APPCOMMAND command id. This function translates a
-  // button-specific identifier to an id understood by our controller.
-  bool ExecuteWindowsAppCommand(int app_command_id);
+  // Gets the FavIcon of the page in the selected tab.
+  SkBitmap GetCurrentPageIcon() const;
+
+  // Gets the title of the page in the selected tab.
+  std::wstring GetCurrentPageTitle() const;
+
+  // Prepares a title string for display (removes embedded newlines, etc).
+  static void FormatTitleForDisplay(std::wstring* title);
+
+  // OnBeforeUnload handling //////////////////////////////////////////////////
 
   // Gives beforeunload handlers the chance to cancel the close.
   bool ShouldCloseWindow();
-
-  // Tells us that we've finished firing this tab's beforeunload event.
-  // The proceed bool tells us whether the user chose to proceed closing the
-  // tab. Returns true if the tab can continue on firing it's unload event.
-  // If we're closing the entire browser, then we'll want to delay firing 
-  // unload events until all the beforeunload events have fired.
-  void BeforeUnloadFired(TabContents* source,
-                         bool proceed, 
-                         bool* proceed_to_fire_unload);
 
   // Invoked when the window containing us is closing. Performs the necessary
   // cleanup.
   void OnWindowClosing();
 
-  // TabStripModel pass-thrus //////////////////////////////////////////////////
+  // TabStripModel pass-thrus /////////////////////////////////////////////////
 
   TabStripModel* tabstrip_model() const {
     return const_cast<TabStripModel*>(&tabstrip_model_);
@@ -173,7 +147,7 @@ class Browser : public TabStripModelDelegate,
     tabstrip_model_.CloseAllTabs();
   }
 
-  // Tab Creation functions ////////////////////////////////////////////////////
+  // Tab adding/showing functions /////////////////////////////////////////////
 
   // Add a new tab with the specified URL. If instance is not null, its process
   // will be used to render the tab.
@@ -197,8 +171,8 @@ class Browser : public TabStripModelDelegate,
   // Add a tab with its session history restored from the SessionRestore
   // system. If select is true, the tab is selected. Returns the created
   // NavigationController. |tab_index| gives the index to insert the tab at.
-  // |selected_navigation| is the index of the TabNavigation in |navigations| to
-  // select.
+  // |selected_navigation| is the index of the TabNavigation in |navigations|
+  // to select.
   NavigationController* AddRestoredTab(
       const std::vector<TabNavigation>& navigations,
       int tab_index,
@@ -210,6 +184,77 @@ class Browser : public TabStripModelDelegate,
   void ReplaceRestoredTab(
       const std::vector<TabNavigation>& navigations,
       int selected_navigation);
+
+  // Show a native UI tab given a URL. If a tab with the same URL is already
+  // visible in this browser, it becomes selected. Otherwise a new tab is
+  // created.
+  void ShowNativeUITab(const GURL& url);
+
+  // Assorted Browser Commands ////////////////////////////////////////////////
+
+  // Navigation Commands
+  void GoBack();
+  void GoForward();
+  void Reload();
+  void Stop();
+  void Home();
+
+  // Sets focus on the location bar's text field - public because 
+  void FocusLocationBar();
+
+  // Adds a Bookmark for the currently selected tab.
+  void BookmarkCurrentPage();
+
+  // Opens the FindInPage window for the currently open tab.
+  void OpenFindInPageWindow();
+
+  // debugger shell
+  void OpenDebuggerWindow();
+
+  // Advance the find selection by one. Direction is either forward or
+  // backwards depending on parameter passed in.
+  void AdvanceFindSelection(bool forward_direction);
+
+  // Convert the receiving Browser to a normal browser window. This is used to
+  // convert a popup window into a normal browser window. The receiver's type
+  // must be BROWSER.
+  void ConvertToTabbedBrowser();
+
+  // Opens the Keyword Editor
+  void OpenKeywordEditor();
+
+  // Opens the Clear Browsing Data dialog.
+  void OpenClearBrowsingDataDialog();
+
+  // Opens the Import settings dialog.
+  void OpenImportSettingsDialog();
+
+  // Opens the Bug Report dialog.
+  void OpenBugReportDialog();
+
+  // Copy the current page URL to the clipboard.
+  void CopyCurrentURLToClipBoard();
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  static void RegisterPrefs(PrefService* prefs);
+  static void RegisterUserPrefs(PrefService* prefs);
+
+  // Returns the Browser which contains the tab with the given
+  // NavigationController, also filling in |index| (if valid) with the tab's
+  // index in the tab strip.
+  // Returns NULL if not found.
+  // This call is O(N) in the number of tabs.
+  static Browser* GetBrowserForController(
+      const NavigationController* controller, int* index);
+
+  // Interface implementations ////////////////////////////////////////////////
+
+  // Overridden from CommandHandler:
+  virtual bool GetContextualLabel(int id, std::wstring* out) const {
+    return false;
+  }
+  virtual void ExecuteCommand(int id);
 
   // Overridden from TabStripDelegate:
   virtual void CreateNewStripWithContents(TabContents* detached_contents,
@@ -265,6 +310,7 @@ class Browser : public TabStripModelDelegate,
   virtual void CloseContents(TabContents* source);
   virtual void MoveContents(TabContents* source, const gfx::Rect& pos);
   virtual bool IsPopup(TabContents* source);
+  virtual void ToolbarSizeChanged(TabContents* source, bool is_animating);
   virtual void URLStarredChanged(TabContents* source, bool starred);
 
   virtual void ContentsMouseEvent(TabContents* source, UINT message);
@@ -275,105 +321,35 @@ class Browser : public TabStripModelDelegate,
   virtual void ConvertContentsToApplication(TabContents* source);
   virtual void ContentsStateChanged(TabContents* source);
   virtual bool ShouldDisplayURLField();
-
-  // Show some native UI given a URL. If a tab with the same URL is already
-  // visible in this browser, it becomes selected. Otherwise a new tab is
-  // created.
-  void ShowNativeUI(const GURL& url);
-
-  // Show a dialog with HTML content. |delegate| contains a pointer to the
-  // delegate who knows how to display the dialog (which file URL and JSON
-  // string input to use during initialization). |parent_hwnd| is the window
-  // that should be the parent of this dialog, or NULL for this browser's top
-  // level hwnd.
-  // TODO(beng): (Cleanup) this really shouldn't live here. It's not
-  //             necessarily browser-related (e.g. can be called from options
-  //             dialog).
-  void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate, HWND parent_hwnd);
+  virtual void BeforeUnloadFired(TabContents* source,
+                                 bool proceed, 
+                                 bool* proceed_to_fire_unload);
+  virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
+                              HWND parent_hwnd);
 
   // Overridden from SelectFileDialog::Listener:
   virtual void FileSelected(const std::wstring& path, void* params);
 
-  // Start an off the record session. If a window containing an off the record
-  // tab for the current profile exists, create a new off the record tab in that
-  // window. Otherwise, create a new window with an off the record tab.
-  static void OpenURLOffTheRecord(Profile* p, const GURL& url);
-
-  // Compute a deterministic name based on the URL. We use this pseudo name
-  // as a key to store window location per application URLs.
-  static std::wstring ComputeApplicationNameFromURL(const GURL& url);
-
-  // Start a web application.
-  static void OpenWebApplication(Profile* profile,
-                                 WebApp* app,
-                                 int show_command);
-
-  // Return this browser's controller.
-  CommandController* controller() { return &controller_; }
-
-  // Returns the location bar view for this browser.
-  LocationBarView* GetLocationBarView() const;
-
-  // NEW FRAME METHODS BELOW THIS LINE ONLY... TODO(beng): clean up this file!
-
-  // Save and restore the window position.
-  void SaveWindowPosition(const gfx::Rect& bounds, bool maximized);
-  void RestoreWindowPosition(gfx::Rect* bounds, bool* maximized);
-
-  // Gets the FavIcon of the page in the selected tab.
-  SkBitmap GetCurrentPageIcon() const;
-
-  // Gets the title of the page in the selected tab.
-  std::wstring GetCurrentPageTitle() const;
-
-  // Prepares a title string for display (removes embedded newlines, etc).
-  static void FormatTitleForDisplay(std::wstring* title);
+  // Overridden from NotificationObserver:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
 
  private:
-  friend class BrowserView;
-
-  // Tracks invalidates to the UI, see the declaration in the .cc file.
-  struct UIUpdate;
-  typedef std::vector<UIUpdate> UpdateVector;
-
-  typedef std::vector<TabContents*> UnloadListenerVector;
-
-  // Closes the frame.
-  void CloseFrame();
-
-  // Returns what the user's home page is, or the new tab page if the home page
-  // has not been set.
-  GURL GetHomePage();
-
-  // Called when this window gains or loses window-manager-level activation.
-  // is_active is whether or not the Window is now active.
-  void WindowActivationChanged(bool is_active);
+  // Command and State Updating ///////////////////////////////////////////////
 
   // Initialize state for all browser commands.
   void InitCommandState();
+
+  // Update commands that drive the NavigationController to reflect changes in
+  // the NavigationController's state (Back, Forward, etc).
+  void UpdateNavigationCommands();
 
   // Change the "starred" button display to starred/unstarred.
   // TODO(evanm): migrate this to the commands framework.
   void SetStarredButtonToggled(bool starred);
 
-  GoButton* GetGoButton();
-
-  // Returns the StatusBubble from the current toolbar. It is possible for
-  // this to return NULL if called before the toolbar has initialized.
-  // TODO(beng): remove this.
-  StatusBubble* GetStatusBubble();
-
-  // Notifies the history database of the index for all tabs whose index is
-  // >= index.
-  void SyncHistoryWithTabs(int index);
-
-  // Notification service callback.
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
-  // The Controller that updates all browser commands.
-  CommandController controller_;
+  // UI update coalescing and handling ////////////////////////////////////////
 
   // Asks the toolbar (and as such the location bar) to update its state to
   // reflect the current tab's current URL, security state, etc.
@@ -385,40 +361,35 @@ class Browser : public TabStripModelDelegate,
   // Adds an update to the update queue and schedules an update if necessary.
   // These are subsequently processed by ProcessPendingUIUpdates.
   // |changed_flags| is a bitfield of TabContents::INVALIDATE_* values.
-  void ScheduleUIUpdate(const TabContents* source,
-                        unsigned changed_flags);
+  void ScheduleUIUpdate(const TabContents* source, unsigned changed_flags);
 
   // Processes all pending updates to the UI that have been queued by
   // ScheduleUIUpdate in scheduled_updates_.
   void ProcessPendingUIUpdates();
 
-  // Update the current page title
-  void UpdateTitle();
-
-  // Opens the Keyword Editor
-  void OpenKeywordEditor();
-
-  // Opens the Clear Browsing Data dialog.
-  void OpenClearBrowsingDataDialog();
-
-  // Opens the Import settings dialog.
-  void OpenImportSettingsDialog();
-
-  // Opens the Bug Report dialog.
-  void OpenBugReportDialog();
-
-  // Copy the current page URL to the clipboard.
-  void CopyCurrentURLToClipBoard();
-
-  // Initializes the hang monitor.
-  void InitHangMonitor();
-
-  // Retrieve the last active tabbed browser with the same profile as the
-  // receiving Browser. Creates a new Browser if none are available.
-  Browser* GetOrCreateTabbedBrowser();
-
   // Removes all entries from scheduled_updates_ whose source is contents.
   void RemoveScheduledUpdatesFor(TabContents* contents);
+
+  // Getters for UI ///////////////////////////////////////////////////////////
+
+  // TODO(beng): remove, and provide AutomationProvider a better way to access
+  //             the LocationBarView's edit.
+  friend class AutomationProvider;
+
+  // Getters for the location bar and go button.
+  LocationBarView* GetLocationBarView() const;
+  GoButton* GetGoButton();
+
+  // Returns the StatusBubble from the current toolbar. It is possible for
+  // this to return NULL if called before the toolbar has initialized.
+  // TODO(beng): remove this.
+  StatusBubble* GetStatusBubble();
+
+  // Session restore functions ////////////////////////////////////////////////
+
+  // Notifies the history database of the index for all tabs whose index is
+  // >= index.
+  void SyncHistoryWithTabs(int index);
 
   // Called from AddRestoredTab and ReplaceRestoredTab to build a
   // NavigationController from an incoming vector of TabNavigations.
@@ -427,21 +398,9 @@ class Browser : public TabStripModelDelegate,
       const std::vector<TabNavigation>& navigations,
       int selected_navigation);
 
-  // Convert the receiving Browser to a normal browser window. This is used to
-  // convert a popup window into a normal browser window. The receiver's type
-  // must be BROWSER.
-  void ConvertToTabbedBrowser();
+  // OnBeforeUnload handling //////////////////////////////////////////////////
 
-  // Create a preference dictionary for the provided application name. This is
-  // done only once per application name / per session.
-  static void RegisterAppPrefs(const std::wstring& app_name);
-
-  // Creates a new popup window with its own Browser object with the
-  // incoming sizing information. |initial_pos|'s origin() is the
-  // window origin, and its size() is the size of the content area.
-  void BuildPopupWindow(TabContents* source,
-                        TabContents* new_contents,
-                        const gfx::Rect& initial_pos);
+  typedef std::vector<TabContents*> UnloadListenerVector;
 
   // Processes the next tab that needs it's beforeunload/unload event fired.
   void ProcessPendingTabs();
@@ -464,7 +423,45 @@ class Browser : public TabStripModelDelegate,
   // successfully fired.
   void ClearUnloadState(TabContents* tab);
 
-  // The frame
+  // Assorted utility functions ///////////////////////////////////////////////
+
+  // Retrieve the last active tabbed browser with the same profile as the
+  // receiving Browser. Creates a new Browser if none are available.
+  Browser* GetOrCreateTabbedBrowser();
+
+  // Creates a new popup window with its own Browser object with the
+  // incoming sizing information. |initial_pos|'s origin() is the
+  // window origin, and its size() is the size of the content area.
+  void BuildPopupWindow(TabContents* source,
+                        TabContents* new_contents,
+                        const gfx::Rect& initial_pos);
+
+  // Returns what the user's home page is, or the new tab page if the home page
+  // has not been set.
+  GURL GetHomePage();
+
+  // Closes the frame.
+  // TODO(beng): figure out if we need this now that the frame itself closes
+  //             after a return to the message loop.
+  void CloseFrame();
+
+  // Compute a deterministic name based on the URL. We use this pseudo name
+  // as a key to store window location per application URLs.
+  static std::wstring ComputeApplicationNameFromURL(const GURL& url);
+
+  // Create a preference dictionary for the provided application name. This is
+  // done only once per application name / per session.
+  static void RegisterAppPrefs(const std::wstring& app_name);
+
+  // Data members /////////////////////////////////////////////////////////////
+
+  // This Browser's type.
+  BrowserType::Type type_;
+
+  // This Browser's profile.
+  Profile* profile_;
+
+  // This Browser's window.
   BrowserWindow* window_;
 
   // Controls how the window will appear when Show() is called. This is one
@@ -477,10 +474,25 @@ class Browser : public TabStripModelDelegate,
   //             BrowserView, or some more likely place.
   int initial_show_command_;
 
+  // This Browser's TabStripModel.
+  TabStripModel tabstrip_model_;
+
+  // The Controller that updates all browser commands.
+  CommandController controller_;
+
+  // An optional application name which is used to retrieve and save window
+  // positions.
+  std::wstring app_name_;
+
+  // Unique identifier of this browser for session restore. This id is only
+  // unique within the current session, and is not guaranteed to be unique
+  // across sessions.
+  SessionID session_id_;
+
   // TODO(beng): should be combined with ToolbarModel now that this is the only
   //             implementation.
   class BrowserToolbarModel : public ToolbarModel {
-   public:
+  public:
     explicit BrowserToolbarModel(Browser* browser) : browser_(browser) { }
     virtual ~BrowserToolbarModel() { }
 
@@ -489,7 +501,7 @@ class Browser : public TabStripModelDelegate,
       return browser_->GetSelectedNavigationController();
     }
 
-   private:
+  private:
     Browser* browser_;
 
     DISALLOW_EVIL_CONSTRUCTORS(BrowserToolbarModel);
@@ -498,9 +510,21 @@ class Browser : public TabStripModelDelegate,
   // The model for the toolbar view.
   BrowserToolbarModel toolbar_model_;
 
-  TabStripModel tabstrip_model_;
+  // UI update coalescing and handling ////////////////////////////////////////
 
-  Profile* profile_;
+  // Tracks invalidates to the UI, see the declaration in the .cc file.
+  struct UIUpdate;
+  typedef std::vector<UIUpdate> UpdateVector;
+
+  // Lists all UI updates that are pending. We don't update things like the
+  // URL or tab title right away to avoid flickering and extra painting.
+  // See ScheduleUIUpdate and ProcessPendingUIUpdates.
+  UpdateVector scheduled_updates_;
+
+  // The following factory is used for chrome update coalescing.
+  ScopedRunnableMethodFactory<Browser> chrome_updater_factory_;
+
+  // OnBeforeUnload handling //////////////////////////////////////////////////
 
   // Tracks tabs that need there beforeunload event fired before we can
   // close the browser. Only gets populated when we try to close the browser.
@@ -514,28 +538,10 @@ class Browser : public TabStripModelDelegate,
   // in preparation for closing the browser.
   bool is_attempting_to_close_browser_;
 
-  // The following factory is used for chrome update coalescing.
-  ScopedRunnableMethodFactory<Browser> chrome_updater_factory_;
+  /////////////////////////////////////////////////////////////////////////////
 
   // The following factory is used to close the frame at a later time.
   ScopedRunnableMethodFactory<Browser> method_factory_;
-
-  // This browser type.
-  BrowserType::Type type_;
-
-  // Lists all UI updates that are pending. We don't update things like the
-  // URL or tab title right away to avoid flickering and extra painting.
-  // See ScheduleUIUpdate and ProcessPendingUIUpdates.
-  UpdateVector scheduled_updates_;
-
-  // An optional application name which is used to retrieve and save window
-  // positions.
-  std::wstring app_name_;
-
-  // Unique identifier of this browser for session restore. This id is only
-  // unique within the current session, and is not guaranteed to be unique
-  // across sessions.
-  SessionID session_id_;
 
   // Debugger Window, created lazily
   scoped_refptr<DebuggerWindow> debugger_window_;

@@ -167,61 +167,9 @@ bool Browser::SupportsCommand(int id) const {
   return controller_.SupportsCommand(id);
 }
 
-bool Browser::ExecuteWindowsAppCommand(int app_command) {
-  switch (app_command) {
-    case APPCOMMAND_BROWSER_BACKWARD:
-      controller_.ExecuteCommand(IDC_BACK);
-      return true;
-    case APPCOMMAND_BROWSER_FORWARD:
-      controller_.ExecuteCommand(IDC_FORWARD);
-      return true;
-    case APPCOMMAND_BROWSER_REFRESH:
-      controller_.ExecuteCommand(IDC_RELOAD);
-      return true;
-    case APPCOMMAND_BROWSER_HOME:
-      controller_.ExecuteCommand(IDC_HOME);
-      return true;
-    case APPCOMMAND_BROWSER_STOP:
-      controller_.ExecuteCommand(IDC_STOP);
-      return true;
-    case APPCOMMAND_BROWSER_SEARCH:
-      controller_.ExecuteCommand(IDC_FOCUS_SEARCH);
-      return true;
-    case APPCOMMAND_CLOSE:
-      controller_.ExecuteCommand(IDC_CLOSETAB);
-      return true;
-    case APPCOMMAND_NEW:
-      controller_.ExecuteCommand(IDC_NEWTAB);
-      return true;
-    case APPCOMMAND_OPEN:
-      controller_.ExecuteCommand(IDC_OPENFILE);
-      return true;
-    case APPCOMMAND_PRINT:
-      controller_.ExecuteCommand(IDC_PRINT);
-      return true;
-
-    // TODO(pkasting): http://b/1113069 Handle all these.
-    case APPCOMMAND_HELP:
-    case APPCOMMAND_SAVE:
-    case APPCOMMAND_UNDO:
-    case APPCOMMAND_REDO:
-    case APPCOMMAND_COPY:
-    case APPCOMMAND_CUT:
-    case APPCOMMAND_PASTE:
-    case APPCOMMAND_SPELL_CHECK:
-    default:
-      return false;
-  }
-  return false;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // CommandController implementation
 //
-
-bool Browser::GetContextualLabel(int id, std::wstring* out) const {
-  return false;
-}
 
 bool Browser::IsCommandEnabled(int id) const {
   switch (id) {
@@ -294,7 +242,7 @@ void Browser::ExecuteCommand(int id) {
         Browser* b = GetOrCreateTabbedBrowser();
         DCHECK(b);
         b->Show();
-        b->MoveToFront(true);
+        b->window()->Activate();
         b->AddBlankTab(true);
       }
       break;
@@ -353,7 +301,7 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_STAR:
       UserMetrics::RecordAction(L"Star", profile_);
-      StarCurrentTabContents();
+      BookmarkCurrentPage();
       break;
 
     case IDC_OPENURL:
@@ -665,12 +613,12 @@ void Browser::ExecuteCommand(int id) {
 
     case IDC_SHOW_HISTORY:
       UserMetrics::RecordAction(L"ShowHistory", profile_);
-      ShowNativeUI(HistoryTabUI::GetURL());
+      ShowNativeUITab(HistoryTabUI::GetURL());
       break;
 
     case IDC_SHOW_DOWNLOADS:
       UserMetrics::RecordAction(L"ShowDownloads", profile_);
-      ShowNativeUI(DownloadTabUI::GetURL());
+      ShowNativeUITab(DownloadTabUI::GetURL());
       break;
 
     case IDC_OPTIONS:
@@ -781,7 +729,7 @@ void Browser::Home() {
       homepage_url, GURL(), PageTransition::AUTO_BOOKMARK);
 }
 
-void Browser::StarCurrentTabContents() {
+void Browser::BookmarkCurrentPage() {
   TabContents* tab = GetSelectedTabContents();
   if (!tab || !tab->AsWebContents())
     return;
@@ -971,7 +919,7 @@ void Browser::DuplicateContentsAt(int index) {
         contents->controller()->Clone(new_browser->GetTopLevelHWND()),
         PageTransition::LINK);
 
-    new_browser->MoveToFront(true);
+    new_browser->window()->Activate();
   }
 
   if (profile_->HasSessionService()) {

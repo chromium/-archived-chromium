@@ -2230,7 +2230,7 @@ void AutomationProvider::BringBrowserToFront(const IPC::Message& message,
                                              int browser_handle) {
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
-    browser->MoveToFront(true);
+    browser->window()->Activate();
     Send(new AutomationMsg_BringBrowserToFrontResponse(message.routing_id(),
                                                        true));
   } else {
