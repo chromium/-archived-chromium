@@ -49,7 +49,7 @@ env.Append(
         'modp_b64',
         'zlib',
         'sqlite',
-        'v8',
+        'v8_g',
         'JavaScriptCore_pcre',
         'default_plugin',
     ],
