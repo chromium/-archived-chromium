@@ -727,7 +727,7 @@ void HttpTransactionWinHttp::StatusCallback(HINTERNET handle,
     // Successfully found the IP address of the server.
     case WINHTTP_CALLBACK_STATUS_NAME_RESOLVED:
       DidFinishDnsResolutionWithStatus(true,
-                                       GURL(),  // null referer URL.
+                                       GURL(),  // null referrer URL.
                                        reinterpret_cast<void*>(context));
       break;
   }
@@ -1433,6 +1433,14 @@ int HttpTransactionWinHttp::DidReadData(DWORD num_bytes) {
     // tolerate this situation, and therefore so must we.
     if (content_length_remaining_ < 0)
       content_length_remaining_ = 0;
+  }
+
+  // We have read the entire response.  Mark the request done to unblock a
+  // queued request.
+  if (rv == 0 || content_length_remaining_ == 0) {
+    DCHECK(request_submitted_);
+    request_submitted_ = false;
+    session_->request_throttle()->NotifyRequestDone(connect_peer_);
   }
 
   return rv;

@@ -185,7 +185,8 @@ class HttpTransactionWinHttp : public HttpTransaction {
   // worry about thread synchronization issues.)
   bool need_to_wait_for_handle_closing_;
 
-  // True if we have called WinHttpRequestThrottle::SubmitRequest.
+  // True if we have called WinHttpRequestThrottle::SubmitRequest but haven't
+  // called WinHttpRequestThrottle::NotifyRequestDone.
   bool request_submitted_;
 
   DISALLOW_EVIL_CONSTRUCTORS(HttpTransactionWinHttp);
