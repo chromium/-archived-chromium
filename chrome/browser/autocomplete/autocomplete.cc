@@ -53,6 +53,22 @@ AutocompleteInput::AutocompleteInput(const std::wstring& text,
     text_.erase(0, 1);
 }
 
+// static
+std::string AutocompleteInput::TypeToString(Type type) {
+  switch (type) {
+    case INVALID:       return "invalid";
+    case UNKNOWN:       return "unknown";
+    case REQUESTED_URL: return "requested-url";
+    case URL:           return "url";
+    case QUERY:         return "query";
+    case FORCED_QUERY:  return "forced-query";
+
+    default:
+      NOTREACHED();
+      return std::string();
+  }
+}
+
 //static
 AutocompleteInput::Type AutocompleteInput::Parse(const std::wstring& text,
                                                  const std::wstring& desired_tld,
@@ -247,6 +263,20 @@ AutocompleteMatch::AutocompleteMatch(AutocompleteProvider* provider,
       type(URL),
       template_url(NULL),
       starred(false) {
+}
+
+// static
+std::string AutocompleteMatch::TypeToString(Type type) {
+  switch (type) {
+    case URL:            return "url";
+    case KEYWORD:        return "keyword";
+    case SEARCH:         return "search";
+    case HISTORY_SEARCH: return "history";
+
+    default:
+      NOTREACHED();
+      return std::string();
+  }
 }
 
 // static

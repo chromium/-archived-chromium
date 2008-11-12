@@ -30,23 +30,8 @@ struct AutocompleteMatchData {
       contents(match.contents),
       description(match.description),
       is_history_what_you_typed_match(match.is_history_what_you_typed_match),
+      type(AutocompleteMatch::TypeToString(match.type)),
       starred(match.starred) {
-    switch (match.type) {
-      case AutocompleteMatch::URL:
-        type = "URL";
-        break;
-      case AutocompleteMatch::KEYWORD:
-        type = "KEYWORD";
-        break;
-      case AutocompleteMatch::SEARCH:
-        type = "SEARCH";
-        break;
-      case AutocompleteMatch::HISTORY_SEARCH:
-        type = "HISTORY";
-        break;
-      default:
-        NOTREACHED();
-    }
   }
 
   std::string provider_name;

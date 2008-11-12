@@ -162,6 +162,9 @@ class AutocompleteInput {
                     bool prefer_keyword,
                     bool synchronous_only);
 
+  // Converts |type| to a string representation.  Used in logging.
+  static std::string TypeToString(Type type);
+
   // Parses |text| and returns the type of input this will be interpreted as.
   // The components of the input are stored in the output parameter |parts|.
   static Type Parse(const std::wstring& text,
@@ -300,6 +303,9 @@ struct AutocompleteMatch {
   AutocompleteMatch(AutocompleteProvider* provider,
                     int relevance,
                     bool deletable);
+
+  // Converts |type| to a string representation.  Used in logging.
+  static std::string TypeToString(Type type);
 
   // Comparison function for determining when one match is better than another.
   static bool MoreRelevant(const AutocompleteMatch& elem1,
