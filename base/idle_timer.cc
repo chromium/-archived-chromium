@@ -62,12 +62,12 @@ class IdleState {
     have_idle_info_ = XScreenSaverQueryExtension(GDK_DISPLAY(), &event_base,
                                                  &error_base);
     if (have_idle_info_)
-      *idle_info_.Get() = XScreenSaverAllocInfo();
+      idle_info_.Set(XScreenSaverAllocInfo());
   }
 
   ~IdleState() {
-    if (*idle_info_.Get()) {
-      XFree(*idle_info_.Get());
+    if (idle_info_.Get()) {
+      XFree(idle_info_.Get());
       idle_info_.~ThreadLocalPointer();
     }
   }
@@ -75,15 +75,15 @@ class IdleState {
   int32 IdleTime() {
     if (have_idle_info_ && idle_info_.Get()) {
       XScreenSaverQueryInfo(GDK_DISPLAY(), GDK_ROOT_WINDOW(),
-                            *idle_info_.Get());
-      return (*idle_info_.Get())->idle;
+                            idle_info_.Get());
+      return idle_info_.Get()->idle;
     }
     return -1;
   }
 
  private:
   bool have_idle_info_;
-  ThreadLocalPointer<XScreenSaverInfo*> idle_info_;
+  ThreadLocalPointer<XScreenSaverInfo> idle_info_;
 
   DISALLOW_COPY_AND_ASSIGN(IdleState);
 };
