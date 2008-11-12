@@ -190,7 +190,7 @@ class Browser : public TabStripModelDelegate,
   // created.
   void ShowNativeUITab(const GURL& url);
 
-  // Assorted Browser Commands ////////////////////////////////////////////////
+  // Assorted browser commands ////////////////////////////////////////////////
 
   // Navigation Commands
   void GoBack();
@@ -205,11 +205,11 @@ class Browser : public TabStripModelDelegate,
   // Adds a Bookmark for the currently selected tab.
   void BookmarkCurrentPage();
 
+  // Open the debugger shell.
+  void OpenDebuggerWindow();
+
   // Opens the FindInPage window for the currently open tab.
   void OpenFindInPageWindow();
-
-  // debugger shell
-  void OpenDebuggerWindow();
 
   // Advance the find selection by one. Direction is either forward or
   // backwards depending on parameter passed in.
@@ -256,7 +256,7 @@ class Browser : public TabStripModelDelegate,
   }
   virtual void ExecuteCommand(int id);
 
-  // Overridden from TabStripDelegate:
+  // Overridden from TabStripModelDelegate:
   virtual void CreateNewStripWithContents(TabContents* detached_contents,
                                           const gfx::Point& drop_point);
   virtual int GetDragActions() const;
@@ -277,7 +277,7 @@ class Browser : public TabStripModelDelegate,
   virtual void ValidateLoadingAnimations();
   virtual void CloseFrameAfterDragSession();
 
-  // Overridden from TabStripObserver:
+  // Overridden from TabStripModelObserver:
   virtual void TabInsertedAt(TabContents* contents,
                              int index,
                              bool foreground);
@@ -336,7 +336,7 @@ class Browser : public TabStripModelDelegate,
                        const NotificationDetails& details);
 
  private:
-  // Command and State Updating ///////////////////////////////////////////////
+  // Command and state updating ///////////////////////////////////////////////
 
   // Initialize state for all browser commands.
   void InitCommandState();
@@ -356,7 +356,7 @@ class Browser : public TabStripModelDelegate,
   // If |should_restore_state| is true, we're switching (back?) to this tab and
   // should restore any previous location bar state (such as user editing) as
   // well.
-  void UpdateToolBar(bool should_restore_state);
+  void UpdateToolbar(bool should_restore_state);
 
   // Adds an update to the update queue and schedules an update if necessary.
   // These are subsequently processed by ProcessPendingUIUpdates.

@@ -978,10 +978,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\browser_commands.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\browser_list.cc"
 				>
 			</File>
