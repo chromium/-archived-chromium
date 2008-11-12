@@ -87,12 +87,6 @@ then
   $CP $JavaScriptCoreSrcDir/API/JSRetainPtr.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/API/OpaqueJSString.h $JSHeadersDir/JavaScriptCore
   $CP $JavaScriptCoreSrcDir/API/WebKitAvailability.h $JSHeadersDir/JavaScriptCore
-  # TODO(dglazkov): we should really look into adopting their ways of doing this
-  # WebKit uses ForwardingHeaders and copies them to make this work
-  $CP $JavaScriptCoreSrcDir/kjs/ustring.h $JSHeadersDir/JavaScriptCore
-  $CP $JavaScriptCoreSrcDir/kjs/identifier.h $JSHeadersDir/JavaScriptCore
-  $CP $JavaScriptCoreSrcDir/kjs/collector.h $JSHeadersDir/JavaScriptCore
-  $CP $JavaScriptCoreSrcDir/kjs/TypeInfo.h $JSHeadersDir/JavaScriptCore
 else 
   $CP $WebCoreSrcDir/bridge/npapi.h $JSHeadersDir
   $CP $WebCoreSrcDir/bridge/npruntime.h $JSHeadersDir

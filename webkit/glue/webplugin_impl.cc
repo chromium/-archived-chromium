@@ -13,6 +13,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Element.h"
 #include "Event.h"
 #include "EventNames.h"
+#include "FloatPoint.h"
 #include "FormData.h"
 #include "FocusController.h"
 #include "Frame.h"
@@ -603,9 +604,9 @@ void WebPluginImpl::windowCutoutRects(
       WebCore::Node* n = ro->node();
       if (n && n->hasTagName(WebCore::HTMLNames::iframeTag)) {
         if (!ro->style() || ro->style()->visibility() == WebCore::VISIBLE) {
-          int x, y;
-          ro->absolutePosition(x, y);
-          cutouts->append(WebCore::IntRect(x, y, ro->width(), ro->height()));
+          WebCore::IntPoint point = roundedIntPoint(ro->localToAbsolute());
+          WebCore::IntSize size(ro->width(), ro->height());
+          cutouts->append(WebCore::IntRect(point, size));
         }
       }
     }

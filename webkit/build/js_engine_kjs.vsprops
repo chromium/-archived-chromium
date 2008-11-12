@@ -7,6 +7,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;..\..\pending\kjs&quot;;&quot;$(IntDir)\..\KJSBindings\DerivedSources&quot;;&quot;..\..\..\third_party\WebKit\WebCore\bindings\js&quot;;&quot;..\..\build\JavaScriptCore&quot;;&quot;..\..\..\third_party\WebKit\JavaScriptCore\VM&quot;;..\..\..\third_party\WebKit\JavaScriptCore\runtime;..\..\..\third_party\WebKit\JavaScriptCore\debugger"
+		AdditionalIncludeDirectories="&quot;..\..\pending\kjs&quot;;&quot;$(IntDir)\..\KJSBindings\DerivedSources&quot;;&quot;..\..\..\third_party\WebKit\WebCore\bindings\js&quot;;&quot;..\..\build\JavaScriptCore&quot;;&quot;..\..\..\third_party\WebKit\JavaScriptCore\VM&quot;;..\..\..\third_party\WebKit\JavaScriptCore\runtime;..\..\..\third_party\WebKit\JavaScriptCore\debugger;..\..\..\third_party\WebKit\JavaScriptCore\parser"
         />
 </VisualStudioPropertySheet>

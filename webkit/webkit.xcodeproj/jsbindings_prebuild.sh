@@ -10,14 +10,14 @@ mkdir -p "${GENERATED_DIR}"
 
 export PORTROOT="${SRCROOT}/port"
 
-# export CREATE_HASH_TABLE="${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table"
+# export CREATE_HASH_TABLE="${SRCROOT}/../third_party/WebKit/JavaScriptCore/create_hash_table"
 # TODO(mmentovai): The above is normally correct, but create_hash_table wound
 # up without the svn:executable property set in our repository.  Until that's
 # fixed - it should be fixed at the next WebKit merge following 2008-09-08 -
 # make a copy of create_hash_table, set the executable bit on it, and use that.
 # See also the TODO in webcore_prebuild.sh.
 export CREATE_HASH_TABLE="${GENERATED_DIR}/create_hash_table"
-cp -p "${SRCROOT}/../third_party/WebKit/JavaScriptCore/kjs/create_hash_table" \
+cp -p "${SRCROOT}/../third_party/WebKit/JavaScriptCore/create_hash_table" \
       "${CREATE_HASH_TABLE}"
 chmod a+x "${CREATE_HASH_TABLE}"
 

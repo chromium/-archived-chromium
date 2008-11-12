@@ -16,7 +16,7 @@ hash_table_cmd = '$PERL $CREATE_HASH_TABLE $SOURCE $CREATE_HASH_TABLE_FLAGS > $T
 
 env.Replace(
     CREATE_HASH_TABLE_COM       = hash_table_cmd,
-    CREATE_HASH_TABLE           = env.File('$CHROME_SRC_DIR/third_party/WebKit/JavaScriptCore/kjs/create_hash_table'),
+    CREATE_HASH_TABLE           = env.File('$CHROME_SRC_DIR/third_party/WebKit/JavaScriptCore/create_hash_table'),
     CREATE_HASH_TABLE_FLAGS     = '-i',
 )
 
@@ -26,26 +26,24 @@ env.Replace(
 #
 # We still need to build the pieces of pcre so we can't just drop this
 # SConscript file though... <http://crbug.com/3043>
-"""
-env['BUILDERS']['Lookup_Table_h'] = Builder(action = '$CREATE_HASH_TABLE_COM',
-                                            suffix = '.lut.h',
-                                            src_suffix = '.cpp')
-
-inputs = [
-    'array_object',
-    'date_object',
-    'math_object',
-    'number_object',
-    'regexp_object',
-    'string_object',
-]
-
-for i in inputs:
-    env.Lookup_Table_h(i, '$KJS_DIR/%s.cpp' % i)
-
-env.Lookup_Table_h('lexer', '$KJS_DIR/keywords.table',
-                   CREATE_HASH_TABLE_FLAGS='')
-"""
+# env['BUILDERS']['Lookup_Table_h'] = Builder(action = '$CREATE_HASH_TABLE_COM',
+#                                             suffix = '.lut.h',
+#                                             src_suffix = '.cpp')
+#
+# inputs = [
+#     'array_object',
+#     'date_object',
+#     'math_object',
+#     'number_object',
+#     'regexp_object',
+#     'string_object',
+# ]
+#
+# for i in inputs:
+#     env.Lookup_Table_h(i, '$KJS_DIR/%s.cpp' % i)
+#
+# env.Lookup_Table_h('lexer', '$KJS_DIR/keywords.table',
+#                    CREATE_HASH_TABLE_FLAGS='')
 
 # TODO(bradnelson): sucks, needs relative path
 env.Command('$WEBKIT_DIR/port/JavaScriptCore/chartables.c',
@@ -57,12 +55,12 @@ env.Command('$WEBKIT_DIR/port/JavaScriptCore/chartables.c',
 #env.CXXFile('grammar.cpp', '$KJS_DIR/grammar.y')
 # but SCons has a HARD-WIRED notion that the source must be a .yy file.
 # TODO(bradnelson): not sure why YACCCOM is needed, but fails without
-cpp = env.Command(['grammar.cpp', 'grammar.h'],
-                  '$KJS_DIR/grammar.y',
+cpp = env.Command(['Grammar.cpp', 'Grammar.h'],
+                  '$JAVASCRIPTCORE_DIR/parser/Grammar.y',
                   '$YACCCOM',
                   YACCCOM = '$YACC $YACCFLAGS -o $TARGET $SOURCES',
                   YACCFLAGS = '-d -p kjsyy')
-env.AddPostAction(cpp, Move('${TARGETS[1]}', '${TARGET.dir}/grammar.hpp'))
+env.AddPostAction(cpp, Move('${TARGETS[1]}', '${TARGET.dir}/Grammar.hpp'))
 
 copies = [
     'API/APICast.h',
@@ -84,8 +82,8 @@ copies = [
     '../WebCore/bridge/npruntime_impl.h',
     '../WebCore/bridge/runtime_object.h',
     '../WebCore/bridge/runtime_root.h',
-    'kjs/collector.h',
-    'kjs/interpreter.h',
+    'runtime/Collector.h',
+    'runtime/Interpreter.h',
     'wtf/HashCountedSet.h',
 ]
 
@@ -99,7 +97,6 @@ for c in copies:
 env = env.Clone(
     CPPPATH = [
         '$JAVASCRIPTCORE_DIR',
-        '$JAVASCRIPTCORE_DIR/kjs',
         '$WTF_DIR',
         '$JAVASCRIPTCORE_DIR/API',
         '$JAVASCRIPTCORE_DIR/bindings',

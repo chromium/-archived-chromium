@@ -30,7 +30,7 @@ XDSTROOT=`cygpath -u "$XDSTROOT"`
 export XDSTROOT
 
 export BUILT_PRODUCTS_DIR="$4"
-export CREATE_HASH_TABLE="$XSRCROOT/../JavaScriptCore/kjs/create_hash_table"
+export CREATE_HASH_TABLE="$XSRCROOT/../JavaScriptCore/create_hash_table"
 
 DerivedSourcesDir="${BUILT_PRODUCTS_DIR}\DerivedSources"
 echo "$DerivedSourcesDir"

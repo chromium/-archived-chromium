@@ -1662,7 +1662,7 @@
 		4DB7F1D80E9BAD5400C66CE0 /* SMILTime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SMILTime.cpp; sourceTree = "<group>"; };
 		4DB7F1D90E9BAD5400C66CE0 /* SMILTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMILTime.h; sourceTree = "<group>"; };
 		4DB7F1DA0E9BAD5400C66CE0 /* SMILTimeContainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SMILTimeContainer.cpp; sourceTree = "<group>"; };
-		4DB7F1DB0E9BAD5400C66CE0 /* SMILTimeContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SMILTimeContainer.h; path = ../../../../../webkit/pending/SMILTimeContainer.h; sourceTree = "<group>"; };
+		4DB7F1DB0E9BAD5400C66CE0 /* SMILTimeContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMILTimeContainer.h; sourceTree = "<group>"; };
 		4DB7F1DC0E9BAD5400C66CE0 /* SVGSMILElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGSMILElement.cpp; sourceTree = "<group>"; };
 		4DB7F1DD0E9BAD5400C66CE0 /* SVGSMILElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVGSMILElement.h; sourceTree = "<group>"; };
 		4DB7F1E80E9BAE2900C66CE0 /* AccessibilityImageMapLink.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccessibilityImageMapLink.cpp; sourceTree = "<group>"; };
@@ -1711,7 +1711,7 @@
 		4DB7F9D90E9BEC9500C66CE0 /* NetworkStateNotifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkStateNotifier.cpp; sourceTree = "<group>"; };
 		4DB7F9DA0E9BEC9500C66CE0 /* ResourceErrorBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceErrorBase.cpp; sourceTree = "<group>"; };
 		4DB7F9DB0E9BEC9500C66CE0 /* ResourceErrorBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceErrorBase.h; sourceTree = "<group>"; };
-		4DB7F9E80E9BECB500C66CE0 /* NetworkStateNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NetworkStateNotifier.h; path = pending/NetworkStateNotifier.h; sourceTree = SOURCE_ROOT; };
+		4DB7F9E80E9BECB500C66CE0 /* NetworkStateNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkStateNotifier.h; sourceTree = "<group>"; };
 		4DB7F9ED0E9BECEC00C66CE0 /* AuthenticationChallenge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationChallenge.h; sourceTree = "<group>"; };
 		4DB7FA410E9BF0CA00C66CE0 /* StyleCachedImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StyleCachedImage.cpp; sourceTree = "<group>"; };
 		4DB7FA420E9BF0CA00C66CE0 /* StyleCachedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StyleCachedImage.h; sourceTree = "<group>"; };
@@ -2339,9 +2339,9 @@
 		7B5E85CC0D7F28F5001ECF42 /* OwnPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OwnPtr.h; sourceTree = "<group>"; };
 		7B5E85CE0D7F28F5001ECF42 /* PassRefPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PassRefPtr.h; sourceTree = "<group>"; };
 		7B5E85CF0D7F28F5001ECF42 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Platform.h; sourceTree = "<group>"; };
-		7B5E85D00D7F28F5001ECF42 /* RefCounted.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RefCounted.h; path = ../../../../webkit/pending/wtf/RefCounted.h; sourceTree = "<group>"; };
+		7B5E85D00D7F28F5001ECF42 /* RefCounted.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefCounted.h; sourceTree = "<group>"; };
 		7B5E85D10D7F28F5001ECF42 /* RefPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefPtr.h; sourceTree = "<group>"; };
-		7B5E85D20D7F28F5001ECF42 /* RefPtrHashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RefPtrHashMap.h; path = ../../../../webkit/pending/wtf/RefPtrHashMap.h; sourceTree = "<group>"; };
+		7B5E85D20D7F28F5001ECF42 /* RefPtrHashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefPtrHashMap.h; sourceTree = "<group>"; };
 		7B5E85D30D7F28F5001ECF42 /* RetainPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RetainPtr.h; sourceTree = "<group>"; };
 		7B5E85D40D7F28F5001ECF42 /* StringExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringExtras.h; sourceTree = "<group>"; };
 		7B5E85D50D7F28F5001ECF42 /* TCPackedCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPackedCache.h; sourceTree = "<group>"; };
@@ -3238,7 +3238,6 @@
 		7B5E951B0D7F3E94001ECF42 /* break_lines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = break_lines.h; sourceTree = "<group>"; };
 		7B5E951C0D7F3E94001ECF42 /* CounterNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CounterNode.cpp; sourceTree = "<group>"; };
 		7B5E951D0D7F3E94001ECF42 /* CounterNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CounterNode.h; sourceTree = "<group>"; };
-		7B5E951E0D7F3E94001ECF42 /* DataRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataRef.h; sourceTree = "<group>"; };
 		7B5E951F0D7F3E94001ECF42 /* EllipsisBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EllipsisBox.cpp; sourceTree = "<group>"; };
 		7B5E95200D7F3E94001ECF42 /* EllipsisBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EllipsisBox.h; sourceTree = "<group>"; };
 		7B5E95210D7F3E94001ECF42 /* FixedTableLayout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FixedTableLayout.cpp; sourceTree = "<group>"; };
@@ -5990,7 +5989,6 @@
 				7B5E951B0D7F3E94001ECF42 /* break_lines.h */,
 				7B5E951C0D7F3E94001ECF42 /* CounterNode.cpp */,
 				7B5E951D0D7F3E94001ECF42 /* CounterNode.h */,
-				7B5E951E0D7F3E94001ECF42 /* DataRef.h */,
 				7B5E951F0D7F3E94001ECF42 /* EllipsisBox.cpp */,
 				7B5E95200D7F3E94001ECF42 /* EllipsisBox.h */,
 				7B5E95210D7F3E94001ECF42 /* FixedTableLayout.cpp */,
@@ -9658,7 +9656,6 @@
 					"$(DIR_WEBCORE)/svg/graphics/filters/cg",
 					"$(DIR_WEBCORE)/svg/graphics/mac",
 					"$(DIR_WEBCORE)/xml",
-					"$(DIR_WEBKIT)/JavaScriptCore",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf/unicode",
 					"$(DIR_PORT)/platform/chromium",
@@ -9667,6 +9664,8 @@
 					"$(DIR_SKIA)/include/corecg",
 					"$(DIR_THIRD_PARTY)/libxml/include",
 					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
+					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
+					"$(DIR_WEBKIT)/JavaScriptCore",
 				);
 				WARNING_CFLAGS = "";
 				XCODEPROJ_DEPTH = ..;
@@ -9788,7 +9787,6 @@
 					"$(DIR_WEBCORE)/svg/graphics/filters/cg",
 					"$(DIR_WEBCORE)/svg/graphics/mac",
 					"$(DIR_WEBCORE)/xml",
-					"$(DIR_WEBKIT)/JavaScriptCore",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf",
 					"$(DIR_WEBKIT)/JavaScriptCore/wtf/unicode",
 					"$(DIR_PORT)/platform/chromium",
@@ -9797,6 +9795,8 @@
 					"$(DIR_SKIA)/include/corecg",
 					"$(DIR_THIRD_PARTY)/libxml/include",
 					"$(SYMROOT)/libxml.build/$(CONFIGURATION)/generated/include",
+					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
+					"$(DIR_WEBKIT)/JavaScriptCore",
 				);
 				WARNING_CFLAGS = "";
 				XCODEPROJ_DEPTH = ..;
@@ -9808,6 +9808,7 @@
 			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
+					"$(DIR_WEBKIT)/JavaScriptCore",
 					"$(DIR_WEBKIT)/JavaScriptCore/kjs",
 					"$(HEADER_SEARCH_PATHS)",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",
@@ -9821,6 +9822,7 @@
 			baseConfigurationReference = 7BF884300E71C120000BAF8A /* staticlib.xcconfig */;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
+					"$(DIR_WEBKIT)/JavaScriptCore",
 					"$(DIR_WEBKIT)/JavaScriptCore/kjs",
 					"$(HEADER_SEARCH_PATHS)",
 					"$(CONFIGURATION_TEMP_DIR)/generated/WebCore/v8",

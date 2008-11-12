@@ -193,11 +193,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\collector.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\collector.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\collector.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\collector.h"
 				>
 			</File>
 			<File
@@ -213,11 +213,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\completion.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Completion.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\config.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\config.h"
 				>
 			</File>
 			<File
@@ -277,11 +277,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\dtoa.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\dtoa.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\dtoa.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\dtoa.h"
 				>
 			</File>
 			<File
@@ -357,11 +357,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\identifier.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Identifier.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\identifier.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\identifier.h"
 				>
 			</File>
 			<File
@@ -381,11 +381,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\interpreter.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Interpreter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\interpreter.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Interpreter.h"
 				>
 			</File>
 			<File
@@ -525,23 +525,23 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\LabelScope.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\bytecompiler\LabelScope.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\lexer.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\parser\Lexer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\lexer.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\parser\Lexer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\lookup.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Lookup.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\lookup.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Lookup.h"
 				>
 			</File>
 			<File
@@ -569,19 +569,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\NodeInfo.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\NodeInfo.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\nodes.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\parser\Nodes.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\nodes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\nodes2string.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\parser\Nodes.h"
 				>
 			</File>
 			<File
@@ -625,19 +621,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\operations.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Operations.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\operations.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Operations.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\Parser.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\parser\Parser.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\Parser.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Parser.h"
 				>
 			</File>
 			<File
@@ -661,7 +657,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\protect.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\Protect.h"
 				>
 			</File>
 			<File
@@ -673,11 +669,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\regexp.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\RegExp.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\regexp.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\RegExp.h"
 				>
 			</File>
 			<File
@@ -725,11 +721,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SourceProvider.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\parser\SourceCode.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\SourceCode.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\parser\SourceProvider.h"
 				>
 			</File>
 			<File
@@ -785,11 +781,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ustring.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\UString.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\kjs\ustring.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\runtime\ustring.h"
 				>
 			</File>
 		</Filter>
@@ -1017,11 +1013,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\CodeGenerator.cpp"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\bytecompiler\CodeGenerator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\VM\CodeGenerator.h"
+				RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\bytecompiler\CodeGenerator.h"
 				>
 			</File>
 			<File
