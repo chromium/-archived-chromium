@@ -257,8 +257,8 @@ TEST(AutocompleteMatch, MoreRelevant) {
     {  -5, -10, false },
   };
 
-  AutocompleteMatch m1;
-  AutocompleteMatch m2;
+  AutocompleteMatch m1(NULL, 0, false);
+  AutocompleteMatch m2(NULL, 0, false);
 
   for (int i = 0; i < arraysize(cases); ++i) {
     m1.relevance = cases[i].r1;

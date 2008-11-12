@@ -235,18 +235,6 @@ void AutocompleteInput::Clear() {
 
 // AutocompleteMatch ----------------------------------------------------------
 
-AutocompleteMatch::AutocompleteMatch()
-    : provider(NULL),
-      relevance(0),
-      deletable(false),
-      inline_autocomplete_offset(std::wstring::npos),
-      transition(PageTransition::TYPED),
-      is_history_what_you_typed_match(false),
-      type(URL),
-      template_url(NULL),
-      starred(false) {
-}
-
 AutocompleteMatch::AutocompleteMatch(AutocompleteProvider* provider,
                                      int relevance,
                                      bool deletable)
@@ -472,7 +460,7 @@ void AutocompleteResult::SortAndCull() {
   if (matches_.size() > max_matches()) {
     std::partial_sort(matches_.begin(), matches_.begin() + max_matches(),
                       matches_.end(), &AutocompleteMatch::MoreRelevant);
-    matches_.resize(max_matches());
+    matches_.erase(matches_.begin() + max_matches(), matches_.end());
   }
 
   // HistoryContentsProvider use a negative relevance as a way to avoid
@@ -696,11 +684,9 @@ void AutocompleteController::CommitResult() {
       Source<AutocompleteController>(this), NotificationService::NoDetails());
 }
 
-size_t AutocompleteController::CountMatchesNotInLatestResult(
-    const AutocompleteProvider* provider,
-    AutocompleteMatch* first_match) const {
+ACMatches AutocompleteController::GetMatchesNotInLatestResult(
+    const AutocompleteProvider* provider) const {
   DCHECK(provider);
-  DCHECK(first_match);
 
   // Determine the set of destination URLs.
   std::set<std::wstring> destination_urls;
@@ -708,19 +694,15 @@ size_t AutocompleteController::CountMatchesNotInLatestResult(
        i != latest_result_.end(); ++i)
     destination_urls.insert(i->destination_url);
 
+  ACMatches matches;
   const ACMatches& provider_matches = provider->matches();
-  bool found_first_unique_match = false;
-  size_t showing_count = 0;
   for (ACMatches::const_iterator i = provider_matches.begin();
        i != provider_matches.end(); ++i) {
-    if (destination_urls.find(i->destination_url) != destination_urls.end()) {
-      showing_count++;
-    } else if (!found_first_unique_match) {
-      found_first_unique_match = true;
-      *first_match = *i;
-    }
+    if (destination_urls.find(i->destination_url) == destination_urls.end())
+      matches.push_back(*i);
   }
-  return provider_matches.size() - showing_count;
+
+  return matches;
 }
 
 void AutocompleteController::AddHistoryContentsShortcut() {
@@ -736,17 +718,16 @@ void AutocompleteController::AddHistoryContentsShortcut() {
           (latest_result_.size() + 1)) ||
       (history_contents_provider_->db_match_count() == 1)) {
     // We only want to add a shortcut if we're not already showing the matches.
-    AutocompleteMatch first_unique_match;
-    size_t matches_not_shown = CountMatchesNotInLatestResult(
-        history_contents_provider_, &first_unique_match);
-    if (matches_not_shown == 0)
+    ACMatches matches(GetMatchesNotInLatestResult(history_contents_provider_));
+    if (matches.empty())
       return;
-    if (matches_not_shown == 1) {
+    if (matches.size() == 1) {
       // Only one match not shown, add it. The relevance may be negative,
       // which means we need to negate it to get the true relevance.
-      if (first_unique_match.relevance < 0)
-        first_unique_match.relevance = -first_unique_match.relevance;
-      latest_result_.AddMatch(first_unique_match);
+      AutocompleteMatch& match = matches.front();
+      if (match.relevance < 0)
+        match.relevance = -match.relevance;
+      latest_result_.AddMatch(match);
       return;
     } // else, fall through and add item.
   }

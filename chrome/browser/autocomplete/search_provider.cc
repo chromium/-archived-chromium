@@ -61,7 +61,7 @@ void SearchProvider::Start(const AutocompleteInput& input,
   if (input.text().empty()) {
     // User typed "?" alone.  Give them a placeholder result indicating what
     // this syntax does.
-    AutocompleteMatch match;
+    AutocompleteMatch match(this, 0, false);
     static const std::wstring kNoQueryInput(
         l10n_util::GetString(IDS_AUTOCOMPLETE_NO_QUERY));
     match.contents.assign(l10n_util::GetStringF(
@@ -373,7 +373,7 @@ void SearchProvider::ConvertResultsToAutocompleteMatches() {
       matches_.begin() + std::min(max_total_matches, matches_.size()),
       matches_.end(), &AutocompleteMatch::MoreRelevant);
   if (matches_.size() > max_total_matches)
-    matches_.resize(max_total_matches);
+    matches_.erase(matches_.begin() + max_total_matches, matches_.end());
 
   UpdateStarredStateOfMatches();
 

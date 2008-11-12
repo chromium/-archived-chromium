@@ -297,7 +297,6 @@ struct AutocompleteMatch {
     HISTORY_SEARCH
   };
 
-  AutocompleteMatch();
   AutocompleteMatch(AutocompleteProvider* provider,
                     int relevance,
                     bool deletable);
@@ -735,11 +734,10 @@ class AutocompleteController : public ACProviderListener {
   // Copies |latest_result_| to |result_| and notifies observers of updates.
   void CommitResult();
 
-  // Returns the number of matches from provider whose destination urls are
-  // not in |latest_result_|. first_match is set to the first match whose
-  // destination url is NOT in the results.
-  size_t CountMatchesNotInLatestResult(const AutocompleteProvider* provider,
-                                       AutocompleteMatch* first_match) const;
+  // Returns the matches from |provider| whose destination urls are not in
+  // |latest_result_|.
+  ACMatches GetMatchesNotInLatestResult(
+      const AutocompleteProvider* provider) const;
 
   // If the HistoryContentsAutocomplete provider is done and there are more
   // matches in the database than currently shown, an entry is added to
