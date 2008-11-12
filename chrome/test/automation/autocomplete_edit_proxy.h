@@ -13,52 +13,53 @@
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 
-// The purpose of this class is to act as a searializable version of
+// The purpose of this class is to act as a serializable version of
 // AutocompleteMatch. The reason for this class is because we don't want to
-// searialize all elements of AutocompleteMatch and we want some data from the
+// serialize all elements of AutocompleteMatch and we want some data from the
 // autocomplete provider without the hassle of serializing it.
 struct AutocompleteMatchData {
  public:
   AutocompleteMatchData() {}
   explicit AutocompleteMatchData(const AutocompleteMatch& match)
-    : contents(match.contents),
+    : provider_name(match.provider->name()),
+      relevance(match.relevance),
       deletable(match.deletable),
-      description(match.description),
-      destination_url(match.destination_url),
       fill_into_edit(match.fill_into_edit),
       inline_autocomplete_offset(match.inline_autocomplete_offset),
+      destination_url(match.destination_url),
+      contents(match.contents),
+      description(match.description),
       is_history_what_you_typed_match(match.is_history_what_you_typed_match),
-      provider_name(match.provider->name()),
-      relevance(match.relevance),
       starred(match.starred) {
     switch (match.type) {
       case AutocompleteMatch::URL:
-        str_type = L"URL";
+        type = "URL";
         break;
       case AutocompleteMatch::KEYWORD:
-        str_type = L"KEYWORD";
+        type = "KEYWORD";
         break;
       case AutocompleteMatch::SEARCH:
-        str_type = L"SEARCH";
+        type = "SEARCH";
         break;
       case AutocompleteMatch::HISTORY_SEARCH:
-        str_type = L"HISTORY";
+        type = "HISTORY";
         break;
       default:
         NOTREACHED();
     }
   }
-  std::wstring contents;
-  bool deletable;
-  std::wstring description;
-  std::wstring destination_url;
-  std::wstring fill_into_edit;
-  size_t inline_autocomplete_offset;
-  bool is_history_what_you_typed_match;
+
   std::string provider_name;
   int relevance;
+  bool deletable;
+  std::wstring fill_into_edit;
+  size_t inline_autocomplete_offset;
+  std::wstring destination_url;
+  std::wstring contents;
+  std::wstring description;
+  bool is_history_what_you_typed_match;
+  std::string type;
   bool starred;
-  std::wstring str_type;
 };
 typedef std::vector<AutocompleteMatchData> Matches;
 
@@ -68,47 +69,46 @@ template <>
 struct ParamTraits<AutocompleteMatchData> {
   typedef AutocompleteMatchData param_type;
   static void Write(Message* m, const param_type& p) {
-    m->WriteWString(p.contents);
-    m->WriteBool(p.deletable);
-    m->WriteWString(p.description);
-    m->WriteWString(p.destination_url);
-    m->WriteWString(p.fill_into_edit);
-    m->WriteSize(p.inline_autocomplete_offset);
-    m->WriteBool(p.is_history_what_you_typed_match);
     m->WriteString(p.provider_name);
     m->WriteInt(p.relevance);
+    m->WriteBool(p.deletable);
+    m->WriteWString(p.fill_into_edit);
+    m->WriteSize(p.inline_autocomplete_offset);
+    m->WriteWString(p.destination_url);
+    m->WriteWString(p.contents);
+    m->WriteWString(p.description);
+    m->WriteBool(p.is_history_what_you_typed_match);
+    m->WriteString(p.type);
     m->WriteBool(p.starred);
-    m->WriteWString(p.str_type);
   }
 
   static bool Read(const Message* m, void** iter, param_type* r) {
-    return m->ReadWString(iter, &r->contents) &&
+    return m->ReadString(iter, &r->provider_name) &&
+           m->ReadInt(iter, &r->relevance) &&
            m->ReadBool(iter, &r->deletable) &&
-           m->ReadWString(iter, &r->description) &&
-           m->ReadWString(iter, &r->destination_url) &&
            m->ReadWString(iter, &r->fill_into_edit) &&
            m->ReadSize(iter, &r->inline_autocomplete_offset) &&
+           m->ReadWString(iter, &r->destination_url) &&
+           m->ReadWString(iter, &r->contents) &&
+           m->ReadWString(iter, &r->description) &&
            m->ReadBool(iter, &r->is_history_what_you_typed_match) &&
-           m->ReadString(iter, &r->provider_name) &&
-           m->ReadInt(iter, &r->relevance) &&
-           m->ReadBool(iter, &r->starred) &&
-           m->ReadWString(iter, &r->str_type);
+           m->ReadString(iter, &r->type) &&
+           m->ReadBool(iter, &r->starred);
   }
 
   static void Log(const param_type& p, std::wstring* l) {
-    std::wstring provider_name_wide = UTF8ToWide(p.provider_name);
-    l->append(StringPrintf(L"[%ls %ls %ls %ls %ls %d %ls %ls %d %ls %ls]",
-        p.contents,
+    l->append(StringPrintf(L"[%ls %d %ls %ls %d %ls %ls %ls %ls %ls %ls]",
+        UTF8ToWide(p.provider_name),
+        p.relevance,
         p.deletable ? L"true" : L"false",
-        p.description,
-        p.destination_url,
         p.fill_into_edit,
         p.inline_autocomplete_offset,
+        p.destination_url,
+        p.contents,
+        p.description,
         p.is_history_what_you_typed_match ? L"true" : L"false",
-        provider_name_wide,
-        p.relevance,
-        p.starred ? L"true" : L"false",
-        p.str_type));
+        UTF8ToWide(p.type),
+        p.starred ? L"true" : L"false"));
   }
 };
 }  // namespace IPC
