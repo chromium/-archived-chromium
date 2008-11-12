@@ -49,20 +49,27 @@ const EntityMapType* EntityMapData::GetEntityMapData() {
     // lazily create the entity map.
     map_ = new EntityMapType;
     const Entity* entity_code = &entity_codes_[0];
-    for (int i = 0; i < entity_codes_length_; ++i, ++entity_code)
+    for (int i = 0; i < entity_codes_length_; ++i, ++entity_code) {
+      // For consistency, use lower case for entity codes that have both.
+      EntityMapType::const_iterator it = map_->find(entity_code->code);
+      if (it != map_->end() &&
+          StringToLowerASCII(std::string(entity_code->name)) == it->second)
+        continue;
+
       (*map_)[entity_code->code] = entity_code->name;
+    }
     if (user_number_entity_apos_)
-      (*map_)[0x0027] = "&#39;";
+      (*map_)[0x0027] = "#39";
   }
   return map_;
 }
 
 static const Entity xml_built_in_entity_codes[] = {
-  {"&lt;", 0x003c},
-  {"&gt;", 0x003e},
-  {"&amp;", 0x0026},
-  {"&apos;", 0x0027},
-  {"&quot;", 0x0022}
+  {"lt", 0x003c},
+  {"gt", 0x003e},
+  {"amp", 0x0026},
+  {"apos", 0x0027},
+  {"quot", 0x0022}
 };
 
 static const int xml_entity_codes_length =

@@ -126,7 +126,9 @@ void ConvertCorrespondingSymbolToEntity(WebCore::String* result,
       // Append content before entity code.
       if (cur_pos > start_pos)
         result->append(start_pos, cur_pos - start_pos);
+      result->append("&");
       result->append(entity_name);
+      result->append(";");
       start_pos = ++cur_pos;
     } else {
       cur_pos++;
