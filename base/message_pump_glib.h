@@ -48,19 +48,9 @@ class MessagePumpForUI : public MessagePump {
   // This is the time when we need to do delayed work.
   Time delayed_work_time_;
 
-  // We use a pipe to schedule work in a thread-safe way that doesn't interfere
-  // with our state.  When ScheduleWork is called, we write into the pipe which
-  // ensures poll will not sleep, since we use the read end as an event source.
-  // When we find data pending on the pipe, we clear it out and know we have
-  // been given new work.
-  int write_fd_work_scheduled_;
-  int read_fd_work_scheduled_;
-
   // The work source.  It is shared by all calls to Run and destroyed when
   // the message pump is destroyed.
   GSource* work_source_;
-  // The GLib poll structure needs to be owned and freed by us.
-  scoped_ptr<GPollFD> work_source_poll_fd_;
 
   DISALLOW_COPY_AND_ASSIGN(MessagePumpForUI);
 };

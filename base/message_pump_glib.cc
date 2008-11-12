@@ -86,33 +86,14 @@ namespace base {
 
 MessagePumpForUI::MessagePumpForUI()
     : state_(NULL),
-      context_(g_main_context_default()),
-      work_source_poll_fd_(new GPollFD) {
-  // Create a pipe with a non-blocking read end for use by ScheduleWork to
-  // break us out of a poll.  Create the work source and attach the file
-  // descriptor to it.
-  int pipe_fd[2];
-  CHECK(0 == pipe(pipe_fd)) << "Could not create pipe!";
-  write_fd_work_scheduled_ = pipe_fd[1];
-  read_fd_work_scheduled_ = pipe_fd[0];
-  int flags = fcntl(read_fd_work_scheduled_, F_GETFL, 0);
-  if (-1 == flags)
-    flags = 0;
-  CHECK(0 == fcntl(read_fd_work_scheduled_, F_SETFL, flags | O_NONBLOCK)) <<
-      "Could not set file descriptor to non-blocking!";
-  work_source_poll_fd_->fd = read_fd_work_scheduled_;
-  work_source_poll_fd_->events = G_IO_IN | G_IO_HUP | G_IO_ERR;
-
+      context_(g_main_context_default()) {
   work_source_ = g_source_new(&WorkSourceFuncs, sizeof(WorkSource));
   // This is needed to allow Run calls inside Dispatch.
   g_source_set_can_recurse(work_source_, TRUE);
-  g_source_add_poll(work_source_, work_source_poll_fd_.get());
   g_source_attach(work_source_, context_);
 }
 
 MessagePumpForUI::~MessagePumpForUI() {
-  close(read_fd_work_scheduled_);
-  close(write_fd_work_scheduled_);
   g_source_destroy(work_source_);
   g_source_unref(work_source_);
 }
@@ -153,10 +134,6 @@ void MessagePumpForUI::Run(Delegate* delegate) {
 
     more_work_is_plausible = false;
 
-    // Drain our wakeup pipe, this is a non-blocking read.
-    char tempbuf[16];
-    while (read(read_fd_work_scheduled_, tempbuf, sizeof(tempbuf)) > 0) { }
-
     if (state_->delegate->DoWork())
       more_work_is_plausible = true;
 
@@ -193,11 +170,8 @@ void MessagePumpForUI::Quit() {
 void MessagePumpForUI::ScheduleWork() {
   // This can be called on any thread, so we don't want to touch any state
   // variables as we would then need locks all over.  This ensures that if
-  // we are sleeping in a poll that we will wake up, and we check the pipe
-  // so we know when work was scheduled.
-  if (write(write_fd_work_scheduled_, &kWorkScheduled, 1) != 1) {
-    NOTREACHED() << "Could not write to the UI message loop wakeup pipe!";
-  }
+  // we are sleeping in a poll that we will wake up.
+  g_main_context_wakeup(context_);
 }
 
 void MessagePumpForUI::ScheduleDelayedWork(const Time& delayed_work_time) {
