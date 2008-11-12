@@ -43,7 +43,7 @@ class GroupTableView : public TableView {
  protected:
   // Notification from the ListView that the selected state of an item has
   // changed.
-  void OnSelectedStateChanged(int model_row, bool is_selected);
+  void OnSelectedStateChanged();
 
   // Extra-painting required to draw the separator line between groups.
   virtual bool ImplementPostPaint() { return true; }

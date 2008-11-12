@@ -534,6 +534,15 @@ bool TableView::GetCellColors(int model_row,
   return false;
 }
 
+static int GetViewIndexFromMouseEvent(HWND window, LPARAM l_param) {
+  int x = GET_X_LPARAM(l_param);
+  int y = GET_Y_LPARAM(l_param);
+  LVHITTESTINFO hit_info = {0};
+  hit_info.pt.x = x;
+  hit_info.pt.y = y;
+  return ListView_HitTest(window, &hit_info);
+}
+
 // static
 LRESULT CALLBACK TableView::TableWndProc(HWND window,
                                          UINT message,
@@ -542,7 +551,23 @@ LRESULT CALLBACK TableView::TableWndProc(HWND window,
   TableView* table_view = reinterpret_cast<TableViewWrapper*>(
       GetWindowLongPtr(window, GWLP_USERDATA))->table_view;
 
+  // Is the mouse down on the table?
+  static bool in_mouse_down = false;
+  // Should we select on mouse up?
+  static bool select_on_mouse_up = false;
+
+  // If the mouse is down, this is the location of the mouse down message.
+  static int mouse_down_x, mouse_down_y;
+
   switch (message) {
+    case WM_CANCELMODE: {
+      if (in_mouse_down) {
+        in_mouse_down = false;
+        return 0;
+      }
+      break;
+    }
+
     case WM_ERASEBKGND:
       // We make WM_ERASEBKGND do nothing (returning 1 indicates we handled
       // the request). We do this so that the table view doesn't flicker during
@@ -569,6 +594,129 @@ LRESULT CALLBACK TableView::TableWndProc(HWND window,
         return 0;
       }
       // else case: fall through to default processing.
+      break;
+    }
+
+    case WM_LBUTTONDBLCLK: {
+      if (w_param == MK_LBUTTON)
+        table_view->OnDoubleClick();
+      return 0;
+    }
+
+    case WM_LBUTTONUP: {
+      if (in_mouse_down) {
+        in_mouse_down = false;
+        ReleaseCapture();
+        SetFocus(window);
+        if (select_on_mouse_up) {
+          int view_index = GetViewIndexFromMouseEvent(window, l_param);
+          if (view_index != -1)
+            table_view->Select(table_view->view_to_model(view_index));
+        }
+        return 0;
+      }
+      break;
+    }
+
+    case WM_LBUTTONDOWN: {
+      // ListView treats clicking on an area outside the text of a column as
+      // drag to select. This is confusing when the selection is shown across
+      // the whole row. For this reason we override the default handling for
+      // mouse down/move/up and treat the whole row as draggable. That is, no
+      // matter where you click in the row we'll attempt to start dragging.
+      //
+      // Only do custom mouse handling if no other mouse buttons are down.
+      if ((w_param | (MK_LBUTTON | MK_CONTROL | MK_SHIFT)) ==
+          (MK_LBUTTON | MK_CONTROL | MK_SHIFT)) {
+        if (in_mouse_down)
+          return 0;
+
+        int view_index = GetViewIndexFromMouseEvent(window, l_param);
+        if (view_index != -1) {
+          table_view->ignore_listview_change_ = true;
+          in_mouse_down = true;
+          select_on_mouse_up = false;
+          mouse_down_x = GET_X_LPARAM(l_param);
+          mouse_down_y = GET_Y_LPARAM(l_param);
+          int model_index = table_view->view_to_model(view_index);
+          bool select = true;
+          if (w_param & MK_CONTROL) {
+            select = false;
+            if (!table_view->IsItemSelected(model_index)) {
+              if (table_view->single_selection_) {
+                // Single selection mode and the row isn't selected, select
+                // only it.
+                table_view->Select(model_index);
+              } else {
+                // Not single selection, add this row to the selection.
+                table_view->SetSelectedState(model_index, true);
+              }
+            } else {
+              // Remove this row from the selection.
+              table_view->SetSelectedState(model_index, false);
+            }
+            ListView_SetSelectionMark(window, view_index);
+          } else if (!table_view->single_selection_ && w_param & MK_SHIFT) {
+            int mark_view_index = ListView_GetSelectionMark(window);
+            if (mark_view_index != -1) {
+              // Unselect everything.
+              ListView_SetItemState(window, -1, 0, LVIS_SELECTED);
+              select = false;
+
+              // Select from mark to mouse down location.
+              for (int i = std::min(view_index, mark_view_index),
+                   max_i = std::max(view_index, mark_view_index); i <= max_i;
+                   ++i) {
+                table_view->SetSelectedState(table_view->view_to_model(i),
+                                             true);
+              }
+            }
+          }
+          // Make the row the user clicked on the focused row.
+          ListView_SetItemState(window, view_index, LVIS_FOCUSED,
+                                LVIS_FOCUSED);
+          if (select) {
+            if (!table_view->IsItemSelected(model_index)) {
+              // Clear all.
+              ListView_SetItemState(window, -1, 0, LVIS_SELECTED);
+              // And select the row the user clicked on.
+              table_view->SetSelectedState(model_index, true);
+            } else {
+              // The item is already selected, don't clear the state right away
+              // in case the user drags. Instead wait for mouse up, then only
+              // select the row the user clicked on.
+              select_on_mouse_up = true;
+            }
+            ListView_SetSelectionMark(window, view_index);
+          }
+          table_view->ignore_listview_change_ = false;
+          table_view->OnSelectedStateChanged();
+          SetCapture(window);
+          return 0;
+        }
+        // else case, continue on to default handler
+      }
+      break;
+    }
+
+    case WM_MOUSEMOVE: {
+      if (in_mouse_down) {
+        int x = GET_X_LPARAM(l_param);
+        int y = GET_Y_LPARAM(l_param);
+        if (View::ExceededDragThreshold(x - mouse_down_x, y - mouse_down_y)) {
+          // We're about to start drag and drop, which results in no mouse up.
+          // Release capture and reset state.
+          ReleaseCapture();
+          in_mouse_down = false;
+
+          NMLISTVIEW details;
+          memset(&details, 0, sizeof(details));
+          details.hdr.code = LVN_BEGINDRAG;
+          SendMessage(::GetParent(window), WM_NOTIFY, 0,
+                      reinterpret_cast<LPARAM>(&details));
+        }
+        return 0;
+      }
       break;
     }
 
@@ -870,9 +1018,7 @@ LRESULT TableView::OnNotify(int w_param, LPNMHDR hdr) {
         if ((state_change->uOldState & LVIS_SELECTED) !=
             (state_change->uNewState & LVIS_SELECTED)) {
           // Selected state of the item changed.
-          bool is_selected = ((state_change->uNewState & LVIS_SELECTED) != 0);
-          OnSelectedStateChanged(view_to_model(state_change->iItem),
-                                 is_selected);
+          OnSelectedStateChanged();
         }
         if ((state_change->uOldState & LVIS_STATEIMAGEMASK) !=
             (state_change->uNewState & LVIS_STATEIMAGEMASK)) {
@@ -1275,7 +1421,7 @@ void TableView::OnDoubleClick() {
   }
 }
 
-void TableView::OnSelectedStateChanged(int item, bool is_selected) {
+void TableView::OnSelectedStateChanged() {
   if (!ignore_listview_change_ && table_view_observer_) {
     table_view_observer_->OnSelectionChanged();
   }

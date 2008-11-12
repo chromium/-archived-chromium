@@ -182,6 +182,10 @@ void BookmarkTableView::BeginDrag() {
   if (nodes_to_drag.empty())
     return;  // Nothing to drag.
 
+  // Reverse the nodes so that they are put on the clipboard in visual order.
+  // We do this as SelectionBegin starts at the end of the visual order.
+  std::reverse(nodes_to_drag.begin(), nodes_to_drag.end());
+
   scoped_refptr<OSExchangeData> data = new OSExchangeData;
   BookmarkDragData(nodes_to_drag).Write(profile_, data);
   scoped_refptr<BaseDragSource> drag_source(new BaseDragSource);

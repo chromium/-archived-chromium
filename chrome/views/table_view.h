@@ -438,7 +438,7 @@ class TableView : public NativeControl,
 
   // Notification from the ListView that the selected state of an item has
   // changed.
-  virtual void OnSelectedStateChanged(int item, bool is_selected);
+  virtual void OnSelectedStateChanged();
 
   // Notification from the ListView that the used double clicked the table.
   virtual void OnDoubleClick();

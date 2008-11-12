@@ -148,7 +148,7 @@ int GroupTableView::CompareRows(int model_row1, int model_row2) {
   return TableView::CompareRows(range1, range2);
 }
 
-void GroupTableView::OnSelectedStateChanged(int model_row, bool is_selected) {
+void GroupTableView::OnSelectedStateChanged() {
   // The goal is to make sure all items for a same group are in a consistent
   // state in term of selection. When a user clicks an item, several selection
   // messages are sent, possibly including unselecting all currently selected
@@ -160,7 +160,7 @@ void GroupTableView::OnSelectedStateChanged(int model_row, bool is_selected) {
         sync_selection_factory_.NewRunnableMethod(
             &GroupTableView::SyncSelection));
   }
-  TableView::OnSelectedStateChanged(model_row, is_selected);
+  TableView::OnSelectedStateChanged();
 }
 
 // Draws the line separator betweens the groups.
