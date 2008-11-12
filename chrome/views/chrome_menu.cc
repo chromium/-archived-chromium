@@ -2005,6 +2005,17 @@ bool MenuController::Dispatch(const MSG& msg) {
 
   // NOTE: we don't get WM_ACTIVATE or anything else interesting in here.
   switch (msg.message) {
+    case WM_CONTEXTMENU: {
+      MenuItemView* item = pending_state_.item;
+      if (item) {
+        gfx::Point screen_loc(0, item->height());
+        View::ConvertPointToScreen(item, &screen_loc);
+        item->GetDelegate()->ShowContextMenu(
+            item, item->GetCommand(), screen_loc.x(), screen_loc.y(), false);
+      }
+      return true;
+    }
+
     // NOTE: focus wasn't changed when the menu was shown. As such, don't
     // dispatch key events otherwise the focused window will get the events.
     case WM_KEYDOWN:
@@ -2016,9 +2027,14 @@ bool MenuController::Dispatch(const MSG& msg) {
     case WM_KEYUP:
       return true;
 
+    case WM_SYSKEYUP:
+      // We may have been shown on a system key, as such don't do anything
+      // here. If another system key is pushed we'll get a WM_SYSKEYDOWN and
+      // close the menu.
+      return true;
+
     case WM_CANCELMODE:
     case WM_SYSKEYDOWN:
-    case WM_SYSKEYUP:
       // Exit immediately on system keys.
       Cancel(true);
       return false;
@@ -2081,6 +2097,9 @@ bool MenuController::OnKeyDown(const MSG& msg) {
       } else {
         CloseSubmenu();
       }
+      break;
+
+    case VK_APPS:
       break;
 
     default:
