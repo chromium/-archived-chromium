@@ -112,6 +112,26 @@ class Worker : public Channel::Listener, public Message::Sender {
     DCHECK(overrided_thread_ == NULL);
     overrided_thread_ = overrided_thread;
   }
+  bool SendAnswerToLife(bool pump, int timeout, bool succeed) {
+    int answer = 0;
+    SyncMessage* msg = new SyncChannelTestMsg_AnswerToLife(&answer);
+    if (pump)
+      msg->EnableMessagePumping();
+    bool result = SendWithTimeout(msg, timeout);
+    DCHECK(result == succeed);
+    DCHECK(answer == (succeed ? 42 : 0));
+    return result;
+  }
+  bool SendDouble(bool pump, bool succeed) {
+    int answer = 0;
+    SyncMessage* msg = new SyncChannelTestMsg_Double(5, &answer);
+    if (pump)
+      msg->EnableMessagePumping();
+    bool result = Send(msg);
+    DCHECK(result == succeed);
+    DCHECK(answer == (succeed ? 10 : 0));
+    return result;
+  }
   Channel::Mode mode() { return mode_; }
   HANDLE done_event() { return done_.handle(); }
 
@@ -119,7 +139,6 @@ class Worker : public Channel::Listener, public Message::Sender {
   // Derived classes need to call this when they've completed their part of
   // the test.
   void Done() { done_.Set(); }
-
   // Functions for dervied classes to implement if they wish.
   virtual void Run() { }
   virtual void OnAnswer(int* answer) { NOTREACHED(); }
@@ -241,13 +260,7 @@ class SimpleServer : public Worker {
       : Worker(Channel::MODE_SERVER, "simpler_server"),
         pump_during_send_(pump_during_send) { }
   void Run() {
-    int answer = 0;
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_AnswerToLife(&answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result);
-    DCHECK(answer == 42);
+    SendAnswerToLife(pump_during_send_, INFINITE, true);
     Done();
   }
 
@@ -320,20 +333,10 @@ class NoHangServer : public Worker {
         got_first_reply_(got_first_reply),
         pump_during_send_(pump_during_send) { }
   void Run() {
-    int answer = 0;
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_AnswerToLife(&answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result);
-    DCHECK(answer == 42);
+    SendAnswerToLife(pump_during_send_, INFINITE, true);
     got_first_reply_->Set();
 
-    msg = new SyncChannelTestMsg_AnswerToLife(&answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    result = Send(msg);
-    DCHECK(!result);
+    SendAnswerToLife(pump_during_send_, INFINITE, false);
     Done();
   }
 
@@ -386,13 +389,7 @@ class UnblockServer : public Worker {
     : Worker(Channel::MODE_SERVER, "unblock_server"),
       pump_during_send_(pump_during_send) { }
   void Run() {
-    int answer = 0;
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_AnswerToLife(&answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result);
-    DCHECK(answer == 42);
+    SendAnswerToLife(pump_during_send_, INFINITE, true);
     Done();
   }
 
@@ -410,11 +407,8 @@ class UnblockClient : public Worker {
       pump_during_send_(pump_during_send) { }
 
   void OnAnswer(int* answer) {
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_Double(21, answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    BOOL result = Send(msg);
-    DCHECK(result);
+    SendDouble(pump_during_send_, true);
+    *answer = 42;
     Done();
   }
 
@@ -450,22 +444,13 @@ class RecursiveServer : public Worker {
       expected_send_result_(expected_send_result),
       pump_first_(pump_first), pump_second_(pump_second)  { }
   void Run() {
-    int answer;
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_Double(21, &answer);
-    if (pump_first_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result == expected_send_result_);
+    SendDouble(pump_first_, expected_send_result_);
     Done();
   }
 
   void OnDouble(int in, int* out) {
-    int answer;
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_AnswerToLife(&answer);
-    if (pump_second_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result == expected_send_result_);
+    *out = in * 2;
+    SendAnswerToLife(pump_second_, INFINITE, expected_send_result_);
   }
 
   bool expected_send_result_, pump_first_, pump_second_;
@@ -478,12 +463,7 @@ class RecursiveClient : public Worker {
       pump_during_send_(pump_during_send), close_channel_(close_channel) { }
 
   void OnDoubleDelay(int in, Message* reply_msg) {
-    int answer = 0;
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_Double(5, &answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result != close_channel_);
+    SendDouble(pump_during_send_, !close_channel_);
     if (close_channel_) {
       delete reply_msg;
     } else {
@@ -568,13 +548,7 @@ class MultipleServer1 : public Worker {
       pump_during_send_(pump_during_send) { }
 
   void Run() {
-    int answer = 0;
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_Double(5, &answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result);
-    DCHECK(answer == 10);
+    SendDouble(pump_during_send_, true);
     Done();
   }
 
@@ -620,14 +594,8 @@ class MultipleClient2 : public Worker {
       pump_during_send_(pump_during_send) { }
 
   void Run() {
-    int answer = 0;
     client1_msg_received_->Wait();
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_AnswerToLife(&answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result);
-    DCHECK(answer == 42);
+    SendAnswerToLife(pump_during_send_, INFINITE, true);
     client1_can_reply_->Set();
     Done();
   }
@@ -691,13 +659,7 @@ class QueuedReplyServer1 : public Worker {
     : Worker(L"test_channel1", Channel::MODE_SERVER),
       pump_during_send_(pump_during_send) { }
   void Run() {
-    int answer = 0;
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_Double(5, &answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result);
-    DCHECK(answer == 10);
+    SendDouble(pump_during_send_, true);
     Done();
   }
 
@@ -750,14 +712,8 @@ class QueuedReplyClient2 : public Worker {
       pump_during_send_(pump_during_send){ }
 
   void Run() {
-    int answer = 0;
     client1_msg_received_->Wait();
-    IPC::SyncMessage* msg = new SyncChannelTestMsg_AnswerToLife(&answer);
-    if (pump_during_send_)
-      msg->EnableMessagePumping();
-    bool result = Send(msg);
-    DCHECK(result);
-    DCHECK(answer == 42);
+    SendAnswerToLife(pump_during_send_, INFINITE, true);
     Done();
   }
 
@@ -819,7 +775,7 @@ class BadServer : public Worker {
   void Run() {
     int answer = 0;
 
-    IPC::SyncMessage* msg = new SyncMessage(
+    SyncMessage* msg = new SyncMessage(
         MSG_ROUTING_CONTROL, SyncChannelTestMsg_Double::ID,
         Message::PRIORITY_NORMAL, NULL);
     if (pump_during_send_)
@@ -873,11 +829,10 @@ class ChattyClient : public Worker {
     const int kMessageLimit = 10000;
     const int kMessagesToSend = kMessageLimit * 120 / 100;
     for (int i = 0; i < kMessagesToSend; ++i) {
-      bool result = Send(new SyncChannelTestMsg_Double(21, answer));
-      DCHECK(result);
-      if (!result)
+      if (!SendDouble(false, true))
         break;
     }
+    *answer = 42;
     Done();
   }
 };
@@ -891,7 +846,7 @@ void ChattyServer(bool pump_during_send) {
 
 }  // namespace
 
-// Tests http://b/issue?id=1093251 - that sending lots of sync messages while
+// Tests http://b/1093251 - that sending lots of sync messages while
 // the receiver is waiting for a sync reply does not overflow the PostMessage
 // queue.
 TEST_F(IPCSyncChannelTest, ChattyServer) {
@@ -917,19 +872,7 @@ class TimeoutServer : public Worker {
   void Run() {
     for (std::vector<bool>::const_iterator iter = timeout_seq_.begin();
          iter != timeout_seq_.end(); ++iter) {
-      int answer = 0;
-      IPC::SyncMessage* msg = new SyncChannelTestMsg_AnswerToLife(&answer);
-      if (pump_during_send_)
-        msg->EnableMessagePumping();
-      bool result = SendWithTimeout(msg, timeout_ms_);
-      if (*iter) {
-        // Time-out expected.
-        DCHECK(!result);
-        DCHECK(answer == 0);
-      } else {
-        DCHECK(result);
-        DCHECK(answer == 42);
-      }
+      SendAnswerToLife(pump_during_send_, timeout_ms_, !*iter);
     }
     Done();
   }
@@ -1020,4 +963,59 @@ TEST_F(IPCSyncChannelTest, SendWithTimeoutTimeout) {
 TEST_F(IPCSyncChannelTest, SendWithTimeoutMixedOKAndTimeout) {
   SendWithTimeoutMixedOKAndTimeout(false);
   SendWithTimeoutMixedOKAndTimeout(true);
+}
+
+//------------------------------------------------------------------------------
+
+namespace {
+
+class NestedTask : public Task {
+ public:
+  NestedTask(Worker* server) : server_(server) { }
+  void Run() {
+    // Sleep a bit so that we wake up after the reply has been received.
+    Sleep(250);
+    server_->SendAnswerToLife(true, INFINITE, true);
+  }
+
+  Worker* server_;
+};
+
+static bool timeout_occured = false;
+
+class TimeoutTask : public Task {
+ public:
+  void Run() {
+    timeout_occured = true;
+  }
+};
+
+class DoneEventRaceServer : public Worker {
+ public:
+  DoneEventRaceServer()
+      : Worker(Channel::MODE_SERVER, "done_event_race_server") { }
+
+  void Run() {
+    MessageLoop::current()->PostTask(FROM_HERE, new NestedTask(this));
+    MessageLoop::current()->PostDelayedTask(FROM_HERE, new TimeoutTask(), 9000);
+    // Even though we have a timeout on the Send, it will succeed since for this
+    // bug, the reply message comes back and is deserialized, however the done
+    // event wasn't set.  So we indirectly use the timeout task to notice if a
+    // timeout occurred.
+    SendAnswerToLife(true, 10000, true);
+    DCHECK(!timeout_occured);
+    Done();
+  }
+};
+
+}  // namespace
+
+// Tests http://b/1474092 - that if after the done_event is set but before
+// OnObjectSignaled is called another message is sent out, then after its
+// reply comes back OnObjectSignaled will be called for the first message.
+TEST_F(IPCSyncChannelTest, DoneEventRace) {
+  std::vector<Worker*> workers;
+  workers.push_back(new DoneEventRaceServer());
+  workers.push_back(new SimpleClient());
+  RunTest(workers);
 }

@@ -175,6 +175,8 @@ class SyncChannel::ReceivedSyncMsgQueue :
   }
 
  private:
+  // See the comment in SyncChannel::SyncChannel for why this event is created
+  // as manual reset.
   ReceivedSyncMsgQueue() :
       dispatch_event_(CreateEvent(NULL, TRUE, FALSE, NULL)),
       task_pending_(false),
@@ -238,9 +240,13 @@ SyncChannel::SyncContext::~SyncContext() {
 // we know how to deserialize the reply.  Returns a handle that's set when
 // the reply has arrived.
 void SyncChannel::SyncContext::Push(SyncMessage* sync_msg) {
+  // The event is created as manual reset because in between SetEvent and
+  // OnObjectSignalled, another Send can happen which would stop the watcher
+  // from being called.  The event would get watched later, when the nested
+  // Send completes, so the event will need to remain set.
   PendingSyncMsg pending(SyncMessage::GetMessageId(*sync_msg),
                          sync_msg->GetReplyDeserializer(),
-                         CreateEvent(NULL, FALSE, FALSE, NULL));
+                         CreateEvent(NULL, TRUE, FALSE, NULL));
   AutoLock auto_lock(deserializers_lock_);
   deserializers_.push_back(pending);
 }
