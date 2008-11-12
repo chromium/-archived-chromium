@@ -112,7 +112,6 @@
 #undef LOG
 #include "base/stats_table.h"
 #include "base/trace_event.h"
-#include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 
