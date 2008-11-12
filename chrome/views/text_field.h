@@ -5,8 +5,8 @@
 // These classes define a text field widget that can be used in the views UI
 // toolkit.
 
-#ifndef CHROME_VIEWS_TEXT_FIELD_H__
-#define CHROME_VIEWS_TEXT_FIELD_H__
+#ifndef CHROME_VIEWS_TEXT_FIELD_H_
+#define CHROME_VIEWS_TEXT_FIELD_H_
 
 #include <string>
 
@@ -136,6 +136,7 @@ class TextField : public View {
   void RemoveBorder();
 
   // Disable the edit control.
+  // NOTE: this does NOT change the read only property.
   void SetEnabled(bool enabled);
 
  private:
@@ -149,6 +150,9 @@ class TextField : public View {
 
   // Reset the text field native control.
   void ResetNativeControl();
+
+  // Resets the background color of the edit.
+  void UpdateEditBackgroundColor();
 
   // This encapsulates the HWND of the native text field.
   HWNDView* native_view_;
@@ -188,10 +192,9 @@ class TextField : public View {
   // Calculates the insets for the text field.
   void CalculateInsets(gfx::Insets* insets);
 
-  DISALLOW_EVIL_CONSTRUCTORS(TextField);
+  DISALLOW_COPY_AND_ASSIGN(TextField);
 };
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_TEXT_FIELD_H__
-
+#endif  // CHROME_VIEWS_TEXT_FIELD_H_
