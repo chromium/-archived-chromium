@@ -47,7 +47,7 @@ env.Prepend(
         'renderer',
         'sqlite',
         'util',
-        'v8',
+        'v8_g',
         'v8_snapshot',
 
         'WTF',
