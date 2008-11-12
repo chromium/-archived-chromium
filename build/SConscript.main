@@ -430,7 +430,7 @@ for envvar in ('CC', 'CXX'):
 # Copy these environment variables from the outer environment to the
 # environment that the build commands run in.
 # $HOME is needed by distcc so it can find its lock file.
-for envvar in ('HOME', 'DISTCC_HOSTS', 'CCACHE_DIR'):
+for envvar in ('HOME', 'DISTCC_DIR', 'DISTCC_HOSTS', 'CCACHE_DIR'):
   if envvar in os.environ:
     linux_env['ENV'][envvar] = os.environ[envvar]
 
