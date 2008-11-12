@@ -434,20 +434,21 @@ void AutocompleteEditModel::OnPopupDataChanged(
     bool is_temporary_text,
     const std::wstring& keyword,
     bool is_keyword_hint,
-    bool can_show_search_hint) {
+    AutocompleteMatch::Type type) {
   // We don't want to show the search hint if we're showing a keyword hint or
   // selected keyword, or (subtle!) if we would be showing a selected keyword
   // but for keyword_ui_state_ == NO_KEYWORD.
-  can_show_search_hint &= keyword.empty();
+  const bool show_search_hint = keyword.empty() &&
+      (type == AutocompleteMatch::SEARCH);
 
   // Update keyword/hint-related local state.
   bool keyword_state_changed = (keyword_ != keyword) ||
       ((is_keyword_hint_ != is_keyword_hint) && !keyword.empty()) ||
-      (show_search_hint_ != can_show_search_hint);
+      (show_search_hint_ != show_search_hint);
   if (keyword_state_changed) {
     keyword_ = keyword;
     is_keyword_hint_ = is_keyword_hint;
-    show_search_hint_ = can_show_search_hint;
+    show_search_hint_ = show_search_hint;
   }
 
   // Handle changes to temporary text.

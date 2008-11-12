@@ -751,8 +751,7 @@ void AutocompletePopupModel::SetSelectedLine(size_t line,
   const bool is_keyword_hint = GetKeywordForMatch(match, &keyword);
   edit_model_->OnPopupDataChanged(
       reset_to_default ? std::wstring() : match.fill_into_edit,
-      !reset_to_default, keyword, is_keyword_hint,
-      (match.type == AutocompleteMatch::SEARCH));
+      !reset_to_default, keyword, is_keyword_hint, match.type);
 
   // Repaint old and new selected lines immediately, so that the edit doesn't
   // appear to update [much] faster than the popup.  We must not update
@@ -952,7 +951,7 @@ void AutocompletePopupModel::Observe(NotificationType type,
       std::wstring inline_autocomplete_text;
       std::wstring keyword;
       bool is_keyword_hint = false;
-      bool can_show_search_hint = true;
+      AutocompleteMatch::Type type = AutocompleteMatch::SEARCH;
       const AutocompleteResult::const_iterator match(result.default_match());
       if (match != result.end()) {
         if ((match->inline_autocomplete_offset != std::wstring::npos) &&
@@ -968,10 +967,10 @@ void AutocompletePopupModel::Observe(NotificationType type,
         // the OS DNS cache could suffer eviction problems for minimal gain.
 
         is_keyword_hint = GetKeywordForMatch(*match, &keyword);
-        can_show_search_hint = (match->type == AutocompleteMatch::SEARCH);
+        type = match->type;
       }
       edit_model_->OnPopupDataChanged(inline_autocomplete_text, false, keyword,
-          is_keyword_hint, can_show_search_hint);
+          is_keyword_hint, type);
       return;
     }
 
