@@ -45,7 +45,7 @@ void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {
   GtkWidget* dialog = gtk_message_dialog_new(
       GTK_WINDOW(shell_->mainWnd()), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO,
       GTK_BUTTONS_OK, "%s", WideToUTF8(message).c_str());
-  gtk_window_set_title(GTK_DIALOG(dialog), "JavaScript Alert");
+  gtk_window_set_title(GTK_WINDOW(dialog), "JavaScript Alert");
   gtk_dialog_run(GTK_DIALOG(dialog));  // Runs a nested message loop.
   gtk_widget_destroy(dialog);
 }
