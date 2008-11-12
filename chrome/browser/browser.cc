@@ -579,6 +579,8 @@ void Browser::ShowNativeUITab(const GURL& url) {
 // Browser, Assorted browser commands:
 
 void Browser::GoBack() {
+  UserMetrics::RecordAction(L"Back", profile_);
+
   // If we are showing an interstitial, just hide it.
   TabContents* current_tab = GetSelectedTabContents();
   if (current_tab) {
@@ -595,12 +597,15 @@ void Browser::GoBack() {
 }
 
 void Browser::GoForward() {
+  UserMetrics::RecordAction(L"Forward", profile_);
   NavigationController* nc = GetSelectedNavigationController();
   if (nc && nc->CanGoForward())
     nc->GoForward();
 }
 
 void Browser::Reload() {
+  UserMetrics::RecordAction(L"Reload", profile_);
+
   // If we are showing an interstitial, treat this as an OpenURL.
   TabContents* current_tab = GetSelectedTabContents();
   if (current_tab) {
@@ -621,25 +626,254 @@ void Browser::Reload() {
 }
 
 void Browser::Stop() {
-  // TODO(mpcomplete): make this more abstracted.
-  TabContents* current_tab = GetSelectedTabContents();
-  if (current_tab && current_tab->AsWebContents())
-    current_tab->AsWebContents()->Stop();
+  UserMetrics::RecordAction(L"Stop", profile_);
+  GetSelectedTabContents()->AsWebContents()->Stop();
 }
 
 void Browser::Home() {
+  UserMetrics::RecordAction(L"Home", profile_);
   GURL homepage_url = GetHomePage();
   GetSelectedTabContents()->controller()->LoadURL(
       homepage_url, GURL(), PageTransition::AUTO_BOOKMARK);
 }
 
+void Browser::Go() {
+  UserMetrics::RecordAction(L"Go", profile_);
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv)
+    lbv->location_entry()->model()->AcceptInput(CURRENT_TAB, false);
+}
+
+void Browser::OpenCurrentURL() {
+  UserMetrics::RecordAction(L"LoadURL", profile_);
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv) {
+    OpenURL(GURL(lbv->location_input()), GURL(), lbv->disposition(),
+            lbv->transition());
+  } else {
+    OpenURL(GURL(), GURL(), CURRENT_TAB, PageTransition::TYPED);
+  }
+}
+
+void Browser::NewTab() {
+  UserMetrics::RecordAction(L"NewTab", profile_);
+  if (type() == BrowserType::TABBED_BROWSER) {
+    AddBlankTab(true);
+  } else {
+    Browser* b = GetOrCreateTabbedBrowser();
+    DCHECK(b);
+    b->Show();
+    b->window()->Activate();
+    b->AddBlankTab(true);
+  }
+}
+
+void Browser::CloseTab() {
+  UserMetrics::RecordAction(L"CloseTab_Accelerator", profile_);
+  tabstrip_model_.CloseTabContentsAt(tabstrip_model_.selected_index());
+}
+
+void Browser::CloseApp() {
+  UserMetrics::RecordAction(L"CloseWebApp", profile_);
+  tabstrip_model_.CloseTabContentsAt(tabstrip_model_.selected_index());
+}
+
+void Browser::NewWindow() {
+  UserMetrics::RecordAction(L"NewWindow", profile_);
+  Browser::OpenNewBrowserWindow(profile_->GetOriginalProfile(),
+                                SW_SHOWNORMAL);
+}
+
+void Browser::NewIncognitoWindow() {
+  UserMetrics::RecordAction(L"NewIncognitoWindow", profile_);
+  Browser::OpenNewBrowserWindow(profile_->GetOffTheRecordProfile(),
+                                SW_SHOWNORMAL);
+}
+
+void Browser::CloseWindow() {
+  UserMetrics::RecordAction(L"CloseWindow", profile_);
+  window_->Close();
+}
+
+void Browser::SelectNextTab() {
+  UserMetrics::RecordAction(L"SelectNextTab", profile_);
+  tabstrip_model_.SelectNextTab();
+}
+
+void Browser::SelectPreviousTab() {
+  UserMetrics::RecordAction(L"SelectPrevTab", profile_);
+  tabstrip_model_.SelectPreviousTab();
+}
+
+void Browser::SelectNumberedTab(int index) {
+  if (index < tab_count()) {
+    UserMetrics::RecordAction(L"SelectNumberedTab", profile_);
+    tabstrip_model_.SelectTabContentsAt(index, true);
+  }
+}
+
+void Browser::SelectLastTab() {
+  UserMetrics::RecordAction(L"SelectLastTab", profile_);
+  tabstrip_model_.SelectLastTab();
+}
+
+void Browser::DuplicateTab() {
+  UserMetrics::RecordAction(L"Duplicate", profile_);
+  DuplicateContentsAt(selected_index());
+}
+
+void Browser::RestoreTab() {
+  UserMetrics::RecordAction(L"RestoreTab", profile_);
+  TabRestoreService* service = profile_->GetTabRestoreService();
+  if (!service)
+    return;
+
+  const TabRestoreService::Tabs& tabs = service->tabs();
+  if (tabs.empty() || tabs.front().from_last_session)
+    return;
+
+  const TabRestoreService::HistoricalTab& tab = tabs.front();
+  AddRestoredTab(tab.navigations, tab_count(), tab.current_navigation_index,
+                 true);
+  service->RemoveHistoricalTabById(tab.id);
+}
+
+void Browser::ConvertPopupToTabbedBrowser() {
+  UserMetrics::RecordAction(L"ShowAsTab", profile_);
+
+  if (type() != BrowserType::BROWSER) {
+    NOTREACHED();
+    return;
+  }
+
+  int tab_strip_index = tabstrip_model_.selected_index();
+  TabContents* contents = tabstrip_model_.DetachTabContentsAt(tab_strip_index);
+  Browser* browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
+                                 BrowserType::TABBED_BROWSER, L"");
+  browser->AddNewContents(NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(),
+                          true);
+  browser->Show();
+}
+
+void Browser::Exit() {
+  UserMetrics::RecordAction(L"Exit", profile_);
+  BrowserList::CloseAllBrowsers(true);
+}
+
+// TODO(devint): http://b/issue?id=1117225 Cut, Copy, and Paste are always
+// enabled in the page menu regardless of whether the command will do
+// anything. When someone selects the menu item, we just act as if they hit
+// the keyboard shortcut for the command by sending the associated key press
+// to windows. The real fix to this bug is to disable the commands when they
+// won't do anything. We'll need something like an overall clipboard command
+// manager to do that.
+
+void Browser::Cut() {
+  UserMetrics::RecordAction(L"Cut", profile_);
+  ui_controls::SendKeyPress(L'X', true, false, false);
+}
+
+void Browser::Copy() {
+  UserMetrics::RecordAction(L"Copy", profile_);
+  ui_controls::SendKeyPress(L'C', true, false, false);
+}
+
+void Browser::CopyCurrentPageURL() {
+  UserMetrics::RecordAction(L"CopyURLToClipBoard", profile_);
+
+  TabContents* tc = GetSelectedTabContents();
+  DCHECK(tc);
+
+  std::string url = tc->GetURL().spec();
+
+  if (!::OpenClipboard(NULL)) {
+    NOTREACHED();
+    return;
+  }
+
+  if (::EmptyClipboard()) {
+    HGLOBAL text = ::GlobalAlloc(GMEM_MOVEABLE, url.size() + 1);
+    LPSTR ptr = static_cast<LPSTR>(::GlobalLock(text));
+    memcpy(ptr, url.c_str(), url.size());
+    ptr[url.size()] = '\0';
+    ::GlobalUnlock(text);
+
+    ::SetClipboardData(CF_TEXT, text);
+  }
+
+  if (!::CloseClipboard()) {
+    NOTREACHED();
+  }
+}
+
+void Browser::Paste() {
+  UserMetrics::RecordAction(L"Paste", profile_);
+  ui_controls::SendKeyPress(L'V', true, false, false);
+}
+
+void Browser::Find() {
+  UserMetrics::RecordAction(L"Find", profile_);
+  GetSelectedTabContents()->AsWebContents()->view()->FindInPage(*this, false,
+                                                                false);
+}
+
+void Browser::FindNext() {
+  UserMetrics::RecordAction(L"FindNext", profile_);
+  AdvanceFindSelection(true);
+}
+
+void Browser::FindPrevious() {
+  UserMetrics::RecordAction(L"FindPrevious", profile_);
+  AdvanceFindSelection(false);
+}
+
+void Browser::ZoomIn() {
+  UserMetrics::RecordAction(L"ZoomPlus", profile_);
+  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
+      PageZoom::LARGER);
+}
+
+void Browser::ZoomOut() {
+  UserMetrics::RecordAction(L"ZoomMinus", profile_);
+  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
+      PageZoom::SMALLER);
+}
+
+void Browser::ZoomReset() {
+  UserMetrics::RecordAction(L"ZoomNormal", profile_);
+  GetSelectedTabContents()->AsWebContents()->render_view_host()->Zoom(
+      PageZoom::STANDARD);
+}
+
 void Browser::FocusLocationBar() {
-  LocationBarView* location_bar = GetLocationBarView();
-  if (location_bar)
-    location_bar->location_entry()->SetFocus();
+  UserMetrics::RecordAction(L"FocusLocation", profile_);
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv) {
+    AutocompleteEditView* aev = lbv->location_entry();
+    aev->SetFocus();
+    aev->SelectAll(true);
+  }
+}
+
+void Browser::FocusSearch() {
+  // TODO(beng): replace this with FocusLocationBar
+  UserMetrics::RecordAction(L"FocusSearch", profile_);
+  LocationBarView* lbv = GetLocationBarView();
+  if (lbv) {
+    AutocompleteEditView* aev = lbv->location_entry();
+    aev->SetUserText(L"?");
+    aev->SetFocus();
+  }
+}
+
+void Browser::FocusToolbar() {
+  UserMetrics::RecordAction(L"FocusToolbar", profile_);
+  window_->FocusToolbar();
 }
 
 void Browser::BookmarkCurrentPage() {
+  UserMetrics::RecordAction(L"Star", profile_);
+
   TabContents* tab = GetSelectedTabContents();
   if (!tab || !tab->AsWebContents())
     return;
@@ -676,58 +910,65 @@ void Browser::BookmarkCurrentPage() {
   }
 }
 
-void Browser::OpenDebuggerWindow() {
-#ifndef CHROME_DEBUGGER_DISABLED
-  TabContents* current_tab = GetSelectedTabContents();
-  if (!current_tab)
-    return;
+void Browser::ViewSource() {
+  UserMetrics::RecordAction(L"ViewSource", profile_);
 
-  if (current_tab->AsWebContents()) {
-    // Only one debugger instance can exist at a time right now.
-    // TODO(erikkay): need an alert, dialog, something
-    // or better yet, fix the one instance limitation
-    if (!DebuggerWindow::DoesDebuggerExist()) {
-      debugger_window_ = new DebuggerWindow();
-    }
-    debugger_window_->Show(current_tab);
-  }
-#endif
-}
-
-void Browser::OpenFindInPageWindow() {
   TabContents* current_tab = GetSelectedTabContents();
-  if (current_tab && current_tab->AsWebContents())
-    current_tab->AsWebContents()->view()->FindInPage(*this, false, false);
-}
-
-void Browser::AdvanceFindSelection(bool forward_direction) {
-  TabContents* current_tab = GetSelectedTabContents();
-  if (current_tab && current_tab->AsWebContents()) {
-    current_tab->AsWebContents()->view()->FindInPage(*this, true,
-                                                     forward_direction);
+  NavigationEntry* entry = current_tab->controller()->GetLastCommittedEntry();
+  if (entry) {
+    GURL url("view-source:" + entry->url().spec());
+    AddTabWithURL(url, GURL(), PageTransition::LINK, true, NULL);
   }
 }
 
-void Browser::ConvertToTabbedBrowser() {
-  if (type() != BrowserType::BROWSER) {
-    NOTREACHED();
-    return;
-  }
+void Browser::ClosePopups() {
+  UserMetrics::RecordAction(L"CloseAllSuppressedPopups", profile_);
+  GetSelectedTabContents()->CloseAllSuppressedPopups();
+}
 
-  int tab_strip_index = tabstrip_model_.selected_index();
-  TabContents* contents = tabstrip_model_.DetachTabContentsAt(tab_strip_index);
-  Browser* browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
-                                 BrowserType::TABBED_BROWSER, L"");
-  browser->AddNewContents(
-    NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(), true);
-  browser->Show();
+void Browser::Print() {
+  UserMetrics::RecordAction(L"PrintPreview", profile_);
+  GetSelectedTabContents()->AsWebContents()->PrintPreview();
+}
+
+void Browser::SavePage() {
+  UserMetrics::RecordAction(L"SavePage", profile_);
+  GetSelectedTabContents()->AsWebContents()->OnSavePage();
+}
+
+void Browser::ToggleEncodingAutoDetect() {
+  UserMetrics::RecordAction(L"AutoDetectChange", profile_);
+  encoding_auto_detect_.SetValue(!encoding_auto_detect_.GetValue());
+  // Reload the page so we can try to auto-detect the charset.
+  Reload();
+}
+
+void Browser::OverrideEncoding(int encoding_id) {
+  UserMetrics::RecordAction(L"OverrideEncoding", profile_);
+  const std::wstring selected_encoding =
+      CharacterEncoding::GetCanonicalEncodingNameByCommandId(encoding_id);
+  TabContents* current_tab = GetSelectedTabContents();
+  if (!selected_encoding.empty() && current_tab &&
+      current_tab->AsWebContents())
+     current_tab->AsWebContents()->override_encoding(selected_encoding);
+  // Update the list of recently selected encodings.
+  std::wstring new_selected_encoding_list;
+  if (CharacterEncoding::UpdateRecentlySelectdEncoding(
+          profile_->GetPrefs()->GetString(prefs::kRecentlySelectedEncoding),
+          encoding_id,
+          &new_selected_encoding_list)) {
+    profile_->GetPrefs()->SetString(prefs::kRecentlySelectedEncoding,
+                                    new_selected_encoding_list);
+  }
 }
 
 void Browser::OpenKeywordEditor() {
+  UserMetrics::RecordAction(L"EditSearchEngines", profile_);
   KeywordEditorView::Show(profile());
 }
 
 void Browser::OpenClearBrowsingDataDialog() {
+  UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
   views::Window::CreateChromeWindow(
       GetTopLevelHWND(),
       gfx::Rect(),
@@ -735,11 +976,14 @@ void Browser::OpenClearBrowsingDataDialog() {
 }
 
 void Browser::OpenImportSettingsDialog() {
+  UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
   views::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
                                     new ImporterView(profile_))->Show();
 }
 
 void Browser::OpenBugReportDialog() {
+  UserMetrics::RecordAction(L"ReportBug", profile_);
+
   // Retrieve the URL for the current tab (if any) and tell the BugReportView
   TabContents* current_tab = GetSelectedTabContents();
   if (!current_tab)
@@ -779,30 +1023,88 @@ void Browser::OpenBugReportDialog() {
                                     bug_report_view)->Show();
 }
 
-void Browser::CopyCurrentURLToClipBoard() {
-  TabContents* tc = GetSelectedTabContents();
-  DCHECK(tc);
-
-  std::string url = tc->GetURL().spec();
-
-  if (!::OpenClipboard(NULL)) {
-    NOTREACHED();
+void Browser::OpenDebuggerWindow() {
+#ifndef CHROME_DEBUGGER_DISABLED
+  UserMetrics::RecordAction(L"Debugger", profile_);
+  TabContents* current_tab = GetSelectedTabContents();
+  if (!current_tab)
     return;
-  }
 
-  if (::EmptyClipboard()) {
-    HGLOBAL text = ::GlobalAlloc(GMEM_MOVEABLE, url.size() + 1);
-    LPSTR ptr = static_cast<LPSTR>(::GlobalLock(text));
-    memcpy(ptr, url.c_str(), url.size());
-    ptr[url.size()] = '\0';
-    ::GlobalUnlock(text);
-
-    ::SetClipboardData(CF_TEXT, text);
+  if (current_tab->AsWebContents()) {
+    // Only one debugger instance can exist at a time right now.
+    // TODO(erikkay): need an alert, dialog, something
+    // or better yet, fix the one instance limitation
+    if (!DebuggerWindow::DoesDebuggerExist()) {
+      debugger_window_ = new DebuggerWindow();
+    }
+    debugger_window_->Show(current_tab);
   }
+#endif
+}
 
-  if (!::CloseClipboard()) {
-    NOTREACHED();
-  }
+void Browser::OpenJavaScriptConsole() {
+  UserMetrics::RecordAction(L"ShowJSConsole", profile_);
+  GetSelectedTabContents()->AsWebContents()->render_view_host()->
+      ShowJavaScriptConsole();
+}
+
+void Browser::OpenCreateShortcutsDialog() {
+  UserMetrics::RecordAction(L"CreateShortcut", profile_);
+  GetSelectedTabContents()->AsWebContents()->CreateShortcut();
+}
+
+void Browser::OpenPasswordManager() {
+  PasswordManagerView::Show(profile_);
+}
+
+void Browser::OpenAboutChromeDialog() {
+  UserMetrics::RecordAction(L"AboutChrome", profile_);
+  views::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
+                                    new AboutChromeView(profile_))->Show();
+}
+
+void Browser::OpenFile() {
+  UserMetrics::RecordAction(L"OpenFile", profile_);
+  if (!select_file_dialog_.get())
+    select_file_dialog_ = SelectFileDialog::Create(this);
+  select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
+                                  L"", L"", GetTopLevelHWND(), NULL);
+}
+
+void Browser::OpenTaskManager() {
+  UserMetrics::RecordAction(L"TaskManager", profile_);
+  TaskManager::Open();
+}
+
+void Browser::OpenOptionsDialog() {
+  UserMetrics::RecordAction(L"ShowOptions", profile_);
+  ShowOptionsWindow(OPTIONS_PAGE_DEFAULT, OPTIONS_GROUP_NONE, profile_);
+}
+
+void Browser::OpenHelpTab() {
+  GURL help_url(l10n_util::GetString(IDS_HELP_CONTENT_URL));
+  AddTabWithURL(help_url, GURL(), PageTransition::AUTO_BOOKMARK, true,
+                NULL);
+}
+
+void Browser::ShowHistoryTab() {
+  UserMetrics::RecordAction(L"ShowHistory", profile_);
+  ShowNativeUITab(HistoryTabUI::GetURL());
+}
+
+void Browser::ShowDownloadsTab() {
+  UserMetrics::RecordAction(L"ShowDownloads", profile_);
+  ShowNativeUITab(DownloadTabUI::GetURL());
+}
+
+void Browser::OpenBookmarksManager() {
+  UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
+  BookmarkManagerView::Show(profile_);
+}
+
+void Browser::ToggleBookmarksBar() {
+  UserMetrics::RecordAction(L"ShowBookmarksBar", profile_);
+  BookmarkBarView::ToggleWhenVisible(profile_);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -861,176 +1163,25 @@ void Browser::ExecuteCommand(int id) {
   if (!GetSelectedTabContents())
     return;
 
+  // The order of commands in this switch statement must match the function
+  // declaration order in browser.h!
   switch (id) {
-    case IDC_BACK:
-      UserMetrics::RecordAction(L"Back", profile_);
-      GoBack();
-      break;
+    case IDC_BACK: GoBack(); break;
+    case IDC_FORWARD: GoForward(); break;
+    case IDC_RELOAD: Reload(); break;
+    case IDC_STOP: Stop(); break;
+    case IDC_HOME: Home(); break;
+    case IDC_GO: Go(); break;
+    case IDC_OPENURL: OpenCurrentURL(); break;
 
-    case IDC_FORWARD:
-      UserMetrics::RecordAction(L"Forward", profile_);
-      GoForward();
-      break;
-
-    case IDC_RELOAD:
-      UserMetrics::RecordAction(L"Reload", profile_);
-      Reload();
-      break;
-
-    case IDC_HOME:
-      UserMetrics::RecordAction(L"Home", profile_);
-      Home();
-      break;
-
-    case IDC_STOP:
-      UserMetrics::RecordAction(L"Stop", profile_);
-      Stop();
-      break;
-
-    case IDC_GO:
-      UserMetrics::RecordAction(L"Go", profile_);
-      {
-        LocationBarView* lbv = GetLocationBarView();
-        if (lbv)
-          lbv->location_entry()->model()->AcceptInput(CURRENT_TAB, false);
-      }
-      break;
-
-    case IDC_NEWTAB:
-      UserMetrics::RecordAction(L"NewTab", profile_);
-      if (type() == BrowserType::TABBED_BROWSER) {
-        AddBlankTab(true);
-      } else {
-        Browser* b = GetOrCreateTabbedBrowser();
-        DCHECK(b);
-        b->Show();
-        b->window()->Activate();
-        b->AddBlankTab(true);
-      }
-      break;
-
-    case IDC_CLOSE_WEB_APP:
-      UserMetrics::RecordAction(L"CloseWebApp", profile_);
-      tabstrip_model_.CloseTabContentsAt(tabstrip_model_.selected_index());
-      break;
-
-    case IDC_CLOSETAB:
-      UserMetrics::RecordAction(L"CloseTab_Accelerator", profile_);
-      tabstrip_model_.CloseTabContentsAt(tabstrip_model_.selected_index());
-      break;
-
-    case IDC_NEWWINDOW:
-      UserMetrics::RecordAction(L"NewWindow", profile_);
-      Browser::OpenNewBrowserWindow(profile_->GetOriginalProfile(),
-                                    SW_SHOWNORMAL);
-      break;
-
-    case IDC_CLOSEWINDOW:
-      UserMetrics::RecordAction(L"CloseWindow", profile_);
-      window_->Close();
-      break;
-
-    case IDC_FOCUS_LOCATION:
-      UserMetrics::RecordAction(L"FocusLocation", profile_);
-      {
-        LocationBarView* lbv = GetLocationBarView();
-        if (lbv) {
-          AutocompleteEditView* aev = lbv->location_entry();
-          aev->SetFocus();
-          aev->SelectAll(true);
-        }
-      }
-      break;
-
-    case IDC_FOCUS_SEARCH:
-      UserMetrics::RecordAction(L"FocusSearch", profile_);
-      {
-        LocationBarView* lbv = GetLocationBarView();
-        if (lbv) {
-          AutocompleteEditView* aev = lbv->location_entry();
-          aev->SetUserText(L"?");
-          aev->SetFocus();
-        }
-      }
-      break;
-
-    case IDC_FOCUS_TOOLBAR:
-      UserMetrics::RecordAction(L"FocusToolbar", profile_);
-      {
-        window_->FocusToolbar();
-      }
-      break;
-
-    case IDC_STAR:
-      UserMetrics::RecordAction(L"Star", profile_);
-      BookmarkCurrentPage();
-      break;
-
-    case IDC_OPENURL:
-      UserMetrics::RecordAction(L"LoadURL", profile_);
-      {
-        LocationBarView* lbv = GetLocationBarView();
-        if (lbv) {
-          OpenURL(GURL(lbv->location_input()), GURL(), lbv->disposition(),
-                  lbv->transition());
-        } else {
-          OpenURL(GURL(), GURL(), CURRENT_TAB, PageTransition::TYPED);
-        }
-      }
-      break;
-
-    // TODO(devint): http://b/issue?id=1117225 Cut, Copy, and Paste are always
-    // enabled in the page menu regardless of whether the command will do
-    // anything. When someone selects the menu item, we just act as if they hit
-    // the keyboard shortcut for the command by sending the associated key press
-    // to windows. The real fix to this bug is to disable the commands when they
-    // won't do anything. We'll need something like an overall clipboard command
-    // manager to do that.
-    case IDC_CUT:
-      UserMetrics::RecordAction(L"Cut", profile_);
-      ui_controls::SendKeyPress(L'X', true, false, false);
-      break;
-
-    case IDC_COPY:
-      UserMetrics::RecordAction(L"Copy", profile_);
-      ui_controls::SendKeyPress(L'C', true, false, false);
-      break;
-
-    case IDC_PASTE:
-      UserMetrics::RecordAction(L"Paste", profile_);
-      ui_controls::SendKeyPress(L'V', true, false, false);
-      break;
-
-    case IDC_FIND:
-      UserMetrics::RecordAction(L"Find", profile_);
-      OpenFindInPageWindow();
-      break;
-
-    case IDC_FIND_NEXT:
-      UserMetrics::RecordAction(L"FindNext", profile_);
-      AdvanceFindSelection(true);
-      break;
-
-    case IDC_FIND_PREVIOUS:
-      UserMetrics::RecordAction(L"FindPrevious", profile_);
-      AdvanceFindSelection(false);
-      break;
-
-    case IDS_COMMANDS_REPORTBUG:
-      UserMetrics::RecordAction(L"ReportBug", profile_);
-      OpenBugReportDialog();
-      break;
-
-    case IDC_SELECT_NEXT_TAB:
-      UserMetrics::RecordAction(L"SelectNextTab", profile_);
-      tabstrip_model_.SelectNextTab();
-      break;
-
-    case IDC_SELECT_PREV_TAB:
-      UserMetrics::RecordAction(L"SelectPrevTab", profile_);
-      tabstrip_model_.SelectPreviousTab();
-      break;
-
+    case IDC_NEWTAB: NewTab(); break;
+    case IDC_CLOSETAB: CloseTab(); break;
+    case IDC_CLOSE_WEB_APP: CloseApp(); break;
+    case IDC_NEWWINDOW: NewWindow(); break;
+    case IDC_GOOFFTHERECORD: NewIncognitoWindow(); break;
+    case IDC_CLOSEWINDOW: CloseWindow(); break;
+    case IDC_SELECT_NEXT_TAB: SelectNextTab(); break;
+    case IDC_SELECT_PREV_TAB: SelectPreviousTab(); break;
     case IDC_SELECT_TAB_0:
     case IDC_SELECT_TAB_1:
     case IDC_SELECT_TAB_2:
@@ -1038,171 +1189,36 @@ void Browser::ExecuteCommand(int id) {
     case IDC_SELECT_TAB_4:
     case IDC_SELECT_TAB_5:
     case IDC_SELECT_TAB_6:
-    case IDC_SELECT_TAB_7: {
-      int new_index = id - IDC_SELECT_TAB_0;
-      if (new_index < tab_count()) {
-        tabstrip_model_.SelectTabContentsAt(new_index, true);
-        UserMetrics::RecordAction(L"SelectNumberedTab", profile_);
-      }
-      break;
-    }
+    case IDC_SELECT_TAB_7: SelectNumberedTab(id - IDC_SELECT_TAB_0); break;
+    case IDC_SELECT_LAST_TAB: SelectLastTab(); break;
+    case IDC_DUPLICATE: DuplicateTab(); break;
+    case IDC_RESTORE_TAB: RestoreTab(); break;
+    case IDC_SHOW_AS_TAB: ConvertPopupToTabbedBrowser(); break;
+    case IDC_EXIT: Exit(); break;
 
-    case IDC_SELECT_LAST_TAB:
-      UserMetrics::RecordAction(L"SelectLastTab", profile_);
-      tabstrip_model_.SelectLastTab();
-      break;
+    case IDC_CUT: Cut(); break;
+    case IDC_COPY: Copy(); break;
+    case IDC_COPY_URL: CopyCurrentPageURL(); break;
+    case IDC_PASTE: Paste(); break;
 
-    case IDC_VIEWSOURCE: {
-      UserMetrics::RecordAction(L"ViewSource", profile_);
+    case IDC_FIND: Find(); break;
+    case IDC_FIND_NEXT: FindNext(); break;
+    case IDC_FIND_PREVIOUS: FindPrevious(); break;
 
-      TabContents* current_tab = GetSelectedTabContents();
-      NavigationEntry* entry =
-          current_tab->controller()->GetLastCommittedEntry();
-      if (entry) {
-        GURL url("view-source:" + entry->url().spec());
-        AddTabWithURL(url, GURL(), PageTransition::LINK, true, NULL);
-      }
-      break;
-    }
+    case IDC_ZOOM_PLUS: ZoomIn(); break;
+    case IDC_ZOOM_MINUS: ZoomOut(); break;
+    case IDC_ZOOM_NORMAL: ZoomReset(); break;
 
-    case IDC_SHOW_JS_CONSOLE: {
-      UserMetrics::RecordAction(L"ShowJSConsole", profile_);
-      TabContents* current_tab = GetSelectedTabContents();
-      if (current_tab && current_tab->AsWebContents()) {
-        WebContents* wc = current_tab->AsWebContents();
-        wc->render_view_host()->ShowJavaScriptConsole();
-      }
-      break;
-    }
+    case IDC_FOCUS_LOCATION: FocusLocationBar(); break;
+    case IDC_FOCUS_SEARCH: FocusSearch(); break;
+    case IDC_FOCUS_TOOLBAR: FocusToolbar(); break;
 
-    case IDC_CREATE_SHORTCUT: {
-      UserMetrics::RecordAction(L"CreateShortcut", profile_);
-      WebContents* contents = this->GetSelectedTabContents()->AsWebContents();
-      if (contents)
-        contents->CreateShortcut();
-      break;
-    }
-
-    case IDC_GOOFFTHERECORD: {
-      Browser::OpenNewBrowserWindow(profile_->GetOffTheRecordProfile(),
-                                    SW_SHOWNORMAL);
-      break;
-    }
-
-    case IDC_VIEW_PASSWORDS: {
-      PasswordManagerView::Show(profile_);
-      break;
-    }
-
-    case IDC_IMPORT_SETTINGS: {
-      UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
-      OpenImportSettingsDialog();
-      break;
-    }
-
-    case IDC_CLEAR_BROWSING_DATA: {
-      UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
-      OpenClearBrowsingDataDialog();
-      break;
-    }
-
-    case IDC_ABOUT: {
-      UserMetrics::RecordAction(L"AboutChrome", profile_);
-      views::Window::CreateChromeWindow(
-          GetTopLevelHWND(),
-          gfx::Rect(),
-          new AboutChromeView(profile_))->Show();
-      break;
-    }
-
-    case IDC_EDIT_SEARCH_ENGINES: {
-      UserMetrics::RecordAction(L"EditSearchEngines", profile_);
-      OpenKeywordEditor();
-      break;
-    }
-
-    case IDC_ZOOM_PLUS: {
-      UserMetrics::RecordAction(L"ZoomPlus", profile_);
-      TabContents* current_tab = GetSelectedTabContents();
-      if (current_tab->AsWebContents()) {
-        current_tab->AsWebContents()->render_view_host()->Zoom(
-            PageZoom::LARGER);
-      }
-      break;
-    }
-
-    case IDC_ZOOM_MINUS: {
-      UserMetrics::RecordAction(L"ZoomMinus", profile_);
-      TabContents* current_tab = GetSelectedTabContents();
-      if (current_tab->AsWebContents()) {
-        current_tab->AsWebContents()->render_view_host()->Zoom(
-            PageZoom::SMALLER);
-      }
-      break;
-    }
-
-    case IDC_ZOOM_NORMAL: {
-      UserMetrics::RecordAction(L"ZoomNormal", profile_);
-      TabContents* current_tab = GetSelectedTabContents();
-      if (current_tab->AsWebContents()) {
-        current_tab->AsWebContents()->render_view_host()->Zoom(
-            PageZoom::STANDARD);
-      }
-      break;
-    }
-
-    case IDC_OPENFILE: {
-      UserMetrics::RecordAction(L"OpenFile", profile_);
-      if (!select_file_dialog_.get())
-        select_file_dialog_ = SelectFileDialog::Create(this);
-      select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
-                                      L"", L"", GetTopLevelHWND(), NULL);
-      break;
-    }
-
-    case IDC_TASKMANAGER:
-      UserMetrics::RecordAction(L"TaskManager", profile_);
-      TaskManager::Open();
-      break;
-
-    case IDC_CLOSEPOPUPS:
-      UserMetrics::RecordAction(L"CloseAllSuppressedPopups", profile_);
-      GetSelectedTabContents()->CloseAllSuppressedPopups();
-      break;
-
-    case IDC_PRINT: {
-      UserMetrics::RecordAction(L"PrintPreview", profile_);
-      WebContents* const web_contents =
-          GetSelectedTabContents()->AsWebContents();
-      DCHECK(web_contents);
-      web_contents->PrintPreview();
-      break;
-    }
-
-    case IDC_COPY_URL:
-      UserMetrics::RecordAction(L"CopyURLToClipBoard", profile_);
-      CopyCurrentURLToClipBoard();
-      break;
-
-    case IDC_SAVEPAGE: {
-      UserMetrics::RecordAction(L"SavePage", profile_);
-      TabContents* current_tab = GetSelectedTabContents();
-      if (current_tab) {
-        WebContents* web_tab = current_tab->AsWebContents();
-        DCHECK(web_tab);
-        web_tab->OnSavePage();
-      }
-      break;
-    }
-
-    case IDC_ENCODING_AUTO_DETECT: {
-      UserMetrics::RecordAction(L"AutoDetectChange", profile_);
-      encoding_auto_detect_.SetValue(!encoding_auto_detect_.GetValue());
-      // Reload the page so we can try to auto-detect the charset.
-      Reload();
-      break;
-    }
-
+    case IDC_STAR: BookmarkCurrentPage(); break;
+    case IDC_VIEWSOURCE: ViewSource(); break;
+    case IDC_CLOSEPOPUPS: ClosePopups(); break;
+    case IDC_PRINT: Print(); break;
+    case IDC_SAVEPAGE: SavePage(); break;
+    case IDC_ENCODING_AUTO_DETECT: ToggleEncodingAutoDetect(); break;
     case IDC_ENCODING_UTF8:
     case IDC_ENCODING_UTF16LE:
     case IDC_ENCODING_ISO88591:
@@ -1239,96 +1255,29 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ENCODING_WINDOWS1256:
     case IDC_ENCODING_ISO88598:
     case IDC_ENCODING_WINDOWS1255:
-    case IDC_ENCODING_WINDOWS1258: {
-      UserMetrics::RecordAction(L"OverrideEncoding", profile_);
-      const std::wstring selected_encoding =
-          CharacterEncoding::GetCanonicalEncodingNameByCommandId(id);
-      TabContents* current_tab = GetSelectedTabContents();
-      if (!selected_encoding.empty() && current_tab &&
-          current_tab->AsWebContents())
-         current_tab->AsWebContents()->override_encoding(selected_encoding);
-      // Update the list of recently selected encodings.
-      std::wstring new_selected_encoding_list;
-      if (CharacterEncoding::UpdateRecentlySelectdEncoding(
-              profile_->GetPrefs()->GetString(prefs::kRecentlySelectedEncoding),
-              id,
-              &new_selected_encoding_list))
-        profile_->GetPrefs()->SetString(prefs::kRecentlySelectedEncoding,
-                                        new_selected_encoding_list);
-       break;
-    }
+    case IDC_ENCODING_WINDOWS1258: OverrideEncoding(id); break;
 
-    case IDC_DUPLICATE:
-      UserMetrics::RecordAction(L"Duplicate", profile_);
-      DuplicateContentsAt(selected_index());
-      break;
-
-    case IDC_SHOW_BOOKMARKS_BAR:
-      UserMetrics::RecordAction(L"ShowBookmarksBar", profile_);
-      BookmarkBarView::ToggleWhenVisible(profile_);
-      break;
-
-    case IDC_SHOW_BOOKMARK_MANAGER:
-      UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
-      BookmarkManagerView::Show(profile_);
-      break;
-
-    case IDC_SHOW_HISTORY:
-      UserMetrics::RecordAction(L"ShowHistory", profile_);
-      ShowNativeUITab(HistoryTabUI::GetURL());
-      break;
-
-    case IDC_SHOW_DOWNLOADS:
-      UserMetrics::RecordAction(L"ShowDownloads", profile_);
-      ShowNativeUITab(DownloadTabUI::GetURL());
-      break;
-
-    case IDC_OPTIONS:
-      UserMetrics::RecordAction(L"ShowOptions", profile_);
-      ShowOptionsWindow(OPTIONS_PAGE_DEFAULT, OPTIONS_GROUP_NONE, profile_);
-      break;
-
-    case IDC_DEBUGGER:
-      UserMetrics::RecordAction(L"Debugger", profile_);
-      OpenDebuggerWindow();
-      break;
-
-    case IDC_SHOW_AS_TAB:
-      UserMetrics::RecordAction(L"ShowAsTab", profile_);
-      ConvertToTabbedBrowser();
-      break;
-
-    case IDC_RESTORE_TAB: {
-      UserMetrics::RecordAction(L"RestoreTab", profile_);
-      TabRestoreService* service = profile_->GetTabRestoreService();
-      if (!service)
-        break;
-
-      const TabRestoreService::Tabs& tabs = service->tabs();
-      if (tabs.empty() || tabs.front().from_last_session)
-        break;
-
-      const TabRestoreService::HistoricalTab& tab = tabs.front();
-      AddRestoredTab(tab.navigations, tab_count(), tab.current_navigation_index,
-                     true);
-      service->RemoveHistoricalTabById(tab.id);
-      break;
-    }
-
-    case IDC_EXIT:
-      BrowserList::CloseAllBrowsers(true);
-      break;
-
-    case IDC_HELPMENU: {
-      GURL help_url(l10n_util::GetString(IDS_HELP_CONTENT_URL));
-      AddTabWithURL(help_url, GURL(), PageTransition::AUTO_BOOKMARK, true,
-                    NULL);
-      break;
-    }
+    case IDC_EDIT_SEARCH_ENGINES: OpenKeywordEditor(); break;
+    case IDC_CLEAR_BROWSING_DATA: OpenClearBrowsingDataDialog(); break;
+    case IDC_IMPORT_SETTINGS: OpenImportSettingsDialog(); break;
+    case IDS_COMMANDS_REPORTBUG: OpenBugReportDialog(); break;
+    case IDC_DEBUGGER: OpenDebuggerWindow(); break;
+    case IDC_SHOW_JS_CONSOLE: OpenJavaScriptConsole(); break;
+    case IDC_CREATE_SHORTCUT: OpenCreateShortcutsDialog(); break;
+    case IDC_VIEW_PASSWORDS: OpenPasswordManager(); break;
+    case IDC_ABOUT: OpenAboutChromeDialog(); break;
+    case IDC_OPENFILE: OpenFile(); break;
+    case IDC_TASKMANAGER: OpenTaskManager(); break;
+    case IDC_OPTIONS: OpenOptionsDialog(); break;
+    case IDC_HELPMENU: OpenHelpTab(); break;
+    case IDC_SHOW_HISTORY: ShowHistoryTab(); break;
+    case IDC_SHOW_DOWNLOADS: ShowDownloadsTab(); break;
+    case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarksManager(); break;
+    case IDC_SHOW_BOOKMARKS_BAR: ToggleBookmarksBar(); break;
 
     default:
-      LOG(WARNING) << "Received Unimplemented Command: " << id <<
-        " from window " << GetTopLevelHWND();
+      LOG(WARNING) << "Received Unimplemented Command: " << id;
+      break;
   }
 }
 
@@ -2149,6 +2098,15 @@ void Browser::UpdateNavigationCommands() {
     controller_.UpdateCommandEnabled(IDC_SAVEPAGE,
         SavePackage::IsSavableURL(current_tab->GetURL()));
     controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, true);
+    controller_.UpdateCommandEnabled(IDC_FIND, true);
+    controller_.UpdateCommandEnabled(IDC_FIND_NEXT, true);
+    controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, true);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, true);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, true);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, true);
+    controller_.UpdateCommandEnabled(IDC_STOP, true);
+    controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, true);
+    controller_.UpdateCommandEnabled(IDC_PRINT, true);
   } else {
     controller_.UpdateCommandEnabled(IDC_VIEWSOURCE, false);
     controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, false);
@@ -2160,13 +2118,20 @@ void Browser::UpdateNavigationCommands() {
     controller_.UpdateCommandEnabled(IDC_ENCODING, false);
 
     controller_.UpdateCommandEnabled(IDC_SAVEPAGE, false);
+    controller_.UpdateCommandEnabled(IDC_FIND, false);
+    controller_.UpdateCommandEnabled(IDC_FIND_NEXT, false);
+    controller_.UpdateCommandEnabled(IDC_FIND_PREVIOUS, false);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_PLUS, false);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_MINUS, false);
+    controller_.UpdateCommandEnabled(IDC_ZOOM_NORMAL, false);
+    controller_.UpdateCommandEnabled(IDC_STOP, false);
+    controller_.UpdateCommandEnabled(IDC_SHOW_JS_CONSOLE, false);
+    controller_.UpdateCommandEnabled(IDC_PRINT, false);
   }
 
   controller_.UpdateCommandEnabled(IDC_CREATE_SHORTCUT,
                                    current_tab->type() == TAB_CONTENTS_WEB &&
                                        !current_tab->GetFavIcon().isNull());
-  controller_.UpdateCommandEnabled(IDC_FIND, web_contents != NULL);
-  controller_.UpdateCommandEnabled(IDC_PRINT, web_contents != NULL);
   controller_.UpdateCommandEnabled(IDC_DUPLICATE,
                                    CanDuplicateContentsAt(selected_index()));
 }
@@ -2470,6 +2435,11 @@ GURL Browser::GetHomePage() {
 
     return home_page;
   }
+}
+
+void Browser::AdvanceFindSelection(bool forward_direction) {
+  GetSelectedTabContents()->AsWebContents()->view()->FindInPage(
+      *this, true, forward_direction);
 }
 
 void Browser::CloseFrame() {

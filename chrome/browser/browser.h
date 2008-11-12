@@ -192,48 +192,79 @@ class Browser : public TabStripModelDelegate,
 
   // Assorted browser commands ////////////////////////////////////////////////
 
-  // Navigation Commands
+  // Navigation commands
   void GoBack();
   void GoForward();
   void Reload();
   void Stop();
   void Home();
+  void Go();
+  void OpenCurrentURL();
 
-  // Sets focus on the location bar's text field - public because 
-  void FocusLocationBar();
+  // Window management commands
+  void NewTab();
+  void CloseTab();
+  void CloseApp();
+  void NewWindow();
+  void NewIncognitoWindow();
+  void CloseWindow();
+  void SelectNextTab();
+  void SelectPreviousTab();
+  void SelectNumberedTab(int index);
+  void SelectLastTab();
+  void DuplicateTab();
+  void RestoreTab();
+  void ConvertPopupToTabbedBrowser();
+  void Exit();
 
-  // Adds a Bookmark for the currently selected tab.
-  void BookmarkCurrentPage();
-
-  // Open the debugger shell.
-  void OpenDebuggerWindow();
+  // Clipboard commands
+  void Cut();
+  void Copy();
+  void CopyCurrentPageURL();
+  void Paste();
 
   // Opens the FindInPage window for the currently open tab.
-  void OpenFindInPageWindow();
+  void Find();
+  void FindNext();
+  void FindPrevious();
 
-  // Advance the find selection by one. Direction is either forward or
-  // backwards depending on parameter passed in.
-  void AdvanceFindSelection(bool forward_direction);
+  // Zoom
+  void ZoomIn();
+  void ZoomOut();
+  void ZoomReset();
 
-  // Convert the receiving Browser to a normal browser window. This is used to
-  // convert a popup window into a normal browser window. The receiver's type
-  // must be BROWSER.
-  void ConvertToTabbedBrowser();
+  // Sets focus to various bits of UI.
+  void FocusLocationBar();
+  void FocusSearch();
+  void FocusToolbar();
 
-  // Opens the Keyword Editor
+  // Page-related commands.
+  void BookmarkCurrentPage();
+  void ViewSource();
+  void ClosePopups();
+  void Print();
+  void SavePage();
+  void ToggleEncodingAutoDetect();
+  void OverrideEncoding(int encoding_id);
+
+  // Show various bits of UI.
   void OpenKeywordEditor();
-
-  // Opens the Clear Browsing Data dialog.
   void OpenClearBrowsingDataDialog();
-
-  // Opens the Import settings dialog.
   void OpenImportSettingsDialog();
-
-  // Opens the Bug Report dialog.
   void OpenBugReportDialog();
-
-  // Copy the current page URL to the clipboard.
-  void CopyCurrentURLToClipBoard();
+  void OpenDebuggerWindow();
+  void OpenJavaScriptConsole();
+  void OpenCreateShortcutsDialog();
+  void OpenPasswordManager();
+  void OpenAboutChromeDialog();
+  void OpenFile();
+  void OpenTaskManager();
+  void OpenOptionsDialog();
+  void OpenHelpTab();
+  void ShowHistoryTab();
+  void ShowDownloadsTab();
+  void OpenBookmarksManager();
+  void ToggleBookmarksBar();
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -439,6 +470,10 @@ class Browser : public TabStripModelDelegate,
   // Returns what the user's home page is, or the new tab page if the home page
   // has not been set.
   GURL GetHomePage();
+
+  // Advance the find selection by one. Direction is either forward or
+  // backwards depending on parameter passed in.
+  void AdvanceFindSelection(bool forward_direction);
 
   // Closes the frame.
   // TODO(beng): figure out if we need this now that the frame itself closes
