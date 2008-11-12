@@ -72,10 +72,6 @@ InfoBubble* InfoBubble::Show(HWND parent_hwnd,
                              InfoBubbleDelegate* delegate) {
   InfoBubble* window = new InfoBubble();
   window->Init(parent_hwnd, position_relative_to, content);
-  window->parent_ =
-      reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
-          parent_hwnd));
-  window->parent_->DisableInactiveRendering(true);
   window->ShowWindow(SW_SHOW);
   window->delegate_ = delegate;
   return window;
@@ -90,6 +86,10 @@ InfoBubble::~InfoBubble() {
 void InfoBubble::Init(HWND parent_hwnd,
                       const gfx::Rect& position_relative_to,
                       views::View* content) {
+  parent_ = reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
+      parent_hwnd));
+  parent_->DisableInactiveRendering(true);
+
   if (kInfoBubbleCornerTopLeft == NULL) {
     kInfoBubbleCornerTopLeft = ResourceBundle::GetSharedInstance()
         .GetBitmapNamed(IDR_INFO_BUBBLE_CORNER_TOP_LEFT);

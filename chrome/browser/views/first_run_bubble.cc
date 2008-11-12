@@ -207,11 +207,6 @@ FirstRunBubble* FirstRunBubble::Show(HWND parent_hwnd,
   views::View* view = new FirstRunBubbleView(window);
   window->SetDelegate(window);
   window->Init(parent_hwnd, position_relative_to, view);
-
-  views::Window* parent_window =
-      reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
-          parent_hwnd));
-  parent_window->DisableInactiveRendering(true);
   window->ShowWindow(SW_SHOW);
   return window;
 }
