@@ -4,6 +4,8 @@
 
 #include "base/string_util.h"
 
+#include "build/build_config.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <math.h>
@@ -21,6 +23,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/singleton.h"
+#include "third_party/dmg_fp/dmg_fp.h"
 
 namespace {
 
@@ -86,13 +89,14 @@ static bool CompareParameter(const ReplacementOffset& elem1,
 //    should check for leading whitespace.
 template<typename StringToNumberTraits>
 bool StringToNumber(const typename StringToNumberTraits::string_type& input,
-                    typename StringToNumberTraits::value_type* output) {
+                    typename StringToNumberTraits::value_type* output,
+                    base::LocaleDependence locale_dependent) {
   typedef StringToNumberTraits traits;
 
   errno = 0;  // Thread-safe?  It is on at least Mac, Linux, and Windows.
   typename traits::string_type::value_type* endptr = NULL;
   typename traits::value_type value = traits::convert_func(input.c_str(),
-                                                           &endptr);
+      &endptr, locale_dependent == base::LOCALE_DEPENDENT);
   *output = value;
 
   // Cases to return false:
@@ -116,7 +120,8 @@ class StringToLongTraits {
   typedef long value_type;
   static const int kBase = 10;
   static inline value_type convert_func(const string_type::value_type* str,
-                                        string_type::value_type** endptr) {
+                                        string_type::value_type** endptr,
+                                        bool locale_dependent) {
     return strtol(str, endptr, kBase);
   }
   static inline bool valid_func(const string_type& str) {
@@ -130,7 +135,8 @@ class WStringToLongTraits {
   typedef long value_type;
   static const int kBase = 10;
   static inline value_type convert_func(const string_type::value_type* str,
-                                        string_type::value_type** endptr) {
+                                        string_type::value_type** endptr,
+                                        bool locale_dependent) {
     return wcstol(str, endptr, kBase);
   }
   static inline bool valid_func(const string_type& str) {
@@ -144,7 +150,8 @@ class StringToInt64Traits {
   typedef int64 value_type;
   static const int kBase = 10;
   static inline value_type convert_func(const string_type::value_type* str,
-                                        string_type::value_type** endptr) {
+                                        string_type::value_type** endptr,
+                                        bool locale_dependent) {
 #ifdef OS_WIN
     return _strtoi64(str, endptr, kBase);
 #else  // assume OS_POSIX
@@ -162,7 +169,8 @@ class WStringToInt64Traits {
   typedef int64 value_type;
   static const int kBase = 10;
   static inline value_type convert_func(const string_type::value_type* str,
-                                        string_type::value_type** endptr) {
+                                        string_type::value_type** endptr,
+                                        bool locale_dependent) {
 #ifdef OS_WIN
     return _wcstoi64(str, endptr, kBase);
 #else  // assume OS_POSIX
@@ -183,7 +191,8 @@ class HexStringToLongTraits {
   typedef long value_type;
   static const int kBase = 16;
   static inline value_type convert_func(const string_type::value_type* str,
-                                        string_type::value_type** endptr) {
+                                        string_type::value_type** endptr,
+                                        bool locale_dependent) {
     return strtoul(str, endptr, kBase);
   }
   static inline bool valid_func(const string_type& str) {
@@ -197,7 +206,8 @@ class HexWStringToLongTraits {
   typedef long value_type;
   static const int kBase = 16;
   static inline value_type convert_func(const string_type::value_type* str,
-                                        string_type::value_type** endptr) {
+                                        string_type::value_type** endptr,
+                                        bool locale_dependent) {
     return wcstoul(str, endptr, kBase);
   }
   static inline bool valid_func(const string_type& str) {
@@ -210,8 +220,13 @@ class StringToDoubleTraits {
   typedef std::string string_type;
   typedef double value_type;
   static inline value_type convert_func(const string_type::value_type* str,
-                                        string_type::value_type** endptr) {
-    return strtod(str, endptr);
+                                        string_type::value_type** endptr,
+                                        bool locale_dependent) {
+    if (locale_dependent) {
+      return strtod(str, endptr);
+    } else {
+      return dmg_fp::strtod(str, endptr);
+    }
   }
   static inline bool valid_func(const string_type& str) {
     return !str.empty() && !isspace(str[0]);
@@ -223,8 +238,25 @@ class WStringToDoubleTraits {
   typedef std::wstring string_type;
   typedef double value_type;
   static inline value_type convert_func(const string_type::value_type* str,
-                                        string_type::value_type** endptr) {
-    return wcstod(str, endptr);
+                                        string_type::value_type** endptr,
+                                        bool locale_dependent) {
+    if (base::LOCALE_DEPENDENT == locale_dependent) {
+      return wcstod(str, endptr);
+    } else {
+      // Because dmg_fp::strtod does not like wchar_t, we convert it to ASCII.
+      // In theory, this should be safe, but it's possible that wide chars
+      // might get ignored by accident causing something to be parsed when it
+      // shouldn't.
+      std::string ascii_string = WideToASCII(std::wstring(str));
+      char* ascii_end = NULL;
+      value_type ret = dmg_fp::strtod(ascii_string.c_str(), &ascii_end);
+      if (ascii_string.c_str() + ascii_string.length() == ascii_end) {
+        // Put endptr at end of input string, so it's not recognized as an error.
+        *endptr = const_cast<string_type::value_type*>(str) + wcslen(str);
+      }
+
+      return ret;
+    }
   }
   static inline bool valid_func(const string_type& str) {
     return !str.empty() && !iswspace(str[0]);
@@ -271,6 +303,46 @@ bool IsWprintfFormatPortable(const wchar_t* format) {
   }
 
   return true;
+}
+
+std::string DoubleToString(double value, LocaleDependence locale_dependent) {
+  if (LOCALE_DEPENDENT == locale_dependent) {
+    return StringPrintf("%g", value);
+  } else {
+    char buffer[32];
+    dmg_fp::g_fmt(buffer, value);
+    return std::string(buffer);
+  }
+}
+
+std::wstring DoubleToWString(double value, LocaleDependence locale_dependent) {
+  return ASCIIToWide(DoubleToString(value, locale_dependent));
+}
+
+bool StringToDouble(const std::string& input, double* output,
+                    LocaleDependence locale_dependent) {
+  return StringToNumber<StringToDoubleTraits>(input, output,
+                                              locale_dependent);
+}
+
+bool StringToDouble(const std::wstring& input, double* output,
+                    LocaleDependence locale_dependent) {
+  return StringToNumber<WStringToDoubleTraits>(input, output,
+                                               locale_dependent);
+}
+
+double StringToDouble(const std::string& value,
+                      LocaleDependence locale_dependent) {
+  double result;
+  StringToDouble(value, &result, locale_dependent);
+  return result;
+}
+
+double StringToDouble(const std::wstring& value,
+                      LocaleDependence locale_dependent) {
+  double result;
+  StringToDouble(value, &result, locale_dependent);
+  return result;
 }
 
 }  // namespace base
@@ -992,6 +1064,22 @@ inline void StringAppendV(std::wstring* dst,
   StringAppendVT<wchar_t>(dst, format, ap);
 }
 
+bool StringToDouble(const std::string& input, double* output) {
+  return StringToDouble(input, output, base::LOCALE_DEPENDENT);
+}
+
+bool StringToDouble(const std::wstring& input, double* output) {
+  return StringToDouble(input, output, base::LOCALE_DEPENDENT);
+}
+
+double StringToDouble(const std::string& value) {
+  return StringToDouble(value, base::LOCALE_DEPENDENT);
+}
+
+double StringToDouble(const std::wstring& value) {
+  return StringToDouble(value, base::LOCALE_DEPENDENT);
+}
+
 std::string StringPrintf(const char* format, ...) {
   va_list ap;
   va_start(ap, format);
@@ -1331,41 +1419,36 @@ bool MatchPattern(const std::string& eval, const std::string& pattern) {
 bool StringToInt(const std::string& input, int* output) {
   COMPILE_ASSERT(sizeof(int) == sizeof(long), cannot_strtol_to_int);
   return StringToNumber<StringToLongTraits>(input,
-                                            reinterpret_cast<long*>(output));
+                                            reinterpret_cast<long*>(output),
+                                            base::LOCALE_DEPENDENT);
 }
 
 bool StringToInt(const std::wstring& input, int* output) {
   COMPILE_ASSERT(sizeof(int) == sizeof(long), cannot_wcstol_to_int);
   return StringToNumber<WStringToLongTraits>(input,
-                                             reinterpret_cast<long*>(output));
+                                             reinterpret_cast<long*>(output),
+                                             base::LOCALE_DEPENDENT);
 }
 
 bool StringToInt64(const std::string& input, int64* output) {
-  return StringToNumber<StringToInt64Traits>(input, output);
+  return StringToNumber<StringToInt64Traits>(input, output, base::LOCALE_DEPENDENT);
 }
 
 bool StringToInt64(const std::wstring& input, int64* output) {
-  return StringToNumber<WStringToInt64Traits>(input, output);
+  return StringToNumber<WStringToInt64Traits>(input, output, base::LOCALE_DEPENDENT);
 }
 
 bool HexStringToInt(const std::string& input, int* output) {
   COMPILE_ASSERT(sizeof(int) == sizeof(long), cannot_strtol_to_int);
   return StringToNumber<HexStringToLongTraits>(input,
-                                               reinterpret_cast<long*>(output));
+                                               reinterpret_cast<long*>(output),
+                                               base::LOCALE_DEPENDENT);
 }
 
 bool HexStringToInt(const std::wstring& input, int* output) {
   COMPILE_ASSERT(sizeof(int) == sizeof(long), cannot_wcstol_to_int);
   return StringToNumber<HexWStringToLongTraits>(
-      input, reinterpret_cast<long*>(output));
-}
-
-bool StringToDouble(const std::string& input, double* output) {
-  return StringToNumber<StringToDoubleTraits>(input, output);
-}
-
-bool StringToDouble(const std::wstring& input, double* output) {
-  return StringToNumber<WStringToDoubleTraits>(input, output);
+      input, reinterpret_cast<long*>(output), base::LOCALE_DEPENDENT);
 }
 
 int StringToInt(const std::string& value) {
@@ -1401,18 +1484,6 @@ int HexStringToInt(const std::string& value) {
 int HexStringToInt(const std::wstring& value) {
   int result;
   HexStringToInt(value, &result);
-  return result;
-}
-
-double StringToDouble(const std::string& value) {
-  double result;
-  StringToDouble(value, &result);
-  return result;
-}
-
-double StringToDouble(const std::wstring& value) {
-  double result;
-  StringToDouble(value, &result);
   return result;
 }
 

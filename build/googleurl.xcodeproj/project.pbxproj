@@ -34,6 +34,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		531CBDBF0ECB6B530084F32D /* libdmg_fp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 531CBDBC0ECB6B2A0084F32D /* libdmg_fp.a */; };
 		7B85FFB10E5A2ED200730B43 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B85FF770E5A2EA800730B43 /* CoreFoundation.framework */; };
 		7B97C2430E75DC9D005923B3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B97C2420E75DC9D005923B3 /* Foundation.framework */; };
 		7BA0186D0E5A294400044150 /* gurl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BA0184D0E5A293900044150 /* gurl.cc */; };
@@ -64,6 +65,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		531CBDBB0ECB6B2A0084F32D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 531CBDB70ECB6B2A0084F32D /* dmg_fp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdmg_fp.a */;
+			remoteInfo = dmg_fp;
+		};
+		531CBDBD0ECB6B370084F32D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 531CBDB70ECB6B2A0084F32D /* dmg_fp.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* dmg_fp */;
+			remoteInfo = dmg_fp;
+		};
 		7B85001C0E5A2F6B00730B43 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BA0181B0E5A27A600044150 /* Project object */;
@@ -200,6 +215,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		531CBDB70ECB6B2A0084F32D /* dmg_fp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dmg_fp.xcodeproj; path = third_party/dmg_fp/dmg_fp.xcodeproj; sourceTree = "<group>"; };
 		7B85FF770E5A2EA800730B43 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<group>"; };
 		7B97C2420E75DC9D005923B3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = "<group>"; };
 		7BA0182D0E5A28B300044150 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
@@ -261,6 +277,7 @@
 				7B85FFB10E5A2ED200730B43 /* CoreFoundation.framework in Frameworks */,
 				7B97C2430E75DC9D005923B3 /* Foundation.framework in Frameworks */,
 				7BA019640E5A2C2B00044150 /* libbase.a in Frameworks */,
+				531CBDBF0ECB6B530084F32D /* libdmg_fp.a in Frameworks */,
 				7BA018EF0E5A2B3300044150 /* libgoogleurl.a in Frameworks */,
 				7BA019240E5A2BD700044150 /* libgtest.a in Frameworks */,
 				7BA019740E5A2C5C00044150 /* libicudata.a in Frameworks */,
@@ -271,6 +288,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		531CBDB80ECB6B2A0084F32D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				531CBDBC0ECB6B2A0084F32D /* libdmg_fp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		7BA018190E5A27A600044150 = {
 			isa = PBXGroup;
 			children = (
@@ -346,6 +371,7 @@
 		7BA019180E5A2BA700044150 /* Projects */ = {
 			isa = PBXGroup;
 			children = (
+				531CBDB70ECB6B2A0084F32D /* dmg_fp.xcodeproj */,
 				7BA019270E5A2BFC00044150 /* base.xcodeproj */,
 				7BA019190E5A2BCB00044150 /* gtest.xcodeproj */,
 				7BA019490E5A2C1200044150 /* icu.xcodeproj */,
@@ -428,6 +454,7 @@
 				7BA018EE0E5A2B2B00044150 /* PBXTargetDependency */,
 				7BA019230E5A2BD100044150 /* PBXTargetDependency */,
 				7BA019630E5A2C2100044150 /* PBXTargetDependency */,
+				531CBDBE0ECB6B370084F32D /* PBXTargetDependency */,
 				7BA019760E5A2C6400044150 /* PBXTargetDependency */,
 				7BA0196F0E5A2C4000044150 /* PBXTargetDependency */,
 			);
@@ -453,6 +480,10 @@
 					ProjectRef = 7BA019270E5A2BFC00044150 /* base.xcodeproj */;
 				},
 				{
+					ProductGroup = 531CBDB80ECB6B2A0084F32D /* Products */;
+					ProjectRef = 531CBDB70ECB6B2A0084F32D /* dmg_fp.xcodeproj */;
+				},
+				{
 					ProductGroup = 7BA0191A0E5A2BCB00044150 /* Products */;
 					ProjectRef = 7BA019190E5A2BCB00044150 /* gtest.xcodeproj */;
 				},
@@ -472,6 +503,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		531CBDBC0ECB6B2A0084F32D /* libdmg_fp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdmg_fp.a;
+			remoteRef = 531CBDBB0ECB6B2A0084F32D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		7BA019210E5A2BCB00044150 /* libgtest.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -620,6 +658,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		531CBDBE0ECB6B370084F32D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = dmg_fp;
+			targetProxy = 531CBDBD0ECB6B370084F32D /* PBXContainerItemProxy */;
+		};
 		7B85001D0E5A2F6B00730B43 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7BA018E10E5A2AFF00044150 /* googleurl_unittests */;

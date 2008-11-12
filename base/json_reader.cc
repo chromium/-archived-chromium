@@ -329,7 +329,8 @@ bool JSONReader::DecodeNumber(const Token& token, Value** node) {
   }
 
   double num_double;
-  if (StringToDouble(num_string, &num_double) && base::IsFinite(num_double)) {
+  if (base::StringToDouble(num_string, &num_double, base::LOCALE_INDEPENDENT) &&
+      base::IsFinite(num_double)) {
     *node = Value::CreateRealValue(num_double);
     return true;
   }

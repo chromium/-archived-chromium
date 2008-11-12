@@ -12,6 +12,7 @@
 		4DB7FA6F0E9BF33B00C66CE0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FA6E0E9BF33B00C66CE0 /* SystemConfiguration.framework */; };
 		4DB7FEA40E9BF92100C66CE0 /* libwebcoresysteminterface.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FE760E9BF6CB00C66CE0 /* libwebcoresysteminterface.a */; };
 		4DB7FEA80E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DB7FEA70E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a */; };
+		531CBE190ECB6BE30084F32D /* libdmg_fp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 531CBE180ECB6BB60084F32D /* libdmg_fp.a */; };
 		53E50D280ECA1B21001784B4 /* simple_clipboard_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 53E50D270ECA1B21001784B4 /* simple_clipboard_impl.cc */; };
 		7B779D510E83001A00C2971E /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B779D500E82FFAC00C2971E /* libevent.a */; };
 		7BA363BD0E8C40C30023C8B9 /* libsdch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BA363BA0E8C409A0023C8B9 /* libsdch.a */; };
@@ -134,6 +135,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4DB7FE6E0E9BF6AC00C66CE0;
 			remoteInfo = webcoresysteminterface;
+		};
+		531CBE170ECB6BB60084F32D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 531CBE130ECB6BB60084F32D /* dmg_fp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdmg_fp.a */;
+			remoteInfo = dmg_fp;
+		};
+		531CBE1C0ECB6C020084F32D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 531CBE130ECB6BB60084F32D /* dmg_fp.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* dmg_fp */;
+			remoteInfo = dmg_fp;
 		};
 		7B779D3B0E82FF2200C2971E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -576,6 +591,7 @@
 		4DB687CA0EAFE79200AB2128 /* libxslt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxslt.xcodeproj; path = third_party/libxslt/libxslt.xcodeproj; sourceTree = "<group>"; };
 		4DB7FA6E0E9BF33B00C66CE0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<group>"; };
 		4DB7FEA70E9BF98C00C66CE0 /* libWebKitSystemInterfaceLeopard.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWebKitSystemInterfaceLeopard.a; path = ../../../../third_party/WebKit/WebKitLibraries/libWebKitSystemInterfaceLeopard.a; sourceTree = SOURCE_ROOT; };
+		531CBE130ECB6BB60084F32D /* dmg_fp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dmg_fp.xcodeproj; path = third_party/dmg_fp/dmg_fp.xcodeproj; sourceTree = "<group>"; };
 		53E50D270ECA1B21001784B4 /* simple_clipboard_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = simple_clipboard_impl.cc; path = ../../../glue/simple_clipboard_impl.cc; sourceTree = SOURCE_ROOT; };
 		7B42A4C40DE20F1700659DE0 /* v8.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = v8.xcodeproj; path = build/v8.xcodeproj; sourceTree = "<group>"; };
 		7B779D4B0E82FFAC00C2971E /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = third_party/libevent/libevent.xcodeproj; sourceTree = "<group>"; };
@@ -676,6 +692,7 @@
 				82F399B70E7EF75800785E15 /* libbase.a in Frameworks */,
 				82F399B80E7EF75A00785E15 /* libbase_gfx.a in Frameworks */,
 				82F39CF90E7EF92500785E15 /* libbzip2.a in Frameworks */,
+				531CBE190ECB6BE30084F32D /* libdmg_fp.a in Frameworks */,
 				7B779D510E83001A00C2971E /* libevent.a in Frameworks */,
 				82F39D0E0E7EFA5500785E15 /* libglue.a in Frameworks */,
 				82F399F90E7EF7C000785E15 /* libgoogleurl.a in Frameworks */,
@@ -775,6 +792,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		531CBE140ECB6BB60084F32D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				531CBE180ECB6BB60084F32D /* libdmg_fp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		7B779D4C0E82FFAC00C2971E /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -801,6 +826,7 @@
 			children = (
 				ABD16F700DC6CBDF0013D3AA /* base.xcodeproj */,
 				E456295B0E26B5F8005E4685 /* bzip2.xcodeproj */,
+				531CBE130ECB6BB60084F32D /* dmg_fp.xcodeproj */,
 				AB8665450DC78A5A002CE06A /* googleurl.xcodeproj */,
 				82F39A1C0E7EF85C00785E15 /* gtest.xcodeproj */,
 				829E35270DC0C95300819EBF /* icu.xcodeproj */,
@@ -1066,6 +1092,7 @@
 				82F399C20E7EF76900785E15 /* PBXTargetDependency */,
 				82F399C40E7EF76900785E15 /* PBXTargetDependency */,
 				82F39CFB0E7EF92C00785E15 /* PBXTargetDependency */,
+				531CBE1D0ECB6C020084F32D /* PBXTargetDependency */,
 				82F399FB0E7EF7C900785E15 /* PBXTargetDependency */,
 				82F39A250E7EF86800785E15 /* PBXTargetDependency */,
 				82F39A120E7EF81000785E15 /* PBXTargetDependency */,
@@ -1115,6 +1142,10 @@
 				{
 					ProductGroup = 7B82052B0E770291008F45CF /* Products */;
 					ProjectRef = E456295B0E26B5F8005E4685 /* bzip2.xcodeproj */;
+				},
+				{
+					ProductGroup = 531CBE140ECB6BB60084F32D /* Products */;
+					ProjectRef = 531CBE130ECB6BB60084F32D /* dmg_fp.xcodeproj */;
 				},
 				{
 					ProductGroup = 7B8205300E770291008F45CF /* Products */;
@@ -1208,6 +1239,13 @@
 			fileType = archive.ar;
 			path = libwebcoresysteminterface.a;
 			remoteRef = 4DB7FE750E9BF6CB00C66CE0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		531CBE180ECB6BB60084F32D /* libdmg_fp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdmg_fp.a;
+			remoteRef = 531CBE170ECB6BB60084F32D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		7B779D3C0E82FF2200C2971E /* libv8-arm.a */ = {
@@ -1572,6 +1610,11 @@
 			isa = PBXTargetDependency;
 			name = webcoresysteminterface;
 			targetProxy = 4DB7FEA20E9BF90A00C66CE0 /* PBXContainerItemProxy */;
+		};
+		531CBE1D0ECB6C020084F32D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = dmg_fp;
+			targetProxy = 531CBE1C0ECB6C020084F32D /* PBXContainerItemProxy */;
 		};
 		7B779D530E83002A00C2971E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

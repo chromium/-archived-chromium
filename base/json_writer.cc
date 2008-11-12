@@ -58,7 +58,7 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
         double value;
         bool result = node->GetAsReal(&value);
         DCHECK(result);
-        std::string real = StringPrintf("%g", value);
+        std::string real = base::DoubleToString(value, base::LOCALE_INDEPENDENT);
         // Ensure that the number has a .0 if there's no decimal or 'e'.  This
         // makes sure that when we read the JSON back, it's interpreted as a
         // real rather than an int.

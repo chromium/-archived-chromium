@@ -18,6 +18,7 @@ env_test.Prepend(
         '$CHROME_SRC_DIR',
     ],
     LIBS = [
+        'dmg_fp',
         'skia',
         'libpng',
         'base_gfx',

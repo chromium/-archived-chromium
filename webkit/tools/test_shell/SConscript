@@ -26,6 +26,7 @@ env.Append(
         '$GTEST_DIR/include',
     ],
     LIBS = [
+        'dmg_fp',
         'test_shell',
         'glue',
         'port',
@@ -196,4 +197,3 @@ test_shell_tests = env.ChromeTestProgram('test_shell_tests',
                                          resources + test_files)
 i = env.Install('$TARGET_ROOT', test_shell_tests)
 env.Alias('webkit', i)
-

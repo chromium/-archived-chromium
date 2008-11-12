@@ -146,6 +146,13 @@
 			remoteGlobalIDString = 4DB684920EAFDF7000AB2128;
 			remoteInfo = xslt;
 		};
+		531CBD1B0ECB66670084F32D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 531CBD140ECB66670084F32D /* dmg_fp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdmg_fp.a */;
+			remoteInfo = dmg_fp;
+		};
 		7B262E390E82E508001CE27F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7BF895A30E75D5DA000BAF8A /* v8.xcodeproj */;
@@ -558,6 +565,7 @@
 		4D7B021C0E9D57D9009A6919 /* sqlite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sqlite.xcodeproj; path = sqlite/sqlite.xcodeproj; sourceTree = "<group>"; };
 		4D7B02380E9D5816009A6919 /* chrome.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = chrome.xcodeproj; path = chrome/chrome.xcodeproj; sourceTree = "<group>"; };
 		4DB686590EAFE60400AB2128 /* libxslt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxslt.xcodeproj; path = libxslt/libxslt.xcodeproj; sourceTree = "<group>"; };
+		531CBD140ECB66670084F32D /* dmg_fp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dmg_fp.xcodeproj; path = dmg_fp/dmg_fp.xcodeproj; sourceTree = "<group>"; };
 		7B262FE50E82F18D001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = libevent/libevent.xcodeproj; sourceTree = "<group>"; };
 		7BA3548E0E89784F0023C8B9 /* TestShell.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TestShell.xcodeproj; path = webkit/tools/test_shell/mac/TestShell.xcodeproj; sourceTree = "<group>"; };
 		7BA3638D0E8C402F0023C8B9 /* sdch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sdch.xcodeproj; path = sdch/sdch.xcodeproj; sourceTree = "<group>"; };
@@ -607,6 +615,14 @@
 			isa = PBXGroup;
 			children = (
 				4DB686630EAFE60400AB2128 /* libxslt.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		531CBD150ECB66670084F32D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				531CBD1C0ECB66670084F32D /* libdmg_fp.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -748,6 +764,7 @@
 			isa = PBXGroup;
 			children = (
 				7BF895E90E75D666000BAF8A /* bzip2.xcodeproj */,
+				531CBD140ECB66670084F32D /* dmg_fp.xcodeproj */,
 				7BF895EF0E75D673000BAF8A /* icu.xcodeproj */,
 				7B262FE50E82F18D001CE27F /* libevent.xcodeproj */,
 				7BF896080E75D68B000BAF8A /* libjpeg.xcodeproj */,
@@ -856,6 +873,10 @@
 				{
 					ProductGroup = 4D7B02390E9D5816009A6919 /* Products */;
 					ProjectRef = 4D7B02380E9D5816009A6919 /* chrome.xcodeproj */;
+				},
+				{
+					ProductGroup = 531CBD150ECB66670084F32D /* Products */;
+					ProjectRef = 531CBD140ECB66670084F32D /* dmg_fp.xcodeproj */;
 				},
 				{
 					ProductGroup = 7BF895A10E75D5DA000BAF8A /* Products */;
@@ -986,6 +1007,13 @@
 			fileType = archive.ar;
 			path = libxslt.a;
 			remoteRef = 4DB686620EAFE60400AB2128 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		531CBD1C0ECB66670084F32D /* libdmg_fp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdmg_fp.a;
+			remoteRef = 531CBD1B0ECB66670084F32D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		7B262E3A0E82E508001CE27F /* libv8-arm.a */ = {
