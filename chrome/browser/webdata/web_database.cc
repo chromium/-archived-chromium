@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <vector>
 
 #include "chrome/browser/webdata/web_database.h"
 
@@ -405,7 +406,7 @@ bool WebDatabase::InitAutofillDatesTable() {
     }
     if (sqlite3_exec(db_,
                      "CREATE INDEX autofill_dates_pair_id ON "
-                     "autofill (pair_id)",
+                     "autofill_dates (pair_id)",
                      NULL, NULL, NULL) != SQLITE_OK) {
        NOTREACHED();
        return false;
@@ -958,6 +959,27 @@ bool WebDatabase::GetIDAndCountOfFormElement(
   return true;
 }
 
+bool WebDatabase::GetCountOfFormElement(int64 pair_id, int* count) {
+  SQLStatement s;
+
+  if (s.prepare(db_, "SELECT count FROM autofill "
+                     " WHERE pair_id = ?") != SQLITE_OK) {
+    NOTREACHED() << "Statement prepare failed";
+    return false;
+  }
+
+  s.bind_int64(0, pair_id);
+
+  int result;
+  if ((result = s.step()) == SQLITE_ROW) {
+    *count = s.column_int(0);
+  } else {
+    return false;
+  }
+
+  return true;
+}
+
 bool WebDatabase::InsertFormElement(const AutofillForm::Element& element,
                                     int64* pair_id) {
   SQLStatement s;
@@ -985,7 +1007,7 @@ bool WebDatabase::InsertFormElement(const AutofillForm::Element& element,
 }
 
 bool WebDatabase::InsertPairIDAndDate(int64 pair_id,
-                                      const Time& date_created) {
+                                      const Time date_created) {
   SQLStatement s;
 
   if (s.prepare(db_,
@@ -1083,12 +1105,98 @@ bool WebDatabase::GetFormValuesForElementName(const std::wstring& name,
     s.bind_int(3, limit);
   }
 
-  int result;
   values->clear();
+  int result;
   while ((result = s.step()) == SQLITE_ROW)
     values->push_back(s.column_string16(0));
 
   return result == SQLITE_DONE;
+}
+
+bool WebDatabase::RemoveFormElementsAddedBetween(const Time delete_begin,
+                                                 const Time delete_end) {
+  SQLStatement s;
+  if (s.prepare(db_,
+                "SELECT DISTINCT pair_id FROM autofill_dates WHERE "
+                "date_created >= ? AND date_created < ?") != SQLITE_OK) {
+    NOTREACHED() << "Statement 1 prepare failed";
+    return false;
+  }
+  s.bind_int64(0, delete_begin.ToTimeT());
+  s.bind_int64(1, 
+               delete_end.is_null() ?
+                   std::numeric_limits<int64>::max() :
+                   delete_end.ToTimeT());
+
+  std::vector<int64> pair_ids;
+  int result;
+  while ((result = s.step()) == SQLITE_ROW)
+    pair_ids.push_back(s.column_int64(0));
+
+  if (result != SQLITE_DONE) {
+    NOTREACHED();
+    return false;
+  }
+
+  for (std::vector<int64>::iterator itr = pair_ids.begin();
+       itr != pair_ids.end();
+       itr++) {
+    int how_many=0;
+    if (!RemovePairIDAndDate(*itr, delete_begin, delete_end, &how_many))
+      return false;
+    if (!AddToCountOfFormElement(*itr, -how_many))
+      return false;
+  }
+
+  return true;
+}
+
+bool WebDatabase::RemovePairIDAndDate(int64 pair_id, const Time delete_begin,
+    const Time delete_end, int* how_many) {
+  SQLStatement s;
+  if (s.prepare(db_,
+                "DELETE FROM autofill_dates WHERE pair_id = ? AND "
+                "date_created >= ? AND date_created < ?") != SQLITE_OK) {
+    NOTREACHED() << "Statement 1 prepare failed";
+    return false;
+  }
+  s.bind_int64(0, pair_id);
+  s.bind_int64(1, delete_begin.ToTimeT());
+  s.bind_int64(2, 
+               delete_end.is_null() ?
+                   std::numeric_limits<int64>::max() :
+                   delete_end.ToTimeT());
+
+  bool result = (s.step() == SQLITE_DONE);
+  *how_many = sqlite3_changes(db_);
+
+  return result;
+}
+
+bool WebDatabase::AddToCountOfFormElement(int64 pair_id, int delta) {
+  int count=0;
+  if (count+delta == 0 &&
+      !RemoveFormElement(pair_id)) {
+    return false;
+  } else {
+    if (!GetCountOfFormElement(pair_id, &count))
+      return false;
+    if (!SetCountOfFormElement(pair_id, count + delta))
+      return false;
+  }
+  return true;
+}
+
+bool WebDatabase::RemoveFormElement(int64 pair_id) {
+  SQLStatement s;
+  if (s.prepare(db_,
+                "DELETE FROM autofill WHERE pair_id = ?") != SQLITE_OK) {
+    NOTREACHED() << "Statement 1 prepare failed";
+    return false;
+  }
+  s.bind_int64(0, pair_id);
+
+  return (s.step() == SQLITE_DONE);
 }
 
 void WebDatabase::MigrateOldVersionsAsNeeded() {

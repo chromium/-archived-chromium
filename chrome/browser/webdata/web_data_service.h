@@ -372,6 +372,10 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
                                      int limit,
                                      WebDataServiceConsumer* consumer);
 
+  // Removes form elements recorded for autofill from the database.
+  void RemoveFormElementsAddedBetween(const base::Time& delete_begin,
+                                      const base::Time& delete_end);
+
  protected:
   friend class TemplateURLModelTest;
   friend class TemplateURLModelTestingProfile;
@@ -445,6 +449,8 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
       GenericRequest<std::vector<AutofillForm::Element> >* request);
   void GetFormValuesForElementNameImpl(WebDataRequest* request,
       const std::wstring& name, const std::wstring& prefix, int limit);
+  void RemoveFormElementsAddedBetweenImpl(
+      GenericRequest2<base::Time, base::Time>* request);
 
   //////////////////////////////////////////////////////////////////////////////
   //

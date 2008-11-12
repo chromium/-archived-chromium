@@ -108,8 +108,12 @@ void BrowsingDataRemover::Remove(int remove_mask) {
   }
 
   if (remove_mask & REMOVE_FORM_DATA) {
-    // TODO(jcampan): bug #3870 hook-up Peterson's code here.
-    NOTREACHED() << "to be implemented";
+    UserMetrics::RecordAction(L"ClearBrowsingData_Autofill", profile_);
+    WebDataService* web_data_service =
+        profile_->GetWebDataService(Profile::EXPLICIT_ACCESS);
+
+    web_data_service->RemoveFormElementsAddedBetween(delete_begin_,
+        delete_end_);
   }
 
   if (remove_mask & REMOVE_CACHE) {

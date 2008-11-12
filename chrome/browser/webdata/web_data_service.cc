@@ -342,6 +342,19 @@ void WebDataService::RemoveLoginsCreatedAfter(const Time delete_begin) {
   RemoveLoginsCreatedBetween(delete_begin, Time());
 }
 
+void WebDataService::RemoveFormElementsAddedBetween(const Time& delete_begin,
+                                                    const Time& delete_end) {
+  GenericRequest2<Time, Time>* request =
+    new GenericRequest2<Time, Time>(this,
+                                    GetNextRequestHandle(),
+                                    NULL,
+                                    delete_begin,
+                                    delete_end);
+  RegisterRequest(request);
+  ScheduleTask(NewRunnableMethod(this,
+      &WebDataService::RemoveFormElementsAddedBetweenImpl, request));
+}
+
 WebDataService::Handle WebDataService::GetLogins(
                                        const PasswordForm& form,
                                        WebDataServiceConsumer* consumer) {
@@ -611,6 +624,16 @@ void WebDataService::GetFormValuesForElementNameImpl(WebDataRequest* request,
     request->SetResult(
         new WDResult<std::vector<std::wstring> >(AUTOFILL_VALUE_RESULT,
             values));
+  }
+  request->RequestComplete();
+}
+
+void WebDataService::RemoveFormElementsAddedBetweenImpl(
+    GenericRequest2<Time, Time>* request) {
+  if (db_ && !request->IsCancelled()) {
+    if (db_->RemoveFormElementsAddedBetween(request->GetArgument1(),
+                                            request->GetArgument2()))
+      ScheduleCommit();
   }
   request->RequestComplete();
 }

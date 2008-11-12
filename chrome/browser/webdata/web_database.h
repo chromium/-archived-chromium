@@ -118,8 +118,6 @@ class WebDatabase {
   //
   //////////////////////////////////////////////////////////////////////////////
 
-
-
   // Records the form elements in |elements| in the database in the autofill
   // table.
   bool AddAutofillFormElements(
@@ -136,11 +134,33 @@ class WebDatabase {
                                    std::vector<std::wstring>* values,
                                    int limit);
 
+  // Removes rows from autofill_dates if they were created on or after
+  // |delete_begin| and strictly before |delete_end|.  Decrements the count of
+  // the corresponding rows in the autofill table, and removes those rows if the
+  // count goes to 0.
+  bool RemoveFormElementsAddedBetween(const base::Time delete_begin,
+                                      const base::Time delete_end);
+
+  // Removes from autofill_dates rows with given pair_id where date_created lies
+  // between delte_begin and delte_end.
+  bool RemovePairIDAndDate(int64 pair_id,
+                           const base::Time delete_begin,
+                           const base::Time delete_end,
+                           int* how_many);
+
+  // Increments the count in the row corresponding to |pair_id| by |delta|.
+  // Removes the row from the table if the count becomes 0.
+  bool AddToCountOfFormElement(int64 pair_id, int delta);
+
   // Gets the pair_id and count entries from name and value specified in
   // |element|.  Sets *count to 0 if there is no such row in the table.
   bool GetIDAndCountOfFormElement(const AutofillForm::Element& element,
                                   int64* pair_id,
                                   int* count);
+
+  // Gets the count only given the pair_id.
+  bool GetCountOfFormElement(int64 pair_id,
+                             int* count);
 
   // Updates the count entry in the row corresponding to |pair_id| to |count|.
   bool SetCountOfFormElement(int64 pair_id, int count);
@@ -150,7 +170,10 @@ class WebDatabase {
   bool InsertFormElement(const AutofillForm::Element& element, int64* pair_id);
 
   // Adds a new row to the autofill_dates table.
-  bool InsertPairIDAndDate(int64 pair_id, const base::Time& date_created);
+  bool InsertPairIDAndDate(int64 pair_id, const base::Time date_created);
+
+  // Removes row from the autofill table given |pair_id|.
+  bool RemoveFormElement(int64 pair_id);
 
   //////////////////////////////////////////////////////////////////////////////
   //
