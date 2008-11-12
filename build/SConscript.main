@@ -29,6 +29,12 @@ else:
 root_env = Environment(
     tools = ['component_setup'],
 
+    # Requested list of system (shared) libraries, from the comma separated
+    # SYSTEM_LIBS command-line argument
+    req_system_libs = [],
+    # All supported system libraries, for the help message
+    all_system_libs = [],
+
     CHROME_SRC_DIR = '$MAIN_DIR/..',
     DESTINATION_ROOT = '$MAIN_DIR/Hammer',
     TARGET_ROOT = '$DESTINATION_ROOT',
@@ -96,6 +102,16 @@ root_env = Environment(
                              '__env__, RDirs, TARGET, SOURCE)}'),
 )
 
+root_env['req_system_libs'] = ARGUMENTS.get('SYSTEM_LIBS', '').split(',')
+
+def WantSystemLib(env, lib):
+  """
+  Return true if lib has been requested as a system library in SYSTEM_LIBS.
+  """
+  if lib not in env['all_system_libs']:
+    env['all_system_libs'].append(lib)
+  return (lib in env['req_system_libs'])
+root_env.AddMethod(WantSystemLib, "WantSystemLib")
 
 def ChromeProgram(env, *args, **kw):
   return env.ComponentProgram(*args, **kw)
@@ -209,18 +225,34 @@ if LoadComponent('testing'):
   sconscripts.append('$TESTING_DIR/SConscript.gtest')
 
 if LoadComponent('third_party'):
+  if not root_env.WantSystemLib('bzip2'):
+    sconscripts.append('$BZIP2_DIR/bzip2.scons')
+    root_env.Append(BZIP2_LIB = ['bzip2'])
+  else:
+    root_env.Append(BZIP2_LIB = ['bz2'])
+  if not root_env.WantSystemLib('libpng'):
+    sconscripts.append('$LIBPNG_DIR/libpng.scons')
+  if not root_env.WantSystemLib('libjpeg'):
+    sconscripts.append('$LIBJPEG_DIR/SConscript')
+  if not root_env.WantSystemLib('libxml'):
+    sconscripts.append('$LIBXML_DIR/SConscript')
+    root_env.Append(XML_LIB = ['libxml'])
+  else:
+    root_env.Append(XML_LIB = ['xml2'])
+  if not root_env.WantSystemLib('libxslt'):
+    sconscripts.append('$LIBXSLT_DIR/SConscript')
+  if not root_env.WantSystemLib('lzma_sdk'):
+    sconscripts.append('$LZMA_SDK_DIR/SConscript')
+  if not root_env.WantSystemLib('zlib'):
+    sconscripts.append('$ZLIB_DIR/zlib.scons')
+    root_env.Append(ZLIB_LIB = ['zlib'])
+  else:
+    root_env.Append(ZLIB_LIB = ['z'])
   sconscripts.extend([
       '$BSDIFF_DIR/SConscript',
-      '$BZIP2_DIR/bzip2.scons',
       '$DMG_FP_DIR/dmg_fp.scons',
       '$ICU38_DIR/icu38.scons',
-      '$LIBPNG_DIR/libpng.scons',
-      '$LZMA_SDK_DIR/SConscript',
       '$MODP_B64_DIR/modp_b64.scons',
-      '$ZLIB_DIR/zlib.scons',
-      '$LIBJPEG_DIR/SConscript',
-      '$LIBXML_DIR/SConscript',
-      '$LIBXSLT_DIR/SConscript',
       '$BSPATCH_DIR/SConscript',
   ])
 
@@ -519,7 +551,20 @@ if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
         '#Software_Requirements')
 
     sys.exit(1)
-
+  if root_env.WantSystemLib('libxml'):
+    try:
+      linux_env.ParseConfig('pkg-config --cflags --libs libxml-2.0')
+    except OSError, e:
+      print ('\n'
+          'libxml requested in SYSTEM_LIBS but not found\n')
+      sys.exit(1)
+  if root_env.WantSystemLib('libxslt'):
+    try:
+      linux_env.ParseConfig('pkg-config --cflags --libs libxslt')
+    except OSError, e:
+      print ('\n'
+          'libxslt requested in SYSTEM_LIBS but not found\n')
+      sys.exit(1)
 
 # --------------------------------------------------------------------------
 # Mac specific
@@ -560,10 +605,13 @@ mac_env.FilterOut(
     ],
 )
 
-mac_env.Append(
+if not root_env.WantSystemLib('libevent'):
+  mac_env.Append(
     BUILD_SCONSCRIPTS = [
         '$LIBEVENT_DIR/libevent.scons',
     ],
+  )
+mac_env.Append(
     CFLAGS = [
         '-std=c99',
     ],
@@ -640,6 +688,10 @@ Supported build variables:
   LOAD=[module,...]         Comma-separated list of components to load in the
                               dependency graph ('-' prefix excludes):
 %s
+  SYSTEM_LIBS=[lib,...]     Comma-separated list of system libraries to link
+                              dynamically (by default they are built in from
+                              included sources):
+%s
   PROGRESS=type             Display a progress indicator:
                               name:  print each evaluated target name
                               spinner:  print a spinner every 5 targets
@@ -654,8 +706,9 @@ if GetOption('help'):
     subsequent_indent = ' '*32,
   )
   components = tw.fill(', '.join(components))
+  all_system_libs = tw.fill(', '.join(env['all_system_libs']))
 
-  Help(help_fmt % components)
+  Help(help_fmt % (components, all_system_libs))
 
 
 Import('build_component')

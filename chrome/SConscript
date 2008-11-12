@@ -392,9 +392,12 @@ if env_flat['PLATFORM'] == 'win32':
 sconscript_files = [
     'test/chrome_plugin/SConscript',
     'tools/test/image_diff/SConscript',
-    'third_party/hunspell/SConscript',
-    '$THIRD_PARTY_DIR/sqlite/SConscript',
 ]
+
+if not env.WantSystemLib('hunspell'):
+  sconscript_files.append('third_party/hunspell/SConscript')
+if not env.WantSystemLib('sqlite'):
+  sconscript_files.append('$THIRD_PARTY_DIR/sqlite/SConscript')
 
 # TODO(port)
 if env['PLATFORM'] == 'win32':

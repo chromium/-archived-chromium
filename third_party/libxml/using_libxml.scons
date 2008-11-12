@@ -17,7 +17,7 @@ env.Append(
         'LIBXML_STATIC',
     ],
     LIBS = [
-        'libxml',
+        env['XML_LIB'],
     ],
 )
 # Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
@@ -39,6 +39,6 @@ env.Append(
         'LIBXML_STATIC',
     ],
     LIBS = [
-        'libxml',
+        env['XML_LIB'],
     ],
 )
