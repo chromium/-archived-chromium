@@ -1339,17 +1339,13 @@ void CustomFrameWindow::InitClass() {
 
 void CustomFrameWindow::LockUpdates() {
   lock_updates_ = true;
-  /*
   // This message causes invalidations to be discarded until it is called again
   // with WPARAM TRUE (see UnlockUpdates).
   SendMessage(GetHWND(), WM_SETREDRAW, FALSE, 0);
-  */
 }
 
 void CustomFrameWindow::UnlockUpdates() {
-  /*
   SendMessage(GetHWND(), WM_SETREDRAW, TRUE, 0);
-  */
   lock_updates_ = false;
 }
 
