@@ -328,8 +328,9 @@ void FrameData::clear()
 {
     // The frame data is released in ImageSource::clear.
     m_frame = 0;
-    m_duration = 0.0f;
-    m_hasAlpha = true;
+    // NOTE: We purposefully don't reset metadata here, so that even if we
+    // throw away previously-decoded data, animation loops can still access
+    // properties like frame durations without re-decoding.
 }
 
 static inline PassRefPtr<Image> loadImageWithResourceId(int resourceId)
@@ -471,6 +472,11 @@ void BitmapImage::draw(GraphicsContext* ctxt, const FloatRect& dstRect,
     if (!m_source.initialized())
         return;
     
+    // Spin the animation to the correct frame before we try to draw it, so we
+    // don't draw an old frame and then immediately need to draw a newer one,
+    // causing flicker and wasting CPU.
+    startAnimation();
+
     const NativeImageSkia* bm = nativeImageForCurrentFrame();
     if (!bm)
         return;  // It's too early and we don't have an image yet.
@@ -483,8 +489,6 @@ void BitmapImage::draw(GraphicsContext* ctxt, const FloatRect& dstRect,
                   enclosingIntRect(srcRect),
                   enclosingIntRect(dstRect),
                   WebCoreCompositeToSkiaComposite(compositeOp));
-
-    startAnimation();
 }
 
 void BitmapImageSingleFrameSkia::draw(GraphicsContext* ctxt,
