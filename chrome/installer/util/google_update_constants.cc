@@ -23,5 +23,7 @@ const wchar_t kRegRenameCmdField[] = L"rename";
 const wchar_t kRegRLZBrandField[] = L"brand";
 const wchar_t kRegUsageStatsField[] = L"usagestats";
 const wchar_t kRegVersionField[] = L"pv";
+
+const wchar_t kEnvProductVersionKey[] = L"CHROME_VERSION";
 }  // namespace installer
 

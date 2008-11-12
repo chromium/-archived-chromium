@@ -12,8 +12,6 @@
 #include "chrome/installer/util/install_util.h"
 
 namespace {
-const wchar_t kEnvProductVersionKey[] = L"CHROME_VERSION";
-
 // Allocates the out param on success.
 bool GoogleUpdateEnvQueryStr(const wchar_t* key_name, wchar_t** out) {
   DWORD count = ::GetEnvironmentVariableW(key_name, NULL, 0);
@@ -57,7 +55,7 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance,
     ::SetCurrentDirectory(dll_path_);
     // Setting the version on the environment block is a 'best effort' deal.
     // It enables Google Update running on a child to load the same DLL version.
-    ::SetEnvironmentVariableW(kEnvProductVersionKey, version_);
+    ::SetEnvironmentVariableW(google_update::kEnvProductVersionKey, version_);
   }
 
   // The dll can be in the exe's directory or in the current directory.
@@ -113,7 +111,8 @@ bool GoogleUpdateClient::Init(const wchar_t* client_guid,
   dll_.assign(client_dll);
   bool ret = false;
   if (!guid_.empty()) {
-    if (GoogleUpdateEnvQueryStr(kEnvProductVersionKey, &version_)) {
+    if (GoogleUpdateEnvQueryStr(google_update::kEnvProductVersionKey,
+                                &version_)) {
       ret = true;
     } else {
       std::wstring key(google_update::kRegPathClients);

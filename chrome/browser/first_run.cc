@@ -227,6 +227,7 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
 }
 
 bool Upgrade::RelaunchChromeBrowser(const CommandLine& command_line) {
+  ::SetEnvironmentVariable(google_update::kEnvProductVersionKey, NULL);
   return process_util::LaunchApp(command_line.command_line_string(),
                                  false, false, NULL);
 }

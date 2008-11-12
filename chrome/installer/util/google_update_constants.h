@@ -28,6 +28,8 @@ extern const wchar_t kRegRenameCmdField[];
 extern const wchar_t kRegRLZBrandField[];
 extern const wchar_t kRegUsageStatsField[];
 extern const wchar_t kRegVersionField[];
+
+extern const wchar_t kEnvProductVersionKey[];
 }  // namespace google_update
 
 #endif  // CHROME_INSTALLER_UTIL_GOOGLE_UPDATE_CONSTANTS_H_
