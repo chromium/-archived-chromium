@@ -106,8 +106,8 @@ InspectorController: no constructor
 KeyboardEvent: exception
 Location: no constructor
 MediaList: exception
-MimeType: no constructor
-MimeTypeArray: no constructor
+MimeType: exception
+MimeTypeArray: exception
 MouseEvent: exception
 MutationEvent: exception
 NamedNodeMap: exception
@@ -116,8 +116,8 @@ NodeFilter: exception
 NodeIterator: no constructor
 NodeList: exception
 OverflowEvent: exception
-Plugin: no constructor
-PluginArray: no constructor
+Plugin: exception
+PluginArray: exception
 Range: exception
 Rect: exception
 RGBColor: no constructor
