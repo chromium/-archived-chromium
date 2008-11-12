@@ -70,6 +70,7 @@ input_files = [
     '$PORT_DIR/platform/chromium/TextBoundariesChromium.cpp',
     '$PORT_DIR/platform/chromium/TextBreakIteratorInternalICUChromium.cpp',
     '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
+    '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
 
     '$PORT_DIR/platform/graphics/AffineTransformSkia.cpp',
     '$PORT_DIR/platform/graphics/ColorSkia.cpp',
@@ -128,6 +129,7 @@ if env['PLATFORM'] == 'posix':
   input_files.extend([
     '$PORT_DIR/platform/chromium/IconLinux.cpp',
     '$PORT_DIR/platform/chromium/ScreenLinux.cpp',
+    '$PORT_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',
   ])
@@ -141,6 +143,7 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/platform/chromium/DragDataChromium.cpp',
     '$PORT_DIR/platform/chromium/PopupMenuChromium.cpp',
     '$PORT_DIR/platform/chromium/WidgetChromium.cpp',
+    '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
   ]

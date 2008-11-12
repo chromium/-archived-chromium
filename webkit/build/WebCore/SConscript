@@ -817,7 +817,6 @@ if env['PLATFORM'] in ('darwin'):
 if env['PLATFORM'] == 'posix':
   input_files.extend([
     '$WEBCORE_DIR/platform/posix/FileSystemPOSIX.cpp',
-    '$WEBCORE_DIR/platform/gtk/ScrollbarThemeGtk.cpp',
   ])
 
 # Precompiled headers only work under MSVC in scons.

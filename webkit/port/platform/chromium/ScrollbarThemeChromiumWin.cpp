@@ -20,11 +20,11 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "config.h"
-#include "ScrollbarThemeChromiumWin.h"
+#include "ScrollbarThemeChromium.h"
 
 #include <windows.h>
 #include <vsstyle.h>
@@ -60,21 +60,7 @@ static RECT toRECT(const IntRect& input)
     return output;
 }
 
-ScrollbarTheme* ScrollbarTheme::nativeTheme()
-{
-    static ScrollbarThemeChromiumWin theme;
-    return &theme;
-}
-
-ScrollbarThemeChromiumWin::ScrollbarThemeChromiumWin()
-{
-}
-
-ScrollbarThemeChromiumWin::~ScrollbarThemeChromiumWin()
-{
-}
-
-int ScrollbarThemeChromiumWin::scrollbarThickness(ScrollbarControlSize controlSize)
+int ScrollbarThemeChromium::scrollbarThickness(ScrollbarControlSize controlSize)
 {
     static int thickness;
     if (!thickness) {
@@ -85,72 +71,12 @@ int ScrollbarThemeChromiumWin::scrollbarThickness(ScrollbarControlSize controlSi
     return thickness;
 }
 
-void ScrollbarThemeChromiumWin::themeChanged()
-{
-}
-
-bool ScrollbarThemeChromiumWin::invalidateOnMouseEnterExit()
+bool ScrollbarThemeChromium::invalidateOnMouseEnterExit()
 {
     return runningVista();
 }
 
-bool ScrollbarThemeChromiumWin::hasThumb(Scrollbar* scrollbar)
-{
-    // This method is just called as a paint-time optimization to see if
-    // painting the thumb can be skipped.  We don't have to be exact here.
-    return thumbLength(scrollbar) > 0;
-}
-
-IntRect ScrollbarThemeChromiumWin::backButtonRect(Scrollbar* scrollbar, ScrollbarPart part, bool)
-{
-    // Windows just has single arrows.
-    if (part == BackButtonEndPart)
-        return IntRect();
-
-    IntSize size = buttonSize(scrollbar);
-    return IntRect(scrollbar->x(), scrollbar->y(), size.width(), size.height());
-}
-
-IntRect ScrollbarThemeChromiumWin::forwardButtonRect(Scrollbar* scrollbar, ScrollbarPart part, bool)
-{
-    // Windows just has single arrows.
-    if (part == ForwardButtonStartPart)
-        return IntRect();
-
-    IntSize size = buttonSize(scrollbar);
-    int x, y;
-    if (scrollbar->orientation() == HorizontalScrollbar) {
-        x = scrollbar->x() + scrollbar->width() - size.width();
-        y = scrollbar->y();
-    } else {
-        x = scrollbar->x();
-        y = scrollbar->y() + scrollbar->height() - size.height();
-    }
-    return IntRect(x, y, size.width(), size.height());
-}
-
-IntRect ScrollbarThemeChromiumWin::trackRect(Scrollbar* scrollbar, bool)
-{
-    IntSize bs = buttonSize(scrollbar);
-    int thickness = scrollbarThickness();
-    if (scrollbar->orientation() == HorizontalScrollbar) {
-        if (scrollbar->width() < 2 * thickness)
-            return IntRect();
-        return IntRect(scrollbar->x() + bs.width(), scrollbar->y(), scrollbar->width() - 2 * bs.width(), thickness);
-    }
-    if (scrollbar->height() < 2 * thickness)
-        return IntRect();
-    return IntRect(scrollbar->x(), scrollbar->y() + bs.height(), thickness, scrollbar->height() - 2 * bs.height());
-}
-
-void ScrollbarThemeChromiumWin::paintTrackBackground(GraphicsContext* context, Scrollbar* scrollbar, const IntRect& rect)
-{
-    // Just assume a forward track part.  We only paint the track as a single piece when there is no thumb.
-    if (!hasThumb(scrollbar))
-        paintTrackPiece(context, scrollbar, rect, ForwardTrackPart);
-}
-
-void ScrollbarThemeChromiumWin::paintTrackPiece(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect, ScrollbarPart partType)
+void ScrollbarThemeChromium::paintTrackPiece(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect, ScrollbarPart partType)
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
 
@@ -181,7 +107,7 @@ void ScrollbarThemeChromiumWin::paintTrackPiece(GraphicsContext* gc, Scrollbar* 
     canvas->endPlatformPaint();
 }
 
-void ScrollbarThemeChromiumWin::paintButton(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect, ScrollbarPart part)
+void ScrollbarThemeChromium::paintButton(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect, ScrollbarPart part)
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
 
@@ -207,7 +133,7 @@ void ScrollbarThemeChromiumWin::paintButton(GraphicsContext* gc, Scrollbar* scro
     canvas->endPlatformPaint();
 }
 
-void ScrollbarThemeChromiumWin::paintThumb(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect)
+void ScrollbarThemeChromium::paintThumb(GraphicsContext* gc, Scrollbar* scrollbar, const IntRect& rect)
 {
     bool horz = scrollbar->orientation() == HorizontalScrollbar;
 
@@ -235,47 +161,7 @@ void ScrollbarThemeChromiumWin::paintThumb(GraphicsContext* gc, Scrollbar* scrol
     canvas->endPlatformPaint();
 }
 
-void ScrollbarThemeChromiumWin::paintScrollCorner(ScrollView* view, GraphicsContext* context, const IntRect& cornerRect)
-{
-    // ScrollbarThemeComposite::paintScrollCorner incorrectly assumes that the
-    // ScrollView is a FrameView (see FramelessScrollView), so we cannot let
-    // that code run.  For FrameView's this is correct since we don't do custom
-    // scrollbar corner rendering, which ScrollbarThemeComposite supports.
-    ScrollbarTheme::paintScrollCorner(view, context, cornerRect);
-}
-
-bool ScrollbarThemeChromiumWin::shouldCenterOnThumb(Scrollbar*, const PlatformMouseEvent& evt)
-{
-    return evt.shiftKey() && evt.button() == LeftButton;
-}
-
-IntSize ScrollbarThemeChromiumWin::buttonSize(Scrollbar* scrollbar)
-{
-    // Our desired rect is essentially thickness by thickness.
-    
-    // Our actual rect will shrink to half the available space when we have < 2
-    // times thickness pixels left.  This allows the scrollbar to scale down
-    // and function even at tiny sizes.
- 
-    // In layout test mode, we force the button "girth" (i.e., the length of
-    // the button along the axis of the scrollbar) to be a fixed size.
-    // FIXME: This is retarded!  scrollbarThickness is already fixed in layout
-    // test mode so that should be enough to result in repeatable results, but
-    // preserving this hack avoids having to rebaseline pixel tests.
-    const int kLayoutTestModeGirth = 17;
-
-    int thickness = scrollbarThickness();
-    int girth = ChromiumBridge::layoutTestMode() ? kLayoutTestModeGirth : thickness;
-    if (scrollbar->orientation() == HorizontalScrollbar) {
-        int width = scrollbar->width() < 2 * girth ? scrollbar->width() / 2 : girth;
-        return IntSize(width, thickness);
-    }
-    
-    int height = scrollbar->height() < 2 * girth ? scrollbar->height() / 2 : girth;
-    return IntSize(thickness, height);
-}
-
-int ScrollbarThemeChromiumWin::getThemeState(Scrollbar* scrollbar, ScrollbarPart part) const
+int ScrollbarThemeChromium::getThemeState(Scrollbar* scrollbar, ScrollbarPart part) const
 {
     // When dragging the thumb, draw thumb pressed and other segments normal
     // regardless of where the cursor actually is.  See also four places in
@@ -294,7 +180,7 @@ int ScrollbarThemeChromiumWin::getThemeState(Scrollbar* scrollbar, ScrollbarPart
     return (scrollbar->pressedPart() == part) ? SCRBS_PRESSED : SCRBS_NORMAL;
 }
 
-int ScrollbarThemeChromiumWin::getThemeArrowState(Scrollbar* scrollbar, ScrollbarPart part) const
+int ScrollbarThemeChromium::getThemeArrowState(Scrollbar* scrollbar, ScrollbarPart part) const
 {
     // We could take advantage of knowing the values in the state enum to write
     // some simpler code, but treating the state enum as a black box seems
@@ -344,7 +230,7 @@ int ScrollbarThemeChromiumWin::getThemeArrowState(Scrollbar* scrollbar, Scrollba
     return (scrollbar->pressedPart() == part) ? ABS_DOWNPRESSED : ABS_DOWNNORMAL;
 }
 
-int ScrollbarThemeChromiumWin::getClassicThemeState(Scrollbar* scrollbar, ScrollbarPart part) const
+int ScrollbarThemeChromium::getClassicThemeState(Scrollbar* scrollbar, ScrollbarPart part) const
 {
     // When dragging the thumb, draw the buttons normal even when hovered.
     if (scrollbar->pressedPart() == ThumbPart)

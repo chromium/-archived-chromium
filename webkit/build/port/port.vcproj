@@ -803,6 +803,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\chromium\ScrollbarThemeChromium.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\chromium\ScrollbarThemeChromiumWin.cpp"
 					>
 				</File>

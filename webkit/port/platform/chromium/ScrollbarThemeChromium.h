@@ -20,20 +20,29 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ScrollbarThemeChromiumWin_h
-#define ScrollbarThemeChromiumWin_h
+#ifndef ScrollbarThemeChromium_h
+#define ScrollbarThemeChromium_h
 
 #include "ScrollbarThemeComposite.h"
 
 namespace WebCore {
 
-class ScrollbarThemeChromiumWin : public ScrollbarThemeComposite {
+class PlatformMouseEvent;
+
+// -----------------------------------------------------------------------------
+// This class contains the Chromium scrollbar implementations for Windows and
+// Linux. All of the symbols here in must be defined somewhere in the code and
+// we manage the platform specific parts by linking in different, platform
+// specific, files. Methods that we shared across platforms are implemented in
+// ScrollbarThemeChromium.cpp
+// -----------------------------------------------------------------------------
+class ScrollbarThemeChromium : public ScrollbarThemeComposite {
 public:
-    ScrollbarThemeChromiumWin();
-    virtual ~ScrollbarThemeChromiumWin();
+    ScrollbarThemeChromium();
+    virtual ~ScrollbarThemeChromium();
 
     virtual int scrollbarThickness(ScrollbarControlSize = RegularScrollbar);
 
@@ -59,6 +68,7 @@ protected:
 
 private:
     IntSize buttonSize(Scrollbar*);
+
     int getThemeState(Scrollbar*, ScrollbarPart) const;
     int getThemeArrowState(Scrollbar*, ScrollbarPart) const;
     int getClassicThemeState(Scrollbar*, ScrollbarPart) const;
