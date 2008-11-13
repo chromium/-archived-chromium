@@ -340,6 +340,7 @@ BookmarkNode* BookmarkModel::AddGroup(
   }
 
   BookmarkNode* new_node = new BookmarkNode(this, GURL());
+  new_node->date_group_modified_ = Time::Now();
   new_node->SetTitle(title);
   new_node->type_ = history::StarredEntry::USER_GROUP;
 
