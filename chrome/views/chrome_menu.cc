@@ -1329,7 +1329,11 @@ void MenuItemView::PrepareForRun(bool has_mnemonics) {
 
   AddEmptyMenus();
 
-  UpdateMenuPartSizes(has_icons_);
+  if (!MenuController::GetActiveInstance()) {
+    // Only update the menu size if there are no menus showing, otherwise
+    // things may shift around.
+    UpdateMenuPartSizes(has_icons_);
+  }
 
   font_ = GetMenuFont();
 
@@ -1578,8 +1582,6 @@ MenuItemView* MenuController::Run(HWND parent,
     pending_state_.monitor_bounds = gfx::Rect(mi.rcMonitor);
   }
 
-  did_capture_ = false;
-
   any_menu_contains_mouse_ = false;
 
   // Set the selection, which opens the initial menu.
@@ -1624,6 +1626,7 @@ MenuItemView* MenuController::Run(HWND parent,
     menu_stack_.pop_back();
   } else {
     showing_ = false;
+    did_capture_ = false;
   }
 
   MenuItemView* result = result_;
@@ -2045,7 +2048,7 @@ bool MenuController::Dispatch(const MSG& msg) {
   switch (msg.message) {
     case WM_CONTEXTMENU: {
       MenuItemView* item = pending_state_.item;
-      if (item) {
+      if (item && item->GetRootMenuItem() != item) {
         gfx::Point screen_loc(0, item->height());
         View::ConvertPointToScreen(item, &screen_loc);
         item->GetDelegate()->ShowContextMenu(

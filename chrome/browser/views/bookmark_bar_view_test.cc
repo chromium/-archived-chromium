@@ -824,3 +824,71 @@ class BookmarkBarViewTest10 : public BookmarkBarViewEventTestBase {
 };
 
 VIEW_TEST(BookmarkBarViewTest10, KeyEvents)
+
+// Make sure the menu closes with the following sequence: show menu, show
+// context menu, close context menu (via escape), then click else where. This
+// effectively verifies we maintain mouse capture after the context menu is
+// hidden.
+class BookmarkBarViewTest11 : public BookmarkBarViewEventTestBase {
+ protected:
+  virtual void DoTestOnMessageLoop() {
+    // Move the mouse to the first folder on the bookmark bar and press the
+    // mouse.
+    views::TextButton* button = bb_view_->other_bookmarked_button();
+    ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
+        ui_controls::DOWN | ui_controls::UP,
+        CreateEventTask(this, &BookmarkBarViewTest11::Step2));
+  }
+
+ private:
+  void Step2() {
+    // Menu should be showing.
+    views::MenuItemView* menu = bb_view_->GetMenu();
+    ASSERT_TRUE(menu != NULL);
+    ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
+
+    views::MenuItemView* child_menu =
+        menu->GetSubmenu()->GetMenuItemAt(0);
+    ASSERT_TRUE(child_menu != NULL);
+
+    // Right click on the first child to get its context menu.
+    ui_controls::MoveMouseToCenterAndPress(child_menu, ui_controls::RIGHT,
+        ui_controls::DOWN | ui_controls::UP,
+        CreateEventTask(this, &BookmarkBarViewTest11::Step3));
+  }
+
+  void Step3() {
+    // Send escape so that the context menu hides.
+    ui_controls::SendKeyPressNotifyWhenDone(VK_ESCAPE, false, false, false,
+        CreateEventTask(this, &BookmarkBarViewTest11::Step4));
+  }
+
+  void Step4() {
+    // Make sure the context menu is no longer showing.
+    views::MenuItemView* menu = bb_view_->GetContextMenu();
+    ASSERT_TRUE(!menu || !menu->GetSubmenu() ||
+                !menu->GetSubmenu()->IsShowing());
+
+    // But the menu should be showing.
+    menu = bb_view_->GetMenu();
+    ASSERT_TRUE(menu && menu->GetSubmenu() && menu->GetSubmenu()->IsShowing());
+
+    // Now click on empty space.
+    gfx::Point mouse_loc;
+    views::View::ConvertPointToScreen(bb_view_, &mouse_loc);
+    ui_controls::SendMouseMove(mouse_loc.x(), mouse_loc.y());
+    ui_controls::SendMouseEventsNotifyWhenDone(
+        ui_controls::LEFT, ui_controls::UP | ui_controls::DOWN,
+        CreateEventTask(this, &BookmarkBarViewTest11::Step5));
+  }
+
+  void Step5() {
+    // Make sure the menu is not showing.
+    views::MenuItemView* menu = bb_view_->GetMenu();
+    ASSERT_TRUE(!menu || !menu->GetSubmenu() ||
+                !menu->GetSubmenu()->IsShowing());
+    Done();
+  }
+};
+
+VIEW_TEST(BookmarkBarViewTest11, CloseMenuAfterClosingContextMenu)

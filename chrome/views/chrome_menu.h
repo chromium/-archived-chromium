@@ -635,7 +635,7 @@ class MenuController : public MessageLoopForUI::Dispatcher {
                     bool update_immediately);
 
   // Cancels the current Run. If all is true, any nested loops are canceled
-  // as well. This immediatley hides all menus.
+  // as well. This immediately hides all menus.
   void Cancel(bool all);
 
   // An alternative to Cancel(true) that can be used with a OneShotTimer.
@@ -949,4 +949,3 @@ class MenuController : public MessageLoopForUI::Dispatcher {
 }  // namespace views
 
 #endif  // CHROME_VIEWS_CHROME_MENU_H__
-
