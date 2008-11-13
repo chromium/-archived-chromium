@@ -33,10 +33,10 @@ class TabProxy;
 class UITest : public testing::Test {
  protected:
   // Delay to let browser complete a requested action.
-  static const int kWaitForActionMsec = 1000;
-  static const int kWaitForActionMaxMsec = 1000;
+  static const int kWaitForActionMsec = 2000;
+  static const int kWaitForActionMaxMsec = 10000;
   // Delay to let the browser complete the test.
-  static const int kMaxTestExecutionTime = 3000;
+  static const int kMaxTestExecutionTime = 30000;
 
   // Tries to delete the specified file/directory returning true on success.
   // This differs from file_util::Delete in that it repeatedly invokes Delete
