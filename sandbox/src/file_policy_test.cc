@@ -176,6 +176,8 @@ SBOX_TESTS_COMMAND int File_CreateSys32(int argc, wchar_t **argv) {
     return SBOX_TEST_SUCCEEDED;
   } else if (STATUS_ACCESS_DENIED == status) {
     return SBOX_TEST_DENIED;
+  } else if (STATUS_OBJECT_NAME_NOT_FOUND == status) {
+    return SBOX_TEST_NOT_FOUND;
   }
   return SBOX_TEST_FAILED;
 }
@@ -208,6 +210,8 @@ SBOX_TESTS_COMMAND int File_OpenSys32(int argc, wchar_t **argv) {
     return SBOX_TEST_SUCCEEDED;
   } else if (STATUS_ACCESS_DENIED == status) {
     return SBOX_TEST_DENIED;
+  } else if (STATUS_OBJECT_NAME_NOT_FOUND == status) {
+    return SBOX_TEST_NOT_FOUND;
   }
   return SBOX_TEST_FAILED;
 }
@@ -293,6 +297,8 @@ SBOX_TESTS_COMMAND int File_QueryAttributes(int argc, wchar_t **argv) {
       return SBOX_TEST_SUCCEEDED;
   } else if (STATUS_ACCESS_DENIED == status1) {
     return SBOX_TEST_DENIED;
+  } else if (STATUS_OBJECT_NAME_NOT_FOUND == status1) {
+    return SBOX_TEST_NOT_FOUND;
   }
 
   return SBOX_TEST_FAILED;
@@ -384,10 +390,25 @@ TEST(FilePolicyTest, AllowNtCreatePatternRule) {
   EXPECT_EQ(SBOX_TEST_SUCCEEDED, runner.RunTest(L"File_OpenSys32 appwiz.cpl"));
 }
 
+TEST(FilePolicyTest, CheckNotFound) {
+  TestRunner runner;
+  EXPECT_TRUE(runner.AddRuleSys32(TargetPolicy::FILES_ALLOW_ANY, L"n*.dll"));
+
+  EXPECT_EQ(SBOX_TEST_NOT_FOUND,
+            runner.RunTest(L"File_OpenSys32 notfound.dll"));
+}
+
+TEST(FilePolicyTest, CheckNoLeak) {
+  TestRunner runner;
+  EXPECT_EQ(SBOX_TEST_DENIED, runner.RunTest(L"File_CreateSys32 notfound.exe"));
+}
+
 TEST(FilePolicyTest, TestQueryAttributesFile) {
   TestRunner runner;
   EXPECT_TRUE(runner.AddRuleSys32(TargetPolicy::FILES_ALLOW_ANY,
                                   L"appmgmts.dll"));
+  EXPECT_TRUE(runner.AddRuleSys32(TargetPolicy::FILES_ALLOW_ANY,
+                                  L"notfound.exe"));
   EXPECT_TRUE(runner.AddRuleSys32(TargetPolicy::FILES_ALLOW_ANY, L"drivers"));
   EXPECT_TRUE(runner.AddRuleSys32(TargetPolicy::FILES_ALLOW_QUERY,
                                   L"ipconfig.exe"));
@@ -403,6 +424,20 @@ TEST(FilePolicyTest, TestQueryAttributesFile) {
 
   EXPECT_EQ(SBOX_TEST_DENIED,
             runner.RunTest(L"File_QueryAttributes ftp.exe f"));
+
+  EXPECT_EQ(SBOX_TEST_NOT_FOUND,
+            runner.RunTest(L"File_QueryAttributes notfound.exe f"));
+}
+
+// Makes sure that we don't leak information when there is not policy to allow
+// a path.
+TEST(FilePolicyTest, TestQueryAttributesFileNoPolicy) {
+  TestRunner runner;
+  EXPECT_EQ(SBOX_TEST_DENIED,
+            runner.RunTest(L"File_QueryAttributes ftp.exe f"));
+
+  EXPECT_EQ(SBOX_TEST_DENIED,
+            runner.RunTest(L"File_QueryAttributes notfound.exe f"));
 }
 
 TEST(FilePolicyTest, TestRename) {

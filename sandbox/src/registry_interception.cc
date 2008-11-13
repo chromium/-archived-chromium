@@ -65,6 +65,12 @@ NTSTATUS WINAPI TargetNtCreateKey(NtCreateKeyFunction orig_CreateKey,
       break;
 
     if (!NT_SUCCESS(answer.nt_status))
+        // TODO(nsylvain): We should return answer.nt_status here instead
+        // of status. We can do this only after we checked the policy.
+        // otherwise we will returns ACCESS_DENIED for all paths
+        // that are not specified by a policy, even though your token allows
+        // access to that path, and the original call had a more meaningful
+        // error. Bug 4369
         break;
 
     __try {
@@ -121,7 +127,13 @@ NTSTATUS WINAPI TargetNtOpenKey(NtOpenKeyFunction orig_OpenKey, PHANDLE key,
       break;
 
     if (!NT_SUCCESS(answer.nt_status))
-      break;
+        // TODO(nsylvain): We should return answer.nt_status here instead
+        // of status. We can do this only after we checked the policy.
+        // otherwise we will returns ACCESS_DENIED for all paths
+        // that are not specified by a policy, even though your token allows
+        // access to that path, and the original call had a more meaningful
+        // error. Bug 4369
+        break;
 
     __try {
       *key = answer.handle;

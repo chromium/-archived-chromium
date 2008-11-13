@@ -74,6 +74,14 @@ NTSTATUS WINAPI TargetNtOpenThread(NtOpenThreadFunction orig_OpenThread,
       break;
 
     if (!NT_SUCCESS(answer.nt_status))
+      // The nt_status here is most likely STATUS_INVALID_CID because
+      // in the broker we set the process id in the CID (client ID) param
+      // to be the current process. If you try to open a thread from another
+      // process you will get this INVALID_CID error. On the other hand, if you
+      // try to open a thread in your own process, it should return success.
+      // We don't want to return STATUS_INVALID_CID here, so we return the
+      // return of the original open thread status, which is most likely
+      // STATUS_ACCESS_DENIED.
       break;
 
     __try {
@@ -144,7 +152,7 @@ NTSTATUS WINAPI TargetNtOpenProcess(NtOpenProcessFunction orig_OpenProcess,
       break;
 
     if (!NT_SUCCESS(answer.nt_status))
-      break;
+      return answer.nt_status;
 
     __try {
       // Write the output parameters.
@@ -189,7 +197,7 @@ NTSTATUS WINAPI TargetNtOpenProcessToken(
       break;
 
     if (!NT_SUCCESS(answer.nt_status))
-      break;
+      return answer.nt_status;
 
     __try {
       // Write the output parameters.
@@ -234,7 +242,7 @@ NTSTATUS WINAPI TargetNtOpenProcessTokenEx(
       break;
 
     if (!NT_SUCCESS(answer.nt_status))
-      break;
+      return answer.nt_status;
 
     __try {
       // Write the output parameters.
@@ -296,8 +304,9 @@ BOOL WINAPI TargetCreateProcessW(CreateProcessWFunction orig_CreateProcessW,
     if (SBOX_ALL_OK != code)
       break;
 
+    ::SetLastError(answer.win32_result);
     if (ERROR_SUCCESS != answer.win32_result)
-      break;
+      return FALSE;
 
     return TRUE;
   } while (false);
@@ -376,8 +385,9 @@ BOOL WINAPI TargetCreateProcessA(CreateProcessAFunction orig_CreateProcessA,
     if (SBOX_ALL_OK != code)
       break;
 
+    ::SetLastError(answer.win32_result);
     if (ERROR_SUCCESS != answer.win32_result)
-      break;
+      return FALSE;
 
     return TRUE;
   } while (false);
