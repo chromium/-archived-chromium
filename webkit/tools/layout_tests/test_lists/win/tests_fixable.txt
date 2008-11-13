@@ -1211,3 +1211,6 @@ V8 # LayoutTests/fast/frames/cross-site-this.html = FAIL
 V8 # LayoutTests/fast/js/large-expressions.html = FAIL
 V8 # LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
 V8 # LayoutTests/plugins/plugin-javascript-access.html = FAIL
+
+V8 # LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
+V8 # LayoutTests/fast/events/message-channel-gc-2.html = TIMEOUT
