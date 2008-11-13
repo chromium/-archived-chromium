@@ -31,8 +31,8 @@ TEST(HostResolverTest, NumericAddresses) {
 
   const struct sockaddr* sa = ainfo->ai_addr;
   const struct sockaddr_in* sa_in = (const struct sockaddr_in*) sa;
-  EXPECT_EQ(htons(kPortnum), sa_in->sin_port);
-  EXPECT_EQ(htonl(0x7f000001), sa_in->sin_addr.s_addr);
+  EXPECT_TRUE(htons(kPortnum) == sa_in->sin_port);
+  EXPECT_TRUE(htonl(0x7f000001) == sa_in->sin_addr.s_addr);
 }
 
 } // namespace

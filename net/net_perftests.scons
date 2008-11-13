@@ -57,6 +57,11 @@ if env['PLATFORM'] == 'win32':
           '/nxcompat',
       ],
   )
+elif env['PLATFORM'] == 'posix':
+  env.Append(
+      # TODO(port): disk_cache_perftest breaks strict aliasing rules.
+      CCFLAGS = ['-fno-strict-aliasing'],
+  )
 
 input_files = [
     'base/cookie_monster_perftest.cc',

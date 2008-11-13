@@ -35,6 +35,7 @@ if env['PLATFORM'] in ('darwin', 'posix'):
   # Disable only what's necessary.
   env.Append(
       CCFLAGS = [
+          '-Wno-uninitialized',
           '-Wno-parentheses',
           '-Wno-sign-compare',
           '-Wno-unused-label',

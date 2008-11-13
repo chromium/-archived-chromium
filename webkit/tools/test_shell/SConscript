@@ -7,6 +7,10 @@ Import('env', 'env_res')
 env = env.Clone()
 env_res = env_res.Clone()
 
+env.SConscript([
+    '$CHROME_SRC_DIR/build/using_v8.scons',
+], {'env':env})
+
 if env['PLATFORM'] == 'win32':
   env_res.Append(
       CPPPATH = [
@@ -50,7 +54,6 @@ env.Append(
         'modp_b64',
         'zlib',
         'sqlite',
-        'v8_g',
         'JavaScriptCore_pcre',
         'default_plugin',
     ],

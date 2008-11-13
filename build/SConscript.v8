@@ -13,8 +13,14 @@ try:
 except AttributeError:
   cpu_flag = ''
 
+# The v8 build script wants a 'debug'/'release' string to tell it whether
+# to build optimized.  Convert our build flags into that form.
+mode = 'release'
+if env['TARGET_DEBUG']:
+  mode = 'debug'
+
 env = env.Clone(
-    V8_MODE = 'debug',
+    V8_MODE = mode,
     V8_MODE_DIR = '$V8_DIR/obj/$V8_MODE',
     V8_SCONS_COM = '$PYTHON $SCONS $SCONSFLAGS mode=$V8_MODE',
     SCONS='$CHROME_SRC_DIR/third_party/scons/scons.py',
@@ -36,9 +42,14 @@ if not os.path.exists(env.Dir('$OBJ_ROOT/v8').abspath):
   Mkdir(env.Dir('$OBJ_ROOT/v8').abspath)
 
 
+# v8 builds all outputs "foo" instead as "foo_g" in debug mode.
+binsuffix = ''
+if env['TARGET_DEBUG']:
+  binsuffix = '_g'
+
 v8_scons_targets_off = [
-    '$V8_DIR/shell_g${PROGSUFFIX}',
-    '$V8_DIR/${LIBPREFIX}v8_g${LIBSUFFIX}',
+    '$V8_DIR/shell%s${PROGSUFFIX}' % binsuffix,
+    '$V8_DIR/${LIBPREFIX}v8%s${LIBSUFFIX}' % binsuffix,
     '$V8_MODE_DIR/mksnapshot${PROGSUFFIX}',
     '$V8_MODE_DIR/libraries${OBJSUFFIX}',
     '$V8_MODE_DIR/snapshot-empty${OBJSUFFIX}',

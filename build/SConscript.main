@@ -37,13 +37,12 @@ root_env = Environment(
 
     CHROME_SRC_DIR = '$MAIN_DIR/..',
     DESTINATION_ROOT = '$MAIN_DIR/Hammer',
-    TARGET_ROOT = '$DESTINATION_ROOT',
 
     # Where ComponentTestProgram() will build test executables.
-    TESTS_DIR = '$TARGET_ROOT',
+    TESTS_DIR = '$DESTINATION_ROOT',
 
     # Where ComponentProgram() will build program executables.
-    STAGING_DIR = '$TARGET_ROOT',
+    STAGING_DIR = '$DESTINATION_ROOT',
 
     # Where ComponentLibrary() will build libraries.
     LIBS_DIR              = '$COMPONENT_LIBRARY_DIR',
@@ -441,16 +440,8 @@ windows_env.AppendENVPath('PATH', ';C:\\WINDOWS\\system32')
 # Linux specific
 
 linux_env = root_env.Clone()
-environment_list.append(linux_env)
 linux_env.Tool('target_platform_linux')
-linux_env.Tool('target_debug')
 linux_env.Tool('yacc')
-linux_env.Replace(
-    BUILD_TYPE = 'debug-linux',
-    BUILD_TYPE_DESCRIPTION = 'Linux debug build',
-)
-linux_env.Append(BUILD_GROUPS = ['default'])
-
 
 # TODO(bradnelson): this is needed for now because target_platform_linux has
 # OS_LINUX defined in a weird way.
@@ -567,6 +558,25 @@ if root_env['PLATFORM'] in ['linux', 'linux2', 'posix']:
       print ('\n'
           'libxslt requested in SYSTEM_LIBS but not found\n')
       sys.exit(1)
+
+linux_dbg = linux_env.Clone()
+environment_list.append(linux_dbg)
+linux_dbg.Replace(
+    BUILD_TYPE = 'dbg',
+    BUILD_TYPE_DESCRIPTION = 'Linux debug build',
+)
+linux_dbg.Tool('target_debug')
+linux_dbg.Append(BUILD_GROUPS = ['default'])
+
+linux_opt = linux_env.Clone()
+environment_list.append(linux_opt)
+# Disable rpath for faster startup.
+linux_opt.Append(RPATH = [])
+linux_opt.Replace(
+    BUILD_TYPE = 'opt',
+    BUILD_TYPE_DESCRIPTION = 'Linux optimized build',
+)
+linux_opt.Tool('target_optimized')
 
 # --------------------------------------------------------------------------
 # Mac specific

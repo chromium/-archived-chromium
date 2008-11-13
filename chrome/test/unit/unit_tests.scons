@@ -13,6 +13,7 @@ env.SConscript([
     '$CHROME_DIR/third_party/hunspell/using_hunspell.scons',
     '$CHROME_DIR/third_party/wtl/using_wtl.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$CHROME_SRC_DIR/build/using_v8.scons',
     '$DMG_FP_DIR/using_dmg_fp.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
@@ -48,7 +49,6 @@ env.Prepend(
         'renderer',
         'sqlite',
         'util',
-        'v8_g',
         'v8_snapshot',
 
         'WTF',

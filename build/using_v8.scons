@@ -1,0 +1,20 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Settings for other components using the v8 library.
+"""
+
+Import("env")
+
+# v8 builds the lib as v8_g in debug mode.
+v8_lib = 'v8'
+if env['TARGET_DEBUG']:
+  v8_lib = 'v8_g'
+
+env.Append(
+    LIBS = [
+        v8_lib,
+    ],
+)

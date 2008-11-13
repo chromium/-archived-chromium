@@ -15,7 +15,7 @@ deps = {
     "/trunk/deps/third_party/WebKit@5398",
 
   "src/third_party/icu38":
-    "/trunk/deps/third_party/icu38@5179",
+    "/trunk/deps/third_party/icu38@5385",
 
   "src/v8":
     "http://v8.googlecode.com/svn/trunk@696",
