@@ -24,6 +24,7 @@ using WebCore::KeyboardEvent;
 class KeyboardTest : public testing::Test {
  public:
   void SetUp() {
+    WTF::initializeThreading();
     WebCore::EventNames::init();
   }
 
