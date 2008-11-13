@@ -150,7 +150,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 531CBD140ECB66670084F32D /* dmg_fp.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdmg_fp.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = dmg_fp;
 		};
 		7B262E390E82E508001CE27F /* PBXContainerItemProxy */ = {
