@@ -147,7 +147,10 @@ static void navigateIfAllowed(Frame* frame, const KURL& url, bool lock_history)
     return;
 
   Frame* activeFrame = ScriptController::retrieveActiveFrame();
-  if (activeFrame && !url.protocolIs("javascript")) {
+  if (!activeFrame)
+    return;
+  
+  if (!url.protocolIs("javascript") || ScriptController::isSafeScript(frame)) {
     bool user_gesture = activeFrame->script()->processingUserGesture();
     frame->loader()->scheduleLocationChange(url.string(), 
       activeFrame->loader()->outgoingReferrer(), lock_history, user_gesture);
@@ -206,11 +209,7 @@ void Location::setHref(const String& value) {
   if (!active_frame->loader()->shouldAllowNavigation(m_frame))
     return;
 
-  // Allows cross domain access except javascript url.
-  if (!parseURL(value).startsWith("javascript:", false) ||
-      ScriptController::isSafeScript(m_frame)) {
-    navigateIfAllowed(m_frame, active_frame->loader()->completeURL(value), false);
-  }
+  navigateIfAllowed(m_frame, active_frame->loader()->completeURL(value), false);
 }
 
 void Location::setPathname(const String& pathname) {
@@ -280,11 +279,7 @@ void Location::replace(const String& url) {
   if (!active_frame->loader()->shouldAllowNavigation(m_frame))
     return;
 
-  // Allows cross domain access except javascript url.
-  if (!parseURL(url).startsWith("javascript:", false) ||
-      ScriptController::isSafeScript(m_frame)) {
-    navigateIfAllowed(m_frame, active_frame->loader()->completeURL(url), true);
-  }
+  navigateIfAllowed(m_frame, active_frame->loader()->completeURL(url), true);
 }
 
 void Location::assign(const String& url) {
@@ -298,12 +293,9 @@ void Location::assign(const String& url) {
   if (!active_frame->loader()->shouldAllowNavigation(m_frame))
     return;
 
-  if (!parseURL(url).startsWith("javascript:", false) ||
-      ScriptController::isSafeScript(m_frame)) {
-    navigateIfAllowed(m_frame, active_frame->loader()->completeURL(url), false);
-  }
+  navigateIfAllowed(m_frame, active_frame->loader()->completeURL(url), false);
 }
-#endif  // USE(V8)
 
+#endif  // USE(V8)
 
 }  // namespace WebCore
