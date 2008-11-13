@@ -55,8 +55,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   typedef std::vector<CapturedContextMenuEvent> CapturedContextMenuEvents;
 
   TestWebViewDelegate(TestShell* shell) 
-    : page_is_loading_(false),
-      is_custom_policy_delegate_(false),
+    : is_custom_policy_delegate_(false),
       shell_(shell),
       top_loading_frame_(NULL),
       page_id_(-1),
@@ -274,11 +273,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   std::wstring GetFrameDescription(WebFrame* webframe);
 
  private:
-  // True while a page is in the process of being loaded.  This flag should
-  // not be necessary, but it helps guard against mismatched messages for 
-  // starting and ending loading frames.
-  bool page_is_loading_;
-
   // Causes navigation actions just printout the intended navigation instead 
   // of taking you to the page. This is used for cases like mailto, where you
   // don't actually want to open the mail program.

@@ -85,19 +85,11 @@ void TestWebViewDelegate::OpenURL(WebView* webview, const GURL& url,
 }
 
 void TestWebViewDelegate::DidStartLoading(WebView* webview) {
-  if (page_is_loading_) {
-    LOG(ERROR) << "DidStartLoading called while loading";
-    return;
-  }
-  page_is_loading_ = true;
+  // Ignored
 }
 
 void TestWebViewDelegate::DidStopLoading(WebView* webview) {
-  if (!page_is_loading_) {
-    LOG(ERROR) << "DidStopLoading called while not loading";
-    return;
-  }
-  page_is_loading_ = false;
+  // Ignored
 }
 
 void TestWebViewDelegate::WindowObjectCleared(WebFrame* webframe) {
@@ -215,8 +207,6 @@ void TestWebViewDelegate::DidFailProvisionalLoadWithError(
            GetFrameDescription(frame).c_str());
   }
 
-  if (page_is_loading_)
-    DidStopLoading(webview);
   LocationChangeDone(frame->GetProvisionalDataSource());
 
   // Don't display an error page if we're running layout tests, because
@@ -290,8 +280,6 @@ void TestWebViewDelegate::DidFailLoadWithError(WebView* webview,
            GetFrameDescription(frame).c_str());
   }
 
-  if (page_is_loading_)
-    DidStopLoading(webview);
   LocationChangeDone(frame->GetDataSource());
 }
 
