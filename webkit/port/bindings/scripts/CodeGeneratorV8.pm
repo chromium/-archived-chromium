@@ -894,7 +894,17 @@ sub GenerateBatchedAttributeData
       $getter = "${interfaceName}Internal::${interfaceName}ConstructorGetter";
       $setter = "0";
       $propAttr = "v8::ReadOnly";
-    
+
+    # EventListeners
+    } elsif ($attrExt->{"ProtectedListener"}) {
+      if ($interfaceName eq "DOMWindow") {
+        $getter = "V8Custom::v8DOMWindowEventHandlerAccessorGetter";
+        $setter = "V8Custom::v8DOMWindowEventHandlerAccessorSetter";
+      } else {
+        $getter = "V8Custom::v8ElementEventHandlerAccessorGetter";
+        $setter = "V8Custom::v8ElementEventHandlerAccessorSetter";
+      }
+
     # Custom Getter and Setter
     } elsif ($attrExt->{"Custom"}) {
       $getter = "V8Custom::v8${customAccessor}AccessorGetter";

@@ -1346,18 +1346,6 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       desc->PrototypeTemplate()->SetIndexedPropertyHandler(
           USE_INDEXED_PROPERTY_GETTER(DOMWindow));
 
-      desc->PrototypeTemplate()->Set(
-          v8::String::New("addEventListener"),
-          v8::FunctionTemplate::New(USE_CALLBACK(DOMWindowAddEventListener),
-                                    v8::Handle<v8::Value>(),
-                                    default_signature),
-          v8::None);
-      desc->PrototypeTemplate()->Set(
-          v8::String::New("removeEventListener"),
-          v8::FunctionTemplate::New(USE_CALLBACK(DOMWindowRemoveEventListener),
-                                    v8::Handle<v8::Value>(),
-                                    default_signature),
-          v8::None);
       desc->SetHiddenPrototype(true);
 
       // Reserve spaces for references to location and navigator objects.
