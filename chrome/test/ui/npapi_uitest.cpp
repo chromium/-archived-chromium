@@ -170,7 +170,7 @@ TEST_F(NPAPITester, SelfDeletePluginInvoke) {
 
 // Tests if a plugin executing a self deleting script using Invoke with
 // a modal dialog showing works without crashing or hanging
-TEST_F(NPAPITester, SelfDeletePluginInvokeAlert) {
+TEST_F(NPAPITester, DISABLED_SelfDeletePluginInvokeAlert) {
   std::wstring test_case = L"self_delete_plugin_invoke_alert.html";
   GURL url = GetTestUrl(L"npapi", test_case);
   NavigateToURL(url);
