@@ -128,6 +128,18 @@ LayoutTestController::WorkQueue::~WorkQueue() {
   Reset();
 }
 
+void LayoutTestController::WorkQueue::ProcessWorkSoon() {
+  if (shell_->delegate()->top_loading_frame())
+    return;
+
+  if (!queue_.empty()) {
+    // We delay processing queued work to avoid recursion problems.
+    timer_.Start(base::TimeDelta(), this, &WorkQueue::ProcessWork);
+  } else if (!wait_until_done_) {
+    shell_->TestFinished();
+  }
+}
+
 void LayoutTestController::WorkQueue::ProcessWork() {
   // Quit doing work once a load is in progress.
   while (!queue_.empty() && !shell_->delegate()->top_loading_frame()) {
@@ -379,7 +391,7 @@ void LayoutTestController::LocationChangeDone() {
   work_queue_.set_frozen(true);
 
   if (!wait_until_done_)
-    work_queue_.ProcessWork();
+    work_queue_.ProcessWorkSoon();
 }
 
 void LayoutTestController::setCanOpenWindows(

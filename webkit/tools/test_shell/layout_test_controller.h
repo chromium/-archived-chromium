@@ -16,6 +16,7 @@
 
 #include <queue>
 
+#include "base/timer.h"
 #include "webkit/glue/cpp_bound_class.h"
 
 class TestShell;
@@ -167,14 +168,6 @@ class LayoutTestController : public CppBoundClass {
   bool CanOpenWindows() { return can_open_windows_; }
   bool ShouldAddFileToPasteboard() { return should_add_file_to_pasteboard_; }
 
-  // If we have queued events, fire them and then dump the test output. 
-  // Otherwise, just dump the test output.
-  // Used by the layout tests for tests that span more than a single load.
-  // This is called by the test webview delegate when a page finishes
-  // loading (successful or not).  Once all the work has been processed, we
-  // dump the test output.
-  void ProcessWork() { work_queue_.ProcessWork(); }
-
   // Called by the webview delegate when the toplevel frame load is done.
   void LocationChangeDone();
 
@@ -201,7 +194,7 @@ class LayoutTestController : public CppBoundClass {
   class WorkQueue {
    public:
     virtual ~WorkQueue();
-    void ProcessWork();
+    void ProcessWorkSoon();
 
     // Reset the state of the class between tests.
     void Reset();
@@ -212,6 +205,9 @@ class LayoutTestController : public CppBoundClass {
     bool empty() { return queue_.empty(); }
 
    private:
+    void ProcessWork();
+
+    base::OneShotTimer<WorkQueue> timer_;
     std::queue<WorkItem*> queue_;
     bool frozen_;
   };
