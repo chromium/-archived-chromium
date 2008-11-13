@@ -48,6 +48,9 @@ class UnloadTest : public UITest {
     CheckTitle(L"nolisteners");
   }
 
+  // Navigates to a URL asynchronously, then again synchronously. The first
+  // load is purposely async to test the case where the user loads another
+  // page without waiting for the first load to complete.
   void NavigateToNolistenersFileTwiceAsync() {
     // TODO(ojan): We hit a DCHECK in RenderViewHost::OnMsgShouldCloseACK
     // if we don't sleep here.
@@ -55,10 +58,8 @@ class UnloadTest : public UITest {
     NavigateToURLAsync(
         URLRequestMockHTTPJob::GetMockUrl(L"unload/nolisteners.html"));
     Sleep(400);
-    NavigateToURLAsync(
+    NavigateToURL(
         URLRequestMockHTTPJob::GetMockUrl(L"unload/nolisteners.html"));
-
-    Sleep(2000);
 
     CheckTitle(L"nolisteners");
   }
