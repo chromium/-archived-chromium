@@ -39,6 +39,7 @@
 		82F39D400E7EFD9300785E15 /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82056C0E770291008F45CF /* libxml.a */; };
 		82F39D490E7EFDAA00785E15 /* libjscre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059A0E770291008F45CF /* libjscre.a */; };
 		82F39D4A0E7EFDAA00785E15 /* libv8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B82059C0E770291008F45CF /* libv8.a */; };
+		E44662070ECCD652000B9316 /* test_webview_delegate.cc in Sources */ = {isa = PBXBuildFile; fileRef = E44662060ECCD652000B9316 /* test_webview_delegate.cc */; };
 		E450637E0E4100740025A81A /* test_shell_request_context.cc in Sources */ = {isa = PBXBuildFile; fileRef = E450637D0E4100740025A81A /* test_shell_request_context.cc */; };
 		E45449370EC9FD15000DFA6E /* test_shell.cc in Sources */ = {isa = PBXBuildFile; fileRef = E45449360EC9FD15000DFA6E /* test_shell.cc */; };
 		E45628E70E26B4FE005E4685 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
@@ -140,14 +141,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 531CBE130ECB6BB60084F32D /* dmg_fp.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdmg_fp.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = dmg_fp;
 		};
 		531CBE1C0ECB6C020084F32D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 531CBE130ECB6BB60084F32D /* dmg_fp.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* dmg_fp */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = dmg_fp;
 		};
 		7B779D3B0E82FF2200C2971E /* PBXContainerItemProxy */ = {
@@ -670,6 +671,7 @@
 		ABD16F380DC6A73B0013D3AA /* webwidget_host.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = webwidget_host.mm; path = mac/webwidget_host.mm; sourceTree = "<group>"; };
 		ABD16F390DC6A73B0013D3AA /* webwidget_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webwidget_host.h; sourceTree = "<group>"; };
 		ABD16F700DC6CBDF0013D3AA /* base.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = base.xcodeproj; path = base/base.xcodeproj; sourceTree = "<group>"; };
+		E44662060ECCD652000B9316 /* test_webview_delegate.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_webview_delegate.cc; sourceTree = "<group>"; };
 		E450637C0E4100740025A81A /* test_shell_request_context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_shell_request_context.h; sourceTree = "<group>"; };
 		E450637D0E4100740025A81A /* test_shell_request_context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_shell_request_context.cc; sourceTree = "<group>"; };
 		E45449360EC9FD15000DFA6E /* test_shell.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_shell.cc; sourceTree = "<group>"; };
@@ -1061,6 +1063,7 @@
 				ABCF253B0DB8436B00099567 /* test_shell_switches.h */,
 				AB8A786E0DC5544D005C27B8 /* test_shell_test.h */,
 				AB8A78560DC553C7005C27B8 /* test_shell_test.cc */,
+				E44662060ECCD652000B9316 /* test_webview_delegate.cc */,
 				AB8A78590DC553D7005C27B8 /* test_webview_delegate.h */,
 				AB8A78580DC553D7005C27B8 /* test_webview_delegate.mm */,
 				AB8A785B0DC553E4005C27B8 /* text_input_controller.cc */,
@@ -1586,6 +1589,7 @@
 				E456290C0E26B4FE005E4685 /* test_shell_switches.cc in Sources */,
 				E456291B0E26B4FE005E4685 /* test_shell_test.cc in Sources */,
 				E456291E0E26B4FE005E4685 /* test_shell_webview.mm in Sources */,
+				E44662070ECCD652000B9316 /* test_webview_delegate.cc in Sources */,
 				E456291C0E26B4FE005E4685 /* test_webview_delegate.mm in Sources */,
 				E456291D0E26B4FE005E4685 /* text_input_controller.cc in Sources */,
 				E456290F0E26B4FE005E4685 /* webview_host.mm in Sources */,
