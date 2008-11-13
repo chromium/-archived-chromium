@@ -94,7 +94,9 @@ class SimplifiedTextDiff(text_diff.TestTextDiff):
 
     # Normalize text to diff
     output = self.GetNormalizedOutputText(output)
-    expected = self.GetNormalizedExpectedText(filename)
+    # The full text diff already gave the result file if requested, so we'll
+    # ignore the |show_sources| option here.
+    expected = self.GetNormalizedExpectedText(filename, show_sources=False)
 
     # Don't bother with the simplified text diff if we match before simplifying
     # the text.

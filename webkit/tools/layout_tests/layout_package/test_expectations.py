@@ -3,7 +3,11 @@
 # found in the LICENSE file.
 
 """A helper class for reading in and dealing with tests expectations
-for layout tests. """
+for layout tests.
+"""
+
+# TODO(pamg): Excise build_type (v8 and kjs) from this file and the test lists
+# now that we only support v8.
 
 import os
 import re
@@ -22,7 +26,7 @@ class TestExpectations:
   FIXABLE = "tests_fixable.txt"
   IGNORED = "tests_ignored.txt"
 
-  def __init__(self, tests, directory, build_type):
+  def __init__(self, tests, directory, build_type='v8'):
     """Reads the test expectations files from the given directory."""
     self._tests = tests
     self._directory = directory

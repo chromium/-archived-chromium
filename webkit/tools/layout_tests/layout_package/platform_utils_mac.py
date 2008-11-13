@@ -137,5 +137,11 @@ class PlatformUtility(object):
                         'Contents', 'MacOS', self.TestShellBinary())
 
   def TestListPlatformDir(self):
-    """Return the platform-specific directory for where the test lists live"""
+    """Return the platform-specific directory for where the test lists live."""
     return 'mac'
+
+  def PlatformDir(self):
+    """Returns the most specific directory name where platform-specific
+    results live.
+    """
+    return 'chromium-mac'

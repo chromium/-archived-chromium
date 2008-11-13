@@ -36,6 +36,9 @@ class TestArguments(object):
   # Whether to use wdiff to generate by-word diffs.
   wdiff = False
 
+  # Whether to report the locations of the expected result files used.
+  show_sources = False
+
 class TestTypeBase(object):
   # Filename pieces when writing failures to the test results directory.
   FILENAME_SUFFIX_ACTUAL = "-actual-win"
@@ -43,16 +46,16 @@ class TestTypeBase(object):
   FILENAME_SUFFIX_DIFF = "-diff-win"
   FILENAME_SUFFIX_WDIFF = "-wdiff-win.html"
 
-  def __init__(self, custom_result_id, root_output_dir):
+  def __init__(self, platform, root_output_dir):
     """Initialize a TestTypeBase object.
 
     Args:
-      custom_result_id: the string (generally 'kjs' or 'v8') identifying the
-        custom expected results to be used
+      platform: the platform (e.g., 'chromium-mac-leopard') identifying the
+        platform-specific results to be used
       root_output_dir: The unix style path to the output dir.
     """
     self._root_output_dir = root_output_dir
-    self._custom_result_id = custom_result_id
+    self._platform = platform
   
   def _MakeOutputDirectory(self, filename):
     """Creates the output directory (if needed) for a given test filename."""

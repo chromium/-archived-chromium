@@ -132,16 +132,17 @@ class TestRunner:
     file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
     file_dir = os.path.join(file_dir, path_utils.TestListPlatformDir())
     file_dir = path_utils.GetAbsolutePath(file_dir)
-    
-    expectations = test_expectations.TestExpectations(self._test_files, 
-                                                      file_dir, 
-                                                      self._options.build_type)
+
+    expectations = test_expectations.TestExpectations(self._test_files,
+                                                      file_dir)
 
     # Remove skipped - both fixable and ignored - files from the
     # top-level list of files to test.
-    skipped = expectations.GetFixableSkipped() | expectations.GetIgnoredSkipped()
+    skipped = (expectations.GetFixableSkipped() |
+               expectations.GetIgnoredSkipped())
+
     self._test_files -= skipped
-      
+
     # If there was only one test file, run the test even if it was skipped.
     if len(saved_test_files):
       self._test_files = saved_test_files
@@ -228,18 +229,19 @@ class TestRunner:
         shell_args.append("--pixel-tests=" + png_path)
         test_args.png_path = png_path
 
-      if self._options.wdiff:
-        test_args.wdiff = True
+      test_args.wdiff = self._options.wdiff
 
       if self._options.new_baseline:
         test_args.new_baseline = self._options.new_baseline
         if not self._options.pixel_tests:
           test_args.text_baseline = True
 
+      test_args.show_sources = self._options.sources
+
       # Create separate TestTypes instances for each thread.
       test_types = []
       for t in self._test_types:
-        test_types.append(t(self._options.build_type,
+        test_types.append(t(self._options.platform,
                             self._options.results_directory))
 
       if self._options.startup_dialog:
@@ -467,6 +469,9 @@ def main(options, args):
     options: a dictionary of command line options
     args: a list of sub directories or files to test
   """
+  if options.sources:
+    options.verbose = True
+
   # Set up our logging format.
   log_level = logging.INFO
   if options.verbose:
@@ -482,12 +487,8 @@ def main(options, args):
     else:
       options.target = "Release"
 
-  if (options.pixel_tests and
-      options.build_type != 'v8' and
-      not options.new_baseline):
-    logging.warn('Pixel tests disabled: no expected results for %s builds' %
-                 options.build_type)
-    options.pixel_tests = False
+  if options.platform is None:
+    options.platform = path_utils.PlatformDir()
 
   if options.results_directory.startswith("/"):
     # Assume it's an absolute path and normalize
@@ -505,13 +506,12 @@ def main(options, args):
   try:
     test_shell_binary_path = path_utils.TestShellBinaryPath(options.target)
   except:
-    print "\nERROR: test_shell is not found. Be sure that you have built it and"
-    print "that you are using the correct build. This script will run the"
-    print "release one by default. Use --debug to use the debug build.\n"
+    print "\nERROR: test_shell is not found. Be sure that you have built it"
+    print "and that you are using the correct build. This script will run the"
+    print "Release one by default. Use --debug to use the Debug build.\n"
     sys.exit(1)
 
-  logging.info("Using expected results from %s" %
-                path_utils.CustomExpectedResultsDir(options.build_type))
+  logging.info("Using platform '%s'" % options.platform)
   logging.info("Placing test results in %s" % options.results_directory)
   logging.info("Using %s build at %s" %
                (options.target, test_shell_binary_path))
@@ -592,14 +592,17 @@ if '__main__' == __name__:
   option_parser.add_option("", "--debug", action="store_true", default=False,
                            help="use the debug binary instead of the release "
                                 "binary")
-  option_parser.add_option("", "--build-type", default="v8",
-                           help="use these test lists and expected results "
-                                "('kjs' or 'v8')")
+  option_parser.add_option("", "--platform",
+                           help="Override the platform for expected results")
   option_parser.add_option("", "--target", default="",
                            help="Set the build target configuration (overrides"
                                  "--debug)")
+  # TODO(pamg): Support multiple levels of verbosity, and remove --sources.
   option_parser.add_option("-v", "--verbose", action="store_true",
-                           default=False, help="include debug level logging")
+                           default=False, help="include debug-level logging")
+  option_parser.add_option("", "--sources", action="store_true",
+                           help="show expected result file path for each test "
+                                "(implies --verbose)")
   option_parser.add_option("", "--startup-dialog", action="store_true",
                            default=False, 
                            help="create a dialog on test_shell.exe startup")

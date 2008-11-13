@@ -10,6 +10,7 @@ test results directory.
 """
 
 import errno
+import logging
 import os
 import shutil
 
@@ -72,11 +73,14 @@ class ImageDiff(test_type_base.TestTypeBase):
     # Compare hashes.
     expected_hash_file = path_utils.ExpectedFilename(filename,
                                                      '.checksum',
-                                                     self._custom_result_id)
+                                                     self._platform)
 
     expected_png_file = path_utils.ExpectedFilename(filename,
                                                     '.png',
-                                                    self._custom_result_id)
+                                                    self._platform)
+
+    if test_args.show_sources:
+      logging.debug('Using %s' % expected_png_file)
 
     try:
       expected_hash = open(expected_hash_file, "r").read()

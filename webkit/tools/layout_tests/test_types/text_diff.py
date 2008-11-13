@@ -9,6 +9,7 @@ files into the layout test results directory.
 """
 
 import errno
+import logging
 import os.path
 
 from layout_package import path_utils
@@ -23,14 +24,16 @@ class TestTextDiff(test_type_base.TestTypeBase):
     norm = output.replace("\r\r\n", "\r\n").strip("\r\n").replace("\r\n", "\n")
     return norm + "\n"
 
-  def GetNormalizedExpectedText(self, filename):
+  def GetNormalizedExpectedText(self, filename, show_sources):
     """Given the filename of the test, read the expected output from a file
     and normalize the text.  Returns a string with the expected text, or ''
     if the expected output file was not found."""
-    # Read the platform-specific expected text, or the Mac default if no
-    # platform result exists.
+    # Read the platform-specific expected text.
     expected_filename = path_utils.ExpectedFilename(filename, '.txt',
-                                                    self._custom_result_id)
+                                                    self._platform)
+
+    if show_sources:
+      logging.debug('Using %s' % expected_filename)
     try:
       expected = open(expected_filename).read()
     except IOError, e:
@@ -55,7 +58,7 @@ class TestTextDiff(test_type_base.TestTypeBase):
 
     # Normalize text to diff
     output = self.GetNormalizedOutputText(output)
-    expected = self.GetNormalizedExpectedText(filename)
+    expected = self.GetNormalizedExpectedText(filename, test_args.show_sources)
 
     # Write output files for new tests, too.
     if output != expected:

@@ -19,8 +19,11 @@ class PathNotFound(Exception): pass
 # Save some paths here so we don't keep re-evaling.
 _webkit_root = None
 _layout_data_dir = None
-_expected_results_dir = None
+# A map from platform description to directory list.
 _platform_results_dirs = {}
+
+# An instance of the PlatformUtility for use by methods mapped from there.
+_platform_util = None
 
 # TODO this should probably be moved into path_utils as ToUnixPath().
 def WinPathToUnix(path):
@@ -48,86 +51,111 @@ def LayoutDataDir():
                                                   'data', 'layout_tests')
   return _layout_data_dir
 
-def ExpectedResultsDir():
-  """Gets the full path to the custom_results directory.  Raises
-  PathNotFound if we're unable to find it."""
-  global _expected_results_dir
-  if _expected_results_dir:
-    return _expected_results_dir
-  _expected_results_dir = google.path_utils.FindUpward(WebKitRoot(), 'webkit',
-                                                       'data',
-                                                       'layout_test_results')
-  return _expected_results_dir
-
-def CustomExpectedResultsDir(custom_id):
-  """Gets the full path to the directory in which custom expected results for
-  this app and build type are located.
-
-  Args:
-    custom_id: a string specifying the particular set of results to use (e.g.,
-      'v8' or 'kjs')
+def ChromiumPlatformResultsDir():
+  """Returns the full path to the directory containing Chromium platform
+  result directories. Raises PathNotFound if we're unable to find it.
   """
-  return os.path.join(ExpectedResultsDir(), custom_id)
+  # TODO(pamg): Once we move platform/chromium-* into LayoutTests/platform/,
+  # remove this and use PlatformResultsDir() for everything.
+  return os.path.join(LayoutDataDir(), 'platform')
 
-def PlatformResultsDir(name):
-  """Gets the full path to a platform-specific results directory.  Raises
+def WebKitPlatformResultsDir():
+  """Gets the full path to the platform results directory.  Raises
   PathNotFound if we're unable to find it."""
-  global _platform_results_dirs
-  if _platform_results_dirs.get(name):
-    return _platform_results_dirs[name]
-  _platform_results_dirs[name] = google.path_utils.FindUpward(WebKitRoot(),
-      'webkit', 'data', 'layout_tests', 'LayoutTests', 'platform', name)
-  return _platform_results_dirs[name]
+  return os.path.join(LayoutDataDir(), 'LayoutTests', 'platform')
 
-def ExpectedFilename(filename, suffix, custom_result_id):
-  """Given a test name, returns an absolute filename to the most specific
-  applicable file of expected results.
+def PlatformResultsDir(platform):
+  """Gets the full path to the results directory for this platform."""
+  if platform.startswith('chromium'):
+    return ChromiumPlatformResultsDir()
+  return WebKitPlatformResultsDir()
+
+def ExpectedFilename(filename, suffix, platform):
+  """Given a test name, returns an absolute path to its expected results.
+
+  The result will be sought in the hierarchical platform directories, in the
+  corresponding WebKit platform directories, in the WebKit platform/mac/
+  directory, and finally next to the test file.
+
+  Suppose that the |platform| is 'chromium-win-xp'.  In that case, the
+  following directories are searched in order, if they exist, and the first
+  match is returned:
+    LayoutTests/platform/chromium-win-xp/
+    LayoutTests/platform/chromium-win/
+    LayoutTests/platform/chromium/
+    LayoutTests/platform/win-xp/
+    LayoutTests/platform/win/
+    LayoutTests/platform/mac/
+    the directory in which the test itself is located
+
+  If the |platform| is 'chromium-mac-leopard', the sequence will be as follows:
+    LayoutTests/platform/chromium-mac-leopard/
+    LayoutTests/platform/chromium-mac/
+    LayoutTests/platform/chromium/
+    LayoutTests/platform/mac-leopard/
+    LayoutTests/platform/mac/
+    the directory in which the test itself is located
+
+  If no expected results are found in any of the searched directories, the
+  directory in which the test itself is located will be returned.
 
   Args:
     filename: absolute filename to test file
     suffix: file suffix of the expected results, including dot; e.g. '.txt'
         or '.png'.  This should not be None, but may be an empty string.
-    custom_result_id: Tells us where to look for custom results.  Currently
-        this is either kjs or v8.
+    platform: a hyphen-separated list of platform descriptors from least to
+        most specific, matching the WebKit format, that will be used to find
+        the platform/ directories to look in. For example, 'chromium-win' or
+        'chromium-mac-leopard'.
 
-  Return:
-    If a file named <testname>-expected<suffix> exists in the subdirectory
-    of the ExpectedResultsDir() specified by this platform's identifier,
-    return its absolute path.  Otherwise, return a path to a
-    <testname>-expected<suffix> file under the MacExpectedResultsDir() or
-    <testname>-expected<suffix> file under the MacLeopardExpectedResultsDir()
-    or (if not found there) in the same directory as the test file (even if
-    that default file does not exist).
+  Returns:
+    An absolute path to the most specific matching result file for the given
+    test, following the search rules described above.
   """
   testname = os.path.splitext(RelativeTestFilename(filename))[0]
+  # While we still have tests in LayoutTests/, chrome/, and pending/, we need
+  # to strip that outer directory.
+  # TODO(pamg): Once we upstream all of chrome/ and pending/, clean this up.
+  testdir, testname = testname.split('/', 1)
   results_filename = testname + '-expected' + suffix
-  results_dirs = [
-    CustomExpectedResultsDir(custom_result_id),
-    CustomExpectedResultsDir('common'),
-    LayoutDataDir()
-  ]
 
-  for results_dir in results_dirs:
-    platform_file = os.path.join(results_dir, results_filename)
+  # Use the cached directory list if we have one.
+  global _platform_results_dirs
+  platform_dirs = _platform_results_dirs.get(platform, [])
+  if len(platform_dirs) == 0:
+    # Build the list of platform directories: chromium-foo-bar, chromium-foo,
+    # chromium.
+    segments = platform.split('-')
+    for length in range(len(segments), 0, -1):
+      platform_dirs.append('-'.join(segments[:length]))
+
+    # Append corresponding WebKit platform directories too.
+    if platform.startswith('chromium-'):
+      for length in range(len(segments), 1, -1):
+        platform_dirs.append('-'.join(segments[1:length]))
+
+    # Finally, append platform/mac/ to all searches.
+    if 'mac' not in platform_dirs:
+      platform_dirs.append('mac')
+
+    platform_dirs = [os.path.join(PlatformResultsDir(x), x)
+                     for x in platform_dirs]
+    _platform_results_dirs[platform] = platform_dirs
+
+  for platform_dir in platform_dirs:
+    # TODO(pamg): Clean this up once we upstream everything in chrome/ and
+    # pending/.
+    if os.path.basename(platform_dir).startswith('chromium'):
+      platform_file = os.path.join(platform_dir, testdir, results_filename)
+    else:
+      platform_file = os.path.join(platform_dir, results_filename)
     if os.path.exists(platform_file):
       return platform_file
 
-  # for 'base' tests, we need to look for mac-specific results
-  if testname.startswith('LayoutTests'):
-    layout_test_results_dirs = [
-      PlatformResultsDir('mac'),
-      PlatformResultsDir('mac-leopard'),
-      PlatformResultsDir('mac-tiger')
-    ]
-    rel_testname = testname[len('LayoutTests') + 1:]
-    rel_filename = rel_testname + '-expected' + suffix
-    for results_dir in layout_test_results_dirs:
-      platform_file = os.path.join(results_dir, rel_filename)
-      if os.path.exists(platform_file):
-        return platform_file
-
-  # Failed to find the results anywhere, return default path anyway
-  return os.path.join(results_dirs[0], results_filename)
+  # If it wasn't found in a platform directory, return the expected result
+  # in the test's directory, even if no such file actually exists.
+  return os.path.join(os.path.dirname(filename),
+                      os.path.basename(results_filename))
 
 def TestShellBinaryPath(target):
   """Gets the full path to the test_shell binary for the target build
@@ -147,23 +175,27 @@ def RelativeTestFilename(filename):
   directory as a unix style path (a/b/c)."""
   return WinPathToUnix(filename[len(LayoutDataDir()) + 1:])
 
+def GetPlatformUtil():
+  """Returns a singleton instance of the PlatformUtility."""
+  global _platform_util
+  if not _platform_util:
+    # Avoid circular import by delaying it.
+    import layout_package.platform_utils
+    _platform_util = (
+        layout_package.platform_utils.PlatformUtility(WebKitRoot()))
+  return _platform_util
+
 # Map platform specific path utility functions.  We do this as a convenience
 # so importing path_utils will get all path related functions even if they are
 # platform specific.
 def GetAbsolutePath(path):
-  # Avoid circular import by delaying it.
-  import layout_package.platform_utils
-  platform_util = layout_package.platform_utils.PlatformUtility(WebKitRoot())
-  return platform_util.GetAbsolutePath(path)
+  return GetPlatformUtil().GetAbsolutePath(path)
 
 def FilenameToUri(path):
-  # Avoid circular import by delaying it.
-  import layout_package.platform_utils
-  platform_util = layout_package.platform_utils.PlatformUtility(WebKitRoot())
-  return platform_util.FilenameToUri(path)
+  return GetPlatformUtil().FilenameToUri(path)
 
 def TestListPlatformDir():
-  # Avoid circular import by delaying it.
-  import layout_package.platform_utils
-  platform_util = layout_package.platform_utils.PlatformUtility(WebKitRoot())
-  return platform_util.TestListPlatformDir()
+  return GetPlatformUtil().TestListPlatformDir()
+
+def PlatformDir():
+  return GetPlatformUtil().PlatformDir()
