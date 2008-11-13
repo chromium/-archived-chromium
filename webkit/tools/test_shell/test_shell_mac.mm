@@ -62,10 +62,70 @@ const int kTestWindowYLocation = -14000;
 base::LazyInstance <std::map<gfx::WindowHandle, TestShell *> >
     TestShell::window_map_(base::LINKER_INITIALIZED);
 
+// Receives notification that the window is closing so that it can start the
+// tear-down process. Is responsible for deleting itself when done.
+@interface WindowCloseDelegate : NSObject {
+}
+@end
+
+@implementation WindowCloseDelegate
+
+// Called when the window is about to close. Perform the self-destruction
+// sequence by getting rid of the shell and removing it and the window from
+// the various global lists. Instead of doing it here, however, we fire off
+// a delayed call to |-cleanup:| to allow everything to get off the stack
+// before we go deleting objects. By returning YES, we allow the window to be
+// removed from the screen.
+- (BOOL)windowShouldClose:(id)window {
+  // Try to make the window go away, but it may not when running layout
+  // tests due to the quirkyness of autorelease pools and having no main loop.
+  [window autorelease];
+
+  // clean ourselves up and do the work after clearing the stack of anything
+  // that might have the shell on it.
+  [self performSelectorOnMainThread:@selector(cleanup:) 
+                         withObject:window 
+                      waitUntilDone:NO];
+
+  return YES;
+}
+
+// does the work of removing the window from our various bookkeeping lists
+// and gets rid of the shell.
+- (void)cleanup:(id)window {
+  BOOL found = TestShell::RemoveWindowFromList(window);
+  DCHECK(found);
+  TestShell::DestroyAssociatedShell(window);
+
+  [self release];
+}
+
+@end
+
 // Mac-specific stuff to do when the dtor is called. Nothing to do in our
 // case.
 void TestShell::PlatformCleanUp() {
+}
 
+// static
+void TestShell::DestroyAssociatedShell(gfx::WindowHandle handle) {
+  TestShell* shell = window_map_.Get()[handle];
+  if (shell)
+    window_map_.Get().erase(handle);
+  delete shell;
+}
+
+// static
+void TestShell::PlatformShutdown() {
+  // for each window in the window list, release it and destroy its shell
+  for (WindowList::iterator it = TestShell::windowList()->begin();
+       it != TestShell::windowList()->end();
+       ++it) {
+    DestroyAssociatedShell(*it);
+    [*it release];
+  }
+  // assert if we have anything left over, that would be bad.
+  DCHECK(window_map_.Get().size() == 0);
 }
 
 // static
@@ -109,7 +169,18 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
                                 defer:NO];
   [m_mainWnd setTitle:@"TestShell"];
   
-  // create webview
+  // Create a window delegate to watch for when it's asked to go away. It will
+  // clean itself up so we don't need to hold a reference.
+  [m_mainWnd setDelegate:[[WindowCloseDelegate alloc] init]];
+  
+  // Rely on the window delegate to clean us up rather than immediately 
+  // releasing when the window gets closed. We use the delegate to do 
+  // everything from the autorelease pool so the shell isn't on the stack
+  // during cleanup (ie, a window close from javascript).
+  [m_mainWnd setReleasedWhenClosed:NO];
+  
+  // Create a webview. Note that |web_view| takes ownership of this shell so we
+  // will get cleaned up when it gets destroyed.
   m_webViewHost.reset(
       WebViewHost::Create(m_mainWnd, delegate_.get(), *TestShell::web_prefs_));
   webView()->SetUseEditorDelegate(true);

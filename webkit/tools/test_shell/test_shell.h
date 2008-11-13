@@ -231,6 +231,11 @@ public:
     void set_is_modal(bool value) { is_modal_ = value; }
     bool is_modal() const { return is_modal_; }
 
+#if defined(OS_MACOSX)
+    // handle cleaning up a shell given the associated window
+    static void DestroyAssociatedShell(gfx::WindowHandle handle);
+#endif
+
 protected:
     bool Initialize(const std::wstring& startingURL);
     void SizeToDefault();
@@ -243,6 +248,10 @@ protected:
 #if defined(OS_WIN)
     static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
     static LRESULT CALLBACK EditWndProc(HWND, UINT, WPARAM, LPARAM);
+#endif
+
+#if defined(OS_WIN) || defined(OS_MACOSX)
+    static void PlatformShutdown();
 #endif
 
 protected:

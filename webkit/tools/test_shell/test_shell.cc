@@ -129,8 +129,8 @@ TestShell::~TestShell() {
 }
 
 void TestShell::ShutdownTestShell() {
-#if defined(OS_WIN)
-    OleUninitialize();
+#if defined(OS_WIN) || defined(OS_MACOSX)
+    PlatformShutdown();
 #endif
     SimpleResourceLoaderBridge::Shutdown();
     delete window_list_;

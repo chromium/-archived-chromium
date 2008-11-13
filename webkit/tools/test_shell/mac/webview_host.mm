@@ -29,6 +29,7 @@ WebViewHost* WebViewHost::Create(NSWindow *parent_window,
   // make the height and width track the window size.
   [host->view_ setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
   [[parent_window contentView] addSubview:host->view_];
+  [host->view_ release];
 
   host->webwidget_ = WebView::Create(delegate, prefs);
   host->webwidget_->Resize(gfx::Size(content_rect.size.width,

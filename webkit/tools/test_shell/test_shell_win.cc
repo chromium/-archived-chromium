@@ -92,6 +92,10 @@ void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
   ::DestroyWindow(windowHandle);
 }
 
+void TestShell::PlatformShutdown() {
+  OleUninitialize();
+}
+
 ATOM TestShell::RegisterWindowClass() {
   LoadString(instance_handle_, IDS_APP_TITLE, g_windowTitle, MAX_LOADSTRING);
   LoadString(instance_handle_, IDC_TESTSHELL, g_windowClass, MAX_LOADSTRING);

@@ -69,12 +69,13 @@ static void SetCurrentTestName(char* path) {
   // purify leak-test results.
   MessageLoop::current()->RunAllPending();
   
+  TestShell::ShutdownTestShell();
+
+  // get rid of the stats table last, V8 relies on it
   StatsTable* table = StatsTable::current();
   StatsTable::set_current(NULL);
   delete table;
-  delete shell_;
 
-  TestShell::ShutdownTestShell();
   TestShell::CleanupLogging();
 
   [super dealloc];
@@ -225,7 +226,7 @@ int main(const int argc, const char *argv[]) {
     CommandLine::LooseValueIterator iter =
         parsed_command_line.GetLooseValuesBegin();
     uri = *iter;
-  } 
+  }
   
   TestShell* shell;
   if (TestShell::CreateNewWindow(uri, &shell)) {
