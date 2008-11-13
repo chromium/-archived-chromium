@@ -3103,8 +3103,6 @@
 		7B5E90D50D7F3CC2001ECF42 /* AutodrainedPool.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AutodrainedPool.mm; sourceTree = "<group>"; };
 		7B5E90D60D7F3CC2001ECF42 /* BlockExceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockExceptions.h; sourceTree = "<group>"; };
 		7B5E90D70D7F3CC2001ECF42 /* BlockExceptions.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BlockExceptions.mm; sourceTree = "<group>"; };
-		7B5E90D80D7F3CC2001ECF42 /* ClipboardMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClipboardMac.h; sourceTree = "<group>"; };
-		7B5E90D90D7F3CC2001ECF42 /* ClipboardMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ClipboardMac.mm; path = ../../../../../webkit/port/platform/mac/ClipboardMac.mm; sourceTree = "<group>"; };
 		7B5E90DC0D7F3CC2001ECF42 /* CookieJar.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CookieJar.mm; sourceTree = "<group>"; };
 		7B5E90E40D7F3CC2001ECF42 /* FoundationExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FoundationExtras.h; sourceTree = "<group>"; };
 		7B5E90E70D7F3CC2001ECF42 /* Language.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Language.mm; sourceTree = "<group>"; };
@@ -3112,7 +3110,6 @@
 		7B5E90E90D7F3CC2001ECF42 /* LocalCurrentGraphicsContext.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LocalCurrentGraphicsContext.mm; sourceTree = "<group>"; };
 		7B5E90EB0D7F3CC2001ECF42 /* LoggingMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoggingMac.mm; sourceTree = "<group>"; };
 		7B5E90ED0D7F3CC2001ECF42 /* PasteboardHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PasteboardHelper.h; sourceTree = "<group>"; };
-		7B5E90EE0D7F3CC2001ECF42 /* PasteboardMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PasteboardMac.mm; path = ../../../../../webkit/port/platform/mac/PasteboardMac.mm; sourceTree = "<group>"; };
 		7B5E90F10D7F3CC2001ECF42 /* ScrollbarThemeMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollbarThemeMac.h; sourceTree = "<group>"; };
 		7B5E90F20D7F3CC2001ECF42 /* ScrollbarThemeMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScrollbarThemeMac.mm; sourceTree = "<group>"; };
 		7B5E90F90D7F3CC2001ECF42 /* SoftLinking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoftLinking.h; sourceTree = "<group>"; };
@@ -5798,8 +5795,6 @@
 				7B5E90D50D7F3CC2001ECF42 /* AutodrainedPool.mm */,
 				7B5E90D60D7F3CC2001ECF42 /* BlockExceptions.h */,
 				7B5E90D70D7F3CC2001ECF42 /* BlockExceptions.mm */,
-				7B5E90D80D7F3CC2001ECF42 /* ClipboardMac.h */,
-				7B5E90D90D7F3CC2001ECF42 /* ClipboardMac.mm */,
 				7B5E90DC0D7F3CC2001ECF42 /* CookieJar.mm */,
 				7B5E90E40D7F3CC2001ECF42 /* FoundationExtras.h */,
 				7B5E90E70D7F3CC2001ECF42 /* Language.mm */,
@@ -5807,7 +5802,6 @@
 				7B5E90E90D7F3CC2001ECF42 /* LocalCurrentGraphicsContext.mm */,
 				7B5E90EB0D7F3CC2001ECF42 /* LoggingMac.mm */,
 				7B5E90ED0D7F3CC2001ECF42 /* PasteboardHelper.h */,
-				7B5E90EE0D7F3CC2001ECF42 /* PasteboardMac.mm */,
 				7B5E90F10D7F3CC2001ECF42 /* ScrollbarThemeMac.h */,
 				7B5E90F20D7F3CC2001ECF42 /* ScrollbarThemeMac.mm */,
 				7B5E90F90D7F3CC2001ECF42 /* SoftLinking.h */,
