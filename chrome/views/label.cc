@@ -53,9 +53,8 @@ Label::~Label() {
 gfx::Size Label::GetPreferredSize() {
   gfx::Size prefsize;
   if (is_multi_line_) {
-    ChromeCanvas cc(0, 0, true);
     int w = width(), h = 0;
-    cc.SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
+    ChromeCanvas::SizeStringInt(text_, font_, &w, &h, ComputeMultiLineFlags());
     prefsize.SetSize(w, h);
   } else {
     prefsize = GetTextSize();

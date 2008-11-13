@@ -144,13 +144,6 @@ class ChromeCanvas : public gfx::PlatformCanvasWin {
   // Draws a dotted gray rectangle used for focus purposes.
   void DrawFocusRect(int x, int y, int width, int height);
 
-  // Compute the size required to draw some text with the provided font.
-  // Attempts to fit the text with the provided width and height. Increases
-  // height and then width as needed to make the text fit. This method
-  // supports multiple lines.
-  void SizeStringInt(const std::wstring& test, const ChromeFont& font,
-                     int *width, int* height, int flags);
-
   // Tiles the image in the specified region.
   void TileImageInt(const SkBitmap& bitmap, int x, int y, int w, int h,
                     SkPorterDuff::Mode mode);
@@ -162,6 +155,13 @@ class ChromeCanvas : public gfx::PlatformCanvasWin {
   // Extracts a bitmap from the contents of this canvas.
   SkBitmap ExtractBitmap();
 
+  // Compute the size required to draw some text with the provided font.
+  // Attempts to fit the text with the provided width and height. Increases
+  // height and then width as needed to make the text fit. This method
+  // supports multiple lines.
+  static void SizeStringInt(const std::wstring& test, const ChromeFont& font,
+                            int *width, int* height, int flags);
+
  private:
   // Draws text with the specified color, font and location. The text is
   // aligned to the left, vertically centered, clipped to the region. If the
@@ -169,15 +169,6 @@ class ChromeCanvas : public gfx::PlatformCanvasWin {
   void DrawStringInt(const std::wstring& text, HFONT font,
                      const SkColor& color, int x, int y, int w, int h,
                      int flags);
-
-  // Compute the windows flags necessary to implement the provided text
-  // ChromeCanvas flags
-  int ChromeCanvas::ComputeFormatFlags(int flags);
-
-  // A wrapper around Windows' DrawText. This function takes care of adding
-  // Unicode directionality marks to the text in certain cases.
-  void DoDrawText(HDC hdc, const std::wstring& text, RECT* text_bounds,
-                  int flags);
 
   DISALLOW_EVIL_CONSTRUCTORS(ChromeCanvas);
 };
