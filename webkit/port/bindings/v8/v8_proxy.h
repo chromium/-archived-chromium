@@ -164,11 +164,11 @@ class V8Proxy {
   // Clear page-specific data, but keep the global object identify.
   void clearForNavigation();
 
-  // Clear data before closing the frame.
+  // Clear page-specific data before shutting down the proxy object.
   void clearForClose();
 
-  // Notify that a new DOMWindow object is ready.
-  void domWindowReady();
+  // Update document object of the frame.
+  void updateDocument();
 
   // Destroy the global object.
   void DestroyGlobal();
@@ -188,9 +188,6 @@ class V8Proxy {
   void disconnectFrame();
 
   bool isEnabled();
-
-  // Remove 'document' property from the global object.
-  void clearDocumentWrapper();
 
   // Find/Create/Remove event listener wrappers.
   PassRefPtr<V8EventListener> FindV8EventListener(v8::Local<v8::Value> listener,
@@ -421,6 +418,7 @@ class V8Proxy {
  private:
   void initContextIfNeeded();
   void DisconnectEventListeners();
+  void SetSecurityToken();
 
   static bool CanAccessPrivate(DOMWindow* target);
 
@@ -484,10 +482,6 @@ class V8Proxy {
   static const char* GetSVGExceptionName(int exception_code);
 #endif
 
-  // Update m_document field, dispose old one and create a string reference
-  // to the new one.
-  void UpdateDocumentHandle(v8::Local<v8::Object> handle);
-
   // Returns a local handle of the context.
   v8::Local<v8::Context> GetContext() {
     return v8::Local<v8::Context>::New(m_context);
@@ -496,9 +490,6 @@ class V8Proxy {
   Frame* m_frame;
   v8::Persistent<v8::Context> m_context;
   v8::Persistent<v8::Object> m_global;
-
-  // Special handling of document wrapper;
-  v8::Persistent<v8::Object> m_document;
 
   int m_handlerLineno;
 

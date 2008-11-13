@@ -323,11 +323,6 @@ void ScriptController::finishedWithEvent(Event* evt)
     m_proxy->finishedWithEvent(evt);
 }
 
-void ScriptController::clearDocumentWrapper()
-{
-    m_proxy->clearDocumentWrapper();
-}
-
 // Create a V8 object with an interceptor of NPObjectPropertyGetter
 void ScriptController::BindToWindowObject(Frame* frame, const String& key, NPObject* object)
 {
@@ -512,6 +507,9 @@ NPObject* ScriptController::createScriptObjectForPluginElement(HTMLPlugInElement
 
 void ScriptController::clearWindowShell()
 {
+    // V8 binding expects ScriptController::clearWindowShell only be called
+    // when a frame is loading a new page. V8Proxy::clearForNavigation
+    // creates a new context for the new page.
     m_proxy->clearForNavigation();
 }
 
@@ -522,9 +520,7 @@ void ScriptController::attachDebugger(void*)
 
 void ScriptController::updateDocument()
 {
-    // TODO(eseidel): Should update document property on current window object
-    // and all previous window objects which may still be alive.
-    notImplemented();
+    m_proxy->updateDocument();
 }
 
 

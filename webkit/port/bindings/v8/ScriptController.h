@@ -170,7 +170,6 @@ public:
     JSInstanceHandle createScriptInstanceForWidget(Widget*);
 
     void clearPluginObjects();
-    void clearDocumentWrapper();
     void disconnectFrame();
 
     // Check if the javascript engine has been initialized.
@@ -232,7 +231,6 @@ public:
 
     void clearWindowShell();
     void updateDocument();
-    void domWindowReady() { m_proxy->domWindowReady(); }
 
     void pauseTimeouts(OwnPtr<PausedTimeouts>&);
     void resumeTimeouts(OwnPtr<PausedTimeouts>&);

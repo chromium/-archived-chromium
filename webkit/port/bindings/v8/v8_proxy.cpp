@@ -1019,7 +1019,7 @@ bool V8Proxy::HandleOutOfMemory()
     Frame* frame = V8Proxy::retrieveFrame(context);
 
     V8Proxy* proxy = V8Proxy::retrieve(frame);
-    // Clean m_context, m_document, and event handlers.
+    // Clean m_context, and event handlers.
     proxy->clearForClose();
     // Destroy the global object.
     proxy->DestroyGlobal();
@@ -1556,20 +1556,6 @@ bool V8Proxy::isEnabled()
     return false;  // Other protocols fall through to here
 }
 
-void V8Proxy::clearDocumentWrapper()
-{
-    v8::Local<v8::Context> context = GetContext();
-    if (context.IsEmpty())
-        return;  // not initialize yet
-
-    if (!m_document.IsEmpty()) {
-#ifndef NDEBUG
-        UnregisterGlobalHandle(this, m_document);
-#endif
-        m_document.Dispose();
-        m_document.Clear();
-    }
-}
 
 // static
 void V8Proxy::DomainChanged(Frame* frame)
@@ -1585,10 +1571,6 @@ void V8Proxy::clearForClose()
     if (m_context.IsEmpty())
         return;
 
-    {   v8::HandleScope handle_scope;
-        clearDocumentWrapper();
-    }
-
     m_context.Dispose();
     m_context.Clear();
 }
@@ -1600,7 +1582,8 @@ void V8Proxy::clearForNavigation()
         return;
 
     {   v8::HandleScope handle;
-        clearDocumentWrapper();
+
+        v8::Context::Scope context_scope(m_context);
 
         // Turn on access check on the old DOMWindow wrapper.
         v8::Handle<v8::Object> wrapper =
@@ -1618,21 +1601,63 @@ void V8Proxy::clearForNavigation()
 
         // Separate the context from its global object.
         m_context->DetachGlobal();
-    }
 
-    // Corresponds to the context creation in initContextIfNeeded().
-    m_context.Dispose();
-    m_context.Clear();
+        m_context.Dispose();
+        m_context.Clear();
+
+        // Reinitialize the context so the global object points to
+        // the new DOM window.
+        initContextIfNeeded();
+    }
 }
 
 
-void V8Proxy::domWindowReady()
+void V8Proxy::SetSecurityToken() {
+    Document* document = m_frame->document();
+    // Setup security origin and security token
+    if (!document) {
+        m_context->UseDefaultSecurityToken();
+        return;
+    }
+
+    // Ask the document's SecurityOrigin to generate a security token.
+    // If two tokens are equal, then the SecurityOrigins canAccess each other.
+    // If two tokens are not equal, then we have to call canAccess.
+    // Note: we can't use the HTTPOrigin if it was set from the DOM.
+    SecurityOrigin* origin = document->securityOrigin();
+    String token;
+    if (!origin->domainWasSetInDOM())
+        token = document->securityOrigin()->toString();
+
+    // An empty token means we always have to call canAccess.  In this case, we
+    // use the global object as the security token to avoid calling canAccess
+    // when a script accesses its own objects.
+    if (token.isEmpty()) {
+        m_context->UseDefaultSecurityToken();
+        return;
+    }
+
+    CString utf8_token = token.utf8();
+    // NOTE: V8 does identity comparison in fast path, must use a symbol
+    // as the security token.
+    m_context->SetSecurityToken(
+        v8::String::NewSymbol(utf8_token.data(), utf8_token.length()));
+}
+
+
+void V8Proxy::updateDocument()
 {
-    // Reinitialize context so the global object is reused by
-    // the new context.
-    if (!m_global.IsEmpty() && m_context.IsEmpty()) {
+    if (!m_frame->document())
+        return;
+
+    if (m_global.IsEmpty()) {
+        ASSERT(m_context.IsEmpty());
+        return;
+    }
+
+    {
         v8::HandleScope scope;
-        initContextIfNeeded();
+        SetSecurityToken();
     }
 }
 
@@ -1717,39 +1742,6 @@ bool V8Proxy::CheckNodeSecurity(Node* node)
         return false;
 
     return CanAccessFrame(target, true);
-}
-
-
-static void GenerateSecurityToken(v8::Local<v8::Context> context)
-{
-  Document* document = V8Proxy::retrieveFrame(context)->document();
-  if (!document) {
-    context->UseDefaultSecurityToken();
-    return;
-  }
-
-  // Ask the document's SecurityOrigin to generate a security token.
-  // If two tokens are equal, then the SecurityOrigins canAccess each other.
-  // If two tokens are not equal, then we have to call canAccess.
-  // Note: we can't use the HTTPOrigin if it was set from the DOM.
-  SecurityOrigin* origin = document->securityOrigin();
-  String token;
-  if (!origin->domainWasSetInDOM())
-    token = document->securityOrigin()->toString();
-
-  // An empty token means we always have to call canAccess.  In this case, we
-  // use the global object as the security token to avoid calling canAccess
-  // when a script accesses its own objects.
-  if (token.isEmpty()) {
-    context->UseDefaultSecurityToken();
-    return;
-  }
-
-  CString utf8_token = token.utf8();
-  // NOTE: V8 does identity comparison in fast path, must use a symbol
-  // as the security token.
-  context->SetSecurityToken(
-    v8::String::NewSymbol(utf8_token.data(), utf8_token.length()));
 }
 
 
@@ -1872,8 +1864,7 @@ void V8Proxy::initContextIfNeeded()
   v8::Handle<v8::Object> v8_global = context->Global();
   v8_global->Set(v8::String::New("__proto__"), window_peer);
 
-  // Setup security origin and security token
-  GenerateSecurityToken(context);
+  SetSecurityToken();
 
   m_frame->loader()->dispatchWindowObjectAvailable();
 
@@ -2626,11 +2617,6 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node)
   dom_node_map().set(node, v8::Persistent<v8::Object>::New(result));
 
   if (is_document) {
-    Document* doc = static_cast<Document*>(node);
-    V8Proxy* proxy = V8Proxy::retrieve(doc->frame());
-    if (proxy)
-      proxy->UpdateDocumentHandle(result);
-
     if (type == V8ClassIndex::HTMLDOCUMENT) {
       // Create marker object and insert it in two internal fields.
       // This is used to implement temporary shadowing of
@@ -2644,24 +2630,6 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node)
   }
 
   return result;
-}
-
-
-void V8Proxy::UpdateDocumentHandle(v8::Local<v8::Object> handle)
-{
-  // If the old handle is not empty, release it.
-  if (!m_document.IsEmpty()) {
-#ifndef NDEBUG
-    UnregisterGlobalHandle(this, m_document);
-#endif
-    m_document.Dispose();
-    m_document.Clear();
-  }
-
-  m_document = v8::Persistent<v8::Object>::New(handle);
-#ifndef NDEBUG
-  RegisterGlobalHandle(PROXY, this, m_document);
-#endif
 }
 
 
