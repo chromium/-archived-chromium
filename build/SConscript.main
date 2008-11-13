@@ -62,7 +62,6 @@ root_env = Environment(
     GEARS_DIR             = '$OBJ_ROOT/gears',
     GOOGLE_UPDATE_DIR     = '$OBJ_ROOT/google_update',
     GOOGLEURL_DIR         = '$OBJ_ROOT/googleurl',
-    MEDIA_DIR             = '$OBJ_ROOT/media',
     NET_DIR               = '$OBJ_ROOT/net',
     RLZ_DIR               = '$OBJ_ROOT/rlz',
     SANDBOX_DIR           = '$OBJ_ROOT/sandbox',
@@ -206,9 +205,6 @@ if LoadComponent('googleurl'):
   # googleurl comes from a different repository so we provide the SConscript
   # file.
   sconscripts.append('$GOOGLEURL_DIR/googleurl.scons')
-
-if LoadComponent('media'):
-  sconscripts.append('$MEDIA_DIR/media.scons')
 
 if LoadComponent('net'):
   sconscripts.append('$NET_DIR/net.scons')
