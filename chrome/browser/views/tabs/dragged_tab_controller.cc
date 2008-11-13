@@ -108,6 +108,9 @@ DraggedTabController::~DraggedTabController() {
   // bounds, it won't be able to clean up properly since its cleanup routine
   // uses GetIndexForDraggedContents, which will be invalid.
   view_.reset(NULL);
+  // Make sure the TabContents doesn't think we're still its delegate.
+  if (dragged_contents_ && dragged_contents_->delegate() == this)
+    dragged_contents_->set_delegate(NULL);
   ChangeDraggedContents(NULL); // This removes our observer.
 }
 
@@ -290,17 +293,15 @@ gfx::Point DraggedTabController::GetWindowCreatePoint() const {
 
 void DraggedTabController::ChangeDraggedContents(TabContents* new_contents) {
   if (dragged_contents_) {
-    dragged_contents_->set_delegate(NULL);
     NotificationService::current()->RemoveObserver(this,
-      NOTIFY_TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(dragged_contents_));
+        NOTIFY_TAB_CONTENTS_DESTROYED,
+        Source<TabContents>(dragged_contents_));
   }
   dragged_contents_ = new_contents;
   if (dragged_contents_) {
-    dragged_contents_->set_delegate(this);
     NotificationService::current()->AddObserver(this,
-      NOTIFY_TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(dragged_contents_));
+        NOTIFY_TAB_CONTENTS_DESTROYED,
+        Source<TabContents>(dragged_contents_));
   }
 }
 

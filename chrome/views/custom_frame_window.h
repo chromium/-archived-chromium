@@ -89,6 +89,9 @@ class CustomFrameWindow : public Window {
   // True if updates to this window are currently locked.
   bool lock_updates_;
 
+  // The window styles of the window before updates were locked.
+  DWORD saved_window_style_;
+
   // Static resource initialization.
   static void InitClass();
   enum ResizeCursor {

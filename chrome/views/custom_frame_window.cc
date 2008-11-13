@@ -886,7 +886,8 @@ class NonClientViewLayout : public LayoutManager {
 CustomFrameWindow::CustomFrameWindow(WindowDelegate* window_delegate)
     : Window(window_delegate),
       is_active_(false),
-      lock_updates_(false) {
+      lock_updates_(false),
+      saved_window_style_(0) {
   InitClass();
   non_client_view_ = new DefaultNonClientView(this);
 }
@@ -1339,13 +1340,12 @@ void CustomFrameWindow::InitClass() {
 
 void CustomFrameWindow::LockUpdates() {
   lock_updates_ = true;
-  // This message causes invalidations to be discarded until it is called again
-  // with WPARAM TRUE (see UnlockUpdates).
-  SendMessage(GetHWND(), WM_SETREDRAW, FALSE, 0);
+  saved_window_style_ = GetWindowLong(GetHWND(), GWL_STYLE);
+  SetWindowLong(GetHWND(), GWL_STYLE, saved_window_style_ & ~WS_VISIBLE);
 }
 
 void CustomFrameWindow::UnlockUpdates() {
-  SendMessage(GetHWND(), WM_SETREDRAW, TRUE, 0);
+  SetWindowLong(GetHWND(), GWL_STYLE, saved_window_style_);
   lock_updates_ = false;
 }
 
