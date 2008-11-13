@@ -25,6 +25,14 @@ class MessagePumpForUI : public MessagePump {
   virtual void ScheduleWork();
   virtual void ScheduleDelayedWork(const Time& delayed_work_time);
 
+  // Internal methods used for processing the pump callbacks.  They are
+  // public for simplicity but should not be used directly.  HandlePrepare
+  // is called during the prepare step of glib, and returns a timeout that
+  // will be passed to the poll.  HandleDispatch is called after the poll
+  // has completed.
+  int HandlePrepare();
+  void HandleDispatch();
+
  private:
   // We may make recursive calls to Run, so we save state that needs to be
   // separate between them in this structure type.
@@ -36,6 +44,10 @@ class MessagePumpForUI : public MessagePump {
 
     // Used to count how many Run() invocations are on the stack.
     int run_depth;
+
+    // Used internally for controlling whether we want a message pump
+    // iteration to be blocking or not.
+    bool more_work_is_plausible;
   };
 
   RunState* state_;
