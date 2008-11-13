@@ -7,5 +7,6 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		PreprocessorDefinitions="IEEE_8087"
+		DisableSpecificWarnings="4018;4102;4244;4554"
 	/>
 </VisualStudioPropertySheet>
