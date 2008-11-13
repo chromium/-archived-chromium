@@ -2,14 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#define PANGO_ENABLE_BACKEND
-
 #include "config.h"
 #include "SimpleFontData.h"
-
-#include <pango/pango.h>
-#include <pango/pangoft2.h>
-#include <pango/pangofc-font.h>
 
 #include "Font.h"
 #include "FontCache.h"
@@ -18,66 +12,88 @@
 #include "Logging.h"
 #include "NotImplemented.h"
 
+#include "SkPaint.h"
+#include "SkTypeface.h"
+#include "SkTime.h"
+
 namespace WebCore {
 
-// TODO(agl): only stubs
+// Smallcaps versions of fonts are 70% the size of the normal font.
+static const float kSmallCapsFraction = 0.7f;
 
 void SimpleFontData::platformInit()
 {
-    PangoFont *const font = platformData().m_font;
+    SkPaint paint;
+    SkPaint::FontMetrics metrics;
 
-    PangoFontMetrics *const metrics = pango_font_get_metrics(font, NULL);
-    m_ascent = pango_font_metrics_get_ascent(metrics) / PANGO_SCALE;
-    m_descent = pango_font_metrics_get_descent(metrics) / PANGO_SCALE;
-    m_lineSpacing = m_ascent + m_descent;
-    m_avgCharWidth = pango_font_metrics_get_approximate_char_width(metrics) / PANGO_SCALE;
-    pango_font_metrics_unref(metrics);
+    m_font.setupPaint(&paint);
+    paint.getFontMetrics(&metrics);
 
-    const guint xglyph = pango_fc_font_get_glyph(PANGO_FC_FONT(font), 'x');
-    const guint spaceglyph = pango_fc_font_get_glyph(PANGO_FC_FONT(font), ' ');
-    PangoRectangle rect;
+    // use ceil instead of round to favor descent, given a lot of accidental
+    // clipping of descenders (e.g. 14pt 'g') in textedit fields
+    const int descent = SkScalarCeil(metrics.fDescent);
+    const int span = SkScalarRound(metrics.fDescent - metrics.fAscent);
+    const int ascent = span - descent;
 
-    pango_font_get_glyph_extents(font, xglyph, &rect, NULL);
-    m_xHeight = rect.height / PANGO_SCALE;
-    pango_font_get_glyph_extents(font, spaceglyph, NULL, &rect);
-    m_spaceWidth = rect.width / PANGO_SCALE;
-    m_lineGap = m_lineSpacing - m_ascent - m_descent;
+    m_ascent = ascent;
+    m_descent = descent;
+    m_xHeight = SkScalarToFloat(-metrics.fAscent) * 0.56f;   // hack I stole from the Windows port
+    m_lineSpacing = ascent + descent;
+    m_lineGap = SkScalarRound(metrics.fLeading);
 
-    FT_Face face = pango_ft2_font_get_face(font);
-    m_unitsPerEm = face->units_per_EM / PANGO_SCALE;
+    // In WebKit/WebCore/platform/graphics/SimpleFontData.cpp, m_spaceWidth is
+    // calculated for us, but we need to calculate m_maxCharWidth and
+    // m_avgCharWidth in order for text entry widgets to be sized correctly.
+    // Skia doesn't expose either of these so we calculate them ourselves
 
-    // TODO(agl): I'm not sure we have good data for this so it's 0 for now
-    m_maxCharWidth = 0;
+    GlyphPage* glyphPageZero = GlyphPageTreeNode::getRootChild(this, 0)->page();
+    if (!glyphPageZero)
+      return;
+
+    static const UChar32 e_char = 'e';
+    static const UChar32 M_char = 'M';
+    m_avgCharWidth = widthForGlyph(glyphPageZero->glyphDataForCharacter(e_char).glyph);
+    m_maxCharWidth = widthForGlyph(glyphPageZero->glyphDataForCharacter(M_char).glyph);
 }
 
-void SimpleFontData::platformDestroy() { }
+void SimpleFontData::platformDestroy()
+{
+    delete m_smallCapsFontData;
+}
 
 SimpleFontData* SimpleFontData::smallCapsFontData(const FontDescription& fontDescription) const
 {
-    notImplemented();
-    return NULL;
+    if (!m_smallCapsFontData) {
+        m_smallCapsFontData =
+            new SimpleFontData(FontPlatformData(m_font, fontDescription.computedSize() * kSmallCapsFraction));
+    }
+    return m_smallCapsFontData;
 }
 
-bool SimpleFontData::containsCharacters(const UChar* characters,
-                                        int length) const
+bool SimpleFontData::containsCharacters(const UChar* characters, int length) const
 {
-    bool result = true;
+    SkPaint paint;
+    static const unsigned kMaxBufferCount = 64;
+    uint16_t glyphs[kMaxBufferCount];
 
-    PangoCoverage* requested = pango_coverage_from_bytes((guchar*)characters, length);
-    PangoCoverage* available = pango_font_get_coverage(m_font.m_font, pango_language_get_default());
-    pango_coverage_max(requested, available);
+    m_font.setupPaint(&paint);
+    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
 
-    for (int i = 0; i < length; i++) {
-        if (PANGO_COVERAGE_NONE == pango_coverage_get(requested, i)) {
-            result = false;
-            break;
+    while (length > 0) {
+        int n = SkMin32(length, SK_ARRAY_COUNT(glyphs));
+
+        // textToGlyphs takes a byte count so we double the character count.
+        int count = paint.textToGlyphs(characters, n * 2, glyphs);
+        for (int i = 0; i < count; i++) {
+            if (0 == glyphs[i]) {
+                return false;       // missing glyph
+            }
         }
+
+        characters += n;
+        length -= n;
     }
-
-    pango_coverage_unref(requested);
-    pango_coverage_unref(available);
-
-    return result;
+    return true;
 }
 
 void SimpleFontData::determinePitch()
@@ -87,12 +103,16 @@ void SimpleFontData::determinePitch()
 
 float SimpleFontData::platformWidthForGlyph(Glyph glyph) const
 {
-    PangoFont *const font = platformData().m_font;
-    PangoRectangle rect;
+    SkASSERT(sizeof(glyph) == 2);   // compile-time assert
 
-    pango_font_get_glyph_extents(font, glyph, NULL, &rect);
+    SkPaint paint;
 
-    return static_cast<float>(rect.width) / PANGO_SCALE;
+    m_font.setupPaint(&paint);
+
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkScalar width = paint.measureText(&glyph, 2);
+    
+    return SkScalarToFloat(width);
 }
 
 }  // namespace WebCore

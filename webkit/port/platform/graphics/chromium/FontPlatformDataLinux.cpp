@@ -5,133 +5,98 @@
 #include "config.h"
 #include "FontPlatformData.h"
 
-#include <gtk/gtk.h>
-#include <pango/pango.h>
-#include <pango/pangoft2.h>
-
-#include "CString.h"
-#include "FontDescription.h"
-#include "NotImplemented.h"
-#include "PlatformString.h"
+#include "SkPaint.h"
+#include "SkTypeface.h"
 
 namespace WebCore {
 
-PangoFontMap* FontPlatformData::m_fontMap = 0;
-GHashTable* FontPlatformData::m_hashTable = 0;
-
-FontPlatformData::FontPlatformData(const FontDescription& fontDescription, const AtomicString& familyName)
-    : m_context(0)
-    , m_font(0)
-    , m_size(fontDescription.computedSize())
-    , m_syntheticBold(false)
-    , m_syntheticOblique(false)
+FontPlatformData::FontPlatformData(const FontPlatformData& src)
 {
-    FontPlatformData::init();
+    src.m_typeface->safeRef();
+    m_typeface = src.m_typeface;
 
-    CString stored_family = familyName.string().utf8();
-    char const* families[] = {
-      stored_family.data(),
-      NULL
-    };
-
-    switch (fontDescription.genericFamily()) {
-    case FontDescription::SerifFamily:
-        families[1] = "serif";
-        break;
-    case FontDescription::SansSerifFamily:
-        families[1] = "sans";
-        break;
-    case FontDescription::MonospaceFamily:
-        families[1] = "monospace";
-        break;
-    case FontDescription::NoFamily:
-    case FontDescription::StandardFamily:
-    default:
-        families[1] = "sans";
-        break;
-    }
-
-    PangoFontDescription* description = pango_font_description_new();
-    pango_font_description_set_absolute_size(description, fontDescription.computedSize() * PANGO_SCALE);
-
-    // FIXME: Map all FontWeight values to Pango font weights.
-    if (fontDescription.weight() >= FontWeight600)
-        pango_font_description_set_weight(description, PANGO_WEIGHT_BOLD);
-    if (fontDescription.italic())
-        pango_font_description_set_style(description, PANGO_STYLE_ITALIC);
-
-    m_context = pango_ft2_font_map_create_context(PANGO_FT2_FONT_MAP(m_fontMap));
-
-    for (unsigned int i = 0; !m_font && i < G_N_ELEMENTS(families); i++) {
-        pango_font_description_set_family(description, families[i]);
-        pango_context_set_font_description(m_context, description);
-        m_font = pango_font_map_load_font(m_fontMap, m_context, description);
-    }
-
-    pango_font_description_free(description);
+    m_textSize = src.m_textSize;
+    m_fakeBold   = src.m_fakeBold;
+    m_fakeItalic = src.m_fakeItalic;
 }
 
-FontPlatformData::FontPlatformData(float size, bool bold, bool oblique)
-    : m_context(0)
-    , m_font(0)
-    , m_size(size)
-    , m_syntheticBold(bold)
-    , m_syntheticOblique(oblique)
+FontPlatformData::FontPlatformData(SkTypeface* tf, float textSize, bool fakeBold, bool fakeItalic)
+    : m_typeface(tf)
+    , m_textSize(textSize)
+    , m_fakeBold(fakeBold)
+    , m_fakeItalic(fakeItalic)
 {
+    m_typeface->safeRef();
 }
 
-bool FontPlatformData::init()
+FontPlatformData::FontPlatformData(const FontPlatformData& src, float textSize)
+    : m_typeface(src.m_typeface)
+    , m_textSize(textSize)
+    , m_fakeBold(src.m_fakeBold)
+    , m_fakeItalic(src.m_fakeItalic)
 {
-    static bool initialized = false;
-    if (initialized)
-        return true;
-    initialized = true;
+    m_typeface->safeRef();
+}
 
-    if (!m_fontMap)
-        m_fontMap = pango_ft2_font_map_new();
-    if (!m_hashTable) {
-        PangoFontFamily** families = 0;
-        int n_families = 0;
+FontPlatformData::~FontPlatformData()
+{
+    m_typeface->safeUnref();
+}
 
-        m_hashTable = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_object_unref);
+FontPlatformData& FontPlatformData::operator=(const FontPlatformData& src)
+{
+    SkRefCnt_SafeAssign(m_typeface, src.m_typeface);
 
-        pango_font_map_list_families(m_fontMap, &families, &n_families);
+    m_textSize   = src.m_textSize;
+    m_fakeBold   = src.m_fakeBold;
+    m_fakeItalic = src.m_fakeItalic;
+    
+    return *this;
+}
+    
+void FontPlatformData::setupPaint(SkPaint* paint) const
+{
+    const float ts = m_textSize > 0 ? m_textSize : 12;
 
-        for (int family = 0; family < n_families; family++)
-            g_hash_table_insert(m_hashTable,
-                                g_strdup(pango_font_family_get_name(families[family])),
-                                g_object_ref(families[family]));
+    paint->setAntiAlias(true);
+    paint->setSubpixelText(true);
+    paint->setTextSize(SkFloatToScalar(ts));
+    paint->setTypeface(m_typeface);
+    paint->setFakeBoldText(m_fakeBold);
+    paint->setTextSkewX(m_fakeItalic ? -SK_Scalar1/4 : 0);
+    paint->setTextEncoding(SkPaint::kUTF16_TextEncoding);
+}
 
-        g_free(families);
-    }
+bool FontPlatformData::operator==(const FontPlatformData& a) const
+{
+    // If either of the typeface pointers are invalid (either NULL or the
+    // special deleted value) then we test for pointer equality. Otherwise, we
+    // call SkTypeface::Equal on the valid pointers.
+    const bool typefaces_equal =
+      (m_typeface == hashTableDeletedFontValue() ||
+       a.m_typeface == hashTableDeletedFontValue() ||
+       !m_typeface || !a.m_typeface) ?
+      (m_typeface == a.m_typeface) :
+      SkTypeface::Equal(m_typeface, a.m_typeface);
+    return typefaces_equal &&
+           m_textSize == a.m_textSize &&
+           m_fakeBold == a.m_fakeBold &&
+           m_fakeItalic == a.m_fakeItalic;
+}
 
-    return true;
+unsigned FontPlatformData::hash() const
+{
+    // This is taken from Android code. It is not our fault.
+    unsigned h = SkTypeface::UniqueID(m_typeface);
+    h ^= 0x01010101 * (((int)m_fakeBold << 1) | (int)m_fakeItalic);
+    h ^= *reinterpret_cast<const uint32_t *>(&m_textSize);
+    return h;
 }
 
 bool FontPlatformData::isFixedPitch() const
 {
-    PangoFontDescription* description = pango_font_describe_with_absolute_size(m_font);
-    PangoFontFamily* family = reinterpret_cast<PangoFontFamily*>(g_hash_table_lookup(m_hashTable, pango_font_description_get_family(description)));
-    pango_font_description_free(description);
-    return pango_font_family_is_monospace(family);
-}
-
-FontPlatformData::~FontPlatformData() {
-}
-
-bool FontPlatformData::operator==(const FontPlatformData& other) const
-{
-    if (m_font == other.m_font)
-        return true;
-    if (m_font == 0 || m_font == reinterpret_cast<PangoFont*>(-1)
-        || other.m_font == 0 || other.m_font == reinterpret_cast<PangoFont*>(-1))
-        return false;
-    PangoFontDescription* thisDesc = pango_font_describe(m_font);
-    PangoFontDescription* otherDesc = pango_font_describe(other.m_font);
-    bool result = pango_font_description_equal(thisDesc, otherDesc);
-    pango_font_description_free(otherDesc);
-    pango_font_description_free(thisDesc);
-    return result;
+    notImplemented();
+    return false;
 }
 
 }  // namespace WebCore

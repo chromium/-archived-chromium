@@ -717,14 +717,6 @@ void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path)
     path->close();
 }
 
-static void map_y_to_pt(const FT_Matrix& mat, SkFixed y, SkPoint* pt)
-{
-    SkFixed x = SkFixedMul(mat.xy, y);
-    y = SkFixedMul(mat.yy, y);
-
-    pt->set(SkFixedToScalar(x), SkFixedToScalar(y));
-}
-
 void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my)
 {
     if (NULL == mx && NULL == my)

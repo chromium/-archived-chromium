@@ -30,44 +30,43 @@
 #include "config.h"
 #include "GlyphPageTreeNode.h"
 
-// This PANGO_ENABLE_BACKEND define lets us get at some of the internal Pango
-// call which we need. This include must be here otherwise we include pango.h
-// via another route (without the define) and that sets the include guard.
-// Then, when we try to include it in the future the guard stops us getting the
-// functions that we need.
-#define PANGO_ENABLE_BACKEND
-#include <pango/pango.h>
-#include <pango/pangofc-font.h>
-
 #include "Font.h"
 #include "NotImplemented.h"
 #include "SimpleFontData.h"
+
+#include "SkTemplates.h"
+#include "SkPaint.h"
+#include "SkUtils.h"
 
 namespace WebCore
 {
 
 bool GlyphPage::fill(unsigned offset, unsigned length, UChar* buffer, unsigned bufferLength, const SimpleFontData* fontData)
 {
-    // The bufferLength will be greater than the glyph page size if the buffer has Unicode supplementary characters.
-    // We won't support this for now.
-    if (bufferLength > GlyphPage::size)
+    if (SkUTF16_IsHighSurrogate(buffer[bufferLength-1])) {
+        SkDebugf("%s last char is high-surrogate", __FUNCTION__);
         return false;
-
-    if (!fontData->m_font.m_font || fontData->m_font.m_font == reinterpret_cast<PangoFont*>(-1))
+    }
+    
+    SkPaint paint;
+    fontData->platformData().setupPaint(&paint);
+    paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
+    
+    SkAutoSTMalloc <GlyphPage::size, uint16_t> glyphStorage(length);
+    uint16_t* glyphs = glyphStorage.get();
+    // textToGlyphs takes a byte count, not a glyph count so we multiply by two.
+    unsigned count = paint.textToGlyphs(buffer, bufferLength * 2, glyphs);
+    if (count != length) {
+        SkDebugf("%s count != length\n", __FUNCTION__);
         return false;
-
-    bool haveGlyphs = false;
-    for (unsigned i = 0; i < length; i++) {
-        Glyph glyph = pango_fc_font_get_glyph(PANGO_FC_FONT(fontData->m_font.m_font), buffer[i]);
-        if (!glyph)
-            setGlyphDataForIndex(offset + i, 0, 0);
-        else {
-            setGlyphDataForIndex(offset + i, glyph, fontData);
-            haveGlyphs = true;
-        }
     }
 
-    return haveGlyphs;
+    unsigned allGlyphs = 0; // track if any of the glyphIDs are non-zero
+    for (unsigned i = 0; i < length; i++) {
+        setGlyphDataForIndex(offset + i, glyphs[i], fontData);
+        allGlyphs |= glyphs[i];
+    }
+    return allGlyphs != 0;
 }
 
 }  // namespace WebCore

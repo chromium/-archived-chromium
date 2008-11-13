@@ -8,17 +8,23 @@
 #include "config.h"
 #include "build/build_config.h"
 
-#include <pango/pango.h>
-
 #include "StringImpl.h"
 #include "NotImplemented.h"
 #include <wtf/PassRefPtr.h>
 #include <wtf/RefCounted.h>
 
+class SkPaint;
+class SkTypeface;
+
 namespace WebCore {
 
 class FontDescription;
 
+// -----------------------------------------------------------------------------
+// FontPlatformData is the handle which WebKit has on a specific face. A face
+// is the tuple of (font, size, ...etc). Here we are just wrapping a Skia
+// SkTypeface pointer and dealing with the reference counting etc.
+// -----------------------------------------------------------------------------
 class FontPlatformData {
 public:
     // Used for deleted values in the font cache's hash tables. The hash table
@@ -27,47 +33,56 @@ public:
     // from the NULL one (created with the empty constructor), so we can't just
     // set everything to NULL.
     FontPlatformData(WTF::HashTableDeletedValueType)
-        : m_context(0)
-        , m_font(hashTableDeletedFontValue())
+        : m_typeface(hashTableDeletedFontValue())
+        , m_textSize(0)
+        , m_fakeBold(false)
+        , m_fakeItalic(false)
         { }
 
     FontPlatformData()
-        : m_context(0)
-        , m_font(0)
+        : m_typeface(0)
+        , m_textSize(0)
+        , m_fakeBold(false)
+        , m_fakeItalic(false)
         { }
 
-    FontPlatformData(const FontDescription&, const AtomicString& family);
+    FontPlatformData(float textSize, bool fakeBold, bool fakeItalic)
+        : m_typeface(0)
+        , m_textSize(textSize)
+        , m_fakeBold(fakeBold)
+        , m_fakeItalic(fakeItalic)
+        { }
 
-    FontPlatformData(float size, bool bold, bool oblique);
-
+    FontPlatformData(const FontPlatformData&);
+    FontPlatformData(SkTypeface *, float textSize, bool fakeBold, bool fakeItalic);
+    FontPlatformData(const FontPlatformData& src, float textSize);
     ~FontPlatformData();
 
-    static bool init();
-
+    // -------------------------------------------------------------------------
+    // Return true iff this font is monospaced (i.e. every glyph has an equal x
+    // advance)
+    // -------------------------------------------------------------------------
     bool isFixedPitch() const;
-    float size() const { return m_size; }
 
-    unsigned hash() const
-    {
-        notImplemented();
-        return 0;
-    }
+    // -------------------------------------------------------------------------
+    // Setup a Skia painting context to use this font.
+    // -------------------------------------------------------------------------
+    void setupPaint(SkPaint*) const;
+
+    unsigned hash() const;
+    float size() const { return m_textSize; }
 
     bool operator==(const FontPlatformData& other) const;
-    bool isHashTableDeletedValue() const { return m_font == hashTableDeletedFontValue(); }
-
-    static PangoFontMap* m_fontMap;
-    static GHashTable* m_hashTable;
-
-    PangoContext* m_context;
-    PangoFont* m_font;
-
-    float m_size;
-    bool m_syntheticBold;
-    bool m_syntheticOblique;
+    FontPlatformData& operator=(const FontPlatformData& src);
+    bool isHashTableDeletedValue() const { return m_typeface == hashTableDeletedFontValue(); }
 
 private:
-    static PangoFont* hashTableDeletedFontValue() { return reinterpret_cast<PangoFont*>(-1); }
+    SkTypeface* m_typeface;
+    float m_textSize;
+    bool m_fakeBold;
+    bool m_fakeItalic;
+
+    SkTypeface* hashTableDeletedFontValue() const { return reinterpret_cast<SkTypeface*>(-1); }
 };
 
 }  // namespace WebCore

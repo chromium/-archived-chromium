@@ -6,17 +6,20 @@
 #include "FontCache.h"
 
 #include "AtomicString.h"
+#include "CString.h"
 #include "FontDescription.h"
 #include "FontPlatformData.h"
 #include "Logging.h"
 #include "NotImplemented.h"
 
+#include "SkPaint.h"
+#include "SkTypeface.h"
+#include "SkUtils.h"
+
 namespace WebCore {
 
 void FontCache::platformInit()
 {
-    if (!FontPlatformData::init())
-        ASSERT_NOT_REACHED();
 }
 
 const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
@@ -58,7 +61,50 @@ void FontCache::getTraitsInFamily(const AtomicString& familyName,
 FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontDescription,
                                                     const AtomicString& family)
 {
-    return new FontPlatformData(fontDescription, family);
+    const char* name = 0;
+    CString s;
+    
+    if (family.length() == 0) {
+        static const struct {
+            FontDescription::GenericFamilyType mType;
+            const char* mName;
+        } gNames[] = {
+            { FontDescription::SerifFamily, "serif" },
+            { FontDescription::SansSerifFamily, "sans-serif" },
+            { FontDescription::MonospaceFamily, "monospace" },
+            { FontDescription::CursiveFamily, "cursive" },
+            { FontDescription::FantasyFamily, "fantasy" }
+        };
+
+        FontDescription::GenericFamilyType type = fontDescription.genericFamily();
+        for (unsigned i = 0; i < SK_ARRAY_COUNT(gNames); i++) {
+            if (type == gNames[i].mType) {
+                name = gNames[i].mName;
+                break;
+            }
+        }
+        // if we fall out of the loop, it's ok for name to still be 0
+    }
+    else {    // convert the name to utf8
+        s = family.string().utf8();
+        name = s.data();
+    }
+    
+    int style = SkTypeface::kNormal;
+    if (fontDescription.weight() >= FontWeightBold)
+        style |= SkTypeface::kBold;
+    if (fontDescription.italic())
+        style |= SkTypeface::kItalic;
+
+    SkTypeface* tf = SkTypeface::Create(name, (SkTypeface::Style)style);
+    
+    FontPlatformData* result =
+        new FontPlatformData(tf,
+                             fontDescription.computedSize(),
+                             (style & SkTypeface::kBold) && !tf->isBold(),
+                             (style & SkTypeface::kItalic) && !tf->isItalic());
+    tf->unref();
+    return result;
 }
 
 AtomicString FontCache::getGenericFontForScript(UScriptCode script,

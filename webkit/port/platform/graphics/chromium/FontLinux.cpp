@@ -5,64 +5,58 @@
 #include "config.h"
 #include "Font.h"
 
-#include <pango/pango.h>
-#include <pango/pangoft2.h>
-
 #include "FloatRect.h"
+#include "GlyphBuffer.h"
+#include "GraphicsContext.h"
 #include "NotImplemented.h"
 #include "PlatformContextSkia.h"
-#include "GraphicsContext.h"
 #include "SimpleFontData.h"
-#include "GlyphBuffer.h"
+
+#include "SkCanvas.h"
+#include "SkPaint.h"
+#include "SkTemplates.h"
+#include "SkTypeface.h"
+#include "SkUtils.h"
 
 namespace WebCore {
 
-// -----------------------------------------------------------------------------
-// Bitblit a Freetype bitmap onto a canvas at the given location in the given
-// colour.
-//    pgc: the Skia canvas
-//    bm: A freetype bitmap which is an 8-bit alpha bitmap
-// -----------------------------------------------------------------------------
-static void bitBlitAlpha(PlatformGraphicsContext* pgc, FT_Bitmap* bm,
-                         int x, int y, const Color& col)
-{
+void Font::drawGlyphs(GraphicsContext* gc, const SimpleFontData* font,
+                      const GlyphBuffer& glyphBuffer,  int from, int numGlyphs,
+                      const FloatPoint& point) const {
+    SkCanvas* canvas = gc->platformContext()->canvas();
     SkPaint paint;
-    paint.setARGB(col.alpha(), col.red(), col.green(), col.blue());
 
-    // Here we are constructing an SkBitmap by pointing directly into the
-    // Freetype bitmap data
-    SkBitmap glyph;
-    glyph.setConfig(SkBitmap::kA8_Config, bm->width, bm->rows, bm->pitch);
-    glyph.setPixels(bm->buffer);
-    pgc->canvas()->drawBitmap(glyph, x, y, &paint);
-}
+    font->platformData().setupPaint(&paint);
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setColor(gc->fillColor().rgb());
 
-void Font::drawGlyphs(GraphicsContext* ctx, const SimpleFontData* sfd,
-                      const GlyphBuffer& glyphBuffer, int from, int to,
-                      const FloatPoint& point) const
-{
-    // For now we draw text by getting the Freetype face from Pango and asking
-    // Freetype to render each glyph as an 8-bit alpha bitmap and drawing that
-    // to the canvas. This, obviously, ignores kerning, ligatures and other
-    // things that we should have in the real version.
-    GlyphBufferGlyph* glyphs = (GlyphBufferGlyph*)glyphBuffer.glyphs(from);
-    PlatformGraphicsContext* pgc = ctx->platformContext();
-    FT_Face face = pango_ft2_font_get_face(sfd->m_font.m_font);
-    FT_GlyphSlot slot = face->glyph;
+    SkASSERT(sizeof(GlyphBufferGlyph) == sizeof(uint16_t));  // compile-time assert
 
-    int x = point.x(), y = point.y();
+    const GlyphBufferGlyph* glyphs = glyphBuffer.glyphs(from);
+    SkScalar x = SkFloatToScalar(point.x());
+    SkScalar y = SkFloatToScalar(point.y());
 
-    for (int i = from; i < to; ++i) {
-        const FT_Error error = FT_Load_Glyph(face, glyphs[i], FT_LOAD_RENDER);
-        if (error)
-            continue;
+    // TODO(port): Android WebCore has patches for PLATFORM(SGL) which involves
+    // this, however we don't have these patches and it's unclear when Android
+    // may upstream them.
+#if 0
+    if (glyphBuffer.hasAdjustedWidths()) {
+        const GlyphBufferAdvance*   adv = glyphBuffer.advances(from);
+        SkAutoSTMalloc<32, SkPoint> storage(numGlyphs);
+        SkPoint*                    pos = storage.get();
 
-        bitBlitAlpha(pgc, &slot->bitmap, x + slot->bitmap_left,
-                     y - slot->bitmap_top, ctx->fillColor());
-        // Freetype works in 1/64ths of a pixel, so we divide by 64 to get the
-        // number of pixels to advance.
-        x += slot->advance.x >> 6;
+        for (int i = 0; i < numGlyphs; i++) {
+            pos[i].set(x, y);
+            x += SkFloatToScalar(adv[i].width());
+            y += SkFloatToScalar(adv[i].height());
+        }
+        canvas->drawPosText(glyphs, numGlyphs << 1, pos, paint);
+    } else {
+        canvas->drawText(glyphs, numGlyphs << 1, x, y, paint);
     }
+#endif
+
+    canvas->drawText(glyphs, numGlyphs << 1, x, y, paint);
 }
 
 void Font::drawComplexText(GraphicsContext* context, const TextRun& run,
@@ -78,7 +72,7 @@ float Font::floatWidthForComplexText(const TextRun& run) const
 }
 
 int Font::offsetForPositionForComplexText(const TextRun& run, int x,
-                                          bool includePartialGlyphs) const 
+                                          bool includePartialGlyphs) const
 {
     notImplemented();
     return 0;
@@ -86,7 +80,7 @@ int Font::offsetForPositionForComplexText(const TextRun& run, int x,
 
 FloatRect Font::selectionRectForComplexText(const TextRun& run,
                                             const IntPoint& point, int h,
-                                            int from, int to) const 
+                                            int from, int to) const
 {
     notImplemented();
     return FloatRect();
