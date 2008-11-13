@@ -54,9 +54,11 @@ WebMouseEvent::WebMouseEvent(const GdkEventButton* event) {
 
   switch (event->type) {
     case GDK_BUTTON_PRESS:
+      type = MOUSE_DOWN;
+      break;
     case GDK_2BUTTON_PRESS:
     case GDK_3BUTTON_PRESS:
-      type = MOUSE_DOWN;
+      type = MOUSE_DOUBLE_CLICK;
       break;
     case GDK_BUTTON_RELEASE:
       type = MOUSE_UP;
@@ -155,13 +157,25 @@ WebKeyboardEvent::WebKeyboardEvent(const GdkEventKey* event) {
       NOTREACHED();
       break;
   }
+
+  // The key code tells us which physical key was pressed (for example, the
+  // A key went down or up).  It does not determine whether A should be lower
+  // or upper case.  This is what text does, which should be the keyval.
   key_code = WebCore::windowsKeyCodeForKeyEvent(event->keyval);
 
-  // GDK keys within the ASCII range are just ASCII.
-  if (event->keyval >= 0x20 && event->keyval < 0x7F)
-    text = event->keyval;
-  else
-    text = 0;
+  switch (event->keyval) {
+    // We need to treat the enter key as a key press of character \r.  This
+    // is apparently just how webkit handles it and what it expects.
+    case GDK_ISO_Enter:
+    case GDK_KP_Enter:
+    case GDK_Return:
+      text = '\r';
+      break;
+    default:
+      // This should set text to 0 when it's not a real character.
+      text = gdk_keyval_to_unicode(event->keyval);
+      break;
+  }
 
   // TODO(tc): Do we need to set IS_AUTO_REPEAT or IS_KEYPAD?
 }

@@ -73,6 +73,18 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
       m_eventType = MouseEventMoved;
       break;
 
+  // TODO(port): make these platform agnostic when we restructure this code.
+#if defined(OS_LINUX)
+    case WebInputEvent::MOUSE_DOUBLE_CLICK:
+      ++m_clickCount;
+      // fall through
+    case WebInputEvent::MOUSE_DOWN:
+      ++m_clickCount;
+      last_click_time_ = current_time;
+      last_click_button = m_button;
+      m_eventType = MouseEventPressed;
+      break;
+#else
     case WebInputEvent::MOUSE_DOWN:
     case WebInputEvent::MOUSE_DOUBLE_CLICK:
       if (!cancel_previous_click && (m_button == last_click_button)) {
@@ -86,6 +98,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
       m_clickCount = last_click_count_;
       m_eventType = MouseEventPressed;
       break;
+#endif
 
     case WebInputEvent::MOUSE_UP:
       m_clickCount = last_click_count_;
