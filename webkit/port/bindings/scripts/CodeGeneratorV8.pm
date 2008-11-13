@@ -177,9 +177,6 @@ sub AddIncludesForType
         $joinedName = $type;
         $joinedName =~ s/Abs|Rel//;
         $implIncludes{"${joinedName}.h"} = 1;
-    } elsif ($type eq "CSSStyleDeclaration") {
-        $implIncludes{"CSSStyleDeclaration.h"} = 1;
-        $implIncludes{"CSSMutableStyleDeclaration.h"} = 1;
     } else {
         # default, include the same named file
         $implIncludes{GetImplementationFileName(${type})} = 1;
@@ -195,6 +192,15 @@ sub AddIncludesForType
 
     if ($type eq "CanvasGradient" or $type eq "XPathNSResolver") {
         $implIncludes{"PlatformString.h"} = 1;
+    }
+
+    if ($type eq "CSSStyleDeclaration") {
+        $implIncludes{"CSSMutableStyleDeclaration.h"} = 1;
+    }
+
+    if ($type eq "Plugin" or $type eq "PluginArray" or $type eq "MimeTypeArray") {
+        # So we can get String -> AtomicString conversion for namedItem().
+        $implIncludes{"AtomicString.h"} = 1;
     }
 }
 
@@ -1893,10 +1899,6 @@ sub NativeToJSValue
     my $implClassName = $type;
     AddIncludesForType($type);
     # $implIncludes{GetImplementationFileName($type)} = 1 unless AvoidInclusionOfType($type);
-
-    if ($type eq "CSSStyleDeclaration") {
-        $implIncludes{"CSSMutableStyleDeclaration.h"} = 1;
-    }
 
     # special case for non-DOM node interfaces
     if (IsDOMNodeType($type)) {
