@@ -444,8 +444,9 @@ void ChromeClientImpl::runOpenPanel(WebCore::Frame* frame,
   if (!delegate)
     return;
 
-  std::wstring suggestion = webkit_glue::StringToStdWString(
-      fileChooser->filenames()[0]);
+  std::wstring suggestion;
+  if (fileChooser->filenames().size() > 0)
+    suggestion = webkit_glue::StringToStdWString(fileChooser->filenames()[0]);
 
   WebFileChooserCallbackImpl* chooser = new WebFileChooserCallbackImpl(fileChooser);
   delegate->RunFileChooser(suggestion, chooser);
