@@ -76,7 +76,6 @@
 <translation id="4552416320897244156">דף למטה</translation>
 <translation id="7658239707568436148">ביטול</translation>
 <translation id="6644971472240498405">יום <ph name="NUMBER_ONE"/></translation>
-<translation id="7052402604161570346">סוג קובץ זה יכול לגרום נזק למחשב שלך. האם אתה בטוח שברצונך להוריד <ph name="FILE_NAME"/>?</translation>
 <translation id="5921544176073914576">דף התחזות</translation>
 <translation id="6690744523875189208"><ph name="NUMBER_TWO"/> שעות</translation>
 <translation id="3990502903496589789">קצה ימני</translation>
@@ -203,6 +202,7 @@ Del</translation>
 <translation id="8421864404045570940"><ph name="NUMBER_DEFAULT"/> שניות</translation>
 <translation id="146000042969587795">מסגרת זו נחסמה משום שהיא מכילה תוכן לא בטוח.</translation>
 <translation id="406259880812417922">(מילת מפתח: <ph name="KEYWORD"/>)</translation>
+<translation id="1383876407941801731">חיפוש</translation>
 <translation id="5822838715583768518">הפעל את היישום</translation>
 <translation id="4188026131102273494">מילת מפתח:</translation>
 <translation id="5048040498971143039">תוצאות חיפוש עבור '<ph name="SEARCH_STRING"/>'</translation>
@@ -239,12 +239,10 @@ Del</translation>
 <translation id="1644574205037202324">היסטוריה</translation>
 <translation id="8609465669617005112">הזז למעלה</translation>
 <translation id="2679629658858164554">כתובת האתר של הדף:</translation>
-<translation id="1134009406053225289">פתח בחלון נסתר</translation>
 <translation id="5626134646977739690">שם:</translation>
 <translation id="6391832066170725637">הקובץ או הספרייה לא נמצאו.</translation>
 <translation id="6021004449668343960">גופן Sans-Serif:</translation>
 <translation id="2518917559152314023">ה&amp;וסף...</translation>
-<translation id="6069278982995177296">שכפל</translation>
 <translation id="6779164083355903755">&amp;הסר</translation>
 <translation id="1379170046778889619">פרטי אבטחה</translation>
 <translation id="4178055285485194276">בקבוצת ההפעלה:</translation>
@@ -267,8 +265,6 @@ Del</translation>
 <translation id="3810973564298564668">נהל</translation>
 <translation id="703748601351783580">פתח את כל הסימניות בחלון חדש</translation>
 <translation id="1521442365706402292">נהל אישורים</translation>
-<translation id="3702398161649563352"><ph name="PRODUCT_NAME"/> עודכן <ph name="VERSION"/></translation>
-<translation id="6434309073475700221">התעלם</translation>
 <translation id="6264485186158353794">חזרה לחוף מבטחים</translation>
 <translation id="4948468046837535074">פתח את הדפים הבאים:</translation>
 <translation id="2544782972264605588">נותרו <ph name="NUMBER_DEFAULT"/> שניות</translation>
@@ -434,7 +430,6 @@ Del</translation>
 <translation id="3037605927509011580">אוי, לא!</translation>
 <translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, הושלם</translation>
 <translation id="6281636957902664775">עבור אל <ph name="URL"/></translation>
-<translation id="5256138355144269748">חלונות קופצים חסומים</translation>
 <translation id="6364916375976753737">גלול שמאלה</translation>
 <translation id="1767991048059195456">שלח דוח</translation>
 <translation id="6463795194797719782">&amp;ערוך</translation>
@@ -531,7 +526,6 @@ Del</translation>
 <translation id="5329858601952122676">&amp;מחק</translation>
 <translation id="6710213216561001401">הקודם</translation>
 <translation id="5295309862264981122">אשר ניווט</translation>
-<translation id="1273291576878293349">פתח את כל הסימניות בחלון נסתר</translation>
 <translation id="1702534956030472451">מערב אירופאית</translation>
 <translation id="2175607476662778685">סרגל הפעלה מהירה</translation>
 <translation id="7511635910912978956">נותרו <ph name="NUMBER_FEW"/> שעות</translation>
@@ -618,7 +612,6 @@ Del</translation>
 <translation id="7887998671651498201">התוסף הבא אינו מגיב: <ph name="PLUGIN_NAME"/> האם תרצה להפסיקו?</translation>
 <translation id="4497415007571823067">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך במקום זאת הגעת לשרת שמציג עצמו כ-&lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. יתכן שהדבר נגרם בשל בעיית תצורה בשרת, או בשל בעיה רצינית יותר. גורם פוגע ברשת שלך עלול לנסות לגרום לך לבקר בגרסה מזויפת (ואולי אף מזיקה) של &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. מומלץ לא להמשיך.</translation>
 <translation id="5315873049536339193">זהות</translation>
-<translation id="987264212798334818">כללי</translation>
 <translation id="121827551500866099">הצג את כל ההורדות...</translation>
 <translation id="2342959293776168129">הסר את היסטוריית ההורדות</translation>
 <translation id="8112223930265703044">הכול</translation>
@@ -649,7 +642,6 @@ Del</translation>
 <translation id="2794293857160098038">אפשרויות חיפוש ברירת מחדל</translation>
 <translation id="4813345808229079766">התקשרות</translation>
 <translation id="8241707690549784388">הדף שאתה מחפש השתמש במידע שהזנת. החזרה לדף זה עלולה לגרום לכפילות בפעולות שביצעת. האם ברצונך להמשיך?</translation>
-<translation id="8832489506946784872">צפה &lt;a jsvalues=&quot;href:cacheUrl&quot;&gt;בעותק שמור של דף האינטרנט מ-Google&lt;/a&gt;</translation>
 <translation id="7965010376480416255">זיכרון משותף</translation>
 <translation id="7121570032414343252"><ph name="NUMBER_TWO"/> שניות</translation>
 <translation id="5645845270586517071">שגיאת אבטחה</translation>
@@ -664,6 +656,7 @@ Del</translation>
 <translation id="6833901631330113163">דרום אירופאית</translation>
 <translation id="1232569758102978740">ללא שם</translation>
 <translation id="6451650035642342749">הסר הגדרות לפתיחה אוטומטית</translation>
+<translation id="4002066346123236978">כותרת</translation>
 <translation id="5076340679995252485">&amp;הדבק</translation>
 <translation id="3157931365184549694">שחזר</translation>
 <translation id="3228279582454007836">מעולם לא ביקרת באתר זה קודם לכן.</translation>
