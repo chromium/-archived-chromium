@@ -188,10 +188,6 @@ bool webkit_glue::GetPreferredExtensionForMimeType(const std::string& mime_type,
   return !ext->empty();
 }
 
-IMLangFontLink2* webkit_glue::GetLangFontLink() {
-  return RenderProcess::GetLangFontLink();
-}
-
 std::string webkit_glue::GetDataResource(int resource_id) {
   return ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
 }

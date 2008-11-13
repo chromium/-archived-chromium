@@ -31,10 +31,6 @@
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
 
-#include "webkit/glue/glue_util.h"
-#include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webplugin.h"
-#include "googleurl/src/gurl.h"
 #include "net/base/mime_util.h"
 
 namespace WebCore

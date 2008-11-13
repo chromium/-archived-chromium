@@ -30,10 +30,16 @@
 #ifndef ChromiumBridge_h
 #define ChromiumBridge_h
 
+#include "config.h"
+
 #include "PasteboardPrivate.h"
 #include "PlatformString.h"
 
 class NativeImageSkia;
+
+#if PLATFORM(WIN_OS)
+typedef struct HFONT__* HFONT;
+#endif
 
 namespace WebCore {
     class Cursor;
@@ -63,6 +69,11 @@ namespace WebCore {
 
         // DNS ----------------------------------------------------------------
         static void prefetchDNS(const String& hostname);
+
+        // Font ---------------------------------------------------------------
+#if PLATFORM(WIN_OS)
+        static bool ensureFontLoaded(HFONT font);
+#endif
 
         // Language -----------------------------------------------------------
         static String computedDefaultLanguage();

@@ -153,11 +153,6 @@ bool GetMimeTypeFromFile(const std::wstring& file_path, std::string* mime_type);
 bool GetPreferredExtensionForMimeType(const std::string& mime_type,
                                       std::wstring* ext);
 
-#if defined(OS_WIN)
-// Returns the com object pointer for the FontLink interface
-IMLangFontLink2* GetLangFontLink();
-#endif
-
 // Sets a cookie string for the given URL.  The policy_url argument indicates
 // the URL of the topmost frame, which may be useful for determining whether or
 // not to allow this cookie setting.  NOTE: the cookie string is a standard

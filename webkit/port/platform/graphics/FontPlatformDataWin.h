@@ -52,8 +52,7 @@ public:
     // set everything to NULL.
     FontPlatformData(WTF::HashTableDeletedValueType);
     FontPlatformData();
-    FontPlatformData(HFONT hfont, float size,
-                     bool isMLangFont);
+    FontPlatformData(HFONT hfont, float size);
     FontPlatformData(float size, bool bold, bool oblique);
     FontPlatformData(const FontPlatformData& data);
 
@@ -87,9 +86,9 @@ private:
     // don't really want to re-create the HFONT.
     class RefCountedHFONT : public RefCounted<RefCountedHFONT> {
     public:
-        static PassRefPtr<RefCountedHFONT> create(HFONT hfont, bool isMLangFont)
+        static PassRefPtr<RefCountedHFONT> create(HFONT hfont)
         {
-            return adoptRef(new RefCountedHFONT(hfont, isMLangFont));
+            return adoptRef(new RefCountedHFONT(hfont));
         }
 
         ~RefCountedHFONT();
@@ -108,14 +107,11 @@ private:
     private:
         // The create() function assumes there is already a refcount of one 
         // so it can do adoptRef.
-        RefCountedHFONT(HFONT hfont, bool isMLangFont)
-            : m_hfont(hfont)
-            , m_isMLangFont(isMLangFont)
+        RefCountedHFONT(HFONT hfont) : m_hfont(hfont)
         {
         }
 
         HFONT m_hfont;
-        bool m_isMLangFont;
     };
 
     static RefCountedHFONT* hashTableDeletedFontValue();

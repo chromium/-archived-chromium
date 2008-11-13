@@ -26,6 +26,7 @@
 #include "config.h"
 #include <windows.h>
 
+#include "ChromiumBridge.h"
 #include "Font.h"
 #include "FontFallbackList.h"
 #include "GlyphBuffer.h"
@@ -35,7 +36,6 @@
 #include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/skia_utils.h"
 #include "graphics/SkiaUtils.h"
-#include "webkit/glue/webkit_glue.h"
 
 
 namespace WebCore {
@@ -112,7 +112,7 @@ void Font::drawGlyphs(GraphicsContext* graphicsContext,
 
             if (!success && executions == 0) {
                 // Ask the browser to load the font for us and retry.
-                webkit_glue::EnsureFontLoaded(font->platformData().hfont());
+                ChromiumBridge::ensureFontLoaded(font->platformData().hfont());
                 continue;
             }
             break;

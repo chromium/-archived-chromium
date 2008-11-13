@@ -196,6 +196,15 @@ void ChromiumBridge::prefetchDNS(const String& hostname) {
   webkit_glue::PrefetchDns(webkit_glue::StringToStdString(hostname));
 }
 
+// Font -----------------------------------------------------------------------
+
+#if defined(OS_WIN)
+bool ChromiumBridge::ensureFontLoaded(HFONT font) {
+  return webkit_glue::EnsureFontLoaded(font);
+}
+#endif
+
+
 // Language -------------------------------------------------------------------
 
 String ChromiumBridge::computedDefaultLanguage() {

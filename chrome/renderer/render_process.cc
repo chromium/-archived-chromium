@@ -24,7 +24,6 @@
 
 //-----------------------------------------------------------------------------
 
-IMLangFontLink2* RenderProcess::lang_font_link_ = NULL;
 bool RenderProcess::load_plugins_in_process_ = false;
 
 //-----------------------------------------------------------------------------
@@ -64,8 +63,6 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
     }
   }
 
-  InitializeLangFontLink();
-
   CommandLine command_line;
   if (command_line.HasSwitch(switches::kJavaScriptFlags)) {
     webkit_glue::SetJavaScriptFlags(
@@ -103,49 +100,6 @@ bool RenderProcess::GlobalInit(const std::wstring &channel_name) {
 // static
 void RenderProcess::GlobalCleanup() {
   ChildProcess::GlobalCleanup();
-  ReleaseLangFontLink();
-}
-
-// static
-void RenderProcess::InitializeLangFontLink() {
-  // TODO(hbono): http://b/1072298 Experimentally commented out this code to
-  // prevent registry leaks caused by this IMLangFontLink2 interface.
-  // If you find any font-rendering regressions. Please feel free to blame me.
-#ifdef USE_IMLANGFONTLINK2
-  IMultiLanguage* multi_language = NULL;
-  lang_font_link_ = NULL;
-  if (S_OK != CoCreateInstance(CLSID_CMultiLanguage,
-                               0,
-                               CLSCTX_ALL,
-                               IID_IMultiLanguage,
-                               reinterpret_cast<void**>(&multi_language))) {
-    DLOG(ERROR) << "Cannot CoCreate CMultiLanguage";
-  } else {
-    if (S_OK != multi_language->QueryInterface(IID_IMLangFontLink2,
-        reinterpret_cast<void**>(&lang_font_link_))) {
-      DLOG(ERROR) << "Cannot query LangFontLink2 interface";
-    }
-  }
-
-  if (multi_language)
-    multi_language->Release();
-#endif
-}
-
-// static
-void RenderProcess::ReleaseLangFontLink() {
-  // TODO(hbono): http://b/1072298 Experimentally commented out this code to
-  // prevent registry leaks caused by this IMLangFontLink2 interface.
-  // If you find any font-rendering regressions. Please feel free to blame me.
-#ifdef USE_IMLANGFONTLINK2
-  if (lang_font_link_)
-    lang_font_link_->Release();
-#endif
-}
-
-// static
-IMLangFontLink2* RenderProcess::GetLangFontLink() {
-  return lang_font_link_;
 }
 
 // static

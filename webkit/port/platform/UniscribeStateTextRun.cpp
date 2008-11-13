@@ -27,10 +27,9 @@
 
 #include "UniscribeStateTextRun.h"
 
+#include "ChromiumBridge.h"
 #include "Font.h"
 #include "SimpleFontData.h"
-
-#include "webkit/glue/webkit_glue.h"
 
 UniscribeStateTextRun::UniscribeStateTextRun(const WebCore::TextRun& run,
                                              const WebCore::Font& font)
@@ -71,7 +70,7 @@ void UniscribeStateTextRun::TryToPreloadFont(HFONT font) {
   // Ask the browser to get the font metrics for this font.
   // That will preload the font and it should now be accessible
   // from the renderer.
-  webkit_glue::EnsureFontLoaded(font);
+  WebCore::ChromiumBridge::ensureFontLoaded(font);
 }
 
 bool UniscribeStateTextRun::NextWinFontData(

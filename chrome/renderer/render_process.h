@@ -25,8 +25,6 @@ class RenderProcess : public ChildProcess {
   // Returns true if plugins should be loaded in-process.
   static bool ShouldLoadPluginsInProcess();
 
-  static IMLangFontLink2* GetLangFontLink();
-
   // Allocates shared memory.  When no longer needed, you should pass the
   // SharedMemory pointer to FreeSharedMemory so it can be recycled.  The size
   // reported in the resulting SharedMemory object will be greater than or
@@ -45,13 +43,6 @@ class RenderProcess : public ChildProcess {
   friend class ChildProcessFactory<RenderProcess>;
   RenderProcess(const std::wstring& channel_name);
   ~RenderProcess();
-
-  // Initializes the LangFontLink object. This function cannot be called
-  // while the process is restricted by the sandbox or it will fail.
-  static void InitializeLangFontLink();
-
-  // Releases the LangFontLink object if already created.
-  static void ReleaseLangFontLink();
 
   // Returns a pointer to the RenderProcess singleton instance.  This is
   // guaranteed to be non-NULL between calls to GlobalInit and GlobalCleanup.
@@ -89,8 +80,6 @@ class RenderProcess : public ChildProcess {
 
   // This factory is used to lazily invoke ClearSharedMemCache.
   ScopedRunnableMethodFactory<RenderProcess> clearer_factory_;
-
-  static IMLangFontLink2* lang_font_link_;
 
   static bool load_plugins_in_process_;
 

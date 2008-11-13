@@ -26,10 +26,10 @@
 #include "config.h"
 #include "ScrollbarThemeChromium.h"
 
+#include "ChromiumBridge.h"
 #include "PlatformMouseEvent.h"
 #include "Scrollbar.h"
 #include "ScrollbarThemeComposite.h"
-#include "webkit/glue/webkit_glue.h"
 
 // -----------------------------------------------------------------------------
 // This file contains scrollbar theme code that is cross platform. Additional
@@ -142,7 +142,7 @@ IntSize ScrollbarThemeChromium::buttonSize(Scrollbar* scrollbar)
     const int kLayoutTestModeGirth = 17;
 
     int thickness = scrollbarThickness();
-    int girth = webkit_glue::IsLayoutTestMode() ? kLayoutTestModeGirth : thickness;
+    int girth = ChromiumBridge::layoutTestMode() ? kLayoutTestModeGirth : thickness;
     if (scrollbar->orientation() == HorizontalScrollbar) {
         int width = scrollbar->width() < 2 * girth ? scrollbar->width() / 2 : girth;
         return IntSize(width, thickness);

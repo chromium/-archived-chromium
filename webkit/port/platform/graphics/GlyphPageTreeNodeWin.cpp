@@ -31,13 +31,13 @@
 #include <windows.h>
 #include <vector>
 
+#include "ChromiumBridge.h"
 #include "Font.h"
 #include "GlyphPageTreeNode.h"
 #include "SimpleFontData.h"
 #include "UniscribeStateTextRun.h"
 
 #include "base/win_util.h"
-#include "webkit/glue/webkit_glue.h"
 
 namespace WebCore
 {
@@ -76,7 +76,7 @@ static bool FillBMPGlyphs(UChar* buffer,
       ReleaseDC(0, dc);
 
       if (recurse) {
-        if (webkit_glue::EnsureFontLoaded(fontData->m_font.hfont())) {
+        if (ChromiumBridge::ensureFontLoaded(fontData->m_font.hfont())) {
           return FillBMPGlyphs(buffer, page, fontData, false);
         } else {
           FillEmptyGlyphs(page);

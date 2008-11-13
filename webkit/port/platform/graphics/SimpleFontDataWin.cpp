@@ -27,6 +27,7 @@
  */
 
 #include "config.h"
+#include "ChromiumBridge.h"
 #include "Font.h"
 #include "FontCache.h"
 #include "SimpleFontData.h"
@@ -37,8 +38,6 @@
 #include <unicode/unorm.h>
 #include <objidl.h>
 #include <mlang.h>
-
-#include "webkit/glue/webkit_glue.h"
 
 namespace WebCore {
 
@@ -54,7 +53,7 @@ void SimpleFontData::platformInit()
 
     TEXTMETRIC tm = {0};
     if (!GetTextMetrics(dc, &tm)) {
-        if (webkit_glue::EnsureFontLoaded(m_font.hfont())) {
+        if (ChromiumBridge::ensureFontLoaded(m_font.hfont())) {
             // Retry GetTextMetrics.
             // TODO(nsylvain): Handle gracefully the error if this call also
             // fails.
@@ -107,42 +106,16 @@ SimpleFontData* SimpleFontData::smallCapsFontData(const FontDescription& fontDes
         winfont.lfHeight = -lroundf(smallCapsSize);
         HFONT hfont = CreateFontIndirect(&winfont);
         m_smallCapsFontData =
-            new SimpleFontData(FontPlatformData(hfont, smallCapsSize,
-                                                false));
+            new SimpleFontData(FontPlatformData(hfont, smallCapsSize));
     }
     return m_smallCapsFontData;
 }
 
 bool SimpleFontData::containsCharacters(const UChar* characters, int length) const
 {
-    // FIXME: Microsoft documentation seems to imply that characters can be output using a given font and DC
-    // merely by testing code page intersection.  This seems suspect though.  Can't a font only partially
-    // cover a given code page?
-    IMLangFontLink2* langFontLink = webkit_glue::GetLangFontLink();
-    if (!langFontLink)
-        return false;
-
-    HDC dc = GetDC((HWND)0);
-    
-    DWORD acpCodePages;
-    langFontLink->CodePageToCodePages(CP_ACP, &acpCodePages);
-
-    DWORD fontCodePages;
-    langFontLink->GetFontCodePages(dc, m_font.hfont(), &fontCodePages);
-
-    DWORD actualCodePages;
-    long numCharactersProcessed;
-    long offset = 0;
-    while (offset < length) {
-        langFontLink->GetStrCodePages(characters, length, acpCodePages, &actualCodePages, &numCharactersProcessed);
-        if ((actualCodePages & fontCodePages) == 0)
-            return false;
-        offset += numCharactersProcessed;
-    }
-
-    ReleaseDC(0, dc);
-
-    return true;
+  // This used to be implemented with IMLangFontLink2, but since that code has
+  // been disabled, this would always return false anyway.
+  return false;
 }
 
 void SimpleFontData::determinePitch()
@@ -155,7 +128,7 @@ void SimpleFontData::determinePitch()
     // is *not* fixed pitch.  Unbelievable but true.
     TEXTMETRIC tm = {0};
     if (!GetTextMetrics(dc, &tm)) {
-        if (webkit_glue::EnsureFontLoaded(m_font.hfont())) {
+        if (ChromiumBridge::ensureFontLoaded(m_font.hfont())) {
             // Retry GetTextMetrics.
             // TODO(nsylvain): Handle gracefully the error if this call also fails.
             // See bug 1136944.
@@ -179,7 +152,7 @@ float SimpleFontData::platformWidthForGlyph(Glyph glyph) const
     int width = 0;
     if (!GetCharWidthI(dc, glyph, 1, 0, &width)) {
         // Ask the browser to preload the font and retry.
-        if (webkit_glue::EnsureFontLoaded(m_font.hfont())) {
+        if (ChromiumBridge::ensureFontLoaded(m_font.hfont())) {
             if (!GetCharWidthI(dc, glyph, 1, 0, &width)) {
                 ASSERT_NOT_REACHED();
             }

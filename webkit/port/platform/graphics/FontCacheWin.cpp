@@ -43,7 +43,6 @@
 #include "base/gfx/font_utils.h"
 #include "base/singleton.h"
 #include "unicode/uniset.h"
-#include "webkit/glue/webkit_glue.h"
 
 using std::min;
 
@@ -301,7 +300,7 @@ static bool fontContainsCharacter(const FontPlatformData* font_data,
     HGDIOBJ oldFont = static_cast<HFONT>(SelectObject(hdc, hfont));
     int count = GetFontUnicodeRanges(hdc, 0);
     if (count == 0) {
-        if (webkit_glue::EnsureFontLoaded(hfont)) 
+        if (ChromiumBridge::ensureFontLoaded(hfont)) 
             count = GetFontUnicodeRanges(hdc, 0);
     }
     if (count == 0) {
@@ -340,13 +339,6 @@ static bool fontContainsCharacter(const FontPlatformData* font_data,
 
 // Given the desired base font, this will create a SimpleFontData for a specific
 // font that can be used to render the given range of characters.
-// Two methods are used : our own getFallbackFamily and Windows' font linking.
-// IMLangFontLink will give us a range of characters, and may not find a font
-// that matches all the input characters. However, normally, we will only get
-// called with one input character because this is used to find a glyph for
-// a missing one. If we are called for a range, I *believe* that it will be
-// used to populate the glyph cache only, meaning we will be called again for
-// the next missing glyph.
 const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
                                                     const UChar* characters,
                                                     int length)
@@ -432,52 +424,8 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
     if (i < numFonts) // we found the font that covers this character !
        return getCachedFontData(data);
 
-    // IMLangFontLink can break up a string into regions that can be rendered
-    // using one particular font.
-    // See http://blogs.msdn.com/oldnewthing/archive/2004/07/16/185261.aspx
-    IMLangFontLink2* langFontLink = webkit_glue::GetLangFontLink();
-    if (!langFontLink)
-        return 0;
+    return NULL;
 
-    SimpleFontData* fontData = 0;
-    HDC hdc = GetDC(0);
-    HFONT primaryFont = font.primaryFont()->
-        fontDataForCharacter(characters[0])->m_font.hfont();
-
-    // Get the code pages supported by the requested font.
-    DWORD acpCodePages;
-    langFontLink->CodePageToCodePages(CP_ACP, &acpCodePages);
-
-    // Get the code pages required by the given string, passing in the font's
-    // code pages as the ones to give "priority". Priority code pages will be
-    // used if there are multiple code pages that can represent the characters
-    // in question, and of course, we want to use a page supported by the
-    // primary font if possible.
-    DWORD actualCodePages;
-    long cchActual;
-    if (FAILED(langFontLink->GetStrCodePages(characters, length, acpCodePages,
-                                             &actualCodePages, &cchActual)))
-        cchActual = 0;
-
-    if (cchActual) {
-        // GetStrCodePages has found a sequence of characters that can be
-        // represented in one font. MapFont will create this mystical font.
-        HFONT result;
-        // FIXME(jungshik) To make MapFont inherit the properties from 
-        // the current font, the current font needs to be selected into DC. 
-        // However, that leads to a failure in intl page cycler, 
-        // a slow rendering and issue 735750. We need to implement a 
-        // real font fallback at a higher level (issue 698618)
-        if (langFontLink->MapFont(hdc, actualCodePages, characters[0], &result) == S_OK) {
-            // This font will have to be deleted using the IMLangFontLink2
-            // rather than the normal way.
-            FontPlatformData platformData(result, 0, true);
-            fontData = getCachedFontData(&platformData);
-        }
-    }
-
-    ReleaseDC(0, hdc);
-    return fontData;
 }
 
 const AtomicString& FontCache::alternateFamilyName(const AtomicString& familyName)
@@ -530,7 +478,7 @@ FontPlatformData* FontCache::getLastResortFallbackFont(
 {
     FontDescription::GenericFamilyType generic = description.genericFamily();
     // TODO(jungshik): Mapping webkit generic to gfx::GenericFamilyType needs to be
-    // more intelligent and the mapping function should be added to webkit_glue. 
+    // more intelligent. 
     // This spot rarely gets reached. GetFontDataForCharacters() gets hit a lot
     // more often (see TODO comment there). 
     const wchar_t* family = gfx::GetFontFamilyForScript(description.dominantScript(),
@@ -704,8 +652,7 @@ FontPlatformData* FontCache::createFontPlatformData(const FontDescription& fontD
     }
 
     return new FontPlatformData(hfont,
-                                fontDescription.computedPixelSize(),
-                                false);
+                                fontDescription.computedPixelSize());
 }
 
 }

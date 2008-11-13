@@ -28,8 +28,7 @@
 #include <objidl.h>
 #include <mlang.h>
 
-#undef LOG
-#include "webkit/glue/webkit_glue.h"
+#include "ChromiumBridge.h"
 
 namespace WebCore {
 
@@ -49,9 +48,8 @@ FontPlatformData::FontPlatformData()
 {
 }
 
-FontPlatformData::FontPlatformData(HFONT font, float size,
-                                   bool isMLangFont)
-    : m_font(RefCountedHFONT::create(font, isMLangFont))
+FontPlatformData::FontPlatformData(HFONT font, float size)
+    : m_font(RefCountedHFONT::create(font))
     , m_size(size)
     , m_scriptCache(0)
     , m_scriptFontProperties(0)
@@ -105,20 +103,14 @@ FontPlatformData::~FontPlatformData()
 FontPlatformData::RefCountedHFONT::~RefCountedHFONT()
 {
     if (m_hfont != reinterpret_cast<HFONT>(-1)) {
-        if (m_isMLangFont) {
-            IMLangFontLink2* langFontLink = webkit_glue::GetLangFontLink();
-            if (langFontLink)
-                langFontLink->ReleaseFont(m_hfont);
-        } else {
-            DeleteObject(m_hfont);
-        }
+        DeleteObject(m_hfont);
     }
 }
 
 FontPlatformData::RefCountedHFONT* FontPlatformData::hashTableDeletedFontValue()
 {
     static RefPtr<RefCountedHFONT> deletedValue =
-        RefCountedHFONT::create(reinterpret_cast<HFONT>(-1), false);
+        RefCountedHFONT::create(reinterpret_cast<HFONT>(-1));
     return deletedValue.get();
 }
 
@@ -136,7 +128,7 @@ SCRIPT_FONTPROPERTIES* FontPlatformData::scriptFontProperties() const
             HRESULT hr = ScriptGetFontProperties(dc, scriptCache(),
                                                  m_scriptFontProperties);
             if (S_OK != hr) {
-                if (webkit_glue::EnsureFontLoaded(hfont())) {
+                if (ChromiumBridge::ensureFontLoaded(hfont())) {
                     // Retry ScriptGetFontProperties.
                     // TODO(nsylvain): Handle gracefully the error if this call
                     // also fails. See bug 1136944.
