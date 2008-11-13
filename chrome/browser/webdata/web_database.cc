@@ -1141,7 +1141,7 @@ bool WebDatabase::RemoveFormElementsAddedBetween(const Time delete_begin,
   for (std::vector<int64>::iterator itr = pair_ids.begin();
        itr != pair_ids.end();
        itr++) {
-    int how_many=0;
+    int how_many = 0;
     if (!RemovePairIDAndDate(*itr, delete_begin, delete_end, &how_many))
       return false;
     if (!AddToCountOfFormElement(*itr, -how_many))
@@ -1175,12 +1175,14 @@ bool WebDatabase::RemovePairIDAndDate(int64 pair_id, const Time delete_begin,
 
 bool WebDatabase::AddToCountOfFormElement(int64 pair_id, int delta) {
   int count=0;
-  if (count+delta == 0 &&
-      !RemoveFormElement(pair_id)) {
+
+  if (!GetCountOfFormElement(pair_id, &count))
     return false;
-  } else {
-    if (!GetCountOfFormElement(pair_id, &count))
+
+  if (count + delta == 0) {
+    if (!RemoveFormElement(pair_id))
       return false;
+  } else {
     if (!SetCountOfFormElement(pair_id, count + delta))
       return false;
   }
