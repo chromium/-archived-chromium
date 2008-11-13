@@ -1,0 +1,151 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderTable {TABLE} at (0,0) size 479x209
+        RenderTableSection {TBODY} at (0,0) size 479x209
+          RenderTableRow {TR} at (0,2) size 479x21
+            RenderTableCell {TD} at (2,2) size 43x21 [r=0 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,5) size 96x15 [color=#808080] [r=0 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 21x13
+                text run at (60,1) width 21: "123"
+            RenderTableCell {TD} at (145,5) size 332x15 [r=0 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 330x13
+                text run at (1,1) width 330: "set value attribute that violates maxlength (with pasted value)"
+          RenderTableRow {TR} at (0,25) size 479x21
+            RenderTableCell {TD} at (2,25) size 43x21 [r=1 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,28) size 96x15 [color=#808080] [r=1 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 28x13
+                text run at (60,1) width 28: "1234"
+            RenderTableCell {TD} at (145,28) size 332x15 [r=1 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 330x13
+                text run at (1,1) width 330: "set value property that violates maxlength (with pasted value)"
+          RenderTableRow {TR} at (0,48) size 479x21
+            RenderTableCell {TD} at (2,48) size 43x21 [r=2 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,51) size 96x15 [color=#808080] [r=2 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 28x13
+                text run at (60,1) width 28: "1234"
+            RenderTableCell {TD} at (145,51) size 332x15 [r=2 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 302x13
+                text run at (1,1) width 302: "set maxlength attribute that is smaller than pasted value"
+          RenderTableRow {TR} at (0,71) size 479x21
+            RenderTableCell {TD} at (2,71) size 43x21 [r=3 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,74) size 96x15 [color=#808080] [r=3 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 28x13
+                text run at (60,1) width 28: "1234"
+            RenderTableCell {TD} at (145,74) size 332x15 [r=3 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 304x13
+                text run at (1,1) width 304: "set maxLength property that is smaller than pasted value"
+          RenderTableRow {TR} at (0,94) size 479x21
+            RenderTableCell {TD} at (2,94) size 43x21 [r=4 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,97) size 96x15 [color=#808080] [r=4 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 21x13
+                text run at (60,1) width 21: "123"
+            RenderTableCell {TD} at (145,97) size 332x15 [r=4 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 330x13
+                text run at (1,1) width 330: "set value attribute that violates maxlength (with pasted value)"
+          RenderTableRow {TR} at (0,117) size 479x21
+            RenderTableCell {TD} at (2,117) size 43x21 [r=5 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,120) size 96x15 [color=#808080] [r=5 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 28x13
+                text run at (60,1) width 28: "12x\x{305}\x{332}4"
+            RenderTableCell {TD} at (145,120) size 332x15 [r=5 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 330x13
+                text run at (1,1) width 330: "set value property that violates maxlength (with pasted value)"
+          RenderTableRow {TR} at (0,140) size 479x21
+            RenderTableCell {TD} at (2,140) size 43x21 [r=6 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,143) size 96x15 [color=#808080] [r=6 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 28x13
+                text run at (60,1) width 28: "12x\x{305}\x{332}4"
+            RenderTableCell {TD} at (145,143) size 332x15 [r=6 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 302x13
+                text run at (1,1) width 302: "set maxlength attribute that is smaller than pasted value"
+          RenderTableRow {TR} at (0,163) size 479x21
+            RenderTableCell {TD} at (2,163) size 43x21 [r=7 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,166) size 96x15 [color=#808080] [r=7 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 28x13
+                text run at (60,1) width 28: "12x\x{305}\x{332}4"
+            RenderTableCell {TD} at (145,166) size 332x15 [r=7 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 304x13
+                text run at (1,1) width 304: "set maxLength property that is smaller than pasted value"
+          RenderTableRow {TR} at (0,186) size 479x21
+            RenderTableCell {TD} at (2,186) size 43x21 [r=8 c=0 rs=1 cs=1]
+              RenderTextControl {INPUT} at (1,1) size 41x19 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+            RenderTableCell {TD} at (47,189) size 96x15 [color=#808080] [r=8 c=1 rs=1 cs=1]
+              RenderInline (generated) at (0,0) size 56x13
+                RenderText at (4,1) size 56x13
+                  text run at (4,1) width 56: "expected: "
+              RenderText {#text} at (60,1) size 28x13
+                text run at (60,1) width 28: "12x\x{305}\x{332}4"
+            RenderTableCell {TD} at (145,189) size 332x15 [r=8 c=2 rs=1 cs=1]
+              RenderText {#text} at (1,1) size 119x13
+                text run at (1,1) width 119: "pasting too much text"
+layer at (13,14) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 21x13
+      text run at (1,0) width 21: "123"
+layer at (13,37) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 28x13
+      text run at (1,0) width 28: "1234"
+layer at (13,60) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 28x13
+      text run at (1,0) width 28: "1234"
+layer at (13,83) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 28x13
+      text run at (1,0) width 28: "1234"
+layer at (13,106) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 21x13
+      text run at (1,0) width 21: "123"
+layer at (13,129) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 28x13
+      text run at (1,0) width 28: "12x\x{305}\x{332}4"
+layer at (13,152) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 28x13
+      text run at (1,0) width 28: "12x\x{305}\x{332}4"
+layer at (13,175) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 28x13
+      text run at (1,0) width 28: "12x\x{305}\x{332}4"
+layer at (13,198) size 37x13
+  RenderBlock {DIV} at (2,3) size 37x13
+    RenderText {#text} at (1,0) size 28x13
+      text run at (1,0) width 28: "12x\x{305}\x{332}4"

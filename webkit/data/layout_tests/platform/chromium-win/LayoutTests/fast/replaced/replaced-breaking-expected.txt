@@ -1,0 +1,68 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderBlock {DIV} at (0,0) size 32x510 [border: (1px solid #FF0000)]
+        RenderTextControl {INPUT} at (1,1) size 110x20 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+        RenderTextControl {INPUT} at (1,21) size 110x20 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
+        RenderText {#text} at (0,0) size 0x0
+        RenderImage {IMG} at (1,41) size 27x27 [border: (1px solid #000000)]
+        RenderImage {IMG} at (1,68) size 27x27 [border: (1px solid #000000)]
+        RenderText {#text} at (0,0) size 0x0
+        RenderButton {INPUT} at (1,95) size 46x20 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
+          RenderBlock (anonymous) at (8,2) size 30x16
+            RenderText at (3,1) size 24x14
+              text run at (3,1) width 24: "input"
+        RenderButton {INPUT} at (1,115) size 46x20 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
+          RenderBlock (anonymous) at (8,2) size 30x16
+            RenderText at (3,1) size 24x14
+              text run at (3,1) width 24: "input"
+        RenderText {#text} at (0,0) size 0x0
+        RenderButton {BUTTON} at (1,135) size 52x20 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
+          RenderBlock (anonymous) at (8,2) size 36x16
+            RenderText {#text} at (3,1) size 30x14
+              text run at (3,1) width 30: "button"
+        RenderButton {BUTTON} at (1,155) size 52x20 [bgcolor=#C0C0C0] [border: (2px outset #C0C0C0)]
+          RenderBlock (anonymous) at (8,2) size 36x16
+            RenderText {#text} at (3,1) size 30x14
+              text run at (3,1) width 30: "button"
+        RenderText {#text} at (0,0) size 0x0
+        RenderMenuList {SELECT} at (1,175) size 60x18 [bgcolor=#FFFFFF]
+          RenderBlock (anonymous) at (0,0) size 60x19
+            RenderText at (8,2) size 29x14
+              text run at (8,2) width 29: "select"
+        RenderMenuList {SELECT} at (1,193) size 60x18 [bgcolor=#FFFFFF]
+          RenderBlock (anonymous) at (0,0) size 60x19
+            RenderText at (8,2) size 29x14
+              text run at (8,2) width 29: "select"
+        RenderText {#text} at (0,0) size 0x0
+        RenderListBox {SELECT} at (1,211) size 43x61 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
+        RenderListBox {SELECT} at (1,272) size 43x61 [bgcolor=#FFFFFF] [border: (1px inset #808080)]
+        RenderText {#text} at (0,0) size 0x0
+        RenderBlock {INPUT} at (5,336) size 12x12
+        RenderBlock {INPUT} at (5,354) size 12x12
+        RenderText {#text} at (0,0) size 0x0
+        RenderBlock {INPUT} at (6,372) size 12x13
+        RenderBlock {INPUT} at (6,388) size 12x13
+        RenderText {#text} at (0,0) size 0x0
+        RenderPartObject {IFRAME} at (1,401) size 27x27 [border: (1px solid #000000)]
+          layer at (0,0) size 25x25
+            RenderView at (0,0) size 25x25
+          layer at (0,0) size 25x25
+            RenderBlock {HTML} at (0,0) size 25x25
+              RenderBody {BODY} at (8,8) size 9x9
+        RenderPartObject {IFRAME} at (1,428) size 27x27 [border: (1px solid #000000)]
+          layer at (0,0) size 25x25
+            RenderView at (0,0) size 25x25
+          layer at (0,0) size 25x25
+            RenderBlock {HTML} at (0,0) size 25x25
+              RenderBody {BODY} at (8,8) size 9x9
+        RenderText {#text} at (0,0) size 0x0
+        RenderPartObject {EMBED} at (1,455) size 27x27 [border: (1px solid #000000)]
+        RenderPartObject {EMBED} at (1,482) size 27x27 [border: (1px solid #000000)]
+        RenderText {#text} at (0,0) size 0x0
+layer at (11,12) size 106x14
+  RenderBlock {DIV} at (2,3) size 106x14
+layer at (11,32) size 106x14
+  RenderBlock {DIV} at (2,3) size 106x14

@@ -1,0 +1,4 @@
+CONSOLE MESSAGE: line 6: Uncaught SyntaxError: Invalid left-hand side expression in postfix operation
+FAIL successfullyParsed should be true. Threw exception ReferenceError: successfullyParsed is not defined
+
+TEST COMPLETE

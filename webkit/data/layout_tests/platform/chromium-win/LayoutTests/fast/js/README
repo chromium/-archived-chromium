@@ -1,0 +1,111 @@
+This file documents why the various tests have been rebaselined.
+
+array-every.html
+--------------------------
+V8 has a more informative type error message when a non-function is
+passed to Array.prototype.every.
+
+array-foreach.html
+--------------------------
+V8 has a more informative type error message when a non-function is
+passed to Array.prototype.foreach.
+
+array-some.html
+--------------------------
+V8 has a more informative type error message when a non-function is
+passed to Array.prototype.some.
+
+assign.html
+object-extra-comma.html
+property-getters-and-setters.html
+regexp-range-out-of-order.html
+regexp-no-extensions.html
+array-functions-non-arrays.html
+--------------------------
+Only error messages are different.
+
+deep-recursion.html
+--------------------------
+It takes more than 1000 recursive calls to get a stack overflow in V8.
+
+function-decompilation-operators.html
+function-prototype.html
+function-names.html
+--------------------------
+Output format of an empty function is different.
+
+toString-and-valueOf-override-diff-win.txt
+--------------------------
+This test differs only in text.  V8 typeerror messages are slightly
+different, and the global object is of type global instead of 'DOMWindow'
+
+kde\crash-2-expected.txt
+--------------------------
+V8 prints "Stack overflow" to console.
+
+cyclic-prototypes-expected.txt
+--------------------------
+Exception text is different in v8
+
+prefix-syntax.html
+postfix-syntax.html
+--------------------------
+V8 throws syntax errors at parse time whereas KJS throws reference
+errors at runtime for invalid pre- and postfix syntax.
+
+regexp-caching.html
+--------------------------
+The KJS behavior is a bug, http://bugs.webkit.org/show_bug.cgi?id=16514
+
+regexp-compile.html
+--------------------------
+We print the empty regexp differently (KJS: //, V8: /(?:)/), see
+http://bugzilla.mozilla.org/show_bug.cgi?id=225550
+
+modify-non-reference.html
+--------------------------
+Only printing of functions and error messages differ.
+
+toString-stack-overflow.html
+--------------------------
+KJS has an extra period "." after the error message.  V8 does not.
+
+recursion-limit-equal.html
+regexp-compile-crash.html
+regexp-charclass-crash.html
+--------------------------
+Only difference is error message written to the console.
+
+number-toString
+--------------------------
+We generate rather big representation in radices different from 10.  
+So does KJS.  The difference is the arbitrary number of digits 
+generated (we generate a bit more than KJS).  Also, KJS has an arbitrary 
+delta that they check for during conversion - this sometimes allow them 
+to generate a shorter representation (however, it is still the wrong 
+solution).  We are no worse than KJS.
+
+number-to-precision
+number-to-fixed
+--------------------------
+We trust dtoa to give us the right decimal representation of 
+floating-point numbers.  KJS apparently does something else.
+Our behavior is consistent with Firefox (and is what the test
+expects).
+
+number-to-exponential
+--------------------------
+We trust dtoa to give us the right decimal representation of 
+floating-point numbers.  KJS apparently does something else.
+Our behavior is consistent with Firefox (and is what the test
+expects).  In addition, KJS has an inconsistent error message
+for out of range arguments to toExponential.
+
+function-toString-object-literals
+--------------------------
+Only difference is the parse error message.
+
+regexp-overflow
+--------------------------
+This tests artificial limits on the size of regexps.  We allow
+simple regexps to be larger than what jsc allows
