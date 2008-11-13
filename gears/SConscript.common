@@ -47,11 +47,7 @@ env = env_inputs
 common_targets = {}
 
 def PatternRule(t, s): return utils.PatternRule(t, s, env)
-
-def GetInputs(var):
-  """Expands an env substitution variable and returns it as a list of
-  strings."""
-  return [str(v) for v in env.subst_list(var)[0]]
+def GetInputs(var): return utils.GetInputs(var, env)
 
 # genfiles/%: %.m4
 common_targets['m4'] = \

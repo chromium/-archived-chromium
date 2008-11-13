@@ -5,6 +5,7 @@
 import os
 import re
 import subprocess
+import utils
 
 Import('env')
 
@@ -23,24 +24,7 @@ env = env.Clone(
     BASE_OUTDIR = env.Entry('$BASE_OUTDIR').path,
 )
 
-ff3_resources = [
-    '$FF3_OUTDIR/genfiles/browser-overlay.js',
-    '$FF3_OUTDIR/genfiles/browser-overlay.xul',
-    '$FF3_OUTDIR/genfiles/permissions_dialog.html',
-    '$FF3_OUTDIR/genfiles/settings_dialog.html',
-    '$FF3_OUTDIR/genfiles/shortcuts_dialog.html',
-]
-
-common_resources = [
-    '$OPEN_DIR/ui/common/blank.gif',
-    '$OPEN_DIR/ui/common/button_bg.gif',
-    '$OPEN_DIR/ui/common/button_corner_black.gif',
-    '$OPEN_DIR/ui/common/button_corner_blue.gif',
-    '$OPEN_DIR/ui/common/button_corner_grey.gif',
-    '$OPEN_DIR/ui/common/icon_32x32.png',
-    '$OPEN_DIR/ui/common/local_data.png',
-    '$OPEN_DIR/ui/common/location_data.png',
-]
+def GetInputs(var): return utils.GetInputs(var, env)
 
 def Shell(cmd):
   """Execute a shell command and return the output."""
@@ -172,7 +156,8 @@ def FirefoxInstaller(env):
       ('/', ['$FF3_OUTDIR/genfiles/install.rdf',
              '$FF3_OUTDIR/genfiles/chrome.manifest']),
       ('lib/', ['$OPEN_DIR/base/firefox/static_files/lib/updater.js']),
-      ('chrome/chromeFiles/content/', ff3_resources + common_resources),
+      ('chrome/chromeFiles/content/',
+          GetInputs('$FF3_RESOURCES $COMMON_RESOURCES')),
       ('chrome/chromeFiles/locale', ['$FF3_OUTDIR/genfiles/i18n']),
       ('components/',
           ['$FF3_OUTDIR/gears.xpt',

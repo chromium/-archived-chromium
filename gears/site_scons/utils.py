@@ -7,3 +7,8 @@ def PatternRule(target, source, env):
   containing the new target and source to pass to a builder."""
   target_sub = env.subst(target, source=env.File(source))
   return [target_sub, source]
+
+def GetInputs(var, env):
+  """Expands an env substitution variable and returns it as a list of
+  strings."""
+  return [str(v) for v in env.subst_list(var)[0]]

@@ -956,6 +956,25 @@ if env_res and env['OS'] in ['win32', 'wince']:
       env['STRING_RES'] = env_res.RES('$GENFILES_DIR/string_table.rc')
       env.Append(IE_LINKSRCS = ['$MODULE_RES', '$STRING_RES'])
 
+env.Append(FF3_RESOURCES = [
+    '$FF3_OUTDIR/genfiles/browser-overlay.js',
+    '$FF3_OUTDIR/genfiles/browser-overlay.xul',
+    '$FF3_OUTDIR/genfiles/permissions_dialog.html',
+    '$FF3_OUTDIR/genfiles/settings_dialog.html',
+    '$FF3_OUTDIR/genfiles/shortcuts_dialog.html',
+])
+
+env.Append(COMMON_RESOURCES = [
+    '$OPEN_DIR/ui/common/blank.gif',
+    '$OPEN_DIR/ui/common/button_bg.gif',
+    '$OPEN_DIR/ui/common/button_corner_black.gif',
+    '$OPEN_DIR/ui/common/button_corner_blue.gif',
+    '$OPEN_DIR/ui/common/button_corner_grey.gif',
+    '$OPEN_DIR/ui/common/icon_32x32.png',
+    '$OPEN_DIR/ui/common/local_data.png',
+    '$OPEN_DIR/ui/common/location_data.png',
+])
+
 #-----------------------------------------------------------------------------
 # libs
 

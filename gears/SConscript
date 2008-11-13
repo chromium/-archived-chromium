@@ -717,18 +717,10 @@ sconscripts = [
     'SConscript.libmozjs',
     'SConscript.sqlite',
     'SConscript.zlib',
+    'SConscript.libbreakpad_osx',
+    'SConscript.libgd',
+    'SConscript.portaudio',
 ]
-
-if env['OS']  == 'osx':
-  sconscripts += [
-      'SConscript.libbreakpad_osx',
-  ]
-
-if env['OS']  != 'osx':
-  sconscripts += [
-      'SConscript.libgd',
-      'SConscript.portaudio',
-  ]
 
 for each in sconscripts:
   env.SConscript(each,
