@@ -368,6 +368,12 @@ class MenuItemView : public View {
   // doesn't have a mnemonic.
   wchar_t GetMnemonic();
 
+  // Do we have icons? This only has effect on the top menu. Turning this on
+  // makes the menus slightly wider and taller.
+  void set_has_icons(bool has_icons) {
+    has_icons_ = has_icons;
+  }
+
  protected:
   // Creates a MenuItemView. This is used by the various AddXXX methods.
   MenuItemView(MenuItemView* parent, int command, Type type);
@@ -419,6 +425,10 @@ class MenuItemView : public View {
   // the windows used to display all descendants.
   void DestroyAllMenuHosts();
 
+  // Returns the various margins.
+  int GetTopMargin();
+  int GetBottomMargin();
+
   // The delegate. This is only valid for the root menu item. You shouldn't
   // use this directly, instead use GetDelegate() which walks the tree as
   // as necessary.
@@ -458,6 +468,8 @@ class MenuItemView : public View {
 
   // Does the title have a mnemonic?
   bool has_mnemonics_;
+
+  bool has_icons_;
 
   DISALLOW_EVIL_CONSTRUCTORS(MenuItemView);
 };

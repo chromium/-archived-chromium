@@ -364,6 +364,7 @@ class MenuRunner : public views::MenuDelegate,
         menu_(this) {
     int next_menu_id = 1;
     menu_id_to_node_map_[menu_.GetCommand()] = node;
+    menu_.set_has_icons(true);
     BuildMenu(node, start_child_index, &menu_, &next_menu_id);
   }
 

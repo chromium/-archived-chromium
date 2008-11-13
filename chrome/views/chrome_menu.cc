@@ -38,6 +38,10 @@ static const int kItemTopMargin = 3;
 // Margins between the bottom of the item and the label.
 static const int kItemBottomMargin = 4;
 
+// Margins used if the menu doesn't have icons.
+static const int kItemNoIconTopMargin = 1;
+static const int kItemNoIconBottomMargin = 3;
+
 // Margins between the left of the item and the icon.
 static const int kItemLeftMargin = 4;
 
@@ -117,10 +121,22 @@ using gfx::NativeTheme;
 
 namespace views {
 
+namespace {
+
+// Returns the font menus are to use.
+ChromeFont GetMenuFont() {
+	NONCLIENTMETRICS metrics;
+  win_util::GetNonClientMetrics(&metrics);
+
+  HFONT font = CreateFontIndirect(&metrics.lfMenuFont);
+  DLOG_ASSERT(font);
+  return ChromeFont::CreateFont(font);
+}
+
 // Calculates all sizes that we can from the OS.
 //
 // This is invoked prior to Running a menu.
-void UpdateMenuPartSizes() {
+void UpdateMenuPartSizes(bool has_icons) {
   HDC dc = GetDC(NULL);
   RECT bounds = { 0, 0, 200, 200 };
   SIZE check_size;
@@ -168,7 +184,13 @@ void UpdateMenuPartSizes() {
 
   item_right_margin = kLabelToArrowPadding + arrow_width + kArrowToEdgePadding;
 
-  label_start = kItemLeftMargin + check_width + kIconToLabelPadding;
+  if (has_icons) {
+    label_start = kItemLeftMargin + check_width + kIconToLabelPadding;
+  } else {
+    // If there are no icons don't pad by the icon to label padding. This
+    // makes us look close to system menus.
+    label_start = kItemLeftMargin + check_width;
+  }
   if (render_gutter)
     label_start += gutter_width + kGutterToLabel;
 
@@ -178,8 +200,6 @@ void UpdateMenuPartSizes() {
   menu_item.SetTitle(L"blah");  // Text doesn't matter here.
   pref_menu_height = menu_item.GetPreferredSize().height();
 }
-
-namespace {
 
 // Convenience for scrolling the view such that the origin is visible.
 static void ScrollToVisible(View* view) {
@@ -1167,9 +1187,10 @@ void MenuItemView::Paint(ChromeCanvas* canvas) {
 }
 
 gfx::Size MenuItemView::GetPreferredSize() {
+  ChromeFont& font = GetRootMenuItem()->font_;
   return gfx::Size(
-      font_.GetStringWidth(title_) + label_start + item_right_margin,
-      font_.height() + kItemBottomMargin + kItemTopMargin);
+      font.GetStringWidth(title_) + label_start + item_right_margin,
+      font.height() + GetBottomMargin() + GetTopMargin());
 }
 
 MenuController* MenuItemView::GetMenuController() {
@@ -1229,6 +1250,7 @@ void MenuItemView::Init(MenuItemView* parent,
   submenu_ = NULL;
   // Assign our ID, this allows SubmenuItemView to find MenuItemViews.
   SetID(kMenuItemViewID);
+  has_icons_ = false;
 
   MenuDelegate* root_delegate = GetDelegate();
   if (root_delegate)
@@ -1307,7 +1329,9 @@ void MenuItemView::PrepareForRun(bool has_mnemonics) {
 
   AddEmptyMenus();
 
-  UpdateMenuPartSizes();
+  UpdateMenuPartSizes(has_icons_);
+
+  font_ = GetMenuFont();
 
   BOOL show_cues;
   show_mnemonics =
@@ -1394,8 +1418,10 @@ void MenuItemView::Paint(ChromeCanvas* canvas, bool for_drag) {
   }
 
   int icon_x = kItemLeftMargin;
-  int icon_y = kItemTopMargin + (height() - kItemTopMargin -
-                                 kItemBottomMargin - check_height) / 2;
+  int top_margin = GetTopMargin();
+  int bottom_margin = GetBottomMargin();
+  int icon_y = top_margin + (height() - kItemTopMargin -
+                             bottom_margin - check_height) / 2;
   int icon_height = check_height;
   int icon_width = check_width;
 
@@ -1427,17 +1453,18 @@ void MenuItemView::Paint(ChromeCanvas* canvas, bool for_drag) {
   SkColor fg_color = NativeTheme::instance()->GetThemeColorWithDefault(
       NativeTheme::MENU, MENU_POPUPITEM, state, TMT_TEXTCOLOR, default_sys_color);
   int width = this->width() - item_right_margin - label_start;
-  gfx::Rect text_bounds(label_start, kItemTopMargin, width, font_.height());
+  ChromeFont& font = GetRootMenuItem()->font_;
+  gfx::Rect text_bounds(label_start, top_margin, width, font.height());
   text_bounds.set_x(MirroredLeftPointForRect(text_bounds));
-  canvas->DrawStringInt(GetTitle(), font_, fg_color, text_bounds.x(),
-                        text_bounds.y(), text_bounds.width(),
+  canvas->DrawStringInt(GetTitle(), font, fg_color,
+                        text_bounds.x(), text_bounds.y(), text_bounds.width(),
                         text_bounds.height(),
                         GetRootMenuItem()->GetDrawStringFlags());
 
   if (icon_.width() > 0) {
     gfx::Rect icon_bounds(kItemLeftMargin,
-                          kItemTopMargin + (height() - kItemTopMargin -
-                          kItemBottomMargin - icon_.height()) / 2,
+                          top_margin + (height() - top_margin -
+                          bottom_margin - icon_.height()) / 2,
                           icon_.width(),
                           icon_.height());
     icon_bounds.set_x(MirroredLeftPointForRect(icon_bounds));
@@ -1476,6 +1503,17 @@ void MenuItemView::DestroyAllMenuHosts() {
          ++i) {
     submenu_->GetMenuItemAt(i)->DestroyAllMenuHosts();
   }
+}
+
+int MenuItemView::GetTopMargin() {
+  MenuItemView* root = GetRootMenuItem();
+  return root && root->has_icons_ ? kItemTopMargin : kItemNoIconTopMargin;
+}
+
+int MenuItemView::GetBottomMargin() {
+  MenuItemView* root = GetRootMenuItem();
+  return root && root->has_icons_ ?
+      kItemBottomMargin : kItemNoIconBottomMargin;
 }
 
 // MenuController ------------------------------------------------------------
