@@ -248,8 +248,8 @@ AutocompleteMatch KeywordProvider::CreateAutocompleteMatch(
                          // preference, score them highly regardless of whether
                          // the input provides query text.
                          input.prefer_keyword() || !supports_replacement),
-      false);
-  result.type = AutocompleteMatch::KEYWORD;
+      false, supports_replacement ? AutocompleteMatch::SEARCH_OTHER_ENGINE :
+                                    AutocompleteMatch::HISTORY_KEYWORD);
   result.fill_into_edit.assign(keyword);
   if (!remaining_input.empty() || !keyword_complete || supports_replacement)
     result.fill_into_edit.push_back(L' ');

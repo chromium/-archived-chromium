@@ -276,33 +276,27 @@ struct AutocompleteMatch {
   typedef std::vector<ACMatchClassification> ACMatchClassifications;
 
   // The type of this match.
-  // URL: a url, typically one the user previously entered but it may have
-  //      also been suggested. This is the default.
-  // KEYWORD: a keyword.
-  // SEARCH: short cut for typing type into the Google homepage. This should
-  //         only be used if the full URL is not shown.
   enum Type {
-    // Something that looks like a URL ("http://foo.com", "internal-server/").
-    // This is the default.
-    URL,
-
-    // A manually created or auto-generated keyword, with or without a query
-    // component. Auto-generated keywords may look similar to urls. See
-    // keyword_autocomplete.cc.
-    KEYWORD,
-
-    // A search term or phrase for the user's default search provider
-    // ("games", "foo"). These visually look similar to keywords. See
-    // google_autocomplete.cc.
-    SEARCH,
-
-    // Shortcut that takes the user to destinations->history.
-    HISTORY_SEARCH
+    URL_WHAT_YOU_TYPED,     // The input as a URL.
+    HISTORY_URL,            // A past page whose URL contains the input.
+    HISTORY_TITLE,          // A past page whose title contains the input.
+    HISTORY_BODY,           // A past page whose body contains the input.
+    HISTORY_KEYWORD,        // A past page whose keyword contains the input.
+    NAVSUGGEST,             // A suggested URL.
+    SEARCH_WHAT_YOU_TYPED,  // The input as a search query (with the default
+                            // engine).
+    SEARCH_HISTORY,         // A past search (with the default engine)
+                            // containing the input.
+    SEARCH_SUGGEST,         // A suggested search (with the default engine).
+    SEARCH_OTHER_ENGINE,    // A search with a non-default engine.
+    OPEN_HISTORY_PAGE,      // A synthetic result that opens the history page to
+                            // search for the input.
   };
 
   AutocompleteMatch(AutocompleteProvider* provider,
                     int relevance,
-                    bool deletable);
+                    bool deletable,
+                    Type type);
 
   // Converts |type| to a string representation.  Used in logging.
   static std::string TypeToString(Type type);

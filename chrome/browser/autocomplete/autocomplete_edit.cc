@@ -439,7 +439,9 @@ void AutocompleteEditModel::OnPopupDataChanged(
   // selected keyword, or (subtle!) if we would be showing a selected keyword
   // but for keyword_ui_state_ == NO_KEYWORD.
   const bool show_search_hint = keyword.empty() &&
-      (type == AutocompleteMatch::SEARCH);
+      ((type == AutocompleteMatch::SEARCH_WHAT_YOU_TYPED) ||
+       (type == AutocompleteMatch::SEARCH_HISTORY) ||
+       (type == AutocompleteMatch::SEARCH_SUGGEST));
 
   // Update keyword/hint-related local state.
   bool keyword_state_changed = (keyword_ != keyword) ||

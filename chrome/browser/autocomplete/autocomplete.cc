@@ -253,14 +253,15 @@ void AutocompleteInput::Clear() {
 
 AutocompleteMatch::AutocompleteMatch(AutocompleteProvider* provider,
                                      int relevance,
-                                     bool deletable)
+                                     bool deletable,
+                                     Type type)
     : provider(provider),
       relevance(relevance),
       deletable(deletable),
       inline_autocomplete_offset(std::wstring::npos),
       transition(PageTransition::TYPED),
       is_history_what_you_typed_match(false),
-      type(URL),
+      type(type),
       template_url(NULL),
       starred(false) {
 }
@@ -268,10 +269,17 @@ AutocompleteMatch::AutocompleteMatch(AutocompleteProvider* provider,
 // static
 std::string AutocompleteMatch::TypeToString(Type type) {
   switch (type) {
-    case URL:            return "url";
-    case KEYWORD:        return "keyword";
-    case SEARCH:         return "search";
-    case HISTORY_SEARCH: return "history";
+    case URL_WHAT_YOU_TYPED:    return "url-what-you-typed";
+    case HISTORY_URL:           return "history-url";
+    case HISTORY_TITLE:         return "history-title";
+    case HISTORY_BODY:          return "history-body";
+    case HISTORY_KEYWORD:       return "history-keyword";
+    case NAVSUGGEST:            return "navsuggest";
+    case SEARCH_WHAT_YOU_TYPED: return "search-what-you-typed";
+    case SEARCH_HISTORY:        return "search-history";
+    case SEARCH_SUGGEST:        return "search-suggest";
+    case SEARCH_OTHER_ENGINE:   return "search-other-engine";
+    case OPEN_HISTORY_PAGE:     return "open-history-page";
 
     default:
       NOTREACHED();
@@ -762,8 +770,7 @@ void AutocompleteController::AddHistoryContentsShortcut() {
     } // else, fall through and add item.
   }
 
-  AutocompleteMatch match(NULL, 0, false);
-  match.type = AutocompleteMatch::HISTORY_SEARCH;
+  AutocompleteMatch match(NULL, 0, false, AutocompleteMatch::OPEN_HISTORY_PAGE);
   match.fill_into_edit = input_.text();
 
   // Mark up the text such that the user input text is bold.

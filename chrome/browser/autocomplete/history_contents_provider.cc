@@ -192,7 +192,8 @@ AutocompleteMatch HistoryContentsProvider::ResultToMatch(
     int score) {
   // TODO(sky): if matched title highlight matching words in title.
   // Also show star in popup.
-  AutocompleteMatch match(this, score, false);
+  AutocompleteMatch match(this, score, false, MatchInTitle(result) ?
+      AutocompleteMatch::HISTORY_TITLE : AutocompleteMatch::HISTORY_BODY);
   match.fill_into_edit = StringForURLDisplay(result.url(), true);
   match.destination_url = UTF8ToWide(result.url().spec());
   match.contents = match.fill_into_edit;

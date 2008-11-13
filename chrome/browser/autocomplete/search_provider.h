@@ -128,6 +128,7 @@ class SearchProvider : public AutocompleteProvider,
   // exists, whichever one has lower relevance is eliminated.
   void AddMatchToMap(const std::wstring& query_string,
                      int relevance,
+                     AutocompleteMatch::Type type,
                      int accepted_suggestion,
                      MatchMap* map);
   // Returns an AutocompleteMatch for a navigational suggestion.

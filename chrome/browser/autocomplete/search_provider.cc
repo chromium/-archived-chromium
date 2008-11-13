@@ -61,7 +61,8 @@ void SearchProvider::Start(const AutocompleteInput& input,
   if (input.text().empty()) {
     // User typed "?" alone.  Give them a placeholder result indicating what
     // this syntax does.
-    AutocompleteMatch match(this, 0, false);
+    AutocompleteMatch match(this, 0, false,
+                            AutocompleteMatch::SEARCH_WHAT_YOU_TYPED);
     static const std::wstring kNoQueryInput(
         l10n_util::GetString(IDS_AUTOCOMPLETE_NO_QUERY));
     match.contents.assign(l10n_util::GetStringF(
@@ -69,7 +70,6 @@ void SearchProvider::Start(const AutocompleteInput& input,
         kNoQueryInput));
     match.contents_class.push_back(
         ACMatchClassification(0, ACMatchClassification::DIM));
-    match.type = AutocompleteMatch::SEARCH;
     matches_.push_back(match);
     Stop();
     return;
@@ -342,16 +342,19 @@ void SearchProvider::ConvertResultsToAutocompleteMatches() {
       TemplateURLRef::NO_SUGGESTION_CHOSEN;
   const Time no_time;
   AddMatchToMap(input_.text(), CalculateRelevanceForWhatYouTyped(),
+                AutocompleteMatch::SEARCH_WHAT_YOU_TYPED,
                 did_not_accept_suggestion, &map);
 
   for (HistoryResults::const_iterator i(history_results_.begin());
        i != history_results_.end(); ++i) {
     AddMatchToMap(i->term, CalculateRelevanceForHistory(i->time),
-                  did_not_accept_suggestion, &map);
+                  AutocompleteMatch::SEARCH_HISTORY, did_not_accept_suggestion,
+                  &map);
   }
 
   for (size_t i = 0; i < suggest_results_.size(); ++i) {
     AddMatchToMap(suggest_results_[i], CalculateRelevanceForSuggestion(i),
+                  AutocompleteMatch::SEARCH_SUGGEST,
                   static_cast<int>(i), &map);
   }
 
@@ -485,10 +488,10 @@ int SearchProvider::CalculateRelevanceForNavigation(
 
 void SearchProvider::AddMatchToMap(const std::wstring& query_string,
                                    int relevance,
+                                   AutocompleteMatch::Type type,
                                    int accepted_suggestion,
                                    MatchMap* map) {
-  AutocompleteMatch match(this, relevance, false);
-  match.type = AutocompleteMatch::SEARCH;
+  AutocompleteMatch match(this, relevance, false, type);
   std::vector<size_t> content_param_offsets;
   match.contents.assign(l10n_util::GetStringF(IDS_AUTOCOMPLETE_SEARCH_CONTENTS,
                                               default_provider_.short_name(),
@@ -559,7 +562,8 @@ void SearchProvider::AddMatchToMap(const std::wstring& query_string,
 AutocompleteMatch SearchProvider::NavigationToMatch(
     const NavigationResult& navigation,
     int relevance) {
-  AutocompleteMatch match(this, relevance, false);
+  AutocompleteMatch match(this, relevance, false,
+                          AutocompleteMatch::NAVSUGGEST);
   match.destination_url = navigation.url;
   match.contents = StringForURLDisplay(GURL(navigation.url), true);
   // TODO(kochi): Consider moving HistoryURLProvider::TrimHttpPrefix() to some

@@ -527,7 +527,7 @@ void AutocompletePopupView::DrawEntry(HDC dc,
   const AutocompleteMatch& match = model_->result().match_at(line);
   if ((description_width < (line_info_.ave_char_width * 20)) ||
       all_descriptions_empty ||
-      (match.type == AutocompleteMatch::HISTORY_SEARCH)) {
+      (match.type == AutocompleteMatch::OPEN_HISTORY_PAGE)) {
     star_x = description_max_x - star_col_width + kStarPadding;
     DrawMatchFragments(dc, match.contents, match.contents_class, content_min_x,
                        y, star_x - kStarPadding, status);
@@ -951,7 +951,7 @@ void AutocompletePopupModel::Observe(NotificationType type,
       std::wstring inline_autocomplete_text;
       std::wstring keyword;
       bool is_keyword_hint = false;
-      AutocompleteMatch::Type type = AutocompleteMatch::SEARCH;
+      AutocompleteMatch::Type type = AutocompleteMatch::SEARCH_WHAT_YOU_TYPED;
       const AutocompleteResult::const_iterator match(result.default_match());
       if (match != result.end()) {
         if ((match->inline_autocomplete_offset != std::wstring::npos) &&

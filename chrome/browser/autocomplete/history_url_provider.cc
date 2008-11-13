@@ -219,7 +219,8 @@ void HistoryURLProvider::QueryComplete(
 void HistoryURLProvider::SuggestExactInput(const AutocompleteInput& input,
                                            bool trim_http) {
   AutocompleteMatch match(this,
-      CalculateRelevance(input.type(), WHAT_YOU_TYPED, 0), false);
+      CalculateRelevance(input.type(), WHAT_YOU_TYPED, 0), false,
+      AutocompleteMatch::URL_WHAT_YOU_TYPED);
 
   // Try to canonicalize the URL.  If this fails, don't create a What You Typed
   // suggestion, since it can't be navigated to.  We also need this so other
@@ -796,7 +797,7 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
   const history::URLRow& info = history_match.url_info;
   AutocompleteMatch match(this,
       CalculateRelevance(params->input.type(), match_type, match_number),
-      !!info.visit_count());
+      !!info.visit_count(), AutocompleteMatch::HISTORY_URL);
   match.destination_url = UTF8ToWide(info.url().possibly_invalid_spec());
   match.fill_into_edit = gfx::ElideUrl(info.url(), ChromeFont(), 0,
       match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages);

@@ -69,7 +69,8 @@ void TestProvider::Run() {
 
 void TestProvider::AddResults(int start_at, int num) {
   for (int i = start_at; i < num; i++) {
-    AutocompleteMatch match(this, relevance_ - i, false);
+    AutocompleteMatch match(this, relevance_ - i, false,
+                            AutocompleteMatch::URL_WHAT_YOU_TYPED);
 
     wchar_t str[16];
     swprintf_s(str, L"%d", i);
@@ -257,8 +258,8 @@ TEST(AutocompleteMatch, MoreRelevant) {
     {  -5, -10, false },
   };
 
-  AutocompleteMatch m1(NULL, 0, false);
-  AutocompleteMatch m2(NULL, 0, false);
+  AutocompleteMatch m1(NULL, 0, false, AutocompleteMatch::URL_WHAT_YOU_TYPED);
+  AutocompleteMatch m2(NULL, 0, false, AutocompleteMatch::URL_WHAT_YOU_TYPED);
 
   for (int i = 0; i < arraysize(cases); ++i) {
     m1.relevance = cases[i].r1;
