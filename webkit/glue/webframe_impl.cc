@@ -861,7 +861,8 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
     } else {
       last_active_range_ = new_selection.toRange();
       active_selection_rect_ = new_selection.toRange()->boundingBox();
-      ClearSelection();  // We'll draw our own highlight for the active item.
+      // TODO(finnur): Uncomment this when bug http://crbug.com/3908 is fixed.
+      // ClearSelection();  // We'll draw our own highlight for the active item.
 
 #if defined(OS_WIN)
       // TODO(pinkerton): Fix Mac scrolling to be more like Win ScrollView
@@ -965,7 +966,8 @@ bool WebFrameImpl::FindNext(const FindInPageRequest& request,
   // Make sure we save where the selection was after the operation so that
   // we can set the selection to it for the next Find operation (if needed).
   last_active_range_ = tickmarks_[active_tickmark_];
-  ClearSelection();  // We will draw our own highlighting.
+  // TODO(finnur): Uncomment this when bug http://crbug.com/3908 is fixed.
+  // ClearSelection();  // We will draw our own highlighting.
 
 #if defined(OS_WIN)
   // TODO(pinkerton): Fix Mac invalidation to be more like Win ScrollView
