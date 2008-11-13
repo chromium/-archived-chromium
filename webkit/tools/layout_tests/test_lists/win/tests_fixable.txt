@@ -1185,7 +1185,6 @@ V8 # LayoutTests/svg/carto.net/combobox.svg = FAIL
 V8 # LayoutTests/fast/dom/Window/get-set-properties.html = PASS | FAIL
 V8 # LayoutTests/fast/dom/Window/new-window-opener.html = PASS | FAIL
 V8 # LayoutTests/fast/forms/access-key.html = PASS | FAIL
-V8 # LayoutTests/http/tests/loading/gmail-assert-on-load.html = PASS | FAIL
 V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL | PASS
 V8 # pending/security/block-test.html = FAIL
 
