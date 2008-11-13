@@ -1,2 +1,0 @@
-This tests access to a window with an empty frame
-PASSPASSPASS

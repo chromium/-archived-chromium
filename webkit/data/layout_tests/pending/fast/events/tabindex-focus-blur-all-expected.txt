@@ -1,2 +1,0 @@
-335 focus / 335 blur events disatched, and should be 335 / 335 PASSED
-Total of 0 focus test(s) failed. PASSED

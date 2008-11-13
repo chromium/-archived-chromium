@@ -1,2 +1,0 @@
-history_reload.html: The original version has a timer race that's exposed with
-our new timer code.  See bug 972450.

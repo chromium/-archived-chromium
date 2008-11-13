@@ -1,9 +1,0 @@
-window.svg
-----------
-The original version of this test is flaky.  A window decoration
-is added to one of the windows when it's create function is called
-via setTimeout.  Usually, the create function is not called and
-the decoration is not added.  However, in debug builds enough time
-may pass and the create function is called, the decoration added,
-and the diff fails.  The test has been modified to wait until all
-create functions have been called before terminating.

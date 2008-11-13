@@ -1,5 +1,0 @@
-Attempts to destroy an iframe within its onload handler.
-
-The onload callback is invoked synchronously when setting the src property.
-
-To be successful should not crash. (Also should not write to freed memory)
