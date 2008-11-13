@@ -5662,7 +5662,7 @@
 			isa = PBXGroup;
 			children = (
 				AB59A1600ECCBD560059F5F3 /* FloatQuad.cpp */,
-				AB59A1610ECCBD560059F5F3 /* FloatQuad.h */
+				AB59A1610ECCBD560059F5F3 /* FloatQuad.h */,
 				7B5E8FB30D7F3CC1001ECF42 /* cg */,
 				7B5E90030D7F3CC1001ECF42 /* mac */,
 				AB6A3CE40EC2202B00159689 /* skia */,
@@ -8610,7 +8610,7 @@
 				E45624C30E268E87005E4685 /* FloatPoint.cpp in Sources */,
 				E45624C40E268E87005E4685 /* FloatPoint3D.cpp in Sources */,
 				E45626830E268E87005E4685 /* FloatPointCG.cpp in Sources */,
-				AB59A1620ECCBD560059F5F3 /* FloatQuad.cpp in Sources */
+				AB59A1620ECCBD560059F5F3 /* FloatQuad.cpp in Sources */,
 				E45624C50E268E87005E4685 /* FloatRect.cpp in Sources */,
 				E45626840E268E87005E4685 /* FloatRectCG.cpp in Sources */,
 				E45624C60E268E87005E4685 /* FloatSize.cpp in Sources */,
