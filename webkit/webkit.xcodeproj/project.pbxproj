@@ -465,6 +465,7 @@
 		AB332F3E0E9548900020F882 /* AccessibilityObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82761F810E3FAC700030D324 /* AccessibilityObject.cpp */; };
 		AB332F4D0E95497E0020F882 /* AnimationController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB332F4B0E95497E0020F882 /* AnimationController.cpp */; };
 		AB451D9D0EC21EDE0037A496 /* ColorSkia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E90050D7F3CC1001ECF42 /* ColorSkia.cpp */; };
+		AB59A1620ECCBD560059F5F3 /* FloatQuad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB59A1600ECCBD560059F5F3 /* FloatQuad.cpp */; };
 		AB8FE8A50E9BCD3E0051E7B4 /* GKURL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */; };
 		ABBD23820EB7A8D200BEC658 /* StyleInheritedData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23810EB7A8D200BEC658 /* StyleInheritedData.cpp */; };
 		ABBD23A20EB7A95B00BEC658 /* StyleMarqueeData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ABBD23930EB7A95B00BEC658 /* StyleMarqueeData.cpp */; };
@@ -3976,6 +3977,8 @@
 		AB332F4B0E95497E0020F882 /* AnimationController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AnimationController.cpp; path = animation/AnimationController.cpp; sourceTree = "<group>"; };
 		AB332F4C0E95497E0020F882 /* AnimationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AnimationController.h; path = animation/AnimationController.h; sourceTree = "<group>"; };
 		AB50EA1C0E9AB12B00FDD61B /* EmptyClients.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyClients.h; sourceTree = "<group>"; };
+		AB59A1600ECCBD560059F5F3 /* FloatQuad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FloatQuad.cpp; sourceTree = "<group>"; };
+		AB59A1610ECCBD560059F5F3 /* FloatQuad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FloatQuad.h; sourceTree = "<group>"; };
 		AB8FE8A40E9BCD3E0051E7B4 /* GKURL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GKURL.cpp; sourceTree = "<group>"; };
 		ABA23E6B0E9FC43700C96905 /* Navigator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Navigator.cpp; sourceTree = "<group>"; };
 		ABBD23810EB7A8D200BEC658 /* StyleInheritedData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StyleInheritedData.cpp; sourceTree = "<group>"; };
@@ -5658,6 +5661,8 @@
 		7B5E8FA20D7F3CC1001ECF42 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
+				AB59A1600ECCBD560059F5F3 /* FloatQuad.cpp */,
+				AB59A1610ECCBD560059F5F3 /* FloatQuad.h */
 				7B5E8FB30D7F3CC1001ECF42 /* cg */,
 				7B5E90030D7F3CC1001ECF42 /* mac */,
 				AB6A3CE40EC2202B00159689 /* skia */,
@@ -8605,6 +8610,7 @@
 				E45624C30E268E87005E4685 /* FloatPoint.cpp in Sources */,
 				E45624C40E268E87005E4685 /* FloatPoint3D.cpp in Sources */,
 				E45626830E268E87005E4685 /* FloatPointCG.cpp in Sources */,
+				AB59A1620ECCBD560059F5F3 /* FloatQuad.cpp in Sources */
 				E45624C50E268E87005E4685 /* FloatRect.cpp in Sources */,
 				E45626840E268E87005E4685 /* FloatRectCG.cpp in Sources */,
 				E45624C60E268E87005E4685 /* FloatSize.cpp in Sources */,

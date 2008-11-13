@@ -413,6 +413,7 @@ input_files = [
     '$WEBCORE_DIR/platform/graphics/Color.cpp',
     '$WEBCORE_DIR/platform/graphics/FloatPoint.cpp',
     '$WEBCORE_DIR/platform/graphics/FloatPoint3D.cpp',
+    '$WEBCORE_DIR/platform/graphics/FloatQuad.cpp',
     '$WEBCORE_DIR/platform/graphics/FloatRect.cpp',
     '$WEBCORE_DIR/platform/graphics/FloatSize.cpp',
     '$WEBCORE_DIR/platform/graphics/Font.cpp',

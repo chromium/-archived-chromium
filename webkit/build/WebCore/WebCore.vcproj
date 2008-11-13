@@ -1217,6 +1217,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FloatQuad.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FloatQuad.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\graphics\FloatRect.cpp"
 					>
 				</File>
