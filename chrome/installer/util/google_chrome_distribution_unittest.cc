@@ -157,7 +157,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
     work_item_list->AddCreateRegKeyWorkItem(reg_root, reg_key);
     if (!work_item_list->Do())
       GTEST_FATAL_FAILURE("Failed to create ClientState key.");
-  } else if (key.DeleteValue(google_update::kRegApFieldName)) {
+  } else if (key.DeleteValue(google_update::kRegApField)) {
     ap_key_deleted = true;
   }
   // try differential installer
@@ -171,7 +171,7 @@ TEST_F(GoogleChromeDistributionTest, UpdateDiffInstallStatusTest) {
   // - If we created any reg key path for ap, roll it back
   // - Finally restore the original value of ap key.
   key.Open(HKEY_CURRENT_USER, reg_key.c_str(), KEY_ALL_ACCESS);
-  key.DeleteValue(google_update::kRegApFieldName);
+  key.DeleteValue(google_update::kRegApField);
   work_item_list->Rollback();
   if (ap_key_deleted) {
     work_item_list.reset(WorkItem::CreateWorkItemList());
