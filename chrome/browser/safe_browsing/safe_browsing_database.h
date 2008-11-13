@@ -90,7 +90,7 @@ class SafeBrowsingDatabase {
  protected:
   static std::wstring BloomFilterFilename(const std::wstring& db_filename);
 
-  // Load the bloom filter off disk.  Generates one if it can't find it.
+  // Load the bloom filter off disk, or generates one if it doesn't exist.
   virtual void LoadBloomFilter();
 
   // Deletes the on-disk bloom filter, i.e. because it's stale.

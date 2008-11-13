@@ -40,6 +40,10 @@ static const int kOnResumeHoldupMs = 5 * 60 * 1000;  // 5 minutes.
 // The maximum staleness for a cached entry.
 static const int kMaxStalenessMinutes = 45;
 
+// The bloom filter based file name suffix.
+static const wchar_t kBloomFilterFileSuffix[] = L" Bloom";
+
+
 // Implementation --------------------------------------------------------------
 
 SafeBrowsingDatabaseBloom::SafeBrowsingDatabaseBloom()
@@ -47,6 +51,7 @@ SafeBrowsingDatabaseBloom::SafeBrowsingDatabaseBloom()
       init_(false),
       ALLOW_THIS_IN_INITIALIZER_LIST(reset_factory_(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(resume_factory_(this)),
+      add_count_(0),
       did_resume_(false) {
 }
 
@@ -58,11 +63,63 @@ bool SafeBrowsingDatabaseBloom::Init(const std::wstring& filename,
                                      Callback0::Type* chunk_inserted_callback) {
   DCHECK(!init_ && filename_.empty());
 
-  filename_ = filename + L" Bloom";
-  if (!Open())
-    return false;
+  filename_ = filename + kBloomFilterFileSuffix;
+  bloom_filter_filename_ = BloomFilterFilename(filename_);
 
-  bool load_filter = false;
+  hash_cache_.reset(new HashCache);
+
+  LoadBloomFilter();
+
+  init_ = true;
+  chunk_inserted_callback_.reset(chunk_inserted_callback);
+
+  return true;
+}
+
+void SafeBrowsingDatabaseBloom::LoadBloomFilter() {
+  DCHECK(!bloom_filter_filename_.empty());
+
+  // If we're missing either of the database or filter files, we wait until the
+  // next update to generate a new filter.
+  // TODO(paulg): Investigate how often the filter file is missing and how
+  // expensive it would be to regenerate it.
+  int64 size_64;
+  if (!file_util::GetFileSize(filename_, &size_64) || size_64 == 0)
+    return;
+
+  if (!file_util::GetFileSize(bloom_filter_filename_, &size_64) ||
+      size_64 == 0)
+    return;
+
+  // We have a bloom filter file, so use that as our filter.
+  int size = static_cast<int>(size_64);
+  char* data = new char[size];
+  CHECK(data);
+
+  Time before = Time::Now();
+  file_util::ReadFile(bloom_filter_filename_, data, size);
+  SB_DLOG(INFO) << "SafeBrowsingDatabase read bloom filter in "
+                << (Time::Now() - before).InMilliseconds() << " ms";
+
+  bloom_filter_ = new BloomFilter(data, size);
+}
+
+bool SafeBrowsingDatabaseBloom::Open() {
+  if (db_)
+    return true;
+
+  if (sqlite3_open(WideToUTF8(filename_).c_str(), &db_) != SQLITE_OK) {
+    sqlite3_close(db_);
+    db_ = NULL;
+    return false;
+  }
+
+  // Run the database in exclusive mode. Nobody else should be accessing the
+  // database while we're running, and this will give somewhat improved perf.
+  sqlite3_exec(db_, "PRAGMA locking_mode=EXCLUSIVE", NULL, NULL, NULL);
+
+  statement_cache_.reset(new SqliteStatementCache(db_));
+
   if (!DoesSqliteTableExist(db_, "add_prefix")) {
     if (!CreateTables()) {
       // Database could be corrupt, try starting from scratch.
@@ -72,37 +129,7 @@ bool SafeBrowsingDatabaseBloom::Init(const std::wstring& filename,
   } else if (!CheckCompatibleVersion()) {
     if (!ResetDatabase())
       return false;
-  } else {
-    load_filter = true;
   }
-
-  add_count_ = GetAddPrefixCount();
-  bloom_filter_filename_ = BloomFilterFilename(filename_);
-
-  if (load_filter) {
-    LoadBloomFilter();
-  } else {
-    bloom_filter_ =
-        new BloomFilter(kBloomFilterMinSize * kBloomFilterSizeRatio);
-  }
-
-  init_ = true;
-  chunk_inserted_callback_.reset(chunk_inserted_callback);
-
-  return true;
-}
-
-bool SafeBrowsingDatabaseBloom::Open() {
-  if (sqlite3_open(WideToUTF8(filename_).c_str(), &db_) != SQLITE_OK)
-    return false;
-
-  // Run the database in exclusive mode. Nobody else should be accessing the
-  // database while we're running, and this will give somewhat improved perf.
-  sqlite3_exec(db_, "PRAGMA locking_mode=EXCLUSIVE", NULL, NULL, NULL);
-
-  statement_cache_.reset(new SqliteStatementCache(db_));
-
-  hash_cache_.reset(new HashCache);
 
   return true;
 }
@@ -220,10 +247,8 @@ bool SafeBrowsingDatabaseBloom::ResetDatabase() {
       new BloomFilter(kBloomFilterMinSize * kBloomFilterSizeRatio);
   file_util::Delete(bloom_filter_filename_, false);
 
-  if (!Open())
-    return false;
-
-  return CreateTables();
+  // TODO(paulg): Fix potential infinite recursion between Open and Reset.
+  return Open();
 }
 
 bool SafeBrowsingDatabaseBloom::CheckCompatibleVersion() {
@@ -383,10 +408,15 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
 
 bool SafeBrowsingDatabaseBloom::UpdateStarted() {
   DCHECK(insert_transaction_.get() == NULL);
+
+  if (!Open())
+    return false;
+
   insert_transaction_.reset(new SQLTransaction(db_));
   if (insert_transaction_->Begin() != SQLITE_OK) {
     DCHECK(false) << "Safe browsing database couldn't start transaction";
     insert_transaction_.reset();
+    Close();
     return false;
   }
   return true;
@@ -397,6 +427,7 @@ void SafeBrowsingDatabaseBloom::UpdateFinished(bool update_succeeded) {
     BuildBloomFilter();
 
   insert_transaction_.reset();
+  Close();
 
   // We won't need the chunk caches until the next update (which will read them
   // from the database), so free their memory as they may contain thousands of

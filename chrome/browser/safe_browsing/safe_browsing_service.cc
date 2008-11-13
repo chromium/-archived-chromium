@@ -595,9 +595,13 @@ void SafeBrowsingService::GetAllChunksFromDatabase() {
   DCHECK(MessageLoop::current() == db_thread_->message_loop());
   bool database_error = true;
   std::vector<SBListChunkRanges> lists;
-  if (GetDatabase() && GetDatabase()->UpdateStarted()) {
-    GetDatabase()->GetListsInfo(&lists);
-    database_error = false;
+  if (GetDatabase()) {
+    if (GetDatabase()->UpdateStarted()) {
+      GetDatabase()->GetListsInfo(&lists);
+      database_error = false;
+    } else {
+      GetDatabase()->UpdateFinished(false);
+    }
   }
 
   io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
@@ -658,7 +662,11 @@ void SafeBrowsingService::OnResume() {
 
 void SafeBrowsingService::HandleResume() {
   DCHECK(MessageLoop::current() == db_thread_->message_loop());
-  GetDatabase()->HandleResume();
+  // We don't call GetDatabase() here, since we want to avoid unnecessary calls
+  // to Open, Reset, etc, or reload the bloom filter while we're coming out of
+  // a suspended state.
+  if (database_)
+    database_->HandleResume();
 }
 
 void SafeBrowsingService::RunQueuedClients() {
