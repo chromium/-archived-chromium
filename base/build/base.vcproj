@@ -282,6 +282,30 @@
 			>
 		</File>
 		<File
+			RelativePath="..\third_party\dmg_fp\dmg_fp.h"
+			>
+		</File>
+		<File
+			RelativePath="..\third_party\dmg_fp\dtoa.cc"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					DisableSpecificWarnings="4244;4554;4018;4102"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					DisableSpecificWarnings="4244;4554;4018;4102"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
 			RelativePath="..\event_recorder.cc"
 			>
 		</File>
@@ -332,6 +356,26 @@
 		<File
 			RelativePath="..\float_util.h"
 			>
+		</File>
+		<File
+			RelativePath="..\third_party\dmg_fp\g_fmt.cc"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					DisableSpecificWarnings="4102"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					DisableSpecificWarnings="4102"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\hash_tables.h"

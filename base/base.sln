@@ -7,7 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "base", "build\base.vcproj",
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{0E5474AC-5996-4B13-87C0-4AE931EE0815} = {0E5474AC-5996-4B13-87C0-4AE931EE0815}
-		{CA6CE3BB-B746-4D91-85A0-6944DD273E2A} = {CA6CE3BB-B746-4D91-85A0-6944DD273E2A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "base_unittests", "build\base_unittests.vcproj", "{27A30967-4BBA-48D1-8522-CDE95F7B1CEC}"
@@ -82,12 +81,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest", "..\testing\gtest.v
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dmg_fp", "..\third_party\dmg_fp\dmg_fp.vcproj", "{CA6CE3BB-B746-4D91-85A0-6944DD273E2A}"
-	ProjectSection(WebsiteProperties) = preProject
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.Debug = "False"
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -130,10 +123,6 @@ Global
 		{C564F145-9172-42C3-BFCB-6014CA97DBCD}.Debug|Win32.Build.0 = Debug|Win32
 		{C564F145-9172-42C3-BFCB-6014CA97DBCD}.Release|Win32.ActiveCfg = Release|Win32
 		{C564F145-9172-42C3-BFCB-6014CA97DBCD}.Release|Win32.Build.0 = Release|Win32
-		{CA6CE3BB-B746-4D91-85A0-6944DD273E2A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CA6CE3BB-B746-4D91-85A0-6944DD273E2A}.Debug|Win32.Build.0 = Debug|Win32
-		{CA6CE3BB-B746-4D91-85A0-6944DD273E2A}.Release|Win32.ActiveCfg = Release|Win32
-		{CA6CE3BB-B746-4D91-85A0-6944DD273E2A}.Release|Win32.Build.0 = Release|Win32
 		{CD9CA56E-4E94-444C-87D4-58CA1E6F300D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CD9CA56E-4E94-444C-87D4-58CA1E6F300D}.Debug|Win32.Build.0 = Debug|Win32
 		{CD9CA56E-4E94-444C-87D4-58CA1E6F300D}.Release|Win32.ActiveCfg = Release|Win32
@@ -148,7 +137,6 @@ Global
 		{A0D94973-D355-47A5-A1E2-3456F321F010} = {F216062D-F9C4-4883-A52C-2BE9ECADEEA0}
 		{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B} = {F216062D-F9C4-4883-A52C-2BE9ECADEEA0}
 		{C564F145-9172-42C3-BFCB-6014CA97DBCD} = {F216062D-F9C4-4883-A52C-2BE9ECADEEA0}
-		{CA6CE3BB-B746-4D91-85A0-6944DD273E2A} = {F216062D-F9C4-4883-A52C-2BE9ECADEEA0}
 		{CD9CA56E-4E94-444C-87D4-58CA1E6F300D} = {F216062D-F9C4-4883-A52C-2BE9ECADEEA0}
 	EndGlobalSection
 EndGlobal
