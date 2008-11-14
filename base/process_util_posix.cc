@@ -10,7 +10,7 @@
 #include "base/basictypes.h"
 #include "base/sys_info.h"
 
-namespace process_util {
+namespace base {
 
 int GetCurrentProcId() {
   return getpid();
@@ -46,4 +46,4 @@ void RaiseProcessToHighPriority() {
   // setpriority() or sched_getscheduler, but these all require extra rights.
 }
 
-}  // namespace process_util
+}  // namespace base
