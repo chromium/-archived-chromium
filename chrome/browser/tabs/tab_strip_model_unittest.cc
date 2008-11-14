@@ -994,7 +994,7 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   // Overridden from TabStripModelDelegate:
   virtual GURL GetBlankTabURL() const { return NewTabUIURL(); }
   virtual void CreateNewStripWithContents(TabContents* contents,
-                                          const gfx::Point& creation_point) {}
+                                          const gfx::Rect& window_bounds) {}
   virtual int GetDragActions() const { return 0; }
   virtual TabContents* CreateTabContentsForURL(
       const GURL& url,
