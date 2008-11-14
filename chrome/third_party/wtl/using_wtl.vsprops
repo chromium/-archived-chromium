@@ -6,6 +6,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(SolutionDir)third_party\wtl\include&quot;"
+		AdditionalIncludeDirectories="&quot;$(SolutionDir)..\chrome\third_party\wtl\include&quot;"
 	/>
 </VisualStudioPropertySheet>
