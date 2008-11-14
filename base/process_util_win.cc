@@ -22,7 +22,7 @@ typedef BOOL (WINAPI* HeapSetFn)(HANDLE, HEAP_INFORMATION_CLASS, PVOID, SIZE_T);
 
 }  // namespace
 
-namespace process_util {
+namespace base {
 
 int GetCurrentProcId() {
   return ::GetCurrentProcessId();
@@ -329,11 +329,11 @@ bool CleanupProcesses(const std::wstring& executable_name,
                       int wait_milliseconds,
                       int exit_code,
                       const ProcessFilter* filter) {
-  bool exited_cleanly =
-    process_util::WaitForProcessesToExit(executable_name, wait_milliseconds,
-                                         filter);
+  bool exited_cleanly = WaitForProcessesToExit(executable_name,
+                                               wait_milliseconds,
+                                               filter);
   if (!exited_cleanly)
-    process_util::KillProcesses(executable_name, exit_code, filter);
+    KillProcesses(executable_name, exit_code, filter);
   return exited_cleanly;
 }
 
@@ -615,4 +615,4 @@ void RaiseProcessToHighPriority() {
   SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 }
 
-}  // namespace process_util
+}  // namespace base

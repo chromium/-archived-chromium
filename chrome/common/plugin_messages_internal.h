@@ -129,8 +129,8 @@ IPC_BEGIN_MESSAGES(Plugin, 5)
                       gfx::Rect /* clip_rect */,
                       std::vector<gfx::Rect> /* cutout_rects */,
                       bool /* visible */,
-                      SharedMemoryHandle /* windowless_buffer */,
-                      SharedMemoryHandle /* background_buffer */)
+                      base::SharedMemoryHandle /* windowless_buffer */,
+                      base::SharedMemoryHandle /* background_buffer */)
 
   IPC_SYNC_MESSAGE_ROUTED0_0(PluginMsg_SetFocus)
 

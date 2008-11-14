@@ -7,6 +7,8 @@
 #include "base/logging.h"
 #include "base/win_util.h"
 
+namespace base {
+
 SharedMemory::SharedMemory()
     : mapped_file_(NULL),
       memory_(NULL),
@@ -161,3 +163,4 @@ void SharedMemory::Unlock() {
   ReleaseMutex(lock_);
 }
 
+}  // namespace base

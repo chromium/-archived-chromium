@@ -21,7 +21,7 @@
 
 int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                       wchar_t* command_line, int) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
 
   // The exit manager is in charge of calling the dtors of singletons.
   base::AtExitManager exit_manager;

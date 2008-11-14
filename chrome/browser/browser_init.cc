@@ -161,7 +161,7 @@ bool BrowserInit::MessageWindow::NotifyOtherProcess() {
   }
 
   // Time to take action. Kill the browser process.
-  process_util::KillProcess(process_id, ResultCodes::HUNG, true);
+  base::KillProcess(process_id, ResultCodes::HUNG, true);
   remote_window_ = NULL;
   return false;
 }
@@ -295,7 +295,7 @@ void BrowserInit::MessageWindow::HuntForZombieChromeProcesses() {
 
   // Retrieve the list of browser processes on start. This list is then used to
   // detect zombie renderer process or plugin process.
-  class ZombieDetector : public process_util::ProcessFilter {
+  class ZombieDetector : public base::ProcessFilter {
    public:
     ZombieDetector() {
       for (HWND window = NULL;;) {
@@ -337,9 +337,7 @@ void BrowserInit::MessageWindow::HuntForZombieChromeProcesses() {
   };
 
   ZombieDetector zombie_detector;
-  process_util::KillProcesses(L"chrome.exe",
-                              ResultCodes::HUNG,
-                              &zombie_detector);
+  base::KillProcesses(L"chrome.exe", ResultCodes::HUNG, &zombie_detector);
 }
 
 

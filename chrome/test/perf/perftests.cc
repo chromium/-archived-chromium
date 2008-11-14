@@ -11,7 +11,7 @@
 // TODO(darin): share code with base/run_all_perftests.cc
 
 int main(int argc, char **argv) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
   chrome::RegisterPathProvider();
   MessageLoop main_message_loop;
 

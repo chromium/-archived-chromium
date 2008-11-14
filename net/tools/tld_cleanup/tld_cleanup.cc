@@ -206,7 +206,7 @@ NormalizeResult NormalizeFile(const std::wstring& in_filename,
 }
 
 int main(int argc, const char* argv[]) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
   if (argc != 3) {
     fprintf(stderr, "Normalizes and verifies UTF-8 TLD data files\n");
     fprintf(stderr, "Usage: %s <input> <output>\n", argv[0]);

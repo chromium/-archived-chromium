@@ -34,7 +34,7 @@ TaskManagerWebContentsResource::TaskManagerWebContentsResource(
   // We cache the process as when the WebContents is closed the process
   // becomes NULL and the TaskManager still needs it.
   process_ = web_contents_->process()->process().handle();
-  pid_ = process_util::GetProcId(process_);
+  pid_ = base::GetProcId(process_);
 }
 
 TaskManagerWebContentsResource::~TaskManagerWebContentsResource() {
@@ -236,7 +236,7 @@ TaskManagerPluginProcessResource::TaskManagerPluginProcessResource(
     : plugin_process_(plugin_proc),
       title_(),
       network_usage_support_(false) {
-  pid_ = process_util::GetProcId(plugin_proc.process());
+  pid_ = base::GetProcId(plugin_proc.process());
   if (!default_icon_) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     default_icon_ = rb.GetBitmapNamed(IDR_PLUGIN);
@@ -399,7 +399,7 @@ void TaskManagerPluginProcessResourceProvider::AddToTaskManager(
   TaskManagerPluginProcessResource* resource =
       new TaskManagerPluginProcessResource(plugin_process_info);
   resources_[plugin_process_info] = resource;
-  pid_to_resources_[process_util::GetProcId(plugin_process_info.process())] =
+  pid_to_resources_[base::GetProcId(plugin_process_info.process())] =
       resource;
   task_manager_->AddResource(resource);
 }

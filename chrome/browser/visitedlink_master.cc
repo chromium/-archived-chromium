@@ -258,8 +258,8 @@ bool VisitedLinkMaster::Init() {
   return true;
 }
 
-bool VisitedLinkMaster::ShareToProcess(ProcessHandle process,
-                                       SharedMemoryHandle *new_handle) {
+bool VisitedLinkMaster::ShareToProcess(base::ProcessHandle process,
+                                       base::SharedMemoryHandle *new_handle) {
   if (shared_memory_)
     return shared_memory_->ShareToProcess(process, new_handle);
 
@@ -267,7 +267,7 @@ bool VisitedLinkMaster::ShareToProcess(ProcessHandle process,
   return false;
 }
 
-SharedMemoryHandle VisitedLinkMaster::GetSharedMemoryHandle() {
+base::SharedMemoryHandle VisitedLinkMaster::GetSharedMemoryHandle() {
   return shared_memory_->handle();
 }
 
@@ -674,7 +674,7 @@ bool VisitedLinkMaster::CreateURLTable(int32 num_entries, bool init_to_empty) {
   int32 alloc_size = num_entries * sizeof(Fingerprint) + sizeof(SharedHeader);
 
   // Create the shared memory object.
-  shared_memory_ = new SharedMemory();
+  shared_memory_ = new base::SharedMemory();
   if (!shared_memory_)
     return false;
 
@@ -712,7 +712,7 @@ bool VisitedLinkMaster::CreateURLTable(int32 num_entries, bool init_to_empty) {
 }
 
 bool VisitedLinkMaster::BeginReplaceURLTable(int32 num_entries) {
-  SharedMemory *old_shared_memory = shared_memory_;
+  base::SharedMemory *old_shared_memory = shared_memory_;
   Fingerprint* old_hash_table = hash_table_;
   int32 old_table_length = table_length_;
   if (!CreateURLTable(num_entries, true)) {
@@ -771,7 +771,7 @@ void VisitedLinkMaster::ResizeTable(int32 new_size) {
   DebugValidate();
 #endif
 
-  SharedMemory* old_shared_memory = shared_memory_;
+  base::SharedMemory* old_shared_memory = shared_memory_;
   Fingerprint* old_hash_table = hash_table_;
   int32 old_table_length = table_length_;
   if (!BeginReplaceURLTable(new_size))
@@ -870,7 +870,7 @@ void VisitedLinkMaster::OnTableRebuildComplete(
 
     // We are responsible for freeing it AFTER it has been replaced if
     // replacement succeeds.
-    SharedMemory* old_shared_memory = shared_memory_;
+    base::SharedMemory* old_shared_memory = shared_memory_;
 
     int new_table_size = NewTableSizeForCount(
         static_cast<int>(fingerprints.size()));

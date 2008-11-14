@@ -181,7 +181,7 @@ void InsertURLBatch(const std::wstring& profile_dir, int page_id,
 }
 
 int main(int argc, const char* argv[]) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
   base::AtExitManager exit_manager;
 
   int next_arg = 1;

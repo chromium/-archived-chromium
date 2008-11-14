@@ -16,9 +16,8 @@
 #include <windows.h>
 #endif
 
-using base::TimeTicks;
+namespace base {
 
-namespace {
 class StatsTableTest : public MultiProcessTest {
 };
 
@@ -199,7 +198,7 @@ TEST_F(StatsTableTest, MultipleProcesses) {
 
   // Wait for the processes to finish.
   for (int index = 0; index < kMaxProcs; index++) {
-    EXPECT_TRUE(process_util::WaitForSingleProcess(procs[index], 60 * 1000));
+    EXPECT_TRUE(WaitForSingleProcess(procs[index], 60 * 1000));
   }
 
   StatsCounter zero_counter(kCounterZero);
@@ -381,4 +380,4 @@ TEST_F(StatsTableTest, StatsScope) {
   EXPECT_EQ(2, table.GetCounterValue(L"c:bar"));
 }
 
-}  // namespace
+}  // namespace base

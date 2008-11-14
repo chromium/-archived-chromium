@@ -487,11 +487,11 @@ void ResourceMessageFilter::OnGetCPBrowsingContext(uint32* context) {
 }
 
 void ResourceMessageFilter::OnDuplicateSection(
-    SharedMemoryHandle renderer_handle,
-    SharedMemoryHandle* browser_handle) {
+    base::SharedMemoryHandle renderer_handle,
+    base::SharedMemoryHandle* browser_handle) {
   // Duplicate the handle in this process right now so the memory is kept alive
   // (even if it is not mapped)
-  SharedMemory shared_buf(renderer_handle, true, render_handle_);
+  base::SharedMemory shared_buf(renderer_handle, true, render_handle_);
   shared_buf.GiveToProcess(GetCurrentProcess(), browser_handle);
 }
 

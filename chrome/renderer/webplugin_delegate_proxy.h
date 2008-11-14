@@ -144,7 +144,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   void ResetWindowlessBitmaps();
 
   // Creates a shared memory section and canvas.
-  bool CreateBitmap(scoped_ptr<SharedMemory>* memory,
+  bool CreateBitmap(scoped_ptr<base::SharedMemory>* memory,
                     scoped_ptr<gfx::PlatformCanvasWin>* canvas);
 
   RenderView* render_view_;
@@ -182,11 +182,11 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   // store when we get an invalidate from it.  The background bitmap is used
   // for transparent plugins, as they need the backgroud data during painting.
   bool transparent_;
-  scoped_ptr<SharedMemory> backing_store_;
+  scoped_ptr<base::SharedMemory> backing_store_;
   scoped_ptr<gfx::PlatformCanvasWin> backing_store_canvas_;
-  scoped_ptr<SharedMemory> transport_store_;
+  scoped_ptr<base::SharedMemory> transport_store_;
   scoped_ptr<gfx::PlatformCanvasWin> transport_store_canvas_;
-  scoped_ptr<SharedMemory> background_store_;
+  scoped_ptr<base::SharedMemory> background_store_;
   scoped_ptr<gfx::PlatformCanvasWin> background_store_canvas_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateProxy);

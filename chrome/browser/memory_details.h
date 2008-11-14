@@ -25,9 +25,9 @@ struct ProcessMemoryInformation {
   // The process id.
   int pid;
   // The working set information.
-  process_util::WorkingSetKBytes working_set;
+  base::WorkingSetKBytes working_set;
   // The committed bytes.
-  process_util::CommittedKBytes committed;
+  base::CommittedKBytes committed;
   // The process version
   std::wstring version;
   // The process product name.

@@ -239,7 +239,7 @@ bool CheckMachineLevelInstall() {
         uninstall_cmd.append(installer_util::switches::kForceUninstall);
         uninstall_cmd.append(L" --");
         uninstall_cmd.append(installer_util::switches::kDoNotRemoveSharedItems);
-        process_util::LaunchApp(uninstall_cmd, false, false, NULL);
+        base::LaunchApp(uninstall_cmd, false, false, NULL);
       }
       return true;
     }
@@ -374,7 +374,7 @@ int BrowserMain(CommandLine &parsed_command_line,
           parsed_command_line.command_line_string();
       CommandLine::AppendSwitchWithValue(&new_command_line,
           switches::kUserDataDir, user_data_dir);
-      process_util::LaunchApp(new_command_line, false, false, NULL);
+      base::LaunchApp(new_command_line, false, false, NULL);
     }
 
     return ResultCodes::NORMAL_EXIT;

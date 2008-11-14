@@ -101,7 +101,8 @@ class ResourceDispatcher : public base::RefCounted<ResourceDispatcher> {
   void OnUploadProgress(int request_id, int64 position, int64 size);
   void OnReceivedResponse(int request_id, const ViewMsg_Resource_ResponseHead&);
   void OnReceivedRedirect(int request_id, const GURL& new_url);
-  void OnReceivedData(int request_id, SharedMemoryHandle data, int data_len);
+  void OnReceivedData(int request_id, base::SharedMemoryHandle data,
+                      int data_len);
   void OnRequestComplete(int request_id, const URLRequestStatus& status);
 
   // Dispatch the message to one of the message response handlers.

@@ -397,10 +397,10 @@ void WebPluginDelegateProxy::ResetWindowlessBitmaps() {
 }
 
 bool WebPluginDelegateProxy::CreateBitmap(
-    scoped_ptr<SharedMemory>* memory,
+    scoped_ptr<base::SharedMemory>* memory,
     scoped_ptr<gfx::PlatformCanvasWin>* canvas) {
   size_t size = GetPaintBufSize(plugin_rect_);
-  scoped_ptr<SharedMemory> new_shared_memory(new SharedMemory());
+  scoped_ptr<base::SharedMemory> new_shared_memory(new base::SharedMemory());
   if (!new_shared_memory->Create(L"", false, true, size))
     return false;
 
@@ -515,7 +515,7 @@ void WebPluginDelegateProxy::Print(HDC hdc) {
   PluginMsg_PrintResponse_Params params = { 0 };
   Send(new PluginMsg_Print(instance_id_, &params));
 
-  SharedMemory memory(params.shared_memory, true);
+  base::SharedMemory memory(params.shared_memory, true);
   if (!memory.Map(params.size)) {
     NOTREACHED();
     return;

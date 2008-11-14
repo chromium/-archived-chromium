@@ -53,7 +53,7 @@ class GreasemonkeyMasterTest : public testing::Test,
                        const NotificationDetails& details) {
     DCHECK(type == NOTIFY_NEW_USER_SCRIPTS);
 
-    shared_memory_ = Details<SharedMemory>(details).ptr();
+    shared_memory_ = Details<base::SharedMemory>(details).ptr();
     if (MessageLoop::current() == &message_loop_)
       MessageLoop::current()->Quit();
   }
@@ -65,13 +65,13 @@ class GreasemonkeyMasterTest : public testing::Test,
   FilePath script_dir_;
 
   // Updated to the script shared memory when we get notified.
-  SharedMemory* shared_memory_;
+  base::SharedMemory* shared_memory_;
 };
 
 // Test that we *don't* get spurious notifications.
 TEST_F(GreasemonkeyMasterTest, NoScripts) {
   // Set shared_memory_ to something non-NULL, so we can check it became NULL.
-  shared_memory_ = reinterpret_cast<SharedMemory*>(1);
+  shared_memory_ = reinterpret_cast<base::SharedMemory*>(1);
 
   scoped_refptr<GreasemonkeyMaster> master(
       new GreasemonkeyMaster(MessageLoop::current(), script_dir_));

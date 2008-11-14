@@ -652,7 +652,7 @@ Profile* ProfileImpl::GetOriginalProfile() {
   return this;
 }
 
-static void BroadcastNewHistoryTable(SharedMemory* table_memory) {
+static void BroadcastNewHistoryTable(base::SharedMemory* table_memory) {
   if (!table_memory)
     return;
 
@@ -662,7 +662,7 @@ static void BroadcastNewHistoryTable(SharedMemory* table_memory) {
     if (!i->second->channel())
       continue;
 
-    SharedMemoryHandle new_table;
+    base::SharedMemoryHandle new_table;
     HANDLE process = i->second->process().handle();
     if (!process) {
       // process can be null if it's started with the --single-process flag.

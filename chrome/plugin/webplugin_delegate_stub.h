@@ -67,8 +67,8 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
                         const gfx::Rect& clip_rect,
                         const std::vector<gfx::Rect>& cutout_rects,
                         bool visible,
-                        const SharedMemoryHandle& windowless_buffer,
-                        const SharedMemoryHandle& background_buffer);
+                        const base::SharedMemoryHandle& windowless_buffer,
+                        const base::SharedMemoryHandle& background_buffer);
   void OnGetPluginScriptableObject(int* route_id, void** npobject_ptr);
   void OnSendJavaScriptStream(const std::string& url,
                               const std::wstring& result,
@@ -90,8 +90,8 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
                           HANDLE notify_data);
 
   void CreateSharedBuffer(size_t size,
-                          SharedMemory* shared_buf,
-                          SharedMemoryHandle* remote_handle);
+                          base::SharedMemory* shared_buf,
+                          base::SharedMemoryHandle* remote_handle);
 
   int instance_id_;
   std::string mime_type_;

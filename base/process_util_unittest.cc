@@ -15,7 +15,8 @@
 #include <dlfcn.h>
 #endif
 
-namespace {
+namespace base {
+
 class ProcessUtilTest : public MultiProcessTest {
 };
 
@@ -27,7 +28,7 @@ TEST_F(ProcessUtilTest, SpawnChild) {
   ProcessHandle handle = this->SpawnChild(L"SimpleChildProcess");
 
   ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
-  EXPECT_TRUE(process_util::WaitForSingleProcess(handle, 1000));
+  EXPECT_TRUE(WaitForSingleProcess(handle, 1000));
 }
 
 MULTIPROCESS_TEST_MAIN(SlowChildProcess) {
@@ -53,24 +54,24 @@ MULTIPROCESS_TEST_MAIN(SlowChildProcess) {
 #if !defined(OS_MACOSX)
 TEST_F(ProcessUtilTest, KillSlowChild) {
   remove("SlowChildProcess.die");
-  int oldcount = process_util::GetProcessCount(L"base_unittests" EXE_SUFFIX, 0);
+  int oldcount = GetProcessCount(L"base_unittests" EXE_SUFFIX, 0);
 
   ProcessHandle handle = this->SpawnChild(L"SlowChildProcess");
 
   ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
-  EXPECT_EQ(oldcount+1, process_util::GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
+  EXPECT_EQ(oldcount+1, GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
   FILE *fp = fopen("SlowChildProcess.die", "w");
   fclose(fp);
   // TODO(port): do something less racy here
   PlatformThread::Sleep(1000);
-  EXPECT_EQ(oldcount, process_util::GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
+  EXPECT_EQ(oldcount, GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
 }
 #endif
 
 // TODO(estade): if possible, port these 2 tests.
 #if defined(OS_WIN)
 TEST_F(ProcessUtilTest, EnableLFH) {
-  ASSERT_TRUE(process_util::EnableLowFragmentationHeap());
+  ASSERT_TRUE(EnableLowFragmentationHeap());
   if (IsDebuggerPresent()) {
     // Under these conditions, LFH can't be enabled. There's no point to test
     // anything.
@@ -101,13 +102,13 @@ TEST_F(ProcessUtilTest, EnableLFH) {
 }
 
 TEST_F(ProcessUtilTest, CalcFreeMemory) {
-  process_util::ProcessMetrics* metrics =
-    process_util::ProcessMetrics::CreateProcessMetrics(::GetCurrentProcess());
+  ProcessMetrics* metrics =
+      ProcessMetrics::CreateProcessMetrics(::GetCurrentProcess());
   ASSERT_TRUE(NULL != metrics);
 
   // Typical values here is ~1900 for total and ~1000 for largest. Obviously
   // it depends in what other tests have done to this process.
-  process_util::FreeMBytes free_mem1 = {0};
+  FreeMBytes free_mem1 = {0};
   EXPECT_TRUE(metrics->CalculateFreeMemory(&free_mem1));
   EXPECT_LT(10u, free_mem1.total);
   EXPECT_LT(10u, free_mem1.largest);
@@ -124,7 +125,7 @@ TEST_F(ProcessUtilTest, CalcFreeMemory) {
   size_t expected_total = free_mem1.total - kAllocMB;
   size_t expected_largest = free_mem1.largest;
 
-  process_util::FreeMBytes free_mem2 = {0};
+  FreeMBytes free_mem2 = {0};
   EXPECT_TRUE(metrics->CalculateFreeMemory(&free_mem2));
   EXPECT_GE(free_mem2.total, free_mem2.largest);
   EXPECT_GE(expected_total, free_mem2.total);
@@ -136,4 +137,4 @@ TEST_F(ProcessUtilTest, CalcFreeMemory) {
 }
 #endif  // defined(OS_WIN)
 
-}  // namespace
+}  // namespace base

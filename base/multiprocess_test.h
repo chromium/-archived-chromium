@@ -51,14 +51,14 @@ class MultiProcessTest : public PlatformTest {
   //
   // TODO(darin): re-enable this once we have base/debug_util.h
   // ProcessDebugFlags(&cl, DebugUtil::UNKNOWN, false);
-  ProcessHandle SpawnChild(const std::wstring& procname) {
+  base::ProcessHandle SpawnChild(const std::wstring& procname) {
     CommandLine cl;
-    ProcessHandle handle = static_cast<ProcessHandle>(NULL);
+    base::ProcessHandle handle = static_cast<base::ProcessHandle>(NULL);
 
 #if defined(OS_WIN)
     std::wstring clstr = cl.command_line_string();
     CommandLine::AppendSwitchWithValue(&clstr, kRunClientProcess, procname);
-    process_util::LaunchApp(clstr, false, true, &handle);
+    base::LaunchApp(clstr, false, true, &handle);
 #elif defined(OS_POSIX)
     std::vector<std::string> clvec(cl.argv());
     std::wstring wswitchstr =
@@ -66,7 +66,7 @@ class MultiProcessTest : public PlatformTest {
                                                    procname);
     std::string switchstr = WideToUTF8(wswitchstr);
     clvec.push_back(switchstr.c_str());
-    process_util::LaunchApp(clvec, false, &handle);
+    base::LaunchApp(clvec, false, &handle);
 #endif
 
     return handle;

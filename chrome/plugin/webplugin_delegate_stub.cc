@@ -226,7 +226,7 @@ void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
   size_t size = emf.GetDataSize();
   DCHECK(size);
   params->size = size;
-  SharedMemory shared_buf;
+  base::SharedMemory shared_buf;
   CreateSharedBuffer(size, &shared_buf, &params->shared_memory);
 
   // Retrieve a copy of the data.
@@ -239,8 +239,8 @@ void WebPluginDelegateStub::OnUpdateGeometry(
     const gfx::Rect& clip_rect,
     const std::vector<gfx::Rect>& cutout_rects,
     bool visible,
-    const SharedMemoryHandle& windowless_buffer,
-    const SharedMemoryHandle& background_buffer) {
+    const base::SharedMemoryHandle& windowless_buffer,
+    const base::SharedMemoryHandle& background_buffer) {
   webplugin_->UpdateGeometry(
       window_rect, clip_rect, cutout_rects, visible, windowless_buffer, 
       background_buffer);
@@ -301,8 +301,8 @@ void WebPluginDelegateStub::OnInstallMissingPlugin() {
 
 void WebPluginDelegateStub::CreateSharedBuffer(
     size_t size,
-    SharedMemory* shared_buf,
-    SharedMemoryHandle* remote_handle) {
+    base::SharedMemory* shared_buf,
+    base::SharedMemoryHandle* remote_handle) {
   if (!shared_buf->Create(std::wstring(), false, false, size)) {
     NOTREACHED();
     return;
@@ -319,6 +319,7 @@ void WebPluginDelegateStub::CreateSharedBuffer(
                                 remote_handle, 0, FALSE,
                                 DUPLICATE_SAME_ACCESS);
   DCHECK_NE(result, 0);
+
   // If the calling function's shared_buf is on the stack, its destructor will
   // close the shared memory buffer handle. This is fine since we already
   // duplicated the handle to the renderer process so it will stay "alive".

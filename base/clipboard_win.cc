@@ -147,7 +147,8 @@ void Clipboard::WriteObjects(const ObjectMap& objects) {
   WriteObjects(objects, NULL);
 }
 
-void Clipboard::WriteObjects(const ObjectMap& objects, ProcessHandle process) {
+void Clipboard::WriteObjects(const ObjectMap& objects,
+                             base::ProcessHandle process) {
   ScopedClipboard clipboard;
   if (!clipboard.Acquire(clipboard_owner_))
     return;
@@ -267,12 +268,12 @@ void Clipboard::WriteBitmap(const char* pixel_data, const char* size_data) {
 
 void Clipboard::WriteBitmapFromSharedMemory(const char* bitmap_data,
                                             const char* size_data,
-                                            ProcessHandle process) {
-  const SharedMemoryHandle* remote_bitmap_handle =
-      reinterpret_cast<const SharedMemoryHandle*>(bitmap_data);
+                                            base::ProcessHandle process) {
+  const base::SharedMemoryHandle* remote_bitmap_handle =
+      reinterpret_cast<const base::SharedMemoryHandle*>(bitmap_data);
   const gfx::Size* size = reinterpret_cast<const gfx::Size*>(size_data);
 
-  SharedMemory bitmap(*remote_bitmap_handle, false, process);
+  base::SharedMemory bitmap(*remote_bitmap_handle, false, process);
 
   // TODO(darin): share data in gfx/bitmap_header.cc somehow
   BITMAPINFO bm_info = {0};

@@ -38,7 +38,6 @@
 
 class DebugMessageHandler;
 class GURL;
-class SharedMemory;
 class SkBitmap;
 struct ThumbnailScore;
 class WebError;
@@ -48,7 +47,7 @@ class WebPluginDelegateProxy;
 enum WebRequestCachePolicy;
 
 namespace webkit_glue {
-  struct FileUploadData;
+struct FileUploadData;
 }
 
 // We need to prevent a page from trying to create infinite popups. It is not

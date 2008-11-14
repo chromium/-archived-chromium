@@ -7,9 +7,6 @@
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-class GreasemonkeySlaveTest : public testing::Test {
-};
-
 TEST(GreasemonkeySlaveTest, EscapeGlob) {
   EXPECT_EQ("", GreasemonkeyScript::EscapeGlob(""));
   EXPECT_EQ("*", GreasemonkeyScript::EscapeGlob("*"));

@@ -36,7 +36,7 @@ class View;
 class Window;
 }
 
-namespace process_util {
+namespace base {
 class ProcessMetrics;
 }
 
@@ -215,7 +215,7 @@ class TaskManagerTableModel : public views::GroupTableModel,
   };
 
   typedef std::map<HANDLE, std::vector<TaskManager::Resource*>*> GroupMap;
-  typedef std::map<HANDLE, process_util::ProcessMetrics*> MetricsMap;
+  typedef std::map<HANDLE, base::ProcessMetrics*> MetricsMap;
   typedef std::map<HANDLE, int> CPUUsageMap;
   typedef std::map<TaskManager::Resource*, int64> ResourceValueMap;
   typedef std::vector<TaskManager::Resource*> ResourceList;
@@ -254,15 +254,15 @@ class TaskManagerTableModel : public views::GroupTableModel,
 
   // Retrieves the private memory (in KB) that should be displayed from the
   // passed |process_metrics|.
-  size_t GetPrivateMemory(process_util::ProcessMetrics* process_metrics);
+  size_t GetPrivateMemory(base::ProcessMetrics* process_metrics);
 
   // Returns the shared memory (in KB) that should be displayed from the passed
   // |process_metrics|.
-  size_t GetSharedMemory(process_util::ProcessMetrics* process_metrics);
+  size_t GetSharedMemory(base::ProcessMetrics* process_metrics);
 
   // Returns the pysical memory (in KB) that should be displayed from the passed
   // |process_metrics|.
-  size_t GetPhysicalMemory(process_util::ProcessMetrics* process_metrics);
+  size_t GetPhysicalMemory(base::ProcessMetrics* process_metrics);
 
   // Returns the stat value at the column |col_id| that should be displayed from
   // the passed |process_metrics|.
@@ -272,8 +272,8 @@ class TaskManagerTableModel : public views::GroupTableModel,
   // Returns true if there was a ProcessMetrics available for both rows.
   bool GetProcessMetricsForRows(int row1,
                                 int row2,
-                                process_util::ProcessMetrics** proc_metrics1,
-                                process_util::ProcessMetrics** proc_metrics2);
+                                base::ProcessMetrics** proc_metrics1,
+                                base::ProcessMetrics** proc_metrics2);
 
   // The list of providers to the task manager. They are ref counted.
   ResourceProviderList providers_;

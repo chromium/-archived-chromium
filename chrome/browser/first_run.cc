@@ -206,8 +206,8 @@ bool Upgrade::IsBrowserAlreadyRunning() {
 
 bool Upgrade::RelaunchChromeBrowser(const CommandLine& command_line) {
   ::SetEnvironmentVariable(google_update::kEnvProductVersionKey, NULL);
-  return process_util::LaunchApp(command_line.command_line_string(),
-                                 false, false, NULL);
+  return base::LaunchApp(command_line.command_line_string(),
+                         false, false, NULL);
 }
 
 bool Upgrade::SwapNewChromeExeIfPresent() {
@@ -226,8 +226,8 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
   std::wstring rename_cmd;
   if (key.Open(reg_root, dist->GetVersionKey().c_str(), KEY_READ) &&
       key.ReadValue(google_update::kRegRenameCmdField, &rename_cmd)) {
-    ProcessHandle handle;
-    if (process_util::LaunchApp(rename_cmd, true, true, &handle)) {
+    base::ProcessHandle handle;
+    if (base::LaunchApp(rename_cmd, true, true, &handle)) {
       DWORD exit_code;
       ::GetExitCodeProcess(handle, &exit_code);
       ::CloseHandle(handle);
@@ -267,7 +267,7 @@ class ImportProcessRunner : public base::ObjectWatcher::Delegate {
   // The constructor takes the importer process to watch and then it does a
   // message loop blocking wait until the process ends. This object now owns
   // the import_process handle.
-  explicit ImportProcessRunner(ProcessHandle import_process)
+  explicit ImportProcessRunner(base::ProcessHandle import_process)
       : import_process_(import_process),
         exit_code_(ResultCodes::NORMAL_EXIT) {
     watcher_.StartWatching(import_process, this);
@@ -292,7 +292,7 @@ class ImportProcessRunner : public base::ObjectWatcher::Delegate {
 
  private:
   base::ObjectWatcher watcher_;
-  ProcessHandle import_process_;
+  base::ProcessHandle import_process_;
   DWORD exit_code_;
 };
 
@@ -309,7 +309,7 @@ class HungImporterMonitor : public WorkerThreadTicker::Callback {
   // The ctor takes the owner popup window and the process handle of the
   // process to kill in case the popup or its owned active popup become
   // unresponsive.
-  HungImporterMonitor(HWND owner_window, ProcessHandle import_process)
+  HungImporterMonitor(HWND owner_window, base::ProcessHandle import_process)
       : owner_window_(owner_window),
         import_process_(import_process),
         ticker_(kPollHangFrequency) {
@@ -338,7 +338,7 @@ class HungImporterMonitor : public WorkerThreadTicker::Callback {
   }
 
   HWND owner_window_;
-  ProcessHandle import_process_;
+  base::ProcessHandle import_process_;
   WorkerThreadTicker ticker_;
   DISALLOW_EVIL_CONSTRUCTORS(HungImporterMonitor);
 };
@@ -418,8 +418,8 @@ bool FirstRun::ImportSettings(Profile* profile, int browser,
       EncodeImportParams(browser, items_to_import, parent_window));
 
   // Time to launch the process that is going to do the import.
-  ProcessHandle import_process;
-  if (!process_util::LaunchApp(import_cmd, false, false, &import_process))
+  base::ProcessHandle import_process;
+  if (!base::LaunchApp(import_cmd, false, false, &import_process))
     return false;
 
   // Activate the importer monitor. It awakes periodically in another thread

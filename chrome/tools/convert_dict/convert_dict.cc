@@ -71,7 +71,7 @@ int PrintHelp() {
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
   if (argc != 2)
     return PrintHelp();
 

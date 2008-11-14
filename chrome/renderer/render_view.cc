@@ -581,7 +581,7 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   page_params.page_number = params.page_number;
   page_params.document_cookie = params.params.document_cookie;
   page_params.actual_shrink = shrink;
-  SharedMemory shared_buf;
+  base::SharedMemory shared_buf;
 
   // http://msdn2.microsoft.com/en-us/library/ms535522.aspx
   // Windows 2000/XP: When a page in a spooled file exceeds approximately 350

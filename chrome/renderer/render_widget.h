@@ -101,7 +101,7 @@ class RenderWidget : public IPC::Channel::Listener,
   // Paints the given rectangular region of the WebWidget into paint_buf (a
   // shared memory segment returned by AllocPaintBuf). The caller must ensure
   // that the given rect fits within the bounds of the WebWidget.
-  void PaintRect(const gfx::Rect& rect, SharedMemory* paint_buf);
+  void PaintRect(const gfx::Rect& rect, base::SharedMemory* paint_buf);
 
   // Get the size of the paint buffer for the given rectangle, rounding up to
   // the allocation granularity of the system.
@@ -204,8 +204,8 @@ class RenderWidget : public IPC::Channel::Listener,
 
   // Shared memory handles that are currently in use to transfer an image to
   // the browser.
-  SharedMemory* current_paint_buf_;
-  SharedMemory* current_scroll_buf_;
+  base::SharedMemory* current_paint_buf_;
+  base::SharedMemory* current_scroll_buf_;
 
   // The smallest bounding rectangle that needs to be re-painted.  This is non-
   // empty if a paint event is pending.

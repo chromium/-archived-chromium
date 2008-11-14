@@ -156,12 +156,12 @@ IPC_BEGIN_MESSAGES(View, 1)
   // History system notification that the visited link database has been
   // replaced. It has one SharedMemoryHandle argument consisting of the table
   // handle. This handle is valid in the context of the renderer
-  IPC_MESSAGE_CONTROL1(ViewMsg_VisitedLink_NewTable, SharedMemoryHandle)
+  IPC_MESSAGE_CONTROL1(ViewMsg_VisitedLink_NewTable, base::SharedMemoryHandle)
 
   // Notification that the Greasemonkey scripts have been updated. It has one
   // SharedMemoryHandle argument consisting of the pickled script data. This
   // handle is valid in the context of the renderer.
-  IPC_MESSAGE_CONTROL1(ViewMsg_Greasemonkey_NewScripts, SharedMemoryHandle)
+  IPC_MESSAGE_CONTROL1(ViewMsg_Greasemonkey_NewScripts, base::SharedMemoryHandle)
 
   // Sent when the user wants to search for a word on the page (find in page).
   // Request parameters are passed in as a FindInPageMsg_Request struct.
@@ -187,7 +187,7 @@ IPC_BEGIN_MESSAGES(View, 1)
   // already be mapped into the process that receives this message.
   IPC_MESSAGE_ROUTED3(ViewMsg_Resource_DataReceived,
                       int /* request_id */,
-                      SharedMemoryHandle /* data */,
+                      base::SharedMemoryHandle /* data */,
                       int /* data_len */)
 
   // Sent when the request has been completed.
@@ -1056,8 +1056,8 @@ IPC_BEGIN_MESSAGES(ViewHost, 2)
   // Duplicates a shared memory handle from the renderer to the browser. Then
   // the renderer can flush the handle.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_DuplicateSection,
-                             SharedMemoryHandle /* renderer handle */,
-                             SharedMemoryHandle /* browser handle */)
+                             base::SharedMemoryHandle /* renderer handle */,
+                             base::SharedMemoryHandle /* browser handle */)
 
   // Provide the browser process with information about the WebCore resource
   // cache.

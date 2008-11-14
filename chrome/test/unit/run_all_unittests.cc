@@ -13,7 +13,7 @@
 #endif
 
 int main(int argc, char **argv) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
 #if defined(OS_WIN)
   // TODO(port): This is not Windows-specific, but needs to be ported.
   return ChromeTestSuite(argc, argv).Run();

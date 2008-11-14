@@ -25,7 +25,7 @@ class PerfTestSuite : public TestSuite {
     // Raise to high priority to have more precise measurements. Since we don't
     // aim at 1% precision, it is not necessary to run at realtime level.
     if (!DebugUtil::BeingDebugged())
-      process_util::RaiseProcessToHighPriority();
+      base::RaiseProcessToHighPriority();
 
     TestSuite::Initialize();
   }

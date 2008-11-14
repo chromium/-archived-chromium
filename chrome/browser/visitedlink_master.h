@@ -27,7 +27,7 @@ class Profile;
 // operations are pending on another thread.
 class VisitedLinkMaster : public VisitedLinkCommon {
  public:
-  typedef void (PostNewTableEvent)(SharedMemory*);
+   typedef void (PostNewTableEvent)(base::SharedMemory*);
 
   // The |file_thread| may be NULL, in which case write operations will be
   // synchronous.
@@ -65,14 +65,15 @@ class VisitedLinkMaster : public VisitedLinkCommon {
 
   // Duplicates the handle to the shared memory to another process.
   // Returns true on success.
-  bool ShareToProcess(ProcessHandle process, SharedMemoryHandle *new_handle);
+  bool ShareToProcess(base::ProcessHandle process,
+                      base::SharedMemoryHandle *new_handle);
 
   // returns the name of the shared memory object that slaves can use to map
   // the data
   std::wstring GetSharedMemoryName() const;
 
   // Returns the handle to the shared memory
-  SharedMemoryHandle GetSharedMemoryHandle();
+  base::SharedMemoryHandle GetSharedMemoryHandle();
 
   // Adds a URL to the table.
   void AddURL(const GURL& url);
@@ -329,7 +330,7 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   HANDLE file_;
 
   // Shared memory consists of a SharedHeader followed by the table.
-  SharedMemory *shared_memory_;
+  base::SharedMemory *shared_memory_;
 
   // When we generate new tables, we increment the serial number of the
   // shared memory object.

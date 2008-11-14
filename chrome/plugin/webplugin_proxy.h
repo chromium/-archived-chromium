@@ -83,8 +83,8 @@ class WebPluginProxy : public WebPlugin {
                       const gfx::Rect& clip_rect,
                       const std::vector<gfx::Rect>& cutout_rects,
                       bool visible,
-                      const SharedMemoryHandle& windowless_buffer,
-                      const SharedMemoryHandle& background_buffer);
+                      const base::SharedMemoryHandle& windowless_buffer,
+                      const base::SharedMemoryHandle& background_buffer);
 
   void CancelDocumentLoad();
 
@@ -98,12 +98,12 @@ class WebPluginProxy : public WebPlugin {
   bool Send(IPC::Message* msg);
 
   // Updates the shared memory section where windowless plugins paint.
-  void SetWindowlessBuffer(const SharedMemoryHandle& windowless_buffer,
-                           const SharedMemoryHandle& background_buffer);
+  void SetWindowlessBuffer(const base::SharedMemoryHandle& windowless_buffer,
+                           const base::SharedMemoryHandle& background_buffer);
 
   // Converts a shared memory section handle from the renderer process into a
   // bitmap and hdc that are mapped to this process.
-  void ConvertBuffer(const SharedMemoryHandle& buffer,
+  void ConvertBuffer(const base::SharedMemoryHandle& buffer,
                      ScopedHandle* shared_section,
                      ScopedBitmap* bitmap,
                      ScopedHDC* hdc);

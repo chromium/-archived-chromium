@@ -7,6 +7,21 @@
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
 
+namespace base {
+
+void Process::Close() {
+  if (!process_)
+    return;
+  ::CloseHandle(process_);
+  process_ = NULL;
+}
+
+void Process::Terminate(int result_code) {
+  if (!process_)
+    return;
+  ::TerminateProcess(process_, result_code);
+}
+
 bool Process::IsProcessBackgrounded() const {
   DCHECK(process_);
   DWORD priority = GetPriorityClass(process_);
@@ -43,9 +58,9 @@ bool Process::ReduceWorkingSet() {
   // The intended algorithm is:
   //   TargetWorkingSetSize = (LastWorkingSet/2 + CurrentWorkingSet) /2
 
-  scoped_ptr<process_util::ProcessMetrics> metrics(
-    process_util::ProcessMetrics::CreateProcessMetrics(process_));
-  process_util::WorkingSetKBytes working_set;
+  scoped_ptr<ProcessMetrics> metrics(
+      ProcessMetrics::CreateProcessMetrics(process_));
+  WorkingSetKBytes working_set;
   if (!metrics->GetWorkingSetKBytes(&working_set))
     return false;
 
@@ -96,7 +111,7 @@ int32 Process::pid() const {
   if (process_ == 0)
     return 0;
 
-  return process_util::GetProcId(process_);
+  return GetProcId(process_);
 }
 
 bool Process::is_current() const {
@@ -108,3 +123,4 @@ Process Process::Current() {
   return Process(GetCurrentProcess());
 }
 
+}  // namespace base

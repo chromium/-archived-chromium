@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_RENDERER_GREASEMONKEY_SLAVE_H__
-#define CHROME_RENDERER_GREASEMONKEY_SLAVE_H__
+#ifndef CHROME_RENDERER_GREASEMONKEY_SLAVE_H_
+#define CHROME_RENDERER_GREASEMONKEY_SLAVE_H_
 
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
@@ -75,7 +75,7 @@ class GreasemonkeySlave {
   GreasemonkeySlave();
 
   // Update the parsed scripts from shared memory.
-  bool UpdateScripts(SharedMemoryHandle shared_memory);
+  bool UpdateScripts(base::SharedMemoryHandle shared_memory);
 
   // Inject the appropriate scripts into a frame based on its URL.
   // TODO(aa): Extract a GreasemonkeyFrame interface out of this to improve
@@ -84,7 +84,7 @@ class GreasemonkeySlave {
 
  private:
   // Shared memory containing raw script data.
-  scoped_ptr<SharedMemory> shared_memory_;
+  scoped_ptr<base::SharedMemory> shared_memory_;
 
   // Parsed script data.
   std::vector<GreasemonkeyScript> scripts_;
@@ -92,4 +92,4 @@ class GreasemonkeySlave {
   DISALLOW_COPY_AND_ASSIGN(GreasemonkeySlave);
 };
 
-#endif // CHROME_RENDERER_GREASEMONKEY_SLAVE_H__
+#endif  // CHROME_RENDERER_GREASEMONKEY_SLAVE_H_

@@ -121,7 +121,7 @@ class ResourceDispatcherHost::AsyncEventHandler
       read_buffer_.reset(spare_read_buffer_);
       spare_read_buffer_ = NULL;
     } else {
-      read_buffer_.reset(new SharedMemory);
+      read_buffer_.reset(new base::SharedMemory);
       if (!read_buffer_->Create(std::wstring(), false, false, kReadBufSize))
         return false;
       if (!read_buffer_->Map(kReadBufSize))
@@ -142,7 +142,7 @@ class ResourceDispatcherHost::AsyncEventHandler
       return true;
     }
 
-    SharedMemoryHandle handle;
+    base::SharedMemoryHandle handle;
     if (!read_buffer_->GiveToProcess(render_process_, &handle)) {
       // We wrongfully incremented the pending data count. Fake an ACK message
       // to fix this. We can't move this call above the WillSendData because
@@ -175,16 +175,18 @@ class ResourceDispatcherHost::AsyncEventHandler
   // When reading, we don't know if we are going to get EOF (0 bytes read), so
   // we typically have a buffer that we allocated but did not use.  We keep
   // this buffer around for the next read as a small optimization.
-  static SharedMemory* spare_read_buffer_;
+  static base::SharedMemory* spare_read_buffer_;
 
-  scoped_ptr<SharedMemory> read_buffer_;
+  scoped_ptr<base::SharedMemory> read_buffer_;
   ResourceDispatcherHost::Receiver* receiver_;
   int render_process_host_id_;
   int routing_id_;
   HANDLE render_process_;
   ResourceDispatcherHost* rdh_;
 };
-SharedMemory* ResourceDispatcherHost::AsyncEventHandler::spare_read_buffer_;
+
+base::SharedMemory*
+    ResourceDispatcherHost::AsyncEventHandler::spare_read_buffer_;
 
 // ----------------------------------------------------------------------------
 // ResourceDispatcherHost::SyncEventHandler

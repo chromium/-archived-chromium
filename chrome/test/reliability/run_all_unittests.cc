@@ -7,7 +7,7 @@
 #include "chrome/test/reliability/reliability_test_suite.h"
 
 int main(int argc, char **argv) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
   return ReliabilityTestSuite(argc, argv).Run();
 }
 

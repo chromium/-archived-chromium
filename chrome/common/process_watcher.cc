@@ -17,7 +17,7 @@ namespace {
 
 class TimerExpiredTask : public Task, public base::ObjectWatcher::Delegate {
  public:
-  explicit TimerExpiredTask(ProcessHandle process) : process_(process) {
+  explicit TimerExpiredTask(base::ProcessHandle process) : process_(process) {
     watcher_.StartWatching(process_, this);
   }
 
@@ -68,7 +68,7 @@ class TimerExpiredTask : public Task, public base::ObjectWatcher::Delegate {
   }
 
   // The process that we are watching.
-  ProcessHandle process_;
+  base::ProcessHandle process_;
 
   base::ObjectWatcher watcher_;
 
@@ -78,7 +78,7 @@ class TimerExpiredTask : public Task, public base::ObjectWatcher::Delegate {
 }  // namespace
 
 // static
-void ProcessWatcher::EnsureProcessTerminated(ProcessHandle process) {
+void ProcessWatcher::EnsureProcessTerminated(base::ProcessHandle process) {
   DCHECK(process != GetCurrentProcess());
 
   // If already signaled, then we are done!

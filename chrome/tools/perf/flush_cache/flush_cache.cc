@@ -11,7 +11,7 @@
 #include "chrome/test/test_file_util.h"
 
 int main(int argc, const char* argv[]) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
   if (argc <= 1) {
     fprintf(stderr, "flushes disk cache for files\n");
     fprintf(stderr, "usage: %s <filenames>\n", argv[0]);

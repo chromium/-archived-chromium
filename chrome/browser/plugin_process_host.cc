@@ -433,7 +433,7 @@ bool PluginProcessHost::Init(const std::wstring& dll,
   } else {
     // spawn child process
     HANDLE process;
-    if (!process_util::LaunchApp(cmd_line, false, false, &process))
+    if (!base::LaunchApp(cmd_line, false, false, &process))
       return false;
     process_.set_handle(process);
   }
@@ -470,7 +470,7 @@ void PluginProcessHost::OnObjectSignaled(HANDLE object) {
   DCHECK(process_.handle());
   DCHECK_EQ(object, process_.handle());
 
-  bool did_crash = process_util::DidProcessCrash(object);
+  bool did_crash = base::DidProcessCrash(object);
 
   if (did_crash) {
     // Report that this plugin crashed.

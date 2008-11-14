@@ -6,6 +6,16 @@
 #include "base/logging.h"
 #include "base/process_util.h"
 
+namespace base {
+
+void Process::Close() {
+  process_ = 0;
+}
+
+void Process::Terminate() {
+  NOTIMPLEMENTED();
+}
+
 bool Process::IsProcessBackgrounded() const {
   return false;
 }
@@ -46,3 +56,4 @@ Process Process::Current() {
   return Process(process_util::GetCurrentProcessHandle());
 }
 
+}  // namspace base

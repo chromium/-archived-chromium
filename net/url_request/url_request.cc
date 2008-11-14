@@ -48,7 +48,7 @@ URLRequest::URLRequest(const GURL& url, Delegate* delegate)
       final_upload_progress_(0) {
   URLREQUEST_COUNT_CTOR();
   SIMPLE_STATS_COUNTER(L"URLRequestCount");
-  origin_pid_ = process_util::GetCurrentProcId();
+  origin_pid_ = base::GetCurrentProcId();
 
   // Sanity check out environment.
   DCHECK(MessageLoop::current()) <<

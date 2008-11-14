@@ -95,10 +95,10 @@ void ScopedClipboardWriterGlue::WriteBitmap(const SkBitmap& bitmap) {
   shared_buf_->Unmap();
 
   Clipboard::ObjectMapParam param1, param2;
-  SharedMemoryHandle smh = shared_buf_->handle();
+  base::SharedMemoryHandle smh = shared_buf_->handle();
 
   const char* shared_handle = reinterpret_cast<const char*>(&smh);
-  for (size_t i = 0; i < sizeof SharedMemoryHandle; i++)
+  for (size_t i = 0; i < sizeof base::SharedMemoryHandle; i++)
     param1.push_back(shared_handle[i]);
 
   const char* size_data = reinterpret_cast<const char*>(&size);

@@ -102,7 +102,7 @@ class RenderProcessHost : public IPC::Channel::Listener,
     return channel_.get();
   }
 
-  const Process& process() const {
+  const base::Process& process() const {
     return process_;
   }
 
@@ -178,7 +178,7 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // to register/unregister visibility.
   void WidgetRestored();
   void WidgetHidden();
-  
+
   // Add a word in the spellchecker.
   void AddWord(const std::wstring& word);
 
@@ -194,7 +194,7 @@ class RenderProcessHost : public IPC::Channel::Listener,
   // Clipboard messages
   void OnClipboardWriteHTML(const std::wstring& markup, const GURL& src_url);
   void OnClipboardWriteBookmark(const std::wstring& title, const GURL& url);
-  void OnClipboardWriteBitmap(SharedMemoryHandle bitmap, gfx::Size size);
+  void OnClipboardWriteBitmap(base::SharedMemoryHandle bitmap, gfx::Size size);
   void OnClipboardIsFormatAvailable(unsigned int format, bool* result);
   void OnClipboardReadText(std::wstring* result);
   void OnClipboardReadAsciiText(std::string* result);
@@ -210,11 +210,11 @@ class RenderProcessHost : public IPC::Channel::Listener,
   void InitGreasemonkeyScripts();
 
   // Sends the renderer process a new set of Greasemonkey scripts.
-  void SendGreasemonkeyScriptsUpdate(SharedMemory* shared_memory);
+  void SendGreasemonkeyScriptsUpdate(base::SharedMemory* shared_memory);
 
   // Gets a handle to the renderer process, normalizing the case where we were
   // started with --single-process.
-  HANDLE GetRendererProcessHandle();
+  base::ProcessHandle GetRendererProcessHandle();
 
   // Callers can reduce the RenderProcess' priority.
   // Returns true if the priority is backgrounded; false otherwise.
@@ -237,7 +237,7 @@ class RenderProcessHost : public IPC::Channel::Listener,
   scoped_ptr<IPC::SyncChannel> channel_;
 
   // Our renderer process.
-  Process process_;
+  base::Process process_;
 
   // Used to watch the renderer process handle.
   base::ObjectWatcher watcher_;

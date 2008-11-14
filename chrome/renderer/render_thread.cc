@@ -148,14 +148,15 @@ void RenderThread::CleanUp() {
   CoUninitialize();
 }
 
-void RenderThread::OnUpdateVisitedLinks(SharedMemoryHandle table) {
+void RenderThread::OnUpdateVisitedLinks(base::SharedMemoryHandle table) {
   DCHECK(table) << "Bad table handle";
   visited_link_slave_->Init(table);
 }
 
-void RenderThread::OnUpdateGreasemonkeyScripts(SharedMemoryHandle scripts) {
+void RenderThread::OnUpdateGreasemonkeyScripts(
+    base::SharedMemoryHandle scripts) {
   DCHECK(scripts) << "Bad scripts handle";
-  greasemonkey_slave_->UpdateScripts(scripts);  
+  greasemonkey_slave_->UpdateScripts(scripts);
 }
 
 void RenderThread::OnMessageReceived(const IPC::Message& msg) {

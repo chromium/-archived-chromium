@@ -334,7 +334,7 @@ void ResourceDispatcher::OnReceivedResponse(
 }
 
 void ResourceDispatcher::OnReceivedData(int request_id,
-                                        SharedMemoryHandle shm_handle,
+                                        base::SharedMemoryHandle shm_handle,
                                         int data_len) {
   // Acknowlegde the reception of this data.
   IPC::Message::Sender* sender = message_sender();
@@ -343,7 +343,7 @@ void ResourceDispatcher::OnReceivedData(int request_id,
         new ViewHostMsg_DataReceived_ACK(MSG_ROUTING_NONE, request_id));
 
   DCHECK((shm_handle && data_len > 0) || (!shm_handle && !data_len));
-  SharedMemory shared_mem(shm_handle, true);  // read only
+  base::SharedMemory shared_mem(shm_handle, true);  // read only
 
   PendingRequestList::iterator it = pending_requests_.find(request_id);
   if (it == pending_requests_.end()) {

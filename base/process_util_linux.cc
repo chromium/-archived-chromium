@@ -25,7 +25,7 @@ enum ParsingState {
 
 }  // namespace
 
-namespace process_util {
+namespace base {
 
 bool LaunchApp(const std::vector<std::string>& argv,
                bool wait, ProcessHandle* process_handle) {
@@ -327,4 +327,4 @@ int ProcessMetrics::GetCPUUsage() {
   return -1;
 }
 
-}  // namespace process_util
+}  // namespace base

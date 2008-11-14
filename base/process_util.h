@@ -44,7 +44,7 @@ struct IoCounters {
 };
 #endif
 
-namespace process_util {
+namespace base {
 
 // A minimalistic but hopefully cross-platform set of exit codes.
 // Do not change the enumeration values or you will break third-party
@@ -322,6 +322,6 @@ void EnableTerminationOnHeapCorruption();
 // the current process's scheduling priority to a high priority.
 void RaiseProcessToHighPriority();
 
-}  // namespace process_util
+}  // namespace base
 
 #endif  // BASE_PROCESS_UTIL_H_

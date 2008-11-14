@@ -73,7 +73,7 @@
 #define TRACE_EVENT_INSTANT(name, id, extra)
 #endif
 
-namespace process_util {
+namespace base {
 class ProcessMetrics;
 }
 
@@ -126,7 +126,7 @@ class TraceLog {
   FILE* log_file_;
   Lock file_lock_;
   TimeTicks trace_start_time_;
-  scoped_ptr<process_util::ProcessMetrics> process_metrics_;
+  scoped_ptr<base::ProcessMetrics> process_metrics_;
   RepeatingTimer<TraceLog> timer_;
 };
 

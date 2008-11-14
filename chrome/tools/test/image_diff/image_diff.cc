@@ -233,7 +233,7 @@ int CompareImages(const char* file1, const char* file2) {
 }
 
 int main(int argc, const char* argv[]) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
 #if defined(OS_WIN)
   CommandLine parsed_command_line;
 #elif defined(OS_POSIX)

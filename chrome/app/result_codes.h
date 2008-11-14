@@ -20,9 +20,9 @@
 class ResultCodes {
  public:
   enum ExitCode {
-    NORMAL_EXIT = process_util::PROCESS_END_NORMAL_TERMINATON,
-    TASKMAN_KILL = process_util::PROCESS_END_KILLED_BY_USER,
-    HUNG = process_util::PROCESS_END_PROCESS_WAS_HUNG,
+    NORMAL_EXIT = base::PROCESS_END_NORMAL_TERMINATON,
+    TASKMAN_KILL = base::PROCESS_END_KILLED_BY_USER,
+    HUNG = base::PROCESS_END_PROCESS_WAS_HUNG,
     INVALID_CMDLINE_URL,        // An invalid command line url was given.
     SBOX_INIT_FAILED,           // The sandbox could not be initialized.
     GOOGLE_UPDATE_INIT_FAILED,  // The Google Update client stub init failed.

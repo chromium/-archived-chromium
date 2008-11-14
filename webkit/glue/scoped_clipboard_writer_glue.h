@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SCOPED_CLIPBOARD_WRITER_GLUE_H__
-#define SCOPED_CLIPBOARD_WRITER_GLUE_H__
+#ifndef SCOPED_CLIPBOARD_WRITER_GLUE_H_
+#define SCOPED_CLIPBOARD_WRITER_GLUE_H_
 
 #include "base/clipboard.h"
 #include "base/scoped_clipboard_writer.h"
@@ -22,8 +22,8 @@ class ScopedClipboardWriterGlue : public ScopedClipboardWriter {
 #endif
 
  private:
-  SharedMemory* shared_buf_;
+  base::SharedMemory* shared_buf_;
   DISALLOW_COPY_AND_ASSIGN(ScopedClipboardWriterGlue);
 };
 
-#endif  // SCOPED_CLIPBOARD_WRITER_GLUE_H__
+#endif  // SCOPED_CLIPBOARD_WRITER_GLUE_H_

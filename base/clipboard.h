@@ -90,7 +90,7 @@ class Clipboard {
   // the objects, it came from the process designated by |process|. This will
   // assist in turning it into a shared memory region that the current process
   // can use.
-  void WriteObjects(const ObjectMap& objects, ProcessHandle process);
+  void WriteObjects(const ObjectMap& objects, base::ProcessHandle process);
 
   // Tests whether the clipboard contains a certain format
   bool IsFormatAvailable(FormatType format) const;
@@ -160,7 +160,7 @@ class Clipboard {
 
   void WriteBitmapFromSharedMemory(const char* bitmap_data,
                                    const char* size_data,
-                                   ProcessHandle handle);
+                                   base::ProcessHandle handle);
 
   void WriteBitmapFromHandle(HBITMAP source_hbitmap,
                              const gfx::Size& size);

@@ -30,14 +30,14 @@ class RenderProcess : public ChildProcess {
   // reported in the resulting SharedMemory object will be greater than or
   // equal to the requested size.  This method returns NULL if unable to
   // allocate memory for some reason.
-  static SharedMemory* AllocSharedMemory(size_t size);
+  static base::SharedMemory* AllocSharedMemory(size_t size);
 
   // Frees shared memory allocated by AllocSharedMemory.  You should only use
   // this function to free the SharedMemory object.
-  static void FreeSharedMemory(SharedMemory* mem);
+  static void FreeSharedMemory(base::SharedMemory* mem);
 
   // Deletes the shared memory allocated by AllocSharedMemory.
-  static void DeleteSharedMem(SharedMemory* mem);
+  static void DeleteSharedMem(base::SharedMemory* mem);
 
  private:
   friend class ChildProcessFactory<RenderProcess>;
@@ -54,12 +54,12 @@ class RenderProcess : public ChildProcess {
 
   // Look in the shared memory cache for a suitable object to reuse.  Returns
   // NULL if there is none.
-  SharedMemory* GetSharedMemFromCache(size_t size);
+  base::SharedMemory* GetSharedMemFromCache(size_t size);
 
   // Maybe put the given shared memory into the shared memory cache.  Returns
   // true if the SharedMemory object was stored in the cache; otherwise, false
   // is returned.
-  bool PutSharedMemInCache(SharedMemory* mem);
+  bool PutSharedMemInCache(base::SharedMemory* mem);
 
   void ClearSharedMemCache();
 
@@ -76,7 +76,7 @@ class RenderProcess : public ChildProcess {
 
   // A very simplistic and small cache.  If an entry in this array is non-null,
   // then it points to a SharedMemory object that is available for reuse.
-  SharedMemory* shared_mem_cache_[2];
+  base::SharedMemory* shared_mem_cache_[2];
 
   // This factory is used to lazily invoke ClearSharedMemCache.
   ScopedRunnableMethodFactory<RenderProcess> clearer_factory_;

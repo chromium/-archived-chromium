@@ -102,13 +102,13 @@ class ResourceDispatcherTest : public testing::Test,
       dispatcher_->OnReceivedResponse(request_id, response);
 
       // received data message with the test contents
-      SharedMemory shared_mem;
+      base::SharedMemory shared_mem;
       EXPECT_TRUE(shared_mem.Create(std::wstring(),
           false, false, test_page_contents_len));
       EXPECT_TRUE(shared_mem.Map(test_page_contents_len));
       char* put_data_here = static_cast<char*>(shared_mem.memory());
       memcpy(put_data_here, test_page_contents, test_page_contents_len);
-      SharedMemoryHandle dup_handle;
+      base::SharedMemoryHandle dup_handle;
       EXPECT_TRUE(shared_mem.GiveToProcess(GetCurrentProcess(), &dup_handle));
       dispatcher_->OnReceivedData(request_id, dup_handle, test_page_contents_len);
 

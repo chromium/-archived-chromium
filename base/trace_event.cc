@@ -26,8 +26,8 @@ static const FilePath::CharType* kLogFileName =
     FILE_PATH_LITERAL("trace_%d.log");
 
 TraceLog::TraceLog() : enabled_(false), log_file_(NULL) {
-  ProcessHandle proc = process_util::GetCurrentProcessHandle();
-  process_metrics_.reset(process_util::ProcessMetrics::CreateProcessMetrics(proc));
+  base::ProcessHandle proc = base::GetCurrentProcessHandle();
+  process_metrics_.reset(base::ProcessMetrics::CreateProcessMetrics(proc));
 }
 
 TraceLog::~TraceLog() {
@@ -86,7 +86,7 @@ void TraceLog::CloseLogFile() {
 
 bool TraceLog::OpenLogFile() {
   FilePath::StringType pid_filename =
-      StringPrintf(kLogFileName, process_util::GetCurrentProcId());
+      StringPrintf(kLogFileName, base::GetCurrentProcId());
   FilePath log_file_path;
   if (!PathService::Get(base::DIR_EXE, &log_file_path))
     return false;
@@ -133,7 +133,7 @@ void TraceLog::Trace(const std::string& name,
     StringPrintf("{'pid':'0x%lx', 'tid':'0x%lx', 'type':'%s', "
                  "'name':'%s', 'id':'0x%lx', 'extra':'%s', 'file':'%s', "
                  "'line_number':'%d', 'usec_begin': %I64d},\r\n", 
-                 process_util::GetCurrentProcId(),
+                 base::GetCurrentProcId(),
                  PlatformThread::CurrentId(),
                  kEventTypeNames[type],
                  name.c_str(),

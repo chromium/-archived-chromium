@@ -567,7 +567,7 @@ TEST_F(PrintingLayoutTest, DISABLED_Delayed) {
     scoped_ptr<base::Thread> worker(
         new base::Thread("PrintingLayoutTest_worker"));
     scoped_refptr<DismissTheWindow> dismiss_task =
-        new DismissTheWindow(process_util::GetProcId(process()));
+        new DismissTheWindow(base::GetProcId(process()));
     // We need to start the thread to be able to set the timer.
     worker->Start();
     worker->message_loop()->PostTask(FROM_HERE,
@@ -605,7 +605,7 @@ TEST_F(PrintingLayoutTest, DISABLED_IFrame) {
     scoped_ptr<base::Thread> worker(
         new base::Thread("PrintingLayoutTest_worker"));
     scoped_refptr<DismissTheWindow> dismiss_task =
-        new DismissTheWindow(process_util::GetProcId(process()));
+        new DismissTheWindow(base::GetProcId(process()));
     // We need to start the thread to be able to set the timer.
     worker->Start();
     worker->message_loop()->PostTask(FROM_HERE,

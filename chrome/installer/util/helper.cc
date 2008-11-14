@@ -39,7 +39,7 @@ bool installer::LaunchChrome(bool system_install) {
   chrome_exe.append(installer::GetChromeInstallPath(system_install));
   file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
   chrome_exe.append(L"\"");
-  return process_util::LaunchApp(chrome_exe, false, false, NULL);
+  return base::LaunchApp(chrome_exe, false, false, NULL);
 }
 
 bool installer::LaunchChromeAndWaitForResult(bool system_install,

@@ -279,9 +279,9 @@ void WebPluginProxy::UpdateGeometry(
     const gfx::Rect& clip_rect,
     const std::vector<gfx::Rect>& cutout_rects,
     bool visible,
-    const SharedMemoryHandle& windowless_buffer,
-    const SharedMemoryHandle& background_buffer) {
-      gfx::Rect old = delegate_->rect();
+    const base::SharedMemoryHandle& windowless_buffer,
+    const base::SharedMemoryHandle& background_buffer) {
+  gfx::Rect old = delegate_->rect();
   bool moved = delegate_->rect().x() != window_rect.x() ||
                delegate_->rect().y() != window_rect.y();
   delegate_->UpdateGeometry(window_rect, clip_rect, cutout_rects, visible);
@@ -295,8 +295,8 @@ void WebPluginProxy::UpdateGeometry(
 }
 
 void WebPluginProxy::SetWindowlessBuffer(
-    const SharedMemoryHandle& windowless_buffer,
-    const SharedMemoryHandle& background_buffer) {
+    const base::SharedMemoryHandle& windowless_buffer,
+    const base::SharedMemoryHandle& background_buffer) {
   // Convert the shared memory handle to a handle that works in our process,
   // and then use that to create an HDC.
   ConvertBuffer(windowless_buffer,
@@ -312,7 +312,7 @@ void WebPluginProxy::SetWindowlessBuffer(
   UpdateTransform();
 }
 
-void WebPluginProxy::ConvertBuffer(const SharedMemoryHandle& buffer,
+void WebPluginProxy::ConvertBuffer(const base::SharedMemoryHandle& buffer,
                                    ScopedHandle* shared_section,
                                    ScopedBitmap* bitmap,
                                    ScopedHDC* hdc) {

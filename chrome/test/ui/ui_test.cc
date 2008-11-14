@@ -239,12 +239,11 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
 
   browser_launch_time_ = TimeTicks::Now();
 
-  bool started = process_util::LaunchApp(
-                     command_line,
-                     false,  // Don't wait for process object (doesn't work for
-                             // us)
-                     !show_window_,
-                     &process_);
+  bool started = base::LaunchApp(command_line,
+                                 false,  // Don't wait for process object
+                                         // (doesn't work for us)
+                                 !show_window_,
+                                 &process_);
   ASSERT_EQ(started, true);
 
   if (use_existing_browser_) {
@@ -253,7 +252,7 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
                          user_data_dir_.c_str());
     GetWindowThreadProcessId(hwnd, &pid);
     // This mode doesn't work if we wound up launching a new browser ourselves.
-    ASSERT_NE(pid, process_util::GetProcId(process_));
+    ASSERT_NE(pid, base::GetProcId(process_));
     CloseHandle(process_);
     process_ = OpenProcess(SYNCHRONIZE, false, pid);
   }
@@ -317,9 +316,9 @@ void UITest::CleanupAppProcesses() {
   // Make sure that no instances of the browser remain.
   const int kExitTimeoutMs = 5000;
   const int kExitCode = 1;
-  process_util::CleanupProcesses(
-    chrome::kBrowserProcessExecutableName, kExitTimeoutMs, kExitCode,
-    &filter);
+  base::CleanupProcesses(
+      chrome::kBrowserProcessExecutableName, kExitTimeoutMs, kExitCode,
+      &filter);
 
   // Suppress spammy failures that seem to be occurring when running
   // the UI tests in single-process mode.
@@ -442,8 +441,8 @@ bool UITest::CrashAwareSleep(int time_out_ms) {
 /*static*/
 int UITest::GetBrowserProcessCount() {
   BrowserProcessFilter filter(L"");
-  return process_util::GetProcessCount(chrome::kBrowserProcessExecutableName,
-                                       &filter);
+  return base::GetProcessCount(chrome::kBrowserProcessExecutableName,
+                               &filter);
 }
 
 static DictionaryValue* LoadDictionaryValueFromPath(const std::wstring& path) {

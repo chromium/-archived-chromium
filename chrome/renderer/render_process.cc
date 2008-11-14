@@ -108,10 +108,10 @@ bool RenderProcess::ShouldLoadPluginsInProcess() {
 }
 
 // static
-SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
+base::SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
   self()->clearer_factory_.RevokeAll();
 
-  SharedMemory* mem = self()->GetSharedMemFromCache(size);
+  base::SharedMemory* mem = self()->GetSharedMemFromCache(size);
   if (mem)
     return mem;
 
@@ -122,7 +122,7 @@ SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
   size = size / info.dwAllocationGranularity + 1;
   size = size * info.dwAllocationGranularity;
 
-  mem = new SharedMemory();
+  mem = new base::SharedMemory();
   if (!mem)
     return NULL;
   if (!mem->Create(L"", false, true, size)) {
@@ -134,7 +134,7 @@ SharedMemory* RenderProcess::AllocSharedMemory(size_t size) {
 }
 
 // static
-void RenderProcess::FreeSharedMemory(SharedMemory* mem) {
+void RenderProcess::FreeSharedMemory(base::SharedMemory* mem) {
   if (self()->PutSharedMemInCache(mem)) {
     self()->ScheduleCacheClearer();
     return;
@@ -143,14 +143,14 @@ void RenderProcess::FreeSharedMemory(SharedMemory* mem) {
 }
 
 // static
-void RenderProcess::DeleteSharedMem(SharedMemory* mem) {
+void RenderProcess::DeleteSharedMem(base::SharedMemory* mem) {
   delete mem;
 }
 
-SharedMemory* RenderProcess::GetSharedMemFromCache(size_t size) {
+base::SharedMemory* RenderProcess::GetSharedMemFromCache(size_t size) {
   // look for a cached object that is suitable for the requested size.
   for (int i = 0; i < arraysize(shared_mem_cache_); ++i) {
-    SharedMemory* mem = shared_mem_cache_[i];
+    base::SharedMemory* mem = shared_mem_cache_[i];
     if (mem && mem->max_size() >= size) {
       shared_mem_cache_[i] = NULL;
       return mem;
@@ -159,7 +159,7 @@ SharedMemory* RenderProcess::GetSharedMemFromCache(size_t size) {
   return NULL;
 }
 
-bool RenderProcess::PutSharedMemInCache(SharedMemory* mem) {
+bool RenderProcess::PutSharedMemInCache(base::SharedMemory* mem) {
   // simple algorithm:
   //  - look for an empty slot to store mem, or
   //  - if full, then replace any existing cache entry that is smaller than the
@@ -171,7 +171,7 @@ bool RenderProcess::PutSharedMemInCache(SharedMemory* mem) {
     }
   }
   for (int i = 0; i < arraysize(shared_mem_cache_); ++i) {
-    SharedMemory* cached_mem = shared_mem_cache_[i];
+    base::SharedMemory* cached_mem = shared_mem_cache_[i];
     if (cached_mem->max_size() < mem->max_size()) {
       shared_mem_cache_[i] = mem;
       DeleteSharedMem(cached_mem);

@@ -34,8 +34,8 @@ void CrashForBitmapAllocationFailure(int w, int h) {
   // If we're using a crazy amount of virtual address space, then maybe there
   // isn't enough for our bitmap.
   const int64 kLotsOfMem = 1500000000;  // 1.5GB.
-  scoped_ptr<process_util::ProcessMetrics> process_metrics(
-      process_util::ProcessMetrics::CreateProcessMetrics(GetCurrentProcess()));
+  scoped_ptr<base::ProcessMetrics> process_metrics(
+      base::ProcessMetrics::CreateProcessMetrics(GetCurrentProcess()));
   CHECK(process_metrics->GetPagefileUsage() < kLotsOfMem);
 
   // Everything else.

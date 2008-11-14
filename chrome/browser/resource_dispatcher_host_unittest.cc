@@ -163,13 +163,13 @@ void CheckSuccessfulRequest(const std::vector<IPC::Message>& messages,
   void* iter = NULL;
   int request_id;
   ASSERT_TRUE(IPC::ReadParam(&messages[1], &iter, &request_id));
-  SharedMemoryHandle shm_handle;
+  base::SharedMemoryHandle shm_handle;
   ASSERT_TRUE(IPC::ReadParam(&messages[1], &iter, &shm_handle));
   int data_len;
   ASSERT_TRUE(IPC::ReadParam(&messages[1], &iter, &data_len));
 
   ASSERT_EQ(reference_data.size(), data_len);
-  SharedMemory shared_mem(shm_handle, true);  // read only
+  base::SharedMemory shared_mem(shm_handle, true);  // read only
   shared_mem.Map(data_len);
   const char* data = static_cast<char*>(shared_mem.memory());
   ASSERT_EQ(0, memcmp(reference_data.c_str(), data, data_len));

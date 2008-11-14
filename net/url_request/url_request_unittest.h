@@ -185,7 +185,7 @@ class TestDelegate : public URLRequest::Delegate {
 
 // This object bounds the lifetime of an external python-based HTTP server
 // that can provide various responses useful for testing.
-class TestServer : public process_util::ProcessFilter {
+class TestServer : public base::ProcessFilter {
  public:
   TestServer(const std::wstring& document_root)
       : process_handle_(NULL),
@@ -205,7 +205,7 @@ class TestServer : public process_util::ProcessFilter {
     if (!process_handle_)
       return false;
     // TODO(port): rationalize return value of GetProcId
-    return pid == (uint32)process_util::GetProcId(process_handle_);
+    return pid == (uint32)base::GetProcId(process_handle_);
   }
 
   GURL TestServerPage(const std::string& path) {
@@ -293,7 +293,7 @@ class TestServer : public process_util::ProcessFilter {
     }
 
     ASSERT_TRUE(
-        process_util::LaunchApp(command_line, false, true, &process_handle_)) <<
+        base::LaunchApp(command_line, false, true, &process_handle_)) <<
         "Failed to launch " << command_line;
 #elif defined(OS_LINUX)
     bool tlslite_installed = !access("/usr/bin/tls.py", X_OK);
@@ -357,8 +357,8 @@ class TestServer : public process_util::ProcessFilter {
     // Make sure we don't leave any stray testserver processes laying around.
     std::wstring testserver_name =
         file_util::GetFilenameFromPath(python_runtime_);
-    process_util::CleanupProcesses(testserver_name, 10000, 1, this);
-    EXPECT_EQ(0, process_util::GetProcessCount(testserver_name, this));
+    base::CleanupProcesses(testserver_name, 10000, 1, this);
+    EXPECT_EQ(0, base::GetProcessCount(testserver_name, this));
 
     is_shutdown_ = true;
   }
@@ -391,7 +391,7 @@ class TestServer : public process_util::ProcessFilter {
 
   std::string base_address_;
   std::wstring python_runtime_;
-  ProcessHandle process_handle_;
+  base::ProcessHandle process_handle_;
   bool is_shutdown_;
 };
 

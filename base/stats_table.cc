@@ -112,7 +112,7 @@ class StatsTablePrivate {
   static StatsTablePrivate* New(const std::wstring& name, int size,
                                 int max_threads, int max_counters);
 
-  SharedMemory* shared_memory() { return &shared_memory_; }
+  base::SharedMemory* shared_memory() { return &shared_memory_; }
 
   // Accessors for our header pointers
   TableHeader* table_header() const { return table_header_; }
@@ -152,7 +152,7 @@ class StatsTablePrivate {
   // Initializes our in-memory pointers into a pre-created StatsTable.
   void ComputeMappedPointers(void* memory);
 
-  SharedMemory shared_memory_;
+  base::SharedMemory shared_memory_;
   TableHeader* table_header_;
   wchar_t* thread_names_table_;
   int* thread_tid_table_;
@@ -289,7 +289,7 @@ int StatsTable::RegisterThread(const std::wstring& name) {
   // so that two threads don't grab the same slot.  Fortunately,
   // thread creation shouldn't happen in inner loops.
   {
-    SharedMemoryAutoLock lock(impl_->shared_memory());
+    base::SharedMemoryAutoLock lock(impl_->shared_memory());
     slot = FindEmptyThread();
     if (!slot) {
       return 0;
@@ -304,7 +304,7 @@ int StatsTable::RegisterThread(const std::wstring& name) {
     base::wcslcpy(impl_->thread_name(slot), thread_name.c_str(),
                   kMaxThreadNameLength);
     *(impl_->thread_tid(slot)) = PlatformThread::CurrentId();
-    *(impl_->thread_pid(slot)) = process_util::GetCurrentProcId();
+    *(impl_->thread_pid(slot)) = base::GetCurrentProcId();
   }
 
   // Set our thread local storage.
@@ -454,7 +454,7 @@ int StatsTable::AddCounter(const std::wstring& name) {
   {
     // To add a counter to the shared memory, we need the
     // shared memory lock.
-    SharedMemoryAutoLock lock(impl_->shared_memory());
+    base::SharedMemoryAutoLock lock(impl_->shared_memory());
 
     // We have space, so create a new counter.
     counter_id = FindCounterOrEmptyRow(name);

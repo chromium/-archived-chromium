@@ -189,7 +189,7 @@ struct ViewHostMsg_PaintRect_Flags {
 struct ViewHostMsg_PaintRect_Params {
   // The bitmap to be painted into the rect given by bitmap_rect.  Valid only
   // in the context of the renderer process.
-  SharedMemoryHandle bitmap;
+  base::SharedMemoryHandle bitmap;
 
   // The position and size of the bitmap.
   gfx::Rect bitmap_rect;
@@ -223,7 +223,7 @@ struct ViewHostMsg_PaintRect_Params {
 struct ViewHostMsg_ScrollRect_Params {
   // The bitmap to be painted into the rect exposed by scrolling.  This handle
   // is valid only in the context of the renderer process.
-  SharedMemoryHandle bitmap;
+  base::SharedMemoryHandle bitmap;
 
   // The position and size of the bitmap.
   gfx::Rect bitmap_rect;
@@ -367,7 +367,7 @@ struct ViewMsg_PrintPages_Params {
 struct ViewHostMsg_DidPrintPage_Params {
   // A shared memory handle to the EMF data. This data can be quite large so a
   // memory map needs to be used.
-  SharedMemoryHandle emf_data_handle;
+  base::SharedMemoryHandle emf_data_handle;
 
   // Size of the EMF data.
   unsigned data_size;

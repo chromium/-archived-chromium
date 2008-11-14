@@ -2,14 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_PROCESS_H__
-#define BASE_PROCESS_H__
+#ifndef BASE_PROCESS_H_
+#define BASE_PROCESS_H_
 
 #include "base/basictypes.h"
 
 #ifdef OS_WIN
 #include <windows.h>
 #endif
+
+namespace base {
 
 // ProcessHandle is a platform specific type which represents the underlying OS
 // handle to a process.
@@ -20,9 +22,6 @@ typedef HANDLE ProcessHandle;
 typedef int ProcessHandle;
 #endif
 
-// A Process
-// TODO(mbelshe): Replace existing code which uses the ProcessHandle w/ the
-//                Process object where relevant.
 class Process {
  public:
   Process() : process_(0), last_working_set_size_(0) {}
@@ -43,13 +42,13 @@ class Process {
   // Is the this process the current process.
   bool is_current() const;
 
-  // Close the Process Handle.
-  void Close() {
-#ifdef OS_WIN
-    CloseHandle(process_);
-#endif
-    process_ = 0;
-  }
+  // Close the process handle. This will not terminate the process.
+  void Close();
+
+  // Terminates the process with extreme prejudice. The given result code will
+  // be the exit code of the process. If the process has already exited, this
+  // will do nothing.
+  void Terminate(int result_code);
 
   // A process is backgrounded when it's priority is lower than normal.
   // Return true if this process is backgrounded, false otherwise.
@@ -85,5 +84,7 @@ class Process {
   size_t last_working_set_size_;
 };
 
-#endif  // BASE_PROCESS_H__
+}  // namespace base
+
+#endif  // BASE_PROCESS_H_
 

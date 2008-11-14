@@ -95,7 +95,7 @@ class ReducePluginsWorkingSetTask : public Task {
     for (PluginProcessHostIterator iter; !iter.Done(); ++iter) {
       PluginProcessHost* plugin = const_cast<PluginProcessHost*>(*iter);
       DCHECK(plugin->process());
-      Process process(plugin->process());
+      base::Process process(plugin->process());
       process.ReduceWorkingSet();
     }
   }
@@ -115,14 +115,14 @@ class BrowserIdleTimer : public base::IdleTimer {
     // We're idle.  Release browser and renderer unused pages.
 
     // Handle the Browser.
-    Process process(GetCurrentProcess());
+    base::Process process(GetCurrentProcess());
     process.ReduceWorkingSet();
 
     // Handle the Renderer(s).
     RenderProcessHost::iterator renderer_iter;
     for (renderer_iter = RenderProcessHost::begin(); renderer_iter !=
-       RenderProcessHost::end(); renderer_iter++) {
-       Process process(renderer_iter->second->process());
+         RenderProcessHost::end(); renderer_iter++) {
+       base::Process process = renderer_iter->second->process();
        process.ReduceWorkingSet();
     }
 

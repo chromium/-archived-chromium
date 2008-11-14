@@ -422,7 +422,7 @@ bool RenderProcessHost::Init() {
       } else {
         // spawn child process
         HANDLE process;
-        if (!process_util::LaunchApp(cmd_line, false, false, &process))
+        if (!base::LaunchApp(cmd_line, false, false, &process))
           return false;
         process_.set_handle(process);
       }
@@ -443,14 +443,10 @@ bool RenderProcessHost::Init() {
   return true;
 }
 
-HANDLE RenderProcessHost::GetRendererProcessHandle() {
-  HANDLE result = process_.handle();
-  if (!result) {
-    // Renderer process can be null if it's started with the --single-process
-    // flag.
-    result = GetCurrentProcess();
-  }
-  return result;
+base::ProcessHandle RenderProcessHost::GetRendererProcessHandle() {
+  if (run_renderer_in_process_)
+    return base::Process::Current().handle();
+  return process_.handle();
 }
 
 void RenderProcessHost::InitVisitedLinks() {
@@ -459,7 +455,7 @@ void RenderProcessHost::InitVisitedLinks() {
     return;
   }
 
-  SharedMemoryHandle handle_for_process = NULL;
+  base::SharedMemoryHandle handle_for_process = NULL;
   visitedlink_master->ShareToProcess(GetRendererProcessHandle(),
                                      &handle_for_process);
   DCHECK(handle_for_process);
@@ -495,8 +491,8 @@ void RenderProcessHost::InitGreasemonkeyScripts() {
 }
 
 void RenderProcessHost::SendGreasemonkeyScriptsUpdate(
-    SharedMemory *shared_memory) {
-  SharedMemoryHandle handle_for_process = NULL;
+    base::SharedMemory *shared_memory) {
+  base::SharedMemoryHandle handle_for_process = NULL;
   shared_memory->ShareToProcess(GetRendererProcessHandle(),
                                 &handle_for_process);
   DCHECK(handle_for_process);
@@ -536,12 +532,10 @@ void RenderProcessHost::ReportExpectingClose(int32 listener_id) {
 }
 
 bool RenderProcessHost::FastShutdownIfPossible() {
-  HANDLE proc = process().handle();
-  if (!proc)
-    return false;
-  // If we're in single process mode, do nothing.
+  if (!process_.handle())
+    return false;  // Render process is probably crashed.
   if (RenderProcessHost::run_renderer_in_process())
-    return false;
+    return false;  // Since process mode can't do fast shutdown.
 
   // Test if there's an unload listener
   RenderProcessHost::listeners_iterator iter;
@@ -561,9 +555,10 @@ bool RenderProcessHost::FastShutdownIfPossible() {
       return false;
     }
   }
-  // Otherwise, call TerminateProcess.  Using exit code 0 means that UMA won't
-  // treat this as a renderer crash.
-  ::TerminateProcess(proc, ResultCodes::NORMAL_EXIT);
+
+  // Otherwise, we're allowed to just terminate the process. Using exit code 0
+  // means that UMA won't treat this as a renderer crash.
+  process_.Terminate(ResultCodes::NORMAL_EXIT);
   return true;
 }
 
@@ -651,7 +646,7 @@ void RenderProcessHost::OnObjectSignaled(HANDLE object) {
   DCHECK(channel_.get());
   DCHECK_EQ(object, process_.handle());
 
-  bool clean_shutdown = !process_util::DidProcessCrash(object);
+  bool clean_shutdown = !base::DidProcessCrash(object);
 
   process_.Close();
 
@@ -824,7 +819,8 @@ void RenderProcessHost::Observe(NotificationType type,
       break;
     }
     case NOTIFY_NEW_USER_SCRIPTS: {
-      SharedMemory* shared_memory = Details<SharedMemory>(details).ptr();
+      base::SharedMemory* shared_memory =
+          Details<base::SharedMemory>(details).ptr();
       DCHECK(shared_memory);
       if (shared_memory) {
         SendGreasemonkeyScriptsUpdate(shared_memory);

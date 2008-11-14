@@ -49,7 +49,7 @@ class GreasemonkeyMaster::ScriptReloader
 
   // Runs on the master thread.
   // Notify the master that new scripts are available.
-  void NotifyMaster(SharedMemory* memory);
+  void NotifyMaster(base::SharedMemory* memory);
 
   // Runs on the File thread.
   // Scan the script directory for scripts, calling NotifyMaster when done.
@@ -60,7 +60,7 @@ class GreasemonkeyMaster::ScriptReloader
   // Runs on the File thread.
   // Scan the script directory for scripts, returning either a new SharedMemory
   // or NULL on error.
-  SharedMemory* GetNewScripts(const FilePath& script_dir);
+  base::SharedMemory* GetNewScripts(const FilePath& script_dir);
 
   // A pointer back to our master.
   // May be NULL if DisownMaster() is called.
@@ -85,7 +85,8 @@ void GreasemonkeyMaster::ScriptReloader::StartScan(
                         script_dir));
 }
 
-void GreasemonkeyMaster::ScriptReloader::NotifyMaster(SharedMemory* memory) {
+void GreasemonkeyMaster::ScriptReloader::NotifyMaster(
+    base::SharedMemory* memory) {
   if (!master_) {
     // The master went away, so these new scripts aren't useful anymore.
     delete memory;
@@ -99,7 +100,7 @@ void GreasemonkeyMaster::ScriptReloader::NotifyMaster(SharedMemory* memory) {
 }
 
 void GreasemonkeyMaster::ScriptReloader::RunScan(const FilePath script_dir) {
-  SharedMemory* shared_memory = GetNewScripts(script_dir);
+  base::SharedMemory* shared_memory = GetNewScripts(script_dir);
 
   // Post the new scripts back to the master's message loop.
   master_message_loop_->PostTask(FROM_HERE,
@@ -108,7 +109,7 @@ void GreasemonkeyMaster::ScriptReloader::RunScan(const FilePath script_dir) {
                         shared_memory));
 }
 
-SharedMemory* GreasemonkeyMaster::ScriptReloader::GetNewScripts(
+base::SharedMemory* GreasemonkeyMaster::ScriptReloader::GetNewScripts(
     const FilePath& script_dir) {
   std::vector<std::wstring> scripts;
 
@@ -140,7 +141,7 @@ SharedMemory* GreasemonkeyMaster::ScriptReloader::GetNewScripts(
   }
 
   // Create the shared memory object.
-  scoped_ptr<SharedMemory> shared_memory(new SharedMemory());
+  scoped_ptr<base::SharedMemory> shared_memory(new base::SharedMemory());
 
   if (!shared_memory->Create(std::wstring(),  // anonymous
                              false,  // read-only
@@ -179,9 +180,9 @@ GreasemonkeyMaster::~GreasemonkeyMaster() {
     script_reloader_->DisownMaster();
 }
 
-void GreasemonkeyMaster::NewScriptsAvailable(SharedMemory* handle) {
+void GreasemonkeyMaster::NewScriptsAvailable(base::SharedMemory* handle) {
   // Ensure handle is deleted or released.
-  scoped_ptr<SharedMemory> handle_deleter(handle);
+  scoped_ptr<base::SharedMemory> handle_deleter(handle);
 
   if (pending_scan_) {
     // While we were scanning, there were further changes.  Don't bother
@@ -196,7 +197,7 @@ void GreasemonkeyMaster::NewScriptsAvailable(SharedMemory* handle) {
 
     NotificationService::current()->Notify(NOTIFY_NEW_USER_SCRIPTS,
         NotificationService::AllSources(),
-        Details<SharedMemory>(handle));
+        Details<base::SharedMemory>(handle));
   }
 }
 

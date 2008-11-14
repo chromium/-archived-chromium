@@ -354,7 +354,8 @@ void RenderWidget::ClearFocus() {
     webwidget_->SetFocus(false);
 }
 
-void RenderWidget::PaintRect(const gfx::Rect& rect, SharedMemory* paint_buf) {
+void RenderWidget::PaintRect(const gfx::Rect& rect,
+                             base::SharedMemory* paint_buf) {
   gfx::PlatformCanvasWin canvas(rect.width(), rect.height(), true,
       paint_buf->handle());
   // Bring the canvas into the coordinate system of the paint rect

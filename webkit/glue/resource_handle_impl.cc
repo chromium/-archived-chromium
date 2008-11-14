@@ -402,7 +402,7 @@ bool ResourceHandleInternal::Start(
   // have a origin_pid. Find a better place to set this.
   int origin_pid = request_.originPid();
   if (origin_pid == 0)
-    origin_pid = process_util::GetCurrentProcId();
+    origin_pid = base::GetCurrentProcId();
 
   bool mixed_content =
       webkit_glue::KURLToGURL(request_.mainDocumentURL()).SchemeIsSecure() &&

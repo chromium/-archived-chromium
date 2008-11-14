@@ -113,11 +113,11 @@ std::string GreasemonkeyScript::EscapeGlob(const std::string& input_pattern) {
 GreasemonkeySlave::GreasemonkeySlave() : shared_memory_(NULL) {
 }
 
-bool GreasemonkeySlave::UpdateScripts(SharedMemoryHandle shared_memory) {
+bool GreasemonkeySlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
   scripts_.clear();
 
-  // Create the shared memory object.
-  shared_memory_.reset(new SharedMemory(shared_memory, true)); // read-only
+  // Create the shared memory object (read only).
+  shared_memory_.reset(new base::SharedMemory(shared_memory, true));
   if (!shared_memory_.get())
     return false;
 

@@ -90,7 +90,7 @@ class PageCyclerTest : public UITest {
 
   void PrintIOPerfInfo(const wchar_t* test_name) {
     BrowserProcessFilter chrome_filter(L"");
-    process_util::NamedProcessIterator
+    base::NamedProcessIterator
         chrome_process_itr(chrome::kBrowserProcessExecutableName,
                            &chrome_filter);
 
@@ -101,10 +101,10 @@ class PageCyclerTest : public UITest {
                                           false,
                                           pid);
 
-      scoped_ptr<process_util::ProcessMetrics> process_metrics;
+      scoped_ptr<base::ProcessMetrics> process_metrics;
       IO_COUNTERS io_counters;
       process_metrics.reset(
-          process_util::ProcessMetrics::CreateProcessMetrics(process_handle));
+          base::ProcessMetrics::CreateProcessMetrics(process_handle));
       ZeroMemory(&io_counters, sizeof(io_counters));
 
       if (process_metrics.get()->GetIOCounters(&io_counters)) {
@@ -160,7 +160,7 @@ class PageCyclerTest : public UITest {
 
   void PrintMemoryUsageInfo(const wchar_t* test_name) {
     BrowserProcessFilter chrome_filter(L"");
-    process_util::NamedProcessIterator
+    base::NamedProcessIterator
         chrome_process_itr(chrome::kBrowserProcessExecutableName,
                            &chrome_filter);
 

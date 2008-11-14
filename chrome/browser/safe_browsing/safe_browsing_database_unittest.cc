@@ -1006,9 +1006,9 @@ void PeformUpdate(const std::wstring& initial_db,
   EXPECT_TRUE(database->Init(filename, NULL));
 
   Time before_time = Time::Now();
-  ProcessHandle handle = Process::Current().handle();
-  scoped_ptr<process_util::ProcessMetrics> metric(
-      process_util::ProcessMetrics::CreateProcessMetrics(handle));
+  base::ProcessHandle handle = base::Process::Current().handle();
+  scoped_ptr<base::ProcessMetrics> metric(
+      base::ProcessMetrics::CreateProcessMetrics(handle));
 #if defined(OS_WIN) || defined(OS_LINUX)
   CHECK(metric->GetIOCounters(&before));
 #endif

@@ -9,6 +9,8 @@
 #include "base/basictypes.h"
 #include "base/process.h"
 
+namespace base {
+
 // SharedMemoryHandle is a platform specific type which represents
 // the underlying OS handle to a shared memory segment.
 #if defined(OS_WIN)
@@ -35,7 +37,7 @@ class SharedMemory {
   // shared memory file that was created by a remote process and not shared
   // to the current process.
   SharedMemory(SharedMemoryHandle handle, bool read_only,
-      ProcessHandle process);
+      base::ProcessHandle process);
 
   // Destructor.  Will close any open files.
   ~SharedMemory();
@@ -89,7 +91,7 @@ class SharedMemory {
   // file.  new_handle is an ouput parameter to receive
   // the handle for use in the remote process.
   // Returns true on success, false otherwise.
-  bool ShareToProcess(ProcessHandle process,
+  bool ShareToProcess(base::ProcessHandle process,
                       SharedMemoryHandle* new_handle) {
     return ShareToProcessCommon(process, new_handle, false);
   }
@@ -147,5 +149,6 @@ class SharedMemoryAutoLock {
   DISALLOW_EVIL_CONSTRUCTORS(SharedMemoryAutoLock);
 };
 
+}  // namespace base
 
 #endif  // BASE_SHARED_MEMORY_H_

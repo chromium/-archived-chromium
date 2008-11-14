@@ -15,14 +15,14 @@ VisitedLinkSlave::~VisitedLinkSlave() {
 
 // This function's job is to initialize the table with the given
 // shared memory handle. This memory is mappend into the process.
-bool VisitedLinkSlave::Init(SharedMemoryHandle shared_memory) {
+bool VisitedLinkSlave::Init(base::SharedMemoryHandle shared_memory) {
   // since this function may be called again to change the table, we may need
   // to free old objects
   FreeTable();
   DCHECK(shared_memory_ == NULL && hash_table_ == NULL);
 
   // create the shared memory object
-  shared_memory_ = new SharedMemory(shared_memory, true);
+  shared_memory_ = new base::SharedMemory(shared_memory, true);
   if (!shared_memory_)
     return false;
 

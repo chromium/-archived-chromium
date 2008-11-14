@@ -31,7 +31,7 @@ GURL TestURL(const char* prefix, int i) {
 
 // we have no slaves, so this broadcase is a NOP
 VisitedLinkMaster::PostNewTableEvent DummyBroadcastNewTableEvent;
-void DummyBroadcastNewTableEvent(SharedMemory *table) {
+void DummyBroadcastNewTableEvent(base::SharedMemory *table) {
 }
 
 // Call at the beginning of the test to retrieve the database name and to

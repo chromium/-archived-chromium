@@ -9,10 +9,9 @@
 
 static const int kNumThreads = 5;
 
-namespace {
+namespace base {
 
-class SharedMemoryTest : public testing::Test {
-};
+namespace {
 
 // Each thread will open the shared memory.  Each thread will take a different 4
 // byte int pointer, and keep changing it, with some small pauses in between.
@@ -181,3 +180,5 @@ TEST(SharedMemoryTest, Lock) {
   }
 }
 #endif
+
+}  // namespace base

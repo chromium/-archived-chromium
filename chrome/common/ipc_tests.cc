@@ -377,14 +377,14 @@ HANDLE SpawnChild(ChildType child_type) {
     CommandLine::AppendSwitch(&cl, switches::kDebugOnStart);
   }
   HANDLE process = NULL;
-  if (!process_util::LaunchApp(cl, false, true, &process))
+  if (!base::LaunchApp(cl, false, true, &process))
     return NULL;
 
   return process;
 }
 
 int main(int argc, char** argv) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
   // Some tests may use base::Singleton<>, thus we need to instanciate
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  

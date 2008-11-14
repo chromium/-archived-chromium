@@ -10,6 +10,8 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 
+namespace base {
+
 namespace {
 // Paranoia. Semaphores and shared memory segments should live in different
 // namespaces, but who knows what's out there.
@@ -166,3 +168,4 @@ void SharedMemory::Unlock() {
   sem_post(lock_);
 }
 
+}  // namespace base

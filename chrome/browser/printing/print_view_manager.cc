@@ -131,7 +131,7 @@ void PrintViewManager::DidPrintPage(
     return;
   }
 
-  SharedMemory shared_buf(params.emf_data_handle, true);
+  base::SharedMemory shared_buf(params.emf_data_handle, true);
   if (!shared_buf.Map(params.data_size)) {
     NOTREACHED() << "couldn't map";
     owner_.Stop();

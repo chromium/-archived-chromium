@@ -136,8 +136,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetPreferredExtensionForMimeType(const std::string& mime_type,
                                           std::wstring* ext);
   void OnGetCPBrowsingContext(uint32* context);
-  void OnDuplicateSection(SharedMemoryHandle renderer_handle,
-                          SharedMemoryHandle* browser_handle);
+  void OnDuplicateSection(base::SharedMemoryHandle renderer_handle,
+                          base::SharedMemoryHandle* browser_handle);
   void OnResourceTypeStats(const CacheManager::ResourceTypeStats& stats);
 
   // A javascript code requested to print the current page. This is done in two

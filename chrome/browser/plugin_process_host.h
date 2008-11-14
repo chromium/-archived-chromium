@@ -132,7 +132,7 @@ class PluginProcessHost : public IPC::Channel::Listener,
   std::vector<ChannelRequest> sent_requests_;
 
   // The handle to our plugin process.
-  Process process_;
+  base::Process process_;
 
   // Used to watch the plugin process handle.
   base::ObjectWatcher watcher_;

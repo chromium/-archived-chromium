@@ -8,7 +8,7 @@
 #include "chrome/test/ui/ui_test_suite.h"
 
 int main(int argc, char **argv) {
-  process_util::EnableTerminationOnHeapCorruption();
+  base::EnableTerminationOnHeapCorruption();
   PlatformThread::SetName("Tests_Main");
   return UITestSuite(argc, argv).Run();
 }

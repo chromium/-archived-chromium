@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_PROCESS_WATCHER_H__
-#define CHROME_COMMON_PROCESS_WATCHER_H__
+#ifndef CHROME_COMMON_PROCESS_WATCHER_H_
+#define CHROME_COMMON_PROCESS_WATCHER_H_
 
+#include "base/basictypes.h"
 #include "base/process_util.h"
 
 class ProcessWatcher {
@@ -22,14 +23,14 @@ class ProcessWatcher {
   // NOTE: The process handle must have been opened with the PROCESS_TERMINATE
   // and SYNCHRONIZE permissions.
   //
-  static void EnsureProcessTerminated(ProcessHandle process_handle);
+  static void EnsureProcessTerminated(base::ProcessHandle process_handle);
 
  private:
   // Do not instantiate this class.
   ProcessWatcher();
 
-  DISALLOW_EVIL_CONSTRUCTORS(ProcessWatcher);
+  DISALLOW_COPY_AND_ASSIGN(ProcessWatcher);
 };
 
-#endif  // CHROME_COMMON_PROCESS_WATCHER_H__
+#endif  // CHROME_COMMON_PROCESS_WATCHER_H_
 

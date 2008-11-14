@@ -113,8 +113,8 @@ void ChromeMiniInstaller::UnInstall() {
   ASSERT_TRUE(file_util::PathExists(uninstall_path));
 
   printf("\nUninstalling Chrome...\n");
-  process_util::LaunchApp(L"\"" + uninstall_path + L"\"" + L" -uninstall",
-                          false, false, NULL);
+  base::LaunchApp(L"\"" + uninstall_path + L"\"" + L" -uninstall",
+                  false, false, NULL);
   printf("\nLaunched setup.exe -uninstall....\n");
   ASSERT_TRUE(CloseWindow(mini_installer_constants::kChromeBuildType,
                           WM_COMMAND));
@@ -124,8 +124,8 @@ void ChromeMiniInstaller::UnInstall() {
   DeleteAppFolder();
   FindChromeShortcut();
   CloseProcesses(mini_installer_constants::kIEExecutable);
-  ASSERT_EQ(0, process_util::GetProcessCount(
-                             mini_installer_constants::kIEExecutable, NULL));
+  ASSERT_EQ(0,
+      base::GetProcessCount(mini_installer_constants::kIEExecutable, NULL));
 }
 
 // Takes care of Chrome uninstall dialog.
@@ -154,13 +154,13 @@ void ChromeMiniInstaller::CloseChromeBrowser(LPCWSTR window_name) {
 // Checks for all requested running processes and kills them.
 void ChromeMiniInstaller::CloseProcesses(const std::wstring& executable_name) {
   int timer = 0;
-  while ((process_util::GetProcessCount(executable_name, NULL) > 0) &&
+  while ((base::GetProcessCount(executable_name, NULL) > 0) &&
          (timer < 20000)) {
-    process_util::KillProcesses(executable_name, 1, NULL);
+    base::KillProcesses(executable_name, 1, NULL);
     Sleep(200);
     timer = timer + 200;
   }
-  ASSERT_EQ(0, process_util::GetProcessCount(executable_name, NULL));
+  ASSERT_EQ(0, base::GetProcessCount(executable_name, NULL));
 }
 
 // Checks for Chrome registry keys.
@@ -256,7 +256,7 @@ void ChromeMiniInstaller::LaunchExe(std::wstring path,
                                     const wchar_t process_name[]) {
   printf("\nBuild to be installed is:   %ls\n", path.c_str());
   ASSERT_TRUE(file_util::PathExists(path));
-  process_util::LaunchApp(L"\"" + path + L"\"", false, false, NULL);
+  base::LaunchApp(L"\"" + path + L"\"", false, false, NULL);
   printf("Waiting while this process is running  %ls ....", process_name);
   WaitUntilProcessStartsRunning(process_name);
   WaitUntilProcessStopsRunning(process_name);
@@ -268,7 +268,7 @@ void ChromeMiniInstaller::VerifyChromeLaunch() {
   ASSERT_TRUE(PathService::Get(base::DIR_LOCAL_APP_DATA, &path));
   file_util::AppendToPath(&path, mini_installer_constants::kChromeAppDir);
   file_util::AppendToPath(&path, installer_util::kChromeExe);
-  process_util::LaunchApp(L"\"" + path + L"\"", false, false, NULL);
+  base::LaunchApp(L"\"" + path + L"\"", false, false, NULL);
   WaitUntilProcessStartsRunning(installer_util::kChromeExe);
   Sleep(1200);
 }
@@ -297,12 +297,12 @@ bool ChromeMiniInstaller::VerifyOverInstall(
 void ChromeMiniInstaller::WaitUntilProcessStartsRunning(
                               const wchar_t process_name[]) {
   int timer = 0;
-  while ((process_util::GetProcessCount(process_name, NULL) == 0) &&
+  while ((base::GetProcessCount(process_name, NULL) == 0) &&
          (timer < 60000)) {
     Sleep(200);
     timer = timer + 200;
   }
-  ASSERT_NE(0, process_util::GetProcessCount(process_name, NULL));
+  ASSERT_NE(0, base::GetProcessCount(process_name, NULL));
 }
 
 // Waits until the process stops running.
@@ -310,11 +310,11 @@ void ChromeMiniInstaller::WaitUntilProcessStopsRunning(
                               const wchar_t process_name[]) {
   int timer = 0;
   printf("\nWaiting for this process to end... %ls\n", process_name);
-  while ((process_util::GetProcessCount(process_name, NULL) > 0) &&
+  while ((base::GetProcessCount(process_name, NULL) > 0) &&
          (timer < 60000)) {
     Sleep(200);
     timer = timer + 200;
   }
-  ASSERT_EQ(0, process_util::GetProcessCount(process_name, NULL));
+  ASSERT_EQ(0, base::GetProcessCount(process_name, NULL));
 }
 

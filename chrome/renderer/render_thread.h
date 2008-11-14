@@ -93,8 +93,8 @@ class RenderThread : public IPC::Channel::Listener,
   virtual void CleanUp();
 
  private:
-  void OnUpdateVisitedLinks(SharedMemoryHandle table);
-  void OnUpdateGreasemonkeyScripts(SharedMemoryHandle table);
+  void OnUpdateVisitedLinks(base::SharedMemoryHandle table);
+  void OnUpdateGreasemonkeyScripts(base::SharedMemoryHandle table);
 
   void OnPluginMessage(const std::wstring& dll_path,
                        const std::vector<uint8>& data);
