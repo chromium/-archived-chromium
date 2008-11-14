@@ -133,9 +133,10 @@ class TestRunner:
     file_dir = os.path.join(file_dir, path_utils.TestListPlatformDir())
     file_dir = path_utils.GetAbsolutePath(file_dir)
 
+    is_debug_mode = self._options.target == 'Debug'
     expectations = test_expectations.TestExpectations(self._test_files,
                                                       file_dir,
-                                                      self._options.debug)
+                                                      is_debug_mode)
 
     # Remove skipped - both fixable and ignored - files from the
     # top-level list of files to test.
