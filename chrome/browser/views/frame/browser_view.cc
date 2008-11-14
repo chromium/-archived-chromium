@@ -600,6 +600,7 @@ void BrowserView::SaveWindowPlacement(const gfx::Rect& bounds,
 }
 
 bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
+  *bounds = browser_->GetSavedWindowBounds();
   if (browser_->type() == BrowserType::BROWSER) {
     // We are a popup window. The value passed in |bounds| represents two
     // pieces of information:
@@ -630,8 +631,6 @@ bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
     }
 
     *bounds = window_rect;
-  } else {
-    *bounds = browser_->GetSavedWindowBounds();
   }
 
   // We return true because we can _always_ locate reasonable bounds using the
