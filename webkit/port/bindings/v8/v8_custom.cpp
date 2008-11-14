@@ -1865,21 +1865,6 @@ NAMED_PROPERTY_GETTER(StyleSheetList) {
 }
 
 
-CALLBACK_FUNC_DECL(CSSPrimitiveValueGetRGBColorValue) {
-  INC_STATS(L"DOM.CSSPrimitiveValue.getRGBColorValue()");
-  CSSPrimitiveValue* value = V8Proxy::ToNativeObject<CSSPrimitiveValue>(
-      V8ClassIndex::CSSPRIMITIVEVALUE, args.Holder());
-  ExceptionCode ec = 0;
-  unsigned int rgbcolor = value->getRGBColorValue(ec);
-  if (ec != 0) {
-    V8Proxy::SetDOMException(ec);
-    return v8::Handle<v8::Value>();
-  }
-  return V8Proxy::ToV8Object(V8ClassIndex::RGBCOLOR,
-                             static_cast<Peerable*>(new RGBColor(rgbcolor)));
-}
-
-
 // CanvasRenderingContext2D ----------------------------------------------------
 
 // Helper macro for converting v8 values into floats (expected by many of the
