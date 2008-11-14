@@ -274,7 +274,7 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
 
   { // normal, in the middle of the screen somewhere.
     gfx::Rect window_bounds;
-    bool maximized;
+    bool maximized = false;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
                     gfx::Rect(10, 10, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
@@ -284,7 +284,7 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
 
   { // normal, but maximized
     gfx::Rect window_bounds;
-    bool maximized;
+    bool maximized = false;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
                     gfx::Rect(10, 10, 500, 400), true, LAST_ACTIVE,
                     &window_bounds, &maximized);
@@ -294,7 +294,7 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
 
   { // offset would put the new window offscreen at the bottom
     gfx::Rect window_bounds;
-    bool maximized;
+    bool maximized = false;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
                     gfx::Rect(10, 360, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
@@ -304,7 +304,7 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
 
   { // offset would put the new window offscreen at the right
     gfx::Rect window_bounds;
-    bool maximized;
+    bool maximized = false;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
                     gfx::Rect(520, 10, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
@@ -314,7 +314,7 @@ TEST(WindowSizerTest, LastWindowBoundsCase) {
 
   { // offset would put the new window offscreen at the bottom right
     gfx::Rect window_bounds;
-    bool maximized;
+    bool maximized = false;
     GetWindowBounds(tentwentyfour, tentwentyfour, gfx::Rect(),
                     gfx::Rect(520, 360, 500, 400), false, LAST_ACTIVE,
                     &window_bounds, &maximized);
