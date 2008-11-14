@@ -128,10 +128,11 @@ elif env['PLATFORM'] == 'posix':
 
 lib = env.ChromeStaticLibrary('test_shell', input_files)
 
-
-
 resources = []
-exe_input_files = []
+exe_input_files = [
+  'test_shell_main.cc',
+]
+
 if env['PLATFORM'] == 'win32':
   # TODO(port): figure out what to do with resources.
   resources = [
@@ -140,13 +141,8 @@ if env['PLATFORM'] == 'win32':
       '$WEBKIT_DIR/build/localized_strings/webkit_strings_en-US.res',
   ]
 
-  exe_input_files = [
-      'test_shell_main.cc',
+  exe_input_files += [
       '$V8_DIR/snapshot-empty$OBJSUFFIX'
-  ]
-elif env['PLATFORM'] == 'posix':
-  exe_input_files = [
-      'test_shell_main_gtk.cc',
   ]
 
 test_shell = env.ChromeProgram('test_shell', resources + exe_input_files)

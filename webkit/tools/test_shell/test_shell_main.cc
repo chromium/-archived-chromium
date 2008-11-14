@@ -3,29 +3,37 @@
 // found in the LICENSE file.
 
 // Creates an instance of the test_shell.
+#include "build/build_config.h"
 
 #include <stdlib.h>  // required by _set_abort_behavior
 
+#if defined(OS_WIN)
 #include <windows.h>
 #include <commctrl.h>
+#include "base/event_recorder.h"
+#include "base/gfx/native_theme.h"
+#include "base/resource_util.h"
+#include "breakpad/src/client/windows/handler/exception_handler.h"
+#include "webkit/tools/test_shell/foreground_helper.h"
+#endif
+
+#if defined(OS_LINUX)
+#include <gtk/gtk.h>
+#endif
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
-#include "base/event_recorder.h"
 #include "base/file_util.h"
-#include "base/gfx/native_theme.h"
 #include "base/icu_util.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
-#include "base/resource_util.h"
 #include "base/stack_container.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
-#include "breakpad/src/client/windows/handler/exception_handler.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_module.h"
 #include "net/http/http_cache.h"
@@ -33,22 +41,27 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
-#include "webkit/tools/test_shell/foreground_helper.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_request_context.h"
 #include "webkit/tools/test_shell/test_shell_switches.h"
 
+#include <iostream>
+using namespace std;
+
+#if defined(OS_WIN)
 // This is only set for layout tests.
 static wchar_t g_currentTestName[MAX_PATH];
+#endif
 
 namespace {
 
 // StatsTable initialization parameters.
-static wchar_t* kStatsFile = L"testshell";
+static const wchar_t* kStatsFile = L"testshell";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
 
+#if defined(OS_WIN)
 std::string GetDataResource(HMODULE module, int resource_id) {
   void* data_ptr;
   size_t data_size;
@@ -110,7 +123,10 @@ bool MinidumpCallback(const wchar_t *dumpPath,
 
     return false;
 }
+#endif
+
 }  // namespace
+
 
 int main(int argc, char* argv[]) {
   process_util::EnableTerminationOnHeapCorruption();
@@ -122,16 +138,26 @@ int main(int argc, char* argv[]) {
   // the AtExitManager or else we will leak objects.
   base::AtExitManager at_exit_manager;  
 
+#if defined(OS_LINUX)
+  gtk_init(&argc, &argv);
+  // Only parse the command line after GTK's had a crack at it.
+  CommandLine::SetArgcArgv(argc, argv);
+#endif
+
   CommandLine parsed_command_line;
+#if defined(OS_WIN)
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
       MessageBox(NULL, L"attach to me?", L"test_shell", MB_OK);
+#endif
 
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.
   MessageLoopForUI main_message_loop;
 
-  bool suppress_error_dialogs = 
-       (GetEnvironmentVariable(L"CHROME_HEADLESS", NULL, 0) ||
+  bool suppress_error_dialogs = (
+#if defined(OS_WIN)
+       GetEnvironmentVariable(L"CHROME_HEADLESS", NULL, 0) ||
+#endif
        parsed_command_line.HasSwitch(test_shell::kNoErrorDialogs) ||
        parsed_command_line.HasSwitch(test_shell::kLayoutTests));
   bool layout_test_mode =
@@ -144,9 +170,11 @@ int main(int argc, char* argv[]) {
 
   // Suppress abort message in v8 library in debugging mode.
   // V8 calls abort() when it hits assertion errors.
+#if defined(OS_WIN)
   if (suppress_error_dialogs) {
     _set_abort_behavior(0, _WRITE_ABORT_MSG);
   }
+#endif
 
   if (parsed_command_line.HasSwitch(test_shell::kEnableTracing))
     base::TraceLog::StartTracing();
@@ -188,6 +216,7 @@ int main(int argc, char* argv[]) {
   // Load ICU data tables
   icu_util::Initialize();
 
+#if defined(OS_WIN)
   // Config the network module so it has access to a limited set of resources.
   net::NetModule::SetResourceProvider(NetResourceProvider);
 
@@ -206,6 +235,7 @@ int main(int argc, char* argv[]) {
     HANDLE rc = AddFontMemResourceEx(font_ptr, font_size, 0, &num_fonts);
     DCHECK(rc != 0);
   }
+#endif
 
   bool interactive = !layout_test_mode;
   TestShell::InitializeTestShell(interactive);
@@ -214,8 +244,10 @@ int main(int argc, char* argv[]) {
     TestShell::SetAllowScriptsToCloseWindows();
 
   // Disable user themes for layout tests so pixel tests are consistent.
+#if defined(OS_WIN)
   if (!interactive)
     gfx::NativeTheme::instance()->DisableTheming();
+#endif
 
   if (parsed_command_line.HasSwitch(test_shell::kTestShellTimeOut)) {
     const std::wstring timeout_str = parsed_command_line.GetSwitchValue(
@@ -225,8 +257,10 @@ int main(int argc, char* argv[]) {
       TestShell::SetFileTestTimeout(timeout_ms);
   }
 
+#if defined(OS_WIN)
   // Initialize global strings
   TestShell::RegisterWindowClass();
+#endif
 
   // Treat the first loose value as the initial URL to open.
   std::wstring uri;
@@ -246,11 +280,13 @@ int main(int argc, char* argv[]) {
     uri = *iter;
   }
 
+#if defined(OS_WIN)
   if (parsed_command_line.HasSwitch(test_shell::kCrashDumps)) {
     std::wstring dir(
         parsed_command_line.GetSwitchValue(test_shell::kCrashDumps));
     new google_breakpad::ExceptionHandler(dir, 0, &MinidumpCallback, 0, true);
   }
+#endif
 
   std::wstring js_flags = 
     parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
@@ -264,6 +300,7 @@ int main(int argc, char* argv[]) {
 
   TestShell* shell;
   if (TestShell::CreateNewWindow(uri, &shell)) {
+#if defined(OS_WIN)
     if (record_mode || playback_mode) {
       // Move the window to the upper left corner for consistent
       // record/playback mode.  For automation, we want this to work
@@ -275,12 +312,14 @@ int main(int argc, char* argv[]) {
       // Tell webkit as well.
       webkit_glue::SetRecordPlaybackMode(true);
     }
+#endif
 
     shell->Show(shell->webView(), NEW_WINDOW);
 
     if (parsed_command_line.HasSwitch(test_shell::kDumpStatsTable))
       shell->DumpStatsTableOnExit();
 
+#if defined(OS_WIN)
     bool no_events = parsed_command_line.HasSwitch(test_shell::kNoEvents);
     if ((record_mode || playback_mode) && !no_events) {
       std::wstring script_path = cache_path;
@@ -292,6 +331,7 @@ int main(int argc, char* argv[]) {
       if (playback_mode)
         base::EventRecorder::current()->StartPlayback(script_path);
     }
+#endif
 
     if (parsed_command_line.HasSwitch(test_shell::kDebugMemoryInUse)) {
       base::MemoryDebug::SetMemoryInUseEnabled(true);
@@ -327,7 +367,9 @@ int main(int argc, char* argv[]) {
           if (!*filenameBuffer)
             continue;
 
+#if defined(OS_WIN)
           SetCurrentTestName(filenameBuffer);
+#endif
 
           if (!TestShell::RunFileTest(filenameBuffer, params))
             break;
@@ -348,10 +390,12 @@ int main(int argc, char* argv[]) {
     // purify leak-test results.
     MessageLoop::current()->RunAllPending();
 
+#if defined(OS_WIN)
     if (record_mode)
       base::EventRecorder::current()->StopRecording();
     if (playback_mode)
       base::EventRecorder::current()->StopPlayback();
+#endif
   }
 
   TestShell::ShutdownTestShell();

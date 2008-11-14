@@ -26,6 +26,10 @@ bool GetTempDir(FilePath* path) {
   return true;
 }
 
+FILE* OpenFile(const FilePath& filename, const char* mode) {
+  return fopen(filename.value().c_str(), mode);
+}
+
 bool CopyFile(const FilePath& from_path, const FilePath& to_path) {
   int infile = open(from_path.value().c_str(), O_RDONLY);
   if (infile < 0)
