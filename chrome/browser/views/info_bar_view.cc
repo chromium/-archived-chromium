@@ -131,7 +131,7 @@ void InfoBarView::ViewHierarchyChanged(bool is_add, View *parent,
 }
 
 void InfoBarView::Init() {
-  SetBackground(
+  set_background(
       views::Background::CreateVerticalGradientBackground(
           kBackgroundColorTop, kBackgroundColorBottom));
 }

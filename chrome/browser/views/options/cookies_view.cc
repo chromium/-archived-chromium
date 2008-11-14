@@ -440,7 +440,7 @@ void CookieInfoView::Init() {
   SkColor border_color = color_utils::GetSysSkColor(COLOR_3DSHADOW);
   views::Border* border = views::Border::CreateSolidBorder(
       kCookieInfoViewBorderSize, border_color);
-  SetBorder(border);
+  set_border(border);
 
   name_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_COOKIE_NAME_LABEL));

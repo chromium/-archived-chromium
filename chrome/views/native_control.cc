@@ -134,7 +134,7 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
   LRESULT OnCtlColor(UINT msg, HDC dc, HWND control) {
     const View *ancestor = parent_;
     while (ancestor) {
-      const Background *background = ancestor->GetBackground();
+      const Background *background = ancestor->background();
       if (background) {
         HBRUSH brush = background->GetNativeControlBrush();
         if (brush)

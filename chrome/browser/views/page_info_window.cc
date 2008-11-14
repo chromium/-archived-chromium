@@ -523,7 +523,7 @@ void PageInfoWindow::Init(Profile* profile,
   DWORD sys_color = ::GetSysColor(COLOR_3DFACE);
   SkColor color = SkColorSetRGB(GetRValue(sys_color), GetGValue(sys_color),
                                 GetBValue(sys_color));
-  contents_->SetBackground(views::Background::CreateSolidBackground(color));
+  contents_->set_background(views::Background::CreateSolidBackground(color));
 
   views::GridLayout* layout = new views::GridLayout(contents_);
   contents_->SetLayoutManager(layout);

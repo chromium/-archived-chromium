@@ -422,9 +422,9 @@ class MenuScrollViewContainer : public View {
     scroll_view_ = new MenuScrollView(content_view);
     AddChildView(scroll_view_);
 
-    SetBorder(
-        Border::CreateEmptyBorder(kSubmenuBorderSize, kSubmenuBorderSize,
-                                  kSubmenuBorderSize, kSubmenuBorderSize));
+    set_border(Border::CreateEmptyBorder(
+        kSubmenuBorderSize, kSubmenuBorderSize,
+        kSubmenuBorderSize, kSubmenuBorderSize));
   }
 
   virtual void Paint(ChromeCanvas* canvas) {

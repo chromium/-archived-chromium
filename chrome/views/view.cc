@@ -75,9 +75,7 @@ View::View()
       enabled_(true),
       is_visible_(true),
       focusable_(false),
-      background_(NULL),
       accessibility_(NULL),
-      border_(NULL),
       is_parent_owned_(true),
       notify_when_visible_bounds_in_root_changes_(false),
       registered_for_visible_bounds_notification_(false),
@@ -102,10 +100,6 @@ View::~View() {
     else
       child_views_[c]->SetParent(NULL);
   }
-  if (background_)
-    delete background_;
-  if (border_)
-    delete border_;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -150,7 +144,7 @@ void View::SetBounds(const gfx::Rect& bounds) {
 }
 
 gfx::Rect View::GetLocalBounds(bool include_border) const {
-  if (include_border || border_ == NULL)
+  if (include_border || !border_.get())
     return gfx::Rect(0, 0, width(), height());
 
   gfx::Insets insets;
@@ -344,12 +338,12 @@ void View::Paint(ChromeCanvas* canvas) {
 }
 
 void View::PaintBackground(ChromeCanvas* canvas) {
-  if (background_)
+  if (background_.get())
     background_->Paint(canvas, this);
 }
 
 void View::PaintBorder(ChromeCanvas* canvas) {
-  if (border_)
+  if (border_.get())
     border_->Paint(*this, canvas);
 }
 
@@ -445,31 +439,10 @@ void View::PaintFloatingView(ChromeCanvas* canvas, View* view,
   view->SetParent(saved_parent);
 }
 
-void View::SetBackground(Background* b) {
-  if (background_ != b)
-    delete background_;
-  background_ = b;
-}
-
-const Background* View::GetBackground() const {
-  return background_;
-}
-
-void View::SetBorder(Border* b) {
-  if (border_ != b)
-    delete border_;
-  border_ = b;
-}
-
-const Border* View::GetBorder() const {
-  return border_;
-}
-
 gfx::Insets View::GetInsets() const {
-  const Border* border = GetBorder();
   gfx::Insets insets;
-  if (border)
-    border->GetInsets(&insets);
+  if (border_.get())
+    border_->GetInsets(&insets);
   return insets;
 }
 

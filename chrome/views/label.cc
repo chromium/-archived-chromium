@@ -148,7 +148,7 @@ void Label::Paint(ChromeCanvas* canvas) {
 void Label::PaintBackground(ChromeCanvas* canvas) {
   const Background* bg = contains_mouse_ ? GetMouseOverBackground() : NULL;
   if (!bg)
-    bg = GetBackground();
+    bg = background();
   if (bg)
     bg->Paint(canvas, this);
 }

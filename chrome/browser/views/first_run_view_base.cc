@@ -79,7 +79,7 @@ void FirstRunViewBase::SetupControls() {
   if (UILayoutIsRightToLeft())
     background_image_->SetImage(rb.GetBitmapNamed(IDR_WIZARD_ICON_RTL));
 
-  background_image_->SetBackground(bkg);
+  background_image_->set_background(bkg);
   AddChildView(background_image_);
 
   // The first separator marks the end of the image.

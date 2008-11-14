@@ -610,10 +610,10 @@ LocationBarView::SelectedKeywordView::SelectedKeywordView(Profile* profile)
   partial_label_.SetParentOwned(false);
   full_label_.SetVisible(false);
   partial_label_.SetVisible(false);
-  full_label_.SetBorder(
+  full_label_.set_border(
       views::Border::CreateEmptyBorder(kTopInset, kLeftInset, kBottomInset,
                                        kRightInset));
-  partial_label_.SetBorder(
+  partial_label_.set_border(
       views::Border::CreateEmptyBorder(kTopInset, kLeftInset, kBottomInset,
                                        kRightInset));
 }

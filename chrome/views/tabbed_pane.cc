@@ -85,8 +85,8 @@ void TabbedPane::AddTabAtIndex(int index,
   int result = TabCtrl_InsertItem(tab_control_, index, &tcitem);
   DCHECK(result != -1);
 
-  if (!contents->GetBackground()) {
-    contents->SetBackground(new TabBackground);
+  if (!contents->background()) {
+    contents->set_background(new TabBackground);
   }
 
   if (tab_views_.size() == 1 && select_if_first_tab) {
@@ -181,7 +181,7 @@ HWND TabbedPane::CreateNativeControl(HWND parent_container) {
   DWORD sys_color = ::GetSysColor(COLOR_3DHILIGHT);
   SkColor color = SkColorSetRGB(GetRValue(sys_color), GetGValue(sys_color),
                                 GetBValue(sys_color));
-  root_view->SetBackground(Background::CreateSolidBackground(color));
+  root_view->set_background(Background::CreateSolidBackground(color));
 
   content_window_->SetFocusTraversableParentView(this);
   ResizeContents(tab_control_);

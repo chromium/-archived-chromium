@@ -175,7 +175,7 @@ void FindBarView::ResetMatchCount() {
 }
 
 void FindBarView::ResetMatchCountBackground() {
-  match_count_text_->SetBackground(
+  match_count_text_->set_background(
       views::Background::CreateSolidBackground(kBackgroundColorMatch));
   match_count_text_->SetColor(kTextColorMatchCount);
 }
@@ -201,7 +201,7 @@ void FindBarView::UpdateMatchCount(int number_of_matches,
   if (find_text_->GetText().empty() || number_of_matches > 0) {
     ResetMatchCountBackground();
   } else {
-    match_count_text_->SetBackground(
+    match_count_text_->set_background(
       views::Background::CreateSolidBackground(kBackgroundColorNoMatch));
     match_count_text_->SetColor(kTextColorNoMatch);
     MessageBeep(MB_OK);

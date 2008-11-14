@@ -155,10 +155,10 @@ TEST(LabelTest, SingleLineSizing) {
 
   // Test everything with borders.
   gfx::Insets border(10, 20, 30, 40);
-  label.SetBorder(Border::CreateEmptyBorder(border.top(),
-                                            border.left(),
-                                            border.bottom(),
-                                            border.right()));
+  label.set_border(Border::CreateEmptyBorder(border.top(),
+                                             border.left(),
+                                             border.bottom(),
+                                             border.right()));
 
   // GetPreferredSize and borders.
   label.SetBounds(0, 0, 0, 0);
@@ -208,10 +208,10 @@ TEST(LabelTest, MultiLineSizing) {
 
   // Test everything with borders.
   gfx::Insets border(10, 20, 30, 40);
-  label.SetBorder(Border::CreateEmptyBorder(border.top(),
-                                            border.left(),
-                                            border.bottom(),
-                                            border.right()));
+  label.set_border(Border::CreateEmptyBorder(border.top(),
+                                             border.left(),
+                                             border.bottom(),
+                                             border.right()));
 
   // SizeToFit and borders.
   label.SizeToFit(0);
@@ -298,10 +298,10 @@ TEST(LabelTest, DrawSingleLineString) {
 
   // Test single line drawing with a border.
   gfx::Insets border(39, 34, 8, 96);
-  label.SetBorder(Border::CreateEmptyBorder(border.top(),
-                                            border.left(),
-                                            border.bottom(),
-                                            border.right()));
+  label.set_border(Border::CreateEmptyBorder(border.top(),
+                                             border.left(),
+                                             border.bottom(),
+                                             border.right()));
 
   gfx::Size required_size_with_border(label.GetPreferredSize());
   EXPECT_EQ(required_size.width() + border.width(),
@@ -402,10 +402,10 @@ TEST(LabelTest, DrawMultiLineString) {
 
   // Test multiline drawing with a border.
   gfx::Insets border(19, 92, 23, 2);
-  label.SetBorder(Border::CreateEmptyBorder(border.top(),
-                                            border.left(),
-                                            border.bottom(),
-                                            border.right()));
+  label.set_border(Border::CreateEmptyBorder(border.top(),
+                                             border.left(),
+                                             border.bottom(),
+                                             border.right()));
   label.SizeToFit(0);
   label.SetHorizontalAlignment(Label::ALIGN_CENTER);
   paint_text.clear();

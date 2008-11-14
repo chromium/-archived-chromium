@@ -164,7 +164,7 @@ LRESULT NativeUIContents::OnCreate(LPCREATESTRUCT create_struct) {
 
   // Install the focus manager so we get notified of Tab key events.
   views::FocusManager::InstallFocusSubclass(GetHWND(), NULL);
-  GetRootView()->SetBackground(new NativeUIBackground);
+  GetRootView()->set_background(new NativeUIBackground);
   return 0;
 }
 
@@ -497,10 +497,11 @@ SearchableUIContainer::SearchableUIContainer(
   search_field_->SetController(this);
 
   scroll_view_ = new views::ScrollView;
-  scroll_view_->SetBackground(views::Background::CreateSolidBackground(kBackground));
+  scroll_view_->set_background(
+      views::Background::CreateSolidBackground(kBackground));
 
   // Set background class so that native controls can get a color.
-  SetBackground(new SearchableUIBackground(kBackground));
+  set_background(new SearchableUIBackground(kBackground));
 
   throbber_ = new views::SmoothedThrobber(50);
 
@@ -516,7 +517,7 @@ SearchableUIContainer::SearchableUIContainer(
 
   // Set a background color for the search button.  If SearchableUIContainer
   // provided a background, then the search button could inherit that instead.
-  search_button_->SetBackground(new SearchableUIBackground(kBackground));
+  search_button_->set_background(new SearchableUIBackground(kBackground));
 
   // For the first row (icon, title/text field, search button and throbber).
   ColumnSet* column_set = layout->AddColumnSet(0);

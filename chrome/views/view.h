@@ -15,6 +15,8 @@
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "chrome/views/accelerator.h"
+#include "chrome/views/background.h"
+#include "chrome/views/border.h"
 
 namespace gfx {
 class Insets;
@@ -877,17 +879,13 @@ class View : public AcceleratorTarget {
                                int y,
                                bool is_mouse_gesture);
 
-  // Set the background. The background is owned by the view after this call.
-  virtual void SetBackground(Background* b);
+  // The background object is owned by this object and may be NULL.
+  void set_background(Background* b) { background_.reset(b); }
+  const Background* background() const { return background_.get(); }
 
-  // Return the background currently in use or NULL.
-  virtual const Background* GetBackground() const;
-
-  // Set the border. The border is owned by the view after this call.
-  virtual void SetBorder(Border* b);
-
-  // Return the border currently in use or NULL.
-  virtual const Border* GetBorder() const;
+  // The border object is owned by this object and may be NULL.
+  void set_border(Border* b) { border_.reset(b); }
+  const Border* border() const { return border_.get(); }
 
   // Returns the insets of the current border. If there is no border an empty
   // insets is returned.
@@ -1256,10 +1254,10 @@ class View : public AcceleratorTarget {
   bool is_visible_;
 
   // Background
-  Background* background_;
+  scoped_ptr<Background> background_;
 
   // Border.
-  Border* border_;
+  scoped_ptr<Border> border_;
 
   // Whether this view is owned by its parent.
   bool is_parent_owned_;

@@ -236,7 +236,7 @@ TestViewWindow::TestViewWindow(FocusManagerTest* test)
 void TestViewWindow::Init() {
   gfx::Rect bounds(0, 0, 600, 460);
   contents_ = new views::View();
-  contents_->SetBackground(
+  contents_->set_background(
       views::Background::CreateSolidBackground(255, 255, 255));
 
   ContainerWin::Init(NULL, bounds, true);
@@ -250,9 +250,9 @@ void TestViewWindow::Init() {
   cb->SetID(kTopCheckBoxID);
 
   views::View* left_container = new views::View();
-  left_container->SetBorder(
+  left_container->set_border(
       views::Border::CreateSolidBorder(1, SK_ColorBLACK));
-  left_container->SetBackground(
+  left_container->set_background(
       views::Background::CreateSolidBackground(240, 240, 240));
   left_container->SetID(kLeftContainerID);
   contents_->AddChildView(left_container);
@@ -330,9 +330,9 @@ void TestViewWindow::Init() {
   left_container->AddChildView(cb);
 
   views::View* right_container = new views::View();
-  right_container->SetBorder(
+  right_container->set_border(
       views::Border::CreateSolidBorder(1, SK_ColorBLACK));
-  right_container->SetBackground(
+  right_container->set_background(
       views::Background::CreateSolidBackground(240, 240, 240));
   right_container->SetID(kRightContainerID);
   contents_->AddChildView(right_container);
@@ -362,9 +362,9 @@ void TestViewWindow::Init() {
   y += radio_button_height + gap_between_radio_buttons;
 
   views::View* inner_container = new views::View();
-  inner_container->SetBorder(
+  inner_container->set_border(
       views::Border::CreateSolidBorder(1, SK_ColorBLACK));
-  inner_container->SetBackground(
+  inner_container->set_background(
       views::Background::CreateSolidBackground(230, 230, 230));
   inner_container->SetID(kInnerContainerID);
   right_container->AddChildView(inner_container);
@@ -377,7 +377,7 @@ void TestViewWindow::Init() {
 
   views::View* scroll_content = new views::View();
   scroll_content->SetBounds(0, 0, 200, 200);
-  scroll_content->SetBackground(
+  scroll_content->set_background(
       views::Background::CreateSolidBackground(200, 200, 200));
   scroll_view->SetContents(scroll_content);
 
@@ -429,7 +429,7 @@ void TestViewWindow::Init() {
 
   // Left bottom box with style checkboxes.
   views::View* contents = new views::View();
-  contents->SetBackground(
+  contents->set_background(
       views::Background::CreateSolidBackground(SK_ColorWHITE));
   cb = new views::CheckBox(L"Bold");
   contents->AddChildView(cb);
@@ -455,7 +455,7 @@ void TestViewWindow::Init() {
 
   // Right bottom box with search.
   contents = new views::View();
-  contents->SetBackground(
+  contents->set_background(
       views::Background::CreateSolidBackground(SK_ColorWHITE));
   text_field = new views::TextField();
   contents->AddChildView(text_field);
@@ -483,7 +483,7 @@ void TestViewWindow::Init() {
 
   contents = new views::View();
   contents->SetFocusable(true);
-  contents->SetBackground(
+  contents->set_background(
       views::Background::CreateSolidBackground(SK_ColorBLUE));
   contents->SetID(kThumbnailContainerID);
   button = new views::NativeButton(L"Star");

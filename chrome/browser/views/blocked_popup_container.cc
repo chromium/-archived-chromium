@@ -136,7 +136,7 @@ BlockedPopupContainerView::BlockedPopupContainerView(
   close_button_->SetListener(this, 0);
   AddChildView(close_button_);
 
-  SetBackground(views::Background::CreateStandardPanelBackground());
+  set_background(views::Background::CreateStandardPanelBackground());
   UpdatePopupCountLabel();
 }
 

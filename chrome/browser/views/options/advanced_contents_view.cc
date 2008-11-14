@@ -1187,7 +1187,7 @@ AdvancedScrollViewContainer::AdvancedScrollViewContainer(Profile* profile)
       scroll_view_(new views::ScrollView) {
   AddChildView(scroll_view_);
   scroll_view_->SetContents(contents_view_);
-  SetBackground(new ListBackground());
+  set_background(new ListBackground());
 }
 
 AdvancedScrollViewContainer::~AdvancedScrollViewContainer() {

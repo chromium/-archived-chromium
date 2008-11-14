@@ -150,7 +150,7 @@ TextButton::TextButton(const std::wstring& text)
       max_width_(0),
       alignment_(ALIGN_LEFT) {
   SetText(text);
-  SetBorder(new TextButtonBorder);
+  set_border(new TextButtonBorder);
   SetAnimationDuration(kHoverAnimationDurationMs);
 }
 
