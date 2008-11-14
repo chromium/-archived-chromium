@@ -1437,7 +1437,7 @@ int HttpTransactionWinHttp::DidReadData(DWORD num_bytes) {
 
   // We have read the entire response.  Mark the request done to unblock a
   // queued request.
-  if (rv == 0 || content_length_remaining_ == 0) {
+  if (rv == 0) {
     DCHECK(request_submitted_);
     request_submitted_ = false;
     session_->request_throttle()->NotifyRequestDone(connect_peer_);
