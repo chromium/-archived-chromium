@@ -24,7 +24,9 @@
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
+#if USE(V8)
 #include <v8.h>
+#endif
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
@@ -302,9 +304,11 @@ void ChromiumBridge::incrementStatsCounter(const wchar_t* name) {
   StatsCounter(name).Increment();
 }
 
+#if USE(V8)
 void ChromiumBridge::initV8CounterFunction() {
   v8::V8::SetCounterFunction(StatsTable::FindLocation);
 }
+#endif
 
 // Trace Event ----------------------------------------------------------------
 void ChromiumBridge::traceEventBegin(const char* name,
