@@ -40,6 +40,7 @@ if env_res['PLATFORM'] == 'win32':
   )
 
   browser_res = env_res.RES('browser/browser_resources.rc')
+  chrome_exe_res = env_res.RES('app/chrome_exe.rc'),
   chrome_dll_res = env_res.RES('app/chrome_dll.rc')
   env_res.Depends(chrome_dll_res, 'installer/util/installer_util_strings.rc')
   common_res = env_res.RES('common/common_resources.rc')
@@ -99,7 +100,8 @@ env_dll.Append(
     LIBS = [
         'base',
         'base_gfx',
-        'breakpad_handler',
+        #'breakpad_handler',
+        'dmg_fp',
         'googleurl',
         'net',
         'skia',
@@ -126,7 +128,7 @@ env_dll.Append(
         'debugger',
         'common',
         'util',
-        'jscre',
+        #'jscre',
         'plugin',
         'renderer',
         'hunspell',
@@ -134,7 +136,9 @@ env_dll.Append(
         #'libevent',
         'sqlite',
         'views',
-        'v8',
+        #'v8',
+        'v8_g',
+        'v8_snapshot',
     ],
 )
 
@@ -144,12 +148,12 @@ if env_dll['PLATFORM'] == 'win32':
           # TODO(sgk):  to be ported to Mac and Linux
           'sdch',
 
-          'comctl32.lib',
-          'dwmapi.lib',
-          'rpcrt4.lib',
-          'shlwapi.lib',
-          'winmm.lib',
-          'wsock32.lib',
+          #'comctl32.lib',
+          #'dwmapi.lib',
+          #'rpcrt4.lib',
+          #'shlwapi.lib',
+          #'winmm.lib',
+          #'wsock32.lib',
       ],
       LINKFLAGS = [
           '/INCREMENTAL',
@@ -180,6 +184,7 @@ if env_dll['PLATFORM'] == 'win32':
           '/safeseh',
           '/dynamicbase',
           '/ignore:4199',
+          '/ignore:4221',
           '/nxcompat',
 
           '/PDB:${TARGETS[1]}',
@@ -261,6 +266,8 @@ if env_dll['PLATFORM'] == 'win32':
       'app/chrome_dll_version.rc.version',
   )
 
+  # TODO(sgk):  explicit dependencies => scanned implicit dependencies
+  Depends(chrome_exe_res, chrome_exe_version_rc)
   Depends(chrome_dll_res, chrome_dll_version_rc)
 
   chrome_exe_version_res = env_res.RES(chrome_exe_version_rc)
@@ -316,7 +323,7 @@ if env['PLATFORM'] == 'win32':
   chrome_exe = env_exe.ChromeProgram(
       'chrome',
       [
-          env_res.RES('app/chrome_exe.rc'),
+          chrome_exe_res,
           'app/breakpad.cc',
           'app/chrome_exe_main.cc',
           'app/client_util.cc',
@@ -390,8 +397,8 @@ if env_flat['PLATFORM'] == 'win32':
                   CPPPATH=['..'] + env['CPPPATH'])
 
 sconscript_files = [
-    'test/chrome_plugin/SConscript',
-    'tools/test/image_diff/SConscript',
+    'test/chrome_plugin/test_chrome_plugin.scons',
+    'tools/test/image_diff/image_diff.scons',
 ]
 
 if not env.WantSystemLib('hunspell'):
@@ -408,19 +415,19 @@ if env['PLATFORM'] == 'win32':
       'installer/mini_installer/SConscript',
       'installer/setup/SConscript',
       'installer/util/SConscript',
-      'test/activex_test_control/SConscript',
-      'test/automation/SConscript',
-      'test/memory_test/SConscript',
-      'test/mini_installer_test/SConscript',
-      'test/page_cycler/SConscript',
-      'test/plugin/SConscript',
-      'test/reliability/SConscript',
-      'test/security_tests/SConscript',
-      'test/selenium/SConscript',
-      'test/startup/SConscript',
-      'test/tab_switching/SConscript',
-      'tools/crash_service/SConscript',
-      'tools/perf/flush_cache/SConscript',
+      'test/activex_test_control/activex_test_control.scons',
+      'test/automation/automation.scons',
+      'test/memory_test/memory_test.scons',
+      'test/mini_installer_test/mini_installer_test.scons',
+      'test/page_cycler/page_cycler_tests.scons',
+      'test/plugin/plugin_tests.scons',
+      'test/reliability/reliability_tests.scons',
+      'test/security_tests/security_tests.scons',
+      'test/selenium/selenium_tests.scons',
+      'test/startup/startup_tests.scons',
+      'test/tab_switching/tab_switching_test.scons',
+      'tools/crash_service/crash_service.scons',
+      'tools/perf/flush_cache/flush_cache.scons',
       'views/SConscript',
   ])
 

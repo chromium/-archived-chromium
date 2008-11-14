@@ -2,34 +2,30 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-Import('env_test')
+Import('env')
 
-env_test = env_test.Clone()
+env = env.Clone()
 
-env_test.Prepend(
+env.ApplySConscript([
+    '$BASE_DIR/using_base.scons',
+    '$BASE_DIR/gfx/using_base_gfx.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+])
+
+env.Prepend(
     CPPDEFINES = [
-        'PNG_USER_CONFIG',
-        'CHROME_PNG_WRITE_SUPPORT',
         '_DEBUG',
     ],
     CPPPATH = [
-        '$ZLIB_DIR',
-        '$LIBPNG_DIR',
         '$CHROME_SRC_DIR',
-    ],
-    LIBS = [
-        'dmg_fp',
-        'skia',
-        'libpng',
-        'base_gfx',
-        env_test['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
-        env_test['ZLIB_LIB'],
-        'base',
     ],
 )
 
-if env_test['PLATFORM'] == 'win32':
-    env_test.Prepend(
+if env['PLATFORM'] == 'win32':
+    env.Prepend(
         LINKFLAGS = [
             '/INCREMENTAL',
             '/DEBUG',
@@ -53,8 +49,4 @@ input_files = [
     'image_diff.cc',
 ]
 
-exe = env_test.ChromeTestProgram('image_diff', input_files)
-i = env_test.Install('$TARGET_ROOT', exe)
-
-env_test.Alias('chrome', i)
-
+env.ChromeTestProgram('image_diff', input_files)

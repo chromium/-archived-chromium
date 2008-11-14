@@ -117,7 +117,11 @@ def _Scanner(file_node, env, path):
   '''
   from grit import grd_reader
   
-  grd = grd_reader.Parse(str(file_node), debug=_IsDebugEnabled())
+  # TODO(gspencer):  Had to add the .rfile() method to the following
+  # line to get this to work with Repository() directories.
+  # Get this functionality folded back into the upstream grit tool.
+  #grd = grd_reader.Parse(str(file_node)), debug=_IsDebugEnabled())
+  grd = grd_reader.Parse(str(file_node.rfile()), debug=_IsDebugEnabled())
   files = []
   for node in grd:
     if (node.name == 'structure' or node.name == 'skeleton' or

@@ -1,0 +1,74 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$BASE_DIR/using_base.scons',
+    '$BASE_DIR/gfx/using_base_gfx.scons',
+    '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$MODP_B64_DIR/using_modp_b64.scons',
+    '$NET_DIR/using_net.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+])
+
+env.Prepend(
+    CPPDEFINES = [
+        'RELIABILITY_TEST',     # seems to be unused
+        'UI_TEST',
+    ],
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+    LIBS = [
+        'automation',
+        'browser',
+        'browser_views',
+        'common',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      LINKFLAGS = [
+          '/INCREMENTAL',
+          '/DEBUG',
+
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+
+          '/MACHINE:X86',
+          '/FIXED:No',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+      LIBS = [
+          'comsupp',
+          'oleacc',
+          'psapi',
+          'rpcrt4',
+          'winmm',
+      ],
+  )
+
+input_files = [
+    '$CHROME_DIR/test/perf/mem_usage$OBJSUFFIX',
+    '$CHROME_DIR/test/ui/ui_test$OBJSUFFIX',
+    '$CHROME_DIR/test/ui/ui_test_suite$OBJSUFFIX',
+    '$CHROME_DIR/test/test_file_util$OBJSUFFIX',
+    'page_load_test.cc',
+    'run_all_unittests.cc',
+]
+
+env.ChromeTestProgram('reliability_tests', input_files)

@@ -6,13 +6,12 @@ Import('env')
 
 env = env.Clone()
 
+env.ApplySConscript([
+    '$SKIA_DIR/using_skia.scons',
+])
+
 env.Prepend(
     CPPPATH = [
-        #'../../..',
-        #'$GTEST_DIR/include',
-        '$SKIA_DIR/include',
-        '$SKIA_DIR/include/corecg',
-        '$SKIA_DIR/platform',
         '$CHROME_SRC_DIR',
     ],
 )

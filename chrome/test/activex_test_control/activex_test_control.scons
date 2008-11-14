@@ -6,22 +6,12 @@ Import('env')
 
 env = env.Clone()
 
-
 env.Prepend(
     CPPPATH = [
+        '.',
         '$CHROME_SRC_DIR',
     ],
-    LIBS = [
-        'googleurl',
-        env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
-        'base',
-    ],
 )
-
-input_files = [
-    'test_chrome_plugin.cc',
-]
-
 
 if env['PLATFORM'] == 'win32':
   env.Prepend(
@@ -42,16 +32,16 @@ if env['PLATFORM'] == 'win32':
           '/DEBUG',
       ],
       LIBS = [
-          'winmm.lib',
+          'comsuppw.lib',
       ],
   )
 
-  input_files.extend([
-      'test_chrome_plugin.def',
-  ])
+env.TypeLibrary('activex_test_control.idl')
 
-dll = env.ChromeSharedLibrary('test_chrome_plugin', input_files)
+input_files = [
+    'activex_test_control.cc',
+    'activex_test_control.def',
+    'chrome_test_control.cc',
+]
 
-i = env.Install('$TARGET_ROOT', dll)
-env.Alias('chrome', i)
-
+env.ChromeSharedLibrary('activex_test_control', input_files)

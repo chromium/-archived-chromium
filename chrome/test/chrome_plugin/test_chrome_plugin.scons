@@ -1,0 +1,53 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$BASE_DIR/using_base.scons',
+    '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$ICU38_DIR/using_icu38.scons',
+])
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      LINKFLAGS = [
+          '/INCREMENTAL',
+
+          '/MANIFEST',
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+          '/MACHINE:X86',
+          '/FIXED:No',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+
+          '/DEBUG',
+      ],
+      LIBS = [
+          'winmm.lib',
+      ],
+  )
+
+input_files = [
+    'test_chrome_plugin.cc',
+]
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      'test_chrome_plugin.def',
+  ])
+
+env.ChromeSharedLibrary('test_chrome_plugin', input_files)

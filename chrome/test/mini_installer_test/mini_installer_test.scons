@@ -1,0 +1,68 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$BASE_DIR/using_base.scons',
+    '$GTEST_DIR/../using_gtest.scons',
+    '$ICU38_DIR/using_icu38.scons',
+
+    '$BASE_DIR/gfx/using_base_gfx.scons',
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$CHROME_SRC_DIR/build/using_googleurl.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$MODP_B64_DIR/using_modp_b64.scons',
+    '$NET_DIR/using_net.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+])
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+    LIBS = [
+        'util',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      LINKFLAGS = [
+          '/INCREMENTAL',
+          '/DEBUG',
+
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+
+          '/MACHINE:X86',
+          '/FIXED:No',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+      ],
+      LIBS = [
+          'comsupp',
+          'oleacc',
+          'rpcrt4',
+          'shlwapi',
+      ],
+  )
+
+input_files = [
+    '$CHROME_DIR/installer/setup/setup_constants$OBJSUFFIX',
+    '$CHROME_DIR/installer/util/run_all_unittests$OBJSUFFIX',
+    'chrome_mini_installer.cc',
+    'mini_installer_test_constants.cc',
+    'test.cc',
+]
+
+env.ChromeTestProgram('mini_installer_test', input_files)
