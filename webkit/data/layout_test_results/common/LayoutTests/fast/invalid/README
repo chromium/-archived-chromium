@@ -1,6 +1,0 @@
-This file documents why the various tests have been rebaselined.
-
-missing-end-tag-expected.txt
---------------------------
-This test prints the line and column number of an xml error.  Our output
-seems correct, while the Mac expected output doesn't even make sense.

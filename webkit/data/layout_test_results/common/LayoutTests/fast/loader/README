@@ -1,7 +1,0 @@
-This file documents why the various tests have been rebaselined.
-
-xmlhttprequest-missing-file-exception-expected.txt
---------------------------
-This test checks the output of an XMLHttpRequest to a file that does not
-exist.  The Mac expected output includes a status text of "OK", which isn't
-required and would require lots of ugliness for us to replicate.

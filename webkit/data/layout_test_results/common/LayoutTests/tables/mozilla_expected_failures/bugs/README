@@ -1,4 +1,0 @@
-bug8499-expected.txt
---------------------
-Our different display for a missing plugin changes the locations of all the
-following elements.

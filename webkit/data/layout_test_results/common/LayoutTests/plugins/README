@@ -1,5 +1,0 @@
-- plugin-javascript-access.html
-  Has a hardcoded mac filename for the test plugin.
-
-- mouse-events.html
-  The events are system specific and Windows/Mac differ.

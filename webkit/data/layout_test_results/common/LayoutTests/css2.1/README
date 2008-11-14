@@ -1,5 +1,0 @@
-t1202-counter-09-b-expected.txt
-t1202-counters-09-b-expected.txt
---------------------------------
-Our fake font metrics for layout tests don't handle some inernational fonts,
-so these font sizes differ.

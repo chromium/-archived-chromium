@@ -1,7 +1,0 @@
-This tests that a textarea's default value is submitted with hard line wraps (carriage returns where line wraps appear in the textarea).
-
-Due to a bug, the textarea is actually a bit wider than we specify via the cols attribute, so, the number and position of the carriage returns in the submitted data is not what you'd expect. The expected results for this testcase should be updated when bug 7505 is fixed.
-
- 
-Failure. The form data that should have been submitted: textarea=1234567%0D%0A89
-This is what was actually submitted: textarea=1234%0D%0A5678%0D%0A9

@@ -1,7 +1,0 @@
-- http/tests/loading/bad-scheme-subframe.html
-  We differ from DumpRenderTree in how we handle URLs with invalid schemes.
-They ignore such requests early, at the policy delegate, and ask the shell
-to handle it.  We first try to load the request, then generate an error.
-This difference shows up in extra load events for us, which is why we have
-different expected output.
-  

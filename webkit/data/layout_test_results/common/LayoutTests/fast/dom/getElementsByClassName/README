@@ -1,6 +1,0 @@
-This file documents why the various tests have been rebaselined.
-
-011.xml
---------------------------
-Only differ in Safari has some error message. Chrome is not. The reason is we
-use different version libxml library. 

@@ -1,5 +1,0 @@
-This file documents why the various tests have been rebaselined.
-
-remove-shorthand.html
---------------------------
-Replaced "file:///" with "file:///C:/" in the expected output, since GURL resolves differently than WebCore (see http://b/1089284)

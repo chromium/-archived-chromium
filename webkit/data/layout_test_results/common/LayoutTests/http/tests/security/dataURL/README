@@ -1,9 +1,0 @@
-This file documents why the various tests have been rebaselined.
-
-xss-DENIED-from-data-url-in-foreign-domain-subframe.html
-xss-DENIED-from-data-url-in-foreign-domain-window-open.html
-xss-DENIED-to-data-url-in-foreign-domain-subframe-location-change.html
-xss-DENIED-to-data-url-in-foreign-domain-subframe.html
-xss-DENIED-to-data-url-in-foreign-domain-window-open.html
---------------------------
-In webkit the data: url is escaped. Chrome does like Firefox/Opera and does not escape.

@@ -1,4 +1,0 @@
-function-toString-parentheses.html
-----------------------------------------
-See bug 1135116: We throw some parsing exceptions at compile time that Safari
-throws at runtime.
