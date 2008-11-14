@@ -1407,7 +1407,8 @@ void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
     //             since SendInput is system-wide.
     Browser* browser = browser_tracker_->GetResource(handle);
     DCHECK(browser);
-    HWND browser_hwnd = browser->GetTopLevelHWND();
+    HWND browser_hwnd =
+        reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
 
     // We can't simulate drags to the non-client area of the window, because
     // Windows spawns a nested modal message loop in cases where drags occur
@@ -1967,7 +1968,7 @@ void AutomationProvider::GetWindowForBrowser(const IPC::Message& message,
 
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
-    HWND hwnd = browser->GetTopLevelHWND();
+    HWND hwnd = reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
     // Add() returns the existing handle for the resource if any.
     window_handle = window_tracker_->Add(hwnd);
     success = true;
@@ -2004,7 +2005,8 @@ void AutomationProvider::GetBrowserForWindow(const IPC::Message& message,
     BrowserList::const_iterator iter = BrowserList::begin();
     Browser* browser = NULL;
     for (;iter != BrowserList::end(); ++iter) {
-      if (window == (*iter)->GetTopLevelHWND()) {
+      HWND hwnd = reinterpret_cast<HWND>((*iter)->window()->GetNativeHandle());
+      if (window == hwnd) {
         browser = *iter;
         break;
       }

@@ -5,25 +5,21 @@
 #ifndef CHROME_BROWSER_BROWSER_WINDOW_H_
 #define CHROME_BROWSER_BROWSER_WINDOW_H_
 
-#include <map>
-
-#include "base/gfx/point.h"
-#include "base/gfx/rect.h"
-#include "chrome/views/accelerator.h"
-
 class BookmarkBarView;
 class Browser;
 class BrowserList;
 class BrowserView;
 class GoButton;
 class LocationBarView;
+class HtmlDialogContentsDelegate;
 class Profile;
 class StatusBubble;
 class TabContents;
 class TabStrip;
 class ToolbarStarToggle;
-namespace views {
-class RootView;
+
+namespace gfx {
+class Rect;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +33,9 @@ class BrowserWindow {
 
   // Show the window, or activates it if it's already visible.
   virtual void Show() = 0;
+
+  // Sets the window's size and position to the specified values.
+  virtual void SetBounds(const gfx::Rect& bounds) = 0;
 
   // Closes the frame as soon as possible.  If the frame is not in a drag
   // session, it will close immediately; otherwise, it will move offscreen (so
@@ -108,6 +107,36 @@ class BrowserWindow {
 
   // Returns whether the bookmark bar is visible or not.
   virtual bool IsBookmarkBarVisible() const = 0;
+
+  // Shows or hides the bookmark bar depending on its current visibility.
+  virtual void ToggleBookmarkBar() = 0;
+
+  // Shows the About Chrome dialog box.
+  virtual void ShowAboutChromeDialog() = 0;
+
+  // Shows the Bookmark Manager window.
+  virtual void ShowBookmarkManager() = 0;
+
+  // Shows the Report a Bug dialog box.
+  virtual void ShowReportBugDialog() = 0;
+
+  // Shows the Clear Browsing Data dialog box.
+  virtual void ShowClearBrowsingDataDialog() = 0;
+
+  // Shows the Import Bookmarks & Settings dialog box.
+  virtual void ShowImportDialog() = 0;
+  
+  // Shows the Search Engines dialog box.
+  virtual void ShowSearchEnginesDialog() = 0;
+
+  // Shows the Password Manager dialog box.
+  virtual void ShowPasswordManager() = 0;
+
+  // Shows a dialog box with HTML content, e.g. for Gears. |parent_window| is
+  // the window the dialog should be opened modal to and is a native window
+  // handle.
+  virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
+                              void* parent_window) = 0;
 
   // Construct a BrowserWindow implementation for the specified |browser|.
   static BrowserWindow* CreateBrowserWindow(Browser* browser);

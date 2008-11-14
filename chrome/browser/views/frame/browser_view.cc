@@ -6,16 +6,26 @@
 
 #include "chrome/browser/views/frame/browser_view.h"
 
+#include "base/file_version_info.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
+#include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/view_ids.h"
+#include "chrome/browser/views/about_chrome_view.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
+#include "chrome/browser/views/bookmark_manager_view.h"
+#include "chrome/browser/views/bug_report_view.h"
+#include "chrome/browser/views/clear_browsing_data.h"
 #include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/browser/views/frame/browser_frame.h"
+#include "chrome/browser/views/html_dialog_view.h"
+#include "chrome/browser/views/importer_view.h"
+#include "chrome/browser/views/keyword_editor_view.h"
+#include "chrome/browser/views/password_manager_view.h"
 #include "chrome/browser/views/status_bubble.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
@@ -355,6 +365,10 @@ void BrowserView::Show() {
     frame_->GetWindow()->Activate();
 }
 
+void BrowserView::SetBounds(const gfx::Rect& bounds) {
+  frame_->GetWindow()->SetBounds(bounds);
+}
+
 void BrowserView::Close() {
   frame_->GetWindow()->Close();
 }
@@ -476,6 +490,93 @@ bool BrowserView::IsBookmarkBarVisible() const {
 
   // 1 is the minimum in GetPreferredSize for the bookmark bar.
   return bookmark_bar_view_->GetPreferredSize().height() > 1;
+}
+
+void BrowserView::ToggleBookmarkBar() {
+  BookmarkBarView::ToggleWhenVisible(browser_->profile());
+}
+
+void BrowserView::ShowAboutChromeDialog() {
+  views::Window::CreateChromeWindow(
+      GetContainer()->GetHWND(), gfx::Rect(),
+      new AboutChromeView(browser_->profile()))->Show();
+}
+
+void BrowserView::ShowBookmarkManager() {
+  BookmarkManagerView::Show(browser_->profile());
+}
+
+void BrowserView::ShowReportBugDialog() {
+  // Retrieve the URL for the current tab (if any) and tell the BugReportView
+  TabContents* current_tab = browser_->GetSelectedTabContents();
+  if (!current_tab)
+    return;
+
+  BugReportView* bug_report_view = new BugReportView(browser_->profile(),
+                                                     current_tab);
+
+  if (current_tab->controller()->GetLastCommittedEntry()) {
+    if (current_tab->type() == TAB_CONTENTS_WEB) {
+      // URL for the current page
+      bug_report_view->SetUrl(
+          current_tab->controller()->GetActiveEntry()->url());
+    }
+  }
+
+  // retrieve the application version info
+  std::wstring version;
+  scoped_ptr<FileVersionInfo> version_info(
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+  if (version_info.get()) {
+    version = version_info->product_name() + L" - " +
+    version_info->file_version() +
+    L" (" + version_info->last_change() + L")";
+  }
+  bug_report_view->set_version(version);
+
+  // Grab an exact snapshot of the window that the user is seeing (i.e. as
+  // rendered--do not re-render, and include windowed plugins)
+  std::vector<unsigned char> *screenshot_png = new std::vector<unsigned char>;
+  win_util::GrabWindowSnapshot(GetContainer()->GetHWND(), screenshot_png);
+  // the BugReportView takes ownership of the png data, and will dispose of
+  // it in its destructor.
+  bug_report_view->set_png_data(screenshot_png);
+
+  // Create and show the dialog
+  views::Window::CreateChromeWindow(GetContainer()->GetHWND(), gfx::Rect(),
+                                    bug_report_view)->Show();
+}
+
+void BrowserView::ShowClearBrowsingDataDialog() {
+  views::Window::CreateChromeWindow(
+      GetContainer()->GetHWND(), gfx::Rect(),
+      new ClearBrowsingDataView(browser_->profile()))->Show();
+}
+
+void BrowserView::ShowImportDialog() {
+  views::Window::CreateChromeWindow(
+      GetContainer()->GetHWND(), gfx::Rect(),
+      new ImporterView(browser_->profile()))->Show();
+}
+
+void BrowserView::ShowSearchEnginesDialog() {
+  KeywordEditorView::Show(browser_->profile());
+}
+
+void BrowserView::ShowPasswordManager() {
+  PasswordManagerView::Show(browser_->profile());
+}
+
+void BrowserView::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
+                                 void* parent_window) {
+  HWND parent_hwnd = reinterpret_cast<HWND>(parent_window);
+  parent_hwnd = parent_hwnd ? parent_hwnd : GetContainer()->GetHWND();
+  HtmlDialogView* html_view = new HtmlDialogView(browser_.get(),
+                                                 browser_->profile(),
+                                                 delegate);
+  views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), html_view);
+  html_view->InitDialog();
+  html_view->window()->Show();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

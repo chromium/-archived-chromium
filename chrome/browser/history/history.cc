@@ -597,7 +597,11 @@ void HistoryService::SetInMemoryBackend(
 void HistoryService::NotifyTooNew() {
   // Find the last browser window to display our message box from.
   Browser* cur_browser = BrowserList::GetLastActive();
-  HWND cur_hwnd = cur_browser ? cur_browser->GetTopLevelHWND() : NULL;
+  // TODO(brettw): Do this some other way or beng will kick you. e.g. move to
+  //               BrowserView.
+  HWND parent_hwnd =
+      reinterpret_cast<HWND>(cur_browser->window()->GetNativeHandle());
+  HWND cur_hwnd = cur_browser ? parent_hwnd : NULL;
 
   std::wstring title = l10n_util::GetString(IDS_PRODUCT_NAME);
   std::wstring message = l10n_util::GetString(IDS_PROFILE_TOO_NEW_ERROR);

@@ -99,12 +99,9 @@ class TabStripModelDelegate {
   virtual GURL GetBlankTabURL() const = 0;
 
   // Ask for a new TabStripModel to be created and the given tab contents to
-  // be added to it. Its presentation (e.g. a browser window) anchored at the
-  // specified creation point. It is left up to the delegate to decide how to
-  // size the window. ass an empty point (0, 0) to allow the delegate to decide
-  // where to  position the window.
+  // be added to it. Its size and position are reflected in |window_bounds|.
   virtual void CreateNewStripWithContents(TabContents* contents,
-                                          const gfx::Point& creation_point) = 0;
+                                          const gfx::Rect& window_bounds) = 0;
 
   enum {
     TAB_MOVE_ACTION = 1,
@@ -370,7 +367,7 @@ class TabStripModel : public NotificationObserver {
 
   // The specified contents should be opened in a new tabstrip.
   void TearOffTabContents(TabContents* detached_contents,
-                          const gfx::Point& drop_point);
+                          const gfx::Rect& window_bounds);
 
   // Context menu functions.
   enum ContextMenuCommand {

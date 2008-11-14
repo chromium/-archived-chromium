@@ -95,11 +95,6 @@ class Browser : public TabStripModelDelegate,
   bool SupportsCommand(int id) const;
   bool IsCommandEnabled(int id) const;
 
-  // DEPRECATED DEPRECATED DEPRECATED /////////////////////////////////////////
-
-  // Returns the HWND of the top-level system window for this Browser.
-  HWND GetTopLevelHWND() const;
-
   // State Storage and Retrieval for UI ///////////////////////////////////////
 
   // Save and restore the window position.
@@ -296,7 +291,7 @@ class Browser : public TabStripModelDelegate,
   // Overridden from TabStripModelDelegate:
   virtual GURL GetBlankTabURL() const;
   virtual void CreateNewStripWithContents(TabContents* detached_contents,
-                                          const gfx::Point& drop_point);
+                                          const gfx::Rect& window_bounds);
   virtual int GetDragActions() const;
   // Construct a TabContents for a given URL, profile and transition type.
   // If instance is not null, its process will be used to render the tab.
@@ -360,7 +355,7 @@ class Browser : public TabStripModelDelegate,
                                  bool proceed, 
                                  bool* proceed_to_fire_unload);
   virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
-                              HWND parent_hwnd);
+                              void* parent_window);
 
   // Overridden from SelectFileDialog::Listener:
   virtual void FileSelected(const std::wstring& path, void* params);

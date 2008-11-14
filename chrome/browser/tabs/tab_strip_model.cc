@@ -406,9 +406,9 @@ void TabStripModel::SelectLastTab() {
 }
 
 void TabStripModel::TearOffTabContents(TabContents* detached_contents,
-                                       const gfx::Point& drop_point) {
+                                       const gfx::Rect& window_bounds) {
   DCHECK(detached_contents);
-  delegate_->CreateNewStripWithContents(detached_contents, drop_point);
+  delegate_->CreateNewStripWithContents(detached_contents, window_bounds);
 }
 
 // Context menu functions.

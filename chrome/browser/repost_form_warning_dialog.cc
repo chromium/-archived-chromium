@@ -77,9 +77,13 @@ RepostFormWarningDialog::RepostFormWarningDialog(
       MessageBoxView::kIsConfirmMessageBox,
       l10n_util::GetString(IDS_HTTP_POST_WARNING),
       L"");
+  // TODO(beng): fix this - this dialog box should be shown by a method on the
+  //             Browser.
   HWND root_hwnd = NULL;
-  if (BrowserList::GetLastActive())
-    root_hwnd = BrowserList::GetLastActive()->GetTopLevelHWND();
+  if (BrowserList::GetLastActive()) {
+    root_hwnd = reinterpret_cast<HWND>(BrowserList::GetLastActive()->
+        window()->GetNativeHandle());
+  }
   views::Window::CreateChromeWindow(root_hwnd, gfx::Rect(), this)->Show();
   NotificationService::current()->
       AddObserver(this, NOTIFY_LOAD_START, NotificationService::AllSources());

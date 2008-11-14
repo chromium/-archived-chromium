@@ -109,7 +109,7 @@ void BrowserList::CloseAllBrowsers(bool use_post) {
   BrowserList::const_iterator iter;
   for (iter = BrowserList::begin(); iter != BrowserList::end();) {
     if (use_post) {
-      ::PostMessage((*iter)->GetTopLevelHWND(), WM_CLOSE, 0, 0);
+      (*iter)->window()->Close();
       ++iter;
     } else {
       // This path is hit during logoff/power-down. In this case we won't get

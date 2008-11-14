@@ -748,9 +748,13 @@ bool DraggedTabController::CompleteDrag() {
     destroy_immediately = false;
   } else {
     // Compel the model to construct a new window for the detached TabContents.
-    source_tabstrip_->model()->TearOffTabContents(
-        dragged_contents_,
-        GetWindowCreatePoint());
+    CRect browser_rect;
+    GetWindowRect(source_tabstrip_->GetContainer()->GetHWND(), &browser_rect);
+    gfx::Rect window_bounds(
+        GetWindowCreatePoint(),
+        gfx::Size(browser_rect.Width(), browser_rect.Height()));
+    source_tabstrip_->model()->TearOffTabContents(dragged_contents_,
+                                                  window_bounds);
     CleanUpHiddenFrame();
   }
 

@@ -142,6 +142,7 @@ class BrowserView : public BrowserWindow,
   // Overridden from BrowserWindow:
   virtual void Init();
   virtual void Show();
+  virtual void SetBounds(const gfx::Rect& bounds);
   virtual void Close();
   virtual void Activate();
   virtual void FlashFrame();
@@ -162,6 +163,16 @@ class BrowserView : public BrowserWindow,
   virtual void FocusToolbar();
   virtual void DestroyBrowser();
   virtual bool IsBookmarkBarVisible() const;
+  virtual void ToggleBookmarkBar();
+  virtual void ShowAboutChromeDialog();
+  virtual void ShowBookmarkManager();
+  virtual void ShowReportBugDialog();
+  virtual void ShowClearBrowsingDataDialog();
+  virtual void ShowImportDialog();
+  virtual void ShowSearchEnginesDialog();
+  virtual void ShowPasswordManager();
+  virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
+                              void* parent_window);
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,

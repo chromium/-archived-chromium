@@ -123,10 +123,10 @@ class TabContentsDelegate : public PageNavigator {
 
   // Show a dialog with HTML content. |delegate| contains a pointer to the
   // delegate who knows how to display the dialog (which file URL and JSON
-  // string input to use during initialization). |parent_hwnd| is the window
+  // string input to use during initialization). |parent_window| is the window
   // that should be parent of the dialog, or NULL for the default.
   virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
-                              HWND parent_hwnd) { }
+                              void* parent_window) { }
 
   // Tells us that we've finished firing this tab's beforeunload event.
   // The proceed bool tells us whether the user chose to proceed closing the

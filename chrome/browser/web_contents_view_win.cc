@@ -234,7 +234,7 @@ void WebContentsViewWin::FindInPage(const Browser& browser,
                                     bool find_next, bool forward_direction) {
  if (!find_bar_.get()) {
     // We want the Chrome top-level (Frame) window.
-    HWND hwnd = browser.GetTopLevelHWND();
+    HWND hwnd = reinterpret_cast<HWND>(browser.window()->GetNativeHandle());
     find_bar_.reset(new FindBarWin(this, hwnd));
   } else if (!find_bar_->IsVisible()) {
     find_bar_->Show();
@@ -254,8 +254,10 @@ void WebContentsViewWin::HideFindBar(bool end_session) {
 }
 
 void WebContentsViewWin::ReparentFindWindow(Browser* new_browser) const {
-  if (find_bar_.get())
-    find_bar_->SetParent(new_browser->GetTopLevelHWND());
+  if (find_bar_.get()) {
+    find_bar_->SetParent(
+        reinterpret_cast<HWND>(new_browser->window()->GetNativeHandle()));
+  }
 }
 
 bool WebContentsViewWin::GetFindBarWindowInfo(gfx::Point* position,

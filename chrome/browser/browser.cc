@@ -8,7 +8,6 @@
 #include "chrome/browser/browser.h"
 
 #include "base/command_line.h"
-#include "base/file_version_info.h"
 #include "base/idle_timer.h"
 #include "base/logging.h"
 #include "base/string_util.h"
@@ -25,7 +24,6 @@
 #include "chrome/browser/debugger/debugger_window.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/download/save_package.h"
-#include "chrome/browser/frame_util.h"
 #include "chrome/browser/history_tab_ui.h"
 #include "chrome/browser/interstitial_page.h"
 #include "chrome/browser/navigation_controller.h"
@@ -40,21 +38,10 @@
 #include "chrome/browser/url_fixer_upper.h"
 #include "chrome/browser/user_metrics.h"
 #include "chrome/browser/view_ids.h"
-#include "chrome/browser/views/about_chrome_view.h"
-#include "chrome/browser/views/bookmark_bar_view.h"
-#include "chrome/browser/views/bookmark_manager_view.h"
-#include "chrome/browser/views/bug_report_view.h"
-#include "chrome/browser/views/clear_browsing_data.h"
-#include "chrome/browser/views/download_shelf_view.h"
 #include "chrome/browser/views/download_tab_view.h"
 #include "chrome/browser/views/go_button.h"
-#include "chrome/browser/views/html_dialog_view.h"
-#include "chrome/browser/views/importer_view.h"
-#include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/browser/views/password_manager_view.h"
 #include "chrome/browser/views/status_bubble.h"
-#include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/web_contents_view.h"
 #include "chrome/browser/window_sizer.h"
@@ -317,13 +304,6 @@ bool Browser::IsCommandEnabled(int id) const {
     default:
       return controller_.IsCommandEnabled(id);
   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Browser, DEPRECATED DEPRECATED DEPRECATED:
-
-HWND Browser::GetTopLevelHWND() const {
-  return window_ ? reinterpret_cast<HWND>(window_->GetNativeHandle()) : NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -959,63 +939,22 @@ void Browser::OverrideEncoding(int encoding_id) {
 
 void Browser::OpenKeywordEditor() {
   UserMetrics::RecordAction(L"EditSearchEngines", profile_);
-  KeywordEditorView::Show(profile());
+  window_->ShowSearchEnginesDialog();
 }
 
 void Browser::OpenClearBrowsingDataDialog() {
   UserMetrics::RecordAction(L"ClearBrowsingData_ShowDlg", profile_);
-  views::Window::CreateChromeWindow(
-      GetTopLevelHWND(),
-      gfx::Rect(),
-      new ClearBrowsingDataView(profile_))->Show();
+  window_->ShowClearBrowsingDataDialog();
 }
 
 void Browser::OpenImportSettingsDialog() {
   UserMetrics::RecordAction(L"Import_ShowDlg", profile_);
-  views::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
-                                    new ImporterView(profile_))->Show();
+  window_->ShowImportDialog();
 }
 
 void Browser::OpenBugReportDialog() {
   UserMetrics::RecordAction(L"ReportBug", profile_);
-
-  // Retrieve the URL for the current tab (if any) and tell the BugReportView
-  TabContents* current_tab = GetSelectedTabContents();
-  if (!current_tab)
-    return;
-
-  BugReportView* bug_report_view = new BugReportView(profile_, current_tab);
-
-  if (current_tab->controller()->GetLastCommittedEntry()) {
-    if (current_tab->type() == TAB_CONTENTS_WEB) {
-      // URL for the current page
-      bug_report_view->SetUrl(
-          current_tab->controller()->GetActiveEntry()->url());
-    }
-  }
-
-  // retrieve the application version info
-  std::wstring version;
-  scoped_ptr<FileVersionInfo> version_info(
-      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
-  if (version_info.get()) {
-    version = version_info->product_name() + L" - " +
-    version_info->file_version() +
-    L" (" + version_info->last_change() + L")";
-  }
-  bug_report_view->set_version(version);
-
-  // Grab an exact snapshot of the window that the user is seeing (i.e. as
-  // rendered--do not re-render, and include windowed plugins)
-  std::vector<unsigned char> *screenshot_png = new std::vector<unsigned char>;
-  win_util::GrabWindowSnapshot(GetTopLevelHWND(), screenshot_png);
-  // the BugReportView takes ownership of the png data, and will dispose of
-  // it in its destructor.
-  bug_report_view->set_png_data(screenshot_png);
-
-  // Create and show the dialog
-  views::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
-                                    bug_report_view)->Show();
+  window_->ShowReportBugDialog();
 }
 
 void Browser::OpenDebuggerWindow() {
@@ -1049,23 +988,25 @@ void Browser::OpenCreateShortcutsDialog() {
 }
 
 void Browser::OpenPasswordManager() {
-  PasswordManagerView::Show(profile_);
+  window_->ShowPasswordManager();
 }
 
 void Browser::OpenAboutChromeDialog() {
   UserMetrics::RecordAction(L"AboutChrome", profile_);
-  views::Window::CreateChromeWindow(GetTopLevelHWND(), gfx::Rect(),
-                                    new AboutChromeView(profile_))->Show();
+  window_->ShowAboutChromeDialog();
 }
 
 void Browser::OpenFile() {
   UserMetrics::RecordAction(L"OpenFile", profile_);
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
+
+  // TODO(beng): figure out how to juggle this.
+  HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
                                   std::wstring(), std::wstring(),
                                   std::wstring(), std::wstring(),
-                                  GetTopLevelHWND(), NULL);
+                                  parent_hwnd, NULL);
 }
 
 void Browser::OpenTaskManager() {
@@ -1096,12 +1037,12 @@ void Browser::ShowDownloadsTab() {
 
 void Browser::OpenBookmarksManager() {
   UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
-  BookmarkManagerView::Show(profile_);
+  window_->ShowBookmarkManager();
 }
 
 void Browser::ToggleBookmarksBar() {
   UserMetrics::RecordAction(L"ShowBookmarksBar", profile_);
-  BookmarkBarView::ToggleWhenVisible(profile_);
+  window_->ToggleBookmarkBar();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1286,28 +1227,19 @@ GURL Browser::GetBlankTabURL() const {
 }
 
 void Browser::CreateNewStripWithContents(TabContents* detached_contents,
-                                         const gfx::Point& drop_point) {
+                                         const gfx::Rect& window_bounds) {
   DCHECK(type_ == BrowserType::TABBED_BROWSER);
-
+  
   // Create an empty new browser window the same size as the old one.
-  // TODO(beng): move elsewhere
-  CRect browser_rect;
-  GetWindowRect(reinterpret_cast<HWND>(window_->GetNativeHandle()),
-                &browser_rect);
-  gfx::Rect rect(0, 0);
-  if (drop_point.x() != 0 || drop_point.y() != 0) {
-    rect.SetRect(drop_point.x(), drop_point.y(), browser_rect.Width(),
-                 browser_rect.Height());
-  }
   Browser* browser = new Browser(BrowserType::TABBED_BROWSER, profile_);
-  browser->set_override_bounds(rect);
+  browser->set_override_bounds(window_bounds);
   browser->CreateBrowserWindow();
   browser->tabstrip_model()->AppendTabContents(detached_contents, true);
   browser->window()->Show();
 
   // When we detach a tab we need to make sure any associated Find window moves
-  // along with it to its new home (basically we just make new_window the parent
-  // of the Find window).
+  // along with it to its new home (basically we just make new_window the
+  // parent of the Find window).
   // TODO(brettw) this could probably be improved, see
   // WebContentsView::ReparentFindWindow for more.
   if (detached_contents->AsWebContents())
@@ -1334,8 +1266,9 @@ TabContents* Browser::CreateTabContentsForURL(
   TabContentsType type = TabContents::TypeForURL(&real_url);
   DCHECK(type != TAB_CONTENTS_UNKNOWN_TYPE);
 
-  TabContents* contents =
-    TabContents::CreateWithType(type, GetTopLevelHWND(), profile, instance);
+  HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
+  TabContents* contents = TabContents::CreateWithType(type, parent_hwnd,
+                                                      profile, instance);
   contents->SetupController(profile);
 
   if (!defer_load) {
@@ -1363,8 +1296,9 @@ void Browser::DuplicateContentsAt(int index) {
   if (type_ == BrowserType::TABBED_BROWSER) {
     // If this is a tabbed browser, just create a duplicate tab inside the same
     // window next to the tab being duplicated.
+    HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
     new_contents = contents->controller()->Clone(
-        GetTopLevelHWND())->active_contents();
+        parent_hwnd)->active_contents();
     // If you duplicate a tab that is not selected, we need to make sure to
     // select the tab being duplicated so that DetermineInsertionIndex returns
     // the right index (if tab 5 is selected and we right-click tab 1 we want
@@ -1386,8 +1320,9 @@ void Browser::DuplicateContentsAt(int index) {
     browser->window()->Show();
 
     // The page transition below is only for the purpose of inserting the tab.
+    HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
     new_contents = browser->AddTabWithNavigationController(
-        contents->controller()->Clone(browser->GetTopLevelHWND()),
+        contents->controller()->Clone(parent_hwnd),
         PageTransition::LINK);
   }
 
@@ -1412,7 +1347,7 @@ void Browser::CloseFrameAfterDragSession() {
       method_factory_.NewRunnableMethod(&Browser::CloseFrame));
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Browser, TabStripModelObserver implementation:
 
 void Browser::TabInsertedAt(TabContents* contents,
@@ -1506,8 +1441,8 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   if (profile_->HasSessionService()) {
     SessionService* session_service = profile_->GetSessionService();
     if (session_service && !tabstrip_model_.closing_all()) {
-      session_service->SetSelectedTabInWindow(session_id(),
-                                              tabstrip_model_.selected_index());
+      session_service->SetSelectedTabInWindow(
+          session_id(), tabstrip_model_.selected_index());
     }
   }
 }
@@ -1630,8 +1565,8 @@ void Browser::OpenURLFromTab(TabContents* source,
       }
     }
     current_tab->controller()->LoadURL(url, referrer, transition);
-    // The TabContents might have changed as part of the navigation (ex: new tab
-    // page can become WebContents).
+    // The TabContents might have changed as part of the navigation (ex: new
+    // tab page can become WebContents).
     new_contents = current_tab->controller()->active_contents();
     GetStatusBubble()->Hide();
 
@@ -1785,10 +1720,7 @@ void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
     NOTREACHED() << "moving invalid browser type";
     return;
   }
-
-  ::SetWindowPos(GetTopLevelHWND(), NULL, pos.x(), pos.y(), pos.width(),
-                 pos.height(), 0);
-  win_util::AdjustWindowToFit(GetTopLevelHWND());
+  window_->SetBounds(pos);
 }
 
 bool Browser::IsPopup(TabContents* source) {
@@ -1880,7 +1812,8 @@ void Browser::BeforeUnloadFired(TabContents* tab,
   }
 
   if (RemoveFromVector(&tabs_needing_before_unload_fired_, tab)) {
-    // Now that beforeunload has fired, put the tab on the queue to fire unload.
+    // Now that beforeunload has fired, put the tab on the queue to fire
+    // unload.
     tabs_needing_unload_fired_.push_back(tab);
     ProcessPendingTabs();
     // We want to handle firing the unload event ourselves since we want to 
@@ -1894,12 +1827,8 @@ void Browser::BeforeUnloadFired(TabContents* tab,
 }
 
 void Browser::ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
-                             HWND parent_hwnd) {
-  parent_hwnd = parent_hwnd ? parent_hwnd : GetTopLevelHWND();
-  HtmlDialogView* html_view = new HtmlDialogView(this, profile_, delegate);
-  views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), html_view);
-  html_view->InitDialog();
-  html_view->window()->Show();
+                             void* parent_window) {
+  window_->ShowHTMLDialog(delegate, parent_window);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2187,9 +2116,9 @@ void Browser::ProcessPendingUIUpdates() {
 
   chrome_updater_factory_.RevokeAll();
 
-  // We could have many updates for the same thing in the queue. This map tracks
-  // the bits of the stuff we've already updated for each TabContents so we
-  // don't update again.
+  // We could have many updates for the same thing in the queue. This map
+  // tracks the bits of the stuff we've already updated for each TabContents so
+  // we don't update again.
   typedef std::map<const TabContents*, unsigned> UpdateTracker;
   UpdateTracker updated_stuff;
 
@@ -2308,8 +2237,9 @@ NavigationController* Browser::BuildRestoredNavigationController(
 
     // Create a NavigationController. This constructor creates the appropriate
     // set of TabContents.
+    HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
     return new NavigationController(
-        profile_, navigations, selected_navigation, GetTopLevelHWND());
+        profile_, navigations, selected_navigation, parent_hwnd);
   } else {
     // No navigations. Create a tab with about:blank.
     TabContents* contents =
@@ -2371,7 +2301,8 @@ void Browser::CancelWindowClose() {
   is_attempting_to_close_browser_ = false;
 }
 
-bool Browser::RemoveFromVector(UnloadListenerVector* vector, TabContents* tab) {
+bool Browser::RemoveFromVector(UnloadListenerVector* vector,
+                               TabContents* tab) {
   DCHECK(is_attempting_to_close_browser_);
 
   for (UnloadListenerVector::iterator it = vector->begin();
