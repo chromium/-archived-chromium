@@ -100,7 +100,7 @@ elif env['OS'] == 'osx':
     '$PA_DIR/src/hostapi/coreaudio/pa_mac_core.c',
     '$PA_DIR/src/hostapi/coreaudio/pa_mac_core_blocking.c',
     '$PA_DIR/src/hostapi/coreaudio/pa_mac_core_utilities.c',
-    '$PA_DIR/src/os/osx/pa_mac_hostapis.c',
+    '$PA_DIR/src/os/mac_osx/pa_mac_hostapis.c',
     '$PA_DIR/src/os/unix/pa_unix_util.c',
   ]
 

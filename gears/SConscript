@@ -634,6 +634,7 @@ elif env['OS'] == 'osx':
           '$THIRD_PARTY_DIR/breakpad_osx/src',
       ],
       CCFLAGS = [
+           '-mmacosx-version-min=10.4',
           ('-arch', 'ppc'),
           ('-arch', 'i386'),
           '-fPIC',
@@ -667,15 +668,13 @@ elif env['OS'] == 'osx':
           ('-isysroot', '$OSX_SDK_ROOT')
       ],
       LINKFLAGS = [
-          '-fPIC',
+           '-mmacosx-version-min=10.4',
+           '-fPIC',
            '-Bsymbolic',
-           '-arch',
-           'ppc',
-           '-arch',
-           'i386',
-           '-isysroot',
-           '$OSX_SDK_ROOT',
-           '-Wl,-dead_strip'
+           ('-arch', 'ppc'),
+           ('-arch', 'i386'),
+           ('-isysroot', '$OSX_SDK_ROOT'),
+           '-Wl,-dead_strip',
       ],
   )
   if env['MODE'] == 'dbg':

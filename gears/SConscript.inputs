@@ -258,7 +258,8 @@ if env['OS'] == 'osx':
   env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/base/common/common_osx.mm',
       '$OPEN_DIR/base/safari/nsstring_utils.mm',
-      '$OPEN_DIR/base/common/user_config_osx.cc'
+      '$OPEN_DIR/base/common/user_config_osx.cc',
+      '$OPEN_DIR/notifier/notifier_process_osx.mm',
   ])
 
 #-----------------------------------------------------------------------------
@@ -292,6 +293,11 @@ env.Append(FF3_CPPSRCS = [
     '$OPEN_DIR/base/firefox/ns_file_utils.cc',
     '$OPEN_DIR/base/firefox/xpcom_dynamic_load.cc',
 ])
+
+if env['OS'] == 'osx':
+  env.Append(FF3_CPPSRCS = [
+      '$OPEN_DIR/base/common/ipc_message_queue_test_osx.mm',
+  ])
 
 #-----------------------------------------------------------------------------
 # base/ie
@@ -406,7 +412,7 @@ env.Append(BROWSER_CPPSRCS = [
 # canvas
 
 # The Canvas API is not yet enabled in official builds.
-if not env['OFFICIAL_BUILD']  and env['OS'] in ['win32', 'osx']:
+if not env['OFFICIAL_BUILD'] and env['OS'] in ['win32', 'osx']:
   env.Append(BROWSER_CPPSRCS = [
       '$OPEN_DIR/canvas/blob_backed_skia_input_stream.cc',
       '$OPEN_DIR/canvas/blob_backed_skia_output_stream.cc',
@@ -978,10 +984,13 @@ env.Append(COMMON_RESOURCES = [
 #-----------------------------------------------------------------------------
 # libs
 
+if not env['OFFICIAL_BUILD'] and env['OS'] in ['win32', 'osx']:
+  env.Append(
+      LIBPATH = ['$THIRD_PARTY_DIR/skia'],
+      LIBS = ['${LIBPREFIX}skia-${MODE}-${OS}-${ARCH}${LIBSUFFIX}'],
+  )
+
 if env['OS'] == 'win32':
-  env.Append(BROWSER_LINKSRCS = [
-      '$THIRD_PARTY_DIR/skia/skia-${MODE}-${OS}-${ARCH}.lib',
-  ])
   env.Append(NPAPI_LINKSRCS = [
       '$THIRD_PARTY_DIR/v8/bin-${MODE}/libv8core.lib',
       '$THIRD_PARTY_DIR/v8/bin-${MODE}/no_snapshotv8.lib',

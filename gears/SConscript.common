@@ -60,6 +60,8 @@ if GetInputs('$COMMON_BINSRCS'):
               '$COMMON_GENFILES_DIR/${SOURCE.file}.from_bin.cc', src))
          for src in GetInputs('$COMMON_BINSRCS')]
   common_targets['link'] = [env.SharedObject(bin) for bin in bins]
+else:
+  common_targets['link'] = []
 
 Export('common_targets')
 
