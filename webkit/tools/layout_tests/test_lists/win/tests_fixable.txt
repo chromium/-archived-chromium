@@ -534,7 +534,7 @@ LayoutTests/fast/js/garbage-collect-after-string-appends.html = FAIL
 // https://bugs.webkit.org/show_bug.cgi?id=8423
 LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = FAIL
 // Passes release. Fails debug.
-LayoutTests/fast/flexbox/flex-hang.html = PASS | FAIL
+DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL
 
 // Bug: 1166260
 LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
@@ -549,7 +549,6 @@ LayoutTests/fast/js/const.html = FAIL
 
 // Bug: 1344760
 LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
-LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL | PASS
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
@@ -753,13 +752,13 @@ LayoutTests/fast/forms/form-hides-table.html = FAIL
 LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 LayoutTests/fast/table/text-field-baseline.html = FAIL
-LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS
+DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS
 LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
-LayoutTests/http/tests/navigation/post-frames.html = FAIL | PASS
 LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
+// Fails in release and debug. Sometimes crashes in debug.
 LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL | CRASH
 LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
@@ -844,46 +843,34 @@ chrome/fast/forms/basic-textareas-quirks.html = FAIL
 pending/fast/canvas/fillrect_gradient.html = FAIL
 pending/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 pending/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
-pending/dom/html/level2/html/HTMLFrameElement09.html = PASS | CRASH
-pending/dom/html/level2/html/HTMLIFrameElement11.html = PASS | CRASH
+DEBUG : pending/dom/html/level2/html/HTMLFrameElement09.html = CRASH
+DEBUG : pending/dom/html/level2/html/HTMLIFrameElement11.html = CRASH
 
 // This test seems to fail on the builders but not locally.
 LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
 
 // TODO(eroman): passed for me locally, need to see why failed on buildbot...
-LayoutTests/fast/backgrounds/svg-as-background-6.html = PASS | FAIL
+LayoutTests/fast/backgrounds/svg-as-background-6.html = FAIL
 
 // Post-merge Debug only Crashes
 // This test also produces an unending stream of blank lines on stderr,
 // which makes it hang the test harness.
-SKIP : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
+SKIP | DEBUG : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH
 
 // One of these svg tests sometimes crash in debug mode.  It seems to only
 // happen when all the dynamic-updates tests are run together.
-LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-rx-attr.html = CRASH | PASS
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-cy-attr.html = CRASH | PASS
-LayoutTests/fast/dom/gc-1.html = CRASH | PASS
-
-// Post-merge flakey on debug builds (passes consistently on release)
-LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
-LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
-
-// Bug 4079, also flakey after merge. Debug builds only.
-LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL | PASS
-
-// Started timing out with r3615 (mbelshe)
-LayoutTests/http/tests/security/postMessage/javascript-page-still-sends-origin.html = TIMEOUT
+DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
+DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH | PASS
 
 // Started crashing in DEBUG only with r2842 (mbelshe)
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH | PASS
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
 
 // Got flakey (both debug and release) around r3581 (ananta).
-LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS | CRASH
+LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
 
 // Crash in DEBUG only
-LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH | PASS
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH | PASS
+DEBUG : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH
 
 // NEW FOR MERGE 36102:37604
 LayoutTests/animations/matrix-anim.html = FAIL
@@ -1085,7 +1072,6 @@ LayoutTests/svg/text/text-text-07-t.svg = FAIL
 LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // MERGE REGRESSIONS 36102:37604
-LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL | PASS
 LayoutTests/editing/style/smoosh-styles-003.html = FAIL
 LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
 LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
@@ -1103,12 +1089,10 @@ LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
 LayoutTests/fast/forms/listbox-selection-2.html = FAIL
 LayoutTests/fast/forms/select-initial-position.html = FAIL
 LayoutTests/fast/forms/select-item-background-clip.html = FAIL
-LayoutTests/fast/forms/select-visual-hebrew.html = FAIL | PASS
 LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 LayoutTests/fast/frames/invalid.html = FAIL
 LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
 LayoutTests/fast/frames/valid.html = FAIL
-LayoutTests/fast/history/go-back-to-changed-name.html = FAIL | PASS
 LayoutTests/fast/html/keygen.html = FAIL
 LayoutTests/fast/images/svg-as-background.html = FAIL
 LayoutTests/fast/images/svg-as-image.html = FAIL
@@ -1129,32 +1113,9 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.htm
 chrome/fast/dom/xmlhttprequest-gc.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
-LayoutTests/editing/execCommand/19089.html = FAIL | PASS
-LayoutTests/fast/forms/button-cannot-be-nested.html = FAIL | PASS
-LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL | PASS
 LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS
 LayoutTests/animations/big-rotation.html = FAIL | PASS
-LayoutTests/fast/css/continuationCrash.html = FAIL | PASS
-LayoutTests/fast/css/font-face-default-font.html = FAIL | PASS
-LayoutTests/fast/dynamic/float-in-trailing-whitespace-after-last-line-break.html = FAIL | PASS
-LayoutTests/tables/mozilla_expected_failures/core/captions1.html = FAIL | PASS
-LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL | PASS
-LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_style_reflow_table_caption.html = FAIL | PASS
-pending/fast/text/international/hindi-spacing.html = FAIL | PASS
-pending/fast/text/international/ideo_punc.html = FAIL | PASS
-pending/fast/text/wbr-in-pre-crash.html = FAIL | PASS
-pending/fast/text/wbr-styled.html = FAIL | PASS
-LayoutTests/editing/selection/14971.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/005.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/007.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/008.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/009.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/010.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/011.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/013.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/014.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/015.html = FAIL | PASS
-LayoutTests/fast/css-generated-content/016.html = FAIL | PASS
+DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL | PASS
 
 // NEW FOR MERGE 37604:38097
 LayoutTests/animations/keyframes-rule.html = FAIL
@@ -1179,30 +1140,17 @@ LayoutTests/transforms/transform-value-types.html = FAIL
 
 // MERGE 37604:38097 REGRESSIONS
 LayoutTests/svg/carto.net/combobox.svg = FAIL
-LayoutTests/fast/dom/Window/get-set-properties.html = PASS | FAIL
-LayoutTests/fast/dom/Window/new-window-opener.html = PASS | FAIL
-LayoutTests/fast/forms/access-key.html = PASS | FAIL
-LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL | PASS
 pending/security/block-test.html = FAIL
-
-// Flaky in debug mode.
-LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cx-prop.html = CRASH | PASS
-LayoutTests/http/tests/navigation/redirect-cycle.html = FAIL | PASS
 
 // Bug 1341582
 LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
 LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
-
-LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL | PASS | TIMEOUT
-LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL | PASS
-LayoutTests/http/tests/security/originHeader/origin-header-for-get.html = FAIL | PASS
 
 // MERGE 38097:38305 REGRESSIONS
 LayoutTests/editing/pasteboard/merge-end-blockquote.html = FAIL
 LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-2.html = FAIL
 LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote.html = FAIL
 LayoutTests/fast/canvas/canvas-pattern-transform.html = FAIL
-LayoutTests/fast/canvas/canvas-radial-gradient-spreadMethod.html = FAIL
 LayoutTests/fast/events/offsetX-offsetY.html = FAIL
 LayoutTests/fast/frames/cross-site-this.html = FAIL
 LayoutTests/fast/js/large-expressions.html = FAIL
