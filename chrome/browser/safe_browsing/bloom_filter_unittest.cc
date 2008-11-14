@@ -18,7 +18,7 @@
 namespace {
 
 uint32 GenHash() {
-  return static_cast<uint32>(base::RandUInt64());
+  return static_cast<uint32>(base::RandUint64());
 }
 
 }

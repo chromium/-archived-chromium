@@ -45,7 +45,7 @@ namespace {
 // only that it be reasonably different for different users.
 void GenerateSalt(uint8 salt[LINK_SALT_LENGTH]) {
   DCHECK_EQ(LINK_SALT_LENGTH, 8) << "This code assumes the length of the salt";
-  uint64 randval = base::RandUInt64();
+  uint64 randval = base::RandUint64();
   memcpy(salt, &randval, 8);
 }
 // AsyncWriter ----------------------------------------------------------------

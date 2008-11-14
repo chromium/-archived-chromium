@@ -11,7 +11,7 @@
 
 namespace {
   
-uint32 RandUInt32() {
+uint32 RandUint32() {
   uint32 number;
   CHECK(rand_s(&number) == 0);
   return number;
@@ -21,9 +21,9 @@ uint32 RandUInt32() {
 
 namespace base {
 
-uint64 RandUInt64() {
-  uint32 first_half = RandUInt32();
-  uint32 second_half = RandUInt32();
+uint64 RandUint64() {
+  uint32 first_half = RandUint32();
+  uint32 second_half = RandUint32();
   return (static_cast<uint64>(first_half) << 32) + second_half;
 }
 

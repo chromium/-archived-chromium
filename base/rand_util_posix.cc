@@ -12,7 +12,7 @@
 
 namespace base {
 
-uint64 RandUInt64() {
+uint64 RandUint64() {
   uint64 number;
 
   int urandom_fd = open("/dev/urandom", O_RDONLY);

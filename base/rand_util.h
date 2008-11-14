@@ -10,7 +10,7 @@
 namespace base {
 
 // Returns a random number in range [0, kuint64max]. Thread-safe.
-uint64 RandUInt64();
+uint64 RandUint64();
 
 // Returns a random number between min and max (inclusive). Thread-safe.
 int RandInt(int min, int max);
