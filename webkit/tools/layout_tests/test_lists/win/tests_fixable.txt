@@ -1211,3 +1211,11 @@ LayoutTests/plugins/plugin-javascript-access.html = FAIL
 
 LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
 LayoutTests/fast/events/message-channel-gc-2.html = TIMEOUT
+
+// MERGE 38305:38376 REGRESSIONS: These are all new tests, not regressions.
+// May just need rebaselining.
+LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-3.html = FAIL
+LayoutTests/fast/repaint/transform-absolute-child.html = FAIL
+LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
+LayoutTests/fast/repaint/transform-relative-position.html = FAIL
+LayoutTests/transforms/2d/zoom-menulist.html = FAIL
