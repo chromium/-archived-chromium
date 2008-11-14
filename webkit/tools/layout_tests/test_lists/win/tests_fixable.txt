@@ -873,9 +873,6 @@ V8 # LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
 V8 # LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL | PASS
 
 // Started timing out with r3615 (mbelshe)
-V8 # LayoutTests/fast/dom/null-document-location-assign-crash.html = TIMEOUT
-V8 # LayoutTests/fast/dom/null-document-location-href-put-crash.html = TIMEOUT
-V8 # LayoutTests/fast/dom/null-document-location-replace-crash.html = TIMEOUT
 V8 # LayoutTests/http/tests/security/postMessage/javascript-page-still-sends-origin.html = TIMEOUT
 
 // Started crashing in DEBUG only with r2842 (mbelshe)
