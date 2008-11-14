@@ -189,15 +189,3 @@ void WebCursor::InitFromCursor(HCURSOR cursor) {
   // TODO(iyengar) Add support for custom cursors.
   *this = WebCursor(ToPlatformCursorType(cursor));
 }
-
-void WebCursor::SetCustomData(WebCore::Image* image) {
-  WebCore::NativeImagePtr image_ptr = image->nativeImageForCurrentFrame();
-  if (!image_ptr)
-    return;
-
-  SkAutoLockPixels bitmap_lock(*image_ptr);
-  custom_data_.resize(image_ptr->getSize());
-  memcpy(&custom_data_[0], image_ptr->getPixels(), image_ptr->getSize());
-  custom_size_.set_width(image_ptr->width());
-  custom_size_.set_height(image_ptr->height());
-}

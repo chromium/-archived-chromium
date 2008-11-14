@@ -72,15 +72,21 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
 void TestWebViewDelegate::SetCursor(WebWidget* webwidget, 
                                     const WebCursor& cursor) {
   GdkCursorType cursor_type = cursor.GetCursorType();
-  if (cursor_type_ == cursor_type)
-    return;
-
-  cursor_type_ = cursor_type;
-  if (cursor_type_ == GDK_CURSOR_IS_PIXMAP) {
-    NOTIMPLEMENTED();
-    cursor_type = GDK_ARROW;  // Just a hack for now.
+  GdkCursor* gdk_cursor;
+  if (cursor_type == GDK_CURSOR_IS_PIXMAP) {
+    // TODO(port): WebKit bug https://bugs.webkit.org/show_bug.cgi?id=16388 is
+    // that calling gdk_window_set_cursor repeatedly is expensive.  We should
+    // avoid it here where possible.
+    gdk_cursor = cursor.GetCustomCursor();
+  } else {
+    // Optimize the common case, where the cursor hasn't changed.
+    // However, we can switch between different pixmaps, so only on the
+    // non-pixmap branch.
+    if (cursor_type_ == cursor_type)
+      return;
+    gdk_cursor = gdk_cursor_new(cursor_type);
   }
-  GdkCursor* gdk_cursor = gdk_cursor_new(cursor_type);
+  cursor_type_ = cursor_type;
   gdk_window_set_cursor(shell_->webViewWnd()->window, gdk_cursor);
   // The window now owns the cursor.
   gdk_cursor_unref(gdk_cursor);

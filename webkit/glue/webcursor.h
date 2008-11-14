@@ -65,13 +65,22 @@ class WebCursor {
   // Return the stock GdkCursorType for this cursor, or GDK_CURSOR_IS_PIXMAP
   // if it's a custom cursor.
   GdkCursorType GetCursorType() const;
+
+  // Return a new GdkCursor* for this cursor.  Only valid if GetCursorType
+  // returns GDK_CURSOR_IS_PIXMAP.
+  GdkCursor* GetCustomCursor() const;
 #endif
 
  private:
   void SetCustomData(WebCore::Image* image);
 
+  // WebCore::PlatformCursor type.
   int type_;
+
   gfx::Point hotspot_;
+
+  // Custom cursor data, as 32-bit RGBA.
+  // Platform-inspecific because it can be serialized.
   gfx::Size custom_size_;
   std::vector<char> custom_data_;
 };

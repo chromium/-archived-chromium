@@ -4,6 +4,8 @@
 
 #include "webkit/glue/webcursor.h"
 
+#include <gdk/gdk.h>
+
 #include "config.h"
 #include "PlatformCursor.h"
 
@@ -104,4 +106,27 @@ GdkCursorType WebCursor::GetCursorType() const {
   }
   NOTREACHED();
   return GDK_ARROW;
+}
+
+GdkCursor* WebCursor::GetCustomCursor() const {
+  const guchar* data = reinterpret_cast<const guchar*>(&custom_data_[0]);
+  GdkPixbuf* pixbuf =
+      gdk_pixbuf_new_from_data(data,
+                               GDK_COLORSPACE_RGB,
+                               TRUE,  // has_alpha
+                               8,     // bits_per_sample
+                               custom_size_.width(),      // width
+                               custom_size_.height(),     // height
+                               custom_size_.width() * 4,  // row stride
+                               NULL,   // data destroy function
+                               NULL);  // data destroy function extra data
+
+  GdkCursor* cursor = gdk_cursor_new_from_pixbuf(gdk_display_get_default(),
+                                                 pixbuf,
+                                                 hotspot_.x(),
+                                                 hotspot_.y());
+
+  gdk_pixbuf_unref(pixbuf);
+
+  return cursor;
 }

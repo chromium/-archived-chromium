@@ -2,13 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "webkit/glue/webcursor.h"
+
 #include "config.h"
+#include "NativeImageSkia.h"
 #include "PlatformCursor.h"
 
 #undef LOG
 #include "base/logging.h"
 #include "base/pickle.h"
-#include "webkit/glue/webcursor.h"
 
 WebCursor::WebCursor()
     : type_(WebCore::PlatformCursor::typePointer) {
@@ -76,9 +78,23 @@ bool WebCursor::IsEqual(const WebCursor& other) const {
          custom_data_ == other.custom_data_;
 }
 
-#if !defined(OS_WIN)
+#if !defined(OS_MACOSX)
 void WebCursor::SetCustomData(WebCore::Image* image) {
-  // Please create webcursor_{$platform}.cc for your port.
+  WebCore::NativeImagePtr image_ptr = image->nativeImageForCurrentFrame();
+  if (!image_ptr)
+    return;
+
+  // Fill custom_data_ directly with the NativeImage pixels.
+  SkAutoLockPixels bitmap_lock(*image_ptr);
+  custom_data_.resize(image_ptr->getSize());
+  memcpy(&custom_data_[0], image_ptr->getPixels(), image_ptr->getSize());
+  custom_size_.set_width(image_ptr->width());
+  custom_size_.set_height(image_ptr->height());
+}
+#else
+// The above code should work on the Mac to but evanm was getting forward
+// declaration errors.
+void WebCursor::SetCustomData(WebCore::Image* image) {
   NOTIMPLEMENTED();
 }
 #endif
