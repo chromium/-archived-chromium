@@ -108,6 +108,9 @@ class Browser : public TabStripModelDelegate,
   // Gets the title of the page in the selected tab.
   std::wstring GetCurrentPageTitle() const;
 
+  // Returns true if the current page is loading.
+  bool IsCurrentPageLoading() const;
+
   // Prepares a title string for display (removes embedded newlines, etc).
   static void FormatTitleForDisplay(std::wstring* title);
 
@@ -304,7 +307,6 @@ class Browser : public TabStripModelDelegate,
       SiteInstance* instance) const;
   virtual bool CanDuplicateContentsAt(int index);
   virtual void DuplicateContentsAt(int index);
-  virtual void ValidateLoadingAnimations();
   virtual void CloseFrameAfterDragSession();
 
   // Overridden from TabStripModelObserver:

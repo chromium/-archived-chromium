@@ -394,6 +394,10 @@ std::wstring Browser::GetCurrentPageTitle() const {
   return l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT, title);
 }
 
+bool Browser::IsCurrentPageLoading() const {
+  return GetSelectedTabContents()->is_loading();
+}
+
 // static
 void Browser::FormatTitleForDisplay(std::wstring* title) {
   size_t current_index = 0;
@@ -1333,12 +1337,6 @@ void Browser::DuplicateContentsAt(int index) {
   }
 }
 
-void Browser::ValidateLoadingAnimations() {
-  // TODO(beng): Remove this, per http://crbug.com/3297
-  if (window_)
-    window_->ValidateThrobber();
-}
-
 void Browser::CloseFrameAfterDragSession() {
   // This is scheduled to run after we return to the message loop because
   // otherwise the frame will think the drag session is still active and ignore
@@ -1684,8 +1682,7 @@ void Browser::ActivateContents(TabContents* contents) {
 }
 
 void Browser::LoadingStateChanged(TabContents* source) {
-  tabstrip_model_.UpdateTabContentsLoadingAnimations();
-
+  window_->UpdateLoadingAnimations(tabstrip_model_.TabsAreLoading());
   window_->UpdateTitleBar();
 
   // Let the go button know that it should change appearance if possible.

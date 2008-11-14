@@ -71,11 +71,10 @@ class BrowserWindow {
   // TODO(beng): make this pure virtual after XPFrame/VistaFrame retire.
   virtual void UpdateTitleBar() = 0;
 
-  // Updates internal state specifying whether the throbber is to be shown.
-  // If the throbber was shown, and should still be shown, the frame of the
-  // throbber is advanced.
-  // If necessary, the appropriate painting is scheduled.
-  virtual void ValidateThrobber() { }
+  // Update any loading animations running in the window. |should_animate| is
+  // true if there are tabs loading and the animations should continue, false
+  // if there are no active loads and the animations should end.
+  virtual void UpdateLoadingAnimations(bool should_animate) = 0;
 
   // TODO(beng): RENAME (GetRestoredBounds)
   // Returns the nonmaximized bounds of the frame (even if the frame is

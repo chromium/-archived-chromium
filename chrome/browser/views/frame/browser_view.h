@@ -151,7 +151,7 @@ class BrowserView : public BrowserWindow,
   virtual StatusBubble* GetStatusBubble();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
   virtual void UpdateTitleBar();
-  virtual void ValidateThrobber();
+  virtual void UpdateLoadingAnimations(bool should_animate);
   virtual gfx::Rect GetNormalBounds() const;
   virtual bool IsMaximized();
   virtual ToolbarStarToggle* GetStarButton() const;
@@ -308,6 +308,9 @@ class BrowserView : public BrowserWindow,
   // Retrieves the command id for the specified Windows app command.
   int GetCommandIDForAppCommandID(int app_command_id) const;
 
+  // Callback for the loading animation(s) associated with this view.
+  void LoadingAnimationCallback();
+
   // Initialize the hung plugin detector.
   void InitHangMonitor();
 
@@ -384,6 +387,9 @@ class BrowserView : public BrowserWindow,
   // This object is invoked by hung_window_detector_ when it detects a hung
   // plugin window.
   HungPluginAction hung_plugin_action_;
+
+  // The timer used to update frames for the Loading Animation.
+  base::RepeatingTimer<BrowserView> loading_animation_timer_;
 
   // P13N stuff
 #ifdef CHROME_PERSONALIZATION

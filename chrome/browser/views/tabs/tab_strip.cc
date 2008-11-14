@@ -32,14 +32,12 @@
 #undef min
 #undef max
 
-using base::TimeDelta;
 using views::DropTargetEvent;
 
 static const int kDefaultAnimationDurationMs = 100;
 static const int kResizeLayoutAnimationDurationMs = 166;
 static const int kReorderAnimationDurationMs = 166;
 
-static const int kLoadingAnimationFrameTimeMs = 30;
 static const int kNewTabButtonHOffset = -5;
 static const int kNewTabButtonVOffset = 5;
 static const int kResizeTabsTimeMs = 300;
@@ -590,6 +588,24 @@ gfx::Rect TabStrip::GetIdealBounds(int index) {
   return tab_data_.at(index).ideal_bounds;
 }
 
+void TabStrip::UpdateLoadingAnimations() {
+  for (int i = 0, index = 0; i < GetTabCount(); ++i, ++index) {
+    Tab* current_tab = GetTabAt(i);
+    if (current_tab->closing()) {
+      --index;
+    } else {
+      TabContents* contents = model_->GetTabContentsAt(index);
+      if (!contents || !contents->is_loading()) {
+        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_NONE);
+      } else if (contents->waiting_for_response()) {
+        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_WAITING);
+      } else {
+        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_LOADING);
+      }
+    }
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, views::View overrides:
 
@@ -879,23 +895,6 @@ void TabStrip::TabChangedAt(TabContents* contents, int index) {
   Tab* tab = GetTabAtAdjustForAnimation(index);
   tab->UpdateData(contents);
   tab->UpdateFromModel();
-}
-
-void TabStrip::TabValidateAnimations() {
-  if (model_->TabsAreLoading()) {
-    if (!loading_animation_timer_.IsRunning()) {
-      // Loads are happening, and the timer isn't running, so start it.
-      loading_animation_timer_.Start(
-          TimeDelta::FromMilliseconds(kLoadingAnimationFrameTimeMs), this,
-          &TabStrip::LoadingAnimationCallback);
-    }
-  } else {
-    if (loading_animation_timer_.IsRunning()) {
-      loading_animation_timer_.Stop();
-      // Loads are now complete, update the state if a task was scheduled.
-      LoadingAnimationCallback();
-    }
-  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1251,29 +1250,6 @@ void TabStrip::RemoveMessageLoopObserver() {
     MessageLoopForUI::current()->RemoveObserver(this);
     added_as_message_loop_observer_ = false;
   }
-}
-
-void TabStrip::LoadingAnimationCallback() {
-  for (int i = 0, index = 0; i < GetTabCount(); ++i, ++index) {
-    Tab* current_tab = GetTabAt(i);
-    if (current_tab->closing()) {
-      --index;
-    } else {
-      TabContents* contents = model_->GetTabContentsAt(index);
-      if (!contents || !contents->is_loading()) {
-        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_NONE);
-      } else if (contents->waiting_for_response()) {
-        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_WAITING);
-      } else {
-        current_tab->ValidateLoadingAnimation(Tab::ANIMATION_LOADING);
-      }
-    }
-  }
-
-  // Make sure the model delegates updates the animation as well.
-  TabStripModelDelegate* delegate;
-  if (model_ && (delegate = model_->delegate()))
-    delegate->ValidateLoadingAnimations();
 }
 
 gfx::Rect TabStrip::GetDropBounds(int drop_index,

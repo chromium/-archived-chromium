@@ -92,6 +92,9 @@ class TabStrip : public views::View,
   // Retrieve the ideal bounds for the Tab at the specified index.
   gfx::Rect GetIdealBounds(int index);
 
+  // Updates loading animations for the TabStrip.
+  void UpdateLoadingAnimations();
+
   // views::View overrides:
   virtual void PaintChildren(ChromeCanvas* canvas);
   virtual views::View* GetViewByID(int id) const;
@@ -122,7 +125,6 @@ class TabStrip : public views::View,
                              bool user_gesture);
   virtual void TabMoved(TabContents* contents, int from_index, int to_index);
   virtual void TabChangedAt(TabContents* contents, int index);
-  virtual void TabValidateAnimations();
 
   // Tab::Delegate implementation:
   virtual bool IsTabSelected(const Tab* tab) const;
@@ -203,9 +205,6 @@ class TabStrip : public views::View,
   // removed appropriately so we can tell when to resize layout the tab strip.
   void AddMessageLoopObserver();
   void RemoveMessageLoopObserver();
-
-  // Called to update the frame of the Loading animations.
-  void LoadingAnimationCallback();
 
   // -- Link Drag & Drop ------------------------------------------------------
 
@@ -289,9 +288,6 @@ class TabStrip : public views::View,
   // mouse exits the TabStrip.
   // TODO(beng): (Cleanup) this would be better named "needs_resize_layout_".
   bool resize_layout_scheduled_;
-
-  // The timer used to update frames for the Loading Animation.
-  base::RepeatingTimer<TabStrip> loading_animation_timer_;
 
   // The "New Tab" button.
   views::Button* newtab_button_;

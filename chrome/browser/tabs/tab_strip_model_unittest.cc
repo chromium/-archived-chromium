@@ -1009,7 +1009,6 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   }
   virtual bool CanDuplicateContentsAt(int index) { return false; }
   virtual void DuplicateContentsAt(int index) {}
-  virtual void ValidateLoadingAnimations() {}
   virtual void CloseFrameAfterDragSession() {}
 
  private:

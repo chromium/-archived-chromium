@@ -217,11 +217,6 @@ void TabStripModel::UpdateTabContentsStateAt(int index) {
       TabChangedAt(GetContentsAt(index), index));
 }
 
-void TabStripModel::UpdateTabContentsLoadingAnimations() {
-  FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
-      TabValidateAnimations());
-}
-
 void TabStripModel::CloseAllTabs() {
   // Set state so that observers can adjust their behavior to suit this
   // specific condition when CloseTabContentsAt causes a flurry of

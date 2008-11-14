@@ -7,6 +7,7 @@
 #include "chrome/browser/views/frame/browser_view.h"
 
 #include "base/file_version_info.h"
+#include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
@@ -47,6 +48,8 @@
 #include "chromium_strings.h"
 #include "generated_resources.h"
 
+using base::TimeDelta;
+
 // static
 SkBitmap BrowserView::default_favicon_;
 SkBitmap BrowserView::otr_avatar_;
@@ -73,6 +76,8 @@ static const int kWindowTilePixels = 10;
 static const int kDefaultHungPluginDetectFrequency = 2000;
 // How long do we wait before we consider a window hung (in ms).
 static const int kDefaultPluginMessageResponseTimeout = 30000;
+// The number of milliseconds between loading animation frames.
+static const int kLoadingAnimationFrameTimeMs = 30;
 
 static const struct { bool separator; int command; int label; } kMenuLayout[] = {
   { true, 0, 0 },
@@ -416,10 +421,20 @@ void BrowserView::UpdateTitleBar() {
     frame_->GetWindow()->UpdateWindowIcon();
 }
 
-void BrowserView::ValidateThrobber() {
-  if (ShouldShowWindowIcon()) {
-    TabContents* tab_contents = browser_->GetSelectedTabContents();
-    frame_->UpdateThrobber(tab_contents ? tab_contents->is_loading() : false);
+void BrowserView::UpdateLoadingAnimations(bool should_animate) {
+  if (should_animate) {
+    if (!loading_animation_timer_.IsRunning()) {
+      // Loads are happening, and the timer isn't running, so start it.
+      loading_animation_timer_.Start(
+          TimeDelta::FromMilliseconds(kLoadingAnimationFrameTimeMs), this,
+          &BrowserView::LoadingAnimationCallback);
+    }
+  } else {
+    if (loading_animation_timer_.IsRunning()) {
+      loading_animation_timer_.Stop();
+      // Loads are now complete, update the state if a task was scheduled.
+      LoadingAnimationCallback();
+    }
   }
 }
 
@@ -1272,6 +1287,16 @@ int BrowserView::GetCommandIDForAppCommandID(int app_command_id) const {
       break;
   }
   return -1;
+}
+
+void BrowserView::LoadingAnimationCallback() {
+  if (SupportsWindowFeature(FEATURE_TABSTRIP)) {
+    // Loading animations are shown in the tab for tabbed windows.
+    tabstrip_->UpdateLoadingAnimations();
+  } else if (ShouldShowWindowIcon()) {
+    // ... or in the window icon area for popups and app windows.
+    frame_->UpdateThrobber(browser_->IsCurrentPageLoading());
+  }
 }
 
 void BrowserView::InitHangMonitor() {
