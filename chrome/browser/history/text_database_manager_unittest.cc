@@ -182,7 +182,7 @@ TEST_F(TextDatabaseManagerTest, InsertQuery) {
   manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
 
   // We should have matched every page.
-  EXPECT_EQ(6, results.size());
+  EXPECT_EQ(6U, results.size());
   EXPECT_TRUE(ResultsHaveURL(results, kURL1));
   EXPECT_TRUE(ResultsHaveURL(results, kURL2));
   EXPECT_TRUE(ResultsHaveURL(results, kURL3));
@@ -215,7 +215,7 @@ TEST_F(TextDatabaseManagerTest, InsertCompleteNoVisit) {
   Time first_time_searched;
 
   manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-  ASSERT_EQ(1, results.size());
+  ASSERT_EQ(1U, results.size());
   EXPECT_EQ(kTitle1, results[0].title);
 }
 
@@ -250,7 +250,7 @@ TEST_F(TextDatabaseManagerTest, InsertCompleteVisit) {
   Time first_time_searched;
 
   manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-  ASSERT_EQ(1, results.size());
+  ASSERT_EQ(1U, results.size());
   EXPECT_EQ(kTitle2, results[0].title);
 
   // Check that the visit got updated for its new indexed state.
@@ -291,7 +291,7 @@ TEST_F(TextDatabaseManagerTest, InsertPartial) {
   std::vector<TextDatabase::Match> results;
   Time first_time_searched;
   manager.GetTextMatches(L"google", options, &results, &first_time_searched);
-  ASSERT_EQ(0, results.size());
+  ASSERT_EQ(0U, results.size());
 
   // Compute a time threshold that will cause everything to be flushed, and
   // poke at the manager's internals to cause this to happen.
@@ -300,7 +300,7 @@ TEST_F(TextDatabaseManagerTest, InsertPartial) {
 
   // Now we should have all 3 URLs added.
   manager.GetTextMatches(L"google", options, &results, &first_time_searched);
-  ASSERT_EQ(3, results.size());
+  ASSERT_EQ(3U, results.size());
   EXPECT_TRUE(ResultsHaveURL(results, kURL1));
   EXPECT_TRUE(ResultsHaveURL(results, kURL2));
   EXPECT_TRUE(ResultsHaveURL(results, kURL3));
@@ -377,7 +377,7 @@ TEST_F(TextDatabaseManagerTest, Writing) {
 
     // We should have matched every page.
     manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-    EXPECT_EQ(6, results.size());
+    EXPECT_EQ(6U, results.size());
   }
   results.clear();
 
@@ -388,7 +388,7 @@ TEST_F(TextDatabaseManagerTest, Writing) {
 
     // We should have matched every page again.
     manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-    EXPECT_EQ(6, results.size());
+    EXPECT_EQ(6U, results.size());
   }
 }
 
@@ -415,7 +415,7 @@ TEST_F(TextDatabaseManagerTest, WritingTransaction) {
 
     // We should have matched every page.
     manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-    EXPECT_EQ(6, results.size());
+    EXPECT_EQ(6U, results.size());
   }
   results.clear();
 
@@ -426,7 +426,7 @@ TEST_F(TextDatabaseManagerTest, WritingTransaction) {
 
     // We should have matched every page again.
     manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-    EXPECT_EQ(6, results.size());
+    EXPECT_EQ(6U, results.size());
   }
 }
 
@@ -450,7 +450,7 @@ TEST_F(TextDatabaseManagerTest, QueryMax) {
 
   // We should have gotten the last two pages as results (the first page is
   // also the last).
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_TRUE(first_time_searched <= times[4]);
   EXPECT_TRUE(ResultsHaveURL(results, kURL5));
   EXPECT_TRUE(ResultsHaveURL(results, kURL1));
@@ -459,7 +459,7 @@ TEST_F(TextDatabaseManagerTest, QueryMax) {
   options.max_count = 4;
   manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
 
-  EXPECT_EQ(4, results.size());
+  EXPECT_EQ(4U, results.size());
   EXPECT_TRUE(first_time_searched <= times[4]);
   EXPECT_TRUE(ResultsHaveURL(results, kURL3));
   EXPECT_TRUE(ResultsHaveURL(results, kURL4));
@@ -489,7 +489,7 @@ TEST_F(TextDatabaseManagerTest, QueryBackwards) {
   manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
 
   // Check that we got the last two results.
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_TRUE(first_time_searched <= times[4]);
   EXPECT_TRUE(ResultsHaveURL(results, kURL5));
   EXPECT_TRUE(ResultsHaveURL(results, kURL1));
@@ -497,7 +497,7 @@ TEST_F(TextDatabaseManagerTest, QueryBackwards) {
   // Query the previous two URLs and make sure we got the correct ones.
   options.end_time = first_time_searched;
   manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_TRUE(first_time_searched <= times[2]);
   EXPECT_TRUE(ResultsHaveURL(results, kURL3));
   EXPECT_TRUE(ResultsHaveURL(results, kURL4));
@@ -505,7 +505,7 @@ TEST_F(TextDatabaseManagerTest, QueryBackwards) {
   // Query the previous two URLs...
   options.end_time = first_time_searched;
   manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-  EXPECT_EQ(2, results.size());
+  EXPECT_EQ(2U, results.size());
   EXPECT_TRUE(first_time_searched <= times[0]);
   EXPECT_TRUE(ResultsHaveURL(results, kURL2));
   EXPECT_TRUE(ResultsHaveURL(results, kURL1));
@@ -513,7 +513,7 @@ TEST_F(TextDatabaseManagerTest, QueryBackwards) {
   // Try to query some more, there should be no results.
   options.end_time = first_time_searched;
   manager.GetTextMatches(L"FOO", options, &results, &first_time_searched);
-  EXPECT_EQ(0, results.size());
+  EXPECT_EQ(0U, results.size());
 }
 
 }  // namespace history

@@ -76,7 +76,7 @@ TEST_F(QueryParserTest, NumWords) {
     { L"foo \"bar baz\"  blah", 4 },
   };
 
-  for (int i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < arraysize(data); ++i) {
     std::wstring query_string;
     EXPECT_EQ(data[i].expected_word_count,
               query_parser_.ParseQuery(data[i].input, &query_string));
@@ -105,7 +105,7 @@ TEST_F(QueryParserTest, ParseQueryNodesAndMatch) {
     { L"\"foo blah\"",  L"\"foo blah\"",     true,  1, 9, 0, 0 },
     { L"foo blah",      L"\"foo bar blah\"", true,  1, 4, 9, 13 },
   };
-  for (int i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     std::vector<std::wstring> results;
     QueryParser parser;
     ScopedVector<QueryNode> query_nodes;

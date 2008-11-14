@@ -228,7 +228,7 @@ TEST(Snippets, DISABLED_ThaiUTF8) {
 TEST(Snippets, ExtractMatchPositions) {
   struct TestData {
     const std::string offsets_string;
-    const int expected_match_count;
+    const size_t expected_match_count;
     const int expected_matches[10];
   } data[] = {
     { "0 0 1 2 0 0 4 1 0 0 1 5",            1,     { 1,6 } },
@@ -242,11 +242,11 @@ TEST(Snippets, ExtractMatchPositions) {
     { "0 0 1 2 0 0 1 1",                    1,     { 1,3 } },
     { "0 0 1 1 0 0 5 2 0 0 10 1 0 0 3 10",  2,     { 1,2,  3,13 } },
   };
-  for (int i = 0; i < arraysize(data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
     Snippet::MatchPositions matches;
     Snippet::ExtractMatchPositions(data[i].offsets_string, "0", &matches);
     EXPECT_EQ(data[i].expected_match_count, matches.size());
-    for (int j = 0; j < data[i].expected_match_count; ++j) {
+    for (size_t j = 0; j < data[i].expected_match_count; ++j) {
       EXPECT_EQ(data[i].expected_matches[2 * j], matches[j].first);
       EXPECT_EQ(data[i].expected_matches[2 * j + 1], matches[j].second);
     }

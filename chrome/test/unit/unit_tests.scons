@@ -117,6 +117,7 @@ if env['PLATFORM'] in ('posix', 'win32'):
 
       '$CHROME_DIR/browser/chrome_thread_unittest.cc',
       '$CHROME_DIR/browser/history/history_types_unittest.cc',
+      '$CHROME_DIR/browser/history/snippet_unittest.cc',
       '$CHROME_DIR/browser/history/text_database_unittest.cc',
       '$CHROME_DIR/browser/history/visit_tracker_unittest.cc',
       '$CHROME_DIR/browser/metrics_response_unittest.cc',
@@ -161,7 +162,6 @@ if env['PLATFORM'] == 'win32':
       '$CHROME_DIR/browser/history/history_querying_unittest.cc',
       '$CHROME_DIR/browser/history/history_unittest.cc',
       '$CHROME_DIR/browser/history/query_parser_unittest.cc',
-      '$CHROME_DIR/browser/history/snippet_unittest.cc',
       '$CHROME_DIR/browser/history/starred_url_database_unittest.cc',
       '$CHROME_DIR/browser/history/text_database_manager_unittest.cc',
       '$CHROME_DIR/browser/history/thumbnail_database_unittest.cc',
