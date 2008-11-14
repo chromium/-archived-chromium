@@ -6,9 +6,8 @@
 #define StateTrackingString_h
 
 #include "config.h"
+#include "ChromiumBridge.h"
 #include "PlatformString.h"
-
-#include "webkit/glue/webkit_glue.h"
 
 namespace WebCore {
 
@@ -57,7 +56,7 @@ public:
 
 private:
     void Notify() const {
-      webkit_glue::NotifyFormStateChanged(m_parentNode->ownerDocument());
+      ChromiumBridge::NotifyFormStateChanged(m_parentNode->ownerDocument());
     }
 
     // The node that owns this value.

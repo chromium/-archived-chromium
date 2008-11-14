@@ -113,8 +113,6 @@
 #undef LOG
 #include "base/stats_table.h"
 #include "base/trace_event.h"
-#include "webkit/glue/glue_util.h"
-#include "webkit/glue/webkit_glue.h"
 
 namespace WebCore {
 
@@ -1024,7 +1022,7 @@ bool V8Proxy::HandleOutOfMemory()
     // Destroy the global object.
     proxy->DestroyGlobal();
 
-    webkit_glue::NotifyJSOutOfMemory(frame);
+    ChromiumBridge::notifyJSOutOfMemory(frame);
 
     // Disable JS.
     Settings* settings = frame->settings();
@@ -1545,11 +1543,10 @@ bool V8Proxy::isEnabled()
     // If the scheme is ftp: or file:, an empty file name indicates a directory
     // listing, which requires JavaScript to function properly.
     const char* kDirProtocols[] = { "ftp", "file" };
-    GURL url = webkit_glue::KURLToGURL(document->url());
     for (size_t i = 0; i < arraysize(kDirProtocols); ++i) {
         if (origin->protocol() == kDirProtocols[i]) {
-            ASSERT(url.SchemeIs(kDirProtocols[i]));
-            return url.ExtractFileName().empty();
+            const KURL& url = document->url();
+            return url.pathAfterLastSlash() == url.pathEnd();
         }
     }
 
@@ -1690,7 +1687,7 @@ bool V8Proxy::CanAccessPrivate(DOMWindow* target_window)
 
     String ui_resource_protocol = ChromiumBridge::uiResourceProtocol();
     if (active_security_origin->protocol() == ui_resource_protocol) {
-        KURL inspector_url = webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
+        KURL inspector_url = ChromiumBridge::inspectorURL();
         ASSERT(inspector_url.protocol() == ui_resource_protocol);
         ASSERT(inspector_url.protocol().endsWith("-resource"));
 

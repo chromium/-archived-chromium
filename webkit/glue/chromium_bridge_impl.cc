@@ -204,6 +204,17 @@ bool ChromiumBridge::ensureFontLoaded(HFONT font) {
 }
 #endif
 
+// Forms ----------------------------------------------------------------------
+
+void ChromiumBridge::notifyFormStateChanged(const Document* doc) {
+  webkit_glue::NotifyFormStateChanged(doc);
+}
+
+// JavaScript -----------------------------------------------------------------
+
+void ChromiumBridge::notifyJSOutOfMemory(Frame* frame) {
+  webkit_glue::NotifyJSOutOfMemory(frame);
+}
 
 // Language -------------------------------------------------------------------
 
@@ -278,6 +289,12 @@ IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
   return webkit_glue::ToIntRect(
       webkit_glue::GetScreenInfo(ToPlatform(widget)).available_rect);
 }
+
+// URL ----------------------------------------------------------------
+KURL ChromiumBridge::inspectorURL() {
+  return webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
+}
+
 
 // Widget ---------------------------------------------------------------------
 

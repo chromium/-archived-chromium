@@ -43,6 +43,8 @@ typedef struct HFONT__* HFONT;
 
 namespace WebCore {
     class Cursor;
+    class Document;
+    class Frame;
     class IntRect;
     class KURL;
     class String;
@@ -74,6 +76,12 @@ namespace WebCore {
 #if PLATFORM(WIN_OS)
         static bool ensureFontLoaded(HFONT font);
 #endif
+        
+        // Forms --------------------------------------------------------------
+        static void notifyFormStateChanged(const Document* doc);
+
+        // JavaScript ---------------------------------------------------------
+        static void notifyJSOutOfMemory(Frame* frame);
 
         // Language -----------------------------------------------------------
         static String computedDefaultLanguage();
@@ -95,6 +103,9 @@ namespace WebCore {
         static bool screenIsMonochrome(Widget*);
         static IntRect screenRect(Widget*);
         static IntRect screenAvailableRect(Widget*);
+
+        // URL ----------------------------------------------------------------
+        static KURL inspectorURL();
 
         // Widget -------------------------------------------------------------
         static void widgetSetCursor(Widget*, const Cursor&);

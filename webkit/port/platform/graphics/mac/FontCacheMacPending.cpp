@@ -31,7 +31,6 @@
 #include "ChromiumBridge.h"
 #include "FontCache.h"
 #include "FontDescription.h"
-#include "webkit_glue.h"
 
 //
 // This file contains implementations of methods in the "pending" version
