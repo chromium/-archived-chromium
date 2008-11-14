@@ -43,6 +43,10 @@ class BrowserView : public BrowserWindow,
 
   void set_frame(BrowserFrame* frame) { frame_ = frame; }
 
+  // Returns the show flag that should be used to show the frame containing
+  // this view.
+  int GetShowState() const;
+
   // Called by the frame to notify the BrowserView that it was moved, and that
   // any dependent popup windows should be repositioned.
   void WindowMoved();
@@ -137,7 +141,7 @@ class BrowserView : public BrowserWindow,
 
   // Overridden from BrowserWindow:
   virtual void Init();
-  virtual void Show(int command, bool adjust_to_fit);
+  virtual void Show();
   virtual void Close();
   virtual void Activate();
   virtual void FlashFrame();
@@ -147,7 +151,7 @@ class BrowserView : public BrowserWindow,
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
   virtual void UpdateTitleBar();
   virtual void ValidateThrobber();
-  virtual gfx::Rect GetNormalBounds();
+  virtual gfx::Rect GetNormalBounds() const;
   virtual bool IsMaximized();
   virtual ToolbarStarToggle* GetStarButton() const;
   virtual LocationBarView* GetLocationBarView() const;
@@ -182,12 +186,11 @@ class BrowserView : public BrowserWindow,
   virtual SkBitmap GetWindowIcon();
   virtual bool ShouldShowWindowIcon() const;
   virtual bool ExecuteWindowsCommand(int command_id);
-  virtual void SaveWindowPosition(const CRect& bounds,
-                                  bool maximized,
-                                  bool always_on_top);
-  virtual bool RestoreWindowPosition(CRect* bounds,
-                                     bool* maximized,
-                                     bool* always_on_top);
+  virtual void SaveWindowPlacement(const gfx::Rect& bounds,
+                                   bool maximized,
+                                   bool always_on_top);
+  virtual bool GetSavedWindowBounds(gfx::Rect* bounds) const;
+  virtual bool GetSavedMaximizedState(bool* maximized) const;
   virtual void WindowClosing();
   virtual views::View* GetContentsView();
   virtual views::ClientView* CreateClientView(views::Window* window);

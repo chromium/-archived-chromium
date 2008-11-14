@@ -467,7 +467,8 @@ gfx::Rect OpaqueNonClientView::GetBoundsForTabStrip(TabStrip* tabstrip) {
   int tabstrip_width = minimize_button_->x() - tabstrip_x;
   if (frame_->IsMaximized())
     tabstrip_width -= kNewTabIconWindowControlsSpacing;
-  return gfx::Rect(tabstrip_x, 0, tabstrip_width, tabstrip_height);
+  return gfx::Rect(tabstrip_x, 0, std::max(0, tabstrip_width),
+                   tabstrip_height);
 }
 
 void OpaqueNonClientView::UpdateWindowIcon() {

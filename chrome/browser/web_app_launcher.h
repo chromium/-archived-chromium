@@ -16,10 +16,10 @@ class WebAppLauncher {
  public:
   // Queries Gears for the name of the app, and when Gears callsback with the
   // response creates a WebApp and Browser.
-  static void Launch(Profile* profile, const GURL& url, int show_command);
+  static void Launch(Profile* profile, const GURL& url);
 
  private:
-  WebAppLauncher(Profile* profile, const GURL& url, int show_command);
+  WebAppLauncher(Profile* profile, const GURL& url);
 
   // Invoked from the Launch method. Queries Gears for the apps. Gears callback
   // to OnGotApps.
@@ -33,9 +33,6 @@ class WebAppLauncher {
 
   // URL of the app.
   const GURL url_;
-
-  // How to show the app.
-  const int show_command_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WebAppLauncher);
 };

@@ -35,12 +35,8 @@ class BrowserWindow {
   // Initialize the frame.
   virtual void Init() = 0;
 
-  // Show the window according to the given command, which is one of SW_*
-  // passed to the Windows function ShowWindow.
-  //
-  // If adjust_to_fit is true, the window is resized and moved to be on the
-  // default screen.
-  virtual void Show(int command, bool adjust_to_fit) = 0;
+  // Show the window, or activates it if it's already visible.
+  virtual void Show() = 0;
 
   // Closes the frame as soon as possible.  If the frame is not in a drag
   // session, it will close immediately; otherwise, it will move offscreen (so
@@ -85,7 +81,7 @@ class BrowserWindow {
   // TODO(beng): RENAME (GetRestoredBounds)
   // Returns the nonmaximized bounds of the frame (even if the frame is
   // currently maximized or minimized) in terms of the screen coordinates.
-  virtual gfx::Rect GetNormalBounds() = 0;
+  virtual gfx::Rect GetNormalBounds() const = 0;
 
   // TODO(beng): REMOVE?
   // Returns true if the frame is maximized (aka zoomed).
@@ -114,9 +110,7 @@ class BrowserWindow {
   virtual bool IsBookmarkBarVisible() const = 0;
 
   // Construct a BrowserWindow implementation for the specified |browser|.
-  static BrowserWindow* CreateBrowserWindow(Browser* browser,
-                                            const gfx::Rect& bounds,
-                                            int show_command);
+  static BrowserWindow* CreateBrowserWindow(Browser* browser);
 
  protected:
   friend class BrowserList;

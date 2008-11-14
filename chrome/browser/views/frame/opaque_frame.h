@@ -29,6 +29,8 @@ class OpaqueFrame : public BrowserFrame,
   explicit OpaqueFrame(BrowserView* browser_view);
   virtual ~OpaqueFrame();
 
+  void Init();
+
  protected:
   // Overridden from BrowserFrame:
   virtual gfx::Rect GetWindowBoundsForClientBounds(
@@ -40,6 +42,7 @@ class OpaqueFrame : public BrowserFrame,
 
   // Overridden from views::CustomFrameWindow:
   virtual void UpdateWindowIcon();
+  virtual int GetShowState() const;
 
   // Overridden from views::ContainerWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);

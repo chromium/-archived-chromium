@@ -23,6 +23,10 @@ OpaqueFrame::OpaqueFrame(BrowserView* browser_view)
 OpaqueFrame::~OpaqueFrame() {
 }
 
+void OpaqueFrame::Init() {
+  CustomFrameWindow::Init(NULL, gfx::Rect());
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueFrame, BrowserFrame implementation:
 
@@ -60,6 +64,10 @@ views::Window* OpaqueFrame::GetWindow() {
 void OpaqueFrame::UpdateWindowIcon() {
   CustomFrameWindow::UpdateWindowIcon();
   GetOpaqueNonClientView()->UpdateWindowIcon();
+}
+
+int OpaqueFrame::GetShowState() const {
+  return browser_view_->GetShowState();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

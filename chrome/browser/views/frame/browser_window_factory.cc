@@ -17,12 +17,10 @@
 // BrowserWindow, public:
 
 // static
-BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser,
-                                                  const gfx::Rect& bounds,
-                                                  int show_command) {
+BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
   BrowserView* browser_view = new BrowserView(browser);
   BrowserFrame::CreateForBrowserView(BrowserFrame::GetActiveFrameType(),
-                                     browser_view, bounds, show_command);
+                                     browser_view);
   return browser_view;
 }
 
@@ -37,16 +35,14 @@ BrowserFrame::FrameType BrowserFrame::GetActiveFrameType() {
 
 // static
 BrowserFrame* BrowserFrame::CreateForBrowserView(BrowserFrame::FrameType type,
-                                                 BrowserView* browser_view,
-                                                 const gfx::Rect& bounds,
-                                                 int show_command) {
+                                                 BrowserView* browser_view) {
   if (type == FRAMETYPE_OPAQUE) {
     OpaqueFrame* frame = new OpaqueFrame(browser_view);
-    frame->Init(NULL, bounds);
+    frame->Init();
     return frame;
   } else if (type == FRAMETYPE_AERO_GLASS) {
     AeroGlassFrame* frame = new AeroGlassFrame(browser_view);
-    frame->Init(bounds);
+    frame->Init();
     return frame;
   }
   NOTREACHED() << "Unsupported frame type";

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/browser.h"
-
 #include <windows.h>
 #include <shellapi.h>
+
+#include "chrome/browser/browser.h"
 
 #include "base/command_line.h"
 #include "base/file_version_info.h"
@@ -152,37 +152,19 @@ struct Browser::UIUpdate {
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Constructors, Creation, Showing:
 
-Browser::Browser(const gfx::Rect& initial_bounds,
-                 int show_command,
-                 Profile* profile,
-                 BrowserType::Type type,
-                 const std::wstring& app_name)
-    : profile_(profile),
+Browser::Browser(BrowserType::Type type, Profile* profile)
+    : type_(type),
+      profile_(profile),
       window_(NULL),
-      initial_show_command_(show_command),
-      is_attempting_to_close_browser_(false),
-      controller_(this),
-      chrome_updater_factory_(this),
-      method_factory_(this),
       tabstrip_model_(this, profile),
+      controller_(this),
       toolbar_model_(this),
-      type_(type),
-      app_name_(app_name),
-      idle_task_(new BrowserIdleTimer()) {
+      chrome_updater_factory_(this),
+      is_attempting_to_close_browser_(false),
+      override_maximized_(false),
+      method_factory_(this),
+      idle_task_(new BrowserIdleTimer) {
   tabstrip_model_.AddObserver(this);
-
-  CommandLine parsed_command_line;
-
-  gfx::Rect create_bounds;
-  bool maximized = false;
-  WindowSizer::GetBrowserWindowBounds(app_name_, initial_bounds,
-                                      &create_bounds, &maximized);
-  if (parsed_command_line.HasSwitch(switches::kStartMaximized))
-    maximized = true;
-  if (maximized)
-    initial_show_command_ = SW_SHOWMAXIMIZED;
-  window_ = BrowserWindow::CreateBrowserWindow(this, create_bounds,
-                                               show_command);
 
   NotificationService::current()->AddObserver(
       this, NOTIFY_SSL_STATE_CHANGED, NotificationService::AllSources());
@@ -196,15 +178,6 @@ Browser::Browser(const gfx::Rect& initial_bounds,
   // Trim browser memory on idle for low & medium memory models.
   if (g_browser_process->memory_model() < BrowserProcess::HIGH_MEMORY_MODEL)
     idle_task_->Start();
-
-  // Show the First Run information bubble if we've been told to.
-  PrefService* local_state = g_browser_process->local_state();
-  if (local_state->IsPrefRegistered(prefs::kShouldShowFirstRunBubble) &&
-      local_state->GetBoolean(prefs::kShouldShowFirstRunBubble)) {
-    // Reset the preference so we don't show the bubble for subsequent windows.
-    local_state->ClearPref(prefs::kShouldShowFirstRunBubble);
-    GetLocationBarView()->ShowFirstRunBubble();
-  }
 }
 
 Browser::~Browser() {
@@ -248,76 +221,76 @@ Browser::~Browser() {
     select_file_dialog_->ListenerDestroyed();
 }
 
-void Browser::Show() {
-  // TODO(beng): this entire function should move to BrowserWindow.
+// static
+Browser* Browser::Create(Profile* profile) {
+  Browser* browser = new Browser(BrowserType::TABBED_BROWSER, profile);
+  browser->CreateBrowserWindow();
+  return browser;
+}
 
-  // Only allow one call after the browser is created.
-  if (initial_show_command_ < 0) {
-    // The frame is already visible, we're being invoked again either by the
-    // user clicking a link in another app or from a desktop shortcut.
-    window_->Activate();
-    return;
+// static
+Browser* Browser::CreateForPopup(Profile* profile) {
+  Browser* browser = new Browser(BrowserType::BROWSER, profile);
+  browser->CreateBrowserWindow();
+  return browser;
+}
+
+// static
+Browser* Browser::CreateForApp(const std::wstring& app_name,
+                               Profile* profile) {
+  Browser* browser = new Browser(BrowserType::APPLICATION, profile);
+  browser->app_name_ = app_name;
+  browser->CreateBrowserWindow();
+  return browser;
+}
+
+void Browser::CreateBrowserWindow() {
+  DCHECK(!window_);
+  window_ = BrowserWindow::CreateBrowserWindow(this);
+
+  // Show the First Run information bubble if we've been told to.
+  PrefService* local_state = g_browser_process->local_state();
+  if (local_state->IsPrefRegistered(prefs::kShouldShowFirstRunBubble) &&
+      local_state->GetBoolean(prefs::kShouldShowFirstRunBubble)) {
+    // Reset the preference so we don't show the bubble for subsequent windows.
+    local_state->ClearPref(prefs::kShouldShowFirstRunBubble);
+    GetLocationBarView()->ShowFirstRunBubble();
   }
-  window_->Show(initial_show_command_, false);
-  if ((initial_show_command_ == SW_SHOWNORMAL) ||
-      (initial_show_command_ == SW_SHOWMAXIMIZED))
-    window_->Activate();
-  initial_show_command_ = -1;
-
-  // Setting the focus doesn't work when the window is invisible, so any focus
-  // initialization that happened before this will be lost.
-  //
-  // We really "should" restore the focus whenever the window becomes unhidden,
-  // but I think initializing is the only time where this can happen where there
-  // is some focus change we need to pick up, and this is easier than plumbing
-  // through an unhide message all the way from the frame.
-  //
-  // If we do find there are cases where we need to restore the focus on show,
-  // that should be added and this should be removed.
-  TabContents* selected_tab_contents = GetSelectedTabContents();
-  if (selected_tab_contents)
-    selected_tab_contents->RestoreFocus();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Creation Helpers:
 
 // static
-void Browser::OpenNewBrowserWindow(Profile* profile, int show_command) {
-  Browser* browser = new Browser(gfx::Rect(), show_command, profile,
-    BrowserType::TABBED_BROWSER, L"");
+void Browser::OpenEmptyWindow(Profile* profile) {
+  Browser* browser = Browser::Create(profile);
   browser->AddBlankTab(true);
-  browser->Show();
+  browser->window()->Show();
 }
 
 // static
 void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
   Profile* off_the_record_profile = profile->GetOffTheRecordProfile();
   Browser* browser = BrowserList::FindBrowserWithType(
-    off_the_record_profile, BrowserType::TABBED_BROWSER);
-  if (browser == NULL) {
-    browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, off_the_record_profile,
-      BrowserType::TABBED_BROWSER, L"");
-  }
+      off_the_record_profile,
+      BrowserType::TABBED_BROWSER);
+  if (!browser)
+    browser = Browser::Create(off_the_record_profile);
   // TODO(eroman): should we have referrer here?
   browser->AddTabWithURL(url, GURL(), PageTransition::LINK, true, NULL);
-  browser->Show();
-  browser->window()->Activate();
+  browser->window()->Show();
 }
 
 // static
-void Browser::OpenWebApplication(Profile* profile,
-                                 WebApp* app,
-                                 int show_command) {
+void Browser::OpenWebApplication(Profile* profile, WebApp* app) {
   const std::wstring& app_name =
       app->name().empty() ? ComputeApplicationNameFromURL(app->url()) :
                             app->name();
-
   RegisterAppPrefs(app_name);
-  Browser* browser = new Browser(gfx::Rect(), show_command, profile,
-                                 BrowserType::APPLICATION, app_name);
+
+  Browser* browser = Browser::CreateForApp(app_name, profile);
   browser->AddWebApplicationTab(profile, app, false);
-  browser->Show();
+  browser->window()->Show();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -356,7 +329,7 @@ HWND Browser::GetTopLevelHWND() const {
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, State Storage and Retrieval for UI:
 
-void Browser::SaveWindowPosition(const gfx::Rect& bounds, bool maximized) {
+void Browser::SaveWindowPlacement(const gfx::Rect& bounds, bool maximized) {
   // We don't save window position for popups.
   if (type() == BrowserType::BROWSER)
     return;
@@ -390,9 +363,37 @@ void Browser::SaveWindowPosition(const gfx::Rect& bounds, bool maximized) {
   }
 }
 
-void Browser::RestoreWindowPosition(gfx::Rect* bounds, bool* maximized) {
-  DCHECK(bounds && maximized);
-  WindowSizer::GetBrowserWindowBounds(app_name_, *bounds, bounds, maximized);
+gfx::Rect Browser::GetSavedWindowBounds() const {
+  CommandLine parsed_command_line;
+  bool record_mode = parsed_command_line.HasSwitch(switches::kRecordMode);
+  bool playback_mode = parsed_command_line.HasSwitch(switches::kPlaybackMode);
+  if (record_mode || playback_mode) {
+    // In playback/record mode we always fix the size of the browser and
+    // move it to (0,0).  The reason for this is two reasons:  First we want
+    // resize/moves in the playback to still work, and Second we want
+    // playbacks to work (as much as possible) on machines w/ different
+    // screen sizes.
+    return gfx::Rect(0, 0, 800, 600);
+  }
+
+  gfx::Rect restored_bounds = override_bounds_;
+  bool maximized;
+  WindowSizer::GetBrowserWindowBounds(app_name_, restored_bounds,
+                                      &restored_bounds, &maximized);
+  return restored_bounds;
+}
+
+// TODO(beng): obtain maximized state some other way so we don't need to go
+//             through all this hassle.
+bool Browser::GetSavedMaximizedState() const {
+  if (CommandLine().HasSwitch(switches::kStartMaximized))
+    return true;
+
+  gfx::Rect restored_bounds;
+  bool maximized = override_maximized_;
+  WindowSizer::GetBrowserWindowBounds(app_name_, restored_bounds,
+                                      &restored_bounds, &maximized);
+  return maximized;
 }
 
 SkBitmap Browser::GetCurrentPageIcon() const {
@@ -661,10 +662,8 @@ void Browser::NewTab() {
     AddBlankTab(true);
   } else {
     Browser* b = GetOrCreateTabbedBrowser();
-    DCHECK(b);
-    b->Show();
-    b->window()->Activate();
     b->AddBlankTab(true);
+    b->window()->Show();
   }
 }
 
@@ -680,14 +679,12 @@ void Browser::CloseApp() {
 
 void Browser::NewWindow() {
   UserMetrics::RecordAction(L"NewWindow", profile_);
-  Browser::OpenNewBrowserWindow(profile_->GetOriginalProfile(),
-                                SW_SHOWNORMAL);
+  Browser::OpenEmptyWindow(profile_->GetOriginalProfile());
 }
 
 void Browser::NewIncognitoWindow() {
   UserMetrics::RecordAction(L"NewIncognitoWindow", profile_);
-  Browser::OpenNewBrowserWindow(profile_->GetOffTheRecordProfile(),
-                                SW_SHOWNORMAL);
+  Browser::OpenEmptyWindow(profile_->GetOffTheRecordProfile());
 }
 
 void Browser::CloseWindow() {
@@ -748,11 +745,9 @@ void Browser::ConvertPopupToTabbedBrowser() {
 
   int tab_strip_index = tabstrip_model_.selected_index();
   TabContents* contents = tabstrip_model_.DetachTabContentsAt(tab_strip_index);
-  Browser* browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
-                                 BrowserType::TABBED_BROWSER, L"");
-  browser->AddNewContents(NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(),
-                          true);
-  browser->Show();
+  Browser* browser = Browser::Create(profile_);
+  browser->tabstrip_model()->AppendTabContents(contents, true);
+  browser->window()->Show();
 }
 
 void Browser::Exit() {
@@ -1286,6 +1281,10 @@ void Browser::ExecuteCommand(int id) {
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, TabStripModelDelegate implementation:
 
+GURL Browser::GetBlankTabURL() const {
+  return NewTabUIURL();
+}
+
 void Browser::CreateNewStripWithContents(TabContents* detached_contents,
                                          const gfx::Point& drop_point) {
   DCHECK(type_ == BrowserType::TABBED_BROWSER);
@@ -1300,13 +1299,11 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
     rect.SetRect(drop_point.x(), drop_point.y(), browser_rect.Width(),
                  browser_rect.Height());
   }
-  Browser* new_window =
-      new Browser(rect, SW_SHOWNORMAL, profile_, BrowserType::TABBED_BROWSER,
-                  std::wstring());
-  // Append the TabContents before showing it so the window doesn't flash
-  // black.
-  new_window->tabstrip_model()->AppendTabContents(detached_contents, true);
-  new_window->Show();
+  Browser* browser = new Browser(BrowserType::TABBED_BROWSER, profile_);
+  browser->set_override_bounds(rect);
+  browser->CreateBrowserWindow();
+  browser->tabstrip_model()->AppendTabContents(detached_contents, true);
+  browser->window()->Show();
 
   // When we detach a tab we need to make sure any associated Find window moves
   // along with it to its new home (basically we just make new_window the parent
@@ -1314,7 +1311,7 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   // TODO(brettw) this could probably be improved, see
   // WebContentsView::ReparentFindWindow for more.
   if (detached_contents->AsWebContents())
-    detached_contents->AsWebContents()->view()->ReparentFindWindow(new_window);
+    detached_contents->AsWebContents()->view()->ReparentFindWindow(browser);
 }
 
 int Browser::GetDragActions() const {
@@ -1377,19 +1374,21 @@ void Browser::DuplicateContentsAt(int index) {
     tabstrip_model_.AddTabContents(new_contents, index + 1,
                                    PageTransition::LINK, true);
   } else {
-    Browser* new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile(),
-                                       BrowserType::APPLICATION, app_name_);
+    Browser* browser = NULL;
+    if (type_ == BrowserType::APPLICATION) {
+      browser = Browser::CreateForApp(app_name_, profile_);
+    } else if (type_ == BrowserType::BROWSER) {
+      browser = Browser::CreateForPopup(profile_);
+    }
 
     // We need to show the browser now. Otherwise ContainerWin assumes the
     // TabContents is invisible and won't size it.
-    new_browser->Show();
+    browser->window()->Show();
 
     // The page transition below is only for the purpose of inserting the tab.
-    new_contents = new_browser->AddTabWithNavigationController(
-        contents->controller()->Clone(new_browser->GetTopLevelHWND()),
+    new_contents = browser->AddTabWithNavigationController(
+        contents->controller()->Clone(browser->GetTopLevelHWND()),
         PageTransition::LINK);
-
-    new_browser->window()->Activate();
   }
 
   if (profile_->HasSessionService()) {
@@ -1588,8 +1587,7 @@ void Browser::OpenURLFromTab(TabContents* source,
       disposition = NEW_FOREGROUND_TAB;
 
     b->OpenURL(url, referrer, disposition, transition);
-    b->Show();
-    b->window()->Activate();
+    b->window()->Show();
     return;
   }
 
@@ -1597,11 +1595,10 @@ void Browser::OpenURLFromTab(TabContents* source,
     disposition = NEW_FOREGROUND_TAB;
 
   if (disposition == NEW_WINDOW) {
-    Browser* new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
-                                       BrowserType::TABBED_BROWSER, L"");
-    new_contents = new_browser->AddTabWithURL(url, referrer, transition, true,
-                                              instance);
-    new_browser->Show();
+    Browser* browser = Browser::Create(profile_);
+    new_contents = browser->AddTabWithURL(url, referrer, transition, true,
+                                          instance);
+    browser->window()->Show();
   } else if ((disposition == CURRENT_TAB) && current_tab) {
     if (transition == PageTransition::TYPED ||
         transition == PageTransition::AUTO_BOOKMARK ||
@@ -1646,9 +1643,8 @@ void Browser::OpenURLFromTab(TabContents* source,
     OpenURLOffTheRecord(profile_, url);
     return;
   } else if (disposition != SUPPRESS_OPEN) {
-    new_contents =
-        AddTabWithURL(url, referrer, transition,
-                      disposition != NEW_BACKGROUND_TAB, instance);
+    new_contents = AddTabWithURL(url, referrer, transition,
+                                 disposition != NEW_BACKGROUND_TAB, instance);
   }
 
   if (disposition != NEW_BACKGROUND_TAB && source_tab_was_frontmost) {
@@ -1727,19 +1723,17 @@ void Browser::AddNewContents(TabContents* source,
     if (type_ == BrowserType::APPLICATION)
       transition = PageTransition::START_PAGE;
     b->tabstrip_model()->AddTabContents(new_contents, -1, transition, true);
-    b->Show();
-    b->window()->Activate();
+    b->window()->Show();
     return;
   }
 
   if (disposition == NEW_POPUP) {
     BuildPopupWindow(source, new_contents, initial_pos);
   } else if (disposition == NEW_WINDOW) {
-    Browser* new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
-                                       BrowserType::TABBED_BROWSER, L"");
-    new_browser->AddNewContents(source, new_contents, NEW_FOREGROUND_TAB,
-                                initial_pos, user_gesture);
-    new_browser->Show();
+    Browser* browser = Browser::Create(profile_);
+    browser->AddNewContents(source, new_contents, NEW_FOREGROUND_TAB,
+                            initial_pos, user_gesture);
+    browser->window()->Show();
   } else if (disposition == CURRENT_TAB) {
     ReplaceContents(source, new_contents);
   } else if (disposition != SUPPRESS_OPEN) {
@@ -1856,11 +1850,9 @@ void Browser::ConvertContentsToApplication(TabContents* contents) {
   RegisterAppPrefs(app_name);
 
   tabstrip_model_.DetachTabContentsAt(index);
-  Browser* browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
-                                 BrowserType::APPLICATION, app_name);
-  browser->AddNewContents(
-    NULL, contents, NEW_FOREGROUND_TAB, gfx::Rect(), true);
-  browser->Show();
+  Browser* browser = Browser::CreateForApp(app_name, profile_);
+  browser->tabstrip_model()->AppendTabContents(contents, true);
+  browser->window()->Show();
 }
 
 void Browser::ContentsStateChanged(TabContents* source) {
@@ -2406,10 +2398,8 @@ void Browser::ClearUnloadState(TabContents* tab) {
 Browser* Browser::GetOrCreateTabbedBrowser() {
   Browser* browser = BrowserList::FindBrowserWithType(
       profile_, BrowserType::TABBED_BROWSER);
-  if (!browser) {
-    browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile_,
-                          BrowserType::TABBED_BROWSER, std::wstring());
-  }
+  if (!browser)
+    browser = Browser::Create(profile_);
   return browser;
 }
 
@@ -2418,25 +2408,25 @@ void Browser::BuildPopupWindow(TabContents* source,
                                const gfx::Rect& initial_pos) {
   BrowserType::Type type =
       type_ == BrowserType::APPLICATION ? type_ : BrowserType::BROWSER;
-  Browser* browser = new Browser(initial_pos, SW_SHOWNORMAL, profile_, type,
-                                 std::wstring());
-  browser->AddNewContents(source, new_contents,
-                          NEW_FOREGROUND_TAB, gfx::Rect(), true);
-  browser->Show();
+  Browser* browser = new Browser(type, profile_);
+  browser->set_override_bounds(initial_pos);
+  browser->CreateBrowserWindow();
+  // TODO(beng): See if this can be made to use
+  //             TabStripModel::AppendTabContents.
+  browser->AddNewContents(source, new_contents, NEW_FOREGROUND_TAB,
+                          gfx::Rect(), true);
+  browser->window()->Show();
 }
 
 GURL Browser::GetHomePage() {
-  if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage)) {
+  if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
     return NewTabUIURL();
-  } else {
-    GURL home_page = GURL(URLFixerUpper::FixupURL(
-        profile_->GetPrefs()->GetString(prefs::kHomePage),
-        std::wstring()));
-    if (!home_page.is_valid())
-      return NewTabUIURL();
-
-    return home_page;
-  }
+  GURL home_page = GURL(URLFixerUpper::FixupURL(
+      profile_->GetPrefs()->GetString(prefs::kHomePage),
+      std::wstring()));
+  if (!home_page.is_valid())
+    return NewTabUIURL();
+  return home_page;
 }
 
 void Browser::AdvanceFindSelection(bool forward_direction) {

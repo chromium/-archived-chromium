@@ -95,6 +95,9 @@ class TabStripModelObserver {
 ///////////////////////////////////////////////////////////////////////////////
 class TabStripModelDelegate {
  public:
+  // Retrieve the URL that should be used to construct blank tabs.
+  virtual GURL GetBlankTabURL() const = 0;
+
   // Ask for a new TabStripModel to be created and the given tab contents to
   // be added to it. Its presentation (e.g. a browser window) anchored at the
   // specified creation point. It is left up to the delegate to decide how to

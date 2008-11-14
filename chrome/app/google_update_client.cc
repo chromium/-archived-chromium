@@ -48,7 +48,6 @@ const wchar_t* GoogleUpdateClient::GetVersion() const {
 bool GoogleUpdateClient::Launch(HINSTANCE instance,
                                 sandbox::SandboxInterfaceInfo* sandbox,
                                 wchar_t* command_line,
-                                int show_command,
                                 const char* entry_name,
                                 int* ret) {
   if (client_util::FileExists(dll_path_)) {
@@ -90,7 +89,7 @@ bool GoogleUpdateClient::Launch(HINSTANCE instance,
       ::RegCloseKey(reg_key);
     }
 
-    int rc = (entry)(instance, sandbox, command_line, show_command);
+    int rc = (entry)(instance, sandbox, command_line);
     if (ret) {
       *ret = rc;
     }

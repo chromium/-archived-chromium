@@ -45,8 +45,8 @@ AeroGlassFrame::AeroGlassFrame(BrowserView* browser_view)
 AeroGlassFrame::~AeroGlassFrame() {
 }
 
-void AeroGlassFrame::Init(const gfx::Rect& bounds) {
-  Window::Init(NULL, bounds);
+void AeroGlassFrame::Init() {
+  Window::Init(NULL, gfx::Rect());
 }
 
 int AeroGlassFrame::GetMinimizeButtonOffset() const {
@@ -91,7 +91,16 @@ views::Window* AeroGlassFrame::GetWindow() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassFrame, views::ContainerWin implementation:
+// AeroGlassFrame, views::ContainerWin overrides:
+
+bool AeroGlassFrame::AcceleratorPressed(views::Accelerator* accelerator) {
+  return browser_view_->AcceleratorPressed(*accelerator);
+}
+
+bool AeroGlassFrame::GetAccelerator(int cmd_id,
+                                    views::Accelerator* accelerator) {
+  return browser_view_->GetAccelerator(cmd_id, accelerator);
+}
 
 void AeroGlassFrame::OnInitMenuPopup(HMENU menu, UINT position,
                                      BOOL is_system_menu) {
@@ -179,15 +188,10 @@ LRESULT AeroGlassFrame::OnNCHitTest(const CPoint& pt) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassFrame, views::ContainerWin overrides:
+// AeroGlassFrame, views::CustomFrameWindow overrides:
 
-bool AeroGlassFrame::AcceleratorPressed(views::Accelerator* accelerator) {
-  return browser_view_->AcceleratorPressed(*accelerator);
-}
-
-bool AeroGlassFrame::GetAccelerator(int cmd_id,
-                                    views::Accelerator* accelerator) {
-  return browser_view_->GetAccelerator(cmd_id, accelerator);
+int AeroGlassFrame::GetShowState() const {
+  return browser_view_->GetShowState();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

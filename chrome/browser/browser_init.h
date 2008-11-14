@@ -46,7 +46,7 @@ class BrowserInit {
     // TODO(brettw): this will not handle all cases. If two process start up too
     // close to each other, the window might not have been created yet for the
     // first one, so this function won't find it.
-    bool NotifyOtherProcess(int show_cmd);
+    bool NotifyOtherProcess();
 
     // Create the toplevel message window for IPC.
     void Create();
@@ -97,8 +97,7 @@ class BrowserInit {
   class LaunchWithProfile {
    public:
     LaunchWithProfile(const std::wstring& cur_dir,
-                      const std::wstring& cmd_line,
-                      int show_command);
+                      const std::wstring& cmd_line);
     ~LaunchWithProfile() { }
 
     // Creates the necessary windows for startup. Returns true on success,
@@ -108,11 +107,6 @@ class BrowserInit {
     bool Launch(Profile* profile, bool process_startup);
 
    private:
-    // Creates a new tabbed browser.
-    //
-    // Note that the window returned by this function may not be visible yet.
-    Browser* CreateTabbedBrowser();
-
     // Does the following:
     // . If the user's startup pref is to restore the last session (or the
     //   command line flag is present to force using last session), it is
@@ -144,7 +138,6 @@ class BrowserInit {
 
     std::wstring cur_dir_;
     std::wstring command_line_;
-    int show_command_;
     Profile* profile_;
 
     // Bounds for the browser.
@@ -160,16 +153,14 @@ class BrowserInit {
   // the WM_COPYDATA handler.
   static bool ProcessCommandLine(const CommandLine& parsed_command_line,
                                  const std::wstring& cur_dir,
-                                 PrefService* prefs, int show_command,
-                                 bool process_startup, Profile* profile,
-                                 int* return_code);
+                                 PrefService* prefs, bool process_startup,
+                                 Profile* profile, int* return_code);
 
   // Helper function to launch a new browser based on command-line arguments
   // This function takes in a specific profile to use.
   static bool LaunchBrowser(const CommandLine& parsed_command_line,
-                            Profile* profile, int show_command,
-                            const std::wstring& cur_dir, bool process_startup,
-                            int* return_code);
+                            Profile* profile, const std::wstring& cur_dir,
+                            bool process_startup, int* return_code);
 
   template <class AutomationProviderClass>
   static void CreateAutomationProvider(const std::wstring& channel_id,
@@ -179,8 +170,7 @@ class BrowserInit {
  private:
   // Does the work of LaunchBrowser returning the result.
   static bool LaunchBrowserImpl(const CommandLine& parsed_command_line,
-                                Profile* profile, int show_command,
-                                const std::wstring& cur_dir,
+                                Profile* profile, const std::wstring& cur_dir,
                                 bool process_startup, int* return_code);
 
   // This class is for scoping purposes.

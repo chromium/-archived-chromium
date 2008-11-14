@@ -43,7 +43,7 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
 }
 
 // mainline routine for running as the Rendererer process
-int RendererMain(CommandLine &parsed_command_line, int show_command,
+int RendererMain(CommandLine &parsed_command_line,
                  sandbox::TargetServices* target_services) {
   StatsScope<StatsCounterTimer>
       startup_timer(chrome::Counters::renderer_main());

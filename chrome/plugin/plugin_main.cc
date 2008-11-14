@@ -13,7 +13,7 @@
 #include "sandbox/src/sandbox.h"
 
 // mainline routine for running as the plugin process
-int PluginMain(CommandLine &parsed_command_line, int show_command,
+int PluginMain(CommandLine &parsed_command_line,
                sandbox::TargetServices* target_services) {
   // The main thread of the plugin services IO.
   MessageLoopForIO main_message_loop;

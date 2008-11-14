@@ -123,12 +123,9 @@ Profile* ProfileManager::AddProfileByPath(const std::wstring& path) {
 
 void ProfileManager::NewWindowWithProfile(Profile* profile) {
   DCHECK(profile);
-
-  Browser* new_browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile,
-                                     BrowserType::TABBED_BROWSER, L"");
-  new_browser->AddTabWithURL(GURL(), GURL(), PageTransition::TYPED, true,
-                             NULL);
-  new_browser->Show();
+  Browser* browser = Browser::Create(profile);
+  browser->AddTabWithURL(GURL(), GURL(), PageTransition::TYPED, true, NULL);
+  browser->window()->Show();
 }
 
 Profile* ProfileManager::AddProfileByID(const std::wstring& id) {

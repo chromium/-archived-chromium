@@ -84,12 +84,7 @@ class BookmarkManagerView : public views::View,
   virtual bool CanResize() const { return true; }
   virtual bool CanMaximize() const { return true; }
   virtual std::wstring GetWindowTitle() const;
-  virtual void SaveWindowPosition(const CRect& bounds,
-                                  bool maximized,
-                                  bool always_on_top);
-  virtual bool RestoreWindowPosition(CRect* bounds,
-                                     bool* maximized,
-                                     bool* always_on_top);
+  virtual std::wstring GetWindowName() const;
   virtual View* GetContentsView() { return this; }
   // TODO(sky): implement these when we have an icon.
   //virtual SkBitmap GetWindowIcon();

@@ -11,6 +11,9 @@
 
 class SkBitmap;
 
+namespace gfx {
+class Rect;
+}
 // TODO(maruel):  Remove once gfx::Rect is used instead.
 namespace WTL {
 class CRect;
@@ -96,20 +99,28 @@ class WindowDelegate {
   // was handled, false if it was not.
   virtual bool ExecuteWindowsCommand(int command_id) { return false; }
 
-  // Saves the specified bounds, maximized and always on top state as the
-  // window's position to/ be restored the next time it is shown.
-  virtual void SaveWindowPosition(const CRect& bounds,
-                                  bool maximized,
-                                  bool always_on_top) { }
-
-  // returns true if there was a saved position, false if there was none and
-  // the default should be used.
-  virtual bool RestoreWindowPosition(CRect* bounds,
-                                     bool* maximized,
-                                     bool* always_on_top) {
-    return false;
+  // Returns the window's name identifier. Used to identify this window for
+  // state restoration.
+  virtual std::wstring GetWindowName() const {
+    return std::wstring();
   }
 
+  // Saves the window's bounds, maximized and always-on-top states. By default
+  // this uses the process' local state keyed by window name (See GetWindowName
+  // above). This behavior can be overridden to provide additional
+  // functionality.
+  virtual void SaveWindowPlacement(const gfx::Rect& bounds,
+                                   bool maximized,
+                                   bool always_on_top);
+
+  // Retreives the window's bounds, maximized and always-on-top states. By
+  // default, this uses the process' local state keyed by window name (See
+  // GetWindowName above). This behavior can be overridden to provide
+  // additional functionality.
+  virtual bool GetSavedWindowBounds(gfx::Rect* bounds) const;
+  virtual bool GetSavedMaximizedState(bool* maximized) const;
+  virtual bool GetSavedAlwaysOnTopState(bool* always_on_top) const;
+  
   // Called when the window closes.
   virtual void WindowClosing() { }
 

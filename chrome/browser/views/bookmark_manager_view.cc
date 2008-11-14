@@ -304,21 +304,8 @@ std::wstring BookmarkManagerView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_BOOKMARK_MANAGER_TITLE);
 }
 
-void BookmarkManagerView::SaveWindowPosition(const CRect& bounds,
-                                             bool maximized,
-                                             bool always_on_top) {
-  window()->SaveWindowPositionToPrefService(g_browser_process->local_state(),
-                                            prefs::kBookmarkManagerPlacement,
-                                            bounds, maximized, always_on_top);
-}
-
-bool BookmarkManagerView::RestoreWindowPosition(CRect* bounds,
-                                                bool* maximized,
-                                                bool* always_on_top) {
-  return window()->RestoreWindowPositionFromPrefService(
-      g_browser_process->local_state(),
-      prefs::kBookmarkManagerPlacement,
-      bounds, maximized, always_on_top);
+std::wstring BookmarkManagerView::GetWindowName() const {
+  return prefs::kBookmarkManagerPlacement;
 }
 
 void BookmarkManagerView::WindowClosing() {

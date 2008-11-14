@@ -443,14 +443,9 @@ void PrivacySection::LinkActivated(views::Link* source, int event_flags) {
   if (source == learn_more_link_) {
     // We open a new browser window so the Options dialog doesn't get lost
     // behind other windows.
-    Browser* browser = new Browser(gfx::Rect(), SW_SHOWNORMAL, profile(),
-                                   BrowserType::TABBED_BROWSER,
-                                   std::wstring());
-    browser->OpenURL(
-        GURL(l10n_util::GetString(IDS_LEARN_MORE_PRIVACY_URL)),
-        GURL(),
-        NEW_WINDOW,
-        PageTransition::LINK);
+    Browser* browser = Browser::Create(profile());
+    browser->OpenURL(GURL(l10n_util::GetString(IDS_LEARN_MORE_PRIVACY_URL)),
+                     GURL(), NEW_WINDOW, PageTransition::LINK);
   }
 }
 

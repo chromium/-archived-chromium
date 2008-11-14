@@ -85,12 +85,20 @@ gfx::Size Window::CalculateMaximumSize() const {
 }
 
 void Window::Show() {
-  Show(SW_SHOW);
+  int show_state = GetShowState();
+  bool maximized = false;
+  if (window_delegate_->GetSavedMaximizedState(&maximized) && maximized)
+    show_state = SW_SHOWMAXIMIZED;
+  Show(show_state);
 }
 
-void Window::Show(int show_style) {
-  ShowWindow(show_style);
+void Window::Show(int show_state) {
+  ShowWindow(show_state);
   SetInitialFocus();
+}
+
+int Window::GetShowState() const {
+  return SW_SHOWNORMAL;
 }
 
 void Window::Activate() {
@@ -193,56 +201,6 @@ void Window::ExecuteSystemMenuCommand(int command) {
 }
 
 // static
-bool Window::SaveWindowPositionToPrefService(PrefService* pref_service,
-                                             const std::wstring& entry,
-                                             const CRect& bounds,
-                                             bool maximized,
-                                             bool always_on_top) {
-  DCHECK(pref_service);
-  DictionaryValue* win_pref = pref_service->GetMutableDictionary(entry.c_str());
-  DCHECK(win_pref);
-
-  win_pref->SetInteger(L"left", bounds.left);
-  win_pref->SetInteger(L"top", bounds.top);
-  win_pref->SetInteger(L"right", bounds.right);
-  win_pref->SetInteger(L"bottom", bounds.bottom);
-  win_pref->SetBoolean(L"maximized", maximized);
-  win_pref->SetBoolean(L"always_on_top", always_on_top);
-  return true;
-}
-
-// static
-bool Window::RestoreWindowPositionFromPrefService(PrefService* pref_service,
-                                                  const std::wstring& entry,
-                                                  CRect* bounds,
-                                                  bool* maximized,
-                                                  bool* always_on_top) {
-  DCHECK(pref_service);
-  DCHECK(bounds);
-  DCHECK(maximized);
-  DCHECK(always_on_top);
-
-  const DictionaryValue* dictionary = pref_service->GetDictionary(entry.c_str());
-  if (!dictionary)
-    return false;
-
-  int left, top, right, bottom;
-  bool temp_maximized, temp_always_on_top;
-  if (!dictionary || !dictionary->GetInteger(L"left", &left) ||
-      !dictionary->GetInteger(L"top", &top) ||
-      !dictionary->GetInteger(L"right", &right) ||
-      !dictionary->GetInteger(L"bottom", &bottom) ||
-      !dictionary->GetBoolean(L"maximized", &temp_maximized) ||
-      !dictionary->GetBoolean(L"always_on_top", &temp_always_on_top))
-    return false;
-
-  bounds->SetRect(left, top, right, bottom);
-  *maximized = temp_maximized;
-  *always_on_top = temp_always_on_top;
-  return true;
-}
-
-// static
 gfx::Size Window::GetLocalizedContentsSize(int col_resource_id,
                                            int row_resource_id) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -312,9 +270,7 @@ void Window::Init(HWND parent, const gfx::Rect& bounds) {
 
   SetClientView(window_delegate_->CreateClientView(this));
   SetInitialBounds(bounds);
-
-  if (window_delegate_->HasAlwaysOnTopMenu())
-    AddAlwaysOnTopSystemMenuItem();
+  InitAlwaysOnTopState();
 }
 
 void Window::SetClientView(ClientView* client_view) {
@@ -513,35 +469,25 @@ void Window::SetInitialFocus() {
 
 void Window::SetInitialBounds(const gfx::Rect& create_bounds) {
   // Restore the window's placement from the controller.
-  CRect saved_bounds(create_bounds.ToRECT());
-  bool maximized = false;
-  if (window_delegate_->RestoreWindowPosition(&saved_bounds,
-                                              &maximized,
-                                              &is_always_on_top_)) {
+  gfx::Rect saved_bounds(create_bounds.ToRECT());
+  if (window_delegate_->GetSavedWindowBounds(&saved_bounds)) {
     // Make sure the bounds are at least the minimum size.
-    if (saved_bounds.Width() < minimum_size_.cx) {
-      saved_bounds.SetRect(saved_bounds.left, saved_bounds.top,
-                           saved_bounds.right + minimum_size_.cx -
-                              saved_bounds.Width(),
-                           saved_bounds.bottom);
+    if (saved_bounds.width() < minimum_size_.cx) {
+      saved_bounds.SetRect(saved_bounds.x(), saved_bounds.y(),
+                           saved_bounds.right() + minimum_size_.cx -
+                              saved_bounds.width(),
+                           saved_bounds.bottom());
     }
 
-    if (saved_bounds.Height() < minimum_size_.cy) {
-      saved_bounds.SetRect(saved_bounds.left, saved_bounds.top,
-                           saved_bounds.right,
-                           saved_bounds.bottom + minimum_size_.cy -
-                              saved_bounds.Height());
+    if (saved_bounds.height() < minimum_size_.cy) {
+      saved_bounds.SetRect(saved_bounds.x(), saved_bounds.y(),
+                           saved_bounds.right(),
+                           saved_bounds.bottom() + minimum_size_.cy -
+                              saved_bounds.height());
     }
 
-    WINDOWPLACEMENT placement = {0};
-    placement.length = sizeof(WINDOWPLACEMENT);
-    placement.rcNormalPosition = saved_bounds;
-    if (maximized)
-      placement.showCmd = SW_SHOWMAXIMIZED;
-    ::SetWindowPlacement(GetHWND(), &placement);
-
-    if (is_always_on_top_ != window_delegate_->IsAlwaysOnTop())
-      AlwaysOnTopChanged();
+    // "Show state" (maximized, minimized, etc) is handled by Show().
+    SetBounds(saved_bounds, NULL);
   } else {
     if (create_bounds.IsEmpty()) {
       // No initial bounds supplied, so size the window to its content and
@@ -552,6 +498,17 @@ void Window::SetInitialBounds(const gfx::Rect& create_bounds) {
       SetBounds(create_bounds);
     }
   }
+}
+
+void Window::InitAlwaysOnTopState() {
+  is_always_on_top_ = false;
+  if (window_delegate_->GetSavedAlwaysOnTopState(&is_always_on_top_) &&
+      is_always_on_top_ != window_delegate_->IsAlwaysOnTop()) {
+    AlwaysOnTopChanged();
+  }
+
+  if (window_delegate_->HasAlwaysOnTopMenu())
+    AddAlwaysOnTopSystemMenuItem();
 }
 
 void Window::AddAlwaysOnTopSystemMenuItem() {
@@ -643,9 +600,8 @@ void Window::SaveWindowPosition() {
 
   bool maximized = (win_placement.showCmd == SW_SHOWMAXIMIZED);
   CRect window_bounds(win_placement.rcNormalPosition);
-  window_delegate_->SaveWindowPosition(window_bounds,
-                                       maximized,
-                                       is_always_on_top_);
+  window_delegate_->SaveWindowPlacement(
+      gfx::Rect(win_placement.rcNormalPosition), maximized, is_always_on_top_);
 }
 
 void Window::InitClass() {

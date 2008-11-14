@@ -104,12 +104,12 @@ BrowserInit::MessageWindow::~MessageWindow() {
     DestroyWindow(window_);
 }
 
-bool BrowserInit::MessageWindow::NotifyOtherProcess(int show_cmd) {
+bool BrowserInit::MessageWindow::NotifyOtherProcess() {
   if (!remote_window_)
     return false;
 
   // Found another window, send our command line to it
-  // format is "START\0<<<current directory>>>\0<<<commandline>>>\0show_cmd".
+  // format is "START\0<<<current directory>>>\0<<<commandline>>>".
   std::wstring to_send(L"START\0", 6);  // want the NULL in the string.
   std::wstring cur_dir;
   if (!PathService::Get(base::DIR_CURRENT, &cur_dir))
@@ -118,22 +118,6 @@ bool BrowserInit::MessageWindow::NotifyOtherProcess(int show_cmd) {
   to_send.append(L"\0", 1);  // Null separator.
   to_send.append(GetCommandLineW());
   to_send.append(L"\0", 1);  // Null separator.
-
-  // Append the windows show_command flags.
-  if (show_cmd == SW_SHOWDEFAULT) {
-    // SW_SHOWDEFAULT makes no sense to the other process. We need to
-    // use the SW_ flag from OUR STARTUPUNFO;
-    STARTUPINFO startup_info = {0};
-    startup_info.cb = sizeof(startup_info);
-    GetStartupInfo(&startup_info);
-    show_cmd = startup_info.wShowWindow;
-    // In certain situations the window status above is returned as SW_HIDE.
-    // In such cases we need to fall back to a default case of SW_SHOWNORMAL
-    // so that user actually get to see the window.
-    if (show_cmd != SW_SHOWNORMAL && show_cmd != SW_SHOWMAXIMIZED)
-      show_cmd = SW_SHOWNORMAL;
-  }
-  StringAppendF(&to_send, L"%d", static_cast<uint8>(show_cmd));
 
   // Allow the current running browser window making itself the foreground
   // window (otherwise it will just flash in the taskbar).
@@ -266,15 +250,6 @@ LRESULT BrowserInit::MessageWindow::OnCopyData(HWND hwnd,
     const std::wstring cmd_line =
       msg.substr(second_null + 1, third_null - second_null);
 
-    // The last component is probably null terminated but we don't require it
-    // because everything here is based on counts.
-    std::wstring show_cmd_str = msg.substr(third_null + 1);
-    if (!show_cmd_str.empty() &&
-        show_cmd_str[show_cmd_str.length() - 1] == L'\0')
-      show_cmd_str.resize(cmd_line.length() - 1);
-
-    int show_cmd = _wtoi(show_cmd_str.c_str());
-
     CommandLine parsed_command_line(cmd_line);
     PrefService* prefs = g_browser_process->local_state();
     DCHECK(prefs);
@@ -289,8 +264,8 @@ LRESULT BrowserInit::MessageWindow::OnCopyData(HWND hwnd,
       NOTREACHED();
       return TRUE;
     }
-    ProcessCommandLine(parsed_command_line, cur_dir, prefs, show_cmd, false,
-                       profile, NULL);
+    ProcessCommandLine(parsed_command_line, cur_dir, prefs, false, profile,
+                       NULL);
     return TRUE;
   }
   return TRUE;
@@ -371,10 +346,8 @@ void BrowserInit::MessageWindow::HuntForZombieChromeProcesses() {
 // LaunchWithProfile ----------------------------------------------------------
 
 BrowserInit::LaunchWithProfile::LaunchWithProfile(const std::wstring& cur_dir,
-                                                  const std::wstring& cmd_line,
-                                                  int show_command)
+                                                  const std::wstring& cmd_line)
     : command_line_(cmd_line),
-      show_command_(show_command),
       cur_dir_(cur_dir) {
 }
 
@@ -384,22 +357,6 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
   profile_ = profile;
 
   CommandLine parsed_command_line(command_line_);
-  gfx::Rect start_position;
-
-  bool record_mode = parsed_command_line.HasSwitch(switches::kRecordMode);
-  bool playback_mode = parsed_command_line.HasSwitch(switches::kPlaybackMode);
-  if (record_mode || playback_mode) {
-    // In playback/record mode we always fix the size of the browser and
-    // move it to (0,0).  The reason for this is two reasons:  First we want
-    // resize/moves in the playback to still work, and Second we want
-    // playbacks to work (as much as possible) on machines w/ different
-    // screen sizes.
-    start_position_.set_height(800);
-    start_position_.set_width(600);
-    start_position_.set_x(0);
-    start_position_.set_y(0);
-  }
-
   if (parsed_command_line.HasSwitch(switches::kDnsLogDetails))
     chrome_browser_net::EnableDnsDetailedLog(true);
   if (parsed_command_line.HasSwitch(switches::kDnsPrefetchDisable))
@@ -475,6 +432,11 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     if (!parsed_command_line.HasSwitch(switches::kNoEvents)) {
       std::wstring script_path;
       PathService::Get(chrome::FILE_RECORDED_SCRIPT, &script_path);
+
+      bool record_mode = parsed_command_line.HasSwitch(switches::kRecordMode);
+      bool playback_mode =
+          parsed_command_line.HasSwitch(switches::kPlaybackMode);
+
       if (record_mode && chrome::kRecordModeEnabled)
         base::EventRecorder::current()->StartRecording(script_path);
       if (playback_mode)
@@ -482,11 +444,6 @@ bool BrowserInit::LaunchWithProfile::Launch(Profile* profile,
     }
   }
   return true;
-}
-
-Browser* BrowserInit::LaunchWithProfile::CreateTabbedBrowser() {
-  return new Browser(start_position_, show_command_, profile_,
-                     BrowserType::TABBED_BROWSER, std::wstring());
 }
 
 bool BrowserInit::LaunchWithProfile::OpenStartupURLs(
@@ -507,8 +464,8 @@ bool BrowserInit::LaunchWithProfile::OpenStartupURLs(
         // infobar.
         return false;
       }
-      SessionRestore::RestoreSessionSynchronously(
-          profile_, false, show_command_, urls_to_open);
+      SessionRestore::RestoreSessionSynchronously(profile_, false,  
+                                                  urls_to_open);
       return true;
 
     case SessionStartupPref::URLS:
@@ -533,7 +490,7 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
     const std::vector<GURL>& urls) {
   DCHECK(!urls.empty());
   if (!browser || browser->type() != BrowserType::TABBED_BROWSER)
-    browser = CreateTabbedBrowser();
+    browser = Browser::Create(profile_);
 
   for (size_t i = 0; i < urls.size(); ++i) {
     TabContents* tab = browser->AddTabWithURL(
@@ -541,7 +498,7 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
     if (i == 0 && process_startup)
       AddCrashedInfoBarIfNecessary(tab);
   }
-  browser->Show();
+  browser->window()->Show();
   return browser;
 }
 
@@ -592,8 +549,8 @@ std::vector<GURL> BrowserInit::LaunchWithProfile::GetURLsFromCommandLine(
 }
 
 bool BrowserInit::ProcessCommandLine(const CommandLine& parsed_command_line,
-    const std::wstring& cur_dir, PrefService* prefs, int show_command,
-    bool process_startup, Profile* profile, int* return_code) {
+    const std::wstring& cur_dir, PrefService* prefs, bool process_startup,
+    Profile* profile, int* return_code) {
   DCHECK(profile);
   if (process_startup) {
     const std::wstring popup_count_string =
@@ -655,19 +612,18 @@ bool BrowserInit::ProcessCommandLine(const CommandLine& parsed_command_line,
   // If we don't want to launch a new browser window or tab (in the case
   // of an automation request), we are done here.
   if (!silent_launch) {
-    return LaunchBrowser(parsed_command_line, profile, show_command, cur_dir,
+    return LaunchBrowser(parsed_command_line, profile, cur_dir,
                          process_startup, return_code);
   }
   return true;
 }
 
 bool BrowserInit::LaunchBrowser(const CommandLine& parsed_command_line,
-                                Profile* profile,
-                                int show_command, const std::wstring& cur_dir,
+                                Profile* profile, const std::wstring& cur_dir,
                                 bool process_startup, int* return_code) {
   in_startup = process_startup;
-  bool result = LaunchBrowserImpl(parsed_command_line, profile, show_command,
-                                  cur_dir, process_startup, return_code);
+  bool result = LaunchBrowserImpl(parsed_command_line, profile, cur_dir,
+                                  process_startup, return_code);
   in_startup = false;
   return result;
 }
@@ -689,7 +645,6 @@ void BrowserInit::CreateAutomationProvider(const std::wstring& channel_id,
 
 bool BrowserInit::LaunchBrowserImpl(const CommandLine& parsed_command_line,
                                     Profile* profile,
-                                    int show_command,
                                     const std::wstring& cur_dir,
                                     bool process_startup,
                                     int* return_code) {
@@ -710,12 +665,11 @@ bool BrowserInit::LaunchBrowserImpl(const CommandLine& parsed_command_line,
     if (url.SchemeIs("mailto"))
       url = GURL("about:blank");
 
-    WebAppLauncher::Launch(profile, url, show_command);
+    WebAppLauncher::Launch(profile, url);
     return true;
   }
 
-  LaunchWithProfile lwp(cur_dir, parsed_command_line.command_line_string(),
-                        show_command);
+  LaunchWithProfile lwp(cur_dir, parsed_command_line.command_line_string());
   bool launched = lwp.Launch(profile, process_startup);
   if (!launched) {
     LOG(ERROR) << "launch error";

@@ -1954,7 +1954,10 @@ void AutomationProvider::GetDownloadDirectory(const IPC::Message& message,
 void AutomationProvider::OpenNewBrowserWindow(int show_command) {
   // We may have no current browser windows open so don't rely on
   // asking an existing browser to execute the IDC_NEWWINDOW command
-  Browser::OpenNewBrowserWindow(profile_, show_command);
+  Browser* browser = Browser::Create(profile_);
+  browser->AddBlankTab(true);
+  if (show_command != SW_HIDE)
+    browser->window()->Show();
 }
 
 void AutomationProvider::GetWindowForBrowser(const IPC::Message& message,

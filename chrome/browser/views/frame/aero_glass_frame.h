@@ -24,7 +24,7 @@ class AeroGlassFrame : public BrowserFrame,
   explicit AeroGlassFrame(BrowserView* browser_view);
   virtual ~AeroGlassFrame();
 
-  void Init(const gfx::Rect& bounds);
+  void Init();
 
   // Determine the distance of the left edge of the minimize button from the
   // right edge of the window. Used in our Non-Client View's Layout.
@@ -38,12 +38,10 @@ class AeroGlassFrame : public BrowserFrame,
   virtual void UpdateThrobber(bool running);
   virtual views::Window* GetWindow();
 
+ protected:
   // Overridden from views::ContainerWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
-
- protected:
-  // Overridden from views::ContainerWin:
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);
   virtual void OnEndSession(BOOL ending, UINT logoff);
   virtual LRESULT OnMouseActivate(HWND window,
@@ -54,6 +52,9 @@ class AeroGlassFrame : public BrowserFrame,
   virtual LRESULT OnNCActivate(BOOL active);
   virtual LRESULT OnNCCalcSize(BOOL mode, LPARAM l_param);
   virtual LRESULT OnNCHitTest(const CPoint& pt);
+
+  // Overridden from views::CustomFrameWindow:
+  virtual int GetShowState() const;
 
  private:
   // Updates the DWM with the frame bounds.

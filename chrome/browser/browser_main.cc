@@ -259,7 +259,7 @@ void RecordBreakpadStatusUMA(MetricsService* metrics) {
 }  // namespace
 
 // Main routine for running as the Browser process.
-int BrowserMain(CommandLine &parsed_command_line, int show_command,
+int BrowserMain(CommandLine &parsed_command_line,
                 sandbox::BrokerServices* broker_services) {
   // WARNING: If we get a WM_ENDSESSION objects created on the stack here
   // are NOT deleted. If you need something to run during WM_ENDSESSION add it
@@ -421,7 +421,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
     return FirstRun::ImportNow(profile, parsed_command_line);
 
   // When another process is running, use it instead of starting us.
-  if (message_window.NotifyOtherProcess(show_command))
+  if (message_window.NotifyOtherProcess())
     return ResultCodes::NORMAL_EXIT;
 
   message_window.HuntForZombieChromeProcesses();
@@ -562,8 +562,7 @@ int BrowserMain(CommandLine &parsed_command_line, int show_command,
 
   int result_code = ResultCodes::NORMAL_EXIT;
   if (BrowserInit::ProcessCommandLine(parsed_command_line, L"", local_state,
-                                      show_command, true, profile,
-                                      &result_code)) {
+                                      true, profile, &result_code)) {
     MessageLoopForUI::current()->Run(browser_process->accelerator_handler());
   }
 

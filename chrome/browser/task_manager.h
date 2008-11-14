@@ -130,12 +130,7 @@ class TaskManager : public views::DialogDelegate {
   virtual bool IsAlwaysOnTop() const;
   virtual bool HasAlwaysOnTopMenu() const;
   virtual std::wstring GetWindowTitle() const;
-  virtual void SaveWindowPosition(const CRect& bounds,
-                                  bool maximized,
-                                  bool always_on_top);
-  virtual bool RestoreWindowPosition(CRect* bounds,
-                                     bool* maximized,
-                                     bool* always_on_top);
+  virtual std::wstring GetWindowName() const;
   virtual int GetDialogButtons() const;
   virtual void WindowClosing();
   virtual views::View* GetContentsView();

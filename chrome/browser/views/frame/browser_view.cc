@@ -123,6 +123,14 @@ BrowserView::~BrowserView() {
   ticker_.UnregisterTickHandler(&hung_window_detector_);
 }
 
+int BrowserView::GetShowState() const {
+  STARTUPINFO si = {0};
+  si.cb = sizeof(si);
+  si.dwFlags = STARTF_USESHOWWINDOW;
+  GetStartupInfo(&si);
+  return si.wShowWindow;
+}
+
 void BrowserView::WindowMoved() {
   // Cancel any tabstrip animations, some of them may be invalidated by the
   // window being repositioned.
@@ -320,8 +328,31 @@ void BrowserView::Init() {
   InitSystemMenu();
 }
 
-void BrowserView::Show(int command, bool adjust_to_fit) {
-  frame_->GetWindow()->Show(command);
+void BrowserView::Show() {
+  // If the window is already visible, just activate it.
+  if (frame_->GetWindow()->IsVisible()) {
+    frame_->GetWindow()->Activate();
+    return;
+  }
+
+  // Setting the focus doesn't work when the window is invisible, so any focus
+  // initialization that happened before this will be lost.
+  //
+  // We really "should" restore the focus whenever the window becomes unhidden,
+  // but I think initializing is the only time where this can happen where
+  // there is some focus change we need to pick up, and this is easier than
+  // plumbing through an un-hide message all the way from the frame.
+  //
+  // If we do find there are cases where we need to restore the focus on show,
+  // that should be added and this should be removed.
+  TabContents* selected_tab_contents = GetSelectedTabContents();
+  if (selected_tab_contents)
+    selected_tab_contents->RestoreFocus();
+
+  frame_->GetWindow()->Show();
+  int show_state = frame_->GetWindow()->GetShowState();
+  if (show_state == SW_SHOWNORMAL || show_state == SW_SHOWMAXIMIZED)
+    frame_->GetWindow()->Activate();
 }
 
 void BrowserView::Close() {
@@ -378,7 +409,7 @@ void BrowserView::ValidateThrobber() {
   }
 }
 
-gfx::Rect BrowserView::GetNormalBounds() {
+gfx::Rect BrowserView::GetNormalBounds() const {
   WINDOWPLACEMENT wp;
   wp.length = sizeof(wp);
   const bool ret = !!GetWindowPlacement(frame_->GetWindow()->GetHWND(), &wp);
@@ -562,18 +593,13 @@ bool BrowserView::ExecuteWindowsCommand(int command_id) {
   return false;
 }
 
-void BrowserView::SaveWindowPosition(const CRect& bounds,
-                                     bool maximized,
-                                     bool always_on_top) {
-  browser_->SaveWindowPosition(gfx::Rect(bounds), maximized);
+void BrowserView::SaveWindowPlacement(const gfx::Rect& bounds,
+                                      bool maximized,
+                                      bool always_on_top) {
+  browser_->SaveWindowPlacement(bounds, maximized);
 }
 
-bool BrowserView::RestoreWindowPosition(CRect* bounds,
-                                        bool* maximized,
-                                        bool* always_on_top) {
-  DCHECK(bounds && maximized && always_on_top);
-  *always_on_top = false;
-
+bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
   if (browser_->type() == BrowserType::BROWSER) {
     // We are a popup window. The value passed in |bounds| represents two
     // pieces of information:
@@ -587,12 +613,12 @@ bool BrowserView::RestoreWindowPosition(CRect* bounds,
       // its desired height, since the toolbar is considered part of the
       // window's client area as far as GetWindowBoundsForClientBounds is
       // concerned...
-      bounds->bottom += toolbar_->GetPreferredSize().height();
+      bounds->set_height(
+          bounds->height() + toolbar_->GetPreferredSize().height());
     }
 
-    gfx::Rect window_rect =
-        frame_->GetWindowBoundsForClientBounds(gfx::Rect(*bounds));
-    window_rect.set_origin(gfx::Point(bounds->left, bounds->top));
+    gfx::Rect window_rect = frame_->GetWindowBoundsForClientBounds(*bounds);
+    window_rect.set_origin(gfx::Point(bounds->x(), bounds->y()));
 
     // When we are given x/y coordinates of 0 on a created popup window,
     // assume none were given by the window.open() command.
@@ -603,19 +629,20 @@ bool BrowserView::RestoreWindowPosition(CRect* bounds,
       window_rect.set_origin(origin);
     }
 
-    *bounds = window_rect.ToRECT();
-    *maximized = false;
+    *bounds = window_rect;
   } else {
-    // TODO(beng): (http://b/1317622) Make these functions take gfx::Rects.
-    gfx::Rect b(*bounds);
-    browser_->RestoreWindowPosition(&b, maximized);
-    *bounds = b.ToRECT();
+    *bounds = browser_->GetSavedWindowBounds();
   }
 
   // We return true because we can _always_ locate reasonable bounds using the
   // WindowSizer, and we don't want to trigger the Window's built-in "size to
   // default" handling because the browser window has no default preferred
   // size.
+  return true;
+}
+
+bool BrowserView::GetSavedMaximizedState(bool* maximized) const {
+  *maximized = browser_->GetSavedMaximizedState();
   return true;
 }
 

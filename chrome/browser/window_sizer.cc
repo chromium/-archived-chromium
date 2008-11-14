@@ -204,7 +204,6 @@ void WindowSizer::DetermineWindowBounds(const gfx::Rect& specified_bounds,
   *bounds = specified_bounds;
   if (bounds->IsEmpty()) {
     // See if there's saved placement information.
-    *maximized = false;  // Default off; GetSavedWindowBounds() may set this.
     if (!GetLastWindowBounds(bounds)) {
       if (!GetSavedWindowBounds(bounds, maximized)) {
         // No saved placement, figure out some sensible default size based on

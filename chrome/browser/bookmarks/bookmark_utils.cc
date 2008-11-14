@@ -35,7 +35,7 @@ class NewBrowserPageNavigator : public PageNavigator {
 
   virtual ~NewBrowserPageNavigator() {
     if (browser_)
-      browser_->Show();
+      browser_->window()->Show();
   }
 
   Browser* browser() const { return browser_; }
@@ -47,8 +47,7 @@ class NewBrowserPageNavigator : public PageNavigator {
     if (!browser_) {
       Profile* profile = (disposition == OFF_THE_RECORD) ?
           profile_->GetOffTheRecordProfile() : profile_;
-      browser_ = new Browser(gfx::Rect(), SW_SHOW, profile,
-                             BrowserType::TABBED_BROWSER, std::wstring());
+      browser_ = Browser::Create(profile);
       // Always open the first tab in the foreground.
       disposition = NEW_FOREGROUND_TAB;
     }

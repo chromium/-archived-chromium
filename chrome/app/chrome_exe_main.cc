@@ -20,7 +20,7 @@
 #include "sandbox/src/dep.h"
 
 int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
-                      wchar_t* command_line, int show_command) {
+                      wchar_t* command_line, int) {
   process_util::EnableTerminationOnHeapCorruption();
 
   // The exit manager is in charge of calling the dtors of singletons.
@@ -62,8 +62,8 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   }
 
   int ret = 0;
-  if (client.Launch(instance, &sandbox_info, command_line, show_command,
-      "ChromeMain", &ret)) {
+  if (client.Launch(instance, &sandbox_info, command_line, "ChromeMain",
+                    &ret)) {
     return ret;
   }
 #else
@@ -90,7 +90,7 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
     client_util::DLL_MAIN entry = reinterpret_cast<client_util::DLL_MAIN>(
         ::GetProcAddress(dll_handle, "ChromeMain"));
     if (NULL != entry)
-      return (entry)(instance, &sandbox_info, command_line, show_command);
+      return (entry)(instance, &sandbox_info, command_line);
   }
 #endif
 

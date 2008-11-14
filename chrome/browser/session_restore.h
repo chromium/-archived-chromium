@@ -42,7 +42,6 @@ class SessionRestore {
   static void RestoreSessionSynchronously(
       Profile* profile,
       bool use_saved_session,
-      int show_command,
       const std::vector<GURL>& urls_to_open);
 
   // The max number of non-selected tabs SessionRestore loads when restoring

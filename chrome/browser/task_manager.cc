@@ -1062,21 +1062,8 @@ std::wstring TaskManager::GetWindowTitle() const {
   return l10n_util::GetString(IDS_TASK_MANAGER_TITLE);
 }
 
-void TaskManager::SaveWindowPosition(const CRect& bounds,
-                                     bool maximized,
-                                     bool always_on_top) {
-  window()->SaveWindowPositionToPrefService(g_browser_process->local_state(),
-                                            prefs::kTaskManagerWindowPlacement,
-                                            bounds, maximized, always_on_top);
-}
-
-bool TaskManager::RestoreWindowPosition(CRect* bounds,
-                                        bool* maximized,
-                                        bool* always_on_top) {
-  return window()->RestoreWindowPositionFromPrefService(
-      g_browser_process->local_state(),
-      prefs::kTaskManagerWindowPlacement,
-      bounds, maximized, always_on_top);
+std::wstring TaskManager::GetWindowName() const {
+  return prefs::kTaskManagerWindowPlacement;
 }
 
 int TaskManager::GetDialogButtons() const {

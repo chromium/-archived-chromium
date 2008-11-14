@@ -8,6 +8,7 @@
 #include "chrome/browser/controller.h"
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/browser_type.h"
+#include "chrome/browser/browser_window.h"
 #include "chrome/browser/session_id.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -24,7 +25,6 @@ class PrefService;
 class Profile;
 class StatusBubble;
 struct TabNavigation;
-class WebContents;
 class WebApp;
 
 class Browser : public TabStripModelDelegate,
@@ -36,27 +36,35 @@ class Browser : public TabStripModelDelegate,
  public:
   // Constructors, Creation, Showing //////////////////////////////////////////
 
-  // Creates a new browser with the given bounds. If the bounds are empty, the
-  // system will try to find a saved size from a previous session, if none
-  // exists, the operating system will be allowed to size the window.
-  // |type| defines the kind of browser to create.
-  //
-  // Creating a browser does NOT show the window. You must manually call Show()
-  // to display the window.
-  Browser(const gfx::Rect& initial_bounds,
-          int show_command,
-          Profile* profile,
-          BrowserType::Type browser_type,
-          const std::wstring& app_name);
+  // Creates a new browser of the given |type| and for the given |profile|. The
+  // Browser has a NULL window after its construction, CreateBrowserWindow must
+  // be called after configuration for window() to be valid.
+  Browser(BrowserType::Type type, Profile* profile);
   ~Browser();
 
-  // Shows the browser window. It is initially created hidden. It will be shown
-  // with the show command passed to the constructor, or possibly another state
-  // if it was overridden in the preferences.
-  //
-  // Ideally, this function is called after everything in the window is
-  // initialized so that we do not have to repaint again.
-  void Show();
+  // Creates a normal tabbed browser with the specified profile. The Browser's
+  // window is created by this function call.
+  static Browser* Create(Profile* profile);
+
+  // Like Create, but creates a tabstrip-less popup window.
+  static Browser* CreateForPopup(Profile* profile);
+
+  // Like Create, but creates a tabstrip-less and toolbar-less "app" window for
+  // the specified app.
+  static Browser* CreateForApp(const std::wstring& app_name, Profile* profile);
+
+  // Set overrides for the initial window bounds and maximized state.
+  void set_override_bounds(const gfx::Rect& bounds) {
+    override_bounds_ = bounds;
+  }
+  void set_override_maximized(bool maximized) {
+    override_maximized_ = maximized;
+  }
+
+  // Creates the Browser Window. Prefer to use the static helpers above where
+  // possible. This does not show the window. You need to call window()->Show()
+  // to show it.
+  void CreateBrowserWindow();
 
   // Accessors ////////////////////////////////////////////////////////////////
 
@@ -69,9 +77,8 @@ class Browser : public TabStripModelDelegate,
 
   // Browser Creation Helpers /////////////////////////////////////////////////
 
-  // Opens a new browser window for the specified |profile|, shown according to
-  // |show_command|
-  static void OpenNewBrowserWindow(Profile* profile, int show_command);
+  // Opens a new window with the default blank tab.
+  static void OpenEmptyWindow(Profile* profile);
 
   // Opens the specified URL in a new browser window in an incognito session.
   // If there is already an existing active incognito session for the specified
@@ -79,9 +86,7 @@ class Browser : public TabStripModelDelegate,
   static void OpenURLOffTheRecord(Profile* profile, const GURL& url);
 
   // Opens the a new application window for the specified WebApp.
-  static void OpenWebApplication(Profile* profile,
-                                 WebApp* app,
-                                 int show_command);
+  static void OpenWebApplication(Profile* profile, WebApp* app);
 
   // Command API //////////////////////////////////////////////////////////////
 
@@ -98,8 +103,9 @@ class Browser : public TabStripModelDelegate,
   // State Storage and Retrieval for UI ///////////////////////////////////////
 
   // Save and restore the window position.
-  void SaveWindowPosition(const gfx::Rect& bounds, bool maximized);
-  void RestoreWindowPosition(gfx::Rect* bounds, bool* maximized);
+  void SaveWindowPlacement(const gfx::Rect& bounds, bool maximized);
+  gfx::Rect GetSavedWindowBounds() const;
+  bool GetSavedMaximizedState() const;
 
   // Gets the FavIcon of the page in the selected tab.
   SkBitmap GetCurrentPageIcon() const;
@@ -288,14 +294,12 @@ class Browser : public TabStripModelDelegate,
   virtual void ExecuteCommand(int id);
 
   // Overridden from TabStripModelDelegate:
+  virtual GURL GetBlankTabURL() const;
   virtual void CreateNewStripWithContents(TabContents* detached_contents,
                                           const gfx::Point& drop_point);
   virtual int GetDragActions() const;
   // Construct a TabContents for a given URL, profile and transition type.
   // If instance is not null, its process will be used to render the tab.
-  // TODO(beng): remove this from TabStripDelegate, it's only used by
-  //             TabStripModel::AddBlankTab*, which should really live here
-  //             on Browser.
   virtual TabContents* CreateTabContentsForURL(
       const GURL& url,
       const GURL& referrer,
@@ -499,16 +503,6 @@ class Browser : public TabStripModelDelegate,
   // This Browser's window.
   BrowserWindow* window_;
 
-  // Controls how the window will appear when Show() is called. This is one
-  // of the SW_* constants passed to ShowWindow, and will be initialized in the
-  // constructor.
-  //
-  // After the first call to Show() succeeds, this is set to -1, indicating that
-  // subsequent calls to Show() should be ignored.
-  // TODO(beng): This should be removed (http://crbug.com/3557) and put into
-  //             BrowserView, or some more likely place.
-  int initial_show_command_;
-
   // This Browser's TabStripModel.
   TabStripModel tabstrip_model_;
 
@@ -574,6 +568,14 @@ class Browser : public TabStripModelDelegate,
   bool is_attempting_to_close_browser_;
 
   /////////////////////////////////////////////////////////////////////////////
+
+  // Override values for the bounds of the window and its maximized state.
+  // These are supplied by callers that don't want to use the default values.
+  // The default values are typically loaded from local state (last session),
+  // obtained from the last window of the same type, or obtained from the
+  // shell shortcut's startup info.
+  gfx::Rect override_bounds_;
+  bool override_maximized_;
 
   // The following factory is used to close the frame at a later time.
   ScopedRunnableMethodFactory<Browser> method_factory_;

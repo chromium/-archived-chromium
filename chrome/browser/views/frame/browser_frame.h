@@ -56,9 +56,7 @@ class BrowserFrame {
   // Creates a BrowserFrame instance for the specified FrameType and
   // BrowserView.
   static BrowserFrame* CreateForBrowserView(FrameType type,
-                                            BrowserView* browser_view,
-                                            const gfx::Rect& bounds,
-                                            int show_command);
+                                            BrowserView* browser_view);
 
 };
 

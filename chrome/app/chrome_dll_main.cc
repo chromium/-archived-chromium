@@ -25,9 +25,9 @@
 #include "sandbox/src/sandbox.h"
 #include "tools/memory_watcher/memory_watcher.h"
 
-extern int BrowserMain(CommandLine &, int, sandbox::BrokerServices*);
-extern int RendererMain(CommandLine &, int, sandbox::TargetServices*);
-extern int PluginMain(CommandLine &, int, sandbox::TargetServices*);
+extern int BrowserMain(CommandLine&, sandbox::BrokerServices*);
+extern int RendererMain(CommandLine&, sandbox::TargetServices*);
+extern int PluginMain(CommandLine&, sandbox::TargetServices*);
 
 // TODO(erikkay): isn't this already defined somewhere?
 #define DLLEXPORT __declspec(dllexport)
@@ -36,7 +36,7 @@ extern int PluginMain(CommandLine &, int, sandbox::TargetServices*);
 extern "C" {
 DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
                                  sandbox::SandboxInterfaceInfo* sandbox_info,
-                                 TCHAR* command_line, int show_command);
+                                 TCHAR* command_line);
 }
 
 namespace {
@@ -90,7 +90,7 @@ void ChromeAssert(const std::string& str) {
 
 DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
                                  sandbox::SandboxInterfaceInfo* sandbox_info,
-                                 TCHAR* command_line, int show_command) {
+                                 TCHAR* command_line) {
   // Register the invalid param handler and pure call handler to be able to
   // notify breakpad when it happens.
   _set_invalid_parameter_handler(InvalidParameter);
@@ -215,13 +215,13 @@ DLLEXPORT int __cdecl ChromeMain(HINSTANCE instance,
 
   int rv;
   if (process_type == switches::kRendererProcess) {
-    rv = RendererMain(parsed_command_line, show_command, target_services);
+    rv = RendererMain(parsed_command_line, target_services);
   } else if (process_type == switches::kPluginProcess) {
-    rv = PluginMain(parsed_command_line, show_command, target_services);
+    rv = PluginMain(parsed_command_line, target_services);
   } else if (process_type.empty()) {
     int ole_result = OleInitialize(NULL);
     DCHECK(ole_result == S_OK);
-    rv = BrowserMain(parsed_command_line, show_command, broker_services);
+    rv = BrowserMain(parsed_command_line, broker_services);
     OleUninitialize();
   } else {
     NOTREACHED() << "Unknown process type";
