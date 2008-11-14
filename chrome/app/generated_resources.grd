@@ -11,6 +11,7 @@ each locale. -->
     </output>
     <output filename="generated_resources_ar.rc" type="rc_all" lang="ar" />
     <output filename="generated_resources_bg.rc" type="rc_all" lang="bg" />
+    <output filename="generated_resources_bn.rc" type="rc_all" lang="bn" />
     <output filename="generated_resources_ca.rc" type="rc_all" lang="ca" />
     <output filename="generated_resources_cs.rc" type="rc_all" lang="cs" />
     <output filename="generated_resources_da.rc" type="rc_all" lang="da" />
@@ -24,6 +25,7 @@ each locale. -->
     <output filename="generated_resources_fi.rc" type="rc_all" lang="fi" />
     <output filename="generated_resources_fil.rc" type="rc_all" lang="fil" />
     <output filename="generated_resources_fr.rc" type="rc_all" lang="fr" />
+    <output filename="generated_resources_gu.rc" type="rc_all" lang="gu" />
     <output filename="generated_resources_he.rc" type="rc_all" lang="he" />
     <output filename="generated_resources_hi.rc" type="rc_all" lang="hi" />
     <output filename="generated_resources_hr.rc" type="rc_all" lang="hr" />
@@ -31,13 +33,17 @@ each locale. -->
     <output filename="generated_resources_id.rc" type="rc_all" lang="id" />
     <output filename="generated_resources_it.rc" type="rc_all" lang="it" />
     <output filename="generated_resources_ja.rc" type="rc_all" lang="ja" />
+    <output filename="generated_resources_kn.rc" type="rc_all" lang="kn" />
     <output filename="generated_resources_ko.rc" type="rc_all" lang="ko" />
     <output filename="generated_resources_lt.rc" type="rc_all" lang="lt" />
     <output filename="generated_resources_lv.rc" type="rc_all" lang="lv" />
+    <output filename="generated_resources_ml.rc" type="rc_all" lang="ml" />
+    <output filename="generated_resources_mr.rc" type="rc_all" lang="mr" />
     <output filename="generated_resources_nl.rc" type="rc_all" lang="nl" />
     <!-- The translation console uses 'no' for Norwegian Bokmål. It should
          be 'nb'. -->
     <output filename="generated_resources_nb.rc" type="rc_all" lang="no" />
+    <output filename="generated_resources_or.rc" type="rc_all" lang="or" />
     <output filename="generated_resources_pl.rc" type="rc_all" lang="pl" />
     <output filename="generated_resources_pt-BR.rc" type="rc_all" lang="pt-BR" />
     <output filename="generated_resources_pt-PT.rc" type="rc_all" lang="pt-PT" />
@@ -47,6 +53,8 @@ each locale. -->
     <output filename="generated_resources_sl.rc" type="rc_all" lang="sl" />
     <output filename="generated_resources_sr.rc" type="rc_all" lang="sr" />
     <output filename="generated_resources_sv.rc" type="rc_all" lang="sv" />
+    <output filename="generated_resources_ta.rc" type="rc_all" lang="ta" />
+    <output filename="generated_resources_te.rc" type="rc_all" lang="te" />
     <output filename="generated_resources_th.rc" type="rc_all" lang="th" />
     <output filename="generated_resources_tr.rc" type="rc_all" lang="tr" />
     <output filename="generated_resources_uk.rc" type="rc_all" lang="uk" />

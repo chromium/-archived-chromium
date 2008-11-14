@@ -11,6 +11,7 @@ be available for now. -->
     </output>
     <output filename="chromium_strings_ar.rc" type="rc_all" lang="ar" />
     <output filename="chromium_strings_bg.rc" type="rc_all" lang="bg" />
+    <output filename="chromium_strings_bn.rc" type="rc_all" lang="bn" />
     <output filename="chromium_strings_ca.rc" type="rc_all" lang="ca" />
     <output filename="chromium_strings_cs.rc" type="rc_all" lang="cs" />
     <output filename="chromium_strings_da.rc" type="rc_all" lang="da" />
@@ -24,6 +25,7 @@ be available for now. -->
     <output filename="chromium_strings_fi.rc" type="rc_all" lang="fi" />
     <output filename="chromium_strings_fil.rc" type="rc_all" lang="fil" />
     <output filename="chromium_strings_fr.rc" type="rc_all" lang="fr" />
+    <output filename="chromium_strings_gu.rc" type="rc_all" lang="gu" />
     <output filename="chromium_strings_he.rc" type="rc_all" lang="he" />
     <output filename="chromium_strings_hi.rc" type="rc_all" lang="hi" />
     <output filename="chromium_strings_hr.rc" type="rc_all" lang="hr" />
@@ -31,12 +33,16 @@ be available for now. -->
     <output filename="chromium_strings_id.rc" type="rc_all" lang="id" />
     <output filename="chromium_strings_it.rc" type="rc_all" lang="it" />
     <output filename="chromium_strings_ja.rc" type="rc_all" lang="ja" />
+    <output filename="chromium_strings_kn.rc" type="rc_all" lang="kn" />
     <output filename="chromium_strings_ko.rc" type="rc_all" lang="ko" />
     <output filename="chromium_strings_lt.rc" type="rc_all" lang="lt" />
     <output filename="chromium_strings_lv.rc" type="rc_all" lang="lv" />
+    <output filename="chromium_strings_ml.rc" type="rc_all" lang="ml" />
+    <output filename="chromium_strings_mr.rc" type="rc_all" lang="mr" />
     <output filename="chromium_strings_nl.rc" type="rc_all" lang="nl" />
     <output filename="chromium_strings_nb.rc" type="rc_all" lang="no" />
     <!-- 'no' for Norwegian Bokmål. It should be 'nb'. -->
+    <output filename="chromium_strings_or.rc" type="rc_all" lang="or" />
     <output filename="chromium_strings_pl.rc" type="rc_all" lang="pl" />
     <output filename="chromium_strings_pt-BR.rc" type="rc_all" lang="pt-BR" />
     <output filename="chromium_strings_pt-PT.rc" type="rc_all" lang="pt-PT" />
@@ -46,6 +52,8 @@ be available for now. -->
     <output filename="chromium_strings_sl.rc" type="rc_all" lang="sl" />
     <output filename="chromium_strings_sr.rc" type="rc_all" lang="sr" />
     <output filename="chromium_strings_sv.rc" type="rc_all" lang="sv" />
+    <output filename="chromium_strings_ta.rc" type="rc_all" lang="ta" />
+    <output filename="chromium_strings_te.rc" type="rc_all" lang="te" />
     <output filename="chromium_strings_th.rc" type="rc_all" lang="th" />
     <output filename="chromium_strings_tr.rc" type="rc_all" lang="tr" />
     <output filename="chromium_strings_uk.rc" type="rc_all" lang="uk" />
