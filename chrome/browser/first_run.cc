@@ -169,6 +169,8 @@ bool FirstRun::ProcessMasterPreferences(
   if (!(parse_result & installer_util::MASTER_PROFILE_NO_FIRST_RUN_UI))
     return true;
 
+  // From here on we won't show first run so we need to do the work to set the
+  // required state given that FirstRunView is not going to be called.
   FirstRun::SetShowFirstRunBubblePref();
 
   if (parse_result & installer_util::MASTER_PROFILE_SHOW_WELCOME)
@@ -187,6 +189,8 @@ bool FirstRun::ProcessMasterPreferences(
       LOG(WARNING) << "silent import failed";
     }
   }
+
+  FirstRun::CreateSentinel();
   return false;
 }
 
