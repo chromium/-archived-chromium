@@ -21,7 +21,7 @@ deps = {
     "http://v8.googlecode.com/svn/trunk@696",
 
   "src/webkit/data/layout_tests/LayoutTests":
-    "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@38305",
+    "http://svn.webkit.org/repository/webkit/trunk/LayoutTests@38376",
 }
 
 
