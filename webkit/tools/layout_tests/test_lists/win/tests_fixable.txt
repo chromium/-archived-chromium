@@ -220,6 +220,11 @@ LayoutTests/editing/selection/drag-in-iframe.html = FAIL
 // which depends on that functionality.  So we ignore this for beta.
 LayoutTests/plugins/netscape-enumerate.html = FAIL
 
+// This tests the screen's pixel depth, which we don't set on the buildbots
+// so it depends on the users settings.  Making this a broken test for us.
+// The test must be fixed to not depend on user settings and rebaselined.  post-beta.
+LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL
+
 // Bug: 849060
 // Plugin creation is delayed until after first layout, so
 // setwindow isn't being called.
