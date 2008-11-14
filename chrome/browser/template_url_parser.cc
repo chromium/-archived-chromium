@@ -93,12 +93,12 @@ class ParsingContext {
 
   ParsingContext(TemplateURLParser::ParameterFilter* parameter_filter,
                  TemplateURL* url)
-      : parameter_filter_(parameter_filter),
-        url_(url),
-        is_suggest_url_(false),
-        derive_image_from_url_(false),
+      : url_(url),
+        parameter_filter_(parameter_filter),
         method_(GET),
-        suggestion_method_(GET) {
+        suggestion_method_(GET),
+        is_suggest_url_(false),
+        derive_image_from_url_(false) {
     if (kElementNameToElementTypeMap == NULL)
       InitMapping();
   }
@@ -145,7 +145,7 @@ class ParsingContext {
 
   void SetImageURL(const std::wstring& url) {
     if (current_image_.get()) {
-      current_image_->url = GURL(url);
+      current_image_->url = GURL(WideToUTF8(url));
       url_->add_image_ref(*current_image_);
       current_image_.reset();
     }
@@ -197,7 +197,7 @@ class ParsingContext {
   void DeriveImageFromURL() {
     if (derive_image_from_url_ &&
         url_->GetFavIconURL().is_empty() && url_->url()) {
-      GURL url(url_->url()->url());  // More url's please...
+      GURL url(WideToUTF8(url_->url()->url()));  // More url's please...
       url_->SetFavIconURL(TemplateURL::GenerateFaviconURL(url));
     }
   }
@@ -310,9 +310,9 @@ void ParseURL(const xmlChar** atts, ParsingContext* context) {
     } else if (name == kURLTemplateAttribute) {
       template_url = XMLCharToWide(value);
     } else if (name == kURLIndexOffsetAttribute) {
-      index_offset = std::max(1, _wtoi(XMLCharToWide(value).c_str()));
+      index_offset = std::max(1, StringToInt(XMLCharToWide(value)));
     } else if (name == kURLPageOffsetAttribute) {
-      page_offset = std::max(1, _wtoi(XMLCharToWide(value).c_str()));
+      page_offset = std::max(1, StringToInt(XMLCharToWide(value)));
     } else if (name == kParamMethodAttribute) {
       is_post = LowerCaseEqualsASCII(XMLCharToString(value), "post");
     }
@@ -345,9 +345,9 @@ void ParseImage(const xmlChar** atts, ParsingContext* context) {
     if (name == kImageTypeAttribute) {
       type = XMLCharToWide(value);
     } else if (name == kImageWidthAttribute) {
-      width = _wtoi(XMLCharToWide(value).c_str());
+      width = StringToInt(XMLCharToWide(value));
     } else if (name == kImageHeightAttribute) {
-      height = _wtoi(XMLCharToWide(value).c_str());
+      height = StringToInt(XMLCharToWide(value));
     }
     attributes += 2;
   }
@@ -401,7 +401,7 @@ void ProcessURLParams(ParsingContext* context) {
   if (!context->parameter_filter() && context->extra_params().empty())
     return;
 
-  GURL url(t_url_ref->url());
+  GURL url(WideToUTF8(t_url_ref->url()));
   // If there is a parameter filter, parse the existing URL and remove any
   // unwanted parameter.
   TemplateURLParser::ParameterFilter* filter = context->parameter_filter();
@@ -481,7 +481,7 @@ void EndElementImpl(void *ctx, const xmlChar *name) {
       context->template_url()->set_description(context->GetString());
       break;
     case ParsingContext::IMAGE: {
-      GURL image_url(context->GetString());
+      GURL image_url(WideToUTF8(context->GetString()));
       if (image_url.SchemeIs("data")) {
         // TODO (jcampan): bug 1169256: when dealing with data URL, we need to
         // decode the data URL in the renderer. For now, we'll just point to the
@@ -522,7 +522,7 @@ void CharactersImpl(void *ctx, const xmlChar *ch, int len) {
 bool IsHTTPRef(const TemplateURLRef* ref) {
   if (ref == NULL)
     return true;
-  GURL url(ref->url());
+  GURL url(WideToUTF8(ref->url()));
   return (url.is_valid() && (url.SchemeIs("http") || url.SchemeIs("https")));
 }
 

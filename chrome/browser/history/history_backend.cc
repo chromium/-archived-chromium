@@ -6,6 +6,7 @@
 
 #include <set>
 
+#include "base/compiler_specific.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
@@ -77,32 +78,6 @@ static const int kMaxRedirectCount = 32;
 // The number of days old a history entry can be before it is considered "old"
 // and is archived.
 static const int kArchiveDaysThreshold = 90;
-
-// Comparison used when inserting entries into visits vector.
-static bool VisitOccursAfter(const PageVisit& elem1,
-                              const PageVisit& elem2) {
-  return elem1.visit_time > elem2.visit_time;
-}
-
-static bool IsMatchingHost(const URLRow& row,
-                           const std::string& host_name) {
-  const GURL& url = row.url();
-  if (!url.is_valid() || !url.IsStandard())
-    return false;
-
-  const std::string& spec = url.spec();
-  url_parse::Parsed parsed = url.parsed_for_possibly_invalid_spec();
-  if (!parsed.host.is_nonempty())
-    return false;  // Empty host.
-
-  if (parsed.host.len != host_name.size())
-    return false;  // Hosts are different lengths, can not match.
-
-  // TODO(brettw) we may want to also match hosts ending with a period, since
-  // these will typically be the same.
-  return strncmp(&spec[parsed.host.begin], host_name.c_str(),
-                 host_name.size()) == 0;
-}
 
 // This task is run on a timer so that commits happen at regular intervals
 // so they are batched together. The important thing about this class is that
@@ -195,10 +170,9 @@ HistoryBackend::HistoryBackend(const std::wstring& history_dir,
                                BookmarkService* bookmark_service)
     : delegate_(delegate),
       history_dir_(history_dir),
-#pragma warning(suppress: 4355)  // OK to pass "this" here.
-      expirer_(this, bookmark_service),
-      backend_destroy_message_loop_(NULL),
+      ALLOW_THIS_IN_INITIALIZER_LIST(expirer_(this, bookmark_service)),
       recent_redirects_(kMaxRedirectCount),
+      backend_destroy_message_loop_(NULL),
       backend_destroy_task_(NULL),
       segment_queried_(false),
       bookmark_service_(bookmark_service) {
@@ -620,7 +594,6 @@ std::pair<URLID, VisitID> HistoryBackend::AddPageVisit(
     // Update of an existing row.
     if (PageTransition::StripQualifier(transition) != PageTransition::RELOAD)
       url_info.set_visit_count(url_info.visit_count() + 1);
-    int old_typed_count = url_info.typed_count();
     if (typed_increment)
       url_info.set_typed_count(url_info.typed_count() + typed_increment);
     url_info.set_last_visit(time);

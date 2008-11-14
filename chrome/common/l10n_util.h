@@ -8,7 +8,11 @@
 #ifndef CHROME_COMMON_L10N_UTIL_H_
 #define CHROME_COMMON_L10N_UTIL_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <windows.h>
+#endif
 #include <string>
 #include <vector>
 
@@ -154,11 +158,13 @@ int GetExtendedTooltipStyles();
 // ChromeCanvas::TEXT_ALIGN_RIGHT.
 int DefaultCanvasTextAlignment();
 
+#if defined(OS_WIN)
 // Give an HWND, this function sets the WS_EX_LAYOUTRTL extended style for the
 // underlying window. When this style is set, the UI for the window is going to
 // be mirrored. This is generally done for the UI of right-to-left languages
 // such as Hebrew.
 void HWNDSetRTLLayout(HWND hwnd);
+#endif
 
 // In place sorting of strings using collation rules for |locale|.
 void SortStrings(const std::wstring& locale,

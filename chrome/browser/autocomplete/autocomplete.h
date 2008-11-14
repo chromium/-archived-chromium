@@ -439,9 +439,9 @@ class AutocompleteProvider
 
   AutocompleteProvider(ACProviderListener* listener,
                        Profile* profile,
-                       char* name)
-      : listener_(listener),
-        profile_(profile),
+                       const char* name)
+      : profile_(profile),
+        listener_(listener),
         done_(true),
         name_(name) {
   }

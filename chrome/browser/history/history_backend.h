@@ -262,9 +262,6 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   FRIEND_TEST(HistoryBackendTest, URLsNoLongerBookmarked);
   friend class TestingProfile;
 
-  // For invoking methods that circumvent requests.
-  friend class HistoryTest;
-
   // Computes the name of the specified database on disk.
   std::wstring GetThumbnailFileName() const;
   std::wstring GetArchivedFileName() const;

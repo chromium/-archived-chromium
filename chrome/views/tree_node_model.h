@@ -9,7 +9,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/scoped_vector.h"
-#include "chrome/views/tree_view.h"
+#include "chrome/views/tree_model.h"
 
 namespace views {
 
@@ -115,7 +115,7 @@ class TreeNode : public TreeModelNode {
   // Returns the index of the specified child, or -1 if node is a not a child.
   int IndexOfChild(const NodeType* node) {
     DCHECK(node);
-    std::vector<NodeType*>::iterator i =
+    typename std::vector<NodeType*>::iterator i =
         find(children_->begin(), children_->end(), node);
     if (i != children_->end())
       return static_cast<int>(i - children_->begin());
@@ -154,26 +154,29 @@ class TreeNode : public TreeModelNode {
   // Children.
   ScopedVector<NodeType> children_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TreeNode);
+  DISALLOW_COPY_AND_ASSIGN(TreeNode);
 };
 
 // TreeNodeWithValue ----------------------------------------------------------
 
 template <class ValueType>
-class TreeNodeWithValue : public TreeNode<TreeNodeWithValue<ValueType>> {
+class TreeNodeWithValue : public TreeNode< TreeNodeWithValue<ValueType> > {
+ private:
+  typedef TreeNode< TreeNodeWithValue<ValueType> > ParentType;
+
  public:
   TreeNodeWithValue() { }
 
   TreeNodeWithValue(const ValueType& value)
-      : TreeNode(std::wstring()), value(value) { }
+      : ParentType(std::wstring()), value(value) { }
 
   TreeNodeWithValue(const std::wstring& title, const ValueType& value)
-      : TreeNode(title), value(value) { }
+      : ParentType(title), value(value) { }
 
   ValueType value;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(TreeNodeWithValue);
+  DISALLOW_COPY_AND_ASSIGN(TreeNodeWithValue);
 };
 
 // TreeNodeModel --------------------------------------------------------------
@@ -264,7 +267,7 @@ class TreeNodeModel : public TreeModel {
   // The observer.
   TreeModelObserver* observer_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TreeNodeModel);
+  DISALLOW_COPY_AND_ASSIGN(TreeNodeModel);
 };
 
 }  // namespace views

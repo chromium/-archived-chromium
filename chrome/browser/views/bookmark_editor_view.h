@@ -14,6 +14,7 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/tree_node_model.h"
+#include "chrome/views/tree_view.h"
 
 namespace views {
 class Window;

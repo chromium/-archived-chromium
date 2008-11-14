@@ -39,7 +39,8 @@ class HistoryBackend;
 //         -> DoAutocomplete (for inline autocomplete)
 //           -> URLDatabase::AutocompleteForPrefix (on in-memory DB)
 //         -> HistoryService::ScheduleAutocomplete
-//         (return to controller) \
+//         (return to controller) ----
+//                                   /
 //                              HistoryBackend::ScheduleAutocomplete
 //                                -> HistoryURLProvider::ExecuteWithDB
 //                                  -> DoAutocomplete

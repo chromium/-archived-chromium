@@ -589,6 +589,10 @@
 			RelativePath=".\tooltip_manager.h"
 			>
 		</File>
+    <File
+      RelativePath=".\tree_model.h"
+      >
+    </File>
 		<File
 			RelativePath=".\tree_node_model.h"
 			>
