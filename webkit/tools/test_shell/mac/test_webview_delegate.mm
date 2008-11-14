@@ -5,24 +5,8 @@
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
 #import <Cocoa/Cocoa.h>
-#include "base/gfx/point.h"
 #include "base/string_util.h"
-#include "net/base/net_errors.h"
-#include "chrome/common/page_transition_types.h"
-#include "webkit/glue/webdatasource.h"
-#include "webkit/glue/webdropdata.h"
-#include "webkit/glue/weberror.h"
-#include "webkit/glue/webframe.h"
-#include "webkit/glue/webpreferences.h"
-#include "webkit/glue/weburlrequest.h"
-#include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"
-// #include "webkit/glue/plugins/plugin_list.h"
-// #include "webkit/glue/plugins/webplugin_delegate_impl.h"
-#include "webkit/glue/window_open_disposition.h"
-// #include "webkit/tools/test_shell/drag_delegate.h"
-// #include "webkit/tools/test_shell/drop_delegate.h"
-#include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
 
@@ -59,7 +43,6 @@ void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {
 
 void TestWebViewDelegate::Show(WebWidget* webview,
                                WindowOpenDisposition disposition) {
-  NOTIMPLEMENTED();
 }
 
 void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
