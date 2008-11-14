@@ -293,6 +293,8 @@ int main(int argc, char* argv[]) {
   // Test shell always exposes the GC.
   CommandLine::AppendSwitch(&js_flags, L"expose-gc");
   webkit_glue::SetJavaScriptFlags(js_flags);
+  // Also expose GCController to JavaScript.
+  webkit_glue::SetShouldExposeGCController(true);
 
   // load and initialize the stats table.
   StatsTable *table = new StatsTable(kStatsFile, kStatsFileThreads, kStatsFileCounters);

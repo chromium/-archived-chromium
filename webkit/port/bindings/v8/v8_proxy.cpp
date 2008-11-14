@@ -1826,8 +1826,23 @@ void V8Proxy::initContextIfNeeded()
       V8Custom::v8DOMWindowIndexedSecurityCheck,
       v8::Integer::New(V8ClassIndex::DOMWINDOW));
 
-  // Create a new context.
-  m_context = v8::Context::New(NULL, global_template, m_global);
+  if (ScriptController::shouldExposeGCController()) {
+      v8::RegisterExtension(new v8::Extension("v8/GCController",
+          "(function v8_GCController() {"
+          "   var v8_gc;"
+          "   if (gc) v8_gc = gc;"
+          "   GCController = new Object();"
+          "   GCController.collect ="
+          "     function() {if (v8_gc) v8_gc(); };"
+          " })()"));
+      const char* extension_names[] = { "v8/GCController" };
+      v8::ExtensionConfiguration extensions(1, extension_names);
+      // Create a new context.
+      m_context = v8::Context::New(&extensions, global_template, m_global);
+  } else {
+      m_context = v8::Context::New(NULL, global_template, m_global);      
+  }
+
   if (m_context.IsEmpty())
     return;
 

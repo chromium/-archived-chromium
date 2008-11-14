@@ -64,6 +64,13 @@ void SetRecordPlaybackMode(bool value) {
 #endif
 }
 
+
+void SetShouldExposeGCController(bool enable) {
+#if USE(V8)
+  WebCore::ScriptController::setShouldExposeGCController(enable);
+#endif
+}
+
 static bool layout_test_mode_ = false;
 
 void SetLayoutTestMode(bool enable) {

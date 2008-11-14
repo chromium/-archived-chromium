@@ -57,6 +57,7 @@ namespace webkit_glue {
 // Functions implemented by JS engines.
 void SetJavaScriptFlags(const std::wstring& flags);
 void SetRecordPlaybackMode(bool value);
+void SetShouldExposeGCController(bool enable);
 
 //-----------------------------------------------------------------------------
 // Functions implemented by WebKit, called by the embedder:

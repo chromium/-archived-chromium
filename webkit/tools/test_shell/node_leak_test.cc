@@ -36,6 +36,8 @@ class NodeLeakTest : public TestShellTest {
       parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
     CommandLine::AppendSwitch(&js_flags, L"expose-gc");
     webkit_glue::SetJavaScriptFlags(js_flags);
+    // Expose GCController to JavaScript as well.
+    webkit_glue::SetShouldExposeGCController(true);
 
     std::wstring cache_path =
         parsed_command_line.GetSwitchValue(test_shell::kCacheDir);

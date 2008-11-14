@@ -78,6 +78,7 @@ NPRuntimeFunctions npruntime_functions = {
 namespace WebCore {
 
 bool ScriptController::m_recordPlaybackMode = false;
+bool ScriptController::m_shouldExposeGCController = false;
 
 void ScriptController::setFlags(const char* str, int length)
 {
