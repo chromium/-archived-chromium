@@ -87,6 +87,7 @@ class HttpTransactionWinHttp : public HttpTransaction {
   int SendRequest();
   bool ReopenRequest();
   int Restart(CompletionCallback* callback);
+  int RestartInternal();
   int DidResolveProxy();
   int DidReceiveError(DWORD error, DWORD secure_failure);
   int DidSendRequest();
@@ -188,6 +189,9 @@ class HttpTransactionWinHttp : public HttpTransaction {
   // True if we have called WinHttpRequestThrottle::SubmitRequest but haven't
   // called WinHttpRequestThrottle::NotifyRequestDone.
   bool request_submitted_;
+
+  // True if we have used the username/password embedded in the URL.
+  bool used_embedded_credentials_;
 
   DISALLOW_EVIL_CONSTRUCTORS(HttpTransactionWinHttp);
 };

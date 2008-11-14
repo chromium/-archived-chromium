@@ -782,9 +782,10 @@ HttpTransactionWinHttp::HttpTransactionWinHttp(Session* session,
       is_https_(false),
       is_tls_intolerant_(false),
       rev_checking_enabled_(false),
-      request_submitted_(false),
       have_proxy_info_(false),
-      need_to_wait_for_handle_closing_(false) {
+      need_to_wait_for_handle_closing_(false),
+      request_submitted_(false),
+      used_embedded_credentials_(false) {
   session->AddRef();
   session_callback_ = new SessionCallback(this, session);
   if (info) {
@@ -940,10 +941,7 @@ int HttpTransactionWinHttp::Restart(CompletionCallback* callback) {
   // ensure that we only have one asynchronous call at a time.
   DCHECK(!callback_);
 
-  content_length_remaining_ = -1;
-  upload_progress_ = 0;
-
-  int rv = SendRequest();
+  int rv = RestartInternal();
   if (rv != ERR_IO_PENDING)
     return rv;
 
@@ -951,6 +949,17 @@ int HttpTransactionWinHttp::Restart(CompletionCallback* callback) {
 
   callback_ = callback;
   return ERR_IO_PENDING;
+}
+
+// If HttpTransactionWinHttp needs to restart itself after handling an error,
+// it calls this method.  This method leaves callback_ unchanged.  The caller
+// is responsible for calling session_callback_->AddRef() if this method
+// returns ERR_IO_PENDING.
+int HttpTransactionWinHttp::RestartInternal() {
+  content_length_remaining_ = -1;
+  upload_progress_ = 0;
+
+  return SendRequest();
 }
 
 // We use WinHttpQueryDataAvailable rather than pure async read to trade
@@ -1308,11 +1317,8 @@ int HttpTransactionWinHttp::DidReceiveError(DWORD error,
 
   int rv;
 
-  if (error == ERROR_WINHTTP_RESEND_REQUEST) {
-    CompletionCallback* callback = callback_;
-    callback_ = NULL;
-    return Restart(callback);
-  }
+  if (error == ERROR_WINHTTP_RESEND_REQUEST)
+    return RestartInternal();
 
   if (error == ERROR_WINHTTP_NAME_NOT_RESOLVED ||
       error == ERROR_WINHTTP_CANNOT_CONNECT ||
@@ -1353,9 +1359,7 @@ int HttpTransactionWinHttp::DidReceiveError(DWORD error,
     is_tls_intolerant_ = true;
     if (!ReopenRequest())
       return TranslateLastOSError();
-    CompletionCallback* callback = callback_;
-    callback_ = NULL;
-    return Restart(callback);
+    return RestartInternal();
   }
   if (rv == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
     // TODO(wtc): Bug 1230409: We don't support SSL client authentication yet.
@@ -1365,11 +1369,8 @@ int HttpTransactionWinHttp::DidReceiveError(DWORD error,
     // client certificates.
     if (WinHttpSetOption(request_handle_,
                          WINHTTP_OPTION_CLIENT_CERT_CONTEXT,
-                         WINHTTP_NO_CLIENT_CERT_CONTEXT, 0)) {
-      CompletionCallback* callback = callback_;
-      callback_ = NULL;
-      return Restart(callback);
-    }
+                         WINHTTP_NO_CLIENT_CERT_CONTEXT, 0))
+      return RestartInternal();
   }
   if (IsCertificateError(rv)) {
     response_.ssl_info.cert = GetServerCertificate();
@@ -1568,17 +1569,39 @@ int HttpTransactionWinHttp::PopulateAuthChallenge() {
   DCHECK(!auth_cache_key->empty());
   auth->scheme = auth_info->scheme;
   if (auth->state == AUTH_STATE_HAVE_AUTH) {
-    session_->auth_cache()->Remove(*auth_cache_key);
-    auth->state = AUTH_STATE_NEED_AUTH;
-  } else {
+    // Remove the cache entry for the credentials we just failed on.
+    // Note: we require the username/password to match before removing
+    // since the entry in the cache may be newer than what we used last time.
     AuthData* cached_auth = session_->auth_cache()->Lookup(*auth_cache_key);
-    if (cached_auth) {
-      CompletionCallback* callback = callback_;
-      callback_ = NULL;
-      return RestartWithAuth(cached_auth->username,
-                             cached_auth->password,
-                             callback);
-    }
+    if (cached_auth && cached_auth->username == auth->username &&
+        cached_auth->password == auth->password)
+      session_->auth_cache()->Remove(*auth_cache_key);
+    auth->state = AUTH_STATE_NEED_AUTH;
+  }
+  DCHECK(auth->state == AUTH_STATE_NEED_AUTH);
+
+  // Try to use the username/password embedded in the URL first.
+  // (By checking !used_embedded_credentials_, we make sure that this
+  // is only done once for the transaction.)
+  if (!auth_info->is_proxy && request_->url.has_username() &&
+      !used_embedded_credentials_) {
+    // TODO(wtc) It may be necessary to unescape the username and password
+    // after extracting them from the URL.  We should be careful about
+    // embedded nulls in that case.
+    used_embedded_credentials_ = true;
+    auth->state = AUTH_STATE_HAVE_AUTH;
+    auth->username = ASCIIToWide(request_->url.username());
+    auth->password = ASCIIToWide(request_->url.password());
+    return RestartInternal();
+  }
+
+  // Check the auth cache for an entry.
+  AuthData* cached_auth = session_->auth_cache()->Lookup(*auth_cache_key);
+  if (cached_auth) {
+    auth->state = AUTH_STATE_HAVE_AUTH;
+    auth->username = cached_auth->username;
+    auth->password = cached_auth->password;
+    return RestartInternal();
   }
 
   response_.auth_challenge.swap(auth_info);
@@ -1619,10 +1642,6 @@ void HttpTransactionWinHttp::ApplyAuth() {
                                NULL);
   }
 
-  // First, check if we have auth, then check URL.
-  // That way a user can re-enter credentials, and we'll try with their
-  // latest input rather than always trying what they specified
-  // in the URL (if anything).
   if (server_auth_ && server_auth_->state == AUTH_STATE_HAVE_AUTH) {
     // Add auth data to cache.
     DCHECK(!server_auth_cache_key_.empty());
@@ -1636,16 +1655,6 @@ void HttpTransactionWinHttp::ApplyAuth() {
                                auth_scheme,
                                server_auth_->username.c_str(),
                                server_auth_->password.c_str(),
-                               NULL);
-  } else if (request_->url.has_username()) {
-    // TODO(wtc) It may be necessary to unescape the username and password
-    // after extracting them from the URL.  We should be careful about
-    // embedded nulls in that case.
-    rv = WinHttpSetCredentials(request_handle_,
-                               WINHTTP_AUTH_TARGET_SERVER,
-                               WINHTTP_AUTH_SCHEME_BASIC,  // TODO(wtc)
-                               ASCIIToWide(request_->url.username()).c_str(),
-                               ASCIIToWide(request_->url.password()).c_str(),
                                NULL);
   }
 }
