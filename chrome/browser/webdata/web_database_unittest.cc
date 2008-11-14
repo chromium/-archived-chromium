@@ -14,6 +14,7 @@
 #include "chrome/common/stl_util-inl.h"
 #include "skia/include/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "webkit/glue/autofill_form.h"
 #include "webkit/glue/password_form.h"
 
 using base::Time;
@@ -381,6 +382,92 @@ TEST_F(WebDatabaseTest, Logins) {
   EXPECT_TRUE(db.RemoveLogin(form4));
   EXPECT_TRUE(db.GetAllLogins(&result, true));
   EXPECT_EQ(0, result.size());
+}
+
+TEST_F(WebDatabaseTest, Autofill) {
+  WebDatabase db;
+
+  EXPECT_TRUE(db.Init(file_));
+
+  Time t1 = Time::Now();
+
+  // Simulate the submission of a handful of entries in a field called "Name",
+  // some more often than others.
+  EXPECT_TRUE(db.AddAutofillFormElement(
+      AutofillForm::Element(L"Name", L"Superman")));
+  std::vector<std::wstring> v;
+  for (int i = 0; i < 5; i++) {
+    EXPECT_TRUE(db.AddAutofillFormElement(
+        AutofillForm::Element(L"Name", L"Clark Kent")));
+  }
+  for (int i = 0; i < 3; i++) {
+    EXPECT_TRUE(db.AddAutofillFormElement(
+        AutofillForm::Element(L"Name", L"Clark Sutter")));
+  }
+  for (int i = 0; i < 2; i++) {
+    EXPECT_TRUE(db.AddAutofillFormElement(
+        AutofillForm::Element(L"Favorite Color", L"Green")));
+  }
+
+  int count = 0;
+  int64 pair_id = 0;
+
+  // We have added the name Clark Kent 5 times, so count should be 5 and pair_id
+  // should be somthing non-zero.
+  EXPECT_TRUE(db.GetIDAndCountOfFormElement(
+      AutofillForm::Element(L"Name", L"Clark Kent"), &pair_id, &count));
+  EXPECT_EQ(5, count);
+  EXPECT_NE(0, pair_id);
+
+  // Storing in the data base should be case sensitive, so there should be no
+  // database entry for clark kent lowercase.
+  EXPECT_TRUE(db.GetIDAndCountOfFormElement(
+      AutofillForm::Element(L"Name", L"clark kent"), &pair_id, &count));
+  EXPECT_EQ(0, count);
+
+  EXPECT_TRUE(db.GetIDAndCountOfFormElement(
+      AutofillForm::Element(L"Favorite Color", L"Green"), &pair_id, &count));
+  EXPECT_EQ(2, count);
+
+  // This is meant to get a list of suggestions for Name.  The empty prefix
+  // in the second argument means it should return all suggestions for a name
+  // no matter what they start with.  The order that the names occur in the list
+  // should be decreasing order by count.
+  EXPECT_TRUE(db.GetFormValuesForElementName(L"Name", std::wstring(), &v, 6));
+  EXPECT_EQ(3, v.size());
+  if (v.size() == 3) {
+    EXPECT_EQ(L"Clark Kent", v[0]);
+    EXPECT_EQ(L"Clark Sutter", v[1]);
+    EXPECT_EQ(L"Superman", v[2]);
+  }
+
+  // If we query again limiting the list size to 1, we should only get the most
+  // frequent entry.
+  EXPECT_TRUE(db.GetFormValuesForElementName(L"Name", L"", &v, 1));
+  EXPECT_EQ(1, v.size());
+  if (v.size() == 1) {
+    EXPECT_EQ(L"Clark Kent", v[0]);
+  }
+
+  // Querying for suggestions given a prefix is case-insensitive, so the prefix
+  // "cLa" shoud get suggestions for both Clarks.
+  EXPECT_TRUE(db.GetFormValuesForElementName(L"Name", L"cLa", &v, 6));
+  EXPECT_EQ(2, v.size());
+  if (v.size() == 2) {
+    EXPECT_EQ(L"Clark Kent", v[0]);
+    EXPECT_EQ(L"Clark Sutter", v[1]);
+  }
+
+  // Removing all elements since the beginning of this function should remove
+  // everything from the database.
+  EXPECT_TRUE(db.RemoveFormElementsAddedBetween(t1, Time()));
+
+  EXPECT_TRUE(db.GetIDAndCountOfFormElement(
+      AutofillForm::Element(L"Name", L"Clark Kent"), &pair_id, &count));
+  EXPECT_EQ(0, count);
+
+  EXPECT_TRUE(db.GetFormValuesForElementName(L"Name", L"", &v, 6));
+  EXPECT_EQ(0, v.size());
 }
 
 static bool AddTimestampedLogin(WebDatabase* db, std::string url,
