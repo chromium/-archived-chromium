@@ -641,9 +641,11 @@ SafeBrowsingService::UrlCheckResult SafeBrowsingService::GetResultFromListname(
   return URL_SAFE;
 }
 
-// static
 void SafeBrowsingService::LogPauseDelay(TimeDelta time) {
-  UMA_HISTOGRAM_LONG_TIMES(L"SB.Delay", time);
+  if (new_safe_browsing_)
+    UMA_HISTOGRAM_LONG_TIMES(L"SB2.Delay", time);
+  else
+    UMA_HISTOGRAM_LONG_TIMES(L"SB.Delay", time);
 }
 
 void SafeBrowsingService::CacheHashResults(

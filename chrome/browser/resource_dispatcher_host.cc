@@ -633,7 +633,7 @@ class SafeBrowsingEventHandler
         resource_type_(resource_type) {
     if (safe_browsing_->CheckUrl(url, this)) {
       safe_browsing_result_ = SafeBrowsingService::URL_SAFE;
-      SafeBrowsingService::LogPauseDelay(TimeDelta());
+      safe_browsing_->LogPauseDelay(TimeDelta());  // No delay.
     } else {
       AddRef();
       in_safe_browsing_check_ = true;
@@ -654,7 +654,7 @@ class SafeBrowsingEventHandler
 
     if (safe_browsing_->CheckUrl(new_url, this)) {
       safe_browsing_result_ = SafeBrowsingService::URL_SAFE;
-      SafeBrowsingService::LogPauseDelay(TimeDelta());
+      safe_browsing_->LogPauseDelay(TimeDelta());  // No delay.
     } else {
       AddRef();
       in_safe_browsing_check_ = true;
@@ -733,7 +733,7 @@ class SafeBrowsingEventHandler
       TimeDelta pause_delta;
       if (!pause_time_.is_null())
         pause_delta = Time::Now() - pause_time_;
-      SafeBrowsingService::LogPauseDelay(pause_delta);
+      safe_browsing_->LogPauseDelay(pause_delta);
 
       if (queued_error_.get()) {
         next_handler_->OnResponseCompleted(
