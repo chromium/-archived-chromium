@@ -70,6 +70,10 @@ class AboutSource : public ChromeURLDataManager::DataSource {
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id);
 
+  virtual std::string GetMimeType(const std::string&) const {
+    return "text/html";
+  }
+
   // Send the response data.
   void FinishDataRequest(const std::string& html, int request_id);
 

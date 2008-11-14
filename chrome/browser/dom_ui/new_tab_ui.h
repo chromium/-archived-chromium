@@ -36,6 +36,10 @@ class NewTabHTMLSource : public ChromeURLDataManager::DataSource {
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id);
 
+  virtual std::string GetMimeType(const std::string&) const {
+    return "text/html";
+  }
+
   // Setters and getters for first_view.
   static void set_first_view(bool first_view) { first_view_ = first_view; }
   static bool first_view() { return first_view_; }
@@ -57,6 +61,10 @@ class IncognitoTabHTMLSource : public ChromeURLDataManager::DataSource {
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id);
 
+  virtual std::string GetMimeType(const std::string&) const {
+    return "text/html";
+  }
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(IncognitoTabHTMLSource);
 };
@@ -70,6 +78,11 @@ class ThumbnailSource : public ChromeURLDataManager::DataSource {
   // Called when the network layer has requested a resource underneath
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id);
+
+  virtual std::string GetMimeType(const std::string&) const {
+    // Rely on image decoder inferring the correct type.
+    return std::string();
+  }
 
   // Called when thumbnail data is available from the history backend.
   void OnThumbnailDataAvailable(
@@ -96,6 +109,11 @@ class FavIconSource : public ChromeURLDataManager::DataSource {
   // Called when the network layer has requested a resource underneath
   // the path we registered.
   virtual void StartDataRequest(const std::string& path, int request_id);
+
+  virtual std::string GetMimeType(const std::string&) const {
+    // Rely on image decoder inferring the correct type.
+    return std::string();
+  }
 
   // Called when favicon data is available from the history backend.
   void OnFavIconDataAvailable(

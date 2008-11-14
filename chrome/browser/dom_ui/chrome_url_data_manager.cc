@@ -52,6 +52,10 @@ class URLRequestChromeJob : public URLRequestJob {
   // for us.
   void DataAvailable(RefCountedBytes* bytes);
 
+  void SetMimeType(const std::string& mime_type) {
+    mime_type_ = mime_type;
+  }
+
  private:
   // Helper for Start(), to let us start asynchronously.
   // (This pattern is shared by most URLRequestJob implementations.)
@@ -71,6 +75,7 @@ class URLRequestChromeJob : public URLRequestJob {
   // we're reading into.
   char* pending_buf_;
   int pending_buf_size_;
+  std::string mime_type_;
 
   DISALLOW_EVIL_CONSTRUCTORS(URLRequestChromeJob);
 };
@@ -187,6 +192,11 @@ bool ChromeURLDataManager::StartRequest(const GURL& url,
   RequestID request_id = next_request_id_++;
   pending_requests_.insert(std::make_pair(request_id, job));
 
+  // TODO(eroman): would be nicer if the mimetype were set at the same time
+  // as the data blob. For now do it here, since NotifyHeadersComplete() is
+  // going to get called once we return.
+  job->SetMimeType(source->GetMimeType(path));
+
   // Forward along the request to the data source.
   source->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(source, &DataSource::StartDataRequest,
@@ -258,9 +268,8 @@ void URLRequestChromeJob::Kill() {
 }
 
 bool URLRequestChromeJob::GetMimeType(std::string* mime_type) {
-  // Rely on MIME sniffing to simplify the logic here.
-  *mime_type = "text/html";
-  return true;
+  *mime_type = mime_type_;
+  return !mime_type_.empty();
 }
 
 void URLRequestChromeJob::DataAvailable(RefCountedBytes* bytes) {

@@ -48,6 +48,10 @@ class ChromeURLDataManager {
     // not be satisfied.
     virtual void StartDataRequest(const std::string& path, int request_id) = 0;
 
+    // Return the mimetype that should be sent with this response, or empty
+    // string to specify no mime type.
+    virtual std::string GetMimeType(const std::string& path) const = 0;
+
     // Report that a request has resulted in the data |bytes|.
     // If the request can't be satisfied, pass NULL for |bytes| to indicate
     // the request is over.

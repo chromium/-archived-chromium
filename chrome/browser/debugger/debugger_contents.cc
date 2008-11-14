@@ -14,6 +14,7 @@
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
+#include "net/base/mime_util.h"
 
 class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
  public:
@@ -59,6 +60,14 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
     std::copy(data_str.begin(), data_str.end(), data_bytes->data.begin());
 
     SendResponse(request_id, data_bytes);
+  }
+
+  virtual std::string GetMimeType(const std::string& path) const {
+    // Currently but three choices {"", "debugger.js", "debugger.css"}.
+    // Map the extension to mime-type, defaulting to "text/html".
+    std::string mime_type("text/html");
+    net::GetMimeTypeFromFile(ASCIIToWide(path), &mime_type);
+    return mime_type;
   }
 
  private:
