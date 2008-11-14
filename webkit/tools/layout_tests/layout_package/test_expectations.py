@@ -6,9 +6,6 @@
 for layout tests.
 """
 
-# TODO(pamg): Excise build_type (v8 and kjs) from this file and the test lists
-# now that we only support v8.
-
 import os
 import re
 import path_utils
@@ -26,11 +23,11 @@ class TestExpectations:
   FIXABLE = "tests_fixable.txt"
   IGNORED = "tests_ignored.txt"
 
-  def __init__(self, tests, directory, build_type='v8'):
+  def __init__(self, tests, directory, is_debug_mode):
     """Reads the test expectations files from the given directory."""
     self._tests = tests
     self._directory = directory
-    self._build_type = build_type
+    self._is_debug_mode = is_debug_mode
     self._ReadFiles()
     self._ValidateLists()
 
@@ -91,7 +88,7 @@ class TestExpectations:
     """
     
     path = os.path.join(self._directory, filename)
-    return TestExpectationsFile(path, self._tests, self._build_type)
+    return TestExpectationsFile(path, self._tests, self._is_debug_mode)
 
   def _ValidateLists(self):
     # Make sure there's no overlap between the tests in the two files.
@@ -124,14 +121,17 @@ class TestExpectationsFile:
   directory and any subdirectory. The format of the file is along the
   lines of:
   
-    KJS # LayoutTests/fast/js/fixme.js = FAIL
-    V8 # LayoutTests/fast/js/flaky.js = FAIL | PASS
-    V8 | KJS # LayoutTests/fast/js/crash.js = CRASH | TIMEOUT | FAIL | PASS
+    LayoutTests/fast/js/fixme.js = FAIL
+    LayoutTests/fast/js/flaky.js = FAIL | PASS
+    LayoutTests/fast/js/crash.js = CRASH | TIMEOUT | FAIL | PASS
     ...
 
-  In case you want to skip tests completely, add a SKIP:
-    V8 | KJS # SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT | PASS
-    
+  In case you want to skip tests completely or mark debug mode only 
+  expectations, add SKIP and/or DEBUG respectively:
+    SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT | PASS
+    DEBUG : LayoutTests/fast/js/no-good.js = TIMEOUT | PASS
+    DEBUG | SKIP : LayoutTests/fast/js/no-good.js = TIMEOUT | PASS
+
   A test can be included twice, but not via the same path. If a test is included
   twice, then the more precise path wins.
   """
@@ -140,17 +140,13 @@ class TestExpectationsFile:
                    'fail': FAIL,
                    'timeout': TIMEOUT,
                    'crash': CRASH }
-                   
-  BUILD_TYPES = [ 'kjs', 'v8' ]
-  
-  
-  def __init__(self, path, full_test_list, build_type):
+
+  def __init__(self, path, full_test_list, is_debug_mode):
     """path is the path to the expectation file. An error is thrown if a test
-    is listed more than once for a given build_type. 
+    is listed more than once. 
     full_test_list is the list of all tests to be run pending processing of the
     expections for those tests.
-    build_type is used to filter out tests that only have expectations for
-    a different build_type.
+    is_debug_mode whether we testing a test_shell built debug mode
     
     """
     
@@ -161,7 +157,7 @@ class TestExpectationsFile:
     self._tests = {}
     for expectation in self.EXPECTATIONS.itervalues():
       self._tests[expectation] = set()
-    self._Read(path, build_type)
+    self._Read(path, is_debug_mode)
 
   def GetSkipped(self):
     return self._skipped
@@ -184,33 +180,32 @@ class TestExpectationsFile:
       for expectation in self._expectations[test]:
         self._tests[expectation].remove(test)
       del self._expectations[test]
-  
-  def _Read(self, path, build_type):
+
+  def _Read(self, path, is_debug_mode):
     """For each test in an expectations file, generate the expectations for it.
-    
+
     """
-    
+
     lineno = 0
     for line in open(path):
       lineno += 1
       line = StripComments(line)
       if not line: continue
 
-      parts = line.split('#')
-      if len(parts) is not 2:
-        self._ReportSyntaxError(path, lineno, "Test must have build types")
-
-      if build_type not in self._GetOptionsList(parts[0]): continue
-
-      parts = parts[1].split(':')
-
-      if len(parts) is 2:
-        test_and_expectations = parts[1]
-        skip_options = self._GetOptionsList(parts[0])
-        is_skipped = 'skip' in skip_options
-      else:
-        test_and_expectations = parts[0]
+      # TODO(ojan): If you specify different expectations for debug and release,
+      # the release builder will currently say you have multiple expectations
+      # for this file. booo!
+      if line.find(':') is -1:
+        test_and_expectations = line
         is_skipped = False
+        is_debug = False
+      else:
+        parts = line.split(':')
+        test_and_expectations = parts[1]
+        options = self._GetOptionsList(parts[0])
+        is_skipped = 'skip' in options
+        if not is_debug_mode and 'debug' in options:
+          continue
 
       tests_and_expecation_parts = test_and_expectations.split('=')
       if (len(tests_and_expecation_parts) is not 2):

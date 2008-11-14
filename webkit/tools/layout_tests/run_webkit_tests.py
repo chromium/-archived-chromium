@@ -134,7 +134,8 @@ class TestRunner:
     file_dir = path_utils.GetAbsolutePath(file_dir)
 
     expectations = test_expectations.TestExpectations(self._test_files,
-                                                      file_dir)
+                                                      file_dir,
+                                                      self._options.debug)
 
     # Remove skipped - both fixable and ignored - files from the
     # top-level list of files to test.
@@ -557,7 +558,7 @@ def main(options, args):
 if '__main__' == __name__:
   option_parser = optparse.OptionParser()
   option_parser.add_option("", "--pixel-tests", action="store_true",
-                           default=False,
+                           default=True,
                            help="enable pixel-to-pixel PNG comparisons")
   option_parser.add_option("", "--wdiff", action="store_true",
                            default=False,

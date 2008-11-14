@@ -15,7 +15,7 @@
 // Bug 1124548: Copying with no selection is sometimes supposed to work
 // This test also crashes in debug due to an ASSERT. (see bug 1058654)
 // Also skipped by Apple on Windows (rdar://problem/5015941)
-V8 # LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
+LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
 
 // -----------------------------------------------------------------
 // HANGING TESTS
@@ -25,11 +25,11 @@ V8 # LayoutTests/editing/execCommand/copy-without-selection.html = FAIL | CRASH
 // Works fine when run stand-alone.  Not needed for Beta.
 // Also skipped by Apple on Windows, due to intermittent failure 
 // (rdar://5313536)
-V8 # LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL | TIMEOUT
+LayoutTests/fast/dom/frame-loading-via-document-write.html = FAIL | TIMEOUT
 
 // Times out when using new http stack because of unsupported username:pass
 // in URL. http://code.google.com/p/chromium/issues/detail?id=3436
-V8 # SKIP : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT | PASS
+SKIP : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT | PASS
 
 // -----------------------------------------------------------------
 // FLAKY TESTS
@@ -37,51 +37,51 @@ V8 # SKIP : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT | PA
 
 // This test uses a -webkit-transition-duration and a set timeout, probably
 // just a small race in our timers.  Fails once in a while, only on v8.
-V8 # LayoutTests/fast/css/transition-color-unspecified.html = PASS | FAIL
+LayoutTests/fast/css/transition-color-unspecified.html = PASS | FAIL
 
 // Flaky tests, see bug 877986.
 // WebKit's CSS counters are somewhat broken, thus expected results are failures
 // Our high-precision timers make these tests flakey.
 // We could fork these tests, but we'll just unfork them as soon as
 // our high-precision timers are public.
-V8 # LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL | PASS
+LayoutTests/css2.1/t1204-increment-00-c-o.html = FAIL | PASS
+LayoutTests/css2.1/t1204-increment-01-c-o.html = FAIL | PASS
+LayoutTests/css2.1/t1204-increment-02-c-o.html = FAIL | PASS
+LayoutTests/css2.1/t1204-reset-00-c-o.html = FAIL | PASS
+LayoutTests/css2.1/t1204-reset-01-c-o.html = FAIL | PASS
 
 // Bug 1143337
 // These tests are here because they fail on the buildbot, but not locally.
 // Seems to be due to one or more timing issues in the tests.
 // These only timeout on the v8-Debug buildbot it seems. (eseidel, 4/28)
 // I'm not seeing this fail locally in v8-Debug or v8-Release (eseidel, 4/25)
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-subframe-location-change.html = PASS | FAIL
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS | TIMEOUT
+LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-subframe-location-change.html = PASS | FAIL
+LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = PASS | TIMEOUT
 
 // Bug 1332293: Sometimes times out for unknown reasons.
-V8 # LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS | TIMEOUT
+LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS | TIMEOUT
 
 // This are failing for different reasons under our new lighttpd configuration
 // TODO(deanm): Address all of these via lighttpd if possible, otherwise fork.
 // Maybe flaky and need to be forked?  Bug 1234761.
 
 // Difference in caching headers
-V8 # LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
 // LightTPD doesn't accept unknown HTTP methods
-V8 # LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT
-V8 # LayoutTests/http/tests/xmlhttprequest/methods-async.html = TIMEOUT
+LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT
+LayoutTests/http/tests/xmlhttprequest/methods-async.html = TIMEOUT
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
-V8 # LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 // http://crbug.com/2975 : Need to support upload progress notifications in
 // the resource bridge.
-V8 # LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL
-V8 # LayoutTests/http/tests/xmlhttprequest/upload-onprogress-event.html = FAIL
-V8 # LayoutTests/http/tests/xmlhttprequest/upload-progress-events.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/upload-onload-event.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/upload-onprogress-event.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/upload-progress-events.html = FAIL
 
 // Bug 1341582
-V8 # LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
-V8 # LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
+LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
+LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
  
 // -----------------------------------------------------------------
 // TEXT
@@ -92,57 +92,57 @@ V8 # LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
 
 // Bug 1316221: fail now that we use the same font code path in test_shell
 // as in Chrome
-V8 # LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
-V8 # LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
+LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
+LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
 // Bug 1124513: the max length is being applied correctly, but the over- and
 // under-lines aren't placed properly over the "x".
 // The under-lines are a cosmetic error which is not necessary to fix for Beta. (eseidel)
-V8 # LayoutTests/fast/forms/input-text-maxlength.html = FAIL
-V8 # LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
+LayoutTests/fast/forms/input-text-maxlength.html = FAIL
+LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
 // Font differences, requiring overriden metrics, not a real bug, not fixing for Beta
-V8 # LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
+LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 
 // Bug: 1145880
 // Parethesis missing, metrics wrong.
-V8 # LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
+LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 
 // Bug: 628529: complex text effects
 // This is a real bug, but not one we're fixing for Beta.
-V8 # LayoutTests/fast/text/stroking-decorations.html = FAIL
-V8 # LayoutTests/fast/text/stroking.html = FAIL
+LayoutTests/fast/text/stroking-decorations.html = FAIL
+LayoutTests/fast/text/stroking.html = FAIL
 
 // Bug: 1124522
 // Incrorect results, in incorrect international font metrics.
 // Fixing these overrides does not help us to Beta, deffering
-V8 # LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
-V8 # LayoutTests/fast/text/atsui-pointtooffset-calls-cg.html = FAIL
+LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
+LayoutTests/fast/text/atsui-pointtooffset-calls-cg.html = FAIL
 
 // Bug: 1143381
 // This test checks that we hack around a bug in helvetica.  We fail to.
-V8 # LayoutTests/fast/text/wide-zero-width-space.html = FAIL
+LayoutTests/fast/text/wide-zero-width-space.html = FAIL
 
 // Font-size differences in international text cause the wrong character
 // to be under the (x,y) click location used by the test.  See bug 850411
 // on faking international font sizes like we do for Latin fonts.
-V8 # LayoutTests/fast/text/atsui-rtl-override-selection.html = FAIL
+LayoutTests/fast/text/atsui-rtl-override-selection.html = FAIL
 
 // Bug: 1124542
 // More missing international text overides, not needed for Beta.
 // Capitalization results match Safari, even if "not fully correct"
-V8 # LayoutTests/fast/text/capitalize-boundaries.html = FAIL
+LayoutTests/fast/text/capitalize-boundaries.html = FAIL
 
 // Bug: 1145887
 // Different button line-heights, our behavior looks wrong.
-V8 # LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
-V8 # LayoutTests/fast/replaced/table-percent-height.html = FAIL
+LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
+LayoutTests/fast/replaced/table-percent-height.html = FAIL
 
 // Bug 992930: Unable to load file:/// URLs from data: URLs.
-V8 # LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Bug 1187672.  Two font faces should be identical but aren't.  Punting SVG.
-V8 # LayoutTests/svg/custom/font-face-simple.svg = FAIL
+LayoutTests/svg/custom/font-face-simple.svg = FAIL
 
 // -----------------------------------------------------------------
 // URL
@@ -154,12 +154,12 @@ V8 # LayoutTests/svg/custom/font-face-simple.svg = FAIL
 
 // Implicit expectation in this test is that you can "set query" on a data URL,
 // and it should replace the first "?" substring. This makes absolutely no sense.
-V8 # LayoutTests/fast/events/stopPropagation-submit.html = FAIL
+LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 
 // Expected results has a terminal "?", since "set query" on about:blank is allowed.
 // This is strange since query should have no meaning in non-standard urls
-V8 # LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL
-V8 # LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
+LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL
+LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
 
 // -----------------------------------------------------------------
 // PENDING TESTS (forked to pending/, need to be sent upstream)
@@ -167,44 +167,44 @@ V8 # LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
 
 // Bug 972450: These tests don't work with fast timers due to setTimeout
 // races. Pending versions have these fixed.
-V8 # LayoutTests/fast/history/history_reload.html = PASS | FAIL
-V8 # LayoutTests/fast/repaint/bugzilla-6473.html = PASS | FAIL
+LayoutTests/fast/history/history_reload.html = PASS | FAIL
+LayoutTests/fast/repaint/bugzilla-6473.html = PASS | FAIL
 
 // Bug 982608: test had a wrong result for one condition
-V8 # LayoutTests/plugins/destroy-stream-twice.html = FAIL | TIMEOUT
+LayoutTests/plugins/destroy-stream-twice.html = FAIL | TIMEOUT
 
 // This test has been modified and placed in pending, so we ignore the original
 // until we get our modification into WebKit.
-V8 # LayoutTests/security/block-test.html = PASS | FAIL | TIMEOUT
+LayoutTests/security/block-test.html = PASS | FAIL | TIMEOUT
 
 // Bug 1124522
 // Test forked into pending and fixed.
-V8 # LayoutTests/fast/js/function-toString-parentheses.html = FAIL
+LayoutTests/fast/js/function-toString-parentheses.html = FAIL
 
 // Bug 1132721.  Forked to pending/fast/encoding/script-in-head.html
 // Should get this change pushed upstream and then unfork.
 // Stopped failing
-// V8 # LayoutTests/fast/encoding/script-in-head.html = PASS | FAIL | TIMEOUT
+// LayoutTests/fast/encoding/script-in-head.html = PASS | FAIL | TIMEOUT
 
 // Bug 1143337.  Forked to pending/http/tests/security/.
-V8 # LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-port-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-port.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-frame-access-protocol.html = PASS | FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/protocol-compare-case-insensitive.html = PASS | FAIL | TIMEOUT
+LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = PASS | FAIL | TIMEOUT
+LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = PASS | FAIL | TIMEOUT
+LayoutTests/http/tests/security/cross-frame-access-port-explicit-domain.html = PASS | FAIL | TIMEOUT
+LayoutTests/http/tests/security/cross-frame-access-port.html = PASS | FAIL | TIMEOUT
+LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | FAIL | TIMEOUT
+LayoutTests/http/tests/security/cross-frame-access-protocol.html = PASS | FAIL | TIMEOUT
+LayoutTests/http/tests/security/protocol-compare-case-insensitive.html = PASS | FAIL | TIMEOUT
 
 // Bug 1199617.  Forked to pending/svg/carto.net/window.svg.
 // Test did not wait for all created functions to be called via
 // setTimeout.
-V8 # LayoutTests/svg/carto.net/window.svg = PASS | FAIL 
+LayoutTests/svg/carto.net/window.svg = PASS | FAIL 
 
 // Bug 1064038.  Image with border="1" drawn without the border.
-V8 # pending/fast/forms/image-border.html = FAIL
+pending/fast/forms/image-border.html = FAIL
 
 // Bug 1055396.  Vertical scrollbar created when there is no overflow.
-V8 # pending/fast/forms/textarea-scrollbar-height.html = FAIL
+pending/fast/forms/textarea-scrollbar-height.html = FAIL
 
 // -----------------------------------------------------------------
 // Other
@@ -212,46 +212,46 @@ V8 # pending/fast/forms/textarea-scrollbar-height.html = FAIL
 
 // Bug 865472, this should just need proper pixel test rebaselining.
 // Also skipped by Apple on Windows (rdar://5723191).
-V8 # LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
+LayoutTests/http/tests/navigation/javascriptlink-frames.html = FAIL
 
 // Bug: 1143492
 // Window status should always return a string object
 // WebKit does this to match IE, FF also fails this test.
-V8 # LayoutTests/fast/dom/assign-to-window-status.html = FAIL
+LayoutTests/fast/dom/assign-to-window-status.html = FAIL
 
 // Bug 905894
 // Getting parseerror (probably wrong svn:eol-style)
 // Will be fixed by upstream merge
-V8 # LayoutTests/fast/xsl/xslt-enc16.xml = FAIL
-V8 # LayoutTests/fast/xsl/xslt-enc16to16.xml = FAIL
+LayoutTests/fast/xsl/xslt-enc16.xml = FAIL
+LayoutTests/fast/xsl/xslt-enc16to16.xml = FAIL
 
 // Bug: 742182, 845388
 // Mac Safari under certain circumstances automatically places
 // a caret in editable document even when none was requested programatically.
 // We don't intend to copy this feature (at least not for Beta).
-V8 # LayoutTests/editing/selection/designmode-no-caret.html = FAIL
+LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 
 // Bug: 742182, 845388, 960092
 // Platform-specific: simulates command-{arrow} input to modify selection
 // Our Event-Sender isn't robust enough to support this.
 // Not required for Beta.  This may also be related to known home/end issues
 // which are intended to be fixed for Beta.
-V8 # LayoutTests/editing/selection/move-begin-end.html = FAIL
+LayoutTests/editing/selection/move-begin-end.html = FAIL
 
 // Bug 845400
 // The end result looks right, but the event messages differ.
-V8 # LayoutTests/editing/pasteboard/paste-xml.xhtml = FAIL
+LayoutTests/editing/pasteboard/paste-xml.xhtml = FAIL
 
 // Bug 849441
 // Directionality of mixed-direction text in selected choice should
 // match that in the <select> option lists.
 // Low priority, unclear if test expectations are correct (see bug)
-V8 # LayoutTests/fast/forms/select-writing-direction-natural.html = FAIL
-V8 # LayoutTests/fast/text/international/bidi-menulist.html = FAIL
+LayoutTests/fast/forms/select-writing-direction-natural.html = FAIL
+LayoutTests/fast/text/international/bidi-menulist.html = FAIL
 
 // Bug 850875
 // requires support for layoutTestController.encodeHostName()
-V8 # LayoutTests/fast/encoding/idn-security.html = FAIL
+LayoutTests/fast/encoding/idn-security.html = FAIL
 
 // Bug 852346
 // These layout tests to see if link colors change after visiting a page. They
@@ -259,118 +259,118 @@ V8 # LayoutTests/fast/encoding/idn-security.html = FAIL
 // temporary web history. layoutTestController.keepWebHistory() is not
 // implemented in test shell.
 // This is a test tool problem, not a Chrome problem.
-V8 # LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
-V8 # LayoutTests/fast/history/subframe-is-visited.html = FAIL
+LayoutTests/fast/history/clicked-link-is-visited.html = FAIL
+LayoutTests/fast/history/subframe-is-visited.html = FAIL
 
 // Bug 1027226
 // Bug 945322: test shell should dump text when
 // layoutTestController.notifyDone() is called
 // Not critical for beta.
-V8 # LayoutTests/editing/selection/drag-in-iframe.html = FAIL | TIMEOUT
+LayoutTests/editing/selection/drag-in-iframe.html = FAIL | TIMEOUT
 
 // BUG 938563: occasionally times out (performs about 50 HTTP CGI requests)
-V8 # LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS | TIMEOUT
+LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS | TIMEOUT
 
 // Bug 849056
 // We don't support NPN_Enumerate, but don't know of any plugin
 // which depends on that functionality.  So we ignore this for beta.
-V8 # LayoutTests/plugins/netscape-enumerate.html = FAIL
+LayoutTests/plugins/netscape-enumerate.html = FAIL
 
 // This tests the screen's pixel depth, which we don't set on the buildbots
 // so it depends on the users settings.  Making this a broken test for us.
 // The test must be fixed to not depend on user settings and rebaselined.  post-beta.
-V8 # LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL
+LayoutTests/fast/dom/Window/window-screen-properties.html = FAIL
 
 // Bug: 849060
 // Plugin creation is delayed until after first layout, so
 // setwindow isn't being called.
-V8 # LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
+LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 
 // It is flaky on V8 build.
-V8 # LayoutTests/http/tests/security/cross-frame-access-put.html = PASS | FAIL
+LayoutTests/http/tests/security/cross-frame-access-put.html = PASS | FAIL
 
 // Bug 982602
 // We don't support support window.resizeTo (nor is it planned for Beta)
-V8 # LayoutTests/fast/dom/Window/window-resize-and-move-arguments.html = FAIL
+LayoutTests/fast/dom/Window/window-resize-and-move-arguments.html = FAIL
 
 // Test expects that when focus is in an iframe and page-up is hit, the parent
 // document is also scrolled
 // IE and FF also "fail" this test.
-V8 # LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
+LayoutTests/fast/frames/iframe-scroll-page-up-down.html = FAIL
 
 // Bug 1082426
 // document.write() pf plain text does not always flush
 // This is a known WebKit bug, https://bugs.webkit.org/show_bug.cgi?id=8961
-V8 # LayoutTests/editing/execCommand/delete-no-scroll.html = FAIL
+LayoutTests/editing/execCommand/delete-no-scroll.html = FAIL
 
 // Bug: 879449
 // TODO(joshia): Need some changes to the test shell in order to support
 // Java applet related unit tests. So disable the following for now.
 // These tests should be fixed immediately after the Java applets work is done.
-V8 # LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
-V8 # LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
+LayoutTests/fast/replaced/applet-disabled-positioned.html = FAIL
+LayoutTests/fast/replaced/applet-rendering-java-disabled.html = FAIL
 
 // Bug 1198880
-V8 # LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
+LayoutTests/svg/custom/svgsvgelement-ctm.xhtml = FAIL
 
 // Bug 1204878
-V8 # LayoutTests/http/tests/navigation/post-goback1.html = FAIL
+LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 
 // Bug 1135948: Fails because we cannot call plugins as functions.
-V8 # LayoutTests/plugins/bindings-test.html = FAIL
+LayoutTests/plugins/bindings-test.html = FAIL
 
 // Bug 1124435: deal with the deletion UI in a later release.
-V8 # LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
+LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 
 // Bug 871718: These tests load data: URLs into frames and sets queries on then.
 // This is totally broken. This layout test should be rewitten so that the
 // subframes are not data URLs (probably we want files in the resources dir.).
-V8 # LayoutTests/fast/encoding/char-encoding.html = FAIL | TIMEOUT
-V8 # LayoutTests/fast/encoding/char-decoding.html = FAIL | TIMEOUT
+LayoutTests/fast/encoding/char-encoding.html = FAIL | TIMEOUT
+LayoutTests/fast/encoding/char-decoding.html = FAIL | TIMEOUT
 
 // Bug 1130795: since we don't have Aqua-themed controls, don't ignore the
 // box-shadow properties of controls that request Aqua theming.  But since Aqua
 // controls are rare on the web, defer this fix.
-V8 # LayoutTests/fast/forms/box-shadow-override.html = FAIL
+LayoutTests/fast/forms/box-shadow-override.html = FAIL
 
 // These tests are not valid: the so-called expected results are not known to
 // be correct.  See bug 849072.
 // TODO(ojan): They are *our* tests. 
 // It seems silly to skip our own tests when we can change/delete them.
 // I'm marking them as deferred for now, but we should do something with them.
-V8 # SKIP : chrome/http/mime = PASS
+SKIP : chrome/http/mime = PASS
 
 // Bug: 916857: These tests fail because of <audio> and <video>?
 // Removed from the skip-list since they consistently fail quickly.
-V8 # LayoutTests/http/tests/media/video-play-stall.html = FAIL
-V8 # LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
-V8 # LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
-V8 # LayoutTests/http/tests/media/remove-while-loading.html = FAIL
+LayoutTests/http/tests/media/video-play-stall.html = FAIL
+LayoutTests/http/tests/media/video-play-stall-seek.html = FAIL
+LayoutTests/http/tests/media/video-seekable-stall.html = FAIL
+LayoutTests/http/tests/media/remove-while-loading.html = FAIL
 
 // We don't support the storage APIs.  Some of the them hang.
-V8 # SKIP : LayoutTests/storage = PASS
-V8 # SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
+SKIP : LayoutTests/storage = PASS
+SKIP : LayoutTests/fast/js/exceptions-thrown-in-callbacks.html = PASS
 
 // Fails due to storage APIs not implemented.  See bug 1124568. Might be worth
 // re-baselining temporarily so the rest of the conditions are still tested.
-V8 # LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
+LayoutTests/fast/dom/Window/window-function-name-getter-precedence.html = FAIL
 
 // These tests all time out, which makes running the suite take too long if
 // they're included.  See bug 916857 to investigate <audio> and <video>.
-V8 # SKIP : LayoutTests/media = TIMEOUT
+SKIP : LayoutTests/media = TIMEOUT
 
 // Bug 850287: Need better Thai line-breaking.  Not a high priority, because
 // it's acceptable as it is.
-V8 # LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
+LayoutTests/fast/text/international/thai-line-breaks.html = FAIL
 
 // Bug 941049: Function arguments object is copied for each access.
-V8 # LayoutTests/fast/js/kde/function_arguments.html = FAIL
+LayoutTests/fast/js/kde/function_arguments.html = FAIL
 
 // Bug 1155674: Test sometimes fails on V8 in debug mode, because it's very 
 // timing dependent. We should consider rewriting the test case to give us
 // more wriggle room timing wise (especially for debug builds). Fixing the
 // issue now is not going to improve product quality for beta.
-V8 # LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
+LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
 
 
 // The following tests (up to the ---- line below) need to add new methods to
@@ -386,7 +386,7 @@ V8 # LayoutTests/fast/forms/search-event-delay.html = PASS | FAIL
 // LayoutTests/fast/css/display-none-inline-style-change-crash.html   somehow
 // the message is dumped after the #EOF, which causes an additional
 // error in the header of the following test.
-V8 # SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
+SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 
 // ------------------------------------------------------------------------- //
 
@@ -395,15 +395,15 @@ V8 # SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 // GDI @font-face support has been implemented upstream, but we don't plan
 // to fork to add support for @font-face for Beta.
 // upstream: http://trac.webkit.org/projects/webkit/changeset/31507
-V8 # LayoutTests/fast/css/font-face-multiple-remote-sources.html = FAIL
-V8 # LayoutTests/fast/css/font-face-remote.html = FAIL
-V8 # LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
+LayoutTests/fast/css/font-face-multiple-remote-sources.html = FAIL
+LayoutTests/fast/css/font-face-remote.html = FAIL
+LayoutTests/svg/custom/font-face-cascade-order.svg = FAIL
 
 // Bug: 1007391
 // These hit a not-implemented code-path in @font-face code
 // Fixing this should not be required for beta.
-V8 # LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
-V8 # LayoutTests/fast/css/font-face-unicode-range.html = FAIL
+LayoutTests/fast/css/font-face-implicit-local-font.html = FAIL
+LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 
 // Bug: 1110028
 // The v8 bindings allow shadowing of all properties on the global object.  If you use 
@@ -413,33 +413,33 @@ V8 # LayoutTests/fast/css/font-face-unicode-range.html = FAIL
 // that KJS has (some properties can be shadowed and others can't).  This should have 
 // low priority.
 // We currently match IE, the plan is to convince KJS to change post-beta.
-V8 # LayoutTests/fast/dom/Window/window-property-shadowing-name.html = TIMEOUT
-V8 # LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
+LayoutTests/fast/dom/Window/window-property-shadowing-name.html = TIMEOUT
+LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
 
 // This test expects weird behavior of __defineGetter__ on the
 // window object.  It expects variables introduced with 'var x = value'
 // to behave differently from variables introduced with 'y = value'.
 // This just seems wrong and should have very low priority.
 // Agreed, not required for Beta, we can debate this with WebKit post Beta, (eseidel, 4/25)
-V8 # LayoutTests/fast/dom/getter-on-window-object2.html = FAIL
+LayoutTests/fast/dom/getter-on-window-object2.html = FAIL
 
 // Bug: 1042653
 // We don't support WebKit-Editing-Delete-Button
-V8 # LayoutTests/editing/deleting/5408255.html = FAIL
+LayoutTests/editing/deleting/5408255.html = FAIL
 
 // Bug: 1042838
 // User stylesheets not currently supported by chrome.
 // Webkit supports them by doing filesystem operations directly.
 // This is disallowed in a sandboxed renderer. The test fails in test_shell.exe because the
 // necessary filesystem stubs are notImplemented(), and would need to be proxied through the browser
-V8 # LayoutTests/http/tests/security/local-user-CSS-from-remote.html = FAIL
+LayoutTests/http/tests/security/local-user-CSS-from-remote.html = FAIL
 
 // Extra space at end of test results.  Since this is a crash test, a
 // FAIL here is just as good as running the test normally
 // Not sure why it passes (frequently on V8, rarely on KJS). See bug 1126050.
 // FAIL results from an extra newline at the top of the results
 // the checked in results do not include the PASS text.
-V8 # LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = PASS | FAIL
+LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = PASS | FAIL
 
 // -----------------------------------------------------------------
 // SVG TESTS
@@ -476,35 +476,35 @@ V8 # LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html =
 //
 
 // The following tests fail because SVG animation is not yet implemented
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
 
 // This test fails because SVG filters are not implemented
-V8 # LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
 
 // These test fail full text diff (but not simplified diff) most likely due 
 // to differing implementations of SVG fonts. They may or may not represent real 
 // bugs which need fixin'
-V8 # LayoutTests/svg/batik/text/smallFonts.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textBiDi.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textOnPath.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
-V8 # LayoutTests/svg/batik/text/verticalText.svg = FAIL
-V8 # LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
-V8 # LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
-V8 # LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
-V8 # LayoutTests/svg/text/text-intro-05-t.svg = FAIL
-V8 # LayoutTests/svg/text/text-path-01-b.svg = FAIL
+LayoutTests/svg/batik/text/smallFonts.svg = FAIL
+LayoutTests/svg/batik/text/textBiDi.svg = FAIL
+LayoutTests/svg/batik/text/textGlyphOrientationHorizontal.svg = FAIL
+LayoutTests/svg/batik/text/textOnPath.svg = FAIL
+LayoutTests/svg/batik/text/textOnPath2.svg = FAIL
+LayoutTests/svg/batik/text/textOnPath3.svg = FAIL
+LayoutTests/svg/batik/text/textOnPathSpaces.svg = FAIL
+LayoutTests/svg/batik/text/verticalText.svg = FAIL
+LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
+LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
+LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
+LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+LayoutTests/svg/text/text-path-01-b.svg = FAIL
 
 // This test is failing because Apple's results appear to be bogus. Will let them know.
-V8 # LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
+LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
 
 // This test fails because of an oddity in stroke width calculation. A
 // line is stroked horizontally from Y=100 with stroke width 100, we consider
@@ -512,41 +512,41 @@ V8 # LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL
 // is a total of 100 lines. Apple expects it to be occupying Y=150 as
 // well. The specification isn't very specific on which behavior is correct,
 // but I feel like ours makes more sense.
-V8 # LayoutTests/svg/custom/stroke-width-click.svg = FAIL
+LayoutTests/svg/custom/stroke-width-click.svg = FAIL
 
 // These tests all pass simplified diff, but fail full text diffs due to
 // positions and/or widths that deviate from Apple's expectations by varying
 // degrees. These are almost certainly nonbugs, but won't be rebased until
 // we can say for sure.
-V8 # LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL   // 12 numbers differ, by an absolute total of 73.93
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-02-t.svg = FAIL   // 1 numbers differ, by an absolute total of 10.00
-V8 # LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL   // 11 numbers differ, by an absolute total of 1.08
-V8 # LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL   // 10 numbers differ, by an absolute total of 15.39
-V8 # LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL   // 20 numbers differ, by an absolute total of 327.17
-V8 # LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL   // 14 numbers differ, by an absolute total of 58.82
-V8 # LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL   // 21 numbers differ, by an absolute total of 23.96
-V8 # LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL   // 8 numbers differ, by an absolute total of 119.28
-V8 # LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL   // 6 numbers differ, by an absolute total of 21.34
-V8 # LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL   // 8 numbers differ, by an absolute total of 3.48
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL   // 3 numbers differ, by an absolute total of 42.00
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL   // 18 numbers differ, by an absolute total of 237.00
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL   // 16 numbers differ, by an absolute total of 67.92
-V8 # LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
-V8 # LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL   // 2 numbers differ, by an absolute total of 0.20
-V8 # LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
-V8 # LayoutTests/svg/custom/linking-a-03-b-viewBox-transform.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
-V8 # LayoutTests/svg/custom/linking-a-03-b-viewBox.svg = FAIL   // 2 numbers differ, by an absolute total of 0.04
-V8 # LayoutTests/svg/custom/marker-changes.svg = FAIL   // 6 numbers differ, by an absolute total of 5.00
-V8 # LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
-V8 # LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL   // 11 numbers differ, by an absolute total of 4.69
-V8 # LayoutTests/svg/hixie/perf/001.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
-V8 # LayoutTests/svg/hixie/perf/002.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
-V8 # LayoutTests/svg/hixie/perf/007.xml = FAIL   // 745 numbers differ, by an absolute total of 37.97
-V8 # LayoutTests/svg/hixie/shapes/path/001.xml = FAIL   // 6 numbers differ, by an absolute total of 100.56
-V8 # LayoutTests/svg/hixie/text/003.html = FAIL   // 1 numbers differ, by an absolute total of 1.00
-V8 # LayoutTests/svg/hixie/text/003a.xml = FAIL   // 1 numbers differ, by an absolute total of 1.00
-V8 # LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL   // 2 numbers differ, by an absolute total of 18.00
-V8 # LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
+LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL   // 12 numbers differ, by an absolute total of 73.93
+LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-02-t.svg = FAIL   // 1 numbers differ, by an absolute total of 10.00
+LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL   // 11 numbers differ, by an absolute total of 1.08
+LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL   // 10 numbers differ, by an absolute total of 15.39
+LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL   // 20 numbers differ, by an absolute total of 327.17
+LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL   // 14 numbers differ, by an absolute total of 58.82
+LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL   // 21 numbers differ, by an absolute total of 23.96
+LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL   // 8 numbers differ, by an absolute total of 119.28
+LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL   // 6 numbers differ, by an absolute total of 21.34
+LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL   // 8 numbers differ, by an absolute total of 3.48
+LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL   // 3 numbers differ, by an absolute total of 42.00
+LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL   // 18 numbers differ, by an absolute total of 237.00
+LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL   // 16 numbers differ, by an absolute total of 67.92
+LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
+LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL   // 2 numbers differ, by an absolute total of 0.20
+LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
+LayoutTests/svg/custom/linking-a-03-b-viewBox-transform.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
+LayoutTests/svg/custom/linking-a-03-b-viewBox.svg = FAIL   // 2 numbers differ, by an absolute total of 0.04
+LayoutTests/svg/custom/marker-changes.svg = FAIL   // 6 numbers differ, by an absolute total of 5.00
+LayoutTests/svg/custom/use-css-events.svg = FAIL   // 5 numbers differ, by an absolute total of 27.16
+LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL   // 11 numbers differ, by an absolute total of 4.69
+LayoutTests/svg/hixie/perf/001.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
+LayoutTests/svg/hixie/perf/002.xml = FAIL   // 274 numbers differ, by an absolute total of 157.52
+LayoutTests/svg/hixie/perf/007.xml = FAIL   // 745 numbers differ, by an absolute total of 37.97
+LayoutTests/svg/hixie/shapes/path/001.xml = FAIL   // 6 numbers differ, by an absolute total of 100.56
+LayoutTests/svg/hixie/text/003.html = FAIL   // 1 numbers differ, by an absolute total of 1.00
+LayoutTests/svg/hixie/text/003a.xml = FAIL   // 1 numbers differ, by an absolute total of 1.00
+LayoutTests/svg/hixie/viewbox/preserveAspectRatio/001.xml = FAIL   // 2 numbers differ, by an absolute total of 18.00
+LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 numbers differ, by an absolute total of 3.00
 
 // This is an interesting one.
 // The test has an error which causes it to output a message to the console.
@@ -561,19 +561,19 @@ V8 # LayoutTests/svg/hixie/viewbox/preserveAspectRatio/002.xml = FAIL   // 3 num
 // failure in any way and nothing needs to be done to fix it. I'm leaving it
 // in tests_fixable in case we change the test shell's webview delegate to
 // ignore console messages while doing a pixel dump
-V8 # LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL
+LayoutTests/svg/custom/clip-path-referencing-use2.svg = FAIL
 
 // Bug 1107191.  These flakily fail image diffs.  Punting on SVG for now.
 // Note that the "expected" images checked in are not necessarily correct.
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = PASS | FAIL
-V8 # LayoutTests/svg/batik/text/textDecoration2.svg = PASS | FAIL
-V8 # LayoutTests/svg/batik/text/textFeatures.svg = PASS | FAIL
-V8 # LayoutTests/svg/batik/text/textProperties.svg = PASS | FAIL
-V8 # LayoutTests/svg/batik/text/textStyles.svg = PASS | FAIL
-V8 # LayoutTests/svg/text/text-text-03-b.svg = PASS | FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-text-03-b.svg = PASS | FAIL
+LayoutTests/svg/batik/text/textDecoration2.svg = PASS | FAIL
+LayoutTests/svg/batik/text/textFeatures.svg = PASS | FAIL
+LayoutTests/svg/batik/text/textProperties.svg = PASS | FAIL
+LayoutTests/svg/batik/text/textStyles.svg = PASS | FAIL
+LayoutTests/svg/text/text-text-03-b.svg = PASS | FAIL
 // These consistently fail with image diffs.
-V8 # LayoutTests/svg/text/text-deco-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
+LayoutTests/svg/text/text-deco-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 
 //
 // -----------------------------------------------------------------
@@ -583,33 +583,33 @@ V8 # LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 // Bug: 1026885
 // Following tests are failing because Chrome does not allow file url
 // to access non-file urls.
-V8 # LayoutTests/editing/selection/4960137.html = FAIL
-V8 # LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
-V8 # LayoutTests/fast/frames/frame-src-attribute.html = FAIL
+LayoutTests/editing/selection/4960137.html = FAIL
+LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = FAIL
+LayoutTests/fast/frames/frame-src-attribute.html = FAIL
 
 // Bug: 1045048
 // We haven't implemented GCController in test shell
 // Not critical for Beta.  We have window.gc() for other tests.
-V8 # LayoutTests/fast/js/garbage-collect-after-string-appends.html = FAIL
+LayoutTests/fast/js/garbage-collect-after-string-appends.html = FAIL
 
 // Bug: 1115062
 // These fail the pixel tests in debug mode because they have
 // unpainted space (filled red in Debug but not in Release).
 // These have been filed upstream, and should be deferred from Beta
 // https://bugs.webkit.org/show_bug.cgi?id=8423
-V8 # LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = PASS | FAIL
-V8 # LayoutTests/fast/flexbox/flex-hang.html = PASS | FAIL
+LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = PASS | FAIL
+LayoutTests/fast/flexbox/flex-hang.html = PASS | FAIL
 
 // Bug: 1166260
-V8 # LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
+LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
 
 // Bug: 1166644
 // Fails on webkit windows as well. 
-V8 # LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
+LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
 // Bug 1226853: Fails on v8-latest after const changes (r123300). Test
 // has been rebaselined (don't declare const x twice).
-V8 # LayoutTests/fast/js/const.html = FAIL
+LayoutTests/fast/js/const.html = FAIL
 
 // Bug 1237779
 // gc-2.html tests that a DOM tree out of document should be kept alive if
@@ -617,170 +617,170 @@ V8 # LayoutTests/fast/js/const.html = FAIL
 // not trace DOM objects not in a document.
 // Also the way to trigger GC is not reliable, that's why sometimes it is
 // passing and sometimes not.
-V8 # LayoutTests/fast/dom/gc-2.html = FAIL | PASS
+LayoutTests/fast/dom/gc-2.html = FAIL | PASS
 
 // Bug: 1344760
-V8 # LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL | PASS
-V8 # LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL | PASS
-V8 # LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL | PASS
+LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL | PASS
+LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL | PASS
+LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL | PASS
 
 // These two appear to be flaky in debug mode only. Not sure when they started failing.
-V8 # LayoutTests/http/tests/navigation/post-goback2.html = FAIL | PASS
-V8 # LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL | PASS
+LayoutTests/http/tests/navigation/post-goback2.html = FAIL | PASS
+LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL | PASS
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
-V8 # chrome/fast/dom/java-applet-calls.html = FAIL
+chrome/fast/dom/java-applet-calls.html = FAIL
 
 // These tests don't work on the open source buildbot because no font covers
 // U+2798 (Heavy SE Arrow) and U+2799 (Heavy Rightwards Arrow). See bug #2304.
-V8 # LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL | PASS
+LayoutTests/css2.1/t0805-c5519-brdr-r-01-e.html = FAIL | PASS
+LayoutTests/css2.1/t0905-c5525-fltblck-00-d-ag.html = FAIL | PASS
 
 // These tests don't work on the open source buildbot because there's no font
 // covering YinYang sign. See bug # 2304.
-V8 # LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL | PASS
-V8 # LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL | PASS
+LayoutTests/css2.1/t0905-c414-flt-fit-01-d-g.html = FAIL | PASS
+LayoutTests/css2.1/t0905-c5525-flthw-00-c-g.html = FAIL | PASS
+LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL | PASS
 // No glyph for U+FFFD (Replacement Character : black diamond with question mark) in them
-V8 # LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL | PASS
+LayoutTests/fast/encoding/invalid-UTF-8.html = FAIL | PASS
 // Zero width chars
-V8 # LayoutTests/fast/text/zero-width-characters.html = FAIL | PASS
+LayoutTests/fast/text/zero-width-characters.html = FAIL | PASS
 
 // HTTPS tests fail on the open source buildbot with error "cross-site not access allowed".
 // See bug # 2306
-V8 # LayoutTests/http/tests/ssl/verify-ssl-enabled.php = PASS | FAIL
-V8 # pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | TIMEOUT
-V8 # pending/http/tests/security/cross-frame-access-protocol.html = PASS | TIMEOUT
+LayoutTests/http/tests/ssl/verify-ssl-enabled.php = PASS | FAIL
+pending/http/tests/security/cross-frame-access-protocol-explicit-domain.html = PASS | TIMEOUT
+pending/http/tests/security/cross-frame-access-protocol.html = PASS | TIMEOUT
 
 // Some tests playing with dates don't work on the open source buildbot.
 // See bug # 2307
-V8 # LayoutTests/fast/js/date-DST-time-cusps.html = FAIL | PASS
-V8 # LayoutTests/fast/js/date-big-setdate.html = FAIL | PASS
+LayoutTests/fast/js/date-DST-time-cusps.html = FAIL | PASS
+LayoutTests/fast/js/date-big-setdate.html = FAIL | PASS
 
 // These three tests have their results changed on WebKit trunk that matches our
 // current results: http://trac.webkit.org/changeset/36652
 // When we pick up that revision of WebKit, we can remove these exceptions.
 // TODO(pinkerton): these were removed from win, but still fail for Mac
-V8 # LayoutTests/fast/events/onunload.html = FAIL
-V8 # LayoutTests/fast/events/onunload-window-property.html = FAIL
-V8 # LayoutTests/fast/forms/button-state-restore.html = FAIL
+LayoutTests/fast/events/onunload.html = FAIL
+LayoutTests/fast/events/onunload-window-property.html = FAIL
+LayoutTests/fast/forms/button-state-restore.html = FAIL
 
 // V8 doesn't stable sort. This is not required and may never be fixed. It is
 // tracked by: http://code.google.com/p/v8/issues/detail?id=90
-V8 # LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
-V8 # LayoutTests/fast/js/sort-stability.html = FAIL
+LayoutTests/fast/js/comparefn-sort-stability.html = FAIL
+LayoutTests/fast/js/sort-stability.html = FAIL
 
 // Apparently V8 date handling:
 // http://code.google.com/p/v8/issues/detail?id=91
-V8 # LayoutTests/fast/js/date-set-to-nan.html = FAIL
+LayoutTests/fast/js/date-set-to-nan.html = FAIL
 
 // These require application cache to be enabled.  Skip the tests because
 // they're all timing out.  TODO(tc): Upstream changes to the test so they
 // fail quickly if window.applicationCache is undefined (then we don't have to
 // skip them).
 // http://crbug.com/2844
-V8 # SKIP : LayoutTests/http/tests/appcache = TIMEOUT | FAIL
+SKIP : LayoutTests/http/tests/appcache = TIMEOUT | FAIL
 
 // Depends on postMessage in a way we don't support:
 // http://code.google.com/p/chromium/issues/detail?id=2857
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-uppercase.html = FAIL
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame.html = FAIL
+LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame-uppercase.html = FAIL
+LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-sub-frame.html = FAIL
 
 // V8 failures as a result of the WebKit merge.
 // http://code.google.com/p/v8/issues/detail?id=92
-V8 # LayoutTests/fast/js/constructor-attributes.html = FAIL
-V8 # LayoutTests/fast/js/eval-cross-window.html = FAIL
-V8 # LayoutTests/fast/js/eval-keyword-vs-function.html = FAIL
-V8 # LayoutTests/fast/js/exception-expression-offset.html = FAIL
-V8 # LayoutTests/fast/js/exception-sequencing-binops2.html = FAIL
-V8 # LayoutTests/fast/js/exception-try-finally-scope-error.html = FAIL
-V8 # LayoutTests/fast/js/function-dot-arguments-and-caller.html = FAIL
-V8 # LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
-V8 # LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
-V8 # LayoutTests/fast/js/removing-Cf-characters.html = FAIL
-V8 # LayoutTests/fast/js/static-scope-object.html = FAIL
-V8 # LayoutTests/fast/js/delete-getters-setters.html = FAIL
+LayoutTests/fast/js/constructor-attributes.html = FAIL
+LayoutTests/fast/js/eval-cross-window.html = FAIL
+LayoutTests/fast/js/eval-keyword-vs-function.html = FAIL
+LayoutTests/fast/js/exception-expression-offset.html = FAIL
+LayoutTests/fast/js/exception-sequencing-binops2.html = FAIL
+LayoutTests/fast/js/exception-try-finally-scope-error.html = FAIL
+LayoutTests/fast/js/function-dot-arguments-and-caller.html = FAIL
+LayoutTests/fast/js/global-recursion-on-full-stack.html = FAIL
+LayoutTests/fast/js/pic/cached-prototype-setter.html = FAIL
+LayoutTests/fast/js/removing-Cf-characters.html = FAIL
+LayoutTests/fast/js/static-scope-object.html = FAIL
+LayoutTests/fast/js/delete-getters-setters.html = FAIL
 
 // Console output won't have line numbers until V8 gives us a way to get that
 // information. <http://crbug.com/2960>
-V8 # LayoutTests/fast/dom/Window/console-functions.html = FAIL
+LayoutTests/fast/dom/Window/console-functions.html = FAIL
 
 // Shadows don't render correctly for these tests.
 // http://code.google.com/p/chromium/issues/detail?id=2969
-V8 # LayoutTests/fast/canvas/shadow-offset-1.html = FAIL
-V8 # LayoutTests/fast/canvas/shadow-offset-2.html = FAIL
-V8 # LayoutTests/fast/canvas/shadow-offset-3.html = FAIL
-V8 # LayoutTests/fast/canvas/shadow-offset-4.html = FAIL
-V8 # LayoutTests/fast/canvas/shadow-offset-5.html = FAIL
-V8 # LayoutTests/fast/canvas/shadow-offset-6.html = FAIL
-V8 # LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
-V8 # LayoutTests/fast/css/shadow-multiple.html = FAIL
+LayoutTests/fast/canvas/shadow-offset-1.html = FAIL
+LayoutTests/fast/canvas/shadow-offset-2.html = FAIL
+LayoutTests/fast/canvas/shadow-offset-3.html = FAIL
+LayoutTests/fast/canvas/shadow-offset-4.html = FAIL
+LayoutTests/fast/canvas/shadow-offset-5.html = FAIL
+LayoutTests/fast/canvas/shadow-offset-6.html = FAIL
+LayoutTests/fast/canvas/shadow-offset-7.html = FAIL
+LayoutTests/fast/css/shadow-multiple.html = FAIL
 
 // There appears to be some parsing error. These tests give "successfullyParsed
 // should be true (of type boolean). Was undefined (of type undefined)."
 // http://code.google.com/p/chromium/issues/detail?id=2976
-V8 # LayoutTests/fast/canvas/drawImage-with-negative-source-destination.html = FAIL
+LayoutTests/fast/canvas/drawImage-with-negative-source-destination.html = FAIL
 
 // getImageData isn't supported on canvas.
 // http://code.google.com/p/chromium/issues/detail?id=2974
-V8 # LayoutTests/fast/canvas/canvas-pattern-behaviour.html = FAIL
-V8 # LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
+LayoutTests/fast/canvas/canvas-pattern-behaviour.html = FAIL
+LayoutTests/fast/canvas/canvas-getImageData.html = FAIL
 
 // We don't implement toDataURL.
 // http://code.google.com/p/chromium/issues/detail?id=2972
-V8 # LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
+LayoutTests/fast/canvas/toDataURL-supportedTypes.html = FAIL
 
 // layoutTestController.setStopProvisionalFrameLoads needs implementing
 // http://code.google.com/p/chromium/issues/detail?id=2980
-V8 # LayoutTests/fast/loader/stop-provisional-loads.html = FAIL
+LayoutTests/fast/loader/stop-provisional-loads.html = FAIL
 
 // Our shadows looks wrong. The text not having shadows is to be expected, but
 // it looks like we're missing a red shadow that Safari has.
 // http://code.google.com/p/chromium/issues/detail?id=2982
-V8 # LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
-V8 # LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
-V8 # LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
-V8 # LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
+LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
+LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
+LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
+LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
 
 // This test was removed from Win, but still fails on Mac
-V8 # LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
+LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
 
 // Regression from the webkit merge submitting forms to reference fragments.
 // http://code.google.com/p/chromium/issues/detail?id=3008
-V8 # LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL
+LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL
 
 // Many of the failures here are because V8 stringifies objects differently than
 // JSC. However, the missing position and totalSize properties seems genuine.
-V8 # SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
+SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
 
 // We don't render reflection masks properly.
 // http://code.google.com/p/chromium/issues/detail?id=3229
-V8 # LayoutTests/fast/reflections/reflection-masks.html = FAIL
+LayoutTests/fast/reflections/reflection-masks.html = FAIL
 
 // http://crbug.com/3244 : SVG masks aren't quite working yet.
-V8 # LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
-V8 # LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
+LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
+LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
+LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 
 // More tests that fail because of masks not working properly.
-V8 # LayoutTests/fast/backgrounds/mask-composite.html = FAIL
-V8 # LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
-V8 # LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
-V8 # LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
+LayoutTests/fast/backgrounds/mask-composite.html = FAIL
+LayoutTests/fast/backgrounds/repeat/mask-negative-offset-repeat.html = FAIL
+LayoutTests/fast/borders/block-mask-overlay-image.html = FAIL
+LayoutTests/fast/borders/inline-mask-overlay-image.html = FAIL
 
 // This was fixed in WebKit r36103 http://trac.webkit.org/changeset/36103/.	
 // For chromium, it got flaky once we pulled 36103 in.
-V8 # LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL | PASS
+LayoutTests/svg/custom/invalid-fill-hex.svg = FAIL | PASS
 
 // This test finishes while in the middle of a CSS animation. This is
 // intentional, but it makes pixel results unreliable.
 // http://bugs.webkit.org/show_bug.cgi?id=21491
-V8 # SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
+SKIP : LayoutTests/transitions/opacity-transition-zindex.html = PASS
 
 // Issue 3273: TextInputController::firstRectForCharacterRange not implemented
 // http://code.google.com/p/chromium/issues/detail?id=3273
-V8 # LayoutTests/editing/selection/move-left-right.html = FAIL
+LayoutTests/editing/selection/move-left-right.html = FAIL
 
 // ----------------------------------------------------------------------------
 // NEW FOR THE MERGE
@@ -789,514 +789,514 @@ V8 # LayoutTests/editing/selection/move-left-right.html = FAIL
 // and then baselined if necessary.
 // ----------------------------------------------------------------------------
 
-V8 # LayoutTests/accessibility = FAIL
-V8 # LayoutTests/fast/block/basic/min-pref-width-nowrap-floats.html = FAIL
-V8 # LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
-V8 # LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
-V8 # LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
-V8 # LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
-V8 # LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
-V8 # LayoutTests/fast/text/soft-hyphen-2.html = FAIL
-V8 # LayoutTests/fast/gradients/border-image-gradient-sides-and-corners.html = FAIL
-V8 # LayoutTests/fast/gradients/border-image-gradient.html = FAIL
-V8 # LayoutTests/fast/gradients/generated-gradients.html = FAIL
-V8 # LayoutTests/fast/gradients/list-item-gradient.html = FAIL
-V8 # LayoutTests/fast/gradients/simple-gradients.html = FAIL
-V8 # LayoutTests/fast/media/implicit-media-all.html = FAIL
-V8 # LayoutTests/fast/media/monochrome.html = FAIL
-V8 # LayoutTests/fast/media/viewport-media-query.html = FAIL
-V8 # LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
-V8 # LayoutTests/fast/replaced/absolute-position-percentage-width.html = FAIL
-V8 # LayoutTests/fast/replaced/max-width-percent.html = FAIL
-V8 # LayoutTests/fast/table/border-collapsing/equal-precedence-resolution.html = FAIL
-V8 # LayoutTests/fast/table/fixed-with-auto-with-colspan.html = FAIL
-V8 # LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
-V8 # LayoutTests/fast/table/vertical-align-baseline.html = FAIL
-V8 # LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
-V8 # LayoutTests/fast/transforms/shadows.html = FAIL
-V8 # LayoutTests/http/tests/misc/acid3.html = FAIL
-V8 # DEFER : LayoutTests/http/tests/misc/frame-default-enc-same-domain.html = FAIL
-V8 # LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
-V8 # LayoutTests/http/tests/security/cross-frame-access-object-prototype.html = FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/cross-origin-xsl-BLOCKED.html = FAIL
-V8 # LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/xss-eval.html = FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
-V8 # LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
-V8 # LayoutTests/media/progress-event-total.html = FAIL
-V8 # LayoutTests/media/video-click-dlbclick-standalone.html = FAIL
-V8 # LayoutTests/media/video-layer-crash.html = FAIL
-V8 # LayoutTests/media/video-source-type-params.html = FAIL
-V8 # LayoutTests/printing = FAIL
-V8 # LayoutTests/security/autocomplete-cleared-on-back.html = FAIL | TIMEOUT
-V8 # LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
+LayoutTests/accessibility = FAIL
+LayoutTests/fast/block/basic/min-pref-width-nowrap-floats.html = FAIL
+LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
+LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
+LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
+LayoutTests/fast/canvas/canvas-text-baseline.html = FAIL
+LayoutTests/fast/dom/SelectorAPI/NSResolver-exceptions.xhtml = FAIL
+LayoutTests/fast/text/soft-hyphen-2.html = FAIL
+LayoutTests/fast/gradients/border-image-gradient-sides-and-corners.html = FAIL
+LayoutTests/fast/gradients/border-image-gradient.html = FAIL
+LayoutTests/fast/gradients/generated-gradients.html = FAIL
+LayoutTests/fast/gradients/list-item-gradient.html = FAIL
+LayoutTests/fast/gradients/simple-gradients.html = FAIL
+LayoutTests/fast/media/implicit-media-all.html = FAIL
+LayoutTests/fast/media/monochrome.html = FAIL
+LayoutTests/fast/media/viewport-media-query.html = FAIL
+LayoutTests/fast/overflow/float-in-relpositioned.html = FAIL
+LayoutTests/fast/replaced/absolute-position-percentage-width.html = FAIL
+LayoutTests/fast/replaced/max-width-percent.html = FAIL
+LayoutTests/fast/table/border-collapsing/equal-precedence-resolution.html = FAIL
+LayoutTests/fast/table/fixed-with-auto-with-colspan.html = FAIL
+LayoutTests/fast/table/prepend-in-anonymous-table.html = FAIL
+LayoutTests/fast/table/vertical-align-baseline.html = FAIL
+LayoutTests/fast/transforms/overflow-with-transform.html = FAIL
+LayoutTests/fast/transforms/shadows.html = FAIL
+LayoutTests/http/tests/misc/acid3.html = FAIL
+DEFER : LayoutTests/http/tests/misc/frame-default-enc-same-domain.html = FAIL
+LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
+LayoutTests/http/tests/security/cross-frame-access-object-prototype.html = FAIL | TIMEOUT
+LayoutTests/http/tests/security/cross-origin-xsl-BLOCKED.html = FAIL
+LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL | TIMEOUT
+LayoutTests/http/tests/security/xss-eval.html = FAIL | TIMEOUT
+LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
+LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
+LayoutTests/media/progress-event-total.html = FAIL
+LayoutTests/media/video-click-dlbclick-standalone.html = FAIL
+LayoutTests/media/video-layer-crash.html = FAIL
+LayoutTests/media/video-source-type-params.html = FAIL
+LayoutTests/printing = FAIL
+LayoutTests/security/autocomplete-cleared-on-back.html = FAIL | TIMEOUT
+LayoutTests/security/set-form-autocomplete-attribute.html = FAIL
 
 // Post-MERGE failures: these will all need to be fixed one day
-V8 # LayoutTests/editing/selection/caret-rtl-2.html = FAIL
-V8 # LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL | PASS
-V8 # LayoutTests/fast/block/float/float-avoidance.html = FAIL
-V8 # LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
-V8 # LayoutTests/fast/canvas/drawImage.html = FAIL
-V8 # LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
-V8 # LayoutTests/fast/canvas/fillrect_gradient.html = FAIL
-V8 # LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
+LayoutTests/editing/selection/caret-rtl-2.html = FAIL
+LayoutTests/fast/backgrounds/svg-as-background-5.html = FAIL | PASS
+LayoutTests/fast/block/float/float-avoidance.html = FAIL
+LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
+LayoutTests/fast/canvas/drawImage.html = FAIL
+LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
+LayoutTests/fast/canvas/fillrect_gradient.html = FAIL
+LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 // Flaky
-V8 # LayoutTests/fast/canvas/patternfill-repeat.html = FAIL | CRASH
-V8 # LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
-V8 # LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
-V8 # LayoutTests/fast/forms/form-hides-table.html = FAIL
-V8 # LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
-V8 # LayoutTests/fast/replaced/replaced-breaking.html = FAIL
-V8 # LayoutTests/fast/table/text-field-baseline.html = FAIL
-V8 # LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS | TIMEOUT
-V8 # LayoutTests/http/tests/navigation/back-to-slow-frame.html = FAIL
-V8 # LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
-V8 # LayoutTests/http/tests/navigation/post-basic.html = FAIL | PASS
-V8 # LayoutTests/http/tests/navigation/post-frames.html = FAIL | PASS
-V8 # LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL | TIMEOUT
-V8 # LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-addEventListener.html = FAIL
-V8 # LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-shortcut.html = FAIL
-V8 # LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-addEventListener.html = FAIL
-V8 # LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-shortcut.html = FAIL
-V8 # LayoutTests/http/tests/security/listener/xss-window-onclick-addEventListener.html = FAIL
-V8 # LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = FAIL
-V8 # LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL | TIMEOUT
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL | CRASH | PASS
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-04-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-05-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
-V8 # LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
-V8 # LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL | CRASH
-V8 # LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL | CRASH
-V8 # LayoutTests/svg/batik/paints/patternRegions.svg = FAIL | CRASH
-V8 # LayoutTests/svg/batik/text/textEffect.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textEffect3.svg = FAIL
-V8 # LayoutTests/svg/carto.net/colourpicker.svg = FAIL
-V8 # LayoutTests/svg/carto.net/scrollbar.svg = FAIL
-V8 # LayoutTests/svg/carto.net/selectionlist.svg = FAIL
-V8 # LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
-V8 # LayoutTests/svg/custom/altglyph.svg = FAIL
-V8 # LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
-V8 # LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
-V8 # LayoutTests/svg/custom/circular-marker-reference-1.svg = FAIL
-V8 # LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
-V8 # LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
-V8 # LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
-V8 # LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
+LayoutTests/fast/canvas/patternfill-repeat.html = FAIL | CRASH
+LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
+LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
+LayoutTests/fast/forms/form-hides-table.html = FAIL
+LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
+LayoutTests/fast/replaced/replaced-breaking.html = FAIL
+LayoutTests/fast/table/text-field-baseline.html = FAIL
+LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS | TIMEOUT
+LayoutTests/http/tests/navigation/back-to-slow-frame.html = FAIL
+LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
+LayoutTests/http/tests/navigation/post-basic.html = FAIL | PASS
+LayoutTests/http/tests/navigation/post-frames.html = FAIL | PASS
+LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL | TIMEOUT
+LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-addEventListener.html = FAIL
+LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-shortcut.html = FAIL
+LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-addEventListener.html = FAIL
+LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-shortcut.html = FAIL
+LayoutTests/http/tests/security/listener/xss-window-onclick-addEventListener.html = FAIL
+LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = FAIL
+LayoutTests/http/tests/security/postMessage/invalid-origin-throws-exception.html = FAIL | TIMEOUT
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/color-prop-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL | CRASH | PASS
+LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-04-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/fonts-kern-01-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-02-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-04-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-05-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-09-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-12-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-14-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-15-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-16-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-17-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-18-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-19-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/styling-inherit-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-altglyph-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-text-06-t.svg = FAIL
+LayoutTests/svg/batik/paints/gradientLimit.svg = FAIL
+LayoutTests/svg/batik/paints/patternPreserveAspectRatioA.svg = FAIL | CRASH
+LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL | CRASH
+LayoutTests/svg/batik/paints/patternRegions.svg = FAIL | CRASH
+LayoutTests/svg/batik/text/textEffect.svg = FAIL
+LayoutTests/svg/batik/text/textEffect3.svg = FAIL
+LayoutTests/svg/carto.net/colourpicker.svg = FAIL
+LayoutTests/svg/carto.net/scrollbar.svg = FAIL
+LayoutTests/svg/carto.net/selectionlist.svg = FAIL
+LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
+LayoutTests/svg/custom/altglyph.svg = FAIL
+LayoutTests/svg/custom/animate-path-discrete.svg = FAIL
+LayoutTests/svg/custom/animate-path-morphing.svg = FAIL
+LayoutTests/svg/custom/circular-marker-reference-1.svg = FAIL
+LayoutTests/svg/custom/circular-marker-reference-2.svg = FAIL
+LayoutTests/svg/custom/circular-marker-reference-3.svg = FAIL
+LayoutTests/svg/custom/circular-marker-reference-4.svg = FAIL
+LayoutTests/svg/custom/clip-path-display-none-child.svg = FAIL
 // Flaky on both release and debug. 
-V8 # LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL | CRASH
-V8 # LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
-V8 # LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
-V8 # LayoutTests/svg/custom/focus-ring.svg = FAIL
-V8 # LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
-V8 # LayoutTests/svg/custom/glyph-setting-d-attribute.svg = FAIL
-V8 # LayoutTests/svg/custom/gradient-rotated-bbox.svg = FAIL
-V8 # LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
-V8 # LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
-V8 # LayoutTests/svg/custom/group-opacity.svg = FAIL
-V8 # LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
-V8 # LayoutTests/svg/custom/image-small-width-height.svg = FAIL
-V8 # LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
-V8 # LayoutTests/svg/custom/js-update-image.svg = FAIL
-V8 # LayoutTests/svg/custom/large-bounding-box-percents.svg = FAIL
-V8 # LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
-V8 # LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
-V8 # LayoutTests/svg/custom/non-circular-marker-reference.svg = FAIL
-V8 # LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
-V8 # LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
-V8 # LayoutTests/svg/custom/pattern-rotate.svg = FAIL
-V8 # LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
-V8 # LayoutTests/svg/custom/pointer-events-image.svg = FAIL
-V8 # LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
-V8 # LayoutTests/svg/custom/stroked-pattern.svg = FAIL
-V8 # LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
-V8 # LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
-V8 # LayoutTests/svg/custom/text-dom-removal.svg = FAIL
-V8 # LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
-V8 # LayoutTests/svg/custom/width-full-percentage.svg = FAIL
-V8 # LayoutTests/svg/dom/SVGRectElement/rect-modify-rx.svg = FAIL
-V8 # LayoutTests/svg/hixie/dynamic/005.xml = FAIL
-V8 # LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
-V8 # LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
-V8 # LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
-V8 # LayoutTests/tables/mozilla_expected_failures/bugs/bug220653.html = FAIL
-V8 # chrome/fast/dom/domListEnumeration.html = FAIL
-V8 # chrome/fast/forms/basic-textareas-quirks.html = FAIL
-V8 # pending/fast/canvas/fillrect_gradient.html = FAIL
-V8 # pending/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
-V8 # pending/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
-V8 # pending/dom/html/level2/html/HTMLFrameElement09.html = PASS | CRASH
-V8 # pending/dom/html/level2/html/HTMLIFrameElement11.html = PASS | CRASH
+LayoutTests/svg/custom/deep-dynamic-updates.svg = FAIL | CRASH
+LayoutTests/svg/custom/dominant-baseline-hanging.svg = FAIL
+LayoutTests/svg/custom/embedded-svg-disallowed-in-dashboard.xml = FAIL
+LayoutTests/svg/custom/focus-ring.svg = FAIL
+LayoutTests/svg/custom/glyph-selection-lang-attribute.svg = FAIL
+LayoutTests/svg/custom/glyph-setting-d-attribute.svg = FAIL
+LayoutTests/svg/custom/gradient-rotated-bbox.svg = FAIL
+LayoutTests/svg/custom/gradient-stop-corner-cases.svg = FAIL
+LayoutTests/svg/custom/gradient-stroke-width.svg = FAIL
+LayoutTests/svg/custom/group-opacity.svg = FAIL
+LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+LayoutTests/svg/custom/image-small-width-height.svg = FAIL
+LayoutTests/svg/custom/inline-svg-in-xhtml.xml = FAIL
+LayoutTests/svg/custom/js-update-image.svg = FAIL
+LayoutTests/svg/custom/large-bounding-box-percents.svg = FAIL
+LayoutTests/svg/custom/manually-parsed-embedded-svg-disallowed-in-dashboard.html = FAIL
+LayoutTests/svg/custom/manually-parsed-svg-disallowed-in-dashboard.html = FAIL
+LayoutTests/svg/custom/non-circular-marker-reference.svg = FAIL
+LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
+LayoutTests/svg/custom/pattern-deep-referencing.svg = FAIL
+LayoutTests/svg/custom/pattern-rotate.svg = FAIL
+LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
+LayoutTests/svg/custom/pointer-events-image.svg = FAIL
+LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
+LayoutTests/svg/custom/stroked-pattern.svg = FAIL
+LayoutTests/svg/custom/svg-disallowed-in-dashboard-object.html = FAIL
+LayoutTests/svg/custom/text-dom-01-f.svg = FAIL
+LayoutTests/svg/custom/text-dom-removal.svg = FAIL
+LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
+LayoutTests/svg/custom/width-full-percentage.svg = FAIL
+LayoutTests/svg/dom/SVGRectElement/rect-modify-rx.svg = FAIL
+LayoutTests/svg/hixie/dynamic/005.xml = FAIL
+LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
+LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
+LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
+LayoutTests/tables/mozilla_expected_failures/bugs/bug220653.html = FAIL
+chrome/fast/dom/domListEnumeration.html = FAIL
+chrome/fast/forms/basic-textareas-quirks.html = FAIL
+pending/fast/canvas/fillrect_gradient.html = FAIL
+pending/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
+pending/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
+pending/dom/html/level2/html/HTMLFrameElement09.html = PASS | CRASH
+pending/dom/html/level2/html/HTMLIFrameElement11.html = PASS | CRASH
 
 // This test seems to fail on the builders but not locally.
-V8 # LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
+LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
 
 // TODO(eroman): passed for me locally, need to see why failed on buildbot...
-V8 # LayoutTests/fast/backgrounds/svg-as-background-6.html = PASS | FAIL
+LayoutTests/fast/backgrounds/svg-as-background-6.html = PASS | FAIL
 
 // Post-merge Timeouts: Definitely need to be fixed one day
-V8 # LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
+LayoutTests/http/tests/security/cross-frame-access-call.html = TIMEOUT
  
 // Post-merge Debug only Crashes
-V8 # LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
+LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = CRASH | PASS
 // One of these svg tests sometimes crash in debug mode.  It seems to only
 // happen when all the dynamic-updates tests are run together.
-V8 # LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
-V8 # LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-rx-attr.html = CRASH | PASS
-V8 # LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-cy-attr.html = CRASH | PASS
-V8 # LayoutTests/fast/dom/gc-1.html = CRASH | PASS
+LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-rx-attr.html = CRASH | PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-dom-cy-attr.html = CRASH | PASS
+LayoutTests/fast/dom/gc-1.html = CRASH | PASS
 
 // Post-merge flakey on debug builds (passes consistently on release)
-V8 # LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
-V8 # LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
+LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL | PASS
+LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL | PASS
 
 // Bug 4079, also flakey after merge. Debug builds only.
-V8 # LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL | PASS
+LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL | PASS
 
 // Started timing out with r3615 (mbelshe)
-V8 # LayoutTests/fast/dom/null-document-location-assign-crash.html = TIMEOUT
-V8 # LayoutTests/fast/dom/null-document-location-href-put-crash.html = TIMEOUT
-V8 # LayoutTests/fast/dom/null-document-location-replace-crash.html = TIMEOUT
-V8 # LayoutTests/http/tests/security/postMessage/javascript-page-still-sends-origin.html = TIMEOUT
+LayoutTests/fast/dom/null-document-location-assign-crash.html = TIMEOUT
+LayoutTests/fast/dom/null-document-location-href-put-crash.html = TIMEOUT
+LayoutTests/fast/dom/null-document-location-replace-crash.html = TIMEOUT
+LayoutTests/http/tests/security/postMessage/javascript-page-still-sends-origin.html = TIMEOUT
 
 // Started crashing in DEBUG only with r2842 (mbelshe)
-V8 # LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH | PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH | PASS
 
 // Started failing in DEBUG only with one of the following revisions (all darin): 3587, 3588, 3589
-V8 # LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PASS
+LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL | PASS
 
 // Got flakey (both debug and release) around r3581 (ananta).
-V8 # LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
+LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
 
 // Crash in DEBUG only
-V8 # LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH | PASS
-V8 # LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH | PASS
+LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH | PASS
+LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH | PASS
 
 // NEW FOR MERGE 36102:37604
-V8 # LayoutTests/animations/matrix-anim.html = FAIL
-V8 # LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
-V8 # LayoutTests/fast/block/basic/quirk-percent-height-grandchild.html = FAIL
-V8 # LayoutTests/fast/block/positioning/replaced-inside-fixed-top-bottom.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/001-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/001.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/002-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/002.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/003-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/003-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/003.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/004-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/004-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/004.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/005-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/005-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/005.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/006-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/006-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/006.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/007-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/007-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/007.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/008-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-color/008.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/001-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/001.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/002-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/002.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/003-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/003-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/003.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/004-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/004-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/004.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/005-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/005-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/005.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/006-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/006-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/006.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/007-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/007-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/007.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/008-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/008.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/009-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/009.html = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/010-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/background-image/010.html = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/001-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/001.html = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/002-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/002.html = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/003-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/003-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/003.html = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/004-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/004-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/004.html = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/005-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/005-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/005.html = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/006-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/006-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/006.html = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/007-declarative.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/007-xhtml.xhtml = FAIL
-V8 # LayoutTests/fast/body-propagation/overflow/007.html = FAIL
-V8 # LayoutTests/fast/dom/HTMLScriptElement/script-reexecution.html = FAIL
-V8 # LayoutTests/fast/dom/StyleSheet/ownerNode-lifetime-2.html = FAIL
-V8 # LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
-V8 # LayoutTests/fast/dom/constructors-cached.html = FAIL
-V8 # LayoutTests/fast/forms/password-placeholder-text-security.html = FAIL
-V8 # LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-V8 # LayoutTests/fast/forms/placeholder-set-attribute.html = FAIL
-V8 # LayoutTests/fast/js/arguments.html = FAIL
-V8 # LayoutTests/fast/js/construct-global-object.html = FAIL
-V8 # LayoutTests/fast/js/function-dot-arguments.html = FAIL
-V8 # LayoutTests/fast/js/primitive-method-this.html = FAIL
-V8 # LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
-V8 # LayoutTests/fast/table/empty-row-crash.html = FAIL
-V8 # LayoutTests/http/tests/plugins/local-geturl-from-remote.html = FAIL
-V8 # LayoutTests/scrollbars/basic-scrollbar.html = FAIL
-V8 # LayoutTests/scrollbars/disabled-scrollbar.html = FAIL
-V8 # LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
-V8 # LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
-V8 # LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
-V8 # LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
-V8 # LayoutTests/transforms/2d/compound-transforms-vs-containers.html = FAIL
-V8 # LayoutTests/transforms/2d/transform-borderbox.html = FAIL
-V8 # LayoutTests/transforms/2d/transform-origin-borderbox.html = FAIL
-V8 # LayoutTests/fast/events/message-port-inactive-document.html = TIMEOUT
-V8 # LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
+LayoutTests/animations/matrix-anim.html = FAIL
+LayoutTests/editing/spelling/inline_spelling_markers.html = FAIL
+LayoutTests/fast/block/basic/quirk-percent-height-grandchild.html = FAIL
+LayoutTests/fast/block/positioning/replaced-inside-fixed-top-bottom.html = FAIL
+LayoutTests/fast/body-propagation/background-color/001-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/001.html = FAIL
+LayoutTests/fast/body-propagation/background-color/002-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/002.html = FAIL
+LayoutTests/fast/body-propagation/background-color/003-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/003-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/003.html = FAIL
+LayoutTests/fast/body-propagation/background-color/004-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/004-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/004.html = FAIL
+LayoutTests/fast/body-propagation/background-color/005-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/005-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/005.html = FAIL
+LayoutTests/fast/body-propagation/background-color/006-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/006-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/006.html = FAIL
+LayoutTests/fast/body-propagation/background-color/007-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/007-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/007.html = FAIL
+LayoutTests/fast/body-propagation/background-color/008-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-color/008.html = FAIL
+LayoutTests/fast/body-propagation/background-image/001-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/001.html = FAIL
+LayoutTests/fast/body-propagation/background-image/002-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/002.html = FAIL
+LayoutTests/fast/body-propagation/background-image/003-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/003-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/003.html = FAIL
+LayoutTests/fast/body-propagation/background-image/004-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/004-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/004.html = FAIL
+LayoutTests/fast/body-propagation/background-image/005-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/005-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/005.html = FAIL
+LayoutTests/fast/body-propagation/background-image/006-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/006-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/006.html = FAIL
+LayoutTests/fast/body-propagation/background-image/007-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/007-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/007.html = FAIL
+LayoutTests/fast/body-propagation/background-image/008-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/008.html = FAIL
+LayoutTests/fast/body-propagation/background-image/009-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/009.html = FAIL
+LayoutTests/fast/body-propagation/background-image/010-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/background-image/010.html = FAIL
+LayoutTests/fast/body-propagation/overflow/001-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/001.html = FAIL
+LayoutTests/fast/body-propagation/overflow/002-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/002.html = FAIL
+LayoutTests/fast/body-propagation/overflow/003-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/003-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/003.html = FAIL
+LayoutTests/fast/body-propagation/overflow/004-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/004-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/004.html = FAIL
+LayoutTests/fast/body-propagation/overflow/005-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/005-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/005.html = FAIL
+LayoutTests/fast/body-propagation/overflow/006-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/006-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/006.html = FAIL
+LayoutTests/fast/body-propagation/overflow/007-declarative.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/007-xhtml.xhtml = FAIL
+LayoutTests/fast/body-propagation/overflow/007.html = FAIL
+LayoutTests/fast/dom/HTMLScriptElement/script-reexecution.html = FAIL
+LayoutTests/fast/dom/StyleSheet/ownerNode-lifetime-2.html = FAIL
+LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
+LayoutTests/fast/dom/constructors-cached.html = FAIL
+LayoutTests/fast/forms/password-placeholder-text-security.html = FAIL
+LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
+LayoutTests/fast/forms/placeholder-set-attribute.html = FAIL
+LayoutTests/fast/js/arguments.html = FAIL
+LayoutTests/fast/js/construct-global-object.html = FAIL
+LayoutTests/fast/js/function-dot-arguments.html = FAIL
+LayoutTests/fast/js/primitive-method-this.html = FAIL
+LayoutTests/fast/repaint/button-spurious-layout-hint.html = FAIL
+LayoutTests/fast/table/empty-row-crash.html = FAIL
+LayoutTests/http/tests/plugins/local-geturl-from-remote.html = FAIL
+LayoutTests/scrollbars/basic-scrollbar.html = FAIL
+LayoutTests/scrollbars/disabled-scrollbar.html = FAIL
+LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
+LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
+LayoutTests/scrollbars/scrollbar-buttons.html = FAIL
+LayoutTests/scrollbars/scrollbar-orientation.html = FAIL
+LayoutTests/transforms/2d/compound-transforms-vs-containers.html = FAIL
+LayoutTests/transforms/2d/transform-borderbox.html = FAIL
+LayoutTests/transforms/2d/transform-origin-borderbox.html = FAIL
+LayoutTests/fast/events/message-port-inactive-document.html = TIMEOUT
+LayoutTests/http/tests/security/MessagePort/event-listener-context.html = FAIL
 // missing expected results
-V8 # SKIP LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
-V8 # SKIP LayoutTests/fast/frames/frame-length-fractional.html = FAIL
-V8 # SKIP LayoutTests/fast/table/floating-th.html = FAIL
-V8 # SKIP LayoutTests/fast/table/table-display-types-strict.html = FAIL
-V8 # SKIP LayoutTests/fast/table/table-display-types.html = FAIL
+SKIP LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
+SKIP LayoutTests/fast/frames/frame-length-fractional.html = FAIL
+SKIP LayoutTests/fast/table/floating-th.html = FAIL
+SKIP LayoutTests/fast/table/table-display-types-strict.html = FAIL
+SKIP LayoutTests/fast/table/table-display-types.html = FAIL
 
 // CHANGED OR REBASELINED IN WEBKIT 36102:37604
-V8 # LayoutTests/fast/css/variables/block-cycle-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/color-hex-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/colors-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/declaration-block-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/font-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/image-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/import-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/inline-style-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/invalid-variable-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/margin-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/misplaced-import-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/multiple-term-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/override-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/print-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/remove-variable-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/set-variable-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/shorthand-test.html = FAIL
-V8 # LayoutTests/fast/css/variables/variable-iteration-test.html = FAIL
-V8 # LayoutTests/fast/forms/8250.html = FAIL
-V8 # LayoutTests/fast/forms/input-disabled-color.html = FAIL
-V8 # LayoutTests/fast/forms/password-placeholder.html = FAIL
-V8 # LayoutTests/fast/forms/selection-functions.html = FAIL
-V8 # LayoutTests/fast/js/number-toString.html = FAIL
-V8 # LayoutTests/fast/js/numeric-conversion.html = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-60-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-62-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-63-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-64-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-65-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-66-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-67-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-68-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-69-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-70-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-elem-01-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-elem-02-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-elem-03-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-elem-04-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-elem-05-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/render-elems-01-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/render-elems-02-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/render-elems-06-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/render-elems-07-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/render-elems-08-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/script-handle-02-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/script-handle-03-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/script-handle-04-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/struct-image-06-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-align-05-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-align-06-b.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-text-04-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-text-05-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
-V8 # LayoutTests/svg/W3C-SVG-1.1/text-tspan-01-b.svg = FAIL
-V8 # LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textLayout.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textLayout2.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textLength.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
-V8 # LayoutTests/svg/batik/text/textPosition2.svg = FAIL
-V8 # LayoutTests/svg/batik/text/xmlSpace.svg = FAIL
-V8 # LayoutTests/svg/carto.net/button.svg = FAIL
-V8 # LayoutTests/svg/custom/class-baseValue.svg = FAIL
-V8 # LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
-V8 # LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
-V8 # LayoutTests/svg/custom/svg-fonts-in-html.html = FAIL
-V8 # LayoutTests/svg/custom/text-linking.svg = FAIL
-V8 # LayoutTests/svg/custom/text-xy-updates.svg = FAIL
-V8 # LayoutTests/svg/custom/use-clipped-transform.svg = FAIL
-V8 # LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
-V8 # LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
-V8 # LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
-V8 # LayoutTests/svg/custom/use-setAttribute-crash.svg = FAIL
-V8 # LayoutTests/svg/dom/SVGScriptElement/script-reexecution.svg = FAIL
-V8 # LayoutTests/svg/hixie/links/003-broken.xml = FAIL
-V8 # LayoutTests/svg/text/kerning.svg = FAIL
-V8 # LayoutTests/svg/text/multichar-glyph.svg = FAIL
-V8 # LayoutTests/svg/text/text-align-05-b.svg = FAIL
-V8 # LayoutTests/svg/text/text-align-06-b.svg = FAIL
-V8 # LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
-V8 # LayoutTests/svg/text/text-text-04-t.svg = FAIL
-V8 # LayoutTests/svg/text/text-text-05-t.svg = FAIL
-V8 # LayoutTests/svg/text/text-text-06-t.svg = FAIL
-V8 # LayoutTests/svg/text/text-text-07-t.svg = FAIL
-V8 # LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
+LayoutTests/fast/css/variables/block-cycle-test.html = FAIL
+LayoutTests/fast/css/variables/color-hex-test.html = FAIL
+LayoutTests/fast/css/variables/colors-test.html = FAIL
+LayoutTests/fast/css/variables/declaration-block-test.html = FAIL
+LayoutTests/fast/css/variables/font-test.html = FAIL
+LayoutTests/fast/css/variables/image-test.html = FAIL
+LayoutTests/fast/css/variables/import-test.html = FAIL
+LayoutTests/fast/css/variables/inline-style-test.html = FAIL
+LayoutTests/fast/css/variables/invalid-variable-test.html = FAIL
+LayoutTests/fast/css/variables/margin-test.html = FAIL
+LayoutTests/fast/css/variables/misplaced-import-test.html = FAIL
+LayoutTests/fast/css/variables/multiple-term-test.html = FAIL
+LayoutTests/fast/css/variables/override-test.html = FAIL
+LayoutTests/fast/css/variables/print-test.html = FAIL
+LayoutTests/fast/css/variables/remove-variable-test.html = FAIL
+LayoutTests/fast/css/variables/set-variable-test.html = FAIL
+LayoutTests/fast/css/variables/shorthand-test.html = FAIL
+LayoutTests/fast/css/variables/variable-iteration-test.html = FAIL
+LayoutTests/fast/forms/8250.html = FAIL
+LayoutTests/fast/forms/input-disabled-color.html = FAIL
+LayoutTests/fast/forms/password-placeholder.html = FAIL
+LayoutTests/fast/forms/selection-functions.html = FAIL
+LayoutTests/fast/js/number-toString.html = FAIL
+LayoutTests/fast/js/numeric-conversion.html = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-11-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-24-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-33-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-46-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-60-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-61-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-62-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-63-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-64-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-65-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-66-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-67-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-68-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-69-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-70-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-81-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-82-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/fonts-elem-01-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/fonts-elem-02-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/fonts-elem-03-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/fonts-elem-04-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/fonts-elem-05-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-elems-01-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-elems-02-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-elems-03-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-elems-06-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-elems-07-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/render-elems-08-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/script-handle-02-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/script-handle-03-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/script-handle-04-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/struct-image-06-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-align-05-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-align-06-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-text-04-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-text-05-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-tspan-01-b.svg = FAIL
+LayoutTests/svg/batik/filters/filterRegions.svg = FAIL
+LayoutTests/svg/batik/text/textLayout.svg = FAIL
+LayoutTests/svg/batik/text/textLayout2.svg = FAIL
+LayoutTests/svg/batik/text/textLength.svg = FAIL
+LayoutTests/svg/batik/text/textPCDATA.svg = FAIL
+LayoutTests/svg/batik/text/textPosition2.svg = FAIL
+LayoutTests/svg/batik/text/xmlSpace.svg = FAIL
+LayoutTests/svg/carto.net/button.svg = FAIL
+LayoutTests/svg/custom/class-baseValue.svg = FAIL
+LayoutTests/svg/custom/container-opacity-clip-viewBox.svg = FAIL
+LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
+LayoutTests/svg/custom/svg-fonts-in-html.html = FAIL
+LayoutTests/svg/custom/text-linking.svg = FAIL
+LayoutTests/svg/custom/text-xy-updates.svg = FAIL
+LayoutTests/svg/custom/use-clipped-transform.svg = FAIL
+LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
+LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
+LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
+LayoutTests/svg/custom/use-setAttribute-crash.svg = FAIL
+LayoutTests/svg/dom/SVGScriptElement/script-reexecution.svg = FAIL
+LayoutTests/svg/hixie/links/003-broken.xml = FAIL
+LayoutTests/svg/text/kerning.svg = FAIL
+LayoutTests/svg/text/multichar-glyph.svg = FAIL
+LayoutTests/svg/text/text-align-05-b.svg = FAIL
+LayoutTests/svg/text/text-align-06-b.svg = FAIL
+LayoutTests/svg/text/text-altglyph-01-b.svg = FAIL
+LayoutTests/svg/text/text-text-04-t.svg = FAIL
+LayoutTests/svg/text/text-text-05-t.svg = FAIL
+LayoutTests/svg/text/text-text-06-t.svg = FAIL
+LayoutTests/svg/text/text-text-07-t.svg = FAIL
+LayoutTests/svg/text/text-tspan-01-b.svg = FAIL
 
 // MERGE REGRESSIONS 36102:37604
-V8 # LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL | PASS
-V8 # LayoutTests/editing/style/smoosh-styles-003.html = FAIL
-V8 # LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
-V8 # LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
-V8 # LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
-V8 # LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
-V8 # LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
-V8 # LayoutTests/fast/borders/svg-as-border-image.html = FAIL
-V8 # LayoutTests/fast/css/line-height-overflow.html = FAIL
-V8 # LayoutTests/fast/css/rtl-ordering.html = FAIL
-V8 # LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
-V8 # LayoutTests/fast/dom/Window/window-open-pending-url.html = FAIL
-V8 # LayoutTests/fast/events/mouse-click-events.html = FAIL
-V8 # LayoutTests/fast/events/onclick-list-marker.html = FAIL
-V8 # LayoutTests/fast/flexbox/009.html = FAIL
-V8 # LayoutTests/fast/forms/form-element-geometry.html = FAIL
-V8 # LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
-V8 # LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
-V8 # LayoutTests/fast/forms/listbox-selection-2.html = FAIL
-V8 # LayoutTests/fast/forms/select-initial-position.html = FAIL
-V8 # LayoutTests/fast/forms/select-item-background-clip.html = FAIL
-V8 # LayoutTests/fast/forms/select-visual-hebrew.html = FAIL | PASS
-V8 # LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
-V8 # LayoutTests/fast/frames/invalid.html = FAIL
-V8 # LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
-V8 # LayoutTests/fast/frames/valid.html = FAIL
-V8 # LayoutTests/fast/history/go-back-to-changed-name.html = FAIL | PASS
-V8 # LayoutTests/fast/html/keygen.html = FAIL
-V8 # LayoutTests/fast/images/svg-as-background.html = FAIL
-V8 # LayoutTests/fast/images/svg-as-image.html = FAIL
-V8 # LayoutTests/fast/images/svg-as-relative-image.html = FAIL
-V8 # LayoutTests/fast/invalid/residual-style.html = FAIL
-V8 # LayoutTests/fast/js/bitwise-and-on-undefined.html = FAIL
-V8 # LayoutTests/fast/js/date-DST-pre-1970.html = FAIL
-V8 # LayoutTests/fast/overflow/overflow-x-y.html = FAIL
-V8 # LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
-V8 # LayoutTests/fast/parser/comment-in-textarea.html = FAIL
-V8 # LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
-V8 # LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
-V8 # LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
-V8 # LayoutTests/fast/replaced/percent-height-in-anonymous-block.html = FAIL
-V8 # LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
-V8 # LayoutTests/fast/table/form-in-table-before-misnested-text-crash-css.html = FAIL
-V8 # LayoutTests/fast/table/form-in-tbody-before-misnested-text-crash-css.html = FAIL
-V8 # LayoutTests/fast/text/drawBidiText.html = FAIL
-V8 # LayoutTests/fast/text/international/001.html = FAIL
-V8 # LayoutTests/fast/text/international/002.html = FAIL
-V8 # LayoutTests/fast/text/international/003.html = FAIL
-V8 # LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
-V8 # LayoutTests/http/tests/plugins/post-url-file.html = FAIL
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
-V8 # LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
-V8 # chrome/fast/dom/Window/window-lookup-precedence.html = FAIL
-V8 # chrome/fast/dom/xmlhttprequest-gc.html = FAIL
-V8 # chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
-V8 # chrome/fast/forms/basic-textareas.html = FAIL
-V8 # chrome/fast/forms/lazy-event-listener-scope-chain.html = FAIL
-V8 # pending/security/block-test.html = FAIL | TIMEOUT
-V8 # LayoutTests/editing/execCommand/19089.html = FAIL | PASS
-V8 # LayoutTests/fast/forms/button-cannot-be-nested.html = FAIL | PASS
-V8 # LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL | PASS
-V8 # LayoutTests/fast/events/no-blur-on-page-leave.html = TIMEOUT
-V8 # LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
-V8 # LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
-V8 # pending/plugins/destroy-stream-twice.html = TIMEOUT
-V8 # LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS
-V8 # LayoutTests/animations/big-rotation.html = FAIL | PASS
-V8 # LayoutTests/fast/css/continuationCrash.html = FAIL | PASS
-V8 # LayoutTests/fast/css/font-face-default-font.html = FAIL | PASS
-V8 # LayoutTests/fast/dynamic/float-in-trailing-whitespace-after-last-line-break.html = FAIL | PASS
-V8 # LayoutTests/tables/mozilla_expected_failures/core/captions1.html = FAIL | PASS
-V8 # LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL | PASS
-V8 # LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_style_reflow_table_caption.html = FAIL | PASS
-V8 # pending/fast/text/international/hindi-spacing.html = FAIL | PASS
-V8 # pending/fast/text/international/ideo_punc.html = FAIL | PASS
-V8 # pending/fast/text/wbr-in-pre-crash.html = FAIL | PASS
-V8 # pending/fast/text/wbr-styled.html = FAIL | PASS
-V8 # LayoutTests/editing/selection/14971.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/005.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/007.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/008.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/009.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/010.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/011.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/013.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/014.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/015.html = FAIL | PASS
-V8 # LayoutTests/fast/css-generated-content/016.html = FAIL | PASS
+LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL | PASS
+LayoutTests/editing/style/smoosh-styles-003.html = FAIL
+LayoutTests/fast/backgrounds/svg-as-background-1.html = FAIL
+LayoutTests/fast/backgrounds/svg-as-background-2.html = FAIL
+LayoutTests/fast/backgrounds/svg-as-background-3.html = FAIL
+LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
+LayoutTests/fast/borders/svg-as-border-image.html = FAIL
+LayoutTests/fast/css/line-height-overflow.html = FAIL
+LayoutTests/fast/css/rtl-ordering.html = FAIL
+LayoutTests/fast/dom/Window/new-window-opener.html = FAIL
+LayoutTests/fast/dom/Window/window-open-pending-url.html = FAIL
+LayoutTests/fast/events/mouse-click-events.html = FAIL
+LayoutTests/fast/events/onclick-list-marker.html = FAIL
+LayoutTests/fast/flexbox/009.html = FAIL
+LayoutTests/fast/forms/form-element-geometry.html = FAIL
+LayoutTests/fast/forms/listbox-deselect-scroll.html = FAIL
+LayoutTests/fast/forms/listbox-scrollbar-incremental-load.html = FAIL
+LayoutTests/fast/forms/listbox-selection-2.html = FAIL
+LayoutTests/fast/forms/select-initial-position.html = FAIL
+LayoutTests/fast/forms/select-item-background-clip.html = FAIL
+LayoutTests/fast/forms/select-visual-hebrew.html = FAIL | PASS
+LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
+LayoutTests/fast/frames/invalid.html = FAIL
+LayoutTests/fast/frames/onlyCommentInIFrame.html = FAIL
+LayoutTests/fast/frames/valid.html = FAIL
+LayoutTests/fast/history/go-back-to-changed-name.html = FAIL | PASS
+LayoutTests/fast/html/keygen.html = FAIL
+LayoutTests/fast/images/svg-as-background.html = FAIL
+LayoutTests/fast/images/svg-as-image.html = FAIL
+LayoutTests/fast/images/svg-as-relative-image.html = FAIL
+LayoutTests/fast/invalid/residual-style.html = FAIL
+LayoutTests/fast/js/bitwise-and-on-undefined.html = FAIL
+LayoutTests/fast/js/date-DST-pre-1970.html = FAIL
+LayoutTests/fast/overflow/overflow-x-y.html = FAIL
+LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
+LayoutTests/fast/parser/comment-in-textarea.html = FAIL
+LayoutTests/fast/parser/open-comment-in-textarea.html = FAIL
+LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
+LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
+LayoutTests/fast/replaced/percent-height-in-anonymous-block.html = FAIL
+LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
+LayoutTests/fast/table/form-in-table-before-misnested-text-crash-css.html = FAIL
+LayoutTests/fast/table/form-in-tbody-before-misnested-text-crash-css.html = FAIL
+LayoutTests/fast/text/drawBidiText.html = FAIL
+LayoutTests/fast/text/international/001.html = FAIL
+LayoutTests/fast/text/international/002.html = FAIL
+LayoutTests/fast/text/international/003.html = FAIL
+LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
+LayoutTests/http/tests/plugins/post-url-file.html = FAIL
+LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
+LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
+LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
+chrome/fast/dom/Window/window-lookup-precedence.html = FAIL
+chrome/fast/dom/xmlhttprequest-gc.html = FAIL
+chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
+chrome/fast/forms/basic-textareas.html = FAIL
+chrome/fast/forms/lazy-event-listener-scope-chain.html = FAIL
+pending/security/block-test.html = FAIL | TIMEOUT
+LayoutTests/editing/execCommand/19089.html = FAIL | PASS
+LayoutTests/fast/forms/button-cannot-be-nested.html = FAIL | PASS
+LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL | PASS
+LayoutTests/fast/events/no-blur-on-page-leave.html = TIMEOUT
+LayoutTests/http/tests/plugins/npapi-response-headers.html = TIMEOUT
+LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
+pending/plugins/destroy-stream-twice.html = TIMEOUT
+LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS
+LayoutTests/animations/big-rotation.html = FAIL | PASS
+LayoutTests/fast/css/continuationCrash.html = FAIL | PASS
+LayoutTests/fast/css/font-face-default-font.html = FAIL | PASS
+LayoutTests/fast/dynamic/float-in-trailing-whitespace-after-last-line-break.html = FAIL | PASS
+LayoutTests/tables/mozilla_expected_failures/core/captions1.html = FAIL | PASS
+LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL | PASS
+LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_style_reflow_table_caption.html = FAIL | PASS
+pending/fast/text/international/hindi-spacing.html = FAIL | PASS
+pending/fast/text/international/ideo_punc.html = FAIL | PASS
+pending/fast/text/wbr-in-pre-crash.html = FAIL | PASS
+pending/fast/text/wbr-styled.html = FAIL | PASS
+LayoutTests/editing/selection/14971.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/005.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/007.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/008.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/009.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/010.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/011.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/013.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/014.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/015.html = FAIL | PASS
+LayoutTests/fast/css-generated-content/016.html = FAIL | PASS
 
 // -----------------------------------------------------------------
 // MAC PORT TESTS
@@ -1306,4 +1306,4 @@ V8 # LayoutTests/fast/css-generated-content/016.html = FAIL | PASS
 
 // These tests hang for an unknown reason. Need to debug why the watchdog
 // thread doesn't kill the app correctly.
-V8 # SKIP : LayoutTests/fast/regex/ = TIMEOUT
+SKIP : LayoutTests/fast/regex/ = TIMEOUT
