@@ -558,12 +558,12 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
   
   std::string url8 = WideToUTF8(url);
 
-  bool bIsSVGTest = strstr(url8.c_str(), "W3C-SVG-1.1") != NULL;
+  bool bIsSVGTest = strstr(url8.c_str(), "W3C-SVG-1.1") > 0;
 
   if (bIsSVGTest) {
     SizeTo(kSVGTestWindowWidth, kSVGTestWindowHeight);
   } else {
-    // SizeToDefault();
+    SizeToDefault();
   }
 
   std::string urlString(url8);
