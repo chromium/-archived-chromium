@@ -98,6 +98,8 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   g_signal_connect(G_OBJECT(m_mainWnd), "destroy",
                    G_CALLBACK(MainWindowDestroyed), this);
 
+  g_object_set_data(G_OBJECT(m_mainWnd), "test-shell", this);
+
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
 
   GtkWidget* toolbar = gtk_toolbar_new();
