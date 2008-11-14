@@ -5,7 +5,13 @@
 #ifndef BASE_SHARED_MEMORY_H_
 #define BASE_SHARED_MEMORY_H_
 
+#include "build/build_config.h"
+
+#if defined(OS_POSIX)
+#include <semaphore.h>
+#endif
 #include <string>
+
 #include "base/basictypes.h"
 #include "base/process.h"
 
@@ -17,7 +23,6 @@ namespace base {
 typedef HANDLE SharedMemoryHandle;
 typedef HANDLE SharedMemoryLock;
 #elif defined(OS_POSIX)
-#include <semaphore.h>
 typedef int SharedMemoryHandle;
 typedef sem_t* SharedMemoryLock;
 #endif
