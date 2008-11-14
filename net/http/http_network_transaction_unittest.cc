@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <math.h> // ceil
+#include <math.h>  // ceil
+
 #include "base/compiler_specific.h"
 #include "base/platform_test.h"
 #include "net/base/client_socket_factory.h"
@@ -899,14 +900,14 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
               "Host: www.google.com\r\n\r\n"),
   };
 
-  // The proxy responds to the connect with a 404, using a persistent 
+  // The proxy responds to the connect with a 404, using a persistent
   // connection. Usually a proxy would return 501 (not implemented),
   // or 200 (tunnel established).
   MockRead data_reads1[] = {
     MockRead("HTTP/1.1 404 Not Found\r\n"),
     MockRead("Content-Length: 10\r\n\r\n"),
     MockRead("0123456789"),
-    MockRead(false, net::ERR_UNEXPECTED), // Should not be reached.
+    MockRead(false, net::ERR_UNEXPECTED),  // Should not be reached.
   };
 
   MockSocket data1;
@@ -930,7 +931,7 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   EXPECT_EQ(404, response->headers->response_code());
   EXPECT_EQ(10, response->headers->GetContentLength());
   EXPECT_TRUE(net::HttpVersion(1, 1) == response->headers->GetHttpVersion());
-  
+
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
   EXPECT_STREQ("0123456789", response_data.c_str());

@@ -472,7 +472,7 @@ int HttpNetworkTransaction::DoResolveHost() {
 
 int HttpNetworkTransaction::DoResolveHostComplete(int result) {
   bool ok = (result == OK);
-  DidFinishDnsResolutionWithStatus(ok, this->request_->referrer, this);
+  DidFinishDnsResolutionWithStatus(ok, request_->referrer, this);
   if (ok) {
     next_state_ = STATE_CONNECT;
   } else {
@@ -1149,8 +1149,11 @@ bool HttpNetworkTransaction::SelectNextAuthIdentityToTry(
       auth_identity_[target].source == HttpAuth::IDENT_SRC_NONE) {
     auth_identity_[target].source = HttpAuth::IDENT_SRC_URL;
     auth_identity_[target].invalid = false;
-    auth_identity_[target].username = UTF8ToWide(request_->url.username());
-    auth_identity_[target].password = UTF8ToWide(request_->url.password());
+    // TODO(wtc) It may be necessary to unescape the username and password
+    // after extracting them from the URL.  We should be careful about
+    // embedded nulls in that case.
+    auth_identity_[target].username = ASCIIToWide(request_->url.username());
+    auth_identity_[target].password = ASCIIToWide(request_->url.password());
     // TODO(eroman): If the password is blank, should we also try combining
     // with a password from the cache?
     return true;
