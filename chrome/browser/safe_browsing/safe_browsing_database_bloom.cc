@@ -1274,9 +1274,9 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
 #if defined(OS_WIN)
   // For measuring the amount of IO during the bloom filter build.
   IoCounters io_before, io_after;
-  ProcessHandle handle = Process::Current().handle();
-  scoped_ptr<process_util::ProcessMetrics> metric;
-  metric.reset(process_util::ProcessMetrics::CreateProcessMetrics(handle));
+  base::ProcessHandle handle = base::Process::Current().handle();
+  scoped_ptr<base::ProcessMetrics> metric;
+  metric.reset(base::ProcessMetrics::CreateProcessMetrics(handle));
   metric->GetIOCounters(&io_before);
 #endif
 
