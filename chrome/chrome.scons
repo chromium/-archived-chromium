@@ -8,6 +8,12 @@ Master configuration for building chrome components.
 
 Import('env')
 
+# Arrange for Hammer to add all programs to the 'chrome' Alias.
+env.Append(
+    COMPONENT_PROGRAM_GROUPS = ['chrome'],
+    COMPONENT_TEST_PROGRAM_GROUPS = ['chrome'],
+)
+
 sconscript_files = [
     'SConscript',
 

@@ -263,7 +263,7 @@ if LoadComponent('v8') and root_env.Dir('$CHROME_SRC_DIR/v8').exists():
   sconscripts.append('$OBJ_ROOT/build/SConscript.v8')
 
 if LoadComponent('webkit'):
-  sconscripts.append('$WEBKIT_DIR/SConscript')
+  sconscripts.append('$WEBKIT_DIR/webkit.scons')
 
 
 # Add the final list into the root environment to be build in BuildComponents.
