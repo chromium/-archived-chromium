@@ -12,7 +12,7 @@ void Process::Close() {
   process_ = 0;
 }
 
-void Process::Terminate() {
+void Process::Terminate(int result_code) {
   NOTIMPLEMENTED();
 }
 
