@@ -24,7 +24,10 @@ namespace {
 
 ///////////////////////////////////////////////////////////////////////////////
 // WindowFinder
-//  A WindowForPoint facility that can ignore 2 provided window HWNDs.
+//  A helper class that finds the topmost window from our thread under a
+//  particular point. This returns NULL if we don't have a window at the
+//  specified point, or there is another window from another app on top of our
+//  window at the specified point.
 //
 class WindowFinder {
  public:
@@ -32,39 +35,80 @@ class WindowFinder {
     WindowFinder instance(screen_point, ignore1);
     return instance.GetResult();
   }
+
  private:
   WindowFinder(const gfx::Point& screen_point, HWND ignore1)
       : screen_point_(screen_point.ToPOINT()),
     ignore1_(ignore1),
-    result_(NULL) {
+    result1_(NULL),
+    result2_(NULL) {
   }
 
-  static BOOL CALLBACK WindowEnumProc(HWND hwnd, LPARAM lParam) {
+  static BOOL CALLBACK EnumThreadWindowsProc(HWND hwnd, LPARAM lParam) {
     WindowFinder* wf = reinterpret_cast<WindowFinder*>(lParam);
     if (hwnd == wf->ignore1_)
-      return true;
+      return TRUE;
 
     if (::IsWindowVisible(hwnd)) {
       CRect r;
       ::GetWindowRect(hwnd, &r);
       if (r.PtInRect(wf->screen_point_)) {
         // We always deal with the root HWND.
-        wf->result_ = GetAncestor(hwnd, GA_ROOT);
+        wf->result1_ = GetAncestor(hwnd, GA_ROOT);
         return FALSE;
       }
     }
     return TRUE;
   }
 
-  HWND GetResult() {
-    EnumThreadWindows(GetCurrentThreadId(), WindowEnumProc,
-                      reinterpret_cast<LPARAM>(this));
-    return result_;
+  static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+    WindowFinder* wf = reinterpret_cast<WindowFinder*>(lParam);
+    if (hwnd == wf->ignore1_)
+      return TRUE;
+
+    if (hwnd == wf->result1_) {
+      // Result from first pass is the topmost window under point. Use it.
+      wf->result2_ = hwnd;
+      return FALSE;
+    }
+
+    if (::IsWindowVisible(hwnd)) {
+      CRect r;
+      if (::GetWindowRect(hwnd, &r) && r.PtInRect(wf->screen_point_)) {
+        // Result from first pass is not the topmost window under point.
+        return FALSE;
+      }
+    }
+    return TRUE;  // Keep iterating.
   }
 
+  HWND GetResult() {
+    // We take a two step approach to find the topmost window under point.
+    // Step 1: find the topmost window in our thread under point.
+    EnumThreadWindows(GetCurrentThreadId(), EnumThreadWindowsProc,
+                      reinterpret_cast<LPARAM>(this));
+    if (result1_) {
+      // Step 2.
+      // We have a window under the point in our thread. Make sure there isn't
+      // another window from another app on top of our window at point.
+      // NOTE: EnumWindows iterates window from topmost window to bottommost
+      // window.
+      EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(this));
+    }
+    return result2_;
+  }
+
+  // Location we're looking for.
   POINT screen_point_;
+
+  // HWND to ignore.
   HWND ignore1_;
-  HWND result_;
+
+  // Result from first pass. See docs in GetResult for details.
+  HWND result1_;
+
+  // Result from second pass. See docs in GetResult for details.
+  HWND result2_;
 
   DISALLOW_EVIL_CONSTRUCTORS(WindowFinder);
 };
