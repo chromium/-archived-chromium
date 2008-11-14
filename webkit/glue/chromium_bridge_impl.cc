@@ -21,7 +21,10 @@
 
 #undef LOG
 #include "base/clipboard.h"
+#include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "base/trace_event.h"
+#include <v8.h>
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
@@ -290,7 +293,34 @@ IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
       webkit_glue::GetScreenInfo(ToPlatform(widget)).available_rect);
 }
 
-// URL ----------------------------------------------------------------
+// StatsCounters --------------------------------------------------------------
+void ChromiumBridge::decrementStatsCounter(const wchar_t* name) {
+  StatsCounter(name).Decrement();
+}
+
+void ChromiumBridge::incrementStatsCounter(const wchar_t* name) {
+  StatsCounter(name).Increment();
+}
+
+void ChromiumBridge::initV8CounterFunction() {
+  v8::V8::SetCounterFunction(StatsTable::FindLocation);
+}
+
+// Trace Event ----------------------------------------------------------------
+void ChromiumBridge::traceEventBegin(const char* name,
+                                     void* id,
+                                     const char* extra) {
+  TRACE_EVENT_BEGIN(name, id, extra);
+}
+
+void ChromiumBridge::traceEventEnd(const char* name,
+                                   void* id,
+                                   const char* extra) {
+  TRACE_EVENT_END(name, id, extra);
+}
+
+
+// URL ------------------------------------------------------------------------
 KURL ChromiumBridge::inspectorURL() {
   return webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
 }

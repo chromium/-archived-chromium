@@ -110,10 +110,6 @@
 #include "XPathEvaluator.h"
 #endif
 
-#undef LOG
-#include "base/stats_table.h"
-#include "base/trace_event.h"
-
 namespace WebCore {
 
 
@@ -1039,16 +1035,16 @@ v8::Local<v8::Value> V8Proxy::Evaluate(const String& fileName, int baseLine,
 
     // Compile the script.
     v8::Local<v8::String> code = v8ExternalString(str);
-    TRACE_EVENT_BEGIN("v8.compile", n, "");
+    ChromiumBridge::traceEventBegin("v8.compile", n, "");
     v8::Handle<v8::Script> script = CompileScript(code, fileName, baseLine);
-    TRACE_EVENT_END("v8.compile", n, "");
+    ChromiumBridge::traceEventEnd("v8.compile", n, "");
 
     // Set inlineCode to true for <a href="javascript:doSomething()">
     // and false for <script>doSomething</script>. For some reason, fileName
     // gives us this information.
-    TRACE_EVENT_BEGIN("v8.run", n, "");
+    ChromiumBridge::traceEventBegin("v8.run", n, "");
     v8::Local<v8::Value> result = RunScript(script, fileName.isNull());
-    TRACE_EVENT_END("v8.run", n, "");
+    ChromiumBridge::traceEventEnd("v8.run", n, "");
     return result;
 }
 
@@ -1787,7 +1783,7 @@ void V8Proxy::initContextIfNeeded()
   // Install counters handler with V8.
   static bool v8_counters_initialized = false;
   if (!v8_counters_initialized) {
-    v8::V8::SetCounterFunction(StatsTable::FindLocation);
+    ChromiumBridge::initV8CounterFunction();
     v8_counters_initialized = true;
   }
 

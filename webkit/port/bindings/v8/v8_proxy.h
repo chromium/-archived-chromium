@@ -9,6 +9,7 @@
 #include "v8_index.h"
 #include "v8_custom.h"
 #include "v8_utility.h"
+#include "ChromiumBridge.h"
 #include "Node.h"
 #include "NodeFilter.h"
 #include "SecurityOrigin.h"  // for WebCore::SecurityOrigin
@@ -21,8 +22,7 @@
 #include <list>
 
 #ifdef ENABLE_DOM_STATS_COUNTERS
-#include "base/stats_counters.h"
-#define INC_STATS(name) StatsCounter(name).Increment()
+#define INC_STATS(name) ChromiumBridge::incrementStatsCounter(name)
 #else
 #define INC_STATS(name)
 #endif

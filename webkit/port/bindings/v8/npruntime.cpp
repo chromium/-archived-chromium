@@ -30,9 +30,10 @@
 #include <set>
 #include <string>
 #include <v8.h>
-#include "base/stats_counters.h"
+
 #include "base/string_piece.h"
 #include "bindings/npruntime.h"
+#include "ChromiumBridge.h"
 #include "np_v8object.h"
 #include "npruntime_priv.h"
 #include "v8_npobject.h"
@@ -168,7 +169,7 @@ void NPN_ReleaseVariantValue(NPVariant* variant) {
     variant->type = NPVariantType_Void;
 }
 
-static StatsCounter global_npobjects(L"NPObjects");
+static const wchar_t* kCounterNPObjects = L"NPObjects";
 
 NPObject *NPN_CreateObject(NPP npp, NPClass* aClass) {
     ASSERT(aClass);
@@ -183,7 +184,7 @@ NPObject *NPN_CreateObject(NPP npp, NPClass* aClass) {
         obj->_class = aClass;
         obj->referenceCount = 1;
 
-        global_npobjects.Increment();
+        WebCore::ChromiumBridge::incrementStatsCounter(kCounterNPObjects);
         return obj;
     }
 
@@ -208,7 +209,7 @@ void _NPN_DeallocateObject(NPObject *obj) {
     ASSERT(obj->referenceCount >= 0);
 
     if (obj) {
-        global_npobjects.Decrement();
+        WebCore::ChromiumBridge::decrementStatsCounter(kCounterNPObjects);
 
         // NPObjects that remain in pure C++ may never have wrappers.
         // Hence, if it's not already alive, don't unregister it.
