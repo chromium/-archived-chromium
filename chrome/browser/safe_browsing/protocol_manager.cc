@@ -309,6 +309,10 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
       break;
     }
     case CHUNK_REQUEST: {
+      if (sb_service_->new_safe_browsing())
+        UMA_HISTOGRAM_TIMES(L"SB2.ChunkRequest",
+                            base::Time::Now() - chunk_request_start_);
+
       const ChunkUrl chunk_url = chunk_request_urls_.front();
       bool re_key = false;
       std::deque<SBChunk>* chunks = new std::deque<SBChunk>;
@@ -446,6 +450,7 @@ void SafeBrowsingProtocolManager::IssueChunkRequest() {
   request_.reset(new URLFetcher(chunk_url, URLFetcher::GET, this));
   request_->set_load_flags(net::LOAD_DISABLE_CACHE);
   request_->set_request_context(Profile::GetDefaultRequestContext());
+  chunk_request_start_ = base::Time::Now();
   request_->Start();
 }
 
@@ -514,7 +519,11 @@ void SafeBrowsingProtocolManager::OnChunkInserted() {
   chunk_pending_to_write_ = false;
 
   if (chunk_request_urls_.empty()) {
-    UMA_HISTOGRAM_LONG_TIMES(L"SB.Update", Time::Now() - last_update_);
+    // Don't pollute old implementation histograms with new implemetation data.
+    if (sb_service_->new_safe_browsing())
+      UMA_HISTOGRAM_LONG_TIMES(L"SB2.Update", Time::Now() - last_update_);
+    else
+      UMA_HISTOGRAM_LONG_TIMES(L"SB.Update", Time::Now() - last_update_);
     sb_service_->UpdateFinished(true);
   } else {
     IssueChunkRequest();

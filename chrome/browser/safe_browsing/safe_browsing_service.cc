@@ -202,9 +202,13 @@ bool SafeBrowsingService::CheckUrlNew(const GURL& url, Client* client) {
   std::string list;
   std::vector<SBPrefix> prefix_hits;
   std::vector<SBFullHashResult> full_hits;
+  base::Time check_start = base::Time::Now();
   bool prefix_match = database_->ContainsUrl(url, &list, &prefix_hits,
                                              &full_hits,
                                              protocol_manager_->last_update());
+  
+  UMA_HISTOGRAM_TIMES(L"SB2.FilterCheck", base::Time::Now() - check_start);
+
   if (!prefix_match)
     return true;  // URL is okay.
 
@@ -406,8 +410,12 @@ void SafeBrowsingService::HandleGetHashResults(
 
   DCHECK(enabled_);
 
+  if (new_safe_browsing_)
+    UMA_HISTOGRAM_LONG_TIMES(L"SB2.Network", Time::Now() - check->start);
+  else
+    UMA_HISTOGRAM_LONG_TIMES(L"SB.Network", Time::Now() - check->start);
+
   std::vector<SBPrefix> prefixes = check->prefix_hits;
-  UMA_HISTOGRAM_LONG_TIMES(L"SB.Network", Time::Now() - check->start);
   OnHandleGetHashResults(check, full_hashes);  // 'check' is deleted here.
 
   if (can_cache) {

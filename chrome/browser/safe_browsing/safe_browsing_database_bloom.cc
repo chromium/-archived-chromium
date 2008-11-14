@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/platform_thread.h"
+#include "base/process_util.h"
 #include "base/sha2.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
@@ -88,8 +89,10 @@ void SafeBrowsingDatabaseBloom::LoadBloomFilter() {
     return;
 
   if (!file_util::GetFileSize(bloom_filter_filename_, &size_64) ||
-      size_64 == 0)
+      size_64 == 0) {
+    UMA_HISTOGRAM_COUNTS(L"SB2.FilterMissing", 1);
     return;
+  }
 
   // We have a bloom filter file, so use that as our filter.
   int size = static_cast<int>(size_64);
@@ -223,6 +226,7 @@ bool SafeBrowsingDatabaseBloom::CreateTables() {
 
   transaction.Commit();
   add_count_ = 0;
+
   return true;
 }
 
@@ -363,6 +367,8 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
   if (chunks->empty())
     return;
 
+  base::Time insert_start = base::Time::Now();
+
   int list_id = GetListId(list_name);
   ChunkType chunk_type = chunks->front().is_add ? ADD_CHUNK : SUB_CHUNK;
 
@@ -399,6 +405,8 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
 
     chunks->pop_front();
   }
+
+  UMA_HISTOGRAM_TIMES(L"SB2.ChunkInsert", base::Time::Now() - insert_start);
 
   delete chunks;
 
@@ -892,8 +900,8 @@ bool SafeBrowsingDatabaseBloom::BuildAddPrefixList(SBPair* adds) {
 
 bool SafeBrowsingDatabaseBloom::RemoveSubs(
     SBPair* adds, std::vector<bool>* adds_removed, 
-    HashCache* add_cache, HashCache* sub_cache) {
-  DCHECK(add_cache && sub_cache);
+    HashCache* add_cache, HashCache* sub_cache, int* subs) {
+  DCHECK(add_cache && sub_cache && subs);
 
   // Read through sub_prefix and zero out add_prefix entries that match.
   SQLITE_UNIQUE_STATEMENT(sub_prefix, *statement_cache_,
@@ -935,6 +943,7 @@ bool SafeBrowsingDatabaseBloom::RemoveSubs(
   }
 
   SBPair sub;
+  int sub_count = 0;
   while (true) {
     int rv = sub_prefix->step();
     if (rv != SQLITE_ROW) {
@@ -975,9 +984,11 @@ bool SafeBrowsingDatabaseBloom::RemoveSubs(
       }
       DCHECK(rv == SQLITE_DONE);
       sub_prefix_tmp->reset();
+      ++sub_count;
     }
   }
 
+  *subs = sub_count;
   return true;
 }
 
@@ -1260,6 +1271,15 @@ bool SafeBrowsingDatabaseBloom::BuildSubFullHashCache(HashCache* sub_cache) {
 // TODO(erikkay): should we call WaitAfterResume() inside any of the loops here?
 // This is a pretty fast operation and it would be nice to let it finish.
 void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
+#if defined(OS_WIN)
+  // For measuring the amount of IO during the bloom filter build.
+  IoCounters io_before, io_after;
+  ProcessHandle handle = Process::Current().handle();
+  scoped_ptr<process_util::ProcessMetrics> metric;
+  metric.reset(process_util::ProcessMetrics::CreateProcessMetrics(handle));
+  metric->GetIOCounters(&io_before);
+#endif
+
   Time before = Time::Now();
 
   // Get all the pending GetHash results and write them to disk.
@@ -1298,7 +1318,8 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
   adds_removed.resize(add_count_, false);
 
   // Flag any add as removed if there is a matching sub.
-  if (!RemoveSubs(adds, &adds_removed, add_cache.get(), sub_cache.get()))
+  int subs = 0;
+  if (!RemoveSubs(adds, &adds_removed, add_cache.get(), sub_cache.get(), &subs))
     return;
 
   // Prepare the database for writing out our remaining add and sub prefixes.
@@ -1324,14 +1345,9 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
   int rv = insert_transaction_->Commit();
   if (rv != SQLITE_OK) {
     NOTREACHED() << "SafeBrowsing update transaction failed to commit.";
+    UMA_HISTOGRAM_COUNTS(L"SB2.FailedUpdate", 1);
     return;
   }
-
-  TimeDelta bloom_gen = Time::Now() - before;
-  SB_DLOG(INFO) << "SafeBrowsingDatabaseImpl built bloom filter in "
-                << bloom_gen.InMilliseconds()
-                << " ms total.  prefix count: "<< add_count_;
-  UMA_HISTOGRAM_LONG_TIMES(L"SB.BuildBloom", bloom_gen);
 
   // Swap in the newly built filter and cache. If there were any matching subs,
   // the size (add_count_) will be smaller.
@@ -1342,8 +1358,36 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
     hash_cache_.swap(add_cache);
   }
 
+  TimeDelta bloom_gen = Time::Now() - before;
+
   // Persist the bloom filter to disk.
   WriteBloomFilter();
+
+  // Gather statistics.
+#if defined(OS_WIN)
+  metric->GetIOCounters(&io_after);
+  UMA_HISTOGRAM_COUNTS(L"SB2.BuildReadBytes",
+                       static_cast<int>(io_after.ReadTransferCount -
+                                        io_before.ReadTransferCount));
+  UMA_HISTOGRAM_COUNTS(L"SB2.BuildWriteBytes",
+                       static_cast<int>(io_after.WriteTransferCount -
+                                        io_before.WriteTransferCount));
+  UMA_HISTOGRAM_COUNTS(L"SB2.BuildReadOperations",
+                       static_cast<int>(io_after.ReadOperationCount -
+                                        io_before.ReadOperationCount));
+  UMA_HISTOGRAM_COUNTS(L"SB2.BuildWriteOperations",
+                       static_cast<int>(io_after.WriteOperationCount -
+                                        io_before.WriteOperationCount));
+#endif
+  SB_DLOG(INFO) << "SafeBrowsingDatabaseImpl built bloom filter in "
+                << bloom_gen.InMilliseconds()
+                << " ms total.  prefix count: "<< add_count_;
+  UMA_HISTOGRAM_LONG_TIMES(L"SB2.BuildFilter", bloom_gen);
+  UMA_HISTOGRAM_COUNTS(L"SB2.AddPrefixes", add_count_);
+  UMA_HISTOGRAM_COUNTS(L"SB2.SubPrefixes", subs);
+  int64 size_64;
+  if (file_util::GetFileSize(filename_, &size_64))
+    UMA_HISTOGRAM_COUNTS(L"SB2.DatabaseBytes", static_cast<int>(size_64));
 }
 
 void SafeBrowsingDatabaseBloom::GetCachedFullHashes(

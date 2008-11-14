@@ -174,6 +174,8 @@ class SafeBrowsingService
   void OnSuspend();
   void OnResume();
 
+  bool new_safe_browsing() const { return new_safe_browsing_; }
+
  private:
   // Should only be called on db thread as SafeBrowsingDatabase is not
   // threadsafe.
