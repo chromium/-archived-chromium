@@ -15,7 +15,6 @@
 #include "base/process_util.h"
 #include "base/registry.h"
 #include "base/string_util.h"
-#include "base/system_monitor.h"
 #include "base/tracked_objects.h"
 #include "base/win_util.h"
 #include "chrome/app/result_codes.h"
@@ -270,9 +269,6 @@ int BrowserMain(CommandLine &parsed_command_line,
   //                     defined roles (e.g. pre/post-profile startup, etc).
 
   MessageLoop main_message_loop(MessageLoop::TYPE_UI);
-
-  // Initialize the SystemMonitor
-  base::SystemMonitor::Start();
 
   // Initialize statistical testing infrastructure.
   FieldTrialList field_trial;

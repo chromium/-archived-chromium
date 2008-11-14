@@ -118,6 +118,8 @@ class TestingBrowserProcess : public BrowserProcess {
 
   virtual MemoryModel memory_model() { return HIGH_MEMORY_MODEL; }
 
+  virtual SuspendController* suspend_controller() { return NULL; }
+
   virtual HANDLE shutdown_event() { return shutdown_event_; }
 
  private:

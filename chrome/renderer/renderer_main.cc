@@ -7,7 +7,6 @@
 #include "base/path_service.h"
 #include "base/platform_thread.h"
 #include "base/string_util.h"
-#include "base/system_monitor.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
@@ -53,9 +52,6 @@ int RendererMain(CommandLine &parsed_command_line,
   MessageLoopForIO main_message_loop;
   std::wstring app_name = chrome::kBrowserAppName;
   PlatformThread::SetName(WideToASCII(app_name + L"_RendererMain").c_str());
-
-  // Initialize the SystemMonitor
-  base::SystemMonitor::Start();
 
   CoInitialize(NULL);
 

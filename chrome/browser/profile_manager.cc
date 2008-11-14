@@ -21,8 +21,6 @@
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "net/url_request/url_request_job.h"
-#include "net/url_request/url_request_job_tracker.h"
 
 #include "generated_resources.h"
 
@@ -41,16 +39,9 @@ void ProfileManager::ShutdownSessionServices() {
 }
 
 ProfileManager::ProfileManager() {
-  base::SystemMonitor* monitor = base::SystemMonitor::Get();
-  if (monitor)
-    monitor->AddObserver(this);
 }
 
 ProfileManager::~ProfileManager() {
-  base::SystemMonitor* monitor = base::SystemMonitor::Get();
-  if (monitor)
-    monitor->RemoveObserver(this);
-
   // Destroy all profiles that we're keeping track of.
   for (ProfileVector::const_iterator iter = profiles_.begin();
        iter != profiles_.end(); ++iter) {
@@ -223,47 +214,6 @@ Profile* ProfileManager::GetProfileByID(const std::wstring& id) const {
 
   return NULL;
 }
-
-void ProfileManager::OnSuspend(base::SystemMonitor* monitor) {
-  DCHECK(CalledOnValidThread());
-
-  ProfileManager::const_iterator it = begin();
-  while(it != end()) {
-     g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-       NewRunnableFunction(&ProfileManager::SuspendProfile, *it));
-     it++;
-  }
-}
-
-void ProfileManager::OnResume(base::SystemMonitor* monitor) {
-  DCHECK(CalledOnValidThread());
-  ProfileManager::const_iterator it = begin();
-  while (it != end()) {
-    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableFunction(&ProfileManager::ResumeProfile, *it));
-    it++;
-  }
-}
-
-void ProfileManager::SuspendProfile(Profile* profile) {
-  DCHECK(profile);
-  DCHECK(MessageLoop::current() ==
-    ChromeThread::GetMessageLoop(ChromeThread::IO));
-
-  URLRequestJobTracker::JobIterator it = g_url_request_job_tracker.begin();
-  for (;it != g_url_request_job_tracker.end(); ++it)
-    (*it)->Kill();
-
-  profile->GetRequestContext()->http_transaction_factory()->Suspend(true);
-}
-
-void ProfileManager::ResumeProfile(Profile* profile) {
-  DCHECK(profile);
-  DCHECK(MessageLoop::current() ==
-    ChromeThread::GetMessageLoop(ChromeThread::IO));
-  profile->GetRequestContext()->http_transaction_factory()->Suspend(false);
-}
-
 
 
 // static
