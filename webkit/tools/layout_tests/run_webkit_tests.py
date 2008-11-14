@@ -224,7 +224,7 @@ class TestRunner:
     for i in xrange(int(self._options.num_test_shells)):
       shell_args = []
       test_args = test_type_base.TestArguments()
-      if self._options.pixel_tests:
+      if not self._options.no_pixel_tests:
         png_path = os.path.join(self._options.results_directory,
                                 "png_result%s.png" % i)
         shell_args.append("--pixel-tests=" + png_path)
@@ -234,7 +234,7 @@ class TestRunner:
 
       if self._options.new_baseline:
         test_args.new_baseline = self._options.new_baseline
-        if not self._options.pixel_tests:
+        if self._options.no_pixel_tests:
           test_args.text_baseline = True
 
       test_args.show_sources = self._options.sources
@@ -516,7 +516,7 @@ def main(options, args):
   logging.info("Placing test results in %s" % options.results_directory)
   logging.info("Using %s build at %s" %
                (options.target, test_shell_binary_path))
-  if options.pixel_tests:
+  if not options.no_pixel_tests:
     logging.info("Running pixel tests")
 
   if 'cygwin' == sys.platform:
@@ -549,7 +549,7 @@ def main(options, args):
   test_runner = TestRunner(options, paths)
   test_runner.AddTestType(text_diff.TestTextDiff)
   test_runner.AddTestType(simplified_text_diff.SimplifiedTextDiff)
-  if options.pixel_tests:
+  if not options.no_pixel_tests:
     test_runner.AddTestType(image_diff.ImageDiff)
   has_new_failures = test_runner.Run()
   logging.info("Exit status: %d" % has_new_failures)
@@ -557,9 +557,9 @@ def main(options, args):
 
 if '__main__' == __name__:
   option_parser = optparse.OptionParser()
-  option_parser.add_option("", "--pixel-tests", action="store_true",
-                           default=True,
-                           help="enable pixel-to-pixel PNG comparisons")
+  option_parser.add_option("", "--no-pixel-tests", action="store_true",
+                           default=False,
+                           help="disable pixel-to-pixel PNG comparisons")
   option_parser.add_option("", "--wdiff", action="store_true",
                            default=False,
                            help="enable word-by-word diffing")
