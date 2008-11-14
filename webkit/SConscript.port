@@ -128,7 +128,6 @@ if env['PLATFORM'] == 'posix':
   # Linux specific implementations
   input_files.extend([
     '$PORT_DIR/platform/chromium/IconLinux.cpp',
-    '$PORT_DIR/platform/chromium/ScreenLinux.cpp',
     '$PORT_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',

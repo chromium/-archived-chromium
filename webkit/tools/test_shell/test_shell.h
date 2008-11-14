@@ -20,7 +20,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_H_
@@ -70,12 +70,12 @@ public:
     virtual ~TestShell();
 
     // Initialization and clean up of logging.
-    static void InitLogging(bool suppress_error_dialogs, 
+    static void InitLogging(bool suppress_error_dialogs,
                             bool running_layout_tests);
     static void CleanupLogging();
 
-    // Initialization and clean up of a static member variable.	
-    static void InitializeTestShell(bool interactive);	
+    // Initialization and clean up of a static member variable.
+    static void InitializeTestShell(bool interactive);
     static void ShutdownTestShell();
 
     static bool interactive() { return interactive_; }
@@ -164,7 +164,7 @@ public:
     // If shell is non-null, then *shell is assigned upon successful return
     static bool CreateNewWindow(const std::wstring& startingURL,
                                 TestShell** shell = NULL);
-    
+
     static void DestroyWindow(gfx::WindowHandle windowHandle);
 
     // Remove the given window from window_list_, return true if it was in the
@@ -181,13 +181,13 @@ public:
     static ATOM RegisterWindowClass();
 #endif
 
-    // Called by the WebView delegate WindowObjectCleared() method, this 
+    // Called by the WebView delegate WindowObjectCleared() method, this
     // binds the layout_test_controller_ and other C++ controller classes to
     // window JavaScript objects so they can be accessed by layout tests.
     virtual void BindJSObjectsToWindow(WebFrame* frame);
 
     // Runs a layout test.  Loads a single file into the first available
-    // window, then dumps the requested text representation to stdout.  
+    // window, then dumps the requested text representation to stdout.
     // Returns false if the test cannot be run because no windows are open.
     static bool RunFileTest(const char* filename, const TestParams& params);
 
@@ -287,7 +287,7 @@ private:
     scoped_ptr<LayoutTestController> layout_test_controller_;
 
     scoped_ptr<EventSendingController> event_sending_controller_;
-    
+
     scoped_ptr<TextInputController> text_input_controller_;
 
     scoped_ptr<TestNavigationController> navigation_controller_;

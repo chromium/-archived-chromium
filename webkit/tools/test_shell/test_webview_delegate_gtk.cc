@@ -50,13 +50,23 @@ void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {
   gtk_widget_destroy(dialog);
 }
 
-void TestWebViewDelegate::Show(WebWidget* webview,
+void TestWebViewDelegate::Show(WebWidget* webwidget,
                                WindowOpenDisposition disposition) {
-  NOTIMPLEMENTED();
+  WebWidgetHost* host = GetHostForWidget(webwidget);
+  GtkWidget* drawing_area = host->window_handle();
+  GtkWidget* window =
+      gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
+  gtk_widget_show_all(window);
 }
 
 void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
-  NOTIMPLEMENTED();
+  if (webwidget == shell_->popup()) {
+    shell_->ClosePopup();
+  } else {
+    // In the Windows code, this closes the main window. However, it's not
+    // clear when this would ever be needed by WebKit.
+    NOTIMPLEMENTED();
+  }
 }
 
 void TestWebViewDelegate::SetCursor(WebWidget* webwidget, 
@@ -79,18 +89,27 @@ void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
 void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
                                         gfx::Rect* out_rect) {
   DCHECK(out_rect);
-  //if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    NOTIMPLEMENTED();
-  //}
+  WebWidgetHost* host = GetHostForWidget(webwidget);
+  GtkWidget* drawing_area = host->window_handle();
+  GtkWidget* window =
+      gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
+  gint x, y, w, h;
+  gtk_window_get_position(GTK_WINDOW(window), &x, &y);
+  gtk_window_get_size(GTK_WINDOW(window), &w, &h);
+  out_rect->SetRect(x, y, w, h);
 }
 
 void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
                                         const gfx::Rect& rect) {
-  // TODO(port): window movement
   if (webwidget == shell_->webView()) {
     // ignored
   } else if (webwidget == shell_->popup()) {
-    NOTIMPLEMENTED();
+    WebWidgetHost* host = GetHostForWidget(webwidget);
+    GtkWidget* drawing_area = host->window_handle();
+    GtkWidget* window =
+        gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
+    gtk_window_resize(GTK_WINDOW(window), rect.width(), rect.height());
+    gtk_window_move(GTK_WINDOW(window), rect.x(), -rect.y());
   }
 }
 

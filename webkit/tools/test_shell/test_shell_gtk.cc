@@ -191,8 +191,23 @@ void TestShell::DestroyWindow(gfx::WindowHandle windowHandle) {
 }
 
 WebWidget* TestShell::CreatePopupWidget(WebView* webview) {
-  NOTIMPLEMENTED();
-  return NULL;
+  GtkWidget* popupwindow = gtk_window_new(GTK_WINDOW_POPUP);
+  GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
+  WebWidgetHost* host = WebWidgetHost::Create(vbox, delegate_);
+  gtk_container_add(GTK_CONTAINER(popupwindow), vbox);
+  m_popupHost = host;
+
+  return host->webwidget();
+}
+
+void TestShell::ClosePopup() {
+  DCHECK(m_popupHost);
+  GtkWidget* drawing_area = m_popupHost->window_handle();
+  GtkWidget* window =
+      gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
+  gtk_widget_destroy(window);
+  m_popupHost->WindowDestroyed();
+  m_popupHost = NULL;
 }
 
 void TestShell::ResizeSubViews() {
