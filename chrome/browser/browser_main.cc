@@ -334,6 +334,11 @@ int BrowserMain(CommandLine &parsed_command_line,
     first_run_ui_bypass =
         !FirstRun::ProcessMasterPreferences(user_data_dir,
                                             std::wstring(), NULL);
+
+    // If we are running in App mode, we do not want to show the importer
+    // (first run) UI.
+    if (!first_run_ui_bypass && parsed_command_line.HasSwitch(switches::kApp))
+      first_run_ui_bypass = true;
   }
 
   ResourceBundle::InitSharedInstance(
