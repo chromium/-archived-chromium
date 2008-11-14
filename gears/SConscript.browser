@@ -229,8 +229,8 @@ if not env['OFFICIAL_BUILD']:
   # Except on these platforms.
   if env['OS'] == 'wince':
     env.FilterOut(LIBS = [
+      'gd',
       'jpeg-gears',
-      'portaudio',
     ])
   elif env['OS'] == 'osx':
     env.FilterOut(LIBS = [
