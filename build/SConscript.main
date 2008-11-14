@@ -775,7 +775,11 @@ p = vs_env.ComponentVSDirProject(
         (None, '$DESTINATION_ROOT'),
         ('src', '$CHROME_SRC_DIR'),
     ],
+    COMPONENT_VS_PROJECT_DIR = '$MAIN_DIR',
 )
+
+# Always try to (re)build the project files when requested.
+vs_env.AlwaysBuild(p)
 
 vs_env.ComponentVSSolution(
     'chrome_solution',

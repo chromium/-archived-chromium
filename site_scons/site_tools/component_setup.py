@@ -71,7 +71,7 @@ def PreEvaluateVariables(env):
     env: Environment for the current build mode.
   """
   # Convert directory variables to strings
-  for var in env.SubstList2('PRE_EVALUATE_DIRS'):
+  for var in env.SubstList2('$PRE_EVALUATE_DIRS'):
     env[var] = str(env.Dir('$' + var))
 
 

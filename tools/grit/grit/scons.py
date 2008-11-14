@@ -22,9 +22,17 @@ def _SourceToFile(source):
   # Get the filename of the source.  The 'source' parameter can be a string,
   # a "node", or a list of strings or nodes.
   if isinstance(source, types.ListType):
-    source = str(source[0])
+    # TODO(gspencer):  Had to add the .rfile() method to the following
+    # line to get this to work with Repository() directories.
+    # Get this functionality folded back into the upstream grit tool.
+    #source = str(source[0])
+    source = str(source[0].rfile())
   else:
-    source = str(source)
+    # TODO(gspencer):  Had to add the .rfile() method to the following
+    # line to get this to work with Repository() directories.
+    # Get this functionality folded back into the upstream grit tool.
+    #source = str(source))
+    source = str(source.rfile())
   return source
 
 
@@ -65,7 +73,11 @@ def _Emitter(target, source, env):
   from grit import util
   from grit import grd_reader
   
-  base_dir = util.dirname(str(target[0]))
+  # TODO(gspencer):  Had to use .abspath, not str(target[0]), to get
+  # this to work with Repository() directories.
+  # Get this functionality folded back into the upstream grit tool.
+  #base_dir = util.dirname(str(target[0]))
+  base_dir = util.dirname(target[0].abspath)
   
   grd = grd_reader.Parse(_SourceToFile(source), debug=_IsDebugEnabled())
   
