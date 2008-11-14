@@ -439,6 +439,10 @@ bool GetExeDirectory(std::wstring *path) {
   return PathService::Get(base::DIR_EXE, path);
 }
 
+ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+  return GetScreenInfoHelper(window);
+}
+
 bool SpellCheckWord(const wchar_t* word, int word_len,
                     int* misspelling_start, int* misspelling_len) {
   // Report all words being correctly spelled.
@@ -464,3 +468,4 @@ std::wstring GetWebKitLocale() {
 }
 
 }  // namespace webkit_glue
+
