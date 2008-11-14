@@ -12,6 +12,9 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/message_loop.h"
+#include "base/non_thread_safe.h"
+#include "base/system_monitor.h"
 #include "base/values.h"
 #include "chrome/browser/profile.h"
 
@@ -57,7 +60,8 @@ class AvailableProfile {
   DISALLOW_EVIL_CONSTRUCTORS(AvailableProfile);
 };
 
-class ProfileManager {
+class ProfileManager : public NonThreadSafe,
+                       public base::SystemMonitor::PowerObserver {
  public:
   ProfileManager();
   virtual ~ProfileManager();
@@ -122,6 +126,11 @@ class ProfileManager {
   // Creates a new window with the given profile.
   void NewWindowWithProfile(Profile* profile);
 
+  // PowerObserver notifications
+  void OnPowerStateChange(base::SystemMonitor*) {}
+  void OnSuspend(base::SystemMonitor*);
+  void OnResume(base::SystemMonitor*);
+
   // ------------------ static utility functions -------------------
 
   // Returns the path to the profile directory based on the user data directory.
@@ -156,6 +165,11 @@ class ProfileManager {
   // Returns the AvailableProfile entry associated with the given ID,
   // or NULL if no match is found.
   AvailableProfile* GetAvailableProfileByID(const std::wstring& id);
+
+  // Hooks to suspend/resume per-profile network traffic.
+  // These must be called on the IO thread.
+  static void SuspendProfile(Profile*);
+  static void ResumeProfile(Profile*);
 
   // We keep a simple vector of profiles rather than something fancier
   // because we expect there to be a small number of profiles active.

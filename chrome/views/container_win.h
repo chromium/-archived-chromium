@@ -9,6 +9,7 @@
 #include <atlcrack.h>
 
 #include "base/message_loop.h"
+#include "base/system_monitor.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/layout_manager.h"
 #include "chrome/views/container.h"
@@ -416,6 +417,9 @@ class ContainerWin : public Container,
   virtual LRESULT OnNotify(int w_param, NMHDR* l_param);
   virtual void OnPaint(HDC dc);
   virtual LRESULT OnPowerBroadcast(DWORD power_event, DWORD data) {
+    base::SystemMonitor* monitor = base::SystemMonitor::Get();
+    if (monitor)
+      monitor->ProcessWmPowerBroadcastMessage(power_event);
     SetMsgHandled(FALSE);
     return 0;
   }

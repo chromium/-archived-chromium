@@ -22,7 +22,6 @@
 #include "chrome/browser/resource_dispatcher_host.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
-#include "chrome/browser/suspend_controller.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/clipboard_service.h"
@@ -127,8 +126,6 @@ BrowserProcessImpl::BrowserProcessImpl(CommandLine& command_line)
     else
       memory_model_ = MEDIUM_MEMORY_MODEL;
   }
-
-  suspend_controller_ = new SuspendController();
 
   shutdown_event_ = ::CreateEvent(NULL, TRUE, FALSE, NULL);
 }
