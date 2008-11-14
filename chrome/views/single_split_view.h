@@ -15,7 +15,6 @@ class SingleSplitView : public views::View {
  public:
   SingleSplitView(View* leading, View* trailing);
 
-  virtual void PaintBackground(ChromeCanvas* canvas);
   virtual void Layout();
 
   // SingleSplitView's preferred size is the sum of the preferred widths

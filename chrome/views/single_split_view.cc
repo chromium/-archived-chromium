@@ -6,21 +6,20 @@
 
 #include "base/gfx/skia_utils.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/views/background.h"
 
 namespace views {
 
 // Size of the divider in pixels.
-static const int kDividerSize = 6;
+static const int kDividerSize = 4;
 
-SingleSplitView::SingleSplitView(View* leading,
-                                 View* trailing) : divider_x_(-1) {
+SingleSplitView::SingleSplitView(View* leading, View* trailing) 
+    : divider_x_(-1) {
   AddChildView(leading);
   AddChildView(trailing);
-}
-
-void SingleSplitView::PaintBackground(ChromeCanvas* canvas) {
-  canvas->drawColor(gfx::COLORREFToSkColor(GetSysColor(COLOR_3DFACE)),
-                    SkPorterDuff::kSrc_Mode);
+  set_background(
+      views::Background::CreateSolidBackground(
+          gfx::COLORREFToSkColor(GetSysColor(COLOR_3DFACE))));
 }
 
 void SingleSplitView::Layout() {

@@ -47,6 +47,11 @@ static const int kSearchDelayMS = 200;
 static const int kOrganizeMenuButtonID = 1;
 static const int kToolsMenuButtonID = 2;
 
+// Background color.
+static const SkColor kBackgroundColorTop = SkColorSetRGB(242, 247, 253);
+static const SkColor kBackgroundColorBottom = SkColorSetRGB(223, 234, 248);
+static const int kBackgroundGradientHeight = 28;
+
 namespace {
 
 // Observer installed on the importer. When done importing the newly created
@@ -154,6 +159,8 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   tools_menu_button->SetID(kToolsMenuButtonID);
 
   split_view_ = new views::SingleSplitView(tree_view_, table_view_);
+  split_view_->set_background(
+      views::Background::CreateSolidBackground(kBackgroundColorBottom));
 
   views::GridLayout* layout = new views::GridLayout(this);
   SetLayoutManager(layout);
@@ -290,8 +297,13 @@ std::vector<BookmarkNode*> BookmarkManagerView::GetSelectedTableNodes() {
 }
 
 void BookmarkManagerView::PaintBackground(ChromeCanvas* canvas) {
-  canvas->drawColor(color_utils::GetSysSkColor(COLOR_3DFACE),
-                    SkPorterDuff::kSrc_Mode);
+  canvas->drawColor(kBackgroundColorBottom, SkPorterDuff::kSrc_Mode);
+
+  SkPaint paint;
+  paint.setShader(gfx::CreateGradientShader(0, kBackgroundGradientHeight,
+      kBackgroundColorTop,
+      kBackgroundColorBottom))->safeUnref();
+  canvas->FillRectInt(0, 0, width(), kBackgroundGradientHeight, paint);
 }
 
 gfx::Size BookmarkManagerView::GetPreferredSize() {
