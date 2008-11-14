@@ -36,6 +36,7 @@
 
 #include "GraphicsContext.h"
 #include "Path.h"
+#include "PlatformContextSkia.h"
 #include "RenderObject.h"
 #include "RenderPath.h"
 #include "RenderStyle.h"

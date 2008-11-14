@@ -7,14 +7,15 @@
 #ifndef SkiaUtils_h
 #define SkiaUtils_h
 
-#include <wtf/PassRefPtr.h>
-#include "base/float_util.h"
+#include <wtf/MathExtras.h>
 #include "GraphicsContext.h"
 #include "SkPath.h"
-#include "SkShader.h"
-#include "PlatformContextSkia.h"
+#include "SkPorterDuff.h"
 
+class SkCanvas;
 class SkRegion;
+
+namespace WebCore {
 
 // Converts a WebCore composit operation (WebCore::Composite*) to the
 // corresponding Skia type.
@@ -28,11 +29,11 @@ WebCore::Color SkPMColorToWebCoreColor(SkPMColor pm);
 
 // Skia has problems when passed infinite, etc floats, filter them to 0.
 inline SkScalar WebCoreFloatToSkScalar(const float& f) {
-  return SkFloatToScalar(base::IsFinite(f) ? f : 0);
+  return SkFloatToScalar(isfinite(f) ? f : 0);
 }
 
 inline SkScalar WebCoreDoubleToSkScalar(const double& d) {
-  return SkDoubleToScalar(base::IsFinite(d) ? d : 0);
+  return SkDoubleToScalar(isfinite(d) ? d : 0);
 }
 
 // Intersects the given source rect with the region, returning the smallest
@@ -52,5 +53,7 @@ void ClipRectToCanvas(const SkCanvas& canvas, const SkRect& src_rect,
 
 // Determine if a given WebKit point is contained in a path
 bool SkPathContainsPoint(SkPath* orig_path, WebCore::FloatPoint point, SkPath::FillType ft);
+
+}  // namespace WebCore
 
 #endif  // SkiaUtils_h

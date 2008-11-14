@@ -34,7 +34,7 @@
 
 #include "GraphicsContext.h"
 #include "RenderPath.h"
-
+#include "PlatformContextSkia.h"
 #include "SkiaUtils.h"
 
 namespace WebCore {

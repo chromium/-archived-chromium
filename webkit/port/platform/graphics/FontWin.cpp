@@ -30,6 +30,7 @@
 #include "Font.h"
 #include "FontFallbackList.h"
 #include "GlyphBuffer.h"
+#include "PlatformContextSkia.h"
 #include "SimpleFontData.h"
 #include "UniscribeStateTextRun.h"
 

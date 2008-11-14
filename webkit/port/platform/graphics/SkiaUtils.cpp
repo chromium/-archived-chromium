@@ -37,10 +37,7 @@
 #include "SkMatrix.h"
 #include "SkRegion.h"
 
-#include "base/basictypes.h"
-#if defined(OS_WIN)
-#include "base/gfx/gdi_util.h"
-#endif
+namespace WebCore {
 
 void WebCorePointToSkiaPoint(const WebCore::FloatPoint& src, SkPoint* dst)
 {
@@ -228,3 +225,5 @@ bool SkPathContainsPoint(SkPath* orig_path, WebCore::FloatPoint point, SkPath::F
     orig_path->setFillType(orig_ft);    // restore
     return contains;
 }
+
+}  // namespace WebCore

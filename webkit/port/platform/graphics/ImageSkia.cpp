@@ -38,6 +38,7 @@
 #include "Logging.h"
 #include "NativeImageSkia.h"
 #include "NotImplemented.h"
+#include "PlatformContextSkia.h"
 #include "PlatformString.h"
 #include "ScrollbarTheme.h"
 

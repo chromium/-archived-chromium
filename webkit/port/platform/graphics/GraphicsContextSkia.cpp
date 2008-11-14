@@ -29,10 +29,12 @@
 #include "IntRect.h"
 #include "NativeImageSkia.h"
 #include "NotImplemented.h"
+#include "PlatformContextSkia.h"
 #include "SkBitmap.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCornerPathEffect.h"
 #include "SkiaUtils.h"
+#include "SkShader.h"
 #include "wtf/MathExtras.h"
 
 #include "base/gfx/platform_canvas.h"

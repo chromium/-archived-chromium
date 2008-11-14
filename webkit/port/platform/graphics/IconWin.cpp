@@ -23,9 +23,9 @@
 #include <windows.h>
 #include <shellapi.h>
 
-#include "Icon.h"
-
 #include "GraphicsContext.h"
+#include "Icon.h"
+#include "PlatformContextSkia.h"
 #include "PlatformString.h"
 #include "SkiaUtils.h"
 

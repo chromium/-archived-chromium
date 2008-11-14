@@ -95,6 +95,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "HistoryItem.h"
 #include "markup.h"
 #include "Page.h"
+#include "PlatformContextSkia.h"
 #include "RenderFrame.h"
 #include "RenderWidget.h"
 #include "ReplaceSelectionCommand.h"

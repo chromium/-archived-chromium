@@ -11,6 +11,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "FramelessScrollView.h"
 #include "FrameView.h"
 #include "IntRect.h"
+#include "PlatformContextSkia.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformWheelEvent.h"
