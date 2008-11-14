@@ -59,9 +59,14 @@ LRESULT CALLBACK WebWidgetHost::WndProc(HWND hwnd, UINT message, WPARAM wparam,
         delete host;
         break;
 
-      case WM_PAINT:
+      case WM_PAINT: {
+        RECT rect;
+        if (GetUpdateRect(hwnd, &rect, FALSE)) {
+          host->UpdatePaintRect(gfx::Rect(rect));
+        }
         host->Paint();
         return 0;
+      }
 
       case WM_ERASEBKGND:
         // Do nothing here to avoid flashing, the background will be erased
@@ -193,6 +198,10 @@ bool WebWidgetHost::WndProc(UINT message, WPARAM wparam, LPARAM lparam) {
   }
 
   return false;
+}
+
+void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
+  paint_rect_ = paint_rect_.Union(rect);
 }
 
 void WebWidgetHost::Paint() {

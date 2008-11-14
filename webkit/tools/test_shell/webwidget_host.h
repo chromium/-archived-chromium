@@ -42,19 +42,14 @@ class WebWidgetHost {
 #endif
 
   void DiscardBackingStore();
+  // Allow clients to update the paint rect. For example, if we get a gdk
+  // expose or WM_PAINT event, we need to update the paint rect.
+  void UpdatePaintRect(const gfx::Rect& rect);
   void Paint();
 
  protected:
   WebWidgetHost();
   ~WebWidgetHost();
-
-#if defined(OS_MACOSX) || defined(OS_LINUX)
- public:
-  // Allow clients to update the paint rect. For example, if we get a gdk
-  // expose event, we need to update the paint rect.
-  void UpdatePaintRect(const gfx::Rect& rect);
- protected:
-#endif
 
 #if defined(OS_WIN)
   // Per-class wndproc.  Returns true if the event should be swallowed.
