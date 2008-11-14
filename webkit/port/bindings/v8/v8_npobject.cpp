@@ -56,8 +56,8 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(
 
   // These three types are subtypes of HTMLPlugInElement.
   if (V8HTMLAppletElement::HasInstance(args.Holder()) ||
-    V8HTMLEmbedElement::HasInstance(args.Holder()) ||
-    V8HTMLObjectElement::HasInstance(args.Holder())) {
+      V8HTMLEmbedElement::HasInstance(args.Holder()) ||
+      V8HTMLObjectElement::HasInstance(args.Holder())) {
     // The holder object is a subtype of HTMLPlugInElement.
     HTMLPlugInElement* imp =
         V8Proxy::DOMWrapperToNode<HTMLPlugInElement>(args.Holder());
@@ -68,7 +68,11 @@ static v8::Handle<v8::Value> NPObjectInvokeImpl(
   } else {
     // The holder object is not a subtype of HTMLPlugInElement, it
     // must be an NPObject which has three internal fields.
-    ASSERT(args.Holder()->InternalFieldCount() == 3);
+    if (args.Holder()->InternalFieldCount() != 3) {
+      V8Proxy::ThrowError(V8Proxy::REFERENCE_ERROR,
+                          "NPMethod called on non-NPObject");
+      return v8::Undefined();
+    }
     npobject = V8Proxy::ToNativeObject<NPObject>(
         V8ClassIndex::NPOBJECT, args.Holder());
   }
