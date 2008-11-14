@@ -48,8 +48,15 @@
   CGContextSetRGBFillColor (context, 1, 0, 1, 1);
   CGContextFillRect(context, NSRectToCGRect(rect));
 
-  if (shell_ && shell_->webView())
+  if (shell_ && shell_->webView()) {
+    gfx::Rect client_rect(NSRectToCGRect(rect));
+    // flip from cocoa coordinates
+    client_rect.set_y([self frame].size.height -
+                      client_rect.height() - client_rect.y());
+    
+    shell_->webViewHost()->UpdatePaintRect(client_rect);
     shell_->webViewHost()->Paint();
+  }
 }
 
 - (IBAction)goBack:(id)sender {

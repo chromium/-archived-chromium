@@ -143,6 +143,10 @@ WebWidgetHost::~WebWidgetHost() {
   webwidget_->Release();
 }
 
+void WebWidgetHost::UpdatePaintRect(const gfx::Rect& rect) {
+  paint_rect_ = paint_rect_.Union(rect);
+}
+
 void WebWidgetHost::Paint() {
   NSRect r = [view_ frame];
   gfx::Rect client_rect(NSRectToCGRect(r));

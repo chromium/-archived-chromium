@@ -48,6 +48,14 @@ class WebWidgetHost {
   WebWidgetHost();
   ~WebWidgetHost();
 
+#if defined(OS_MACOSX) || defined(OS_LINUX)
+ public:
+  // Allow clients to update the paint rect. For example, if we get a gdk
+  // expose event, we need to update the paint rect.
+  void UpdatePaintRect(const gfx::Rect& rect);
+ protected:
+#endif
+
 #if defined(OS_WIN)
   // Per-class wndproc.  Returns true if the event should be swallowed.
   virtual bool WndProc(UINT message, WPARAM wparam, LPARAM lparam);
@@ -83,10 +91,6 @@ class WebWidgetHost {
   static gfx::WindowHandle CreateWindow(gfx::WindowHandle parent, void* host);
   void WindowDestroyed();
   void Resize(const gfx::Size& size);
-  
-  // Allow clients to update the paint rect. For example, if we get a gdk
-  // expose event, we need to update the paint rect.
-  void UpdatePaintRect(const gfx::Rect& rect);
 #endif
 
   void TrackMouseLeave(bool enable);
