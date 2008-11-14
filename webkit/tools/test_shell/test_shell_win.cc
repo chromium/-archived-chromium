@@ -716,5 +716,8 @@ bool DownloadUrl(const std::string& url, HWND caller_window) {
   return false;
 }
 
-}  // namespace webkit_glue
+ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
+  return GetScreenInfoHelper(window);
+}
 
+}  // namespace webkit_glue
