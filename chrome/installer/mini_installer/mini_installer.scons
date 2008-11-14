@@ -1,0 +1,106 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env', 'env_res')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$GTEST_DIR/../using_gtest.scons',
+])
+
+
+# TODO(port):  Don't be too fooled by the presence of all the
+# if env['PLATFORM'] == 'win32' tests in this file into thinking
+# this is necessarily portable.  They're just there to wall off the
+# obviously windows-specific things
+
+if env['PLATFORM'] == 'win32':
+  env_res = env_res.Clone()
+
+  env_res.Append(
+      CPPPATH = [
+          "$TARGET_ROOT",
+          ".",
+          "$CHROME_SRC_DIR",
+      ],
+      RCFLAGS = [
+          ["/l", "0x409"],
+      ],
+  )
+
+  resources = env_res.RES('mini_installer.rc')
+
+
+env.Prepend(
+    CPPPATH = [
+        '$CHROME_SRC_DIR',
+    ],
+    LIBS = [
+        'chrome',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.FilterOut(
+      LIBS = ['DelayImp.lib'],
+      CCFLAGS = ['/RTC1'],
+  )
+
+  env.Prepend(
+      CCFLAGS = [
+          '/TP',
+          '/GS-',         # because we link with /NODEFAULTLIB
+      ],
+      LINKFLAGS = [
+          '/INCREMENTAL',
+          '/NODEFAULTLIB',
+          '/DEBUG',
+          '/SUBSYSTEM:WINDOWS',
+          '/OPT:NOWIN98',
+          '/ENTRY:"MainEntryPoint"',
+          '/MACHINE:X86',
+          '/FIXED:No',
+
+          '/SAFESEH:NO',
+          '/NXCOMPAT',
+          '/DYNAMICBASE:NO',
+
+          '/PDB:${TARGETS[1]}',
+          #'/MAP:${TARGETS[2]}',
+      ],
+      LIBS = [
+          'shlwapi',
+      ],
+  )
+
+input_files = [
+    "mini_installer.cc",
+    "pe_resource.cc",
+]
+
+if env['PLATFORM'] == 'win32':
+  input_files.extend([
+      "$VISUAL_STUDIO/VC/crt/src/intel/mt_lib/memset.obj",
+      "$VISUAL_STUDIO/VC/crt/src/intel/mt_lib/P4_memset.obj",
+  ])
+  input_files.extend(resources)
+
+env.ChromeProgram('mini_installer', input_files)
+
+
+env.AppendENVPath('PATH', r'C:\WINDOWS\system32')
+
+packed = env.Command('$TARGET_ROOT/packed_files.txt',
+                     ['$CHROME_DIR/tools/build/win/create_installer_archive.py',
+                      '$CHROME_DIR/installer/mini_installer/chrome.release'],
+                     ('$PYTHON ${SOURCES[0]}'
+                      ' --output_dir=${TARGET.dir}'
+                      ' --input_file=${SOURCES[1]}'))
+env.Depends(packed, '$TARGET_ROOT/setup.exe')
+
+
+env.ChromeVersionRC('mini_installer_exe_version.rc',
+                    'mini_installer_exe_version.rc.version',
+                    PWD=Dir('.'))

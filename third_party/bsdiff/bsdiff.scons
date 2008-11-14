@@ -1,0 +1,25 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$BSPATCH_DIR/using_bspatch.scons',
+])
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+    CCFLAGS = [
+        '/TP',
+        '/wd4800',
+    ],
+  )
+
+input_files = [
+    "mbsdiff.cc",
+]
+
+env.ChromeStaticLibrary('bsdiff', input_files)

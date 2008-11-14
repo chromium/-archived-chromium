@@ -330,7 +330,6 @@ if env['PLATFORM'] == 'win32':
           'app/google_update_client.cc',
 
           'common/common.lib',
-          #'$CHROME_DIR/chrome_dll.lib',
           'chrome.lib',
       ]
   )
@@ -412,9 +411,10 @@ if env['PLATFORM'] == 'win32':
       'app/resources/SConscript',
       'app/theme/SConscript',
       'browser/views/SConscript',
-      'installer/mini_installer/SConscript',
-      'installer/setup/SConscript',
-      'installer/util/SConscript',
+      'installer/mini_installer/mini_installer.scons',
+      'installer/mini_installer/installer_unittests.scons',
+      'installer/setup/setup.scons',
+      'installer/util/util.scons',
       'test/activex_test_control/activex_test_control.scons',
       'test/automation/automation.scons',
       'test/memory_test/memory_test.scons',

@@ -1,0 +1,85 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env', 'env_res')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$BASE_DIR/using_base.scons',
+    '$BSPATCH_DIR/using_bspatch.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LZMA_SDK_DIR/using_lzma_sdk.scons',
+])
+
+if env['PLATFORM'] == 'win32':
+  env_res = env_res.Clone()
+
+  env_res.Append(
+      CPPPATH = [
+          "$TARGET_ROOT",
+          ".",
+          "$CHROME_SRC_DIR",
+      ],
+      RCFLAGS = [
+          ["/l", "0x409"],
+      ],
+  )
+
+  resources = env_res.RES('setup.rc')
+
+
+env.Prepend(
+    CPPPATH = [
+        '../util',
+        '$TARGET_ROOT',
+        '.',
+        '$CHROME_SRC_DIR',
+    ],
+    LIBS = [
+        'common',
+        'util',
+    ],
+)
+
+if env['PLATFORM'] == 'win32':
+  env.Prepend(
+      LINKFLAGS = [
+          '/INCREMENTAL',
+          '/DEBUG',
+
+          '/DELAYLOAD:"dwmapi.dll"',
+          '/DELAYLOAD:"uxtheme.dll"',
+
+          '/OPT:NOWIN98',
+          '/SUBSYSTEM:WINDOWS',
+          '/MACHINE:X86',
+          '/FIXED:No',
+
+          '/safeseh',
+          '/dynamicbase',
+          '/ignore:4199',
+          '/nxcompat',
+
+          '/PDB:${TARGETS[1]}',
+      ],
+      LIBS = [
+          'msi',
+      ],
+  )
+
+
+input_files = [
+    'install.cc',
+    'main.cc',
+    'setup.cc',
+    'setup_constants.cc',
+    'uninstall.cc',
+]
+
+env.ChromeProgram('setup', resources + input_files)
+
+env.ChromeVersionRC('setup_exe_version.rc',
+                    'setup_exe_version.rc.version',
+                    PWD = env.Dir('.'))

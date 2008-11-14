@@ -245,18 +245,18 @@ if LoadComponent('third_party'):
   if not root_env.WantSystemLib('libxslt'):
     sconscripts.append('$LIBXSLT_DIR/SConscript')
   if not root_env.WantSystemLib('lzma_sdk'):
-    sconscripts.append('$LZMA_SDK_DIR/SConscript')
+    sconscripts.append('$LZMA_SDK_DIR/lzma_sdk.scons')
   if not root_env.WantSystemLib('zlib'):
     sconscripts.append('$ZLIB_DIR/zlib.scons')
     root_env.Append(ZLIB_LIB = ['zlib'])
   else:
     root_env.Append(ZLIB_LIB = ['z'])
   sconscripts.extend([
-      '$BSDIFF_DIR/SConscript',
+      '$BSDIFF_DIR/bsdiff.scons',
+      '$BSPATCH_DIR/bspatch.scons',
       '$DMG_FP_DIR/dmg_fp.scons',
       '$ICU38_DIR/icu38.scons',
       '$MODP_B64_DIR/modp_b64.scons',
-      '$BSPATCH_DIR/SConscript',
   ])
 
 if LoadComponent('v8') and root_env.Dir('$CHROME_SRC_DIR/v8').exists():
@@ -514,8 +514,8 @@ linux_env.Replace(
 
 linux_env.FilterOut(
     BUILD_SCONSCRIPTS = [
-        '$BSPATCH_DIR/SConscript',
-        '$BSDIFF_DIR/SConscript',
+        '$BSPATCH_DIR/bspatch.scons',
+        '$BSDIFF_DIR/bsdiff.scons',
         '$GEARS_DIR/SConscript',
         '$GOOGLE_UPDATE_DIR/SConscript',
         '$RLZ_DIR/SConscript',
@@ -605,8 +605,8 @@ mac_env.Replace(
 
 mac_env.FilterOut(
     BUILD_SCONSCRIPTS = [
-        '$BSPATCH_DIR/SConscript',
-        '$BSDIFF_DIR/SConscript',
+        '$BSPATCH_DIR/bspatch.scons',
+        '$BSDIFF_DIR/bsdiff.scons',
         '$LIBJPEG_DIR/SConscript',
         '$LIBXML_DIR/SConscript',
         '$LIBXSLT_DIR/SConscript',

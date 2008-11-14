@@ -1,0 +1,21 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Settings for other components using the lzma_sdk library.
+"""
+
+Import("env")
+
+env.Append(
+    CPPPATH = [
+        '$LZMA_SDK_DIR',
+    ],
+    CPPDEFINES = [
+        "_LZMA_IN_CB",
+    ],
+    LIBS = [
+        'lzma_sdk',
+    ],
+)

@@ -6,34 +6,23 @@ Import('env')
 
 env = env.Clone()
 
+env.ApplySConscript([
+    '$BREAKPAD_DIR/using_breakpad.scons',
+    '$CHROME_DIR/third_party/wtl/using_wtl.scons',
+    '$ICU38_DIR/using_icu38.scons',
+    '$LIBJPEG_DIR/using_libjpeg.scons',
+    '$LIBPNG_DIR/using_libpng.scons',
+    '$LIBXML_DIR/using_libxml.scons',
+    '$LZMA_SDK_DIR/using_lzma_sdk.scons',
+    '$NPAPI_DIR/using_npapi.scons',
+    '$SKIA_DIR/using_skia.scons',
+    '$ZLIB_DIR/using_zlib.scons',
+])
 
 env.Prepend(
     CPPPATH = [
-        '$LZMA_SDK_DIR',
-        '$CHROME_DIR/third_party/wtl/include',
-        '$NPAPI_DIR',
-        '$LIBXML_DIR/include',
-        '$SKIA_DIR/include',
-        '$SKIA_DIR/include/corecg',
-        '$SKIA_DIR/platform',
-        '$LIBPNG_DIR',
-        '$ZLIB_DIR',
-        '$BREAKPAD_DIR/src',
-        '$LIBJPEG_DIR',
-        '$ICU38_DIR/public/common',
-        '$ICU38_DIR/public/i18n',
         '$CHROME_SRC_DIR',
         '.',
-    ],
-    CPPDEFINES = [
-        "_LZMA_IN_CB",
-        "LIBXML_STATIC",
-        "PNG_USER_CONFIG",
-        "CHROME_PNG_WRITE_SUPPORT"
-        "U_STATIC_IMPLEMENTATION",
-    ],
-    CCFLAGS = [
-        '/TP',
     ],
 )
 
@@ -61,7 +50,7 @@ input_files = [
     'work_item_list.cc',
 ]
 
-x = env.ChromeStaticLibrary('util', input_files)
+env.ChromeStaticLibrary('util', input_files)
 
 
 # create_string_rc.py imports FP.py from the tools/grit/grit/extern

@@ -1,0 +1,30 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.ApplySConscript([
+    '$LZMA_SDK_DIR/using_lzma_sdk.scons',
+])
+
+if env['PLATFORM'] == 'win32':
+  env.Append(
+    CCFLAGS = [
+        '/TP',
+        '/wd4800',
+    ],
+  )
+elif env['PLATFORM'] == 'posix':
+  # We're not responsible for bad warning hygiene in this third party code.
+  env.FilterOut(
+      CXXFLAGS = ['-Wall'],
+  )
+
+input_files = [
+    'mbspatch.cc',
+]
+
+env.ChromeStaticLibrary('bspatch', input_files)
