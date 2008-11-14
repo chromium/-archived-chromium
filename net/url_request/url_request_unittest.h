@@ -308,7 +308,7 @@ class TestServer : public base::ProcessFilter {
       command_line.push_back("--https=" + WideToUTF8(cert_path));
 
     ASSERT_TRUE(
-        process_util::LaunchApp(command_line, false, &process_handle_)) <<
+        base::LaunchApp(command_line, false, &process_handle_)) <<
         "Failed to launch " << command_line[0] << " ...";
 #endif
 
