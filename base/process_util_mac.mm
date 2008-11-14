@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-namespace process_util {
+namespace base {
 
 bool LaunchApp(const std::vector<std::string>& argv,
                bool wait, ProcessHandle* process_handle) {
@@ -63,4 +63,4 @@ bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) {
   return false;
 }
 
-}  // namespace process_util
+}  // namespace base

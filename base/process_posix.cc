@@ -44,16 +44,16 @@ int32 Process::pid() const {
   if (process_ == 0)
     return 0;
 
-  return process_util::GetProcId(process_);
+  return GetProcId(process_);
 }
 
 bool Process::is_current() const {
-  return process_ == process_util::GetCurrentProcessHandle();
+  return process_ == GetCurrentProcessHandle();
 }
 
 // static
 Process Process::Current() {
-  return Process(process_util::GetCurrentProcessHandle());
+  return Process(GetCurrentProcessHandle());
 }
 
 }  // namspace base

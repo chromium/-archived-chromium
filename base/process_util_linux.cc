@@ -275,10 +275,10 @@ bool CleanupProcesses(const std::wstring& executable_name,
                       int exit_code,
                       const ProcessFilter* filter) {
   bool exited_cleanly =
-    process_util::WaitForProcessesToExit(executable_name, wait_milliseconds,
-                                         filter);
+    WaitForProcessesToExit(executable_name, wait_milliseconds,
+                           filter);
   if (!exited_cleanly)
-    process_util::KillProcesses(executable_name, exit_code, filter);
+    KillProcesses(executable_name, exit_code, filter);
   return exited_cleanly;
 }
 
