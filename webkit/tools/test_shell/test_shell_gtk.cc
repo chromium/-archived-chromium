@@ -460,10 +460,7 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
 }
 
 ScreenInfo GetScreenInfo(gfx::ViewHandle window) {
-  // This should call GetScreenInfoHelper, which should be implemented in
-  // webkit_glue_gtk.cc
-  NOTIMPLEMENTED();
-  return ScreenInfo();
+  return GetScreenInfoHelper(window);
 }
 
 }  // namespace webkit_glue

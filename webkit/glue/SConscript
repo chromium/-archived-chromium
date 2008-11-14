@@ -112,6 +112,7 @@ elif env['PLATFORM'] == 'posix':
   input_files.extend([
       'webcursor_gtk.cc',
       'webinputevent_linux.cc',
+      'webkit_glue_gtk.cc',
   ])
 
 if env['PLATFORM'] in ('posix', 'darwin'):

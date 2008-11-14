@@ -115,7 +115,7 @@ void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
     GtkWidget* window =
         gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
     gtk_window_resize(GTK_WINDOW(window), rect.width(), rect.height());
-    gtk_window_move(GTK_WINDOW(window), rect.x(), -rect.y());
+    gtk_window_move(GTK_WINDOW(window), rect.x(), rect.y());
   }
 }
 
