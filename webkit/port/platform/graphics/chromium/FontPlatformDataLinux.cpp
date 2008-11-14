@@ -86,10 +86,17 @@ bool FontPlatformData::operator==(const FontPlatformData& a) const
 
 unsigned FontPlatformData::hash() const
 {
-    // This is taken from Android code. It is not our fault.
+    // This hash is taken from Android code. It is not our fault.
     unsigned h = SkTypeface::UniqueID(m_typeface);
     h ^= 0x01010101 * (((int)m_fakeBold << 1) | (int)m_fakeItalic);
-    h ^= *reinterpret_cast<const uint32_t *>(&m_textSize);
+
+    // This memcpy is to avoid a reinterpret_cast that breaks strict-aliasing
+    // rules.  See base/basictypes.h and its discussion of bit_cast for
+    // performance implications (briefly: doesn't matter).
+    uint32_t textsize_bytes;
+    memcpy(&textsize_bytes, &m_textSize, sizeof(uint32_t));
+    h ^= textsize_bytes;
+
     return h;
 }
 
