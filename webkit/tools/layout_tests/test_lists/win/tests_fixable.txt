@@ -1173,5 +1173,5 @@ LayoutTests/fast/repaint/transform-relative-position.html = FAIL
 LayoutTests/transforms/2d/zoom-menulist.html = FAIL
 
 // Issue http://code.google.com/p/chromium/issues/detail?id=4432)
-V8 # LayoutTests/fast/dom/HTMLImageElement/image-loading-gc.html = TIMEOUT
-V8 # LayoutTests/fast/events/message-channel-gc-3.html = TIMEOUT
+LayoutTests/fast/dom/HTMLImageElement/image-loading-gc.html = TIMEOUT
+LayoutTests/fast/events/message-channel-gc-3.html = TIMEOUT
