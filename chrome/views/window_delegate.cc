@@ -57,7 +57,7 @@ bool WindowDelegate::GetSavedWindowBounds(gfx::Rect* bounds) const {
       !dictionary->GetInteger(L"bottom", &bottom))
     return false;
 
-  bounds->SetRect(left, top, right, bottom);
+  bounds->SetRect(left, top, right - left, bottom - top);
   return true;
 }
 

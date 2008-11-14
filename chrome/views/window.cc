@@ -87,7 +87,7 @@ gfx::Size Window::CalculateMaximumSize() const {
 void Window::Show() {
   int show_state = GetShowState();
   bool maximized = false;
-  if (window_delegate_->GetSavedMaximizedState(&maximized) && maximized)
+  if (saved_maximized_state_)
     show_state = SW_SHOWMAXIMIZED;
   Show(show_state);
 }
@@ -232,7 +232,8 @@ Window::Window(WindowDelegate* window_delegate)
       restored_enabled_(false),
       is_always_on_top_(false),
       window_closed_(false),
-      disable_inactive_rendering_(false) {
+      disable_inactive_rendering_(false),
+      saved_maximized_state_(0) {
   InitClass();
   DCHECK(window_delegate_);
   window_delegate_->window_.reset(this);
@@ -468,6 +469,14 @@ void Window::SetInitialFocus() {
 }
 
 void Window::SetInitialBounds(const gfx::Rect& create_bounds) {
+  // First we obtain the window's saved show-style and store it. We need to do
+  // this here, rather than in Show() because by the time Show() is called,
+  // the window's size will have been reset (below) and the saved maximized
+  // state will have been lost. Sadly there's no way to tell on Windows when
+  // a window is restored from maximized state, so we can't more accurately
+  // track maximized state independently of sizing information.
+  window_delegate_->GetSavedMaximizedState(&saved_maximized_state_);
+
   // Restore the window's placement from the controller.
   gfx::Rect saved_bounds(create_bounds.ToRECT());
   if (window_delegate_->GetSavedWindowBounds(&saved_bounds)) {

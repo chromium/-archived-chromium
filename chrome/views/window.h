@@ -249,6 +249,10 @@ class Window : public ContainerWin {
   // or not it actually is.
   bool disable_inactive_rendering_;
 
+  // The saved maximized state for this window. See note in SetInitialBounds
+  // that explains why we save this.
+  bool saved_maximized_state_;
+
   DISALLOW_EVIL_CONSTRUCTORS(Window);
 };
 
