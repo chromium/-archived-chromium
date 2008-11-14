@@ -860,6 +860,7 @@ SKIP | DEBUG : LayoutTests/http/tests/misc/onload-remove-iframe-crash-2.html = C
 // One of these svg tests sometimes crash in debug mode.  It seems to only
 // happen when all the dynamic-updates tests are run together.
 DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html = CRASH | PASS
+DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-height-attr.html = CRASH | PASS
 DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH | PASS
 
 // Started crashing in DEBUG only with r2842 (mbelshe)
@@ -1141,10 +1142,13 @@ LayoutTests/transforms/transform-value-types.html = FAIL
 // MERGE 37604:38097 REGRESSIONS
 LayoutTests/svg/carto.net/combobox.svg = FAIL
 pending/security/block-test.html = FAIL
+LayoutTests/http/tests/security/originHeader/origin-header-for-empty.html = FAIL | PASS
 
 // Bug 1341582
 LayoutTests/svg/dom/animated-tearoff-equality.xhtml = FAIL | PASS
 LayoutTests/svg/dom/animated-tearoff-lifespan.xhtml = FAIL | PASS
+
+DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL | TIMEOUT
 
 // MERGE 38097:38305 REGRESSIONS
 LayoutTests/editing/pasteboard/merge-end-blockquote.html = FAIL
