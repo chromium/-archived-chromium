@@ -240,7 +240,7 @@ class WStringToDoubleTraits {
   static inline value_type convert_func(const string_type::value_type* str,
                                         string_type::value_type** endptr,
                                         bool locale_dependent) {
-    if (base::LOCALE_DEPENDENT == locale_dependent) {
+    if (locale_dependent) {
       return wcstod(str, endptr);
     } else {
       // Because dmg_fp::strtod does not like wchar_t, we convert it to ASCII.
