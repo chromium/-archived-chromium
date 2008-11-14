@@ -59,7 +59,7 @@ void FontPlatformData::setupPaint(SkPaint* paint) const
     const float ts = m_textSize > 0 ? m_textSize : 12;
 
     paint->setAntiAlias(true);
-    paint->setSubpixelText(true);
+    paint->setSubpixelText(false);
     paint->setTextSize(SkFloatToScalar(ts));
     paint->setTypeface(m_typeface);
     paint->setFakeBoldText(m_fakeBold);
