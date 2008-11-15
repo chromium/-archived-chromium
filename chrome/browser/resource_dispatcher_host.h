@@ -414,7 +414,10 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                       const std::string& content_disposition);
 
   void RemovePendingRequest(int render_process_host_id, int request_id);
-  void RemovePendingRequest(PendingRequestList::iterator& iter);
+  // Deletes the pending request identified by the iterator passed in.
+  // This function will invalidate the iterator passed in. Callers should
+  // not rely on this iterator being valid on return.
+  void RemovePendingRequest(const PendingRequestList::iterator& iter);
 
   // Notify our observers that we started receiving a response for a request.
   void NotifyResponseStarted(URLRequest* request, int render_process_host_id);

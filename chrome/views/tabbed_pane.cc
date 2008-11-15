@@ -120,9 +120,10 @@ View* TabbedPane::RemoveTabAtIndex(int index) {
   ResizeContents(tab_control_);
 
   std::vector<View*>::iterator iter = tab_views_.begin() + index;
+  View* removed_tab = *iter;
   tab_views_.erase(iter);
 
-  return *iter;
+  return removed_tab;
 }
 
 void TabbedPane::SelectTabAt(int index) {

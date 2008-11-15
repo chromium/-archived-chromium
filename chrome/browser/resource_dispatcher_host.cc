@@ -1923,7 +1923,7 @@ void ResourceDispatcherHost::RemovePendingRequest(int render_process_host_id,
 }
 
 void ResourceDispatcherHost::RemovePendingRequest(
-    PendingRequestList::iterator& iter) {
+    const PendingRequestList::iterator& iter) {
   // Notify the login handler that this request object is going away.
   ExtraRequestInfo* info = ExtraInfoForRequest(iter->second);
   if (info && info->login_handler)

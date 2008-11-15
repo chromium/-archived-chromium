@@ -195,11 +195,13 @@ void ParseSearchEnginesFromXMLFiles(const std::vector<std::wstring>& xml_files,
 
   std::map<std::wstring, TemplateURL*> search_engine_for_url;
   std::string content;
+  bool need_to_increment_iter;
   // The first XML file represents the default search engine in Firefox 3, so we
   // need to keep it on top of the list.
   TemplateURL* default_turl = NULL;
   for (std::vector<std::wstring>::const_iterator iter = xml_files.begin();
-       iter != xml_files.end(); ++iter) {
+       iter != xml_files.end();) {
+    need_to_increment_iter = true;
     file_util::ReadFileToString(*iter, &content);
     TemplateURL* template_url = new TemplateURL();
     FirefoxURLParameterFilter param_filter;
@@ -216,7 +218,8 @@ void ParseSearchEnginesFromXMLFiles(const std::vector<std::wstring>& xml_files,
         // returns a vector with first Firefox default search engines and then
         // the user's ones.  We want to give priority to the user ones.
         delete iter->second;
-        search_engine_for_url.erase(iter);
+        iter = search_engine_for_url.erase(iter);
+        need_to_increment_iter = false;
       }
       // Give this a keyword to facilitate tab-to-search, if possible.
       template_url->set_keyword(TemplateURLModel::GenerateKeyword(GURL(url),
@@ -229,6 +232,8 @@ void ParseSearchEnginesFromXMLFiles(const std::vector<std::wstring>& xml_files,
       delete template_url;
     }
     content.clear();
+    if (need_to_increment_iter)
+      ++iter;
   }
 
   // Put the results in the |search_engines| vector.
