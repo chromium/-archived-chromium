@@ -51,9 +51,8 @@ class TestTextDiff(test_type_base.TestTypeBase):
     failures = []
 
     # If we're generating a new baseline, we pass.
-    if test_args.text_baseline:
-      self._SaveBaselineData(filename, test_args.new_baseline,
-                             output, ".txt")
+    if test_args.new_baseline:
+      self._SaveBaselineData(filename, output, ".txt")
       return failures
 
     # Normalize text to diff

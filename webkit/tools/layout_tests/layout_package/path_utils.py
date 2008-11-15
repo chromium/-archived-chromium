@@ -53,19 +53,18 @@ def LayoutDataDir():
 
 def ChromiumPlatformResultsDir():
   """Returns the full path to the directory containing Chromium platform
-  result directories. Raises PathNotFound if we're unable to find it.
+  result directories.
   """
   # TODO(pamg): Once we move platform/chromium-* into LayoutTests/platform/,
   # remove this and use PlatformResultsDir() for everything.
   return os.path.join(LayoutDataDir(), 'platform')
 
 def WebKitPlatformResultsDir():
-  """Gets the full path to the platform results directory.  Raises
-  PathNotFound if we're unable to find it."""
+  """Gets the full path to just above the platform results directory."""
   return os.path.join(LayoutDataDir(), 'LayoutTests', 'platform')
 
 def PlatformResultsDir(platform):
-  """Gets the full path to the results directory for this platform."""
+  """Gets the path to just above the results directory for this platform."""
   if platform.startswith('chromium'):
     return ChromiumPlatformResultsDir()
   return WebKitPlatformResultsDir()

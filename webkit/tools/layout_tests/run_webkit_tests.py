@@ -232,12 +232,7 @@ class TestRunner:
         test_args.png_path = png_path
 
       test_args.wdiff = self._options.wdiff
-
-      if self._options.new_baseline:
-        test_args.new_baseline = self._options.new_baseline
-        if self._options.no_pixel_tests:
-          test_args.text_baseline = True
-
+      test_args.new_baseline = self._options.new_baseline
       test_args.show_sources = self._options.sources
 
       # Create separate TestTypes instances for each thread.
@@ -515,6 +510,10 @@ def main(options, args):
 
   logging.info("Using platform '%s'" % options.platform)
   logging.info("Placing test results in %s" % options.results_directory)
+  if options.new_baseline:
+    logging.info("Placing new baselines in %s" %
+                 os.path.join(path_utils.PlatformResultsDir(options.platform),
+                              options.platform))
   logging.info("Using %s build at %s" %
                (options.target, test_shell_binary_path))
   if not options.no_pixel_tests:
@@ -568,12 +567,11 @@ if '__main__' == __name__:
                            default="layout-test-results",
                            help="Output results directory source dir,"
                                 " relative to Debug or Release")
-  option_parser.add_option("", "--new-baseline", default=None, metavar="DIR",
-                           help="save results as new baselines into this "
-                                "directory (e.g. layout_test_results/v8), "
-                                "overwriting whatever's already there. "
-                                "If pixel tests are being run, only image "
-                                "baselines will be saved, not text.")
+  option_parser.add_option("", "--new-baseline", action="store_true",
+                           default=False,
+                           help="save all generated results as new baselines "
+                                "into the platform directory, overwriting "
+                                "whatever's already there.")
   option_parser.add_option("", "--noshow-results", action="store_true",
                            default=False, help="don't launch the test_shell"
                            " with results after the tests are done")
