@@ -97,12 +97,16 @@ void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
   DCHECK(out_rect);
   WebWidgetHost* host = GetHostForWidget(webwidget);
   GtkWidget* drawing_area = host->window_handle();
-  GtkWidget* window =
-      gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
-  gint x, y, w, h;
+  GtkWidget* vbox = gtk_widget_get_parent(drawing_area);
+  GtkWidget* window = gtk_widget_get_parent(vbox);
+
+  gint x, y;
   gtk_window_get_position(GTK_WINDOW(window), &x, &y);
-  gtk_window_get_size(GTK_WINDOW(window), &w, &h);
-  out_rect->SetRect(x, y, w, h);
+  x += vbox->allocation.x + drawing_area->allocation.x;
+  y += vbox->allocation.y + drawing_area->allocation.y;
+
+  out_rect->SetRect(x, y, drawing_area->allocation.width,
+                    drawing_area->allocation.height);
 }
 
 void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
