@@ -98,6 +98,8 @@ class Browser : public TabStripModelDelegate,
   // State Storage and Retrieval for UI ///////////////////////////////////////
 
   // Save and restore the window position.
+  std::wstring GetWindowPlacementKey() const;
+  bool ShouldSaveWindowPlacement() const;
   void SaveWindowPlacement(const gfx::Rect& bounds, bool maximized);
   gfx::Rect GetSavedWindowBounds() const;
   bool GetSavedMaximizedState() const;

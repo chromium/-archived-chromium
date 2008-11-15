@@ -709,10 +709,17 @@ bool BrowserView::ExecuteWindowsCommand(int command_id) {
   return false;
 }
 
+std::wstring BrowserView::GetWindowName() const {
+  return browser_->GetWindowPlacementKey();
+}
+
 void BrowserView::SaveWindowPlacement(const gfx::Rect& bounds,
                                       bool maximized,
                                       bool always_on_top) {
-  browser_->SaveWindowPlacement(bounds, maximized);
+  if (browser_->ShouldSaveWindowPlacement()) {
+    WindowDelegate::SaveWindowPlacement(bounds, maximized, always_on_top);
+    browser_->SaveWindowPlacement(bounds, maximized);
+  }
 }
 
 bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {

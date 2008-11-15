@@ -309,33 +309,25 @@ bool Browser::IsCommandEnabled(int id) const {
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, State Storage and Retrieval for UI:
 
-void Browser::SaveWindowPlacement(const gfx::Rect& bounds, bool maximized) {
-  // We don't save window position for popups.
-  if (type() == BrowserType::BROWSER)
-    return;
-
-  // First save to local state, this is for remembering on subsequent starts.
-  PrefService* prefs = g_browser_process->local_state();
-  DCHECK(prefs);
+std::wstring Browser::GetWindowPlacementKey() const {
   std::wstring name(prefs::kBrowserWindowPlacement);
   if (!app_name_.empty()) {
     name.append(L"_");
     name.append(app_name_);
   }
+  return name;
+}
 
-  DictionaryValue* win_pref = prefs->GetMutableDictionary(name.c_str());
-  DCHECK(win_pref);
-  win_pref->SetInteger(L"top", bounds.y());
-  win_pref->SetInteger(L"left", bounds.x());
-  win_pref->SetInteger(L"bottom", bounds.bottom());
-  win_pref->SetInteger(L"right", bounds.right());
-  win_pref->SetBoolean(L"maximized", maximized);
+bool Browser::ShouldSaveWindowPlacement() const {
+  // We don't save window position for popups.
+  return type() != BrowserType::BROWSER;
+}
 
-  // Then save to the session storage service, used when reloading a past
-  // session. Note that we don't want to be the ones who cause lazy
-  // initialization of the session service. This function gets called during
-  // initial window showing, and we don't want to bring in the session service
-  // this early.
+void Browser::SaveWindowPlacement(const gfx::Rect& bounds, bool maximized) {
+  // Save to the session storage service, used when reloading a past session.
+  // Note that we don't want to be the ones who cause lazy initialization of
+  // the session service. This function gets called during initial window
+  // showing, and we don't want to bring in the session service this early.
   if (profile()->HasSessionService()) {
     SessionService* session_service = profile()->GetSessionService();
     if (session_service)

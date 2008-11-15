@@ -197,6 +197,7 @@ class BrowserView : public BrowserWindow,
   virtual SkBitmap GetWindowIcon();
   virtual bool ShouldShowWindowIcon() const;
   virtual bool ExecuteWindowsCommand(int command_id);
+  virtual std::wstring GetWindowName() const;
   virtual void SaveWindowPlacement(const gfx::Rect& bounds,
                                    bool maximized,
                                    bool always_on_top);
