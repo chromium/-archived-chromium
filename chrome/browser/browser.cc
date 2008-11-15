@@ -289,21 +289,16 @@ bool Browser::SupportsCommand(int id) const {
 
 bool Browser::IsCommandEnabled(int id) const {
   switch (id) {
-    case IDC_BACK: {
-      NavigationController* nc = GetSelectedNavigationController();
-      return nc ? nc->CanGoBack() : false;
-    }
-    case IDC_FORWARD: {
-      NavigationController* nc = GetSelectedNavigationController();
-      return nc ? nc->CanGoForward() : false;
-    }
-    case IDC_STOP: {
-      TabContents* current_tab = GetSelectedTabContents();
-      return (current_tab && current_tab->is_loading());
-    }
+    case IDC_BACK:
+      return GetSelectedTabContents()->controller()->CanGoBack();
+    case IDC_FORWARD:
+      return GetSelectedTabContents()->controller()->CanGoForward();
+    case IDC_STOP:
+      return IsCurrentPageLoading();
     default:
-      return controller_.IsCommandEnabled(id);
+      break;
   }
+  return controller_.IsCommandEnabled(id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -369,13 +364,15 @@ bool Browser::GetSavedMaximizedState() const {
 }
 
 SkBitmap Browser::GetCurrentPageIcon() const {
-  TabContents* contents = tabstrip_model_.GetSelectedTabContents();
-  return contents ? contents->GetFavIcon() : SkBitmap();
+  return GetSelectedTabContents()->GetFavIcon();
 }
 
 std::wstring Browser::GetCurrentPageTitle() const {
   TabContents* contents = tabstrip_model_.GetSelectedTabContents();
   std::wstring title;
+
+  // |contents| can be NULL because GetCurrentPageTitle is called by the window
+  // during the window's creation (before tabs have been added).
   if (contents) {
     title = contents->GetTitle();
     FormatTitleForDisplay(&title);
@@ -438,16 +435,6 @@ void Browser::OnWindowClosing() {
     session_service->WindowClosing(session_id());
 
   CloseAllTabs();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Browser, TabStripModel pass-thrus:
-
-NavigationController* Browser::GetSelectedNavigationController() const {
-  TabContents* tc = GetSelectedTabContents();
-  if (tc)
-    return tc->controller();
-  return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -560,24 +547,20 @@ void Browser::GoBack() {
 
   // If we are showing an interstitial, just hide it.
   TabContents* current_tab = GetSelectedTabContents();
-  if (current_tab) {
-    WebContents* web_contents = current_tab->AsWebContents();
-    if (web_contents && web_contents->showing_interstitial_page()) {
-      // Pressing back on an interstitial page means "don't proceed".
-      web_contents->interstitial_page()->DontProceed();
-      return;
-    }
+  WebContents* web_contents = current_tab->AsWebContents();
+  if (web_contents && web_contents->showing_interstitial_page()) {
+    // Pressing back on an interstitial page means "don't proceed".
+    web_contents->interstitial_page()->DontProceed();
+    return;
   }
-  NavigationController* nc = GetSelectedNavigationController();
-  if (nc && nc->CanGoBack())
-    nc->GoBack();
+  if (current_tab->controller()->CanGoBack())
+    current_tab->controller()->GoBack();
 }
 
 void Browser::GoForward() {
   UserMetrics::RecordAction(L"Forward", profile_);
-  NavigationController* nc = GetSelectedNavigationController();
-  if (nc && nc->CanGoForward())
-    nc->GoForward();
+  if (GetSelectedTabContents()->controller()->CanGoForward())
+    GetSelectedTabContents()->controller()->GoForward();
 }
 
 void Browser::Reload() {
@@ -751,11 +734,7 @@ void Browser::Copy() {
 
 void Browser::CopyCurrentPageURL() {
   UserMetrics::RecordAction(L"CopyURLToClipBoard", profile_);
-
-  TabContents* tc = GetSelectedTabContents();
-  DCHECK(tc);
-
-  std::string url = tc->GetURL().spec();
+  std::string url = GetSelectedTabContents()->GetURL().spec();
 
   if (!::OpenClipboard(NULL)) {
     NOTREACHED();
@@ -846,7 +825,7 @@ void Browser::BookmarkCurrentPage() {
   UserMetrics::RecordAction(L"Star", profile_);
 
   TabContents* tab = GetSelectedTabContents();
-  if (!tab || !tab->AsWebContents())
+  if (!tab->AsWebContents())
     return;
 
   WebContents* rvh = tab->AsWebContents();
@@ -919,8 +898,7 @@ void Browser::OverrideEncoding(int encoding_id) {
   const std::wstring selected_encoding =
       CharacterEncoding::GetCanonicalEncodingNameByCommandId(encoding_id);
   TabContents* current_tab = GetSelectedTabContents();
-  if (!selected_encoding.empty() && current_tab &&
-      current_tab->AsWebContents())
+  if (!selected_encoding.empty() && current_tab->AsWebContents())
      current_tab->AsWebContents()->override_encoding(selected_encoding);
   // Update the list of recently selected encodings.
   std::wstring new_selected_encoding_list;
@@ -957,9 +935,6 @@ void Browser::OpenDebuggerWindow() {
 #ifndef CHROME_DEBUGGER_DISABLED
   UserMetrics::RecordAction(L"Debugger", profile_);
   TabContents* current_tab = GetSelectedTabContents();
-  if (!current_tab)
-    return;
-
   if (current_tab->AsWebContents()) {
     // Only one debugger instance can exist at a time right now.
     // TODO(erikkay): need an alert, dialog, something
@@ -1089,13 +1064,7 @@ Browser* Browser::GetBrowserForController(
 // Browser, CommandHandler implementation:
 
 void Browser::ExecuteCommand(int id) {
-  if (!IsCommandEnabled(id)) {
-    NOTREACHED() << id;
-    return;
-  }
-  // This might happen during QMU testing.
-  if (!GetSelectedTabContents())
-    return;
+  DCHECK(IsCommandEnabled(id)) << "Invalid or disabled command";
 
   // The order of commands in this switch statement must match the function
   // declaration order in browser.h!
@@ -1581,12 +1550,6 @@ void Browser::OpenURLFromTab(TabContents* source,
 
 void Browser::NavigationStateChanged(const TabContents* source,
                                      unsigned changed_flags) {
-  if (!GetSelectedTabContents()) {
-    // Nothing is selected. This can happen when being restored from history,
-    // bail.
-    return;
-  }
-
   // Only update the UI when something visible has changed.
   if (changed_flags)
     ScheduleUIUpdate(source, changed_flags);
@@ -1985,12 +1948,12 @@ void Browser::InitCommandState() {
 }
 
 void Browser::UpdateNavigationCommands() {
-  const TabContents* const current_tab = GetSelectedTabContents();
+  TabContents* current_tab = GetSelectedTabContents();
   NavigationController* nc = current_tab->controller();
   controller_.UpdateCommandEnabled(IDC_BACK, nc->CanGoBack());
   controller_.UpdateCommandEnabled(IDC_FORWARD, nc->CanGoForward());
 
-  const WebContents* const web_contents = current_tab->AsWebContents();
+  WebContents* web_contents = current_tab->AsWebContents();
 
   if (web_contents) {
     controller_.UpdateCommandEnabled(IDC_STAR, true);

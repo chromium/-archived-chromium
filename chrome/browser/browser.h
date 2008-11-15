@@ -10,6 +10,7 @@
 #include "chrome/browser/browser_type.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/session_id.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/toolbar_model.h"
@@ -142,7 +143,6 @@ class Browser : public TabStripModelDelegate,
   TabContents* GetSelectedTabContents() const {
     return tabstrip_model_.GetSelectedTabContents();
   }
-  NavigationController* GetSelectedNavigationController() const;
   void SelectTabContentsAt(int index, bool user_gesture) {
     tabstrip_model_.SelectTabContentsAt(index, user_gesture);
   }
@@ -526,7 +526,11 @@ class Browser : public TabStripModelDelegate,
 
     // ToolbarModel implementation.
     virtual NavigationController* GetNavigationController() {
-      return browser_->GetSelectedNavigationController();
+      // This |current_tab| can be NULL during the initialization of the
+      // toolbar during window creation (i.e. before any tabs have been added
+      // to the window).
+      TabContents* current_tab = browser_->GetSelectedTabContents();
+      return current_tab ? current_tab->controller() : NULL;
     }
 
   private:
