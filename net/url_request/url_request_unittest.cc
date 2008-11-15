@@ -58,6 +58,17 @@ std::string TestNetResourceProvider(int key) {
   return "header";
 }
 
+// Do a case-insensitive search through |haystack| for |needle|.
+bool ContainsString(const std::string& haystack, const char* needle) {
+  std::string::const_iterator it =
+      std::search(haystack.begin(),
+                  haystack.end(),
+                  needle,
+                  needle + strlen(needle),
+                  CaseInsensitiveCompare<char>());
+  return it != haystack.end();
+}
+
 }  // namespace
 
 TEST(URLRequestTest, GetTest_NoCache) {
@@ -765,5 +776,45 @@ TEST(URLRequestTest, BasicAuth) {
     // should not have changed.
     EXPECT_TRUE(response_time == r.response_time());
   }
+}
+
+// In this test, we do a POST which the server will 302 redirect.
+// The subsequent transaction should use GET, and should not send the
+// Content-Type header.
+// http://code.google.com/p/chromium/issues/detail?id=843
+TEST(URLRequestTest, Post302RedirectGet) {
+  TestServer server(L"net/data/url_request_unittest");
+  TestDelegate d;
+  TestURLRequest req(server.TestServerPage("files/redirect-to-echoall"), &d);
+  req.set_method("POST");
+
+  // Set headers (some of which are specific to the POST).
+  // ("Content-Length: 10" is just a junk value to make sure it gets stripped).
+  req.SetExtraRequestHeaders(
+    "Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryAADeAA+NAAWMAAwZ\r\n"
+    "Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5\r\n"
+    "Accept-Language: en-US,en\r\n"
+    "Accept-Charset: ISO-8859-1,*,utf-8\r\n"
+    "Content-Length: 10\r\n"
+    "Origin: http://localhost:1337/"
+  );
+  req.Start();
+  MessageLoop::current()->Run();
+
+  std::string mime_type;
+  req.GetMimeType(&mime_type);
+  EXPECT_EQ("text/html", mime_type);
+
+  const std::string& data = d.data_received();
+
+  // Check that the post-specific headers were stripped:
+  EXPECT_FALSE(ContainsString(data, "Content-Length:"));
+  EXPECT_FALSE(ContainsString(data, "Content-Type:"));
+  EXPECT_FALSE(ContainsString(data, "Origin:"));
+
+  // These extra request headers should not have been stripped.
+  EXPECT_TRUE(ContainsString(data, "Accept:"));
+  EXPECT_TRUE(ContainsString(data, "Accept-Language:"));
+  EXPECT_TRUE(ContainsString(data, "Accept-Charset:"));
 }
 

@@ -437,6 +437,10 @@ class URLRequest {
   // been orphaned.
   void OrphanJob();
 
+  // Discard headers which have meaning in POST (Content-Length, Content-Type,
+  // Origin).
+  static std::string StripPostSpecificHeaders(const std::string& headers);
+
   scoped_refptr<URLRequestJob> job_;
   scoped_refptr<net::UploadData> upload_;
   GURL url_;

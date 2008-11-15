@@ -9,10 +9,12 @@
 #include "base/process_util.h"
 #include "base/singleton.h"
 #include "base/stats_counters.h"
+#include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/upload_data.h"
+#include "net/http/http_util.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_manager.h"
 
@@ -294,6 +296,36 @@ void URLRequest::OrphanJob() {
   job_ = NULL;
 }
 
+// static
+std::string URLRequest::StripPostSpecificHeaders(const std::string& headers) {
+  // These are headers that may be attached to a POST.
+  static const char* const kPostHeaders[] = {
+      "content-type",
+      "content-length",
+      "origin"
+  };
+
+  std::string stripped_headers;
+  net::HttpUtil::HeadersIterator it(headers.begin(), headers.end(), "\r\n");
+  
+  while (it.GetNext()) {
+    bool is_post_specific = false;
+    for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kPostHeaders); ++i) {
+      if (LowerCaseEqualsASCII(it.name_begin(), it.name_end(),
+                               kPostHeaders[i])) {
+        is_post_specific = true;
+        break;
+      }
+    }
+    if (!is_post_specific) {
+      // Assume that name and values are on the same line.
+      stripped_headers.append(it.name_begin(), it.values_end());
+      stripped_headers.append("\r\n");
+    }
+  }
+  return stripped_headers;
+}
+
 int URLRequest::Redirect(const GURL& location, int http_status_code) {
   // TODO(darin): treat 307 redirects of POST requests very carefully.  we
   // should prompt the user before re-submitting the POST body.
@@ -312,11 +344,24 @@ int URLRequest::Redirect(const GURL& location, int http_status_code) {
   // NOTE: even though RFC 2616 says to preserve the request method when
   // following a 302 redirect, normal browsers don't do that.  instead, they
   // all convert a POST into a GET in response to a 302, and so shall we.
+  bool was_post = method_ == "POST";
   url_ = location;
   method_ = "GET";
   upload_ = 0;
   status_ = URLRequestStatus();
   --redirect_limit_;
+
+  if (was_post) {
+    // If being switched from POST to GET, must remove headers that were
+    // specific to the POST and don't have meaning in GET. For example
+    // the inclusion of a multipart Content-Type header in GET can cause
+    // problems with some servers:
+    // http://code.google.com/p/chromium/issues/detail?id=843
+    //
+    // TODO(eroman): It would be better if this data was structured into
+    // specific fields/flags, rather than a stew of extra headers.
+    extra_request_headers_ = StripPostSpecificHeaders(extra_request_headers_);
+  }
 
   if (!final_upload_progress_) {
     final_upload_progress_ = job_->GetUploadProgress();

@@ -88,6 +88,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.DownloadHandler,
       self.DownloadFinishHandler,
       self.EchoHeader,
+      self.EchoAllHandler,
       self.FileHandler,
       self.RealFileWithCommonHeaderHandler,
       self.RealBZ2FileWithCommonHeaderHandler,
@@ -419,12 +420,14 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       '<div style="float: right">'
       '<a href="http://localhost:8888/echo">back to referring page</a></div>'
       '<h1>Request Body:</h1><pre>')
-    length = int(self.headers.getheader('content-length'))
-    qs = self.rfile.read(length)
-    params = cgi.parse_qs(qs, keep_blank_values=1)
 
-    for param in params:
-      self.wfile.write('%s=%s\n' % (param, params[param][0]))
+    if self.command == 'POST':
+      length = int(self.headers.getheader('content-length'))
+      qs = self.rfile.read(length)
+      params = cgi.parse_qs(qs, keep_blank_values=1)
+
+      for param in params:
+        self.wfile.write('%s=%s\n' % (param, params[param][0]))
 
     self.wfile.write('</pre>')
 
