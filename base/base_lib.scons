@@ -87,6 +87,27 @@ input_files = [
     'word_iterator.cc',
 ]
 
+# Add object files David M Gay's dtoa and g_fmt third party lib.  We
+# compile these separately so we can disable warnings.
+env_dmg_fp = env.Clone()
+if env_dmg_fp['PLATFORM'] == 'win32':
+  env_dmg_fp.Append(
+      CCFLAGS = [
+          '/wd4018',
+          '/wd4102',
+          '/wd4244',
+          '/wd4554',
+      ],
+  )
+else:
+  env_dmg_fp['CXXFLAGS'].remove('-Wall')
+  env_dmg_fp['CXXFLAGS'].append('-Wno-write-strings')
+
+input_files.extend([
+    env_dmg_fp.Object('third_party/dmg_fp/dtoa.cc'),
+    env_dmg_fp.Object('third_party/dmg_fp/g_fmt.cc'),
+])
+
 if env['PLATFORM'] in ('posix', 'darwin'):
   # Remove files that still need to be ported from the input_files list.
   # TODO(port): delete files from this list as they get ported.

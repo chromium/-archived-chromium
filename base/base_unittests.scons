@@ -13,7 +13,6 @@ env = env.Clone()
 env.SConscript([
     '$BASE_DIR/using_base.scons',
     '$BASE_DIR/gfx/using_base_gfx.scons',
-    '$DMG_FP_DIR/using_dmg_fp.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$LIBPNG_DIR/using_libpng.scons',

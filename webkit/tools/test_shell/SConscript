@@ -30,7 +30,6 @@ env.Append(
         '$GTEST_DIR/include',
     ],
     LIBS = [
-        'dmg_fp',
         'test_shell',
         'glue',
         'port',

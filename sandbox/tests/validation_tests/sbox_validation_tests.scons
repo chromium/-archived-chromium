@@ -8,7 +8,6 @@ env = env.Clone()
 
 env.SConscript([
     '$BASE_DIR/using_base.scons',
-    '$DMG_FP_DIR/using_dmg_fp.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$SANDBOX_DIR/using_sandbox.scons',
 ], {'env':env})

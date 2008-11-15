@@ -16,7 +16,6 @@ env.Prepend(
         'googleurl',
         env['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
         'base',
-        'dmg_fp',
     ],
 )
 

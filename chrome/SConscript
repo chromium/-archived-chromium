@@ -101,7 +101,6 @@ env_dll.Append(
         'base',
         'base_gfx',
         #'breakpad_handler',
-        'dmg_fp',
         'googleurl',
         'net',
         'skia',

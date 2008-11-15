@@ -13,7 +13,6 @@ env = env.Clone()
 env.SConscript([
     '$BASE_DIR/using_base.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
-    '$DMG_FP_DIR/using_dmg_fp.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$NET_DIR/using_net.scons',
 ], {'env':env})

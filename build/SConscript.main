@@ -77,7 +77,6 @@ root_env = Environment(
     BSDIFF_DIR            = '$THIRD_PARTY_DIR/bsdiff',
     BSPATCH_DIR           = '$THIRD_PARTY_DIR/bspatch',
     BZIP2_DIR             = '$THIRD_PARTY_DIR/bzip2',
-    DMG_FP_DIR            = '$THIRD_PARTY_DIR/dmg_fp',
     ICU38_DIR             = '$THIRD_PARTY_DIR/icu38',
     LIBEVENT_DIR          = '$THIRD_PARTY_DIR/libevent',
     LIBJPEG_DIR           = '$THIRD_PARTY_DIR/libjpeg',
@@ -254,7 +253,6 @@ if LoadComponent('third_party'):
   sconscripts.extend([
       '$BSDIFF_DIR/bsdiff.scons',
       '$BSPATCH_DIR/bspatch.scons',
-      '$DMG_FP_DIR/dmg_fp.scons',
       '$ICU38_DIR/icu38.scons',
       '$MODP_B64_DIR/modp_b64.scons',
   ])

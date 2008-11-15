@@ -11,7 +11,5 @@ Import("env")
 env.Append(
     LIBS = [
         'base',
-        # TODO(tc):  remove when dmg_fp gets moved to base/third_party
-        'dmg_fp',
     ],
 )
