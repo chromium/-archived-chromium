@@ -122,7 +122,7 @@ bool SdchManager::AddSdchDictionary(const std::string& dictionary_text,
 
   std::string domain, path;
   std::set<int> ports;
-  Time expiration;
+  Time expiration(Time::Now() + TimeDelta::FromDays(30));
 
   size_t header_end = dictionary_text.find("\n\n");
   if (std::string::npos == header_end) {
@@ -300,7 +300,16 @@ bool SdchManager::Dictionary::CanSet(const std::string& domain,
     return false;
   }
 
-  // TODO(jar): Enforce item 4 above.
+  std::string referrer_url_host = dictionary_url.host();
+  size_t postfix_domain_index = referrer_url_host.rfind(domain);
+  // See if it is indeed a postfix, or just an internal string.
+  if (referrer_url_host.size() == postfix_domain_index + domain.size()) {
+    // It is a postfix... so check to see if there's a dot in the prefix.
+    size_t end_of_host_index = referrer_url_host.find_first_of('.');
+    if (referrer_url_host.npos != end_of_host_index  &&
+        end_of_host_index < postfix_domain_index)
+      return false;
+  }
 
   if (!ports.empty()
       && 0 == ports.count(dictionary_url.EffectiveIntPort())) {
@@ -364,6 +373,8 @@ bool SdchManager::Dictionary::CanAdvertise(const GURL& target_url) {
   if (path_.size() && !PathMatch(target_url.path(), path_))
     return false;
   if (target_url.SchemeIsSecure())
+    return false;
+  if (Time::Now() > expiration_)
     return false;
   return true;
 }

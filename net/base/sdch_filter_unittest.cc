@@ -49,7 +49,8 @@ class SdchFilterTest : public testing::Test {
   scoped_ptr<SdchManager> sdch_manager_;  // A singleton database.
 };
 
-std::string SdchFilterTest::NewSdchCompressedData(const std::string dictionary) {
+std::string SdchFilterTest::NewSdchCompressedData(
+    const std::string dictionary) {
   std::string client_hash;
   std::string server_hash;
   SdchManager::GenerateHash(dictionary, &client_hash, &server_hash);
@@ -580,4 +581,64 @@ TEST_F(SdchFilterTest, DomainBlacklisting) {
   SdchManager::BlacklistDomain(google_url);
   EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(test_url));
   EXPECT_FALSE(SdchManager::Global()->IsInSupportedDomain(google_url));
+}
+
+TEST_F(SdchFilterTest, CanSetExactMatchDictionary) {
+  std::string dictionary_domain("x.y.z.google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  // Perfect match should work.
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary_text,
+              GURL("http://" + dictionary_domain)));
+}
+
+TEST_F(SdchFilterTest, FailToSetDomainMismatchDictionary) {
+  std::string dictionary_domain("x.y.z.google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  // Fail the "domain match" requirement.
+  EXPECT_FALSE(sdch_manager_->AddSdchDictionary(dictionary_text,
+               GURL("http://y.z.google.com")));
+}
+
+TEST_F(SdchFilterTest, FailToSetDotHostPrefixDomainDictionary) {
+  std::string dictionary_domain("x.y.z.google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  // Fail the HD with D being the domain and H having a dot requirement.
+  EXPECT_FALSE(sdch_manager_->AddSdchDictionary(dictionary_text,
+               GURL("http://w.x.y.z.google.com")));
+}
+
+TEST_F(SdchFilterTest, FailToSetRepeatPrefixWithDotDictionary) {
+  // Make sure that a prefix that matches the domain postfix won't confuse
+  // the validation checks.
+  std::string dictionary_domain("www.google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  // Fail the HD with D being the domain and H having a dot requirement.
+  EXPECT_FALSE(sdch_manager_->AddSdchDictionary(dictionary_text,
+               GURL("http://www.google.com.www.google.com")));
+}
+
+TEST_F(SdchFilterTest, CanSetLeadingDotDomainDictionary) {
+  // Make sure that a prefix that matches the domain postfix won't confuse
+  // the validation checks.
+  std::string dictionary_domain(".google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  // Fail the HD with D being the domain and H having a dot requirement.
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary_text,
+               GURL("http://www.google.com")));
+}
+
+// Make sure the order of the tests is not helping us or confusing things.
+// See test CanSetExactMatchDictionary above for first try.
+TEST_F(SdchFilterTest, CanStillSetExactMatchDictionary) {
+  std::string dictionary_domain("x.y.z.google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  // Perfect match should *STILL* work.
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary_text,
+              GURL("http://" + dictionary_domain)));
 }

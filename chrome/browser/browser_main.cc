@@ -523,8 +523,8 @@ int BrowserMain(CommandLine &parsed_command_line,
   // Prepare for memory caching of SDCH dictionaries.
   SdchManager sdch_manager;  // Construct singleton database.
   sdch_manager.set_sdch_fetcher(new SdchDictionaryFetcher);
-  // TODO(jar): Use default to "" so that all domains are supported.
-  std::string switch_domain(".google.com");  // Provide default test domain.
+  // Use default of "" so that all domains are supported.
+  std::string switch_domain("");
   if (parsed_command_line.HasSwitch(switches::kSdchFilter)) {
     switch_domain =
         WideToASCII(parsed_command_line.GetSwitchValue(switches::kSdchFilter));

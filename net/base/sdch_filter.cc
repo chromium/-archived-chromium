@@ -42,7 +42,7 @@ SdchFilter::~SdchFilter() {
     base::TimeDelta duration = time_of_last_read_ - connect_time();
     // Note: connect_time may be somewhat incorrect if this is cached data, as
     // it will reflect the time the connect was done for the original read :-(.
-    // To avoid any chances of overflow (and since SDCH is meant to primarilly
+    // To avoid any chances of overflow, and since SDCH is meant to primarilly
     // handle short downloads, we'll restrict what results we log to effectively
     // discard bogus large numbers.  Note that IF the number is large enough, it
     // would DCHECK in histogram as the square of the value is summed.  The
@@ -50,9 +50,9 @@ SdchFilter::~SdchFilter() {
     // seconds, so the discarded data would not be that readable anyway.
     if (30 >= duration.InSeconds()) {
       if (DECODING_IN_PROGRESS == decoding_status_)
-        UMA_HISTOGRAM_TIMES(L"Sdch.Transit_Latency", duration);
+        UMA_HISTOGRAM_TIMES(L"Sdch.Transit_Latency_2", duration);
       if (PASS_THROUGH == decoding_status_)
-        UMA_HISTOGRAM_TIMES(L"Sdch.Transit_Pass-through_Latency", duration);
+        UMA_HISTOGRAM_TIMES(L"Sdch.Transit_Pass-through_Latency_2", duration);
     }
   }
 
@@ -90,7 +90,9 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
   if (!dest_buffer || available_space <= 0)
     return FILTER_ERROR;
 
-  time_of_last_read_ = base::Time::Now();
+  // Don't update when we're called to just flush out our internal buffers.
+  if (next_stream_data_ && stream_data_len_ > 0)
+    time_of_last_read_ = base::Time::Now();
 
   if (WAITING_FOR_DICTIONARY_SELECTION == decoding_status_) {
     FilterStatus status = InitializeDictionary();
