@@ -9,3 +9,4 @@ List of changes made to original code:
   - wrapped functions in dmg_fp namespace
   - renamed .c files to .cc
   - added dmg_fp.h header
+  - added #define IEEE_8087 to dtoa.cc

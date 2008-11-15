@@ -23,7 +23,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/singleton.h"
-#include "third_party/dmg_fp/dmg_fp.h"
+#include "base/third_party/dmg_fp/dmg_fp.h"
 
 namespace {
 

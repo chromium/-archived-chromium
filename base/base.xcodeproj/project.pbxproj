@@ -40,7 +40,8 @@
 		4D11B59C0E91730500EF7617 /* rand_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B5970E9172F800EF7617 /* rand_util_unittest.cc */; };
 		4D11B89E0E929F0400EF7617 /* file_path.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B89B0E929EFF00EF7617 /* file_path.cc */; };
 		4D11B89F0E929F0700EF7617 /* file_path_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D11B89D0E929EFF00EF7617 /* file_path_unittest.cc */; };
-		531CBD4F0ECB69180084F32D /* libdmg_fp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 531CBD370ECB67090084F32D /* libdmg_fp.a */; };
+		536092FA0ECE474500D1B91E /* dtoa.cc in Sources */ = {isa = PBXBuildFile; fileRef = 536092F80ECE474500D1B91E /* dtoa.cc */; settings = {COMPILER_FLAGS = "-Wno-write-strings -Wno-all"; }; };
+		536092FB0ECE474500D1B91E /* g_fmt.cc in Sources */ = {isa = PBXBuildFile; fileRef = 536092F90ECE474500D1B91E /* g_fmt.cc */; settings = {COMPILER_FLAGS = "-Wno-write-strings -Wno-all"; }; };
 		7B26302F0E82F218001CE27F /* message_pump_libevent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7B26302D0E82F218001CE27F /* message_pump_libevent.cc */; };
 		7B2630330E82F258001CE27F /* libevent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B2630240E82F1E6001CE27F /* libevent.a */; };
 		7B4C5F4A0E4B6BF900679E8F /* sys_string_conversions_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B4C5F480E4B6BF900679E8F /* sys_string_conversions_mac.mm */; };
@@ -192,20 +193,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		531CBD360ECB67090084F32D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 531CBD320ECB67090084F32D /* dmg_fp.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = dmg_fp;
-		};
-		531CBE300ECB86E90084F32D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 531CBD320ECB67090084F32D /* dmg_fp.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D;
-			remoteInfo = dmg_fp;
-		};
 		7B165D2F0E55081000185273 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E45A2C680E47AEFF00DB1196 /* gtest.xcodeproj */;
@@ -399,7 +386,9 @@
 		4D11B89C0E929EFF00EF7617 /* file_path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_path.h; sourceTree = "<group>"; };
 		4D11B89D0E929EFF00EF7617 /* file_path_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_path_unittest.cc; sourceTree = "<group>"; };
 		4D7BF2B20E9D3CDC009A6919 /* foundation_utils_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = foundation_utils_mac.h; sourceTree = "<group>"; };
-		531CBD320ECB67090084F32D /* dmg_fp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dmg_fp.xcodeproj; path = third_party/dmg_fp/dmg_fp.xcodeproj; sourceTree = "<group>"; };
+		536092F70ECE474500D1B91E /* dmg_fp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dmg_fp.h; path = third_party/dmg_fp/dmg_fp.h; sourceTree = "<group>"; };
+		536092F80ECE474500D1B91E /* dtoa.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dtoa.cc; path = third_party/dmg_fp/dtoa.cc; sourceTree = "<group>"; };
+		536092F90ECE474500D1B91E /* g_fmt.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = g_fmt.cc; path = third_party/dmg_fp/g_fmt.cc; sourceTree = "<group>"; };
 		7B1435DE0E78416400901940 /* skia_utils_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia_utils_mac.h; sourceTree = "<group>"; };
 		7B1435DF0E78419700901940 /* native_widget_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_widget_types.h; sourceTree = "<group>"; };
 		7B26301F0E82F1E6001CE27F /* libevent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libevent.xcodeproj; path = third_party/libevent/libevent.xcodeproj; sourceTree = "<group>"; };
@@ -561,8 +550,6 @@
 		825403630D92D27C0006B936 /* sha2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha2.h; sourceTree = "<group>"; };
 		8254036F0D92D2840006B936 /* sha256.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sha256.h; path = third_party/nss/sha256.h; sourceTree = "<group>"; };
 		825403700D92D2840006B936 /* sha512.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sha512.cc; path = third_party/nss/sha512.cc; sourceTree = "<group>"; };
-		825403730D92D2CF0006B936 /* shared_event.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shared_event.cc; sourceTree = "<group>"; };
-		825403740D92D2CF0006B936 /* shared_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_event.h; sourceTree = "<group>"; };
 		825403760D92D2CF0006B936 /* shared_memory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_memory.h; sourceTree = "<group>"; };
 		825403770D92D2CF0006B936 /* stack_container.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stack_container.h; sourceTree = "<group>"; };
 		825403780D92D2CF0006B936 /* stats_counters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stats_counters.h; sourceTree = "<group>"; };
@@ -729,7 +716,6 @@
 				7B78D40E0E54FE8000609465 /* Foundation.framework in Frameworks */,
 				7B78D38C0E54FDEC00609465 /* libbase.a in Frameworks */,
 				7B8505D90E5B445100730B43 /* libbase_gfx.a in Frameworks */,
-				531CBD4F0ECB69180084F32D /* libdmg_fp.a in Frameworks */,
 				7B2630330E82F258001CE27F /* libevent.a in Frameworks */,
 				7B836AE30E5509A900F6AD31 /* libgtest.a in Frameworks */,
 				7B836E180E55CE5B00F6AD31 /* libicudata.a in Frameworks */,
@@ -744,14 +730,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		531CBD330ECB67090084F32D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				531CBD370ECB67090084F32D /* libdmg_fp.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		7B165D2C0E55081000185273 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -809,7 +787,6 @@
 		7B78D40F0E54FE8D00609465 /* Projects */ = {
 			isa = PBXGroup;
 			children = (
-				531CBD320ECB67090084F32D /* dmg_fp.xcodeproj */,
 				E45A2C680E47AEFF00DB1196 /* gtest.xcodeproj */,
 				E4562AF30E27E428005E4685 /* icu.xcodeproj */,
 				7B26301F0E82F1E6001CE27F /* libevent.xcodeproj */,
@@ -890,6 +867,8 @@
 				825402F20D92D1AC0006B936 /* debug_util.cc */,
 				825402F10D92D1AC0006B936 /* debug_util.h */,
 				7B78CE100E53131800609465 /* debug_util_posix.cc */,
+				536092F70ECE474500D1B91E /* dmg_fp.h */,
+				536092F80ECE474500D1B91E /* dtoa.cc */,
 				825402FF0D92D1BC0006B936 /* event_recorder.cc */,
 				825403000D92D1BC0006B936 /* event_recorder.h */,
 				ABF68B270EB0F93100E72835 /* field_trial.h */,
@@ -909,6 +888,7 @@
 				8254030B0D92D1D10006B936 /* fix_wp64.h */,
 				7B4C5D880E4915D800679E8F /* float_util.h */,
 				4D7BF2B20E9D3CDC009A6919 /* foundation_utils_mac.h */,
+				536092F90ECE474500D1B91E /* g_fmt.cc */,
 				824652C00DC12044007C2BAA /* hash_tables.h */,
 				93611B160E5A875D00F9405D /* histogram.cc */,
 				93611B170E5A875D00F9405D /* histogram.h */,
@@ -1015,8 +995,6 @@
 				8254036F0D92D2840006B936 /* sha256.h */,
 				E49E4CAB0E4CF6DB00AD47F7 /* sha2_unittest.cc */,
 				825403700D92D2840006B936 /* sha512.cc */,
-				825403730D92D2CF0006B936 /* shared_event.cc */,
-				825403740D92D2CF0006B936 /* shared_event.h */,
 				825403760D92D2CF0006B936 /* shared_memory.h */,
 				824653730DC12D0E007C2BAA /* shared_memory_posix.cc */,
 				BA5CC5830E788093004EDD45 /* shared_memory_unittest.cc */,
@@ -1222,7 +1200,6 @@
 			dependencies = (
 				7B78D38B0E54FDDE00609465 /* PBXTargetDependency */,
 				7B8505D80E5B444100730B43 /* PBXTargetDependency */,
-				531CBE310ECB86E90084F32D /* PBXTargetDependency */,
 				7B836AD60E55094000F6AD31 /* PBXTargetDependency */,
 				7B836ADC0E55094000F6AD31 /* PBXTargetDependency */,
 				7B836AD80E55094000F6AD31 /* PBXTargetDependency */,
@@ -1249,10 +1226,6 @@
 			productRefGroup = 825402BC0D92D0FA0006B936 /* Products */;
 			projectDirPath = "";
 			projectReferences = (
-				{
-					ProductGroup = 531CBD330ECB67090084F32D /* Products */;
-					ProjectRef = 531CBD320ECB67090084F32D /* dmg_fp.xcodeproj */;
-				},
 				{
 					ProductGroup = 7B165D2C0E55081000185273 /* Products */;
 					ProjectRef = E45A2C680E47AEFF00DB1196 /* gtest.xcodeproj */;
@@ -1290,13 +1263,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		531CBD370ECB67090084F32D /* libdmg_fp.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libdmg_fp.a;
-			remoteRef = 531CBD360ECB67090084F32D /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		7B165D300E55081000185273 /* libgtest.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1430,12 +1396,14 @@
 				824653680DC12CEC007C2BAA /* condition_variable_posix.cc in Sources */,
 				7B78CE250E5314A000609465 /* debug_util.cc in Sources */,
 				7B78CE120E53131800609465 /* debug_util_posix.cc in Sources */,
+				536092FA0ECE474500D1B91E /* dtoa.cc in Sources */,
 				ABF68B2A0EB0F93100E72835 /* field_trial.cc in Sources */,
 				4D11B89E0E929F0400EF7617 /* file_path.cc in Sources */,
 				A5A026550E4A214600498DA9 /* file_util.cc in Sources */,
 				A5A0270B0E4A630D00498DA9 /* file_util_mac.mm in Sources */,
 				A5A0268E0E4A2BDC00498DA9 /* file_util_posix.cc in Sources */,
 				7BAF50760E50B8F100CA8A07 /* file_version_info_mac.mm in Sources */,
+				536092FB0ECE474500D1B91E /* g_fmt.cc in Sources */,
 				93611B180E5A875D00F9405D /* histogram.cc in Sources */,
 				7BAE392A0E6F4EEF00C3F750 /* hmac_mac.cc in Sources */,
 				8216A5060E34DBDD00EE374C /* icu_util.cc in Sources */,
@@ -1579,11 +1547,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		531CBE310ECB86E90084F32D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = dmg_fp;
-			targetProxy = 531CBE300ECB86E90084F32D /* PBXContainerItemProxy */;
-		};
 		7B2630260E82F1EF001CE27F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = libevent;

@@ -138,7 +138,6 @@
 		4DDC63E70EAE344300FB5EBE /* metrics_response_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BF8B60E9D4839009A6919 /* metrics_response_unittest.cc */; };
 		4DDC644B0EAE390800FB5EBE /* libxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D7BFB230E9D4BBF009A6919 /* libxml.a */; };
 		4DDC64580EAE394200FB5EBE /* libzlib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DDC64550EAE392400FB5EBE /* libzlib.a */; };
-		531CBD9B0ECB69FC0084F32D /* libdmg_fp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 531CBD9A0ECB69B50084F32D /* libdmg_fp.a */; };
 		E48FB9590EC4E9C10052B72B /* safe_browsing_database_bloom.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFADF0E9D49DE009A6919 /* safe_browsing_database_bloom.cc */; };
 		E48FB95C0EC4E9DD0052B72B /* safe_browsing_database_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BFAE10E9D49DE009A6919 /* safe_browsing_database_impl.cc */; };
 		E48FB9760EC4EA320052B72B /* url_request_failed_dns_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48FB96E0EC4EA270052B72B /* url_request_failed_dns_job.cc */; };
@@ -498,20 +497,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = zlib;
-		};
-		531CBD990ECB69B50084F32D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 531CBD950ECB69B50084F32D /* dmg_fp.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libdmg_fp.a */;
-			remoteInfo = dmg_fp;
-		};
-		531CBE3C0ECB87070084F32D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 531CBD950ECB69B50084F32D /* dmg_fp.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* dmg_fp */;
-			remoteInfo = dmg_fp;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1245,7 +1230,6 @@
 		4D7BFF7A0E9D5449009A6919 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		4DC6498E0EA92BF90017C876 /* platform_test_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = platform_test_mac.mm; sourceTree = "<group>"; };
 		4DDC64500EAE392400FB5EBE /* zlib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = zlib.xcodeproj; path = third_party/zlib/zlib.xcodeproj; sourceTree = "<group>"; };
-		531CBD950ECB69B50084F32D /* dmg_fp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dmg_fp.xcodeproj; path = third_party/dmg_fp/dmg_fp.xcodeproj; sourceTree = "<group>"; };
 		E48FB9610EC4EA270052B72B /* automation_autocomplete_edit_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_autocomplete_edit_tracker.h; sourceTree = "<group>"; };
 		E48FB9620EC4EA270052B72B /* automation_browser_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_browser_tracker.h; sourceTree = "<group>"; };
 		E48FB9630EC4EA270052B72B /* automation_constrained_window_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = automation_constrained_window_tracker.h; sourceTree = "<group>"; };
@@ -1296,7 +1280,6 @@
 				4D7BFD960E9D5223009A6919 /* libbrowser.a in Frameworks */,
 				4D7BFF590E9D53E0009A6919 /* libbzip2.a in Frameworks */,
 				4D7BFD970E9D5226009A6919 /* libcommon.a in Frameworks */,
-				531CBD9B0ECB69FC0084F32D /* libdmg_fp.a in Frameworks */,
 				4D7BFF5A0E9D53E0009A6919 /* libevent.a in Frameworks */,
 				4D7BFF730E9D5425009A6919 /* libgoogleurl.a in Frameworks */,
 				4D7BFF440E9D53A0009A6919 /* libgtest.a in Frameworks */,
@@ -1997,7 +1980,6 @@
 		4D7BFB090E9D4BA1009A6919 /* Projects */ = {
 			isa = PBXGroup;
 			children = (
-				531CBD950ECB69B50084F32D /* dmg_fp.xcodeproj */,
 				4D7BFDBE0E9D525B009A6919 /* base.xcodeproj */,
 				4D7BFF4C0E9D53C1009A6919 /* bzip2.xcodeproj */,
 				4D7BFF5F0E9D540F009A6919 /* googleurl.xcodeproj */,
@@ -2331,14 +2313,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		531CBD960ECB69B50084F32D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				531CBD9A0ECB69B50084F32D /* libdmg_fp.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		E48FB9600EC4EA270052B72B /* automation */ = {
 			isa = PBXGroup;
 			children = (
@@ -2430,7 +2404,6 @@
 				4D7BFDCD0E9D5262009A6919 /* PBXTargetDependency */,
 				4D7BFF5D0E9D53F3009A6919 /* PBXTargetDependency */,
 				4D7BFF560E9D53D2009A6919 /* PBXTargetDependency */,
-				531CBE3D0ECB87070084F32D /* PBXTargetDependency */,
 				4D7BFF720E9D5416009A6919 /* PBXTargetDependency */,
 				4D7BFF430E9D5394009A6919 /* PBXTargetDependency */,
 				4D7B01470E9D56DF009A6919 /* PBXTargetDependency */,
@@ -2486,10 +2459,6 @@
 				{
 					ProductGroup = 4D7BFF4D0E9D53C1009A6919 /* Products */;
 					ProjectRef = 4D7BFF4C0E9D53C1009A6919 /* bzip2.xcodeproj */;
-				},
-				{
-					ProductGroup = 531CBD960ECB69B50084F32D /* Products */;
-					ProjectRef = 531CBD950ECB69B50084F32D /* dmg_fp.xcodeproj */;
 				},
 				{
 					ProductGroup = 4D7BFF600E9D540F009A6919 /* Products */;
@@ -2722,13 +2691,6 @@
 			fileType = archive.ar;
 			path = libzlib.a;
 			remoteRef = 4DDC64540EAE392400FB5EBE /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		531CBD9A0ECB69B50084F32D /* libdmg_fp.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libdmg_fp.a;
-			remoteRef = 531CBD990ECB69B50084F32D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -3009,11 +2971,6 @@
 			isa = PBXTargetDependency;
 			name = zlib;
 			targetProxy = 4DDC64560EAE393800FB5EBE /* PBXContainerItemProxy */;
-		};
-		531CBE3D0ECB87070084F32D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = dmg_fp;
-			targetProxy = 531CBE3C0ECB87070084F32D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
