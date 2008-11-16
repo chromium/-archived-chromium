@@ -288,6 +288,10 @@ bool Browser::SupportsCommand(int id) const {
 }
 
 bool Browser::IsCommandEnabled(int id) const {
+  // No commands are enabled if there is not yet any selected tab.
+  if (!GetSelectedTabContents())
+    return false;
+
   switch (id) {
     case IDC_BACK:
       return GetSelectedTabContents()->controller()->CanGoBack();
