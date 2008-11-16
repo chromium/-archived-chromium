@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <VisualStudioToolFile
 	Name="Output RLZ copy"
 	Version="8.00"
@@ -6,9 +6,11 @@
 	<Rules>
 		<CustomBuildRule
 			Name="Output RLZ copy"
-			CommandLine="$(SolutionDir)..\rlz\copy_files.bat $(ProjectDir)Binaries\* $(OutDir)"
+			DisplayName="Output RLZ copy"
+			CommandLine="$(SolutionDir)..\rlz\copy_files.bat &quot;$(InputPath)&quot; &quot;$(OutDir)&quot;"
 			Outputs="$(OutDir)\$(InputFileName)"
 			FileExtensions="*.dll;*.pdb"
+			ExecutionDescription="Executing tool..."
 			>
 			<Properties>
 			</Properties>
