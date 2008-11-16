@@ -30,6 +30,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
+#include "base/rand_util.h"
 #include "base/stack_container.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
@@ -57,7 +58,7 @@ static wchar_t g_currentTestName[MAX_PATH];
 namespace {
 
 // StatsTable initialization parameters.
-static const wchar_t* kStatsFile = L"testshell";
+static const wchar_t* kStatsFilePrefix = L"testshell_";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
 
@@ -296,8 +297,12 @@ int main(int argc, char* argv[]) {
   // Also expose GCController to JavaScript.
   webkit_glue::SetShouldExposeGCController(true);
 
-  // load and initialize the stats table.
-  StatsTable *table = new StatsTable(kStatsFile, kStatsFileThreads, kStatsFileCounters);
+  // Load and initialize the stats table.  Attempt to construct a somewhat
+  // unique name to isolate separate instances from each other.
+  StatsTable *table = new StatsTable(
+      kStatsFilePrefix + Uint64ToWString(base::RandUint64()),
+      kStatsFileThreads,
+      kStatsFileCounters);
   StatsTable::set_current(table);
 
   TestShell* shell;
