@@ -645,7 +645,8 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
 
   // Update all the UI bits.
   UpdateTitleBar();
-  toolbar_->SetProfile(new_contents->profile());
+  Profile* profile = new_contents->profile(); // TODO(beng): remove after 1 cyc.
+  toolbar_->SetProfile(profile);
   UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
 }
