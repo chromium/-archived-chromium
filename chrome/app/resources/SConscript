@@ -118,5 +118,5 @@ for locale_settings_res in resources:
 
   locale_dlls.append(dll)
 
-i = env.Install('$TARGET_ROOT/locales/', locale_dlls)
-env.Alias('chrome', i)
+i = env.Install('$DESTINATION_ROOT/locales/', locale_dlls)
+env.Alias('chrome_locales', i)

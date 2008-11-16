@@ -92,5 +92,5 @@ dictionaries = [
     'dictionaries/en-US.aff',
 ]
 
-i = env.Install('$TARGET_ROOT/Dictionaries', dictionaries)
-env.Alias('chrome', i)
+i = env.Install('$DESTINATION_ROOT/Dictionaries', dictionaries)
+env.Alias('chrome_Dictionaries', i)

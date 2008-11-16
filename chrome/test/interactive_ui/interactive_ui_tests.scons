@@ -13,7 +13,6 @@ env.SConscript([
     '$CHROME_DIR/third_party/hunspell/using_hunspell.scons',
     '$CHROME_DIR/third_party/wtl/using_wtl.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
-    '$GOOGLE_UPDATE_DIR/using_google_update.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
     '$LIBJPEG_DIR/using_libjpeg.scons',
@@ -23,6 +22,7 @@ env.SConscript([
     '$MODP_B64_DIR/using_modp_b64.scons',
     '$NET_DIR/using_net.scons',
     '$NPAPI_DIR/using_npapi.scons',
+    '$SDCH_DIR/using_sdch.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
@@ -32,6 +32,9 @@ env.Prepend(
         'UI_TEST',
     ],
     CPPPATH = [
+        '$CHROME_DIR/app',
+        # For generated_resources.h
+        '$CHROME_DIR/app/resources',
         '$CHROME_SRC_DIR',
     ],
     LIBS = [

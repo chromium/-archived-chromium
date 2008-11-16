@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-Import('env', 'env_res')
+Import('env')
 
 env = env.Clone()
 
@@ -14,13 +14,13 @@ env.ApplySConscript([
 ])
 
 if env['PLATFORM'] == 'win32':
-  env_res = env_res.Clone()
+  env_res = env.Clone()
 
   env_res.Append(
       CPPPATH = [
-          "$TARGET_ROOT",
           ".",
           "$CHROME_SRC_DIR",
+          "$CHROME_DIR/installer/util",
       ],
       RCFLAGS = [
           ["/l", "0x409"],
@@ -29,11 +29,14 @@ if env['PLATFORM'] == 'win32':
 
   resources = env_res.RES('setup.rc')
 
+  # TODO(sgk):  implicit dependency should be picked up automatically
+  env_res.Depends(resources,
+                  '$CHROME_DIR/installer/util/installer_util_strings.rc')
+
 
 env.Prepend(
     CPPPATH = [
         '../util',
-        '$TARGET_ROOT',
         '.',
         '$CHROME_SRC_DIR',
     ],
@@ -80,6 +83,10 @@ input_files = [
 
 env.ChromeProgram('setup', resources + input_files)
 
-env.ChromeVersionRC('setup_exe_version.rc',
-                    'setup_exe_version.rc.version',
-                    PWD = env.Dir('.'))
+exe_version_rc = env.ChromeVersionRC('setup_exe_version.rc',
+                                     'setup_exe_version.rc.version',
+                                     PWD = env.Dir('.'))
+
+if env['PLATFORM'] == 'win32':
+  # TODO(sgk):  implicit dependency should be picked up automatically
+  env_res.Depends(resources, exe_version_rc)

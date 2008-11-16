@@ -4,6 +4,8 @@
 
 Import('env')
 
+env = env.Clone()
+
 env.ApplySConscript([
     '$BASE_DIR/using_base.scons',
     '$BASE_DIR/gfx/using_base_gfx.scons',

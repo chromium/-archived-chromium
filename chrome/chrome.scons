@@ -14,6 +14,30 @@ env.Append(
     COMPONENT_TEST_PROGRAM_GROUPS = ['chrome'],
 )
 
+
+# TODO(sgk):  move the ChromeVersionRC builder into a Tool module
+def chrome_version_emitter(target, source, env):
+    source.append(env.File('$CHROME_SRC_DIR/chrome/VERSION'))
+    # TODO(sgk):  parameterize for chromium-vs.-google_chrome
+    source.append(env.File('$CHROME_SRC_DIR/chrome/app/theme/google_chrome/BRANDING'))
+    return target, source
+
+b = Builder(action = '$CHROME_VERSION_RC_COM',
+            emitter = chrome_version_emitter)
+
+env['BUILDERS']['ChromeVersionRC'] = b
+
+env.Replace(
+    # NOTE: the / after $CHROME_SRC_DIR/chrome/ is required because
+    # version.bat assumes a path with a trailing slash.
+    CHROME_VERSION_RC_COM =
+        '$VERSION_BAT $SOURCE $CHROME_SRC_DIR/chrome/ $PWD $TARGET',
+    VERSION_BAT = env.File(
+        '$CHROME_SRC_DIR/chrome/tools/build/win/version.bat'),
+    PWD = Dir('.'),
+)
+
+
 sconscript_files = [
     'SConscript',
 
@@ -21,20 +45,57 @@ sconscript_files = [
     'browser/debugger/debugger.scons',
     'common/common.scons',
     'common/ipc_tests.scons',
+    'installer/mini_installer/installer_unittests.scons',
+    'installer/mini_installer/mini_installer.scons',
+    'installer/setup/setup.scons',
+    'installer/util/util.scons',
     'plugin/plugin.scons',
     'renderer/renderer.scons',
+    'test/activex_test_control/activex_test_control.scons',
     'test/automated_ui_tests/automated_ui_tests.scons',
+    'test/automation/automation.scons',
+    'test/chrome_plugin/test_chrome_plugin.scons',
     'test/interactive_ui/interactive_ui_tests.scons',
+    'test/memory_test/memory_test.scons',
+    'test/mini_installer_test/mini_installer_test.scons',
+    'test/page_cycler/page_cycler_tests.scons',
+    'test/plugin/plugin_tests.scons',
+    'test/reliability/reliability_tests.scons',
+    'test/security_tests/security_tests.scons',
+    'test/selenium/selenium_tests.scons',
+    'test/startup/startup_tests.scons',
+    'test/tab_switching/tab_switching_test.scons',
     'test/ui/ui_tests.scons',
     'test/unit/unit_tests.scons',
+    'tools/crash_service/crash_service.scons',
+    'tools/perf/flush_cache/flush_cache.scons',
+    'tools/test/image_diff/image_diff.scons',
 ]
 
+# TODO(port)
 if env['PLATFORM'] != 'win32':
   remove_files = [
       'browser/debugger/debugger.scons',
+      'installer/mini_installer/installer_unittests.scons',
+      'installer/mini_installer/mini_installer.scons',
+      'installer/setup/setup.scons',
+      'installer/util/util.scons',
+      'test/activex_test_control/activex_test_control.scons',
       'test/automated_ui_tests/automated_ui_tests.scons',
+      'test/automation/automation.scons',
       'test/interactive_ui/interactive_ui_tests.scons',
+      'test/memory_test/memory_test.scons',
+      'test/mini_installer_test/mini_installer_test.scons',
+      'test/page_cycler/page_cycler_tests.scons',
+      'test/plugin/plugin_tests.scons',
+      'test/reliability/reliability_tests.scons',
+      'test/security_tests/security_tests.scons',
+      'test/selenium/selenium_tests.scons',
+      'test/startup/startup_tests.scons',
+      'test/tab_switching/tab_switching_test.scons',
       'test/ui/ui_tests.scons',
+      'tools/crash_service/crash_service.scons',
+      'tools/perf/flush_cache/flush_cache.scons',
   ]
   for remove in remove_files:
     sconscript_files.remove(remove)

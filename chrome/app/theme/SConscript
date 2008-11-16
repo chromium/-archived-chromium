@@ -43,9 +43,7 @@ env.Append(
 )
 
 themes_default = env.ChromeSharedLibrary("default", res)
+env.Install("$DESTINATION_ROOT/themes", themes_default)
 
 # TODO(bradnelson): figure out why this was needed
 #env.AddPostAction(themes_default[1], Touch(themes_default[1:]))
-
-i = env.Install("$TARGET_ROOT/themes", themes_default)
-env.Alias('chrome', i)
