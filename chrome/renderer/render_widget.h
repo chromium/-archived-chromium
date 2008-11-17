@@ -262,6 +262,7 @@ class RenderWidget : public IPC::Channel::Listener,
   int ime_control_y_;
   bool ime_control_new_state_;
   bool ime_control_updated_;
+  bool ime_control_busy_;
 
   // Whether the window for this RenderWidget should be focused when shown.
   bool focus_on_show_;
