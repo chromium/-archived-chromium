@@ -116,6 +116,10 @@ class FilePath {
     return *this;
   }
 
+  bool operator==(const FilePath& that) const {
+    return path_ == that.path_;
+  }
+
   const StringType& value() const { return path_; }
 
   // Returns a FilePath corresponding to the directory containing the path

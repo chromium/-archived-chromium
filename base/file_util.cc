@@ -370,6 +370,12 @@ bool GetTempDir(std::wstring* path_str) {
   *path_str = path.ToWStringHack();
   return true;
 }
+FILE* OpenFile(const std::wstring& filename, const char* mode) {
+  return OpenFile(FilePath::FromWStringHack(filename), mode);
+}
+bool SetCurrentDirectory(const std::wstring& directory) {
+  return SetCurrentDirectory(FilePath::FromWStringHack(directory));
+}
 
 }  // namespace
 

@@ -312,6 +312,8 @@ bool GetCurrentDirectory(FilePath* path);
 bool GetCurrentDirectory(std::wstring* path);
 
 // Sets the current working directory for the process.
+bool SetCurrentDirectory(const FilePath& path);
+// Deprecated temporary compatibility function.
 bool SetCurrentDirectory(const std::wstring& current_directory);
 
 // A class for enumerating the files in a provided path. The order of the

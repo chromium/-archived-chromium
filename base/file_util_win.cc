@@ -495,10 +495,6 @@ FILE* OpenFile(const std::string& filename, const char* mode) {
   return file;
 }
 
-FILE* OpenFile(const std::wstring& filename, const char* mode) {
-  return OpenFile(FilePath(filename), mode);
-}
-
 int ReadFile(const std::wstring& filename, char* data, int size) {
   ScopedHandle file(CreateFile(filename.c_str(),
                                GENERIC_READ,
@@ -594,9 +590,9 @@ bool GetCurrentDirectory(FilePath* dir) {
 }
 
 // Sets the current working directory for the process.
-bool SetCurrentDirectory(const std::wstring& current_directory) {
-  BOOL ret = ::SetCurrentDirectory(current_directory.c_str());
-  return (ret ? true : false);
+bool SetCurrentDirectory(const FilePath& directory) {
+  BOOL ret = ::SetCurrentDirectory(directory.value().c_str());
+  return ret != 0;
 }
 
 ///////////////////////////////////////////////

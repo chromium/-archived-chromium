@@ -322,18 +322,18 @@ bool GetFileInfo(const FilePath& file_path, FileInfo* results) {
 }
 
 FILE* OpenFile(const std::string& filename, const char* mode) {
-  return fopen(filename.c_str(), mode);
+  return OpenFile(FilePath(filename), mode);
 }
 
-FILE* OpenFile(const std::wstring& filename, const char* mode) {
-  return fopen(WideToUTF8(filename).c_str(), mode);
+FILE* OpenFile(const FilePath& filename, const char* mode) {
+  return fopen(filename.value().c_str(), mode);
 }
 
 int ReadFile(const std::wstring& filename, char* data, int size) {
   int fd = open(WideToUTF8(filename).c_str(), O_RDONLY);
   if (fd < 0)
     return -1;
-  
+
   int ret_value = read(fd, data, size);
   close(fd);
   return ret_value;
@@ -352,7 +352,7 @@ int WriteFile(const std::wstring& filename, const char* data, int size) {
                                           size - bytes_written_total);
     if (bytes_written_partial < 0) {
       close(fd);
-      return -1;      
+      return -1;
     }
     bytes_written_total += bytes_written_partial;
   } while (bytes_written_total < size);
@@ -373,11 +373,11 @@ bool GetCurrentDirectory(FilePath* dir) {
 }
 
 // Sets the current working directory for the process.
-bool SetCurrentDirectory(const std::wstring& current_directory) {
-  int ret = chdir(WideToUTF8(current_directory).c_str());
-  return (ret == 0);
+bool SetCurrentDirectory(const FilePath& path) {
+  int ret = chdir(path.value().c_str());
+  return !ret;
 }
-  
+
 FileEnumerator::FileEnumerator(const std::wstring& root_path,
                                bool recursive,
                                FileEnumerator::FILE_TYPE file_type)
@@ -403,7 +403,7 @@ FileEnumerator::FileEnumerator(const std::wstring& root_path,
   AppendToPath(&pattern_, pattern);
   pending_paths_.push(root_path);
 }
-  
+
 FileEnumerator::~FileEnumerator() {
   if (fts_)
     fts_close(fts_);
