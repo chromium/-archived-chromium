@@ -7,8 +7,9 @@
 #include <string>
 
 #include "base/clipboard.h"
-#include "webkit/glue/scoped_clipboard_writer_glue.h"
+#include "base/lazy_instance.h"
 #include "googleurl/src/gurl.h"
+#include "webkit/glue/scoped_clipboard_writer_glue.h"
 
 #include "SkBitmap.h"
 
@@ -28,27 +29,27 @@ ScopedClipboardWriterGlue::~ScopedClipboardWriterGlue() {
 
 namespace webkit_glue {
 
-Clipboard clipboard;
+base::LazyInstance<Clipboard> clipboard(base::LINKER_INITIALIZED);
 
 Clipboard* ClipboardGetClipboard() {
-  return &clipboard;
+  return clipboard.Pointer();
 }
 
 bool ClipboardIsFormatAvailable(Clipboard::FormatType format) {
-  return clipboard.IsFormatAvailable(format);
+  return ClipboardGetClipboard()->IsFormatAvailable(format);
 }
 
 void ClipboardReadText(std::wstring* result) {
-  clipboard.ReadText(result);
+  ClipboardGetClipboard()->ReadText(result);
 }
 
 void ClipboardReadAsciiText(std::string* result) {
-  clipboard.ReadAsciiText(result);
+  ClipboardGetClipboard()->ReadAsciiText(result);
 }
 
 void ClipboardReadHTML(std::wstring* markup, GURL* url) {
   std::string url_str;
-  clipboard.ReadHTML(markup, url ? &url_str : NULL);
+  ClipboardGetClipboard()->ReadHTML(markup, url ? &url_str : NULL);
   if (url)
     *url = GURL(url_str);
 }
