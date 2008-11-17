@@ -93,12 +93,28 @@ void ActiveXPlugin::ConvertForEmbeddedWmp() {
   ControlParam* existing_url_param = NULL;
   std::wstring src;
   // Find the src parameter and use it to add a new url parameter.
+  // Find the volume parameter and setup defaults which make sense in
+  // the Activex media player world.
   for (unsigned int i = 0; i < params_.size(); i++) {
-    if (LowerCaseEqualsASCII(params_[i].name, "src"))
+    if (LowerCaseEqualsASCII(params_[i].name, "src")) {
       src = params_[i].value;
-    else if (LowerCaseEqualsASCII(params_[i].name, "url"))
+    } else if (LowerCaseEqualsASCII(params_[i].name, "url")) {
       existing_url_param = &params_[i];
+    } else if (LowerCaseEqualsASCII(params_[i].name, "volume")) {
+      // In the NPAPI media player world a volume value lesser than
+      // -3000 turns off the volume. A volume value of 0 indicates
+      // full volume. Translate these to their Activex counterparts.
+      int specified_volume = 0;
+      if (StringToInt(params_[i].value, &specified_volume)) {
+        // Valid volume lies between 0 and -3000
+        specified_volume = std::min (0, std::max(-3000, specified_volume));
+        // Translate to a value between 0 and 100.
+        int activex_volume = specified_volume / 30 + 100;
+        params_[i].value = IntToWString(activex_volume);
+      }
+    }
   }
+
   if (!src.empty()) {
     if (existing_url_param == NULL)
       params_.push_back(ControlParam(L"url", src));
