@@ -1235,7 +1235,9 @@ TabContents* Browser::CreateTabContentsForURL(
   TabContentsType type = TabContents::TypeForURL(&real_url);
   DCHECK(type != TAB_CONTENTS_UNKNOWN_TYPE);
 
-  TabContents* contents = TabContents::CreateWithType(type, profile, instance);
+  HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
+  TabContents* contents = TabContents::CreateWithType(type, parent_hwnd,
+                                                      profile, instance);
   contents->SetupController(profile);
 
   if (!defer_load) {
@@ -1263,7 +1265,9 @@ void Browser::DuplicateContentsAt(int index) {
   if (type_ == BrowserType::TABBED_BROWSER) {
     // If this is a tabbed browser, just create a duplicate tab inside the same
     // window next to the tab being duplicated.
-    new_contents = contents->controller()->Clone()->active_contents();
+    HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
+    new_contents = contents->controller()->Clone(
+        parent_hwnd)->active_contents();
     // If you duplicate a tab that is not selected, we need to make sure to
     // select the tab being duplicated so that DetermineInsertionIndex returns
     // the right index (if tab 5 is selected and we right-click tab 1 we want
@@ -1285,8 +1289,9 @@ void Browser::DuplicateContentsAt(int index) {
     browser->window()->Show();
 
     // The page transition below is only for the purpose of inserting the tab.
+    HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
     new_contents = browser->AddTabWithNavigationController(
-        contents->controller()->Clone(),
+        contents->controller()->Clone(parent_hwnd),
         PageTransition::LINK);
   }
 
@@ -2188,7 +2193,9 @@ NavigationController* Browser::BuildRestoredNavigationController(
 
     // Create a NavigationController. This constructor creates the appropriate
     // set of TabContents.
-    return new NavigationController(profile_, navigations, selected_navigation);
+    HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
+    return new NavigationController(
+        profile_, navigations, selected_navigation, parent_hwnd);
   } else {
     // No navigations. Create a tab with about:blank.
     TabContents* contents =

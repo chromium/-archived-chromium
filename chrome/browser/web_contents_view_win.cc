@@ -52,9 +52,10 @@ WebContents* WebContentsViewWin::GetWebContents() {
   return web_contents_;
 }
 
-void WebContentsViewWin::CreateView() {
+void WebContentsViewWin::CreateView(HWND parent_hwnd,
+                                    const gfx::Rect& initial_bounds) {
   set_delete_on_destroy(false);
-  ContainerWin::Init(GetDesktopWindow(), gfx::Rect(), false);
+  ContainerWin::Init(parent_hwnd, initial_bounds, false);
 
   // Remove the root view drop target so we can register our own.
   RevokeDragDrop(GetHWND());
@@ -364,7 +365,13 @@ WebContents* WebContentsViewWin::CreateNewWindowInternal(
   new_contents->SetupController(web_contents_->profile());
   WebContentsView* new_view = new_contents->view();
 
-  new_view->CreateView();
+  // TODO(beng)
+  // The intention here is to create background tabs, which should ideally
+  // be parented to NULL. However doing that causes the corresponding view
+  // container windows to show up as overlapped windows, which causes
+  // other issues. We should fix this.
+  HWND new_view_parent_window = ::GetAncestor(GetContainerHWND(), GA_ROOT);
+  new_view->CreateView(new_view_parent_window, gfx::Rect());
 
   // TODO(brettw) it seems bogus that we have to call this function on the
   // newly created object and give it one of its own member variables.

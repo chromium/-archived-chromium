@@ -75,6 +75,7 @@ class TabContents : public PageNavigator {
   // Creates a new TabContents of the given type.  Will reuse the given
   // instance's renderer, if it is not null.
   static TabContents* CreateWithType(TabContentsType type,
+                                     HWND parent,
                                      Profile* profile,
                                      SiteInstance* instance);
 
@@ -339,7 +340,7 @@ class TabContents : public PageNavigator {
 
   // Tell the subclass to set up the view (e.g. create the container HWND if
   // applicable) and any other create-time setup.
-  virtual void CreateView() {}
+  virtual void CreateView(HWND parent_hwnd, const gfx::Rect& initial_bounds) {}
 
   // Returns the HWND associated with this TabContents. Outside of automation
   // in the context of the UI, this is required to be implemented.

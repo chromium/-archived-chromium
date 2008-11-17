@@ -183,7 +183,8 @@ NavigationController::NavigationController(TabContents* contents,
 NavigationController::NavigationController(
     Profile* profile,
     const std::vector<TabNavigation>& navigations,
-    int selected_navigation)
+    int selected_navigation,
+    HWND parent)
     : profile_(profile),
       pending_entry_(NULL),
       last_committed_entry_index_(-1),
@@ -202,7 +203,7 @@ NavigationController::NavigationController(
   CreateNavigationEntriesFromTabNavigations(navigations, &entries_);
 
   // And finish the restore.
-  FinishRestore(selected_navigation);
+  FinishRestore(parent, selected_navigation);
 }
 
 NavigationController::~NavigationController() {
@@ -1022,7 +1023,10 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
   if (from_contents && from_contents->type() != pending_entry_->tab_type())
     from_contents->set_is_active(false);
 
-  TabContents* contents = GetTabContentsCreateIfNecessary(*pending_entry_);
+  HWND parent =
+      from_contents ? GetParent(from_contents->GetContainerHWND()) : 0;
+  TabContents* contents =
+      GetTabContentsCreateIfNecessary(parent, *pending_entry_);
 
   contents->set_is_active(true);
   active_contents_ = contents;
@@ -1054,10 +1058,11 @@ void NavigationController::NotifyNavigationEntryCommitted(
 }
 
 TabContents* NavigationController::GetTabContentsCreateIfNecessary(
+    HWND parent,
     const NavigationEntry& entry) {
   TabContents* contents = GetTabContents(entry.tab_type());
   if (!contents) {
-    contents = TabContents::CreateWithType(entry.tab_type(), profile_,
+    contents = TabContents::CreateWithType(entry.tab_type(), parent, profile_,
                                            entry.site_instance());
     if (!contents->AsWebContents()) {
       // Update the max page id, otherwise the newly created TabContents may
@@ -1137,7 +1142,7 @@ void NavigationController::NotifyEntryChanged(const NavigationEntry* entry,
                                          Details<EntryChangedDetails>(&det));
 }
 
-NavigationController* NavigationController::Clone() {
+NavigationController* NavigationController::Clone(HWND parent_hwnd) {
   NavigationController* nc = new NavigationController(NULL, profile_);
 
   if (GetEntryCount() == 0)
@@ -1151,7 +1156,7 @@ NavigationController* NavigationController::Clone() {
         new NavigationEntry(*GetEntryAtIndex(i))));
   }
 
-  nc->FinishRestore(last_committed_entry_index_);
+  nc->FinishRestore(parent_hwnd, last_committed_entry_index_);
 
   return nc;
 }
@@ -1197,7 +1202,7 @@ void NavigationController::CancelTabContentsCollection(TabContentsType t) {
   }
 }
 
-void NavigationController::FinishRestore(int selected_index) {
+void NavigationController::FinishRestore(HWND parent_hwnd, int selected_index) {
   DCHECK(selected_index >= 0 && selected_index < GetEntryCount());
   ConfigureEntriesForRestore(&entries_);
 
@@ -1206,7 +1211,8 @@ void NavigationController::FinishRestore(int selected_index) {
   last_committed_entry_index_ = selected_index;
 
   // Callers assume we have an active_contents after restoring, so set it now.
-  active_contents_ = GetTabContentsCreateIfNecessary(*entries_[selected_index]);
+  active_contents_ =
+      GetTabContentsCreateIfNecessary(parent_hwnd, *entries_[selected_index]);
 }
 
 void NavigationController::DiscardNonCommittedEntriesInternal() {

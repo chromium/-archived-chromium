@@ -57,7 +57,8 @@ bool ExternalTabContainer::Init(Profile* profile) {
       views::FocusManager::CreateFocusManager(m_hWnd, GetRootView());
   DCHECK(focus_manager);
   focus_manager->AddKeystrokeListener(this);
-  tab_contents_ = TabContents::CreateWithType(TAB_CONTENTS_WEB, profile, NULL);
+  tab_contents_ = TabContents::CreateWithType(TAB_CONTENTS_WEB,
+                                              m_hWnd, profile, NULL);
   if (!tab_contents_) {
     NOTREACHED();
     DestroyWindow();
