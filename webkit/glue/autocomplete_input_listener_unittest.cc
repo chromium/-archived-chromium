@@ -29,56 +29,57 @@ MSVC_POP_WARNING();
 #undef LOG
 
 #include "webkit/glue/autocomplete_input_listener.h"
+#include "webkit/glue/webframe.h"
+#include "webkit/glue/webframe_impl.h"
+#include "webkit/glue/webview.h"
+#include "webkit/tools/test_shell/test_shell_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
-
-using webkit_glue::AutocompleteInputListener;
-using webkit_glue::AutocompleteEditDelegate;
 
 using WebCore::Event;
 
-class TestAutocompleteEditDelegate : public AutocompleteEditDelegate {
+namespace webkit_glue {
+
+class TestAutocompleteBodyListener : public AutocompleteBodyListener {
  public:
-  TestAutocompleteEditDelegate() : caret_at_end_(false) {
+  TestAutocompleteBodyListener() {
   }
 
-  virtual bool IsCaretAtEndOfText(size_t input_length,
-                                  size_t prev_length) const {
-    return caret_at_end_;
-  }
-
-  void SetCaretAtEnd(bool caret_at_end) {
-    caret_at_end_ = caret_at_end;
-  }
-
-  virtual void SetSelectionRange(size_t start, size_t end) {
-  }
-
-  virtual void SetValue(const std::wstring& value) {
-    value_ = value;
-  }
-
-  virtual std::wstring GetValue() const {
-    return value_;
-  }
-
-  virtual void OnFinishedAutocompleting() {
+  void SetCaretAtEnd(WebCore::HTMLInputElement* element, bool value) {
+    std::vector<WebCore::HTMLInputElement*>::iterator iter =
+        std::find(caret_at_end_elements_.begin(), caret_at_end_elements_.end(),
+                  element);
+    if (value) {
+      if (iter == caret_at_end_elements_.end())
+        caret_at_end_elements_.push_back(element);
+    } else {
+      if (iter != caret_at_end_elements_.end())
+        caret_at_end_elements_.erase(iter);
+    }
   }
 
   void ResetTestState() {
-    caret_at_end_ = false;
-    value_.clear();
+    caret_at_end_elements_.clear();
+  }
+
+ protected:
+  // AutocompleteBodyListener override.
+  virtual bool IsCaretAtEndOfText(WebCore::HTMLInputElement* element,
+                                  size_t input_length,
+                                  size_t previous_length) const {
+    return std::find(caret_at_end_elements_.begin(), 
+                     caret_at_end_elements_.end(),
+                     element) != caret_at_end_elements_.end();
   }
 
  private:
-  bool caret_at_end_;
-  std::wstring value_;
+   // List of elements for which the caret is at the end of the text.
+   std::vector<WebCore::HTMLInputElement*> caret_at_end_elements_;
 };
 
 class TestAutocompleteInputListener : public AutocompleteInputListener {
  public:
-  TestAutocompleteInputListener(AutocompleteEditDelegate* d)
-      : AutocompleteInputListener(d),
-        blurred_(false),
+  TestAutocompleteInputListener()
+      : blurred_(false),
         did_request_inline_autocomplete_(false) {
   }
 
@@ -92,10 +93,12 @@ class TestAutocompleteInputListener : public AutocompleteInputListener {
     return did_request_inline_autocomplete_;
   }
 
-  virtual void OnBlur(const std::wstring& user_input) {
+  virtual void OnBlur(WebCore::HTMLInputElement* element,
+                      const std::wstring& user_input) {
     blurred_ = true;
   }
-  virtual void OnInlineAutocompleteNeeded(const std::wstring& user_input) {
+  virtual void OnInlineAutocompleteNeeded(WebCore::HTMLInputElement* element,
+                                          const std::wstring& user_input) {
     did_request_inline_autocomplete_ = true;
   }
 
@@ -105,81 +108,120 @@ class TestAutocompleteInputListener : public AutocompleteInputListener {
 };
 
 namespace {
-class DomAutocompleteTests : public testing::Test {
+
+class DomAutocompleteTests : public TestShellTest {
  public:
-  void SetUp() {
-    WTF::initializeThreading();
-    WebCore::EventNames::init();
+  virtual void SetUp() {
+    TestShellTest::SetUp();
+    // We need a document in order to create HTMLInputElements.
+    WebView* view = test_shell_->webView();
+    WebFrameImpl* frame = static_cast<WebFrameImpl*>(view->GetMainFrame());
+    document_ = frame->frame()->document();
   }
 
-  void FireAndHandleInputEvent(AutocompleteInputListener* listener) {
+  void FireAndHandleInputEvent(AutocompleteBodyListener* listener,
+                               WebCore::HTMLInputElement* element) {
     RefPtr<Event> event(Event::create(WebCore::eventNames().inputEvent,
                                       false, false));
+    event->setTarget(element);
     listener->handleEvent(event.get(), false);
   }
 
-  void SimulateTypedInput(TestAutocompleteEditDelegate* delegate,
-                          AutocompleteInputListener* listener,
-                          const std::wstring& new_input) {
-      delegate->SetValue(new_input);
-      delegate->SetCaretAtEnd(true);
-      FireAndHandleInputEvent(listener);
+  void SimulateTypedInput(TestAutocompleteBodyListener* listener,
+                          WebCore::HTMLInputElement* element,
+                          const std::wstring& new_input,
+                          bool caret_at_end) {
+      element->setValue(StdWStringToString(new_input));
+      listener->SetCaretAtEnd(element, caret_at_end);
+      FireAndHandleInputEvent(listener, element);
   }
+
+  WebCore::Document* document_;
 };
 }  // namespace
 
 TEST_F(DomAutocompleteTests, OnBlur) {
-  // Simulate a blur event and ensure it is properly dispatched.
-  // Listener takes ownership of its delegate.
-  TestAutocompleteInputListener listener(new TestAutocompleteEditDelegate());
+  RefPtr<WebCore::HTMLInputElement> ignored_element =
+      new WebCore::HTMLInputElement(document_);
+  RefPtr<WebCore::HTMLInputElement> listened_element =
+      new WebCore::HTMLInputElement(document_);
+  RefPtr<TestAutocompleteBodyListener> body_listener =
+      new TestAutocompleteBodyListener;
+  TestAutocompleteInputListener* listener = new TestAutocompleteInputListener();
+  // body_listener takes ownership of the listener.
+  body_listener->AddInputListener(listened_element.get(), listener);
+
+  // Simulate a blur event to the element we are not listening to.
+  // Our listener should not be notified.
   RefPtr<Event> event(Event::create(WebCore::eventNames().DOMFocusOutEvent,
                                     false, false));
-  listener.handleEvent(event.get(), false);
-  EXPECT_TRUE(listener.blurred());
+  event->setTarget(ignored_element.get());
+  body_listener->handleEvent(event.get(), false);
+  EXPECT_FALSE(listener->blurred());
+  
+  // Now simulate the event on the input element we are listening to.
+  event->setTarget(listened_element.get());
+  body_listener->handleEvent(event.get(), false);
+  EXPECT_TRUE(listener->blurred());
 }
 
 TEST_F(DomAutocompleteTests, InlineAutocompleteTriggeredByInputEvent) {
-  // Set up the edit delegate, assuming the field was initially empty.
-  TestAutocompleteEditDelegate* delegate = new TestAutocompleteEditDelegate();
-  TestAutocompleteInputListener listener(delegate);
+  RefPtr<WebCore::HTMLInputElement> ignored_element =
+      new WebCore::HTMLInputElement(document_);
+  RefPtr<WebCore::HTMLInputElement> listened_element =
+      new WebCore::HTMLInputElement(document_);
+  RefPtr<TestAutocompleteBodyListener> body_listener =
+      new TestAutocompleteBodyListener;
+
+  TestAutocompleteInputListener* listener = new TestAutocompleteInputListener();
+  body_listener->AddInputListener(listened_element.get(), listener);
 
   // Simulate an inputEvent by setting the value and artificially firing evt.
   // The user typed 'g'.
-  SimulateTypedInput(delegate, &listener, L"g");
-  EXPECT_TRUE(listener.did_request_inline_autocomplete());
+  SimulateTypedInput(body_listener.get(), ignored_element.get(), L"g", true);
+  EXPECT_FALSE(listener->did_request_inline_autocomplete());
+  SimulateTypedInput(body_listener.get(), listened_element.get(), L"g", true);
+  EXPECT_TRUE(listener->did_request_inline_autocomplete());
 }
 
 TEST_F(DomAutocompleteTests, InlineAutocompleteHeuristics) {
-  TestAutocompleteEditDelegate* delegate = new TestAutocompleteEditDelegate();
-  TestAutocompleteInputListener listener(delegate);
+  RefPtr<WebCore::HTMLInputElement> input_element =
+      new WebCore::HTMLInputElement(document_);
+  RefPtr<TestAutocompleteBodyListener> body_listener =
+      new TestAutocompleteBodyListener();
+
+  TestAutocompleteInputListener* listener = new TestAutocompleteInputListener();
+  body_listener->AddInputListener(input_element.get(), listener);
 
   // Simulate a user entering some text, and then backspacing to remove
   // a character.
-  SimulateTypedInput(delegate, &listener, L"g");
-  EXPECT_TRUE(listener.did_request_inline_autocomplete());
-  listener.ResetTestState();
+  SimulateTypedInput(body_listener.get(), input_element.get(), L"g", true);
+  EXPECT_TRUE(listener->did_request_inline_autocomplete());
+  listener->ResetTestState();
+  body_listener->ResetTestState();
 
-  SimulateTypedInput(delegate, &listener, L"go");
-  EXPECT_TRUE(listener.did_request_inline_autocomplete());
-  listener.ResetTestState();
+  SimulateTypedInput(body_listener.get(), input_element.get(), L"go", true);
+  EXPECT_TRUE(listener->did_request_inline_autocomplete());
+  listener->ResetTestState();
+  body_listener->ResetTestState();
 
-  SimulateTypedInput(delegate, &listener, L"g");
-  EXPECT_FALSE(listener.did_request_inline_autocomplete());
-  listener.ResetTestState();
+  SimulateTypedInput(body_listener.get(), input_element.get(), L"g", true);
+  EXPECT_FALSE(listener->did_request_inline_autocomplete());
+  listener->ResetTestState();
+  body_listener->ResetTestState();
 
   // Now simulate the user moving the cursor to a position other than the end,
   // and adding text.
-  delegate->SetCaretAtEnd(false);
-  delegate->SetValue(L"og");
-  FireAndHandleInputEvent(&listener);
-  EXPECT_FALSE(listener.did_request_inline_autocomplete());
-  listener.ResetTestState();
+  SimulateTypedInput(body_listener.get(), input_element.get(), L"og", false);
+  EXPECT_FALSE(listener->did_request_inline_autocomplete());
+  listener->ResetTestState();
+  body_listener->ResetTestState();
 
   // Test that same input doesn't trigger autocomplete.
-  delegate->SetCaretAtEnd(true);
-  delegate->SetValue(L"og");
-  FireAndHandleInputEvent(&listener);
-  EXPECT_FALSE(listener.did_request_inline_autocomplete());
-  listener.ResetTestState();
+  SimulateTypedInput(body_listener.get(), input_element.get(), L"og", true);
+  EXPECT_FALSE(listener->did_request_inline_autocomplete());
+  listener->ResetTestState();
+  body_listener->ResetTestState();
 }
 
+}  // webkit_glue

@@ -6,6 +6,7 @@
 // infrastructure defined in autocomplete_input_listener.h.
 
 #include "webkit/glue/autocomplete_input_listener.h"
+#include <set>
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "HTMLInputElement.h"
@@ -15,6 +16,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Editor.h"
 #include "EventNames.h"
 #include "Event.h"
+#include "HTMLNames.h"
 MSVC_POP_WARNING();
 
 #undef LOG
@@ -50,34 +52,8 @@ HTMLInputDelegate::~HTMLInputDelegate() {
     element_->deref();
 }
 
-bool HTMLInputDelegate::IsCaretAtEndOfText(size_t input_length,
-                                           size_t previous_length) const {
-  // Hack 2 of 2 for http://bugs.webkit.org/show_bug.cgi?id=16976.
-  // TODO(timsteele): This check should only return early if
-  // !(selectionEnd == selectionStart == user_input.length()).
-  // However, because of webkit bug #16976 the caret is not properly moved
-  // until after the handlers have executed, so for now we do the following
-  // several checks. The first check handles the case webkit sets the End
-  // selection but not the Start selection correctly, and the second is for
-  // when webcore sets neither. This won't be perfect if the user moves the
-  // selection around during inline autocomplete, but for now its the
-  // friendliest behavior we can offer. Once the bug is fixed this method
-  // should no longer need the previous_length parameter.
-  if (((element_->selectionEnd() != element_->selectionStart() + 1) ||
-       (element_->selectionEnd() != static_cast<int>(input_length))) &&
-      ((element_->selectionEnd() != element_->selectionStart()) ||
-       (element_->selectionEnd() != static_cast<int>(previous_length)))) {
-    return false;
-  }
-  return true;
-}
-
 void HTMLInputDelegate::SetValue(const std::wstring& value) {
   element_->setValue(StdWStringToString(value));
-}
-
-std::wstring HTMLInputDelegate::GetValue() const {
-  return StringToStdWString(element_->value());
 }
 
 void HTMLInputDelegate::SetSelectionRange(size_t start, size_t end) {
@@ -94,11 +70,34 @@ void HTMLInputDelegate::OnFinishedAutocompleting() {
   element_->onChange();
 }
 
-AutocompleteInputListener::AutocompleteInputListener(
-    AutocompleteEditDelegate* edit_delegate)
-    : edit_delegate_(edit_delegate) {
-  previous_text_ = edit_delegate->GetValue();
+AutocompleteBodyListener::AutocompleteBodyListener(WebCore::Frame* frame) {
+  WebCore::HTMLElement* body = frame->document()->body();
+  body->addEventListener(WebCore::eventNames().DOMFocusOutEvent, this, false);
+  body->addEventListener(WebCore::eventNames().inputEvent, this, false);
+  // Attaching to the WebCore body element effectively transfers ownership of
+  // the listener object. When WebCore is tearing down the document, any
+  // attached listeners are destroyed.
+  // See Document::removeAllEventListenersFromAllNodes which is called by
+  // FrameLoader::stopLoading. Also, there is no need for matching calls to
+  // removeEventListener because the simplest and most convienient thing to do
+  // for autocompletion is to stop listening once the element is destroyed.
 }
+
+AutocompleteBodyListener::~AutocompleteBodyListener() {
+  // Delete the listener.  Pay special attention since we may have the same
+  // listener registered for several elements.
+  std::set<AutocompleteInputListener*> to_be_deleted_;
+  for (InputElementInfoMap::iterator iter = elements_info_.begin();
+       iter != elements_info_.end(); ++iter) {
+    to_be_deleted_.insert(iter->second.listener);
+  }
+
+  std::set<AutocompleteInputListener*>::iterator iter;
+  for (iter = to_be_deleted_.begin(); iter != to_be_deleted_.end(); ++iter)
+    delete *iter;
+  elements_info_.clear();
+}
+
 // The following method is based on Firefox2 code in
 //  toolkit/components/autocomplete/src/nsAutoCompleteController.cpp
 // Its license block is
@@ -142,57 +141,91 @@ AutocompleteInputListener::AutocompleteInputListener(
   * the terms of any one of the MPL, the GPL or the LGPL.
   *
   * ***** END LICENSE BLOCK ***** */
-bool AutocompleteInputListener::ShouldInlineAutocomplete(
-    const std::wstring& user_input) {
-  size_t prev_length = previous_text_.length();
+bool AutocompleteBodyListener::ShouldInlineAutocomplete(
+    WebCore::HTMLInputElement* input,
+    const std::wstring& old_text,
+    const std::wstring& new_text) {
+  size_t prev_length = old_text.length();
   // The following are a bunch of early returns in cases we don't want to
   // go through with inline autocomplete.
 
   // Don't bother doing AC if nothing changed.
-  if (user_input.length() > 0 && (user_input == previous_text_))
+  if (new_text.length() > 0 && (new_text == old_text))
     return false;
 
   // Did user backspace?
-  if ((user_input.length() < previous_text_.length()) &&
-       previous_text_.substr(0, user_input.length()) == user_input) {
-    previous_text_ = user_input;
+  if ((new_text.length() < old_text.length()) &&
+       old_text.substr(0, new_text.length()) == new_text) {
     return false;
   }
 
-  // Remember the current input.
-  previous_text_ = user_input;
-
   // Is search string empty?
-  if (user_input.empty())
+  if (new_text.empty())
     return false;
-  return edit_delegate_->IsCaretAtEndOfText(user_input.length(), prev_length);
+  return IsCaretAtEndOfText(input, new_text.length(), prev_length);
 }
 
-void AutocompleteInputListener::handleEvent(WebCore::Event* event,
-                                            bool /*is_window_event*/) {
+void AutocompleteBodyListener::handleEvent(WebCore::Event* event,
+                                           bool /*is_window_event*/) {
   const WebCore::AtomicString& webcore_type = event->type();
-  const std::wstring& user_input = edit_delegate_->GetValue();
+  DCHECK(event->target()->toNode());
+  if (!event->target()->toNode()->hasTagName(WebCore::HTMLNames::inputTag))
+    return;  // Not a node of interest to us.
+
+  WebCore::HTMLInputElement* input =
+      static_cast<WebCore::HTMLInputElement*>(event->target()->toNode());
+  InputElementInfoMap::const_iterator iter = elements_info_.find(input);
+  if (iter == elements_info_.end())
+    return;  // Not an input node we are listening to.
+
+  InputElementInfo input_info = iter->second;
+  const std::wstring& user_input = StringToStdWString(input->value());
   if (webcore_type == WebCore::eventNames().DOMFocusOutEvent) {
-    OnBlur(user_input);
+    input_info.listener->OnBlur(input, user_input);
   } else if (webcore_type == WebCore::eventNames().inputEvent) {
     // Perform inline autocomplete if it is safe to do so.
-    if (ShouldInlineAutocomplete(user_input))
-      OnInlineAutocompleteNeeded(user_input);
+    if (ShouldInlineAutocomplete(input,
+                                 input_info.previous_text, user_input)) {
+      input_info.listener->OnInlineAutocompleteNeeded(input, user_input);
+    }
+    // Update the info.
+    input_info.previous_text = user_input;
+    elements_info_[input] = input_info;
   } else {
     NOTREACHED() << "unexpected EventName for autocomplete listener";
   }
 }
 
-void AttachForInlineAutocomplete(
-    WebCore::HTMLInputElement* target,
+void AutocompleteBodyListener::AddInputListener(
+    WebCore::HTMLInputElement* element,
     AutocompleteInputListener* listener) {
-  target->addEventListener(WebCore::eventNames().DOMFocusOutEvent,
-                           listener,
-                           false);
-  target->addEventListener(WebCore::eventNames().inputEvent,
-                           listener,
-                           false);
+  DCHECK(elements_info_.find(element) == elements_info_.end());
+  InputElementInfo elem_info;
+  elem_info.listener = listener;
+  elements_info_[element] = elem_info;
 }
 
+bool AutocompleteBodyListener::IsCaretAtEndOfText(
+    WebCore::HTMLInputElement* element,
+    size_t input_length,
+    size_t previous_length) const {
+  // Hack 2 of 2 for http://bugs.webkit.org/show_bug.cgi?id=16976.
+  // TODO(timsteele): This check should only return early if
+  // !(selectionEnd == selectionStart == user_input.length()).
+  // However, because of webkit bug #16976 the caret is not properly moved
+  // until after the handlers have executed, so for now we do the following
+  // several checks. The first check handles the case webkit sets the End
+  // selection but not the Start selection correctly, and the second is for
+  // when webcore sets neither. This won't be perfect if the user moves the
+  // selection around during inline autocomplete, but for now its the
+  // friendliest behavior we can offer. Once the bug is fixed this method
+  // should no longer need the previous_length parameter.
+  if (((element->selectionEnd() != element->selectionStart() + 1) ||
+       (element->selectionEnd() != static_cast<int>(input_length))) &&
+      ((element->selectionEnd() != element->selectionStart()) ||
+       (element->selectionEnd() != static_cast<int>(previous_length)))) {
+    return false;
+  }
+  return true;
+}
 }  // webkit_glue
-

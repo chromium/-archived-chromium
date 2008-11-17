@@ -286,7 +286,8 @@ MSVC_POP_WARNING()
     frames_scoping_count_(-1),
     scoping_complete_(false),
     next_invalidate_after_(0),
-    printing_(false) {
+    printing_(false),
+    form_autocomplete_listener_(NULL) {
   StatsCounter(kWebFrameActiveCount).Increment();
   live_object_count_++;
 }
@@ -1870,4 +1871,16 @@ bool WebFrameImpl::IsReloadAllowingStaleData() const {
 
 int WebFrameImpl::PendingFrameUnloadEventCount() const {
   return frame()->eventHandler()->pendingFrameUnloadEventCount();
+}
+
+webkit_glue::AutocompleteBodyListener* WebFrameImpl::GetAutocompleteListener() {
+  if (!form_autocomplete_listener_) {
+    form_autocomplete_listener_ =
+      adoptRef(new webkit_glue::AutocompleteBodyListener(frame()));
+  }
+  return form_autocomplete_listener_.get();
+}
+
+void WebFrameImpl::ClearAutocompleteListener() {
+  form_autocomplete_listener_ = NULL;
 }

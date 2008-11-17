@@ -19,19 +19,17 @@ MSVC_POP_WARNING();
 namespace webkit_glue {
 
 FormAutocompleteListener::FormAutocompleteListener(
-    WebViewDelegate* webview_delegate,
-    WebCore::HTMLInputElement* input_element)
-    : AutocompleteInputListener(new HTMLInputDelegate(input_element)),
-      webview_delegate_(webview_delegate),
-      name_(webkit_glue::StringToStdWString(input_element->name().string())),
-      node_id_(reinterpret_cast<int64>(input_element)) {
-  DCHECK(input_element->isTextField() && !input_element->isPasswordField() &&
-         input_element->autoComplete());
+    WebViewDelegate* webview_delegate)
+    : webview_delegate_(webview_delegate) {
 }
 
 void FormAutocompleteListener::OnInlineAutocompleteNeeded(
+    WebCore::HTMLInputElement* input_element,
     const std::wstring& user_input) {
-  webview_delegate_->QueryFormFieldAutofill(name_, user_input, node_id_);
+  std::wstring name = webkit_glue::StringToStdWString(input_element->
+      name().string());
+  webview_delegate_->QueryFormFieldAutofill(name, user_input,
+      reinterpret_cast<int64>(input_element));
 }
 
 }  // namespace

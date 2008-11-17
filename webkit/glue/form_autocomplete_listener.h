@@ -18,25 +18,19 @@ namespace webkit_glue {
 
 class FormAutocompleteListener : public AutocompleteInputListener {
  public:
-  FormAutocompleteListener(WebViewDelegate* webview_delegate,
-                           WebCore::HTMLInputElement* input_element);
+  explicit FormAutocompleteListener(WebViewDelegate* webview_delegate);
   virtual ~FormAutocompleteListener() { }
 
   // AutocompleteInputListener implementation.
-  virtual void OnBlur(const std::wstring& user_input) { }
-  virtual void OnInlineAutocompleteNeeded(const std::wstring& user_input);
+  virtual void OnBlur(WebCore::HTMLInputElement* input_element,
+                      const std::wstring& user_input) { }
+  virtual void OnInlineAutocompleteNeeded(WebCore::HTMLInputElement* element,
+                                          const std::wstring& user_input);
   
  private:
   // The delegate associated with the WebView that contains thhe input we are
   // listening to.
   WebViewDelegate* webview_delegate_;
-
-  // The name of the input node we are listening to.
-  std::wstring name_;
-
-  // An id to represent the input element.  That ID is passed to the call that
-  // queries for suggestions.
-  int64 node_id_;
 
   DISALLOW_COPY_AND_ASSIGN(FormAutocompleteListener);
 };

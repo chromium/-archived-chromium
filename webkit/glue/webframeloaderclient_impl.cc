@@ -328,6 +328,10 @@ void WebFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader,
 void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
   WebViewImpl* webview = webframe_->webview_impl();
   WebViewDelegate* d = webview->delegate();
+  // A frame may be reused.  This call ensures a new AutoCompleteListener will
+  // be created for the newly created frame.
+  webframe_->ClearAutocompleteListener();
+
   // The document has now been fully loaded.
   // Scan for password forms to be sent to the browser
   PassRefPtr<WebCore::HTMLCollection> forms =
@@ -720,17 +724,16 @@ void WebFrameLoaderClient::RegisterAutofillListeners(
     }
 
     std::wstring name = webkit_glue::StringToStdWString(input_element->name());
-    if (excluded_fields.find(name) != excluded_fields.end())
+    if (name.empty() || excluded_fields.find(name) != excluded_fields.end())
       continue;
 
-/* Disabling this temporarily to investigate perf regressions.
 #if !defined(OS_MACOSX)
     // FIXME on Mac
     webkit_glue::FormAutocompleteListener* listener =
-        new webkit_glue::FormAutocompleteListener(webview_delegate,
-                                                  input_element);
-    webkit_glue::AttachForInlineAutocomplete(input_element, listener);
-#endif*/
+        new webkit_glue::FormAutocompleteListener(webview_delegate);
+    webframe_->GetAutocompleteListener()->AddInputListener(input_element,
+                                                           listener);
+#endif
   }
 }
 

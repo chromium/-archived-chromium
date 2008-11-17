@@ -30,7 +30,6 @@ MSVC_POP_WARNING();
 
 using webkit_glue::AutocompleteInputListener;
 using webkit_glue::PasswordAutocompleteListener;
-using webkit_glue::AutocompleteEditDelegate;
 using webkit_glue::HTMLInputDelegate;
 
 class TestHTMLInputDelegate : public HTMLInputDelegate {
@@ -44,10 +43,6 @@ class TestHTMLInputDelegate : public HTMLInputDelegate {
   }
 
   // Override those methods we implicitly invoke in the tests.
-  virtual std::wstring GetValue() const {
-    return value_;
-  }
-
   virtual void SetValue(const std::wstring& value) {
     value_ = value;
     did_set_value_ = true;
@@ -68,6 +63,10 @@ class TestHTMLInputDelegate : public HTMLInputDelegate {
     did_call_on_finish_ = false;
     did_set_value_ = false;
     did_set_selection_ = false;
+  }
+
+  std::wstring value() const {
+    return value_;
   }
 
   bool did_call_on_finish() const {
@@ -126,42 +125,41 @@ TEST_F(PasswordManagerAutocompleteTests, OnBlur) {
   TestHTMLInputDelegate* username_delegate = new TestHTMLInputDelegate();
   TestHTMLInputDelegate* password_delegate = new TestHTMLInputDelegate();
 
-  PasswordAutocompleteListener* listener = new PasswordAutocompleteListener(
-      username_delegate, password_delegate, data_);
+  scoped_ptr<PasswordAutocompleteListener> listener(
+      new PasswordAutocompleteListener(username_delegate, password_delegate,
+                                       data_));
 
   // Clear the password field.
   password_delegate->SetValue(std::wstring());
   // Simulate a blur event on the username field and expect a password autofill.
-  listener->OnBlur(username1_);
-  EXPECT_EQ(password1_, password_delegate->GetValue());
+  listener->OnBlur(NULL, username1_);
+  EXPECT_EQ(password1_, password_delegate->value());
 
   // Now the user goes back and changes the username to something we don't
   // have saved. The password should remain unchanged.
-  listener->OnBlur(L"blahblahblah");
-  EXPECT_EQ(password1_, password_delegate->GetValue());
+  listener->OnBlur(NULL, L"blahblahblah");
+  EXPECT_EQ(password1_, password_delegate->value());
 
   // Now they type in the additional login username.
-  listener->OnBlur(username2_);
-  EXPECT_EQ(password2_, password_delegate->GetValue());
-
-  // Now they submit and the listener is destroyed.
-  delete listener;
+  listener->OnBlur(NULL, username2_);
+  EXPECT_EQ(password2_, password_delegate->value());
 }
 
 TEST_F(PasswordManagerAutocompleteTests, OnInlineAutocompleteNeeded) {
   TestHTMLInputDelegate* username_delegate = new TestHTMLInputDelegate();
   TestHTMLInputDelegate* password_delegate = new TestHTMLInputDelegate();
 
-  PasswordAutocompleteListener* listener = new PasswordAutocompleteListener(
-      username_delegate, password_delegate, data_);
+  scoped_ptr<PasswordAutocompleteListener> listener(
+      new PasswordAutocompleteListener(username_delegate, password_delegate,
+                                       data_));
 
   password_delegate->SetValue(std::wstring());
   // Simulate the user typing in the first letter of 'alice', a stored username.
-  listener->OnInlineAutocompleteNeeded(L"a");
+  listener->OnInlineAutocompleteNeeded(NULL, L"a");
   // Both the username and password delegates should reflect selection
   // of the stored login.
-  EXPECT_EQ(username1_, username_delegate->GetValue());
-  EXPECT_EQ(password1_, password_delegate->GetValue());
+  EXPECT_EQ(username1_, username_delegate->value());
+  EXPECT_EQ(password1_, password_delegate->value());
   // And the selection should have been set to 'lice', the last 4 letters.
   EXPECT_EQ(1U, username_delegate->selection_start());
   EXPECT_EQ(username1_.length(), username_delegate->selection_end());
@@ -170,11 +168,11 @@ TEST_F(PasswordManagerAutocompleteTests, OnInlineAutocompleteNeeded) {
   EXPECT_TRUE(password_delegate->did_call_on_finish());
 
   // Now the user types the next letter of the same username, 'l'.
-  listener->OnInlineAutocompleteNeeded(L"al");
+  listener->OnInlineAutocompleteNeeded(NULL, L"al");
   // Now the fields should have the same value, but the selection should have a
   // different start value.
-  EXPECT_EQ(username1_, username_delegate->GetValue());
-  EXPECT_EQ(password1_, password_delegate->GetValue());
+  EXPECT_EQ(username1_, username_delegate->value());
+  EXPECT_EQ(password1_, password_delegate->value());
   EXPECT_EQ(2U, username_delegate->selection_start());
   EXPECT_EQ(username1_.length(), username_delegate->selection_end());
 
@@ -190,7 +188,7 @@ TEST_F(PasswordManagerAutocompleteTests, OnInlineAutocompleteNeeded) {
   // was invoked during OnInlineAutocompleteNeeded.
   username_delegate->ResetTestState();
   password_delegate->ResetTestState();
-  listener->OnInlineAutocompleteNeeded(L"alf");
+  listener->OnInlineAutocompleteNeeded(NULL, L"alf");
   EXPECT_FALSE(username_delegate->did_set_selection());
   EXPECT_FALSE(username_delegate->did_set_value());
   EXPECT_FALSE(username_delegate->did_call_on_finish());
@@ -198,15 +196,12 @@ TEST_F(PasswordManagerAutocompleteTests, OnInlineAutocompleteNeeded) {
   EXPECT_FALSE(password_delegate->did_call_on_finish());
 
   // Ok, so now the user removes all the text and enters the letter 'b'.
-  listener->OnInlineAutocompleteNeeded(L"b");
+  listener->OnInlineAutocompleteNeeded(NULL, L"b");
   // The username and password fields should match the 'bob' entry.
-  EXPECT_EQ(username2_, username_delegate->GetValue());
-  EXPECT_EQ(password2_, password_delegate->GetValue());
+  EXPECT_EQ(username2_, username_delegate->value());
+  EXPECT_EQ(password2_, password_delegate->value());
   EXPECT_EQ(1U, username_delegate->selection_start());
   EXPECT_EQ(username2_.length(), username_delegate->selection_end());
-
-  // The End.
-  delete listener;
 }
 
 TEST_F(PasswordManagerAutocompleteTests, TestWaitUsername) {
@@ -218,36 +213,34 @@ TEST_F(PasswordManagerAutocompleteTests, TestWaitUsername) {
   // We require an explicit blur on the username field, and that a valid
   // matching username is in the field, before we autofill passwords.
   data_.wait_for_username = true;
-  PasswordAutocompleteListener* listener = new PasswordAutocompleteListener(
-      username_delegate, password_delegate, data_);
+  scoped_ptr<PasswordAutocompleteListener> listener(
+      new PasswordAutocompleteListener(username_delegate, password_delegate,
+                                       data_));
 
   std::wstring empty;
   // In all cases, username_delegate should remain empty because we should
   // never modify it when wait_for_username is true; only the user can by
   // typing into (in real life) the HTMLInputElement.
   password_delegate->SetValue(std::wstring());
-  listener->OnInlineAutocompleteNeeded(L"a");
-  EXPECT_EQ(empty, username_delegate->GetValue());
-  EXPECT_EQ(empty, password_delegate->GetValue());
-  listener->OnInlineAutocompleteNeeded(L"al");
-  EXPECT_EQ(empty, username_delegate->GetValue());
-  EXPECT_EQ(empty, password_delegate->GetValue());
-  listener->OnInlineAutocompleteNeeded(L"alice");
-  EXPECT_EQ(empty, username_delegate->GetValue());
-  EXPECT_EQ(empty, password_delegate->GetValue());
+  listener->OnInlineAutocompleteNeeded(NULL, L"a");
+  EXPECT_EQ(empty, username_delegate->value());
+  EXPECT_EQ(empty, password_delegate->value());
+  listener->OnInlineAutocompleteNeeded(NULL, L"al");
+  EXPECT_EQ(empty, username_delegate->value());
+  EXPECT_EQ(empty, password_delegate->value());
+  listener->OnInlineAutocompleteNeeded(NULL, L"alice");
+  EXPECT_EQ(empty, username_delegate->value());
+  EXPECT_EQ(empty, password_delegate->value());
   
-  listener->OnBlur(L"a");
-  EXPECT_EQ(empty, username_delegate->GetValue());
-  EXPECT_EQ(empty, password_delegate->GetValue());
-  listener->OnBlur(L"ali");
-  EXPECT_EQ(empty, username_delegate->GetValue());
-  EXPECT_EQ(empty, password_delegate->GetValue());
+  listener->OnBlur(NULL, L"a");
+  EXPECT_EQ(empty, username_delegate->value());
+  EXPECT_EQ(empty, password_delegate->value());
+  listener->OnBlur(NULL, L"ali");
+  EXPECT_EQ(empty, username_delegate->value());
+  EXPECT_EQ(empty, password_delegate->value());
   
   // Blur with 'alice' should allow password autofill.
-  listener->OnBlur(L"alice");
-  EXPECT_EQ(empty, username_delegate->GetValue());
-  EXPECT_EQ(password1_, password_delegate->GetValue());
-
-  delete listener;
+  listener->OnBlur(NULL, L"alice");
+  EXPECT_EQ(empty, username_delegate->value());
+  EXPECT_EQ(password1_, password_delegate->value());
 }
-

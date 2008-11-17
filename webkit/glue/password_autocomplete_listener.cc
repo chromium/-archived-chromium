@@ -12,15 +12,16 @@
 namespace webkit_glue {
 
 PasswordAutocompleteListener::PasswordAutocompleteListener(
-    AutocompleteEditDelegate* username_delegate,
+    HTMLInputDelegate* username_delegate,
     HTMLInputDelegate* password_delegate,
     const PasswordFormDomManager::FillData& data)
-    : AutocompleteInputListener(username_delegate),
-      password_delegate_(password_delegate),
+    : password_delegate_(password_delegate),
+      username_delegate_(username_delegate),
       data_(data) {
 }
 
-void PasswordAutocompleteListener::OnBlur(const std::wstring& user_input) {
+void PasswordAutocompleteListener::OnBlur(WebCore::HTMLInputElement* element,
+                                          const std::wstring& user_input) {
   // If this listener exists, its because the password manager had more than
   // one match for the password form, which implies it had at least one
   // [preferred] username/password pair.
@@ -39,6 +40,7 @@ void PasswordAutocompleteListener::OnBlur(const std::wstring& user_input) {
 }
 
 void PasswordAutocompleteListener::OnInlineAutocompleteNeeded(
+    WebCore::HTMLInputElement* element,
     const std::wstring& user_input) {
   // If wait_for_username is true, we only autofill the password when
   // the username field is blurred (i.e not inline) with a matching
@@ -75,9 +77,9 @@ bool PasswordAutocompleteListener::TryToMatch(const std::wstring& input,
     return false;
 
   // Input matches the username, fill in required values.
-  edit_delegate()->SetValue(username);
-  edit_delegate()->SetSelectionRange(input.length(), username.length());
-  edit_delegate()->OnFinishedAutocompleting();
+  username_delegate_->SetValue(username);
+  username_delegate_->SetSelectionRange(input.length(), username.length());
+  username_delegate_->OnFinishedAutocompleting();
   password_delegate_->SetValue(password);
   password_delegate_->OnFinishedAutocompleting();
   return true;

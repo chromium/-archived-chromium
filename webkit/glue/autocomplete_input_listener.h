@@ -9,12 +9,15 @@
 #define WEBKIT_GLUE_AUTOCOMPLETE_INPUT_LISTENER_H__
 
 #include "config.h"
+#include <map>
 #include <string>
 
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "HTMLBodyElement.h"
 #include "EventListener.h"
+#include "HTMLInputElement.h"
 MSVC_POP_WARNING();
 
 #include "base/basictypes.h"
@@ -23,65 +26,58 @@ MSVC_POP_WARNING();
 namespace WebCore {
 class AtomicString;
 class Event;
-class HTMLInputElement;
 }
 
 namespace webkit_glue {
-
-// This interface exposes all required functionality to perform inline
-// autocomplete on an edit field.
-class AutocompleteEditDelegate {
- public:
-  // Virtual destructor so it is safe to delete through AutocompleteEditDelegate
-  // pointers.	 
-  virtual ~AutocompleteEditDelegate() {
-  }
-
-  // Whether or not the caret/selection is at the end of input.
-  // input_length gives the length of the user-typed input.
-  // previous_length is the length of the previously typed input.
-  virtual bool IsCaretAtEndOfText(size_t input_length,
-                                  size_t previous_length) const = 0;
-
-  // Set the selected range of text that should be displayed to the user
-  // to [start,end] (inclusive).
-  virtual void SetSelectionRange(size_t start, size_t end) = 0;
-
-  // Accessor/Mutator for the text value.
-  virtual void SetValue(const std::wstring& value) = 0;
-  virtual std::wstring GetValue() const = 0;
-
-  // Called when processing is finished.
-  virtual void OnFinishedAutocompleting() = 0;
-};
 
 // A proxy interface to a WebCore::HTMLInputElement for inline autocomplete.
 // This class is NOT used directly by the AutocompleteInputListener but
 // is included here since it is likely most listener implementations will
 // want to interface with an HTMLInputElement (see PasswordACListener).
 // The delegate does not own the WebCore element; it only interfaces it.
-class HTMLInputDelegate : public AutocompleteEditDelegate {
+class HTMLInputDelegate {
  public:
   explicit HTMLInputDelegate(WebCore::HTMLInputElement* element);
   virtual ~HTMLInputDelegate();
 
-  // AutocompleteEditDelegate implementation.
-  virtual bool IsCaretAtEndOfText(size_t input_length,
-                                  size_t previous_length) const;
   virtual void SetValue(const std::wstring& value);
-  virtual std::wstring GetValue() const;
   virtual void SetSelectionRange(size_t start, size_t end);
   virtual void OnFinishedAutocompleting();
 
  private:
-  // The underlying DOM element we're wrapping. We reference the 
+  // The underlying DOM element we're wrapping. We reference the
   // underlying HTMLInputElement for its lifetime to ensure it does not get
   // freed by WebCore while in use by the delegate instance.
   WebCore::HTMLInputElement* element_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HTMLInputDelegate);
+  DISALLOW_COPY_AND_ASSIGN(HTMLInputDelegate);
 };
 
+
+class AutocompleteInputListener {
+ public:
+  virtual ~AutocompleteInputListener() { }
+
+  // OnBlur: DOMFocusOutEvent occured, means one of two things.
+  // 1. The user removed focus from the text field
+  //    either by tabbing out or clicking;
+  // 2. The page is being destroyed (e.g user closed the tab)
+  virtual void OnBlur(WebCore::HTMLInputElement* input_element,
+                      const std::wstring& user_input) = 0;
+
+  // This method is called when there was a user-initiated text delta in
+  // the edit field that now needs some inline autocompletion.
+  // ShouldInlineAutocomplete gives the precondition for invoking this method.
+  virtual void OnInlineAutocompleteNeeded(
+      WebCore::HTMLInputElement* input_element,
+      const std::wstring& user_input) = 0;
+};
+
+// The AutocompleteBodyListener class is a listener on the body element of a
+// page that is responsible for reporting blur (for tab/click-out) and input
+// events for form elements (registered by calling AddInputListener()).
+// This allows to have one global listener for a page, as opposed to registering
+// a listener for each form element, which impacts performances.
 // Reasons for attaching to DOM directly rather than using EditorClient API:
 // 1. Since we don't need to stop listening until the DOM node is unloaded,
 //    it makes sense to use an object owned by the DOM node itself. Attaching
@@ -89,48 +85,35 @@ class HTMLInputDelegate : public AutocompleteEditDelegate {
 //    upon destruction).
 // 2. It allows fine-grained control when the popup/down is implemented
 //    in handling key events / selecting elements.
-//
-// Note: The element an AutocompleteInputListener is attached to is kept
-//       separate from the element it explicitly interacts with (via the
-//       AutocompleteEditDelegate API) so that the listeners are effectively
-//       decoupled from HTMLInputElement; which is great when it comes time
-//       for testing. The listeners can be constructed using only the delegates,
-//       and events can be manually fired to test specific behaviour.
-//
-class AutocompleteInputListener : public WebCore::EventListener {
+class AutocompleteBodyListener : public WebCore::EventListener {
  public:
-  // Construct a listener with access to an edit field (i.e an HTMLInputElement)
-  // through a delegate, so that it can obtain and set values needed for
-  // autocomplete. See the above Note which explains why the edit_delegate it
-  // is handed here is not necessarily the node it is attached to as an
-  // EventListener. This object takes ownership of its edit_delegate.
-  explicit AutocompleteInputListener(AutocompleteEditDelegate* edit_delegate);
+  // Constructs a listener for the specified frame.  It listens for blur and
+  // input events for elements that are registered through the AddListener
+  // method.
+  // The listener is ref counted (because it inherits from
+  // WebCore::EventListener).
+  explicit AutocompleteBodyListener(WebCore::Frame* frame);
+  virtual ~AutocompleteBodyListener();
 
-  virtual ~AutocompleteInputListener() {
-  }
+  // Used by unit-tests.
+  AutocompleteBodyListener() { }
+
+  // Adds a listener for the specified |element|.
+  // This call takes ownership of the |listener|.  Note that it is still OK to
+  // add the same listener for different elements.
+  void AddInputListener(WebCore::HTMLInputElement* element,
+                        AutocompleteInputListener* listener);
 
   // EventListener implementation. Code that is common to inline autocomplete,
   // such as deciding whether or not it is safe to perform it, is refactored
   // into this method and the appropriate delegate method is invoked.
   virtual void handleEvent(WebCore::Event* event, bool is_window_event);
 
-  // Subclasses need only implement the following two methods. They could
-  // be declared protected but are left public to be invoked by testing.
-
-  // OnBlur: DOMFocusOutEvent occured, means one of two things.
-  // 1. The user removed focus from the text field
-  //    either by tabbing out or clicking;
-  // 2. The page is being destroyed (e.g user closed the tab)
-  virtual void OnBlur(const std::wstring& user_input) = 0;
-
-  // This method is called when there was a user-initiated text delta in
-  // the edit field that now needs some inline autocompletion.
-  // ShouldInlineAutocomplete gives the precondition for invoking this method.
-  virtual void OnInlineAutocompleteNeeded(const std::wstring& user_input) = 0;
-
  protected:
-  // Access and modify the edit field only via the AutocompleteEditDelegate API.
-  AutocompleteEditDelegate* edit_delegate() { return edit_delegate_.get(); }
+  // Protected for mocking purposes.
+  virtual bool IsCaretAtEndOfText(WebCore::HTMLInputElement* element,
+                                  size_t input_length,
+                                  size_t previous_length) const;
 
  private:
   // Determines, based on current state (previous_text_) and user input,
@@ -186,31 +169,30 @@ class AutocompleteInputListener : public WebCore::EventListener {
   // 4. The caret is at the end of the textbox.
   // TODO(timsteele): Examine autocomplete_edit.cc in the browser/ code and
   // make sure to capture all common exclusion cases here.
-  bool ShouldInlineAutocomplete(const std::wstring& user_input);
+  bool ShouldInlineAutocomplete(WebCore::HTMLInputElement* input,
+                                const std::wstring& old_text,
+                                const std::wstring& new_text);
 
-  // For testability, the AutocompleteEditDelegate API is used to decouple
-  // AutocompleteInputListeners from underlying HTMLInputElements. This
-  // allows testcases to mock delegates and test the autocomplete code without
-  // a real underlying DOM.
-  scoped_ptr<AutocompleteEditDelegate> edit_delegate_;
+  // The data we store for each registered listener.
+  struct InputElementInfo {
+    InputElementInfo() : listener(NULL) { }
+    AutocompleteInputListener* listener;
+    std::wstring previous_text;
+  };
 
-  // Stores the text across input events during inline autocomplete.
-  std::wstring previous_text_;
+  struct CmpRefPtrs {
+    bool operator()(const RefPtr<WebCore::HTMLInputElement>& a,
+                    const RefPtr<WebCore::HTMLInputElement>& b) const {
+      return a.get() < b.get();
+   }
+  };
 
-  DISALLOW_EVIL_CONSTRUCTORS(AutocompleteInputListener);
+  typedef std::map<RefPtr<WebCore::HTMLInputElement>, InputElementInfo,
+      CmpRefPtrs> InputElementInfoMap;
+  InputElementInfoMap elements_info_;
+
+  DISALLOW_COPY_AND_ASSIGN(AutocompleteBodyListener);
 };
-
-// Attach the listener as an EventListener to basic events required
-// to handle inline autocomplete (and blur events for tab/click-out).
-// Attaching to the WebCore element effectively transfers ownership of
-// the listener objects. When WebCore is tearing down the document,
-// any attached listeners are destroyed.
-// See Document::removeAllEventListenersFromAllNodes which is called by
-// FrameLoader::stopLoading. Also, there is no need for  matching calls to
-// removeEventListener because the simplest and most convienient thing to do
-// for autocompletion is to stop listening once the element is destroyed.
-void AttachForInlineAutocomplete(WebCore::HTMLInputElement* target,
-                                 AutocompleteInputListener* listener);
 
 }  // webkit_glue
 

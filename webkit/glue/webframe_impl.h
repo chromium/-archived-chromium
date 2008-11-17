@@ -33,6 +33,7 @@
 #include "base/gfx/platform_canvas.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
+#include "webkit/glue/form_autocomplete_listener.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
@@ -270,6 +271,15 @@ class WebFrameImpl : public WebFrame {
 
   virtual bool IsReloadAllowingStaleData() const;
 
+  // Returns the listener used for autocomplete. Creates it and registers it on
+  // the frame body node on the first invocation.
+  webkit_glue::AutocompleteBodyListener* GetAutocompleteListener();
+
+  // Nulls the autocomplete listener for this frame.  Useful as a frame might
+  // be reused (on reload for example), in which case a new body element is
+  // created and the existing autocomplete listener becomes useless.
+  void ClearAutocompleteListener();
+
  protected:
   friend class WebFrameLoaderClient;
 
@@ -435,6 +445,9 @@ class WebFrameImpl : public WebFrame {
 
   // For each printed page, the view of the document in pixels.
   Vector<WebCore::IntRect> pages_;
+
+  // The listener responsible for showing form autocomplete suggestions.
+  RefPtr<webkit_glue::AutocompleteBodyListener> form_autocomplete_listener_;
 
   DISALLOW_COPY_AND_ASSIGN(WebFrameImpl);
 };

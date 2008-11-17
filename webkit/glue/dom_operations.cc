@@ -445,11 +445,16 @@ void FillPasswordForm(WebView* view,
     WebCore::HTMLInputElement* password_element =
         form_elements->input_elements[data.basic_data.elements[1]].get();
 
-    AttachForInlineAutocomplete(username_element,
-                                new PasswordAutocompleteListener(
-                                    new HTMLInputDelegate(username_element),
-                                    new HTMLInputDelegate(password_element),
-                                    data));
+    WebFrameLoaderClient* frame_loader_client =
+        static_cast<WebFrameLoaderClient*>(username_element->document()->
+                                           frame()->loader()->client());
+    WebFrameImpl* webframe_impl = frame_loader_client->webframe();
+    webframe_impl->GetAutocompleteListener()->AddInputListener(
+        username_element,
+        new PasswordAutocompleteListener(
+            new HTMLInputDelegate(username_element),
+            new HTMLInputDelegate(password_element),
+            data));
   }
 }
 
