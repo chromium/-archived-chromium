@@ -161,6 +161,7 @@ void AboutChromeView::Init() {
   version_label_->SetText(current_version_);
   version_label_->SetReadOnly(true);
   version_label_->RemoveBorder();
+  version_label_->SetBackgroundColor(SK_ColorWHITE);
   version_label_->SetFont(ResourceBundle::GetSharedInstance().GetFont(
       ResourceBundle::BaseFont).DeriveFont(0, BOLD_FONTTYPE));
   AddChildView(version_label_);
