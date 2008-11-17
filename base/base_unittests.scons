@@ -124,7 +124,6 @@ input_files = [
     'gfx/native_theme_unittest.cc',
     'gfx/png_codec_unittest.cc',
     'gfx/rect_unittest.cc',
-    'gfx/uniscribe_unittest.cc',
     'gfx/vector_canvas_unittest.cc',
 ]
 
@@ -140,7 +139,6 @@ if env['PLATFORM'] in ('posix', 'darwin'):
 
       'watchdog_unittest.cc',
       'gfx/native_theme_unittest.cc',
-      'gfx/uniscribe_unittest.cc',
       'gfx/vector_canvas_unittest.cc',
   ]
   for remove in to_be_ported_files:
