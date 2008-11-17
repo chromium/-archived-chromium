@@ -50,10 +50,9 @@
 #include <iostream>
 using namespace std;
 
-#if defined(OS_WIN)
 // This is only set for layout tests.
-static wchar_t g_currentTestName[MAX_PATH];
-#endif
+static const size_t kPathBufSize = 2048;
+static wchar_t g_currentTestName[kPathBufSize];
 
 namespace {
 
@@ -75,6 +74,7 @@ std::string GetDataResource(HMODULE module, int resource_id) {
 std::string NetResourceProvider(int key) {
   return GetDataResource(::GetModuleHandle(NULL), key);
 }
+#endif
 
 void SetCurrentTestName(char* path)
 {
@@ -85,10 +85,12 @@ void SetCurrentTestName(char* path)
         lastSlash = path;
     }
 
-    wcscpy_s(g_currentTestName, arraysize(g_currentTestName),
-             UTF8ToWide(lastSlash).c_str());
+    base::wcslcpy(g_currentTestName,
+                  UTF8ToWide(lastSlash).c_str(),
+                  arraysize(g_currentTestName));
 }
 
+#if defined(OS_WIN)
 bool MinidumpCallback(const wchar_t *dumpPath,
                              const wchar_t *minidumpID,
                              void *context,
@@ -104,13 +106,13 @@ bool MinidumpCallback(const wchar_t *dumpPath,
     // StackString uses the stack but overflows onto the heap.  But we don't
     // care too much about being completely correct here, since most crashes
     // will be happening on developers' machines where they have debuggers.
-    StackWString<MAX_PATH*2> origPath;
+    StackWString<kPathBufSize * 2> origPath;
     origPath->append(dumpPath);
     origPath->push_back(file_util::kPathSeparator);
     origPath->append(minidumpID);
     origPath->append(L".dmp");
 
-    StackWString<MAX_PATH*2>  newPath;
+    StackWString<kPathBufSize * 2> newPath;
     newPath->append(dumpPath);
     newPath->push_back(file_util::kPathSeparator);
     newPath->append(g_currentTestName);
@@ -366,7 +368,7 @@ int main(int argc, char* argv[]) {
 
       if (uri.length() == 0) {
         // Watch stdin for URLs.
-        char filenameBuffer[2048];
+        char filenameBuffer[kPathBufSize];
         while (fgets(filenameBuffer, sizeof(filenameBuffer), stdin)) {
           char *newLine = strchr(filenameBuffer, '\n');
           if (newLine)
@@ -374,9 +376,7 @@ int main(int argc, char* argv[]) {
           if (!*filenameBuffer)
             continue;
 
-#if defined(OS_WIN)
           SetCurrentTestName(filenameBuffer);
-#endif
 
           if (!TestShell::RunFileTest(filenameBuffer, params))
             break;
