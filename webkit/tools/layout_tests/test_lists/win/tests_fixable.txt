@@ -724,7 +724,6 @@ LayoutTests/fast/transforms/shadows.html = FAIL
 LayoutTests/http/tests/misc/acid3.html = FAIL
 LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
 LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
-LayoutTests/http/tests/security/xss-eval.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL
 LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
 LayoutTests/media/progress-event-total.html = FAIL

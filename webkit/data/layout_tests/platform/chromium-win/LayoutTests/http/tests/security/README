@@ -24,3 +24,8 @@ cross-frame-access-call-expected.txt
 ===============================================================
 Error message differs because we don't have window.openDatabase.
 The error message from showModalDialog is more sane than the layout tests expect.
+
+xss-eval-expected.txt
+===============================================================
+Differs only in error message. LayoutTest expects an EvalError where we detect
+and report an xss attempt.
