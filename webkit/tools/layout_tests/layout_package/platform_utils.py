@@ -20,5 +20,5 @@ if sys.platform in ('cygwin', 'win32'):
   from platform_utils_win import *
 elif sys.platform == 'darwin':
   from platform_utils_mac import *
-
-
+elif sys.platform in ('linux', 'linux2'):
+  from platform_utils_linux import *

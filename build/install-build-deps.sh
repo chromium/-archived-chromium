@@ -29,7 +29,7 @@ download_deb() {
 install_hardy() {
   sudo apt-get install subversion pkg-config python perl g++ g++-multilib \
        bison flex gperf libnss3-dev libglib2.0-dev libgtk2.0-dev \
-       libnspr4-0d libnspr4-dev
+       libnspr4-0d libnspr4-dev wdiff
 
   wget -c http://www.trevp.com/tlslite/tlslite-0.3.8.tar.gz
   tar xvfz tlslite-0.3.8.tar.gz
