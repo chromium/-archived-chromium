@@ -35,7 +35,7 @@
 #include "Font.h"
 #include "GlyphPageTreeNode.h"
 #include "SimpleFontData.h"
-#include "UniscribeStateTextRun.h"
+#include "UniscribeHelperTextRun.h"
 
 #include "base/win_util.h"
 
@@ -196,11 +196,11 @@ static bool FillNonBMPGlyphs(UChar* buffer,
 {
     bool have_glyphs = false;
     
-    UniscribeStateTextRun state(buffer, GlyphPage::size * 2, false,
-                                fontData->m_font.hfont(),
-                                fontData->m_font.scriptCache(),
-                                fontData->m_font.scriptFontProperties());
-    state.set_inhibit_ligate(true);
+    UniscribeHelperTextRun state(buffer, GlyphPage::size * 2, false,
+                                 fontData->m_font.hfont(),
+                                 fontData->m_font.scriptCache(),
+                                 fontData->m_font.scriptFontProperties());
+    state.setInhibitLigate(true);
     state.Init();
 
     for (unsigned i = 0; i < GlyphPage::size; i++) {

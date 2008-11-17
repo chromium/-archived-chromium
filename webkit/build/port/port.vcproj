@@ -671,14 +671,6 @@
 				RelativePath="..\..\port\platform\StateTrackingString.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\port\platform\UniscribeStateTextRun.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\port\platform\UniscribeStateTextRun.h"
-				>
-			</File>
 			<Filter
 				Name="win"
 				>
@@ -723,19 +715,19 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\platform\chromium\ContextMenuChromium.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\port\platform\chromium\ContextMenuItemChromium.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\port\platform\chromium\ClipboardUtilitiesChromium.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\port\platform\chromium\ClipboardUtilitiesChromium.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ContextMenuChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\chromium\ContextMenuItemChromium.cpp"
 					>
 				</File>
 				<File
@@ -895,6 +887,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\port\platform\graphics\FontUtilsWin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\FontUtilsWin.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\port\platform\graphics\FontWin.cpp"
 					>
 				</File>
@@ -984,6 +984,22 @@
 				</File>
 				<File
 					RelativePath="..\..\port\platform\graphics\ThemeHelperWin.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\UniscribeHelper.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\UniscribeHelper.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\UniscribeHelperTextRun.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\port\platform\graphics\UniscribeHelperTextRun.h"
 					>
 				</File>
 				<Filter

@@ -31,13 +31,13 @@
 #include "CSSValueKeywords.h"
 #include "Document.h"
 #include "FontSelector.h"
+#include "FontUtilsWin.h"
 #include "GraphicsContext.h"
 #include "ScrollbarTheme.h"
 #include "SkiaUtils.h"
 #include "ThemeHelperWin.h"
 
 #include "base/gfx/native_theme.h"
-#include "base/gfx/font_utils.h"
 #include "base/gfx/skia_utils.h"
 #include "base/win_util.h"
 
@@ -243,20 +243,22 @@ static float systemFontSize(const LOGFONT& font)
 // (e.g. 15px). So, for now we just use Arial.
 static wchar_t* defaultGUIFont(Document* document)
 {
-  UScriptCode dominantScript = document->dominantScript();
-  const wchar_t* family = NULL;
+    UScriptCode dominantScript = document->dominantScript();
+    const wchar_t* family = NULL;
 
-  // TODO(jungshik) : Special-casing of Latin/Greeek/Cyrillic should go away
-  // once GetFontFamilyForScript is enhanced to support GenericFamilyType for real.
-  // For now, we make sure that we use Arial to match IE for those scripts.
-  if (dominantScript != USCRIPT_LATIN && dominantScript != USCRIPT_CYRILLIC &&
-      dominantScript != USCRIPT_GREEK && dominantScript != USCRIPT_INVALID_CODE) {
-      family = gfx::GetFontFamilyForScript(dominantScript,
-          gfx::GENERIC_FAMILY_NONE);
-      if (family)
-          return const_cast<wchar_t*>(family);
-  } 
-  return L"Arial";
+    // TODO(jungshik) : Special-casing of Latin/Greeek/Cyrillic should go away
+    // once GetFontFamilyForScript is enhanced to support GenericFamilyType for
+    // real. For now, we make sure that we use Arial to match IE for those
+    // scripts.
+    if (dominantScript != USCRIPT_LATIN &&
+        dominantScript != USCRIPT_CYRILLIC &&
+        dominantScript != USCRIPT_GREEK &&
+        dominantScript != USCRIPT_INVALID_CODE) {
+        family = GetFontFamilyForScript(dominantScript, GENERIC_FAMILY_NONE);
+        if (family)
+            return const_cast<wchar_t*>(family);
+    } 
+    return L"Arial";
 }
 
 // Converts |points| to pixels.  One point is 1/72 of an inch.

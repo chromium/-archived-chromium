@@ -138,14 +138,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\gfx\font_utils.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\font_utils.h"
-			>
-		</File>
-		<File
 			RelativePath="..\gfx\gdi_util.cc"
 			>
 		</File>
@@ -231,14 +223,6 @@
 		</File>
 		<File
 			RelativePath="..\gfx\skia_utils.h"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\uniscribe.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\uniscribe.h"
 			>
 		</File>
 		<File

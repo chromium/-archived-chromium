@@ -27,76 +27,73 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef UniscribeStateTextRun_H
-#define UniscribeStateTextRun_H
+#ifndef UniscribeHelperTextRun_h
+#define UniscribeHelperTextRun_h
 
-#include "base/gfx/uniscribe.h"
+#include "UniscribeHelper.h"
 
 namespace WebCore {
 
 class Font;
 class TextRun;
 
-}
-
-// Wrapper around the Uniscribe state that automatically sets it up with the
+// Wrapper around the Uniscribe helper that automatically sets it up with the
 // WebKit types we supply.
-class UniscribeStateTextRun : public gfx::UniscribeState {
+class UniscribeHelperTextRun : public UniscribeHelper {
 public:
     // Regular constructor used for WebCore text run processing.
-    UniscribeStateTextRun(const WebCore::TextRun& run,
-                          const WebCore::Font& font);
+    UniscribeHelperTextRun(const WebCore::TextRun& run,
+                           const WebCore::Font& font);
 
     // Constructor with the same interface as the gfx::UniscribeState. Using
     // this constructor will not give you font fallback, but it will provide
     // the ability to load fonts that may not be in the OS cache
     // ("TryToPreloadFont") if the caller does not have a TextRun/Font.
-    UniscribeStateTextRun(const wchar_t* input,
-                          int input_length,
-                          bool is_rtl,
-                          HFONT hfont,
-                          SCRIPT_CACHE* script_cache,
-                          SCRIPT_FONTPROPERTIES* font_properties);
+    UniscribeHelperTextRun(const wchar_t* input,
+                           int inputLength,
+                           bool isRtl,
+                           HFONT hfont,
+                           SCRIPT_CACHE* scriptCache,
+                           SCRIPT_FONTPROPERTIES* fontProperties);
 
 protected:
     virtual void TryToPreloadFont(HFONT font);
 
 private:
-    // This function retrieves the Windows font data (HFONT, etc)
-    // for the next WebKit font in the list. If the font data
-    // corresponding to font_index_ has been obtained before,
-    // returns the values stored in our internal vectors (hfonts_, etc).
-    // Otherwise, it gets next SimpleFontData from WebKit and adds them to
-    // in hfonts_ and friends so that font data can be returned
-    // quickly next time they're requested. 
+    // This function retrieves the Windows font data (HFONT, etc) for the next
+    // WebKit font in the list. If the font data corresponding to font_index_
+    // has been obtained before, returns the values stored in our internal
+    // vectors (hfonts_, etc).  Otherwise, it gets next SimpleFontData from
+    // WebKit and adds them to in hfonts_ and friends so that font data can be
+    // returned quickly next time they're requested.
     virtual bool NextWinFontData(HFONT* hfont,
-                                 SCRIPT_CACHE** script_cache,
-                                 SCRIPT_FONTPROPERTIES** font_properties,
+                                 SCRIPT_CACHE** scriptCache,
+                                 SCRIPT_FONTPROPERTIES** fontProperties,
                                  int* ascent);
     virtual void ResetFontIndex();
 
-    // Reference to WebKit::Font that contains all the information
-    // about fonts we can use to render this input run of text.
-    // It is used in NextWinFontData to retrieve Windows font data
-    // for a series of non-primary fonts.
+    // Reference to WebKit::Font that contains all the information about fonts
+    // we can use to render this input run of text.  It is used in
+    // NextWinFontData to retrieve Windows font data for a series of
+    // non-primary fonts.
     //
     // This pointer can be NULL for no font fallback handling.
-    const WebCore::Font* font_;           
+    const Font* m_font;
 
     // It's rare that many fonts are listed in stylesheets.
     // Four would be large enough in most cases.
     const static size_t kNumberOfFonts = 4;
 
-    // These vectors are used to store Windows font data for 
-    // non-primary fonts.
-    StackVector<HFONT, kNumberOfFonts> hfonts_;
-    StackVector<SCRIPT_CACHE*, kNumberOfFonts> script_caches_;
-    StackVector<SCRIPT_FONTPROPERTIES*, kNumberOfFonts> font_properties_; 
-    StackVector<int, kNumberOfFonts> ascents_; 
+    // These vectors are used to store Windows font data for non-primary fonts.
+    Vector<HFONT, kNumberOfFonts> m_hfonts;
+    Vector<SCRIPT_CACHE*, kNumberOfFonts> m_scriptCaches;
+    Vector<SCRIPT_FONTPROPERTIES*, kNumberOfFonts> m_fontProperties;
+    Vector<int, kNumberOfFonts> m_ascents;
 
-    // 
-    int font_index_;
+    // Index of the fallback font we're currently using for NextWinFontData.
+    int m_fontIndex;
 };
 
-#endif  // UniscribeStateTextRun_H
+}  // namespace WebCore
 
+#endif  // UniscribeHelperTextRun_h

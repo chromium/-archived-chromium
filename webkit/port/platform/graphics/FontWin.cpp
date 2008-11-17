@@ -32,7 +32,7 @@
 #include "GlyphBuffer.h"
 #include "PlatformContextSkia.h"
 #include "SimpleFontData.h"
-#include "UniscribeStateTextRun.h"
+#include "UniscribeHelperTextRun.h"
 
 #include "base/gfx/platform_canvas_win.h"
 #include "base/gfx/skia_utils.h"
@@ -134,7 +134,7 @@ FloatRect Font::selectionRectForComplexText(const TextRun& run,
                                             int from,
                                             int to) const
 {
-    UniscribeStateTextRun state(run, *this);
+    UniscribeHelperTextRun state(run, *this);
     float left = static_cast<float>(point.x() + state.CharacterToX(from));
     float right = static_cast<float>(point.x() + state.CharacterToX(to));
 
@@ -154,7 +154,7 @@ void Font::drawComplexText(GraphicsContext* graphicsContext,
                            int to) const
 {
     PlatformGraphicsContext* context = graphicsContext->platformContext();
-    UniscribeStateTextRun state(run, *this);
+    UniscribeHelperTextRun state(run, *this);
 
     SkColor color = context->fillColor();
     uint8 alpha = SkColorGetA(color);
@@ -184,15 +184,16 @@ void Font::drawComplexText(GraphicsContext* graphicsContext,
 
 float Font::floatWidthForComplexText(const TextRun& run) const
 {
-    UniscribeStateTextRun state(run, *this);
+    UniscribeHelperTextRun state(run, *this);
     return static_cast<float>(state.Width());
 }
 
-int Font::offsetForPositionForComplexText(const TextRun& run, int x, bool includePartialGlyphs) const
+int Font::offsetForPositionForComplexText(const TextRun& run, int x,
+                                          bool includePartialGlyphs) const
 {
     // Mac code ignores includePartialGlyphs, and they don't know what it's
     // supposed to do, so we just ignore it as well.
-    UniscribeStateTextRun state(run, *this);
+    UniscribeHelperTextRun state(run, *this);
     int char_index = state.XToCharacter(x);
 
     // XToCharacter will return -1 if the position is before the first

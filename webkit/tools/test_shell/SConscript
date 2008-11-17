@@ -176,6 +176,7 @@ test_files = [
     '$WEBKIT_DIR/glue/resource_fetcher_unittest.cc',
     '$WEBKIT_DIR/glue/webframe_unittest.cc',
     '$WEBKIT_DIR/port/platform/GKURL_unittest.cpp',
+    '$WEBKIT_DIR/port/platform/graphics/UniscribeHelper_unittest.cpp',
     '$WEBKIT_DIR/port/platform/image-decoders/bmp/BMPImageDecoder_unittest.cpp',
     '$WEBKIT_DIR/port/platform/image-decoders/ico/ICOImageDecoder_unittest.cpp',
     '$WEBKIT_DIR/port/platform/image-decoders/xbm/XBMImageDecoder_unittest.cpp',

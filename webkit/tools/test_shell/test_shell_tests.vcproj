@@ -219,10 +219,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test_shell_win.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\resources\test_shell.ico"
 				>
 			</File>
@@ -252,6 +248,10 @@
 			</File>
 			<File
 				RelativePath=".\test_shell_test.h"
+				>
+			</File>
+			<File
+				RelativePath=".\test_shell_win.cc"
 				>
 			</File>
 			<File
@@ -380,6 +380,10 @@
 			</File>
 			<File
 				RelativePath=".\text_input_controller_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\platform\graphics\UniscribeHelper_unittest.cpp"
 				>
 			</File>
 			<File

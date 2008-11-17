@@ -4,8 +4,8 @@
 //
 // A collection of utilities for font handling.
 
-#ifndef BASE_GFX_FONT_UTILS_H__
-#define BASE_GFX_FONT_UTILS_H__
+#ifndef FontUtilsWin_h
+#define FontUtilsWin_h
 
 #include <usp10.h>
 #include <wchar.h>
@@ -13,26 +13,26 @@
 
 #include <unicode/uscript.h>
 
-namespace gfx {
+namespace WebCore {
 
 // The order of family types needs to be exactly the same as
 // WebCore::FontDescription::GenericFamilyType. We may lift that restriction
 // when we make webkit_glue::WebkitGenericToChromeGenericFamily more
 // intelligent.
 enum GenericFamilyType {
-  GENERIC_FAMILY_NONE = 0,
-  GENERIC_FAMILY_STANDARD,
-  GENERIC_FAMILY_SERIF,
-  GENERIC_FAMILY_SANSSERIF,
-  GENERIC_FAMILY_MONOSPACE,
-  GENERIC_FAMILY_CURSIVE,
-  GENERIC_FAMILY_FANTASY
+    GENERIC_FAMILY_NONE = 0,
+    GENERIC_FAMILY_STANDARD,
+    GENERIC_FAMILY_SERIF,
+    GENERIC_FAMILY_SANSSERIF,
+    GENERIC_FAMILY_MONOSPACE,
+    GENERIC_FAMILY_CURSIVE,
+    GENERIC_FAMILY_FANTASY
 };
 
 // Return a font family that supports a script and belongs to |generic| font family.
 // It can return NULL and a caller has to implement its own fallback.
-const wchar_t* GetFontFamilyForScript(UScriptCode script,
-                                      GenericFamilyType generic);
+const UChar* GetFontFamilyForScript(UScriptCode script,
+                                    GenericFamilyType generic);
 
 // Return a font family that can render |characters| based on
 // what script characters belong to. When char_checked is non-NULL,
@@ -40,11 +40,12 @@ const wchar_t* GetFontFamilyForScript(UScriptCode script,
 // When script_checked is non-NULL, the script used to determine
 // the family is returned.
 // TODO(jungshik) : This function needs a total overhaul.
-const wchar_t* GetFallbackFamily(const wchar_t* characters,
-                                 int length,
-                                 GenericFamilyType generic,
-                                 UChar32 *char_checked,
-                                 UScriptCode *script_checked);
+const UChar* GetFallbackFamily(const UChar* characters,
+                               int length,
+                               GenericFamilyType generic,
+                               UChar32 *char_checked,
+                               UScriptCode *script_checked);
+
 // Derive a new HFONT by replacing lfFaceName of LOGFONT with |family|,
 // calculate the ascent for the derived HFONT, and initialize SCRIPT_CACHE
 // in FontData.
@@ -63,7 +64,7 @@ const wchar_t* GetFallbackFamily(const wchar_t* characters,
 // intl2 page-cycler test is noticeably slower with one out param than
 // the current version although the subsequent 9 passes take about the
 // same time.
-bool GetDerivedFontData(const wchar_t *family,
+bool GetDerivedFontData(const UChar *family,
                         int style,
                         LOGFONT *logfont,
                         int *ascent,
@@ -71,17 +72,16 @@ bool GetDerivedFontData(const wchar_t *family,
                         SCRIPT_CACHE **script_cache);
 
 enum {
-  FONT_STYLE_NORMAL = 0,
-  FONT_STYLE_BOLD = 1,
-  FONT_STYLE_ITALIC = 2,
-  FONT_STYLE_UNDERLINED = 4
+    FONT_STYLE_NORMAL = 0,
+    FONT_STYLE_BOLD = 1,
+    FONT_STYLE_ITALIC = 2,
+    FONT_STYLE_UNDERLINED = 4
 };
 
 // Derive style (bit-wise OR of FONT_STYLE_BOLD, FONT_STYLE_UNDERLINED, and
 // FONT_STYLE_ITALIC) from LOGFONT. Returns 0 if |*logfont| is NULL.
 int GetStyleFromLogfont(const LOGFONT *logfont);
 
-}  // namespace gfx
+}  // namespace WebCore
 
-#endif // BASE_GFX_FONT_UTILS_H__
-
+#endif  // FontUtilsWin_h
