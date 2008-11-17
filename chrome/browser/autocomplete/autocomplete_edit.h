@@ -772,7 +772,8 @@ class AutocompleteEditView
 
   // Getter for the text_object_model_, used by the ScopedXXX classes.  Note
   // that the pointer returned here is only valid as long as the
-  // AutocompleteEdit is still alive.
+  // AutocompleteEdit is still alive.  Also, if the underlying call fails, this
+  // may return NULL.
   ITextDocument* GetTextObjectModel() const;
 
   // Invoked during a mouse move. As necessary starts a drag and drop session.

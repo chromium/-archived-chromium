@@ -2004,8 +2004,11 @@ void AutocompleteEditView::GetSelection(CHARRANGE& sel) const {
   GetSel(sel);
 
   // See if we need to reverse the direction of the selection.
+  ITextDocument* const text_object_model = GetTextObjectModel();
+  if (!text_object_model)
+    return;
   CComPtr<ITextSelection> selection;
-  const HRESULT hr = GetTextObjectModel()->GetSelection(&selection);
+  const HRESULT hr = text_object_model->GetSelection(&selection);
   DCHECK(hr == S_OK);
   long flags;
   selection->GetFlags(&flags);
@@ -2031,8 +2034,11 @@ void AutocompleteEditView::SetSelection(LONG start, LONG end) {
     return;
 
   // We need to reverse the direction of the selection.
+  ITextDocument* const text_object_model = GetTextObjectModel();
+  if (!text_object_model)
+    return;
   CComPtr<ITextSelection> selection;
-  const HRESULT hr = GetTextObjectModel()->GetSelection(&selection);
+  const HRESULT hr = text_object_model->GetSelection(&selection);
   DCHECK(hr == S_OK);
   selection->SetFlags(tomSelStartActive);
 }
