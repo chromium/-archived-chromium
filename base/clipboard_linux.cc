@@ -15,6 +15,7 @@ namespace {
 
 static const char* kMimeHtml = "text/html";
 static const char* kMimeText = "text/plain";
+static const char* kMimeWebkitSmartPaste = "chrome-internal/webkit-paste";
 
 // GtkClipboardGetFunc callback.
 // GTK will call this when an application wants data we copied to the clipboard.
@@ -140,6 +141,12 @@ void Clipboard::WriteHTML(const char* markup_data,
   InsertMapping(kMimeHtml, data, markup_len);
 }
 
+// Write an extra flavor that signifies WebKit was the last to modify the
+// pasteboard. This flavor has no data.
+void Clipboard::WriteWebSmartPaste() {
+  InsertMapping(kMimeWebkitSmartPaste, NULL, 0);
+}
+
 // We do not use gtk_clipboard_wait_is_target_available because of
 // a bug with the gtk clipboard. It caches the available targets
 // and does not always refresh the cache when it is appropriate.
@@ -225,6 +232,11 @@ Clipboard::FormatType Clipboard::GetPlainTextWFormatType() {
 // static
 Clipboard::FormatType Clipboard::GetHtmlFormatType() {
   return gdk_atom_intern(kMimeHtml, false);
+}
+
+// static
+Clipboard::FormatType Clipboard::GetWebKitSmartPasteFormatType() {
+  return gdk_atom_intern(kMimeWebkitSmartPaste, false);
 }
 
 // Insert the key/value pair in the clipboard_data structure. If

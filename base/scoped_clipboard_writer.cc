@@ -104,11 +104,11 @@ void ScopedClipboardWriter::WriteFiles(const std::vector<std::wstring>& files) {
   objects_[Clipboard::CBF_FILES] = params;
 }
 
-#if defined(OS_WIN)
 void ScopedClipboardWriter::WriteWebSmartPaste() {
   objects_[Clipboard::CBF_WEBKIT] = Clipboard::ObjectMapParams();
 }
 
+#if defined(OS_WIN)
 void ScopedClipboardWriter::WriteBitmapFromPixels(const void* pixels,
                                                   const gfx::Size& size) {
   Clipboard::ObjectMapParam param1, param2;

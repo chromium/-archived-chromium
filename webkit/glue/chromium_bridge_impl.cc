@@ -85,17 +85,14 @@ bool ChromiumBridge::clipboardIsFormatAvailable(
       return webkit_glue::ClipboardIsFormatAvailable(
           ::Clipboard::GetHtmlFormatType());
 
+    case PasteboardPrivate::WebSmartPasteFormat:
+      return webkit_glue::ClipboardIsFormatAvailable(
+          ::Clipboard::GetWebKitSmartPasteFormatType());
+
     case PasteboardPrivate::BookmarkFormat:
 #if defined(OS_WIN) || defined(OS_MACOSX)
       return webkit_glue::ClipboardIsFormatAvailable(
           ::Clipboard::GetUrlWFormatType());
-#endif
-
-#if defined(OS_WIN)
-    // TODO(tc): This should work for linux/mac too.
-    case PasteboardPrivate::WebSmartPasteFormat:
-      return webkit_glue::ClipboardIsFormatAvailable(
-          ::Clipboard::GetWebKitSmartPasteFormatType());
 #endif
 
     default:
@@ -141,10 +138,8 @@ void ChromiumBridge::clipboardWriteSelection(const String& html,
                 webkit_glue::CStringToStdString(url.utf8String()));
   scw.WriteText(webkit_glue::StringToStdWString(plain_text));
 
-#if defined(OS_WIN)
   if (can_smart_copy_or_delete)
     scw.WriteWebSmartPaste();
-#endif
 }
 
 void ChromiumBridge::clipboardWriteURL(const KURL& url, const String& title) {

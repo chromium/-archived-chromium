@@ -36,11 +36,11 @@ void Clipboard::DispatchObject(ObjectType type, const ObjectMapParams& params) {
       break;
 #endif  // defined(OS_WIN) || defined(OS_MACOSX)
 
-#if defined(OS_WIN)
     case CBF_WEBKIT:
       WriteWebSmartPaste();
       break;
 
+#if defined(OS_WIN)
     case CBF_BITMAP:
       WriteBitmap(&(params[0].front()), &(params[1].front()));
       break;

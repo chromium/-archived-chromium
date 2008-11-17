@@ -15,6 +15,10 @@ namespace {
 // Would be nice if this were in UTCoreTypes.h, but it isn't
 const NSString* kUTTypeURLName = @"public.url-name";
 
+// Tells us if WebKit was the last to write to the pasteboard. There's no
+// actual data associated with this type.
+const NSString *kWebSmartPastePboardType = @"NeXT smart paste pasteboard type";
+
 NSPasteboard* GetPasteboard() {
   // The pasteboard should not be nil in a UI session, but this handy DCHECK
   // can help track down problems if someone tries using clipboard code outside
@@ -119,6 +123,14 @@ void Clipboard::WriteFiles(const char* file_data, size_t file_len) {
   NSPasteboard* pb = GetPasteboard();
   [pb addTypes:[NSArray arrayWithObject:NSFilenamesPboardType] owner:nil];
   [pb setPropertyList:fileList forType:NSFilenamesPboardType];
+}
+
+// Write an extra flavor that signifies WebKit was the last to modify the
+// pasteboard. This flavor has no data.
+void Clipboard::WriteWebSmartPaste() {
+  NSPasteboard* pb = GetPasteboard();
+  [pb addTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
+  [pb setData:nil forType:GetWebKitSmartPasteFormatType()];
 }
 
 bool Clipboard::IsFormatAvailable(NSString* format) const {
@@ -249,4 +261,9 @@ Clipboard::FormatType Clipboard::GetFilenameWFormatType() {
 // static
 Clipboard::FormatType Clipboard::GetHtmlFormatType() {
   return NSHTMLPboardType;
+}
+
+// static
+Clipboard::FormatType Clipboard::GetWebKitSmartPasteFormatType() {
+  return kWebSmartPastePboardType;
 }

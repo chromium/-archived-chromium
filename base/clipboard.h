@@ -120,6 +120,7 @@ class Clipboard {
   static FormatType GetPlainTextWFormatType();
   static FormatType GetFilenameFormatType();
   static FormatType GetFilenameWFormatType();
+  static FormatType GetWebKitSmartPasteFormatType();
   // Win: MS HTML Format, Other: Generic HTML format
   static FormatType GetHtmlFormatType();
 #if defined(OS_WIN)
@@ -129,7 +130,6 @@ class Clipboard {
   static FormatType GetCFHDropFormatType();
   static FormatType GetFileDescriptorFormatType();
   static FormatType GetFileContentFormatZeroType();
-  static FormatType GetWebKitSmartPasteFormatType();
 #endif
 
  private:

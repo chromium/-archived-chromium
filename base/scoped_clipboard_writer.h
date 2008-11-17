@@ -40,10 +40,10 @@ class ScopedClipboardWriter {
   void WriteFile(const std::wstring& file);
   void WriteFiles(const std::vector<std::wstring>& files);
 
-#if defined(OS_WIN)
   // Used by WebKit to determine whether WebKit wrote the clipboard last
   void WriteWebSmartPaste();
 
+#if defined(OS_WIN)
   // Adds a bitmap to the clipboard
   // This is the slowest way to copy a bitmap to the clipboard as we must first
   // memcpy the pixels into GDI and the blit the bitmap to the clipboard.
