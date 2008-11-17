@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_MODAL_HTML_DIALOG_DELEGATE_H__
-#define CHROME_BROWSER_MODAL_HTML_DIALOG_DELEGATE_H__
+#ifndef CHROME_BROWSER_MODAL_HTML_DIALOG_DELEGATE_H_
+#define CHROME_BROWSER_MODAL_HTML_DIALOG_DELEGATE_H_
 
 #include <vector>
 
@@ -37,6 +37,11 @@ class ModalHtmlDialogDelegate
   virtual void OnDialogClosed(const std::string& json_retval);
 
  private:
+  // Invoked from the destructor or when we receive notification the web
+  // contents has been disconnnected. Removes the observer from the WebContents
+  // and NULLs out contents_.
+  void RemoveObserver();
+
   // The WebContents that opened the dialog.
   WebContents* contents_;
 
@@ -47,8 +52,7 @@ class ModalHtmlDialogDelegate
   // plugin using this |sync_result| pointer so we store it between calls.
   IPC::Message* sync_response_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ModalHtmlDialogDelegate);
+  DISALLOW_COPY_AND_ASSIGN(ModalHtmlDialogDelegate);
 };
 
-#endif  // CHROME_BROWSER_MODAL_HTML_DIALOG_DELEGATE_H__
-
+#endif  // CHROME_BROWSER_MODAL_HTML_DIALOG_DELEGATE_H_

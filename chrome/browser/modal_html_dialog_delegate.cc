@@ -25,9 +25,7 @@ ModalHtmlDialogDelegate::ModalHtmlDialogDelegate(
 }
 
 ModalHtmlDialogDelegate::~ModalHtmlDialogDelegate() {
-  NotificationService::current()->
-      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
-      Source<WebContents>(contents_));
+  RemoveObserver();
 }
 
 void ModalHtmlDialogDelegate::Observe(NotificationType type,
@@ -35,7 +33,7 @@ void ModalHtmlDialogDelegate::Observe(NotificationType type,
                                       const NotificationDetails& details) {
   DCHECK(type == NOTIFY_WEB_CONTENTS_DISCONNECTED);
   DCHECK(Source<WebContents>(source).ptr() == contents_);
-  contents_ = NULL;  // No longer safe to access.
+  RemoveObserver();
 }
 
 bool ModalHtmlDialogDelegate::IsModal() const {
@@ -66,3 +64,12 @@ void ModalHtmlDialogDelegate::OnDialogClosed(const std::string& json_retval) {
   delete this;
 }
 
+void ModalHtmlDialogDelegate::RemoveObserver() {
+  if (!contents_)
+    return;
+
+  NotificationService::current()->
+      RemoveObserver(this, NOTIFY_WEB_CONTENTS_DISCONNECTED,
+      Source<WebContents>(contents_));
+  contents_ = NULL;  // No longer safe to access.
+}
