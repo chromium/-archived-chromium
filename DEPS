@@ -31,7 +31,7 @@ deps_os = {
       "/trunk/deps/third_party/cygwin@3248",
 
     "src/third_party/python_24":
-      "/trunk/deps/third_party/python_24@3247",
+      "/trunk/deps/third_party/python_24@5580",
 
     "src/third_party/svn":
       "/trunk/deps/third_party/svn@3230",
