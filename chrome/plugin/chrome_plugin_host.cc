@@ -257,8 +257,24 @@ CPError STDCALL CPB_GetCookies(CPID id, CPBrowsingContext context,
                                const char* url, char** cookies) {
   CHECK(ChromePluginLib::IsPluginThread());
   std::string cookies_str;
-  PluginThread::GetPluginThread()->Send(
-      new PluginProcessHostMsg_GetCookies(context, GURL(url), &cookies_str));
+
+  WebPluginProxy* webplugin = WebPluginProxy::FromCPBrowsingContext(context);
+  // There are two contexts in which we can be asked for cookies:
+  // 1. From a script context.  webplugin will be non-NULL.
+  // 2. From a global browser context (think: Gears UpdateTask).  webplugin will
+  //    be NULL and context will (loosely) represent a browser Profile.
+  // In case 1, we *must* route through the renderer process, otherwise we race
+  // with renderer script that may have set cookies.  In case 2, we are running
+  // out-of-band with script, so we don't need to stay in sync with any
+  // particular renderer.
+  // See http://b/issue?id=1487502.
+  if (webplugin) {
+    cookies_str = webplugin->GetCookies(GURL(url), GURL(url));
+  } else {
+    PluginThread::GetPluginThread()->Send(
+        new PluginProcessHostMsg_GetCookies(context, GURL(url), &cookies_str));
+  }
+
   *cookies = CPB_StringDup(CPB_Alloc, cookies_str);
   return CPERR_SUCCESS;
 }
