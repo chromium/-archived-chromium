@@ -38,8 +38,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
 
   virtual WebContents* GetWebContents() = 0;
 
-  virtual void CreateView(HWND parent_hwnd,
-                          const gfx::Rect& initial_bounds) = 0;
+  virtual void CreateView() = 0;
 
   // Sets up the View that holds the rendered web page, receives messages for
   // it and contains page plugins.

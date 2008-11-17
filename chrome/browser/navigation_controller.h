@@ -128,8 +128,7 @@ class NavigationController {
   NavigationController(
       Profile* profile,
       const std::vector<TabNavigation>& navigations,
-      int selected_navigation,
-      HWND parent);
+      int selected_navigation);
   ~NavigationController();
 
   // Begin the destruction sequence for this NavigationController and all its
@@ -141,8 +140,8 @@ class NavigationController {
   void Destroy();
 
   // Clone the receiving navigation controller. Only the active tab contents is
-  // duplicated. It is created as a child of the provided HWND.
-  NavigationController* Clone(HWND hwnd);
+  // duplicated.
+  NavigationController* Clone();
 
   // Returns the profile for this controller. It can never be NULL.
   Profile* profile() const {
@@ -434,8 +433,7 @@ class NavigationController {
   // Returns the TabContents for the |entry|'s type. If the TabContents
   // doesn't yet exist, it is created. If a new TabContents is created, its
   // parent is |parent|.  Becomes part of |entry|'s SiteInstance.
-  TabContents* GetTabContentsCreateIfNecessary(HWND parent,
-                                               const NavigationEntry& entry);
+  TabContents* GetTabContentsCreateIfNecessary(const NavigationEntry& entry);
 
   // Register the provided tab contents. This tab contents will be owned
   // and deleted by this navigation controller
@@ -463,7 +461,7 @@ class NavigationController {
   // Invoked after session/tab restore or cloning a tab. Resets the transition
   // type of the entries, updates the max page id and creates the active
   // contents.
-  void FinishRestore(HWND parent_hwnd, int selected_index);
+  void FinishRestore(int selected_index);
 
   // Inserts an entry after the current position, removing all entries after it.
   // The new entry will become the active one.

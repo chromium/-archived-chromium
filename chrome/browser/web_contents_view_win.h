@@ -31,8 +31,7 @@ class WebContentsViewWin : public WebContentsView,
   // WebContentsView implementation --------------------------------------------
 
   virtual WebContents* GetWebContents();
-  virtual void CreateView(HWND parent_hwnd,
-                          const gfx::Rect& initial_bounds);
+  virtual void CreateView();
   virtual RenderWidgetHostViewWin* CreateViewForWidget(
       RenderWidgetHost* render_widget_host);
   virtual HWND GetContainerHWND() const;

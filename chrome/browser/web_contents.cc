@@ -481,9 +481,8 @@ void WebContents::SetDownloadShelfVisible(bool visible) {
 }
 
 // Stupid view pass-throughs
-void WebContents::CreateView(HWND parent_hwnd,
-                             const gfx::Rect& initial_bounds) {
-  view_->CreateView(parent_hwnd, initial_bounds);
+void WebContents::CreateView() {
+  view_->CreateView();
 }
 HWND WebContents::GetContainerHWND() const {
   return view_->GetContainerHWND();
