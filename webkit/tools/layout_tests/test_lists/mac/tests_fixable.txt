@@ -1241,7 +1241,6 @@ LayoutTests/fast/images/svg-as-image.html = FAIL
 LayoutTests/fast/images/svg-as-relative-image.html = FAIL
 LayoutTests/fast/invalid/residual-style.html = FAIL
 LayoutTests/fast/js/bitwise-and-on-undefined.html = FAIL
-LayoutTests/fast/js/date-DST-pre-1970.html = FAIL
 LayoutTests/fast/overflow/overflow-x-y.html = FAIL
 LayoutTests/fast/overflow/unreachable-overflow-rtl-bug.html = FAIL
 LayoutTests/fast/parser/comment-in-textarea.html = FAIL
