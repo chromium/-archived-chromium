@@ -1789,7 +1789,7 @@ const PrepopulatedEngine yahoo = {
   L"Yahoo!",
   L"yahoo.com",
   L"http://search.yahoo.com/favicon.ico",
-  L"http://search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://search.yahoo.com/search?ei={inputEncoding}&fr=crmas&p={searchTerms}",
   "UTF-8",
   L"http://ff.search.yahoo.com/gossip?output=fxjson&command={searchTerms}",
   2,
@@ -1802,10 +1802,11 @@ const PrepopulatedEngine yahoo_ar = {
   L"Yahoo! Argentina",
   L"ar.yahoo.com",
   L"http://ar.search.yahoo.com/favicon.ico",
-  L"http://ar.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://ar.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://ar-sayt.ff.search.yahoo.com/gossip-ar-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://ar-sayt.ff.search.yahoo.com/gossip-ar-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1813,7 +1814,8 @@ const PrepopulatedEngine yahoo_at = {
   L"Yahoo! Suche",
   L"at.yahoo.com",
   L"http://at.search.yahoo.com/favicon.ico",
-  L"http://at.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://at.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   2,
@@ -1823,10 +1825,11 @@ const PrepopulatedEngine yahoo_au = {
   L"Yahoo!7",
   L"au.yahoo.com",
   L"http://au.search.yahoo.com/favicon.ico",
-  L"http://au.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://au.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://aue-sayt.ff.search.yahoo.com/gossip-au-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://aue-sayt.ff.search.yahoo.com/gossip-au-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1834,10 +1837,11 @@ const PrepopulatedEngine yahoo_br = {
   L"Yahoo! Brasil",
   L"br.yahoo.com",
   L"http://br.search.yahoo.com/favicon.ico",
-  L"http://br.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://br.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://br-sayt.ff.search.yahoo.com/gossip-br-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://br-sayt.ff.search.yahoo.com/gossip-br-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1845,7 +1849,8 @@ const PrepopulatedEngine yahoo_ca = {
   L"Yahoo! Canada",
   L"ca.yahoo.com",
   L"http://ca.search.yahoo.com/favicon.ico",
-  L"http://ca.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://ca.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   L"http://gossip.ca.yahoo.com/gossip-ca-sayt?output=fxjsonp&"
       L"command={searchTerms}",
@@ -1856,7 +1861,8 @@ const PrepopulatedEngine yahoo_ch = {
   L"Yahoo! Suche",
   L"ch.yahoo.com",
   L"http://ch.search.yahoo.com/favicon.ico",
-  L"http://ch.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://ch.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   2,
@@ -1866,7 +1872,8 @@ const PrepopulatedEngine yahoo_cl = {
   L"Yahoo! Chile",
   L"cl.yahoo.com",
   L"http://cl.search.yahoo.com/favicon.ico",
-  L"http://cl.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://cl.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   L"http://gossip.telemundo.yahoo.com/gossip-e1-sayt?output=fxjson&"
       L"command={searchTerms}",
@@ -1877,7 +1884,8 @@ const PrepopulatedEngine yahoo_cn = {
   L"\x4e2d\x56fd\x96c5\x864e",
   L"cn.yahoo.com",
   L"http://search.cn.yahoo.com/favicon.ico",
-  L"http://search.cn.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://search.cn.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "GB2312",
   // http://cn.yahoo.com/cnsuggestion/suggestion.inc.php?of=fxjson&query=
   // returns in a proprietary format ('|' delimeted word list).
@@ -1889,7 +1897,8 @@ const PrepopulatedEngine yahoo_co = {
   L"Yahoo! Colombia",
   L"co.yahoo.com",
   L"http://co.search.yahoo.com/favicon.ico",
-  L"http://co.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://co.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   L"http://gossip.telemundo.yahoo.com/gossip-e1-sayt?output=fxjson&"
       L"command={searchTerms}",
@@ -1900,10 +1909,11 @@ const PrepopulatedEngine yahoo_de = {
   L"Yahoo! Deutschland",
   L"de.yahoo.com",
   L"http://de.search.yahoo.com/favicon.ico",
-  L"http://de.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://de.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://de-sayt.ff.search.yahoo.com/gossip-de-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://de-sayt.ff.search.yahoo.com/gossip-de-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1911,7 +1921,8 @@ const PrepopulatedEngine yahoo_dk = {
   L"Yahoo! Danmark",
   L"dk.yahoo.com",
   L"http://dk.search.yahoo.com/favicon.ico",
-  L"http://dk.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://dk.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   2,
@@ -1921,10 +1932,11 @@ const PrepopulatedEngine yahoo_es = {
   L"Yahoo! Espa" L"\x00f1" L"a",
   L"es.yahoo.com",
   L"http://es.search.yahoo.com/favicon.ico",
-  L"http://es.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://es.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://es-sayt.ff.search.yahoo.com/gossip-es-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://es-sayt.ff.search.yahoo.com/gossip-es-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1932,7 +1944,8 @@ const PrepopulatedEngine yahoo_fi = {
   L"Yahoo!-haku",
   L"fi.yahoo.com",
   L"http://fi.search.yahoo.com/favicon.ico",
-  L"http://fi.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://fi.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   2,
@@ -1942,10 +1955,11 @@ const PrepopulatedEngine yahoo_fr = {
   L"Yahoo! France",
   L"fr.yahoo.com",
   L"http://fr.search.yahoo.com/favicon.ico",
-  L"http://fr.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://fr.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://fr-sayt.ff.search.yahoo.com/gossip-fr-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://fr-sayt.ff.search.yahoo.com/gossip-fr-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1953,11 +1967,12 @@ const PrepopulatedEngine yahoo_hk = {
   L"Yahoo! Hong Kong",
   L"hk.yahoo.com",
   L"http://hk.search.yahoo.com/favicon.ico",
-  L"http://hk.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://hk.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   // http://history.hk.search.yahoo.com/ac/ac_msearch.php?query={searchTerms}
   // returns a JSON with key-value pairs. Setting parameters (ot, of, output)
-  // to fxjson,json, or js doesn't help. 
+  // to fxjson, json, or js doesn't help. 
   NULL,
   2,
 };
@@ -1966,10 +1981,11 @@ const PrepopulatedEngine yahoo_id = {
   L"Yahoo! Indonesia",
   L"id.yahoo.com",
   L"http://id.search.yahoo.com/favicon.ico",
-  L"http://id.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://id.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://id-sayt.ff.search.yahoo.com/gossip-id-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://id-sayt.ff.search.yahoo.com/gossip-id-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1977,10 +1993,11 @@ const PrepopulatedEngine yahoo_in = {
   L"Yahoo! India",
   L"in.yahoo.com",
   L"http://in.search.yahoo.com/favicon.ico",
-  L"http://in.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://in.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://in-sayt.ff.search.yahoo.com/gossip-in-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://in-sayt.ff.search.yahoo.com/gossip-in-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1988,10 +2005,11 @@ const PrepopulatedEngine yahoo_it = {
   L"Yahoo! Italia",
   L"it.yahoo.com",
   L"http://it.search.yahoo.com/favicon.ico",
-  L"http://it.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://it.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://it-sayt.ff.search.yahoo.com/gossip-it-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://it-sayt.ff.search.yahoo.com/gossip-it-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -1999,7 +2017,8 @@ const PrepopulatedEngine yahoo_jp = {
   L"Yahoo! JAPAN",
   L"yahoo.co.jp",
   L"http://search.yahoo.co.jp/favicon.ico",
-  L"http://search.yahoo.co.jp/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://search.yahoo.co.jp/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   2,
@@ -2009,10 +2028,11 @@ const PrepopulatedEngine yahoo_kr = {
   L"\xc57c\xd6c4! \xcf54\xb9ac\xc544",
   L"kr.yahoo.com",
   L"http://kr.search.yahoo.com/favicon.ico",
-  L"http://kr.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://kr.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://kr.atc.search.yahoo.com/atcx.php?property=main&ot=fxjson"
-     L"&ei=utf8&eo=utf8&command={searchTerms}",
+  L"http://kr.atc.search.yahoo.com/atcx.php?property=main&ot=fxjson&"
+     L"ei=utf8&eo=utf8&command={searchTerms}",
   2,
 };
 
@@ -2020,11 +2040,11 @@ const PrepopulatedEngine yahoo_malaysia = {
   L"Yahoo! Malaysia",
   L"malaysia.yahoo.com",
   L"http://malaysia.search.yahoo.com/favicon.ico",
-  L"http://malaysia.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
-
+  L"http://malaysia.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://my-sayt.ff.search.yahoo.com/gossip-my-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://my-sayt.ff.search.yahoo.com/gossip-my-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -2032,7 +2052,8 @@ const PrepopulatedEngine yahoo_mx = {
   L"Yahoo! M\x00e9xico",
   L"mx.yahoo.com",
   L"http://mx.search.yahoo.com/favicon.ico",
-  L"http://mx.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://mx.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   L"http://gossip.mx.yahoo.com/gossip-mx-sayt?output=fxjsonp&"
       L"command={searchTerms}",
@@ -2043,7 +2064,8 @@ const PrepopulatedEngine yahoo_nl = {
   L"Yahoo! Nederland",
   L"nl.yahoo.com",
   L"http://nl.search.yahoo.com/favicon.ico",
-  L"http://nl.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://nl.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   2,
@@ -2053,7 +2075,8 @@ const PrepopulatedEngine yahoo_no = {
   L"Yahoo! Norge",
   L"no.yahoo.com",
   L"http://no.search.yahoo.com/favicon.ico",
-  L"http://no.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://no.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   2,
@@ -2063,10 +2086,11 @@ const PrepopulatedEngine yahoo_nz = {
   L"Yahoo!Xtra",
   L"nz.yahoo.com",
   L"http://nz.search.yahoo.com/favicon.ico",
-  L"http://nz.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://nz.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://aue-sayt.ff.search.yahoo.com/gossip-nz-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://aue-sayt.ff.search.yahoo.com/gossip-nz-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -2074,7 +2098,8 @@ const PrepopulatedEngine yahoo_pe = {
   L"Yahoo! Per\x00fa",
   L"pe.yahoo.com",
   L"http://pe.search.yahoo.com/favicon.ico",
-  L"http://pe.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://pe.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   L"http://gossip.telemundo.yahoo.com/gossip-e1-sayt?output=fxjson&"
       L"command={searchTerms}",
@@ -2085,10 +2110,11 @@ const PrepopulatedEngine yahoo_ph = {
   L"Yahoo! Philippines",
   L"ph.yahoo.com",
   L"http://ph.search.yahoo.com/favicon.ico",
-  L"http://ph.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://ph.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://ph-sayt.ff.search.yahoo.com/gossip-ph-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://ph-sayt.ff.search.yahoo.com/gossip-ph-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -2096,7 +2122,8 @@ const PrepopulatedEngine yahoo_qc = {
   L"Yahoo! Qu" L"\x00e9" L"bec",
   L"qc.yahoo.com",
   L"http://qc.search.yahoo.com/favicon.ico",
-  L"http://qc.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://qc.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   5,  // Can't be 2 as this has to appear in the Canada list alongside yahoo_ca.
@@ -2106,7 +2133,8 @@ const PrepopulatedEngine yahoo_ru = {
   L"Yahoo! \x043f\x043e-\x0440\x0443\x0441\x0441\x043a\x0438",
   L"ru.yahoo.com",
   L"http://ru.search.yahoo.com/favicon.ico",
-  L"http://ru.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://ru.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   NULL,
   2,
@@ -2116,7 +2144,8 @@ const PrepopulatedEngine yahoo_sg = {
   L"Yahoo! Singapore",
   L"sg.yahoo.com",
   L"http://sg.search.yahoo.com/favicon.ico",
-  L"http://sg.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://sg.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   L"http://sg-sayt.ff.search.yahoo.com/gossip-sg-sayt?output=fxjson&"
       L"command={searchTerms}",
@@ -2127,7 +2156,8 @@ const PrepopulatedEngine yahoo_th = {
   L"Yahoo! \x0e1b\x0e23\x0e30\x0e40\x0e17\x0e28\x0e44\x0e17\x0e22",
   L"th.yahoo.com",
   L"http://th.search.yahoo.com/favicon.ico",
-  L"http://th.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://th.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   L"http://th-sayt.ff.search.yahoo.com/gossip-th-sayt?output=fxjson&"
     L"command={searchTerms}",
@@ -2138,7 +2168,8 @@ const PrepopulatedEngine yahoo_tw = {
   L"Yahoo!\x5947\x6469",
   L"tw.yahoo.com",
   L"http://tw.search.yahoo.com/favicon.ico",
-  L"http://tw.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://tw.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   // "http://tw.yahoo.com/ac/ac_search.php?eo=utf8&of=js&prop=web&query="
   // returns a JSON file prepended with 'fxjson={'.
@@ -2150,10 +2181,11 @@ const PrepopulatedEngine yahoo_uk = {
   L"Yahoo! UK & Ireland",
   L"uk.yahoo.com",
   L"http://uk.search.yahoo.com/favicon.ico",
-  L"http://uk.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://uk.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://uk-sayt.ff.search.yahoo.com/gossip-uk-sayt?command={searchTerms}&"
-      L"queryfirst=2&output=fxjson",
+  L"http://uk-sayt.ff.search.yahoo.com/gossip-uk-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -2161,7 +2193,8 @@ const PrepopulatedEngine yahoo_ve = {
   L"Yahoo! Venezuela",
   L"ve.yahoo.com",
   L"http://ve.search.yahoo.com/favicon.ico",
-  L"http://ve.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://ve.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
   L"http://gossip.telemundo.yahoo.com/gossip-e1-sayt?output=fxjson&"
       L"command={searchTerms}",
@@ -2172,10 +2205,11 @@ const PrepopulatedEngine yahoo_vn = {
   L"Yahoo! Vi\x1ec7t Nam",
   L"vn.yahoo.com",
   L"http://vn.search.yahoo.com/favicon.ico",
-  L"http://vn.search.yahoo.com/search?ei={inputEncoding}&p={searchTerms}",
+  L"http://vn.search.yahoo.com/search?ei={inputEncoding}&fr=crmas&"
+      L"p={searchTerms}",
   "UTF-8",
-  L"http://vn-sayt.ff.search.yahoo.com/gossip-vn-sayt?command={searchTerms}&"
-      L"output=fxjson",
+  L"http://vn-sayt.ff.search.yahoo.com/gossip-vn-sayt?output=fxjson&"
+      L"command={searchTerms}",
   2,
 };
 
@@ -3008,7 +3042,7 @@ void RegisterUserPrefs(PrefService* prefs) {
 }
 
 int GetDataVersion() {
-  return 18;  // Increment this if you change the above data in ways that mean
+  return 19;  // Increment this if you change the above data in ways that mean
               // users with existing data should get a new version.
 }
 
