@@ -30,19 +30,16 @@
 #include "ChromiumBridge.h"
 #include "FontCache.h"
 #include "Font.h"
+#include "FontUtilsWin.h"
+#include "HashMap.h"
 #include "HashSet.h"
 #include "SimpleFontData.h"
 #include "StringHash.h"
-#include <algorithm>
-#include <hash_map>
-#include <string>
+#include "unicode/uniset.h"
+
 #include <windows.h>
 #include <objidl.h>
 #include <mlang.h>
-
-#include "base/gfx/font_utils.h"
-#include "base/singleton.h"
-#include "unicode/uniset.h"
 
 using std::min;
 
@@ -76,14 +73,14 @@ static bool IsStringASCII(const String& s)
 // https://bugzilla.mozilla.org/show_bug.cgi?id=231426
 static bool LookupAltName(const String& name, String& altName)
 {
-    struct fontCodepage {
+    struct FontCodepage {
         WCHAR *name;
         int   codePage;
     };
 
-    struct namePair {
+    struct NamePair {
         WCHAR *name;
-        fontCodepage altNameCp; 
+        FontCodepage altNameCp; 
     };
 
     // FIXME(jungshik) : This list probably covers 99% of cases. 
@@ -93,7 +90,7 @@ static bool LookupAltName(const String& name, String& altName)
     // 932 : Japanese, 936 : Simp. Chinese, 949 : Korean, 950 : Trad. Chinese
     // In the table below, the ASCII keys are all lower-cased for
     // case-insensitive matching.
-    static const namePair  namePairs[] = {
+    static const NamePair namePairs[] = {
         // ＭＳ Ｐゴシック, MS PGothic
         {L"\xFF2D\xFF33 \xFF30\x30B4\x30B7\x30C3\x30AF", {L"MS PGothic", 932}},
         {L"ms pgothic", {L"\xFF2D\xFF33 \xFF30\x30B4\x30B7\x30C3\x30AF", 932}},
@@ -197,34 +194,33 @@ static bool LookupAltName(const String& name, String& altName)
         {L"ar pl zenkai uni", {L"\x6587\x0050\x004C\x4E2D\x6977\x0055\x006E\x0069", 936}},
     };
 
-    typedef stdext::hash_map<std::wstring, const fontCodepage*> nameMap;
-    static nameMap* fontNameMap = NULL;
+    typedef HashMap<String, const FontCodepage*> NameMap;
+    static NameMap* fontNameMap = NULL;
 
     if (!fontNameMap) {
-        size_t numElements = sizeof(namePairs) / sizeof(namePair);
-        fontNameMap = new nameMap;
+        size_t numElements = sizeof(namePairs) / sizeof(NamePair);
+        fontNameMap = new NameMap;
         for (size_t i = 0; i < numElements; ++i) {
-            (*fontNameMap)[std::wstring(namePairs[i].name)] =
-                &(namePairs[i].altNameCp);
+            fontNameMap->set(String(namePairs[i].name),
+                             &(namePairs[i].altNameCp));
         }
     }
 
     bool isAscii = false; 
-    std::wstring n;
+    String n;
     // use |lower| only for ASCII names 
     // For non-ASCII names, we don't want to invoke an expensive 
     // and unnecessary |lower|. 
     if (IsStringASCII(name)) {
         isAscii = true;
-        n.assign(name.lower().characters(), name.length());
+        n = name.lower();
     } else {
-        n.assign(name.characters(), name.length());
+        n = name;
     }
 
-    nameMap::const_iterator iter = fontNameMap->find(n);
-    if (iter == fontNameMap->end()) {
+    NameMap::iterator iter = fontNameMap->find(n);
+    if (iter == fontNameMap->end())
         return false;
-    }
 
     static int systemCp = ::GetACP();
     int fontCp = iter->second->codePage;
@@ -267,17 +263,6 @@ static HFONT createFontIndirectAndGetWinName(const String& family,
 // as keys, there might be edge cases where one face of a font family
 // has a different repertoire from another face of the same family. 
 typedef HashMap<const wchar_t*, UnicodeSet*> FontCmapCache;
-struct FontCmapCacheSingletonTraits
-    : public DefaultSingletonTraits<FontCmapCache> {
-    static void Delete(FontCmapCache* cache) {
-        FontCmapCache::iterator iter = cache->begin();
-        while (iter != cache->end()) {
-            delete iter->second;
-            ++iter;
-        }
-        delete cache;
-    }
-};
 
 static bool fontContainsCharacter(const FontPlatformData* font_data,
                                   const wchar_t* family, UChar32 character)
@@ -287,9 +272,12 @@ static bool fontContainsCharacter(const FontPlatformData* font_data,
     // Return true for now.
     if (character > 0xFFFF)
         return true;
-    static HashMap<const wchar_t*, UnicodeSet*> fontCoverageMap;
-    FontCmapCache* fontCmapCache = 
-        Singleton<FontCmapCache, FontCmapCacheSingletonTraits>::get();
+
+    // This cache is just leaked on shutdown.
+    static FontCmapCache* fontCmapCache = NULL;
+    if (!fontCmapCache)
+        fontCmapCache = new FontCmapCache;
+
     HashMap<const wchar_t*, UnicodeSet*>::iterator it =
         fontCmapCache->find(family);
     if (it != fontCmapCache->end()) 
@@ -349,8 +337,8 @@ const SimpleFontData* FontCache::getFontDataForCharacters(const Font& font,
     FontDescription fontDescription = font.fontDescription();
     UChar32 c;
     UScriptCode script;
-    const wchar_t* family = gfx::GetFallbackFamily(characters, length,
-        static_cast<gfx::GenericFamilyType>(fontDescription.genericFamily()),
+    const wchar_t* family = GetFallbackFamily(characters, length,
+        static_cast<GenericFamilyType>(fontDescription.genericFamily()),
         &c, &script);
     FontPlatformData* data = NULL;
     if (family) {
@@ -477,18 +465,21 @@ FontPlatformData* FontCache::getLastResortFallbackFont(
     const FontDescription& description)
 {
     FontDescription::GenericFamilyType generic = description.genericFamily();
-    // TODO(jungshik): Mapping webkit generic to gfx::GenericFamilyType needs to be
-    // more intelligent. 
+    // TODO(jungshik): Mapping webkit generic to GenericFamilyType needs to
+    // be more intelligent. 
     // This spot rarely gets reached. GetFontDataForCharacters() gets hit a lot
     // more often (see TODO comment there). 
-    const wchar_t* family = gfx::GetFontFamilyForScript(description.dominantScript(),
-        static_cast<gfx::GenericFamilyType>(generic));
+    const wchar_t* family = GetFontFamilyForScript(description.dominantScript(),
+        static_cast<GenericFamilyType>(generic));
 
-    if (family) 
-      return getCachedFontPlatformData(description, AtomicString(family, wcslen(family)));
+    if (family) {
+        return getCachedFontPlatformData(description,
+                                         AtomicString(family, wcslen(family)));
+    }
 
-    // FIXME: Would be even better to somehow get the user's default font here.  For now we'll pick
-    // the default that the user would get without changing any prefs.
+    // FIXME: Would be even better to somehow get the user's default font here.
+    // For now we'll pick the default that the user would get without changing
+    // any prefs.
     static AtomicString timesStr("Times New Roman");
     static AtomicString courierStr("Courier New");
     static AtomicString arialStr("Arial");
@@ -523,10 +514,10 @@ static LONG toGDIFontWeight(FontWeight fontWeight)
 AtomicString FontCache::getGenericFontForScript(UScriptCode script, const FontDescription& description)
 {
     if (ChromiumBridge::layoutTestMode() && script == USCRIPT_LATIN)
-      return emptyAtom;
+        return emptyAtom;
     FontDescription::GenericFamilyType generic = description.genericFamily();
-    const wchar_t* scriptFont = gfx::GetFontFamilyForScript(
-        script, static_cast<gfx::GenericFamilyType>(generic));
+    const wchar_t* scriptFont = GetFontFamilyForScript(
+        script, static_cast<GenericFamilyType>(generic));
     return scriptFont ? AtomicString(scriptFont, wcslen(scriptFont)) : emptyAtom;
 }
 
