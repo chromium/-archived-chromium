@@ -411,7 +411,7 @@ void TestShell::ResizeSubViews() {
   SkAutoLockPixels src_bmp_lock(src_bmp); 
   PNGEncoder::Encode(
       reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
-      PNGEncoder::FORMAT_BGRA, src_bmp.width(), src_bmp.height(),
+      PNGEncoder::FORMAT_RGBA, src_bmp.width(), src_bmp.height(),
       static_cast<int>(src_bmp.rowBytes()), true, &png);
   
   // Write to disk.
@@ -437,12 +437,10 @@ void TestShell::ResizeSubViews() {
   result->clear();
   for (WindowList::iterator iter = TestShell::windowList()->begin();
        iter != TestShell::windowList()->end(); iter++) {
-#if 0
-    HWND hwnd = *iter;
-    TestShell* shell =
-    static_cast<TestShell*>(win_util::GetWindowUserData(hwnd));
-    webkit_glue::DumpBackForwardList(shell->webView(), NULL, result);
-#endif
+    NSWindow* window = *iter;
+    TestShell* shell = window_map_.Get()[window];
+    if (shell)
+      webkit_glue::DumpBackForwardList(shell->webView(), NULL, result);
   }
 }
 
