@@ -38,7 +38,7 @@ configure options:
 
 --- For Linux ---
 Similar to the Mac version, grab the sources, configure, compile and move
-binaries to the correct location in third_party/lighttpd/linux/
+binaries to the correct location in third_party/lighttpd/lnx/
 
 LightTPD
  1) Uncompress
@@ -52,12 +52,11 @@ LightTPD
    make install
  4) create directory and copy files
    cd third_party/lighttpd/
-   mkdir linux
-   cd linux
+   mkdir lnx
+   cd lnx
    mkdir bin
    mkdir lib
    cp /tmp/lighttpd_lnx/sbin/lighttpd bin/
-   strip bin/*
    cp /tmp/lighttpd_lnx/lib/* lib/
 
 PHP-CGI
@@ -73,13 +72,12 @@ PHP-CGI
    make
    make install
  4) copy files
-   cd third_party/lighttpd/linux
-   cp /tmp/php_lnx/bin/php-cgi bin/
-   strip bin/*
-
+   cd third_party/lighttpd/lnx
+   cp /tmp/php_lnx/bin/php_cgi bin/
+   
 Extra: You can now remove the directories where you compiled and installed.
 
 The resulting libraries and executables are then copied into the third_party
-dir in the source tree to mirror where the windows executables live. It's
+dir in the source tree to mirror where the windows executables live. It's 
 unfortunate that we can't build this all from source as part of the build
 process, but the source isn't checked in for windows, so....
