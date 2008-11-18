@@ -88,7 +88,8 @@
 namespace logging {
 
 // Where to record logging output? A flat file and/or system debug log via
-// OutputDebugString. Defaults to LOG_ONLY_TO_FILE.
+// OutputDebugString. Defaults on Windows to LOG_ONLY_TO_FILE, and on
+// POSIX to LOG_ONLY_TO_SYSTEM_DEBUG_LOG (aka stderr).
 enum LoggingDestination { LOG_NONE,
                           LOG_ONLY_TO_FILE,
                           LOG_ONLY_TO_SYSTEM_DEBUG_LOG,
