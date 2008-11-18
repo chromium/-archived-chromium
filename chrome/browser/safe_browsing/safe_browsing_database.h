@@ -17,6 +17,7 @@
 #include "base/time.h"
 #include "chrome/browser/safe_browsing/bloom_filter.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class GURL;
 
@@ -106,7 +107,7 @@ class SafeBrowsingDatabase {
   virtual void IncrementBloomFilterReadCount() {}
 
   // Full hash cache support.
-  friend class SafeBrowsingDatabase_HashCaching_Test;
+  FRIEND_TEST(SafeBrowsingDatabase, HashCaching);
 
   typedef struct HashCacheEntry {
     SBFullHash full_hash;
