@@ -46,6 +46,8 @@ bool UITest::disable_breakpad_ = false;
 int UITest::timeout_ms_ = 20 * 60 * 1000;
 std::wstring UITest::js_flags_ = L"";
 
+const wchar_t kExtraChromeFlagsSwitch[] = L"extra-chrome-flags";
+
 // Uncomment this line to have the spawned process wait for the debugger to
 // attach.
 // #define WAIT_FOR_DEBUGGER_ON_OPEN 1
@@ -149,6 +151,12 @@ void UITest::LaunchBrowser(const std::wstring& arguments, bool clear_profile) {
   std::wstring command_line(browser_directory_);
   file_util::AppendToPath(&command_line,
                           chrome::kBrowserProcessExecutableName);
+
+  // Add any explict command line flags passed to the process.
+  std::wstring extra_chrome_flags =
+      CommandLine().GetSwitchValue(kExtraChromeFlagsSwitch);
+  if (!extra_chrome_flags.empty())
+    command_line.append(L" " + extra_chrome_flags);
 
   // We need cookies on file:// for things like the page cycler.
   CommandLine::AppendSwitch(&command_line, switches::kEnableFileCookies);
