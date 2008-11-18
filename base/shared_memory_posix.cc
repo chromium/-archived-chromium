@@ -61,17 +61,16 @@ bool SharedMemory::Create(const std::wstring &name, bool read_only,
   if (!open_existing || mapped_file_ <= 0)
     posix_flags |= O_CREAT;
 
-  if (CreateOrOpen(name, posix_flags)) {
-    if (0 == ftruncate(mapped_file_, size)) {
-      max_size_ = size;
-      return true;
-    } else {
-      Close();
-      return false;
-    }
+  if (!CreateOrOpen(name, posix_flags))
+    return false;
+
+  if (ftruncate(mapped_file_, size) != 0) {
+    Close();
+    return false;
   }
 
-  return false;
+  max_size_ = size;
+  return true;
 }
 
 bool SharedMemory::Open(const std::wstring &name, bool read_only) {
