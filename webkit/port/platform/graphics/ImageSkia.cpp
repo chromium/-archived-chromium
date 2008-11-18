@@ -1,10 +1,10 @@
 // Copyright (c) 2008, Google Inc.
 // All rights reserved.
-//
+// 
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-//
+// 
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
 //     * Redistributions in binary form must reproduce the above
@@ -14,7 +14,7 @@
 //     * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
-//
+// 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,11 +28,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "config.h"
+#include "build/build_config.h"
 
 #include "AffineTransform.h"
 #include "BitmapImage.h"
 #include "BitmapImageSingleFrameSkia.h"
-#include "ChromiumBridge.h"
 #include "FloatRect.h"
 #include "GraphicsContext.h"
 #include "Logging.h"
@@ -40,11 +40,22 @@
 #include "NotImplemented.h"
 #include "PlatformContextSkia.h"
 #include "PlatformString.h"
+#include "ScrollbarTheme.h"
+
 #include "SkiaUtils.h"
 #include "SkShader.h"
 
 #include "base/gfx/image_operations.h"
 #include "base/gfx/platform_canvas.h"
+#include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webkit_resources.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#include <vssym32.h>
+#include "base/gfx/gdi_util.h"
+#include "base/gfx/native_theme.h"
+#endif
 
 namespace WebCore {
 
@@ -93,7 +104,7 @@ ResamplingMode computeResamplingMode(const NativeImageSkia& bitmap,
         // We don't need to resample if the source and destination are the same.
         return RESAMPLE_NONE;
     }
-
+    
     if (srcWidth <= kSmallImageSizeThreshold ||
         srcHeight <= kSmallImageSizeThreshold ||
         destWidth <= kSmallImageSizeThreshold ||
@@ -102,7 +113,7 @@ ResamplingMode computeResamplingMode(const NativeImageSkia& bitmap,
         // rules (think 1x1 images used to make lines).
         return RESAMPLE_NONE;
     }
-
+    
     if (srcHeight * kLargeStretch <= destHeight ||
         srcWidth * kLargeStretch <= destWidth) {
         // Large image detected.
@@ -118,7 +129,7 @@ ResamplingMode computeResamplingMode(const NativeImageSkia& bitmap,
         // is slow and doesn't give us very much when growing a lot.
         return RESAMPLE_LINEAR;
     }
-
+    
     if ((fabs(destWidth - srcWidth) / srcWidth <
          kFractionalChangeThreshold) &&
        (fabs(destHeight - srcHeight) / srcHeight <
@@ -242,7 +253,6 @@ void paintSkBitmap(PlatformContextSkia* platformContext,
                    const SkPorterDuff::Mode& compOp)
 {
     SkPaint paint;
-    paint.setAntiAlias(true);
     paint.setPorterDuffXfermode(compOp);
 
     gfx::PlatformCanvas* canvas = platformContext->canvas();
@@ -255,13 +265,10 @@ void paintSkBitmap(PlatformContextSkia* platformContext,
         paint.setFilterBitmap(false);
         drawResampledBitmap(*canvas, paint, bitmap, srcRect, destRect);
     } else {
-        // No resampling necessary, we can just draw the bitmap. We want to
-        // filter it if we decided to do linear interpolation above, or if there
-        // is something interesting going on with the matrix (like a rotation).
+        // No resampling necessary, we can just draw the bitmap.
         // Note: for serialization, we will want to subset the bitmap first so
         // we don't send extra pixels.
-        paint.setFilterBitmap(!canvas->getTotalMatrix().rectStaysRect() ||
-                              resampling == RESAMPLE_LINEAR);
+        paint.setFilterBitmap(resampling == RESAMPLE_LINEAR);
         canvas->drawBitmapRect(bitmap, &srcRect, destRect, &paint);
     }
 }
@@ -288,6 +295,34 @@ void TransformDimensions(const SkMatrix& matrix,
     *dest_height = SkScalarToFloat((dest_points[2] - dest_points[0]).length());
 }
 
+#if defined(OS_WIN)
+// Creates an Image for the text area resize corner. We do this by drawing the
+// theme native control into a memory buffer then converting the memory buffer
+// into a BMP byte stream, then feeding it into the Image object.  We have to
+// convert the HBITMAP into a BMP file because the Image object doesn't allow
+// us to directly manipulate the image data. We don't bother caching this
+// image because the caller holds onto a static copy (see
+// WebCore/rendering/RenderLayer.cpp).
+static PassRefPtr<Image> GetTextAreaResizeCorner()
+{
+    // Get the size of the resizer.
+    const int thickness = ScrollbarTheme::nativeTheme()->scrollbarThickness();
+
+    // Setup a memory buffer.
+    gfx::PlatformCanvasWin canvas(thickness, thickness, false);
+    gfx::PlatformDeviceWin& device = canvas.getTopPlatformDevice();
+    device.prepareForGDI(0, 0, thickness, thickness);
+    HDC hdc = device.getBitmapDC();
+    RECT widgetRect = { 0, 0, thickness, thickness };
+
+    // Do the drawing.
+    gfx::NativeTheme::instance()->PaintStatusGripper(hdc, SP_GRIPPER, 0, 0,
+                                                     &widgetRect);
+    device.postProcessGDI(0, 0, thickness, thickness);
+    return BitmapImageSingleFrameSkia::create(device.accessBitmap(false));
+}
+#endif
+
 }  // namespace
 
 void FrameData::clear()
@@ -299,9 +334,37 @@ void FrameData::clear()
     // properties like frame durations without re-decoding.
 }
 
+static inline PassRefPtr<Image> loadImageWithResourceId(int resourceId)
+{
+    RefPtr<Image> image = BitmapImage::create();
+    // Load the desired resource.
+    std::string data(webkit_glue::GetDataResource(resourceId));
+    RefPtr<SharedBuffer> buffer(SharedBuffer::create(data.data(), data.length()));
+    image->setData(buffer, true);
+    return image.release();
+}
+
+// static
 PassRefPtr<Image> Image::loadPlatformResource(const char *name)
 {
-    return ChromiumBridge::loadPlatformImageResource(name);
+    if (!strcmp(name, "missingImage"))
+        return loadImageWithResourceId(IDR_BROKENIMAGE);
+    if (!strcmp(name, "tickmarkDash"))
+        return loadImageWithResourceId(IDR_TICKMARK_DASH);
+    // TODO(port): Need to make this portable.
+    if (!strcmp(name, "textAreaResizeCorner"))
+#if defined(OS_WIN)
+        return GetTextAreaResizeCorner();
+#else
+        notImplemented();
+#endif
+    if (!strcmp(name, "deleteButton") || !strcmp(name, "deleteButtonPressed")) {
+        LOG(NotYetImplemented, "Image resource %s does not yet exist\n", name);
+        return Image::nullImage();
+    }
+
+    LOG(NotYetImplemented, "Unknown image resource %s requested\n", name);
+    return Image::nullImage();
 }
 
 void Image::drawPattern(GraphicsContext* context,
@@ -409,7 +472,7 @@ void BitmapImage::draw(GraphicsContext* ctxt, const FloatRect& dstRect,
 {
     if (!m_source.initialized())
         return;
-
+    
     // Spin the animation to the correct frame before we try to draw it, so we
     // don't draw an old frame and then immediately need to draw a newer one,
     // causing flicker and wasting CPU.
@@ -453,4 +516,4 @@ PassRefPtr<BitmapImageSingleFrameSkia> BitmapImageSingleFrameSkia::create(
     return image.release();
 }
 
-}  // namespace WebCore
+} // namespace WebCore

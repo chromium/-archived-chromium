@@ -33,7 +33,6 @@
 #include "config.h"
 
 #include "PasteboardPrivate.h"
-#include "PassRefPtr.h"
 #include "PlatformString.h"
 
 class NativeImageSkia;
@@ -46,7 +45,6 @@ namespace WebCore {
     class Cursor;
     class Document;
     class Frame;
-    class Image;
     class IntRect;
     class KURL;
     class String;
@@ -106,9 +104,6 @@ namespace WebCore {
         // Protocol -----------------------------------------------------------
         static String uiResourceProtocol();
 
-        // Resources ----------------------------------------------------------
-        static PassRefPtr<Image> loadPlatformImageResource(const char* name);
-
         // Screen -------------------------------------------------------------
         static int screenDepth(Widget*);
         static int screenDepthPerComponent(Widget*);
@@ -132,6 +127,7 @@ namespace WebCore {
         // Widget -------------------------------------------------------------
         static void widgetSetCursor(Widget*, const Cursor&);
         static void widgetSetFocus(Widget*);
+
     };
 }
 
