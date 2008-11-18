@@ -179,8 +179,6 @@ void ChromiumBridge::clipboardWriteImage(const NativeImageSkia* bitmap,
   }
 }
 
-// 
-
 // Cookies --------------------------------------------------------------------
 
 void ChromiumBridge::setCookies(
@@ -339,6 +337,7 @@ IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
 }
 
 // StatsCounters --------------------------------------------------------------
+
 void ChromiumBridge::decrementStatsCounter(const wchar_t* name) {
   StatsCounter(name).Decrement();
 }
@@ -354,6 +353,7 @@ void ChromiumBridge::initV8CounterFunction() {
 #endif
 
 // Trace Event ----------------------------------------------------------------
+
 void ChromiumBridge::traceEventBegin(const char* name,
                                      void* id,
                                      const char* extra) {
@@ -366,12 +366,11 @@ void ChromiumBridge::traceEventEnd(const char* name,
   TRACE_EVENT_END(name, id, extra);
 }
 
-
 // URL ------------------------------------------------------------------------
+
 KURL ChromiumBridge::inspectorURL() {
   return webkit_glue::GURLToKURL(webkit_glue::GetInspectorURL());
 }
-
 
 // Widget ---------------------------------------------------------------------
 
