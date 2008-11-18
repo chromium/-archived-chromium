@@ -56,7 +56,11 @@ HttpNetworkLayer::HttpNetworkLayer(const ProxyInfo* pi)
 #elif defined(OS_MACOSX)
     proxy_resolver_.reset(new ProxyResolverMac());
 #else
-    NOTIMPLEMENTED();
+    // This used to be a NOTIMPLEMENTED(), but that logs as an error,
+    // screwing up layout tests.
+    LOG(WARNING) << "Proxies are not implemented; remove me once that's fixed.";
+    // http://code.google.com/p/chromium/issues/detail?id=4523 is the bug
+    // to implement this.
     proxy_resolver_.reset(new ProxyResolverNull());
 #endif
   }
