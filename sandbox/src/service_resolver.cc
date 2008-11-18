@@ -5,6 +5,7 @@
 #include "sandbox/src/service_resolver.h"
 
 #include "base/logging.h"
+#include "sandbox/src/pe_image.h"
 #include "sandbox/src/sandbox_types.h"
 #include "sandbox/src/sandbox_utils.h"
 
@@ -157,7 +158,8 @@ NTSTATUS ServiceResolverThunk::ResolveTarget(const void* module,
   if (NULL == module)
     return STATUS_UNSUCCESSFUL;
 
-  *address = ::GetProcAddress(bit_cast<HMODULE>(module), function_name);
+  PEImage module_image(module);
+  *address = module_image.GetProcAddress(function_name);
 
   if (NULL == *address)
     return STATUS_UNSUCCESSFUL;

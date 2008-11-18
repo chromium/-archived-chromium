@@ -12,6 +12,7 @@
 #include "base/logging.h"
 #include "base/scoped_ptr.h"
 #include "sandbox/src/interception_internal.h"
+#include "sandbox/src/pe_image.h"
 #include "sandbox/src/sandbox.h"
 #include "sandbox/src/sandbox_utils.h"
 #include "sandbox/src/service_resolver.h"
@@ -400,9 +401,11 @@ bool InterceptionManager::PatchClientFunctions(DllInterceptionData* thunks,
   if (!ntdll_base)
     return false;
 
+  PEImage ntdll_image(ntdll_base);
+
   // Bypass purify's interception.
   wchar_t* loader_get = reinterpret_cast<wchar_t*>(
-                            ::GetProcAddress(ntdll_base, "LdrGetDllHandle"));
+                            ntdll_image.GetProcAddress("LdrGetDllHandle"));
   if (loader_get) {
     if (!GetModuleHandleHelper(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                                    GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,

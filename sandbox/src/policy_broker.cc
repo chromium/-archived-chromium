@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "base/win_util.h"
 #include "sandbox/src/interception.h"
+#include "sandbox/src/pe_image.h"
 #include "sandbox/src/policy_target.h"
 #include "sandbox/src/process_thread_interception.h"
 #include "sandbox/src/sandbox.h"
@@ -27,22 +28,23 @@ SANDBOX_INTERCEPT NtExports g_nt;
 
 #define INIT_GLOBAL_NT(member) \
   g_nt.##member = reinterpret_cast<Nt##member##Function>( \
-                      ::GetProcAddress(ntdll, "Nt" #member)); \
+                      ntdll_image.GetProcAddress("Nt" #member)); \
   if (NULL == g_nt.##member) \
     return false
 
 #define INIT_GLOBAL_RTL(member) \
   g_nt.##member = reinterpret_cast<##member##Function>( \
-                      ::GetProcAddress(ntdll, #member)); \
+                      ntdll_image.GetProcAddress(#member)); \
   if (NULL == g_nt.##member) \
     return false
 
 bool SetupNtdllImports(TargetProcess *child) {
   HMODULE ntdll = ::GetModuleHandle(kNtdllName);
+  PEImage ntdll_image(ntdll);
 
   // Bypass purify's interception.
   wchar_t* loader_get = reinterpret_cast<wchar_t*>(
-                            ::GetProcAddress(ntdll, "LdrGetDllHandle"));
+                            ntdll_image.GetProcAddress("LdrGetDllHandle"));
   if (loader_get) {
     GetModuleHandleHelper(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                               GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
