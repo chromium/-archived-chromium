@@ -17,6 +17,12 @@ using base::TimeDelta;
 
 //------------------------------------------------------------------------------
 // static
+const size_t SdchManager::kMaxDictionarySize = 100000;
+
+// static
+const size_t SdchManager::kMaxDictionaryCount = 20;
+
+// static
 SdchManager* SdchManager::global_;
 
 // static
@@ -85,8 +91,8 @@ const bool SdchManager::IsInSupportedDomain(const GURL& url) const {
   return blacklisted_domains_.end() == blacklisted_domains_.find(domain);
 }
 
-void SdchManager::FetchDictionary(const GURL& referring_url,
-                                  const GURL& dictionary_url) {
+bool SdchManager::CanFetchDictionary(const GURL& referring_url,
+                                     const GURL& dictionary_url) const {
   /* The user agent may retrieve a dictionary from the dictionary URL if all of 
      the following are true:
        1 The dictionary URL host name matches the referrer URL host name
@@ -100,12 +106,27 @@ void SdchManager::FetchDictionary(const GURL& referring_url,
   // I take "host name match" to be "is identical to"
   if (referring_url.host() != dictionary_url.host()) {
     SdchErrorRecovery(DICTIONARY_LOAD_ATTEMPT_FROM_DIFFERENT_HOST);
-    return;
+    return false;
   }
   if (referring_url.SchemeIs("https")) {
     SdchErrorRecovery(DICTIONARY_SELECTED_FOR_SSL);
-    return;
+    return false;
   }
+
+  // TODO(jar): Remove this failsafe conservative hack which is more restrictive
+  // than current SDCH spec when needed, and justified by security audit.
+  if (!referring_url.SchemeIs("http")) {
+    SdchErrorRecovery(DICTIONARY_SELECTED_FROM_NON_HTTP);
+    return false;
+  }
+
+  return true;
+}
+
+void SdchManager::FetchDictionary(const GURL& referring_url,
+                                  const GURL& dictionary_url) {
+  if (!CanFetchDictionary(referring_url, dictionary_url))
+    return;
   if (fetcher_.get())
     fetcher_->Schedule(dictionary_url);
 }
@@ -123,6 +144,11 @@ bool SdchManager::AddSdchDictionary(const std::string& dictionary_text,
   std::string domain, path;
   std::set<int> ports;
   Time expiration(Time::Now() + TimeDelta::FromDays(30));
+
+  if (dictionary_text.empty()) {
+    SdchErrorRecovery(DICTIONARY_HAS_NO_TEXT);
+    return false;  // Missing header.
+  }
 
   size_t header_end = dictionary_text.find("\n\n");
   if (std::string::npos == header_end) {
@@ -176,6 +202,19 @@ bool SdchManager::AddSdchDictionary(const std::string& dictionary_text,
   if (!Dictionary::CanSet(domain, path, ports, dictionary_url))
     return false;
 
+  // TODO(jar): Remove these hacks to preclude a DOS attack involving piles of
+  // useless dictionaries.  We should probably have a cache eviction plan,
+  // instead of just blocking additions.  For now, with the spec in flux, it
+  // is probably not worth doing eviction handling.
+  if (kMaxDictionarySize < dictionary_text.size()) {
+    SdchErrorRecovery(DICTIONARY_IS_TOO_LARGE);
+    return false;
+  }
+  if (kMaxDictionaryCount <= dictionaries_.size()) {
+    SdchErrorRecovery(DICTIONARY_COUNT_EXCEEDED);
+    return false;
+  }
+
   UMA_HISTOGRAM_COUNTS(L"Sdch.Dictionary size loaded", dictionary_text.size());
   DLOG(INFO) << "Loaded dictionary with client hash " << client_hash <<
       " and server hash " << server_hash;
@@ -205,14 +244,19 @@ void SdchManager::GetVcdiffDictionary(const std::string& server_hash,
 // instances that can be used if/when a server specifies one.
 void SdchManager::GetAvailDictionaryList(const GURL& target_url,
                                          std::string* list) {
+  int count = 0;
   for (DictionaryMap::iterator it = dictionaries_.begin();
        it != dictionaries_.end(); ++it) {
     if (!it->second->CanAdvertise(target_url))
       continue;
+    ++count;
     if (!list->empty())
       list->append(",");
     list->append(it->second->client_hash());
   }
+  // Watch to see if we have corrupt or numerous dictionaries.
+  if (count > 0)
+    UMA_HISTOGRAM_COUNTS(L"Sdch.Advertisement_Count", count);
 }
 
 SdchManager::Dictionary::Dictionary(const std::string& dictionary_text,
@@ -348,6 +392,14 @@ bool SdchManager::Dictionary::CanUse(const GURL referring_url) {
     SdchErrorRecovery(DICTIONARY_FOUND_HAS_WRONG_SCHEME);
     return false;
   }
+
+  // TODO(jar): Remove overly restrictive failsafe test (added per security
+  // review) when we have a need to be more general.
+  if (!referring_url.SchemeIs("http")) {
+    SdchErrorRecovery(ATTEMPT_TO_DECODE_NON_HTTP_DATA);
+    return false;
+  }
+
   return true;
 }
 

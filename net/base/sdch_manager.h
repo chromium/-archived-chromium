@@ -85,14 +85,26 @@ class SdchManager {
     DICTIONARY_SPECIFIES_TOP_LEVEL_DOMAIN,
     DICTIONARY_DOMAIN_NOT_MATCHING_SOURCE_URL,
     DICTIONARY_PORT_NOT_MATCHING_SOURCE_URL,
+    DICTIONARY_HAS_NO_TEXT,
 
     // Dictionary loading problems.
     DICTIONARY_LOAD_ATTEMPT_FROM_DIFFERENT_HOST = 30,
     DICTIONARY_SELECTED_FOR_SSL,
     DICTIONARY_ALREADY_LOADED,
+    DICTIONARY_SELECTED_FROM_NON_HTTP,
+    DICTIONARY_IS_TOO_LARGE,
+    DICTIONARY_COUNT_EXCEEDED,
+
+    // Failsafe hack.
+    ATTEMPT_TO_DECODE_NON_HTTP_DATA = 40,
 
     MAX_PROBLEM_CODE  // Used to bound histogram.
   };
+
+  // Use the following static limits to block DOS attacks until we implement
+  // a cached dictionary evicition strategy.
+  static const size_t kMaxDictionarySize;
+  static const size_t kMaxDictionaryCount;
 
   // There is one instance of |Dictionary| for each memory-cached SDCH
   // dictionary.
@@ -196,6 +208,11 @@ class SdchManager {
   // After the implied task does completes, the dictionary will have been
   // cached in memory.
   void FetchDictionary(const GURL& referring_url, const GURL& dictionary_url);
+
+  // Security test function used before initiating a fetch.
+  // Return true if fetch is legal.
+  bool CanFetchDictionary(const GURL& referring_url,
+                          const GURL& dictionary_url) const;
 
   // Add an SDCH dictionary to our list of availible dictionaries. This addition
   // will fail (return false) if addition is illegal (data in the dictionary is

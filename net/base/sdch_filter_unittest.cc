@@ -250,6 +250,166 @@ TEST_F(SdchFilterTest, BasicDictionary) {
   EXPECT_EQ(output, expanded_);
 }
 
+TEST_F(SdchFilterTest, NoDecodeHttps) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string compressed(NewSdchCompressedData(dictionary));
+
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+
+  const int kInputBufferSize(100);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
+  const size_t feed_block_size(100);
+  const size_t output_block_size(100);
+  std::string output;
+
+  filter->SetURL(GURL("https://" + kSampleDomain));
+  EXPECT_FALSE(FilterTestData(compressed, feed_block_size, output_block_size,
+                             filter.get(), &output));
+}
+
+// Current failsafe TODO/hack refuses to decode any content that doesn't use
+// http as the scheme (see use of DICTIONARY_SELECTED_FOR_NON_HTTP).
+// The following tests this blockage.  Note that blacklisting results, so we
+// we need separate tests for each of these.
+TEST_F(SdchFilterTest, NoDecodeFtp) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string compressed(NewSdchCompressedData(dictionary));
+
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+
+  const int kInputBufferSize(100);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
+  const size_t feed_block_size(100);
+  const size_t output_block_size(100);
+  std::string output;
+
+  filter->SetURL(GURL("ftp://" + kSampleDomain));
+  EXPECT_FALSE(FilterTestData(compressed, feed_block_size, output_block_size,
+                             filter.get(), &output));
+}
+
+TEST_F(SdchFilterTest, NoDecodeFileColon) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string compressed(NewSdchCompressedData(dictionary));
+
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+
+  const int kInputBufferSize(100);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
+  const size_t feed_block_size(100);
+  const size_t output_block_size(100);
+  std::string output;
+
+  filter->SetURL(GURL("file://" + kSampleDomain));
+  EXPECT_FALSE(FilterTestData(compressed, feed_block_size, output_block_size,
+                             filter.get(), &output));
+}
+
+TEST_F(SdchFilterTest, NoDecodeAboutColon) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string compressed(NewSdchCompressedData(dictionary));
+
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+
+  const int kInputBufferSize(100);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
+  const size_t feed_block_size(100);
+  const size_t output_block_size(100);
+  std::string output;
+
+  filter->SetURL(GURL("about://" + kSampleDomain));
+  EXPECT_FALSE(FilterTestData(compressed, feed_block_size, output_block_size,
+                             filter.get(), &output));
+}
+
+TEST_F(SdchFilterTest, NoDecodeJavaScript) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string compressed(NewSdchCompressedData(dictionary));
+
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+
+  const int kInputBufferSize(100);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
+  const size_t feed_block_size(100);
+  const size_t output_block_size(100);
+  std::string output;
+
+  filter->SetURL(GURL("javascript://" + kSampleDomain));
+  EXPECT_FALSE(FilterTestData(compressed, feed_block_size, output_block_size,
+                             filter.get(), &output));
+}
+
+TEST_F(SdchFilterTest, CanStillDecodeHttp) {
+  // Construct a valid SDCH dictionary from a VCDIFF dictionary.
+  const std::string kSampleDomain = "sdchtest.com";
+  std::string dictionary(NewSdchDictionary(kSampleDomain));
+
+  std::string url_string = "http://" + kSampleDomain;
+
+  GURL url(url_string);
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary, url));
+
+  std::string compressed(NewSdchCompressedData(dictionary));
+
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+
+  const int kInputBufferSize(100);
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, kInputBufferSize));
+  const size_t feed_block_size(100);
+  const size_t output_block_size(100);
+  std::string output;
+
+  filter->SetURL(GURL("http://" + kSampleDomain));
+  EXPECT_TRUE(FilterTestData(compressed, feed_block_size, output_block_size,
+                             filter.get(), &output));
+}
+
 TEST_F(SdchFilterTest, CrossDomainDictionaryUse) {
   // Construct a valid SDCH dictionary from a VCDIFF dictionary.
   const std::string kSampleDomain = "sdchtest.com";
@@ -627,7 +787,8 @@ TEST_F(SdchFilterTest, CanSetLeadingDotDomainDictionary) {
   std::string dictionary_domain(".google.com");
   std::string dictionary_text(NewSdchDictionary(dictionary_domain));
 
-  // Fail the HD with D being the domain and H having a dot requirement.
+  // Verify that a leading dot in the domain is acceptable, as long as the host
+  // name does not contain any dots preceding the matched domain name.
   EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary_text,
                GURL("http://www.google.com")));
 }
@@ -640,5 +801,42 @@ TEST_F(SdchFilterTest, CanStillSetExactMatchDictionary) {
 
   // Perfect match should *STILL* work.
   EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary_text,
+              GURL("http://" + dictionary_domain)));
+}
+
+// Make sure the DOS protection precludes the addition of too many dictionaries.
+TEST_F(SdchFilterTest, TooManyDictionaries) {
+  std::string dictionary_domain(".google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  size_t count = 0;
+  while (count <= SdchManager::kMaxDictionaryCount + 1) {
+    if (!sdch_manager_->AddSdchDictionary(dictionary_text,
+                                          GURL("http://www.google.com")))
+      break;
+
+    dictionary_text += " ";  // Create dictionary with different SHA signature.
+    ++count;
+  }
+  EXPECT_EQ(SdchManager::kMaxDictionaryCount, count);
+}
+
+TEST_F(SdchFilterTest, DictionaryNotTooLarge) {
+  std::string dictionary_domain(".google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  dictionary_text.append(
+      SdchManager::kMaxDictionarySize  - dictionary_text.size(), ' ');
+  EXPECT_TRUE(sdch_manager_->AddSdchDictionary(dictionary_text,
+              GURL("http://" + dictionary_domain)));
+}
+
+TEST_F(SdchFilterTest, DictionaryTooLarge) {
+  std::string dictionary_domain(".google.com");
+  std::string dictionary_text(NewSdchDictionary(dictionary_domain));
+
+  dictionary_text.append(
+      SdchManager::kMaxDictionarySize + 1 - dictionary_text.size(), ' ');
+  EXPECT_FALSE(sdch_manager_->AddSdchDictionary(dictionary_text,
               GURL("http://" + dictionary_domain)));
 }
