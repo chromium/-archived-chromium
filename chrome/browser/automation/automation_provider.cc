@@ -1330,7 +1330,8 @@ void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
 
     Browser* browser = browser_tracker_->GetResource(handle);
     DCHECK(browser);
-    HWND top_level_hwnd = browser->GetTopLevelHWND();
+    HWND top_level_hwnd =
+        reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
     POINT temp = drag_path[0];
     MapWindowPoints(top_level_hwnd, HWND_DESKTOP, &temp, 1);
     SetCursorPos(temp.x, temp.y);
