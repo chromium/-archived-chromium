@@ -127,8 +127,9 @@ class Lighttpd:
 
     # Put the cygwin directory first in the path to find cygwin1.dll
     env = os.environ
-    env['PATH'] = '%s;%s' % (
-        PathFromBase('third_party', 'cygwin', 'bin'), env['PATH'])
+    if sys.platform in ('cygwin', 'win32'):
+      env['PATH'] = '%s;%s' % (
+          PathFromBase('third_party', 'cygwin', 'bin'), env['PATH'])
 
     logging.info('Starting http server')
     self._process = subprocess.Popen(start_cmd, env=env)

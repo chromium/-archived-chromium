@@ -93,15 +93,30 @@ class PlatformUtility(object):
 
   def LigHTTPdExecutablePath(self):
     """Returns the executable path to start LigHTTPd"""
-    return PathFromBase('third_party', 'lighttpd', 'linux', 'bin', 'lighttpd')
+    binpath = "/usr/sbin/lighttpd"
+    if os.path.exists(binpath):
+      return binpath
+    print "Unable to find LigHTTPd executable %s" % binpath
+    print 'Please install using "sudo apt-get install lighttpd php5cgi"'
+    sys.exit(1)
 
   def LigHTTPdModulePath(self):
     """Returns the library module path for LigHTTPd"""
-    return PathFromBase('third_party', 'lighttpd', 'linux', 'lib')
+    modpath = "/usr/lib/lighttpd"
+    if os.path.exists(modpath):
+      return modpath
+    print "Unable to find LigHTTPd modules %s" % modpath
+    print 'Please install using "sudo apt-get install lighttpd php5cgi"'
+    sys.exit(1)
 
   def LigHTTPdPHPPath(self):
     """Returns the PHP executable path for LigHTTPd"""
-    return PathFromBase('third_party', 'lighttpd', 'linux', 'bin', 'php-cgi')
+    binpath = "/usr/bin/php-cgi"
+    if os.path.exists(binpath):
+      return binpath
+    print "Unable to find PHP CGI executable %s" % binpath
+    print 'Please install using "sudo apt-get install lighttpd php5cgi"'
+    sys.exit(1)
 
   def ShutDownHTTPServer(self, server_process):
     """Shut down the lighttpd web server. Blocks until it's fully shut down.
