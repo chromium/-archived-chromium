@@ -215,7 +215,7 @@ void OpenAll(HWND parent,
   NewBrowserPageNavigator navigator_impl(profile);
   if (!navigator) {
     Browser* browser = 
-        BrowserList::FindBrowserWithType(profile, Browser::TYPE_NORMAL);
+        BrowserList::FindBrowserWithType(profile, BrowserType::TABBED_BROWSER);
     if (!browser || !browser->GetSelectedTabContents()) {
       navigator = &navigator_impl;
     } else {

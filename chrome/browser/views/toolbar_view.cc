@@ -80,7 +80,7 @@ BrowserToolbarView::BrowserToolbarView(CommandController* controller,
   forward_menu_model_.reset(new BackForwardMenuModel(
       browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
 
-  if (browser->type() == Browser::TYPE_NORMAL)
+  if (browser->type() == BrowserType::TABBED_BROWSER)
     display_mode_ = DISPLAYMODE_NORMAL;
   else
     display_mode_ = DISPLAYMODE_LOCATION;

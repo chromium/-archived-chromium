@@ -6,9 +6,7 @@
 
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "chrome/app/result_codes.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
@@ -136,36 +134,6 @@ void BrowserList::CloseAllBrowsers(bool use_post) {
 }
 
 // static
-void BrowserList::WindowsSessionEnding() {
-  // EndSession is invoked once per frame. Only do something the first time.
-  static bool already_ended = false;
-  if (already_ended)
-    return;
-  already_ended = true;
-
-  browser_shutdown::OnShutdownStarting(browser_shutdown::END_SESSION);
-
-  // Write important data first.
-  g_browser_process->EndSession();
-
-  // Close all the browsers.
-  BrowserList::CloseAllBrowsers(false);
-
-  // Send out notification. This is used during testing so that the test harness
-  // can properly shutdown before we exit.
-  NotificationService::current()->Notify(NOTIFY_SESSION_END,
-    NotificationService::AllSources(),
-    NotificationService::NoDetails());
-
-  // And shutdown.
-  browser_shutdown::Shutdown();
-
-  // At this point the message loop is still running yet we've shut everything
-  // down. If any messages are processed we'll likely crash. Exit now.
-  ExitProcess(ResultCodes::NORMAL_EXIT);
-}
-
-// static
 bool BrowserList::HasBrowserWithProfile(Profile* profile) {
   BrowserList::const_iterator iter;
   for (size_t i = 0; i < browsers_.size(); ++i) {
@@ -208,7 +176,7 @@ Browser* BrowserList::GetLastActive() {
 }
 
 // static
-Browser* BrowserList::FindBrowserWithType(Profile* p, Browser::Type t) {
+Browser* BrowserList::FindBrowserWithType(Profile* p, BrowserType::Type t) {
   Browser* last_active = GetLastActive();
   if (last_active && last_active->profile() == p && last_active->type() == t)
     return last_active;
@@ -225,7 +193,7 @@ Browser* BrowserList::FindBrowserWithType(Profile* p, Browser::Type t) {
 }
 
 // static
-size_t BrowserList::GetBrowserCountForType(Profile* p, Browser::Type type) {
+size_t BrowserList::GetBrowserCountForType(Profile* p, BrowserType::Type type) {
   BrowserList::const_iterator i;
   size_t result = 0;
   for (i = BrowserList::begin(); i != BrowserList::end(); ++i) {

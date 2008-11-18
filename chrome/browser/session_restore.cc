@@ -12,7 +12,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/session_service.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
@@ -287,14 +286,14 @@ class SessionRestoreImpl : public NotificationObserver {
     for (std::vector<SessionWindow*>::iterator i = windows->begin();
          i != windows->end(); ++i) {
       Browser* browser = NULL;
-      if (!has_tabbed_browser && (*i)->type == Browser::TYPE_NORMAL)
+      if (!has_tabbed_browser && (*i)->type == BrowserType::TABBED_BROWSER)
         has_tabbed_browser = true;
-      if (i == windows->begin() && (*i)->type == Browser::TYPE_NORMAL &&
+      if (i == windows->begin() && (*i)->type == BrowserType::TABBED_BROWSER &&
           !clobber_existing_window_) {
         // If there is an open tabbed browser window, use it. Otherwise fall
         // through and create a new one.
         browser = current_browser;
-        if (browser && (browser->type() != Browser::TYPE_NORMAL ||
+        if (browser && (browser->type() != BrowserType::TABBED_BROWSER ||
                         browser->profile()->IsOffTheRecord())) {
           browser = NULL;
         }
@@ -305,7 +304,7 @@ class SessionRestoreImpl : public NotificationObserver {
         browser->set_override_maximized((*i)->is_maximized);
         browser->CreateBrowserWindow();
       }
-      if ((*i)->type == Browser::TYPE_NORMAL)
+      if ((*i)->type == BrowserType::TABBED_BROWSER)
         last_browser = browser;
       const int initial_tab_count = browser->tab_count();
       RestoreTabsToBrowser(*(*i), browser);
@@ -317,7 +316,7 @@ class SessionRestoreImpl : public NotificationObserver {
     // included at least one tabbed browser, then close the browser window
     // that was opened when the user clicked to restore the session.
     if (clobber_existing_window_ && current_browser && has_tabbed_browser &&
-        current_browser->type() == Browser::TYPE_NORMAL) {
+        current_browser->type() == BrowserType::TABBED_BROWSER) {
       current_browser->CloseAllTabs();
     }
     if (last_browser && !urls_to_open_.empty())

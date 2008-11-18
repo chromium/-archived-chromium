@@ -6,6 +6,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h" // TODO(beng): remove once done.
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/frame_util.h"
 #include "chrome/browser/views/frame/aero_glass_frame.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/frame/browser_view.h"

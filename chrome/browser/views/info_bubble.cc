@@ -7,7 +7,7 @@
 #include "base/win_util.h"
 #include "chrome/app/theme/theme_resources.h"
 #include "chrome/browser/browser_window.h"
-#include "chrome/browser/views/frame/browser_view.h"
+#include "chrome/browser/frame_util.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/resource_bundle.h"
@@ -189,8 +189,7 @@ InfoBubble::ContentView* InfoBubble::CreateContentView(View* content) {
 
 BrowserWindow* InfoBubble::GetHostingWindow() {
   HWND owning_frame_hwnd = GetAncestor(GetHWND(), GA_ROOTOWNER);
-  BrowserWindow* frame =
-      BrowserView::GetBrowserWindowForHWND(owning_frame_hwnd);
+  BrowserWindow* frame = FrameUtil::GetBrowserWindowForHWND(owning_frame_hwnd);
   if (!frame) {
     // We should always have a frame, but there was a bug else where that
     // made it possible for the frame to be NULL, so we have the check. If

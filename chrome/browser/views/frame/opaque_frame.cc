@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/frame/opaque_frame.h"
 
-#include "chrome/browser/browser_list.h"
+#include "chrome/browser/frame_util.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
@@ -82,7 +82,7 @@ bool OpaqueFrame::GetAccelerator(int cmd_id, views::Accelerator* accelerator) {
 }
 
 void OpaqueFrame::OnEndSession(BOOL ending, UINT logoff) {
-  BrowserList::WindowsSessionEnding();
+  FrameUtil::EndSession();
 }
 
 void OpaqueFrame::OnInitMenuPopup(HMENU menu, UINT position,

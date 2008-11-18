@@ -5,7 +5,6 @@
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -480,11 +479,11 @@ void OpaqueNonClientView::UpdateWindowIcon() {
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, TabIconView::TabContentsProvider implementation:
 
-bool OpaqueNonClientView::ShouldTabIconViewAnimate() const {
-  return browser_view_->GetSelectedTabContents()->is_loading();
+TabContents* OpaqueNonClientView::GetCurrentTabContents() {
+  return browser_view_->GetSelectedTabContents();
 }
 
-SkBitmap OpaqueNonClientView::GetFavIconForTabIconView() {
+SkBitmap OpaqueNonClientView::GetFavIcon() {
   return frame_->window_delegate()->GetWindowIcon();
 }
 

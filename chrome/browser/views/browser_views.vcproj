@@ -216,6 +216,14 @@
 				RelativePath=".\info_bar_view.h"
 				>
 			</File>
+			<File
+				RelativePath=".\tab_icon_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_icon_view.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Options"
@@ -767,14 +775,6 @@
 		</File>
 		<File
 			RelativePath=".\tab_contents_container_view.h"
-			>
-		</File>
-		<File
-			RelativePath=".\tab_icon_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tab_icon_view.h"
 			>
 		</File>
 		<File

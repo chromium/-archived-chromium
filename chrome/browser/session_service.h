@@ -11,7 +11,7 @@
 #include "base/gfx/rect.h"
 #include "base/task.h"
 #include "base/time.h"
-#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_type.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/session_id.h"
 #include "chrome/common/notification_service.h"
@@ -122,7 +122,7 @@ struct SessionTab {
 struct SessionWindow {
   SessionWindow()
       : selected_tab_index(-1),
-      type(Browser::TYPE_NORMAL),
+        type(BrowserType::TABBED_BROWSER),
         is_constrained(true),
         is_maximized(false) {}
   ~SessionWindow() { STLDeleteElements(&tabs); }
@@ -143,8 +143,8 @@ struct SessionWindow {
   int selected_tab_index;
 
   // Type of the browser. Currently we only store browsers of type
-  // TYPE_NORMAL and TYPE_POPUP.
-  Browser::Type type;
+  // TABBED_BROWSER and BROWSER.
+  BrowserType::Type type;
 
   // If true, the window is constrained.
   //
@@ -239,7 +239,7 @@ class SessionService : public CancelableRequestProvider,
   // Sets the type of window. In order for the contents of a window to be
   // tracked SetWindowType must be invoked with a type we track
   // (should_track_changes_for_browser_type returns true).
-  void SetWindowType(const SessionID& window_id, Browser::Type type);
+  void SetWindowType(const SessionID& window_id, BrowserType::Type type);
 
   // Invoked when the NavigationController has removed entries from the back of
   // the list. |count| gives the number of entries in the navigation controller.
@@ -386,7 +386,7 @@ class SessionService : public CancelableRequestProvider,
       int index);
 
   SessionCommand* CreateSetWindowTypeCommand(const SessionID& window_id,
-                                             Browser::Type type);
+                                             BrowserType::Type type);
 
   // Callback form the backend for getting the commands from the previous
   // or save file. Converts the commands in SessionWindows and notifies
@@ -520,8 +520,8 @@ class SessionService : public CancelableRequestProvider,
   bool SessionService::ShouldTrackEntry(const NavigationEntry& entry);
 
   // Returns true if we track changes to the specified browser type.
-  static bool should_track_changes_for_browser_type(Browser::Type type) {
-    return type == Browser::TYPE_NORMAL;
+  static bool should_track_changes_for_browser_type(BrowserType::Type type) {
+    return type == BrowserType::TABBED_BROWSER;
   }
 
   // The profile used to determine where to save, as well as what tabs

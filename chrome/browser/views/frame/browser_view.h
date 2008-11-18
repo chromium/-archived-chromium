@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
 #define CHROME_BROWSER_VIEWS_FRAME_BROWSER_VIEW_H_
 
-#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_type.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/hang_monitor/hung_plugin_action.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
@@ -42,11 +42,6 @@ class BrowserView : public BrowserWindow,
   virtual ~BrowserView();
 
   void set_frame(BrowserFrame* frame) { frame_ = frame; }
-
-  // Returns a pointer to the BrowserWindow* interface implementation (an
-  // instance of this object, typically) for a given HWND, or NULL if there is
-  // no such association.
-  static BrowserWindow* GetBrowserWindowForHWND(HWND window);
 
   // Returns the show flag that should be used to show the frame containing
   // this view.
@@ -139,7 +134,7 @@ class BrowserView : public BrowserWindow,
   bool SupportsWindowFeature(WindowFeature feature) const;
 
   // Returns the set of WindowFeatures supported by the specified BrowserType.
-  static unsigned int FeaturesForBrowserType(Browser::Type type);
+  static unsigned int FeaturesForBrowserType(BrowserType::Type type);
 
   // Register preferences specific to this view.
   static void RegisterBrowserViewPrefs(PrefService* prefs);

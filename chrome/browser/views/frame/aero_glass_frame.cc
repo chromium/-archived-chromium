@@ -7,7 +7,7 @@
 #include <dwmapi.h>
 
 #include "chrome/app/theme/theme_resources.h"
-#include "chrome/browser/browser_list.h"
+#include "chrome/browser/frame_util.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/aero_glass_non_client_view.h"
 #include "chrome/common/resource_bundle.h"
@@ -108,7 +108,7 @@ void AeroGlassFrame::OnInitMenuPopup(HMENU menu, UINT position,
 }
 
 void AeroGlassFrame::OnEndSession(BOOL ending, UINT logoff) {
-  BrowserList::WindowsSessionEnding();
+  FrameUtil::EndSession();
 }
 
 LRESULT AeroGlassFrame::OnMouseActivate(HWND window, UINT hittest_code,

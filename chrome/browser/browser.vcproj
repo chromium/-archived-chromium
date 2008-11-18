@@ -986,6 +986,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\browser_type.h"
+				>
+			</File>
+			<File
 				RelativePath=".\browser_window.h"
 				>
 			</File>
@@ -999,6 +1003,14 @@
 			</File>
 			<File
 				RelativePath=".\find_notification_details.h"
+				>
+			</File>
+			<File
+				RelativePath=".\frame_util.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\frame_util.h"
 				>
 			</File>
 			<File

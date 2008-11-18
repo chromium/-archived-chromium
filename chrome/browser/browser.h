@@ -7,6 +7,7 @@
 
 #include "chrome/browser/controller.h"
 #include "chrome/browser/shell_dialogs.h"
+#include "chrome/browser/browser_type.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/session_id.h"
 #include "chrome/browser/tab_contents.h"
@@ -34,18 +35,12 @@ class Browser : public TabStripModelDelegate,
                 public NotificationObserver,
                 public SelectFileDialog::Listener {
  public:
-  enum Type {
-    TYPE_NORMAL = 0,
-    TYPE_POPUP = 1,
-    TYPE_APP = 2
-  };
-
   // Constructors, Creation, Showing //////////////////////////////////////////
 
   // Creates a new browser of the given |type| and for the given |profile|. The
   // Browser has a NULL window after its construction, CreateBrowserWindow must
   // be called after configuration for window() to be valid.
-  Browser(Type type, Profile* profile);
+  Browser(BrowserType::Type type, Profile* profile);
   ~Browser();
 
   // Creates a normal tabbed browser with the specified profile. The Browser's
@@ -74,7 +69,7 @@ class Browser : public TabStripModelDelegate,
 
   // Accessors ////////////////////////////////////////////////////////////////
 
-  Type type() const { return type_; }
+  BrowserType::Type type() const { return type_; }
   Profile* profile() const { return profile_; }
   BrowserWindow* window() const { return window_; }
   ToolbarModel* toolbar_model() { return &toolbar_model_; }
@@ -499,7 +494,7 @@ class Browser : public TabStripModelDelegate,
   // Data members /////////////////////////////////////////////////////////////
 
   // This Browser's type.
-  Type type_;
+  BrowserType::Type type_;
 
   // This Browser's profile.
   Profile* profile_;

@@ -597,7 +597,7 @@ bool TabStripModel::ShouldAddToTabRestoreService(TabContents* contents) {
       Browser::GetBrowserForController(contents->controller(), NULL);
   if (!browser)
     return false; // Browser is null during unit tests.
-  return browser->type() == Browser::TYPE_NORMAL;
+  return browser->type() == BrowserType::TABBED_BROWSER;
 }
 
 // static

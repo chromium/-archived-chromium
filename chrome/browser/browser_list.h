@@ -62,16 +62,13 @@ class BrowserList {
   // Find an existing browser window with the provided type. If the last active
   // has the right type, it is returned. Otherwise, the next available browser
   // is returned. Returns NULL if no such browser currently exists.
-  static Browser* FindBrowserWithType(Profile* p, Browser::Type t);
+  static Browser* FindBrowserWithType(Profile* p, BrowserType::Type t);
 
   // Closes all browsers. If use_post is true the windows are closed by way of
   // posting a WM_CLOSE message, otherwise the windows are closed directly. In
   // almost all cases you'll want to use true, the one exception is ending
   // the session. use_post should only be false when invoked from end session.
   static void CloseAllBrowsers(bool use_post);
-
-  // Begins shutdown of the application when the Windows session is ending.
-  static void WindowsSessionEnding();
 
   // Returns true if there is at least one Browser with the specified profile.
   static bool HasBrowserWithProfile(Profile* profile);
@@ -135,7 +132,7 @@ class BrowserList {
 
   // Return the number of browsers with the following profile and type which are
   // currently open.
-  static size_t GetBrowserCountForType(Profile* p, Browser::Type type);
+  static size_t GetBrowserCountForType(Profile* p, BrowserType::Type type);
 
   // Returns true if at least one off the record session is active.
   static bool IsOffTheRecordSessionActive();
