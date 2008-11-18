@@ -93,8 +93,17 @@ namespace base {
 MessagePumpForUI::MessagePumpForUI()
     : state_(NULL),
       context_(g_main_context_default()) {
+  // Create our wakeup pipe, which is used to flag when work was scheduled.
+  int fds[2];
+  CHECK(pipe(fds) == 0);
+  wakeup_pipe_read_  = fds[0];
+  wakeup_pipe_write_ = fds[1];
+  wakeup_gpollfd_.fd = wakeup_pipe_read_;
+  wakeup_gpollfd_.events = G_IO_IN;
+ 
   work_source_ = g_source_new(&WorkSourceFuncs, sizeof(WorkSource));
   static_cast<WorkSource*>(work_source_)->pump = this;
+  g_source_add_poll(work_source_, &wakeup_gpollfd_);
   // Use a low priority so that we let other events in the queue go first.
   g_source_set_priority(work_source_, G_PRIORITY_DEFAULT_IDLE);
   // This is needed to allow Run calls inside Dispatch.
@@ -105,6 +114,8 @@ MessagePumpForUI::MessagePumpForUI()
 MessagePumpForUI::~MessagePumpForUI() {
   g_source_destroy(work_source_);
   g_source_unref(work_source_);
+  close(wakeup_pipe_read_);
+  close(wakeup_pipe_write_);
 }
 
 void MessagePumpForUI::Run(Delegate* delegate) {
@@ -161,6 +172,16 @@ int MessagePumpForUI::HandlePrepare() {
 }
 
 void MessagePumpForUI::HandleDispatch() {
+  // We should only ever have a single message on the wakeup pipe, since we
+  // are only signaled when the queue went from empty to non-empty.  The glib
+  // poll will tell us whether there was data, so this read shouldn't block.
+  if (wakeup_gpollfd_.revents & G_IO_IN) {
+    char msg;
+    if (read(wakeup_pipe_read_, &msg, 1) != 1 || msg != '!') {
+      NOTREACHED() << "Error reading from the wakeup pipe.";
+    }
+  }
+
   if (state_->should_quit)
     return;
 
@@ -200,7 +221,10 @@ void MessagePumpForUI::ScheduleWork() {
   // This can be called on any thread, so we don't want to touch any state
   // variables as we would then need locks all over.  This ensures that if
   // we are sleeping in a poll that we will wake up.
-  g_main_context_wakeup(context_);
+  char msg = '!';
+  if (write(wakeup_pipe_write_, &msg, 1) != 1) {
+    NOTREACHED() << "Could not write to the UI message loop wakeup pipe!";
+  }
 }
 
 void MessagePumpForUI::ScheduleDelayedWork(const Time& delayed_work_time) {

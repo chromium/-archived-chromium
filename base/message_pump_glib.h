@@ -64,6 +64,14 @@ class MessagePumpForUI : public MessagePump {
   // the message pump is destroyed.
   GSource* work_source_;
 
+  // We use a wakeup pipe to make sure we'll get out of the glib polling phase
+  // when another thread has scheduled us to do some work.  There is a glib
+  // mechanism g_main_context_wakeup, but this won't guarantee that our event's
+  // Dispatch() will be called.
+  int wakeup_pipe_read_;
+  int wakeup_pipe_write_;
+  GPollFD wakeup_gpollfd_;
+
   DISALLOW_COPY_AND_ASSIGN(MessagePumpForUI);
 };
 
