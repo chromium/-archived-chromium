@@ -251,10 +251,8 @@ void TestShell::ClosePopup() {
 }
 
 void TestShell::ResizeSubViews() {
-  // The GTK functions to do this are deprecated because it's not really
-  // something that X windows supports. It's not clear exactly what should be
-  // done here.
-  NOTIMPLEMENTED();
+  // This function is used on Windows to re-layout the window on a resize.
+  // GTK manages layout for us so we do nothing.
 }
 
 /* static */ std::string TestShell::DumpImage(
