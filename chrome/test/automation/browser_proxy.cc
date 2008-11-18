@@ -247,9 +247,13 @@ bool BrowserProxy::SimulateDragWithTimeout(const POINT& start,
   if (!is_valid())
     return false;
 
+  std::vector<POINT> drag_path;
+  drag_path.push_back(start);
+  drag_path.push_back(end);
+
   IPC::Message* response = NULL;
   bool succeeded = sender_->SendAndWaitForResponseWithTimeout(
-      new AutomationMsg_WindowDragRequest(0, handle_, start, end, flags,
+      new AutomationMsg_WindowDragRequest(0, handle_, drag_path, flags,
                                           press_escape_en_route),
       &response, AutomationMsg_WindowDragResponse::ID, timeout_ms, is_timeout);
 

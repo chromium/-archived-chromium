@@ -1296,160 +1296,70 @@ void AutomationProvider::WindowSimulateClick(const IPC::Message& message,
   }
 }
 
-namespace {
-
-// Available mouse buttons.
-enum Button {
-  Button_None,
-  Button_Left,
-  Button_Middle,
-  Button_Right
-};
-
-// A type of user gesture for a keyboard or mouse button.
-enum Gesture {
-  Gesture_None,
-  Gesture_Press,
-  Gesture_Release
-};
-
-// SendInput inserts the messages generated into the message queue, which means
-// if we want to process these messages immediately we need to force the
-// message queue to be processed.
-void PostAndPumpInput(INPUT* input) {
-  SendInput(1, input, sizeof(INPUT));
-  MessageLoop::current()->RunAllPending();
-}
-
-// MOUSEINPUT coordinates are described by MSDN to fall within the range
-// 0..65535 (for the primary monitor). We need to convert the client
-// coordinates supplied into values in this range.
-void GetScreenCoordsForSendInput(HWND window, const POINT& client_point,
-                                 LONG* x, LONG* y) {
-  POINT screen_point = client_point;
-  MapWindowPoints(window, HWND_DESKTOP, &screen_point, 1);
-
-  HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY);
-  MONITORINFO mi;
-  mi.cbSize = sizeof(mi);
-  GetMonitorInfo(monitor, &mi);
-
-  int monitor_width = mi.rcMonitor.right - mi.rcMonitor.left;
-  int monitor_height = mi.rcMonitor.bottom - mi.rcMonitor.top;
-  int point_x = screen_point.x - mi.rcMonitor.left;
-  int point_y = screen_point.y - mi.rcMonitor.top;
-
-  *x = (point_x * 65535) / monitor_width;
-  *y = (point_y * 65535) / monitor_height;
-}
-
-// Pack up and send a MOUSEINPUT for a mouse press or release action.
-void SendMouseInput(Button button, HWND window, const POINT& client_point,
-                    Gesture gesture) {
-  INPUT input;
-  input.type = INPUT_MOUSE;
-  GetScreenCoordsForSendInput(window, client_point, &input.mi.dx,
-                              &input.mi.dy);
-  input.mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE;
-  switch (button) {
-    case Button_Left:
-      input.mi.dwFlags |= (gesture == Gesture_Press) ? MOUSEEVENTF_LEFTDOWN
-                                                     : MOUSEEVENTF_LEFTUP;
-      break;
-    case Button_Middle:
-      input.mi.dwFlags |= (gesture == Gesture_Press) ? MOUSEEVENTF_MIDDLEDOWN
-                                                     : MOUSEEVENTF_MIDDLEUP;
-      break;
-    case Button_Right:
-      input.mi.dwFlags |= (gesture == Gesture_Press) ? MOUSEEVENTF_RIGHTDOWN
-                                                     : MOUSEEVENTF_RIGHTUP;
-      break;
-  }
-  input.mi.time = 0;
-  input.mi.dwExtraInfo = 0;
-  input.mi.mouseData = 0;
-  PostAndPumpInput(&input);
-}
-
-// Pack up and send a KEYBDINPUT for a key press or release action.
-void SendKeyboardInput(WORD vkey, Gesture gesture) {
-  INPUT input;
-  input.type = INPUT_KEYBOARD;
-  input.ki.wVk = vkey;
-  input.ki.wScan = 0;
-  input.ki.dwFlags = gesture == Gesture_Release ? KEYEVENTF_KEYUP : 0;
-  input.ki.dwExtraInfo = 0;
-  input.ki.time = 0;
-  PostAndPumpInput(&input);
-}
-
-Button GetButtonFromFlags(int flags) {
-  if (flags & views::Event::EF_LEFT_BUTTON_DOWN)
-    return Button_Left;
-  if (flags & views::Event::EF_MIDDLE_BUTTON_DOWN)
-    return Button_Middle;
-  if (flags & views::Event::EF_RIGHT_BUTTON_DOWN)
-    return Button_Right;
-  return Button_None;
-}
-
-}  // namespace
-
 void AutomationProvider::WindowSimulateDrag(const IPC::Message& message,
                                             int handle,
-                                            const POINT& start_point,
-                                            const POINT& end_point,
+                                            std::vector<POINT> drag_path,
                                             int flags,
                                             bool press_escape_en_route) {
   bool succeeded = false;
-  if (browser_tracker_->ContainsHandle(handle)) {
-    // TODO(beng): this probably doesn't even need to be done in this process,
-    //             since SendInput is system-wide.
+  if (browser_tracker_->ContainsHandle(handle) && (drag_path.size() > 1)) {
+    succeeded = true;
+
+    UINT down_message = 0;
+    UINT up_message = 0;
+    WPARAM wparam_flags = 0;
+    if (flags & views::Event::EF_SHIFT_DOWN)
+      wparam_flags |= MK_SHIFT;
+    if (flags & views::Event::EF_CONTROL_DOWN)
+      wparam_flags |= MK_CONTROL;
+    if (flags & views::Event::EF_LEFT_BUTTON_DOWN) {
+      wparam_flags |= MK_LBUTTON;
+      down_message = WM_LBUTTONDOWN;
+      up_message = WM_LBUTTONUP;
+    }
+    if (flags & views::Event::EF_MIDDLE_BUTTON_DOWN) {
+      wparam_flags |= MK_MBUTTON;
+      down_message = WM_MBUTTONDOWN;
+      up_message = WM_MBUTTONUP;
+    }
+    if (flags & views::Event::EF_RIGHT_BUTTON_DOWN) {
+      wparam_flags |= MK_RBUTTON;
+      down_message = WM_LBUTTONDOWN;
+      up_message = WM_LBUTTONUP;
+    }
+
     Browser* browser = browser_tracker_->GetResource(handle);
     DCHECK(browser);
-    HWND browser_hwnd =
-        reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
-
-    // We can't simulate drags to the non-client area of the window, because
-    // Windows spawns a nested modal message loop in cases where drags occur
-    // in many of these locations, so we just don't bother with the test in
-    // clicks to non-client coordinates.
-    POINT start_screen_point = start_point;
-    MapWindowPoints(browser_hwnd, HWND_DESKTOP, &start_screen_point, 1);
-    LRESULT hittest_code = SendMessage(browser_hwnd, WM_NCHITTEST, 0,
-                                       MAKELPARAM(start_screen_point.x,
-                                                  start_screen_point.y));
-    if (hittest_code == HTCLIENT) {
-      succeeded = true;
-
-      // Press down any optionally specified modifier keys.
-      if (flags & views::Event::EF_SHIFT_DOWN)
-        SendKeyboardInput(VK_SHIFT, Gesture_Press);
-      if (flags & views::Event::EF_CONTROL_DOWN)
-        SendKeyboardInput(VK_CONTROL, Gesture_Press);
-
-      // Move the mouse along the drag path.
-      Button button = GetButtonFromFlags(flags);
-      SendMouseInput(button, browser_hwnd, start_point, Gesture_Press);
-      SendMouseInput(button, browser_hwnd, end_point, Gesture_Press);
-
-      // Optionally press the escape key if requested.
-      if (press_escape_en_route) {
-        SendKeyboardInput(VK_ESCAPE, Gesture_Press);
-        SendKeyboardInput(VK_ESCAPE, Gesture_Release);
-      }
-
-      // Release the specified mouse button.
-      SendMouseInput(button, browser_hwnd, end_point, Gesture_Release);
-
-      // Release any optionally specified modifier keys.
-      if (flags & views::Event::EF_CONTROL_DOWN)
-        SendKeyboardInput(VK_CONTROL, Gesture_Release);
-      if (flags & views::Event::EF_SHIFT_DOWN)
-        SendKeyboardInput(VK_SHIFT, Gesture_Release);
+    HWND top_level_hwnd = browser->GetTopLevelHWND();
+    POINT temp = drag_path[0];
+    MapWindowPoints(top_level_hwnd, HWND_DESKTOP, &temp, 1);
+    SetCursorPos(temp.x, temp.y);
+    SendMessage(top_level_hwnd, down_message, wparam_flags,
+                MAKELPARAM(drag_path[0].x, drag_path[0].y));
+    for (int i = 1; i < static_cast<int>(drag_path.size()); ++i) {
+      temp = drag_path[i];
+      MapWindowPoints(top_level_hwnd, HWND_DESKTOP, &temp, 1);
+      SetCursorPos(temp.x, temp.y);
+      SendMessage(top_level_hwnd, WM_MOUSEMOVE, wparam_flags,
+                  MAKELPARAM(drag_path[i].x, drag_path[i].y));
     }
-  }
-  if (succeeded) {
+    POINT end = drag_path[drag_path.size() - 1];
+    MapWindowPoints(top_level_hwnd, HWND_DESKTOP, &end, 1);
+    SetCursorPos(end.x, end.y);
+
+    if (press_escape_en_route) {
+      // Press Escape.
+      ui_controls::SendKeyPress(VK_ESCAPE,
+                               ((flags & views::Event::EF_CONTROL_DOWN)
+                                == views::Event::EF_CONTROL_DOWN),
+                               ((flags & views::Event::EF_SHIFT_DOWN) ==
+                                views::Event::EF_SHIFT_DOWN),
+                               ((flags & views::Event::EF_ALT_DOWN) ==
+                                views::Event::EF_ALT_DOWN));
+    }
+    SendMessage(top_level_hwnd, up_message, wparam_flags,
+                MAKELPARAM(end.x, end.y));
+
     MessageLoop::current()->PostTask(FROM_HERE,
         new InvokeTaskLaterTask(
             new WindowDragResponseTask(this, message.routing_id())));

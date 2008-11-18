@@ -152,9 +152,6 @@ DraggedTabController::~DraggedTabController() {
   // bounds, it won't be able to clean up properly since its cleanup routine
   // uses GetIndexForDraggedContents, which will be invalid.
   view_.reset(NULL);
-  // Make sure the TabContents doesn't think we're still its delegate.
-  if (dragged_contents_ && dragged_contents_->delegate() == this)
-    dragged_contents_->set_delegate(NULL);
   ChangeDraggedContents(NULL); // This removes our observer.
 }
 
@@ -219,6 +216,8 @@ void DraggedTabController::NavigationStateChanged(const TabContents* source,
 void DraggedTabController::ReplaceContents(TabContents* source,
                                            TabContents* new_contents) {
   DCHECK(dragged_contents_ == source);
+  source->set_delegate(NULL);
+  new_contents->set_delegate(this);
 
   // If we're attached to a TabStrip, we need to tell the TabStrip that this
   // TabContents was replaced.
@@ -338,14 +337,14 @@ gfx::Point DraggedTabController::GetWindowCreatePoint() const {
 void DraggedTabController::ChangeDraggedContents(TabContents* new_contents) {
   if (dragged_contents_) {
     NotificationService::current()->RemoveObserver(this,
-        NOTIFY_TAB_CONTENTS_DESTROYED,
-        Source<TabContents>(dragged_contents_));
+      NOTIFY_TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(dragged_contents_));
   }
   dragged_contents_ = new_contents;
   if (dragged_contents_) {
     NotificationService::current()->AddObserver(this,
-        NOTIFY_TAB_CONTENTS_DESTROYED,
-        Source<TabContents>(dragged_contents_));
+      NOTIFY_TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(dragged_contents_));
   }
 }
 
@@ -687,6 +686,14 @@ void DraggedTabController::EndDragImpl(EndDragType type) {
         destroy_now = CompleteDrag();
       }
     }
+  } else {
+    // If we get here it means the NavigationController is going down. Don't
+    // attempt to do any cleanup other than resetting the delegate (if we're
+    // still the delegate).
+    if (dragged_contents_ && dragged_contents_->delegate() == this)
+      dragged_contents_->set_delegate(NULL);
+    dragged_contents_ = NULL;
+    attached_tabstrip_ = NULL;
   }
   // If we're not destroyed now, we'll be destroyed asynchronously later.
   if (destroy_now)
