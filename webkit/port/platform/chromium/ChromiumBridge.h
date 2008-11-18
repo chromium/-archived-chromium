@@ -116,11 +116,19 @@ namespace WebCore {
         static IntRect screenRect(Widget*);
         static IntRect screenAvailableRect(Widget*);
 
+        // SharedTimers --------------------------------------------------------
+        static void setSharedTimerFiredFunction(void (*func)());
+        static void setSharedTimerFireTime(double fire_time);
+        static void stopSharedTimer();
+
         // StatsCounters ------------------------------------------------------
         // TODO(erikkay): WebKit doesn't use wchar_t - change to use UTF8
         static void decrementStatsCounter(const wchar_t* name);
         static void incrementStatsCounter(const wchar_t* name);
         static void initV8CounterFunction();
+
+        // SystemTime ----------------------------------------------------------
+        static double currentTime();
 
         // Trace Event --------------------------------------------------------
         static void traceEventBegin(const char* name, void* id, const char* extra);

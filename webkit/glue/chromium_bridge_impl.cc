@@ -21,13 +21,16 @@
 #include "PluginInfoStore.h"
 #include "ScrollbarTheme.h"
 #include "ScrollView.h"
+#include "SystemTime.h"
 #include "Widget.h"
 
 #undef LOG
 #include "base/clipboard.h"
 #include "base/file_util.h"
+#include "base/message_loop.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "base/trace_event.h"
 #include "build/build_config.h"
 #include "net/base/mime_util.h"
@@ -410,6 +413,65 @@ IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
       webkit_glue::GetScreenInfo(ToPlatform(widget)).available_rect);
 }
 
+// SharedTimers ----------------------------------------------------------------
+// Called by SharedTimerChromium.cpp
+
+class SharedTimerTask;
+
+// We maintain a single active timer and a single active task for
+// setting timers directly on the platform.
+static SharedTimerTask* shared_timer_task;
+static void (*shared_timer_function)();
+
+// Timer task to run in the chrome message loop.
+class SharedTimerTask : public Task {
+ public:
+  SharedTimerTask(void (*callback)()) : callback_(callback) {}
+
+  virtual void Run() {
+    if (!callback_)
+      return;
+    // Since we only have one task running at a time, verify 'this' is it
+    DCHECK(shared_timer_task == this);
+    shared_timer_task = NULL;
+    callback_();
+  }
+
+  void Cancel() {
+    callback_ = NULL;
+  }
+
+ private:
+  void (*callback_)();
+  DISALLOW_COPY_AND_ASSIGN(SharedTimerTask);
+};
+
+void ChromiumBridge::setSharedTimerFiredFunction(void (*func)()) {
+  shared_timer_function = func;
+}
+
+void ChromiumBridge::setSharedTimerFireTime(double fire_time) {
+  DCHECK(shared_timer_function);
+  int interval = static_cast<int>((fire_time - currentTime()) * 1000);
+  if (interval < 0)
+    interval = 0;
+
+  stopSharedTimer();
+
+  // Verify that we didn't leak the task or timer objects.
+  DCHECK(shared_timer_task == NULL);
+  shared_timer_task = new SharedTimerTask(shared_timer_function);
+  MessageLoop::current()->PostDelayedTask(FROM_HERE, shared_timer_task,
+                                          interval);
+}
+
+void ChromiumBridge::stopSharedTimer() {
+  if (!shared_timer_task)
+    return;
+  shared_timer_task->Cancel();
+  shared_timer_task = NULL;
+}
+
 // StatsCounters --------------------------------------------------------------
 
 void ChromiumBridge::decrementStatsCounter(const wchar_t* name) {
@@ -425,6 +487,14 @@ void ChromiumBridge::initV8CounterFunction() {
   v8::V8::SetCounterFunction(StatsTable::FindLocation);
 }
 #endif
+
+// SystemTime ------------------------------------------------------------------
+// Called by SystemTimeChromium.cpp
+
+double ChromiumBridge::currentTime() {
+  // Get the current time in seconds since epoch.
+  return base::Time::Now().ToDoubleT();
+}
 
 // Trace Event ----------------------------------------------------------------
 

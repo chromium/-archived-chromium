@@ -27,16 +27,14 @@
 #include "SystemTime.h"
 
 #include "NotImplemented.h"
-#include "base/time.h"
-
-using base::Time;
+#include "ChromiumBridge.h"
 
 namespace WebCore {
 
 // Get the current time in seconds since epoch.
 double currentTime()
 {
-    return Time::Now().ToDoubleT();
+    return ChromiumBridge::currentTime();
 }
 
 float userIdleTime()

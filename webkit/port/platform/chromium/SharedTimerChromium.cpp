@@ -23,77 +23,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "config.h"
+#include "ChromiumBridge.h"
 #include "SharedTimer.h"
-#include "SystemTime.h"
-#include "Assertions.h"
-
-#undef LOG
-
-#include "base/message_loop.h"
 
 namespace WebCore {
 
-class WebkitTimerTask;
-
-// We maintain a single active timer and a single active task for
-// setting timers directly on the platform.
-static WebkitTimerTask* msgLoopTask;
-static void (*sharedTimerFiredFunction)();
-
-// Timer task to run in the chrome message loop.
-class WebkitTimerTask : public Task {
-public:
-    WebkitTimerTask(void (*callback)()) : m_callback(callback) {}
-
-    virtual void Run() {
-        if (!m_callback)
-            return;
-        // Since we only have one task running at a time, verify that it
-        // is 'this'.
-        ASSERT(msgLoopTask == this);
-        msgLoopTask = NULL;
-        m_callback();
-    }
-
-    void Cancel() {
-        m_callback = NULL;
-    }
-
-private:
-    void (*m_callback)();
-
-    DISALLOW_COPY_AND_ASSIGN(WebkitTimerTask);
-};
-
 void setSharedTimerFiredFunction(void (*f)())
-{
-    sharedTimerFiredFunction = f;
+{                   
+    ChromiumBridge::setSharedTimerFiredFunction(f);
 }
 
 void setSharedTimerFireTime(double fireTime)
 {
-    ASSERT(sharedTimerFiredFunction);
-    int interval = static_cast<int>( (fireTime - currentTime()) * 1000);
-    if (interval < 0)
-        interval = 0;
-
-    stopSharedTimer();
-
-    // Verify that we didn't leak the task or timer objects.
-    ASSERT(msgLoopTask == NULL);
-
-    msgLoopTask = new WebkitTimerTask(sharedTimerFiredFunction);
-    MessageLoop::current()->PostDelayedTask(FROM_HERE, msgLoopTask, interval);
+    ChromiumBridge::setSharedTimerFireTime(fireTime);
 }
 
 void stopSharedTimer()
 {
-    if (!msgLoopTask)
-        return;
-
-    msgLoopTask->Cancel();
-    msgLoopTask = NULL;
+    ChromiumBridge::stopSharedTimer();
 }
 
 } // namespace WebCore
