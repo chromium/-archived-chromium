@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_SCOPED_HANDLE_WIN_H__
-#define BASE_SCOPED_HANDLE_WIN_H__
+#ifndef BASE_SCOPED_HANDLE_WIN_H_
+#define BASE_SCOPED_HANDLE_WIN_H_
 
 #include <windows.h>
 
@@ -205,5 +205,5 @@ class ScopedHGlobal {
   DISALLOW_EVIL_CONSTRUCTORS(ScopedHGlobal);
 };
 
-#endif // BASE_SCOPED_HANDLE_WIN_H__
+#endif // BASE_SCOPED_HANDLE_WIN_H_
 
