@@ -35,34 +35,32 @@
 
 #include "config.h"
 
+#include "ChromiumBridge.h"
 #include "PluginData.h"
-#pragma warning(push, 0)
 #include "PluginInfoStore.h"
-#pragma warning(pop)
-#undef LOG
-
-#include "base/file_util.h"
-#include "base/string_util.h"
-#include "base/sys_string_conversions.h"
-#include "webkit/glue/plugins/plugin_list.h"
-#include "glue/glue_util.h"
-#include "glue/webkit_glue.h"
-#include "net/base/mime_util.h"
 
 namespace WebCore {
 
 // We cache the plugins ourselves, since if we're getting them from the another
 // process GetPlugins() will be expensive.
 static bool g_loaded_plugins = false;
-static std::vector<WebPluginInfo> g_plugins;
+static Vector<PluginInfo*> g_plugins;
 
 void LoadPlugins(bool refresh)
 {
     if (g_loaded_plugins && !refresh)
-      return;
+        return;
+
+    if (g_loaded_plugins) {
+        for (size_t i = 0; i < g_plugins.size(); ++i)
+            deleteAllValues(g_plugins[i]->mimes);
+        deleteAllValues(g_plugins);
+        g_plugins.clear();
+    }
 
     g_loaded_plugins = true;
-    webkit_glue::GetPlugins(refresh, &g_plugins);
+    // these are leaked at shutdown
+    ChromiumBridge::getPlugins(refresh, &g_plugins);
 }
 
 // Returns a PluginInfo pointer.  Caller is responsible for
@@ -72,25 +70,16 @@ PluginInfo* PluginInfoStore::createPluginInfoForPluginAtIndex(unsigned int index
     LoadPlugins(false);
 
     WebCore::PluginInfo* rv = new WebCore::PluginInfo();
-    const WebPluginInfo& plugin = g_plugins[index];
-    rv->name = webkit_glue::StdWStringToString(plugin.name);
-    rv->desc = webkit_glue::StdWStringToString(plugin.desc);
-    rv->file = webkit_glue::StdWStringToString(
-        file_util::GetFilenameFromPath(plugin.file));
-    for (size_t j = 0; j < plugin.mime_types.size(); ++ j) {
+    const WebCore::PluginInfo* plugin = g_plugins[index];
+    rv->name = plugin->name;
+    rv->desc = plugin->desc;
+    rv->file = plugin->file;
+    for (size_t j = 0; j < plugin->mimes.size(); ++j) {
         WebCore::MimeClassInfo* new_mime = new WebCore::MimeClassInfo();
-        const WebPluginMimeType& mime_type = plugin.mime_types[j];
-        new_mime->desc = webkit_glue::StdWStringToString(mime_type.description);
-
-        for (size_t k = 0; k < mime_type.file_extensions.size(); ++k) {
-          if (new_mime->suffixes.length())
-            new_mime->suffixes.append(",");
-
-          new_mime->suffixes.append(webkit_glue::StdStringToString(
-              mime_type.file_extensions[k]));
-        }
-
-        new_mime->type = webkit_glue::StdStringToString(mime_type.mime_type);
+        const WebCore::MimeClassInfo* mime_type = plugin->mimes[j];
+        new_mime->type = mime_type->type;
+        new_mime->desc = mime_type->desc;
+        new_mime->suffixes = mime_type->suffixes;
         new_mime->plugin = rv;
         rv->mimes.append(new_mime);
     }
@@ -109,22 +98,18 @@ bool PluginInfoStore::supportsMIMEType(const WebCore::String &mime_type)
 {
     LoadPlugins(false);
 
-    std::wstring converted_mime_type = webkit_glue::StringToStdWString(mime_type);
-
     for (size_t i = 0; i < g_plugins.size(); ++i) {
-        for (size_t j = 0; j < g_plugins[i].mime_types.size(); ++j) {
-            if (net::MatchesMimeType(
-                    g_plugins[i].mime_types[j].mime_type,
-                    base::SysWideToNativeMB(converted_mime_type))) {
+        for (size_t j = 0; j < g_plugins[i]->mimes.size(); ++j) {
+            if (ChromiumBridge::matchesMIMEType(g_plugins[i]->mimes[j]->type, 
+                                                mime_type)) {
                 // Don't allow wildcard matches here as this will result in
                 // plugins being instantiated in cases where they should not.
                 // For e.g. clicking on a link which causes a file to be
                 // downloaded, special mime types like text/xml, etc. In any
                 // case the webkit codepaths which invoke this function don't
                 // expect wildcard plugin matches.
-                if (g_plugins[i].mime_types[j].mime_type == "*") {
-                  continue;
-                }
+                if (g_plugins[i]->mimes[j]->type == "*")
+                    continue;
                 return true;
             }
         }
@@ -138,22 +123,27 @@ void refreshPlugins(bool)
     LoadPlugins(true);
 }
 
-String GetPluginMimeTypeFromExtension(const String& extension) {
-    LoadPlugins(false);
-
-    std::string mime_type;
-    std::string extension_std = WideToUTF8(
-        webkit_glue::StringToStdWString(extension));
+String GetPluginMimeTypeFromExtension(const String& extension) 
+{
 #if !defined(__linux__)
     // TODO(port): unstub once we have plugin support for Linux
+    LoadPlugins(false);
+
     for (size_t i = 0; i < g_plugins.size(); ++i) {
-        if (NPAPI::PluginList::SupportsExtension(
-                g_plugins[i], extension_std, &mime_type))
-            break;
+        PluginInfo* plugin = g_plugins[i];
+        for (size_t j = 0; j < plugin->mimes.size(); ++j) {
+            MimeClassInfo* mime = plugin->mimes[j];
+            Vector<String> extensions;
+            mime->suffixes.split(",", extensions);
+            for (size_t k = 0; k < extensions.size(); ++k) {
+                if (extension == extensions[k])
+                    return mime->type;
+            }
+        }
     }
 #endif
 
-    return webkit_glue::StdStringToString(mime_type);
+    return String();
 }
 
 } // namespace WebCore

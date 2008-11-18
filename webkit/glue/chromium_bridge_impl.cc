@@ -18,16 +18,20 @@
 #include "PasteboardPrivate.h"
 #include "PlatformString.h"
 #include "PlatformWidget.h"
+#include "PluginData.h"
+#include "PluginInfoStore.h"
 #include "ScrollbarTheme.h"
 #include "ScrollView.h"
 #include "Widget.h"
 
 #undef LOG
 #include "base/clipboard.h"
+#include "base/file_util.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "build/build_config.h"
+#include "net/base/mime_util.h"
 #if USE(V8)
 #include <v8.h>
 #endif
@@ -36,6 +40,7 @@
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webplugin.h"
 #include "webkit/glue/webkit_resources.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webview_delegate.h"
@@ -242,7 +247,13 @@ bool ChromiumBridge::layoutTestMode() {
 
 // MimeType -------------------------------------------------------------------
 
-String ChromiumBridge::mimeTypeFromExtension(const String& ext) {
+bool ChromiumBridge::matchesMIMEType(const String& pattern,
+                                     const String& type) {
+  return net::MatchesMimeType(webkit_glue::StringToStdString(pattern), 
+                              webkit_glue::StringToStdString(type));
+}
+
+String ChromiumBridge::mimeTypeForExtension(const String& ext) {
   if (ext.isEmpty())
     return String();
 
@@ -262,7 +273,7 @@ String ChromiumBridge::mimeTypeFromFile(const String& file_path) {
   return webkit_glue::StdStringToString(type);
 }
 
-String ChromiumBridge::preferredExtensionForMimeType(const String& mime_type) {
+String ChromiumBridge::preferredExtensionForMIMEType(const String& mime_type) {
   if (mime_type.isEmpty())
     return String();
 
@@ -270,6 +281,41 @@ String ChromiumBridge::preferredExtensionForMimeType(const String& mime_type) {
   webkit_glue::GetPreferredExtensionForMimeType(
       webkit_glue::StringToStdString(mime_type), &stdext);
   return webkit_glue::StdWStringToString(stdext);
+}
+
+// Plugin ---------------------------------------------------------------------
+
+bool ChromiumBridge::getPlugins(bool refresh, Vector<PluginInfo*>* plugins) {
+  std::vector< ::WebPluginInfo> glue_plugins;
+  if (!webkit_glue::GetPlugins(refresh, &glue_plugins))
+    return false;
+  for (size_t i = 0; i < glue_plugins.size(); ++i) {
+    WebCore::PluginInfo* rv = new WebCore::PluginInfo;
+    const ::WebPluginInfo& plugin = glue_plugins[i];
+    rv->name = webkit_glue::StdWStringToString(plugin.name);
+    rv->desc = webkit_glue::StdWStringToString(plugin.desc);
+    rv->file = webkit_glue::StdWStringToString(
+        file_util::GetFilenameFromPath(plugin.file));
+    for (size_t j = 0; j < plugin.mime_types.size(); ++ j) {
+      WebCore::MimeClassInfo* new_mime = new WebCore::MimeClassInfo();
+      const WebPluginMimeType& mime_type = plugin.mime_types[j];
+      new_mime->desc = webkit_glue::StdWStringToString(mime_type.description);
+
+      for (size_t k = 0; k < mime_type.file_extensions.size(); ++k) {
+        if (new_mime->suffixes.length())
+          new_mime->suffixes.append(",");
+
+        new_mime->suffixes.append(webkit_glue::StdStringToString(
+            mime_type.file_extensions[k]));
+      }
+
+      new_mime->type = webkit_glue::StdStringToString(mime_type.mime_type);
+      new_mime->plugin = rv;
+      rv->mimes.append(new_mime);
+    }
+    plugins->append(rv);
+  }
+  return true;
 }
 
 // Protocol -------------------------------------------------------------------

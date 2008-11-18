@@ -50,7 +50,10 @@ namespace WebCore {
     class IntRect;
     class KURL;
     class String;
+    class WebPluginInfo;
     class Widget;
+
+    struct PluginInfo;
 
     // An interface to the embedding layer, which has the ability to answer
     // questions about the system and so on...
@@ -92,9 +95,13 @@ namespace WebCore {
         static bool layoutTestMode();
 
         // MimeType -----------------------------------------------------------
-        static String mimeTypeFromExtension(const String& ext);
+        static bool matchesMIMEType(const String& pattern, const String& type);
+        static String mimeTypeForExtension(const String& ext);
         static String mimeTypeFromFile(const String& file_path);
-        static String preferredExtensionForMimeType(const String& mime_type);
+        static String preferredExtensionForMIMEType(const String& mime_type);
+
+        // Plugin -------------------------------------------------------------
+        static bool getPlugins(bool refresh, Vector<PluginInfo*>* plugins);
 
         // Protocol -----------------------------------------------------------
         static String uiResourceProtocol();

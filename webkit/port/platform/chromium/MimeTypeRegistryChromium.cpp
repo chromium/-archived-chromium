@@ -58,7 +58,7 @@ String MIMETypeRegistry::getPreferredExtensionForMIMEType(const String& type)
     // TODO(darin): Is this really necessary??
     String mimeType = type.substring(0, static_cast<unsigned>(type.find(';')));
 
-    String ext = ChromiumBridge::preferredExtensionForMimeType(type);
+    String ext = ChromiumBridge::preferredExtensionForMIMEType(type);
     if (!ext.isEmpty() && ext[0] == L'.')
         ext = ext.substring(1);
 
@@ -67,7 +67,7 @@ String MIMETypeRegistry::getPreferredExtensionForMIMEType(const String& type)
 
 String MIMETypeRegistry::getMIMETypeForExtension(const String &ext)
 {
-    return ChromiumBridge::mimeTypeFromExtension(ext);
+    return ChromiumBridge::mimeTypeForExtension(ext);
 }
 
 }
