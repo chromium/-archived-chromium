@@ -37,7 +37,7 @@ class PlatformCanvasLinux : public SkCanvas {
   // the device is always our own so we know that we can use GDI operations
   // on it. Simply calls into createPlatformDevice().
   virtual SkDevice* createDevice(SkBitmap::Config, int width, int height,
-                                 bool is_opaque);
+                                 bool is_opaque, bool isForLayer);
 
   // Creates a device store for use by the canvas. By default, it creates a
   // BitmapPlatformDevice object. Can be overridden to change the object type.
