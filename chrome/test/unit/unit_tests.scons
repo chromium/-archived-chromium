@@ -174,7 +174,6 @@ if env['PLATFORM'] == 'win32':
       '$CHROME_DIR/browser/password_form_manager_unittest.cc',
       '$CHROME_DIR/browser/printing/page_number_unittest.cc',
       '$CHROME_DIR/browser/printing/page_overlays_unittest.cc',
-      '$CHROME_DIR/browser/printing/print_job_unittest.cc',
       '$CHROME_DIR/browser/printing/win_printing_context_unittest.cc',
       '$CHROME_DIR/browser/profile_manager_unittest.cc',
       '$CHROME_DIR/browser/renderer_security_policy_unittest.cc',

@@ -131,6 +131,9 @@ void Thread::StopSoon() {
   DCHECK(message_loop_);
 
   message_loop_->PostTask(FROM_HERE, new ThreadQuitTask());
+
+  // The thread can't receive messages anymore.
+  message_loop_ = NULL;
 }
 
 void Thread::ThreadMain() {
