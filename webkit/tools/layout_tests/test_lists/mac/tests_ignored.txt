@@ -65,14 +65,13 @@ LayoutTests/fast/dom/Window/window-properties.html = FAIL | TIMEOUT
 LayoutTests/http/tests/security/cross-frame-access-private-browsing.html = FAIL
 
 // We don't care about dashboard compatibility mode.
-LayoutTests/http/tests/xmlhttprequest/default-content-type-dashboard.html = FAIL
-LayoutTests/http/tests/xmlhttprequest/svg-created-by-xhr-disallowed-in-dashboard.html = FAIL
+SKIP: LayoutTests/http/tests/xmlhttprequest/default-content-type-dashboard.html = FAIL
+SKIP: LayoutTests/http/tests/xmlhttprequest/svg-created-by-xhr-disallowed-in-dashboard.html = FAIL
 
 // Chrome uses different keyboard accelerators from those used by Safari, so
 // these tests will always fail.
 // TODO(ericroman): can the following 2 tests be removed from this list, since they pass?
 LayoutTests/fast/events/keydown-1.html = FAIL
-LayoutTests/fast/events/option-tab.html = FAIL
 
 // Chrome does not support WebArchives (just like Safari for Windows).
 // See bug 761653.
@@ -90,16 +89,16 @@ LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
 LayoutTests/platform = FAIL | PASS
 
 // Ignored because we do not have OBJC bindings
-LayoutTests/editing/pasteboard/paste-RTFD.html = FAIL
-LayoutTests/editing/pasteboard/paste-TIFF.html = FAIL
-LayoutTests/plugins/jsobjc-dom-wrappers.html = FAIL
-LayoutTests/plugins/jsobjc-simple.html = FAIL
-LayoutTests/plugins/root-object-premature-delete-crash.html = FAIL
-LayoutTests/plugins/throw-on-dealloc.html = FAIL
-LayoutTests/plugins/undefined-property-crash.html = FAIL
+SKIP : LayoutTests/editing/pasteboard/paste-RTFD.html = FAIL
+SKIP : LayoutTests/editing/pasteboard/paste-TIFF.html = FAIL
+SKIP : LayoutTests/plugins/jsobjc-dom-wrappers.html = FAIL
+SKIP : LayoutTests/plugins/jsobjc-simple.html = FAIL
+SKIP : LayoutTests/plugins/root-object-premature-delete-crash.html = FAIL
+SKIP : LayoutTests/plugins/throw-on-dealloc.html = FAIL
+SKIP : LayoutTests/plugins/undefined-property-crash.html = FAIL
 
 // Uses __apple_runtime_object
-LayoutTests/plugins/call-as-function-test.html = FAIL
+SKIP : LayoutTests/plugins/call-as-function-test.html = FAIL
 
 // Ignore test because it tries to load .pdf files in <img> tags.
 LayoutTests/fast/images/pdf-as-image-landscape.html = FAIL
@@ -109,10 +108,6 @@ LayoutTests/fast/replaced/pdf-as-image.html = FAIL
 // This test tries to print a PDF file as the expected result.  I don't think
 // we plan on supporting this anytime soon.
 SKIP : LayoutTests/printing/media-queries-print.html = PASS
-
-// Uses Option-tab key to circle through form elements. Will not work on
-// Windows.
-LayoutTests/fast/events/frame-tab-focus.html = FAIL
 
 // Bug 853268: Chrome doesn't call the willCacheResponse callback (a method
 // of ResourceHandleClient).  That function is Mac-specific.
@@ -175,3 +170,16 @@ LayoutTests/fast/js/kde/inbuilt_function_tostring.html = FAIL
 // because they rely on being able to shadow the 'top' variable on the
 // global object.  For security we disallow shadowing of top.
 LayoutTests/editing/selection/click-before-and-after-table.html = FAIL
+
+// Bug 849085: we're taking a different approach on this test than 
+// Webkit does.
+SKIP : LayoutTests/plugins/get-url-with-blank-target.html = FAIL
+
+// This test doesn't work on the bbot.  Works locally.
+SKIP : chrome/http/tests/plugins/get-file-url.html = FAIL | PASS | TIMEOUT
+
+// Dashboard-related test
+SKIP : LayoutTests/fast/css/dashboard-region-parser.html = FAIL
+
+// Not a test?
+SKIP : LayoutTests/http/tests/incremental/pause-in-script-element.pl = FAIL
