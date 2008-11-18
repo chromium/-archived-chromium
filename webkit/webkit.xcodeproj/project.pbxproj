@@ -456,6 +456,7 @@
 		7BF891EB0E7311B1000BAF8A /* pcre_xclass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF891E50E7311B1000BAF8A /* pcre_xclass.cpp */; };
 		7BF892080E7314E9000BAF8A /* pcre_exec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7BF891E10E7311B1000BAF8A /* pcre_exec.cpp */; };
 		82761E970E3FA26F0030D324 /* TextCodecMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E91C50D7F3CC2001ECF42 /* TextCodecMac.cpp */; };
+		82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 82F14D600ED230E700B36428 /* webcursor_mac.mm */; };
 		934CC0040EBFE0E000A658F2 /* chromium_bridge_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */; };
 		93BF8E990EA6B0E50030F05C /* AuthenticationChallengeChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */; };
 		93BF8E9A0EA6B0EA0030F05C /* CookieJarChromium.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93BF8E610EA6AED30030F05C /* CookieJarChromium.cpp */; };
@@ -3961,6 +3962,7 @@
 		82C260710DCBA02A005CFE91 /* ICOImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ICOImageDecoder.cpp; sourceTree = "<group>"; };
 		82C260760DCBA03E005CFE91 /* XBMImageDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBMImageDecoder.h; sourceTree = "<group>"; };
 		82C260770DCBA03E005CFE91 /* XBMImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XBMImageDecoder.cpp; sourceTree = "<group>"; };
+		82F14D600ED230E700B36428 /* webcursor_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = webcursor_mac.mm; sourceTree = "<group>"; };
 		934CC0030EBFE0E000A658F2 /* chromium_bridge_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = chromium_bridge_impl.cc; sourceTree = "<group>"; };
 		93BF8E5F0EA6AED30030F05C /* AuthenticationChallenge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuthenticationChallenge.h; path = chromium/AuthenticationChallenge.h; sourceTree = "<group>"; };
 		93BF8E600EA6AED30030F05C /* AuthenticationChallengeChromium.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuthenticationChallengeChromium.cpp; path = chromium/AuthenticationChallengeChromium.cpp; sourceTree = "<group>"; };
@@ -7476,6 +7478,7 @@
 				8254052F0D92E3DA0006B936 /* unittest_test_server.h */,
 				825405300D92E3DA0006B936 /* webcursor.cc */,
 				825405310D92E3DA0006B936 /* webcursor.h */,
+				82F14D600ED230E700B36428 /* webcursor_mac.mm */,
 				825405340D92E3DA0006B936 /* webdatasource.h */,
 				825405320D92E3DA0006B936 /* webdatasource_impl.cc */,
 				825405330D92E3DA0006B936 /* webdatasource_impl.h */,
@@ -9296,6 +9299,7 @@
 				E45627160E268F26005E4685 /* resource_handle_impl.cc in Sources */,
 				E456270C0E268F03005E4685 /* searchable_form_data.cc in Sources */,
 				4DB043A40EB1577900A5633C /* webcursor.cc in Sources */,
+				82F14D610ED230E700B36428 /* webcursor_mac.mm in Sources */,
 				E45627030E268F03005E4685 /* webdatasource_impl.cc in Sources */,
 				E45627010E268F03005E4685 /* webdocumentloader_impl.cc in Sources */,
 				E45626FB0E268F03005E4685 /* weberror_impl.cc in Sources */,

@@ -79,6 +79,9 @@ bool WebCursor::IsEqual(const WebCursor& other) const {
 }
 
 #if !defined(OS_MACOSX)
+// The Mac version of Chromium is built with PLATFORM(CG) while all other
+// versions are PLATFORM(SKIA). We'll keep this Skia implementation here for
+// common use and put the Mac implementation in webcursor_mac.mm.
 void WebCursor::SetCustomData(WebCore::Image* image) {
   WebCore::NativeImagePtr image_ptr = image->nativeImageForCurrentFrame();
   if (!image_ptr)
@@ -90,11 +93,5 @@ void WebCursor::SetCustomData(WebCore::Image* image) {
   memcpy(&custom_data_[0], image_ptr->getPixels(), image_ptr->getSize());
   custom_size_.set_width(image_ptr->width());
   custom_size_.set_height(image_ptr->height());
-}
-#else
-// The above code should work on the Mac to but evanm was getting forward
-// declaration errors.
-void WebCursor::SetCustomData(WebCore::Image* image) {
-  NOTIMPLEMENTED();
 }
 #endif

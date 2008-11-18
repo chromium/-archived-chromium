@@ -17,6 +17,12 @@ typedef HICON HCURSOR;
 #elif defined(OS_LINUX)
 // GdkCursorType is an enum, which we can't forward-declare.  :(
 #include <gdk/gdkcursor.h>
+#elif defined(OS_MACOSX)
+#ifdef __OBJC__
+@class NSCursor;
+#else
+class NSCursor;
+#endif
 #endif
 
 class Pickle;
@@ -69,6 +75,8 @@ class WebCursor {
   // Return a new GdkCursor* for this cursor.  Only valid if GetCursorType
   // returns GDK_CURSOR_IS_PIXMAP.
   GdkCursor* GetCustomCursor() const;
+#elif defined(OS_MACOSX)
+  NSCursor* GetCursor() const;
 #endif
 
  private:

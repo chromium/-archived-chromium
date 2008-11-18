@@ -6,6 +6,7 @@
 
 #import <Cocoa/Cocoa.h>
 #include "base/string_util.h"
+#include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -61,7 +62,8 @@ void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
 
 void TestWebViewDelegate::SetCursor(WebWidget* webwidget, 
                                     const WebCursor& cursor) {
-  //TODO: Mac cursor handling
+  NSCursor* ns_cursor = cursor.GetCursor();
+  [ns_cursor set];
 }
 
 void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
