@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_SCOPED_HANDLE_FIXME_H__
-#define BASE_SCOPED_HANDLE_FIXME_H__
+#ifndef BASE_SCOPED_HANDLE_H__
+#define BASE_SCOPED_HANDLE_H__
 
 #include "base/basictypes.h"
 
@@ -49,4 +49,4 @@ class ScopedStdioHandle {
   DISALLOW_EVIL_CONSTRUCTORS(ScopedStdioHandle);
 };
 
-#endif // BASE_SCOPED_HANDLE_FIXME_H__
+#endif // BASE_SCOPED_HANDLE_H__
