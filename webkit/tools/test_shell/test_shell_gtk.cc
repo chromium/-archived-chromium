@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <fontconfig/fontconfig.h>
 #include <gtk/gtk.h>
+#include <signal.h>
 #include <unistd.h>
 
 #include "base/file_path.h"
@@ -26,6 +27,10 @@
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_webview_delegate.h"
+
+// Default timeout for page load when running non-interactive file
+// tests, in ms.
+const int kDefaultFileTestTimeoutSeconds = 10;
 
 // static
 void TestShell::InitializeTestShell(bool interactive) {
@@ -210,19 +215,31 @@ void TestShell::SizeTo(int width, int height) {
   gtk_window_resize(GTK_WINDOW(m_mainWnd), width, height + toolbar_height_);
 }
 
+static void AlarmHandler(int signatl) {
+  // If the alarm alarmed, kill the process since we have a really bad hang.
+  puts("#TEST_TIMED_OUT\n");
+  puts("#EOF\n");
+  fflush(stdout);
+  exit(0);
+}
+
 void TestShell::WaitTestFinished() {
   DCHECK(!test_is_pending_) << "cannot be used recursively";
 
   test_is_pending_ = true;
 
-  // TODO(agl): Here windows forks a watchdog thread, but I'm punting on that
-  // for the moment. On POSIX systems we probably want to install a signal
-  // handler and use alarm(2).
+  // Install an alarm signal handler that will kill us if we time out.
+  signal(SIGALRM, AlarmHandler);
+  alarm(kDefaultFileTestTimeoutSeconds);
 
   // TestFinished() will post a quit message to break this loop when the page
   // finishes loading.
   while (test_is_pending_)
     MessageLoop::current()->Run();
+
+  // Remove the alarm.
+  alarm(0);
+  signal(SIGALRM, SIG_DFL);
 }
 
 void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
