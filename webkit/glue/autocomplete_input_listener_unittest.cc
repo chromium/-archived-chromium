@@ -146,7 +146,7 @@ TEST_F(DomAutocompleteTests, OnBlur) {
   RefPtr<WebCore::HTMLInputElement> listened_element =
       new WebCore::HTMLInputElement(document_);
   RefPtr<TestAutocompleteBodyListener> body_listener =
-      new TestAutocompleteBodyListener;
+      adoptRef(new TestAutocompleteBodyListener);
   TestAutocompleteInputListener* listener = new TestAutocompleteInputListener();
   // body_listener takes ownership of the listener.
   body_listener->AddInputListener(listened_element.get(), listener);
@@ -171,7 +171,7 @@ TEST_F(DomAutocompleteTests, InlineAutocompleteTriggeredByInputEvent) {
   RefPtr<WebCore::HTMLInputElement> listened_element =
       new WebCore::HTMLInputElement(document_);
   RefPtr<TestAutocompleteBodyListener> body_listener =
-      new TestAutocompleteBodyListener;
+      adoptRef(new TestAutocompleteBodyListener());
 
   TestAutocompleteInputListener* listener = new TestAutocompleteInputListener();
   body_listener->AddInputListener(listened_element.get(), listener);
@@ -188,7 +188,7 @@ TEST_F(DomAutocompleteTests, InlineAutocompleteHeuristics) {
   RefPtr<WebCore::HTMLInputElement> input_element =
       new WebCore::HTMLInputElement(document_);
   RefPtr<TestAutocompleteBodyListener> body_listener =
-      new TestAutocompleteBodyListener();
+      adoptRef(new TestAutocompleteBodyListener());
 
   TestAutocompleteInputListener* listener = new TestAutocompleteInputListener();
   body_listener->AddInputListener(input_element.get(), listener);
