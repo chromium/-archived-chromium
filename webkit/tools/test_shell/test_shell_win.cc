@@ -41,10 +41,6 @@ static TCHAR g_windowClass[MAX_LOADSTRING];     // The main window class name
 // Forward declarations of functions included in this code module:
 static INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
-// The W3C SVG layout tests use a different size than the other layout tests
-const int kSVGTestWindowWidth = 480;
-const int kSVGTestWindowHeight = 360;
-
 // Hide the window offscreen when it is non-interactive.
 // This would correspond with a minimized window position if x = y = -32000.
 // However we shift the x to 0 to pass test cross-frame-access-put.html
@@ -359,7 +355,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   bool bIsSVGTest = startingURL.find(L"W3C-SVG-1.1") != std::wstring::npos;
 
   if (bIsSVGTest) {
-    SizeTo(kSVGTestWindowWidth, kSVGTestWindowHeight);
+    SizeToSVG();
   } else {
     SizeToDefault();
   }
@@ -495,7 +491,7 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
   bool bIsSVGTest = wcsstr(url, L"W3C-SVG-1.1") > 0;
 
   if (bIsSVGTest) {
-    SizeTo(kSVGTestWindowWidth, kSVGTestWindowHeight);
+    SizeToSVG();
   } else {
     SizeToDefault();
   }

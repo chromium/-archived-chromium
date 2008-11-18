@@ -48,6 +48,11 @@ const int kDefaultFileTestTimeoutMillisecs = 10 * 1000;
 const int kTestWindowWidth = 800;
 const int kTestWindowHeight = 600;
 
+// The W3C SVG layout tests use a different size than the other layout
+// tests.
+const int kSVGTestWindowWidth = 480;
+const int kSVGTestWindowHeight = 360;
+
 // Initialize static member variable
 WindowList* TestShell::window_list_;
 WebPreferences* TestShell::web_prefs_ = NULL;
@@ -283,6 +288,10 @@ WebView* TestShell::CreateWebView(WebView* webview) {
         return NULL;
 
     return new_win->webView();
+}
+
+void TestShell::SizeToSVG() {
+  SizeTo(kSVGTestWindowWidth, kSVGTestWindowHeight);
 }
 
 void TestShell::SizeToDefault() {

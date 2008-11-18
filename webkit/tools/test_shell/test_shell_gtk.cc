@@ -189,6 +189,12 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   toolbar_height_ = toolbar->allocation.height +
       gtk_box_get_spacing(GTK_BOX(vbox));
 
+  bool bIsSVGTest = startingURL.find(L"W3C-SVG-1.1") != std::wstring::npos;
+  if (bIsSVGTest)
+    SizeToSVG();
+  else
+    SizeToDefault();
+
   return true;
 }
 
@@ -394,6 +400,13 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
                                 const wchar_t* frame_name) {
   if (!url)
     return;
+
+  bool bIsSVGTest = wcsstr(url, L"W3C-SVG-1.1") > 0;
+
+  if (bIsSVGTest)
+    SizeToSVG();
+  else
+    SizeToDefault();
 
   std::wstring frame_string;
   if (frame_name)

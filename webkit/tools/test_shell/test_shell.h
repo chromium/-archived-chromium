@@ -238,6 +238,7 @@ public:
 
 protected:
     bool Initialize(const std::wstring& startingURL);
+    void SizeToSVG();
     void SizeToDefault();
     void SizeTo(int width, int height);
     void ResizeSubViews();
