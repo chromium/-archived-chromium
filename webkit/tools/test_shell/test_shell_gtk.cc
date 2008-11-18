@@ -346,7 +346,10 @@ void TestShell::ResizeSubViews() {
             ShouldDumpChildFramesAsText();
         std::string data_utf8 = WideToUTF8(
             webkit_glue::DumpFramesAsText(webFrame, recursive));
-        fwrite(data_utf8.c_str(), 1, data_utf8.size(), stdout);
+        if (fwrite(data_utf8.c_str(), 1, data_utf8.size(), stdout) !=
+            data_utf8.size()) {
+          LOG(FATAL) << "Short write to stdout, disk full?";
+        }
       } else {
         printf("%s", WideToUTF8(
             webkit_glue::DumpRenderer(webFrame)).c_str());
@@ -434,7 +437,8 @@ static bool PromptForSaveFile(const char* prompt_title,
 {
   char filenamebuffer[512];
   printf("Enter filename for \"%s\"\n", prompt_title);
-  fgets(filenamebuffer, sizeof(filenamebuffer), stdin);
+  if (!fgets(filenamebuffer, sizeof(filenamebuffer), stdin))
+    return false;  // EOF on stdin
   *result = FilePath(filenamebuffer);
   return true;
 }
