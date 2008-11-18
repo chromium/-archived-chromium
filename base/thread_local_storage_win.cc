@@ -100,6 +100,9 @@ void ThreadLocalStorage::Slot::Set(void* value) {
 }
 
 void ThreadLocalStorage::ThreadExit() {
+  if (tls_key_ == TLS_OUT_OF_INDEXES)
+    return;
+
   void** tls_data = static_cast<void**>(TlsGetValue(tls_key_));
 
   // Maybe we have never initialized TLS for this thread.
