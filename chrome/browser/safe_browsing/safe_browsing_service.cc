@@ -112,9 +112,11 @@ void SafeBrowsingService::OnIOShutdown() {
     return;
 
   enabled_ = false;
+  resetting_ = false;
 
   // This cancels all in-flight GetHash requests.
   delete protocol_manager_;
+  protocol_manager_ = NULL;
 
   if (db_thread_.get())
     db_thread_->message_loop()->DeleteSoon(FROM_HERE, database_);
@@ -124,6 +126,7 @@ void SafeBrowsingService::OnIOShutdown() {
   db_thread_.reset(NULL);
 
   database_ = NULL;
+  database_loaded_ = false;
 
   // Delete queued and pending checks once the database thread is done, calling
   // back any clients with 'URL_SAFE'.
@@ -517,17 +520,21 @@ void SafeBrowsingService::OnNewMacKeys(const std::string& client_key,
 }
 
 void SafeBrowsingService::ChunkInserted() {
+  DCHECK(MessageLoop::current() == db_thread_->message_loop());
   io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &SafeBrowsingService::OnChunkInserted));
 }
 
 void SafeBrowsingService::OnChunkInserted() {
   DCHECK(MessageLoop::current() == io_loop_);
-  protocol_manager_->OnChunkInserted();
+  if (enabled_)
+    protocol_manager_->OnChunkInserted();
 }
 
 void SafeBrowsingService::DatabaseLoadComplete(bool database_error) {
   DCHECK(MessageLoop::current() == io_loop_);
+  if (!enabled_)
+    return;
 
   database_loaded_ = true;
 
@@ -562,9 +569,11 @@ void SafeBrowsingService::OnResetDatabase() {
 
 void SafeBrowsingService::OnResetComplete() {
   DCHECK(MessageLoop::current() == io_loop_);
-  resetting_ = false;
-  database_loaded_ = true;
-  RunQueuedClients();
+  if (enabled_) {
+    resetting_ = false;
+    database_loaded_ = true;
+    RunQueuedClients();
+  }
 }
 
 void SafeBrowsingService::HandleChunk(const std::string& list,
@@ -621,10 +630,8 @@ void SafeBrowsingService::GetAllChunksFromDatabase() {
 void SafeBrowsingService::OnGetAllChunksFromDatabase(
     const std::vector<SBListChunkRanges>& lists, bool database_error) {
   DCHECK(MessageLoop::current() == io_loop_);
-  if (!enabled_)
-    return;
-
-  protocol_manager_->OnGetChunksComplete(lists, database_error);
+  if (enabled_)
+    protocol_manager_->OnGetChunksComplete(lists, database_error);
 }
 
 SafeBrowsingService::UrlCheckResult SafeBrowsingService::GetResultFromListname(
