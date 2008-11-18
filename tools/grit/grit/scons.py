@@ -133,18 +133,15 @@ def _Scanner(file_node, env, path):
 
 # Function name is mandated by newer versions of SCons.
 def generate(env):
-  # Importing this module should be possible whenever this function is invoked
-  # since it should only be invoked by SCons.
-  import SCons.Builder
-  import SCons.Action
-  
   # The varlist parameter tells SCons that GRIT needs to be invoked again
   # if RCFLAGS has changed since last compilation.
-  action = SCons.Action.FunctionAction(_Builder, varlist=['RCFLAGS'])
+
+  # TODO(gspencer):  change to use the public SCons API Action()
+  # and Builder(), instead of reaching directly into internal APIs.
+  # Get this change folded back into the upstream grit tool.
+  action = env.Action(_Builder, varlist=['RCFLAGS'])
   
-  builder = SCons.Builder.Builder(action=action,
-                              emitter=_Emitter,
-                              src_suffix='.grd')
+  builder = env.Builder(action=action, emitter=_Emitter, src_suffix='.grd')
   
   scanner = env.Scanner(function=_Scanner, name='GRIT', skeys=['.grd'])
   
