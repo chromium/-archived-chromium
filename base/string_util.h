@@ -95,23 +95,6 @@ size_t wcslcpy(wchar_t* dst, const wchar_t* src, size_t dst_size);
 // This function is intended to be called from base::vswprintf.
 bool IsWprintfFormatPortable(const wchar_t* format);
 
-enum LocaleDependence {
-  LOCALE_DEPENDENT,
-  LOCALE_INDEPENDENT
-};
-
-std::string DoubleToString(double value, LocaleDependence locale_dependent);
-std::wstring DoubleToWString(double value, LocaleDependence locale_dependent);
-
-bool StringToDouble(const std::string& input, double* output,
-                    LocaleDependence locale_dependent);
-bool StringToDouble(const std::wstring& input, double* output,
-                    LocaleDependence locale_dependent);
-double StringToDouble(const std::string& value,
-                      LocaleDependence locale_dependent);
-double StringToDouble(const std::wstring& value,
-                      LocaleDependence locale_dependent);
-
 }  // namespace base
 
 #if defined(OS_WIN)
@@ -370,7 +353,10 @@ std::string Int64ToString(int64 value);
 std::wstring Int64ToWString(int64 value);
 std::string Uint64ToString(uint64 value);
 std::wstring Uint64ToWString(uint64 value);
-
+// The DoubleToString methods convert the double to a string format that
+// ignores the locale.  If you want to use locale specific formatting, use ICU.
+std::string DoubleToString(double value);
+std::wstring DoubleToWString(double value);
 
 // Perform a best-effort conversion of the input string to a numeric type,
 // setting |*output| to the result of the conversion.  Returns true for
@@ -391,9 +377,10 @@ bool HexStringToInt(const std::wstring& input, int* output);
 
 // For floating-point conversions, only conversions of input strings in decimal
 // form are defined to work.  Behavior with strings representing floating-point
-// numbers in hexadecimal, and strings representing non-fininte values (such
-// as NaN and inf) is undefined.  Otherwise, these behave the same as the
-// integral variants above.  By default, locale-dependent variant is used.
+// numbers in hexadecimal, and strings representing non-fininte values (such as
+// NaN and inf) is undefined.  Otherwise, these behave the same as the integral
+// variants.  This expects the input string to NOT be specific to the locale.
+// If your input is locale specific, use ICU to read the number.
 bool StringToDouble(const std::string& input, double* output);
 bool StringToDouble(const std::wstring& input, double* output);
 
@@ -406,7 +393,6 @@ int64 StringToInt64(const std::string& value);
 int64 StringToInt64(const std::wstring& value);
 int HexStringToInt(const std::string& value);
 int HexStringToInt(const std::wstring& value);
-// By default, locale-dependent variant is used.
 double StringToDouble(const std::string& value);
 double StringToDouble(const std::wstring& value);
 

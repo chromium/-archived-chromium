@@ -183,6 +183,12 @@ TEST(JSONReaderTest, Reading) {
   root = NULL;
   ASSERT_FALSE(JSONReader::JsonToValue("NaN", &root, false, false));
   ASSERT_FALSE(root);
+  root = NULL;
+  ASSERT_FALSE(JSONReader::JsonToValue("nan", &root, false, false));
+  ASSERT_FALSE(root);
+  root = NULL;
+  ASSERT_FALSE(JSONReader::JsonToValue("inf", &root, false, false));
+  ASSERT_FALSE(root);
 
   // Invalid number formats
   root = NULL;
@@ -495,4 +501,3 @@ TEST(JSONReaderTest, Reading) {
   ASSERT_FALSE(JSONReader::Read("10", &root, false));
   ASSERT_FALSE(JSONReader::Read("\"root\"", &root, false));
 }
-

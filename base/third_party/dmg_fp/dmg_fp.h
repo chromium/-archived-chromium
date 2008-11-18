@@ -21,7 +21,8 @@ char* dtoa(double d, int mode, int ndigits,
 // Must be used to free values returned by dtoa.
 void freedtoa(char* s);
 
-// Store the closest decimal approximation to x in b.
+// Store the closest decimal approximation to x in b (null terminated).
+// Returns a pointer to b.  It is sufficient for |b| to be 32 characters.
 char* g_fmt(char* b, double x);
 
 }  // namespace dmg_fp
