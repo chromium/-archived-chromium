@@ -200,6 +200,16 @@ enum NotificationType {
   // No details are expected.
   NOTIFY_WEB_CONTENTS_DISCONNECTED,
 
+  // This message is sent when a new message is added to a WebContents. The
+  // source is a Source<WebContents> with a pointer to the WebContents the
+  // message was added to.
+  NOTIFY_WEB_CONTENTS_MESSAGE_ADDED,
+
+  // This message is sent when a message is removed from a WebContents. The
+  // source is a Source<WebContents> with a pointer to the WebContents the
+  // message was removed from.
+  NOTIFY_WEB_CONTENTS_MESSAGE_REMOVED,
+
   // This is sent when an externally hosted tab is created. The details contain
   // the ExternalTabContainer that contains the tab
   NOTIFY_EXTERNAL_TAB_CREATED,

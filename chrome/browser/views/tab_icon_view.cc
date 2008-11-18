@@ -50,8 +50,8 @@ void TabIconView::InitializeIfNeeded() {
   }
 }
 
-TabIconView::TabIconView(TabContentsProvider* provider)
-    : provider_(provider),
+TabIconView::TabIconView(TabIconViewModel* model)
+    : model_(model),
       is_light_(false),
       throbber_running_(false),
       throbber_frame_(0) {
@@ -62,10 +62,9 @@ TabIconView::~TabIconView() {
 }
 
 void TabIconView::Update() {
-  TabContents* contents = provider_->GetCurrentTabContents();
   if (throbber_running_) {
     // We think the tab is loading.
-    if (!contents || !contents->is_loading()) {
+    if (!model_->ShouldTabIconViewAnimate()) {
       // Woops, tab is invalid or not loading, reset our status and schedule
       // a paint.
       throbber_running_ = false;
@@ -75,7 +74,7 @@ void TabIconView::Update() {
       throbber_frame_ = (throbber_frame_ + 1) % g_throbber_frame_count;
       SchedulePaint();
     }
-  } else if (contents && contents->is_loading()) {
+  } else if (model_->ShouldTabIconViewAnimate()) {
     // We didn't think we were loading, but the tab is loading. Reset the
     // frame and status and schedule a paint.
     throbber_running_ = true;
@@ -106,25 +105,21 @@ void TabIconView::PaintFavIcon(ChromeCanvas* canvas, const SkBitmap& bitmap) {
 }
 
 void TabIconView::Paint(ChromeCanvas* canvas) {
-  TabContents* contents = provider_->GetCurrentTabContents();
   bool rendered = false;
 
-  if (contents) {
-    if (throbber_running_) {
+  if (throbber_running_) {
+    rendered = true;
+    PaintThrobber(canvas);
+  } else {
+    SkBitmap favicon = model_->GetFavIconForTabIconView();
+    if (!favicon.isNull()) {
       rendered = true;
-      PaintThrobber(canvas);
-    } else {
-      SkBitmap favicon = provider_->GetFavIcon();
-      if (!favicon.isNull()) {
-        rendered = true;
-        PaintFavIcon(canvas, favicon);
-      }
+      PaintFavIcon(canvas, favicon);
     }
   }
 
-  if (!rendered) {
+  if (!rendered)
     PaintFavIcon(canvas, *g_default_fav_icon);
-  }
 }
 
 gfx::Size TabIconView::GetPreferredSize() {

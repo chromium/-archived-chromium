@@ -112,7 +112,7 @@ void TabRestoreService::AddHistoricalTabs(
   // First pass, extract the selected tabs in each window.
   for (size_t i = 0; i < windows->size(); ++i) {
     SessionWindow* window = (*windows)[i];
-    if (window->type == BrowserType::TABBED_BROWSER) {
+    if (window->type == Browser::TYPE_NORMAL) {
       DCHECK(window->selected_tab_index >= 0 &&
              window->selected_tab_index <
              static_cast<int>(window->tabs.size()));
@@ -127,7 +127,7 @@ void TabRestoreService::AddHistoricalTabs(
   for (size_t window_index = 0; window_index < windows->size();
        ++window_index) {
     SessionWindow* window = (*windows)[window_index];
-    if (window->type != BrowserType::TABBED_BROWSER)
+    if (window->type != Browser::TYPE_NORMAL)
       continue; // Ignore popups.
 
     for (size_t tab_index = 0; tab_index < window->tabs.size(); ++tab_index) {

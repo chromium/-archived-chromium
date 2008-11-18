@@ -487,7 +487,7 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
     bool process_startup,
     const std::vector<GURL>& urls) {
   DCHECK(!urls.empty());
-  if (!browser || browser->type() != BrowserType::TABBED_BROWSER)
+  if (!browser || browser->type() != Browser::TYPE_NORMAL)
     browser = Browser::Create(profile_);
 
   for (size_t i = 0; i < urls.size(); ++i) {

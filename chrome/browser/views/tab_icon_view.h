@@ -16,19 +16,19 @@ class TabContents;
 ////////////////////////////////////////////////////////////////////////////////
 class TabIconView : public views::View {
  public:
-  class TabContentsProvider {
+  // Classes implement this interface to provide state for the TabIconView.
+  class TabIconViewModel {
    public:
-    // Should return the current tab contents this TabIconView object is
-    // representing.
-    virtual TabContents* GetCurrentTabContents() = 0;
+    // Returns true if the TabIconView should show a loading animation.
+    virtual bool ShouldTabIconViewAnimate() const = 0;
 
     // Returns the favicon to display in the icon view
-    virtual SkBitmap GetFavIcon() = 0;
+    virtual SkBitmap GetFavIconForTabIconView() = 0;
   };
 
   static void InitializeIfNeeded();
 
-  explicit TabIconView(TabContentsProvider* provider);
+  explicit TabIconView(TabIconViewModel* provider);
   virtual ~TabIconView();
 
   // Invoke whenever the tab state changes or the throbber should update.
@@ -45,8 +45,8 @@ class TabIconView : public views::View {
   void PaintThrobber(ChromeCanvas* canvas);
   void PaintFavIcon(ChromeCanvas* canvas, const SkBitmap& bitmap);
 
-  // Our provider of current tab contents.
-  TabContentsProvider* provider_;
+  // Our model.
+  TabIconViewModel* model_;
 
   // Whether the throbber is running.
   bool throbber_running_;
