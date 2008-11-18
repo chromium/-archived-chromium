@@ -167,7 +167,7 @@ int main(const int argc, const char *argv[]) {
   wchar_t statsfile[64];
   swprintf(statsfile, 64, L"%ls-%d", kStatsFile, getpid());
   StatsTable *table = 
-      new StatsTable(kStatsFile, kStatsFileThreads, kStatsFileCounters);
+      new StatsTable(statsfile, kStatsFileThreads, kStatsFileCounters);
   StatsTable::set_current(table);
 
 #if NOT_YET
