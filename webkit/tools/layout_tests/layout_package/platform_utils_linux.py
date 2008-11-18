@@ -91,14 +91,19 @@ class PlatformUtility(object):
     return PlatformUtility._FilenameToUri(self, full_path, use_http=False,
                                           use_ssl=False, port=0)
 
+  def MissingLigHTTPd(self):
+    print 'Please install using: "sudo apt-get install lighttpd php5-cgi"'
+    print 'For complete Linux build requirements, please see:'
+    print 'http://code.google.com/p/chromium/wiki/LinuxBuildInstructions'
+    sys.exit(1)
+
   def LigHTTPdExecutablePath(self):
     """Returns the executable path to start LigHTTPd"""
     binpath = "/usr/sbin/lighttpd"
     if os.path.exists(binpath):
       return binpath
     print "Unable to find LigHTTPd executable %s" % binpath
-    print 'Please install using "sudo apt-get install lighttpd php5cgi"'
-    sys.exit(1)
+    self.MissingLigHTTPd()
 
   def LigHTTPdModulePath(self):
     """Returns the library module path for LigHTTPd"""
@@ -106,8 +111,7 @@ class PlatformUtility(object):
     if os.path.exists(modpath):
       return modpath
     print "Unable to find LigHTTPd modules %s" % modpath
-    print 'Please install using "sudo apt-get install lighttpd php5cgi"'
-    sys.exit(1)
+    self.MissingLigHTTPd()
 
   def LigHTTPdPHPPath(self):
     """Returns the PHP executable path for LigHTTPd"""
@@ -115,8 +119,7 @@ class PlatformUtility(object):
     if os.path.exists(binpath):
       return binpath
     print "Unable to find PHP CGI executable %s" % binpath
-    print 'Please install using "sudo apt-get install lighttpd php5cgi"'
-    sys.exit(1)
+    self.MissingLigHTTPd()
 
   def ShutDownHTTPServer(self, server_process):
     """Shut down the lighttpd web server. Blocks until it's fully shut down.
