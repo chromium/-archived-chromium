@@ -50,10 +50,10 @@ FontPlatformData& FontPlatformData::operator=(const FontPlatformData& src)
     m_textSize   = src.m_textSize;
     m_fakeBold   = src.m_fakeBold;
     m_fakeItalic = src.m_fakeItalic;
-    
+
     return *this;
 }
-    
+
 void FontPlatformData::setupPaint(SkPaint* paint) const
 {
     const float ts = m_textSize > 0 ? m_textSize : 12;
