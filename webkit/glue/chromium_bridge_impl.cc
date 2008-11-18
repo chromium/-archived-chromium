@@ -5,6 +5,8 @@
 #include "config.h"
 #include "ChromiumBridge.h"
 
+#include "BitmapImage.h"
+#include "BitmapImageSingleFrameSkia.h"
 #include "ClipboardUtilitiesChromium.h"
 #include "Cursor.h"
 #include "Frame.h"
@@ -16,6 +18,7 @@
 #include "PasteboardPrivate.h"
 #include "PlatformString.h"
 #include "PlatformWidget.h"
+#include "ScrollbarTheme.h"
 #include "ScrollView.h"
 #include "Widget.h"
 
@@ -24,6 +27,7 @@
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
+#include "build/build_config.h"
 #if USE(V8)
 #include <v8.h>
 #endif
@@ -32,8 +36,16 @@
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webkit_resources.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webview_delegate.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#include <vssym32.h>
+
+#include "base/gfx/native_theme.h"
+#endif
 
 namespace {
 
@@ -264,6 +276,68 @@ String ChromiumBridge::preferredExtensionForMimeType(const String& mime_type) {
 
 String ChromiumBridge::uiResourceProtocol() {
   return webkit_glue::StdStringToString(webkit_glue::GetUIResourceProtocol());
+}
+
+
+// Resources ------------------------------------------------------------------
+
+#if defined(OS_WIN)
+// Creates an Image for the text area resize corner. We do this by drawing the
+// theme native control into a memory buffer then converting the memory buffer
+// into an image. We don't bother caching this image because the caller holds
+// onto a static copy (see WebCore/rendering/RenderLayer.cpp).
+static PassRefPtr<Image> GetTextAreaResizeCorner() {
+  // Get the size of the resizer.
+  const int thickness = ScrollbarTheme::nativeTheme()->scrollbarThickness();
+
+  // Setup a memory buffer.
+  gfx::PlatformCanvasWin canvas(thickness, thickness, false);
+  gfx::PlatformDeviceWin& device = canvas.getTopPlatformDevice();
+  device.prepareForGDI(0, 0, thickness, thickness);
+  HDC hdc = device.getBitmapDC();
+  RECT widgetRect = { 0, 0, thickness, thickness };
+
+  // Do the drawing.
+  gfx::NativeTheme::instance()->PaintStatusGripper(hdc, SP_GRIPPER, 0, 0,
+                                                   &widgetRect);
+  device.postProcessGDI(0, 0, thickness, thickness);
+  return BitmapImageSingleFrameSkia::create(device.accessBitmap(false));
+}
+#endif
+
+PassRefPtr<Image> ChromiumBridge::loadPlatformImageResource(const char* name) {
+  // Some need special handling.
+  if (!strcmp(name, "textAreaResizeCorner")) {
+#if defined(OS_WIN)
+    return GetTextAreaResizeCorner();
+#else
+    DLOG(WARNING) << "This needs implementing on other platforms.";
+    return Image::nullImage();
+#endif
+  }
+
+  // The rest get converted to a resource ID that we can pass to the glue.
+  int resource_id = 0;
+  if (!strcmp(name, "missingImage")) {
+    resource_id = IDR_BROKENIMAGE;
+  } else if (!strcmp(name, "tickmarkDash")) {
+    resource_id = IDR_TICKMARK_DASH;
+  } else if (!strcmp(name, "deleteButton") ||
+             !strcmp(name, "deleteButtonPressed")) {
+    NOTREACHED() << "Image resource " << name << " does not exist yet.";
+    return Image::nullImage();
+  } else {
+    NOTREACHED() << "Unknown image resource " << name;
+    return Image::nullImage();
+  }
+
+  std::string data = webkit_glue::GetDataResource(resource_id);
+  RefPtr<SharedBuffer> buffer(
+      SharedBuffer::create(data.empty() ? "" : data.data(),
+                           data.length()));
+  RefPtr<Image> image = BitmapImage::create();
+  image->setData(buffer, true);
+  return image;
 }
 
 // Screen ---------------------------------------------------------------------
