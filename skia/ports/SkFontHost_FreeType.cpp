@@ -329,13 +329,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
 #endif
             break;
         case kNormal_Hints:
-            // Uncommenting the following line disables the font's hinting
-            // tables. For test_shell we want font hinting on so that we can
-            // generate baselines that look at little like Firefox. It's
-            // expected that Mike Reed will rework this code sometime soon so
-            // we don't wish to make more extensive changes.
-
-            // flags |= FT_LOAD_FORCE_AUTOHINT;
+            flags |= FT_LOAD_FORCE_AUTOHINT;
             break;
         }
 

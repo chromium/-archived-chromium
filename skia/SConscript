@@ -160,7 +160,7 @@ if env['PLATFORM'] == 'posix':
   input_files.remove('ports/SkFontHost_none.cpp')
   input_files.append('sgl/SkTypeface.cpp')
   input_files.append('ports/SkFontHost_FreeType.cpp')
-  input_files.append('ports/SkFontHost_gamma_none.cpp')
+  input_files.append('ports/SkFontHost_gamma.cpp')
   input_files.append('ports/SkFontHost_fontconfig.cpp')
   input_files.append('images/SkMMapStream.cpp')
 

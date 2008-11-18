@@ -6,7 +6,6 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <fontconfig/fontconfig.h>
 #include <gtk/gtk.h>
 #include <unistd.h>
 
@@ -32,43 +31,6 @@ void TestShell::InitializeTestShell(bool interactive) {
   window_list_ = new WindowList;
   web_prefs_ = new WebPreferences;
   interactive_ = interactive;
-
-  // We wish to make the layout tests reproducable with respect to fonts. Skia
-  // uses fontconfig to resolve font family names from WebKit into actual font
-  // files found on the current system. This means that fonts vary based on the
-  // system and also on the fontconfig configuration.
-  //
-  // To avoid this we initialise fontconfig here and install a configuration
-  // which only knows about a few, select, fonts.
-
-  // This is the list of fonts that fontconfig will know about. It will try its
-  // best to match based only on the fonts here in. The paths are where these
-  // fonts are found on our Ubuntu boxes.
-  static const char *const fonts[] = {
-    "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Arial_Bold.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Arial_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Arial_Bold_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Courier_New.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Bold.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Courier_New_Bold_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Italic.ttf",
-    "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold_Italic.ttf",
-    NULL
-  };
-
-  FcInit();
-  FcConfig* fontcfg = FcConfigCreate();
-  for (unsigned i = 0; fonts[i]; ++i) {
-    if (!FcConfigAppFontAddFile(fontcfg, (FcChar8 *) fonts[i]))
-      LOG(FATAL) << "Failed to load font " << fonts[i];
-  }
-
-  if (!FcConfigSetCurrent(fontcfg))
-    LOG(FATAL) << "Failed to set the default font configuration";
 }
 
 // static

@@ -206,7 +206,7 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
                      FC_WEIGHT_BOLD : FC_WEIGHT_NORMAL;
     const int italic = style & SkTypeface::kItalic ?
                        FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-    FcPattern* match = FontMatch(FC_FAMILY, FcTypeString, resolved_family_name,
+    FcPattern* match = FontMatch(FC_FULLNAME, FcTypeString, resolved_family_name,
                                  FC_WEIGHT, FcTypeInteger, bold,
                                  FC_SLANT, FcTypeInteger, italic,
                                  NULL);
@@ -301,14 +301,14 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext
 
     SkAutoDescriptor    ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
     SkDescriptor*       desc = ad.getDesc();
-
+    
     desc->init();
     SkScalerContext::Rec* newRec =
         (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
                                               sizeof(rec), &rec);
     newRec->fFontID = id;
     desc->computeChecksum();
-
+    
     return SkFontHost::CreateScalerContext(desc);
 }
 
