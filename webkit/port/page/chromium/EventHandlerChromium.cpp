@@ -45,7 +45,11 @@
 
 namespace WebCore {
 
+#if PLATFORM(DARWIN)
+const double EventHandler::TextDragDelay = 0.15;
+#else
 const double EventHandler::TextDragDelay = 0.0;
+#endif
 
 bool EventHandler::passMousePressEventToSubframe(MouseEventWithHitTestResults& mev, Frame* subframe)
 {
