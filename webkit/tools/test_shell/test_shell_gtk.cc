@@ -63,6 +63,12 @@ void TestShell::InitializeTestShell(bool interactive) {
   FcInit();
   FcConfig* fontcfg = FcConfigCreate();
   for (unsigned i = 0; fonts[i]; ++i) {
+    if (access(fonts[i], R_OK)) {
+      LOG(FATAL) << "You are missing " << fonts[i] << ". "
+                 << "Try installing msttcorefonts. Also see "
+                 << "http://code.google.com/p/chromium/wiki/"
+                 << "LinuxBuildInstructions";
+    }
     if (!FcConfigAppFontAddFile(fontcfg, (FcChar8 *) fonts[i]))
       LOG(FATAL) << "Failed to load font " << fonts[i];
   }
