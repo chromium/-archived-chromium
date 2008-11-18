@@ -11,6 +11,7 @@
 			Outputs="$(IntDir)\$(InputName).h;
 			  $(IntDir)\$(InputName)_ar.rc;
 			  $(IntDir)\$(InputName)_bg.rc;
+			  $(IntDir)\$(InputName)_bn.rc;
 			  $(IntDir)\$(InputName)_ca.rc;
 			  $(IntDir)\$(InputName)_cs.rc;
 			  $(IntDir)\$(InputName)_da.rc;
@@ -24,6 +25,7 @@
 			  $(IntDir)\$(InputName)_fi.rc;
 			  $(IntDir)\$(InputName)_fil.rc;
 			  $(IntDir)\$(InputName)_fr.rc;
+			  $(IntDir)\$(InputName)_gu.rc;
 			  $(IntDir)\$(InputName)_he.rc;
 			  $(IntDir)\$(InputName)_hi.rc;
 			  $(IntDir)\$(InputName)_hr.rc;
@@ -31,11 +33,15 @@
 			  $(IntDir)\$(InputName)_id.rc;
 			  $(IntDir)\$(InputName)_it.rc;
 			  $(IntDir)\$(InputName)_ja.rc;
+			  $(IntDir)\$(InputName)_kn.rc;
 			  $(IntDir)\$(InputName)_ko.rc;
 			  $(IntDir)\$(InputName)_lt.rc;
 			  $(IntDir)\$(InputName)_lv.rc;
+			  $(IntDir)\$(InputName)_ml.rc;
+			  $(IntDir)\$(InputName)_mr.rc;
 			  $(IntDir)\$(InputName)_nl.rc;
 			  $(IntDir)\$(InputName)_nb.rc;
+			  $(IntDir)\$(InputName)_or.rc;
 			  $(IntDir)\$(InputName)_pl.rc;
 			  $(IntDir)\$(InputName)_pt-BR.rc;
 			  $(IntDir)\$(InputName)_pt-PT.rc;
@@ -45,6 +51,8 @@
 			  $(IntDir)\$(InputName)_sl.rc;
 			  $(IntDir)\$(InputName)_sr.rc;
 			  $(IntDir)\$(InputName)_sv.rc;
+			  $(IntDir)\$(InputName)_ta.rc;
+			  $(IntDir)\$(InputName)_te.rc;
 			  $(IntDir)\$(InputName)_th.rc;
 			  $(IntDir)\$(InputName)_tr.rc;
 			  $(IntDir)\$(InputName)_uk.rc;
@@ -54,6 +62,7 @@
 			AdditionalDependencies="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat;$(SolutionDir)..\tools\grit\grit.py;
 			  resources\$(InputName)_ar.xtb;
 			  resources\$(InputName)_bg.xtb;
+			  resources\$(InputName)_bn.xtb;
 			  resources\$(InputName)_ca.xtb;
 			  resources\$(InputName)_cs.xtb;
 			  resources\$(InputName)_da.xtb;
@@ -66,6 +75,7 @@
 			  resources\$(InputName)_fi.xtb;
 			  resources\$(InputName)_fil.xtb;
 			  resources\$(InputName)_fr.xtb;
+			  resources\$(InputName)_gu.xtb;
 			  resources\$(InputName)_he.xtb;
 			  resources\$(InputName)_hi.xtb;
 			  resources\$(InputName)_hr.xtb;
@@ -73,11 +83,15 @@
 			  resources\$(InputName)_id.xtb;
 			  resources\$(InputName)_it.xtb;
 			  resources\$(InputName)_ja.xtb;
+			  resources\$(InputName)_kn.xtb;
 			  resources\$(InputName)_ko.xtb;
 			  resources\$(InputName)_lt.xtb;
 			  resources\$(InputName)_lv.xtb;
+			  resources\$(InputName)_ml.xtb;
+			  resources\$(InputName)_mr.xtb;
 			  resources\$(InputName)_nl.xtb;
 			  resources\$(InputName)_no.xtb;
+			  resources\$(InputName)_or.xtb;
 			  resources\$(InputName)_pl.xtb;
 			  resources\$(InputName)_pt-BR.xtb;
 			  resources\$(InputName)_pt-PT.xtb;
@@ -87,6 +101,8 @@
 			  resources\$(InputName)_sl.xtb;
 			  resources\$(InputName)_sr.xtb;
 			  resources\$(InputName)_sv.xtb;
+			  resources\$(InputName)_ta.xtb;
+			  resources\$(InputName)_te.xtb;
 			  resources\$(InputName)_th.xtb;
 			  resources\$(InputName)_tr.xtb;
 			  resources\$(InputName)_uk.xtb;
