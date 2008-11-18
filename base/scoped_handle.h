@@ -2,208 +2,51 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_SCOPED_HANDLE_H__
-#define BASE_SCOPED_HANDLE_H__
-
-#include <windows.h>
+#ifndef BASE_SCOPED_HANDLE_FIXME_H__
+#define BASE_SCOPED_HANDLE_FIXME_H__
 
 #include "base/basictypes.h"
-#include "base/logging.h"
 
-// Used so we always remember to close the handle. Example:
-//   ScopedHandle hfile(CreateFile(...));
-//   if (!hfile.Get())
-//     ...process error
-//   ReadFile(hfile.Get(), ...);
-//
-// To sqirrel the handle away somewhere else:
-//   secret_handle_ = hfile.Take();
-//
-// To explicitly close the handle:
-//   CloseHandle(hfile.Take());
-class ScopedHandle {
+#if defined(OS_WIN)
+#include "base/scoped_handle_win.h"
+#endif
+
+class ScopedStdioHandle {
  public:
-  ScopedHandle() : handle_(NULL) {
-  }
+  ScopedStdioHandle()
+      : handle_(NULL) { }
 
-  explicit ScopedHandle(HANDLE h) : handle_(NULL) {
-    Set(h);
-  }
+  explicit ScopedStdioHandle(FILE* handle)
+      : handle_(handle) { }
 
-  ~ScopedHandle() {
+  ~ScopedStdioHandle() {
     Close();
   }
 
-  // Use this instead of comparing to INVALID_HANDLE_VALUE to pick up our NULL
-  // usage for errors.
-  bool IsValid() const {
-    return handle_ != NULL;
-  }
-
-  void Set(HANDLE new_handle) {
-    Close();
-
-    // Windows is inconsistent about invalid handles, so we always use NULL
-    if (new_handle != INVALID_HANDLE_VALUE)
-      handle_ = new_handle;
-  }
-
-  HANDLE Get() {
-    return handle_;
-  }
-
-  operator HANDLE() { return handle_; }
-
-  HANDLE Take() {
-    // transfers ownership away from this object
-    HANDLE h = handle_;
-    handle_ = NULL;
-    return h;
-  }
-
- private:
   void Close() {
     if (handle_) {
-      if (!::CloseHandle(handle_)) {
-        NOTREACHED();
-      }
+      fclose(handle_);
       handle_ = NULL;
     }
   }
 
-  HANDLE handle_;
-  DISALLOW_EVIL_CONSTRUCTORS(ScopedHandle);
-};
+  FILE* get() const { return handle_; }
 
-// Like ScopedHandle, but for HANDLEs returned from FindFile().
-class ScopedFindFileHandle {
- public:
-  explicit ScopedFindFileHandle(HANDLE handle) : handle_(handle) {
-    // Windows is inconsistent about invalid handles, so we always use NULL
-    if (handle_ == INVALID_HANDLE_VALUE)
-      handle_ = NULL;
+  FILE* Take() {
+    FILE* temp = handle_;
+    handle_ = NULL;
+    return temp;
   }
 
-  ~ScopedFindFileHandle() {
-    if (handle_)
-      FindClose(handle_);
-  }
-
-  // Use this instead of comparing to INVALID_HANDLE_VALUE to pick up our NULL
-  // usage for errors.
-  bool IsValid() const { return handle_ != NULL; }
-
-  operator HANDLE() { return handle_; }
-
- private:
-  HANDLE handle_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(ScopedFindFileHandle);
-};
-
-// Like ScopedHandle but for HDC.  Only use this on HDCs returned from
-// CreateCompatibleDC.  For an HDC returned by GetDC, use ReleaseDC instead.
-class ScopedHDC {
- public:
-  ScopedHDC() : hdc_(NULL) { }
-  explicit ScopedHDC(HDC h) : hdc_(h) { }
-
-  ~ScopedHDC() {
+  void Set(FILE* newhandle) {
     Close();
-  }
-
-  HDC Get() {
-    return hdc_;
-  }
-
-  void Set(HDC h) {
-    Close();
-    hdc_ = h;
-  }
-
-  operator HDC() { return hdc_; }
-
- private:
-  void Close() {
-    if (hdc_)
-      DeleteDC(hdc_);
-  }
-
-  HDC hdc_;
-  DISALLOW_EVIL_CONSTRUCTORS(ScopedHDC);
-};
-
-// Like ScopedHandle but for GDI objects.
-template<class T>
-class ScopedGDIObject {
- public:
-  ScopedGDIObject() : object_(NULL) {}
-  explicit ScopedGDIObject(T object) : object_(object) {}
-
-  ~ScopedGDIObject() {
-    Close();
-  }
-
-  T Get() {
-    return object_;
-  }
-
-  void Set(T object) {
-    if (object_ && object != object_)
-      Close();
-    object_ = object;
-  }
-
-  ScopedGDIObject& operator=(T object) {
-    Set(object);
-    return *this;
-  }
-
-  operator T() { return object_; }
-
- private:
-  void Close() {
-    if (object_)
-      DeleteObject(object_);
-  }
-
-  T object_;
-  DISALLOW_COPY_AND_ASSIGN(ScopedGDIObject);
-};
-
-// Typedefs for some common use cases.
-typedef ScopedGDIObject<HBITMAP> ScopedBitmap;
-typedef ScopedGDIObject<HRGN> ScopedHRGN;
-typedef ScopedGDIObject<HFONT> ScopedHFONT;
-
-
-// Like ScopedHandle except for HGLOBAL.
-template<class T>
-class ScopedHGlobal {
- public:
-  explicit ScopedHGlobal(HGLOBAL glob) : glob_(glob) {
-    data_ = static_cast<T*>(GlobalLock(glob_));
-  }
-  ~ScopedHGlobal() {
-    GlobalUnlock(glob_);
-  }
-
-  T* get() { return data_; }
-
-  size_t Size() const { return GlobalSize(glob_); }
-
-  T* operator->() const  {
-    assert(data_ != 0);
-    return data_;
+    handle_ = newhandle;
   }
 
  private:
-  HGLOBAL glob_;
+  FILE* handle_;
 
-  T* data_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(ScopedHGlobal);
+  DISALLOW_EVIL_CONSTRUCTORS(ScopedStdioHandle);
 };
 
-#endif // BASE_SCOPED_HANDLE_H__
-
+#endif // BASE_SCOPED_HANDLE_FIXME_H__
