@@ -295,7 +295,7 @@ CALLBACK_FUNC_DECL(MessageChannelConstructor) {
   V8Proxy::SetDOMWrapper(
       wrapper_object, V8ClassIndex::MESSAGECHANNEL, obj.get());
   V8Proxy::SetJSWrapperForDOMObject(
-      obj.get(), v8::Persistent<v8::Object>::New(wrapper_object));  
+      obj.get(), v8::Persistent<v8::Object>::New(wrapper_object));
 
   // Create references from the MessageChannel wrapper to the two
   // MessagePort wrappers to make sure that the MessagePort wrappers
@@ -915,8 +915,10 @@ CALLBACK_FUNC_DECL(DOMWindowPostMessage) {
   // or
   //   postMessage(message, domain);
   if (args.Length() > 2) {
-    port = V8Proxy::ToNativeObject<MessagePort>(
-        V8ClassIndex::MESSAGEPORT, args[1]);
+    if (V8Proxy::IsWrapperOfType(args[1], V8ClassIndex::MESSAGEPORT)) {
+      port = V8Proxy::ToNativeObject<MessagePort>(
+          V8ClassIndex::MESSAGEPORT, args[1]);
+    }
     domain = valueToStringWithNullOrUndefinedCheck(args[2]);
   } else {
     domain = valueToStringWithNullOrUndefinedCheck(args[1]);
