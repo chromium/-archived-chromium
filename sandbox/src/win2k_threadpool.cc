@@ -59,6 +59,7 @@ Win2kThreadPool::~Win2kThreadPool() {
   // Here we used to unregister all the pool wait handles. Now, following the
   // rest of the code we avoid lengthy or blocking calls given that the process
   // is being torn down.
+  ::DeleteCriticalSection(&lock_);
 }
 
 }  // namespace sandbox
