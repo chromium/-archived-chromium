@@ -531,7 +531,9 @@ std::wstring GetLocalizedString(int message_id) {
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  NOTIMPLEMENTED();
+  // TODO(port): Implement plugins someday.  Don't let the error message
+  // of NOTIMPLEMENTED into our layout test diffs.
+  // NOTIMPLEMENTED();
   return false;
 }
 
