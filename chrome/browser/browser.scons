@@ -174,7 +174,6 @@ if env['PLATFORM'] == 'win32':
       'external_tab_container.cc',
       'fav_icon_helper.cc',
       'first_run.cc',
-      'frame_util.cc',
       'gears_integration.cc',
       'greasemonkey_master.cc',
       'hang_monitor/hung_plugin_action.cc',
