@@ -10,6 +10,7 @@
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/test/accessibility/accessibility_util.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -18,6 +19,8 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
+#include "chromium_strings.h"
+#include "generated_resources.h"
 
 namespace {
 
@@ -56,12 +59,8 @@ TEST_F(AccessibilityTest, TestChromeToolbarAccObject) {
   GetToolbarWnd(&p_accobj);
   ASSERT_TRUE(NULL != p_accobj);
 
-  // Check Name - "Google Chrome Toolbar".
-#if defined(GOOGLE_CHROME_BUILD)
-  EXPECT_EQ(L"Google Chrome Toolbar", GetName(p_accobj));
-#else
-  EXPECT_EQ(L"Chromium Toolbar", GetName(p_accobj));
-#endif
+  // Check Name - IDS_ACCNAME_TOOLBAR.
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_TOOLBAR), GetName(p_accobj));
   // Check Role - "tool bar".
   EXPECT_EQ(L"tool bar", GetRole(p_accobj));
   // Check State - "focusable"
@@ -77,8 +76,8 @@ TEST_F(AccessibilityTest, TestChromeTabstripAccObject) {
   GetTabStripWnd(&p_accobj);
   ASSERT_TRUE(NULL != p_accobj);
 
-  // Check Name - "Tabstrip".
-  EXPECT_EQ(L"Tabstrip", GetName(p_accobj));
+  // Check Name - IDS_ACCNAME_TABSTRIP.
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_TABSTRIP), GetName(p_accobj));
   // Check Role - "grouping".
   EXPECT_EQ(L"grouping", GetRole(p_accobj));
   // Check State - "focusable"
@@ -105,7 +104,8 @@ TEST_F(AccessibilityTest, TestChromeButtons) {
   ASSERT_TRUE(NULL == p_accobj);
   ASSERT_TRUE(VT_I4 == button.vt);
   // Read it's properties.
-  EXPECT_EQ(L"Minimize", GetName(p_browser, button));
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_MINIMIZE),
+            GetName(p_browser, button));
   EXPECT_EQ(L"push button", GetRole(p_browser, button));
   EXPECT_EQ(L"focusable", GetState(p_browser, button));
   CHK_RELEASE(p_accobj);
@@ -117,7 +117,8 @@ TEST_F(AccessibilityTest, TestChromeButtons) {
   ASSERT_TRUE(NULL == p_accobj);
   ASSERT_TRUE(VT_I4 == button.vt);
   // Read it's properties.
-  EXPECT_EQ(L"Maximize", GetName(p_browser, button));
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_MAXIMIZE),
+            GetName(p_browser, button));
   EXPECT_EQ(L"push button", GetRole(p_browser, button));
   EXPECT_EQ(L"focusable", GetState(p_browser, button));
   CHK_RELEASE(p_accobj);
@@ -129,7 +130,8 @@ TEST_F(AccessibilityTest, TestChromeButtons) {
   ASSERT_TRUE(NULL == p_accobj);
   ASSERT_TRUE(VT_I4 == button.vt);
   // Read it's properties.
-  EXPECT_EQ(L"Restore", GetName(p_browser, button));
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_RESTORE),
+            GetName(p_browser, button));
   EXPECT_EQ(L"push button", GetRole(p_browser, button));
   EXPECT_EQ(L"focusable, invisible", GetState(p_browser, button));
   CHK_RELEASE(p_accobj);
@@ -141,7 +143,8 @@ TEST_F(AccessibilityTest, TestChromeButtons) {
   ASSERT_TRUE(NULL == p_accobj);
   ASSERT_TRUE(VT_I4 == button.vt);
   // Read it's properties.
-  EXPECT_EQ(L"Close", GetName(p_browser, button));
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_CLOSE),
+            GetName(p_browser, button));
   EXPECT_EQ(L"push button", GetRole(p_browser, button));
   EXPECT_EQ(L"focusable", GetState(p_browser, button));
   CHK_RELEASE(p_accobj);
@@ -167,7 +170,8 @@ TEST_F(AccessibilityTest, TestStarButton) {
   ASSERT_TRUE(NULL == p_accobj);
   ASSERT_TRUE(VT_I4 == button.vt);
   // Read it's properties.
-  EXPECT_EQ(L"Bookmark", GetName(p_toolbar, button));
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_STAR),
+            GetName(p_toolbar, button));
   EXPECT_EQ(L"push button", GetRole(p_toolbar, button));
   EXPECT_EQ(L"focusable", GetState(p_toolbar, button));
   CHK_RELEASE(p_accobj);
@@ -254,7 +258,8 @@ TEST_F(AccessibilityTest, TestBackButton) {
   ASSERT_TRUE(VT_I4 == button.vt);
 
   // Read it's properties.
-  EXPECT_EQ(L"Back", GetName(p_toolbar, button));
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_BACK),
+            GetName(p_toolbar, button));
   EXPECT_EQ(L"drop down button", GetRole(p_toolbar, button));
   // State "has popup" only supported in XP and higher.
   if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
@@ -375,7 +380,8 @@ TEST_F(AccessibilityTest, TestForwardButton) {
   ASSERT_TRUE(NULL == p_accobj);
   ASSERT_TRUE(VT_I4 == button.vt);
   // Read it's properties.
-  EXPECT_EQ(L"Forward", GetName(p_toolbar, button));
+  EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_FORWARD),
+            GetName(p_toolbar, button));
   EXPECT_EQ(L"drop down button", GetRole(p_toolbar, button));
   // State "has popup" only supported in XP and higher.
   if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
