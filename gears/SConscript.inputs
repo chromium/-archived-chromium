@@ -947,6 +947,13 @@ if env_res:
   ])
 
 #-----------------------------------------------------------------------------
+# Safari Installer Plugin
+
+env.Append(SF_INSTALLER_PLUGIN_CPPSRCS = [
+    '$OPEN_DIR/base/safari/advanced_stats_sheet.m',
+])
+
+#-----------------------------------------------------------------------------
 # resources
 
 if env_res and env['OS'] in ['win32', 'wince']:
@@ -1001,4 +1008,4 @@ if env['OS'] == 'win32':
       '$OPEN_DIR/tools/mscom.def',
   ])
 
-Export({'env_inputs': env})
+Return('env')

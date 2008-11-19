@@ -188,9 +188,6 @@ env.Append(
 
 if env['OS'] == 'osx':
   env.Append(
-      LINKFLAGS = [
-          '-bundle'
-      ],
       LIBS = [
           'mozjs-gears',
           'curl',
@@ -201,20 +198,7 @@ if env['OS'] == 'osx':
       LIBPATH = [
           '$OPEN_DIR/tools/osx'
       ],
-      FRAMEWORKS = [
-          'Carbon',
-          'CoreServices',
-          'Cocoa',
-          'WebKit',
-      ]
   )
-  if not env['OFFICIAL_BUILD']:
-    # For PortAudio:
-    env.Append(FRAMEWORKS = [
-        'CoreAudio',
-        'AudioToolbox',
-        'AudioUnit',
-    ])
 
 # Add in libraries for in-development APIs for non-official builds.
 if not env['OFFICIAL_BUILD']:
@@ -392,9 +376,7 @@ if env['OS'] == 'win32':
 #      env.SharedObject('$OPEN_DIR/base/safari/resource_archive.cc')
 
 # Include the input file list.
-env.SConscript('SConscript.inputs', exports=['env', 'env_res'])
-Import('env_inputs')
-env = env_inputs
+env = env.SConscript('SConscript.inputs', exports=['env', 'env_res'])
 
 
 #-----------------------------------------------------------------------------

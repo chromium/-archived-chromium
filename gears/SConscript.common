@@ -35,10 +35,14 @@ env.Prepend(
     ]
 )
 
+# OS X needs to be 'LINUX' in common sources.
+# TODO(nigeltao): Should we instead have a UNIX flag, rather than calling
+# Mac OS X a "flavor of Linux"??
+if env['OS'] == 'osx':
+  env.Append(CPPDEFINES = ['LINUX'])
+
 # Include the input file list.
-env.SConscript('SConscript.inputs', exports={'env': env, 'env_res': None})
-Import('env_inputs')
-env = env_inputs
+env = env.SConscript('SConscript.inputs', exports={'env': env, 'env_res': None})
 
 
 #-----------------------------------------------------------------------------
@@ -80,3 +84,9 @@ elif env['OS'] == 'osx':
   #     FRAMEWORKS = Split('Carbon Cocoa Foundation IOKit SystemConfiguration'),
   #     LIBS='stdc++')
 env.Alias('gears', crash_sender)
+
+if env['OS'] == 'osx':
+  # SF_INSTALLER_PLUGIN_EXE
+  env.ChromeProgram('stats_pane',
+      GetInputs('$SF_INSTALLER_PLUGIN_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] + Split('Cocoa InstallerPlugins'))

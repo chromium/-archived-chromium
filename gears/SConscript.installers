@@ -10,11 +10,10 @@ import utils
 Import('env')
 
 env = env.Clone(
-    INSTALLER_BASEDIR = 'installers',
-    INSTALLER_BASENAME = 'gears-${OS}-${MODE}-${VERSION}',
     FF_XPI = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.xpi',
     WIN32_INSTALLER_MSI = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.msi',
     WINCE_INSTALLER_CAB = '$INSTALLER_BASEDIR/${INSTALLER_BASENAME}.cab',
+    SF_INSTALLER_PLUGIN_BUNDLE = '$INSTALLER_BASEDIR/Safari/StatsPane.bundle',
 
     FF2_MODULE = '${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}',
     MODULE = '${SHLIBPREFIX}gears${SHLIBSUFFIX}',
@@ -139,54 +138,24 @@ def ToUnixPath(path):
   """Converts windows-style \ to unix-style /."""
   return re.sub(r'\\', r'/', path)
 
-def FirefoxInstaller(env):
-  # This step is a little hackish.
-  # Why: We want to copy files from both the build and source dirs.  We have
-  # to be explicit about which tree to pull from, because otherwise scons gets
-  # confused - specifically, when copying a directory from the source dir,
-  # scons uses the build dir's version instead. 
-  # How: We specify "*_OUTDIR" for outputs to pull from the build dir.
-  # However, this won't work as an input to a builder, so we strip that off
-  # when passing to Command().  The Copy action, however, receives the full
-  # qualified path, since it knows nothing about variant build dirs.
-  #
-  # Note: as shorthand, if the target ends with a '/', then the sources will
-  # be placed into that dir.  Otherwise, source is renamed into the target.
-  copysrcs = [
-      ('/', ['$FF3_OUTDIR/genfiles/install.rdf',
-             '$FF3_OUTDIR/genfiles/chrome.manifest']),
-      ('lib/', ['$OPEN_DIR/base/firefox/static_files/lib/updater.js']),
-      ('chrome/chromeFiles/content/',
-          GetInputs('$FF3_RESOURCES $COMMON_RESOURCES')),
-      ('chrome/chromeFiles/locale', ['$FF3_OUTDIR/genfiles/i18n']),
-      ('components/',
-          ['$FF3_OUTDIR/gears.xpt',
-           '$OPEN_DIR/base/firefox/static_files/components/bootstrap.js']),
-      ('components/$FF2_MODULE', ['$FF2_OUTDIR/$MODULE']),
-      ('components/$MODULE', ['$FF3_OUTDIR/$MODULE']),
-  ]
+def DirBuilder(env, dirtarget, dirsrcs):
+  """Builder that makes a directory tree by copying source files to
+  corresponding locations inside 'dirtarget'.  'dirsrcs' specifies the list of
+  mappings from source file/directory to the target location.  It's formatted
+  like:
+    (<target file or dir>, <list of source files>)
 
-  if env['USING_CCTESTS']:
-    copysrcs += [
-        ('components/', ['$COMMON_OUTDIR/ipc_test${PROGSUFFIX}']),
-    ]
-  if env['OS'] != 'win32':
-    # TODO(playmobil): Inspector should be located in extensions dir on win32.
-    copysrcs += [
-        ('resources/inspector', ['$OPEN_DIR/inspector']),
-        ('resources/inspector/common/', ['$OPEN_DIR/sdk/gears_init.js',
-                                         '$OPEN_DIR/sdk/samples/sample.js']),
-    ]
-  if env['MODE'] == 'dbg' and env['OS'] in ['win32', 'wince']:
-    copysrcs += [
-        ('components/gears_ff2.pdb', ['$FF2_OUTDIR/gears.pdb']),
-        ('components/gears.pdb', ['$FF3_OUTDIR/gears.pdb']),
-    ]
-  # TODO: notifier, os x
+  Note: source files that come from an output directory must be explicitly
+  specified relative to the toplevel dir '#'.
+  Note: as shorthand, if the target ends with a '/', then the sources will
+  be placed into that dir.  Otherwise, source is renamed into the target.
+  """
 
   srcs = []
   actions = [Delete('${TARGET.base}')]
-  for target, sources in copysrcs:
+  for target, sources in dirsrcs:
+    # Strip output directory from the src, because builders expect srcs to
+    # be relative to the outdir already.
     srcs += StripOutdir(sources)
 
     is_dir = target.endswith('/')
@@ -201,14 +170,68 @@ def FirefoxInstaller(env):
                  source))
       else:
         actions.append(Copy('${TARGET.base}/' + target, source))
- 
-  actions += [
-      # Mark files writeable to allow .xpi rebuilds
-      'chmod -R 777 ${TARGET.base}',
-      '(cd ${TARGET.base} && zip -r ../${TARGET.file} .)'
+
+  # Remove any .svn directories that were copied.
+  actions += ['rm -rf `find ${TARGET.base} -name .svn`']
+
+  # HACK: Workaround for bug in scons where directories aren't checked for
+  # dependency changes.  Instead, we make a temp file the target, and ensure
+  # that that file changes everytime we execute these actions.
+  actions += ['date > ${TARGET}']
+  realtarget = env.Command(dirtarget + '.dir', srcs, actions)
+  return [dirtarget, realtarget]
+env.AddMethod(DirBuilder, 'DirBuilder')
+
+def FirefoxInstaller(env):
+  # This step is a little hackish.
+  # Why: We want to copy files from both the build and source dirs.  We have
+  # to be explicit about which tree to pull from, because otherwise scons gets
+  # confused - specifically, when copying a directory from the source dir,
+  # scons uses the build dir's version instead. 
+  # How: We specify "*_OUTDIR" for outputs to pull from the build dir.
+  # However, this won't work as an input to a builder, so we strip that off
+  # when passing to Command().  The Copy action, however, receives the full
+  # qualified path, since it knows nothing about variant build dirs.
+  dirsrcs = [
+      ('/', ['$FF3_OUTDIR/genfiles/install.rdf',
+             '$FF3_OUTDIR/genfiles/chrome.manifest']),
+      ('lib/', ['$OPEN_DIR/base/firefox/static_files/lib/updater.js']),
+      ('chrome/chromeFiles/content/',
+          GetInputs('$FF3_RESOURCES $COMMON_RESOURCES')),
+      ('chrome/chromeFiles/locale', ['$FF3_OUTDIR/genfiles/i18n']),
+      ('components/',
+          ['$FF3_OUTDIR/gears.xpt',
+           '$OPEN_DIR/base/firefox/static_files/components/bootstrap.js']),
+      ('components/$FF2_MODULE', ['$FF2_OUTDIR/$MODULE']),
+      ('components/$MODULE', ['$FF3_OUTDIR/$MODULE']),
   ]
 
-  return env.Command('$FF_XPI', srcs, actions)
+  if env['USING_CCTESTS']:
+    dirsrcs += [
+        ('components/', ['$COMMON_OUTDIR/ipc_test${PROGSUFFIX}']),
+    ]
+  if env['OS'] != 'win32':
+    # TODO(playmobil): Inspector should be located in extensions dir on win32.
+    dirsrcs += [
+        ('resources/inspector', ['$OPEN_DIR/inspector']),
+        ('resources/inspector/common/', ['$OPEN_DIR/sdk/gears_init.js',
+                                         '$OPEN_DIR/sdk/samples/sample.js']),
+    ]
+  if env['MODE'] == 'dbg' and env['OS'] in ['win32', 'wince']:
+    dirsrcs += [
+        ('components/gears_ff2.pdb', ['$FF2_OUTDIR/gears.pdb']),
+        ('components/gears.pdb', ['$FF3_OUTDIR/gears.pdb']),
+    ]
+  # TODO: notifier, os x
+
+  dir = env.DirBuilder('$INSTALLER_BASEDIR/${INSTALLER_BASENAME}', dirsrcs)
+  actions = [
+      # Mark files writeable to allow .xpi rebuilds
+      'chmod -R 777 $SOURCE',
+      '(cd $SOURCE && zip -r ../${TARGET.file} .)'
+  ]
+
+  return env.Command('$FF_XPI', dir, actions)
 env.AddMethod(FirefoxInstaller, 'FirefoxInstaller')
 
 def Win32Installer(env):

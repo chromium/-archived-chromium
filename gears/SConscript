@@ -36,6 +36,7 @@ Import('env')
 
 env = env.Clone(
     OPEN_DIR = "gears",
+    PRIVATE_DIR = "gears_internal",
     THIRD_PARTY_DIR = "third_party",
     PRIVATE_THIRD_PARTY_DIR = "third_party_internal",
     SYMBIAN_DIR = "symbian_internal",
@@ -125,6 +126,9 @@ env.Replace(
 
     GENFILES_DIR = "$BROWSER_OUTDIR/genfiles",
     COMMON_GENFILES_DIR = "$COMMON_OUTDIR/genfiles",
+
+    INSTALLER_BASEDIR = 'installers',
+    INSTALLER_BASENAME = 'gears-${OS}-${MODE}-${VERSION}',
 )
 
 # Library flags
@@ -675,8 +679,22 @@ elif env['OS'] == 'osx':
            ('-arch', 'i386'),
            ('-isysroot', '$OSX_SDK_ROOT'),
            '-Wl,-dead_strip',
+          '-bundle',  # DLLFLAGS
+      ],
+      FRAMEWORKS = [
+          'Carbon',
+          'CoreServices',
+          'Cocoa',
+          'WebKit',
       ],
   )
+  if not env['OFFICIAL_BUILD']:
+    # For PortAudio:
+    env.Append(FRAMEWORKS = [
+        'CoreAudio',
+        'AudioToolbox',
+        'AudioUnit',
+    ])
   if env['MODE'] == 'dbg':
     env.Append(
         CPPFLAGS = [
@@ -721,6 +739,10 @@ sconscripts = [
     'SConscript.portaudio',
 ]
 
+#if os.path.exists(env.Entry('#/$PRIVATE_DIR/SConscript').abspath):
+#  env = env.SConscript('#/$PRIVATE_DIR/SConscript',
+#      exports=['env', 'env_res'])
+
 for each in sconscripts:
   env.SConscript(each,
                  exports=['env'],
@@ -746,6 +768,8 @@ for each in browsers:
                  variant_dir='$BROWSER_OUTDIR',
                  duplicate=0)
 
+# Note: even though the installers write to $INSTALLER_OUTDIR, they need to
+# read files from other dirs, so we give them a variant_dir at the toplevel.
 env.SConscript('SConscript.installers',
                exports=['env'],
                variant_dir='$BASE_OUTDIR',
