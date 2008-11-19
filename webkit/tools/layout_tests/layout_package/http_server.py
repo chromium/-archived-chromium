@@ -91,7 +91,7 @@ class Lighttpd:
     platform_util = platform_utils.PlatformUtility('')
     f.write(('cgi.assign = ( ".cgi"  => "/usr/bin/env",\n'
              '               ".pl"   => "/usr/bin/env",\n'
-             '               ".asis" => "/usr/bin/cat",\n'
+             '               ".asis" => "/bin/cat",\n'
              '               ".php"  => "%s" )\n\n') %
                                  platform_util.LigHTTPdPHPPath())
 
