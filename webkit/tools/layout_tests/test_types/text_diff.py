@@ -43,7 +43,7 @@ class TestTextDiff(test_type_base.TestTypeBase):
       return expected
 
     # Normalize line endings
-    return expected.strip("\r\n") + "\n"
+    return expected.strip("\r\n").replace("\r\n", "\n") + "\n"
 
   def CompareOutput(self, filename, proc, output, test_args):
     """Implementation of CompareOutput that checks the output text against the
