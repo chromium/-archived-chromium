@@ -148,10 +148,9 @@ NativeUIContents::~NativeUIContents() {
                                        path_to_native_uis_.end());
 }
 
-void NativeUIContents::CreateView(HWND parent_hwnd,
-                                  const gfx::Rect& initial_bounds) {
+void NativeUIContents::CreateView() {
   set_delete_on_destroy(false);
-  ContainerWin::Init(parent_hwnd, initial_bounds, false);
+  ContainerWin::Init(GetDesktopWindow(), gfx::Rect(), false);
 }
 
 LRESULT NativeUIContents::OnCreate(LPCREATESTRUCT create_struct) {

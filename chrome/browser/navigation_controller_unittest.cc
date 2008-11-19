@@ -51,7 +51,7 @@ class NavigationControllerTest : public testing::Test,
 
     contents = new TestTabContents(type1());
     contents->set_delegate(this);
-    contents->CreateView(::GetDesktopWindow(), gfx::Rect());
+    contents->CreateView();
     contents->SetupController(profile);
   }
 
@@ -1232,7 +1232,7 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
   navigations.push_back(TabNavigation(0, url, GURL(), L"Title", "state",
                                       PageTransition::LINK));
   NavigationController* controller =
-      new NavigationController(profile, navigations, 0, NULL);
+      new NavigationController(profile, navigations, 0);
   controller->GoToIndex(0);
 
   // We should now have one entry, and it should be "pending".

@@ -37,7 +37,7 @@ class NativeUIContents : public TabContents,
  public:
   explicit NativeUIContents(Profile* profile);
 
-  virtual void CreateView(HWND parent_hwnd, const gfx::Rect& initial_bounds);
+  virtual void CreateView();
   virtual HWND GetContainerHWND() const { return GetHWND(); }
   virtual void GetContainerBounds(gfx::Rect *out) const;
 

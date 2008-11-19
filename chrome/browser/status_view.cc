@@ -16,9 +16,8 @@ StatusView::~StatusView() {
     delete buttons_[i].button;
 }
 
-void StatusView::CreateView(HWND parent_hwnd,
-                            const gfx::Rect& initial_bounds) {
-  Create(parent_hwnd);
+void StatusView::CreateView() {
+  Create(GetDesktopWindow());
 }
 
 LRESULT StatusView::OnCreate(LPCREATESTRUCT create_struct) {

@@ -92,8 +92,8 @@ void DebuggerView::OnInit() {
   // We can't create the WebContents until we've actually been put into a real
   // view hierarchy somewhere.
   Profile* profile = BrowserList::GetLastActive()->profile();
-  TabContents* tc = TabContents::CreateWithType(TAB_CONTENTS_DEBUGGER, 
-      ::GetDesktopWindow(), profile, NULL);
+  TabContents* tc = TabContents::CreateWithType(TAB_CONTENTS_DEBUGGER, profile,
+                                                NULL);
   web_contents_ = tc->AsWebContents();
   web_contents_->SetupController(profile);
   web_contents_->set_delegate(this);

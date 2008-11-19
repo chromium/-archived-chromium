@@ -38,7 +38,6 @@ TabContentsType TabContentsFactory::NextUnusedType() {
 
 /*static*/
 TabContents* TabContents::CreateWithType(TabContentsType type,
-                                         HWND parent,
                                          Profile* profile,
                                          SiteInstance* instance) {
   TabContents* contents;
@@ -89,7 +88,7 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
   }
 
   if (contents)
-    contents->CreateView(parent, gfx::Rect());
+    contents->CreateView();
 
   return contents;
 }

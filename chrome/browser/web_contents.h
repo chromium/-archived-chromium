@@ -103,7 +103,7 @@ class WebContents : public TabContents,
   // Retarded pass-throughs to the view.
   // TODO(brettw) fix this, tab contents shouldn't have these methods, probably
   // it should be killed altogether.
-  virtual void CreateView(HWND parent_hwnd, const gfx::Rect& initial_bounds);
+  virtual void CreateView();
   virtual HWND GetContainerHWND() const;
   virtual HWND GetContentHWND();
   virtual void GetContainerBounds(gfx::Rect *out) const;
