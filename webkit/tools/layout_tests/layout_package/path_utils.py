@@ -133,6 +133,11 @@ def ExpectedFilename(filename, suffix, platform):
       for length in range(len(segments), 1, -1):
         platform_dirs.append('-'.join(segments[1:length]))
 
+    if platform_utils.IsNonWindowsPlatformTargettingWindowsResults():
+      platform_dirs.append('chromium-win')
+      platform_dirs.append('chromium')
+      platform_dirs.append('win')
+
     # Finally, append platform/mac/ to all searches.
     if 'mac' not in platform_dirs:
       platform_dirs.append('mac')

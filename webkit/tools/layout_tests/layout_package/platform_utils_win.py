@@ -28,6 +28,12 @@ THISDIR = os.path.dirname(os.path.abspath(__file__))
 def PathFromBase(*pathies):
   return google.path_utils.FindUpward(THISDIR, *pathies)
 
+"""Returns true iff this platform is targetting Windows baseline, but isn't
+Windows. By default, in path_utils.py:ExpectedFilename, we expect platforms to
+be targetting Mac."""
+def IsNonWindowsPlatformTargettingWindowsResults():
+  return False
+
 class PlatformUtility(google.platform_utils_win.PlatformUtility):
   """Overrides base PlatformUtility methods as needed for layout tests."""
 
