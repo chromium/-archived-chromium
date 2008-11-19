@@ -53,7 +53,7 @@ TEST_F(ClipboardTest, TextTest) {
   EXPECT_EQ(WideToUTF8(text), ascii_text);
 }
 
-TEST_F(ClipboardTest, HTMLTest) {
+TEST_F(ClipboardTest, DISABLED_HTMLTest) {
   Clipboard clipboard;
 
   std::wstring markup(L"<string>Hi!</string>"), markup_result;
@@ -75,7 +75,7 @@ TEST_F(ClipboardTest, HTMLTest) {
 #endif
 }
 
-TEST_F(ClipboardTest, TrickyHTMLTest) {
+TEST_F(ClipboardTest, DISABLED_TrickyHTMLTest) {
   Clipboard clipboard;
 
   std::wstring markup(L"<em>Bye!<!--EndFragment --></em>"), markup_result;
@@ -118,7 +118,7 @@ TEST_F(ClipboardTest, BookmarkTest) {
 }
 #endif
 
-TEST_F(ClipboardTest, MultiFormatTest) {
+TEST_F(ClipboardTest, DISABLED_MultiFormatTest) {
   Clipboard clipboard;
 
   std::wstring text(L"Hi!"), text_result;
