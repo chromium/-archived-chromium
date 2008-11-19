@@ -12,6 +12,7 @@ import os
 import platform_utils
 import subprocess
 import sys
+import tempfile
 import time
 import urllib
 
@@ -205,9 +206,8 @@ if '__main__' == __name__:
   else:
     if (options.root is None) != (options.port is None):
       raise 'Either port or root is missing (need both, or neither)'
-    httpd = Lighttpd('c:/cygwin/tmp', port=options.port, root=options.root)
+    httpd = Lighttpd(tempfile.gettempdir(), port=options.port, root=options.root)
   if 'start' == options.server:
     httpd.Start()
   else:
     httpd.Stop(force=True)
-

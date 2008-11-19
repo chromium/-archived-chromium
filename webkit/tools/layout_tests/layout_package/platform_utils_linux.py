@@ -133,8 +133,18 @@ class PlatformUtility(object):
     Args:
       server_process: The subprocess object representing the running server
     """
-    subprocess.Popen(('kill', '-TERM', '%d' % server_process.pid),
-                     stdout=subprocess.PIPE,
+    # server_process is not set when "http_server.py stop" is run manually.
+    if server_process is None:
+      # Try to determine the HTTP server process.
+      # TODO(mmoss) This isn't ideal, since it could conflict with lighttpd
+      # processes not started by http_server.py, but good enough for now.
+      proc = subprocess.Popen(('ps', '--no-headers', '-o', 'pid',
+                               '-C', 'lighttpd'),
+                              stdout=subprocess.PIPE)
+      pid = proc.stdout.readline().strip()
+    else:
+      pid = server_process.pid
+    subprocess.Popen(('kill', '-TERM', '%s' % pid), stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE).wait()
 
   def WDiffExecutablePath(self):
