@@ -10,6 +10,31 @@
 
 namespace gfx {
 
+// -----------------------------------------------------------------------------
+// These objects are reference counted and own a Cairo surface. The surface is
+// the backing store for a Skia bitmap and we reference count it so that we can
+// copy BitmapPlatformDeviceLinux objects without having to copy all the image
+// data.
+// -----------------------------------------------------------------------------
+class BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinuxData
+    : public base::RefCounted<BitmapPlatformDeviceLinuxData> {
+ public:
+  explicit BitmapPlatformDeviceLinuxData(cairo_surface_t* surface)
+      : surface_(surface) { }
+
+  cairo_surface_t* surface() const { return surface_; }
+
+ protected:
+  cairo_surface_t *const surface_;
+
+  friend class base::RefCounted<BitmapPlatformDeviceLinuxData>;
+  ~BitmapPlatformDeviceLinuxData() {
+    cairo_surface_destroy(surface_);
+  }
+
+  DISALLOW_EVIL_CONSTRUCTORS(BitmapPlatformDeviceLinuxData);
+};
+
 // We use this static factory function instead of the regular constructor so
 // that we can create the pixel data before calling the constructor. This is
 // required so that we can call the base class' constructor with the pixel
@@ -33,28 +58,37 @@ BitmapPlatformDeviceLinux* BitmapPlatformDeviceLinux::Create(
 #endif
 
   // The device object will take ownership of the graphics context.
-  return new BitmapPlatformDeviceLinux(bitmap, surface);
+  return new BitmapPlatformDeviceLinux
+      (bitmap, new BitmapPlatformDeviceLinuxData(surface));
 }
 
 // The device will own the bitmap, which corresponds to also owning the pixel
 // data. Therefore, we do not transfer ownership to the SkDevice's bitmap.
-BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(const SkBitmap& bitmap,
-                                                     cairo_surface_t* surface)
+BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
+    const SkBitmap& bitmap,
+    BitmapPlatformDeviceLinuxData* data)
     : PlatformDeviceLinux(bitmap),
-      surface_(surface) {
+      data_(data) {
 }
 
 BitmapPlatformDeviceLinux::BitmapPlatformDeviceLinux(
     const BitmapPlatformDeviceLinux& other)
     : PlatformDeviceLinux(const_cast<BitmapPlatformDeviceLinux&>(
-                          other).accessBitmap(true)) {
+                          other).accessBitmap(true)),
+      data_(other.data_) {
 }
 
 BitmapPlatformDeviceLinux::~BitmapPlatformDeviceLinux() {
-  if (surface_) {
-    cairo_surface_destroy(surface_);
-    surface_ = NULL;
-  }
+}
+
+cairo_surface_t* BitmapPlatformDeviceLinux::surface() const {
+  return data_->surface();
+}
+
+BitmapPlatformDeviceLinux& BitmapPlatformDeviceLinux::operator=(
+    const BitmapPlatformDeviceLinux& other) {
+  data_ = other.data_;
+  return *this;
 }
 
 }  // namespace gfx

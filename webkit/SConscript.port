@@ -134,6 +134,7 @@ if env['PLATFORM'] == 'posix':
 
     '$PORT_DIR/platform/graphics/skia/public/PlatformCanvasLinux.cpp',
     '$PORT_DIR/platform/graphics/skia/public/PlatformDeviceLinux.cpp',
+    '$PORT_DIR/platform/graphics/skia/public/BitmapPlatformDeviceLinux.cpp',
   ])
 
 if env['PLATFORM'] == 'darwin':
