@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/platform_canvas_mac.h"
+#include "PlatformCanvasMac.h"
 
 #include "base/gfx/bitmap_platform_device_mac.h"
 #include "base/logging.h"

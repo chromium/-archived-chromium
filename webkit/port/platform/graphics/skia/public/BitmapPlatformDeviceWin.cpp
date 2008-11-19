@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/bitmap_platform_device_win.h"
+#include "BitmapPlatformDeviceWin.h"
 
 #include "base/gfx/gdi_util.h"
 #include "base/logging.h"

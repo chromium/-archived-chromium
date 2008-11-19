@@ -47,7 +47,11 @@ include_rules = [
   # For now, we allow ICU to be included by specifying "unicode/...", although
   # this should probably change.
   "+unicode",
-  '+testing'
+  "+testing",
+
+  # Allow anybody to include files from the "public" Skia directory in the
+  # webkit port. This is shared between the webkit port and Chrome.
+  "+webkit/port/platform/graphics/skia/public",
 ]
 
 

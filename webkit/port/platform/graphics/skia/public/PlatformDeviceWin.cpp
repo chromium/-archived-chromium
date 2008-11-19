@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/platform_device_win.h"
+#include "PlatformDeviceWin.h"
 
 #include "base/logging.h"
 #include "base/gfx/skia_utils.h"
@@ -132,7 +132,7 @@ void PlatformDeviceWin::LoadTransformToDC(HDC dc, const SkMatrix& matrix) {
 
 // static
 bool PlatformDeviceWin::SkPathToCubicPaths(CubicPaths* paths,
-                                        const SkPath& skpath) {
+                                           const SkPath& skpath) {
   paths->clear();
   CubicPath* current_path = NULL;
   SkPoint current_points[4];
@@ -195,8 +195,8 @@ bool PlatformDeviceWin::SkPathToCubicPaths(CubicPaths* paths,
 
 // static
 void PlatformDeviceWin::LoadClippingRegionToDC(HDC context,
-                                            const SkRegion& region,
-                                            const SkMatrix& transformation) {
+                                               const SkRegion& region,
+                                               const SkMatrix& transformation) {
   HRGN hrgn;
   if (region.isEmpty()) {
     // region can be empty, in which case everything will be clipped.

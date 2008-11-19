@@ -1,0 +1,3 @@
+The files in this directory must not depend on WebKit types since they are used
+by both the port and the Chromium application layer. They may only depend on
+Skia and the system libraries.

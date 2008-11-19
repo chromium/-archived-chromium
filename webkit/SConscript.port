@@ -131,6 +131,9 @@ if env['PLATFORM'] == 'posix':
     '$PORT_DIR/platform/chromium/ScrollbarThemeChromiumLinux.cpp',
     '$PORT_DIR/platform/graphics/chromium/GlyphPageTreeNodeLinux.cpp',
     '$PORT_DIR/platform/graphics/skia/GdkSkia.cc',
+
+    '$PORT_DIR/platform/graphics/skia/public/PlatformCanvasLinux.cpp',
+    '$PORT_DIR/platform/graphics/skia/public/PlatformDeviceLinux.cpp',
   ])
 
 if env['PLATFORM'] == 'darwin':
@@ -145,6 +148,9 @@ if env['PLATFORM'] == 'darwin':
     '$PORT_DIR/platform/chromium/ScrollbarThemeChromium.cpp',
     '$PORT_DIR/platform/graphics/FontCustomPlatformData.cpp',
     '$PORT_DIR/platform/graphics/ImageSkia.cpp',
+
+    '$PORT_DIR/platform/graphics/skia/public/PlatformCanvasMac.cpp',
+    '$PORT_DIR/platform/graphics/skia/public/PlatformDeviceMac.cpp',
   ]
   for remove in remove_files:
     input_files.remove(remove)
@@ -166,6 +172,12 @@ if env['PLATFORM'] == 'win32':
     '$PORT_DIR/platform/graphics/ThemeHelperWin.cpp',
     '$PORT_DIR/platform/graphics/UniscribeHelper.cpp',
     '$PORT_DIR/platform/graphics/UniscribeHelperTextRun.cpp',
+
+    '$PORT_DIR/platform/graphics/skia/public/PlatformCanvasWin.cpp',
+    '$PORT_DIR/platform/graphics/skia/public/PlatformDeviceWin.cpp',
+    '$PORT_DIR/platform/graphics/skia/public/VectorCanvas.cpp',
+    '$PORT_DIR/platform/graphics/skia/public/VectorDevice.cpp',
+
     '$PORT_DIR/rendering/RenderThemeWin.cpp',
   ])
 

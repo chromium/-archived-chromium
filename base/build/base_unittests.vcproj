@@ -404,15 +404,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\gfx\platform_canvas_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\gfx\png_codec_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\gfx\vector_canvas_unittest.cc"
 				>
 			</File>
 		</Filter>

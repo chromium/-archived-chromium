@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/vector_canvas.h"
+#include "VectorCanvas.h"
 
 #include <vector>
 
@@ -355,7 +355,8 @@ void LoadPngFileToSkBitmap(const std::wstring& file, SkBitmap* bitmap) {
 
 // Streams an image.
 inline std::ostream& operator<<(std::ostream& out, const Image& image) {
-  return out << "Image(" << image.size() << ", " << image.row_length() << ")";
+  return out << "Image(" << image.size().width() << ", "
+             << image.size().height() << ", " << image.row_length() << ")";
 }
 
 // Runs simultaneously the same drawing commands on VectorCanvas and

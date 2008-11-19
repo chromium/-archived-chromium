@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/gfx/platform_device_mac.h"
+#include "PlatformDeviceMac.h"
 
 #include "base/logging.h"
 #include "base/gfx/skia_utils_mac.h"
@@ -100,15 +100,15 @@ void PlatformDeviceMac::LoadTransformToCGContext(CGContextRef context,
   // CoreGraphics can concatenate transforms, but not reset the current one.
   // So in order to get the required behavior here, we need to first make
   // the current transformation matrix identity and only then load the new one.
-  
+
   // Reset matrix to identity.
   CGAffineTransform orig_cg_matrix = CGContextGetCTM(context);
   CGAffineTransform orig_cg_matrix_inv = CGAffineTransformInvert(orig_cg_matrix);
   CGContextConcatCTM(context, orig_cg_matrix_inv);
-  
+
   // assert that we have indeed returned to the identity Matrix.
   DCHECK(CGAffineTransformIsIdentity(CGContextGetCTM(context)));
-  
+
   // Convert xform to CG-land.
   // Our coordinate system is flipped to match WebKit's so we need to modify
   // the xform to match that.
@@ -118,9 +118,9 @@ void PlatformDeviceMac::LoadTransformToCGContext(CGContextRef context,
   size_t height = CGBitmapContextGetHeight(context);
   SkScalar ty = -matrix.getTranslateY(); // y axis is flipped.
   transformed_matrix.setTranslateY(ty + (SkScalar)height);
-  
+
   CGAffineTransform cg_matrix = SkMatrixToCGAffineTransform(transformed_matrix);
-  
+
   // Load final transform into context.
   CGContextConcatCTM(context, cg_matrix);
 }
@@ -156,6 +156,6 @@ void PlatformDeviceMac::LoadClippingRegionToCGContext(
     // hrgn = PathToRegion(context);
   }
 }
-  
+
 }  // namespace gfx
 

@@ -1066,6 +1066,66 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="skia"
+					>
+					<Filter
+						Name="public"
+						>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\BitmapPlatformDevice.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\BitmapPlatformDeviceWin.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\BitmapPlatformDeviceWin.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\PlatformCanvas.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\PlatformCanvasWin.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\PlatformCanvasWin.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\PlatformDevice.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\PlatformDeviceWin.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\PlatformDeviceWin.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\VectorCanvas.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\VectorCanvas.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\VectorDevice.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\port\platform\graphics\skia\public\VectorDevice.h"
+							>
+						</File>
+					</Filter>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="image-decoders"

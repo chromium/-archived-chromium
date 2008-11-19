@@ -367,6 +367,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\port\platform\graphics\skia\public\PlatformCanvas_unittest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\plugin_tests.cc"
 				>
 			</File>
@@ -384,6 +388,10 @@
 			</File>
 			<File
 				RelativePath="..\..\port\platform\graphics\UniscribeHelper_unittest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\port\platform\graphics\skia\public\VectorCanvas_unittest.cpp"
 				>
 			</File>
 			<File

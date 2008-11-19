@@ -42,8 +42,6 @@ input_files = [
     'rect.cc',
     'size.cc',
     'skia_utils.cc',
-    'vector_canvas.cc',
-    'vector_device.cc',
 ]
 
 if env['PLATFORM'] in ('posix', 'darwin'):
@@ -53,23 +51,15 @@ if env['PLATFORM'] in ('posix', 'darwin'):
       'gdi_util.cc',
       'native_theme.cc',
       'skia_utils.cc',
-      'vector_canvas.cc',
-      'vector_device.cc',
   ]
   for remove in to_be_ported_files:
     input_files.remove(remove)
 
 if env['PLATFORM'] == 'win32':
   input_files.extend([
-      'bitmap_platform_device_win.cc',
-      'platform_canvas_win.cc',
-      'platform_device_win.cc',
   ])
 elif env['PLATFORM'] == 'posix':
   input_files.extend([
-      'bitmap_platform_device_linux.cc',
-      'platform_canvas_linux.cc',
-      'platform_device_linux.cc',
   ])
 
 env.ChromeStaticLibrary('base_gfx', input_files)

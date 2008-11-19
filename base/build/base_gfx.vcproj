@@ -122,10 +122,6 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\gfx\bitmap_platform_device_win.cc"
-			>
-		</File>
-		<File
 			RelativePath="..\gfx\bitmap_platform_device_win.h"
 			>
 		</File>
@@ -162,15 +158,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\gfx\platform_canvas_win.cc"
-			>
-		</File>
-		<File
 			RelativePath="..\gfx\platform_canvas_win.h"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\platform_device_win.cc"
 			>
 		</File>
 		<File
@@ -223,22 +211,6 @@
 		</File>
 		<File
 			RelativePath="..\gfx\skia_utils.h"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\vector_canvas.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\vector_canvas.h"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\vector_device.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\gfx\vector_device.h"
 			>
 		</File>
 	</Files>
