@@ -108,7 +108,7 @@ input_files = [
     'text_input_controller.cc',
 ]
 if env['PLATFORM'] == 'win32':
-  # TODO(port): put portable files in above test_files declaration.
+  # TODO(port): Consider porting drag_delegate.cc and drop_delecate.cc.
   input_files.extend([
       'drag_delegate.cc',
       'drop_delegate.cc',
@@ -119,8 +119,8 @@ if env['PLATFORM'] == 'win32':
   ])
 elif env['PLATFORM'] == 'posix':
   input_files.extend([
-      'gtk/webview_host.cc',
-      'gtk/webwidget_host.cc',
+      'webview_host_gtk.cc',
+      'webwidget_host_gtk.cc',
       'test_shell_gtk.cc',
       'test_webview_delegate_gtk.cc',
   ])
