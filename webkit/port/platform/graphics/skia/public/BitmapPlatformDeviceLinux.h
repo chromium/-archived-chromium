@@ -5,7 +5,7 @@
 #ifndef BitmapPlatformDeviceLinux_h
 #define BitmapPlatformDeviceLinux_h
 
-#include "PLatformDeviceLinux.h"
+#include "PlatformDeviceLinux.h"
 #include "base/ref_counted.h"
 
 typedef struct _cairo_surface cairo_surface_t;
