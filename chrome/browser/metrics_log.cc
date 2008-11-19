@@ -4,6 +4,7 @@
 
 #include "chrome/browser/metrics_log.h"
 
+#include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/file_version_info.h"
 #include "base/md5.h"
@@ -22,6 +23,11 @@
 
 using base::Time;
 using base::TimeDelta;
+
+// http://blogs.msdn.com/oldnewthing/archive/2004/10/25/247180.aspx
+#if defined(OS_WIN)
+extern "C" IMAGE_DOS_HEADER __ImageBase;
+#endif
 
 // libxml take xmlChar*, which is unsigned char*
 inline const unsigned char* UnsignedChar(const char* input) {
@@ -449,6 +455,9 @@ void MetricsLog::RecordEnvironment(
   {
     OPEN_ELEMENT_FOR_SCOPE("memory");
     WriteIntAttribute("mb", base::SysInfo::AmountOfPhysicalMemoryMB());
+#if defined(OS_WIN)
+    WriteIntAttribute("dllbase", reinterpret_cast<int>(&__ImageBase));
+#endif
   }
 
   {
