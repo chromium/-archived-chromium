@@ -366,6 +366,9 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
 
   std::wstring download_path() { return *download_path_; }
 
+  // Clears the last download path, used to initialize "save as" dialogs.  
+  void ClearLastDownloadPath();
+
   // Registers this file extension for automatic opening upon download
   // completion if 'open' is true, or prevents the extension from automatic
   // opening if 'open' is false.
@@ -400,6 +403,10 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
  private:
   // Shutdown the download manager.  This call is needed only after Init.
   void Shutdown();
+
+  // Determines whether the "save as" dialog should be displayed to the user
+  // when downloading a file.
+  bool ShouldDisplaySaveAsDialog(const DownloadCreateInfo* info);
 
   // Called on the download thread to check whether the suggested file path
   // exists.  We don't check if the file exists on the UI thread to avoid UI

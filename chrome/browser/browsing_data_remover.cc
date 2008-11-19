@@ -90,6 +90,7 @@ void BrowsingDataRemover::Remove(int remove_mask) {
     UserMetrics::RecordAction(L"ClearBrowsingData_Downloads", profile_);
     DownloadManager* download_manager = profile_->GetDownloadManager();
     download_manager->RemoveDownloadsBetween(delete_begin_, delete_end_);
+    download_manager->ClearLastDownloadPath();
   }
 
   if (remove_mask & REMOVE_COOKIES) {

@@ -398,6 +398,17 @@ void DownloadManager::Shutdown() {
   shutdown_needed_ = false;
 }
 
+// Determines whether the "save as" dialog should be displayed to the user
+// when downloading a file.
+bool DownloadManager::ShouldDisplaySaveAsDialog(
+    const DownloadCreateInfo* info) {
+  return
+      *prompt_for_download_ ||      // User always wants a prompt.
+      info->save_as ||              // "Save as ..." operation.
+      info->path_uniquifier == -1;  // Last attempt to generate a unique file
+                                    // name failed.
+}
+
 // Issue a history query for downloads matching 'search_text'. If 'search_text'
 // is empty, return all downloads that we know about.
 void DownloadManager::GetDownloads(Observer* observer,
@@ -523,14 +534,14 @@ void DownloadManager::StartDownload(DownloadCreateInfo* info) {
   // download directory, or prompting the user.
   std::wstring generated_name;
   GenerateFilename(info, &generated_name);
-  if (*prompt_for_download_ && !last_download_path_.empty())
+  if (ShouldDisplaySaveAsDialog(info) && !last_download_path_.empty())
     info->suggested_path = last_download_path_;
   else
     info->suggested_path = *download_path_;
   file_util::AppendToPath(&info->suggested_path, generated_name);
 
   // Let's check if this download is dangerous, based on its name.
-  if (!*prompt_for_download_ && !info->save_as) {
+  if (!ShouldDisplaySaveAsDialog(info)) {
     const std::wstring filename =
         file_util::GetFilenameFromPath(info->suggested_path);
     info->is_dangerous = IsDangerous(filename);
@@ -597,7 +608,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
   DCHECK(MessageLoop::current() == ui_loop_);
   DCHECK(info);
 
-  if (*prompt_for_download_ || info->save_as || info->path_uniquifier == -1) {
+  if (ShouldDisplaySaveAsDialog(info)) {
     // We must ask the user for the place to put the download.
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
@@ -1210,7 +1221,7 @@ void DownloadManager::SaveAutoOpens() {
 
 void DownloadManager::FileSelected(const std::wstring& path, void* params) {
   DownloadCreateInfo* info = reinterpret_cast<DownloadCreateInfo*>(params);
-  if (*prompt_for_download_)
+  if (ShouldDisplaySaveAsDialog(info))
     last_download_path_ = file_util::GetDirectoryFromPath(path);
   ContinueStartDownload(info, path);
 }
@@ -1333,4 +1344,9 @@ void DownloadManager::OnSearchComplete(HistoryService::Handle handle,
   }
 
   requestor->SetDownloads(searched_downloads);
+}
+
+// Clears the last download path, used to initialize "save as" dialogs.  
+void DownloadManager::ClearLastDownloadPath() {
+  last_download_path_.clear();
 }
