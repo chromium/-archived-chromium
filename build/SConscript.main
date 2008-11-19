@@ -473,7 +473,7 @@ linux_env.Append(
     BUILD_SCONSCRIPTS = [
         '$LIBEVENT_DIR/libevent.scons',
     ],
-    CCFLAGS = ['-m32', '-pthread', '-march=i686'],
+    CCFLAGS = ['-m32', '-pthread', '-march=i686', '-fno-exceptions'],
     CXXFLAGS = ['-Wall', '-Werror', '-march=i686'] + excluded_warnings,
     LINKFLAGS = ['-m32', '-pthread'],
 )
