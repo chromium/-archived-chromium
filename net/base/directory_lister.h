@@ -5,10 +5,9 @@
 #ifndef NET_BASE_DIRECTORY_LISTER_H__
 #define NET_BASE_DIRECTORY_LISTER_H__
 
+#include <windows.h>
 #include <string>
 
-#include "base/file_util.h"
-#include "base/platform_thread.h"
 #include "base/ref_counted.h"
 
 class MessageLoop;
@@ -22,18 +21,16 @@ namespace net {
 // structs over to the main application thread.  The consumer of this class
 // is insulated from any of the multi-threading details.
 //
-class DirectoryLister : public base::RefCountedThreadSafe<DirectoryLister>,
-                        public PlatformThread::Delegate {
+class DirectoryLister : public base::RefCountedThreadSafe<DirectoryLister> {
  public:
   // Implement this class to receive directory entries.
-  class DirectoryListerDelegate {
+  class Delegate {
    public:
-    virtual void OnListFile(
-        const file_util::FileEnumerator::FindInfo& data) = 0;
+    virtual void OnListFile(const WIN32_FIND_DATA& data) = 0;
     virtual void OnListDone(int error) = 0;
   };
 
-  DirectoryLister(const std::wstring& dir, DirectoryListerDelegate* delegate);
+  DirectoryLister(const std::wstring& dir, Delegate* delegate);
   ~DirectoryLister();
 
   // Call this method to start the directory enumeration thread.
@@ -45,8 +42,8 @@ class DirectoryLister : public base::RefCountedThreadSafe<DirectoryLister>,
   void Cancel();
 
   // The delegate pointer may be modified at any time.
-  DirectoryListerDelegate* delegate() const { return delegate_; }
-  void set_delegate(DirectoryListerDelegate* d) { delegate_ = d; }
+  Delegate* delegate() const { return delegate_; }
+  void set_delegate(Delegate* d) { delegate_ = d; }
 
   // Returns the directory being enumerated.
   const std::wstring& directory() const { return dir_; }
@@ -54,21 +51,18 @@ class DirectoryLister : public base::RefCountedThreadSafe<DirectoryLister>,
   // Returns true if the directory enumeration was canceled.
   bool was_canceled() const { return canceled_; }
 
-  // PlatformThread::Delegate implementation
-  void ThreadMain();
-
  private:
   friend class DirectoryDataEvent;
-  friend class ThreadDelegate;
 
-  void OnReceivedData(const file_util::FileEnumerator::FindInfo* data,
-                      int count);
+  void OnReceivedData(const WIN32_FIND_DATA* data, int count);
   void OnDone(int error);
 
+  static unsigned __stdcall ThreadFunc(void* param);
+
   std::wstring dir_;
-  DirectoryListerDelegate* delegate_;
+  Delegate* delegate_;
   MessageLoop* message_loop_;
-  PlatformThreadHandle thread_;
+  HANDLE thread_;
   bool canceled_;
 };
 

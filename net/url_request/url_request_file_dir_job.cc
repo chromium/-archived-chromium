@@ -7,17 +7,15 @@
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "base/time.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
+#include "net/base/wininet_util.h"
 #include "net/url_request/url_request.h"
-
-#if defined(OS_POSIX)
-#include <sys/stat.h>
-#endif
 
 using std::string;
 using std::wstring;
+
+using net::WinInetUtil;
 
 URLRequestFileDirJob::URLRequestFileDirJob(URLRequest* request,
                                            const wstring& dir_path)
@@ -99,8 +97,12 @@ bool URLRequestFileDirJob::GetCharset(string* charset) {
   return true;
 }
 
-void URLRequestFileDirJob::OnListFile(
-    const file_util::FileEnumerator::FindInfo& data) {
+void URLRequestFileDirJob::OnListFile(const WIN32_FIND_DATA& data) {
+  FILETIME local_time;
+  FileTimeToLocalFileTime(&data.ftLastWriteTime, &local_time);
+  int64 size = (static_cast<unsigned __int64>(data.nFileSizeHigh) << 32) |
+      data.nFileSizeLow;
+
   // We wait to write out the header until we get the first file, so that we
   // can catch errors from DirectoryLister and show an error page.
   if (!wrote_header_) {
@@ -108,27 +110,11 @@ void URLRequestFileDirJob::OnListFile(
     wrote_header_ = true;
   }
 
-#if defined(OS_WIN)
-  FILETIME local_time;
-  ::FileTimeToLocalFileTime(&data.ftLastWriteTime, &local_time);
-  int64 size = (static_cast<unsigned __int64>(data.nFileSizeHigh) << 32) |
-      data.nFileSizeLow;
-
   data_.append(net::GetDirectoryListingEntry(
-      WideToUTF8(data.cFileName),
-      (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? true : false,
-      size,
-      base::Time::FromFileTime(local_time)));
-
-#elif defined(OS_POSIX)
-  data_.append(net::GetDirectoryListingEntry(
-      data.filename.c_str(),
-      S_ISDIR(data.stat.st_mode),
-      data.stat.st_size,
-      base::Time::FromTimeT(data.stat.st_mtime)));
-#endif
+      WideToUTF8(data.cFileName), data.dwFileAttributes, size, &local_time));
 
   // TODO(darin): coalesce more?
+
   CompleteRead();
 }
 
@@ -137,7 +123,8 @@ void URLRequestFileDirJob::OnListDone(int error) {
 
   if (error) {
     read_pending_ = false;
-    NotifyDone(URLRequestStatus(URLRequestStatus::FAILED, error));
+    NotifyDone(URLRequestStatus(URLRequestStatus::FAILED,
+                                WinInetUtil::OSErrorToNetError(error)));
   } else if (canceled_) {
     read_pending_ = false;
     NotifyCanceled();
@@ -189,8 +176,7 @@ void URLRequestFileDirJob::CompleteRead() {
       NotifyReadComplete(bytes_read);
     } else {
       NOTREACHED();
-      // TODO: Better error code.
-      NotifyDone(URLRequestStatus(URLRequestStatus::FAILED, 0));
+      NotifyDone(URLRequestStatus(URLRequestStatus::FAILED, 0));  // TODO: Better error code.
     }
   }
 }
