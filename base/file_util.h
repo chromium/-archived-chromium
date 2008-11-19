@@ -14,6 +14,7 @@
 #include <windows.h>
 #elif defined(OS_POSIX)
 #include <fts.h>
+#include <sys/stat.h>
 #endif
 
 #include <stdio.h>
@@ -323,6 +324,15 @@ bool SetCurrentDirectory(const std::wstring& current_directory);
 // program where latency does not matter. This class is blocking.
 class FileEnumerator {
  public:
+#if defined(OS_WIN)
+  typedef WIN32_FIND_DATA FindInfo;
+#elif defined(OS_POSIX)
+  typedef struct {
+    struct stat stat;
+    std::string filename;
+  } FindInfo;
+#endif
+
   enum FILE_TYPE {
     FILES                 = 0x1,
     DIRECTORIES           = 0x2,
@@ -361,6 +371,9 @@ class FileEnumerator {
   // Returns an empty string if there are no more results.
   std::wstring Next();
 
+  // Write the file info into |info|.
+  void GetFindInfo(FindInfo* info);
+
  private:
   std::wstring root_path_;
   bool recursive_;
@@ -380,6 +393,7 @@ class FileEnumerator {
   HANDLE find_handle_;
 #elif defined(OS_POSIX)
   FTS* fts_;
+  FTSENT* fts_ent_;
 #endif
 
   DISALLOW_EVIL_CONSTRUCTORS(FileEnumerator);

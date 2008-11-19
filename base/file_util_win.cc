@@ -625,6 +625,15 @@ FileEnumerator::~FileEnumerator() {
     FindClose(find_handle_);
 }
 
+void FileEnumerator::GetFindInfo(FindInfo* info) {
+  DCHECK(info);
+
+  if (!is_in_find_op_)
+    return;
+
+  memcpy(info, &find_data_, sizeof(*info));
+}
+
 std::wstring FileEnumerator::Next() {
   if (!is_in_find_op_) {
     if (pending_paths_.empty())
