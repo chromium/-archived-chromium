@@ -61,8 +61,21 @@ void TestShell::InitializeTestShell(bool interactive) {
     NULL
   };
 
+  // We have fontconfig parse a config file from our resources directory. This
+  // sets a number of aliases ("sans"->"Arial" etc), but doesn't include any
+  // font directories.
+  FilePath path;
+  PathService::Get(base::DIR_SOURCE_ROOT, &path);
+  path.Append("webkti/tools/test_shell/resources/linux-fontconfig-config");
+
   FcInit();
+
   FcConfig* fontcfg = FcConfigCreate();
+  if (!FcConfigParseAndLoad(fontcfg, (const FcChar8*) path.value().c_str(),
+                            true)) {
+    LOG(FATAL) << "Failed to parse fontconfig config file";
+  }
+
   for (unsigned i = 0; fonts[i]; ++i) {
     if (access(fonts[i], R_OK)) {
       LOG(FATAL) << "You are missing " << fonts[i] << ". "

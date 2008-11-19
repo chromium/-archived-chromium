@@ -278,13 +278,8 @@ void SkFontHost::Serialize(const SkTypeface*, SkWStream*) {
 
 SkScalerContext* SkFontHost::CreateFallbackScalerContext
         (const SkScalerContext::Rec& rec) {
-    FcPattern* pattern = FcPatternCreate();
-    FcConfigSubstitute(0, pattern, FcMatchPattern);
-    FcDefaultSubstitute(pattern);
-
-    FcResult result;
-    FcPattern* match = FcFontMatch(0, pattern, &result);
-    FcPatternDestroy(pattern);
+    FcPattern* match = FontMatch(FC_FAMILY, FcTypeString, "serif",
+                                 NULL);
 
     // This will fail when we have no fonts on the system.
     SkASSERT(match);

@@ -29,17 +29,13 @@ void SimpleFontData::platformInit()
     m_font.setupPaint(&paint);
     paint.getFontMetrics(&metrics);
 
-    // use ceil instead of round to favor descent, given a lot of accidental
-    // clipping of descenders (e.g. 14pt 'g') in textedit fields
-    const int descent = SkScalarCeil(metrics.fDescent);
-    const int span = SkScalarRound(metrics.fDescent - metrics.fAscent);
-    const int ascent = span - descent;
-
-    m_ascent = ascent;
-    m_descent = descent;
+    // Beware those who step here: This code is designed to match Win32 font
+    // metrics *exactly*.
+    m_ascent = SkScalarCeil(-metrics.fAscent);
+    m_descent = SkScalarCeil(metrics.fDescent);
     m_xHeight = SkScalarToFloat(-metrics.fAscent) * 0.56f;   // hack I stole from the Windows port
-    m_lineSpacing = ascent + descent;
-    m_lineGap = SkScalarRound(metrics.fLeading);
+    m_lineGap = SkScalarCeil(metrics.fLeading);
+    m_lineSpacing = m_ascent + m_descent + m_lineGap;
 
     // In WebKit/WebCore/platform/graphics/SimpleFontData.cpp, m_spaceWidth is
     // calculated for us, but we need to calculate m_maxCharWidth and
