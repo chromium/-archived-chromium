@@ -67,6 +67,9 @@ void SetShouldExposeGCController(bool enable);
 void SetLayoutTestMode(bool enable);
 bool IsLayoutTestMode();
 
+// Turn on the logging for notImplemented() calls from WebCore.
+void EnableWebCoreNotImplementedLogging();
+
 #if defined(OS_WIN)
 // Returns the com object pointer for the FontLink interface. This is the
 // default way to do this operation. It can be called directly from

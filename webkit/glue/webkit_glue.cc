@@ -81,6 +81,10 @@ bool IsLayoutTestMode() {
   return layout_test_mode_;
 }
 
+void EnableWebCoreNotImplementedLogging() {
+  WebCore::LogNotYetImplemented.state = WTFLogChannelOn;
+}
+
 #if defined(OS_WIN)
 IMLangFontLink2* GetLangFontLinkHelper() {
   // TODO(hbono): http://b/1072298 Experimentally disabled this code to

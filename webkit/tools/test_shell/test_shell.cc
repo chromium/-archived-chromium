@@ -216,6 +216,12 @@ void TestShell::InitLogging(bool suppress_error_dialogs,
 
     // we want process and thread IDs because we may have multiple processes
     logging::SetLogItems(true, true, false, true);
+
+    // Turn on logging of notImplemented()s inside WebKit, but only if we're
+    // not running layout tests (because otherwise they'd corrupt the test
+    // output).
+    if (!running_layout_tests)
+      webkit_glue::EnableWebCoreNotImplementedLogging();
 }
 
 // static
