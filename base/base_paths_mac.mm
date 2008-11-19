@@ -6,6 +6,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
