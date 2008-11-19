@@ -5,7 +5,7 @@
 #ifndef PlatformCanvasLinux_h
 #define PlatformCanvasLinux_h
 
-#include "PlatformCanvasLinux.h"
+#include "PlatformDeviceLinux.h"
 
 namespace gfx {
 

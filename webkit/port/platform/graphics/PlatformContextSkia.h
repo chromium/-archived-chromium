@@ -139,7 +139,7 @@ public:
     // possible quality.
     bool IsPrinting();
 
-#if defined(OS_LINUX)
+#if defined(__linux__)
     GdkSkia* gdk_skia() const { return m_gdkskia; }
 #endif
 
@@ -164,7 +164,7 @@ private:
     PlatformContextSkia(const PlatformContextSkia&);
     void operator=(const PlatformContextSkia&);
 
-#if defined(OS_LINUX)
+#if defined(__linux__)
     // A pointer to a GDK Drawable wrapping of this Skia canvas
     GdkSkia* m_gdkskia;
 #endif
