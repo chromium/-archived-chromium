@@ -181,14 +181,6 @@
 			Name="base"
 			>
 			<File
-				RelativePath="..\..\base\logging.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\base\logging.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\base\scoped_ptr.h"
 				>
 			</File>

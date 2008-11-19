@@ -12,7 +12,6 @@
 
 #include <string>
 
-#include "base/logging.h"
 #include "sandbox/wow_helper/service64_resolver.h"
 #include "sandbox/wow_helper/target_code.h"
 
@@ -112,7 +111,6 @@ int wWinMain(HINSTANCE, HINSTANCE, wchar_t* command_line, int) {
 
   DWORD access = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE;
   HANDLE child = ::OpenProcess(access, FALSE, process_id);
-  DCHECK(child);
   if (!child)
     return 3;
 
