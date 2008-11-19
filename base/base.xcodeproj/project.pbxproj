@@ -150,9 +150,6 @@
 		A5CB82980E5C74E300FD6825 /* platform_test_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = A5CB82970E5C74E300FD6825 /* platform_test_mac.mm */; };
 		A5CE1D2B0E55F4D800AD0606 /* file_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = A5A0282D0E4CFA8500498DA9 /* file_util_unittest.cc */; };
 		AB4C147D0EC0E3F600655FED /* time_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BEB81490D9B0F33009BA8DD /* time_mac.cc */; };
-		AB956DFD0E5DDB5D00BBE9D8 /* platform_canvas_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F990DBFD76300819EBF /* platform_canvas_mac.cc */; };
-		AB956DFE0E5DDB6000BBE9D8 /* platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F9D0DBFD76F00819EBF /* platform_device_mac.cc */; };
-		AB956DFF0E5DDB6900BBE9D8 /* bitmap_platform_device_mac.cc in Sources */ = {isa = PBXBuildFile; fileRef = 829E2F940DBFD74B00819EBF /* bitmap_platform_device_mac.cc */; };
 		AB956E030E5DDB7A00BBE9D8 /* image_operations.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A06370E3F6C1F00172919 /* image_operations.cc */; };
 		AB956E0A0E5DDC0900BBE9D8 /* image_operations_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = E48A063B0E3F6C3000172919 /* image_operations_unittest.cc */; };
 		ABE1BA2A0E7574D1009041DA /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE1BA290E7574D1009041DA /* ApplicationServices.framework */; };
@@ -175,7 +172,6 @@
 		B5A8618E0EC1257900B332C2 /* clipboard.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5A8618D0EC1257900B332C2 /* clipboard.cc */; };
 		B5D544AB0EAFB7E000272A1C /* sys_string_conversions_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5D544AA0EAFB7E000272A1C /* sys_string_conversions_unittest.cc */; };
 		B5E8F6CC0EBFB38E008DD1E9 /* scoped_clipboard_writer.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5E8F6CB0EBFB38E008DD1E9 /* scoped_clipboard_writer.cc */; };
-		B5EF235C0E89ABF500E1E114 /* platform_canvas_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABE1BA0C0E756EC4009041DA /* platform_canvas_unittest.cc */; };
 		BA0F69870E79D7980079A8A1 /* thread_local_storage_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA0F69860E79D7980079A8A1 /* thread_local_storage_unittest.cc */; };
 		BA5CC5840E788093004EDD45 /* shared_memory_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA5CC5830E788093004EDD45 /* shared_memory_unittest.cc */; };
 		BA739A020E5E3242009842A7 /* tracked_objects_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA739A000E5E3242009842A7 /* tracked_objects_unittest.cc */; };
@@ -412,7 +408,6 @@
 		7B8505A40E5B3FBE00730B43 /* size.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = size.cc; sourceTree = "<group>"; };
 		7B8505A50E5B3FBE00730B43 /* skia_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = skia_utils.cc; sourceTree = "<group>"; };
 		7B8505A60E5B3FBE00730B43 /* skia_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = skia_utils.h; sourceTree = "<group>"; };
-		7B8505A80E5B3FBE00730B43 /* vector_canvas_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector_canvas_unittest.cc; sourceTree = "<group>"; };
 		7BA355E90E898C100023C8B9 /* message_pump_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_pump_mac.h; sourceTree = "<group>"; };
 		7BA355EA0E898C100023C8B9 /* message_pump_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = message_pump_mac.mm; sourceTree = "<group>"; };
 		7BA3562B0E898F7B0023C8B9 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
@@ -570,8 +565,6 @@
 		8254038E0D92D2CF0006B936 /* word_iterator.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = word_iterator.cc; sourceTree = "<group>"; };
 		8254038F0D92D2CF0006B936 /* word_iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = word_iterator.h; sourceTree = "<group>"; };
 		825403B10D92D2E50006B936 /* libbase_gfx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libbase_gfx.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		825403C40D92D31D0006B936 /* font_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = font_utils.cc; sourceTree = "<group>"; };
-		825403C50D92D31D0006B936 /* font_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = font_utils.h; sourceTree = "<group>"; };
 		825403C80D92D31D0006B936 /* native_theme.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native_theme.cc; sourceTree = "<group>"; };
 		825403C90D92D31D0006B936 /* native_theme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_theme.h; sourceTree = "<group>"; };
 		825403CD0D92D31D0006B936 /* png_decoder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = png_decoder.cc; sourceTree = "<group>"; };
@@ -583,16 +576,11 @@
 		825403D40D92D31D0006B936 /* rect.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rect.cc; sourceTree = "<group>"; };
 		825403D50D92D31D0006B936 /* rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rect.h; sourceTree = "<group>"; };
 		825403D70D92D31D0006B936 /* size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = size.h; sourceTree = "<group>"; };
-		825403DC0D92D31D0006B936 /* vector_canvas.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector_canvas.cc; sourceTree = "<group>"; };
 		825403DD0D92D31D0006B936 /* vector_canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector_canvas.h; sourceTree = "<group>"; };
-		825403DE0D92D31D0006B936 /* vector_device.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector_device.cc; sourceTree = "<group>"; };
 		825403DF0D92D31D0006B936 /* vector_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector_device.h; sourceTree = "<group>"; };
-		829E2F940DBFD74B00819EBF /* bitmap_platform_device_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmap_platform_device_mac.cc; sourceTree = "<group>"; };
 		829E2F950DBFD74B00819EBF /* bitmap_platform_device_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitmap_platform_device_mac.h; sourceTree = "<group>"; };
 		829E2F980DBFD76300819EBF /* platform_canvas_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_canvas_mac.h; sourceTree = "<group>"; };
-		829E2F990DBFD76300819EBF /* platform_canvas_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = platform_canvas_mac.cc; sourceTree = "<group>"; };
 		829E2F9C0DBFD76F00819EBF /* platform_device_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_device_mac.h; sourceTree = "<group>"; };
-		829E2F9D0DBFD76F00819EBF /* platform_device_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = platform_device_mac.cc; sourceTree = "<group>"; };
 		829E30D60DBFD8ED00819EBF /* skia.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = skia.xcodeproj; path = skia/skia.xcodeproj; sourceTree = "<group>"; };
 		829E36720DC0FBAD00819EBF /* thread_local_storage_posix.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_local_storage_posix.cc; sourceTree = "<group>"; };
 		82D094530E5B892600FEC05C /* time_format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = time_format.h; sourceTree = "<group>"; };
@@ -625,7 +613,6 @@
 		AB6BC1ED0E54E836006436D5 /* bitmap_platform_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitmap_platform_device.h; sourceTree = "<group>"; };
 		AB6BC1F10E54E900006436D5 /* platform_canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_canvas.h; sourceTree = "<group>"; };
 		AB6BC1F50E54E97B006436D5 /* platform_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform_device.h; sourceTree = "<group>"; };
-		ABE1BA0C0E756EC4009041DA /* platform_canvas_unittest.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = platform_canvas_unittest.cc; sourceTree = "<group>"; };
 		ABE1BA290E7574D1009041DA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<group>"; };
 		ABE1BA600E75757C009041DA /* skia_utils_mac.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = skia_utils_mac.cc; sourceTree = "<group>"; };
 		ABF4B98E0DC2BA6900A6E319 /* base_paths_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = base_paths_mac.mm; sourceTree = "<group>"; };
@@ -1095,13 +1082,10 @@
 			isa = PBXGroup;
 			children = (
 				AB6BC1ED0E54E836006436D5 /* bitmap_platform_device.h */,
-				829E2F940DBFD74B00819EBF /* bitmap_platform_device_mac.cc */,
 				829E2F950DBFD74B00819EBF /* bitmap_platform_device_mac.h */,
 				E48A06680E3F70B500172919 /* convolver.cc */,
 				E48A06690E3F70B500172919 /* convolver.h */,
 				E48A06790E3F714300172919 /* convolver_unittest.cc */,
-				825403C40D92D31D0006B936 /* font_utils.cc */,
-				825403C50D92D31D0006B936 /* font_utils.h */,
 				E48A06370E3F6C1F00172919 /* image_operations.cc */,
 				E48A06380E3F6C1F00172919 /* image_operations.h */,
 				E48A063B0E3F6C3000172919 /* image_operations_unittest.cc */,
@@ -1111,11 +1095,8 @@
 				7B8505A20E5B3FBE00730B43 /* native_theme_unittest.cc */,
 				7B1435DF0E78419700901940 /* native_widget_types.h */,
 				AB6BC1F10E54E900006436D5 /* platform_canvas.h */,
-				829E2F990DBFD76300819EBF /* platform_canvas_mac.cc */,
 				829E2F980DBFD76300819EBF /* platform_canvas_mac.h */,
-				ABE1BA0C0E756EC4009041DA /* platform_canvas_unittest.cc */,
 				AB6BC1F50E54E97B006436D5 /* platform_device.h */,
-				829E2F9D0DBFD76F00819EBF /* platform_device_mac.cc */,
 				829E2F9C0DBFD76F00819EBF /* platform_device_mac.h */,
 				E4562A200E27C8C1005E4685 /* png_codec_unittest.cc */,
 				825403CD0D92D31D0006B936 /* png_decoder.cc */,
@@ -1133,10 +1114,7 @@
 				7B8505A60E5B3FBE00730B43 /* skia_utils.h */,
 				ABE1BA600E75757C009041DA /* skia_utils_mac.cc */,
 				7B1435DE0E78416400901940 /* skia_utils_mac.h */,
-				825403DC0D92D31D0006B936 /* vector_canvas.cc */,
 				825403DD0D92D31D0006B936 /* vector_canvas.h */,
-				7B8505A80E5B3FBE00730B43 /* vector_canvas_unittest.cc */,
-				825403DE0D92D31D0006B936 /* vector_device.cc */,
 				825403DF0D92D31D0006B936 /* vector_device.h */,
 			);
 			path = gfx;
@@ -1470,11 +1448,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB956DFF0E5DDB6900BBE9D8 /* bitmap_platform_device_mac.cc in Sources */,
 				E48A06710E3F70E200172919 /* convolver.cc in Sources */,
 				AB956E030E5DDB7A00BBE9D8 /* image_operations.cc in Sources */,
-				AB956DFD0E5DDB5D00BBE9D8 /* platform_canvas_mac.cc in Sources */,
-				AB956DFE0E5DDB6000BBE9D8 /* platform_device_mac.cc in Sources */,
 				825403EE0D92D31D0006B936 /* png_decoder.cc in Sources */,
 				825403F00D92D31D0006B936 /* png_encoder.cc in Sources */,
 				825403F20D92D31D0006B936 /* point.cc in Sources */,
@@ -1510,7 +1485,6 @@
 				7B78D3950E54FE0100609465 /* observer_list_unittest.cc in Sources */,
 				7B78D3960E54FE0100609465 /* path_service_unittest.cc in Sources */,
 				7B78D3970E54FE0100609465 /* pickle_unittest.cc in Sources */,
-				B5EF235C0E89ABF500E1E114 /* platform_canvas_unittest.cc in Sources */,
 				A5CB82980E5C74E300FD6825 /* platform_test_mac.mm in Sources */,
 				7B8505D50E5B441000730B43 /* png_codec_unittest.cc in Sources */,
 				7B78D3980E54FE0100609465 /* pr_time_unittest.cc in Sources */,
