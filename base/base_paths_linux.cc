@@ -15,7 +15,7 @@
 
 namespace base {
 
-bool PathProviderLinux(int key, std::wstring* result) {
+bool PathProviderLinux(int key, FilePath* result) {
   FilePath path;
   switch (key) {
     case base::FILE_EXE:
@@ -27,7 +27,7 @@ bool PathProviderLinux(int key, std::wstring* result) {
         return false;
       }
       bin_dir[bin_dir_size] = 0;
-      *result = base::SysNativeMBToWide(bin_dir);
+      *result = FilePath(bin_dir);
       return true;
     }
     case base::DIR_SOURCE_ROOT:
@@ -37,7 +37,7 @@ bool PathProviderLinux(int key, std::wstring* result) {
         return false;
       path = path.Append(FilePath::kParentDirectory)
                  .Append(FilePath::kParentDirectory);
-      *result = path.ToWStringHack();
+      *result = path;
       return true;
   }
   return false;

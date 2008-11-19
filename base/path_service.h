@@ -63,7 +63,7 @@ class PathService {
   // WARNING: This function could be called on any thread from which the
   // PathService is used, so a the ProviderFunc MUST BE THREADSAFE.
   //
-  typedef bool (*ProviderFunc)(int, std::wstring*);
+  typedef bool (*ProviderFunc)(int, FilePath*);
 
   // Call to register a path provider.  You must specify the range "[key_start,
   // key_end)" of supported path keys.

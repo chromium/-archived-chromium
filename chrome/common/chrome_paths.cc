@@ -13,6 +13,7 @@
 #include "chrome/common/chrome_paths.h"
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -52,7 +53,7 @@ bool GetGearsPluginPathFromCommandLine(std::wstring *path) {
 #endif
 }
 
-bool PathProvider(int key, std::wstring* result) {
+bool PathProvider(int key, FilePath* result) {
   // Some keys are just aliases...
   switch (key) {
     case chrome::DIR_APP:
@@ -261,7 +262,7 @@ bool PathProvider(int key, std::wstring* result) {
   if (!exists && !file_util::PathExists(cur) && !file_util::CreateDirectory(cur))
     return false;
 
-  result->swap(cur);
+  *result = FilePath::FromWStringHack(cur);
   return true;
 }
 

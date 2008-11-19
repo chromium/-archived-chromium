@@ -10,7 +10,7 @@
 
 namespace base {
 
-bool PathProvider(int key, std::wstring* result) {
+bool PathProvider(int key, FilePath* result) {
   // NOTE: DIR_CURRENT is a special cased in PathService::Get
 
   FilePath cur;
@@ -31,7 +31,7 @@ bool PathProvider(int key, std::wstring* result) {
       return false;
   }
 
-  *result = cur.ToWStringHack();
+  *result = cur;
   return true;
 }
 

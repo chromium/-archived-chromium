@@ -19,13 +19,13 @@
 #include "base/string_util.h"
 
 namespace base {
-  bool PathProvider(int key, std::wstring* result);
+  bool PathProvider(int key, FilePath* result);
 #if defined(OS_WIN)
-  bool PathProviderWin(int key, std::wstring* result);
+  bool PathProviderWin(int key, FilePath* result);
 #elif defined(OS_MACOSX)
-  bool PathProviderMac(int key, std::wstring* result);
+  bool PathProviderMac(int key, FilePath* result);
 #elif defined(OS_LINUX)
-  bool PathProviderLinux(int key, std::wstring* result);
+  bool PathProviderLinux(int key, FilePath* result);
 #endif
 }
 
@@ -166,23 +166,22 @@ bool PathService::Get(int key, FilePath* result) {
   if (GetFromCache(key, result))
     return true;
   
-  std::wstring path_string;
+  FilePath path;
 
   // search providers for the requested path
   // NOTE: it should be safe to iterate here without the lock
   // since RegisterProvider always prepends.
   Provider* provider = path_data->providers;
   while (provider) {
-    if (provider->func(key, &path_string))
+    if (provider->func(key, &path))
       break;
-    DCHECK(path_string.empty()) << "provider should not have modified path";
+    DCHECK(path.value().empty()) << "provider should not have modified path";
     provider = provider->next;
   }
 
-  if (path_string.empty())
+  if (path.value().empty())
     return false;
 
-  FilePath path = FilePath::FromWStringHack(path_string);
   AddToCache(key, path);
   
   *result = path;

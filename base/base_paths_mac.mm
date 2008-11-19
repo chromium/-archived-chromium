@@ -13,7 +13,7 @@
 
 namespace base {
 
-bool PathProviderMac(int key, std::wstring* result) {
+bool PathProviderMac(int key, FilePath* result) {
   std::wstring cur;
   switch (key) {
     case base::FILE_EXE:
@@ -49,7 +49,7 @@ bool PathProviderMac(int key, std::wstring* result) {
       return false;
   }
 
-  result->swap(cur);
+  *result = FilePath::FromWStringHack(cur);
   return true;
 }
 
