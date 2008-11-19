@@ -466,6 +466,7 @@ void ClipboardUtil::CFHtmlToHtml(const std::string& cf_html,
     size_t src_start = line_start + src_url_str.length();
     if (src_end != std::string::npos && src_start != std::string::npos) {
       *base_url = cf_html.substr(src_start, src_end - src_start);
+      TrimWhitespace(*base_url, TRIM_ALL, base_url);
     }
   }
 
@@ -474,7 +475,7 @@ void ClipboardUtil::CFHtmlToHtml(const std::string& cf_html,
   size_t markup_start = cf_html_lower.find("<html", 0);
   size_t tag_start = cf_html.find("StartFragment", markup_start);
   size_t fragment_start = cf_html.find('>', tag_start) + 1;
-  size_t tag_end = cf_html.find("EndFragment", fragment_start);
+  size_t tag_end = cf_html.rfind("EndFragment", std::string::npos);
   size_t fragment_end = cf_html.rfind('<', tag_end);
   if (fragment_start != std::string::npos &&
       fragment_end != std::string::npos) {
