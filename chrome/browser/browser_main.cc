@@ -11,9 +11,11 @@
 #include "base/file_util.h"
 #include "base/gfx/vector_canvas.h"
 #include "base/histogram.h"
+#include "base/lazy_instance.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/registry.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/tracked_objects.h"
 #include "base/win_util.h"
@@ -83,11 +85,13 @@ void HandleErrorTestParameters(const CommandLine& command_line) {
   }
 }
 
-// This is called indirectly by the network layer to access resources.
-std::string NetResourceProvider(int key) {
-  const std::string& data_blob =
-      ResourceBundle::GetSharedInstance().GetDataResource(key);
-  if (IDR_DIR_HEADER_HTML == key) {
+// The net module doesn't have access to this HTML or the strings that need to
+// be localized.  The Chrome locale will never change while we're running, so
+// it's safe to have a static string that we always return a pointer into.
+// This allows us to have the ResourceProvider return a pointer into the actual
+// resource (via a StringPiece), instead of always copying resources.
+struct LazyDirectoryListerCacher {
+  LazyDirectoryListerCacher() {
     DictionaryValue value;
     value.SetString(L"header",
                     l10n_util::GetString(IDS_DIRECTORY_LISTING_HEADER));
@@ -99,10 +103,25 @@ std::string NetResourceProvider(int key) {
                     l10n_util::GetString(IDS_DIRECTORY_LISTING_SIZE));
     value.SetString(L"headerDateModified",
                     l10n_util::GetString(IDS_DIRECTORY_LISTING_DATE_MODIFIED));
-    return jstemplate_builder::GetTemplateHtml(data_blob, &value, "t");
+    html_data = jstemplate_builder::GetTemplateHtml(
+        ResourceBundle::GetSharedInstance().GetRawDataResource(
+            IDR_DIR_HEADER_HTML),
+        &value,
+        "t");
   }
 
-  return data_blob;
+  std::string html_data;
+};
+
+base::LazyInstance<LazyDirectoryListerCacher> lazy_dir_lister(
+    base::LINKER_INITIALIZED);
+
+// This is called indirectly by the network layer to access resources.
+std::string NetResourceProvider(int key) {
+  if (IDR_DIR_HEADER_HTML == key)
+    return lazy_dir_lister.Pointer()->html_data;
+
+  return ResourceBundle::GetSharedInstance().GetDataResource(key);
 }
 
 // Displays a warning message if the user is running chrome on windows 2000.
