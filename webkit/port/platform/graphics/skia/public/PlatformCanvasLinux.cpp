@@ -38,8 +38,11 @@ PlatformDeviceLinux& PlatformCanvasLinux::getTopPlatformDevice() const {
   return *static_cast<PlatformDeviceLinux*>(iter.device());
 }
 
-SkDevice* PlatformCanvasLinux::createDevice(SkBitmap::Config, int width,
-                                            int height, bool is_opaque) {
+SkDevice* PlatformCanvasLinux::createDevice(SkBitmap::Config config,
+                                            int width,
+                                            int height,
+                                            bool is_opaque, bool isForLayer) {
+  DCHECK(config == SkBitmap::kARGB_8888_Config);
   return createPlatformDevice(width, height, is_opaque);
 }
 
