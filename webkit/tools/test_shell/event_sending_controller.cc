@@ -25,6 +25,41 @@
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
+#if defined(OS_LINUX)
+#include <gdk/gdkkeysyms.h>
+#endif
+
+namespace {
+#if defined(OS_WIN)
+const wchar_t kKeyCodeReturn = VK_RETURN;
+const wchar_t kKeyCodeRight = VK_RIGHT;
+const wchar_t kKeyCodeDown = VK_DOWN;
+const wchar_t kKeyCodeLeft = VK_LEFT;
+const wchar_t kKeyCodeUp = VK_UP;
+const wchar_t kKeyCodeDelete = VK_BACK;
+#elif defined(OS_MACOSX)
+// I don't quite understand this code enough to change the way it works. As
+// for the keycodes, they were documented once in Inside Macintosh and
+// haven't been documented since, either on paper or in a header. The
+// reference I'm going by is http://www.meandmark.com/keycodes.html .
+// TODO(avi): Find someone who knows keyboard handling in WebCore and have
+// them take a look at this.
+const wchar_t kKeyCodeReturn = 0x24;
+const wchar_t kKeyCodeRight = 0x7C;
+const wchar_t kKeyCodeDown = 0x7D;
+const wchar_t kKeyCodeLeft = 0x7B;
+const wchar_t kKeyCodeUp = 0x7E;
+const wchar_t kKeyCodeDelete = 0x33;
+#elif defined(OS_LINUX)
+const wchar_t kKeyCodeReturn = GDK_Return;
+const wchar_t kKeyCodeRight = GDK_Right;
+const wchar_t kKeyCodeDown = GDK_Down;
+const wchar_t kKeyCodeLeft = GDK_Left;
+const wchar_t kKeyCodeUp = GDK_Up;
+const wchar_t kKeyCodeDelete = GDK_Delete;
+#endif
+}
+
 // TODO(mpcomplete): layout before each event?
 // TODO(mpcomplete): do we need modifiers for mouse events?
 
@@ -329,49 +364,20 @@ int EventSendingController::GetButtonNumberFromSingleArg(
     // Windows uses \r for "Enter".
     wchar_t code;
     bool needs_shift_key_modifier = false;
-#if defined(OS_WIN)
     if (L"\n" == code_str) {
       generate_char = true;
-      code = VK_RETURN;
+      code = kKeyCodeReturn;
     } else if (L"rightArrow" == code_str) {
-      code = VK_RIGHT;
+      code = kKeyCodeRight;
     } else if (L"downArrow" == code_str) {
-      code = VK_DOWN;
+      code = kKeyCodeDown;
     } else if (L"leftArrow" == code_str) {
-      code = VK_LEFT;
+      code = kKeyCodeLeft;
     } else if (L"upArrow" == code_str) {
-      code = VK_UP;
+      code = kKeyCodeUp;
     } else if (L"delete" == code_str) {
-      code = VK_BACK;
+      code = kKeyCodeDelete;
     }
-#elif defined(OS_MACOSX)
-    // I don't quite understand this code enough to change the way it works. As
-    // for the keycodes, they were documented once in Inside Macintosh and
-    // haven't been documented since, either on paper or in a header. The
-    // reference I'm going by is http://www.meandmark.com/keycodes.html .
-    // TODO(avi): Find someone who knows keyboard handling in WebCore and have
-    // them take a look at this.
-    if (L"\n" == code_str) {
-      generate_char = true;
-      code = 0x24;
-    } else if (L"rightArrow" == code_str) {
-      code = 0x7C;
-    } else if (L"downArrow" == code_str) {
-      code = 0x7D;
-    } else if (L"leftArrow" == code_str) {
-      code = 0x7B;
-    } else if (L"upArrow" == code_str) {
-      code = 0x7E;
-    } else if (L"delete" == code_str) {
-      code = 0x33;
-    }
-#elif defined(OS_LINUX)
-    // TODO(agl): We obviously need to do something about keycodes here
-    code = 0;  // Appease variable-used-without-initialization compiler warning.
-    if (true) {
-      NOTIMPLEMENTED();
-    }
-#endif
     else {
       DCHECK(code_str.length() == 1);
       code = code_str[0];
