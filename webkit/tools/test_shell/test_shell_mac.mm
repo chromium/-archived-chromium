@@ -12,10 +12,8 @@
 #include "base/debug_util.h"
 #include "base/file_util.h"
 #include "base/gfx/bitmap_platform_device.h"
-#include "base/gfx/png_encoder.h"
 #include "base/gfx/size.h"
 #include "base/icu_util.h"
-#include "base/md5.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -395,42 +393,6 @@ void TestShell::SizeTo(int width, int height) {
 
 void TestShell::ResizeSubViews() {
   // handled by Cocoa for us
-}
-
-/* static */ std::string TestShell::DumpImage(
-        WebFrame* web_frame,
-        const std::wstring& file_name) {
-  scoped_ptr<gfx::BitmapPlatformDevice> device;
-  if (!web_frame->CaptureImage(&device, true))
-    return std::string();
-
-  const SkBitmap& src_bmp = device->accessBitmap(false);
-
-  // Encode image.
-  std::vector<unsigned char> png;
-  SkAutoLockPixels src_bmp_lock(src_bmp); 
-  PNGEncoder::Encode(
-      reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
-      PNGEncoder::FORMAT_RGBA, src_bmp.width(), src_bmp.height(),
-      static_cast<int>(src_bmp.rowBytes()), true, &png);
-  
-  // Write to disk.
-  if (png.size() > 0) {
-    FILE* file = fopen(WideToUTF8(file_name).c_str(), "w");
-    if (file) {
-      fwrite(&png[0], sizeof(unsigned char), png.size(), file);
-      fclose(file);
-    }
-  }
-  
-  // Compute MD5 sum.
-  MD5Context ctx;
-  MD5Init(&ctx);
-  MD5Update(&ctx, src_bmp.getPixels(), src_bmp.getSize());
-  
-  MD5Digest digest;
-  MD5Final(&digest, &ctx);
-  return MD5DigestToBase16(digest);
 }
 
 /* static */ void TestShell::DumpBackForwardList(std::wstring* result) {

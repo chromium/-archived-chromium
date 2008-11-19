@@ -284,15 +284,6 @@ void TestShell::ResizeSubViews() {
   // GTK manages layout for us so we do nothing.
 }
 
-/* static */ std::string TestShell::DumpImage(
-        WebFrame* web_frame,
-        const std::wstring& file_name) {
-  // Windows uses some platform specific bitmap functions here.
-  // TODO(agl): port
-  NOTIMPLEMENTED();
-  return "00000000000000000000000000000000";
-}
-
 /* static */ void TestShell::DumpBackForwardList(std::wstring* result) {
   result->clear();
   for (WindowList::iterator iter = TestShell::windowList()->begin();

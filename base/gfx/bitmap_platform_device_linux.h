@@ -55,6 +55,9 @@ namespace gfx {
 // case we'll probably create the buffer from a precreated region of memory.
 // -----------------------------------------------------------------------------
 class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
+  // A reference counted cairo surface
+  class BitmapPlatformDeviceLinuxData;
+
  public:
   /// Static constructor. I don't understand this, it's just a copy of the mac
   static BitmapPlatformDeviceLinux* Create(int width, int height,
@@ -65,9 +68,11 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   // we ever have to share state between some native drawing UI and Skia, like
   // the Windows and Mac versions of this class do.
   //
-  // This object takes ownership of @surface.
-  BitmapPlatformDeviceLinux(const SkBitmap& other, cairo_surface_t* surface);
+  // This object takes ownership of @data.
+  BitmapPlatformDeviceLinux(const SkBitmap& other,
+                            BitmapPlatformDeviceLinuxData* data);
   virtual ~BitmapPlatformDeviceLinux();
+  BitmapPlatformDeviceLinux& operator=(const BitmapPlatformDeviceLinux& other);
 
   // A stub copy constructor.  Needs to be properly implemented.
   BitmapPlatformDeviceLinux(const BitmapPlatformDeviceLinux& other);
@@ -75,10 +80,10 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   // Bitmaps aren't vector graphics.
   virtual bool IsVectorial() { return false; }
 
-  cairo_surface_t* surface() const { return surface_; }
+  cairo_surface_t* surface() const;
 
  private:
-  cairo_surface_t* surface_;
+  scoped_refptr<BitmapPlatformDeviceLinuxData> data_;
 };
 
 }  // namespace gfx

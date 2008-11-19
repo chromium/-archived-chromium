@@ -9,8 +9,10 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/bitmap_platform_device.h"
+#include "base/gfx/png_encoder.h"
 #include "base/gfx/size.h"
 #include "base/icu_util.h"
+#include "base/md5.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/stats_table.h"
@@ -145,6 +147,37 @@ void TestShell::ShutdownTestShell() {
 // All fatal log messages (e.g. DCHECK failures) imply unit test failures
 static void UnitTestAssertHandler(const std::string& str) {
     FAIL() << str;
+}
+
+// static
+std::string TestShell::DumpImage(WebFrame* web_frame,
+    const std::wstring& file_name) {
+  scoped_ptr<gfx::BitmapPlatformDevice> device;
+  if (!web_frame->CaptureImage(&device, true))
+    return std::string();
+
+  const SkBitmap& src_bmp = device->accessBitmap(false);
+
+  // Encode image.
+  std::vector<unsigned char> png;
+  SkAutoLockPixels src_bmp_lock(src_bmp);
+  PNGEncoder::Encode(
+      reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
+      PNGEncoder::FORMAT_BGRA, src_bmp.width(), src_bmp.height(),
+      static_cast<int>(src_bmp.rowBytes()), true, &png);
+
+  // Write to disk.
+  file_util::WriteFile(file_name, reinterpret_cast<const char *>(&png[0]),
+                       png.size());
+
+  // Compute MD5 sum.
+  MD5Context ctx;
+  MD5Init(&ctx);
+  MD5Update(&ctx, src_bmp.getPixels(), src_bmp.getSize());
+
+  MD5Digest digest;
+  MD5Final(&digest, &ctx);
+  return MD5DigestToBase16(digest);
 }
 
 // static
