@@ -9,6 +9,7 @@
 #include <gtk/gtk.h>
 
 #include "base/gfx/point.h"
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "chrome/common/page_transition_types.h"
@@ -60,12 +61,11 @@ void TestWebViewDelegate::Show(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
-  if (webwidget == shell_->popup()) {
+  if (webwidget == shell_->webView()) {
+    MessageLoop::current()->PostTask(FROM_HERE, NewRunnableFunction(
+        &gtk_widget_destroy, GTK_WIDGET(shell_->mainWnd())));
+  } else if (webwidget == shell_->popup()) {
     shell_->ClosePopup();
-  } else {
-    // In the Windows code, this closes the main window. However, it's not
-    // clear when this would ever be needed by WebKit.
-    NOTIMPLEMENTED();
   }
 }
 
