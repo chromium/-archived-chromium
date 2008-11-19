@@ -331,6 +331,7 @@ void ClipboardChromium::writeURL(const KURL& url, const String& title, Frame*)
 
     // The URL can also be used as an HTML fragment.
     m_dataObject->text_html = urlToMarkup(url, title);
+    m_dataObject->html_base_url = url;
 }
 
 void ClipboardChromium::writeRange(Range* selectedRange, Frame* frame)
@@ -341,6 +342,7 @@ void ClipboardChromium::writeRange(Range* selectedRange, Frame* frame)
 
     m_dataObject->text_html = createMarkup(selectedRange, 0,
         AnnotateForInterchange);
+    m_dataObject->html_base_url = frame->document()->url();
 
     String str = frame->selectedText();
 #if PLATFORM(WIN_OS)

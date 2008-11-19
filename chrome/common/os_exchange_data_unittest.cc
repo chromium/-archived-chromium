@@ -5,6 +5,7 @@
 #include <atlbase.h>
 #include <shlobj.h>
 
+#include "base/clipboard_util.h"
 #include "base/pickle.h"
 #include "base/ref_counted.h"
 #include "base/scoped_handle.h"
@@ -313,16 +314,33 @@ TEST(OSExchangeDataTest, FileContents) {
 
 TEST(OSExchangeDataTest, Html) {
   scoped_refptr<OSExchangeData> data(new OSExchangeData);
-  std::wstring html(L"Version:0.9\nStartHTML:71\nEndHTML:160\n"
-      L"StartFragment:130\nEndFragment:150\n<HTML>\n<BODY>\n"
-      L"<!--StartFragment-->\n<b>bold.</b> <i><b>This is bold italic.</b></i>\n"
-      L"<!--EndFragment-->\n</BODY>\n</HTML>");
-  data->SetCFHtml(html);
+  GURL url("http://www.google.com/");
+  std::wstring html(
+      L"<HTML>\n<BODY>\n"
+      L"<b>bold.</b> <i><b>This is bold italic.</b></i>\n"
+      L"</BODY>\n</HTML>");
+  data->SetHtml(html, url);
 
   scoped_refptr<OSExchangeData> copy(new OSExchangeData(data.get()));
   std::wstring read_html;
-  EXPECT_TRUE(copy->GetCFHtml(&read_html));
+  EXPECT_TRUE(copy->GetHtml(&read_html, &url));
   EXPECT_EQ(html, read_html);
+
+  // Check the CF_HTML too.
+  std::string expected_cf_html(
+      "Version:0.9\r\nStartHTML:0000000138\r\nEndHTML:0000000291\r\n"
+      "StartFragment:0000000176\r\nEndFragment:0000000253\r\n"
+      "SourceURL:http://www.google.com/\r\n<html>\r\n<body>\r\n"
+      "<!--StartFragment-->\r\n");
+  expected_cf_html += WideToUTF8(html);
+  expected_cf_html.append("\r\n<!--EndFragment-->\r\n</body>\r\n</html>");
+
+  STGMEDIUM medium;
+  EXPECT_EQ(S_OK, data->GetData(ClipboardUtil::GetHtmlFormat(), &medium));
+  ScopedHGlobal<char> glob(medium.hGlobal);
+  std::string output(glob.get(), glob.Size());
+  EXPECT_EQ(expected_cf_html, output);
+  ReleaseStgMedium(&medium);
 }
 
 TEST(OSExchangeDataTest, SetURLWithMaxPath) {

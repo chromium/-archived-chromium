@@ -57,6 +57,7 @@ namespace WebCore {
         String plain_text;
 
         String text_html;
+        KURL html_base_url;
 
         String file_content_filename;
         RefPtr<SharedBuffer> file_content;

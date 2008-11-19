@@ -100,8 +100,8 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
     data->SetFileContents(drop_data.file_description_filename,
                           drop_data.file_contents);
   }
-  if (!drop_data.cf_html.empty())
-    data->SetCFHtml(drop_data.cf_html);
+  if (!drop_data.text_html.empty())
+    data->SetHtml(drop_data.text_html, drop_data.html_base_url);
   if (drop_data.url.is_valid()) {
     if (drop_data.url.SchemeIs("javascript")) {
       // We don't want to allow javascript URLs to be dragged to the desktop,

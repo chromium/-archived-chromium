@@ -168,14 +168,6 @@ class Clipboard {
   // Safely write to system clipboard. Free |handle| on failure.
   void WriteToClipboard(FormatType format, HANDLE handle);
 
-  static void MarkupToHTMLClipboardFormat(const std::string& markup,
-                                          const std::string& src_url,
-                                          std::string* html_fragment);
-
-  static void ParseHTMLClipboardFormat(const std::string& html_fragment,
-                                       std::wstring* markup,
-                                       std::string* src_url);
-
   static void ParseBookmarkClipboardFormat(const std::wstring& bookmark,
                                            std::wstring* title,
                                            std::string* url);

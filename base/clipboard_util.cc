@@ -306,26 +306,25 @@ bool ClipboardUtil::GetPlainText(IDataObject* data_object,
   return success;
 }
 
-bool ClipboardUtil::GetCFHtml(IDataObject* data_object,
-                              std::wstring* cf_html) {
-  DCHECK(data_object && cf_html);
-  if (FAILED(data_object->QueryGetData(GetHtmlFormat())))
-    return false;
+bool ClipboardUtil::GetHtml(IDataObject* data_object,
+                            std::wstring* html, std::string* base_url) {
+  DCHECK(data_object && html && base_url);
 
-  STGMEDIUM store;
-  if (FAILED(data_object->GetData(GetHtmlFormat(), &store)))
-    return false;
+  if (SUCCEEDED(data_object->QueryGetData(GetHtmlFormat()))) {
+    STGMEDIUM store;
+    if (SUCCEEDED(data_object->GetData(GetHtmlFormat(), &store))) {
+      // MS CF html
+      ScopedHGlobal<char> data(store.hGlobal);
 
-  // MS CF html
-  ScopedHGlobal<char> data(store.hGlobal);
-  cf_html->assign(UTF8ToWide(std::string(data.get(), data.Size())));
-  ReleaseStgMedium(&store);
-  return true;
-}
+      std::string html_utf8;
+      CFHtmlToHtml(std::string(data.get(), data.Size()), &html_utf8, base_url);
+      html->assign(UTF8ToWide(html_utf8));
 
-bool ClipboardUtil::GetTextHtml(IDataObject* data_object,
-                                std::wstring* text_html) {
-  DCHECK(data_object && text_html);
+      ReleaseStgMedium(&store);
+      return true;
+    }
+  }
+
   if (FAILED(data_object->QueryGetData(GetTextHtmlFormat())))
     return false;
 
@@ -333,9 +332,9 @@ bool ClipboardUtil::GetTextHtml(IDataObject* data_object,
   if (FAILED(data_object->GetData(GetTextHtmlFormat(), &store)))
     return false;
 
-  // raw html
+  // text/html
   ScopedHGlobal<wchar_t> data(store.hGlobal);
-  text_html->assign(data.get());
+  html->assign(data.get());
   ReleaseStgMedium(&store);
   return true;
 }
@@ -373,3 +372,113 @@ bool ClipboardUtil::GetFileContents(IDataObject* data_object,
   return true;
 }
 
+// HtmlToCFHtml and CFHtmlToHtml are based on similar methods in
+// WebCore/platform/win/ClipboardUtilitiesWin.cpp.
+/*
+ * Copyright (C) 2007, 2008 Apple Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */
+
+// Helper method for converting from text/html to MS CF_HTML.
+// Documentation for the CF_HTML format is available at
+// http://msdn.microsoft.com/en-us/library/aa767917(VS.85).aspx
+std::string ClipboardUtil::HtmlToCFHtml(const std::string& html,
+                                        const std::string& base_url) {
+  if (html.empty())
+    return std::string();
+
+  #define MAX_DIGITS 10
+  #define MAKE_NUMBER_FORMAT_1(digits) MAKE_NUMBER_FORMAT_2(digits)
+  #define MAKE_NUMBER_FORMAT_2(digits) "%0" #digits "u"
+  #define NUMBER_FORMAT MAKE_NUMBER_FORMAT_1(MAX_DIGITS)
+
+  static const char* header = "Version:0.9\r\n"
+      "StartHTML:" NUMBER_FORMAT "\r\n"
+      "EndHTML:" NUMBER_FORMAT "\r\n"
+      "StartFragment:" NUMBER_FORMAT "\r\n"
+      "EndFragment:" NUMBER_FORMAT "\r\n";
+  static const char* source_url_prefix = "SourceURL:";
+
+  static const char* start_markup =
+      "<html>\r\n<body>\r\n<!--StartFragment-->\r\n";
+  static const char* end_markup =
+      "\r\n<!--EndFragment-->\r\n</body>\r\n</html>";
+
+  // Calculate offsets
+  size_t start_html_offset = strlen(header) - strlen(NUMBER_FORMAT) * 4 +
+      MAX_DIGITS * 4;
+  if (!base_url.empty()) {
+    start_html_offset += strlen(source_url_prefix) +
+        base_url.length() + 1;
+  }
+  size_t start_fragment_offset = start_html_offset + strlen(start_markup);
+  size_t end_fragment_offset = start_fragment_offset + html.length();
+  size_t end_html_offset = end_fragment_offset + strlen(end_markup);
+
+  std::string result = StringPrintf(header, start_html_offset,
+      end_html_offset, start_fragment_offset, end_fragment_offset);
+  if (!base_url.empty()) {
+    result.append(source_url_prefix);
+    result.append(base_url);
+    result.append("\r\n");
+  }
+  result.append(start_markup);
+  result.append(html);
+  result.append(end_markup);
+
+  #undef MAX_DIGITS
+  #undef MAKE_NUMBER_FORMAT_1
+  #undef MAKE_NUMBER_FORMAT_2
+  #undef NUMBER_FORMAT
+
+  return result;
+}
+
+// Helper method for converting from MS CF_HTML to text/html.
+void ClipboardUtil::CFHtmlToHtml(const std::string& cf_html,
+                                 std::string* html,
+                                 std::string* base_url) {
+  // Obtain base_url if present.
+  static std::string src_url_str("SourceURL:");
+  size_t line_start = cf_html.find(src_url_str);
+  if (line_start != std::string::npos) {
+    size_t src_end = cf_html.find("\n", line_start);
+    size_t src_start = line_start + src_url_str.length();
+    if (src_end != std::string::npos && src_start != std::string::npos) {
+      *base_url = cf_html.substr(src_start, src_end - src_start);
+    }
+  }
+
+  // Find the markup between "<!--StartFragment -->" and "<!--EndFragment-->".
+  std::string cf_html_lower = StringToLowerASCII(cf_html);
+  size_t markup_start = cf_html_lower.find("<html", 0);
+  size_t tag_start = cf_html.find("StartFragment", markup_start);
+  size_t fragment_start = cf_html.find('>', tag_start) + 1;
+  size_t tag_end = cf_html.find("EndFragment", fragment_start);
+  size_t fragment_end = cf_html.rfind('<', tag_end);
+  if (fragment_start != std::string::npos &&
+      fragment_end != std::string::npos) {
+    *html = cf_html.substr(fragment_start, fragment_end - fragment_start);
+    TrimWhitespace(*html, TRIM_ALL, html);
+  }
+}

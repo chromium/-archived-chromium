@@ -20,8 +20,11 @@ void WebDropData::PopulateWebDropData(IDataObject* data_object,
   }
   ClipboardUtil::GetFilenames(data_object, &drop_data->filenames);
   ClipboardUtil::GetPlainText(data_object, &drop_data->plain_text);
-  ClipboardUtil::GetCFHtml(data_object, &drop_data->cf_html);
-  ClipboardUtil::GetTextHtml(data_object, &drop_data->text_html);
+  std::string base_url;
+  ClipboardUtil::GetHtml(data_object, &drop_data->text_html, &base_url);
+  if (!base_url.empty()) {
+    drop_data->html_base_url = GURL(base_url);
+  }
   ClipboardUtil::GetFileContents(data_object,
       &drop_data->file_description_filename, &drop_data->file_contents);
 }

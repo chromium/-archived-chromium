@@ -178,14 +178,13 @@ void Clipboard::WriteHTML(const char* markup_data,
                           size_t markup_len,
                           const char* url_data,
                           size_t url_len) {
-  std::string html_fragment,
-      markup(markup_data, markup_len),
-      url;
+  std::string markup(markup_data, markup_len);
+  std::string url;
 
   if (url_len > 0)
     url.assign(url_data, url_len);
 
-  MarkupToHTMLClipboardFormat(markup, url, &html_fragment);
+  std::string html_fragment = ClipboardUtil::HtmlToCFHtml(markup, url);
   HGLOBAL glob = CreateGlobalData(html_fragment);
 
   WriteToClipboard(GetHtmlFormatType(), glob);
@@ -437,7 +436,9 @@ void Clipboard::ReadHTML(std::wstring* markup, std::string* src_url) const {
   std::string html_fragment(static_cast<const char*>(::GlobalLock(data)));
   ::GlobalUnlock(data);
 
-  ParseHTMLClipboardFormat(html_fragment, markup, src_url);
+  std::string markup_utf8;
+  ClipboardUtil::CFHtmlToHtml(html_fragment, &markup_utf8, src_url);
+  markup->assign(UTF8ToWide(markup_utf8));
 }
 
 void Clipboard::ReadBookmark(std::wstring* title, std::string* url) const {
@@ -505,104 +506,6 @@ void Clipboard::ReadFiles(std::vector<std::wstring>* files) const {
       ::DragQueryFile(drop, i, WriteInto(&file, size), size);
       files->push_back(file);
     }
-  }
-}
-
-// static
-void Clipboard::MarkupToHTMLClipboardFormat(const std::string& markup,
-                                            const std::string& src_url,
-                                            std::string* html_fragment) {
-  DCHECK(html_fragment);
-  // Documentation for the CF_HTML format is available at
-  // http://msdn.microsoft.com/workshop/networking/clipboard/htmlclipboard.asp
-
-  if (markup.empty()) {
-    html_fragment->clear();
-    return;
-  }
-
-  html_fragment->assign("Version:0.9");
-
-  std::string start_html("\nStartHTML:");
-  std::string end_html("\nEndHTML:");
-  std::string start_fragment("\nStartFragment:");
-  std::string end_fragment("\nEndFragment:");
-  std::string source_url("\nSourceURL:");
-
-  bool has_source_url = !src_url.empty() &&
-                        !StartsWithASCII(src_url, "about:", false);
-  if (has_source_url)
-    source_url.append(src_url);
-
-  std::string start_markup("\n<HTML>\n<BODY>\n<!--StartFragment-->\n");
-  std::string end_markup("\n<!--EndFragment-->\n</BODY>\n</HTML>");
-
-  // calculate offsets
-  const size_t kMaxDigits = 10; // number of digits in UINT_MAX in base 10
-
-  size_t start_html_offset, start_fragment_offset;
-  size_t end_fragment_offset, end_html_offset;
-
-  start_html_offset = html_fragment->length() +
-                      start_html.length() + end_html.length() +
-                      start_fragment.length() + end_fragment.length() +
-                      (has_source_url ? source_url.length() : 0) +
-                      (4*kMaxDigits);
-
-  start_fragment_offset = start_html_offset + start_markup.length();
-  end_fragment_offset = start_fragment_offset + markup.length();
-  end_html_offset = end_fragment_offset + end_markup.length();
-
-  // fill in needed data
-  start_html.append(StringPrintf("%010u", start_html_offset));
-  end_html.append(StringPrintf("%010u", end_html_offset));
-  start_fragment.append(StringPrintf("%010u", start_fragment_offset));
-  end_fragment.append(StringPrintf("%010u", end_fragment_offset));
-  start_markup.append(markup);
-
-  // create full html_fragment string from the fragments
-  html_fragment->append(start_html);
-  html_fragment->append(end_html);
-  html_fragment->append(start_fragment);
-  html_fragment->append(end_fragment);
-  if (has_source_url)
-    html_fragment->append(source_url);
-  html_fragment->append(start_markup);
-  html_fragment->append(end_markup);
-}
-
-// static
-void Clipboard::ParseHTMLClipboardFormat(const std::string& html_frag,
-                                         std::wstring* markup,
-                                         std::string* src_url) {
-  if (src_url) {
-    // Obtain SourceURL, if present
-    std::string src_url_str("SourceURL:");
-    size_t line_start = html_frag.find(src_url_str, 0);
-    if (line_start != std::string::npos) {
-      size_t src_start = line_start+src_url_str.length();
-      size_t src_end = html_frag.find("\n", line_start);
-
-      if (src_end != std::string::npos)
-        *src_url = html_frag.substr(src_start, src_end - src_start);
-    }
-  }
-
-  if (markup) {
-    // Find the markup between "<!--StartFragment -->" and
-    // "<!--EndFragment -->", accounting for browser quirks
-    size_t markup_start = html_frag.find('<', 0);
-    size_t tag_start = html_frag.find("StartFragment", markup_start);
-    size_t frag_start = html_frag.find('>', tag_start) + 1;
-    // Here we do something slightly differently than WebKit.  Webkit does a
-    // forward find for EndFragment, but that seems to be a bug if the html
-    // fragment actually includes the string "EndFragment"
-    size_t tag_end = html_frag.rfind("EndFragment", std::string::npos);
-    size_t frag_end = html_frag.rfind('<', tag_end);
-
-    TrimWhitespace(UTF8ToWide(html_frag.substr(frag_start,
-                                               frag_end - frag_start)),
-                   TRIM_ALL, markup);
   }
 }
 

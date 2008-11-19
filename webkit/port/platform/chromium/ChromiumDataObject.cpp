@@ -39,6 +39,7 @@ void ChromiumDataObject::clear()
     filenames.clear();
     plain_text = "";
     text_html = "";
+    html_base_url = KURL();
     file_content_filename = "";
     if (file_content)
         file_content->clear();

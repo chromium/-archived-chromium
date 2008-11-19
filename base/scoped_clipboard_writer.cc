@@ -38,7 +38,7 @@ void ScopedClipboardWriter::WriteHTML(const std::wstring& markup,
   Clipboard::ObjectMapParams params;
   params.push_back(
       Clipboard::ObjectMapParam(utf8_markup.begin(),
-                                         utf8_markup.end()));
+                                utf8_markup.end()));
   if (!src_url.empty()) {
     params.push_back(Clipboard::ObjectMapParam(src_url.begin(),
                                                src_url.end()));

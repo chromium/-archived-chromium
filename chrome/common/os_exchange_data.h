@@ -56,8 +56,9 @@ class OSExchangeData : public IDataObject {
   // Adds the bytes of a file (CFSTR_FILECONTENTS and CFSTR_FILEDESCRIPTOR).
   void SetFileContents(const std::wstring& filename,
                        const std::string& file_contents);
-  // Adds a snippet of Windows HTML (CF_HTML).
-  void SetCFHtml(const std::wstring& cf_html);
+  // Adds a snippet of HTML.  |html| is just raw html but this sets both
+  // text/html and CF_HTML.
+  void SetHtml(const std::wstring& html, const GURL& base_url);
 
   // These functions retrieve data of the specified type. If data exists, the
   // functions return and the result is in the out parameter. If the data does
@@ -70,7 +71,7 @@ class OSExchangeData : public IDataObject {
   bool GetPickledData(CLIPFORMAT format, Pickle* data) const;
   bool GetFileContents(std::wstring* filename,
                        std::string* file_contents) const;
-  bool GetCFHtml(std::wstring* cf_html) const;
+  bool GetHtml(std::wstring* html, GURL* base_url) const;
 
   // Test whether or not data of certain types is present, without actually
   // returning anything.
@@ -141,4 +142,3 @@ class OSExchangeData : public IDataObject {
 };
 
 #endif  // #ifndef CHROME_COMMON_OS_EXCHANGE_DATA_H__
-

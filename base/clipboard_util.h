@@ -43,10 +43,16 @@ class ClipboardUtil {
   static bool GetFilenames(IDataObject* data_object,
                            std::vector<std::wstring>* filenames);
   static bool GetPlainText(IDataObject* data_object, std::wstring* plain_text);
-  static bool GetCFHtml(IDataObject* data_object, std::wstring* cf_html);
-  static bool GetTextHtml(IDataObject* data_object, std::wstring* text_html);
+  static bool GetHtml(IDataObject* data_object, std::wstring* text_html,
+                      std::string* base_url);
   static bool GetFileContents(IDataObject* data_object,
                               std::wstring* filename,
                               std::string* file_contents);
-};
 
+  // A helper method for converting between MS CF_HTML format and plain
+  // text/html.
+  static std::string HtmlToCFHtml(const std::string& html,
+                                  const std::string& base_url);
+  static void CFHtmlToHtml(const std::string& cf_html, std::string* html,
+                           std::string* base_url);
+};

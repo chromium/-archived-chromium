@@ -126,21 +126,21 @@ PassRefPtr<DocumentFragment> DragData::asFragment(Document* doc) const
      * * PICT
      */
 
-     // TODO(tc): Disabled because containsFilenames is hardcoded to return
-     // false.  We need to implement fragmentFromFilenames when this is
-     // re-enabled in Apple's win port.
-     //if (containsFilenames())
-     //    if (PassRefPtr<DocumentFragment> fragment = fragmentFromFilenames(doc, m_platformDragData))
-     //        return fragment;
+    if (containsFiles()) {
+        // TODO(tc): Implement this.  Should be pretty simple to make some HTML
+        // and call createFragmentFromMarkup.
+        //if (RefPtr<DocumentFragment> fragment = createFragmentFromMarkup(doc,
+        //    ?, KURL()))
+        //    return fragment;
+    }
 
-     if (!m_platformDragData->text_html.isEmpty()) {
-         String url;
-         RefPtr<DocumentFragment> fragment = createFragmentFromMarkup(doc,
-             m_platformDragData->text_html, url);
-         return fragment;
-     }
+    if (!m_platformDragData->text_html.isEmpty()) {
+        RefPtr<DocumentFragment> fragment = createFragmentFromMarkup(doc,
+            m_platformDragData->text_html, m_platformDragData->html_base_url);
+        return fragment.release();
+    }
 
-     return 0;
+    return 0;
 }
 
 Color DragData::asColor() const
