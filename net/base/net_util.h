@@ -19,6 +19,10 @@
 
 class GURL;
 
+namespace base {
+class Time;
+}
+
 namespace net {
 
 // Given the full path to a file name, creates a file: URL. The returned URL
@@ -95,15 +99,12 @@ void IDNToUnicode(const char* host,
 std::string CanonicalizeHost(const std::string& host, bool* is_ip_address);
 std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address);
 
-#ifdef OS_WIN
-// TODO: Port GetDirectoryListingEntry for OSX and linux.
 // Call these functions to get the html for a directory listing.
 // They will pass non-7bit-ascii characters unescaped, allowing
 // the browser to interpret the encoding (utf8, etc).
 std::string GetDirectoryListingHeader(const std::string& title);
-std::string GetDirectoryListingEntry(const std::string& name, DWORD attrib,
-                                     int64 size, const FILETIME* modified);
-#endif
+std::string GetDirectoryListingEntry(const std::string& name, bool is_dir,
+                                     int64 size, const base::Time& modified);
 
 // If text starts with "www." it is removed, otherwise text is returned
 // unmodified.

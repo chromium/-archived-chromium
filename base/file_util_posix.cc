@@ -409,6 +409,16 @@ FileEnumerator::~FileEnumerator() {
     fts_close(fts_);
 }
 
+void FileEnumerator::GetFindInfo(FindInfo* info) {
+  DCHECK(info);
+
+  if (!is_in_find_op_)
+    return;
+
+  memcpy(&(info->stat), fts_ent_->fts_statp, sizeof(info->stat));
+  info->filename.assign(fts_ent_->fts_name);
+}
+
 // As it stands, this method calls itself recursively when the next item of
 // the fts enumeration doesn't match (type, pattern, etc.).  In the case of
 // large directories with many files this can be quite deep.
@@ -417,12 +427,12 @@ std::wstring FileEnumerator::Next() {
   if (!is_in_find_op_) {
     if (pending_paths_.empty())
       return std::wstring();
-    
+
     // The last find FindFirstFile operation is done, prepare a new one.
     root_path_ = pending_paths_.top();
     TrimTrailingSeparator(&root_path_);
     pending_paths_.pop();
-    
+
     // Start a new find operation.
     int ftsflags = FTS_LOGICAL;
     char top_dir[PATH_MAX];
@@ -433,41 +443,41 @@ std::wstring FileEnumerator::Next() {
       return Next();
     is_in_find_op_ = true;
   }
-  
-  FTSENT* fts_ent = fts_read(fts_);
-  if (fts_ent == NULL) {
+
+  fts_ent_ = fts_read(fts_);
+  if (fts_ent_ == NULL) {
     fts_close(fts_);
     fts_ = NULL;
     is_in_find_op_ = false;
     return Next();
   }
-  
+
   // Level 0 is the top, which is always skipped.
-  if (fts_ent->fts_level == 0)
+  if (fts_ent_->fts_level == 0)
     return Next();
-  
+
   // Patterns are only matched on the items in the top-most directory.
   // (see Windows implementation)
-  if (fts_ent->fts_level == 1 && pattern_.length() > 0) {
-    if (fnmatch(WideToUTF8(pattern_).c_str(), fts_ent->fts_path, 0) != 0) {
-      if (fts_ent->fts_info == FTS_D)
-        fts_set(fts_, fts_ent, FTS_SKIP);
+  if (fts_ent_->fts_level == 1 && pattern_.length() > 0) {
+    if (fnmatch(WideToUTF8(pattern_).c_str(), fts_ent_->fts_path, 0) != 0) {
+      if (fts_ent_->fts_info == FTS_D)
+        fts_set(fts_, fts_ent_, FTS_SKIP);
       return Next();
     }
   }
-  
-  std::wstring cur_file(UTF8ToWide(fts_ent->fts_path));
-  if (fts_ent->fts_info == FTS_D) {
+
+  std::wstring cur_file(UTF8ToWide(fts_ent_->fts_path));
+  if (fts_ent_->fts_info == FTS_D) {
     // If not recursive, then prune children.
     if (!recursive_)
-      fts_set(fts_, fts_ent, FTS_SKIP);
+      fts_set(fts_, fts_ent_, FTS_SKIP);
     return (file_type_ & FileEnumerator::DIRECTORIES) ? cur_file : Next();
-  } else if (fts_ent->fts_info == FTS_F) {
+  } else if (fts_ent_->fts_info == FTS_F) {
     return (file_type_ & FileEnumerator::FILES) ? cur_file : Next();
   }
   // TODO(erikkay) - verify that the other fts_info types aren't interesting
   return Next();
 }
-  
-  
+
+
 } // namespace file_util
