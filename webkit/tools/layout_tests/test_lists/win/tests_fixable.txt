@@ -133,26 +133,17 @@ LayoutTests/plugins/destroy-stream-twice.html = FAIL
 // until we get our modification into WebKit.
 LayoutTests/security/block-test.html = TIMEOUT
 
-// Bug 1124522
-// Test forked into pending and fixed.
-LayoutTests/fast/js/function-toString-parentheses.html = FAIL
-
 // Bug 1143337.  Forked to pending/http/tests/security/.
 LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
 LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 
-// Bug 1199617.  Forked to pending/svg/carto.net/window.svg.
-// Test did not wait for all created functions to be called via
-// setTimeout.
-LayoutTests/svg/carto.net/window.svg = FAIL 
-
 // Bug 1064038.  Image with border="1" drawn without the border.
-pending/fast/forms/image-border.html = FAIL
+LayoutTests/fast/forms/image-border.html = FAIL
 
 // Bug 1055396.  Vertical scrollbar created when there is no overflow.
-pending/fast/forms/textarea-scrollbar-height.html = FAIL
+LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
 
 // -----------------------------------------------------------------
 // Other
@@ -543,10 +534,6 @@ LayoutTests/fast/canvas/gradient-empty-path.html = FAIL
 // Fails on webkit windows as well. 
 LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
 
-// Bug 1226853: Fails on v8-latest after const changes (r123300). Test
-// has been rebaselined (don't declare const x twice).
-LayoutTests/fast/js/const.html = FAIL
-
 // Bug: 1344760
 LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
 
@@ -741,14 +728,12 @@ LayoutTests/fast/block/float/float-avoidance.html = FAIL
 LayoutTests/fast/canvas/canvasDrawingIntoSelf.html = FAIL
 LayoutTests/fast/canvas/drawImage.html = FAIL
 LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html = FAIL
-LayoutTests/fast/canvas/fillrect_gradient.html = FAIL
 LayoutTests/fast/canvas/gradient-add-second-start-end-stop.html = FAIL
 // Flaky
 LayoutTests/fast/canvas/patternfill-repeat.html = FAIL | CRASH
 LayoutTests/fast/css/background-shorthand-invalid-url.html = FAIL
 LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 LayoutTests/fast/forms/form-hides-table.html = FAIL
-LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 LayoutTests/fast/table/text-field-baseline.html = FAIL
 DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL | PASS
@@ -839,11 +824,8 @@ LayoutTests/tables/mozilla/bugs/bug43854-1.html = FAIL
 LayoutTests/tables/mozilla_expected_failures/bugs/bug14007-2.html = FAIL
 chrome/fast/dom/domListEnumeration.html = FAIL
 chrome/fast/forms/basic-textareas-quirks.html = FAIL
-pending/fast/canvas/fillrect_gradient.html = FAIL
 pending/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 pending/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
-DEBUG : pending/dom/html/level2/html/HTMLFrameElement09.html = CRASH
-DEBUG : pending/dom/html/level2/html/HTMLIFrameElement11.html = CRASH
 
 // This test seems to fail on the builders but not locally.
 LayoutTests/fast/css/font-face-multiple-faces.html = FAIL
@@ -1080,7 +1062,6 @@ LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 LayoutTests/fast/borders/svg-as-border-image-2.html = FAIL
 LayoutTests/fast/borders/svg-as-border-image.html = FAIL
 LayoutTests/fast/css/line-height-overflow.html = FAIL
-LayoutTests/fast/dom/Window/window-open-pending-url.html = FAIL
 LayoutTests/fast/events/mouse-click-events.html = FAIL
 LayoutTests/fast/flexbox/009.html = FAIL
 LayoutTests/fast/forms/form-element-geometry.html = FAIL
@@ -1119,21 +1100,13 @@ DEBUG : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty
 // NEW FOR MERGE 37604:38097
 LayoutTests/animations/keyframes-rule.html = FAIL
 LayoutTests/editing/deleting/smart-editing-disabled.html = FAIL
-LayoutTests/fast/css/border-height.html = FAIL
 LayoutTests/fast/events/destroyed-atomic-string.html = FAIL
-LayoutTests/fast/forms/image-border.html = FAIL
-LayoutTests/fast/forms/input-field-text-truncated.html = FAIL
-LayoutTests/fast/forms/input-type-text-min-width.html = FAIL
-LayoutTests/fast/forms/textarea-scrollbar-height.html = FAIL
-LayoutTests/fast/forms/textarea-width.html = FAIL
 LayoutTests/fast/js/exception-thrown-from-new.html = FAIL
 LayoutTests/fast/js/global-constructors.html = FAIL
 LayoutTests/fast/layers/opacity-transforms.html = FAIL
-LayoutTests/fast/overflow/overflow_hidden.html = FAIL
 LayoutTests/fast/profiler = FAIL | TIMEOUT
 LayoutTests/fast/replaced/percent-height-in-anonymous-block-widget.html = FAIL
 LayoutTests/fast/text/bidi-embedding-pop-and-push-same.html = FAIL
-LayoutTests/fast/text/international/hindi-spacing.html = FAIL
 LayoutTests/plugins/netscape-construct.html = FAIL
 LayoutTests/transforms/transform-value-types.html = FAIL
 
