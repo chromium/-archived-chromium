@@ -642,16 +642,40 @@ LRESULT CALLBACK TreeView::TreeWndProc(HWND window,
       if (canvas.isEmpty())
         return 0;
 
-      HDC dc =  canvas.beginPlatformPaint();
+      HDC dc = canvas.beginPlatformPaint();
       if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
         // ChromeCanvas ends up configuring the DC with a mode of GM_ADVANCED.
         // For some reason a graphics mode of ADVANCED triggers all the text
         // to be mirrored when RTL. Set the mode back to COMPATIBLE and
-        // explicitly set the layout.
+        // explicitly set the layout. Additionally SetWorldTransform and
+        // COMPATIBLE don't play nicely together. We need to use
+        // SetViewportOrgEx when using a mode of COMPATIBLE.
+        //
+        // Reset the transform to the identify transform. Even though
+        // SetWorldTransform and COMPATIBLE don't play nicely, bits of the
+        // transform still carry over when we set the mode.
+        XFORM xform = {0};
+        xform.eM11 = xform.eM22 = 1;
+        SetWorldTransform(dc, &xform);
+
+        // Set the mode and layout.
         SetGraphicsMode(dc, GM_COMPATIBLE);
         SetLayout(dc, LAYOUT_RTL);
+
+        // Transform the viewport such that the origin of the dc is that of
+        // the dirty region. This way when we invoke WM_PRINTCLIENT tree-view
+        // draws the dirty region at the origin of the DC so that when we
+        // copy the bits everything lines up nicely. Without this we end up
+        // copying the upper-left corner to the redraw region.
+        SetViewportOrgEx(dc, -canvas.paintStruct().rcPaint.left,
+                         -canvas.paintStruct().rcPaint.top, NULL);
       }
       SendMessage(window, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(dc), 0);
+      if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+        // Reset the origin of the dc back to 0. This way when we copy the bits
+        // over we copy the right bits.
+        SetViewportOrgEx(dc, 0, 0, NULL);
+      }
       canvas.endPlatformPaint();
       return 0;
     }
