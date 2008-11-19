@@ -492,11 +492,6 @@ int BrowserMain(CommandLine &parsed_command_line,
   // Register our global network handler for chrome-resource:// URLs.
   RegisterURLRequestChromeJob();
 
-  // TODO(brettw): we may want to move this to the browser window somewhere so
-  // that if it pops up a dialog box, the user gets it as the child of the
-  // browser window instead of a disembodied floating box blocking startup.
-  ShellIntegration::VerifyInstallation();
-
   browser_process->InitBrokerServices(broker_services);
 
   // In unittest mode, this will do nothing.  In normal mode, this will create

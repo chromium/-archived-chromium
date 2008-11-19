@@ -11,7 +11,7 @@
 #include <shellapi.h>
 #include <shlobj.h>
 
-#include "shell_util.h"
+#include "chrome/installer/util/shell_util.h"
 
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -56,6 +56,17 @@ class RegistryEntry {
         L"Software\\Classes\\ChromeHTML\\DefaultIcon", icon_path));
     entries.push_front(new RegistryEntry(
         L"Software\\Classes\\ChromeHTML\\shell\\open\\command", open_cmd));
+
+    std::wstring exe_name = file_util::GetFilenameFromPath(chrome_exe);
+    std::wstring app_key = L"Software\\Classes\\Applications\\" + exe_name +
+                           L"\\shell\\open\\command";
+    entries.push_front(new RegistryEntry(app_key, open_cmd));
+    for (int i = 0; ShellUtil::kFileAssociations[i] != NULL; i++) {
+      std::wstring open_with_key(L"Software\\Classes\\");
+      open_with_key.append(ShellUtil::kFileAssociations[i]);
+      open_with_key.append(L"\\OpenWithList\\" + exe_name);
+      entries.push_front(new RegistryEntry(open_with_key, std::wstring()));
+    }
 
     BrowserDistribution* dist = BrowserDistribution::GetDistribution();
     entries.push_front(new RegistryEntry(
@@ -333,6 +344,8 @@ const wchar_t* ShellUtil::kRegRegisteredApplications =
 const wchar_t* ShellUtil::kRegShellChromeHTML = L"\\shell\\ChromeHTML";
 const wchar_t* ShellUtil::kRegShellChromeHTMLCommand =
     L"\\shell\\ChromeHTML\\command";
+const wchar_t* ShellUtil::kRegVistaUrlPrefs =
+    L"Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice";
 
 const wchar_t* ShellUtil::kChromeHTMLProgId = L"ChromeHTML";
 const wchar_t* ShellUtil::kFileAssociations[] = {L".htm", L".html", L".shtml",

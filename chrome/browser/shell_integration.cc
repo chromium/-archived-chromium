@@ -26,88 +26,6 @@
 #include "chrome/installer/util/work_item.h"
 #include "chrome/installer/util/work_item_list.h"
 
-namespace {
-
-const wchar_t kAppInstallKey[] =
-    L"Applications\\chrome.exe\\shell\\open\\command";
-
-// Append to an extension (preceeded by a dot) to add us to the "Open With"
-// list for a file. For example ".html".
-const wchar_t kOpenWithUs[] = L"\\OpenWithList\\chrome.exe";
-
-// Wait this long after startup before verifying registry keys.
-const int kVerifyTimeoutMs = 5000;
-
-bool VerifyApplicationKey();
-bool VerifyAssociations();
-
-// Include the dot in the extension.
-bool AddToOpenWithList(const wchar_t* extension);
-
-// There should be a key HKEY_CLASSES_ROOT\Applications\<appname>, the
-// OpenWithList for files refers to this key
-bool VerifyApplicationKey() {
-  // we want to make Applications\<appname>\shell\open\command = <path> "%1"
-  RegKey key(HKEY_CLASSES_ROOT, kAppInstallKey, KEY_WRITE);
-  if (!key.Valid())
-    return false;
-
-  std::wstring app_path;
-  if (!PathService::Get(base::FILE_EXE, &app_path))
-    return false;
-  app_path.append(L" -- \"%1\"");
-  return key.WriteValue(NULL, app_path.c_str());
-}
-
-// This just checks that we are installed as a handler for HTML files. We
-// don't currently check for defaultness, only that we appear in the
-// "Open With" list. This will need to become more elaborate in the future.
-bool VerifyAssociations() {
-  if (!AddToOpenWithList(L".html"))
-    return false;
-  if (!AddToOpenWithList(L".htm"))
-    return false;
-  return true;
-}
-
-bool AddToOpenWithList(const wchar_t* extension) {
-  std::wstring path(extension);
-  path.append(kOpenWithUs);
-  RegKey key(HKEY_CLASSES_ROOT, path.c_str(), KEY_WRITE);
-  return key.Valid();
-}
-
-class InstallationVerifyTask : public Task {
- public:
-  virtual void Run() {
-    ShellIntegration::VerifyInstallationNow();
-  }
-};
-
-const wchar_t kVistaUrlPrefs[] =
-    L"Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice";
-
-}  // namespace
-
-void ShellIntegration::VerifyInstallation() {
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-                                          new InstallationVerifyTask(),
-                                          kVerifyTimeoutMs);
-}
-
-bool ShellIntegration::VerifyInstallationNow() {
-  // Currently we only install ourselves as a verb for HTML files, and not as
-  // the default handler. We don't prompt the user. In the future, we will
-  // want to set as the default and prompt the user if something changed. We
-  // will also care about more file types.
-  //
-  // MSDN's description of file associations:
-  // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/programmersguide/shell_basics/shell_basics_extending/fileassociations/fileassoc.asp
-  if (!VerifyApplicationKey())
-    return false;
-  return VerifyAssociations();
-}
-
 bool ShellIntegration::SetAsDefaultBrowser() {
   std::wstring chrome_exe;
   if (!PathService::Get(base::FILE_EXE, &chrome_exe)) {
@@ -213,7 +131,7 @@ bool ShellIntegration::IsFirefoxDefaultBrowser() {
   bool ff_default = false;
   if (win_util::GetWinVersion() == win_util::WINVERSION_VISTA) {
     std::wstring app_cmd;
-    RegKey key(HKEY_CURRENT_USER, kVistaUrlPrefs, KEY_READ);
+    RegKey key(HKEY_CURRENT_USER, ShellUtil::kRegVistaUrlPrefs, KEY_READ);
     if (key.Valid() && key.ReadValue(L"Progid", &app_cmd) &&
         app_cmd == L"FirefoxURL")
       ff_default = true;

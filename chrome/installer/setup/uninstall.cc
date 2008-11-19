@@ -258,12 +258,29 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
 
   DeleteRegistryValue(reg_root, ShellUtil::kRegRegisteredApplications,
                       dist->GetApplicationName());
+
+  // Cleanup Software\Classes\Applications\chrome.exe and OpenWithList
+  RegKey hklm_key(HKEY_LOCAL_MACHINE, L"", KEY_ALL_ACCESS);
+  std::wstring app_key(ShellUtil::kRegClasses);
+  file_util::AppendToPath(&app_key, L"Applications");
+  file_util::AppendToPath(&app_key, installer_util::kChromeExe);
+  DeleteRegistryKey(key, app_key);
+  if (remove_all)
+    DeleteRegistryKey(hklm_key, app_key);
+  for (int i = 0; ShellUtil::kFileAssociations[i] != NULL; i++) {
+    std::wstring open_with_key(ShellUtil::kRegClasses);
+    file_util::AppendToPath(&open_with_key, ShellUtil::kFileAssociations[i]);
+    file_util::AppendToPath(&open_with_key, L"OpenWithList");
+    file_util::AppendToPath(&open_with_key, installer_util::kChromeExe);
+    DeleteRegistryKey(key, open_with_key);
+    if (remove_all)
+      DeleteRegistryKey(hklm_key, open_with_key);
+  }
   key.Close();
 
   // Delete shared registry keys as well (these require admin rights) if
   // remove_all option is specified.
   if (remove_all) {
-    RegKey hklm_key(HKEY_LOCAL_MACHINE, L"", KEY_ALL_ACCESS);
     DeleteRegistryKey(hklm_key, set_access_key);
     DeleteRegistryKey(hklm_key, html_prog_id);
     DeleteRegistryValue(HKEY_LOCAL_MACHINE,

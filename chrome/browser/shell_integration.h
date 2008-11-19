@@ -9,17 +9,6 @@
 
 class ShellIntegration {
  public:
-  // Makes sure we are installed as a handler for the types we care about.
-  // It should be called once, probably at startup.
-  //
-  // It will not check everything right away, but will instead do it on a timer
-  // to avoid blocking startup.
-  static void VerifyInstallation();
-
-  // Like VerifyInstallation() but does the operations synchronously, returning
-  // true on success.
-  static bool VerifyInstallationNow();
-
   // Sets Chrome as default browser (only for current user). Returns false if
   // this operation fails.
   static bool SetAsDefaultBrowser();

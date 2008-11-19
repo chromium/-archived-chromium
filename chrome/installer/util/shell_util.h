@@ -65,6 +65,9 @@ class ShellUtil {
   // (i.e. \\shell\\ChromeHTML\\command).
   static const wchar_t* kRegShellChromeHTMLCommand;
 
+  // Registry path that stores url associations on Vista.
+  static const wchar_t* kRegVistaUrlPrefs;
+
   // File extensions that Chrome registers itself for.
   static const wchar_t* kFileAssociations[];
 
