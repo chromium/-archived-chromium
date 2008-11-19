@@ -320,7 +320,7 @@ void TestShell::WaitTestFinished() {
   // shell, which is unfortunate.
   // Windows multiplies by 2.5, but that causes us to run for far, far too
   // long. We can adjust it down later if we need to.
-  NSTimeInterval timeout_seconds = GetFileTestTimeout() / 1000;
+  NSTimeInterval timeout_seconds = GetLayoutTestTimeoutInSeconds();
   WatchDogTarget* watchdog = [[[WatchDogTarget alloc] 
                                 initWithTimeout:timeout_seconds] autorelease];
   NSThread* thread = [[NSThread alloc] initWithTarget:watchdog

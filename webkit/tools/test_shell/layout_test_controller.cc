@@ -232,7 +232,7 @@ void LayoutTestController::waitUntilDone(
   // finishes successfully.
   if (!::IsDebuggerPresent()) {
     UINT_PTR timer_id = reinterpret_cast<UINT_PTR>(shell_);
-    SetTimer(shell_->mainWnd(), timer_id, shell_->GetFileTestTimeout(),
+    SetTimer(shell_->mainWnd(), timer_id, shell_->GetLayoutTestTimeout(),
              &TestTimeout);
   }
 #else

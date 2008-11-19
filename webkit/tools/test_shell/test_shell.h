@@ -215,7 +215,12 @@ public:
     }
 
     // Get the timeout for running a test.
-    static int GetFileTestTimeout() { return file_test_timeout_ms_; }
+    static int GetLayoutTestTimeout() { return file_test_timeout_ms_; }
+
+    // Get the timeout for running a test in seconds
+    static int GetLayoutTestTimeoutInSeconds() {
+      return file_test_timeout_ms_ / 1000;
+    }
 
 #if defined(OS_WIN)
     // Access to the finished event.  Used by the static WatchDog

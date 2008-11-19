@@ -28,10 +28,6 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
-// Default timeout for page load when running non-interactive file
-// tests, in ms.
-const int kDefaultFileTestTimeoutSeconds = 10;
-
 // static
 void TestShell::InitializeTestShell(bool interactive) {
   window_list_ = new WindowList;
@@ -230,7 +226,7 @@ void TestShell::WaitTestFinished() {
 
   // Install an alarm signal handler that will kill us if we time out.
   signal(SIGALRM, AlarmHandler);
-  alarm(kDefaultFileTestTimeoutSeconds);
+  alarm(GetLayoutTestTimeoutInSeconds());
 
   // TestFinished() will post a quit message to break this loop when the page
   // finishes loading.
