@@ -75,6 +75,13 @@ void PasteFromClipboard(BookmarkModel* model,
 // Returns true if the user can copy from the pasteboard.
 bool CanPasteFromClipboard(BookmarkNode* node);
 
+// Number of bookmarks we'll open before prompting the user to see if they
+// really want to open all.
+//
+// NOTE: treat this as a const. It is not const as various tests change the
+// value.
+extern int num_urls_before_prompting;
+
 }  // namespace bookmark_utils
 
 #endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_UTILS_H_

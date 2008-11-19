@@ -528,14 +528,25 @@ class SubmenuView : public View {
   virtual bool OnMouseWheel(const MouseWheelEvent& e);
 
   // Returns true if the menu is showing.
-  bool IsShowing() const { return (host_ != NULL); }
+  bool IsShowing();
 
   // Shows the menu at the specified location. Coordinates are in screen
   // coordinates. max_width gives the max width the view should be.
   void ShowAt(HWND parent, const gfx::Rect& bounds, bool do_capture);
 
-  // Closes the menu. If destroy_host is true, the host is deleted.
-  void Close(bool destroy_host);
+  // Closes the menu, destroying the host.
+  void Close();
+
+  // Hides the hosting window.
+  //
+  // The hosting window is hidden first, then deleted (Close) when the menu is
+  // done running. This is done to avoid deletion ordering dependencies. In
+  // particular, during drag and drop (and when a modal dialog is shown as
+  // a result of choosing a context menu) it is possible that an event is
+  // being processed by the host, so that host is on the stack when we need to
+  // close the window. If we closed the window immediately (and deleted it),
+  // when control returned back to host we would crash as host was deleted.
+  void Hide();
 
   // If mouse capture was grabbed, it is released. Does nothing if mouse was
   // not captured.
@@ -920,18 +931,6 @@ class MenuController : public MessageLoopForUI::Dispatcher {
   int drop_x_;
   int drop_y_;
   int last_drop_operation_;
-
-  // If true, we've invoked DoDrag on the delegate.
-  //
-  // This is used to determine whether the windows used to show menus
-  // are hidden or destroyed.  As drag and drop is initiated during a
-  // mouse gesture, and the call to initiate the drag is blocking, we
-  // can't destroy the window immediately (otherwise when the drag and
-  // drop call returns the window that initiated the call and is on
-  // the stack has been deleted).  During drag and drop (in_drag_ is
-  // true) windows are hidden, once the drag and drop call completes
-  // MenuItemView takes care of destroying the windows.
-  bool in_drag_;
 
   // If true, the mouse is over some menu.
   bool any_menu_contains_mouse_;

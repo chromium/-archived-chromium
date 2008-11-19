@@ -586,12 +586,12 @@ class MenuHostRootView : public RootView {
 
     RootView::OnMouseReleased(event, canceled);
     if (forward_drag_to_menu_controller_) {
+      forward_drag_to_menu_controller_ = false;
       if (canceled) {
         GetMenuController()->Cancel(true);
       } else {
         GetMenuController()->OnMouseReleased(submenu_, event);
       }
-      forward_drag_to_menu_controller_ = false;
     }
   }
 
@@ -702,6 +702,12 @@ class MenuHost : public ContainerWin {
     ContainerWin::Hide();
   }
 
+  virtual void HideWindow() {
+    // Make sure we release capture before hiding.
+    ReleaseCapture();
+    ContainerWin::Hide();
+  }
+
   virtual void OnCaptureChanged(HWND hwnd) {
     ContainerWin::OnCaptureChanged(hwnd);
     owns_capture_ = false;
@@ -795,7 +801,10 @@ SubmenuView::SubmenuView(MenuItemView* parent)
 }
 
 SubmenuView::~SubmenuView() {
-  DCHECK(!host_);
+  // The menu may not have been closed yet (it will be hidden, but not
+  // necessarily closed).
+  Close();
+
   delete scroll_view_container_;
 }
 
@@ -949,10 +958,18 @@ bool SubmenuView::OnMouseWheel(const MouseWheelEvent& e) {
   return true;
 }
 
+bool SubmenuView::IsShowing() {
+  return host_ && host_->IsVisible();
+}
+
 void SubmenuView::ShowAt(HWND parent,
                          const gfx::Rect& bounds,
                          bool do_capture) {
-  DCHECK(!host_);
+  if (host_) {
+    host_->ShowWindow(SW_SHOWNA);
+    return;
+  }
+
   host_ = new MenuHost(this);
   // Force construction of the scroll view container.
   GetScrollViewContainer();
@@ -961,15 +978,16 @@ void SubmenuView::ShowAt(HWND parent,
   host_->Init(parent, bounds, scroll_view_container_, do_capture);
 }
 
-void SubmenuView::Close(bool destroy_host) {
+void SubmenuView::Close() {
   if (host_) {
-    if (destroy_host) {
-      host_->Close();
-      host_ = NULL;
-    } else {
-      host_->Hide();
-    }
+    host_->Close();
+    host_ = NULL;
   }
+}
+
+void SubmenuView::Hide() {
+  if (host_)
+    host_->HideWindow();
 }
 
 void SubmenuView::ReleaseCapture() {
@@ -1502,9 +1520,9 @@ void MenuItemView::DestroyAllMenuHosts() {
   if (!HasSubmenu())
     return;
 
-  submenu_->Close(true);
+  submenu_->Close();
   for (int i = 0, item_count = submenu_->GetMenuItemCount(); i < item_count;
-         ++i) {
+       ++i) {
     submenu_->GetMenuItemAt(i)->DestroyAllMenuHosts();
   }
 }
@@ -1784,7 +1802,6 @@ void MenuController::OnMouseDragged(SubmenuView* source,
       gfx::Point drag_loc(event.location());
       View::ConvertPointToScreen(source->GetScrollViewContainer(), &drag_loc);
       View::ConvertPointToView(NULL, item, &drag_loc);
-      in_drag_ = true;
       ChromeCanvas canvas(item->width(), item->height(), false);
       item->Paint(&canvas, true);
 
@@ -2166,7 +2183,6 @@ MenuController::MenuController(bool blocking)
       owner_(NULL),
       possible_drag_(false),
       valid_drop_coordinates_(false),
-      in_drag_(false),
       any_menu_contains_mouse_(false),
       showing_submenu_(false),
       result_mouse_event_flags_(0) {
@@ -2323,9 +2339,7 @@ void MenuController::CommitPendingSelection() {
   // Hide the old menu.
   for (size_t i = paths_differ_at; i < current_path.size(); ++i) {
     if (current_path[i]->HasSubmenu()) {
-      // See description of in_drag_ as to why close is conditionalized like
-      // this.
-      current_path[i]->GetSubmenu()->Close(!in_drag_);
+      current_path[i]->GetSubmenu()->Hide();
     }
   }
 
@@ -2370,10 +2384,7 @@ void MenuController::CommitPendingSelection() {
     }
   } else if (state_.item->HasSubmenu() &&
              state_.item->GetSubmenu()->IsShowing()) {
-    // The submenu is showing, but it shouldn't be, close it.
-    // See description of in_drag_ as to why close is conditionalized like
-    // this.
-    state_.item->GetSubmenu()->Close(!in_drag_);
+    state_.item->GetSubmenu()->Hide();
   }
 
   if (scroll_task_.get() && scroll_task_->submenu()) {
@@ -2395,8 +2406,7 @@ void MenuController::CloseMenu(MenuItemView* item) {
   DCHECK(item);
   if (!item->HasSubmenu())
     return;
-  // See description of in_drag_ as to why close is conditionalized like this.
-  item->GetSubmenu()->Close(!in_drag_);
+  item->GetSubmenu()->Hide();
 }
 
 void MenuController::OpenMenu(MenuItemView* item) {

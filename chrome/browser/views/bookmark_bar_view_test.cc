@@ -5,6 +5,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
@@ -892,3 +893,69 @@ class BookmarkBarViewTest11 : public BookmarkBarViewEventTestBase {
 };
 
 VIEW_TEST(BookmarkBarViewTest11, CloseMenuAfterClosingContextMenu)
+
+// Tests showing a modal dialog from a context menu.
+class BookmarkBarViewTest12 : public BookmarkBarViewEventTestBase {
+ protected:
+  virtual void DoTestOnMessageLoop() {
+    // Open up the other folder.
+    views::TextButton* button = bb_view_->other_bookmarked_button();
+    ui_controls::MoveMouseToCenterAndPress(button, ui_controls::LEFT,
+        ui_controls::DOWN | ui_controls::UP,
+        CreateEventTask(this, &BookmarkBarViewTest12::Step2));
+    bookmark_utils::num_urls_before_prompting = 1;
+  }
+
+  ~BookmarkBarViewTest12() {
+    bookmark_utils::num_urls_before_prompting = 15;
+  }
+
+ private:
+  void Step2() {
+    // Menu should be showing.
+    views::MenuItemView* menu = bb_view_->GetMenu();
+    ASSERT_TRUE(menu != NULL);
+    ASSERT_TRUE(menu->GetSubmenu()->IsShowing());
+
+    views::MenuItemView* child_menu =
+        menu->GetSubmenu()->GetMenuItemAt(1);
+    ASSERT_TRUE(child_menu != NULL);
+
+    // Right click on the second child (a folder) to get its context menu.
+    ui_controls::MoveMouseToCenterAndPress(child_menu, ui_controls::RIGHT,
+        ui_controls::DOWN | ui_controls::UP,
+        CreateEventTask(this, &BookmarkBarViewTest12::Step3));
+  }
+
+  void Step3() {
+    // Make sure the context menu is showing.
+    views::MenuItemView* menu = bb_view_->GetContextMenu();
+    ASSERT_TRUE(menu && menu->GetSubmenu() && menu->GetSubmenu()->IsShowing());
+
+    // Select the first item in the context menu (open all).
+    views::MenuItemView* child_menu =
+        menu->GetSubmenu()->GetMenuItemAt(0);
+    ASSERT_TRUE(child_menu != NULL);
+    ui_controls::MoveMouseToCenterAndPress(child_menu, ui_controls::LEFT,
+        ui_controls::DOWN | ui_controls::UP, NULL);
+
+    // Press tab to give focus to the cancel button.
+    ui_controls::SendKeyPressNotifyWhenDone(VK_TAB, false, false, false,
+        NULL);
+    // And press enter so that the cancel button is selected.
+    ui_controls::SendKeyPressNotifyWhenDone(VK_RETURN, false, false, false,
+        CreateEventTask(this, &BookmarkBarViewTest12::Step4));
+  }
+
+  void Step4() {
+    // Do a delayed task to give the dialog time to exit.
+    MessageLoop::current()->PostTask(
+        FROM_HERE, CreateEventTask(this, &BookmarkBarViewTest12::Step5));
+  }
+
+  void Step5() {
+    Done();
+  }
+};
+
+VIEW_TEST(BookmarkBarViewTest12, CloseWithModalDialog)

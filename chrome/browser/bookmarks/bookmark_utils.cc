@@ -20,10 +20,6 @@
 
 namespace {
 
-// Number of bookmarks we'll open before prompting the user to see if they
-// really want to open all.
-const int kNumURLsBeforePrompting = 15;
-
 // A PageNavigator implementation that creates a new Browser. This is used when
 // opening a url and there is no Browser open. The Browser is created the first
 // time the PageNavigator method is invoked.
@@ -131,7 +127,7 @@ bool ShouldOpenAll(HWND parent, const std::vector<BookmarkNode*>& nodes) {
   int descendant_count = 0;
   for (size_t i = 0; i < nodes.size(); ++i)
     descendant_count += DescendantURLCount(nodes[i]);
-  if (descendant_count < kNumURLsBeforePrompting)
+  if (descendant_count < bookmark_utils::num_urls_before_prompting)
     return true;
 
   std::wstring message =
@@ -145,6 +141,8 @@ bool ShouldOpenAll(HWND parent, const std::vector<BookmarkNode*>& nodes) {
 }  // namespace
 
 namespace bookmark_utils {
+
+int num_urls_before_prompting = 15;
 
 int PreferredDropOperation(int source_operations, int operations) {
   int common_ops = (source_operations & operations);
