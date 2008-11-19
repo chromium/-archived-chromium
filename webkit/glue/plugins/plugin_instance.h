@@ -34,7 +34,7 @@ class MozillaExtensionApi;
 
 // A PluginInstance is an active, running instance of a Plugin.
 // A single plugin may have many PluginInstances.
-class PluginInstance : public base::RefCounted<PluginInstance> {
+class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
  public:
   // Create a new instance of a plugin.  The PluginInstance
   // will hold a reference to the plugin.
