@@ -125,9 +125,19 @@ void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
 
 void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
                                             gfx::Rect* out_rect) {
-  //if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    NOTIMPLEMENTED();
-  //}
+  if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
+    // We are being asked for the x/y and width/height of the entire browser
+    // window.  This means the x/y is the distance from the corner of the
+    // screen, and the width/height is the size of the entire browser window.
+    // For example, this is used to implement window.screenX and window.screenY.
+    GtkWidget* drawing_area = host->window_handle();
+    GtkWidget* window =
+        gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
+    gint x, y, width, height;
+    gtk_window_get_position(GTK_WINDOW(window), &x, &y);
+    gtk_window_get_size(GTK_WINDOW(window), &width, &height);
+    out_rect->SetRect(x, y, width, height);
+  }
 }
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
