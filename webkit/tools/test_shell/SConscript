@@ -114,13 +114,13 @@ if env['PLATFORM'] == 'win32':
       'drop_delegate.cc',
       'test_shell_win.cc',
       'test_webview_delegate_win.cc',
-      'webview_host.cc',
-      'webwidget_host.cc',
+      'webview_host_win.cc',
+      'webwidget_host_win.cc',
   ])
 elif env['PLATFORM'] == 'posix':
   input_files.extend([
-      'gtk/webwidget_host.cc',
       'gtk/webview_host.cc',
+      'gtk/webwidget_host.cc',
       'test_shell_gtk.cc',
       'test_webview_delegate_gtk.cc',
   ])

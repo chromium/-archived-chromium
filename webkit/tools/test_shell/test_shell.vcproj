@@ -306,19 +306,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\webview_host.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\webview_host.h"
 			>
 		</File>
 		<File
-			RelativePath=".\webwidget_host.cc"
+			RelativePath=".\webview_host_win.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\webwidget_host.h"
+			>
+		</File>
+		<File
+			RelativePath=".\webwidget_host_win.cc"
 			>
 		</File>
 	</Files>
