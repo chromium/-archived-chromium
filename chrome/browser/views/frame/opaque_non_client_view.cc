@@ -5,6 +5,7 @@
 #include "chrome/browser/views/frame/opaque_non_client_view.h"
 
 #include "chrome/app/theme/theme_resources.h"
+#include "chrome/browser/tab_contents.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -479,11 +480,15 @@ void OpaqueNonClientView::UpdateWindowIcon() {
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueNonClientView, TabIconView::TabContentsProvider implementation:
 
-TabContents* OpaqueNonClientView::GetCurrentTabContents() {
-  return browser_view_->GetSelectedTabContents();
+bool OpaqueNonClientView::ShouldTabIconViewAnimate() const {
+  // This function is queried during the creation of the window as the
+  // TabIconView we host is initialized, so we need to NULL check the selected
+  // TabContents because in this condition there is not yet a selected tab.
+  TabContents* current_tab = browser_view_->GetSelectedTabContents();
+  return current_tab ? current_tab->is_loading() : false;
 }
 
-SkBitmap OpaqueNonClientView::GetFavIcon() {
+SkBitmap OpaqueNonClientView::GetFavIconForTabIconView() {
   return frame_->window_delegate()->GetWindowIcon();
 }
 

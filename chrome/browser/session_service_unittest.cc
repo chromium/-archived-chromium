@@ -31,7 +31,7 @@ class SessionServiceTest : public testing::Test {
 
     helper_.set_service(new SessionService(path_));
 
-    service()->SetWindowType(window_id, BrowserType::TABBED_BROWSER);
+    service()->SetWindowType(window_id, Browser::TYPE_NORMAL);
     service()->SetWindowBounds(window_id, window_bounds, false);
   }
 
@@ -99,7 +99,7 @@ TEST_F(SessionServiceTest, Basic) {
   ASSERT_EQ(0, windows[0]->selected_tab_index);
   ASSERT_EQ(window_id.id(), windows[0]->window_id.id());
   ASSERT_EQ(1, windows[0]->tabs.size());
-  ASSERT_EQ(BrowserType::TABBED_BROWSER, windows[0]->type);
+  ASSERT_EQ(Browser::TYPE_NORMAL, windows[0]->type);
 
   SessionTab* tab = windows[0]->tabs[0];
   helper_.AssertTabEquals(window_id, tab_id, 0, 0, 1, *tab);
@@ -232,7 +232,7 @@ TEST_F(SessionServiceTest, TwoWindows) {
   UpdateNavigation(window_id, tab1_id, nav1, 0, true);
 
   const gfx::Rect window2_bounds(3, 4, 5, 6);
-  service()->SetWindowType(window2_id, BrowserType::TABBED_BROWSER);
+  service()->SetWindowType(window2_id, Browser::TYPE_NORMAL);
   service()->SetWindowBounds(window2_id, window2_bounds, true);
   helper_.PrepareTabInWindow(window2_id, tab2_id, 0, true);
   UpdateNavigation(window2_id, tab2_id, nav2, 0, true);
@@ -283,7 +283,7 @@ TEST_F(SessionServiceTest, WindowWithNoTabsGetsPruned) {
   UpdateNavigation(window_id, tab1_id, nav1, 0, true);
 
   const gfx::Rect window2_bounds(3, 4, 5, 6);
-  service()->SetWindowType(window2_id, BrowserType::TABBED_BROWSER);
+  service()->SetWindowType(window2_id, Browser::TYPE_NORMAL);
   service()->SetWindowBounds(window2_id, window2_bounds, false);
   helper_.PrepareTabInWindow(window2_id, tab2_id, 0, true);
 
@@ -341,7 +341,7 @@ TEST_F(SessionServiceTest, WindowCloseCommittedAfterNavigate) {
   SessionID tab2_id;
   ASSERT_NE(window2_id.id(), window_id.id());
 
-  service()->SetWindowType(window2_id, BrowserType::TABBED_BROWSER);
+  service()->SetWindowType(window2_id, Browser::TYPE_NORMAL);
   service()->SetWindowBounds(window2_id, window_bounds, false);
 
   TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",
@@ -379,7 +379,7 @@ TEST_F(SessionServiceTest, IgnorePopups) {
   SessionID tab2_id;
   ASSERT_NE(window2_id.id(), window_id.id());
 
-  service()->SetWindowType(window2_id, BrowserType::BROWSER);
+  service()->SetWindowType(window2_id, Browser::TYPE_POPUP);
   service()->SetWindowBounds(window2_id, window_bounds, false);
 
   TabNavigation nav1(0, GURL("http://google.com"), GURL(), L"abc", "def",

@@ -139,7 +139,7 @@ struct Browser::UIUpdate {
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Constructors, Creation, Showing:
 
-Browser::Browser(BrowserType::Type type, Profile* profile)
+Browser::Browser(Type type, Profile* profile)
     : type_(type),
       profile_(profile),
       window_(NULL),
@@ -210,14 +210,14 @@ Browser::~Browser() {
 
 // static
 Browser* Browser::Create(Profile* profile) {
-  Browser* browser = new Browser(BrowserType::TABBED_BROWSER, profile);
+  Browser* browser = new Browser(TYPE_NORMAL, profile);
   browser->CreateBrowserWindow();
   return browser;
 }
 
 // static
 Browser* Browser::CreateForPopup(Profile* profile) {
-  Browser* browser = new Browser(BrowserType::BROWSER, profile);
+  Browser* browser = new Browser(TYPE_POPUP, profile);
   browser->CreateBrowserWindow();
   return browser;
 }
@@ -225,7 +225,7 @@ Browser* Browser::CreateForPopup(Profile* profile) {
 // static
 Browser* Browser::CreateForApp(const std::wstring& app_name,
                                Profile* profile) {
-  Browser* browser = new Browser(BrowserType::APPLICATION, profile);
+  Browser* browser = new Browser(TYPE_APP, profile);
   browser->app_name_ = app_name;
   browser->CreateBrowserWindow();
   return browser;
@@ -260,7 +260,7 @@ void Browser::OpenURLOffTheRecord(Profile* profile, const GURL& url) {
   Profile* off_the_record_profile = profile->GetOffTheRecordProfile();
   Browser* browser = BrowserList::FindBrowserWithType(
       off_the_record_profile,
-      BrowserType::TABBED_BROWSER);
+      TYPE_NORMAL);
   if (!browser)
     browser = Browser::Create(off_the_record_profile);
   // TODO(eroman): should we have referrer here?
@@ -319,7 +319,7 @@ std::wstring Browser::GetWindowPlacementKey() const {
 
 bool Browser::ShouldSaveWindowPlacement() const {
   // We don't save window position for popups.
-  return type() != BrowserType::BROWSER;
+  return type() != TYPE_POPUP;
 }
 
 void Browser::SaveWindowPlacement(const gfx::Rect& bounds, bool maximized) {
@@ -447,7 +447,7 @@ void Browser::OnWindowClosing() {
 TabContents* Browser::AddTabWithURL(
     const GURL& url, const GURL& referrer, PageTransition::Type transition,
     bool foreground, SiteInstance* instance) {
-  if (type_ == BrowserType::APPLICATION && tabstrip_model_.count() == 1) {
+  if (type_ == TYPE_APP && tabstrip_model_.count() == 1) {
     NOTREACHED() << "Cannot add a tab in a mono tab application.";
     return NULL;
   }
@@ -621,7 +621,7 @@ void Browser::OpenCurrentURL() {
 
 void Browser::NewTab() {
   UserMetrics::RecordAction(L"NewTab", profile_);
-  if (type() == BrowserType::TABBED_BROWSER) {
+  if (type() == TYPE_NORMAL) {
     AddBlankTab(true);
   } else {
     Browser* b = GetOrCreateTabbedBrowser();
@@ -701,7 +701,7 @@ void Browser::RestoreTab() {
 void Browser::ConvertPopupToTabbedBrowser() {
   UserMetrics::RecordAction(L"ShowAsTab", profile_);
 
-  if (type() != BrowserType::BROWSER) {
+  if (type() != TYPE_NORMAL) {
     NOTREACHED();
     return;
   }
@@ -1197,10 +1197,10 @@ GURL Browser::GetBlankTabURL() const {
 
 void Browser::CreateNewStripWithContents(TabContents* detached_contents,
                                          const gfx::Rect& window_bounds) {
-  DCHECK(type_ == BrowserType::TABBED_BROWSER);
+  DCHECK(type_ == TYPE_NORMAL);
   
   // Create an empty new browser window the same size as the old one.
-  Browser* browser = new Browser(BrowserType::TABBED_BROWSER, profile_);
+  Browser* browser = new Browser(TYPE_NORMAL, profile_);
   browser->set_override_bounds(window_bounds);
   browser->CreateBrowserWindow();
   browser->tabstrip_model()->AppendTabContents(detached_contents, true);
@@ -1217,8 +1217,7 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
 
 int Browser::GetDragActions() const {
   int result = 0;
-  if (BrowserList::GetBrowserCountForType(profile_,
-                                          BrowserType::TABBED_BROWSER) > 1 ||
+  if (BrowserList::GetBrowserCountForType(profile_, TYPE_NORMAL) > 1 ||
       tab_count() > 1)
     result |= TAB_TEAROFF_ACTION;
   if (tab_count() > 1)
@@ -1262,7 +1261,7 @@ void Browser::DuplicateContentsAt(int index) {
   TabContents* new_contents = NULL;
   DCHECK(contents);
 
-  if (type_ == BrowserType::TABBED_BROWSER) {
+  if (type_ == TYPE_NORMAL) {
     // If this is a tabbed browser, just create a duplicate tab inside the same
     // window next to the tab being duplicated.
     HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
@@ -1278,9 +1277,9 @@ void Browser::DuplicateContentsAt(int index) {
                                    PageTransition::LINK, true);
   } else {
     Browser* browser = NULL;
-    if (type_ == BrowserType::APPLICATION) {
+    if (type_ == TYPE_APP) {
       browser = Browser::CreateForApp(app_name_, profile_);
-    } else if (type_ == BrowserType::BROWSER) {
+    } else if (type_ == TYPE_POPUP) {
       browser = Browser::CreateForPopup(profile_);
     }
 
@@ -1467,7 +1466,7 @@ void Browser::OpenURLFromTab(TabContents* source,
 
   // If this is an application we can only have one tab so a new tab always
   // goes into a tabbed browser window.
-  if (disposition != NEW_WINDOW && type_ == BrowserType::APPLICATION) {
+  if (disposition != NEW_WINDOW && type_ == TYPE_APP) {
     // If the disposition is OFF_THE_RECORD we don't want to create a new
     // browser that will itself create another OTR browser. This will result in
     // a browser leak (and crash below because no tab is created or selected).
@@ -1603,7 +1602,7 @@ void Browser::AddNewContents(TabContents* source,
   // this in tabbed browser window.
   if (tabstrip_model_.count() > 0 &&
       disposition != NEW_WINDOW && disposition != NEW_POPUP &&
-      type_ != BrowserType::TABBED_BROWSER) {
+      type_ != TYPE_NORMAL) {
     Browser* b = GetOrCreateTabbedBrowser();
     DCHECK(b);
     PageTransition::Type transition = PageTransition::LINK;
@@ -1612,7 +1611,7 @@ void Browser::AddNewContents(TabContents* source,
     // This means we need to open the tab with the START PAGE transition.
     // AddNewContents doesn't support this but the TabStripModel's
     // AddTabContents method does.
-    if (type_ == BrowserType::APPLICATION)
+    if (type_ == TYPE_APP)
       transition = PageTransition::START_PAGE;
     b->tabstrip_model()->AddTabContents(new_contents, -1, transition, true);
     b->window()->Show();
@@ -1672,7 +1671,7 @@ void Browser::CloseContents(TabContents* source) {
 }
 
 void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
-  if (type() != BrowserType::BROWSER) {
+  if (type() != TYPE_POPUP) {
     NOTREACHED() << "moving invalid browser type";
     return;
   }
@@ -1681,7 +1680,7 @@ void Browser::MoveContents(TabContents* source, const gfx::Rect& pos) {
 
 bool Browser::IsPopup(TabContents* source) {
   // A non-tabbed BROWSER is an unconstrained popup.
-  return (type() == BrowserType::BROWSER);
+  return (type() == TYPE_POPUP);
 }
 
 void Browser::ToolbarSizeChanged(TabContents* source, bool is_animating) {
@@ -1718,7 +1717,7 @@ void Browser::ContentsZoomChange(bool zoom_in) {
 }
 
 bool Browser::IsApplication() const {
-  return type_ == BrowserType::APPLICATION;
+  return type_ == TYPE_APP;
 }
 
 void Browser::ConvertContentsToApplication(TabContents* contents) {
@@ -1841,8 +1840,7 @@ void Browser::InitCommandState() {
 
   controller_.UpdateCommandEnabled(IDC_STOP, true);
   controller_.UpdateCommandEnabled(IDC_RELOAD, true);
-  controller_.UpdateCommandEnabled(IDC_HOME,
-                                   type() == BrowserType::TABBED_BROWSER);
+  controller_.UpdateCommandEnabled(IDC_HOME, type() == TYPE_NORMAL);
   controller_.UpdateCommandEnabled(IDC_GO, true);
   controller_.UpdateCommandEnabled(IDC_NEWTAB, true);
   controller_.UpdateCommandEnabled(IDC_CLOSETAB, true);
@@ -1936,13 +1934,11 @@ void Browser::InitCommandState() {
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1255, true);
   controller_.UpdateCommandEnabled(IDC_ENCODING_WINDOWS1258, true);
   controller_.UpdateCommandEnabled(IDC_OPTIONS, true);
-  controller_.UpdateCommandEnabled(IDC_CLOSE_WEB_APP,
-                                   type() != BrowserType::TABBED_BROWSER);
-  controller_.UpdateCommandEnabled(IDC_SHOW_AS_TAB,
-                                   type() == BrowserType::BROWSER);
+  controller_.UpdateCommandEnabled(IDC_CLOSE_WEB_APP, type() != TYPE_NORMAL);
+  controller_.UpdateCommandEnabled(IDC_SHOW_AS_TAB, type() == TYPE_POPUP);
   controller_.UpdateCommandEnabled(
       IDC_RESTORE_TAB, (!profile_->IsOffTheRecord() &&
-                        type() == BrowserType::TABBED_BROWSER));
+                        type() == TYPE_NORMAL));
   controller_.UpdateCommandEnabled(IDC_EXIT, true);
   // the debugger doesn't work in single process mode
   controller_.UpdateCommandEnabled(IDC_DEBUGGER,
@@ -2284,7 +2280,7 @@ void Browser::ClearUnloadState(TabContents* tab) {
 
 Browser* Browser::GetOrCreateTabbedBrowser() {
   Browser* browser = BrowserList::FindBrowserWithType(
-      profile_, BrowserType::TABBED_BROWSER);
+      profile_, TYPE_NORMAL);
   if (!browser)
     browser = Browser::Create(profile_);
   return browser;
@@ -2293,8 +2289,7 @@ Browser* Browser::GetOrCreateTabbedBrowser() {
 void Browser::BuildPopupWindow(TabContents* source,
                                TabContents* new_contents,
                                const gfx::Rect& initial_pos) {
-  BrowserType::Type type =
-      type_ == BrowserType::APPLICATION ? type_ : BrowserType::BROWSER;
+  Type type = type_ == TYPE_APP ? type_ : TYPE_POPUP;
   Browser* browser = new Browser(type, profile_);
   browser->set_override_bounds(initial_pos);
   browser->CreateBrowserWindow();

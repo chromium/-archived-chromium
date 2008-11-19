@@ -20,7 +20,7 @@ class WindowResources;
 
 class OpaqueNonClientView : public views::NonClientView,
                             public views::BaseButton::ButtonListener,
-                            public TabIconView::TabContentsProvider {
+                            public TabIconView::TabIconViewModel {
  public:
   // Constructs a non-client view for an OpaqueFrame. |is_otr| specifies if the
   // frame was created "off-the-record" and as such different bitmaps should be
@@ -39,9 +39,9 @@ class OpaqueNonClientView : public views::NonClientView,
   void UpdateWindowIcon();
 
  protected:
-  // Overridden from TabIconView::TabContentsProvider:
-  virtual TabContents* GetCurrentTabContents();
-  virtual SkBitmap GetFavIcon();
+  // Overridden from TabIconView::TabIconViewModel:
+  virtual bool ShouldTabIconViewAnimate() const;
+  virtual SkBitmap GetFavIconForTabIconView();
 
   // Overridden from views::BaseButton::ButtonListener:
   virtual void ButtonPressed(views::BaseButton* sender);

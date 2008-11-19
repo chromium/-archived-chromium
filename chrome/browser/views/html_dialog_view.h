@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/browser/views/dom_view.h"
 
+class Browser;
 namespace views {
 class Window;
 }

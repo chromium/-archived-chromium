@@ -5,7 +5,6 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "chrome/browser/browser_type.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
 #include "chrome/browser/profile_manager.h"
@@ -158,7 +157,7 @@ class NavigationControllerHistoryTest : public NavigationControllerTest {
 
     // Force the session service to be created.
     SessionService* service = profile->GetSessionService();
-    service->SetWindowType(window_id, BrowserType::TABBED_BROWSER);
+    service->SetWindowType(window_id, Browser::TYPE_NORMAL);
     service->SetWindowBounds(window_id, gfx::Rect(0, 1, 2, 3), false);
     service->SetTabIndexInWindow(window_id,
                                  contents->controller()->session_id(), 0);

@@ -293,7 +293,7 @@ void SessionService::WindowClosed(const SessionID& window_id) {
 }
 
 void SessionService::SetWindowType(const SessionID& window_id,
-                                   BrowserType::Type type) {
+                                   Browser::Type type) {
   if (!should_track_changes_for_browser_type(type))
     return;
 
@@ -703,7 +703,7 @@ SessionCommand* SessionService::CreateSetSelectedNavigationIndexCommand(
 
 SessionCommand* SessionService::CreateSetWindowTypeCommand(
     const SessionID& window_id,
-    BrowserType::Type type) {
+    Browser::Type type) {
       WindowTypePayload payload = { 0 };
   payload.id = window_id.id();
   payload.index = static_cast<int32>(type);
@@ -1026,7 +1026,7 @@ bool SessionService::CreateTabsAndWindows(
           return true;
         GetWindow(payload.id, windows)->is_constrained = false;
         GetWindow(payload.id, windows)->type =
-            static_cast<BrowserType::Type>(payload.index);
+            static_cast<Browser::Type>(payload.index);
         break;
       }
 

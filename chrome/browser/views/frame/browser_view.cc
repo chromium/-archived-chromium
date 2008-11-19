@@ -138,6 +138,16 @@ BrowserView::~BrowserView() {
   ticker_.UnregisterTickHandler(&hung_window_detector_);
 }
 
+// static
+BrowserWindow* BrowserView::GetBrowserWindowForHWND(HWND window) {
+  if (IsWindow(window)) {
+    HANDLE data = GetProp(window, kBrowserWindowKey);
+    if (data)
+      return reinterpret_cast<BrowserWindow*>(data);
+  }
+  return NULL;
+}
+
 int BrowserView::GetShowState() const {
   STARTUPINFO si = {0};
   si.cb = sizeof(si);
@@ -189,7 +199,7 @@ bool BrowserView::IsOffTheRecord() const {
 }
 
 bool BrowserView::ShouldShowOffTheRecordAvatar() const {
-  return IsOffTheRecord() && browser_->type() == BrowserType::TABBED_BROWSER;
+  return IsOffTheRecord() && browser_->type() == Browser::TYPE_NORMAL;
 }
 
 bool BrowserView::AcceleratorPressed(const views::Accelerator& accelerator) {
@@ -283,13 +293,13 @@ bool BrowserView::SupportsWindowFeature(WindowFeature feature) const {
 }
 
 // static
-unsigned int BrowserView::FeaturesForBrowserType(BrowserType::Type type) {
+unsigned int BrowserView::FeaturesForBrowserType(Browser::Type type) {
   unsigned int features = FEATURE_INFOBAR | FEATURE_DOWNLOADSHELF;
-  if (type == BrowserType::TABBED_BROWSER)
+  if (type == Browser::TYPE_NORMAL)
     features |= FEATURE_TABSTRIP | FEATURE_TOOLBAR | FEATURE_BOOKMARKBAR;
-  if (type != BrowserType::APPLICATION)
+  if (type != Browser::TYPE_APP)
     features |= FEATURE_LOCATIONBAR;
-  if (type != BrowserType::TABBED_BROWSER)
+  if (type != Browser::TYPE_NORMAL)
     features |= FEATURE_TITLEBAR;
   return features;
 }
@@ -687,7 +697,7 @@ bool BrowserView::ShouldShowWindowTitle() const {
 }
 
 SkBitmap BrowserView::GetWindowIcon() {
-  if (browser_->type() == BrowserType::APPLICATION)
+  if (browser_->type() == Browser::TYPE_APP)
     return browser_->GetCurrentPageIcon();
   return SkBitmap();
 }
@@ -726,7 +736,7 @@ void BrowserView::SaveWindowPlacement(const gfx::Rect& bounds,
 
 bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
   *bounds = browser_->GetSavedWindowBounds();
-  if (browser_->type() == BrowserType::BROWSER) {
+  if (browser_->type() == Browser::TYPE_POPUP) {
     // We are a popup window. The value passed in |bounds| represents two
     // pieces of information:
     // - the position of the window, in screen coordinates (outer position).
@@ -967,7 +977,7 @@ void BrowserView::InitSystemMenu() {
   int insertion_index = std::max(0, system_menu_->ItemCount() - 1);
   // We add the menu items in reverse order so that insertion_index never needs
   // to change.
-  if (browser_->type() == BrowserType::TABBED_BROWSER) {
+  if (browser_->type() == Browser::TYPE_NORMAL) {
     system_menu_->AddSeparator(insertion_index);
     system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASKMANAGER,
                                        l10n_util::GetString(IDS_TASKMANAGER));

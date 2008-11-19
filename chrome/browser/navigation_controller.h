@@ -9,7 +9,7 @@
 
 #include "base/linked_ptr.h"
 #include "base/ref_counted.h"
-#include "chrome/browser/session_service.h"
+#include "chrome/browser/session_id.h"
 #include "chrome/browser/site_instance.h"
 #include "chrome/browser/ssl_manager.h"
 #include "chrome/browser/tab_contents_type.h"

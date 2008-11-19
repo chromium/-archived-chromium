@@ -7,8 +7,8 @@
 #include "chrome/browser/views/tabs/dragged_tab_controller.h"
 
 #include "chrome/browser/browser_window.h"
-#include "chrome/browser/frame_util.h"
 #include "chrome/browser/tab_contents.h"
+#include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/dragged_tab_view.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/browser/views/tabs/tab.h"
@@ -441,7 +441,7 @@ TabStrip* DraggedTabController::GetTabStripForPoint(
   if (!other_hwnd)
     return NULL;
 
-  BrowserWindow* other_frame = FrameUtil::GetBrowserWindowForHWND(other_hwnd);
+  BrowserWindow* other_frame = BrowserView::GetBrowserWindowForHWND(other_hwnd);
   if (other_frame) {
     TabStrip* other_tabstrip = other_frame->GetTabStrip();
     if (!other_tabstrip->IsCompatibleWith(source_tabstrip_))

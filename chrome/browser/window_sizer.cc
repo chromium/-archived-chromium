@@ -7,7 +7,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/browser_type.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -140,7 +139,7 @@ class DefaultStateProvider : public WindowSizer::StateProvider {
     BrowserList::const_reverse_iterator end = BrowserList::end_last_active();
     for (; it != end; ++it) {
       Browser* last_active = *it;
-      if (last_active && last_active->type() == BrowserType::TABBED_BROWSER) {
+      if (last_active && last_active->type() == Browser::TYPE_NORMAL) {
         BrowserWindow* frame = last_active->window();
         DCHECK(frame);
         *bounds = frame->GetNormalBounds();
