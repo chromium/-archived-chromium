@@ -66,7 +66,7 @@ void TestShell::InitializeTestShell(bool interactive) {
   // font directories.
   FilePath path;
   PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  path.Append("webkti/tools/test_shell/resources/linux-fontconfig-config");
+  path = path.Append("webkit/tools/test_shell/resources/linux-fontconfig-config");
 
   FcInit();
 
