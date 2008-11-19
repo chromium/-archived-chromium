@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <Commdlg.h>
 #include <shlobj.h>
+#include <atlbase.h>
 
 #include <algorithm>
 #include <map>
@@ -234,6 +235,11 @@ class SelectFileDialogImpl : public SelectFileDialog,
                          HWND owner,
                          std::wstring* path);
 
+  // The callback function for when the select folder dialog is opened.
+  static int CALLBACK BrowseCallbackProc(HWND window, UINT message,
+                                         LPARAM parameter,
+                                         LPARAM data);
+
   // The listener to be notified of selection completion.
   Listener* listener_;
 
@@ -317,6 +323,19 @@ void SelectFileDialogImpl::FileNotSelected(void* params, RunState run_state) {
   EndRun(run_state);
 }
 
+int CALLBACK SelectFileDialogImpl::BrowseCallbackProc(HWND window,
+                                                      UINT message,
+                                                      LPARAM parameter,
+                                                      LPARAM data)
+{
+  if (message == BFFM_INITIALIZED) {
+    // WParam is TRUE since passing a path.
+    // data lParam member of the BROWSEINFO structure.
+    SendMessage(window, BFFM_SETSELECTION, TRUE, (LPARAM)data);
+  }
+  return 0;
+}
+
 bool SelectFileDialogImpl::RunSelectFolderDialog(const std::wstring& title,
                                                  HWND owner,
                                                  std::wstring* path) {
@@ -324,26 +343,50 @@ bool SelectFileDialogImpl::RunSelectFolderDialog(const std::wstring& title,
 
   wchar_t dir_buffer[MAX_PATH + 1];
 
+  bool result = false;
   BROWSEINFO browse_info = {0};
   browse_info.hwndOwner = owner;
   browse_info.lpszTitle = title.c_str();
   browse_info.pszDisplayName = dir_buffer;
   browse_info.ulFlags = BIF_USENEWUI | BIF_RETURNONLYFSDIRS;
+  
+  if (path->length()) {
+    // Highlight the current value.
+    browse_info.lParam = (LPARAM)path->c_str();
+    browse_info.lpfn = &BrowseCallbackProc;
+  }
+  
   LPITEMIDLIST list = SHBrowseForFolder(&browse_info);
   DisableOwner(owner);
   if (list) {
-    wchar_t out_dir_buffer[MAX_PATH + 1];
-    if (SHGetPathFromIDList(list, out_dir_buffer)) {
-      *path = out_dir_buffer;
+    STRRET out_dir_buffer;
+    ZeroMemory(&out_dir_buffer, sizeof(out_dir_buffer));
+    out_dir_buffer.uType = STRRET_WSTR;
+    CComPtr<IShellFolder> shell_folder = NULL;
+    if (SHGetDesktopFolder (&shell_folder) == NOERROR) {
+      HRESULT hr = shell_folder->GetDisplayNameOf(list, SHGDN_FORPARSING,
+                                                 &out_dir_buffer);
+      if (SUCCEEDED(hr) && out_dir_buffer.uType == STRRET_WSTR) {
+        *path = out_dir_buffer.pOleStr;
+        CoTaskMemFree(out_dir_buffer.pOleStr);
+        result = true;
+      }
+      else {
+        // Use old way if we don't get what we want.
+        wchar_t old_out_dir_buffer[MAX_PATH + 1];
+        if (SHGetPathFromIDList(list, old_out_dir_buffer)) {
+          *path = old_out_dir_buffer;
+          result = true;
+        }
+      }
 
       // According to MSDN, win2000 will not resolve shortcuts, so we do it
       // ourself.
       file_util::ResolveShortcut(path);
-      return true;
     }
     CoTaskMemFree(list);
   }
-  return false;
+  return result;
 }
 
 bool SelectFileDialogImpl::RunOpenFileDialog(

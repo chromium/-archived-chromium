@@ -196,9 +196,12 @@ void ContentPageView::ButtonPressed(views::NativeButton* sender) {
     const std::wstring dialog_title =
        l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_TITLE);
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_FOLDER,
-                                    dialog_title, std::wstring(),
+                                    dialog_title,
+                                    profile()->GetPrefs()->GetString(
+                                        prefs::kDownloadDefaultDirectory),
                                     std::wstring(), std::wstring(),
-                                    GetRootWindow(), NULL);
+                                    GetRootWindow(),
+                                    NULL);
   } else if (sender == download_ask_for_save_location_checkbox_) {
     bool enabled = download_ask_for_save_location_checkbox_->IsSelected();
     if (enabled) {
