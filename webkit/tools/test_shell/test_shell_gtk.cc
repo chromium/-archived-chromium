@@ -148,6 +148,8 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
 
   GtkWidget* toolbar = gtk_toolbar_new();
+  // Turn off the labels on the toolbar buttons.
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
 
   GtkToolItem* back = gtk_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
   g_signal_connect(G_OBJECT(back), "clicked",
