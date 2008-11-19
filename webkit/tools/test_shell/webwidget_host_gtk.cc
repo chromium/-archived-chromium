@@ -57,6 +57,15 @@ gboolean KeyPressReleaseEvent(GtkWidget* widget, GdkEventKey* event,
   return FALSE;
 }
 
+// This signal is called when arrow keys or tab is pressed.  If we return true,
+// we prevent focus from being moved to another widget.  If we want to allow
+// focus to be moved outside of web contents, we need to implement
+// WebViewDelegate::TakeFocus in the test webview delegate.
+gboolean FocusMove(GtkWidget* widget, GdkEventFocus* focus,
+                   WebWidgetHost* host) {
+  return TRUE;
+}
+
 gboolean FocusIn(GtkWidget* widget, GdkEventFocus* focus,
                  WebWidgetHost* host) {
   host->webwidget()->SetFocus(true);
@@ -113,6 +122,7 @@ gfx::WindowHandle WebWidgetHost::CreateWindow(gfx::WindowHandle box,
                    host);
   g_signal_connect(widget, "key-release-event",
                    G_CALLBACK(KeyPressReleaseEvent), host);
+  g_signal_connect(widget, "focus", G_CALLBACK(FocusMove), host);
   g_signal_connect(widget, "focus-in-event", G_CALLBACK(FocusIn), host);
   g_signal_connect(widget, "focus-out-event", G_CALLBACK(FocusOut), host);
   g_signal_connect(widget, "button-press-event",
