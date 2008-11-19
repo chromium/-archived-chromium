@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 
+#include "base/logging.h"
 #include "base/process_util.h"
 
 #import <Cocoa/Cocoa.h>
@@ -24,12 +25,12 @@ bool LaunchApp(const std::vector<std::string>& argv,
   argv_copy[argv.size()] = NULL;
   
   int pid = 0;
-  int spawn_succeeded = (posix_spawn(&pid, 
-                                     argv_copy[0], 
-                                     NULL, 
-                                     NULL, 
-                                     argv_copy, 
-                                     NULL) == 0);
+  int spawn_succeeded = (posix_spawnp(&pid, 
+                                      argv_copy[0], 
+                                      NULL, 
+                                      NULL, 
+                                      argv_copy, 
+                                      NULL) == 0);
   
   bool process_handle_valid = pid > 0;  
   if (!spawn_succeeded || !process_handle_valid) {
@@ -60,6 +61,20 @@ bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
 
 bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) {
   // TODO(pinkerton): can we implement this? On linux it relies on /proc.
+  return false;
+}
+
+int GetProcessCount(const std::wstring& executable_name,
+                    const ProcessFilter* filter) {
+  NOTIMPLEMENTED();
+  return 0;
+}
+
+bool CleanupProcesses(const std::wstring& executable_name,
+                      int wait_milliseconds,
+                      int exit_code,
+                      const ProcessFilter* filter) {
+  NOTIMPLEMENTED();
   return false;
 }
 

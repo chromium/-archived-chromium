@@ -295,8 +295,9 @@ class TestServer : public base::ProcessFilter {
     ASSERT_TRUE(
         base::LaunchApp(command_line, false, true, &process_handle_)) <<
         "Failed to launch " << command_line;
-#elif defined(OS_LINUX)
-    bool tlslite_installed = !access("/usr/bin/tls.py", X_OK);
+#elif defined(OS_POSIX)
+    bool tlslite_installed = !access("/usr/bin/tls.py", X_OK) ||
+                             !access("/usr/local/bin/tls.py", X_OK);
     ASSERT_TRUE(tlslite_installed) << "tlslite not installed?  Please run 'python setup.py install' in third_party/tlslite.";
 
     std::vector<std::string> command_line;

@@ -39,6 +39,7 @@
 		0435A47A0E8DD6F300E4DF08 /* http_auth_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A4790E8DD6F300E4DF08 /* http_auth_handler.cc */; };
 		0435A4800E8DD73600E4DF08 /* http_auth_handler_basic.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A47F0E8DD73600E4DF08 /* http_auth_handler_basic.cc */; };
 		0435A48F0E8DD74B00E4DF08 /* http_auth_handler_digest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A48E0E8DD74B00E4DF08 /* http_auth_handler_digest.cc */; };
+		048133550ED27FEF005C5BBC /* url_request_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33AB0E5A198600A747DB /* url_request_unittest.cc */; };
 		048268070E5B3B1000A30786 /* mime_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED32AA0E5A181C00A747DB /* mime_util.cc */; };
 		048268080E5B3B3200A30786 /* http_chunked_decoder_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33570E5A194700A747DB /* http_chunked_decoder_unittest.cc */; };
 		048268090E5B3B4800A30786 /* mime_util_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325E0E5A181C00A747DB /* mime_util_unittest.cc */; };
@@ -1584,6 +1585,7 @@
 				A50055BF0EBF7CB2007B0A90 /* telnet_server_unittest.cc in Sources */,
 				A50055C00EBF7CD6007B0A90 /* listen_socket_unittest.cc in Sources */,
 				042A4D480EC4F4500083281F /* http_auth_cache_unittest.cc in Sources */,
+				048133550ED27FEF005C5BBC /* url_request_unittest.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

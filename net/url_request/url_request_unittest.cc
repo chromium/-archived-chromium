@@ -14,6 +14,7 @@
 
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/platform_test.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "net/base/load_flags.h"
@@ -29,9 +30,6 @@
 using base::Time;
 
 namespace {
-
-class URLRequestTest : public testing::Test {
-};
 
 class URLRequestHttpCacheContext : public URLRequestContext {
  public:
@@ -71,7 +69,11 @@ bool ContainsString(const std::string& haystack, const char* needle) {
 
 }  // namespace
 
-TEST(URLRequestTest, GetTest_NoCache) {
+// Inherit PlatformTest since we require the autorelease pool on Mac OS X.f
+class URLRequestTest : public PlatformTest {
+};
+
+TEST_F(URLRequestTest, GetTest_NoCache) {
   TestServer server(L"");
   TestDelegate d;
   {
@@ -91,7 +93,7 @@ TEST(URLRequestTest, GetTest_NoCache) {
 #endif
 }
 
-TEST(URLRequestTest, GetTest) {
+TEST_F(URLRequestTest, GetTest) {
   TestServer server(L"");
   TestDelegate d;
   {
@@ -111,7 +113,7 @@ TEST(URLRequestTest, GetTest) {
 #endif
 }
 
-TEST(URLRequestTest, CancelTest) {
+TEST_F(URLRequestTest, CancelTest) {
   TestDelegate d;
   {
     TestURLRequest r(GURL("http://www.google.com/"), &d);
@@ -134,7 +136,7 @@ TEST(URLRequestTest, CancelTest) {
 #endif
 }
 
-TEST(URLRequestTest, CancelTest2) {
+TEST_F(URLRequestTest, CancelTest2) {
   TestServer server(L"");
   TestDelegate d;
   {
@@ -157,7 +159,7 @@ TEST(URLRequestTest, CancelTest2) {
 #endif
 }
 
-TEST(URLRequestTest, CancelTest3) {
+TEST_F(URLRequestTest, CancelTest3) {
   TestServer server(L"");
   TestDelegate d;
   {
@@ -183,7 +185,7 @@ TEST(URLRequestTest, CancelTest3) {
 #endif
 }
 
-TEST(URLRequestTest, CancelTest4) {
+TEST_F(URLRequestTest, CancelTest4) {
   TestServer server(L"");
   TestDelegate d;
   {
@@ -207,7 +209,7 @@ TEST(URLRequestTest, CancelTest4) {
   EXPECT_EQ(0, d.bytes_received());
 }
 
-TEST(URLRequestTest, CancelTest5) {
+TEST_F(URLRequestTest, CancelTest5) {
   TestServer server(L"");
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
 
@@ -241,7 +243,7 @@ TEST(URLRequestTest, CancelTest5) {
 #endif
 }
 
-TEST(URLRequestTest, PostTest) {
+TEST_F(URLRequestTest, PostTest) {
   TestServer server(L"net/data");
 
   const int kMsgSize = 20000;  // multiple of 10
@@ -292,7 +294,7 @@ TEST(URLRequestTest, PostTest) {
 #endif
 }
 
-TEST(URLRequestTest, PostEmptyTest) {
+TEST_F(URLRequestTest, PostEmptyTest) {
   TestServer server(L"net/data");
   TestDelegate d;
   {
@@ -315,7 +317,7 @@ TEST(URLRequestTest, PostEmptyTest) {
 #endif
 }
 
-TEST(URLRequestTest, PostFileTest) {
+TEST_F(URLRequestTest, PostFileTest) {
   TestServer server(L"net/data");
   TestDelegate d;
   {
@@ -363,7 +365,7 @@ TEST(URLRequestTest, PostFileTest) {
 #endif
 }
 
-TEST(URLRequestTest, AboutBlankTest) {
+TEST_F(URLRequestTest, AboutBlankTest) {
   TestDelegate d;
   {
     TestURLRequest r(GURL("about:blank"), &d);
@@ -382,7 +384,7 @@ TEST(URLRequestTest, AboutBlankTest) {
 #endif
 }
 
-TEST(URLRequestTest, FileTest) {
+TEST_F(URLRequestTest, FileTest) {
   std::wstring app_path;
   PathService::Get(base::FILE_EXE, &app_path);
 
@@ -413,7 +415,7 @@ TEST(URLRequestTest, FileTest) {
 #endif
 }
 
-TEST(URLRequestTest, InvalidUrlTest) {
+TEST_F(URLRequestTest, InvalidUrlTest) {
   TestDelegate d;
   {
     TestURLRequest r(GURL("invalid url"), &d);
@@ -431,7 +433,7 @@ TEST(URLRequestTest, InvalidUrlTest) {
 
 /* This test is disabled because it fails on some computers due to proxies
    returning a page in response to this request rather than reporting failure.
-TEST(URLRequestTest, DnsFailureTest) {
+TEST_F(URLRequestTest, DnsFailureTest) {
   TestDelegate d;
   {
     URLRequest r(GURL("http://thisisnotavalidurl0123456789foo.com/"), &d);
@@ -448,7 +450,7 @@ TEST(URLRequestTest, DnsFailureTest) {
 }
 */
 
-TEST(URLRequestTest, ResponseHeadersTest) {
+TEST_F(URLRequestTest, ResponseHeadersTest) {
   TestServer server(L"net/data/url_request_unittest");
   TestDelegate d;
   TestURLRequest req(server.TestServerPage("files/with-headers.html"), &d);
@@ -471,7 +473,7 @@ TEST(URLRequestTest, ResponseHeadersTest) {
   EXPECT_EQ("a, b", header);
 }
 
-TEST(URLRequestTest, BZip2ContentTest) {
+TEST_F(URLRequestTest, BZip2ContentTest) {
   TestServer server(L"net/data/filter_unittests");
 
   // for localhost domain, we also should support bzip2 encoding
@@ -495,7 +497,7 @@ TEST(URLRequestTest, BZip2ContentTest) {
   EXPECT_EQ(got_content, got_bz2_content);
 }
 
-TEST(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
+TEST_F(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
   TestServer server(L"net/data/filter_unittests");
 
   // for localhost domain, we also should support bzip2 encoding
@@ -521,7 +523,7 @@ TEST(URLRequestTest, BZip2ContentTest_IncrementalHeader) {
 }
 
 #if defined(OS_WIN)
-TEST(URLRequestTest, ResolveShortcutTest) {
+TEST_F(URLRequestTest, ResolveShortcutTest) {
   std::wstring app_path;
   PathService::Get(base::DIR_SOURCE_ROOT, &app_path);
   file_util::AppendToPath(&app_path, L"net");
@@ -593,7 +595,7 @@ TEST(URLRequestTest, ResolveShortcutTest) {
 }
 #endif  // defined(OS_WIN)
 
-TEST(URLRequestTest, ContentTypeNormalizationTest) {
+TEST_F(URLRequestTest, ContentTypeNormalizationTest) {
   TestServer server(L"net/data/url_request_unittest");
   TestDelegate d;
   TestURLRequest req(server.TestServerPage(
@@ -611,7 +613,7 @@ TEST(URLRequestTest, ContentTypeNormalizationTest) {
   req.Cancel();
 }
 
-TEST(URLRequestTest, FileDirCancelTest) {
+TEST_F(URLRequestTest, FileDirCancelTest) {
   // Put in mock resource provider.
   net::NetModule::SetResourceProvider(TestNetResourceProvider);
 
@@ -639,7 +641,7 @@ TEST(URLRequestTest, FileDirCancelTest) {
   net::NetModule::SetResourceProvider(NULL);
 }
 
-TEST(URLRequestTest, RestrictRedirects) {
+TEST_F(URLRequestTest, RestrictRedirects) {
   TestServer server(L"net/data/url_request_unittest");
   TestDelegate d;
   TestURLRequest req(server.TestServerPage(
@@ -651,7 +653,7 @@ TEST(URLRequestTest, RestrictRedirects) {
   EXPECT_EQ(net::ERR_UNSAFE_REDIRECT, req.status().os_error());
 }
 
-TEST(URLRequestTest, NoUserPassInReferrer) {
+TEST_F(URLRequestTest, NoUserPassInReferrer) {
   TestServer server(L"net/data/url_request_unittest");
   TestDelegate d;
   TestURLRequest req(server.TestServerPage(
@@ -663,7 +665,7 @@ TEST(URLRequestTest, NoUserPassInReferrer) {
   EXPECT_EQ(std::string("http://foo.com/"), d.data_received());
 }
 
-TEST(URLRequestTest, CancelRedirect) {
+TEST_F(URLRequestTest, CancelRedirect) {
   TestServer server(L"net/data/url_request_unittest");
   TestDelegate d;
   {
@@ -680,7 +682,7 @@ TEST(URLRequestTest, CancelRedirect) {
   }
 }
 
-TEST(URLRequestTest, VaryHeader) {
+TEST_F(URLRequestTest, VaryHeader) {
   TestServer server(L"net/data/url_request_unittest");
 
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
@@ -728,7 +730,7 @@ TEST(URLRequestTest, VaryHeader) {
   }
 }
 
-TEST(URLRequestTest, BasicAuth) {
+TEST_F(URLRequestTest, BasicAuth) {
   scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
   TestServer server(L"");
 
@@ -782,7 +784,7 @@ TEST(URLRequestTest, BasicAuth) {
 // The subsequent transaction should use GET, and should not send the
 // Content-Type header.
 // http://code.google.com/p/chromium/issues/detail?id=843
-TEST(URLRequestTest, Post302RedirectGet) {
+TEST_F(URLRequestTest, Post302RedirectGet) {
   TestServer server(L"net/data/url_request_unittest");
   TestDelegate d;
   TestURLRequest req(server.TestServerPage("files/redirect-to-echoall"), &d);
