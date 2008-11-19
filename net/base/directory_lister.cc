@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <process.h>
+
 #include "net/base/directory_lister.h"
 
-#include "base/file_util.h"
 #include "base/message_loop.h"
-#include "base/platform_thread.h"
-#include "net/base/net_errors.h"
 
 namespace net {
 
@@ -28,24 +27,65 @@ class DirectoryDataEvent : public Task {
   }
 
   scoped_refptr<DirectoryLister> lister;
-  file_util::FileEnumerator::FindInfo data[kFilesPerEvent];
-  int count, error;
+  WIN32_FIND_DATA data[kFilesPerEvent];
+  int count;
+  DWORD error;
 };
 
-DirectoryLister::DirectoryLister(const std::wstring& dir,
-                                 DirectoryListerDelegate* delegate)
+/*static*/
+unsigned __stdcall DirectoryLister::ThreadFunc(void* param) {
+  DirectoryLister* self = reinterpret_cast<DirectoryLister*>(param);
+
+  std::wstring pattern = self->directory();
+  if (pattern[pattern.size()-1] != '\\') {
+    pattern.append(L"\\*");
+  } else {
+    pattern.append(L"*");
+  }
+
+  DirectoryDataEvent* e = new DirectoryDataEvent(self);
+
+  HANDLE handle = FindFirstFile(pattern.c_str(), &e->data[e->count]);
+  if (handle == INVALID_HANDLE_VALUE) {
+    e->error = GetLastError();
+    self->message_loop_->PostTask(FROM_HERE, e);
+    e = NULL;
+  } else {
+    do {
+      if (++e->count == kFilesPerEvent) {
+        self->message_loop_->PostTask(FROM_HERE, e);
+        e = new DirectoryDataEvent(self);
+      }
+    } while (!self->was_canceled() && FindNextFile(handle, &e->data[e->count]));
+
+    FindClose(handle);
+
+    if (e->count > 0) {
+      self->message_loop_->PostTask(FROM_HERE, e);
+      e = NULL;
+    }
+
+    // Notify done
+    e = new DirectoryDataEvent(self);
+    self->message_loop_->PostTask(FROM_HERE, e);
+  }
+
+  self->Release();
+  return 0;
+}
+
+DirectoryLister::DirectoryLister(const std::wstring& dir, Delegate* delegate)
     : dir_(dir),
-      delegate_(delegate),
       message_loop_(NULL),
+      delegate_(delegate),
       thread_(NULL),
       canceled_(false) {
   DCHECK(!dir.empty());
 }
 
 DirectoryLister::~DirectoryLister() {
-  if (thread_) {
-    PlatformThread::Join(thread_);
-  }
+  if (thread_)
+    CloseHandle(thread_);
 }
 
 bool DirectoryLister::Start() {
@@ -57,7 +97,12 @@ bool DirectoryLister::Start() {
 
   AddRef();  // the thread will release us when it is done
 
-  if (!PlatformThread::Create(0, this, &thread_)) {
+  unsigned thread_id;
+  thread_ = reinterpret_cast<HANDLE>(
+      _beginthreadex(NULL, 0, DirectoryLister::ThreadFunc, this, 0,
+                     &thread_id));
+
+  if (!thread_) {
     Release();
     return false;
   }
@@ -69,48 +114,13 @@ void DirectoryLister::Cancel() {
   canceled_ = true;
 
   if (thread_) {
-    PlatformThread::Join(thread_);
+    WaitForSingleObject(thread_, INFINITE);
+    CloseHandle(thread_);
     thread_ = NULL;
   }
 }
 
-void DirectoryLister::ThreadMain() {
-  DirectoryDataEvent* e = new DirectoryDataEvent(this);
-
-  if (!file_util::DirectoryExists(directory())) {
-    e->error = net::ERR_FILE_NOT_FOUND;
-    message_loop_->PostTask(FROM_HERE, e);
-    Release();
-    return;
-  }
-
-  file_util::FileEnumerator file_enum(directory(), false,
-      file_util::FileEnumerator::FILES_AND_DIRECTORIES);
-
-  std::wstring filename;
-  while (!was_canceled() && !(filename = file_enum.Next()).empty()) {
-    file_enum.GetFindInfo(&e->data[e->count]);
-
-    if (++e->count == kFilesPerEvent) {
-      message_loop_->PostTask(FROM_HERE, e);
-      e = new DirectoryDataEvent(this);
-    }
-  }
-
-  if (e->count > 0) {
-    message_loop_->PostTask(FROM_HERE, e);
-    e = NULL;
-  }
-
-  // Notify done
-  e = new DirectoryDataEvent(this);
-  message_loop_->PostTask(FROM_HERE, e);
-
-  Release();
-}
-
-void DirectoryLister::OnReceivedData(
-    const file_util::FileEnumerator::FindInfo* data, int count) {
+void DirectoryLister::OnReceivedData(const WIN32_FIND_DATA* data, int count) {
   // Since the delegate can clear itself during the OnListFile callback, we
   // need to null check it during each iteration of the loop.  Similarly, it is
   // necessary to check the canceled_ flag to avoid sending data to a delegate
@@ -123,7 +133,7 @@ void DirectoryLister::OnDone(int error) {
   // If canceled, we need to report some kind of error, but don't overwrite the
   // error condition if it is already set.
   if (!error && canceled_)
-    error = net::ERR_ABORTED;
+    error = ERROR_OPERATION_ABORTED;
 
   if (delegate_)
     delegate_->OnListDone(error);

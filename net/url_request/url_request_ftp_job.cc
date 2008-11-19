@@ -9,7 +9,6 @@
 
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "base/time.h"
 #include "net/base/auth.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_util.h"
@@ -379,8 +378,8 @@ void URLRequestFtpJob::OnFindFile(DWORD last_error) {
     // We don't know the encoding, and can't assume utf8, so pass the 8bit
     // directly to the browser for it to decide.
     string file_entry = net::GetDirectoryListingEntry(
-        find_data_.cFileName, false, size,
-        base::Time::FromFileTime(find_data_.ftLastWriteTime));
+        find_data_.cFileName, find_data_.dwFileAttributes, size,
+        &find_data_.ftLastWriteTime);
     WriteData(&file_entry, true);
 
     FindNextFile();
@@ -402,7 +401,7 @@ void URLRequestFtpJob::OnStartDirectoryTraversal() {
   // If this isn't top level directory (i.e. the path isn't "/",) add a link to
   // the parent directory.
   if (request_->url().path().length() > 1)
-    html.append(net::GetDirectoryListingEntry("..", false, 0, base::Time()));
+    html.append(net::GetDirectoryListingEntry("..", 0, 0, NULL));
 
   WriteData(&html, true);
 

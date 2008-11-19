@@ -5,13 +5,11 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_FILE_DIR_JOB_H__
 #define NET_URL_REQUEST_URL_REQUEST_FILE_DIR_JOB_H__
 
-#include "base/file_util.h"
 #include "net/base/directory_lister.h"
 #include "net/url_request/url_request_job.h"
 
-class URLRequestFileDirJob
-  : public URLRequestJob,
-    public net::DirectoryLister::DirectoryListerDelegate {
+class URLRequestFileDirJob : public URLRequestJob,
+                             public net::DirectoryLister::Delegate {
  public:
   URLRequestFileDirJob(URLRequest* request, const std::wstring& dir_path);
   virtual ~URLRequestFileDirJob();
@@ -24,8 +22,8 @@ class URLRequestFileDirJob
   virtual bool GetMimeType(std::string* mime_type);
   virtual bool GetCharset(std::string* charset);
 
-  // DirectoryLister::DirectoryListerDelegate methods:
-  virtual void OnListFile(const file_util::FileEnumerator::FindInfo& data);
+  // DirectoryLister::Delegate methods:
+  virtual void OnListFile(const WIN32_FIND_DATA& data);
   virtual void OnListDone(int error);
 
  private:
