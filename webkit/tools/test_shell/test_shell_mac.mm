@@ -615,6 +615,11 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
   return new_url;
 }
 
+// static
+void TestShell::ShowStartupDebuggingDialog() {
+  // TODO(port): Show a modal dialog here with an attach to me message.
+}
+
 //-----------------------------------------------------------------------------
 
 namespace webkit_glue {

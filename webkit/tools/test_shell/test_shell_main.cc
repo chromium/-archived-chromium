@@ -148,10 +148,8 @@ int main(int argc, char* argv[]) {
 #endif
 
   CommandLine parsed_command_line;
-#if defined(OS_WIN)
   if (parsed_command_line.HasSwitch(test_shell::kStartupDialog))
-      MessageBox(NULL, L"attach to me?", L"test_shell", MB_OK);
-#endif
+    TestShell::ShowStartupDebuggingDialog();
 
   // Allocate a message loop for this thread.  Although it is not used
   // directly, its constructor sets up some necessary state.

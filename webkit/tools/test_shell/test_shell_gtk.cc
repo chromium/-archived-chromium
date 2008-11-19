@@ -512,6 +512,15 @@ std::string TestShell::RewriteLocalUrl(const std::string& url) {
   return new_url;
 }
 
+// static
+void TestShell::ShowStartupDebuggingDialog() {
+  GtkWidget* dialog = gtk_message_dialog_new(
+    NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "attach to me?");
+  gtk_window_set_title(GTK_WINDOW(dialog), "test_shell");
+  gtk_dialog_run(GTK_DIALOG(dialog));  // Runs a nested message loop.
+  gtk_widget_destroy(dialog);
+}
+
 //-----------------------------------------------------------------------------
 
 namespace webkit_glue {

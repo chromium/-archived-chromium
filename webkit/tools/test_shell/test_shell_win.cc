@@ -640,6 +640,11 @@ void TestShell::DumpRenderTree() {
                   file_path);
 }
 
+// static
+void TestShell::ShowStartupDebuggingDialog() {
+  MessageBox(NULL, L"attach to me?", L"test_shell", MB_OK);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // WebKit glue functions
 

@@ -236,6 +236,9 @@ public:
     static void DestroyAssociatedShell(gfx::WindowHandle handle);
 #endif
 
+    // Show the "attach to me" dialog, for debugging test shell startup.
+    static void ShowStartupDebuggingDialog();
+
 protected:
     bool Initialize(const std::wstring& startingURL);
     void SizeToSVG();
