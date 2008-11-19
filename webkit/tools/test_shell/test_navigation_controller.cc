@@ -34,8 +34,6 @@ void TestNavigationEntry::SetContentState(const std::string& state) {
 }
 
 WebHistoryItem* TestNavigationEntry::GetHistoryItem() const {
-  // TODO(port): temporary hack to get a basic test shell executable going.
-#if !defined(OS_LINUX)
   if (!cached_history_item_) {
     TestShellExtraRequestData* extra_data =
         new TestShellExtraRequestData(GetPageID());
@@ -43,7 +41,6 @@ WebHistoryItem* TestNavigationEntry::GetHistoryItem() const {
         WebHistoryItem::Create(GetURL(), GetTitle(), GetContentState(),
                                extra_data);
   }
-#endif
   return cached_history_item_;
 }
 
