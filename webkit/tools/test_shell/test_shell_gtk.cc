@@ -28,6 +28,16 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
+namespace {
+
+// Convert a FilePath into an FcChar* (used by fontconfig).
+// The pointer only lives for the duration for the expression.
+const FcChar8* FilePathAsFcChar(const FilePath& path) {
+  return reinterpret_cast<const FcChar8*>(path.value().c_str());
+}
+
+}
+
 // static
 void TestShell::InitializeTestShell(bool interactive) {
   window_list_ = new WindowList;
@@ -41,6 +51,23 @@ void TestShell::InitializeTestShell(bool interactive) {
   //
   // To avoid this we initialise fontconfig here and install a configuration
   // which only knows about a few, select, fonts.
+
+  FilePath resources_path;
+  PathService::Get(base::DIR_SOURCE_ROOT, &resources_path);
+  resources_path = resources_path.Append("webkit/tools/test_shell/resources/");
+
+  // We have fontconfig parse a config file from our resources directory. This
+  // sets a number of aliases ("sans"->"Arial" etc), but doesn't include any
+  // font directories.
+
+  FcInit();
+
+  FcConfig* fontcfg = FcConfigCreate();
+  FilePath fontconfig_path = resources_path.Append("linux-fontconfig-config");
+  if (!FcConfigParseAndLoad(fontcfg, FilePathAsFcChar(fontconfig_path),
+                            true)) {
+    LOG(FATAL) << "Failed to parse fontconfig config file";
+  }
 
   // This is the list of fonts that fontconfig will know about. It will try its
   // best to match based only on the fonts here in. The paths are where these
@@ -60,23 +87,7 @@ void TestShell::InitializeTestShell(bool interactive) {
     "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold_Italic.ttf",
     NULL
   };
-
-  // We have fontconfig parse a config file from our resources directory. This
-  // sets a number of aliases ("sans"->"Arial" etc), but doesn't include any
-  // font directories.
-  FilePath path;
-  PathService::Get(base::DIR_SOURCE_ROOT, &path);
-  path = path.Append("webkit/tools/test_shell/resources/linux-fontconfig-config");
-
-  FcInit();
-
-  FcConfig* fontcfg = FcConfigCreate();
-  if (!FcConfigParseAndLoad(fontcfg, (const FcChar8*) path.value().c_str(),
-                            true)) {
-    LOG(FATAL) << "Failed to parse fontconfig config file";
-  }
-
-  for (unsigned i = 0; fonts[i]; ++i) {
+  for (size_t i = 0; fonts[i]; ++i) {
     if (access(fonts[i], R_OK)) {
       LOG(FATAL) << "You are missing " << fonts[i] << ". "
                  << "Try installing msttcorefonts. Also see "
@@ -85,6 +96,12 @@ void TestShell::InitializeTestShell(bool interactive) {
     }
     if (!FcConfigAppFontAddFile(fontcfg, (FcChar8 *) fonts[i]))
       LOG(FATAL) << "Failed to load font " << fonts[i];
+  }
+
+  // Also load the layout-test-specific "Ahem" font.
+  FilePath ahem_path = resources_path.Append("AHEM____.TTF");
+  if (!FcConfigAppFontAddFile(fontcfg, FilePathAsFcChar(ahem_path))) {
+    LOG(FATAL) << "Failed to load font " << ahem_path.value().c_str();
   }
 
   if (!FcConfigSetCurrent(fontcfg))
