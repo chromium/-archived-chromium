@@ -49,12 +49,17 @@ class CookieMonster {
   typedef std::pair<std::string, CanonicalCookie> CookieListPair;
   typedef std::vector<CookieListPair> CookieList;
 
-  enum CookieOptions {
-    // Normal cookie behavior, decides which cookies to return based on
-    // the URL and whether it's https, etc.  Never returns HttpOnly cookies
-    NORMAL = 0,
-    // Include HttpOnly cookies
-    INCLUDE_HTTPONLY = 1,
+  class CookieOptions {
+   public:
+    // Default is to exclude httponly, which means:
+    // - reading operations will not return httponly cookies.
+    // - writing operations will not write httponly cookies. 
+    CookieOptions() : exclude_httponly_(true) {}
+    void set_exclude_httponly() { exclude_httponly_ = true; }
+    void set_include_httponly() { exclude_httponly_ = false; }
+    bool exclude_httponly() const { return exclude_httponly_; }
+   private:
+    bool exclude_httponly_;
   };
 
   CookieMonster();
@@ -81,21 +86,33 @@ class CookieMonster {
 
   // Set a single cookie.  Expects a cookie line, like "a=1; domain=b.com".
   bool SetCookie(const GURL& url, const std::string& cookie_line);
+  bool SetCookieWithOptions(const GURL& url,
+                            const std::string& cookie_line,
+                            const CookieOptions& options);
   // Sets a single cookie with a specific creation date. To set a cookie with
   // a creation date of Now() use SetCookie() instead (it calls this function
   // internally).
   bool SetCookieWithCreationTime(const GURL& url,
                                  const std::string& cookie_line,
                                  const base::Time& creation_time);
+  bool SetCookieWithCreationTimeWithOptions(
+                                 const GURL& url,
+                                 const std::string& cookie_line,
+                                 const base::Time& creation_time,
+                                 const CookieOptions& options);
   // Set a vector of response cookie values for the same URL.
   void SetCookies(const GURL& url, const std::vector<std::string>& cookies);
+  void SetCookiesWithOptions(const GURL& url,
+                             const std::vector<std::string>& cookies,
+                             const CookieOptions& options);
 
   // TODO what if the total size of all the cookies >4k, can we have a header
   // that big or do we need multiple Cookie: headers?
   // Simple interface, get a cookie string "a=b; c=d" for the given URL.
-  // It will _not_ return httponly cookies, see GetCookiesWithOptions
+  // It will _not_ return httponly cookies, see CookieOptions.
   std::string GetCookies(const GURL& url);
-  std::string GetCookiesWithOptions(const GURL& url, CookieOptions options);
+  std::string GetCookiesWithOptions(const GURL& url,
+                                    const CookieOptions& options);
   // Returns all the cookies, for use in management UI, etc.  This does not mark
   // the cookies as having been accessed.
   CookieList GetAllCookies();
@@ -140,17 +157,22 @@ class CookieMonster {
   void InitStore();
 
   void FindCookiesForHostAndDomain(const GURL& url,
-                                   CookieOptions options,
+                                   const CookieOptions& options,
                                    std::vector<CanonicalCookie*>* cookies);
 
   void FindCookiesForKey(const std::string& key,
                          const GURL& url,
-                         CookieOptions options,
+                         const CookieOptions& options,
                          const base::Time& current,
                          std::vector<CanonicalCookie*>* cookies);
 
-  void DeleteAnyEquivalentCookie(const std::string& key,
-                                 const CanonicalCookie& ecc);
+  // Delete any cookies that are equivalent to |ecc| (same path, key, etc).
+  // If |skip_httponly| is true, httponly cookies will not be deleted.  The
+  // return value with be true if |skip_httponly| skipped an httponly cookie.
+  // NOTE: There should never be more than a single matching equivalent cookie.
+  bool DeleteAnyEquivalentCookie(const std::string& key,
+                                 const CanonicalCookie& ecc,
+                                 bool skip_httponly);
 
   void InternalInsertCookie(const std::string& key,
                             CanonicalCookie* cc,

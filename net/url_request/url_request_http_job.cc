@@ -414,7 +414,11 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
         ctx->cookie_policy()->CanSetCookie(request_->url(),
                                            request_->policy_url())) {
       FetchResponseCookies();
-      ctx->cookie_store()->SetCookies(request_->url(), response_cookies_);
+      net::CookieMonster::CookieOptions options;
+      options.set_include_httponly();
+      ctx->cookie_store()->SetCookiesWithOptions(request_->url(),
+                                                 response_cookies_,
+                                                 options);
     }
   }
 
@@ -517,9 +521,10 @@ void URLRequestHttpJob::AddExtraHeaders() {
     if (context->cookie_store() &&
         context->cookie_policy()->CanGetCookies(request_->url(),
                                                request_->policy_url())) {
+      net::CookieMonster::CookieOptions options;
+      options.set_include_httponly();
       std::string cookies = request_->context()->cookie_store()->
-          GetCookiesWithOptions(request_->url(),
-                                net::CookieMonster::INCLUDE_HTTPONLY);
+          GetCookiesWithOptions(request_->url(), options);
       if (!cookies.empty())
         request_info_.extra_headers += "Cookie: " + cookies + "\r\n";
     }

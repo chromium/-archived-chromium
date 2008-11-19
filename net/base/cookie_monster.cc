@@ -379,14 +379,36 @@ static bool HasCookieableScheme(const GURL& url) {
 
 bool CookieMonster::SetCookie(const GURL& url,
                               const std::string& cookie_line) {
+  CookieOptions options;
+  return SetCookieWithOptions(url, cookie_line, options);
+}
+
+bool CookieMonster::SetCookieWithOptions(const GURL& url,
+                                         const std::string& cookie_line,
+                                         const CookieOptions& options) {
   Time creation_date = CurrentTime();
   last_time_seen_ = creation_date;
-  return SetCookieWithCreationTime(url, cookie_line, creation_date);
+  return SetCookieWithCreationTimeWithOptions(url,
+                                              cookie_line,
+                                              creation_date,
+                                              options);
 }
 
 bool CookieMonster::SetCookieWithCreationTime(const GURL& url,
                                               const std::string& cookie_line,
                                               const Time& creation_time) {
+  CookieOptions options;
+  return SetCookieWithCreationTimeWithOptions(url,
+                                              cookie_line,
+                                              creation_time,
+                                              options);
+}
+
+bool CookieMonster::SetCookieWithCreationTimeWithOptions(
+                                              const GURL& url,
+                                              const std::string& cookie_line,
+                                              const Time& creation_time,
+                                              const CookieOptions& options) {
   DCHECK(!creation_time.is_null());
 
   if (!HasCookieableScheme(url)) {
@@ -404,6 +426,11 @@ bool CookieMonster::SetCookieWithCreationTime(const GURL& url,
 
   if (!pc.IsValid()) {
     COOKIE_DLOG(WARNING) << "Couldn't parse cookie";
+    return false;
+  }
+
+  if (options.exclude_httponly() && pc.IsHttpOnly()) {
+    COOKIE_DLOG(INFO) << "SetCookie() not setting httponly cookie";
     return false;
   }
 
@@ -427,7 +454,12 @@ bool CookieMonster::SetCookieWithCreationTime(const GURL& url,
     return false;
   }
 
-  DeleteAnyEquivalentCookie(cookie_domain, *cc);
+  if (DeleteAnyEquivalentCookie(cookie_domain,
+                                *cc,
+                                options.exclude_httponly())) {
+    COOKIE_DLOG(INFO) << "SetCookie() not clobbering httponly cookie";
+    return false;
+  }
 
   COOKIE_DLOG(INFO) << "SetCookie() cc: " << cc->DebugString();
 
@@ -448,9 +480,17 @@ bool CookieMonster::SetCookieWithCreationTime(const GURL& url,
 
 void CookieMonster::SetCookies(const GURL& url,
                                const std::vector<std::string>& cookies) {
+  CookieOptions options;
+  SetCookiesWithOptions(url, cookies, options);
+}
+
+void CookieMonster::SetCookiesWithOptions(
+    const GURL& url,
+    const std::vector<std::string>& cookies,
+    const CookieOptions& options) {
   for (std::vector<std::string>::const_iterator iter = cookies.begin();
        iter != cookies.end(); ++iter)
-    SetCookie(url, *iter);
+    SetCookieWithOptions(url, *iter, options);
 }
 
 void CookieMonster::InternalInsertCookie(const std::string& key,
@@ -485,9 +525,11 @@ void CookieMonster::InternalDeleteCookie(CookieMap::iterator it,
   delete cc;
 }
 
-void CookieMonster::DeleteAnyEquivalentCookie(const std::string& key,
-                                              const CanonicalCookie& ecc) {
+bool CookieMonster::DeleteAnyEquivalentCookie(const std::string& key,
+                                              const CanonicalCookie& ecc,
+                                              bool skip_httponly) {
   bool found_equivalent_cookie = false;
+  bool skipped_httponly = false;
   for (CookieMapItPair its = cookies_.equal_range(key);
        its.first != its.second; ) {
     CookieMap::iterator curit = its.first;
@@ -499,7 +541,11 @@ void CookieMonster::DeleteAnyEquivalentCookie(const std::string& key,
       // overwrite each other.
       DCHECK(!found_equivalent_cookie) <<
           "Duplicate equivalent cookies found, cookie store is corrupted.";
-      InternalDeleteCookie(curit, true);
+      if (skip_httponly && cc->IsHttpOnly()) {
+        skipped_httponly = true;
+      } else {
+        InternalDeleteCookie(curit, true);
+      }
       found_equivalent_cookie = true;
 #ifdef NDEBUG
       // Speed optimization: No point looping through the rest of the cookies
@@ -508,6 +554,7 @@ void CookieMonster::DeleteAnyEquivalentCookie(const std::string& key,
 #endif
     }
   }
+  return skipped_httponly;
 }
 
 int CookieMonster::GarbageCollect(const Time& current,
@@ -659,10 +706,6 @@ static bool CookieSorter(CookieMonster::CanonicalCookie* cc1,
   return cc1->Path().length() > cc2->Path().length();
 }
 
-std::string CookieMonster::GetCookies(const GURL& url) {
-  return GetCookiesWithOptions(url, NORMAL);
-}
-
 // Currently our cookie datastructure is based on Mozilla's approach.  We have a
 // hash keyed on the cookie's domain, and for any query we walk down the domain
 // components and probe for cookies until we reach the TLD, where we stop.
@@ -675,8 +718,13 @@ std::string CookieMonster::GetCookies(const GURL& url) {
 // search/prefix trie, where we reverse the hostname and query for all
 // keys that are a prefix of our hostname.  I think the hash probing
 // should be fast and simple enough for now.
+std::string CookieMonster::GetCookies(const GURL& url) {
+  CookieOptions options;
+  return GetCookiesWithOptions(url, options);
+}
+
 std::string CookieMonster::GetCookiesWithOptions(const GURL& url,
-                                                 CookieOptions options) {
+                                                 const CookieOptions& options) {
   if (!HasCookieableScheme(url)) {
     DLOG(WARNING) << "Unsupported cookie scheme: " << url.scheme();
     return std::string();
@@ -730,7 +778,7 @@ CookieMonster::CookieList CookieMonster::GetAllCookies() {
 
 void CookieMonster::FindCookiesForHostAndDomain(
     const GURL& url,
-    CookieOptions options,
+    const CookieOptions& options,
     std::vector<CanonicalCookie*>* cookies) {
   AutoLock autolock(lock_);
   InitIfNecessary();
@@ -765,7 +813,7 @@ void CookieMonster::FindCookiesForHostAndDomain(
 void CookieMonster::FindCookiesForKey(
     const std::string& key,
     const GURL& url,
-    CookieOptions options,
+    const CookieOptions& options,
     const Time& current,
     std::vector<CanonicalCookie*>* cookies) {
   bool secure = url.SchemeIsSecure();
@@ -782,8 +830,8 @@ void CookieMonster::FindCookiesForKey(
       continue;
     }
 
-    // Filter out HttpOnly cookies unless they where explicitly requested.
-    if ((options & INCLUDE_HTTPONLY) == 0 && cc->IsHttpOnly())
+    // Filter out HttpOnly cookies, per options.
+    if (options.exclude_httponly() && cc->IsHttpOnly())
       continue;
 
     // Filter out secure cookies unless we're https.

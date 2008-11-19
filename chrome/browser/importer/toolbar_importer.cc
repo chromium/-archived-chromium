@@ -27,7 +27,8 @@ bool ToolbarImporterUtils::IsGoogleGAIACookieInstalled() {
   URLRequestContext* context = Profile::GetDefaultRequestContext();
   net::CookieMonster* store= context->cookie_store();
   GURL url(kGoogleDomainUrl);
-  net::CookieMonster::CookieOptions options = net::CookieMonster::NORMAL;
+  net::CookieMonster::CookieOptions options;
+  options.set_include_httponly();  // The SID cookie might be httponly.
   std::string cookies = store->GetCookiesWithOptions(url, options);
   std::vector<std::string> cookie_list;
   SplitString(cookies, kSplitStringToken, &cookie_list);

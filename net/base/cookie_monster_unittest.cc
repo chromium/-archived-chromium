@@ -468,10 +468,29 @@ TEST(CookieMonsterTest, PathTest) {
 TEST(CookieMonsterTest, HttpOnlyTest) {
   GURL url_google(kUrlGoogle);
   net::CookieMonster cm;
-  EXPECT_TRUE(cm.SetCookie(url_google, "A=B; httponly"));
+  net::CookieMonster::CookieOptions options;
+  options.set_include_httponly();
+
+  // Create a httponly cookie.
+  EXPECT_TRUE(cm.SetCookieWithOptions(url_google, "A=B; httponly", options));
+  
+  // Check httponly read protection.
   EXPECT_EQ("", cm.GetCookies(url_google));
-  EXPECT_EQ("A=B", cm.GetCookiesWithOptions(url_google,
-      net::CookieMonster::INCLUDE_HTTPONLY));
+  EXPECT_EQ("A=B", cm.GetCookiesWithOptions(url_google, options));
+
+  // Check httponly overwrite protection.
+  EXPECT_FALSE(cm.SetCookie(url_google, "A=C"));
+  EXPECT_EQ("", cm.GetCookies(url_google));
+  EXPECT_EQ("A=B", cm.GetCookiesWithOptions(url_google, options));
+  EXPECT_TRUE(cm.SetCookieWithOptions(url_google, "A=C", options));
+  EXPECT_EQ("A=C", cm.GetCookies(url_google));
+
+  // Check httponly create protection.
+  EXPECT_FALSE(cm.SetCookie(url_google, "B=A; httponly"));
+  EXPECT_EQ("A=C", cm.GetCookiesWithOptions(url_google, options));
+  EXPECT_TRUE(cm.SetCookieWithOptions(url_google, "B=A; httponly", options));
+  EXPECT_EQ("A=C; B=A", cm.GetCookiesWithOptions(url_google, options));
+  EXPECT_EQ("A=C", cm.GetCookies(url_google));
 }
 
 namespace {
@@ -614,15 +633,17 @@ TEST(CookieMonsterTest, TestCookieDeletion) {
 TEST(CookieMonsterTest, TestCookieDeleteAll) {
   GURL url_google(kUrlGoogle);
   net::CookieMonster cm;
+  net::CookieMonster::CookieOptions options;
+  options.set_include_httponly();
 
   EXPECT_TRUE(cm.SetCookie(url_google, kValidCookieLine));
   EXPECT_EQ("A=B", cm.GetCookies(url_google));
 
-  EXPECT_TRUE(cm.SetCookie(url_google, "C=D"));
-  EXPECT_EQ("A=B; C=D", cm.GetCookies(url_google));
+  EXPECT_TRUE(cm.SetCookieWithOptions(url_google, "C=D; httponly", options));
+  EXPECT_EQ("A=B; C=D", cm.GetCookiesWithOptions(url_google, options));
 
   EXPECT_EQ(2, cm.DeleteAll(false));
-  EXPECT_EQ("", cm.GetCookies(url_google));
+  EXPECT_EQ("", cm.GetCookiesWithOptions(url_google, options));
 }
 
 TEST(CookieMonsterTest, TestCookieDeleteAllCreatedAfterTimestamp) {
