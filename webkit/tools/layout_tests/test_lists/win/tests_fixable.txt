@@ -1130,7 +1130,6 @@ LayoutTests/fast/events/offsetX-offsetY.html = FAIL
 LayoutTests/fast/frames/cross-site-this.html = FAIL
 LayoutTests/fast/js/large-expressions.html = FAIL
 LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
-LayoutTests/plugins/plugin-javascript-access.html = FAIL
 
 LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
 LayoutTests/fast/events/message-channel-gc-2.html = TIMEOUT
