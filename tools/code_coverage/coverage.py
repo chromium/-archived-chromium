@@ -30,39 +30,42 @@ import google.process_utils as proc
 
 
 # The list of binaries that will be instrumented for code coverage
-windows_binaries = ['base_unittests.exe',
+# TODO(niranjan): Re-enable instrumentation of chrome.exe and chrome.dll once we
+# resolve the issue where vsinstr.exe is confused while reading symbols.
+windows_binaries = [#'chrome.exe',
+                    #'chrome.dll',
                     'unit_tests.exe',
                     'automated_ui_tests.exe',
                     'ui_tests.exe',
                     'installer_unittests.exe',
                     'ipc_tests.exe',
                     'memory_test.exe',
-                    'net_perftests.exe',
-                    'net_unittests.exe',
                     'page_cycler_tests.exe',
                     'perf_tests.exe',
                     'plugin_tests.exe',
+                    'reliability_tests.exe',
                     'security_tests.dll',
-                    'selenium_tests.exe',
                     'startup_tests.exe',
                     'tab_switching_test.exe',
                     'test_shell_tests.exe',
                     'test_shell.exe',
                     'activex_test_control.dll']
                   
-# The list of tests that will be run
-windows_tests = ['unit_tests.exe',
-                 'base_unittests.exe',
-                 'automated_ui_tests.exe',
-                 'ui_tests.exe',
-                 'installer_unittests.exe',
-                 'ipc_tests.exe',
-                 'net_perftests.exe',
-                 'net_unittests.exe',
-                 'plugin_tests.exe',
-                 'startup_tests.exe',
-                 'tab_switching_test.exe',
-                 'test_shell_tests.exe']
+# The list of [tests, args] that will be run. 
+# TODO(niranjan): Need to add layout tests that excercise the test shell.
+windows_tests = [
+                 ['unit_tests.exe', ''],
+                 ['automated_ui_tests.exe', ''],
+                 ['ui_tests.exe', '--no-sandbox'],
+                 ['installer_unittests.exe', ''],
+                 ['ipc_tests.exe', ''],
+                 ['page_cycler_tests.exe', '--gtest_filter=*File --no-sandbox'],
+                 ['plugin_tests.exe', '--no-sandbox'],
+                 ['reliability_tests.exe', '--no-sandbox'],
+                 ['startup_tests.exe', '--no-sandbox'],
+                 ['tab_switching_test.exe', '--no-sandbox'],
+                 ['test_shell_tests.exe', '']
+                ]
 
 
 def IsWindows():
@@ -85,13 +88,15 @@ class Coverage(object):
   def __init__(self, 
                revision,
                src_path = None,
-               tools_path = None):
+               tools_path = None,
+               archive=None):
     """Init method for the Coverage class.
 
     Args:
       revision: Revision number of the Chromium source tree.
       src_path: Location of the Chromium source base.
       tools_path: Location of the Visual Studio Team Tools. (Win32 only)
+      archive: Archive location for the intermediate .coverage results.
     """
     google.logging_utils.config_root()
     self.revision = revision
@@ -99,6 +104,7 @@ class Coverage(object):
     self.tools_path = tools_path
     self.src_path = src_path
     self._dir = tempfile.mkdtemp()
+    self._archive = archive
   
   
   def SetUp(self, binaries):
@@ -130,7 +136,9 @@ class Coverage(object):
         logging.error('Could not locate Visual Studio Team Server tools')
         return False
       # Remove trailing slashes
-      self.tools_path = self.tools_path.rstrip('\\') 
+      self.tools_path = self.tools_path.rstrip('\\')
+      # Add this to the env PATH.
+      os.environ['PATH'] = os.environ['PATH'] + ';' + self.tools_path
       instrument_command = '%s /COVERAGE ' % (os.path.join(self.tools_path,
                                                            'vsinstr.exe'))
       for binary in binaries:
@@ -169,6 +177,9 @@ class Coverage(object):
       # versions.
     else:
       return
+    if self._archive:
+      shutil.copytree(self._dir, os.path.join(self._archive, self.revision))
+      logging.info('Archived the .coverage files')
     # Delete all the temp files and folders
     if self._dir != None:
       shutil.rmtree(self._dir, ignore_errors=True)
@@ -177,10 +188,11 @@ class Coverage(object):
     self.instrumented = False
     
 
-  def RunTest(self, test):
+  def RunTest(self, src_root, test):
     """Run tests and collect the .coverage file
 
     Args: 
+      src_root: Path to the root of the source.
       test: Path to the test to be run.
 
     Returns:
@@ -188,10 +200,17 @@ class Coverage(object):
       None on error.
     """
     # Generate the intermediate file name for the coverage results
-    testname = os.path.split(test)[1].strip('.exe')
+    testname = os.path.split(test[0])[1].strip('.exe')
+    # test_command = binary + args
+    test_command = '%s %s' % (os.path.join(src_root, 
+                                           'chrome',
+                                           'Release',
+                                           test[0]), 
+                              test[1])
+    
     coverage_file = os.path.join(self._dir, '%s_win32_%s.coverage' % 
-                                            (testname, self.revision))
-    logging.info('.coverage file for test %s: %s' % (test, coverage_file))
+                                            (test_name, self.revision))
+    logging.info('.coverage file for test %s: %s' % (test_name, coverage_file))
 
     # After all the binaries have been instrumented, we start the counters.
     counters_command = ('%s -start:coverage -output:%s' %
@@ -203,10 +222,10 @@ class Coverage(object):
     retcode = subprocess.call(counters_command)
     
     # Run the test binary
-    logging.info('Executing test %s: ' % test)
-    (retcode, output) = proc.RunCommandFull(test, collect_output=True)
+    logging.info('Executing test %s: ' % test_command)
+    (retcode, output) = proc.RunCommandFull(test_command, collect_output=True)
     if retcode != 0: # Return error if the tests fail
-      logging.error('One or more tests failed in %s.' % test)
+      logging.error('One or more tests failed in %s.' % test_command)
       return None
     
     # Stop the counters
@@ -236,6 +255,10 @@ class Coverage(object):
       True on success.
       False on failure.
     """
+    if upload_path == None:
+      logging.info('Upload path not specified. Will not convert to LCOV')
+      return True
+    
     if IsWindows():
       # Stop counters
       counters_command = ('%s -shutdown' % 
@@ -247,7 +270,6 @@ class Coverage(object):
                                             (self.revision))
       lcov = open(lcov_file, 'w')
       for coverage_file in list_coverage:
-        
         # Convert the intermediate .coverage file to lcov format
         if self.tools_path == None:
           logging.error('Lcov converter tool not found')
@@ -261,9 +283,9 @@ class Coverage(object):
                            coverage_file))
         (retcode, output) = proc.RunCommandFull(convert_command,
                                                 collect_output=True)
-        if output != 0:
-          logging.error('Conversion to LCOV failed. Exiting.')
-          sys.exit(1)
+        # TODO(niranjan): Fix this to check for the correct return code.
+#        if output != 0:
+#          logging.error('Conversion to LCOV failed. Exiting.')
         tmp_lcov_file = coverage_file + '.lcov'
         logging.info('Conversion to lcov complete for %s' % (coverage_file))
         # Now append this .lcov file to the cumulative lcov file
@@ -271,9 +293,8 @@ class Coverage(object):
         tmp_lcov = open(tmp_lcov_file, 'r')
         lcov.write(tmp_lcov.read())
         tmp_lcov.close()
-    lcov.close()
-    # Finally upload the LCOV file
-    logging.info('LCOV file uploaded to %s' % (upload_path))
+      lcov.close()
+      logging.info('LCOV file uploaded to %s' % (upload_path))
 
 
 def main():
@@ -304,6 +325,11 @@ def main():
                     dest='src_root',
                     default=None,
                     help='Root of the source repository')
+  parser.add_option('-a',
+                    '--archive',
+                    dest='archive',
+                    default=None,
+                    help='Archive location of the intermediate .coverage data')
 
   (options, args) = parser.parse_args()
   
@@ -311,21 +337,19 @@ def main():
     parser.error('Revision number not specified')
   if options.src_root == None:
     parser.error('Source root not specified')
-  if options.upload_path == None:
-    parser.error('Upload path not specified')
    
   if IsWindows():
     # Initialize coverage
     cov = Coverage(options.revision,
                    options.src_root,
-                   options.tools_path)
+                   options.tools_path,
+                   options.archive)
     list_coverage = []
     # Instrument the binaries
     if cov.SetUp(windows_binaries):
       # Run all the tests
       for test in windows_tests:
-        test = os.path.join(options.src_root, 'chrome', 'Release', test)
-        coverage = cov.RunTest(test)
+        coverage = cov.RunTest(options.src_root, test)
         if coverage == None: # Indicate failure to the buildbots.
           return 1
         # Collect the intermediate file
