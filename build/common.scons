@@ -1,0 +1,16 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Common (no-op) settings for Chromium builds.
+"""
+
+# This is where you can set values to affect *everything* in the build.
+
+Import("env")
+
+env.Append(
+    #CCFLAGS = [],
+    #LIBFLAGS = [],
+)

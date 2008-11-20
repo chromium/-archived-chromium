@@ -6,46 +6,18 @@ Import('env')
 
 env = env.Clone()
 
-env.SConscript([
+env.ApplySConscript([
     '$BASE_DIR/using_base.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$SANDBOX_DIR/using_sandbox.scons',
-], {'env':env})
-
-env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
-    CPPDEFINES = [
-        'CHROMIUM_BUILD',
-    ],
-)
+])
 
 if env['PLATFORM'] == 'win32':
   env.Append(
-      CPPDEFINES = [
-          '_SECURE_ATL',
-          '_WINDOWS',
-      ],
       CCFLAGS = [
-          '/TP',
           '/WX',          # treat warnings as errors
       ],
   )
-
-env.Prepend(
-    LINKFLAGS = [
-        '/DELAYLOAD:dwmapi.dll',
-        '/DELAYLOAD:uxtheme.dll',
-        '/MACHINE:X86',
-        '/FIXED:No',
-        '/safeseh',
-        '/dynamicbase',
-        '/ignore:4199',
-        '/nxcompat',
-    ],
-)
-
 
 # TODO(bradnelson): This step generates unittests_tests.pch.ib_tag
 #                   SCons doesn't know.

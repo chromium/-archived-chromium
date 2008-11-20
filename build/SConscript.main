@@ -35,6 +35,9 @@ root_env = Environment(
     # All supported system libraries, for the help message
     all_system_libs = [],
 
+    CHROME_BUILD_TYPE = os.environ.get('CHROME_BUILD_TYPE', ''),
+    CHROMIUM_BUILD = os.environ.get('CHROMIUM_BUILD', ''),
+
     CHROME_SRC_DIR = '$MAIN_DIR/..',
     DESTINATION_ROOT = '$MAIN_DIR/Hammer',
 
@@ -160,6 +163,9 @@ if ARGUMENTS.get('VERBOSE') in (None, '0'):
 # Use timestamps change, followed by MD5 for speed
 root_env.Decider('MD5-timestamp')
 
+# Incorporate settings that should apply globally (primarily to provide
+# an obvious place for developmental experimentation).
+root_env.ApplySConscript(['$CHROME_SRC_DIR/build/common.scons'])
 
 # The list of all leaf (fully described) environments.
 environment_list = []
@@ -273,23 +279,23 @@ root_env.Append(BUILD_SCONSCRIPTS = sconscripts)
 # Windows specific
 
 windows_env = root_env.Clone()
-environment_list.append(windows_env)
 windows_env.Tool('target_platform_windows')
-windows_env.Tool('target_debug')
 windows_env.Tool('component_targets_msvs')  # Per target project support.
 windows_env.Tool('midl')
-windows_env.Replace(
-    BUILD_TYPE = 'debug-windows',
-    BUILD_TYPE_DESCRIPTION = 'Windows debug build',
-)
-windows_env.Append(BUILD_GROUPS = ['default'])
 
-# TODO(bradnelson): this is needed for now because target_platform_windows
-# has OS_WINDOWS defined in a weird way.
-windows_env.FilterOut(CPPDEFINES = ['OS_WINDOWS=OS_WINDOWS'])
+# TODO(bradnelson): target_platform_windows defines a whole bunch of
+# flags that we don't care about, including defining OS_WINDOWS in a
+# way that we don't want, and (most especially) adding *_DEBUG and
+# *_OPTIMIZED constructionv variables that add magic values to
+# CCFLAGS.  We override the normal variables (CPPDEFINES, CCFLAGS,
+# LINKFLAGS, ARFLAGS) below, but get rid of the special Hammer ones
+# here, until Hammer can be made a little nicer about htis.
+
+del windows_env['CCFLAGS_DEBUG']
+del windows_env['LINKFLAGS_DEBUG']
+del windows_env['CCFLAGS_OPTIMIZED']
 
 windows_env['PDB'] = '${TARGET.base}.pdb'
-
 
 # TODO(bradnelson): this should not need to be gated on host platform.
 if root_env['PLATFORM'] in ['win32', 'cygwin']:
@@ -318,109 +324,55 @@ windows_env.Replace(
     MSVS_ENV = msvs_env,
 
     YACC = '$CYGWIN_BIN_DIR/bison.exe',
-)
 
-windows_env.Append(
     ARFLAGS = [
         '/nologo',
     ],
 
     CCFLAGS = [
         '/nologo',
-
-        '/Od',          # no optimization
-
-        '/RTC1',
-        '/MTd',         # static link to crt, and debug version
-        '/Gy',
-        '/GR-',
-
-        '/W3',
-
-        '/Z7',
-
         '/errorReport:prompt',
-
-        '/wd4503',
-        '/wd4819',
     ],
 
     CPPDEFINES = [
-        '_CRT_SECURE_NO_DEPRECATE',
-        '_CRT_NONSTDC_NO_WARNINGS',
-        '_CRT_NONSTDC_NO_DEPRECATE',
-        '_SCL_SECURE_NO_DEPRECATE',
-
-        '_DEBUG',
-
-        '_CRT_RAND_S',
-        ('_WIN32_WINNT', '0x0600'),
-        ('WINVER', '0x0600'),
-        'WIN32',
-        '_WINDOWS',
-        ('_HAS_EXCEPTIONS', 0),
-        'NOMINMAX',
         '_UNICODE',
         'UNICODE',
-
-        'CERT_CHAIN_PARA_HAS_EXTRA_FIELDS',
-        'WIN32_LEAN_AND_MEAN',
     ],
 
-    CPPPATH = [
-        '$PLATFORMSDK_VISTA/files/Include',
-        '$PLATFORMSDK_VISTA/files/VC/INCLUDE',
-        '$VISUAL_STUDIO/VC/atlmfc/include',
-    ],
 
     LIBS = [
         'advapi32.lib',
         'comdlg32.lib',
         'gdi32.lib',
         'kernel32.lib',
-        'msimg32.lib',
         'odbc32.lib',
         'odbccp32.lib',
         'ole32.lib',
         'oleaut32.lib',
-        'psapi.lib',
         'shell32.lib',
         'user32.lib',
-        'usp10.lib',
         'uuid.lib',
-        'version.lib',
-        'wininet.lib',
         'winspool.lib',
-        'ws2_32.lib',
 
         'DelayImp.lib',
     ],
 
     LINKFLAGS = [
         '/nologo',
-        '/DEBUG',
     ],
 
     ICU_LIBS = ['icu'],
 )
 
-windows_env.Append(
-    LIBPATH = [
-        '$PLATFORMSDK_VISTA/files/Lib',
-        '$PLATFORMSDK_VISTA/files/VC/LIB',
-        '$VISUAL_STUDIO/VC/atlmfc/lib',
-    ],
-)
-
-# TODO(sgk): remove once we upgrade to SCons 0.98.4
-for var in ['INCLUDE', 'LIB', 'PATH']:
-  msvs_env[var] = msvs_env[var].split('|', 1)[0]
-  windows_env['ENV'][var] = windows_env['ENV'][var].split('|', 1)[0]
-
 # Force scons to handle long include lines correctly.
 pchcom_fixed = windows_env['PCHCOM']
 pchcom_fixed = pchcom_fixed.replace('${TARGETS[0]}', '$TARGET')
 pchcom_fixed = pchcom_fixed.replace('${TARGETS[1]}', '$TARGETS1')
+
+# Below, we'll redefine $CXXFLAGS so its expansion doesn't include
+# $CCFLAGS.  Modify $PCHCOM, which was relying on this fact, so
+# that $CCFLAGS still shows up in precompiled header compilations.
+pchcom_fixed = pchcom_fixed.replace('$CXXFLAGS', '$CXXFLAGS $CCFLAGS')
 
 windows_env.Replace(
     CCCOM = "${TEMPFILE('%s')}" % windows_env['CCCOM'],
@@ -429,6 +381,11 @@ windows_env.Replace(
     SHCXXCOM = "${TEMPFILE('%s')}" % windows_env['SHCXXCOM'],
     PCHCOM = "${TEMPFILE('%s')}" % pchcom_fixed,
     TARGETS1 = '${TARGETS[1]}',
+
+    # The SCons default for $CXXFLAGS contains $CCFLAGS, which is
+    # also on the $CCCOM command line string separately.  Redefine
+    # $CXXFLAGS to avoid the duplication
+    CXXFLAGS = '$( /TP $)',
 )
 
 windows_env['ENV']['PROGRAMFILES'] = os.environ.get('PROGRAMFILES', '')
@@ -437,6 +394,24 @@ windows_env['ENV']['USERPROFILE'] = os.environ.get('USERPROFILE', '')
 
 windows_env.AppendENVPath('PATH', ';C:\\WINDOWS\\system32')
 
+windows_dbg = windows_env.Clone()
+environment_list.append(windows_dbg)
+windows_dbg.Replace(
+    BUILD_TYPE = 'dbg',
+    BUILD_TYPE_DESCRIPTION = 'Windows debug build',
+)
+windows_dbg.Tool('target_debug')
+windows_dbg.ApplySConscript(['$CHROME_SRC_DIR/build/debug.scons'])
+windows_dbg.Append(BUILD_GROUPS = ['default'])
+
+windows_opt = windows_env.Clone()
+environment_list.append(windows_opt)
+windows_opt.Replace(
+    BUILD_TYPE = 'opt',
+    BUILD_TYPE_DESCRIPTION = 'Windows optimized build',
+)
+windows_opt.Tool('target_optimized')
+windows_opt.ApplySConscript(['$CHROME_SRC_DIR/build/release.scons'])
 
 # --------------------------------------------------------------------------
 # Linux specific
@@ -568,6 +543,7 @@ linux_dbg.Replace(
     BUILD_TYPE_DESCRIPTION = 'Linux debug build',
 )
 linux_dbg.Tool('target_debug')
+linux_dbg.ApplySConscript(['$CHROME_SRC_DIR/build/debug.scons'])
 linux_dbg.Append(BUILD_GROUPS = ['default'])
 
 linux_opt = linux_env.Clone()
@@ -579,6 +555,7 @@ linux_opt.Replace(
     BUILD_TYPE_DESCRIPTION = 'Linux optimized build',
 )
 linux_opt.Tool('target_optimized')
+linux_opt.ApplySConscript(['$CHROME_SRC_DIR/build/release.scons'])
 
 # --------------------------------------------------------------------------
 # Mac specific
@@ -587,6 +564,7 @@ mac_env = root_env.Clone()
 environment_list.append(mac_env)
 mac_env.Tool('target_platform_mac')
 mac_env.Tool('target_debug')
+mac_env.ApplySConscript(['$CHROME_SRC_DIR/build/debug.scons'])
 mac_env.Replace(
     BUILD_TYPE = 'debug-mac',
     BUILD_TYPE_DESCRIPTION = 'Mac debug build',

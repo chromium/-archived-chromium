@@ -2,15 +2,17 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-Import('env')
+__doc__ = """
+Release settings for Chromium builds.
+"""
 
-env = env.Clone()
+Import("env")
 
-if env['PLATFORM'] == 'win32':
+env.ApplySConscript(['release_defaults.scons'])
+
+if env.Bit('windows'):
   env.Append(
       CCFLAGS = [
-          '/WX',          # treat warnings as errors
+          '/Oy-',
       ],
   )
-
-env.StaticObject('controller.cc')

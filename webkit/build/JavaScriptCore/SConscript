@@ -131,8 +131,6 @@ if env['PLATFORM'] == 'win32':
                 ],
         CPPDEFINES = [
                 'CRASH=__debugbreak',
-                '_WIN32_WINNT=0x0600',
-                'WINVER=0x0600',
                 ],
         CCFLAGS = [
                 '/TP',

@@ -10,42 +10,17 @@ Import('env')
 
 env = env.Clone()
 
-env.SConscript([
-    # On Linux, dependencies must follow dependents, so...
-    # 1) net must come before base and modp_b64.
-    '$NET_DIR/using_net.scons',
-
+env.ApplySConscript([
     '$BASE_DIR/using_base.scons',
     '$GTEST_DIR/../using_gtest.scons',
     '$ICU38_DIR/using_icu38.scons',
-], {'env':env})
-
-env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
-)
+    '$NET_DIR/using_net.scons',
+])
 
 if env['PLATFORM'] == 'win32':
   env.Prepend(
       CCFLAGS = [
-          '/TP',
           '/WX',
-      ],
-      CPPDEFINES = [
-          '_WIN32_WINNT=0x0600',
-          'WINVER=0x0600',
-          '_HAS_EXCEPTIONS=0',
-      ],
-      LINKFLAGS = [
-          '/DELAYLOAD:"dwmapi.dll"',
-          '/DELAYLOAD:"uxtheme.dll"',
-          '/MACHINE:X86',
-          '/FIXED:No',
-          '/safeseh',
-          '/dynamicbase',
-          '/ignore:4199',
-          '/nxcompat',
       ],
   )
 

@@ -8,21 +8,13 @@ Configuration for building net.lib / libnet.a.
 
 Import('env')
 
-env_res = env.Clone()
-env_tests = env.Clone()
 env = env.Clone()
 
-env.SConscript([
+env.ApplySConscript([
     '$ICU38_DIR/using_icu38.scons',
     '$SDCH_DIR/using_sdch.scons',
     '$ZLIB_DIR/using_zlib.scons',
-], {'env':env})
-
-env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
-)
+])
 
 # These net files work on *all* platforms; files that don't work
 # cross-platform live below.

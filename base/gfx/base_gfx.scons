@@ -10,23 +10,16 @@ Import('env')
 
 env = env.Clone()
 
-env.SConscript([
+env.ApplySConscript([
     '$ICU38_DIR/using_icu38.scons',
     '$LIBPNG_DIR/using_libpng.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
-], {'env':env})
-
-env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
-)
+])
 
 if env['PLATFORM'] == 'win32':
   env.Prepend(
       CCFLAGS = [
-          '/TP',
           '/WX',
       ],
   )

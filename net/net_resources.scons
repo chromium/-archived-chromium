@@ -11,9 +11,6 @@ Import('env')
 env = env.Clone()
 
 env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
     RCFLAGS = [
         ['/l', '0x409'],
     ],

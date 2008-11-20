@@ -10,7 +10,7 @@ Import('env')
 
 env = env.Clone()
 
-env.SConscript([
+env.ApplySConscript([
     '$BASE_DIR/using_base.scons',
     '$BZIP2_DIR/using_bzip2.scons',
     '$CHROME_SRC_DIR/build/using_googleurl.scons',
@@ -20,40 +20,17 @@ env.SConscript([
     '$NET_DIR/using_net.scons',
     '$SDCH_DIR/using_sdch.scons',
     '$ZLIB_DIR/using_zlib.scons',
-], {'env':env})
+])
 
 if env['PLATFORM'] in ('posix', 'darwin'):
   env.SConscript([
       '$LIBEVENT_DIR/using_libevent.scons',
   ], {'env':env})
 
-
-env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
-)
-
 if env['PLATFORM'] == 'win32':
   env.Prepend(
       CCFLAGS = [
-          '/TP',
           '/WX',
-      ],
-      CPPDEFINES = [
-          '_WIN32_WINNT=0x0600',
-          'WINVER=0x0600',
-          '_HAS_EXCEPTIONS=0',
-      ],
-      LINKFLAGS = [
-          '/DELAYLOAD:"dwmapi.dll"',
-          '/DELAYLOAD:"uxtheme.dll"',
-          '/MACHINE:X86',
-          '/FIXED:No',
-          '/safeseh',
-          '/dynamicbase',
-          '/ignore:4199',
-          '/nxcompat',
       ],
   )
 

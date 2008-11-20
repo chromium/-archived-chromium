@@ -10,7 +10,7 @@ Import('env')
 
 env = env.Clone()
 
-env.SConscript([
+env.ApplySConscript([
     '$BASE_DIR/using_base.scons',
     '$BASE_DIR/gfx/using_base_gfx.scons',
     '$GTEST_DIR/../using_gtest.scons',
@@ -18,17 +18,14 @@ env.SConscript([
     '$LIBPNG_DIR/using_libpng.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
-], {'env':env})
+])
 
 if env['PLATFORM'] in ('posix', 'darwin'):
-  env.SConscript([
+  env.ApplySConscript([
       '$LIBEVENT_DIR/using_libevent.scons',
-  ], {'env':env})
+  ])
 
 env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
     CPPDEFINES = [
         'GOOGLE_CHROME_BUILD',
     ],
@@ -39,23 +36,6 @@ if env['PLATFORM'] == 'win32':
       CCFLAGS = [
           '/TP',
           '/WX',
-      ],
-      CPPDEFINES = [
-          '_WIN32_WINNT=0x0600',
-          'WINVER=0x0600',
-          '_HAS_EXCEPTIONS=0',
-      ],
-      LINKFLAGS = [
-          '/MANIFEST',
-          '/DELAYLOAD:"dwmapi.dll"',
-          '/DELAYLOAD:"uxtheme.dll"',
-          '/MACHINE:X86',
-          '/FIXED:No',
-
-          '/safeseh',
-          '/dynamicbase',
-          '/ignore:4199',
-          '/nxcompat',
       ],
   )
 

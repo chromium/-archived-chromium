@@ -6,29 +6,13 @@ Import('env')
 
 env = env.Clone()
 
-env.SConscript([
+env.ApplySConscript([
     '$GTEST_DIR/../using_gtest.scons',
-], {'env':env})
-
-# Some of the sandbox sources include "gtest.h", so we need it
-# in the base env here, not just in env_tests.
-env.Prepend(
-    CPPPATH = [
-        '$CHROME_SRC_DIR',
-    ],
-    CPPDEFINES = [
-        'CHROMIUM_BUILD',
-    ],
-)
+])
 
 if env['PLATFORM'] == 'win32':
   env.Append(
-      CPPDEFINES = [
-          '_SECURE_ATL',
-          '_WINDOWS',
-      ],
       CCFLAGS = [
-          '/TP',
           '/WX',          # treat warnings as errors
       ],
   )

@@ -1,0 +1,18 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+__doc__ = """
+Release settings for Chromium builds.
+
+Incorporates "release_impl" and "chromium_build" settings,
+possibly specific versions selected by the $CHROME_BUILD_TYPE
+and $CHROMIUM_BUILD variables.
+"""
+
+Import("env")
+
+env.ApplySConscript([
+    'internal/release_impl${CHROME_BUILD_TYPE}.scons',
+    'internal/chromium_build${CHROMIUM_BUILD}.scons',
+])

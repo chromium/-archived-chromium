@@ -16,9 +16,6 @@ env.ApplySConscript([
 ])
 
 env.Prepend(
-    CPPDEFINES = [
-        '_DEBUG',
-    ],
     CPPPATH = [
         '$CHROME_SRC_DIR',
     ],

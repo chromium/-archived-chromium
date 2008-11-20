@@ -63,6 +63,10 @@ if env_res['PLATFORM'] == 'win32':
 
 env_dll = env.Clone()
 
+env_dll.ApplySConscript([
+    '$CHROME_SRC_DIR/build/using_v8.scons',
+])
+
 env_dll.Prepend(
     CPPPATH = [
         "..",
@@ -135,8 +139,6 @@ env_dll.Append(
         #'libevent',
         'sqlite',
         'views',
-        #'v8',
-        'v8_g',
         'v8_snapshot',
     ],
 )
