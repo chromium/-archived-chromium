@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <wininet.h>
 
+#include "base/lock.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 
@@ -125,10 +126,6 @@ protected:
   // One-time global state setup
   static void InitializeTheInternet(const std::string& user_agent);
 
-  // Runs on the thread where the first URLRequest was created
-  static LRESULT CALLBACK URLRequestWndProc(HWND hwnd, UINT message,
-                                            WPARAM wparam, LPARAM lparam);
-
   // Runs on some background thread (called by WinInet)
   static void CALLBACK URLRequestStatusCallback(HINTERNET handle,
                                                 DWORD_PTR job_id,
@@ -137,7 +134,6 @@ protected:
                                                 DWORD status_info_len);
 
   static HINTERNET the_internet_;
-  static HWND message_hwnd_;
 #ifndef NDEBUG
   static MessageLoop* my_message_loop_;  // Used to sanity-check that all
                                          // requests are made on the same
@@ -155,6 +151,9 @@ protected:
   // CallOnIOComplete.  Since there is at most one pending IO, the object
   // can reuse the async_result_ member for all its asynchronous IOs.
   AsyncResult async_result_;
+
+  Lock loop_lock_;
+  MessageLoop* loop_;
 
   DISALLOW_EVIL_CONSTRUCTORS(URLRequestInetJob);
 };
