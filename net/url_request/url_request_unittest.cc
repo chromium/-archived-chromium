@@ -16,7 +16,6 @@
 #include "base/path_service.h"
 #include "base/platform_test.h"
 #include "base/process_util.h"
-#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
@@ -53,7 +52,7 @@ class TestURLRequest : public URLRequest {
    }
 };
 
-StringPiece TestNetResourceProvider(int key) {
+std::string TestNetResourceProvider(int key) {
   return "header";
 }
 

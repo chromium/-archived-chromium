@@ -296,7 +296,7 @@ void RegistryControlledDomainService::UseDomainData(const std::string& data) {
 }
 
 void RegistryControlledDomainService::Init() {
-  domain_data_ = NetModule::GetResource(IDR_EFFECTIVE_TLD_NAMES).as_string();
+  domain_data_ = NetModule::GetResource(IDR_EFFECTIVE_TLD_NAMES);
   if (domain_data_.empty()) {
     // The resource file isn't present for some unit tests, for example.  Fall
     // back to a tiny, basic list of rules in that case.
