@@ -22,6 +22,7 @@
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/debugger_window.h"
+#include "chrome/browser/dock_info.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/download/save_package.h"
 #include "chrome/browser/history_tab_ui.h"
@@ -1196,12 +1197,19 @@ GURL Browser::GetBlankTabURL() const {
 }
 
 void Browser::CreateNewStripWithContents(TabContents* detached_contents,
-                                         const gfx::Rect& window_bounds) {
+                                         const gfx::Rect& window_bounds,
+                                         const DockInfo& dock_info) {
   DCHECK(type_ == TYPE_NORMAL);
   
+  gfx::Rect new_window_bounds = window_bounds;
+  bool maximize = false;
+  if (dock_info.GetNewWindowBounds(&new_window_bounds, &maximize))
+    dock_info.AdjustOtherWindowBounds();
+
   // Create an empty new browser window the same size as the old one.
   Browser* browser = new Browser(TYPE_NORMAL, profile_);
-  browser->set_override_bounds(window_bounds);
+  browser->set_override_bounds(new_window_bounds);
+  browser->set_override_maximized(maximize);
   browser->CreateBrowserWindow();
   browser->tabstrip_model()->AppendTabContents(detached_contents, true);
   browser->window()->Show();

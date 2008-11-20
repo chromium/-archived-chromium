@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_SLIDE_COMMON_ANIMATION_H__
-#define CHROME_SLIDE_COMMON_ANIMATION_H__
+#ifndef CHROME_COMMON_SLIDE_ANIMATION_H_
+#define CHROME_COMMON_SLIDE_ANIMATION_H_
 
 #include "chrome/common/animation.h"
 
@@ -97,5 +97,4 @@ class SlideAnimation : public Animation {
   int slide_duration_;
 };
 
-#endif  // CHROME_COMMON_SLIDE_ANIMATION_H__
-
+#endif  // CHROME_COMMON_SLIDE_ANIMATION_H_

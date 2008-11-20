@@ -617,7 +617,9 @@ void SetChildBounds(HWND child_window, HWND parent_window,
         IsWindowVisible(insert_after_window))
       window = insert_after_window;
 
-    HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTONEAREST);
+    POINT window_point = { bounds.x(), bounds.y() };
+    HMONITOR monitor = MonitorFromPoint(window_point,
+                                        MONITOR_DEFAULTTONEAREST);
     if (monitor) {
       MONITORINFO mi = {0};
       mi.cbSize = sizeof(mi);

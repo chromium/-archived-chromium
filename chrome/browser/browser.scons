@@ -153,6 +153,7 @@ if env['PLATFORM'] == 'win32':
       'chrome_plugin_browsing_context.cc',
       'chrome_plugin_host.cc',
       'controller.cc',
+      'dock_info.cc',
       'dom_ui/chrome_url_data_manager.cc',
       'dom_ui/dom_ui_host.cc',
       'dom_ui/html_dialog_contents.cc',

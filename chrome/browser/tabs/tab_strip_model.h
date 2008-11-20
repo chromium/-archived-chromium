@@ -18,6 +18,7 @@
 namespace gfx {
 class Point;
 }
+class DockInfo;
 class GURL;
 class NavigationController;
 class Profile;
@@ -94,8 +95,11 @@ class TabStripModelDelegate {
 
   // Ask for a new TabStripModel to be created and the given tab contents to
   // be added to it. Its size and position are reflected in |window_bounds|.
+  // If |dock_info|'s type is other than NONE, the newly created window should
+  // be docked as identified by |dock_info|.
   virtual void CreateNewStripWithContents(TabContents* contents,
-                                          const gfx::Rect& window_bounds) = 0;
+                                          const gfx::Rect& window_bounds,
+                                          const DockInfo& dock_info) = 0;
 
   enum {
     TAB_MOVE_ACTION = 1,
@@ -351,7 +355,8 @@ class TabStripModel : public NotificationObserver {
 
   // The specified contents should be opened in a new tabstrip.
   void TearOffTabContents(TabContents* detached_contents,
-                          const gfx::Rect& window_bounds);
+                          const gfx::Rect& window_bounds,
+                          const DockInfo& dock_info);
 
   // Context menu functions.
   enum ContextMenuCommand {
@@ -517,4 +522,3 @@ class TabStripModel : public NotificationObserver {
 };
 
 #endif  // CHROME_BROWSER_TABS_TAB_STRIP_MODEL_H__
-

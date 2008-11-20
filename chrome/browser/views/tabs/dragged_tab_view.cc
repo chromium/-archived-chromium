@@ -56,8 +56,7 @@ DraggedTabView::~DraggedTabView() {
 }
 
 void DraggedTabView::MoveTo(const gfx::Point& screen_point) {
-  if (!container_->IsVisible())
-    container_->ShowWindow(SW_SHOWNOACTIVATE);
+  int show_flags = container_->IsVisible() ? SWP_NOZORDER : SWP_SHOWWINDOW;
 
   int x;
   if (UILayoutIsRightToLeft() && !attached_) {
@@ -75,7 +74,8 @@ void DraggedTabView::MoveTo(const gfx::Point& screen_point) {
   int y = screen_point.y() + mouse_tab_offset_.y() -
       ScaleValue(mouse_tab_offset_.y());
 
-  container_->SetWindowPos(NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
+  container_->SetWindowPos(HWND_TOP, x, y, 0, 0,
+                           SWP_NOSIZE | SWP_NOACTIVATE | show_flags);
 }
 
 void DraggedTabView::Attach(int selected_width) {

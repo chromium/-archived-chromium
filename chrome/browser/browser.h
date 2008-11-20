@@ -301,7 +301,8 @@ class Browser : public TabStripModelDelegate,
   // Overridden from TabStripModelDelegate:
   virtual GURL GetBlankTabURL() const;
   virtual void CreateNewStripWithContents(TabContents* detached_contents,
-                                          const gfx::Rect& window_bounds);
+                                          const gfx::Rect& window_bounds,
+                                          const DockInfo& dock_info);
   virtual int GetDragActions() const;
   // Construct a TabContents for a given URL, profile and transition type.
   // If instance is not null, its process will be used to render the tab.

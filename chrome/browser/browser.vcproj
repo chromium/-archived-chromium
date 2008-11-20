@@ -998,6 +998,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dock_info.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dock_info.h"
+				>
+			</File>
+			<File
 				RelativePath=".\find_notification_details.h"
 				>
 			</File>

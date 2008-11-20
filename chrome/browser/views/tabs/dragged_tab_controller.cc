@@ -3,17 +3,20 @@
 // found in the LICENSE file.
 
 #include <math.h>
+#include <set>
 
 #include "chrome/browser/views/tabs/dragged_tab_controller.h"
 
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tab_contents.h"
+#include "chrome/browser/user_metrics.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/tabs/dragged_tab_view.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/browser/views/tabs/tab.h"
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/web_contents.h"
+#include "chrome/common/animation.h"
 #include "chrome/views/event.h"
 #include "chrome/views/root_view.h"
 #include "skia/include/SkBitmap.h"
@@ -22,95 +25,138 @@ static const int kHorizontalMoveThreshold = 16; // pixels
 
 namespace {
 
-///////////////////////////////////////////////////////////////////////////////
-// WindowFinder
-//  A helper class that finds the topmost window from our thread under a
-//  particular point. This returns NULL if we don't have a window at the
-//  specified point, or there is another window from another app on top of our
-//  window at the specified point.
-//
-class WindowFinder {
+// Horizontal width of DockView. The height is 3/4 of this. If you change this,
+// be sure and update the constants in DockInfo (kEnableDeltaX/kEnableDeltaY).
+const int kDropWindowSize = 100;
+
+// TODO (glen): nuke this class in favor of something pretty. Consider this
+// class a placeholder for the real thing.
+class DockView : public views::View {
  public:
-  static HWND WindowForPoint(const gfx::Point& screen_point, HWND ignore1) {
-    WindowFinder instance(screen_point, ignore1);
-    return instance.GetResult();
+  explicit DockView(DockInfo::Type type)
+      : size_(kDropWindowSize),
+        rect_radius_(4),
+        stroke_size_(4),
+        inner_stroke_size_(2),
+        inner_margin_(8),
+        inner_padding_(8),
+        type_(type) {}
+
+  virtual gfx::Size GetPreferredSize() {
+    return gfx::Size(size_, size_);
+  }
+
+  virtual void PaintBackground(ChromeCanvas* canvas) {
+    int h = size_ * 3 / 4;
+    int outer_x = (width() - size_) / 2;
+    int outer_y = (height() - h) / 2;
+    switch (type_) {
+      case DockInfo::MAXIMIZE:
+        outer_y = 0;
+        break;
+      case DockInfo::LEFT_HALF:
+        outer_x = 0;
+        break;
+      case DockInfo::RIGHT_HALF:
+        outer_x = width() - size_;
+        break;
+      case DockInfo::BOTTOM_HALF:
+        outer_y = height() - h;
+        break;
+      default:
+        break;
+    }
+
+    SkRect outer_rect = { SkIntToScalar(outer_x),
+                          SkIntToScalar(outer_y),
+                          SkIntToScalar(outer_x + size_),
+                          SkIntToScalar(outer_y + h) };
+
+    // Fill the background rect.
+    SkPaint paint;
+    paint.setColor(SkColorSetRGB(58, 58, 58));
+    paint.setStyle(SkPaint::kFill_Style);
+    canvas->drawRoundRect(outer_rect, SkIntToScalar(rect_radius_),
+                          SkIntToScalar(rect_radius_), paint);
+
+    // Outline the background rect.
+    paint.setFlags(SkPaint::kAntiAlias_Flag);
+    paint.setStrokeWidth(SkIntToScalar(stroke_size_));
+    paint.setColor(SK_ColorBLACK);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRoundRect(outer_rect, SkIntToScalar(rect_radius_),
+                          SkIntToScalar(rect_radius_), paint);
+
+    // Then the inner rect.
+    int inner_x = outer_x + inner_margin_;
+    int inner_y = outer_y + inner_margin_;
+    int inner_width =
+        (size_ - inner_margin_ - inner_margin_ - inner_padding_) / 2;
+    int inner_height = (h - inner_margin_ - inner_margin_);
+    switch (type_) {
+      case DockInfo::LEFT_OF_WINDOW:
+      case DockInfo::RIGHT_OF_WINDOW:
+        DrawWindow(canvas, inner_x, inner_y, inner_width, inner_height);
+        DrawWindow(canvas, inner_x + inner_width + inner_padding_, inner_y,
+                   inner_width, inner_height);
+        break;
+
+      case DockInfo::TOP_OF_WINDOW:
+      case DockInfo::BOTTOM_OF_WINDOW:
+        inner_height =
+            (h - inner_margin_ - inner_margin_ - inner_padding_) / 2;
+        inner_width += inner_width + inner_padding_;
+        DrawWindow(canvas, inner_x, inner_y, inner_width, inner_height);
+        DrawWindow(canvas, inner_x, inner_y + inner_height + inner_padding_,
+                   inner_width, inner_height);
+        break;
+
+      case DockInfo::MAXIMIZE:
+        inner_width += inner_width + inner_padding_;
+        DrawWindow(canvas, inner_x, inner_y, inner_width, inner_height);
+        break;
+
+      case DockInfo::LEFT_HALF:
+        DrawWindow(canvas, inner_x, inner_y, inner_width, inner_height);
+        break;
+
+      case DockInfo::RIGHT_HALF:
+        DrawWindow(canvas, inner_x + inner_width + inner_padding_, inner_y,
+                   inner_width, inner_height);
+        break;
+
+      case DockInfo::BOTTOM_HALF:
+        inner_height =
+            (h - inner_margin_ - inner_margin_ - inner_padding_) / 2;
+        inner_width += inner_width + inner_padding_;
+        DrawWindow(canvas, inner_x, inner_y + inner_height + inner_padding_,
+                   inner_width, inner_height);
+        break;
+    }
   }
 
  private:
-  WindowFinder(const gfx::Point& screen_point, HWND ignore1)
-      : screen_point_(screen_point.ToPOINT()),
-    ignore1_(ignore1),
-    result1_(NULL),
-    result2_(NULL) {
+  void DrawWindow(ChromeCanvas* canvas, int x, int y, int w, int h) {
+    canvas->FillRectInt(SkColorSetRGB(160, 160, 160), x, y, w, h);
+
+    SkPaint paint;
+    paint.setStrokeWidth(SkIntToScalar(inner_stroke_size_));
+    paint.setColor(SK_ColorWHITE);
+    paint.setStyle(SkPaint::kStroke_Style);
+    SkRect rect = { SkIntToScalar(x), SkIntToScalar(y), SkIntToScalar(x + w),
+                    SkIntToScalar(y + h) };
+    canvas->drawRect(rect, paint);
   }
 
-  static BOOL CALLBACK EnumThreadWindowsProc(HWND hwnd, LPARAM lParam) {
-    WindowFinder* wf = reinterpret_cast<WindowFinder*>(lParam);
-    if (hwnd == wf->ignore1_)
-      return TRUE;
+  int size_;
+  int rect_radius_;
+  int stroke_size_;
+  int inner_stroke_size_;
+  int inner_margin_;
+  int inner_padding_;
+  DockInfo::Type type_;
 
-    if (::IsWindowVisible(hwnd)) {
-      CRect r;
-      ::GetWindowRect(hwnd, &r);
-      if (r.PtInRect(wf->screen_point_)) {
-        // We always deal with the root HWND.
-        wf->result1_ = GetAncestor(hwnd, GA_ROOT);
-        return FALSE;
-      }
-    }
-    return TRUE;
-  }
-
-  static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
-    WindowFinder* wf = reinterpret_cast<WindowFinder*>(lParam);
-    if (hwnd == wf->ignore1_)
-      return TRUE;
-
-    if (hwnd == wf->result1_) {
-      // Result from first pass is the topmost window under point. Use it.
-      wf->result2_ = hwnd;
-      return FALSE;
-    }
-
-    if (::IsWindowVisible(hwnd)) {
-      CRect r;
-      if (::GetWindowRect(hwnd, &r) && r.PtInRect(wf->screen_point_)) {
-        // Result from first pass is not the topmost window under point.
-        return FALSE;
-      }
-    }
-    return TRUE;  // Keep iterating.
-  }
-
-  HWND GetResult() {
-    // We take a two step approach to find the topmost window under point.
-    // Step 1: find the topmost window in our thread under point.
-    EnumThreadWindows(GetCurrentThreadId(), EnumThreadWindowsProc,
-                      reinterpret_cast<LPARAM>(this));
-    if (result1_) {
-      // Step 2.
-      // We have a window under the point in our thread. Make sure there isn't
-      // another window from another app on top of our window at point.
-      // NOTE: EnumWindows iterates window from topmost window to bottommost
-      // window.
-      EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(this));
-    }
-    return result2_;
-  }
-
-  // Location we're looking for.
-  POINT screen_point_;
-
-  // HWND to ignore.
-  HWND ignore1_;
-
-  // Result from first pass. See docs in GetResult for details.
-  HWND result1_;
-
-  // Result from second pass. See docs in GetResult for details.
-  HWND result2_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(WindowFinder);
+  DISALLOW_COPY_AND_ASSIGN(DockView);
 };
 
 gfx::Point ConvertScreenPointToTabStripPoint(TabStrip* tabstrip,
@@ -121,7 +167,139 @@ gfx::Point ConvertScreenPointToTabStripPoint(TabStrip* tabstrip,
                     screen_point.y() - tabstrip_topleft.y());
 }
 
-}
+}  // namespace
+
+///////////////////////////////////////////////////////////////////////////////
+// DockDisplayer
+
+// DockDisplayer is responsible for giving the user a visual indication of a
+// possible dock position (as represented by DockInfo). DockDisplayer shows
+// a window with a DockView in it. Two animations are used that correspond to
+// the state of DockInfo::in_enable_area.
+class DraggedTabController::DockDisplayer : public AnimationDelegate {
+ public:
+  DockDisplayer(DraggedTabController* controller,
+                const DockInfo& info)
+      : controller_(controller),
+        popup_(NULL),
+        popup_hwnd_(NULL),
+#pragma warning(suppress: 4355)  // Okay to pass "this" here.
+        hot_animation_(this),
+        enable_animation_(this),
+        hidden_(false),
+        in_enable_area_(info.in_enable_area()) {
+    gfx::Rect bounds(info.hot_spot().x() - kDropWindowSize / 2,
+                     info.hot_spot().y() - kDropWindowSize / 2,
+                     kDropWindowSize, kDropWindowSize);
+    switch (info.type()) {
+      case DockInfo::MAXIMIZE:
+        bounds.Offset(0, kDropWindowSize / 2);
+        break;
+      case DockInfo::LEFT_HALF:
+        bounds.Offset(kDropWindowSize / 2, 0);
+        break;
+      case DockInfo::RIGHT_HALF:
+        bounds.Offset(-kDropWindowSize / 2, 0);
+        break;
+      case DockInfo::BOTTOM_HALF:
+        bounds.Offset(0, -kDropWindowSize / 2);
+        break;
+      default:
+        break;
+    }
+
+    popup_ = new views::ContainerWin;
+    popup_->set_window_style(WS_POPUP);
+    popup_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
+                                WS_EX_TOPMOST);
+    popup_->SetLayeredAlpha(0x00);
+    popup_->Init(NULL, bounds, false);
+    popup_->SetContentsView(new DockView(info.type()));
+    hot_animation_.Show();
+    if (info.in_enable_area())
+      enable_animation_.Show();
+    popup_->SetWindowPos(HWND_TOP, 0, 0, 0, 0,
+        SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOMOVE | SWP_SHOWWINDOW);
+    popup_hwnd_ = popup_->GetHWND();
+  }
+
+  ~DockDisplayer() {
+    if (controller_)
+      controller_->DockDisplayerDestroyed(this);
+  }
+
+  // Updates the state based on |in_enable_area|.
+  void UpdateInEnabledArea(bool in_enable_area) {
+    if (in_enable_area != in_enable_area_) {
+      in_enable_area_ = in_enable_area;
+      if (!in_enable_area_)
+        enable_animation_.Hide();
+      else
+        enable_animation_.Show();
+    }
+  }
+
+  // Resets the reference to the hosting DraggedTabController. This is invoked
+  // when the DraggedTabController is destoryed.
+  void clear_controller() { controller_ = NULL; }
+
+  // HWND of the window we create.
+  HWND popup_hwnd() { return popup_hwnd_; }
+
+  // Starts the hide animation. When the window is closed the
+  // DraggedTabController is notified by way of the DockDisplayerDestroyed
+  // method
+  void Hide() {
+    if (hidden_)
+      return;
+
+    if (!popup_) {
+      delete this;
+      return;
+    }
+    hidden_ = true;
+    enable_animation_.Hide();
+    hot_animation_.Hide();
+  }
+
+  virtual void AnimationProgressed(const Animation* animation) {
+    popup_->SetLayeredAlpha(
+        static_cast<BYTE>((hot_animation_.GetCurrentValue() +
+                           enable_animation_.GetCurrentValue()) / 2 * 255.0));
+    popup_->GetRootView()->SchedulePaint();
+  }
+
+  virtual void AnimationEnded(const Animation* animation) {
+    if (!hidden_)
+      return;
+    popup_->Close();
+    delete this;
+    return;
+  }
+
+ private:
+  // DraggedTabController that created us.
+  DraggedTabController* controller_;
+
+  // Window we're showing.
+  views::ContainerWin* popup_;
+
+  // HWND of |popup_|. We cache this to avoid the possibility of invoking a
+  // method on popup_ after we close it.
+  HWND popup_hwnd_;
+
+  // Animation corresponding to !DockInfo::in_enable_area.
+  SlideAnimation hot_animation_;
+
+  // Animation corresponding to DockInfo::in_enable_area.
+  SlideAnimation enable_animation_;
+
+  // Have we been hidden?
+  bool hidden_;
+
+  // Value of DockInfo::in_enable_area.
+  bool in_enable_area_;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // DraggedTabController, public:
@@ -330,9 +508,44 @@ void DraggedTabController::InitWindowCreatePoint() {
 gfx::Point DraggedTabController::GetWindowCreatePoint() const {
   POINT pt;
   GetCursorPos(&pt);
+  if (dock_info_.type() != DockInfo::NONE) {
+    // If we're going to dock, we need to return the exact coordinate,
+    // otherwise we may attempt to maximize on the wrong monitor.
+    return gfx::Point(pt);
+  }
   return gfx::Point(pt.x - window_create_point_.x(),
                     pt.y - window_create_point_.y());
 }
+
+void DraggedTabController::UpdateDockInfo(const gfx::Point& screen_point) {
+  // Update the DockInfo for the current mouse coordinates.
+  DockInfo dock_info = GetDockInfoAtPoint(screen_point);
+  if (!dock_info.equals(dock_info_)) {
+    // DockInfo for current position differs.
+    if (dock_info_.type() != DockInfo::NONE &&
+        !dock_controllers_.empty()) {
+      // Hide old visual indicator.
+      dock_controllers_.back()->Hide();
+    }
+    dock_info_ = dock_info;
+    if (dock_info_.type() != DockInfo::NONE) {
+      // Show new docking position.
+      DockDisplayer* controller = new DockDisplayer(this, dock_info_);
+      if (controller->popup_hwnd()) {
+        dock_controllers_.push_back(controller);
+        dock_windows_.insert(controller->popup_hwnd());
+      } else {
+        delete controller;
+      }
+    }
+  } else if (dock_info_.type() != DockInfo::NONE &&
+             !dock_controllers_.empty()) {
+    // Current dock position is the same as last, update the controller's
+    // in_enable_area state as it may have changed.
+    dock_controllers_.back()->UpdateInEnabledArea(dock_info_.in_enable_area());
+  }
+}
+
 
 void DraggedTabController::ChangeDraggedContents(TabContents* new_contents) {
   if (dragged_contents_) {
@@ -399,6 +612,9 @@ void DraggedTabController::ContinueDragging() {
     if (target_tabstrip)
       Attach(target_tabstrip, screen_point);
   }
+
+  UpdateDockInfo(screen_point);
+
   MoveTab(screen_point);
 }
 
@@ -434,21 +650,44 @@ void DraggedTabController::MoveTab(const gfx::Point& screen_point) {
   view_->MoveTo(dragged_view_point);
 }
 
-TabStrip* DraggedTabController::GetTabStripForPoint(
-    const gfx::Point& screen_point) const {
+DockInfo DraggedTabController::GetDockInfoAtPoint(
+    const gfx::Point& screen_point) {
+  if (attached_tabstrip_) {
+    // If the mouse is over a tab strip, don't offer a dock position.
+    return DockInfo();
+  }
+
+  if (dock_info_.IsValidForPoint(screen_point)) {
+    // It's possible any given screen coordinate has multiple docking
+    // positions. Check the current info first to avoid having the docking
+    // position bounce around.
+    return dock_info_;
+  }
+
   HWND dragged_hwnd = view_->GetContainer()->GetHWND();
-  HWND other_hwnd = WindowFinder::WindowForPoint(screen_point, dragged_hwnd);
-  if (!other_hwnd)
+  dock_windows_.insert(dragged_hwnd);
+  DockInfo info = DockInfo::GetDockInfoAtPoint(screen_point, dock_windows_);
+  dock_windows_.erase(dragged_hwnd);
+  return info;
+}
+
+TabStrip* DraggedTabController::GetTabStripForPoint(
+    const gfx::Point& screen_point) {
+  HWND dragged_hwnd = view_->GetContainer()->GetHWND();
+  dock_windows_.insert(dragged_hwnd);
+  HWND local_window =
+      DockInfo::GetLocalProcessWindowAtPoint(screen_point, dock_windows_);
+  dock_windows_.erase(dragged_hwnd);
+  if (!local_window)
+    return NULL;
+  BrowserWindow* browser = BrowserView::GetBrowserWindowForHWND(local_window);
+  if (!browser)
     return NULL;
 
-  BrowserWindow* other_frame = BrowserView::GetBrowserWindowForHWND(other_hwnd);
-  if (other_frame) {
-    TabStrip* other_tabstrip = other_frame->GetTabStrip();
-    if (!other_tabstrip->IsCompatibleWith(source_tabstrip_))
-      return NULL;
-    return GetTabStripIfItContains(other_tabstrip, screen_point);
-  }
-  return NULL;
+  TabStrip* other_tabstrip = browser->GetTabStrip();
+  if (!other_tabstrip->IsCompatibleWith(source_tabstrip_))
+    return NULL;
+  return GetTabStripIfItContains(other_tabstrip, screen_point);
 }
 
 TabStrip* DraggedTabController::GetTabStripIfItContains(
@@ -673,6 +912,16 @@ Tab* DraggedTabController::GetTabMatchingDraggedContents(
 }
 
 void DraggedTabController::EndDragImpl(EndDragType type) {
+  // Hide the current dock controllers.
+  for (size_t i = 0; i < dock_controllers_.size(); ++i) {
+    // Be sure and clear the controller first, that way if Hide ends up
+    // deleting the controller it won't call us back.
+    dock_controllers_[i]->clear_controller();
+    dock_controllers_[i]->Hide();
+  }
+  dock_controllers_.clear();
+  dock_windows_.clear();
+
   bool destroy_now = true;
   if (type != TAB_DESTROYED) {
     // We only finish up the drag if we were actually dragging. If we never
@@ -754,14 +1003,61 @@ bool DraggedTabController::CompleteDrag() {
         NewCallback(this, &DraggedTabController::OnAnimateToBoundsComplete));
     destroy_immediately = false;
   } else {
+    if (dock_info_.type() != DockInfo::NONE) {
+      switch (dock_info_.type()) {
+        case DockInfo::LEFT_OF_WINDOW:
+          UserMetrics::RecordAction(L"DockingWindow_Left",
+                                    source_tabstrip_->model()->profile());
+          break;
+
+        case DockInfo::RIGHT_OF_WINDOW:
+          UserMetrics::RecordAction(L"DockingWindow_Right",
+                                    source_tabstrip_->model()->profile());
+          break;
+
+        case DockInfo::BOTTOM_OF_WINDOW:
+          UserMetrics::RecordAction(L"DockingWindow_Bottom",
+                                    source_tabstrip_->model()->profile());
+          break;
+
+        case DockInfo::TOP_OF_WINDOW:
+          UserMetrics::RecordAction(L"DockingWindow_Top",
+                                    source_tabstrip_->model()->profile());
+          break;
+
+        case DockInfo::MAXIMIZE:
+          UserMetrics::RecordAction(L"DockingWindow_Maximize",
+                                    source_tabstrip_->model()->profile());
+          break;
+
+        case DockInfo::LEFT_HALF:
+          UserMetrics::RecordAction(L"DockingWindow_LeftHalf",
+                                    source_tabstrip_->model()->profile());
+          break;
+
+        case DockInfo::RIGHT_HALF:
+          UserMetrics::RecordAction(L"DockingWindow_RightHalf",
+                                    source_tabstrip_->model()->profile());
+          break;
+
+        case DockInfo::BOTTOM_HALF:
+          UserMetrics::RecordAction(L"DockingWindow_BottomHalf",
+                                    source_tabstrip_->model()->profile());
+          break;
+
+        default:
+          NOTREACHED();
+          break;
+      }
+    }
     // Compel the model to construct a new window for the detached TabContents.
     CRect browser_rect;
     GetWindowRect(source_tabstrip_->GetContainer()->GetHWND(), &browser_rect);
     gfx::Rect window_bounds(
         GetWindowCreatePoint(),
         gfx::Size(browser_rect.Width(), browser_rect.Height()));
-    source_tabstrip_->model()->TearOffTabContents(dragged_contents_,
-                                                  window_bounds);
+    source_tabstrip_->model()->delegate()->CreateNewStripWithContents(
+        dragged_contents_, window_bounds, dock_info_);
     CleanUpHiddenFrame();
   }
 
@@ -847,3 +1143,20 @@ void DraggedTabController::OnAnimateToBoundsComplete() {
     source_tabstrip_->DestroyDragController();
 }
 
+void DraggedTabController::DockDisplayerDestroyed(
+    DockDisplayer* controller) {
+  std::set<HWND>::iterator dock_i =
+      dock_windows_.find(controller->popup_hwnd());
+  if (dock_i != dock_windows_.end())
+    dock_windows_.erase(dock_i);
+  else
+    NOTREACHED();
+
+  std::vector<DockDisplayer*>::iterator i =
+      std::find(dock_controllers_.begin(), dock_controllers_.end(),
+                controller);
+  if (i != dock_controllers_.end())
+    dock_controllers_.erase(i);
+  else
+    NOTREACHED();
+}

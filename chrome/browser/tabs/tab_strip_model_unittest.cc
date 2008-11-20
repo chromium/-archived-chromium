@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "chrome/browser/dock_info.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/navigation_entry.h"
@@ -994,7 +995,8 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   // Overridden from TabStripModelDelegate:
   virtual GURL GetBlankTabURL() const { return NewTabUIURL(); }
   virtual void CreateNewStripWithContents(TabContents* contents,
-                                          const gfx::Rect& window_bounds) {}
+                                          const gfx::Rect& window_bounds,
+                                          const DockInfo& dock_info) {}
   virtual int GetDragActions() const { return 0; }
   virtual TabContents* CreateTabContentsForURL(
       const GURL& url,
