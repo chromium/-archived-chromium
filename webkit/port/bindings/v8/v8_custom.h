@@ -63,8 +63,10 @@ class V8Custom {
 
   static const int kMessagePortRequestCacheIndex =
                       kDefaultWrapperInternalFieldCount + 0;
-  static const int kMessagePortInternalFieldCount =
+  static const int kMessagePortEntangledPortIndex =
                       kDefaultWrapperInternalFieldCount + 1;
+  static const int kMessagePortInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 2;
 
   static const int kDOMWindowLocationIndex =
                       kDefaultWrapperInternalFieldCount + 0;

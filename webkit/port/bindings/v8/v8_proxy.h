@@ -393,6 +393,8 @@ class V8Proxy {
   // Set JS wrapper of a DOM object
   static void SetJSWrapperForDOMObject(Peerable* obj,
                                        v8::Persistent<v8::Object> wrapper);
+  static void SetJSWrapperForActiveDOMObject(Peerable* obj,
+                                             v8::Persistent<v8::Object> wrapper);
   static void SetJSWrapperForDOMNode(Node* node,
                                      v8::Persistent<v8::Object> wrapper);
 
@@ -442,6 +444,8 @@ class V8Proxy {
   // Returns the JS wrapper of a window object, initializes the environment
   // of the window frame if needed.
   static v8::Handle<v8::Value> WindowToV8Object(DOMWindow* window);
+  static v8::Handle<v8::Value> ActiveDOMObjectToV8Object(
+      V8ClassIndex::V8WrapperType type, Peerable* obj);
 
 #if ENABLE(SVG)
   static v8::Handle<v8::Value> SVGElementInstanceToV8Object(

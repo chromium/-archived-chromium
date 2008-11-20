@@ -59,7 +59,7 @@ CALLBACK_FUNC_DECL(XMLHttpRequestConstructor) {
   V8Proxy::SetDOMWrapper(args.Holder(),
       V8ClassIndex::ToInt(V8ClassIndex::XMLHTTPREQUEST), xhr.get());
   // Set object as the peer.
-  V8Proxy::SetJSWrapperForDOMObject(xhr.get(),
+  V8Proxy::SetJSWrapperForActiveDOMObject(xhr.get(),
       v8::Persistent<v8::Object>::New(args.Holder()));
   return args.Holder();
 }

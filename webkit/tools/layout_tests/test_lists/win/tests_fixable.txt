@@ -1040,7 +1040,6 @@ LayoutTests/fast/text/drawBidiText.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
-chrome/fast/dom/xmlhttprequest-gc.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
 LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS
@@ -1082,7 +1081,6 @@ LayoutTests/fast/js/large-expressions.html = FAIL
 LayoutTests/fast/transforms/transformed-focused-text-input.html = FAIL
 
 LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
-LayoutTests/fast/events/message-channel-gc-2.html = TIMEOUT
 
 // MERGE 38305:38376 REGRESSIONS: These are all new tests, not regressions.
 // May just need rebaselining.
@@ -1094,7 +1092,6 @@ LayoutTests/transforms/2d/zoom-menulist.html = FAIL
 
 // Issue http://code.google.com/p/chromium/issues/detail?id=4432)
 LayoutTests/fast/dom/HTMLImageElement/image-loading-gc.html = TIMEOUT
-LayoutTests/fast/events/message-channel-gc-3.html = TIMEOUT
 
 // MERGE 38389:38450
 LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL

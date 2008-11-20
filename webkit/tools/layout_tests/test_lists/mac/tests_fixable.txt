@@ -659,7 +659,6 @@ LayoutTests/fast/text/drawBidiText.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
-chrome/fast/dom/xmlhttprequest-gc.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 chrome/fast/forms/basic-textareas.html = FAIL
 //LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT | PASS

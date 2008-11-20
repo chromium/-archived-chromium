@@ -1,0 +1,4 @@
+ALERT: port1
+ALERT: from port2
+ALERT: port2
+ALERT: from port1

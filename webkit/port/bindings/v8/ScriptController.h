@@ -34,6 +34,7 @@
 #define ScriptController_h
 
 #include "HashMap.h"
+#include "MessagePort.h"
 #include "SecurityOrigin.h"
 
 #include "bindings/npruntime.h"
@@ -208,6 +209,10 @@ public:
     // Protect and unprotect the JS wrapper from garbage collected.
     static void gcProtectJSWrapper(void* object);
     static void gcUnprotectJSWrapper(void* object);
+
+    // Handle entangle/unentangle of message ports.
+    static void entangleMessagePorts(MessagePort *port1, MessagePort *port2);
+    static void unentangleMessagePort(MessagePort *port);
 
     // Get/Set RecordPlaybackMode flag.
     // This is a special mode where JS helps the browser implement

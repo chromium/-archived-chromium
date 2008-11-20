@@ -1,0 +1,53 @@
+<html>
+
+<script>
+var channel;
+if (window.layoutTestController) {
+    layoutTestController.dumpAsText();
+    layoutTestController.waitUntilDone();
+}
+
+function on_message1(evt) {
+  try {
+    alert(this.x);
+    alert(evt.data);
+    this.postMessage("from port1")
+  } catch (e) {
+    document.write(e);
+    if (window.layoutTestController)
+      layoutTestController.notifyDone();
+  }
+}
+
+function on_message2(evt) {
+  try {
+    alert(this.y);
+    alert(evt.data);
+    if (window.layoutTestController)
+      layoutTestController.notifyDone();
+  } catch (e) {
+    document.write(e);
+    if (window.layoutTestController)
+      layoutTestController.notifyDone();
+  }
+}
+
+function run_test() {
+  channel = new MessageChannel();
+  channel.port1.x = 'port1';
+  channel.port2.y = 'port2';
+  channel.port1.onmessage = on_message1;
+  channel.port2.onmessage = on_message2;
+  channel.port2.postMessage('from port2');
+  channel.port1.start();
+  channel.port2.start();
+  channel = null;
+  if (window.GCController) {
+    window.GCController.collect();
+  }
+}
+
+</script>
+<body onload='run_test()'>
+</body>
+</html>
