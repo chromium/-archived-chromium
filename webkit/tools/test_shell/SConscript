@@ -160,7 +160,6 @@ test_files = [
     'run_all_tests.cc',
     'test_shell_test.cc',
     'text_input_controller_unittest.cc',
-    '$WEBKIT_DIR/glue/autocomplete_input_listener_unittest.cc',
     '$WEBKIT_DIR/glue/bookmarklet_unittest.cc',
     '$WEBKIT_DIR/glue/context_menu_unittest.cc',
     '$WEBKIT_DIR/glue/cpp_bound_class_unittest.cc',
