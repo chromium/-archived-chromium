@@ -1098,7 +1098,7 @@ LayoutTests/fast/events/message-channel-gc-3.html = TIMEOUT
 
 // MERGE 38389:38450
 LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
-LayoutTests/fast/dom/cssTarget-crash.html = CRASH
+LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 
 // Started failing with r5743 (darin)
 // http://crbug.com/4617
