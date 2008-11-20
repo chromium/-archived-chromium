@@ -73,4 +73,22 @@
       <string>Courier New</string>
     </edit>
   </match>
+
+  <match target="pattern">
+    <test qual="any" name="family">
+      <string>cursive</string>
+    </test>
+    <edit name="family" mode="assign">
+      <string>Comic Sans MS</string>
+    </edit>
+  </match>
+
+  <match target="pattern">
+    <test qual="any" name="family">
+      <string>fantasy</string>
+    </test>
+    <edit name="family" mode="assign">
+      <string>Impact</string>
+    </edit>
+  </match>
 </fontconfig>

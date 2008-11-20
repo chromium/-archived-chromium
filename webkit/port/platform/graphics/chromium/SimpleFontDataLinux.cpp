@@ -32,9 +32,10 @@ void SimpleFontData::platformInit()
     // Beware those who step here: This code is designed to match Win32 font
     // metrics *exactly*.
     m_ascent = SkScalarCeil(-metrics.fAscent);
-    m_descent = SkScalarCeil(metrics.fDescent);
+    m_descent = SkScalarCeil(metrics.fHeight) - m_ascent;
     m_xHeight = SkScalarToFloat(-metrics.fAscent) * 0.56f;   // hack I stole from the Windows port
-    m_lineGap = SkScalarCeil(metrics.fLeading);
+    m_lineGap = SkScalarCeil(metrics.fHeight -
+                             (metrics.fDescent - metrics.fAscent));
     m_lineSpacing = m_ascent + m_descent + m_lineGap;
 
     // In WebKit/WebCore/platform/graphics/SimpleFontData.cpp, m_spaceWidth is

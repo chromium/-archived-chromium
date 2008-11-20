@@ -586,6 +586,7 @@ public:
         SkScalar    fDescent;   //!< The recommended distance below the baseline (will be >= 0)
         SkScalar    fBottom;    //!< The greatest distance below the baseline for any glyph (will be >= 0)
         SkScalar    fLeading;   //!< The recommended distance to add between lines of text (will be >= 0)
+        SkScalar    fHeight;    //!< the vertical distance between two consecutive baselines (>= 0)
     };
     
     /** Return the recommend spacing between lines (which will be

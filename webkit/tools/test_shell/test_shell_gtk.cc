@@ -85,6 +85,9 @@ void TestShell::InitializeTestShell(bool interactive) {
     "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Italic.ttf",
     "/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman_Bold_Italic.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS_Bold.ttf",
+    "/usr/share/fonts/truetype/msttcorefonts/Impact.ttf",
     NULL
   };
   for (size_t i = 0; fonts[i]; ++i) {

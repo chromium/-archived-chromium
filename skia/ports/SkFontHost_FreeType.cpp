@@ -739,8 +739,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         return;
     }
 
-    SkPoint pts[5];
-    SkFixed ys[5];
+    SkPoint pts[6];
+    SkFixed ys[6];
     FT_Face face = fFace;
     int     upem = face->units_per_EM;
     SkFixed scaleY = fScaleY;
@@ -756,9 +756,10 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
     ys[2] = -face->descender;
     ys[3] = -face->bbox.yMin;
     ys[4] = leading;
+    ys[5] = face->height;
 
     // convert upem-y values into scalar points
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 6; i++)
     {
         SkFixed y = SkMulDiv(scaleY, ys[i], upem);
         SkFixed x = SkFixedMul(mxy, y);
@@ -773,6 +774,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         mx->fDescent = pts[2].fX;
         mx->fBottom = pts[3].fX;
         mx->fLeading = pts[4].fX;
+        mx->fHeight = pts[5].fX;
     }
     if (my)
     {
@@ -781,6 +783,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         my->fDescent = pts[2].fY;
         my->fBottom = pts[3].fY;
         my->fLeading = pts[4].fY;
+        my->fHeight = pts[5].fY;
     }
 }
 
