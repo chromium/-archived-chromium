@@ -5,6 +5,7 @@
 #define IDR_TICKMARK_DASH               2001
 #define IDR_FEED_PREVIEW                2002
 #define IDR_PAN_SCROLL_ICON             2003
+#define IDR_TEXTAREA_RESIZER            2004
 
 #define IDC_ALIAS                       2100
 #define IDC_CELL                        2101

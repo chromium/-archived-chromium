@@ -66,6 +66,7 @@ pan_south.cur
 pan_south_east.cur
 pan_south_west.cur
 pan_west.cur
+textarea_resize_corner.png
 
 // ***** BEGIN LICENSE BLOCK *****
 
