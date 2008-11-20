@@ -129,10 +129,6 @@ LayoutTests/fast/repaint/bugzilla-6473.html = FAIL
 // Bug 982608: test had a wrong result for one condition
 LayoutTests/plugins/destroy-stream-twice.html = FAIL
 
-// This test has been modified and placed in pending, so we ignore the original
-// until we get our modification into WebKit.
-LayoutTests/security/block-test.html = TIMEOUT
-
 // Bug 1143337.  Forked to pending/http/tests/security/.
 LayoutTests/http/tests/security/cross-frame-access-child-explicit-domain.html = FAIL
 LayoutTests/http/tests/security/cross-frame-access-parent-explicit-domain.html = FAIL
