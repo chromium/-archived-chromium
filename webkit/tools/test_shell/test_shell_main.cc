@@ -178,10 +178,18 @@ int main(int argc, char* argv[]) {
     TestShell::SetAllowScriptsToCloseWindows();
 
   // Disable user themes for layout tests so pixel tests are consistent.
+  if (!interactive) {
 #if defined(OS_WIN)
-  if (!interactive)
     gfx::NativeTheme::instance()->DisableTheming();
+#elif defined(OS_LINUX)
+    // Pick a theme that uses Cairo for drawing, since we:
+    // 1) currently don't support GTK themes that use the GDK drawing APIs, and
+    // 2) need to use a unified theme for layout tests anyway.
+    g_object_set(gtk_settings_get_default(),
+                 "gtk-theme-name", "ClearlooksClassic",
+                 NULL);
 #endif
+  }
 
   if (parsed_command_line.HasSwitch(test_shell::kTestShellTimeOut)) {
     const std::wstring timeout_str = parsed_command_line.GetSwitchValue(
