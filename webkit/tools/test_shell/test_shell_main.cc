@@ -31,6 +31,7 @@
 #include "base/process_util.h"
 #include "base/rand_util.h"
 #include "base/stats_table.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "base/trace_event.h"
@@ -58,17 +59,17 @@ static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
 
 #if defined(OS_WIN)
-std::string GetDataResource(HMODULE module, int resource_id) {
+StringPiece GetRawDataResource(HMODULE module, int resource_id) {
   void* data_ptr;
   size_t data_size;
   return base::GetDataResourceFromModule(module, resource_id, &data_ptr,
                                          &data_size) ?
-      std::string(static_cast<char*>(data_ptr), data_size) : std::string();
+      StringPiece(static_cast<char*>(data_ptr), data_size) : StringPiece();
 }
 
 // This is called indirectly by the network layer to access resources.
-std::string NetResourceProvider(int key) {
-  return GetDataResource(::GetModuleHandle(NULL), key);
+StringPiece NetResourceProvider(int key) {
+  return GetRawDataResource(::GetModuleHandle(NULL), key);
 }
 #endif
 

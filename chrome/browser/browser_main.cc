@@ -117,11 +117,11 @@ base::LazyInstance<LazyDirectoryListerCacher> lazy_dir_lister(
     base::LINKER_INITIALIZED);
 
 // This is called indirectly by the network layer to access resources.
-std::string NetResourceProvider(int key) {
+StringPiece NetResourceProvider(int key) {
   if (IDR_DIR_HEADER_HTML == key)
-    return lazy_dir_lister.Pointer()->html_data;
+    return StringPiece(lazy_dir_lister.Pointer()->html_data);
 
-  return ResourceBundle::GetSharedInstance().GetDataResource(key);
+  return ResourceBundle::GetSharedInstance().GetRawDataResource(key);
 }
 
 // Displays a warning message if the user is running chrome on windows 2000.
