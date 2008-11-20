@@ -1102,3 +1102,31 @@ LayoutTests/fast/events/message-channel-gc-3.html = TIMEOUT
 
 // MERGE 38389:38450
 LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
+
+// Started failing with r5743 (darin)
+// http://crbug.com/4617
+LayoutTests/security/block-test.html = FAIL
+
+// http://crbug.com/4618
+DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-rx-prop.html = CRASH
+
+// These have been failing for as long as we've had SVG support and were
+// incorrectly removed during a merge.
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
+LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
