@@ -58,6 +58,11 @@ void AeroTooltipManager::OnMouse(UINT u_msg, WPARAM w_param, LPARAM l_param) {
   }
 }
 
+void AeroTooltipManager::OnMouseLeave() {
+  last_mouse_x_ = last_mouse_y_ = -1;
+  UpdateTooltip();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // AeroTooltipManager, private:
 

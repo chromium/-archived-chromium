@@ -532,6 +532,7 @@ void ContainerWin::OnMouseMove(UINT flags, const CPoint& point) {
 }
 
 LRESULT ContainerWin::OnMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param) {
+  tooltip_manager_->OnMouseLeave();
   ProcessMouseExited();
   return 0;
 }
