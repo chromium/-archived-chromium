@@ -38,12 +38,12 @@
 #include "build/build_config.h"
 #include "webkit/glue/glue_util.h"
 
-#if defined(OS_WIN)
-#include "webkit_strings.h"
-#else
+#if defined(OS_MACOSX)
 // TODO:(pinkerton): only windows has the GRIT machinery, so we've created a
 // temporary generated header until we can figure out the l10n strategy.
 #include "bogus_webkit_strings.h"
+#else
+#include "webkit_strings.h"
 #endif
 
 using namespace WebCore;
