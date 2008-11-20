@@ -79,6 +79,7 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   if (rv != OK)
     return rv;
 
+  // WSACreateEvent creates a manual-reset event object.
   overlapped_.hEvent = WSACreateEvent();
   // WSAEventSelect sets the socket to non-blocking mode as a side effect.
   // Our connect() and recv() calls require that the socket be non-blocking.
@@ -116,13 +117,19 @@ void TCPClientSocket::Disconnect() {
   // Make sure the message loop is not watching this object anymore.
   watcher_.StopWatching();
 
+  // Cancel any pending IO and wait for it to be aborted.
+  if (wait_state_ == WAITING_READ || wait_state_ == WAITING_WRITE) {
+    CancelIo(reinterpret_cast<HANDLE>(socket_));
+    WaitForSingleObject(overlapped_.hEvent, INFINITE);
+    wait_state_ = NOT_WAITING;
+  }
+
   // In most socket implementations, closing a socket results in a graceful
   // connection shutdown, but in Winsock we have to call shutdown explicitly.
   // See the MSDN page "Graceful Shutdown, Linger Options, and Socket Closure"
   // at http://msdn.microsoft.com/en-us/library/ms738547.aspx
   shutdown(socket_, SD_SEND);
 
-  // This cancels any pending IO.
   closesocket(socket_);
   socket_ = INVALID_SOCKET;
 
