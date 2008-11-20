@@ -54,7 +54,7 @@ void TestWebViewDelegate::ShowJavaScriptAlert(const std::wstring& message) {
 void TestWebViewDelegate::Show(WebWidget* webwidget,
                                WindowOpenDisposition disposition) {
   WebWidgetHost* host = GetHostForWidget(webwidget);
-  GtkWidget* drawing_area = host->window_handle();
+  GtkWidget* drawing_area = host->view_handle();
   GtkWidget* window =
       gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
   gtk_widget_show_all(window);
@@ -96,7 +96,7 @@ void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
                                         gfx::Rect* out_rect) {
   DCHECK(out_rect);
   WebWidgetHost* host = GetHostForWidget(webwidget);
-  GtkWidget* drawing_area = host->window_handle();
+  GtkWidget* drawing_area = host->view_handle();
   GtkWidget* vbox = gtk_widget_get_parent(drawing_area);
   GtkWidget* window = gtk_widget_get_parent(vbox);
 
@@ -115,7 +115,7 @@ void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
     // ignored
   } else if (webwidget == shell_->popup()) {
     WebWidgetHost* host = GetHostForWidget(webwidget);
-    GtkWidget* drawing_area = host->window_handle();
+    GtkWidget* drawing_area = host->view_handle();
     GtkWidget* window =
         gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
     gtk_window_resize(GTK_WINDOW(window), rect.width(), rect.height());
@@ -130,7 +130,7 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
     // window.  This means the x/y is the distance from the corner of the
     // screen, and the width/height is the size of the entire browser window.
     // For example, this is used to implement window.screenX and window.screenY.
-    GtkWidget* drawing_area = host->window_handle();
+    GtkWidget* drawing_area = host->view_handle();
     GtkWidget* window =
         gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
     gint x, y, width, height;

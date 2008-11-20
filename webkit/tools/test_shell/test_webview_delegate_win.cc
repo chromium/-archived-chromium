@@ -106,7 +106,7 @@ void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
                                         gfx::Rect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     RECT rect;
-    ::GetWindowRect(host->window_handle(), &rect);
+    ::GetWindowRect(host->view_handle(), &rect);
     *out_rect = gfx::Rect(rect);
   }
 }
@@ -125,7 +125,7 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
                                             gfx::Rect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     RECT rect;
-    HWND root_window = ::GetAncestor(host->window_handle(), GA_ROOT);
+    HWND root_window = ::GetAncestor(host->view_handle(), GA_ROOT);
     ::GetWindowRect(root_window, &rect);
     *out_rect = gfx::Rect(rect);
   }

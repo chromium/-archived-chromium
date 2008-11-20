@@ -184,7 +184,7 @@ bool TestShell::Initialize(const std::wstring& startingURL) {
   webView()->SetUseEditorDelegate(true);
   delegate_->RegisterDragDrop();
   TestShellWebView* web_view = 
-      static_cast<TestShellWebView*>(m_webViewHost->window_handle());
+      static_cast<TestShellWebView*>(m_webViewHost->view_handle());
   [web_view setShell:this];
   
   // create buttons
@@ -342,8 +342,8 @@ void TestShell::WaitTestFinished() {
 void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
 #if 0
   if (enable)
-    ::SetFocus(host->window_handle());
-  else if (::GetFocus() == host->window_handle())
+    ::SetFocus(host->view_handle());
+  else if (::GetFocus() == host->view_handle())
     ::SetFocus(NULL);
 #endif
 }

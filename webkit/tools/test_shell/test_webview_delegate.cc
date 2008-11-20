@@ -613,7 +613,7 @@ void TestWebViewDelegate::SetUserStyleSheetLocation(const GURL& location) {
 
 gfx::ViewHandle TestWebViewDelegate::GetContainingWindow(WebWidget* webwidget) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
-    return host->window_handle();
+    return host->view_handle();
 
   return NULL;
 }

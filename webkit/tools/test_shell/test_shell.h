@@ -156,9 +156,9 @@ public:
     void DumpRenderTree();
 
     gfx::WindowHandle mainWnd() const { return m_mainWnd; }
-    gfx::ViewHandle webViewWnd() const { return m_webViewHost->window_handle(); }
+    gfx::ViewHandle webViewWnd() const { return m_webViewHost->view_handle(); }
     gfx::EditViewHandle editWnd() const { return m_editWnd; }
-    gfx::ViewHandle popupWnd() const { return m_popupHost->window_handle(); }
+    gfx::ViewHandle popupWnd() const { return m_popupHost->view_handle(); }
 
     static WindowList* windowList() { return window_list_; }
 

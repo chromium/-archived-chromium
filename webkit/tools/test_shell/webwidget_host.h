@@ -32,7 +32,7 @@ class WebWidgetHost {
   static void HandleEvent(gfx::WindowHandle window, NSEvent *event);
 #endif
 
-  gfx::ViewHandle window_handle() const { return view_; }
+  gfx::ViewHandle view_handle() const { return view_; }
   WebWidget* webwidget() const { return webwidget_; }
 
   void DidInvalidateRect(const gfx::Rect& rect);

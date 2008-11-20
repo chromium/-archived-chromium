@@ -70,7 +70,7 @@ void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
                                         gfx::Rect* out_rect) {
   DCHECK(out_rect);
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    NSView *view = host->window_handle();
+    NSView *view = host->view_handle();
     NSRect rect = [view frame];
     *out_rect = gfx::Rect(NSRectToCGRect(rect));
   }
@@ -90,7 +90,7 @@ void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
 void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
                                             gfx::Rect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
-    NSView *view = host->window_handle();
+    NSView *view = host->view_handle();
     NSRect rect = [[[view window] contentView] frame];
     *out_rect = gfx::Rect(NSRectToCGRect(rect));
   }
@@ -103,7 +103,7 @@ void TestWebViewDelegate::RunModal(WebWidget* webwidget) {
 // Private methods -----------------------------------------------------------
 
 void TestWebViewDelegate::SetPageTitle(const std::wstring& title) {
-  [[shell_->webViewHost()->window_handle() window]
+  [[shell_->webViewHost()->view_handle() window]
       setTitle:[NSString stringWithUTF8String:WideToUTF8(title).c_str()]];
 }
 

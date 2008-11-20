@@ -486,8 +486,8 @@ void TestShell::WaitTestFinished() {
 
 void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
   if (enable)
-    ::SetFocus(host->window_handle());
-  else if (::GetFocus() == host->window_handle())
+    ::SetFocus(host->view_handle());
+  else if (::GetFocus() == host->view_handle())
     ::SetFocus(NULL);
 }
 

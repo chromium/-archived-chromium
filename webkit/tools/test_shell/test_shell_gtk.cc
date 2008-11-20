@@ -274,7 +274,7 @@ void TestShell::WaitTestFinished() {
 }
 
 void TestShell::InteractiveSetFocus(WebWidgetHost* host, bool enable) {
-  GtkWidget* widget = GTK_WIDGET(host->window_handle());
+  GtkWidget* widget = GTK_WIDGET(host->view_handle());
 
   if (enable) {
     gtk_widget_grab_focus(widget);
@@ -302,7 +302,7 @@ WebWidget* TestShell::CreatePopupWidget(WebView* webview) {
 
 void TestShell::ClosePopup() {
   DCHECK(m_popupHost);
-  GtkWidget* drawing_area = m_popupHost->window_handle();
+  GtkWidget* drawing_area = m_popupHost->view_handle();
   GtkWidget* window =
       gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
   gtk_widget_destroy(window);
