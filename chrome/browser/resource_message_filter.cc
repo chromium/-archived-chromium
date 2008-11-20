@@ -79,7 +79,7 @@ void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
   DCHECK(!render_handle_);
   render_handle_ = OpenProcess(PROCESS_DUP_HANDLE|PROCESS_TERMINATE,
                                FALSE, peer_pid);
-  CHECK(render_handle_);
+  DCHECK(render_handle_);
 }
 
 // Called on the IPC thread:
