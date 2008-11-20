@@ -819,7 +819,12 @@ int PopupListBox::pointToRowIndex(const IntPoint& point)
 
 void PopupListBox::acceptIndex(int index)
 {
-    ASSERT(index >= 0 && index < numItems());
+    ASSERT(index >= -1 && index < numItems());
+    if (index == -1 && m_popupClient) {
+      // Enter pressed with no selection, just close the popup.
+      m_popupClient->hidePopup();
+      return;
+    }
 
     if (isSelectableItem(index)) {
         RefPtr<PopupListBox> keepAlive(this);
