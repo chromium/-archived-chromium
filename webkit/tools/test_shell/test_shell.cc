@@ -42,6 +42,8 @@
 
 #include "SkBitmap.h"
 
+namespace {
+
 // Default timeout for page load when running non-interactive file
 // tests, in ms.
 const int kDefaultFileTestTimeoutMillisecs = 10 * 1000;
@@ -55,11 +57,15 @@ const int kTestWindowHeight = 600;
 const int kSVGTestWindowWidth = 480;
 const int kSVGTestWindowHeight = 360;
 
-// Initialize static member variable
-WindowList* TestShell::window_list_;
-WebPreferences* TestShell::web_prefs_ = NULL;
-bool TestShell::interactive_ = true;
-int TestShell::file_test_timeout_ms_ = kDefaultFileTestTimeoutMillisecs;
+// Helper method for getting the path to the test shell resources directory.
+FilePath GetResourcesFilePath() {
+  FilePath path;
+  PathService::Get(base::DIR_SOURCE_ROOT, &path);
+  path = path.Append(FILE_PATH_LITERAL("webkit"));
+  path = path.Append(FILE_PATH_LITERAL("tools"));
+  path = path.Append(FILE_PATH_LITERAL("test_shell"));
+  return path.Append(FILE_PATH_LITERAL("resources"));
+}
 
 // URLRequestTestShellFileJob is used to serve the inspector
 class URLRequestTestShellFileJob : public URLRequestFileJob {
@@ -84,6 +90,14 @@ class URLRequestTestShellFileJob : public URLRequestFileJob {
 
   DISALLOW_COPY_AND_ASSIGN(URLRequestTestShellFileJob);
 };
+
+}  // namespace
+
+// Initialize static member variable
+WindowList* TestShell::window_list_;
+WebPreferences* TestShell::web_prefs_ = NULL;
+bool TestShell::interactive_ = true;
+int TestShell::file_test_timeout_ms_ = kDefaultFileTestTimeoutMillisecs;
 
 TestShell::TestShell() 
     : m_mainWnd(NULL),
@@ -447,12 +461,7 @@ std::string GetDataResource(int resource_id) {
     // Use webkit's broken image icon (16x16)
     static std::string broken_image_data;
     if (broken_image_data.empty()) {
-      FilePath path;
-      PathService::Get(base::DIR_SOURCE_ROOT, &path);
-      path = path.Append(FILE_PATH_LITERAL("webkit"));
-      path = path.Append(FILE_PATH_LITERAL("tools"));
-      path = path.Append(FILE_PATH_LITERAL("test_shell"));
-      path = path.Append(FILE_PATH_LITERAL("resources"));
+      FilePath path = GetResourcesFilePath();
       path = path.Append(FILE_PATH_LITERAL("missingImage.gif"));
       bool success = file_util::ReadFileToString(path.ToWStringHack(),
                                                  &broken_image_data);
@@ -468,16 +477,11 @@ std::string GetDataResource(int resource_id) {
     // that computes feed previews in feed_preview.cc:MakeFeedPreview. 
     // This fixes issue #932714.    
     return std::string("Feed preview for {{URL}}");
-  case IDR_EDITOR_DELETE_BUTTON:{
+  case IDR_EDITOR_DELETE_BUTTON: {
     // Use webkit's delete button image.
     static std::string delete_button_data;
     if (delete_button_data.empty()) {
-      FilePath path;
-      PathService::Get(base::DIR_SOURCE_ROOT, &path);
-      path = path.Append(FILE_PATH_LITERAL("webkit"));
-      path = path.Append(FILE_PATH_LITERAL("tools"));
-      path = path.Append(FILE_PATH_LITERAL("test_shell"));
-      path = path.Append(FILE_PATH_LITERAL("resources"));
+      FilePath path = GetResourcesFilePath();
       path = path.Append(FILE_PATH_LITERAL("deleteButton.png"));
       bool success = file_util::ReadFileToString(path.ToWStringHack(),
                                                  &delete_button_data);
@@ -486,6 +490,20 @@ std::string GetDataResource(int resource_id) {
       }
     }
     return delete_button_data;
+  }
+  case IDR_TEXTAREA_RESIZER: {
+    // Use webkit's text area resizer image.
+    static std::string resize_corner_data;
+    if (resize_corner_data.empty()) {
+      FilePath path = GetResourcesFilePath();
+      path = path.Append(FILE_PATH_LITERAL("textAreaResizeCorner.png"));
+      bool success = file_util::ReadFileToString(path.ToWStringHack(),
+                                                 &resize_corner_data);
+      if (!success) {
+        LOG(FATAL) << "Failed reading: " << path.value();
+      }
+    }
+    return resize_corner_data;
   }
 
   default:
