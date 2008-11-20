@@ -13,6 +13,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "KeyboardEvent.h"
 MSVC_POP_WARNING();
 
+#undef LOG
+
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/webinputevent.h"

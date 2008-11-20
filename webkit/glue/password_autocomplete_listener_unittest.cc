@@ -24,11 +24,9 @@ MSVC_POP_WARNING();
 
 #undef LOG
 
-#include "webkit/glue/autocomplete_input_listener.h"
 #include "webkit/glue/password_autocomplete_listener.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-using webkit_glue::AutocompleteInputListener;
 using webkit_glue::PasswordAutocompleteListener;
 using webkit_glue::HTMLInputDelegate;
 

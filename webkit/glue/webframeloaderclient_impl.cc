@@ -44,8 +44,6 @@ MSVC_POP_WARNING();
 #endif
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/alt_404_page_resource_fetcher.h"
-#include "webkit/glue/autocomplete_input_listener.h"
-#include "webkit/glue/form_autocomplete_listener.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/plugins/plugin_list.h"
@@ -328,9 +326,10 @@ void WebFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader,
 void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
   WebViewImpl* webview = webframe_->webview_impl();
   WebViewDelegate* d = webview->delegate();
-  // A frame may be reused.  This call ensures a new AutoCompleteListener will
-  // be created for the newly created frame.
-  webframe_->ClearAutocompleteListener();
+
+  // A frame may be reused.  This call ensures we don't hold on to our password
+  // listeners and their associated HTMLInputElements.
+  webframe_->ClearPasswordListeners();
 
   // The document has now been fully loaded.
   // Scan for password forms to be sent to the browser
@@ -351,28 +350,11 @@ void WebFrameLoaderClient::dispatchDidFinishDocumentLoad() {
       if (!form->autoComplete())
         continue;
 
-      std::set<std::wstring> password_related_fields;
       scoped_ptr<PasswordForm> passwordFormPtr(
           PasswordFormDomManager::CreatePasswordForm(form));
 
-      if (passwordFormPtr.get()) {
+      if (passwordFormPtr.get())
         passwordForms.push_back(*passwordFormPtr);
-
-        // Let's remember the names of password related fields so we do not
-        // autofill them with the regular form autofill.
-
-        if (!passwordFormPtr->username_element.empty())
-          password_related_fields.insert(passwordFormPtr->username_element);
-        DCHECK(!passwordFormPtr->password_element.empty());
-        password_related_fields.insert(passwordFormPtr->password_element);
-        if (!passwordFormPtr->old_password_element.empty())
-          password_related_fields.insert(passwordFormPtr->old_password_element);
-      }
-
-      // Now let's register for any text input.
-      // TODO(jcampan): bug #3847 merge password and form autofill so we
-      // traverse the form elements only once.
-      RegisterAutofillListeners(form, password_related_fields);
     }
   }
 
@@ -703,40 +685,6 @@ NavigationGesture WebFrameLoaderClient::NavigationGestureForLastLoad() {
       NavigationGestureAuto;
 }
 
-void WebFrameLoaderClient::RegisterAutofillListeners(
-    WebCore::HTMLFormElement* form,
-    const std::set<std::wstring>& excluded_fields) {
-
-  WebViewDelegate* webview_delegate = webframe_->webview_impl()->delegate();
-  if (!webview_delegate)
-    return;
-
-  for (size_t i = 0; i < form->formElements.size(); i++) {
-    WebCore::HTMLFormControlElement* form_element = form->formElements[i];
-    if (!form_element->hasLocalName(WebCore::HTMLNames::inputTag))
-      continue;
-
-    WebCore::HTMLInputElement* input_element =
-        static_cast<WebCore::HTMLInputElement*>(form_element);
-    if (!input_element->isEnabled() || !input_element->isTextField() ||
-        input_element->isPasswordField() || !input_element->autoComplete()) {
-      continue;
-    }
-
-    std::wstring name = webkit_glue::StringToStdWString(input_element->name());
-    if (name.empty() || excluded_fields.find(name) != excluded_fields.end())
-      continue;
-
-#if !defined(OS_MACOSX)
-    // FIXME on Mac
-    webkit_glue::FormAutocompleteListener* listener =
-        new webkit_glue::FormAutocompleteListener(webview_delegate);
-    webframe_->GetAutocompleteListener()->AddInputListener(input_element,
-                                                           listener);
-#endif
-  }
-}
-
 void WebFrameLoaderClient::dispatchDidReceiveTitle(const String& title) {
   WebViewImpl* webview = webframe_->webview_impl();
   WebViewDelegate* d = webview->delegate();
@@ -1001,7 +949,7 @@ void WebFrameLoaderClient::dispatchWillSubmitForm(FramePolicyFunction function,
     PassRefPtr<FormState> form_ref) {
   SearchableFormData* form_data = SearchableFormData::Create(form_ref->form());
   WebDocumentLoaderImpl* loader = static_cast<WebDocumentLoaderImpl*>(
-    webframe_->frame()->loader()->provisionalDocumentLoader());
+      webframe_->frame()->loader()->provisionalDocumentLoader());
   // Don't free the SearchableFormData, the loader will do that.
   loader->set_searchable_form_data(form_data);
 

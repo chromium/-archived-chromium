@@ -295,10 +295,6 @@
 			Name="tests"
 			>
 			<File
-				RelativePath="..\..\glue\autocomplete_input_listener_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\port\platform\image-decoders\bmp\BMPImageDecoder_unittest.cpp"
 				>
 			</File>

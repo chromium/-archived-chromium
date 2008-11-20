@@ -273,14 +273,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\glue\autocomplete_input_listener.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\glue\autocomplete_input_listener.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\glue\cache_manager.cc"
 				>
 			</File>
@@ -390,14 +382,6 @@
 			</File>
 			<File
 				RelativePath="..\..\glue\feed_preview.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\glue\form_autocomplete_listener.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\glue\form_autocomplete_listener.h"
 				>
 			</File>
 			<File

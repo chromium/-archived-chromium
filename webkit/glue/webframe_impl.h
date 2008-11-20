@@ -33,7 +33,7 @@
 #include "base/gfx/platform_canvas.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
-#include "webkit/glue/form_autocomplete_listener.h"
+#include "webkit/glue/password_autocomplete_listener.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
@@ -271,14 +271,20 @@ class WebFrameImpl : public WebFrame {
 
   virtual bool IsReloadAllowingStaleData() const;
 
-  // Returns the listener used for autocomplete. Creates it and registers it on
-  // the frame body node on the first invocation.
-  webkit_glue::AutocompleteBodyListener* GetAutocompleteListener();
+  // Registers a listener for the specified user name input element.  The
+  // listener will receive notifications for blur and when autocomplete should
+  // be triggered.
+  // The WebFrameImpl becomes the owner of the passed listener.
+  void RegisterPasswordListener(
+      PassRefPtr<WebCore::HTMLInputElement> user_name_input_element,
+      webkit_glue::PasswordAutocompleteListener* listener);
 
-  // Nulls the autocomplete listener for this frame.  Useful as a frame might
-  // be reused (on reload for example), in which case a new body element is
-  // created and the existing autocomplete listener becomes useless.
-  void ClearAutocompleteListener();
+  // Returns the password autocomplete listener associated with the passed
+  // user name input element, or NULL if none available.
+  // Note that the returned listener is owner by the WebFrameImpl and should not
+  // be kept around as it is deleted when the page goes away.
+  webkit_glue::PasswordAutocompleteListener* GetPasswordListener(
+      WebCore::HTMLInputElement* user_name_input_element);
 
  protected:
   friend class WebFrameLoaderClient;
@@ -440,14 +446,20 @@ class WebFrameImpl : public WebFrame {
                            const WebCore::SubstituteData& data,
                            bool replace);
 
+  // Clears the map of password listeners.
+  void ClearPasswordListeners();
+
   // In "printing" mode. Used as a state check.
   bool printing_;
 
   // For each printed page, the view of the document in pixels.
   Vector<WebCore::IntRect> pages_;
 
-  // The listener responsible for showing form autocomplete suggestions.
-  RefPtr<webkit_glue::AutocompleteBodyListener> form_autocomplete_listener_;
+  // The input fields that are interested in edit events and their associated
+  // listeners.
+  typedef HashMap<RefPtr<WebCore::HTMLInputElement>,
+      webkit_glue::PasswordAutocompleteListener*> PasswordListenerMap;
+  PasswordListenerMap password_listeners_;
 
   DISALLOW_COPY_AND_ASSIGN(WebFrameImpl);
 };

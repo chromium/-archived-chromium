@@ -286,8 +286,7 @@ MSVC_POP_WARNING()
     frames_scoping_count_(-1),
     scoping_complete_(false),
     next_invalidate_after_(0),
-    printing_(false),
-    form_autocomplete_listener_(NULL) {
+    printing_(false) {
   StatsCounter(kWebFrameActiveCount).Increment();
   live_object_count_++;
 }
@@ -297,6 +296,7 @@ WebFrameImpl::~WebFrameImpl() {
   live_object_count_--;
 
   CancelPendingScopingEffort();
+  ClearPasswordListeners();
 }
 
 // WebFrame -------------------------------------------------------------------
@@ -1873,14 +1873,24 @@ int WebFrameImpl::PendingFrameUnloadEventCount() const {
   return frame()->eventHandler()->pendingFrameUnloadEventCount();
 }
 
-webkit_glue::AutocompleteBodyListener* WebFrameImpl::GetAutocompleteListener() {
-  if (!form_autocomplete_listener_) {
-    form_autocomplete_listener_ =
-      adoptRef(new webkit_glue::AutocompleteBodyListener(frame()));
-  }
-  return form_autocomplete_listener_.get();
+void WebFrameImpl::RegisterPasswordListener(
+    PassRefPtr<WebCore::HTMLInputElement> input_element,
+    webkit_glue::PasswordAutocompleteListener* listener) {
+  RefPtr<WebCore::HTMLInputElement> element = input_element;
+  DCHECK(password_listeners_.find(element) == password_listeners_.end());
+  password_listeners_.set(element, listener);
 }
 
-void WebFrameImpl::ClearAutocompleteListener() {
-  form_autocomplete_listener_ = NULL;
+webkit_glue::PasswordAutocompleteListener* WebFrameImpl::GetPasswordListener(
+    WebCore::HTMLInputElement* input_element) {
+  return password_listeners_.get(input_element);
 }
+
+void WebFrameImpl::ClearPasswordListeners() {
+  for (PasswordListenerMap::iterator iter = password_listeners_.begin();
+       iter != password_listeners_.end(); ++iter) {
+    delete iter->second;
+  }
+  password_listeners_.clear();
+}
+
