@@ -13,7 +13,6 @@
 #include "base/event_recorder.h"
 #include "base/gfx/native_theme.h"
 #include "base/resource_util.h"
-#include "breakpad/src/client/windows/handler/exception_handler.h"
 #include "webkit/tools/test_shell/foreground_helper.h"
 #endif
 
@@ -31,14 +30,13 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/rand_util.h"
-#include "base/stack_container.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
+#include "base/sys_info.h"
 #include "base/trace_event.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_module.h"
 #include "net/http/http_cache.h"
-#include "net/http/http_network_layer.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
@@ -50,9 +48,7 @@
 #include <iostream>
 using namespace std;
 
-// This is only set for layout tests.
 static const size_t kPathBufSize = 2048;
-static wchar_t g_currentTestName[kPathBufSize];
 
 namespace {
 
@@ -73,58 +69,6 @@ std::string GetDataResource(HMODULE module, int resource_id) {
 // This is called indirectly by the network layer to access resources.
 std::string NetResourceProvider(int key) {
   return GetDataResource(::GetModuleHandle(NULL), key);
-}
-#endif
-
-void SetCurrentTestName(char* path)
-{
-    char* lastSlash = strrchr(path, '/');
-    if (lastSlash) {
-        ++lastSlash;
-    } else {
-        lastSlash = path;
-    }
-
-    base::wcslcpy(g_currentTestName,
-                  UTF8ToWide(lastSlash).c_str(),
-                  arraysize(g_currentTestName));
-}
-
-#if defined(OS_WIN)
-bool MinidumpCallback(const wchar_t *dumpPath,
-                             const wchar_t *minidumpID,
-                             void *context,
-                             EXCEPTION_POINTERS *exinfo,
-                             MDRawAssertionInfo *assertion,
-                             bool succeeded)
-{
-    // Warning: Don't use the heap in this function.  It may be corrupted.
-    if (!g_currentTestName[0])
-        return false;
-
-    // Try to rename the minidump file to include the crashed test's name.
-    // StackString uses the stack but overflows onto the heap.  But we don't
-    // care too much about being completely correct here, since most crashes
-    // will be happening on developers' machines where they have debuggers.
-    StackWString<kPathBufSize * 2> origPath;
-    origPath->append(dumpPath);
-    origPath->push_back(file_util::kPathSeparator);
-    origPath->append(minidumpID);
-    origPath->append(L".dmp");
-
-    StackWString<kPathBufSize * 2> newPath;
-    newPath->append(dumpPath);
-    newPath->push_back(file_util::kPathSeparator);
-    newPath->append(g_currentTestName);
-    newPath->append(L"-");
-    newPath->append(minidumpID);
-    newPath->append(L".dmp");
-
-    // May use the heap, but oh well.  If this fails, we'll just have the
-    // original dump file lying around.
-    _wrename(origPath->c_str(), newPath->c_str());
-
-    return false;
 }
 #endif
 
@@ -156,9 +100,7 @@ int main(int argc, char* argv[]) {
   MessageLoopForUI main_message_loop;
 
   bool suppress_error_dialogs = (
-#if defined(OS_WIN)
-       GetEnvironmentVariable(L"CHROME_HEADLESS", NULL, 0) ||
-#endif
+       base::SysInfo::HasEnvVar(L"CHROME_HEADLESS") ||
        parsed_command_line.HasSwitch(test_shell::kNoErrorDialogs) ||
        parsed_command_line.HasSwitch(test_shell::kLayoutTests));
   bool layout_test_mode =
@@ -179,13 +121,6 @@ int main(int argc, char* argv[]) {
 
   if (parsed_command_line.HasSwitch(test_shell::kEnableTracing))
     base::TraceLog::StartTracing();
-
-#if defined(OS_WIN)
-  // Make the selection of network stacks early on before any consumers try to
-  // issue HTTP requests.
-  if (parsed_command_line.HasSwitch(test_shell::kUseWinHttp))
-    net::HttpNetworkLayer::UseWinHttp(true);
-#endif
 
   net::HttpCache::Mode cache_mode = net::HttpCache::NORMAL;
   bool playback_mode = 
@@ -226,16 +161,6 @@ int main(int argc, char* argv[]) {
   InitCtrlEx.dwSize = sizeof(INITCOMMONCONTROLSEX);
   InitCtrlEx.dwICC  = ICC_STANDARD_CLASSES;
   InitCommonControlsEx(&InitCtrlEx);
-
-  // Register the Ahem font used by layout tests.
-  DWORD num_fonts = 1;
-  void* font_ptr;
-  size_t font_size;
-  if (base::GetDataResourceFromModule(::GetModuleHandle(NULL), IDR_AHEM_FONT, 
-                                      &font_ptr, &font_size)) {
-    HANDLE rc = AddFontMemResourceEx(font_ptr, font_size, 0, &num_fonts);
-    DCHECK(rc != 0);
-  }
 #endif
 
   bool interactive = !layout_test_mode;
@@ -280,14 +205,6 @@ int main(int argc, char* argv[]) {
         parsed_command_line.GetLooseValuesBegin());
     uri = *iter;
   }
-
-#if defined(OS_WIN)
-  if (parsed_command_line.HasSwitch(test_shell::kCrashDumps)) {
-    std::wstring dir(
-        parsed_command_line.GetSwitchValue(test_shell::kCrashDumps));
-    new google_breakpad::ExceptionHandler(dir, 0, &MinidumpCallback, 0, true);
-  }
-#endif
 
   std::wstring js_flags = 
     parsed_command_line.GetSwitchValue(test_shell::kJavaScriptFlags);
@@ -374,7 +291,6 @@ int main(int argc, char* argv[]) {
           if (!*filenameBuffer)
             continue;
 
-          SetCurrentTestName(filenameBuffer);
 
           if (!TestShell::RunFileTest(filenameBuffer, params))
             break;

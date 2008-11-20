@@ -11,13 +11,18 @@
 
 #include "webkit/tools/test_shell/test_shell.h"
 
+#include "base/command_line.h"
 #include "base/gfx/bitmap_platform_device.h"
 #include "base/memory_debug.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "base/resource_util.h"
+#include "base/stack_container.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "base/win_util.h"
+#include "breakpad/src/client/windows/handler/exception_handler.h"
+#include "net/http/http_network_layer.h"
 #include "net/url_request/url_request_file_job.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webframe.h"
@@ -26,6 +31,7 @@
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
+#include "webkit/tools/test_shell/test_shell_switches.h"
 
 #define MAX_LOADSTRING 100
 
@@ -35,6 +41,11 @@
 // Global Variables:
 static TCHAR g_windowTitle[MAX_LOADSTRING];     // The title bar text
 static TCHAR g_windowClass[MAX_LOADSTRING];     // The main window class name
+
+// This is only set for layout tests.  It is used to determine the name of a
+// minidump file.
+static const size_t kPathBufSize = 2048;
+static wchar_t g_currentTestName[kPathBufSize];
 
 // Forward declarations of functions included in this code module:
 static INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
@@ -47,6 +58,60 @@ static INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 // probably a frameborder not being accounted for in the setting/getting.
 const int kTestWindowXLocation = -4;
 const int kTestWindowYLocation = -32000;
+
+namespace {
+
+// This method is used to keep track of the current test name so when we write
+// a minidump file, we have the test name in the minidump filename.
+void SetCurrentTestName(const char* path) {
+  const char* lastSlash = strrchr(path, '/');
+  if (lastSlash) {
+    ++lastSlash;
+  } else {
+    lastSlash = path;
+  }
+
+  base::wcslcpy(g_currentTestName,
+                UTF8ToWide(lastSlash).c_str(),
+                arraysize(g_currentTestName));
+}
+
+bool MinidumpCallback(const wchar_t *dumpPath,
+                      const wchar_t *minidumpID,
+                      void *context,
+                      EXCEPTION_POINTERS *exinfo,
+                      MDRawAssertionInfo *assertion,
+                      bool succeeded) {
+  // Warning: Don't use the heap in this function.  It may be corrupted.
+  if (!g_currentTestName[0])
+    return false;
+
+  // Try to rename the minidump file to include the crashed test's name.
+  // StackString uses the stack but overflows onto the heap.  But we don't
+  // care too much about being completely correct here, since most crashes
+  // will be happening on developers' machines where they have debuggers.
+  StackWString<kPathBufSize * 2> origPath;
+  origPath->append(dumpPath);
+  origPath->push_back(file_util::kPathSeparator);
+  origPath->append(minidumpID);
+  origPath->append(L".dmp");
+
+  StackWString<kPathBufSize * 2> newPath;
+  newPath->append(dumpPath);
+  newPath->push_back(file_util::kPathSeparator);
+  newPath->append(g_currentTestName);
+  newPath->append(L"-");
+  newPath->append(minidumpID);
+  newPath->append(L".dmp");
+
+  // May use the heap, but oh well.  If this fails, we'll just have the
+  // original dump file lying around.
+  _wrename(origPath->c_str(), newPath->c_str());
+
+  return false;
+}
+
+}  // namespace
 
 // Initialize static member variable
 HINSTANCE TestShell::instance_handle_;
@@ -66,6 +131,28 @@ void TestShell::InitializeTestShell(bool interactive) {
   web_prefs_ = new WebPreferences;
 
   ResetWebPreferences();
+
+  // Register the Ahem font used by layout tests.
+  DWORD num_fonts = 1;
+  void* font_ptr;
+  size_t font_size;
+  if (base::GetDataResourceFromModule(::GetModuleHandle(NULL), IDR_AHEM_FONT,
+                                      &font_ptr, &font_size)) {
+    HANDLE rc = AddFontMemResourceEx(font_ptr, font_size, 0, &num_fonts);
+    DCHECK(rc != 0);
+  }
+
+  CommandLine parsed_command_line;
+  // Make the selection of network stacks early on before any consumers try to
+  // issue HTTP requests.
+  if (parsed_command_line.HasSwitch(test_shell::kUseWinHttp))
+    net::HttpNetworkLayer::UseWinHttp(true);
+
+  if (parsed_command_line.HasSwitch(test_shell::kCrashDumps)) {
+    std::wstring dir(
+        parsed_command_line.GetSwitchValue(test_shell::kCrashDumps));
+    new google_breakpad::ExceptionHandler(dir, 0, &MinidumpCallback, 0, true);
+  }
 }
 
 bool TestShell::CreateNewWindow(const std::wstring& startingURL,
@@ -123,6 +210,8 @@ void TestShell::DumpBackForwardList(std::wstring* result) {
 }
 
 bool TestShell::RunFileTest(const char *filename, const TestParams& params) {
+  SetCurrentTestName(filename);
+
   // Load the test file into the first available window.
   if (TestShell::windowList()->empty()) {
     LOG(ERROR) << "No windows open.";
