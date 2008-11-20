@@ -570,7 +570,8 @@ void TabStrip::DestroyDraggedSourceTab(Tab* tab) {
   std::vector<TabData>::iterator it = tab_data_.begin();
   for (; it != tab_data_.end(); ++it) {
     if (it->tab == tab) {
-      NOTREACHED() << "Leaving in an inconsistent state!";
+      if (!model_->closing_all())
+        NOTREACHED() << "Leaving in an inconsistent state!";
       tab_data_.erase(it);
       break;
     }
