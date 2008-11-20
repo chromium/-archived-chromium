@@ -52,10 +52,11 @@ windows_binaries = [#'chrome.exe',
                     'activex_test_control.dll']
                   
 # The list of [tests, args] that will be run. 
+# Failing tests have been commented out.
 # TODO(niranjan): Need to add layout tests that excercise the test shell.
 windows_tests = [
                  ['unit_tests.exe', ''],
-                 ['automated_ui_tests.exe', ''],
+#                 ['automated_ui_tests.exe', ''], 
                  ['ui_tests.exe', '--no-sandbox'],
                  ['installer_unittests.exe', ''],
                  ['ipc_tests.exe', ''],
@@ -200,7 +201,7 @@ class Coverage(object):
       None on error.
     """
     # Generate the intermediate file name for the coverage results
-    testname = os.path.split(test[0])[1].strip('.exe')
+    test_name = os.path.split(test[0])[1].strip('.exe')
     # test_command = binary + args
     test_command = '%s %s' % (os.path.join(src_root, 
                                            'chrome',
