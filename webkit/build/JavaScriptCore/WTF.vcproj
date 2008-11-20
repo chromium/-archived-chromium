@@ -150,6 +150,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\dtoa.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\dtoa.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\FastMalloc.cpp"
 			>
 		</File>
@@ -267,6 +275,10 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\RefPtrHashMap.h"
+			>
+		</File>
+ 		<File
+			RelativePath="..\..\..\third_party\WebKit\JavaScriptCore\wtf\StdLibExtras.h"
 			>
 		</File>
 		<File

@@ -102,6 +102,7 @@ public:
     String rssFeedReferrer() const;
     
     int visitCount() const;
+    bool lastVisitWasFailure() const { return m_lastVisitWasFailure; }
 
     void mergeAutoCompleteHints(HistoryItem* otherItem);
     
@@ -124,6 +125,7 @@ public:
 
     void setRSSFeedReferrer(const String&);
     void setVisitCount(int);
+    void setLastVisitWasFailure(bool wasFailure) { m_lastVisitWasFailure = wasFailure; }
 
     void addChildItem(PassRefPtr<HistoryItem>);
     HistoryItem* childItemWithName(const String&) const;
@@ -175,6 +177,7 @@ private:
     
     HistoryItemVector m_subItems;
     
+    bool m_lastVisitWasFailure;
     bool m_isInPageCache;
     bool m_isTargetItem;
     int m_visitCount;

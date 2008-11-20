@@ -78,6 +78,7 @@
 		4D35546E0ED499E000FB28B1 /* BitmapPlatformDeviceMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3554660ED499E000FB28B1 /* BitmapPlatformDeviceMac.cpp */; };
 		4D35546F0ED499E000FB28B1 /* PlatformCanvasMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3554690ED499E000FB28B1 /* PlatformCanvasMac.cpp */; };
 		4D3554700ED499E000FB28B1 /* PlatformDeviceMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35546C0ED499E000FB28B1 /* PlatformDeviceMac.cpp */; };
+		4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */; };
 		4D7B071F0E9DAE56009A6919 /* GraphicsContextStub.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */; };
 		4DB043A40EB1577900A5633C /* webcursor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 825405300D92E3DA0006B936 /* webcursor.cc */; };
 		4DB044230EB161D600A5633C /* IconMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DB044220EB161D600A5633C /* IconMac.cpp */; };
@@ -1564,6 +1565,8 @@
 		4D3554720ED499EF00FB28B1 /* VectorCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorCanvas.h; sourceTree = "<group>"; };
 		4D3554730ED499EF00FB28B1 /* VectorDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VectorDevice.cpp; sourceTree = "<group>"; };
 		4D3554740ED499EF00FB28B1 /* VectorDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorDevice.h; sourceTree = "<group>"; };
+		4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dtoa.cpp; sourceTree = "<group>"; };
+		4D35557C0ED4ACF600FB28B1 /* dtoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dtoa.h; sourceTree = "<group>"; };
 		4D7B071E0E9DAE56009A6919 /* GraphicsContextStub.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphicsContextStub.cpp; sourceTree = "<group>"; };
 		4DB044220EB161D600A5633C /* IconMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IconMac.cpp; sourceTree = "<group>"; };
 		4DB044420EB1639E00A5633C /* ImageMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImageMac.cpp; sourceTree = "<group>"; };
@@ -4662,6 +4665,8 @@
 				4DB7F51F0E9BD3FB00C66CE0 /* AVLTree.h */,
 				7B5E85B80D7F28F5001ECF42 /* Deque.h */,
 				7B5E85B90D7F28F5001ECF42 /* DisallowCType.h */,
+				4D35557B0ED4ACF600FB28B1 /* dtoa.cpp */,
+				4D35557C0ED4ACF600FB28B1 /* dtoa.h */,
 				7B5E85BA0D7F28F5001ECF42 /* FastMalloc.cpp */,
 				7B5E85BB0D7F28F5001ECF42 /* FastMalloc.h */,
 				7B5E85BC0D7F28F5001ECF42 /* Forward.h */,
@@ -8157,6 +8162,7 @@
 			files = (
 				7B5E85E70D7F28F5001ECF42 /* Assertions.cpp in Sources */,
 				E40054B10E9BCC5C0055B38E /* CollatorICU.cpp in Sources */,
+				4D35557D0ED4ACF600FB28B1 /* dtoa.cpp in Sources */,
 				7B5E862C0D7F2B56001ECF42 /* FastMalloc.cpp in Sources */,
 				7B5E85F40D7F28F5001ECF42 /* HashTable.cpp in Sources */,
 				4DB7F5290E9BD3FB00C66CE0 /* MainThread.cpp in Sources */,

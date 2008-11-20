@@ -392,6 +392,17 @@ void GraphicsContext::clipOutEllipseInRect(const IntRect& rect)
     platformContext()->canvas()->clipPath(path, SkRegion::kDifference_Op);
 }
 
+void GraphicsContext::clipPath(WindRule clipRule)
+{
+    if (paintingDisabled())
+        return;
+
+    const SkPath* oldPath = platformContext()->currentPath();
+    SkPath path(*oldPath);
+    path.setFillType(clipRule == RULE_EVENODD ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType);
+    platformContext()->canvas()->clipPath(path);
+}
+
 void GraphicsContext::clipToImageBuffer(const FloatRect& rect,
                                         const ImageBuffer* imageBuffer)
 {

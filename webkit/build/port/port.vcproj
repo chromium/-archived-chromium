@@ -1034,10 +1034,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\port\platform\graphics\svg\SVGResourceClipperSkia.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\port\platform\graphics\svg\SVGResourceFilterSkia.cpp"
 						>
 					</File>

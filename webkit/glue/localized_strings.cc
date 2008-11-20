@@ -183,6 +183,7 @@ String WebCore::contextMenuItemTagItalic() { return String(); }
 String WebCore::contextMenuItemTagUnderline() { return String(); }
 String WebCore::contextMenuItemTagOutline() { return String(); }
 String WebCore::contextMenuItemTagWritingDirectionMenu() { return String(); }
+String WebCore::contextMenuItemTagTextDirectionMenu() { return String(); }
 String WebCore::contextMenuItemTagDefaultDirection() { return String(); }
 String WebCore::contextMenuItemTagLeftToRight() { return String(); }
 String WebCore::contextMenuItemTagRightToLeft() { return String(); }

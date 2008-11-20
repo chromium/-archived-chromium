@@ -96,7 +96,6 @@ input_files = [
     '$PORT_DIR/platform/graphics/svg/SVGPaintServerPatternSkia.cpp',
     '$PORT_DIR/platform/graphics/svg/SVGPaintServerSkia.cpp',
     '$PORT_DIR/platform/graphics/svg/SVGPaintServerSolidSkia.cpp',
-    '$PORT_DIR/platform/graphics/svg/SVGResourceClipperSkia.cpp',
     '$PORT_DIR/platform/graphics/svg/SVGResourceFilterSkia.cpp',
     '$PORT_DIR/platform/graphics/svg/SVGResourceMaskerSkia.cpp',
 

@@ -373,45 +373,12 @@ LayoutTests/http/tests/navigation/changing-frame-hierarchy-in-onload.html = FAIL
 // -----------------------------------------------------------------
 
 // BUG: 992321
-// SVG layout tests have just been enabled. The failures are listed
-// below, and need to be investigated, categorized, and (one hopes)
-// fixed.
-
-// Keep score here!
-//
-// P: Passes
-// S: Pass simplified diff (probable nonbugs)
-// F: Failures (in simplified as well as full text)
-// X: Crashes/hangs
-// T: Total # of tests
-//
-// (note 5-22-08: there should probably be a column for image diff
-// failures as well. Some of the font tests seem to be flaky and
-// return inconsistent image results.)
-//
-//               P        S        F        X      T
-// 1-18-08     473       87      125        3    688
-// 1-29-08     492       86      106        4    688
-// 2-05-08     513       97       83        1    694
-// 4-17-08     520       88       85        0 :) 693
-// 4-21-08     526       87       80        0    693
-// 4-22-08     540      138       29        0    707
-// 5-05-08     551      138       15        0    707
-// 5-09-08     554      139       16        0    712
-// 5-16-08     587      111       14        0    712
-// 5-22-08     641       58        7        0    712
-//
+// The failures listed below have never passed in Chromium and need to be 
+// investigated, categorized, and (one hopes) fixed.
 
 // The following tests fail because SVG animation is not yet implemented
-LayoutTests/svg/W3C-SVG-1.1/animate-elem-28-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/animate-elem-37-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-78-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/animate-elem-80-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/animate-elem-83-t.svg = FAIL
-
-// This test fails because SVG filters are not implemented
-LayoutTests/svg/W3C-SVG-1.1/filters-example-01-b.svg = FAIL
 
 // These test fail full text diff (but not simplified diff) most likely due 
 // to differing implementations of SVG fonts. They may or may not represent real 
@@ -445,19 +412,7 @@ LayoutTests/svg/custom/stroke-width-click.svg = FAIL
 // positions and/or widths that deviate from Apple's expectations by varying
 // degrees. These are almost certainly nonbugs, but won't be rebased until
 // we can say for sure.
-LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = FAIL   // 12 numbers differ, by an absolute total of 73.93
 LayoutTests/svg/W3C-SVG-1.1/fonts-glyph-02-t.svg = FAIL   // 1 numbers differ, by an absolute total of 10.00
-LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL   // 11 numbers differ, by an absolute total of 1.08
-LayoutTests/svg/W3C-SVG-1.1/paths-data-01-t.svg = FAIL   // 10 numbers differ, by an absolute total of 15.39
-LayoutTests/svg/W3C-SVG-1.1/paths-data-02-t.svg = FAIL   // 20 numbers differ, by an absolute total of 327.17
-LayoutTests/svg/W3C-SVG-1.1/paths-data-03-f.svg = FAIL   // 14 numbers differ, by an absolute total of 58.82
-LayoutTests/svg/W3C-SVG-1.1/paths-data-10-t.svg = FAIL   // 21 numbers differ, by an absolute total of 23.96
-LayoutTests/svg/W3C-SVG-1.1/paths-data-12-t.svg = FAIL   // 8 numbers differ, by an absolute total of 119.28
-LayoutTests/svg/W3C-SVG-1.1/paths-data-15-t.svg = FAIL   // 6 numbers differ, by an absolute total of 21.34
-LayoutTests/svg/W3C-SVG-1.1/struct-group-03-t.svg = FAIL   // 8 numbers differ, by an absolute total of 3.48
-LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL   // 3 numbers differ, by an absolute total of 42.00
-LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL   // 18 numbers differ, by an absolute total of 237.00
-LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL   // 16 numbers differ, by an absolute total of 67.92
 LayoutTests/svg/custom/control-points-for-S-and-T.svg = FAIL   // 6 numbers differ, by an absolute total of 31.36
 LayoutTests/svg/custom/dasharrayOrigin.svg = FAIL   // 2 numbers differ, by an absolute total of 0.20
 LayoutTests/svg/custom/linking-a-03-b-all.svg = FAIL   // 4 numbers differ, by an absolute total of 0.06
@@ -500,7 +455,6 @@ LayoutTests/svg/batik/text/textStyles.svg = FAIL
 LayoutTests/svg/text/text-text-03-b.svg = FAIL
 // These consistently fail with image diffs.
 LayoutTests/svg/text/text-deco-01-b.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 
 //
 // -----------------------------------------------------------------
@@ -1145,3 +1099,6 @@ LayoutTests/transforms/2d/zoom-menulist.html = FAIL
 // Issue http://code.google.com/p/chromium/issues/detail?id=4432)
 LayoutTests/fast/dom/HTMLImageElement/image-loading-gc.html = TIMEOUT
 LayoutTests/fast/events/message-channel-gc-3.html = TIMEOUT
+
+// MERGE 38389:38450
+LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL

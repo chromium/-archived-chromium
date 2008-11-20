@@ -148,6 +148,7 @@ if env['PLATFORM'] == 'win32':
 
 wtf_inputs = [
     '$WTF_DIR/Assertions.cpp',
+    '$WTF_DIR/dtoa.cpp',
     '$WTF_DIR/FastMalloc.cpp',
     '$WTF_DIR/HashTable.cpp',
     '$WTF_DIR/MainThread.cpp',
