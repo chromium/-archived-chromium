@@ -5,6 +5,7 @@
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -704,9 +705,9 @@ namespace {
 
 struct GetDirectoryListingEntryCase {
   const char* name;
-  DWORD file_attrib;
+  bool is_dir;
   int64 filesize;
-  FILETIME* modified;
+  base::Time time;
   const char* expected;
 };
 
@@ -714,21 +715,23 @@ struct GetDirectoryListingEntryCase {
 TEST(NetUtilTest, GetDirectoryListingEntry) {
   const GetDirectoryListingEntryCase test_cases[] = {
     {"Foo",
-     0,
+     false,
      10000,
-     NULL,
+     base::Time(),
      "<script>addRow(\"Foo\",\"Foo\",0,\"9.8 kB\",\"\");</script>\n"},
     {"quo\"tes",
-     0,
+     false,
      10000,
-     NULL,
+     base::Time(),
      "<script>addRow(\"quo\\\"tes\",\"quo%22tes\",0,\"9.8 kB\",\"\");</script>\n"},
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(test_cases); ++i) {
     const std::string results = net::GetDirectoryListingEntry(
-        test_cases[i].name, test_cases[i].file_attrib,
-        test_cases[i].filesize, test_cases[i].modified);
+        test_cases[i].name,
+        test_cases[i].is_dir,
+        test_cases[i].filesize,
+        test_cases[i].time);
     EXPECT_EQ(test_cases[i].expected, results);
   }
 }

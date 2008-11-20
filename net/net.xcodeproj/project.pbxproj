@@ -34,6 +34,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		042A4AB20ED4F02D0001DBED /* url_request_file_dir_job.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED33970E5A198600A747DB /* url_request_file_dir_job.cc */; };
+		042A4AB90ED4F0540001DBED /* directory_lister.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7BED325C0E5A181C00A747DB /* directory_lister.cc */; };
 		042A4D480EC4F4500083281F /* http_auth_cache_unittest.cc in Sources */ = {isa = PBXBuildFile; fileRef = 042A4D470EC4F4500083281F /* http_auth_cache_unittest.cc */; };
 		0435A4660E8DD69C00E4DF08 /* http_auth.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A4650E8DD69C00E4DF08 /* http_auth.cc */; };
 		0435A47A0E8DD6F300E4DF08 /* http_auth_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0435A4790E8DD6F300E4DF08 /* http_auth_handler.cc */; };
@@ -1535,6 +1537,8 @@
 				821F20A50E5CD414003C7E38 /* url_request_view_cache_job.cc in Sources */,
 				82113BBD0E892E5800E3848F /* x509_certificate.cc in Sources */,
 				827E139D0E81611D00183614 /* x509_certificate_mac.cc in Sources */,
+				042A4AB20ED4F02D0001DBED /* url_request_file_dir_job.cc in Sources */,
+				042A4AB90ED4F0540001DBED /* directory_lister.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

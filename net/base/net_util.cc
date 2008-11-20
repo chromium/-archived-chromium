@@ -23,6 +23,7 @@
 #include "net/base/net_util.h"
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -797,15 +798,25 @@ std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address) {
   WideToUTF8(host.c_str(), host.length(), &converted_host);
   return CanonicalizeHost(converted_host, is_ip_address);
 }
-  
-#ifdef OS_WIN
+
 std::string GetDirectoryListingHeader(const std::string& title) {
+#if defined(OS_WIN)
   static const StringPiece header(NetModule::GetResource(IDR_DIR_HEADER_HTML));
   if (header.empty()) {
     NOTREACHED() << "expected resource not found";
   }
-
   std::string result(header.data(), header.size());
+#elif defined(OS_POSIX)
+  // TODO(estade): Temporary hack. Remove these platform #ifdefs when we
+  // have implemented resources for non-Windows platforms.
+  LOG(INFO) << "FIXME: hacked resource loading";
+  FilePath path;
+  PathService::Get(base::DIR_EXE, &path);
+  path = path.Append("../../net/base/dir_header.html");
+  std::string result;
+  file_util::ReadFileToString(path.ToWStringHack(), &result);
+#endif
+
   result.append("<script>start(");
   string_escape::JavascriptDoubleQuote(title, true, &result);
   result.append(");</script>\n");
@@ -814,16 +825,16 @@ std::string GetDirectoryListingHeader(const std::string& title) {
 }
 
 std::string GetDirectoryListingEntry(const std::string& name,
-                                     DWORD attrib,
+                                     bool is_dir,
                                      int64 size,
-                                     const FILETIME* modified) {
+                                     const Time& modified) {
   std::string result;
   result.append("<script>addRow(");
   string_escape::JavascriptDoubleQuote(name, true, &result);
   result.append(",");
   string_escape::JavascriptDoubleQuote(
       EscapePath(name), true, &result);
-  if (attrib & FILE_ATTRIBUTE_DIRECTORY) {
+  if (is_dir) {
     result.append(",1,");
   } else {
     result.append(",0,");
@@ -836,9 +847,8 @@ std::string GetDirectoryListingEntry(const std::string& name,
 
   std::wstring modified_str;
   // |modified| can be NULL in FTP listings.
-  if (modified) {
-    Time time(Time::FromFileTime(*modified));
-    modified_str = base::TimeFormatShortDateAndTime(time);
+  if (!modified.is_null()) {
+    modified_str = base::TimeFormatShortDateAndTime(modified);
   }
   string_escape::JavascriptDoubleQuote(modified_str, true, &result);
 
@@ -846,7 +856,6 @@ std::string GetDirectoryListingEntry(const std::string& name,
 
   return result;
 }
-#endif
 
 std::wstring StripWWW(const std::wstring& text) {
   const std::wstring www(L"www.");

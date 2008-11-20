@@ -2,23 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
+#include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "net/base/directory_lister.h"
+#include "net/base/net_errors.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
-
-class DirectoryListerTest : public testing::Test {
-};
-
+class DirectoryListerTest : public testing::Test {};
 }
 
-class DirectoryListerDelegate : public net::DirectoryLister::Delegate {
+class ListerDelegate : public net::DirectoryLister::DirectoryListerDelegate {
  public:
-  DirectoryListerDelegate() : error_(-1) {
+  ListerDelegate() : error_(-1) {
   }
-  void OnListFile(const WIN32_FIND_DATA& data) {
+  void OnListFile(const file_util::FileEnumerator::FindInfo& data) {
   }
   void OnListDone(int error) {
     error_ = error;
@@ -30,34 +30,33 @@ class DirectoryListerDelegate : public net::DirectoryLister::Delegate {
 };
 
 TEST(DirectoryListerTest, BigDirTest) {
-  std::wstring windows_path;
-  ASSERT_TRUE(PathService::Get(base::DIR_WINDOWS, &windows_path));
+  FilePath path;
+  ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &path));
 
-  DirectoryListerDelegate delegate;
+  ListerDelegate delegate;
   scoped_refptr<net::DirectoryLister> lister =
-      new net::DirectoryLister(windows_path, &delegate);
+      new net::DirectoryLister(path.ToWStringHack(), &delegate);
 
   lister->Start();
 
   MessageLoop::current()->Run();
 
-  EXPECT_EQ(delegate.error(), ERROR_SUCCESS);
+  EXPECT_EQ(delegate.error(), net::OK);
 }
 
 TEST(DirectoryListerTest, CancelTest) {
-  std::wstring windows_path;
-  ASSERT_TRUE(PathService::Get(base::DIR_WINDOWS, &windows_path));
+  FilePath path;
+  ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &path));
 
-  DirectoryListerDelegate delegate;
+  ListerDelegate delegate;
   scoped_refptr<net::DirectoryLister> lister =
-      new net::DirectoryLister(windows_path, &delegate);
+      new net::DirectoryLister(path.ToWStringHack(), &delegate);
 
   lister->Start();
   lister->Cancel();
 
   MessageLoop::current()->Run();
 
-  EXPECT_EQ(delegate.error(), ERROR_OPERATION_ABORTED);
+  EXPECT_EQ(delegate.error(), net::ERR_ABORTED);
   EXPECT_EQ(lister->was_canceled(), true);
 }
-

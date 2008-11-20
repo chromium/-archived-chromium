@@ -28,9 +28,7 @@
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
 #include "net/url_request/url_request.h"
-#if defined(OS_WIN)
 #include "net/url_request/url_request_file_dir_job.h"
-#endif
 
 #if defined(OS_WIN)
 class URLRequestFileJob::AsyncResolver :
@@ -76,10 +74,8 @@ URLRequestJob* URLRequestFileJob::Factory(
   std::wstring file_path;
   if (net::FileURLToFilePath(request->url(), &file_path)) {
     if (file_path[file_path.size() - 1] == file_util::kPathSeparator) {
-#if defined(OS_WIN)
       // Only directories have trailing slashes.
       return new URLRequestFileDirJob(request, file_path);
-#endif
     }
   }
 
