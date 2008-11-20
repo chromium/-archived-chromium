@@ -1210,8 +1210,6 @@
 		E45626790E268E87005E4685 /* SVGPaintServerCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */; };
 		E456267A0E268E87005E4685 /* SVGPaintServerGradientCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D20D7F3EDA001ECF42 /* SVGPaintServerGradientCg.cpp */; };
 		E456267B0E268E87005E4685 /* SVGPaintServerPatternCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */; };
-		E456267C0E268E87005E4685 /* SVGPaintServerSolidCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D40D7F3EDA001ECF42 /* SVGPaintServerSolidCg.cpp */; };
-		E456267D0E268E87005E4685 /* SVGResourceClipperCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D50D7F3EDA001ECF42 /* SVGResourceClipperCg.cpp */; };
 		E456267E0E268E87005E4685 /* SVGResourceFilterCg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */; };
 		E456267F0E268E87005E4685 /* SVGResourceFilterCg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */; };
 		E45626800E268E87005E4685 /* SVGResourceMaskerCg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B5E96D90D7F3EDA001ECF42 /* SVGResourceMaskerCg.mm */; };
@@ -3414,8 +3412,6 @@
 		7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerCg.cpp; sourceTree = "<group>"; };
 		7B5E96D20D7F3EDA001ECF42 /* SVGPaintServerGradientCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerGradientCg.cpp; sourceTree = "<group>"; };
 		7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerPatternCg.cpp; sourceTree = "<group>"; };
-		7B5E96D40D7F3EDA001ECF42 /* SVGPaintServerSolidCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGPaintServerSolidCg.cpp; sourceTree = "<group>"; };
-		7B5E96D50D7F3EDA001ECF42 /* SVGResourceClipperCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceClipperCg.cpp; sourceTree = "<group>"; };
 		7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceFilterCg.cpp; sourceTree = "<group>"; };
 		7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SVGResourceFilterCg.mm; sourceTree = "<group>"; };
 		7B5E96D80D7F3EDA001ECF42 /* SVGResourceMaskerCg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SVGResourceMaskerCg.cpp; sourceTree = "<group>"; };
@@ -6530,8 +6526,6 @@
 				7B5E96D10D7F3EDA001ECF42 /* SVGPaintServerCg.cpp */,
 				7B5E96D20D7F3EDA001ECF42 /* SVGPaintServerGradientCg.cpp */,
 				7B5E96D30D7F3EDA001ECF42 /* SVGPaintServerPatternCg.cpp */,
-				7B5E96D40D7F3EDA001ECF42 /* SVGPaintServerSolidCg.cpp */,
-				7B5E96D50D7F3EDA001ECF42 /* SVGResourceClipperCg.cpp */,
 				7B5E96D60D7F3EDA001ECF42 /* SVGResourceFilterCg.cpp */,
 				7B5E96D70D7F3EDA001ECF42 /* SVGResourceFilterCg.mm */,
 				7B5E96D80D7F3EDA001ECF42 /* SVGResourceMaskerCg.cpp */,
@@ -9156,7 +9150,6 @@
 				E456267B0E268E87005E4685 /* SVGPaintServerPatternCg.cpp in Sources */,
 				E45625D10E268E87005E4685 /* SVGPaintServerRadialGradient.cpp in Sources */,
 				E45625D20E268E87005E4685 /* SVGPaintServerSolid.cpp in Sources */,
-				E456267C0E268E87005E4685 /* SVGPaintServerSolidCg.cpp in Sources */,
 				E45626250E268E87005E4685 /* SVGParserUtilities.cpp in Sources */,
 				E45626260E268E87005E4685 /* SVGPathElement.cpp in Sources */,
 				E45626270E268E87005E4685 /* SVGPathSegArc.cpp in Sources */,
@@ -9184,7 +9177,6 @@
 				E456259A0E268E87005E4685 /* SVGRenderTreeAsText.cpp in Sources */,
 				E45625D30E268E87005E4685 /* SVGResource.cpp in Sources */,
 				E45625D40E268E87005E4685 /* SVGResourceClipper.cpp in Sources */,
-				E456267D0E268E87005E4685 /* SVGResourceClipperCg.cpp in Sources */,
 				E45625D50E268E87005E4685 /* SVGResourceFilter.cpp in Sources */,
 				E456267E0E268E87005E4685 /* SVGResourceFilterCg.cpp in Sources */,
 				E456267F0E268E87005E4685 /* SVGResourceFilterCg.mm in Sources */,
