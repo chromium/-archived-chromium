@@ -384,23 +384,6 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
         } else if (install_status == installer_util::NEW_VERSION_UPDATED) {
           // This is temporary hack and will be deleted after one release.
           UpdateChromeOpenCmd(system_install);
-
-#if defined(GOOGLE_CHROME_BUILD)
-          // TODO(kuchhal): This is just temporary until all users move to the
-          // new Chromium version which ships with gears.dll.
-          LOG(INFO) << "Google Chrome updated. Uninstalling gears msi.";
-          wchar_t product[39];  // GUID + '\0'
-          MsiSetInternalUI(INSTALLUILEVEL_NONE, NULL);  // Don't show any UI
-          for (int i = 0;
-               MsiEnumRelatedProducts(google_update::kGearsUpgradeCode, 0,
-                                      i, product) != ERROR_NO_MORE_ITEMS; ++i) {
-            LOG(INFO) << "Uninstalling Gears - " << product;
-            unsigned int ret = MsiConfigureProduct(product,
-                INSTALLLEVEL_MAXIMUM, INSTALLSTATE_ABSENT);
-            if (ret != ERROR_SUCCESS)
-              LOG(ERROR) << "Failed to uninstall Gears " << product;
-          }
-#endif
         }
       }
     }

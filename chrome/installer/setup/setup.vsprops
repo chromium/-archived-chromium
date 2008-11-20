@@ -14,7 +14,6 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalDependencies="msi.lib"
 		GenerateMapFile="true"
 		SubSystem="2"
 		OptimizeForWindows98="1"

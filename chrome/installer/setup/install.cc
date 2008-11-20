@@ -228,7 +228,7 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
       } else {
         scoped_ptr<WorkItemList> inuse_list(WorkItem::CreateWorkItemList());
         inuse_list->AddSetRegValueWorkItem(reg_root,
-                                           version_key, 
+                                           version_key,
                                            google_update::kRegOldVersionField,
                                            current_version.c_str(),
                                            true);
@@ -236,10 +236,14 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
             install_path, new_version.GetString()));
         file_util::AppendToPath(&rename_cmd,
                                 file_util::GetFilenameFromPath(exe_path));
-        rename_cmd = L"\"" + rename_cmd + L"\" --" +
-                                  installer_util::switches::kRenameChromeExe;
+        rename_cmd = L"\"" + rename_cmd +
+                     L"\" --" + installer_util::switches::kRenameChromeExe;
+        if (reg_root == HKEY_LOCAL_MACHINE) {
+          rename_cmd = rename_cmd + L" --" +
+                       installer_util::switches::kSystemLevel;
+        }
         inuse_list->AddSetRegValueWorkItem(reg_root,
-                                           version_key, 
+                                           version_key,
                                            google_update::kRegRenameCmdField,
                                            rename_cmd.c_str(),
                                            true);
@@ -251,10 +255,10 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
       }
     } else {
       scoped_ptr<WorkItemList> inuse_list(WorkItem::CreateWorkItemList());
-      inuse_list->AddDeleteRegValueWorkItem(reg_root, version_key, 
+      inuse_list->AddDeleteRegValueWorkItem(reg_root, version_key,
                                             google_update::kRegOldVersionField,
                                             true);
-      inuse_list->AddDeleteRegValueWorkItem(reg_root, version_key, 
+      inuse_list->AddDeleteRegValueWorkItem(reg_root, version_key,
                                             google_update::kRegRenameCmdField,
                                             true);
       if (!inuse_list->Do()) {

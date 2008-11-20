@@ -6,34 +6,18 @@
 
 #include "chrome/installer/setup/uninstall.h"
 
-#include <atlbase.h>
-#include <windows.h>
-#include <msi.h>
-
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/process_util.h"
 #include "base/registry.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
-#include "base/win_util.h"
-#include "base/wmi_util.h"
 #include "chrome/app/result_codes.h"
-#include "chrome/common/chrome_constants.h"
 #include "chrome/installer/setup/setup.h"
 #include "chrome/installer/setup/setup_constants.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/helper.h"
-#include "chrome/installer/util/install_util.h"
-#include "chrome/installer/util/l10n_string_util.h"
 #include "chrome/installer/util/logging_installer.h"
-#include "chrome/installer/util/google_update_constants.h"
-#include "chrome/installer/util/google_update_settings.h"
 #include "chrome/installer/util/shell_util.h"
-#include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/version.h"
-
-#include "installer_util_strings.h"
 
 namespace {
 
@@ -119,9 +103,8 @@ bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
   LOG(INFO) << "Deleting install path " << install_path;
   if (!file_util::Delete(install_path, true)) {
     LOG(ERROR) << "Failed to delete folder (1st try): " << install_path;
-    // This is to let any closing chrome.exe die before trying delete one
-    // more time.
-    Sleep(10000);
+    // Try closing any running chrome processes and deleting files once again.
+    CloseAllChromeProcesses();
     if (!file_util::Delete(install_path, true))
       LOG(ERROR) << "Failed to delete folder (2nd try): " << install_path;
   }
@@ -217,20 +200,6 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
     // do silent uninstall. Try to close all running Chrome instances.
     CloseAllChromeProcesses();
   }
-
-#if defined(GOOGLE_CHROME_BUILD)
-  // TODO(rahulk): This should be done by DoPreUninstallOperations call above
-  wchar_t product[39];  // GUID + '\0'
-  MsiSetInternalUI(INSTALLUILEVEL_NONE, NULL);  // Don't show any UI to user.
-  for (int i = 0; MsiEnumRelatedProducts(google_update::kGearsUpgradeCode, 0, i,
-                                         product) != ERROR_NO_MORE_ITEMS; ++i) {
-    LOG(INFO) << "Uninstalling Gears - " << product;
-    unsigned int ret = MsiConfigureProduct(product, INSTALLLEVEL_MAXIMUM,
-                                           INSTALLSTATE_ABSENT);
-    if (ret != ERROR_SUCCESS)
-      LOG(ERROR) << "Failed to uninstall Gears " << product << ": " << ret;
-  }
-#endif
 
   // Chrome is not in use so lets uninstall Chrome by deleting various files
   // and registry entries. Here we will just make best effort and keep going

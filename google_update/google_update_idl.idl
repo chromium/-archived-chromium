@@ -1,6 +1,9 @@
 // Copyright 2006 Google Inc. All Rights Reserved.
 //
 // Author: Vivek Rao - vivekrao@google.com
+//
+// The proxy clsid #defined as PROXY_CLSID_IS in mk_common needs to be changed
+// anytime any interface below changes, or if a new interface is added.
 
 import "oaidl.idl";
 import "ocidl.idl";
@@ -40,15 +43,27 @@ interface IBrowserHttpRequest2 : IUnknown {
 [
   object,
   oleautomation,
-  uuid(738B2CC4-F187-48e2-A7A7-C1F0A464C8BE),
-  helpstring("Google Update IBrowserLauncher Interface"),
+  uuid(128C2DA6-2BC0-44c0-B3F6-4EC22E647964),
+  helpstring("Google Update IProcessLauncher Interface"),
   pointer_default(unique)
 ]
-interface IBrowserLauncher : IUnknown {
+interface IProcessLauncher : IUnknown {
+  // @param cmd_line The full command line to execute.
+  HRESULT LaunchCmdLine([in, string] const WCHAR* cmd_line);
+
   // @param browser_type The browser to start.
   // @param url The url to launch the browser with.
   HRESULT LaunchBrowser([in] DWORD browser_type,
                         [in, string] const WCHAR* url);
+
+  // @param app_id Unique id to identify the calling client application
+  // @param event_id Unique id for the command
+  // @param caller_proc_id The process id of the calling process
+  // @param proc_handle The process handle valid in the caller's context
+  HRESULT LaunchCmdElevated([in, string] const WCHAR* app_guid,
+                            [in, string] const WCHAR* cmd_id,
+                            [in] DWORD caller_proc_id,
+                            [out] ULONG_PTR* proc_handle);
 };
 
 typedef enum {
@@ -137,19 +152,41 @@ interface IGoogleUpdate : IUnknown {
                  [in] IJobObserver* observer);
 };
 
+// IGoogleUpdateCore is an internal Omaha interface.
+[
+  object,
+  oleautomation,
+  uuid(909489C2-85A6-4322-AA56-D25278649D67),
+  helpstring("Google Update Core Interface"),
+  pointer_default(unique)
+]
+interface IGoogleUpdateCore : IUnknown
+{
+  // Runs a command elevated.
+  //
+  // @param app_id Unique id to identify the calling client application
+  // @param event_id Unique id for the command
+  // @param caller_proc_id The process id of the calling process
+  // @param proc_handle The process handle valid in the caller's context
+  HRESULT LaunchCmdElevated([in, string] const WCHAR* app_guid,
+                            [in, string] const WCHAR* cmd_id,
+                            [in] DWORD caller_proc_id,
+                            [out] ULONG_PTR* proc_handle);
+};
+
 [
   uuid(7E6CD20B-8688-4960-96D9-B979471577B8),
   version(1.0),
-  helpstring("Google Update Browser Launcher 1.0 Type Library")
+  helpstring("Google Update Type Library")
 ]
 library GoogleUpdateLib {
   importlib("stdole2.tlb");
   [
-    uuid(D21E601A-3017-4d61-9315-F2880EBD196F),
-    helpstring("BrowserLauncherClass Class")
+    uuid(ABC01078-F197-4b0b-ADBC-CFE684B39C82),
+    helpstring("ProcessLauncherClass Class")
   ]
-  coclass BrowserLauncherClass {
-    [default] interface IBrowserLauncher;
+  coclass ProcessLauncherClass {
+    [default] interface IProcessLauncher;
   }
 
   // This coclass declaration exists only for the purpose of forcing
@@ -181,4 +218,14 @@ library GoogleUpdateLib {
   coclass OnDemandMachineAppsClass {
     [default] interface IGoogleUpdate;
   }
+
+  [
+    uuid(E225E692-4B47-4777-9BED-4FD7FE257F0E),
+    helpstring("GoogleUpdateCore Class")
+  ]
+  coclass GoogleUpdateCoreClass
+  {
+    [default] interface IGoogleUpdateCore;
+  }
+
 };

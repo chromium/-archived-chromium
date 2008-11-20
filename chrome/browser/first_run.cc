@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <atlbase.h>
+#include <atlcom.h>
 #include <windows.h>
 #include <shlobj.h>
 
@@ -37,6 +39,8 @@
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/views/accelerator_handler.h"
 #include "chrome/views/window.h"
+
+#include "google_update_idl.h"
 
 namespace {
 
@@ -78,6 +82,24 @@ std::wstring GetDefaultPrefFilePath(bool create_profile_dir,
     }
   }
   return ProfileManager::GetDefaultProfilePath(default_pref_dir);
+}
+
+bool InvokeGoogleUpdateForRename() {
+  CComPtr<IProcessLauncher> ipl;
+  if (!FAILED(ipl.CoCreateInstance(__uuidof(ProcessLauncherClass)))) {
+    ULONG_PTR phandle = NULL;
+    DWORD id = GetCurrentProcessId();
+    if (!FAILED(ipl->LaunchCmdElevated(google_update::kChromeGuid,
+                                       google_update::kRegRenameCmdField,
+                                       id, &phandle))) {
+      HANDLE handle = HANDLE(phandle);
+      ::GetExitCodeProcess(handle, exit_code);
+      ::CloseHandle(handle);
+      if (exit_code == installer_util::RENAME_SUCCESSFUL)
+        return true;
+    }
+  }
+  return false;
 }
 
 }  // namespace
@@ -220,13 +242,15 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
     return false;
   if (!file_util::PathExists(new_chrome_exe))
     return false;
-  std::wstring old_chrome_exe;
-  if (!PathService::Get(base::FILE_EXE, &old_chrome_exe))
+  std::wstring curr_chrome_exe;
+  if (!PathService::Get(base::FILE_EXE, &curr_chrome_exe))
     return false;
-  RegKey key;
-  HKEY reg_root = InstallUtil::IsPerUserInstall(old_chrome_exe.c_str()) ?
-      HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
+
+  // First try to rename exe by launching rename command ourselves.
+  bool user_install = InstallUtil::IsPerUserInstall(curr_chrome_exe.c_str());
+  HKEY reg_root = user_install ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
   BrowserDistribution *dist = BrowserDistribution::GetDistribution();
+  RegKey key;
   std::wstring rename_cmd;
   if (key.Open(reg_root, dist->GetVersionKey().c_str(), KEY_READ) &&
       key.ReadValue(google_update::kRegRenameCmdField, &rename_cmd)) {
@@ -239,10 +263,17 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
         return true;
     }
   }
+
+  // Rename didn't work so try to rename by calling Google Update
+  if (InvokeGoogleUpdateForRename(&exit_code))
+    return true;
+
+  // Rename still didn't work so just try to rename exe ourselves (for
+  // backward compatibility, can be deleted once the new process works).
   std::wstring backup_exe;
   if (!GetBackupChromeFile(&backup_exe))
     return false;
-  if (::ReplaceFileW(old_chrome_exe.c_str(), new_chrome_exe.c_str(),
+  if (::ReplaceFileW(curr_chrome_exe.c_str(), new_chrome_exe.c_str(),
                      backup_exe.c_str(), REPLACEFILE_IGNORE_MERGE_ERRORS,
                      NULL, NULL)) {
     return true;
