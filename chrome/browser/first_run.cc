@@ -266,7 +266,7 @@ bool Upgrade::SwapNewChromeExeIfPresent() {
   }
 
   // Rename didn't work so try to rename by calling Google Update
-  if (InvokeGoogleUpdateForRename(&exit_code))
+  if (InvokeGoogleUpdateForRename())
     return true;
 
   // Rename still didn't work so just try to rename exe ourselves (for
