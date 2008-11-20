@@ -47,7 +47,8 @@ int main(int argc, char* argv[]) {
   CommandLine::SetArgcArgv(argc, argv);
 #endif
 
-  TestShell::InitLogging(true, false);  // suppress error dialogs
+  // Suppress error dialogs and do not show GP fault error box on Windows.
+  TestShell::InitLogging(true, false, false);
 
 #if defined(OS_WIN)
   // Some of the individual tests wind up calling TestShell::WaitTestFinished
