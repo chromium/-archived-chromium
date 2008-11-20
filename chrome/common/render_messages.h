@@ -1387,8 +1387,10 @@ struct ParamTraits<scoped_refptr<net::HttpResponseHeaders>> {
   typedef scoped_refptr<net::HttpResponseHeaders> param_type;
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.get() != NULL);
-    if (p)
-      p->Persist(m, false);
+    if (p) {
+      // Do not disclose Set-Cookie headers over IPC.
+      p->Persist(m, net::HttpResponseHeaders::PERSIST_SANS_COOKIES);
+    }
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     bool has_object;

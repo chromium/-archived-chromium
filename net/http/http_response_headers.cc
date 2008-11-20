@@ -27,22 +27,32 @@ namespace net {
 
 namespace {
 
-// These response headers are not persisted in a cached representation of the
-// response headers.  (This list comes from Mozilla's nsHttpResponseHead.cpp)
-const char* const kTransientHeaders[] = {
+// These headers are RFC 2616 hop-by-hop headers;
+// not to be stored by caches.
+const char* const kHopByHopResponseHeaders[] = {
   "connection",
   "proxy-connection",
   "keep-alive",
-  "www-authenticate",
-  "proxy-authenticate",
   "trailer",
   "transfer-encoding",
-  "upgrade",
+  "upgrade"
+};
+
+// These headers are challenge response headers;
+// not to be stored by caches.
+const char* const kChallengeResponseHeaders[] = {
+  "www-authenticate",
+  "proxy-authenticate"
+};
+
+// These headers are cookie setting headers;
+// not to be stored by caches or disclosed otherwise.
+const char* const kCookieResponseHeaders[] = {
   "set-cookie",
   "set-cookie2"
 };
 
-// These respones headers are not copied from a 304/206 response to the cached
+// These response headers are not copied from a 304/206 response to the cached
 // response headers.  This list is based on Mozilla's nsHttpResponseHead.cpp.
 const char* const kNonUpdatedHeaders[] = {
   "connection",
@@ -90,41 +100,56 @@ HttpResponseHeaders::HttpResponseHeaders(const Pickle& pickle, void** iter)
     Parse(raw_input);
 }
 
-void HttpResponseHeaders::Persist(Pickle* pickle, bool for_cache) {
-  if (for_cache) {
-    HeaderSet transient_headers;
-    GetTransientHeaders(&transient_headers);
-
-    std::string blob;
-    blob.reserve(raw_headers_.size());
-
-    // this just copies the status line w/ terminator
-    blob.assign(raw_headers_.c_str(), strlen(raw_headers_.c_str()) + 1);
-
-    for (size_t i = 0; i < parsed_.size(); ++i) {
-      DCHECK(!parsed_[i].is_continuation());
-
-      // locate the start of the next header
-      size_t k = i;
-      while (++k < parsed_.size() && parsed_[k].is_continuation());
-      --k;
-
-      std::string header_name(parsed_[i].name_begin, parsed_[i].name_end);
-      StringToLowerASCII(&header_name);
-
-      if (transient_headers.find(header_name) == transient_headers.end()) {
-        // includes terminator
-        blob.append(parsed_[i].name_begin, parsed_[k].value_end + 1);
-      }
-
-      i = k;
-    }
-    blob.push_back('\0');
-
-    pickle->WriteString(blob);
-  } else {
+void HttpResponseHeaders::Persist(Pickle* pickle, PersistOptions options) {
+  if (options == PERSIST_RAW) {
     pickle->WriteString(raw_headers_);
+    return;  // Done.
   }
+
+  HeaderSet filter_headers;
+
+  // Construct set of headers to filter out based on options.
+  if ((options & PERSIST_SANS_NON_CACHEABLE) == PERSIST_SANS_NON_CACHEABLE)
+    AddNonCacheableHeaders(&filter_headers);
+
+  if ((options & PERSIST_SANS_COOKIES) == PERSIST_SANS_COOKIES)
+    AddCookieHeaders(&filter_headers);
+
+  if ((options & PERSIST_SANS_CHALLENGES) == PERSIST_SANS_CHALLENGES)
+    AddChallengeHeaders(&filter_headers);
+
+  if ((options & PERSIST_SANS_HOP_BY_HOP) == PERSIST_SANS_HOP_BY_HOP)
+    AddHopByHopHeaders(&filter_headers);
+
+  std::string blob;
+  blob.reserve(raw_headers_.size());
+
+  // This copies the status line w/ terminator null.
+  // Note raw_headers_ has embedded nulls instead of \n,
+  // so this just copies the first header line.
+  blob.assign(raw_headers_.c_str(), strlen(raw_headers_.c_str()) + 1);
+
+  for (size_t i = 0; i < parsed_.size(); ++i) {
+    DCHECK(!parsed_[i].is_continuation());
+
+    // Locate the start of the next header.
+    size_t k = i;
+    while (++k < parsed_.size() && parsed_[k].is_continuation());
+    --k;
+
+    std::string header_name(parsed_[i].name_begin, parsed_[i].name_end);
+    StringToLowerASCII(&header_name);
+
+    if (filter_headers.find(header_name) == filter_headers.end()) {
+      // Includes terminator null due to the + 1.
+      blob.append(parsed_[i].name_begin, parsed_[k].value_end + 1);
+    }
+
+    i = k;
+  }
+  blob.push_back('\0');
+
+  pickle->WriteString(blob);
 }
 
 void HttpResponseHeaders::Update(const HttpResponseHeaders& new_headers) {
@@ -557,7 +582,7 @@ void HttpResponseHeaders::AddToParsed(std::string::const_iterator name_begin,
   parsed_.push_back(header);
 }
 
-void HttpResponseHeaders::GetTransientHeaders(HeaderSet* result) const {
+void HttpResponseHeaders::AddNonCacheableHeaders(HeaderSet* result) const {
   // Add server specified transients.  Any 'cache-control: no-cache="foo,bar"'
   // headers present in the response specify additional headers that we should
   // not store in the cache.
@@ -602,11 +627,21 @@ void HttpResponseHeaders::GetTransientHeaders(HeaderSet* result) const {
       }
     }
   }
+}
 
-  // Add standard transient headers.  Perhaps we should move this to a
-  // statically cached hash_set to avoid duplicated work?
-  for (size_t i = 0; i < arraysize(kTransientHeaders); ++i)
-    result->insert(std::string(kTransientHeaders[i]));
+void HttpResponseHeaders::AddHopByHopHeaders(HeaderSet* result) {
+  for (size_t i = 0; i < arraysize(kHopByHopResponseHeaders); ++i)
+    result->insert(std::string(kHopByHopResponseHeaders[i]));
+}
+
+void HttpResponseHeaders::AddCookieHeaders(HeaderSet* result) {
+  for (size_t i = 0; i < arraysize(kCookieResponseHeaders); ++i)
+    result->insert(std::string(kCookieResponseHeaders[i]));
+}
+
+void HttpResponseHeaders::AddChallengeHeaders(HeaderSet* result) {
+  for (size_t i = 0; i < arraysize(kChallengeResponseHeaders); ++i)
+    result->insert(std::string(kChallengeResponseHeaders[i]));
 }
 
 void HttpResponseHeaders::GetMimeTypeAndCharset(std::string* mime_type,

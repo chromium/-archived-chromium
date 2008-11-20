@@ -44,10 +44,18 @@ class HttpResponseHeaders :
   // be passed to the pickle's various Read* methods.
   HttpResponseHeaders(const Pickle& pickle, void** pickle_iter);
 
-  // Appends a representation of this object to the given pickle.  If the
-  // for_cache argument is true, then non-cacheable headers will be pruned from
-  // the persisted version of the response headers.
-  void Persist(Pickle* pickle, bool for_cache);
+  // Persist options.
+  typedef int PersistOptions;
+  static const PersistOptions PERSIST_RAW = -1;  // Raw, unparsed headers.
+  static const PersistOptions PERSIST_ALL = 0;  // Parsed headers.
+  static const PersistOptions PERSIST_SANS_COOKIES = 1 << 0;
+  static const PersistOptions PERSIST_SANS_CHALLENGES = 1 << 1;
+  static const PersistOptions PERSIST_SANS_HOP_BY_HOP = 1 << 2;
+  static const PersistOptions PERSIST_SANS_NON_CACHEABLE = 1 << 3;
+
+  // Appends a representation of this object to the given pickle.
+  // The options argument can be a combination of PersistOptions.
+  void Persist(Pickle* pickle, PersistOptions options);
 
   // Performs header merging as described in 13.5.3 of RFC 2616.
   void Update(const HttpResponseHeaders& new_headers);
@@ -242,10 +250,20 @@ class HttpResponseHeaders :
 
   typedef base::hash_set<std::string> HeaderSet;
 
-  // Returns the values from any 'cache-control: no-cache="foo,bar"' headers as
-  // well as other known-to-be-transient header names.  The header names are
-  // all lowercase to support fast lookup.
-  void GetTransientHeaders(HeaderSet* header_names) const;
+  // Adds the values from any 'cache-control: no-cache="foo,bar"' headers.
+  void AddNonCacheableHeaders(HeaderSet* header_names) const;
+
+  // Adds the set of header names that contain cookie values.
+  static void AddSensitiveHeaders(HeaderSet* header_names);
+
+  // Adds the set of rfc2616 hop-by-hop response headers.
+  static void AddHopByHopHeaders(HeaderSet* header_names);
+
+  // Adds the set of challenge response headers.
+  static void AddChallengeHeaders(HeaderSet* header_names);
+
+  // Adds the set of cookie response headers.
+  static void AddCookieHeaders(HeaderSet* header_names);
 
   // The members of this structure point into raw_headers_.
   struct ParsedHeader {

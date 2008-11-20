@@ -1075,7 +1075,18 @@ bool HttpCache::WriteResponseInfo(disk_cache::Entry* disk_entry,
   pickle.WriteInt64(response_info->request_time.ToInternalValue());
   pickle.WriteInt64(response_info->response_time.ToInternalValue());
 
-  response_info->headers->Persist(&pickle, skip_transient_headers);
+  net::HttpResponseHeaders::PersistOptions persist_options =
+      net::HttpResponseHeaders::PERSIST_RAW;
+
+  if (skip_transient_headers) {
+    persist_options =
+        net::HttpResponseHeaders::PERSIST_SANS_COOKIES |
+        net::HttpResponseHeaders::PERSIST_SANS_CHALLENGES |
+        net::HttpResponseHeaders::PERSIST_SANS_HOP_BY_HOP |
+        net::HttpResponseHeaders::PERSIST_SANS_NON_CACHEABLE;
+  }
+
+  response_info->headers->Persist(&pickle, persist_options);
 
   if (response_info->ssl_info.cert) {
     response_info->ssl_info.cert->Persist(&pickle);
