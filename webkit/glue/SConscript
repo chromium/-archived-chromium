@@ -20,7 +20,6 @@ if env['PLATFORM'] == 'win32':
 input_files = [
   'alt_404_page_resource_fetcher.cc',
   'alt_error_page_resource_fetcher.cc',
-  'autocomplete_input_listener.cc',
   'autofill_form.cc',
   'cache_manager.cc',
   'chrome_client_impl.cc',
@@ -37,7 +36,6 @@ input_files = [
   'editor_client_impl.cc',
   'entity_map.cc',
   'event_conversion.cc',
-  'form_autocomplete_listener.cc',
   'feed_preview.cc',
   'glue_util.cc',
   'glue_serialize.cc',
