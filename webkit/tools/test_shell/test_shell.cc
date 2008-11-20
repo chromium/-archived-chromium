@@ -442,32 +442,57 @@ bool GetPreferredExtensionForMimeType(const std::string& mime_type,
 }
 
 std::string GetDataResource(int resource_id) {
-  if (resource_id == IDR_BROKENIMAGE) {
+  switch (resource_id) {
+  case IDR_BROKENIMAGE: {
     // Use webkit's broken image icon (16x16)
     static std::string broken_image_data;
     if (broken_image_data.empty()) {
-      std::wstring path;
+      FilePath path;
       PathService::Get(base::DIR_SOURCE_ROOT, &path);
-      file_util::AppendToPath(&path, L"webkit");
-      file_util::AppendToPath(&path, L"tools");
-      file_util::AppendToPath(&path, L"test_shell");
-      file_util::AppendToPath(&path, L"resources");
-      file_util::AppendToPath(&path, L"missingImage.gif");
-      bool success = file_util::ReadFileToString(path, &broken_image_data);
+      path = path.Append(FILE_PATH_LITERAL("webkit"));
+      path = path.Append(FILE_PATH_LITERAL("tools"));
+      path = path.Append(FILE_PATH_LITERAL("test_shell"));
+      path = path.Append(FILE_PATH_LITERAL("resources"));
+      path = path.Append(FILE_PATH_LITERAL("missingImage.gif"));
+      bool success = file_util::ReadFileToString(path.ToWStringHack(),
+                                                 &broken_image_data);
       if (!success) {
-        LOG(FATAL) << "Failed reading: " << path;
+        LOG(FATAL) << "Failed reading: " << path.value();
       }
     }
     return broken_image_data;
-  } else if (resource_id == IDR_FEED_PREVIEW) {
+  }
+  case IDR_FEED_PREVIEW:
     // It is necessary to return a feed preview template that contains
     // a {{URL}} substring where the feed URL should go; see the code 
     // that computes feed previews in feed_preview.cc:MakeFeedPreview. 
     // This fixes issue #932714.    
     return std::string("Feed preview for {{URL}}");
-  } else {
-    return std::string();
+  case IDR_EDITOR_DELETE_BUTTON:{
+    // Use webkit's delete button image.
+    static std::string delete_button_data;
+    if (delete_button_data.empty()) {
+      FilePath path;
+      PathService::Get(base::DIR_SOURCE_ROOT, &path);
+      path = path.Append(FILE_PATH_LITERAL("webkit"));
+      path = path.Append(FILE_PATH_LITERAL("tools"));
+      path = path.Append(FILE_PATH_LITERAL("test_shell"));
+      path = path.Append(FILE_PATH_LITERAL("resources"));
+      path = path.Append(FILE_PATH_LITERAL("deleteButton.png"));
+      bool success = file_util::ReadFileToString(path.ToWStringHack(),
+                                                 &delete_button_data);
+      if (!success) {
+        LOG(FATAL) << "Failed reading: " << path.value();
+      }
+    }
+    return delete_button_data;
   }
+
+  default:
+    break;
+  }
+
+  return std::string();
 }
 
 GlueBitmap GetBitmapResource(int resource_id) {

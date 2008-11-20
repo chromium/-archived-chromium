@@ -7,6 +7,11 @@
 #define IDR_PAN_SCROLL_ICON             2003
 #define IDR_TEXTAREA_RESIZER            2004
 
+// The editor delete button is only used in layout tests so the actual
+// resource isn't in webkit_resources.rc.  This resource should not be
+// used outside of layout tests.
+#define IDR_EDITOR_DELETE_BUTTON        2005
+
 #define IDC_ALIAS                       2100
 #define IDC_CELL                        2101
 #define IDC_COLRESIZE                   2102

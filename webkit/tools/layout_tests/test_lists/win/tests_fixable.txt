@@ -249,9 +249,6 @@ LayoutTests/http/tests/navigation/post-goback1.html = FAIL
 // Bug 1135948: Fails because we cannot call plugins as functions.
 LayoutTests/plugins/bindings-test.html = FAIL
 
-// Bug 1124435: deal with the deletion UI in a later release.
-LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
-
 // Bug 871718: These tests load data: URLs into frames and sets queries on then.
 // This is totally broken. This layout test should be rewitten so that the
 // subframes are not data URLs (probably we want files in the resources dir.).
@@ -345,10 +342,6 @@ LayoutTests/fast/js/var-declarations-shadowing.html = FAIL
 // This just seems wrong and should have very low priority.
 // Agreed, not required for Beta, we can debate this with WebKit post Beta, (eseidel, 4/25)
 LayoutTests/fast/dom/getter-on-window-object2.html = FAIL
-
-// Bug: 1042653
-// We don't support WebKit-Editing-Delete-Button
-LayoutTests/editing/deleting/5408255.html = FAIL
 
 // Bug: 1042838
 // User stylesheets not currently supported by chrome.
