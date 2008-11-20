@@ -132,7 +132,7 @@ int main(const int argc, const char *argv[]) {
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);
   bool interactive = !layout_test_mode;
   
-  TestShell::InitLogging(suppress_error_dialogs, layout_test_mode);
+  TestShell::InitLogging(suppress_error_dialogs, layout_test_mode, false);
   TestShell::InitializeTestShell(interactive);
 
   bool no_tree = parsed_command_line.HasSwitch(test_shell::kNoTree);
