@@ -800,11 +800,12 @@ std::string CanonicalizeHost(const std::wstring& host, bool* is_ip_address) {
   
 #ifdef OS_WIN
 std::string GetDirectoryListingHeader(const std::string& title) {
-  std::string result = NetModule::GetResource(IDR_DIR_HEADER_HTML);
-  if (result.empty()) {
+  static const StringPiece header(NetModule::GetResource(IDR_DIR_HEADER_HTML));
+  if (header.empty()) {
     NOTREACHED() << "expected resource not found";
   }
 
+  std::string result(header.data(), header.size());
   result.append("<script>start(");
   string_escape::JavascriptDoubleQuote(title, true, &result);
   result.append(");</script>\n");

@@ -14,10 +14,10 @@ void NetModule::SetResourceProvider(ResourceProvider func) {
 }
 
 // static
-std::string NetModule::GetResource(int key) {
+StringPiece NetModule::GetResource(int key) {
   // avoid thread safety issues by copying provider address to a local var
   ResourceProvider func = resource_provider;
-  return func ? func(key) : std::string();
+  return func ? func(key) : StringPiece();
 }
 
 }  // namespace net

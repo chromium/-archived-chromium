@@ -31,6 +31,7 @@
 #include "base/process_util.h"
 #include "base/rand_util.h"
 #include "base/stats_table.h"
+#include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "base/trace_event.h"
@@ -67,8 +68,8 @@ std::string GetDataResource(HMODULE module, int resource_id) {
 }
 
 // This is called indirectly by the network layer to access resources.
-std::string NetResourceProvider(int key) {
-  return GetDataResource(::GetModuleHandle(NULL), key);
+StringPiece NetResourceProvider(int key) {
+  return GetRawDataResource(::GetModuleHandle(NULL), key);
 }
 #endif
 
