@@ -6,7 +6,6 @@
 #define WEBKIT_GLUE_EDITOR_CLIENT_IMPL_H__
 
 #include "base/compiler_specific.h"
-#include "base/task.h"
 
 #include "build/build_config.h"
 
@@ -18,7 +17,6 @@ MSVC_POP_WARNING();
 
 namespace WebCore {
 class Frame;
-class HTMLInputElement;
 class Node;
 class PlatformKeyboardEvent;
 }
@@ -105,6 +103,9 @@ class EditorClientImpl : public WebCore::EditorClient {
   virtual void setInputMethodState(bool enabled);
 
   void SetUseEditorDelegate(bool value) { use_editor_delegate_ = value; }
+  // HACK for webkit bug #16976.
+  // TODO (timsteele): Clean this up once webkit bug 16976 is fixed.
+  void PreserveSelection();
 
   // It would be better to add these methods to the objects they describe, but
   // those are in WebCore and therefore inaccessible.
@@ -122,23 +123,21 @@ class EditorClientImpl : public WebCore::EditorClient {
   void ModifySelection(WebCore::Frame* frame,
                        WebCore::KeyboardEvent* event);
 
-  void DoAutofill(WebCore::HTMLInputElement* input_element, bool backspace);
-
  protected:
   WebViewImpl* web_view_;
   bool use_editor_delegate_;
   bool in_redo_;
 
+  // Should preserve the selection in next call to shouldChangeSelectedRange.
+  bool preserve_;
+
+  // Points to an HTMLInputElement that was just autocompleted (else NULL), 
+  // for use by respondToChangedContents().
+  WebCore::Element* pending_inline_autocompleted_element_;
+
   typedef std::deque<WTF::RefPtr<WebCore::EditCommand> > EditCommandStack;
   EditCommandStack undo_stack_;
   EditCommandStack redo_stack_;
-
- private:
-  // Whether the last entered key was a backspace.
-  bool backspace_pressed_;
-
-  // The method factory used to post autofill related tasks.
-  ScopedRunnableMethodFactory<EditorClientImpl> autofill_factory_;
 };
 
 #endif  // WEBKIT_GLUE_EDITOR_CLIENT_IMPL_H__

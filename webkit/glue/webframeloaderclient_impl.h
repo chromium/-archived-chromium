@@ -209,6 +209,11 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   // otherwise returns NavigationGestureUnknown.
   NavigationGesture NavigationGestureForLastLoad();
 
+  // Registers the text input fields in the passed form for autofill, with the
+  // exclusion of any field whose name is contained in |excluded_fields|.
+  void RegisterAutofillListeners(WebCore::HTMLFormElement* form,
+                                 const std::set<std::wstring>& excluded_fields);
+
   // The WebFrame that owns this object and manages its lifetime. Therefore,
   // the web frame object is guaranteed to exist.
   WebFrameImpl* webframe_;

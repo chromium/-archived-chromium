@@ -8,38 +8,8 @@
 #include "webkit/glue/password_autocomplete_listener.h"
 #undef LOG
 #include "base/logging.h"
-#include "webkit/glue/glue_util.h"
 
 namespace webkit_glue {
-
-HTMLInputDelegate::HTMLInputDelegate(WebCore::HTMLInputElement* element)
-    : element_(element) {
-  // Reference the element for the lifetime of this delegate.
-  // element is NULL when testing.
-  if (element_)
-    element_->ref();
-}
-
-HTMLInputDelegate::~HTMLInputDelegate() {
-  if (element_)
-    element_->deref();
-}
-
-void HTMLInputDelegate::SetValue(const std::wstring& value) {
-  element_->setValue(StdWStringToString(value));
-}
-
-void HTMLInputDelegate::SetSelectionRange(size_t start, size_t end) {
-  element_->setSelectionRange(start, end);
-}
-
-void HTMLInputDelegate::OnFinishedAutocompleting() {
-  // This sets the input element to an autofilled state which will result in it
-  // having a yellow background.
-  element_->setAutofilled(true);
-  // Notify any changeEvent listeners.
-  element_->onChange();
-}
 
 PasswordAutocompleteListener::PasswordAutocompleteListener(
     HTMLInputDelegate* username_delegate,
