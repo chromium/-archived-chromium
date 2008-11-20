@@ -594,10 +594,6 @@ LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
 LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
 LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
 
-// Regression from the webkit merge submitting forms to reference fragments.
-// http://code.google.com/p/chromium/issues/detail?id=3008
-LayoutTests/fast/forms/submit-to-url-fragment.html = FAIL
-
 // Many of the failures here are because V8 stringifies objects differently than
 // JSC. However, the missing position and totalSize properties seems genuine.
 SKIP : LayoutTests/fast/dom/xmlhttprequest-get.xhtml = PASS
@@ -794,15 +790,11 @@ DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-x-attr.html 
 DEBUG : LayoutTests/svg/dynamic-updates/SVGForeignObjectElement-dom-height-attr.html = CRASH | PASS
 DEBUG : LayoutTests/fast/dom/gc-1.html = CRASH | PASS
 
-// Started crashing in DEBUG only with r2842 (mbelshe)
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-cy-prop.html = CRASH
-
 // Got flakey (both debug and release) around r3581 (ananta).
 LayoutTests/http/tests/plugins/geturlnotify-from-npp-destroystream.html = FAIL | PASS
 
 // Crash in DEBUG only
 DEBUG : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
-DEBUG : LayoutTests/svg/dynamic-updates/SVGEllipseElement-svgdom-ry-prop.html = CRASH
 
 // NEW FOR MERGE 36102:37604
 LayoutTests/animations/matrix-anim.html = FAIL
