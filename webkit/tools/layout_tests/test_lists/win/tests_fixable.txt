@@ -1119,3 +1119,6 @@ LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 
 // Started failing after http://codereview.chromium.org/11205
 LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL
+
+// MERGE 38450:39500: New test
+LayoutTests/fast/css/resize-corner-tracking-transformed.html = FAIL
