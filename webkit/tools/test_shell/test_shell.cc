@@ -182,15 +182,18 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
 
 // static
 void TestShell::InitLogging(bool suppress_error_dialogs,
-                            bool running_layout_tests) {
+                            bool running_layout_tests,
+                            bool enable_gp_fault_error_box) {
     if (suppress_error_dialogs)
         logging::SetLogAssertHandler(UnitTestAssertHandler);
 
 #if defined(OS_WIN)
     if (!IsDebuggerPresent()) {
         UINT new_flags = SEM_FAILCRITICALERRORS |
-                         SEM_NOGPFAULTERRORBOX |
                          SEM_NOOPENFILEERRORBOX;
+        if (!enable_gp_fault_error_box)
+            new_flags |= SEM_NOGPFAULTERRORBOX;
+        
         // Preserve existing error mode, as discussed at
         // http://blogs.msdn.com/oldnewthing/archive/2004/07/27/198410.aspx
         UINT existing_flags = SetErrorMode(new_flags);

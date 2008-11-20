@@ -16,6 +16,7 @@ extern const wchar_t kNoErrorDialogs[];
 extern const wchar_t kNoTree[];
 extern const wchar_t kTestShellTimeOut[];
 extern const wchar_t kStartupDialog[];
+extern const wchar_t kGPFaultErrorBox[];
 extern const wchar_t kJavaScriptFlags[];
 extern const wchar_t kRecordMode[];
 extern const wchar_t kPlaybackMode[];

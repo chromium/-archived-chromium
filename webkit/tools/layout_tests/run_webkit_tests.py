@@ -244,6 +244,9 @@ class TestRunner:
       if self._options.startup_dialog:
         shell_args.append('--testshell-startup-dialog')
         
+      if self._options.gp_fault_error_box:
+        shell_args.append('--gp-fault-error-box')
+        
       if self._options.winhttp:
         shell_args.append('--winhttp')
 
@@ -606,6 +609,9 @@ if '__main__' == __name__:
   option_parser.add_option("", "--startup-dialog", action="store_true",
                            default=False, 
                            help="create a dialog on test_shell.exe startup")
+  option_parser.add_option("", "--gp-fault-error-box", action="store_true",
+                           default=False, 
+                           help="enable Windows GP fault error box")
   option_parser.add_option("", "--winhttp", action="store_true",
                            default=False, 
                            help="Use WinHTTP stack")

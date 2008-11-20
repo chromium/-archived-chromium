@@ -107,7 +107,14 @@ int main(int argc, char* argv[]) {
   bool layout_test_mode =
       parsed_command_line.HasSwitch(test_shell::kLayoutTests);
 
-  TestShell::InitLogging(suppress_error_dialogs, layout_test_mode);
+  bool enable_gp_fault_error_box = false;
+#if defined(OS_WIN)
+  enable_gp_fault_error_box =
+      parsed_command_line.HasSwitch(test_shell::kGPFaultErrorBox);
+#endif
+  TestShell::InitLogging(suppress_error_dialogs,
+                         layout_test_mode,
+                         enable_gp_fault_error_box);
 
   // Set this early before we start using WebCore.
   webkit_glue::SetLayoutTestMode(layout_test_mode);

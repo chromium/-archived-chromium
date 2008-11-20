@@ -23,6 +23,10 @@ const wchar_t kTestShellTimeOut[] = L"time-out-ms";
 
 const wchar_t kStartupDialog[] = L"testshell-startup-dialog";
 
+// Enable the Windows dialogs for GP faults in the test shell. This allows makes
+// it possible to attach a crashed test shell to a debugger.
+const wchar_t kGPFaultErrorBox[] = L"gp-fault-error-box";
+
 // JavaScript flags passed to engine.
 const wchar_t kJavaScriptFlags[] = L"js-flags";
 

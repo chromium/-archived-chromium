@@ -71,7 +71,8 @@ public:
 
     // Initialization and clean up of logging.
     static void InitLogging(bool suppress_error_dialogs,
-                            bool running_layout_tests);
+                            bool running_layout_tests,
+                            bool enable_gp_fault_error_box);
     static void CleanupLogging();
 
     // Initialization and clean up of a static member variable.
