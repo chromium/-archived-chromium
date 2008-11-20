@@ -17,6 +17,7 @@
 IDR_BROKENIMAGE            BINDATA "webkit\\glue\\resources\\broken-image.gif"
 IDR_TICKMARK_DASH          BINDATA "webkit\\glue\\resources\\dash.png"
 IDR_FEED_PREVIEW           BINDATA "webkit\\glue\\resources\\feed.html"
+IDR_PAN_SCROLL_ICON        BINDATA "webkit\\glue\\resources\\pan_icon.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -371,6 +371,8 @@ PassRefPtr<Image> ChromiumBridge::loadPlatformImageResource(const char* name) {
     resource_id = IDR_BROKENIMAGE;
   } else if (!strcmp(name, "tickmarkDash")) {
     resource_id = IDR_TICKMARK_DASH;
+  } else if (!strcmp(name, "panIcon")) {
+    resource_id = IDR_PAN_SCROLL_ICON;
   } else if (!strcmp(name, "deleteButton") ||
              !strcmp(name, "deleteButtonPressed")) {
     NOTREACHED() << "Image resource " << name << " does not exist yet.";

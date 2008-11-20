@@ -4,6 +4,7 @@
 #define IDR_BROKENIMAGE                 2000
 #define IDR_TICKMARK_DASH               2001
 #define IDR_FEED_PREVIEW                2002
+#define IDR_PAN_SCROLL_ICON             2003
 
 #define IDC_ALIAS                       2100
 #define IDC_CELL                        2101
