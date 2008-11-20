@@ -17,6 +17,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "EventNames.h"
 #include "KeyboardCodes.h"
 #include "HTMLInputElement.h"
+#include "HTMLNames.h"
 #include "Frame.h"
 #include "KeyboardEvent.h"
 #include "PlatformKeyboardEvent.h"
@@ -24,6 +25,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 #undef LOG
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/glue_util.h"
@@ -36,6 +38,10 @@ MSVC_POP_WARNING();
 // actions -- unbroken stretches of typed characters are coalesced
 // into a single action.
 static const size_t kMaximumUndoStackDepth = 1000;
+
+// The size above which we stop triggering autofill for an input text field
+// (so to avoid sending long strings through IPC).
+static const size_t kMaximumTextSizeForAutofill = 1000;
 
 namespace {
 
@@ -63,8 +69,11 @@ EditorClientImpl::EditorClientImpl(WebView* web_view)
     : web_view_(static_cast<WebViewImpl*>(web_view)),
       use_editor_delegate_(false),
       in_redo_(false),
-      preserve_(false),
-      pending_inline_autocompleted_element_(NULL) {
+      backspace_pressed_(false),
+// Don't complain about using "this" in initializer list.
+MSVC_PUSH_DISABLE_WARNING(4355)
+      autofill_factory_(this) {
+MSVC_POP_WARNING()
 }
 
 EditorClientImpl::~EditorClientImpl() {
@@ -182,10 +191,6 @@ bool EditorClientImpl::shouldDeleteRange(WebCore::Range* range) {
   return true;
 }
 
-void EditorClientImpl::PreserveSelection() {
-  preserve_ = true;
-}
-
 bool EditorClientImpl::shouldChangeSelectedRange(WebCore::Range* fromRange, 
                                                  WebCore::Range* toRange, 
                                                  WebCore::EAffinity affinity, 
@@ -199,12 +204,6 @@ bool EditorClientImpl::shouldChangeSelectedRange(WebCore::Range* fromRange,
                                           Describe(affinity), 
                                           stillSelecting);
     }
-  }
-  // Have we been told to preserve the selection? 
-  // (See comments for PreserveSelection in header).
-  if (preserve_) {
-    preserve_ = false;
-    return false;
   }
   return true;
 }
@@ -242,25 +241,6 @@ void EditorClientImpl::respondToChangedSelection() {
 }
 
 void EditorClientImpl::respondToChangedContents() {
-  // Ugly Hack. (See also webkit bug #16976).
-  // Something is wrong with webcore's focusController in that when selection
-  // is set to a region within a text element when handling an input event, if
-  // you don't re-focus the node then it only _APPEARS_ to have successfully
-  // changed the selection (the UI "looks" right) but in reality there is no
-  // selection of text. And to make matters worse, you can't just re-focus it,
-  // you have to re-focus it in code executed after the entire event listener 
-  // loop has finished; and hence here we are. Oh, and to make matters worse, 
-  // this sequence of events _doesn't_ happen when you debug through the code 
-  // -- in that case it works perfectly fine -- because swapping to the debugger 
-  // causes the refocusing we artificially reproduce here.
-  // TODO (timsteele): Clean this up once root webkit problem is identified and
-  // the bug is patched. 
-  if (pending_inline_autocompleted_element_) {
-    pending_inline_autocompleted_element_->blur();
-    pending_inline_autocompleted_element_->focus();
-    pending_inline_autocompleted_element_ = NULL; 
-  }
-
   if (use_editor_delegate_) {
     WebViewDelegate* d = web_view_->delegate();
     if (d)
@@ -621,17 +601,84 @@ void EditorClientImpl::textFieldDidBeginEditing(WebCore::Element*) {
 void EditorClientImpl::textFieldDidEndEditing(WebCore::Element*) {
   // Notification that focus was lost.  Be careful with this, it's also sent
   // when the page is being closed.
+
+  // Cancel any pending DoAutofill calls.
+  autofill_factory_.RevokeAll();
 }
 
 void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
-  // Track the element so we can blur/focus it in respondToChangedContents
-  // so that the selected range is properly set. (See respondToChangedContents).
-  if (static_cast<WebCore::HTMLInputElement*>(element)->autofilled())
-    pending_inline_autocompleted_element_ = element;
+  DCHECK(element->hasLocalName(WebCore::HTMLNames::inputTag));
+
+  // Cancel any pending DoAutofill calls.
+  autofill_factory_.RevokeAll();
+
+  // Let's try to trigger autofill for that field, if applicable.
+  WebCore::HTMLInputElement* input_element =
+      static_cast<WebCore::HTMLInputElement*>(element);
+  if (!input_element->isEnabled() || !input_element->isTextField() ||
+      input_element->isPasswordField() || !input_element->autoComplete()) {
+    return;
+  }
+
+  std::wstring name = webkit_glue::StringToStdWString(input_element->name());
+  if (name.empty())  // If the field has no name, then we won't have values.
+    return;
+
+  // Don't attempt to autofill with values that are too large.
+  if (input_element->value().length() > kMaximumTextSizeForAutofill)
+    return;
+
+  // We post a task for doing the autofill as the caret position is not set
+  // properly at this point ( http://bugs.webkit.org/show_bug.cgi?id=16976)
+  // and we need it to determine whether or not to trigger autofill.
+  std::wstring value = webkit_glue::StringToStdWString(input_element->value());
+  MessageLoop::current()->PostTask(
+      FROM_HERE,
+      autofill_factory_.NewRunnableMethod(&EditorClientImpl::DoAutofill,
+                                          input_element,
+                                          backspace_pressed_));
 }
 
-bool EditorClientImpl::doTextFieldCommandFromEvent(WebCore::Element*,
-                                                   WebCore::KeyboardEvent*) {
+void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
+                                  bool backspace) {
+  std::wstring value = webkit_glue::StringToStdWString(input_element->value());
+
+  // Only autofill when there is some text and the caret is at the end.
+  bool caret_at_end =
+      input_element->selectionStart() == input_element->selectionEnd() &&
+      input_element->selectionEnd() == static_cast<int>(value.length());
+  if (value.empty() || !caret_at_end)
+    return;
+
+  // First let's see if there is a password listener for that element.
+  WebFrameImpl* webframe =
+      WebFrameImpl::FromFrame(input_element->form()->document()->frame());
+  webkit_glue::PasswordAutocompleteListener* listener =
+      webframe->GetPasswordListener(input_element);
+  if (listener) {
+    if (backspace)  // No autocomplete for password on backspace.
+      return;
+
+    listener->OnInlineAutocompleteNeeded(input_element, value);
+    return;
+  }
+
+  // Then trigger form autofill.
+  std::wstring name = webkit_glue::StringToStdWString(input_element->
+      name().string());
+  web_view_->delegate()->QueryFormFieldAutofill(name, value,
+      reinterpret_cast<int64>(input_element));
+}
+
+bool EditorClientImpl::doTextFieldCommandFromEvent(
+    WebCore::Element* element,
+    WebCore::KeyboardEvent* event) {
+  // Remember if backspace was pressed for the autofill.  It is not clear how to
+  // find if backspace was pressed from textFieldDidBeginEditing and
+  // textDidChangeInTextField as when these methods are called the value of the
+  // input element already contains the type character.
+  backspace_pressed_ = (event->keyCode() == WebCore::VKEY_BACK);
+
   // The Mac code appears to use this method as a hook to implement special
   // keyboard commands specific to Safari's auto-fill implementation.  We
   // just return false to allow the default action.

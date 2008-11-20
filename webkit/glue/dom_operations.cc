@@ -27,10 +27,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 #undef LOG
 
-// Brings in more WebKit headers and #undefs LOG again, so this needs to come
-// first.
-#include "webkit/glue/autocomplete_input_listener.h"
-
 #include "base/string_util.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/form_data.h"
@@ -449,7 +445,7 @@ void FillPasswordForm(WebView* view,
         static_cast<WebFrameLoaderClient*>(username_element->document()->
                                            frame()->loader()->client());
     WebFrameImpl* webframe_impl = frame_loader_client->webframe();
-    webframe_impl->GetAutocompleteListener()->AddInputListener(
+    webframe_impl->RegisterPasswordListener(
         username_element,
         new PasswordAutocompleteListener(
             new HTMLInputDelegate(username_element),
