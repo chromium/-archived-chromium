@@ -5,12 +5,14 @@
 #ifndef BASE_MACH_IPC_MAC_H_
 #define BASE_MACH_IPC_MAC_H_
 
-#import <mach/mach.h>
-#import <mach/message.h>
-#import <servers/bootstrap.h>
-#import <sys/types.h>
+#include <mach/mach.h>
+#include <mach/message.h>
+#include <servers/bootstrap.h>
+#include <sys/types.h>
 
-#import <CoreServices/CoreServices.h>
+#include <CoreServices/CoreServices.h>
+
+#include "base/basictypes.h"
 
 //==============================================================================
 // DISCUSSION:
@@ -39,13 +41,13 @@
 //
 //        MachReceiveMessage message;
 //        kern_return_t result = receivePort.WaitForMessage(&message, 0);
-//        
+//
 //        if (result == KERN_SUCCESS && message.GetMessageID() == 57) {
 //          mach_port_t task = message.GetTranslatedPort(0);
 //          mach_port_t thread = message.GetTranslatedPort(1);
 //
 //          char *messageString = message.GetData();
-//        
+//
 //          printf("message string = %s\n", messageString);
 //        }
 //
@@ -58,7 +60,7 @@
 //    // add some ports to be translated for us
 //    message.AddDescriptor(mach_task_self());     // our task
 //    message.AddDescriptor(mach_thread_self());   // this thread
-//    
+//
 //    char messageString[] = "Hello server!\n";
 //    message.SetData(messageString, strlen(messageString)+1);
 //
@@ -82,7 +84,7 @@ class MachMsgPortDescriptor : public mach_msg_port_descriptor_t {
     disposition = in_disposition;
     type = MACH_MSG_PORT_DESCRIPTOR;
   }
-  
+
   // For passing send rights to a port
   MachMsgPortDescriptor(mach_port_t in_name) {
     name = in_name;
@@ -104,11 +106,11 @@ class MachMsgPortDescriptor : public mach_msg_port_descriptor_t {
   mach_port_t GetMachPort() const {
     return name;
   }
-  
+
   mach_msg_type_name_t GetDisposition() const {
     return disposition;
   }
-  
+
   // We're just a simple wrapper for mach_msg_port_descriptor_t
   // and have the same memory layout
   operator mach_msg_port_descriptor_t&() {
@@ -128,10 +130,13 @@ class MachMsgPortDescriptor : public mach_msg_port_descriptor_t {
 //  This considerably simplifies the construction of a message for sending
 //  and the getting at relevant data and descriptors for the receiver.
 //
-//  Currently the combined size of the descriptors plus data must be
-//  less than 1024.  But as a benefit no memory allocation is necessary.
-//
-// TODO: could consider adding malloc() support for very large messages
+//  This class can be initialized using external storage of an arbitrary size
+//  or it can manage storage internally.
+//  1. If storage is allocated internally, the combined size of the descriptors
+//  plus data must be less than 1024.  But as a benefit no memory allocation is
+//  necessary.
+//  2. For external storage, a buffer of at least EmptyMessageSize() must be
+//  provided.
 //
 //  A MachMessage object is used by ReceivePort::WaitForMessage
 //  and MachPortSender::SendMessage
@@ -139,11 +144,13 @@ class MachMsgPortDescriptor : public mach_msg_port_descriptor_t {
 class MachMessage {
  public:
 
+  virtual ~MachMessage();
+
   // The receiver of the message can retrieve the raw data this way
   u_int8_t *GetData() {
     return GetDataLength() > 0 ? GetDataPacket()->data : NULL;
   }
-    
+
   u_int32_t GetDataLength() {
     return EndianU32_LtoN(GetDataPacket()->data_length);
   }
@@ -152,14 +159,16 @@ class MachMessage {
   void SetMessageID(int32_t message_id) {
     GetDataPacket()->id = EndianU32_NtoL(message_id);
   }
-	
+
   int32_t GetMessageID() { return EndianU32_LtoN(GetDataPacket()->id); }
 
   // Adds a descriptor (typically a mach port) to be translated
   // returns true if successful, otherwise not enough space
-  bool AddDescriptor(const MachMsgPortDescriptor &desc);  
+  bool AddDescriptor(const MachMsgPortDescriptor &desc);
 
-  int GetDescriptorCount() const { return body.msgh_descriptor_count; }
+  int GetDescriptorCount() const {
+                                   return storage_->body.msgh_descriptor_count;
+                                 }
   MachMsgPortDescriptor *GetDescriptor(int n);
 
   // Convenience method which gets the mach port described by the descriptor
@@ -169,15 +178,16 @@ class MachMessage {
   bool IsSimpleMessage() const { return GetDescriptorCount() == 0; }
 
   // Sets raw data for the message (returns false if not enough space)
-  bool SetData(void *data, int32_t data_length);
+  bool SetData(const void* data, int32_t data_length);
 
  protected:
   // Consider this an abstract base class - must create an actual instance
   // of MachReceiveMessage or MachSendMessage
-  
-  MachMessage() {
-    memset(this, 0, sizeof(MachMessage));
-  }
+  MachMessage();
+
+  // Constructor for use with preallocate storage.
+  // storage_length must be >= EmptyMessageSize()
+  MachMessage(void *storage, size_t storage_length);
 
   friend class ReceivePort;
   friend class MachPortSender;
@@ -186,39 +196,73 @@ class MachMessage {
   struct MessageDataPacket {
     int32_t      id;          // little-endian
     int32_t      data_length;	// little-endian
-    u_int8_t     data[1];     // actual size limited by sizeof(MachMessage)
+    u_int8_t     data[1];     // actual size limited by storage_length_bytes_
   };
 
   MessageDataPacket* GetDataPacket();
 
   void SetDescriptorCount(int n);
-  void SetDescriptor(int n, const MachMsgPortDescriptor &desc);  
+  void SetDescriptor(int n, const MachMsgPortDescriptor &desc);
 
-  // Returns total message size setting msgh_size in the header to this value 
+  // Returns total message size setting msgh_size in the header to this value
   int CalculateSize();
 
-  mach_msg_header_t  head;
-  mach_msg_body_t    body;
-  u_int8_t           padding[1024]; // descriptors and data may be embedded here
+  // Returns total storage size that this object can grow to, this is inclusive
+  // of the mach header.
+  size_t MaxSize() const { return storage_length_bytes_; }
+
+ protected:
+  mach_msg_header_t *Head() { return &(storage_->head); }
+
+ private:
+  struct MachMessageData {
+    mach_msg_header_t  head;
+    mach_msg_body_t    body;
+    // descriptors and data may be embedded here.
+    u_int8_t           padding[1024];
+  };
+
+ // kEmptyMessageSize needs to have the definition of MachMessageData before it.NNN
+ public:
+   // The size of an empty message with no data.
+  static const size_t kEmptyMessageSize = sizeof(mach_msg_header_t) +
+                                          sizeof(mach_msg_body_t) +
+                                          sizeof(MessageDataPacket);
+
+ private:
+  MachMessageData *storage_;
+  size_t storage_length_bytes_;
+  bool own_storage_;  // Is storage owned by this object?
 };
 
 //==============================================================================
 // MachReceiveMessage and MachSendMessage are useful to separate the idea
 // of a mach message being sent and being received, and adds increased type
 // safety:
-//  ReceivePort::WaitForMessage() only accepts a MachReceiveMessage 
-//  MachPortSender::SendMessage() only accepts a MachSendMessage 
+//  ReceivePort::WaitForMessage() only accepts a MachReceiveMessage
+//  MachPortSender::SendMessage() only accepts a MachSendMessage
 
 //==============================================================================
 class MachReceiveMessage : public MachMessage {
  public:
-  MachReceiveMessage() : MachMessage() {};
+  MachReceiveMessage() : MachMessage() {}
+  MachReceiveMessage(void *storage, size_t storage_length)
+      : MachMessage(storage, storage_length) {}
+
+ private:
+    DISALLOW_COPY_AND_ASSIGN(MachReceiveMessage);
 };
 
 //==============================================================================
 class MachSendMessage : public MachMessage {
  public:
   MachSendMessage(int32_t message_id);
+  MachSendMessage(void *storage, size_t storage_length, int32_t message_id);
+
+ private:
+  void Initialize(int32_t message_id);
+
+  DISALLOW_COPY_AND_ASSIGN(MachSendMessage);
 };
 
 //==============================================================================
@@ -236,19 +280,19 @@ class ReceivePort {
   ReceivePort();
 
   ~ReceivePort();
-  
+
   // Waits on the mach port until message received or timeout
   kern_return_t WaitForMessage(MachReceiveMessage *out_message,
                                mach_msg_timeout_t timeout);
-  
+
   // The underlying mach port that we wrap
   mach_port_t  GetPort() const { return port_; }
 
  private:
-  ReceivePort(const ReceivePort&);  // disable copy c-tor
-  
   mach_port_t   port_;
   kern_return_t init_result_;
+
+  DISALLOW_COPY_AND_ASSIGN(ReceivePort);
 };
 
 //==============================================================================
@@ -258,18 +302,18 @@ class MachPortSender {
   // get a port with send rights corresponding to a named registered service
   MachPortSender(const char *receive_port_name);
 
-  
+
   // Given an already existing mach port, use it.
   MachPortSender(mach_port_t send_port);
-  
+
   kern_return_t SendMessage(MachSendMessage &message,
                             mach_msg_timeout_t timeout);
-  
+
  private:
-  MachPortSender(const MachPortSender&);  // disable copy c-tor
-  
   mach_port_t   send_port_;
   kern_return_t init_result_;
+
+  DISALLOW_COPY_AND_ASSIGN(MachPortSender);
 };
 
 #endif // BASE_MACH_IPC_MAC_H_

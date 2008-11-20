@@ -2,17 +2,31 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import <stdio.h>
-#import "chrome/common/mach_ipc_mac.h"
+#include "chrome/common/mach_ipc_mac.h"
+
+#import <Foundation/Foundation.h>
+
+#include <stdio.h>
+#include "base/logging.h"
 
 //==============================================================================
 MachSendMessage::MachSendMessage(int32_t message_id) : MachMessage() {
-  head.msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_COPY_SEND, 0);
+  Initialize(message_id);
+}
+
+MachSendMessage::MachSendMessage(void *storage, size_t storage_length,
+                                 int32_t message_id)
+    : MachMessage(storage, storage_length) {
+  Initialize(message_id);
+}
+
+void MachSendMessage::Initialize(int32_t message_id) {
+  Head()->msgh_bits = MACH_MSGH_BITS(MACH_MSG_TYPE_COPY_SEND, 0);
 
   // head.msgh_remote_port = ...; // filled out in MachPortSender::SendMessage()
-  head.msgh_local_port = MACH_PORT_NULL;
-  head.msgh_reserved = 0;
-  head.msgh_id = 0;
+  Head()->msgh_local_port = MACH_PORT_NULL;
+  Head()->msgh_reserved = 0;
+  Head()->msgh_id = 0;
 
   SetDescriptorCount(0);  // start out with no descriptors
 
@@ -21,20 +35,50 @@ MachSendMessage::MachSendMessage(int32_t message_id) : MachMessage() {
 }
 
 //==============================================================================
+MachMessage::MachMessage()
+    : storage_(new MachMessageData),  // Allocate storage_ ourselves
+      storage_length_bytes_(sizeof(MachMessageData)),
+      own_storage_(true) {
+  memset(storage_, 0, storage_length_bytes_);
+}
+
+//==============================================================================
+MachMessage::MachMessage(void *storage, size_t storage_length)
+    : storage_(static_cast<MachMessageData*>(storage)),
+      storage_length_bytes_(storage_length),
+      own_storage_(false) {
+  DCHECK(storage);
+  DCHECK(storage_length >= kEmptyMessageSize);
+}
+
+//==============================================================================
+MachMessage::~MachMessage() {
+  if (own_storage_) {
+    delete storage_;
+    storage_ = NULL;
+  }
+}
+
+//==============================================================================
 // returns true if successful
-bool MachMessage::SetData(void *data,
+bool MachMessage::SetData(const void* data,
                           int32_t data_length) {
+  // Enforce the fact that it's only safe to call this method once on a
+  // message.
+  DCHECK(GetDataPacket()->data_length == 0);
+
   // first check to make sure we have enough space
   int size = CalculateSize();
   int new_size = size + data_length;
-  
-  if ((unsigned)new_size > sizeof(MachMessage)) {
+
+  if ((unsigned)new_size > storage_length_bytes_) {
     return false;  // not enough space
   }
 
   GetDataPacket()->data_length = EndianU32_NtoL(data_length);
   if (data) memcpy(GetDataPacket()->data, data, data_length);
 
+  // Update the Mach header with the new aligned size of the message.
   CalculateSize();
 
   return true;
@@ -43,19 +87,19 @@ bool MachMessage::SetData(void *data,
 //==============================================================================
 // calculates and returns the total size of the message
 // Currently, the entire message MUST fit inside of the MachMessage
-//    messsage size <= sizeof(MachMessage)
+//    messsage size <= EmptyMessageSize()
 int MachMessage::CalculateSize() {
   int size = sizeof(mach_msg_header_t) + sizeof(mach_msg_body_t);
-  
+
   // add space for MessageDataPacket
   int32_t alignedDataLength = (GetDataLength() + 3) & ~0x3;
   size += 2*sizeof(int32_t) + alignedDataLength;
-  
+
   // add space for descriptors
   size += GetDescriptorCount() * sizeof(MachMsgPortDescriptor);
-  
-  head.msgh_size = size;
-  
+
+  Head()->msgh_size = size;
+
   return size;
 }
 
@@ -63,7 +107,7 @@ int MachMessage::CalculateSize() {
 MachMessage::MessageDataPacket *MachMessage::GetDataPacket() {
   int desc_size = sizeof(MachMsgPortDescriptor)*GetDescriptorCount();
   MessageDataPacket *packet =
-    reinterpret_cast<MessageDataPacket*>(padding + desc_size);
+    reinterpret_cast<MessageDataPacket*>(storage_->padding + desc_size);
 
   return packet;
 }
@@ -72,7 +116,7 @@ MachMessage::MessageDataPacket *MachMessage::GetDataPacket() {
 void MachMessage::SetDescriptor(int n,
                                 const MachMsgPortDescriptor &desc) {
   MachMsgPortDescriptor *desc_array =
-    reinterpret_cast<MachMsgPortDescriptor*>(padding);
+    reinterpret_cast<MachMsgPortDescriptor*>(storage_->padding);
   desc_array[n] = desc;
 }
 
@@ -82,8 +126,8 @@ bool MachMessage::AddDescriptor(const MachMsgPortDescriptor &desc) {
   // first check to make sure we have enough space
   int size = CalculateSize();
   int new_size = size + sizeof(MachMsgPortDescriptor);
-  
-  if ((unsigned)new_size > sizeof(MachMessage)) {
+
+  if ((unsigned)new_size > storage_length_bytes_) {
     return false;  // not enough space
   }
 
@@ -91,23 +135,23 @@ bool MachMessage::AddDescriptor(const MachMsgPortDescriptor &desc) {
   // new descriptor
   u_int8_t *p = reinterpret_cast<u_int8_t*>(GetDataPacket());
   bcopy(p, p+sizeof(MachMsgPortDescriptor), GetDataLength()+2*sizeof(int32_t));
-  
+
   SetDescriptor(GetDescriptorCount(), desc);
   SetDescriptorCount(GetDescriptorCount() + 1);
 
   CalculateSize();
-  
+
   return true;
 }
 
 //==============================================================================
 void MachMessage::SetDescriptorCount(int n) {
-  body.msgh_descriptor_count = n;
+  storage_->body.msgh_descriptor_count = n;
 
   if (n > 0) {
-    head.msgh_bits |= MACH_MSGH_BITS_COMPLEX;
+    Head()->msgh_bits |= MACH_MSGH_BITS_COMPLEX;
   } else {
-    head.msgh_bits &= ~MACH_MSGH_BITS_COMPLEX;
+    Head()->msgh_bits &= ~MACH_MSGH_BITS_COMPLEX;
   }
 }
 
@@ -115,10 +159,10 @@ void MachMessage::SetDescriptorCount(int n) {
 MachMsgPortDescriptor *MachMessage::GetDescriptor(int n) {
   if (n < GetDescriptorCount()) {
     MachMsgPortDescriptor *desc =
-      reinterpret_cast<MachMsgPortDescriptor*>(padding);
+        reinterpret_cast<MachMsgPortDescriptor*>(storage_->padding);
     return desc + n;
   }
-  
+
   return nil;
 }
 
@@ -143,7 +187,7 @@ ReceivePort::ReceivePort(const char *receive_port_name) {
 
   if (init_result_ != KERN_SUCCESS)
     return;
-    
+
   init_result_ = mach_port_insert_right(current_task,
                                         port_,
                                         port_,
@@ -152,15 +196,9 @@ ReceivePort::ReceivePort(const char *receive_port_name) {
   if (init_result_ != KERN_SUCCESS)
     return;
 
-  mach_port_t bootstrap_port = 0;
-  init_result_ = task_get_bootstrap_port(current_task, &bootstrap_port);
-
-  if (init_result_ != KERN_SUCCESS)
-    return;
-
-  init_result_ = bootstrap_register(bootstrap_port,
-                                    const_cast<char*>(receive_port_name),
-                                    port_);
+  NSPort *ns_port = [NSMachPort portWithMachPort:port_];
+  NSString *port_name = [NSString stringWithUTF8String:receive_port_name];
+  [[NSMachBootstrapServer sharedInstance] registerPort:ns_port name:port_name];
 }
 
 //==============================================================================
@@ -205,17 +243,17 @@ kern_return_t ReceivePort::WaitForMessage(MachReceiveMessage *out_message,
   // return any error condition encountered in constructor
   if (init_result_ != KERN_SUCCESS)
     return init_result_;
-  
-  out_message->head.msgh_bits = 0;
-  out_message->head.msgh_local_port = port_;
-  out_message->head.msgh_remote_port = MACH_PORT_NULL;
-  out_message->head.msgh_reserved = 0;
-  out_message->head.msgh_id = 0;
 
-  kern_return_t result = mach_msg(&out_message->head,
+  out_message->Head()->msgh_bits = 0;
+  out_message->Head()->msgh_local_port = port_;
+  out_message->Head()->msgh_remote_port = MACH_PORT_NULL;
+  out_message->Head()->msgh_reserved = 0;
+  out_message->Head()->msgh_id = 0;
+
+  kern_return_t result = mach_msg(out_message->Head(),
                                   MACH_RCV_MSG | MACH_RCV_TIMEOUT,
                                   0,
-                                  sizeof(MachMessage),
+                                  out_message->MaxSize(),
                                   port_,
                                   timeout,              // timeout in ms
                                   MACH_PORT_NULL);
@@ -230,7 +268,7 @@ kern_return_t ReceivePort::WaitForMessage(MachReceiveMessage *out_message,
 MachPortSender::MachPortSender(const char *receive_port_name) {
   mach_port_t bootstrap_port = 0;
   init_result_ = task_get_bootstrap_port(mach_task_self(), &bootstrap_port);
-  
+
   if (init_result_ != KERN_SUCCESS)
     return;
 
@@ -240,7 +278,7 @@ MachPortSender::MachPortSender(const char *receive_port_name) {
 }
 
 //==============================================================================
-MachPortSender::MachPortSender(mach_port_t send_port) 
+MachPortSender::MachPortSender(mach_port_t send_port)
   : send_port_(send_port),
     init_result_(KERN_SUCCESS) {
 }
@@ -248,18 +286,19 @@ MachPortSender::MachPortSender(mach_port_t send_port)
 //==============================================================================
 kern_return_t MachPortSender::SendMessage(MachSendMessage &message,
                                           mach_msg_timeout_t timeout) {
-  if (message.head.msgh_size == 0) {
+  if (message.Head()->msgh_size == 0) {
+    NOTREACHED();
     return KERN_INVALID_VALUE;    // just for safety -- never should occur
   };
-  
+
   if (init_result_ != KERN_SUCCESS)
     return init_result_;
-  
-  message.head.msgh_remote_port = send_port_;
 
-  kern_return_t result = mach_msg(&message.head,
+  message.Head()->msgh_remote_port = send_port_;
+
+  kern_return_t result = mach_msg(message.Head(),
                                   MACH_SEND_MSG | MACH_SEND_TIMEOUT,
-                                  message.head.msgh_size,
+                                  message.Head()->msgh_size,
                                   0,
                                   MACH_PORT_NULL,
                                   timeout,              // timeout in ms
