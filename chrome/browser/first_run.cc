@@ -93,7 +93,8 @@ bool InvokeGoogleUpdateForRename() {
                                        google_update::kRegRenameCmdField,
                                        id, &phandle))) {
       HANDLE handle = HANDLE(phandle);
-      ::GetExitCodeProcess(handle, exit_code);
+      DWORD exit_code;
+      ::GetExitCodeProcess(handle, &exit_code);
       ::CloseHandle(handle);
       if (exit_code == installer_util::RENAME_SUCCESSFUL)
         return true;
