@@ -465,10 +465,10 @@ gfx::Size ConstrainedWindowNonClientView::GetPreferredSize() {
 void ConstrainedWindowNonClientView::ViewHierarchyChanged(bool is_add,
                                                           View *parent,
                                                           View *child) {
-  if (is_add && GetContainer()) {
+  if (is_add && GetWidget()) {
     // Add our Client View as we are added to the Container so that if we are
     // subsequently resized all the parent-child relationships are established.
-    if (is_add && GetContainer() && child == this)
+    if (is_add && GetWidget() && child == this)
       AddChildView(container_->client_view());
   }
 }
@@ -677,7 +677,7 @@ void ConstrainedWindowImpl::UpdateUI(unsigned int changed_flags) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowImpl, views::ContainerWin overrides:
+// ConstrainedWindowImpl, views::WidgetWin overrides:
 
 void ConstrainedWindowImpl::OnDestroy() {
   // We do this here, rather than |Close|, since the window may be destroyed in
@@ -709,7 +709,7 @@ void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
   // list.
   owner_->WillClose(this);
 
-  ContainerWin::OnFinalMessage(window);
+  WidgetWin::OnFinalMessage(window);
 }
 
 void ConstrainedWindowImpl::OnGetMinMaxInfo(LPMINMAXINFO mm_info) {

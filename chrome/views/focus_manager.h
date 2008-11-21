@@ -29,10 +29,10 @@
 // This is already done for you if you subclass the NativeControl class or if
 // you use the HWNDView class.
 //
-// When creating a top window, if it derives from ContainerWin, the
+// When creating a top window, if it derives from WidgetWin, the
 // |has_own_focus_manager| of the Init method lets you specify whether that
 // window should have its own focus manager (so focus traversal stays confined
-// in that window). If you are not deriving from ContainerWin or one of its
+// in that window). If you are not deriving from WidgetWin or one of its
 // derived classes (Window, FramelessWindow, ConstrainedWindow), you must
 // create a FocusManager when the window is created (it is automatically deleted
 // when the window is destroyed).
@@ -49,7 +49,7 @@
 // method SetNextFocusableView().
 //
 // If you are embedding a native view containing a nested RootView (for example
-// by adding a NativeControl that contains a ContainerWin as its native
+// by adding a NativeControl that contains a WidgetWin as its native
 // component), then you need to:
 // - override the View::GetFocusTraversable() method in your outter component.
 //   It should return the RootView of the inner component. This is used when

@@ -7,8 +7,8 @@
 #include "base/message_loop.h"
 #include "chrome/browser/back_forward_menu_model.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/views/container.h"
 #include "chrome/views/view_menu_delegate.h"
+#include "chrome/views/widget.h"
 
 #include "generated_resources.h"
 
@@ -49,7 +49,7 @@ bool ButtonDropDown::OnMousePressed(const MouseEvent& e) {
     // Schedule a task that will show the menu.
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         show_menu_factory_.NewRunnableMethod(&ButtonDropDown::ShowDropDownMenu,
-                                             GetContainer()->GetHWND()),
+                                             GetWidget()->GetHWND()),
         kMenuTimerDelay);
   }
 
@@ -73,7 +73,7 @@ void ButtonDropDown::OnMouseReleased(const MouseEvent& e, bool canceled) {
     //       update the appearance synchronously.
     SetState(BS_PUSHED);
     PaintNow();
-    ShowDropDownMenu(GetContainer()->GetHWND());
+    ShowDropDownMenu(GetWidget()->GetHWND());
   }
 }
 
@@ -91,7 +91,7 @@ bool ButtonDropDown::OnMouseDragged(const MouseEvent& e) {
     // it immediately.
     if (e.y() > y_position_on_lbuttondown_ + dragging_threshold) {
       show_menu_factory_.RevokeAll();
-      ShowDropDownMenu(GetContainer()->GetHWND());
+      ShowDropDownMenu(GetWidget()->GetHWND());
     }
   }
 
@@ -112,7 +112,7 @@ void ButtonDropDown::ShowContextMenu(int x, int y, bool is_mouse_gesture) {
   //       update the appearance synchronously.
   SetState(BS_PUSHED);
   PaintNow();
-  ShowDropDownMenu(GetContainer()->GetHWND());
+  ShowDropDownMenu(GetWidget()->GetHWND());
   SetState(BS_HOT);
 }
 

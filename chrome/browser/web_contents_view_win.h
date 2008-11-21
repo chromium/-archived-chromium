@@ -8,7 +8,7 @@
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/web_contents_view.h"
-#include "chrome/views/container_win.h"
+#include "chrome/views/widget_win.h"
 
 class FindBarWin;
 class InfoBarView;
@@ -20,7 +20,7 @@ class WebDropTarget;
 // Windows-specific implementation of the WebContentsView. It is a HWND that
 // contains all of the contents of the tab and associated child views.
 class WebContentsViewWin : public WebContentsView,
-                           public views::ContainerWin {
+                           public views::WidgetWin {
  public:
   // The corresponding WebContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
@@ -78,7 +78,7 @@ class WebContentsViewWin : public WebContentsView,
  private:
   // Windows events ------------------------------------------------------------
 
-  // Overrides from ContainerWin.
+  // Overrides from WidgetWin.
   virtual void OnDestroy();
   virtual void OnHScroll(int scroll_type, short position, HWND scrollbar);
   virtual void OnMouseLeave();

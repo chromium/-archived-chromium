@@ -22,10 +22,10 @@
 #include "chrome/views/accessibility/accessible_wrapper.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
-#include "chrome/views/container.h"
 #include "chrome/views/layout_manager.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/tooltip_manager.h"
+#include "chrome/views/widget.h"
 #include "SkShader.h"
 
 namespace views {
@@ -282,11 +282,11 @@ void View::SetFocusable(bool focusable) {
 }
 
 FocusManager* View::GetFocusManager() {
-  Container* container = GetContainer();
-  if (!container)
+  Widget* widget = GetWidget();
+  if (!widget)
     return NULL;
 
-  HWND hwnd = container->GetHWND();
+  HWND hwnd = widget->GetHWND();
   if (!hwnd)
     return NULL;
 
@@ -748,19 +748,15 @@ View* View::GetViewForPoint(const gfx::Point& point,
   return this;
 }
 
-Container* View::GetContainer() const {
-  // The root view holds a reference to this view hierarchy's container.
-  return parent_ ? parent_->GetContainer() : NULL;
+Widget* View::GetWidget() const {
+  // The root view holds a reference to this view hierarchy's Widget.
+  return parent_ ? parent_->GetWidget() : NULL;
 }
 
 // Get the containing RootView
 RootView* View::GetRootView() {
-  Container* vc = GetContainer();
-  if (vc) {
-    return vc->GetRootView();
-  } else {
-    return NULL;
-  }
+  Widget* widget = GetWidget();
+  return widget ? widget->GetRootView() : NULL;
 }
 
 View* View::GetViewByID(int id) const {
@@ -1291,10 +1287,10 @@ void View::ConvertPointToView(View* src, View* dst, gfx::Point* point,
 
     // If src is NULL, sp is in the screen coordinate system
     if (src == NULL) {
-      Container* vc = dst->GetContainer();
-      if (vc) {
+      Widget* widget = dst->GetWidget();
+      if (widget) {
         CRect b;
-        vc->GetBounds(&b, false);
+        widget->GetBounds(&b, false);
         point->SetPoint(point->x() - b.left, point->y() - b.top);
       }
     }
@@ -1302,7 +1298,7 @@ void View::ConvertPointToView(View* src, View* dst, gfx::Point* point,
 }
 
 // static
-void View::ConvertPointToContainer(View* src, gfx::Point* p) {
+void View::ConvertPointToWidget(View* src, gfx::Point* p) {
   DCHECK(src);
   DCHECK(p);
 
@@ -1316,9 +1312,9 @@ void View::ConvertPointToContainer(View* src, gfx::Point* p) {
 }
 
 // static
-void View::ConvertPointFromContainer(View *source, gfx::Point* p) {
+void View::ConvertPointFromWidget(View *source, gfx::Point* p) {
   gfx::Point t;
-  ConvertPointToContainer(source, &t);
+  ConvertPointToWidget(source, &t);
   p->SetPoint(p->x() - t.x(), p->y() - t.y());
 }
 
@@ -1328,11 +1324,11 @@ void View::ConvertPointToScreen(View* src, gfx::Point* p) {
   DCHECK(p);
 
   // If the view is not connected to a tree, there's nothing we can do.
-  Container* vc = src->GetContainer();
-  if (vc) {
-    ConvertPointToContainer(src, p);
+  Widget* widget = src->GetWidget();
+  if (widget) {
+    ConvertPointToWidget(src, p);
     CRect r;
-    vc->GetBounds(&r, false);
+    widget->GetBounds(&r, false);
     p->SetPoint(p->x() + r.left, p->y() + r.top);
   }
 }
@@ -1503,7 +1499,7 @@ void View::Focus() {
   // messages.
   FocusManager* focus_manager = GetFocusManager();
   if (focus_manager)
-    focus_manager->FocusHWND(GetRootView()->GetContainer()->GetHWND());
+    focus_manager->FocusHWND(GetRootView()->GetWidget()->GetHWND());
 }
 
 bool View::CanProcessTabKeyEvents() {
@@ -1520,15 +1516,15 @@ bool View::GetTooltipTextOrigin(int x, int y, gfx::Point* loc) {
 }
 
 void View::TooltipTextChanged() {
-  Container* view_container = GetContainer();
-  if (view_container != NULL && view_container->GetTooltipManager())
-    view_container->GetTooltipManager()->TooltipTextChanged(this);
+  Widget* widget = GetWidget();
+  if (widget && widget->GetTooltipManager())
+    widget->GetTooltipManager()->TooltipTextChanged(this);
 }
 
 void View::UpdateTooltip() {
-  Container* view_container = GetContainer();
-  if (view_container != NULL && view_container->GetTooltipManager())
-    view_container->GetTooltipManager()->UpdateTooltip();
+  Widget* widget = GetWidget();
+  if (widget && widget->GetTooltipManager())
+    widget->GetTooltipManager()->UpdateTooltip();
 }
 
 void View::SetParentOwned(bool f) {
@@ -1549,7 +1545,6 @@ gfx::Rect View::GetVisibleBounds() {
   View* view = this;
   int root_x = 0;
   int root_y = 0;
-  bool has_view_container = false;
   while (view != NULL && !vis_bounds.IsEmpty()) {
     root_x += view->GetX(APPLY_MIRRORING_TRANSFORMATION);
     root_y += view->y();
@@ -1559,9 +1554,8 @@ gfx::Rect View::GetVisibleBounds() {
       ancestor_bounds.SetRect(0, 0, ancestor->width(),
                               ancestor->height());
       vis_bounds = vis_bounds.Intersect(ancestor_bounds);
-    } else if (!view->GetContainer()) {
-      // If the view has no Container, we're not visible. Return an empty
-      // rect.
+    } else if (!view->GetWidget()) {
+      // If the view has no Widget, we're not visible. Return an empty rect.
       return gfx::Rect();
     }
     view = ancestor;

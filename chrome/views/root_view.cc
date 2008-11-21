@@ -12,7 +12,7 @@
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/views/root_view_drop_target.h"
-#include "chrome/views/container.h"
+#include "chrome/views/widget.h"
 
 namespace views {
 
@@ -51,8 +51,8 @@ const char RootView::kViewClassName[] = "chrome/views/RootView";
 //
 /////////////////////////////////////////////////////////////////////////////
 
-RootView::RootView(Container* container)
-  : container_(container),
+RootView::RootView(Widget* widget)
+  : widget_(widget),
     mouse_pressed_handler_(NULL),
     mouse_move_handler_(NULL),
     explicit_mouse_handler_(FALSE),
@@ -178,9 +178,9 @@ void RootView::PaintNow() {
   }
   if (!paint_task_needed_)
     return;
-  Container* vc = GetContainer();
-  if (vc)
-    vc->PaintNow(invalid_rect_);
+  Widget* widget = GetWidget();
+  if (widget)
+    widget->PaintNow(invalid_rect_);
 }
 
 bool RootView::NeedsPainting(bool urgent) {
@@ -212,8 +212,8 @@ RECT RootView::GetScheduledPaintRectConstrainedToSize() {
 //
 /////////////////////////////////////////////////////////////////////////////
 
-Container* RootView::GetContainer() const {
-  return container_;
+Widget* RootView::GetWidget() const {
+  return widget_;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -311,7 +311,7 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
   mouse_pressed_handler_ = NULL;
 
   if (focus_on_mouse_pressed_) {
-    HWND hwnd = container_->GetHWND();
+    HWND hwnd = GetWidget()->GetHWND();
     if (::GetFocus() != hwnd) {
       ::SetFocus(hwnd);
     }
@@ -327,7 +327,7 @@ bool RootView::ConvertPointToMouseHandler(const gfx::Point& l,
   // window. (a non explicit mouse handler is automatically
   // cleared when the control is removed from the hierarchy)
   if (explicit_mouse_handler_) {
-    if (mouse_pressed_handler_->GetContainer()) {
+    if (mouse_pressed_handler_->GetWidget()) {
       *p = l;
       ConvertPointToScreen(this, p);
       ConvertPointToView(NULL, mouse_pressed_handler_, p);
@@ -459,17 +459,17 @@ void RootView::SetMouseHandler(View *new_mh) {
   mouse_pressed_handler_ = new_mh;
 }
 
-void RootView::OnContainerCreated() {
+void RootView::OnWidgetCreated() {
   DCHECK(!drop_target_.get());
   drop_target_ = new RootViewDropTarget(this);
 }
 
-void RootView::OnContainerDestroyed() {
+void RootView::OnWidgetDestroyed() {
   if (drop_target_.get()) {
-    RevokeDragDrop(GetContainer()->GetHWND());
+    RevokeDragDrop(GetWidget()->GetHWND());
     drop_target_ = NULL;
   }
-  container_ = NULL;
+  widget_ = NULL;
 }
 
 void RootView::ProcessMouseDragCanceled() {
@@ -489,7 +489,7 @@ void RootView::FocusView(View* view) {
   if (view != GetFocusedView()) {
     FocusManager* focus_manager = GetFocusManager();
     DCHECK(focus_manager) << "No Focus Manager for Window " <<
-        (GetContainer() ? GetContainer()->GetHWND() : 0);
+        (GetWidget() ? GetWidget()->GetHWND() : 0);
     if (!focus_manager)
       return;
 

@@ -23,7 +23,7 @@
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/win_util.h"
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!
-#include "chrome/views/container_win.h"
+#include "chrome/views/widget_win.h"
 #include "webkit/glue/webcursor.h"
 
 using base::TimeDelta;

@@ -15,7 +15,6 @@
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/container.h"
 #include "chrome/views/hwnd_view.h"
 #include "SkBitmap.h"
 #include "SkColorFilter.h"
@@ -438,7 +437,7 @@ void TableView::SetColumnVisibility(int id, bool is_visible) {
         int index = static_cast<int>(i - visible_columns_.begin());
         // This could be called before the native list view has been created
         // (in CreateNativeControl, called when the view is added to a
-        // container). In that case since the column is not in
+        // Widget). In that case since the column is not in
         // visible_columns_ it will not be added later on when it is created.
         if (list_view_)
           SendMessage(list_view_, LVM_DELETECOLUMN, index, 0);

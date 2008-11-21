@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_VIEWS_INFO_BUBBLE_H_
 
 #include "chrome/common/slide_animation.h"
-#include "chrome/views/container_win.h"
 #include "chrome/views/view.h"
+#include "chrome/views/widget_win.h"
 
 // InfoBubble is used to display an arbitrary view above all other windows.
 // Think of InfoBubble as a tooltip that allows you to embed an arbitrary view
@@ -33,7 +33,7 @@ class InfoBubbleDelegate {
   virtual bool CloseOnEscape() = 0;
 };
 
-class InfoBubble : public views::ContainerWin,
+class InfoBubble : public views::WidgetWin,
                    public AnimationDelegate {
  public:
   // Shows the InfoBubble. The InfoBubble is parented to parent_hwnd, contains

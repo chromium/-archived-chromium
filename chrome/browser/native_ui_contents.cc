@@ -16,12 +16,12 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
 #include "chrome/views/checkbox.h"
-#include "chrome/views/container_win.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/scroll_view.h"
 #include "chrome/views/throbber.h"
+#include "chrome/views/widget_win.h"
 
 #include "generated_resources.h"
 
@@ -150,7 +150,7 @@ NativeUIContents::~NativeUIContents() {
 
 void NativeUIContents::CreateView() {
   set_delete_on_destroy(false);
-  ContainerWin::Init(GetDesktopWindow(), gfx::Rect(), false);
+  WidgetWin::Init(GetDesktopWindow(), gfx::Rect(), false);
 }
 
 LRESULT NativeUIContents::OnCreate(LPCREATESTRUCT create_struct) {

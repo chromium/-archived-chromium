@@ -10,8 +10,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/chrome_menu.h"
-#include "chrome/views/container.h"
 #include "chrome/views/tooltip_manager.h"
+#include "chrome/views/widget.h"
 #include "generated_resources.h"
 
 const std::string Tab::kTabClassName = "browser/tabs/Tab";
@@ -53,7 +53,7 @@ class TabContextMenuController : public views::MenuDelegate {
   }
 
   void RunMenuAt(int x, int y) {
-    menu_->RunMenuAt(tab_->GetContainer()->GetHWND(), gfx::Rect(x, y, 0, 0),
+    menu_->RunMenuAt(tab_->GetWidget()->GetHWND(), gfx::Rect(x, y, 0, 0),
                      views::MenuItemView::TOPLEFT, true);
   }
 

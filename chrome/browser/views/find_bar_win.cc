@@ -13,11 +13,11 @@
 #include "chrome/browser/views/find_bar_view.h"
 #include "chrome/browser/web_contents.h"
 #include "chrome/browser/web_contents_view.h"
-#include "chrome/views/container_win.h"
 #include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view_storage.h"
+#include "chrome/views/widget_win.h"
 
 int FindBarWin::request_id_counter_ = 0;
 
@@ -42,9 +42,9 @@ FindBarWin::FindBarWin(WebContentsView* parent_tab, HWND parent_hwnd)
   // own handler for Escape.
   SetFocusChangeListener(parent_hwnd);
 
-  // Don't let ContainerWin manage our lifetime. We want our lifetime to
+  // Don't let WidgetWin manage our lifetime. We want our lifetime to
   // coincide with WebContents.
-  ContainerWin::set_delete_on_destroy(false);
+  WidgetWin::set_delete_on_destroy(false);
 
   view_ = new FindBarView(this);
 
@@ -60,7 +60,7 @@ FindBarWin::FindBarWin(WebContentsView* parent_tab, HWND parent_hwnd)
   gfx::Rect find_dlg_rect = GetDialogPosition(gfx::Rect());
   set_window_style(WS_CHILD | WS_CLIPCHILDREN);
   set_window_ex_style(WS_EX_TOPMOST);
-  ContainerWin::Init(parent_hwnd, find_dlg_rect, false);
+  WidgetWin::Init(parent_hwnd, find_dlg_rect, false);
   SetContentsView(view_);
 
   // Start the process of animating the opening of the window.
@@ -326,7 +326,7 @@ void FindBarWin::SetParent(HWND new_parent) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindBarWin, views::ContainerWin implementation:
+// FindBarWin, views::WidgetWin implementation:
 
 void FindBarWin::OnFinalMessage(HWND window) {
   // We are exiting, so we no longer need to monitor focus changes.
@@ -483,12 +483,12 @@ void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
   gfx::Rect toolbar_bounds, bookmark_bar_bounds;
   if (toolbar) {
     toolbar_bounds = toolbar->GetLocalBounds(false);
-    // Need to convert toolbar bounds into Container coords because the toolbar
+    // Need to convert toolbar bounds into Widget coords because the toolbar
     // is the child of another view that isn't the top level view. This is
     // required to ensure correct positioning relative to the top,left of the
     // window.
     gfx::Point topleft;
-    views::View::ConvertPointToContainer(toolbar, &topleft);
+    views::View::ConvertPointToWidget(toolbar, &topleft);
     toolbar_bounds.Offset(topleft.x(), topleft.y());
   }
 

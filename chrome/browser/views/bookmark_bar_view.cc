@@ -39,10 +39,10 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/chrome_menu.h"
-#include "chrome/views/container.h"
 #include "chrome/views/menu_button.h"
 #include "chrome/views/tooltip_manager.h"
 #include "chrome/views/view_constants.h"
+#include "chrome/views/widget.h"
 #include "chrome/views/window.h"
 #include "generated_resources.h"
 
@@ -532,7 +532,7 @@ class MenuRunner : public views::MenuDelegate,
     std::vector<BookmarkNode*> nodes;
     nodes.push_back(menu_id_to_node_map_[id]);
     context_menu_.reset(
-        new BookmarkContextMenu(view_->GetContainer()->GetHWND(),
+        new BookmarkContextMenu(view_->GetWidget()->GetHWND(),
                                 view_->GetProfile(),
                                 view_->browser(),
                                 view_->GetPageNavigator(),
@@ -1403,7 +1403,7 @@ void BookmarkBarView::RunMenu(views::View* view,
   gfx::Point screen_loc(x, 0);
   View::ConvertPointToScreen(this, &screen_loc);
   menu_runner_.reset(new MenuRunner(this, node, start_index));
-  HWND parent_hwnd = GetContainer()->GetHWND();
+  HWND parent_hwnd = GetWidget()->GetHWND();
   menu_runner_->RunMenuAt(parent_hwnd,
                           gfx::Rect(screen_loc.x(), screen_loc.y(),
                                     view->width(), bar_height),
@@ -1428,7 +1428,7 @@ void BookmarkBarView::ButtonPressed(views::BaseButton* sender) {
         PageTransition::AUTO_BOOKMARK);
   } else {
     bookmark_utils::OpenAll(
-        GetContainer()->GetHWND(), profile_, GetPageNavigator(), node,
+        GetWidget()->GetHWND(), profile_, GetPageNavigator(), node,
         event_utils::DispositionFromEventFlags(sender->mouse_event_flags()));
   }
   UserMetrics::RecordAction(L"ClickedBookmarkBarURLButton", profile_);
@@ -1463,7 +1463,7 @@ void BookmarkBarView::ShowContextMenu(View* source,
   } else {
     parent = model_->GetBookmarkBarNode();
   }
-  BookmarkContextMenu controller(GetContainer()->GetHWND(),
+  BookmarkContextMenu controller(GetWidget()->GetHWND(),
                                  GetProfile(), browser(), GetPageNavigator(),
                                  parent, nodes,
                                  BookmarkContextMenu::BOOKMARK_BAR);
@@ -1598,7 +1598,7 @@ void BookmarkBarView::ShowDropFolderForNode(BookmarkNode* node) {
   gfx::Point screen_loc;
   View::ConvertPointToScreen(view_to_position_menu_from, &screen_loc);
   drop_menu_runner_->RunMenuAt(
-      GetContainer()->GetHWND(),
+      GetWidget()->GetHWND(),
       gfx::Rect(screen_loc.x(), screen_loc.y(),
                 view_to_position_menu_from->width(),
                 view_to_position_menu_from->height()),
@@ -1807,7 +1807,7 @@ void BookmarkBarView::StartThrobbing() {
   if (bubble_url_.is_empty())
     return;  // Bubble isn't showing; nothing to throb.
 
-  if (!GetContainer())
+  if (!GetWidget())
     return;  // We're not showing, don't do anything.
 
   BookmarkNode* node = model_->GetMostRecentlyAddedNodeForURL(bubble_url_);

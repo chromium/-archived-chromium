@@ -19,7 +19,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/container.h"
 #include "chrome/views/window.h"
 
 #include "generated_resources.h"

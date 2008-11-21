@@ -16,8 +16,8 @@
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/throb_animation.h"
 #include "chrome/views/background.h"
-#include "chrome/views/container_win.h"
 #include "chrome/views/root_view.h"
+#include "chrome/views/widget_win.h"
 #include "skia/include/SkColor.h"
 
 namespace views {
@@ -167,7 +167,7 @@ HWND TabbedPane::CreateNativeControl(HWND parent_container) {
   SendMessage(tab_control_, WM_SETFONT, reinterpret_cast<WPARAM>(font), FALSE);
 
   // Create the view container which is a child of the TabControl.
-  content_window_ = new ContainerWin();
+  content_window_ = new WidgetWin();
   content_window_->Init(tab_control_, gfx::Rect(), false);
 
   // Explicitly setting the WS_EX_LAYOUTRTL property for the HWND (see above

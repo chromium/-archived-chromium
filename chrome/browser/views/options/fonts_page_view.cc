@@ -26,11 +26,11 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/checkbox.h"
-#include "chrome/views/container.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/radio_button.h"
 #include "chrome/views/text_field.h"
+#include "chrome/views/widget.h"
 #include "generated_resources.h"
 #include "skia/include/SkBitmap.h"
 
@@ -228,7 +228,7 @@ FontsPageView::~FontsPageView() {
 }
 
 void FontsPageView::ButtonPressed(views::NativeButton* sender) {
-  HWND owning_hwnd = GetAncestor(GetContainer()->GetHWND(), GA_ROOT);
+  HWND owning_hwnd = GetAncestor(GetWidget()->GetHWND(), GA_ROOT);
   std::wstring font_name;
   int font_size = 0;
   if (sender == serif_font_change_page_button_) {

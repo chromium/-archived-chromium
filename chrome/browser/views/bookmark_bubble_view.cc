@@ -136,9 +136,9 @@ void BookmarkBubbleView::DidChangeBounds(const gfx::Rect& previous,
 }
 
 void BookmarkBubbleView::BubbleShown() {
-  DCHECK(GetContainer());
+  DCHECK(GetWidget());
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetContainer()->GetHWND());
+      views::FocusManager::GetFocusManager(GetWidget()->GetHWND());
   focus_manager->RegisterAccelerator(
       views::Accelerator(VK_RETURN, false, false, false), this);
 
@@ -316,7 +316,7 @@ bool BookmarkBubbleView::CloseOnEscape() {
 }
 
 void BookmarkBubbleView::Close() {
-  static_cast<InfoBubble*>(GetContainer())->Close();
+  static_cast<InfoBubble*>(GetWidget())->Close();
 }
 
 void BookmarkBubbleView::RemoveBookmark() {
@@ -342,16 +342,16 @@ void BookmarkBubbleView::ShowEditor() {
 
   // Parent the editor to our root ancestor (not the root we're in, as that
   // is the info bubble and will close shortly).
-  HWND parent = GetAncestor(GetContainer()->GetHWND(), GA_ROOTOWNER);
+  HWND parent = GetAncestor(GetWidget()->GetHWND(), GA_ROOTOWNER);
 
   // We're about to show the bookmark editor. When the bookmark editor closes
-  // we want the browser to become active. ContainerWin::Hide() does a hide in
+  // we want the browser to become active. WidgetWin::Hide() does a hide in
   // a such way that activation isn't changed, which means when we close
   // Windows gets confused as to who it should give active status to. We
   // explicitly hide the bookmark bubble window in such a way that activation
   // status changes. That way, when the editor closes, activation is properly
   // restored to the browser.
-  ShowWindow(GetContainer()->GetHWND(), SW_HIDE);
+  ShowWindow(GetWidget()->GetHWND(), SW_HIDE);
 
   // Even though we just hid the window, we need to invoke Close to schedule
   // the delete and all that.

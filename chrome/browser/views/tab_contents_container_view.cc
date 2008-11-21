@@ -13,8 +13,8 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/web_contents.h"
-#include "chrome/views/container.h"
 #include "chrome/views/root_view.h"
+#include "chrome/views/widget.h"
 
 using views::FocusTraversable;
 using views::FocusManager;
@@ -235,7 +235,7 @@ void TabContentsContainerView::RenderViewHostChanged(RenderViewHost* old_host,
 
   // If we are focused, we need to pass the focus to the new RenderViewHost.
   FocusManager* focus_manager =
-      FocusManager::GetFocusManager(GetRootView()->GetContainer()->GetHWND());
+      FocusManager::GetFocusManager(GetRootView()->GetWidget()->GetHWND());
   if (focus_manager->GetFocusedView() == this)
     Focus();
 }

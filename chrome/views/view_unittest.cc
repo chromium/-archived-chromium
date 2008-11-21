@@ -285,7 +285,7 @@ TEST_F(ViewTest, MouseEvent) {
   TestView* v2 = new TestView();
   v2->SetBounds (100, 100, 100, 100);
 
-  views::ContainerWin window;
+  views::WidgetWin window;
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
   window.Init(NULL, gfx::Rect(50, 50, 650, 650), false);
@@ -359,7 +359,7 @@ TEST_F(ViewTest, Painting) {
                             RDW_UPDATENOW | RDW_INVALIDATE | RDW_ALLCHILDREN);
   bool empty_paint = paint_window.empty_paint();
 
-  views::ContainerWin window;
+  views::WidgetWin window;
   window.set_delete_on_destroy(false);
   window.set_window_style(WS_OVERLAPPEDWINDOW);
   window.Init(NULL, gfx::Rect(50, 50, 650, 650), NULL);
@@ -446,7 +446,7 @@ TEST_F(ViewTest, RemoveNotification) {
   NotificationService::current()->AddObserver(
       observer.get(), NOTIFY_VIEW_REMOVED, NotificationService::AllSources());
 
-  views::ContainerWin* window = new views::ContainerWin;
+  views::WidgetWin* window = new views::WidgetWin;
   views::RootView* root_view = window->GetRootView();
 
   View* v1 = new View;
@@ -550,7 +550,7 @@ gfx::Point ConvertPointToView(views::View* view, const gfx::Point& p) {
 }
 
 TEST_F(ViewTest, HitTestMasks) {
-  views::ContainerWin window;
+  views::WidgetWin window;
   views::RootView* root_view = window.GetRootView();
   root_view->SetBounds(0, 0, 500, 500);
 

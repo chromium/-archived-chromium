@@ -250,7 +250,7 @@ void FindBarView::Paint(ChromeCanvas* canvas) {
   // middle and right). Note, that the window region has been set by the
   // controller, so the whitespace in the left and right background images is
   // actually outside the window region and is therefore not drawn. See
-  // FindInPageContainerWin::CreateRoundedWindowEdges() for details.
+  // FindInPageWidgetWin::CreateRoundedWindowEdges() for details.
   const SkBitmap *bg_left =
       toolbar_blend_ ? kDlgBackground_left : kDlgBackground_bb_left;
   const SkBitmap *bg_middle =

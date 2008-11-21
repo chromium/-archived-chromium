@@ -8,10 +8,10 @@
 #include "chrome/browser/page_state.h"
 #include "chrome/browser/tab_contents.h"
 #include "chrome/views/background.h"
-#include "chrome/views/container_win.h"
 #include "chrome/views/link.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/text_field.h"
+#include "chrome/views/widget_win.h"
 
 namespace views {
 class CheckBox;
@@ -33,7 +33,7 @@ class NativeUI;
 //
 ////////////////////////////////////////////////////////////////////////////////
 class NativeUIContents : public TabContents,
-                         public views::ContainerWin {
+                         public views::WidgetWin {
  public:
   explicit NativeUIContents(Profile* profile);
 

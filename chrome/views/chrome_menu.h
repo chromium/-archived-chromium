@@ -19,7 +19,7 @@
 
 namespace views {
 
-class ContainerWin;
+class WidgetWin;
 class MenuController;
 class MenuItemView;
 class SubmenuView;
@@ -484,7 +484,7 @@ class MenuItemView : public View {
 // . Forwards the appropriate events to the MenuController. This allows the
 //   MenuController to update the selection as the user moves the mouse around.
 // . Renders the drop indicator during a drop operation.
-// . Shows and hides the window (a ContainerWin) when the menu is shown on
+// . Shows and hides the window (a WidgetWin) when the menu is shown on
 //   screen.
 //
 // SubmenuView is itself contained in a MenuScrollViewContainer.
@@ -590,7 +590,7 @@ class SubmenuView : public View {
   // Parent menu item.
   MenuItemView* parent_menu_item_;
 
-  // ContainerWin subclass used to show the children.
+  // WidgetWin subclass used to show the children.
   MenuHost* host_;
 
   // If non-null, indicates a drop is in progress and drop_item is the item

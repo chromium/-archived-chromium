@@ -13,7 +13,7 @@
 #include "skia/include/SkBitmap.h"
 
 namespace views {
-class ContainerWin;
+class WidgetWin;
 }
 namespace gfx {
 class Point;
@@ -76,7 +76,7 @@ class DraggedTabView : public views::View,
   int ScaleValue(int value);
 
   // The window that contains the DraggedTabView.
-  scoped_ptr<views::ContainerWin> container_;
+  scoped_ptr<views::WidgetWin> container_;
 
   // The renderer that paints the Tab shape.
   scoped_ptr<TabRenderer> renderer_;

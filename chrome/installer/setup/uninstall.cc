@@ -28,7 +28,7 @@ namespace {
 // to kill them.
 void CloseAllChromeProcesses() {
   for (int j = 0; j < 4; ++j) {
-    std::wstring wnd_class(L"Chrome_ContainerWin_");
+    std::wstring wnd_class(L"Chrome_WidgetWin_");
     wnd_class.append(IntToWString(j));
     HWND window = FindWindowEx(NULL, NULL, wnd_class.c_str(), NULL);
     while (window) {

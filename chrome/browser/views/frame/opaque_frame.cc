@@ -71,7 +71,7 @@ int OpaqueFrame::GetShowState() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// OpaqueFrame, views::ContainerWin overrides:
+// OpaqueFrame, views::WidgetWin overrides:
 
 bool OpaqueFrame::AcceleratorPressed(views::Accelerator* accelerator) {
   return browser_view_->AcceleratorPressed(*accelerator);

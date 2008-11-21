@@ -667,7 +667,7 @@ void OpaqueNonClientView::ViewHierarchyChanged(bool is_add,
                                                views::View* parent,
                                                views::View* child) {
   if (is_add && child == this) {
-    DCHECK(GetContainer());
+    DCHECK(GetWidget());
     DCHECK(frame_->client_view()->GetParent() != this);
     AddChildView(frame_->client_view());
 

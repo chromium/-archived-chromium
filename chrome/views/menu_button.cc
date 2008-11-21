@@ -14,10 +14,10 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/button.h"
-#include "chrome/views/container.h"
 #include "chrome/views/event.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view_menu_delegate.h"
+#include "chrome/views/widget.h"
 
 #include "generated_resources.h"
 
@@ -105,14 +105,14 @@ void MenuButton::Paint(ChromeCanvas* canvas, bool for_drag) {
 ////////////////////////////////////////////////////////////////////////////////
 
 int MenuButton::GetMaximumScreenXCoordinate() {
-  Container* vc = GetContainer();
+  Widget* widget = GetWidget();
 
-  if (!vc) {
+  if (!widget) {
     NOTREACHED();
     return 0;
   }
 
-  HWND hwnd = vc->GetHWND();
+  HWND hwnd = widget->GetHWND();
   CRect t;
   ::GetWindowRect(hwnd, &t);
 
@@ -158,7 +158,7 @@ bool MenuButton::Activate() {
 
     menu_visible_ = true;
     menu_delegate_->RunMenu(this, menu_position.ToPOINT(),
-                            GetContainer()->GetHWND());
+                            GetWidget()->GetHWND());
     menu_visible_ = false;
     menu_closed_time_ = Time::Now();
 

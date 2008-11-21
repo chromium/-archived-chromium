@@ -51,7 +51,7 @@ void DebuggerView::ViewHierarchyChanged(bool is_add,
                                         views::View* parent,
                                         views::View* child) {
   if (is_add && child == this) {
-    DCHECK(GetContainer());
+    DCHECK(GetWidget());
     OnInit();
   }
 }

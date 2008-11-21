@@ -7,10 +7,10 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/container.h"
 #include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/root_view.h"
+#include "chrome/views/widget.h"
 
 #include "generated_resources.h"
 
@@ -203,7 +203,7 @@ void InfoBarItemView::ViewHierarchyChanged(bool is_add,
       View* root_view = GetRootView();
       HWND root_hwnd = NULL;
       if (root_view)
-        root_hwnd = root_view->GetContainer()->GetHWND();
+        root_hwnd = root_view->GetWidget()->GetHWND();
 
       if (root_hwnd) {
         focus_tracker_.reset(new views::ExternalFocusTracker(

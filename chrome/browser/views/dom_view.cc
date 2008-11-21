@@ -5,7 +5,6 @@
 #include "chrome/browser/views/dom_view.h"
 
 #include "chrome/browser/dom_ui/dom_ui_host.h"
-#include "chrome/views/container.h"
 
 DOMView::DOMView(const GURL& contents)
     : contents_(contents), initialized_(false), host_(NULL) {

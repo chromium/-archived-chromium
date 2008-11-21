@@ -716,7 +716,7 @@ bool DownloadItemTabView::OnMousePressed(const views::MouseEvent& event) {
       views::View::ConvertPointToScreen(this, &point);
 
       download_util::DownloadDestinationContextMenu menu(
-          model_, GetContainer()->GetHWND(), point.ToPOINT());
+          model_, GetWidget()->GetHWND(), point.ToPOINT());
     }
   } else {
     parent_->ItemBecameSelected(NULL);
@@ -758,8 +758,8 @@ bool DownloadItemTabView::OnMouseDragged(const views::MouseEvent& event) {
 void DownloadItemTabView::LinkActivated(views::Link* source, int event_flags) {
   // There are several links in our view that could have been clicked:
   if (source == file_name_) {
-    views::Container* container = this->GetContainer();
-    HWND parent_window = container ? container->GetHWND() : NULL;
+    views::Widget* widget = this->GetWidget();
+    HWND parent_window = widget ? widget->GetHWND() : NULL;
     model_->manager()->OpenDownloadInShell(model_, parent_window);
   } else if (source == pause_) {
     model_->TogglePause();

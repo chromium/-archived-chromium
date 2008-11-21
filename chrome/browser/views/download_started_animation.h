@@ -11,7 +11,7 @@
 #include "chrome/views/image_view.h"
 
 namespace views {
-class ContainerWin;
+class WidgetWin;
 };
 class TabContents;
 
@@ -42,7 +42,7 @@ class DownloadStartedAnimation : public Animation,
                        const NotificationDetails& details);
 
   // We use a HWND for the popup so that it may float above any HWNDs in our UI.
-  views::ContainerWin* popup_;
+  views::WidgetWin* popup_;
 
   // The content area holding us.
   TabContents* tab_contents_;

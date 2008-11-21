@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_CONTAINER_WIN_H_
-#define CHROME_VIEWS_CONTAINER_WIN_H_
+#ifndef CHROME_VIEWS_WIDGET_WIN_H_
+#define CHROME_VIEWS_WIDGET_WIN_H_
 
 #include <atlbase.h>
 #include <atlcrack.h>
@@ -11,7 +11,7 @@
 #include "base/message_loop.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/layout_manager.h"
-#include "chrome/views/container.h"
+#include "chrome/views/widget.h"
 
 class ChromeCanvas;
 
@@ -68,34 +68,28 @@ class FillLayout : public LayoutManager {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// ContainerWin
-//  A container for a views hierarchy used to represent anything that can be
+// WidgetWin
+//  A Widget for a views hierarchy used to represent anything that can be
 //  contained within an HWND, e.g. a control, a window, etc. Specializations
 //  suitable for specific tasks, e.g. top level window, are derived from this.
 //
-//  This Container contains a RootView which owns the hierarchy of views
-//  within it. As long as views are part of this tree, they will be deleted
-//  automatically when the RootView is destroyed. If you remove a view from the
-//  tree, you are then responsible for cleaning up after it.
-//
-//  Note: We try and keep this API platform-neutral, since to some extent we
-//        consider this the boundary between the platform and potentially cross
-//        platform views code. In some cases this isn't true, primarily
-//        because of other code that has not yet been refactored to maintain
-//        this <controller>-<view>-<platform-specific-view> separation.
+//  This Widget contains a RootView which owns the hierarchy of views within it.
+//  As long as views are part of this tree, they will be deleted automatically
+//  when the RootView is destroyed. If you remove a view from the tree, you are
+//  then responsible for cleaning up after it.
 //
 ///////////////////////////////////////////////////////////////////////////////
-class ContainerWin : public Container,
-                     public MessageLoopForUI::Observer,
-                     public FocusTraversable,
-                     public AcceleratorTarget {
+class WidgetWin : public Widget,
+                  public MessageLoopForUI::Observer,
+                  public FocusTraversable,
+                  public AcceleratorTarget {
  public:
-  ContainerWin();
-  virtual ~ContainerWin();
+  WidgetWin();
+  virtual ~WidgetWin();
 
-  // Initialize the container with a parent and an initial desired size.
+  // Initialize the Widget with a parent and an initial desired size.
   // |contents_view| is the view that will be the single child of RootView
-  // within this Container. As contents_view is inserted into RootView's tree,
+  // within this Widget. As contents_view is inserted into RootView's tree,
   // RootView assumes ownership of this view and cleaning it up. If you remove
   // this view, you are responsible for its destruction. If this value is NULL,
   // the caller is responsible for populating the RootView, and sizing its
@@ -106,10 +100,10 @@ class ContainerWin : public Container,
             const gfx::Rect& bounds,
             bool has_own_focus_manager);
 
-  // Sets the specified view as the contents of this Container. There can only
-  // be one contnets view child of this Container's RootView. This view is
-  // sized to fit the entire size of the RootView. The RootView takes ownership
-  // of this View, unless it is set as not being parent-owned.
+  // Sets the specified view as the contents of this Widget. There can only
+  // be one contnets view child of this Widget's RootView. This view is sized to
+  // fit the entire size of the RootView. The RootView takes ownership of this
+  // View, unless it is set as not being parent-owned.
   virtual void SetContentsView(View* view);
 
   // Sets the window styles. This is ONLY used when the window is created.
@@ -155,11 +149,11 @@ class ContainerWin : public Container,
   virtual void Hide();
 
   // Closes the window synchronously.  Note that this should not be called from
-  // an ATL message callback as it deletes the ContainerWin and ATL will
+  // an ATL message callback as it deletes the WidgetWin and ATL will
   // dereference it after the callback is processed.
   void CloseNow();
 
-  // All classes registered by ContainerWin start with this name.
+  // All classes registered by WidgetWin start with this name.
   static const wchar_t* const kBaseClassName;
 
   BEGIN_MSG_MAP_EX(0)
@@ -242,7 +236,7 @@ class ContainerWin : public Container,
     MSG_WM_WINDOWPOSCHANGED(OnWindowPosChanged)
   END_MSG_MAP()
 
-  // Overridden from Container:
+  // Overridden from Widget:
   virtual void GetBounds(CRect *out, bool including_frame) const;
   virtual void MoveToFront(bool should_activate);
   virtual HWND GetHWND() const;
@@ -338,8 +332,8 @@ class ContainerWin : public Container,
   }
 
   // Message Handlers
-  // These are all virtual so that specialized view containers can modify or
-  // augment processing.
+  // These are all virtual so that specialized Widgets can modify or augment
+  // processing.
   // This list is in _ALPHABETICAL_ order!
   // Note: in the base class these functions must do nothing but convert point
   //       coordinates to client coordinates (if necessary) and forward the
@@ -485,7 +479,7 @@ class ContainerWin : public Container,
 
   virtual RootView* CreateRootView();
 
-  // Returns true if this ContainerWin is opaque.
+  // Returns true if this WidgetWin is opaque.
   bool opaque() const { return opaque_; }
 
   // The root of the View hierarchy attached to this window.
@@ -518,7 +512,7 @@ class ContainerWin : public Container,
   // so that subclasses can do any cleanup they need to.
   void OnDestroyImpl();
 
-  // The windows procedure used by all ContainerWins.
+  // The windows procedure used by all WidgetWins.
   static LRESULT CALLBACK WndProc(HWND window,
                                   UINT message,
                                   WPARAM w_param,
@@ -528,9 +522,9 @@ class ContainerWin : public Container,
   // If necessary, this registers the window class.
   std::wstring GetWindowClassName();
 
-  // The following factory is used for calls to close the ContainerWin
+  // The following factory is used for calls to close the WidgetWin
   // instance.
-  ScopedRunnableMethodFactory<ContainerWin> close_container_factory_;
+  ScopedRunnableMethodFactory<WidgetWin> close_widget_factory_;
 
   // The flags currently being used with TrackMouseEvent to track mouse
   // messages. 0 if there is no active tracking. The value of this member is
@@ -589,5 +583,5 @@ class ContainerWin : public Container,
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_CONTAINER_WIN_H_
+#endif  // #ifndef CHROME_VIEWS_WIDGET_WIN_H_
 

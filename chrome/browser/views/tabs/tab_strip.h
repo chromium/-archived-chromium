@@ -9,9 +9,9 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab.h"
 #include "chrome/views/button.h"
-#include "chrome/views/container_win.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
+#include "chrome/views/widget_win.h"
 
 class DraggedTabController;
 class ScopedMouseCloseWidthCalculator;
@@ -332,7 +332,7 @@ class TabStrip : public views::View,
     bool point_down;
 
     // Renders the drop indicator.
-    views::ContainerWin* arrow_window;
+    views::WidgetWin* arrow_window;
     views::ImageView* arrow_view;
 
    private:

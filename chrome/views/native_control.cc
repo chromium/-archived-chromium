@@ -11,11 +11,11 @@
 
 #include "base/win_util.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/views/background.h"
 #include "chrome/views/border.h"
-#include "chrome/views/container.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/hwnd_view.h"
-#include "chrome/views/background.h"
+#include "chrome/views/widget.h"
 #include "base/gfx/native_theme.h"
 
 namespace views {
@@ -36,7 +36,7 @@ class NativeControlContainer : public CWindowImpl<NativeControlContainer,
 
   explicit NativeControlContainer(NativeControl* parent) : parent_(parent),
                                                            control_(NULL) {
-    Create(parent->GetContainer()->GetHWND());
+    Create(parent->GetWidget()->GetHWND());
     ::ShowWindow(m_hWnd, SW_SHOW);
   }
 
@@ -199,14 +199,14 @@ void NativeControl::ValidateNativeControl() {
 
 void NativeControl::ViewHierarchyChanged(bool is_add, View *parent,
                                          View *child) {
-  if (is_add && GetContainer()) {
+  if (is_add && GetWidget()) {
     ValidateNativeControl();
     Layout();
   }
 }
 
 void NativeControl::Layout() {
-  if (!container_ && GetContainer())
+  if (!container_ && GetWidget())
     ValidateNativeControl();
 
   if (hwnd_view_) {

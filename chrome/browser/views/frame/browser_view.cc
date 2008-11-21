@@ -318,7 +318,7 @@ void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
 void BrowserView::Init() {
   // Stow a pointer to this object onto the window handle so that we can get
   // at it later when all we have is a HWND.
-  SetProp(GetContainer()->GetHWND(), kBrowserWindowKey, this);
+  SetProp(GetWidget()->GetHWND(), kBrowserWindowKey, this);
 
   // Start a hung plugin window detector for this browser object (as long as
   // hang detection is not disabled).
@@ -342,7 +342,7 @@ void BrowserView::Init() {
   set_contents_view(contents_container_);
   AddChildView(contents_container_);
 
-  status_bubble_.reset(new StatusBubble(GetContainer()));
+  status_bubble_.reset(new StatusBubble(GetWidget()));
 
 #ifdef CHROME_PERSONALIZATION
   EnablePersonalization(CommandLine().HasSwitch(switches::kEnableP13n));
@@ -405,7 +405,7 @@ void BrowserView::FlashFrame() {
 }
 
 void* BrowserView::GetNativeHandle() {
-  return GetContainer()->GetHWND();
+  return GetWidget()->GetHWND();
 }
 
 TabStrip* BrowserView::GetTabStrip() const {
@@ -525,7 +525,7 @@ void BrowserView::ToggleBookmarkBar() {
 
 void BrowserView::ShowAboutChromeDialog() {
   views::Window::CreateChromeWindow(
-      GetContainer()->GetHWND(), gfx::Rect(),
+      GetWidget()->GetHWND(), gfx::Rect(),
       new AboutChromeView(browser_->profile()))->Show();
 }
 
@@ -564,25 +564,25 @@ void BrowserView::ShowReportBugDialog() {
   // Grab an exact snapshot of the window that the user is seeing (i.e. as
   // rendered--do not re-render, and include windowed plugins)
   std::vector<unsigned char> *screenshot_png = new std::vector<unsigned char>;
-  win_util::GrabWindowSnapshot(GetContainer()->GetHWND(), screenshot_png);
+  win_util::GrabWindowSnapshot(GetWidget()->GetHWND(), screenshot_png);
   // the BugReportView takes ownership of the png data, and will dispose of
   // it in its destructor.
   bug_report_view->set_png_data(screenshot_png);
 
   // Create and show the dialog
-  views::Window::CreateChromeWindow(GetContainer()->GetHWND(), gfx::Rect(),
+  views::Window::CreateChromeWindow(GetWidget()->GetHWND(), gfx::Rect(),
                                     bug_report_view)->Show();
 }
 
 void BrowserView::ShowClearBrowsingDataDialog() {
   views::Window::CreateChromeWindow(
-      GetContainer()->GetHWND(), gfx::Rect(),
+      GetWidget()->GetHWND(), gfx::Rect(),
       new ClearBrowsingDataView(browser_->profile()))->Show();
 }
 
 void BrowserView::ShowImportDialog() {
   views::Window::CreateChromeWindow(
-      GetContainer()->GetHWND(), gfx::Rect(),
+      GetWidget()->GetHWND(), gfx::Rect(),
       new ImporterView(browser_->profile()))->Show();
 }
 
@@ -597,7 +597,7 @@ void BrowserView::ShowPasswordManager() {
 void BrowserView::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
                                  void* parent_window) {
   HWND parent_hwnd = reinterpret_cast<HWND>(parent_window);
-  parent_hwnd = parent_hwnd ? parent_hwnd : GetContainer()->GetHWND();
+  parent_hwnd = parent_hwnd ? parent_hwnd : GetWidget()->GetHWND();
   HtmlDialogView* html_view = new HtmlDialogView(browser_.get(),
                                                  browser_->profile(),
                                                  delegate);
@@ -909,7 +909,7 @@ void BrowserView::Layout() {
 void BrowserView::ViewHierarchyChanged(bool is_add,
                                        views::View* parent,
                                        views::View* child) {
-  if (is_add && child == this && GetContainer() && !initialized_) {
+  if (is_add && child == this && GetWidget() && !initialized_) {
     Init();
     initialized_ = true;
   }
@@ -1210,7 +1210,7 @@ void BrowserView::LoadAccelerators() {
   CopyAcceleratorTable(accelerator_table, accelerators, count);
 
   views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetContainer()->GetHWND());
+      views::FocusManager::GetFocusManager(GetWidget()->GetHWND());
   DCHECK(focus_manager);
 
   // Let's build our own accelerator table.
@@ -1325,7 +1325,7 @@ void BrowserView::InitHangMonitor() {
   int hung_plugin_detect_freq =
       pref_service->GetInteger(prefs::kHungPluginDetectFrequency);
   if ((hung_plugin_detect_freq > 0) &&
-      hung_window_detector_.Initialize(GetContainer()->GetHWND(),
+      hung_window_detector_.Initialize(GetWidget()->GetHWND(),
                                        plugin_message_response_timeout)) {
     ticker_.set_tick_interval(hung_plugin_detect_freq);
     ticker_.RegisterTickHandler(&hung_window_detector_);

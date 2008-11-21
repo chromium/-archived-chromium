@@ -13,7 +13,7 @@
 #include "chrome/browser/tab_contents_delegate.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/pref_member.h"
-#include "chrome/views/container_win.h"
+#include "chrome/views/widget_win.h"
 
 class BlockedPopupContainerView;
 class Profile;
@@ -30,7 +30,7 @@ class TextButton;
 //
 class BlockedPopupContainer : public ConstrainedWindow,
                               public TabContentsDelegate,
-                              public views::ContainerWin,
+                              public views::WidgetWin,
                               public Animation {
  public:
   virtual ~BlockedPopupContainer();
@@ -101,7 +101,7 @@ class BlockedPopupContainer : public ConstrainedWindow,
   virtual void AnimateToState(double state);
 
  protected:
-  // Override from views::ContainerWin:
+  // Override from views::WidgetWin:
   virtual void OnFinalMessage(HWND window);
   virtual void OnSize(UINT param, const CSize& size);
 

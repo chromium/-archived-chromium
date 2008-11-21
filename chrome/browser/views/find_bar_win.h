@@ -8,7 +8,7 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/render_view_host_delegate.h"
 #include "chrome/common/animation.h"
-#include "chrome/views/container_win.h"
+#include "chrome/views/widget_win.h"
 
 class FindBarView;
 class RenderViewHost;
@@ -34,7 +34,7 @@ class View;
 //
 ////////////////////////////////////////////////////////////////////////////////
 class FindBarWin : public views::FocusChangeListener,
-                   public views::ContainerWin,
+                   public views::WidgetWin,
                    public AnimationDelegate {
  public:
   FindBarWin(WebContentsView* parent_tab, HWND parent_hwnd);
@@ -113,7 +113,7 @@ class FindBarWin : public views::FocusChangeListener,
                    int active_match_ordinal,
                    bool final_update);
 
-  // Overridden from views::ContainerWin:
+  // Overridden from views::WidgetWin:
   virtual void OnFinalMessage(HWND window);
 
   // Overridden from views::FocusChangeListener:

@@ -15,7 +15,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
-#include "chrome/views/container.h"
 
 namespace views {
 

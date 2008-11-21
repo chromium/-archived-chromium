@@ -14,11 +14,11 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/container.h"
 #include "chrome/views/native_scroll_bar.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/view_storage.h"
+#include "chrome/views/widget.h"
 
 #include "generated_resources.h"
 
@@ -347,7 +347,7 @@ void TabContents::StoreFocus() {
     if (container_hwnd) {
       views::View* focused_view = focus_manager->GetFocusedView();
       if (focused_view) {
-        HWND hwnd = focused_view->GetRootView()->GetContainer()->GetHWND();
+        HWND hwnd = focused_view->GetRootView()->GetWidget()->GetHWND();
         if (container_hwnd == hwnd || ::IsChild(container_hwnd, hwnd))
           focus_manager->ClearFocus();
       }

@@ -38,7 +38,7 @@ gfx::Size ClientView::GetPreferredSize() {
 
 void ClientView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
   if (is_add && child == this) {
-    DCHECK(GetContainer());
+    DCHECK(GetWidget());
     DCHECK(contents_view_); // |contents_view_| must be valid now!
     AddChildView(contents_view_);
   }

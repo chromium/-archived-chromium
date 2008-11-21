@@ -6,7 +6,7 @@
 #include "chrome/browser/tab_contents.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/views/container_win.h"
+#include "chrome/views/widget_win.h"
 #include "skia/include/SkBitmap.h"
 
 namespace {
@@ -143,7 +143,7 @@ void HWNDPhotobooth::CreateCaptureWindow(HWND initial_hwnd) {
   gfx::Point window_position = GetCaptureWindowPosition();
   gfx::Rect capture_bounds(window_position.x(), window_position.y(),
                            contents_rect.Width(), contents_rect.Height());
-  capture_window_ = new views::ContainerWin;
+  capture_window_ = new views::WidgetWin;
   capture_window_->set_window_style(WS_POPUP);
   // WS_EX_TOOLWINDOW ensures the capture window doesn't produce a Taskbar
   // button.

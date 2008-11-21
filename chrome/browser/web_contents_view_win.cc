@@ -58,7 +58,7 @@ void WebContentsViewWin::CreateView() {
   // Since we create these windows parented to the desktop window initially, we
   // don't want to create them initially visible.
   set_window_style(WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
-  ContainerWin::Init(GetDesktopWindow(), gfx::Rect(), false);
+  WidgetWin::Init(GetDesktopWindow(), gfx::Rect(), false);
 
   // Remove the root view drop target so we can register our own.
   RevokeDragDrop(GetHWND());
@@ -583,7 +583,7 @@ void WebContentsViewWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
 }
 
 void WebContentsViewWin::OnSize(UINT param, const CSize& size) {
-  ContainerWin::OnSize(param, size);
+  WidgetWin::OnSize(param, size);
 
   // Hack for thinkpad touchpad driver.
   // Set fake scrollbars so that we can get scroll messages,

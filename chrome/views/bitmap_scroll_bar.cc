@@ -7,9 +7,9 @@
 #include "base/message_loop.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/views/container.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/scroll_view.h"
+#include "chrome/views/widget.h"
 #include "skia/include/SkBitmap.h"
 
 #include "generated_resources.h"
@@ -529,14 +529,14 @@ enum ScrollBarContextMenuCommands {
 
 void BitmapScrollBar::ShowContextMenu(View* source, int x, int y,
                                       bool is_mouse_gesture) {
-  Container* vc = GetContainer();
-  CRect vc_bounds;
-  vc->GetBounds(&vc_bounds, true);
-  gfx::Point temp_pt(x - vc_bounds.left, y - vc_bounds.top);
-  View::ConvertPointFromContainer(this, &temp_pt);
+  Widget* widget = GetWidget();
+  CRect widget_bounds;
+  widget->GetBounds(&widget_bounds, true);
+  gfx::Point temp_pt(x - widget_bounds.left, y - widget_bounds.top);
+  View::ConvertPointFromWidget(this, &temp_pt);
   context_menu_mouse_position_ = IsHorizontal() ? temp_pt.x() : temp_pt.y();
 
-  Menu menu(this, Menu::TOPLEFT, GetContainer()->GetHWND());
+  Menu menu(this, Menu::TOPLEFT, GetWidget()->GetHWND());
   menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollHere);
   menu.AppendSeparator();
   menu.AppendDelegateMenuItem(ScrollBarContextMenuCommand_ScrollStart);

@@ -34,12 +34,12 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/container.h"
+#include "chrome/views/background.h"
 #include "chrome/views/button_dropdown.h"
 #include "chrome/views/hwnd_view.h"
-#include "chrome/views/background.h"
 #include "chrome/views/label.h"
 #include "chrome/views/tooltip_manager.h"
+#include "chrome/views/widget.h"
 #include "net/base/net_util.h"
 
 #include "chromium_strings.h"
@@ -341,16 +341,14 @@ void BrowserToolbarView::DidGainFocus() {
     acc_focused_view_->SetHotTracked(true);
 
     // Show the tooltip for the view that got the focus.
-    if (GetContainer()->GetTooltipManager()) {
-      GetContainer()->GetTooltipManager()->
-          ShowKeyboardTooltip(acc_focused_view_);
-    }
+    if (GetWidget()->GetTooltipManager())
+      GetWidget()->GetTooltipManager()->ShowKeyboardTooltip(acc_focused_view_);
 
     // Update focused_view with MSAA-adjusted child id.
     view_index = acc_focused_view_->GetID();
   }
 
-  HWND hwnd = GetContainer()->GetHWND();
+  HWND hwnd = GetWidget()->GetHWND();
 
   // Notify Access Technology that there was a change in keyboard focus.
   ::NotifyWinEvent(EVENT_OBJECT_FOCUS, hwnd, OBJID_CLIENT,
@@ -361,8 +359,8 @@ void BrowserToolbarView::WillLoseFocus() {
   // Resetting focus state.
   acc_focused_view_->SetHotTracked(false);
   // Any tooltips that are active should be hidden when toolbar loses focus.
-  if (GetContainer() && GetContainer()->GetTooltipManager())
-    GetContainer()->GetTooltipManager()->HideKeyboardTooltip();
+  if (GetWidget() && GetWidget()->GetTooltipManager())
+    GetWidget()->GetTooltipManager()->HideKeyboardTooltip();
   acc_focused_view_ = NULL;
 }
 
@@ -388,8 +386,8 @@ bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
           acc_focused_view_->GetID() == VIEW_ID_APP_MENU) {
         // If a menu button in toolbar is activated and its menu is displayed,
         // then active tooltip should be hidden.
-        if (GetContainer()->GetTooltipManager())
-          GetContainer()->GetTooltipManager()->HideKeyboardTooltip();
+        if (GetWidget()->GetTooltipManager())
+          GetWidget()->GetTooltipManager()->HideKeyboardTooltip();
         // Safe to cast, given to above view id check.
         static_cast<views::MenuButton*>(acc_focused_view_)->Activate();
         if (!acc_focused_view_) {
@@ -422,11 +420,11 @@ bool BrowserToolbarView::OnKeyPressed(const views::KeyEvent& e) {
 
     // Retrieve information to generate an MSAA focus event.
     int view_id = acc_focused_view_->GetID();
-    HWND hwnd = GetContainer()->GetHWND();
+    HWND hwnd = GetWidget()->GetHWND();
 
     // Show the tooltip for the view that got the focus.
-    if (GetContainer()->GetTooltipManager()) {
-      GetContainer()->GetTooltipManager()->
+    if (GetWidget()->GetTooltipManager()) {
+      GetWidget()->GetTooltipManager()->
           ShowKeyboardTooltip(GetChildViewAt(next_view));
     }
     // Notify Access Technology that there was a change in keyboard focus.
@@ -717,6 +715,6 @@ bool BrowserToolbarView::GetAcceleratorInfo(int id,
       return true;
   }
   // Else, we retrieve the accelerator information from the frame.
-  return GetContainer()->GetAccelerator(id, accel);
+  return GetWidget()->GetAccelerator(id, accel);
 }
 

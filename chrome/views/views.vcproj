@@ -258,18 +258,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\container.h"
-			>
-		</File>
-		<File
-			RelativePath=".\container_win.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\container_win.h"
-			>
-		</File>
-		<File
 			RelativePath=".\controller.h"
 			>
 		</File>
@@ -589,10 +577,10 @@
 			RelativePath=".\tooltip_manager.h"
 			>
 		</File>
-    <File
-      RelativePath=".\tree_model.h"
-      >
-    </File>
+		<File
+			RelativePath=".\tree_model.h"
+			>
+		</File>
 		<File
 			RelativePath=".\tree_node_model.h"
 			>
@@ -631,6 +619,18 @@
 		</File>
 		<File
 			RelativePath=".\view_storage.h"
+			>
+		</File>
+		<File
+			RelativePath=".\widget.h"
+			>
+		</File>
+		<File
+			RelativePath=".\widget_win.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\widget_win.h"
 			>
 		</File>
 		<File

@@ -28,12 +28,12 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/checkbox.h"
 #include "chrome/views/combo_box.h"
-#include "chrome/views/container.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/radio_button.h"
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/text_field.h"
+#include "chrome/views/widget.h"
 #include "skia/include/SkBitmap.h"
 #include "unicode/uloc.h"
 
@@ -318,7 +318,7 @@ gfx::Size AddLanguageWindowView::GetPreferredSize() {
 void AddLanguageWindowView::ViewHierarchyChanged(bool is_add,
                                                  views::View* parent,
                                                  views::View* child) {
-  // Can't init before we're inserted into a Container, because we require
+  // Can't init before we're inserted into a Widget, because we require
   // a HWND to parent native child controls to.
   if (is_add && child == this)
     Init();
@@ -523,7 +523,7 @@ void LanguagesPageView::ButtonPressed(views::NativeButton* sender) {
     language_table_edited_ = true;
   } else if (sender == add_button_) {
     views::Window::CreateChromeWindow(
-        GetContainer()->GetHWND(),
+        GetWidget()->GetHWND(),
         gfx::Rect(),
         new AddLanguageWindowView(this, profile()))->Show();
     language_table_edited_ = true;

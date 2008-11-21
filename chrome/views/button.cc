@@ -8,12 +8,11 @@
 #include <atlapp.h>
 
 #include "base/gfx/image_operations.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/throb_animation.h"
-#include "chrome/views/container.h"
 #include "chrome/views/event.h"
-#include "chrome/app/chrome_dll_resource.h"
 
 #include "generated_resources.h"
 

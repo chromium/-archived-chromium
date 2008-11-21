@@ -354,15 +354,15 @@ class RemoveTabAnimation : public TabStrip::TabAnimation {
 
     POINT pt;
     GetCursorPos(&pt);
-    views::Container* vc = tabstrip_->GetContainer();
+    views::Widget* widget = tabstrip_->GetWidget();
     RECT wr;
-    GetWindowRect(vc->GetHWND(), &wr);
+    GetWindowRect(widget->GetHWND(), &wr);
     pt.x -= wr.left;
     pt.y -= wr.top;
 
     // Return to message loop - otherwise we may disrupt some operation that's
     // in progress.
-    PostMessage(vc->GetHWND(), WM_MOUSEMOVE, 0, MAKELPARAM(pt.x, pt.y));
+    PostMessage(widget->GetHWND(), WM_MOUSEMOVE, 0, MAKELPARAM(pt.x, pt.y));
   }
 
   int index_;
@@ -845,7 +845,7 @@ void TabStrip::TabInsertedAt(TabContents* contents,
 
   // Don't animate the first tab, it looks weird, and don't animate anything
   // if the containing window isn't visible yet.
-  if (GetTabCount() > 1 && IsWindowVisible(GetContainer()->GetHWND())) {
+  if (GetTabCount() > 1 && IsWindowVisible(GetWidget()->GetHWND())) {
     StartInsertTabAnimation(index);
   } else {
     Layout();
@@ -1369,7 +1369,7 @@ TabStrip::DropInfo::DropInfo(int drop_index, bool drop_before, bool point_down)
     : drop_index(drop_index),
       drop_before(drop_before),
       point_down(point_down) {
-  arrow_window = new views::ContainerWin;
+  arrow_window = new views::WidgetWin;
   arrow_window->set_window_style(WS_POPUP);
   arrow_window->set_window_ex_style(WS_EX_TOPMOST | WS_EX_NOACTIVATE |
                                     WS_EX_LAYERED | WS_EX_TRANSPARENT);

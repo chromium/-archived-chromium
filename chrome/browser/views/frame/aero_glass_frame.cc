@@ -91,7 +91,7 @@ views::Window* AeroGlassFrame::GetWindow() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AeroGlassFrame, views::ContainerWin overrides:
+// AeroGlassFrame, views::WidgetWin overrides:
 
 bool AeroGlassFrame::AcceleratorPressed(views::Accelerator* accelerator) {
   return browser_view_->AcceleratorPressed(*accelerator);

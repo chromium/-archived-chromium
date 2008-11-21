@@ -9,7 +9,7 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/browser/views/tabs/tab_renderer.h"
-#include "chrome/views/container_win.h"
+#include "chrome/views/widget_win.h"
 #include "skia/include/SkShader.h"
 
 const int kTransparentAlpha = 200;
@@ -38,7 +38,7 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
 
   renderer_->UpdateData(datasource);
 
-  container_.reset(new views::ContainerWin);
+  container_.reset(new views::WidgetWin);
   container_->set_delete_on_destroy(false);
   container_->set_window_style(WS_POPUP);
   container_->set_window_ex_style(
@@ -107,7 +107,7 @@ void DraggedTabView::AnimateToBounds(const gfx::Rect& bounds,
   animation_callback_.reset(callback);
 
   RECT wr;
-  GetWindowRect(GetContainer()->GetHWND(), &wr);
+  GetWindowRect(GetWidget()->GetHWND(), &wr);
   animation_start_bounds_ = wr;
   animation_end_bounds_ = bounds;
 

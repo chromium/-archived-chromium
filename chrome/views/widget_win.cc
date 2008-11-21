@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/container_win.h"
+#include "chrome/views/widget_win.h"
 
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
@@ -33,12 +33,12 @@ RootView* GetRootViewForHWND(HWND hwnd) {
   return reinterpret_cast<RootView*>(::GetProp(hwnd, kRootViewWindowProperty));
 }
 
-// Used to locate the ContainerWin issuing the current Create. Only valid for
-// the life of Create.
+// Used to locate the WidgetWin issuing the current Create. Only valid for the
+// life of Create.
 //
-// This obviously assumes we only create ContainerWins from the same thread,
+// This obviously assumes we only create WidgetWins from the same thread,
 // which is currently the case.
-static ContainerWin* instance_issuing_create = NULL;
+static WidgetWin* instance_issuing_create = NULL;
 
 ///////////////////////////////////////////////////////////////////////////////
 // FillLayout
@@ -66,8 +66,8 @@ gfx::Size FillLayout::GetPreferredSize(View* host) {
 // Window class tracking.
 
 // static
-const wchar_t* const ContainerWin::kBaseClassName =
-    L"Chrome_ContainerWin_";
+const wchar_t* const WidgetWin::kBaseClassName =
+    L"Chrome_WidgetWin_";
 
 // Window class information used for registering unique windows.
 struct ClassInfo {
@@ -111,9 +111,9 @@ static RegisteredClasses* registered_classes = NULL;
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// ContainerWin, public
+// WidgetWin, public
 
-ContainerWin::ContainerWin()
+WidgetWin::WidgetWin()
     : active_mouse_tracking_flags_(0),
       has_capture_(false),
       current_action_(FA_NONE),
@@ -128,15 +128,15 @@ ContainerWin::ContainerWin()
       is_mouse_down_(false),
       class_style_(CS_DBLCLKS),
       hwnd_(NULL),
-      close_container_factory_(this) {
+      close_widget_factory_(this) {
 }
 
-ContainerWin::~ContainerWin() {
+WidgetWin::~WidgetWin() {
   MessageLoopForUI::current()->RemoveObserver(this);
 }
 
-void ContainerWin::Init(HWND parent, const gfx::Rect& bounds,
-                        bool has_own_focus_manager) {
+void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
+                     bool has_own_focus_manager) {
   toplevel_ = parent == NULL;
 
   if (window_style_ == 0)
@@ -163,7 +163,7 @@ void ContainerWin::Init(HWND parent, const gfx::Rect& bounds,
   // The window procedure should have set the data for us.
   DCHECK(win_util::GetWindowUserData(hwnd_) == this);
 
-  root_view_->OnContainerCreated();
+  root_view_->OnWidgetCreated();
 
   if (has_own_focus_manager) {
     FocusManager::CreateFocusManager(hwnd_, GetRootView());
@@ -199,10 +199,10 @@ void ContainerWin::Init(HWND parent, const gfx::Rect& bounds,
   ::ImmAssociateContextEx(GetHWND(), NULL, 0);
 }
 
-void ContainerWin::SetContentsView(View* view) {
+void WidgetWin::SetContentsView(View* view) {
   DCHECK(view && hwnd_) << "Can't be called until after the HWND is created!";
   // The ContentsView must be set up _after_ the window is created so that its
-  // Container pointer is valid.
+  // Widget pointer is valid.
   root_view_->SetLayoutManager(new FillLayout);
   if (root_view_->GetChildViewCount() != 0)
     root_view_->RemoveAllChildViews(true);
@@ -215,9 +215,9 @@ void ContainerWin::SetContentsView(View* view) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Container implementation:
+// Widget implementation:
 
-void ContainerWin::GetBounds(CRect *out, bool including_frame) const {
+void WidgetWin::GetBounds(CRect *out, bool including_frame) const {
   if (including_frame) {
     GetWindowRect(out);
   } else {
@@ -233,7 +233,7 @@ void ContainerWin::GetBounds(CRect *out, bool including_frame) const {
   }
 }
 
-void ContainerWin::MoveToFront(bool should_activate) {
+void WidgetWin::MoveToFront(bool should_activate) {
   int flags = SWP_NOMOVE | SWP_NOSIZE;
   if (!should_activate) {
     flags |= SWP_NOACTIVATE;
@@ -241,11 +241,11 @@ void ContainerWin::MoveToFront(bool should_activate) {
   SetWindowPos(HWND_NOTOPMOST, 0, 0, 0, 0, flags);
 }
 
-HWND ContainerWin::GetHWND() const {
+HWND WidgetWin::GetHWND() const {
   return hwnd_;
 }
 
-void ContainerWin::PaintNow(const gfx::Rect& update_rect) {
+void WidgetWin::PaintNow(const gfx::Rect& update_rect) {
   if (layered_) {
     PaintLayeredWindow();
   } else if (root_view_->NeedsPainting(false) && IsWindow()) {
@@ -274,7 +274,7 @@ void ContainerWin::PaintNow(const gfx::Rect& update_rect) {
   }
 }
 
-RootView* ContainerWin::GetRootView() {
+RootView* WidgetWin::GetRootView() {
   if (!root_view_.get()) {
     // First time the root view is being asked for, create it now.
     root_view_.reset(CreateRootView());
@@ -282,20 +282,20 @@ RootView* ContainerWin::GetRootView() {
   return root_view_.get();
 }
 
-bool ContainerWin::IsVisible() {
+bool WidgetWin::IsVisible() {
   return !!::IsWindowVisible(GetHWND());
 }
 
-bool ContainerWin::IsActive() {
+bool WidgetWin::IsActive() {
   return win_util::IsWindowActive(GetHWND());
 }
 
-TooltipManager* ContainerWin::GetTooltipManager() {
+TooltipManager* WidgetWin::GetTooltipManager() {
   return tooltip_manager_.get();
 }
 
 
-void ContainerWin::SetLayeredAlpha(BYTE layered_alpha) {
+void WidgetWin::SetLayeredAlpha(BYTE layered_alpha) {
   layered_alpha_ = layered_alpha;
 
 //  if (hwnd_)
@@ -313,7 +313,7 @@ static BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM l_param) {
 }
 
 // static
-RootView* ContainerWin::FindRootView(HWND hwnd) {
+RootView* WidgetWin::FindRootView(HWND hwnd) {
   RootView* root_view =
     reinterpret_cast<RootView*>(GetProp(hwnd, kRootViewWindowProperty));
   if (root_view)
@@ -325,21 +325,21 @@ RootView* ContainerWin::FindRootView(HWND hwnd) {
   return root_view;
 }
 
-void ContainerWin::Close() {
+void WidgetWin::Close() {
   // Let's hide ourselves right away.
   Hide();
-  if (close_container_factory_.empty()) {
+  if (close_widget_factory_.empty()) {
     // And we delay the close so that if we are called from an ATL callback,
     // we don't destroy the window before the callback returned (as the caller
     // may delete ourselves on destroy and the ATL callback would still
     // dereference us when the callback returns).
     MessageLoop::current()->PostTask(FROM_HERE,
-        close_container_factory_.NewRunnableMethod(
-            &ContainerWin::CloseNow));
+        close_widget_factory_.NewRunnableMethod(
+            &WidgetWin::CloseNow));
   }
 }
 
-void ContainerWin::Hide() {
+void WidgetWin::Hide() {
   // NOTE: Be careful not to activate any windows here (for example, calling
   // ShowWindow(SW_HIDE) will automatically activate another window).  This
   // code can be called while a window is being deactivated, and activating
@@ -349,7 +349,7 @@ void ContainerWin::Hide() {
                SWP_NOREPOSITION | SWP_NOSIZE | SWP_NOZORDER);
 }
 
-void ContainerWin::CloseNow() {
+void WidgetWin::CloseNow() {
   // We may already have been destroyed if the selection resulted in a tab
   // switch which will have reactivated the browser window and closed us, so
   // we need to check to see if we're still a window before trying to destroy
@@ -361,10 +361,10 @@ void ContainerWin::CloseNow() {
 ///////////////////////////////////////////////////////////////////////////////
 // MessageLoop::Observer
 
-void ContainerWin::WillProcessMessage(const MSG& msg) {
+void WidgetWin::WillProcessMessage(const MSG& msg) {
 }
 
-void ContainerWin::DidProcessMessage(const MSG& msg) {
+void WidgetWin::DidProcessMessage(const MSG& msg) {
   if (root_view_->NeedsPainting(true)) {
     PaintNow(root_view_->GetScheduledPaintRect());
   }
@@ -373,7 +373,7 @@ void ContainerWin::DidProcessMessage(const MSG& msg) {
 ///////////////////////////////////////////////////////////////////////////////
 // FocusTraversable
 
-View* ContainerWin::FindNextFocusableView(
+View* WidgetWin::FindNextFocusableView(
     View* starting_view, bool reverse, Direction direction, bool dont_loop,
     FocusTraversable** focus_traversable, View** focus_traversable_view) {
   return root_view_->FindNextFocusableView(starting_view,
@@ -384,32 +384,32 @@ View* ContainerWin::FindNextFocusableView(
                                            focus_traversable_view);
 }
 
-FocusTraversable* ContainerWin::GetFocusTraversableParent() {
+FocusTraversable* WidgetWin::GetFocusTraversableParent() {
   // We are a proxy to the root view, so we should be bypassed when traversing
   // up and as a result this should not be called.
   NOTREACHED();
   return NULL;
 }
 
-void ContainerWin::SetFocusTraversableParent(FocusTraversable* parent) {
+void WidgetWin::SetFocusTraversableParent(FocusTraversable* parent) {
   root_view_->SetFocusTraversableParent(parent);
 }
 
-View* ContainerWin::GetFocusTraversableParentView() {
+View* WidgetWin::GetFocusTraversableParentView() {
   // We are a proxy to the root view, so we should be bypassed when traversing
   // up and as a result this should not be called.
   NOTREACHED();
   return NULL;
 }
 
-void ContainerWin::SetFocusTraversableParentView(View* parent_view) {
+void WidgetWin::SetFocusTraversableParentView(View* parent_view) {
   root_view_->SetFocusTraversableParentView(parent_view);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Message handlers
 
-void ContainerWin::OnCaptureChanged(HWND hwnd) {
+void WidgetWin::OnCaptureChanged(HWND hwnd) {
   if (has_capture_) {
     if (is_mouse_down_)
       root_view_->ProcessMouseDragCanceled();
@@ -418,11 +418,9 @@ void ContainerWin::OnCaptureChanged(HWND hwnd) {
   }
 }
 
-void ContainerWin::OnClose() {
-  // WARNING: this method is NOT called for all ContainerWins. If you need to
-  // do cleanup code before ContainerWin is destroyed, put it in
-  // OnDestroy.
-
+void WidgetWin::OnClose() {
+  // WARNING: this method is NOT called for all WidgetWins. If you need to do
+  // cleanup code before WidgetWin is destroyed, put it in OnDestroy.
   NotificationService::current()->Notify(
       NOTIFY_WINDOW_CLOSED, Source<HWND>(hwnd_),
       NotificationService::NoDetails());
@@ -430,18 +428,18 @@ void ContainerWin::OnClose() {
   Close();
 }
 
-void ContainerWin::OnDestroy() {
-  root_view_->OnContainerDestroyed();
+void WidgetWin::OnDestroy() {
+  root_view_->OnWidgetDestroyed();
 
   RemoveProp(hwnd_, kRootViewWindowProperty);
 }
 
-LRESULT ContainerWin::OnEraseBkgnd(HDC dc) {
+LRESULT WidgetWin::OnEraseBkgnd(HDC dc) {
   // This is needed for magical win32 flicker ju-ju
   return 1;
 }
 
-LRESULT ContainerWin::OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param) {
+LRESULT WidgetWin::OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param) {
   LRESULT reference_result = static_cast<LRESULT>(0L);
 
   // Accessibility readers will send an OBJID_CLIENT message
@@ -487,58 +485,58 @@ LRESULT ContainerWin::OnGetObject(UINT uMsg, WPARAM w_param, LPARAM l_param) {
   return reference_result;
 }
 
-void ContainerWin::OnKeyDown(TCHAR c, UINT rep_cnt, UINT flags) {
+void WidgetWin::OnKeyDown(TCHAR c, UINT rep_cnt, UINT flags) {
   KeyEvent event(Event::ET_KEY_PRESSED, c, rep_cnt, flags);
   root_view_->ProcessKeyEvent(event);
 }
 
-void ContainerWin::OnKeyUp(TCHAR c, UINT rep_cnt, UINT flags) {
+void WidgetWin::OnKeyUp(TCHAR c, UINT rep_cnt, UINT flags) {
   KeyEvent event(Event::ET_KEY_RELEASED, c, rep_cnt, flags);
   root_view_->ProcessKeyEvent(event);
 }
 
-void ContainerWin::OnLButtonDown(UINT flags, const CPoint& point) {
+void WidgetWin::OnLButtonDown(UINT flags, const CPoint& point) {
   ProcessMousePressed(point, flags | MK_LBUTTON, false);
 }
 
-void ContainerWin::OnLButtonUp(UINT flags, const CPoint& point) {
+void WidgetWin::OnLButtonUp(UINT flags, const CPoint& point) {
   ProcessMouseReleased(point, flags | MK_LBUTTON);
 }
 
-void ContainerWin::OnLButtonDblClk(UINT flags, const CPoint& point) {
+void WidgetWin::OnLButtonDblClk(UINT flags, const CPoint& point) {
   ProcessMousePressed(point, flags | MK_LBUTTON, true);
 }
 
-void ContainerWin::OnMButtonDown(UINT flags, const CPoint& point) {
+void WidgetWin::OnMButtonDown(UINT flags, const CPoint& point) {
   ProcessMousePressed(point, flags | MK_MBUTTON, false);
 }
 
-void ContainerWin::OnMButtonUp(UINT flags, const CPoint& point) {
+void WidgetWin::OnMButtonUp(UINT flags, const CPoint& point) {
   ProcessMouseReleased(point, flags | MK_MBUTTON);
 }
 
-void ContainerWin::OnMButtonDblClk(UINT flags, const CPoint& point) {
+void WidgetWin::OnMButtonDblClk(UINT flags, const CPoint& point) {
   ProcessMousePressed(point, flags | MK_MBUTTON, true);
 }
 
-LRESULT ContainerWin::OnMouseActivate(HWND window, UINT hittest_code,
-                                      UINT message) {
+LRESULT WidgetWin::OnMouseActivate(HWND window, UINT hittest_code,
+                                   UINT message) {
   SetMsgHandled(FALSE);
   return MA_ACTIVATE;
 }
 
-void ContainerWin::OnMouseMove(UINT flags, const CPoint& point) {
+void WidgetWin::OnMouseMove(UINT flags, const CPoint& point) {
   ProcessMouseMoved(point, flags, false);
 }
 
-LRESULT ContainerWin::OnMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param) {
+LRESULT WidgetWin::OnMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param) {
   tooltip_manager_->OnMouseLeave();
   ProcessMouseExited();
   return 0;
 }
 
-LRESULT ContainerWin::OnMouseWheel(UINT flags, short distance,
-                                   const CPoint& point) {
+LRESULT WidgetWin::OnMouseWheel(UINT flags, short distance,
+                                const CPoint& point) {
   MouseWheelEvent e(distance,
                     point.x,
                     point.y,
@@ -546,43 +544,42 @@ LRESULT ContainerWin::OnMouseWheel(UINT flags, short distance,
   return root_view_->ProcessMouseWheelEvent(e) ? 0 : 1;
 }
 
-LRESULT ContainerWin::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
+LRESULT WidgetWin::OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param) {
   tooltip_manager_->OnMouse(msg, w_param, l_param);
   SetMsgHandled(FALSE);
   return 0;
 }
 
-void ContainerWin::OnNCLButtonDblClk(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCLButtonDblClk(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-void ContainerWin::OnNCLButtonDown(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCLButtonDown(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-void ContainerWin::OnNCLButtonUp(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCLButtonUp(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-void ContainerWin::OnNCMButtonDblClk(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCMButtonDblClk(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-void ContainerWin::OnNCMButtonDown(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCMButtonDown(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-void ContainerWin::OnNCMButtonUp(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCMButtonUp(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-LRESULT ContainerWin::OnNCMouseLeave(UINT uMsg, WPARAM w_param,
-                                     LPARAM l_param) {
+LRESULT WidgetWin::OnNCMouseLeave(UINT uMsg, WPARAM w_param, LPARAM l_param) {
   ProcessMouseExited();
   return 0;
 }
 
-LRESULT ContainerWin::OnNCMouseMove(UINT flags, const CPoint& point) {
+LRESULT WidgetWin::OnNCMouseMove(UINT flags, const CPoint& point) {
   // NC points are in screen coordinates.
   CPoint temp = point;
   MapWindowPoints(HWND_DESKTOP, GetHWND(), &temp, 1);
@@ -594,19 +591,19 @@ LRESULT ContainerWin::OnNCMouseMove(UINT flags, const CPoint& point) {
   return 0;
 }
 
-void ContainerWin::OnNCRButtonDblClk(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCRButtonDblClk(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-void ContainerWin::OnNCRButtonDown(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCRButtonDown(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-void ContainerWin::OnNCRButtonUp(UINT flags, const CPoint& point) {
+void WidgetWin::OnNCRButtonUp(UINT flags, const CPoint& point) {
   SetMsgHandled(FALSE);
 }
 
-LRESULT ContainerWin::OnNotify(int w_param, NMHDR* l_param) {
+LRESULT WidgetWin::OnNotify(int w_param, NMHDR* l_param) {
   // We can be sent this message before the tooltip manager is created, if a
   // subclass overrides OnCreate and creates some kind of Windows control there
   // that sends WM_NOTIFY messages.
@@ -620,24 +617,23 @@ LRESULT ContainerWin::OnNotify(int w_param, NMHDR* l_param) {
   return 0;
 }
 
-void ContainerWin::OnPaint(HDC dc) {
+void WidgetWin::OnPaint(HDC dc) {
   root_view_->OnPaint(GetHWND());
 }
 
-void ContainerWin::OnRButtonDown(UINT flags, const CPoint& point) {
+void WidgetWin::OnRButtonDown(UINT flags, const CPoint& point) {
   ProcessMousePressed(point, flags | MK_RBUTTON, false);
 }
 
-void ContainerWin::OnRButtonUp(UINT flags, const CPoint& point) {
+void WidgetWin::OnRButtonUp(UINT flags, const CPoint& point) {
   ProcessMouseReleased(point, flags | MK_RBUTTON);
 }
 
-void ContainerWin::OnRButtonDblClk(UINT flags, const CPoint& point) {
+void WidgetWin::OnRButtonDblClk(UINT flags, const CPoint& point) {
   ProcessMousePressed(point, flags | MK_RBUTTON, true);
 }
 
-LRESULT ContainerWin::OnSettingChange(UINT msg, WPARAM w_param,
-                                      LPARAM l_param) {
+LRESULT WidgetWin::OnSettingChange(UINT msg, WPARAM w_param, LPARAM l_param) {
   if (toplevel_) {
     SetMsgHandled(FALSE);
     if (w_param != SPI_SETWORKAREA)
@@ -650,24 +646,24 @@ LRESULT ContainerWin::OnSettingChange(UINT msg, WPARAM w_param,
   return 0;
 }
 
-void ContainerWin::OnSize(UINT param, const CSize& size) {
+void WidgetWin::OnSize(UINT param, const CSize& size) {
   ChangeSize(param, size);
 }
 
-void ContainerWin::OnThemeChanged() {
+void WidgetWin::OnThemeChanged() {
   // Notify NativeTheme.
   gfx::NativeTheme::instance()->CloseHandles();
 }
 
-void ContainerWin::OnFinalMessage(HWND window) {
+void WidgetWin::OnFinalMessage(HWND window) {
   if (delete_on_destroy_)
     delete this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ContainerWin, protected:
+// WidgetWin, protected:
 
-void ContainerWin::TrackMouseEvents(DWORD mouse_tracking_flags) {
+void WidgetWin::TrackMouseEvents(DWORD mouse_tracking_flags) {
   // Begin tracking mouse events for this HWND so that we get WM_MOUSELEAVE
   // when the user moves the mouse outside this HWND's bounds.
   if (active_mouse_tracking_flags_ == 0 || mouse_tracking_flags & TME_CANCEL) {
@@ -691,8 +687,8 @@ void ContainerWin::TrackMouseEvents(DWORD mouse_tracking_flags) {
   }
 }
 
-bool ContainerWin::ProcessMousePressed(const CPoint& point, UINT flags,
-                                       bool dbl_click) {
+bool WidgetWin::ProcessMousePressed(const CPoint& point, UINT flags,
+                                    bool dbl_click) {
   last_mouse_event_was_move_ = false;
   MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED,
                            point.x,
@@ -711,7 +707,7 @@ bool ContainerWin::ProcessMousePressed(const CPoint& point, UINT flags,
   return false;
 }
 
-void ContainerWin::ProcessMouseDragged(const CPoint& point, UINT flags) {
+void WidgetWin::ProcessMouseDragged(const CPoint& point, UINT flags) {
   last_mouse_event_was_move_ = false;
   MouseEvent mouse_drag(Event::ET_MOUSE_DRAGGED,
                         point.x,
@@ -720,7 +716,7 @@ void ContainerWin::ProcessMouseDragged(const CPoint& point, UINT flags) {
   root_view_->OnMouseDragged(mouse_drag);
 }
 
-void ContainerWin::ProcessMouseReleased(const CPoint& point, UINT flags) {
+void WidgetWin::ProcessMouseReleased(const CPoint& point, UINT flags) {
   last_mouse_event_was_move_ = false;
   MouseEvent mouse_up(Event::ET_MOUSE_RELEASED,
                       point.x,
@@ -737,8 +733,8 @@ void ContainerWin::ProcessMouseReleased(const CPoint& point, UINT flags) {
   root_view_->OnMouseReleased(mouse_up, false);
 }
 
-void ContainerWin::ProcessMouseMoved(const CPoint &point, UINT flags,
-                                     bool is_nonclient) {
+void WidgetWin::ProcessMouseMoved(const CPoint &point, UINT flags,
+                                  bool is_nonclient) {
   // Windows only fires WM_MOUSELEAVE events if the application begins
   // "tracking" mouse events for a given HWND during WM_MOUSEMOVE events.
   // We need to call |TrackMouseEvents| to listen for WM_MOUSELEAVE.
@@ -765,15 +761,15 @@ void ContainerWin::ProcessMouseMoved(const CPoint &point, UINT flags,
   }
 }
 
-void ContainerWin::ProcessMouseExited() {
+void WidgetWin::ProcessMouseExited() {
   last_mouse_event_was_move_ = false;
   root_view_->ProcessOnMouseExited();
-  // Reset our tracking flag so that future mouse movement over this
-  // ContainerWin results in a new tracking session.
+  // Reset our tracking flag so that future mouse movement over this WidgetWin
+  // results in a new tracking session.
   active_mouse_tracking_flags_ = 0;
 }
 
-void ContainerWin::AdjustWindowToFitScreenSize() {
+void WidgetWin::AdjustWindowToFitScreenSize() {
   // Desktop size has changed. Make sure we're still on screen.
   CRect wr;
   GetWindowRect(&wr);
@@ -801,7 +797,7 @@ void ContainerWin::AdjustWindowToFitScreenSize() {
   }
 }
 
-void ContainerWin::ChangeSize(UINT size_param, const CSize& size) {
+void WidgetWin::ChangeSize(UINT size_param, const CSize& size) {
   CRect rect;
   if (layered_) {
     GetWindowRect(&rect);
@@ -820,20 +816,20 @@ void ContainerWin::ChangeSize(UINT size_param, const CSize& size) {
     PaintNow(gfx::Rect(rect));
 }
 
-RootView* ContainerWin::CreateRootView() {
+RootView* WidgetWin::CreateRootView() {
   return new RootView(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ContainerWin, private:
+// WidgetWin, private:
 
-void ContainerWin::SizeContents(const CRect& window_rect) {
+void WidgetWin::SizeContents(const CRect& window_rect) {
   contents_.reset(new ChromeCanvas(window_rect.Width(),
                                    window_rect.Height(),
                                    false));
 }
 
-void ContainerWin::PaintLayeredWindow() {
+void WidgetWin::PaintLayeredWindow() {
   // Painting monkeys with our cliprect, so we need to save it so that the
   // call to UpdateLayeredWindow updates the entire window, not just the
   // cliprect.
@@ -847,7 +843,7 @@ void ContainerWin::PaintLayeredWindow() {
   UpdateWindowFromContents(contents_->getTopPlatformDevice().getBitmapDC());
 }
 
-void ContainerWin::UpdateWindowFromContents(HDC dib_dc) {
+void WidgetWin::UpdateWindowFromContents(HDC dib_dc) {
   DCHECK(layered_);
   if (can_update_layered_window_) {
     CRect wr;
@@ -863,7 +859,7 @@ void ContainerWin::UpdateWindowFromContents(HDC dib_dc) {
   }
 }
 
-std::wstring ContainerWin::GetWindowClassName() {
+std::wstring WidgetWin::GetWindowClassName() {
   if (!registered_classes)
     registered_classes = new RegisteredClasses();
   ClassInfo class_info(initial_class_style());
@@ -880,7 +876,7 @@ std::wstring ContainerWin::GetWindowClassName() {
   WNDCLASSEX class_ex;
   class_ex.cbSize = sizeof(WNDCLASSEX);
   class_ex.style = class_info.style;
-  class_ex.lpfnWndProc = &ContainerWin::WndProc;
+  class_ex.lpfnWndProc = &WidgetWin::WndProc;
   class_ex.cbClsExtra = 0;
   class_ex.cbWndExtra = 0;
   class_ex.hInstance = NULL;
@@ -899,27 +895,26 @@ std::wstring ContainerWin::GetWindowClassName() {
 }
 
 // static
-LRESULT CALLBACK ContainerWin::WndProc(HWND window, UINT message,
-                                       WPARAM w_param, LPARAM l_param) {
+LRESULT CALLBACK WidgetWin::WndProc(HWND window, UINT message,
+                                    WPARAM w_param, LPARAM l_param) {
   if (message == WM_NCCREATE) {
     CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(l_param);
-    ContainerWin* vc =
-        reinterpret_cast<ContainerWin*>(cs->lpCreateParams);
-    DCHECK(vc);
-    win_util::SetWindowUserData(window, vc);
-    vc->hwnd_ = window;
+    WidgetWin* widget = reinterpret_cast<WidgetWin*>(cs->lpCreateParams);
+    DCHECK(widget);
+    win_util::SetWindowUserData(window, widget);
+    widget->hwnd_ = window;
     return TRUE;
   }
-  ContainerWin* vc = reinterpret_cast<ContainerWin*>(
+  WidgetWin* widget = reinterpret_cast<WidgetWin*>(
       win_util::GetWindowUserData(window));
-  if (!vc)
+  if (!widget)
     return 0;
   LRESULT result = 0;
-  if (!vc->ProcessWindowMessage(window, message, w_param, l_param, result))
+  if (!widget->ProcessWindowMessage(window, message, w_param, l_param, result))
     result = DefWindowProc(window, message, w_param, l_param);
   if (message == WM_NCDESTROY) {
-    vc->hwnd_ = NULL;
-    vc->OnFinalMessage(window);
+    widget->hwnd_ = NULL;
+    widget->OnFinalMessage(window);
   }
   return result;
 }

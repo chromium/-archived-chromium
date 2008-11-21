@@ -532,9 +532,9 @@ gfx::Size DefaultNonClientView::GetPreferredSize() {
 void DefaultNonClientView::ViewHierarchyChanged(bool is_add,
                                                 View* parent,
                                                 View* child) {
-  // Add our Client View as we are added to the Container so that if we are
+  // Add our Client View as we are added to the Widget so that if we are
   // subsequently resized all the parent-child relationships are established.
-  if (is_add && GetContainer() && child == this)
+  if (is_add && GetWidget() && child == this)
     AddChildView(container_->client_view());
 }
 
@@ -927,7 +927,7 @@ void CustomFrameWindow::SetClientView(ClientView* cv) {
   DCHECK(cv && !client_view() && GetHWND());
   set_client_view(cv);
   // For a CustomFrameWindow, the non-client view is the root.
-  ContainerWin::SetContentsView(non_client_view_);
+  WidgetWin::SetContentsView(non_client_view_);
   // When the non client view is added to the view hierarchy, it will cause the
   // client view to be added as well.
 }
@@ -977,7 +977,7 @@ void CustomFrameWindow::SizeWindowToDefault() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CustomFrameWindow, ContainerWin overrides:
+// CustomFrameWindow, WidgetWin overrides:
 
 void CustomFrameWindow::OnGetMinMaxInfo(MINMAXINFO* minmax_info) {
   // We handle this message so that we can make sure we interact nicely with
@@ -1207,7 +1207,7 @@ void CustomFrameWindow::OnNCLButtonDown(UINT ht_component,
       /*
       if (!IsMsgHandled()) {
         // Window::OnNCLButtonDown set the message as unhandled. This normally
-        // means ContainerWin::ProcessWindowMessage will pass it to
+        // means WidgetWin::ProcessWindowMessage will pass it to
         // DefWindowProc. Sadly, DefWindowProc for WM_NCLBUTTONDOWN does weird
         // non-client painting, so we need to call it directly here inside a
         // scoped update lock.
@@ -1232,23 +1232,21 @@ void CustomFrameWindow::OnNCMButtonDown(UINT ht_component,
     SetMsgHandled(FALSE);
     return;
   }
-  ContainerWin::OnNCMButtonDown(ht_component, point);
+  WidgetWin::OnNCMButtonDown(ht_component, point);
 }
 
 LRESULT CustomFrameWindow::OnNCUAHDrawCaption(UINT msg, WPARAM w_param,
                                               LPARAM l_param) {
-  // See comment in hwnd_view_container.h at the definition of
-  // WM_NCUAHDRAWCAPTION for an explanation about why we need to handle this
-  // message.
+  // See comment in widget_win.h at the definition of WM_NCUAHDRAWCAPTION for
+  // an explanation about why we need to handle this message.
   SetMsgHandled(TRUE);
   return 0;
 }
 
 LRESULT CustomFrameWindow::OnNCUAHDrawFrame(UINT msg, WPARAM w_param,
                                             LPARAM l_param) {
-  // See comment in hwnd_view_container.h at the definition of
-  // WM_NCUAHDRAWCAPTION for an explanation about why we need to handle this
-  // message.
+  // See comment in widget_win.h at the definition of WM_NCUAHDRAWCAPTION for
+  // an explanation about why we need to handle this message.
   SetMsgHandled(TRUE);
   return 0;
 }

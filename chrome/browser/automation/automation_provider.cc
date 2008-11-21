@@ -1152,7 +1152,7 @@ void AutomationProvider::WindowGetViewBounds(const IPC::Message& message,
   void* iter = NULL;
   if (window_tracker_->ContainsHandle(handle)) {
     HWND hwnd = window_tracker_->GetResource(handle);
-    views::RootView* root_view = views::ContainerWin::FindRootView(hwnd);
+    views::RootView* root_view = views::WidgetWin::FindRootView(hwnd);
     if (root_view) {
       views::View* view = root_view->GetViewByID(view_id);
       if (view) {

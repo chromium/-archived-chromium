@@ -26,8 +26,8 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
-#include "chrome/views/container.h"
 #include "chrome/views/root_view.h"
+#include "chrome/views/widget.h"
 #include "generated_resources.h"
 
 using views::View;
@@ -123,10 +123,9 @@ void LocationBarView::Init() {
   }
 
   // URL edit field.
-  views::Container* vc = GetContainer();
-  DCHECK(vc) << "LocationBarView::Init - vc is NULL!";
+  views::Widget* widget = GetWidget();
   location_entry_.reset(new AutocompleteEditView(font_, this, model_, this,
-                                                 vc->GetHWND(),
+                                                 widget->GetHWND(),
                                                  profile_, controller_,
                                                  popup_window_mode_));
 
@@ -826,7 +825,7 @@ void LocationBarView::ShowInfoBubbleTask::Run() {
   if (cancelled_)
     return;
 
-  if (!image_view_->GetContainer()->IsActive()) {
+  if (!image_view_->GetWidget()->IsActive()) {
     // The browser is no longer active.  Let's not show the info bubble, this
     // would make the browser the active window again.  Also makes sure we NULL
     // show_info_bubble_task_ to prevent the SecurityImageView from keeping a
@@ -847,7 +846,7 @@ void LocationBarView::ShowInfoBubbleTask::Cancel() {
 void LocationBarView::ShowFirstRunBubbleInternal() {
   if (!location_entry_view_)
     return;
-  if (!location_entry_view_->GetContainer()->IsActive()) {
+  if (!location_entry_view_->GetWidget()->IsActive()) {
     // The browser is no longer active.  Let's not show the info bubble, this
     // would make the browser the active window again.
     return;
@@ -872,7 +871,7 @@ void LocationBarView::ShowFirstRunBubbleInternal() {
     bounds.set_x(location.x() - 20);
 
   FirstRunBubble::Show(
-      location_entry_view_->GetRootView()->GetContainer()->GetHWND(),
+      location_entry_view_->GetRootView()->GetWidget()->GetHWND(),
       bounds);
 }
 
@@ -945,7 +944,7 @@ void LocationBarView::SecurityImageView::ShowInfoBubble() {
   label->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   label->SizeToFit(0);
   DCHECK(info_bubble_ == NULL);
-  info_bubble_ = InfoBubble::Show(GetRootView()->GetContainer()->GetHWND(),
+  info_bubble_ = InfoBubble::Show(GetRootView()->GetWidget()->GetHWND(),
                                   bounds, label, this);
   show_info_bubble_task_ = NULL;
 }
@@ -989,7 +988,7 @@ bool LocationBarView::SecurityImageView::OnMousePressed(
   }
   PageInfoWindow::CreatePageInfo(profile_,
                                  nav_entry,
-                                 GetRootView()->GetContainer()->GetHWND(),
+                                 GetRootView()->GetWidget()->GetHWND(),
                                  PageInfoWindow::SECURITY);
   return true;
 }

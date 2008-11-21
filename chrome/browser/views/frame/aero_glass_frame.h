@@ -39,7 +39,7 @@ class AeroGlassFrame : public BrowserFrame,
   virtual views::Window* GetWindow();
 
  protected:
-  // Overridden from views::ContainerWin:
+  // Overridden from views::WidgetWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
   virtual void OnInitMenuPopup(HMENU menu, UINT position, BOOL is_system_menu);

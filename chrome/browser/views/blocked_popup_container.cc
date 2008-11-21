@@ -457,11 +457,11 @@ void BlockedPopupContainer::AnimateToState(double state) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Override from views::ContainerWin:
+// Override from views::WidgetWin:
 void BlockedPopupContainer::OnFinalMessage(HWND window) {
   owner_->WillClose(this);
   CloseEachTabContents();
-  ContainerWin::OnFinalMessage(window);
+  WidgetWin::OnFinalMessage(window);
 }
 
 void BlockedPopupContainer::OnSize(UINT param, const CSize& size) {
@@ -482,7 +482,7 @@ void BlockedPopupContainer::Init(const gfx::Point& initial_anchor) {
   container_view_->SetVisible(true);
 
   set_window_style(WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
-  ContainerWin::Init(owner_->GetContainerHWND(), gfx::Rect(), false);
+  WidgetWin::Init(owner_->GetContainerHWND(), gfx::Rect(), false);
   SetContentsView(container_view_);
   RepositionConstrainedWindowTo(initial_anchor);
 

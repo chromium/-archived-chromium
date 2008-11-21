@@ -16,7 +16,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/label.h"
 #include "chrome/views/root_view.h"
-#include "chrome/views/container_win.h"
+#include "chrome/views/widget_win.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 #include "SkPaint.h"
@@ -68,7 +68,7 @@ class StatusBubble::StatusView : public views::Label,
                                  public Animation,
                                  public AnimationDelegate {
  public:
-  StatusView(StatusBubble* status_bubble, views::ContainerWin* popup)
+  StatusView(StatusBubble* status_bubble, views::WidgetWin* popup)
       : Animation(kFramerate, this),
         status_bubble_(status_bubble),
         popup_(popup),
@@ -152,7 +152,7 @@ class StatusBubble::StatusView : public views::Label,
   StatusBubble* status_bubble_;
 
   // Handle to the HWND that contains us.
-  views::ContainerWin* popup_;
+  views::WidgetWin* popup_;
 
   // The currently-displayed text.
   std::wstring text_;
@@ -443,7 +443,7 @@ void StatusBubble::StatusView::Paint(ChromeCanvas* canvas) {
 
 // StatusBubble ---------------------------------------------------------------
 
-StatusBubble::StatusBubble(views::Container* frame)
+StatusBubble::StatusBubble(views::Widget* frame)
     : popup_(NULL),
       frame_(frame),
       view_(NULL),
@@ -465,7 +465,7 @@ StatusBubble::~StatusBubble() {
 
 void StatusBubble::Init() {
   if (!popup_) {
-    popup_ = new views::ContainerWin();
+    popup_ = new views::WidgetWin();
     popup_->set_delete_on_destroy(false);
 
     if (!view_) {

@@ -9,11 +9,11 @@
 #include "chrome/browser/render_widget_host_view_win.h"
 #include "chrome/common/notification_types.h"
 #include "chrome/views/accelerator.h"
-#include "chrome/views/container.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/view_storage.h"
+#include "chrome/views/widget.h"
 
 // The following keys are used in SetProp/GetProp to associate additional
 // information needed for focus tracking with a window.
@@ -304,11 +304,11 @@ bool FocusManager::OnKeyDown(HWND window, UINT message, WPARAM wparam,
   DCHECK((message == WM_KEYDOWN) || (message == WM_SYSKEYDOWN));
 
   if (!IsWindowVisible(root_)) {
-    // We got a message for a hidden window. Because ContainerWin::Close
-    // hides the window, then destroys it, it it possible to get a message after
-    // we've hidden the window. If we allow the message to be dispatched
-    // chances are we'll crash in some weird place. By returning false we make
-    // sure the message isn't dispatched.
+    // We got a message for a hidden window. Because WidgetWin::Close hides the
+    // window, then destroys it, it it possible to get a message after we've
+    // hidden the window. If we allow the message to be dispatched chances are
+    // we'll crash in some weird place. By returning false we make sure the
+    // message isn't dispatched.
     return false;
   }
 
@@ -425,11 +425,11 @@ bool FocusManager::ContainsView(View* view) {
   if (!root_view)
     return false;
 
-  Container* view_container = root_view->GetContainer();
-  if (!view_container)
+  Widget* widget = root_view->GetWidget();
+  if (!widget)
     return false;
 
-  HWND window = view_container->GetHWND();
+  HWND window = widget->GetHWND();
   while (window) {
     if (window == root_)
       return true;
@@ -457,7 +457,7 @@ View* FocusManager::GetNextFocusableView(View* original_starting_view,
   View* starting_view = NULL;
   if (original_starting_view) {
     // If the starting view has a focus traversable, use it.
-    // This is the case with ContainerWins for example.
+    // This is the case with WidgetWins for example.
     focus_traversable = original_starting_view->GetFocusTraversable();
 
     // Otherwise default to the root view.

@@ -44,7 +44,7 @@ class OpaqueFrame : public BrowserFrame,
   virtual void UpdateWindowIcon();
   virtual int GetShowState() const;
 
-  // Overridden from views::ContainerWin:
+  // Overridden from views::WidgetWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);
   virtual bool GetAccelerator(int cmd_id, views::Accelerator* accelerator);
   virtual void OnEndSession(BOOL ending, UINT logoff);

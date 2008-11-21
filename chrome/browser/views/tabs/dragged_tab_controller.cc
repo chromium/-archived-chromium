@@ -208,7 +208,7 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
         break;
     }
 
-    popup_ = new views::ContainerWin;
+    popup_ = new views::WidgetWin;
     popup_->set_window_style(WS_POPUP);
     popup_->set_window_ex_style(WS_EX_LAYERED | WS_EX_TOOLWINDOW |
                                 WS_EX_TOPMOST);
@@ -282,7 +282,7 @@ class DraggedTabController::DockDisplayer : public AnimationDelegate {
   DraggedTabController* controller_;
 
   // Window we're showing.
-  views::ContainerWin* popup_;
+  views::WidgetWin* popup_;
 
   // HWND of |popup_|. We cache this to avoid the possibility of invoking a
   // method on popup_ after we close it.
@@ -502,7 +502,7 @@ void DraggedTabController::DidProcessMessage(const MSG& msg) {
 void DraggedTabController::InitWindowCreatePoint() {
   window_create_point_.SetPoint(mouse_offset_.x(), mouse_offset_.y());
   Tab* first_tab = attached_tabstrip_->GetTabAt(0);
-  views::View::ConvertPointToContainer(first_tab, &window_create_point_);
+  views::View::ConvertPointToWidget(first_tab, &window_create_point_);
 }
 
 gfx::Point DraggedTabController::GetWindowCreatePoint() const {
@@ -664,7 +664,7 @@ DockInfo DraggedTabController::GetDockInfoAtPoint(
     return dock_info_;
   }
 
-  HWND dragged_hwnd = view_->GetContainer()->GetHWND();
+  HWND dragged_hwnd = view_->GetWidget()->GetHWND();
   dock_windows_.insert(dragged_hwnd);
   DockInfo info = DockInfo::GetDockInfoAtPoint(screen_point, dock_windows_);
   dock_windows_.erase(dragged_hwnd);
@@ -673,7 +673,7 @@ DockInfo DraggedTabController::GetDockInfoAtPoint(
 
 TabStrip* DraggedTabController::GetTabStripForPoint(
     const gfx::Point& screen_point) {
-  HWND dragged_hwnd = view_->GetContainer()->GetHWND();
+  HWND dragged_hwnd = view_->GetWidget()->GetHWND();
   dock_windows_.insert(dragged_hwnd);
   HWND local_window =
       DockInfo::GetLocalProcessWindowAtPoint(screen_point, dock_windows_);
@@ -776,7 +776,7 @@ void DraggedTabController::Attach(TabStrip* attached_tabstrip,
   tab->SetVisible(false);
 
   // Move the corresponding window to the front.
-  attached_tabstrip_->GetContainer()->MoveToFront(true);
+  attached_tabstrip_->GetWidget()->MoveToFront(true);
 }
 
 void DraggedTabController::Detach() {
@@ -984,7 +984,7 @@ void DraggedTabController::RevertDrag() {
   // it has been hidden.
   if (restore_frame) {
     if (!restore_bounds_.IsEmpty()) {
-      HWND frame_hwnd = source_tabstrip_->GetContainer()->GetHWND();
+      HWND frame_hwnd = source_tabstrip_->GetWidget()->GetHWND();
       MoveWindow(frame_hwnd, restore_bounds_.x(), restore_bounds_.y(),
                  restore_bounds_.width(), restore_bounds_.height(), TRUE);
     }
@@ -1052,7 +1052,7 @@ bool DraggedTabController::CompleteDrag() {
     }
     // Compel the model to construct a new window for the detached TabContents.
     CRect browser_rect;
-    GetWindowRect(source_tabstrip_->GetContainer()->GetHWND(), &browser_rect);
+    GetWindowRect(source_tabstrip_->GetWidget()->GetHWND(), &browser_rect);
     gfx::Rect window_bounds(
         GetWindowCreatePoint(),
         gfx::Size(browser_rect.Width(), browser_rect.Height()));
@@ -1101,7 +1101,7 @@ int DraggedTabController::NormalizeIndexToAttachedTabStrip(int index) const {
 void DraggedTabController::HideFrame() {
   // We don't actually hide the window, rather we just move it way off-screen.
   // If we actually hide it, we stop receiving drag events.
-  HWND frame_hwnd = source_tabstrip_->GetContainer()->GetHWND();
+  HWND frame_hwnd = source_tabstrip_->GetWidget()->GetHWND();
   RECT wr;
   GetWindowRect(frame_hwnd, &wr);
   MoveWindow(frame_hwnd, 0xFFFF, 0xFFFF, wr.right - wr.left,

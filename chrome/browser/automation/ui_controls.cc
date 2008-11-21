@@ -335,7 +335,7 @@ bool SendMouseClick(MouseButton type) {
 void MoveMouseToCenterAndPress(views::View* view, MouseButton button,
                                int state, Task* task) {
   DCHECK(view);
-  DCHECK(view->GetContainer());
+  DCHECK(view->GetWidget());
   gfx::Point view_center(view->width() / 2, view->height() / 2);
   views::View::ConvertPointToScreen(view, &view_center);
   SendMouseMove(view_center.x(), view_center.y());
