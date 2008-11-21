@@ -1110,5 +1110,7 @@ LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 
-// Started failing after http://codereview.chromium.org/11205
-LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL
+// MERGE 38500:39550: New tests
+LayoutTests/transitions/transition-drt-api.html = TIMEOUT
+// Missing expected results
+SKIP : LayoutTests/animations/animation-drt-api.html = PASS
