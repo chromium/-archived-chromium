@@ -53,7 +53,7 @@
                                              code \
                                              MSVC_POP_WARNING()
 
-#else  // COMPILER_MSVC
+#else  // Not MSVC
 
 #define MSVC_SUPPRESS_WARNING(n)
 #define MSVC_PUSH_DISABLE_WARNING(n)
@@ -65,5 +65,11 @@
 
 #endif  // COMPILER_MSVC
 
-#endif  // BASE_COMPILER_SPECIFIC_H_
 
+#if defined(COMPILER_GCC)
+#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#else  // Not GCC
+#define WARN_UNUSED_RESULT
+#endif
+
+#endif  // BASE_COMPILER_SPECIFIC_H_
