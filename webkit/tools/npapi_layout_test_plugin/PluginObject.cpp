@@ -443,8 +443,17 @@ static bool testEnumerate(PluginObject* obj, const NPVariant* args, uint32_t arg
 
 static bool testGetIntIdentifier(PluginObject*, const NPVariant* args, uint32_t argCount, NPVariant* result)
 {
-    if (argCount == 1 && NPVARIANT_IS_DOUBLE(args[0])) {
-        NPIdentifier identifier = browser->getintidentifier((int)NPVARIANT_TO_DOUBLE(args[0]));
+    if (argCount != 1)
+        return false;
+
+    NPIdentifier identifier;
+
+    if (NPVARIANT_IS_DOUBLE(args[0])) {
+        identifier = browser->getintidentifier((int)NPVARIANT_TO_DOUBLE(args[0]));
+        INT32_TO_NPVARIANT((int32)identifier, *result);
+        return true;
+    } else if (NPVARIANT_IS_INT32(args[0])) {
+        identifier = browser->getintidentifier((int)NPVARIANT_TO_INT32(args[0]));
         INT32_TO_NPVARIANT((int32)identifier, *result);
         return true;
     }
