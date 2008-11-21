@@ -34,9 +34,7 @@ WebPluginProxy::WebPluginProxy(
       window_npobject_(NULL),
       plugin_element_(NULL),
       delegate_(delegate),
-      waiting_for_paint_(false),
-#pragma warning(suppress: 4355)  // can use this
-      runnable_method_factory_(this) {
+      waiting_for_paint_(false) {
 
   HANDLE event;
   BOOL result = DuplicateHandle(channel->renderer_handle(),
@@ -86,22 +84,21 @@ void WebPluginProxy::Invalidate() {
 }
 
 void WebPluginProxy::InvalidateRect(const gfx::Rect& rect) {
-  damaged_rect_ = damaged_rect_.Union(rect);
   // Ignore NPN_InvalidateRect calls with empty rects.  Also don't send an
   // invalidate if it's outside the clipping region, since if we did it won't
   // lead to a paint and we'll be stuck waiting forever for a DidPaint response.
   if (rect.IsEmpty() || !delegate_->clip_rect().Intersects(rect))
     return;
 
+  damaged_rect_ = damaged_rect_.Union(rect);
   // Only send a single InvalidateRect message at a time.  From DidPaint we
   // will dispatch an additional InvalidateRect message if necessary.
   if (!waiting_for_paint_) {
     waiting_for_paint_ = true;
-    // Invalidates caused by calls to NPN_InvalidateRect/NPN_InvalidateRgn
-    // need to be painted asynchronously as per the NPAPI spec.
-    MessageLoop::current()->PostTask(FROM_HERE,
-        runnable_method_factory_.NewRunnableMethod(
-            &WebPluginProxy::OnPaint, damaged_rect_));
+    // Paint to the plugin bitmap and let the renderer know so it can update
+    // its backing store.
+    Paint(damaged_rect_);
+    Send(new PluginHostMsg_InvalidateRect(route_id_, damaged_rect_));
     damaged_rect_ = gfx::Rect();
   }
 }
@@ -285,8 +282,6 @@ void WebPluginProxy::UpdateGeometry(
     const base::SharedMemoryHandle& windowless_buffer,
     const base::SharedMemoryHandle& background_buffer) {
   gfx::Rect old = delegate_->rect();
-  gfx::Rect old_clip_rect = delegate_->clip_rect();
-
   bool moved = delegate_->rect().x() != window_rect.x() ||
                delegate_->rect().y() != window_rect.y();
   delegate_->UpdateGeometry(window_rect, clip_rect, cutout_rects, visible);
@@ -296,12 +291,6 @@ void WebPluginProxy::UpdateGeometry(
   } else if (moved) {
     // The plugin moved, so update our world transform.
     UpdateTransform();
-  }
-  // Send over any pending invalidates which occured when the plugin was
-  // off screen.
-  if (visible && delegate_->windowless() && !clip_rect.IsEmpty() &&
-      old_clip_rect.IsEmpty() && !damaged_rect_.IsEmpty()) {
-    InvalidateRect(damaged_rect_);
   }
 }
 
@@ -386,9 +375,4 @@ void WebPluginProxy::InitiateHTTPRangeRequest(const char* url,
   Send(new PluginHostMsg_InitiateHTTPRangeRequest(route_id_, url,
                                                   range_info, existing_stream,
                                                   notify_needed, notify_data));
-}
-
-void WebPluginProxy::OnPaint(const gfx::Rect& damaged_rect) {
-  Paint(damaged_rect);
-  Send(new PluginHostMsg_InvalidateRect(route_id_, damaged_rect));
 }

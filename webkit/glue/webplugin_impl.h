@@ -305,8 +305,7 @@ class WebPluginImpl : public WebPlugin,
   WebPluginDelegate* delegate_;
   bool force_geometry_update_;
   bool visible_;
-  // Set when we receive the first paint notification for a windowed
-  // plugin widget.
+  // Set when we receive the first paint notification for the plugin widget.
   bool received_first_paint_notification_;
 
   WebPluginContainer* widget_;

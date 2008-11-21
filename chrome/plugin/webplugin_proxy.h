@@ -108,9 +108,6 @@ class WebPluginProxy : public WebPlugin {
                      ScopedBitmap* bitmap,
                      ScopedHDC* hdc);
 
-  // Handler for sending over the paint event to the plugin.
-  void OnPaint(const gfx::Rect& damaged_rect);
-
   // Called when a plugin's origin moves, so that we can update the world
   // transform of the local HDC.
   void UpdateTransform();
@@ -140,8 +137,6 @@ class WebPluginProxy : public WebPlugin {
   ScopedHandle background_shared_section_;
   ScopedBitmap background_bitmap_;
   ScopedHDC background_hdc_;
-
-  ScopedRunnableMethodFactory<WebPluginProxy> runnable_method_factory_;
 };
 
 #endif  // CHROME_PLUGIN_PLUGIN_WEBPLUGIN_PROXY_H__
