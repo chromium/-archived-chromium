@@ -2457,11 +2457,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\JSDOMBinding.h"
+			RelativePath="..\..\port\bindings\v8\JSDOMBinding.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\JSDOMBinding.cpp"
+			RelativePath="..\..\port\bindings\v8\JSDOMBinding.h"
 			>
 		</File>
 		<File
@@ -2470,14 +2470,6 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\JSXPathNSResolver.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\V8MessagePortCustom.cpp"
 			>
 		</File>
 		<File
@@ -2505,15 +2497,19 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\ScheduledAction.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\ScriptCallContextV8.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\ScriptController.h"
+			RelativePath="..\..\port\bindings\v8\ScriptController.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\ScriptController.cpp"
+			RelativePath="..\..\port\bindings\v8\ScriptController.h"
 			>
 		</File>
 		<File
@@ -2570,6 +2566,14 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\v8_vectornodelist.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\V8MessagePortCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestCustom.cpp"
 			>
 		</File>
 	</Files>

@@ -157,20 +157,12 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="dom"
+			Name="page"
 			>
 			<File
 				RelativePath="..\..\port\page\Location.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\port\dom\ScheduledAction.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="page"
-			>
 			<Filter
 				Name="chromium"
 				>

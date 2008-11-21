@@ -28,7 +28,6 @@
 VPATH = \
     $(PORTROOT)/../pending \
     $(PORTROOT)/css \
-    $(PORTROOT)/dom \
     $(PORTROOT)/html \
     $(PORTROOT)/page \
     $(PORTROOT)/page/inspector \
@@ -1163,5 +1162,5 @@ V8%.h : %.idl $(V8_SCRIPTS)
 	rm -f $@; \
 	for i in 1 2 3 4 5 6 7 8 9 10; do \
 	  if test -e $@; then break; fi; \
-	  perl -w -I $(PORTROOT)/bindings/scripts -I $(WebCore)/bindings/scripts $(PORTROOT)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT V8_BINDING" --generator V8 --include ../../../webkit/pending --include ../../../webkit/port/dom --include ../../../webkit/port/html --include ../../../webkit/port/page --include svg --include dom --include html --include css --include page --include xml --include plugins --outputdir . $< ; \
+	  perl -w -I $(PORTROOT)/bindings/scripts -I $(WebCore)/bindings/scripts $(PORTROOT)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT V8_BINDING" --generator V8 --include ../../../webkit/pending --include ../../../webkit/port/html --include ../../../webkit/port/page --include svg --include dom --include html --include css --include page --include xml --include plugins --outputdir . $< ; \
 	done
