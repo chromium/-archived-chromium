@@ -444,7 +444,7 @@ void SafeBrowsingDatabaseBloom::UpdateFinished(bool update_succeeded) {
 }
 
 void SafeBrowsingDatabaseBloom::InsertAdd(SBPrefix host, SBEntry* entry) {
-  STATS_COUNTER("SB.HostInsert", 1);
+  STATS_COUNTER(L"SB.HostInsert", 1);
   int encoded = EncodeChunkId(entry->chunk_id(), entry->list_id());
 
   if (entry->type() == SBEntry::ADD_FULL_HASH) {
@@ -473,7 +473,7 @@ void SafeBrowsingDatabaseBloom::InsertAdd(SBPrefix host, SBEntry* entry) {
 
 void SafeBrowsingDatabaseBloom::InsertAddPrefix(SBPrefix prefix,
                                                 int encoded_chunk) {
-  STATS_COUNTER("SB.PrefixAdd", 1);
+  STATS_COUNTER(L"SB.PrefixAdd", 1);
   std::string sql = "INSERT INTO add_prefix (chunk, prefix) VALUES (?, ?)";
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_, sql.c_str());
   if (!statement.is_valid()) {
@@ -496,7 +496,7 @@ void SafeBrowsingDatabaseBloom::InsertAddFullHash(SBPrefix prefix,
                                                   int encoded_chunk,
                                                   base::Time receive_time,
                                                   SBFullHash full_prefix) {
-  STATS_COUNTER("SB.PrefixAddFull", 1);
+  STATS_COUNTER(L"SB.PrefixAddFull", 1);
   std::string sql = "INSERT INTO add_full_hash "
                     "(chunk, prefix, receive_time, full_hash) "
                     "VALUES (?,?,?,?)";
@@ -521,7 +521,7 @@ void SafeBrowsingDatabaseBloom::InsertAddFullHash(SBPrefix prefix,
 
 void SafeBrowsingDatabaseBloom::InsertSub(
     int chunk_id, SBPrefix host, SBEntry* entry) {
-  STATS_COUNTER("SB.HostDelete", 1);
+  STATS_COUNTER(L"SB.HostDelete", 1);
   int encoded = EncodeChunkId(chunk_id, entry->list_id());
   int encoded_add;
 
@@ -553,7 +553,7 @@ void SafeBrowsingDatabaseBloom::InsertSub(
 void SafeBrowsingDatabaseBloom::InsertSubPrefix(SBPrefix prefix,
                                                 int encoded_chunk,
                                                 int encoded_add_chunk) {
-  STATS_COUNTER("SB.PrefixSub", 1);
+  STATS_COUNTER(L"SB.PrefixSub", 1);
   std::string sql =
     "INSERT INTO sub_prefix (chunk, add_chunk, prefix) VALUES (?,?,?)";
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_, sql.c_str());
@@ -578,7 +578,7 @@ void SafeBrowsingDatabaseBloom::InsertSubFullHash(SBPrefix prefix,
                                                   int encoded_add_chunk,
                                                   SBFullHash full_prefix,
                                                   bool use_temp_table) {
-  STATS_COUNTER("SB.PrefixSubFull", 1);
+  STATS_COUNTER(L"SB.PrefixSubFull", 1);
   std::string sql = "INSERT INTO ";
   if (use_temp_table) {
     sql += "sub_full_tmp";
@@ -661,7 +661,7 @@ void SafeBrowsingDatabaseBloom::DeleteChunks(
 bool SafeBrowsingDatabaseBloom::ChunkExists(int list_id,
                                             ChunkType type,
                                             int chunk_id) {
-  STATS_COUNTER("SB.ChunkSelect", 1);
+  STATS_COUNTER(L"SB.ChunkSelect", 1);
   int encoded = EncodeChunkId(chunk_id, list_id);
   bool ret;
   if (type == ADD_CHUNK)
@@ -869,7 +869,7 @@ int SafeBrowsingDatabaseBloom::PairCompare(const void* arg1, const void* arg2) {
 
 bool SafeBrowsingDatabaseBloom::BuildAddPrefixList(SBPair* adds) {
   // Read add_prefix into memory and sort it.
-  STATS_COUNTER("SB.HostSelectForBloomFilter", 1);
+  STATS_COUNTER(L"SB.HostSelectForBloomFilter", 1);
   SQLITE_UNIQUE_STATEMENT(add_prefix, *statement_cache_,
                           "SELECT chunk, prefix FROM add_prefix");
   if (!add_prefix.is_valid()) {

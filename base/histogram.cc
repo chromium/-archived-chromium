@@ -25,7 +25,7 @@ const int Histogram::kHexRangePrintingFlag = 0x8000;
 
 Histogram::Histogram(const wchar_t* name, Sample minimum,
                      Sample maximum, size_t bucket_count)
-  : StatsRate(WideToASCII(name).c_str()),
+  : StatsRate(name),
     histogram_name_(WideToASCII(name)),
     declared_min_(minimum),
     declared_max_(maximum),
@@ -39,7 +39,7 @@ Histogram::Histogram(const wchar_t* name, Sample minimum,
 
 Histogram::Histogram(const wchar_t* name, TimeDelta minimum,
                      TimeDelta maximum, size_t bucket_count)
-  : StatsRate(WideToASCII(name).c_str()),
+  : StatsRate(name),
     histogram_name_(WideToASCII(name)),
     declared_min_(static_cast<int> (minimum.InMilliseconds())),
     declared_max_(static_cast<int> (maximum.InMilliseconds())),

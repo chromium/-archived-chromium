@@ -81,7 +81,7 @@ static void RemoveHiddenDependency(v8::Local<v8::Object> object,
 }
 
 ACCESSOR_GETTER(MessagePortOnmessage) {
-  INC_STATS("DOM.MessagePort.onmessage._get");
+  INC_STATS(L"DOM.MessagePort.onmessage._get");
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, info.Holder());
   if (imp->onmessage()) {
@@ -94,7 +94,7 @@ ACCESSOR_GETTER(MessagePortOnmessage) {
 }
 
 ACCESSOR_SETTER(MessagePortOnmessage) {
-  INC_STATS("DOM.MessagePort.onmessage._set");
+  INC_STATS(L"DOM.MessagePort.onmessage._set");
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, info.Holder());
   if (value->IsNull()) {
@@ -123,7 +123,7 @@ ACCESSOR_SETTER(MessagePortOnmessage) {
 }
 
 ACCESSOR_GETTER(MessagePortOnclose) {
-  INC_STATS("DOM.MessagePort.onclose._get");
+  INC_STATS(L"DOM.MessagePort.onclose._get");
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, info.Holder());
   if (imp->onclose()) {
@@ -136,7 +136,7 @@ ACCESSOR_GETTER(MessagePortOnclose) {
 }
 
 ACCESSOR_SETTER(MessagePortOnclose) {
-  INC_STATS("DOM.MessagePort.onclose._set");
+  INC_STATS(L"DOM.MessagePort.onclose._set");
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, info.Holder());
   if (value->IsNull()) {
@@ -164,7 +164,7 @@ ACCESSOR_SETTER(MessagePortOnclose) {
 }
 
 CALLBACK_FUNC_DECL(MessagePortStartConversation) {
-  INC_STATS("DOM.MessagePort.StartConversation()");
+  INC_STATS(L"DOM.MessagePort.StartConversation()");
   if (args.Length() < 1) {
     V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR, "Not enough arguments");
     return v8::Undefined();
@@ -186,7 +186,7 @@ CALLBACK_FUNC_DECL(MessagePortStartConversation) {
 }
 
 CALLBACK_FUNC_DECL(MessagePortAddEventListener) {
-  INC_STATS("DOM.MessagePort.AddEventListener()");
+  INC_STATS(L"DOM.MessagePort.AddEventListener()");
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, args.Holder());
 
@@ -207,7 +207,7 @@ CALLBACK_FUNC_DECL(MessagePortAddEventListener) {
 }
 
 CALLBACK_FUNC_DECL(MessagePortRemoveEventListener) {
-  INC_STATS("DOM.MessagePort.RemoveEventListener()");
+  INC_STATS(L"DOM.MessagePort.RemoveEventListener()");
   MessagePort* imp = V8Proxy::ToNativeObject<MessagePort>(
       V8ClassIndex::MESSAGEPORT, args.Holder());
 

@@ -29,8 +29,8 @@
 namespace NPAPI
 {
 
-const char kPluginLibrariesLoadedCounter[] = "PluginLibrariesLoaded";
-const char kPluginInstancesActiveCounter[] = "PluginInstancesActive";
+const wchar_t kPluginLibrariesLoadedCounter[] = L"PluginLibrariesLoaded";
+const wchar_t kPluginInstancesActiveCounter[] = L"PluginInstancesActive";
 
 PluginLib::PluginMap* PluginLib::loaded_libs_;
 

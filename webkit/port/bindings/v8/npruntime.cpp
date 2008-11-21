@@ -169,7 +169,7 @@ void NPN_ReleaseVariantValue(NPVariant* variant) {
     variant->type = NPVariantType_Void;
 }
 
-static const char* kCounterNPObjects = "NPObjects";
+static const wchar_t* kCounterNPObjects = L"NPObjects";
 
 NPObject *NPN_CreateObject(NPP npp, NPClass* aClass) {
     ASSERT(aClass);

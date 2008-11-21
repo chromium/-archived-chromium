@@ -20,37 +20,37 @@ namespace chrome {
 //       would be it.  But these are small objects, so this is ok.
 
 StatsCounter& Counters::ipc_send_counter() {
-  static StatsCounter* ctr = new StatsCounter("IPC.SendMsgCount");
+  static StatsCounter* ctr = new StatsCounter(L"IPC.SendMsgCount");
   return *ctr;
 }
 
 StatsCounterTimer& Counters::chrome_main() {
-  static StatsCounterTimer* ctr = new StatsCounterTimer("Chrome.Init");
+  static StatsCounterTimer* ctr = new StatsCounterTimer(L"Chrome.Init");
   return *ctr;
 }
 
 StatsCounterTimer& Counters::renderer_main() {
-  static StatsCounterTimer* ctr = new StatsCounterTimer("Chrome.RendererInit");
+  static StatsCounterTimer* ctr = new StatsCounterTimer(L"Chrome.RendererInit");
   return *ctr;
 }
 
 StatsCounterTimer& Counters::spellcheck_init() {
-  static StatsCounterTimer* ctr = new StatsCounterTimer("SpellCheck.Init");
+  static StatsCounterTimer* ctr = new StatsCounterTimer(L"SpellCheck.Init");
   return *ctr;
 }
 
 StatsRate& Counters::spellcheck_lookup() {
-  static StatsRate* ctr = new StatsRate("SpellCheck.Lookup");
+  static StatsRate* ctr = new StatsRate(L"SpellCheck.Lookup");
   return *ctr;
 }
 
 StatsCounterTimer& Counters::plugin_load() {
-  static StatsCounterTimer* ctr = new StatsCounterTimer("ChromePlugin.Load");
+  static StatsCounterTimer* ctr = new StatsCounterTimer(L"ChromePlugin.Load");
   return *ctr;
 }
 
 StatsRate& Counters::plugin_intercept() {
-  static StatsRate* ctr = new StatsRate("ChromePlugin.Intercept");
+  static StatsRate* ctr = new StatsRate(L"ChromePlugin.Intercept");
   return *ctr;
 }
 

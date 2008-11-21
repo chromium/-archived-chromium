@@ -362,7 +362,7 @@ void SafeBrowsingDatabaseImpl::CheckUrl(const std::string& host,
 bool SafeBrowsingDatabaseImpl::ReadInfo(int host_key,
                                         SBHostInfo* info,
                                         int* id) {
-  STATS_COUNTER("SB.HostSelect", 1);
+  STATS_COUNTER(L"SB.HostSelect", 1);
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
       "SELECT id, entries FROM hosts WHERE host=?");
   if (!statement.is_valid()) {
@@ -416,9 +416,9 @@ void SafeBrowsingDatabaseImpl::WriteInfo(int host_key,
   int start_index = 0;
   if (id != 0) {
     statement->bind_int(start_index++, id);
-    STATS_COUNTER("SB.HostReplace", 1);
+    STATS_COUNTER(L"SB.HostReplace", 1);
   } else {
-    STATS_COUNTER("SB.HostInsert", 1);
+    STATS_COUNTER(L"SB.HostInsert", 1);
   }
 
   statement->bind_int(start_index++, host_key);
@@ -433,7 +433,7 @@ void SafeBrowsingDatabaseImpl::WriteInfo(int host_key,
 }
 
 void SafeBrowsingDatabaseImpl::DeleteInfo(int host_key) {
-  STATS_COUNTER("SB.HostDelete", 1);
+  STATS_COUNTER(L"SB.HostDelete", 1);
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
       "DELETE FROM hosts WHERE host=?");
   if (!statement.is_valid()) {
@@ -694,7 +694,7 @@ void SafeBrowsingDatabaseImpl::DeleteChunks(
 
 void SafeBrowsingDatabaseImpl::AddDel(const std::string& list_name,
                                       int add_chunk_id) {
-  STATS_COUNTER("SB.ChunkSelect", 1);
+  STATS_COUNTER(L"SB.ChunkSelect", 1);
   int list_id = GetListID(list_name);
   // Find all the prefixes that came from the given add_chunk_id.
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
@@ -767,7 +767,7 @@ void SafeBrowsingDatabaseImpl::SubDel(const std::string& list_name,
 
 void SafeBrowsingDatabaseImpl::AddChunkInformation(
     int list_id, ChunkType type, int chunk_id, const std::string& hostkeys) {
-  STATS_COUNTER("SB.ChunkInsert", 1);
+  STATS_COUNTER(L"SB.ChunkInsert", 1);
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
       "INSERT INTO chunks (list_id, chunk_type, chunk_id, hostkeys) "
       "VALUES (?,?,?,?)");
@@ -817,7 +817,7 @@ void SafeBrowsingDatabaseImpl::GetChunkIds(int list_id,
                                            ChunkType type,
                                            std::string* list) {
   list->clear();
-  STATS_COUNTER("SB.ChunkSelect", 1);
+  STATS_COUNTER(L"SB.ChunkSelect", 1);
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
       "SELECT chunk_id FROM chunks WHERE list_id=? AND chunk_type=? "
       "ORDER BY chunk_id");
@@ -849,7 +849,7 @@ void SafeBrowsingDatabaseImpl::GetChunkIds(int list_id,
 bool SafeBrowsingDatabaseImpl::ChunkExists(int list_id,
                                            ChunkType type,
                                            int chunk_id) {
-  STATS_COUNTER("SB.ChunkSelect", 1);
+  STATS_COUNTER(L"SB.ChunkSelect", 1);
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
       "SELECT chunk_id FROM chunks WHERE"
       " list_id=? AND chunk_type=? AND chunk_id=?");
@@ -873,7 +873,7 @@ void SafeBrowsingDatabaseImpl::RemoveChunkId(int list_id,
                                              ChunkType type,
                                              int chunk_id) {
   // Also remove the add chunk id from add_chunks
-  STATS_COUNTER("SB.ChunkDelete", 1);
+  STATS_COUNTER(L"SB.ChunkDelete", 1);
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
       "DELETE FROM chunks WHERE list_id=? AND chunk_type=? AND chunk_id=?");
   if (!statement.is_valid()) {
@@ -985,7 +985,7 @@ void SafeBrowsingDatabaseImpl::BuildBloomFilter() {
 void SafeBrowsingDatabaseImpl::OnReadHostKeys(int start_id) {
   // Since reading all the keys in one go could take > 20 seconds, instead we
   // read them in small chunks.
-  STATS_COUNTER("SB.HostSelectForBloomFilter", 1);
+  STATS_COUNTER(L"SB.HostSelectForBloomFilter", 1);
   SQLITE_UNIQUE_STATEMENT(statement, *statement_cache_,
       "SELECT host,id FROM hosts WHERE id > ? ORDER BY id");
   if (!statement.is_valid()) {
@@ -1077,7 +1077,7 @@ void SafeBrowsingDatabaseImpl::BeginTransaction() {
 void SafeBrowsingDatabaseImpl::EndTransaction() {
   if (--transaction_count_ == 0) {
     if (transaction_.get() != NULL) {
-      STATS_COUNTER("SB.TransactionCommit", 1);
+      STATS_COUNTER(L"SB.TransactionCommit", 1);
       transaction_->Commit();
       transaction_.reset();
     }
