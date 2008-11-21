@@ -27,7 +27,7 @@
 
 static char g_currentTestName[PATH_MAX];
 
-static const wchar_t* kStatsFile = L"testshell";
+static const char* kStatsFile = "testshell";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 100;
 
@@ -164,8 +164,8 @@ int main(const int argc, const char *argv[]) {
 
   // Load and initialize the stats table (one per process, so that multiple
   // instances don't interfere with each other)
-  wchar_t statsfile[64];
-  swprintf(statsfile, 64, L"%ls-%d", kStatsFile, getpid());
+  char statsfile[64];
+  snprintf(statsfile, 64, "%s-%d", kStatsFile, getpid());
   StatsTable *table = 
       new StatsTable(statsfile, kStatsFileThreads, kStatsFileCounters);
   StatsTable::set_current(table);

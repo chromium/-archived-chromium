@@ -54,7 +54,7 @@ static const size_t kPathBufSize = 2048;
 namespace {
 
 // StatsTable initialization parameters.
-static const wchar_t* kStatsFilePrefix = L"testshell_";
+static const char* kStatsFilePrefix = "testshell_";
 static int kStatsFileThreads = 20;
 static int kStatsFileCounters = 200;
 
@@ -233,7 +233,7 @@ int main(int argc, char* argv[]) {
   // Load and initialize the stats table.  Attempt to construct a somewhat
   // unique name to isolate separate instances from each other.
   StatsTable *table = new StatsTable(
-      kStatsFilePrefix + Uint64ToWString(base::RandUint64()),
+      kStatsFilePrefix + Uint64ToString(base::RandUint64()),
       kStatsFileThreads,
       kStatsFileCounters);
   StatsTable::set_current(table);

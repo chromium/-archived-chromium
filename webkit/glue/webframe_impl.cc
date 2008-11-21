@@ -183,7 +183,8 @@ using WebCore::XPathResult;
 // once we figure out how to make tickmark support work again!
 static const size_t kNoTickmark = size_t(-1);
 
-static const wchar_t* const kWebFrameActiveCount = L"WebFrameActiveCount";
+// Key for a StatsCounter tracking how many WebFrames are active.
+static const char* const kWebFrameActiveCount = "WebFrameActiveCount";
 
 static const char* const kOSDType = "application/opensearchdescription+xml";
 static const char* const kOSDRel = "search";
@@ -487,7 +488,7 @@ bool WebFrameImpl::GetPreviousState(GURL* url, std::wstring* title,
   if (!item)
     return false;
 
-  static StatsCounterTimer history_timer(L"GetHistoryTimer");
+  static StatsCounterTimer history_timer("GetHistoryTimer");
   StatsScope<StatsCounterTimer> history_scope(history_timer);
 
   webkit_glue::HistoryItemToString(item, history_state);
@@ -1474,7 +1475,7 @@ void WebFrameImpl::Layout() {
 }
 
 void WebFrameImpl::Paint(gfx::PlatformCanvas* canvas, const gfx::Rect& rect) {
-  static StatsRate rendering(L"WebFramePaintTime");
+  static StatsRate rendering("WebFramePaintTime");
   StatsScope<StatsRate> rendering_scope(rendering);
 
   if (!rect.IsEmpty()) {

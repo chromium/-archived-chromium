@@ -46,7 +46,7 @@ class StatsTable {
   //
   // max_counters is the maximum number of counters the table will support.
   // If the StatsTable already exists, this number is ignored.
-  StatsTable(const std::wstring& name, int max_threads, int max_counters);
+  StatsTable(const std::string& name, int max_threads, int max_counters);
 
   // Destroys the StatsTable.  When the last StatsTable is destroyed
   // (across all processes), the StatsTable is removed from disk.
@@ -74,7 +74,7 @@ class StatsTable {
   //
   // On success, returns the slot id for this thread.  On failure,
   // returns 0.
-  int RegisterThread(const std::wstring& name);
+  int RegisterThread(const std::string& name);
 
   // Returns the number of threads currently registered.  This is really not
   // useful except for diagnostics and debugging.
@@ -86,7 +86,7 @@ class StatsTable {
   // If the counter does not exist, attempts to create a row for the new
   // counter.  If there is no space in the table for the new counter,
   // returns 0.
-  int FindCounter(const std::wstring& name);
+  int FindCounter(const std::string& name);
 
   // TODO(mbelshe): implement RemoveCounter.
 
@@ -96,7 +96,7 @@ class StatsTable {
 
   // Gets the counter name at a particular row.  If the row is empty,
   // returns NULL.
-  const wchar_t* GetRowName(int index) const;
+  const char* GetRowName(int index) const;
 
   // Gets the sum of the values for a particular row.
   int GetRowValue(int index) const;
@@ -106,11 +106,11 @@ class StatsTable {
 
   // Gets the sum of the values for a particular counter.  If the counter
   // does not exist, creates the counter.
-  int GetCounterValue(const std::wstring& name);
+  int GetCounterValue(const std::string& name);
 
   // Gets the sum of the values for a particular counter for a given pid.
   // If the counter does not exist, creates the counter.
-  int GetCounterValue(const std::wstring& name, int pid);
+  int GetCounterValue(const std::string& name, int pid);
 
   // The maxinum number of counters/rows in the table.
   int GetMaxCounters() const;
@@ -129,7 +129,7 @@ class StatsTable {
   // Convenience function to lookup a counter location for a
   // counter by name for the calling thread.  Will register
   // the thread if it is not already registered.
-  static int* FindLocation(const wchar_t *name);
+  static int* FindLocation(const char *name);
 
  private:
   // Returns the space occupied by a thread in the table.  Generally used
@@ -154,7 +154,7 @@ class StatsTable {
   // Locates a counter in the table or finds an empty row.  Returns a
   // number > 0 on success, or 0 on failure.  The caller must hold the
   // shared_memory_lock when calling this function.
-  int FindCounterOrEmptyRow(const std::wstring& name) const;
+  int FindCounterOrEmptyRow(const std::string& name) const;
 
   // Internal function to add a counter to the StatsTable.  Assumes that
   // the counter does not already exist in the table.
@@ -164,13 +164,13 @@ class StatsTable {
   //
   // On success, returns the counter_id for the newly added counter.
   // On failure, returns 0.
-  int AddCounter(const std::wstring& name);
+  int AddCounter(const std::string& name);
 
   // Get the TLS data for the calling thread.  Returns NULL if none is
   // initialized.
   StatsTableTLSData* GetTLSData() const;
 
-  typedef base::hash_map<std::wstring, int> CountersMap;
+  typedef base::hash_map<std::string, int> CountersMap;
 
   bool                opened_;
   StatsTablePrivate*  impl_;

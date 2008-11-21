@@ -122,9 +122,8 @@ namespace WebCore {
         static void stopSharedTimer();
 
         // StatsCounters ------------------------------------------------------
-        // TODO(erikkay): WebKit doesn't use wchar_t - change to use UTF8
-        static void decrementStatsCounter(const wchar_t* name);
-        static void incrementStatsCounter(const wchar_t* name);
+        static void decrementStatsCounter(const char* name);
+        static void incrementStatsCounter(const char* name);
         static void initV8CounterFunction();
 
         // SystemTime ----------------------------------------------------------

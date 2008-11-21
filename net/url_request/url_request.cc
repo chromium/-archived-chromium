@@ -49,7 +49,7 @@ URLRequest::URLRequest(const GURL& url, Delegate* delegate)
       redirect_limit_(kMaxRedirects),
       final_upload_progress_(0) {
   URLREQUEST_COUNT_CTOR();
-  SIMPLE_STATS_COUNTER(L"URLRequestCount");
+  SIMPLE_STATS_COUNTER("URLRequestCount");
   origin_pid_ = base::GetCurrentProcId();
 
   // Sanity check out environment.

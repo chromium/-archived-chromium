@@ -22,7 +22,7 @@
 #include "webkit/glue/plugins/plugin_stream_url.h"
 #include "webkit/glue/webkit_glue.h"
 
-static StatsCounter windowless_queue(L"Plugin.ThrottleQueue");
+static StatsCounter windowless_queue("Plugin.ThrottleQueue");
 
 static const wchar_t kNativeWindowClassName[] = L"NativeWindowClass";
 static const wchar_t kWebPluginDelegateProperty[] =
