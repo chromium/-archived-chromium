@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef PlatformDeviceWin_h
-#define PlatformDeviceWin_h
+#ifndef SKIA_EXT_PLATFORM_DEVICE_WIN_H_
+#define SKIA_EXT_PLATFORM_DEVICE_WIN_H_
 
 #include <windows.h>
 
@@ -94,5 +94,5 @@ class PlatformDeviceWin : public SkDevice {
 
 }  // namespace gfx
 
-#endif  // PlatformDeviceWin_h
+#endif  // SKIA_EXT_PLATFORM_DEVICE_WIN_H_
 

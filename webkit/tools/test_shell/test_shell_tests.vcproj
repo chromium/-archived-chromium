@@ -363,7 +363,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\graphics\skia\public\PlatformCanvas_unittest.cpp"
+				RelativePath="..\..\..\skia\ext\platform_canvas_unittest.cc"
 				>
 			</File>
 			<File
@@ -387,7 +387,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\platform\graphics\skia\public\VectorCanvas_unittest.cpp"
+				RelativePath="..\..\..\skia\ext\vector_canvas_unittest.cc"
 				>
 			</File>
 			<File

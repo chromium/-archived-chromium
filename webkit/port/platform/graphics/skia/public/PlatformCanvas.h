@@ -7,7 +7,7 @@
 // around.
 
 #if defined(WIN32)
-#include "PlatformCanvasWin.h"
+#include "skia/ext/platform_canvas_win.h"
 namespace gfx {
 
 typedef PlatformCanvasWin PlatformCanvas;

@@ -173,6 +173,12 @@ if env['PLATFORM'] == 'darwin':
   input_files.append('ext/platform_device_mac.cc')
 
 if env['PLATFORM'] == 'win32':
+  input_files.append('ext/bitmap_platform_device_win.cc')
+  input_files.append('ext/platform_canvas_win.cc')
+  input_files.append('ext/platform_device_win.cc')
+  input_files.append('ext/vector_canvas.cc')
+  input_files.append('ext/vector_device.cc')
+
   input_files.append('ports/SkThread_win.cpp')
 
   env_p = env.Clone(

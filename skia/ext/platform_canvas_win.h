@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef PlatformCanvasWin_h
-#define PlatformCanvasWin_h
+#ifndef SKIA_EXT_PLATFORM_CANVAS_WIN_H_
+#define SKIA_EXT_PLATFORM_CANVAS_WIN_H_
 
 #include <windows.h>
 
-#include "PlatformDeviceWin.h"
 #include "base/basictypes.h"
+#include "skia/ext/platform_device_win.h"
 
 #include "SkCanvas.h"
 
@@ -198,5 +198,5 @@ typedef CanvasPaintT<PlatformCanvasWin> PlatformCanvasWinPaint;
 
 }  // namespace gfx
 
-#endif  // PlatformCanvasWin_h
+#endif  // SKIA_EXT_PLATFORM_CANVAS_WIN_H_
 

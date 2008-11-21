@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BitmapPlatformDeviceWin_h
-#define BitmapPlatformDeviceWin_h
+#ifndef SKIA_BITMAP_PLATFORM_DEVICE_WIN_H_
+#define SKIA_BITMAP_PLATFORM_DEVICE_WIN_H_
 
 #include "base/gfx/platform_device_win.h"
 #include "base/ref_counted.h"
@@ -107,5 +107,5 @@ class BitmapPlatformDeviceWin : public PlatformDeviceWin {
 
 }  // namespace gfx
 
-#endif  // BASE_GFX_BITMAP_PLATFORM_DEVICE_WIN_H_
+#endif  // SKIA_BITMAP_PLATFORM_DEVICE_WIN_H_
 

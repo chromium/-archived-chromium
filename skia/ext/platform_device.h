@@ -7,9 +7,9 @@
 // around.
 
 #if defined(WIN32)
-#include "skia/ext/platform_device_win.h"
+#include "PlatformDeviceWin.h"
 #elif defined(__APPLE__)
-#include "skia/ext/platform_device_mac.h"
+#include "PlatformDeviceMac.h"
 #elif defined(__linux__)
 #include "PlatformDeviceLinux.h"
 #endif

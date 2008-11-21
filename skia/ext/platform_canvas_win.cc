@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "PlatformCanvasWin.h"
-
-#include "BitmapPlatformDeviceWin.h"
+#include "skia/ext/platform_canvas_win.h"
 
 #include "base/logging.h"
 #include "base/process_util.h"
+#include "skia/ext/bitmap_platform_device_win.h"
 
 namespace gfx {
 

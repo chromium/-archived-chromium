@@ -7,7 +7,7 @@
 
 // TODO(brettw) this file should be removed and the includes changed to this
 // new location.
-#include "webkit/port/platform/graphics/skia/public/PlatformDeviceWin.h"
+#include "skia/ext/platform_device_win.h"
 
 #endif  // BASE_GFX_PLATFORM_DEVICE_WIN_H__
 

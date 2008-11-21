@@ -7,7 +7,7 @@
 
 // TODO(brettw) this file should be removed and the includes changed to this
 // new location.
-#include "webkit/port/platform/graphics/skia/public/PlatformCanvasWin.h"
+#include "skia/ext/platform_canvas_win.h"
 
 #endif  // BASE_GFX_PLATFORM_CANVAS_WIN_H_
 

@@ -1305,6 +1305,62 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="ext"
+			>
+			<File
+				RelativePath=".\ext\bitmap_platform_device.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\bitmap_platform_device_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\bitmap_platform_device_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\platform_canvas.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\platform_canvas_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\platform_canvas_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\platform_device.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\platform_device_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\platform_device_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\vector_canvas.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\vector_canvas.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\vector_device.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\ext\vector_device.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\precompiled.cc"
 			>

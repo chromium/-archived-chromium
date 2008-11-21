@@ -7,7 +7,7 @@
 // around.
 
 #if defined(WIN32)
-#include "BitmapPlatformDeviceWin.h"
+#include "skia/ext/bitmap_platform_device_win.h"
 namespace gfx {
 
 typedef BitmapPlatformDeviceWin BitmapPlatformDevice;

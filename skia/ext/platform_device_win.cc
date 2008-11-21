@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "PlatformDeviceWin.h"
+#include "skia/ext/platform_device_win.h"
 
 #include "base/logging.h"
 #include "base/gfx/skia_utils.h"

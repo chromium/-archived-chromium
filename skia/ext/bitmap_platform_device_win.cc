@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "BitmapPlatformDeviceWin.h"
+#include "skia/ext/bitmap_platform_device_win.h"
 
 #include "base/gfx/gdi_util.h"
 #include "base/logging.h"
