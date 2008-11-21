@@ -204,446 +204,622 @@
 			Name="inspector"
 			>
 			<File
-				RelativePath="..\..\port\page\inspector\BreakpointsSidebarPane.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Breakpoint.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\CallStackSidebarPane.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\BreakpointsSidebarPane.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\Console.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\CallStackSidebarPane.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\Database.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Console.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\DatabaseQueryView.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Database.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\DatabasesPanel.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\DatabaseQueryView.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\DatabaseTableView.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\DatabasesPanel.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\ElementsPanel.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\DatabaseTableView.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\FontView.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\DataGrid.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\ImageView.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ElementsPanel.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\inspector.css"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ElementsTreeOutline.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\inspector.html"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\FontView.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\inspector.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ImageView.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\MetricsSidebarPane.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\inspector.css"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\Panel.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\inspector.html"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\PropertiesSection.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\inspector.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\PropertiesSidebarPane.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\MetricsSidebarPane.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\Resource.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Object.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\ResourceCategory.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ObjectPropertiesSection.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\ResourcesPanel.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Panel.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\ResourceView.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\PanelEnablerView.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\ScriptsPanel.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Placard.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\SidebarPane.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ProfilesPanel.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\SidebarTreeElement.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ProfileView.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\SourceView.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\PropertiesSection.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\StylesSidebarPane.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\PropertiesSidebarPane.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\TextPrompt.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Resource.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\treeoutline.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ResourceCategory.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\utilities.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ResourcesPanel.js"
 				>
 			</File>
 			<File
-				RelativePath="..\..\port\page\inspector\View.js"
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ResourceView.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ScopeChainSidebarPane.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Script.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ScriptsPanel.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\ScriptView.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\SidebarPane.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\SidebarTreeElement.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\SourceFrame.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\SourceView.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\StylesSidebarPane.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\TextPrompt.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\treeoutline.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\utilities.js"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\View.js"
 				>
 			</File>
 			<Filter
 				Name="images"
 				>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\back.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\back.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\checker.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\checker.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\clearConsoleButtons.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\clearConsoleButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\consoleButtons.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\closeButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\database.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\consoleButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\databasesIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\database.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\databaseTable.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\databasesIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\debuggerContinue.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\databaseTable.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\debuggerPause.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\debuggerContinue.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\debuggerStepInto.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\debuggerPause.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\debuggerStepOut.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\debuggerStepInto.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\debuggerStepOver.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\debuggerStepOut.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\debuggingButtons.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\debuggerStepOver.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallDown.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallDown.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallDownBlack.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallDownBlack.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallDownWhite.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallDownWhite.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallRight.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallRight.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallRightBlack.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallRightBlack.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallRightDown.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallRightDown.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallRightDownBlack.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallRightDownBlack.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallRightDownWhite.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallRightDownWhite.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\disclosureTriangleSmallRightWhite.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\disclosureTriangleSmallRightWhite.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\dockButtons.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\dockButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\elementsIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\elementsIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\errorIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\enableButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\errorMediumIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\errorIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\forward.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\errorMediumIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\glossyHeader.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\excludeButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\glossyHeaderPressed.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\focusButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\goArrow.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\forward.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\largerResourcesButtons.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\glossyHeader.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\paneBottomGrow.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\glossyHeaderPressed.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\paneBottomGrowActive.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\glossyHeaderSelected.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\paneGrowHandleLine.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\glossyHeaderSelectedPressed.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourceCSSIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\goArrow.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourceDocumentIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\graphLabelCalloutLeft.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourceDocumentIconSmall.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\graphLabelCalloutRight.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourceJSIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\largerResourcesButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourcePlainIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\nodeSearchButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourcePlainIconSmall.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\paneBottomGrow.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourcesIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\paneBottomGrowActive.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourcesSizeGraphIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\paneGrowHandleLine.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\resourcesTimeGraphIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\pauseOnExceptionButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\scriptsIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\percentButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\segment.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\profileGroupIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\segmentEnd.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\profileIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\segmentHover.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\profilesIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\segmentHoverEnd.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\profileSmallIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\segmentSelected.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\profilesSilhouette.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\segmentSelectedEnd.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\recordButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\splitviewDimple.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\reloadButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\splitviewDividerBackground.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourceCSSIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\statusbarBackground.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourceDocumentIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\statusbarBottomBackground.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourceDocumentIconSmall.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\statusbarButtons.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourceJSIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\statusbarMenuButton.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourcePlainIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\statusbarMenuButtonSelected.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourcePlainIconSmall.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\statusbarResizerHorizontal.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourcesIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\statusbarResizerVertical.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourcesSizeGraphIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\timelinePillBlue.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\resourcesTimeGraphIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\timelinePillGray.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\scriptsIcon.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\timelinePillGreen.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\scriptsSilhouette.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\timelinePillOrange.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\searchSmallBlue.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\timelinePillPurple.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\searchSmallBrightBlue.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\timelinePillRed.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\searchSmallGray.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\timelinePillYellow.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\searchSmallWhite.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\tipBalloon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\segment.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\tipBalloonBottom.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\segmentEnd.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\tipIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\segmentHover.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\tipIconPressed.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\segmentHoverEnd.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\toolbarItemSelected.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\segmentSelected.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\treeDownTriangleBlack.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\segmentSelectedEnd.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\treeDownTriangleWhite.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\splitviewDimple.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\treeRightTriangleBlack.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\splitviewDividerBackground.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\treeRightTriangleWhite.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\statusbarBackground.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\userInputIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\statusbarBottomBackground.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\userInputPreviousIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\statusbarButtons.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\warningIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\statusbarMenuButton.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\warningMediumIcon.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\statusbarMenuButtonSelected.png"
 					>
 				</File>
 				<File
-					RelativePath="..\..\port\page\inspector\Images\warningsErrors.png"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\statusbarResizerHorizontal.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\statusbarResizerVertical.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelineHollowPillBlue.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelineHollowPillGray.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelineHollowPillGreen.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelineHollowPillOrange.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelineHollowPillPurple.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelineHollowPillRed.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelineHollowPillYellow.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelinePillBlue.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelinePillGray.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelinePillGreen.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelinePillOrange.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelinePillPurple.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelinePillRed.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\timelinePillYellow.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\tipBalloon.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\tipBalloonBottom.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\tipIcon.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\tipIconPressed.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\toolbarItemSelected.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\treeDownTriangleBlack.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\treeDownTriangleWhite.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\treeRightTriangleBlack.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\treeRightTriangleWhite.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\treeUpTriangleBlack.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\treeUpTriangleWhite.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\userInputIcon.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\userInputPreviousIcon.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\warningIcon.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\warningMediumIcon.png"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\front-end\Images\warningsErrors.png"
 					>
 				</File>
 			</Filter>
