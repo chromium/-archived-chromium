@@ -74,13 +74,13 @@ INT64 GetTabCnt();
 // variant.
 std::wstring GetName(IAccessible* pi_access, VARIANT child = g_var_self);
 
-// Returns Role of specified IAccessible pointer or it's child specified by
+// Returns the role of specified IAccessible pointer or it's child specified by
 // variant.
-std::wstring GetRole(IAccessible* pi_access, VARIANT child = g_var_self);
+DWORD GetRole(IAccessible* pi_access, VARIANT child = g_var_self);
 
-// Returns State of specified IAccessible pointer or it's child specified by
+// Returns state of specified IAccessible pointer or it's child specified by
 // variant.
-std::wstring GetState(IAccessible* pi_access, VARIANT child = g_var_self);
+DWORD GetState(IAccessible* pi_access, VARIANT child = g_var_self);
 
 // Returns IAccessible pointer for Chrome Minimize Button. It does not have
 // window handle.

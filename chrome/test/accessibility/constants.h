@@ -36,6 +36,9 @@
 #define CHROME_APP_ACC_INDEX            (3)
 #define CHROME_CLIENT_ACC_INDEX         (0)
 
+#define ROLE_ERROR                      (-1)
+#define STATE_ERROR                     (-1)
+
 // Chrome Client chidren.
 #ifdef NEW_FRAMES
 #define BROWSER_VIEW_ACC_INDEX          (4)

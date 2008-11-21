@@ -72,8 +72,7 @@ HWND GetChromeBrowserWnd(IAccessible** ppi_access) {
     CHK_RELEASE(pi_acc_root_win);
     return hwnd;
   }
-  str_role = GetRole(pi_acc_root_win);
-  if (0 != str_role.compare(BROWSER_WIN_ROLE)) {
+  if (ROLE_SYSTEM_WINDOW != GetRole(pi_acc_root_win)) {
     CHK_RELEASE(pi_acc_root_win);
     return hwnd;
   }
@@ -115,8 +114,7 @@ HWND GetChromeBrowserWnd(IAccessible** ppi_access) {
     CHK_RELEASE(pi_acc_root_win);
     return hwnd;
   }
-  str_role = GetRole(pi_acc_app);
-  if (0 != str_role.compare(BROWSER_APP_ROLE)) {
+  if (ROLE_SYSTEM_APPLICATION != GetRole(pi_acc_app)) {
     CHK_RELEASE(pi_acc_app);
     CHK_RELEASE(pi_acc_root_win);
     return hwnd;
@@ -143,8 +141,7 @@ HWND GetChromeBrowserWnd(IAccessible** ppi_access) {
       (0 != _wcsicmp(str_name, product_name.c_str())) ) {
     CHK_RELEASE(*ppi_access);
   }
-  str_role = GetRole(*ppi_access);
-  if (0 != str_role.compare(BROWSER_CLIENT_ROLE)) {
+  if (ROLE_SYSTEM_CLIENT != GetRole(*ppi_access)) {
     CHK_RELEASE(*ppi_access);
   }
 
@@ -539,13 +536,13 @@ std::wstring GetName(IAccessible* pi_access, VARIANT child) {
   return std::wstring(name);
 }
 
-std::wstring GetRole(IAccessible* pi_access, VARIANT child) {
+DWORD GetRole(IAccessible* pi_access, VARIANT child) {
   HRESULT hr       = S_OK;
   LPTSTR  role_str = NULL;
 
   // Validate input.
   if (NULL == pi_access) {
-    return std::wstring();
+    return ROLE_ERROR;
   }
 
   // Get Role.
@@ -554,27 +551,21 @@ std::wstring GetRole(IAccessible* pi_access, VARIANT child) {
   hr = pi_access->get_accRole(child, &role);
   if (S_OK != hr || VT_I4 != role.vt) {
     VariantClear(&role);
-    return std::wstring();
+    return ROLE_ERROR;
   }
 
-  // Get Role string.
-  unsigned int role_length = GetRoleText(role.lVal, NULL, 0);
-  role_str = (LPTSTR)calloc(role_length + 1, sizeof(TCHAR));
-  if (role_str)
-    GetRoleText(role.lVal, role_str, role_length + 1);
-
-  VariantClear(&role);
-  return std::wstring(role_str);
+  // Return the role value
+  return role.lVal;
 }
 
-std::wstring GetState(IAccessible* pi_access, VARIANT child) {
+DWORD GetState(IAccessible* pi_access, VARIANT child) {
   HRESULT      hr        = S_OK;
   LPTSTR       state_str = NULL;
   std::wstring complete_state;
 
   // Validate input.
   if (NULL == pi_access) {
-    return std::wstring();
+    return STATE_ERROR;
   }
 
   // Get State.
@@ -583,37 +574,10 @@ std::wstring GetState(IAccessible* pi_access, VARIANT child) {
   hr = pi_access->get_accState(child, &state);
   if (S_OK != hr || VT_I4 != state.vt) {
     VariantClear(&state);
-    return std::wstring();
-  }
-
-  // Treat the "normal" state separately.
-  if (state.vt == 0) {
-    unsigned int state_length = GetStateText(state.lVal, NULL, 0);
-    state_str = (LPTSTR)calloc(state_length + 1, sizeof(TCHAR));
-    if (state_str) {
-      GetStateText(state.lVal, state_str, state_length + 1);
-      complete_state = std::wstring(state_str);
-    }
-  } else {
-    // Number of bits.
-    UINT bit_cnt = 32;
-    // Convert state flags to comma separated list.
-    for (DWORD dwStateBit = 0x80000000; bit_cnt; bit_cnt--, dwStateBit >>= 1) {
-      if (state.lVal & dwStateBit) {
-        unsigned int state_length = GetStateText(dwStateBit, NULL, 0);
-        state_str = (LPTSTR)calloc(state_length + 1, sizeof(TCHAR));
-        if (state_str) {
-          GetStateText(dwStateBit, state_str, state_length + 1);
-          if (complete_state.length() > 0)
-            complete_state.append(L", ");
-          complete_state.append(state_str);
-          free(state_str);
-        }
-      }
-    }
+    return STATE_ERROR;
   }
 
   VariantClear(&state);
-  return complete_state;
+  return state.lVal;
 }
 
