@@ -1119,7 +1119,14 @@ void SessionService::BuildCommandsFromBrowsers(
   DCHECK(commands);
   for (BrowserList::const_iterator i = BrowserList::begin();
        i != BrowserList::end(); ++i) {
-    if (should_track_changes_for_browser_type((*i)->type())) {
+    // Make sure the browser has tabs and a window. Browsers destructor
+    // removes itself from the BrowserList. When a browser is closed the
+    // destructor is not necessarily run immediately. This means its possible
+    // for us to get a handle to a browser that is about to be removed. If
+    // the tab count is 0 or the window is NULL, the browser is about to be
+    // deleted, so we ignore it.
+    if (should_track_changes_for_browser_type((*i)->type()) &&
+        (*i)->tab_count() && (*i)->window()) {
       BuildCommandsForBrowser(*i, commands, tab_to_available_range,
                               windows_to_track);
     }
