@@ -439,6 +439,12 @@ inline char_type* WriteInto(
   return &((*str)[0]);
 }
 
+inline char16* WriteInto(string16* str, size_t length_including_null) {
+  str->reserve(length_including_null);
+  str->resize(length_including_null - 1);
+  return &((*str)[0]);
+}
+
 //-----------------------------------------------------------------------------
 
 // Function objects to aid in comparing/searching strings.

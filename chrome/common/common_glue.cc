@@ -6,7 +6,7 @@
 #include "base/path_service.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/resource_bundle.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/plugin/npobject_util.h"
 #include "googleurl/src/url_util.h"
 #include "webkit/glue/webkit_glue.h"
@@ -39,7 +39,7 @@ std::wstring GetWebKitLocale() {
 }
 
 std::wstring GetLocalizedString(int message_id) {
-  return ResourceBundle::GetSharedInstance().GetLocalizedString(message_id);
+  return l10n_util::GetString(message_id);
 }
 
 }  // namespace webkit_glue

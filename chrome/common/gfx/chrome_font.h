@@ -11,6 +11,9 @@
 
 #if defined(OS_WIN)
 typedef struct HFONT__* HFONT;
+#else
+// TODO(port): Make it more real.
+typedef void* HFONT;
 #endif
 
 #include "base/basictypes.h"
