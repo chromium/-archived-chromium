@@ -83,7 +83,6 @@ copies = [
     '../WebCore/bridge/runtime_object.h',
     '../WebCore/bridge/runtime_root.h',
     'runtime/Collector.h',
-    'runtime/Interpreter.h',
     'wtf/HashCountedSet.h',
 ]
 
