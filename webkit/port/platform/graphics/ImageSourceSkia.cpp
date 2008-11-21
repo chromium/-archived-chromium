@@ -172,7 +172,11 @@ NativeImagePtr ImageSource::createFrameAtIndex(size_t index)
     RGBA32Buffer* buffer = m_decoder->frameBufferAtIndex(index);
     if (!buffer || buffer->status() == RGBA32Buffer::FrameEmpty)
         return 0;
-    return reinterpret_cast<NativeImagePtr>(&buffer->bitmap());
+
+    // Copy the bitmap.  The pixel data is refcounted internally by SkBitmap, so
+    // this doesn't cost much.  This pointer will be owned by the BitmapImage
+    // and freed in FrameData::clear().
+    return new NativeImageSkia(buffer->bitmap());
 }
 
 bool ImageSource::frameIsCompleteAtIndex(size_t index)

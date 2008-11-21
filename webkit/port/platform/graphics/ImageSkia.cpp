@@ -290,7 +290,9 @@ void TransformDimensions(const SkMatrix& matrix,
 
 void FrameData::clear()
 {
-    // The frame data is released in ImageSource::clear.
+    // ImageSource::createFrameAtIndex() allocated |m_frame| and passed
+    // ownership to BitmapImage; we must delete it here.
+    delete m_frame;
     m_frame = 0;
     // NOTE: We purposefully don't reset metadata here, so that even if we
     // throw away previously-decoded data, animation loops can still access

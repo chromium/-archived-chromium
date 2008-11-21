@@ -138,8 +138,8 @@ public:
         }
     }
 
-    SkBitmap& bitmap() { return m_bitmapRef->bitmap(); }
-    const SkBitmap& bitmap() const { return m_bitmapRef->bitmap(); }
+    NativeImageSkia& bitmap() { return m_bitmapRef->bitmap(); }
+    const NativeImageSkia& bitmap() const { return m_bitmapRef->bitmap(); }
 
     // Must be called before any pixels are written. Will return true on
     // success, false if the memory allocation fails.
