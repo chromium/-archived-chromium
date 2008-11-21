@@ -59,7 +59,7 @@ class NodeLeakTest : public TestShellTest {
         parsed_command_line.HasSwitch(test_shell::kPlaybackMode) ?
         net::HttpCache::PLAYBACK : net::HttpCache::NORMAL;
     SimpleResourceLoaderBridge::Init(
-        new TestShellRequestContext(cache_path, mode));
+        new TestShellRequestContext(cache_path, mode, false));
 
     TestShellTest::SetUp();
   }
