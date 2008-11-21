@@ -8,18 +8,12 @@ env = env.Clone()
 
 env.ApplySConscript([
     '$BSPATCH_DIR/using_bspatch.scons',
+    '$CHROME_SRC_DIR/build/external_code.scons',
+    '$LZMA_SDK_DIR/using_lzma_sdk.scons',
 ])
-
-if env['PLATFORM'] == 'win32':
-  env.Append(
-    CCFLAGS = [
-        '/TP',
-        '/wd4800',
-    ],
-  )
 
 input_files = [
     "mbsdiff.cc",
 ]
 
-env.ChromeStaticLibrary('bsdiff', input_files)
+env.ChromeProgram('bsdiff', input_files)
