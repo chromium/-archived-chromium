@@ -24,6 +24,7 @@
 #include "RenderThemeGtk.h"
 
 #include "AffineTransform.h"
+#include "CSSValueKeywords.h"
 #include "GraphicsContext.h"
 #include "NotImplemented.h"
 #include "PlatformContextSkia.h"
@@ -431,9 +432,74 @@ void RenderThemeGtk::systemFont(int, FontDescription&) const
     notImplemented();
 }
 
-void RenderThemeGtk::systemFont(int, Document*, FontDescription&) const
+void RenderThemeGtk::systemFont(int propId, Document*, FontDescription& fontDescription) const
 {
-    notImplemented();
+    switch (propId) {
+        case CSSValueMenu:
+            notImplemented();
+            break;
+        case CSSValueStatusBar:
+            notImplemented();
+            break;
+        case CSSValueSmallCaption:
+            notImplemented();
+            break;
+        case CSSValueWebkitSmallControl: {
+            // TODO(mmoss) webkit/port/rendering/RenderThemeWin.cpp has
+            // special handling for ChromiumBridge::layoutTestMode(). Will
+            // Linux need special handling too, or are known styles (fonts,
+            // etc.) already enforced elsewhere when in that mode?
+            GtkWidget* widget = gtkEntry();
+            PangoFontDescription* pangoFontDesc = widget->style->font_desc;
+            // TODO(mmoss) - Windows descreases the size by 2pts. Should
+            // Linux do the same?
+            gint size = pango_font_description_get_size(pangoFontDesc) /
+                PANGO_SCALE;
+            float pixelscale = 0;
+            if (pango_font_description_get_size_is_absolute(pangoFontDesc)) {
+                // Already in pixels, no need to scale.
+                pixelscale = 1.0;
+            } else {
+                gdouble dpi = -1;
+                GdkScreen* screen = gtk_widget_has_screen(widget) ?
+                    gtk_widget_get_screen(widget) : gdk_screen_get_default();
+                if (screen)
+                    dpi = gdk_screen_get_resolution(screen);
+                if (dpi != -1)
+                    pixelscale = dpi / 72.0;
+            }
+            // Only update if we can determine the right size.
+            if (pixelscale && size) {
+                fontDescription.firstFamily().setFamily(
+                    pango_font_description_get_family(pangoFontDesc));
+                fontDescription.setSpecifiedSize((float)size * pixelscale);
+                fontDescription.setIsAbsoluteSize(true);
+            }
+            break;
+        }
+        case CSSValueWebkitMiniControl:
+            notImplemented();
+            break;
+        case CSSValueWebkitControl:
+            notImplemented();
+            break;
+        // TODO(mmoss) These are in WebKit/WebCore/rendering/RenderThemeWin.cpp
+        // but webkit/port/rendering/RenderThemeWin.cpp doesn't specifically
+        // handle them, so maybe we don't need to either.
+        /*
+        case CSSValueIcon:
+            notImplemented();
+            break;
+        case CSSValueMessageBox:
+            notImplemented();
+            break;
+        case CSSValueCaption:
+            notImplemented();
+            break;
+        */
+        default:
+            notImplemented();
+    }
 }
 
 static void gtkStyleSetCallback(GtkWidget* widget, GtkStyle* previous, RenderTheme* renderTheme)
