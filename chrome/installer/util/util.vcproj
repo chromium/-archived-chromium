@@ -20,10 +20,49 @@
 			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)common\common.vsprops;$(SolutionDir)installer\util\using_util.vsprops;$(SolutionDir)..\third_party\lzma_sdk\using_lzma_sdk.vsprops"
 			>
 			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
 				Name="VCCLCompilerTool"
 			/>
 			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
 				Name="VCLibrarianTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
@@ -32,13 +71,54 @@
 			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)common\common.vsprops;$(SolutionDir)installer\util\using_util.vsprops;$(SolutionDir)..\third_party\lzma_sdk\using_lzma_sdk.vsprops"
 			>
 			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
 				Name="VCCLCompilerTool"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLibrarianTool"
 			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<File
 			RelativePath="browser_distribution.cc"
@@ -73,14 +153,6 @@
 			>
 		</File>
 		<File
-			RelativePath="delete_tree_work_item.cc"
-			>
-		</File>
-		<File
-			RelativePath="delete_tree_work_item.h"
-			>
-		</File>
-		<File
 			RelativePath="delete_reg_value_work_item.cc"
 			>
 		</File>
@@ -89,11 +161,27 @@
 			>
 		</File>
 		<File
+			RelativePath="delete_tree_work_item.cc"
+			>
+		</File>
+		<File
+			RelativePath="delete_tree_work_item.h"
+			>
+		</File>
+		<File
 			RelativePath="google_chrome_distribution.cc"
 			>
 		</File>
 		<File
 			RelativePath="google_chrome_distribution.h"
+			>
+		</File>
+		<File
+			RelativePath=".\google_update_constants.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\google_update_constants.h"
 			>
 		</File>
 		<File
@@ -113,12 +201,20 @@
 			>
 		</File>
 		<File
+			RelativePath=".\html_dialog.h"
+			>
+		</File>
+		<File
+			RelativePath=".\html_dialog_impl.cc"
+			>
+		</File>
+		<File
 			RelativePath="install_util.cc"
 			>
 		</File>
 		<File
 			RelativePath="install_util.h"
-		>
+			>
 		</File>
 		<File
 			RelativePath="l10n_string_util.cc"
@@ -142,14 +238,6 @@
 		</File>
 		<File
 			RelativePath=".\lzma_util.h"
-			>
-		</File>
-		<File
-			RelativePath=".\google_update_constants.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\google_update_constants.h"
 			>
 		</File>
 		<File
@@ -209,4 +297,6 @@
 			>
 		</File>
 	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>
