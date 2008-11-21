@@ -324,6 +324,11 @@ bool Browser::ShouldSaveWindowPlacement() const {
 }
 
 void Browser::SaveWindowPlacement(const gfx::Rect& bounds, bool maximized) {
+  if (!window_) {
+    // It is possible for this to be invoked during construction of the window,
+    // in which case window_ is NULL.
+    return;
+  }
   // Save to the session storage service, used when reloading a past session.
   // Note that we don't want to be the ones who cause lazy initialization of
   // the session service. This function gets called during initial window
