@@ -1,0 +1,89 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+if env['PLATFORM'] == 'win32':
+
+  # NOTE:  env.Replace() instead of inhering the normal *.scons settings!
+  env.Replace(
+      CPPDEFINES = [
+          ('_WIN32_WINNT', '0x0501'),
+          ('WINVER', '0x0501'),
+          'WIN32',
+          '_UNICODE',
+          'UNICODE',
+      ],
+      CPPPATH = [
+          '$CHROME_SRC_DIR',
+          '$PLATFORMSDK_VISTA/files/Include',
+          '$PLATFORMSDK_VISTA/files/VC/INCLUDE',
+      ],
+      CCFLAGS = [
+          '/nologo',
+
+          '/EHsc',
+
+          '/GS-',   # VCCLCompilerTool.BufferSecurityCheck="false"
+          '/GR-',   # VCCLCompilerTool.RuntimeTypeInfo="false"
+          '/W3',    # treat warnings as errors
+          '/Wp64',  # VCCLCompilerTool.Detect64BitPortabilityProblems="false"
+
+          # In the old Visual Studio build, we used /Zi (edit and continue),
+          # VCCLComilerTool.DebugInformationFormat="3".
+          #
+          # /Zi ends up with multiple compiler invocations trying to updat
+          # the same vc80.pdb file at the same time, with race conditions
+          # and permission problems.  We're using /Z7 because it makes things
+          # work even in parallel builds, without special config to avoid
+          # multiple simultaneous updates the vc80.pdb file.  All the
+          # debugging information and capability still end up in the
+          # executables.
+          '/Z7',    # VCCLCompilerTool.DebugInformationFormat="1"
+
+      ],
+      LINKFLAGS = [
+          '/nologo',
+         '/INCREMENTAL:NO',
+         '/DEBUG',
+         '/MACHINE:X64',
+         '/SUBSYSTEM:WINDOWS',
+      ],
+  )
+  if env['TARGET_DEBUG']:
+    env.Append(
+        CPPDEFINES = [
+            '_DEBUG',
+        ],
+        CCFLAGS = [
+            '/Od',
+            '/MTd',
+        ],
+    )
+  else:
+    env.Append(
+        CPPDEFINES = [
+            'NDEBUG',
+        ],
+        CCFLAGS = [
+            '/O2',
+            '/GL',
+            '/FD',
+            '/MT',      # VCCLLinkerTool.RuntimeLibrary="0"
+        ],
+        LINKFLAGS = [
+            '/OPT:REF', # VCCLLinkerTool.OptimizeReferences="2"
+            '/OPT:ICF', # VCCLLinkerTool.EnableCOMDATFolding="2"
+        ],
+    )
+
+input_files = [
+    'service64_resolver.cc',
+    'target_code.cc',
+    'wow_helper.cc',
+]
+
+env.ChromeProgram('wow_helper', input_files)
