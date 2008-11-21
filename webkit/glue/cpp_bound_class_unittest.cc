@@ -194,7 +194,7 @@ TEST_F(CppBoundClassTest, InvokeMethods) {
     "example.echoValue()", "null",     // Too few arguments
 
     "example.echoType(false)", "true",
-    "example.echoType(19)", "3.14159",
+    "example.echoType(19)", "7",
     "example.echoType(9.876)", "3.14159",
     "example.echoType('test string')", "'Success!'",
     "example.echoType()", "null",      // Too few arguments
