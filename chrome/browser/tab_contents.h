@@ -10,6 +10,7 @@
 
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/constrained_window.h"
+#include "chrome/browser/infobar_delegate.h"
 #include "chrome/browser/navigation_controller.h"
 #include "chrome/browser/page_navigator.h"
 #include "chrome/browser/tab_contents_type.h"
@@ -53,7 +54,8 @@ class WebContents;
 // the NavigationController makes the active TabContents inactive, notifies the
 // TabContentsDelegate that the TabContents is being replaced, and then
 // activates the new TabContents.
-class TabContents : public PageNavigator {
+class TabContents : public PageNavigator,
+                    public NotificationObserver {
  public:
   // Flags passed to the TabContentsDelegate.NavigationStateChanged to tell it
   // what has changed. Combine them to update more than one thing.
@@ -382,6 +384,20 @@ class TabContents : public PageNavigator {
   // the focus is passed to the RootView.
   virtual views::RootView* GetContentsRootView() { return NULL; }
 
+  // Infobars ------------------------------------------------------------------
+
+  // Adds an InfoBar for the specified |delegate|.
+  void AddInfoBar(InfoBarDelegate* delegate);
+
+  // Removes the InfoBar for the specified |delegate|.
+  void RemoveInfoBar(InfoBarDelegate* delegate);
+  
+  // Enumeration and access functions.
+  size_t infobar_delegate_count() const { return infobar_delegates_.size(); }
+  InfoBarDelegate* GetInfoBarDelegateAt(size_t index) {
+    return infobar_delegates_.at(index);
+  }
+
   // Toolbars and such ---------------------------------------------------------
  
   // Returns whether the bookmark bar should be visible.
@@ -417,6 +433,11 @@ class TabContents : public PageNavigator {
   void DidMoveOrResize(ConstrainedWindow* window);
 
  protected:
+  // NotificationObserver implementation:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
   friend class NavigationController;
   // Used to access the child_windows_ (ConstrainedWindowList) for testing
   // automation purposes.
@@ -470,6 +491,12 @@ class TabContents : public PageNavigator {
   bool ShowingBlockedPopupNotification() const;
 
  private:
+  // Expires InfoBars that need to be expired, according to the state carried
+  // in |details|, in response to a new NavigationEntry being committed (the
+  // user navigated to another page).
+  void ExpireInfoBars(
+      const NavigationController::LoadCommittedDetails& details);
+
   // Data ----------------------------------------------------------------------
 
   TabContentsType type_;
@@ -511,6 +538,9 @@ class TabContents : public PageNavigator {
   // popups. This pointer alsog goes in |child_windows_| for ownership,
   // repositioning, etc.
   BlockedPopupContainer* blocked_popups_;
+
+  // Delegates for InfoBars associated with this TabContents.
+  std::vector<InfoBarDelegate*> infobar_delegates_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContents);
 };

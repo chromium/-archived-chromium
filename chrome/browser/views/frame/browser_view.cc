@@ -25,6 +25,7 @@
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/html_dialog_view.h"
 #include "chrome/browser/views/importer_view.h"
+#include "chrome/browser/views/infobars/infobar_container.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/password_manager_view.h"
 #include "chrome/browser/views/status_bubble.h"
@@ -338,6 +339,9 @@ void BrowserView::Init() {
   toolbar_->Init(browser_->profile());
   toolbar_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TOOLBAR));
 
+  infobar_container_ = new InfoBarContainer(this);
+  AddChildView(infobar_container_);
+
   contents_container_ = new TabContentsContainerView;
   set_contents_view(contents_container_);
   AddChildView(contents_container_);
@@ -645,7 +649,9 @@ void BrowserView::TabSelectedAt(TabContents* old_contents,
   if (old_contents)
     old_contents->StoreFocus();
 
-  // Tell the frame what happened so that the TabContents gets resized, etc.
+  // Update various elements that are interested in knowing the current
+  // TabContents.
+  infobar_container_->ChangeTabContents(new_contents);
   contents_container_->SetTabContents(new_contents);
   // TODO(beng): This should be called automatically by SetTabContents, but I
   //             am striving for parity now rather than cleanliness. This is
@@ -1055,7 +1061,7 @@ int BrowserView::LayoutBookmarkAndInfoBars(int top) {
     // the Bookmark bar isn't visible on all tabs, then we need to show the
     // Info bar _above_ the Bookmark bar, since the Bookmark bar is styled to
     // look like it's part of the New Tab Page...
-    if (active_info_bar_ && active_bookmark_bar_ &&
+    if (active_bookmark_bar_ &&
         bookmark_bar_view_->IsNewTabPage() &&
         !bookmark_bar_view_->IsAlwaysShown()) {
       top = LayoutInfoBar(top);
@@ -1078,13 +1084,21 @@ int BrowserView::LayoutBookmarkBar(int top) {
   return top;
 }
 int BrowserView::LayoutInfoBar(int top) {
-  if (SupportsWindowFeature(FEATURE_INFOBAR) && active_info_bar_) {
-    gfx::Size ps = active_info_bar_->GetPreferredSize();
-    active_info_bar_->SetBounds(0, top, width(), ps.height());
+  if (SupportsWindowFeature(FEATURE_INFOBAR)) {
+    // Layout the new infobar.
+    gfx::Size ps = infobar_container_->GetPreferredSize();
+    infobar_container_->SetBounds(0, top, width(), ps.height());
     top += ps.height();
-    if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_ &&
-        !show_bookmark_bar_pref_.GetValue()) {
-      top -= kSeparationLineHeight;
+
+    if (active_info_bar_) {
+      // Layout the old infobar.
+      ps = active_info_bar_->GetPreferredSize();
+      active_info_bar_->SetBounds(0, top, width(), ps.height());
+      top += ps.height();
+      if (SupportsWindowFeature(FEATURE_BOOKMARKBAR) && active_bookmark_bar_ &&
+          !show_bookmark_bar_pref_.GetValue()) {
+        top -= kSeparationLineHeight;
+      }
     }
   }
   return top;
@@ -1131,7 +1145,10 @@ bool BrowserView::MaybeShowInfoBar(TabContents* contents) {
   if (contents && contents->AsWebContents() &&
       contents->AsWebContents()->view()->IsInfoBarVisible())
     new_info_bar = contents->AsWebContents()->view()->GetInfoBarView();
-  return UpdateChildViewAndLayout(new_info_bar, &active_info_bar_);
+  UpdateChildViewAndLayout(new_info_bar, &active_info_bar_);
+
+  // TODO(beng): remove this function once the InfoBar rejiggering is complete.
+  return true;
 }
 
 bool BrowserView::MaybeShowDownloadShelf(TabContents* contents) {

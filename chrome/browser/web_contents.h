@@ -30,7 +30,6 @@ class WebContents : public TabContents,
                     public RenderViewHostDelegate,
                     public RenderViewHostManager::Delegate,
                     public SelectFileDialog::Listener,
-                    public NotificationObserver,
                     public WebApp::Observer {
  public:
   // If instance is NULL, then creates a new process for this view.  Otherwise

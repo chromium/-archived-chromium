@@ -22,6 +22,7 @@ class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
 class EncodingMenuControllerDelegate;
+class InfoBarContainer;
 class Menu;
 class StatusBubble;
 class TabContentsContainerView;
@@ -342,6 +343,9 @@ class BrowserView : public BrowserWindow,
 
   // The Bookmark Bar View for this window. Lazily created.
   scoped_ptr<BookmarkBarView> bookmark_bar_view_;
+
+  // The InfoBarContainer that contains InfoBars for the current tab.
+  InfoBarContainer* infobar_container_;
 
   // The view that contains the selected TabContents.
   TabContentsContainerView* contents_container_;

@@ -200,15 +200,19 @@ enum NotificationType {
   // No details are expected.
   NOTIFY_WEB_CONTENTS_DISCONNECTED,
 
-  // This message is sent when a new message is added to a WebContents. The
-  // source is a Source<WebContents> with a pointer to the WebContents the
-  // message was added to.
-  NOTIFY_WEB_CONTENTS_MESSAGE_ADDED,
+  // This message is sent when a new InfoBar is added to a TabContents. The
+  // source is a Source<TabContents> with a pointer to the TabContents the
+  // InfoBar was added to. The details is a Details<InfoBarDelegate> with a
+  // pointer to an object implementing the InfoBarDelegate interface for the
+  // InfoBar that was added.
+  NOTIFY_TAB_CONTENTS_INFOBAR_ADDED,
 
-  // This message is sent when a message is removed from a WebContents. The
-  // source is a Source<WebContents> with a pointer to the WebContents the
-  // message was removed from.
-  NOTIFY_WEB_CONTENTS_MESSAGE_REMOVED,
+  // This message is sent when an InfoBar is removed from a TabContents. The
+  // source is a Source<TabContents> with a pointer to the TabContents the
+  // InfoBar was removed from. The details is a Details<InfoBarDelegate> with a
+  // pointer to an object implementing the InfoBarDelegate interface for the
+  // InfoBar that was removed.
+  NOTIFY_TAB_CONTENTS_INFOBAR_REMOVED,
 
   // This is sent when an externally hosted tab is created. The details contain
   // the ExternalTabContainer that contains the tab

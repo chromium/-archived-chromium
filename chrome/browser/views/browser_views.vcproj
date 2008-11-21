@@ -216,6 +216,22 @@
 				RelativePath=".\info_bar_view.h"
 				>
 			</File>
+			<File
+				RelativePath=".\infobars\infobar_container.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\infobars\infobar_container.h"
+				>
+			</File>
+			<File
+				RelativePath=".\infobars\infobars.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\infobars\infobars.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Options"

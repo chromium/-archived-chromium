@@ -1338,13 +1338,13 @@ void WebContents::OnCrashedPlugin(const std::wstring& plugin_path) {
     if (!product_name.empty())
       plugin_name = product_name;
   }
-  view_->DisplayErrorInInfoBar(
-      l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name));
+  AddInfoBar(new SimpleAlertInfoBarDelegate(
+      l10n_util::GetStringF(IDS_PLUGIN_CRASHED_PROMPT, plugin_name), NULL));
 }
 
 void WebContents::OnJSOutOfMemory() {
-  view_->DisplayErrorInInfoBar(
-      l10n_util::GetString(IDS_JS_OUT_OF_MEMORY_PROMPT));
+  AddInfoBar(new SimpleAlertInfoBarDelegate(
+      l10n_util::GetString(IDS_JS_OUT_OF_MEMORY_PROMPT), NULL));
 }
 
 bool WebContents::CanBlur() const {
@@ -1477,7 +1477,7 @@ void WebContents::Observe(NotificationType type,
       break;
     }
     default: {
-      NOTREACHED();
+      TabContents::Observe(type, source, details);
       break;
     }
   }
