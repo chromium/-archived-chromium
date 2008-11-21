@@ -299,12 +299,15 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
       // database.
       if (reset) {
         sb_service_->ResetDatabase();
+        delete chunk_deletes;
         return true;
       }
 
       // Chunks to delete from our storage.
       if (!chunk_deletes->empty())
         sb_service_->HandleChunkDelete(chunk_deletes);
+      else
+        delete chunk_deletes;
 
       break;
     }

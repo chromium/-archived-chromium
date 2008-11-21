@@ -584,6 +584,11 @@ bool SafeBrowsingDatabaseImpl::ProcessAddChunks(std::deque<SBChunk>* chunks) {
       AddChunkInformation(list_id, ADD_CHUNK, chunk_id,
                           add_chunk_modified_hosts_);
       add_chunk_modified_hosts_.clear();
+    } else {
+      while (!chunk.hosts.empty()) {
+        chunk.hosts.front().entry->Destroy();
+        chunk.hosts.pop_front();
+      }
     }
 
     chunks->pop_front();
@@ -614,6 +619,11 @@ bool SafeBrowsingDatabaseImpl::ProcessSubChunks(std::deque<SBChunk>* chunks) {
       }
 
       AddChunkInformation(list_id, SUB_CHUNK, chunk_id, "");
+    } else {
+      while (!chunk.hosts.empty()) {
+        chunk.hosts.front().entry->Destroy();
+        chunk.hosts.pop_front();
+      }
     }
 
     chunks->pop_front();

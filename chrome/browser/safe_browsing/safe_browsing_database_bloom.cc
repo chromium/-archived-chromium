@@ -356,14 +356,6 @@ bool SafeBrowsingDatabaseBloom::NeedToCheckUrl(const GURL& url) {
 
 void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
                                              std::deque<SBChunk>* chunks) {
-  // We've going to be updating the bloom filter, so delete the on-disk
-  // serialization so that if the process crashes we'll generate a new one on
-  // startup, instead of reading a stale filter.
-  // TODO(erikkay) - is this correct?  Since we can no longer fall back to
-  // database lookups, we need a reasonably current bloom filter at startup.
-  // I think we need some way to indicate that the bloom filter is out of date
-  // and needs to be rebuilt, but we shouldn't delete it.
-  // DeleteBloomFilter();
   if (chunks->empty())
     return;
 
@@ -401,6 +393,11 @@ void SafeBrowsingDatabaseBloom::InsertChunks(const std::string& list_name,
         add_chunk_cache_.insert(encoded);
       else
         sub_chunk_cache_.insert(encoded);
+    } else {
+      while (!chunk.hosts.empty()) {
+        chunk.hosts.front().entry->Destroy();
+        chunk.hosts.pop_front();
+      }
     }
 
     chunks->pop_front();

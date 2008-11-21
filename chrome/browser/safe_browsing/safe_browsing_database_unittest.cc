@@ -350,6 +350,36 @@ TEST(SafeBrowsingDatabase, Database) {
                                      &matching_list, &prefix_hits,
                                      &full_hashes, now));
 
+
+
+  // Attempt to re-add the first chunk (should be a no-op).
+  // see bug: http://code.google.com/p/chromium/issues/detail?id=4522
+  host.host = Sha256Prefix("www.evil.com/");
+  host.entry = SBEntry::Create(SBEntry::ADD_PREFIX, 2);
+  host.entry->set_chunk_id(1);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.evil.com/phishing.html"));
+  host.entry->SetPrefixAt(1, Sha256Prefix("www.evil.com/malware.html"));
+
+  chunk.chunk_number = 1;
+  chunk.is_add = true;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+  database->UpdateStarted();
+  GetListsInfo(database, &lists);
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+  database->UpdateFinished(true);
+  lists.clear();
+
+  GetListsInfo(database, &lists);
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
+  EXPECT_EQ(lists[0].adds, "1-3");
+  EXPECT_TRUE(lists[0].subs.empty());
+  lists.clear();
+
+
   // Test removing a single prefix from the add chunk.
   host.host = Sha256Prefix("www.evil.com/");
   host.entry = SBEntry::Create(SBEntry::SUB_PREFIX, 1);
@@ -398,6 +428,34 @@ TEST(SafeBrowsingDatabase, Database) {
   EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
   EXPECT_EQ(lists[0].subs, "4");
   lists.clear();
+
+  // Test the same sub chunk again.  This should be a no-op.
+  // see bug: http://code.google.com/p/chromium/issues/detail?id=4522
+  host.host = Sha256Prefix("www.evil.com/");
+  host.entry = SBEntry::Create(SBEntry::SUB_PREFIX, 1);
+  host.entry->set_chunk_id(2);
+  host.entry->SetChunkIdAtPrefix(0, 2);
+  host.entry->SetPrefixAt(0, Sha256Prefix("www.evil.com/notevil1.html"));
+
+  chunk.is_add = false;
+  chunk.chunk_number = 4;
+  chunk.hosts.clear();
+  chunk.hosts.push_back(host);
+
+  chunks = new std::deque<SBChunk>;
+  chunks->push_back(chunk);
+
+  database->UpdateStarted();
+  database->GetListsInfo(&lists);
+  database->InsertChunks(safe_browsing_util::kMalwareList, chunks);
+  database->UpdateFinished(true);
+  lists.clear();
+
+  GetListsInfo(database, &lists);
+  EXPECT_TRUE(lists[0].name == safe_browsing_util::kMalwareList);
+  EXPECT_EQ(lists[0].subs, "4");
+  lists.clear();
+
 
   // Test removing all the prefixes from an add chunk.
   database->UpdateStarted();
