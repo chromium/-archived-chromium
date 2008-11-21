@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_INFOBAR_DELEGATE_H_
 #define CHROME_BROWSER_INFOBAR_DELEGATE_H_
 
+#include <string>
+
 #include "base/basictypes.h"
 #include "skia/include/SkBitmap.h"
 
